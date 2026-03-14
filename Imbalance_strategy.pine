@@ -1,0 +1,197 @@
+//@version=5
+strategy("CB SD + FVG v3", overlay=true, initial_capital=10000, calc_on_every_tick=false, pyramiding=10, process_orders_on_close=false, max_boxes_count=500, max_lines_count=500, max_labels_count=500)
+
+// ==================== INPUTS ====================
+entryTF       = input.string("2", "Entry timeframe (minutes)", options=["1","2","3","5"], group="⚙️ Základné nastavenia")
+tzSess        = input.string("Europe/Vienna", "Session timezone", group="⚙️ Základné nastavenia")
+weekdaysOnly  = input.bool(true, "Trade only Mon-Fri", group="⚙️ Základné nastavenia")
+
+zoneStartH    = input.int(15, "Zóna - začiatok (hodina)", group="🕐 Časové okná")
+zoneStartM    = input.int(30, "Zóna - začiatok (minúta)", group="🕐 Časové okná")
+zoneEndH      = input.int(18, "Zóna - koniec (hodina)", group="🕐 Časové okná")
+zoneEndM      = input.int(0,  "Zóna - koniec (minúta)", group="🕐 Časové okná")
+tradeStartH   = input.int(16, "Trade - začiatok (hodina)", group="🕐 Časové okná")
+tradeStartM   = input.int(0,  "Trade - začiatok (minúta)", group="🕐 Časové okná")
+tradeEndH     = input.int(18, "Trade - koniec (hodina)", group="🕐 Časové okná")
+tradeEndM     = input.int(0,  "Trade - koniec (minúta)", group="🕐 Časové okná")
+
+zoneValidHours = input.int(26, "Platnosť zóny (hodiny)", minval=1, maxval=72, group="📦 SD Zóny")
+maxSdZones     = input.int(200, "Max SD zón", minval=10, maxval=999, group="📦 SD Zóny")
+snapMode       = input.string("Floor", "Snap času zóny na TF grid", options=["Off","Floor","Ceil","Round"], group="📦 SD Zóny")
+
+showImbalance  = input.bool(false, "Zobraz imbalance sviečky", tooltip="Vyznačí FVG/imbalance sviečky dutým telom na aktuálnom TF", group="🎨 Vizualizácia")
+
+// ==================== CONSTS ====================
+plot(close, title="__scale_anchor__", color=color.new(color.white, 100))
+int stepMs       = int(str.tonumber(entryTF) * 60000)
+int zoneValidMs  = int(zoneValidHours * 3600000)
+int maxSdZonesEff = math.min(maxSdZones, 200)
+
+// ==================== GRID SNAP ====================
+snapTime(int t) =>
+    int out = t
+    out := (snapMode == "Off" or stepMs <= 0) ? t : (snapMode == "Floor" ? int(math.floor((t / stepMs)) * stepMs) : (snapMode == "Ceil" ? int(math.ceil((t / stepMs)) * stepMs) : int(math.round((t / stepMs)) * stepMs)))
+    out
+
+// ==================== HELPERS ====================
+isBull(float o, float c) => c > o
+isBear(float o, float c) => c < o
+
+inWindowTZ(int sh, int sm, int eh, int em, string tz) =>
+    int y  = year(time, tz)
+    int mo = month(time, tz)
+    int d  = dayofmonth(time, tz)
+    int st = timestamp(tz, y, mo, d, sh, sm)
+    int en = timestamp(tz, y, mo, d, eh, em)
+    int en2 = en <= st ? en + 86400000 : en
+    int t2  = time < st ? time + 86400000 : time
+    t2 >= st and t2 < en2
+
+bool inZoneWindow  = inWindowTZ(zoneStartH, zoneStartM, zoneEndH, zoneEndM, tzSess)
+int dow            = dayofweek(time, tzSess)
+bool isWeekday     = not weekdaysOnly or (dow >= dayofweek.monday and dow <= dayofweek.friday)
+bool inTradeWindow = isWeekday and inWindowTZ(tradeStartH, tradeStartM, tradeEndH, tradeEndM, tzSess)
+
+// ==================== BACKGROUND ====================
+bgcolor(inTradeWindow ? color.new(color.green, 92) : (inZoneWindow ? color.new(color.gray, 92) : na))
+
+// ==================== DETEKCIA SD ZÓNY NA 5M ====================
+// LONG zóna:  [3]=bear sviečka, potom reversal (3 bull ALEBO imbalance)
+// SHORT zóna: [3]=bull sviečka, potom reversal (3 bear ALEBO imbalance)
+f_zone5m() =>
+    float top = na
+    float bot = na
+    int typ   = 0
+    int t0    = na
+    int tConf = na
+    bool inWin = inWindowTZ(zoneStartH, zoneStartM, zoneEndH, zoneEndM, tzSess)
+    bool bullImb1 = not na(high[2]) and low > high[2]
+    bool bearImb1 = not na(low[2])  and high < low[2]
+    bool bullImb2 = not na(high[3]) and low[1] > high[3]
+    bool bearImb2 = not na(low[3])  and high[1] < low[3]
+    if inWin and barstate.isconfirmed
+        bool longV1  = isBear(open[3],close[3]) and isBull(open[2],close[2]) and isBull(open[1],close[1]) and isBull(open,close)
+        bool longV2  = isBear(open[3],close[3]) and bullImb1
+        bool longV3  = isBear(open[3],close[3]) and bullImb2
+        bool shortV1 = isBull(open[3],close[3]) and isBear(open[2],close[2]) and isBear(open[1],close[1]) and isBear(open,close)
+        bool shortV2 = isBull(open[3],close[3]) and bearImb1
+        bool shortV3 = isBull(open[3],close[3]) and bearImb2
+        if longV1 or longV2 or longV3
+            typ   := 1
+            t0    := time[3]
+            tConf := time
+            top   := high[3]
+            bot   := low[3]
+        else if shortV1 or shortV2 or shortV3
+            typ   := -1
+            t0    := time[3]
+            tConf := time
+            top   := high[3]
+            bot   := low[3]
+    [top, bot, typ, t0, tConf]
+
+[zTop5, zBot5, zTyp5, zT05, zTConf5] = request.security(syminfo.tickerid, "5", f_zone5m(), barmerge.gaps_on, barmerge.lookahead_off)
+
+// ==================== ZONE ARRAYS ====================
+var float[] zTopA  = array.new_float()
+var float[] zBotA  = array.new_float()
+var int[]   zTypA  = array.new_int()
+var int[]   zExpA  = array.new_int()
+var bool[]  zUsedA = array.new_bool()
+var box[]   zPreBoxA  = array.new_box()
+var box[]   zPostBoxA = array.new_box()
+
+// ==================== DRAW SD ZONES ====================
+var int lastDrawT0 = na
+
+newZone = zTyp5 != 0 and not na(zT05) and not na(zTop5) and not na(zBot5) and (na(lastDrawT0) or zT05 != lastDrawT0)
+
+if newZone
+    int leftT = snapTime(zT05)
+    int expT  = leftT + zoneValidMs
+    int confT = not na(zTConf5) ? snapTime(zTConf5) : snapTime(time)
+    confT := confT < leftT ? leftT : confT
+    confT := confT > expT  ? expT  : confT
+
+    color col  = zTyp5 == 1 ? color.new(color.red, 85) : color.new(color.blue, 85)
+    color bord = zTyp5 == 1 ? color.red : color.blue
+
+    // Pre-confirmation box (dotted)
+    int preR = confT > leftT ? confT : leftT + stepMs
+    preR := preR > expT ? expT : preR
+    box preB = box.new(leftT, zTop5, preR, zBot5, xloc=xloc.bar_time, bgcolor=na, border_color=bord, border_style=line.style_dotted)
+
+    // Post-confirmation box (solid, filled)
+    int postL = confT
+    int postR = expT > postL ? expT : postL + stepMs
+    box postB = box.new(postL, zTop5, postR, zBot5, xloc=xloc.bar_time, bgcolor=col, border_color=bord, border_style=line.style_solid)
+
+    array.push(zPreBoxA, preB)
+    array.push(zPostBoxA, postB)
+    array.push(zTopA, zTop5)
+    array.push(zBotA, zBot5)
+    array.push(zTypA, zTyp5)
+    array.push(zExpA, expT)
+    array.push(zUsedA, false)
+
+    // Cleanup ak prekročíme limit
+    if array.size(zTopA) > maxSdZonesEff
+        box oldPre = array.shift(zPreBoxA)
+        box oldPost = array.shift(zPostBoxA)
+        if not na(oldPre)
+            box.delete(oldPre)
+        if not na(oldPost)
+            box.delete(oldPost)
+        array.shift(zTopA)
+        array.shift(zBotA)
+        array.shift(zTypA)
+        array.shift(zExpA)
+        array.shift(zUsedA)
+
+    lastDrawT0 := zT05
+
+// ==================== EXPIRÁCIA ZÓN ====================
+int zN = array.size(zTopA)
+if zN > 0
+    for i = 0 to zN - 1
+        if not array.get(zUsedA, i) and time >= array.get(zExpA, i)
+            array.set(zUsedA, i, true)
+
+// ==================== IMBALANCE SVIEČKY (DUTÉ) ====================
+// FVG pattern: gap medzi bar[0] a bar[2], stredná sviečka bar[1] = imbalance
+// Bull IMB: low > high[2]  (gap nahor)
+// Bear IMB: high < low[2]  (gap nadol)
+bool bullIMB = low > high[2] and close[1] > high[2]
+bool bearIMB = high < low[2] and close[1] < low[2]
+bool isImbCandle = bullIMB or bearIMB
+
+// Detekcia sa robí na aktuálnom bare, ale IMB sviečka je bar[1]
+// Použijeme barcolor na bar[1] (offset=-1) na vizuálne odlíšenie
+// + nakreslíme box okolo tela sviečky s priehľadným vnútrom (duté telo)
+color imbBarCol = showImbalance and isImbCandle ? (bullIMB ? color.new(color.green, 90) : color.new(color.red, 90)) : na
+barcolor(imbBarCol, offset=-1, title="IMB candle fade")
+
+// Duté telo = box s border farbou, bez výplne
+var box[] imbBoxPool = array.new_box()
+int imbBoxMax = 200
+if showImbalance and isImbCandle
+    float bTop = math.max(open[1], close[1])
+    float bBot = math.min(open[1], close[1])
+    // Ak je doji (open==close), daj minimálnu výšku
+    float adjTop = bTop == bBot ? bTop + syminfo.mintick * 0.5 : bTop
+    float adjBot = bTop == bBot ? bBot - syminfo.mintick * 0.5 : bBot
+    color bCol = bullIMB ? color.green : color.red
+    box b = box.new(bar_index - 1, adjTop, bar_index - 1, adjBot, bgcolor=color.new(color.white, 100), border_color=bCol, border_width=2, border_style=line.style_solid)
+    array.push(imbBoxPool, b)
+    if array.size(imbBoxPool) > imbBoxMax
+        box old = array.shift(imbBoxPool)
+        box.delete(old)
+
+// ==================== TU PRÍDE NOVÁ LOGIKA ====================
+// Dostupné dáta per zóna:
+//   zTopA[i]  — vrch SD zóny
+//   zBotA[i]  — spodok SD zóny
+//   zTypA[i]  — typ: 1 = long (demand), -1 = short (supply)
+//   zExpA[i]  — expiračný čas (ms)
+//   zUsedA[i] — true = zóna spotrebovaná/expirovaná
+//   zPreBoxA[i], zPostBoxA[i] — box referencie
