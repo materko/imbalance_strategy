@@ -1,8 +1,8 @@
 //@version=5
-strategy("CB SD + FVG v3", overlay=true, initial_capital=10000, calc_on_every_tick=false, pyramiding=10, process_orders_on_close=false, max_boxes_count=500, max_lines_count=500, max_labels_count=500)
+strategy("Imbalance strategy", overlay=true, initial_capital=10000, calc_on_every_tick=true, pyramiding=10, process_orders_on_close=false, max_boxes_count=500, max_lines_count=500, max_labels_count=500)
 
 // ==================== INPUTS ====================
-entryTF       = input.string("2", "Entry timeframe (minutes)", options=["1","2","3","5"], group="⚙️ Základné nastavenia")
+entryTF       = input.string("2", "Entry timeframe (minutes) len na kreslenie", options=["1","2","3","5"], group="⚙️ Základné nastavenia")
 tzSess        = input.string("Europe/Vienna", "Session timezone", group="⚙️ Základné nastavenia")
 weekdaysOnly  = input.bool(true, "Trade only Mon-Fri", group="⚙️ Základné nastavenia")
 
@@ -21,6 +21,14 @@ snapMode       = input.string("Floor", "Snap času zóny na TF grid", options=["
 
 showImbalance  = input.bool(false, "Zobraz imbalance sviečky", tooltip="Vyznačí FVG/imbalance sviečky dutým telom na aktuálnom TF", group="🎨 Vizualizácia")
 
+imbLookback     = input.int(5, "Max barov dozadu pre IMB", minval=1, maxval=50, tooltip="Koľko barov dozadu hľadať imbalance sviečku pri SD zóne", group="🔄 State machine")
+imbMaxDistTicks = input.int(70, "Max vzdialenosť IMB od zóny (ticky)", minval=0, maxval=500, tooltip="Maximálna medzera medzi IMB sviečkou a hranou SD zóny", group="🔄 State machine")
+state1MaxBars   = input.int(5, "STATE 1: Max barov na exit zo zóny", minval=1, maxval=50, tooltip="Koľko barov má cena na to aby vyšla zo zóny na strane IMB", group="🔄 State machine")
+state2MaxBars   = input.int(15, "STATE 2: Max barov", minval=1, maxval=50, tooltip="Koľko barov trvá STATE 2, ak sa presiahne → invalidácia", group="🔄 State machine")
+state3MaxBars   = input.int(5, "STATE 3: Max barov", minval=1, maxval=50, tooltip="Koľko barov trvá STATE 3, ak sa presiahne → invalidácia", group="🔄 State machine")
+state4MaxBars   = input.int(5, "STATE 4: Max barov", minval=1, maxval=50, tooltip="Koľko barov trvá STATE 4, ak sa presiahne → invalidácia", group="🔄 State machine")
+rrRatio         = input.float(1.3, "Risk:Reward pomer", minval=0.5, maxval=10.0, step=0.5, tooltip="Pomer TP ku SL vzdialenosti (napr. 1.0 = 1:1, 2.0 = 1:2)", group="🔄 State machine")
+
 // ==================== CONSTS ====================
 plot(close, title="__scale_anchor__", color=color.new(color.white, 100))
 int stepMs       = int(str.tonumber(entryTF) * 60000)
@@ -36,6 +44,7 @@ snapTime(int t) =>
 // ==================== HELPERS ====================
 isBull(float o, float c) => c > o
 isBear(float o, float c) => c < o
+
 
 inWindowTZ(int sh, int sm, int eh, int em, string tz) =>
     int y  = year(time, tz)
@@ -98,8 +107,30 @@ var float[] zBotA  = array.new_float()
 var int[]   zTypA  = array.new_int()
 var int[]   zExpA  = array.new_int()
 var bool[]  zUsedA = array.new_bool()
+var int[]   zStateA = array.new_int()        // 0=čakám na IMB, 1=IMB nájdená, ...
+var int[]   zColorIdxA = array.new_int()     // index farby z poolu (0-9), na = nepriradená
+var float[] zImbBodyTopA = array.new_float() // IMB sviečka: vrch tela
+var float[] zImbBodyBotA = array.new_float() // IMB sviečka: spodok tela
+var float[] zImbOpenA = array.new_float()    // IMB sviečka: open (entry price)
+var float[] zImbHiA  = array.new_float()     // IMB sviečka: high
+var float[] zImbLoA  = array.new_float()     // IMB sviečka: low
+var int[]   zImbBiA  = array.new_int()       // IMB sviečka: bar_index strednej sviečky
+var box[]   zImbBoxA = array.new_box()       // box okolo IMB sviečky
+var bool[]  zTouchedA = array.new_bool()     // true = cena už bola v zóne (invaliduje STATE 0)
+var int[]   zStateBiA = array.new_int()      // bar_index kedy sa vstúpilo do aktuálneho stavu
 var box[]   zPreBoxA  = array.new_box()
 var box[]   zPostBoxA = array.new_box()
+var box[]   zEntryBoxA = array.new_box()   // box entry (tenký ako čiara)
+var box[]   zSlBoxA    = array.new_box()   // box SL (tenký ako čiara)
+var box[]   zTpBoxA    = array.new_box()   // box TP (tenký ako čiara)
+var bool[]  zImb0LblDrawnA = array.new_bool()  // či bol label "0" na IMB sviecke nakreslený
+var bool[]  zFilledA = array.new_bool()        // true = order bol vyplnený (pozícia bola otvorená)
+
+var label[] stateLabelPool = array.new_label()  // rolling buffer pre state labels
+int stateLabelMax = 500
+
+// Farebný pool — 10 kontrastných farieb
+var color[] colorPool = array.from(color.rgb(255,0,255), color.rgb(0,255,255), color.rgb(255,140,0), color.rgb(50,205,50), color.rgb(255,20,147), color.rgb(30,144,255), color.rgb(255,215,0), color.rgb(138,43,226), color.rgb(255,69,0), color.rgb(0,255,127))
 
 // ==================== DRAW SD ZONES ====================
 var int lastDrawT0 = na
@@ -133,6 +164,22 @@ if newZone
     array.push(zTypA, zTyp5)
     array.push(zExpA, expT)
     array.push(zUsedA, false)
+    array.push(zStateA, 0)
+    array.push(zColorIdxA, na)
+    array.push(zImbBodyTopA, na)
+    array.push(zImbBodyBotA, na)
+    array.push(zImbOpenA, na)
+    array.push(zImbHiA, na)
+    array.push(zImbLoA, na)
+    array.push(zImbBiA, na)
+    array.push(zImbBoxA, na)
+    array.push(zTouchedA, false)
+    array.push(zStateBiA, na)
+    array.push(zEntryBoxA, box(na))
+    array.push(zSlBoxA, box(na))
+    array.push(zTpBoxA, box(na))
+    array.push(zImb0LblDrawnA, false)
+    array.push(zFilledA, false)
 
     // Cleanup ak prekročíme limit
     if array.size(zTopA) > maxSdZonesEff
@@ -142,11 +189,35 @@ if newZone
             box.delete(oldPre)
         if not na(oldPost)
             box.delete(oldPost)
+        box oldImb = array.shift(zImbBoxA)
+        if not na(oldImb)
+            box.delete(oldImb)
+        box oldEntry = array.shift(zEntryBoxA)
+        if not na(oldEntry)
+            box.delete(oldEntry)
+        box oldSl = array.shift(zSlBoxA)
+        if not na(oldSl)
+            box.delete(oldSl)
+        box oldTp = array.shift(zTpBoxA)
+        if not na(oldTp)
+            box.delete(oldTp)
         array.shift(zTopA)
         array.shift(zBotA)
         array.shift(zTypA)
         array.shift(zExpA)
         array.shift(zUsedA)
+        array.shift(zStateA)
+        array.shift(zColorIdxA)
+        array.shift(zImbBodyTopA)
+        array.shift(zImbBodyBotA)
+        array.shift(zImbOpenA)
+        array.shift(zImbHiA)
+        array.shift(zImbLoA)
+        array.shift(zImbBiA)
+        array.shift(zTouchedA)
+        array.shift(zStateBiA)
+        array.shift(zImb0LblDrawnA)
+        array.shift(zFilledA)
 
     lastDrawT0 := zT05
 
@@ -187,11 +258,369 @@ if showImbalance and isImbCandle
         box old = array.shift(imbBoxPool)
         box.delete(old)
 
-// ==================== TU PRÍDE NOVÁ LOGIKA ====================
-// Dostupné dáta per zóna:
-//   zTopA[i]  — vrch SD zóny
-//   zBotA[i]  — spodok SD zóny
-//   zTypA[i]  — typ: 1 = long (demand), -1 = short (supply)
-//   zExpA[i]  — expiračný čas (ms)
-//   zUsedA[i] — true = zóna spotrebovaná/expirovaná
-//   zPreBoxA[i], zPostBoxA[i] — box referencie
+// ==================== STATE MACHINE ====================
+// STATE 0: cena sa dotýka SD zóny → hľadáme IMB sviečku v lookback-u
+//          Ak cena odíde zo zóny bez nájdenia IMB → invalidácia
+// STATE 1: IMB nájdená, cena v zóne, čakáme na exit na strane IMB (max N barov)
+//          LONG: close > top, SHORT: close < bot → STATE 2, SD zóna invalidovaná (pyramiding)
+// STATE 2: čakáme kým cena prekoná open IMB sviecky (max N barov)
+//          LONG: close > imbBodyTop, SHORT: close < imbBodyBot → STATE 3
+// STATE 3: cena prekonala open IMB, čakáme na návrat späť (max N barov)
+//          LONG: close < imbBodyTop, SHORT: close > imbBodyBot → STATE 4
+// STATE 4: limit order na open IMB sviecky, SL na swing low/high, TP podľa RR (max N barov)
+//
+// Pre LONG (demand) zónu: hľadáme BEAR IMB nad/pri zóne (cena klesá k zóne)
+// Pre SHORT (supply) zónu: hľadáme BULL IMB pod/pri zóne (cena stúpa k zóne)
+
+float imbMaxDist = imbMaxDistTicks * syminfo.mintick
+
+// Orezanie zóny pri invalidácii
+resizeZoneOnInvalidation(int zoneIdx) =>
+    box preBox = array.get(zPreBoxA, zoneIdx)
+    box postBox = array.get(zPostBoxA, zoneIdx)
+    if not na(preBox)
+        box.set_right(preBox, time)
+    if not na(postBox)
+        box.set_right(postBox, time)
+
+// Zmazanie trade boxov pri invalidácii/ukončení
+deleteTradeLines(int zoneIdx) =>
+    box el = array.get(zEntryBoxA, zoneIdx)
+    if not na(el)
+        box.delete(el)
+        array.set(zEntryBoxA, zoneIdx, box(na))
+    box sl = array.get(zSlBoxA, zoneIdx)
+    if not na(sl)
+        box.delete(sl)
+        array.set(zSlBoxA, zoneIdx, box(na))
+    box tp = array.get(zTpBoxA, zoneIdx)
+    if not na(tp)
+        box.delete(tp)
+        array.set(zTpBoxA, zoneIdx, box(na))
+
+// Sekvenčný index farby — rotuje cez pool
+var int nextColorIdx = 0
+
+// Počítadlo labelov na aktuálnom bare (pre vertikálny offset pri viacerých state machines)
+int lblCountUp = 0    // LONG labely (pod sviečkou)
+int lblCountDown = 0  // SHORT labely (nad sviečkou)
+
+if zN > 0
+    for i = 0 to zN - 1
+        bool used = array.get(zUsedA, i)
+        int st = array.get(zStateA, i)
+        // Aktívne zóny (state 0,1) ALEBO used zóny s pokračujúcim state machine (state >= 2)
+        bool active = (not used and st >= 0) or (used and st >= 2 and st <= 5)
+        if active
+            int typ = array.get(zTypA, i)
+            float top = array.get(zTopA, i)
+            float bot = array.get(zBotA, i)
+            bool inZoneNow = high >= bot and low <= top
+
+// ===== STATE 0: čakáme na dotyk ceny so zónou, potom hľadáme IMB =====
+            if st == 0
+                bool wasTouched = array.get(zTouchedA, i)
+
+                if inZoneNow
+                    // Cena sa dotýka zóny → označ touched a hľadaj IMB
+                    if not wasTouched
+                        array.set(zTouchedA, i, true)
+                        wasTouched := true
+
+                if wasTouched
+                    // Invalidácia: cena prerazila zónu na nesprávnu stranu
+                    // LONG (demand): cena prešla zónou zhora dole (low prebil spodok zóny)
+                    // SHORT (supply): cena prešla zónou zdola hore (high prebil vrch zóny)
+                    bool invalidated = (typ == 1 and low < bot) or (typ == -1 and high > top)
+                    if invalidated
+                        resizeZoneOnInvalidation(i)
+                        array.set(zUsedA, i, true)
+                        array.set(zStateA, i, -1)
+                    else
+                        // Cena je v zóne → hľadáme najbližšiu IMB
+                        float bestDist = na
+                        int bestLb = na
+
+                        for lb = 0 to imbLookback - 1
+                            if bar_index >= lb + 2
+                                bool isBullImb = low[lb] > high[lb + 2] and close[lb + 1] > high[lb + 2]
+                                bool isBearImb = high[lb] < low[lb + 2] and close[lb + 1] < low[lb + 2]
+                                int midIdx = lb + 1
+
+                                // LONG zóna: bear IMB nad/pri vrchu zóny
+                                // IMB sviecka nesmie začínať v zóne (open musí byť nad zónou)
+                                if typ == 1 and isBearImb and open[midIdx] > top
+                                    float gap = low[midIdx] - top
+                                    float dist = math.max(0.0, gap)
+                                    if dist <= imbMaxDist
+                                        if na(bestDist) or dist < bestDist
+                                            bestDist := dist
+                                            bestLb := lb
+
+                                // SHORT zóna: bull IMB pod/pri spodku zóny
+                                // IMB sviecka nesmie začínať v zóne (open musí byť pod zónou)
+                                if typ == -1 and isBullImb and open[midIdx] < bot
+                                    float gap = bot - high[midIdx]
+                                    float dist = math.max(0.0, gap)
+                                    if dist <= imbMaxDist
+                                        if na(bestDist) or dist < bestDist
+                                            bestDist := dist
+                                            bestLb := lb
+
+                        // Ak sme našli IMB → STATE 1
+                        if not na(bestLb)
+                            int midIdx = bestLb + 1
+                            float bTop = math.max(open[midIdx], close[midIdx])
+                            float bBot = math.min(open[midIdx], close[midIdx])
+
+                            // Ulož IMB dáta
+                            array.set(zImbBodyTopA, i, bTop)
+                            array.set(zImbBodyBotA, i, bBot)
+                            array.set(zImbOpenA, i, open[midIdx])
+                            array.set(zImbHiA, i, high[midIdx])
+                            array.set(zImbLoA, i, low[midIdx])
+                            array.set(zImbBiA, i, bar_index - midIdx)
+
+                            // Priraď farbu (rotácia cez pool)
+                            int cIdx = nextColorIdx
+                            nextColorIdx := (nextColorIdx + 1) % array.size(colorPool)
+                            array.set(zColorIdxA, i, cIdx)
+                            color zCol = array.get(colorPool, cIdx)
+
+                            // Nakresli box okolo IMB sviečky
+                            float adjTop = bTop == bBot ? bTop + syminfo.mintick * 0.5 : bTop
+                            float adjBot = bTop == bBot ? bBot - syminfo.mintick * 0.5 : bBot
+                            box imbBox = box.new(bar_index - midIdx, adjTop, bar_index - midIdx, adjBot, bgcolor=color.new(zCol, 80), border_color=zCol, border_width=2)
+                            array.set(zImbBoxA, i, imbBox)
+
+                            // Zmeň border SD zóny na rovnakú farbu
+                            box preBox = array.get(zPreBoxA, i)
+                            box postBox = array.get(zPostBoxA, i)
+                            if not na(preBox)
+                                box.set_border_color(preBox, zCol)
+                            if not na(postBox)
+                                box.set_border_color(postBox, zCol)
+                                box.set_bgcolor(postBox, color.new(zCol, 85))
+
+                            // Prechod do STATE 1 (label "0" sa nakreslí v label sekcii nižšie)
+                            array.set(zStateA, i, 1)
+                            array.set(zStateBiA, i, bar_index)
+                            st := 1
+
+            // ===== STATE 1: cena v zóne, čakáme na exit na strane IMB =====
+            if st == 1
+                int stateBi = array.get(zStateBiA, i)
+                stateBi := na(stateBi) ? bar_index : stateBi
+                int barsInState = bar_index - stateBi
+                int cIdx1 = array.get(zColorIdxA, i)
+                color zCol1 = na(cIdx1) ? color.white : array.get(colorPool, cIdx1)
+
+                if barsInState > state1MaxBars
+                    // Timeout → invalidácia
+                    resizeZoneOnInvalidation(i)
+                    array.set(zUsedA, i, true)
+                    array.set(zStateA, i, -1)
+                else
+                    // LONG: čakáme na exit NAD zónou (strana kde bola bear IMB)
+                    if typ == 1 and high > top
+                        array.set(zStateA, i, 2)
+                        array.set(zStateBiA, i, bar_index)
+                        st := 2
+                        // Invaliduj SD zónu (pyramiding → nechceme ďalšie vstupy z tej istej zóny)
+                        resizeZoneOnInvalidation(i)
+                        array.set(zUsedA, i, true)
+
+                    // SHORT: čakáme na exit POD zónou (strana kde bola bull IMB)
+                    if typ == -1 and low < bot
+                        array.set(zStateA, i, 2)
+                        array.set(zStateBiA, i, bar_index)
+                        st := 2
+                        // Invaliduj SD zónu (pyramiding → nechceme ďalšie vstupy z tej istej zóny)
+                        resizeZoneOnInvalidation(i)
+                        array.set(zUsedA, i, true)
+
+            // ===== STATE 2: čakáme kým cena prekoná open IMB sviecky =====
+            if st == 2
+                int stateBi = array.get(zStateBiA, i)
+                stateBi := na(stateBi) ? bar_index : stateBi
+                int barsInState = bar_index - stateBi
+                int cIdx2 = array.get(zColorIdxA, i)
+                color zCol2 = na(cIdx2) ? color.white : array.get(colorPool, cIdx2)
+
+                if barsInState > state2MaxBars
+                    // Timeout → invalidácia
+                    array.set(zStateA, i, -1)
+                else
+                    float imbOpen = array.get(zImbOpenA, i)
+
+                    // LONG: cena prekoná open IMB sviecky smerom hore (high na hist., tick na RT)
+                    if typ == 1 and high > imbOpen
+                        array.set(zStateA, i, 3)
+                        array.set(zStateBiA, i, bar_index)
+                        st := 3
+
+                    // SHORT: cena klesne pod open IMB sviecky smerom dole (low na hist., tick na RT)
+                    if typ == -1 and low < imbOpen
+                        array.set(zStateA, i, 3)
+                        array.set(zStateBiA, i, bar_index)
+                        st := 3
+
+            // ===== STATE 3: cena prekonala open IMB, čakáme na návrat späť =====
+            if st == 3
+                int stateBi = array.get(zStateBiA, i)
+                stateBi := na(stateBi) ? bar_index : stateBi
+                int barsInState = bar_index - stateBi
+                int cIdx3 = array.get(zColorIdxA, i)
+                color zCol3 = na(cIdx3) ? color.white : array.get(colorPool, cIdx3)
+
+                if barsInState > state3MaxBars
+                    // Timeout → invalidácia
+                    array.set(zStateA, i, -1)
+                else
+                    float imbOpen = array.get(zImbOpenA, i)
+
+                    // LONG: cena sa vráti pod open IMB sviecky (low na hist., tick na RT)
+                    if typ == 1 and low <= imbOpen
+                        array.set(zStateA, i, 4)
+                        array.set(zStateBiA, i, bar_index)
+                        st := 4
+
+                    // SHORT: cena sa vráti nad open IMB sviecky (high na hist., tick na RT)
+                    if typ == -1 and high >= imbOpen
+                        array.set(zStateA, i, 4)
+                        array.set(zStateBiA, i, bar_index)
+                        st := 4
+
+            // ===== STATE 4: umiestni limit order + nakresli box =====
+            if st == 4
+                float imbOpen = array.get(zImbOpenA, i)
+                int cIdx4 = array.get(zColorIdxA, i)
+                color zCol4 = na(cIdx4) ? color.white : array.get(colorPool, cIdx4)
+
+                // Spoločné premenné pre LONG aj SHORT
+                float entryPrice = imbOpen
+                float slPrice = na
+                float tpPrice = na
+                int lineEnd = bar_index + state4MaxBars
+
+                if typ == 1
+                    // LONG: SL = spodok SD zóny - 1 tick buffer
+                    slPrice := bot - syminfo.mintick
+                    float slDist = entryPrice - slPrice
+                    tpPrice := entryPrice + slDist * rrRatio
+                    strategy.entry("LONG_" + str.tostring(i), strategy.long, stop=entryPrice)
+                    strategy.exit("TP_SL_LONG_" + str.tostring(i), "LONG_" + str.tostring(i), stop=slPrice, limit=tpPrice)
+
+                if typ == -1
+                    // SHORT: SL = vrch SD zóny + 1 tick buffer
+                    slPrice := top + syminfo.mintick
+                    float slDist = slPrice - entryPrice
+                    tpPrice := entryPrice - slDist * rrRatio
+                    strategy.entry("SHORT_" + str.tostring(i), strategy.short, stop=entryPrice)
+                    strategy.exit("TP_SL_SHORT_" + str.tostring(i), "SHORT_" + str.tostring(i), stop=slPrice, limit=tpPrice)
+
+                // Kreslenie boxov (tenké ako čiary) — VŽDY po order bloku (entry, SL, TP)
+                float boxHalf = syminfo.mintick * 2  // výška boxu = 4 ticky (simulácia čiary)
+                if not na(slPrice) and not na(tpPrice)
+                    box eBox = box.new(bar_index, entryPrice + boxHalf, lineEnd, entryPrice - boxHalf, bgcolor=zCol4, border_color=zCol4, border_width=1)
+                    box sBox = box.new(bar_index, slPrice + boxHalf, lineEnd, slPrice - boxHalf, bgcolor=color.red, border_color=color.red, border_width=1)
+                    box tBox = box.new(bar_index, tpPrice + boxHalf, lineEnd, tpPrice - boxHalf, bgcolor=color.green, border_color=color.green, border_width=1)
+                    array.set(zEntryBoxA, i, eBox)
+                    array.set(zSlBoxA, i, sBox)
+                    array.set(zTpBoxA, i, tBox)
+
+                // DEBUG: label na potvrdenie STATE 4 + hodnoty
+                string dbgTxt = "S4\nE:" + str.tostring(entryPrice, "#.##") + "\nSL:" + str.tostring(slPrice, "#.##") + "\nTP:" + str.tostring(tpPrice, "#.##") + "\ni:" + str.tostring(i)
+                label dbgLbl = label.new(bar_index, typ == 1 ? low - syminfo.mintick * 30 : high + syminfo.mintick * 30, dbgTxt, xloc=xloc.bar_index, style=typ == 1 ? label.style_label_up : label.style_label_down, color=color.yellow, textcolor=color.black, size=size.small)
+                array.push(stateLabelPool, dbgLbl)
+
+                // Okamžite → STATE 5 (order umiestnený, čaká na fill/timeout)
+                array.set(zStateA, i, 5)
+                array.set(zStateBiA, i, bar_index)
+                st := 5
+
+            // ===== STATE 5: order umiestnený, čaká na fill alebo timeout =====
+            if st == 5
+                int stateBi5 = array.get(zStateBiA, i)
+                stateBi5 := na(stateBi5) ? bar_index : stateBi5
+                int barsInState5 = bar_index - stateBi5
+                bool hasPosition = strategy.position_size != 0
+                bool wasFilled = array.get(zFilledA, i)
+
+                // Ak sa pozícia práve otvorila, označ ako filled
+                if hasPosition and not wasFilled
+                    array.set(zFilledA, i, true)
+                    wasFilled := true
+
+                box elive = array.get(zEntryBoxA, i)
+                box slive = array.get(zSlBoxA, i)
+                box tlive = array.get(zTpBoxA, i)
+
+                // Skontroluj či cena dosiahla TP alebo SL → zastaviť predlžovanie
+                bool levelHit = false
+                if not na(slive) and not na(tlive)
+                    float slLevel = (box.get_top(slive) + box.get_bottom(slive)) / 2
+                    float tpLevel = (box.get_top(tlive) + box.get_bottom(tlive)) / 2
+                    bool tpHit = typ == 1 ? high >= tpLevel : low <= tpLevel
+                    bool slHit = typ == 1 ? low <= slLevel : high >= slLevel
+                    levelHit := tpHit or slHit
+
+                // Pozícia bola vyplnená a teraz je zatvorená (TP/SL cez stratégiu)
+                bool positionClosed = wasFilled and not hasPosition
+
+                if levelHit or positionClosed
+                    // Čiary zastavia presne tu, zostanú ako historický záznam
+                    array.set(zStateA, i, -1)
+                else
+                    // Predlžuj SL/TP/Entry boxy každý bar
+                    if not na(elive)
+                        box.set_right(elive, bar_index + 1)
+                    if not na(slive)
+                        box.set_right(slive, bar_index + 1)
+                    if not na(tlive)
+                        box.set_right(tlive, bar_index + 1)
+
+                // Timeout: cancel pending order + zmaž čiary LEN ak order NEBOL nikdy vyplnený
+                if barsInState5 > state4MaxBars and not hasPosition and not wasFilled
+                    strategy.cancel("LONG_" + str.tostring(i))
+                    strategy.cancel("SHORT_" + str.tostring(i))
+                    deleteTradeLines(i)
+                    array.set(zStateA, i, -1)
+
+            // ===== STATE LABELS: label s číslom stavu na každom bare od state 1+ =====
+            if st >= 1 and st <= 4 and barstate.isconfirmed
+                int cIdxL = array.get(zColorIdxA, i)
+                color lblCol = na(cIdxL) ? color.white : array.get(colorPool, cIdxL)
+
+                // Label "0" na IMB sviecke — nakreslí sa raz (pri prvom confirmed bare v state >= 1)
+                bool lbl0Drawn = array.get(zImb0LblDrawnA, i)
+                if not lbl0Drawn
+                    int imbBi = array.get(zImbBiA, i)
+                    if not na(imbBi)
+                        int imbOffset = bar_index - imbBi
+                        float imbY = typ == 1 ? low[imbOffset] - syminfo.mintick * 5 : high[imbOffset] + syminfo.mintick * 5
+                        label lbl0 = label.new(imbBi, imbY, "0", xloc=xloc.bar_index, style=typ == 1 ? label.style_label_up : label.style_label_down, color=lblCol, textcolor=color.white, size=size.tiny)
+                        array.push(stateLabelPool, lbl0)
+                        if array.size(stateLabelPool) > stateLabelMax
+                            label oldL0 = array.shift(stateLabelPool)
+                            label.delete(oldL0)
+                        array.set(zImb0LblDrawnA, i, true)
+
+                // Label s aktuálnym stavom na tomto bare
+                float tickOff = syminfo.mintick * 10
+                float yPos = na
+                if typ == 1
+                    yPos := low - tickOff * (1 + lblCountUp)
+                    lblCountUp += 1
+                else
+                    yPos := high + tickOff * (1 + lblCountDown)
+                    lblCountDown += 1
+                string lblText = str.tostring(st)
+                if st == 4
+                    float dbgImbOpen = array.get(zImbOpenA, i)
+                    lblText := "4\n" + str.tostring(dbgImbOpen)
+                label lbl = label.new(bar_index, yPos, lblText, style=typ == 1 ? label.style_label_up : label.style_label_down, color=lblCol, textcolor=color.white, size=size.tiny)
+                array.push(stateLabelPool, lbl)
+                if array.size(stateLabelPool) > stateLabelMax
+                    label old = array.shift(stateLabelPool)
+                    label.delete(old)
