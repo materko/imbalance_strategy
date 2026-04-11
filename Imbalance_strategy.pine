@@ -1,33 +1,45 @@
 //@version=5
-strategy("Imbalance strategy", overlay=true, initial_capital=10000, calc_on_every_tick=true, pyramiding=10, process_orders_on_close=false, max_boxes_count=500, max_lines_count=500, max_labels_count=500)
+strategy("Imbalance strategy", overlay=true, initial_capital=10000, default_qty_type=strategy.fixed, default_qty_value=1, calc_on_every_tick=true, pyramiding=10, process_orders_on_close=false, max_boxes_count=500, max_lines_count=500, max_labels_count=500)
 
 // ==================== INPUTS ====================
 entryTF       = input.string("2", "Entry timeframe (minutes) len na kreslenie", options=["1","2","3","5"], group="⚙️ Základné nastavenia")
 weekdaysOnly  = input.bool(true, "Trade only Mon-Fri", group="⚙️ Základné nastavenia")
 
-// ==================== SESSION 1: NEW YORK ====================
-sess1On        = input.bool(true, "Zapnúť", group="🗽 Session 1: New York", inline="s1on")
-sess1TZ        = input.string("America/New_York", "Timezone", group="🗽 Session 1: New York", inline="s1on")
-sess1ZoneStartH = input.int(9, "SD zóna začiatok (H)", group="🗽 Session 1: New York", inline="s1z")
-sess1ZoneStartM = input.int(30, "M", group="🗽 Session 1: New York", inline="s1z")
-sess1ZoneEndH   = input.int(12, "SD zóna koniec (H)", group="🗽 Session 1: New York", inline="s1ze")
-sess1ZoneEndM   = input.int(0, "M", group="🗽 Session 1: New York", inline="s1ze")
-sess1TradeStartH = input.int(10, "Trade začiatok (H)", group="🗽 Session 1: New York", inline="s1t")
-sess1TradeStartM = input.int(0, "M", group="🗽 Session 1: New York", inline="s1t")
-sess1TradeEndH   = input.int(12, "Trade koniec (H)", group="🗽 Session 1: New York", inline="s1te")
-sess1TradeEndM   = input.int(0, "M", group="🗽 Session 1: New York", inline="s1te")
+// ==================== SESSION 1 ====================
+sess1On        = input.bool(true, "Zapnúť", group="📗 Session 1", inline="s1on")
+sess1TZ        = input.string("America/New_York", "Timezone", group="📗 Session 1", inline="s1on")
+sess1ZoneStartH = input.int(10, "SD zóna začiatok (H)", group="📗 Session 1", inline="s1z")
+sess1ZoneStartM = input.int(30, "M", group="📗 Session 1", inline="s1z")
+sess1ZoneEndH   = input.int(11, "SD zóna koniec (H)", group="📗 Session 1", inline="s1ze")
+sess1ZoneEndM   = input.int(30, "M", group="📗 Session 1", inline="s1ze")
+sess1TradeStartH = input.int(11, "Trade začiatok (H)", group="📗 Session 1", inline="s1t")
+sess1TradeStartM = input.int(0, "M", group="📗 Session 1", inline="s1t")
+sess1TradeEndH   = input.int(12, "Trade koniec (H)", group="📗 Session 1", inline="s1te")
+sess1TradeEndM   = input.int(0, "M", group="📗 Session 1", inline="s1te")
 
-// ==================== SESSION 2: LONDON ====================
-sess2On        = input.bool(true, "Zapnúť", group="🇬🇧 Session 2: London", inline="s2on")
-sess2TZ        = input.string("Europe/London", "Timezone", group="🇬🇧 Session 2: London", inline="s2on")
-sess2ZoneStartH = input.int(8, "SD zóna začiatok (H)", group="🇬🇧 Session 2: London", inline="s2z")
-sess2ZoneStartM = input.int(0, "M", group="🇬🇧 Session 2: London", inline="s2z")
-sess2ZoneEndH   = input.int(11, "SD zóna koniec (H)", group="🇬🇧 Session 2: London", inline="s2ze")
-sess2ZoneEndM   = input.int(0, "M", group="🇬🇧 Session 2: London", inline="s2ze")
-sess2TradeStartH = input.int(8, "Trade začiatok (H)", group="🇬🇧 Session 2: London", inline="s2t")
-sess2TradeStartM = input.int(30, "M", group="🇬🇧 Session 2: London", inline="s2t")
-sess2TradeEndH   = input.int(11, "Trade koniec (H)", group="🇬🇧 Session 2: London", inline="s2te")
-sess2TradeEndM   = input.int(0, "M", group="🇬🇧 Session 2: London", inline="s2te")
+// ==================== SESSION 2 ====================
+sess2On        = input.bool(true, "Zapnúť", group="📘 Session 2", inline="s2on")
+sess2TZ        = input.string("America/New_York", "Timezone", group="📘 Session 2", inline="s2on")
+sess2ZoneStartH = input.int(12, "SD zóna začiatok (H)", group="📘 Session 2", inline="s2z")
+sess2ZoneStartM = input.int(0, "M", group="📘 Session 2", inline="s2z")
+sess2ZoneEndH   = input.int(13, "SD zóna koniec (H)", group="📘 Session 2", inline="s2ze")
+sess2ZoneEndM   = input.int(0, "M", group="📘 Session 2", inline="s2ze")
+sess2TradeStartH = input.int(12, "Trade začiatok (H)", group="📘 Session 2", inline="s2t")
+sess2TradeStartM = input.int(30, "M", group="📘 Session 2", inline="s2t")
+sess2TradeEndH   = input.int(13, "Trade koniec (H)", group="📘 Session 2", inline="s2te")
+sess2TradeEndM   = input.int(30, "M", group="📘 Session 2", inline="s2te")
+
+// ==================== SESSION 3 ====================
+sess3On        = input.bool(true, "Zapnúť", group="📙 Session 3", inline="s3on")
+sess3TZ        = input.string("Europe/London", "Timezone", group="📙 Session 3", inline="s3on")
+sess3ZoneStartH = input.int(8, "SD zóna začiatok (H)", group="📙 Session 3", inline="s3z")
+sess3ZoneStartM = input.int(0, "M", group="📙 Session 3", inline="s3z")
+sess3ZoneEndH   = input.int(11, "SD zóna koniec (H)", group="📙 Session 3", inline="s3ze")
+sess3ZoneEndM   = input.int(0, "M", group="📙 Session 3", inline="s3ze")
+sess3TradeStartH = input.int(8, "Trade začiatok (H)", group="📙 Session 3", inline="s3t")
+sess3TradeStartM = input.int(30, "M", group="📙 Session 3", inline="s3t")
+sess3TradeEndH   = input.int(11, "Trade koniec (H)", group="📙 Session 3", inline="s3te")
+sess3TradeEndM   = input.int(0, "M", group="📙 Session 3", inline="s3te")
 
 zoneValidHours    = input.int(26, "Platnosť zóny (hodiny)", minval=1, maxval=72, group="📦 SD Zóny")
 maxSdZones        = input.int(200, "Max SD zón", minval=10, maxval=999, group="📦 SD Zóny")
@@ -44,16 +56,17 @@ state1MaxBars   = input.int(5, "STATE 1: Max barov na exit zo zóny", minval=1, 
 state2MaxBars   = input.int(15, "STATE 2: Max barov", minval=1, maxval=50, tooltip="Koľko barov trvá STATE 2, ak sa presiahne → invalidácia", group="🔄 State machine")
 state3MaxBars   = input.int(5, "STATE 3: Max barov", minval=1, maxval=50, tooltip="Koľko barov trvá STATE 3, ak sa presiahne → invalidácia", group="🔄 State machine")
 state4MaxBars   = input.int(5, "STATE 4: Max barov", minval=1, maxval=50, tooltip="Koľko barov trvá STATE 4, ak sa presiahne → invalidácia", group="🔄 State machine")
+state5MaxBars   = input.int(5, "STATE 5: Max barov na fill", minval=1, maxval=50, tooltip="Koľko barov čaká pending order na vyplnenie, ak sa presiahne → zrušenie", group="🔄 State machine")
 rrRatio         = input.float(1.3, "Risk:Reward pomer", minval=0.5, maxval=10.0, step=0.5, tooltip="Pomer TP ku SL vzdialenosti (napr. 1.0 = 1:1, 2.0 = 1:2)", group="🔄 State machine")
 slType          = input.string("Swing", "SL typ", options=["Swing", "Fixný $"], tooltip="Swing = SL na swing low/high. Fixný $ = SL podľa max straty v dolároch.", group="🔄 State machine")
 slLookback      = input.int(10, "SL: lookback barov od aktuálnej sviečky", minval=1, maxval=100, tooltip="Koľko barov dozadu od aktuálnej sviečky (STATE 4) hľadáme najnižší low (LONG) / najvyšší high (SHORT) pre umiestnenie SL", group="🔄 State machine")
 slBufferTicks   = input.int(2, "SL: buffer (ticky)", minval=0, maxval=50, tooltip="Počet tickov pod najnižším lowom / nad najvyšším highom pre SL", group="🔄 State machine")
 slFixedDollar   = input.float(50, "SL: max strata ($)", minval=1, maxval=1000, step=1, tooltip="Maximálna strata v dolároch na jeden trade (len pre Fixný $ typ)", group="🔄 State machine")
 slScaleOn       = input.bool(false, "SL scaling po strate", tooltip="Po stratovom trade sa Fixný $ SL zvýši násobkom. Po výhre sa resetne na základ.", group="📈 SL Scaling")
-slScale1        = input.float(1.5, "1. strata → násobok", minval=1.0, maxval=10.0, step=0.1, tooltip="Po 1. strate: SL = základ × tento násobok", group="📈 SL Scaling")
-slScale2        = input.float(2.0, "2. strata → násobok", minval=1.0, maxval=10.0, step=0.1, tooltip="Po 2. po sebe idúcej strate: SL = základ × tento násobok", group="📈 SL Scaling")
-slScale3        = input.float(2.5, "3. strata → násobok", minval=1.0, maxval=10.0, step=0.1, tooltip="Po 3. po sebe idúcej strate: SL = základ × tento násobok", group="📈 SL Scaling")
-slScale4        = input.float(3.0, "4. strata → násobok (max)", minval=1.0, maxval=10.0, step=0.1, tooltip="Po 4.+ po sebe idúcej strate: SL = základ × tento násobok (maximum)", group="📈 SL Scaling")
+slScale1        = input.float(2.0, "1. strata → násobok", minval=1.0, maxval=20.0, step=0.1, tooltip="Po 1. strate: SL = základ × tento násobok", group="📈 SL Scaling")
+slScale2        = input.float(4.0, "2. strata → násobok", minval=1.0, maxval=20.0, step=0.1, tooltip="Po 2. po sebe idúcej strate: SL = základ × tento násobok", group="📈 SL Scaling")
+slScale3        = input.float(8.0, "3. strata → násobok", minval=1.0, maxval=20.0, step=0.1, tooltip="Po 3. po sebe idúcej strate: SL = základ × tento násobok", group="📈 SL Scaling")
+slScale4        = input.float(16.0, "4. strata → násobok (max)", minval=1.0, maxval=20.0, step=0.1, tooltip="Po 4.+ po sebe idúcej strate: SL = základ × tento násobok (maximum)", group="📈 SL Scaling")
 maxDailyWins    = input.int(2, "Max ziskových tradov za deň", minval=1, maxval=20, tooltip="Po dosiahnutí tohto počtu ziskových tradov v daný deň sa prestane obchodovať do konca dňa", group="🔄 State machine")
 
 // ==================== CONSTS ====================
@@ -83,66 +96,137 @@ inWindowTZ(int sh, int sm, int eh, int em, string tz) =>
     int t2  = time < st ? time + 86400000 : time
     t2 >= st and t2 < en2
 
-// Session 1 (NY) okná
+// Session 1 okná
 bool s1Zone  = sess1On and inWindowTZ(sess1ZoneStartH, sess1ZoneStartM, sess1ZoneEndH, sess1ZoneEndM, sess1TZ)
 bool s1Trade = sess1On and inWindowTZ(sess1TradeStartH, sess1TradeStartM, sess1TradeEndH, sess1TradeEndM, sess1TZ)
-// Session 2 (London) okná
+// Session 2 okná
 bool s2Zone  = sess2On and inWindowTZ(sess2ZoneStartH, sess2ZoneStartM, sess2ZoneEndH, sess2ZoneEndM, sess2TZ)
 bool s2Trade = sess2On and inWindowTZ(sess2TradeStartH, sess2TradeStartM, sess2TradeEndH, sess2TradeEndM, sess2TZ)
+// Session 3 okná
+bool s3Zone  = sess3On and inWindowTZ(sess3ZoneStartH, sess3ZoneStartM, sess3ZoneEndH, sess3ZoneEndM, sess3TZ)
+bool s3Trade = sess3On and inWindowTZ(sess3TradeStartH, sess3TradeStartM, sess3TradeEndH, sess3TradeEndM, sess3TZ)
 
 // Weekday filter — použijeme UTC pre konzistenciu
 int dow            = dayofweek(time, "UTC")
 bool isWeekday     = not weekdaysOnly or (dow >= dayofweek.monday and dow <= dayofweek.friday)
 
 // Kombinované okná (ktorákoľvek aktívna session)
-bool inZoneWindow  = isWeekday and (s1Zone or s2Zone)
-bool inTradeWindow = isWeekday and (s1Trade or s2Trade)
+bool inZoneWindow  = isWeekday and (s1Zone or s2Zone or s3Zone)
+bool inTradeWindow = isWeekday and (s1Trade or s2Trade or s3Trade)
 bool tradeWindowJustClosed = inTradeWindow[1] and not inTradeWindow  // prechod z ON → OFF
 
 // Detekcia konca KAŽDEJ session zvlášť (pre close all)
 bool s1TradeJustClosed = (sess1On and isWeekday) and (s1Trade[1] and not s1Trade)
 bool s2TradeJustClosed = (sess2On and isWeekday) and (s2Trade[1] and not s2Trade)
+bool s3TradeJustClosed = (sess3On and isWeekday) and (s3Trade[1] and not s3Trade)
 
 // ==================== BACKGROUND ====================
-bgcolor(s1Trade ? color.new(color.blue, 90) : (s1Zone ? color.new(color.blue, 95) : na), title="NY session")
-bgcolor(s2Trade ? color.new(color.purple, 90) : (s2Zone ? color.new(color.purple, 95) : na), title="London session")
+bgcolor(s1Trade ? color.new(color.blue, 90) : (s1Zone ? color.new(color.blue, 95) : na), title="Session 1")
+bgcolor(s2Trade ? color.new(color.teal, 90) : (s2Zone ? color.new(color.teal, 95) : na), title="Session 2")
+bgcolor(s3Trade ? color.new(color.purple, 90) : (s3Zone ? color.new(color.purple, 95) : na), title="Session 3")
+
+// ==================== MANUÁLNE 5-MIN BARY (bez request.security) ====================
+// Buildujeme 5-min OHLC z 2-min dát → funguje identicky na backtest, replay aj live
+int t5m = time("5")
+bool new5mBar = ta.change(t5m) != 0
+
+// Aktuálny (neuzavretý) 5-min bar
+var float cur5m_o = na
+var float cur5m_h = na
+var float cur5m_l = na
+var float cur5m_c = na
+var int   cur5m_t = na
+
+if new5mBar
+    cur5m_o := open
+    cur5m_h := high
+    cur5m_l := low
+    cur5m_t := t5m
+else
+    cur5m_h := math.max(nz(cur5m_h, high), high)
+    cur5m_l := math.min(nz(cur5m_l, low), low)
+cur5m_c := close
+
+// História posledných 5 potvrdených 5-min barov (index 0 = najnovší potvrdený)
+var float[] h5m_o = array.from(float(na), float(na), float(na), float(na), float(na))
+var float[] h5m_c = array.from(float(na), float(na), float(na), float(na), float(na))
+var float[] h5m_h = array.from(float(na), float(na), float(na), float(na), float(na))
+var float[] h5m_l = array.from(float(na), float(na), float(na), float(na), float(na))
+var int[]   h5m_t = array.from(int(na), int(na), int(na), int(na), int(na))
+
+if new5mBar
+    // Predchádzajúci 5-min bar sa práve uzavrel → vlož do histórie
+    // Použi [1] hodnoty pretože nový bar práve začal
+    array.pop(h5m_o)
+    array.unshift(h5m_o, nz(cur5m_o[1], open[1]))
+    array.pop(h5m_c)
+    array.unshift(h5m_c, close[1])
+    array.pop(h5m_h)
+    array.unshift(h5m_h, nz(cur5m_h[1], high[1]))
+    array.pop(h5m_l)
+    array.unshift(h5m_l, nz(cur5m_l[1], low[1]))
+    array.pop(h5m_t)
+    array.unshift(h5m_t, nz(cur5m_t[1], int(na)))
+
+// Potvrdené 5-min bary: [0]=posledný uzavretý, [1]=predposledný, ...
+float o5_0 = array.get(h5m_o, 0)
+float c5_0 = array.get(h5m_c, 0)
+float h5_0 = array.get(h5m_h, 0)
+float l5_0 = array.get(h5m_l, 0)
+int   t5_0 = array.get(h5m_t, 0)
+
+float o5_1 = array.get(h5m_o, 1)
+float c5_1 = array.get(h5m_c, 1)
+float h5_1 = array.get(h5m_h, 1)
+float l5_1 = array.get(h5m_l, 1)
+
+float o5_2 = array.get(h5m_o, 2)
+float c5_2 = array.get(h5m_c, 2)
+float h5_2 = array.get(h5m_h, 2)
+float l5_2 = array.get(h5m_l, 2)
+
+float o5_3 = array.get(h5m_o, 3)
+float c5_3 = array.get(h5m_c, 3)
+float h5_3 = array.get(h5m_h, 3)
+float l5_3 = array.get(h5m_l, 3)
+int   t5_3 = array.get(h5m_t, 3)
 
 // ==================== DETEKCIA SD ZÓNY NA 5M ====================
-// LONG zóna:  [3]=bear sviečka, potom reversal (3 bull ALEBO imbalance)
-// SHORT zóna: [3]=bull sviečka, potom reversal (3 bear ALEBO imbalance)
-f_zone5m() =>
-    float top = na
-    float bot = na
-    int typ   = 0
-    int t0    = na
-    int tConf = na
-    bool inWin = (sess1On and inWindowTZ(sess1ZoneStartH, sess1ZoneStartM, sess1ZoneEndH, sess1ZoneEndM, sess1TZ)) or (sess2On and inWindowTZ(sess2ZoneStartH, sess2ZoneStartM, sess2ZoneEndH, sess2ZoneEndM, sess2TZ))
-    bool bullImb1 = not na(high[2]) and low > high[2]
-    bool bearImb1 = not na(low[2])  and high < low[2]
-    bool bullImb2 = not na(high[3]) and low[1] > high[3]
-    bool bearImb2 = not na(low[3])  and high[1] < low[3]
-    if inWin and barstate.isconfirmed
-        bool longV1  = isBear(open[3],close[3]) and isBull(open[2],close[2]) and isBull(open[1],close[1]) and isBull(open,close)
-        bool longV2  = isBear(open[3],close[3]) and bullImb1
-        bool longV3  = isBear(open[3],close[3]) and bullImb2
-        bool shortV1 = isBull(open[3],close[3]) and isBear(open[2],close[2]) and isBear(open[1],close[1]) and isBear(open,close)
-        bool shortV2 = isBull(open[3],close[3]) and bearImb1
-        bool shortV3 = isBull(open[3],close[3]) and bearImb2
-        if longV1 or longV2 or longV3
-            typ   := 1
-            t0    := time[3]
-            tConf := time
-            top   := high[3]
-            bot   := low[3]
-        else if shortV1 or shortV2 or shortV3
-            typ   := -1
-            t0    := time[3]
-            tConf := time
-            top   := high[3]
-            bot   := low[3]
-    [top, bot, typ, t0, tConf]
+// Pattern na potvrdených 5-min baroch: [3]=signálna, [2],[1],[0]=reversal
+// LONG:  [3]=bear, potom reversal (3 bull ALEBO imbalance)
+// SHORT: [3]=bull, potom reversal (3 bear ALEBO imbalance)
+bool bull5m_0 = c5_0 > o5_0
+bool bear5m_0 = c5_0 < o5_0
+bool bull5m_1 = c5_1 > o5_1
+bool bear5m_1 = c5_1 < o5_1
+bool bull5m_2 = c5_2 > o5_2
+bool bear5m_2 = c5_2 < o5_2
+bool bull5m_3 = c5_3 > o5_3
+bool bear5m_3 = c5_3 < o5_3
 
-[zTop5, zBot5, zTyp5, zT05, zTConf5] = request.security(syminfo.tickerid, "5", f_zone5m(), barmerge.gaps_on, barmerge.lookahead_off)
+// Imbalance (FVG) na 5-min baroch
+bool bullImb5_1 = not na(h5_2) and l5_0 > h5_2    // gap medzi bar0 a bar2
+bool bearImb5_1 = not na(l5_2)  and h5_0 < l5_2
+bool bullImb5_2 = not na(h5_3) and l5_1 > h5_3    // gap medzi bar1 a bar3
+bool bearImb5_2 = not na(l5_3)  and h5_1 < l5_3
+
+// Pattern varianty
+bool longV1  = bear5m_3 and bull5m_2 and bull5m_1 and bull5m_0
+bool longV2  = bear5m_3 and bull5m_2 and bullImb5_1
+bool longV3  = bear5m_3 and bull5m_2 and bullImb5_2
+bool shortV1 = bull5m_3 and bear5m_2 and bear5m_1 and bear5m_0
+bool shortV2 = bull5m_3 and bear5m_2 and bearImb5_1
+bool shortV3 = bull5m_3 and bear5m_2 and bearImb5_2
+
+// Detekuj len keď nový 5-min bar práve uzavrel (nie na každom 2-min bare)
+bool patternDetected = new5mBar and inZoneWindow
+
+// Výsledok detekcie
+int   zTyp5  = patternDetected and (longV1 or longV2 or longV3) ? 1 : (patternDetected and (shortV1 or shortV2 or shortV3) ? -1 : 0)
+float zTop5  = zTyp5 != 0 ? h5_3 : na
+float zBot5  = zTyp5 != 0 ? l5_3 : na
+int   zT05   = zTyp5 != 0 ? t5_3 : na
+int   zTConf5 = zTyp5 != 0 ? t5_0 : na
 
 // ==================== ZONE ARRAYS ====================
 var float[] zTopA  = array.new_float()
@@ -160,16 +244,16 @@ var float[] zImbLoA  = array.new_float()     // IMB sviečka: low
 var int[]   zImbBiA  = array.new_int()       // IMB sviečka: bar_index strednej sviečky
 var box[]   zImbBoxA = array.new_box()       // box okolo IMB sviečky
 var bool[]  zTouchedA = array.new_bool()     // true = cena už bola v zóne (invaliduje STATE 0)
-var bool[]  zExitedA  = array.new_bool()     // true = cena odišla od zóny po jej vytvorení (musí pred correctApproach)
 var int[]   zStateBiA = array.new_int()      // bar_index kedy sa vstúpilo do aktuálneho stavu
 var box[]   zPreBoxA  = array.new_box()
 var box[]   zPostBoxA = array.new_box()
-var box[]   zEntryBoxA = array.new_box()   // box entry (tenký ako čiara)
-var box[]   zSlBoxA    = array.new_box()   // box SL (tenký ako čiara)
-var box[]   zTpBoxA    = array.new_box()   // box TP (tenký ako čiara)
+var line[]  zEntryLineA = array.new_line()  // entry čiara
+var line[]  zSlLineA    = array.new_line()  // SL čiara
+var line[]  zTpLineA    = array.new_line()  // TP čiara
 var bool[]  zImb0LblDrawnA = array.new_bool()  // či bol label "0" na IMB sviecke nakreslený
 var bool[]  zFilledA = array.new_bool()        // true = order bol vyplnený (pozícia bola otvorená)
 var bool[]  zPendingInvalidA = array.new_bool() // true = cena prešla zónou počas STATE 1-4 → odložená vizuálna invalidácia
+var string[] zSessTZA = array.new_string()     // timezone session v ktorej bola zóna vytvorená
 
 var label[] stateLabelPool = array.new_label()  // rolling buffer pre state labels
 int stateLabelMax = 500
@@ -178,6 +262,7 @@ int stateLabelMax = 500
 var int dailyWinsCount = 0   // počet ziskových tradov dnes
 var int lastDayKey     = na  // identifikátor dňa (YYYYMMDD) pre reset
 var int consecLosses   = 0   // počet po sebe idúcich strát (pre SL scaling)
+var bool scaledEntryUsed = false  // true = škálovaný entry bol umiestnený, ďalšie pyramidované entry dostanú základ
 
 // Farebný pool — 10 kontrastných farieb
 var color[] colorPool = array.from(color.rgb(255,0,255), color.rgb(0,255,255), color.rgb(255,140,0), color.rgb(50,205,50), color.rgb(255,20,147), color.rgb(30,144,255), color.rgb(255,215,0), color.rgb(138,43,226), color.rgb(255,69,0), color.rgb(0,255,127))
@@ -224,14 +309,16 @@ if newZone
     array.push(zImbBiA, na)
     array.push(zImbBoxA, na)
     array.push(zTouchedA, false)
-    array.push(zExitedA, false)
     array.push(zStateBiA, na)
-    array.push(zEntryBoxA, box(na))
-    array.push(zSlBoxA, box(na))
-    array.push(zTpBoxA, box(na))
+    array.push(zEntryLineA, line(na))
+    array.push(zSlLineA, line(na))
+    array.push(zTpLineA, line(na))
     array.push(zImb0LblDrawnA, false)
     array.push(zFilledA, false)
     array.push(zPendingInvalidA, false)
+    // Urči timezone podľa toho, ktorá session zone window je práve aktívna
+    string zoneTZ = s1Zone ? sess1TZ : (s2Zone ? sess2TZ : (s3Zone ? sess3TZ : ""))
+    array.push(zSessTZA, zoneTZ)
 
     // Cleanup ak prekročíme limit
     if array.size(zTopA) > maxSdZonesEff
@@ -244,15 +331,15 @@ if newZone
         box oldImb = array.shift(zImbBoxA)
         if not na(oldImb)
             box.delete(oldImb)
-        box oldEntry = array.shift(zEntryBoxA)
+        line oldEntry = array.shift(zEntryLineA)
         if not na(oldEntry)
-            box.delete(oldEntry)
-        box oldSl = array.shift(zSlBoxA)
+            line.delete(oldEntry)
+        line oldSl = array.shift(zSlLineA)
         if not na(oldSl)
-            box.delete(oldSl)
-        box oldTp = array.shift(zTpBoxA)
+            line.delete(oldSl)
+        line oldTp = array.shift(zTpLineA)
         if not na(oldTp)
-            box.delete(oldTp)
+            line.delete(oldTp)
         array.shift(zTopA)
         array.shift(zBotA)
         array.shift(zTypA)
@@ -267,11 +354,11 @@ if newZone
         array.shift(zImbLoA)
         array.shift(zImbBiA)
         array.shift(zTouchedA)
-        array.shift(zExitedA)
         array.shift(zStateBiA)
         array.shift(zImb0LblDrawnA)
         array.shift(zFilledA)
         array.shift(zPendingInvalidA)
+        array.shift(zSessTZA)
 
     lastDrawT0 := zT05
 
@@ -339,18 +426,18 @@ resizeZoneOnInvalidation(int zoneIdx) =>
 
 // Zmazanie trade boxov pri invalidácii/ukončení
 deleteTradeLines(int zoneIdx) =>
-    box el = array.get(zEntryBoxA, zoneIdx)
+    line el = array.get(zEntryLineA, zoneIdx)
     if not na(el)
-        box.delete(el)
-        array.set(zEntryBoxA, zoneIdx, box(na))
-    box sl = array.get(zSlBoxA, zoneIdx)
+        line.delete(el)
+        array.set(zEntryLineA, zoneIdx, line(na))
+    line sl = array.get(zSlLineA, zoneIdx)
     if not na(sl)
-        box.delete(sl)
-        array.set(zSlBoxA, zoneIdx, box(na))
-    box tp = array.get(zTpBoxA, zoneIdx)
+        line.delete(sl)
+        array.set(zSlLineA, zoneIdx, line(na))
+    line tp = array.get(zTpLineA, zoneIdx)
     if not na(tp)
-        box.delete(tp)
-        array.set(zTpBoxA, zoneIdx, box(na))
+        line.delete(tp)
+        array.set(zTpLineA, zoneIdx, line(na))
 
 // Sekvenčný index farby — rotuje cez pool
 var int nextColorIdx = 0
@@ -362,6 +449,8 @@ if na(lastDayKey) or todayKey != lastDayKey
     lastDayKey := todayKey
 
 bool dailyWinLimitReached = dailyWinsCount >= maxDailyWins
+
+// SL scaling sa počíta priamo v STATE 4 (effectiveMultiplier) — prvý entry po stratách dostane škálovaný SL
 
 // Počítadlo labelov na aktuálnom bare (pre vertikálny offset pri viacerých state machines)
 int lblCountUp = 0    // LONG labely (pod sviečkou)
@@ -383,23 +472,8 @@ if zN > 0
             if st == 0
                 bool wasTouched = array.get(zTouchedA, i)
 
-                // Označ prístup zo správnej strany:
-                // LONG (demand): cena prišla zhora → high dosiahol vrch zóny
-                // SHORT (supply): cena prišla zdola → low dosiahol spodok zóny
-                // Krok 1: cena musí najprv ODÍSŤ od zóny po jej vytvorení
-                // LONG (demand): cena odíde nad zónu (low > top) — potom sa vráti dole
-                // SHORT (supply): cena odíde pod zónu (high < bot) — potom sa vráti hore
-                bool exited = array.get(zExitedA, i)
-                if not exited
-                    bool isAway = (typ == 1 and low > top) or (typ == -1 and high < bot)
-                    if isAway
-                        array.set(zExitedA, i, true)
-                        exited := true
-
-                // Krok 2: až keď cena odišla, kontrolujeme correctApproach (návrat k zóne)
-                if not wasTouched and exited
-                    // LONG (demand): cena klesne k vrchu zóny → low <= top AND high >= top (bar pretína hornú hranu)
-                    // SHORT (supply): cena stúpne k spodku zóny → high >= bot AND low <= bot (bar pretína dolnú hranu)
+                // Označ prístup zo správnej strany
+                if not wasTouched
                     bool correctApproach = (typ == 1 and low <= top and high >= top) or (typ == -1 and high >= bot and low <= bot)
                     if correctApproach
                         array.set(zTouchedA, i, true)
@@ -481,8 +555,6 @@ if zN > 0
                         st := 1
                     else
                         // IMB sa nenašla → invalidácia len keď cena PREŠLA CELOU zónou:
-                        // LONG: prišla zhora (high >= top ✓) + prebila spodok (low < bot)
-                        // SHORT: prišla zdola (low <= bot ✓) + prebila vrch (high > top)
                         bool invalidated = (typ == 1 and low < bot) or (typ == -1 and high > top)
                         if invalidated
                             resizeZoneOnInvalidation(i)
@@ -606,16 +678,17 @@ if zN > 0
                     resizeZoneOnInvalidation(i)
                     array.set(zStateA, i, -1)
                 else
-                    float imbOpen = array.get(zImbOpenA, i)
+                    float imbBodyTop = array.get(zImbBodyTopA, i)
+                    float imbBodyBot = array.get(zImbBodyBotA, i)
 
-                    // LONG: cena prekoná open IMB sviecky smerom hore (high na hist., tick na RT)
-                    if typ == 1 and high > imbOpen
+                    // LONG: sviečka UZAVRIE nad vrchom tela IMB sviečky
+                    if typ == 1 and close > imbBodyTop
                         array.set(zStateA, i, 3)
                         array.set(zStateBiA, i, bar_index)
                         st := 3
 
-                    // SHORT: cena klesne pod open IMB sviecky smerom dole (low na hist., tick na RT)
-                    if typ == -1 and low < imbOpen
+                    // SHORT: sviečka UZAVRIE pod spodkom tela IMB sviečky
+                    if typ == -1 and close < imbBodyBot
                         array.set(zStateA, i, 3)
                         array.set(zStateBiA, i, bar_index)
                         st := 3
@@ -635,13 +708,13 @@ if zN > 0
                 else
                     float imbOpen = array.get(zImbOpenA, i)
 
-                    // LONG: cena sa vráti pod open IMB sviecky (low na hist., tick na RT)
+                    // LONG: cena sa vráti na open IMB sviecky
                     if typ == 1 and low <= imbOpen
                         array.set(zStateA, i, 4)
                         array.set(zStateBiA, i, bar_index)
                         st := 4
 
-                    // SHORT: cena sa vráti nad open IMB sviecky (high na hist., tick na RT)
+                    // SHORT: cena sa vráti na open IMB sviecky
                     if typ == -1 and high >= imbOpen
                         array.set(zStateA, i, 4)
                         array.set(zStateBiA, i, bar_index)
@@ -654,24 +727,46 @@ if zN > 0
                     resizeZoneOnInvalidation(i)
                     array.set(zStateA, i, -1)
                     st := -1
+                    // Label na graf: trade preskočený kvôli max daily trades
+                    float yMax = typ == 1 ? low - syminfo.mintick * 30 : high + syminfo.mintick * 30
+                    label maxLbl = label.new(bar_index, yMax, "MAX\nDAILY", xloc=xloc.bar_index, style=typ == 1 ? label.style_label_up : label.style_label_down, color=color.gray, textcolor=color.white, size=size.small)
+                    array.push(stateLabelPool, maxLbl)
+                    if array.size(stateLabelPool) > stateLabelMax
+                        label oldMax = array.shift(stateLabelPool)
+                        label.delete(oldMax)
 
             if st == 4
-                // Mimo trade okna → neobchodujeme
+                // Mimo trade okna → neobchodujeme + zruš prípadnú pending limitku
                 if not inTradeWindow
+                    string cancelId4 = (typ == 1 ? "LONG_" : "SHORT_") + str.tostring(i)
+                    strategy.cancel(cancelId4)
+                    deleteTradeLines(i)
                     resizeZoneOnInvalidation(i)
                     array.set(zStateA, i, -1)
                     st := -1
 
             if st == 4
-                float imbOpen = array.get(zImbOpenA, i)
+                float imbOpen4 = array.get(zImbOpenA, i)
                 int cIdx4 = array.get(zColorIdxA, i)
                 color zCol4 = na(cIdx4) ? color.white : array.get(colorPool, cIdx4)
 
-                // Spoločné premenné pre LONG aj SHORT
-                float entryPrice = imbOpen
+                // Entry na open IMB sviecky
+                float entryPrice = imbOpen4
                 float slPrice = na
                 float tpPrice = na
-                int lineEnd = bar_index + state4MaxBars
+                int lineEnd = bar_index + state5MaxBars
+
+                // Výpočet effective multiplier pre SL scaling (na úrovni STATE 4)
+                float effectiveMultiplier = 1.0
+                if slScaleOn and slType == "Fixný $" and not scaledEntryUsed and consecLosses > 0
+                    if consecLosses == 1
+                        effectiveMultiplier := slScale1
+                    else if consecLosses == 2
+                        effectiveMultiplier := slScale2
+                    else if consecLosses == 3
+                        effectiveMultiplier := slScale3
+                    else if consecLosses >= 4
+                        effectiveMultiplier := slScale4
 
                 if slType == "Swing"
                     // SWING SL: nearest lower low (LONG) / higher high (SHORT) od aktuálnej sviečky
@@ -690,36 +785,41 @@ if zN > 0
                     else
                         slPrice := (na(slSwing) ? top : slSwing) + slBuf
                 else
-                    // FIXNÝ $ SL: SL vzdialenosť = maxStrata$ / (veľkosť kontraktu * hodnota ticku)
-                    // Pre futures: syminfo.pointvalue = $ za 1 bod ceny
-                    float slDist = slFixedDollar / syminfo.pointvalue
+                    // FIXNÝ $ SL: SL vzdialenosť = (maxStrata$ × multiplier) / pointvalue
+                    float scaledSL = slFixedDollar * effectiveMultiplier
+                    float slDist = scaledSL / syminfo.pointvalue
                     if typ == 1
                         slPrice := entryPrice - slDist
                     else
                         slPrice := entryPrice + slDist
 
-                // TP podľa RR pomeru
-                if typ == 1
+                // TP podľa RR pomeru + ochrana proti zatvoreniu opačnej pozície
+                bool oppositeOpen = (typ == 1 and strategy.position_size < 0) or (typ == -1 and strategy.position_size > 0)
+
+                if typ == 1 and not oppositeOpen
                     float slDist = entryPrice - slPrice
                     tpPrice := entryPrice + slDist * rrRatio
-                    strategy.entry("LONG_" + str.tostring(i), strategy.long, stop=entryPrice)
+                    strategy.entry("LONG_" + str.tostring(i), strategy.long, limit=entryPrice)
                     strategy.exit("TP_SL_LONG_" + str.tostring(i), "LONG_" + str.tostring(i), stop=slPrice, limit=tpPrice)
+                    if effectiveMultiplier > 1.0
+                        scaledEntryUsed := true
 
-                if typ == -1
+                if typ == -1 and not oppositeOpen
                     float slDist = slPrice - entryPrice
                     tpPrice := entryPrice - slDist * rrRatio
-                    strategy.entry("SHORT_" + str.tostring(i), strategy.short, stop=entryPrice)
+                    strategy.entry("SHORT_" + str.tostring(i), strategy.short, limit=entryPrice)
                     strategy.exit("TP_SL_SHORT_" + str.tostring(i), "SHORT_" + str.tostring(i), stop=slPrice, limit=tpPrice)
+                    if effectiveMultiplier > 1.0
+                        scaledEntryUsed := true
 
-                // Kreslenie boxov (tenké ako čiary) — VŽDY po order bloku (entry, SL, TP)
-                float boxHalf = syminfo.mintick * 2  // výška boxu = 4 ticky (simulácia čiary)
+                // Kreslenie čiar (entry, SL, TP)
                 if not na(slPrice) and not na(tpPrice)
-                    box eBox = box.new(bar_index, entryPrice + boxHalf, lineEnd, entryPrice - boxHalf, bgcolor=zCol4, border_color=zCol4, border_width=1)
-                    box sBox = box.new(bar_index, slPrice + boxHalf, lineEnd, slPrice - boxHalf, bgcolor=color.red, border_color=color.red, border_width=1)
-                    box tBox = box.new(bar_index, tpPrice + boxHalf, lineEnd, tpPrice - boxHalf, bgcolor=color.green, border_color=color.green, border_width=1)
-                    array.set(zEntryBoxA, i, eBox)
-                    array.set(zSlBoxA, i, sBox)
-                    array.set(zTpBoxA, i, tBox)
+                    line eLine = line.new(bar_index, entryPrice, lineEnd, entryPrice, color=zCol4, width=2)
+                    line sLine = line.new(bar_index, slPrice, lineEnd, slPrice, color=color.red, width=2)
+                    line tLine = line.new(bar_index, tpPrice, lineEnd, tpPrice, color=color.green, width=2)
+                    array.set(zEntryLineA, i, eLine)
+                    array.set(zSlLineA, i, sLine)
+                    array.set(zTpLineA, i, tLine)
 
                 // DEBUG: label na potvrdenie STATE 4 + hodnoty
                 if showOrderLabel
@@ -734,61 +834,104 @@ if zN > 0
 
             // ===== STATE 5: order umiestnený, čaká na fill alebo timeout =====
             if st == 5
+                // Ak trade okno skončilo a order nebol vyplnený → okamžitý cancel
+                // (na historických dátach sa pending order inak vyplní skôr ako session end blok)
+                bool wasFilled5 = array.get(zFilledA, i)
+                if not inTradeWindow and not wasFilled5
+                    string cancelId5 = (typ == 1 ? "LONG_" : "SHORT_") + str.tostring(i)
+                    strategy.cancel(cancelId5)
+                    deleteTradeLines(i)
+                    array.set(zStateA, i, -1)
+                    st := -1
+
+            if st == 5
                 int stateBi5 = array.get(zStateBiA, i)
                 stateBi5 := na(stateBi5) ? bar_index : stateBi5
                 int barsInState5 = bar_index - stateBi5
-                bool hasPosition = strategy.position_size != 0
                 bool wasFilled = array.get(zFilledA, i)
 
-                // Ak sa pozícia práve otvorila, označ ako filled
-                if hasPosition and not wasFilled
+                // Per-zóna detekcia fillu cez strategy.opentrades.entry_id()
+                string myOrderId = (typ == 1 ? "LONG_" : "SHORT_") + str.tostring(i)
+                bool myOrderOpen = false
+                for t = 0 to strategy.opentrades - 1
+                    if strategy.opentrades.entry_id(t) == myOrderId
+                        myOrderOpen := true
+
+                // Ak sa TENTO order práve otvoril, označ ako filled
+                if myOrderOpen and not wasFilled
                     array.set(zFilledA, i, true)
                     wasFilled := true
                     if invalidateOnFill or array.get(zPendingInvalidA, i)
                         resizeZoneOnInvalidation(i)
 
-                box elive = array.get(zEntryBoxA, i)
-                box slive = array.get(zSlBoxA, i)
-                box tlive = array.get(zTpBoxA, i)
+                line elive = array.get(zEntryLineA, i)
+                line slive = array.get(zSlLineA, i)
+                line tlive = array.get(zTpLineA, i)
 
                 // Skontroluj či cena dosiahla TP alebo SL → zastaviť predlžovanie
                 bool levelHit = false
+                bool tpHit = false
+                bool slHit = false
                 if not na(slive) and not na(tlive)
-                    float slLevel = (box.get_top(slive) + box.get_bottom(slive)) / 2
-                    float tpLevel = (box.get_top(tlive) + box.get_bottom(tlive)) / 2
-                    bool tpHit = typ == 1 ? high >= tpLevel : low <= tpLevel
-                    bool slHit = typ == 1 ? low <= slLevel : high >= slLevel
+                    float slLevel = line.get_y1(slive)
+                    float tpLevel = line.get_y1(tlive)
+                    tpHit := typ == 1 ? high >= tpLevel : low <= tpLevel
+                    slHit := typ == 1 ? low <= slLevel : high >= slLevel
                     levelHit := tpHit or slHit
 
-                // Pozícia bola vyplnená a teraz je zatvorená (TP/SL cez stratégiu)
-                bool positionClosed = wasFilled and not hasPosition
+                // Pozícia bola vyplnená a teraz je zatvorená (už nie je v opentrades)
+                bool positionClosed = wasFilled and not myOrderOpen
 
                 if levelHit or positionClosed
-                    // Počítaj ziskové trady pre denný limit
-                    if positionClosed
-                        int nClosed = strategy.closedtrades
-                        if nClosed > 0
-                            if strategy.closedtrades.profit(nClosed - 1) > 0
+                    // Počítaj ziskové/stratové trady (aj pri levelHit aj positionClosed)
+                    if wasFilled
+                        if positionClosed
+                            // Najspoľahlivejšie — použijeme skutočný profit z closedtrades
+                            int nClosed = strategy.closedtrades
+                            if nClosed > 0
+                                float lastProfit = strategy.closedtrades.profit(nClosed - 1)
+                                if lastProfit > 0
+                                    dailyWinsCount += 1
+                                    consecLosses := 0
+                                    scaledEntryUsed := false
+                                else if lastProfit < 0
+                                    consecLosses := math.min(consecLosses + 1, 4)
+                                    scaledEntryUsed := false
+                        else if levelHit
+                            // Fallback — pozícia ešte nie je zatvorená v stratégii,
+                            // ale cena dosiahla TP/SL úroveň → určíme podľa toho čo bolo zasiahnuté
+                            if tpHit
                                 dailyWinsCount += 1
+                                consecLosses := 0
+                                scaledEntryUsed := false
+                            else if slHit
+                                consecLosses := math.min(consecLosses + 1, 4)
+                                scaledEntryUsed := false
                     // Čiary zastavia presne tu, zostanú ako historický záznam
                     if invalidateOnFill or array.get(zPendingInvalidA, i)
                         resizeZoneOnInvalidation(i)
                     array.set(zStateA, i, -1)
                 else
-                    // Predlžuj SL/TP/Entry boxy každý bar
+                    // Predlžuj SL/TP/Entry čiary každý bar
                     if not na(elive)
-                        box.set_right(elive, bar_index + 1)
+                        line.set_x2(elive, bar_index + 1)
                     if not na(slive)
-                        box.set_right(slive, bar_index + 1)
+                        line.set_x2(slive, bar_index + 1)
                     if not na(tlive)
-                        box.set_right(tlive, bar_index + 1)
+                        line.set_x2(tlive, bar_index + 1)
 
                 // Timeout: cancel pending order + zmaž čiary LEN ak order NEBOL nikdy vyplnený
-                if barsInState5 > state4MaxBars and not hasPosition and not wasFilled
-                    strategy.cancel("LONG_" + str.tostring(i))
-                    strategy.cancel("SHORT_" + str.tostring(i))
+                if barsInState5 > state5MaxBars and not myOrderOpen and not wasFilled
+                    strategy.cancel(myOrderId)
                     deleteTradeLines(i)
                     array.set(zStateA, i, -1)
+                    // Label: order expiroval bez vyplnenia
+                    float yExp = typ == 1 ? low - syminfo.mintick * 30 : high + syminfo.mintick * 30
+                    label expLbl = label.new(bar_index, yExp, "EXPIRED", xloc=xloc.bar_index, style=typ == 1 ? label.style_label_up : label.style_label_down, color=color.orange, textcolor=color.white, size=size.small)
+                    array.push(stateLabelPool, expLbl)
+                    if array.size(stateLabelPool) > stateLabelMax
+                        label oldExp = array.shift(stateLabelPool)
+                        label.delete(oldExp)
 
             // ===== STATE LABELS: label s číslom stavu na každom bare od state 1+ =====
             if st >= 1 and st <= 4 and barstate.isconfirmed
@@ -828,18 +971,58 @@ if zN > 0
                     label old = array.shift(stateLabelPool)
                     label.delete(old)
 
-// ==================== CLOSE ALL AT SESSION END ====================
-// Spustí sa na konci KAŽDEJ session zvlášť (NY alebo London)
-if closeAtSessionEnd and (s1TradeJustClosed or s2TradeJustClosed)
-    // Zatvor všetky otvorené pozície
-    if strategy.position_size != 0
-        strategy.close_all("SESSION_END_CLOSE")
-    // Zruš všetky pending ordery a uprac state machine
-    int nZones = array.size(zStateA)
-    for i = 0 to nZones - 1
-        int zSt = array.get(zStateA, i)
-        if zSt == 5
-            strategy.cancel("LONG_" + str.tostring(i))
-            strategy.cancel("SHORT_" + str.tostring(i))
-            deleteTradeLines(i)
-            array.set(zStateA, i, -1)
+// ==================== CLOSE AT SESSION END (per timezone) ====================
+// Pre každý timezone: zatvor trady až keď posledná trade session v danom TZ skončí
+// NY timezone — zatvor len ak ŽIADNA NY session ešte nebeží
+bool nyTZ_anyActive  = s1Trade or s2Trade  // sessions zdieľajúce NY timezone
+bool lonTZ_anyActive = s3Trade              // sessions zdieľajúce London timezone
+
+// Zisti ktoré timezone práve stratili posledné aktívne okno
+bool nyTZ_justClosed  = (sess1TZ == sess2TZ) and (s1TradeJustClosed or s2TradeJustClosed) and not nyTZ_anyActive
+bool lonTZ_justClosed = s3TradeJustClosed and not lonTZ_anyActive
+
+// Dynamicky: ak sess1TZ != sess2TZ, každá NY session je samostatný timezone
+bool s1TZ_justClosed = (sess1TZ != sess2TZ) and s1TradeJustClosed and not s1Trade
+bool s2TZ_justClosed = (sess1TZ != sess2TZ) and s2TradeJustClosed and not s2Trade
+
+if closeAtSessionEnd
+    // Urči ktoré timezone sa práve zatvorili
+    bool nyClose  = (sess1TZ == sess2TZ) ? nyTZ_justClosed : false
+    bool s1Close  = s1TZ_justClosed
+    bool s2Close  = s2TZ_justClosed
+    bool lonClose = lonTZ_justClosed
+
+    if nyClose or s1Close or s2Close or lonClose
+        int nZones = array.size(zStateA)
+        for i = 0 to nZones - 1
+            string zTZ = array.get(zSessTZA, i)
+            // Skontroluj či timezone tejto zóny je medzi práve zatvorenými
+            bool shouldClose = false
+            if nyClose and zTZ == sess1TZ
+                shouldClose := true
+            if s1Close and zTZ == sess1TZ
+                shouldClose := true
+            if s2Close and zTZ == sess2TZ
+                shouldClose := true
+            if lonClose and zTZ == sess3TZ
+                shouldClose := true
+
+            if shouldClose
+                int zSt = array.get(zStateA, i)
+                if zSt >= 1 and zSt <= 5
+                    int zTypSess = array.get(zTypA, i)
+                    string sessOrderId = (zTypSess == 1 ? "LONG_" : "SHORT_") + str.tostring(i)
+                    // Vždy zruš pending limit order (mohol byť umiestnený v STATE 4)
+                    strategy.cancel(sessOrderId)
+                    if zSt == 5
+                        // Zatvor otvorenú pozíciu pre túto zónu
+                        bool myOpen = false
+                        for t = 0 to strategy.opentrades - 1
+                            if strategy.opentrades.entry_id(t) == sessOrderId
+                                myOpen := true
+                        if myOpen
+                            strategy.close(sessOrderId, comment="SESSION_END")
+                    // Zmaž čiary ak boli nakreslené a order nebol vyplnený
+                    if zSt >= 4 and not array.get(zFilledA, i)
+                        deleteTradeLines(i)
+                    array.set(zStateA, i, -1)
