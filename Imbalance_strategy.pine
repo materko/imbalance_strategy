@@ -96,29 +96,41 @@ inWindowTZ(int sh, int sm, int eh, int em, string tz) =>
     int t2  = time < st ? time + 86400000 : time
     t2 >= st and t2 < en2
 
-// Session 1 okná
-bool s1Zone  = sess1On and inWindowTZ(sess1ZoneStartH, sess1ZoneStartM, sess1ZoneEndH, sess1ZoneEndM, sess1TZ)
-bool s1Trade = sess1On and inWindowTZ(sess1TradeStartH, sess1TradeStartM, sess1TradeEndH, sess1TradeEndM, sess1TZ)
+// Per-session weekday filter — kontroluje víkend v TZ samotnej session
+isWeekdayTZ(string tz) =>
+    int sdow = dayofweek(time, tz)
+    not weekdaysOnly or (sdow >= dayofweek.monday and sdow <= dayofweek.friday)
+
+// Má session ešte START "dnes" (v jej TZ)? = jej trade window ešte len začne
+sessionStartInFutureToday(bool enabled, int sh, int sm, string tz) =>
+    bool result = false
+    if enabled and isWeekdayTZ(tz)
+        int startT = timestamp(tz, year(time, tz), month(time, tz), dayofmonth(time, tz), sh, sm)
+        result := time < startT
+    result
+
+// Session 1 okná — s per-tz weekend filtrom
+bool s1Zone  = sess1On and isWeekdayTZ(sess1TZ) and inWindowTZ(sess1ZoneStartH, sess1ZoneStartM, sess1ZoneEndH, sess1ZoneEndM, sess1TZ)
+bool s1Trade = sess1On and isWeekdayTZ(sess1TZ) and inWindowTZ(sess1TradeStartH, sess1TradeStartM, sess1TradeEndH, sess1TradeEndM, sess1TZ)
 // Session 2 okná
-bool s2Zone  = sess2On and inWindowTZ(sess2ZoneStartH, sess2ZoneStartM, sess2ZoneEndH, sess2ZoneEndM, sess2TZ)
-bool s2Trade = sess2On and inWindowTZ(sess2TradeStartH, sess2TradeStartM, sess2TradeEndH, sess2TradeEndM, sess2TZ)
+bool s2Zone  = sess2On and isWeekdayTZ(sess2TZ) and inWindowTZ(sess2ZoneStartH, sess2ZoneStartM, sess2ZoneEndH, sess2ZoneEndM, sess2TZ)
+bool s2Trade = sess2On and isWeekdayTZ(sess2TZ) and inWindowTZ(sess2TradeStartH, sess2TradeStartM, sess2TradeEndH, sess2TradeEndM, sess2TZ)
 // Session 3 okná
-bool s3Zone  = sess3On and inWindowTZ(sess3ZoneStartH, sess3ZoneStartM, sess3ZoneEndH, sess3ZoneEndM, sess3TZ)
-bool s3Trade = sess3On and inWindowTZ(sess3TradeStartH, sess3TradeStartM, sess3TradeEndH, sess3TradeEndM, sess3TZ)
+bool s3Zone  = sess3On and isWeekdayTZ(sess3TZ) and inWindowTZ(sess3ZoneStartH, sess3ZoneStartM, sess3ZoneEndH, sess3ZoneEndM, sess3TZ)
+bool s3Trade = sess3On and isWeekdayTZ(sess3TZ) and inWindowTZ(sess3TradeStartH, sess3TradeStartM, sess3TradeEndH, sess3TradeEndM, sess3TZ)
 
-// Weekday filter — použijeme UTC pre konzistenciu
-int dow            = dayofweek(time, "UTC")
-bool isWeekday     = not weekdaysOnly or (dow >= dayofweek.monday and dow <= dayofweek.friday)
-
-// Kombinované okná (ktorákoľvek aktívna session)
-bool inZoneWindow  = isWeekday and (s1Zone or s2Zone or s3Zone)
-bool inTradeWindow = isWeekday and (s1Trade or s2Trade or s3Trade)
+// Kombinované okná (per-tz weekend filter je už v každej sNZone/sNTrade)
+bool inZoneWindow  = s1Zone or s2Zone or s3Zone
+bool inTradeWindow = s1Trade or s2Trade or s3Trade
 bool tradeWindowJustClosed = inTradeWindow[1] and not inTradeWindow  // prechod z ON → OFF
 
-// Detekcia konca KAŽDEJ session zvlášť (pre close all)
-bool s1TradeJustClosed = (sess1On and isWeekday) and (s1Trade[1] and not s1Trade)
-bool s2TradeJustClosed = (sess2On and isWeekday) and (s2Trade[1] and not s2Trade)
-bool s3TradeJustClosed = (sess3On and isWeekday) and (s3Trade[1] and not s3Trade)
+// Last session of the day = trade window sa práve zatvoril a žiadna ďalšia session
+// už dnes vo svojej TZ nezačne (porovnáva v UTC ms cez timestamp())
+bool s1FutureStart = sessionStartInFutureToday(sess1On, sess1TradeStartH, sess1TradeStartM, sess1TZ)
+bool s2FutureStart = sessionStartInFutureToday(sess2On, sess2TradeStartH, sess2TradeStartM, sess2TZ)
+bool s3FutureStart = sessionStartInFutureToday(sess3On, sess3TradeStartH, sess3TradeStartM, sess3TZ)
+bool noMoreSessionsToday = not s1FutureStart and not s2FutureStart and not s3FutureStart
+bool lastSessionJustClosed = tradeWindowJustClosed and noMoreSessionsToday
 
 // ==================== BACKGROUND ====================
 bgcolor(s1Trade ? color.new(color.blue, 90) : (s1Zone ? color.new(color.blue, 95) : na), title="Session 1")
@@ -253,7 +265,6 @@ var line[]  zTpLineA    = array.new_line()  // TP čiara
 var bool[]  zImb0LblDrawnA = array.new_bool()  // či bol label "0" na IMB sviecke nakreslený
 var bool[]  zFilledA = array.new_bool()        // true = order bol vyplnený (pozícia bola otvorená)
 var bool[]  zPendingInvalidA = array.new_bool() // true = cena prešla zónou počas STATE 1-4 → odložená vizuálna invalidácia
-var string[] zSessTZA = array.new_string()     // timezone session v ktorej bola zóna vytvorená
 
 var label[] stateLabelPool = array.new_label()  // rolling buffer pre state labels
 int stateLabelMax = 500
@@ -316,9 +327,6 @@ if newZone
     array.push(zImb0LblDrawnA, false)
     array.push(zFilledA, false)
     array.push(zPendingInvalidA, false)
-    // Urči timezone podľa toho, ktorá session zone window je práve aktívna
-    string zoneTZ = s1Zone ? sess1TZ : (s2Zone ? sess2TZ : (s3Zone ? sess3TZ : ""))
-    array.push(zSessTZA, zoneTZ)
 
     // Cleanup ak prekročíme limit
     if array.size(zTopA) > maxSdZonesEff
@@ -358,7 +366,6 @@ if newZone
         array.shift(zImb0LblDrawnA)
         array.shift(zFilledA)
         array.shift(zPendingInvalidA)
-        array.shift(zSessTZA)
 
     lastDrawT0 := zT05
 
@@ -971,58 +978,27 @@ if zN > 0
                     label old = array.shift(stateLabelPool)
                     label.delete(old)
 
-// ==================== CLOSE AT SESSION END (per timezone) ====================
-// Pre každý timezone: zatvor trady až keď posledná trade session v danom TZ skončí
-// NY timezone — zatvor len ak ŽIADNA NY session ešte nebeží
-bool nyTZ_anyActive  = s1Trade or s2Trade  // sessions zdieľajúce NY timezone
-bool lonTZ_anyActive = s3Trade              // sessions zdieľajúce London timezone
-
-// Zisti ktoré timezone práve stratili posledné aktívne okno
-bool nyTZ_justClosed  = (sess1TZ == sess2TZ) and (s1TradeJustClosed or s2TradeJustClosed) and not nyTZ_anyActive
-bool lonTZ_justClosed = s3TradeJustClosed and not lonTZ_anyActive
-
-// Dynamicky: ak sess1TZ != sess2TZ, každá NY session je samostatný timezone
-bool s1TZ_justClosed = (sess1TZ != sess2TZ) and s1TradeJustClosed and not s1Trade
-bool s2TZ_justClosed = (sess1TZ != sess2TZ) and s2TradeJustClosed and not s2Trade
-
-if closeAtSessionEnd
-    // Urči ktoré timezone sa práve zatvorili
-    bool nyClose  = (sess1TZ == sess2TZ) ? nyTZ_justClosed : false
-    bool s1Close  = s1TZ_justClosed
-    bool s2Close  = s2TZ_justClosed
-    bool lonClose = lonTZ_justClosed
-
-    if nyClose or s1Close or s2Close or lonClose
-        int nZones = array.size(zStateA)
-        for i = 0 to nZones - 1
-            string zTZ = array.get(zSessTZA, i)
-            // Skontroluj či timezone tejto zóny je medzi práve zatvorenými
-            bool shouldClose = false
-            if nyClose and zTZ == sess1TZ
-                shouldClose := true
-            if s1Close and zTZ == sess1TZ
-                shouldClose := true
-            if s2Close and zTZ == sess2TZ
-                shouldClose := true
-            if lonClose and zTZ == sess3TZ
-                shouldClose := true
-
-            if shouldClose
-                int zSt = array.get(zStateA, i)
-                if zSt >= 1 and zSt <= 5
-                    int zTypSess = array.get(zTypA, i)
-                    string sessOrderId = (zTypSess == 1 ? "LONG_" : "SHORT_") + str.tostring(i)
-                    // Vždy zruš pending limit order (mohol byť umiestnený v STATE 4)
-                    strategy.cancel(sessOrderId)
-                    if zSt == 5
-                        // Zatvor otvorenú pozíciu pre túto zónu
-                        bool myOpen = false
-                        for t = 0 to strategy.opentrades - 1
-                            if strategy.opentrades.entry_id(t) == sessOrderId
-                                myOpen := true
-                        if myOpen
-                            strategy.close(sessOrderId, comment="SESSION_END")
-                    // Zmaž čiary ak boli nakreslené a order nebol vyplnený
-                    if zSt >= 4 and not array.get(zFilledA, i)
-                        deleteTradeLines(i)
-                    array.set(zStateA, i, -1)
+// ==================== CLOSE AT SESSION END ====================
+// Zatvor všetky pozície a pending ordery keď posledná session dňa skončila
+// (žiadna ďalšia session už dnes vo svojej TZ nezačne)
+if closeAtSessionEnd and lastSessionJustClosed
+    int nZones = array.size(zStateA)
+    for i = 0 to nZones - 1
+        int zSt = array.get(zStateA, i)
+        if zSt >= 1 and zSt <= 5
+            int zTypSess = array.get(zTypA, i)
+            string sessOrderId = (zTypSess == 1 ? "LONG_" : "SHORT_") + str.tostring(i)
+            // Vždy zruš pending limit order (mohol byť umiestnený v STATE 4)
+            strategy.cancel(sessOrderId)
+            if zSt == 5
+                // Zatvor otvorenú pozíciu pre túto zónu
+                bool myOpen = false
+                for t = 0 to strategy.opentrades - 1
+                    if strategy.opentrades.entry_id(t) == sessOrderId
+                        myOpen := true
+                if myOpen
+                    strategy.close(sessOrderId, comment="SESSION_END")
+            // Zmaž čiary ak boli nakreslené a order nebol vyplnený
+            if zSt >= 4 and not array.get(zFilledA, i)
+                deleteTradeLines(i)
+            array.set(zStateA, i, -1)
