@@ -1,0 +1,19 @@
+{
+  "_comment": [
+    "MNQ (Micro E-mini Nasdaq-100), 3m - ZAKLADNY PROFIL pre MultiCharts futures/akcie.",
+    "Obsahuje LEN odchylky od Pine defaultov; zvysok doplni IBSConfig.",
+    "Vsetky velkostne parametre su hole cisla = presne Pine spravanie (unit 'abs'/'ticks'),",
+    "takze tento profil ma byt bit-identicky s TradingView backtestom.",
+    "Zdroj hodnot: docs/tv_settings_2026-09-03.md (5 odchylok od Pine defaultov)."
+  ],
+  "_instrument": "mnq",
+
+  "enablePinBarEntry": true,
+  "enableTrailing": true,
+  "tradeDirection": "Long only",
+  "sess2ZoneStartH": 8,
+  "showElliott": false,
+
+  "tickDollarValue": 0.5,
+  "legacyPineSizing": true
+}

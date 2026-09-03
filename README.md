@@ -13,3 +13,19 @@
 
 **Plán:** prepísať do Pythonu / Freqtrade so zachovaním rovnakých nastavení a rovnakého vykreslovania na grafoch.
 Referenčný setup: BTCUSD 3m (Coinbase), Long only, RR 1:1 — 17 obchodov, 8W/9L, 47 % winrate.
+
+## Python port
+
+```bash
+python -m pip install -e ".[dev]"
+python -m pytest
+```
+
+| Cesta | Popis |
+|---|---|
+| [`ibs/core/types.py`](ibs/core/types.py) | `Bar`, `HTFWindow`, `InstrumentSpec`, `SizeSpec`, enumy |
+| [`ibs/core/config.py`](ibs/core/config.py) | `IBSConfig` — všetkých 115 Pine vstupov + validácia + profily |
+| [`ibs/configs/`](ibs/configs) | JSON profily (len odchýlky od Pine defaultov): `mnq_3m`, `btcusd_3m_coinbase`, `btcusdt_3m_binance` |
+| [`ibs/tests/test_pine_parity.py`](ibs/tests/test_pine_parity.py) | parsuje `imbalance_strategy_FULL.pine` a stráži, že config nespadol z Pine originálu |
+
+Návrh architektúry a rozhodnutia: [`docs/ARCHITECTURE_port.md`](docs/ARCHITECTURE_port.md)

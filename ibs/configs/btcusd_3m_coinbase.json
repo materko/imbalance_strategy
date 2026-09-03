@@ -1,0 +1,21 @@
+{
+  "_comment": [
+    "COINBASE:BTCUSD, 3m - REFERENCNY profil. Presne to, co je na screenshotoch v docs/.",
+    "Sluzi na overenie logiky jadra proti TradingView (17 obchodov, 8W/9L, 47% winrate).",
+    "Freqtrade Coinbase NEPODPORUJE - tento profil je len pre MultiCharts a golden testy.",
+    "tickDollarValue=0.5 je tu ZAMERNE ponechane, hoci je to hodnota pre MNQ: TradingView",
+    "s nou realne pocital. Spolu s legacyPineSizing=true to reprodukuje aj to, ze sa limit",
+    "maxLossDollar neuplatnil a vsetky obchody isli s qty=1. Viz ARCHITECTURE_port.md 3c.",
+    "Pre REALNE obchodovanie legacyPineSizing vypni - je to len pre golden test."
+  ],
+  "_instrument": "btcusd_coinbase",
+
+  "enablePinBarEntry": true,
+  "enableTrailing": true,
+  "tradeDirection": "Long only",
+  "sess2ZoneStartH": 8,
+  "showElliott": false,
+
+  "tickDollarValue": 0.5,
+  "legacyPineSizing": true
+}
