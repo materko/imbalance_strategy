@@ -197,7 +197,8 @@ Tick-based inputy (`imbMaxDistTicks`, `state2ConfirmTicks`, `slBufferTicks`) sú
 
 | Profil | Freqtrade | MultiCharts | Rola |
 |---|---|---|---|
-| `btcusdt_3m` | ✅ | ✅ | jediný spoločný inštrument → **priama parita medzi platformami** |
+| `btcusdt_3m_binance` | ✅ futures | ✅ | spoločný inštrument → **priama parita medzi platformami** |
+| `btcusd_3m_coinbase` | ❌ (viď nižšie) | ✅ | **referenčný** — presne to, čo je na TV screenshotoch |
 | `mnq_3m` | — | ✅ | **základ pre futures/akcie**, `unit: abs`, 1:1 s TV |
 | akcie | — | ✅ | odvodené z `mnq_3m` |
 | forex | — | (možno neskôr) | |
@@ -206,23 +207,50 @@ To, že **BTCUSDT beží na oboch platformách, je testovacia výhoda**: rovnak�
 dva adaptéry → ak sa výsledky rozídu, chyba je v adaptéri, nie v jadre. Toto bude náš
 cross-platform smoke test (`tests/test_adapter_parity.py`).
 
-### ⚠️ Pozor: TV referenčný graf je Coinbase BTCUSD, ale obchodovať budeme BTCUSDT
+### Burzy: Coinbase + Binance
 
-| | Coinbase BTCUSD (screenshoty) | BTCUSDT perp |
+`InstrumentSpec` dostane `venue` — jadro zostáva venue-agnostické, líši sa len spec a profil:
+
+```
+configs/btcusd_3m_coinbase.json    # tick 0.01 — zhodné s TV screenshotmi
+configs/btcusdt_3m_binance.json    # tick 0.1  — perp
+```
+
+> ⚠️ **Freqtrade Coinbase nepodporuje.** V oficiálnom zozname búrz Coinbase **vôbec nefiguruje**
+> (Binance, Bingx, Kraken, Kraken Futures, Kucoin, HTX, OKX, Gate.io, Bybit, Bitget, Hyperliquid,
+> Bitvavo). Futures vedia len Binance, Bitget, Bybit, Gate.io, Hyperliquid, Kraken Futures, OKX.
+> Cez ccxt by Coinbase možno bežal, ale **spot-only, netestovaný a bez `stoploss_on_exchange`** —
+> čo je v rozpore s rozhodnutím #1 (futures).
+
+Preto navrhujem takéto rozdelenie rolí — obe burzy zostávajú, každá robí to, čo vie:
+
+| Burza | Rola | Freqtrade | MultiCharts |
+|---|---|---|---|
+| **Coinbase** `BTCUSD` | **referenčná / dátová** — presne to, čo je na TV screenshotoch, takže tu porovnávame paritu s TradingView | ❌ nepodporovaná | ✅ (cez data feed) |
+| **Binance** `BTCUSDT` perp | **exekučná** — reálne obchodovanie, futures, shorty | ✅ futures isolated | ✅ |
+
+Vo Freqtrade je aj tak **jedna inštancia = jedna burza**, takže by to boli dva configy;
+takto máme namiesto duplicity zmysluplnú deľbu: Coinbase overuje *logiku* proti TV,
+Binance obchoduje.
+
+### ⚠️ Tick-based inputy nie sú venue-neutrálne
+
+| | Coinbase BTCUSD | Binance BTCUSDT perp |
 |---|---|---|
 | `tick_size` | **0.01** | **0.1** (10× väčší) |
 | `imbMaxDistTicks = 100` | $1 | **$10** |
 | `slBufferTicks = 2` | $0.02 | **$0.20** |
 | `state2ConfirmTicks = 1` | $0.01 | **$0.10** |
 
-Tick-based inputy teda **nie sú** venue-neutrálne, aj keď sa tak tvária. Navyše sa líšia aj samotné
-ceny medzi burzami. **Odporúčanie: prepni TradingView graf na ten istý pár/burzu, ktorý budeme
-obchodovať** (napr. `BINANCE:BTCUSDT.P`) a golden fixture exportuj až z neho — inak porovnávame
-jablká s hruškami a nikdy nedosiahneme paritu.
+Tvária sa prenositeľne, ale nie sú. Ak sa má stratégia na Binance správať ako na Coinbase,
+tieto tri hodnoty treba na Binance profile **vydeliť 10** (`imbMaxDistTicks: 10`,
+`slBufferTicks: 1` — pozor, `state2ConfirmTicks` už nižšie ako 1 nejde, tam nastane
+nevyhnutná odchýlka). Alternatíva: prepnúť ich tiež na `SizeSpec` s `unit: 'abs'`
+a zadať rovno v dolároch — čistejšie a odporúčam to.
 
 `tick_size` / `qty_step` sa **nezadávajú do configu ručne** — adaptér ich číta z burzy
 (Freqtrade: `exchange.markets[pair]['precision']` / `['limits']`; MultiCharts: `MinMove/PriceScale`),
-lebo Binance ich občas mení.
+lebo burzy ich občas menia.
 
 ---
 
@@ -448,7 +476,8 @@ okrem Pin Baru. `enableSrTrading=false`, `enableLqTrading=false`, `useStructureF
 | 2 | `tickDollarValue` | nahradiť za `point_value` v `InstrumentSpec` (§3c); `qty_step` namiesto `int()` |
 | 3 | Fill model | `timeframe='3m'` + `timeframe_detail='1m'` (§7) — **nie** stratégia na 1m |
 | 4 | Inštrumenty | **BTCUSDT na oboch platformách**; MultiCharts navyše **MNQ ako základ** pre futures/akcie → `InstrumentSpec` + `SizeSpec` (§3b) |
-| 5 | Golden fixture | prepnúť TV graf z `COINBASE:BTCUSD` na obchodovaný `BTCUSDT` pár — inak tick-based inputy nesedia (§3b) |
+| 5 | Burzy | **Coinbase + Binance.** Coinbase = referenčná (parita s TV), Binance = exekučná (futures). Freqtrade Coinbase nepodporuje (§3b) |
+| 6 | Golden fixture | export z TradingView pre **oba** grafy: `COINBASE:BTCUSD` (parita jadra) aj `BINANCE:BTCUSDT.P` (parita exekúcie) |
 
 ### Čo z toho vyplýva pre multi-inštrument
 
@@ -465,8 +494,10 @@ okrem Pin Baru. `enableSrTrading=false`, `enableLqTrading=false`, `useStructureF
 
 ### Ešte otvorené
 
-- **Ktorá burza pre BTCUSDT** (Binance / Bybit / …) — mení `tick_size`, `qty_step` aj funding.
-  Treba to vedieť skôr, než exportujeme golden fixture z TradingView.
+- Či na Binance profile **prepočítame tick-based inputy na `abs` v dolároch** (odporúčam),
+  alebo ich necháme v tickoch a zmierime sa s 10× posunom oproti Coinbase.
+- Ak by sa naozaj malo obchodovať aj na Coinbase cez Freqtrade, treba zvoliť inú podporovanú
+  burzu so spotom (Kraken, Kucoin) alebo akceptovať netestovaný ccxt režim bez futures.
 - Či pre MNQ chceme MultiCharts brať ako referenciu namiesto TradingView (obe sú futures dáta,
   takže by mali sedieť tesnejšie než BTC).
 - **Funding rate** na perpetuáli — Pine ho nepozná vôbec. Pri `zoneValidHours=6` a intradenných
