@@ -184,14 +184,45 @@ class SizeSpec:
 
 Config profily potom vyzerajú takto a **`abs` zaručuje bit-identitu s TradingView**:
 ```
-configs/mnq_3m.json      → {"minImbSizePoints": {"value": 2.5, "unit": "abs"}}    # 1:1 s TV
-configs/btcusd_3m.json   → {"minImbSizePoints": {"value": 0.25, "unit": "atr"}}   # prenositeľné
-configs/eurusd_5m.json   → {"minImbSizePoints": {"value": 0.25, "unit": "atr"}}
+configs/mnq_3m.json       → {"minImbSizePoints": {"value": 2.5,  "unit": "abs"}}   # 1:1 s TV, ZÁKLAD
+configs/btcusdt_3m.json   → {"minImbSizePoints": {"value": 0.25, "unit": "atr"}}   # prenositeľné
+configs/<stock>_3m.json   → odvodené z mnq_3m.json
 ```
 
 Odporúčanie: **na MNQ používaj `abs`** (aby sedelo s TV backtestom), na ostatné inštrumenty `atr`.
 Tick-based inputy (`imbMaxDistTicks`, `state2ConfirmTicks`, `slBufferTicks`) sú už násobené
 `syminfo.mintick`, takže tie sa prenášajú samy — problém sú len tie „points".
+
+### Cieľové inštrumenty (rozhodnuté 2026-09-04)
+
+| Profil | Freqtrade | MultiCharts | Rola |
+|---|---|---|---|
+| `btcusdt_3m` | ✅ | ✅ | jediný spoločný inštrument → **priama parita medzi platformami** |
+| `mnq_3m` | — | ✅ | **základ pre futures/akcie**, `unit: abs`, 1:1 s TV |
+| akcie | — | ✅ | odvodené z `mnq_3m` |
+| forex | — | (možno neskôr) | |
+
+To, že **BTCUSDT beží na oboch platformách, je testovacia výhoda**: rovnaké dáta, rovnaký config,
+dva adaptéry → ak sa výsledky rozídu, chyba je v adaptéri, nie v jadre. Toto bude náš
+cross-platform smoke test (`tests/test_adapter_parity.py`).
+
+### ⚠️ Pozor: TV referenčný graf je Coinbase BTCUSD, ale obchodovať budeme BTCUSDT
+
+| | Coinbase BTCUSD (screenshoty) | BTCUSDT perp |
+|---|---|---|
+| `tick_size` | **0.01** | **0.1** (10× väčší) |
+| `imbMaxDistTicks = 100` | $1 | **$10** |
+| `slBufferTicks = 2` | $0.02 | **$0.20** |
+| `state2ConfirmTicks = 1` | $0.01 | **$0.10** |
+
+Tick-based inputy teda **nie sú** venue-neutrálne, aj keď sa tak tvária. Navyše sa líšia aj samotné
+ceny medzi burzami. **Odporúčanie: prepni TradingView graf na ten istý pár/burzu, ktorý budeme
+obchodovať** (napr. `BINANCE:BTCUSDT.P`) a golden fixture exportuj až z neho — inak porovnávame
+jablká s hruškami a nikdy nedosiahneme paritu.
+
+`tick_size` / `qty_step` sa **nezadávajú do configu ručne** — adaptér ich číta z burzy
+(Freqtrade: `exchange.markets[pair]['precision']` / `['limits']`; MultiCharts: `MinMove/PriceScale`),
+lebo Binance ich občas mení.
 
 ---
 
@@ -226,6 +257,9 @@ orderQty = max(1, floor(350 / 7500))  = max(1, 0) = 1
 → `floor()` dá 0, `max(1, …)` to vytiahne na 1, takže **strategia vždy obchoduje qty=1
 a limit $350 sa ticho ignoruje.** Preto je „RISK / OBCHOD: $350" na tvojom BTC grafe len kozmetika.
 
+Na **BTCUSDT perp** (tick 0.1) to vyjde rovnako zle: `150/0.1 × 0.5 = $750`,
+`floor(350/750) = 0 → 1`. Problém teda nezmizne prechodom na iný pár — treba opraviť vzorec.
+
 ### Návrh: nahradiť `tickDollarValue` za `point_value`
 Matematika je totožná, ale prenositeľná — `point_value = tickDollarValue / tick_size`:
 
@@ -238,7 +272,7 @@ qty     = max(inst.min_qty, floor(qty_raw / inst.qty_step) * inst.qty_step)
 |---|---|---|---|---|
 | MNQ (Micro Nasdaq) | 0.25 | **2.0** | 1 | = dnešné `tickDollarValue 0.5` |
 | ES / MES | 0.25 | 50 / 5 | 1 | |
-| BTC perp (1 BTC/kontrakt) | 0.01 | **1.0** | 0.001 | frakčné qty! |
+| **BTCUSDT perp** | **0.1** | **1.0** | **0.001** | frakčné qty!; overiť na burze |
 | EURUSD (1 štandardný lot) | 0.00001 | 100 000 | 0.01 | |
 | Akcie US | 0.01 | 1.0 | 1 | |
 
@@ -413,7 +447,8 @@ okrem Pin Baru. `enableSrTrading=false`, `enableLqTrading=false`, `useStructureF
 | 1 | Freqtrade spot/futures | **futures** — `trading_mode='futures'`, `margin_mode='isolated'`, `can_short=True` |
 | 2 | `tickDollarValue` | nahradiť za `point_value` v `InstrumentSpec` (§3c); `qty_step` namiesto `int()` |
 | 3 | Fill model | `timeframe='3m'` + `timeframe_detail='1m'` (§7) — **nie** stratégia na 1m |
-| 4 | Inštrumenty | Freqtrade = crypto perp; MultiCharts = MNQ + akcie + forex → `InstrumentSpec` + `SizeSpec` (§3b) |
+| 4 | Inštrumenty | **BTCUSDT na oboch platformách**; MultiCharts navyše **MNQ ako základ** pre futures/akcie → `InstrumentSpec` + `SizeSpec` (§3b) |
+| 5 | Golden fixture | prepnúť TV graf z `COINBASE:BTCUSD` na obchodovaný `BTCUSDT` pár — inak tick-based inputy nesedia (§3b) |
 
 ### Čo z toho vyplýva pre multi-inštrument
 
@@ -430,9 +465,13 @@ okrem Pin Baru. `enableSrTrading=false`, `enableLqTrading=false`, `useStructureF
 
 ### Ešte otvorené
 
-- Ktorý crypto exchange/pár vo Freqtrade (kvôli `contractSize`, `qty_step`, funding).
+- **Ktorá burza pre BTCUSDT** (Binance / Bybit / …) — mení `tick_size`, `qty_step` aj funding.
+  Treba to vedieť skôr, než exportujeme golden fixture z TradingView.
 - Či pre MNQ chceme MultiCharts brať ako referenciu namiesto TradingView (obe sú futures dáta,
   takže by mali sedieť tesnejšie než BTC).
+- **Funding rate** na perpetuáli — Pine ho nepozná vôbec. Pri `zoneValidHours=6` a intradenných
+  obchodoch je vplyv malý, ale vo Freqtrade backteste sa započíta a v TV nie → malá systematická
+  odchýlka, ktorú treba vedieť, aby sme ju nehľadali ako chybu v logike.
 
 ---
 
