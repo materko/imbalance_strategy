@@ -1,0 +1,1569 @@
+//@version=6
+strategy("IBS Imbalance Breakout Strategy", overlay=true, initial_capital=10000, margin_long=0, margin_short=0, default_qty_type=strategy.fixed, default_qty_value=1, calc_on_every_tick=true, pyramiding=0, process_orders_on_close=false, max_boxes_count=500, max_lines_count=500, max_labels_count=500)
+
+// ==================== INPUTS ====================
+// POZN: entryTF input bol odstraneny - sposoboval bug, ked sa nezhodoval so skutocnym TF grafu
+// (napr. zostal na "2" aj ked si prepol graf na 3m -> zle vypocitane gtd_in_second aj zle
+// nasnapovane hranice SD zony, kvoli comu sa zona niekedy vobec nevykreslila). Teraz sa TF grafu
+// cita automaticky cez timeframe.multiplier, takze uz sa to nemoze rozist.
+int chartTFMinutes = timeframe.multiplier
+
+// ==================== 🎯 OBCHODOVANIE (jedna spolocna sekcia v nastaveniach) ====================
+// C4 (stripped build): obsahuje LEN SD zony + IMB entry model - ziadny Pin Bar/Engulfing entry,
+// ziadne S/R ani Likviditne zdroje obchodu, ziadna Market Structure ani Elliott Waves analyza.
+// Vsetko ostatne (sessions, trailing stop, position sizing/risk, PickMyTrade, dashboard) je
+// nezmenene - viz C3 pre plnu verziu so vsetkymi modulmi.
+// Obsah tejto sekcie ("🎯 Obchodovanie" v TradingView paneli): IMB entry model (jediny entry
+// model v tomto builde), zdroj obchodu (`enableZoneDetection`, jediny zdroj = SD zony), smer
+// obchodov (`tradeDirection`), Risk:Reward pomer (`rrRatio`) a trailing stop
+// (`enableTrailing`/`trailActivationR`/`trailOffsetR`).
+//
+// ----- ENTRY MODEL -----
+// IMB entry = hľadanie imbalance/gapu vnútri SD zóny, retest, potvrdenie (STATE 0-3), presne
+// ako v C3 - jediny rozdiel je, ze v tomto builde je to JEDINY dostupny entry model.
+enableImbEntry       = input.bool(true,  "IMB entry (imbalance/gap)", tooltip="Original model - looks for an imbalance/gap inside the zone, waits for an exit, confirmation by closing beyond the body, and a return/retest to the exact gap price (a gradual, multi-bar process with several checkpoints).", group="🎯 Trading")
+
+// ----- 5) TRAILING STOP (klasicky, volitelny - vypnute = presne povodne spravanie) -----
+// Stale sucast sekcie "🎯 Obchodovanie" (viz POZN vyssie) - fyzicky je kod hned za Entry modelom,
+// pred zdrojom obchodu/smerom/RR (tie zostavaju vo svojich povodnych fyzickych miestach v subore,
+// len s prepisanym "group=" - viz vyssie).
+// Klasicky trailing stop cez vstavany Pine mechanizmus strategy.exit(trail_points, trail_offset):
+// kym obchod nedosiahne zisk vo vyske "Aktivacia trailingu", plati normalny pevny SL (ako doteraz,
+// nemenne). Po dosiahnuti tejto urovne zisku sa SL zacne AUTOMATICKY posuvat za najlepsou dosiahnutou
+// cenou, vzdy vo vzdialenosti "Trailing vzdialenost" - klasicky mechanizmus, ziadna vlastna logika
+// netreba (Pine to rieši natívne). Oba parametre su v R-nasobkoch povodneho rizika (vzdialenost
+// entry-SL tej konkretnej pozicie), nie v pevnych bodoch - takze funguju rovnako naprie rozne
+// SL vzdialenosti/instrumenty. Plati pre VSETKY tri entry modely (IMB/Pin Bar/Engulfing) rovnako.
+enableTrailing   = input.bool(false, "Enable trailing stop", tooltip="Classic trailing stop - once profit reaches the 'Trailing activation' level, the SL starts automatically following price. Disabled (default) = no change to the original behavior (fixed SL/TP based on the RR ratio for the whole trade). IMPORTANT: this switch controls trailing BOTH in the TradingView simulation (via strategy.exit) AND on the real broker via PickMyTrade (via the trail/trail_trigger/trail_stop/trail_freq JSON fields in alert_message) - see pmtMsg() and the PickMyTrade section below.", group="🎯 Trading")
+trailActivationR = input.float(1.0, "Trailing activation (R-multiple of risk)", minval=0.1, maxval=10.0, step=0.1, tooltip="Trailing activates only once the trade's profit equals this multiple of the original risk (the entry-SL distance of that position). E.g. 1.0 = activates exactly when profit reaches 1R (equal to the original risk). Used the same way for the TradingView simulation and for the PickMyTrade JSON (converted to price points instead of ticks).", group="🎯 Trading")
+trailOffsetR     = input.float(0.5, "Trailing distance (R-multiple of risk)", minval=0.05, maxval=10.0, step=0.05, tooltip="Once activated, the trailing stop follows the best price reached at a distance of this multiple of the original risk. A lower number = tighter tracking of price (locks in profit sooner, but also a higher chance of being stopped out on a small counter-move before TP). Used the same way for the TradingView simulation and for the PickMyTrade JSON.", group="🎯 Trading")
+trailFreqPct     = input.float(25,  "PickMyTrade: SL update frequency (% of trailing distance)", minval=1, maxval=100, step=1, tooltip="ONLY for PickMyTrade (real broker) - the TradingView strategy.exit has no equivalent, trailing runs continuously there. PickMyTrade moves the SL in fixed steps (the 'trail_freq' field) - this sets the step size as a % of 'Trailing distance' above. A lower number = finer/more frequent SL moves (more precise tracking), a higher number = coarser/less frequent moves. Also check the meaning of 'trail_freq' in the PickMyTrade documentation before enabling it on a live account.", group="🎯 Trading")
+
+weekdaysOnly  = input.bool(true, "Trade only Monday-Friday", tooltip="If enabled, the strategy only trades Monday through Friday - Saturdays and Sundays are skipped regardless of the session settings below.", group="⚙️ Basic Settings")
+
+// ==================== HLAVNE VYPINACE (nezavisle od seba) ====================
+// Tri samostatne prepinace, kazdy funguje nezavisle od ostatnych:
+// - enableTrading: strategia moze mat vypnute realne obchodovanie, ale zony/gapy/vizualy
+//   bezia dalej (zona sa oznaci ako "skip", nepocita sa do dashboardu/trade logu).
+// - enableZoneDetection: vypne tvorbu NOVYCH SD zon (existujuce uz bezuce zony dobehnu),
+//   nezavisle od toho, ci sa obchoduje.
+// - enableGapDetection: vypne hladanie gapu VNUTRI zony (STATE 0 aj re-entry hladanie) -
+//   zona teda zostane "cakat na gap" navzdy, kym sa znova nezapne, nezavisle od hornych dvoch.
+enableTrading       = input.bool(true, "Enable trading (strategy sends orders)", tooltip="If disabled, the strategy never sends any order and does not count trades in the dashboard/trade log. SD zone and gap detection continue to run independently (per the settings below).", group="⚙️ Basic Settings")
+enableZoneDetection = input.bool(true, "Enable SD zone detection", tooltip="If disabled, NEW SD zones stop being created (existing ones run their course). Independent of whether trading is enabled.", group="🎯 Trading")
+enableGapDetection  = input.bool(true, "Enable gap search inside the zone", tooltip="If disabled, a zone will never find an entry gap (it just keeps waiting), so an order is never created from it. Independent of zone detection and of trading.", group="📦 SD Zones")
+
+// ==================== SESSION 1 (AZIA) ====================
+// Timezone default = Europe/Prague (rovnaky SEC/SELC posun ako Bratislava, cely rok presne
+// zhodny s tvojim slovenskym casom vratane prechodu na letny/zimny cas) - takze hodiny nizsie
+// zadavas rovno vo svojom lokalnom (SEC) case, netreba nic prepocitavat.
+sess1On        = input.bool(false, "Enable", tooltip="Enables/disables the whole of Session 1 (Asia) - when disabled, no new SD zone is drawn and no trade is sent during this time window.", group="🌏 Session 1 (Asia)", inline="s1on")
+sess1TZ        = input.string("Europe/Prague", "Timezone", tooltip="Timezone in which all Session 1 times below are defined (IANA timezone, e.g. Europe/Prague).", group="🌏 Session 1 (Asia)", inline="s1on")
+sess1ZoneStartH = input.int(1,  "SD zone start (H)", tooltip="Start of the time window (hour) in which new SD zones are searched for/drawn for Session 1.", group="🌏 Session 1 (Asia)", inline="s1z")
+sess1ZoneStartM = input.int(0,  "M", tooltip="Start of the Session 1 SD zone window - minutes.", group="🌏 Session 1 (Asia)", inline="s1z")
+sess1ZoneEndH   = input.int(9,  "SD zone end (H)",   tooltip="End of the time window (hour) in which new SD zones are searched for/drawn for Session 1.", group="🌏 Session 1 (Asia)", inline="s1ze")
+sess1ZoneEndM   = input.int(0,  "M", tooltip="End of the Session 1 SD zone window - minutes.", group="🌏 Session 1 (Asia)", inline="s1ze")
+sess1TradeStartH = input.int(2,  "Trade start (H)",  tooltip="Start of the trading window (hour) for Session 1 - the strategy can only send a real order from this time on. Can differ from the zone window.", group="🌏 Session 1 (Asia)", inline="s1t")
+sess1TradeStartM = input.int(0,  "M", tooltip="Start of the Session 1 trading window - minutes.", group="🌏 Session 1 (Asia)", inline="s1t")
+sess1TradeEndH   = input.int(5,  "Trade end (H)",    tooltip="End of the trading window (hour) for Session 1 - after this time no new orders are sent for this session.", group="🌏 Session 1 (Asia)", inline="s1te")
+sess1TradeEndM   = input.int(0,  "M", tooltip="End of the Session 1 trading window - minutes.", group="🌏 Session 1 (Asia)", inline="s1te")
+
+// ==================== SESSION 2 ====================
+sess2On        = input.bool(true, "Enable", tooltip="Enables/disables the whole of Session 2 - when disabled, no new SD zone is drawn and no trade is sent during this time window.", group="📘 Session 2", inline="s2on")
+sess2TZ        = input.string("America/New_York", "Timezone", tooltip="Timezone in which all Session 2 times below are defined (IANA timezone, e.g. America/New_York).", group="📘 Session 2", inline="s2on")
+sess2ZoneStartH = input.int(10, "SD zone start (H)", tooltip="Start of the time window (hour) in which new SD zones are searched for/drawn for Session 2.", group="📘 Session 2", inline="s2z")
+sess2ZoneStartM = input.int(0,  "M", tooltip="Start of the Session 2 SD zone window - minutes.", group="📘 Session 2", inline="s2z")
+sess2ZoneEndH   = input.int(11, "SD zone end (H)",   tooltip="End of the time window (hour) in which new SD zones are searched for/drawn for Session 2.", group="📘 Session 2", inline="s2ze")
+sess2ZoneEndM   = input.int(0,  "M", tooltip="End of the Session 2 SD zone window - minutes.", group="📘 Session 2", inline="s2ze")
+sess2TradeStartH = input.int(10, "Trade start (H)",  tooltip="Start of the trading window (hour) for Session 2 - the strategy can only send a real order from this time on. Can differ from the zone window.", group="📘 Session 2", inline="s2t")
+sess2TradeStartM = input.int(0,  "M", tooltip="Start of the Session 2 trading window - minutes.", group="📘 Session 2", inline="s2t")
+sess2TradeEndH   = input.int(15, "Trade end (H)",    tooltip="End of the trading window (hour) for Session 2 - after this time no new orders are sent for this session.", group="📘 Session 2", inline="s2te")
+sess2TradeEndM   = input.int(45, "M", tooltip="End of the Session 2 trading window - minutes.", group="📘 Session 2", inline="s2te")
+
+// ==================== SESSION 3 ====================
+sess3On        = input.bool(true, "Enable", tooltip="Enables/disables the whole of Session 3 - when disabled, no new SD zone is drawn and no trade is sent during this time window.", group="📙 Session 3", inline="s3on")
+sess3TZ        = input.string("Europe/London", "Timezone", tooltip="Timezone in which all Session 3 times below are defined (IANA timezone, e.g. Europe/London).", group="📙 Session 3", inline="s3on")
+sess3ZoneStartH = input.int(8,  "SD zone start (H)", tooltip="Start of the time window (hour) in which new SD zones are searched for/drawn for Session 3.", group="📙 Session 3", inline="s3z")
+sess3ZoneStartM = input.int(0,  "M", tooltip="Start of the Session 3 SD zone window - minutes.", group="📙 Session 3", inline="s3z")
+sess3ZoneEndH   = input.int(10, "SD zone end (H)",   tooltip="End of the time window (hour) in which new SD zones are searched for/drawn for Session 3.", group="📙 Session 3", inline="s3ze")
+sess3ZoneEndM   = input.int(0,  "M", tooltip="End of the Session 3 SD zone window - minutes.", group="📙 Session 3", inline="s3ze")
+sess3TradeStartH = input.int(8,  "Trade start (H)",  tooltip="Start of the trading window (hour) for Session 3 - the strategy can only send a real order from this time on. Can differ from the zone window.", group="📙 Session 3", inline="s3t")
+sess3TradeStartM = input.int(0,  "M", tooltip="Start of the Session 3 trading window - minutes.", group="📙 Session 3", inline="s3t")
+sess3TradeEndH   = input.int(11, "Trade end (H)",    tooltip="End of the trading window (hour) for Session 3 - after this time no new orders are sent for this session.", group="📙 Session 3", inline="s3te")
+sess3TradeEndM   = input.int(0,  "M", tooltip="End of the Session 3 trading window - minutes.", group="📙 Session 3", inline="s3te")
+
+zoneDetectionTF   = input.string("5", "SD zone - detection TF (which TF the pattern is searched on)", options=["1","3","5","15","30","45","60","120","180","240","D"], tooltip="On this timeframe the script searches for the 4-candle pattern (imbalance / 3 matching candles) that forms an SD zone. It used to be hardcoded to 5 minutes, now you can also pick 15, 60 (1H), etc. - a higher TF = fewer but more significant zones.", group="📦 SD Zones")
+zoneValidHours    = input.int(6,   "Zone validity (hours)", minval=1, maxval=72, tooltip="How long (in hours from creation) a zone stays active and tradable before it automatically expires.", group="📦 SD Zones")
+maxSdZones        = input.int(200, "Max SD zones", minval=10, maxval=999, tooltip="Maximum number of simultaneously tracked SD zones - once exceeded, the oldest zone and its boxes are removed to avoid overloading the chart and memory.", group="📦 SD Zones")
+snapMode          = input.string("Floor", "Snap zone time to the TF grid", options=["Off","Floor","Ceil","Round"], tooltip="How the SD zone's start time is rounded to the nearest boundary of the current chart TF - Floor=down, Ceil=up, Round=nearest, Off=no rounding.", group="📦 SD Zones")
+invalidateOnFill  = input.bool(true, "Invalidate zone on order fill", tooltip="If checked, the SD zone visually closes once the order is filled.", group="📦 SD Zones")
+
+// ==================== VOLUME FILTER (len SD zony) ====================
+// Klasicka teoria (napr. Schwab "Trading volume as a market indicator"): silovy pohyb
+// (breakout/impulz) bez nadpriemerneho volume je podozrivy/nespolahlivy, ten isty pohyb
+// s nadpriemernym volume je dovryhodnejsi. Tu sa to aplikuje na SD zony - "dobra" zona je
+// taka, po vzniku ktorej (impulzne sviecky preč od zakladnej sviecky) prislo do trhu
+// nadpriemerne volume. Plati LEN pre SD zdroj (S/R a Likvidita su bez zmeny).
+useVolumeFilter = input.bool(false, "Enable volume filter (SD zones)", tooltip="Enables volume evaluation both when an SD zone forms (average of the 3 impulse candles that make up the zone) and at its entry confirmation (the current candle when the order is placed). Strong (volume-confirmed) zones are ALWAYS visually marked GREEN instead of the usual red/blue Demand/Supply - regardless of whether you also enable blocking below.", group="📦 SD Zones")
+volumeFilterBlockTrading = input.bool(false, "Also block weak (low volume) zones", tooltip="If enabled (together with 'Enable volume filter' above), zones/entries with insufficient volume are NOT created/sent at all. If disabled (default), all SD zones still form and trade as before - the volume filter only marks strong/weak with color, leaving the decision to you (e.g. for discretionary use).", group="📦 SD Zones")
+volSmaLen = input.int(20, "Volume: average over N candles", minval=2, maxval=200, tooltip="Number of candles used to calculate the average (SMA) volume - when the zone forms on the detection TF (zoneDetectionTF), and at entry confirmation on the chart TF.", group="📦 SD Zones")
+volMultiplier = input.float(1.5, "Volume: min. multiple of average for a 'strong' zone", minval=0.5, maxval=10.0, step=0.1, tooltip="Volume must be at least this many times the average (SMA) for the zone/entry to be considered volume-confirmed ('strong').", group="📦 SD Zones")
+
+closeAtSessionEnd = input.bool(true, "Close all positions at session end", tooltip="If enabled, at the end of EVERY trading session (not just the end of the day) all open positions are automatically closed and pending orders and unconfirmed zones are cancelled, so they don't carry over into the next session.", group="⚙️ Basic Settings")
+
+showImbalance  = input.bool(true, "Show imbalance candles", tooltip="Enables/disables drawing a colored box on the candle where an imbalance/gap was found (IMB entry model).", group="🎨 Visualization")
+// POZN (redesign panelu): dashboard aj tabulka obchodov su teraz JEDNA spojena tabulka
+// (jeden vizualny panel), preto uz maju spolocnu poziciu (dashPos) - samostatny
+// tradeLogPos input odpadol. Winrate uz nie je len cislo, ale kruhovy gauge poskladany
+// z farebnych bunieckruhu (Pine tabulky nevedia kreslit skutocne krivky/oblociky, takze
+// ide o "pixel-art" priblizenie kruhu, nie o hladku kriv ako v mockupe).
+showDashboard  = input.bool(true,  "Show dashboard panel", tooltip="Enables/disables the entire dashboard panel (stats + optional trade table) on the chart.", group="🎨 Visualization")
+dashPos        = input.string("Top Right", "Panel position", options=["Top Right","Top Left","Bottom Right","Bottom Left"], tooltip="Which corner of the chart the dashboard panel is shown in.", group="🎨 Visualization")
+dashboardRows  = input.int(6,      "Number of stat tiles (Trades, Streak, ...)", minval=1, maxval=6, tooltip="How many stat tiles (Trades, Streak, Position, Best win streak, Worst SL streak, Risk/trade) are shown in the panel, in this order.", group="🎨 Visualization")
+showTradeLog   = input.bool(false,  "Show trade table in the panel (Entry/SL/TP)", tooltip="Enables/disables the table of recent trades (Entry/SL/TP/status) directly in the dashboard panel, below the stat tiles.", group="🎨 Visualization")
+tradeLogRows   = input.int(20,   "Number of rows in the trade table (max 20)", minval=5, maxval=20, tooltip="Max. number of rows (recent trades) shown in the trade table, if enabled above.", group="🎨 Visualization")
+showDebugTable = input.bool(false,  "Show advanced diagnostic panel", tooltip="Enables/disables an additional diagnostic table with information about orders waiting to be filled - for debugging/checking internal state, not for regular use.", group="🎨 Visualization")
+debugTableRows = input.int(8,    "Number of rows in the diagnostic panel", minval=1, maxval=8, tooltip="Number of rows shown in the diagnostic panel, if enabled above (including the CURRENT/LAST trade rows).", group="🎨 Visualization")
+debugPos       = input.string("Bottom Right", "Diagnostic panel position", options=["Top Right","Top Left","Bottom Right","Bottom Left"], tooltip="Which corner of the chart the diagnostic panel is shown in (independent of the dashboard position above).", group="🎨 Visualization")
+
+imbLookback     = input.int(20,  "Max bars back for IMB",            minval=1, maxval=50,  tooltip="How many bars back (from the current bar) the script searches for an imbalance/gap in the IMB entry model (both the initial and repeated gap search). A higher value = also finds older gaps, but is more expensive to compute.", group="📦 SD Zones")
+imbMaxDistTicks = input.int(100, "Max IMB distance from zone (ticks)", minval=0, maxval=500, tooltip="Maximum distance (in ticks) between the found imbalance/gap and the zone boundary for the gap to still be considered relevant to that zone (IMB entry model).", group="📦 SD Zones")
+minImbSizePoints = input.float(2.5, "Min. imbalance size (points)", minval=1, maxval=30, step=0.5, tooltip="The imbalance (gap between candles) must be at least this large (in price points, not ticks), otherwise it's ignored - filters out small, insignificant gaps.", group="📦 SD Zones")
+state1MaxBars   = input.int(10,  "IMB model: Max. bars to exit zone",  minval=1, maxval=50,  tooltip="IMB entry model: after finding the gap, price has at most this many bars to move OUT of the zone (confirming the deviation) - otherwise the zone is invalidated.", group="🔧 Advanced (entry timing, SL)")
+state2MaxBars   = input.int(15,  "IMB model: Max. bars to confirmation",                  minval=1, maxval=50,  tooltip="IMB entry model: after price exits the zone, it has at most this many bars to confirm by closing beyond the imbalance body (see 'Confirmation - ticks beyond IMB body' below) - otherwise the zone is invalidated.", group="🔧 Advanced (entry timing, SL)")
+state2ConfirmTicks = input.int(1, "IMB model: Confirmation (ticks beyond IMB body)", minval=0, maxval=200, tooltip="IMB entry model: how many ticks the close must close beyond the body of the found imbalance (above it for LONG, below it for SHORT) for the move to be considered confirmed and the zone to move into the retest-waiting phase.", group="🔧 Advanced (entry timing, SL)")
+state3MaxBars   = input.int(1,   "IMB model: Max. bars to retest",                  minval=1, maxval=50,  tooltip="IMB entry model: after confirmation, price has at most this many bars to return/retest the entry price (the imbalance candle's open) - otherwise the zone is invalidated. A low default (1) = expects the retest practically on the very next bar.", group="🔧 Advanced (entry timing, SL)")
+state4MaxBars   = input.int(10,  "Reserved (currently unused)",                  minval=1, maxval=50,  tooltip="NOTE: this parameter is currently not used anywhere in the code - the SL/TP calculation and order placement always happen immediately on the same bar, with no multi-bar wait. Kept for possible future use, it currently has no effect on trading.", group="🔧 Advanced (entry timing, SL)")
+state5MaxBars   = input.int(10,  "Max. bars waiting for order fill",          minval=1, maxval=50,  tooltip="After placing an order, the strategy waits at most this many bars for it to fill - if it doesn't fill in time, the order is cancelled and the zone is invalidated.", group="🔧 Advanced (entry timing, SL)")
+alertOnState2   = input.bool(false, "Alert: price left the zone (early signal)",          tooltip="Sends an alert when price exits the SD zone on the imbalance side (IMB model, early phase of the process, before confirmation).", group="🔧 Advanced (entry timing, SL)")
+alertOnState3   = input.bool(false, "Alert: price returned to entry level",    tooltip="Sends an alert when price returns to the imbalance candle's open (IMB model, confirmation right before order placement).", group="🔧 Advanced (entry timing, SL)")
+alertOnState4   = input.bool(false, "Alert: order placed (E/SL/TP)", tooltip="Sends an alert when the strategy places an order with Entry/SL/TP prices", group="🔧 Advanced (entry timing, SL)")
+rrRatio         = input.float(1.0, "Risk:Reward ratio", minval=0.5, maxval=10.0, step=0.5,   tooltip="Ratio of Take Profit to Stop Loss - TP distance = SL distance x this ratio.", group="🎯 Trading")
+slLookback      = input.int(10,  "SL: lookback bars from current candle", minval=1, maxval=100, tooltip="IMB entry model: number of bars back in which the most extreme swing (low for LONG, high for SHORT) is searched for to place the Stop Loss.", group="🔧 Advanced (entry timing, SL)")
+slBufferTicks   = input.int(2,   "SL: buffer (ticks)",                  minval=0, maxval=50,  tooltip="Additional distance (in ticks) of the Stop Loss from the swing - a small 'cushion' against an exact level touch.", group="🔧 Advanced (entry timing, SL)")
+maxLossDollar   = input.float(350, "Max loss ($, 0 = disabled)",       minval=0, maxval=100000, step=10, tooltip="The maximum dollar loss an order should cause if it hits the SL - the quantity (qty) is calculated automatically from the SL distance and the tick value below. 0 = disabled (qty=1 is always used).", group="💰 Position Size & Risk")
+tickDollarValue = input.float(0.5, "Value of one tick ($)",         minval=0.01, maxval=1000, step=0.01, tooltip="The dollar value of one tick of movement for 1 contract/lot of this instrument - used to calculate the quantity (qty) from 'Max loss ($)' above. Set it according to your broker's/instrument's specification.", group="💰 Position Size & Risk")
+maxDailyWins    = input.int(5,   "Max winning trades per day",         minval=1, maxval=20,  tooltip="Once the number of WINNING trades reaches this value on the current day, no further new orders are sent that day - existing open positions keep running.", group="💰 Position Size & Risk")
+tradeDirection  = input.string("Both", "Trade direction", options=["Both", "Long only", "Short only"], tooltip="Which direction the strategy is allowed to trade - Both=both directions, Long only=LONG only (Demand zones), Short only=SHORT only (Supply zones).", group="🎯 Trading")
+
+pmtToken     = input.string("", "Token", tooltip="Enter your own PickMyTrade token here - do not leave someone else's/a shared token here.", group="🔗 PickMyTrade")
+pmtAccountId = input.string("", "Account ID", tooltip="Enter your own PickMyTrade Account ID here.", group="🔗 PickMyTrade")
+pmtStratName = input.string("", "Strategy name", tooltip="The strategy name sent in the PickMyTrade JSON (the 'strategy_name' field) - it must match the name set in your PickMyTrade account, otherwise the broker webhook won't accept/will misassign it.", group="🔗 PickMyTrade")
+
+// ==================== PMT HELPER FUNKCIE ====================
+// POZN (trailing stop -> PickMyTrade): trail/trail_trigger/trail_stop/trail_freq polia boli
+// predtym VZDY natvrdo 0 - teda aj po pridani trailing stopu (viz sekcia "🎯 Obchodovanie")
+// trailing bezal LEN v TradingView simulacii (strategy.exit), na realneho brokera cez PickMyTrade
+// sa NEPOSIELAL. Overene oproti oficialnej dokumentacii PickMyTrade (docs.pickmytrade.trade) -
+// trail_trigger/trail_stop/trail_freq su v CENOVYCH BODOCH (rovnaka jednotka ako price/tp/sl,
+// NIE ticky ako strategy.exit trail_points/trail_offset), preto sa tu pocitaju z `slDistCalc`
+// priamo (bez delenia cez syminfo.mintick, na rozdiel od trailPointsTicks/trailOffsetTicks vyssie).
+// POZN (pyramid:false - zladene s TradingView pyramiding=0): predtym bolo v JSON-e natvrdo
+// "pyramid":true, hoci strategy() deklaracia ma pyramiding=0 - teda TradingView aj tak potichu
+// ZAHODI kazdy druhy sucasny entry v tom istom smere (ziadny alert sa neposle), bez ohladu na to,
+// co hovori toto pole na strane PickMyTrade. "pyramid":true tak bolo zavadzajuce/nikdy sa realne
+// nevyuzilo. Na vyslovnu ziadost pouzivatela (rozhodnute: len 1 obchod na smer naraz) je teraz
+// "pyramid":false - kod aj broker su teraz v zhode.
+pmtMsg(string dir, float price, float tp, float sl, int qty, string orderType, bool trailOn, float trailTriggerPts, float trailStopPts, float trailFreqPts) =>
+    int gtdSec = state5MaxBars * chartTFMinutes * 60
+    string p = str.tostring(price, "#.######")
+    string t = str.tostring(tp, "#.######")
+    string s = str.tostring(sl, "#.######")
+    string g = str.tostring(gtdSec)
+    string q = str.tostring(qty)
+    string trailFlag  = trailOn ? "1" : "0"
+    string trailTrigS = trailOn and not na(trailTriggerPts) ? str.tostring(trailTriggerPts, "#.######") : "0"
+    string trailStopS = trailOn and not na(trailStopPts)    ? str.tostring(trailStopPts,    "#.######") : "0"
+    string trailFreqS = trailOn and not na(trailFreqPts)    ? str.tostring(trailFreqPts,    "#.######") : "0"
+    '{"strategy_name":"' + pmtStratName + '","symbol":"' + syminfo.ticker + '","date":"{{timenow}}","data":"' + dir + '","quantity":' + q + ',"risk_percentage":0,"price":"' + p + '","gtd_in_second":' + g + ',"stp_limit_stp_price":0,"tp":"' + t + '","percentage_tp":0,"dollar_tp":0,"sl":"' + s + '","percentage_sl":0,"dollar_sl":0,"trail":' + trailFlag + ',"trail_stop":' + trailStopS + ',"trail_trigger":' + trailTrigS + ',"trail_freq":' + trailFreqS + ',"update_tp":false,"update_sl":false,"breakeven":0,"breakeven_offset":0,"token":"' + pmtToken + '","pyramid":false,"same_direction_ignore":false,"reverse_order_close":true,"order_type":"' + orderType + '","multiple_accounts":[{"token":"' + pmtToken + '","account_id":"' + pmtAccountId + '","risk_percentage":0,"quantity_multiplier":1}]}'
+
+pmtCloseMsg() =>
+    '{"strategy_name":"' + pmtStratName + '","symbol":"' + syminfo.ticker + '","date":"{{timenow}}","data":"close","quantity":1,"risk_percentage":0,"price":"{{close}}","gtd_in_second":0,"stp_limit_stp_price":0,"dollar_tp":0,"percentage_tp":0,"tp":0,"dollar_sl":0,"percentage_sl":0,"sl":0,"trail":0,"trail_stop":0,"trail_trigger":0,"trail_freq":0,"update_tp":false,"update_sl":false,"breakeven":0,"breakeven_offset":0,"token":"' + pmtToken + '","pyramid":false,"same_direction_ignore":false,"reverse_order_close":true,"multiple_accounts":[{"token":"' + pmtToken + '","account_id":"' + pmtAccountId + '","risk_percentage":0,"quantity_multiplier":1}]}'
+
+// ==================== DESIGN SYSTEM - zjednotena farebna paleta ====================
+// Predtym graf pouzival na roznych miestach zakladne "krikave" Pine farby (color.red/green/
+// blue/orange/purple/teal/lime/yellow) nezavisle od seba, zatial co dashboard panel uz mal
+// tlmenu, modernu "slate/emerald/rose" paletu (viz nizsie v subore). Teraz cerpa VSETKO z
+// jednej rovnakej tlmenej palety - graf aj dashboard vyzeraju ako jeden zladeny system, nie
+// ako dva rozne indikatory vedla seba. LONG/Demand ostava cervena, SHORT/Supply modra -
+// zamerne zachovane podla predoslej konvencie (rozhodnute), len s tlmenejsimi odtienmi.
+var color PAL_LONG    = color.rgb(190, 60, 70)     // tlmena tehlova cervena - LONG/Demand zony, SL box, medvedie struktury
+var color PAL_SHORT   = color.rgb(59, 130, 246)    // modra (rovnaky odtien ako dashboard uz pouziva) - SHORT/Supply zony
+var color PAL_STRONG  = color.rgb(16, 185, 129)    // smaragd (rovnaky odtien ako dashboard "vyhra") - silne/volume zony, bycie struktury, TP box
+var color PAL_AMBER   = color.rgb(217, 119, 6)     // jantar (rovnaky odtien ako dashboard) - CHoCH, expirovane, riziko
+var color PAL_SLATE   = color.rgb(51, 65, 85)      // tmavy slate namiesto cisto ciernej - struktura ciar/textu
+var color PAL_GRAY    = color.rgb(148, 163, 184)   // neutralna sedá - skip/neaktivne/info stavy
+var color PAL_SESSION1 = color.rgb(99, 102, 241)   // indigo - Session 1 (Azia)
+var color PAL_SESSION2 = color.rgb(13, 148, 136)   // tlmena tyrkysova - Session 2
+var color PAL_SESSION3 = color.rgb(147, 51, 234)   // tlmena fialova - Session 3
+
+// ==================== CONSTS ====================
+plot(close, title="__scale_anchor__", color=color.new(color.white, 100))
+int stepMs        = chartTFMinutes * 60000
+int zoneValidMs   = int(zoneValidHours * 3600000)
+int maxSdZonesEff = math.min(maxSdZones, 200)
+
+snapTime(int t) =>
+    int out = t
+    out := (snapMode == "Off" or stepMs <= 0) ? t : (snapMode == "Floor" ? int(math.floor((t / stepMs)) * stepMs) : (snapMode == "Ceil" ? int(math.ceil((t / stepMs)) * stepMs) : int(math.round((t / stepMs)) * stepMs)))
+    out
+
+isBull(float o, float c) => c > o
+isBear(float o, float c) => c < o
+
+inWindowTZ(int sh, int sm, int eh, int em, string tz) =>
+    int y   = year(time, tz)
+    int mo  = month(time, tz)
+    int d   = dayofmonth(time, tz)
+    int st  = timestamp(tz, y, mo, d, sh, sm)
+    int en  = timestamp(tz, y, mo, d, eh, em)
+    int en2 = en <= st ? en + 86400000 : en
+    int t2  = time < st ? time + 86400000 : time
+    t2 >= st and t2 < en2
+
+isWeekdayTZ(string tz) =>
+    int sdow = dayofweek(time, tz)
+    not weekdaysOnly or (sdow >= dayofweek.monday and sdow <= dayofweek.friday)
+
+sessionHasTimeLeft(bool enabled, int sh, int sm, int eh, int em, string tz) =>
+    bool result = false
+    if enabled and isWeekdayTZ(tz)
+        int y  = year(time, tz)
+        int mo = month(time, tz)
+        int d  = dayofmonth(time, tz)
+        int startT = timestamp(tz, y, mo, d, sh, sm)
+        int endT   = timestamp(tz, y, mo, d, eh, em)
+        if endT <= startT
+            endT := endT + 86400000
+        result := time < endT
+    result
+
+bool s1Zone  = sess1On and isWeekdayTZ(sess1TZ) and inWindowTZ(sess1ZoneStartH, sess1ZoneStartM, sess1ZoneEndH, sess1ZoneEndM, sess1TZ)
+bool s1Trade = sess1On and isWeekdayTZ(sess1TZ) and inWindowTZ(sess1TradeStartH, sess1TradeStartM, sess1TradeEndH, sess1TradeEndM, sess1TZ)
+bool s2Zone  = sess2On and isWeekdayTZ(sess2TZ) and inWindowTZ(sess2ZoneStartH, sess2ZoneStartM, sess2ZoneEndH, sess2ZoneEndM, sess2TZ)
+bool s2Trade = sess2On and isWeekdayTZ(sess2TZ) and inWindowTZ(sess2TradeStartH, sess2TradeStartM, sess2TradeEndH, sess2TradeEndM, sess2TZ)
+bool s3Zone  = sess3On and isWeekdayTZ(sess3TZ) and inWindowTZ(sess3ZoneStartH, sess3ZoneStartM, sess3ZoneEndH, sess3ZoneEndM, sess3TZ)
+bool s3Trade = sess3On and isWeekdayTZ(sess3TZ) and inWindowTZ(sess3TradeStartH, sess3TradeStartM, sess3TradeEndH, sess3TradeEndM, sess3TZ)
+
+bool inZoneWindow  = s1Zone or s2Zone or s3Zone
+bool inTradeWindow = s1Trade or s2Trade or s3Trade
+bool tradeWindowJustClosed = inTradeWindow[1] and not inTradeWindow
+
+bool s1HasTime = sessionHasTimeLeft(sess1On, sess1TradeStartH, sess1TradeStartM, sess1TradeEndH, sess1TradeEndM, sess1TZ)
+bool s2HasTime = sessionHasTimeLeft(sess2On, sess2TradeStartH, sess2TradeStartM, sess2TradeEndH, sess2TradeEndM, sess2TZ)
+bool s3HasTime = sessionHasTimeLeft(sess3On, sess3TradeStartH, sess3TradeStartM, sess3TradeEndH, sess3TradeEndM, sess3TZ)
+bool noMoreSessionsToday  = not s1HasTime and not s2HasTime and not s3HasTime
+bool lastSessionJustClosed = tradeWindowJustClosed and noMoreSessionsToday
+
+if tradeWindowJustClosed
+    log.info("TWC: s1T={0} s2T={1} s3T={2} | s1HT={3} s2HT={4} s3HT={5} | NMST={6} LSC={7} | dow_s1tz={8}",
+             s1Trade, s2Trade, s3Trade, s1HasTime, s2HasTime, s3HasTime,
+             noMoreSessionsToday, lastSessionJustClosed, dayofweek(time, sess1TZ))
+
+bgcolor(s1Trade ? color.new(PAL_SESSION1, 92) : (s1Zone ? color.new(PAL_SESSION1, 96) : na), title="Session 1")
+bgcolor(s2Trade ? color.new(PAL_SESSION2, 92) : (s2Zone ? color.new(PAL_SESSION2, 96) : na), title="Session 2")
+bgcolor(s3Trade ? color.new(PAL_SESSION3, 92) : (s3Zone ? color.new(PAL_SESSION3, 96) : na), title="Session 3")
+
+// POZN: premenne s "5" v nazve (o5_0, t5m, new5mBar...) su historicky nazvane podla povodneho
+// napevno nastaveneho 5-minutoveho TF. Teraz su vsetky riadene cez zoneDetectionTF input nizsie -
+// nazvy premennych ostavaju rovnake, len uz nemusia byt doslova "5 minut".
+[o5_0, c5_0, h5_0, l5_0, t5_0, o5_1, c5_1, h5_1, l5_1, o5_2, c5_2, h5_2, l5_2, o5_3, c5_3, h5_3, l5_3, t5_3, v5_0, v5_1, v5_2, v5Sma] = request.security(syminfo.tickerid, zoneDetectionTF, [open[1], close[1], high[1], low[1], time[1], open[2], close[2], high[2], low[2], open[3], close[3], high[3], low[3], open[4], close[4], high[4], low[4], time[4], volume[1], volume[2], volume[3], ta.sma(volume, volSmaLen)[1]], barmerge.gaps_off, barmerge.lookahead_off)
+
+int  t5m           = time(zoneDetectionTF)
+bool new5mBar      = ta.change(t5m) != 0
+var int last5mShiftTime = na
+// OPRAVA (nestabilne/duplicitne SD zony na zivom trhu): predtym first5mTick chybalo
+// "barstate.isconfirmed" - t5m sa prepocitava na KAZDOM ticku (aj rozbehnutom, este
+// neuzavretom bare), takze na zivom grafe vedelo "first5mTick" naskocit na true (a hned
+// aj updatnut last5mShiftTime, "poistku" proti opakovanemu spusteniu, uprostred formovania
+// aktualneho baru - este predtym, nez sa cislo naozaj ustali. V historickom backteste sa
+// tento bug nikdy neprejavil, lebo tam je kazdy spracovany bar uz z podstaty potvrdeny
+// (barstate.isconfirmed je tam vzdy true) - naozaj to bolo vidiet len na zivom grafe,
+// typicky presne v momente reloadu/reconnectu skriptu (viditelne aj v tvojich screenshotoch
+// - zona sa vedela prekresliť s mierne inym rozsahom). Teraz first5mTick (a teda cela
+// detekcia/tvorba SD zony, ktora z neho vychadza) reaguje LEN na uz uzavrety bar - presne
+// raz za novu periodu, s definitivnymi hodnotami, rovnako naživo aj v backteste.
+bool first5mTick   = barstate.isconfirmed and new5mBar and (na(last5mShiftTime) or t5m != last5mShiftTime)
+if first5mTick
+    last5mShiftTime := t5m
+
+bool bull5m_0 = c5_0 > o5_0
+bool bear5m_0 = c5_0 < o5_0
+bool bull5m_1 = c5_1 > o5_1
+bool bear5m_1 = c5_1 < o5_1
+bool bull5m_2 = c5_2 > o5_2
+bool bear5m_2 = c5_2 < o5_2
+bool bull5m_3 = c5_3 > o5_3
+bool bear5m_3 = c5_3 < o5_3
+
+bool bullImb5_1 = not na(h5_2) and l5_0 > h5_2 and (l5_0 - h5_2) >= minImbSizePoints
+bool bearImb5_1 = not na(l5_2) and h5_0 < l5_2 and (l5_2 - h5_0) >= minImbSizePoints
+bool bullImb5_2 = not na(h5_3) and l5_1 > h5_3 and (l5_1 - h5_3) >= minImbSizePoints
+bool bearImb5_2 = not na(l5_3) and h5_1 < l5_3 and (l5_3 - h5_1) >= minImbSizePoints
+
+bool longV1  = bear5m_3 and bull5m_2 and bull5m_1 and bull5m_0
+bool longV2  = bear5m_3 and bull5m_2 and bullImb5_1
+bool longV3  = bear5m_3 and bull5m_2 and bullImb5_2
+bool shortV1 = bull5m_3 and bear5m_2 and bear5m_1 and bear5m_0
+bool shortV2 = bull5m_3 and bear5m_2 and bearImb5_1
+bool shortV3 = bull5m_3 and bear5m_2 and bearImb5_2
+
+bool patternDetected = first5mTick and inZoneWindow
+
+// POZN (Volume filter): "silna" zona = priemerny volume 3 impulznych sviecok (tie, co
+// zonu tvoria - candles 0,1,2 na detekcnom TF) je aspon volMultiplier-nasobkom SMA volume
+// na tom istom TF. Pocita sa VZDY ked je useVolumeFilter zapnute (kvoli farbeniu), ale
+// BLOKUJE vznik zony len ked je navyse zapnute aj volumeFilterBlockTrading.
+bool zVolStrongCalc = useVolumeFilter and not na(v5Sma) and v5Sma > 0 and not na(v5_0) and not na(v5_1) and not na(v5_2) and ((v5_0 + v5_1 + v5_2) / 3.0) >= volMultiplier * v5Sma
+bool zVolBlockOk    = not (useVolumeFilter and volumeFilterBlockTrading) or zVolStrongCalc
+
+int   zTyp5   = patternDetected and zVolBlockOk and (longV1 or longV2 or longV3) ? 1 : (patternDetected and zVolBlockOk and (shortV1 or shortV2 or shortV3) ? -1 : 0)
+float zTop5   = zTyp5 != 0 ? h5_3 : na
+float zBot5   = zTyp5 != 0 ? l5_3 : na
+int   zT05    = zTyp5 != 0 ? int(t5_3) : na
+int   zTConf5 = zTyp5 != 0 ? int(t5_0) : na
+
+var float[] zTopA         = array.new_float()
+var float[] zBotA         = array.new_float()
+var int[]   zTypA         = array.new_int()
+var int[]   zExpA         = array.new_int()
+var bool[]  zUsedA        = array.new_bool()
+var int[]   zStateA       = array.new_int()
+var int[]   zColorIdxA    = array.new_int()
+var float[] zImbBodyTopA  = array.new_float()
+var float[] zImbBodyBotA  = array.new_float()
+var float[] zImbOpenA     = array.new_float()
+var float[] zImbHiA       = array.new_float()
+var float[] zImbLoA       = array.new_float()
+var int[]   zImbBiA       = array.new_int()
+var box[]   zImbBoxA      = array.new_box()
+var bool[]  zTouchedA     = array.new_bool()
+var int[]   zStateBiA     = array.new_int()
+var int[]   zStateTimeA   = array.new_int()
+var box[]   zPreBoxA      = array.new_box()
+var box[]   zPostBoxA     = array.new_box()
+var box[]   zTpBoxA       = array.new_box()
+var box[]   zSlBoxA       = array.new_box()
+var bool[]  zImb0LblDrawnA   = array.new_bool()
+var bool[]  zFilledA         = array.new_bool()
+var bool[]  zPendingInvalidA = array.new_bool()
+var bool[]  zS4OrderedA      = array.new_bool()
+var float[] zOrderSlA        = array.new_float()
+var bool[]  zS5EntryDoneA    = array.new_bool()
+var int[]   zUidA            = array.new_int()
+var int[]   zSrcA            = array.new_int()       // 0=SD, 1=S/R, 2=Likvidita - zdroj zony, pouziva sa napr. pri volume filtri (len SD)
+var bool[]  zVolStrongA      = array.new_bool()       // true = zona vznikla s nadpriemernym volume (len SD, viz Volume filter) - kresli sa zelenou
+var int     zNextUid         = 0
+var int[]   zCreatedBiA      = array.new_int()   // bar_index, na ktorom zona VZNIKLA - gap sa nesmie hladat v sviekach starsich nez toto
+var int[]   zTouchedBiA      = array.new_int()   // bar_index, na ktorom bola zona PRVYKRAT dotknuta (wasTouched)
+
+var label[] stateLabelPool = array.new_label()
+int stateLabelMax = 350
+var label[] transLabelPool = array.new_label()
+int transLabelMax = 100
+
+var int dailyWinsCount = 0
+var int lastDayKey     = na
+
+var int   dashTotalTrades   = 0
+var int   dashWins          = 0
+var int   dashLosses        = 0
+var int   dashCurStreak     = 0
+var int   dashBestWinStreak = 0
+var int   dashWorstSlStreak = 0
+var int   dashLastClosed    = 0
+
+// ==================== AKTUALNY / POSLEDNY OBCHOD (na ziadost pouzivatela: predtym samostatny
+// biely "E/SL/TP" label pri kazdom orderi priamo na grafe - teraz sa namiesto toho zapisuje
+// sem a zobrazuje v diagnostickom paneli, len aktualny + jeden predchadzajuci, so statusom) ====
+var string curOrderTxt    = "-"
+var string curOrderStatus = "-"
+var int    curOrderUid    = -1
+var string lastOrderTxt    = "-"
+var string lastOrderStatus = "-"
+
+// ==================== LOG OBCHODOV (Entry/SL/TP) - pre tabulku a export do Google Sheets ====================
+var int[]    logUidA    = array.new_int()
+var int[]    logTimeA   = array.new_int()
+var string[] logDirA    = array.new_string()
+var float[]  logEntryA  = array.new_float()
+var float[]  logSlA     = array.new_float()
+var float[]  logTpA     = array.new_float()
+var int[]    logQtyA    = array.new_int()
+var string[] logStatusA = array.new_string()
+var float[]  logProfitA = array.new_float()
+int logMax = 500
+
+addLogEntry(int uidIn, string dirIn, float entryIn, float slIn, float tpIn, int qtyIn) =>
+    array.push(logUidA,    uidIn)
+    array.push(logTimeA,   time)
+    array.push(logDirA,    dirIn)
+    array.push(logEntryA,  entryIn)
+    array.push(logSlA,     slIn)
+    array.push(logTpA,     tpIn)
+    array.push(logQtyA,    qtyIn)
+    array.push(logStatusA, "PENDING")
+    array.push(logProfitA, na)
+    if array.size(logUidA) > logMax
+        array.shift(logUidA)
+        array.shift(logTimeA)
+        array.shift(logDirA)
+        array.shift(logEntryA)
+        array.shift(logSlA)
+        array.shift(logTpA)
+        array.shift(logQtyA)
+        array.shift(logStatusA)
+        array.shift(logProfitA)
+
+setLogStatus(int uidIn, string statusIn, float profitIn) =>
+    if array.size(logUidA) > 0
+        for k = 0 to array.size(logUidA) - 1
+            if array.get(logUidA, k) == uidIn
+                array.set(logStatusA, k, statusIn)
+                if not na(profitIn)
+                    array.set(logProfitA, k, profitIn)
+
+
+var int lastDrawT0 = na
+
+// ==================== f_pushZone - SPOLOCNY "vstupny bod" pre VSETKY zdroje zon ====================
+// POZN (generalizacia na viac zdrojov obchodu): predtym tento cely blok pushol novu zonu
+// PRIAMO do polí len z SD (imbalance) patternu. Teraz je vytiahnuty do zdielanej funkcie,
+// ktoru vola SD zdroj (nizsie), aj novy S/R zdroj a novy likviditny (sweep) zdroj (obe
+// nizsie v prislusnych sekciach) - vsetky tri sposobom "vytvor top/bot/typ zonu" a odtial
+// uz beží PRESNE ten isty STATE 0-5 mechanizmus (hladanie gapu, potvrdenie, order, SL/TP),
+// bez ohladu na to, odkial zona vznikla. preB/postB su volitelne - SD zdroj si kresli vlastne
+// dva boxy (formacia/potvrdenie), S/R aj likviditny zdroj posielaju box(na) (nema zmysel
+// kreslit rovnaky "formacia predtym/potom" box, kedze uz maju svoju vlastnu vizualizaciu -
+// GZ/S/R ciaru, resp. sweep ciaru - zona sa vizualne prejavi az imbalance boxom a labelmi,
+// ked sa v nej najde gap, rovnako ako pri SD zone).
+// POZN (fix "Cannot modify global variable 'zNextUid' in function"): Pine v5 nedovoli
+// prepisat GLOBALNU jednoduchu premennu (nie pole) zvnutra funkcie - preto sa uid teraz
+// odovzdava ako PARAMETER (uidIn) a samotny counter (zNextUid += 1) sa inkrementuje az
+// na urovni volajuceho (top-level kod, nie vnutri funkcie) - viz vsetky volania nizsie.
+f_pushZone(float top, float bot, int typ, int expT, box preB, box postB, int uidIn, int srcIn, bool volStrongIn) =>
+    array.push(zPreBoxA,  preB)
+    array.push(zPostBoxA, postB)
+    array.push(zTopA,  top)
+    array.push(zBotA,  bot)
+    array.push(zTypA,  typ)
+    array.push(zExpA,  expT)
+    array.push(zUsedA, false)
+    array.push(zStateA, 0)
+    array.push(zColorIdxA, na)
+    array.push(zImbBodyTopA, na)
+    array.push(zImbBodyBotA, na)
+    array.push(zImbOpenA, na)
+    array.push(zImbHiA, na)
+    array.push(zImbLoA, na)
+    array.push(zImbBiA, na)
+    array.push(zImbBoxA, na)
+    array.push(zTouchedA, false)
+    array.push(zStateBiA, na)
+    array.push(zStateTimeA, na)
+    array.push(zTpBoxA, box(na))
+    array.push(zSlBoxA, box(na))
+    array.push(zImb0LblDrawnA,   false)
+    array.push(zFilledA,         false)
+    array.push(zPendingInvalidA, false)
+    array.push(zS4OrderedA,      false)
+    array.push(zOrderSlA,        na)
+    array.push(zS5EntryDoneA,    false)
+    array.push(zUidA, uidIn)
+    array.push(zSrcA, srcIn)
+    array.push(zVolStrongA, volStrongIn)
+    array.push(zCreatedBiA, bar_index)
+    array.push(zTouchedBiA, na)
+
+    if array.size(zTopA) > maxSdZonesEff
+        box oldPre  = array.shift(zPreBoxA)
+        box oldPost = array.shift(zPostBoxA)
+        if not na(oldPre)
+            box.delete(oldPre)
+        if not na(oldPost)
+            box.delete(oldPost)
+        box oldImb = array.shift(zImbBoxA)
+        if not na(oldImb)
+            box.delete(oldImb)
+        box oldTpB = array.shift(zTpBoxA)
+        if not na(oldTpB)
+            box.delete(oldTpB)
+        box oldSlB = array.shift(zSlBoxA)
+        if not na(oldSlB)
+            box.delete(oldSlB)
+        array.shift(zTopA)
+        array.shift(zBotA)
+        array.shift(zTypA)
+        array.shift(zExpA)
+        array.shift(zUsedA)
+        array.shift(zStateA)
+        array.shift(zColorIdxA)
+        array.shift(zImbBodyTopA)
+        array.shift(zImbBodyBotA)
+        array.shift(zImbOpenA)
+        array.shift(zImbHiA)
+        array.shift(zImbLoA)
+        array.shift(zImbBiA)
+        array.shift(zTouchedA)
+        array.shift(zStateBiA)
+        array.shift(zStateTimeA)
+        array.shift(zImb0LblDrawnA)
+        array.shift(zFilledA)
+        array.shift(zPendingInvalidA)
+        array.shift(zS4OrderedA)
+        array.shift(zOrderSlA)
+        array.shift(zS5EntryDoneA)
+        array.shift(zUidA)
+        array.shift(zSrcA)
+        array.shift(zVolStrongA)
+        array.shift(zCreatedBiA)
+        array.shift(zTouchedBiA)
+    true
+
+// ==================== f_zoneColor - farba zony/boxu podla typu, PREPISANA na zelenu ak je zona ====================
+// "silna" (volume-potvrdena, len SD zdroj - viz Volume filter). Pouziva sa vsade tam, kde sa doteraz
+// farbilo len podla typu (Demand=cervena/Supply=modra), aby cely vizual zony (formacia, imbalance/pin
+// bar/engulfing box) bol konzistentne zeleny, ked zona presla volume filtrom.
+f_zoneColor(int typ, bool strong) =>
+    strong ? PAL_STRONG : (typ == 1 ? PAL_LONG : PAL_SHORT)
+
+newZone = enableZoneDetection and zTyp5 != 0 and not na(zT05) and not na(zTop5) and not na(zBot5) and (na(lastDrawT0) or zT05 != lastDrawT0)
+
+if newZone
+    int leftT = snapTime(zT05)
+    int expT  = leftT + zoneValidMs
+    int confT = not na(zTConf5) ? snapTime(zTConf5) : snapTime(time)
+    confT := confT < leftT ? leftT : confT
+    confT := confT > expT  ? expT  : confT
+
+    color bord = f_zoneColor(zTyp5, zVolStrongCalc)
+    color col  = color.new(bord, 85)
+
+    int preR = confT > leftT ? confT : leftT + stepMs
+    preR := preR > expT ? expT : preR
+    box preB = box.new(leftT, zTop5, preR, zBot5, xloc=xloc.bar_time, bgcolor=na, border_color=color.new(bord, 15), border_style=line.style_dotted)
+
+    int postL = confT
+    int postR = expT > postL ? expT : postL + stepMs
+    box postB = box.new(postL, zTop5, postR, zBot5, xloc=xloc.bar_time, bgcolor=col, border_color=color.new(bord, 15), border_style=line.style_solid)
+
+    f_pushZone(zTop5, zBot5, zTyp5, expT, preB, postB, zNextUid, 0, zVolStrongCalc)
+    zNextUid += 1
+
+    lastDrawT0 := zT05
+
+int zN = array.size(zTopA)
+if zN > 0
+    for i = 0 to zN - 1
+        if not array.get(zUsedA, i) and time >= array.get(zExpA, i)
+            // OPRAVA (box "visi" v plnej sirke navzdy): pri prirodzenom vyprsani nevyplnenej
+            // zony sa doteraz box NEZMENSOVAL (na rozdiel od kazdej inej cesty invalidacie,
+            // ktora vola resizeZoneOnInvalidation()) - box bol nakresleny uz pri vzniku zony
+            // natiahnuty az po cely 'expT' (koniec platnosti), takze po vyprsani zostaval
+            // vizualne "visiet" v plnej povodnej sirke navzdy. Tu sa resizeZoneOnInvalidation()
+            // volat NEDA (je definovana az nizsie v subore, Pine v5 vyzaduje top-down poradie),
+            // preto rovnaka logika (zmensenie boxu na aktualny cas) inline.
+            box preBoxExp  = array.get(zPreBoxA,  i)
+            box postBoxExp = array.get(zPostBoxA, i)
+            if not na(preBoxExp)
+                box.set_right(preBoxExp, time)
+            if not na(postBoxExp)
+                box.set_right(postBoxExp, time)
+            array.set(zUsedA, i, true)
+
+bool bullIMB     = low > high[2] and close[1] > high[2] and (low - high[2]) >= minImbSizePoints
+bool bearIMB     = high < low[2] and close[1] < low[2] and (low[2] - high) >= minImbSizePoints
+bool isImbCandle = bullIMB or bearIMB
+
+color imbBarCol = showImbalance and isImbCandle ? (bullIMB ? color.new(PAL_STRONG, 90) : color.new(PAL_LONG, 90)) : na
+barcolor(imbBarCol, offset=-1, title="IMB candle fade")
+
+var box[] imbBoxPool = array.new_box()
+int imbBoxMax = 200
+if showImbalance and isImbCandle
+    float bTop   = math.max(open[1], close[1])
+    float bBot   = math.min(open[1], close[1])
+    float adjTop = bTop == bBot ? bTop + syminfo.mintick * 0.5 : bTop
+    float adjBot = bTop == bBot ? bBot - syminfo.mintick * 0.5 : bBot
+    color bCol   = bullIMB ? PAL_STRONG : PAL_LONG
+    box b = box.new(bar_index - 1, adjTop, bar_index - 1, adjBot, bgcolor=color.new(color.white, 100), border_color=color.new(bCol, 15), border_width=1, border_style=line.style_solid)
+    array.push(imbBoxPool, b)
+    if array.size(imbBoxPool) > imbBoxMax
+        box old = array.shift(imbBoxPool)
+        box.delete(old)
+
+float imbMaxDist    = imbMaxDistTicks    * syminfo.mintick
+float s2ConfirmDist = state2ConfirmTicks * syminfo.mintick
+
+resizeZoneOnInvalidation(int zoneIdx) =>
+    box preBox  = array.get(zPreBoxA,  zoneIdx)
+    box postBox = array.get(zPostBoxA, zoneIdx)
+    if not na(preBox)
+        box.set_right(preBox, time)
+    if not na(postBox)
+        box.set_right(postBox, time)
+
+// Farba riadku AKTUALNY/POSLEDNY v diagnostickom paneli podla textu statusu obchodu.
+f_orderStatusCol(string s, color winC, color lossC, color pendC, color runC, color otherC) =>
+    s == "WIN" ? winC : (s == "LOSS" or s == "EXPIRED" or s == "CANCELLED (OCO)" ? lossC : (s == "PENDING" ? pendC : (str.contains(s, "FILLED") ? runC : otherC)))
+
+deleteTradeBoxes(int zoneIdx) =>
+    box tpB = array.get(zTpBoxA, zoneIdx)
+    if not na(tpB)
+        box.delete(tpB)
+        array.set(zTpBoxA, zoneIdx, box(na))
+    box slB = array.get(zSlBoxA, zoneIdx)
+    if not na(slB)
+        box.delete(slB)
+        array.set(zSlBoxA, zoneIdx, box(na))
+
+var int nextColorIdx = 0
+
+int todayKey = year(time, "UTC") * 10000 + month(time, "UTC") * 100 + dayofmonth(time, "UTC")
+if na(lastDayKey) or todayKey != lastDayKey
+    dailyWinsCount := 0
+    lastDayKey     := todayKey
+
+bool dailyWinLimitReached = dailyWinsCount >= maxDailyWins
+
+// ==================== DASHBOARD AKTUALIZACIA ====================
+int curClosed = strategy.closedtrades
+if curClosed > dashLastClosed
+    for ci = dashLastClosed to curClosed - 1
+        float p = strategy.closedtrades.profit(ci)
+        bool isWin = p > 0
+        dashTotalTrades += 1
+        if isWin
+            dashWins += 1
+            dashCurStreak := dashCurStreak > 0 ? dashCurStreak + 1 : 1
+            dashBestWinStreak := math.max(dashBestWinStreak, dashCurStreak)
+        else
+            dashLosses += 1
+            dashCurStreak := dashCurStreak < 0 ? dashCurStreak - 1 : -1
+            dashWorstSlStreak := math.max(dashWorstSlStreak, math.abs(dashCurStreak))
+    dashLastClosed := curClosed
+
+int lblCountUp   = 0
+int lblCountDown = 0
+
+// POZN (Volume filter - entry): ta.sma() sa NESMIE volat zvnutra "for" cyklu (Pine v5 to
+// nedovoluje) - preto sa pocita tu, na top-level, RAZ za bar, a vo vnutri cyklu (STATE 4)
+// sa uz len CITA hotova hodnota volSmaChart.
+float volSmaChart = ta.sma(volume, volSmaLen)
+
+if zN > 0
+    for i = 0 to zN - 1
+        bool used   = array.get(zUsedA, i)
+        int  st     = array.get(zStateA, i)
+        bool active = (not used and st >= 0) or (used and st >= 2 and st <= 5)
+        if active
+            int    uid    = array.get(zUidA, i)
+            string uidStr = str.tostring(uid)
+            int    typ    = array.get(zTypA, i)
+            float  top    = array.get(zTopA, i)
+            float  bot    = array.get(zBotA, i)
+            int    zCreatedBi = array.get(zCreatedBiA, i)
+            bool inZoneNow = high >= bot and low <= top
+
+            // ===== STATE 0 =====
+            if st == 0 and barstate.isconfirmed
+                bool wasTouched = array.get(zTouchedA, i)
+                if not wasTouched
+                    bool correctApproach = (typ == 1 and low <= top and high >= top) or (typ == -1 and high >= bot and low <= bot)
+                    if correctApproach
+                        array.set(zTouchedA, i, true)
+                        array.set(zTouchedBiA, i, bar_index)
+                        wasTouched := true
+
+                if st == 0 and wasTouched and enableImbEntry and enableGapDetection
+                    float bestDist = na
+                    int   bestLb   = na
+                    for lb = 0 to imbLookback - 1
+                        if bar_index >= lb + 2 and bar_index - (lb + 2) >= zCreatedBi
+                            bool isBullImb = low[lb] > high[lb + 2] and close[lb + 1] > high[lb + 2] and (low[lb] - high[lb + 2]) >= minImbSizePoints
+                            bool isBearImb = high[lb] < low[lb + 2] and close[lb + 1] < low[lb + 2] and (low[lb + 2] - high[lb]) >= minImbSizePoints
+                            int midIdx = lb + 1
+                            if typ == 1 and isBearImb
+                                bool imbAbove   = open[midIdx] > top
+                                bool imbThrough = high[midIdx] >= top and low[midIdx] <= bot
+                                if imbAbove or imbThrough
+                                    float dist = math.max(0.0, low[midIdx] - top)
+                                    if dist <= imbMaxDist
+                                        if na(bestDist) or dist < bestDist
+                                            bestDist := dist
+                                            bestLb   := lb
+                            if typ == -1 and isBullImb
+                                bool imbBelow   = open[midIdx] < bot
+                                bool imbThrough = high[midIdx] >= top and low[midIdx] <= bot
+                                if imbBelow or imbThrough
+                                    float dist = math.max(0.0, bot - high[midIdx])
+                                    if dist <= imbMaxDist
+                                        if na(bestDist) or dist < bestDist
+                                            bestDist := dist
+                                            bestLb   := lb
+
+                    if not na(bestLb)
+                        int   midIdx = bestLb + 1
+                        float bTop   = math.max(open[midIdx], close[midIdx])
+                        float bBot   = math.min(open[midIdx], close[midIdx])
+                        array.set(zImbBodyTopA, i, bTop)
+                        array.set(zImbBodyBotA, i, bBot)
+                        array.set(zImbOpenA, i, open[midIdx])
+                        array.set(zImbHiA,   i, high[midIdx])
+                        array.set(zImbLoA,   i, low[midIdx])
+                        array.set(zImbBiA,   i, bar_index - midIdx)
+                        // POZN (fix "chaoticke farby SD zon"): predtym sa tu priradovala
+                        // farba z rotujuceho 10-farebneho colorPool (kazda nova zona = dalsia
+                        // farba v poradi, bez ohladu na typ) - preto vyzeralo, ze zony maju
+                        // nahodne farby. Teraz je farba VZDY podla typu zony - Demand (typ=1,
+                        // bullish/LONG) je cervena, Supply (typ=-1, bearish/SHORT) je modra -
+                        // rovnako ako uz farbil povodny pre/post box pri vytvoreni zony.
+                        color zCol = f_zoneColor(typ, array.get(zVolStrongA, i))
+                        float adjTop = bTop == bBot ? bTop + syminfo.mintick * 0.5 : bTop
+                        float adjBot = bTop == bBot ? bBot - syminfo.mintick * 0.5 : bBot
+                        box imbBox = box.new(bar_index - midIdx, adjTop, bar_index - midIdx, adjBot, bgcolor=color.new(zCol, 80), border_color=color.new(zCol, 15), border_width=1)
+                        array.set(zImbBoxA, i, imbBox)
+                        box preBox2  = array.get(zPreBoxA,  i)
+                        box postBox2 = array.get(zPostBoxA, i)
+                        if not na(preBox2)
+                            box.set_border_color(preBox2, color.new(zCol, 15))
+                        if not na(postBox2)
+                            box.set_border_color(postBox2, color.new(zCol, 15))
+                            box.set_bgcolor(postBox2, color.new(zCol, 85))
+                        array.set(zStateA,   i, 1)
+                        array.set(zStateBiA, i, bar_index)
+                        st := 1
+                    else
+                        bool invalidated = (typ == 1 and low < bot) or (typ == -1 and high > top)
+                        if invalidated
+                            resizeZoneOnInvalidation(i)
+                            array.set(zUsedA,  i, true)
+                            array.set(zStateA, i, -1)
+                            st := -1
+
+            // ===== RE-ENTRY =====
+            // POZN (Pin Bar/Engulfing entry): tento blok patri VYLUCNE k IMB entry modelu (hladanie
+            // INEHO gapu ako ten, na ktorom uz bezi order). Pin Bar/Engulfing zony prejdu 0->4 v
+            // jednom bare a nemaju co "re-hladat" - preto sa cely blok pre ne vynecha. Range-check
+            // st>=1..4 je tu bezpecny aj ked su viacere modely zapnute naraz, lebo tento stavovy
+            // rozsah (1-4) vie nastavit VYLUCNE IMB blok v STATE0 vyssie - Pin Bar/Engulfing idu
+            // vzdy priamo na st=4.
+            if enableImbEntry and st >= 1 and st <= 4 and barstate.isconfirmed
+                bool reEntry = (typ == 1 and low <= top and high >= top) or (typ == -1 and high >= bot and low <= bot)
+                if reEntry and enableGapDetection
+                    float reBestDist = na
+                    int   reBestLb   = na
+                    for lb = 0 to imbLookback - 1
+                        if bar_index >= lb + 2 and bar_index - (lb + 2) >= zCreatedBi
+                            bool reBullImb = low[lb] > high[lb + 2] and close[lb + 1] > high[lb + 2] and (low[lb] - high[lb + 2]) >= minImbSizePoints
+                            bool reBearImb = high[lb] < low[lb + 2] and close[lb + 1] < low[lb + 2] and (low[lb + 2] - high[lb]) >= minImbSizePoints
+                            int  reMid     = lb + 1
+                            if typ == 1 and reBearImb
+                                bool imbAbove   = open[reMid] > top
+                                bool imbThrough = high[reMid] >= top and low[reMid] <= bot
+                                if imbAbove or imbThrough
+                                    float dist = math.max(0.0, low[reMid] - top)
+                                    if dist <= imbMaxDist and (na(reBestDist) or dist < reBestDist)
+                                        reBestDist := dist
+                                        reBestLb   := lb
+                            if typ == -1 and reBullImb
+                                bool imbBelow   = open[reMid] < bot
+                                bool imbThrough = high[reMid] >= top and low[reMid] <= bot
+                                if imbBelow or imbThrough
+                                    float dist = math.max(0.0, bot - high[reMid])
+                                    if dist <= imbMaxDist and (na(reBestDist) or dist < reBestDist)
+                                        reBestDist := dist
+                                        reBestLb   := lb
+                    if not na(reBestLb)
+                        int newImbBi = bar_index - (reBestLb + 1)
+                        bool isDifferentImb = newImbBi != array.get(zImbBiA, i)
+                        if isDifferentImb
+                            strategy.cancel("LONG_"  + uidStr)
+                            strategy.cancel("SHORT_" + uidStr)
+                            int   reMid2 = reBestLb + 1
+                            float bTop2  = math.max(open[reMid2], close[reMid2])
+                            float bBot2  = math.min(open[reMid2], close[reMid2])
+                            array.set(zImbBodyTopA, i, bTop2)
+                            array.set(zImbBodyBotA, i, bBot2)
+                            array.set(zImbOpenA,    i, open[reMid2])
+                            array.set(zImbHiA,      i, high[reMid2])
+                            array.set(zImbLoA,      i, low[reMid2])
+                            array.set(zImbBiA,      i, newImbBi)
+                            box oldImb2 = array.get(zImbBoxA, i)
+                            if not na(oldImb2)
+                                box.delete(oldImb2)
+                            color zColRe = f_zoneColor(typ, array.get(zVolStrongA, i))
+                            float aTop2  = bTop2 == bBot2 ? bTop2 + syminfo.mintick * 0.5 : bTop2
+                            float aBot2  = bTop2 == bBot2 ? bBot2 - syminfo.mintick * 0.5 : bBot2
+                            box newImb2  = box.new(newImbBi, aTop2, newImbBi, aBot2, bgcolor=color.new(zColRe, 80), border_color=color.new(zColRe, 15), border_width=1)
+                            array.set(zImbBoxA,         i, newImb2)
+                            array.set(zFilledA,         i, false)
+                            array.set(zPendingInvalidA, i, false)
+                            array.set(zImb0LblDrawnA,   i, false)
+                            array.set(zS4OrderedA,      i, false)
+                            array.set(zOrderSlA,        i, na)
+                            array.set(zS5EntryDoneA,    i, false)
+                            array.set(zUsedA,           i, false)
+                            array.set(zStateA,          i, 1)
+                            array.set(zStateBiA,        i, bar_index)
+                            st := 1
+
+            if st >= 1 and st <= 5
+                bool passedThrough = (typ == 1 and high >= top and low < bot) or (typ == -1 and low <= bot and high > top)
+                if passedThrough and not array.get(zPendingInvalidA, i)
+                    array.set(zPendingInvalidA, i, true)
+                    if st == 5 and array.get(zFilledA, i)
+                        resizeZoneOnInvalidation(i)
+
+            // ===== STATE 1 =====
+            if st == 1 and barstate.isconfirmed
+                int stateBi     = array.get(zStateBiA, i)
+                stateBi := na(stateBi) ? bar_index : stateBi
+                int barsInState = bar_index - stateBi
+                if barsInState > state1MaxBars
+                    resizeZoneOnInvalidation(i)
+                    array.set(zUsedA,  i, true)
+                    array.set(zStateA, i, -1)
+                else
+                    if typ == 1 and high > top and low <= top
+                        log.info("STATE1->2 LONG | uid={0} | b_s1={1}", uidStr, barsInState)
+                        array.set(zStateA,   i, 2)
+                        array.set(zStateBiA, i, bar_index)
+                        array.set(zStateTimeA, i, time)
+                        array.set(zUsedA,    i, true)
+                        st := 2
+                        // ===== OPRAVENY ALERT STATE 2 - JSON format pre PMT =====
+                        if alertOnState2
+                            alert('{"strategy_name":"' + pmtStratName + '","symbol":"' + syminfo.ticker + '","date":"{{timenow}}","data":"info","state":"STATE2","direction":"LONG","zone_id":"' + uidStr + '","zone_top":"' + str.tostring(top, "#.######") + '","token":"' + pmtToken + '"}', alert.freq_once_per_bar_close)
+                    if typ == -1 and low < bot and high >= bot
+                        log.info("STATE1->2 SHORT | uid={0} | b_s1={1}", uidStr, barsInState)
+                        array.set(zStateA,   i, 2)
+                        array.set(zStateBiA, i, bar_index)
+                        array.set(zStateTimeA, i, time)
+                        array.set(zUsedA,    i, true)
+                        st := 2
+                        // ===== OPRAVENY ALERT STATE 2 - JSON format pre PMT =====
+                        if alertOnState2
+                            alert('{"strategy_name":"' + pmtStratName + '","symbol":"' + syminfo.ticker + '","date":"{{timenow}}","data":"info","state":"STATE2","direction":"SHORT","zone_id":"' + uidStr + '","zone_bot":"' + str.tostring(bot, "#.######") + '","token":"' + pmtToken + '"}', alert.freq_once_per_bar_close)
+
+            // ===== STATE 2 =====
+            if st == 2 and barstate.isconfirmed
+                int stateBi     = array.get(zStateBiA, i)
+                stateBi := na(stateBi) ? bar_index : stateBi
+                int barsInState = bar_index - stateBi
+                if barsInState > state2MaxBars
+                    resizeZoneOnInvalidation(i)
+                    array.set(zStateA, i, -1)
+                else
+                    float imbBodyTop = array.get(zImbBodyTopA, i)
+                    float imbBodyBot = array.get(zImbBodyBotA, i)
+                    if typ == 1 and close > imbBodyTop + s2ConfirmDist
+                        log.info("STATE2->3 LONG | uid={0} | b_s2={1}", uidStr, barsInState)
+                        array.set(zStateA,   i, 3)
+                        array.set(zStateBiA, i, bar_index)
+                        st := 3
+                    if typ == -1 and close < imbBodyBot - s2ConfirmDist
+                        log.info("STATE2->3 SHORT | uid={0} | b_s2={1}", uidStr, barsInState)
+                        array.set(zStateA,   i, 3)
+                        array.set(zStateBiA, i, bar_index)
+                        st := 3
+
+            // ===== STATE 3 =====
+            if st == 3 and barstate.isconfirmed
+                int stateBi     = array.get(zStateBiA, i)
+                stateBi := na(stateBi) ? bar_index : stateBi
+                int barsInState = bar_index - stateBi
+                if barsInState > state3MaxBars
+                    resizeZoneOnInvalidation(i)
+                    array.set(zStateA, i, -1)
+                else
+                    float imbOpen = array.get(zImbOpenA, i)
+                    if typ == 1 and low <= imbOpen and inTradeWindow
+                        int touchTime     = array.get(zStateTimeA, i)
+                        int secSinceTouch = na(touchTime) ? 0 : int((time - touchTime) / 1000)
+                        int minSinceTouch = secSinceTouch / 60
+                        log.info("STATE3->4 LONG | uid={0} | b_s3={1} | min_od_dotyku={2}", uidStr, barsInState, minSinceTouch)
+                        // POZN (menej "krikavy" graf): tento interny debug label (stav prechodu STATE3->4)
+                        // sa predtym kreslil VZDY, bez ohladu na debug nastavenie - teraz sa zobrazi
+                        // len ked je zapnuta "Zobraz debug tabulku", rovnako ako ostatne ladiace info.
+                        if showDebugTable
+                            label lbl34L = label.new(bar_index, low - syminfo.mintick * 40,
+                                      "3->4 L\nb_s3=" + str.tostring(barsInState) + " min=" + str.tostring(minSinceTouch),
+                                      style=label.style_label_up, color=color.new(PAL_GRAY, 20),
+                                      textcolor=color.black, size=size.tiny)
+                            array.push(transLabelPool, lbl34L)
+                            if array.size(transLabelPool) > transLabelMax
+                                label.delete(array.shift(transLabelPool))
+                        array.set(zStateA,    i, 4)
+                        array.set(zStateBiA,  i, bar_index)
+                        array.set(zStateTimeA, i, time)
+                        st := 4
+                        // ===== OPRAVENY ALERT STATE 3 - JSON format pre PMT =====
+                        if alertOnState3
+                            alert('{"strategy_name":"' + pmtStratName + '","symbol":"' + syminfo.ticker + '","date":"{{timenow}}","data":"info","state":"STATE3","direction":"LONG","zone_id":"' + uidStr + '","imb_open":"' + str.tostring(imbOpen, "#.######") + '","token":"' + pmtToken + '"}', alert.freq_once_per_bar_close)
+
+                    if typ == -1 and high >= imbOpen and inTradeWindow
+                        int touchTime     = array.get(zStateTimeA, i)
+                        int secSinceTouch = na(touchTime) ? 0 : int((time - touchTime) / 1000)
+                        int minSinceTouch = secSinceTouch / 60
+                        log.info("STATE3->4 SHORT | uid={0} | b_s3={1} | min_od_dotyku={2}", uidStr, barsInState, minSinceTouch)
+                        // POZN: rovnaka zmena ako pri LONG vyssie - len pri zapnutej debug tabulke.
+                        if showDebugTable
+                            label lbl34S = label.new(bar_index, high + syminfo.mintick * 40,
+                                      "3->4 S\nb_s3=" + str.tostring(barsInState) + " min=" + str.tostring(minSinceTouch),
+                                      style=label.style_label_down, color=color.new(PAL_GRAY, 20),
+                                      textcolor=color.black, size=size.tiny)
+                            array.push(transLabelPool, lbl34S)
+                            if array.size(transLabelPool) > transLabelMax
+                                label.delete(array.shift(transLabelPool))
+                        array.set(zStateA,    i, 4)
+                        array.set(zStateBiA,  i, bar_index)
+                        array.set(zStateTimeA, i, time)
+                        st := 4
+                        // ===== OPRAVENY ALERT STATE 3 - JSON format pre PMT =====
+                        if alertOnState3
+                            alert('{"strategy_name":"' + pmtStratName + '","symbol":"' + syminfo.ticker + '","date":"{{timenow}}","data":"info","state":"STATE3","direction":"SHORT","zone_id":"' + uidStr + '","imb_open":"' + str.tostring(imbOpen, "#.######") + '","token":"' + pmtToken + '"}', alert.freq_once_per_bar_close)
+
+            // ===== STATE 4 =====
+            if st == 4
+                if dailyWinLimitReached
+                    resizeZoneOnInvalidation(i)
+                    array.set(zStateA, i, -1)
+                    st := -1
+                    float yMax = typ == 1 ? low - syminfo.mintick * 30 : high + syminfo.mintick * 30
+                    label maxLbl = label.new(bar_index, yMax, "MAX\nDAILY", xloc=xloc.bar_index, style=typ == 1 ? label.style_label_up : label.style_label_down, color=PAL_SLATE, textcolor=color.white, size=size.small)
+                    array.push(stateLabelPool, maxLbl)
+                    if array.size(stateLabelPool) > stateLabelMax
+                        label oldMax = array.shift(stateLabelPool)
+                        label.delete(oldMax)
+
+            if st == 4
+                if not inTradeWindow
+                    string cancelId4 = (typ == 1 ? "LONG_" : "SHORT_") + uidStr
+                    strategy.cancel(cancelId4)
+                    // Box NEmazeme - necháva sa ako historicky zaznam pokusu o obchod.
+                    resizeZoneOnInvalidation(i)
+                    array.set(zStateA, i, -1)
+                    st := -1
+
+            if st == 4
+                bool  alreadyOrdered = array.get(zS4OrderedA, i)
+                float myImbOpen      = array.get(zImbOpenA, i)
+                int   myImbBi        = array.get(zImbBiA, i)
+                bool  dupFound       = false
+                if not alreadyOrdered
+                    for j = 0 to zN - 1
+                        if j != i
+                            int stJ = array.get(zStateA, j)
+                            if (stJ == 4 or stJ == 5) and array.get(zS4OrderedA, j)
+                                if array.get(zImbBiA, j) == myImbBi or (not na(myImbOpen) and array.get(zImbOpenA, j) == myImbOpen)
+                                    dupFound := true
+
+                if alreadyOrdered or dupFound
+                    if alreadyOrdered
+                        // OPRAVA: zStateBiA nastavujeme len ked prvykrat vstupujeme do STATE 5
+                        // Ak uz sme v STATE 5 (st==5), NEresetujeme bar counter!
+                        if st != 5
+                            array.set(zStateA,    i, 5)
+                            array.set(zStateBiA,  i, bar_index)
+                            array.set(zStateTimeA, i, time)
+                            st := 5
+                    else
+                        resizeZoneOnInvalidation(i)
+                        array.set(zStateA, i, -1)
+                        st := -1
+                else
+                    float imbOpen4   = array.get(zImbOpenA, i)
+                    float entryPrice = imbOpen4
+                    float slPrice    = na
+                    float tpPrice    = na
+                    int   lineEnd    = bar_index + state5MaxBars * 3
+
+                    // POZN (rozlisenie modelu pri viacerych zapnutych naraz): namiesto porovnavania
+                    // s jednym globalnym "entryModel" sa tu pyta priamo, ci uz ma tato KONKRETNA
+                    // zona ulozene SL z Pin Bar/Engulfing STATE0 detekcie (zOrderSlA nie je na) -
+                    // spolahlivy per-zona signal bez ohladu na to, kolko modelov je naraz zapnutych.
+                    if not na(array.get(zOrderSlA, i))
+                        // SL uz bol vypocitany a ulozeny v STATE 0 (pin bar / engulfing detekcia) -
+                        // pouzijeme ho, nehladame ziadny swing lookback (ten patri len k IMB entry modelu).
+                        slPrice := array.get(zOrderSlA, i)
+                    else
+                        float slSwing = na
+                        for lb = 0 to slLookback - 1
+                            if bar_index >= lb
+                                if typ == 1
+                                    if na(slSwing) or low[lb] < slSwing
+                                        slSwing := low[lb]
+                                else
+                                    if na(slSwing) or high[lb] > slSwing
+                                        slSwing := high[lb]
+                        float slBuf = slBufferTicks * syminfo.mintick
+                        if typ == 1
+                            slPrice := (na(slSwing) ? bot : slSwing) - slBuf
+                        else
+                            slPrice := (na(slSwing) ? top : slSwing) + slBuf
+
+                    // TP sa pocita VZDY, bez ohladu na to, ci order nakoniec pojde von,
+                    // aby sme vedeli zobrazit ciary aj ked sa order nepodari umiestnit.
+                    float slDistCalc = typ == 1 ? (entryPrice - slPrice) : (slPrice - entryPrice)
+                    tpPrice := typ == 1 ? entryPrice + slDistCalc * rrRatio : entryPrice - slDistCalc * rrRatio
+
+                    // ===== TRAILING STOP (volitelny, klasicky) - prepocet R-nasobkov na DVE rozne =====
+                    // jednotky pre DVE rozne miesta, kde sa trailing pouziva:
+                    //  1) strategy.exit(trail_points=, trail_offset=) - TradingView simulacia -
+                    //     ocakava TICKY, preto sa deli syminfo.mintick (trailPointsTicks/trailOffsetTicks).
+                    //  2) pmtMsg() - JSON pre PickMyTrade (realny broker) - ocakava CENOVE BODY
+                    //     (rovnaka jednotka ako price/tp/sl v tom istom JSON-e), NEdeli sa mintickom
+                    //     (pmtTrailTriggerPts/pmtTrailStopPts/pmtTrailFreqPts). Bez tohto rozlisenia
+                    //     by trailing na TradingView fungoval spravne, ale realny order cez PickMyTrade
+                    //     by trailing vobec nemal (predtym boli tieto polia v JSON-e natvrdo 0).
+                    // Ked je enableTrailing vypnute, vsetko zostane na "na"/false a obe cesty sa
+                    // zachovaju presne ako doteraz (pevny SL/TP, ziadny trailing nikde).
+                    float trailPointsTicks   = na
+                    float trailOffsetTicks   = na
+                    float pmtTrailTriggerPts = na
+                    float pmtTrailStopPts    = na
+                    float pmtTrailFreqPts    = na
+                    if enableTrailing and syminfo.mintick > 0 and slDistCalc > 0
+                        trailPointsTicks   := (trailActivationR * slDistCalc) / syminfo.mintick
+                        trailOffsetTicks   := (trailOffsetR    * slDistCalc) / syminfo.mintick
+                        pmtTrailTriggerPts := trailActivationR * slDistCalc
+                        pmtTrailStopPts    := trailOffsetR    * slDistCalc
+                        pmtTrailFreqPts    := pmtTrailStopPts * (trailFreqPct / 100.0)
+
+                    bool oppositeOpen = (typ == 1 and strategy.position_size < 0) or (typ == -1 and strategy.position_size > 0)
+
+                    // OCO (na ziadost pouzivatela: "nech pocka, ktora zona zada limit ako prva, a az
+                    // POTOM vypne tu druhu"): predtym `oppositeOpen` hore kontrolovalo LEN uz VYPLNENU
+                    // (realne beziacu) opacnu poziciu cez strategy.position_size - takze mohli existovat
+                    // SUCASNE dva cakajuce limit ordery v opacnych smeroch (jeden LONG, jeden SHORT) bez
+                    // toho, aby o sebe navzajom vedeli, kym sa jeden z nich nevyplnil. Teraz sa navyse
+                    // kontroluje, ci uz NEJAKA INA zona nema PRAVE TERAZ cakajuci (este nevyplneny)
+                    // order v OPACNOM smere (STATE 5) - ak ano, tato (neskorsia) zona sa NEobchoduje,
+                    // presne v duchu "kto zada limit prvy, ten ma prednost".
+                    bool oppositePending = false
+                    for j = 0 to zN - 1
+                        if j != i and array.get(zStateA, j) == 5 and array.get(zTypA, j) == -typ and not array.get(zFilledA, j)
+                            oppositePending := true
+
+                    int orderQty = 1
+                    if maxLossDollar > 0
+                        float rawSlDist = typ == 1 ? (entryPrice - slPrice) : (slPrice - entryPrice)
+                        if rawSlDist > 0 and syminfo.mintick > 0 and tickDollarValue > 0
+                            float slDistTicks = rawSlDist / syminfo.mintick
+                            float slDollarPerContract = slDistTicks * tickDollarValue
+                            if slDollarPerContract > 0
+                                orderQty := int(math.max(1, math.floor(maxLossDollar / slDollarPerContract)))
+
+                    bool allowLong   = tradeDirection == "Both" or tradeDirection == "Long only"
+                    bool allowShort  = tradeDirection == "Both" or tradeDirection == "Short only"
+                    bool directionOk = typ == 1 ? allowLong : allowShort
+                    // C4 (stripped build): Market Structure/BOS-CHoCH modul bol odstraneny, takze
+                    // ziadny structure filter uz neexistuje - vzdy true (zachovane ako premenna, aby
+                    // sa nemusela menit logika "canTrade"/"skipReason" nizsie).
+                    bool structureOk = true
+                    // Volume filter (entry-cast, len SD zdroj): ak je zapnute aj "Zapnut volume filter"
+                    // aj "Aj blokovat slabe zony", a tato zona je SD (zSrcA==0), musi mat aktualna
+                    // (potvrdzujuca) svieka volume aspon volMultiplier-nasobok SMA volume na TF grafu.
+                    // S/R a Likviditne zony (zSrcA != 0) tymto filtrom NIKDY nie su blokovane.
+                    bool volumeEntryOk = not (useVolumeFilter and volumeFilterBlockTrading) or array.get(zSrcA, i) != 0 or volume >= volMultiplier * volSmaChart
+                    bool canTrade    = enableTrading and directionOk and not oppositeOpen and not oppositePending and structureOk and volumeEntryOk
+                    string dirLbl    = typ == 1 ? "LONG" : "SHORT"
+
+                    if not canTrade
+                        // DOLEZITA OPRAVA: ak order NEMOZE ist von (uz bezi opacna pozicia,
+                        // alebo je tento smer v nastaveniach vypnuty, alebo nesedi struktura trhu,
+                        // alebo je globalne vypnute obchodovanie), zona sa uz NEMA tvarit, ze order
+                        // existuje. Predtym sa v tomto pripade ticho presla do STATE 5 bez realneho
+                        // orderu -> ziadne ciary, ziadny order na zrusenie, len "prazdny" beh casovaca.
+                        // Teraz zonu rovno zneplatnime a jasne oznacime PRECO.
+                        string skipReason = not enableTrading ? "TRADING DISABLED" : (oppositeOpen ? "OPPOSITE POSITION" : (oppositePending ? "OPPOSITE ORDER PENDING" : (not structureOk ? "STRUCTURE MISMATCH" : (not volumeEntryOk ? "VOLUME INSUFFICIENT" : "DIRECTION DISABLED"))))
+                        log.warning("STATE4 SKIP | uid={0} | typ={1} | reason={2}", uidStr, dirLbl, skipReason)
+                        float ySkip = typ == 1 ? low - syminfo.mintick * 30 : high + syminfo.mintick * 30
+                        label skipLbl = label.new(bar_index, ySkip, "SKIP (" + dirLbl + ")\n" + skipReason, xloc=xloc.bar_index, style=typ == 1 ? label.style_label_up : label.style_label_down, color=color.new(PAL_GRAY, 20), textcolor=color.white, size=size.small)
+                        array.push(stateLabelPool, skipLbl)
+                        if array.size(stateLabelPool) > stateLabelMax
+                            label.delete(array.shift(stateLabelPool))
+                        resizeZoneOnInvalidation(i)
+                        array.set(zStateA, i, -1)
+                        st := -1
+                    else
+                        // C4 (stripped build): Pin Bar/Engulfing entry modely (a teda aj ich Market
+                        // order option cez PickMyTrade) boli odstranene - IMB entry vzdy posiela
+                        // LIMIT na presnej cene gapu (entryPrice), nemenne.
+                        string pmtOrderTypeStr = "LMT"
+                        if typ == 1
+                            strategy.entry("LONG_" + uidStr, strategy.long, qty=orderQty, limit=entryPrice, alert_message=pmtMsg("buy", entryPrice, tpPrice, slPrice, orderQty, pmtOrderTypeStr, enableTrailing, pmtTrailTriggerPts, pmtTrailStopPts, pmtTrailFreqPts))
+                            strategy.exit("TP_SL_LONG_" + uidStr, "LONG_" + uidStr, stop=slPrice, limit=tpPrice, trail_points=trailPointsTicks, trail_offset=trailOffsetTicks, comment_profit="TP", comment_loss="SL", alert_message=pmtCloseMsg())
+                        else
+                            strategy.entry("SHORT_" + uidStr, strategy.short, qty=orderQty, limit=entryPrice, alert_message=pmtMsg("sell", entryPrice, tpPrice, slPrice, orderQty, pmtOrderTypeStr, enableTrailing, pmtTrailTriggerPts, pmtTrailStopPts, pmtTrailFreqPts))
+                            strategy.exit("TP_SL_SHORT_" + uidStr, "SHORT_" + uidStr, stop=slPrice, limit=tpPrice, trail_points=trailPointsTicks, trail_offset=trailOffsetTicks, comment_profit="TP", comment_loss="SL", alert_message=pmtCloseMsg())
+
+                        array.set(zS4OrderedA, i, true)
+                        array.set(zOrderSlA,   i, slPrice)
+                        addLogEntry(uid, dirLbl, entryPrice, slPrice, tpPrice, orderQty)
+
+                        // ===== ALERT STATE 4 - pouziva pmtMsg() rovnako ako strategy.entry =====
+                        if alertOnState4
+                            string dir4msg = typ == 1 ? "buy" : "sell"
+                            alert(pmtMsg(dir4msg, entryPrice, tpPrice, slPrice, orderQty, pmtOrderTypeStr, enableTrailing, pmtTrailTriggerPts, pmtTrailStopPts, pmtTrailFreqPts), alert.freq_once_per_bar_close)
+
+                        int s4Bi   = array.get(zStateBiA, i)
+                        s4Bi := na(s4Bi) ? bar_index : s4Bi
+                        int s4Bars = bar_index - s4Bi
+                        log.info("STATE4->5 | uid={0} | typ={1} | b_s4={2} | entry={3} | sl={4} | tp={5}", uidStr, dirLbl, s4Bars, str.tostring(entryPrice, "#.##"), str.tostring(slPrice, "#.##"), str.tostring(tpPrice, "#.##"))
+
+                        // ===== ENTRY / SL / TP AKO DVE VYPLNENE ZONY (risk / reward box) =====
+                        // Namiesto tenkych ciar teraz kreslime dva bloky rozdelene presne na urovni entry:
+                        // modry blok = smerom k TP (reward), ruzovy/cerveny blok = smerom k SL (risk).
+                        // Funguje to rovnako pre LONG aj SHORT, box sa jednoducho polozi na spravnu stranu.
+                        float tpTop = math.max(entryPrice, tpPrice)
+                        float tpBot = math.min(entryPrice, tpPrice)
+                        float slTop = math.max(entryPrice, slPrice)
+                        float slBot = math.min(entryPrice, slPrice)
+                        // Bez hruceho okraja (border_width=0), len vyplnena farba - citelnejsie
+                        // a menej "krikave" ako predtym. TP=zelena (profit), SL=cervena (risk) -
+                        // standardna, univerzalne citatelna konvencia z jednotnej palety.
+                        box tpBox = box.new(bar_index, tpTop, lineEnd, tpBot, bgcolor=color.new(PAL_STRONG, 70), border_width=0)
+                        box slBox = box.new(bar_index, slTop, lineEnd, slBot, bgcolor=color.new(PAL_LONG,  70), border_width=0)
+                        array.set(zTpBoxA, i, tpBox)
+                        array.set(zSlBoxA, i, slBox)
+
+                        // POZN: znacky ENTRY/SL/TP (label.new vpravo od boxu) boli odstranene -
+                        // ceny uz aj tak vidno v samotnych TP/SL boxoch a v diagnostickom paneli
+                        // (viz curOrderTxt nizsie), tieto tri navyse boli zbytocne/rusive.
+
+                        // POZN (na ziadost pouzivatela - "biele tabulky" na grafe prekazali): predtym
+                        // sa tu kreslil samostatny biely label s E/SL/TP priamo na grafe pri kazdom
+                        // orderi. Teraz sa namiesto toho aktualny order zapise do curOrderTxt/Status
+                        // (predchadzajuci sa posunie do lastOrderTxt/Status) - obe sa zobrazia len
+                        // v diagnostickom paneli (showDebugTable), nie na samotnom grafe.
+                        lastOrderTxt    := curOrderTxt
+                        lastOrderStatus := curOrderStatus
+                        curOrderTxt    := dirLbl + " E:" + str.tostring(entryPrice, "#.##") + " SL:" + str.tostring(slPrice, "#.##") + " TP:" + str.tostring(tpPrice, "#.##") + " Q:" + str.tostring(orderQty) + " id:" + uidStr
+                        curOrderStatus := "PENDING"
+                        curOrderUid    := uid
+
+                        array.set(zStateA,    i, 5)
+                        array.set(zStateBiA,  i, bar_index)
+                        st := 5
+
+            // ===== STATE 5 =====
+            // Jednoducha logika: cakaj na vyplnenie max state5MaxBars barov.
+            // Ak nevyplneny -> cancel. Ak vyplneny -> SL/TP uz bezi cez strategy.exit.
+            if st == 5
+                int  stateBi5     = array.get(zStateBiA, i)
+                stateBi5 := na(stateBi5) ? bar_index : stateBi5
+                int  barsInState5 = bar_index - stateBi5
+                string myOrderId  = (typ == 1 ? "LONG_" : "SHORT_") + uidStr
+                bool wasFilled    = array.get(zFilledA, i)
+                // POZN: predtym tu bolo box.set_right(tpBox/slBox, bar_index + 1) na kazdom bare -
+                // to realne SKRACOVALO box spat na "len po teraz" namiesto toho, aby ho nechalo
+                // zobrazovat celu planovanu SL/TP zonu (bar_index..lineEnd z momentu vytvorenia).
+                // Kedze fill zvycajne prisiel uz po 1-2 baroch, box tak vyzeral vzdy malicky.
+                // Teraz sa box nechava tak, ako bol vytvoreny (velky, staticky, cela SL/TP zona
+                // hned od vstupu) - presne ako nativny TradingView position tool.
+
+                // OPRAVA (race: cancel presne na bare, kde sa order realne vyplnil): predtym sa
+                // "cancel/expiruj" vetva nizsie rozhodovala LEN podla vcerajsieho (stale) zFilledA
+                // flagu - ak MARKET order (Pin Bar/Engulfing s "Market" typom prikazu casto vyplni
+                // uz na 1. baru) vyplnil PRESNE na bare, kde zaroven vyprsal cas ALEBO skoncila
+                // seansa (not inTradeWindow), tato vetva ho aj tak oznacila ako EXPIRED a zmazala
+                // TP/SL box (deleteTradeBoxes) - hoci pozicia uz v skutocnosti bezala. Nasledujuci
+                // "Sleduj vyplnenie" blok to sice opravil na status FILLED, ale box uz bol nenavratne
+                // zmazany a zona ostala natrvalo v STATE -1, takze sa uz nikdy nedopocitalo ani
+                // WIN/LOSS. Teraz sa aktualny stav priamo zo strategy.opentrades zistuje VZDY,
+                // pred rozhodovanim o cancely - vyplnenej pozicii uz nehrozi omylom zmazany box.
+                bool myOrderOpenNow = false
+                if barstate.isconfirmed
+                    for t = 0 to strategy.opentrades - 1
+                        if strategy.opentrades.entry_id(t) == myOrderId
+                            myOrderOpenNow := true
+
+                // Zrus order ak: vyprsal cas ALEBO koniec session (a este nebol vyplneny) - LEN
+                // ak podla strategy.opentrades este realne NEBEZI (viz OPRAVA vyssie).
+                if not wasFilled and not myOrderOpenNow and barstate.isconfirmed
+                    bool shouldCancel = barsInState5 >= state5MaxBars or not inTradeWindow
+                    if shouldCancel
+                        strategy.cancel(myOrderId)
+                        // Obchod sa nevyplnil (expiroval) - k realnemu obchodu nikdy nedoslo,
+                        // preto TP/SL boxy zmazeme (deleteTradeBoxes), nenecha sa vizualne
+                        // zaznamenany ako keby sa realne obchodovalo. Samotny SD zone box
+                        // (pre/post) historicky ostava - ten oznacuje zonu, nie obchod.
+                        resizeZoneOnInvalidation(i)
+                        deleteTradeBoxes(i)
+                        array.set(zStateA, i, -1)
+                        array.set(zS5EntryDoneA, i, false)
+                        setLogStatus(uid, "EXPIRED", na)
+                        if uid == curOrderUid
+                            curOrderStatus := "EXPIRED"
+                        log.warning("STATE5 CANCEL | uid={0} | bars={1} | inTW={2}", uidStr, barsInState5, inTradeWindow)
+                        if barsInState5 >= state5MaxBars
+                            float yExp = typ == 1 ? low - syminfo.mintick * 30 : high + syminfo.mintick * 30
+                            label expLbl = label.new(bar_index, yExp, "EXPIRED\nb=" + str.tostring(barsInState5), xloc=xloc.bar_index, style=typ == 1 ? label.style_label_up : label.style_label_down, color=PAL_AMBER, textcolor=color.white, size=size.small)
+                            array.push(stateLabelPool, expLbl)
+                            if array.size(stateLabelPool) > stateLabelMax
+                                label oldExp = array.shift(stateLabelPool)
+                                label.delete(oldExp)
+
+                // Sleduj vyplnenie (myOrderOpenNow uz zistene vyssie, netreba znova skenovat)
+                if not wasFilled and myOrderOpenNow and barstate.isconfirmed
+                    array.set(zFilledA, i, true)
+                    setLogStatus(uid, "FILLED", na)
+                    if uid == curOrderUid
+                        curOrderStatus := "FILLED"
+                    if invalidateOnFill or array.get(zPendingInvalidA, i)
+                        resizeZoneOnInvalidation(i)
+                    log.info("STATE5 FILLED | uid={0} | bars={1}", uidStr, barsInState5)
+
+                    // OCO (na ziadost pouzivatela): tento obchod prave vyplnil ako PRVY - kazdy INY,
+                    // este nevyplneny cakajuci order v OPACNOM smere uz nema zmysel drzat (na jeden
+                    // smer naraz je uz obsadene miesto, rovnaky princip ako "pyramid:false"/pyramiding=0
+                    // vyssie v strategii) - preto sa teraz aktivne ZRUSI, namiesto toho aby zostal
+                    // cakat a prípadne neskor spustil nechcenu reverznu poziciu.
+                    for j = 0 to zN - 1
+                        if j != i and array.get(zStateA, j) == 5 and array.get(zTypA, j) == -typ and not array.get(zFilledA, j)
+                            int    ocoUid = array.get(zUidA, j)
+                            string ocoId  = (array.get(zTypA, j) == 1 ? "LONG_" : "SHORT_") + str.tostring(ocoUid)
+                            strategy.cancel(ocoId)
+                            resizeZoneOnInvalidation(j)
+                            deleteTradeBoxes(j)
+                            array.set(zStateA, j, -1)
+                            array.set(zS5EntryDoneA, j, false)
+                            setLogStatus(ocoUid, "CANCELLED", na)
+                            if ocoUid == curOrderUid
+                                curOrderStatus := "CANCELLED (OCO)"
+                            log.info("STATE5 OCO CANCEL | uid={0} | opacny obchod uz vyplnil (uid={1})", str.tostring(ocoUid), uidStr)
+
+                // Ak vyplneny a pozicia zatvorena (SL/TP) -> update wins a koniec
+                if wasFilled and barstate.isconfirmed
+                    bool myOrderOpen2 = false
+                    for t = 0 to strategy.opentrades - 1
+                        if strategy.opentrades.entry_id(t) == myOrderId
+                            myOrderOpen2 := true
+                    if not myOrderOpen2
+                        int nClosed = strategy.closedtrades
+                        if nClosed > 0
+                            float lastProfit = strategy.closedtrades.profit(nClosed - 1)
+                            if lastProfit > 0
+                                dailyWinsCount += 1
+                            setLogStatus(uid, lastProfit > 0 ? "WIN" : "LOSS", lastProfit)
+                            if uid == curOrderUid
+                                curOrderStatus := lastProfit > 0 ? "WIN" : "LOSS"
+                        // Box NEmazeme - zostava natrvalo na grafe ako historicky zaznam uzavreteho
+                        // obchodu, ale UTNEME pravy okraj presne na bar, kde sa obchod skutocne
+                        // zavrel (TP/SL) - predtym box siahal az po vopred vypocitany "lineEnd"
+                        // (bar_index + state5MaxBars*3 z chvile vstupu) bez ohladu na to, kedy
+                        // obchod naozaj skoncil, takze vyzeral zbytocne siroky/dlhy.
+                        box tpBoxDone = array.get(zTpBoxA, i)
+                        box slBoxDone = array.get(zSlBoxA, i)
+                        if not na(tpBoxDone)
+                            box.set_right(tpBoxDone, bar_index)
+                        if not na(slBoxDone)
+                            box.set_right(slBoxDone, bar_index)
+                        array.set(zStateA, i, -1)
+                        array.set(zS5EntryDoneA, i, false)
+
+            // ===== STATE LABELS =====
+            if st >= 1 and st <= 4 and barstate.isconfirmed
+                color lblCol = typ == 1 ? PAL_LONG : PAL_SHORT
+                bool lbl0Drawn = array.get(zImb0LblDrawnA, i)
+                if not lbl0Drawn
+                    int imbBi = array.get(zImbBiA, i)
+                    if not na(imbBi)
+                        int   imbOffset = bar_index - imbBi
+                        float imbY      = typ == 1 ? low[imbOffset] - syminfo.mintick * 5 : high[imbOffset] + syminfo.mintick * 5
+                        label lbl0 = label.new(imbBi, imbY, "0", xloc=xloc.bar_index, style=label.style_none, color=color.new(color.white, 100), textcolor=lblCol, size=size.tiny)
+                        array.push(stateLabelPool, lbl0)
+                        if array.size(stateLabelPool) > stateLabelMax
+                            label oldL0 = array.shift(stateLabelPool)
+                            label.delete(oldL0)
+                        array.set(zImb0LblDrawnA, i, true)
+
+                float tickOff = syminfo.mintick * 10
+                float yPos    = na
+                if typ == 1
+                    yPos       := low - tickOff * (1 + lblCountUp)
+                    lblCountUp += 1
+                else
+                    yPos         := high + tickOff * (1 + lblCountDown)
+                    lblCountDown += 1
+                string lblText = str.tostring(st)
+                if st == 4
+                    float dbgImbOpen = array.get(zImbOpenA, i)
+                    lblText := "4\n" + str.tostring(dbgImbOpen)
+                label lbl = label.new(bar_index, yPos, lblText, style=label.style_none, color=color.new(color.white, 100), textcolor=lblCol, size=size.tiny)
+                array.push(stateLabelPool, lbl)
+                if array.size(stateLabelPool) > stateLabelMax
+                    label old = array.shift(stateLabelPool)
+                    label.delete(old)
+
+// ==================== ZONY: UTNI NA KONCI KAZDEJ SEANSY (STATE 0-3) ====================
+// POZN (riesenie navrhnute pouzivatelom): predtym mala per-seansovu "not inTradeWindow"
+// kontrolu len STATE 4 (zrusi order) a STATE 5 s nevyplnenym orderom (shouldCancel) - obe
+// uz reagovali na koniec AKEJKOLVEK seansy, nie len konca cele ho dna. Ale STATE 0-3 (zona
+// sa este len formuje / caka na potvrdenie, ziadny order este nie je umiestneny) takuto
+// kontrolu nemali vobec - preto mohli "presahovat" cez medzeru medzi dvoma seansami az do
+// dalsej seansy (presne box tiahnuci sa cez viacero seansi na screenshote). Teraz sa takato
+// zona na konci KAZDEJ seansy (nie len konca dna) rovno ukonci/utne - nepresahuje seansu,
+// v ktorej vznikla. STATE 4/5 sa tu nechavaju bokom, tie uz maju vlastnu spravnu logiku.
+if tradeWindowJustClosed and barstate.isconfirmed
+    int nZonesCut = array.size(zStateA)
+    if nZonesCut > 0
+        for i = 0 to nZonesCut - 1
+            int zStCut = array.get(zStateA, i)
+            if zStCut >= 0 and zStCut <= 3
+                resizeZoneOnInvalidation(i)
+                array.set(zUsedA,  i, true)
+                array.set(zStateA, i, -1)
+
+// ==================== CLOSE AT SESSION END ====================
+if closeAtSessionEnd and noMoreSessionsToday and not inTradeWindow and barstate.isconfirmed
+    int nZones = array.size(zStateA)
+    if nZones > 0
+        for i = 0 to nZones - 1
+            int zSt = array.get(zStateA, i)
+            if zSt >= 0 and zSt <= 5
+                if zSt >= 1
+                    int    zTypSess    = array.get(zTypA, i)
+                    int    sessUid     = array.get(zUidA, i)
+                    string sessOrderId = (zTypSess == 1 ? "LONG_" : "SHORT_") + str.tostring(sessUid)
+                    strategy.cancel(sessOrderId)
+                    if zSt == 5
+                        bool myOpen = false
+                        for t = 0 to strategy.opentrades - 1
+                            if strategy.opentrades.entry_id(t) == sessOrderId
+                                myOpen := true
+                        if myOpen
+                            strategy.close(sessOrderId, comment="SESSION_END", immediately=true, alert_message=pmtCloseMsg())
+                    // Box NEmazeme ani na konci session - historicky zaznam ostava viditelny.
+                resizeZoneOnInvalidation(i)
+                array.set(zStateA, i, -1)
+                array.set(zUsedA,  i, true)
+    strategy.cancel_all()
+    log.warning("SESSION_END cancel_all fired")
+    if strategy.opentrades > 0
+        for t = 0 to strategy.opentrades - 1
+            string oid = strategy.opentrades.entry_id(t)
+            strategy.close(oid, comment="SESSION_END_ORPHAN", immediately=true, alert_message=pmtCloseMsg())
+
+// ==================== DEBUG TABULKA ====================
+// Teraz da vypnut (showDebugTable) a da sa nastavit kolko z jej 6 riadkov statistik
+// sa ma zobrazit (debugTableRows, 1-6) - ak dashSs nastavis nizsie ako 6, zobrazia sa
+// len prve N riadky v poradi nizsie (S5 total, S5 pending, S5 filled, maxBars, zones tot, bar_index).
+if showDebugTable and barstate.islast
+    string tPosDbg = debugPos == "Top Right"    ? position.top_right    :
+                      debugPos == "Top Left"     ? position.top_left     :
+                      debugPos == "Bottom Right" ? position.bottom_right : position.bottom_left
+    var table dbgTbl = table.new(tPosDbg, 2, debugTableRows, bgcolor=color.new(color.white, 8), border_color=color.new(PAL_GRAY, 70), border_width=1)
+    int s5pending = 0
+    int s5filled  = 0
+    int s5total   = 0
+    int zNdbg = array.size(zStateA)
+    if zNdbg > 0
+        for li = 0 to zNdbg - 1
+            if array.get(zStateA, li) == 5
+                s5total += 1
+                if array.get(zFilledA, li)
+                    s5filled += 1
+                else
+                    s5pending += 1
+
+    color dbgMuted = color.rgb(90, 90, 90)
+    color dbgAmber = color.rgb(170, 110, 0)
+    color dbgGreen = color.rgb(20, 130, 20)
+    color dbgRed   = color.rgb(190, 60, 70)
+    color dbgBlue  = color.rgb(37, 99, 235)
+
+    // POZN (na ziadost pouzivatela - "biele tabulky" s E/SL/TP na grafe presunute sem):
+    // AKTUALNY = najnovsi umiestneny order (curOrderTxt/Status), POSLEDNY = ten pred nim
+    // (lastOrderTxt/Status) - viz curOrderTxt/curOrderStatus aktualizovane v STATE4/5 vyssie.
+    // Farba riadku podla stavu (f_orderStatusCol nizsie), aby bolo na prvy pohlad vidiet,
+    // ci je (stale) aktivny.
+    color curCol  = f_orderStatusCol(curOrderStatus, dbgGreen, dbgRed, dbgAmber, dbgBlue, dbgMuted)
+    color lastCol = f_orderStatusCol(lastOrderStatus, dbgGreen, dbgRed, dbgAmber, dbgBlue, dbgMuted)
+
+    string[] dbgLabels = array.from("S5 total", "S5 pending", "S5 filled", "maxBars", "zones tot", "bar_index", "CURRENT", "LAST")
+    string[] dbgValues = array.from(str.tostring(s5total), str.tostring(s5pending), str.tostring(s5filled), str.tostring(state5MaxBars), str.tostring(zNdbg), str.tostring(bar_index), curOrderTxt + " [" + curOrderStatus + "]", lastOrderTxt + " [" + lastOrderStatus + "]")
+    color[]  dbgColors = array.from(dbgMuted, dbgAmber, dbgGreen, dbgMuted, dbgMuted, dbgMuted, curCol, lastCol)
+
+    int dbgRowsShow = math.min(debugTableRows, array.size(dbgLabels))
+    for r = 0 to dbgRowsShow - 1
+        color rc = array.get(dbgColors, r)
+        table.cell(dbgTbl, 0, r, array.get(dbgLabels, r), text_color=dbgMuted, text_size=size.small)
+        table.cell(dbgTbl, 1, r, array.get(dbgValues, r), text_color=rc, text_size=size.small)
+
+// ==================== DASHBOARD (spojeny panel: winrate pruh + staty + trade log) ====================
+// POZN: skusali sme winrate ako "kruh" poskladany z policok v 7x7 mriezke, ale pri malom
+// rozliseni to v realnom zobrazeni nevyzeralo ako kruh, len ako neprehladna skvrna. Namiesto
+// toho je winrate teraz vodorovny progress pruh (14 segmentov, zlava doprava) - jednoduchsie,
+// ale v Pine tabulke sa da spravit presne a spolahlivo vyzera dobre za kazdych okolnosti.
+
+// Pomocna funkcia - jeden "vizualny" stlpec/bunka tabulky v skutocnosti spaja viacero
+// zakladnych stlpcov do jedneho (pouzite pre hlavicku, staty aj hlavicku/riadky logu).
+f_mergedCell(tblId, colStart, colEnd, row, txt, txtCol, bg, halign) =>
+    table.cell(tblId, colStart, row, txt, text_color=txtCol, text_size=size.small, bgcolor=bg, text_halign=halign)
+    if colEnd > colStart
+        for cc = colStart + 1 to colEnd
+            table.cell(tblId, cc, row, "", bgcolor=bg)
+    table.merge_cells(tblId, colStart, row, colEnd, row)
+
+if showDashboard and barstate.islast
+    string tPos = dashPos == "Top Right"    ? position.top_right    :
+                  dashPos == "Top Left"     ? position.top_left     :
+                  dashPos == "Bottom Right" ? position.bottom_right : position.bottom_left
+
+    float winrate = dashTotalTrades > 0 ? (dashWins / dashTotalTrades) * 100 : 0.0
+    bool  posOpen = strategy.position_size != 0
+    string posDir = strategy.position_size > 0 ? "LONG" : (strategy.position_size < 0 ? "SHORT" : "-")
+
+    // Modernejsia paleta (inspirovana bezne pouzivanymi "slate/emerald/rose" fintech tonmi
+    // namiesto zakladnych Pine farieb green/red/navy) - konzistentna cez cely panel.
+    color colHeaderBg   = color.rgb(30, 41, 59)          // tmavy slate namiesto cistej navy
+    color colGreen      = color.rgb(16, 185, 129)        // vyhra / win%
+    color colGreenSoft  = color.rgb(16, 185, 129, 20)
+    color colRed        = color.rgb(244, 63, 94)         // prehra / loss%
+    color colRedSoft    = color.rgb(244, 63, 94, 20)
+    color colAmber      = color.rgb(217, 119, 6)
+    color colBlueSoft   = color.rgb(59, 130, 246, 20)    // FILLED (informacny, neutralny)
+    // POZN (zjednotenie farieb graf<->dashboard): LONG/SHORT tu predtym pouzivalo
+    // modru/ruzovu, ODLISNE od LONG=cervena/SHORT=modra konvencie zon na grafe - teraz
+    // tabulka obchodov pouziva PRESNE tu istu paletu (PAL_LONG/PAL_SHORT), aby smer
+    // obchodu vyzeral rovnako na grafe aj v dashboarde.
+    color colDirLong    = color.new(PAL_LONG,  80)       // LONG (zhodne s farbou zon na grafe)
+    color colDirShort   = color.new(PAL_SHORT, 80)       // SHORT (zhodne s farbou zon na grafe)
+    color colOrangeSoft = color.rgb(245, 158, 11, 20)    // EXPIRED
+    color colGraySoft   = color.rgb(148, 163, 184, 35)   // neutralny stav (ziadna pozicia)
+    color tileNeutral   = color.rgb(241, 245, 249)       // svetly slate tile
+    color dashTextCol   = color.rgb(30, 41, 59)
+
+    string streakTxt = ""
+    color  streakCol = colGraySoft
+    if dashCurStreak > 0
+        streakTxt := str.tostring(dashCurStreak) + "x win"
+        streakCol  := colGreenSoft
+    else if dashCurStreak < 0
+        streakTxt := str.tostring(math.abs(dashCurStreak)) + "x loss"
+        streakCol  := colRedSoft
+    else
+        streakTxt := "-"
+        streakCol  := colGraySoft
+
+    string riskTxt = maxLossDollar > 0 ? "$" + str.tostring(maxLossDollar, "#.##") : "Fixed qty"
+
+    // 14 stlpcov: winrate pruh vyuziva vsetkych 14 (1 stlpec = 1 segment ~7.1%),
+    // staticke dlazdice a trade log su cez cely rozsah (0-13) zliate do jednej bunky/riadku.
+    int totalCols     = 14
+    int barRows       = 2   // hrubka pruhu (2 riadky nad sebou, aby to nebolo tenucke)
+    int labelRow      = barRows + 1
+    int statsStartRow = labelRow + 1
+    int logHeaderRow  = statsStartRow + dashboardRows
+    int totalRows     = statsStartRow + dashboardRows + (showTradeLog ? 1 + tradeLogRows : 0)
+
+    var table dash = table.new(tPos, totalCols, totalRows, bgcolor=color.new(color.white, 8), border_width=0, frame_color=color.new(PAL_GRAY, 60), frame_width=1)
+
+    f_mergedCell(dash, 0, 6,  0, "DASHBOARD",    color.white, colHeaderBg, text.align_left)
+    f_mergedCell(dash, 7, 13, 0, syminfo.ticker, color.white, colHeaderBg, text.align_right)
+
+    // --- Postupnost poslednych obchodov: kazdy stlpec = JEDEN obchod v chronologickom
+    // poradi (najstarsi z zobrazenych vlavo, najnovsi vpravo) - win = zelena, loss = cervena.
+    // Ak este nie je 14 uzavretych obchodov, prazdne miesta vlavo su neutralne sive.
+    string[] seqResults = array.new_string()
+    if array.size(logStatusA) > 0
+        for k = 0 to array.size(logStatusA) - 1
+            string stV = array.get(logStatusA, k)
+            if stV == "WIN" or stV == "LOSS"
+                array.push(seqResults, stV)
+
+    int nSeq    = array.size(seqResults)
+    int showSeq = math.min(nSeq, totalCols)
+    int seqOff  = totalCols - showSeq
+    for rr = 1 to barRows
+        for c = 0 to totalCols - 1
+            color segCol = colGraySoft
+            if c >= seqOff
+                int tradeIdx = nSeq - showSeq + (c - seqOff)
+                string resV = array.get(seqResults, tradeIdx)
+                segCol := resV == "WIN" ? colGreen : colRed
+            table.cell(dash, c, rr, "", bgcolor=segCol)
+
+    string wrTxt = str.tostring(winrate, "#") + "%  WINRATE   (" + str.tostring(dashWins) + "W / " + str.tostring(dashLosses) + "L)"
+    f_mergedCell(dash, 0, 13, labelRow, wrTxt, dashTextCol, color(na), text.align_center)
+
+    // --- Staticke dlazdice pod pruhom, cez celu sirku panelu ---
+    if dashboardRows >= 1
+        string obchodyTxt = "TRADES:  " + str.tostring(dashTotalTrades) + "  (" + str.tostring(dashWins) + "W / " + str.tostring(dashLosses) + "L)"
+        f_mergedCell(dash, 0, 13, statsStartRow, obchodyTxt, dashTextCol, tileNeutral, text.align_center)
+
+    if dashboardRows >= 2
+        f_mergedCell(dash, 0, 13, statsStartRow + 1, "STREAK:  " + streakTxt, dashTextCol, streakCol, text.align_center)
+
+    if dashboardRows >= 3
+        color posBg = posOpen ? (strategy.position_size > 0 ? colGreenSoft : colRedSoft) : colGraySoft
+        f_mergedCell(dash, 0, 13, statsStartRow + 2, "POSITION:  " + (posOpen ? posDir : "None"), dashTextCol, posBg, text.align_center)
+
+    if dashboardRows >= 4
+        f_mergedCell(dash, 0, 13, statsStartRow + 3, "BEST WIN STREAK:  " + str.tostring(dashBestWinStreak) + "x", dashTextCol, tileNeutral, text.align_center)
+
+    if dashboardRows >= 5
+        f_mergedCell(dash, 0, 13, statsStartRow + 4, "WORST SL STREAK:  " + str.tostring(dashWorstSlStreak) + "x", dashTextCol, tileNeutral, text.align_center)
+
+    if dashboardRows >= 6
+        f_mergedCell(dash, 0, 13, statsStartRow + 5, "RISK / TRADE:  " + riskTxt, colAmber, tileNeutral, text.align_center)
+
+    // ==================== TABULKA OBCHODOV (Entry/SL/TP), v ramci toho isteho panelu ====================
+    // Ucel: rychle a prehladne rucne prepisovanie obchodov do Google Sheets.
+    // Hlavicka logu je hned pod statmi, obchody su PRILEPENE K SPODKU tabulky a rastu
+    // smerom hore (najstarsi zo zobrazenych hned pod hlavickou, najnovsi uplne dole).
+    // Max 20 riadkov (tradeLogRows), to podla spatnej vazby uplne staci.
+    if showTradeLog
+        var int[]    logColStart = array.from(0, 2, 4, 6, 8, 10, 12)
+        var string[] logHeaders  = array.from("Time", "Dir", "Entry", "SL", "TP", "Qty", "Status")
+        for cIdx = 0 to array.size(logColStart) - 1
+            int cs = array.get(logColStart, cIdx)
+            f_mergedCell(dash, cs, cs + 1, logHeaderRow, array.get(logHeaders, cIdx), color.white, colHeaderBg, text.align_center)
+
+        color tlogTextCol = color.rgb(30, 30, 30)
+        int totalLogs   = array.size(logUidA)
+        int logRowsShow = math.min(tradeLogRows, totalLogs)
+        int blankRows   = tradeLogRows - logRowsShow
+
+        // Horna, este nevyuzita cast (hned pod hlavickou logu) - vycistime, aby tam nezostali stare hodnoty.
+        if blankRows > 0
+            for r2 = 1 to blankRows
+                int rowB = logHeaderRow + r2
+                for cIdx = 0 to array.size(logColStart) - 1
+                    int cs = array.get(logColStart, cIdx)
+                    f_mergedCell(dash, cs, cs + 1, rowB, "", tlogTextCol, color(na), text.align_center)
+
+        // Data - najstarsi zo zobrazenych hned pod prazdnym priestorom, najnovsi uplne dole.
+        if logRowsShow > 0
+            for r = 0 to logRowsShow - 1
+                int    srcIdx  = totalLogs - logRowsShow + r
+                int    rowIdx  = logHeaderRow + blankRows + 1 + r
+                string dirV    = array.get(logDirA, srcIdx)
+                float  entV    = array.get(logEntryA, srcIdx)
+                float  slV     = array.get(logSlA, srcIdx)
+                float  tpV     = array.get(logTpA, srcIdx)
+                int    qtyV    = array.get(logQtyA, srcIdx)
+                string statusV = array.get(logStatusA, srcIdx)
+                float  profitV = array.get(logProfitA, srcIdx)
+                string timeV   = str.format_time(array.get(logTimeA, srcIdx), "MM-dd HH:mm")
+
+                string statusTxt = statusV
+                if (statusV == "WIN" or statusV == "LOSS") and not na(profitV)
+                    statusTxt := statusV + " " + (profitV >= 0 ? "+" : "") + str.tostring(profitV, "#.##")
+
+                color statusCol = statusV == "WIN"     ? colGreenSoft  :
+                                   statusV == "LOSS"    ? colRedSoft    :
+                                   statusV == "FILLED"  ? colBlueSoft   :
+                                   statusV == "PENDING" ? colGraySoft   : colOrangeSoft
+                color dirCol = dirV == "LONG" ? colDirLong : colDirShort
+
+                f_mergedCell(dash, 0,  1,  rowIdx, timeV,                         tlogTextCol, color(na), text.align_center)
+                f_mergedCell(dash, 2,  3,  rowIdx, dirV,                          color.white, dirCol,    text.align_center)
+                f_mergedCell(dash, 4,  5,  rowIdx, str.tostring(entV, "#.#####"), tlogTextCol, color(na), text.align_center)
+                f_mergedCell(dash, 6,  7,  rowIdx, str.tostring(slV,  "#.#####"),tlogTextCol, color(na), text.align_center)
+                f_mergedCell(dash, 8,  9,  rowIdx, str.tostring(tpV,  "#.#####"),tlogTextCol, color(na), text.align_center)
+                f_mergedCell(dash, 10, 11, rowIdx, str.tostring(qtyV),           tlogTextCol, color(na), text.align_center)
+                f_mergedCell(dash, 12, 13, rowIdx, statusTxt,                    color.white, statusCol, text.align_center)
