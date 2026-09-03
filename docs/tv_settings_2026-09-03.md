@@ -1,11 +1,27 @@
 # TradingView nastavenia — IBS Imbalance Breakout Strategy
-**Zdroj:** screenshoty z panelu nastavení, BTCUSD 3m (Coinbase), 2026-09-03
-**Použi ako referenciu pri portovaní do Python/Freqtrade — cieľ je rovnaké vykreslovanie a rovnaké obchody.**
+**Zdroj:** screenshoty z panelu nastaveni, BTCUSD 3m (Coinbase), 2026-09-03
+**Pouzi ako referenciu pri portovani do Python/Freqtrade — ciel je rovnake vykreslovanie a rovnake obchody.**
 
-> ⚠️ **Dôležité:** screenshoty sú z **plnej (SK) verzie** stratégie (obsahuje Pin Bar/Engulfing entry,
-> Elliott Waves, Support/Resistance, Liquidity sweep, Market Structure).
-> Priložený súbor [`imbalance_strategy_SD_IMB.pine`](../imbalance_strategy_SD_IMB.pine) je **C4 "stripped" build (EN)** —
-> obsahuje LEN SD zóny + IMB entry model. Sekcie nižšie označené `[NIE JE V C4]` v tom súbore neexistujú.
+> Tieto nastavenia zodpovedaju **plnej verzii** [`imbalance_strategy_FULL.pine`](../imbalance_strategy_FULL.pine)
+> (Pine v5, 2539 riadkov, 115 inputov, slovenske nazvy) — to je referencny subor pre port.
+>
+> Polozky oznacene `[len FULL]` **neexistuju** v stripped builde
+> [`imbalance_strategy_SD_IMB.pine`](../imbalance_strategy_SD_IMB.pine) (Pine v6, 80 inputov, len SD zony + IMB entry).
+
+## ⚠️ Rozdiely: nastavenia na grafe vs. defaulty v kóde
+
+Toto je presne to, čo používateľ prestavil oproti `input.*` defaultom v `imbalance_strategy_FULL.pine`.
+**Pri porte použi ĽAVÝ stĺpec (hodnotu z grafu), nie default.**
+
+| Pine premenná | Default v kóde | **Na grafe (screenshot)** |
+|---|---|---|
+| `enablePinBarEntry` | `false` | **`true`** (Pin Bar entry zapnutý) |
+| `enableTrailing` | `false` | **`true`** (trailing stop zapnutý) |
+| `tradeDirection` | `"Both"` | **`"Long only"`** |
+| `sess2ZoneStartH` | `10` | **`8`** (SD zóna Session 2 začína o 08:00 NY) |
+| `showElliott` | `true` | **`false`** (Elliott Waves vypnuté — len vizuál) |
+
+Všetky ostatné inputy sú na defaultoch z kódu.
 
 ---
 
@@ -14,25 +30,25 @@
 | Nastavenie | Hodnota | Pine premenná |
 |---|---|---|
 | IMB entry (imbalance/gap) | ✅ zap | `enableImbEntry` |
-| Pin Bar entry `[NIE JE V C4]` | ✅ zap | — |
-| Engulfing entry `[NIE JE V C4]` | ⬜ vyp | — |
-| Pin Bar: Min. pomer knôt/telo `[NIE JE V C4]` | 4 | — |
-| Pin Bar: Max. poloha tela v rozsahu (%) `[NIE JE V C4]` | 20 | — |
-| Pin Bar: Min. celkový rozsah sviečky (body) `[NIE JE V C4]` | 2 | — |
-| Engulfing: Min. celkový rozsah sviečky (body) `[NIE JE V C4]` | 2 | — |
-| Engulfing: Dĺžka priemeru rozsahu (bary) `[NIE JE V C4]` | 10 | — |
-| Engulfing: Násobok priemerného rozsahu `[NIE JE V C4]` | 2 | — |
-| Engulfing: Max. barov po dotyku zóny `[NIE JE V C4]` | 3 | — |
-| Pin Bar/Engulfing: Typ príkazu `[NIE JE V C4]` | Market | — |
-| Zapnúť trailing stop | ✅ zap | `enableTrailing` (default v C4 = false) |
+| Pin Bar entry `[len FULL]` | ✅ zap | `enablePinBarEntry` (default `false`!) |
+| Engulfing entry `[len FULL]` | ⬜ vyp | `enableEngulfingEntry` |
+| Pin Bar: Min. pomer knôt/telo `[len FULL]` | 4 | `pbWickToBodyRatio` |
+| Pin Bar: Max. poloha tela v rozsahu (%) `[len FULL]` | 20 | `pbBodyPositionPct` |
+| Pin Bar: Min. celkový rozsah sviečky (body) `[len FULL]` | 2 | `pbMinRangePoints` |
+| Engulfing: Min. celkový rozsah sviečky (body) `[len FULL]` | 2 | `engMinRangePoints` |
+| Engulfing: Dĺžka priemeru rozsahu (bary) `[len FULL]` | 10 | `engSizeAvgLen` |
+| Engulfing: Násobok priemerného rozsahu `[len FULL]` | 2 | `engSizeMultiplier` |
+| Engulfing: Max. barov po dotyku zóny `[len FULL]` | 3 | `engTouchWindowBars` |
+| Pin Bar/Engulfing: Typ príkazu `[len FULL]` | Market | `pbEngOrderType` |
+| Zapnúť trailing stop | ✅ zap | `enableTrailing` (default v kode = false) |
 | Aktivácia trailingu (R-násobok rizika) | 1 | `trailActivationR` |
 | Trailing vzdialenosť (R-násobok rizika) | 0.5 | `trailOffsetR` |
 | PickMyTrade: frekvencia update SL (% z trailing vzd.) | 25 | `trailFreqPct` |
 | Zapnúť detekciu SD zón | ✅ zap | `enableZoneDetection` |
-| Obchoduj z S/R úrovní `[NIE JE V C4]` | ⬜ vyp | — |
-| Obchoduj z likviditných zón (sweep) `[NIE JE V C4]` | ⬜ vyp | — |
+| Obchoduj z S/R úrovní `[len FULL]` | ⬜ vyp | `enableSrTrading` |
+| Obchoduj z likviditných zón (sweep) `[len FULL]` | ⬜ vyp | `enableLqTrading` |
 | Risk:Reward pomer | 1 | `rrRatio` |
-| Smer obchodov | **Long only** | `tradeDirection` (default v C4 = "Both") |
+| Smer obchodov | **Long only** | `tradeDirection` (default v kode = "Both") |
 
 ## ⚙️ Základné nastavenia
 
@@ -75,7 +91,7 @@
 |---|---|
 | Zapnúť | ✅ zap (`sess2On`) |
 | Časové pásmo | America/New_York |
-| SD zóna | **08:00 → 11:00** (pozn.: default v C4 = 10:00 → 11:00) |
+| SD zóna | **08:00 → 11:00** (pozn.: default v kode = 10:00 → 11:00) |
 | Trade | 10:00 → 15:45 |
 
 ## 📙 Session 3 — zapnutá
@@ -87,15 +103,15 @@
 | SD zóna | 08:00 → 10:00 |
 | Trade | 08:00 → 11:00 |
 
-## 📐 Market Structure `[NIE JE V C4]`
+## 📐 Market Structure `[len FULL]`
 
-| Nastavenie | Hodnota |
-|---|---|
-| Zobraz štruktúru trhu (BOS/CHoCH) | ✅ zap |
-| Swing lookback (barov na každú stranu) | 5 |
-| Obchoduj len v smere štruktúry (BOS/CHoCH filter) | ⬜ vyp |
+| Nastavenie | Hodnota | Pine premenná |
+|---|---|---|
+| Zobraz štruktúru trhu (BOS/CHoCH) | ✅ zap | `showMarketStructure` |
+| Swing lookback (barov na každú stranu) | 5 | `structureSwingLen` |
+| Obchoduj len v smere štruktúry (BOS/CHoCH filter) | ⬜ vyp | `useStructureFilter` |
 
-## 📏 Support/Resistance `[NIE JE V C4]`
+## 📏 Support/Resistance `[len FULL]`
 
 | Nastavenie | Hodnota |
 |---|---|
@@ -107,7 +123,7 @@
 | Zobrazuj úrovne len za posledných X dní | 5 |
 | Sýtosť farby zóny (%) | 30 |
 
-## 💧 Likvidita (sweep) `[NIE JE V C4]`
+## 💧 Likvidita (sweep) `[len FULL]`
 
 | Nastavenie | Hodnota |
 |---|---|
@@ -117,7 +133,7 @@
 | Potvrdenie návratu do X barov | 2 |
 | Sila pivotu – okolie (barov) | 50 |
 
-## 🌊 Elliott Waves `[NIE JE V C4]`
+## 🌊 Elliott Waves `[len FULL]`
 
 | Nastavenie | Hodnota |
 |---|---|
@@ -159,13 +175,29 @@
 | SL: lookback barov od aktuálnej sviečky | 10 | `slLookback` |
 | SL: buffer (ticky) | 2 | `slBufferTicks` |
 
-## 💰 Position Size & Risk — *nebolo na screenshotoch, hodnoty z kódu / dashboardu*
+## 💰 Veľkosť pozície a riziko — *nebolo na screenshotoch, hodnoty = defaulty z kódu*
 
 | Nastavenie | Hodnota | Pine premenná |
 |---|---|---|
 | Max strata ($, 0 = vypnuté) | 350 (potvrdené dashboardom „RISK / OBCHOD: $350") | `maxLossDollar` |
-| Hodnota jedného ticku ($) | 0.5 (default z kódu — **overiť pre BTCUSD**) | `tickDollarValue` |
-| Max výherných obchodov za deň | 5 (default z kódu) | `maxDailyWins` |
+| Hodnota jedného ticku ($) | 0.5 — **overiť pre BTCUSD** | `tickDollarValue` |
+| Max výherných obchodov za deň | 5 | `maxDailyWins` |
 
 ## 🔗 PickMyTrade
 Token / Account ID / Strategy name — prázdne (nepoužité pri backteste).
+`pmtMarketOrderType` = `"MKT"` (len vo FULL verzii).
+
+---
+
+## Mapovanie Pine premenných pre `[len FULL]` moduly
+
+Pre vernú replikáciu kreslenia v Pythone:
+
+| Modul | Pine premenné (v poradí ako v paneli) |
+|---|---|
+| 📈 Market Structure | `showMarketStructure`, `structureSwingLen`, `useStructureFilter` |
+| 📏 Support/Resistance | `showSR`, `srSwingLen`, `srClusterPoints`, `srMinTouches`, `srMaxLevels`, `srLookbackDays`, `srZoneSaturationPct` |
+| 💧 Likvidita (Sweep) | `showLiqSweep`, `liqSweepLen`, `liqSweepMinWick`, `liqSweepConfirmBars`, `liqStrengthLen` |
+| 🌊 Elliott Waves | `showElliott`, `ewSwingLen`, `ewMinWavePoints`, `ewShowLabels`, `ewShowProjection`, `ewProjExtendBars`, `ewLineColor` |
+| 🎯 Pin Bar / Engulfing entry | `enablePinBarEntry`, `enableEngulfingEntry`, `pbWickToBodyRatio`, `pbBodyPositionPct`, `pbMinRangePoints`, `engMinRangePoints`, `engSizeAvgLen`, `engSizeMultiplier`, `engTouchWindowBars`, `pbEngOrderType` |
+| 🎯 Zdroj obchodu | `enableZoneDetection` (SD), `enableSrTrading` (S/R), `enableLqTrading` (likvidita) — všetky idú cez spoločný vstupný bod `f_pushZone()` |

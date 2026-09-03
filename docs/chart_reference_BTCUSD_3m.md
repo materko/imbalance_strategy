@@ -24,9 +24,9 @@ RISK / OBCHOD:    $350
 | **Session okná** | Zvislé farebné pásy pozadia — ružový a zelenkastý | Ružový = jedno session okno, zelený = druhé (zóna vs. trade window) |
 | **SD zóny** | Vodorovné obdĺžniky: **modré = Demand (long)**, **červené/ružové = Supply (short)** | Predlžujú sa doprava do expirácie / invalidácie |
 | **Imbalance sviečky** | Menší tmavší box vnútri/pri zóne | `showImbalance` = zap |
-| **Market structure** | Textové značky `BOS`, `CHoCH`, `HH`, `LH` + vodorovné čiary | `[NIE JE V C4]` |
-| **S/R úrovne** | Vodorovné čiary cez celý graf (viac úrovní, tenké) | `[NIE JE V C4]` |
-| **Liquidity sweep** | Značky `X ↑` / `X ↓` s bodkovanou čiarou | `[NIE JE V C4]` |
+| **Market structure** | Textové značky `BOS`, `CHoCH`, `HH`, `LH` + vodorovné čiary | `[len FULL]` |
+| **S/R úrovne** | Vodorovné čiary cez celý graf (viac úrovní, tenké) | `[len FULL]` |
+| **Liquidity sweep** | Značky `X ↑` / `X ↓` s bodkovanou čiarou | `[len FULL]` |
 | **SKIP značky** | Sivé/modré štítky `SKIP`, `SKIP (SHORT)`, `…MER VYP` (smer vypnutý) | Zóna nájdená, ale obchod preskočený — pri `Long only` sú všetky SHORT zóny SKIP |
 | **Counter badges** | Malé oranžové/červené bublinky pri pravom okraji zóny (`2x`, `3x`, `4x`, `5x`) | Počítadlo dotykov/pokusov zóny |
 | **Entry značka** | Šípka + popis `LONG_257` a `+1` | číslo = ID obchodu |
