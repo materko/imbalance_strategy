@@ -140,6 +140,118 @@ Musí byť bit-identické (vrátane celočíselnej aritmetiky v ms), inak sa zó
 
 ---
 
+## 3b. Inštrument nie je konštanta — `InstrumentSpec`
+
+MultiCharts pobeží na MNQ, akciách a možno forexe; Freqtrade na crypte. Tie sa líšia
+v troch veciach, ktoré má Pine zadrátované do inputov:
+
+```python
+@dataclass(frozen=True)
+class InstrumentSpec:
+    tick_size: float          # syminfo.mintick  (MNQ 0.25 | BTCUSD 0.01 | EURUSD 0.00001 | akcie 0.01)
+    point_value: float        # $ za pohyb o 1.0 ceny, na 1 kontrakt/jednotku
+    qty_step: float           # MNQ 1 | BTC 0.001 | forex 0.01 lotu | akcie 1
+    min_qty: float
+    has_real_volume: bool     # forex = False (len tick volume) -> useVolumeFilter je nezmyselný
+```
+
+Získa sa z platformy, nezadáva sa ručne:
+- **MultiCharts**: `tick_size = MinMove/PriceScale`, `point_value = BigPointValue`
+- **Freqtrade**: z `exchange.get_pair_quote_currency()` + market info (`precision`, `contractSize`)
+- **Pine (referencia)**: `syminfo.mintick`, `syminfo.pointvalue`
+
+### Parametre v „points" musia dostať jednotku
+Tieto inputy sú v absolútnych cenových bodoch a **nedajú sa preniesť medzi inštrumentmi**:
+
+| Input | Hodnota | MNQ | BTCUSD @ 80 000 | EURUSD |
+|---|---|---|---|---|
+| `minImbSizePoints` | 2.5 | 2.5 bodu ≈ $5 | $2.5 = 0.003 % | nezmysel (2.5 = 250 000 pipov) |
+| `srClusterPoints` | 15 | rozumné | $15 | nezmysel |
+| `liqSweepMinWick` | 5 | rozumné | $5 | nezmysel |
+| `ewMinWavePoints` | 20 | rozumné | $20 | nezmysel |
+| `pbMinRangePoints` / `engMinRangePoints` | 2 | rozumné | $2 | nezmysel |
+
+Riešenie — každý takýto parameter je `SizeSpec`, nie `float`:
+
+```python
+@dataclass(frozen=True)
+class SizeSpec:
+    value: float
+    unit: Literal['abs', 'ticks', 'atr', 'pct']    # 'abs' = presné Pine správanie
+
+    def resolve(self, inst: InstrumentSpec, price: float, atr: float) -> float: ...
+```
+
+Config profily potom vyzerajú takto a **`abs` zaručuje bit-identitu s TradingView**:
+```
+configs/mnq_3m.json      → {"minImbSizePoints": {"value": 2.5, "unit": "abs"}}    # 1:1 s TV
+configs/btcusd_3m.json   → {"minImbSizePoints": {"value": 0.25, "unit": "atr"}}   # prenositeľné
+configs/eurusd_5m.json   → {"minImbSizePoints": {"value": 0.25, "unit": "atr"}}
+```
+
+Odporúčanie: **na MNQ používaj `abs`** (aby sedelo s TV backtestom), na ostatné inštrumenty `atr`.
+Tick-based inputy (`imbMaxDistTicks`, `state2ConfirmTicks`, `slBufferTicks`) sú už násobené
+`syminfo.mintick`, takže tie sa prenášajú samy — problém sú len tie „points".
+
+---
+
+## 3c. Position sizing: `tickDollarValue = 0.5` je nastavené pre MNQ, na BTC nefunguje
+
+Presný Pine kód (riadky **2010–2016**):
+
+```pine
+float rawSlDist          = typ == 1 ? (entryPrice - slPrice) : (slPrice - entryPrice)
+float slDistTicks        = rawSlDist / syminfo.mintick
+float slDollarPerContract = slDistTicks * tickDollarValue
+orderQty := int(math.max(1, math.floor(maxLossDollar / slDollarPerContract)))
+```
+
+### Čo `tickDollarValue` je
+**Koľko dolárov zarobíš/stratíš, keď sa cena pohne o jeden tick, na 1 kontrakt.**
+Tick = najmenší možný pohyb ceny daného inštrumentu (`syminfo.mintick`).
+
+Pre **MNQ** (Micro E-mini Nasdaq-100): tick = 0.25 indexového bodu, hodnota tiku = **$0.50**.
+Tvoja hodnota `0.5` je presne toto — **config je vyladený na MNQ**, nie na BTC.
+
+### Prečo to na BTCUSD tíško nefunguje
+BTCUSD na Coinbase má `mintick = 0.01`. Ak tam necháš `tickDollarValue = 0.5`, vyjde
+implicitná hodnota bodu $50/bod (namiesto $1/bod). Pri SL vzdialenosti ~$150:
+
+```
+slDistTicks = 150 / 0.01              = 15 000
+slDollarPerContract = 15 000 × 0.5    = $7 500
+orderQty = max(1, floor(350 / 7500))  = max(1, 0) = 1
+```
+
+→ `floor()` dá 0, `max(1, …)` to vytiahne na 1, takže **strategia vždy obchoduje qty=1
+a limit $350 sa ticho ignoruje.** Preto je „RISK / OBCHOD: $350" na tvojom BTC grafe len kozmetika.
+
+### Návrh: nahradiť `tickDollarValue` za `point_value`
+Matematika je totožná, ale prenositeľná — `point_value = tickDollarValue / tick_size`:
+
+```python
+qty_raw = max_loss_dollar / (sl_dist_price * inst.point_value)
+qty     = max(inst.min_qty, floor(qty_raw / inst.qty_step) * inst.qty_step)
+```
+
+| Inštrument | `tick_size` | `point_value` | `qty_step` | pozn. |
+|---|---|---|---|---|
+| MNQ (Micro Nasdaq) | 0.25 | **2.0** | 1 | = dnešné `tickDollarValue 0.5` |
+| ES / MES | 0.25 | 50 / 5 | 1 | |
+| BTC perp (1 BTC/kontrakt) | 0.01 | **1.0** | 0.001 | frakčné qty! |
+| EURUSD (1 štandardný lot) | 0.00001 | 100 000 | 0.01 | |
+| Akcie US | 0.01 | 1.0 | 1 | |
+
+Kľúčová zmena oproti Pine: **`qty_step` namiesto `int()`**. Pine zaokrúhľuje na celé kontrakty,
+čo je správne pre futures a akcie, ale na crypte to zabíja risk management.
+Pri BTC so `sl_dist = 150` a `point_value = 1` vyjde `qty = 350/150 = 2.333 → 2.333 BTC`
+(zaokrúhlené na `qty_step 0.001`) — teda reálne riskovaných $350, ako má byť.
+
+> ⚠️ Na Freqtrade futures navyše platí, že `custom_stake_amount()` vracia **stake v quote mene**,
+> nie počet kontraktov — adaptér to musí prepočítať cez `leverage` a `contractSize`.
+
+---
+
 ## 4. Adaptér: Freqtrade
 
 Problém: `populate_indicators()` sa v dry/live volá opakovane nad rastúcim DataFrame.
@@ -147,10 +259,13 @@ Prehnať engine od nuly pri každom volaní je pomalé a v backteste zbytočné.
 
 ```python
 class IBSImbalanceStrategy(IStrategy):
-    timeframe = '3m'
-    informative_timeframe = '5m'          # = cfg.zone_detection_tf
+    timeframe = '3m'                       # NIE 1m - viď §7 bod 1
+    timeframe_detail = '1m'                # rozlíšenie fillov v backteste
+    informative_timeframe = '5m'           # = cfg.zone_detection_tf
     process_only_new_candles = True
-    can_short = True                       # potrebné pre tradeDirection != "Long only"
+    can_short = True                       # futures
+    trading_mode = 'futures'
+    margin_mode = 'isolated'
     startup_candle_count = 300
 
     def informative_pairs(self):
@@ -176,7 +291,7 @@ class IBSImbalanceStrategy(IStrategy):
 
 - **SL/TP**: `use_custom_stoploss = True` + `custom_exit()` na TP. Nie statický `minimal_roi` —
   TP je `rrRatio × SL distance`, teda per-trade.
-- **Position sizing**: `custom_stake_amount()` z `maxLossDollar / (sl_distance_ticks × tickDollarValue)`.
+- **Position sizing**: `custom_stake_amount()` — viď §3c, `qty = maxLossDollar / (sl_dist × point_value)`.
 - **Kreslenie**: `DrawCommand` → `plot_config` nezvládne boxy, takže na verifikáciu použijeme
   vlastný plotly export (`adapters/freqtrade/plotting.py`) — vygeneruje HTML graf s rovnakými
   boxmi/labelmi ako TradingView.
@@ -247,16 +362,35 @@ počet a súradnice nakreslených zón. Scény na ručnú kontrolu sú v
 | 4 | `pyramiding=0` | max 1 pozícia | `max_open_trades=1` na pár | `MaxEntries` |
 | 5 | Fill za `close` vs za skutočnú cenu | `process_orders_on_close=false` | fill na open ďalšej sviečky | konfigurovateľné |
 
-**Bod 1 a 2 sú najväčšie riziko odchýlky.** Návrh: engine bude mať prepínač
+**Bod 1 a 2 sú najväčšie riziko odchýlky.** Engine bude mať prepínač
 `fill_model: 'close' | 'next_open' | 'intrabar'`, aby sme vedeli porovnať, ktorý model
 najlepšie reprodukuje TradingView čísla, a ten použiť v oboch adaptéroch.
+
+### Rozhodnuté: 1m detail, ale stratégia zostáva na 3m
+
+Freqtrade na to má priamo `timeframe_detail`:
+
+```
+freqtrade backtesting --strategy IBSImbalanceStrategy --timeframe 3m --timeframe-detail 1m
+```
+
+Signály sa naďalej generujú na uzavretých **3m** sviečkach (presne ako v TV), ale vyplnenie
+SL/TP/limitiek sa vnútri každej 3m sviečky prehráva po **1m** krokoch. To rieši aj bod 1 aj bod 5
+a zároveň odstráni najhoršiu chybu backtestu — nejednoznačnosť „trafil SL alebo TP skôr?".
+
+> ⚠️ **Nesmieme celú stratégiu prepnúť na `timeframe = '1m'`.** Všetky čakacie limity
+> (`state1MaxBars=10`, `state2MaxBars=15`, `state3MaxBars=1`, `state5MaxBars=10`, `imbLookback=20`,
+> `slLookback=10`) sú v **baroch, nie v minútach**. Na 3m grafe je `state2MaxBars=15` = 45 minút;
+> na 1m by to bolo 15 minút — úplne iná stratégia. Preto `timeframe='3m'` + `timeframe_detail='1m'`.
+
+MultiCharts ekvivalent: `IntrabarOrderGeneration = True` + druhá 1-min dátová séria.
 
 ---
 
 ## 8. Poradie prác
 
-1. `core/config.py` + `core/types.py` — všetkých 115 inputov ako dataclass, načítané z JSON
-   (nastavenia z `tv_settings_2026-09-03.md` ako `configs/btcusd_3m.json`).
+1. `core/config.py` + `core/types.py` + `InstrumentSpec`/`SizeSpec` — všetkých 115 inputov ako
+   dataclass, načítané z JSON profilov (`configs/mnq_3m.json` = 1:1 s TV, `configs/btcusd_3m.json`).
 2. `core/clock.py` + `core/zones.py` — SD zóny na 5m, vrátane `snapMode`. **Prvý vizuálny milník:
    zóny sa kreslia na rovnakých miestach ako v TV.**
 3. `core/ta/imbalance.py` + `core/statemachine.py` + `core/risk.py` — IMB entry model.
@@ -272,14 +406,33 @@ okrem Pin Baru. `enableSrTrading=false`, `enableLqTrading=false`, `useStructureF
 
 ---
 
-## 9. Otvorené otázky
+## 9. Rozhodnutia (2026-09-04)
 
-1. **Freqtrade: spot alebo futures?** `tradeDirection` má „Short only" aj „Both" — shorty
-   vyžadujú futures (`can_short`, `trading_mode: futures`). Aktuálne máš „Long only",
-   takže spot by stačil, ale jadro to musí vedieť oboje.
-2. **`tickDollarValue = 0.5`** — vyzerá to na hodnotu z futures kontraktu (MNQ?). Pre BTCUSD
-   na Coinbase to dá zlé `qty`. Treba potvrdiť, čím sa má na krypte nahradiť.
-3. **Ktorý fill model** (§7) berieme ako referenčný pri porovnávaní s TradingView.
+| # | Vec | Rozhodnutie |
+|---|---|---|
+| 1 | Freqtrade spot/futures | **futures** — `trading_mode='futures'`, `margin_mode='isolated'`, `can_short=True` |
+| 2 | `tickDollarValue` | nahradiť za `point_value` v `InstrumentSpec` (§3c); `qty_step` namiesto `int()` |
+| 3 | Fill model | `timeframe='3m'` + `timeframe_detail='1m'` (§7) — **nie** stratégia na 1m |
+| 4 | Inštrumenty | Freqtrade = crypto perp; MultiCharts = MNQ + akcie + forex → `InstrumentSpec` + `SizeSpec` (§3b) |
+
+### Čo z toho vyplýva pre multi-inštrument
+
+- **Forex nemá reálny volume**, len tick volume → `useVolumeFilter` a `volMultiplier` sú tam
+  nespoľahlivé. `InstrumentSpec.has_real_volume=False` → engine volume filter potichu preskočí
+  a zaloguje to (namiesto toho, aby ticho pustil/zablokoval zlé zóny).
+- **Akcie a MNQ majú RTH vs ETH.** Session okná (`sess1/2/3`) sú dnes definované ručne v TZ —
+  to funguje, ale pre akcie treba pridať respektovanie sviatkov a skrátených dní (polovičné
+  seansy okolo Thanksgivingu, Vianoc). `core/clock.py` dostane voliteľný `exchange_calendar`.
+- **Forex nemá dennú medzeru rovnako** ako futures → `closeAtSessionEnd` a `weekdaysOnly`
+  sa správajú inak; nedeľné otvorenie o 22:00 UTC patrí už do pondelka.
+- **Konfig sa rozpadne na profily:** `configs/mnq_3m.json` (1:1 s TV, `unit: abs`),
+  `configs/btcusd_3m.json`, `configs/eurusd_5m.json`, … Spoločná je len logika, nie čísla.
+
+### Ešte otvorené
+
+- Ktorý crypto exchange/pár vo Freqtrade (kvôli `contractSize`, `qty_step`, funding).
+- Či pre MNQ chceme MultiCharts brať ako referenciu namiesto TradingView (obe sú futures dáta,
+  takže by mali sedieť tesnejšie než BTC).
 
 ---
 
