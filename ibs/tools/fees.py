@@ -90,6 +90,42 @@ def classify(stats, trades, exchange: str = "binance"):
     return trades
 
 
+def fill_depth(trades, inst_tick: float, exchange: str = "binance"):
+    """Ako hlboko cena prešla za limitku — v cenových bodoch.
+
+    Odpovedá na najväčšiu výhradu voči maker modelu: backtest vyplní limitku vždy,
+    keď ju sviečka preťala, ale v knihe sa príkaz na *dotknutej* úrovni nemusí
+    vyplniť vôbec. Keď ale cena prejde hlboko za limitku, na fronte nezáleží —
+    vyplní sa isto.
+
+    Meria sa na 1m sviečkach, na prvej, ktorá cenu limitky obsahuje. Hodnota pod
+    jedným tickom znamená „len sa dotkla" a také vyplnenie je pochybné.
+    """
+    import pandas as pd
+
+    from .scan_zones import _load
+
+    m1 = _load(exchange, "1m").copy()
+    m1["date"] = pd.to_datetime(m1["date"], utc=True)
+    m1 = m1.set_index("date").sort_index()
+
+    out = []
+    for t in trades.itertuples(index=False):
+        window = m1.loc[t.open_date : t.close_date]
+        hit = window[(window.low <= t.open_rate) & (window.high >= t.open_rate)]
+        if hit.empty:
+            out.append(float("nan"))
+            continue
+        bar = hit.iloc[0]
+        out.append(
+            (t.open_rate - bar.low) if not t.is_short else (bar.high - t.open_rate)
+        )
+    trades = trades.copy()
+    trades["fill_depth"] = out
+    trades["fill_doubtful"] = trades["entry_maker"] & (trades["fill_depth"] < inst_tick)
+    return trades
+
+
 def summarize(trades, maker: float = MAKER_PCT, taker: float = TAKER_PCT) -> dict:
     """Hrubý zisk, poplatky pri zmiešanej sadzbe a čistý výsledok."""
     direction = trades["is_short"].map({True: -1.0, False: 1.0})
@@ -138,6 +174,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--maker", type=float, default=MAKER_PCT, help="maker poplatok v %%")
     ap.add_argument("--taker", type=float, default=TAKER_PCT, help="taker poplatok v %%")
     ap.add_argument("--exchange", default="binance")
+    ap.add_argument(
+        "--fill-check", action="store_true",
+        help="over na 1m sviečkach, ci cena cez limitku naozaj presla",
+    )
+    ap.add_argument("--tick", type=float, default=0.1, help="velkost ticku pre --fill-check")
     args = ap.parse_args(argv)
 
     import pandas as pd
@@ -150,6 +191,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{path.name}: ziadne obchody")
             continue
         trades = classify(stats, trades, args.exchange)
+        if args.fill_check:
+            trades = fill_depth(trades, args.tick, args.exchange)
         pooled.append(trades)
         _report(
             f"{stats['backtest_start'][:10]} -> {stats['backtest_end'][:10]}",
@@ -160,6 +203,25 @@ def main(argv: list[str] | None = None) -> int:
     if len(pooled) > 1:
         _report("VSETKY OKNA SPOLU", summarize(pd.concat(pooled, ignore_index=True),
                                                args.maker, args.taker))
+
+    if args.fill_check:
+        allt = pd.concat(pooled, ignore_index=True)
+        mk = allt[allt["entry_maker"]]
+        doubt = allt[allt["fill_doubtful"].fillna(False)]
+        print("\n=== HLBKA PRIENIKU ZA LIMITKU (maker vstupy) ===")
+        for lo, hi, lab in (
+            (-1.0, 1.0, "len dotyk (< 1 tick)"),
+            (1.0, 5.0, "1-5 tickov"),
+            (5.0, 50.0, "5-50 tickov"),
+            (50.0, float("inf"), "> 50 tickov"),
+        ):
+            d = mk[(mk["fill_depth"] >= lo * args.tick) & (mk["fill_depth"] < hi * args.tick)]
+            if len(d):
+                print(f"  {lab:<22} {len(d):>4} ({100 * len(d) / len(mk):>4.1f} %)")
+        keep = allt[~allt["fill_doubtful"].fillna(False)]
+        print(f"  pochybnych vyplneni    {len(doubt)}")
+        print(f"  cisty so vsetkymi      {summarize(allt, args.maker, args.taker)['net']:+,.0f}")
+        print(f"  cisty bez pochybnych   {summarize(keep, args.maker, args.taker)['net']:+,.0f}")
     return 0
 
 

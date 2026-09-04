@@ -43,15 +43,34 @@ a tri z piatich rokov skončia v pluse.
 Rozdiel medzi edge (0,0423 %) a nákladom (0,0398 %) je **0,0025 % na stranu**. To je
 pätina jedného ticku na BTC. Čokoľvek, čo model neuvažuje, tú maržu zmaže:
 
-**Backtest je pri limitkách optimistický.** Freqtrade vyplní limitku vždy, keď ju
-sviečka preťala — v knihe sa ale príkaz na dotknutej úrovni často nevyplní vôbec
-alebo len čiastočne. Práve tie „tesné" vyplnenia sú systematicky tie horšie.
-
 **Post-only by 45 % vstupov odmietlo.** Tu sa počítajú ako taker, čo je
 konzervatívne — reálne by tie obchody nevznikli vôbec, aj s ich ziskami.
 
 **Slippage nie je v modeli vôbec.** Stop-loss ide trhom v pohybe, teda presne tam,
 kde je slippage najväčší, a tvorí väčšinu výstupov.
+
+## Vyplniteľnosť limitiek: obava sa nepotvrdila
+
+Najväčšia výhrada voči maker modelu bola, že backtest vyplní limitku vždy, keď ju
+sviečka preťala — v knihe sa ale príkaz na *dotknutej* úrovni nemusí vyplniť vôbec.
+Order-book dáta nemáme, ale z 1m sviečok sa dá zistiť, ako hlboko cena za limitku
+prešla. Keď prejde hlboko, na fronte v knihe nezáleží — vyplní sa isto.
+
+`python -m ibs.tools.fees --fill-check`, 263 maker-spôsobilých vstupov:
+
+| hĺbka prieniku | vstupov | |
+|---|---|---|
+| len dotyk (< 1 tick) | 6 | 2,3 % |
+| 1–5 tickov | 4 | 1,5 % |
+| 5–50 tickov | 60 | 22,8 % |
+| **> 50 tickov** | **193** | **73,4 %** |
+
+**96 % vstupov má prienik aspoň 5 tickov** a tri štvrtiny viac než 50 tickov (5 USD).
+Vstupy sú na cenách medzier, cez ktoré trh prechádza, nie na úrovniach, ktorých sa
+len obtrie. Pochybných vyplnení je šesť — a keď sa zahodia, výsledok sa **zlepší**
+(+1 620 → +2 033 USDT), lebo boli mierne stratové.
+
+Táto výhrada teda padá. Zostávajú dve:
 
 ## Poplatková trieda pomáha viac než čokoľvek iné
 
@@ -72,9 +91,11 @@ filter. To hovorí hlavne o tom, ako tesne je stratégia na hranici.
 2. Väčšinu poplatkov nezaplatia vstupy, ale **stop-lossy**, a tie sa maker urobiť
    nedajú. Zníženie počtu stop-outov je zároveň jediná cesta k nižším poplatkom aj
    k vyššiemu edge — je to ten istý problém so vstupmi ako doteraz.
-3. Než čokoľvek ďalšie ladiť, oplatí sa **zmerať skutočnú vyplniteľnosť limitiek**
-   na order-book dátach. Bez toho je +1 620 USDT za päť rokov číslo z modelu,
-   nie z trhu.
+3. **Vyplniteľnosť limitiek nie je problém** — 96 % vstupov má prienik aspoň päť
+   tickov. Order-book dáta na túto otázku netreba.
+4. Čo zostáva nezmerané, je **slippage na stop-lossoch**. Tie idú trhom v pohybe,
+   tvoria väčšinu výstupov a v modeli sú za nulovú cenu. Na to by už bolo treba
+   aspoň `aggTrades` (nie celú knihu) — a stačili by minúty okolo výstupov.
 
 ```bash
 python -m ibs.tools.fees                       # posledny backtest

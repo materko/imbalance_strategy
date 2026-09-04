@@ -131,3 +131,56 @@ def test_short_zisk_ma_spravne_znamienko(tmp_path):
     """Short zarába, keď cena klesne — bez toho by hrubý zisk vyšiel opačne."""
     tr = _classified(tmp_path, [_trade(101.0, short=True, close=91.0)])
     assert fees.summarize(tr)["gross"] == pytest.approx(10.0)
+
+
+# --------------------------------------------------------------------------- #
+# Hĺbka prieniku za limitku
+# --------------------------------------------------------------------------- #
+
+
+@pytest.fixture
+def m1(monkeypatch):
+    """1m sviečky: prvá sa limitky 99 len dotkne, druhá cez ňu prejde."""
+    from ibs.tools import scan_zones
+
+    bars = pd.DataFrame(
+        {
+            "date": pd.to_datetime(
+                ["2026-08-24 10:00", "2026-08-24 10:01", "2026-08-24 10:02"], utc=True
+            ),
+            "open": [100.0, 100.0, 100.0],
+            "high": [101.0, 101.0, 101.0],
+            "low": [99.0, 95.0, 95.0],
+            "close": [100.0, 100.0, 100.0],
+            "volume": [1.0, 1.0, 1.0],
+        }
+    )
+    real = scan_zones._load
+    monkeypatch.setattr(
+        scan_zones, "_load",
+        lambda exchange, timeframe: bars.copy() if timeframe == "1m" else CHART.copy(),
+    )
+    return real
+
+
+def test_dotyk_je_pochybne_vyplnenie(tmp_path, m1):
+    """Prvá sviečka klesne presne na 99 — v knihe sa taký príkaz nemusí vyplniť."""
+    stats, tr = fees.load(_zip(tmp_path, [_trade(99.0)]))
+    tr = fees.fill_depth(fees.classify(stats, tr), inst_tick=0.1)
+    assert tr["fill_depth"].iloc[0] == pytest.approx(0.0)
+    assert bool(tr["fill_doubtful"].iloc[0]) is True
+
+
+def test_hlboky_prienik_nie_je_pochybny(tmp_path, m1):
+    """Limitka na 96: cena šla na 95, teda o 10 tickov nižšie — vyplní sa isto."""
+    stats, tr = fees.load(_zip(tmp_path, [_trade(96.0)]))
+    tr = fees.fill_depth(fees.classify(stats, tr), inst_tick=0.1)
+    assert tr["fill_depth"].iloc[0] == pytest.approx(1.0)
+    assert bool(tr["fill_doubtful"].iloc[0]) is False
+
+
+def test_taker_vstup_nie_je_pochybny_nikdy(tmp_path, m1):
+    """Taker sa vyplní prekročením spreadu — hĺbka prieniku ho netrápi."""
+    stats, tr = fees.load(_zip(tmp_path, [_trade(100.5)]))
+    tr = fees.fill_depth(fees.classify(stats, tr), inst_tick=0.1)
+    assert bool(tr["fill_doubtful"].iloc[0]) is False
