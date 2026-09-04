@@ -306,3 +306,57 @@ neskôr posunie posledný bod na extrémnejšiu hodnotu, log nevznikne. Prvé po
 v porte. Test preto porovnáva **push udalosti**, nie finálny zoznam bodov.
 
 Regresný test: `ibs/tests/test_golden_tv_elliott.py`.
+
+## Celý Freqtrade backtest vs TradingView (2026-09-04)
+
+Doteraz sa parita merala nad `IBSEngine` v teste. Toto je porovnanie **celého
+Freqtrade backtestu** proti Strategy Testeru — teda vrátane adaptéra, limitných
+príkazov, `custom_roi`, `custom_stoploss` aj peňaženky.
+
+Nastavenia grafu: `btcusdt_3m_binance_tv` + zapnuté `enableSrTrading`
+a `enableLqTrading` (RR 1, Long only, IMB + Pin Bar, Engulfing vypnutý,
+trailing zapnutý). Rozsah Aug 24 – Sep 4 2026.
+
+| # | TradingView | Freqtrade | |
+|---|---|---|---|
+| 1 | 79 419,5 → 79 607,3 | rovnaké | +187,8 |
+| 2 | 79 022,0 → 78 541,2 | rovnaké | −480,8 |
+| 3 | 80 516,0 → 80 458,9 | 80 516,1 → 80 459,0 | −57,1 |
+| 4 | 78 110,3 → 78 620,8 | rovnaké | +510,5 / +504,97 |
+| 5 | 78 765,1 → 78 796,5 (qty 2) | rovnaké | +62,8 |
+| 6 | 79 250,0 → 79 451,3 | rovnaké | +201,3 |
+
+**6 obchodov, 4W/2L v oboch.** Zhodujú sa smery, časy aj ceny.
+
+### Tri rozdiely, ktoré nie sú chybou
+
+**Zaokrúhlenie o jeden tick (obchod 3).** Známy rozdiel v zaokrúhľovaní vstupnej
+ceny; posunie sa aj SL, takže PnL vyjde rovnako.
+
+**Funding (obchod 4).** Freqtrade dá +504,97 namiesto +510,5. Rozdiel −5,53 je
+presne `funding_fees` z exportu — obchod bežal 2 h 42 min a prešiel cez funding.
+TradingView funding nemodeluje vôbec.
+
+**Poplatky a peňaženka.** Pine `strategy()` nemá `commission_value`, takže
+TradingView počíta bez poplatkov, a `default_qty_value=1` obchoduje 1 BTC bez
+ohľadu na to, že účet má 10 000 USDT. Freqtrade s reálnym poplatkom (0,05 %/stranu)
+a peňaženkou 10 000 USDT dá 6 obchodov, ale 3W/3L a −10,78 USDT — obchod 5
+(+31,4 bodu, teda +0,04 %) sa na poplatkoch prevráti do straty. Nie je to iný
+obchod, je to ten istý obchod s inou ekonomikou.
+
+Preto sa porovnáva takto:
+
+```bash
+IBS_PROFILE=btcusdt_3m_binance_tv .venv/bin/python -m freqtrade backtesting   --config platforms/freqtrade/config.binance.json   --userdir platforms/freqtrade/user_data --strategy IBSImbalanceStrategy   --timeframe-detail 1m --timerange 20260824-20260905 --fee 0 --dry-run-wallet 400000
+```
+
+`--fee 0` vypne poplatky ako v Pine, `--dry-run-wallet 400000` zabezpečí, že sa
+1–2 BTC pozícia vôbec zmestí (inak Freqtrade stake oreže na veľkosť peňaženky).
+
+### Čo hlási Freqtrade inak
+
+`open_date` je čas **vloženia** limitného príkazu, nie jeho vyplnenia. Obchod 2
+tak má v exporte 17:09 UTC, hoci sa vyplnil 17:15 UTC (TradingView hlási 19:15
+miestneho, teda vyplnenie). Rovnako `close_date` je presná minúta z 1m detailu,
+zatiaľ čo TradingView hlási otvárací čas 3m sviečky, v ktorej výstup nastal.
+
