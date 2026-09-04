@@ -90,3 +90,90 @@ def test_winrate(result):
     _, sim = result
     wins = sum(1 for t in _filled(sim) if t.outcome == "WIN")
     assert wins == TRADES["summary"]["wins"]
+
+
+# --------------------------------------------------------------------------- #
+# Obchodovanie z S/R a likvidity
+#
+# Tieto dve vetvy dlho neboli overené — golden fixture vznikol s nimi vypnutými.
+# Zmerané 2026-09-04 priamo v TradingView: na tom istom grafe a rozsahu sa po
+# zapnutí oboch prepínačov počet obchodov zmenil z 5 (3W/2L) na 6 (4W/2L)
+# (dashboard stratégie hlásil „67% WINRATE (4W / 2L)").
+# --------------------------------------------------------------------------- #
+
+#: (enableSrTrading a enableLqTrading, počet zón, obchodov, výhier, prehier)
+TV_SR_LQ = [(False, 76, 5, 3, 2), (True, 109, 6, 4, 2)]
+
+
+@pytest.mark.parametrize("enabled,zones,trades,wins,losses", TV_SR_LQ)
+def test_sr_a_likviditne_zony_sedia_s_tradingview(enabled, zones, trades, wins, losses):
+    """Zapnutie S/R a sweep zón musí pridať presne ten jeden obchod, čo v TradingView.
+
+    Ide cez `IBSEngine`, nie cez `ibs.tools.scan_trades` — ten si stavia
+    `ZoneBook` a `StateMachine` sám a spawnovanie z S/R ani zo sweepu vôbec
+    nezavolá, takže by tento test ticho prešiel aj s rozbitou logikou.
+    """
+    pytest.importorskip("pandas")
+    import pandas as pd
+
+    from ibs.core import HTFWindow, IBSEngine, MarketContext, SessionClock, htf_window_opens
+    from ibs.tools.scan_trades import FillSimulator
+    from ibs.tools.scan_zones import _load, _to_bar
+
+    cfg, inst = load_profile("btcusdt_3m_binance_tv")
+    cfg.enableSrTrading = enabled
+    cfg.enableLqTrading = enabled
+    try:
+        chart, htf, detail = (_load("binance", tf) for tf in ("3m", "5m", "1m"))
+    except SystemExit as exc:
+        pytest.skip(f"dáta nie sú k dispozícii: {exc}")
+
+    lo, hi = pd.Timestamp(RANGE[0], tz="UTC"), pd.Timestamp(RANGE[1], tz="UTC") + pd.Timedelta(days=1)
+    frames = []
+    for df in (chart, htf, detail):
+        df["date"] = pd.to_datetime(df["date"], utc=True)
+        frames.append(df[(df["date"] >= lo) & (df["date"] < hi)])
+    chart, htf, detail = frames
+
+    htf = htf.copy()
+    htf["vol_sma"] = htf["volume"].rolling(cfg.volSmaLen).mean()
+    htf_bars = {int(r.ts): _to_bar(r) for r in htf.itertuples(index=False)}
+    htf_sma = {
+        int(r.ts): (float(r.vol_sma) if r.vol_sma == r.vol_sma else 0.0)
+        for r in htf.itertuples(index=False)
+    }
+    detail_by_bar: dict[int, list] = {}
+    for r in detail.itertuples(index=False):
+        detail_by_bar.setdefault(int(r.ts) // 180_000 * 180_000, []).append(_to_bar(r))
+
+    clock, engine, sim = SessionClock(cfg), IBSEngine(cfg, inst, 3), FillSimulator()
+    prev_htf: int | None = None
+    for row in chart.itertuples(index=False):
+        bar = _to_bar(row)
+        sim.step(bar, detail_by_bar.get(bar.time))
+
+        window = None
+        htf_open = bar.time // 300_000 * 300_000
+        if prev_htf is not None and htf_open != prev_htf:
+            opens = htf_window_opens(bar.time, 180_000, 300_000)
+            if all(o in htf_bars for o in opens):
+                window = HTFWindow(tuple(htf_bars[o] for o in opens), htf_sma[opens[0]])
+        prev_htf = htf_open
+
+        state = clock.state(bar.time)
+        out = engine.on_bar(
+            bar,
+            window,
+            MarketContext(
+                in_trade_window=state.in_trade_window,
+                position_size=sim.position_size,
+                open_order_ids=sim.open_ids,
+            ),
+        )
+        sim.apply(out.orders, bar)
+
+    filled = [t for t in sim.trades.values() if t.filled_ms is not None]
+    assert len(engine.book.zones) == zones
+    assert len(filled) == trades
+    assert sum(1 for t in filled if t.outcome == "WIN") == wins
+    assert sum(1 for t in filled if t.outcome == "LOSS") == losses

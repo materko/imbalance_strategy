@@ -18,10 +18,13 @@
     "",
     "POZOR - dve veci, ktore treba vediet:",
     "",
-    "1. enableSrTrading a enableLqTrading zapinaju vetvy, ktore NIE SU overene proti",
-    "   TradingView. Vsetky golden testy bezia s nimi VYPNUTYMI.",
     "",
-    "2. Prahy v jednotke atr su STARTOVACIE ODHADY - presne to, co ma hyperopt doladit."
+    "2. Prahy v jednotke atr su STARTOVACIE ODHADY - presne to, co ma hyperopt doladit.",
+    "",
+    "enableSrTrading a enableLqTrading su OVERENE proti TradingView",
+    "(2026-09-04): po ich zapnuti sa pocet obchodov zmenil z 5 (3W/2L)",
+    "na 6 (4W/2L) rovnako v TradingView aj v engine - viz",
+    "test_sr_a_likviditne_zony_sedia_s_tradingview."
   ],
   "_instrument": "btcusdt_binance",
   "enablePinBarEntry": true,

@@ -12,10 +12,14 @@
     "POZOR: cisla mimo tohto okna su v docs/HYPEROPT_btcusdt_2026-09-04.md.",
     "Priestor ma 10 parametrov a strategia robi ~150 obchodov za rok, takze",
     "pretrenovanie je realne - bez pohladu na out-of-sample vysledky sa tomuto",
-    "profilu nedaju verit."
+    "profilu nedaju verit.",
+    "",
+    "enableSrTrading a enableLqTrading su OVERENE proti TradingView",
+    "(2026-09-04): po ich zapnuti sa pocet obchodov zmenil z 5 (3W/2L)",
+    "na 6 (4W/2L) rovnako v TradingView aj v engine - viz",
+    "test_sr_a_likviditne_zony_sedia_s_tradingview."
   ],
   "_instrument": "btcusdt_binance",
-
   "enablePinBarEntry": true,
   "enableEngulfingEntry": true,
   "enableTrailing": true,
@@ -25,19 +29,43 @@
   "rrRatio": 1.7,
   "sess2ZoneStartH": 8,
   "showElliott": false,
-
   "legacyPineSizing": true,
   "tickDollarValue": 0.5,
   "leverage": 20.0,
-
-  "minImbSizePoints":   { "value": 0.43, "unit": "atr" },
-  "pbMinRangePoints":   { "value": 0.72, "unit": "atr" },
-  "engMinRangePoints":  { "value": 0.93, "unit": "atr" },
-  "srClusterPoints":    { "value": 0.21, "unit": "atr" },
-  "liqSweepMinWick":    { "value": 0.59, "unit": "atr" },
-  "ewMinWavePoints":    { "value": 2.0,  "unit": "atr" },
-
-  "imbMaxDistTicks":    { "value": 1.0,  "unit": "abs" },
-  "slBufferTicks":      { "value": 0.1,  "unit": "abs" },
-  "state2ConfirmTicks": { "value": 0.1,  "unit": "abs" }
+  "minImbSizePoints": {
+    "value": 0.43,
+    "unit": "atr"
+  },
+  "pbMinRangePoints": {
+    "value": 0.72,
+    "unit": "atr"
+  },
+  "engMinRangePoints": {
+    "value": 0.93,
+    "unit": "atr"
+  },
+  "srClusterPoints": {
+    "value": 0.21,
+    "unit": "atr"
+  },
+  "liqSweepMinWick": {
+    "value": 0.59,
+    "unit": "atr"
+  },
+  "ewMinWavePoints": {
+    "value": 2.0,
+    "unit": "atr"
+  },
+  "imbMaxDistTicks": {
+    "value": 1.0,
+    "unit": "abs"
+  },
+  "slBufferTicks": {
+    "value": 0.1,
+    "unit": "abs"
+  },
+  "state2ConfirmTicks": {
+    "value": 0.1,
+    "unit": "abs"
+  }
 }

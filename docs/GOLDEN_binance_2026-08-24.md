@@ -258,3 +258,26 @@ Regresný test: `ibs/tests/test_golden_tv_draw.py`.
   platný impulz (`ewMinWavePoints` je naladený na MNQ).
 - **Pozadie seáns a dashboard** — `bgcolor()` a `table.cell()` sa nedajú logovať zmysluplne.
 
+## Obchodovanie z S/R a likvidity (overené 2026-09-04)
+
+`enableSrTrading` a `enableLqTrading` dlho neboli overené — golden fixture vznikol
+s nimi vypnutými, lebo taký bol referenčný beh.
+
+Zmerané priamo v TradingView na tom istom grafe a rozsahu, zapnutím oboch prepínačov
+v nastaveniach stratégie:
+
+| | TradingView | engine |
+|---|---|---|
+| vypnuté | 5 obchodov (3W/2L) | 5 obchodov (3W/2L) |
+| **zapnuté** | **6 obchodov (4W/2L)** | **6 obchodov (4W/2L)** |
+
+Engine pritom pridá 21 S/R zón a 12 likviditných k pôvodným 76 SD zónam, a z nich
+vznikne presne jeden obchod navyše — ten istý, čo v TradingView, a v oboch je ziskový.
+
+Regresný test: `test_sr_a_likviditne_zony_sedia_s_tradingview`.
+
+> **Pozor pri písaní ďalších testov:** `ibs.tools.scan_trades` si stavia `ZoneBook`
+> a `StateMachine` sám a **nikdy nezavolá `IBSEngine`**, takže spawnovanie zón z S/R
+> ani zo sweepu cez neho neprejde. Prvý pokus o toto meranie preto ukázal „SR/LQ
+> nemá žiadny efekt" — test musí ísť cez `IBSEngine`.
+
