@@ -23,3 +23,6 @@ platforms/freqtrade/user_data/hyperopt_results/
 platforms/freqtrade/user_data/data/
 platforms/freqtrade/user_data/strategies/*.json
 platforms/freqtrade/user_data/hyperopt.lock
+
+# HTML reporty z `python -m ibs.tools.report` - generovane, nie zdroj
+reports/

@@ -360,3 +360,35 @@ tak má v exporte 17:09 UTC, hoci sa vyplnil 17:15 UTC (TradingView hlási 19:15
 miestneho, teda vyplnenie). Rovnako `close_date` je presná minúta z 1m detailu,
 zatiaľ čo TradingView hlási otvárací čas 3m sviečky, v ktorej výstup nastal.
 
+## Shorty: parita platí aj pre ne (2026-09-04)
+
+Doteraz sa všetko meralo s `tradeDirection = Long only`, takže krátka strana
+nebola overená vôbec. Zapnutím `Both` v TradingView (a `both` profilu vo
+Freqtrade) pribudli na tom istom okne dva shorty:
+
+| # | smer | TradingView | Freqtrade | PnL |
+|---|---|---|---|---|
+| 1 | **Short** | 77 294,3 → 77 395,5 | 77 294,3 → 77 395,4 | −101,2 / −101,1 |
+| 2 | Long | 79 419,5 → 79 607,3 | rovnaké | +187,8 |
+| 3 | Long | 79 022,0 → 78 541,2 | rovnaké | −480,8 |
+| 4 | Long | 80 516,0 → 80 458,9 | 80 516,1 → 80 459,0 | −57,1 |
+| 5 | Long | 78 110,3 → 78 620,8 | rovnaké | +510,5 / +505,0 |
+| 6 | Long | 78 765,1 → 78 796,5 (qty 2) | rovnaké | +62,8 |
+| 7 | **Short** | 79 700,6 → 79 810,5 | 79 700,7 → 79 810,5 | −109,9 / −109,8 |
+| 8 | Long | 79 250,0 → 79 451,3 | rovnaké | +201,3 |
+
+**8 obchodov, rovnaké smery, časy aj ceny.** Spolu +213,4 (TV) proti +208,1
+(Freqtrade) — rozdiel je funding pri obchode 5 mínus zaokrúhlenie na tick.
+
+Zapnutie shortov mimochodom zmení aj dlhú stranu: short môže obsadiť pozíciu
+a zablokovať long, ktorý by inak vznikol (`max_open_trades = 1`, `pyramiding=0`
+v Pine). Preto sa počty long obchodov medzi behmi nedajú porovnávať priamo.
+
+## Rok sa v TradingView porovnať nedá
+
+Strategy Tester na účte **Basic** počíta len z barov načítaných na grafe —
+na 3m je to ~11 dní. Voľba „Last 365 days" otvorí ponuku na **Deep Backtesting**,
+ktoré je len v Premium. Dlhšie okná sa preto merajú výhradne vo Freqtrade
+([BACKTEST_rok_btcusdt_2026-09-04.md](BACKTEST_rok_btcusdt_2026-09-04.md)),
+a TradingView slúži ako referencia na krátkom okne, kde parita sedí na cent.
+

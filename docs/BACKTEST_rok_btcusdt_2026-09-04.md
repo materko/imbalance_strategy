@@ -55,6 +55,23 @@ prieskum v TradingView):
 RR 2,5 **ztrojnásobí edge** a potvrdzuje zistenie z TradingView. Stále je ale
 3,3× pod poplatkom, ktorý Binance reálne berie.
 
+## Shorty situáciu zhoršujú
+
+`tradeDirection = Both`, ten istý rok, reálne poplatky:
+
+| | Long only | Both |
+|---|---|---|
+| obchodov | 166 | 300 (135 long / 165 short) |
+| hrubý PnL | +152 | +99 |
+| — z toho long | +153 (PF 1,124) | +153 (PF 1,124) |
+| — z toho short | — | **−53 (PF 0,961)** |
+| čistý PnL | −13,77 % | **−24,31 %** |
+| max drawdown | 14,31 % | 24,49 % |
+
+Krátka strana je stratová **už pred poplatkami** (PF 0,961 pri RR 1, 0,909 pri
+RR 2,5) a pritom takmer zdvojnásobí objem, teda aj účet za poplatky. Parita so
+shortmi je pritom overená — nie je to chyba portu, tá strana proste nemá edge.
+
 ## Čo z toho plynie
 
 1. Edge existuje a je merateľný, ale je **rádovo menší než transakčné náklady**.

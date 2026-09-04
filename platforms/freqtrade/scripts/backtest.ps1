@@ -34,11 +34,15 @@ if (-not (Test-Path $stratFile)) {
     throw "Strategia $Strategy este neexistuje ($stratFile). Adapter sa pise v kroku 4 - viz docs/ARCHITECTURE_port.md par. 8."
 }
 
+# --cache none je POVINNE. Freqtrade cachuje vysledok podla hashu suboru
+# strategie, ale nase nastavenia su v profile mimo neho (IBS_PROFILE), takze
+# zmena profilu cache nezneplatni a dostanes ticho stary vysledok.
 $args = @(
     "-m", "freqtrade", "backtesting",
     "--config", (Join-Path $ft $Config),
     "--userdir", $userdir,
-    "--strategy", $Strategy
+    "--strategy", $Strategy,
+    "--cache", "none"
 )
 if (-not $NoDetail) { $args += @("--timeframe-detail", $TimeframeDetail) }
 if ($Timerange) { $args += @("--timerange", $Timerange) }

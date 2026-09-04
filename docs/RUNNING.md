@@ -199,8 +199,15 @@ Ekvivalent:
   --userdir platforms/freqtrade/user_data \
   --strategy IBSImbalanceStrategy \
   --timeframe-detail 1m \
-  --timerange 20260801-20260905
+  --timerange 20260801-20260905 \
+  --cache none
 ```
+
+> ⚠️ **`--cache none` je povinné.** Freqtrade cachuje výsledok podľa hashu súboru
+> stratégie, ale naše nastavenia sú v profile **mimo neho** (`IBS_PROFILE`). Zmena
+> profilu teda cache nezneplatní a dostaneš ticho starý výsledok — v logu je to vidieť
+> len ako riadok `Loading backtest result from …zip`. Skripty `backtest.ps1`/`.sh` to
+> pridávajú samy; pri ručnom volaní na to netreba zabudnúť.
 
 Stratégia je v [`ibs/adapters/freqtrade/strategy.py`](../ibs/adapters/freqtrade/strategy.py);
 súbor v `user_data/strategies/` je len ukazovateľ. Profil sa prepína cez `IBS_PROFILE`:
@@ -214,6 +221,18 @@ IBS_PROFILE=btcusd_3m_coinbase ./platforms/freqtrade/scripts/backtest.sh
 > a Freqtrade stake oreže na ~3 % žiadanej veľkosti. Riziko na obchod je potom v skutočnosti
 > oveľa menšie než $350. Adaptér to **hlási warningom** (`stake orezany z … na …`), aby to
 > nebolo ticho. Riešenie: väčší `dry_run_wallet`, páka, alebo nižší `maxLossDollar`.
+
+### Report ako v TradingView
+
+```bash
+.venv/bin/python -m ibs.tools.report            # posledny backtest -> HTML vedla zipu
+.venv/bin/python -m ibs.tools.report --list     # ake vysledky su k dispozicii
+```
+
+Z `backtest_results/*.zip` spraví stránku s rovnakými štyrmi číslami, aké má hore
+Strategy Tester (Total PnL, Max drawdown, Profitable trades, Profit factor), s krivkou
+kumulatívneho PnL proti buy-and-hold a so zoznamom obchodov. Nič sa neprepočítava,
+len sa kreslí to, čo je v zipe — takže sa to dá klásť vedľa screenshotu z TradingView.
 
 ---
 
