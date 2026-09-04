@@ -184,6 +184,69 @@ IBS_PROFILE=btcusd_3m_coinbase ./platforms/freqtrade/scripts/backtest.sh
 
 ---
 
+## D2. Hyperopt
+
+```powershell
+.\platformsreqtrade\scripts\hyperopt.ps1 -Timerange 20260601-20260904 -Epochs 200
+.\platformsreqtrade\scripts\hyperopt.ps1 -Timerange 20250901-20260904 -Epochs 300
+```
+```bash
+./platforms/freqtrade/scripts/hyperopt.sh 20260601-20260904 200
+```
+
+Prvý beh potrebuje závislosti navyše:
+
+```bash
+python -m pip install cmaes filelock "optuna>4.0.0" scikit-learn "joblib==1.4.2"
+```
+
+> `joblib` musí byť **1.4.2**. Od 1.5 sa z neho vybralo `joblib.externals.cloudpickle`,
+> ktoré Freqtrade 2026.8 v hyperopte stále importuje, a padne to na
+> `cannot import name 'cloudpickle'`.
+
+### Čo sa ladí a čo nie
+
+| ladí sa | neladí sa |
+|---|---|
+| prahy v jednotke `atr` (`minImbSizePoints`, `pbMinRangePoints`, `engMinRangePoints`, `liqSweepMinWick`, `srClusterPoints`) | session okná |
+| `rrRatio` | STATE timeouty |
+| prepínače entry modelov (`enablePinBarEntry`, `enableEngulfingEntry`) | sizing a `maxLossDollar` |
+| `enableSrTrading`, `enableLqTrading` | `enableImbEntry` — základný model |
+
+Prahy v `atr` sú jediné čísla v profile, ktoré **nie sú prevzaté z TradingView** —
+sú to štartovacie odhady (ARCHITECTURE_port.md §3b). Všetko ostatné by sa ladením
+rozišlo s paritou, ktorú stráži `test_golden_tv_binance.py`.
+
+### Na čo si dať pozor
+
+**Počet obchodov musí byť strážený.** Skripty používajú vlastnú loss funkciu
+`IBSHyperOptLoss` (`user_data/hyperopts/`) — je to Calmar, ale epochy pod ~25 obchodov
+na 90 dní dostanú tvrdú penalizáciu. Bez toho vyhlásil štandardný `CalmarHyperOptLoss`
+za víťaza epochu so **7 obchodmi** a +17 %, len preto, že mala malý drawdown.
+
+**Pretrénovanie.** Priestor má 10 parametrov a stratégia robí rádovo 150–200 obchodov
+za rok. To je málo dát na 10 stupňov voľnosti. Výsledok vždy over na inom okne, než
+na akom si ladil — presne ten efekt, ktorý sa ukázal pri manuálnom prieskume
+v TradingView (vysoké RR vyzeralo dobre na 365 dňoch a strácalo na posledných 90).
+
+**`--analyze-per-epoch` je povinné** (skripty ho pridávajú samy). Freqtrade
+štandardne počíta `populate_indicators` len **raz** pre celý beh a per-epochu
+prepočítava iba `populate_entry_trend` — predpokladá, že parametre priestoru „buy"
+ovplyvňujú len signály. Celý náš engine ale beží v `populate_indicators`. Bez toho
+prepínača dá každá epocha **identický výsledok** a hyperopt vyhlási za víťaza
+prvú epochu. Spoznáš to tak, že všetky epochy majú ten istý PnL aj počet obchodov.
+
+**Hyperopt beží bez `--timeframe-detail`.** S 1m detailom je jedna epocha rádovo
+pomalšia. Najlepší výsledok potom over bežným backtestom **s** detailom — až ten
+hovorí niečo o skutočných fill cenách.
+
+**Runner sa pri zmene parametrov prestavuje.** `EngineRunner` je inkrementálny a drží
+stav; bez toho by epochy ticho počítali so starými hodnotami. Rieši to odtlačok
+configu v `_runner()` — keby si pridával ďalšie parametre, musia byť v `IBSConfig`,
+inak ich odtlačok neuvidí.
+
+---
+
 ## E. MultiCharts (len Windows)
 
 ```powershell

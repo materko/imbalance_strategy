@@ -23,9 +23,9 @@
     Počet epoch. Pri 10 parametroch má zmysel aspoň 300.
 
 .PARAMETER Loss
-    Predvolene CalmarHyperOptLoss - zisk vážený max drawdownom. Presne to,
-    čo bolo pri manuálnom prieskume dôležité (vysoké RR vyzeralo dobre na 365d,
-    ale na 90d strácalo).
+    Predvolene IBSHyperOptLoss (user_data/hyperopts/) - Calmar so spodným limitom
+    na počet obchodov. Bez toho limitu vyhlásil Calmar za víťaza epochu so 7 obchodmi
+    za 90 dní, len preto, že mala malý drawdown.
 
 .EXAMPLE
     .\platforms\freqtrade\scripts\hyperopt.ps1 -Timerange 20250901-20260904 -Epochs 300
@@ -38,7 +38,7 @@ param(
     [string]$Config = "config.binance.json",
     [Parameter(Mandatory = $true)][string]$Timerange,
     [int]$Epochs = 300,
-    [string]$Loss = "CalmarHyperOptLoss",
+    [string]$Loss = "IBSHyperOptLoss",
     [string]$Profile = "btcusdt_3m_binance_hyper",
     [string]$Spaces = "buy sell",
     [int]$Jobs = -1
@@ -68,7 +68,10 @@ $args = @(
     "--hyperopt-loss", $Loss,
     "--timerange", $Timerange,
     "--epochs", "$Epochs",
-    "--job-workers", "$Jobs"
+    "--job-workers", "$Jobs",
+    # NUTNE: cely nas engine bezi v populate_indicators. Bez tohto ho Freqtrade
+    # spocita raz pre cely beh a kazda epocha da identicky vysledok.
+    "--analyze-per-epoch"
 )
 $args += @("--spaces") + ($Spaces -split "\s+")
 

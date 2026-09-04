@@ -15,3 +15,5 @@ platforms/freqtrade/user_data/backtest_results/
 *.egg-info/
 graf.html
 *.html
+platforms/freqtrade/user_data/hyperopt_results/
+platforms/freqtrade/user_data/strategies/*.json

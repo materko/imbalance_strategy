@@ -151,6 +151,13 @@ class IBSImbalanceStrategy(IStrategy):
         Volá sa na začiatku `populate_indicators`, teda EŠTE PRED `_runner()` —
         odtlačok configu tak zmenu uvidí a runner sa postaví nanovo.
 
+        **Hyperopt sa MUSÍ spúšťať s `--analyze-per-epoch`.** Freqtrade štandardne
+        počíta `populate_indicators` len raz pre celý beh a per-epochu prepočítava
+        iba `populate_entry_trend` — lebo predpokladá, že parametre priestoru „buy"
+        ovplyvňujú len signály. Celý náš engine ale beží v `populate_indicators`,
+        takže bez toho prepínača dá každá epocha ten istý výsledok. Prejaví sa to
+        tak, že všetkých N epoch má identický PnL aj počet obchodov.
+
         Prahy sa musia priradiť ako `SizeSpec(..., "atr")`. Holé číslo by
         `IBSConfig.__setattr__` skoercoval na predvolenú jednotku poľa (`abs`),
         čo je pri BTC rádový rozdiel — a stalo by sa to ticho.
@@ -166,9 +173,9 @@ class IBSImbalanceStrategy(IStrategy):
     @property
     def hyperopt_active(self) -> bool:
         """Pri obyčajnom backteste sa profil z JSON nesmie prepísať defaultmi."""
-        return self.config.get("runmode") is not None and str(
-            self.config.get("runmode")
-        ).lower().endswith("hyperopt")
+        from freqtrade.enums import RunMode
+
+        return self.config.get("runmode") is RunMode.HYPEROPT
 
     def _config_fingerprint(self) -> tuple:
         """Odtlačok parametrov, ktoré menia výsledok.
