@@ -24,6 +24,7 @@ import bisect
 from dataclasses import dataclass
 
 from ...core import (
+    htf_window_opens,
     Bar,
     HTFWindow,
     IBSConfig,
@@ -179,6 +180,10 @@ class EngineRunner:
 
         Presne Pine `first5mTick`: pattern sa hľadá raz za novú periódu detekčného TF
         a výhradne z už uzavretých barov, takže nič nerepaintuje.
+
+        Ktoré štyri bary to sú, počíta `htf_window_opens()` z ČASU UZAVRETIA baru grafu —
+        nie z jeho otvorenia. Pri neprekrývajúcich sa mriežkach (3m graf / 5m detekcia)
+        sa tie dve odpovede líšia a rozdiel bolo vidieť ako 104 zón oproti 77 v TradingView.
         """
         htf_open = ts_ms // self.htf_ms * self.htf_ms
         is_new_period = self._prev_htf_open is not None and htf_open != self._prev_htf_open
@@ -186,7 +191,7 @@ class EngineRunner:
         if not is_new_period:
             return None
 
-        opens = [htf_open - (i + 1) * self.htf_ms for i in range(HTFWindow.REQUIRED_BARS)]
+        opens = htf_window_opens(ts_ms, self.chart_tf_minutes * 60_000, self.htf_ms)
         if any(o not in htf_bars for o in opens):
             return None
         return HTFWindow(tuple(htf_bars[o] for o in opens), vol_sma.get(opens[0], 0.0))

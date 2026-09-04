@@ -122,7 +122,7 @@ class IBSImbalanceStrategy(IStrategy):
                 htf = htf.copy()
                 # Pine ta.sma(volume, volSmaLen)[1] - posun o 1 je zámerný, aby sa
                 # nepoužil ešte neuzavretý bar.
-                htf["vol_sma"] = htf["volume"].rolling(self.ibs_cfg.volSmaLen).mean().shift(1)
+                htf["vol_sma"] = htf["volume"].rolling(self.ibs_cfg.volSmaLen).mean()
                 for ts, row in zip(_ts_ms(htf["date"]), htf.itertuples(index=False)):
                     htf_bars[ts] = _bar(row, ts)
                     htf_sma[ts] = float(row.vol_sma) if row.vol_sma == row.vol_sma else 0.0

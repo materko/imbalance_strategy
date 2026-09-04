@@ -160,6 +160,9 @@ class Zone:
 
     #: Pine bar_index v momente vzniku - gap sa smie hľadať len za ním.
     created_bar_index: int = 0
+    #: čas baru grafu, na ktorom zóna vznikla (Pine `time` pri `newZone`).
+    #: Nie je to `created_ms` - ten ukazuje na základovú sviečku v minulosti.
+    detected_ms: int = 0
 
     # ---- stav životného cyklu (Pine zStateA a spol.) --------------------- #
     state: int = 0
@@ -292,6 +295,7 @@ class ZoneBook:
             source=ZoneSource.SD,
             volume_strong=pattern.volume_strong,
             variant=pattern.variant,
+            detected_ms=now_ms,
         )
         self._next_uid += 1
         self._last_base_ms = pattern.base_ms

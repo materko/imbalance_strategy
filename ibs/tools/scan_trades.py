@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 
 from ..core import (
+    htf_window_opens,
     Bar,
     BarHistory,
     HTFWindow,
@@ -167,7 +168,7 @@ def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str, chart_tf: int,
         step = chart_tf * 60_000
         for r in detail_df.itertuples(index=False):
             detail_by_bar.setdefault(int(r.ts) // step * step, []).append(_to_bar(r))
-    htf_df["vol_sma"] = htf_df["volume"].rolling(cfg.volSmaLen).mean().shift(1)
+    htf_df["vol_sma"] = htf_df["volume"].rolling(cfg.volSmaLen).mean()
 
     htf_bars = {int(r.ts): _to_bar(r) for r in htf_df.itertuples(index=False)}
     htf_sma = {
@@ -194,7 +195,7 @@ def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str, chart_tf: int,
 
         htf_open = bar.time // htf_ms * htf_ms
         if prev_htf_open is not None and htf_open != prev_htf_open and state.in_zone_window:
-            opens = [htf_open - (i + 1) * htf_ms for i in range(HTFWindow.REQUIRED_BARS)]
+            opens = htf_window_opens(bar.time, chart_tf * 60_000, htf_ms)
             if all(o in htf_bars for o in opens):
                 win = HTFWindow(tuple(htf_bars[o] for o in opens), htf_sma[opens[0]])
                 pattern = detect_sd_pattern(win, cfg, inst)

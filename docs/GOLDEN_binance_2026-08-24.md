@@ -105,9 +105,63 @@ Po doplnení (`StateMachine._expire`):
 | SKIP: SMER VYPNUTY | 31 | **7** | 5 |
 | zadaných orderov | 8 | **7** | 6 |
 
-## Čo ešte zostáva
+## Nájdená chyba: zle počítané HTF okno (104 zón namiesto 77)
 
-Stále vytvárame viac zón než TradingView — pri obchode z 09-02 máme uid 91, TradingView 64.
-Do uid 12 (08-25 09:39) sme v úplnom zákryte, potom sa počty pomaly rozchádzajú. Ďalší krok je
-porovnať čas vzniku našich zón proti známym TradingView bodom (uid 3, 9, 10, 12, 25, 27, 31,
-41, 44, 64, 69 s časmi z logov vyššie) a nájsť prvý bar, kde nám zóna vznikne navyše.
+Po oprave expirácie sme mali stále **104** zón proti 77 v TradingView. Hranice (`top`/`bot`)
+sedeli 37 z 39, ale bar vzniku len 21 z 39 — chyba teda nebola v detekcii patternu,
+ale v tom, **z ktorých štyroch 5m barov** sa pattern počítal.
+
+Pine riadok 338:
+
+```pine
+[o5_0, ..., t5_3, v5Sma] = request.security(syminfo.tickerid, zoneDetectionTF,
+    [open[1], ..., time[4], ta.sma(volume, volSmaLen)[1]],
+    barmerge.gaps_off, barmerge.lookahead_off)
+```
+
+Brali sme okno z **otváracieho** času baru grafu (`bar.time // htf_ms`). Pine ale vyhodnocuje
+bar pri jeho **uzavretí** a s `lookahead_off` je vtedy „aktuálnym" barom v security ten, ktorý
+sa naposledy uzavrel. Výraz má navyše offset `[1]`, takže `bars[0]` je ešte o jeden bar dozadu:
+
+```python
+close_ms = ts_ms + chart_tf_ms
+newest   = (close_ms // htf_ms) * htf_ms - 2 * htf_ms
+```
+
+Pri 3m grafe a 5m detekcii sa mriežky neprekrývajú, takže tento posun **nie je konštantný** —
+v 15-minútovom cykle sa strieda −2 a −1 HTF bar. Preto to nešlo opraviť žiadnym pevným
+posunom (skúšané `delay` 0–3 × `lag` 1–3, žiadna kombinácia nesedela).
+
+Vedľajší dôsledok, ktorý Pine naozaj má: každý HTF bar zarovnaný na 15 minút sa nikdy
+nestane `bars[0]`. Postupnosť okien je `−5, +5, +5, +10, +20, +20, …` — bary 0, 15, 30 sa
+preskočia. Je to artefakt neprekrývajúcich sa mriežok, nie chyba portu.
+
+Súčasne bolo treba zrušiť `.shift(1)` pri `vol_sma`: `ta.sma(volume, n)[1]` vo výraze security
+je SMA **na bare `bars[0]` vrátane**, nie na bare pred ním.
+
+## Výsledok: plná parita
+
+Po oprave (`htf_window_opens()` v `ibs/core/types.py`):
+
+| | pred | po | TradingView |
+|---|---|---|---|
+| zón v okne | 104 | **76** | 77 (posledná je za koncom stiahnutých dát) |
+| zadaných orderov | 7 | **6** | 6 |
+| vyplnených obchodov | — | **5** | 5 |
+| winrate | — | **60 %** (3W/2L) | 60 % (3W/2L) |
+
+Všetkých **46 odčítaných zón sedí na uid, hranice aj bar vzniku**. Všetkých **5 obchodov
+sedí na minútu vyplnenia, vstupnú cenu, veľkosť aj výstupnú cenu**:
+
+| # | vstup UTC | entry | qty | výstup | naše |
+|---|---|---|---|---|---|
+| 1 | 08-24 14:54 | 79 419,5 | 1 | 79 607,3 | `LONG_10` ✅ |
+| 2 | 08-24 17:15 | 79 022,0 | 1 | 78 541,2 | `LONG_9` ✅ |
+| 3 | 08-25 07:42 | 80 516,0 | 1 | 80 458,9 | `LONG_12` ✅ |
+| 4 | 08-27 07:09 | 78 765,1 | 2 | 78 796,5 | `LONG_31` ✅ |
+| 5 | 08-28 14:51 | 79 250,0 | 1 | 79 451,3 | `LONG_44` ✅ |
+
+Šiesty order (`LONG_64`, 09-02 15:15) sa nikdy nevyplnil a expiroval — TradingView ho
+v Pine logoch tiež má v STATE 4 a v List of Trades tiež nie je.
+
+Regresný test: `ibs/tests/test_golden_tv_binance.py`.

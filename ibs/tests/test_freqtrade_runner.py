@@ -98,14 +98,36 @@ def test_htf_window_only_on_a_new_period(runner):
 
 
 def test_htf_window_uses_only_closed_bars(runner):
-    """bars[0] musí byť POSLEDNÝ UZAVRETÝ HTF bar, nie ten práve otvorený — inak repaint."""
+    """bars[0] = Pine `[1]` nad sériou, ktorú vidí `request.security(lookahead_off)`.
+
+    Na 3m grafe s 5m detekciou sa Pine rozhoduje pri UZAVRETÍ baru grafu. Na bare
+    T0 (uzavrie sa T0+3m) je posledný uzavretý 5m bar ten s otvorením T0−5m, a
+    offset `[1]` vo výraze security posunie okno ešte o jeden bar dozadu.
+    Počítať okno z otváracieho času baru dávalo v TradingView 104 zón namiesto 77.
+    """
     bars = _htf_bars(10)
     sma = dict.fromkeys(bars, 100.0)
     runner.htf_window_for(T0, bars, sma)
-    win = runner.htf_window_for(T0 + MIN5, bars, sma)
+    runner.htf_window_for(T0 + MIN3, bars, sma)  # stále tá istá 5m perióda
+    win = runner.htf_window_for(T0 + 2 * MIN3, bars, sma)
 
-    assert win.bars[0].time == T0  # perioda, ktora sa prave uzavrela
-    assert [b.time for b in win.bars] == [T0 - i * MIN5 for i in range(0, 4)]
+    assert win.bars[0].time == T0 - MIN5
+    assert [b.time for b in win.bars] == [T0 - (1 + i) * MIN5 for i in range(4)]
+
+
+def test_htf_window_offset_nie_je_konstantny(runner):
+    """Mriežky 3m a 5m sa neprekrývajú, takže posun okna sa v 15-minútovom cykle mení."""
+    bars = _htf_bars(20)
+    sma = dict.fromkeys(bars, 100.0)
+
+    seen = {}
+    for i in range(11):  # T0 .. T0+30m
+        win = runner.htf_window_for(T0 + i * MIN3, bars, sma)
+        if win is not None:
+            seen[i * 3] = (win.bars[0].time - T0) // MIN5
+
+    # novú 5m periódu začínajú bary grafu na 6, 12, 15, 21, 27 a 30 minúte
+    assert seen == {6: -1, 12: 1, 15: 1, 21: 2, 27: 4, 30: 4}
 
 
 def test_htf_window_is_none_when_history_is_short(runner):

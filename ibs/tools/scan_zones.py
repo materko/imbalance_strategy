@@ -16,6 +16,7 @@ import sys
 from pathlib import Path
 
 from ..core import (
+    htf_window_opens,
     Bar,
     HTFWindow,
     IBSConfig,
@@ -96,7 +97,7 @@ def scan(
     htf = _load(exchange, f"{htf_minutes}m")
 
     # SMA volume na detekcnom TF, posunuta o 1 - Pine ta.sma(volume, volSmaLen)[1].
-    htf["vol_sma"] = htf["volume"].rolling(cfg.volSmaLen).mean().shift(1)
+    htf["vol_sma"] = htf["volume"].rolling(cfg.volSmaLen).mean()
 
     htf_bars: dict[int, Bar] = {}
     htf_vol_sma: dict[int, float] = {}
@@ -126,8 +127,8 @@ def scan(
             continue
         stats["htf_closes"] += 1
 
-        # bars[0] je posledny UZAVRETY HTF bar, teda ten pred prave zacatou periodou.
-        opens = [htf_open - (i + 1) * htf_ms for i in range(HTFWindow.REQUIRED_BARS)]
+        # bars[0] pocitame z CASU UZAVRETIA baru grafu - viz htf_window_opens().
+        opens = htf_window_opens(ts, chart_tf_minutes * 60_000, htf_ms)
         if any(o not in htf_bars for o in opens):
             continue
 

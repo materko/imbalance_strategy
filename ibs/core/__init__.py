@@ -24,6 +24,7 @@ from .types import (
     Bar,
     Direction,
     HTFWindow,
+    htf_window_opens,
     InstrumentSpec,
     OrderType,
     PanelPos,
@@ -35,6 +36,7 @@ from .types import (
 __all__ = [
     "Bar",
     "HTFWindow",
+    "htf_window_opens",
     "Direction",
     "TradeDirection",
     "SnapMode",
