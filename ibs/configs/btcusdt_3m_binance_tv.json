@@ -1,0 +1,23 @@
+{
+  "_comment": [
+    "BINANCE BTCUSDT.P, 3m - REFERENCNY profil pre golden test proti TradingView.",
+    "",
+    "Rozdiel oproti btcusdt_3m_binance: TU nic neprepocitavame. Su to presne Pine",
+    "defaulty + 5 odchylok z grafu, vratane legacyPineSizing a tickDollarValue=0.5,",
+    "lebo presne s tymto bezal TradingView Strategy Tester (viz",
+    "ibs/tests/golden/tv_btcusdt_binance_3m.json).",
+    "",
+    "Na REALNE obchodovanie pouzi btcusdt_3m_binance - ten ma jednotky prepocitane",
+    "a sizing opraveny. Tento profil sluzi vylucne na meranie parity."
+  ],
+  "_instrument": "btcusdt_binance",
+
+  "enablePinBarEntry": true,
+  "enableTrailing": true,
+  "tradeDirection": "Long only",
+  "sess2ZoneStartH": 8,
+  "showElliott": false,
+
+  "tickDollarValue": 0.5,
+  "legacyPineSizing": true
+}

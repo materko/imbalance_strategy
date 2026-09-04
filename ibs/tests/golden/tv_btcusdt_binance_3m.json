@@ -1,0 +1,71 @@
+{
+  "_comment": [
+    "GOLDEN FIXTURE - List of Trades odcitany priamo z TradingView Strategy Testera.",
+    "Toto je referencia, proti ktorej sa meria parita portu.",
+    "",
+    "Casy su tak, ako ich TradingView zobrazil, teda v ZONE GRAFU (UTC+2) - polia",
+    "*_utc su dopocitane. Ceny su presne tie, co ukazal Strategy Tester.",
+    "",
+    "Nastavenia: cerstvo vlozeny imbalance_strategy_FULL.pine + 5 odchylok od Pine",
+    "defaultov (enablePinBarEntry, enableTrailing, tradeDirection='Long only',",
+    "sess2ZoneStartH=8, showElliott=false). Potvrdene retazcom inputov, ktory",
+    "TradingView vypisal v Object tree:",
+    "  (4, 20, 2, 2, 10, 2, 3, Market, 1, 0.5, 25, Europe/Prague, 1, 0, 9, 0, 2, 0, 5, 0,",
+    "   America/New_York, 8, 0, 11, 0, 10, 0, 15, 45, Europe/London, 8, 0, 10, 0, 8, 0,",
+    "   11, 0, 5, 6, 200, Floor, 20, 1.5, 5, 10, 15, 2, 10, 5, 30, 10, 5, 2, 50, 8, 20,",
+    "   40, Top Right, 6, 20, 8, Bottom Right, 20, 100, 2.5, 10, 15, 1, 1, 10, 10, 1, 10,",
+    "   2, 350, 0.5, 5, Long only, , , , MKT)"
+  ],
+
+  "source": "TradingView Strategy Tester",
+  "captured_at": "2026-09-04T10:12:00+02:00",
+  "symbol": "BINANCE:BTCUSDT.P",
+  "timeframe": "3m",
+  "chart_timezone": "UTC+2",
+  "range": "Aug 24, 2026 - Sep 4, 2026",
+  "initial_capital": 10000,
+
+  "summary": {
+    "total_pnl": -86.00,
+    "total_pnl_pct": -0.86,
+    "max_drawdown": 578.10,
+    "max_drawdown_pct": 5.67,
+    "profitable_trades_pct": 60.0,
+    "wins": 3,
+    "losses": 2,
+    "profit_factor": 0.84
+  },
+
+  "trades": [
+    {
+      "n": 1, "direction": "long", "size": 1,
+      "entry_chart": "2026-08-24 16:54", "entry_utc": "2026-08-24T14:54:00Z", "entry_price": 79419.5,
+      "exit_chart": "2026-08-24 17:03", "exit_utc": "2026-08-24T15:03:00Z", "exit_price": 79607.3,
+      "net_pnl": 187.8, "return_pct": 0.24
+    },
+    {
+      "n": 2, "direction": "long", "size": 1,
+      "entry_chart": "2026-08-24 19:15", "entry_utc": "2026-08-24T17:15:00Z", "entry_price": 79022.0,
+      "exit_chart": "2026-08-24 19:21", "exit_utc": "2026-08-24T17:21:00Z", "exit_price": 78541.2,
+      "net_pnl": -480.8, "return_pct": -0.61
+    },
+    {
+      "n": 3, "direction": "long", "size": 1,
+      "entry_chart": "2026-08-25 09:42", "entry_utc": "2026-08-25T07:42:00Z", "entry_price": 80516.0,
+      "exit_chart": "2026-08-25 09:45", "exit_utc": "2026-08-25T07:45:00Z", "exit_price": 80458.9,
+      "net_pnl": -57.1, "return_pct": -0.07
+    },
+    {
+      "n": 4, "direction": "long", "size": 2,
+      "entry_chart": "2026-08-27 09:09", "entry_utc": "2026-08-27T07:09:00Z", "entry_price": 78765.1,
+      "exit_chart": "2026-08-27 09:12", "exit_utc": "2026-08-27T07:12:00Z", "exit_price": 78796.5,
+      "net_pnl": 62.8, "return_pct": 0.04
+    },
+    {
+      "n": 5, "direction": "long", "size": 1,
+      "entry_chart": "2026-08-28 16:51", "entry_utc": "2026-08-28T14:51:00Z", "entry_price": 79250.0,
+      "exit_chart": "2026-08-28 16:51", "exit_utc": "2026-08-28T14:51:00Z", "exit_price": 79451.3,
+      "net_pnl": 201.3, "return_pct": 0.25
+    }
+  ]
+}

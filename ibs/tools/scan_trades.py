@@ -133,12 +133,27 @@ class FillSimulator:
         return self.daily_wins.get(_utc_day(ts_ms), 0)
 
 
-def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str, chart_tf: int):
+def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str, chart_tf: int,
+        date_from: str | None = None, date_to: str | None = None):
     htf_minutes = int(cfg.zoneDetectionTF)
     htf_ms = htf_minutes * 60_000
 
     chart = _load(exchange, f"{chart_tf}m")
     htf_df = _load(exchange, f"{htf_minutes}m")
+
+    # Orezanie na rovnake okno, ake videl TradingView. Oreze sa aj VSTUP, nie len
+    # vypis - inak by engine poznal zony z historie, ktoru TV vobec nemal nacitanu,
+    # obchodoval by z nich a porovnanie by nesedelo.
+    import pandas as _pd
+
+    if date_from:
+        start = _pd.Timestamp(date_from, tz="UTC")
+        chart = chart[chart["date"] >= start]
+        htf_df = htf_df[htf_df["date"] >= start]
+    if date_to:
+        end = _pd.Timestamp(date_to, tz="UTC") + _pd.Timedelta(days=1)
+        chart = chart[chart["date"] < end]
+        htf_df = htf_df[htf_df["date"] < end]
 
     # 1m detail na rozhodnutie "SL alebo TP skor" - rovnaky princip ako
     # freqtrade --timeframe-detail 1m.
@@ -216,24 +231,32 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--profile", default="btcusdt_3m_binance")
     ap.add_argument("--chart-tf", type=int, default=3)
     ap.add_argument("--limit", type=int, default=20)
+    ap.add_argument("--from", dest="date_from", help="YYYY-MM-DD, vratane")
+    ap.add_argument("--to", dest="date_to", help="YYYY-MM-DD, vratane")
     args = ap.parse_args(argv)
 
     cfg, inst = load_profile(args.profile)
-    book, sim, transitions, reasons = run(cfg, inst, args.exchange, args.chart_tf)
+    book, sim, transitions, reasons = run(cfg, inst, args.exchange, args.chart_tf, args.date_from, args.date_to)
 
     def fmt(ms: int | None) -> str:
         if ms is None:
             return "-"
         return datetime.fromtimestamp(ms / 1000, tz=timezone.utc).strftime("%m-%d %H:%M")
 
+    trades = list(sim.trades.values())
+    if args.date_from:
+        from datetime import datetime as _dt
+        start_ms = int(_dt.fromisoformat(args.date_from).replace(tzinfo=timezone.utc).timestamp() * 1000)
+        trades = [t for t in trades if t.placed_ms >= start_ms]
+
     counts: dict[str, int] = {}
-    for t in sim.trades.values():
+    for t in trades:
         counts[t.outcome] = counts.get(t.outcome, 0) + 1
 
     print(f"\nProfil {args.profile} na {args.exchange}, graf {args.chart_tf}m")
     print(f"  zon v evidencii:  {len(book)}")
     print(f"  prechodov stavov: {transitions}")
-    print(f"  orderov:          {len(sim.trades)}")
+    print(f"  orderov:          {len(trades)}")
     if sim.ambiguous_bars:
         print(f"  nerozhodnutelnych barov (SL aj TP naraz): {sim.ambiguous_bars}")
     for outcome in ("WIN", "LOSS", "FILLED", "EXPIRED", "CANCELLED", "PENDING"):
@@ -250,7 +273,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"    {n:>4}x  {reason}")
 
     by_day: dict[str, list[str]] = {}
-    for tr in sim.trades.values():
+    for tr in trades:
         if tr.outcome in ("WIN", "LOSS"):
             by_day.setdefault(fmt(tr.placed_ms)[:5], []).append(tr.outcome[0])
     if by_day:
@@ -261,7 +284,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if sim.trades:
         print(f"\n  {'order':<10} {'zadany':<12} {'vyplneny':<12} {'entry':>10} {'SL':>10} {'TP':>10} {'qty':>8}  stav")
-        for t in list(sim.trades.values())[-args.limit :]:
+        for t in (trades[-args.limit:] if args.limit else trades):
             p = t.plan
             print(
                 f"  {t.order_id:<10} {fmt(t.placed_ms):<12} {fmt(t.filled_ms):<12} "
