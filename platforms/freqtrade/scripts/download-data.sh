@@ -57,3 +57,11 @@ echo ""
 echo "=== Co je stiahnute ==="
 "$PY" -m freqtrade list-data --userdir "$USERDIR" --config "$FT/config.binance.json"
 "$PY" -m freqtrade list-data --userdir "$USERDIR" --config "$FT/config.coinbase.json"
+
+echo
+echo "=== Delim na rocne subory pre git ==="
+"$PY" -m ibs.tools.data_archive split
+echo
+echo "Commituj len platforms/freqtrade/user_data/data_archive/ - pracovne subory"
+echo "v data/ su v .gitignore. Po klonovani sa poskladaju prikazom:"
+echo "  python -m ibs.tools.data_archive merge"

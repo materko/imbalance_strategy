@@ -150,6 +150,39 @@ normalizácia nepoškodí.
 
 ---
 
+## C2. Archív dát (ročné súbory)
+
+V gite **nie sú** pracovné súbory Freqtradu, ale archív rozdelený po rokoch:
+
+```
+platforms/freqtrade/user_data/data_archive/binance/futures/
+    BTC_USDT_USDT-1m-futures.2019.feather    4.7 MB
+    BTC_USDT_USDT-1m-futures.2020.feather   15.2 MB
+    ...
+    BTC_USDT_USDT-1m-futures.2026.feather    9.8 MB   <- jediný, ktorý sa mení
+```
+
+**Prečo:** Freqtrade drží celý pár+TF v jednom súbore, ktorý sa pri každom sťahovaní
+prepíše celý. Git si pamätá každú verziu — 86 MB `1m` súbor by tak pri každom
+doťahovaní dát pridal do histórie ďalších 86 MB, ktoré sa už nedajú odstrániť bez
+prepísania histórie. Rok, ktorý sa skončil, sa už nikdy nezmení, takže jeho blob
+v histórii existuje raz. Denne rastie iba súbor za aktuálny rok (~10 MB/rok pri 1m).
+
+```bash
+python -m ibs.tools.data_archive status    # čo je kde
+python -m ibs.tools.data_archive merge     # archív -> pracovné súbory (po klonovaní)
+python -m ibs.tools.data_archive split     # pracovné súbory -> archív (po stiahnutí)
+```
+
+`download-data.ps1` aj `.sh` volajú `split` samy, takže po stiahnutí stačí commitnúť
+`data_archive/`. **Po čerstvom klone treba spustiť `merge`**, inak backtest ani testy
+nemajú z čoho čítať.
+
+Delenie je bezstratové — `merge(split(x))` dá presne to isté, čo bolo v `x`
+(`ibs/tests/test_data_archive.py`). Sviečky sa nikde nedopočítavajú.
+
+---
+
 ## D. Backtest
 
 ```powershell
