@@ -97,6 +97,8 @@ def run(profile: str, exchange: str, chart_tf: int, date_from: str | None, date_
         out = engine.on_bar(bar, window, MarketContext(in_trade_window=st.in_trade_window))
         registry.extend(out.drawings)
 
+    # Pine `barstate.islast` — S/R a Elliott sa kreslia až na poslednom bare.
+    registry.extend(engine.final_drawings(bars[-1]))
     return bars, registry, cfg
 
 

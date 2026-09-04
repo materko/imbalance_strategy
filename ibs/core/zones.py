@@ -341,6 +341,32 @@ class ZoneBook:
             self.evicted += 1
         return zone
 
+    def create_raw(
+        self, direction: Direction, top: float, bot: float, now_ms: int, source: ZoneSource
+    ) -> Zone:
+        """Pine `f_pushZone` volané z S/R (riadok 931) a likvidity (1206, 1247).
+
+        Na rozdiel od SD zóny tu nie je pattern ani základová sviečka — zóna začína
+        rovno na aktuálnom bare a platnosť sa počíta od neho.
+        """
+        zone = Zone(
+            uid=self._next_uid,
+            direction=direction,
+            top=top,
+            bot=bot,
+            created_ms=now_ms,
+            confirmed_ms=now_ms,
+            expires_ms=now_ms + self.zone_valid_ms,
+            source=source,
+            detected_ms=now_ms,
+        )
+        self._next_uid += 1
+        self.zones.append(zone)
+        while len(self.zones) > self.max_zones:
+            self.zones.pop(0)
+            self.evicted += 1
+        return zone
+
     def active(self, ts_ms: int) -> list[Zone]:
         return [z for z in self.zones if not z.is_expired(ts_ms)]
 
