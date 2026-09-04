@@ -215,3 +215,46 @@ Zvyšný rozdiel 0,1 pri obchode 3 je zaokrúhlenie SL na cenovú presnosť pár
 `open_date` vo výpise Freqtradu je sviečka, na ktorej sa **zadal order**, nie minúta
 vyplnenia — preto pri obchode 2 ukazuje 17:09, hoci sa vyplnil o 17:15 ako v TradingView.
 
+## Parita kreslenia
+
+Obchody a zóny sedia, ale to nehovorí nič o tom, čo je na grafe **vidieť**. Preto
+druhý golden fixture: `tv_draw_btcusdt_binance_3m.json` — súradnice objektov, ktoré
+TradingView naozaj nakreslil.
+
+Získané rovnakým trikom ako zoznam zón: do skriptu na grafe pribudlo šesť `log.info`
+volaní hneď za príslušné `array.push(...)`:
+
+| Pine riadok | objekt | čo sa loguje |
+|---|---|---|
+| 751 / 763 | HH/HL/LH/LL štítok | `time[structureSwingLen]`, cena pivota, text |
+| 789 / 814 | BOS/CHoCH čiara | čas vzniku swingu, úroveň, čas prerazenia, text |
+| 1188 / 1233 | likviditný sweep | čas swingu, úroveň, čas prepichnutia, smer |
+
+Odčítalo sa cez filter `DRAW|` v paneli Pine logs. Log volania boli potom zo skriptu
+odstránené (cez Version history späť na predošlú verziu).
+
+Okno **2026-09-03 09:06 – 09-04 04:42 UTC** je súvislé, takže obsahuje všetky objekty,
+ktoré tam TradingView nakreslil. Vďaka tomu test kontroluje aj to, že nekreslíme nič navyše.
+
+**Výsledok: 76 z 76 objektov sedí presne** — bar vzniku, obe x súradnice, cenová úroveň
+aj text:
+
+| druh | počet | zhoda |
+|---|---|---|
+| HH/HL/LH/LL štítky | 50 | 50 |
+| BOS/CHoCH čiary | 23 | 23 |
+| likviditné sweepy | 3 | 3 |
+
+Rozdiel v y súradnici štítkov je zámerný a test s ním počíta: Pine loguje surovú cenu
+pivota, ale štítok kreslí o 25 tickov vedľa (`syminfo.mintick * 25`).
+
+Regresný test: `ibs/tests/test_golden_tv_draw.py`.
+
+### Čo tento fixture nepokrýva
+
+- **SD zóny a TP/SL boxy** — tie stráži `test_golden_tv_binance.py` cez `tv_zones_*`.
+- **S/R a Elliott** — kreslia sa až na `barstate.islast`, takže sa v logu objavia raz
+  a nedá sa z nich postaviť zmysluplné okno. Elliott navyše na BTC nenájde ani jeden
+  platný impulz (`ewMinWavePoints` je naladený na MNQ).
+- **Pozadie seáns a dashboard** — `bgcolor()` a `table.cell()` sa nedajú logovať zmysluplne.
+
