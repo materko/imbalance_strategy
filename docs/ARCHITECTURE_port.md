@@ -451,10 +451,11 @@ MultiCharts ekvivalent: `IntrabarOrderGeneration = True` + druhá 1-min dátová
 
 ## 8. Poradie prác
 
-1. `core/config.py` + `core/types.py` + `InstrumentSpec`/`SizeSpec` — všetkých 115 inputov ako
-   dataclass, načítané z JSON profilov (`configs/mnq_3m.json` = 1:1 s TV, `configs/btcusd_3m.json`).
-2. `core/clock.py` + `core/zones.py` — SD zóny na 5m, vrátane `snapMode`. **Prvý vizuálny milník:
-   zóny sa kreslia na rovnakých miestach ako v TV.**
+1. ✅ **hotové** — `core/config.py` + `core/types.py` + `InstrumentSpec`/`SizeSpec`: všetkých 115
+   inputov ako dataclass, načítané z JSON profilov.
+2. ✅ **hotové** — `core/clock.py` + `core/zones.py` + `core/drawing.py`: session okná, detekcia SD
+   zón na detekčnom TF, `snapMode`, evidencia zón a ich boxy ako `DrawCommand`.
+   Overené na reálnych dátach cez `python -m ibs.tools.scan_zones`.
 3. `core/ta/imbalance.py` + `core/statemachine.py` + `core/risk.py` — IMB entry model.
    Druhý milník: rovnaké entry/SL/TP.
 4. Adaptér Freqtrade + golden test proti TV trade listu.
