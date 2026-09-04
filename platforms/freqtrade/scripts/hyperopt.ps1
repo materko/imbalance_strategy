@@ -23,7 +23,7 @@
     Počet epoch. Pri 10 parametroch má zmysel aspoň 300.
 
 .PARAMETER Loss
-    Predvolene IBSHyperOptLoss (user_data/hyperopts/) - Calmar so spodným limitom
+    Predvolene IBSEdgeLoss (user_data/hyperopts/) - break-even poplatok so spodným limitom
     na počet obchodov. Bez toho limitu vyhlásil Calmar za víťaza epochu so 7 obchodmi
     za 90 dní, len preto, že mala malý drawdown.
 
@@ -38,7 +38,7 @@ param(
     [string]$Config = "config.binance.json",
     [Parameter(Mandatory = $true)][string]$Timerange,
     [int]$Epochs = 300,
-    [string]$Loss = "IBSHyperOptLoss",
+    [string]$Loss = "IBSEdgeLoss",
     [string]$Profile = "btcusdt_3m_binance_hyper",
     [string]$Spaces = "buy sell",
     [int]$Jobs = -1

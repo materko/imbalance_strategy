@@ -7,7 +7,7 @@ set -euo pipefail
 
 TIMERANGE="${1:?pouzitie: hyperopt.sh <timerange> [epochs] [loss]}"
 EPOCHS="${2:-300}"
-LOSS="${3:-IBSHyperOptLoss}"
+LOSS="${3:-IBSEdgeLoss}"
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 ft="$repo/platforms/freqtrade"

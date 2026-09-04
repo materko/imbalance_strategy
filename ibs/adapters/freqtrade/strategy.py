@@ -19,8 +19,8 @@ from datetime import datetime
 from pandas import DataFrame
 
 from freqtrade.strategy import (
-    CategoricalParameter,
     DecimalParameter,
+    IntParameter,
     IStrategy,
     stoploss_from_absolute,
 )
@@ -98,36 +98,32 @@ class IBSImbalanceStrategy(IStrategy):
     #
     # Parametre stratégie žijú v `IBSConfig`, nie vo Freqtrade. Tieto objekty sú
     # len most: `_apply_hyperopt_params()` ich pred každým výpočtom vloží do configu.
-    # Optimalizujú sa výhradne prahy v jednotke `atr` (tie sú naladené na MNQ a na BTC
-    # nedávajú zmysel) plus `rrRatio` a prepínače entry modelov. Session okná, STATE
-    # timeouty ani sizing sa neladia - tie sú prevzaté z TradingView a menili by paritu.
+    #
+    # POZOR - priestor je zámerne MALÝ a obsahuje len parametre, ktoré menia
+    # **štruktúru** obchodu, nie citlivosť filtra.
+    #
+    # Prvá verzia ladila desať prahov v jednotke `atr` plus prepínače entry modelov
+    # a dopadla presne tak, ako sa to pri desiatich stupňoch voľnosti a ~150 obchodoch
+    # za rok dá čakať: víťazná epocha bola na ladenom roku +34,8 %, ale **všetky štyri**
+    # out-of-sample roky boli stratové (−11 % až −65 %), viď docs/HYPEROPT_btcusdt_2026-09-04.md.
+    #
+    # Čo naopak prežilo naprieč piatimi rokmi, boli zmeny s jedným stupňom voľnosti:
+    # `rrRatio`, `slLookback` a zapnutie štruktúrneho filtra. Preto sa ladia práve
+    # tie tri - a `structureSwingLen`, ktorý sa nikdy neladil, hoci filter, ktorý ho
+    # používa, je najsilnejšia páka, akú sme našli.
+    #
+    # Session okná, STATE timeouty ani sizing sa neladia - tie sú prevzaté
+    # z TradingView a menili by paritu.
     # ------------------------------------------------------------------ #
 
-    #: `enableImbEntry` sa zámerne NEOPTIMALIZUJE - je to základný model stratégie.
-    p_rr = DecimalParameter(1.0, 5.0, default=2.5, decimals=1, space="sell", optimize=True)
-    p_imb_size = DecimalParameter(0.05, 1.00, default=0.25, decimals=2, space="buy")
-    p_pb_range = DecimalParameter(0.05, 1.00, default=0.20, decimals=2, space="buy")
-    p_eng_range = DecimalParameter(0.05, 1.00, default=0.20, decimals=2, space="buy")
-    p_liq_wick = DecimalParameter(0.05, 1.00, default=0.30, decimals=2, space="buy")
-    p_sr_cluster = DecimalParameter(0.10, 1.50, default=0.50, decimals=2, space="buy")
-    p_pin_bar = CategoricalParameter([True, False], default=True, space="buy")
-    p_engulfing = CategoricalParameter([True, False], default=True, space="buy")
-    p_sr_trading = CategoricalParameter([True, False], default=True, space="buy")
-    p_lq_trading = CategoricalParameter([True, False], default=True, space="buy")
+    p_rr = DecimalParameter(1.0, 8.0, default=5.0, decimals=1, space="sell", optimize=True)
+    p_sl_lookback = IntParameter(5, 40, default=20, space="sell", optimize=True)
+    p_struct_len = IntParameter(3, 25, default=5, space="buy", optimize=True)
 
-    #: Ktorý parameter ide do ktorého poľa configu; hodnoty s jednotkou `atr`.
-    _ATR_PARAMS = {
-        "minImbSizePoints": "p_imb_size",
-        "pbMinRangePoints": "p_pb_range",
-        "engMinRangePoints": "p_eng_range",
-        "liqSweepMinWick": "p_liq_wick",
-        "srClusterPoints": "p_sr_cluster",
-    }
-    _FLAG_PARAMS = {
-        "enablePinBarEntry": "p_pin_bar",
-        "enableEngulfingEntry": "p_engulfing",
-        "enableSrTrading": "p_sr_trading",
-        "enableLqTrading": "p_lq_trading",
+    #: Ktorý hyperopt parameter ide do ktorého poľa configu (celé čísla).
+    _INT_PARAMS = {
+        "slLookback": "p_sl_lookback",
+        "structureSwingLen": "p_struct_len",
     }
 
     def __init__(self, config: dict) -> None:
@@ -167,17 +163,11 @@ class IBSImbalanceStrategy(IStrategy):
         ovplyvňujú len signály. Celý náš engine ale beží v `populate_indicators`,
         takže bez toho prepínača dá každá epocha ten istý výsledok. Prejaví sa to
         tak, že všetkých N epoch má identický PnL aj počet obchodov.
-
-        Prahy sa musia priradiť ako `SizeSpec(..., "atr")`. Holé číslo by
-        `IBSConfig.__setattr__` skoercoval na predvolenú jednotku poľa (`abs`),
-        čo je pri BTC rádový rozdiel — a stalo by sa to ticho.
         """
         if not self.hyperopt_active:
             return
-        for field, attr in self._ATR_PARAMS.items():
-            setattr(self.ibs_cfg, field, SizeSpec(float(getattr(self, attr).value), "atr"))
-        for field, attr in self._FLAG_PARAMS.items():
-            setattr(self.ibs_cfg, field, bool(getattr(self, attr).value))
+        for field, attr in self._INT_PARAMS.items():
+            setattr(self.ibs_cfg, field, int(getattr(self, attr).value))
         self.ibs_cfg.rrRatio = float(self.p_rr.value)
 
     @property
