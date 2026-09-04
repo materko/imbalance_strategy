@@ -150,7 +150,9 @@ class IBSSignal(SignalObject):
 
         self.sink.render(out.drawings)
         self._send_entries(out)
-        if out.exit_plan is not None:
+        if out.close_session:
+            self._close_market(out.exit_plan)
+        elif out.exit_plan is not None:
             self._send_exits(out.exit_plan, out.exit_stop)
 
     def Destroy(self):  # pragma: no cover - beží len v MultiCharts
@@ -208,6 +210,22 @@ class IBSSignal(SignalObject):
                 order.Send(live.plan.qty)
             else:
                 order.Send(live.plan.entry, live.plan.qty)
+
+    def _close_market(self, plan):  # pragma: no cover - beží len v MultiCharts
+        """Pine `strategy.close(immediately=true)` na konci poslednej seansy dňa."""
+        if plan is None:
+            return
+        from PowerLanguage import EOrderAction, OrderCategory, SignalType
+
+        long = plan.direction.value == 1
+        action = EOrderAction.Sell if long else EOrderAction.BuyToCover
+        order = self._entries.get("__session_end")
+        if order is None:
+            order = self.OrderCreator.MarketNextBar(
+                SignalType.UserSpecified, OrderCategory.Exit, action, "ibs_session_end"
+            )
+            self._entries["__session_end"] = order
+        order.Send()
 
     def _send_exits(self, plan, stop_price=None):  # pragma: no cover - beží len v MultiCharts
         """SL a TP tiež musia ísť každý bar, kým je pozícia otvorená.

@@ -25,7 +25,7 @@ from freqtrade.strategy import (
     stoploss_from_absolute,
 )
 
-from ...core import Bar, load_profile
+from ...core import Bar, SessionClock, load_profile
 from ...core.risk import TrailingPlan, extreme_before_stop
 from ...core.types import Direction, SizeSpec
 from .runner import EngineRunner, SignalRow
@@ -146,6 +146,8 @@ class IBSImbalanceStrategy(IStrategy):
         #: pár -> {čas sviečky v ms: close}; dopĺňa sa lenivo.
         self._closes: dict[str, dict[int, float]] = {}
         self._informative_tf = f"{int(self.ibs_cfg.zoneDetectionTF)}m"
+        #: Vlastne hodiny pre `custom_exit` - viď tam preco nie signal z enginu.
+        self._clock = SessionClock(self.ibs_cfg)
 
     # ------------------------------------------------------------------ #
 
@@ -436,6 +438,37 @@ class IBSImbalanceStrategy(IStrategy):
             is_short=trade.is_short,
             leverage=trade.leverage or 1.0,
         )
+
+    def custom_exit(
+        self, pair: str, trade, current_time: datetime, current_rate: float,
+        current_profit: float, **kwargs
+    ) -> str | None:
+        """Pine `closeAtSessionEnd` — po poslednej seanse dna sa pozicia zavrie natvrdo.
+
+        Zamerne sa NEpouziva signal z enginu: ten sa pocita z **uzavreteho** baru
+        a Freqtrade by ho vyhodnotil uz na tom istom bare, teda o jeden bar skor,
+        nez ho videl Pine. Hodiny su deterministicke, takze rovnaka odpoved bez
+        akehokolvek nahliadnutia dopredu.
+
+        Vystup cez exit-signal (a nie `custom_roi`) je tu spravne: ide o trhovy
+        prikaz „zavri za akukolvek cenu", nie o odpocivajucu limitku.
+
+        Hodiny sa pytaju na **predchadzajuci** bar grafu, nie na aktualny cas. Pine
+        vyhodnocuje `barstate.isconfirmed`, teda az na zatvoreni baru T, a `immediately=true`
+        plni jeho zatvaracou cenou. Freqtrade plni exit-signal otvaracou cenou sviecky,
+        a otvaracia cena baru T+1 sa zatvaracej cene baru T rovna. Bez tohto posunu
+        vysiel vystup o cely bar skor: 78 399,1 namiesto 78 424,1 (BTCUSDT 2026-08-26).
+        """
+        if not self.ibs_cfg.closeAtSessionEnd:
+            return None
+        from freqtrade.exchange import timeframe_to_msecs
+
+        tf_ms = timeframe_to_msecs(self.timeframe)
+        now_ms = int(current_time.timestamp() * 1000)
+        state = self._clock.state(now_ms // tf_ms * tf_ms - tf_ms)
+        if state.no_more_sessions_today and not state.in_trade_window:
+            return "session_end"
+        return None
 
     def custom_roi(
         self, pair: str, trade, current_time: datetime, trade_duration: int,

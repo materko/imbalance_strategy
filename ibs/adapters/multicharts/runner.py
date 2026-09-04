@@ -71,6 +71,8 @@ class BarOutput:
     drawings: list[DrawCommand] = field(default_factory=list)
     #: id orderov, ktoré tento bar prestali platiť — len na logovanie
     cancelled: list[str] = field(default_factory=list)
+    #: Pine `closeAtSessionEnd` — zavri otvorenú pozíciu za trhovú cenu.
+    close_session: bool = False
 
 
 class MCRunner:
@@ -166,7 +168,7 @@ class MCRunner:
         )
         out = self.engine.on_bar(bar, self._window(bar.time), ctx)
 
-        result = BarOutput(drawings=list(out.drawings))
+        result = BarOutput(drawings=list(out.drawings), close_session=out.close_session)
         for intent in out.orders:
             if intent.action is OrderAction.CANCEL:
                 if self._live.pop(intent.order_id, None) is not None:

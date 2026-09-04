@@ -97,6 +97,19 @@ class FillSimulator:
                 if t is not None and t.outcome == "PENDING":
                     t.outcome = "EXPIRED" if intent.reason == "EXPIRED" else "CANCELLED"
                     t.closed_ms = bar.time
+            elif intent.action is OrderAction.CLOSE:
+                # Pine `strategy.close(immediately=true)` plni zatvaracou cenou baru.
+                t = self.trades.get(intent.order_id)
+                if t is not None and t.outcome == "FILLED":
+                    t.exit_price = bar.close
+                    long = t.direction is Direction.LONG
+                    gain = (bar.close - t.plan.entry) if long else (t.plan.entry - bar.close)
+                    t.outcome = "WIN" if gain > 0 else "LOSS"
+                    t.closed_ms = bar.time
+                    self.position_size = 0.0
+                    if t.outcome == "WIN":
+                        day = _utc_day(bar.time)
+                        self.daily_wins[day] = self.daily_wins.get(day, 0) + 1
 
     def step(self, bar: Bar, detail: list[Bar] | None = None) -> None:
         """`detail` sú 1m sviečky vnútri tohto baru; bez nich sa použije samotný bar."""

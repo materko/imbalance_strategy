@@ -63,6 +63,8 @@ class SignalRow:
     qty: float = float("nan")
     zone_uid: float = float("nan")
     in_trade_window: bool = False
+    #: Na tomto bare Pine zatvara vsetko otvorene - koniec poslednej seansy dna.
+    close_session: bool = False
 
 
 class _PendingOrder:
@@ -122,8 +124,10 @@ class EngineRunner:
         for intent in orders:
             if intent.action is OrderAction.ENTRY:
                 self._orders[intent.order_id] = _PendingOrder(intent)
-            elif intent.action is OrderAction.CANCEL:
+            elif intent.action in (OrderAction.CANCEL, OrderAction.CLOSE):
                 self._orders.pop(intent.order_id, None)
+                if intent.action is OrderAction.CLOSE:
+                    self._position = 0.0
 
     # ------------------------------------------------------------------ #
 
@@ -140,7 +144,10 @@ class EngineRunner:
         self._apply(out.orders)
         self.last_ts = bar.time
 
-        row = SignalRow(in_trade_window=bool(out.clock and out.clock.in_trade_window))
+        row = SignalRow(
+            in_trade_window=bool(out.clock and out.clock.in_trade_window),
+            close_session=out.close_session,
+        )
         for intent in out.orders:
             if intent.action is not OrderAction.ENTRY or intent.plan is None:
                 continue

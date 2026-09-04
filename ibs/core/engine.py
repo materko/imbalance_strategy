@@ -38,6 +38,8 @@ class EngineOutput:
     clock: ClockState | None = None
     #: Pine `tradeWindowJustClosed` — spúšťa `closeAtSessionEnd`.
     trade_window_just_closed: bool = False
+    #: Na tomto bare sa zatvorilo všetko otvorené — Pine sekcia CLOSE AT SESSION END.
+    close_session: bool = False
 
     def __bool__(self) -> bool:
         return bool(self.orders or self.drawings or self.events or self.new_zone)
@@ -169,6 +171,13 @@ class IBSEngine:
                     out.drawings.extend(zone.boxes(self.chart_tf_minutes * 60_000))
 
         out.orders = self.machine.on_bar(bar, self.history, ctx, atr=atr)
+        if (
+            self.cfg.closeAtSessionEnd
+            and state.no_more_sessions_today
+            and not state.in_trade_window
+        ):
+            out.orders.extend(self.machine.close_session(bar, ctx))
+            out.close_session = True
         # Pine `box.set_*` z tohto baru (zmenšenie pri invalidácii, prefarbenie).
         out.drawings.extend(self.machine.drawings)
         out.events = list(self.machine.events)

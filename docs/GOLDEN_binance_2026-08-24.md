@@ -392,3 +392,43 @@ ktoré je len v Premium. Dlhšie okná sa preto merajú výhradne vo Freqtrade
 ([BACKTEST_rok_btcusdt_2026-09-04.md](BACKTEST_rok_btcusdt_2026-09-04.md)),
 a TradingView slúži ako referencia na krátkom okne, kde parita sedí na cent.
 
+## Dve veci, ktoré sa ukázali až pri RR 2,5 (2026-09-04)
+
+Golden beh mal `rrRatio = 1` a obchody v ňom trvali minúty. Dve časti Pine sa tak
+nikdy nedostali k slovu a v porte jednoducho **neboli** — bez toho, aby to čokoľvek
+odhalilo:
+
+**Trailing stop.** Aktivuje sa na 1R, čo je pri RR 1 presne tam, kde už je TP —
+obchod skončí skôr. Pri RR 2,5 rozhoduje o väčšine výstupov. Detaily
+v [BACKTEST_rok_rr25_all3_2026-09-04.md](BACKTEST_rok_rr25_all3_2026-09-04.md).
+
+**`closeAtSessionEnd`.** Pine po poslednej seanse dňa zruší čakajúce ordre
+a zavrie otvorenú pozíciu (`strategy.close(immediately=true)`). S RR 1 sa žiadny
+obchod konca seansy nedožil; s RR 2,5 a vypnutým trailingom áno — a bez toho
+v porte bežal cez noc do ďalšieho dňa a zavrel sa až na TP o 13 hodín neskôr.
+
+Ponaučenie: **parita overená na jednej konfigurácii nehovorí nič o vetvách, ktoré
+tá konfigurácia nespustí.** Preto sú obe teraz overené na krátkom okne proti
+TradingView a majú vlastné testy (`test_trailing.py`, `test_freqtrade_exits.py`).
+
+### Kde presne sa zatvára
+
+Pine vyhodnocuje podmienku na `barstate.isconfirmed`, teda na **zatvorení** baru,
+a `immediately=true` plní jeho zatváracou cenou. Freqtrade plní exit-signál
+**otváracou** cenou sviečky — a otváracia cena baru T+1 sa rovná zatváracej cene
+baru T. `custom_exit` sa preto pýta hodín na predchádzajúci bar grafu, nie na
+aktuálny čas. Bez toho posunu vyšiel výstup 78 399,1 namiesto 78 424,1.
+
+### Parita s vypnutým trailingom (Aug 24 – Sep 4, RR 2,5)
+
+| # | TradingView | Freqtrade | |
+|---|---|---|---|
+| 1 | 79 419,5 → 79 889,0 | rovnaké | +469,5 |
+| 2 | 79 022,0 → 78 541,2 | rovnaké | −480,8 |
+| 3 | 80 516,0 → 80 458,9 | 80 516,1 → 80 459,0 | −57,1 |
+| 4 | 78 110,3 → 78 424,1 **(koniec seansy)** | 78 424,0 | +313,8 / +308,2 |
+| 5 | 78 765,1 → 78 733,7 (qty 2) | rovnaké | −62,8 |
+| 6 | 79 250,0 → 79 753,3 | rovnaké | +503,3 |
+
+Spolu +685,9 (TV) proti +680,3 (FT) — rozdiel je funding a jeden tick.
+

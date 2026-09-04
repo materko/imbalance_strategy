@@ -66,6 +66,8 @@ class ZoneState(IntEnum):
 class OrderAction(str, Enum):
     ENTRY = "entry"
     CANCEL = "cancel"
+    #: Zavri otvorenu poziciu za trhovu cenu - Pine `strategy.close(immediately=true)`.
+    CLOSE = "close"
 
 
 @dataclass(frozen=True, slots=True)
@@ -139,6 +141,35 @@ class StateMachine:
                 continue
             intents.extend(self._advance(zone, bar, history, ctx, atr))
 
+        return intents
+
+    def close_session(self, bar: Bar, ctx: MarketContext) -> list[OrderIntent]:
+        """Pine riadky 2291-2318 - koniec poslednej seansy dna zmete vsetko zo stola.
+
+        Zrusia sa cakajuce ordre, zavrie sa otvorena pozicia a vsetky zony sa
+        invaliduju, aby nepresahovali do dalsieho dna. Volat az po `on_bar`.
+
+        Dlho to nikomu nechybalo: pri `rrRatio = 1` a zapnutom trailingu sa obchody
+        rozhodli v ramci minut a ziadny sa konca seansy nedozil. Pri RR 2,5 s vypnutym
+        trailingom uz ano - a bez tohto by obchod bezal aj cez noc do dalsieho dna.
+        """
+        intents: list[OrderIntent] = []
+        for z in list(self.book.zones):
+            if not (0 <= int(z.state) <= 5):
+                continue
+            if int(z.state) >= 1:
+                intents.append(
+                    OrderIntent(
+                        OrderAction.CANCEL, z.order_id, z.uid, reason="koniec seansy"
+                    )
+                )
+                if int(z.state) == 5 and z.order_id in ctx.open_order_ids:
+                    intents.append(
+                        OrderIntent(
+                            OrderAction.CLOSE, z.order_id, z.uid, reason="SESSION_END"
+                        )
+                    )
+            self._invalidate(z, bar, "koniec seansy")
         return intents
 
     # ------------------------------------------------------------------ #

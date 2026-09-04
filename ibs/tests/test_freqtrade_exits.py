@@ -37,8 +37,12 @@ class _StubTrade:
 
 @pytest.fixture
 def strategy(monkeypatch):
+    from ibs.core import SessionClock, load_profile
+
     s = IBSImbalanceStrategy.__new__(IBSImbalanceStrategy)
     s._runners = {}
+    s.ibs_cfg, s.ibs_inst = load_profile("btcusdt_3m_binance_tv")
+    s._clock = SessionClock(s.ibs_cfg)
     return s
 
 
@@ -50,10 +54,24 @@ def _with_signal(strategy, row: SignalRow, ts_ms: int) -> None:
     strategy._runners["BTC/USDT:USDT"] = _Runner()
 
 
-def test_tp_ide_cez_roi_nie_cez_exit_signal():
-    """`custom_exit` na TP by výstup posunul a nadhodnotil — nesmie sa vrátiť."""
+def test_tp_ide_cez_roi_nie_cez_exit_signal(strategy):
+    """`custom_exit` na TP by výstup posunul a nadhodnotil — nesmie sa vrátiť.
+
+    `custom_exit` na stratégii existuje, ale výhradne pre `closeAtSessionEnd`; TP
+    ide cez `custom_roi`, lebo exit-signál sa v backteste plní otváracou cenou.
+    """
+    from datetime import datetime, timezone
+
     assert IBSImbalanceStrategy.use_custom_roi is True
-    assert "custom_exit" not in vars(IBSImbalanceStrategy)
+
+    strategy.ibs_cfg.closeAtSessionEnd = False
+    trade = _StubTrade(open_rate=79419.5)
+    _with_signal(strategy, SignalRow(stop_loss=79231.7, take_profit=79607.3), 0)
+    # Cena hlboko nad TP — a aj tak sa nesmie vrátiť žiadny dôvod na výstup.
+    assert strategy.custom_exit(
+        "BTC/USDT:USDT", trade, datetime(2026, 8, 24, 14, 0, tzinfo=timezone.utc),
+        99999.0, 5.0,
+    ) is None
 
 
 def test_minimal_roi_je_nedosiahnutelne():
@@ -85,3 +103,54 @@ def test_custom_roi_ignoruje_nan_take_profit(strategy):
     trade = _StubTrade(open_rate=79419.5)
     _with_signal(strategy, SignalRow(stop_loss=79231.7), 0)  # take_profit ostáva NaN
     assert strategy.custom_roi("BTC/USDT:USDT", trade, trade.open_date_utc, 0, "ibs", "long") is None
+
+
+# --------------------------------------------------------------------------- #
+# closeAtSessionEnd
+# --------------------------------------------------------------------------- #
+
+
+def test_koniec_poslednej_seansy_zavrie_poziciu(strategy):
+    """Po poslednej seanse dna Pine zatvara natvrdo — port musi tiez."""
+    from datetime import datetime, timezone
+
+    trade = _StubTrade(open_rate=78110.3)
+    # Okno seansy 2 konci 15:45 New York = 19:45 UTC. Pine zatvara az na zatvoreni
+    # baru 19:45-19:48, co je otvaracia cena baru 19:48 - preto sa testuje 19:48.
+    when = datetime(2026, 8, 26, 19, 48, tzinfo=timezone.utc)
+    assert strategy.custom_exit("BTC/USDT:USDT", trade, when, 78424.1, 0.004) == "session_end"
+
+
+def test_posledny_bar_v_okne_este_nezavira(strategy):
+    """Bar 19:42-19:45 je este v okne — Pine na nom nezatvara."""
+    from datetime import datetime, timezone
+
+    trade = _StubTrade(open_rate=78110.3)
+    when = datetime(2026, 8, 26, 19, 45, tzinfo=timezone.utc)
+    assert strategy.custom_exit("BTC/USDT:USDT", trade, when, 78424.1, 0.004) is None
+
+
+def test_v_obchodnom_okne_sa_nezavira(strategy):
+    from datetime import datetime, timezone
+
+    trade = _StubTrade(open_rate=78110.3)
+    when = datetime(2026, 8, 26, 15, 30, tzinfo=timezone.utc)  # 11:30 New York
+    assert strategy.custom_exit("BTC/USDT:USDT", trade, when, 78424.1, 0.004) is None
+
+
+def test_medzi_seansami_sa_este_nezavira(strategy):
+    """Medzi seansou 3 a 2 este den nekonci — pozicia ma prezit."""
+    from datetime import datetime, timezone
+
+    trade = _StubTrade(open_rate=78110.3)
+    when = datetime(2026, 8, 26, 11, 0, tzinfo=timezone.utc)  # 07:00 NY, pred seansou 2
+    assert strategy.custom_exit("BTC/USDT:USDT", trade, when, 78424.1, 0.004) is None
+
+
+def test_vypnuty_prepinac_nezavira_nic(strategy):
+    from datetime import datetime, timezone
+
+    strategy.ibs_cfg.closeAtSessionEnd = False
+    trade = _StubTrade(open_rate=78110.3)
+    when = datetime(2026, 8, 26, 19, 48, tzinfo=timezone.utc)
+    assert strategy.custom_exit("BTC/USDT:USDT", trade, when, 78424.1, 0.004) is None
