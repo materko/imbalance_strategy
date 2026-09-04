@@ -57,9 +57,57 @@ druhá strana tej istej mince — máme inú množinu zón.
 Orezanie vstupu na rovnaké okno ako má TradingView (`--from`) trade set **nezmenilo**, takže
 to nie je hĺbkou histórie.
 
-## Ďalší krok
+## Pine logs — priama stopa TradingView automatu
 
-Pine kód loguje každý prechod stavu cez `log.info` („STATE1->2", „STATE3->4", „STATE4 SKIP"…).
-TradingView to zobrazuje v paneli **Pine logs** (kontextové menu stratégie). To je strojovo
-čitateľná stopa jeho vlastného automatu — priamo porovnateľná s `StateEvent` z nášho enginu.
-Diff tých dvoch stôp ukáže presne bar, na ktorom sa zóny rozídu.
+Pine kód loguje každý prechod cez `log.info`. TradingView to zobrazuje v paneli **Pine logs**
+(kontextové menu stratégie). Odtiaľ je celá stopa jeho vlastného automatu v tom istom okne:
+
+**Zadané ordre (`STATE4->5`)** — 6:
+
+| čas (graf) | uid | entry | SL | TP | máme? |
+|---|---|---|---|---|---|
+| 08-24 16:51 | **10** | 79 419.5 | 79 231.7 | 79 607.3 | ✅ `LONG_10`, identické |
+| 08-24 19:06 | **9** | 79 022 | 78 541.2 | 79 502.8 | ✅ `LONG_9`, identické |
+| 08-25 09:39 | **12** | 80 516.1 | 80 458.9 | 80 573.3 | ✅ `LONG_12`, identické |
+| 08-27 09:06 | 31 | 78 765.1 | 78 733.7 | 78 796.5 | ❌ |
+| 08-28 16:48 | 44 | 79 250 | 79 048.7 | 79 451.3 | ❌ |
+| 09-02 17:15 | **64** | 76 830.9 | 76 702.4 | 76 959.4 | ✅ `LONG_91`, ceny identické (iné uid) |
+
+Tri ordre sedia **vrátane uid** — zóny teda vznikajú v rovnakom poradí. Štvrtý (09-02) má
+identické ceny aj čas, ale iné poradové číslo, takže sa medzitým počty zón rozišli.
+
+**`STATE4 SKIP`** — TradingView má v celom okne **5** (všetky `SMER VYPNUTY`).
+**`STATE3->4`** — TradingView má **5**. Spolu s 6 ordermi to dáva 11 príchodov do STATE 4,
+z toho **6 cez Pin Bar**.
+
+## Nájdená chyba: zónam nevypršala platnosť
+
+Pôvodne sme mali **42** Pin Bar vstupov a **31** SKIP-ov proti TradingView 6 a 5.
+
+Príčina je v Pine na riadkoch **665–681** — samostatný prechod **pred** hlavným cyklom zón:
+
+```pine
+if not array.get(zUsedA, i) and time >= array.get(zExpA, i)
+    ...
+    array.set(zUsedA, i, true)
+```
+
+Zóna, ktorej vypršala platnosť (`zoneValidHours = 6`) a ešte nebola použitá, sa označí ako
+`used`. Tým vypadne z aktívnej množiny, lebo `active` púšťa ďalej `used` zóny len v stavoch 2–5.
+
+Nám tento prechod chýbal — zóny v STATE 0 žili donekonečna (až po strop 200 zón) a hromadili sa.
+Preto sa ich pin bar chytal mnohonásobne častejšie.
+
+Po doplnení (`StateMachine._expire`):
+
+| | pred | po | TradingView |
+|---|---|---|---|
+| SKIP: SMER VYPNUTY | 31 | **7** | 5 |
+| zadaných orderov | 8 | **7** | 6 |
+
+## Čo ešte zostáva
+
+Stále vytvárame viac zón než TradingView — pri obchode z 09-02 máme uid 91, TradingView 64.
+Do uid 12 (08-25 09:39) sme v úplnom zákryte, potom sa počty pomaly rozchádzajú. Ďalší krok je
+porovnať čas vzniku našich zón proti známym TradingView bodom (uid 3, 9, 10, 12, 25, 27, 31,
+41, 44, 64, 69 s časmi z logov vyššie) a nájsť prvý bar, kde nám zóna vznikne navyše.

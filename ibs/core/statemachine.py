@@ -118,6 +118,8 @@ class StateMachine:
         intents: list[OrderIntent] = []
         self.events = []
 
+        self._expire(bar)
+
         for zone in list(self.book.zones):
             if not self._is_active(zone):
                 continue
@@ -126,6 +128,24 @@ class StateMachine:
         return intents
 
     # ------------------------------------------------------------------ #
+
+    def _expire(self, bar: Bar) -> None:
+        """Pine riadky 665–681 — samostatný prechod PRED hlavným cyklom.
+
+        Zóna, ktorej vypršala platnosť (`zoneValidHours`) a ešte nebola použitá, sa
+        označí ako `used`. Tým vypadne z aktívnej množiny, lebo `_is_active` púšťa
+        ďalej `used` zóny len v stavoch 2–5.
+
+        Bez toho zóny v STATE 0 žijú donekonečna a hromadia sa — v porovnaní
+        s TradingView to na BTCUSDT.P znamenalo 7× viac Pin Bar vstupov a 6× viac
+        SKIP-ov (viď docs/GOLDEN_binance_2026-08-24.md).
+        """
+        for z in self.book.zones:
+            if not z.used and bar.time >= z.expires_ms:
+                z.used = True
+                self.events.append(
+                    StateEvent(bar.time, z.uid, z.state, z.state, "zona expirovala")
+                )
 
     @staticmethod
     def _is_active(z: Zone) -> bool:
