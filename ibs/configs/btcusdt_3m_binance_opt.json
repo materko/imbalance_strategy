@@ -1,0 +1,43 @@
+{
+  "_comment": [
+    "BINANCE BTCUSDT.P, 3m - VYSLEDOK HYPEROPTU (epocha 288 z 300).",
+    "",
+    "Ladene na okne 2025-09-05 az 2026-09-04 (365 dni), loss IBSHyperOptLoss",
+    "(Calmar so spodnym limitom na pocet obchodov), sizing legacyPineSizing",
+    "aby bol experiment porovnatelny s TradingView.",
+    "",
+    "Vysledok NA OKNE, KDE SA LADILO (teda optimisticky):",
+    "  103 obchodov, +34.8 %, win rate 44.7 %, max DD 24.7 %, PF 1.24",
+    "",
+    "POZOR: cisla mimo tohto okna su v docs/HYPEROPT_btcusdt_2026-09-04.md.",
+    "Priestor ma 10 parametrov a strategia robi ~150 obchodov za rok, takze",
+    "pretrenovanie je realne - bez pohladu na out-of-sample vysledky sa tomuto",
+    "profilu nedaju verit."
+  ],
+  "_instrument": "btcusdt_binance",
+
+  "enablePinBarEntry": true,
+  "enableEngulfingEntry": true,
+  "enableTrailing": true,
+  "enableSrTrading": true,
+  "enableLqTrading": true,
+  "tradeDirection": "Long only",
+  "rrRatio": 1.7,
+  "sess2ZoneStartH": 8,
+  "showElliott": false,
+
+  "legacyPineSizing": true,
+  "tickDollarValue": 0.5,
+  "leverage": 20.0,
+
+  "minImbSizePoints":   { "value": 0.43, "unit": "atr" },
+  "pbMinRangePoints":   { "value": 0.72, "unit": "atr" },
+  "engMinRangePoints":  { "value": 0.93, "unit": "atr" },
+  "srClusterPoints":    { "value": 0.21, "unit": "atr" },
+  "liqSweepMinWick":    { "value": 0.59, "unit": "atr" },
+  "ewMinWavePoints":    { "value": 2.0,  "unit": "atr" },
+
+  "imbMaxDistTicks":    { "value": 1.0,  "unit": "abs" },
+  "slBufferTicks":      { "value": 0.1,  "unit": "abs" },
+  "state2ConfirmTicks": { "value": 0.1,  "unit": "abs" }
+}
