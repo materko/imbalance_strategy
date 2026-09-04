@@ -1,0 +1,27 @@
+{
+  "_comment": [
+    "BINANCE BTCUSDT.P 3m - najlepsia konfiguracia zo systematickeho hladania (2026-09-04).",
+    "",
+    "Rozdiely oproti btcusdt_3m_binance_tv: rrRatio 5, trailing vypnuty, slLookback 20,",
+    "zapnuty struktury filter (BOS/CHoCH) a obchodovanie z S/R aj likviditnych zon.",
+    "Vsetky tri entry modely zapnute.",
+    "",
+    "POZOR - toto NIE JE odporucanie na obchodovanie. Priemerny break-even poplatok",
+    "je 0,0497 % na stranu proti 0,05 %, ktore berie Binance; dva z piatich rokov su",
+    "po poplatkoch ziskove a sucet za pat rokov je prakticky nula. Detaily v",
+    "docs/FILTRE_vstupu_2026-09-04.md."
+  ],
+  "_instrument": "btcusdt_binance",
+  "enablePinBarEntry": true,
+  "tradeDirection": "Long only",
+  "sess2ZoneStartH": 8,
+  "showElliott": false,
+  "tickDollarValue": 0.5,
+  "legacyPineSizing": true,
+  "enableSrTrading": true,
+  "enableLqTrading": true,
+  "rrRatio": 5.0,
+  "enableEngulfingEntry": true,
+  "slLookback": 20,
+  "useStructureFilter": true
+}
