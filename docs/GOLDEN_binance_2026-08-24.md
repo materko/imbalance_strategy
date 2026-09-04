@@ -165,3 +165,38 @@ sedí na minútu vyplnenia, vstupnú cenu, veľkosť aj výstupnú cenu**:
 v Pine logoch tiež má v STATE 4 a v List of Trades tiež nie je.
 
 Regresný test: `ibs/tests/test_golden_tv_binance.py`.
+
+## Overenie cez Freqtrade
+
+Backtest musí bežať s profilom, ktorý zodpovedá nastaveniam v TradingView:
+
+```bash
+IBS_PROFILE=btcusdt_3m_binance_tv ./platforms/freqtrade/scripts/backtest.sh --timerange 20260824-20260905
+```
+
+S ním dá Freqtrade **5 obchodov, uid zón 10, 9, 12, 31, 44 a vstupné ceny na cent
+zhodné s TradingView**. Šiesty signál (uid 64, 09-02 15:15) sa ako v TradingView
+nikdy nevyplní.
+
+S predvoleným profilom `btcusdt_3m_binance` vyjde **6 obchodov** — ten používa reálnu
+BTCUSDT špecifikáciu (zlomkové množstvá, iné zaokrúhlenie na tick), SL sa posunie
+o jeden tick a stavový automat potom prejde inou vetvou (uid 65 namiesto 64, vstup
+pin barom o bar skôr). Nie je to chyba, len iná špecifikácia inštrumentu — na porovnanie
+s TradingView treba `_tv` profil.
+
+### Čo ešte nesedí na cent
+
+Výstupné ceny sa líšia o jednotky bodov, lebo Freqtrade zatvára obchod cenou 1m detailnej
+sviečky, nie presne na TP úrovni:
+
+| # | TV výstup | Freqtrade |
+|---|---|---|
+| 1 | 79 607,3 | 79 618,1 |
+| 2 | 78 541,2 | 78 541,2 ✅ |
+| 3 | 80 458,9 | 80 459,0 |
+| 4 | 78 796,5 | 78 803,4 |
+| 5 | 79 451,3 | 79 460,4 |
+
+`open_date` vo výpise Freqtradu je sviečka, na ktorej sa **zadal order**, nie minúta
+vyplnenia — preto pri obchode 2 ukazuje 17:09, hoci sa vyplnil o 17:15 ako v TradingView.
+
