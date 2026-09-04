@@ -11,7 +11,33 @@ from .config import IBSConfig
 from .history import BarHistory
 from .types import Direction, InstrumentSpec
 
-__all__ = ["TradePlan", "TrailingPlan", "swing_stop_loss", "build_trade_plan"]
+__all__ = [
+    "TradePlan",
+    "TrailingPlan",
+    "extreme_before_stop",
+    "swing_stop_loss",
+    "build_trade_plan",
+]
+
+
+def extreme_before_stop(bar_open: float, high: float, low: float, *, long: bool) -> bool:
+    """Dosiahne sviečka priaznivý extrém skôr, než tú stranu, kde je stop?
+
+    Pravidlo broker emulátora z TradingView: **bližší extrém k otváracej cene sa
+    dosiahne skôr**. Pri pevnom SL/TP je to jedno — obe úrovne sú dané vopred a stačí
+    sa pozrieť, či ich sviečka pretla. Pri trailingu na tom ale všetko závisí: keď
+    cena najprv vyletí hore, trailing sa posunie a stop môže padnúť ešte v tej istej
+    sviečke; keď najprv klesne, stop je ešte na starej úrovni a obchod prežije.
+
+    Reálny prípad (BTCUSDT 3m, 2026-08-28 16:51): sviečka mala open 79 250,0,
+    high 79 490,6 a low 79 245,7. Low je od openu 4,3 bodu, high 240,6 — takže cena
+    šla najprv dole a až potom hore, trailing sa aktivoval až na konci sviečky
+    a obchod pokračoval. Bez tohto pravidla by sme ho zavreli o 4 minúty skôr
+    a o 77,6 bodu nižšie než TradingView.
+    """
+    return (abs(bar_open - low) > abs(high - bar_open)) if long else (
+        abs(high - bar_open) > abs(bar_open - low)
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -29,6 +55,30 @@ class TrailingPlan:
     offset_price_distance: float  # cenové body
     activation_ticks: float
     offset_ticks: float
+
+    def stop_price(
+        self, direction: Direction, entry: float, base_stop: float, extreme: float
+    ) -> float:
+        """Efektívny stop po zohľadnení trailingu — Pine `strategy.exit(trail_points=, trail_offset=)`.
+
+        `extreme` je najlepšia cena dosiahnutá od vstupu (najvyššie high pre LONG,
+        najnižšie low pre SHORT).
+
+        Kým zisk nedosiahne `trailActivationR`, platí pôvodný SL. Potom stop sleduje
+        `extreme` vo vzdialenosti `trailOffsetR` a **nikdy sa nevracia späť** — preto
+        `max`/`min` proti pôvodnému stopu.
+
+        Pri `rrRatio <= trailActivationR` sa trailing nikdy neprejaví: TP je na rovnakej
+        alebo bližšej úrovni než aktivácia, takže obchod skončí skôr. Preto sa táto
+        vetva pri RR 1 (referenčný golden beh) vôbec nespustí a parita ostáva platná.
+        """
+        if direction is Direction.LONG:
+            if extreme - entry < self.activation_price_distance:
+                return base_stop
+            return max(base_stop, extreme - self.offset_price_distance)
+        if entry - extreme < self.activation_price_distance:
+            return base_stop
+        return min(base_stop, extreme + self.offset_price_distance)
 
     @classmethod
     def build(cls, cfg: IBSConfig, inst: InstrumentSpec, sl_distance: float) -> "TrailingPlan | None":

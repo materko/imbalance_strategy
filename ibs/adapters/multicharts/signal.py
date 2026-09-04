@@ -151,7 +151,7 @@ class IBSSignal(SignalObject):
         self.sink.render(out.drawings)
         self._send_entries(out)
         if out.exit_plan is not None:
-            self._send_exits(out.exit_plan)
+            self._send_exits(out.exit_plan, out.exit_stop)
 
     def Destroy(self):  # pragma: no cover - beží len v MultiCharts
         if self.sink is not None:
@@ -209,8 +209,11 @@ class IBSSignal(SignalObject):
             else:
                 order.Send(live.plan.entry, live.plan.qty)
 
-    def _send_exits(self, plan):  # pragma: no cover - beží len v MultiCharts
-        """SL a TP tiež musia ísť každý bar, kým je pozícia otvorená."""
+    def _send_exits(self, plan, stop_price=None):  # pragma: no cover - beží len v MultiCharts
+        """SL a TP tiež musia ísť každý bar, kým je pozícia otvorená.
+
+        `stop_price` je SL po trailingu; bez neho platí pôvodný z plánu.
+        """
         from PowerLanguage import EOrderAction, OrderCategory, SignalType
 
         long = plan.direction.value == 1
@@ -227,5 +230,5 @@ class IBSSignal(SignalObject):
                 SignalType.UserSpecified, OrderCategory.Exit, action, "ibs_tp"
             )
             self._entries["__tp"] = target
-        stop.Send(plan.stop_loss)
+        stop.Send(plan.stop_loss if stop_price is None else stop_price)
         target.Send(plan.take_profit)

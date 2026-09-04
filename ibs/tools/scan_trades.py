@@ -34,7 +34,7 @@ from ..core import (
     detect_sd_pattern,
     load_profile,
 )
-from ..core.risk import TradePlan
+from ..core.risk import TradePlan, extreme_before_stop
 from ..core.types import Direction
 from .scan_zones import _LAYOUT, _load, _to_bar
 
@@ -54,6 +54,12 @@ class SimTrade:
     filled_ms: int | None = None
     closed_ms: int | None = None
     outcome: str = "PENDING"  # PENDING | FILLED | WIN | LOSS | EXPIRED | CANCELLED
+    #: Najlepšia cena od vstupu — z nej sa počíta trailing stop.
+    extreme: float = float("nan")
+    #: Cena, za ktorú sa obchod naozaj zavrel. Pri vypnutom trailingu je to vždy
+    #: `plan.take_profit` alebo `plan.stop_loss`; s trailingom to môže byť čokoľvek
+    #: medzi tým, takže sa to musí pamätať zvlášť.
+    exit_price: float = float("nan")
 
     @property
     def is_open(self) -> bool:
@@ -103,6 +109,7 @@ class FillSimulator:
                 if bar.low <= t.plan.entry <= bar.high:
                     t.outcome = "FILLED"
                     t.filled_ms = bar.time
+                    t.extreme = t.plan.entry
                     self.position_size = 1.0 if t.direction is Direction.LONG else -1.0
                 continue
 
@@ -110,7 +117,12 @@ class FillSimulator:
                 continue
 
             long = t.direction is Direction.LONG
-            hit_sl = bar.low <= t.plan.stop_loss if long else bar.high >= t.plan.stop_loss
+            stop = t.plan.stop_loss
+            if t.plan.trailing is None:
+                hit_sl = bar.low <= stop if long else bar.high >= stop
+            else:
+                stop, hit_sl = self._trailing(t, bar, long)
+
             hit_tp = bar.high >= t.plan.take_profit if long else bar.low <= t.plan.take_profit
             if not (hit_sl or hit_tp):
                 continue
@@ -120,15 +132,52 @@ class FillSimulator:
                 # a berieme SL (konzervativne), ale spocitame to.
                 if ambiguous_ok:
                     self.ambiguous_bars += 1
-                t.outcome = "LOSS"
+                t.exit_price = stop
             else:
-                t.outcome = "LOSS" if hit_sl else "WIN"
+                t.exit_price = stop if hit_sl else t.plan.take_profit
+
+            # O výsledku rozhoduje cena, nie ktorý príkaz vyplnil: trailing stop nad
+            # vstupom je zisk, hoci ho poslal stop order.
+            gain = (t.exit_price - t.plan.entry) if long else (t.plan.entry - t.exit_price)
+            t.outcome = "WIN" if gain > 0 else "LOSS"
 
             t.closed_ms = bar.time
             self.position_size = 0.0
             if t.outcome == "WIN":
                 day = _utc_day(bar.time)
                 self.daily_wins[day] = self.daily_wins.get(day, 0) + 1
+
+    @staticmethod
+    def _trailing(t: SimTrade, bar: Bar, long: bool) -> tuple[float, bool]:
+        """(stop na tomto bare, či sa trafil) — s poradím pohybu vnútri sviečky.
+
+        Broker emulátor v TradingView prejde bar v poradí open → bližší extrém →
+        vzdialenejší extrém → close. Pri trailingu to nie je kozmetika:
+
+        * **priaznivý extrém prvý** — trailing sa posunie hore a stop sa až potom
+          testuje proti nepriaznivej strane;
+        * **nepriaznivý extrém prvý** — najprv sa testuje ešte STARÝ stop, potom sa
+          trailing posunie a testuje sa spiatočná noha bar → `close`.
+
+        Tá druhá vetva je dôvod, prečo sa tu pozerá aj na `close`. Bez nej vyjde raz
+        výstup priskoro (bar, kde cena najprv klesla a až potom vyletela) a inokedy
+        vôbec (bar, kde sa cena po extréme vrátila pod trailing ešte pred zatvorením).
+        """
+        tr = t.plan.trailing
+        best = bar.high if long else bar.low
+        after = max(t.extreme, best) if long else min(t.extreme, best)
+        before_stop = tr.stop_price(t.direction, t.plan.entry, t.plan.stop_loss, t.extreme)
+        after_stop = tr.stop_price(t.direction, t.plan.entry, t.plan.stop_loss, after)
+        t.extreme = after
+
+        if extreme_before_stop(bar.open, bar.high, bar.low, long=long):
+            hit = bar.low <= after_stop if long else bar.high >= after_stop
+            return after_stop, hit
+
+        if (bar.low <= before_stop) if long else (bar.high >= before_stop):
+            return before_stop, True
+        hit = bar.close <= after_stop if long else bar.close >= after_stop
+        return after_stop, hit
 
     def wins_today(self, ts_ms: int) -> int:
         return self.daily_wins.get(_utc_day(ts_ms), 0)

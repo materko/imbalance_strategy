@@ -26,7 +26,8 @@ from freqtrade.strategy import (
 )
 
 from ...core import Bar, load_profile
-from ...core.types import SizeSpec
+from ...core.risk import TrailingPlan, extreme_before_stop
+from ...core.types import Direction, SizeSpec
 from .runner import EngineRunner, SignalRow
 
 #: Stĺpec v DataFrame -> pole `SignalRow`.
@@ -137,6 +138,13 @@ class IBSImbalanceStrategy(IStrategy):
             logger.warning("IBS config: %s", w)
         self._runners: dict[str, EngineRunner] = {}
         self._runner_fp: tuple | None = None
+        #: (pár, čas vstupu) -> najlepšia dosiahnutá cena, vstup do trailingu.
+        self._extremes: dict[tuple, float] = {}
+        #: OHLC práve spracúvanej sviečky, zachytené v `ft_stoploss_adjust`.
+        self._candle: tuple = (None, None, None)
+        self._candle_time = None
+        #: pár -> {čas sviečky v ms: close}; dopĺňa sa lenivo.
+        self._closes: dict[str, dict[int, float]] = {}
         self._informative_tf = f"{int(self.ibs_cfg.zoneDetectionTF)}m"
 
     # ------------------------------------------------------------------ #
@@ -282,6 +290,91 @@ class IBSImbalanceStrategy(IStrategy):
             return None
         return row.stop_loss, row.take_profit
 
+    def ft_stoploss_adjust(
+        self, current_rate, trade, current_time, current_profit, force_stoploss,
+        low=None, high=None, *args, **kwargs
+    ):
+        """Zachytí OHLC práve spracúvanej sviečky — `custom_stoploss` ju inak nevidí.
+
+        Bez nej sa nedá povedať, či cena v sviečke šla najprv hore alebo dole, a pri
+        trailingu na tom závisí, či obchod v tej sviečke skončí (viď `extreme_before_stop`).
+        `trade.max_rate` nestačí: Freqtrade doň zahrnie high tejto sviečky ešte pred
+        volaním, takže z neho poradie už nevyčítaš.
+        """
+        self._candle = (current_rate, high, low)
+        self._candle_time = current_time
+        return super().ft_stoploss_adjust(
+            current_rate, trade, current_time, current_profit, force_stoploss,
+            low, high, *args, **kwargs
+        )
+
+    def _trailing_stop(self, pair: str, trade, base_stop: float) -> float:
+        """`base_stop` posunutý trailingom, ak je zapnutý a už sa aktivoval."""
+        if not self.ibs_cfg.enableTrailing:
+            return base_stop
+        row = self._signal(pair, trade.open_date_utc)
+        if row is None or row.entry != row.entry:
+            return base_stop
+        trail = TrailingPlan.build(self.ibs_cfg, self.ibs_inst, abs(row.entry - base_stop))
+        if trail is None:
+            return base_stop
+
+        long = not trade.is_short
+        direction = Direction.LONG if long else Direction.SHORT
+        key = (pair, trade.open_date_utc)
+        prev = self._extremes.get(key, row.entry)
+
+        bar_open, high, low = getattr(self, "_candle", (None, None, None))
+        if high is None or low is None:
+            # Dry-run a live: sviečku nemáme, ostáva bežiaci extrém od Freqtrade.
+            extreme = trade.min_rate if trade.is_short else trade.max_rate
+            return trail.stop_price(direction, row.entry, base_stop, extreme or row.entry)
+
+        best = high if long else low
+        after = max(prev, best) if long else min(prev, best)
+        self._extremes[key] = after
+        before_stop = trail.stop_price(direction, row.entry, base_stop, prev)
+        after_stop = trail.stop_price(direction, row.entry, base_stop, after)
+
+        if extreme_before_stop(bar_open, high, low, long=long):
+            # Cena šla najprv priaznivo — trailing sa posunul a Freqtrade ho hneď
+            # otestuje proti low (resp. high), presne ako chceme.
+            return after_stop
+
+        # Nepriaznivý extrém prvý: platí ešte starý stop. Freqtrade však vie otestovať
+        # len jednu hodnotu proti low, takže sa tu rozhodne za neho — spiatočná noha
+        # baru sa testuje proti `close`, a keď neprejde, vráti sa starý stop, ktorý
+        # low (už overené) netrafí.
+        if (low <= before_stop) if long else (high >= before_stop):
+            return before_stop
+        close = self._detail_close(pair, self._candle_time)
+        if close is None:
+            return after_stop
+        crossed = close <= after_stop if long else close >= after_stop
+        return after_stop if crossed else before_stop
+
+    def _detail_close(self, pair: str, when) -> float | None:
+        """Zatváracia cena sviečky, ktorú Freqtrade práve testuje.
+
+        `custom_stoploss` dostane open, high aj low, ale nie close — a bez neho sa
+        nedá dopočítať spiatočná noha baru (viď `_trailing_stop`). Sviečky sa preto
+        načítajú raz na pár a držia sa v dicte podľa času.
+        """
+        if when is None or self.dp is None:
+            return None
+        closes = self._closes.get(pair)
+        if closes is None:
+            tf = self.config.get("timeframe_detail") or self.timeframe
+            try:
+                df = self.dp.historic_ohlcv(pair, tf)
+            except Exception:  # pragma: no cover - chýbajúce dáta, nie chyba logiky
+                df = None
+            closes = {} if df is None or df.empty else dict(
+                zip(_ts_ms(df["date"]), df["close"].astype(float))
+            )
+            self._closes[pair] = closes
+        return closes.get(int(when.timestamp() * 1000))
+
     def custom_entry_price(
         self, pair: str, trade, current_time, proposed_rate: float, entry_tag, side: str, **kwargs
     ) -> float:
@@ -325,12 +418,18 @@ class IBSImbalanceStrategy(IStrategy):
         self, pair: str, trade, current_time: datetime, current_rate: float,
         current_profit: float, after_fill: bool, **kwargs
     ) -> float | None:
-        """Absolútny SL z plánu. Prepočet na relatívnu hodnotu rieši `stoploss_from_absolute`,
-        aby sa nemuselo ručne riešiť znamienko pre shorty ani páka."""
+        """Absolútny SL z plánu, posunutý trailingom. Prepočet na relatívnu hodnotu rieši
+        `stoploss_from_absolute`, aby sa nemuselo ručne riešiť znamienko pre shorty ani páka.
+
+        `trade.max_rate`/`min_rate` aktualizuje Freqtrade v `should_exit()` **pred** týmto
+        volaním, takže extrém už zahŕňa aktuálnu sviečku — rovnako ako offline simulácia
+        v `ibs.tools.scan_trades`. S `--timeframe-detail 1m` je teda trailing po minútach.
+        """
         levels = self._levels(pair, trade)
         if levels is None or current_rate <= 0:
             return None
         stop_price, _ = levels
+        stop_price = self._trailing_stop(pair, trade, stop_price)
         return stoploss_from_absolute(
             stop_rate=stop_price,
             current_rate=current_rate,

@@ -65,6 +65,9 @@ class BarOutput:
     entries: list[LiveOrder] = field(default_factory=list)
     #: výstupné ordre pre otvorenú pozíciu — (stop, limit) alebo None
     exit_plan: TradePlan | None = None
+    #: SL na tento bar. Rovná sa `exit_plan.stop_loss`, kým sa neaktivuje trailing;
+    #: potom je posunutý za cenou, takže sa musí posielať zvlášť.
+    exit_stop: float | None = None
     drawings: list[DrawCommand] = field(default_factory=list)
     #: id orderov, ktoré tento bar prestali platiť — len na logovanie
     cancelled: list[str] = field(default_factory=list)
@@ -94,6 +97,8 @@ class MCRunner:
         #: plán obchodu, ktorý sa práve drží (na SL/TP výstupy)
         self._open_plan: TradePlan | None = None
         self._open_id: str | None = None
+        #: Najlepšia cena od otvorenia pozície — vstup do trailingu.
+        self._open_extreme: float = float("nan")
         self.last_ts: int | None = None
 
     # ------------------------------------------------------------------ #
@@ -169,6 +174,7 @@ class MCRunner:
                 if intent.order_id == self._open_id:
                     self._open_plan = None
                     self._open_id = None
+                    self._open_extreme = float("nan")
             elif intent.plan is not None:
                 self._live[intent.order_id] = self._to_live(intent)
 
@@ -176,13 +182,40 @@ class MCRunner:
         if position_size != 0.0:
             if self._open_plan is None:
                 self._open_plan, self._open_id = self._adopt_open_plan()
+                self._open_extreme = float("nan")
             result.exit_plan = self._open_plan
+            result.exit_stop = self._trailed_stop(bar)
         else:
             self._open_plan = None
             self._open_id = None
+            self._open_extreme = float("nan")
             result.entries = list(self._live.values())
 
         return result
+
+    def _trailed_stop(self, bar: Bar) -> float | None:
+        """SL na tento bar — posunutý trailingom, ak už je aktivovaný.
+
+        MultiCharts nemá ekvivalent Pine `trail_points`/`trail_offset`, takže sa stop
+        prepočíta tu a pošle sa ako obyčajný stop order. Extrém sa aktualizuje pred
+        výpočtom, rovnako ako vo Freqtrade aj v offline simulácii.
+        """
+        plan = self._open_plan
+        if plan is None:
+            return None
+        if plan.trailing is None:
+            return plan.stop_loss
+
+        long = plan.direction is Direction.LONG
+        best = bar.high if long else bar.low
+        if self._open_extreme != self._open_extreme:  # NaN = prvý bar pozície
+            self._open_extreme = plan.entry
+        self._open_extreme = max(self._open_extreme, best) if long else min(
+            self._open_extreme, best
+        )
+        return plan.trailing.stop_price(
+            plan.direction, plan.entry, plan.stop_loss, self._open_extreme
+        )
 
     def _to_live(self, intent: OrderIntent) -> LiveOrder:
         from ...core.types import OrderType
