@@ -1,0 +1,90 @@
+# Spúšťaj z koreňa repozitára:
+#   docker compose -f docker/docker-compose.yml <prikaz>
+#
+# Sluzby:
+#   tests      jednorazovo: pytest nad jadrom (aj parita s Pine suborom)
+#   download   jednorazovo: stiahnutie oficialnych TF z burz
+#   backtest   jednorazovo: backtest s 1m detailom
+#   freqtrade  dlhobeziaci bot - toto sa nasadzuje na server
+#
+# Vsetko okrem `freqtrade` je pod profilom, aby `docker compose up` samo o sebe
+# spustilo len bota a nie aj jednorazove ulohy.
+
+name: ibs
+
+x-freqtrade-base: &freqtrade-base
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile.freqtrade
+  image: ibs-freqtrade:latest
+  volumes:
+    # user_data (configy, stiahnute sviecky, strategie, vysledky) je zapisovatelny
+    - ../platforms/freqtrade/user_data:/freqtrade/user_data
+    - ../platforms/freqtrade:/freqtrade/cfg:ro
+    # zdrojaky jadra read-only, aby sa zmeny prejavili bez rebuildu
+    - ../ibs:/app/ibs:ro
+  environment:
+    TZ: ${TZ:-Europe/Bratislava}
+  env_file:
+    - path: ../.env
+      required: false
+
+services:
+  tests:
+    profiles: ["tools"]
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.core
+    image: ibs-core:latest
+    volumes:
+      - ../ibs:/app/ibs:ro
+      - ../imbalance_strategy_FULL.pine:/app/imbalance_strategy_FULL.pine:ro
+
+  download:
+    <<: *freqtrade-base
+    profiles: ["tools"]
+    command: >
+      download-data
+      --config /freqtrade/cfg/config.binance.json
+      --userdir /freqtrade/user_data
+      --timeframes 1m 3m 5m
+      --days ${DAYS:-60}
+
+  download-coinbase:
+    <<: *freqtrade-base
+    profiles: ["tools"]
+    # Coinbase neponuka 3m - stahuju sa len oficialne TF.
+    command: >
+      download-data
+      --config /freqtrade/cfg/config.coinbase.json
+      --userdir /freqtrade/user_data
+      --timeframes 1m 5m
+      --days ${DAYS:-60}
+
+  backtest:
+    <<: *freqtrade-base
+    profiles: ["tools"]
+    command: >
+      backtesting
+      --config /freqtrade/cfg/config.binance.json
+      --userdir /freqtrade/user_data
+      --strategy ${STRATEGY:-IBSImbalanceStrategy}
+      --timeframe-detail 1m
+
+  freqtrade:
+    <<: *freqtrade-base
+    container_name: ibs-freqtrade
+    restart: unless-stopped
+    ports:
+      # FreqUI / REST API. Naviazane na localhost - na server daj pred to reverse proxy.
+      - "127.0.0.1:8080:8080"
+    command: >
+      trade
+      --config /freqtrade/cfg/config.binance.json
+      --userdir /freqtrade/user_data
+      --strategy ${STRATEGY:-IBSImbalanceStrategy}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"

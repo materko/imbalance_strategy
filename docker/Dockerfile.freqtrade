@@ -1,0 +1,29 @@
+# Freqtrade + spoločné jadro `ibs`.
+#
+# Build context je KOREŇ repozitára, nie tento adresár:
+#   docker build -f docker/Dockerfile.freqtrade -t ibs-freqtrade .
+#
+# Balík `ibs` sa nedáva cez pip, ale cez PYTHONPATH. Vďaka tomu vie
+# docker-compose primountovať zdrojáky read-only a zmeny v ibs/ sa prejavia
+# bez rebuildu - a zároveň image funguje aj samostatne bez mountu.
+
+FROM freqtradeorg/freqtrade:stable
+
+USER root
+
+# Len zdrojaky jadra a metadata - ziadne user_data, ziadne stiahnute sviecky.
+COPY --chown=ftuser:ftuser ibs/ /app/ibs/
+COPY --chown=ftuser:ftuser pyproject.toml /app/pyproject.toml
+
+USER ftuser
+
+ENV PYTHONPATH=/app \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Sanity check uz pri buildovani - ked sa profily rozbiju, build spadne tu,
+# nie az na serveri.
+RUN python -c "from ibs.core import list_profiles, load_profile; \
+    print('ibs profily:', list_profiles()); \
+    load_profile('btcusdt_3m_binance')"
+
+WORKDIR /freqtrade

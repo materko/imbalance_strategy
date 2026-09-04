@@ -1,0 +1,287 @@
+# Ako to celé spustiť
+
+Tri spôsoby, podľa toho, čo práve robíš:
+
+| Prostredie | Na čo | Platformy |
+|---|---|---|
+| **Docker** | server, CI, „nech to proste beží" | Windows / macOS / Linux |
+| **Natívny venv** | vývoj Freqtrade vetvy | Windows / macOS / Linux |
+| **Globálny Python** | MultiCharts | **len Windows** |
+
+> **MultiCharts na macOS nebeží** a **nedá sa kontajnerizovať** — je to Windows desktop
+> aplikácia s GUI a licenciou viazanou na stroj. Na Macu aj v Dockeri sa dá robiť jadro
+> (`ibs/`), testy a celá Freqtrade vetva; samotná MultiCharts študia potrebuje Windows.
+
+---
+
+## A. Docker
+
+Všetko sa spúšťa z koreňa repozitára.
+
+```bash
+# testy jadra (vrátane parity s Pine súborom)
+docker compose -f docker/docker-compose.yml run --rm tests
+
+# stiahnutie dát
+DAYS=60 docker compose -f docker/docker-compose.yml run --rm download
+DAYS=60 docker compose -f docker/docker-compose.yml run --rm download-coinbase
+
+# backtest
+docker compose -f docker/docker-compose.yml run --rm backtest
+
+# bot (toto sa nasadzuje na server)
+docker compose -f docker/docker-compose.yml up -d freqtrade
+docker compose -f docker/docker-compose.yml logs -f freqtrade
+```
+
+### Dva image
+
+| Image | Základ | Na čo |
+|---|---|---|
+| `ibs-core` | `python:3.12-slim` | testy a CI. Jadro nemá závislosti mimo stdlib, takže je malý a beží aj na arm64 Macu. |
+| `ibs-freqtrade` | `freqtradeorg/freqtrade:stable` | download, backtest, live bot |
+
+Balík `ibs` sa do Freqtrade image nedáva cez `pip`, ale cez `PYTHONPATH=/app`. Compose potom
+mountuje `../ibs:/app/ibs:ro`, takže **zmeny v jadre sa prejavia bez rebuildu** — a image
+funguje aj samostatne bez mountu. Build navyše na konci spustí sanity check profilov,
+takže rozbitý config zhodí build, nie až server.
+
+### Nasadenie na server
+
+```bash
+git clone <repo> && cd imbalance_strategy
+cp .env.example .env          # ak potrebuješ API kľúče / TZ
+docker compose -f docker/docker-compose.yml up -d --build freqtrade
+```
+
+- Bot má `restart: unless-stopped` a rotáciu logov (5 × 10 MB).
+- REST API / FreqUI je naviazané na `127.0.0.1:8080` — **zámerne nie na 0.0.0.0**.
+  Na server pred to daj reverse proxy s TLS a autentifikáciou.
+- `config.binance.json` má `"dry_run": true`. Živé obchodovanie je vedomé prepnutie
+  plus doplnenie kľúčov (do `.env`, nie do configu v gite).
+
+> Docker samotný som v tomto prostredí nemal k dispozícii, takže **image sa zatiaľ
+> nebuildoval**. YAML aj anchors sú overené, že sa správne parsujú a mergujú, ale prvý
+> `docker compose build` prosím spusti ty — ak niečo spadne, pošli mi výstup.
+
+---
+
+## B. Natívne prostredie
+
+### Predpoklady
+
+Python **3.11+, 64-bit**:
+```bash
+python -c "import sys,struct;print(sys.version,struct.calcsize('P')*8)"
+```
+
+Na macOS ešte natívna knižnica pre TA-Lib, ktorú Freqtrade potrebuje:
+```bash
+brew install ta-lib
+```
+
+### Inštalácia
+
+**Windows**
+```powershell
+.\platforms\freqtrade\scripts\setup.ps1
+```
+**macOS / Linux**
+```bash
+./platforms/freqtrade/scripts/setup.sh
+```
+
+Skript vytvorí `.venv`, nainštaluje Freqtrade a `ibs` v editovateľnom režime, vypíše verziu
+a prebehne testy. `-Recreate` (PS) resp. `RECREATE=1` (sh) začne odznova.
+
+Ručný ekvivalent:
+```bash
+python -m venv .venv
+.venv/bin/python -m pip install --upgrade pip     # Windows: .venv/Scripts/python.exe
+.venv/bin/python -m pip install freqtrade
+.venv/bin/python -m pip install -e ".[dev]"
+```
+
+---
+
+## C. Dáta
+
+```powershell
+.\platforms\freqtrade\scripts\download-data.ps1              # Windows
+```
+```bash
+./platforms/freqtrade/scripts/download-data.sh               # macOS / Linux
+TIMERANGE=20260801-20260905 ./platforms/freqtrade/scripts/download-data.sh
+SKIP_COINBASE=1 DAYS=180 ./platforms/freqtrade/scripts/download-data.sh
+```
+
+### Sťahujú sa len oficiálne timeframy búrz
+
+| Burza | Pár | Stiahne sa | Pozn. |
+|---|---|---|---|
+| Binance | `BTC/USDT:USDT` futures | **1m, 3m, 5m** + `mark`, `funding_rate` | vie všetky tri priamo |
+| Coinbase | `BTC/USD` spot | **1m, 5m** | **3m neponúka** — ccxt hlási len `1m/5m/15m/30m/1h/2h/6h/1d` |
+
+**Coinbase 3m sa nikde neukladá ako súbor.** Poskladá si ho až Freqtrade stratégia
+z 1m dát vlastnými prostriedkami. Na disku sú len skutočné burzové sviečky — žiadne
+umelo dorobené timeframy, ktoré by sa dali omylom zameniť za reálne dáta.
+
+### Načo sú tie tri timeframy
+
+| TF | Úloha | Kde je to rozhodnuté |
+|---|---|---|
+| **3m** | timeframe stratégie — signály; všetky `*MaxBars` limity sa počítajú v **baroch** | ARCHITECTURE_port.md §7 |
+| **5m** | `zoneDetectionTF` — detekcia SD zón, ťahá sa ako informative pair | §3 |
+| **1m** | `--timeframe-detail` — rozlíšenie SL/TP vnútri 3m sviečky v backteste | §7 |
+
+> ⚠️ **Stratégiu nikdy nespúšťaj priamo na 1m.** `state2MaxBars=15` je na 3m grafe
+> 45 minút, na 1m by to bolo 15 minút — iná stratégia.
+
+### Dáta sú v gite
+
+`platforms/freqtrade/user_data/data/` sa **commituje**, aby backtesty boli reprodukovateľné
+a server nemusel nič sťahovať. `.gitattributes` má `*.feather binary`, takže ich EOL
+normalizácia nepoškodí.
+
+Čo je práve stiahnuté:
+```bash
+.venv/bin/python -m freqtrade list-data --userdir platforms/freqtrade/user_data --config platforms/freqtrade/config.binance.json
+```
+
+---
+
+## D. Backtest
+
+```powershell
+.\platforms\freqtrade\scripts\backtest.ps1 -Timerange 20260801-20260905
+```
+```bash
+TIMERANGE=20260801-20260905 ./platforms/freqtrade/scripts/backtest.sh
+```
+
+Ekvivalent:
+```bash
+.venv/bin/python -m freqtrade backtesting \
+  --config platforms/freqtrade/config.binance.json \
+  --userdir platforms/freqtrade/user_data \
+  --strategy IBSImbalanceStrategy \
+  --timeframe-detail 1m \
+  --timerange 20260801-20260905
+```
+
+> Stratégia `IBSImbalanceStrategy` **zatiaľ neexistuje** — adaptér je krok 4 v pláne
+> (ARCHITECTURE_port.md §8). Skripty to povedia zrozumiteľne namiesto pádu Freqtrade.
+
+---
+
+## E. MultiCharts (len Windows)
+
+```powershell
+.\platforms\multicharts\scripts\setup.ps1
+.\platforms\multicharts\scripts\setup.ps1 -Python "C:\Python313\python.exe"
+```
+
+MultiCharts **nepoužíva virtuálne prostredie** — volá jednu konkrétnu globálnu 64-bitovú
+inštaláciu CPythonu cez Python.NET. Preto sa `ibs` musí nainštalovať do nej, nie do `.venv`.
+Skript to overí (odmietne venv aj 32-bit) a na záver skúsi načítať profil.
+
+Potom v MultiCharts:
+1. **PowerLanguage .NET Editor**
+2. **File → New → Signal** (alebo Indicator), jazyk **Python.NET**
+3. `from ibs.core import load_profile` už funguje
+
+Kostra študie (`Create` / `StartCalc` / `CalcBar` / `Destroy`) je v ARCHITECTURE_port.md §5.
+
+> **Optimalizáciu parametrov nerob v MultiCharts** — Python tam beží pod GIL a je výrazne
+> pomalší než PowerLanguage/C#. Laď cez Freqtrade `hyperopt` a výsledok len prenes.
+
+---
+
+## F. Testy
+
+```bash
+python -m pytest                       # lokálne
+docker compose -f docker/docker-compose.yml run --rm tests
+```
+
+44 testov:
+- `ibs/tests/test_config.py` — validácia configu, sizing, krížové kontroly s inštrumentom
+- `ibs/tests/test_pine_parity.py` — **parsuje `imbalance_strategy_FULL.pine`** a stráži, že
+  všetkých 115 vstupov, ich defaulty aj rozsahy stále sedia. Hlavná poistka portu: keby sa
+  jeden vstup stratil, spadne test namiesto toho, aby stratégia ticho obchodovala inak.
+
+---
+
+## G. Konfiguračné profily
+
+Nastavenia stratégie **nie sú** vo Freqtrade configu — tie sú v `ibs/configs/`:
+
+| Profil | Burza / inštrument | Použitie |
+|---|---|---|
+| `mnq_3m` | MNQ (CME) | základ pre MultiCharts futures/akcie, jednotky `abs` = 1:1 s TradingView |
+| `btcusd_3m_coinbase` | Coinbase BTC/USD | referenčný — golden test proti TradingView |
+| `btcusdt_3m_binance` | Binance BTC/USDT perp | exekučný — reálne obchodovanie |
+
+```python
+from ibs.core import load_profile
+cfg, inst = load_profile("btcusdt_3m_binance")
+print(cfg.check_instrument(inst))   # varovania ku kombinácii config × inštrument
+```
+
+Freqtrade config (`platforms/freqtrade/config.*.json`) rieši len burzu, páry, peňaženku
+a trading mode. Logika stratégie ide výhradne z `ibs/configs/`.
+
+---
+
+## Riešenie problémov
+
+**`Invalid timeframe '3m'. This exchange supports: [...]`**
+Správne správanie — Coinbase 3m neponúka. Sťahuj z nej len `1m 5m`; 3m si poskladá stratégia.
+
+**MultiCharts nenájde modul `ibs`**
+Má nastavený iný Python, než do ktorého sa inštalovalo. Zisti ktorý a spusti
+`platforms\multicharts\scripts\setup.ps1 -Python <cesta>`. Nikdy to nesmie byť `.venv`.
+
+**`pip install -e .` v globálnom Pythone hlási chýbajúce oprávnenia**
+PowerShell ako správca, alebo `--user`. Editovateľná inštalácia je zámerná — zmeny v `ibs/`
+sa prejavia bez preinštalovania.
+
+**Testy nevidia `ibs`**
+Balík nie je v tom Pythone, ktorým púšťaš pytest. Buď `pip install -e ".[dev]"`, alebo pytest
+spúšťaj z koreňa repa.
+
+**Backtest hlási, že stratégia neexistuje**
+Správne — adaptér je krok 4 (ARCHITECTURE_port.md §8). Zatiaľ je hotový krok 1.
+
+**macOS: inštalácia padá na `ta-lib`**
+`brew install ta-lib`, potom setup skript znova.
+
+---
+
+## Mapa repozitára
+
+```
+ibs/                          spoločné jadro (žiadny import z Freqtrade ani MultiCharts)
+  core/types.py               Bar, HTFWindow, InstrumentSpec, SizeSpec
+  core/config.py              IBSConfig - 115 Pine vstupov + validácia
+  configs/*.json              profily (len odchýlky od Pine defaultov)
+  tests/                      pytest
+platforms/
+  freqtrade/
+    config.binance.json       exekučná burza, futures
+    config.coinbase.json      referenčná burza, spot
+    user_data/data/           stiahnuté sviečky - COMMITUJÚ sa
+    user_data/strategies/     sem príde adaptér (krok 4)
+    scripts/                  setup / download-data / backtest, .ps1 aj .sh
+  multicharts/
+    scripts/setup.ps1         inštalácia ibs do globálneho Pythonu
+docker/
+  Dockerfile.core             jadro + testy (CI)
+  Dockerfile.freqtrade        freqtrade + jadro (server)
+  docker-compose.yml          tests / download / backtest / freqtrade
+docs/
+  ARCHITECTURE_port.md        návrh, rozhodnutia, mapovanie Pine -> Python
+  RUNNING.md                  tento súbor
+  tv_settings_2026-09-03.md   nastavenia z TradingView
+imbalance_strategy_FULL.pine  referenčná Pine implementácia
+```

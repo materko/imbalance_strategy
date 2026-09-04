@@ -4,3 +4,12 @@ Imbalance_strategy.pine.bak
 ImbalanceStrategy.cs
 
 ImbalanceStrategy_freqtrade.py
+
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+platforms/freqtrade/user_data/logs/
+platforms/freqtrade/user_data/backtest_results/
+*.egg-info/

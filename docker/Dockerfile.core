@@ -1,0 +1,25 @@
+# Samotné jadro `ibs` bez Freqtrade - na testy a CI.
+#
+#   docker build -f docker/Dockerfile.core -t ibs-core .
+#   docker run --rm ibs-core
+#
+# Jadro nemá žiadne runtime závislosti mimo stdlib, takže tento image je malý
+# a beží rovnako na serveri aj na Macu (vrátane arm64). MultiCharts sa
+# kontajnerizovať nedá - je to Windows desktop aplikácia; toto je najbližšie,
+# čo sa dá overiť automaticky: že logika, ktorú MultiCharts volá, sedí.
+
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY pyproject.toml ./
+COPY ibs/ ./ibs/
+# Pine subor je potrebny pre test_pine_parity.py - straz nad 115 vstupmi.
+COPY imbalance_strategy_FULL.pine ./
+
+RUN pip install --no-cache-dir -e ".[dev]"
+
+CMD ["python", "-m", "pytest", "-q"]

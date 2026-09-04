@@ -1,2 +1,9 @@
 * text=auto eol=lf
 *.pine text eol=lf
+*.ps1 text eol=crlf
+*.sh text eol=lf
+
+# Stiahnute sviecky su binarne - nikdy ich neprepisovat cez EOL normalizaciu
+*.feather binary
+*.parquet binary
+*.json.gz binary
