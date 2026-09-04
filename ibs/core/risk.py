@@ -16,16 +16,17 @@ __all__ = ["TradePlan", "TrailingPlan", "swing_stop_loss", "build_trade_plan"]
 
 @dataclass(frozen=True, slots=True)
 class TrailingPlan:
-    """Trailing parametre. Pine ich počíta v DVOCH jednotkách naraz — to nie je omyl.
+    """Trailing parametre v cenových bodoch aj v tickoch.
 
-    `strategy.exit()` v TradingView očakáva **ticky**, zatiaľ čo JSON pre PickMyTrade
-    (a teda reálny broker) očakáva **cenové body**. Keď sa to nerozlíši, trailing na
-    grafe funguje a u brokera nie.
+    Obe jednotky sú tu zámerne: `strategy.exit()` v TradingView pracuje s **tickami**,
+    takže ticky treba na porovnávanie s referenčným backtestom, zatiaľ čo Freqtrade aj
+    MultiCharts pracujú s **cenovými bodmi**.
+
+    (Pine mal navyše `trailFreqPct` pre PickMyTrade — to sa neportuje.)
     """
 
     activation_price_distance: float  # cenové body
     offset_price_distance: float  # cenové body
-    update_frequency: float  # cenové body
     activation_ticks: float
     offset_ticks: float
 
@@ -38,7 +39,6 @@ class TrailingPlan:
         return cls(
             activation_price_distance=activation,
             offset_price_distance=offset,
-            update_frequency=offset * (cfg.trailFreqPct / 100.0),
             activation_ticks=activation / inst.tick_size,
             offset_ticks=offset / inst.tick_size,
         )

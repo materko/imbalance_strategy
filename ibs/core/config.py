@@ -1,4 +1,4 @@
-"""`IBSConfig` — všetkých 115 vstupov Pine stratégie ako jeden dataclass.
+"""`IBSConfig` — 111 zo 115 vstupov Pine stratégie ako jeden dataclass.
 
 Názvy polí sú **zámerne zhodné s Pine identifikátormi** (camelCase), nie snake_case.
 Dôvod: pri hľadaní odchýlky sa to isté meno grepne v `imbalance_strategy_FULL.pine`
@@ -7,6 +7,12 @@ aj tu, a JSON profil sedí s tým, čo vidno v TradingView paneli. Vlastný nov�
 
 Zdroj hodnôt a rozsahov: `imbalance_strategy_FULL.pine`, sekcia INPUTS (riadky 41–219).
 Nastavenia z grafu, ktoré sa líšia od Pine defaultov, sú v `docs/tv_settings_2026-09-03.md`.
+
+**PickMyTrade sa neportuje** (rozhodnutie z 2026-09-04). Vypadlo teda päť Pine vstupov:
+`pmtToken`, `pmtAccountId`, `pmtStratName`, `pmtMarketOrderType` a `trailFreqPct`
+(ten bol podľa vlastného Pine tooltipu použiteľný LEN pre PickMyTrade — `strategy.exit`
+v TradingView pre neho nemá ekvivalent). Zoznam je aj v `ibs/tests/test_pine_parity.py`,
+aby test parity vedel, že chýbajú zámerne.
 """
 
 from __future__ import annotations
@@ -75,7 +81,6 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "engTouchWindowBars": (1, 50),
     "trailActivationR": (0.1, 10.0),
     "trailOffsetR": (0.05, 10.0),
-    "trailFreqPct": (1, 100),
     "zoneValidHours": (1, 72),
     "maxSdZones": (10, 999),
     "volSmaLen": (2, 200),
@@ -155,7 +160,6 @@ class IBSConfig:
     enableTrailing: bool = False
     trailActivationR: float = 1.0
     trailOffsetR: float = 0.5
-    trailFreqPct: float = 25.0
 
     # ---- ⚙️ Základné nastavenia ------------------------------------------ #
     weekdaysOnly: bool = True
@@ -286,11 +290,6 @@ class IBSConfig:
     #: potrebujeme reprodukovať TradingView backtest 1:1 (golden test).
     legacyPineSizing: bool = False
 
-    # ---- 🔗 PickMyTrade --------------------------------------------------- #
-    pmtToken: str = ""
-    pmtAccountId: str = ""
-    pmtStratName: str = ""
-    pmtMarketOrderType: str = "MKT"
 
     # ------------------------------------------------------------------ #
     # Validácia

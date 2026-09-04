@@ -19,6 +19,19 @@ from ibs.core.types import SizeSpec
 
 PINE_FILE = Path(__file__).resolve().parents[2] / "imbalance_strategy_FULL.pine"
 
+#: Pine vstupy, ktoré sa VEDOME neportujú, aj s dôvodom.
+REMOVED_INPUTS = {
+    # PickMyTrade sa nebude používať (rozhodnutie 2026-09-04) - Freqtrade aj MultiCharts
+    # posielajú ordre priamo, žiadny webhook medzi tým nie je.
+    "pmtToken",
+    "pmtAccountId",
+    "pmtStratName",
+    "pmtMarketOrderType",
+    # Podľa vlastného Pine tooltipu použiteľné LEN pre PickMyTrade - `strategy.exit`
+    # v TradingView pre neho nemá ekvivalent, takže bez PMT nemá čo robiť.
+    "trailFreqPct",
+}
+
 #: Polia, kde sa vedome odchyľujeme od Pine defaultu, aj s dôvodom.
 INTENTIONAL_DEFAULT_DIFFS = {
     # Pine má 0.5 (hodnota pre MNQ). Engine počíta z InstrumentSpec.point_value, takže
@@ -99,8 +112,17 @@ def pine():
 
 
 def test_every_pine_input_exists_in_config(pine):
-    missing = sorted(set(pine) - {f.name for f in fields(IBSConfig)})
+    missing = sorted(set(pine) - {f.name for f in fields(IBSConfig)} - REMOVED_INPUTS)
     assert missing == [], f"v IBSConfig chýbajú Pine vstupy: {missing}"
+
+
+def test_removed_inputs_are_really_gone(pine):
+    """Čo je v REMOVED_INPUTS, nesmie v configu zostať - a musí to byť reálny Pine vstup."""
+    still_present = sorted(REMOVED_INPUTS & {f.name for f in fields(IBSConfig)})
+    assert still_present == [], f"malo byť odstránené, ale v configu je: {still_present}"
+
+    not_in_pine = sorted(REMOVED_INPUTS - set(pine))
+    assert not_in_pine == [], f"REMOVED_INPUTS odkazuje na neexistujúce Pine vstupy: {not_in_pine}"
 
 
 def test_config_adds_only_documented_extras(pine):
@@ -112,7 +134,7 @@ def test_defaults_match_pine(pine):
     cfg = IBSConfig()
     mismatched: list[str] = []
     for name, (typ, pine_default, _) in pine.items():
-        if name in INTENTIONAL_DEFAULT_DIFFS or pine_default is None:
+        if name in INTENTIONAL_DEFAULT_DIFFS or name in REMOVED_INPUTS or pine_default is None:
             continue
         ours = getattr(cfg, name)
         if isinstance(ours, SizeSpec):
@@ -131,7 +153,7 @@ def test_defaults_match_pine(pine):
 def test_constraints_match_pine_minval_maxval(pine):
     mismatched: list[str] = []
     for name, (_, _, rng) in pine.items():
-        if rng is None:
+        if rng is None or name in REMOVED_INPUTS:
             continue
         ours = CONSTRAINTS.get(name)
         if ours is None:

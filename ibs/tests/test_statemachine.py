@@ -217,7 +217,7 @@ def test_trailing_is_absent_when_disabled(cfg):
 
 
 def test_trailing_is_computed_in_both_units(cfg):
-    """Pine počíta trailing v tickoch (pre TradingView) aj v bodoch (pre PickMyTrade)."""
+    """Trailing sa drží v bodoch aj v tickoch - ticky kvôli porovnaniu s TradingView."""
     cfg.enableTrailing = True
     plan = build_trade_plan(Direction.LONG, 100.0, 90.0, cfg, MNQ)
     tr = plan.trailing
@@ -225,7 +225,6 @@ def test_trailing_is_computed_in_both_units(cfg):
     assert tr.activation_price_distance == pytest.approx(10.0)  # 1.0R z 10 bodov
     assert tr.offset_price_distance == pytest.approx(5.0)  # 0.5R
     assert tr.activation_ticks == pytest.approx(40.0)  # 10 / 0.25
-    assert tr.update_frequency == pytest.approx(1.25)  # 25 % z 5.0
 
 
 # --------------------------------------------------------------------------- #

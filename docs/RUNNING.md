@@ -204,11 +204,21 @@ python -m pytest                       # lokálne
 docker compose -f docker/docker-compose.yml run --rm tests
 ```
 
-44 testov:
-- `ibs/tests/test_config.py` — validácia configu, sizing, krížové kontroly s inštrumentom
-- `ibs/tests/test_pine_parity.py` — **parsuje `imbalance_strategy_FULL.pine`** a stráži, že
-  všetkých 115 vstupov, ich defaulty aj rozsahy stále sedia. Hlavná poistka portu: keby sa
-  jeden vstup stratil, spadne test namiesto toho, aby stratégia ticho obchodovala inak.
+137 testov:
+- `test_config.py` — validácia configu, sizing, krížové kontroly s inštrumentom
+- `test_clock.py` — session okná, pásma, okná cez polnoc, letný/zimný čas
+- `test_zones.py` — `snapMode`, detekcia SD patternu, evidencia zón, kreslenie
+- `test_statemachine.py` — STATE 0-5, hľadanie gapu, Pin Bar/Engulfing, SL/TP, OCO
+- `test_pine_parity.py` — **parsuje `imbalance_strategy_FULL.pine`** a stráži, že všetky
+  portované vstupy, ich defaulty aj rozsahy stále sedia, a že vedome odstránené vstupy
+  (`REMOVED_INPUTS`) sa nevrátili. Hlavná poistka portu: keby sa jeden vstup stratil,
+  spadne test namiesto toho, aby stratégia ticho obchodovala inak.
+
+Okrem testov sú tu dva nástroje na overenie proti reálnym dátam:
+```bash
+.venv/bin/python -m ibs.tools.scan_zones    --exchange binance   # aké zóny by vznikli
+.venv/bin/python -m ibs.tools.scan_trades   --exchange binance   # celý STATE 0-5 + ordre
+```
 
 ---
 
@@ -263,7 +273,7 @@ Správne — adaptér je krok 4 (ARCHITECTURE_port.md §8). Zatiaľ je hotový k
 ```
 ibs/                          spoločné jadro (žiadny import z Freqtrade ani MultiCharts)
   core/types.py               Bar, HTFWindow, InstrumentSpec, SizeSpec
-  core/config.py              IBSConfig - 115 Pine vstupov + validácia
+  core/config.py              IBSConfig - Pine vstupy + validácia
   configs/*.json              profily (len odchýlky od Pine defaultov)
   tests/                      pytest
 platforms/

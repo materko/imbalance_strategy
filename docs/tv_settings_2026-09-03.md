@@ -43,7 +43,7 @@ Všetky ostatné inputy sú na defaultoch z kódu.
 | Zapnúť trailing stop | ✅ zap | `enableTrailing` (default v kode = false) |
 | Aktivácia trailingu (R-násobok rizika) | 1 | `trailActivationR` |
 | Trailing vzdialenosť (R-násobok rizika) | 0.5 | `trailOffsetR` |
-| PickMyTrade: frekvencia update SL (% z trailing vzd.) | 25 | `trailFreqPct` |
+| ~~PickMyTrade: frekvencia update SL~~ | ~~25~~ | `trailFreqPct` — **neportuje sa** |
 | Zapnúť detekciu SD zón | ✅ zap | `enableZoneDetection` |
 | Obchoduj z S/R úrovní `[len FULL]` | ⬜ vyp | `enableSrTrading` |
 | Obchoduj z likviditných zón (sweep) `[len FULL]` | ⬜ vyp | `enableLqTrading` |
@@ -183,9 +183,17 @@ Všetky ostatné inputy sú na defaultoch z kódu.
 | Hodnota jedného ticku ($) | 0.5 — **overiť pre BTCUSD** | `tickDollarValue` |
 | Max výherných obchodov za deň | 5 | `maxDailyWins` |
 
-## 🔗 PickMyTrade
-Token / Account ID / Strategy name — prázdne (nepoužité pri backteste).
-`pmtMarketOrderType` = `"MKT"` (len vo FULL verzii).
+## 🔗 PickMyTrade — **neportuje sa**
+
+Rozhodnutie z 2026-09-04: PickMyTrade sa už nebude používať. Freqtrade aj MultiCharts
+posielajú ordre priamo, žiadny webhook medzi tým nie je.
+
+Do Pythonu teda nejde päť Pine vstupov: `pmtToken`, `pmtAccountId`, `pmtStratName`,
+`pmtMarketOrderType` a `trailFreqPct` (ten bol podľa vlastného Pine tooltipu použiteľný
+len pre PickMyTrade — `strategy.exit` v TradingView pre neho nemá ekvivalent).
+
+Zoznam je aj v `ibs/tests/test_pine_parity.py` ako `REMOVED_INPUTS`, takže test parity
+vie, že chýbajú zámerne, a zároveň stráži, aby sa nevrátili.
 
 ---
 

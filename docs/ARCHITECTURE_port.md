@@ -47,7 +47,7 @@ ibs/
 │   ├── zones.py                 # SD zóny na detekčnom TF + f_push_zone() = spoločný vstup pre SD/SR/LQ
 │   ├── statemachine.py          # lifecycle zóny STATE 0..5 → OrderIntent
 │   ├── risk.py                  # SL (slLookback + slBufferTicks), TP (rrRatio), qty (maxLossDollar/tickDollarValue)
-│   ├── trailing.py              # trailActivationR / trailOffsetR / trailFreqPct
+│   ├── trailing.py              # trailActivationR / trailOffsetR
 │   ├── drawing.py               # DrawBox / DrawLine / DrawLabel / DashboardCell — platformovo neutrálne
 │   └── engine.py                # IBSEngine.on_bar(bar, htf_bar=None) -> EngineOutput
 │
@@ -479,7 +479,8 @@ okrem Pin Baru. `enableSrTrading=false`, `enableLqTrading=false`, `useStructureF
 | 3 | Fill model | `timeframe='3m'` + `timeframe_detail='1m'` (§7) — **nie** stratégia na 1m |
 | 4 | Inštrumenty | **BTCUSDT na oboch platformách**; MultiCharts navyše **MNQ ako základ** pre futures/akcie → `InstrumentSpec` + `SizeSpec` (§3b) |
 | 5 | Burzy | **Coinbase + Binance.** Coinbase = referenčná (parita s TV), Binance = exekučná (futures). Freqtrade Coinbase nepodporuje (§3b) |
-| 6 | Golden fixture | export z TradingView pre **oba** grafy: `COINBASE:BTCUSD` (parita jadra) aj `BINANCE:BTCUSDT.P` (parita exekúcie) |
+| 6 | PickMyTrade | **neportuje sa** — Freqtrade aj MultiCharts posielajú ordre priamo. Vypadlo 5 vstupov: `pmtToken`, `pmtAccountId`, `pmtStratName`, `pmtMarketOrderType`, `trailFreqPct` |
+| 7 | Golden fixture | export z TradingView pre **oba** grafy: `COINBASE:BTCUSD` (parita jadra) aj `BINANCE:BTCUSDT.P` (parita exekúcie) |
 
 ### Čo z toho vyplýva pre multi-inštrument
 

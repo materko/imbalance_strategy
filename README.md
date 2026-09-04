@@ -4,7 +4,7 @@
 
 | Súbor | Popis |
 |---|---|
-| [`imbalance_strategy_FULL.pine`](imbalance_strategy_FULL.pine) | **REFERENČNÁ VERZIA** — Pine v5, 2539 riadkov, 115 inputov, SK. Plná funkcionalita: SD zóny + IMB / Pin Bar / Engulfing entry, S/R, Likvidita (sweep), Market Structure (BOS/CHoCH), Elliott Waves, dashboard, PickMyTrade. **Zodpovedá screenshotom nastavení.** |
+| [`imbalance_strategy_FULL.pine`](imbalance_strategy_FULL.pine) | **REFERENČNÁ VERZIA** — Pine v5, 2539 riadkov, 115 inputov, SK. Plná funkcionalita: SD zóny + IMB / Pin Bar / Engulfing entry, S/R, Likvidita (sweep), Market Structure (BOS/CHoCH), Elliott Waves, dashboard. (PickMyTrade sa do Pythonu neportuje.) **Zodpovedá screenshotom nastavení.** |
 | [`imbalance_strategy_SD_IMB.pine`](imbalance_strategy_SD_IMB.pine) | Stripped build — Pine v6, 1569 riadkov, 80 inputov, EN. Len SD zóny + IMB entry model. Bez novej logiky oproti FULL (iba preklad + `margin_long/short=0`). |
 | [`Imbalance_strategy.pine`](Imbalance_strategy.pine) | Najstaršia verzia — Pine v5, „Imbalance strategy", 57 inputov. |
 | [`docs/tv_settings_2026-09-03.md`](docs/tv_settings_2026-09-03.md) | Kompletné TradingView nastavenia + rozdiely oproti defaultom v kóde |
