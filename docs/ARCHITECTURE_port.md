@@ -459,16 +459,19 @@ MultiCharts ekvivalent: `IntrabarOrderGeneration = True` + druhá 1-min dátová
 3. ✅ **hotové** — `core/history.py`, `core/ta/{imbalance,patterns}.py`, `core/risk.py`,
    `core/statemachine.py`: celý STATE 0-5 vrátane re-entry, OCO, SKIP dôvodov, Pin Bar
    a Engulfing modelu. Overené cez `python -m ibs.tools.scan_trades`.
-4. ✅ **hotové (adaptér)** — `core/engine.py` (`IBSEngine` ako jediný vstupný bod) +
-   `adapters/freqtrade/`. Backtest beží a dáva rovnaké obchody ako `ibs.tools.scan_trades`.
-   Golden test proti TV trade listu ešte chýba — čaká na export z TradingView.
-5. Adaptér MultiCharts.
-6. Zvyšné moduly: Pin Bar entry (`enablePinBarEntry=true` v tvojom nastavení!), potom
-   display-only moduly — Market Structure, S/R, Likvidita, Elliott.
+4. ✅ **hotové** — `core/engine.py` (`IBSEngine` ako jediný vstupný bod) +
+   `adapters/freqtrade/`. Backtest dáva 5 obchodov zhodných s TradingView na minútu
+   vyplnenia, vstupnú cenu, veľkosť aj výstup (`test_golden_tv_binance.py`).
+5. ✅ **hotové** — `adapters/multicharts/`: `MCRunner` (bez PowerLanguage,
+   testovateľný), `MCDrawSink` (`DrawCommand` → `Drw*`) a `signal.py` (jediný súbor,
+   ktorý sa dotýka PowerLanguage API). Šablóna štúdie je v `platforms/multicharts/IBS_Signal.py`.
+6. ✅ **hotové** — `core/ta/{structure,sr,liquidity,elliott}.py` + kreslenie životného
+   cyklu objektov (`obj_id`, `DrawUpdate`, `DrawRegistry`) + plotly renderer
+   `ibs/tools/plot.py`. Market Structure a likvidita sú overené proti TradingView
+   (`test_golden_tv_draw.py`, 76 z 76 objektov).
 
-Kroky 1–4 pokrývajú **všetko, čo v tvojom aktuálnom nastavení reálne ovplyvňuje obchody**,
-okrem Pin Baru. `enableSrTrading=false`, `enableLqTrading=false`, `useStructureFilter=false`,
-`showElliott=false` → tie moduly sú zatiaľ čisto vizuálne a môžu ísť naposledy.
+Zostáva: preladiť ATR prahy exekučného profilu hyperoptom a rozhodnúť wallet/páku
+(dnes sa stake oreže na ~1 % žiadanej veľkosti, takže `maxLossDollar` sa neuplatní).
 
 ---
 

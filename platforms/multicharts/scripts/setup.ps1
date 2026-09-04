@@ -58,14 +58,18 @@ from ibs.core import load_profile, list_profiles
 print('profily:', list_profiles())
 cfg, inst = load_profile('mnq_3m')
 print('mnq_3m ->', inst.symbol, 'tick', inst.tick_size, 'point_value', inst.point_value)
+from ibs.adapters.multicharts import MCRunner, MCDrawSink
+print('adapter: MCRunner + MCDrawSink OK')
 "@
 if ($LASTEXITCODE -ne 0) { throw "import ibs zlyhal" }
 
 Write-Host ""
 Write-Host "Hotovo. V MultiCharts:" -ForegroundColor Green
 Write-Host "  1. Otvor PowerLanguage .NET Editor"
-Write-Host "  2. File -> New -> Signal (alebo Indicator), jazyk: Python.NET"
-Write-Host "  3. V kode uz mozes robit: from ibs.core import load_profile"
+Write-Host "  2. File -> New -> Signal, jazyk: Python.NET"
+Write-Host "  3. Vloz obsah platforms\multicharts\IBS_Signal.py"
+Write-Host "  4. Na graf pridaj DVE serie: Data1 = graf TF, Data2 = detekcny TF (5m)"
+Write-Host "     Bez Data2 nevznikne ani jedna SD zona."
 Write-Host ""
 Write-Host "Ak MultiCharts hlasi, ze modul nenasiel, ma nastaveny INY Python."
 Write-Host "Skontroluj jeho nastavenie a spusti tento skript s -Python <cesta>."

@@ -197,10 +197,39 @@ Skript to overí (odmietne venv aj 32-bit) a na záver skúsi načítať profil.
 
 Potom v MultiCharts:
 1. **PowerLanguage .NET Editor**
-2. **File → New → Signal** (alebo Indicator), jazyk **Python.NET**
-3. `from ibs.core import load_profile` už funguje
+2. **File → New → Signal**, jazyk **Python.NET**
+3. Vlož obsah [`platforms/multicharts/IBS_Signal.py`](../platforms/multicharts/IBS_Signal.py) —
+   sú to štyri riadky, celá logika je v balíku `ibs`
+4. Na graf pridaj **dve dátové série**:
+   - **Data1** = graf TF (napr. MNQ 3m)
+   - **Data2** = detekčný TF (`zoneDetectionTF`, štandardne 5m)
 
-Kostra študie (`Create` / `StartCalc` / `CalcBar` / `Destroy`) je v ARCHITECTURE_port.md §5.
+> **Bez Data2 nevznikne ani jedna SD zóna.** Študia to napíše do Output okna,
+> ale inak beží ďalej — je to ľahké prehliadnuť.
+
+Profil sa prepína cez `IBS_PROFILE` (predvolene `mnq_3m`), rovnako ako vo Freqtrade.
+
+Čo robí adaptér:
+
+| súbor | zodpovednosť |
+|---|---|
+| `ibs/adapters/multicharts/runner.py` | prevedie engine cez `CalcBar`, drží živé ordre a HTF okno |
+| `ibs/adapters/multicharts/drawing.py` | `DrawCommand` → `DrwRectangle` / `DrwTrendLine` / `DrwText` |
+| `ibs/adapters/multicharts/signal.py` | jediný súbor, ktorý sa dotýka PowerLanguage API |
+
+Prvé dva sú zámerne bez závislosti na PowerLanguage, takže sa testujú na obyčajnom
+Pythone (`ibs/tests/test_multicharts.py`) — vrátane testu, že MultiCharts runner dá
+z tých istých barov tie isté zóny ako Freqtrade.
+
+### Dva rozdiely oproti Pine, ktoré treba vedieť
+
+**Ordre platia len jeden bar.** V Pine `strategy.entry` položí order, ktorý leží, kým
+ho niekto nezruší. V MultiCharts platí order len na nasledujúci bar — runner ich preto
+posiela **znova každý bar**, kým sú živé.
+
+**MultiCharts nepozná priehľadnosť.** Pine kreslí zóny s výplňou na 85 % priehľadnosti;
+`DrwRectangle` má len plnú farbu, takže sa alfa zahodí a graf bude sýtejší než
+v TradingView. Pozadie seansy (`bgcolor()`) sa nekreslí vôbec — nemá náprotivok.
 
 > **Optimalizáciu parametrov nerob v MultiCharts** — Python tam beží pod GIL a je výrazne
 > pomalší než PowerLanguage/C#. Laď cez Freqtrade `hyperopt` a výsledok len prenes.
@@ -214,12 +243,18 @@ python -m pytest                       # lokálne
 docker compose -f docker/docker-compose.yml run --rm tests
 ```
 
-148 testov:
+231 testov:
 - `test_config.py` — validácia configu, sizing, krížové kontroly s inštrumentom
 - `test_clock.py` — session okná, pásma, okná cez polnoc, letný/zimný čas
 - `test_zones.py` — `snapMode`, detekcia SD patternu, evidencia zón, kreslenie
-- `test_statemachine.py` — STATE 0-5, hľadanie gapu, Pin Bar/Engulfing, SL/TP, OCO
+- `test_statemachine.py` — STATE 0-5, hľadanie gapu, Pin Bar/Engulfing, SL/TP, OCO, ATR
+- `test_ta_modules.py` — Market Structure, S/R, likvidita, Elliott
+- `test_drawing.py` — identita objektov, prehratie `set_*` zmien
 - `test_freqtrade_runner.py` — prevod engine cez DataFrame, dohľadanie signálu, HTF okno
+- `test_freqtrade_exits.py` — TP ide cez `custom_roi`, nie cez exit-signál
+- `test_multicharts.py` — MultiCharts runner, mapovanie kreslenia a zhoda s Freqtrade
+- `test_golden_tv_binance.py` — **parita obchodov a zón** s TradingView (77 zón, 5 obchodov)
+- `test_golden_tv_draw.py` — **parita kreslenia** s TradingView (76 objektov)
 - `test_pine_parity.py` — **parsuje `imbalance_strategy_FULL.pine`** a stráži, že všetky
   portované vstupy, ich defaulty aj rozsahy stále sedia, a že vedome odstránené vstupy
   (`REMOVED_INPUTS`) sa nevrátili. Hlavná poistka portu: keby sa jeden vstup stratil,
