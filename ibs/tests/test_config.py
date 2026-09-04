@@ -207,6 +207,7 @@ def test_all_profiles_exist():
         "btcusd_3m_coinbase",
         "btcusdt_3m_binance",
         "btcusdt_3m_binance_tv",
+        "btcusdt_3m_binance_hyper",
     }
 
 

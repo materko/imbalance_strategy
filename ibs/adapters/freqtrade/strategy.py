@@ -13,13 +13,20 @@ from __future__ import annotations
 
 import logging
 import os
+from dataclasses import fields
 from datetime import datetime
 
 from pandas import DataFrame
 
-from freqtrade.strategy import IStrategy, stoploss_from_absolute
+from freqtrade.strategy import (
+    CategoricalParameter,
+    DecimalParameter,
+    IStrategy,
+    stoploss_from_absolute,
+)
 
 from ...core import Bar, load_profile
+from ...core.types import SizeSpec
 from .runner import EngineRunner, SignalRow
 
 #: Stĺpec v DataFrame -> pole `SignalRow`.
@@ -85,6 +92,43 @@ class IBSImbalanceStrategy(IStrategy):
 
     startup_candle_count = 300
 
+    # ------------------------------------------------------------------ #
+    # Hyperopt priestor
+    #
+    # Parametre stratégie žijú v `IBSConfig`, nie vo Freqtrade. Tieto objekty sú
+    # len most: `_apply_hyperopt_params()` ich pred každým výpočtom vloží do configu.
+    # Optimalizujú sa výhradne prahy v jednotke `atr` (tie sú naladené na MNQ a na BTC
+    # nedávajú zmysel) plus `rrRatio` a prepínače entry modelov. Session okná, STATE
+    # timeouty ani sizing sa neladia - tie sú prevzaté z TradingView a menili by paritu.
+    # ------------------------------------------------------------------ #
+
+    #: `enableImbEntry` sa zámerne NEOPTIMALIZUJE - je to základný model stratégie.
+    p_rr = DecimalParameter(1.0, 5.0, default=2.5, decimals=1, space="sell", optimize=True)
+    p_imb_size = DecimalParameter(0.05, 1.00, default=0.25, decimals=2, space="buy")
+    p_pb_range = DecimalParameter(0.05, 1.00, default=0.20, decimals=2, space="buy")
+    p_eng_range = DecimalParameter(0.05, 1.00, default=0.20, decimals=2, space="buy")
+    p_liq_wick = DecimalParameter(0.05, 1.00, default=0.30, decimals=2, space="buy")
+    p_sr_cluster = DecimalParameter(0.10, 1.50, default=0.50, decimals=2, space="buy")
+    p_pin_bar = CategoricalParameter([True, False], default=True, space="buy")
+    p_engulfing = CategoricalParameter([True, False], default=True, space="buy")
+    p_sr_trading = CategoricalParameter([True, False], default=True, space="buy")
+    p_lq_trading = CategoricalParameter([True, False], default=True, space="buy")
+
+    #: Ktorý parameter ide do ktorého poľa configu; hodnoty s jednotkou `atr`.
+    _ATR_PARAMS = {
+        "minImbSizePoints": "p_imb_size",
+        "pbMinRangePoints": "p_pb_range",
+        "engMinRangePoints": "p_eng_range",
+        "liqSweepMinWick": "p_liq_wick",
+        "srClusterPoints": "p_sr_cluster",
+    }
+    _FLAG_PARAMS = {
+        "enablePinBarEntry": "p_pin_bar",
+        "enableEngulfingEntry": "p_engulfing",
+        "enableSrTrading": "p_sr_trading",
+        "enableLqTrading": "p_lq_trading",
+    }
+
     def __init__(self, config: dict) -> None:
         super().__init__(config)
         self.ibs_cfg, self.ibs_inst = load_profile(DEFAULT_PROFILE)
@@ -92,6 +136,7 @@ class IBSImbalanceStrategy(IStrategy):
         for w in warnings:
             logger.warning("IBS config: %s", w)
         self._runners: dict[str, EngineRunner] = {}
+        self._runner_fp: tuple | None = None
         self._informative_tf = f"{int(self.ibs_cfg.zoneDetectionTF)}m"
 
     # ------------------------------------------------------------------ #
@@ -100,7 +145,49 @@ class IBSImbalanceStrategy(IStrategy):
         pairs = self.dp.current_whitelist() if self.dp else []
         return [(p, self._informative_tf) for p in pairs]
 
+    def _apply_hyperopt_params(self) -> None:
+        """Vloží hodnoty hyperopt parametrov do `ibs_cfg`.
+
+        Volá sa na začiatku `populate_indicators`, teda EŠTE PRED `_runner()` —
+        odtlačok configu tak zmenu uvidí a runner sa postaví nanovo.
+
+        Prahy sa musia priradiť ako `SizeSpec(..., "atr")`. Holé číslo by
+        `IBSConfig.__setattr__` skoercoval na predvolenú jednotku poľa (`abs`),
+        čo je pri BTC rádový rozdiel — a stalo by sa to ticho.
+        """
+        if not self.hyperopt_active:
+            return
+        for field, attr in self._ATR_PARAMS.items():
+            setattr(self.ibs_cfg, field, SizeSpec(float(getattr(self, attr).value), "atr"))
+        for field, attr in self._FLAG_PARAMS.items():
+            setattr(self.ibs_cfg, field, bool(getattr(self, attr).value))
+        self.ibs_cfg.rrRatio = float(self.p_rr.value)
+
+    @property
+    def hyperopt_active(self) -> bool:
+        """Pri obyčajnom backteste sa profil z JSON nesmie prepísať defaultmi."""
+        return self.config.get("runmode") is not None and str(
+            self.config.get("runmode")
+        ).lower().endswith("hyperopt")
+
+    def _config_fingerprint(self) -> tuple:
+        """Odtlačok parametrov, ktoré menia výsledok.
+
+        Runner je zámerne inkrementálny (dry/live ho volá nad rastúcim DataFrame),
+        takže si medzi volaniami drží stav. Pri hyperopte sa ale parametre menia
+        medzi epochami a starý runner by ticho počítal so starými — preto sa pri
+        zmene odtlačku zahodí a postaví nanovo.
+        """
+        cfg = self.ibs_cfg
+        return tuple(
+            str(getattr(cfg, f.name)) for f in sorted(fields(cfg), key=lambda x: x.name)
+        )
+
     def _runner(self, pair: str) -> EngineRunner:
+        fp = self._config_fingerprint()
+        if fp != self._runner_fp:
+            self._runners.clear()
+            self._runner_fp = fp
         runner = self._runners.get(pair)
         if runner is None:
             runner = EngineRunner(self.ibs_cfg, self.ibs_inst, int(self.timeframe.rstrip("m")))
@@ -111,6 +198,7 @@ class IBSImbalanceStrategy(IStrategy):
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         pair = metadata["pair"]
+        self._apply_hyperopt_params()
         runner = self._runner(pair)
 
         htf_bars: dict[int, Bar] = {}
@@ -281,4 +369,9 @@ class IBSImbalanceStrategy(IStrategy):
         self, pair: str, current_time: datetime, current_rate: float,
         proposed_leverage: float, max_leverage: float, entry_tag, side: str, **kwargs
     ) -> float:
-        return 1.0
+        """Páka z profilu, orezaná tým, čo burza dovolí.
+
+        Pri páke 1 sa risk-based sizing na BTC nezmestí do peňaženky a `maxLossDollar`
+        sa ticho neuplatní — viď `IBSConfig.leverage`.
+        """
+        return min(float(self.ibs_cfg.leverage), max_leverage)

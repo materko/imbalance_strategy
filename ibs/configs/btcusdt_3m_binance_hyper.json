@@ -1,0 +1,72 @@
+{
+  "_comment": [
+    "BINANCE BTCUSDT.P, 3m - VYCHODISKO PRE HYPEROPT.",
+    "",
+    "Nastavenia podla manualneho prieskumu v TradingView na BTCUSD (2026-09-04):",
+    "enableImbEntry sa neuvadza - je to Pine default (true), profily maju len odchylky.",
+    "RR 2.5, Long only, vsetky tri entry modely (IMB + Pin Bar + Engulfing),",
+    "S/R zony ON, likviditne zony ON.",
+    "",
+    "POZOR - tri veci, ktore treba vediet:",
+    "",
+    "1. enableSrTrading a enableLqTrading zapinaju vetvy, ktore NIE SU overene proti",
+    "   TradingView. Vsetky golden testy (tv_zones, tv_draw, trade list) bezia s nimi",
+    "   VYPNUTYMI, lebo taky bol referencny beh. Ked su zapnute, vznikaju zony aj zo",
+    "   S/R urovni a zo sweepov - to je port podla Pine zdrojaku, nie odmerana parita.",
+    "",
+    "2. Prahy v jednotke atr su STARTOVACIE ODHADY, nie odmerane hodnoty - presne to,",
+    "   co ma hyperopt doladit.",
+    "",
+    "3. leverage=10: bez paky sa risk-based sizing na BTC nezmesti do penazenky",
+    "   (pri tesnom SL chce notional v statisicoch USDT) a maxLossDollar sa TICHO",
+    "   neuplatni. TradingView strategy tester marze neriesi, takze jeho vysledky",
+    "   implicitne s pakou pocitaju."
+  ],
+  "_instrument": "btcusdt_binance",
+  "enablePinBarEntry": true,
+  "enableEngulfingEntry": true,
+  "enableTrailing": true,
+  "enableSrTrading": true,
+  "enableLqTrading": true,
+  "tradeDirection": "Long only",
+  "rrRatio": 2.5,
+  "sess2ZoneStartH": 8,
+  "showElliott": false,
+  "leverage": 10.0,
+  "minImbSizePoints": {
+    "value": 0.25,
+    "unit": "atr"
+  },
+  "pbMinRangePoints": {
+    "value": 0.2,
+    "unit": "atr"
+  },
+  "engMinRangePoints": {
+    "value": 0.2,
+    "unit": "atr"
+  },
+  "srClusterPoints": {
+    "value": 0.5,
+    "unit": "atr"
+  },
+  "liqSweepMinWick": {
+    "value": 0.3,
+    "unit": "atr"
+  },
+  "ewMinWavePoints": {
+    "value": 2.0,
+    "unit": "atr"
+  },
+  "imbMaxDistTicks": {
+    "value": 1.0,
+    "unit": "abs"
+  },
+  "slBufferTicks": {
+    "value": 0.1,
+    "unit": "abs"
+  },
+  "state2ConfirmTicks": {
+    "value": 0.1,
+    "unit": "abs"
+  }
+}

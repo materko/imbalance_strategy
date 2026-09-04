@@ -85,6 +85,7 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "maxSdZones": (10, 999),
     "volSmaLen": (2, 200),
     "atrLen": (1, 500),
+    "leverage": (1.0, 125.0),
     "volMultiplier": (0.5, 10.0),
     "structureSwingLen": (2, 50),
     "srSwingLen": (2, 100),
@@ -295,6 +296,13 @@ class IBSConfig:
     #: je to rozšírenie portu (ARCHITECTURE_port.md §3b), aby sa prahy naladené
     #: v bodoch na MNQ dali preniesť na inštrument s inou cenovou škálou.
     atrLen: int = 14
+
+    #: Páka. Pine ju nepozná — strategy tester v TradingView marže nerieši a nechá
+    #: otvoriť ľubovoľne veľkú pozíciu. Vo Freqtrade je to limit, ktorý sa NAOZAJ
+    #: uplatní: risk-based sizing z `maxLossDollar` chce na BTC pri tesnom SL
+    #: notional v státisícoch USDT, takže pri páke 1 sa stake oreže a `maxLossDollar`
+    #: sa vôbec neuplatní. Viď docs/GOLDEN_binance_2026-08-24.md.
+    leverage: float = 1.0
 
 
     # ------------------------------------------------------------------ #

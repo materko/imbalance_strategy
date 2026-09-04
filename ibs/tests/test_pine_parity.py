@@ -129,10 +129,11 @@ def test_config_adds_only_documented_extras(pine):
     """Polia navyše sú povolené len tie, ktoré sú v ARCHITECTURE_port.md popísané.
 
     `legacyPineSizing` reprodukuje Pine sizing vrátane jeho chyby (golden test),
-    `atrLen` obsluhuje parametre v jednotke `atr` — tú Pine nepozná (§3b).
+    `atrLen` obsluhuje parametre v jednotke `atr` — tú Pine nepozná (§3b),
+    `leverage` je marža vo Freqtrade, ktorú TradingView strategy tester nerieši.
     """
     extra = sorted({f.name for f in fields(IBSConfig)} - set(pine))
-    assert extra == ["atrLen", "legacyPineSizing"], f"neočakávané polia navyše: {extra}"
+    assert extra == ["atrLen", "legacyPineSizing", "leverage"], f"neočakávané polia navyše: {extra}"
 
 
 def test_defaults_match_pine(pine):
@@ -169,7 +170,7 @@ def test_constraints_match_pine_minval_maxval(pine):
 
 
 def test_no_stale_constraints(pine):
-    stale = sorted(set(CONSTRAINTS) - set(pine) - {"atrLen"})
+    stale = sorted(set(CONSTRAINTS) - set(pine) - {"atrLen", "leverage"})
     assert stale == [], f"CONSTRAINTS obsahuje neexistujúce vstupy: {stale}"
 
 
