@@ -145,12 +145,12 @@ Po oprave (`htf_window_opens()` v `ibs/core/types.py`):
 
 | | pred | po | TradingView |
 |---|---|---|---|
-| zón v okne | 104 | **76** | 77 (posledná je za koncom stiahnutých dát) |
+| zón v okne | 104 | **76** | 77 (uid 76 je za koncom stiahnutých dát) |
 | zadaných orderov | 7 | **6** | 6 |
 | vyplnených obchodov | — | **5** | 5 |
 | winrate | — | **60 %** (3W/2L) | 60 % (3W/2L) |
 
-Všetkých **46 odčítaných zón sedí na uid, hranice aj bar vzniku**. Všetkých **5 obchodov
+Všetkých **77 zón sedí na uid, hranice aj bar vzniku** (uid 76 je za koncom stiahnutých dát). Všetkých **5 obchodov
 sedí na minútu vyplnenia, vstupnú cenu, veľkosť aj výstupnú cenu**:
 
 | # | vstup UTC | entry | qty | výstup | naše |

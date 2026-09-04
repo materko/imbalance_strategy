@@ -1,15 +1,19 @@
 {
   "_comment": [
-    "GOLDEN FIXTURE - zoznam SD zon, ktore vytvoril TradingView.",
+    "GOLDEN FIXTURE - VSETKYCH 77 SD zon, ktore vytvoril TradingView.",
     "",
-    "Ziskane tak, ze do imbalance_strategy_FULL.pine bol na konci docasne pridany:",
+    "Ziskane tak, ze do kopie skriptu (ZZ DEBUG zone log) bolo docasne pridane:",
     "    if newZone",
-    "        log.info(\"ZONE uid={0} typ={1} top={2} bot={3}\", zNextUid - 1, zTyp5, zTop5, zBot5)",
-    "a vysledok odcitany z panela Pine logs. Do ulozeneho skriptu sa ta zmena NEULOZILA.",
+    "        log.info(\"ZONE uid={0} typ={1} top={2} bot={3} t0={4} tc={5}\",",
+    "                 zNextUid - 1, zTyp5, zTop5, zBot5, zT05, zTConf5)",
+    "a vysledok odcitany z panela Pine logs (filter \"ZONE uid=\").",
+    "Ulozeny skript pouzivatela ostal nedotknuty.",
     "",
-    "Symbol BINANCE:BTCUSDT.P, 3m, rozsah Aug 24 - Sep 4 2026, nastavenia ako v",
-    "btcusdt_3m_binance_tv. TradingView vytvoril celkom 77 zon (uid 0..76).",
-    "Nizsie su tie, ktore sa podarilo odcitat (zaciatok a koniec rozsahu).",
+    "Symbol BINANCE:BTCUSDT.P, 3m, rozsah Aug 24 - Sep 4 2026. Debug kopia bezala",
+    "s Pine defaultmi + sess2ZoneStartH=8; ostatne 4 odchylky profilu",
+    "btcusdt_3m_binance_tv (enablePinBarEntry, enableTrailing, tradeDirection,",
+    "showElliott) na vznik zon nemaju vplyv - `newZone` na riadku 638 zavisi len",
+    "od enableZoneDetection, zTyp5 a zVolBlockOk.",
     "",
     "Casy su prepocitane z grafovej zony UTC+2 na UTC."
   ],
@@ -156,6 +160,223 @@
       "typ": 1,
       "top": 78785.0,
       "bot": 78549.8
+    },
+    {
+      "uid": 20,
+      "utc": "2026-08-25T13:57",
+      "typ": -1,
+      "top": 79194.9,
+      "bot": 78945.6
+    },
+    {
+      "uid": 21,
+      "utc": "2026-08-25T14:12",
+      "typ": 1,
+      "top": 78480.8,
+      "bot": 78100.1
+    },
+    {
+      "uid": 22,
+      "utc": "2026-08-25T14:57",
+      "typ": 1,
+      "top": 79282.8,
+      "bot": 79066.5
+    },
+    {
+      "uid": 23,
+      "utc": "2026-08-26T07:36",
+      "typ": -1,
+      "top": 78998.4,
+      "bot": 78893.5
+    },
+    {
+      "uid": 24,
+      "utc": "2026-08-26T07:57",
+      "typ": -1,
+      "top": 79017.9,
+      "bot": 78930.8
+    },
+    {
+      "uid": 25,
+      "utc": "2026-08-26T08:27",
+      "typ": -1,
+      "top": 79054.0,
+      "bot": 78792.8
+    },
+    {
+      "uid": 26,
+      "utc": "2026-08-26T08:51",
+      "typ": -1,
+      "top": 78978.0,
+      "bot": 78937.4
+    },
+    {
+      "uid": 27,
+      "utc": "2026-08-26T12:51",
+      "typ": -1,
+      "top": 78679.2,
+      "bot": 78534.6
+    },
+    {
+      "uid": 28,
+      "utc": "2026-08-26T13:21",
+      "typ": -1,
+      "top": 78397.5,
+      "bot": 78253.0
+    },
+    {
+      "uid": 29,
+      "utc": "2026-08-26T13:42",
+      "typ": 1,
+      "top": 78119.7,
+      "bot": 77957.1
+    },
+    {
+      "uid": 30,
+      "utc": "2026-08-26T14:12",
+      "typ": 1,
+      "top": 78340.9,
+      "bot": 78056.3
+    },
+    {
+      "uid": 31,
+      "utc": "2026-08-27T07:00",
+      "typ": 1,
+      "top": 78753.4,
+      "bot": 78713.5
+    },
+    {
+      "uid": 32,
+      "utc": "2026-08-27T07:21",
+      "typ": -1,
+      "top": 78817.0,
+      "bot": 78775.0
+    },
+    {
+      "uid": 33,
+      "utc": "2026-08-27T07:27",
+      "typ": 1,
+      "top": 78765.1,
+      "bot": 78733.9
+    },
+    {
+      "uid": 34,
+      "utc": "2026-08-27T07:36",
+      "typ": -1,
+      "top": 78838.0,
+      "bot": 78750.0
+    },
+    {
+      "uid": 35,
+      "utc": "2026-08-27T07:42",
+      "typ": 1,
+      "top": 78817.7,
+      "bot": 78753.1
+    },
+    {
+      "uid": 36,
+      "utc": "2026-08-27T08:06",
+      "typ": 1,
+      "top": 78850.0,
+      "bot": 78807.3
+    },
+    {
+      "uid": 37,
+      "utc": "2026-08-27T12:12",
+      "typ": -1,
+      "top": 79451.0,
+      "bot": 79131.8
+    },
+    {
+      "uid": 38,
+      "utc": "2026-08-27T12:51",
+      "typ": -1,
+      "top": 79558.9,
+      "bot": 79491.0
+    },
+    {
+      "uid": 39,
+      "utc": "2026-08-27T13:42",
+      "typ": -1,
+      "top": 79412.1,
+      "bot": 79285.3
+    },
+    {
+      "uid": 40,
+      "utc": "2026-08-27T14:36",
+      "typ": 1,
+      "top": 79453.9,
+      "bot": 79308.0
+    },
+    {
+      "uid": 41,
+      "utc": "2026-08-28T07:51",
+      "typ": -1,
+      "top": 79791.7,
+      "bot": 79679.2
+    },
+    {
+      "uid": 42,
+      "utc": "2026-08-28T08:12",
+      "typ": 1,
+      "top": 79645.8,
+      "bot": 79587.7
+    },
+    {
+      "uid": 43,
+      "utc": "2026-08-28T13:36",
+      "typ": -1,
+      "top": 79343.1,
+      "bot": 79272.4
+    },
+    {
+      "uid": 44,
+      "utc": "2026-08-28T14:06",
+      "typ": 1,
+      "top": 79125.9,
+      "bot": 78980.5
+    },
+    {
+      "uid": 45,
+      "utc": "2026-08-28T14:12",
+      "typ": -1,
+      "top": 79419.8,
+      "bot": 79134.2
+    },
+    {
+      "uid": 46,
+      "utc": "2026-08-28T14:42",
+      "typ": 1,
+      "top": 78993.7,
+      "bot": 78662.7
+    },
+    {
+      "uid": 47,
+      "utc": "2026-08-31T08:12",
+      "typ": -1,
+      "top": 78212.0,
+      "bot": 78161.8
+    },
+    {
+      "uid": 48,
+      "utc": "2026-08-31T08:27",
+      "typ": -1,
+      "top": 78146.0,
+      "bot": 78017.0
+    },
+    {
+      "uid": 49,
+      "utc": "2026-08-31T08:42",
+      "typ": 1,
+      "top": 78034.1,
+      "bot": 77950.0
+    },
+    {
+      "uid": 50,
+      "utc": "2026-08-31T12:12",
+      "typ": 1,
+      "top": 78341.8,
+      "bot": 78272.2
     },
     {
       "uid": 51,
