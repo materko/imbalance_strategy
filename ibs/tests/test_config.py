@@ -202,17 +202,22 @@ def test_volume_filter_flagged_without_real_volume():
 
 
 def test_all_profiles_exist():
-    assert set(list_profiles()) == {"mnq_3m", "btcusd_3m_coinbase", "btcusdt_3m_binance"}
+    assert set(list_profiles()) == {
+        "mnq_3m",
+        "btcusd_3m_coinbase",
+        "btcusdt_3m_binance",
+        "btcusdt_3m_binance_tv",
+    }
 
 
-@pytest.mark.parametrize("name", ["mnq_3m", "btcusd_3m_coinbase", "btcusdt_3m_binance"])
+@pytest.mark.parametrize("name", ["mnq_3m", "btcusd_3m_coinbase", "btcusdt_3m_binance", "btcusdt_3m_binance_tv"])
 def test_profile_loads_and_validates(name):
     cfg, inst = load_profile(name)
     assert isinstance(cfg, IBSConfig)
     assert inst.tick_size > 0
 
 
-@pytest.mark.parametrize("name", ["mnq_3m", "btcusd_3m_coinbase", "btcusdt_3m_binance"])
+@pytest.mark.parametrize("name", ["mnq_3m", "btcusd_3m_coinbase", "btcusdt_3m_binance", "btcusdt_3m_binance_tv"])
 def test_profiles_apply_the_five_chart_overrides(name):
     """Všetky profily vychádzajú z rovnakých nastavení grafu (docs/tv_settings_2026-09-03.md)."""
     cfg, _ = load_profile(name)
@@ -226,6 +231,15 @@ def test_profiles_apply_the_five_chart_overrides(name):
 def test_binance_profile_has_no_deprecated_tick_dollar_value():
     cfg, _ = load_profile("btcusdt_3m_binance")
     assert cfg.tickDollarValue is None
+
+
+def test_tv_reference_profile_keeps_pine_units():
+    """Referenčný profil pre golden test musí byť bit-identický s tým, čo bežalo v TradingView."""
+    cfg, _ = load_profile("btcusdt_3m_binance_tv")
+    assert cfg.legacyPineSizing is True
+    assert cfg.tickDollarValue == 0.5
+    for name, unit in SIZE_FIELDS.items():
+        assert getattr(cfg, name).unit == unit, name
 
 
 def test_binance_profile_converted_every_size_field():
