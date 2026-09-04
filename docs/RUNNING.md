@@ -257,6 +257,23 @@ rozišlo s paritou, ktorú stráži `test_golden_tv_binance.py`.
 na 90 dní dostanú tvrdú penalizáciu. Bez toho vyhlásil štandardný `CalmarHyperOptLoss`
 za víťaza epochu so **7 obchodmi** a +17 %, len preto, že mala malý drawdown.
 
+### Sizing musí sedieť, inak porovnávaš dva rôzne experimenty
+
+Profil `btcusdt_3m_binance_hyper` má zámerne `legacyPineSizing: true`
+a `tickDollarValue: 0.5`. Na BTC to dáva `qty = 1 BTC` pri každom reálnom SL
+(`floor(350 / (SLdist/0.1 × 0.5)) = 0 → max(1,0) = 1`), takže `maxLossDollar`
+sa neuplatní a riziko na obchod je rovné SL vzdialenosti v dolároch — presne to,
+čo robil TradingView strategy tester.
+
+Risk-based sizing (`legacyPineSizing: false`, riziko $350 na obchod) je na
+obchodovanie správnejšie, ale robí z toho **iný experiment**: mení váhu
+jednotlivých obchodov, a teda aj profit factor. Tie isté obchody na 365 dňoch:
+
+| sizing | PnL | max DD |
+|---|---|---|
+| risk-based ($350/obchod) | −48,9 % | 66,7 % |
+| legacy Pine (1 BTC) | −26,4 % | 57,0 % |
+
 **Pretrénovanie.** Priestor má 10 parametrov a stratégia robí rádovo 150–200 obchodov
 za rok. To je málo dát na 10 stupňov voľnosti. Výsledok vždy over na inom okne, než
 na akom si ladil — presne ten efekt, ktorý sa ukázal pri manuálnom prieskume
