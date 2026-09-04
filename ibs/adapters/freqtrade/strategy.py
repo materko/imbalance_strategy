@@ -75,9 +75,12 @@ class IBSImbalanceStrategy(IStrategy):
     process_only_new_candles = True
     use_exit_signal = True
     use_custom_stoploss = True
+    #: TP ide cez `custom_roi`, nie cez `custom_exit` — viď tam prečo.
+    use_custom_roi = True
 
     #: SL aj TP riadi engine per obchod, nie tieto globálne hodnoty.
     stoploss = -0.99
+    #: Nedosiahnuteľná hodnota — reálny prah dodáva `custom_roi` per obchod.
     minimal_roi = {"0": 100.0}
 
     startup_candle_count = 300
@@ -163,7 +166,7 @@ class IBSImbalanceStrategy(IStrategy):
         return dataframe
 
     def populate_exit_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-        # Výstupy rieši custom_exit / custom_stoploss per obchod.
+        # Výstupy rieši custom_roi (TP) a custom_stoploss (SL) per obchod.
         return dataframe
 
     # ------------------------------------------------------------------ #
@@ -240,18 +243,31 @@ class IBSImbalanceStrategy(IStrategy):
             leverage=trade.leverage or 1.0,
         )
 
-    def custom_exit(
-        self, pair: str, trade, current_time: datetime, current_rate: float,
-        current_profit: float, **kwargs
-    ) -> str | None:
-        """TP — `entry ± SL vzdialenosť × rrRatio`."""
+    def custom_roi(
+        self, pair: str, trade, current_time: datetime, trade_duration: int,
+        entry_tag: str | None, side: str, **kwargs
+    ) -> float | None:
+        """TP — `entry ± SL vzdialenosť × rrRatio` — ako odpočívajúci limit.
+
+        Prečo ROI a nie `custom_exit`: exit-signál sa v backteste vyhodnocuje aj plní
+        **otváracou cenou sviečky** (`row[OPEN_IDX]`), takže knôt cez TP neurobí nič
+        a keď sa napokon spustí, cena je už za TP. Na golden dátach to výstupy posúvalo
+        o jednu až tri sviečky neskôr a o 7-11 bodov vyššie, než ukázal TradingView.
+
+        ROI sa naopak vyhodnocuje proti `high` (pre long) danej sviečky a plní sa cenou
+        z `calc_close_rate_for_roi()` orezanou do rozsahu sviečky — teda intrabar
+        a presne na TP, rovnako ako Pine `strategy.exit(limit=...)`.
+
+        `calc_profit_ratio()` je presná inverzia `calc_close_rate_for_roi()`, takže
+        poplatky ani páku netreba riešiť ručne.
+        """
         levels = self._levels(pair, trade)
         if levels is None:
             return None
         _, take_profit = levels
-        if trade.is_short:
-            return "ibs_tp" if current_rate <= take_profit else None
-        return "ibs_tp" if current_rate >= take_profit else None
+        if take_profit != take_profit:  # NaN
+            return None
+        return trade.calc_profit_ratio(take_profit)
 
     def confirm_trade_entry(
         self, pair: str, order_type: str, amount: float, rate: float, time_in_force: str,

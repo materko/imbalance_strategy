@@ -190,18 +190,27 @@ v absolútnych bodoch. Na porovnanie s TradingView treba `_tv` profil.
 > Po oprave má exekučný profil 66 zón namiesto 77. Na `_tv` profil to nemá vplyv —
 > ten má všetko v `abs`/`ticks`.
 
-### Čo ešte nesedí na cent
+### Výstupy: TP musí ísť cez ROI, nie cez exit-signál
 
-Výstupné ceny sa líšia o jednotky bodov, lebo Freqtrade zatvára obchod cenou 1m detailnej
-sviečky, nie presne na TP úrovni:
+Pôvodne bol TP v `custom_exit`. To je **exit-signál**, a ten sa v backteste vyhodnocuje
+aj plní **otváracou cenou sviečky** (`row[OPEN_IDX]`) — knôt cez TP teda neurobí nič
+a keď sa napokon spustí, cena je už za TP:
 
-| # | TV výstup | Freqtrade |
-|---|---|---|
-| 1 | 79 607,3 | 79 618,1 |
-| 2 | 78 541,2 | 78 541,2 ✅ |
-| 3 | 80 458,9 | 80 459,0 |
-| 4 | 78 796,5 | 78 803,4 |
-| 5 | 79 451,3 | 79 460,4 |
+| # | TV výstup | `custom_exit` | `custom_roi` |
+|---|---|---|---|
+| 1 | 79 607,3 | 79 618,1 (o 10 min neskôr) | **79 607,3** ✅ |
+| 2 | 78 541,2 (SL) | 78 541,2 | 78 541,2 ✅ |
+| 3 | 80 458,9 (SL) | 80 459,0 | 80 459,0 (0,1 = 1 tick) |
+| 4 | 78 796,5 | 78 803,4 | **78 796,5** ✅ |
+| 5 | 79 451,3 | 79 460,4 | **79 451,3** ✅ |
+
+Riešenie je `use_custom_roi = True` + `custom_roi()`, ktorý vráti
+`trade.calc_profit_ratio(take_profit)`. ROI sa vyhodnocuje proti **`high`** sviečky
+(pre long) a plní sa cenou z `calc_close_rate_for_roi()` orezanou do rozsahu sviečky —
+teda intrabar a presne na TP, rovnako ako Pine `strategy.exit(limit=…)`. A keďže
+`calc_profit_ratio()` je presná inverzia, poplatky ani páku netreba riešiť ručne.
+
+Zvyšný rozdiel 0,1 pri obchode 3 je zaokrúhlenie SL na cenovú presnosť páru — jeden tick.
 
 `open_date` vo výpise Freqtradu je sviečka, na ktorej sa **zadal order**, nie minúta
 vyplnenia — preto pri obchode 2 ukazuje 17:09, hoci sa vyplnil o 17:15 ako v TradingView.
