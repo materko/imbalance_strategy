@@ -53,9 +53,16 @@ def pivot(
 ) -> float | None:
     """Pine ``ta.pivothigh(length, length)`` / ``ta.pivotlow``.
 
-    Stred okna je bar vzdialený `length` dozadu; potvrdí sa, keď má po oboch
-    stranách `length` barov s nižším high (resp. vyšším low). Porovnanie je
-    **prísne**, presne ako v Pine — pri zhode pivot nevznikne.
+    Stred okna je bar vzdialený `length` dozadu.
+
+    **Porovnanie je asymetrické a je to zámer.** Pine na ľavej strane pripúšťa
+    ZHODU, vpravo vyžaduje prísne nižšie high (resp. vyššie low). S obojstranne
+    prísnym porovnaním sa zahadzujú pivoty, ktoré TradingView nájde — na
+    Elliott zigzagu to znamenalo 32 z 41 bodov namiesto 41 z 41
+    (docs/GOLDEN_binance_2026-08-24.md).
+
+    Pozor na indexovanie: `history[0]` je NAJNOVŠÍ bar, takže index menší než
+    `length` je vpravo od pivota v čase, nie vľavo.
 
     `source="hl"` berie high/low (Market Structure), `source="close"` berie close
     (S/R aj likvidita) — tam má úroveň vzniknúť len tam, kde sa cena naozaj
@@ -75,7 +82,12 @@ def pivot(
         if i == length:
             continue
         other = val(history[i])
-        if (other >= value) if high else (other <= value):
+        # i < length = novšie bary = vpravo od pivota -> prísne; staršie -> zhoda OK
+        strict = i < length
+        if high:
+            if (other >= value) if strict else (other > value):
+                return None
+        elif (other <= value) if strict else (other < value):
             return None
     return value
 

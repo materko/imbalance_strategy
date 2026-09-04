@@ -38,9 +38,19 @@ def test_pivot_najde_vrchol_v_strede_okna():
     assert pivot(h, 1, high=True) == 20
 
 
-def test_pivot_je_prisny_pri_zhode():
-    """Pine `ta.pivothigh` vyžaduje NIŽŠIE high po oboch stranách, nie rovnaké."""
+def test_pivot_pripusta_zhodu_vlavo():
+    """Pine je na ľavej strane zhovievavý — rovnaké high pivot nezruší.
+
+    Bez tejto asymetrie sa zahadzujú pivoty, ktoré TradingView nájde: na Elliott
+    zigzagu to znamenalo 32 z 41 bodov namiesto 41 z 41.
+    """
     h = history_of([bar(0, 20, 5), bar(1, 20, 5), bar(2, 10, 5)])
+    assert pivot(h, 1, high=True) == 20
+
+
+def test_pivot_je_prisny_vpravo():
+    """Vpravo (novšie bary) už zhoda pivot ruší."""
+    h = history_of([bar(0, 10, 5), bar(1, 20, 5), bar(2, 20, 5)])
     assert pivot(h, 1, high=True) is None
 
 

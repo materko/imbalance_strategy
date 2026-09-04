@@ -253,9 +253,9 @@ Regresný test: `ibs/tests/test_golden_tv_draw.py`.
 ### Čo tento fixture nepokrýva
 
 - **SD zóny a TP/SL boxy** — tie stráži `test_golden_tv_binance.py` cez `tv_zones_*`.
-- **S/R a Elliott** — kreslia sa až na `barstate.islast`, takže sa v logu objavia raz
-  a nedá sa z nich postaviť zmysluplné okno. Elliott navyše na BTC nenájde ani jeden
-  platný impulz (`ewMinWavePoints` je naladený na MNQ).
+- **S/R a Elliott kreslenie** — kreslia sa až na `barstate.islast`, takže sa v logu
+  objavia raz a nedá sa z nich postaviť zmysluplné okno. Elliott zigzag je overený
+  samostatne, viď nižšie.
 - **Pozadie seáns a dashboard** — `bgcolor()` a `table.cell()` sa nedajú logovať zmysluplne.
 
 ## Obchodovanie z S/R a likvidity (overené 2026-09-04)
@@ -281,3 +281,28 @@ Regresný test: `test_sr_a_likviditne_zony_sedia_s_tradingview`.
 > ani zo sweepu cez neho neprejde. Prvý pokus o toto meranie preto ukázal „SR/LQ
 > nemá žiadny efekt" — test musí ísť cez `IBSEngine`.
 
+## Elliott zigzag (overené 2026-09-04)
+
+Elliott sa nedal overiť cez finálne vykreslenie: na BTC dá platný počet vĺn len pri
+`ewSwingLen 30 / ewMinWavePoints 600`, a aj tak len na ~13 % možných posledných barov.
+Overuje sa preto vrstva pod ním — **zigzag**, z ktorého sa vlny skladajú.
+
+Postup: do `ewAddPoint` v Pine sa dočasne pridal `log.info("EW|...")`, na grafe sa
+zapol Elliott (`ewSwingLen 25`, `ewMinWavePoints 600`) a z panelu logov sa odčítalo
+43 bodov do `golden/tv_elliott_btcusdt_binance_3m.json`.
+
+Výsledok: **41 z 41 bodov v súvislom úseku sedí, žiadny nechýba a žiadny nie je navyše.**
+
+Cestou k tomu boli dve zistenia:
+
+**Skutočná chyba v porte — pivot a zhodné hodnoty.** Pine `ta.pivothigh` pripúšťa
+zhodnú hodnotu na **ľavej** (staršej) strane, ale na pravej je prísny. Náš `pivot()`
+bol prísny na oboch stranách, takže zahadzoval pivoty na plochých vrcholoch.
+Opravené v `ibs/core/ta/structure.py`.
+
+**Chyba merania — log vzniká len pri pushi.** Pine loguje len pridanie bodu; keď
+neskôr posunie posledný bod na extrémnejšiu hodnotu, log nevznikne. Prvé porovnanie
+(TV pushe proti našim finálnym bodom) dalo 32 zo 41 a vyzeralo to ako ďalšia chyba
+v porte. Test preto porovnáva **push udalosti**, nie finálny zoznam bodov.
+
+Regresný test: `ibs/tests/test_golden_tv_elliott.py`.
