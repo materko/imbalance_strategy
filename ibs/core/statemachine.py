@@ -143,6 +143,21 @@ class StateMachine:
 
         return intents
 
+    def cut_forming_zones(self, bar: Bar) -> None:
+        """Pine riadky 2271-2288 — koniec KAŽDEJ seansy utne zóny v STATE 0-3.
+
+        Zóna, ktorá sa ešte len formuje alebo čaká na potvrdenie, nemá ešte žiadny
+        order, a preto ju nechytí ani kontrola v STATE 4/5, ani `close_session`
+        (tá beží až po poslednej seanse dňa). Bez tohto by taká zóna prežila medzeru
+        medzi dvoma seansami a obchodovala sa v tej nasledujúcej — box sa na grafe
+        tiahol cez viacero seáns a vznikli obchody, ktoré TradingView nemá.
+
+        STATE 4 a 5 sa tu zámerne nechávajú bokom, tie majú vlastnú logiku.
+        """
+        for z in list(self.book.zones):
+            if 0 <= int(z.state) <= 3:
+                self._invalidate(z, bar, "koniec seansy")
+
     def close_session(self, bar: Bar, ctx: MarketContext) -> list[OrderIntent]:
         """Pine riadky 2291-2318 - koniec poslednej seansy dna zmete vsetko zo stola.
 
@@ -643,6 +658,11 @@ class StateMachine:
         if not z.filled and running_now:
             z.filled = True
             self.events.append(StateEvent(bar.time, z.uid, z.state, z.state, "FILLED"))
+
+            # Pine 2185 — vyplnením orderu sa zóna vizuálne uzavrie. Stav sa NEmení,
+            # je to len rez boxu; `pending_invalid` je zóna, cez ktorú už cena prešla.
+            if self.cfg.invalidateOnFill or z.pending_invalid:
+                self.drawings.extend(z.resize_on_invalidation(bar.time))
 
             # OCO: kto vyplnil prvý, ten vypína opačné čakajúce ordery.
             for other in self.book.zones:

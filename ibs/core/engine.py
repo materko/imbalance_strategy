@@ -14,7 +14,8 @@ from dataclasses import dataclass, field
 
 from .clock import ClockState, SessionClock
 from .config import IBSConfig
-from .drawing import DrawCommand
+from .drawing import DrawBox, DrawCommand, DrawKind
+from .drawing import Palette as PAL
 from .history import BarHistory
 from .statemachine import MarketContext, OrderIntent, StateEvent, StateMachine
 from .ta.elliott import ElliottWaves
@@ -98,6 +99,44 @@ class IBSEngine:
             lvl.zone_spawned = True
             out.drawings.extend(zone.boxes(self.chart_tf_minutes * 60_000))
 
+    def _draw_imbalance_candle(self, out: EngineOutput, atr: float) -> None:
+        """Pine riadky 682–701 — box na sviečke, ktorá vytvorila gap.
+
+        Pozor, toto je **nezávislé od zón**: Pine hľadá ten istý trojsviečkový vzor
+        na každom bare a kreslí ho, aj keď v okolí žiadna zóna nie je. Zónový hľadač
+        (`detect_imbalance`) rieši niečo iné — či sa gap dá priradiť ku konkrétnej
+        zóne — takže sa tým nedá nahradiť.
+
+        Box sa kreslí na **prostrednú** sviečku a na jej telo. Pri doji (telo nulovej
+        výšky) ho Pine rozšíri o pol ticku, inak by box nebolo vidieť.
+        """
+        if not self.cfg.showImbalance or not self.history.has(2):
+            return
+        near, mid, far = self.history[0], self.history[1], self.history[2]
+        min_imb = self.cfg.minImbSizePoints.resolve(
+            self.inst, price=near.close, atr=atr
+        )
+        bull = near.low > far.high and mid.close > far.high and (near.low - far.high) >= min_imb
+        bear = near.high < far.low and mid.close < far.low and (far.low - near.high) >= min_imb
+        if not (bull or bear):
+            return
+
+        top, bot = max(mid.open, mid.close), min(mid.open, mid.close)
+        if top == bot:
+            top, bot = top + self.inst.tick_size * 0.5, bot - self.inst.tick_size * 0.5
+        step = self.chart_tf_minutes * 60_000
+        out.drawings.append(
+            DrawBox(
+                kind=DrawKind.IMB_BOX,
+                x1_ms=mid.time,
+                y1=top,
+                x2_ms=mid.time + step,
+                y2=bot,
+                border_color=(PAL.STRONG if bull else PAL.LONG).value,
+                fill_color=None,
+            )
+        )
+
     def _spawn_sweep_zones(self, sweeps, bar: Bar, out: EngineOutput) -> None:
         """Pine riadky 1198–1247 — fade po sweepe, obchod ide PROTI prepichnutiu."""
         for sw in sweeps:
@@ -143,6 +182,7 @@ class IBSEngine:
 
         out = EngineOutput(clock=state)
         out.drawings.extend(state.backgrounds(bar.time, self.chart_tf_minutes * 60_000))
+        self._draw_imbalance_candle(out, atr)
         # Market Structure beží vždy — `marketBias` z neho číta filter
         # `useStructureFilter`, ktorý je v referenčných profiloch vypnutý.
         out.drawings.extend(self.structure.on_bar(bar, self.history))
@@ -171,6 +211,8 @@ class IBSEngine:
                     out.drawings.extend(zone.boxes(self.chart_tf_minutes * 60_000))
 
         out.orders = self.machine.on_bar(bar, self.history, ctx, atr=atr)
+        if was_in_window and not state.in_trade_window:
+            self.machine.cut_forming_zones(bar)
         if (
             self.cfg.closeAtSessionEnd
             and state.no_more_sessions_today
