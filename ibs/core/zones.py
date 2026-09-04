@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from .config import IBSConfig
-from .drawing import DrawBox, DrawKind, LineStyle, with_alpha, zone_color
+from .drawing import DrawBox, DrawKind, DrawUpdate, LineStyle, with_alpha, zone_color
 from .types import Direction, HTFWindow, InstrumentSpec, SnapMode
 
 __all__ = [
@@ -186,6 +186,8 @@ class Zone:
     filled: bool = False
     pending_invalid: bool = False
     entry_done: bool = False
+    #: len na kreslenie — TP/SL boxy sa po zavretí obchodu utnú práve raz.
+    trade_boxes_closed: bool = False
 
     @property
     def order_id(self) -> str:
@@ -206,11 +208,42 @@ class Zone:
     def color(self) -> str:
         return zone_color(int(self.direction), self.volume_strong)
 
+    @property
+    def pre_box_id(self) -> str:
+        return f"z{self.uid}.pre"
+
+    @property
+    def post_box_id(self) -> str:
+        return f"z{self.uid}.post"
+
+    def resize_on_invalidation(self, now_ms: int) -> list[DrawUpdate]:
+        """Pine `resizeZoneOnInvalidation` (riadok 1478) — oba boxy končia TERAZ.
+
+        Bez toho box "visí" v pôvodnej šírke až po `expT`, hoci zóna už dávno
+        neplatí. Pine to volá na každej ceste invalidácie aj pri expirácii.
+        """
+        return [
+            DrawUpdate(self.pre_box_id, "x2_ms", now_ms),
+            DrawUpdate(self.post_box_id, "x2_ms", now_ms),
+        ]
+
+    def recolor(self, color: str) -> list[DrawUpdate]:
+        """Pine `box.set_border_color` + `set_bgcolor` (riadky 1577–1580 a spol.).
+
+        Zóna sa prefarbí, keď ju potvrdí pin bar, engulfing alebo imbalance.
+        """
+        return [
+            DrawUpdate(self.pre_box_id, "border_color", with_alpha(color, 15)),
+            DrawUpdate(self.post_box_id, "border_color", with_alpha(color, 15)),
+            DrawUpdate(self.post_box_id, "fill_color", with_alpha(color, 85)),
+        ]
+
     def boxes(self, step_ms: int) -> list[DrawBox]:
         """Dva boxy, ktoré Pine kreslí pri vzniku zóny (riadky 651–657).
 
         `pre` je formácia (bodkovaný obrys, bez výplne) od základovej sviečky po
         potvrdenie, `post` je potvrdená zóna (plná výplň) až po expiráciu.
+        Neskoršie zmeny idú cez `resize_on_invalidation()` / `recolor()`.
         """
         border = self.color
 
@@ -230,6 +263,7 @@ class Zone:
                 border_color=with_alpha(border, 15),
                 fill_color=None,
                 border_style=LineStyle.DOTTED,
+                obj_id=self.pre_box_id,
                 zone_uid=self.uid,
             ),
             DrawBox(
@@ -241,6 +275,7 @@ class Zone:
                 border_color=with_alpha(border, 15),
                 fill_color=with_alpha(border, 85),
                 border_style=LineStyle.SOLID,
+                obj_id=self.post_box_id,
                 zone_uid=self.uid,
             ),
         ]

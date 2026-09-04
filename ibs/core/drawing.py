@@ -5,6 +5,16 @@ Engine **nikdy nekreslí sám** — vracia zoznam `DrawCommand`. Každý adapté
 plotly shapes vo Freqtrade). To je jediný spôsob, ako dostať naozaj rovnaké
 vykreslenie na oboch platformách aj v TradingView.
 
+### Prečo majú objekty identitu
+Pine kreslí objekt raz (`box.new`) a potom ho **mení** — 16× `box.set_right`,
+`box.set_bgcolor`, `box.set_border_color`. Zóna sa počas života predlžuje doprava
+a pri prechode stavom mení farbu. Snapshot z okamihu vzniku by teda nakreslil
+niečo iné než to, čo je na grafe nakoniec vidieť.
+
+Preto má každý objekt `obj_id` a engine emituje aj `DrawUpdate` — presný náprotivok
+Pine `set_*`. `DrawRegistry` to prehrá a vráti finálny stav; adaptér, ktorý chce
+animáciu alebo replay, si namiesto toho môže prehrať príkazy po baroch.
+
 Paleta je prevzatá 1:1 z Pine sekcie „DESIGN SYSTEM" (riadky 258–266).
 LONG/Demand je zámerne červená a SHORT/Supply modrá — je to konvencia tejto
 stratégie, nie preklep.
@@ -12,18 +22,25 @@ stratégie, nie preklep.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from collections.abc import Iterable
+from dataclasses import dataclass
 from enum import Enum
 
 __all__ = [
     "Palette",
     "PAL",
     "LineStyle",
+    "LabelStyle",
     "DrawKind",
     "DrawBox",
     "DrawLine",
     "DrawLabel",
+    "DrawBg",
+    "DrawUpdate",
+    "DrawDelete",
     "DrawCommand",
+    "DrawObject",
+    "DrawRegistry",
     "zone_color",
     "with_alpha",
 ]
@@ -71,26 +88,58 @@ class LineStyle(str, Enum):
     DASHED = "dashed"
 
 
-class DrawKind(str, Enum):
-    """Čo objekt znamená — adaptér podľa toho volí vrstvu a štýl."""
+class LabelStyle(str, Enum):
+    """Pine `label.style_*` — určuje, či má štítok bublinu a kam smeruje."""
 
+    NONE = "none"  # label.style_none - holý text
+    UP = "up"  # label.style_label_up - bublina pod bodom, šípka hore
+    DOWN = "down"  # label.style_label_down
+    LEFT = "left"  # label.style_label_left
+
+
+class DrawKind(str, Enum):
+    """Čo objekt znamená — adaptér podľa toho volí vrstvu a štýl.
+
+    Hodnoty kopírujú miesta v Pine, aby sa dali porovnať vedľa seba.
+    """
+
+    # -- SD zóny a ich sprievodné boxy (Pine 652, 656, 697, 1684, 1758) ----
     SD_ZONE_PRE = "sd_zone_pre"  # formácia zóny, bodkovaný obrys bez výplne
     SD_ZONE_POST = "sd_zone_post"  # potvrdená zóna, plná výplň
     IMB_BOX = "imb_box"
+    PIN_BAR_BOX = "pin_bar_box"  # Pine 1572
+    ENGULFING_BOX = "engulfing_box"  # Pine 1617
+    # -- obchod (Pine 2097, 2098) -----------------------------------------
     TP_BOX = "tp_box"
     SL_BOX = "sl_box"
-    STRUCTURE = "structure"
-    SR_LEVEL = "sr_level"
-    LIQ_SWEEP = "liq_sweep"
-    SKIP = "skip"
-    COUNTER = "counter"
     ENTRY = "entry"
     EXIT = "exit"
+    # -- štítky stavového automatu ----------------------------------------
+    SKIP = "skip"  # Pine 2042
+    COUNTER = "counter"  # Pine 2265
+    STATE34 = "state34"  # Pine 1850 / 1872
+    EXPIRED = "expired"  # Pine 2173
+    MAX_DAILY = "max_daily"  # Pine 1894
+    IMB_ZERO = "imb_zero"  # Pine 2246 - "0" pri imbalance
+    # -- display-only moduly ----------------------------------------------
+    SWING = "swing"  # HH/HL/LH/LL štítky (Pine 750, 762)
+    STRUCTURE = "structure"  # BOS/CHoCH čiara + štítok (Pine 781-812)
+    SR_LEVEL = "sr_level"  # Pine 1126 / 1129
+    SR_GOLDEN = "sr_golden"  # Pine 1114 / 1117
+    LIQ_SWEEP = "liq_sweep"  # Pine 1181-1231
+    ELLIOTT_WAVE = "elliott_wave"  # Pine 1346 / 1357
+    ELLIOTT_PROJ = "elliott_proj"  # Pine 1425 / 1468
+    # -- pozadie seansy (Pine 331-333) ------------------------------------
+    SESSION = "session"
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class DrawBox:
-    """Obdĺžnik. Súradnice X sú **čas v ms**, nie index baru — aby boli prenositeľné."""
+    """Obdĺžnik. Súradnice X sú **čas v ms**, nie index baru — aby boli prenositeľné.
+
+    Nie je frozen: Pine ten istý box počas života mení (`box.set_right` na každom
+    bare, `set_bgcolor` pri zmene stavu) a `DrawRegistry` to reprodukuje.
+    """
 
     kind: DrawKind
     x1_ms: int
@@ -100,6 +149,10 @@ class DrawBox:
     border_color: str
     fill_color: str | None = None
     border_style: LineStyle = LineStyle.SOLID
+    border_width: int = 1
+    #: Pine `extend.right` — box pokračuje za pravý okraj.
+    extend_right: bool = False
+    obj_id: str = ""
     zone_uid: int | None = None
     text: str = ""
 
@@ -108,7 +161,7 @@ class DrawBox:
             raise ValueError(f"box konci pred zaciatkom: {self.x1_ms} -> {self.x2_ms}")
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class DrawLine:
     kind: DrawKind
     x1_ms: int
@@ -118,18 +171,95 @@ class DrawLine:
     color: str
     style: LineStyle = LineStyle.SOLID
     width: int = 1
+    obj_id: str = ""
+    zone_uid: int | None = None
     text: str = ""
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(slots=True)
 class DrawLabel:
     kind: DrawKind
     x_ms: int
     y: float
     text: str
     color: str
+    #: Pine `label.style_*`. `above` sa zachováva pre spätnú kompatibilitu.
+    style: LabelStyle = LabelStyle.NONE
     above: bool = True
+    #: Farba bubliny; `None` = priehľadná (Pine `color.new(color.white, 100)`).
+    bg_color: str | None = None
+    obj_id: str = ""
     zone_uid: int | None = None
 
 
-DrawCommand = DrawBox | DrawLine | DrawLabel
+@dataclass(slots=True)
+class DrawBg:
+    """Pine `bgcolor()` — zvislý pás cez celú výšku grafu (pozadie seansy)."""
+
+    kind: DrawKind
+    x1_ms: int
+    x2_ms: int
+    color: str
+    obj_id: str = ""
+    text: str = ""
+
+
+@dataclass(frozen=True, slots=True)
+class DrawUpdate:
+    """Pine `box.set_*` / `label.set_*` — zmena už nakresleného objektu.
+
+    `field` je názov atribútu cieľového objektu (napr. ``"x2_ms"``, ``"fill_color"``).
+    """
+
+    obj_id: str
+    field: str
+    value: object
+
+
+@dataclass(frozen=True, slots=True)
+class DrawDelete:
+    """Pine `box.delete` / `label.delete` — objekt vypadol z poolu."""
+
+    obj_id: str
+
+
+DrawObject = DrawBox | DrawLine | DrawLabel | DrawBg
+DrawCommand = DrawObject | DrawUpdate | DrawDelete
+
+
+class DrawRegistry:
+    """Prehrá príkazy a vráti finálny stav objektov — to, čo je na grafe vidieť.
+
+    Adaptér, ktorý chce statický obrázok, prehrá celý beh a vykreslí `objects()`.
+    Adaptér, ktorý chce replay, si príkazy vezme po baroch a registry nepoužije.
+    """
+
+    __slots__ = ("_objects",)
+
+    def __init__(self) -> None:
+        self._objects: dict[str, DrawObject] = {}
+
+    def apply(self, cmd: DrawCommand) -> None:
+        if isinstance(cmd, DrawUpdate):
+            obj = self._objects.get(cmd.obj_id)
+            if obj is not None:  # update na zmazaný objekt sa ticho ignoruje
+                setattr(obj, cmd.field, cmd.value)
+            return
+        if isinstance(cmd, DrawDelete):
+            self._objects.pop(cmd.obj_id, None)
+            return
+        if not cmd.obj_id:
+            raise ValueError(f"objekt bez obj_id sa nedá updatovať: {cmd}")
+        self._objects[cmd.obj_id] = cmd
+
+    def extend(self, cmds: "Iterable[DrawCommand]") -> None:
+        for c in cmds:
+            self.apply(c)
+
+    def objects(self, kind: DrawKind | None = None) -> list[DrawObject]:
+        """Finálny stav, v poradí vzniku (Pine kreslí neskoršie objekty navrch)."""
+        out = list(self._objects.values())
+        return [o for o in out if o.kind is kind] if kind is not None else out
+
+    def __len__(self) -> int:
+        return len(self._objects)

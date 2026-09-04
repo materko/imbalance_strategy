@@ -2,7 +2,22 @@
 
 from .clock import ClockState, SessionClock, SessionSpec, SessionWindow
 from .config import CONFIG_DIR, ConfigError, IBSConfig, list_profiles, load_profile
-from .drawing import DrawBox, DrawCommand, DrawKind, DrawLabel, DrawLine, LineStyle, PAL, Palette
+from .drawing import (
+    PAL,
+    DrawBg,
+    DrawBox,
+    DrawCommand,
+    DrawDelete,
+    DrawKind,
+    DrawLabel,
+    DrawLine,
+    DrawObject,
+    DrawRegistry,
+    DrawUpdate,
+    LabelStyle,
+    LineStyle,
+    Palette,
+)
 from .engine import EngineOutput, IBSEngine
 from .history import BarHistory
 from .risk import TradePlan, TrailingPlan, build_trade_plan, swing_stop_loss
@@ -63,7 +78,13 @@ __all__ = [
     "DrawBox",
     "DrawLine",
     "DrawLabel",
+    "DrawBg",
     "DrawCommand",
+    "DrawDelete",
+    "DrawObject",
+    "DrawRegistry",
+    "DrawUpdate",
+    "LabelStyle",
     "LineStyle",
     "Zone",
     "ZoneBook",

@@ -25,6 +25,17 @@ from dataclasses import dataclass, field
 from enum import Enum, IntEnum
 
 from .config import IBSConfig
+from .drawing import (
+    PAL,
+    DrawBox,
+    DrawCommand,
+    DrawDelete,
+    DrawKind,
+    DrawLabel,
+    DrawUpdate,
+    LabelStyle,
+    with_alpha,
+)
 from .history import BarHistory
 from .risk import TradePlan, build_trade_plan, swing_stop_loss
 from .ta.imbalance import find_imbalance
@@ -104,6 +115,8 @@ class StateMachine:
         self.inst = inst
         self.book = book
         self.events: list[StateEvent] = []
+        #: Pine `box.set_*` volania z tohto baru — engine ich pripojí k výstupu.
+        self.drawings: list[DrawCommand] = []
 
     # ------------------------------------------------------------------ #
 
@@ -117,6 +130,7 @@ class StateMachine:
     ) -> list[OrderIntent]:
         intents: list[OrderIntent] = []
         self.events = []
+        self.drawings = []
 
         self._expire(bar)
 
@@ -146,6 +160,7 @@ class StateMachine:
                 self.events.append(
                     StateEvent(bar.time, z.uid, z.state, z.state, "zona expirovala")
                 )
+                self.drawings.extend(z.resize_on_invalidation(bar.time))
 
     @staticmethod
     def _is_active(z: Zone) -> bool:
@@ -161,6 +176,8 @@ class StateMachine:
     def _invalidate(self, z: Zone, bar: Bar, reason: str) -> None:
         self._transition(z, ZoneState.INVALID, bar, reason)
         z.used = True
+        # Pine `resizeZoneOnInvalidation` — volá sa na KAŽDEJ ceste invalidácie.
+        self.drawings.extend(z.resize_on_invalidation(bar.time))
 
     # ------------------------------------------------------------------ #
 
@@ -432,6 +449,11 @@ class StateMachine:
         skip = self._skip_reason(z, bar, history, ctx)
         if skip:
             self._invalidate(z, bar, f"SKIP: {skip}")
+            self._draw_label(
+                z, bar, DrawKind.SKIP,
+                f"SKIP ({'LONG' if z.direction is Direction.LONG else 'SHORT'})\n{skip}",
+                color=with_alpha(PAL.GRAY.value, 20), bubble=True,
+            )
             return []
 
         use_market = z.order_sl is not None and cfg.pbEngOrderType is OrderType.MARKET
@@ -440,6 +462,7 @@ class StateMachine:
         z.order_sl = stop
         z.state_bar_index = history.bar_index
         self._transition(z, ZoneState.ORDER_PENDING, bar, "order zadany")
+        self._draw_trade_boxes(z, bar, plan)
 
         return [
             OrderIntent(
@@ -451,6 +474,68 @@ class StateMachine:
                 order_type=OrderType.MARKET if use_market else OrderType.LIMIT,
             )
         ]
+
+    # -- kreslenie ------------------------------------------------------- #
+
+    def _draw_trade_boxes(self, z: Zone, bar: Bar, plan: TradePlan) -> None:
+        """Pine riadky 2085–2099 — dva vyplnené bloky rozdelené na úrovni entry.
+
+        Zelený je smerom k TP (reward), červený k SL (risk); funguje rovnako pre
+        LONG aj SHORT, box sa len položí na správnu stranu. Pravý okraj je vopred
+        `state5MaxBars * 3` barov dopredu (Pine `lineEnd`) a keď sa obchod zavrie,
+        zmenší sa na aktuálny bar — viď `_close_trade_boxes`.
+        """
+        step = self.book.step_ms
+        right = bar.time + self.cfg.state5MaxBars * 3 * step
+        for kind, price, col in (
+            (DrawKind.TP_BOX, plan.take_profit, PAL.STRONG.value),
+            (DrawKind.SL_BOX, plan.stop_loss, PAL.LONG.value),
+        ):
+            self.drawings.append(
+                DrawBox(
+                    kind=kind,
+                    x1_ms=bar.time,
+                    y1=max(plan.entry, price),
+                    x2_ms=right,
+                    y2=min(plan.entry, price),
+                    border_color=with_alpha(col, 100),
+                    fill_color=with_alpha(col, 70),
+                    border_width=0,
+                    obj_id=f"z{z.uid}.{kind.value}",
+                    zone_uid=z.uid,
+                )
+            )
+
+    def _close_trade_boxes(self, z: Zone, bar: Bar) -> None:
+        """Pine riadky 2231–2233 — po zavretí obchodu box končí na aktuálnom bare."""
+        for kind in (DrawKind.TP_BOX, DrawKind.SL_BOX):
+            self.drawings.append(DrawUpdate(f"z{z.uid}.{kind.value}", "x2_ms", bar.time))
+
+    def _delete_trade_boxes(self, z: Zone) -> None:
+        """Pine `deleteTradeBoxes` (riadok 1490) — order zrušený, boxy zmiznú."""
+        for kind in (DrawKind.TP_BOX, DrawKind.SL_BOX):
+            self.drawings.append(DrawDelete(f"z{z.uid}.{kind.value}"))
+
+    def _draw_label(
+        self, z: Zone, bar: Bar, kind: DrawKind, text: str, *, color: str, bubble: bool
+    ) -> None:
+        """Štítok nad/pod sviečkou. Pine ho pri LONG dáva pod low, pri SHORT nad high."""
+        long = z.direction is Direction.LONG
+        off = self.inst.tick_size * 10
+        self.drawings.append(
+            DrawLabel(
+                kind=kind,
+                x_ms=bar.time,
+                y=bar.low - off if long else bar.high + off,
+                text=text,
+                color="#ffffff" if bubble else color,
+                style=(LabelStyle.UP if long else LabelStyle.DOWN) if bubble else LabelStyle.NONE,
+                above=not long,
+                bg_color=color if bubble else None,
+                obj_id=f"z{z.uid}.{kind.value}.{bar.time}",
+                zone_uid=z.uid,
+            )
+        )
 
     def _skip_reason(
         self, z: Zone, bar: Bar, history: BarHistory, ctx: MarketContext
@@ -504,6 +589,11 @@ class StateMachine:
             timed_out = bars_waiting >= self.cfg.state5MaxBars
             if timed_out or not ctx.in_trade_window:
                 self._invalidate(z, bar, "EXPIRED" if timed_out else "koniec seansy")
+                if timed_out:
+                    self._draw_label(
+                        z, bar, DrawKind.EXPIRED, f"EXPIRED\nb={bars_waiting}",
+                        color=PAL.AMBER.value, bubble=True,
+                    )
                 z.entry_done = False
                 return [
                     OrderIntent(
@@ -512,6 +602,12 @@ class StateMachine:
                     )
                 ]
             return []
+
+        if z.filled and not running_now and not z.trade_boxes_closed:
+            # Pine 2231-2233: obchod sa zavrel (TP/SL). Boxy ostavaju ako historicky
+            # zaznam, len sa im utne pravy okraj na bar, kde sa to naozaj stalo.
+            z.trade_boxes_closed = True
+            self._close_trade_boxes(z, bar)
 
         if not z.filled and running_now:
             z.filled = True
@@ -526,6 +622,7 @@ class StateMachine:
                     and not other.filled
                 ):
                     self._invalidate(other, bar, "ZRUSENY (OCO)")
+                    self._delete_trade_boxes(other)  # Pine 2200
                     other.entry_done = False
                     intents.append(
                         OrderIntent(OrderAction.CANCEL, other.order_id, other.uid, reason="OCO")

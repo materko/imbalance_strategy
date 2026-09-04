@@ -92,6 +92,7 @@ class IBSEngine:
             ctx.in_trade_window = state.in_trade_window
 
         out = EngineOutput(clock=state)
+        out.drawings.extend(state.backgrounds(bar.time, self.chart_tf_minutes * 60_000))
 
         if htf is not None and state.in_zone_window:
             pattern = detect_sd_pattern(htf, self.cfg, self.inst, atr=atr)
@@ -103,6 +104,8 @@ class IBSEngine:
                     out.drawings.extend(zone.boxes(self.chart_tf_minutes * 60_000))
 
         out.orders = self.machine.on_bar(bar, self.history, ctx, atr=atr)
+        # Pine `box.set_*` z tohto baru (zmenšenie pri invalidácii, prefarbenie).
+        out.drawings.extend(self.machine.drawings)
         out.events = list(self.machine.events)
 
         self._was_in_trade_window = state.in_trade_window

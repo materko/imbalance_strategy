@@ -13,3 +13,5 @@ __pycache__/
 platforms/freqtrade/user_data/logs/
 platforms/freqtrade/user_data/backtest_results/
 *.egg-info/
+graf.html
+*.html

@@ -11,6 +11,9 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
+# Jadro (ibs.core) je zamerne bez zavislosti - beha aj v MultiCharts CPythone.
+# Nastroje v ibs.tools uz pandas/plotly potrebuju; pandas sa taha s Freqtrade.
+plot = ["plotly>=5", "pandas"]
 
 [tool.setuptools.packages.find]
 include = ["ibs*"]

@@ -19,6 +19,7 @@ from functools import lru_cache
 from zoneinfo import ZoneInfo
 
 from .config import IBSConfig
+from .drawing import DrawBg, DrawKind, Palette, with_alpha
 
 __all__ = ["SessionWindow", "SessionSpec", "ClockState", "SessionClock", "DAY_MS"]
 
@@ -83,6 +84,30 @@ class ClockState:
     @property
     def in_trade_window(self) -> bool:
         return any(self.trade_flags)
+
+    def backgrounds(self, ts_ms: int, step_ms: int) -> list[DrawBg]:
+        """Pine `bgcolor()` na riadkoch 331–333 — pás pozadia pre tento bar.
+
+        Priehľadnosť je 92 v trade okne a 96 v zone okne; trade okno má prednosť,
+        lebo v Pine je to ternárny výraz, nie dva prekryté `bgcolor` hovory.
+        Jeden bar = jeden pás; susedné pásy si zlúči až renderer.
+        """
+        out: list[DrawBg] = []
+        for i, (zone, trade) in enumerate(zip(self.zone_flags, self.trade_flags), start=1):
+            if not (zone or trade):
+                continue
+            base = getattr(Palette, f"SESSION{i}").value
+            out.append(
+                DrawBg(
+                    kind=DrawKind.SESSION,
+                    x1_ms=ts_ms,
+                    x2_ms=ts_ms + step_ms,
+                    color=with_alpha(base, 92 if trade else 96),
+                    obj_id=f"bg{i}.{ts_ms}",
+                    text=f"Session {i}",
+                )
+            )
+        return out
 
     def active_trade_session(self) -> int | None:
         """1-based index prvej seansy, ktorá práve dovoľuje obchodovať."""
