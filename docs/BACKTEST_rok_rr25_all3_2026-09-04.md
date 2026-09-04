@@ -70,6 +70,33 @@ Zaujímavé je, že trailing **nezvýšil** hrubý edge oproti behu bez neho (PF
 1,38 bez trailingu) — skracuje víťazov, ale zároveň ich chráni. Na poplatkoch je
 horší, lebo víťazi sú menší.
 
+## Trailing zapnutý vs vypnutý
+
+Čísla vyššie boli s trailingom, lebo taký bol graf. Ten istý rok s `enableTrailing`
+vypnutým (a inak identickými nastaveniami):
+
+| | s trailingom | **bez trailingu** |
+|---|---|---|
+| obchodov | 184 | 179 |
+| trailing / TP / session end / SL | 83 / 12 / 1 / 88 | — / 55 / 12 / 112 |
+| hrubá winrate | 51,6 % | 36,3 % |
+| **hrubý profit factor** | 1,294 | **1,360** |
+| hrubý PnL pri 1 BTC/obchod | +5 012 | **+7 572** |
+| ekvivalent na 10k účte | +50,1 % | **+75,7 %** |
+| čistý PnL (0,05 %/strana, 10k) | −12,99 % | **−9,73 %** |
+| **break-even poplatok** | 0,0153 %/strana | **0,0237 %/strana** |
+| max drawdown | 13,51 % | 12,14 % |
+
+**Bez trailingu je to lepšie vo všetkom naraz** — vyšší hrubý PF, o polovicu väčší
+hrubý zisk, menší drawdown a break-even poplatok 1,55× vyšší. Trailing tu robí presne
+to, čo sa od neho čaká — winrate vyskočí z 36 % na 52 % — ale platí sa za to tým, že
+víťazi sú menší. A menší víťaz znamená, že poplatok z neho ukrojí väčší podiel.
+
+Zaujímavý detail: bez trailingu skončí **12 obchodov na konci seansy** a 9 z nich
+v zisku. Je to teda funkčný výstup, nie len záchranná brzda.
+
+Aj tak je break-even poplatok 0,0237 % stále **2,1× pod** tým, čo berie Binance.
+
 ## Ako to zopakovať
 
 ```bash
