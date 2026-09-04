@@ -2,13 +2,14 @@
 
     python -m ibs.tools.scan_trades --exchange binance --profile btcusdt_3m_binance
 
-**Toto nie je backtest.** Vyplnenie orderov sa tu simuluje najjednoduchším možným
-modelom (limitka sa vyplní, keď ju bar pretne; SL/TP sa vyhodnocujú na uzavretých
-barech). Skutočné čísla dá až Freqtrade s `--timeframe-detail 1m`, kde sa rieši aj
-otázka „trafil SL alebo TP skôr?" — viď ARCHITECTURE_port.md §7.
+Signály generuje engine na uzavretých barech grafu (3m). Vyplnenie a výstupy sa
+prehrávajú po **1m** sviečkach vnútri každého 3m baru — rovnaký princíp ako
+`--timeframe-detail 1m` vo Freqtrade (ARCHITECTURE_port.md §7). Vďaka tomu sa
+korektne rozhodne aj otázka „trafil SL alebo TP skôr?".
 
-Zmysel tohto nástroja je iný: overiť, že stavový automat na reálnych dátach
-prechádza stavmi, generuje ordre so zmysluplnými SL/TP a nikde sa nezasekne.
+Nástroj je nutný pre **Coinbase**: Freqtrade tam backtest spustiť nevie (burzu
+nepodporuje a 3m sviečky neponúka), ale referenčné screenshoty sú práve odtiaľ.
+Ak 1m dáta chýbajú, prepne sa na hrubší model na 3m baroch a napíše to.
 """
 
 from __future__ import annotations
@@ -37,6 +38,10 @@ from ..core.types import Direction
 from .scan_zones import _LAYOUT, _load, _to_bar
 
 
+def _utc_day(ts_ms: int) -> str:
+    return datetime.fromtimestamp(ts_ms / 1000, tz=timezone.utc).strftime("%Y-%m-%d")
+
+
 @dataclass
 class SimTrade:
     """Jeden simulovaný obchod."""
@@ -54,12 +59,18 @@ class SimTrade:
         return self.outcome == "FILLED"
 
 
-class NaiveFillSimulator:
-    """Najjednoduchší možný model vyplnenia — zámerne, aby bolo jasné, čo ešte nie je."""
+class FillSimulator:
+    """Vyplnenie a výstupy. Ak sú k dispozícii 1m sviečky, prehráva sa nimi.
+
+    Bez 1m detailu je bar, ktorý pretne SL aj TP, nejednoznačný a museli by sme hádať;
+    s 1m detailom sa proste pozrieme, ktorý prišiel skôr.
+    """
 
     def __init__(self) -> None:
         self.trades: dict[str, SimTrade] = {}
         self.position_size = 0.0
+        self.daily_wins: dict[str, int] = {}
+        self.ambiguous_bars = 0
 
     @property
     def open_ids(self) -> frozenset[str]:
@@ -80,7 +91,12 @@ class NaiveFillSimulator:
                     t.outcome = "EXPIRED" if intent.reason == "EXPIRED" else "CANCELLED"
                     t.closed_ms = bar.time
 
-    def step(self, bar: Bar) -> None:
+    def step(self, bar: Bar, detail: list[Bar] | None = None) -> None:
+        """`detail` sú 1m sviečky vnútri tohto baru; bez nich sa použije samotný bar."""
+        for sub in detail or [bar]:
+            self._step_one(sub, ambiguous_ok=detail is None)
+
+    def _step_one(self, bar: Bar, *, ambiguous_ok: bool) -> None:
         for t in self.trades.values():
             if t.outcome == "PENDING":
                 if bar.low <= t.plan.entry <= bar.high:
@@ -95,12 +111,26 @@ class NaiveFillSimulator:
             long = t.direction is Direction.LONG
             hit_sl = bar.low <= t.plan.stop_loss if long else bar.high >= t.plan.stop_loss
             hit_tp = bar.high >= t.plan.take_profit if long else bar.low <= t.plan.take_profit
-            if hit_sl or hit_tp:
-                # Ked bar trafi oboje, berieme SL - konzervativne. Realne rozhodnutie
-                # patri 1m detailu vo Freqtrade.
+            if not (hit_sl or hit_tp):
+                continue
+
+            if hit_sl and hit_tp:
+                # Aj na 1m sa to este moze stat - vtedy je to naozaj nerozhodnutelne
+                # a berieme SL (konzervativne), ale spocitame to.
+                if ambiguous_ok:
+                    self.ambiguous_bars += 1
+                t.outcome = "LOSS"
+            else:
                 t.outcome = "LOSS" if hit_sl else "WIN"
-                t.closed_ms = bar.time
-                self.position_size = 0.0
+
+            t.closed_ms = bar.time
+            self.position_size = 0.0
+            if t.outcome == "WIN":
+                day = _utc_day(bar.time)
+                self.daily_wins[day] = self.daily_wins.get(day, 0) + 1
+
+    def wins_today(self, ts_ms: int) -> int:
+        return self.daily_wins.get(_utc_day(ts_ms), 0)
 
 
 def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str, chart_tf: int):
@@ -109,6 +139,19 @@ def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str, chart_tf: int):
 
     chart = _load(exchange, f"{chart_tf}m")
     htf_df = _load(exchange, f"{htf_minutes}m")
+
+    # 1m detail na rozhodnutie "SL alebo TP skor" - rovnaky princip ako
+    # freqtrade --timeframe-detail 1m.
+    detail_by_bar: dict[int, list[Bar]] = {}
+    try:
+        detail_df = _load(exchange, "1m")
+    except SystemExit:
+        detail_df = None
+        print("  ! 1m data chybaju - fill sa rozhoduje na 3m baroch (hrubsie)", file=sys.stderr)
+    if detail_df is not None:
+        step = chart_tf * 60_000
+        for r in detail_df.itertuples(index=False):
+            detail_by_bar.setdefault(int(r.ts) // step * step, []).append(_to_bar(r))
     htf_df["vol_sma"] = htf_df["volume"].rolling(cfg.volSmaLen).mean().shift(1)
 
     htf_bars = {int(r.ts): _to_bar(r) for r in htf_df.itertuples(index=False)}
@@ -121,7 +164,7 @@ def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str, chart_tf: int):
     book = ZoneBook(cfg, inst, chart_tf)
     machine = StateMachine(cfg, inst, book)
     history = BarHistory(maxlen=max(cfg.imbLookback, cfg.slLookback, cfg.volSmaLen) + 50)
-    sim = NaiveFillSimulator()
+    sim = FillSimulator()
 
     prev_htf_open: int | None = None
     transitions = 0
@@ -130,7 +173,7 @@ def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str, chart_tf: int):
     for row in chart.itertuples(index=False):
         bar = _to_bar(row)
         history.append(bar)
-        sim.step(bar)
+        sim.step(bar, detail_by_bar.get(bar.time))
 
         state = clock.state(bar.time)
 
@@ -149,6 +192,9 @@ def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str, chart_tf: int):
         ctx = MarketContext(
             in_trade_window=state.in_trade_window,
             position_size=sim.position_size,
+            # Pine `dailyWinLimitReached` - po maxDailyWins vyhrach za den sa uz
+            # v ten den neposiela ziadny novy order.
+            daily_win_limit_reached=sim.wins_today(bar.time) >= cfg.maxDailyWins,
             open_order_ids=sim.open_ids,
         )
         intents = machine.on_bar(bar, history, ctx)
@@ -188,6 +234,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  zon v evidencii:  {len(book)}")
     print(f"  prechodov stavov: {transitions}")
     print(f"  orderov:          {len(sim.trades)}")
+    if sim.ambiguous_bars:
+        print(f"  nerozhodnutelnych barov (SL aj TP naraz): {sim.ambiguous_bars}")
     for outcome in ("WIN", "LOSS", "FILLED", "EXPIRED", "CANCELLED", "PENDING"):
         if counts.get(outcome):
             print(f"    {outcome:<10} {counts[outcome]}")
@@ -200,6 +248,16 @@ def main(argv: list[str] | None = None) -> int:
         print("\n  Preco zony skoncili:")
         for reason, n in sorted(reasons.items(), key=lambda kv: -kv[1]):
             print(f"    {n:>4}x  {reason}")
+
+    by_day: dict[str, list[str]] = {}
+    for tr in sim.trades.values():
+        if tr.outcome in ("WIN", "LOSS"):
+            by_day.setdefault(fmt(tr.placed_ms)[:5], []).append(tr.outcome[0])
+    if by_day:
+        print("\n  Po dnoch (na porovnanie s TradingView dashboardom):")
+        for day, outcomes in sorted(by_day.items()):
+            w = outcomes.count("W")
+            print(f"    {day}  {''.join(outcomes):<8} {w}W / {len(outcomes) - w}L")
 
     if sim.trades:
         print(f"\n  {'order':<10} {'zadany':<12} {'vyplneny':<12} {'entry':>10} {'SL':>10} {'TP':>10} {'qty':>8}  stav")

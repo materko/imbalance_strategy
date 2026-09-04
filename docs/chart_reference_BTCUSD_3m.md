@@ -47,3 +47,45 @@ RISK / OBCHOD:    $350
 - Symbol: `BTCUSD` / Coinbase
 - Timeframe: **3m** (skript číta TF automaticky cez `timeframe.multiplier`)
 - Zobrazený časový offset: UTC+2
+
+---
+
+## Porovnanie s portom (2026-09-04)
+
+Beh: `python -m ibs.tools.scan_trades --exchange coinbase --profile btcusd_3m_coinbase`
+nad Coinbase dátami **2026-08-01 → 2026-09-04**. Signály na uzavretých 3m barech,
+vyplnenie a výstupy prehrané po **1m** sviečkach.
+
+### Čo sedí
+
+| | TradingView (screenshot) | Port |
+|---|---|---|
+| Obchod na 02. 09. | `LONG_257`, ~76 700, TP zásah | `LONG_255`, **15:12 UTC = 17:12 na grafe (UTC+2)**, entry **76 772.24**, WIN |
+| ID zóny | 257 | **255** — rozdiel 2, teda TV mal načítané o dve zóny viac histórie |
+| `EXPIRED bar=10` | áno | áno (4 nevyplnené ordre) |
+| `SKIP (SHORT)` | áno | 20× „SMER VYPNUTY" (`tradeDirection = Long only`) |
+| qty | 1 (limit $350 sa neuplatnil) | 1 — reprodukované cez `legacyPineSizing` |
+| BEST WIN STREAK | 3× | 3× (v posledných 17 obchodoch) |
+
+### Čo zatiaľ nesedí
+
+| | TradingView | Port (01. 08. – 04. 09.) |
+|---|---|---|
+| Obchody | 17 (8W / 9L), 47 % | 22 (11W / 11L), 50 % + 4 expirované |
+| WORST SL STREAK | 4× | 2× |
+| SÉRIA na konci | 3× výhra | 1× výhra |
+
+Ak sa vezme **posledných 17** obchodov z nášho behu, vyjde 9W / 8L — teda rovnaký
+počet obchodov ako v TV a takmer zrkadlový pomer. To naznačuje, že množina obchodov
+je veľmi podobná a líšia sa jednotky výsledkov, nie celá logika.
+
+Rozhodnúť sa to však **nedá bez exportu „List of Trades" z TradingView** — nevieme,
+akú hlbokú históriu mal graf načítanú, a `WORST SL STREAK: 4×` napovedá, že siaha
+ďalej než 1. augusta. Dovtedy je toto porovnanie orientačné, nie dôkaz parity.
+
+### Prečo sa to porovnáva mimo Freqtrade
+
+Freqtrade Coinbase nepodporuje a burza neponúka 3m sviečky, takže backtest tam
+spustiť nejde. `ibs.tools.scan_trades` si 3m poskladá z 1m v pamäti (na disk sa nič
+odvodené nezapisuje) a použije 1m detail na rozhodnutie „SL alebo TP skôr" — rovnaký
+princíp ako `--timeframe-detail 1m`.
