@@ -145,7 +145,7 @@ def detect_sd_pattern(
 
 @dataclass
 class Zone:
-    """Jedna zóna v evidencii. Stavy 0–5 dopĺňa až state machine (krok 3)."""
+    """Jedna zóna v evidencii vrátane stavu jej životného cyklu (STATE 0-5)."""
 
     uid: int
     direction: Direction
@@ -158,10 +158,36 @@ class Zone:
     volume_strong: bool = False
     variant: str = ""
 
+    #: Pine bar_index v momente vzniku - gap sa smie hľadať len za ním.
+    created_bar_index: int = 0
+
+    # ---- stav životného cyklu (Pine zStateA a spol.) --------------------- #
     state: int = 0
     used: bool = False
     touched: bool = False
+    touched_bar_index: int | None = None
+    state_bar_index: int | None = None
+    state_time_ms: int | None = None
+
+    # ---- nájdený imbalance / pattern (Pine zImb*A) ----------------------- #
+    imb_body_top: float | None = None
+    imb_body_bot: float | None = None
+    imb_open: float | None = None
+    imb_high: float | None = None
+    imb_low: float | None = None
+    imb_bar_index: int | None = None
+
+    # ---- order (Pine zS4OrderedA, zOrderSlA, zFilledA, zPendingInvalidA) -- #
+    order_sl: float | None = None
+    ordered: bool = False
     filled: bool = False
+    pending_invalid: bool = False
+    entry_done: bool = False
+
+    @property
+    def order_id(self) -> str:
+        """Pine `"LONG_" + uidStr` / `"SHORT_" + uidStr`."""
+        return f"{'LONG' if self.direction is Direction.LONG else 'SHORT'}_{self.uid}"
 
     def contains(self, price: float) -> bool:
         return self.bot <= price <= self.top

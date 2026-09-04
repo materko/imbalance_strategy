@@ -120,6 +120,16 @@ DETECTION_TFS: tuple[str, ...] = (
 )
 
 
+#: Polia, ktoré sa vždy držia ako enum, nie ako holý reťazec.
+_ENUM_FIELDS: dict[str, type] = {
+    "snapMode": SnapMode,
+    "tradeDirection": TradeDirection,
+    "pbEngOrderType": OrderType,
+    "dashPos": PanelPos,
+    "debugPos": PanelPos,
+}
+
+
 def _size(value: float, name: str) -> SizeSpec:
     return SizeSpec(value, SIZE_FIELDS[name])
 
@@ -287,14 +297,24 @@ class IBSConfig:
     # ------------------------------------------------------------------ #
 
     def __post_init__(self) -> None:
-        self.snapMode = SnapMode(self.snapMode)
-        self.tradeDirection = TradeDirection(self.tradeDirection)
-        self.pbEngOrderType = OrderType(self.pbEngOrderType)
-        self.dashPos = PanelPos(self.dashPos)
-        self.debugPos = PanelPos(self.debugPos)
-        for name, unit in SIZE_FIELDS.items():
-            setattr(self, name, SizeSpec.parse(getattr(self, name), default_unit=unit))
+        for name in _ENUM_FIELDS:
+            setattr(self, name, getattr(self, name))
+        for name in SIZE_FIELDS:
+            setattr(self, name, getattr(self, name))
         self.validate()
+
+    def __setattr__(self, name: str, value: object) -> None:
+        """Dotypuje enum a `SizeSpec` polia aj pri priradení po vytvorení.
+
+        Bez toho by `cfg.imbMaxDistTicks = 4` nechalo v poli obyčajný int a spadlo
+        by to až hlboko v engine na `.resolve(...)` — presne ten druh tichej chyby,
+        ktorej sa v tomto porte vyhýbame.
+        """
+        if name in SIZE_FIELDS:
+            value = SizeSpec.parse(value, default_unit=SIZE_FIELDS[name])
+        elif name in _ENUM_FIELDS:
+            value = _ENUM_FIELDS[name](value)
+        object.__setattr__(self, name, value)
 
     def validate(self) -> None:
         problems = list(self._problems())

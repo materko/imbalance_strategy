@@ -456,8 +456,9 @@ MultiCharts ekvivalent: `IntrabarOrderGeneration = True` + druhá 1-min dátová
 2. ✅ **hotové** — `core/clock.py` + `core/zones.py` + `core/drawing.py`: session okná, detekcia SD
    zón na detekčnom TF, `snapMode`, evidencia zón a ich boxy ako `DrawCommand`.
    Overené na reálnych dátach cez `python -m ibs.tools.scan_zones`.
-3. `core/ta/imbalance.py` + `core/statemachine.py` + `core/risk.py` — IMB entry model.
-   Druhý milník: rovnaké entry/SL/TP.
+3. ✅ **hotové** — `core/history.py`, `core/ta/{imbalance,patterns}.py`, `core/risk.py`,
+   `core/statemachine.py`: celý STATE 0-5 vrátane re-entry, OCO, SKIP dôvodov, Pin Bar
+   a Engulfing modelu. Overené cez `python -m ibs.tools.scan_trades`.
 4. Adaptér Freqtrade + golden test proti TV trade listu.
 5. Adaptér MultiCharts.
 6. Zvyšné moduly: Pin Bar entry (`enablePinBarEntry=true` v tvojom nastavení!), potom
