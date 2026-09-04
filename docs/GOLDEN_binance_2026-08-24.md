@@ -178,11 +178,17 @@ S ním dá Freqtrade **5 obchodov, uid zón 10, 9, 12, 31, 44 a vstupné ceny na
 zhodné s TradingView**. Šiesty signál (uid 64, 09-02 15:15) sa ako v TradingView
 nikdy nevyplní.
 
-S predvoleným profilom `btcusdt_3m_binance` vyjde **6 obchodov** — ten používa reálnu
-BTCUSDT špecifikáciu (zlomkové množstvá, iné zaokrúhlenie na tick), SL sa posunie
-o jeden tick a stavový automat potom prejde inou vetvou (uid 65 namiesto 64, vstup
-pin barom o bar skôr). Nie je to chyba, len iná špecifikácia inštrumentu — na porovnanie
-s TradingView treba `_tv` profil.
+S predvoleným profilom `btcusdt_3m_binance` vyjdú **iné obchody** — a je to tak správne.
+Ten profil má prahy prepnuté na jednotku `atr`, takže filtruje inak než Pine defaulty
+v absolútnych bodoch. Na porovnanie s TradingView treba `_tv` profil.
+
+> **Chyba nájdená pri tomto porovnaní:** ATR sa nikdy nepočítalo. `detect_sd_pattern()`
+> aj `IBSEngine.on_bar()` mali `atr: float = 0.0` a nikto ho neposielal, takže každý
+> parameter v jednotke `atr` vychádzal **nula** a príslušný filter bol fakticky vypnutý.
+> Prejavilo sa to zónou navyše (uid 54, 09-01 12:12 `shortV3`), ktorá posunula všetky
+> ďalšie uid o +1. Opravené: `BarHistory.atr` (Wilderov RMA) + nový vstup `atrLen`.
+> Po oprave má exekučný profil 66 zón namiesto 77. Na `_tv` profil to nemá vplyv —
+> ten má všetko v `abs`/`ticks`.
 
 ### Čo ešte nesedí na cent
 

@@ -56,7 +56,8 @@ class IBSEngine:
         self.book = ZoneBook(cfg, inst, chart_tf_minutes)
         self.machine = StateMachine(cfg, inst, self.book)
         self.history = BarHistory(
-            maxlen=max(cfg.imbLookback, cfg.slLookback, cfg.volSmaLen, cfg.engSizeAvgLen) + 64
+            maxlen=max(cfg.imbLookback, cfg.slLookback, cfg.volSmaLen, cfg.engSizeAvgLen) + 64,
+            atr_len=cfg.atrLen,
         )
 
         #: Pine `inTradeWindow[1]` — na detekciu konca seansy.
@@ -70,7 +71,7 @@ class IBSEngine:
         htf: HTFWindow | None = None,
         ctx: MarketContext | None = None,
         *,
-        atr: float = 0.0,
+        atr: float | None = None,
     ) -> EngineOutput:
         """Spracuje jeden uzavretý bar.
 
@@ -79,6 +80,10 @@ class IBSEngine:
         """
         self.history.append(bar)
         state = self.clock.state(bar.time)
+        # Parametre v jednotke `atr` sa prepocitavaju z ATR grafoveho TF. Volajuci ho
+        # moze prebit, inak sa berie z vlastnej historie - inak by tie prahy vysli 0.
+        if atr is None:
+            atr = self.history.atr
         was_in_window = self._was_in_trade_window
 
         if ctx is None:

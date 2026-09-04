@@ -16,6 +16,7 @@ import sys
 from pathlib import Path
 
 from ..core import (
+    BarHistory,
     htf_window_opens,
     Bar,
     HTFWindow,
@@ -107,12 +108,15 @@ def scan(
 
     clock = SessionClock(cfg)
     book = ZoneBook(cfg, inst, chart_tf_minutes)
+    # Drzime historiu len kvoli ATR - parametre v jednotke `atr` by inak vysli 0.
+    history = BarHistory(maxlen=cfg.atrLen + 8, atr_len=cfg.atrLen)
 
     stats = {"bars": 0, "in_zone_window": 0, "htf_closes": 0, "patterns": 0, "zones": 0}
     prev_htf_open: int | None = None
 
     for row in chart.itertuples(index=False):
         ts = int(row.ts)
+        history.append(_to_bar(row))
         stats["bars"] += 1
 
         htf_open = ts // htf_ms * htf_ms
@@ -140,7 +144,7 @@ def scan(
         if not state.in_zone_window:
             continue  # Pine patternDetected = first5mTick and inZoneWindow
 
-        pattern = detect_sd_pattern(win, cfg, inst)
+        pattern = detect_sd_pattern(win, cfg, inst, atr=history.atr)
         if pattern is None:
             continue
         stats["patterns"] += 1

@@ -20,14 +20,19 @@ __all__ = ["BarHistory"]
 class BarHistory:
     """Posledných N barov + priebežné SMA, ktoré Pine počíta cez `ta.sma`."""
 
-    def __init__(self, maxlen: int = 400) -> None:
+    def __init__(self, maxlen: int = 400, atr_len: int = 14) -> None:
         self._bars: deque[Bar] = deque(maxlen=maxlen)
         #: Pine `bar_index` — rastie donekonečna, aj keď staré bary z pamäte vypadnú.
         self.bar_index = -1
+        self._atr_len = max(1, int(atr_len))
+        self._atr = 0.0
+        self._tr_sum = 0.0
 
     def append(self, bar: Bar) -> None:
+        prev_close = self._bars[-1].close if self._bars else None
         self._bars.append(bar)
         self.bar_index += 1
+        self._update_atr(bar, prev_close)
 
     def __len__(self) -> int:
         return len(self._bars)
@@ -53,6 +58,32 @@ class BarHistory:
     def index_of(self, offset: int) -> int:
         """`bar_index` baru vzdialeného `offset` barov dozadu."""
         return self.bar_index - offset
+
+    # -- ATR ---------------------------------------------------------------- #
+
+    @property
+    def atr(self) -> float:
+        """Wilderov ATR (Pine ``ta.atr(atrLen)``). 0.0, kým nie je dosť barov.
+
+        Pine skript ATR nepoužíva — slúži výhradne na prepočet parametrov zadaných
+        v jednotke ``atr`` (SizeSpec). Vďaka tomu sa dajú prahy naladené v bodoch na
+        MNQ preniesť na inštrument s úplne inou cenovou škálou (ARCHITECTURE_port.md §3b).
+        Referenčné ``_tv`` profily ho nepoužívajú — tie majú všetko v ``abs``/``ticks``.
+        """
+        return self._atr
+
+    def _update_atr(self, bar: Bar, prev_close: float | None) -> None:
+        tr = bar.high - bar.low
+        if prev_close is not None:
+            tr = max(tr, abs(bar.high - prev_close), abs(bar.low - prev_close))
+
+        n = self._atr_len
+        if self.bar_index < n:
+            # Prvá hodnota je jednoduchý priemer prvých n true range - rovnako ako Pine RMA.
+            self._tr_sum += tr
+            self._atr = self._tr_sum / n if self.bar_index == n - 1 else 0.0
+            return
+        self._atr = (self._atr * (n - 1) + tr) / n
 
     # -- kĺzavé priemery -------------------------------------------------- #
 

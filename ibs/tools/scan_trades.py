@@ -179,7 +179,9 @@ def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str, chart_tf: int,
     clock = SessionClock(cfg)
     book = ZoneBook(cfg, inst, chart_tf)
     machine = StateMachine(cfg, inst, book)
-    history = BarHistory(maxlen=max(cfg.imbLookback, cfg.slLookback, cfg.volSmaLen) + 50)
+    history = BarHistory(
+        maxlen=max(cfg.imbLookback, cfg.slLookback, cfg.volSmaLen) + 50, atr_len=cfg.atrLen
+    )
     sim = FillSimulator()
 
     prev_htf_open: int | None = None
@@ -198,7 +200,7 @@ def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str, chart_tf: int,
             opens = htf_window_opens(bar.time, chart_tf * 60_000, htf_ms)
             if all(o in htf_bars for o in opens):
                 win = HTFWindow(tuple(htf_bars[o] for o in opens), htf_sma[opens[0]])
-                pattern = detect_sd_pattern(win, cfg, inst)
+                pattern = detect_sd_pattern(win, cfg, inst, atr=history.atr)
                 if pattern is not None:
                     zone = book.create_from_pattern(pattern, now_ms=bar.time)
                     if zone is not None:
@@ -213,7 +215,7 @@ def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str, chart_tf: int,
             daily_win_limit_reached=sim.wins_today(bar.time) >= cfg.maxDailyWins,
             open_order_ids=sim.open_ids,
         )
-        intents = machine.on_bar(bar, history, ctx)
+        intents = machine.on_bar(bar, history, ctx, atr=history.atr)
         transitions += len(machine.events)
         for ev in machine.events:
             if ev.reason:

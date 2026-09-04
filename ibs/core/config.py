@@ -84,6 +84,7 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "zoneValidHours": (1, 72),
     "maxSdZones": (10, 999),
     "volSmaLen": (2, 200),
+    "atrLen": (1, 500),
     "volMultiplier": (0.5, 10.0),
     "structureSwingLen": (2, 50),
     "srSwingLen": (2, 100),
@@ -289,6 +290,11 @@ class IBSConfig:
     #: pri qty < 1 `maxLossDollar` neuplatní. Zapnúť LEN v referenčných profiloch, kde
     #: potrebujeme reprodukovať TradingView backtest 1:1 (golden test).
     legacyPineSizing: bool = False
+
+    #: Dĺžka ATR pre parametre zadané v jednotke `atr`. V Pine skripte ATR nie je —
+    #: je to rozšírenie portu (ARCHITECTURE_port.md §3b), aby sa prahy naladené
+    #: v bodoch na MNQ dali preniesť na inštrument s inou cenovou škálou.
+    atrLen: int = 14
 
 
     # ------------------------------------------------------------------ #

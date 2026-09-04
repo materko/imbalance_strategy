@@ -480,3 +480,66 @@ def test_pattern_entry_jumps_straight_to_state4(ctx):
     assert len(entries) == 1
     assert entries[0].order_type is OrderType.MARKET  # pbEngOrderType default
     assert entries[0].plan.entry == 99.0  # vstup na zavreti sviecky
+
+
+# --------------------------------------------------------------------------- #
+# ATR — obsluhuje parametre v jednotke `atr` (rozšírenie portu, Pine ho nemá)
+# --------------------------------------------------------------------------- #
+
+
+def _atr_bar(i: int, high: float, low: float, close: float):
+    from ibs.core.types import Bar
+
+    return Bar(time=i * 60_000, open=low, high=high, low=low, close=close, volume=1.0)
+
+
+def test_atr_je_nula_kym_nie_je_dost_barov():
+    from ibs.core import BarHistory
+
+    h = BarHistory(maxlen=50, atr_len=3)
+    for i in range(2):
+        h.append(_atr_bar(i, 110.0, 100.0, 105.0))
+    assert h.atr == 0.0
+
+
+def test_atr_prva_hodnota_je_priemer_true_range():
+    from ibs.core import BarHistory
+
+    h = BarHistory(maxlen=50, atr_len=3)
+    # prvý bar: TR = high-low = 10; ďalšie dva tiež 10 (žiadny gap)
+    for i in range(3):
+        h.append(_atr_bar(i, 110.0, 100.0, 105.0))
+    assert h.atr == pytest.approx(10.0)
+
+
+def test_atr_zapocita_gap_cez_predchadzajuci_close():
+    from ibs.core import BarHistory
+
+    h = BarHistory(maxlen=50, atr_len=2)
+    h.append(_atr_bar(0, 110.0, 100.0, 105.0))  # TR = 10
+    h.append(_atr_bar(1, 130.0, 125.0, 128.0))  # gap hore: TR = 130 - 105 = 25
+    assert h.atr == pytest.approx((10.0 + 25.0) / 2)
+
+
+def test_atr_pokracuje_wilderovym_vyhladenim():
+    from ibs.core import BarHistory
+
+    h = BarHistory(maxlen=50, atr_len=2)
+    h.append(_atr_bar(0, 110.0, 100.0, 105.0))
+    h.append(_atr_bar(1, 130.0, 125.0, 128.0))
+    prev = h.atr
+    h.append(_atr_bar(2, 130.0, 126.0, 128.0))  # TR = max(4, |130-128|, |126-128|) = 4
+    assert h.atr == pytest.approx((prev * 1 + 4.0) / 2)
+
+
+def test_engine_dopln_atr_ked_ho_volajuci_neposle():
+    """Bez tohto boli všetky prahy v jednotke `atr` nulové — filtre vypnuté."""
+    from ibs.core import BarHistory, IBSConfig, IBSEngine
+    from ibs.core.types import BTCUSDT_BINANCE
+
+    cfg = IBSConfig()
+    cfg.atrLen = 3
+    engine = IBSEngine(cfg, BTCUSDT_BINANCE, 3)
+    for i in range(5):
+        engine.on_bar(_atr_bar(i, 80_010.0, 80_000.0, 80_005.0))
+    assert engine.history.atr == pytest.approx(10.0)
