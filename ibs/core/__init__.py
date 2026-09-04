@@ -3,6 +3,7 @@
 from .clock import ClockState, SessionClock, SessionSpec, SessionWindow
 from .config import CONFIG_DIR, ConfigError, IBSConfig, list_profiles, load_profile
 from .drawing import DrawBox, DrawCommand, DrawKind, DrawLabel, DrawLine, LineStyle, PAL, Palette
+from .engine import EngineOutput, IBSEngine
 from .history import BarHistory
 from .risk import TradePlan, TrailingPlan, build_trade_plan, swing_stop_loss
 from .statemachine import (
@@ -69,6 +70,8 @@ __all__ = [
     "detect_sd_pattern",
     "snap_time",
     "BarHistory",
+    "IBSEngine",
+    "EngineOutput",
     "TradePlan",
     "TrailingPlan",
     "build_trade_plan",

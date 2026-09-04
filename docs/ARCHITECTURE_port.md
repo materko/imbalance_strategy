@@ -459,7 +459,9 @@ MultiCharts ekvivalent: `IntrabarOrderGeneration = True` + druhá 1-min dátová
 3. ✅ **hotové** — `core/history.py`, `core/ta/{imbalance,patterns}.py`, `core/risk.py`,
    `core/statemachine.py`: celý STATE 0-5 vrátane re-entry, OCO, SKIP dôvodov, Pin Bar
    a Engulfing modelu. Overené cez `python -m ibs.tools.scan_trades`.
-4. Adaptér Freqtrade + golden test proti TV trade listu.
+4. ✅ **hotové (adaptér)** — `core/engine.py` (`IBSEngine` ako jediný vstupný bod) +
+   `adapters/freqtrade/`. Backtest beží a dáva rovnaké obchody ako `ibs.tools.scan_trades`.
+   Golden test proti TV trade listu ešte chýba — čaká na export z TradingView.
 5. Adaptér MultiCharts.
 6. Zvyšné moduly: Pin Bar entry (`enablePinBarEntry=true` v tvojom nastavení!), potom
    display-only moduly — Market Structure, S/R, Likvidita, Elliott.

@@ -169,8 +169,18 @@ Ekvivalent:
   --timerange 20260801-20260905
 ```
 
-> Stratégia `IBSImbalanceStrategy` **zatiaľ neexistuje** — adaptér je krok 4 v pláne
-> (ARCHITECTURE_port.md §8). Skripty to povedia zrozumiteľne namiesto pádu Freqtrade.
+Stratégia je v [`ibs/adapters/freqtrade/strategy.py`](../ibs/adapters/freqtrade/strategy.py);
+súbor v `user_data/strategies/` je len ukazovateľ. Profil sa prepína cez `IBS_PROFILE`:
+
+```bash
+IBS_PROFILE=btcusd_3m_coinbase ./platforms/freqtrade/scripts/backtest.sh
+```
+
+> ⚠️ **Pozor na veľkosť pozície.** `maxLossDollar = 350` pri SL vzdialenosti ~$87 znamená
+> ~4 BTC, teda cca **$313 000 notional** — na peňaženke 10 000 USDT bez páky sa to nezmestí
+> a Freqtrade stake oreže na ~3 % žiadanej veľkosti. Riziko na obchod je potom v skutočnosti
+> oveľa menšie než $350. Adaptér to **hlási warningom** (`stake orezany z … na …`), aby to
+> nebolo ticho. Riešenie: väčší `dry_run_wallet`, páka, alebo nižší `maxLossDollar`.
 
 ---
 
@@ -204,11 +214,12 @@ python -m pytest                       # lokálne
 docker compose -f docker/docker-compose.yml run --rm tests
 ```
 
-137 testov:
+148 testov:
 - `test_config.py` — validácia configu, sizing, krížové kontroly s inštrumentom
 - `test_clock.py` — session okná, pásma, okná cez polnoc, letný/zimný čas
 - `test_zones.py` — `snapMode`, detekcia SD patternu, evidencia zón, kreslenie
 - `test_statemachine.py` — STATE 0-5, hľadanie gapu, Pin Bar/Engulfing, SL/TP, OCO
+- `test_freqtrade_runner.py` — prevod engine cez DataFrame, dohľadanie signálu, HTF okno
 - `test_pine_parity.py` — **parsuje `imbalance_strategy_FULL.pine`** a stráži, že všetky
   portované vstupy, ich defaulty aj rozsahy stále sedia, a že vedome odstránené vstupy
   (`REMOVED_INPUTS`) sa nevrátili. Hlavná poistka portu: keby sa jeden vstup stratil,
