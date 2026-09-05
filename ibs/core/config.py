@@ -462,8 +462,10 @@ class IBSConfig:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "IBSConfig":
         known = {f.name for f in fields(cls)}
-        # `_title` je ľudský názov profilu pre webapp, `_comment` poznámka, `_instrument` nástroj.
-        unknown = set(data) - known - {"_comment", "_instrument", "_title"}
+        # `_title` je ľudský názov profilu pre webapp, `_comment` poznámka, `_instrument`
+        # nástroj a `_timeframe` TF grafu, na ktorom je profil ladený (limity `*MaxBars`
+        # sú v baroch, takže k profilu patrí aj TF). Nič z toho nie je pole configu.
+        unknown = set(data) - known - {"_comment", "_instrument", "_title", "_timeframe"}
         if unknown:
             raise ConfigError(f"neznáme kľúče v configu: {sorted(unknown)}")
         return cls(**{k: v for k, v in data.items() if k in known})

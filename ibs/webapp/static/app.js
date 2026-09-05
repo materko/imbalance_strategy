@@ -384,12 +384,17 @@ function updateProfileActions() {
   }
 }
 
-/** Odpoveď API o profiloch nesie aktuálny zoznam — prekresli ponuku a vyber `pick`. */
-function applyProfileList(r, pick) {
+/** Odpoveď API o profiloch nesie aktuálny zoznam — prekresli ponuku a načítaj `pick`.
+ *
+ * Načítanie musí ísť cez `loadProfile`, nie len prestaviť `value`: inak by v ponuke
+ * svietil jeden profil, vo formulári by boli iné hodnoty a beh by sa uložil s iným
+ * (alebo žiadnym) profilom, než tester vidí. */
+async function applyProfileList(r, pick) {
   state.meta.profiles = r.profiles; state.meta.user_profiles = r.user_profiles;
   if (r.profile_titles) state.meta.profile_titles = r.profile_titles;
   if (r.profile_instruments) state.meta.profile_instruments = r.profile_instruments;
   fillProfiles(pick);
+  if (pick !== undefined) await loadProfile($("#profile").value);
 }
 
 function profileMsg(text, isError) {
@@ -397,15 +402,38 @@ function profileMsg(text, isError) {
   el.textContent = text; el.classList.toggle("err", !!isError);
 }
 
+/** Meno súboru: medzera je podtržník, diakritika a zvyšné znaky pryč — inak by ho
+ *  server odmietol a tester by si všimol až to, že sa nič neuložilo. */
+function slugProfileName(raw) {
+  return (raw || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .trim().replace(/\s+/g, "_").replace(/[^A-Za-z0-9._-]/g, "_")
+    .replace(/_{2,}/g, "_").replace(/^[^A-Za-z0-9]+/, "");
+}
+
+/** Meno z promptu: očistí, a keď z neho po očistení nič nezostane, povie to nahlas. */
+function askProfileName(question, preset) {
+  const raw = prompt(question, preset || "");
+  if (raw === null) return null;
+  const name = slugProfileName(raw);
+  if (!name) { alert(`„${raw}" sa ako meno profilu použiť nedá — treba aspoň jedno písmeno bez diakritiky alebo číslicu.`); return null; }
+  return name;
+}
+
+/** Chyba od servera musí byť vidno: popup aj červený text vedľa ponuky. */
+function profileFailed(e, el) {
+  alert(`Profil: ${e.message}`);
+  if (el) { el.textContent = e.message; el.classList.add("err"); }
+}
+
 async function renameProfile() {
   const cur = $("#profile").value;
-  const name = (prompt("Nové meno profilu:", cur) || "").trim();
+  const name = askProfileName("Nové meno profilu:", cur);
   if (!name || name === cur) return;
   try {
     const r = await api(`/api/profiles/${encodeURIComponent(cur)}`, { method: "PATCH", body: JSON.stringify({ name }) });
-    applyProfileList(r, r.name); state.profile = r.name;
+    await applyProfileList(r, r.name);
     profileMsg(`premenované na ${r.name} — nezabudni na Push`);
-  } catch (e) { profileMsg(e.message, true); }
+  } catch (e) { profileFailed(e, $("#profile-msg")); }
 }
 
 async function deleteProfile() {
@@ -413,21 +441,17 @@ async function deleteProfile() {
   if (!cur || !confirm(`Zmazať vlastný profil ${cur}? (zmaže súbor v user_data/profiles/)`)) return;
   try {
     const r = await api(`/api/profiles/${encodeURIComponent(cur)}`, { method: "DELETE" });
-    applyProfileList(r, "");
-    await loadProfile("");
+    await applyProfileList(r, "");
     profileMsg(`${cur} zmazaný — nezabudni na Push`);
-  } catch (e) { profileMsg(e.message, true); }
+  } catch (e) { profileFailed(e, $("#profile-msg")); }
 }
 
-/** Beh z histórie ako východiskový profil pod vlastným menom. */
-async function saveRunAsProfile() {
-  const id = state.detailId;
-  const msg = $("#save-profile-msg");
-  if (!id) return;
-  const name = (prompt("Meno nového profilu (písmená bez diakritiky, číslice, '.', '-', '_'):", "") || "").trim();
+/** Uloženie profilu — `what` je buď {from_run}, alebo {params, instrument, timeframe}. */
+async function saveProfile(what, msg) {
+  const name = askProfileName("Meno profilu (medzera sa zmení na podtržník):", "");
   if (!name) return;
   const note = (prompt("Krátky popis, čo profil je (nepovinné):", "") || "").trim();
-  const body = { name, from_run: id, note };
+  const body = { name, note, ...what };
   msg.classList.remove("err"); msg.textContent = "ukladám…";
   try {
     let r;
@@ -437,9 +461,23 @@ async function saveRunAsProfile() {
       if (!/už existuje/.test(e.message) || !confirm(`${e.message}. Prepísať ho?`)) throw e;
       r = await api("/api/profiles", { method: "POST", body: JSON.stringify({ ...body, overwrite: true }) });
     }
-    applyProfileList(r, r.name);
-    msg.textContent = `uložené ako ${r.name} — je v ponuke „Východiskový profil“, do gitu ide cez Push`;
-  } catch (e) { msg.textContent = e.message; msg.classList.add("err"); }
+    await applyProfileList(r, r.name);
+    msg.textContent = `uložené ako ${r.name} — formulár teraz vychádza z neho, do gitu ide cez Push`;
+  } catch (e) { msg.textContent = ""; profileFailed(e, msg); }
+}
+
+/** Beh z histórie ako východiskový profil pod vlastným menom. */
+async function saveRunAsProfile() {
+  if (!state.detailId) return;
+  await saveProfile({ from_run: state.detailId }, $("#save-profile-msg"));
+}
+
+/** Aktuálny formulár (vrátane zmeneného TF) ako vlastný profil. */
+async function saveFormAsProfile() {
+  const pair = state.meta.pairs.find(p => p.pair === $("#pair").value);
+  if (!pair) { alert("Najprv vyber pár."); return; }
+  await saveProfile({ params: state.params, instrument: pair.instrument, timeframe: $("#tf").value },
+                    $("#profile-msg"));
 }
 
 async function loadProfile(name) {
@@ -454,6 +492,9 @@ async function loadProfile(name) {
   const inst = r.instrument;
   const pair = state.meta.pairs.find(p => p.instrument === inst);
   if (pair) { $("#pair").value = pair.pair; $("#pair").onchange(); }
+  // limity *MaxBars sú v baroch, takže k profilu patrí aj TF, na ktorom bol ladený;
+  // profil bez `_timeframe` (tie z repozitára) znamená 3m, nie „nechaj, čo tam bolo"
+  fillTimeframes($("#pair").value, r.timeframe || "3m");
 }
 
 /** Profil je ladený na konkrétny nástroj — BTC prahy v bodoch na ETH dajú stovky nezmyselných obchodov. */
@@ -464,6 +505,16 @@ function checkPairProfile() {
   const fit = state.meta.profiles.filter(p => (state.meta.profile_instruments || {})[p] === pair.instrument);
   box.textContent = `Profil ${state.profile} je pre iný nástroj (${state.profileInstrument}). Prahy v bodoch/tickoch na ${pair.pair} nesedia a výsledok nebude porovnateľný. Pre tento pár: ${fit.join(", ") || "(Pine defaulty) alebo profil z docs/profily_archiv/"}.`;
   box.hidden = false;
+}
+
+/** Profil, s ktorým sa beh uloží do histórie — vždy ten, čo tester vidí v ponuke.
+ *
+ * Archívny profil („Načítať do formulára" z behu, ktorého profil už v `ibs/configs`
+ * nie je) je cesta a v ponuke nie je — vtedy platí `state.profile`. */
+function profileForRun() {
+  const shown = $("#profile").value;
+  if (shown) return shown;
+  return state.profile && !state.meta.profiles.includes(state.profile) ? state.profile : null;
 }
 
 function timerange() {
@@ -482,7 +533,7 @@ async function submitRun() {
       fee: $("#fee").value === "" ? null : Number($("#fee").value) / 100,
       wallet: Number($("#wallet").value),
       timeframe_detail: $("#detail").checked ? "1m" : null,
-      profile: state.profile,
+      profile: profileForRun(),
       note: $("#note").value.trim(),
       user: currentUser(),
     };
@@ -1029,6 +1080,7 @@ async function init() {
     if (!confirm("Zmazať tento beh z histórie? (zmaže adresár v runs/)")) return;
     await api(`/api/runs/${state.detailId}`, { method: "DELETE" }); closeDetail(); loadRuns();
   };
+  $("#profile-save").onclick = saveFormAsProfile;
   $("#profile-rename").onclick = renameProfile;
   $("#profile-delete").onclick = deleteProfile;
   $("#save-profile").onclick = saveRunAsProfile;
