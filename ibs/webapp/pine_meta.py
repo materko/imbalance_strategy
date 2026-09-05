@@ -25,10 +25,23 @@ PINE_FILE = REPO / "pine" / "imbalance_strategy_FULL.pine"
 REMOVED_INPUTS = {"pmtToken", "pmtAccountId", "pmtStratName", "pmtMarketOrderType", "trailFreqPct"}
 
 #: Pine vstupy, ktoré v configu ostali kvôli parite panela, ale v porte nerobia nič,
-#: takže vo formulári len zavadzajú: `alert()` posielal notifikáciu TradingView. Vo
-#: Freqtrade notifikácie rieši sám Freqtrade (Telegram) v live režime a v backteste
-#: nemajú význam. V `IBSConfig` ostávajú, aby profil sedel s TV panelom.
-INERT_INPUTS = {"alertOnState2", "alertOnState3", "alertOnState4"}
+#: takže vo formulári len zavadzajú. V `IBSConfig` ostávajú, aby profil sedel s TV
+#: panelom, a do uloženého profilu sa zapíšu s Pine defaultom.
+#:
+#: `alert*` posielali notifikáciu TradingView — vo Freqtrade notifikácie rieši sám
+#: Freqtrade (Telegram) v live režime, v backteste nemajú význam.
+#:
+#: `showDashboard`, `showTradeLog`, `showDebugTable` a ich pozície/počty riadkov kreslili
+#: tabuľky **na graf v TradingView**. Port ich nekreslí a ani nemá kam — históriu behov,
+#: zoznam obchodov aj dôvody výstupu ukazuje webapp vo vlastných tabuľkách. Kresliaci
+#: prepínač `showImbalance` medzi ne nepatrí: ten engine číta (`engine.py`) a rozhoduje,
+#: či sa do kresieb behu dostanú imbalance boxy.
+INERT_INPUTS = {
+    "alertOnState2", "alertOnState3", "alertOnState4",
+    "showDashboard", "dashPos", "dashboardRows",
+    "showTradeLog", "tradeLogRows",
+    "showDebugTable", "debugTableRows", "debugPos",
+}
 
 PORT_GROUP = "🧩 Rozšírenia portu (nie sú v Pine)"
 
@@ -85,9 +98,6 @@ FEATURES: list[dict[str, Any]] = [
      "params": ["liqSweepLen", "liqSweepMinWick", "liqSweepConfirmBars", "liqStrengthLen"]},
     {"switches": ["showElliott"], "params": ["ewSwingLen", "ewMinWavePoints", "ewShowLabels", "ewShowProjection", "ewLineColor"]},
     {"switches": ["ewShowProjection"], "params": ["ewProjExtendBars"]},
-    {"switches": ["showDashboard"], "params": ["dashPos", "dashboardRows", "showTradeLog"]},
-    {"switches": ["showTradeLog"], "params": ["tradeLogRows"]},
-    {"switches": ["showDebugTable"], "params": ["debugTableRows", "debugPos"]},
 ]
 
 _INPUT_RE = re.compile(r"^\s*(\w+)\s*=\s*input\.(\w+)\((.*)$")

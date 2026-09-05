@@ -98,9 +98,12 @@ Freqtrade configom (`config.binance.spot.json`, `trading_mode: spot`).
 titulkami a tooltipmi ako v TradingView (parsuje sa to priamo
 z `pine/imbalance_strategy_FULL.pine`, takže sa nemôžu rozísť), plus skupina
 „Rozšírenia portu" (`atrLen`, `legacyPineSizing`, `leverage`, `minSlDistance`).
-Neponúkajú sa tri `alert*` polia (`alertOnState2/3/4`): v Pine posielali notifikáciu
-TradingView, v porte nerobia nič — v `IBSConfig` ostávajú, aby profil sedel s TV
-panelom, a do uloženého profilu sa zapíšu s Pine defaultom.
+Neponúkajú sa polia, ktoré v porte nerobia nič: `alert*` (v Pine notifikácie
+TradingView) a tabuľky kreslené na graf v TradingView — `showDashboard`, `showTradeLog`,
+`showDebugTable` s ich pozíciami a počtami riadkov; to isté ukazuje webapp vo vlastných
+tabuľkách. V `IBSConfig` ostávajú, aby profil sedel s TV panelom, a do uloženého profilu
+sa zapíšu s Pine defaultom. Kresliaci prepínač `showImbalance` ponuka má — ten rozhoduje,
+či sa do kresieb behu dostanú imbalance boxy.
 Panel vyzerá ako nastavenia v TradingView: vľavo zoznam skupín, vpravo všetky skupiny
 pod sebou v jednom dlhom zozname, ktorý skroluje vo vlastnom okne (stránka stojí) —
 klik na skupinu vľavo naň naskroluje a zvýraznenie sleduje, kde práve si. Jeden parameter na riadok; polia, ktoré Pine kreslí vedľa seba (hodina a minúta seansy,
