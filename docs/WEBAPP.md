@@ -218,8 +218,12 @@ Vlastné profily žijú vedľa histórie:
 platforms/freqtrade/user_data/profiles/<meno>.json
 ```
 
-Formát je rovnaký ako pri profiloch repozitára — **len odchýlky** od Pine defaultov
-plus metadáta s podtržníkom: `_instrument` (z neho sa nastaví pár), `_title` a
+Na rozdiel od profilov repozitára (tie držia len odchýlky od Pine defaultov) je
+vlastný profil **úplný — zapíše sa každé pole configu**. Nezávisí tak na tom, čo je
+práve default ani na profile, z ktorého vznikol: keď sa hocičo z toho neskôr zmení,
+starý profil ostane presne taký, aký bol, a beh sa dá zopakovať.
+
+K tomu metadáta s podtržníkom: `_instrument` (z neho sa nastaví pár), `_title` a
 `_comment` (popis a z ktorého behu profil vznikol) a celé nastavenie behu —
 `_timeframe`, `_timerange`, `_fee`, `_wallet`, `_detail`. Výber profilu ich všetky
 prenesie do formulára (obdobie orezané na dáta, ktoré pre pár sú); čo profil nemá —

@@ -5,13 +5,15 @@ a dokumenty s meraniami, takže ich tester nesmie premenovať ani zmazať. Čo s
 z vlastného behu, patrí k jeho dátam — ide do gitu spolu s `runs/` cez Push, dá sa
 premenovať aj zmazať a nikdy neprepíše profil z repozitára.
 
-Formát je rovnaký ako pri profiloch repozitára: **len odchýlky** od Pine defaultov
-plus kľúč `_instrument`. Vďaka tomu je diff čitateľný a profil prežije aj to, keď sa
-niekedy zmení Pine default (posunie sa s ním). Navyše nastavenia behu, bez ktorých
-by profil povedal „ako", ale nie „na čom": `_timeframe` (limity `*MaxBars` sú v baroch,
-takže TF patrí k nastaveniu), `_timerange`, `_fee`, `_wallet` a `_detail`. `_base`
-hovorí, z ktorého profilu tester vychádzal — hodnoty sú vlastné a nemenné, je to
-len záznam pôvodu, aby sa dalo spätne povedať „toto je golden s RR 4".
+Na rozdiel od profilov repozitára (tie držia len odchýlky od Pine defaultov) sa sem
+zapisuje **každé pole configu**. Profil tak stojí sám na sebe: nezáleží, či sa medzitým
+zmenil profil, z ktorého tester vychádzal, ani či sa posunul niektorý Pine default —
+beh spustený o rok neskôr má presne tie hodnoty, s ktorými sa profil ukladal.
+
+K tomu nastavenia behu, bez ktorých by profil povedal „ako", ale nie „na čom":
+`_timeframe` (limity `*MaxBars` sú v baroch, takže TF patrí k nastaveniu), `_timerange`,
+`_fee`, `_wallet` a `_detail`. `_base` hovorí, z ktorého profilu tester vychádzal — je
+to len záznam pôvodu, aby sa dalo spätne povedať „toto je golden s RR 4".
 """
 
 from __future__ import annotations
@@ -103,10 +105,15 @@ def check_name(name: str) -> str:
     return name
 
 
-def deviations(params: dict[str, Any]) -> dict[str, Any]:
-    """Len to, čo sa líši od Pine defaultov — rovnako ako profily v `ibs/configs/`."""
-    defaults = IBSConfig().to_dict()
-    return {k: v for k, v in params.items() if not k.startswith("_") and defaults.get(k) != v}
+def config_values(params: dict[str, Any]) -> dict[str, Any]:
+    """Všetky polia configu — profil má byť úplný, nie diff.
+
+    Odchýlkový zápis (ako v `ibs/configs/`) by znamenal, že profil závisí na tom, čo je
+    práve default: keby sa Pine default posunul, posunul by sa aj rok starý profil
+    a beh by sa už nedal zopakovať. Preto sa zapíše celý config, aj keď je súbor dlhší.
+    """
+    known = set(IBSConfig().to_dict())
+    return {k: v for k, v in params.items() if k in known}
 
 
 #: Nastavenia behu, ktoré k profilu patria — bez nich by profil povedal „ako", ale
@@ -154,7 +161,7 @@ def save(name: str, params: dict[str, Any], instrument: str, *,
     path = path_for(name)
     if path.exists() and not overwrite:
         raise FileExistsError(f"profil {name} už existuje")
-    data: dict[str, Any] = {"_instrument": instrument, **deviations(params)}
+    data: dict[str, Any] = {"_instrument": instrument, **config_values(params)}
     for key in reversed(SETTING_KEYS):
         value = (settings or {}).get(key)
         if value is not None:

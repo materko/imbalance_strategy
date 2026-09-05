@@ -331,7 +331,9 @@ def own_profiles(tmp_path: Path, monkeypatch):
     return d
 
 
-def test_save_run_as_profile_keeps_only_deviations(client, own_profiles):
+def test_save_run_as_profile_writes_every_field(client, own_profiles):
+    """Vlastný profil je úplný, nie diff — inak by ho posunula zmena Pine defaultu
+    alebo profilu, z ktorého vznikol, a starý beh by sa nedal zopakovať."""
     c, store = client
     store.save(_record("20260905-120000-aaaaaa", params={"rrRatio": 5.0}))
     r = c.post("/api/profiles", json={"name": "moj_rr5", "from_run": "20260905-120000-aaaaaa",
@@ -341,7 +343,9 @@ def test_save_run_as_profile_keeps_only_deviations(client, own_profiles):
     data = json.loads((own_profiles / "moj_rr5.json").read_text(encoding="utf-8"))
     assert data["_instrument"] == "btcusdt_binance" and data["rrRatio"] == 5.0
     assert "RR 5" in data["_comment"] and "20260905-120000-aaaaaa" in data["_comment"]
-    assert "enableImbEntry" not in data  # Pine default sa neukladá
+    # každé pole configu, aj to, čo má práve hodnotu Pine defaultu
+    assert {k for k in data if not k.startswith("_")} == set(IBSConfig().to_dict())
+    assert data["enableImbEntry"] is True
 
     p = c.get("/api/profiles/moj_rr5").json()
     assert p["params"]["rrRatio"] == 5.0 and p["instrument"] == "btcusdt_binance" and p["kind"] == "user"
