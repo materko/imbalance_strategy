@@ -112,6 +112,7 @@ main() {
     bold "Umiestnenie"
     ask "Do ktorého priečinka repozitár klonovať" "$HOME/Projects"
     PARENT="${REPLY/#\~/$HOME}"
+    case "$PARENT" in /*) ;; *) PARENT="$HOME/$PARENT" ;; esac   # relatívna cesta = od domovského priečinka
     ask "Ako sa má priečinok repozitára volať" "imbalance_strategy"
     NAME="$REPLY"
     TARGET="$PARENT/$NAME"
@@ -156,7 +157,7 @@ main() {
     # ---------------------------------------------------------------------------- #
     echo
     bold "Python prostredie (freqtrade + ibs, prvýkrát ~10 minút)"
-    PYTHON="$PYTHON_BIN" "$TARGET/platforms/freqtrade/scripts/setup.sh" < /dev/null
+    PYTHON="$PYTHON_BIN" bash "$TARGET/platforms/freqtrade/scripts/setup.sh" < /dev/null
 
     echo
     bold "Dáta"
@@ -171,7 +172,7 @@ main() {
 #!/bin/bash
 # Dvojklik spustí IBS Backtester (webapp) a otvorí prehliadač. Ctrl+C v tomto okne ho ukončí.
 export IBS_USER="$TESTER"
-cd "$TARGET" && exec ./webapp.sh
+cd "$TARGET" && exec bash ./webapp.sh
 EOF
         chmod +x "$LAUNCHER"
         ok "Na Ploche je spúšťač: IBS Backtester.command"
@@ -189,7 +190,7 @@ EOF
     if yesno "Spustiť webapp teraz?" Y; then
         export IBS_USER="$TESTER"
         cd "$TARGET"
-        exec ./webapp.sh
+        exec bash ./webapp.sh
     fi
 }
 
