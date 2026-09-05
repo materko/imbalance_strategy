@@ -111,6 +111,19 @@ td.ov { white-space: normal; max-width: 420px; }
 .kcard .v { font-size: 20px; font-weight: 700; margin-top: 2px; }
 .kcard .s { font-size: 12px; color: var(--muted); }
 .chart { height: 460px; }
+.pc-toolbar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+.pc-toolbar label.inline { margin: 0; gap: 4px; color: var(--muted); }
+.pc-toolbar select, .pc-toolbar input { font: inherit; font-size: 12px; padding: 3px 6px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+.pc-toolbar button { padding: 4px 8px; font-size: 12px; }
+.pc-layers { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 4px 0 6px; font-size: 12px; }
+.pc-layers label { flex-direction: row; align-items: center; gap: 4px; margin: 0; color: var(--ink); cursor: pointer; }
+.pc-layers label .sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; border: 1px solid rgba(0,0,0,.15); }
+.pc-layers label .n { color: var(--muted); }
+.pc-layers label.off { color: var(--muted); }
+.pair-chart { height: 640px; border: 1px solid var(--line); border-radius: 8px; position: relative; }
+.pair-chart.loading::after { content: "načítavam…"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.55); color: var(--muted); font-size: 13px; z-index: 2; }
+.pc-note { margin: 6px 0 4px; }
+table.runs tbody tr.hl { background: #fffbeb; }
 .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .log { background: #111827; color: #e5e7eb; padding: 10px; border-radius: 8px; font-size: 11.5px; max-height: 360px; overflow: auto; white-space: pre-wrap; }
 details > summary { cursor: pointer; padding: 8px 0; font-weight: 600; }

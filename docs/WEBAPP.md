@@ -123,6 +123,22 @@ Karty ako v Strategy Testeri plus break-even poplatok a buy & hold; graf:
 * **zelená krivka** — kumulatívny PnL,
 * **modrá** — buy and hold (zmena ceny páru od začiatku okna, denné vzorky).
 
+**Graf páru** pod tým je to, čo by si videl v TradingView na grafe: sviečky páru
+a všetko, čo engine v tomto behu nakreslil — pásy seáns, SD zóny (formácia bodkovane,
+potvrdená s výplňou; tehlová = Demand/LONG, modrá = Supply/SHORT, zelená = volume
+potvrdená, sivá = expirovaná), imbalance sviečky, TP/SL boxy, štítky stavového
+automatu (SKIP, počítadlá, EXPIRED…), štruktúru (BOS/CHoCH, swingy), S/R úrovne,
+liquidity sweepy a Elliott. Navrch sú skutočné obchody Freqtradu: trojuholník je
+vstup (zelený long, červený short), krížik výstup, bodkovaná spojnica zelená pri zisku
+a červená pri strate; hover ukáže ceny, čas, dôvod výstupu a PnL.
+
+Ovládanie: šípky posúvajú okno, „prvý obchod" a klik na riadok v zozname obchodov
+naň graf skočí, `okno` mení dĺžku (4 h – týždeň), `TF` je auto (3m, pri širšom okne
+hrubší, aby to bolo max. 6 000 sviečok) alebo ručne, `skoč na` je dátum a čas
+začiatku okna. Ťahanie myšou posúva, koliesko zoomuje; keď vyjdeš z načítaného okna,
+dotiahne sa ďalšie. Zaškrtávacie polia vypínajú vrstvy (počet v zátvorke je za celý
+beh) a voľba sa pamätá v prehliadači. Časy sú UTC.
+
 Pod tým odchýlky od Pine defaultov (s Pine hodnotou vedľa), dôvody výstupu, zoznam
 obchodov, všetky parametre a skrátený log Freqtradu.
 
@@ -134,12 +150,22 @@ priamo cez `IBS_PROFILE=cesta.json` v CLI. **Zmazať** odstráni adresár behu.
 
 ```
 platforms/freqtrade/user_data/runs/<YYYYMMDD-HHMMSS-odtlačok>/
-    run.json      parametre, nastavenia, výsledok (súhrn), séria pre graf
-    trades.json   obchody
-    log.txt       skrátený log
+    run.json        parametre, nastavenia, výsledok (súhrn), séria pre graf
+    trades.json     obchody
+    log.txt         skrátený log
+    chart.json.gz   kresby enginu pre graf páru (zóny, boxy, štítky…)
 ```
 
-Všetko je čitateľný JSON, jeden adresár na beh, takže sa to mergeuje bez konfliktov.
+Všetko okrem kresieb je čitateľný JSON, jeden adresár na beh, takže sa to mergeuje bez
+konfliktov. Kresby sú gzip: ročný beh má ~90 000 objektov (12 MB v JSON, 1,5 MB
+zbalené) a súbor sa po zápise už nemení, takže diff netreba. Sviečky sa k behu
+neukladajú — čítajú sa z `user_data/data` (v gite ako `data_archive/`), takže graf
+funguje aj pre beh stiahnutý od iného testera. Behy z čias pred týmto súborom ukážu
+sviečky a obchody bez kresieb.
+
+Ako kresby vznikajú: stratégia dostane cez `IBS_DRAW_OUT` cestu, kam má po backteste
+vysypať finálny stav `DrawRegistry` (rovnaký mechanizmus ako `ibs.tools.plot`);
+webapp súbor po dobehnutí presunie do adresára behu.
 Tlačidlá **Pull** (`git pull --rebase --autostash`) a **Push** (commitne **len**
 `runs/` a pushne na aktuálnu vetvu) sú v hlavičke; výstup gitu sa zobrazí celý.
 Kód ani iné súbory sa z UI nikdy necommitujú. Autor commitu je meno testera z hlavičky.
@@ -179,6 +205,9 @@ inštalátor pre macOS zapisuje `tester` automaticky. Rola sa dá kedykoľvek pr
 ## Kód
 
 `ibs/webapp/`: `pine_meta.py` (metadáta z Pine), `store.py` (behy a vyhľadávanie),
-`runner.py` (fronta, Freqtrade podproces, spracovanie zipu), `gitsync.py`,
+`runner.py` (fronta, Freqtrade podproces, spracovanie zipu), `chart.py` (sviečky
+z feather súborov po oknách, orezanie kresieb na okno), `gitsync.py`,
 `app.py` (FastAPI), `static/` (stránka bez frameworku, Plotly z CDN).
-Testy: `ibs/tests/test_webapp.py`.
+Export kresieb: `ibs/adapters/freqtrade/runner.py::export_chart`, serializácia
+`ibs/core/drawing.py::objects_to_dicts`.
+Testy: `ibs/tests/test_webapp.py`, `ibs/tests/test_chart_export.py`.

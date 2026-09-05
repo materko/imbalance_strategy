@@ -413,7 +413,7 @@ async function openRun(id) {
   $("#trade-count").textContent = trades.length;
   const cols = ["open_date", "close_date", "open_rate", "close_rate", "amount", "profit_abs", "profit_ratio", "exit_reason", "enter_tag"];
   $("#trades thead").innerHTML = `<tr>${cols.map(c => `<th>${c}</th>`).join("")}</tr>`;
-  $("#trades tbody").innerHTML = trades.map(t => `<tr>${cols.map(c => {
+  $("#trades tbody").innerHTML = trades.map((t, i) => `<tr data-trade="${i}" title="ukázať na grafe">${cols.map(c => {
     let v = t[c];
     if (c.endsWith("_date") && v) v = String(v).replace("T", " ").slice(0, 16);
     if (c === "profit_abs") return `<td class="num">${signed(v)}</td>`;
@@ -421,6 +421,9 @@ async function openRun(id) {
     if (typeof v === "number") v = Number.isInteger(v) ? v : v.toFixed(4);
     return `<td>${esc(v ?? "")}</td>`;
   }).join("")}</tr>`).join("");
+  for (const tr of $$("#trades tbody tr")) tr.onclick = () => jumpToTrade(trades[Number(tr.dataset.trade)]);
+
+  initPairChart(rec, trades);
 
   $("#detail-params").innerHTML = `<table class="runs"><tbody>${Object.entries(rec.params || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => `<tr><td><code>${k}</code></td><td>${esc(fmtVal(v))}</td></tr>`).join("")}</tbody></table>`;
   $("#detail-log").textContent = await api(`/api/runs/${id}/log`);
@@ -459,6 +462,275 @@ function drawChart(series, res) {
     xaxis: { showgrid: false },
     paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
   }, { displaylogo: false, responsive: true });
+}
+
+// --------------------------------------------------------------------------- //
+// Graf páru s kresbami enginu
+//
+// Sviečky idú z feather súborov po oknách (/api/candles), kresby behu (zóny, TP/SL
+// boxy, štítky…) z chart.json.gz orezané na okno (/api/runs/<id>/chart). Boxy a
+// čiary sa kreslia ako scatter trace na skupinu štýlov (nie plotly shapes — tých
+// by boli tisíce a graf by sa zasekával); pásy seáns sú shapes, tých je pár.
+// Časy sú UTC: Plotly ignoruje časové pásmo v reťazci, tak mu dávame UTC text.
+// --------------------------------------------------------------------------- //
+
+const LAYERS = [
+  { id: "session",   title: "Seansy",                kinds: ["session"],                           sw: "#6366f1" },
+  { id: "zones",     title: "SD zóny",               kinds: ["sd_zone_pre", "sd_zone_post"],       sw: "#be3c46" },
+  { id: "imb",       title: "Imbalance",             kinds: ["imb_box", "imb_zero"],               sw: "#94a3b8" },
+  { id: "patterns",  title: "Pin bar / Engulfing",   kinds: ["pin_bar_box", "engulfing_box"],      sw: "#d97706" },
+  { id: "tpsl",      title: "TP / SL boxy",          kinds: ["tp_box", "sl_box", "entry", "exit"], sw: "#10b981" },
+  { id: "labels",    title: "Štítky stavov",         kinds: ["skip", "counter", "state34", "expired", "max_daily"], sw: "#334155" },
+  { id: "structure", title: "Štruktúra (BOS/CHoCH)", kinds: ["swing", "structure"],                sw: "#334155" },
+  { id: "sr",        title: "S/R úrovne",            kinds: ["sr_level", "sr_golden"],             sw: "#3b82f6" },
+  { id: "liq",       title: "Likvidita",             kinds: ["liq_sweep"],                         sw: "#9333ea" },
+  { id: "elliott",   title: "Elliott",               kinds: ["elliott_wave", "elliott_proj"],      sw: "#0d9488" },
+  { id: "trades",    title: "Obchody Freqtrade",     kinds: [],                                    sw: GREEN },
+];
+const LAYER_BY_KIND = Object.fromEntries(LAYERS.flatMap(l => l.kinds.map(k => [k, l.id])));
+const KIND_TITLE = {
+  sd_zone_pre: "SD zóna (formácia)", sd_zone_post: "SD zóna", imb_box: "Imbalance sviečka", imb_zero: "Imbalance 0",
+  pin_bar_box: "Pin bar", engulfing_box: "Engulfing", tp_box: "TP box", sl_box: "SL box", entry: "Vstup", exit: "Výstup",
+  skip: "SKIP", counter: "Počítadlo", state34: "STATE 3/4", expired: "Expirovaný order", max_daily: "Denný limit",
+  swing: "Swing", structure: "Štruktúra", sr_level: "S/R úroveň", sr_golden: "S/R golden", liq_sweep: "Liquidity sweep",
+  elliott_wave: "Elliott vlna", elliott_proj: "Elliott projekcia", session: "Seansa",
+};
+const TF_MINUTES = { "1m": 1, "3m": 3, "5m": 5, "15m": 15, "30m": 30, "1h": 60 };
+const SPANS = [["4 h", 4 * 3600e3], ["12 h", 12 * 3600e3], ["1 deň", 86400e3], ["3 dni", 3 * 86400e3], ["1 týždeň", 7 * 86400e3]];
+const MAX_CANDLES = 6000;  // rovnaké ako server (ibs/webapp/chart.py)
+const DASH = { dotted: "dot", dashed: "dash" };
+
+const pc = { rec: null, trades: [], runFrom: 0, runTo: 0, from: 0, to: 0, tf: "auto", layers: {}, meta: null, last: null,
+  seq: 0, bound: false, relayoutTimer: null, quietUntil: 0 };
+
+const utc = ms => new Date(ms).toISOString().slice(0, 19).replace("T", " ");
+const parseUtc = s => Date.parse(String(s).replace(" ", "T").replace(/(\.\d+)?$/, "Z"));
+const fmtPrice = v => Number(v).toLocaleString("en-US", { maximumFractionDigits: 6 });
+
+function loadLayerPrefs() {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem("ibs.layers") || "null"); } catch (_) { /* ignoruj */ }
+  for (const l of LAYERS) pc.layers[l.id] = saved && l.id in saved ? !!saved[l.id] : true;
+}
+
+function tfOptions() {
+  const p = state.meta.pairs.find(x => x.pair === pc.rec.settings.pair);
+  const tfs = (p && p.timeframes && p.timeframes.length) ? p.timeframes : ["3m"];
+  return tfs.filter(t => t in TF_MINUTES);
+}
+
+function initPairChart(rec, trades) {
+  pc.rec = rec; pc.trades = trades; pc.meta = null; pc.last = null; pc.seq++;
+  const [a, b] = rec.settings.timerange.split("-");
+  pc.runFrom = Date.parse(`${a.slice(0, 4)}-${a.slice(4, 6)}-${a.slice(6)}T00:00:00Z`);
+  pc.runTo = Date.parse(`${b.slice(0, 4)}-${b.slice(4, 6)}-${b.slice(6)}T00:00:00Z`);
+  loadLayerPrefs();
+  $("#pc-title").textContent = `${rec.settings.pair} · UTC`;
+
+  const span = $("#pc-span"); span.innerHTML = "";
+  for (const [t, ms] of SPANS) { const o = document.createElement("option"); o.value = ms; o.textContent = t; span.append(o); }
+  span.value = String(86400e3);
+  span.onchange = () => setWindow(pc.from, pc.from + Number(span.value));
+
+  const tf = $("#pc-tf"); tf.innerHTML = `<option value="auto">auto</option>`;
+  for (const t of tfOptions()) { const o = document.createElement("option"); o.value = t; o.textContent = t; tf.append(o); }
+  tf.value = "auto"; pc.tf = "auto";
+  tf.onchange = () => { pc.tf = tf.value; loadPairChart(); };
+
+  $("#pc-start").onclick = () => setWindow(pc.runFrom, pc.runFrom + spanMs());
+  $("#pc-prev").onclick = () => setWindow(pc.from - spanMs(), pc.from);
+  $("#pc-next").onclick = () => setWindow(pc.to, pc.to + spanMs());
+  $("#pc-first-trade").onclick = () => { if (pc.trades.length) jumpToTrade(pc.trades[0]); };
+  $("#pc-first-trade").disabled = !pc.trades.length;
+  $("#pc-goto").onchange = () => { const v = $("#pc-goto").value; if (v) { const t0 = Date.parse(v + ":00Z"); setWindow(t0, t0 + spanMs()); } };
+
+  $("#pc-note").textContent = rec.has_chart ? "" :
+    "Tento beh nemá uložené kresby enginu (spustený staršou verziou) — graf ukáže sviečky a obchody bez zón a štítkov.";
+  renderLayerToggles();
+
+  if (pc.trades.length) jumpToTrade(pc.trades[0]);
+  else setWindow(pc.runFrom, pc.runFrom + 86400e3);
+}
+
+function spanMs() { return Math.max(pc.to - pc.from, 15 * 60e3) || 86400e3; }
+
+function chooseTf(span) {
+  const opts = tfOptions();
+  if (pc.tf !== "auto") return opts.includes(pc.tf) ? pc.tf : (opts[0] || "3m");
+  const fine = opts.filter(t => span / (TF_MINUTES[t] * 60e3) <= MAX_CANDLES * 0.9);
+  const idx = Math.max(opts.indexOf("3m"), 0);  // jemnejšie než graf stratégie nemá zmysel
+  const ok = fine.filter(t => opts.indexOf(t) >= idx);
+  return ok[0] || fine[0] || opts[opts.length - 1] || "3m";
+}
+
+function setWindow(from, to) {
+  if (!(to > from)) return;
+  pc.from = Math.round(from); pc.to = Math.round(to);
+  const preset = SPANS.find(([, ms]) => Math.abs(ms - (pc.to - pc.from)) < 60e3);
+  $("#pc-span").value = preset ? String(preset[1]) : "";
+  $("#pc-window").textContent = `${utc(pc.from).slice(0, 16)} → ${utc(pc.to).slice(0, 16)}`;
+  loadPairChart();
+}
+
+function jumpToTrade(t) {
+  const open = Date.parse(t.open_date), close = Date.parse(t.close_date || t.open_date);
+  const dur = Math.max(close - open, 15 * 60e3);
+  const pad = Math.max(dur * 0.6, 2 * 3600e3);
+  for (const tr of $$("#trades tbody tr")) tr.classList.toggle("hl", pc.trades[Number(tr.dataset.trade)] === t);
+  setWindow(open - pad, close + pad);
+  $("#pair-chart").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function renderLayerToggles() {
+  const box = $("#pc-layers"); box.innerHTML = "";
+  const counts = (pc.meta && pc.meta.counts) || {};
+  for (const l of LAYERS) {
+    if (!pc.rec.has_chart && l.id !== "trades") continue;
+    const n = l.id === "trades" ? pc.trades.length : l.kinds.reduce((s, k) => s + (counts[k] || 0), 0);
+    const lab = document.createElement("label"); lab.classList.toggle("off", !pc.layers[l.id]);
+    lab.innerHTML = `<input type="checkbox" ${pc.layers[l.id] ? "checked" : ""}> <span class="sw" style="background:${l.sw}"></span>${esc(l.title)} <span class="n">${pc.meta || l.id === "trades" ? n : ""}</span>`;
+    lab.querySelector("input").onchange = e => {
+      pc.layers[l.id] = e.target.checked; lab.classList.toggle("off", !e.target.checked);
+      try { localStorage.setItem("ibs.layers", JSON.stringify(pc.layers)); } catch (_) { /* ignoruj */ }
+      if (pc.last) renderPairChart(pc.last.candles, pc.last.objects);
+    };
+    box.append(lab);
+  }
+}
+
+async function loadPairChart() {
+  const seq = ++pc.seq;
+  const el = $("#pair-chart"); el.classList.add("loading");
+  const tf = chooseTf(pc.to - pc.from);
+  const q = `from=${pc.from}&to=${pc.to}`;
+  try {
+    const [candles, chart] = await Promise.all([
+      api(`/api/candles?pair=${encodeURIComponent(pc.rec.settings.pair)}&tf=${tf}&${q}`),
+      pc.rec.has_chart ? api(`/api/runs/${pc.rec.id}/chart?${q}`) : Promise.resolve({ meta: null, objects: [] }),
+    ]);
+    if (seq !== pc.seq) return;
+    if (chart.meta && !pc.meta) { pc.meta = chart.meta; renderLayerToggles(); }
+    pc.last = { candles, objects: chart.objects };
+    $("#pc-status").textContent = `${tf} · ${candles.t.length} sviečok · ${chart.objects.length} objektov` +
+      (candles.truncated ? " · okno orezané, zvoľ hrubší TF" : "");
+    renderPairChart(candles, chart.objects);
+  } catch (e) {
+    if (seq !== pc.seq) return;
+    el.innerHTML = `<div class="error">${esc(e.message)}</div>`;
+  } finally { if (seq === pc.seq) el.classList.remove("loading"); }
+}
+
+function describe(o) {
+  const head = `<b>${esc(KIND_TITLE[o.k] || o.k)}</b>${o.tx ? " · " + esc(o.tx).replace(/\n/g, " ") : ""}${o.z != null ? ` · zóna #${o.z}` : ""}`;
+  if (o.t === "label") return `${head}<br>${utc(o.x).slice(0, 16)} · ${fmtPrice(o.y)}`;
+  const y = o.t === "bg" ? "" : `<br>${fmtPrice(Math.max(o.y1, o.y2))} – ${fmtPrice(Math.min(o.y1, o.y2))}`;
+  return `${head}<br>${utc(o.x1).slice(0, 16)} → ${utc(o.x2).slice(0, 16)}${y}`;
+}
+
+function objectTraces(objects) {
+  const groups = new Map(), shapes = [];
+  const group = (key, init) => { let g = groups.get(key); if (!g) { g = init(); groups.set(key, g); } return g; };
+  for (const o of objects) {
+    const layer = LAYER_BY_KIND[o.k] || "labels";
+    if (!pc.layers[layer]) continue;
+    const name = (LAYERS.find(l => l.id === layer) || {}).title || o.k;
+    const desc = describe(o);
+    if (o.t === "bg") {
+      shapes.push({ type: "rect", xref: "x", yref: "paper", layer: "below", x0: utc(o.x1), x1: utc(o.x2), y0: 0, y1: 1, fillcolor: o.c, line: { width: 0 } });
+    } else if (o.t === "box") {
+      const fill = o.fc || "rgba(0,0,0,0)", dash = DASH[o.bs] || "solid", w = o.bw ?? 1;
+      const g = group(`box|${fill}|${o.bc}|${dash}|${w}`, () => ({ type: "scatter", mode: "lines", fill: "toself", fillcolor: fill,
+        line: { color: o.bc, width: w, dash }, x: [], y: [], text: [], hoverinfo: "text", hoveron: "points", showlegend: false, name }));
+      const x2 = o.er ? Math.max(o.x2, pc.to) : o.x2;
+      g.x.push(utc(o.x1), utc(x2), utc(x2), utc(o.x1), utc(o.x1), null);
+      g.y.push(o.y1, o.y1, o.y2, o.y2, o.y1, null);
+      g.text.push(desc, desc, desc, desc, desc, "");
+    } else if (o.t === "line") {
+      const dash = DASH[o.s] || "solid", w = o.w ?? 1;
+      const g = group(`line|${o.c}|${dash}|${w}`, () => ({ type: "scatter", mode: "lines", line: { color: o.c, width: w, dash },
+        x: [], y: [], text: [], hoverinfo: "text", showlegend: false, name }));
+      g.x.push(utc(o.x1), utc(o.x2), null); g.y.push(o.y1, o.y2, null); g.text.push(desc, desc, "");
+    } else if (o.t === "label") {
+      const bubble = !!o.bg;
+      const g = group(`label|${o.ab ? 1 : 0}|${bubble ? 1 : 0}`, () => {
+        const t = { type: "scatter", mode: bubble ? "markers+text" : "text",
+          x: [], y: [], text: [], hovertext: [], hoverinfo: "text", showlegend: false, name,
+          textposition: o.ab ? "top center" : "bottom center", textfont: { size: 10, color: [] } };
+        // Plotly neznesie `marker: undefined` (validácia robí `"line" in marker`), tak kľúč len keď treba.
+        if (bubble) t.marker = { symbol: o.ab ? "triangle-down" : "triangle-up", size: 8, color: [] };
+        return t;
+      });
+      g.x.push(utc(o.x)); g.y.push(o.y); g.text.push(esc(o.tx || "").replace(/\n/g, "<br>"));
+      g.textfont.color.push(bubble ? o.bg : o.c); g.hovertext.push(desc);
+      if (bubble) g.marker.color.push(o.bg);
+    }
+  }
+  return { traces: [...groups.values()], shapes };
+}
+
+function tradeTraces() {
+  if (!pc.layers.trades) return [];
+  const inWin = pc.trades.filter(t => Date.parse(t.close_date || t.open_date) >= pc.from && Date.parse(t.open_date) <= pc.to);
+  if (!inWin.length) return [];
+  const cur = (pc.rec.result || {}).stake_currency || "USDT";
+  const entry = { type: "scatter", mode: "markers", x: [], y: [], text: [], hoverinfo: "text", showlegend: false, name: "Vstup",
+    marker: { symbol: [], size: 11, color: [], line: { color: "#fff", width: 1 } } };
+  const exit = { type: "scatter", mode: "markers", x: [], y: [], text: [], hoverinfo: "text", showlegend: false, name: "Výstup",
+    marker: { symbol: "x", size: 9, color: [], line: { width: 0 } } };
+  const win = { type: "scatter", mode: "lines", x: [], y: [], hoverinfo: "skip", showlegend: false, line: { color: GREEN, width: 1.5, dash: "dot" } };
+  const loss = { type: "scatter", mode: "lines", x: [], y: [], hoverinfo: "skip", showlegend: false, line: { color: RED, width: 1.5, dash: "dot" } };
+  for (const t of inWin) {
+    const long = !t.is_short, good = (t.profit_abs || 0) >= 0;
+    const txt = `<b>${long ? "LONG" : "SHORT"}</b> ${esc(t.enter_tag || "")}<br>vstup ${fmtPrice(t.open_rate)} · ${utc(Date.parse(t.open_date)).slice(0, 16)}` +
+      `<br>výstup ${fmtPrice(t.close_rate)} · ${utc(Date.parse(t.close_date)).slice(0, 16)} · ${esc(t.exit_reason || "")}` +
+      `<br>PnL ${Number(t.profit_abs).toFixed(2)} ${cur} (${(t.profit_ratio * 100).toFixed(2)} %)`;
+    entry.x.push(utc(Date.parse(t.open_date))); entry.y.push(t.open_rate); entry.text.push(txt);
+    entry.marker.symbol.push(long ? "triangle-up" : "triangle-down"); entry.marker.color.push(long ? GREEN : RED);
+    exit.x.push(utc(Date.parse(t.close_date))); exit.y.push(t.close_rate); exit.text.push(txt); exit.marker.color.push(good ? GREEN : RED);
+    const ln = good ? win : loss;
+    ln.x.push(utc(Date.parse(t.open_date)), utc(Date.parse(t.close_date)), null); ln.y.push(t.open_rate, t.close_rate, null);
+  }
+  return [win, loss, entry, exit];
+}
+
+function renderPairChart(candles, objects) {
+  const el = $("#pair-chart");
+  const x = candles.t.map(utc);
+  const candle = { type: "candlestick", x, open: candles.o, high: candles.h, low: candles.l, close: candles.c, name: pc.rec.settings.pair,
+    increasing: { line: { color: GREEN, width: 1 }, fillcolor: GREEN }, decreasing: { line: { color: RED, width: 1 }, fillcolor: RED },
+    showlegend: false, whiskerwidth: 0.3 };
+  const { traces, shapes } = objectTraces(objects);
+  let lo = Math.min(...candles.l), hi = Math.max(...candles.h);
+  if (!Number.isFinite(lo)) { lo = 0; hi = 1; }
+  const pad = (hi - lo) * 0.05 || 1;
+  Plotly.react(el, [...traces, candle, ...tradeTraces()], {
+    height: 640, margin: { l: 10, r: 70, t: 8, b: 36 }, template: "plotly_white", dragmode: "pan", hovermode: "closest",
+    showlegend: false, shapes,
+    xaxis: { type: "date", range: [utc(pc.from), utc(pc.to)], rangeslider: { visible: false }, showgrid: true, gridcolor: "#f0f1f3" },
+    yaxis: { side: "right", range: [lo - pad, hi + pad], showgrid: true, gridcolor: "#f0f1f3", fixedrange: false },
+    paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+  }, { displaylogo: false, responsive: true, scrollZoom: true, modeBarButtonsToRemove: ["select2d", "lasso2d", "autoScale2d", "toggleSpikelines"] });
+  pc.quietUntil = Date.now() + 400;
+  if (!pc.bound) {
+    pc.bound = true;
+    el.on("plotly_relayout", ev => {
+      // Len skutočný pan/zoom používateľa: ten má vždy oba kraje osi x. Autosize,
+      // dvojklik (autorange) a echo nášho vlastného rozsahu sa ignorujú, inak by sa
+      // graf po každom vykreslení načítaval znova a okno by rástlo samo.
+      if (Date.now() < pc.quietUntil || ev.autosize || !("xaxis.range[0]" in ev) || !("xaxis.range[1]" in ev)) return;
+      const a = parseUtc(ev["xaxis.range[0]"]), b = parseUtc(ev["xaxis.range[1]"]);
+      if (!Number.isFinite(a) || !Number.isFinite(b) || b <= a) return;
+      if (Math.abs(a - pc.from) < 1000 && Math.abs(b - pc.to) < 1000) return;
+      const cur = pc.to - pc.from, span = b - a;
+      // Posun v rámci načítaného okna netreba načítavať; von z okna alebo výrazný zoom áno.
+      if (a >= pc.from && b <= pc.to && span > cur * 0.45) return;
+      // Jeden krok nesmie okno zväčšiť viac než 4× — poistka proti slučke.
+      const limit = cur * 4;
+      const mid = (a + b) / 2, half = Math.min(span, limit) / 2;
+      clearTimeout(pc.relayoutTimer);
+      pc.relayoutTimer = setTimeout(() => setWindow(mid - half, mid + half), 250);
+    });
+  }
 }
 
 function closeDetail() {

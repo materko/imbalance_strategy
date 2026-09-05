@@ -28,7 +28,7 @@ from freqtrade.strategy import (
 from ...core import Bar, SessionClock, load_profile
 from ...core.risk import TrailingPlan, extreme_before_stop
 from ...core.types import Direction, SizeSpec
-from .runner import EngineRunner, SignalRow
+from .runner import EngineRunner, SignalRow, export_chart
 
 #: `enter_tag` obchodu je ``ibs:<čas baru signálu v ms>``. Vďaka tomu každý
 #: `custom_*` callback vie PRESNE, z ktorého signálu obchod vznikol — hľadať
@@ -51,6 +51,10 @@ _COLUMN_ATTRS = {
 logger = logging.getLogger(__name__)
 
 DEFAULT_PROFILE = os.environ.get("IBS_PROFILE", "btcusdt_3m_binance")
+
+#: Kam po backteste uložiť kresby enginu (zóny, boxy, štítky) pre graf vo webapp.
+#: Prázdne = neukladať. `{pair}` v ceste sa nahradí párom (viac párov v jednom behu).
+DRAW_OUT_ENV = "IBS_DRAW_OUT"
 
 
 def _ts_ms(series) -> list[int]:
@@ -302,7 +306,32 @@ class IBSImbalanceStrategy(IStrategy):
             int(dataframe["ibs_enter_long"].sum()),
             int(dataframe["ibs_enter_short"].sum()),
         )
+        self._export_chart(pair, runner)
         return dataframe
+
+    def _export_chart(self, pair: str, runner: EngineRunner) -> None:
+        """Uloží kresby behu, ak o to okolie požiadalo cez `IBS_DRAW_OUT`.
+
+        Len v backteste: dry/live volá `populate_indicators` každú sviečku a hyperopt
+        stokrát za sebou s inými parametrami — tam by súbor nemal zmysel.
+        """
+        out = os.environ.get(DRAW_OUT_ENV)
+        if not out:
+            return
+        from freqtrade.enums import RunMode
+
+        if self.config.get("runmode") not in (RunMode.BACKTEST, RunMode.PLOT):
+            return
+        path = out.replace("{pair}", pair.replace("/", "_").replace(":", "_"))
+        try:
+            head = export_chart(runner, pair, self.timeframe, path)
+        except OSError as exc:  # pragma: no cover - plný disk, zlá cesta
+            logger.warning("IBS %s: kresby sa nepodarilo uložiť do %s: %s", pair, path, exc)
+            return
+        logger.info(
+            "IBS %s: kresby ulozene do %s (%d objektov)",
+            pair, path, sum(head["counts"].values()),
+        )
 
     def populate_entry_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         # Tag nesie čas baru signálu — jediný spoľahlivý kľúč späť na `SignalRow`.

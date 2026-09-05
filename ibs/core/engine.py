@@ -134,6 +134,9 @@ class IBSEngine:
                 y2=bot,
                 border_color=(PAL.STRONG if bull else PAL.LONG).value,
                 fill_color=None,
+                # Pine box sa už nikdy nemení, ale registry (a export pre webapp)
+                # potrebuje identitu; jeden vzor na bar, takže čas sviečky stačí.
+                obj_id=f"imb.{mid.time}",
             )
         )
 

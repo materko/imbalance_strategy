@@ -43,6 +43,9 @@ __all__ = [
     "DrawRegistry",
     "zone_color",
     "with_alpha",
+    "object_to_dict",
+    "objects_to_dicts",
+    "merge_backgrounds",
 ]
 
 
@@ -263,3 +266,85 @@ class DrawRegistry:
 
     def __len__(self) -> int:
         return len(self._objects)
+
+
+# --------------------------------------------------------------------------- #
+# Serializácia — finálny stav objektov ako kompaktný JSON
+#
+# Webapp si kresby behu odkladá k výsledku (`chart.json.gz`), aby sa graf dal
+# pozrieť aj po týždňoch bez toho, aby sa engine musel prehrať znova (ročný beh
+# je desiatky sekúnd). Kľúče sú krátke zámerne: ročný beh má desaťtisíce objektov.
+# --------------------------------------------------------------------------- #
+
+
+def merge_backgrounds(objects: "Iterable[DrawObject]") -> list[DrawObject]:
+    """Zlúči susedné pásy pozadia rovnakej farby do jedného — Pine `bgcolor()` je
+    jeden pás na bar, takže ročný beh by inak mal ~60 000 pásov seansy.
+
+    Ostatné objekty prechádzajú nezmenené a v pôvodnom poradí; zlúčené pásy sú
+    na mieste svojho prvého člena.
+    """
+    out: list[DrawObject] = []
+    open_bands: dict[tuple[str, str], DrawBg] = {}
+    for o in objects:
+        if not isinstance(o, DrawBg):
+            out.append(o)
+            continue
+        key = (o.color, o.text)
+        prev = open_bands.get(key)
+        if prev is not None and o.x1_ms <= prev.x2_ms and o.x2_ms >= prev.x1_ms:
+            prev.x2_ms = max(prev.x2_ms, o.x2_ms)
+            prev.x1_ms = min(prev.x1_ms, o.x1_ms)
+            continue
+        band = DrawBg(kind=o.kind, x1_ms=o.x1_ms, x2_ms=o.x2_ms, color=o.color, obj_id=o.obj_id, text=o.text)
+        open_bands[key] = band
+        out.append(band)
+    return out
+
+
+def object_to_dict(o: DrawObject) -> dict:
+    """Jeden objekt → slovník s krátkymi kľúčmi (`t` typ, `k` druh).
+
+    Prázdne a predvolené polia sa vynechávajú, aby bol súbor malý; `obj_id` sa
+    neukladá vôbec — po prehratí `DrawRegistry` už identitu nikto nepotrebuje
+    a na ročnom behu robí pätinu súboru.
+    """
+    d: dict = {"k": o.kind.value}
+    if isinstance(o, DrawBox):
+        d.update(t="box", x1=o.x1_ms, y1=o.y1, x2=o.x2_ms, y2=o.y2, bc=o.border_color)
+        if o.fill_color:
+            d["fc"] = o.fill_color
+        if o.border_style is not LineStyle.SOLID:
+            d["bs"] = o.border_style.value
+        if o.border_width != 1:
+            d["bw"] = o.border_width
+        if o.extend_right:
+            d["er"] = True
+    elif isinstance(o, DrawLine):
+        d.update(t="line", x1=o.x1_ms, y1=o.y1, x2=o.x2_ms, y2=o.y2, c=o.color)
+        if o.style is not LineStyle.SOLID:
+            d["s"] = o.style.value
+        if o.width != 1:
+            d["w"] = o.width
+    elif isinstance(o, DrawLabel):
+        d.update(t="label", x=o.x_ms, y=o.y, tx=o.text, c=o.color, ab=o.above)
+        if o.style is not LabelStyle.NONE:
+            d["s"] = o.style.value
+        if o.bg_color:
+            d["bg"] = o.bg_color
+    elif isinstance(o, DrawBg):
+        d.update(t="bg", x1=o.x1_ms, x2=o.x2_ms, c=o.color)
+    else:  # pragma: no cover - nový typ objektu treba doplniť aj sem
+        raise TypeError(f"neznámy objekt na serializáciu: {type(o).__name__}")
+    text = getattr(o, "text", "")
+    if text and "tx" not in d:
+        d["tx"] = text
+    zone_uid = getattr(o, "zone_uid", None)
+    if zone_uid is not None:
+        d["z"] = zone_uid
+    return d
+
+
+def objects_to_dicts(objects: "Iterable[DrawObject]") -> list[dict]:
+    """Zoznam objektov → JSON-serializovateľný zoznam, s pásmi pozadia zlúčenými."""
+    return [object_to_dict(o) for o in merge_backgrounds(objects)]

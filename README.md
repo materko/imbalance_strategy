@@ -35,8 +35,9 @@ spustenie postaví prostredie (~10 min) a otvorí prehliadač na http://127.0.0.
 
 Vo webapp si nastavíš parametre (všetky Pine vstupy, zoskupené ako v TradingView), vyberieš
 pár a obdobie, spustíš backtest a vidíš kartu s výsledkami, graf výnosnosti ako v Strategy
-Testeri a zoznam obchodov. História behov sa ukladá do gitu a dá sa v nej hľadať podľa
-parametrov. Podrobne: [docs/WEBAPP.md](docs/WEBAPP.md).
+Testeri, graf páru so všetkým, čo engine v tom behu nakreslil (zóny, TP/SL boxy, štítky,
+štruktúra, S/R…) aj s obchodmi, a zoznam obchodov. História behov vrátane kresieb sa ukladá
+do gitu a dá sa v nej hľadať podľa parametrov. Podrobne: [docs/WEBAPP.md](docs/WEBAPP.md).
 
 ### Vývojár — venv, testy, backtest z príkazového riadku
 
