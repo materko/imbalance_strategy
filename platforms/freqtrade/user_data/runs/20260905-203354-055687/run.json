@@ -1,0 +1,312 @@
+{
+  "id": "20260905-203354-055687",
+  "status": "done",
+  "created": "2026-09-05T20:33:54+00:00",
+  "started": "2026-09-05T20:33:54+00:00",
+  "finished": "2026-09-05T20:33:58+00:00",
+  "user": "claude",
+  "note": "test TF 5m",
+  "settings": {
+    "pair": "BTC/USDT:USDT",
+    "timeframe": "5m",
+    "timerange": "20260801-20260904",
+    "fee": 0.0005,
+    "wallet": 10000.0,
+    "timeframe_detail": "1m",
+    "profile": "btcusdt_3m_binance_ny_sl_risk1"
+  },
+  "params": {
+    "enableImbEntry": true,
+    "enablePinBarEntry": true,
+    "enableEngulfingEntry": true,
+    "pbWickToBodyRatio": 4.0,
+    "pbBodyPositionPct": 20.0,
+    "pbMinRangePoints": 2.0,
+    "engMinRangePoints": 2.0,
+    "engSizeAvgLen": 10,
+    "engSizeMultiplier": 2.0,
+    "engTouchWindowBars": 3,
+    "pbEngOrderType": "Market",
+    "enableTrailing": false,
+    "trailActivationR": 1.0,
+    "trailOffsetR": 0.5,
+    "weekdaysOnly": true,
+    "enableTrading": true,
+    "enableZoneDetection": true,
+    "enableGapDetection": true,
+    "enableSrTrading": true,
+    "enableLqTrading": true,
+    "closeAtSessionEnd": true,
+    "sess1On": false,
+    "sess1TZ": "Europe/Prague",
+    "sess1ZoneStartH": 1,
+    "sess1ZoneStartM": 0,
+    "sess1ZoneEndH": 9,
+    "sess1ZoneEndM": 0,
+    "sess1TradeStartH": 2,
+    "sess1TradeStartM": 0,
+    "sess1TradeEndH": 5,
+    "sess1TradeEndM": 0,
+    "sess2On": true,
+    "sess2TZ": "America/New_York",
+    "sess2ZoneStartH": 8,
+    "sess2ZoneStartM": 0,
+    "sess2ZoneEndH": 11,
+    "sess2ZoneEndM": 0,
+    "sess2TradeStartH": 10,
+    "sess2TradeStartM": 0,
+    "sess2TradeEndH": 15,
+    "sess2TradeEndM": 45,
+    "sess3On": false,
+    "sess3TZ": "Europe/London",
+    "sess3ZoneStartH": 8,
+    "sess3ZoneStartM": 0,
+    "sess3ZoneEndH": 10,
+    "sess3ZoneEndM": 0,
+    "sess3TradeStartH": 8,
+    "sess3TradeStartM": 0,
+    "sess3TradeEndH": 11,
+    "sess3TradeEndM": 0,
+    "zoneDetectionTF": "5",
+    "zoneValidHours": 6,
+    "maxSdZones": 200,
+    "snapMode": "Floor",
+    "invalidateOnFill": true,
+    "useVolumeFilter": false,
+    "volumeFilterBlockTrading": false,
+    "volSmaLen": 20,
+    "volMultiplier": 1.5,
+    "showMarketStructure": true,
+    "structureSwingLen": 5,
+    "useStructureFilter": true,
+    "showSR": true,
+    "srSwingLen": 10,
+    "srClusterPoints": 15.0,
+    "srMinTouches": 2,
+    "srMaxLevels": 10,
+    "srLookbackDays": 5,
+    "srZoneSaturationPct": 30,
+    "showLiqSweep": true,
+    "liqSweepLen": 10,
+    "liqSweepMinWick": 5.0,
+    "liqSweepConfirmBars": 2,
+    "liqStrengthLen": 50,
+    "showElliott": false,
+    "ewSwingLen": 8,
+    "ewMinWavePoints": 20.0,
+    "ewShowLabels": true,
+    "ewShowProjection": true,
+    "ewProjExtendBars": 40,
+    "ewLineColor": "#334155",
+    "showImbalance": true,
+    "showDashboard": true,
+    "dashPos": "Top Right",
+    "dashboardRows": 6,
+    "showTradeLog": false,
+    "tradeLogRows": 20,
+    "showDebugTable": false,
+    "debugTableRows": 8,
+    "debugPos": "Bottom Right",
+    "imbLookback": 20,
+    "imbMaxDistTicks": 100.0,
+    "minImbSizePoints": 2.5,
+    "state1MaxBars": 10,
+    "state2MaxBars": 15,
+    "state2ConfirmTicks": 1.0,
+    "state3MaxBars": 1,
+    "state4MaxBars": 10,
+    "state5MaxBars": 10,
+    "alertOnState2": false,
+    "alertOnState3": false,
+    "alertOnState4": false,
+    "rrRatio": 5.0,
+    "slLookback": 20,
+    "slBufferTicks": 2.0,
+    "maxLossDollar": 100.0,
+    "maxDailyWins": 5,
+    "tradeDirection": "Long only",
+    "tickDollarValue": null,
+    "legacyPineSizing": false,
+    "atrLen": 14,
+    "minSlDistance": 0.2,
+    "leverage": 10.0
+  },
+  "error": null,
+  "result": {
+    "trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": -107.13,
+    "pnl_pct": -1.071,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 107.13,
+    "max_drawdown_pct": 1.071,
+    "starting_balance": 10000.0,
+    "final_balance": 9892.87,
+    "stake_currency": "USDT",
+    "gross_abs": -99.2,
+    "volume_abs": 15854.72,
+    "break_even_pct": -0.6257,
+    "market_change_pct": 28.928,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "0:41:00",
+    "exits": {
+      "stop_loss": {
+        "n": 1,
+        "pnl_abs": -107.13
+      }
+    },
+    "duration_s": 4.7,
+    "zip": "backtest-result-2026-09-05_20-33-58.zip"
+  },
+  "series": {
+    "equity": [
+      [
+        "2026-08-24T17:01:00+00:00",
+        -1.0713,
+        -1.0713
+      ]
+    ],
+    "market": [
+      [
+        "2026-08-01T00:00:00+00:00",
+        -0.2146
+      ],
+      [
+        "2026-08-02T00:00:00+00:00",
+        0.9933
+      ],
+      [
+        "2026-08-03T00:00:00+00:00",
+        0.9225
+      ],
+      [
+        "2026-08-04T00:00:00+00:00",
+        1.8404
+      ],
+      [
+        "2026-08-05T00:00:00+00:00",
+        2.7192
+      ],
+      [
+        "2026-08-06T00:00:00+00:00",
+        2.2079
+      ],
+      [
+        "2026-08-07T00:00:00+00:00",
+        3.1221
+      ],
+      [
+        "2026-08-08T00:00:00+00:00",
+        3.1894
+      ],
+      [
+        "2026-08-09T00:00:00+00:00",
+        3.0983
+      ],
+      [
+        "2026-08-10T00:00:00+00:00",
+        1.6663
+      ],
+      [
+        "2026-08-11T00:00:00+00:00",
+        1.0964
+      ],
+      [
+        "2026-08-12T00:00:00+00:00",
+        0.9185
+      ],
+      [
+        "2026-08-13T00:00:00+00:00",
+        0.9318
+      ],
+      [
+        "2026-08-14T00:00:00+00:00",
+        0.2387
+      ],
+      [
+        "2026-08-15T00:00:00+00:00",
+        0.3015
+      ],
+      [
+        "2026-08-16T00:00:00+00:00",
+        0.0208
+      ],
+      [
+        "2026-08-17T00:00:00+00:00",
+        2.5867
+      ],
+      [
+        "2026-08-18T00:00:00+00:00",
+        2.8875
+      ],
+      [
+        "2026-08-19T00:00:00+00:00",
+        9.8242
+      ],
+      [
+        "2026-08-20T00:00:00+00:00",
+        15.0551
+      ],
+      [
+        "2026-08-21T00:00:00+00:00",
+        22.1805
+      ],
+      [
+        "2026-08-22T00:00:00+00:00",
+        20.6304
+      ],
+      [
+        "2026-08-23T00:00:00+00:00",
+        21.4714
+      ],
+      [
+        "2026-08-24T00:00:00+00:00",
+        23.0823
+      ],
+      [
+        "2026-08-25T00:00:00+00:00",
+        22.5543
+      ],
+      [
+        "2026-08-26T00:00:00+00:00",
+        23.1888
+      ],
+      [
+        "2026-08-27T00:00:00+00:00",
+        24.7434
+      ],
+      [
+        "2026-08-28T00:00:00+00:00",
+        21.7293
+      ],
+      [
+        "2026-08-29T00:00:00+00:00",
+        22.2396
+      ],
+      [
+        "2026-08-30T00:00:00+00:00",
+        21.5245
+      ],
+      [
+        "2026-08-31T00:00:00+00:00",
+        22.7167
+      ],
+      [
+        "2026-09-01T00:00:00+00:00",
+        21.2599
+      ],
+      [
+        "2026-09-02T00:00:00+00:00",
+        21.1508
+      ],
+      [
+        "2026-09-03T00:00:00+00:00",
+        26.1417
+      ]
+    ]
+  }
+}

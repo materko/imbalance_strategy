@@ -210,6 +210,34 @@ def test_runs_listing_and_detail(client):
     assert c.get("/api/runs/20260905-120000-aaaaaa").status_code == 404
 
 
+def test_build_command_passes_timeframe_and_drops_useless_detail():
+    from ibs.webapp.runner import build_command, tf_minutes
+
+    base = {"pair": "BTC/USDT:USDT", "timerange": "20260801-20260901", "wallet": 10000, "fee": 0.0005}
+    cmd = build_command("py", Path("p.json"), {**base, "timeframe": "15m", "timeframe_detail": "1m"})
+    assert cmd[cmd.index("--timeframe") + 1] == "15m" and "--timeframe-detail" in cmd
+    cmd = build_command("py", Path("p.json"), {**base, "timeframe": "1m", "timeframe_detail": "1m"})
+    assert "--timeframe-detail" not in cmd  # detail musí byť jemnejší než TF grafu
+    cmd = build_command("py", Path("p.json"), base)
+    assert cmd[cmd.index("--timeframe") + 1] == "3m"
+    assert tf_minutes("1h") == 60 and tf_minutes("3m") == 3
+
+
+def test_submit_validates_timeframe(client, monkeypatch):
+    import ibs.webapp.app as app_mod
+
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["1m", "3m", "5m"])
+    c, _ = client
+    base = {"params": IBSConfig().to_dict(), "pair": "BTC/USDT:USDT", "timerange": "20260801-20260901"}
+    assert c.post("/api/runs", json={**base, "timeframe": "2m"}).status_code == 422
+    assert c.post("/api/runs", json={**base, "timeframe": "15m"}).status_code == 422  # nie sú dáta
+    job = c.post("/api/runs", json={**base, "timeframe": "5m"}).json()
+    assert job["settings"]["timeframe"] == "5m" and job["settings"]["timeframe_detail"] == "1m"
+    job = c.post("/api/runs", json={**base, "timeframe": "1m"}).json()
+    assert job["settings"]["timeframe_detail"] is None
+    assert c.post("/api/runs", json=base).json()["settings"]["timeframe"] == "3m"
+
+
 def test_submit_uses_tester_name_from_request(client, monkeypatch):
     """Meno z hlavičky stránky ide k behu; bez neho sa použije predvolené."""
     import ibs.webapp.app as app_mod

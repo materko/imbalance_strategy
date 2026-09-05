@@ -150,6 +150,8 @@ ALIASES = {
     "breakeven": "result.break_even_pct",
     "be": "result.break_even_pct",
     "pair": "settings.pair",
+    "tf": "settings.timeframe",
+    "timeframe": "settings.timeframe",
     "timerange": "settings.timerange",
     "fee": "settings.fee",
     "wallet": "settings.wallet",

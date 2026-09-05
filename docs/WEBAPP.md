@@ -90,7 +90,11 @@ Polia s veľkosťou (`*Points`, `*Ticks`, `minSlDistance`) majú jednotku:
 `abs` cenové body, `ticks` násobky ticku, `atr` násobky ATR grafového TF,
 `pct` percento ceny. Holá hodnota v profile znamená pôvodnú Pine jednotku.
 
-**Nastavenia behu**: pár (len tie, ktoré majú stiahnuté dáta — BTC a ETH), obdobie
+**Nastavenia behu**: pár (len tie, ktoré majú stiahnuté dáta — BTC a ETH), **timeframe
+grafu** (TF, na ktorom stratégia počíta — ako keď v TradingView prepneš TF grafu; default 3m,
+ponuka podľa stiahnutých dát; limity v baroch ako `*MaxBars` sa neprepočítavajú, takže 1m
+alebo 15m je iná stratégia, nie len iné rozlíšenie; detekčný TF zón by mal byť aspoň taký
+hrubý ako TF grafu), obdobie
 (obmedzené na dostupné dáta), poplatok na stranu v % (Binance taker 0,05), peňaženka,
 1m detail fillov (odporúčané, viď ARCHITECTURE_port.md §7) a poznámka — tú potom
 vidíš v histórii, tak napíš, čo beh testuje.
@@ -192,7 +196,7 @@ históriu, `pull`/`push` synchronizujú `runs/`, `status` povie, či webapp bež
 `params` vypíše parametre s rozsahmi.
 
 ```bash
-python -m ibs.webapp.cli run --profile btcusdt_3m_binance_ny_sl_risk1 \
+python -m ibs.webapp.cli run --profile btcusdt_3m_binance_ny_sl_risk1 [--timeframe 5m] \
     --set rrRatio=4 --set minSlDistance=0.25@pct --timerange 20250904-20260904 --note "RR 4"
 python -m ibs.webapp.cli list "rrRatio>=4 pnl>0"
 ```
