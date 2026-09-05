@@ -50,7 +50,7 @@ _COLUMN_ATTRS = {
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_PROFILE = os.environ.get("IBS_PROFILE", "btcusdt_3m_binance")
+DEFAULT_PROFILE = os.environ.get("IBS_PROFILE", "golden_binance_btcusdt_3m")
 
 #: Kam po backteste uložiť kresby enginu (zóny, boxy, štítky) pre graf vo webapp.
 #: Prázdne = neukladať. `{pair}` v ceste sa nahradí párom (viac párov v jednom behu).

@@ -11,7 +11,7 @@
     "",
     "Symbol BINANCE:BTCUSDT.P, 3m, rozsah Aug 24 - Sep 4 2026. Debug kopia bezala",
     "s Pine defaultmi + sess2ZoneStartH=8; ostatne 4 odchylky profilu",
-    "btcusdt_3m_binance_tv (enablePinBarEntry, enableTrailing, tradeDirection,",
+    "golden_binance_btcusdt_3m (enablePinBarEntry, enableTrailing, tradeDirection,",
     "showElliott) na vznik zon nemaju vplyv - `newZone` na riadku 638 zavisi len",
     "od enableZoneDetection, zTyp5 a zVolBlockOk.",
     "",

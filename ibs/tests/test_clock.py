@@ -24,7 +24,7 @@ LONDON = "Europe/London"
 @pytest.fixture
 def clock() -> SessionClock:
     """Nastavenia z grafu: sess2 NY zóna 08:00-11:00, trade 10:00-15:45."""
-    cfg, _ = load_profile("btcusdt_3m_binance")
+    cfg, _ = load_profile("golden_binance_btcusdt_3m")
     return SessionClock(cfg)
 
 
@@ -96,14 +96,14 @@ def test_weekend_is_blocked(clock):
 
 
 def test_weekend_allowed_when_weekdays_only_off():
-    cfg, _ = load_profile("btcusdt_3m_binance")
+    cfg, _ = load_profile("golden_binance_btcusdt_3m")
     cfg.weekdaysOnly = False
     assert SessionClock(cfg).state(ms(NY, 2026, 9, 5, 14, 0)).in_trade_window
 
 
 def test_weekday_is_evaluated_in_session_timezone():
     """Sobota 01:00 v Prahe je ešte piatok 19:00 v NY - a to rozhoduje."""
-    cfg, _ = load_profile("btcusdt_3m_binance")
+    cfg, _ = load_profile("golden_binance_btcusdt_3m")
     clock = SessionClock(cfg)
     ts = ms(PRAGUE, 2026, 9, 5, 1, 0)  # sobota v Prahe
     assert clock.is_weekday(ts, PRAGUE) is False

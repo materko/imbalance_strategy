@@ -61,9 +61,13 @@ prehliadači; predvolené je `IBS_USER` z prostredia, inak `git config user.name
 
 ## Nový beh
 
-**Východiskový profil** predvyplní formulár z `ibs/configs/*.json` (odporúčaný
-štart je `btcusdt_3m_binance_ny_sl_risk1`) a prepne pár na ten, pre ktorý je profil
-určený. „(Pine defaulty)" dá presne to, čo má TradingView bez zásahu do nastavení.
+**Východiskový profil** je len balík odchýlok od Pine defaultov. „(Pine defaulty)" dá
+presne to, čo má TradingView bez zásahu do nastavení; okrem toho sú na výber iba tri
+referenčné profily z `ibs/configs/` (golden test proti TradingView na Binance a Coinbase,
+MultiCharts MNQ) — profil prepne aj pár na ten, pre ktorý je určený. Skúšané konfigurácie
+z vývoja (NY seansa, SL filter, risk sizing…) sú v `docs/profily_archiv/` s tabuľkou
+odchýlok a dajú sa načítať cestou cez CLI; vo formulári si tie isté hodnoty nastavíš
+ručne alebo cez „Načítať do formulára" z histórie.
 
 **Parametre** sú všetkých 114 polí `IBSConfig` — 110 Pine vstupov v rovnakých
 skupinách, s rovnakými titulkami a tooltipmi ako v TradingView (parsuje sa to
@@ -196,7 +200,7 @@ históriu, `pull`/`push` synchronizujú `runs/`, `status` povie, či webapp bež
 `params` vypíše parametre s rozsahmi.
 
 ```bash
-python -m ibs.webapp.cli run --profile btcusdt_3m_binance_ny_sl_risk1 [--timeframe 5m] \
+python -m ibs.webapp.cli run --profile docs/profily_archiv/btcusdt_3m_binance_ny_sl_risk1.json [--timeframe 5m] \
     --set rrRatio=4 --set minSlDistance=0.25@pct --timerange 20250904-20260904 --note "RR 4"
 python -m ibs.webapp.cli list "rrRatio>=4 pnl>0"
 ```

@@ -3,8 +3,8 @@
 Nie je to backtest, orderov sa netýka. Overuje presne to, čo je v tejto fáze
 hotové: session okná + detekciu SD zón na detekčnom TF + evidenciu zón.
 
-    python -m ibs.tools.scan_zones --exchange binance --profile btcusdt_3m_binance
-    python -m ibs.tools.scan_zones --exchange coinbase --profile btcusd_3m_coinbase --limit 20
+    python -m ibs.tools.scan_zones --exchange binance --profile golden_binance_btcusdt_3m
+    python -m ibs.tools.scan_zones --exchange coinbase --profile golden_coinbase_btcusd_3m --limit 20
 
 Vyžaduje pandas (ťahá sa s Freqtrade), takže sa spúšťa z `.venv`, nie z jadra.
 """
@@ -158,7 +158,7 @@ def scan(
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--exchange", choices=sorted(_LAYOUT), default="binance")
-    ap.add_argument("--profile", default="btcusdt_3m_binance")
+    ap.add_argument("--profile", default="golden_binance_btcusdt_3m")
     ap.add_argument("--chart-tf", type=int, default=3, help="timeframe grafu v minutach")
     ap.add_argument("--limit", type=int, default=15, help="kolko zon vypisat")
     args = ap.parse_args(argv)

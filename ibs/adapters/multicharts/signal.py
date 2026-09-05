@@ -117,7 +117,7 @@ class IBSSignal(SignalObject):
     """`Create → StartCalc → CalcBar → Destroy`, ako každá MultiCharts študia."""
 
     #: Profil sa berie z premennej prostredia, aby sa nemusel meniť kód študie.
-    PROFILE = os.environ.get("IBS_PROFILE", "mnq_3m")
+    PROFILE = os.environ.get("IBS_PROFILE", "multicharts_mnq_3m")
 
     def __init__(self, ctx):  # pragma: no cover - beží len v MultiCharts
         super().__init__(ctx)

@@ -41,7 +41,7 @@ def strategy(monkeypatch):
 
     s = IBSImbalanceStrategy.__new__(IBSImbalanceStrategy)
     s._runners = {}
-    s.ibs_cfg, s.ibs_inst = load_profile("btcusdt_3m_binance_tv")
+    s.ibs_cfg, s.ibs_inst = load_profile("golden_binance_btcusdt_3m")
     s._clock = SessionClock(s.ibs_cfg)
     return s
 

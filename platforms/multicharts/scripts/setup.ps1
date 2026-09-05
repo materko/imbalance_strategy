@@ -56,8 +56,8 @@ Write-Host "Overujem import..."
 & $exe -c @"
 from ibs.core import load_profile, list_profiles
 print('profily:', list_profiles())
-cfg, inst = load_profile('mnq_3m')
-print('mnq_3m ->', inst.symbol, 'tick', inst.tick_size, 'point_value', inst.point_value)
+cfg, inst = load_profile('multicharts_mnq_3m')
+print('multicharts_mnq_3m ->', inst.symbol, 'tick', inst.tick_size, 'point_value', inst.point_value)
 from ibs.adapters.multicharts import MCRunner, MCDrawSink
 print('adapter: MCRunner + MCDrawSink OK')
 "@

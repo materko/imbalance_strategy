@@ -184,9 +184,9 @@ class SizeSpec:
 
 Config profily potom vyzerajú takto a **`abs` zaručuje bit-identitu s TradingView**:
 ```
-configs/mnq_3m.json       → {"minImbSizePoints": {"value": 2.5,  "unit": "abs"}}   # 1:1 s TV, ZÁKLAD
+configs/multicharts_mnq_3m.json       → {"minImbSizePoints": {"value": 2.5,  "unit": "abs"}}   # 1:1 s TV, ZÁKLAD
 configs/btcusdt_3m.json   → {"minImbSizePoints": {"value": 0.25, "unit": "atr"}}   # prenositeľné
-configs/<stock>_3m.json   → odvodené z mnq_3m.json
+configs/<stock>_3m.json   → odvodené z multicharts_mnq_3m.json
 ```
 
 Odporúčanie: **na MNQ používaj `abs`** (aby sedelo s TV backtestom), na ostatné inštrumenty `atr`.
@@ -198,9 +198,9 @@ Tick-based inputy (`imbMaxDistTicks`, `state2ConfirmTicks`, `slBufferTicks`) sú
 | Profil | Freqtrade | MultiCharts | Rola |
 |---|---|---|---|
 | `btcusdt_3m_binance` | ✅ futures | ✅ | spoločný inštrument → **priama parita medzi platformami** |
-| `btcusd_3m_coinbase` | ❌ (viď nižšie) | ✅ | **referenčný** — presne to, čo je na TV screenshotoch |
-| `mnq_3m` | — | ✅ | **základ pre futures/akcie**, `unit: abs`, 1:1 s TV |
-| akcie | — | ✅ | odvodené z `mnq_3m` |
+| `golden_coinbase_btcusd_3m` | ❌ (viď nižšie) | ✅ | **referenčný** — presne to, čo je na TV screenshotoch |
+| `multicharts_mnq_3m` | — | ✅ | **základ pre futures/akcie**, `unit: abs`, 1:1 s TV |
+| akcie | — | ✅ | odvodené z `multicharts_mnq_3m` |
 | forex | — | (možno neskôr) | |
 
 To, že **BTCUSDT beží na oboch platformách, je testovacia výhoda**: rovnaké dáta, rovnaký config,
@@ -212,7 +212,7 @@ cross-platform smoke test (`tests/test_adapter_parity.py`).
 `InstrumentSpec` dostane `venue` — jadro zostáva venue-agnostické, líši sa len spec a profil:
 
 ```
-configs/btcusd_3m_coinbase.json    # tick 0.01 — zhodné s TV screenshotmi
+configs/golden_coinbase_btcusd_3m.json    # tick 0.01 — zhodné s TV screenshotmi
 configs/btcusdt_3m_binance.json    # tick 0.1  — perp
 ```
 
@@ -498,7 +498,7 @@ Zostáva: preladiť ATR prahy exekučného profilu hyperoptom a rozhodnúť wall
   seansy okolo Thanksgivingu, Vianoc). `core/clock.py` dostane voliteľný `exchange_calendar`.
 - **Forex nemá dennú medzeru rovnako** ako futures → `closeAtSessionEnd` a `weekdaysOnly`
   sa správajú inak; nedeľné otvorenie o 22:00 UTC patrí už do pondelka.
-- **Konfig sa rozpadne na profily:** `configs/mnq_3m.json` (1:1 s TV, `unit: abs`),
+- **Konfig sa rozpadne na profily:** `configs/multicharts_mnq_3m.json` (1:1 s TV, `unit: abs`),
   `configs/btcusd_3m.json`, `configs/eurusd_5m.json`, … Spoločná je len logika, nie čísla.
 
 ### Ešte otvorené

@@ -1,6 +1,6 @@
 """Príkazový riadok nad webapp — pre Claude Code a skripty, výsledky idú do histórie.
 
-    python -m ibs.webapp.cli run --profile btcusdt_3m_binance_ny_sl_risk1 \\
+    python -m ibs.webapp.cli run --profile docs/profily_archiv/btcusdt_3m_binance_ny_sl_risk1.json \\
         --set rrRatio=4 --set minSlDistance=0.25@pct --timerange 20250904-20260904 \\
         --note "RR 4 namiesto 5"
     python -m ibs.webapp.cli list "rrRatio>=4 pnl>0"

@@ -39,7 +39,7 @@ param(
     [Parameter(Mandatory = $true)][string]$Timerange,
     [int]$Epochs = 300,
     [string]$Loss = "IBSEdgeLoss",
-    [string]$Profile = "btcusdt_3m_binance_hyper",
+    [string]$Profile = "docs/profily_archiv/btcusdt_3m_binance_hyper.json",
     [string]$Spaces = "buy sell",
     [int]$Jobs = -1
 )

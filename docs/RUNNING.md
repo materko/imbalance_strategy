@@ -213,7 +213,7 @@ Stratégia je v [`ibs/adapters/freqtrade/strategy.py`](../ibs/adapters/freqtrade
 súbor v `user_data/strategies/` je len ukazovateľ. Profil sa prepína cez `IBS_PROFILE`:
 
 ```bash
-IBS_PROFILE=btcusd_3m_coinbase ./platforms/freqtrade/scripts/backtest.sh
+IBS_PROFILE=golden_coinbase_btcusd_3m ./platforms/freqtrade/scripts/backtest.sh
 ```
 
 > ⚠️ **Pozor na veľkosť pozície.** `maxLossDollar = 350` pri SL vzdialenosti ~$87 znamená
@@ -294,7 +294,7 @@ za víťaza epochu so **7 obchodmi** a +17 %, len preto, že mala malý drawdown
 
 ### Sizing musí sedieť, inak porovnávaš dva rôzne experimenty
 
-Profil `btcusdt_3m_binance_hyper` má zámerne `legacyPineSizing: true`
+Profil `docs/profily_archiv/btcusdt_3m_binance_hyper.json` má zámerne `legacyPineSizing: true`
 a `tickDollarValue: 0.5`. Na BTC to dáva `qty = 1 BTC` pri každom reálnom SL
 (`floor(350 / (SLdist/0.1 × 0.5)) = 0 → max(1,0) = 1`), takže `maxLossDollar`
 sa neuplatní a riziko na obchod je rovné SL vzdialenosti v dolároch — presne to,
@@ -355,7 +355,7 @@ Potom v MultiCharts:
 > **Bez Data2 nevznikne ani jedna SD zóna.** Študia to napíše do Output okna,
 > ale inak beží ďalej — je to ľahké prehliadnuť.
 
-Profil sa prepína cez `IBS_PROFILE` (predvolene `mnq_3m`), rovnako ako vo Freqtrade.
+Profil sa prepína cez `IBS_PROFILE` (predvolene `multicharts_mnq_3m`), rovnako ako vo Freqtrade.
 
 Čo robí adaptér:
 
@@ -422,13 +422,14 @@ Nastavenia stratégie **nie sú** vo Freqtrade configu — tie sú v `ibs/config
 
 | Profil | Burza / inštrument | Použitie |
 |---|---|---|
-| `mnq_3m` | MNQ (CME) | základ pre MultiCharts futures/akcie, jednotky `abs` = 1:1 s TradingView |
-| `btcusd_3m_coinbase` | Coinbase BTC/USD | referenčný — golden test proti TradingView |
-| `btcusdt_3m_binance` | Binance BTC/USDT perp | exekučný — reálne obchodovanie |
+| `multicharts_mnq_3m` | MNQ (CME) | základ pre MultiCharts futures/akcie, jednotky `abs` = 1:1 s TradingView |
+| `golden_coinbase_btcusd_3m` | Coinbase BTC/USD | referenčný — golden test proti TradingView |
+| `golden_binance_btcusdt_3m` | Binance BTC/USDT perp | referenčný — golden test proti TradingView na Binance |
+| `docs/profily_archiv/*.json` | Binance BTC a ETH | skúšané konfigurácie z vývoja, načítajú sa cestou (viď README archívu) |
 
 ```python
 from ibs.core import load_profile
-cfg, inst = load_profile("btcusdt_3m_binance")
+cfg, inst = load_profile("golden_binance_btcusdt_3m")
 print(cfg.check_instrument(inst))   # varovania ku kombinácii config × inštrument
 ```
 

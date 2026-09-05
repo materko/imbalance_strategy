@@ -65,7 +65,7 @@ def strategy():
     s = IBSImbalanceStrategy.__new__(IBSImbalanceStrategy)
     s._runners = {}
     s._extremes = {}
-    s.ibs_cfg, s.ibs_inst = load_profile("btcusdt_3m_binance_tv")
+    s.ibs_cfg, s.ibs_inst = load_profile("golden_binance_btcusdt_3m")
     s._clock = SessionClock(s.ibs_cfg)
     return s
 
@@ -164,7 +164,7 @@ def test_config_timeout_nesmie_byt_kratsi_nez_engine():
     root = Path(__file__).resolve().parents[2] / "platforms" / "freqtrade"
     from ibs.core import load_profile
 
-    cfg, _ = load_profile("btcusdt_3m_binance_tv")
+    cfg, _ = load_profile("golden_binance_btcusdt_3m")
     need = cfg.state5MaxBars * 3
     for name in ("config.binance.json", "config.coinbase.json"):
         raw = json.loads((root / name).read_text(encoding="utf-8"))

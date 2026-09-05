@@ -1,4 +1,5 @@
 {
+  "_title": "Referenčný golden test proti TradingView — Coinbase BTCUSD 3m (len MultiCharts a testy, Freqtrade Coinbase nemá)",
   "_comment": [
     "COINBASE:BTCUSD, 3m - REFERENCNY profil. Presne to, co je na screenshotoch v docs/.",
     "Sluzi na overenie logiky jadra proti TradingView (17 obchodov, 8W/9L, 47% winrate).",
@@ -9,13 +10,11 @@
     "Pre REALNE obchodovanie legacyPineSizing vypni - je to len pre golden test."
   ],
   "_instrument": "btcusd_coinbase",
-
   "enablePinBarEntry": true,
   "enableTrailing": true,
   "tradeDirection": "Long only",
   "sess2ZoneStartH": 8,
   "showElliott": false,
-
   "tickDollarValue": 0.5,
   "legacyPineSizing": true
 }

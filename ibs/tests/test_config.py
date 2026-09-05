@@ -7,6 +7,7 @@ docs/ARCHITECTURE_port.md §3b/§3c — hlavne MNQ hodnota `tickDollarValue` na 
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 
@@ -127,7 +128,7 @@ def test_round_qty_steps_down():
 
 
 def test_mnq_config_has_no_tick_value_warning():
-    cfg, inst = load_profile("mnq_3m")
+    cfg, inst = load_profile("multicharts_mnq_3m")
     warnings = cfg.check_instrument(inst)
     assert not [w for w in warnings if "tickDollarValue" in w]
 
@@ -141,7 +142,7 @@ def test_mnq_tick_value_on_crypto_is_flagged():
 
 def test_risk_limit_that_never_binds_is_flagged():
     """Coinbase profil s MNQ tickDollarValue - TradingView reálne obchodoval qty=1."""
-    cfg, inst = load_profile("btcusd_3m_coinbase")
+    cfg, inst = load_profile("golden_coinbase_btcusd_3m")
     warnings = cfg.check_instrument(inst)
     assert any("tickDollarValue" in w for w in warnings)
 
@@ -151,21 +152,21 @@ def test_legacy_sizing_reproduces_tradingview_qty_one_on_btc():
 
     Pine: slDistTicks = 150/0.01 = 15 000; × 0.5 = $7 500; floor(350/7500) = 0 → max(1,0) = 1.
     """
-    cfg, inst = load_profile("btcusd_3m_coinbase")
+    cfg, inst = load_profile("golden_coinbase_btcusd_3m")
     assert cfg.legacyPineSizing is True
     assert cfg.position_qty(inst, cfg.maxLossDollar, 150.0) == 1.0
 
 
 def test_fixed_sizing_actually_respects_the_risk_limit():
-    """To isté zadanie bez legacy vzorca: $350 / $150 SL = 2.333 BTC."""
-    cfg, inst = load_profile("btcusdt_3m_binance")
+    """To isté zadanie bez legacy vzorca (Pine default): $350 / $150 SL = 2.333 BTC."""
+    cfg = IBSConfig()
     assert cfg.legacyPineSizing is False
-    assert cfg.position_qty(inst, 350.0, 150.0) == pytest.approx(2.333, abs=1e-3)
+    assert cfg.position_qty(BTCUSDT_BINANCE, 350.0, 150.0) == pytest.approx(2.333, abs=1e-3)
 
 
 def test_legacy_and_fixed_agree_on_mnq():
     """Na MNQ dávajú oba vzorce to isté — rozdiel vzniká až pri qty < 1."""
-    cfg, inst = load_profile("mnq_3m")
+    cfg, inst = load_profile("multicharts_mnq_3m")
     assert cfg.position_qty(inst, 350.0, 20.0) == inst.qty_for_risk(350.0, 20.0) == 8.0
 
 
@@ -176,14 +177,14 @@ def test_legacy_sizing_requires_tick_dollar_value():
 
 def test_legacy_sizing_reports_breakeven_sl_distance():
     """Na Coinbase padne qty na 1 už pri SL nad $7 — reálne SL sú rádovo $100+."""
-    cfg, inst = load_profile("btcusd_3m_coinbase")
+    cfg, inst = load_profile("golden_coinbase_btcusd_3m")
     warning = next(w for w in cfg.check_instrument(inst) if "vyjde qty=1" in w)
     assert "nad 7 " in warning
 
 
 def test_legacy_sizing_breakeven_is_harmless_on_mnq():
     """Na MNQ je hranica 175 bodov, teda ďaleko nad reálnymi SL — limit tam funguje."""
-    cfg, inst = load_profile("mnq_3m")
+    cfg, inst = load_profile("multicharts_mnq_3m")
     warning = next(w for w in cfg.check_instrument(inst) if "vyjde qty=1" in w)
     assert "nad 175 " in warning
 
@@ -202,31 +203,27 @@ def test_volume_filter_flagged_without_real_volume():
 
 
 def test_all_profiles_exist():
-    assert set(list_profiles()) == {
-        "mnq_3m",
-        "btcusd_3m_coinbase",
-        "btcusdt_3m_binance",
-        "btcusdt_3m_binance_tv",
-        "btcusdt_3m_binance_hyper",
-        "btcusdt_3m_binance_opt",
-        "btcusdt_3m_binance_struct",
-        "btcusdt_3m_binance_ny",
-        "btcusdt_3m_binance_ny_sl",
-        "ethusdt_3m_binance_ny",
-        "ethusdt_3m_binance_ny_sl",
-        "btcusdt_3m_binance_ny_sl_risk1",
-        "ethusdt_3m_binance_ny_sl_risk1",
-    }
+    """V ibs/configs sú len referenčné profily; experimenty a medzikroky sú v docs/profily_archiv/."""
+    assert set(list_profiles()) == {"multicharts_mnq_3m", "golden_coinbase_btcusd_3m", "golden_binance_btcusdt_3m"}
+    for p in CONFIG_DIR.glob("*.json"):
+        assert json.loads(p.read_text(encoding="utf-8")).get("_title"), f"{p.name}: chýba _title pre webapp"
 
 
-@pytest.mark.parametrize("name", ["mnq_3m", "btcusd_3m_coinbase", "btcusdt_3m_binance", "btcusdt_3m_binance_tv"])
+def test_archived_profiles_still_load_by_path():
+    """Staré docs sa na ne odkazujú; cesta k súboru musí fungovať všade, kde názov."""
+    path = Path("docs/profily_archiv/btcusdt_3m_binance_ny_sl_risk1.json")
+    cfg, inst = load_profile(path)
+    assert cfg.rrRatio == 5.0 and inst.symbol == "BTC/USDT:USDT"
+
+
+@pytest.mark.parametrize("name", ["multicharts_mnq_3m", "golden_coinbase_btcusd_3m", "golden_binance_btcusdt_3m"])
 def test_profile_loads_and_validates(name):
     cfg, inst = load_profile(name)
     assert isinstance(cfg, IBSConfig)
     assert inst.tick_size > 0
 
 
-@pytest.mark.parametrize("name", ["mnq_3m", "btcusd_3m_coinbase", "btcusdt_3m_binance", "btcusdt_3m_binance_tv"])
+@pytest.mark.parametrize("name", ["multicharts_mnq_3m", "golden_coinbase_btcusd_3m", "golden_binance_btcusdt_3m"])
 def test_profiles_apply_the_five_chart_overrides(name):
     """Všetky profily vychádzajú z rovnakých nastavení grafu (docs/tv_settings_2026-09-03.md)."""
     cfg, _ = load_profile(name)
@@ -237,34 +234,18 @@ def test_profiles_apply_the_five_chart_overrides(name):
     assert cfg.showElliott is False
 
 
-def test_binance_profile_has_no_deprecated_tick_dollar_value():
-    cfg, _ = load_profile("btcusdt_3m_binance")
-    assert cfg.tickDollarValue is None
-
-
 def test_tv_reference_profile_keeps_pine_units():
     """Referenčný profil pre golden test musí byť bit-identický s tým, čo bežalo v TradingView."""
-    cfg, _ = load_profile("btcusdt_3m_binance_tv")
+    cfg, _ = load_profile("golden_binance_btcusdt_3m")
     assert cfg.legacyPineSizing is True
     assert cfg.tickDollarValue == 0.5
     for name, unit in SIZE_FIELDS.items():
         assert getattr(cfg, name).unit == unit, name
 
 
-def test_binance_profile_converted_every_size_field():
-    """Na Binance nesmie zostať MNQ-ladená hodnota v pôvodnej jednotke."""
-    cfg, _ = load_profile("btcusdt_3m_binance")
-    # Rozšírenia portu (`minSlDistance`) nie sú MNQ-ladené — ich jednotka je už prenositeľná.
-    still_pine = [
-        n for n, unit in SIZE_FIELDS.items()
-        if n not in PORT_ONLY_FIELDS and getattr(cfg, n).unit == unit
-    ]
-    assert still_pine == []
-
-
 def test_coinbase_profile_keeps_pine_units():
     """Referenčný profil musí zostať bit-identický s TradingView."""
-    cfg, _ = load_profile("btcusd_3m_coinbase")
+    cfg, _ = load_profile("golden_coinbase_btcusd_3m")
     for name, unit in SIZE_FIELDS.items():
         assert getattr(cfg, name).unit == unit, name
 
@@ -281,5 +262,5 @@ def test_profiles_only_contain_overrides():
 
 
 def test_unknown_profile_lists_available():
-    with pytest.raises(ConfigError, match="mnq_3m"):
+    with pytest.raises(ConfigError, match="multicharts_mnq_3m"):
         load_profile("neexistuje")
