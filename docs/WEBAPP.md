@@ -70,8 +70,8 @@ skupinách, s rovnakými titulkami a tooltipmi ako v TradingView (parsuje sa to
 priamo z `pine/imbalance_strategy_FULL.pine`, takže sa nemôžu rozísť), plus skupina
 „Rozšírenia portu" (`atrLen`, `legacyPineSizing`, `leverage`, `minSlDistance`).
 Panel vyzerá ako nastavenia v TradingView: vľavo zoznam skupín, vpravo všetky skupiny
-pod sebou v jednom dlhom zozname — klik na skupinu vľavo naň naskroluje a zvýraznenie
-sleduje, kde práve si. Jeden parameter na riadok; polia, ktoré Pine kreslí vedľa seba (hodina a minúta seansy,
+pod sebou v jednom dlhom zozname, ktorý skroluje vo vlastnom okne (stránka stojí) —
+klik na skupinu vľavo naň naskroluje a zvýraznenie sleduje, kde práve si. Jeden parameter na riadok; polia, ktoré Pine kreslí vedľa seba (hodina a minúta seansy,
 zapnutie a časové pásmo), sú vedľa seba aj tu. Tooltip z Pine, identifikátor a rozsah
 sa ukážu po podržaní myši na názve. Zmenené hodnoty oproti profilu sú žlté, skupina
 ukazuje ich počet, ↺ vráti hodnotu profilu. Hľadanie prechádza všetky skupiny naraz

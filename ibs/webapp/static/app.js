@@ -234,27 +234,27 @@ function scrollToGroup(g) {
   state.activeGroup = g;
   for (const b of $$(".nav-item")) b.classList.toggle("active", b.dataset.group === g);
   state.spyLock = Date.now() + 300;  // spy nech neprepíše práve zvolenú skupinu
-  // Nie scrollIntoView: karta má overflow hidden a prehliadač by posunul jej obsah, nie stránku.
-  // Skok bez animácie — ako v paneli nastavení TradingView; plynulý scroll navyše
-  // v embedovaných prehliadačoch často ani nedobehne.
-  window.scrollTo(0, sec.getBoundingClientRect().top + window.scrollY - 62);
+  // Skroluje sa len zoznam parametrov (má vlastné okno), stránka stojí — skupiny vľavo
+  // ostávajú na mieste. Skok bez animácie, ako v paneli nastavení TradingView.
+  $(".param-content").scrollTop = sec.offsetTop - 6;
 }
 
-/** Zvýraznenie v navigácii sleduje skupinu, ktorej nadpis je práve pod hlavičkou. */
+/** Zvýraznenie v navigácii sleduje skupinu, ktorej nadpis je práve pri hornom okraji okna zoznamu. */
 function spyGroups() {
   if (Date.now() < (state.spyLock || 0) || $("#view-new").hidden) return;
   const secs = $$(".pgroup").filter(s => !s.hidden);
   if (!secs.length) return;
-  const line = 56 + 24;
+  const box = $(".param-content");
+  const line = box.getBoundingClientRect().top + 30;
   let cur = secs[0];
   for (const s of secs) if (s.getBoundingClientRect().top <= line) cur = s;
-  if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 2) cur = secs[secs.length - 1];
+  if (box.scrollTop + box.clientHeight >= box.scrollHeight - 2) cur = secs[secs.length - 1];
   if (cur.dataset.group !== state.activeGroup) {
     state.activeGroup = cur.dataset.group;
     for (const b of $$(".nav-item")) b.classList.toggle("active", b.dataset.group === state.activeGroup);
   }
 }
-window.addEventListener("scroll", spyGroups, { passive: true });
+$(".param-content").addEventListener("scroll", spyGroups, { passive: true });
 
 function refreshChanged() {
   const m = metaByName();
