@@ -1,11 +1,57 @@
 # Pokyny pre Claude Code v tomto repozitári
 
-Tento repozitár je port TradingView stratégie „IBS Imbalance Breakout" do Pythonu
-(jadro `ibs/core`, Freqtrade adaptér) plus **webová aplikácia pre testerov**
-(`ibs/webapp`). Ak ťa niekto spustil v klone tohto repozitára, najčastejšie si
-u **testera**: chce spúšťať backtesty, pozerať históriu, aktualizovať aplikáciu
-a zdieľať výsledky cez GitHub. Tu je, ako to robiť správne. Podrobnosti:
-[docs/WEBAPP.md](docs/WEBAPP.md), [docs/RUNNING.md](docs/RUNNING.md), [README.md](README.md).
+Repozitár je port TradingView stratégie „IBS Imbalance Breakout" do Pythonu (jadro
+`ibs/core`, Freqtrade adaptér) plus webová aplikácia pre testerov (`ibs/webapp`).
+Pracujú v ňom dva druhy ľudí a pre každého platí iné:
+
+| rola | kto | čo platí |
+|---|---|---|
+| **tester** | dostal klon, aby spúšťal backtesty a zdieľal výsledky | sekcia **Režim TESTER** nižšie — obmedzenia, presné príkazy |
+| **developer** | autor / vývojár, robí čokoľvek: jadro, adaptéry, webapp, merania | sekcia **Režim DEVELOPER** — žiadne obmedzenia, len konvencie |
+
+## Najprv zisti rolu — a spýtaj sa len raz
+
+1. Pozri, či v koreni repozitára existuje súbor **`.ibs-role`** (je v `.gitignore`, každý
+   klon má vlastný). Ak obsahuje `tester` alebo `developer`, tou rolou sa riaď a **nepýtaj sa**.
+2. Ak súbor chýba, na začiatku prvej odpovede sa **spýtaj**: „Pracujeme ako **tester**
+   (backtesty, história, aktualizácie — bez zásahov do kódu) alebo ako **developer**
+   (čokoľvek)?" Odpoveď zapíš do `.ibs-role` (len to jedno slovo), aby sa to nepýtalo znova.
+3. Rolu si môže používateľ kedykoľvek zmeniť („prepni na developer") — prepíš súbor.
+4. Inštalátor `install-macos.sh` zapisuje `tester` sám, takže nainštalovaní testeri
+   otázku nikdy nevidia.
+
+Ak si neistý a používateľ hovorí o zmene kódu, testov, dokumentov alebo meraní, je to
+developer. Ak hovorí o spúšťaní behov, parametroch, histórii a aktualizácii aplikácie,
+je to tester.
+
+---
+
+# Režim DEVELOPER
+
+Bez obmedzení. Platia len konvencie repozitára:
+
+- Zmeny jadra musia prejsť `pytest` vrátane golden testov proti TradingView
+  (`ibs/tests/test_golden_tv_binance.py`). Rozšírenia mimo Pine majú default zhodný
+  s Pine a sú v `PORT_ONLY_FIELDS` (`ibs/core/config.py`).
+- Backtest vždy s `--timeframe-detail 1m` a `--cache none` (skripty to robia samy);
+  stratégiu nespúšťať priamo na 1m grafe (limity `*MaxBars` sú v baroch).
+- Merania sa zapisujú ako datované dokumenty v `docs/` s číslami **po rokoch** na piatich
+  referenčných oknách (`20211001-20221001`, `20221001-20231001`, `20231001-20241001`,
+  `20240904-20250904`, `20250904-20260904`); kľúčová metrika je break-even poplatok.
+- Dáta len v oficiálnych timeframoch búrz, commitované po rokoch v `data_archive/`.
+- Commity v štýle histórie: slovenská veta v imperatíve, čo a prečo.
+- Backtesty, ktoré majú byť v histórii webapp, spúšťaj cez `python -m ibs.webapp.cli run`
+  (holý Freqtrade CLI ich do `runs/` nezapíše) — inak je to jedno.
+
+Podrobnosti: [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md),
+[docs/RUNNING.md](docs/RUNNING.md), [docs/WEBAPP.md](docs/WEBAPP.md), [README.md](README.md).
+
+---
+
+# Režim TESTER
+
+Používateľ chce spúšťať backtesty, pozerať históriu, aktualizovať aplikáciu a zdieľať
+výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
 
 ## Zlaté pravidlá
 
@@ -22,6 +68,8 @@ a zdieľať výsledky cez GitHub. Tu je, ako to robiť správne. Podrobnosti:
 5. Jeden backtest naraz. Rok s 1m detailom trvá ~20–40 s; päť rokov ~3 minúty.
 6. Nesťahuj dáta z burzy. Páry a obdobia sú len tie, čo sú v `data_archive/`
    (BTC/USDT:USDT a ETH/USDT:USDT, 2019–2026).
+7. Profil musí sedieť s párom: pre ETH použi `ethusdt_*` profily. BTC profil na ETH dá
+   stovky nezmyselných obchodov (prahy v bodoch nesedia) — webapp aj CLI na to varujú.
 
 ## Python a cesty
 
@@ -151,9 +199,6 @@ testy, kód alebo dáta nesedia s referenciou — neopravuj to u testera, nahlá
   `runs/<id>/log.txt`.
 - Port 8765 obsadený: stará inštancia beží — zastav ju (vyššie) alebo použi iný port.
 - macOS `ta-lib`/`freqtrade` pri inštalácii: `brew install ta-lib`, potom setup znova.
-
-## Pre vývoj (nie pre testerov)
-
-Zmeny jadra musia prejsť `pytest` vrátane golden testov; rozšírenia mimo Pine majú
-default zhodný s Pine a sú v `PORT_ONLY_FIELDS`. Merania sa zapisujú ako datované
-dokumenty v `docs/` s číslami po rokoch. Viď [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md).
+- Tester chce niečo, čo tieto pravidlá zakazujú (zmenu kódu, sťahovanie dát): povedz mu,
+  že je to vývojárska práca, a že rolu môže prepnúť („prepni na developer") — ale
+  upozorni, že zmeny kódu z testerského klonu nepatria do histórie behov.

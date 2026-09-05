@@ -163,6 +163,11 @@ python -m ibs.webapp.cli list "rrRatio>=4 pnl>0"
 
 Kompletné pokyny pre Claude Code (spúšťanie, reštart, aktualizácia, Git) sú
 v [`CLAUDE.md`](../CLAUDE.md) v koreni repozitára — Claude Code ho načíta sám.
+Pokyny majú dva režimy podľa súboru `.ibs-role` v koreni klonu (gitignored):
+`tester` = obmedzenia a presné príkazy z CLAUDE.md, `developer` = bez obmedzení.
+Ak súbor chýba, Claude Code sa na začiatku raz spýta a odpoveď si zapíše;
+inštalátor pre macOS zapisuje `tester` automaticky. Rola sa dá kedykoľvek prepnúť
+(„prepni na developer").
 
 ## Čo aplikácia nerobí
 

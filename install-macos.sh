@@ -150,6 +150,7 @@ main() {
     fi
     git -C "$TARGET" config user.name "$TESTER"
     git -C "$TARGET" config user.email "$TESTER_MAIL"
+    echo tester > "$TARGET/.ibs-role"   # Claude Code v tomto klone: rezim tester (CLAUDE.md)
     ok "git identita v repozitári: $TESTER <$TESTER_MAIL>"
 
     # ---------------------------------------------------------------------------- #

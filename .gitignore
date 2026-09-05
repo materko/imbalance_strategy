@@ -32,3 +32,6 @@ reports/
 # webapp: docasne profily behov a konfiguracia Claude Code
 platforms/freqtrade/user_data/runs/.profiles/
 .claude/
+
+# rola pre Claude Code v tomto klone (tester | developer) - kazdy klon ma vlastnu
+.ibs-role
