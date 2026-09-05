@@ -67,7 +67,7 @@ class HTFWindow:
     """Okno posledných uzavretých barov detekčného TF (`zoneDetectionTF`).
 
     Pine si ho ťahá jedným `request.security(...)` na riadku 338 súboru
-    imbalance_strategy_FULL.pine, s offsetom ``[1]``..``[4]`` a ``lookahead_off``.
+    pine/imbalance_strategy_FULL.pine, s offsetom ``[1]``..``[4]`` a ``lookahead_off``.
     ``bars[0]`` je teda Pine ``[1]`` — posledný UZAVRETÝ HTF bar, nie ten rozpracovaný.
     Preto tu nikdy nedochádza k repaintu.
     """

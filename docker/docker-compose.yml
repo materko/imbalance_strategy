@@ -39,7 +39,7 @@ services:
     image: ibs-core:latest
     volumes:
       - ../ibs:/app/ibs:ro
-      - ../imbalance_strategy_FULL.pine:/app/imbalance_strategy_FULL.pine:ro
+      - ../pine:/app/pine:ro
 
   download:
     <<: *freqtrade-base

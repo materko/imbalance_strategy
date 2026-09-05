@@ -20,10 +20,10 @@ Potrebuješ Python 3.11+ (64-bit) a git; na macOS ešte `brew install ta-lib`. P
 spustenie postaví prostredie (~10 min) a otvorí prehliadač na http://127.0.0.1:8765.
 
 ```powershell
-.\platforms\freqtrade\scripts\webapp.ps1          # Windows
+.\webapp.ps1        # Windows (alebo dvojklik na webapp.cmd)
 ```
 ```bash
-./platforms/freqtrade/scripts/webapp.sh           # macOS / Linux
+./webapp.sh         # macOS / Linux
 ```
 
 Vo webapp si nastavíš parametre (všetky Pine vstupy, zoskupené ako v TradingView), vyberieš
@@ -51,7 +51,7 @@ Docker, sťahovanie dát, hyperopt, MultiCharts a riešenie problémov: [docs/RU
 
 | Cesta | Čo tam je |
 |---|---|
-| [`imbalance_strategy_FULL.pine`](imbalance_strategy_FULL.pine) | **Referenčný Pine skript** (v5, 115 vstupov). Zdroj pravdy pre logiku, defaulty aj tooltipy — testy a webapp ho parsujú priamo. |
+| [`pine/imbalance_strategy_FULL.pine`](pine/imbalance_strategy_FULL.pine) | **Referenčný Pine skript** (v5, 115 vstupov). Zdroj pravdy pre logiku, defaulty aj tooltipy — testy a webapp ho parsujú priamo. Vedľa neho staršie buildy `imbalance_strategy_SD_IMB.pine` a `Imbalance_strategy.pine` — len na porovnanie, **nie** referencia. |
 | [`ibs/core/`](ibs/core) | Jadro bez závislostí: `IBSConfig` (config + validácia), `IBSEngine` (bar-by-bar), stavový automat zón, zóny, hodiny seáns, risk/sizing, `ta/` (štruktúra, S/R, likvidita, Elliott). |
 | [`ibs/adapters/freqtrade/`](ibs/adapters/freqtrade) | Freqtrade stratégia `IBSImbalanceStrategy` + runner (engine nad DataFrame, fill model). |
 | [`ibs/adapters/multicharts/`](ibs/adapters/multicharts) | MultiCharts signál a kreslenie (len Windows). |
@@ -62,8 +62,8 @@ Docker, sťahovanie dát, hyperopt, MultiCharts a riešenie problémov: [docs/RU
 | [`platforms/freqtrade/`](platforms/freqtrade) | Freqtrade configy (`config.binance.json`, `config.coinbase.json`), skripty, `user_data/` (stratégia-ukazovateľ, hyperopt loss, `data_archive/` so sviečkami, `runs/` s históriou behov z webapp). |
 | [`platforms/multicharts/`](platforms/multicharts) | Štúdia pre MultiCharts a jej inštalačné skripty. |
 | [`docker/`](docker) | `docker-compose.yml` (tests, download, backtest, freqtrade bot, webapp). |
+| `webapp.cmd`, `webapp.ps1`, `webapp.sh` | Spúšťače webapp z koreňa repozitára (obaly nad `platforms/freqtrade/scripts/`). |
 | [`docs/`](docs) | Architektúra, návody, parita a všetky merania (zoznam nižšie). |
-| `imbalance_strategy_SD_IMB.pine`, `Imbalance_strategy.pine` | Staršie/orezané Pine buildy — len na porovnanie, **nie** referencia. |
 
 ---
 

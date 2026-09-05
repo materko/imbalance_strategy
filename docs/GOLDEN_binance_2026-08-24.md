@@ -3,7 +3,7 @@
 Referencia odčítaná priamo z TradingView Strategy Testera (2026-09-04), uložená v
 [`ibs/tests/golden/tv_btcusdt_binance_3m.json`](../ibs/tests/golden/tv_btcusdt_binance_3m.json).
 
-Nastavenia: čerstvo vložený `imbalance_strategy_FULL.pine` + 5 odchýlok od Pine defaultov
+Nastavenia: čerstvo vložený `pine/imbalance_strategy_FULL.pine` + 5 odchýlok od Pine defaultov
 (`enablePinBarEntry`, `enableTrailing`, `tradeDirection="Long only"`, `sess2ZoneStartH=8`,
 `showElliott=false`). Profil na našej strane: `btcusdt_3m_binance_tv`.
 

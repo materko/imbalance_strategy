@@ -1,4 +1,4 @@
-"""Config sa musí zhodovať s Pine originálom — parsuje sa priamo `imbalance_strategy_FULL.pine`.
+"""Config sa musí zhodovať s Pine originálom — parsuje sa priamo `pine/imbalance_strategy_FULL.pine`.
 
 Toto je prvá poistka celého portu: keby sa niekedy stratil alebo prepísal jeden z 115 vstupov,
 stratégia by ticho obchodovala inak. Test to zachytí hneď, bez ohľadu na to, kto config upraví.
@@ -17,7 +17,7 @@ from ibs.core import IBSConfig
 from ibs.core.config import CONSTRAINTS, PORT_ONLY_FIELDS, SIZE_FIELDS
 from ibs.core.types import SizeSpec
 
-PINE_FILE = Path(__file__).resolve().parents[2] / "imbalance_strategy_FULL.pine"
+PINE_FILE = Path(__file__).resolve().parents[2] / "pine" / "imbalance_strategy_FULL.pine"
 
 #: Pine vstupy, ktoré sa VEDOME neportujú, aj s dôvodom.
 REMOVED_INPUTS = {

@@ -2,7 +2,7 @@
 
 Formulár má ukazovať to isté, čo panel nastavení v TradingView: rovnaké skupiny,
 rovnaké titulky, rovnaké tooltipy. Všetko to v Pine skripte už je, takže sa parsuje
-odtiaľ (`imbalance_strategy_FULL.pine`) a k tomu sa pridajú polia, ktoré Pine nemá
+odtiaľ (`pine/imbalance_strategy_FULL.pine`) a k tomu sa pridajú polia, ktoré Pine nemá
 (`PORT_ONLY_FIELDS`). Keď niekto v Pine zmení tooltip, formulár ho zmení tiež.
 """
 
@@ -18,7 +18,7 @@ from ..core.config import CONSTRAINTS, PORT_ONLY_FIELDS, SIZE_FIELDS
 from ..core.types import SizeSpec
 
 REPO = Path(__file__).resolve().parents[2]
-PINE_FILE = REPO / "imbalance_strategy_FULL.pine"
+PINE_FILE = REPO / "pine" / "imbalance_strategy_FULL.pine"
 
 #: Vstupy, ktoré sa neportujú (viď `ibs/tests/test_pine_parity.py`).
 REMOVED_INPUTS = {"pmtToken", "pmtAccountId", "pmtStratName", "pmtMarketOrderType", "trailFreqPct"}

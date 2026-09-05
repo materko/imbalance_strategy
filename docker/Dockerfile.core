@@ -18,7 +18,7 @@ WORKDIR /app
 COPY pyproject.toml ./
 COPY ibs/ ./ibs/
 # Pine subor je potrebny pre test_pine_parity.py - straz nad 115 vstupmi.
-COPY imbalance_strategy_FULL.pine ./
+COPY pine/imbalance_strategy_FULL.pine ./pine/
 
 RUN pip install --no-cache-dir -e ".[dev]"
 

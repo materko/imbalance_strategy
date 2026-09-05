@@ -14,22 +14,25 @@ Treba len **Python 3.11+ (64-bit)** a **git**; na macOS ešte `brew install ta-l
 (freqtrade + balík `ibs`, zhruba 10 minút), pri štarte zloží dáta z `data_archive/`,
 ak chýbajú, a otvorí prehliadač na http://127.0.0.1:8765.
 
-**Windows** (PowerShell):
+**Windows**: klonuj repozitár a dvojklikni na `webapp.cmd` v jeho koreni (obíde
+ExecutionPolicy len pre tento skript), alebo v PowerShelli:
 ```powershell
 git clone https://github.com/materko/imbalance_strategy.git
 cd imbalance_strategy
-.\platforms\freqtrade\scripts\webapp.ps1
+.\webapp.ps1
 ```
-Ak PowerShell odmietne spustiť skript, raz povoľ: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+Ak PowerShell odmietne spustiť `.ps1`, použi `webapp.cmd` alebo raz povoľ
+`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
 
 **macOS / Linux**:
 ```bash
 brew install ta-lib            # len macOS, raz
 git clone https://github.com/materko/imbalance_strategy.git
 cd imbalance_strategy
-./platforms/freqtrade/scripts/webapp.sh
+./webapp.sh
 ```
 
+Koreňové `webapp.*` sú len obaly nad `platforms/freqtrade/scripts/webapp.*`.
 Voliteľné: `-Port 9000` / `IBS_WEB_PORT=9000`, `-NoBrowser` / `NO_BROWSER=1`.
 Server sa ukončí Ctrl+C. Aktualizácia kódu je `git pull` v koreni repozitára.
 
@@ -52,7 +55,7 @@ určený. „(Pine defaulty)" dá presne to, čo má TradingView bez zásahu do 
 
 **Parametre** sú všetkých 114 polí `IBSConfig` — 110 Pine vstupov v rovnakých
 skupinách, s rovnakými titulkami a tooltipmi ako v TradingView (parsuje sa to
-priamo z `imbalance_strategy_FULL.pine`, takže sa nemôžu rozísť), plus skupina
+priamo z `pine/imbalance_strategy_FULL.pine`, takže sa nemôžu rozísť), plus skupina
 „Rozšírenia portu" (`atrLen`, `legacyPineSizing`, `leverage`, `minSlDistance`).
 Panel vyzerá ako nastavenia v TradingView: vľavo zoznam skupín, vpravo aktívna skupina,
 jeden parameter na riadok; polia, ktoré Pine kreslí vedľa seba (hodina a minúta seansy,

@@ -1,11 +1,11 @@
 """`IBSConfig` — 111 zo 115 vstupov Pine stratégie ako jeden dataclass.
 
 Názvy polí sú **zámerne zhodné s Pine identifikátormi** (camelCase), nie snake_case.
-Dôvod: pri hľadaní odchýlky sa to isté meno grepne v `imbalance_strategy_FULL.pine`
+Dôvod: pri hľadaní odchýlky sa to isté meno grepne v `pine/imbalance_strategy_FULL.pine`
 aj tu, a JSON profil sedí s tým, čo vidno v TradingView paneli. Vlastný nový kód
 (`InstrumentSpec`, `SizeSpec`, engine) používa bežný Python štýl.
 
-Zdroj hodnôt a rozsahov: `imbalance_strategy_FULL.pine`, sekcia INPUTS (riadky 41–219).
+Zdroj hodnôt a rozsahov: `pine/imbalance_strategy_FULL.pine`, sekcia INPUTS (riadky 41–219).
 Nastavenia z grafu, ktoré sa líšia od Pine defaultov, sú v `docs/tv_settings_2026-09-03.md`.
 
 **PickMyTrade sa neportuje** (rozhodnutie z 2026-09-04). Vypadlo teda päť Pine vstupov:
