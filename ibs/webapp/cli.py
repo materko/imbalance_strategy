@@ -199,7 +199,7 @@ def cmd_status(args: argparse.Namespace) -> int:
         q = api(args.url, "/api/queue")
         print(f"fronta: {len(q)} " + ", ".join(f"{j['id']} {j['status']}" for j in q))
     st = gitsync.status()
-    print(f"git: vetva {st['branch']}, necommitnuté behy {st['uncommitted_runs']}, "
+    print(f"git: vetva {st['branch']}, necommitnuté behy a profily {st['uncommitted']}, "
           f"ahead {st['ahead']}, behind {st['behind']}")
     return 0
 
@@ -269,7 +269,7 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("pull", help="stiahni históriu behov z GitHubu (git pull --rebase)")
     p.set_defaults(func=cmd_pull)
 
-    p = sub.add_parser("push", help="commitni LEN runs/ a pushni")
+    p = sub.add_parser("push", help="commitni LEN runs/ a profiles/ a pushni")
     p.add_argument("--user", help="autor commitu (default IBS_USER)")
     p.set_defaults(func=cmd_push)
 
