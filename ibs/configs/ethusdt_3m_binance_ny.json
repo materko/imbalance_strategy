@@ -1,0 +1,59 @@
+{
+  "_comment": [
+    "BINANCE ETH/USDT.P 3m - ta ista strategia ako btcusdt_3m_binance_ny, prenesena na ETH.",
+    "",
+    "POZOR - prahy NIE su prevzate v bodoch, ale prepocitane na ATR. Pine ich ma",
+    "v absolutnych bodoch a na BTC znamenaju skoro nic (minImbSizePoints 2,5 = 0,037 ATR),",
+    "kym na ETH by tie iste cisla znamenali ~0,9 ATR a zablokovali by takmer kazdy signal.",
+    "Porovnanie by potom nemeralo strategiu, ale prisnost filtra.",
+    "",
+    "Prepocet je z BTC 3m 2021-2026: median ATR(14) = 67,63 bodu, median cena 60 051.",
+    "Detaily v docs/ETH_2026-09-05.md."
+  ],
+  "_instrument": "ethusdt_binance",
+  "enablePinBarEntry": true,
+  "tradeDirection": "Long only",
+  "sess2ZoneStartH": 8,
+  "showElliott": false,
+  "tickDollarValue": 0.5,
+  "legacyPineSizing": true,
+  "enableSrTrading": true,
+  "enableLqTrading": true,
+  "rrRatio": 5.0,
+  "enableEngulfingEntry": true,
+  "slLookback": 20,
+  "useStructureFilter": true,
+  "sess3On": false,
+  "minImbSizePoints": {
+    "value": 0.037,
+    "unit": "atr"
+  },
+  "pbMinRangePoints": {
+    "value": 0.03,
+    "unit": "atr"
+  },
+  "engMinRangePoints": {
+    "value": 0.03,
+    "unit": "atr"
+  },
+  "srClusterPoints": {
+    "value": 0.222,
+    "unit": "atr"
+  },
+  "liqSweepMinWick": {
+    "value": 0.074,
+    "unit": "atr"
+  },
+  "imbMaxDistTicks": {
+    "value": 0.148,
+    "unit": "atr"
+  },
+  "slBufferTicks": {
+    "value": 0.003,
+    "unit": "atr"
+  },
+  "state2ConfirmTicks": {
+    "value": 0.0015,
+    "unit": "atr"
+  }
+}
