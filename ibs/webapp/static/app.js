@@ -317,7 +317,10 @@ function applyParamFilter() {
 
 function fillSettings() {
   const ps = $("#profile"); ps.innerHTML = `<option value="">(Pine defaulty)</option>`;
-  for (const p of state.meta.profiles) { const o = document.createElement("option"); o.value = p; o.textContent = p; ps.append(o); }
+  for (const p of state.meta.profiles) {
+    const o = document.createElement("option"); o.value = p;
+    o.textContent = `${p} — ${(state.meta.profile_titles || {})[p] || ""}`; o.title = (state.meta.profile_titles || {})[p] || p; ps.append(o);
+  }
   const pair = $("#pair"); pair.innerHTML = "";
   for (const p of state.meta.pairs) {
     const o = document.createElement("option"); o.value = p.pair;
@@ -371,8 +374,8 @@ function checkPairProfile() {
   const box = $("#pair-warn");
   const pair = state.meta.pairs.find(p => p.pair === $("#pair").value);
   if (!pair || !state.profileInstrument || pair.instrument === state.profileInstrument) { box.hidden = true; return; }
-  const fit = state.meta.profiles.filter(p => p.startsWith(pair.instrument.split("_")[0]));
-  box.textContent = `Profil ${state.profile} je pre iný nástroj (${state.profileInstrument}). Prahy v bodoch/tickoch na ${pair.pair} nesedia a výsledok nebude porovnateľný. Pre tento pár sú profily: ${fit.join(", ") || "žiadny"}.`;
+  const fit = state.meta.profiles.filter(p => (state.meta.profile_instruments || {})[p] === pair.instrument);
+  box.textContent = `Profil ${state.profile} je pre iný nástroj (${state.profileInstrument}). Prahy v bodoch/tickoch na ${pair.pair} nesedia a výsledok nebude porovnateľný. Pre tento pár: ${fit.join(", ") || "(Pine defaulty) alebo profil z docs/profily_archiv/"}.`;
   box.hidden = false;
 }
 
@@ -859,11 +862,16 @@ function closeDetail() {
 async function loadDetailIntoForm() {
   const r = await api(`/api/runs/${state.detailId}`);
   const rec = r.record;
-  $("#profile").value = rec.settings.profile || "";
   state.profile = rec.settings.profile || null;
-  // základ = profil (aby sa zvýraznili odchýlky), hodnoty = beh
-  if (state.profile) { const p = await api(`/api/profiles/${encodeURIComponent(state.profile)}`); setParams(p.params, true); }
-  else setParams({}, true);
+  // základ = profil (aby sa zvýraznili odchýlky), hodnoty = beh. Profil behu už nemusí
+  // existovať (archivované presety) — vtedy je základom Pine default a odchýlky sú voči nemu.
+  let base = {};
+  if (state.profile) {
+    try { base = (await api(`/api/profiles/${state.profile.split("/").map(encodeURIComponent).join("/")}`)).params; }
+    catch (_) { state.profile = null; }
+  }
+  $("#profile").value = state.profile && state.meta.profiles.includes(state.profile) ? state.profile : "";
+  setParams(base, true);
   setParams(rec.params, false);
   $("#pair").value = rec.settings.pair; $("#pair").onchange();
   fillTimeframes(rec.settings.pair, rec.settings.timeframe || "3m");
@@ -912,7 +920,8 @@ function showView(name) {
 async function init() {
   state.meta = await api("/api/meta");
   fillSettings();
-  const preferred = ["btcusdt_3m_binance_ny_sl_risk1", "btcusdt_3m_binance_ny_sl", "btcusdt_3m_binance_ny"].find(p => state.meta.profiles.includes(p)) || "";
+  // Východisko sú Pine defaulty; referenčné profily (golden test, MultiCharts) sú na výber.
+  const preferred = "";
   $("#profile").value = preferred;
   await loadProfile(preferred);
   pollQueue();

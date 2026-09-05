@@ -27,7 +27,9 @@ from ..core.config import ConfigError
 from . import chart as chart_data
 from . import gitsync
 from .pine_meta import param_metadata
-from .runner import BacktestRunner, available_pairs, default_params, list_profiles, tf_minutes
+from .runner import (
+    REPO, BacktestRunner, available_pairs, default_params, list_profiles, profile_instruments, profile_titles, tf_minutes,
+)
 from .store import RunStore, summarize_for_list
 
 STATIC = Path(__file__).resolve().parent / "static"
@@ -80,16 +82,25 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             "params": param_metadata(),
             "defaults": defaults,
             "profiles": list_profiles(),
+            "profile_titles": profile_titles(),
+            "profile_instruments": profile_instruments(),
             "pairs": pairs,
             "user": current_user(),
             "branch": gitsync.branch(),
             "queue": runner.snapshot(),
         }
 
-    @app.get("/api/profiles/{name}")
+    @app.get("/api/profiles/{name:path}")
     def profile(name: str):
+        """Názov z `ibs/configs`, alebo cesta k JSON v repozitári (napr. `docs/profily_archiv/x.json`)."""
+        target: str | Path = name
+        if "/" in name or name.endswith(".json"):
+            path = (REPO / name).resolve()
+            if not path.is_relative_to(REPO) or path.suffix != ".json" or not path.exists():
+                raise HTTPException(404, f"profil {name!r} nie je JSON v repozitári")
+            target = path
         try:
-            params, instrument = default_params(name)
+            params, instrument = default_params(target)
         except (ConfigError, FileNotFoundError) as exc:
             raise HTTPException(404, str(exc))
         return {"name": name, "params": params, "instrument": instrument}

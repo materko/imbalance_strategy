@@ -68,8 +68,11 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
 5. Jeden backtest naraz. Rok s 1m detailom trvá ~20–40 s; päť rokov ~3 minúty.
 6. Nesťahuj dáta z burzy. Páry a obdobia sú len tie, čo sú v `data_archive/`
    (BTC/USDT:USDT a ETH/USDT:USDT, 2019–2026).
-7. Profil musí sedieť s párom: pre ETH použi `ethusdt_*` profily. BTC profil na ETH dá
-   stovky nezmyselných obchodov (prahy v bodoch nesedia) — webapp aj CLI na to varujú.
+7. Profil musí sedieť s párom: pre ETH použi `ethusdt_*` profil z `docs/profily_archiv/`.
+   BTC profil na ETH dá stovky nezmyselných obchodov (prahy v bodoch nesedia) — webapp aj
+   CLI na to varujú. V `ibs/configs/` sú len tri referenčné profily (golden testy proti
+   TradingView, MultiCharts); skúšané konfigurácie sú v `docs/profily_archiv/` a `--profile`
+   berie aj cestu k súboru.
 8. **„Len mi nastav parametre" znamená naozaj len nastaviť.** Keď má tester otvorenú
    webapp a povie, že chce iba nastaviť parametre, vyplň na karte **Nový beh** presne tie
    polia, ktoré vymenoval, a **nič nespúšťaj** — tlačidlo „▶ Spustiť backtest" nechaj
@@ -90,14 +93,14 @@ Nižšie píšem `PY` = ten Python. Ak `.venv` neexistuje, najprv spusti setup (
 ## Backtest, ktorý sa objaví v histórii
 
 ```bash
-PY -m ibs.webapp.cli run --profile btcusdt_3m_binance_ny_sl_risk1 \
+PY -m ibs.webapp.cli run --profile docs/profily_archiv/btcusdt_3m_binance_ny_sl_risk1.json \
    --timerange 20250904-20260904 --note "základ, rok 2025-26"
 
-PY -m ibs.webapp.cli run --profile btcusdt_3m_binance_ny_sl_risk1 \
+PY -m ibs.webapp.cli run --profile docs/profily_archiv/btcusdt_3m_binance_ny_sl_risk1.json \
    --set rrRatio=4 --set minSlDistance=0.25@pct \
    --timerange 20250904-20260904 --note "RR 4, SL filter 0,25 %"
 
-PY -m ibs.webapp.cli run --profile ethusdt_3m_binance_ny_sl_risk1 --pair ETH/USDT:USDT \
+PY -m ibs.webapp.cli run --profile docs/profily_archiv/ethusdt_3m_binance_ny_sl_risk1.json --pair ETH/USDT:USDT \
    --timerange 20240904-20250904 --note "ETH kontrola"
 ```
 
@@ -110,7 +113,8 @@ PY -m ibs.webapp.cli run --profile ethusdt_3m_binance_ny_sl_risk1 --pair ETH/USD
 - `--set` hodnoty: `true/false`, čísla, text; veľkostné polia `hodnota@jednotka`
   (`abs`, `ticks`, `atr`, `pct`). Zoznam parametrov: `PY -m ibs.webapp.cli params [filter]`.
 - Poplatok `--fee 0.0005` (Binance taker 0,05 %) a `--wallet 10000` sú default; pri
-  porovnávaní s TradingView použi `--fee 0 --wallet 400000` a profil `*_ny_sl` (1 BTC).
+  porovnávaní s TradingView použi `--fee 0 --wallet 400000` a profil `*_ny_sl` (1 BTC)
+  z `docs/profily_archiv/`.
 
 ## Len nastaviť parametre vo webapp (bez spustenia)
 

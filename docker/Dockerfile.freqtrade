@@ -24,6 +24,6 @@ ENV PYTHONPATH=/app \
 # nie az na serveri.
 RUN python -c "from ibs.core import list_profiles, load_profile; \
     print('ibs profily:', list_profiles()); \
-    load_profile('btcusdt_3m_binance')"
+    load_profile('golden_binance_btcusdt_3m')"
 
 WORKDIR /freqtrade

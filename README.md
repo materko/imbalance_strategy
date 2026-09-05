@@ -47,7 +47,7 @@ do gitu a dá sa v nej hľadať podľa parametrov. Podrobne: [docs/WEBAPP.md](do
 ```
 ```bash
 ./platforms/freqtrade/scripts/setup.sh            # macOS / Linux
-IBS_PROFILE=btcusdt_3m_binance_ny_sl_risk1 ./platforms/freqtrade/scripts/backtest.sh
+IBS_PROFILE=docs/profily_archiv/btcusdt_3m_binance_ny_sl_risk1.json ./platforms/freqtrade/scripts/backtest.sh
 .venv/bin/python -m pytest                        # 315 testov vrátane parity s Pine
 ```
 
@@ -84,16 +84,10 @@ vo webapp.
 
 | Profil | Na čo |
 |---|---|
-| **`btcusdt_3m_binance_ny_sl_risk1`** | **Odporúčaný na nasadenie.** NY seansa, RR 5, štruktúrny filter, `minSlDistance` 0,20 %, risk 1 % účtu (`maxLossDollar` 100), páka 10. |
-| `btcusdt_3m_binance_ny_sl` | To isté s 1 BTC na obchod (`legacyPineSizing`) — na porovnanie s TradingView. |
-| `btcusdt_3m_binance_ny` | NY seansa bez filtra SL. |
-| `btcusdt_3m_binance_struct` | Obe seansy (NY + Londýn), RR 5, štruktúrny filter. |
-| `btcusdt_3m_binance_tv` | **Referenčný na golden test** — presne nastavenia z grafu TradingView (RR 1, trailing). Nie na obchodovanie. |
-| `btcusdt_3m_binance` | Exekučný profil s prahmi v ATR namiesto MNQ bodov (východisko pre ladenie). |
-| `ethusdt_3m_binance_ny*` | ETH varianty (`_ny`, `_ny_sl`, `_ny_sl_risk1`) — out-of-sample overenie na inom nástroji; spúšťa sa s `--pairs ETH/USDT:USDT`. |
-| `btcusdt_3m_binance_hyper`, `_opt` | Výstupy hyperoptu — **pretrénované**, len ako záznam ([HYPEROPT_btcusdt_2026-09-04.md](docs/HYPEROPT_btcusdt_2026-09-04.md)). |
-| `btcusd_3m_coinbase` | Coinbase spot, parita jadra s TradingView na BTCUSD. |
-| `mnq_3m` | MNQ futures pre MultiCharts, 1:1 s Pine jednotkami. |
+| `golden_binance_btcusdt_3m` | **Referenčný na golden test** — presne nastavenia z grafu TradingView na Binance BTCUSDT.P (RR 1, trailing, 1 BTC). Nie na obchodovanie. |
+| `golden_coinbase_btcusd_3m` | Referenčný pre Coinbase BTCUSD — parita jadra s TradingView screenshotmi (MultiCharts a testy). |
+| `multicharts_mnq_3m` | MNQ futures pre MultiCharts, 1:1 s Pine jednotkami. |
+| ostatné | Skúšané konfigurácie (NY seansa, SL filter, risk sizing, hyperopt…) sú v [docs/profily_archiv/](docs/profily_archiv/README.md) s tabuľkou odchýlok; načítajú sa cestou (`--profile docs/profily_archiv/<nazov>.json`). Odporúčaný štart na nasadenie je `btcusdt_3m_binance_ny_sl_risk1` odtiaľ. |
 
 ---
 

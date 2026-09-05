@@ -1,6 +1,6 @@
 """Prejde reálne dáta celým stavovým automatom a vypíše obchody — smoke test kroku 3.
 
-    python -m ibs.tools.scan_trades --exchange binance --profile btcusdt_3m_binance
+    python -m ibs.tools.scan_trades --exchange binance --profile golden_binance_btcusdt_3m
 
 Signály generuje engine na uzavretých barech grafu (3m). Vyplnenie a výstupy sa
 prehrávajú po **1m** sviečkach vnútri každého 3m baru — rovnaký princíp ako
@@ -293,7 +293,7 @@ def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str, chart_tf: int,
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--exchange", choices=sorted(_LAYOUT), default="binance")
-    ap.add_argument("--profile", default="btcusdt_3m_binance")
+    ap.add_argument("--profile", default="golden_binance_btcusdt_3m")
     ap.add_argument("--chart-tf", type=int, default=3)
     ap.add_argument("--limit", type=int, default=20)
     ap.add_argument("--from", dest="date_from", help="YYYY-MM-DD, vratane")

@@ -285,7 +285,7 @@ def test_multicharts_a_freqtrade_daju_rovnake_zony():
     from ibs.core import load_profile
     from ibs.tools.scan_zones import _load, _to_bar
 
-    cfg, inst = load_profile("btcusdt_3m_binance_tv")
+    cfg, inst = load_profile("golden_binance_btcusdt_3m")
     try:
         chart = _load("binance", "3m")
         htf_df = _load("binance", "5m")

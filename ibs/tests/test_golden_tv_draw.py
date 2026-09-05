@@ -51,7 +51,7 @@ def objects():
 
     from ibs.tools.scan_zones import _load, _to_bar
 
-    cfg, inst = load_profile("btcusdt_3m_binance_tv")
+    cfg, inst = load_profile("golden_binance_btcusdt_3m")
     try:
         chart = _load("binance", "3m")
     except SystemExit as exc:

@@ -7,7 +7,7 @@ POZOR - nestaci trieda naimportovat. Freqtrade resolver berie do uvahy len tried
 ktorych `__module__` sa zhoduje s nazvom TOHTO suboru (viz IResolver._get_valid_object),
 takze naimportovanu triedu treba este podedit. Preto ten prazdny subclass nizsie.
 
-Profil sa prepina premennou prostredia IBS_PROFILE (default: btcusdt_3m_binance).
+Profil sa prepina premennou prostredia IBS_PROFILE (default: golden_binance_btcusdt_3m; nazov z ibs/configs alebo cesta k JSON).
 """
 
 from ibs.adapters.freqtrade.strategy import IBSImbalanceStrategy as _IBSImbalanceStrategy

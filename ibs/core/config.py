@@ -462,7 +462,8 @@ class IBSConfig:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "IBSConfig":
         known = {f.name for f in fields(cls)}
-        unknown = set(data) - known - {"_comment", "_instrument"}
+        # `_title` je ľudský názov profilu pre webapp, `_comment` poznámka, `_instrument` nástroj.
+        unknown = set(data) - known - {"_comment", "_instrument", "_title"}
         if unknown:
             raise ConfigError(f"neznáme kľúče v configu: {sorted(unknown)}")
         return cls(**{k: v for k, v in data.items() if k in known})
@@ -504,7 +505,7 @@ def list_profiles() -> list[str]:
 
 
 def load_profile(name: str | Path) -> tuple[IBSConfig, InstrumentSpec]:
-    """Načíta profil podľa mena (`"mnq_3m"`) alebo cesty a vráti config + inštrument.
+    """Načíta profil podľa mena (`"multicharts_mnq_3m"`) alebo cesty a vráti config + inštrument.
 
     Profil obsahuje len odchýlky od Pine defaultov plus kľúč `_instrument`,
     ktorý ukazuje do `types.INSTRUMENTS`.

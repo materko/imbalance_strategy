@@ -175,16 +175,23 @@ def test_meta_endpoint(client):
     c, _ = client
     m = c.get("/api/meta").json()
     assert len(m["params"]) == len(param_metadata())
-    assert "btcusdt_3m_binance_ny_sl" in m["profiles"]
+    assert "golden_binance_btcusdt_3m" in m["profiles"] and m["profile_titles"]["golden_binance_btcusdt_3m"]
     assert m["defaults"]["rrRatio"] == 1.0
 
 
 def test_profile_endpoint(client):
     c, _ = client
-    p = c.get("/api/profiles/btcusdt_3m_binance_ny_sl").json()
+    p = c.get("/api/profiles/golden_binance_btcusdt_3m").json()
     assert p["instrument"] == "btcusdt_binance"
-    assert p["params"]["minSlDistance"] == 0.2  # holé číslo = Pine jednotka poľa (pct)
+    assert p["params"]["legacyPineSizing"] is True and p["params"]["tradeDirection"] == "Long only"
+    assert p["params"]["tickDollarValue"] == 0.5  # presne to, s čím bežal TradingView
     assert c.get("/api/profiles/neexistuje").status_code == 404
+    # archivované profily sa berú cestou v repozitári, nič mimo neho
+    arch = c.get("/api/profiles/docs/profily_archiv/btcusdt_3m_binance_ny_sl_risk1.json").json()
+    assert arch["instrument"] == "btcusdt_binance" and arch["params"]["rrRatio"] == 5.0
+    assert c.get("/api/profiles/../../x.json").status_code == 404
+    assert c.get("/api/profiles/docs/WEBAPP.md").status_code == 404
+    assert c.get("/api/meta").json()["profile_instruments"]["multicharts_mnq_3m"] == "mnq"
 
 
 def test_submit_rejects_invalid_config_and_pair(client):

@@ -402,7 +402,7 @@ def _trim_log(lines: list[str]) -> list[str]:
     return keep_head + ["… (skrátené) …"] + interesting + ["…"] + tail
 
 
-def default_params(profile: str | None = None) -> tuple[dict[str, Any], str | None]:
+def default_params(profile: "str | Path | None" = None) -> tuple[dict[str, Any], str | None]:
     """Parametre formulára: Pine defaulty, alebo profil z `ibs/configs/`."""
     if profile:
         cfg, inst = load_profile(profile)
@@ -413,3 +413,25 @@ def default_params(profile: str | None = None) -> tuple[dict[str, Any], str | No
 
 def list_profiles() -> list[str]:
     return sorted(p.stem for p in CONFIG_DIR.glob("*.json"))
+
+
+def profile_instruments() -> dict[str, str]:
+    """`_instrument` z profilu — aby stránka vedela, ktorý profil sedí na ktorý pár."""
+    out = {}
+    for p in CONFIG_DIR.glob("*.json"):
+        try:
+            out[p.stem] = str(json.loads(p.read_text(encoding="utf-8")).get("_instrument") or "")
+        except (OSError, json.JSONDecodeError):
+            out[p.stem] = ""
+    return out
+
+
+def profile_titles() -> dict[str, str]:
+    """`_title` z profilu — ľudský popis do dropdownu (bez neho ostane názov súboru)."""
+    out = {}
+    for p in CONFIG_DIR.glob("*.json"):
+        try:
+            out[p.stem] = str(json.loads(p.read_text(encoding="utf-8")).get("_title") or p.stem)
+        except (OSError, json.JSONDecodeError):
+            out[p.stem] = p.stem
+    return out

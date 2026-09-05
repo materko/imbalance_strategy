@@ -1,6 +1,6 @@
 """Vykreslí to, čo engine nakreslil — na porovnanie s grafom v TradingView.
 
-    python -m ibs.tools.plot --profile btcusdt_3m_binance_tv --exchange binance \
+    python -m ibs.tools.plot --profile golden_binance_btcusdt_3m --exchange binance \
         --from 2026-08-24 --to 2026-09-04 -o graf.html
 
 Engine sám nekreslí — vracia `DrawCommand`. Tento nástroj ich prehrá cez
@@ -199,7 +199,7 @@ def main(argv: list[str] | None = None) -> int:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     ap.add_argument("--exchange", default="binance", choices=["binance", "coinbase"])
-    ap.add_argument("--profile", default="btcusdt_3m_binance_tv")
+    ap.add_argument("--profile", default="golden_binance_btcusdt_3m")
     ap.add_argument("--chart-tf", type=int, default=3)
     ap.add_argument("--from", dest="date_from", help="YYYY-MM-DD, vratane")
     ap.add_argument("--to", dest="date_to", help="YYYY-MM-DD, vratane")

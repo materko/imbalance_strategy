@@ -26,7 +26,7 @@ RANGE = ("2026-08-24", "2026-09-04")
 @pytest.fixture(scope="module")
 def result():
     scan_trades = pytest.importorskip("ibs.tools.scan_trades")
-    cfg, inst = load_profile("btcusdt_3m_binance_tv")
+    cfg, inst = load_profile("golden_binance_btcusdt_3m")
     try:
         book, sim, _, _ = scan_trades.run(cfg, inst, "binance", 3, *RANGE)
     except SystemExit as exc:  # chýbajúce feather dáta
@@ -120,7 +120,7 @@ def test_sr_a_likviditne_zony_sedia_s_tradingview(enabled, zones, trades, wins, 
     from ibs.tools.scan_trades import FillSimulator
     from ibs.tools.scan_zones import _load, _to_bar
 
-    cfg, inst = load_profile("btcusdt_3m_binance_tv")
+    cfg, inst = load_profile("golden_binance_btcusdt_3m")
     cfg.enableSrTrading = enabled
     cfg.enableLqTrading = enabled
     try:
