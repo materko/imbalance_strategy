@@ -1,0 +1,30 @@
+{
+  "_comment": [
+    "BINANCE BTC/USDT.P 3m - btcusdt_3m_binance_ny_sl s REALNYM risk-based sizingom namiesto 1 BTC/ETH.",
+    "",
+    "maxLossDollar 100 = 1 % z dry_run_wallet 10 000 (pevna suma, nie percento z aktualneho",
+    "zostatku). legacyPineSizing vypnuty, qty = maxLossDollar / SL vzdialenost. Paka 10 je",
+    "len preto, aby sa pozicia pri SL 0,2 % (nominal ~50 000) zmestila na ucet - bez nej by",
+    "Freqtrade stake orezal a riziko na obchod by bolo v skutocnosti mensie (viď warning",
+    "'stake orezany' v logu).",
+    "Vysledky v docs/OPTIMALIZACIA_2026-09-05.md, sekcia 6."
+  ],
+  "_instrument": "btcusdt_binance",
+  "enablePinBarEntry": true,
+  "tradeDirection": "Long only",
+  "sess2ZoneStartH": 8,
+  "showElliott": false,
+  "enableSrTrading": true,
+  "enableLqTrading": true,
+  "rrRatio": 5.0,
+  "enableEngulfingEntry": true,
+  "slLookback": 20,
+  "useStructureFilter": true,
+  "sess3On": false,
+  "minSlDistance": {
+    "value": 0.2,
+    "unit": "pct"
+  },
+  "maxLossDollar": 100.0,
+  "leverage": 10.0
+}

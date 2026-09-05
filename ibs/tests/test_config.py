@@ -214,6 +214,8 @@ def test_all_profiles_exist():
         "btcusdt_3m_binance_ny_sl",
         "ethusdt_3m_binance_ny",
         "ethusdt_3m_binance_ny_sl",
+        "btcusdt_3m_binance_ny_sl_risk1",
+        "ethusdt_3m_binance_ny_sl_risk1",
     }
 
 

@@ -174,6 +174,52 @@ volatilitou (BTC 2022-23 mal medián ATR 0,14 % ceny proti 0,25 % v iných rokoc
 ATR prah v cenových bodoch stiahne a pustí tesné SL, ktoré aj tak platia plný poplatok.
 Percento ceny drží latku tam, kde je poplatok. Jednotka ostáva **pct**.
 
+## 6. Risk-based sizing: 1 % účtu na obchod
+
+Všetko vyššie bežalo s `legacyPineSizing` (1 BTC resp. 1–2 ETH na obchod), aby boli čísla
+porovnateľné s TradingView. Na nasadenie je správny risk-based sizing: `maxLossDollar 100`
+= 1 % z peňaženky 10 000 USDT, `qty = 100 / SL vzdialenosť`. Páka 10 je len na to, aby
+sa pozícia pri SL 0,2 % (nominál ~50 000) zmestila na účet; edge nemení
+([PAKA_2026-09-05.md](PAKA_2026-09-05.md)). Reálne poplatky 0,05 %/strana, každé okno
+štartuje z 10 000.
+
+| okno | BTC bez filtra | **BTC s filtrom 0,20 %** | **ETH s filtrom 0,20 %** |
+|---|---|---|---|
+| 2021-10 → 2022-10 | +15,02 % (DD 15,6) | **+22,14 %** (DD 7,8) | −0,21 % (DD 8,0) |
+| 2022-10 → 2023-10 | +2,02 % (DD 14,2) | −1,40 % (DD 12,0) | **+6,81 %** (DD 5,0) |
+| 2023-10 → 2024-10 | −5,37 % (DD 13,4) | −1,55 % (DD 10,6) | **+17,10 %** (DD 6,9) |
+| 2024-09 → 2025-09 | −8,26 % (DD 12,9) | **+11,72 %** (DD 5,6) | **+14,55 %** (DD 5,3) |
+| 2025-09 → 2026-09 | −3,19 % (DD 7,2) | **+11,89 %** (DD 3,8) | **+2,26 %** (DD 7,8) |
+| **súčet** | **+0,2 %** | **+42,8 %** | **+40,5 %** |
+| ziskových rokov | 2 z 5 | 3 z 5 | 4 z 5 |
+
+Profily: `btcusdt_3m_binance_ny_sl_risk1.json`, `ethusdt_3m_binance_ny_sl_risk1.json`.
+
+### Čo sizing zmenil
+
+**Bez filtra je risk-based sizing katastrofa** (+0,2 % za päť rokov proti +17 % pri
+1 BTC). Presne to predpovedalo upozornenie v bode 1: tesný SL znamená pri pevnom riziku
+**väčší nominál**, teda väčší poplatok — a tesné SL sú práve tie obchody, ktoré nič
+nezarábajú. Risk sizing im dá najväčšiu váhu. Volume-vážený break-even bez filtra padne
+z 0,088 % na 0,02–0,10 % po rokoch. (Jedenásť obchodov bez filtra navyše narazilo na
+strop páky a Freqtrade ich orezal, takže ich skutočné riziko bolo menšie než 1 % — bez
+toho by výsledok bol ešte horší.)
+
+**S filtrom je to jediná verzia, ktorá dáva zmysel nasadiť**: +42,8 % za päť rokov
+na BTC pri max drawdowne 12 %, +40,5 % na ETH pri max 8 %. Filter a risk sizing
+patria k sebe — filter obmedzí nominál zhora (pri SL ≥ 0,2 % je nominál ≤ 50 000), risk
+sizing zrovná riziko medzi obchodmi.
+
+**Rok 2022-23 na BTC sa prevrátil** (+1,37 % pri 1 BTC → −1,40 %): pri rovnakých
+obchodoch dostali víťazi so širokým SL menšiu pozíciu a porazení s tesnejším väčšiu.
+Je to ten istý slabý edge (break-even 0,059 %), len inak vážený — nie nová informácia.
+
+### Skutočné riziko na obchod je ~1,25 %, nie 1 %
+
+Stop-lossy končia so stratou medián **−126 USDT**, max −153, nie −100. Rozdiel je
+poplatok z nominálu (0,1 % z 25 000–50 000 = 25–50 USDT) plus funding. `maxLossDollar`
+pokrýva len cenový pohyb; kto chce presne 1 % vrátane poplatkov, nastaví ~80.
+
 ## Kde to sme
 
 | krok | BTC break-even | BTC obch./rok | ETH break-even | ETH obch./rok |
@@ -191,9 +237,7 @@ ostáva na nule vo všetkých verziách.
 
 1. ~~Iný nástroj~~ — hotové, viď bod 4. Obe zistenia prežili.
 2. ~~Volatilitný filter~~ — na ETH sa nepotvrdil, zahodený.
-3. **Risk sizing.** `maxLossDollar 350` na 10k je 3,5 % na obchod; na nasadenie 1 %.
-   Edge nemení, drawdown áno. S `minSlDistance` sa navyše zúži rozptyl nominálu medzi
-   obchodmi, takže risk-based sizing prestane robiť extrémne pozície pri tesnom SL.
+3. ~~Risk sizing~~ — hotové, viď bod 6. Filter a risk sizing patria k sebe.
 
 ## Ako to zopakovať
 
