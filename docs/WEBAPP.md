@@ -225,6 +225,11 @@ plus metadáta s podtržníkom: `_instrument` (z neho sa nastaví pár), `_title
 prenesie do formulára (obdobie orezané na dáta, ktoré pre pár sú); čo profil nemá —
 napríklad profily repozitára — nechá formulár tak, ako si ho nastavil.
 
+`_base` hovorí, z ktorého profilu si vychádzal (pri uložení z formulára to, čo bolo
+vybrané ako *Východiskový profil*, pri uložení z behu profil toho behu). Pod ponukou
+je vtedy vidieť „vychádza z profilu …". Hodnoty sú vlastné a nemenné — je to záznam
+pôvodu, nie odkaz: keď sa východiskový profil neskôr zmení, tvoj sa nepohne.
+
 Meno súboru má 2–48 znakov: písmená bez diakritiky, číslice, `.`, `-`, `_`;
 meno profilu repozitára sa použiť nedá, aby sa nedal prekryť.
 

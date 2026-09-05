@@ -375,6 +375,26 @@ def test_profile_keeps_the_whole_setup_of_the_run(client, own_profiles):
     assert c.get("/api/profiles/golden_binance_btcusdt_3m").json()["settings"] == {}
 
 
+def test_profile_remembers_what_it_started_from(client, own_profiles):
+    """Vlastný profil si pamätá východiskový profil — inak sa po pár úpravách nedá
+    povedať, či je to golden s RR 4, alebo niečo úplne iné."""
+    c, store = client
+    store.save(_record("20260905-120000-aaaaaa", params={"rrRatio": 5.0}))  # beh mal profil z configs
+    c.post("/api/profiles", json={"name": "z_behu", "from_run": "20260905-120000-aaaaaa"})
+    assert c.get("/api/profiles/z_behu").json()["base"] == "btcusdt_3m_binance_ny"
+
+    c.post("/api/profiles", json={"name": "z_formulara", "params": IBSConfig().to_dict(),
+                                  "instrument": "btcusdt_binance", "base": "z_behu"})
+    data = json.loads((own_profiles / "z_formulara.json").read_text(encoding="utf-8"))
+    assert data["_base"] == "z_behu"
+    # beh z Pine defaultov nemá z čoho vychádzať
+    rec = _record("20260905-130000-bbbbbb")
+    rec["settings"]["profile"] = None
+    store.save(rec)
+    c.post("/api/profiles", json={"name": "bez_zakladu", "from_run": "20260905-130000-bbbbbb"})
+    assert c.get("/api/profiles/bez_zakladu").json()["base"] is None
+
+
 def test_profile_save_rejects_bad_name_and_collisions(client, own_profiles):
     c, store = client
     store.save(_record("20260905-120000-aaaaaa"))

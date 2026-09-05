@@ -72,6 +72,7 @@ class ProfileSaveRequest(BaseModel):
     fee: float | None = None
     wallet: float | None = None
     timeframe_detail: str | None = None
+    base: str | None = Field(None, max_length=200, description="profil, z ktorého sa vychádzalo")
     note: str = Field("", max_length=200)
     overwrite: bool = False
 
@@ -124,6 +125,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         params, instrument, comment = req.params, req.instrument, req.note or None
         setup = {"timeframe": req.timeframe, "timerange": req.timerange, "fee": req.fee,
                  "wallet": req.wallet, "detail": req.timeframe_detail}
+        base = req.base
         if req.from_run:
             rec = store.get(req.from_run)
             if rec is None:
@@ -135,6 +137,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             for key, src in (("timeframe", "timeframe"), ("timerange", "timerange"),
                              ("fee", "fee"), ("wallet", "wallet"), ("detail", "timeframe_detail")):
                 setup[key] = setup[key] if setup[key] is not None else settings.get(src)
+            base = base or settings.get("profile")
             popis = f"z behu {req.from_run} ({settings.get('pair')}, {settings.get('timerange')})"
             comment = f"{comment} — {popis}" if comment else popis
         if params is None:
@@ -145,7 +148,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(422, "chýba `instrument` profilu")
         try:
             user_profiles.save(req.name, params, instrument, comment=comment,
-                               title=req.note or None, settings=setup,
+                               title=req.note or None, base=base, settings=setup,
                                overwrite=req.overwrite)
         except FileExistsError as exc:
             raise HTTPException(409, str(exc))
@@ -190,6 +193,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         setup = user_profiles.settings_of(name)
         return {"name": name, "params": params, "instrument": instrument,
                 "timeframe": setup.get("timeframe"), "settings": setup,
+                "base": user_profiles.base_of(name),
                 "kind": "user" if user_profiles.is_user(name) else "builtin"}
 
     @app.get("/api/runs")

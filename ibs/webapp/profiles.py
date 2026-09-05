@@ -9,7 +9,9 @@ Formát je rovnaký ako pri profiloch repozitára: **len odchýlky** od Pine def
 plus kľúč `_instrument`. Vďaka tomu je diff čitateľný a profil prežije aj to, keď sa
 niekedy zmení Pine default (posunie sa s ním). Navyše nastavenia behu, bez ktorých
 by profil povedal „ako", ale nie „na čom": `_timeframe` (limity `*MaxBars` sú v baroch,
-takže TF patrí k nastaveniu), `_timerange`, `_fee`, `_wallet` a `_detail`.
+takže TF patrí k nastaveniu), `_timerange`, `_fee`, `_wallet` a `_detail`. `_base`
+hovorí, z ktorého profilu tester vychádzal — hodnoty sú vlastné a nemenné, je to
+len záznam pôvodu, aby sa dalo spätne povedať „toto je golden s RR 4".
 """
 
 from __future__ import annotations
@@ -128,11 +130,23 @@ def settings_of(name: str) -> dict[str, Any]:
     return out
 
 
+def base_of(name: str) -> str | None:
+    """Profil, z ktorého tento vznikol (`_base`) — len záznam, hodnoty sú vlastné."""
+    path = all_paths().get(name)
+    if path is None:
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8")).get("_base") or None
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
 def save(name: str, params: dict[str, Any], instrument: str, *,
-         comment: str | None = None, title: str | None = None,
+         comment: str | None = None, title: str | None = None, base: str | None = None,
          settings: dict[str, Any] | None = None, overwrite: bool = False) -> Path:
     """Uloží profil; `params` sú hodnoty v tvare `IBSConfig.to_dict()`,
-    `settings` nastavenia behu (`timeframe`, `timerange`, `fee`, `wallet`, `detail`)."""
+    `settings` nastavenia behu (`timeframe`, `timerange`, `fee`, `wallet`, `detail`),
+    `base` meno profilu, z ktorého sa vychádzalo."""
     name = check_name(name)
     if instrument not in INSTRUMENTS:
         raise ProfileError(f"neznámy nástroj {instrument!r}; známe: {sorted(INSTRUMENTS)}")
@@ -145,6 +159,8 @@ def save(name: str, params: dict[str, Any], instrument: str, *,
         value = (settings or {}).get(key)
         if value is not None:
             data = {f"_{key}": value, **data}
+    if base:
+        data = {"_base": base, **data}
     if comment:
         data = {"_comment": comment, **data}
     if title:

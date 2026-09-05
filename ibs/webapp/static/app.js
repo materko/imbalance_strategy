@@ -492,6 +492,7 @@ async function saveFormAsProfile() {
   if (!pair) { alert("Najprv vyber pár."); return; }
   await saveProfile({
     params: state.params, instrument: pair.instrument, timeframe: $("#tf").value,
+    base: state.profile || null,
     timerange: timerange(), fee: $("#fee").value === "" ? null : Number($("#fee").value) / 100,
     wallet: Number($("#wallet").value), timeframe_detail: $("#detail").checked ? "1m" : null,
   }, $("#profile-msg"));
@@ -501,6 +502,7 @@ async function loadProfile(name) {
   state.profile = name || null;
   state.profileInstrument = null;
   updateProfileActions();
+  $("#profile-base").textContent = "";
   if (!name) { setParams({}, true); checkPairProfile(); return; }
   const r = await api(`/api/profiles/${encodeURIComponent(name)}`);
   state.profileInstrument = r.instrument;
@@ -513,6 +515,7 @@ async function loadProfile(name) {
   // profil bez `_timeframe` (tie z repozitára) znamená 3m, nie „nechaj, čo tam bolo"
   fillTimeframes($("#pair").value, r.timeframe || "3m");
   applyProfileSettings(r.settings || {});
+  $("#profile-base").textContent = r.base ? `vychádza z profilu ${r.base}` : "";
 }
 
 function currentPair() {
