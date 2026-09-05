@@ -156,3 +156,117 @@ def test_incremental_run_does_not_reprocess(runner):
     already = [T0 + i * MIN3 for i in range(3)]
     assert all(ts <= runner.last_ts for ts in already)
     assert processed == 2
+
+
+# --------------------------------------------------------------------------- #
+# Fill model: zavretý obchod nesmie ožiť, pozícia sa odvádza z orderov
+# --------------------------------------------------------------------------- #
+
+
+def _entry(order_id: str, direction, entry: float, sl: float, tp: float):
+    from ibs.core import OrderAction, OrderIntent
+    from ibs.core.risk import TradePlan
+
+    plan = TradePlan(direction=direction, entry=entry, stop_loss=sl, take_profit=tp,
+                     qty=1.0, sl_distance=abs(entry - sl))
+    return OrderIntent(OrderAction.ENTRY, order_id, 0, direction=direction, plan=plan)
+
+
+def test_zavrety_obchod_sa_neznovuvyplni(runner):
+    """Po TP/SL order z modelu vypadne — inak by ho ďalší bar cez vstupnú cenu
+    „vyplnil" znova a engine by videl fantómovú pozíciu."""
+    from ibs.core import Direction
+
+    runner._apply([_entry("LONG_0", Direction.LONG, entry=100.0, sl=95.0, tp=105.0)])
+
+    runner._simulate_fills(bar(T0, o=101, h=102, low=99.5, c=100.5))  # vyplnené
+    assert runner._position == 1.0 and runner._open_ids == {"LONG_0"}
+
+    runner._simulate_fills(bar(T0 + MIN3, o=101, h=106, low=100.5, c=105.5))  # TP
+    assert runner._position == 0.0 and runner._open_ids == frozenset()
+
+    runner._simulate_fills(bar(T0 + 2 * MIN3, o=101, h=102, low=99.5, c=100.5))  # späť na entry
+    assert runner._position == 0.0, "zavretý order nesmie ožiť"
+    assert "LONG_0" not in runner._orders
+
+
+def test_pozicia_sa_scitava_z_vyplnenych_orderov(runner):
+    """Dva vyplnené ordery = pozícia 2; zavretie jedného nezmaže druhý."""
+    from ibs.core import Direction
+
+    runner._apply([
+        _entry("LONG_0", Direction.LONG, entry=100.0, sl=95.0, tp=110.0),
+        _entry("LONG_1", Direction.LONG, entry=100.0, sl=90.0, tp=104.0),
+    ])
+    runner._simulate_fills(bar(T0, o=101, h=102, low=99.5, c=100.5))
+    assert runner._position == 2.0
+
+    runner._simulate_fills(bar(T0 + MIN3, o=101, h=104.5, low=100.5, c=104.0))  # TP len LONG_1
+    assert runner._position == 1.0 and runner._open_ids == {"LONG_0"}
+
+
+def test_denny_limit_vyhier_plati_od_dalsieho_baru(runner):
+    """Pine `dailyWinLimitReached` sa počíta pred pripočítaním výhry z tohto baru."""
+    from ibs.core import Direction
+
+    runner.cfg.maxDailyWins = 1
+    runner._apply([_entry("LONG_0", Direction.LONG, entry=100.0, sl=95.0, tp=105.0)])
+    runner.process(bar(T0, o=101, h=102, low=99.5, c=100.5), None)  # fill
+    assert runner.wins_today(T0) == 0
+
+    runner.process(bar(T0 + MIN3, o=101, h=106, low=100.5, c=105.5), None)  # TP -> výhra
+    assert runner.wins_today(T0) == 1
+
+    seen = {}
+    original = runner.engine.on_bar
+
+    def spy(b, htf, ctx, **kw):
+        seen["limit"] = ctx.daily_win_limit_reached
+        return original(b, htf, ctx, **kw)
+
+    runner.engine.on_bar = spy
+    runner.process(bar(T0 + 2 * MIN3), None)
+    assert seen["limit"] is True
+
+    # Nový UTC deň -> počítadlo od nuly.
+    day_ms = 86_400_000
+    runner.process(bar(T0 + day_ms), None)
+    assert runner.wins_today(T0 + day_ms) == 0
+
+
+def test_sl_aj_tp_v_jednom_bare_sa_neberie_ako_vyhra(runner):
+    from ibs.core import Direction
+
+    runner._apply([_entry("LONG_0", Direction.LONG, entry=100.0, sl=95.0, tp=105.0)])
+    runner._simulate_fills(bar(T0, o=101, h=102, low=99.5, c=100.5))
+    runner._simulate_fills(bar(T0 + MIN3, o=100, h=106, low=94, c=100))
+    assert runner._position == 0.0
+    assert runner.wins_today(T0) == 0
+
+
+# --------------------------------------------------------------------------- #
+# signal_at: presný bar, nie „posledný pred"
+# --------------------------------------------------------------------------- #
+
+
+def test_signal_at_vrati_len_riadok_so_signalom(runner):
+    runner.process(bar(T0), None)  # prázdny riadok bez signálu
+    signal = SignalRow(enter_long=1, entry=123.0)
+    runner.rows[T0 + MIN3] = signal
+    runner.signal_ts.append(T0 + MIN3)
+
+    assert runner.signal_at(T0 + MIN3) is signal
+    assert runner.signal_at(T0) is None  # bar existuje, ale signál nemá
+    assert runner.signal_at(T0 + 2 * MIN3) is None  # bar neexistuje
+
+
+def test_signal_at_neberie_novsi_signal_na_sviecke_otvorenia(runner):
+    """Presne ten prípad, kde `signal_at_or_before` zlyhá: signál na T aj T+1."""
+    first = SignalRow(enter_long=1, entry=1.0)
+    second = SignalRow(enter_long=1, entry=2.0)
+    runner.rows[T0] = first
+    runner.rows[T0 + MIN3] = second
+    runner.signal_ts.extend([T0, T0 + MIN3])
+
+    assert runner.signal_at_or_before(T0 + MIN3) is second  # záloha by siahla po cudzom
+    assert runner.signal_at(T0) is first

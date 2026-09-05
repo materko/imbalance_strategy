@@ -12,7 +12,7 @@
     "margin_mode": "isolated",
     "timeframe": "3m",
     "unfilledtimeout": {
-        "entry": 10,
+        "entry": 30,
         "exit": 10,
         "exit_timeout_count": 0,
         "unit": "minutes"

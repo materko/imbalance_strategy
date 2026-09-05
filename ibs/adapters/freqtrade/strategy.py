@@ -16,7 +16,7 @@ import os
 from dataclasses import fields
 from datetime import datetime
 
-from pandas import DataFrame
+from pandas import DataFrame, Series
 
 from freqtrade.strategy import (
     DecimalParameter,
@@ -29,6 +29,12 @@ from ...core import Bar, SessionClock, load_profile
 from ...core.risk import TrailingPlan, extreme_before_stop
 from ...core.types import Direction, SizeSpec
 from .runner import EngineRunner, SignalRow
+
+#: `enter_tag` obchodu je ``ibs:<čas baru signálu v ms>``. Vďaka tomu každý
+#: `custom_*` callback vie PRESNE, z ktorého signálu obchod vznikol — hľadať
+#: „posledný signál pred otvorením" zlyhá, keď engine vygeneruje ďalší signál
+#: na sviečke, na ktorej Freqtrade obchod otvára (viď `EngineRunner.signal_at`).
+ENTRY_TAG_PREFIX = "ibs:"
 
 #: Stĺpec v DataFrame -> pole `SignalRow`.
 _COLUMN_ATTRS = {
@@ -154,6 +160,33 @@ class IBSImbalanceStrategy(IStrategy):
         self._informative_tf = f"{int(self.ibs_cfg.zoneDetectionTF)}m"
         #: Vlastne hodiny pre `custom_exit` - viď tam preco nie signal z enginu.
         self._clock = SessionClock(self.ibs_cfg)
+        self._check_unfilled_timeout()
+
+    def _entry_timeout_minutes(self) -> int:
+        """Ako dlho smie limitka čakať — Pine `state5MaxBars` prevedené na minúty."""
+        return int(self.ibs_cfg.state5MaxBars) * int(self.timeframe.rstrip("m"))
+
+    def _check_unfilled_timeout(self) -> None:
+        """`unfilledtimeout.entry` vo Freqtrade configu nesmie byť kratší než engine.
+
+        Freqtrade ruší nevyplnenú limitku podľa `unfilledtimeout` NEZÁVISLE od
+        `check_entry_timeout` — čo príde skôr, platí. Engine (aj Pine) drží order
+        `state5MaxBars` barov, teda 30 minút na 3m grafe. S kratším configom by
+        Freqtrade zrušil ordery, ktoré TradingView ešte vyplnil, a engine by
+        o tom nevedel (blokoval by opačné vstupy, čakal na vyplnenie...).
+        """
+        raw = self.config.get("unfilledtimeout") or {}
+        entry = raw.get("entry")
+        if entry is None:
+            return
+        minutes = float(entry) / (60 if raw.get("unit", "minutes") == "seconds" else 1)
+        need = self._entry_timeout_minutes()
+        if minutes < need:
+            logger.warning(
+                "IBS: unfilledtimeout.entry=%s min je kratší než state5MaxBars × timeframe "
+                "= %d min. Freqtrade zruší limitky skôr než engine; nastav aspoň %d.",
+                minutes, need, need,
+            )
 
     # ------------------------------------------------------------------ #
 
@@ -272,9 +305,18 @@ class IBSImbalanceStrategy(IStrategy):
         return dataframe
 
     def populate_entry_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-        dataframe.loc[dataframe["ibs_enter_long"] == 1, ["enter_long", "enter_tag"]] = (1, "ibs")
+        # Tag nesie čas baru signálu — jediný spoľahlivý kľúč späť na `SignalRow`.
+        tags = Series(
+            [f"{ENTRY_TAG_PREFIX}{ts}" for ts in _ts_ms(dataframe["date"])],
+            index=dataframe.index,
+        )
+        long = dataframe["ibs_enter_long"] == 1
+        dataframe.loc[long, "enter_long"] = 1
+        dataframe.loc[long, "enter_tag"] = tags[long]
         if self.can_short:
-            dataframe.loc[dataframe["ibs_enter_short"] == 1, ["enter_short", "enter_tag"]] = (1, "ibs")
+            short = dataframe["ibs_enter_short"] == 1
+            dataframe.loc[short, "enter_short"] = 1
+            dataframe.loc[short, "enter_tag"] = tags[short]
         return dataframe
 
     def populate_exit_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
@@ -285,16 +327,40 @@ class IBSImbalanceStrategy(IStrategy):
     # SL / TP / veľkosť - všetko per obchod, z plánu, ktorý spočítal engine
     # ------------------------------------------------------------------ #
 
-    def _signal(self, pair: str, when) -> SignalRow | None:
-        """Signál, z ktorého tento obchod vznikol."""
+    @staticmethod
+    def _tag_ts(tag) -> int | None:
+        """``ibs:<ms>`` → ms, inak `None` (force entry, starý obchod bez tagu)."""
+        if not isinstance(tag, str) or not tag.startswith(ENTRY_TAG_PREFIX):
+            return None
+        try:
+            return int(tag[len(ENTRY_TAG_PREFIX):])
+        except ValueError:
+            return None
+
+    def _signal(self, pair: str, when, tag=None) -> SignalRow | None:
+        """Signál, z ktorého tento obchod vznikol.
+
+        Primárne podľa `enter_tag` (presný bar), až potom podľa času — viď
+        `EngineRunner.signal_at_or_before`, prečo samotný čas nestačí.
+        """
         runner = self._runners.get(pair)
-        if runner is None or when is None:
+        if runner is None:
+            return None
+        ts = self._tag_ts(tag)
+        if ts is not None:
+            row = runner.signal_at(ts)
+            if row is not None:
+                return row
+        if when is None:
             return None
         return runner.signal_at_or_before(int(when.timestamp() * 1000))
 
+    def _trade_signal(self, pair: str, trade) -> SignalRow | None:
+        return self._signal(pair, trade.open_date_utc, getattr(trade, "enter_tag", None))
+
     def _levels(self, pair: str, trade) -> tuple[float, float] | None:
         """(SL, TP) zo signálu, na ktorom obchod vznikol."""
-        row = self._signal(pair, trade.open_date_utc)
+        row = self._trade_signal(pair, trade)
         if row is None or row.stop_loss != row.stop_loss:  # NaN check
             return None
         return row.stop_loss, row.take_profit
@@ -321,7 +387,7 @@ class IBSImbalanceStrategy(IStrategy):
         """`base_stop` posunutý trailingom, ak je zapnutý a už sa aktivoval."""
         if not self.ibs_cfg.enableTrailing:
             return base_stop
-        row = self._signal(pair, trade.open_date_utc)
+        row = self._trade_signal(pair, trade)
         if row is None or row.entry != row.entry:
             return base_stop
         trail = TrailingPlan.build(self.ibs_cfg, self.ibs_inst, abs(row.entry - base_stop))
@@ -388,7 +454,7 @@ class IBSImbalanceStrategy(IStrategy):
         self, pair: str, trade, current_time, proposed_rate: float, entry_tag, side: str, **kwargs
     ) -> float:
         """Limitka presne na cene gapu — Pine `strategy.entry(limit=entryPrice)`."""
-        row = self._signal(pair, current_time)
+        row = self._signal(pair, current_time, entry_tag)
         if row is None or row.entry != row.entry:
             return proposed_rate
         return row.entry
@@ -402,7 +468,7 @@ class IBSImbalanceStrategy(IStrategy):
         Freqtrade pracuje so **stake v quote mene**, nie s počtom kontraktov, takže
         sa qty prepočíta cez aktuálnu cenu a páku.
         """
-        row = self._signal(pair, current_time)
+        row = self._signal(pair, current_time, entry_tag)
         if row is None or row.qty != row.qty or current_rate <= 0:
             return proposed_stake
 
@@ -508,8 +574,50 @@ class IBSImbalanceStrategy(IStrategy):
         current_time: datetime, entry_tag, side: str, **kwargs
     ) -> bool:
         """Posledná poistka: mimo trade okna sa nevstupuje ani keď signál dobehol neskôr."""
-        row = self._signal(pair, current_time)
+        row = self._signal(pair, current_time, entry_tag)
         return True if row is None else row.in_trade_window
+
+    def check_entry_timeout(
+        self, pair: str, trade, order, current_time: datetime, **kwargs
+    ) -> bool:
+        """Pine STATE 5: nevyplnený order sa ruší po `state5MaxBars` baroch alebo
+        na konci obchodného okna — čo príde skôr.
+
+        Engine tie CANCEL intenty vydáva, ale Freqtrade ich nevidí: do DataFrame ide
+        len vstupný signál a čakajúcu limitku si ďalej spravuje sám. Bez tohto
+        callbacku by o jej osude rozhodoval iba `unfilledtimeout` z configu, a ten
+        s enginom nikto nezosúladil (10 minút proti 30) — Freqtrade by rušil ordery,
+        ktoré TradingView ešte vyplnil.
+
+        Počítanie barov: engine zadá order na zatvorení baru T a na zatvorení baru
+        T+`state5MaxBars` ho po poslednom pokuse o vyplnenie zruší. Freqtrade order
+        otvorí na sviečke T+1, takže zrušiť ho má, keď od otvorenia uplynulo aspoň
+        `state5MaxBars` sviečok — sviečka T+`state5MaxBars` sa ešte plní.
+
+        Koniec okna sa, rovnako ako v `custom_exit`, číta z PREDCHÁDZAJÚCEHO baru:
+        engine ho vyhodnotil na jeho zatvorení, čo je otvorenie tejto sviečky.
+        """
+        from freqtrade.exchange import timeframe_to_msecs
+
+        tf_ms = timeframe_to_msecs(self.timeframe)
+        opened = trade.open_date_utc
+        if opened is not None:
+            elapsed_ms = int((current_time - opened).total_seconds() * 1000)
+            if elapsed_ms >= self.ibs_cfg.state5MaxBars * tf_ms:
+                return True
+
+        now_ms = int(current_time.timestamp() * 1000)
+        state = self._clock.state(now_ms // tf_ms * tf_ms - tf_ms)
+        return not state.in_trade_window
+
+    def confirm_trade_exit(
+        self, pair: str, trade, order_type: str, amount: float, rate: float,
+        time_in_force: str, exit_reason: str, current_time: datetime, **kwargs
+    ) -> bool:
+        """Výstup nikdy neblokuje — len upratie stav trailingu, aby v dlhom live
+        behu `_extremes` nerástol s každým obchodom."""
+        self._extremes.pop((pair, trade.open_date_utc), None)
+        return True
 
     def leverage(
         self, pair: str, current_time: datetime, current_rate: float,

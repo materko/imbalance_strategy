@@ -7,9 +7,10 @@
     "Vsetky tri entry modely zapnute.",
     "",
     "POZOR - toto NIE JE odporucanie na obchodovanie. Priemerny break-even poplatok",
-    "je 0,0497 % na stranu proti 0,05 %, ktore berie Binance; dva z piatich rokov su",
-    "po poplatkoch ziskove a sucet za pat rokov je prakticky nula. Detaily v",
-    "docs/FILTRE_vstupu_2026-09-04.md."
+    "je 0,045 % na stranu (spolu cez pat rokov 0,040 %) proti 0,05 %, ktore berie Binance;",
+    "dva z piatich rokov su po poplatkoch ziskove a sucet za pat rokov je prakticky nula.",
+    "Detaily v docs/FILTRE_vstupu_2026-09-04.md, cisla po opravach adaptera v",
+    "docs/OPRAVY_adapter_2026-09-05.md."
   ],
   "_instrument": "btcusdt_binance",
   "enablePinBarEntry": true,

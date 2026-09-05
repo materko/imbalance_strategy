@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import bisect
 from dataclasses import dataclass
+from datetime import datetime, timezone
 
 from ...core import (
     htf_window_opens,
@@ -67,6 +68,11 @@ class SignalRow:
     close_session: bool = False
 
 
+def _utc_day(ts_ms: int) -> str:
+    """Pine `todayKey` — deň sa počíta v UTC bez ohľadu na časové pásma seáns."""
+    return datetime.fromtimestamp(ts_ms / 1000, tz=timezone.utc).strftime("%Y-%m-%d")
+
+
 class _PendingOrder:
     __slots__ = ("intent", "filled")
 
@@ -87,7 +93,8 @@ class EngineRunner:
         self.htf_ms = int(cfg.zoneDetectionTF) * 60_000
         self._prev_htf_open: int | None = None
         self._orders: dict[str, _PendingOrder] = {}
-        self._position = 0.0
+        #: Pine `dailyWinsCount` — UTC deň -> počet obchodov zavretých v zisku.
+        self._daily_wins: dict[str, int] = {}
 
         #: čas posledného spracovaného baru — kvôli inkrementálnemu behu
         self.last_ts: int | None = None
@@ -101,24 +108,49 @@ class EngineRunner:
     def _open_ids(self) -> frozenset[str]:
         return frozenset(k for k, o in self._orders.items() if o.filled)
 
+    @property
+    def _position(self) -> float:
+        """Pine `strategy.position_size` — odvodené z vyplnených orderov, nie držané
+        ako samostatné číslo. Dva vyplnené ordery rovnakého smeru sa tak sčítajú
+        a zavretie jedného z nich nezmaže aj ten druhý."""
+        pos = 0.0
+        for o in self._orders.values():
+            if o.filled and o.intent.plan is not None:
+                pos += 1.0 if o.intent.plan.direction is Direction.LONG else -1.0
+        return pos
+
+    def wins_today(self, ts_ms: int) -> int:
+        return self._daily_wins.get(_utc_day(ts_ms), 0)
+
     def _simulate_fills(self, bar: Bar) -> None:
         """Zámerne najjednoduchší model — viď poznámku v hlavičke modulu."""
-        for order in self._orders.values():
+        for order_id, order in list(self._orders.items()):
             plan = order.intent.plan
             if plan is None:
                 continue
             if not order.filled:
                 if bar.low <= plan.entry <= bar.high:
                     order.filled = True
-                    self._position = 1.0 if plan.direction is Direction.LONG else -1.0
                 continue
 
             long = plan.direction is Direction.LONG
             hit_sl = bar.low <= plan.stop_loss if long else bar.high >= plan.stop_loss
             hit_tp = bar.high >= plan.take_profit if long else bar.low <= plan.take_profit
-            if hit_sl or hit_tp:
-                order.filled = False
-                self._position = 0.0
+            if not (hit_sl or hit_tp):
+                continue
+
+            # Obchod skončil. Order z modelu MUSÍ vypadnúť: keby tu ostal ako
+            # „nevyplnený", ďalší bar, ktorý pretne vstupnú cenu, by ho vyplnil
+            # znova a engine by videl fantómovú pozíciu — tá blokuje opačné vstupy
+            # („OPACNA POZICIA") a na konci seansy vyrobí CLOSE bez obchodu.
+            del self._orders[order_id]
+
+            # Pine počíta výhry podľa `strategy.closedtrades.profit`. Bar, ktorý
+            # pretne SL aj TP, je bez 1m detailu nerozhodnuteľný — berie sa
+            # konzervatívne ako strata, rovnako ako v `ibs.tools.scan_trades`.
+            if hit_tp and not hit_sl:
+                day = _utc_day(bar.time)
+                self._daily_wins[day] = self._daily_wins.get(day, 0) + 1
 
     def _apply(self, orders: list[OrderIntent]) -> None:
         for intent in orders:
@@ -126,18 +158,20 @@ class EngineRunner:
                 self._orders[intent.order_id] = _PendingOrder(intent)
             elif intent.action in (OrderAction.CANCEL, OrderAction.CLOSE):
                 self._orders.pop(intent.order_id, None)
-                if intent.action is OrderAction.CLOSE:
-                    self._position = 0.0
 
     # ------------------------------------------------------------------ #
 
     def process(self, bar: Bar, htf: HTFWindow | None) -> SignalRow:
         """Posunie engine o jeden bar a vráti riadok signálov."""
+        # Pine vyhodnocuje `dailyWinLimitReached` na začiatku baru, ešte PRED tým,
+        # než sa výhra z tohto baru pripočíta — limit teda platí až od ďalšieho baru.
+        daily_limit = self.wins_today(bar.time) >= self.cfg.maxDailyWins
         self._simulate_fills(bar)
 
         ctx = MarketContext(
             in_trade_window=False,  # engine si to prepíše z vlastných hodín
             position_size=self._position,
+            daily_win_limit_reached=daily_limit,
             open_order_ids=self._open_ids,
         )
         out = self.engine.on_bar(bar, htf, ctx)
@@ -167,6 +201,18 @@ class EngineRunner:
             self.signal_ts.append(bar.time)
         return row
 
+    def signal_at(self, ts_ms: int) -> SignalRow | None:
+        """Vstupný signál presne na bare `ts_ms`, alebo `None`.
+
+        Toto je primárna cesta: stratégia si čas baru signálu nesie v `enter_tag`
+        obchodu, takže SL, TP aj veľkosť sa berú vždy z toho signálu, z ktorého
+        obchod naozaj vznikol. `signal_at_or_before` je len záloha.
+        """
+        row = self.rows.get(ts_ms)
+        if row is None or not (row.enter_long or row.enter_short):
+            return None
+        return row
+
     def signal_at_or_before(self, ts_ms: int) -> SignalRow | None:
         """Posledný vstupný signál v čase <= `ts_ms`.
 
@@ -174,6 +220,11 @@ class EngineRunner:
         dostávajú čas tej neskoršej sviečky, takže sa treba pozrieť dozadu. Brať
         namiesto toho posledný spracovaný bar by v backteste znamenalo koniec celého
         DataFrame - a presne na tom stratégia najprv neotvorila ani jeden obchod.
+
+        Pozor: keď engine vygeneruje signál aj na sviečke, na ktorej Freqtrade
+        obchod otvára (iná zóna o bar neskôr), `<=` vráti ten novší a obchod by
+        dostal cudzí SL/TP. Preto je to len záloha pre obchody bez `enter_tag`
+        (napr. force entry) — bežná cesta ide cez `signal_at`.
         """
         idx = bisect.bisect_right(self.signal_ts, ts_ms) - 1
         if idx < 0:

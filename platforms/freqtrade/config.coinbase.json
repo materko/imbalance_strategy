@@ -9,6 +9,12 @@
     "dry_run_wallet": 10000,
     "trading_mode": "spot",
     "timeframe": "3m",
+    "unfilledtimeout": {
+        "entry": 30,
+        "exit": 10,
+        "exit_timeout_count": 0,
+        "unit": "minutes"
+    },
     "entry_pricing": {
         "price_side": "same",
         "use_order_book": true,
