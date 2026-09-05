@@ -16,7 +16,14 @@ a filtrom tesného SL.
 
 ### Tester — webová aplikácia
 
-Potrebuješ Python 3.11+ (64-bit) a git; na macOS ešte `brew install ta-lib`. Prvé
+**macOS jedným príkazom** (doinštaluje Homebrew, Python, TA-Lib, spýta sa kam klonovať
+a aké meno testera použiť, postaví prostredie, zloží dáta, dá spúšťač na Plochu):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/materko/imbalance_strategy/main/install-macos.sh | bash
+```
+
+**Inak** potrebuješ Python 3.11+ (64-bit) a git; na macOS ešte `brew install ta-lib`. Prvé
 spustenie postaví prostredie (~10 min) a otvorí prehliadač na http://127.0.0.1:8765.
 
 ```powershell
@@ -63,6 +70,7 @@ Docker, sťahovanie dát, hyperopt, MultiCharts a riešenie problémov: [docs/RU
 | [`platforms/multicharts/`](platforms/multicharts) | Štúdia pre MultiCharts a jej inštalačné skripty. |
 | [`docker/`](docker) | `docker-compose.yml` (tests, download, backtest, freqtrade bot, webapp). |
 | `webapp.cmd`, `webapp.ps1`, `webapp.sh` | Spúšťače webapp z koreňa repozitára (obaly nad `platforms/freqtrade/scripts/`). |
+| `install-macos.sh` | Inštalátor pre macOS jedným príkazom (`curl \| bash`): Homebrew, Python, TA-Lib, klon, venv, dáta, spúšťač na Ploche. |
 | [`docs/`](docs) | Architektúra, návody, parita a všetky merania (zoznam nižšie). |
 
 ---

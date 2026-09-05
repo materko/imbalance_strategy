@@ -24,7 +24,19 @@ cd imbalance_strategy
 Ak PowerShell odmietne spustiť `.ps1`, použi `webapp.cmd` alebo raz povoľ
 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
 
-**macOS / Linux**:
+**macOS jedným príkazom** — skript `install-macos.sh` overí a doinštaluje Xcode Command
+Line Tools, Homebrew, `python@3.12` a `ta-lib`, spýta sa, kam repozitár klonovať a ako sa
+má priečinok volať, aké meno testera a e-mail použiť pre git, naklonuje (alebo aktualizuje)
+repozitár, postaví `.venv`, zloží dáta z archívu, dá na Plochu „IBS Backtester.command"
+a ponúkne spustenie:
+```bash
+curl -fsSL https://raw.githubusercontent.com/materko/imbalance_strategy/main/install-macos.sh | bash
+```
+Otázky číta z terminálu, takže funguje aj cez `curl | bash`. Opakované spustenie len
+aktualizuje, čo treba. Meno testera ide do `git config` repozitára a do `IBS_USER`
+v spúšťači na Ploche, takže webapp ho má predvyplnené.
+
+**macOS / Linux ručne**:
 ```bash
 brew install ta-lib            # len macOS, raz
 git clone https://github.com/materko/imbalance_strategy.git
