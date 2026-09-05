@@ -296,6 +296,10 @@ class ZoneBook:
         self.max_zones = min(cfg.maxSdZones, MAX_ZONES_HARD_CAP)
 
         self.zones: list[Zone] = []
+        #: Koľko zón strop vyhodil ešte **pred** vypršaním — to sú tie, o obchod ktorých
+        #: sa beh naozaj pripravil. Pri bežnom `zoneValidHours` býva nula: kým sa
+        #: evidencia naplní, najstaršie zóny sú aj tak mŕtve.
+        self.evicted_alive = 0
         self._next_uid = 0
         #: Pine `lastDrawT0` — tá istá základová sviečka nesmie založiť zónu dvakrát.
         self._last_base_ms: int | None = None
@@ -336,10 +340,16 @@ class ZoneBook:
         self._last_base_ms = pattern.base_ms
 
         self.zones.append(zone)
-        while len(self.zones) > self.max_zones:
-            self.zones.pop(0)
-            self.evicted += 1
+        self._enforce_cap(now_ms)
         return zone
+
+    def _enforce_cap(self, now_ms: int) -> None:
+        """Pine `array.shift` nad `maxSdZonesEff` — najstaršia zóna ide preč aj s boxami."""
+        while len(self.zones) > self.max_zones:
+            victim = self.zones.pop(0)
+            self.evicted += 1
+            if not victim.is_expired(now_ms):
+                self.evicted_alive += 1
 
     def create_raw(
         self, direction: Direction, top: float, bot: float, now_ms: int, source: ZoneSource
@@ -362,9 +372,7 @@ class ZoneBook:
         )
         self._next_uid += 1
         self.zones.append(zone)
-        while len(self.zones) > self.max_zones:
-            self.zones.pop(0)
-            self.evicted += 1
+        self._enforce_cap(now_ms)
         return zone
 
     def active(self, ts_ms: int) -> list[Zone]:

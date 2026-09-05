@@ -267,6 +267,12 @@ def param_metadata() -> list[dict[str, Any]]:
             meta.min, meta.max = CONSTRAINTS[name]
         if name == "state4MaxBars":
             meta.note = "Pine tento parameter nikde nepoužíva."
+        if name == "maxSdZones":
+            meta.note = ("Strop je Pine dedičstvo (limit boxov na grafe a pamäte), Freqtrade ho "
+                         "nepotrebuje — port ho drží kvôli parite: nad limitom sa najstaršia zóna "
+                         "zahodí a už nikdy nevystrelí. Pri bežnom zoneValidHours (6 h) sú to len "
+                         "dávno vypršané zóny, takže výsledok neovplyvní; keby strop zahodil ešte "
+                         "platnú zónu, beh to napíše do logu. Pine si sám zaškrtáva na 200.")
         if name == "enableTrading":
             meta.note = ("V porte to nie je prepínač live/papier — to rieši `dry_run` v configu "
                          "Freqtradu. Vypnuté tu znamená, že stratégia neotvorí ani jeden obchod: "
