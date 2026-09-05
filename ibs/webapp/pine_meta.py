@@ -21,7 +21,14 @@ REPO = Path(__file__).resolve().parents[2]
 PINE_FILE = REPO / "pine" / "imbalance_strategy_FULL.pine"
 
 #: Vstupy, ktoré sa neportujú (viď `ibs/tests/test_pine_parity.py`).
+#: Pine vstupy, ktoré sa neportovali (PickMyTrade) — v `IBSConfig` vôbec nie sú.
 REMOVED_INPUTS = {"pmtToken", "pmtAccountId", "pmtStratName", "pmtMarketOrderType", "trailFreqPct"}
+
+#: Pine vstupy, ktoré v configu ostali kvôli parite panela, ale v porte nerobia nič,
+#: takže vo formulári len zavadzajú: `alert()` posielal notifikáciu TradingView. Vo
+#: Freqtrade notifikácie rieši sám Freqtrade (Telegram) v live režime a v backteste
+#: nemajú význam. V `IBSConfig` ostávajú, aby profil sedel s TV panelom.
+INERT_INPUTS = {"alertOnState2", "alertOnState3", "alertOnState4"}
 
 PORT_GROUP = "🧩 Rozšírenia portu (nie sú v Pine)"
 
@@ -228,7 +235,7 @@ def param_metadata() -> list[dict[str, Any]]:
 
     metas: list[ParamMeta] = []
     for name in cfg_fields:
-        if name in REMOVED_INPUTS:
+        if name in REMOVED_INPUTS or name in INERT_INPUTS:
             continue
         default = getattr(defaults, name)
         if name in pine:
