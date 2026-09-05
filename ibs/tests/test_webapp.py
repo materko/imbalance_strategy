@@ -186,3 +186,17 @@ def test_runs_listing_and_detail(client):
     assert prof["_instrument"] == "btcusdt_binance" and prof["rrRatio"] == 5.0
     assert c.delete("/api/runs/20260905-120000-aaaaaa").json() == {"ok": True}
     assert c.get("/api/runs/20260905-120000-aaaaaa").status_code == 404
+
+
+def test_submit_uses_tester_name_from_request(client, monkeypatch):
+    """Meno z hlavičky stránky ide k behu; bez neho sa použije predvolené."""
+    import ibs.webapp.app as app_mod
+
+    monkeypatch.setattr(app_mod, "current_user", lambda: "predvolene")
+    c, _ = client
+    base = {"params": IBSConfig().to_dict(), "pair": "BTC/USDT:USDT", "timerange": "20260801-20260901"}
+    job = c.post("/api/runs", json={**base, "user": "  Jana  "}).json()
+    assert job["user"] == "Jana"
+    job2 = c.post("/api/runs", json={**base, "user": ""}).json()
+    assert job2["user"] == "predvolene"
+    assert c.post("/api/runs", json={**base, "user": "x" * 81}).status_code == 422

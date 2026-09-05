@@ -4,8 +4,9 @@
     IBS_WEB_HOST=0.0.0.0 IBS_WEB_PORT=8765  # v Dockeri
 
 Žiadne prihlásenie: aplikácia je určená na lokálne spustenie (alebo za reverse
-proxy s vlastnou autentifikáciou). Meno testera sa berie z `IBS_USER`, inak
-z `git config user.name`, a ukladá sa ku každému behu.
+proxy s vlastnou autentifikáciou). Meno testera si tester nastaví v hlavičke
+stránky (drží sa v prehliadači) a posiela sa s každým behom aj s Push; predvolené
+je `IBS_USER`, inak `git config user.name`.
 """
 
 from __future__ import annotations
@@ -45,6 +46,17 @@ class RunRequest(BaseModel):
     timeframe_detail: str | None = "1m"
     profile: str | None = None
     note: str = ""
+    user: str | None = Field(None, max_length=80, description="meno testera z hlavičky stránky")
+
+
+class GitPushRequest(BaseModel):
+    author: str | None = Field(None, max_length=80)
+    message: str | None = Field(None, max_length=200)
+
+
+def _clean_user(name: str | None) -> str:
+    name = (name or "").strip()
+    return name[:80] if name else current_user()
 
 
 def create_app(store: RunStore | None = None, runner: BacktestRunner | None = None) -> FastAPI:
@@ -101,7 +113,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             "profile": req.profile,
         }
         try:
-            job = runner.submit(req.params, settings, note=req.note, user=current_user())
+            job = runner.submit(req.params, settings, note=req.note, user=_clean_user(req.user))
         except (ConfigError, ValueError) as exc:
             raise HTTPException(422, str(exc))
         return job.public()
@@ -162,8 +174,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         return gitsync.pull()
 
     @app.post("/api/git/push")
-    def git_push():
-        return gitsync.push(author=current_user())
+    def git_push(req: GitPushRequest | None = None):
+        req = req or GitPushRequest()
+        return gitsync.push(message=req.message, author=_clean_user(req.author))
 
     app.mount("/static", StaticFiles(directory=str(STATIC)), name="static")
     return app

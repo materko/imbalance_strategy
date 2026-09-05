@@ -7,15 +7,42 @@ factor), graf výnosnosti (kumulatívny PnL, buy and hold, stĺpce za obchod) a 
 obchodov. Každý beh sa uloží do gitu, takže história sa dá pushovať a pullovať
 medzi testermi a hľadať v nej podľa parametrov.
 
+## Spustenie bez Dockeru
+
+Treba len **Python 3.11+ (64-bit)** a **git**; na macOS ešte `brew install ta-lib`
+(Freqtrade ho potrebuje). Skript pri prvom spustení sám postaví `.venv`
+(freqtrade + balík `ibs`, zhruba 10 minút), pri štarte zloží dáta z `data_archive/`,
+ak chýbajú, a otvorí prehliadač na http://127.0.0.1:8765.
+
+**Windows** (PowerShell):
 ```powershell
-.\platforms\freqtrade\scripts\webapp.ps1        # Windows
+git clone https://github.com/materko/imbalance_strategy.git
+cd imbalance_strategy
+.\platforms\freqtrade\scripts\webapp.ps1
 ```
+Ak PowerShell odmietne spustiť skript, raz povoľ: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+
+**macOS / Linux**:
 ```bash
-./platforms/freqtrade/scripts/webapp.sh         # macOS / Linux
-docker compose -f docker/docker-compose.yml run --rm --service-ports webapp   # Docker
+brew install ta-lib            # len macOS, raz
+git clone https://github.com/materko/imbalance_strategy.git
+cd imbalance_strategy
+./platforms/freqtrade/scripts/webapp.sh
 ```
 
-Otvor http://127.0.0.1:8765. Prvý štart zloží dáta z `data_archive/`, ak chýbajú.
+Voliteľné: `-Port 9000` / `IBS_WEB_PORT=9000`, `-NoBrowser` / `NO_BROWSER=1`.
+Server sa ukončí Ctrl+C. Aktualizácia kódu je `git pull` v koreni repozitára.
+
+**Docker** (alternatíva, bez Git tlačidiel v UI):
+```bash
+docker compose -f docker/docker-compose.yml run --rm --service-ports webapp
+```
+
+## Meno testera
+
+V hlavičke stránky je pole s menom. Ukladá sa ku každému behu (stĺpec v histórii,
+hľadanie `user~jana`) a použije sa ako autor commitu pri Push. Drží sa v tomto
+prehliadači; predvolené je `IBS_USER` z prostredia, inak `git config user.name`.
 
 ## Nový beh
 
@@ -97,8 +124,7 @@ platforms/freqtrade/user_data/runs/<YYYYMMDD-HHMMSS-odtlačok>/
 Všetko je čitateľný JSON, jeden adresár na beh, takže sa to mergeuje bez konfliktov.
 Tlačidlá **Pull** (`git pull --rebase --autostash`) a **Push** (commitne **len**
 `runs/` a pushne na aktuálnu vetvu) sú v hlavičke; výstup gitu sa zobrazí celý.
-Kód ani iné súbory sa z UI nikdy necommitujú. Meno testera pri behu je `IBS_USER`,
-inak `git config user.name`.
+Kód ani iné súbory sa z UI nikdy necommitujú. Autor commitu je meno testera z hlavičky.
 
 Výsledkové zipy Freqtradu ostávajú v `backtest_results/` (gitignored) — beh ich
 nepotrebuje, všetko podstatné je v `run.json`.

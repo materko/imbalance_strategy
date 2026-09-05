@@ -15,6 +15,8 @@ const state = {
   detailId: null,
 };
 
+function currentUser() { return ($("#who").value || "").trim() || null; }
+
 async function api(path, opts = {}) {
   const r = await fetch(path, { headers: { "Content-Type": "application/json" }, ...opts });
   if (!r.ok) {
@@ -196,7 +198,11 @@ function fillSettings() {
   };
   pair.onchange();
   ps.onchange = () => loadProfile(ps.value);
-  $("#who").textContent = state.meta.user;
+  const who = $("#who");
+  let saved = null;
+  try { saved = localStorage.getItem("ibs.user"); } catch (_) { /* súkromný režim */ }
+  who.value = saved || state.meta.user || "";
+  who.onchange = () => { try { localStorage.setItem("ibs.user", who.value.trim()); } catch (_) { /* ignoruj */ } };
   $("#branch").textContent = state.meta.branch;
 }
 
@@ -228,6 +234,7 @@ async function submitRun() {
       timeframe_detail: $("#detail").checked ? "1m" : null,
       profile: state.profile,
       note: $("#note").value.trim(),
+      user: currentUser(),
     };
     await api("/api/runs", { method: "POST", body: JSON.stringify(body) });
     await pollQueue();
@@ -421,7 +428,7 @@ async function gitStatus() {
 async function gitAction(kind) {
   const out = $("#git-output"); out.hidden = false; out.textContent = `git ${kind} …`;
   try {
-    const r = await api(`/api/git/${kind}`, { method: "POST" });
+    const r = await api(`/api/git/${kind}`, { method: "POST", body: kind === "push" ? JSON.stringify({ author: currentUser() }) : undefined });
     out.textContent = (r.ok ? "OK\n" : "CHYBA\n") + r.output;
     $("#git-status").textContent = r.uncommitted_runs ? `${r.uncommitted_runs} necommitnutých` : "synchronizované";
     if (kind === "pull" && !$("#view-history").hidden) loadRuns();
