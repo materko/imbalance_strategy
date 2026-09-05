@@ -36,9 +36,11 @@ main.view { display: grid; grid-template-columns: 360px 1fr; gap: 16px; padding:
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; min-width: 0; }
 main.view > * { min-width: 0; }
 label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); margin-bottom: 10px; }
-label input, label select, .settings textarea { font: inherit; font-size: 14px; color: var(--ink); padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+label input, label select, .settings textarea { font: inherit; font-size: 14px; color: var(--ink); padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; width: 100%; min-width: 0; }
+label input[type=checkbox], label input[type=radio] { width: auto; }
 label.inline { flex-direction: row; align-items: center; gap: 8px; color: var(--ink); }
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row > label { min-width: 0; }
 .warnbox { background: #fef3c7; color: #92400e; padding: 8px 10px; border-radius: 6px; margin-bottom: 10px; font-size: 12px; }
 .error { background: #fee2e2; color: #991b1b; padding: 8px 10px; border-radius: 6px; margin-top: 10px; white-space: pre-wrap; font-size: 12px; }
 
