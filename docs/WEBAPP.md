@@ -94,10 +94,13 @@ beh s inou hodnotou API odmietne (aj z CLI), nech sa nestane, že výsledok vyze
 platne, hoci sa taký obchod v skutočnosti spraviť nedá. Spot beží s vlastným
 Freqtrade configom (`config.binance.spot.json`, `trading_mode: spot`).
 
-**Parametre** sú všetkých 114 polí `IBSConfig` — 110 Pine vstupov v rovnakých
-skupinách, s rovnakými titulkami a tooltipmi ako v TradingView (parsuje sa to
-priamo z `pine/imbalance_strategy_FULL.pine`, takže sa nemôžu rozísť), plus skupina
+**Parametre** sú polia `IBSConfig` — Pine vstupy v rovnakých skupinách, s rovnakými
+titulkami a tooltipmi ako v TradingView (parsuje sa to priamo
+z `pine/imbalance_strategy_FULL.pine`, takže sa nemôžu rozísť), plus skupina
 „Rozšírenia portu" (`atrLen`, `legacyPineSizing`, `leverage`, `minSlDistance`).
+Neponúkajú sa tri `alert*` polia (`alertOnState2/3/4`): v Pine posielali notifikáciu
+TradingView, v porte nerobia nič — v `IBSConfig` ostávajú, aby profil sedel s TV
+panelom, a do uloženého profilu sa zapíšu s Pine defaultom.
 Panel vyzerá ako nastavenia v TradingView: vľavo zoznam skupín, vpravo všetky skupiny
 pod sebou v jednom dlhom zozname, ktorý skroluje vo vlastnom okne (stránka stojí) —
 klik na skupinu vľavo naň naskroluje a zvýraznenie sleduje, kde práve si. Jeden parameter na riadok; polia, ktoré Pine kreslí vedľa seba (hodina a minúta seansy,

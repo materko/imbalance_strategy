@@ -111,9 +111,12 @@ def config_values(params: dict[str, Any]) -> dict[str, Any]:
     Odchýlkový zápis (ako v `ibs/configs/`) by znamenal, že profil závisí na tom, čo je
     práve default: keby sa Pine default posunul, posunul by sa aj rok starý profil
     a beh by sa už nedal zopakovať. Preto sa zapíše celý config, aj keď je súbor dlhší.
+
+    Čo formulár neposiela (polia skryté ako neúčinné) sa doplní z defaultov — aj tak by
+    ich `IBSConfig` doplnil, ale v súbore majú byť vidno.
     """
-    known = set(IBSConfig().to_dict())
-    return {k: v for k, v in params.items() if k in known}
+    defaults = IBSConfig().to_dict()
+    return {k: params.get(k, v) for k, v in defaults.items()}
 
 
 #: Nastavenia behu, ktoré k profilu patria — bez nich by profil povedal „ako", ale

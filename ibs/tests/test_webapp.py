@@ -15,7 +15,7 @@ import pytest
 
 from ibs.core import IBSConfig
 from ibs.core.config import PORT_ONLY_FIELDS
-from ibs.webapp.pine_meta import PORT_GROUP, REMOVED_INPUTS, param_metadata
+from ibs.webapp.pine_meta import INERT_INPUTS, PORT_GROUP, REMOVED_INPUTS, param_metadata
 from ibs.webapp.store import RunStore, make_run_id, parse_query
 
 
@@ -26,7 +26,9 @@ from ibs.webapp.store import RunStore, make_run_id, parse_query
 
 def test_metadata_covers_every_config_field_except_removed():
     names = {m["name"] for m in param_metadata()}
-    expected = {f for f in IBSConfig.__dataclass_fields__ if f not in REMOVED_INPUTS}
+    expected = {f for f in IBSConfig.__dataclass_fields__ if f not in REMOVED_INPUTS | INERT_INPUTS}
+    # alert* polia v configu ostávajú (parita s TV panelom), len sa neponúkajú
+    assert INERT_INPUTS < set(IBSConfig.__dataclass_fields__)
     assert names == expected
 
 
