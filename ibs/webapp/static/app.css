@@ -55,8 +55,9 @@ label.inline { flex-direction: row; align-items: center; gap: 8px; color: var(--
 .nav-count { min-width: 20px; text-align: center; font-size: 11px; border-radius: 999px; padding: 1px 6px; }
 .nav-count.warn { background: #fef3c7; color: #92400e; font-weight: 600; }
 .param-content { padding: 6px 12px 12px; min-width: 0; }
-.pgroup-title { display: none; font-size: 12px; margin: 14px 6px 4px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-.pgroup.titled .pgroup-title { display: flex; align-items: center; gap: 8px; }
+.pgroup { scroll-margin-top: 62px; }
+.pgroup-title { display: flex; align-items: center; gap: 8px; font-size: 12px; margin: 14px 6px 4px; padding-bottom: 4px; border-bottom: 1px solid var(--line); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.pgroup:first-child .pgroup-title { margin-top: 8px; }
 .pgroup-title .chip:empty { display: none; }
 .prow { display: flex; align-items: center; gap: 10px; padding: 3px 8px; border-radius: 6px; min-height: 34px; border-left: 3px solid transparent; }
 .prow:nth-child(even) { background: #fafafa; }
