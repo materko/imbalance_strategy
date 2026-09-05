@@ -121,11 +121,28 @@
     <div id="detail-error" class="error" hidden></div>
     <div id="cards" class="cards"></div>
     <div id="chart" class="chart"></div>
+
+    <h3>Graf páru <span id="pc-title" class="muted"></span></h3>
+    <div class="pc-toolbar">
+      <button id="pc-start" class="ghost" title="začiatok obdobia behu">|◀</button>
+      <button id="pc-prev" class="ghost" title="o okno dozadu">◀</button>
+      <button id="pc-next" class="ghost" title="o okno dopredu">▶</button>
+      <button id="pc-first-trade" class="ghost" title="skoč na prvý obchod">prvý obchod</button>
+      <label class="inline small">okno <select id="pc-span"></select></label>
+      <label class="inline small">TF <select id="pc-tf"></select></label>
+      <label class="inline small">skoč na <input type="datetime-local" id="pc-goto" title="začiatok okna (UTC)"></label>
+      <span id="pc-window" class="muted small"></span>
+      <span class="spacer"></span>
+      <span id="pc-status" class="muted small"></span>
+    </div>
+    <div id="pc-layers" class="pc-layers"></div>
+    <div id="pair-chart" class="pair-chart"></div>
+    <div id="pc-note" class="muted small pc-note"></div>
     <div class="cols">
       <div><h3>Odchýlky od Pine defaultov</h3><div id="detail-overrides"></div></div>
       <div><h3>Dôvody výstupu</h3><div id="detail-exits"></div></div>
     </div>
-    <details><summary>Zoznam obchodov (<span id="trade-count"></span>)</summary>
+    <details><summary>Zoznam obchodov (<span id="trade-count"></span>) <span class="muted small">— klik na riadok ukáže obchod na grafe</span></summary>
       <div class="scroll"><table id="trades" class="runs"><thead></thead><tbody></tbody></table></div>
     </details>
     <details><summary>Všetky parametre</summary><div id="detail-params" class="scroll"></div></details>

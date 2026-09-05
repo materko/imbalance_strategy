@@ -1,8 +1,9 @@
 """Ukladanie behov — jeden adresár na beh, všetko čitateľný JSON.
 
-    runs/<run_id>/run.json      parametre, nastavenia behu, výsledok (súhrn), séria pre graf
-    runs/<run_id>/trades.json   zoznam obchodov
-    runs/<run_id>/log.txt       skrátený log Freqtradu
+    runs/<run_id>/run.json        parametre, nastavenia behu, výsledok (súhrn), séria pre graf
+    runs/<run_id>/trades.json     zoznam obchodov
+    runs/<run_id>/log.txt         skrátený log Freqtradu
+    runs/<run_id>/chart.json.gz   kresby enginu (zóny, boxy, štítky) pre graf páru
 
 Prečo súbory a nie databáza: história má ísť do gitu, aby sa dala pushovať a pullovať
 medzi testermi. JSON per beh sa mergeuje bez konfliktov (každý beh je nový adresár),
@@ -15,6 +16,7 @@ v rovnakej sekunde nekolidujú a z názvu adresára vidno, kedy beh vznikol.
 
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
 import re
@@ -27,6 +29,10 @@ REPO = Path(__file__).resolve().parents[2]
 RUNS_DIR = REPO / "platforms" / "freqtrade" / "user_data" / "runs"
 
 _ID_RE = re.compile(r"^[0-9]{8}-[0-9]{6}-[0-9a-f]{6}$")
+
+#: Kresby enginu — gzip, lebo ročný beh má desaťtisíce objektov (~MB v JSON) a súbor
+#: sa po zápise už nikdy nemení, takže čitateľný diff nikto nepotrebuje.
+CHART_FILE = "chart.json.gz"
 
 
 def make_run_id(params: dict[str, Any], settings: dict[str, Any], when: datetime | None = None) -> str:
@@ -56,7 +62,9 @@ class RunStore:
     # -- zápis -------------------------------------------------------------- #
 
     def save(self, record: dict[str, Any], trades: list[dict[str, Any]] | None = None,
-             log: str | None = None) -> Path:
+             log: str | None = None, chart_path: Path | str | None = None) -> Path:
+        """`chart_path` je hotový súbor kresieb od stratégie — presunie sa do adresára
+        behu (nie kopíruje: má megabajty a dočasný adresár by ho inak držal navždy)."""
         run_id = record["id"]
         if not _ID_RE.match(run_id):
             raise ValueError(f"neplatné run_id: {run_id!r}")
@@ -66,6 +74,8 @@ class RunStore:
             _write_json(d / "trades.json", trades)
         if log is not None:
             (d / "log.txt").write_text(log, encoding="utf-8", newline="\n")
+        if chart_path is not None and Path(chart_path).exists():
+            shutil.move(str(chart_path), str(d / CHART_FILE))
         return d
 
     def delete(self, run_id: str) -> bool:
@@ -88,6 +98,17 @@ class RunStore:
     def log(self, run_id: str) -> str:
         p = self.root / run_id / "log.txt"
         return p.read_text(encoding="utf-8") if p.exists() else ""
+
+    def has_chart(self, run_id: str) -> bool:
+        return (self.root / run_id / CHART_FILE).exists()
+
+    def chart(self, run_id: str) -> dict[str, Any] | None:
+        """Kresby behu (viď `ibs.adapters.freqtrade.runner.export_chart`), alebo `None`."""
+        p = self.root / run_id / CHART_FILE
+        if not p.exists():
+            return None
+        with gzip.open(p, "rt", encoding="utf-8") as fh:
+            return json.load(fh)
 
     def all(self) -> list[dict[str, Any]]:
         out = []

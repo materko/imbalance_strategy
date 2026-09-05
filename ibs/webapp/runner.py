@@ -7,6 +7,10 @@ v `backtest_results/` patrí ktorému). Ostatné behy čakajú vo fronte.
 Parametre stratégie idú do Freqtradu cez dočasný JSON profil a premennú
 `IBS_PROFILE` — presne tak, ako to robí stratégia pri ručnom spúšťaní. Nastavenia
 behu (pár, obdobie, poplatok, peňaženka, 1m detail) idú cez CLI prepínače.
+
+Cez `IBS_DRAW_OUT` si beh vypýta od stratégie aj kresby enginu (zóny, TP/SL boxy,
+štítky…) — po dobehnutí sa presunú do adresára behu ako `chart.json.gz` a detail
+behu z nich kreslí graf páru.
 """
 
 from __future__ import annotations
@@ -66,6 +70,8 @@ def available_pairs() -> list[dict[str, Any]]:
         dates = pd.read_feather(p, columns=["date"])["date"]
         detail = (p.parent / p.name.replace("-3m-", "-1m-")).exists()
         htf = (p.parent / p.name.replace("-3m-", "-5m-")).exists()
+        from .chart import available_timeframes
+
         out.append({
             "pair": pair,
             "instrument": instrument_for_pair(pair),
@@ -74,6 +80,7 @@ def available_pairs() -> list[dict[str, Any]]:
             "bars_3m": int(len(dates)),
             "has_1m": detail,
             "has_5m": htf,
+            "timeframes": available_timeframes(pair),
         })
     return out
 
@@ -299,7 +306,9 @@ class BacktestRunner:
         cmd = self.build_command(self.python, profile, job.settings)
         job.log_lines.append("$ " + " ".join(cmd))
 
-        env = dict(os.environ, IBS_PROFILE=str(profile), PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
+        chart_tmp = TMP_PROFILES / f"{job.id}.chart.json.gz"
+        env = dict(os.environ, IBS_PROFILE=str(profile), IBS_DRAW_OUT=str(chart_tmp),
+                   PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
         before = {p.name for p in RESULTS_DIR.glob("*.zip")} if RESULTS_DIR.exists() else set()
 
         job.proc = subprocess.Popen(
@@ -319,11 +328,13 @@ class BacktestRunner:
             job.status = "failed"
             job.error = "zrušené používateľom"
             self._persist(job, None, duration)
+            chart_tmp.unlink(missing_ok=True)
             return
         if rc != 0:
             job.status = "failed"
             job.error = f"freqtrade skončil s kódom {rc}"
             self._persist(job, None, duration)
+            chart_tmp.unlink(missing_ok=True)
             return
 
         new = sorted(
@@ -340,9 +351,10 @@ class BacktestRunner:
         summary["duration_s"] = duration
         summary["zip"] = new[-1].name
         job.status = "done"
-        self._persist(job, (summary, trades, series), duration)
+        self._persist(job, (summary, trades, series), duration, chart_path=chart_tmp)
 
-    def _persist(self, job: Job, result, duration: float | None = None) -> None:
+    def _persist(self, job: Job, result, duration: float | None = None,
+                 chart_path: Path | None = None) -> None:
         record = {
             "id": job.id,
             "status": job.status,
@@ -365,7 +377,7 @@ class BacktestRunner:
         elif duration is not None:
             record["result"] = {"duration_s": duration}
         log = "\n".join(_trim_log(job.log_lines))
-        self.store.save(record, trades, log)
+        self.store.save(record, trades, log, chart_path=chart_path)
 
 
 def _trim_log(lines: list[str]) -> list[str]:

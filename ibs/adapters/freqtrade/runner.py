@@ -21,12 +21,16 @@ v ARCHITECTURE_port.md §7.
 from __future__ import annotations
 
 import bisect
+import gzip
+import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from pathlib import Path
 
 from ...core import (
     htf_window_opens,
     Bar,
+    DrawRegistry,
     HTFWindow,
     IBSConfig,
     IBSEngine,
@@ -35,9 +39,10 @@ from ...core import (
     OrderAction,
     OrderIntent,
 )
+from ...core.drawing import objects_to_dicts
 from ...core.types import Direction
 
-__all__ = ["SignalRow", "EngineRunner", "COLUMNS"]
+__all__ = ["SignalRow", "EngineRunner", "COLUMNS", "export_chart"]
 
 #: Stĺpce, ktoré runner zapisuje do DataFrame.
 COLUMNS = (
@@ -98,6 +103,11 @@ class EngineRunner:
 
         #: čas posledného spracovaného baru — kvôli inkrementálnemu behu
         self.last_ts: int | None = None
+        self.first_ts: int | None = None
+        self.last_bar: Bar | None = None
+        #: Finálny stav všetkého, čo engine nakreslil (Pine `box.set_*` prehraté).
+        #: Webapp si to po behu uloží ku výsledku — viď `export_chart`.
+        self.registry = DrawRegistry()
         self.rows: dict[int, SignalRow] = {}
         #: len bary, na ktorých vznikol vstupný signál (zoradené) — na spätné dohľadanie
         self.signal_ts: list[int] = []
@@ -176,7 +186,11 @@ class EngineRunner:
         )
         out = self.engine.on_bar(bar, htf, ctx)
         self._apply(out.orders)
+        self.registry.extend(out.drawings)
+        if self.first_ts is None:
+            self.first_ts = bar.time
         self.last_ts = bar.time
+        self.last_bar = bar
 
         row = SignalRow(
             in_trade_window=bool(out.clock and out.clock.in_trade_window),
@@ -253,3 +267,42 @@ class EngineRunner:
         if any(o not in htf_bars for o in opens):
             return None
         return HTFWindow(tuple(htf_bars[o] for o in opens), vol_sma.get(opens[0], 0.0))
+
+
+# --------------------------------------------------------------------------- #
+# Export kresieb pre webapp
+# --------------------------------------------------------------------------- #
+
+
+def export_chart(runner: EngineRunner, pair: str, timeframe: str, path: Path | str) -> dict:
+    """Zapíše finálny stav kresieb behu do JSON (gzip, ak cesta končí `.gz`).
+
+    Pridá aj to, čo Pine kreslí až na poslednom bare (`barstate.islast`: S/R
+    zhluky a Elliott). Vracia hlavičku súboru (bez objektov) — na log.
+    """
+    objects = list(runner.registry.objects())
+    if runner.last_bar is not None:
+        objects.extend(runner.engine.final_drawings(runner.last_bar))
+    dicts = objects_to_dicts(objects)
+    counts: dict[str, int] = {}
+    for d in dicts:
+        counts[d["k"]] = counts.get(d["k"], 0) + 1
+    data = {
+        "version": 1,
+        "pair": pair,
+        "timeframe": timeframe,
+        "from_ms": runner.first_ts,
+        "to_ms": runner.last_ts,
+        "bars": len(runner.rows),
+        "counts": counts,
+        "objects": dicts,
+    }
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    raw = json.dumps(data, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    if path.suffix == ".gz":
+        with gzip.open(path, "wb", compresslevel=6) as fh:
+            fh.write(raw)
+    else:
+        path.write_bytes(raw)
+    return {k: v for k, v in data.items() if k != "objects"}

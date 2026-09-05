@@ -17,13 +17,14 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from ..core import IBSConfig
 from ..core.config import ConfigError
+from . import chart as chart_data
 from . import gitsync
 from .pine_meta import param_metadata
 from .runner import BacktestRunner, available_pairs, default_params, list_profiles
@@ -138,7 +139,33 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             return {"record": job.public(), "trades": [], "live": True}
         rec["overrides"] = {k: v for k, v in rec.get("params", {}).items()
                             if not k.startswith("_") and defaults.get(k) != v}
+        rec["has_chart"] = store.has_chart(run_id)
         return {"record": rec, "trades": store.trades(run_id), "live": False}
+
+    @app.get("/api/runs/{run_id}/chart")
+    def run_chart(run_id: str, start: int | None = Query(None, alias="from"),
+                  end: int | None = Query(None, alias="to")):
+        """Kresby enginu z behu, orezané na okno `from`–`to` (ms epoch)."""
+        data = store.chart(run_id)
+        if data is None:
+            if store.get(run_id) is None:
+                raise HTTPException(404, "beh neexistuje")
+            raise HTTPException(404, "beh nemá uložené kresby (spustený staršou verziou)")
+        objects = data["objects"] if start is None or end is None else chart_data.window(data, start, end)
+        return {"meta": chart_data.summary(data), "objects": objects}
+
+    @app.get("/api/candles")
+    def candles(pair: str, tf: str = "3m", start: int = Query(..., alias="from"),
+                end: int = Query(..., alias="to")):
+        """Sviečky páru v okne `from`–`to` (ms epoch), najviac `MAX_CANDLES`."""
+        if end <= start:
+            raise HTTPException(422, "to musí byť väčšie než from")
+        try:
+            return chart_data.candles(pair, tf, start, end)
+        except ValueError as exc:
+            raise HTTPException(422, str(exc))
+        except FileNotFoundError as exc:
+            raise HTTPException(404, str(exc))
 
     @app.get("/api/runs/{run_id}/log", response_class=PlainTextResponse)
     def run_log(run_id: str):
