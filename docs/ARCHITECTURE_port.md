@@ -486,6 +486,7 @@ Zostáva: preladiť ATR prahy exekučného profilu hyperoptom a rozhodnúť wall
 | 5 | Burzy | **Coinbase + Binance.** Coinbase = referenčná (parita s TV), Binance = exekučná (futures). Freqtrade Coinbase nepodporuje (§3b) |
 | 6 | PickMyTrade | **neportuje sa** — Freqtrade aj MultiCharts posielajú ordre priamo. Vypadlo 5 vstupov: `pmtToken`, `pmtAccountId`, `pmtStratName`, `pmtMarketOrderType`, `trailFreqPct` |
 | 7 | Golden fixture | export z TradingView pre **oba** grafy: `COINBASE:BTCUSD` (parita jadra) aj `BINANCE:BTCUSDT.P` (parita exekúcie) |
+| 8 | Rozšírenia configu mimo Pine | `atrLen`, `legacyPineSizing`, `leverage`, `minSlDistance` — všetky s defaultom, pri ktorom je správanie zhodné s Pine; zoznam stráži `PORT_ONLY_FIELDS` a `test_pine_parity.py`. `minSlDistance` (2026-09-05) preskočí obchod s SL tesnejším než zadané % ceny / ATR — filter na pomer edge k poplatku, viď `docs/OPTIMALIZACIA_2026-09-05.md` |
 
 ### Čo z toho vyplýva pre multi-inštrument
 

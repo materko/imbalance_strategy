@@ -492,7 +492,7 @@ class StateMachine:
 
         plan = build_trade_plan(z.direction, entry, stop, cfg, self.inst)
 
-        skip = self._skip_reason(z, bar, history, ctx)
+        skip = self._skip_reason(z, bar, history, ctx, plan=plan, atr=atr)
         if skip:
             self._invalidate(z, bar, f"SKIP: {skip}")
             self._draw_label(
@@ -584,9 +584,20 @@ class StateMachine:
         )
 
     def _skip_reason(
-        self, z: Zone, bar: Bar, history: BarHistory, ctx: MarketContext
+        self,
+        z: Zone,
+        bar: Bar,
+        history: BarHistory,
+        ctx: MarketContext,
+        *,
+        plan: TradePlan | None = None,
+        atr: float = 0.0,
     ) -> str | None:
-        """Pine `canTrade` — poradie dôvodov je zachované, lebo sa zobrazuje v SKIP labeli."""
+        """Pine `canTrade` — poradie dôvodov je zachované, lebo sa zobrazuje v SKIP labeli.
+
+        Za Pine dôvodmi je jeden navyše, `minSlDistance` (rozšírenie portu, defaultne
+        vypnuté) — ide až posledný, aby sa poradie Pine labelov nezmenilo.
+        """
         cfg = self.cfg
         long = z.direction is Direction.LONG
 
@@ -618,6 +629,11 @@ class StateMachine:
 
         if not cfg.tradeDirection.allows(z.direction):
             return "SMER VYPNUTY"
+
+        if plan is not None:
+            min_sl = cfg.minSlDistance.resolve(self.inst, price=plan.entry, atr=atr)
+            if min_sl > 0 and plan.sl_distance < min_sl:
+                return "SL PRILIS TESNY"
 
         return None
 

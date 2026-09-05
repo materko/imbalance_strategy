@@ -388,6 +388,27 @@ def test_skip_when_daily_win_limit_reached(cfg):
     assert any("MAX DAILY" in e.reason for e in sm.events)
 
 
+def test_skip_when_stop_is_too_tight(cfg, ctx):
+    """Rozšírenie portu: `minSlDistance` v percentách ceny. Zóna z `_ready_zone` má
+    vstup ~95 a SL zo swingu 93 mínus buffer, teda ~2 % — prah 5 % ju musí zahodiť,
+    prah 1 % nie."""
+    cfg.minSlDistance = {"value": 5.0, "unit": "pct"}
+    sm, book, z, h = _ready_zone(cfg)
+    intents = sm.on_bar(h.current, h, ctx)
+    assert z.state == ZoneState.INVALID
+    assert any("SL PRILIS TESNY" in e.reason for e in sm.events)
+    assert intents == []
+
+
+def test_min_sl_distance_off_by_default_and_passes_wide_stops(cfg, ctx):
+    assert cfg.minSlDistance.value == 0.0
+    cfg.minSlDistance = {"value": 1.0, "unit": "pct"}
+    sm, book, z, h = _ready_zone(cfg)
+    intents = sm.on_bar(h.current, h, ctx)
+    assert z.state == ZoneState.ORDER_PENDING
+    assert [i.action for i in intents] == [OrderAction.ENTRY]
+
+
 def test_order_cancelled_outside_the_trade_window(cfg):
     sm, book, z, h = _ready_zone(cfg)
     intents = sm.on_bar(h.current, h, MarketContext(in_trade_window=False))

@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 
 from ibs.core import IBSConfig
-from ibs.core.config import CONSTRAINTS, SIZE_FIELDS
+from ibs.core.config import CONSTRAINTS, PORT_ONLY_FIELDS, SIZE_FIELDS
 from ibs.core.types import SizeSpec
 
 PINE_FILE = Path(__file__).resolve().parents[2] / "imbalance_strategy_FULL.pine"
@@ -130,10 +130,11 @@ def test_config_adds_only_documented_extras(pine):
 
     `legacyPineSizing` reprodukuje Pine sizing vrátane jeho chyby (golden test),
     `atrLen` obsluhuje parametre v jednotke `atr` — tú Pine nepozná (§3b),
-    `leverage` je marža vo Freqtrade, ktorú TradingView strategy tester nerieši.
+    `leverage` je marža vo Freqtrade, ktorú TradingView strategy tester nerieši,
+    `minSlDistance` je filter tesného SL kvôli poplatkom (defaultne vypnutý).
     """
     extra = sorted({f.name for f in fields(IBSConfig)} - set(pine))
-    assert extra == ["atrLen", "legacyPineSizing", "leverage"], f"neočakávané polia navyše: {extra}"
+    assert extra == sorted(PORT_ONLY_FIELDS), f"neočakávané polia navyše: {extra}"
 
 
 def test_defaults_match_pine(pine):
@@ -170,10 +171,10 @@ def test_constraints_match_pine_minval_maxval(pine):
 
 
 def test_no_stale_constraints(pine):
-    stale = sorted(set(CONSTRAINTS) - set(pine) - {"atrLen", "leverage"})
+    stale = sorted(set(CONSTRAINTS) - set(pine) - PORT_ONLY_FIELDS)
     assert stale == [], f"CONSTRAINTS obsahuje neexistujúce vstupy: {stale}"
 
 
 def test_size_fields_all_exist_in_pine(pine):
-    unknown = sorted(set(SIZE_FIELDS) - set(pine))
+    unknown = sorted(set(SIZE_FIELDS) - set(pine) - PORT_ONLY_FIELDS)
     assert unknown == [], f"SIZE_FIELDS odkazuje na neexistujúce vstupy: {unknown}"

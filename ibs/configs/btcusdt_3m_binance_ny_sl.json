@@ -1,0 +1,31 @@
+{
+  "_comment": [
+    "BINANCE BTCUSDT.P 3m - NY profil + filter tesneho SL (2026-09-05).",
+    "",
+    "Rozdiel oproti btcusdt_3m_binance_ny: minSlDistance 0,20 % ceny. Obchod, ktoreho SL je",
+    "blizsie nez 0,2 % od vstupu, sa preskoci (SKIP: SL PRILIS TESNY). Rozsirenie portu,",
+    "Pine ho nema - dovod su poplatky: zisk obchodu rastie s velkostou R, poplatok je vzdy",
+    "percento z nominalu, takze tesne SL maju najhorsi pomer edge k poplatku.",
+    "",
+    "Pat rokov, bez poplatkov: 149 obchodov namiesto 215 pri ROVNAKOM hrubom zisku",
+    "(+22 907 vs +22 221 USDT pri 1 BTC), break-even 0,141 % namiesto 0,088 % na stranu.",
+    "S poplatkami 0,05 %: +23,2 % za pat rokov namiesto +17,0 %, styri z piatich rokov",
+    "ziskove, max DD 6,7 %. Prah 0,15 aj 0,25 % davaju ten isty smer (plato, nie spicka).",
+    "Detaily v docs/OPTIMALIZACIA_2026-09-05.md."
+  ],
+  "_instrument": "btcusdt_binance",
+  "enablePinBarEntry": true,
+  "tradeDirection": "Long only",
+  "sess2ZoneStartH": 8,
+  "showElliott": false,
+  "tickDollarValue": 0.5,
+  "legacyPineSizing": true,
+  "enableSrTrading": true,
+  "enableLqTrading": true,
+  "rrRatio": 5.0,
+  "enableEngulfingEntry": true,
+  "slLookback": 20,
+  "useStructureFilter": true,
+  "sess3On": false,
+  "minSlDistance": { "value": 0.2, "unit": "pct" }
+}

@@ -21,7 +21,7 @@ from ibs.core import (
     list_profiles,
     load_profile,
 )
-from ibs.core.config import CONFIG_DIR, SIZE_FIELDS
+from ibs.core.config import CONFIG_DIR, PORT_ONLY_FIELDS, SIZE_FIELDS
 
 
 # --------------------------------------------------------------------------- #
@@ -211,6 +211,7 @@ def test_all_profiles_exist():
         "btcusdt_3m_binance_opt",
         "btcusdt_3m_binance_struct",
         "btcusdt_3m_binance_ny",
+        "btcusdt_3m_binance_ny_sl",
     }
 
 
@@ -249,7 +250,11 @@ def test_tv_reference_profile_keeps_pine_units():
 def test_binance_profile_converted_every_size_field():
     """Na Binance nesmie zostať MNQ-ladená hodnota v pôvodnej jednotke."""
     cfg, _ = load_profile("btcusdt_3m_binance")
-    still_pine = [n for n, unit in SIZE_FIELDS.items() if getattr(cfg, n).unit == unit]
+    # Rozšírenia portu (`minSlDistance`) nie sú MNQ-ladené — ich jednotka je už prenositeľná.
+    still_pine = [
+        n for n, unit in SIZE_FIELDS.items()
+        if n not in PORT_ONLY_FIELDS and getattr(cfg, n).unit == unit
+    ]
     assert still_pine == []
 
 

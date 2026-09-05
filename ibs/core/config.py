@@ -38,6 +38,7 @@ __all__ = [
     "IBSConfig",
     "ConfigError",
     "SIZE_FIELDS",
+    "PORT_ONLY_FIELDS",
     "CONSTRAINTS",
     "CONFIG_DIR",
     "load_profile",
@@ -67,7 +68,12 @@ SIZE_FIELDS: dict[str, SizeUnit] = {
     "imbMaxDistTicks": "ticks",
     "state2ConfirmTicks": "ticks",
     "slBufferTicks": "ticks",
+    # rozšírenie portu (nie je v Pine) — percento z ceny
+    "minSlDistance": "pct",
 }
+
+#: Polia, ktoré Pine nemá — rozšírenia portu. Test parity ich pozná menovite.
+PORT_ONLY_FIELDS: frozenset[str] = frozenset({"atrLen", "legacyPineSizing", "leverage", "minSlDistance"})
 
 #: Rozsahy prevzaté z `minval=`/`maxval=` v Pine. Platia pre pôvodnú jednotku;
 #: ak je pole prepnuté na `atr`/`pct`, kontroluje sa len nezápornosť.
@@ -296,6 +302,14 @@ class IBSConfig:
     #: je to rozšírenie portu (ARCHITECTURE_port.md §3b), aby sa prahy naladené
     #: v bodoch na MNQ dali preniesť na inštrument s inou cenovou škálou.
     atrLen: int = 14
+
+    #: Minimálna vzdialenosť SL od vstupu, inak sa obchod preskočí („SL PRILIS TESNY").
+    #: Pine to nemá — rozšírenie portu kvôli poplatkom: hrubý zisk obchodu rastie
+    #: s veľkosťou R, poplatok je vždy percento z nominálu, takže obchody s tesným SL
+    #: majú najhorší pomer edge k poplatku. Na BTCUSDT.P (NY profil, 5 rokov) mal
+    #: najtesnejší kvartil (SL ~0,12 % ceny) break-even ≈ 0 a WR 18 %, kým zvyšok
+    #: 0,04–0,17 %. Defaultne 0 = vypnuté, aby ostala parita s TradingView.
+    minSlDistance: SizeSpec = field(default_factory=lambda: _size(0.0, "minSlDistance"))
 
     #: Páka. Pine ju nepozná — strategy tester v TradingView marže nerieši a nechá
     #: otvoriť ľubovoľne veľkú pozíciu. Vo Freqtrade je to limit, ktorý sa NAOZAJ
