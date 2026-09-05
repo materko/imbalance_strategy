@@ -68,8 +68,9 @@ function setParams(values, asBase) {
 // --------------------------------------------------------------------------- //
 // Formulár parametrov
 //
-// Vľavo navigácia skupín (ako panel nastavení v TradingView), vpravo len aktívna
-// skupina. Riadok = jeden parameter na jednom riadku; polia, ktoré Pine kreslí
+// Vľavo navigácia skupín (ako panel nastavení v TradingView), vpravo všetky skupiny
+// pod sebou v jednom dlhom zozname — klik vľavo naskroluje na skupinu a zvýraznenie
+// sleduje, kde práve si. Riadok = jeden parameter na jednom riadku; polia, ktoré Pine kreslí
 // vedľa seba (`inline`, napr. hodina + minúta seansy), sú vedľa seba aj tu.
 // Tooltip z Pine je na názve (dotted underline), identifikátor v ňom.
 // --------------------------------------------------------------------------- //
@@ -186,7 +187,7 @@ function renderParams() {
   for (const g of groups) {
     const b = document.createElement("button"); b.className = "nav-item"; b.dataset.group = g;
     b.innerHTML = `<span class="nav-title">${esc(g)}</span><span class="nav-count" data-count></span>`;
-    b.onclick = () => { state.activeGroup = g; $("#param-filter").value = ""; $("#only-changed").checked = false; applyParamFilter(); };
+    b.onclick = () => { $("#param-filter").value = ""; $("#only-changed").checked = false; applyParamFilter(); scrollToGroup(g); };
     nav.append(b);
 
     const sec = document.createElement("section"); sec.className = "pgroup"; sec.dataset.group = g;
@@ -226,6 +227,35 @@ function renderParams() {
   applyParamFilter();
 }
 
+/** Klik na skupinu vľavo: dlhý zoznam sa presunie na jej nadpis (pod prilepenú hlavičku). */
+function scrollToGroup(g) {
+  const sec = $$(".pgroup").find(s => s.dataset.group === g);
+  if (!sec) return;
+  state.activeGroup = g;
+  for (const b of $$(".nav-item")) b.classList.toggle("active", b.dataset.group === g);
+  state.spyLock = Date.now() + 300;  // spy nech neprepíše práve zvolenú skupinu
+  // Nie scrollIntoView: karta má overflow hidden a prehliadač by posunul jej obsah, nie stránku.
+  // Skok bez animácie — ako v paneli nastavení TradingView; plynulý scroll navyše
+  // v embedovaných prehliadačoch často ani nedobehne.
+  window.scrollTo(0, sec.getBoundingClientRect().top + window.scrollY - 62);
+}
+
+/** Zvýraznenie v navigácii sleduje skupinu, ktorej nadpis je práve pod hlavičkou. */
+function spyGroups() {
+  if (Date.now() < (state.spyLock || 0) || $("#view-new").hidden) return;
+  const secs = $$(".pgroup").filter(s => !s.hidden);
+  if (!secs.length) return;
+  const line = 56 + 24;
+  let cur = secs[0];
+  for (const s of secs) if (s.getBoundingClientRect().top <= line) cur = s;
+  if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 2) cur = secs[secs.length - 1];
+  if (cur.dataset.group !== state.activeGroup) {
+    state.activeGroup = cur.dataset.group;
+    for (const b of $$(".nav-item")) b.classList.toggle("active", b.dataset.group === state.activeGroup);
+  }
+}
+window.addEventListener("scroll", spyGroups, { passive: true });
+
 function refreshChanged() {
   const m = metaByName();
   let total = 0;
@@ -254,15 +284,13 @@ function applyParamFilter() {
   const q = $("#param-filter").value.trim().toLowerCase();
   const onlyChanged = $("#only-changed").checked;
   const browsing = !q && !onlyChanged;
-  for (const b of $$(".nav-item")) b.classList.toggle("active", browsing && b.dataset.group === state.activeGroup);
+  for (const b of $$(".nav-item")) b.classList.toggle("active", b.dataset.group === state.activeGroup);
   let shown = 0;
   const collapsed = {};  // prepínač -> počet podnastavení, ktoré kvôli nemu nevidno
   for (const sec of $$(".pgroup")) {
     let visible = 0;
     for (const row of $$(".prow", sec)) {
-      let hit = browsing
-        ? sec.dataset.group === state.activeGroup
-        : (!q || row.dataset.search.includes(q)) && (!onlyChanged || row.classList.contains("changed"));
+      let hit = browsing || ((!q || row.dataset.search.includes(q)) && (!onlyChanged || row.classList.contains("changed")));
       // Podnastavenia vypnutej feature sa neukazujú (hľadanie a „len zmenené" ich ukážu vždy).
       if (hit && browsing && !dependencyMet(row)) {
         hit = false;
@@ -271,7 +299,6 @@ function applyParamFilter() {
       row.hidden = !hit; if (hit) visible++;
     }
     sec.hidden = visible === 0;
-    sec.classList.toggle("titled", !browsing);
     shown += visible;
   }
   for (const row of $$(".prow")) {
