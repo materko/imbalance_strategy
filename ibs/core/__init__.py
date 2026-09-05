@@ -34,6 +34,7 @@ from .zones import Zone, ZoneBook, ZoneSource, SdPattern, detect_sd_pattern, sna
 from .types import (
     BTCUSD_COINBASE,
     BTCUSDT_BINANCE,
+    ETHUSDT_BINANCE,
     INSTRUMENTS,
     MNQ,
     Bar,
@@ -62,6 +63,7 @@ __all__ = [
     "MNQ",
     "BTCUSD_COINBASE",
     "BTCUSDT_BINANCE",
+    "ETHUSDT_BINANCE",
     "INSTRUMENTS",
     "IBSConfig",
     "ConfigError",

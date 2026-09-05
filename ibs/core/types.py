@@ -337,8 +337,22 @@ BTCUSDT_BINANCE = InstrumentSpec(
     quote_currency="USDT",
 )
 
+#: Binance ETH/USDT perpetual. Tick je 0,01 - teda **desaťkrát jemnejší než BTC**
+#: pri desaťkrát nižšej cene, takže tick ako podiel ceny vyjde podobne. Pozor na to
+#: pri prahoch v jednotke `ticks`: rovnaké číslo znamená na ETH iný cenový posun.
+ETHUSDT_BINANCE = InstrumentSpec(
+    symbol="ETH/USDT:USDT",
+    venue="binance",
+    tick_size=0.01,
+    point_value=1.0,
+    qty_step=0.001,
+    min_qty=0.001,
+    quote_currency="USDT",
+)
+
 INSTRUMENTS: dict[str, InstrumentSpec] = {
     "mnq": MNQ,
     "btcusd_coinbase": BTCUSD_COINBASE,
     "btcusdt_binance": BTCUSDT_BINANCE,
+    "ethusdt_binance": ETHUSDT_BINANCE,
 }
