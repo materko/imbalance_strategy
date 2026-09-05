@@ -572,6 +572,10 @@ const TF_MINUTES = { "1m": 1, "3m": 3, "5m": 5, "15m": 15, "30m": 30, "1h": 60 }
 const SPANS = [["4 h", 4 * 3600e3], ["12 h", 12 * 3600e3], ["1 deň", 86400e3], ["3 dni", 3 * 86400e3], ["1 týždeň", 7 * 86400e3]];
 const MAX_CANDLES = 6000;  // rovnaké ako server (ibs/webapp/chart.py)
 const DASH = { dotted: "dot", dashed: "dash" };
+//: Druhy, ktoré sa kreslia NAD sviečkami. Pine imbalance sviečku vybledne (barcolor na 10 %)
+//: a okolo tela dá dutý box; tu sa telo prekryje bielym boxom s obrysom, aby vyzeralo duté.
+const ABOVE_CANDLES = new Set(["imb_box"]);
+const PLOT_BG = "#ffffff";
 
 const pc = { rec: null, trades: [], runFrom: 0, runTo: 0, from: 0, to: 0, tf: "auto", layers: {}, meta: null, last: null,
   seq: 0, bound: false, relayoutTimer: null, quietUntil: 0 };
@@ -701,7 +705,7 @@ function describe(o) {
 }
 
 function objectTraces(objects) {
-  const groups = new Map(), shapes = [];
+  const groups = new Map(), above = new Map(), shapes = [];
   const group = (key, init) => { let g = groups.get(key); if (!g) { g = init(); groups.set(key, g); } return g; };
   for (const o of objects) {
     const layer = LAYER_BY_KIND[o.k] || "labels";
@@ -711,9 +715,13 @@ function objectTraces(objects) {
     if (o.t === "bg") {
       shapes.push({ type: "rect", xref: "x", yref: "paper", layer: "below", x0: utc(o.x1), x1: utc(o.x2), y0: 0, y1: 1, fillcolor: o.c, line: { width: 0 } });
     } else if (o.t === "box") {
-      const fill = o.fc || "rgba(0,0,0,0)", dash = DASH[o.bs] || "solid", w = o.bw ?? 1;
-      const g = group(`box|${fill}|${o.bc}|${dash}|${w}`, () => ({ type: "scatter", mode: "lines", fill: "toself", fillcolor: fill,
-        line: { color: o.bc, width: w, dash }, x: [], y: [], text: [], hoverinfo: "text", hoveron: "points", showlegend: false, name }));
+      const over = ABOVE_CANDLES.has(o.k);
+      const fill = o.fc || (over ? PLOT_BG : "rgba(0,0,0,0)"), dash = DASH[o.bs] || "solid", w = o.bw ?? 1;
+      const key = `box|${fill}|${o.bc}|${dash}|${w}`;
+      const make = () => ({ type: "scatter", mode: "lines", fill: "toself", fillcolor: fill,
+        line: { color: o.bc, width: w, dash }, x: [], y: [], text: [], hoverinfo: "text", hoveron: "points", showlegend: false, name });
+      let g;
+      if (over) { g = above.get(key); if (!g) { g = make(); above.set(key, g); } } else g = group(key, make);
       const x2 = o.er ? Math.max(o.x2, pc.to) : o.x2;
       g.x.push(utc(o.x1), utc(x2), utc(x2), utc(o.x1), utc(o.x1), null);
       g.y.push(o.y1, o.y1, o.y2, o.y2, o.y1, null);
@@ -738,7 +746,7 @@ function objectTraces(objects) {
       if (bubble) g.marker.color.push(o.bg);
     }
   }
-  return { traces: [...groups.values()], shapes };
+  return { traces: [...groups.values()], above: [...above.values()], shapes };
 }
 
 function tradeTraces() {
@@ -772,11 +780,11 @@ function renderPairChart(candles, objects) {
   const candle = { type: "candlestick", x, open: candles.o, high: candles.h, low: candles.l, close: candles.c, name: pc.rec.settings.pair,
     increasing: { line: { color: GREEN, width: 1 }, fillcolor: GREEN }, decreasing: { line: { color: RED, width: 1 }, fillcolor: RED },
     showlegend: false, whiskerwidth: 0.3 };
-  const { traces, shapes } = objectTraces(objects);
+  const { traces, above, shapes } = objectTraces(objects);
   let lo = Math.min(...candles.l), hi = Math.max(...candles.h);
   if (!Number.isFinite(lo)) { lo = 0; hi = 1; }
   const pad = (hi - lo) * 0.05 || 1;
-  Plotly.react(el, [...traces, candle, ...tradeTraces()], {
+  Plotly.react(el, [...traces, candle, ...above, ...tradeTraces()], {
     height: 640, margin: { l: 10, r: 70, t: 8, b: 36 }, template: "plotly_white", dragmode: "pan", hovermode: "closest",
     showlegend: false, shapes,
     xaxis: { type: "date", range: [utc(pc.from), utc(pc.to)], rangeslider: { visible: false }, showgrid: true, gridcolor: "#f0f1f3" },
