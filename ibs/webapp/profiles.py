@@ -7,7 +7,8 @@ premenovať aj zmazať a nikdy neprepíše profil z repozitára.
 
 Formát je rovnaký ako pri profiloch repozitára: **len odchýlky** od Pine defaultov
 plus kľúč `_instrument`. Vďaka tomu je diff čitateľný a profil prežije aj to, keď sa
-niekedy zmení Pine default (posunie sa s ním).
+niekedy zmení Pine default (posunie sa s ním). Navyše `_timeframe`: limity `*MaxBars`
+sú v baroch, takže TF grafu patrí k nastaveniu rovnako ako samotné parametre.
 """
 
 from __future__ import annotations
@@ -105,8 +106,20 @@ def deviations(params: dict[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in params.items() if not k.startswith("_") and defaults.get(k) != v}
 
 
+def timeframe_of(name: str) -> str | None:
+    """TF grafu, na ktorom je profil ladený (`_timeframe`) — bez neho `None`."""
+    path = all_paths().get(name)
+    if path is None:
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8")).get("_timeframe") or None
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
 def save(name: str, params: dict[str, Any], instrument: str, *,
-         comment: str | None = None, title: str | None = None, overwrite: bool = False) -> Path:
+         comment: str | None = None, title: str | None = None,
+         timeframe: str | None = None, overwrite: bool = False) -> Path:
     """Uloží profil; `params` sú hodnoty v tvare `IBSConfig.to_dict()`."""
     name = check_name(name)
     if instrument not in INSTRUMENTS:
@@ -116,6 +129,8 @@ def save(name: str, params: dict[str, Any], instrument: str, *,
     if path.exists() and not overwrite:
         raise FileExistsError(f"profil {name} už existuje")
     data: dict[str, Any] = {"_instrument": instrument, **deviations(params)}
+    if timeframe:
+        data = {"_timeframe": timeframe, **data}
     if comment:
         data = {"_comment": comment, **data}
     if title:

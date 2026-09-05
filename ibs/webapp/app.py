@@ -67,6 +67,7 @@ class ProfileSaveRequest(BaseModel):
     from_run: str | None = None
     params: dict[str, Any] | None = None
     instrument: str | None = None
+    timeframe: str | None = Field(None, description="TF grafu, na ktorom je profil ladený")
     note: str = Field("", max_length=200)
     overwrite: bool = False
 
@@ -117,6 +118,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
     @app.post("/api/profiles")
     def profile_save(req: ProfileSaveRequest):
         params, instrument, comment = req.params, req.instrument, req.note or None
+        timeframe = req.timeframe
         if req.from_run:
             rec = store.get(req.from_run)
             if rec is None:
@@ -124,6 +126,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             params = rec["params"]
             settings = rec.get("settings", {})
             instrument = instrument or instrument_for_pair(settings["pair"])
+            timeframe = timeframe or settings.get("timeframe")
             popis = f"z behu {req.from_run} ({settings.get('pair')}, {settings.get('timerange')})"
             comment = f"{comment} — {popis}" if comment else popis
         if params is None:
@@ -132,7 +135,8 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(422, "chýba `instrument` profilu")
         try:
             user_profiles.save(req.name, params, instrument, comment=comment,
-                               title=req.note or None, overwrite=req.overwrite)
+                               title=req.note or None, timeframe=timeframe,
+                               overwrite=req.overwrite)
         except FileExistsError as exc:
             raise HTTPException(409, str(exc))
         except (user_profiles.ProfileError, ConfigError) as exc:
@@ -174,6 +178,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         except (ConfigError, FileNotFoundError) as exc:
             raise HTTPException(404, str(exc))
         return {"name": name, "params": params, "instrument": instrument,
+                "timeframe": user_profiles.timeframe_of(name),
                 "kind": "user" if user_profiles.is_user(name) else "builtin"}
 
     @app.get("/api/runs")

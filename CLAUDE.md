@@ -65,9 +65,9 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
 4. **Testerov klon nie je vývojová vetva.** Neupravuj `ibs/core`, adaptéry ani profily
    v `ibs/configs`, pokiaľ ťa o to výslovne nepožiadajú. Parametre sa menia cez `--set`
    alebo vo formulári, nie v kóde. Do gitu idú len dáta testera: história behov (`runs/`)
-   a vlastné profily (`user_data/profiles/`). Vlastný profil si tester uloží z detailu
-   behu tlačidlom **Uložiť ako profil** — tam sa dá aj premenovať a zmazať; profily
-   repozitára v `ibs/configs/` sa nemenia.
+   a vlastné profily (`user_data/profiles/`). Vlastný profil si tester uloží tlačidlom
+   **Uložiť ako profil** — z formulára (aj so zvoleným TF) alebo z detailu behu; tam sa
+   dá aj premenovať a zmazať. Profily repozitára v `ibs/configs/` sa nemenia.
 5. Jeden backtest naraz. Rok s 1m detailom trvá ~20–40 s; päť rokov ~3 minúty.
 6. Nesťahuj dáta z burzy. Páry a obdobia sú len tie, čo sú v `data_archive/`
    (BTC/USDT:USDT a ETH/USDT:USDT, 2019–2026).

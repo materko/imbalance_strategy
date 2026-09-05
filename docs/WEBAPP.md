@@ -71,9 +71,17 @@ ručne alebo cez „Načítať do formulára" z histórie.
 
 Ponuka má dve skupiny: **profily repozitára** (`ibs/configs/`, sú kód — testy a
 merania sa na ne odvolávajú, preto sa z webapp nedajú meniť) a **vlastné profily**
-testera (`user_data/profiles/`). Vlastný profil vznikne v detaile behu tlačidlom
-**Uložiť ako profil**; tlačidlá **Premenovať** a **Zmazať** pod ponukou fungujú len
-na ne. Zmeny profilov idú do gitu tým istým **Push** ako história behov.
+testera (`user_data/profiles/`). Vlastný profil vznikne dvoma spôsobmi: tlačidlom
+**Uložiť ako profil** pod ponukou (uloží, čo je práve vo formulári, aj so zvoleným
+TF) alebo rovnakým tlačidlom v detaile behu (uloží ten beh). **Premenovať**
+a **Zmazať** fungujú len na vlastné profily. Zmeny profilov idú do gitu tým istým
+**Push** ako história behov.
+
+Meno je zároveň meno súboru, takže medzera sa mení na podtržník a diakritika padá
+preč („Môj profil 5m" → `Moj_profil_5m`); keď sa profil uložiť nedá, vyskočí popup
+s dôvodom. K profilu patrí aj **TF grafu**: limity `*MaxBars` sú v baroch, takže
+profil ladený na 5m nesedí na 3m. Výber profilu preto TF prepne — profil repozitára
+(nemá uložený TF) na 3m.
 
 **Parametre** sú všetkých 114 polí `IBSConfig` — 110 Pine vstupov v rovnakých
 skupinách, s rovnakými titulkami a tooltipmi ako v TradingView (parsuje sa to
@@ -200,10 +208,10 @@ platforms/freqtrade/user_data/profiles/<meno>.json
 ```
 
 Formát je rovnaký ako pri profiloch repozitára — **len odchýlky** od Pine defaultov
-plus `_instrument`, `_comment` (z ktorého behu profil vznikol) a `_title` (popis od
-testera, ktorý stránka ukáže v ponuke). Meno je zároveň meno
-súboru: 2–48 znakov, písmená bez diakritiky, číslice, `.`, `-`, `_`; meno profilu
-repozitára sa použiť nedá, aby sa nedal prekryť.
+plus `_instrument`, `_comment` (z ktorého behu profil vznikol), `_title` (popis od
+testera, ktorý stránka ukáže v ponuke) a `_timeframe` (TF grafu, na ktorom bol profil
+ladený). Meno súboru má 2–48 znakov: písmená bez diakritiky, číslice, `.`, `-`, `_`;
+meno profilu repozitára sa použiť nedá, aby sa nedal prekryť.
 
 Tlačidlá **Pull** (`git pull --rebase --autostash`) a **Push** (commitne **len**
 `runs/` a `profiles/` a pushne na aktuálnu vetvu) sú v hlavičke; výstup gitu sa zobrazí

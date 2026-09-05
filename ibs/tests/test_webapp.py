@@ -292,6 +292,23 @@ def test_save_run_as_profile_keeps_only_deviations(client, own_profiles):
     assert "moj_rr5" in meta["profiles"] and meta["user_profiles"] == ["moj_rr5"]
 
 
+def test_profile_keeps_timeframe_of_the_run(client, own_profiles):
+    """TF grafu patrí k profilu — limity `*MaxBars` sú v baroch, na inom TF sedieť nemusia."""
+    c, store = client
+    rec = _record("20260905-120000-aaaaaa", params={"rrRatio": 5.0})
+    rec["settings"]["timeframe"] = "5m"
+    store.save(rec)
+    c.post("/api/profiles", json={"name": "moj_5m", "from_run": "20260905-120000-aaaaaa"})
+    data = json.loads((own_profiles / "moj_5m.json").read_text(encoding="utf-8"))
+    assert data["_timeframe"] == "5m"
+    assert c.get("/api/profiles/moj_5m").json()["timeframe"] == "5m"
+    # profil sa dá uložiť aj priamo z formulára aj s vlastným TF
+    c.post("/api/profiles", json={"name": "z_formulara", "params": IBSConfig().to_dict(),
+                                  "instrument": "btcusdt_binance", "timeframe": "15m"})
+    assert c.get("/api/profiles/z_formulara").json()["timeframe"] == "15m"
+    assert c.get("/api/profiles/golden_binance_btcusdt_3m").json()["timeframe"] is None
+
+
 def test_profile_save_rejects_bad_name_and_collisions(client, own_profiles):
     c, store = client
     store.save(_record("20260905-120000-aaaaaa"))
