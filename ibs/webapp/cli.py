@@ -234,6 +234,13 @@ def cmd_params(args: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Windows konzola je cp1250 a log Freqtradu má znaky, ktoré v nej nie sú —
+    # bez tohto padne celý príkaz na UnicodeEncodeError uprostred behu.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
     ap = argparse.ArgumentParser(prog="python -m ibs.webapp.cli", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--url", default=DEFAULT_URL, help="adresa webapp (default %(default)s, alebo IBS_WEB_URL)")

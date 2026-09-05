@@ -69,8 +69,10 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
    **Uložiť ako profil** — z formulára (aj so zvoleným TF) alebo z detailu behu; tam sa
    dá aj premenovať a zmazať. Profily repozitára v `ibs/configs/` sa nemenia.
 5. Jeden backtest naraz. Rok s 1m detailom trvá ~20–40 s; päť rokov ~3 minúty.
-6. Nesťahuj dáta z burzy. Páry a obdobia sú len tie, čo sú v `data_archive/`
-   (BTC/USDT:USDT a ETH/USDT:USDT, 2019–2026).
+6. Nesťahuj dáta z burzy. Páry a obdobia sú len tie, čo sú v `data_archive/`:
+   futures perpetuály `BTC/USDT:USDT`, `ETH/USDT:USDT` (v ponuke `BTCUSDT.P`,
+   `ETHUSDT.P`) a spot `BTC/USDT`, `ETH/USDT` (`BTCUSDT`, `ETHUSDT`), 2019–2026.
+   Na spote sú len longy a páka 1 — webapp aj CLI beh s shortmi či pákou odmietnu.
 7. Profil musí sedieť s párom: pre ETH použi `ethusdt_*` profil z `docs/profily_archiv/`.
    BTC profil na ETH dá stovky nezmyselných obchodov (prahy v bodoch nesedia) — webapp aj
    CLI na to varujú. V `ibs/configs/` sú len tri referenčné profily (golden testy proti

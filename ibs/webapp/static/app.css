@@ -46,6 +46,7 @@ label.inline { flex-direction: row; align-items: center; gap: 8px; color: var(--
 .profile-actions button[disabled] { opacity: .45; cursor: default; }
 .profile-actions #profile-msg { margin-left: auto; }
 .muted.err, .small.err { color: #991b1b; }
+.ctl.locked input, .ctl.locked select { background: #f3f4f6; color: var(--muted); cursor: not-allowed; }
 .warnbox { background: #fef3c7; color: #92400e; padding: 8px 10px; border-radius: 6px; margin-bottom: 10px; font-size: 12px; }
 .error { background: #fee2e2; color: #991b1b; padding: 8px 10px; border-radius: 6px; margin-top: 10px; white-space: pre-wrap; font-size: 12px; }
 

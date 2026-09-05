@@ -260,6 +260,63 @@ def test_submit_uses_tester_name_from_request(client, monkeypatch):
 
 
 # --------------------------------------------------------------------------- #
+# Spot vs futures
+# --------------------------------------------------------------------------- #
+
+
+def test_spot_pair_allows_only_longs_without_leverage():
+    """Na spote burza nemá čo požičať — short ani páka sa nedajú obchodovať,
+    takže beh, ktorý ich má v configu, sa nesmie ani spustiť."""
+    from ibs.webapp.runner import check_market_rules
+
+    params = IBSConfig().to_dict()
+    check_market_rules("BTC/USDT:USDT", {**params, "tradeDirection": "Both", "leverage": 10})  # futures: v poriadku
+    check_market_rules("BTC/USDT", {**params, "tradeDirection": "Long only", "leverage": 1})
+
+    with pytest.raises(ValueError, match="shorty"):
+        check_market_rules("BTC/USDT", {**params, "tradeDirection": "Both", "leverage": 1})
+    with pytest.raises(ValueError, match="páka"):
+        check_market_rules("ETH/USDT", {**params, "tradeDirection": "Long only", "leverage": 5})
+
+
+def test_spot_pair_runs_with_spot_config_and_file_layout():
+    from ibs.webapp.chart import pair_file
+    from ibs.webapp.runner import build_command
+
+    base = {"timerange": "20250101-20250201", "wallet": 10000, "fee": 0.0005, "timeframe": "3m"}
+    spot = build_command("py", Path("p.json"), {**base, "pair": "BTC/USDT"})
+    futures = build_command("py", Path("p.json"), {**base, "pair": "BTC/USDT:USDT"})
+    assert spot[spot.index("--config") + 1].endswith("config.binance.spot.json")
+    assert futures[futures.index("--config") + 1].endswith("config.binance.json")
+
+    assert pair_file("BTC/USDT", "3m").name == "BTC_USDT-3m.feather"
+    assert pair_file("BTC/USDT:USDT", "3m").name == "BTC_USDT_USDT-3m-futures.feather"
+    assert pair_file("BTC/USDT", "3m").parent.name == "binance"
+    assert pair_file("BTC/USDT:USDT", "3m").parent.name == "futures"
+
+
+def test_instrument_knows_its_market_and_exchange_name():
+    from ibs.core.types import INSTRUMENTS
+
+    perp, spot = INSTRUMENTS["btcusdt_binance"], INSTRUMENTS["btcusdt_binance_spot"]
+    assert (perp.exchange_symbol, perp.market, perp.is_spot) == ("BTCUSDT.P", "futures", False)
+    assert (spot.exchange_symbol, spot.market, spot.is_spot) == ("BTCUSDT", "spot", True)
+
+
+def test_submit_rejects_shorts_on_spot(client, monkeypatch):
+    import ibs.webapp.app as app_mod
+
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["1m", "3m"])
+    c, _ = client
+    body = {"params": {**IBSConfig().to_dict(), "tradeDirection": "Both"}, "pair": "BTC/USDT",
+            "timerange": "20260801-20260901"}
+    r = c.post("/api/runs", json=body)
+    assert r.status_code == 422 and "spotový" in r.json()["detail"]
+    ok = {**body, "params": {**IBSConfig().to_dict(), "tradeDirection": "Long only", "leverage": 1}}
+    assert c.post("/api/runs", json=ok).status_code == 200
+
+
+# --------------------------------------------------------------------------- #
 # Vlastné profily testera
 # --------------------------------------------------------------------------- #
 

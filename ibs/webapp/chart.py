@@ -14,7 +14,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from .runner import DATA_DIR
+from .runner import DATA_DIR, SPOT_DIR
 
 #: Timeframy, ktoré má zmysel ponúknuť v grafe; súbor musí existovať (nič sa neskladá).
 TIMEFRAMES = ("1m", "3m", "5m", "15m", "30m", "1h")
@@ -25,10 +25,13 @@ MAX_CANDLES = 6000
 
 
 def pair_file(pair: str, timeframe: str) -> Path:
-    """`BTC/USDT:USDT`, `3m` → `.../BTC_USDT_USDT-3m-futures.feather` (Freqtrade pomenovanie)."""
+    """`BTC/USDT:USDT`, `3m` → `.../futures/BTC_USDT_USDT-3m-futures.feather`,
+    spotový `BTC/USDT` → `.../BTC_USDT-3m.feather` (Freqtrade pomenovanie)."""
     if timeframe not in TIMEFRAMES:
         raise ValueError(f"nepodporovaný timeframe {timeframe!r}; povolené: {', '.join(TIMEFRAMES)}")
     base = pair.replace("/", "_").replace(":", "_")
+    if ":" not in pair:
+        return SPOT_DIR / f"{base}-{timeframe}.feather"
     return DATA_DIR / f"{base}-{timeframe}-futures.feather"
 
 
