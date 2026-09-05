@@ -267,6 +267,11 @@ def param_metadata() -> list[dict[str, Any]]:
             meta.min, meta.max = CONSTRAINTS[name]
         if name == "state4MaxBars":
             meta.note = "Pine tento parameter nikde nepoužíva."
+        if name == "enableTrading":
+            meta.note = ("V porte to nie je prepínač live/papier — to rieši `dry_run` v configu "
+                         "Freqtradu. Vypnuté tu znamená, že stratégia neotvorí ani jeden obchod: "
+                         "beh dobehne, ale skončí s nulou obchodov (zóny, gapy a kresby bežia ďalej). "
+                         "V Pine malo pole zmysel na graf pripojený k reálnemu účtu.")
         if name in PORT_ONLY_FIELDS:
             meta.group = PORT_GROUP
         metas.append(meta)

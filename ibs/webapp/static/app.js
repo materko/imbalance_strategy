@@ -258,6 +258,16 @@ function spyGroups() {
 }
 $(".param-content").addEventListener("scroll", spyGroups, { passive: true });
 
+/** Vypnuté `enableTrading` je Pine dedičstvo (tam vypínalo posielanie ordrov na burzu).
+ *  V backteste znamená beh bez jediného obchodu, čo si tester všimne až vo výsledku. */
+function checkTradingSwitch() {
+  const box = $("#trading-warn");
+  const off = state.params.enableTrading === false;
+  if (off) box.textContent = "Obchodovanie je vypnuté (Základné nastavenia) — beh dobehne, ale neurobí ani jeden obchod. "
+    + "Reálne vs. papierové obchodovanie sa vo Freqtrade rieši v configu (dry_run), nie týmto poľom.";
+  box.hidden = !off;
+}
+
 function refreshChanged() {
   const m = metaByName();
   let total = 0;
@@ -272,6 +282,7 @@ function refreshChanged() {
     }
     row.classList.toggle("changed", changed);
   }
+  checkTradingSwitch();
   $("#override-count").textContent = total ? `${total} zmenených` : "bez zmien";
   $("#override-count").className = total ? "chip warn" : "chip";
   for (const el of $$("[data-group]")) {
