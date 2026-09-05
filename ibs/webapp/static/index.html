@@ -61,16 +61,20 @@
   </section>
 
   <section class="col params">
-    <div class="card">
+    <div class="card params-card">
       <div class="params-head">
         <h2>Parametre stratégie <span id="override-count" class="chip"></span></h2>
-        <input type="search" id="param-filter" placeholder="hľadať parameter…">
-        <button id="collapse-all" class="ghost">Zbaliť</button>
-        <button id="expand-all" class="ghost">Rozbaliť</button>
-        <button id="reset-params" class="ghost" title="vráti hodnoty z východiskového profilu">Reset na profil</button>
+        <input type="search" id="param-filter" placeholder="hľadať v názve, popise alebo identifikátore…">
         <label class="inline small"><input type="checkbox" id="only-changed"> len zmenené</label>
+        <button id="reset-params" class="ghost" title="vráti všetky hodnoty z východiskového profilu">Reset na profil</button>
       </div>
-      <div id="param-groups"></div>
+      <div class="params-body">
+        <nav id="param-nav" class="param-nav"></nav>
+        <div class="param-content">
+          <div id="param-groups"></div>
+          <div id="param-empty" class="muted empty" hidden>Nič nezodpovedá filtru.</div>
+        </div>
+      </div>
     </div>
   </section>
 </main>

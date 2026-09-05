@@ -54,9 +54,12 @@ určený. „(Pine defaulty)" dá presne to, čo má TradingView bez zásahu do 
 skupinách, s rovnakými titulkami a tooltipmi ako v TradingView (parsuje sa to
 priamo z `imbalance_strategy_FULL.pine`, takže sa nemôžu rozísť), plus skupina
 „Rozšírenia portu" (`atrLen`, `legacyPineSizing`, `leverage`, `minSlDistance`).
-Zmenené hodnoty oproti profilu sú zvýraznené žlto, každá skupina ukazuje ich počet,
-šípka ↺ vráti hodnotu profilu. Filter hľadá v názve, titulku aj tooltipe;
-„len zmenené" ukáže iba odchýlky.
+Panel vyzerá ako nastavenia v TradingView: vľavo zoznam skupín, vpravo aktívna skupina,
+jeden parameter na riadok; polia, ktoré Pine kreslí vedľa seba (hodina a minúta seansy,
+zapnutie a časové pásmo), sú vedľa seba aj tu. Tooltip z Pine, identifikátor a rozsah
+sa ukážu po podržaní myši na názve. Zmenené hodnoty oproti profilu sú žlté, skupina
+ukazuje ich počet, ↺ vráti hodnotu profilu. Hľadanie prechádza všetky skupiny naraz
+(názov, popis, identifikátor); „len zmenené" ukáže iba odchýlky.
 
 Polia s veľkosťou (`*Points`, `*Ticks`, `minSlDistance`) majú jednotku:
 `abs` cenové body, `ticks` násobky ticku, `atr` násobky ATR grafového TF,

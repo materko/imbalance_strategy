@@ -13,6 +13,7 @@ const state = {
   profile: null,
   pollTimer: null,
   detailId: null,
+  activeGroup: null,
 };
 
 function currentUser() { return ($("#who").value || "").trim() || null; }
@@ -65,12 +66,18 @@ function setParams(values, asBase) {
 
 // --------------------------------------------------------------------------- //
 // Formulár parametrov
+//
+// Vľavo navigácia skupín (ako panel nastavení v TradingView), vpravo len aktívna
+// skupina. Riadok = jeden parameter na jednom riadku; polia, ktoré Pine kreslí
+// vedľa seba (`inline`, napr. hodina + minúta seansy), sú vedľa seba aj tu.
+// Tooltip z Pine je na názve (dotted underline), identifikátor v ňom.
 // --------------------------------------------------------------------------- //
 
 function paramInput(meta) {
   const v = state.params[meta.name];
   const wrap = document.createElement("div");
-  const onChange = (val) => { state.params[meta.name] = val; refreshChanged(meta.name); };
+  wrap.className = "ctl";
+  const onChange = (val) => { state.params[meta.name] = val; refreshChanged(); };
 
   if (meta.type === "bool") {
     const i = document.createElement("input"); i.type = "checkbox"; i.checked = !!v;
@@ -84,9 +91,9 @@ function paramInput(meta) {
   }
   if (meta.type === "size") {
     const cur = normSize(v, meta.pine_unit);
-    wrap.className = "size";
+    wrap.classList.add("size");
     const n = document.createElement("input"); n.type = "number"; n.step = "any"; n.value = cur.value;
-    const u = document.createElement("select");
+    const u = document.createElement("select"); u.title = "jednotka: abs = cenové body, ticks = násobky ticku, atr = násobky ATR, pct = % ceny";
     for (const o of UNITS) { const op = document.createElement("option"); op.value = o; op.textContent = o; u.append(op); }
     u.value = cur.unit;
     const emit = () => {
@@ -106,59 +113,105 @@ function paramInput(meta) {
     if (meta.min !== null && meta.min !== undefined) i.min = meta.min;
     if (meta.max !== null && meta.max !== undefined) i.max = meta.max;
     i.value = v === null || v === undefined ? "" : v;
-    i.placeholder = v === null ? "(nezadané)" : "";
+    i.placeholder = v === null ? "—" : "";
     i.oninput = () => onChange(i.value === "" ? null : (meta.type === "int" ? parseInt(i.value, 10) : Number(i.value)));
     wrap.append(i); return wrap;
   }
   const i = document.createElement("input"); i.type = "text"; i.value = v ?? "";
+  i.classList.add("text");
   i.oninput = () => onChange(i.value); wrap.append(i); return wrap;
 }
 
-function renderParams() {
-  const root = $("#param-groups");
-  root.innerHTML = "";
+function groupList() {
   const groups = [];
   for (const p of state.meta.params) if (!groups.includes(p.group)) groups.push(p.group);
+  return groups;
+}
+
+/** Skupina -> riadky; parametre s rovnakým Pine `inline` kľúčom idú do jedného riadku. */
+function groupRows(group) {
+  const rows = [], byInline = {};
+  for (const meta of state.meta.params.filter(p => p.group === group)) {
+    if (meta.inline) {
+      if (!byInline[meta.inline]) { byInline[meta.inline] = []; rows.push(byInline[meta.inline]); }
+      byInline[meta.inline].push(meta);
+    } else rows.push([meta]);
+  }
+  return rows;
+}
+
+function tooltipFor(meta) {
+  const parts = [meta.tooltip || meta.title, "", `[${meta.name}]`];
+  if (meta.min !== null && meta.min !== undefined) parts.push(`rozsah ${meta.min} – ${meta.max}`);
+  if (meta.pine_unit) parts.push(`Pine jednotka: ${meta.pine_unit}`);
+  if (meta.note) parts.push(meta.note);
+  return parts.join("\n");
+}
+
+function renderParams() {
+  const nav = $("#param-nav"), root = $("#param-groups");
+  nav.innerHTML = ""; root.innerHTML = "";
+  const groups = groupList();
+  if (!state.activeGroup || !groups.includes(state.activeGroup)) state.activeGroup = groups[0];
+
   for (const g of groups) {
-    const det = document.createElement("details"); det.className = "group"; det.open = true; det.dataset.group = g;
-    const sum = document.createElement("summary");
-    sum.innerHTML = `<span>${g}</span><span class="count chip" data-count></span>`;
-    det.append(sum);
-    for (const meta of state.meta.params.filter(p => p.group === g)) {
-      const row = document.createElement("div"); row.className = "param"; row.dataset.name = meta.name;
-      row.dataset.search = `${meta.name} ${meta.title} ${meta.tooltip}`.toLowerCase();
-      const name = document.createElement("div"); name.className = "name";
-      name.innerHTML = `<b>${esc(meta.title)}</b><code>${meta.name}${meta.pine_unit ? " · Pine: " + meta.pine_unit : ""}</code>` +
-        (meta.note ? `<span class="note">${esc(meta.note)}</span>` : "");
-      const help = document.createElement("span"); help.className = "tip"; help.textContent = meta.tooltip ? "ⓘ" : "";
-      help.title = meta.tooltip + (meta.min !== null && meta.min !== undefined ? `\nRozsah ${meta.min} – ${meta.max}` : "");
-      name.prepend(help);
+    const b = document.createElement("button"); b.className = "nav-item"; b.dataset.group = g;
+    b.innerHTML = `<span class="nav-title">${esc(g)}</span><span class="nav-count" data-count></span>`;
+    b.onclick = () => { state.activeGroup = g; $("#param-filter").value = ""; $("#only-changed").checked = false; applyParamFilter(); };
+    nav.append(b);
+
+    const sec = document.createElement("section"); sec.className = "pgroup"; sec.dataset.group = g;
+    sec.innerHTML = `<h3 class="pgroup-title">${esc(g)} <span class="chip" data-count></span></h3>`;
+    for (const metas of groupRows(g)) {
+      const row = document.createElement("div"); row.className = "prow";
+      row.dataset.names = metas.map(m => m.name).join(" ");
+      row.dataset.search = metas.map(m => `${m.name} ${m.title} ${m.tooltip}`).join(" ").toLowerCase();
+      const first = metas[0];
+      const label = document.createElement("div"); label.className = "plabel";
+      label.textContent = first.title; label.title = tooltipFor(first);
+      if (first.note) label.classList.add("noted");
+      const ctls = document.createElement("div"); ctls.className = "pctl";
+      for (const meta of metas) {
+        const ctl = paramInput(meta);
+        ctl.dataset.name = meta.name;
+        if (metas.length > 1 && meta !== first) {
+          const cap = document.createElement("span"); cap.className = "cap"; cap.textContent = meta.title; cap.title = tooltipFor(meta);
+          ctls.append(cap);
+        }
+        ctls.append(ctl);
+      }
       const reset = document.createElement("button"); reset.className = "ghost reset"; reset.textContent = "↺";
       reset.title = "späť na hodnotu profilu";
-      reset.onclick = () => { state.params[meta.name] = JSON.parse(JSON.stringify(state.base[meta.name] ?? null)); renderParams(); };
-      row.append(name, paramInput(meta), reset);
-      det.append(row);
+      reset.onclick = () => { for (const m of metas) state.params[m.name] = JSON.parse(JSON.stringify(state.base[m.name] ?? null)); renderParams(); };
+      row.append(label, ctls, reset);
+      sec.append(row);
     }
-    root.append(det);
+    root.append(sec);
   }
   refreshChanged();
   applyParamFilter();
 }
 
-function refreshChanged(only) {
+function refreshChanged() {
   const m = metaByName();
   let total = 0;
   const perGroup = {};
-  for (const row of $$(".param")) {
-    const name = row.dataset.name, meta = m[name];
-    const changed = !sameValue(meta, state.params[name], state.base[name]);
+  for (const row of $$(".prow")) {
+    let changed = false;
+    for (const name of row.dataset.names.split(" ")) {
+      const c = !sameValue(m[name], state.params[name], state.base[name]);
+      const ctl = row.querySelector(`.ctl[data-name="${name}"]`);
+      if (ctl) ctl.classList.toggle("changed", c);
+      if (c) { changed = true; total++; perGroup[m[name].group] = (perGroup[m[name].group] || 0) + 1; }
+    }
     row.classList.toggle("changed", changed);
-    if (changed) { total++; perGroup[meta.group] = (perGroup[meta.group] || 0) + 1; }
   }
   $("#override-count").textContent = total ? `${total} zmenených` : "bez zmien";
-  for (const det of $$("details.group")) {
-    const c = perGroup[det.dataset.group] || 0;
-    const el = det.querySelector("[data-count]"); el.textContent = c ? `${c} zmenené` : ""; el.className = c ? "count chip warn" : "count";
+  $("#override-count").className = total ? "chip warn" : "chip";
+  for (const el of $$("[data-group]")) {
+    const c = perGroup[el.dataset.group] || 0;
+    const badge = el.querySelector("[data-count]");
+    if (badge) { badge.textContent = c ? String(c) : ""; badge.classList.toggle("warn", c > 0); }
   }
   if ($("#only-changed").checked) applyParamFilter();
 }
@@ -166,15 +219,22 @@ function refreshChanged(only) {
 function applyParamFilter() {
   const q = $("#param-filter").value.trim().toLowerCase();
   const onlyChanged = $("#only-changed").checked;
-  for (const row of $$(".param")) {
-    const hit = (!q || row.dataset.search.includes(q)) && (!onlyChanged || row.classList.contains("changed"));
-    row.classList.toggle("hidden", !hit);
+  const browsing = !q && !onlyChanged;
+  for (const b of $$(".nav-item")) b.classList.toggle("active", browsing && b.dataset.group === state.activeGroup);
+  let shown = 0;
+  for (const sec of $$(".pgroup")) {
+    let visible = 0;
+    for (const row of $$(".prow", sec)) {
+      const hit = browsing
+        ? sec.dataset.group === state.activeGroup
+        : (!q || row.dataset.search.includes(q)) && (!onlyChanged || row.classList.contains("changed"));
+      row.hidden = !hit; if (hit) visible++;
+    }
+    sec.hidden = visible === 0;
+    sec.classList.toggle("titled", !browsing);
+    shown += visible;
   }
-  for (const det of $$("details.group")) {
-    const visible = $$(".param:not(.hidden)", det).length;
-    det.style.display = visible ? "" : "none";
-    if (q || onlyChanged) det.open = true;
-  }
+  $("#param-empty").hidden = shown > 0;
 }
 
 // --------------------------------------------------------------------------- //
@@ -458,8 +518,6 @@ async function init() {
   $("#run").onclick = submitRun;
   $("#param-filter").oninput = applyParamFilter;
   $("#only-changed").onchange = applyParamFilter;
-  $("#collapse-all").onclick = () => $$("details.group").forEach(d => d.open = false);
-  $("#expand-all").onclick = () => $$("details.group").forEach(d => d.open = true);
   $("#reset-params").onclick = () => setParams(state.base, false);
   $("#search-btn").onclick = loadRuns;
   $("#search").onkeydown = e => { if (e.key === "Enter") loadRuns(); };
