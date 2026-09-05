@@ -50,6 +50,39 @@ _PORT_ONLY_META: dict[str, dict[str, Any]] = {
     ),
 }
 
+#: Závislosti medzi vstupmi. Pine ich nedeklaruje (panel v TradingView ukazuje vždy
+#: všetko), tak sú tu ručne. `switches`: podnastavenia v `params` majú zmysel, len keď
+#: je aspoň jeden z prepínačov zapnutý — formulár ich inak skryje. `show`: kresliaci
+#: prepínač tej istej feature; formulár ho zrkadlí hneď vedľa hlavného prepínača, keď
+#: sú v Pine v rôznych skupinách. Reťazenie funguje (volume filter je pod SD zónami).
+FEATURES: list[dict[str, Any]] = [
+    {"switches": ["enableImbEntry"], "show": "showImbalance",
+     "params": ["state1MaxBars", "state2MaxBars", "state2ConfirmTicks", "state3MaxBars"]},
+    {"switches": ["enablePinBarEntry"], "params": ["pbWickToBodyRatio", "pbBodyPositionPct", "pbMinRangePoints"]},
+    {"switches": ["enableEngulfingEntry"],
+     "params": ["engMinRangePoints", "engSizeAvgLen", "engSizeMultiplier", "engTouchWindowBars"]},
+    {"switches": ["enablePinBarEntry", "enableEngulfingEntry"], "params": ["pbEngOrderType"]},
+    {"switches": ["enableTrailing"], "params": ["trailActivationR", "trailOffsetR"]},
+    {"switches": ["enableZoneDetection"],
+     "params": ["enableGapDetection", "zoneDetectionTF", "zoneValidHours", "maxSdZones", "snapMode",
+                "invalidateOnFill", "useVolumeFilter"]},
+    {"switches": ["enableGapDetection"], "params": ["imbLookback", "imbMaxDistTicks", "minImbSizePoints"]},
+    {"switches": ["useVolumeFilter"], "params": ["volumeFilterBlockTrading", "volSmaLen", "volMultiplier"]},
+    *[{"switches": [f"sess{i}On"],
+       "params": [f"sess{i}{part}{hm}" for part in ("ZoneStart", "ZoneEnd", "TradeStart", "TradeEnd") for hm in "HM"]}
+      for i in (1, 2, 3)],
+    {"switches": ["useStructureFilter", "showMarketStructure"], "params": ["structureSwingLen"]},
+    {"switches": ["enableSrTrading", "showSR"], "show": "showSR",
+     "params": ["srSwingLen", "srClusterPoints", "srMinTouches", "srMaxLevels", "srLookbackDays", "srZoneSaturationPct"]},
+    {"switches": ["enableLqTrading", "showLiqSweep"], "show": "showLiqSweep",
+     "params": ["liqSweepLen", "liqSweepMinWick", "liqSweepConfirmBars", "liqStrengthLen"]},
+    {"switches": ["showElliott"], "params": ["ewSwingLen", "ewMinWavePoints", "ewShowLabels", "ewShowProjection", "ewLineColor"]},
+    {"switches": ["ewShowProjection"], "params": ["ewProjExtendBars"]},
+    {"switches": ["showDashboard"], "params": ["dashPos", "dashboardRows", "showTradeLog"]},
+    {"switches": ["showTradeLog"], "params": ["tradeLogRows"]},
+    {"switches": ["showDebugTable"], "params": ["debugTableRows", "debugPos"]},
+]
+
 _INPUT_RE = re.compile(r"^\s*(\w+)\s*=\s*input\.(\w+)\((.*)$")
 _GROUP_ORDER_RE = re.compile(r'group\s*=\s*"([^"]*)"')
 
@@ -71,6 +104,10 @@ class ParamMeta:
     inline: str | None = None
     #: pole, ktoré Pine skript sám nepoužíva (napr. state4MaxBars) alebo je len vizuálne
     note: str = ""
+    #: prepínače, z ktorých aspoň jeden musí byť zapnutý, aby malo pole zmysel (viď FEATURES)
+    depends_on: list[str] | None = None
+    #: kresliaci prepínač feature, ktorú toto pole zapína (zrkadlí sa vedľa neho)
+    show_param: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -233,6 +270,13 @@ def param_metadata() -> list[dict[str, Any]]:
         if name in PORT_ONLY_FIELDS:
             meta.group = PORT_GROUP
         metas.append(meta)
+
+    by_name = {m.name: m for m in metas}
+    for feat in FEATURES:
+        for name in feat["params"]:
+            by_name[name].depends_on = list(feat["switches"])
+        if feat.get("show"):
+            by_name[feat["switches"][0]].show_param = feat["show"]
 
     metas.sort(key=lambda m: (order.get(m.group, 999), 0))
     return [m.to_dict() for m in metas]
