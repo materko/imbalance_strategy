@@ -26,9 +26,11 @@ from ..core import IBSConfig
 from ..core.config import ConfigError
 from . import chart as chart_data
 from . import gitsync
+from . import profiles as user_profiles
 from .pine_meta import param_metadata
 from .runner import (
-    REPO, BacktestRunner, available_pairs, default_params, list_profiles, profile_instruments, profile_titles, tf_minutes,
+    REPO, BacktestRunner, available_pairs, default_params, instrument_for_pair, list_profiles,
+    profile_instruments, profile_titles, tf_minutes,
 )
 from .store import RunStore, summarize_for_list
 
@@ -58,6 +60,21 @@ class GitPushRequest(BaseModel):
     message: str | None = Field(None, max_length=200)
 
 
+class ProfileSaveRequest(BaseModel):
+    """Nový vlastný profil — buď z behu (`from_run`), alebo priamo z parametrov."""
+
+    name: str = Field(..., max_length=48)
+    from_run: str | None = None
+    params: dict[str, Any] | None = None
+    instrument: str | None = None
+    note: str = Field("", max_length=200)
+    overwrite: bool = False
+
+
+class ProfileRenameRequest(BaseModel):
+    name: str = Field(..., max_length=48)
+
+
 def _clean_user(name: str | None) -> str:
     name = (name or "").strip()
     return name[:80] if name else current_user()
@@ -84,11 +101,64 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             "profiles": list_profiles(),
             "profile_titles": profile_titles(),
             "profile_instruments": profile_instruments(),
+            "user_profiles": user_profiles.user_names(),
             "pairs": pairs,
             "user": current_user(),
             "branch": gitsync.branch(),
             "queue": runner.snapshot(),
         }
+
+    @app.get("/api/profiles")
+    def profiles_list():
+        """Profily do formulára: z repozitára (nemenné) a vlastné (menné aj mazateľné)."""
+        return {"profiles": list_profiles(), "user_profiles": user_profiles.user_names(),
+                "profile_titles": profile_titles(), "profile_instruments": profile_instruments()}
+
+    @app.post("/api/profiles")
+    def profile_save(req: ProfileSaveRequest):
+        params, instrument, comment = req.params, req.instrument, req.note or None
+        if req.from_run:
+            rec = store.get(req.from_run)
+            if rec is None:
+                raise HTTPException(404, "beh neexistuje")
+            params = rec["params"]
+            settings = rec.get("settings", {})
+            instrument = instrument or instrument_for_pair(settings["pair"])
+            popis = f"z behu {req.from_run} ({settings.get('pair')}, {settings.get('timerange')})"
+            comment = f"{comment} — {popis}" if comment else popis
+        if params is None:
+            raise HTTPException(422, "chýbajú parametre: pošli `from_run` alebo `params`")
+        if not instrument:
+            raise HTTPException(422, "chýba `instrument` profilu")
+        try:
+            user_profiles.save(req.name, params, instrument, comment=comment,
+                               title=req.note or None, overwrite=req.overwrite)
+        except FileExistsError as exc:
+            raise HTTPException(409, str(exc))
+        except (user_profiles.ProfileError, ConfigError) as exc:
+            raise HTTPException(422, str(exc))
+        return {"name": req.name.strip(), **profiles_list()}
+
+    @app.patch("/api/profiles/{name}")
+    def profile_rename(name: str, req: ProfileRenameRequest):
+        try:
+            user_profiles.rename(name, req.name)
+        except FileNotFoundError as exc:
+            raise HTTPException(404, str(exc))
+        except FileExistsError as exc:
+            raise HTTPException(409, str(exc))
+        except user_profiles.ProfileError as exc:
+            raise HTTPException(422, str(exc))
+        return {"name": req.name.strip(), **profiles_list()}
+
+    @app.delete("/api/profiles/{name}")
+    def profile_delete(name: str):
+        try:
+            if not user_profiles.delete(name):
+                raise HTTPException(404, f"profil {name} neexistuje")
+        except user_profiles.ProfileError as exc:
+            raise HTTPException(422, str(exc))
+        return {"ok": True, **profiles_list()}
 
     @app.get("/api/profiles/{name:path}")
     def profile(name: str):
@@ -103,7 +173,8 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             params, instrument = default_params(target)
         except (ConfigError, FileNotFoundError) as exc:
             raise HTTPException(404, str(exc))
-        return {"name": name, "params": params, "instrument": instrument}
+        return {"name": name, "params": params, "instrument": instrument,
+                "kind": "user" if user_profiles.is_user(name) else "builtin"}
 
     @app.get("/api/runs")
     def runs(q: str = "", limit: int = 500):
@@ -202,7 +273,6 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         params = dict(rec["params"])
         params["_comment"] = [f"profil z behu {run_id} ({rec.get('settings', {}).get('pair')}, "
                               f"{rec.get('settings', {}).get('timerange')}) - export z webapp"]
-        from .runner import instrument_for_pair
         params["_instrument"] = instrument_for_pair(rec["settings"]["pair"])
         return JSONResponse(params, headers={"Content-Disposition": f'attachment; filename="{run_id}.json"'})
 

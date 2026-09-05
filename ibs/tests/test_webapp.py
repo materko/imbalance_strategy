@@ -260,6 +260,93 @@ def test_submit_uses_tester_name_from_request(client, monkeypatch):
 
 
 # --------------------------------------------------------------------------- #
+# Vlastné profily testera
+# --------------------------------------------------------------------------- #
+
+
+@pytest.fixture
+def own_profiles(tmp_path: Path, monkeypatch):
+    """Vlastné profily do tmp adresára, nech testy nepíšu do repozitára."""
+    import ibs.webapp.profiles as profiles_mod
+
+    d = tmp_path / "profiles"
+    monkeypatch.setattr(profiles_mod, "PROFILES_DIR", d)
+    return d
+
+
+def test_save_run_as_profile_keeps_only_deviations(client, own_profiles):
+    c, store = client
+    store.save(_record("20260905-120000-aaaaaa", params={"rrRatio": 5.0}))
+    r = c.post("/api/profiles", json={"name": "moj_rr5", "from_run": "20260905-120000-aaaaaa",
+                                      "note": "RR 5"})
+    assert r.status_code == 200 and r.json()["user_profiles"] == ["moj_rr5"]
+
+    data = json.loads((own_profiles / "moj_rr5.json").read_text(encoding="utf-8"))
+    assert data["_instrument"] == "btcusdt_binance" and data["rrRatio"] == 5.0
+    assert "RR 5" in data["_comment"] and "20260905-120000-aaaaaa" in data["_comment"]
+    assert "enableImbEntry" not in data  # Pine default sa neukladá
+
+    p = c.get("/api/profiles/moj_rr5").json()
+    assert p["params"]["rrRatio"] == 5.0 and p["instrument"] == "btcusdt_binance" and p["kind"] == "user"
+    meta = c.get("/api/meta").json()
+    assert "moj_rr5" in meta["profiles"] and meta["user_profiles"] == ["moj_rr5"]
+
+
+def test_profile_save_rejects_bad_name_and_collisions(client, own_profiles):
+    c, store = client
+    store.save(_record("20260905-120000-aaaaaa"))
+    body = {"name": "moj", "from_run": "20260905-120000-aaaaaa"}
+    assert c.post("/api/profiles", json={**body, "name": "má medzeru"}).status_code == 422
+    assert c.post("/api/profiles", json={**body, "name": "../uteka"}).status_code == 422
+    assert c.post("/api/profiles", json={**body, "name": "golden_binance_btcusdt_3m"}).status_code == 422
+    assert c.post("/api/profiles", json={"name": "moj"}).status_code == 422  # ani beh, ani parametre
+    assert c.post("/api/profiles", json={**body, "from_run": "20260101-000000-ffffff"}).status_code == 404
+    assert c.post("/api/profiles", json=body).status_code == 200
+    assert c.post("/api/profiles", json=body).status_code == 409
+    assert c.post("/api/profiles", json={**body, "overwrite": True}).status_code == 200
+
+
+def test_profile_rename_and_delete_only_own(client, own_profiles):
+    c, store = client
+    store.save(_record("20260905-120000-aaaaaa", params={"rrRatio": 5.0}))
+    c.post("/api/profiles", json={"name": "moj", "from_run": "20260905-120000-aaaaaa"})
+
+    assert c.patch("/api/profiles/moj", json={"name": "moj_lepsi"}).json()["user_profiles"] == ["moj_lepsi"]
+    assert (own_profiles / "moj_lepsi.json").exists() and not (own_profiles / "moj.json").exists()
+    assert c.patch("/api/profiles/golden_binance_btcusdt_3m", json={"name": "x"}).status_code == 422
+    assert c.patch("/api/profiles/neexistuje", json={"name": "x"}).status_code == 404
+    assert c.patch("/api/profiles/moj_lepsi", json={"name": "golden_binance_btcusdt_3m"}).status_code == 422
+
+    assert c.delete("/api/profiles/golden_binance_btcusdt_3m").status_code == 422
+    assert c.delete("/api/profiles/neexistuje").status_code == 404
+    assert c.delete("/api/profiles/moj_lepsi").json()["user_profiles"] == []
+    assert not (own_profiles / "moj_lepsi.json").exists()
+
+
+def test_profile_params_are_validated_before_save(own_profiles):
+    from ibs.core.config import ConfigError
+    from ibs.webapp import profiles
+
+    params = IBSConfig().to_dict()
+    with pytest.raises(ConfigError):
+        profiles.save("zly", {**params, "rrRatio": 99}, "btcusdt_binance")
+    with pytest.raises(profiles.ProfileError):
+        profiles.save("zly", params, "neznamy_nastroj")
+    assert profiles.user_names() == []
+
+
+def test_git_commit_message_counts_runs_and_profiles():
+    from ibs.webapp.gitsync import _message
+
+    assert _message([" M platforms/freqtrade/user_data/runs/a/run.json"]) == "Pridaj 1 beh backtestu z webapp"
+    assert _message(["?? platforms/freqtrade/user_data/profiles/moj.json"]) == "Pridaj 1 profil z webapp"
+    mixed = _message([" M platforms/freqtrade/user_data/runs/a/run.json",
+                      "?? platforms/freqtrade/user_data/runs/b/run.json",
+                      "?? platforms/freqtrade/user_data/profiles/moj.json"])
+    assert mixed == "Pridaj 2 behy backtestu a 1 profil z webapp"
+
+
+# --------------------------------------------------------------------------- #
 # cli
 # --------------------------------------------------------------------------- #
 

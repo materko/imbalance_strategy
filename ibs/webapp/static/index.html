@@ -32,6 +32,11 @@
       <label>Východiskový profil
         <select id="profile"></select>
       </label>
+      <div class="profile-actions">
+        <button id="profile-rename" class="ghost small">Premenovať</button>
+        <button id="profile-delete" class="ghost small danger">Zmazať</button>
+        <span id="profile-msg" class="muted small"></span>
+      </div>
       <label>Pár
         <select id="pair"></select>
         <small id="pair-range" class="muted"></small>
@@ -118,9 +123,11 @@
       <h2 id="detail-title"></h2>
       <div class="spacer"></div>
       <button id="load-params" class="ghost">Načítať do formulára</button>
+      <button id="save-profile" class="ghost">Uložiť ako profil</button>
       <a id="download-profile" class="ghost btn" download>Stiahnuť profil</a>
       <button id="delete-run" class="ghost danger">Zmazať</button>
     </div>
+    <div id="save-profile-msg" class="muted small"></div>
     <div id="detail-meta" class="muted"></div>
     <div id="detail-error" class="error" hidden></div>
     <div id="cards" class="cards"></div>

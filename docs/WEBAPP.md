@@ -69,6 +69,12 @@ z vývoja (NY seansa, SL filter, risk sizing…) sú v `docs/profily_archiv/` s 
 odchýlok a dajú sa načítať cestou cez CLI; vo formulári si tie isté hodnoty nastavíš
 ručne alebo cez „Načítať do formulára" z histórie.
 
+Ponuka má dve skupiny: **profily repozitára** (`ibs/configs/`, sú kód — testy a
+merania sa na ne odvolávajú, preto sa z webapp nedajú meniť) a **vlastné profily**
+testera (`user_data/profiles/`). Vlastný profil vznikne v detaile behu tlačidlom
+**Uložiť ako profil**; tlačidlá **Premenovať** a **Zmazať** pod ponukou fungujú len
+na ne. Zmeny profilov idú do gitu tým istým **Push** ako história behov.
+
 **Parametre** sú všetkých 114 polí `IBSConfig` — 110 Pine vstupov v rovnakých
 skupinách, s rovnakými titulkami a tooltipmi ako v TradingView (parsuje sa to
 priamo z `pine/imbalance_strategy_FULL.pine`, takže sa nemôžu rozísť), plus skupina
@@ -161,8 +167,10 @@ Pod tým odchýlky od Pine defaultov (s Pine hodnotou vedľa), dôvody výstupu,
 obchodov, všetky parametre a skrátený log Freqtradu.
 
 **Načítať do formulára** vráti parametre aj nastavenia behu do formulára — na
-úpravu jedného parametra a nový beh. **Stiahnuť profil** dá JSON použiteľný
-priamo cez `IBS_PROFILE=cesta.json` v CLI. **Zmazať** odstráni adresár behu.
+úpravu jedného parametra a nový beh. **Uložiť ako profil** spraví z behu východiskový
+profil pod vlastným menom (pýta si meno a krátky popis) — objaví sa v ponuke
+„Východiskový profil" v skupine *Vlastné profily*. **Stiahnuť profil** dá JSON
+použiteľný priamo cez `IBS_PROFILE=cesta.json` v CLI. **Zmazať** odstráni adresár behu.
 
 ## Kde história žije a ako sa zdieľa
 
@@ -184,9 +192,23 @@ sviečky a obchody bez kresieb.
 Ako kresby vznikajú: stratégia dostane cez `IBS_DRAW_OUT` cestu, kam má po backteste
 vysypať finálny stav `DrawRegistry` (rovnaký mechanizmus ako `ibs.tools.plot`);
 webapp súbor po dobehnutí presunie do adresára behu.
+
+Vlastné profily žijú vedľa histórie:
+
+```
+platforms/freqtrade/user_data/profiles/<meno>.json
+```
+
+Formát je rovnaký ako pri profiloch repozitára — **len odchýlky** od Pine defaultov
+plus `_instrument`, `_comment` (z ktorého behu profil vznikol) a `_title` (popis od
+testera, ktorý stránka ukáže v ponuke). Meno je zároveň meno
+súboru: 2–48 znakov, písmená bez diakritiky, číslice, `.`, `-`, `_`; meno profilu
+repozitára sa použiť nedá, aby sa nedal prekryť.
+
 Tlačidlá **Pull** (`git pull --rebase --autostash`) a **Push** (commitne **len**
-`runs/` a pushne na aktuálnu vetvu) sú v hlavičke; výstup gitu sa zobrazí celý.
-Kód ani iné súbory sa z UI nikdy necommitujú. Autor commitu je meno testera z hlavičky.
+`runs/` a `profiles/` a pushne na aktuálnu vetvu) sú v hlavičke; výstup gitu sa zobrazí
+celý. Kód ani iné súbory sa z UI nikdy necommitujú. Autor commitu je meno testera
+z hlavičky.
 
 Výsledkové zipy Freqtradu ostávajú v `backtest_results/` (gitignored) — beh ich
 nepotrebuje, všetko podstatné je v `run.json`.
@@ -196,7 +218,7 @@ nepotrebuje, všetko podstatné je v `run.json`.
 `python -m ibs.webapp.cli` robí to isté, čo stránka, z terminálu — pre Claude Code
 testera a pre skripty. `run` ide cez API bežiacej webapp (beh vidno vo fronte), a keď
 webapp nebeží, spustí backtest priamo do toho istého `runs/`. `list`/`show` čítajú
-históriu, `pull`/`push` synchronizujú `runs/`, `status` povie, či webapp beží,
+históriu, `pull`/`push` synchronizujú `runs/` a `profiles/`, `status` povie, či webapp beží,
 `params` vypíše parametre s rozsahmi.
 
 ```bash

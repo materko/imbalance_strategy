@@ -1,8 +1,8 @@
-"""Git synchronizácia histórie behov — len adresár `runs/`, nič iné.
+"""Git synchronizácia dát testera — len `runs/` a `profiles/`, nič iné.
 
-Tester klikne „Push": zmeny v `runs/` sa commitnú, spraví sa `pull --rebase`
-a `push`. Kód ani iné súbory sa nedotýkajú, takže si tester nemôže omylom
-commitnúť rozpracovanú zmenu stratégie. Konflikt v `runs/` prakticky nevzniká
+Tester klikne „Push": zmeny v histórii behov a vo vlastných profiloch sa commitnú,
+spraví sa `pull --rebase` a `push`. Kód ani iné súbory sa nedotýkajú, takže si tester
+nemôže omylom commitnúť rozpracovanú zmenu stratégie. Konflikt prakticky nevzniká
 (každý beh je nový adresár), ale keby predsa, výstup gitu sa zobrazí celý.
 """
 
@@ -12,6 +12,7 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+from .profiles import PROFILES_DIR
 from .store import RUNS_DIR
 
 REPO = Path(__file__).resolve().parents[2]
@@ -24,8 +25,10 @@ def _git(*args: str, check: bool = False) -> subprocess.CompletedProcess:
     )
 
 
-def _rel_runs() -> str:
-    return RUNS_DIR.relative_to(REPO).as_posix()
+def _paths() -> list[str]:
+    """Adresáre, ktoré Push commituje — prázdny (neexistujúci) sa vynechá, git by naň nadával."""
+    dirs = [Path(RUNS_DIR), Path(PROFILES_DIR)]
+    return [d.relative_to(REPO).as_posix() for d in dirs if d.exists()]
 
 
 def branch() -> str:
@@ -40,7 +43,8 @@ def user_name() -> str:
 
 def status() -> dict[str, Any]:
     br = branch()
-    changed = _git("status", "--porcelain", "--", _rel_runs()).stdout.splitlines()
+    paths = _paths()
+    changed = _git("status", "--porcelain", "--", *paths).stdout.splitlines() if paths else []
     _git("fetch", "--quiet", "origin", br)
     ahead = behind = None
     rev = _git("rev-list", "--left-right", "--count", f"origin/{br}...HEAD")
@@ -49,7 +53,7 @@ def status() -> dict[str, Any]:
         ahead, behind = int(a), int(b)
     return {
         "branch": br,
-        "uncommitted_runs": len(changed),
+        "uncommitted": len(changed),
         "changed": changed[:50],
         "ahead": ahead,
         "behind": behind,
@@ -70,6 +74,19 @@ def _out(*procs: subprocess.CompletedProcess) -> str:
     return "\n".join(parts)
 
 
+def _message(changed: list[str]) -> str:
+    """Zhrnutie do commit správy: koľko behov a koľko profilov sa mení."""
+    rel_profiles = Path(PROFILES_DIR).relative_to(REPO).as_posix()
+    profiles = sum(1 for line in changed if rel_profiles in line.replace("\\", "/"))
+    runs = len(changed) - profiles
+    parts = []
+    if runs:
+        parts.append(f"{runs} {'beh' if runs == 1 else 'behy' if runs < 5 else 'behov'} backtestu")
+    if profiles:
+        parts.append(f"{profiles} {'profil' if profiles == 1 else 'profily' if profiles < 5 else 'profilov'}")
+    return "Pridaj " + " a ".join(parts) + " z webapp"
+
+
 def pull() -> dict[str, Any]:
     br = branch()
     p = _git("pull", "--rebase", "--autostash", "origin", br)
@@ -79,12 +96,12 @@ def pull() -> dict[str, Any]:
 def push(message: str | None = None, author: str | None = None) -> dict[str, Any]:
     br = branch()
     steps: list[subprocess.CompletedProcess] = []
-    changed = _git("status", "--porcelain", "--", _rel_runs()).stdout.splitlines()
+    paths = _paths()
+    changed = _git("status", "--porcelain", "--", *paths).stdout.splitlines() if paths else []
     if changed:
-        steps.append(_git("add", "--", _rel_runs()))
-        n = len(changed)
-        msg = message or f"Pridaj {n} {'beh' if n == 1 else 'behy' if n < 5 else 'behov'} backtestu z webapp"
-        args = ["commit", "-m", msg, "--", _rel_runs()]
+        steps.append(_git("add", "--", *paths))
+        msg = message or _message(changed)
+        args = ["commit", "-m", msg, "--", *paths]
         if author:
             args = ["-c", f"user.name={author}", *args]
         c = _git(*args)

@@ -29,8 +29,8 @@ from pathlib import Path
 from typing import Any, Callable
 
 from ..core import IBSConfig, load_profile
-from ..core.config import CONFIG_DIR
 from ..core.types import INSTRUMENTS
+from . import profiles
 from .store import RunStore, make_run_id
 
 REPO = Path(__file__).resolve().parents[2]
@@ -403,35 +403,36 @@ def _trim_log(lines: list[str]) -> list[str]:
 
 
 def default_params(profile: "str | Path | None" = None) -> tuple[dict[str, Any], str | None]:
-    """Parametre formulára: Pine defaulty, alebo profil z `ibs/configs/`."""
+    """Parametre formulára: Pine defaulty, profil z `ibs/configs/`, vlastný profil testera
+    alebo cesta k JSON v repozitári (archív profilov)."""
     if profile:
-        cfg, inst = load_profile(profile)
+        cfg, inst = load_profile(profiles.resolve(profile))
         key = next(k for k, v in INSTRUMENTS.items() if v is inst)
         return cfg.to_dict(), key
     return IBSConfig().to_dict(), None
 
 
 def list_profiles() -> list[str]:
-    return sorted(p.stem for p in CONFIG_DIR.glob("*.json"))
+    """Profily repozitára a za nimi vlastné profily testera."""
+    return profiles.all_names()
+
+
+def _profile_key(key: str) -> dict[str, str]:
+    """Hodnota kľúča z každého profilu (repozitár aj vlastné); bez neho ostane názov súboru."""
+    out = {}
+    for name, path in profiles.all_paths().items():
+        try:
+            out[name] = str(json.loads(path.read_text(encoding="utf-8")).get(key) or "")
+        except (OSError, json.JSONDecodeError):
+            out[name] = ""
+    return out
 
 
 def profile_instruments() -> dict[str, str]:
     """`_instrument` z profilu — aby stránka vedela, ktorý profil sedí na ktorý pár."""
-    out = {}
-    for p in CONFIG_DIR.glob("*.json"):
-        try:
-            out[p.stem] = str(json.loads(p.read_text(encoding="utf-8")).get("_instrument") or "")
-        except (OSError, json.JSONDecodeError):
-            out[p.stem] = ""
-    return out
+    return _profile_key("_instrument")
 
 
 def profile_titles() -> dict[str, str]:
     """`_title` z profilu — ľudský popis do dropdownu (bez neho ostane názov súboru)."""
-    out = {}
-    for p in CONFIG_DIR.glob("*.json"):
-        try:
-            out[p.stem] = str(json.loads(p.read_text(encoding="utf-8")).get("_title") or p.stem)
-        except (OSError, json.JSONDecodeError):
-            out[p.stem] = p.stem
-    return out
+    return {name: title or name for name, title in _profile_key("_title").items()}

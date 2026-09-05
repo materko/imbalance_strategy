@@ -64,7 +64,10 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
 3. **Ku každému behu napíš `--note`**, čo testuje. Bez poznámky je história na nič.
 4. **Testerov klon nie je vývojová vetva.** Neupravuj `ibs/core`, adaptéry ani profily
    v `ibs/configs`, pokiaľ ťa o to výslovne nepožiadajú. Parametre sa menia cez `--set`
-   alebo vo formulári, nie v kóde. Do gitu ide len história behov (`runs/`).
+   alebo vo formulári, nie v kóde. Do gitu idú len dáta testera: história behov (`runs/`)
+   a vlastné profily (`user_data/profiles/`). Vlastný profil si tester uloží z detailu
+   behu tlačidlom **Uložiť ako profil** — tam sa dá aj premenovať a zmazať; profily
+   repozitára v `ibs/configs/` sa nemenia.
 5. Jeden backtest naraz. Rok s 1m detailom trvá ~20–40 s; päť rokov ~3 minúty.
 6. Nesťahuj dáta z burzy. Páry a obdobia sú len tie, čo sú v `data_archive/`
    (BTC/USDT:USDT a ETH/USDT:USDT, 2019–2026).
@@ -198,12 +201,13 @@ celá aktualizácia spraviť aj opätovným spustením inštalátora:
 
 ```bash
 PY -m ibs.webapp.cli pull    # stiahni behy ostatných (git pull --rebase --autostash)
-PY -m ibs.webapp.cli push    # commitni LEN runs/ a pushni na aktuálnu vetvu
+PY -m ibs.webapp.cli push    # commitni LEN runs/ a profiles/ a pushni na aktuálnu vetvu
 ```
 
-To isté robia tlačidlá Pull/Push vo webapp. Push commituje **výhradne** adresár
-`platforms/freqtrade/user_data/runs/`, autor je meno testera (`IBS_USER` alebo
-`git config user.name`). Každý beh je nový adresár, konflikty prakticky nevznikajú.
+To isté robia tlačidlá Pull/Push vo webapp. Push commituje **výhradne** adresáre
+`platforms/freqtrade/user_data/runs/` a `platforms/freqtrade/user_data/profiles/`,
+autor je meno testera (`IBS_USER` alebo `git config user.name`). Každý beh je nový
+adresár, konflikty prakticky nevznikajú.
 Ak push zlyhá na „rejected", sprav pull a push znova. Ak tester zmenil kód a chce
 ho poslať, to už nie je história behov — povedz mu, nech to rieši s autorom repozitára
 (pull request), a **necommituj kód** za neho.
