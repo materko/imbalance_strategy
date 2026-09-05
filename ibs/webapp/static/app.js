@@ -490,8 +490,11 @@ async function saveRunAsProfile() {
 async function saveFormAsProfile() {
   const pair = state.meta.pairs.find(p => p.pair === $("#pair").value);
   if (!pair) { alert("Najprv vyber pár."); return; }
-  await saveProfile({ params: state.params, instrument: pair.instrument, timeframe: $("#tf").value },
-                    $("#profile-msg"));
+  await saveProfile({
+    params: state.params, instrument: pair.instrument, timeframe: $("#tf").value,
+    timerange: timerange(), fee: $("#fee").value === "" ? null : Number($("#fee").value) / 100,
+    wallet: Number($("#wallet").value), timeframe_detail: $("#detail").checked ? "1m" : null,
+  }, $("#profile-msg"));
 }
 
 async function loadProfile(name) {
@@ -509,6 +512,7 @@ async function loadProfile(name) {
   // limity *MaxBars sú v baroch, takže k profilu patrí aj TF, na ktorom bol ladený;
   // profil bez `_timeframe` (tie z repozitára) znamená 3m, nie „nechaj, čo tam bolo"
   fillTimeframes($("#pair").value, r.timeframe || "3m");
+  applyProfileSettings(r.settings || {});
 }
 
 function currentPair() {
@@ -551,6 +555,21 @@ function lockSpotParams() {
       el.title = spot ? "Spotový pár: na spote sa nedá shortovať ani páčiť." : "";
     }
   }
+}
+
+/** Obdobie, poplatok, peňaženka a 1m detail uložené v profile — čo profil nemá,
+ *  ostane tak, ako to má tester nastavené. Obdobie sa oreže na stiahnuté dáta páru. */
+function applyProfileSettings(setup) {
+  if (setup.timerange) {
+    const o = $("#pair").selectedOptions[0];
+    const [a, b] = setup.timerange.split("-").map(d => `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}`);
+    const lo = (o && o.dataset.from) || a, hi = (o && o.dataset.to) || b;
+    $("#from").value = a < lo ? lo : (a > hi ? hi : a);
+    $("#to").value = b > hi ? hi : (b < lo ? lo : b);
+  }
+  if (setup.fee !== undefined) $("#fee").value = setup.fee * 100;
+  if (setup.wallet !== undefined) $("#wallet").value = setup.wallet;
+  if (setup.detail !== undefined) $("#detail").checked = !!setup.detail;
 }
 
 /** Profil je ladený na konkrétny nástroj — BTC prahy v bodoch na ETH dajú stovky nezmyselných obchodov. */

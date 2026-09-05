@@ -7,8 +7,9 @@ premenovať aj zmazať a nikdy neprepíše profil z repozitára.
 
 Formát je rovnaký ako pri profiloch repozitára: **len odchýlky** od Pine defaultov
 plus kľúč `_instrument`. Vďaka tomu je diff čitateľný a profil prežije aj to, keď sa
-niekedy zmení Pine default (posunie sa s ním). Navyše `_timeframe`: limity `*MaxBars`
-sú v baroch, takže TF grafu patrí k nastaveniu rovnako ako samotné parametre.
+niekedy zmení Pine default (posunie sa s ním). Navyše nastavenia behu, bez ktorých
+by profil povedal „ako", ale nie „na čom": `_timeframe` (limity `*MaxBars` sú v baroch,
+takže TF patrí k nastaveniu), `_timerange`, `_fee`, `_wallet` a `_detail`.
 """
 
 from __future__ import annotations
@@ -106,21 +107,32 @@ def deviations(params: dict[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in params.items() if not k.startswith("_") and defaults.get(k) != v}
 
 
-def timeframe_of(name: str) -> str | None:
-    """TF grafu, na ktorom je profil ladený (`_timeframe`) — bez neho `None`."""
+#: Nastavenia behu, ktoré k profilu patria — bez nich by profil povedal „ako", ale
+#: nie „na čom". Ukladajú sa s podtržníkom, aby ich `IBSConfig` prešiel ako metadáta.
+SETTING_KEYS = ("timeframe", "timerange", "fee", "wallet", "detail")
+
+
+def settings_of(name: str) -> dict[str, Any]:
+    """Nastavenia behu uložené v profile (`_timeframe`, `_timerange`, `_fee`…).
+
+    Čo profil nemá, v slovníku nie je — formulár tú položku nechá, ako ju má tester.
+    """
     path = all_paths().get(name)
     if path is None:
-        return None
+        return {}
     try:
-        return json.loads(path.read_text(encoding="utf-8")).get("_timeframe") or None
+        data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
-        return None
+        return {}
+    out = {k: data[f"_{k}"] for k in SETTING_KEYS if data.get(f"_{k}") is not None}
+    return out
 
 
 def save(name: str, params: dict[str, Any], instrument: str, *,
          comment: str | None = None, title: str | None = None,
-         timeframe: str | None = None, overwrite: bool = False) -> Path:
-    """Uloží profil; `params` sú hodnoty v tvare `IBSConfig.to_dict()`."""
+         settings: dict[str, Any] | None = None, overwrite: bool = False) -> Path:
+    """Uloží profil; `params` sú hodnoty v tvare `IBSConfig.to_dict()`,
+    `settings` nastavenia behu (`timeframe`, `timerange`, `fee`, `wallet`, `detail`)."""
     name = check_name(name)
     if instrument not in INSTRUMENTS:
         raise ProfileError(f"neznámy nástroj {instrument!r}; známe: {sorted(INSTRUMENTS)}")
@@ -129,8 +141,10 @@ def save(name: str, params: dict[str, Any], instrument: str, *,
     if path.exists() and not overwrite:
         raise FileExistsError(f"profil {name} už existuje")
     data: dict[str, Any] = {"_instrument": instrument, **deviations(params)}
-    if timeframe:
-        data = {"_timeframe": timeframe, **data}
+    for key in reversed(SETTING_KEYS):
+        value = (settings or {}).get(key)
+        if value is not None:
+            data = {f"_{key}": value, **data}
     if comment:
         data = {"_comment": comment, **data}
     if title:
