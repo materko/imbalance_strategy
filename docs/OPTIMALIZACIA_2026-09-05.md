@@ -1,4 +1,4 @@
-# Optimalizácia po opravách adaptéra: tri hypotézy na BTC a overenie na ETH (2026-09-05)
+# Optimalizácia po opravách adaptéra: hypotézy na BTC a overenie na ETH (2026-09-05)
 
 Východisko: profil `btcusdt_3m_binance_ny` po opravách z
 [OPRAVY_adapter_2026-09-05.md](OPRAVY_adapter_2026-09-05.md) — 215 obchodov za päť
@@ -150,6 +150,29 @@ Profil: `ibs/configs/ethusdt_3m_binance_ny_sl.json`.
 break-even −0,047 %, ale po rokoch −0,34 / **+0,21** / −0,21 / −0,01 / **+0,07** — dva
 z piatich rokov výrazne kladné, rovnako ako na BTC. Šesť z desiatich nástroj-rokov
 záporných nie je mechanizmus, je to hod mincou s ťažkými chvostmi. Zahadzujem.
+
+## 5. Percentá ceny alebo násobky ATR?
+
+Prah v percentách ceny sa s volatilitou nemení, prah v ATR áno — tak sa ponúka otázka,
+či nie je ATR správnejšia jednotka. Engine `unit: "atr"` pozná, takže sa to dalo
+prebehnúť ako skutočný backtest (ATR 14 na 3m grafe, bez poplatkov):
+
+| jednotka | BTC obchodov | BTC break-even | BTC 2023-24 | ETH obchodov | ETH break-even | ETH 2024-25 |
+|---|---|---|---|---|---|---|
+| bez filtra | 215 | 0,0879 | −0,0023 | 203 | 0,0561 | 0,0668 |
+| **0,20 % ceny** | 149 | **0,1410** | −0,0075 | 164 | **0,0957** | 0,0658 |
+| 1,0 ATR | 145 | 0,1394 | −0,0056 | 147 | 0,0910 | 0,0615 |
+| 1,25 ATR | 123 | 0,1551 | **−0,0607** | 129 | 0,0868 | **0,0170** |
+
+Pri 1,0 ATR vyberie filter takmer tú istú množinu obchodov ako 0,20 % ceny (korelácia
+oboch mier je len 0,69, ale výsledok je na oboch nástrojoch o chlp horší). Pri 1,25 ATR
+sa slabé roky zhoršia: BTC 2023-24 padne na −0,06 %, ETH 2024-25 na 0,017 %.
+
+**Dôvod je mechanizmus filtra.** Poplatok je percento z nominálu, takže otázka „zaplatí
+tento obchod poplatky" sa kladie v percentách ceny, nie v ATR. V roku s nízkou
+volatilitou (BTC 2022-23 mal medián ATR 0,14 % ceny proti 0,25 % v iných rokoch) sa
+ATR prah v cenových bodoch stiahne a pustí tesné SL, ktoré aj tak platia plný poplatok.
+Percento ceny drží latku tam, kde je poplatok. Jednotka ostáva **pct**.
 
 ## Kde to sme
 
