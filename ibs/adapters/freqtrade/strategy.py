@@ -27,7 +27,7 @@ from freqtrade.strategy import (
 
 from ...core import Bar, SessionClock, load_profile
 from ...core.risk import TrailingPlan, extreme_before_stop
-from ...core.types import Direction, SizeSpec
+from ...core.types import Direction, SizeSpec, TradeDirection
 from .runner import EngineRunner, SignalRow, export_chart
 
 #: `enter_tag` obchodu je ``ibs:<čas baru signálu v ms>``. Vďaka tomu každý
@@ -152,6 +152,13 @@ class IBSImbalanceStrategy(IStrategy):
         warnings = self.ibs_cfg.check_instrument(self.ibs_inst)
         for w in warnings:
             logger.warning("IBS config: %s", w)
+        # Spot: burza nemá čo požičať, takže žiadne shorty ani páka. Freqtrade by
+        # stratégiu s `can_short` v spot režime ani nespustil.
+        if config.get("trading_mode", "spot") == "spot":
+            self.can_short = False
+            if self.ibs_cfg.tradeDirection is not TradeDirection.LONG_ONLY:
+                logger.warning("IBS: spotový trh — tradeDirection %s sa zužuje na longy",
+                               self.ibs_cfg.tradeDirection.value)
         self._runners: dict[str, EngineRunner] = {}
         self._runner_fp: tuple | None = None
         #: (pár, čas vstupu) -> najlepšia dosiahnutá cena, vstup do trailingu.

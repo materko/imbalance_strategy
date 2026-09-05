@@ -62,6 +62,7 @@ function setParams(values, asBase) {
   }
   state.params = JSON.parse(JSON.stringify(out));
   if (asBase) state.base = JSON.parse(JSON.stringify(out));
+  enforceSpotParams();
   renderParams();
 }
 
@@ -225,6 +226,7 @@ function renderParams() {
   }
   refreshChanged();
   applyParamFilter();
+  lockSpotParams();
 }
 
 /** Klik na skupinu vľavo: dlhý zoznam sa presunie na jej nadpis (pod prilepenú hlavičku). */
@@ -318,13 +320,25 @@ function applyParamFilter() {
 function fillSettings() {
   fillProfiles();
   const pair = $("#pair"); pair.innerHTML = "";
-  for (const p of state.meta.pairs) {
-    const o = document.createElement("option"); o.value = p.pair;
-    o.textContent = `${p.pair}${p.has_1m ? "" : " (bez 1m)"}`; o.dataset.from = p.from; o.dataset.to = p.to; pair.append(o);
+  // pár sa volá tak, ako ho volá burza: BTCUSDT.P je perpetual, BTCUSDT spot
+  for (const [label, market] of [["Futures (perpetual)", "futures"], ["Spot", "spot"]]) {
+    const list = state.meta.pairs.filter(p => (p.market || "futures") === market);
+    if (!list.length) continue;
+    const g = document.createElement("optgroup"); g.label = label;
+    for (const p of list) {
+      const o = document.createElement("option"); o.value = p.pair;
+      o.textContent = `${p.exchange_symbol || p.pair}${p.has_1m ? "" : " (bez 1m)"}`;
+      o.title = p.pair;
+      o.dataset.from = p.from; o.dataset.to = p.to;
+      g.append(o);
+    }
+    pair.append(g);
   }
   pair.onchange = () => {
     const o = pair.selectedOptions[0]; if (!o) return;
     checkPairProfile();
+    showMarket();
+    if (enforceSpotParams()) renderParams(); else lockSpotParams();
     $("#pair-range").textContent = `dáta ${o.dataset.from} → ${o.dataset.to}`;
     fillTimeframes(o.value);
     $("#from").min = o.dataset.from; $("#from").max = o.dataset.to; $("#to").min = o.dataset.from; $("#to").max = o.dataset.to;
@@ -495,6 +509,48 @@ async function loadProfile(name) {
   // limity *MaxBars sú v baroch, takže k profilu patrí aj TF, na ktorom bol ladený;
   // profil bez `_timeframe` (tie z repozitára) znamená 3m, nie „nechaj, čo tam bolo"
   fillTimeframes($("#pair").value, r.timeframe || "3m");
+}
+
+function currentPair() {
+  return state.meta.pairs.find(p => p.pair === $("#pair").value) || null;
+}
+
+function isSpotPair() {
+  const p = currentPair();
+  return !!p && (p.market || "futures") === "spot";
+}
+
+function showMarket() {
+  const p = currentPair();
+  const el = $("#pair-market");
+  if (!p) { el.textContent = ""; return; }
+  el.textContent = (p.market || "futures") === "spot"
+    ? `Binance ${p.exchange_symbol} · spot (${p.pair}) — len longy, bez páky`
+    : `Binance ${p.exchange_symbol} · futures perpetual (${p.pair})`;
+}
+
+/** Na spote nie sú shorty ani páka — hodnoty sa nastavia natvrdo, nech beh zodpovedá
+ *  tomu, čo sa dá naozaj obchodovať. Vracia `true`, keď niečo zmenil. */
+function enforceSpotParams() {
+  if (!isSpotPair()) return false;
+  let changed = false;
+  if (state.params.tradeDirection !== "Long only") { state.params.tradeDirection = "Long only"; changed = true; }
+  if (Number(state.params.leverage) > 1) { state.params.leverage = 1; changed = true; }
+  return changed;
+}
+
+/** Zamkne polia, ktoré na spote nemajú význam (a povie prečo). */
+function lockSpotParams() {
+  const spot = isSpotPair();
+  for (const name of ["tradeDirection", "leverage"]) {
+    const ctl = $(`.ctl[data-name="${name}"]`);
+    if (!ctl) continue;
+    ctl.classList.toggle("locked", spot);
+    for (const el of ctl.querySelectorAll("input, select")) {
+      el.disabled = spot;
+      el.title = spot ? "Spotový pár: na spote sa nedá shortovať ani páčiť." : "";
+    }
+  }
 }
 
 /** Profil je ladený na konkrétny nástroj — BTC prahy v bodoch na ETH dajú stovky nezmyselných obchodov. */

@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from ..core import IBSConfig, load_profile
-from ..core.types import INSTRUMENTS
+from ..core.types import INSTRUMENTS, TradeDirection
 from . import profiles
 from .store import RunStore, make_run_id
 
@@ -38,6 +38,8 @@ FT_DIR = REPO / "platforms" / "freqtrade"
 USER_DIR = FT_DIR / "user_data"
 RESULTS_DIR = USER_DIR / "backtest_results"
 DATA_DIR = USER_DIR / "data" / "binance" / "futures"
+#: Spot je o adresár vyššie a bez prípony `-futures` v mene súboru (tak to píše Freqtrade).
+SPOT_DIR = USER_DIR / "data" / "binance"
 TMP_PROFILES = USER_DIR / "runs" / ".profiles"
 
 #: Koľko riadkov logu sa uloží k behu — celý log Freqtradu má stovky riadkov
@@ -52,34 +54,68 @@ def instrument_for_pair(pair: str) -> str:
     raise ValueError(f"pre pár {pair!r} nie je definovaný InstrumentSpec (ibs/core/types.py)")
 
 
+def _pair_from_file(name: str) -> str | None:
+    """`BTC_USDT_USDT-3m-futures.feather` → `BTC/USDT:USDT`, `BTC_USDT-3m.feather` → `BTC/USDT`."""
+    base = name.split("-3m")[0]
+    parts = base.split("_")
+    if len(parts) == 3:
+        return f"{parts[0]}/{parts[1]}:{parts[2]}"
+    if len(parts) == 2:
+        return f"{parts[0]}/{parts[1]}"
+    return None
+
+
+def check_market_rules(pair: str, params: dict[str, Any]) -> None:
+    """Na spote sa nedá shortovať ani páčiť — burza nemá čo požičať.
+
+    Freqtrade by short v spot režime ticho zahodil a páka by sa neuplatnila, takže
+    by beh vyzeral ako platný výsledok niečoho, čo sa v skutočnosti nedá obchodovať.
+    """
+    inst = INSTRUMENTS[instrument_for_pair(pair)]
+    if not inst.is_spot:
+        return
+    direction = params.get("tradeDirection", TradeDirection.BOTH.value)
+    if direction != TradeDirection.LONG_ONLY.value:
+        raise ValueError(
+            f"{inst.exchange_symbol} je spotový pár — shorty sa na ňom obchodovať nedajú; "
+            f"nastav tradeDirection na „{TradeDirection.LONG_ONLY.value}\" (teraz „{direction}\")"
+        )
+    leverage = params.get("leverage", 1)
+    if leverage is not None and float(leverage) > 1:
+        raise ValueError(
+            f"{inst.exchange_symbol} je spotový pár — páka na ňom nie je; "
+            f"nastav leverage na 1 (teraz {leverage:g})"
+        )
+
+
 def available_pairs() -> list[dict[str, Any]]:
-    """Páry, pre ktoré sú stiahnuté 3m dáta, a ich dátumový rozsah."""
+    """Páry, pre ktoré sú stiahnuté 3m dáta (futures aj spot), a ich dátumový rozsah."""
     import pandas as pd
 
+    from .chart import available_timeframes
+
+    files = [*sorted(DATA_DIR.glob("*-3m-futures.feather")), *sorted(SPOT_DIR.glob("*-3m.feather"))]
     out = []
-    for p in sorted(DATA_DIR.glob("*-3m-futures.feather")):
-        base = p.name.split("-3m-")[0]  # BTC_USDT_USDT
-        parts = base.split("_")
-        if len(parts) != 3:
+    for p in files:
+        pair = _pair_from_file(p.name)
+        if pair is None:
             continue
-        pair = f"{parts[0]}/{parts[1]}:{parts[2]}"
         try:
-            instrument_for_pair(pair)
+            key = instrument_for_pair(pair)
         except ValueError:
             continue
+        inst = INSTRUMENTS[key]
         dates = pd.read_feather(p, columns=["date"])["date"]
-        detail = (p.parent / p.name.replace("-3m-", "-1m-")).exists()
-        htf = (p.parent / p.name.replace("-3m-", "-5m-")).exists()
-        from .chart import available_timeframes
-
         out.append({
             "pair": pair,
-            "instrument": instrument_for_pair(pair),
+            "instrument": key,
+            "market": inst.market,
+            "exchange_symbol": inst.exchange_symbol,
             "from": str(dates.min())[:10],
             "to": str(dates.max())[:10],
             "bars_3m": int(len(dates)),
-            "has_1m": detail,
-            "has_5m": htf,
+            "has_1m": (p.parent / p.name.replace("-3m", "-1m")).exists(),
+            "has_5m": (p.parent / p.name.replace("-3m", "-5m")).exists(),
             "timeframes": available_timeframes(pair),
         })
     return out
@@ -120,9 +156,13 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
     """`timeframe` je TF grafu, na ktorom stratégia počíta (ako TF grafu v TradingView);
     Freqtrade ním prebije `timeframe` stratégie. 1m detail má zmysel len pod ním."""
     tf = settings.get("timeframe") or "3m"
+    # spot má vlastný config (trading_mode: spot) — s futures configom by Freqtrade
+    # spotový pár ani nenašiel
+    spot = ":" not in settings["pair"]
+    config = "config.binance.spot.json" if spot else "config.binance.json"
     cmd = [
         python, "-m", "freqtrade", "backtesting",
-        "--config", str(FT_DIR / "config.binance.json"),
+        "--config", str(FT_DIR / config),
         "--userdir", str(USER_DIR),
         "--strategy", "IBSImbalanceStrategy",
         "--cache", "none",
@@ -261,7 +301,7 @@ class BacktestRunner:
     def submit(self, params: dict[str, Any], settings: dict[str, Any], note: str = "", user: str = "") -> Job:
         # config sa validuje HNEĎ, aby tester dostal chybu do formulára a nie do logu behu
         IBSConfig.from_dict({k: v for k, v in params.items() if not k.startswith("_")})
-        instrument_for_pair(settings["pair"])
+        check_market_rules(settings["pair"], params)
         job = Job(id=make_run_id(params, settings), params=params, settings=settings, note=note, user=user)
         with self._lock:
             self.jobs[job.id] = job

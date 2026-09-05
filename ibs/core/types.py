@@ -25,6 +25,8 @@ __all__ = [
     "MNQ",
     "BTCUSD_COINBASE",
     "BTCUSDT_BINANCE",
+    "BTCUSDT_BINANCE_SPOT",
+    "ETHUSDT_BINANCE_SPOT",
     "INSTRUMENTS",
 ]
 
@@ -239,11 +241,31 @@ class InstrumentSpec:
     min_qty: float
     has_real_volume: bool = True
     quote_currency: str = "USD"
+    #: "futures" (perpetual/kontrakt, dajú sa shorty aj páka) alebo "spot" (len longy,
+    #: páka 1). Rozhoduje o tom, čo webapp povolí a s akým Freqtrade configom sa beží.
+    market: str = "futures"
 
     def __post_init__(self) -> None:
         for field in ("tick_size", "point_value", "qty_step", "min_qty"):
             if getattr(self, field) <= 0:
                 raise ValueError(f"InstrumentSpec.{field} musí byť > 0")
+        if self.market not in ("futures", "spot"):
+            raise ValueError(f"InstrumentSpec.market musí byť 'futures' alebo 'spot', nie {self.market!r}")
+
+    @property
+    def is_spot(self) -> bool:
+        """Na spote sa nedá shortovať ani páčiť — burza nemá čo požičať."""
+        return self.market == "spot"
+
+    @property
+    def exchange_symbol(self) -> str:
+        """Ako pár volá burza: `BTC/USDT:USDT` → `BTCUSDT.P`, `BTC/USDT` → `BTCUSDT`.
+
+        `.P` je značka perpetuálu (rovnako to píše TradingView), aby bolo na prvý
+        pohľad vidno, či ide o futures alebo spot.
+        """
+        base = self.symbol.split(":")[0].replace("/", "").replace("-", "")
+        return f"{base}.P" if self.market == "futures" and ":" in self.symbol else base
 
     # -- odvodené ----------------------------------------------------------- #
 
@@ -323,6 +345,7 @@ BTCUSD_COINBASE = InstrumentSpec(
     qty_step=0.00000001,
     min_qty=0.00000001,
     quote_currency="USD",
+    market="spot",
 )
 
 #: Exekučný pár — USDⓈ-M perpetual. tick_size/qty_step si adaptér za behu
@@ -350,9 +373,36 @@ ETHUSDT_BINANCE = InstrumentSpec(
     quote_currency="USDT",
 )
 
+#: Binance SPOT — ten istý trh bez páky a bez shortov. Ceny sa od perpetuálu líšia
+#: o bázu (funding), takže výsledky nie sú zameniteľné; tick a krok množstva sú
+#: spotové filtre burzy (fallback, adaptér si ich za behu prepíše).
+BTCUSDT_BINANCE_SPOT = InstrumentSpec(
+    symbol="BTC/USDT",
+    venue="binance",
+    tick_size=0.01,
+    point_value=1.0,
+    qty_step=0.00001,
+    min_qty=0.00001,
+    quote_currency="USDT",
+    market="spot",
+)
+
+ETHUSDT_BINANCE_SPOT = InstrumentSpec(
+    symbol="ETH/USDT",
+    venue="binance",
+    tick_size=0.01,
+    point_value=1.0,
+    qty_step=0.0001,
+    min_qty=0.0001,
+    quote_currency="USDT",
+    market="spot",
+)
+
 INSTRUMENTS: dict[str, InstrumentSpec] = {
     "mnq": MNQ,
     "btcusd_coinbase": BTCUSD_COINBASE,
     "btcusdt_binance": BTCUSDT_BINANCE,
     "ethusdt_binance": ETHUSDT_BINANCE,
+    "btcusdt_binance_spot": BTCUSDT_BINANCE_SPOT,
+    "ethusdt_binance_spot": ETHUSDT_BINANCE_SPOT,
 }

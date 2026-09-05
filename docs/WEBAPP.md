@@ -83,6 +83,16 @@ s dôvodom. K profilu patrí aj **TF grafu**: limity `*MaxBars` sú v baroch, ta
 profil ladený na 5m nesedí na 3m. Výber profilu preto TF prepne — profil repozitára
 (nemá uložený TF) na 3m.
 
+**Pár** je pomenovaný tak, ako ho volá burza, a ponuka je rozdelená na **Futures
+(perpetual)** a **Spot**: `BTCUSDT.P` je perpetuál (`BTC/USDT:USDT` vo Freqtrade),
+`BTCUSDT` je spot (`BTC/USDT`). Pod ponukou je vidno, o ktorý trh ide.
+
+Na spote sa nedá shortovať ani páčiť — burza nemá čo požičať. Pri spotovom páre sa
+preto `tradeDirection` prepne na „Long only", `leverage` na 1 a obe polia sa zamknú;
+beh s inou hodnotou API odmietne (aj z CLI), nech sa nestane, že výsledok vyzerá
+platne, hoci sa taký obchod v skutočnosti spraviť nedá. Spot beží s vlastným
+Freqtrade configom (`config.binance.spot.json`, `trading_mode: spot`).
+
 **Parametre** sú všetkých 114 polí `IBSConfig` — 110 Pine vstupov v rovnakých
 skupinách, s rovnakými titulkami a tooltipmi ako v TradingView (parsuje sa to
 priamo z `pine/imbalance_strategy_FULL.pine`, takže sa nemôžu rozísť), plus skupina
