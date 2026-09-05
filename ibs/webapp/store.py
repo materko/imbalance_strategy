@@ -48,8 +48,9 @@ def _write_json(path: Path, data: Any) -> None:
 
 
 class RunStore:
-    def __init__(self, root: Path = RUNS_DIR) -> None:
-        self.root = Path(root)
+    def __init__(self, root: Path | None = None) -> None:
+        # RUNS_DIR sa čita az tu, aby sa dal v testoch a nastrojoch prepnut
+        self.root = Path(root or RUNS_DIR)
         self.root.mkdir(parents=True, exist_ok=True)
 
     # -- zápis -------------------------------------------------------------- #

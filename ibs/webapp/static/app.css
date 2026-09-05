@@ -39,6 +39,7 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color:
 label input, label select, .settings textarea { font: inherit; font-size: 14px; color: var(--ink); padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
 label.inline { flex-direction: row; align-items: center; gap: 8px; color: var(--ink); }
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.warnbox { background: #fef3c7; color: #92400e; padding: 8px 10px; border-radius: 6px; margin-bottom: 10px; font-size: 12px; }
 .error { background: #fee2e2; color: #991b1b; padding: 8px 10px; border-radius: 6px; margin-top: 10px; white-space: pre-wrap; font-size: 12px; }
 
 .params-card { padding: 0; overflow: hidden; }

@@ -147,6 +147,23 @@ Kód ani iné súbory sa z UI nikdy necommitujú. Autor commitu je meno testera 
 Výsledkové zipy Freqtradu ostávajú v `backtest_results/` (gitignored) — beh ich
 nepotrebuje, všetko podstatné je v `run.json`.
 
+## Príkazový riadok a Claude Code
+
+`python -m ibs.webapp.cli` robí to isté, čo stránka, z terminálu — pre Claude Code
+testera a pre skripty. `run` ide cez API bežiacej webapp (beh vidno vo fronte), a keď
+webapp nebeží, spustí backtest priamo do toho istého `runs/`. `list`/`show` čítajú
+históriu, `pull`/`push` synchronizujú `runs/`, `status` povie, či webapp beží,
+`params` vypíše parametre s rozsahmi.
+
+```bash
+python -m ibs.webapp.cli run --profile btcusdt_3m_binance_ny_sl_risk1 \
+    --set rrRatio=4 --set minSlDistance=0.25@pct --timerange 20250904-20260904 --note "RR 4"
+python -m ibs.webapp.cli list "rrRatio>=4 pnl>0"
+```
+
+Kompletné pokyny pre Claude Code (spúšťanie, reštart, aktualizácia, Git) sú
+v [`CLAUDE.md`](../CLAUDE.md) v koreni repozitára — Claude Code ho načíta sám.
+
 ## Čo aplikácia nerobí
 
 * Nesťahuje dáta — páry a obdobia sú len tie, čo sú v archíve

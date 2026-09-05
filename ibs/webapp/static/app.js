@@ -14,6 +14,7 @@ const state = {
   pollTimer: null,
   detailId: null,
   activeGroup: null,
+  profileInstrument: null,
 };
 
 function currentUser() { return ($("#who").value || "").trim() || null; }
@@ -251,6 +252,7 @@ function fillSettings() {
   }
   pair.onchange = () => {
     const o = pair.selectedOptions[0]; if (!o) return;
+    checkPairProfile();
     $("#pair-range").textContent = `dáta ${o.dataset.from} → ${o.dataset.to}`;
     $("#from").min = o.dataset.from; $("#from").max = o.dataset.to; $("#to").min = o.dataset.from; $("#to").max = o.dataset.to;
     if (!$("#to").value || $("#to").value > o.dataset.to) $("#to").value = o.dataset.to;
@@ -268,13 +270,25 @@ function fillSettings() {
 
 async function loadProfile(name) {
   state.profile = name || null;
-  if (!name) { setParams({}, true); return; }
+  state.profileInstrument = null;
+  if (!name) { setParams({}, true); checkPairProfile(); return; }
   const r = await api(`/api/profiles/${encodeURIComponent(name)}`);
+  state.profileInstrument = r.instrument;
   setParams(r.params, true);
   // profil určuje aj nástroj -> prepni pár, ak zodpovedá
   const inst = r.instrument;
   const pair = state.meta.pairs.find(p => p.instrument === inst);
   if (pair) { $("#pair").value = pair.pair; $("#pair").onchange(); }
+}
+
+/** Profil je ladený na konkrétny nástroj — BTC prahy v bodoch na ETH dajú stovky nezmyselných obchodov. */
+function checkPairProfile() {
+  const box = $("#pair-warn");
+  const pair = state.meta.pairs.find(p => p.pair === $("#pair").value);
+  if (!pair || !state.profileInstrument || pair.instrument === state.profileInstrument) { box.hidden = true; return; }
+  const fit = state.meta.profiles.filter(p => p.startsWith(pair.instrument.split("_")[0]));
+  box.textContent = `Profil ${state.profile} je pre iný nástroj (${state.profileInstrument}). Prahy v bodoch/tickoch na ${pair.pair} nesedia a výsledok nebude porovnateľný. Pre tento pár sú profily: ${fit.join(", ") || "žiadny"}.`;
+  box.hidden = false;
 }
 
 function timerange() {

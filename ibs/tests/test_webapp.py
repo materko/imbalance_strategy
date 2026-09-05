@@ -200,3 +200,40 @@ def test_submit_uses_tester_name_from_request(client, monkeypatch):
     job2 = c.post("/api/runs", json={**base, "user": ""}).json()
     assert job2["user"] == "predvolene"
     assert c.post("/api/runs", json={**base, "user": "x" * 81}).status_code == 422
+
+
+# --------------------------------------------------------------------------- #
+# cli
+# --------------------------------------------------------------------------- #
+
+
+def test_cli_parse_set_values():
+    from ibs.webapp.cli import parse_set
+
+    assert parse_set("rrRatio=5") == ("rrRatio", 5)
+    assert parse_set("useStructureFilter=true") == ("useStructureFilter", True)
+    assert parse_set("minSlDistance=0.2@pct") == ("minSlDistance", {"value": 0.2, "unit": "pct"})
+    assert parse_set("sess2TZ=America/New_York") == ("sess2TZ", "America/New_York")
+    assert parse_set('minSlDistance={"value": 1, "unit": "atr"}') == ("minSlDistance", {"value": 1, "unit": "atr"})
+    assert parse_set("tickDollarValue=null") == ("tickDollarValue", None)
+    with pytest.raises(SystemExit):
+        parse_set("bez_rovnasa")
+
+
+def test_cli_list_and_show_read_the_store(tmp_path: Path, monkeypatch, capsys):
+    import ibs.webapp.cli as cli
+    import ibs.webapp.store as store_mod
+
+    store = RunStore(tmp_path)
+    store.save(_record("20260905-120000-aaaaaa", params={"rrRatio": 5.0}, note="baseline"))
+    monkeypatch.setattr(store_mod, "RUNS_DIR", tmp_path)
+
+    assert cli.main(["list", "rrRatio=5"]) == 0
+    out = capsys.readouterr().out
+    assert "20260905-120000-aaaaaa" in out and "break-even 0.1410 %" in out and "baseline" in out
+
+    assert cli.main(["show", "20260905-120000-aaaaaa"]) == 0
+    out = capsys.readouterr().out
+    assert '"rrRatio": 5.0' in out
+    with pytest.raises(SystemExit):
+        cli.main(["show", "neexistuje"])
