@@ -6,6 +6,7 @@
 #   download   jednorazovo: stiahnutie oficialnych TF z burz
 #   backtest   jednorazovo: backtest s 1m detailom
 #   freqtrade  dlhobeziaci bot - toto sa nasadzuje na server
+#   webapp     webova aplikacia pre testerov (docs/WEBAPP.md), port 8765
 #
 # Vsetko okrem `freqtrade` je pod profilom, aby `docker compose up` samo o sebe
 # spustilo len bota a nie aj jednorazove ulohy.
@@ -70,6 +71,24 @@ services:
       --userdir /freqtrade/user_data
       --strategy ${STRATEGY:-IBSImbalanceStrategy}
       --timeframe-detail 1m
+
+  webapp:
+    # Webova aplikacia pre testerov (docs/WEBAPP.md). Kod jadra je namountovany
+    # read-only, historia behov ide do user_data/runs (zapisovatelny mount).
+    # Git synchronizacia z UI v kontajneri nefunguje (nie je tam .git ani git) -
+    # pushuj/pulluj behy z hostitela, alebo spustaj webapp nativne.
+    <<: *freqtrade-base
+    profiles: ["tools"]
+    container_name: ibs-webapp
+    entrypoint: ["python", "-m", "ibs.webapp"]
+    command: []
+    environment:
+      TZ: ${TZ:-Europe/Bratislava}
+      IBS_WEB_HOST: 0.0.0.0
+      IBS_WEB_PORT: "8765"
+      PYTHONPATH: /app
+    ports:
+      - "127.0.0.1:8765:8765"
 
   freqtrade:
     <<: *freqtrade-base

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IBS Backtester</title>
+<link rel="stylesheet" href="/static/app.css">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+</head>
+<body>
+<header class="top">
+  <div class="brand">IBS <span>Backtester</span></div>
+  <nav class="tabs">
+    <button data-view="new" class="active">Nový beh</button>
+    <button data-view="history">História</button>
+  </nav>
+  <div class="git">
+    <span id="who" class="muted"></span>
+    <span id="branch" class="chip"></span>
+    <span id="git-status" class="muted"></span>
+    <button id="git-pull" class="ghost" title="git pull --rebase (stiahne behy ostatných)">⬇ Pull</button>
+    <button id="git-push" class="ghost" title="commitne runs/ a pushne (len adresár s behmi)">⬆ Push</button>
+  </div>
+</header>
+
+<pre id="git-output" class="git-output" hidden></pre>
+
+<main id="view-new" class="view">
+  <section class="col settings">
+    <div class="card">
+      <h2>Beh</h2>
+      <label>Východiskový profil
+        <select id="profile"></select>
+      </label>
+      <label>Pár
+        <select id="pair"></select>
+        <small id="pair-range" class="muted"></small>
+      </label>
+      <div class="row">
+        <label>Od <input type="date" id="from"></label>
+        <label>Do <input type="date" id="to"></label>
+      </div>
+      <div class="row">
+        <label>Poplatok / strana (%)
+          <input type="number" id="fee" step="0.001" min="0" value="0.05">
+        </label>
+        <label>Peňaženka
+          <input type="number" id="wallet" step="100" min="100" value="10000">
+        </label>
+      </div>
+      <label class="inline"><input type="checkbox" id="detail" checked> 1m detail fillov (odporúčané, pomalšie)</label>
+      <label>Poznámka <input type="text" id="note" placeholder="čo tento beh testuje"></label>
+      <button id="run" class="primary">▶ Spustiť backtest</button>
+      <div id="run-error" class="error" hidden></div>
+    </div>
+
+    <div class="card">
+      <h2>Fronta <span id="queue-count" class="chip"></span></h2>
+      <div id="queue" class="queue"><div class="muted">Nič nebeží.</div></div>
+    </div>
+  </section>
+
+  <section class="col params">
+    <div class="card">
+      <div class="params-head">
+        <h2>Parametre stratégie <span id="override-count" class="chip"></span></h2>
+        <input type="search" id="param-filter" placeholder="hľadať parameter…">
+        <button id="collapse-all" class="ghost">Zbaliť</button>
+        <button id="expand-all" class="ghost">Rozbaliť</button>
+        <button id="reset-params" class="ghost" title="vráti hodnoty z východiskového profilu">Reset na profil</button>
+        <label class="inline small"><input type="checkbox" id="only-changed"> len zmenené</label>
+      </div>
+      <div id="param-groups"></div>
+    </div>
+  </section>
+</main>
+
+<main id="view-history" class="view" hidden>
+  <div class="card">
+    <div class="search-row">
+      <input type="search" id="search" placeholder="napr. rrRatio>=5 useStructureFilter=true pair~ETH pnl>0 note~seansa">
+      <button id="search-btn" class="primary">Hľadať</button>
+      <button id="search-help-btn" class="ghost">?</button>
+      <span id="search-count" class="muted"></span>
+    </div>
+    <div id="search-help" class="help" hidden>
+      Podmienky oddeľ medzerou, všetky musia platiť. <code>názovParametra op hodnota</code>, kde op je
+      <code>= != &gt; &lt; &gt;= &lt;= ~</code> (<code>~</code> = obsahuje text). Skratky výsledkov:
+      <code>pnl</code> (%), <code>pnl_abs</code>, <code>trades</code>, <code>pf</code>, <code>wr</code>, <code>dd</code>,
+      <code>be</code> (break-even poplatok %), <code>pair</code>, <code>timerange</code>, <code>fee</code>,
+      <code>profile</code>, <code>note</code>, <code>user</code>, <code>status</code>. Slovo bez operátora sa hľadá
+      v poznámke, páre, profile a id.
+    </div>
+    <div class="scroll">
+      <table id="runs-table" class="runs">
+        <thead><tr>
+          <th>Beh</th><th>Pár</th><th>Obdobie</th><th class="num">Obch.</th><th class="num">PnL %</th>
+          <th class="num">PF</th><th class="num">WR %</th><th class="num">DD %</th><th class="num">Break-even %</th>
+          <th>Odchýlky od Pine</th><th>Poznámka</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="run-detail" class="card" hidden>
+    <div class="detail-head">
+      <button id="back" class="ghost">← Späť</button>
+      <h2 id="detail-title"></h2>
+      <div class="spacer"></div>
+      <button id="load-params" class="ghost">Načítať do formulára</button>
+      <a id="download-profile" class="ghost btn" download>Stiahnuť profil</a>
+      <button id="delete-run" class="ghost danger">Zmazať</button>
+    </div>
+    <div id="detail-meta" class="muted"></div>
+    <div id="detail-error" class="error" hidden></div>
+    <div id="cards" class="cards"></div>
+    <div id="chart" class="chart"></div>
+    <div class="cols">
+      <div><h3>Odchýlky od Pine defaultov</h3><div id="detail-overrides"></div></div>
+      <div><h3>Dôvody výstupu</h3><div id="detail-exits"></div></div>
+    </div>
+    <details><summary>Zoznam obchodov (<span id="trade-count"></span>)</summary>
+      <div class="scroll"><table id="trades" class="runs"><thead></thead><tbody></tbody></table></div>
+    </details>
+    <details><summary>Všetky parametre</summary><div id="detail-params" class="scroll"></div></details>
+    <details><summary>Log Freqtradu</summary><pre id="detail-log" class="log"></pre></details>
+  </div>
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

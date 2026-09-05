@@ -236,11 +236,27 @@ len sa kreslí to, čo je v zipe — takže sa to dá klásť vedľa screenshotu
 
 ---
 
+## D1. Webová aplikácia pre testerov
+
+```powershell
+.\platforms\freqtrade\scripts\webapp.ps1
+```
+```bash
+./platforms/freqtrade/scripts/webapp.sh
+```
+
+http://127.0.0.1:8765 — formulár so všetkými parametrami stratégie, výber páru
+a obdobia, fronta behov, história s vyhľadávaním podľa parametrov a graf výnosnosti
+ako v TradingView. História sa ukladá do `user_data/runs/` a commituje sa.
+Podrobne v [WEBAPP.md](WEBAPP.md).
+
+---
+
 ## D2. Hyperopt
 
 ```powershell
-.\platformsreqtrade\scripts\hyperopt.ps1 -Timerange 20260601-20260904 -Epochs 200
-.\platformsreqtrade\scripts\hyperopt.ps1 -Timerange 20250901-20260904 -Epochs 300
+.\platforms\freqtrade\scripts\hyperopt.ps1 -Timerange 20260601-20260904 -Epochs 200
+.\platforms\freqtrade\scripts\hyperopt.ps1 -Timerange 20250901-20260904 -Epochs 300
 ```
 ```bash
 ./platforms/freqtrade/scripts/hyperopt.sh 20260601-20260904 200

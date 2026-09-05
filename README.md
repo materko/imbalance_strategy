@@ -27,5 +27,6 @@ python -m pytest
 | [`ibs/core/config.py`](ibs/core/config.py) | `IBSConfig` — všetkých 115 Pine vstupov + validácia + profily |
 | [`ibs/configs/`](ibs/configs) | JSON profily (len odchýlky od Pine defaultov): `mnq_3m`, `btcusd_3m_coinbase`, `btcusdt_3m_binance` |
 | [`ibs/tests/test_pine_parity.py`](ibs/tests/test_pine_parity.py) | parsuje `imbalance_strategy_FULL.pine` a stráži, že config nespadol z Pine originálu |
+| [`ibs/webapp/`](ibs/webapp) | webová aplikácia pre testerov: parametre, backtest, história behov v gite, graf ako v TradingView — [`docs/WEBAPP.md`](docs/WEBAPP.md) |
 
-Návrh architektúry a rozhodnutia: [`docs/ARCHITECTURE_port.md`](docs/ARCHITECTURE_port.md)
+Návrh architektúry a rozhodnutia: [`docs/ARCHITECTURE_port.md`](docs/ARCHITECTURE_port.md). Spúšťanie (Docker, venv, backtest, webapp): [`docs/RUNNING.md`](docs/RUNNING.md)

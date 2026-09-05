@@ -14,6 +14,8 @@ dev = ["pytest>=8"]
 # Jadro (ibs.core) je zamerne bez zavislosti - beha aj v MultiCharts CPythone.
 # Nastroje v ibs.tools uz pandas/plotly potrebuju; pandas sa taha s Freqtrade.
 plot = ["plotly>=5", "pandas"]
+# Webapp pre testerov (ibs.webapp) - fastapi aj uvicorn su uz zavislosti Freqtradu.
+web = ["fastapi", "uvicorn", "pandas", "pyarrow"]
 
 [tool.setuptools.packages.find]
 include = ["ibs*"]
