@@ -72,8 +72,9 @@ ručne alebo cez „Načítať do formulára" z histórie.
 Ponuka má dve skupiny: **profily repozitára** (`ibs/configs/`, sú kód — testy a
 merania sa na ne odvolávajú, preto sa z webapp nedajú meniť) a **vlastné profily**
 testera (`user_data/profiles/`). Vlastný profil vznikne dvoma spôsobmi: tlačidlom
-**Uložiť ako profil** pod ponukou (uloží, čo je práve vo formulári, aj so zvoleným
-TF) alebo rovnakým tlačidlom v detaile behu (uloží ten beh). **Premenovať**
+**Uložiť ako profil** pod ponukou (uloží celý formulár — parametre, pár, TF, obdobie,
+poplatok, peňaženku aj 1m detail) alebo rovnakým tlačidlom v detaile behu (uloží
+nastavenie toho behu). **Premenovať**
 a **Zmazať** fungujú len na vlastné profily. Zmeny profilov idú do gitu tým istým
 **Push** ako história behov.
 
@@ -218,9 +219,13 @@ platforms/freqtrade/user_data/profiles/<meno>.json
 ```
 
 Formát je rovnaký ako pri profiloch repozitára — **len odchýlky** od Pine defaultov
-plus `_instrument`, `_comment` (z ktorého behu profil vznikol), `_title` (popis od
-testera, ktorý stránka ukáže v ponuke) a `_timeframe` (TF grafu, na ktorom bol profil
-ladený). Meno súboru má 2–48 znakov: písmená bez diakritiky, číslice, `.`, `-`, `_`;
+plus metadáta s podtržníkom: `_instrument` (z neho sa nastaví pár), `_title` a
+`_comment` (popis a z ktorého behu profil vznikol) a celé nastavenie behu —
+`_timeframe`, `_timerange`, `_fee`, `_wallet`, `_detail`. Výber profilu ich všetky
+prenesie do formulára (obdobie orezané na dáta, ktoré pre pár sú); čo profil nemá —
+napríklad profily repozitára — nechá formulár tak, ako si ho nastavil.
+
+Meno súboru má 2–48 znakov: písmená bez diakritiky, číslice, `.`, `-`, `_`;
 meno profilu repozitára sa použiť nedá, aby sa nedal prekryť.
 
 Tlačidlá **Pull** (`git pull --rebase --autostash`) a **Push** (commitne **len**

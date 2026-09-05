@@ -349,21 +349,30 @@ def test_save_run_as_profile_keeps_only_deviations(client, own_profiles):
     assert "moj_rr5" in meta["profiles"] and meta["user_profiles"] == ["moj_rr5"]
 
 
-def test_profile_keeps_timeframe_of_the_run(client, own_profiles):
-    """TF grafu patrí k profilu — limity `*MaxBars` sú v baroch, na inom TF sedieť nemusia."""
+def test_profile_keeps_the_whole_setup_of_the_run(client, own_profiles):
+    """Profil drží aj nastavenia behu — TF (limity `*MaxBars` sú v baroch), obdobie,
+    poplatok, peňaženku a 1m detail; inak by povedal „ako", ale nie „na čom"."""
     c, store = client
     rec = _record("20260905-120000-aaaaaa", params={"rrRatio": 5.0})
-    rec["settings"]["timeframe"] = "5m"
+    rec["settings"].update(timeframe="5m", timeframe_detail="1m")
     store.save(rec)
     c.post("/api/profiles", json={"name": "moj_5m", "from_run": "20260905-120000-aaaaaa"})
     data = json.loads((own_profiles / "moj_5m.json").read_text(encoding="utf-8"))
-    assert data["_timeframe"] == "5m"
-    assert c.get("/api/profiles/moj_5m").json()["timeframe"] == "5m"
-    # profil sa dá uložiť aj priamo z formulára aj s vlastným TF
+    assert data["_timeframe"] == "5m" and data["_timerange"] == "20250904-20260904"
+    assert data["_fee"] == 0.0005 and data["_wallet"] == 10000 and data["_detail"] == "1m"
+    got = c.get("/api/profiles/moj_5m").json()
+    assert got["timeframe"] == "5m" and got["settings"]["timerange"] == "20250904-20260904"
+
+    # profil sa dá uložiť aj priamo z formulára, s vlastným TF a nastaveniami
     c.post("/api/profiles", json={"name": "z_formulara", "params": IBSConfig().to_dict(),
-                                  "instrument": "btcusdt_binance", "timeframe": "15m"})
-    assert c.get("/api/profiles/z_formulara").json()["timeframe"] == "15m"
-    assert c.get("/api/profiles/golden_binance_btcusdt_3m").json()["timeframe"] is None
+                                  "instrument": "btcusdt_binance", "timeframe": "15m",
+                                  "timerange": "20240101-20240301", "fee": 0, "wallet": 400000,
+                                  "timeframe_detail": None})
+    got = c.get("/api/profiles/z_formulara").json()
+    assert got["settings"] == {"timeframe": "15m", "timerange": "20240101-20240301",
+                               "fee": 0, "wallet": 400000, "detail": False}
+    # profil repozitára nastavenia behu nemá — formulár si vtedy nechá, čo v ňom je
+    assert c.get("/api/profiles/golden_binance_btcusdt_3m").json()["settings"] == {}
 
 
 def test_profile_save_rejects_bad_name_and_collisions(client, own_profiles):
