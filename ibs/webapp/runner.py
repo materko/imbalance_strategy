@@ -109,7 +109,17 @@ class Job:
         }
 
 
+def tf_minutes(tf: str) -> int:
+    """`3m` → 3, `1h` → 60, `1d` → 1440."""
+    unit = tf[-1]
+    n = int(tf[:-1])
+    return n * {"m": 1, "h": 60, "d": 1440}[unit]
+
+
 def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> list[str]:
+    """`timeframe` je TF grafu, na ktorom stratégia počíta (ako TF grafu v TradingView);
+    Freqtrade ním prebije `timeframe` stratégie. 1m detail má zmysel len pod ním."""
+    tf = settings.get("timeframe") or "3m"
     cmd = [
         python, "-m", "freqtrade", "backtesting",
         "--config", str(FT_DIR / "config.binance.json"),
@@ -119,12 +129,14 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
         "--export", "trades",
         "--timerange", settings["timerange"],
         "--pairs", settings["pair"],
+        "--timeframe", tf,
         "--dry-run-wallet", str(settings.get("wallet", 10000)),
     ]
     if settings.get("fee") is not None:
         cmd += ["--fee", str(settings["fee"])]
-    if settings.get("timeframe_detail", "1m"):
-        cmd += ["--timeframe-detail", settings.get("timeframe_detail", "1m")]
+    detail = settings.get("timeframe_detail", "1m")
+    if detail and tf_minutes(detail) < tf_minutes(tf):
+        cmd += ["--timeframe-detail", detail]
     return cmd
 
 

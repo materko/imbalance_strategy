@@ -327,6 +327,7 @@ function fillSettings() {
     const o = pair.selectedOptions[0]; if (!o) return;
     checkPairProfile();
     $("#pair-range").textContent = `dáta ${o.dataset.from} → ${o.dataset.to}`;
+    fillTimeframes(o.value);
     $("#from").min = o.dataset.from; $("#from").max = o.dataset.to; $("#to").min = o.dataset.from; $("#to").max = o.dataset.to;
     if (!$("#to").value || $("#to").value > o.dataset.to) $("#to").value = o.dataset.to;
     if (!$("#from").value) { const d = new Date(o.dataset.to); d.setDate(d.getDate() - 365); $("#from").value = d.toISOString().slice(0, 10); }
@@ -339,6 +340,17 @@ function fillSettings() {
   who.value = saved || state.meta.user || "";
   who.onchange = () => { try { localStorage.setItem("ibs.user", who.value.trim()); } catch (_) { /* ignoruj */ } };
   $("#branch").textContent = state.meta.branch;
+}
+
+/** TF grafu pre beh: ponuka podľa stiahnutých dát páru, zachová voľbu, inak 3m. */
+function fillTimeframes(pairName, wanted) {
+  const sel = $("#tf");
+  const keep = wanted || sel.value || "3m";
+  const p = state.meta.pairs.find(x => x.pair === pairName);
+  const tfs = ((p && p.timeframes) || ["3m"]).filter(t => t in TF_MINUTES);
+  sel.innerHTML = "";
+  for (const t of tfs) { const o = document.createElement("option"); o.value = t; o.textContent = t; sel.append(o); }
+  sel.value = tfs.includes(keep) ? keep : (tfs.includes("3m") ? "3m" : tfs[0]);
 }
 
 async function loadProfile(name) {
@@ -375,6 +387,7 @@ async function submitRun() {
     const body = {
       params: state.params,
       pair: $("#pair").value,
+      timeframe: $("#tf").value,
       timerange: timerange(),
       fee: $("#fee").value === "" ? null : Number($("#fee").value) / 100,
       wallet: Number($("#wallet").value),
@@ -407,7 +420,7 @@ async function pollQueue() {
   for (const j of jobs) {
     const el = document.createElement("div"); el.className = "job";
     el.innerHTML = `<div class="head"><span class="chip ${j.status === "running" ? "warn" : ""}">${j.status}</span>
-      <b>${j.settings.pair}</b> <span class="muted">${j.settings.timerange}</span> <span class="spacer"></span>
+      <b>${j.settings.pair}</b> <span class="muted">${j.settings.timeframe || "3m"} · ${j.settings.timerange}</span> <span class="spacer"></span>
       <span class="muted">${esc(j.note || "")}</span> <button class="ghost small" data-cancel="${j.id}">✕</button></div>
       ${j.status === "running" ? `<pre>${esc((j.log_tail || []).slice(-12).join("\n"))}</pre>` : ""}`;
     el.querySelector("[data-cancel]").onclick = async () => { await api(`/api/queue/${j.id}/cancel`, { method: "POST" }); pollQueue(); };
@@ -438,7 +451,7 @@ async function loadRuns() {
     const ov = Object.entries(run.overrides || {}).map(([k, v]) => `<span class="kv">${k}=${esc(fmtVal(v))}</span>`).join("");
     const failed = run.status !== "done";
     tr.innerHTML = `<td><div>${run.id}</div><div class="muted small">${(run.created || "").replace("T", " ").slice(0, 16)} · ${esc(run.user || "")}</div></td>
-      <td>${esc(run.settings?.pair || "")}</td><td>${esc(run.settings?.timerange || "")}<div class="muted small">fee ${run.settings?.fee != null ? (run.settings.fee * 100).toFixed(3) + " %" : "—"} · ${run.settings?.wallet ?? ""}</div></td>
+      <td>${esc(run.settings?.pair || "")}<div class="muted small">${esc(run.settings?.timeframe || "3m")}</div></td><td>${esc(run.settings?.timerange || "")}<div class="muted small">fee ${run.settings?.fee != null ? (run.settings.fee * 100).toFixed(3) + " %" : "—"} · ${run.settings?.wallet ?? ""}</div></td>
       <td class="num">${failed ? `<span class="status-failed">${esc(run.status)}</span>` : res.trades ?? "—"}</td>
       <td class="num">${signed(res.pnl_pct, 2, " %")}</td><td class="num">${fmt(res.profit_factor, 3)}</td>
       <td class="num">${fmt(res.winrate, 1)}</td><td class="num">${fmt(res.max_drawdown_pct, 2)}</td>
@@ -455,7 +468,7 @@ async function openRun(id) {
   state.detailId = id;
   $("#runs-table").parentElement.parentElement.hidden = true;
   $("#run-detail").hidden = false;
-  $("#detail-title").textContent = `${rec.settings.pair} · ${rec.settings.timerange}`;
+  $("#detail-title").textContent = `${rec.settings.pair} · ${rec.settings.timeframe || "3m"} · ${rec.settings.timerange}`;
   $("#detail-meta").textContent = `${rec.id} · ${rec.user || ""} · ${(rec.created || "").replace("T", " ").slice(0, 16)} · profil ${rec.settings.profile || "(Pine)"} · poplatok ${rec.settings.fee != null ? (rec.settings.fee * 100).toFixed(3) + " %" : "—"} · peňaženka ${rec.settings.wallet} · detail ${rec.settings.timeframe_detail || "bez"}${rec.note ? " · " + rec.note : ""}`;
   $("#download-profile").href = `/api/runs/${id}/profile.json`;
   $("#detail-error").hidden = !rec.error; $("#detail-error").textContent = rec.error || "";
@@ -598,7 +611,7 @@ function initPairChart(rec, trades) {
   pc.runFrom = Date.parse(`${a.slice(0, 4)}-${a.slice(4, 6)}-${a.slice(6)}T00:00:00Z`);
   pc.runTo = Date.parse(`${b.slice(0, 4)}-${b.slice(4, 6)}-${b.slice(6)}T00:00:00Z`);
   loadLayerPrefs();
-  $("#pc-title").textContent = `${rec.settings.pair} · UTC`;
+  $("#pc-title").textContent = `${rec.settings.pair} · beh na ${rec.settings.timeframe || "3m"} · UTC`;
 
   const span = $("#pc-span"); span.innerHTML = "";
   for (const [t, ms] of SPANS) { const o = document.createElement("option"); o.value = ms; o.textContent = t; span.append(o); }
@@ -631,7 +644,7 @@ function chooseTf(span) {
   const opts = tfOptions();
   if (pc.tf !== "auto") return opts.includes(pc.tf) ? pc.tf : (opts[0] || "3m");
   const fine = opts.filter(t => span / (TF_MINUTES[t] * 60e3) <= MAX_CANDLES * 0.9);
-  const idx = Math.max(opts.indexOf("3m"), 0);  // jemnejšie než graf stratégie nemá zmysel
+  const idx = Math.max(opts.indexOf(pc.rec.settings.timeframe || "3m"), 0);  // jemnejšie než TF behu nemá zmysel
   const ok = fine.filter(t => opts.indexOf(t) >= idx);
   return ok[0] || fine[0] || opts[opts.length - 1] || "3m";
 }
@@ -853,6 +866,7 @@ async function loadDetailIntoForm() {
   else setParams({}, true);
   setParams(rec.params, false);
   $("#pair").value = rec.settings.pair; $("#pair").onchange();
+  fillTimeframes(rec.settings.pair, rec.settings.timeframe || "3m");
   const [a, b] = rec.settings.timerange.split("-");
   $("#from").value = `${a.slice(0, 4)}-${a.slice(4, 6)}-${a.slice(6)}`; $("#to").value = `${b.slice(0, 4)}-${b.slice(4, 6)}-${b.slice(6)}`;
   $("#fee").value = rec.settings.fee != null ? (rec.settings.fee * 100) : ""; $("#wallet").value = rec.settings.wallet;

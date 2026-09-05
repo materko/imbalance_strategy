@@ -27,7 +27,7 @@ from ..core.config import ConfigError
 from . import chart as chart_data
 from . import gitsync
 from .pine_meta import param_metadata
-from .runner import BacktestRunner, available_pairs, default_params, list_profiles
+from .runner import BacktestRunner, available_pairs, default_params, list_profiles, tf_minutes
 from .store import RunStore, summarize_for_list
 
 STATIC = Path(__file__).resolve().parent / "static"
@@ -41,6 +41,7 @@ def current_user() -> str:
 class RunRequest(BaseModel):
     params: dict[str, Any]
     pair: str
+    timeframe: str = Field("3m", description="TF grafu, na ktorom stratégia počíta (ako v TradingView)")
     timerange: str = Field(..., description="YYYYMMDD-YYYYMMDD")
     fee: float | None = Field(0.0005, description="poplatok na stranu ako podiel (0.0005 = 0,05 %)")
     wallet: float = 10000
@@ -105,12 +106,20 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         a, b = req.timerange.split("-")
         if a >= b:
             raise HTTPException(422, "začiatok obdobia musí byť pred koncom")
+        if req.timeframe not in chart_data.TIMEFRAMES:
+            raise HTTPException(422, f"timeframe {req.timeframe!r} nie je podporovaný ({', '.join(chart_data.TIMEFRAMES)})")
+        if req.timeframe not in chart_data.available_timeframes(req.pair):
+            raise HTTPException(422, f"pre {req.pair} nie sú stiahnuté {req.timeframe} dáta")
+        detail = req.timeframe_detail or None
+        if detail and tf_minutes(detail) >= tf_minutes(req.timeframe):
+            detail = None  # detail fillov musí byť jemnejší než TF grafu, inak ho Freqtrade odmietne
         settings = {
             "pair": req.pair,
+            "timeframe": req.timeframe,
             "timerange": req.timerange,
             "fee": req.fee,
             "wallet": req.wallet,
-            "timeframe_detail": req.timeframe_detail or None,
+            "timeframe_detail": detail,
             "profile": req.profile,
         }
         try:

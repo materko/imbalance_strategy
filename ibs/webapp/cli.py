@@ -119,8 +119,8 @@ def cmd_run(args: argparse.Namespace) -> int:
               file=sys.stderr)
 
     settings = {
-        "pair": pair, "timerange": args.timerange, "fee": args.fee, "wallet": args.wallet,
-        "timeframe_detail": None if args.no_detail else "1m", "profile": args.profile,
+        "pair": pair, "timeframe": args.timeframe, "timerange": args.timerange, "fee": args.fee,
+        "wallet": args.wallet, "timeframe_detail": None if args.no_detail else "1m", "profile": args.profile,
     }
     user = args.user or os.environ.get("IBS_USER") or ""
 
@@ -244,6 +244,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--set", action="append", metavar="KLUC=HODNOTA", help="zmena parametra, opakovateľné")
     p.add_argument("--pair", help="napr. BTC/USDT:USDT alebo ETH/USDT:USDT (default podľa profilu)")
     p.add_argument("--timerange", required=True, help="YYYYMMDD-YYYYMMDD")
+    p.add_argument("--timeframe", default="3m", help="TF grafu, na ktorom stratégia počíta (default 3m; ako TF grafu v TradingView)")
     p.add_argument("--fee", type=float, default=0.0005, help="poplatok na stranu ako podiel (default 0.0005 = 0,05 %%)")
     p.add_argument("--wallet", type=float, default=10000)
     p.add_argument("--no-detail", action="store_true", help="bez 1m detailu fillov (rýchlejšie, hrubšie)")
