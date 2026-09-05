@@ -1,0 +1,28 @@
+{
+  "_comment": [
+    "BINANCE BTCUSDT.P 3m - najlepsia najdena konfiguracia (2026-09-05).",
+    "",
+    "Rozdiely oproti btcusdt_3m_binance_tv: rrRatio 5, trailing vypnuty, slLookback 20,",
+    "strukturny filter (BOS/CHoCH), obchodovanie z S/R aj likviditnych zon, a VYPNUTA",
+    "londynska seansa - tam stratégia edge nema (break-even -0,0007 % za pat rokov),",
+    "len riedi vysledok a plati poplatky.",
+    "",
+    "Break-even poplatok 0,0968 % na stranu proti 0,05 %, ktore berie Binance ako taker.",
+    "Styri z piatich rokov su po realnych poplatkoch ziskove, spolu +19,2 %, max DD 5,7 %.",
+    "Detaily v docs/SEANSY_2026-09-05.md."
+  ],
+  "_instrument": "btcusdt_binance",
+  "enablePinBarEntry": true,
+  "tradeDirection": "Long only",
+  "sess2ZoneStartH": 8,
+  "showElliott": false,
+  "tickDollarValue": 0.5,
+  "legacyPineSizing": true,
+  "enableSrTrading": true,
+  "enableLqTrading": true,
+  "rrRatio": 5.0,
+  "enableEngulfingEntry": true,
+  "slLookback": 20,
+  "useStructureFilter": true,
+  "sess3On": false
+}

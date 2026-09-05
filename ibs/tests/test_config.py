@@ -210,6 +210,7 @@ def test_all_profiles_exist():
         "btcusdt_3m_binance_hyper",
         "btcusdt_3m_binance_opt",
         "btcusdt_3m_binance_struct",
+        "btcusdt_3m_binance_ny",
     }
 
 

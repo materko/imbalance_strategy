@@ -112,13 +112,23 @@ class IBSImbalanceStrategy(IStrategy):
     # tie tri - a `structureSwingLen`, ktorý sa nikdy neladil, hoci filter, ktorý ho
     # používa, je najsilnejšia páka, akú sme našli.
     #
-    # Session okná, STATE timeouty ani sizing sa neladia - tie sú prevzaté
-    # z TradingView a menili by paritu.
+    # STATE timeouty ani sizing sa neladia - tie su prevzate z TradingView
+    # a menili by paritu. Obchodne okno seansy 2 je vynimka, viz nizsie.
     # ------------------------------------------------------------------ #
 
     p_rr = DecimalParameter(1.0, 8.0, default=5.0, decimals=1, space="sell", optimize=True)
     p_sl_lookback = IntParameter(5, 40, default=20, space="sell", optimize=True)
     p_struct_len = IntParameter(3, 25, default=5, space="buy", optimize=True)
+
+    #: Obchodne okno seansy 2 (New York) - jediny casovy parameter, ktory sa ladi.
+    #: Duvod: rozdelenie po seansach ukazalo, ze cely edge je v NY seanse (break-even
+    #: 0,0944 % a kladny vo vsetkych piatich rokoch), kym londynska seansa ma -0,0007 %
+    #: a len riedi vysledok. Ked jedno okno rozhoduje o vsetkom, oplati sa vediet, ci
+    #: je nastavene spravne. Ladia sa len CELE hodiny a len obchodne okno - okno vzniku
+    #: zon ostava, aby zony vznikali rovnako. Zije v priestore "protection", takze sa
+    #: zapina samostatne cez --spaces protection a nemiesa sa do ostatnych behov.
+    p_s2_start = IntParameter(6, 15, default=10, space="protection", optimize=True)
+    p_s2_end = IntParameter(11, 23, default=15, space="protection", optimize=True)
 
     #: Ktorý hyperopt parameter ide do ktorého poľa configu (celé čísla).
     _INT_PARAMS = {
@@ -169,6 +179,13 @@ class IBSImbalanceStrategy(IStrategy):
         for field, attr in self._INT_PARAMS.items():
             setattr(self.ibs_cfg, field, int(getattr(self, attr).value))
         self.ibs_cfg.rrRatio = float(self.p_rr.value)
+
+        # Okno musi mat kladnu dlzku. Hyperopt obmedzenia medzi parametrami nevie
+        # vyjadrit, takze sa koniec posunie za zaciatok tu - inak by cela vetva
+        # priestoru davala nula obchodov a optimalizator by v nej blúdil naslepo.
+        start, end = int(self.p_s2_start.value), int(self.p_s2_end.value)
+        self.ibs_cfg.sess2TradeStartH = start
+        self.ibs_cfg.sess2TradeEndH = max(end, start + 1)
 
     @property
     def hyperopt_active(self) -> bool:
