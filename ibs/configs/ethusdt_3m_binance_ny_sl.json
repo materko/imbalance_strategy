@@ -1,0 +1,64 @@
+{
+  "_comment": [
+    "BINANCE ETH/USDT.P 3m - ethusdt_3m_binance_ny + filter tesneho SL (minSlDistance 0,20 % ceny).",
+    "",
+    "Nezavisle overenie filtra, ktory bol najdeny na BTC (btcusdt_3m_binance_ny_sl): na ETH sa",
+    "NIC neladilo, prah 0,20 % je prevzaty. Pat rokov bez poplatkov: 164 obchodov namiesto 203",
+    "pri rovnakom hrubom zisku, break-even 0,096 % namiesto 0,056 % na stranu, lepsi v styroch",
+    "rokoch z piatich (piaty rovnaky). S poplatkami 0,05 % vsetkych pat rokov ziskovych.",
+    "Detaily v docs/OPTIMALIZACIA_2026-09-05.md.",
+    "",
+    "Prahy v ATR su prevzate z ethusdt_3m_binance_ny (viz jeho komentar). Spusta sa cez",
+    "--pairs ETH/USDT:USDT, ETH nie je vo whiteliste."
+  ],
+  "_instrument": "ethusdt_binance",
+  "enablePinBarEntry": true,
+  "tradeDirection": "Long only",
+  "sess2ZoneStartH": 8,
+  "showElliott": false,
+  "tickDollarValue": 0.5,
+  "legacyPineSizing": true,
+  "enableSrTrading": true,
+  "enableLqTrading": true,
+  "rrRatio": 5.0,
+  "enableEngulfingEntry": true,
+  "slLookback": 20,
+  "useStructureFilter": true,
+  "sess3On": false,
+  "minImbSizePoints": {
+    "value": 0.037,
+    "unit": "atr"
+  },
+  "pbMinRangePoints": {
+    "value": 0.03,
+    "unit": "atr"
+  },
+  "engMinRangePoints": {
+    "value": 0.03,
+    "unit": "atr"
+  },
+  "srClusterPoints": {
+    "value": 0.222,
+    "unit": "atr"
+  },
+  "liqSweepMinWick": {
+    "value": 0.074,
+    "unit": "atr"
+  },
+  "imbMaxDistTicks": {
+    "value": 0.148,
+    "unit": "atr"
+  },
+  "slBufferTicks": {
+    "value": 0.003,
+    "unit": "atr"
+  },
+  "state2ConfirmTicks": {
+    "value": 0.0015,
+    "unit": "atr"
+  },
+  "minSlDistance": {
+    "value": 0.2,
+    "unit": "pct"
+  }
+}

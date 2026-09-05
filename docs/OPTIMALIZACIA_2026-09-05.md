@@ -1,4 +1,4 @@
-# Optimalizácia po opravách adaptéra: tri hypotézy (2026-09-05)
+# Optimalizácia po opravách adaptéra: tri hypotézy na BTC a overenie na ETH (2026-09-05)
 
 Východisko: profil `btcusdt_3m_binance_ny` po opravách z
 [OPRAVY_adapter_2026-09-05.md](OPRAVY_adapter_2026-09-05.md) — 215 obchodov za päť
@@ -111,14 +111,54 @@ najlepší variant dá +94,5 R proti +89,3 R baseline (+6 %) pri zásahu 21 obch
 susedné varianty sú horšie než baseline a poradie po rokoch je náhodné. Nie je tu nič,
 čo by prežilo — víťazi a porazení sa skoro oddeliť nedajú.
 
+## 4. Overenie na ETH/USDT.P — obe zistenia prežili
+
+`main` medzitým dostal celé ETH/USDT futures dáta a profil `ethusdt_3m_binance_ny`
+(tá istá stratégia, prahy prepočítané na ATR — viď komentár v profile). Na ETH sa
+**nič neladilo**: NY seansa aj prah `minSlDistance 0,20 %` sú prevzaté z BTC. Je to
+teda skutočný out-of-sample test na inom nástroji, nie na inom roku toho istého.
+
+Break-even (% na stranu), bez poplatkov, `--pairs ETH/USDT:USDT`:
+
+| okno | bez filtra | | s filtrom 0,20 % | |
+|---|---|---|---|---|
+| | obchodov | break-even | obchodov | break-even |
+| 2021-10 → 2022-10 | 29 | 0,0403 | 26 | **0,0612** |
+| 2022-10 → 2023-10 | 50 | 0,0402 | 36 | **0,1085** |
+| 2023-10 → 2024-10 | 43 | 0,0680 | 33 | **0,1224** |
+| 2024-09 → 2025-09 | 45 | 0,0668 | 42 | 0,0658 |
+| 2025-09 → 2026-09 | 36 | 0,0702 | 27 | **0,1342** |
+| **spolu** | **203** | **0,0561** | **164** | **0,0957** |
+
+**NY seansa má edge aj na ETH** — kladný vo všetkých piatich rokoch, hoci menší než na
+BTC (0,056 % proti 0,088 %) a tesne nad taker poplatkom. Rok 2023-24, ktorý je na BTC
+nulový, je na ETH normálny; slabý rok teda nie je vlastnosť stratégie, ale trhu.
+
+**Filter tesného SL funguje aj na ETH**: štyri roky lepšie, piaty rovnaký, žiadny horší,
+a opäť pri **rovnakom hrubom zisku** (+794 proti +751 USDT pri 1 ETH). Odreže menej
+obchodov než na BTC (19 % proti 31 %), lebo ETH má širšie stopy (medián SL 0,43 %
+ceny proti 0,28 %). Najtesnejší kvartil je aj tu na nule (−0,001 %).
+
+S poplatkami 0,05 %: bez filtra 3 z 5 rokov ziskové (−0,18 / −0,40 / +0,43 / +0,40 /
++0,54 %), s filtrom **5 z 5** (+0,13 / +0,71 / +1,30 / +0,35 / +1,18 %). Percentá sú
+malé, lebo `legacyPineSizing` dáva na ETH pozíciu 1–2 ETH (~3 000 USDT) na účte 10 000;
+porovnateľné číslo je break-even, nie percento.
+
+Profil: `ibs/configs/ethusdt_3m_binance_ny_sl.json`.
+
+**Volatilitný filter sa na ETH nepotvrdil.** Horný kvartil hodinovej ATR má na ETH
+break-even −0,047 %, ale po rokoch −0,34 / **+0,21** / −0,21 / −0,01 / **+0,07** — dva
+z piatich rokov výrazne kladné, rovnako ako na BTC. Šesť z desiatich nástroj-rokov
+záporných nie je mechanizmus, je to hod mincou s ťažkými chvostmi. Zahadzujem.
+
 ## Kde to sme
 
-| krok | break-even (% na stranu) | obchodov/rok |
-|---|---|---|
-| RR 5, štruktúra, bez trailingu, obe seansy | 0,0423 | 96 |
-| + len NY seansa | 0,0879 | 43 |
-| **+ minSlDistance 0,20 %** | **0,1410** | **30** |
-| *Binance taker* | *0,0500* | |
+| krok | BTC break-even | BTC obch./rok | ETH break-even | ETH obch./rok |
+|---|---|---|---|---|
+| RR 5, štruktúra, bez trailingu, obe seansy | 0,0423 | 96 | — | — |
+| + len NY seansa | 0,0879 | 43 | 0,0561 | 41 |
+| **+ minSlDistance 0,20 %** | **0,1410** | **30** | **0,0957** | **33** |
+| *Binance taker* | *0,0500* | | *0,0500* | |
 
 Každý krok zdvojnásobil edge tým, že odobral obchody, nie že pridal. Tridsať obchodov
 ročne je málo na štatistiku a veľa na to, aby jeden zlý rok (2023-24) zmizol — ten
@@ -126,10 +166,8 @@ ostáva na nule vo všetkých verziách.
 
 ## Čo ďalej
 
-1. **Iný nástroj.** ETH/USDT:USDT s rovnakým profilom je jediný spôsob, ako zistiť, či
-   NY seansa a filter SL sú vlastnosť stratégie alebo BTC posledných piatich rokov.
-   Treba stiahnuť 1m/3m/5m dáta.
-2. **Volatilitný filter** overiť až tam, nie na tých istých 215 obchodoch.
+1. ~~Iný nástroj~~ — hotové, viď bod 4. Obe zistenia prežili.
+2. ~~Volatilitný filter~~ — na ETH sa nepotvrdil, zahodený.
 3. **Risk sizing.** `maxLossDollar 350` na 10k je 3,5 % na obchod; na nasadenie 1 %.
    Edge nemení, drawdown áno. S `minSlDistance` sa navyše zúži rozptyl nominálu medzi
    obchodmi, takže risk-based sizing prestane robiť extrémne pozície pri tesnom SL.
