@@ -70,6 +70,10 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
    (BTC/USDT:USDT a ETH/USDT:USDT, 2019–2026).
 7. Profil musí sedieť s párom: pre ETH použi `ethusdt_*` profily. BTC profil na ETH dá
    stovky nezmyselných obchodov (prahy v bodoch nesedia) — webapp aj CLI na to varujú.
+8. **„Len mi nastav parametre" znamená naozaj len nastaviť.** Keď má tester otvorenú
+   webapp a povie, že chce iba nastaviť parametre, vyplň na karte **Nový beh** presne tie
+   polia, ktoré vymenoval, a **nič nespúšťaj** — tlačidlo „▶ Spustiť backtest" nechaj
+   nedotknuté. Podrobnosti nižšie.
 
 ## Python a cesty
 
@@ -107,6 +111,26 @@ PY -m ibs.webapp.cli run --profile ethusdt_3m_binance_ny_sl_risk1 --pair ETH/USD
   (`abs`, `ticks`, `atr`, `pct`). Zoznam parametrov: `PY -m ibs.webapp.cli params [filter]`.
 - Poplatok `--fee 0.0005` (Binance taker 0,05 %) a `--wallet 10000` sú default; pri
   porovnávaní s TradingView použi `--fee 0 --wallet 400000` a profil `*_ny_sl` (1 BTC).
+
+## Len nastaviť parametre vo webapp (bez spustenia)
+
+Keď tester povie niečo ako „nastav mi rrRatio na 4 a SL filter na 0,25 %", „priprav mi
+beh", „len to navoľ, spustím si to sám" — je to **nastavenie formulára, nie beh**:
+
+1. Pracuj v prehliadači na karte **Nový beh** v otvorenej webapp (`http://127.0.0.1:8765`).
+   Ak nebeží, spusti ju (viď nižšie) — ale beh ani vtedy nespúšťaj cez CLI.
+2. Nastav **len tie polia, ktoré tester vymenoval**. Ostatné — profil, pár, timerange,
+   poplatok, peňaženku, poznámku — nechaj tak, ako sú. Nič „pre istotu" nedopĺňaj
+   a nevracaj na default.
+3. **Neklikaj na „▶ Spustiť backtest".** Ani keď je formulár kompletný, ani keď sa zdá,
+   že to tester chce — spustenie si vypýta výslovne („spusti to", „pusti backtest").
+4. Nakoniec vypíš, čo si nastavil (pole → hodnota), a upozorni na polia, ktoré si nechal
+   nezmenené a mohli by prekvapiť (napr. stará poznámka alebo iný timerange z minula).
+5. Ak niektorý parameter vo formulári nie je alebo hodnota nesedí do rozsahu, nehádaj —
+   povedz to a ukáž `PY -m ibs.webapp.cli params <filter>`.
+
+Ak tester chce parametre pripraviť **bez webapp**, nespúšťaj `run` — len mu poskladaj
+príkaz s `--set` a nechaj ho naň kliknúť.
 
 ## Čítanie výsledkov
 
