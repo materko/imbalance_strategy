@@ -303,16 +303,26 @@ class IBSImbalanceStrategy(IStrategy):
         for col, attr in _COLUMN_ATTRS.items():
             dataframe[col] = [getattr(rows.get(ts, empty), attr) for ts in ts_index]
 
+        book = runner.engine.book
         logger.info(
             "IBS %s: %d barov, %d HTF barov, %d zon, %d signalov (%d long / %d short)",
             pair,
             len(ts_index),
             len(htf_bars),
-            len(runner.engine.book),
+            len(book),
             int(dataframe["ibs_enter_long"].sum() + dataframe["ibs_enter_short"].sum()),
             int(dataframe["ibs_enter_long"].sum()),
             int(dataframe["ibs_enter_short"].sum()),
         )
+        # Strop `maxSdZones` je Pine dedičstvo (pamäť a boxy na grafe). Pokiaľ vyhadzuje
+        # len vypršané zóny, na výsledok nemá vplyv — keď začne rezať do živého,
+        # nech je to v logu vidno a nie hádanie.
+        if book.evicted_alive:
+            logger.warning(
+                "IBS %s: strop maxSdZones=%d vyhodil %d este platnych zon (z %d celkom) "
+                "- zvaz kratsi zoneValidHours alebo mensi pocet zdrojov zon",
+                pair, book.max_zones, book.evicted_alive, book.evicted,
+            )
         self._export_chart(pair, runner)
         return dataframe
 
