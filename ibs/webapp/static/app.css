@@ -76,6 +76,10 @@ label.inline { flex-direction: row; align-items: center; gap: 8px; color: var(--
 .ctl input[type=color] { width: 36px; height: 26px; padding: 0; border: 1px solid var(--line); border-radius: 6px; }
 .ctl.changed input, .ctl.changed select { border-color: var(--amber); }
 .prow .reset { visibility: hidden; font-size: 12px; padding: 1px 6px; flex: 0 0 auto; }
+.pctl .mirror { flex-direction: row; align-items: center; gap: 4px; margin: 0 0 0 8px; font-size: 12px; color: var(--muted); cursor: help; }
+.pctl .mirror input { width: 15px; height: 15px; margin: 0; }
+.pctl .mirror.changed { color: var(--amber); }
+.pctl .dep-hint { font-size: 11px; color: var(--muted); margin-left: 6px; cursor: help; white-space: nowrap; }
 .prow.changed .reset { visibility: visible; }
 .empty { padding: 30px; text-align: center; }
 @media (max-width: 1200px) { .params-body { grid-template-columns: 1fr; } .param-nav { position: static; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--line); max-height: none; } .nav-item { width: auto; } }

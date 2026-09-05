@@ -76,6 +76,15 @@ sa ukážu po podržaní myši na názve. Zmenené hodnoty oproti profilu sú ž
 ukazuje ich počet, ↺ vráti hodnotu profilu. Hľadanie prechádza všetky skupiny naraz
 (názov, popis, identifikátor); „len zmenené" ukáže iba odchýlky.
 
+Podnastavenia vypnutej feature sa neukazujú: keď je seansa vypnutá, nevidíš jej časy,
+keď je vypnutý trailing, nevidíš jeho R-násobky, S/R a likviditné parametre sa ukážu,
+až keď z nich obchoduješ alebo ich kreslíš. Prepínač so skrytými podnastaveniami má
+vedľa seba „▸ N nastavení skrytých". Hľadanie a „len zmenené" ukážu aj skryté polia.
+Hlavný prepínač feature má vedľa seba zrkadlový checkbox „kresliť" (IMB entry ↔
+`showImbalance`, S/R ↔ `showSR`, likvidita ↔ `showLiqSweep`) — je to to isté pole ako
+v jeho Pine skupine, len po ruke. Pine defaulty kreslia všetko. Závislosti sú ručná
+tabuľka `FEATURES` v `ibs/webapp/pine_meta.py`, lebo Pine ich nedeklaruje.
+
 Polia s veľkosťou (`*Points`, `*Ticks`, `minSlDistance`) majú jednotku:
 `abs` cenové body, `ticks` násobky ticku, `atr` násobky ATR grafového TF,
 `pct` percento ceny. Holá hodnota v profile znamená pôvodnú Pine jednotku.

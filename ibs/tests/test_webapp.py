@@ -46,6 +46,28 @@ def test_metadata_types_and_groups():
     assert by["sess2TZ"]["group"].endswith("Session 2")
 
 
+def test_feature_dependencies_reference_real_bool_switches():
+    """Tabuľka FEATURES je ručná — každé meno musí existovať, prepínače musia byť bool
+    a jedno pole nesmie visieť na dvoch featurách naraz (formulár by nevedel, čo poslúchať)."""
+    from ibs.webapp.pine_meta import FEATURES
+
+    by = {m["name"]: m for m in param_metadata()}
+    seen: set[str] = set()
+    for feat in FEATURES:
+        for sw in feat["switches"]:
+            assert by[sw]["type"] == "bool", sw
+        if feat.get("show"):
+            assert by[feat["show"]]["type"] == "bool"
+        for name in feat["params"]:
+            assert name in by, name
+            assert name not in seen, f"{name} je v dvoch featurách"
+            seen.add(name)
+    assert by["sess1ZoneStartH"]["depends_on"] == ["sess1On"]
+    assert by["srSwingLen"]["depends_on"] == ["enableSrTrading", "showSR"]
+    assert by["enableSrTrading"]["show_param"] == "showSR"
+    assert by["rrRatio"]["depends_on"] is None and by["rrRatio"]["show_param"] is None
+
+
 def test_metadata_groups_follow_pine_order():
     groups = []
     for m in param_metadata():

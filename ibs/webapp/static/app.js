@@ -82,7 +82,8 @@ function paramInput(meta) {
 
   if (meta.type === "bool") {
     const i = document.createElement("input"); i.type = "checkbox"; i.checked = !!v;
-    i.onchange = () => onChange(i.checked); wrap.append(i); return wrap;
+    i.onchange = () => { onChange(i.checked); if (meta.type === "bool") applyParamFilter(); };
+    wrap.append(i); return wrap;
   }
   if (meta.options) {
     const s = document.createElement("select");
@@ -149,8 +150,35 @@ function tooltipFor(meta) {
   return parts.join("\n");
 }
 
+/**
+ * Zrkadlo kresliaceho prepínača (napr. `showSR`) vedľa hlavného prepínača feature
+ * (`enableSrTrading`), keď sú v Pine v rôznych skupinách. Je to ten istý parameter,
+ * len na druhom mieste — zmena sa prejaví aj v jeho domovskej skupine.
+ */
+function showMirror(show) {
+  const lab = document.createElement("label"); lab.className = "mirror";
+  lab.title = `${show.tooltip || show.title}\n\n[${show.name}] — to isté pole ako v skupine „${show.group}“`;
+  const i = document.createElement("input"); i.type = "checkbox"; i.checked = !!state.params[show.name];
+  i.onchange = () => { state.params[show.name] = i.checked; renderParams(); };
+  lab.append(i, document.createTextNode("kresliť"));
+  lab.classList.toggle("changed", !sameValue(show, state.params[show.name], state.base[show.name]));
+  return lab;
+}
+
+/** Riadok má zmysel, keď je zapnutý aspoň jeden z jeho prepínačov — a ten sám je viditeľný. */
+function dependencyMet(row, seen = new Set()) {
+  const deps = (row.dataset.dependsOn || "").split(" ").filter(Boolean);
+  if (!deps.length) return true;
+  return deps.some(name => {
+    if (!state.params[name] || seen.has(name)) return false;
+    const owner = $(`.prow[data-names~="${name}"]`);
+    return !owner || dependencyMet(owner, new Set([...seen, name]));
+  });
+}
+
 function renderParams() {
   const nav = $("#param-nav"), root = $("#param-groups");
+  const m = metaByName();
   nav.innerHTML = ""; root.innerHTML = "";
   const groups = groupList();
   if (!state.activeGroup || !groups.includes(state.activeGroup)) state.activeGroup = groups[0];
@@ -171,6 +199,8 @@ function renderParams() {
       const label = document.createElement("div"); label.className = "plabel";
       label.textContent = first.title; label.title = tooltipFor(first);
       if (first.note) label.classList.add("noted");
+      const deps = metas.map(m => m.depends_on).find(d => d && d.length);
+      if (deps) row.dataset.dependsOn = deps.join(" ");
       const ctls = document.createElement("div"); ctls.className = "pctl";
       for (const meta of metas) {
         const ctl = paramInput(meta);
@@ -180,7 +210,10 @@ function renderParams() {
           ctls.append(cap);
         }
         ctls.append(ctl);
+        const show = meta.show_param && m[meta.show_param];
+        if (show && show.group !== meta.group) ctls.append(showMirror(show));
       }
+      const hint = document.createElement("span"); hint.className = "dep-hint"; hint.hidden = true; ctls.append(hint);
       const reset = document.createElement("button"); reset.className = "ghost reset"; reset.textContent = "↺";
       reset.title = "späť na hodnotu profilu";
       reset.onclick = () => { for (const m of metas) state.params[m.name] = JSON.parse(JSON.stringify(state.base[m.name] ?? null)); renderParams(); };
@@ -223,17 +256,30 @@ function applyParamFilter() {
   const browsing = !q && !onlyChanged;
   for (const b of $$(".nav-item")) b.classList.toggle("active", browsing && b.dataset.group === state.activeGroup);
   let shown = 0;
+  const collapsed = {};  // prepínač -> počet podnastavení, ktoré kvôli nemu nevidno
   for (const sec of $$(".pgroup")) {
     let visible = 0;
     for (const row of $$(".prow", sec)) {
-      const hit = browsing
+      let hit = browsing
         ? sec.dataset.group === state.activeGroup
         : (!q || row.dataset.search.includes(q)) && (!onlyChanged || row.classList.contains("changed"));
+      // Podnastavenia vypnutej feature sa neukazujú (hľadanie a „len zmenené" ich ukážu vždy).
+      if (hit && browsing && !dependencyMet(row)) {
+        hit = false;
+        for (const d of row.dataset.dependsOn.split(" ")) collapsed[d] = (collapsed[d] || 0) + 1;
+      }
       row.hidden = !hit; if (hit) visible++;
     }
     sec.hidden = visible === 0;
     sec.classList.toggle("titled", !browsing);
     shown += visible;
+  }
+  for (const row of $$(".prow")) {
+    const hint = row.querySelector(".dep-hint"); if (!hint) continue;
+    const n = row.dataset.names.split(" ").reduce((s, name) => s + (collapsed[name] || 0), 0);
+    hint.hidden = !n || row.hidden;
+    hint.textContent = n ? `▸ ${n} ${n === 1 ? "nastavenie skryté" : n < 5 ? "nastavenia skryté" : "nastavení skrytých"}` : "";
+    hint.title = "podnastavenia sa ukážu po zapnutí prepínača";
   }
   $("#param-empty").hidden = shown > 0;
 }
