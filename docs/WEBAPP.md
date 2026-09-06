@@ -253,6 +253,18 @@ Ak by mala vetva klonu oproti `main` commity mimo `runs/` a `profiles/`, Push sa
 zastaví a povie to: kód z testerského klonu do `main` nepatrí, ten ide pull requestom.
 Autor commitu je meno testera z hlavičky.
 
+**Prihlásenie do GitHubu.** Webapp beží bez terminálu, takže sa git nemá koho spýtať na
+heslo — bez uložených údajov Push spadne na `could not read Username … Device not
+configured` (macOS) a aplikácia rovno vypíše návod. Stačí sa prihlásiť raz:
+
+```bash
+gh auth login && gh auth setup-git          # macOS/Linux, najjednoduchšie
+git config --global credential.helper osxkeychain   # macOS bez gh: potom raz `git push`
+git config --global credential.helper manager       # Windows
+```
+
+Commit sa spraví aj tak, takže po prihlásení stačí kliknúť Push znova — nič sa nestratí.
+
 Výsledkové zipy Freqtradu ostávajú v `backtest_results/` (gitignored) — beh ich
 nepotrebuje, všetko podstatné je v `run.json`.
 

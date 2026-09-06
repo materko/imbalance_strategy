@@ -477,6 +477,18 @@ def test_git_push_refuses_commits_outside_tester_data(monkeypatch):
     assert gitsync._foreign_commits("main") == ["aaaaaaa"]  # len ten commit s kódom
 
 
+def test_git_recognizes_missing_github_login():
+    """Webapp beží bez terminálu — git sa nemá koho spýtať na heslo. Musí to povedať
+    ako návod, nie ako „fatal: could not read Username… Device not configured"."""
+    from ibs.webapp import gitsync
+
+    assert gitsync._auth_failed("fatal: could not read Username for 'https://github.com': "
+                                "Device not configured")
+    assert gitsync._auth_failed("remote: Invalid username or token. Authentication failed")
+    assert not gitsync._auth_failed("Everything up-to-date")
+    assert "gh auth login" in gitsync.AUTH_HELP
+
+
 def test_git_commit_message_counts_runs_and_profiles():
     from ibs.webapp.gitsync import _message
 
