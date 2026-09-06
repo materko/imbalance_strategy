@@ -7,7 +7,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .config import IBSConfig
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:  # len anotácie — modul nesmie ťahať stratégiu (cyklus importov)
+    from ..strategies.ibs.config import IBSConfig
 from .history import BarHistory
 from .types import Direction, InstrumentSpec
 

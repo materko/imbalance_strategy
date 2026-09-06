@@ -35,7 +35,7 @@ def pushes():
     import pandas as pd
 
     from tradebot.core import IBSEngine, MarketContext, SessionClock, load_profile
-    from tradebot.core.ta.elliott import ElliottWaves
+    from tradebot.strategies.ibs.ta.elliott import ElliottWaves
     from tradebot.tools.scan_zones import _load, _to_bar
 
     cfg, inst = load_profile("golden_binance_btcusdt_3m")

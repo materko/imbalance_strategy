@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from ..core import IBSConfig
-from ..core.config import CONSTRAINTS, PORT_ONLY_FIELDS, SIZE_FIELDS
+from ..strategies.ibs.config import CONSTRAINTS, PORT_ONLY_FIELDS, SIZE_FIELDS
 from ..core.types import SizeSpec
 
 REPO = Path(__file__).resolve().parents[2]

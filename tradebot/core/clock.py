@@ -18,7 +18,10 @@ from datetime import datetime
 from functools import lru_cache
 from zoneinfo import ZoneInfo
 
-from .config import IBSConfig
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:  # len anotácie — modul nesmie ťahať stratégiu (cyklus importov)
+    from ..strategies.ibs.config import IBSConfig
 from .drawing import DrawBg, DrawKind, Palette, with_alpha
 
 __all__ = ["SessionWindow", "SessionSpec", "ClockState", "SessionClock", "DAY_MS"]

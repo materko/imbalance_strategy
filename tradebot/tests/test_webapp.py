@@ -9,12 +9,13 @@ skôr, než by sa niečo spustilo.
 from __future__ import annotations
 
 import json
+from dataclasses import fields
 from pathlib import Path
 
 import pytest
 
 from tradebot.core import IBSConfig
-from tradebot.core.config import PORT_ONLY_FIELDS
+from tradebot.strategies.ibs.config import PORT_ONLY_FIELDS
 from tradebot.webapp.pine_meta import PORT_GROUP, REMOVED_INPUTS, param_metadata
 from tradebot.webapp.store import RunStore, make_run_id, parse_query
 
@@ -26,7 +27,7 @@ from tradebot.webapp.store import RunStore, make_run_id, parse_query
 
 def test_metadata_covers_every_config_field_except_removed():
     names = {m["name"] for m in param_metadata()}
-    expected = {f for f in IBSConfig.__dataclass_fields__ if f not in REMOVED_INPUTS}
+    expected = {f.name for f in fields(IBSConfig) if f.name not in REMOVED_INPUTS}
     assert names == expected
 
 

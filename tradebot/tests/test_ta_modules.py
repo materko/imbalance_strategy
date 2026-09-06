@@ -10,7 +10,7 @@ import pytest
 
 from tradebot.core import Bar, DrawKind, IBSConfig
 from tradebot.core.history import BarHistory
-from tradebot.core.ta import ElliottWaves, LiquiditySweep, MarketStructure, SupportResistance, pivot
+from tradebot.strategies.ibs.ta import ElliottWaves, LiquiditySweep, MarketStructure, SupportResistance, pivot
 from tradebot.core.types import BTCUSDT_BINANCE
 
 MIN = 60_000

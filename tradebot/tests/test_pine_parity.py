@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 
 from tradebot.core import IBSConfig
-from tradebot.core.config import CONSTRAINTS, PORT_ONLY_FIELDS, SIZE_FIELDS
+from tradebot.strategies.ibs.config import CONSTRAINTS, PORT_ONLY_FIELDS, SIZE_FIELDS
 from tradebot.core.types import SizeSpec
 
 PINE_FILE = Path(__file__).resolve().parents[2] / "pine" / "imbalance_strategy_FULL.pine"

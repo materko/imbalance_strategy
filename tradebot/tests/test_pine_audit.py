@@ -23,7 +23,7 @@ from tradebot.core import (
     ZoneState,
 )
 from tradebot.core.drawing import DrawKind, DrawUpdate
-from tradebot.core.zones import ZoneSource
+from tradebot.strategies.ibs.zones import ZoneSource
 
 T0 = 1_756_684_800_000
 MIN3 = 180_000
