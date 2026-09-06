@@ -27,6 +27,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
+from ...strategies.ibs.htf import HTFFeeder
 from ...core import (
     htf_window_opens,
     Bar,
@@ -95,8 +96,9 @@ class EngineRunner:
         self.chart_tf_minutes = chart_tf_minutes
         self.engine = IBSEngine(cfg, inst, chart_tf_minutes)
 
-        self.htf_ms = int(cfg.zoneDetectionTF) * 60_000
-        self._prev_htf_open: int | None = None
+        #: okno detekčného TF — jedna implementácia pre Freqtrade aj MultiCharts
+        self.htf = HTFFeeder(cfg, chart_tf_minutes)
+        self.htf_ms = self.htf.htf_ms
         self._orders: dict[str, _PendingOrder] = {}
         #: Pine `dailyWinsCount` — UTC deň -> počet obchodov zavretých v zisku.
         self._daily_wins: dict[str, int] = {}
@@ -248,25 +250,13 @@ class EngineRunner:
     # ------------------------------------------------------------------ #
 
     def htf_window_for(self, ts_ms: int, htf_bars: dict[int, Bar], vol_sma: dict[int, float]):
-        """Okno štyroch uzavretých HTF barov — ale len na bare, kde začala nová perióda.
+        """Okno štyroch uzavretých HTF barov na bare, kde začala nová perióda — viď `HTFFeeder`.
 
-        Presne Pine `first5mTick`: pattern sa hľadá raz za novú periódu detekčného TF
-        a výhradne z už uzavretých barov, takže nič nerepaintuje.
-
-        Ktoré štyri bary to sú, počíta `htf_window_opens()` z ČASU UZAVRETIA baru grafu —
-        nie z jeho otvorenia. Pri neprekrývajúcich sa mriežkach (3m graf / 5m detekcia)
-        sa tie dve odpovede líšia a rozdiel bolo vidieť ako 104 zón oproti 77 v TradingView.
+        `htf_bars`/`vol_sma` sú predpočítané z informative dataframe; podávajú sa
+        referenciou, takže opakované volanie na každom bare nič nekopíruje.
         """
-        htf_open = ts_ms // self.htf_ms * self.htf_ms
-        is_new_period = self._prev_htf_open is not None and htf_open != self._prev_htf_open
-        self._prev_htf_open = htf_open
-        if not is_new_period:
-            return None
-
-        opens = htf_window_opens(ts_ms, self.chart_tf_minutes * 60_000, self.htf_ms)
-        if any(o not in htf_bars for o in opens):
-            return None
-        return HTFWindow(tuple(htf_bars[o] for o in opens), vol_sma.get(opens[0], 0.0))
+        self.htf.load(htf_bars, vol_sma)
+        return self.htf.window_for(ts_ms)
 
 
 # --------------------------------------------------------------------------- #

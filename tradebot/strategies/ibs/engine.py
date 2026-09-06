@@ -20,12 +20,13 @@ from tradebot.core.history import BarHistory
 from tradebot.core.orders import MarketContext
 
 from .config import IBSConfig
+from .htf import HTFWindow
 from .statemachine import StateMachine
 from .ta.elliott import ElliottWaves
 from .ta.liquidity import LiquiditySweep
 from .ta.sr import SupportResistance
 from .ta.structure import MarketStructure
-from tradebot.core.types import Bar, Direction, HTFWindow, InstrumentSpec
+from tradebot.core.types import Bar, Direction, InstrumentSpec
 from .zones import Zone, ZoneBook, ZoneSource, detect_sd_pattern
 
 __all__ = ["IBSEngineOutput", "IBSEngine"]

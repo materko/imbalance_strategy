@@ -35,6 +35,7 @@ from ...core import (
     htf_window_opens,
 )
 from ...core.risk import TradePlan
+from ...strategies.ibs.htf import HTFFeeder, HTFWindow
 from ...core.orders import OrderAction, OrderIntent
 from ...core.types import Direction
 
@@ -83,17 +84,13 @@ class MCRunner:
         self.inst = inst
         self.chart_tf_minutes = chart_tf_minutes
         self.step_ms = chart_tf_minutes * 60_000
-        self.htf_ms = int(cfg.zoneDetectionTF) * 60_000
-
         self.engine = IBSEngine(cfg, inst, chart_tf_minutes)
         self.clock = SessionClock(cfg)
 
-        #: HTF bary podľa otváracieho času — plní ich `feed_htf()` z Data2.
-        self.htf_bars: dict[int, Bar] = {}
-        self.htf_vol_sma: dict[int, float] = {}
-        self._htf_volumes: list[float] = []
-
-        self._prev_htf_open: int | None = None
+        #: okno detekčného TF (Data2) — jedna implementácia pre Freqtrade aj MultiCharts;
+        #: drží len toľko histórie, koľko treba na okno + SMA.
+        self.htf = HTFFeeder(cfg, chart_tf_minutes, keep=cfg.volSmaLen + HTFWindow.REQUIRED_BARS + 8)
+        self.htf_ms = self.htf.htf_ms
         #: order_id -> LiveOrder; posiela sa znova, kým z množiny nevypadne
         self._live: dict[str, LiveOrder] = {}
         #: plán obchodu, ktorý sa práve drží (na SL/TP výstupy)
@@ -108,43 +105,16 @@ class MCRunner:
     # ------------------------------------------------------------------ #
 
     def feed_htf(self, bar: Bar) -> None:
-        """Zaeviduje uzavretý bar detekčného TF (v MultiCharts `Data2`).
+        """Zaeviduje uzavretý bar detekčného TF (v MultiCharts `Data2`) — viď `HTFFeeder.feed`."""
+        self.htf.feed(bar)
 
-        Volá sa len keď sa HTF bar naozaj **uzavrel**; priebežné aktualizácie
-        posledného baru by narušili `vol_sma`.
-        """
-        if bar.time in self.htf_bars:
-            return
-        self.htf_bars[bar.time] = bar
-        self._htf_volumes.append(bar.volume)
-        n = self.cfg.volSmaLen
-        if len(self._htf_volumes) >= n:
-            self.htf_vol_sma[bar.time] = sum(self._htf_volumes[-n:]) / n
-        else:
-            self.htf_vol_sma[bar.time] = 0.0
+    @property
+    def htf_bars(self) -> dict[int, Bar]:
+        return self.htf.bars
 
-        # Držíme len toľko histórie, koľko treba na okno + SMA.
-        keep = n + HTFWindow.REQUIRED_BARS + 8
-        if len(self._htf_volumes) > keep:
-            self._htf_volumes = self._htf_volumes[-keep:]
-        if len(self.htf_bars) > keep:
-            for old in sorted(self.htf_bars)[: len(self.htf_bars) - keep]:
-                self.htf_bars.pop(old, None)
-                self.htf_vol_sma.pop(old, None)
-
-    def _window(self, ts_ms: int) -> HTFWindow | None:
-        """Okno štyroch HTF barov — len na bare, kde začala nová HTF perióda."""
-        htf_open = ts_ms // self.htf_ms * self.htf_ms
-        is_new = self._prev_htf_open is not None and htf_open != self._prev_htf_open
-        self._prev_htf_open = htf_open
-        if not is_new:
-            return None
-        opens = htf_window_opens(ts_ms, self.step_ms, self.htf_ms)
-        if any(o not in self.htf_bars for o in opens):
-            return None
-        return HTFWindow(
-            tuple(self.htf_bars[o] for o in opens), self.htf_vol_sma.get(opens[0], 0.0)
-        )
+    @property
+    def htf_vol_sma(self) -> dict[int, float]:
+        return self.htf.vol_sma
 
     # ------------------------------------------------------------------ #
     # hlavný krok
@@ -166,7 +136,7 @@ class MCRunner:
             position_size=position_size,
             open_order_ids=frozenset(self._live),
         )
-        out = self.engine.on_bar(bar, self._window(bar.time), ctx)
+        out = self.engine.on_bar(bar, self.htf.window_for(bar.time), ctx)
 
         result = BarOutput(drawings=list(out.drawings), close_session=out.close_session)
         for intent in out.orders:

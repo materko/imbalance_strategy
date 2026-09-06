@@ -19,7 +19,9 @@ from enum import Enum
 
 from .config import IBSConfig
 from tradebot.core.drawing import DrawBox, DrawKind, DrawUpdate, LineStyle, with_alpha, zone_color
-from tradebot.core.types import Direction, HTFWindow, InstrumentSpec, SnapMode
+from tradebot.core.types import Direction, InstrumentSpec, SnapMode
+
+from .htf import HTFWindow
 
 __all__ = [
     "ZoneSource",
