@@ -39,8 +39,6 @@ from .types import (
     MNQ,
     Bar,
     Direction,
-    HTFWindow,
-    htf_window_opens,
     InstrumentSpec,
     OrderType,
     PanelPos,
@@ -54,6 +52,7 @@ _IBS_NAMES = frozenset({
     "IBSConfig", "CONFIG_DIR", "IBSEngine", "IBSEngineOutput", "StateMachine", "ZoneState",
     "Zone", "ZoneBook", "ZoneSource", "SdPattern", "detect_sd_pattern", "snap_time",
     "ImbalanceHit", "find_imbalance", "is_pin_bar", "is_engulfing",
+    "HTFWindow", "htf_window_opens", "HTFFeeder",
 })
 
 
@@ -65,8 +64,6 @@ def __getattr__(name: str):
 
 __all__ = [
     "Bar",
-    "HTFWindow",
-    "htf_window_opens",
     "Direction",
     "TradeDirection",
     "SnapMode",
