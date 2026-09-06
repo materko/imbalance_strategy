@@ -1,0 +1,750 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m freqtrade backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\platforms\freqtrade\config.binance.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\platforms\freqtrade\user_data --strategy IBSImbalanceStrategy --cache none --export trades --timerange 20250904-20260904 --pairs BTC/USDT:USDT --timeframe 1m --dry-run-wallet 10000.0 --fee 0.0005
+2026-09-06 01:11:36,403 - freqtrade - INFO - freqtrade 2026.8
+2026-09-06 01:11:36,571 - numexpr.utils - INFO - Note: NumExpr detected 24 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 16.
+2026-09-06 01:11:36,576 - numexpr.utils - INFO - NumExpr defaulting to 16 threads.
+2026-09-06 01:11:37,790 - freqtrade.configuration.load_config - INFO - Using config: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\platforms\freqtrade\config.binance.json ...
+… (skrátené) …
+2026-09-06 01:11:39,058 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSImbalanceStrategy from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\platforms\freqtrade\user_data\strategies\IBSImbalanceStrategy.py'...
+2026-09-06 01:11:39,070 - ibs.adapters.freqtrade.strategy - WARNING - IBS config: engMinRangePoints, ewMinWavePoints, liqSweepMinWick, minImbSizePoints, pbMinRangePoints, srClusterPoints sú v 
+2026-09-06 01:11:41,850 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSImbalanceStrategy
+2026-09-06 01:12:21,975 - ibs.adapters.freqtrade.strategy - INFO - IBS BTC/USDT:USDT: 525901 barov, 105421 HTF barov, 200 zon, 650 signalov (341 long / 309 short)
+2026-09-06 01:12:23,238 - ibs.adapters.freqtrade.strategy - INFO - IBS BTC/USDT:USDT: kresby ulozene do 
+2026-09-06 01:12:24,003 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 697120.75 na 9900.00 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,018 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 386188.79 na 9885.40 (2.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,022 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 216372.44 na 9885.40 (4.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,033 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 403189.47 na 9860.01 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,058 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1635557.74 na 9841.85 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:24,070 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 712680.43 na 9841.85 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,072 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 466614.74 na 9827.44 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,075 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 985490.42 na 9825.02 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,085 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 411024.51 na 9811.95 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,099 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 277188.83 na 9810.53 (3.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,103 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 619081.80 na 9788.60 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,110 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 205776.39 na 9788.60 (4.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,137 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 433040.78 na 9762.67 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,146 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1206152.81 na 9745.33 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:24,146 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1212122.32 na 9738.54 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:24,152 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 493566.54 na 9726.21 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,160 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 306609.30 na 9709.86 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,160 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 151199.88 na 9711.21 (6.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,203 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 495480.14 na 9680.17 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,212 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 409837.36 na 9680.17 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,220 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 830640.24 na 9678.79 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,232 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 213045.11 na 9665.26 (4.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,241 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 95673.76 na 9640.25 (10.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,252 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 841323.95 na 9665.55 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,252 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 941803.21 na 9652.09 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,262 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 888167.38 na 9646.11 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,266 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 722105.14 na 9632.82 (1.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,268 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 843650.25 na 9627.96 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,270 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 210832.98 na 9622.44 (4.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,286 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 545072.79 na 9628.64 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,293 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 672772.79 na 9625.25 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,304 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 474856.23 na 9620.69 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,337 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 346092.77 na 9604.23 (2.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,337 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 209580.05 na 9585.14 (4.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,353 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 315953.60 na 9559.86 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,372 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 643593.84 na 9560.91 (1.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,380 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 252435.74 na 9556.62 (3.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,402 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 457077.33 na 9560.24 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,424 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 706922.32 na 9543.67 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,437 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 233637.23 na 9529.68 (4.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,444 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 604892.26 na 9505.68 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,453 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 474467.62 na 9490.83 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,456 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 668337.27 na 9488.39 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,463 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 235308.71 na 9474.22 (4.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,475 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1061012.07 na 9450.94 (0.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:24,481 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 260990.55 na 9444.70 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,505 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1043440.94 na 9444.70 (0.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:24,519 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 478919.13 na 9438.55 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,524 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 304761.44 na 9438.55 (3.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,537 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 630001.54 na 9439.94 (1.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,542 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1529032.82 na 9425.51 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:24,547 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 232818.98 na 9414.09 (4.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,554 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 755888.21 na 9418.75 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,567 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 310558.56 na 9405.19 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,570 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 480501.10 na 9385.57 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,606 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 422408.76 na 9383.06 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,615 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 229308.56 na 9381.49 (4.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,618 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 187922.90 na 9381.49 (5.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,630 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 408805.41 na 9389.46 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,645 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 334900.39 na 9372.39 (2.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,646 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 275651.38 na 9372.80 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,662 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 753421.43 na 9351.87 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,662 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 361058.39 na 9351.87 (2.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,678 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 932785.76 na 9333.85 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,678 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 340928.72 na 9321.31 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,686 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 175818.41 na 9302.79 (5.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,719 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 319463.74 na 9302.79 (2.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,719 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 286731.31 na 9283.64 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,726 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 400298.46 na 9263.38 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,737 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 487930.61 na 9262.24 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,741 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 454286.47 na 9259.66 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,749 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 463734.79 na 9243.52 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,752 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 234914.35 na 9241.30 (3.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,759 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 235987.89 na 9218.73 (3.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,767 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 175831.24 na 9196.20 (5.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,767 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 108573.27 na 9205.17 (8.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,777 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 363417.92 na 9225.23 (2.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,793 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 854837.66 na 9207.51 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,797 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 211613.38 na 9194.78 (4.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,797 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 108116.06 na 9194.78 (8.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,807 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 104039.54 na 9156.35 (8.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,823 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 169021.06 na 9177.73 (5.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,828 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 198356.25 na 9177.73 (4.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,876 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 447205.20 na 9184.60 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,877 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 106404.90 na 9182.64 (8.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,888 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 361022.20 na 9144.09 (2.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,888 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 262897.91 na 9126.44 (3.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,903 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 534368.95 na 9126.44 (1.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,903 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 832350.55 na 9123.34 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,912 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1113567.86 na 9110.57 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:24,919 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 249352.13 na 9098.75 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,919 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 227708.66 na 9077.14 (4.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,929 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 286855.48 na 9054.39 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,937 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 310362.76 na 9056.34 (2.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,952 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 183076.75 na 9057.47 (4.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,964 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 277704.96 na 9031.59 (3.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,978 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 407729.65 na 9011.43 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:24,982 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 333171.22 na 9010.16 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,011 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 943642.36 na 8991.96 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,011 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 324035.66 na 8986.37 (2.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,011 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 236826.07 na 8986.37 (3.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,036 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 244610.69 na 8990.57 (3.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,044 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 517736.60 na 8969.02 (1.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,044 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 812410.98 na 8969.02 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,059 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 681441.87 na 8963.99 (1.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,059 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 216816.21 na 8950.59 (4.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,078 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 245591.16 na 8950.59 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,084 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 141633.14 na 8954.31 (6.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,091 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 304192.13 na 8923.87 (2.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,100 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 269356.18 na 8904.93 (3.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,103 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 277775.63 na 8907.54 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,107 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 217069.97 na 8887.63 (4.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,139 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 328123.59 na 8864.87 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,143 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 468815.92 na 8846.84 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,155 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 118418.66 na 8844.62 (7.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,155 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 277272.73 na 8810.36 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,161 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 143655.94 na 8790.79 (6.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,177 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 119091.73 na 8803.20 (7.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,177 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 90642.86 na 8769.19 (9.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,198 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 198657.77 na 8793.96 (4.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,210 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 262782.34 na 8770.02 (3.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,221 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 276626.38 na 8772.86 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,226 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 5001488.57 na 8753.20 (0.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:25,228 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 203982.26 na 8745.15 (4.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,249 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 231680.65 na 8751.29 (3.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,279 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 216775.54 na 8729.77 (4.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,283 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 330565.53 na 8735.05 (2.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,286 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 506796.26 na 8717.32 (1.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,286 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 260022.44 na 8714.68 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,297 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 271432.06 na 8717.64 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,320 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 222016.93 na 8698.08 (3.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,352 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 974208.98 na 8702.98 (0.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,355 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 150404.86 na 8691.36 (5.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,366 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 255008.09 na 8702.67 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,377 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 358268.16 na 8705.84 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,385 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 55786.98 na 8688.83 (15.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,397 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 87933.01 na 8626.86 (9.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,409 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 145278.57 na 8584.75 (5.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,409 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 252093.76 na 8555.90 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,419 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 453987.74 na 8535.78 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,432 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 731207.54 na 8520.83 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,465 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 425112.50 na 8516.45 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,489 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 188566.66 na 8501.26 (4.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,507 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 232360.82 na 8508.45 (3.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,592 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 442373.25 na 8487.42 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,594 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 244887.11 na 8472.41 (3.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,604 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1073092.16 na 8452.11 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:25,608 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 455903.29 na 8441.04 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,608 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 657391.18 na 8441.04 (1.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,621 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 664523.09 na 8427.97 (1.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,653 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 518120.76 na 8427.97 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,653 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 229716.25 na 8425.27 (3.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,663 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 721449.47 na 8429.63 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,670 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 79531.42 na 8425.36 (10.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,689 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 405200.00 na 8419.60 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,689 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1175412.68 na 8419.60 (0.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:25,695 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 80408.40 na 8413.76 (10.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,708 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 208336.67 na 8441.36 (4.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,711 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1040589.87 na 8446.99 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:25,720 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 92662.46 na 8435.83 (9.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,738 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 280561.87 na 8458.88 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,743 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 806478.36 na 8440.21 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,744 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 384184.16 na 8428.29 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,751 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 73757.46 na 8412.40 (11.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,753 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 203518.32 na 8364.56 (4.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,753 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 128279.06 na 8364.56 (6.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,759 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 322811.88 na 8333.97 (2.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,811 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 675124.68 na 8334.67 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,819 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 448065.36 na 8330.74 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,823 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 2748884.21 na 8330.74 (0.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:25,823 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 129137.95 na 8321.52 (6.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,837 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 395648.90 na 8335.83 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,847 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1306771.20 na 8335.83 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:25,853 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 400733.46 na 8329.79 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,855 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 124651.52 na 8314.46 (6.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,873 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1084458.95 na 8328.99 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:25,873 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 233061.30 na 8323.42 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,890 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 118944.58 na 8302.88 (7.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,903 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 227107.56 na 8270.61 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,904 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 397547.50 na 8275.01 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,945 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 273469.61 na 8259.73 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,953 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 614840.21 na 8262.01 (1.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,953 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1076363.18 na 8258.48 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:25,953 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 770414.20 na 8247.76 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,970 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 305097.61 na 8243.34 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,970 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 392192.59 na 8243.34 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:25,980 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 213574.19 na 8227.99 (3.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,006 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 357437.66 na 8233.17 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,019 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 348960.45 na 8233.00 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,036 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 274899.38 na 8233.02 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,043 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 195043.68 na 8235.23 (4.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,055 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 342048.38 na 8212.60 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,057 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 121927.98 na 8196.18 (6.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,088 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 404157.75 na 8210.50 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,088 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 279399.96 na 8209.40 (2.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,088 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 132011.32 na 8191.25 (6.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,126 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 236427.87 na 8204.57 (3.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,134 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 272220.71 na 8184.50 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,137 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 791295.05 na 8166.08 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,148 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1813920.56 na 8154.46 (0.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:26,154 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 215975.25 na 8144.85 (3.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,154 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 232778.17 na 8149.84 (3.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,165 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 482070.68 na 8153.89 (1.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,170 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 615584.90 na 8151.70 (1.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,176 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 289987.00 na 8139.13 (2.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,206 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 673253.25 na 8140.30 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,223 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 298388.58 na 8137.03 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,249 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 569392.64 na 8138.41 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,256 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 265662.28 na 8135.33 (3.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,256 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 157041.51 na 8135.33 (5.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,282 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 200932.53 na 8145.54 (4.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,304 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 411524.78 na 8151.51 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,312 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 258124.58 na 8150.32 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,316 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 251512.67 na 8131.39 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,320 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 280950.13 na 8112.30 (2.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,328 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 2295638.01 na 8114.26 (0.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:26,333 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1068937.58 na 8107.50 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:26,333 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1260843.69 na 8102.13 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:26,349 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1933681.56 na 8091.93 (0.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:26,355 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 686932.60 na 8082.48 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,360 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 798751.03 na 8078.59 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,371 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 355890.98 na 8078.59 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,375 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 467678.75 na 8078.46 (1.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,402 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 557715.17 na 8064.58 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,419 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 175232.41 na 8051.60 (4.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,437 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 357961.40 na 8027.96 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,438 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1083338.56 na 8012.25 (0.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:26,438 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 161494.21 na 8001.85 (5.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,454 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 352819.66 na 7976.82 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,454 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 198039.31 na 7961.24 (4.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,470 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 128801.67 na 7939.46 (6.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,483 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 516678.77 na 7910.57 (1.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,489 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 129535.04 na 7897.54 (6.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,491 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 120161.96 na 7910.73 (6.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,507 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 92867.25 na 7925.61 (8.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,520 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 118806.85 na 7947.14 (6.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,556 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 342138.91 na 7962.30 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,566 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 646088.96 na 7946.48 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,571 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 384014.40 na 7942.89 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,582 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 262083.15 na 7942.21 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,590 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 113616.99 na 7942.21 (7.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,603 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 408644.24 na 7958.17 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,604 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 2517691.38 na 7958.17 (0.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:26,617 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 336366.41 na 7949.25 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,624 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 653704.87 na 7933.21 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,632 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 187083.16 na 7929.60 (4.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,709 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 399044.11 na 7936.40 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,713 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1721636.98 na 7921.69 (0.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:26,725 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 364562.60 na 7912.28 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,729 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 384037.98 na 7897.09 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,731 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 791382.36 na 7882.29 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,733 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 560536.41 na 7877.97 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,737 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 323930.39 na 7875.06 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,757 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 258070.80 na 7875.69 (3.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,768 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 290108.06 na 7857.38 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,771 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 506481.24 na 7857.38 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,772 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 127680.20 na 7857.38 (6.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,784 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 277320.54 na 7828.36 (2.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,788 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 470847.27 na 7810.87 (1.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,788 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1842036.14 na 7797.54 (0.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:26,804 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 67784.55 na 7788.42 (11.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,854 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 64091.30 na 7741.93 (12.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,900 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 139951.64 na 7775.70 (5.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,900 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 551936.00 na 7775.70 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,905 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 268631.78 na 7763.17 (2.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,905 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 60863.80 na 7745.67 (12.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,924 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 2988191.01 na 7782.40 (0.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:26,944 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 560225.16 na 7775.63 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,947 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 423313.84 na 7772.76 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,951 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 331057.77 na 7758.78 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,958 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 229026.56 na 7759.21 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,967 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 255728.00 na 7763.53 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,986 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 217507.73 na 7766.36 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:26,996 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 171695.37 na 7746.32 (4.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,001 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 133324.48 na 7754.23 (5.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,033 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 640260.61 na 7766.67 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,038 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 111969.26 na 7763.22 (6.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,043 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 149937.86 na 7763.22 (5.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,049 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 572548.44 na 7763.22 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,054 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 43824.62 na 7761.99 (17.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,077 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 230281.18 na 7815.54 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,077 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 239944.13 na 7796.07 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,086 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 55380.11 na 7777.12 (14.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,093 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 220486.73 na 7721.17 (3.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,104 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 32262.80 na 7725.63 (23.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,122 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 78143.37 na 7635.08 (9.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,159 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 221176.29 na 7635.08 (3.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,171 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 536759.20 na 7639.46 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,178 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 129278.92 na 7639.46 (5.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,188 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 231192.08 na 7612.19 (3.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,196 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 45381.64 na 7616.06 (16.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,209 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 314302.59 na 7666.51 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,209 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 88731.07 na 7666.51 (8.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,225 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 235246.15 na 7629.21 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,258 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 3001595.62 na 7610.43 (0.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:27,258 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 157917.11 na 7602.10 (4.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,280 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 320825.97 na 7578.01 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,285 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 219033.96 na 7578.01 (3.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,300 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 333198.34 na 7558.58 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,304 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 377760.80 na 7543.36 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,318 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 537373.94 na 7529.08 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,322 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 405336.63 na 7526.49 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,335 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 113512.39 na 7526.49 (6.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,380 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 325980.82 na 7542.00 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,393 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 205825.74 na 7542.55 (3.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,410 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 132312.27 na 7522.53 (5.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,422 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 160480.34 na 7534.66 (4.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,422 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 381233.65 na 7534.66 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,425 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 79511.94 na 7520.36 (9.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,438 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 136763.32 na 7480.16 (5.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,440 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 114725.11 na 7454.03 (6.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,478 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 204108.42 na 7424.18 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,482 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 85609.10 na 7404.40 (8.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,494 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 293285.01 na 7367.22 (2.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,501 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 255097.28 na 7351.25 (2.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,562 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 129305.83 na 7334.03 (5.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,571 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 619073.00 na 7307.33 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,573 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 122806.27 na 7304.21 (5.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,589 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 301954.49 na 7317.59 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,589 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 128758.45 na 7302.05 (5.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,605 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 212331.55 na 7275.35 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,608 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 3404171.71 na 7256.42 (0.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:27,612 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 228011.77 na 7249.99 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,615 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 111450.08 na 7231.96 (6.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,626 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 405831.56 na 7247.15 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,631 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 290083.00 na 7246.17 (2.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,639 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 431867.98 na 7247.64 (1.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,654 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 234418.73 na 7247.64 (3.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,657 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 896973.75 na 7229.79 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,688 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 336218.84 na 7219.91 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,697 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1150653.16 na 7205.39 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:27,703 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 163860.83 na 7196.18 (4.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,703 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 131607.15 na 7174.04 (5.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,713 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1022948.97 na 7185.79 (0.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:27,722 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 577738.90 na 7181.11 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,727 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 199210.41 na 7178.34 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,727 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 209275.74 na 7158.78 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,744 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 207579.96 na 7163.54 (3.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,750 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 167570.08 na 7144.55 (4.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,762 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 179630.91 na 7152.22 (4.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,792 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 313555.71 na 7131.40 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,792 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 100534.83 na 7132.22 (7.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,808 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 111804.52 na 7100.65 (6.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,816 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 134038.70 na 7115.52 (5.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,831 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 298234.42 na 7126.81 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,837 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 253927.08 na 7128.02 (2.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,840 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 327468.11 na 7130.68 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,840 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 266310.87 na 7131.16 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,846 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 127557.41 na 7114.92 (5.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,865 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 408394.94 na 7127.15 (1.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,870 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 134341.51 na 7126.15 (5.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,889 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 348965.76 na 7137.38 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,892 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 115784.10 na 7137.38 (6.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,904 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 188724.17 na 7137.38 (3.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,952 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 224308.47 na 7117.38 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,959 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 131483.15 na 7121.30 (5.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,970 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 119779.97 na 7133.01 (6.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,985 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 262001.04 na 7146.51 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:27,997 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 184362.16 na 7148.89 (3.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,003 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 690505.71 na 7155.20 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,013 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 242087.99 na 7151.73 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,032 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 251749.62 na 7154.86 (2.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,047 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 447927.14 na 7154.86 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,055 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 735403.31 na 7142.33 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,077 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1283947.47 na 7131.98 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:28,077 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 335508.12 na 7123.03 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,089 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 170972.32 na 7108.71 (4.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,098 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1170132.20 na 7087.48 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:28,104 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 436323.52 na 7078.40 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,106 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 238252.75 na 7065.80 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,108 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 446563.70 na 7049.15 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,118 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 421925.27 na 7036.74 (1.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,122 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 393473.69 na 7035.55 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,122 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 118992.51 na 7034.78 (5.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,149 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 525329.74 na 7007.54 (1.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,155 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 287216.39 na 7007.54 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,170 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 349305.22 na 7007.54 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,203 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1224949.93 na 6993.67 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:28,209 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 199326.00 na 6988.78 (3.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,215 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 353261.45 na 6993.97 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,225 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 319064.79 na 6994.10 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,229 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 632622.65 na 6994.77 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,234 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 122789.69 na 6991.71 (5.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,242 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 188243.40 na 6991.71 (3.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,246 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 270823.46 na 6991.71 (2.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,255 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 154883.52 na 6975.95 (4.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,264 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 572851.16 na 6975.95 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,270 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 859630.81 na 6964.92 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,280 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 334246.75 na 6960.85 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,292 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 376680.94 na 6960.85 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,298 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 182445.45 na 6960.85 (3.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,301 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 126772.57 na 6940.87 (5.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,331 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 180453.54 na 6915.31 (3.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,331 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 447266.96 na 6921.72 (1.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,337 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 209052.28 na 6909.58 (3.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,343 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 330611.02 na 6891.46 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,355 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 229536.75 na 6877.48 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,361 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 183225.63 na 6881.04 (3.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,370 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 166985.09 na 6887.21 (4.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,381 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 811927.20 na 6866.33 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,388 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 796186.49 na 6856.62 (0.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,403 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 462305.67 na 6852.86 (1.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,412 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 191758.45 na 6851.23 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,416 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 127128.00 na 6856.80 (5.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,423 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 416257.50 na 6831.41 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,423 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 182599.42 na 6819.07 (3.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,423 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 326269.21 na 6819.07 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,456 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 319922.85 na 6805.20 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,472 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 299667.06 na 6805.25 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,492 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1074918.60 na 6790.72 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:28,495 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 505607.47 na 6788.15 (1.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,502 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 559837.25 na 6776.85 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,513 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 226697.12 na 6774.34 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,537 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 585997.46 na 6757.38 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,537 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 256040.34 na 6746.72 (2.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,551 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 308864.50 na 6731.08 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,556 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 197487.24 na 6716.94 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,558 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 110756.82 na 6722.08 (6.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,611 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 473376.56 na 6694.43 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,615 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 376521.81 na 6692.71 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,623 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 68977.33 na 6680.07 (9.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,639 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 347017.41 na 6706.70 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,645 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 149616.04 na 6693.51 (4.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,651 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 229529.78 na 6702.35 (2.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,661 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 7710338.02 na 6705.81 (0.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:28,665 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 133859.33 na 6699.49 (5.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,670 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 228867.46 na 6710.08 (2.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,680 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 278284.36 na 6693.34 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,688 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 308162.58 na 6678.41 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,709 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 228439.98 na 6664.31 (2.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,726 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 635996.22 na 6664.31 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,741 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 360598.69 na 6654.17 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,751 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 243542.95 na 6641.26 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,773 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 577864.82 na 6644.12 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,776 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 87147.79 na 6633.69 (7.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,801 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1064588.54 na 6600.86 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:28,806 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 591653.76 na 6596.52 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,806 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 423556.69 na 6586.18 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,822 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 166856.46 na 6586.18 (3.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,822 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 375979.99 na 6586.18 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,822 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 565348.28 na 6585.73 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,836 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 607585.16 na 6583.27 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,864 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 385311.62 na 6580.52 (1.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,874 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 578588.19 na 6568.28 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,877 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 342290.36 na 6557.91 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,883 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 590086.75 na 6558.06 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,883 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 208635.08 na 6547.83 (3.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,915 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 264602.86 na 6552.18 (2.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,923 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 157027.61 na 6552.18 (4.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,928 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 110383.34 na 6560.09 (5.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,940 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1709917.65 na 6533.19 (0.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:28,947 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 324694.40 na 6525.46 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,953 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 217908.27 na 6525.96 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,966 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 102028.70 na 6509.14 (6.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,970 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 835949.50 na 6509.14 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,979 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 126747.19 na 6500.04 (5.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:28,979 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 258304.11 na 6500.04 (2.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,031 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 793463.32 na 6500.04 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,044 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 595040.04 na 6490.78 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,051 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 681789.79 na 6490.78 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,052 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1127058.84 na 6490.78 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:29,062 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 756698.19 na 6486.39 (0.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,062 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 620536.99 na 6486.39 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,062 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 464381.46 na 6486.39 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,070 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 173671.61 na 6484.82 (3.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,074 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 275858.44 na 6465.55 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,092 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 348260.00 na 6451.06 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,098 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1546734.89 na 6451.09 (0.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:29,103 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 583424.41 na 6443.34 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,106 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 365000.90 na 6433.20 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,127 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 406361.85 na 6420.83 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,140 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 136547.21 na 6419.95 (4.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,171 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 231192.59 na 6397.54 (2.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,183 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 175652.03 na 6400.78 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,187 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 729386.65 na 6381.49 (0.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,199 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 116187.02 na 6378.21 (5.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,223 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 361277.88 na 6390.90 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,225 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 102107.43 na 6390.70 (6.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,237 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 360972.05 na 6406.00 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,252 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 103685.29 na 6393.62 (6.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,259 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 74982.04 na 6408.52 (8.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,297 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 645930.50 na 6431.66 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,304 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 263923.62 na 6421.94 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,313 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 283594.97 na 6424.00 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,327 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 278304.17 na 6425.47 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,355 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 222476.96 na 6411.19 (2.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,359 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 412309.41 na 6414.83 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,371 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 215493.84 na 6413.87 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,377 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 265096.18 na 6417.65 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,384 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 204234.42 na 6402.93 (3.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,391 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 180523.26 na 6385.86 (3.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,404 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 161091.19 na 6391.63 (4.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,427 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 305794.56 na 6399.00 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,441 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 102123.70 na 6385.46 (6.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,468 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 188363.43 na 6389.91 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,476 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 458125.94 na 6371.88 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,486 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 187942.26 na 6360.86 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,497 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 146262.67 na 6366.29 (4.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,504 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 133890.34 na 6375.01 (4.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,519 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 249043.54 na 6352.43 (2.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,528 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 197831.60 na 6337.44 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,537 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 470758.83 na 6320.09 (1.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,537 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 335971.79 na 6318.48 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,537 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 212695.27 na 6318.48 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,590 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1110596.60 na 6322.51 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:29,590 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 247330.54 na 6318.25 (2.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,597 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 444782.65 na 6320.84 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,609 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 717403.14 na 6319.51 (0.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,612 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 449066.60 na 6316.33 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,614 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 161893.38 na 6316.33 (3.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,619 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 236404.04 na 6323.51 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,628 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 405292.98 na 6326.52 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,639 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 435955.58 na 6325.67 (1.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,641 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 341854.56 na 6324.45 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,664 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 104370.17 na 6311.89 (6.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,676 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 112656.30 na 6311.89 (5.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,716 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 955543.86 na 6311.89 (0.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,721 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 94925.84 na 6307.94 (6.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,732 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 183413.63 na 6278.72 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,757 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 120669.81 na 6284.85 (5.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,763 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 78574.90 na 6260.60 (8.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,783 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 209005.11 na 6281.96 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,809 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 121153.18 na 6265.22 (5.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,832 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 135151.62 na 6241.28 (4.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,840 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 268950.48 na 6251.09 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,854 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 354589.90 na 6252.94 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,862 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 196230.14 na 6240.69 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,865 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 375031.56 na 6223.59 (1.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,897 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 403549.88 na 6211.75 (1.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,904 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 157644.64 na 6200.35 (3.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,913 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 256103.58 na 6207.83 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,932 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 525057.89 na 6210.08 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,937 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 208295.10 na 6208.04 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,943 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 328086.40 na 6212.20 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,943 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 765574.78 na 6212.60 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,954 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 276044.61 na 6209.28 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,973 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 424929.43 na 6210.91 (1.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,977 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 379145.14 na 6199.79 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,987 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 381938.14 na 6188.05 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,990 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 822202.59 na 6176.43 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:29,993 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 309390.98 na 6167.78 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,029 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 309716.27 na 6154.79 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,031 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 943637.13 na 6154.79 (0.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,043 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 939257.12 na 6146.49 (0.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,060 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 708846.77 na 6142.69 (0.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,063 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 305454.44 na 6133.61 (2.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,069 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 322433.91 na 6120.60 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,082 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 275138.42 na 6108.10 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,091 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 411170.68 na 6094.44 (1.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,104 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 106911.83 na 6083.29 (5.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,113 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 205761.44 na 6057.58 (2.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,126 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 218971.00 na 6041.46 (2.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,135 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 608112.37 na 6041.46 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,139 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 668430.22 na 6032.05 (0.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,139 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 641856.09 na 6032.05 (0.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,170 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 188277.82 na 6022.92 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,177 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1507418.32 na 6028.03 (0.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:30,179 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 605552.38 na 6020.76 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,217 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 913595.69 na 6011.44 (0.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,217 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 312419.24 na 6003.24 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,234 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 612244.80 na 5990.64 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,247 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 193625.36 na 5988.10 (3.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,257 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1079265.97 na 5971.25 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:30,263 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 186573.14 na 5963.45 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,265 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 121188.50 na 5946.53 (4.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,338 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1221835.74 na 5957.90 (0.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:30,341 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 449802.56 na 5950.37 (1.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,342 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 402602.68 na 5939.99 (1.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,348 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 305845.20 na 5939.23 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,359 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 505788.59 na 5939.23 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,369 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 431818.03 na 5937.41 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,370 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 237967.24 na 5926.20 (2.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,395 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 278884.54 na 5911.71 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,411 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 131593.13 na 5912.77 (4.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,433 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 266388.23 na 5891.44 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,475 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 471220.92 na 5877.95 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,477 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 321475.80 na 5867.91 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,477 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 515516.76 na 5867.91 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,494 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 812298.93 na 5858.23 (0.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,501 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 226012.39 na 5849.95 (2.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,511 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1464752.59 na 5853.10 (0.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:30,514 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1227126.94 na 5845.96 (0.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:30,518 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 530872.52 na 5845.96 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,528 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 465509.80 na 5844.01 (1.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,534 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 180542.15 na 5842.58 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,538 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 360223.76 na 5825.69 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,550 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 684182.97 na 5814.35 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,554 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1415371.60 na 5805.70 (0.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:30,559 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 323818.89 na 5801.39 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,563 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 213876.30 na 5789.45 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,569 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 802605.93 na 5793.10 (0.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,598 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 660231.34 na 5784.90 (0.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,603 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 888091.06 na 5782.22 (0.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,614 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 623104.41 na 5782.22 (0.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,616 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1168276.56 na 5782.22 (0.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:30,629 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 871217.29 na 5774.81 (0.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,632 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 362315.81 na 5771.42 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,634 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 868419.86 na 5771.42 (0.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,639 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1219255.09 na 5768.03 (0.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:30,651 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 393223.98 na 5760.72 (1.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,655 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 408127.14 na 5760.72 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,658 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 261935.52 na 5760.72 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,660 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 242165.57 na 5747.45 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,671 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 248084.88 na 5733.60 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,675 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 978062.62 na 5735.93 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,678 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 991643.72 na 5728.24 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,708 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1095000.05 na 5720.58 (0.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:30,711 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1007984.69 na 5717.13 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:30,731 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 981005.07 na 5709.54 (0.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,735 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 736139.61 na 5701.95 (0.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,741 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 322465.88 na 5693.71 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,750 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 2679123.80 na 5694.19 (0.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:30,752 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 7029060.94 na 5687.86 (0.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:30,764 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 658398.28 na 5681.98 (0.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,774 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 227459.25 na 5673.40 (2.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,808 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 392816.97 na 5659.27 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,812 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 218215.00 na 5648.14 (2.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,817 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 113024.65 na 5633.61 (5.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,839 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 403719.26 na 5645.18 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,841 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 539565.91 na 5644.44 (1.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,841 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 338876.90 na 5635.32 (1.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,841 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 291227.47 na 5624.05 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,857 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 359714.54 na 5624.05 (1.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,864 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 190893.23 na 5613.11 (2.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,866 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 300346.34 na 5597.40 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,871 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 180217.05 na 5585.56 (3.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,875 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 2376388.96 na 5585.56 (0.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:30,886 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 478100.18 na 5579.30 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,892 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 288482.43 na 5577.83 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,925 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1031589.53 na 5578.99 (0.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:12:30,933 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 111019.17 na 5571.64 (5.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,946 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 203253.49 na 5548.94 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,957 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 427570.38 na 5552.84 (1.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,965 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 153218.71 na 5542.94 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:12:30,977 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 102572.82 na 5525.13 (5.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+Result for strategy IBSImbalanceStrategy
+│ IBSImbalanceStrategy │    558 │        -0.11 │       -4443.078 │       -44.43 │      0:09:00 │  147     0   411  26.3 │ 4443.078 USDT  44.43% │
+…
+│ ibs:1767804180000 │          stop_loss │      1 │        -0.37 │         -29.182 │        -0.29 │      0:18:00 │    0     0     1     0 │
+│ ibs:1769009640000 │          stop_loss │      1 │        -0.37 │         -29.309 │        -0.29 │      0:03:00 │    0     0     1     0 │
+│ ibs:1782744780000 │          stop_loss │      1 │        -0.47 │         -29.514 │         -0.3 │      0:09:00 │    0     0     1     0 │
+│ ibs:1772208900000 │          stop_loss │      1 │         -0.4 │         -30.148 │         -0.3 │      0:28:00 │    0     0     1     0 │
+│ ibs:1761835920000 │          stop_loss │      1 │        -0.35 │         -30.740 │        -0.31 │      0:16:00 │    0     0     1     0 │
+│ ibs:1764869700000 │          stop_loss │      1 │        -0.37 │         -30.900 │        -0.31 │      0:03:00 │    0     0     1     0 │
+│ ibs:1757689500000 │ trailing_stop_loss │      1 │        -0.32 │         -31.348 │        -0.31 │      1:09:00 │    0     0     1     0 │
+│ ibs:1774261260000 │          stop_loss │      1 │        -0.45 │         -31.892 │        -0.32 │      0:43:00 │    0     0     1     0 │
+│ ibs:1765467900000 │          stop_loss │      1 │        -0.39 │         -32.593 │        -0.33 │      0:03:00 │    0     0     1     0 │
+│ ibs:1778596740000 │          stop_loss │      1 │         -0.5 │         -33.163 │        -0.33 │      0:43:00 │    0     0     1     0 │
+│ ibs:1762332180000 │          stop_loss │      1 │        -0.39 │         -34.356 │        -0.34 │      0:06:00 │    0     0     1     0 │
+│ ibs:1762244880000 │          stop_loss │      1 │         -0.4 │         -34.608 │        -0.35 │      0:02:00 │    0     0     1     0 │
+│ ibs:1772473860000 │          stop_loss │      1 │        -0.51 │         -37.557 │        -0.38 │      0:11:00 │    0     0     1     0 │
+│ ibs:1770911100000 │          stop_loss │      1 │        -0.49 │         -37.679 │        -0.38 │      0:08:00 │    0     0     1     0 │
+│ ibs:1760627460000 │          stop_loss │      1 │        -0.42 │         -38.824 │        -0.39 │      0:14:00 │    0     0     1     0 │
+│ ibs:1760976000000 │          stop_loss │      1 │        -0.43 │         -38.934 │        -0.39 │      0:04:00 │    0     0     1     0 │
+│ ibs:1772205480000 │          stop_loss │      1 │        -0.54 │         -40.604 │        -0.41 │      0:33:00 │    0     0     1     0 │
+│ ibs:1763108700000 │          stop_loss │      1 │         -0.5 │         -42.535 │        -0.43 │      0:37:00 │    0     0     1     0 │
+│ ibs:1769097240000 │ trailing_stop_loss │      1 │        -0.61 │         -46.963 │        -0.47 │      1:51:00 │    0     0     1     0 │
+│ ibs:1764861900000 │          stop_loss │      1 │        -0.57 │         -48.316 │        -0.48 │      0:13:00 │    0     0     1     0 │
+│ ibs:1770218580000 │          stop_loss │      1 │        -0.73 │         -56.506 │        -0.57 │      0:09:00 │    0     0     1     0 │
+│ ibs:1763046720000 │          stop_loss │      1 │        -0.73 │         -62.591 │        -0.63 │      0:20:00 │    0     0     1     0 │
+│ ibs:1770306960000 │          stop_loss │      1 │        -1.19 │         -91.463 │        -0.91 │      0:33:00 │    0     0     1     0 │
+│             TOTAL │                    │    558 │        -0.11 │       -4443.078 │       -44.43 │      0:09:00 │  147     0   411  26.3 │
+└───────────────────┴────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2025-09-04 00:00:00                       │
+│ Backtesting to                         │ 2026-09-04 00:00:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 558 / 1.53                                │
+│ Starting balance                       │ 10000 USDT                                │
+│ Final balance                          │ 5556.922 USDT                             │
+│ Absolute profit                        │ -4443.078 USDT                            │
+│ Total profit %                         │ -44.43%                                   │
+│ CAGR %                                 │ -44.43%                                   │
+│ Sharpe (closed trades)                 │ -17.06                                    │
+│ Sortino (closed trades)                │ -23.28                                    │
+│ Calmar (closed trades)                 │ -5.23                                     │
+│ SQN                                    │ -13.79                                    │
+│ Mean profit p-value                    │ 2.07e-37                                  │
+│ Profit factor                          │ 0.21                                      │
+│ Expectancy (Ratio)                     │ -7.96 (-0.58)                             │
+│ Avg. daily profit                      │ -12.173 USDT                              │
+│ Avg. stake amount                      │ 7462.862 USDT                             │
+│ Market change                          │ -27.31%                                   │
+│ Total trade volume                     │ 8332643.258 USDT                          │
+│                                        │                                           │
+│ Long / Short trades                    │ 287 / 271                                 │
+│ Long / Short profit %                  │ -23.27% / -21.16%                         │
+│ Long / Short profit USDT               │ -2326.644 / -2116.434                     │
+│                                        │                                           │
+│ Best Pair                              │ BTC/USDT:USDT -44.43%                     │
+│ Worst Pair                             │ BTC/USDT:USDT -44.43%                     │
+│ Best trade                             │ BTC/USDT:USDT 0.70%                       │
+│ Worst trade                            │ BTC/USDT:USDT -1.19%                      │
+│ Best day                               │ 54.869 USDT                               │
+│ Worst day                              │ -125.464 USDT                             │
+│ Days win/draw/lose                     │ 48 / 129 / 188                            │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:00 / 0d 01:40 / 0d 00:15            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:00 / 0d 01:57 / 0d 00:07            │
+│ Max Consecutive Wins / Loss            │ 5 / 16                                    │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 77 / 0                                    │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 5556.922 USDT / 9985.254 USDT             │
+│ Max % of account underwater            │ 44.43%                                    │
+│ Absolute drawdown                      │ 4443.078 USDT (44.43%)                    │
+│ Drawdown duration                      │ 364 days 02:07:00                         │
+│ Profit at drawdown start               │ 0 USDT                                    │
+│ Profit at drawdown end                 │ -4443.078 USDT                            │
+│ Drawdown start                         │ 2025-09-04 07:54:00                       │
+│ Drawdown end                           │ 2026-09-03 10:01:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 5556.922 USDT / 10000 USDT                │
+│ Min/Max balance dates (wallet balance) │ 2026-09-03 10:02:00 / 2025-09-04 00:01:00 │
+│ Max % of account underwater (balance)  │ 44.43%                                    │
+│ Absolute drawdown (wallet balance)     │ 4443.078 USDT (44.43%)                    │
+│ Drawdown duration                      │ 364 days 10:01:00                         │
+│ Profit at drawdown start               │ 0 USDT                                    │
+│ Profit at drawdown end                 │ -4443.078 USDT                            │
+│ Drawdown start                         │ 2025-09-04 00:01:00                       │
+│ Drawdown end                           │ 2026-09-03 10:02:00                       │
+│ Sharpe (daily wallet balance)          │ -10.84                                    │
+│ Sortino (daily wallet balance)         │ -11.84                                    │
+│ Calmar (daily wallet balance)          │ -5.25                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                                STRATEGY SUMMARY                                                                 
+┌──────────────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┬───────────────────────┐
+│             Strategy │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │              Drawdown │
+├──────────────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┼───────────────────────┤
+│ IBSImbalanceStrategy │    558 │        -0.11 │       -4443.078 │       -44.43 │      0:09:00 │  147     0   411  26.3 │ 4443.078 USDT  44.43% │
+└──────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┴───────────────────────┘

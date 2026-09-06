@@ -1,0 +1,402 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m freqtrade backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\platforms\freqtrade\config.binance.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\platforms\freqtrade\user_data --strategy IBSImbalanceStrategy --cache none --export trades --timerange 20250904-20260904 --pairs BTC/USDT:USDT --timeframe 3m --dry-run-wallet 10000.0 --fee 0.0005 --timeframe-detail 1m
+2026-09-06 01:14:01,462 - freqtrade - INFO - freqtrade 2026.8
+2026-09-06 01:14:01,640 - numexpr.utils - INFO - Note: NumExpr detected 24 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 16.
+2026-09-06 01:14:01,640 - numexpr.utils - INFO - NumExpr defaulting to 16 threads.
+2026-09-06 01:14:02,847 - freqtrade.configuration.load_config - INFO - Using config: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\platforms\freqtrade\config.binance.json ...
+… (skrátené) …
+2026-09-06 01:14:04,080 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSImbalanceStrategy from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\platforms\freqtrade\user_data\strategies\IBSImbalanceStrategy.py'...
+2026-09-06 01:14:04,092 - ibs.adapters.freqtrade.strategy - WARNING - IBS config: engMinRangePoints, ewMinWavePoints, liqSweepMinWick, minImbSizePoints, pbMinRangePoints, srClusterPoints sú v 
+2026-09-06 01:14:05,141 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSImbalanceStrategy
+2026-09-06 01:14:17,935 - ibs.adapters.freqtrade.strategy - INFO - IBS BTC/USDT:USDT: 175501 barov, 35341 HTF barov, 200 zon, 154 signalov (83 long / 71 short)
+2026-09-06 01:14:18,337 - ibs.adapters.freqtrade.strategy - INFO - IBS BTC/USDT:USDT: kresby ulozene do 
+2026-09-06 01:14:18,697 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 291411.14 na 9900.00 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:18,739 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 182031.96 na 9901.94 (5.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:18,750 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 294507.66 na 9901.94 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:18,764 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 261170.91 na 9880.50 (3.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:18,777 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 179353.42 na 9880.50 (5.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:18,824 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 290797.44 na 9851.66 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:18,858 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 429861.47 na 9853.63 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:18,895 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 177479.00 na 9851.81 (5.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:18,907 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 898246.09 na 9861.29 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:18,916 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 436450.48 na 9855.34 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:18,921 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 45837.73 na 9837.81 (21.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:18,943 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 768961.93 na 9901.10 (1.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:18,967 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 248921.74 na 9895.80 (4.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,007 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 366041.72 na 9872.25 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,007 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 316012.48 na 9871.81 (3.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,018 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 543210.92 na 9871.81 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,055 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 147741.76 na 9868.35 (6.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,068 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 347791.06 na 9881.62 (2.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,079 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 269238.55 na 9862.12 (3.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,117 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 152345.79 na 9839.83 (6.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,126 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 142862.55 na 9807.92 (6.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,129 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 120416.47 na 9807.92 (8.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,153 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 450925.68 na 9770.06 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,153 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 450925.68 na 9767.89 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,225 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 543831.94 na 9750.72 (1.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,238 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 88003.31 na 9747.30 (11.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,270 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 159280.47 na 9775.95 (6.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,302 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 112478.95 na 9745.28 (8.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,329 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 196788.49 na 9745.28 (5.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,341 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 70989.38 na 9752.74 (13.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,354 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 657806.31 na 9695.61 (1.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,354 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 193336.98 na 9691.12 (5.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,382 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 116377.70 na 9698.82 (8.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,418 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 129522.02 na 9660.67 (7.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,444 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 121945.27 na 9625.43 (7.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,492 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 348457.58 na 9588.79 (2.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,511 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 300374.33 na 9588.83 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,525 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 701332.13 na 9568.34 (1.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,543 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 173821.87 na 9563.61 (5.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,563 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 781624.68 na 9535.30 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,563 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 781575.06 na 9521.68 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,563 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 781625.55 na 9508.66 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,572 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 130869.92 na 9495.16 (7.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,618 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 95913.26 na 9510.87 (9.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,666 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 271856.80 na 9535.56 (3.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,698 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1785943.96 na 9538.26 (0.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:14:19,704 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 282820.51 na 9530.71 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,755 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 896104.97 na 9532.94 (1.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,776 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 112468.07 na 9519.84 (8.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,810 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 329343.05 na 9539.69 (2.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,818 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 167004.61 na 9520.35 (5.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,828 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 418239.68 na 9530.66 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,830 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 209802.05 na 9530.66 (4.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,881 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 265577.63 na 9536.93 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,886 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 75771.10 na 9539.90 (12.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,896 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 121238.17 na 9539.90 (7.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,960 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 175782.41 na 9503.52 (5.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,972 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 396459.22 na 9475.44 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,979 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 223882.16 na 9457.91 (4.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,995 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 257066.90 na 9463.16 (3.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,997 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 257066.90 na 9441.09 (3.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:19,998 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 257066.90 na 9419.20 (3.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,008 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 64914.07 na 9422.55 (14.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,016 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 35567.98 na 9463.43 (26.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,041 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 43260.61 na 9545.63 (22.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,074 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 350394.62 na 9612.62 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,079 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 44485.18 na 9593.65 (21.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,125 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 100749.35 na 9509.51 (9.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,159 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 65990.00 na 9467.71 (14.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,185 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 88131.93 na 9467.71 (10.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,209 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 76329.31 na 9495.49 (12.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,242 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 1261331.74 na 9443.08 (0.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni
+2026-09-06 01:14:20,242 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 112368.11 na 9436.37 (8.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,262 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 109946.97 na 9436.37 (8.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,284 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 317155.04 na 9456.63 (3.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,313 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 69258.84 na 9437.04 (13.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,331 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 98926.46 na 9474.78 (9.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,387 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 119723.77 na 9432.51 (7.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,435 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 140399.14 na 9450.39 (6.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,467 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 113363.20 na 9450.39 (8.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,514 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 100336.93 na 9412.43 (9.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,526 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 78146.57 na 9435.57 (12.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,542 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 103736.07 na 9384.40 (9.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,578 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 116734.89 na 9406.41 (8.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,586 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 124010.31 na 9424.88 (7.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,605 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 138436.66 na 9441.89 (6.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,611 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 116951.86 na 9441.89 (8.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,616 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 329889.19 na 9404.66 (2.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,618 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 329889.19 na 9385.60 (2.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,621 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 329889.19 na 9366.54 (2.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,649 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 81221.09 na 9367.10 (11.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,683 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 233378.62 na 9318.04 (4.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,709 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 559540.03 na 9295.16 (1.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,712 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 197446.01 na 9280.31 (4.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,726 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 127469.59 na 9255.01 (7.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,757 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 89689.82 na 9270.90 (10.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,762 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 193659.44 na 9270.90 (4.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,771 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 331311.28 na 9270.90 (2.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,821 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 283193.05 na 9271.42 (3.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,832 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 266037.66 na 9250.26 (3.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,855 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 216512.58 na 9253.13 (4.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,865 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 256837.66 na 9258.77 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,890 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 129442.28 na 9262.07 (7.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,893 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 255631.11 na 9262.07 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,909 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 213518.72 na 9240.48 (4.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,929 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 609030.49 na 9246.28 (1.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,930 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 177871.93 na 9231.87 (5.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,939 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 93735.41 na 9204.91 (9.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,953 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 285361.43 na 9161.95 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,966 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 280262.95 na 9161.95 (3.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,970 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 132160.89 na 9141.57 (6.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:20,994 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 273289.29 na 9156.42 (3.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,002 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 289544.52 na 9135.83 (3.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,012 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 127247.40 na 9137.72 (7.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,033 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 164053.14 na 9153.52 (5.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,033 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 121947.80 na 9163.73 (7.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,072 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 112296.75 na 9128.85 (8.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,146 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 225416.37 na 9091.34 (4.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,161 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 330789.08 na 9068.44 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,172 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 275971.19 na 9068.95 (3.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,188 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 224579.18 na 9071.36 (4.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,209 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 122358.47 na 9048.58 (7.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,221 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 144364.59 na 9065.23 (6.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,239 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 107707.64 na 9078.52 (8.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,256 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 113472.92 na 9040.55 (8.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,285 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 439273.49 na 9028.20 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,302 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 199653.84 na 9026.38 (4.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,335 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 131777.56 na 9033.07 (6.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,349 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 336485.61 na 9047.64 (2.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,355 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 180571.94 na 9029.42 (5.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,369 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 257692.82 na 9037.82 (3.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,375 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 125041.23 na 9041.00 (7.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,381 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 134882.57 na 9057.05 (6.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,403 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 168077.64 na 9071.25 (5.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,422 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 124575.76 na 9080.91 (7.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,436 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 161006.90 na 9046.79 (5.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,448 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 34646.74 na 9058.07 (26.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,461 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 170379.61 na 8959.24 (5.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,474 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 392535.75 na 8932.21 (2.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,490 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 80315.38 na 8931.26 (11.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,516 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 474910.73 na 8960.90 (1.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,522 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 79223.22 na 8945.53 (11.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,541 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 248415.58 na 8945.53 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,549 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 374421.60 na 8949.14 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,572 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 121188.50 na 8932.03 (7.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,595 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 689737.88 na 8949.21 (1.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,601 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 318140.31 na 8935.91 (2.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,603 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 245679.98 na 8917.47 (3.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,609 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 145656.43 na 8917.47 (6.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,633 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 114324.17 na 8929.78 (7.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,697 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 421171.38 na 8947.90 (2.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,705 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 366350.93 na 8946.40 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,713 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 369502.95 na 8946.01 (2.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,733 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 401414.07 na 8945.54 (2.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,750 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 254832.90 na 8929.06 (3.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,771 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 716139.42 na 8929.06 (1.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,802 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 674366.76 na 8924.57 (1.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,809 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 60693.63 na 8911.17 (14.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,809 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 101915.50 na 8953.02 (8.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,832 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 229100.15 na 8973.51 (3.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-06 01:14:21,868 - ibs.adapters.freqtrade.strategy - WARNING - IBS BTC/USDT:USDT: stake orezany z 209210.54 na 8978.16 (4.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+Result for strategy IBSImbalanceStrategy
+│ IBSImbalanceStrategy │    142 │        -0.07 │        -931.149 │        -9.31 │      0:22:00 │   61     0    81  43.0 │ 1000.782 USDT  10.01% │
+…
+├────────────────────┼───────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│                roi │    78 │         0.12 │         896.890 │         8.97 │      0:18:00 │   61     0    17  78.2 │
+│        session_end │     1 │        -0.14 │         -12.478 │        -0.12 │      1:09:00 │    0     0     1     0 │
+│ trailing_stop_loss │    13 │        -0.33 │        -401.456 │        -4.01 │      0:30:00 │    0     0    13     0 │
+│          stop_loss │    50 │         -0.3 │       -1414.104 │       -14.14 │      0:25:00 │    0     0    50     0 │
+│              TOTAL │   142 │        -0.07 │        -931.149 │        -9.31 │      0:22:00 │   61     0    81  43.0 │
+└────────────────────┴───────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                              MIXED TAG STATS                                                              
+┌───────────────────┬────────────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│         Enter Tag │        Exit Reason │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────────┼────────────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ ibs:1770219180000 │                roi │      1 │         0.88 │          83.034 │         0.83 │      0:18:00 │    1     0     0   100 │
+│ ibs:1770651360000 │                roi │      1 │         0.71 │          67.660 │         0.68 │      1:05:00 │    1     0     0   100 │
+│ ibs:1759418640000 │                roi │      1 │         0.65 │          63.930 │         0.64 │      0:45:00 │    1     0     0   100 │
+│ ibs:1787587200000 │                roi │      1 │         0.48 │          42.273 │         0.42 │      0:14:00 │    1     0     0   100 │
+│ ibs:1770134760000 │                roi │      1 │         0.44 │          41.293 │         0.41 │      0:05:00 │    1     0     0   100 │
+│ ibs:1772441280000 │                roi │      1 │          0.4 │          38.121 │         0.38 │      0:31:00 │    1     0     0   100 │
+│ ibs:1783607940000 │                roi │      1 │         0.34 │          29.943 │          0.3 │      0:25:00 │    1     0     0   100 │
+│ ibs:1763111880000 │                roi │      1 │          0.3 │          28.936 │         0.29 │      0:13:00 │    1     0     0   100 │
+│ ibs:1771355880000 │                roi │      1 │          0.3 │          28.062 │         0.28 │      0:42:00 │    1     0     0   100 │
+│ ibs:1765908180000 │                roi │      1 │         0.26 │          24.947 │         0.25 │      0:26:00 │    1     0     0   100 │
+│ ibs:1774258740000 │                roi │      1 │         0.25 │          23.372 │         0.23 │      0:20:00 │    1     0     0   100 │
+│ ibs:1774344600000 │                roi │      1 │         0.24 │          22.233 │         0.22 │      0:21:00 │    1     0     0   100 │
+│ ibs:1787671980000 │                roi │      1 │         0.23 │          20.694 │         0.21 │      0:25:00 │    1     0     0   100 │
+│ ibs:1771517160000 │                roi │      1 │         0.22 │          20.465 │          0.2 │      0:07:00 │    1     0     0   100 │
+│ ibs:1767983400000 │                roi │      1 │         0.21 │          20.045 │          0.2 │      0:16:00 │    1     0     0   100 │
+│ ibs:1774883160000 │                roi │      1 │          0.2 │          18.662 │         0.19 │      0:06:00 │    1     0     0   100 │
+│ ibs:1786007340000 │                roi │      1 │         0.21 │          18.307 │         0.18 │      0:58:00 │    1     0     0   100 │
+│ ibs:1773222840000 │                roi │      1 │         0.19 │          18.060 │         0.18 │      1:54:00 │    1     0     0   100 │
+│ ibs:1784907900000 │                roi │      1 │         0.19 │          17.353 │         0.17 │      0:54:00 │    1     0     0   100 │
+│ ibs:1774945440000 │                roi │      1 │         0.18 │          17.179 │         0.17 │      0:07:00 │    1     0     0   100 │
+│ ibs:1780307640000 │                roi │      1 │         0.19 │          16.818 │         0.17 │      0:26:00 │    1     0     0   100 │
+│ ibs:1781858340000 │                roi │      1 │         0.18 │          16.215 │         0.16 │      0:28:00 │    1     0     0   100 │
+│ ibs:1775837160000 │                roi │      1 │         0.17 │          16.052 │         0.16 │      0:07:00 │    1     0     0   100 │
+│ ibs:1778597280000 │                roi │      1 │         0.18 │          15.952 │         0.16 │      0:31:00 │    1     0     0   100 │
+│ ibs:1765875960000 │                roi │      1 │         0.17 │          15.864 │         0.16 │      1:28:00 │    1     0     0   100 │
+│ ibs:1778260680000 │                roi │      1 │         0.16 │          15.001 │         0.15 │      0:09:00 │    1     0     0   100 │
+│ ibs:1781250840000 │                roi │      1 │         0.16 │          14.719 │         0.15 │      0:16:00 │    1     0     0   100 │
+│ ibs:1781890380000 │                roi │      1 │         0.16 │          14.346 │         0.14 │      0:12:00 │    1     0     0   100 │
+│ ibs:1780386300000 │                roi │      1 │         0.15 │          13.429 │         0.13 │      0:29:00 │    1     0     0   100 │
+│ ibs:1761031080000 │                roi │      1 │         0.14 │          13.407 │         0.13 │      0:12:00 │    1     0     0   100 │
+│ ibs:1785251520000 │                roi │      1 │         0.14 │          12.438 │         0.12 │      0:05:00 │    1     0     0   100 │
+│ ibs:1782748620000 │                roi │      1 │         0.13 │          11.390 │         0.11 │      0:21:00 │    1     0     0   100 │
+│ ibs:1768385880000 │                roi │      1 │         0.11 │          10.415 │          0.1 │      0:06:00 │    1     0     0   100 │
+│ ibs:1778828940000 │                roi │      1 │         0.11 │          10.319 │          0.1 │      0:11:00 │    1     0     0   100 │
+│ ibs:1782240840000 │                roi │      1 │         0.11 │           9.748 │          0.1 │      0:07:00 │    1     0     0   100 │
+│ ibs:1759244940000 │                roi │      1 │          0.1 │           9.570 │          0.1 │      0:15:00 │    1     0     0   100 │
+│ ibs:1781625420000 │                roi │      1 │         0.09 │           8.490 │         0.08 │      0:17:00 │    1     0     0   100 │
+│ ibs:1764234900000 │                roi │      1 │         0.08 │           7.779 │         0.08 │      0:16:00 │    1     0     0   100 │
+│ ibs:1764085500000 │                roi │      1 │         0.08 │           7.533 │         0.08 │      0:01:00 │    1     0     0   100 │
+│ ibs:1781170200000 │                roi │      1 │         0.08 │           6.761 │         0.07 │      1:18:00 │    1     0     0   100 │
+│ ibs:1768554900000 │                roi │      1 │         0.07 │           6.326 │         0.06 │      0:58:00 │    1     0     0   100 │
+│ ibs:1777649040000 │                roi │      1 │         0.06 │           5.863 │         0.06 │      0:10:00 │    1     0     0   100 │
+│ ibs:1777365540000 │                roi │      1 │         0.06 │           5.692 │         0.06 │      0:43:00 │    1     0     0   100 │
+│ ibs:1769764860000 │                roi │      1 │         0.06 │           5.301 │         0.05 │      0:01:00 │    1     0     0   100 │
+│ ibs:1787754960000 │                roi │      1 │         0.05 │           4.702 │         0.05 │      0:03:00 │    1     0     0   100 │
+│ ibs:1784648160000 │                roi │      1 │         0.04 │           3.641 │         0.04 │      0:11:00 │    1     0     0   100 │
+│ ibs:1770023520000 │                roi │      1 │         0.04 │           3.378 │         0.03 │      0:02:00 │    1     0     0   100 │
+│ ibs:1777392900000 │                roi │      1 │         0.04 │           3.338 │         0.03 │      0:17:00 │    1     0     0   100 │
+│ ibs:1781766900000 │                roi │      1 │         0.04 │           3.209 │         0.03 │      0:04:00 │    1     0     0   100 │
+│ ibs:1768896900000 │                roi │      1 │         0.03 │           3.001 │         0.03 │      0:03:00 │    1     0     0   100 │
+│ ibs:1777041900000 │                roi │      1 │         0.03 │           2.906 │         0.03 │      0:13:00 │    1     0     0   100 │
+│ ibs:1766650500000 │                roi │      1 │         0.03 │           2.723 │         0.03 │      0:04:00 │    1     0     0   100 │
+│ ibs:1779785280000 │                roi │      1 │         0.03 │           2.434 │         0.02 │      0:17:00 │    1     0     0   100 │
+│ ibs:1767285900000 │                roi │      1 │         0.02 │           2.247 │         0.02 │      0:32:00 │    1     0     0   100 │
+│ ibs:1758552840000 │                roi │      1 │         0.02 │           1.991 │         0.02 │      0:04:00 │    1     0     0   100 │
+│ ibs:1757600820000 │                roi │      1 │         0.02 │           1.964 │         0.02 │      0:02:00 │    1     0     0   100 │
+│ ibs:1778575860000 │                roi │      1 │         0.02 │           1.911 │         0.02 │      0:13:00 │    1     0     0   100 │
+│ ibs:1775057220000 │                roi │      1 │         0.01 │           0.565 │         0.01 │      0:03:00 │    1     0     0   100 │
+│ ibs:1776331620000 │                roi │      1 │         0.01 │           0.523 │         0.01 │      0:04:00 │    1     0     0   100 │
+│ ibs:1779697980000 │                roi │      1 │         0.01 │           0.519 │         0.01 │      0:19:00 │    1     0     0   100 │
+│ ibs:1764837000000 │                roi │      1 │          0.0 │           0.036 │          0.0 │      0:02:00 │    1     0     0   100 │
+│ ibs:1786372920000 │                roi │      1 │         -0.0 │          -0.395 │         -0.0 │      0:06:00 │    0     0     1     0 │
+│ ibs:1760341860000 │                roi │      1 │         -0.0 │          -0.436 │         -0.0 │      0:03:00 │    0     0     1     0 │
+│ ibs:1786520700000 │                roi │      1 │        -0.01 │          -0.475 │         -0.0 │      0:06:00 │    0     0     1     0 │
+│ ibs:1783417500000 │                roi │      1 │        -0.01 │          -0.963 │        -0.01 │      0:09:00 │    0     0     1     0 │
+│ ibs:1786348800000 │                roi │      1 │        -0.02 │          -1.514 │        -0.02 │      0:21:00 │    0     0     1     0 │
+│ ibs:1758870540000 │                roi │      1 │        -0.02 │          -1.834 │        -0.02 │      0:04:00 │    0     0     1     0 │
+│ ibs:1781163540000 │                roi │      1 │        -0.02 │          -1.836 │        -0.02 │      0:04:00 │    0     0     1     0 │
+│ ibs:1762162200000 │                roi │      1 │        -0.02 │          -2.184 │        -0.02 │      0:00:00 │    0     0     1     0 │
+│ ibs:1762858260000 │                roi │      1 │        -0.04 │          -3.448 │        -0.03 │      0:01:00 │    0     0     1     0 │
+│ ibs:1760432040000 │                roi │      1 │        -0.04 │          -3.501 │        -0.04 │      0:04:00 │    0     0     1     0 │
+│ ibs:1764232920000 │                roi │      1 │        -0.05 │          -4.534 │        -0.05 │      0:02:00 │    0     0     1     0 │
+│ ibs:1787127480000 │                roi │      1 │        -0.05 │          -4.536 │        -0.05 │      0:10:00 │    0     0     1     0 │
+│ ibs:1765357560000 │                roi │      1 │        -0.05 │          -4.775 │        -0.05 │      0:08:00 │    0     0     1     0 │
+│ ibs:1759476600000 │                roi │      1 │        -0.05 │          -5.347 │        -0.05 │      0:03:00 │    0     0     1     0 │
+│ ibs:1759305600000 │                roi │      1 │        -0.06 │          -6.011 │        -0.06 │      0:05:00 │    0     0     1     0 │
+│ ibs:1771493940000 │                roi │      1 │        -0.07 │          -6.782 │        -0.07 │      0:01:00 │    0     0     1     0 │
+│ ibs:1767262860000 │                roi │      1 │        -0.08 │          -7.622 │        -0.08 │      0:04:00 │    0     0     1     0 │
+│ ibs:1780943760000 │        session_end │      1 │        -0.14 │         -12.478 │        -0.12 │      1:09:00 │    0     0     1     0 │
+│ ibs:1767602880000 │ trailing_stop_loss │      1 │        -0.14 │         -13.230 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ ibs:1785173940000 │          stop_loss │      1 │        -0.15 │         -13.428 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ ibs:1787564520000 │          stop_loss │      1 │        -0.15 │         -13.533 │        -0.14 │      0:02:00 │    0     0     1     0 │
+│ ibs:1777883580000 │          stop_loss │      1 │        -0.16 │         -14.556 │        -0.15 │      0:01:00 │    0     0     1     0 │
+│ ibs:1775721240000 │          stop_loss │      1 │        -0.16 │         -14.998 │        -0.15 │      0:01:00 │    0     0     1     0 │
+│ ibs:1784022480000 │          stop_loss │      1 │        -0.17 │         -15.527 │        -0.16 │      0:04:00 │    0     0     1     0 │
+│ ibs:1786719960000 │          stop_loss │      1 │        -0.19 │         -16.650 │        -0.17 │      0:01:00 │    0     0     1     0 │
+│ ibs:1784797380000 │          stop_loss │      1 │        -0.19 │         -17.280 │        -0.17 │      0:52:00 │    0     0     1     0 │
+│ ibs:1762162200000 │          stop_loss │      1 │        -0.18 │         -17.352 │        -0.17 │      0:29:00 │    0     0     1     0 │
+│ ibs:1759392000000 │          stop_loss │      1 │        -0.18 │         -17.706 │        -0.18 │      0:01:00 │    0     0     1     0 │
+│ ibs:1769681340000 │          stop_loss │      1 │        -0.19 │         -17.713 │        -0.18 │      0:03:00 │    0     0     1     0 │
+│ ibs:1781596800000 │          stop_loss │      1 │         -0.2 │         -18.411 │        -0.18 │      0:07:00 │    0     0     1     0 │
+│ ibs:1785227940000 │          stop_loss │      1 │        -0.21 │         -18.636 │        -0.19 │      0:11:00 │    0     0     1     0 │
+│ ibs:1770720660000 │          stop_loss │      1 │         -0.2 │         -19.162 │        -0.19 │      0:04:00 │    0     0     1     0 │
+│ ibs:1768292820000 │          stop_loss │      1 │        -0.21 │         -19.528 │         -0.2 │      0:06:00 │    0     0     1     0 │
+│ ibs:1761118200000 │ trailing_stop_loss │      1 │         -0.2 │         -19.701 │         -0.2 │      0:06:00 │    0     0     1     0 │
+│ ibs:1771837740000 │          stop_loss │      1 │        -0.21 │         -19.786 │         -0.2 │      0:06:00 │    0     0     1     0 │
+│ ibs:1778146380000 │          stop_loss │      1 │        -0.22 │         -20.588 │        -0.21 │      0:02:00 │    0     0     1     0 │
+│ ibs:1765276740000 │          stop_loss │      1 │        -0.22 │         -20.697 │        -0.21 │      0:23:00 │    0     0     1     0 │
+│ ibs:1778488020000 │          stop_loss │      1 │        -0.23 │         -20.794 │        -0.21 │      0:07:00 │    0     0     1     0 │
+│ ibs:1777017240000 │          stop_loss │      1 │        -0.23 │         -21.380 │        -0.21 │      0:18:00 │    0     0     1     0 │
+│ ibs:1758034800000 │ trailing_stop_loss │      1 │        -0.22 │         -21.663 │        -0.22 │      0:37:00 │    0     0     1     0 │
+│ ibs:1777570200000 │ trailing_stop_loss │      1 │        -0.24 │         -21.814 │        -0.22 │      0:22:00 │    0     0     1     0 │
+│ ibs:1761298200000 │ trailing_stop_loss │      1 │        -0.23 │         -22.513 │        -0.23 │      0:13:00 │    0     0     1     0 │
+│ ibs:1780045740000 │          stop_loss │      1 │        -0.26 │         -23.015 │        -0.23 │      0:45:00 │    0     0     1     0 │
+│ ibs:1775637360000 │ trailing_stop_loss │      1 │        -0.25 │         -23.111 │        -0.23 │      0:21:00 │    0     0     1     0 │
+│ ibs:1779437700000 │          stop_loss │      1 │        -0.26 │         -23.134 │        -0.23 │      0:16:00 │    0     0     1     0 │
+│ ibs:1759740120000 │          stop_loss │      1 │        -0.24 │         -23.796 │        -0.24 │      0:11:00 │    0     0     1     0 │
+│ ibs:1775721600000 │ trailing_stop_loss │      1 │        -0.28 │         -25.556 │        -0.26 │      0:28:00 │    0     0     1     0 │
+│ ibs:1777989600000 │          stop_loss │      1 │         -0.3 │         -27.235 │        -0.27 │      0:10:00 │    0     0     1     0 │
+│ ibs:1782983160000 │          stop_loss │      1 │        -0.31 │         -27.303 │        -0.27 │      0:14:00 │    0     0     1     0 │
+│ ibs:1769528880000 │          stop_loss │      1 │         -0.3 │         -28.360 │        -0.28 │      0:06:00 │    0     0     1     0 │
+│ ibs:1765531620000 │ trailing_stop_loss │      1 │         -0.3 │         -28.599 │        -0.29 │      0:20:00 │    0     0     1     0 │
+│ ibs:1758211920000 │          stop_loss │      1 │        -0.29 │         -29.131 │        -0.29 │      1:22:00 │    0     0     1     0 │
+│ ibs:1763546220000 │          stop_loss │      1 │        -0.32 │         -30.977 │        -0.31 │      0:49:00 │    0     0     1     0 │
+│ ibs:1761907140000 │          stop_loss │      1 │        -0.33 │         -32.235 │        -0.32 │      0:21:00 │    0     0     1     0 │
+│ ibs:1782725040000 │          stop_loss │      1 │        -0.38 │         -34.459 │        -0.34 │      0:34:00 │    0     0     1     0 │
+│ ibs:1778835240000 │          stop_loss │      1 │        -0.39 │         -35.232 │        -0.35 │      0:48:00 │    0     0     1     0 │
+│ ibs:1764666360000 │          stop_loss │      1 │        -0.37 │         -35.593 │        -0.36 │      0:16:00 │    0     0     1     0 │
+│ ibs:1768990500000 │          stop_loss │      1 │        -0.39 │         -36.745 │        -0.37 │      1:35:00 │    0     0     1     0 │
+│ ibs:1764749160000 │ trailing_stop_loss │      1 │        -0.39 │         -37.009 │        -0.37 │      1:46:00 │    0     0     1     0 │
+│ ibs:1775054340000 │ trailing_stop_loss │      1 │         -0.4 │         -37.607 │        -0.38 │      0:07:00 │    0     0     1     0 │
+│ ibs:1779090300000 │          stop_loss │      1 │        -0.42 │         -37.890 │        -0.38 │      2:27:00 │    0     0     1     0 │
+│ ibs:1761927840000 │          stop_loss │      1 │        -0.39 │         -38.244 │        -0.38 │      0:14:00 │    0     0     1     0 │
+│ ibs:1773999000000 │          stop_loss │      1 │        -0.41 │         -38.341 │        -0.38 │      0:35:00 │    0     0     1     0 │
+│ ibs:1780590960000 │          stop_loss │      1 │        -0.42 │         -38.356 │        -0.38 │      0:22:00 │    0     0     1     0 │
+│ ibs:1775057220000 │          stop_loss │      2 │        -0.21 │         -38.509 │        -0.39 │      0:00:00 │    0     0     2     0 │
+│ ibs:1764582120000 │          stop_loss │      1 │         -0.4 │         -38.538 │        -0.39 │      1:21:00 │    0     0     1     0 │
+│ ibs:1765787760000 │          stop_loss │      3 │        -0.14 │         -40.540 │        -0.41 │      0:05:00 │    0     0     3     0 │
+│ ibs:1770798780000 │          stop_loss │      1 │        -0.45 │         -42.225 │        -0.42 │      1:10:00 │    0     0     1     0 │
+│ ibs:1772445600000 │          stop_loss │      1 │        -0.45 │         -42.698 │        -0.43 │      0:09:00 │    0     0     1     0 │
+│ ibs:1777992300000 │ trailing_stop_loss │      1 │        -0.47 │         -43.393 │        -0.43 │      0:23:00 │    0     0     1     0 │
+│ ibs:1770023520000 │          stop_loss │      2 │        -0.24 │         -44.396 │        -0.44 │      0:00:00 │    0     0     2     0 │
+│ ibs:1775578140000 │ trailing_stop_loss │      1 │        -0.53 │         -49.551 │         -0.5 │      1:18:00 │    0     0     1     0 │
+│ ibs:1774262340000 │          stop_loss │      1 │        -0.55 │         -51.684 │        -0.52 │      0:23:00 │    0     0     1     0 │
+│ ibs:1771434360000 │          stop_loss │      1 │        -0.56 │         -52.939 │        -0.53 │      1:10:00 │    0     0     1     0 │
+│ ibs:1764171720000 │ trailing_stop_loss │      1 │        -0.59 │         -57.710 │        -0.58 │      0:21:00 │    0     0     1     0 │
+│ ibs:1770741360000 │          stop_loss │      1 │        -0.89 │         -84.985 │        -0.85 │      1:47:00 │    0     0     1     0 │
+│ ibs:1782828000000 │          stop_loss │      1 │        -1.11 │         -99.822 │         -1.0 │      0:35:00 │    0     0     1     0 │
+│             TOTAL │                    │    142 │        -0.07 │        -931.149 │        -9.31 │      0:22:00 │   61     0    81  43.0 │
+└───────────────────┴────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2025-09-04 00:00:00                       │
+│ Backtesting to                         │ 2026-09-04 00:00:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 142 / 0.39                                │
+│ Starting balance                       │ 10000 USDT                                │
+│ Final balance                          │ 9068.851 USDT                             │
+│ Absolute profit                        │ -931.149 USDT                             │
+│ Total profit %                         │ -9.31%                                    │
+│ CAGR %                                 │ -9.31%                                    │
+│ Sharpe (closed trades)                 │ -1.90                                     │
+│ Sortino (closed trades)                │ -2.78                                     │
+│ Calmar (closed trades)                 │ -4.87                                     │
+│ SQN                                    │ -3.03                                     │
+│ Mean profit p-value                    │ 0.002888                                  │
+│ Profit factor                          │ 0.51                                      │
+│ Expectancy (Ratio)                     │ -6.56 (-0.28)                             │
+│ Avg. daily profit                      │ -2.551 USDT                               │
+│ Avg. stake amount                      │ 9336.064 USDT                             │
+│ Market change                          │ -27.33%                                   │
+│ Total trade volume                     │ 2652778.531 USDT                          │
+│                                        │                                           │
+│ Long / Short trades                    │ 79 / 63                                   │
+│ Long / Short profit %                  │ -5.37% / -3.94%                           │
+│ Long / Short profit USDT               │ -537.326 / -393.823                       │
+│                                        │                                           │
+│ Best Pair                              │ BTC/USDT:USDT -9.31%                      │
+│ Worst Pair                             │ BTC/USDT:USDT -9.31%                      │
+│ Best trade                             │ BTC/USDT:USDT 0.88%                       │
+│ Worst trade                            │ BTC/USDT:USDT -1.11%                      │
+│ Best day                               │ 83.034 USDT                               │
+│ Worst day                              │ -104.147 USDT                             │
+│ Days win/draw/lose                     │ 47 / 238 / 65                             │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:01 / 0d 01:54 / 0d 00:22            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:00 / 0d 02:27 / 0d 00:22            │
+│ Max Consecutive Wins / Loss            │ 5 / 7                                     │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 19 / 0                                    │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 9001.182 USDT / 10001.964 USDT            │
+│ Max % of account underwater            │ 10.01%                                    │
+│ Absolute drawdown                      │ 1000.782 USDT (10.01%)                    │
+│ Drawdown duration                      │ 346 days 19:15:00                         │
+│ Profit at drawdown start               │ 1.964 USDT                                │
+│ Profit at drawdown end                 │ -998.818 USDT                             │
+│ Drawdown start                         │ 2025-09-11 14:32:00                       │
+│ Drawdown end                           │ 2026-08-24 09:47:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 9001.182 USDT / 10001.964 USDT            │
+│ Min/Max balance dates (wallet balance) │ 2026-08-24 09:48:00 / 2025-09-11 14:33:00 │
+│ Max % of account underwater (balance)  │ 10.01%                                    │
+│ Absolute drawdown (wallet balance)     │ 1000.782 USDT (10.01%)                    │
+│ Drawdown duration                      │ 346 days 19:15:00                         │
+│ Profit at drawdown start               │ 1.964 USDT                                │
+│ Profit at drawdown end                 │ -998.818 USDT                             │
+│ Drawdown start                         │ 2025-09-11 14:33:00                       │
+│ Drawdown end                           │ 2026-08-24 09:48:00                       │
+│ Sharpe (daily wallet balance)          │ -2.91                                     │
+│ Sortino (daily wallet balance)         │ -2.22                                     │
+│ Calmar (daily wallet balance)          │ -4.88                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                                STRATEGY SUMMARY                                                                 
+┌──────────────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┬───────────────────────┐
+│             Strategy │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │              Drawdown │
+├──────────────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┼───────────────────────┤
+│ IBSImbalanceStrategy │    142 │        -0.07 │        -931.149 │        -9.31 │      0:22:00 │   61     0    81  43.0 │ 1000.782 USDT  10.01% │
+└──────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┴───────────────────────┘
