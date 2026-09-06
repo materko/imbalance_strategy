@@ -1,0 +1,11 @@
+{
+  "_title": "Binance BTCUSDT.P 5m — Pine defaulty demo stratégie, páka 5",
+  "_strategy": "demo_breakout",
+  "_instrument": "btcusdt_binance",
+  "_comment": [
+    "Ukazkovy profil ukazkovej strategie. Vsetko su Pine defaulty z pine/demo_breakout.pine,",
+    "jedina odchylka je paka 5 (rozsirenie portu), aby sa risk-based pozicia na BTC zmestila",
+    "na ucet 10 000. Nie je to obchodne odporucanie."
+  ],
+  "leverage": 5.0
+}

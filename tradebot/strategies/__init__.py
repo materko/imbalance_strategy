@@ -7,10 +7,12 @@ Registry je obyčajný dict s explicitnými importmi — bez entry-pointov a má
 from __future__ import annotations
 
 from .base import StrategySpec
+from .demo_breakout import SPEC as DEMO_SPEC
 from .ibs import SPEC as IBS_SPEC
 
 STRATEGIES: dict[str, StrategySpec] = {
     IBS_SPEC.key: IBS_SPEC,
+    DEMO_SPEC.key: DEMO_SPEC,
 }
 
 __all__ = ["STRATEGIES", "StrategySpec", "get_spec", "spec_for_config"]
