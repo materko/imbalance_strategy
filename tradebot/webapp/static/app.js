@@ -361,7 +361,7 @@ function fillSettings() {
     if (!$("#from").value) { const d = new Date(o.dataset.to); d.setDate(d.getDate() - 365); $("#from").value = d.toISOString().slice(0, 10); }
   };
   pair.onchange();
-  ps.onchange = () => loadProfile(ps.value);
+  $("#profile").onchange = () => loadProfile($("#profile").value);
   const who = $("#who");
   let saved = null;
   try { saved = localStorage.getItem("ibs.user"); } catch (_) { /* súkromný režim */ }

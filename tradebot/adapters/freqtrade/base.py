@@ -108,6 +108,9 @@ class TradebotStrategyBase(IStrategy):
         self._informative_tfs: list[str] = (
             list(self.spec.informative_tfs(self.tb_cfg)) if self.spec.informative_tfs else []
         )
+        # Freqtrade potrebuje vedieť, koľko sviečok histórie stratégia chce pred prvým signálom.
+        probe = self.spec.engine_factory(self.tb_cfg, self.tb_inst, int(self.timeframe.rstrip("m")))
+        self.startup_candle_count = max(int(type(self).startup_candle_count), int(probe.required_history))
         self._after_profile()
 
     # ------------------------------------------------------------------ #
@@ -400,6 +403,26 @@ class TradebotStrategyBase(IStrategy):
         if take_profit != take_profit:  # NaN
             return None
         return trade.calc_profit_ratio(take_profit)
+
+    def custom_exit(
+        self, pair: str, trade, current_time: datetime, current_rate: float,
+        current_profit: float, **kwargs
+    ) -> str | None:
+        """Engine povedal „zavri" (`close_session` na predchádzajúcom uzavretom bare) → trhový výstup.
+
+        Číta sa PREDCHÁDZAJÚCI bar grafu: engine ho vyhodnotil na jeho zatvorení, čo je
+        otvorenie sviečky, ktorú Freqtrade práve spracúva. Stratégia s vlastnou logikou
+        výstupu (IBS: hodiny seáns) túto metódu prepíše.
+        """
+        runner = self._runners.get(pair)
+        if runner is None:
+            return None
+        from freqtrade.exchange import timeframe_to_msecs
+
+        tf_ms = timeframe_to_msecs(self.timeframe)
+        now_ms = int(current_time.timestamp() * 1000)
+        row = runner.rows.get(now_ms // tf_ms * tf_ms - tf_ms)
+        return "signal_close" if row is not None and row.close_session else None
 
     def confirm_trade_entry(
         self, pair: str, order_type: str, amount: float, rate: float, time_in_force: str,
