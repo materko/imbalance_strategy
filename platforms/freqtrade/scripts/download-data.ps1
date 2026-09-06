@@ -84,8 +84,8 @@ Write-Host "=== Co je stiahnute ===" -ForegroundColor Cyan
 
 Write-Host ""
 Write-Host "=== Delim na rocne subory pre git ===" -ForegroundColor Cyan
-& $py -m ibs.tools.data_archive split
+& $py -m tradebot.tools.data_archive split
 Write-Host ""
 Write-Host "Commituj len user_data\data_archive\ - pracovne subory v data\ su" -ForegroundColor Green
 Write-Host "v .gitignore. Po klonovani sa poskladaju prikazom:" -ForegroundColor Green
-Write-Host "  python -m ibs.tools.data_archive merge"
+Write-Host "  python -m tradebot.tools.data_archive merge"

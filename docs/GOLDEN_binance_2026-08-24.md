@@ -1,7 +1,7 @@
 # Golden test: TradingView vs port — BINANCE:BTCUSDT.P, 3m
 
 Referencia odčítaná priamo z TradingView Strategy Testera (2026-09-04), uložená v
-[`ibs/tests/golden/tv_btcusdt_binance_3m.json`](../ibs/tests/golden/tv_btcusdt_binance_3m.json).
+[`tradebot/tests/golden/tv_btcusdt_binance_3m.json`](../tradebot/tests/golden/tv_btcusdt_binance_3m.json).
 
 Nastavenia: čerstvo vložený `pine/imbalance_strategy_FULL.pine` + 5 odchýlok od Pine defaultov
 (`enablePinBarEntry`, `enableTrailing`, `tradeDirection="Long only"`, `sess2ZoneStartH=8`,
@@ -10,7 +10,7 @@ Nastavenia: čerstvo vložený `pine/imbalance_strategy_FULL.pine` + 5 odchýlok
 Časy TradingView sú v zóne grafu **UTC+2**, nižšie prepočítané na UTC.
 
 ```bash
-python -m ibs.tools.scan_trades --exchange binance --profile btcusdt_3m_binance_tv \
+python -m tradebot.tools.scan_trades --exchange binance --profile btcusdt_3m_binance_tv \
     --from 2026-08-24 --to 2026-09-04 --limit 0
 ```
 
@@ -141,7 +141,7 @@ je SMA **na bare `bars[0]` vrátane**, nie na bare pred ním.
 
 ## Výsledok: plná parita
 
-Po oprave (`htf_window_opens()` v `ibs/core/types.py`):
+Po oprave (`htf_window_opens()` v `tradebot/core/types.py`):
 
 | | pred | po | TradingView |
 |---|---|---|---|
@@ -164,14 +164,14 @@ sedí na minútu vyplnenia, vstupnú cenu, veľkosť aj výstupnú cenu**:
 Šiesty order (`LONG_64`, 09-02 15:15) sa nikdy nevyplnil a expiroval — TradingView ho
 v Pine logoch tiež má v STATE 4 a v List of Trades tiež nie je.
 
-Regresný test: `ibs/tests/test_golden_tv_binance.py`.
+Regresný test: `tradebot/tests/test_golden_tv_binance.py`.
 
 ## Overenie cez Freqtrade
 
 Backtest musí bežať s profilom, ktorý zodpovedá nastaveniam v TradingView:
 
 ```bash
-IBS_PROFILE=btcusdt_3m_binance_tv ./platforms/freqtrade/scripts/backtest.sh --timerange 20260824-20260905
+TRADEBOT_PROFILE=btcusdt_3m_binance_tv ./platforms/freqtrade/scripts/backtest.sh --timerange 20260824-20260905
 ```
 
 S ním dá Freqtrade **5 obchodov, uid zón 10, 9, 12, 31, 44 a vstupné ceny na cent
@@ -248,7 +248,7 @@ aj text:
 Rozdiel v y súradnici štítkov je zámerný a test s ním počíta: Pine loguje surovú cenu
 pivota, ale štítok kreslí o 25 tickov vedľa (`syminfo.mintick * 25`).
 
-Regresný test: `ibs/tests/test_golden_tv_draw.py`.
+Regresný test: `tradebot/tests/test_golden_tv_draw.py`.
 
 ### Čo tento fixture nepokrýva
 
@@ -276,7 +276,7 @@ vznikne presne jeden obchod navyše — ten istý, čo v TradingView, a v oboch 
 
 Regresný test: `test_sr_a_likviditne_zony_sedia_s_tradingview`.
 
-> **Pozor pri písaní ďalších testov:** `ibs.tools.scan_trades` si stavia `ZoneBook`
+> **Pozor pri písaní ďalších testov:** `tradebot.tools.scan_trades` si stavia `ZoneBook`
 > a `StateMachine` sám a **nikdy nezavolá `IBSEngine`**, takže spawnovanie zón z S/R
 > ani zo sweepu cez neho neprejde. Prvý pokus o toto meranie preto ukázal „SR/LQ
 > nemá žiadny efekt" — test musí ísť cez `IBSEngine`.
@@ -298,14 +298,14 @@ Cestou k tomu boli dve zistenia:
 **Skutočná chyba v porte — pivot a zhodné hodnoty.** Pine `ta.pivothigh` pripúšťa
 zhodnú hodnotu na **ľavej** (staršej) strane, ale na pravej je prísny. Náš `pivot()`
 bol prísny na oboch stranách, takže zahadzoval pivoty na plochých vrcholoch.
-Opravené v `ibs/core/ta/structure.py`.
+Opravené v `tradebot/core/ta/structure.py`.
 
 **Chyba merania — log vzniká len pri pushi.** Pine loguje len pridanie bodu; keď
 neskôr posunie posledný bod na extrémnejšiu hodnotu, log nevznikne. Prvé porovnanie
 (TV pushe proti našim finálnym bodom) dalo 32 zo 41 a vyzeralo to ako ďalšia chyba
 v porte. Test preto porovnáva **push udalosti**, nie finálny zoznam bodov.
 
-Regresný test: `ibs/tests/test_golden_tv_elliott.py`.
+Regresný test: `tradebot/tests/test_golden_tv_elliott.py`.
 
 ## Celý Freqtrade backtest vs TradingView (2026-09-04)
 
@@ -347,7 +347,7 @@ obchod, je to ten istý obchod s inou ekonomikou.
 Preto sa porovnáva takto:
 
 ```bash
-IBS_PROFILE=btcusdt_3m_binance_tv .venv/bin/python -m freqtrade backtesting   --config platforms/freqtrade/config.binance.json   --userdir platforms/freqtrade/user_data --strategy IBSImbalanceStrategy   --timeframe-detail 1m --timerange 20260824-20260905 --fee 0 --dry-run-wallet 400000
+TRADEBOT_PROFILE=btcusdt_3m_binance_tv .venv/bin/python -m freqtrade backtesting   --config platforms/freqtrade/config.binance.json   --userdir platforms/freqtrade/user_data --strategy IBSImbalanceStrategy   --timeframe-detail 1m --timerange 20260824-20260905 --fee 0 --dry-run-wallet 400000
 ```
 
 `--fee 0` vypne poplatky ako v Pine, `--dry-run-wallet 400000` zabezpečí, že sa

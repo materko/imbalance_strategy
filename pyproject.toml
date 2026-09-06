@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ibs"
+name = "tradebot"
 version = "0.1.0"
 description = "IBS Imbalance Breakout Strategy - spolocne jadro pre Freqtrade a MultiCharts"
 requires-python = ">=3.11"
@@ -11,17 +11,17 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
-# Jadro (ibs.core) je zamerne bez zavislosti - beha aj v MultiCharts CPythone.
-# Nastroje v ibs.tools uz pandas/plotly potrebuju; pandas sa taha s Freqtrade.
+# Jadro (tradebot.core) je zamerne bez zavislosti - beha aj v MultiCharts CPythone.
+# Nastroje v tradebot.tools uz pandas/plotly potrebuju; pandas sa taha s Freqtrade.
 plot = ["plotly>=5", "pandas"]
-# Webapp pre testerov (ibs.webapp) - fastapi aj uvicorn su uz zavislosti Freqtradu.
+# Webapp pre testerov (tradebot.webapp) - fastapi aj uvicorn su uz zavislosti Freqtradu.
 web = ["fastapi", "uvicorn", "pandas", "pyarrow"]
 
 [tool.setuptools.packages.find]
-include = ["ibs*"]
+include = ["tradebot*"]
 
 [tool.setuptools.package-data]
-ibs = ["configs/*.json"]
+tradebot = ["configs/*/*.json"]
 
 [tool.pytest.ini_options]
-testpaths = ["ibs/tests"]
+testpaths = ["tradebot/tests"]

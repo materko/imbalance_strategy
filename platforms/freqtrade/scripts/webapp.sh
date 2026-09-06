@@ -6,7 +6,7 @@
 # pracovné dáta, webapp ich pri štarte zloží z data_archive/. Po štarte otvorí prehliadač.
 #
 #   ./platforms/freqtrade/scripts/webapp.sh
-#   IBS_WEB_PORT=9000 ./platforms/freqtrade/scripts/webapp.sh
+#   TRADEBOT_WEB_PORT=9000 ./platforms/freqtrade/scripts/webapp.sh
 #   NO_BROWSER=1 ./platforms/freqtrade/scripts/webapp.sh
 #
 # Viď docs/WEBAPP.md.
@@ -25,9 +25,9 @@ if [[ ! -x "$PY" ]]; then
     [[ -x "$PY" ]] || { echo "setup.sh nevytvoril venv" >&2; exit 1; }
 fi
 
-export IBS_WEB_HOST="${IBS_WEB_HOST:-127.0.0.1}"
-export IBS_WEB_PORT="${IBS_WEB_PORT:-8765}"
-URL="http://$IBS_WEB_HOST:$IBS_WEB_PORT"
+export TRADEBOT_WEB_HOST="${TRADEBOT_WEB_HOST:-127.0.0.1}"
+export TRADEBOT_WEB_PORT="${TRADEBOT_WEB_PORT:-8765}"
+URL="http://$TRADEBOT_WEB_HOST:$TRADEBOT_WEB_PORT"
 echo "IBS webapp: $URL  (Ctrl+C ukonci)"
 
 if [[ "${NO_BROWSER:-0}" != "1" ]]; then
@@ -45,4 +45,4 @@ if [[ "${NO_BROWSER:-0}" != "1" ]]; then
 fi
 
 cd "$REPO"
-exec "$PY" -m ibs.webapp
+exec "$PY" -m tradebot.webapp

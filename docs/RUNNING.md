@@ -10,7 +10,7 @@ Tri spôsoby, podľa toho, čo práve robíš:
 
 > **MultiCharts na macOS nebeží** a **nedá sa kontajnerizovať** — je to Windows desktop
 > aplikácia s GUI a licenciou viazanou na stroj. Na Macu aj v Dockeri sa dá robiť jadro
-> (`ibs/`), testy a celá Freqtrade vetva; samotná MultiCharts študia potrebuje Windows.
+> (`tradebot/`), testy a celá Freqtrade vetva; samotná MultiCharts študia potrebuje Windows.
 
 ---
 
@@ -41,7 +41,7 @@ docker compose -f docker/docker-compose.yml logs -f freqtrade
 | `ibs-core` | `python:3.12-slim` | testy a CI. Jadro nemá závislosti mimo stdlib, takže je malý a beží aj na arm64 Macu. |
 | `ibs-freqtrade` | `freqtradeorg/freqtrade:stable` | download, backtest, live bot |
 
-Balík `ibs` sa do Freqtrade image nedáva cez `pip`, ale cez `PYTHONPATH=/app`. Compose potom
+Balík `tradebot` sa do Freqtrade image nedáva cez `pip`, ale cez `PYTHONPATH=/app`. Compose potom
 mountuje `../ibs:/app/ibs:ro`, takže **zmeny v jadre sa prejavia bez rebuildu** — a image
 funguje aj samostatne bez mountu. Build navyše na konci spustí sanity check profilov,
 takže rozbitý config zhodí build, nie až server.
@@ -91,7 +91,7 @@ brew install ta-lib
 ./platforms/freqtrade/scripts/setup.sh
 ```
 
-Skript vytvorí `.venv`, nainštaluje Freqtrade a `ibs` v editovateľnom režime, vypíše verziu
+Skript vytvorí `.venv`, nainštaluje Freqtrade a `tradebot` v editovateľnom režime, vypíše verziu
 a prebehne testy. `-Recreate` (PS) resp. `RECREATE=1` (sh) začne odznova.
 
 Ručný ekvivalent:
@@ -169,9 +169,9 @@ prepísania histórie. Rok, ktorý sa skončil, sa už nikdy nezmení, takže je
 v histórii existuje raz. Denne rastie iba súbor za aktuálny rok (~10 MB/rok pri 1m).
 
 ```bash
-python -m ibs.tools.data_archive status    # čo je kde
-python -m ibs.tools.data_archive merge     # archív -> pracovné súbory (po klonovaní)
-python -m ibs.tools.data_archive split     # pracovné súbory -> archív (po stiahnutí)
+python -m tradebot.tools.data_archive status    # čo je kde
+python -m tradebot.tools.data_archive merge     # archív -> pracovné súbory (po klonovaní)
+python -m tradebot.tools.data_archive split     # pracovné súbory -> archív (po stiahnutí)
 ```
 
 `download-data.ps1` aj `.sh` volajú `split` samy, takže po stiahnutí stačí commitnúť
@@ -179,7 +179,7 @@ python -m ibs.tools.data_archive split     # pracovné súbory -> archív (po st
 nemajú z čoho čítať.
 
 Delenie je bezstratové — `merge(split(x))` dá presne to isté, čo bolo v `x`
-(`ibs/tests/test_data_archive.py`). Sviečky sa nikde nedopočítavajú.
+(`tradebot/tests/test_data_archive.py`). Sviečky sa nikde nedopočítavajú.
 
 ---
 
@@ -204,16 +204,16 @@ Ekvivalent:
 ```
 
 > ⚠️ **`--cache none` je povinné.** Freqtrade cachuje výsledok podľa hashu súboru
-> stratégie, ale naše nastavenia sú v profile **mimo neho** (`IBS_PROFILE`). Zmena
+> stratégie, ale naše nastavenia sú v profile **mimo neho** (`TRADEBOT_PROFILE`). Zmena
 > profilu teda cache nezneplatní a dostaneš ticho starý výsledok — v logu je to vidieť
 > len ako riadok `Loading backtest result from …zip`. Skripty `backtest.ps1`/`.sh` to
 > pridávajú samy; pri ručnom volaní na to netreba zabudnúť.
 
-Stratégia je v [`ibs/adapters/freqtrade/strategy.py`](../ibs/adapters/freqtrade/strategy.py);
-súbor v `user_data/strategies/` je len ukazovateľ. Profil sa prepína cez `IBS_PROFILE`:
+Stratégia je v [`tradebot/adapters/freqtrade/strategy.py`](../tradebot/adapters/freqtrade/strategy.py);
+súbor v `user_data/strategies/` je len ukazovateľ. Profil sa prepína cez `TRADEBOT_PROFILE`:
 
 ```bash
-IBS_PROFILE=golden_coinbase_btcusd_3m ./platforms/freqtrade/scripts/backtest.sh
+TRADEBOT_PROFILE=golden_coinbase_btcusd_3m ./platforms/freqtrade/scripts/backtest.sh
 ```
 
 > ⚠️ **Pozor na veľkosť pozície.** `maxLossDollar = 350` pri SL vzdialenosti ~$87 znamená
@@ -225,8 +225,8 @@ IBS_PROFILE=golden_coinbase_btcusd_3m ./platforms/freqtrade/scripts/backtest.sh
 ### Report ako v TradingView
 
 ```bash
-.venv/bin/python -m ibs.tools.report            # posledny backtest -> HTML vedla zipu
-.venv/bin/python -m ibs.tools.report --list     # ake vysledky su k dispozicii
+.venv/bin/python -m tradebot.tools.report            # posledny backtest -> HTML vedla zipu
+.venv/bin/python -m tradebot.tools.report --list     # ake vysledky su k dispozicii
 ```
 
 Z `backtest_results/*.zip` spraví stránku s rovnakými štyrmi číslami, aké má hore
@@ -294,7 +294,7 @@ za víťaza epochu so **7 obchodmi** a +17 %, len preto, že mala malý drawdown
 
 ### Sizing musí sedieť, inak porovnávaš dva rôzne experimenty
 
-Profil `docs/profily_archiv/btcusdt_3m_binance_hyper.json` má zámerne `legacyPineSizing: true`
+Profil `docs/profily_archiv/ibs/btcusdt_3m_binance_hyper.json` má zámerne `legacyPineSizing: true`
 a `tickDollarValue: 0.5`. Na BTC to dáva `qty = 1 BTC` pri každom reálnom SL
 (`floor(350 / (SLdist/0.1 × 0.5)) = 0 → max(1,0) = 1`), takže `maxLossDollar`
 sa neuplatní a riziko na obchod je rovné SL vzdialenosti v dolároch — presne to,
@@ -340,14 +340,14 @@ inak ich odtlačok neuvidí.
 ```
 
 MultiCharts **nepoužíva virtuálne prostredie** — volá jednu konkrétnu globálnu 64-bitovú
-inštaláciu CPythonu cez Python.NET. Preto sa `ibs` musí nainštalovať do nej, nie do `.venv`.
+inštaláciu CPythonu cez Python.NET. Preto sa `tradebot` musí nainštalovať do nej, nie do `.venv`.
 Skript to overí (odmietne venv aj 32-bit) a na záver skúsi načítať profil.
 
 Potom v MultiCharts:
 1. **PowerLanguage .NET Editor**
 2. **File → New → Signal**, jazyk **Python.NET**
 3. Vlož obsah [`platforms/multicharts/IBS_Signal.py`](../platforms/multicharts/IBS_Signal.py) —
-   sú to štyri riadky, celá logika je v balíku `ibs`
+   sú to štyri riadky, celá logika je v balíku `tradebot`
 4. Na graf pridaj **dve dátové série**:
    - **Data1** = graf TF (napr. MNQ 3m)
    - **Data2** = detekčný TF (`zoneDetectionTF`, štandardne 5m)
@@ -355,18 +355,18 @@ Potom v MultiCharts:
 > **Bez Data2 nevznikne ani jedna SD zóna.** Študia to napíše do Output okna,
 > ale inak beží ďalej — je to ľahké prehliadnuť.
 
-Profil sa prepína cez `IBS_PROFILE` (predvolene `multicharts_mnq_3m`), rovnako ako vo Freqtrade.
+Profil sa prepína cez `TRADEBOT_PROFILE` (predvolene `multicharts_mnq_3m`), rovnako ako vo Freqtrade.
 
 Čo robí adaptér:
 
 | súbor | zodpovednosť |
 |---|---|
-| `ibs/adapters/multicharts/runner.py` | prevedie engine cez `CalcBar`, drží živé ordre a HTF okno |
-| `ibs/adapters/multicharts/drawing.py` | `DrawCommand` → `DrwRectangle` / `DrwTrendLine` / `DrwText` |
-| `ibs/adapters/multicharts/signal.py` | jediný súbor, ktorý sa dotýka PowerLanguage API |
+| `tradebot/adapters/multicharts/runner.py` | prevedie engine cez `CalcBar`, drží živé ordre a HTF okno |
+| `tradebot/adapters/multicharts/drawing.py` | `DrawCommand` → `DrwRectangle` / `DrwTrendLine` / `DrwText` |
+| `tradebot/adapters/multicharts/signal.py` | jediný súbor, ktorý sa dotýka PowerLanguage API |
 
 Prvé dva sú zámerne bez závislosti na PowerLanguage, takže sa testujú na obyčajnom
-Pythone (`ibs/tests/test_multicharts.py`) — vrátane testu, že MultiCharts runner dá
+Pythone (`tradebot/tests/test_multicharts.py`) — vrátane testu, že MultiCharts runner dá
 z tých istých barov tie isté zóny ako Freqtrade.
 
 ### Dva rozdiely oproti Pine, ktoré treba vedieť
@@ -410,31 +410,31 @@ docker compose -f docker/docker-compose.yml run --rm tests
 
 Okrem testov sú tu dva nástroje na overenie proti reálnym dátam:
 ```bash
-.venv/bin/python -m ibs.tools.scan_zones    --exchange binance   # aké zóny by vznikli
-.venv/bin/python -m ibs.tools.scan_trades   --exchange binance   # celý STATE 0-5 + ordre
+.venv/bin/python -m tradebot.tools.scan_zones    --exchange binance   # aké zóny by vznikli
+.venv/bin/python -m tradebot.tools.scan_trades   --exchange binance   # celý STATE 0-5 + ordre
 ```
 
 ---
 
 ## G. Konfiguračné profily
 
-Nastavenia stratégie **nie sú** vo Freqtrade configu — tie sú v `ibs/configs/`:
+Nastavenia stratégie **nie sú** vo Freqtrade configu — tie sú v `tradebot/configs/ibs/`:
 
 | Profil | Burza / inštrument | Použitie |
 |---|---|---|
 | `multicharts_mnq_3m` | MNQ (CME) | základ pre MultiCharts futures/akcie, jednotky `abs` = 1:1 s TradingView |
 | `golden_coinbase_btcusd_3m` | Coinbase BTC/USD | referenčný — golden test proti TradingView |
 | `golden_binance_btcusdt_3m` | Binance BTC/USDT perp | referenčný — golden test proti TradingView na Binance |
-| `docs/profily_archiv/*.json` | Binance BTC a ETH | skúšané konfigurácie z vývoja, načítajú sa cestou (viď README archívu) |
+| `docs/profily_archiv/ibs/*.json` | Binance BTC a ETH | skúšané konfigurácie z vývoja, načítajú sa cestou (viď README archívu) |
 
 ```python
-from ibs.core import load_profile
+from tradebot.core import load_profile
 cfg, inst = load_profile("golden_binance_btcusdt_3m")
 print(cfg.check_instrument(inst))   # varovania ku kombinácii config × inštrument
 ```
 
 Freqtrade config (`platforms/freqtrade/config.*.json`) rieši len burzu, páry, peňaženku
-a trading mode. Logika stratégie ide výhradne z `ibs/configs/`.
+a trading mode. Logika stratégie ide výhradne z `tradebot/configs/ibs/`.
 
 ---
 
@@ -443,15 +443,15 @@ a trading mode. Logika stratégie ide výhradne z `ibs/configs/`.
 **`Invalid timeframe '3m'. This exchange supports: [...]`**
 Správne správanie — Coinbase 3m neponúka. Sťahuj z nej len `1m 5m`; 3m si poskladá stratégia.
 
-**MultiCharts nenájde modul `ibs`**
+**MultiCharts nenájde modul `tradebot`**
 Má nastavený iný Python, než do ktorého sa inštalovalo. Zisti ktorý a spusti
 `platforms\multicharts\scripts\setup.ps1 -Python <cesta>`. Nikdy to nesmie byť `.venv`.
 
 **`pip install -e .` v globálnom Pythone hlási chýbajúce oprávnenia**
-PowerShell ako správca, alebo `--user`. Editovateľná inštalácia je zámerná — zmeny v `ibs/`
+PowerShell ako správca, alebo `--user`. Editovateľná inštalácia je zámerná — zmeny v `tradebot/`
 sa prejavia bez preinštalovania.
 
-**Testy nevidia `ibs`**
+**Testy nevidia `tradebot`**
 Balík nie je v tom Pythone, ktorým púšťaš pytest. Buď `pip install -e ".[dev]"`, alebo pytest
 spúšťaj z koreňa repa.
 
@@ -466,7 +466,7 @@ Správne — adaptér je krok 4 (ARCHITECTURE_port.md §8). Zatiaľ je hotový k
 ## Mapa repozitára
 
 ```
-ibs/                          spoločné jadro (žiadny import z Freqtrade ani MultiCharts)
+tradebot/                          spoločné jadro (žiadny import z Freqtrade ani MultiCharts)
   core/types.py               Bar, HTFWindow, InstrumentSpec, SizeSpec
   core/config.py              IBSConfig - Pine vstupy + validácia
   configs/*.json              profily (len odchýlky od Pine defaultov)

@@ -26,7 +26,7 @@ na konci baru a obchod pokračoval ešte 6 minút. Bez tohto pravidla ho port za
 o 77,6 bodu nižšie.
 
 Emulujú sa obe nohy baru vrátane návratu k `close` — inak vyjde raz výstup priskoro
-a inokedy vôbec. Stráži to `ibs/tests/test_trailing.py`.
+a inokedy vôbec. Stráži to `tradebot/tests/test_trailing.py`.
 
 ## Parita s TradingView (Aug 24 – Sep 4)
 
@@ -100,7 +100,7 @@ Aj tak je break-even poplatok 0,0237 % stále **2,1× pod** tým, čo berie Bina
 ## Ako to zopakovať
 
 ```bash
-IBS_PROFILE=<profil s rrRatio 2.5 a vsetkymi 3 modelmi> \
+TRADEBOT_PROFILE=<profil s rrRatio 2.5 a vsetkymi 3 modelmi> \
 .venv/bin/python -m freqtrade backtesting \
   --config platforms/freqtrade/config.binance.json \
   --userdir platforms/freqtrade/user_data --strategy IBSImbalanceStrategy \
@@ -108,4 +108,4 @@ IBS_PROFILE=<profil s rrRatio 2.5 a vsetkymi 3 modelmi> \
 ```
 
 Pre porovnanie s TradingView pridaj `--fee 0 --dry-run-wallet 400000`.
-Report: `python -m ibs.tools.report`.
+Report: `python -m tradebot.tools.report`.

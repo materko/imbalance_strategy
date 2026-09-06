@@ -5,7 +5,7 @@ edge stratégie je ~0,05 % na stranu, čo je presne toľko, koľko berie Binance
 taker. Pri takom pomere prestáva byť exekúcia detail — rozdiel medzi maker (0,02 %)
 a taker (0,05 %) poplatkom je rozdielom medzi nulou a ziskom.
 
-Meria to `python -m ibs.tools.fees`.
+Meria to `python -m tradebot.tools.fees`.
 
 ## Ako sa to rozhoduje
 
@@ -56,7 +56,7 @@ sviečka preťala — v knihe sa ale príkaz na *dotknutej* úrovni nemusí vypl
 Order-book dáta nemáme, ale z 1m sviečok sa dá zistiť, ako hlboko cena za limitku
 prešla. Keď prejde hlboko, na fronte v knihe nezáleží — vyplní sa isto.
 
-`python -m ibs.tools.fees --fill-check`, 263 maker-spôsobilých vstupov:
+`python -m tradebot.tools.fees --fill-check`, 263 maker-spôsobilých vstupov:
 
 | hĺbka prieniku | vstupov | |
 |---|---|---|
@@ -98,6 +98,6 @@ filter. To hovorí hlavne o tom, ako tesne je stratégia na hranici.
    aspoň `aggTrades` (nie celú knihu) — a stačili by minúty okolo výstupov.
 
 ```bash
-python -m ibs.tools.fees                       # posledny backtest
-python -m ibs.tools.fees --maker 0.018 --taker 0.045
+python -m tradebot.tools.fees                       # posledny backtest
+python -m tradebot.tools.fees --maker 0.018 --taker 0.045
 ```

@@ -39,7 +39,7 @@ param(
     [Parameter(Mandatory = $true)][string]$Timerange,
     [int]$Epochs = 300,
     [string]$Loss = "IBSEdgeLoss",
-    [string]$Profile = "docs/profily_archiv/btcusdt_3m_binance_hyper.json",
+    [string]$Profile = "docs/profily_archiv/tradebot/btcusdt_3m_binance_hyper.json",
     [string]$Spaces = "buy sell",
     [int]$Jobs = -1
 )
@@ -52,7 +52,7 @@ $py = Join-Path $repo ".venv\Scripts\python.exe"
 
 if (-not (Test-Path $py)) { throw "Chyba .venv - spusti najprv platforms\freqtrade\scripts\setup.ps1" }
 
-$env:IBS_PROFILE = $Profile
+$env:TRADEBOT_PROFILE = $Profile
 Write-Host "Profil: $Profile" -ForegroundColor Cyan
 Write-Host "Okno:   $Timerange   epoch: $Epochs   loss: $Loss" -ForegroundColor Cyan
 Write-Host ""

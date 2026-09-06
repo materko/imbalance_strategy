@@ -57,7 +57,7 @@ dá priradiť ku konkrétnej zóne) a beží len pre zóny.
 |---|---|---|
 | PickMyTrade | `pmtToken`, `pmtAccountId`, `pmtStratName`, `pmtMarketOrderType`, `trailFreqPct`, 5× `alert()` | posielanie orderov externému brokerovi; Freqtrade aj MultiCharts majú vlastné |
 | Dashboard | `showDashboard`, `dashPos`, `dashboardRows`, `f_mergedCell` | `table.cell()` sa nedá zmysluplne portovať ani logovať |
-| Log obchodov | `showTradeLog`, `tradeLogRows`, `addLogEntry`, `setLogStatus` | to isté; ekvivalent je `ibs.tools.report` |
+| Log obchodov | `showTradeLog`, `tradeLogRows`, `addLogEntry`, `setLogStatus` | to isté; ekvivalent je `tradebot.tools.report` |
 | Debug tabuľka | `showDebugTable`, `debugTableRows`, `debugPos` | to isté |
 | Alert prepínače | `alertOnState2/3/4` | alerty sa neportujú |
 | `barcolor` fade IMB | Pine 686 | zafarbenie sviečky, nie objekt — nemá `DrawKind` |
@@ -77,4 +77,4 @@ musí niekto čítať" je slabší, ale odhalí presne tú triedu chýb, ktorú 
 prehliadne — a stojí pár sekúnd. Skript je v histórii tohto commitu; oplatí sa ho
 spustiť po každom väčšom zásahu do Pine skriptu.
 
-Regresné testy: `ibs/tests/test_pine_audit.py`.
+Regresné testy: `tradebot/tests/test_pine_audit.py`.

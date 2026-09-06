@@ -1,10 +1,10 @@
-# Freqtrade + spoločné jadro `ibs`.
+# Freqtrade + spoločné jadro `tradebot`.
 #
 # Build context je KOREŇ repozitára, nie tento adresár:
-#   docker build -f docker/Dockerfile.freqtrade -t ibs-freqtrade .
+#   docker build -f docker/Dockerfile.freqtrade -t tradebot-freqtrade .
 #
-# Balík `ibs` sa nedáva cez pip, ale cez PYTHONPATH. Vďaka tomu vie
-# docker-compose primountovať zdrojáky read-only a zmeny v ibs/ sa prejavia
+# Balík `tradebot` sa nedáva cez pip, ale cez PYTHONPATH. Vďaka tomu vie
+# docker-compose primountovať zdrojáky read-only a zmeny v tradebot/ sa prejavia
 # bez rebuildu - a zároveň image funguje aj samostatne bez mountu.
 
 FROM freqtradeorg/freqtrade:stable
@@ -12,7 +12,7 @@ FROM freqtradeorg/freqtrade:stable
 USER root
 
 # Len zdrojaky jadra a metadata - ziadne user_data, ziadne stiahnute sviecky.
-COPY --chown=ftuser:ftuser ibs/ /app/ibs/
+COPY --chown=ftuser:ftuser tradebot/ /app/tradebot/
 COPY --chown=ftuser:ftuser pyproject.toml /app/pyproject.toml
 
 USER ftuser
@@ -22,8 +22,8 @@ ENV PYTHONPATH=/app \
 
 # Sanity check uz pri buildovani - ked sa profily rozbiju, build spadne tu,
 # nie az na serveri.
-RUN python -c "from ibs.core import list_profiles, load_profile; \
-    print('ibs profily:', list_profiles()); \
+RUN python -c "from tradebot.core import list_profiles, load_profile; \
+    print('tradebot profily:', list_profiles()); \
     load_profile('golden_binance_btcusdt_3m')"
 
 WORKDIR /freqtrade

@@ -35,7 +35,7 @@ if (-not (Test-Path $stratFile)) {
 }
 
 # --cache none je POVINNE. Freqtrade cachuje vysledok podla hashu suboru
-# strategie, ale nase nastavenia su v profile mimo neho (IBS_PROFILE), takze
+# strategie, ale nase nastavenia su v profile mimo neho (TRADEBOT_PROFILE), takze
 # zmena profilu cache nezneplatni a dostanes ticho stary vysledok.
 $args = @(
     "-m", "freqtrade", "backtesting",

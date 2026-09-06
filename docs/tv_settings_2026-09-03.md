@@ -192,7 +192,7 @@ Do Pythonu teda nejde päť Pine vstupov: `pmtToken`, `pmtAccountId`, `pmtStratN
 `pmtMarketOrderType` a `trailFreqPct` (ten bol podľa vlastného Pine tooltipu použiteľný
 len pre PickMyTrade — `strategy.exit` v TradingView pre neho nemá ekvivalent).
 
-Zoznam je aj v `ibs/tests/test_pine_parity.py` ako `REMOVED_INPUTS`, takže test parity
+Zoznam je aj v `tradebot/tests/test_pine_parity.py` ako `REMOVED_INPUTS`, takže test parity
 vie, že chýbajú zámerne, a zároveň stráži, aby sa nevrátili.
 
 ---
