@@ -1,0 +1,19 @@
+{
+  "_title": "iji  uu",
+  "_comment": "iji  uu — z behu 20260905-160921-0310ba (BTC/USDT:USDT, 20250904-20260904)",
+  "_instrument": "btcusdt_binance",
+  "enablePinBarEntry": true,
+  "enableEngulfingEntry": true,
+  "enableSrTrading": true,
+  "enableLqTrading": true,
+  "sess2ZoneStartH": 8,
+  "sess3On": false,
+  "useStructureFilter": true,
+  "showElliott": false,
+  "rrRatio": 5.0,
+  "slLookback": 20,
+  "maxLossDollar": 100.0,
+  "tradeDirection": "Long only",
+  "minSlDistance": 0.2,
+  "leverage": 10.0
+}

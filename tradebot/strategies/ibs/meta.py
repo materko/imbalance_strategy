@@ -31,7 +31,37 @@ INTENTIONAL_DEFAULT_DIFFS: frozenset[str] = frozenset({
     "ewLineColor",
 })
 
-PARAM_NOTES: dict[str, str] = {"state4MaxBars": "Pine tento parameter nikde nepoužíva."}
+#: Pine vstupy, ktoré v configu ostali kvôli parite panela, ale v porte nerobia nič,
+#: takže vo formulári len zavadzajú. V `IBSConfig` ostávajú, aby profil sedel s TV
+#: panelom, a do uloženého profilu sa zapíšu s Pine defaultom.
+#:
+#: `alert*` posielali notifikáciu TradingView — vo Freqtrade notifikácie rieši sám
+#: Freqtrade (Telegram) v live režime, v backteste nemajú význam.
+#:
+#: `showDashboard`, `showTradeLog`, `showDebugTable` a ich pozície/počty riadkov kreslili
+#: tabuľky **na graf v TradingView**. Port ich nekreslí a ani nemá kam — históriu behov,
+#: zoznam obchodov aj dôvody výstupu ukazuje webapp vo vlastných tabuľkách. Kresliaci
+#: prepínač `showImbalance` medzi ne nepatrí: ten engine číta (`engine.py`) a rozhoduje,
+#: či sa do kresieb behu dostanú imbalance boxy.
+INERT_INPUTS: frozenset[str] = frozenset({
+    "alertOnState2", "alertOnState3", "alertOnState4",
+    "showDashboard", "dashPos", "dashboardRows",
+    "showTradeLog", "tradeLogRows",
+    "showDebugTable", "debugTableRows", "debugPos",
+})
+
+PARAM_NOTES: dict[str, str] = {
+    "state4MaxBars": "Pine tento parameter nikde nepoužíva.",
+    "maxSdZones": ("Strop je Pine dedičstvo (limit boxov na grafe a pamäte), Freqtrade ho "
+                   "nepotrebuje — port ho drží kvôli parite: nad limitom sa najstaršia zóna "
+                   "zahodí a už nikdy nevystrelí. Pri bežnom zoneValidHours (6 h) sú to len "
+                   "dávno vypršané zóny, takže výsledok neovplyvní; keby strop zahodil ešte "
+                   "platnú zónu, beh to napíše do logu. Pine si sám zaškrtáva na 200."),
+    "enableTrading": ("V porte to nie je prepínač live/papier — to rieši `dry_run` v configu "
+                      "Freqtradu. Vypnuté tu znamená, že stratégia neotvorí ani jeden obchod: "
+                      "beh dobehne, ale skončí s nulou obchodov (zóny, gapy a kresby bežia ďalej). "
+                      "V Pine malo pole zmysel na graf pripojený k reálnemu účtu."),
+}
 
 #: Metadáta polí, ktoré Pine nemá — ručne, lebo niet odkiaľ ich parsovať.
 PORT_ONLY_META: dict[str, dict[str, Any]] = {
@@ -86,9 +116,6 @@ FEATURES: list[dict[str, Any]] = [
      "params": ["liqSweepLen", "liqSweepMinWick", "liqSweepConfirmBars", "liqStrengthLen"]},
     {"switches": ["showElliott"], "params": ["ewSwingLen", "ewMinWavePoints", "ewShowLabels", "ewShowProjection", "ewLineColor"]},
     {"switches": ["ewShowProjection"], "params": ["ewProjExtendBars"]},
-    {"switches": ["showDashboard"], "params": ["dashPos", "dashboardRows", "showTradeLog"]},
-    {"switches": ["showTradeLog"], "params": ["tradeLogRows"]},
-    {"switches": ["showDebugTable"], "params": ["debugTableRows", "debugPos"]},
 ]
 
 #: Vrstvy grafu páru (prepínače vo webapp) a ľudské názvy druhov kresieb.

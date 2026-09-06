@@ -16,7 +16,7 @@ import pytest
 
 from tradebot.core import IBSConfig
 from tradebot.strategies.ibs.config import PORT_ONLY_FIELDS
-from tradebot.webapp.pine_meta import PORT_GROUP, REMOVED_INPUTS, param_metadata
+from tradebot.webapp.pine_meta import INERT_INPUTS, PORT_GROUP, REMOVED_INPUTS, param_metadata
 from tradebot.webapp.store import RunStore, make_run_id, parse_query
 
 
@@ -27,7 +27,9 @@ from tradebot.webapp.store import RunStore, make_run_id, parse_query
 
 def test_metadata_covers_every_config_field_except_removed():
     names = {m["name"] for m in param_metadata()}
-    expected = {f.name for f in fields(IBSConfig) if f.name not in REMOVED_INPUTS}
+    expected = {f.name for f in fields(IBSConfig) if f.name not in REMOVED_INPUTS | INERT_INPUTS}
+    # alert* polia v configu ostávajú (parita s TV panelom), len sa neponúkajú
+    assert INERT_INPUTS < {f.name for f in fields(IBSConfig)}
     assert names == expected
 
 
@@ -284,6 +286,245 @@ def test_submit_uses_tester_name_from_request(client, monkeypatch):
 
 
 # --------------------------------------------------------------------------- #
+# Spot vs futures
+# --------------------------------------------------------------------------- #
+
+
+def test_spot_pair_allows_only_longs_without_leverage():
+    """Na spote burza nemá čo požičať — short ani páka sa nedajú obchodovať,
+    takže beh, ktorý ich má v configu, sa nesmie ani spustiť."""
+    from tradebot.webapp.runner import check_market_rules
+
+    params = IBSConfig().to_dict()
+    check_market_rules("BTC/USDT:USDT", {**params, "tradeDirection": "Both", "leverage": 10})  # futures: v poriadku
+    check_market_rules("BTC/USDT", {**params, "tradeDirection": "Long only", "leverage": 1})
+
+    with pytest.raises(ValueError, match="shorty"):
+        check_market_rules("BTC/USDT", {**params, "tradeDirection": "Both", "leverage": 1})
+    with pytest.raises(ValueError, match="páka"):
+        check_market_rules("ETH/USDT", {**params, "tradeDirection": "Long only", "leverage": 5})
+
+
+def test_spot_pair_runs_with_spot_config_and_file_layout():
+    from tradebot.webapp.chart import pair_file
+    from tradebot.webapp.runner import build_command
+
+    base = {"timerange": "20250101-20250201", "wallet": 10000, "fee": 0.0005, "timeframe": "3m"}
+    spot = build_command("py", Path("p.json"), {**base, "pair": "BTC/USDT"})
+    futures = build_command("py", Path("p.json"), {**base, "pair": "BTC/USDT:USDT"})
+    assert spot[spot.index("--config") + 1].endswith("config.binance.spot.json")
+    assert futures[futures.index("--config") + 1].endswith("config.binance.json")
+
+    assert pair_file("BTC/USDT", "3m").name == "BTC_USDT-3m.feather"
+    assert pair_file("BTC/USDT:USDT", "3m").name == "BTC_USDT_USDT-3m-futures.feather"
+    assert pair_file("BTC/USDT", "3m").parent.name == "binance"
+    assert pair_file("BTC/USDT:USDT", "3m").parent.name == "futures"
+
+
+def test_instrument_knows_its_market_and_exchange_name():
+    from tradebot.core.types import INSTRUMENTS
+
+    perp, spot = INSTRUMENTS["btcusdt_binance"], INSTRUMENTS["btcusdt_binance_spot"]
+    assert (perp.exchange_symbol, perp.market, perp.is_spot) == ("BTCUSDT.P", "futures", False)
+    assert (spot.exchange_symbol, spot.market, spot.is_spot) == ("BTCUSDT", "spot", True)
+
+
+def test_submit_rejects_shorts_on_spot(client, monkeypatch):
+    import tradebot.webapp.app as app_mod
+
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["1m", "3m"])
+    c, _ = client
+    body = {"params": {**IBSConfig().to_dict(), "tradeDirection": "Both"}, "pair": "BTC/USDT",
+            "timerange": "20260801-20260901"}
+    r = c.post("/api/runs", json=body)
+    assert r.status_code == 422 and "spotový" in r.json()["detail"]
+    ok = {**body, "params": {**IBSConfig().to_dict(), "tradeDirection": "Long only", "leverage": 1}}
+    assert c.post("/api/runs", json=ok).status_code == 200
+
+
+# --------------------------------------------------------------------------- #
+# Vlastné profily testera
+# --------------------------------------------------------------------------- #
+
+
+@pytest.fixture
+def own_profiles(tmp_path: Path, monkeypatch):
+    """Vlastné profily do tmp adresára, nech testy nepíšu do repozitára."""
+    import tradebot.webapp.profiles as profiles_mod
+
+    d = tmp_path / "profiles"
+    monkeypatch.setattr(profiles_mod, "PROFILES_DIR", d)
+    return d
+
+
+def test_save_run_as_profile_writes_every_field(client, own_profiles):
+    """Vlastný profil je úplný, nie diff — inak by ho posunula zmena Pine defaultu
+    alebo profilu, z ktorého vznikol, a starý beh by sa nedal zopakovať."""
+    c, store = client
+    store.save(_record("20260905-120000-aaaaaa", params={"rrRatio": 5.0}))
+    r = c.post("/api/profiles", json={"name": "moj_rr5", "from_run": "20260905-120000-aaaaaa",
+                                      "note": "RR 5"})
+    assert r.status_code == 200 and r.json()["user_profiles"] == ["moj_rr5"]
+
+    data = json.loads((own_profiles / "moj_rr5.json").read_text(encoding="utf-8"))
+    assert data["_instrument"] == "btcusdt_binance" and data["rrRatio"] == 5.0
+    assert "RR 5" in data["_comment"] and "20260905-120000-aaaaaa" in data["_comment"]
+    # každé pole configu, aj to, čo má práve hodnotu Pine defaultu
+    assert {k for k in data if not k.startswith("_")} == set(IBSConfig().to_dict())
+    assert data["enableImbEntry"] is True
+
+    p = c.get("/api/profiles/moj_rr5").json()
+    assert p["params"]["rrRatio"] == 5.0 and p["instrument"] == "btcusdt_binance" and p["kind"] == "user"
+    meta = c.get("/api/meta").json()
+    assert "moj_rr5" in meta["profiles"] and meta["user_profiles"] == ["moj_rr5"]
+
+
+def test_profile_keeps_the_whole_setup_of_the_run(client, own_profiles):
+    """Profil drží aj nastavenia behu — TF (limity `*MaxBars` sú v baroch), obdobie,
+    poplatok, peňaženku a 1m detail; inak by povedal „ako", ale nie „na čom"."""
+    c, store = client
+    rec = _record("20260905-120000-aaaaaa", params={"rrRatio": 5.0})
+    rec["settings"].update(timeframe="5m", timeframe_detail="1m")
+    store.save(rec)
+    c.post("/api/profiles", json={"name": "moj_5m", "from_run": "20260905-120000-aaaaaa"})
+    data = json.loads((own_profiles / "moj_5m.json").read_text(encoding="utf-8"))
+    assert data["_timeframe"] == "5m" and data["_timerange"] == "20250904-20260904"
+    assert data["_fee"] == 0.0005 and data["_wallet"] == 10000 and data["_detail"] == "1m"
+    got = c.get("/api/profiles/moj_5m").json()
+    assert got["timeframe"] == "5m" and got["settings"]["timerange"] == "20250904-20260904"
+
+    # profil sa dá uložiť aj priamo z formulára, s vlastným TF a nastaveniami
+    c.post("/api/profiles", json={"name": "z_formulara", "params": IBSConfig().to_dict(),
+                                  "instrument": "btcusdt_binance", "timeframe": "15m",
+                                  "timerange": "20240101-20240301", "fee": 0, "wallet": 400000,
+                                  "timeframe_detail": None})
+    got = c.get("/api/profiles/z_formulara").json()
+    assert got["settings"] == {"timeframe": "15m", "timerange": "20240101-20240301",
+                               "fee": 0, "wallet": 400000, "detail": False}
+    # profil repozitára nastavenia behu nemá — formulár si vtedy nechá, čo v ňom je
+    assert c.get("/api/profiles/golden_binance_btcusdt_3m").json()["settings"] == {}
+
+
+def test_profile_remembers_what_it_started_from(client, own_profiles):
+    """Vlastný profil si pamätá východiskový profil — inak sa po pár úpravách nedá
+    povedať, či je to golden s RR 4, alebo niečo úplne iné."""
+    c, store = client
+    store.save(_record("20260905-120000-aaaaaa", params={"rrRatio": 5.0}))  # beh mal profil z configs
+    c.post("/api/profiles", json={"name": "z_behu", "from_run": "20260905-120000-aaaaaa"})
+    assert c.get("/api/profiles/z_behu").json()["base"] == "btcusdt_3m_binance_ny"
+
+    c.post("/api/profiles", json={"name": "z_formulara", "params": IBSConfig().to_dict(),
+                                  "instrument": "btcusdt_binance", "base": "z_behu"})
+    data = json.loads((own_profiles / "z_formulara.json").read_text(encoding="utf-8"))
+    assert data["_base"] == "z_behu"
+    # beh z Pine defaultov nemá z čoho vychádzať
+    rec = _record("20260905-130000-bbbbbb")
+    rec["settings"]["profile"] = None
+    store.save(rec)
+    c.post("/api/profiles", json={"name": "bez_zakladu", "from_run": "20260905-130000-bbbbbb"})
+    assert c.get("/api/profiles/bez_zakladu").json()["base"] is None
+
+
+def test_profile_save_rejects_bad_name_and_collisions(client, own_profiles):
+    c, store = client
+    store.save(_record("20260905-120000-aaaaaa"))
+    body = {"name": "moj", "from_run": "20260905-120000-aaaaaa"}
+    assert c.post("/api/profiles", json={**body, "name": "má medzeru"}).status_code == 422
+    assert c.post("/api/profiles", json={**body, "name": "../uteka"}).status_code == 422
+    assert c.post("/api/profiles", json={**body, "name": "golden_binance_btcusdt_3m"}).status_code == 422
+    assert c.post("/api/profiles", json={"name": "moj"}).status_code == 422  # ani beh, ani parametre
+    assert c.post("/api/profiles", json={**body, "from_run": "20260101-000000-ffffff"}).status_code == 404
+    assert c.post("/api/profiles", json=body).status_code == 200
+    assert c.post("/api/profiles", json=body).status_code == 409
+    assert c.post("/api/profiles", json={**body, "overwrite": True}).status_code == 200
+
+
+def test_profile_rename_and_delete_only_own(client, own_profiles):
+    c, store = client
+    store.save(_record("20260905-120000-aaaaaa", params={"rrRatio": 5.0}))
+    c.post("/api/profiles", json={"name": "moj", "from_run": "20260905-120000-aaaaaa"})
+
+    assert c.patch("/api/profiles/moj", json={"name": "moj_lepsi"}).json()["user_profiles"] == ["moj_lepsi"]
+    assert (own_profiles / "moj_lepsi.json").exists() and not (own_profiles / "moj.json").exists()
+    assert c.patch("/api/profiles/golden_binance_btcusdt_3m", json={"name": "x"}).status_code == 422
+    assert c.patch("/api/profiles/neexistuje", json={"name": "x"}).status_code == 404
+    assert c.patch("/api/profiles/moj_lepsi", json={"name": "golden_binance_btcusdt_3m"}).status_code == 422
+
+    assert c.delete("/api/profiles/golden_binance_btcusdt_3m").status_code == 422
+    assert c.delete("/api/profiles/neexistuje").status_code == 404
+    assert c.delete("/api/profiles/moj_lepsi").json()["user_profiles"] == []
+    assert not (own_profiles / "moj_lepsi.json").exists()
+
+
+def test_profile_params_are_validated_before_save(own_profiles):
+    from tradebot.core.config import ConfigError
+    from tradebot.webapp import profiles
+
+    params = IBSConfig().to_dict()
+    with pytest.raises(ConfigError):
+        profiles.save("zly", {**params, "rrRatio": 99}, "btcusdt_binance")
+    with pytest.raises(profiles.ProfileError):
+        profiles.save("zly", params, "neznamy_nastroj")
+    assert profiles.user_names() == []
+
+
+def test_git_target_is_main_not_the_current_branch(monkeypatch):
+    """História behov patrí do `main`. Keď webapp bežala z vývojárskeho worktree,
+    push šiel na vetvu `claude/...` a v `main` po ňom nebolo ani stopy."""
+    from tradebot.webapp import gitsync
+
+    monkeypatch.delenv("IBS_GIT_BRANCH", raising=False)
+    assert gitsync.target() == "main"
+    monkeypatch.setenv("IBS_GIT_BRANCH", "test-vetva")
+    assert gitsync.target() == "test-vetva"
+
+
+def test_git_push_refuses_commits_outside_tester_data(monkeypatch):
+    """Kód z testerského klonu do `main` nepatrí — Push to musí zastaviť."""
+    from tradebot.webapp import gitsync
+
+    calls = {}
+
+    def fake_git(*args, check=False):
+        calls["last"] = args
+        out = ""
+        if args[0] == "rev-list":
+            out = "aaaaaaa1 bbbbbbb2"
+        elif args[0] == "show":
+            out = ("ibs/core/engine.py" if args[-1] == "aaaaaaa1"
+                   else "platforms/freqtrade/user_data/runs/x/run.json")
+        return type("P", (), {"args": ("git", *args), "stdout": out, "stderr": "", "returncode": 0})()
+
+    monkeypatch.setattr(gitsync, "_git", fake_git)
+    monkeypatch.setattr(gitsync, "_paths", lambda: ["platforms/freqtrade/user_data/runs",
+                                                    "platforms/freqtrade/user_data/profiles"])
+    assert gitsync._foreign_commits("main") == ["aaaaaaa"]  # len ten commit s kódom
+
+
+def test_git_recognizes_missing_github_login():
+    """Webapp beží bez terminálu — git sa nemá koho spýtať na heslo. Musí to povedať
+    ako návod, nie ako „fatal: could not read Username… Device not configured"."""
+    from tradebot.webapp import gitsync
+
+    assert gitsync._auth_failed("fatal: could not read Username for 'https://github.com': "
+                                "Device not configured")
+    assert gitsync._auth_failed("remote: Invalid username or token. Authentication failed")
+    assert not gitsync._auth_failed("Everything up-to-date")
+    assert "gh auth login" in gitsync.AUTH_HELP
+
+
+def test_git_commit_message_counts_runs_and_profiles():
+    from tradebot.webapp.gitsync import _message
+
+    assert _message([" M platforms/freqtrade/user_data/runs/a/run.json"]) == "Pridaj 1 beh backtestu z webapp"
+    assert _message(["?? platforms/freqtrade/user_data/profiles/moj.json"]) == "Pridaj 1 profil z webapp"
+    mixed = _message([" M platforms/freqtrade/user_data/runs/a/run.json",
+                      "?? platforms/freqtrade/user_data/runs/b/run.json",
+                      "?? platforms/freqtrade/user_data/profiles/moj.json"])
+    assert mixed == "Pridaj 2 behy backtestu a 1 profil z webapp"
+
+
+# --------------------------------------------------------------------------- #
 # cli
 # --------------------------------------------------------------------------- #
 
@@ -318,3 +559,30 @@ def test_cli_list_and_show_read_the_store(tmp_path: Path, monkeypatch, capsys):
     assert '"rrRatio": 5.0' in out
     with pytest.raises(SystemExit):
         cli.main(["show", "neexistuje"])
+
+
+def test_user_profile_belongs_to_its_strategy(client, own_profiles):
+    """Vlastný profil nesie `_strategy`; ponuka inej stratégie ho neukáže a načíta sa jej configom."""
+    from tradebot.strategies.demo_breakout.config import DemoBreakoutConfig
+
+    c, _ = client
+    body = {"name": "demo_moj", "strategy": "demo_breakout", "instrument": "btcusdt_binance",
+            "params": {**DemoBreakoutConfig().to_dict(), "channelLen": 33}, "timeframe": "5m"}
+    r = c.post("/api/profiles", json=body)
+    assert r.status_code == 200, r.text
+    assert r.json()["strategy"] == "demo_breakout" and r.json()["user_profiles"] == ["demo_moj"]
+    data = json.loads((own_profiles / "demo_moj.json").read_text(encoding="utf-8"))
+    assert data["_strategy"] == "demo_breakout" and data["channelLen"] == 33
+    assert set(k for k in data if not k.startswith("_")) == set(DemoBreakoutConfig().to_dict())
+
+    assert c.get("/api/profiles", params={"strategy": "ibs"}).json()["user_profiles"] == []
+    assert "demo_moj" in c.get("/api/profiles", params={"strategy": "demo_breakout"}).json()["profiles"]
+    meta = c.get("/api/meta").json()
+    assert "demo_moj" not in meta["profiles"]
+    assert "demo_moj" in meta["strategy_meta"]["demo_breakout"]["profiles"]
+
+    got = c.get("/api/profiles/demo_moj", params={"strategy": "demo_breakout"}).json()
+    assert got["params"]["channelLen"] == 33 and got["kind"] == "user" and got["timeframe"] == "5m"
+    assert c.get("/api/profiles/demo_moj", params={"strategy": "ibs"}).status_code == 404
+    # IBS parametre pod demo stratégiou config odmietne
+    assert c.post("/api/profiles", json={**body, "name": "zle", "params": IBSConfig().to_dict()}).status_code == 422

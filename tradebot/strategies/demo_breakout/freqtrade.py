@@ -18,4 +18,4 @@ class DemoBreakoutStrategy(TradebotStrategyBase):
 
     def _after_profile(self) -> None:
         # Pine `allowShort` -> Freqtrade `can_short` (shorty vyžadujú futures trading mode).
-        self.can_short = bool(self.tb_cfg.allowShort)
+        self.can_short = bool(self.tb_cfg.allowShort) and self.config.get("trading_mode", "spot") != "spot"

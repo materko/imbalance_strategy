@@ -20,7 +20,7 @@ from tradebot.adapters.freqtrade.base import TradebotStrategyBase, _bar, _ts_ms
 from tradebot.adapters.freqtrade.runner import EngineRunner
 from tradebot.core import Bar, SessionClock
 from tradebot.core.risk import TrailingPlan, extreme_before_stop
-from tradebot.core.types import Direction
+from tradebot.core.types import Direction, TradeDirection
 
 logger = logging.getLogger(__name__)
 
@@ -102,6 +102,13 @@ class IBSImbalanceStrategy(TradebotStrategyBase):
     # ------------------------------------------------------------------ #
 
     def _after_profile(self) -> None:
+        # Spot: burza nemá čo požičať, takže žiadne shorty ani páka. Freqtrade by
+        # stratégiu s `can_short` v spot režime ani nespustil.
+        if self.config.get("trading_mode", "spot") == "spot":
+            self.can_short = False
+            if self.ibs_cfg.tradeDirection is not TradeDirection.LONG_ONLY:
+                logger.warning("IBS: spotový trh — tradeDirection %s sa zužuje na longy",
+                               self.ibs_cfg.tradeDirection.value)
         #: Vlastne hodiny pre `custom_exit` - viď tam preco nie signal z enginu.
         self._clock = SessionClock(self.ibs_cfg)
         self._check_unfilled_timeout()
@@ -191,10 +198,20 @@ class IBSImbalanceStrategy(TradebotStrategyBase):
     def _log_populate(self, pair: str, dataframe: DataFrame, runner: EngineRunner) -> None:
         longs = int(dataframe["tb_enter_long"].sum())
         shorts = int(dataframe["tb_enter_short"].sum())
+        book = runner.engine.book
         logger.info(
             "IBS %s: %d barov, %d HTF barov, %d zon, %d signalov (%d long / %d short)",
-            pair, len(dataframe), len(runner.htf.bars), len(runner.engine.book), longs + shorts, longs, shorts,
+            pair, len(dataframe), len(runner.htf.bars), len(book), longs + shorts, longs, shorts,
         )
+        # Strop `maxSdZones` je Pine dedičstvo (pamäť a boxy na grafe). Pokiaľ vyhadzuje
+        # len vypršané zóny, na výsledok nemá vplyv — keď začne rezať do živého,
+        # nech je to v logu vidno a nie hádanie.
+        if getattr(book, "evicted_alive", 0):
+            logger.warning(
+                "IBS %s: strop maxSdZones=%d vyhodil %d este platnych zon (z %d celkom) "
+                "- zvaz kratsi zoneValidHours alebo mensi pocet zdrojov zon",
+                pair, book.max_zones, book.evicted_alive, book.evicted,
+            )
 
     # ------------------------------------------------------------------ #
     # Trailing, koniec seansy, timeout limitky

@@ -46,6 +46,7 @@ download() {
 
 if [[ "${SKIP_BINANCE:-0}" != "1" ]]; then
     download "Binance BTC/USDT:USDT (futures)" config.binance.json 1m 3m 5m
+    download "Binance BTC/USDT + ETH/USDT (spot)" config.binance.spot.json 1m 3m 5m 15m
 fi
 
 if [[ "${SKIP_COINBASE:-0}" != "1" ]]; then

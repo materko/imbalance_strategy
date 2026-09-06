@@ -73,11 +73,43 @@ z vývoja (NY seansa, SL filter, risk sizing…) sú v `docs/profily_archiv/` s 
 odchýlok a dajú sa načítať cestou cez CLI; vo formulári si tie isté hodnoty nastavíš
 ručne alebo cez „Načítať do formulára" z histórie.
 
+Vlastný profil patrí stratégii, s ktorou vznikol (kľúč `_strategy`), a ponuka ukazuje
+len profily aktívnej stratégie. Ponuka má dve skupiny: **profily repozitára** (`tradebot/configs/<stratégia>/`, sú kód — testy a
+merania sa na ne odvolávajú, preto sa z webapp nedajú meniť) a **vlastné profily**
+testera (`user_data/profiles/`). Vlastný profil vznikne dvoma spôsobmi: tlačidlom
+**Uložiť ako profil** pod ponukou (uloží celý formulár — parametre, pár, TF, obdobie,
+poplatok, peňaženku aj 1m detail) alebo rovnakým tlačidlom v detaile behu (uloží
+nastavenie toho behu). **Premenovať**
+a **Zmazať** fungujú len na vlastné profily. Zmeny profilov idú do gitu tým istým
+**Push** ako história behov.
+
+Meno je zároveň meno súboru, takže medzera sa mení na podtržník a diakritika padá
+preč („Môj profil 5m" → `Moj_profil_5m`); keď sa profil uložiť nedá, vyskočí popup
+s dôvodom. K profilu patrí aj **TF grafu**: limity `*MaxBars` sú v baroch, takže
+profil ladený na 5m nesedí na 3m. Výber profilu preto TF prepne — profil repozitára
+(nemá uložený TF) na 3m.
+
+**Pár** je pomenovaný tak, ako ho volá burza, a ponuka je rozdelená na **Futures
+(perpetual)** a **Spot**: `BTCUSDT.P` je perpetuál (`BTC/USDT:USDT` vo Freqtrade),
+`BTCUSDT` je spot (`BTC/USDT`). Pod ponukou je vidno, o ktorý trh ide.
+
+Na spote sa nedá shortovať ani páčiť — burza nemá čo požičať. Pri spotovom páre sa
+preto `tradeDirection` prepne na „Long only", `leverage` na 1 a obe polia sa zamknú;
+beh s inou hodnotou API odmietne (aj z CLI), nech sa nestane, že výsledok vyzerá
+platne, hoci sa taký obchod v skutočnosti spraviť nedá. Spot beží s vlastným
+Freqtrade configom (`config.binance.spot.json`, `trading_mode: spot`).
+
 **Parametre** sú všetky polia configu zvolenej stratégie — Pine vstupy v rovnakých
 skupinách, s rovnakými titulkami a tooltipmi ako v TradingView (parsujú sa priamo z Pine
 súboru stratégie, takže sa nemôžu rozísť), plus skupina „Rozšírenia portu" (polia, ktoré
-Pine nemá). Pri IBS je to 114 polí (`pine/imbalance_strategy_FULL.pine`, rozšírenia `atrLen`,
-`legacyPineSizing`, `leverage`, `minSlDistance`), pri demo stratégii 9.
+Pine nemá). Pri IBS je to `pine/imbalance_strategy_FULL.pine` a rozšírenia `atrLen`,
+`legacyPineSizing`, `leverage`, `minSlDistance`; pri demo stratégii 9 polí.
+Pri IBS sa neponúkajú polia, ktoré v porte nerobia nič: `alert*` (v Pine notifikácie
+TradingView) a tabuľky kreslené na graf v TradingView — `showDashboard`, `showTradeLog`,
+`showDebugTable` s ich pozíciami a počtami riadkov; to isté ukazuje webapp vo vlastných
+tabuľkách. V `IBSConfig` ostávajú, aby profil sedel s TV panelom, a do uloženého profilu
+sa zapíšu s Pine defaultom. Kresliaci prepínač `showImbalance` ponuka má — ten rozhoduje,
+či sa do kresieb behu dostanú imbalance boxy.
 Panel vyzerá ako nastavenia v TradingView: vľavo zoznam skupín, vpravo všetky skupiny
 pod sebou v jednom dlhom zozname, ktorý skroluje vo vlastnom okne (stránka stojí) —
 klik na skupinu vľavo naň naskroluje a zvýraznenie sleduje, kde práve si. Jeden parameter na riadok; polia, ktoré Pine kreslí vedľa seba (hodina a minúta seansy,
@@ -167,8 +199,10 @@ Pod tým odchýlky od Pine defaultov (s Pine hodnotou vedľa), dôvody výstupu,
 obchodov, všetky parametre a skrátený log Freqtradu.
 
 **Načítať do formulára** vráti parametre aj nastavenia behu do formulára — na
-úpravu jedného parametra a nový beh. **Stiahnuť profil** dá JSON použiteľný
-priamo cez `TRADEBOT_PROFILE=cesta.json` v CLI. **Zmazať** odstráni adresár behu.
+úpravu jedného parametra a nový beh. **Uložiť ako profil** spraví z behu východiskový
+profil pod vlastným menom (pýta si meno a krátky popis) — objaví sa v ponuke
+„Východiskový profil" v skupine *Vlastné profily*. **Stiahnuť profil** dá JSON
+použiteľný priamo cez `TRADEBOT_PROFILE=cesta.json` v CLI. **Zmazať** odstráni adresár behu.
 
 ## Kde história žije a ako sa zdieľa
 
@@ -189,11 +223,57 @@ sviečky a obchody bez kresieb.
 
 Ako kresby vznikajú: stratégia dostane cez `TRADEBOT_DRAW_OUT` cestu, kam má po backteste
 vysypať finálny stav `DrawRegistry` (rovnaký mechanizmus ako `tradebot.tools.plot`);
-webapp súbor po dobehnutí presunie do adresára behu. Behy z čias pred registry stratégií
-nemajú `settings.strategy` — čítajú sa ako `ibs`, na disku sa nemenia.
-Tlačidlá **Pull** (`git pull --rebase --autostash`) a **Push** (commitne **len**
-`runs/` a pushne na aktuálnu vetvu) sú v hlavičke; výstup gitu sa zobrazí celý.
-Kód ani iné súbory sa z UI nikdy necommitujú. Autor commitu je meno testera z hlavičky.
+webapp súbor po dobehnutí presunie do adresára behu.
+
+Vlastné profily žijú vedľa histórie:
+
+```
+platforms/freqtrade/user_data/profiles/<meno>.json
+```
+
+Na rozdiel od profilov repozitára (tie držia len odchýlky od Pine defaultov) je
+vlastný profil **úplný — zapíše sa každé pole configu**. Nezávisí tak na tom, čo je
+práve default ani na profile, z ktorého vznikol: keď sa hocičo z toho neskôr zmení,
+starý profil ostane presne taký, aký bol, a beh sa dá zopakovať.
+
+K tomu metadáta s podtržníkom: `_instrument` (z neho sa nastaví pár), `_title` a
+`_comment` (popis a z ktorého behu profil vznikol) a celé nastavenie behu —
+`_timeframe`, `_timerange`, `_fee`, `_wallet`, `_detail`. Výber profilu ich všetky
+prenesie do formulára (obdobie orezané na dáta, ktoré pre pár sú); čo profil nemá —
+napríklad profily repozitára — nechá formulár tak, ako si ho nastavil.
+
+`_base` hovorí, z ktorého profilu si vychádzal (pri uložení z formulára to, čo bolo
+vybrané ako *Východiskový profil*, pri uložení z behu profil toho behu). Pod ponukou
+je vtedy vidieť „vychádza z profilu …". Hodnoty sú vlastné a nemenné — je to záznam
+pôvodu, nie odkaz: keď sa východiskový profil neskôr zmení, tvoj sa nepohne.
+
+Meno súboru má 2–48 znakov: písmená bez diakritiky, číslice, `.`, `-`, `_`;
+meno profilu repozitára sa použiť nedá, aby sa nedal prekryť.
+
+Tlačidlá **Pull** a **Push** sú v hlavičke; výstup gitu sa zobrazí celý. Push commitne
+**len** `runs/` a `profiles/` a pushne ich do **`main`** — nie na vetvu, na ktorej klon
+práve stojí (inak história skončí na vývojárskej vetve a nikto ju neuvidí). Iný cieľ sa
+dá nastaviť cez `TRADEBOT_GIT_BRANCH`. Keď sa vetva klonu a cieľ líšia, hlavička to ukáže
+ako `vetva → main`.
+
+Ak by mala vetva klonu oproti `main` commity mimo `runs/` a `profiles/`, Push sa
+zastaví a povie to: kód z testerského klonu do `main` nepatrí, ten ide pull requestom.
+Autor commitu je meno testera z hlavičky.
+
+**Prihlásenie do GitHubu.** Webapp beží bez terminálu, takže sa git nemá koho spýtať na
+heslo — bez uložených údajov Push spadne na `could not read Username … Device not
+configured` (macOS) a aplikácia rovno vypíše návod. Stačí sa prihlásiť raz:
+
+```bash
+gh auth login && gh auth setup-git          # macOS/Linux, najjednoduchšie
+git config --global credential.helper osxkeychain   # macOS bez gh: potom raz `git push`
+git config --global credential.helper manager       # Windows
+```
+
+Commit sa spraví aj tak, takže po prihlásení stačí kliknúť Push znova — nič sa nestratí.
+
+Behy z čias pred registry stratégií nemajú `settings.strategy` — čítajú sa ako `ibs`,
+na disku sa nemenia.
 
 Výsledkové zipy Freqtradu ostávajú v `backtest_results/` (gitignored) — beh ich
 nepotrebuje, všetko podstatné je v `run.json`.
@@ -203,7 +283,7 @@ nepotrebuje, všetko podstatné je v `run.json`.
 `python -m tradebot.webapp.cli` robí to isté, čo stránka, z terminálu — pre Claude Code
 testera a pre skripty. `run` ide cez API bežiacej webapp (beh vidno vo fronte), a keď
 webapp nebeží, spustí backtest priamo do toho istého `runs/`. `list`/`show` čítajú
-históriu, `pull`/`push` synchronizujú `runs/`, `status` povie, či webapp beží,
+históriu, `pull`/`push` synchronizujú `runs/` a `profiles/`, `status` povie, či webapp beží,
 `params` vypíše parametre s rozsahmi. `run` aj `params` majú `--strategy <kľúč>` (default `ibs`).
 
 ```bash

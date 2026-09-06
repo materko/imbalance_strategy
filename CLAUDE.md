@@ -70,11 +70,16 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
    na 1m grafe: limity `*MaxBars` sú v baroch.
 3. **Ku každému behu napíš `--note`**, čo testuje. Bez poznámky je história na nič.
 4. **Testerov klon nie je vývojová vetva.** Neupravuj `tradebot/core`, adaptéry ani profily
-   v `tradebot/configs/ibs`, pokiaľ ťa o to výslovne nepožiadajú. Parametre sa menia cez `--set`
-   alebo vo formulári, nie v kóde. Do gitu ide len história behov (`runs/`).
+   v `tradebot/configs/<stratégia>`, pokiaľ ťa o to výslovne nepožiadajú. Parametre sa menia cez `--set`
+   alebo vo formulári, nie v kóde. Do gitu idú len dáta testera: história behov (`runs/`)
+   a vlastné profily (`user_data/profiles/`). Vlastný profil si tester uloží tlačidlom
+   **Uložiť ako profil** — z formulára (aj so zvoleným TF) alebo z detailu behu; tam sa
+   dá aj premenovať a zmazať. Profily repozitára v `tradebot/configs/<stratégia>/` sa nemenia.
 5. Jeden backtest naraz. Rok s 1m detailom trvá ~20–40 s; päť rokov ~3 minúty.
-6. Nesťahuj dáta z burzy. Páry a obdobia sú len tie, čo sú v `data_archive/`
-   (BTC/USDT:USDT a ETH/USDT:USDT, 2019–2026).
+6. Nesťahuj dáta z burzy. Páry a obdobia sú len tie, čo sú v `data_archive/`:
+   futures perpetuály `BTC/USDT:USDT`, `ETH/USDT:USDT` (v ponuke `BTCUSDT.P`,
+   `ETHUSDT.P`) a spot `BTC/USDT`, `ETH/USDT` (`BTCUSDT`, `ETHUSDT`), 2019–2026.
+   Na spote sú len longy a páka 1 — webapp aj CLI beh s shortmi či pákou odmietnu.
 7. Profil musí sedieť s párom: pre ETH použi `ethusdt_*` profil z `docs/profily_archiv/`.
    BTC profil na ETH dá stovky nezmyselných obchodov (prahy v bodoch nesedia) — webapp aj
    CLI na to varujú. V `tradebot/configs/ibs/` sú len tri referenčné profily (golden testy proti
@@ -205,13 +210,18 @@ celá aktualizácia spraviť aj opätovným spustením inštalátora:
 
 ```bash
 PY -m tradebot.webapp.cli pull    # stiahni behy ostatných (git pull --rebase --autostash)
-PY -m tradebot.webapp.cli push    # commitni LEN runs/ a pushni na aktuálnu vetvu
+PY -m tradebot.webapp.cli push    # commitni LEN runs/ a profiles/ a pushni na aktuálnu vetvu
 ```
 
-To isté robia tlačidlá Pull/Push vo webapp. Push commituje **výhradne** adresár
-`platforms/freqtrade/user_data/runs/`, autor je meno testera (`TRADEBOT_USER` alebo
-`git config user.name`). Každý beh je nový adresár, konflikty prakticky nevznikajú.
-Ak push zlyhá na „rejected", sprav pull a push znova. Ak tester zmenil kód a chce
+To isté robia tlačidlá Pull/Push vo webapp. Push ide vždy do **`main`** (nie na vetvu,
+na ktorej klon stojí; iný cieľ cez `TRADEBOT_GIT_BRANCH`) a commituje **výhradne** adresáre
+`platforms/freqtrade/user_data/runs/` a `platforms/freqtrade/user_data/profiles/`,
+autor je meno testera (`TRADEBOT_USER` alebo `git config user.name`). Každý beh je nový
+adresár, konflikty prakticky nevznikajú.
+Ak push zlyhá na „rejected", sprav pull a push znova. Ak zlyhá na „could not read
+Username" alebo „Authentication failed", GitHub nemá uložené prihlásenie — `gh auth
+login && gh auth setup-git` (macOS/Linux), prípadne credential helper podľa systému;
+webapp návod vypíše sama. Commit ostáva lokálne, takže po prihlásení stačí Push znova. Ak tester zmenil kód a chce
 ho poslať, to už nie je história behov — povedz mu, nech to rieši s autorom repozitára
 (pull request), a **necommituj kód** za neho.
 

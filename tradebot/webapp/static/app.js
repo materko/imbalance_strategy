@@ -1,4 +1,4 @@
-/* IBS Backtester — jednostránková aplikácia bez frameworku. */
+/* TradeBot Backtester — jednostránková aplikácia bez frameworku. */
 "use strict";
 
 const $ = (s, el = document) => el.querySelector(s);
@@ -63,6 +63,7 @@ function setParams(values, asBase) {
   }
   state.params = JSON.parse(JSON.stringify(out));
   if (asBase) state.base = JSON.parse(JSON.stringify(out));
+  enforceSpotParams();
   renderParams();
 }
 
@@ -226,6 +227,7 @@ function renderParams() {
   }
   refreshChanged();
   applyParamFilter();
+  lockSpotParams();
 }
 
 /** Klik na skupinu vľavo: dlhý zoznam sa presunie na jej nadpis (pod prilepenú hlavičku). */
@@ -257,6 +259,16 @@ function spyGroups() {
 }
 $(".param-content").addEventListener("scroll", spyGroups, { passive: true });
 
+/** Vypnuté `enableTrading` je Pine dedičstvo (tam vypínalo posielanie ordrov na burzu).
+ *  V backteste znamená beh bez jediného obchodu, čo si tester všimne až vo výsledku. */
+function checkTradingSwitch() {
+  const box = $("#trading-warn");
+  const off = state.params.enableTrading === false;
+  if (off) box.textContent = "Obchodovanie je vypnuté (Základné nastavenia) — beh dobehne, ale neurobí ani jeden obchod. "
+    + "Reálne vs. papierové obchodovanie sa vo Freqtrade rieši v configu (dry_run), nie týmto poľom.";
+  box.hidden = !off;
+}
+
 function refreshChanged() {
   const m = metaByName();
   let total = 0;
@@ -271,6 +283,7 @@ function refreshChanged() {
     }
     row.classList.toggle("changed", changed);
   }
+  checkTradingSwitch();
   $("#override-count").textContent = total ? `${total} zmenených` : "bez zmien";
   $("#override-count").className = total ? "chip warn" : "chip";
   for (const el of $$("[data-group]")) {
@@ -328,17 +341,9 @@ function setStrategy(key) {
   Object.assign(state.meta, sm);
   state.activeGroup = null;
   $("#strategy").value = key;
-  fillProfiles();
+  fillProfiles("");
   const spec = strategySpec(key);
   if (spec && spec.default_timeframe) fillTimeframes($("#pair").value, spec.default_timeframe);
-}
-
-function fillProfiles() {
-  const ps = $("#profile"); ps.innerHTML = `<option value="">(Pine defaulty)</option>`;
-  for (const p of state.meta.profiles) {
-    const o = document.createElement("option"); o.value = p;
-    o.textContent = `${p} — ${(state.meta.profile_titles || {})[p] || ""}`; o.title = (state.meta.profile_titles || {})[p] || p; ps.append(o);
-  }
 }
 
 function fillSettings() {
@@ -347,13 +352,25 @@ function fillSettings() {
   ss.onchange = async () => { setStrategy(ss.value); $("#profile").value = ""; await loadProfile(""); };
   fillProfiles();
   const pair = $("#pair"); pair.innerHTML = "";
-  for (const p of state.meta.pairs) {
-    const o = document.createElement("option"); o.value = p.pair;
-    o.textContent = `${p.pair}${p.has_1m ? "" : " (bez 1m)"}`; o.dataset.from = p.from; o.dataset.to = p.to; pair.append(o);
+  // pár sa volá tak, ako ho volá burza: BTCUSDT.P je perpetual, BTCUSDT spot
+  for (const [label, market] of [["Futures (perpetual)", "futures"], ["Spot", "spot"]]) {
+    const list = state.meta.pairs.filter(p => (p.market || "futures") === market);
+    if (!list.length) continue;
+    const g = document.createElement("optgroup"); g.label = label;
+    for (const p of list) {
+      const o = document.createElement("option"); o.value = p.pair;
+      o.textContent = `${p.exchange_symbol || p.pair}${p.has_1m ? "" : " (bez 1m)"}`;
+      o.title = p.pair;
+      o.dataset.from = p.from; o.dataset.to = p.to;
+      g.append(o);
+    }
+    pair.append(g);
   }
   pair.onchange = () => {
     const o = pair.selectedOptions[0]; if (!o) return;
     checkPairProfile();
+    showMarket();
+    if (enforceSpotParams()) renderParams(); else lockSpotParams();
     $("#pair-range").textContent = `dáta ${o.dataset.from} → ${o.dataset.to}`;
     fillTimeframes(o.value);
     $("#from").min = o.dataset.from; $("#from").max = o.dataset.to; $("#to").min = o.dataset.from; $("#to").max = o.dataset.to;
@@ -361,7 +378,7 @@ function fillSettings() {
     if (!$("#from").value) { const d = new Date(o.dataset.to); d.setDate(d.getDate() - 365); $("#from").value = d.toISOString().slice(0, 10); }
   };
   pair.onchange();
-  $("#profile").onchange = () => loadProfile($("#profile").value);
+  $("#profile").onchange = e => loadProfile(e.target.value);
   const who = $("#who");
   let saved = null;
   try { saved = localStorage.getItem("ibs.user"); } catch (_) { /* súkromný režim */ }
@@ -381,9 +398,148 @@ function fillTimeframes(pairName, wanted) {
   sel.value = tfs.includes(keep) ? keep : (tfs.includes("3m") ? "3m" : tfs[0]);
 }
 
+/** Ponuka profilov: z repozitára (nemenné) a vlastné (premenovať/zmazať sa dajú len tie). */
+function fillProfiles(selected) {
+  const ps = $("#profile");
+  const keep = selected !== undefined ? selected : ps.value;
+  const own = new Set(state.meta.user_profiles || []);
+  ps.innerHTML = `<option value="">(Pine defaulty)</option>`;
+  for (const [label, names] of [["Profily repozitára", state.meta.profiles.filter(p => !own.has(p))],
+                                ["Vlastné profily", state.meta.profiles.filter(p => own.has(p))]]) {
+    if (!names.length) continue;
+    const g = document.createElement("optgroup"); g.label = label;
+    const titles = state.meta.profile_titles || {};
+    for (const p of names) {
+      const o = document.createElement("option"); o.value = p;
+      o.textContent = titles[p] && titles[p] !== p ? `${p} — ${titles[p]}` : p;
+      o.title = titles[p] || p;
+      g.append(o);
+    }
+    ps.append(g);
+  }
+  ps.value = state.meta.profiles.includes(keep) ? keep : "";
+  updateProfileActions();
+}
+
+function updateProfileActions() {
+  const name = $("#profile").value;
+  const own = (state.meta.user_profiles || []).includes(name);
+  const why = !name ? "Vyber vlastný profil." : "Profily repozitára sa z webapp nemenia — ulož si vlastný cez „Uložiť ako profil“ v detaile behu.";
+  for (const id of ["#profile-rename", "#profile-delete"]) {
+    const b = $(id); b.disabled = !own; b.title = own ? "" : why;
+  }
+}
+
+/** Odpoveď API o profiloch nesie aktuálny zoznam — prekresli ponuku a načítaj `pick`.
+ *
+ * Načítanie musí ísť cez `loadProfile`, nie len prestaviť `value`: inak by v ponuke
+ * svietil jeden profil, vo formulári by boli iné hodnoty a beh by sa uložil s iným
+ * (alebo žiadnym) profilom, než tester vidí. */
+async function applyProfileList(r, pick) {
+  // zoznam patrí stratégii — zapíš ho aj do strategy_meta, aby po prepnutí a návrate nezmizol
+  for (const target of [state.meta, strategyMeta(r.strategy || state.strategy) || {}]) {
+    target.profiles = r.profiles; target.user_profiles = r.user_profiles;
+    if (r.profile_titles) target.profile_titles = r.profile_titles;
+    if (r.profile_instruments) target.profile_instruments = r.profile_instruments;
+  }
+  fillProfiles(pick);
+  if (pick !== undefined) await loadProfile($("#profile").value);
+}
+
+function profileMsg(text, isError) {
+  const el = $("#profile-msg");
+  el.textContent = text; el.classList.toggle("err", !!isError);
+}
+
+/** Meno súboru: medzera je podtržník, diakritika a zvyšné znaky pryč — inak by ho
+ *  server odmietol a tester by si všimol až to, že sa nič neuložilo. */
+function slugProfileName(raw) {
+  return (raw || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .trim().replace(/\s+/g, "_").replace(/[^A-Za-z0-9._-]/g, "_")
+    .replace(/_{2,}/g, "_").replace(/^[^A-Za-z0-9]+/, "");
+}
+
+/** Meno z promptu: očistí, a keď z neho po očistení nič nezostane, povie to nahlas. */
+function askProfileName(question, preset) {
+  const raw = prompt(question, preset || "");
+  if (raw === null) return null;
+  const name = slugProfileName(raw);
+  if (!name) { alert(`„${raw}" sa ako meno profilu použiť nedá — treba aspoň jedno písmeno bez diakritiky alebo číslicu.`); return null; }
+  return name;
+}
+
+/** Chyba od servera musí byť vidno: popup aj červený text vedľa ponuky. */
+function profileFailed(e, el) {
+  alert(`Profil: ${e.message}`);
+  if (el) { el.textContent = e.message; el.classList.add("err"); }
+}
+
+async function renameProfile() {
+  const cur = $("#profile").value;
+  const name = askProfileName("Nové meno profilu:", cur);
+  if (!name || name === cur) return;
+  try {
+    const r = await api(`/api/profiles/${encodeURIComponent(cur)}?strategy=${encodeURIComponent(state.strategy)}`, { method: "PATCH", body: JSON.stringify({ name }) });
+    await applyProfileList(r, r.name);
+    profileMsg(`premenované na ${r.name} — nezabudni na Push`);
+  } catch (e) { profileFailed(e, $("#profile-msg")); }
+}
+
+async function deleteProfile() {
+  const cur = $("#profile").value;
+  if (!cur || !confirm(`Zmazať vlastný profil ${cur}? (zmaže súbor v user_data/profiles/)`)) return;
+  try {
+    const r = await api(`/api/profiles/${encodeURIComponent(cur)}?strategy=${encodeURIComponent(state.strategy)}`, { method: "DELETE" });
+    await applyProfileList(r, "");
+    profileMsg(`${cur} zmazaný — nezabudni na Push`);
+  } catch (e) { profileFailed(e, $("#profile-msg")); }
+}
+
+/** Uloženie profilu — `what` je buď {from_run}, alebo {params, instrument, timeframe}. */
+async function saveProfile(what, msg) {
+  const name = askProfileName("Meno profilu (medzera sa zmení na podtržník):", "");
+  if (!name) return;
+  const note = (prompt("Krátky popis, čo profil je (nepovinné):", "") || "").trim();
+  const body = { name, note, strategy: state.strategy, ...what };
+  msg.classList.remove("err"); msg.textContent = "ukladám…";
+  try {
+    let r;
+    try {
+      r = await api("/api/profiles", { method: "POST", body: JSON.stringify(body) });
+    } catch (e) {
+      if (!/už existuje/.test(e.message) || !confirm(`${e.message}. Prepísať ho?`)) throw e;
+      r = await api("/api/profiles", { method: "POST", body: JSON.stringify({ ...body, overwrite: true }) });
+    }
+    if (r.strategy && r.strategy !== state.strategy) { setStrategy(r.strategy); }
+    await applyProfileList(r, r.name);
+    msg.textContent = `uložené ako ${r.name} — formulár teraz vychádza z neho, do gitu ide cez Push`;
+  } catch (e) { msg.textContent = ""; profileFailed(e, msg); }
+}
+
+/** Beh z histórie ako východiskový profil pod vlastným menom. */
+async function saveRunAsProfile() {
+  if (!state.detailId) return;
+  const rec = state.detailRecord;
+  await saveProfile({ from_run: state.detailId, strategy: (rec && rec.settings && rec.settings.strategy) || state.strategy }, $("#save-profile-msg"));
+}
+
+/** Aktuálny formulár (vrátane zmeneného TF) ako vlastný profil. */
+async function saveFormAsProfile() {
+  const pair = state.meta.pairs.find(p => p.pair === $("#pair").value);
+  if (!pair) { alert("Najprv vyber pár."); return; }
+  await saveProfile({
+    params: state.params, instrument: pair.instrument, timeframe: $("#tf").value,
+    base: state.profile || null,
+    timerange: timerange(), fee: $("#fee").value === "" ? null : Number($("#fee").value) / 100,
+    wallet: Number($("#wallet").value), timeframe_detail: $("#detail").checked ? "1m" : null,
+  }, $("#profile-msg"));
+}
+
 async function loadProfile(name) {
   state.profile = name || null;
   state.profileInstrument = null;
+  updateProfileActions();
+  $("#profile-base").textContent = "";
   if (!name) { setParams({}, true); checkPairProfile(); return; }
   const r = await api(`/api/profiles/${encodeURIComponent(name)}?strategy=${encodeURIComponent(state.strategy)}`);
   state.profileInstrument = r.instrument;
@@ -392,6 +548,68 @@ async function loadProfile(name) {
   const inst = r.instrument;
   const pair = state.meta.pairs.find(p => p.instrument === inst);
   if (pair) { $("#pair").value = pair.pair; $("#pair").onchange(); }
+  // limity *MaxBars sú v baroch, takže k profilu patrí aj TF, na ktorom bol ladený;
+  // profil bez `_timeframe` (tie z repozitára) znamená 3m, nie „nechaj, čo tam bolo"
+  fillTimeframes($("#pair").value, r.timeframe || "3m");
+  applyProfileSettings(r.settings || {});
+  $("#profile-base").textContent = r.base ? `vychádza z profilu ${r.base}` : "";
+}
+
+function currentPair() {
+  return state.meta.pairs.find(p => p.pair === $("#pair").value) || null;
+}
+
+function isSpotPair() {
+  const p = currentPair();
+  return !!p && (p.market || "futures") === "spot";
+}
+
+function showMarket() {
+  const p = currentPair();
+  const el = $("#pair-market");
+  if (!p) { el.textContent = ""; return; }
+  el.textContent = (p.market || "futures") === "spot"
+    ? `Binance ${p.exchange_symbol} · spot (${p.pair}) — len longy, bez páky`
+    : `Binance ${p.exchange_symbol} · futures perpetual (${p.pair})`;
+}
+
+/** Na spote nie sú shorty ani páka — hodnoty sa nastavia natvrdo, nech beh zodpovedá
+ *  tomu, čo sa dá naozaj obchodovať. Vracia `true`, keď niečo zmenil. */
+function enforceSpotParams() {
+  if (!isSpotPair()) return false;
+  let changed = false;
+  if ("tradeDirection" in (state.meta.defaults || {}) && state.params.tradeDirection !== "Long only") { state.params.tradeDirection = "Long only"; changed = true; }
+  if ("leverage" in (state.meta.defaults || {}) && Number(state.params.leverage) > 1) { state.params.leverage = 1; changed = true; }
+  return changed;
+}
+
+/** Zamkne polia, ktoré na spote nemajú význam (a povie prečo). */
+function lockSpotParams() {
+  const spot = isSpotPair();
+  for (const name of ["tradeDirection", "leverage"]) {
+    const ctl = $(`.ctl[data-name="${name}"]`);
+    if (!ctl) continue;
+    ctl.classList.toggle("locked", spot);
+    for (const el of ctl.querySelectorAll("input, select")) {
+      el.disabled = spot;
+      el.title = spot ? "Spotový pár: na spote sa nedá shortovať ani páčiť." : "";
+    }
+  }
+}
+
+/** Obdobie, poplatok, peňaženka a 1m detail uložené v profile — čo profil nemá,
+ *  ostane tak, ako to má tester nastavené. Obdobie sa oreže na stiahnuté dáta páru. */
+function applyProfileSettings(setup) {
+  if (setup.timerange) {
+    const o = $("#pair").selectedOptions[0];
+    const [a, b] = setup.timerange.split("-").map(d => `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6)}`);
+    const lo = (o && o.dataset.from) || a, hi = (o && o.dataset.to) || b;
+    $("#from").value = a < lo ? lo : (a > hi ? hi : a);
+    $("#to").value = b > hi ? hi : (b < lo ? lo : b);
+  }
+  if (setup.fee !== undefined) $("#fee").value = setup.fee * 100;
+  if (setup.wallet !== undefined) $("#wallet").value = setup.wallet;
+  if (setup.detail !== undefined) $("#detail").checked = !!setup.detail;
 }
 
 /** Profil je ladený na konkrétny nástroj — BTC prahy v bodoch na ETH dajú stovky nezmyselných obchodov. */
@@ -402,6 +620,16 @@ function checkPairProfile() {
   const fit = state.meta.profiles.filter(p => (state.meta.profile_instruments || {})[p] === pair.instrument);
   box.textContent = `Profil ${state.profile} je pre iný nástroj (${state.profileInstrument}). Prahy v bodoch/tickoch na ${pair.pair} nesedia a výsledok nebude porovnateľný. Pre tento pár: ${fit.join(", ") || "(Pine defaulty) alebo profil z docs/profily_archiv/"}.`;
   box.hidden = false;
+}
+
+/** Profil, s ktorým sa beh uloží do histórie — vždy ten, čo tester vidí v ponuke.
+ *
+ * Archívny profil („Načítať do formulára" z behu, ktorého profil už v `ibs/configs`
+ * nie je) je cesta a v ponuke nie je — vtedy platí `state.profile`. */
+function profileForRun() {
+  const shown = $("#profile").value;
+  if (shown) return shown;
+  return state.profile && !state.meta.profiles.includes(state.profile) ? state.profile : null;
 }
 
 function timerange() {
@@ -421,7 +649,7 @@ async function submitRun() {
       fee: $("#fee").value === "" ? null : Number($("#fee").value) / 100,
       wallet: Number($("#wallet").value),
       timeframe_detail: $("#detail").checked ? "1m" : null,
-      profile: state.profile,
+      profile: profileForRun(),
       note: $("#note").value.trim(),
       user: currentUser(),
     };
@@ -497,6 +725,7 @@ async function openRun(id) {
   const r = await api(`/api/runs/${id}`);
   const rec = r.record;
   state.detailId = id;
+  state.detailRecord = rec;
   $("#runs-table").parentElement.parentElement.hidden = true;
   $("#run-detail").hidden = false;
   const runStrategy = rec.settings.strategy || "ibs";
@@ -504,6 +733,7 @@ async function openRun(id) {
   $("#detail-title").textContent = `${(strategySpec(runStrategy) || {}).title || runStrategy} · ${rec.settings.pair} · ${rec.settings.timeframe || "3m"} · ${rec.settings.timerange}`;
   $("#detail-meta").textContent = `${rec.id} · ${rec.user || ""} · ${(rec.created || "").replace("T", " ").slice(0, 16)} · profil ${rec.settings.profile || "(Pine)"} · poplatok ${rec.settings.fee != null ? (rec.settings.fee * 100).toFixed(3) + " %" : "—"} · peňaženka ${rec.settings.wallet} · detail ${rec.settings.timeframe_detail || "bez"}${rec.note ? " · " + rec.note : ""}`;
   $("#download-profile").href = `/api/runs/${id}/profile.json`;
+  $("#save-profile-msg").textContent = ""; $("#save-profile-msg").classList.remove("err");
   $("#detail-error").hidden = !rec.error; $("#detail-error").textContent = rec.error || "";
 
   const res = rec.result || {};
@@ -919,8 +1149,15 @@ async function loadDetailIntoForm() {
 async function gitStatus() {
   try {
     const s = await api("/api/git/status");
+    // história ide vždy do `main` — keď klon stojí inde, nech je to vidno v hlavičke
+    if (s.target && s.branch && s.target !== s.branch) {
+      $("#branch").textContent = `${s.branch} → ${s.target}`;
+      $("#branch").title = `klon je na vetve ${s.branch}, história behov ide do ${s.target}`;
+    } else if (s.target) {
+      $("#branch").textContent = s.target; $("#branch").title = "";
+    }
     const parts = [];
-    if (s.uncommitted_runs) parts.push(`${s.uncommitted_runs} necommitnutých`);
+    if (s.uncommitted) parts.push(`${s.uncommitted} necommitnutých`);
     if (s.ahead) parts.push(`↑${s.ahead}`);
     if (s.behind) parts.push(`↓${s.behind}`);
     $("#git-status").textContent = parts.length ? parts.join(" · ") : "synchronizované";
@@ -932,7 +1169,7 @@ async function gitAction(kind) {
   try {
     const r = await api(`/api/git/${kind}`, { method: "POST", body: kind === "push" ? JSON.stringify({ author: currentUser() }) : undefined });
     out.textContent = (r.ok ? "OK\n" : "CHYBA\n") + r.output;
-    $("#git-status").textContent = r.uncommitted_runs ? `${r.uncommitted_runs} necommitnutých` : "synchronizované";
+    $("#git-status").textContent = r.uncommitted ? `${r.uncommitted} necommitnutých` : "synchronizované";
     if (kind === "pull" && !$("#view-history").hidden) loadRuns();
   } catch (e) { out.textContent = e.message; }
 }
@@ -973,6 +1210,10 @@ async function init() {
     if (!confirm("Zmazať tento beh z histórie? (zmaže adresár v runs/)")) return;
     await api(`/api/runs/${state.detailId}`, { method: "DELETE" }); closeDetail(); loadRuns();
   };
+  $("#profile-save").onclick = saveFormAsProfile;
+  $("#profile-rename").onclick = renameProfile;
+  $("#profile-delete").onclick = deleteProfile;
+  $("#save-profile").onclick = saveRunAsProfile;
   $("#git-pull").onclick = () => gitAction("pull");
   $("#git-push").onclick = () => gitAction("push");
 }
