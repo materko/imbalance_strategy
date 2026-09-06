@@ -27,35 +27,28 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
-from ...strategies.ibs.htf import HTFFeeder
-from ...core import (
-    htf_window_opens,
-    Bar,
-    DrawRegistry,
-    HTFWindow,
-    IBSConfig,
-    IBSEngine,
-    InstrumentSpec,
-    MarketContext,
-    OrderAction,
-    OrderIntent,
-)
+from ...core import Bar, DrawRegistry, InstrumentSpec, MarketContext, OrderAction, OrderIntent
+from ...core.config import StrategyConfig
 from ...core.drawing import objects_to_dicts
 from ...core.types import Direction
+from ...strategies import StrategySpec, spec_for_config
 
-__all__ = ["SignalRow", "EngineRunner", "COLUMNS", "export_chart"]
+__all__ = ["SignalRow", "EngineRunner", "COLUMNS", "COLUMN_ATTRS", "export_chart"]
+
+#: Stĺpec v DataFrame -> pole `SignalRow`. Prefix `tb_` je spoločný pre všetky stratégie.
+COLUMN_ATTRS = {
+    "tb_enter_long": "enter_long",
+    "tb_enter_short": "enter_short",
+    "tb_entry": "entry",
+    "tb_sl": "stop_loss",
+    "tb_tp": "take_profit",
+    "tb_qty": "qty",
+    "tb_source_id": "source_id",
+    "tb_in_trade_window": "in_trade_window",
+}
 
 #: Stĺpce, ktoré runner zapisuje do DataFrame.
-COLUMNS = (
-    "ibs_enter_long",
-    "ibs_enter_short",
-    "ibs_entry",
-    "ibs_sl",
-    "ibs_tp",
-    "ibs_qty",
-    "ibs_zone_uid",
-    "ibs_in_trade_window",
-)
+COLUMNS = tuple(COLUMN_ATTRS)
 
 
 @dataclass
@@ -68,7 +61,8 @@ class SignalRow:
     stop_loss: float = float("nan")
     take_profit: float = float("nan")
     qty: float = float("nan")
-    zone_uid: float = float("nan")
+    #: identita zdroja signálu (IBS: uid zóny)
+    source_id: float = float("nan")
     in_trade_window: bool = False
     #: Na tomto bare Pine zatvara vsetko otvorene - koniec poslednej seansy dna.
     close_session: bool = False
@@ -88,17 +82,24 @@ class _PendingOrder:
 
 
 class EngineRunner:
-    """Drží engine pre jeden pár a spracúva len nové bary."""
+    """Drží engine pre jeden pár a spracúva len nové bary.
 
-    def __init__(self, cfg: IBSConfig, inst: InstrumentSpec, chart_tf_minutes: int) -> None:
+    Stratégia sa berie z registry podľa triedy configu (`spec_for_config`), takže
+    `EngineRunner(cfg, inst, tf)` funguje pre každú registrovanú stratégiu.
+    """
+
+    def __init__(self, cfg: StrategyConfig, inst: InstrumentSpec, chart_tf_minutes: int,
+                 spec: StrategySpec | None = None) -> None:
+        self.spec = spec or spec_for_config(cfg)
         self.cfg = cfg
         self.inst = inst
         self.chart_tf_minutes = chart_tf_minutes
-        self.engine = IBSEngine(cfg, inst, chart_tf_minutes)
+        assert self.spec.engine_factory is not None, f"{self.spec.key}: chýba engine_factory"
+        self.engine = self.spec.engine_factory(cfg, inst, chart_tf_minutes)
 
-        #: okno detekčného TF — jedna implementácia pre Freqtrade aj MultiCharts
-        self.htf = HTFFeeder(cfg, chart_tf_minutes)
-        self.htf_ms = self.htf.htf_ms
+        #: feeder informatívneho TF (IBS: okno detekčného TF zón), alebo None — engine bez HTF
+        self.htf = self.spec.htf_feeder(cfg, chart_tf_minutes) if self.spec.htf_feeder else None
+        self.htf_ms = getattr(self.htf, "htf_ms", None)
         self._orders: dict[str, _PendingOrder] = {}
         #: Pine `dailyWinsCount` — UTC deň -> počet obchodov zavretých v zisku.
         self._daily_wins: dict[str, int] = {}
@@ -173,11 +174,13 @@ class EngineRunner:
 
     # ------------------------------------------------------------------ #
 
-    def process(self, bar: Bar, htf: HTFWindow | None) -> SignalRow:
+    def process(self, bar: Bar, htf=None) -> SignalRow:
         """Posunie engine o jeden bar a vráti riadok signálov."""
         # Pine vyhodnocuje `dailyWinLimitReached` na začiatku baru, ešte PRED tým,
         # než sa výhra z tohto baru pripočíta — limit teda platí až od ďalšieho baru.
-        daily_limit = self.wins_today(bar.time) >= self.cfg.maxDailyWins
+        # Stratégia bez denného limitu (pole `maxDailyWins`) ho nemá nikdy.
+        max_wins = getattr(self.cfg, "maxDailyWins", None)
+        daily_limit = max_wins is not None and self.wins_today(bar.time) >= max_wins
         self._simulate_fills(bar)
 
         ctx = MarketContext(
@@ -194,8 +197,9 @@ class EngineRunner:
         self.last_ts = bar.time
         self.last_bar = bar
 
+        clock = getattr(out, "clock", None)  # stratégia bez seáns obchoduje vždy
         row = SignalRow(
-            in_trade_window=bool(out.clock and out.clock.in_trade_window),
+            in_trade_window=bool(clock.in_trade_window) if clock is not None else True,
             close_session=out.close_session,
         )
         for intent in out.orders:
@@ -210,7 +214,7 @@ class EngineRunner:
             row.stop_loss = plan.stop_loss
             row.take_profit = plan.take_profit
             row.qty = plan.qty
-            row.zone_uid = float(intent.zone_uid)
+            row.source_id = float(intent.source_id)
 
         self.rows[bar.time] = row
         if row.enter_long or row.enter_short:
@@ -249,12 +253,18 @@ class EngineRunner:
 
     # ------------------------------------------------------------------ #
 
+    def window_for(self, ts_ms: int):
+        """Čo dostane engine ako `htf` na tomto bare — z feedera stratégie, inak `None`."""
+        return self.htf.window_for(ts_ms) if self.htf is not None else None
+
     def htf_window_for(self, ts_ms: int, htf_bars: dict[int, Bar], vol_sma: dict[int, float]):
-        """Okno štyroch uzavretých HTF barov na bare, kde začala nová perióda — viď `HTFFeeder`.
+        """IBS: okno štyroch uzavretých HTF barov na bare, kde začala nová perióda — viď `HTFFeeder`.
 
         `htf_bars`/`vol_sma` sú predpočítané z informative dataframe; podávajú sa
         referenciou, takže opakované volanie na každom bare nič nekopíruje.
         """
+        if self.htf is None:
+            return None
         self.htf.load(htf_bars, vol_sma)
         return self.htf.window_for(ts_ms)
 
@@ -267,7 +277,7 @@ class EngineRunner:
 def export_chart(runner: EngineRunner, pair: str, timeframe: str, path: Path | str) -> dict:
     """Zapíše finálny stav kresieb behu do JSON (gzip, ak cesta končí `.gz`).
 
-    Pridá aj to, čo Pine kreslí až na poslednom bare (`barstate.islast`: S/R
+    Pridá aj to, čo stratégia kreslí až na poslednom bare (`final_drawings`, IBS: S/R
     zhluky a Elliott). Vracia hlavičku súboru (bez objektov) — na log.
     """
     objects = list(runner.registry.objects())
@@ -279,6 +289,7 @@ def export_chart(runner: EngineRunner, pair: str, timeframe: str, path: Path | s
         counts[d["k"]] = counts.get(d["k"], 0) + 1
     data = {
         "version": 1,
+        "strategy": runner.spec.key,
         "pair": pair,
         "timeframe": timeframe,
         "from_ms": runner.first_ts,
