@@ -100,7 +100,13 @@ label.inline { flex-direction: row; align-items: center; gap: 8px; color: var(--
 .queue .job { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; font-size: 12px; }
 .queue .job .head { display: flex; align-items: center; gap: 8px; }
 .queue .job .head .spacer { flex: 1; }
-.queue pre { margin: 6px 0 0; max-height: 160px; overflow: auto; background: #f9fafb; padding: 6px; border-radius: 6px; font-size: 11px; white-space: pre-wrap; }
+.queue pre { margin: 6px 0 0; max-height: 200px; overflow: auto; background: #f9fafb; padding: 6px; border-radius: 6px; font-size: 11px; white-space: pre; }
+.live-log { position: fixed; inset: 56px 20px 20px; z-index: 60; display: flex; flex-direction: column; background: #111827; color: #e5e7eb; border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,.35); }
+.live-log-head { display: flex; align-items: center; gap: 12px; padding: 8px 12px; font-size: 12px; color: #d1d5db; border-bottom: 1px solid #374151; }
+.live-log-head .spacer { flex: 1; }
+.live-log-head label { color: #d1d5db; margin: 0; }
+.live-log-head button { color: #e5e7eb; border-color: #374151; }
+.live-log pre { flex: 1; margin: 0; padding: 10px 12px; overflow: auto; white-space: pre; font-size: 12px; line-height: 1.35; }
 
 .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
 .search-row input { flex: 1; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; font: inherit; }

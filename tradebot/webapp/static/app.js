@@ -13,6 +13,7 @@ const state = {
   base: {},            // hodnoty východiskového profilu (na zvýraznenie odchýlok)
   profile: null,
   pollTimer: null,
+  liveLog: null,       // id behu, ktorého log je otvorený v plnej šírke
   detailId: null,
   activeGroup: null,
   profileInstrument: null,
@@ -671,20 +672,68 @@ async function pollQueue() {
   if (!jobs.length) {
     box.innerHTML = `<div class="muted">Nič nebeží.</div>`;
     if (state.pollTimer) { clearTimeout(state.pollTimer); state.pollTimer = null; if (!$("#view-history").hidden) loadRuns(); }
+    await refreshLiveLog(null);
     return;
   }
-  box.innerHTML = "";
+  // Prvky behov sa držia a len aktualizujú — prekreslenie celého HTML každé 2 s by
+  // zhodilo pozíciu scrollu v logu a tester by nič nedočítal.
+  if (!box.querySelector(".job")) box.innerHTML = "";
+  const seen = new Set();
   for (const j of jobs) {
-    const el = document.createElement("div"); el.className = "job";
-    el.innerHTML = `<div class="head"><span class="chip ${j.status === "running" ? "warn" : ""}">${j.status}</span>
+    seen.add(j.id);
+    let el = box.querySelector(`.job[data-job="${j.id}"]`);
+    if (!el) {
+      el = document.createElement("div"); el.className = "job"; el.dataset.job = j.id;
+      el.innerHTML = `<div class="head"></div><pre class="live" hidden></pre>`;
+      box.append(el);
+    }
+    const running = j.status === "running";
+    el.querySelector(".head").innerHTML = `<span class="chip ${running ? "warn" : ""}">${j.status}</span>
       <b>${j.settings.pair}</b> <span class="muted">${j.settings.timeframe || "3m"} · ${j.settings.timerange}</span> <span class="spacer"></span>
-      <span class="muted">${esc(j.note || "")}</span> <button class="ghost small" data-cancel="${j.id}">✕</button></div>
-      ${j.status === "running" ? `<pre>${esc((j.log_tail || []).slice(-12).join("\n"))}</pre>` : ""}`;
+      <span class="muted">${esc(j.note || "")}</span>
+      ${running ? `<button class="ghost small" data-expand="${j.id}" title="celý log v plnej šírke, s formátovaním">⤢ Log</button>` : ""}
+      <button class="ghost small" data-cancel="${j.id}" title="zrušiť beh">✕</button>`;
     el.querySelector("[data-cancel]").onclick = async () => { await api(`/api/queue/${j.id}/cancel`, { method: "POST" }); pollQueue(); };
-    box.append(el);
+    const expand = el.querySelector("[data-expand]");
+    if (expand) expand.onclick = () => openLiveLog(j);
+    const pre = el.querySelector("pre.live");
+    pre.hidden = !running;
+    if (running) setLogText(pre, (j.log_tail || []).slice(-12).join("\n"));
   }
+  for (const el of box.querySelectorAll(".job")) if (!seen.has(el.dataset.job)) el.remove();
+  await refreshLiveLog(jobs);
   clearTimeout(state.pollTimer);
   state.pollTimer = setTimeout(pollQueue, 2000);
+}
+
+/** Nový text logu bez straty pozície: ak bol scroll na konci, ostane na konci (sleduje beh),
+ *  ak si tester odscrolloval hore, nič sa mu nepohne. */
+function setLogText(pre, text) {
+  if (pre.textContent === text) return;
+  const atEnd = pre.scrollTop + pre.clientHeight >= pre.scrollHeight - 8;
+  pre.textContent = text;
+  if (atEnd) pre.scrollTop = pre.scrollHeight;
+}
+
+/** Celý log bežiaceho behu v plnej šírke (Freqtrade tabuľky sú široké — bez zalamovania). */
+function openLiveLog(job) {
+  state.liveLog = job.id;
+  $("#live-log").hidden = false;
+  $("#live-log-title").textContent = `${job.settings.pair} · ${job.settings.timeframe || "3m"} · ${job.settings.timerange}${job.note ? " · " + job.note : ""} — beží`;
+  $("#live-log-text").textContent = "";
+  refreshLiveLog(null);
+}
+
+function closeLiveLog() { state.liveLog = null; $("#live-log").hidden = true; }
+
+async function refreshLiveLog(jobs) {
+  const id = state.liveLog;
+  if (!id) return;
+  const pre = $("#live-log-text");
+  try { setLogText(pre, await api(`/api/runs/${id}/log`)); } catch (e) { pre.textContent = e.message; }
+  if ($("#live-log-follow").checked) pre.scrollTop = pre.scrollHeight;
+  const still = jobs ? jobs.some(j => j.id === id) : (jobs === null && state.pollTimer);
+  if (jobs && !still) $("#live-log-title").textContent = $("#live-log-title").textContent.replace(/ — beží$/, " — dobehol");
 }
 
 // --------------------------------------------------------------------------- //
@@ -1212,6 +1261,8 @@ async function init() {
   $("#search-help-btn").onclick = () => $("#search-help").hidden = !$("#search-help").hidden;
   $("#back").onclick = closeDetail;
   $("#git-close").onclick = () => { $("#git-box").hidden = true; };
+  $("#live-log-close").onclick = closeLiveLog;
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#live-log").hidden) closeLiveLog(); });
   $("#load-params").onclick = loadDetailIntoForm;
   $("#delete-run").onclick = async () => {
     if (!confirm("Zmazať tento beh z histórie? (zmaže adresár v runs/)")) return;
