@@ -1,14 +1,18 @@
-# IBS Imbalance Breakout Strategy
+# TradeBot — porty TradingView stratégií do Freqtrade a MultiCharts
 
-Port TradingView (Pine) stratégie do Pythonu: **jedno spoločné jadro** (`tradebot/core`) a dva tenké
-adaptéry — **Freqtrade** (krypto futures, Binance) a **MultiCharts** (MNQ, akcie, forex).
-Cieľ je rovnaké obchody aj rovnaké vykreslovanie ako v TradingView; parita je overená
-golden testom na cent ([GOLDEN_binance_2026-08-24.md](docs/GOLDEN_binance_2026-08-24.md)).
+Rámec pre viac stratégií: **jedno generické jadro** (`tradebot/core`), **registry stratégií**
+(`tradebot/strategies`, každá s vlastným Pine zdrojom, configom, enginom a profilmi) a dva tenké
+adaptéry — **Freqtrade** (krypto futures, Binance) a **MultiCharts** (MNQ, akcie, forex) — plus
+webová aplikácia pre testerov. Cieľ je rovnaké obchody aj rovnaké vykreslovanie ako
+v TradingView; parita je overená golden testom na cent
+([GOLDEN_binance_2026-08-24.md](docs/GOLDEN_binance_2026-08-24.md)).
 
-Stratégia: na detekčnom TF (5m) vznikajú supply/demand zóny, v nich sa hľadá imbalance (gap),
-Pin Bar alebo Engulfing, vstup je limitka na cene gapu, SL zo swingu, TP z pomeru RR.
-Obchoduje sa len v seansách (New York), long only, so štruktúrnym filtrom (BOS/CHoCH)
-a filtrom tesného SL.
+Stratégie v registry (ako pridať ďalšiu: [docs/STRATEGIE.md](docs/STRATEGIE.md)):
+
+| kľúč | stratégia | Pine zdroj |
+|---|---|---|
+| `ibs` | **IBS Imbalance Breakout** — na detekčnom TF (5m) vznikajú supply/demand zóny, v nich sa hľadá imbalance (gap), Pin Bar alebo Engulfing, vstup je limitka na cene gapu, SL zo swingu, TP z pomeru RR; seansy (New York), long only, štruktúrny filter, filter tesného SL | [`pine/imbalance_strategy_FULL.pine`](pine/imbalance_strategy_FULL.pine) |
+| `demo_breakout` | **Demo Donchian Breakout** — ukážka, ktorá overuje rámec end-to-end (8 parametrov); nie je to obchodné odporúčanie | [`pine/demo_breakout.pine`](pine/demo_breakout.pine) |
 
 ---
 
@@ -33,8 +37,8 @@ spustenie postaví prostredie (~10 min) a otvorí prehliadač na http://127.0.0.
 ./webapp.sh         # macOS / Linux
 ```
 
-Vo webapp si nastavíš parametre (všetky Pine vstupy, zoskupené ako v TradingView), vyberieš
-pár a obdobie, spustíš backtest a vidíš kartu s výsledkami, graf výnosnosti ako v Strategy
+Vo webapp si vyberieš stratégiu, nastavíš parametre (všetky jej Pine vstupy, zoskupené ako
+v TradingView), vyberieš pár a obdobie, spustíš backtest a vidíš kartu s výsledkami, graf výnosnosti ako v Strategy
 Testeri, graf páru so všetkým, čo engine v tom behu nakreslil (zóny, TP/SL boxy, štítky,
 štruktúra, S/R…) aj s obchodmi, a zoznam obchodov. História behov vrátane kresieb sa ukladá
 do gitu a dá sa v nej hľadať podľa parametrov. Podrobne: [docs/WEBAPP.md](docs/WEBAPP.md).
@@ -42,7 +46,7 @@ do gitu a dá sa v nej hľadať podľa parametrov. Podrobne: [docs/WEBAPP.md](do
 ### Vývojár — venv, testy, backtest z príkazového riadku
 
 ```powershell
-.\platforms\freqtrade\scripts\setup.ps1           # .venv + freqtrade + ibs (Windows)
+.\platforms\freqtrade\scripts\setup.ps1           # .venv + freqtrade + tradebot (Windows)
 .\platforms\freqtrade\scripts\backtest.ps1 -Timerange 20250904-20260904
 ```
 ```bash
@@ -59,16 +63,17 @@ Docker, sťahovanie dát, hyperopt, MultiCharts a riešenie problémov: [docs/RU
 
 | Cesta | Čo tam je |
 |---|---|
-| [`pine/imbalance_strategy_FULL.pine`](pine/imbalance_strategy_FULL.pine) | **Referenčný Pine skript** (v5, 115 vstupov). Zdroj pravdy pre logiku, defaulty aj tooltipy — testy a webapp ho parsujú priamo. Vedľa neho staršie buildy `imbalance_strategy_SD_IMB.pine` a `Imbalance_strategy.pine` — len na porovnanie, **nie** referencia. |
-| [`tradebot/core/`](tradebot/core) | Jadro bez závislostí: `IBSConfig` (config + validácia), `IBSEngine` (bar-by-bar), stavový automat zón, zóny, hodiny seáns, risk/sizing, `ta/` (štruktúra, S/R, likvidita, Elliott). |
-| [`tradebot/adapters/freqtrade/`](tradebot/adapters/freqtrade) | Freqtrade stratégia `IBSImbalanceStrategy` + runner (engine nad DataFrame, fill model). |
-| [`tradebot/adapters/multicharts/`](tradebot/adapters/multicharts) | MultiCharts signál a kreslenie (len Windows). |
-| [`tradebot/configs/ibs/`](tradebot/configs/ibs) | JSON profily — len odchýlky od Pine defaultov, viď nižšie. |
+| [`pine/`](pine) | Pine zdroje stratégií: `imbalance_strategy_FULL.pine` (**referenčný IBS**, v5, 115 vstupov — zdroj pravdy pre logiku, defaulty aj tooltipy; staršie buildy `imbalance_strategy_SD_IMB.pine` a `Imbalance_strategy.pine` sú len na porovnanie) a `demo_breakout.pine`. |
+| [`tradebot/core/`](tradebot/core) | Generické jadro bez závislostí: `StrategyConfig` (báza configu, profily), `Engine`/`EngineOutput`, `OrderIntent`/`TradePlan`, `BarHistory`, hodiny seáns, `DrawCommand` + `DrawKind` registr, inštrumenty. |
+| [`tradebot/strategies/`](tradebot/strategies) | Registry `STRATEGIES` a jedna stratégia = jeden balík: `ibs/` (config, engine, stavový automat zón, `ta/`, HTF feeder, Freqtrade a MultiCharts podtriedy, meta pre webapp), `demo_breakout/`. Postup: [docs/STRATEGIE.md](docs/STRATEGIE.md). |
+| [`tradebot/adapters/freqtrade/`](tradebot/adapters/freqtrade) | Generická Freqtrade stratégia `TradebotStrategyBase` + `EngineRunner` (engine nad DataFrame, fill model) + export kresieb. |
+| [`tradebot/adapters/multicharts/`](tradebot/adapters/multicharts) | Generická študia `TradebotSignal`, `MCRunner` a kreslenie (len Windows). |
+| [`tradebot/configs/<stratégia>/`](tradebot/configs) | JSON profily — len odchýlky od Pine defaultov, viď nižšie. |
 | [`tradebot/webapp/`](tradebot/webapp) | Webová aplikácia pre testerov (FastAPI + Plotly). |
 | [`tradebot/tools/`](tradebot/tools) | `report` (HTML ako Strategy Tester), `fees` (maker/taker, break-even), `scan_trades`/`scan_zones` (diagnostika), `data_archive` (ročné súbory dát), `plot`. |
 | [`tradebot/tests/`](tradebot/tests) | Testy jadra, adaptérov, webapp a **golden testy** proti TradingView (`golden/`). |
-| [`platforms/freqtrade/`](platforms/freqtrade) | Freqtrade configy (`config.binance.json`, `config.coinbase.json`), skripty, `user_data/` (stratégia-ukazovateľ, hyperopt loss, `data_archive/` so sviečkami, `runs/` s históriou behov z webapp). |
-| [`platforms/multicharts/`](platforms/multicharts) | Štúdia pre MultiCharts a jej inštalačné skripty. |
+| [`platforms/freqtrade/`](platforms/freqtrade) | Freqtrade configy (`config.binance.json`, `config.coinbase.json`), skripty, `user_data/` (shim na stratégiu v `strategies/`, hyperopt loss, `data_archive/` so sviečkami, `runs/` s históriou behov z webapp). |
+| [`platforms/multicharts/`](platforms/multicharts) | Šablóny študií pre MultiCharts (`IBS_Signal.py`, `DemoBreakout_Signal.py`) a inštalačný skript. |
 | [`docker/`](docker) | `docker-compose.yml` (tests, download, backtest, freqtrade bot, webapp). |
 | `webapp.cmd`, `webapp.ps1`, `webapp.sh` | Spúšťače webapp z koreňa repozitára (obaly nad `platforms/freqtrade/scripts/`). |
 | [`CLAUDE.md`](CLAUDE.md) | Pokyny pre Claude Code v dvoch režimoch podľa `.ibs-role` (gitignored, pýta sa raz): **tester** = backtesty do histórie cez `python -m tradebot.webapp.cli`, reštart a aktualizácia webapp, Pull/Push histórie, bez zásahov do kódu; **developer** = bez obmedzení, len konvencie. |
@@ -77,16 +82,17 @@ Docker, sťahovanie dát, hyperopt, MultiCharts a riešenie problémov: [docs/RU
 
 ---
 
-## Profily stratégie (`tradebot/configs/ibs/`)
+## Profily (`tradebot/configs/<stratégia>/`)
 
-Profil = Pine defaulty + odchýlky + `_instrument`. Prepína sa cez `TRADEBOT_PROFILE=<meno>` alebo
-vo webapp.
+Profil = Pine defaulty stratégie + odchýlky + `_strategy` + `_instrument`. Prepína sa cez
+`TRADEBOT_PROFILE=<meno alebo cesta>` alebo vo webapp. Profily IBS (`tradebot/configs/ibs/`):
 
 | Profil | Na čo |
 |---|---|
 | `golden_binance_btcusdt_3m` | **Referenčný na golden test** — presne nastavenia z grafu TradingView na Binance BTCUSDT.P (RR 1, trailing, 1 BTC). Nie na obchodovanie. |
 | `golden_coinbase_btcusd_3m` | Referenčný pre Coinbase BTCUSD — parita jadra s TradingView screenshotmi (MultiCharts a testy). |
 | `multicharts_mnq_3m` | MNQ futures pre MultiCharts, 1:1 s Pine jednotkami. |
+| `demo_breakout/binance_btcusdt_5m` | Jediný profil ukážkovej stratégie (Pine defaulty, páka 5). |
 | ostatné | Skúšané konfigurácie (NY seansa, SL filter, risk sizing, hyperopt…) sú v [docs/profily_archiv/](docs/profily_archiv/ibs/README.md) s tabuľkou odchýlok; načítajú sa cestou (`--profile docs/profily_archiv/ibs/<nazov>.json`). Odporúčaný štart na nasadenie je `btcusdt_3m_binance_ny_sl_risk1` odtiaľ. |
 
 ---

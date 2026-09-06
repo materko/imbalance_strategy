@@ -61,7 +61,11 @@ prehliadači; predvolené je `TRADEBOT_USER` z prostredia, inak `git config user
 
 ## Nový beh
 
-**Východiskový profil** je len balík odchýlok od Pine defaultov. „(Pine defaulty)" dá
+**Stratégia** je prvý select: prepne formulár na parametre zvolenej stratégie, jej profily
+a predvolený timeframe. Stratégie sú v registry `tradebot.strategies.STRATEGIES` (dnes IBS
+Imbalance Breakout a ukážková Demo Donchian Breakout; ako pridať ďalšiu: `docs/STRATEGIE.md`).
+
+**Východiskový profil** je len balík odchýlok od Pine defaultov zvolenej stratégie. „(Pine defaulty)" dá
 presne to, čo má TradingView bez zásahu do nastavení; okrem toho sú na výber iba tri
 referenčné profily z `tradebot/configs/ibs/` (golden test proti TradingView na Binance a Coinbase,
 MultiCharts MNQ) — profil prepne aj pár na ten, pre ktorý je určený. Skúšané konfigurácie
@@ -69,10 +73,11 @@ z vývoja (NY seansa, SL filter, risk sizing…) sú v `docs/profily_archiv/` s 
 odchýlok a dajú sa načítať cestou cez CLI; vo formulári si tie isté hodnoty nastavíš
 ručne alebo cez „Načítať do formulára" z histórie.
 
-**Parametre** sú všetkých 114 polí `IBSConfig` — 110 Pine vstupov v rovnakých
-skupinách, s rovnakými titulkami a tooltipmi ako v TradingView (parsuje sa to
-priamo z `pine/imbalance_strategy_FULL.pine`, takže sa nemôžu rozísť), plus skupina
-„Rozšírenia portu" (`atrLen`, `legacyPineSizing`, `leverage`, `minSlDistance`).
+**Parametre** sú všetky polia configu zvolenej stratégie — Pine vstupy v rovnakých
+skupinách, s rovnakými titulkami a tooltipmi ako v TradingView (parsujú sa priamo z Pine
+súboru stratégie, takže sa nemôžu rozísť), plus skupina „Rozšírenia portu" (polia, ktoré
+Pine nemá). Pri IBS je to 114 polí (`pine/imbalance_strategy_FULL.pine`, rozšírenia `atrLen`,
+`legacyPineSizing`, `leverage`, `minSlDistance`), pri demo stratégii 9.
 Panel vyzerá ako nastavenia v TradingView: vľavo zoznam skupín, vpravo všetky skupiny
 pod sebou v jednom dlhom zozname, ktorý skroluje vo vlastnom okne (stránka stojí) —
 klik na skupinu vľavo naň naskroluje a zvýraznenie sleduje, kde práve si. Jeden parameter na riadok; polia, ktoré Pine kreslí vedľa seba (hodina a minúta seansy,
@@ -88,7 +93,7 @@ vedľa seba „▸ N nastavení skrytých". Hľadanie a „len zmenené" ukážu
 Hlavný prepínač feature má vedľa seba zrkadlový checkbox „kresliť" (IMB entry ↔
 `showImbalance`, S/R ↔ `showSR`, likvidita ↔ `showLiqSweep`) — je to to isté pole ako
 v jeho Pine skupine, len po ruke. Pine defaulty kreslia všetko. Závislosti sú ručná
-tabuľka `FEATURES` v `tradebot/webapp/pine_meta.py`, lebo Pine ich nedeklaruje.
+tabuľka `FEATURES` v `tradebot/strategies/<stratégia>/meta.py`, lebo Pine ich nedeklaruje.
 
 Polia s veľkosťou (`*Points`, `*Ticks`, `minSlDistance`) majú jednotku:
 `abs` cenové body, `ticks` násobky ticku, `atr` násobky ATR grafového TF,
@@ -113,7 +118,7 @@ Rok s 1m detailom trvá zhruba 20–30 sekúnd. ✕ beh zruší (aj bežiaci).
 
 ## História
 
-Tabuľka všetkých behov: pár, obdobie, počet obchodov, PnL %, profit factor, winrate,
+Tabuľka všetkých behov: stratégia, pár, obdobie, počet obchodov, PnL %, profit factor, winrate,
 max drawdown, **break-even poplatok** (% na stranu — koľko smie burza brať, aby beh
 vyšiel na nulu; porovnaj s 0,05 % Binance taker) a odchýlky parametrov od Pine
 defaultov ako štítky.
@@ -129,7 +134,8 @@ rrRatio>=5 useStructureFilter=true pair~ETH pnl>0 note~seansa
 `názov op hodnota`, kde op je `= != > < >= <= ~` (`~` = obsahuje text). Názov je
 ktorýkoľvek parameter configu (SizeSpec sa porovnáva cez hodnotu) alebo skratka
 výsledku: `pnl` (%), `pnl_abs`, `trades`, `pf`, `wr`, `dd`, `be` (break-even),
-`pair`, `timerange`, `fee`, `wallet`, `profile`, `note`, `user`, `status`. Slovo bez
+`pair`, `strategy` (alebo `strat`), `timerange`, `fee`, `wallet`, `profile`, `note`, `user`,
+`status`. Slovo bez
 operátora sa hľadá v poznámke, páre, profile a id.
 
 ### Detail behu
@@ -168,7 +174,7 @@ priamo cez `TRADEBOT_PROFILE=cesta.json` v CLI. **Zmazať** odstráni adresár b
 
 ```
 platforms/freqtrade/user_data/runs/<YYYYMMDD-HHMMSS-odtlačok>/
-    run.json        parametre, nastavenia, výsledok (súhrn), séria pre graf
+    run.json        parametre, nastavenia (vrátane settings.strategy), výsledok (súhrn), séria pre graf
     trades.json     obchody
     log.txt         skrátený log
     chart.json.gz   kresby enginu pre graf páru (zóny, boxy, štítky…)
@@ -183,7 +189,8 @@ sviečky a obchody bez kresieb.
 
 Ako kresby vznikajú: stratégia dostane cez `TRADEBOT_DRAW_OUT` cestu, kam má po backteste
 vysypať finálny stav `DrawRegistry` (rovnaký mechanizmus ako `tradebot.tools.plot`);
-webapp súbor po dobehnutí presunie do adresára behu.
+webapp súbor po dobehnutí presunie do adresára behu. Behy z čias pred registry stratégií
+nemajú `settings.strategy` — čítajú sa ako `ibs`, na disku sa nemenia.
 Tlačidlá **Pull** (`git pull --rebase --autostash`) a **Push** (commitne **len**
 `runs/` a pushne na aktuálnu vetvu) sú v hlavičke; výstup gitu sa zobrazí celý.
 Kód ani iné súbory sa z UI nikdy necommitujú. Autor commitu je meno testera z hlavičky.
@@ -197,7 +204,7 @@ nepotrebuje, všetko podstatné je v `run.json`.
 testera a pre skripty. `run` ide cez API bežiacej webapp (beh vidno vo fronte), a keď
 webapp nebeží, spustí backtest priamo do toho istého `runs/`. `list`/`show` čítajú
 históriu, `pull`/`push` synchronizujú `runs/`, `status` povie, či webapp beží,
-`params` vypíše parametre s rozsahmi.
+`params` vypíše parametre s rozsahmi. `run` aj `params` majú `--strategy <kľúč>` (default `ibs`).
 
 ```bash
 python -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json [--timeframe 5m] \
@@ -222,7 +229,8 @@ inštalátor pre macOS zapisuje `tester` automaticky. Rola sa dá kedykoľvek pr
 
 ## Kód
 
-`tradebot/webapp/`: `pine_meta.py` (metadáta z Pine), `store.py` (behy a vyhľadávanie),
+`tradebot/webapp/`: `pine_meta.py` (metadáta z Pine súboru stratégie, `param_metadata(spec)`),
+`store.py` (behy a vyhľadávanie),
 `runner.py` (fronta, Freqtrade podproces, spracovanie zipu), `chart.py` (sviečky
 z feather súborov po oknách, orezanie kresieb na okno), `gitsync.py`,
 `app.py` (FastAPI), `static/` (stránka bez frameworku, Plotly z CDN).

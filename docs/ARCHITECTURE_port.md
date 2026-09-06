@@ -30,6 +30,16 @@ Vektorizovať sa dajú len čisté indikátory (pivoty, ATR, SMA volume) — tie
 
 ## 2. Rozdelenie balíka
 
+> **Stav 2026-09-06 (registry stratégií).** Balík sa volá `tradebot` a delí sa na generické
+> jadro `tradebot/core` (typy, `StrategyConfig`, `Engine`/`EngineOutput`, `OrderIntent`
+> so `source_id`, `TradePlan`, `DrawCommand` + otvorený `DrawKind` registr, hodiny seáns),
+> registry `tradebot/strategies` (`StrategySpec`; IBS je balík `strategies/ibs/` so
+> stavovým automatom, zónami, `ta/`, HTF feederom a metadátami pre webapp; druhá stratégia
+> je `strategies/demo_breakout/`) a generické adaptéry (`TradebotStrategyBase`,
+> `TradebotSignal`), ktoré konkrétnu stratégiu poznajú len cez spec. Strom nižšie je
+> pôvodný návrh z 2026-09-04 pre jednu stratégiu; postup pridania stratégie je
+> v [STRATEGIE.md](STRATEGIE.md).
+
 ```
 tradebot/
 ├── core/                        # ŽIADNY import z freqtrade ani MultiCharts

@@ -346,24 +346,26 @@ Skript to overí (odmietne venv aj 32-bit) a na záver skúsi načítať profil.
 Potom v MultiCharts:
 1. **PowerLanguage .NET Editor**
 2. **File → New → Signal**, jazyk **Python.NET**
-3. Vlož obsah [`platforms/multicharts/IBS_Signal.py`](../platforms/multicharts/IBS_Signal.py) —
-   sú to štyri riadky, celá logika je v balíku `tradebot`
-4. Na graf pridaj **dve dátové série**:
-   - **Data1** = graf TF (napr. MNQ 3m)
-   - **Data2** = detekčný TF (`zoneDetectionTF`, štandardne 5m)
+3. Vlož obsah šablóny stratégie z [`platforms/multicharts/`](../platforms/multicharts)
+   (`IBS_Signal.py` pre IBS, `DemoBreakout_Signal.py` pre demo) — sú to štyri riadky,
+   celá logika je v balíku `tradebot`
+4. Na graf pridaj **Data1** = graf TF (napr. MNQ 3m) a, ak stratégia potrebuje informatívny
+   TF, **Data2** = ten TF (IBS: `zoneDetectionTF`, štandardne 5m; demo stratégia Data2 nemá)
 
-> **Bez Data2 nevznikne ani jedna SD zóna.** Študia to napíše do Output okna,
+> **IBS bez Data2 nevytvorí ani jednu SD zónu.** Študia to napíše do Output okna,
 > ale inak beží ďalej — je to ľahké prehliadnuť.
 
-Profil sa prepína cez `TRADEBOT_PROFILE` (predvolene `multicharts_mnq_3m`), rovnako ako vo Freqtrade.
+Profil sa prepína cez `TRADEBOT_PROFILE` (predvolene default profil stratégie, IBS
+`multicharts_mnq_3m`) alebo natvrdo cez `PROFILE` v šablóne, rovnako ako vo Freqtrade.
+Ordery študie sa volajú `tb_sl`, `tb_tp` a `tb_session_end`.
 
 Čo robí adaptér:
 
 | súbor | zodpovednosť |
 |---|---|
-| `tradebot/adapters/multicharts/runner.py` | prevedie engine cez `CalcBar`, drží živé ordre a HTF okno |
+| `tradebot/adapters/multicharts/runner.py` | `MCRunner`: prevedie engine stratégie cez `CalcBar`, drží živé ordre a informatívne okno (feeder zo `StrategySpec`) |
 | `tradebot/adapters/multicharts/drawing.py` | `DrawCommand` → `DrwRectangle` / `DrwTrendLine` / `DrwText` |
-| `tradebot/adapters/multicharts/signal.py` | jediný súbor, ktorý sa dotýka PowerLanguage API |
+| `tradebot/adapters/multicharts/signal.py` | `TradebotSignal` — jediný súbor, ktorý sa dotýka PowerLanguage API; stratégia je podtrieda (`tradebot/strategies/<key>/multicharts.py`) |
 
 Prvé dva sú zámerne bez závislosti na PowerLanguage, takže sa testujú na obyčajnom
 Pythone (`tradebot/tests/test_multicharts.py`) — vrátane testu, že MultiCharts runner dá
@@ -417,6 +419,11 @@ Okrem testov sú tu dva nástroje na overenie proti reálnym dátam:
 ---
 
 ## G. Konfiguračné profily
+
+Profily sú per stratégia v `tradebot/configs/<stratégia>/` (kľúč `_strategy`), načítajú sa
+menom (`load_profile("ibs/golden_binance_btcusdt_3m")`, holé meno = stratégia `ibs`) alebo
+cestou k JSON. Po premenovaní balíka `ibs` → `tradebot` (2026-09-06) treba v existujúcom
+prostredí raz `pip install -e .` (setup skripty to robia a starý balík `ibs` odinštalujú).
 
 Nastavenia stratégie **nie sú** vo Freqtrade configu — tie sú v `tradebot/configs/ibs/`:
 
