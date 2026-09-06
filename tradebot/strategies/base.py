@@ -65,6 +65,8 @@ class StrategySpec:
     #: názvy tried v adaptéroch (shim vo Freqtrade user_data, šablóna v MultiCharts)
     freqtrade_class: str = ""
     multicharts_class: str = ""
+    #: názov šablóny študie v platforms/multicharts/ (kopíruje sa do PowerLanguage editora)
+    multicharts_template: str = ""
     #: informatívne TF, ktoré adaptér musí dodať (Freqtrade informative pairs, MC Data2)
     informative_tfs: Callable[[StrategyConfig], list[str]] | None = None
     #: (cfg, chart_tf_minutes) -> feeder s `load/feed/window_for`, alebo None (engine bez HTF)

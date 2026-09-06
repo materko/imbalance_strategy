@@ -84,6 +84,10 @@ class HTFFeeder:
         #: koľko barov držať pri inkrementálnom kŕmení (`None` = všetko, backtest)
         self.keep = keep
 
+    def limit_history(self) -> None:
+        """Držať len toľko barov, koľko treba na okno + SMA (inkrementálne kŕmenie v MultiCharts)."""
+        self.keep = self.vol_sma_len + HTFWindow.REQUIRED_BARS + 8
+
     def load(self, bars: dict[int, Bar], vol_sma: dict[int, float]) -> None:
         """Predpočítané bary a SMA (Freqtrade: `rolling(volSmaLen).mean()`, NaN -> 0)."""
         self.bars = bars

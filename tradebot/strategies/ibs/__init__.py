@@ -39,6 +39,7 @@ SPEC = StrategySpec(
     engine_factory=IBSEngine,
     freqtrade_class="IBSImbalanceStrategy",
     multicharts_class="IBSSignal",
+    multicharts_template="IBS_Signal.py",
     informative_tfs=lambda cfg: [f"{int(cfg.zoneDetectionTF)}m"],
     htf_feeder=HTFFeeder,
 )
