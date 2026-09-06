@@ -4,32 +4,36 @@ Importuje sa **až vnútri MultiCharts**; na obyčajnom Pythone `import PowerLan
 zlyhá, preto je `tradebot.adapters.multicharts.__init__` lazy a testy sem nesiahajú.
 
 Všetko rozhodovanie je v `runner.py` a `drawing.py` — tu je len preklad volaní.
+`TradebotSignal` je generická študia; konkrétna stratégia je podtrieda so
+`STRATEGY_KEY` (viď `tradebot/strategies/ibs/multicharts.py`).
 
 ### Ako to nasadiť
-1. `platforms/multicharts/scripts/setup.ps1` (nainštaluje `ibs` do globálneho Pythonu)
+1. `platforms/multicharts/scripts/setup.ps1` (nainštaluje `tradebot` do globálneho Pythonu)
 2. PowerLanguage .NET Editor → **File → New → Signal**, jazyk **Python.NET**
-3. Do súboru dať::
+3. Vložiť šablónu `platforms/multicharts/<Strategia>_Signal.py`, napr.::
 
-       from tradebot.adapters.multicharts.signal import IBSSignal as _IBSSignal
+       from tradebot.strategies.ibs.multicharts import IBSSignal
 
-       class IBS(_IBSSignal):
+       class IBS(IBSSignal):
            pass
 
-4. Na graf pridať **Data1 = graf TF** (3m) a **Data2 = detekčný TF** (`zoneDetectionTF`, 5m).
-   Bez Data2 nevznikne ani jedna SD zóna a študia to zahlási v `StartCalc`.
+4. Na graf pridať **Data1 = graf TF** a **Data2 = informatívny TF**, ak ho stratégia
+   potrebuje (IBS: `zoneDetectionTF`, 5m). Bez Data2 nevznikne ani jedna SD zóna
+   a študia to zahlási v `StartCalc`.
 """
 
 from __future__ import annotations
 
-import os
+from typing import ClassVar
 
 from tradebot.core.env import getenv
 
 from ...core import Bar, load_profile
+from ...strategies import get_spec
 from .drawing import MCDrawSink
 from .runner import MCRunner
 
-__all__ = ["IBSSignal", "PowerLanguageCanvas"]
+__all__ = ["TradebotSignal", "PowerLanguageCanvas"]
 
 try:  # pragma: no cover - beží len v MultiCharts
     from PowerLanguage import SignalObject
@@ -115,38 +119,48 @@ class PowerLanguageCanvas:
         obj.Delete()
 
 
-class IBSSignal(SignalObject):
-    """`Create → StartCalc → CalcBar → Destroy`, ako každá MultiCharts študia."""
+class TradebotSignal(SignalObject):
+    """`Create → StartCalc → CalcBar → Destroy`, ako každá MultiCharts študia.
 
-    #: Profil sa berie z premennej prostredia, aby sa nemusel meniť kód študie.
-    PROFILE = getenv("PROFILE", "multicharts_mnq_3m")
+    Podtrieda nastaví `STRATEGY_KEY`; profil sa berie z `PROFILE` (natvrdo v šablóne),
+    inak z `TRADEBOT_PROFILE`, inak default profil stratégie — až v `StartCalc`, nie
+    pri importe, aby zmena prostredia platila bez reštartu.
+    """
+
+    STRATEGY_KEY: ClassVar[str] = ""
+    #: Profil natvrdo (názov z tradebot/configs/<stratégia> alebo cesta); None = prostredie.
+    PROFILE: ClassVar[str | None] = None
 
     def __init__(self, ctx):  # pragma: no cover - beží len v MultiCharts
         super().__init__(ctx)
         self.runner: MCRunner | None = None
         self.sink: MCDrawSink | None = None
         self._entries: dict[str, object] = {}
+        self._informative_tfs: list[str] = []
 
     # ------------------------------------------------------------------ #
 
     def StartCalc(self):  # pragma: no cover - beží len v MultiCharts
-        cfg, inst = load_profile(self.PROFILE)
-        warnings = cfg.check_instrument(inst)
-        for w in warnings:
-            self.Output.WriteLine(f"IBS config: {w}")
+        spec = get_spec(self.STRATEGY_KEY)
+        profile = self.PROFILE or getenv("PROFILE") or spec.default_profile
+        cfg, inst = load_profile(profile, strategy=spec.key)
+        for w in cfg.check_instrument(inst):
+            self.Output.WriteLine(f"{spec.key} config: {w}")
 
         chart_tf = int(self.Bars.Info.Resolution.Size)
-        self.runner = MCRunner(cfg, inst, chart_tf)
+        self.runner = MCRunner(cfg, inst, chart_tf, spec=spec)
         self.sink = MCDrawSink(PowerLanguageCanvas(self))
+        self._informative_tfs = list(spec.informative_tfs(cfg)) if spec.informative_tfs else []
 
-        if self.BarsOfData(2) is None:
+        if self._informative_tfs and self.BarsOfData(2) is None:
             self.Output.WriteLine(
-                "IBS: CHYBA - na grafe nie je Data2. Pridaj detekcny TF "
-                f"({cfg.zoneDetectionTF}m), inak nevznikne ani jedna SD zona."
+                f"{spec.key}: CHYBA - na grafe nie je Data2. Pridaj informativny TF "
+                f"({self._informative_tfs[0]}), inak strategia nema z coho pocitat."
             )
 
     def CalcBar(self):  # pragma: no cover - beží len v MultiCharts
-        self._feed_htf()
+        if self._informative_tfs:
+            self._feed_htf()
         bar = self._bar(self.Bars)
         out = self.runner.on_bar(bar, position_size=float(self.StrategyInfo.MarketPosition))
 
@@ -178,7 +192,7 @@ class IBSSignal(SignalObject):
         )
 
     def _feed_htf(self):  # pragma: no cover - beží len v MultiCharts
-        """Data2 = detekčný TF. Berie sa až **uzavretý** bar, teda offset [1]."""
+        """Data2 = informatívny TF stratégie. Berie sa až **uzavretý** bar, teda offset [1]."""
         d2 = self.BarsOfData(2)
         if d2 is None or d2.CurrentBar < 2:
             return
@@ -224,7 +238,7 @@ class IBSSignal(SignalObject):
         order = self._entries.get("__session_end")
         if order is None:
             order = self.OrderCreator.MarketNextBar(
-                SignalType.UserSpecified, OrderCategory.Exit, action, "ibs_session_end"
+                SignalType.UserSpecified, OrderCategory.Exit, action, "tb_session_end"
             )
             self._entries["__session_end"] = order
         order.Send()
@@ -241,14 +255,23 @@ class IBSSignal(SignalObject):
         stop = self._entries.get("__sl")
         if stop is None:
             stop = self.OrderCreator.Stop(
-                SignalType.UserSpecified, OrderCategory.Exit, action, "ibs_sl"
+                SignalType.UserSpecified, OrderCategory.Exit, action, "tb_sl"
             )
             self._entries["__sl"] = stop
         target = self._entries.get("__tp")
         if target is None:
             target = self.OrderCreator.Limit(
-                SignalType.UserSpecified, OrderCategory.Exit, action, "ibs_tp"
+                SignalType.UserSpecified, OrderCategory.Exit, action, "tb_tp"
             )
             self._entries["__tp"] = target
         stop.Send(plan.stop_loss if stop_price is None else stop_price)
         target.Send(plan.take_profit)
+
+
+def __getattr__(name: str):
+    """Spätná kompatibilita: `IBSSignal` žije v `tradebot.strategies.ibs.multicharts`."""
+    if name == "IBSSignal":
+        from tradebot.strategies.ibs.multicharts import IBSSignal
+
+        return IBSSignal
+    raise AttributeError(name)

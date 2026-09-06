@@ -55,11 +55,16 @@ if ($LASTEXITCODE -ne 0) { throw "pip install -e zlyhalo" }
 
 Write-Host "Overujem import..."
 & $exe -c @"
+import importlib
 from tradebot.core import load_profile, list_profiles
-print('profily:', list_profiles())
-cfg, inst = load_profile('multicharts_mnq_3m')
-print('multicharts_mnq_3m ->', inst.symbol, 'tick', inst.tick_size, 'point_value', inst.point_value)
+from tradebot.strategies import STRATEGIES
 from tradebot.adapters.multicharts import MCRunner, MCDrawSink
+for key, spec in STRATEGIES.items():
+    print(key, '- profily:', list_profiles(key))
+    cfg, inst = load_profile(f'{key}/{spec.default_profile}')
+    runner = MCRunner(cfg, inst, 3, spec=spec)
+    cls = getattr(importlib.import_module(f'tradebot.strategies.{key}.multicharts'), spec.multicharts_class)
+    print(' ', spec.default_profile, '->', inst.symbol, 'tick', inst.tick_size, '| studia', cls.__name__, '| sablona', spec.multicharts_template)
 print('adapter: MCRunner + MCDrawSink OK')
 "@
 if ($LASTEXITCODE -ne 0) { throw "import tradebot zlyhal" }
@@ -68,8 +73,8 @@ Write-Host ""
 Write-Host "Hotovo. V MultiCharts:" -ForegroundColor Green
 Write-Host "  1. Otvor PowerLanguage .NET Editor"
 Write-Host "  2. File -> New -> Signal, jazyk: Python.NET"
-Write-Host "  3. Vloz obsah platforms\multicharts\IBS_Signal.py"
-Write-Host "  4. Na graf pridaj DVE serie: Data1 = graf TF, Data2 = detekcny TF (5m)"
+Write-Host "  3. Vloz obsah sablony platforms\multicharts\<Strategia>_Signal.py (IBS: IBS_Signal.py)"
+Write-Host "  4. Na graf pridaj DVE serie: Data1 = graf TF, Data2 = informativny TF strategie (IBS: 5m)"
 Write-Host "     Bez Data2 nevznikne ani jedna SD zona."
 Write-Host ""
 Write-Host "Ak MultiCharts hlasi, ze modul nenasiel, ma nastaveny INY Python."

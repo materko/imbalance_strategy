@@ -23,21 +23,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from ...core import (
-    Bar,
-    DrawCommand,
-    HTFWindow,
-    IBSConfig,
-    IBSEngine,
-    InstrumentSpec,
-    MarketContext,
-    SessionClock,
-    htf_window_opens,
-)
-from ...core.risk import TradePlan
-from ...strategies.ibs.htf import HTFFeeder, HTFWindow
+from ...core import Bar, DrawCommand, InstrumentSpec, MarketContext
+from ...core.config import StrategyConfig
 from ...core.orders import OrderAction, OrderIntent
+from ...core.risk import TradePlan
 from ...core.types import Direction
+from ...strategies import StrategySpec, spec_for_config
 
 __all__ = ["LiveOrder", "MCRunner", "BarOutput"]
 
@@ -47,7 +38,8 @@ class LiveOrder:
     """Order, ktorý má tento bar ležať na trhu."""
 
     order_id: str
-    zone_uid: int
+    #: identita zdroja signálu (IBS: uid zóny)
+    source_id: int
     direction: Direction
     plan: TradePlan
     #: True = poslať ako market (Pin Bar / Engulfing s `pbEngOrderType=Market`)
@@ -56,6 +48,11 @@ class LiveOrder:
     @property
     def is_long(self) -> bool:
         return self.direction is Direction.LONG
+
+    @property
+    def zone_uid(self) -> int:
+        """IBS názov toho istého poľa."""
+        return self.source_id
 
 
 @dataclass
@@ -77,20 +74,27 @@ class BarOutput:
 
 
 class MCRunner:
-    """Jeden graf = jeden runner. Volaj `on_bar` presne raz za uzavretý bar."""
+    """Jeden graf = jeden runner. Volaj `on_bar` presne raz za uzavretý bar.
 
-    def __init__(self, cfg: IBSConfig, inst: InstrumentSpec, chart_tf_minutes: int) -> None:
+    Stratégia sa berie z registry podľa triedy configu (`spec_for_config`).
+    """
+
+    def __init__(self, cfg: StrategyConfig, inst: InstrumentSpec, chart_tf_minutes: int,
+                 spec: StrategySpec | None = None) -> None:
+        self.spec = spec or spec_for_config(cfg)
         self.cfg = cfg
         self.inst = inst
         self.chart_tf_minutes = chart_tf_minutes
         self.step_ms = chart_tf_minutes * 60_000
-        self.engine = IBSEngine(cfg, inst, chart_tf_minutes)
-        self.clock = SessionClock(cfg)
+        assert self.spec.engine_factory is not None, f"{self.spec.key}: chýba engine_factory"
+        self.engine = self.spec.engine_factory(cfg, inst, chart_tf_minutes)
 
-        #: okno detekčného TF (Data2) — jedna implementácia pre Freqtrade aj MultiCharts;
-        #: drží len toľko histórie, koľko treba na okno + SMA.
-        self.htf = HTFFeeder(cfg, chart_tf_minutes, keep=cfg.volSmaLen + HTFWindow.REQUIRED_BARS + 8)
-        self.htf_ms = self.htf.htf_ms
+        #: feeder informatívneho TF (Data2; IBS: okno detekčného TF zón) alebo None —
+        #: jedna implementácia pre Freqtrade aj MultiCharts, tu drží len minimum histórie.
+        self.htf = self.spec.htf_feeder(cfg, chart_tf_minutes) if self.spec.htf_feeder else None
+        if self.htf is not None and hasattr(self.htf, "limit_history"):
+            self.htf.limit_history()
+        self.htf_ms = getattr(self.htf, "htf_ms", None)
         #: order_id -> LiveOrder; posiela sa znova, kým z množiny nevypadne
         self._live: dict[str, LiveOrder] = {}
         #: plán obchodu, ktorý sa práve drží (na SL/TP výstupy)
@@ -105,16 +109,20 @@ class MCRunner:
     # ------------------------------------------------------------------ #
 
     def feed_htf(self, bar: Bar) -> None:
-        """Zaeviduje uzavretý bar detekčného TF (v MultiCharts `Data2`) — viď `HTFFeeder.feed`."""
-        self.htf.feed(bar)
+        """Zaeviduje uzavretý bar informatívneho TF (MultiCharts `Data2`) — viď `HTFFeeder.feed`.
+
+        Stratégia bez informatívneho TF ho ignoruje.
+        """
+        if self.htf is not None:
+            self.htf.feed(bar)
 
     @property
     def htf_bars(self) -> dict[int, Bar]:
-        return self.htf.bars
+        return self.htf.bars if self.htf is not None else {}
 
     @property
     def htf_vol_sma(self) -> dict[int, float]:
-        return self.htf.vol_sma
+        return self.htf.vol_sma if self.htf is not None else {}
 
     # ------------------------------------------------------------------ #
     # hlavný krok
@@ -130,13 +138,15 @@ class MCRunner:
             return BarOutput()  # MultiCharts vie zavolať CalcBar na tom istom bare
         self.last_ts = bar.time
 
-        state = self.clock.state(bar.time)
+        # Obchodné okno si engine nastaví sám (IBS z vlastných hodín seáns); stratégia
+        # bez seáns obchoduje vždy.
         ctx = MarketContext(
-            in_trade_window=state.in_trade_window,
+            in_trade_window=True,
             position_size=position_size,
             open_order_ids=frozenset(self._live),
         )
-        out = self.engine.on_bar(bar, self.htf.window_for(bar.time), ctx)
+        htf = self.htf.window_for(bar.time) if self.htf is not None else None
+        out = self.engine.on_bar(bar, htf, ctx)
 
         result = BarOutput(drawings=list(out.drawings), close_session=out.close_session)
         for intent in out.orders:
@@ -194,7 +204,7 @@ class MCRunner:
 
         return LiveOrder(
             order_id=intent.order_id,
-            zone_uid=intent.zone_uid,
+            source_id=intent.source_id,
             direction=intent.direction,
             plan=intent.plan,
             market=intent.order_type is OrderType.MARKET,

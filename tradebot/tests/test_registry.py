@@ -79,6 +79,20 @@ def test_freqtrade_shim_exists_with_matching_class(spec):
     assert f"class {spec.freqtrade_class}(" in shim.read_text(encoding="utf-8")
 
 
+@pytest.mark.parametrize("spec", SPECS, ids=IDS)
+def test_multicharts_signal_class_and_template(spec):
+    """Študia musí existovať bez PowerLanguage (import je lazy) a šablóna ju musí importovať."""
+    import importlib
+
+    assert spec.multicharts_class and spec.multicharts_template
+    mod = importlib.import_module(f"tradebot.strategies.{spec.key}.multicharts")
+    cls = getattr(mod, spec.multicharts_class)
+    assert cls.STRATEGY_KEY == spec.key
+    template = REPO / "platforms" / "multicharts" / spec.multicharts_template
+    assert template.exists(), f"{spec.key}: chýba šablóna {template}"
+    assert spec.multicharts_class in template.read_text(encoding="utf-8")
+
+
 def test_drawkind_registry_is_open_and_stable():
     a = DrawKind.register("test_kind_x", "TEST_KIND_X")
     b = DrawKind.register("test_kind_x", "TEST_KIND_X")
