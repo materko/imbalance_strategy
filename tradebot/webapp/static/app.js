@@ -672,7 +672,7 @@ async function pollQueue() {
   if (!jobs.length) {
     box.innerHTML = `<div class="muted">Nič nebeží.</div>`;
     if (state.pollTimer) { clearTimeout(state.pollTimer); state.pollTimer = null; if (!$("#view-history").hidden) loadRuns(); }
-    await refreshLiveLog(null);
+    await refreshLiveLog([]);
     return;
   }
   // Prvky behov sa držia a len aktualizujú — prekreslenie celého HTML každé 2 s by
@@ -721,7 +721,7 @@ function openLiveLog(job) {
   $("#live-log").hidden = false;
   $("#live-log-title").textContent = `${job.settings.pair} · ${job.settings.timeframe || "3m"} · ${job.settings.timerange}${job.note ? " · " + job.note : ""} — beží`;
   $("#live-log-text").textContent = "";
-  refreshLiveLog(null);
+  refreshLiveLog();
 }
 
 function closeLiveLog() { state.liveLog = null; $("#live-log").hidden = true; }
@@ -732,8 +732,8 @@ async function refreshLiveLog(jobs) {
   const pre = $("#live-log-text");
   try { setLogText(pre, await api(`/api/runs/${id}/log`)); } catch (e) { pre.textContent = e.message; }
   if ($("#live-log-follow").checked) pre.scrollTop = pre.scrollHeight;
-  const still = jobs ? jobs.some(j => j.id === id) : (jobs === null && state.pollTimer);
-  if (jobs && !still) $("#live-log-title").textContent = $("#live-log-title").textContent.replace(/ — beží$/, " — dobehol");
+  // `jobs` je stav fronty z pollQueue; bez neho (otvorenie okna) sa nadpis nemení
+  if (jobs !== undefined && !jobs.some(j => j.id === id)) $("#live-log-title").textContent = $("#live-log-title").textContent.replace(/ — beží$/, " — dobehol");
 }
 
 // --------------------------------------------------------------------------- //
