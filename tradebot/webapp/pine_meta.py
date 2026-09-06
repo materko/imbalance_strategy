@@ -23,6 +23,26 @@ REPO = Path(__file__).resolve().parents[2]
 PINE_FILE = IBS_SPEC.pine_path
 REMOVED_INPUTS = IBS_SPEC.removed_inputs
 FEATURES = IBS_SPEC.features
+INERT_INPUTS = IBS_SPEC.inert_inputs
+
+#: Pine vstupy, ktoré v configu ostali kvôli parite panela, ale v porte nerobia nič,
+#: takže vo formulári len zavadzajú. V `IBSConfig` ostávajú, aby profil sedel s TV
+#: panelom, a do uloženého profilu sa zapíšu s Pine defaultom.
+#:
+#: `alert*` posielali notifikáciu TradingView — vo Freqtrade notifikácie rieši sám
+#: Freqtrade (Telegram) v live režime, v backteste nemajú význam.
+#:
+#: `showDashboard`, `showTradeLog`, `showDebugTable` a ich pozície/počty riadkov kreslili
+#: tabuľky **na graf v TradingView**. Port ich nekreslí a ani nemá kam — históriu behov,
+#: zoznam obchodov aj dôvody výstupu ukazuje webapp vo vlastných tabuľkách. Kresliaci
+#: prepínač `showImbalance` medzi ne nepatrí: ten engine číta (`engine.py`) a rozhoduje,
+#: či sa do kresieb behu dostanú imbalance boxy.
+INERT_INPUTS = {
+    "alertOnState2", "alertOnState3", "alertOnState4",
+    "showDashboard", "dashPos", "dashboardRows",
+    "showTradeLog", "tradeLogRows",
+    "showDebugTable", "debugTableRows", "debugPos",
+}
 
 PORT_GROUP = "🧩 Rozšírenia portu (nie sú v Pine)"
 
@@ -176,7 +196,7 @@ def param_metadata(spec: StrategySpec | str | None = None) -> list[dict[str, Any
 
     metas: list[ParamMeta] = []
     for name in cfg_fields:
-        if name in spec.removed_inputs:
+        if name in spec.removed_inputs or name in spec.inert_inputs:
             continue
         default = getattr(defaults, name)
         if name in pine:

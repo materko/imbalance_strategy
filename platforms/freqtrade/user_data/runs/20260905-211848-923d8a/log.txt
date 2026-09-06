@@ -1,0 +1,402 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m freqtrade backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\platforms\freqtrade\config.binance.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\platforms\freqtrade\user_data --strategy IBSImbalanceStrategy --cache none --export trades --timerange 20250904-20260904 --pairs ETH/USDT:USDT --timeframe 3m --dry-run-wallet 10000.0 --fee 0.0005 --timeframe-detail 1m
+2026-09-05 23:18:48,460 - freqtrade - INFO - freqtrade 2026.8
+2026-09-05 23:18:48,641 - numexpr.utils - INFO - Note: NumExpr detected 24 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 16.
+2026-09-05 23:18:48,641 - numexpr.utils - INFO - NumExpr defaulting to 16 threads.
+2026-09-05 23:18:49,895 - freqtrade.configuration.load_config - INFO - Using config: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\platforms\freqtrade\config.binance.json ...
+… (skrátené) …
+2026-09-05 23:18:51,628 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSImbalanceStrategy from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\platforms\freqtrade\user_data\strategies\IBSImbalanceStrategy.py'...
+2026-09-05 23:18:51,634 - ibs.adapters.freqtrade.strategy - WARNING - IBS config: engMinRangePoints, ewMinWavePoints, liqSweepMinWick, minImbSizePoints, pbMinRangePoints, srClusterPoints sú v 
+2026-09-05 23:18:53,489 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSImbalanceStrategy
+2026-09-05 23:19:06,755 - ibs.adapters.freqtrade.strategy - INFO - IBS ETH/USDT:USDT: 175501 barov, 105421 HTF barov, 200 zon, 67 signalov (29 long / 38 short)
+2026-09-05 23:19:06,996 - ibs.adapters.freqtrade.strategy - INFO - IBS ETH/USDT:USDT: kresby ulozene do 
+2026-09-05 23:19:07,324 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 152120.15 na 9900.00 (6.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,390 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 95899.75 na 9912.76 (10.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,410 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 118249.86 na 9938.74 (8.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,448 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 185450.61 na 9899.77 (5.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,491 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 73420.37 na 9908.03 (13.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,509 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 72422.53 na 9851.46 (13.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,521 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 48287.57 na 9851.46 (20.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,616 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 82043.24 na 9911.89 (12.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,626 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 119902.36 na 9911.89 (8.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,645 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 56606.74 na 9911.89 (17.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,665 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 62891.31 na 9841.47 (15.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,678 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 40137.76 na 9777.50 (24.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,695 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 60364.47 na 9683.44 (16.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,714 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 107697.74 na 9729.46 (9.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,723 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 37878.95 na 9751.14 (25.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,775 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 155387.39 na 9830.95 (6.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,795 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 51011.57 na 9799.32 (19.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,813 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 89922.39 na 9799.32 (10.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,845 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 58003.52 na 9799.32 (16.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,852 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 33595.08 na 9848.18 (29.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,867 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 51010.56 na 9848.18 (19.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,878 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 52760.15 na 9848.18 (18.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,902 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 104203.42 na 9903.13 (9.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,916 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 72322.94 na 9860.42 (13.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,965 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 141528.09 na 9897.91 (7.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:07,986 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 116076.65 na 9912.33 (8.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,003 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 107586.38 na 9932.09 (9.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,027 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 86127.22 na 9890.29 (11.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,075 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 59277.20 na 9920.30 (16.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,098 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 33748.54 na 9852.50 (29.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,190 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 71662.10 na 9944.14 (13.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,282 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 64767.90 na 9982.34 (15.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,373 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 53674.70 na 9918.10 (18.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,443 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 68702.25 na 9918.10 (14.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,502 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 37579.86 na 9858.29 (26.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,531 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 139203.99 na 9757.64 (7.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,539 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 63896.77 na 9757.64 (15.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,558 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 64066.55 na 9800.91 (15.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,581 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 120642.99 na 9800.91 (8.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,595 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 56935.70 na 9763.08 (17.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,607 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 35568.93 na 9694.07 (27.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,682 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 126520.40 na 9590.11 (7.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,691 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 36183.31 na 9606.89 (26.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,712 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 71131.71 na 9505.34 (13.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,739 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 32986.69 na 9449.66 (28.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,765 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 83838.15 na 9539.60 (11.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,808 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 34494.95 na 9539.60 (27.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,855 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 49134.95 na 9625.92 (19.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,894 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 127518.52 na 9625.92 (7.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:08,904 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 36621.45 na 9625.92 (26.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,006 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 85905.63 na 9607.01 (11.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,040 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 76347.13 na 9636.00 (12.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,089 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 54693.07 na 9582.76 (17.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,102 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 135398.04 na 9512.54 (7.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,108 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 111154.81 na 9478.77 (8.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,131 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 56929.68 na 9498.92 (16.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,141 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 41465.13 na 9498.92 (22.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,209 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 139240.29 na 9410.17 (6.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,245 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 48321.82 na 9377.47 (19.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,331 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 73199.56 na 9364.58 (12.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,415 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 109864.55 na 9399.61 (8.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,474 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 78851.28 na 9419.96 (11.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,656 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 68373.82 na 9452.05 (13.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,758 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 82627.24 na 9490.57 (11.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,828 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 59506.87 na 9441.41 (15.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,848 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 73550.37 na 9487.00 (12.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+2026-09-05 23:19:09,908 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 73517.23 na 9447.11 (12.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+Result for strategy IBSImbalanceStrategy
+│ IBSImbalanceStrategy │     53 │        -0.10 │        -511.859 │        -5.12 │      1:00:00 │   26     0    27  49.1 │ 624.005 USDT  6.19% │
+…
+cely.
+2026-09-05 23:19:07,845 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 58003.52 na 9799.32 (16.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:07,852 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 33595.08 na 9848.18 (29.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:07,867 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 51010.56 na 9848.18 (19.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:07,878 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 52760.15 na 9848.18 (18.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:07,902 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 104203.42 na 9903.13 (9.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:07,916 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 72322.94 na 9860.42 (13.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:07,965 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 141528.09 na 9897.91 (7.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:07,986 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 116076.65 na 9912.33 (8.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,003 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 107586.38 na 9932.09 (9.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,027 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 86127.22 na 9890.29 (11.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,075 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 59277.20 na 9920.30 (16.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,098 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 33748.54 na 9852.50 (29.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,190 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 71662.10 na 9944.14 (13.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,282 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 64767.90 na 9982.34 (15.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,373 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 53674.70 na 9918.10 (18.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,443 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 68702.25 na 9918.10 (14.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,502 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 37579.86 na 9858.29 (26.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,531 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 139203.99 na 9757.64 (7.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,539 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 63896.77 na 9757.64 (15.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,558 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 64066.55 na 9800.91 (15.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,581 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 120642.99 na 9800.91 (8.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,595 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 56935.70 na 9763.08 (17.1% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,607 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 35568.93 na 9694.07 (27.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,682 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 126520.40 na 9590.11 (7.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,691 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 36183.31 na 9606.89 (26.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,712 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 71131.71 na 9505.34 (13.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,739 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 32986.69 na 9449.66 (28.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,765 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 83838.15 na 9539.60 (11.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,808 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 34494.95 na 9539.60 (27.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,855 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 49134.95 na 9625.92 (19.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,894 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 127518.52 na 9625.92 (7.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:08,904 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 36621.45 na 9625.92 (26.3% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,006 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 85905.63 na 9607.01 (11.2% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,040 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 76347.13 na 9636.00 (12.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,089 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 54693.07 na 9582.76 (17.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,102 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 135398.04 na 9512.54 (7.0% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,108 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 111154.81 na 9478.77 (8.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,131 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 56929.68 na 9498.92 (16.7% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,141 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 41465.13 na 9498.92 (22.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,209 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 139240.29 na 9410.17 (6.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,245 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 48321.82 na 9377.47 (19.4% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,331 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 73199.56 na 9364.58 (12.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,415 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 109864.55 na 9399.61 (8.6% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,474 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 78851.28 na 9419.96 (11.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,656 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 68373.82 na 9452.05 (13.8% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,758 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 82627.24 na 9490.57 (11.5% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,828 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 59506.87 na 9441.41 (15.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,848 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 73550.37 na 9487.00 (12.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-05 23:19:09,908 - ibs.adapters.freqtrade.strategy - WARNING - IBS ETH/USDT:USDT: stake orezany z 73517.23 na 9447.11 (12.9% z chceneho). maxLossDollar=350 sa pri tomto SL a zostatku neuplatni 
+cely.
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 4/4           100% • 0:00:15 • 0:00:00
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 175200/175200 100% • 0:00:17 • 0:00:00
+2026-09-05 23:19:11,108 - freqtrade.misc - INFO - dumping json to 
+"C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\platforms\freqtrade\user_data\backtest_results\backtest-result-2026-09-05_21-19-11.meta.json"
+Result for strategy IBSImbalanceStrategy
+                                                BACKTESTING REPORT                                                
+┌───────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│          Pair │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ ETH/USDT:USDT │     53 │         -0.1 │        -511.859 │        -5.12 │      1:00:00 │   26     0    27  49.1 │
+│         TOTAL │     53 │         -0.1 │        -511.859 │        -5.12 │      1:00:00 │   26     0    27  49.1 │
+└───────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                          
+┌───────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│  Pair │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ TOTAL │      0 │          0.0 │           0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                    ENTER TAG STATS                                                    
+┌───────────────────┬─────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│         Enter Tag │ Entries │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────────┼─────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ ibs:1765813860000 │       1 │         0.94 │          92.563 │         0.93 │      1:38:00 │    1     0     0   100 │
+│ ibs:1770827220000 │       1 │         0.96 │          90.850 │         0.91 │      0:18:00 │    1     0     0   100 │
+│ ibs:1772642340000 │       1 │         0.91 │          87.185 │         0.87 │      2:21:00 │    1     0     0   100 │
+│ ibs:1761145920000 │       1 │         0.83 │          80.616 │         0.81 │      2:41:00 │    1     0     0   100 │
+│ ibs:1758899700000 │       1 │         0.62 │          61.043 │         0.61 │      1:03:00 │    1     0     0   100 │
+│ ibs:1763652780000 │       1 │         0.56 │          55.511 │         0.56 │      0:23:00 │    1     0     0   100 │
+│ ibs:1763050860000 │       1 │          0.5 │          49.354 │         0.49 │      0:15:00 │    1     0     0   100 │
+│ ibs:1760973120000 │       1 │         0.48 │          46.479 │         0.46 │      0:42:00 │    1     0     0   100 │
+│ ibs:1787299560000 │       1 │         0.49 │          46.054 │         0.46 │      0:24:00 │    1     0     0   100 │
+│ ibs:1769446620000 │       1 │         0.45 │          43.709 │         0.44 │      0:32:00 │    1     0     0   100 │
+│ ibs:1783069380000 │       1 │         0.41 │          38.904 │         0.39 │      1:06:00 │    1     0     0   100 │
+│ ibs:1766769840000 │       1 │         0.39 │          38.589 │         0.39 │      3:18:00 │    1     0     0   100 │
+│ ibs:1764237240000 │       1 │         0.38 │          37.870 │         0.38 │      2:25:00 │    1     0     0   100 │
+│ ibs:1777044060000 │       1 │         0.38 │          35.388 │         0.35 │      0:20:00 │    1     0     0   100 │
+│ ibs:1779472440000 │       1 │         0.34 │          32.410 │         0.32 │      0:40:00 │    1     0     0   100 │
+│ ibs:1765446120000 │       1 │         0.31 │          30.315 │          0.3 │      2:24:00 │    1     0     0   100 │
+│ ibs:1774366200000 │       1 │         0.31 │          29.291 │         0.29 │      1:00:00 │    1     0     0   100 │
+│ ibs:1758035880000 │       1 │         0.26 │          26.242 │         0.26 │      0:34:00 │    1     0     0   100 │
+│ ibs:1761124140000 │       1 │         0.23 │          21.901 │         0.22 │      0:30:00 │    1     0     0   100 │
+│ ibs:1778599260000 │       1 │         0.22 │          20.558 │         0.21 │      0:24:00 │    1     0     0   100 │
+│ ibs:1775726100000 │       1 │         0.21 │          20.352 │          0.2 │      0:37:00 │    1     0     0   100 │
+│ ibs:1764669780000 │       1 │          0.2 │          19.961 │          0.2 │      0:35:00 │    1     0     0   100 │
+│ ibs:1770195240000 │       1 │         0.18 │          16.952 │         0.17 │      0:16:00 │    1     0     0   100 │
+│ ibs:1764258300000 │       1 │         0.15 │          14.565 │         0.15 │      0:25:00 │    1     0     0   100 │
+│ ibs:1757411460000 │       1 │         0.13 │          12.888 │         0.13 │      0:35:00 │    1     0     0   100 │
+│ ibs:1758180600000 │       1 │         0.08 │           8.348 │         0.08 │      0:49:00 │    1     0     0   100 │
+│ ibs:1776875040000 │       1 │        -0.14 │         -13.018 │        -0.13 │      3:21:00 │    0     0     1     0 │
+│ ibs:1774018980000 │       1 │         -0.2 │         -19.102 │        -0.19 │      4:42:00 │    0     0     1     0 │
+│ ibs:1761209280000 │       1 │        -0.32 │         -31.952 │        -0.32 │      0:04:00 │    0     0     1     0 │
+│ ibs:1776846060000 │       1 │        -0.35 │         -33.034 │        -0.33 │      1:04:00 │    0     0     1     0 │
+│ ibs:1775668860000 │       1 │        -0.36 │         -34.107 │        -0.34 │      0:12:00 │    0     0     1     0 │
+│ ibs:1769620680000 │       1 │        -0.39 │         -38.212 │        -0.38 │      0:09:00 │    0     0     1     0 │
+│ ibs:1758125340000 │       1 │         -0.4 │         -39.362 │        -0.39 │      1:27:00 │    0     0     1     0 │
+│ ibs:1787679360000 │       1 │        -0.42 │         -40.292 │         -0.4 │      2:09:00 │    0     0     1     0 │
+│ ibs:1764839700000 │       1 │        -0.43 │         -42.217 │        -0.42 │      0:14:00 │    0     0     1     0 │
+│ ibs:1764153180000 │       1 │        -0.44 │         -43.148 │        -0.43 │      0:34:00 │    0     0     1     0 │
+│ ibs:1785343320000 │       1 │        -0.52 │         -49.653 │         -0.5 │      0:26:00 │    0     0     1     0 │
+│ ibs:1774884780000 │       1 │        -0.56 │         -53.779 │        -0.54 │      1:18:00 │    0     0     1     0 │
+│ ibs:1788363720000 │       1 │        -0.58 │         -54.397 │        -0.54 │      0:07:00 │    0     0     1     0 │
+│ ibs:1770719040000 │       1 │        -0.59 │         -56.240 │        -0.56 │      1:15:00 │    0     0     1     0 │
+│ ibs:1758639600000 │       1 │        -0.58 │         -57.148 │        -0.57 │      0:21:00 │    0     0     1     0 │
+│ ibs:1768990500000 │       1 │        -0.61 │         -60.413 │         -0.6 │      1:39:00 │    0     0     1     0 │
+│ ibs:1760372280000 │       1 │        -0.66 │         -64.608 │        -0.65 │      0:04:00 │    0     0     1     0 │
+│ ibs:1767109860000 │       1 │        -0.65 │         -64.894 │        -0.65 │      1:52:00 │    0     0     1     0 │
+│ ibs:1765472040000 │       1 │        -0.69 │         -68.487 │        -0.68 │      0:30:00 │    0     0     1     0 │
+│ ibs:1769763600000 │       1 │        -0.71 │         -69.713 │         -0.7 │      0:22:00 │    0     0     1     0 │
+│ ibs:1775574180000 │       1 │        -0.74 │         -70.934 │        -0.71 │      0:27:00 │    0     0     1     0 │
+│ ibs:1760343300000 │       1 │        -0.72 │         -71.135 │        -0.71 │      0:51:00 │    0     0     1     0 │
+│ ibs:1776267000000 │       1 │        -0.94 │         -89.647 │         -0.9 │      1:04:00 │    0     0     1     0 │
+│ ibs:1760713920000 │       1 │        -0.97 │         -95.013 │        -0.95 │      0:25:00 │    0     0     1     0 │
+│ ibs:1769098500000 │       1 │        -1.03 │        -101.666 │        -1.02 │      0:30:00 │    0     0     1     0 │
+│ ibs:1770232860000 │       1 │        -1.07 │        -102.578 │        -1.03 │      0:24:00 │    0     0     1     0 │
+│ ibs:1769790420000 │       1 │        -1.08 │        -105.006 │        -1.05 │      1:40:00 │    0     0     1     0 │
+│             TOTAL │      53 │         -0.1 │        -511.859 │        -5.12 │      1:00:00 │   26     0    27  49.1 │
+└───────────────────┴─────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                  EXIT REASON STATS                                                   
+┌────────────────────┬───────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│        Exit Reason │ Exits │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├────────────────────┼───────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│                roi │    26 │         0.42 │        1057.898 │        10.58 │      1:01:00 │   26     0     0   100 │
+│        session_end │     3 │        -0.25 │         -72.412 │        -0.72 │      3:24:00 │    0     0     3     0 │
+│ trailing_stop_loss │     8 │        -0.67 │        -522.865 │        -5.23 │      0:36:00 │    0     0     8     0 │
+│          stop_loss │    16 │        -0.63 │        -974.480 │        -9.74 │      0:46:00 │    0     0    16     0 │
+│              TOTAL │    53 │         -0.1 │        -511.859 │        -5.12 │      1:00:00 │   26     0    27  49.1 │
+└────────────────────┴───────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                              MIXED TAG STATS                                                              
+┌───────────────────┬────────────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│         Enter Tag │        Exit Reason │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────────┼────────────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ ibs:1765813860000 │                roi │      1 │         0.94 │          92.563 │         0.93 │      1:38:00 │    1     0     0   100 │
+│ ibs:1770827220000 │                roi │      1 │         0.96 │          90.850 │         0.91 │      0:18:00 │    1     0     0   100 │
+│ ibs:1772642340000 │                roi │      1 │         0.91 │          87.185 │         0.87 │      2:21:00 │    1     0     0   100 │
+│ ibs:1761145920000 │                roi │      1 │         0.83 │          80.616 │         0.81 │      2:41:00 │    1     0     0   100 │
+│ ibs:1758899700000 │                roi │      1 │         0.62 │          61.043 │         0.61 │      1:03:00 │    1     0     0   100 │
+│ ibs:1763652780000 │                roi │      1 │         0.56 │          55.511 │         0.56 │      0:23:00 │    1     0     0   100 │
+│ ibs:1763050860000 │                roi │      1 │          0.5 │          49.354 │         0.49 │      0:15:00 │    1     0     0   100 │
+│ ibs:1760973120000 │                roi │      1 │         0.48 │          46.479 │         0.46 │      0:42:00 │    1     0     0   100 │
+│ ibs:1787299560000 │                roi │      1 │         0.49 │          46.054 │         0.46 │      0:24:00 │    1     0     0   100 │
+│ ibs:1769446620000 │                roi │      1 │         0.45 │          43.709 │         0.44 │      0:32:00 │    1     0     0   100 │
+│ ibs:1783069380000 │                roi │      1 │         0.41 │          38.904 │         0.39 │      1:06:00 │    1     0     0   100 │
+│ ibs:1766769840000 │                roi │      1 │         0.39 │          38.589 │         0.39 │      3:18:00 │    1     0     0   100 │
+│ ibs:1764237240000 │                roi │      1 │         0.38 │          37.870 │         0.38 │      2:25:00 │    1     0     0   100 │
+│ ibs:1777044060000 │                roi │      1 │         0.38 │          35.388 │         0.35 │      0:20:00 │    1     0     0   100 │
+│ ibs:1779472440000 │                roi │      1 │         0.34 │          32.410 │         0.32 │      0:40:00 │    1     0     0   100 │
+│ ibs:1765446120000 │                roi │      1 │         0.31 │          30.315 │          0.3 │      2:24:00 │    1     0     0   100 │
+│ ibs:1774366200000 │                roi │      1 │         0.31 │          29.291 │         0.29 │      1:00:00 │    1     0     0   100 │
+│ ibs:1758035880000 │                roi │      1 │         0.26 │          26.242 │         0.26 │      0:34:00 │    1     0     0   100 │
+│ ibs:1761124140000 │                roi │      1 │         0.23 │          21.901 │         0.22 │      0:30:00 │    1     0     0   100 │
+│ ibs:1778599260000 │                roi │      1 │         0.22 │          20.558 │         0.21 │      0:24:00 │    1     0     0   100 │
+│ ibs:1775726100000 │                roi │      1 │         0.21 │          20.352 │          0.2 │      0:37:00 │    1     0     0   100 │
+│ ibs:1764669780000 │                roi │      1 │          0.2 │          19.961 │          0.2 │      0:35:00 │    1     0     0   100 │
+│ ibs:1770195240000 │                roi │      1 │         0.18 │          16.952 │         0.17 │      0:16:00 │    1     0     0   100 │
+│ ibs:1764258300000 │                roi │      1 │         0.15 │          14.565 │         0.15 │      0:25:00 │    1     0     0   100 │
+│ ibs:1757411460000 │                roi │      1 │         0.13 │          12.888 │         0.13 │      0:35:00 │    1     0     0   100 │
+│ ibs:1758180600000 │                roi │      1 │         0.08 │           8.348 │         0.08 │      0:49:00 │    1     0     0   100 │
+│ ibs:1776875040000 │        session_end │      1 │        -0.14 │         -13.018 │        -0.13 │      3:21:00 │    0     0     1     0 │
+│ ibs:1774018980000 │        session_end │      1 │         -0.2 │         -19.102 │        -0.19 │      4:42:00 │    0     0     1     0 │
+│ ibs:1761209280000 │          stop_loss │      1 │        -0.32 │         -31.952 │        -0.32 │      0:04:00 │    0     0     1     0 │
+│ ibs:1776846060000 │ trailing_stop_loss │      1 │        -0.35 │         -33.034 │        -0.33 │      1:04:00 │    0     0     1     0 │
+│ ibs:1775668860000 │          stop_loss │      1 │        -0.36 │         -34.107 │        -0.34 │      0:12:00 │    0     0     1     0 │
+│ ibs:1769620680000 │          stop_loss │      1 │        -0.39 │         -38.212 │        -0.38 │      0:09:00 │    0     0     1     0 │
+│ ibs:1758125340000 │          stop_loss │      1 │         -0.4 │         -39.362 │        -0.39 │      1:27:00 │    0     0     1     0 │
+│ ibs:1787679360000 │        session_end │      1 │        -0.42 │         -40.292 │         -0.4 │      2:09:00 │    0     0     1     0 │
+│ ibs:1764839700000 │ trailing_stop_loss │      1 │        -0.43 │         -42.217 │        -0.42 │      0:14:00 │    0     0     1     0 │
+│ ibs:1764153180000 │ trailing_stop_loss │      1 │        -0.44 │         -43.148 │        -0.43 │      0:34:00 │    0     0     1     0 │
+│ ibs:1785343320000 │ trailing_stop_loss │      1 │        -0.52 │         -49.653 │         -0.5 │      0:26:00 │    0     0     1     0 │
+│ ibs:1774884780000 │          stop_loss │      1 │        -0.56 │         -53.779 │        -0.54 │      1:18:00 │    0     0     1     0 │
+│ ibs:1788363720000 │          stop_loss │      1 │        -0.58 │         -54.397 │        -0.54 │      0:07:00 │    0     0     1     0 │
+│ ibs:1770719040000 │          stop_loss │      1 │        -0.59 │         -56.240 │        -0.56 │      1:15:00 │    0     0     1     0 │
+│ ibs:1758639600000 │          stop_loss │      1 │        -0.58 │         -57.148 │        -0.57 │      0:21:00 │    0     0     1     0 │
+│ ibs:1768990500000 │          stop_loss │      1 │        -0.61 │         -60.413 │         -0.6 │      1:39:00 │    0     0     1     0 │
+│ ibs:1760372280000 │          stop_loss │      1 │        -0.66 │         -64.608 │        -0.65 │      0:04:00 │    0     0     1     0 │
+│ ibs:1767109860000 │          stop_loss │      1 │        -0.65 │         -64.894 │        -0.65 │      1:52:00 │    0     0     1     0 │
+│ ibs:1765472040000 │ trailing_stop_loss │      1 │        -0.69 │         -68.487 │        -0.68 │      0:30:00 │    0     0     1     0 │
+│ ibs:1769763600000 │          stop_loss │      1 │        -0.71 │         -69.713 │         -0.7 │      0:22:00 │    0     0     1     0 │
+│ ibs:1775574180000 │          stop_loss │      1 │        -0.74 │         -70.934 │        -0.71 │      0:27:00 │    0     0     1     0 │
+│ ibs:1760343300000 │          stop_loss │      1 │        -0.72 │         -71.135 │        -0.71 │      0:51:00 │    0     0     1     0 │
+│ ibs:1776267000000 │ trailing_stop_loss │      1 │        -0.94 │         -89.647 │         -0.9 │      1:04:00 │    0     0     1     0 │
+│ ibs:1760713920000 │ trailing_stop_loss │      1 │        -0.97 │         -95.013 │        -0.95 │      0:25:00 │    0     0     1     0 │
+│ ibs:1769098500000 │ trailing_stop_loss │      1 │        -1.03 │        -101.666 │        -1.02 │      0:30:00 │    0     0     1     0 │
+│ ibs:1770232860000 │          stop_loss │      1 │        -1.07 │        -102.578 │        -1.03 │      0:24:00 │    0     0     1     0 │
+│ ibs:1769790420000 │          stop_loss │      1 │        -1.08 │        -105.006 │        -1.05 │      1:40:00 │    0     0     1     0 │
+│             TOTAL │                    │     53 │         -0.1 │        -511.859 │        -5.12 │      1:00:00 │   26     0    27  49.1 │
+└───────────────────┴────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2025-09-04 00:00:00                       │
+│ Backtesting to                         │ 2026-09-04 00:00:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 53 / 0.15                                 │
+│ Starting balance                       │ 10000 USDT                                │
+│ Final balance                          │ 9488.141 USDT                             │
+│ Absolute profit                        │ -511.859 USDT                             │
+│ Total profit %                         │ -5.12%                                    │
+│ CAGR %                                 │ -5.12%                                    │
+│ Sharpe (closed trades)                 │ -0.49                                     │
+│ Sortino (closed trades)                │ -1.09                                     │
+│ Calmar (closed trades)                 │ -4.33                                     │
+│ SQN                                    │ -1.27                                     │
+│ Mean profit p-value                    │ 0.2114                                    │
+│ Profit factor                          │ 0.67                                      │
+│ Expectancy (Ratio)                     │ -9.66 (-0.17)                             │
+│ Avg. daily profit                      │ -1.402 USDT                               │
+│ Avg. stake amount                      │ 9704.159 USDT                             │
+│ Market change                          │ -43.71%                                   │
+│ Total trade volume                     │ 1029083.267 USDT                          │
+│                                        │                                           │
+│ Long / Short trades                    │ 22 / 31                                   │
+│ Long / Short profit %                  │ -2.49% / -2.62%                           │
+│ Long / Short profit USDT               │ -249.403 / -262.455                       │
+│                                        │                                           │
+│ Best Pair                              │ ETH/USDT:USDT -5.12%                      │
+│ Worst Pair                             │ ETH/USDT:USDT -5.12%                      │
+│ Best trade                             │ ETH/USDT:USDT 0.96%                       │
+│ Worst trade                            │ ETH/USDT:USDT -1.08%                      │
+│ Best day                               │ 102.517 USDT                              │
+│ Worst day                              │ -174.719 USDT                             │
+│ Days win/draw/lose                     │ 22 / 313 / 24                             │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:15 / 0d 03:18 / 0d 01:01            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:04 / 0d 04:42 / 0d 01:00            │
+│ Max Consecutive Wins / Loss            │ 4 / 3                                     │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 14 / 0                                    │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 9459.17 USDT / 10083.175 USDT             │
+│ Max % of account underwater            │ 6.19%                                     │
+│ Absolute drawdown                      │ 624.005 USDT (6.19%)                      │
+│ Drawdown duration                      │ 116 days 23:03:00                         │
+│ Profit at drawdown start               │ 83.175 USDT                               │
+│ Profit at drawdown end                 │ -540.83 USDT                              │
+│ Drawdown start                         │ 2025-12-26 20:45:00                       │
+│ Drawdown end                           │ 2026-04-22 19:48:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 9459.17 USDT / 10083.175 USDT             │
+│ Min/Max balance dates (wallet balance) │ 2026-04-22 19:51:00 / 2025-12-26 20:48:00 │
+│ Max % of account underwater (balance)  │ 6.19%                                     │
+│ Absolute drawdown (wallet balance)     │ 624.005 USDT (6.19%)                      │
+│ Drawdown duration                      │ 116 days 23:03:00                         │
+│ Profit at drawdown start               │ 83.175 USDT                               │
+│ Profit at drawdown end                 │ -540.83 USDT                              │
+│ Drawdown start                         │ 2025-12-26 20:48:00                       │
+│ Drawdown end                           │ 2026-04-22 19:51:00                       │
+│ Sharpe (daily wallet balance)          │ -1.17                                     │
+│ Sortino (daily wallet balance)         │ -0.77                                     │
+│ Calmar (daily wallet balance)          │ -4.34                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                               STRATEGY SUMMARY                                                                
+┌──────────────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┬─────────────────────┐
+│             Strategy │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │            Drawdown │
+├──────────────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┼─────────────────────┤
+│ IBSImbalanceStrategy │     53 │        -0.10 │        -511.859 │        -5.12 │      1:00:00 │   26     0    27  49.1 │ 624.005 USDT  6.19% │
+└──────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┴─────────────────────┘

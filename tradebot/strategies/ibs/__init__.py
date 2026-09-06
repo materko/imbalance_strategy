@@ -9,6 +9,7 @@ from .engine import IBSEngine, IBSEngineOutput
 from .htf import HTFFeeder, HTFWindow, htf_window_opens
 from .meta import (
     FEATURES,
+    INERT_INPUTS,
     INTENTIONAL_DEFAULT_DIFFS,
     KIND_TITLES,
     LAYERS,
@@ -29,6 +30,7 @@ SPEC = StrategySpec(
     pine_path=REPO / "pine" / "imbalance_strategy_FULL.pine",
     pine_input_count=115,
     removed_inputs=REMOVED_INPUTS,
+    inert_inputs=INERT_INPUTS,
     intentional_default_diffs=INTENTIONAL_DEFAULT_DIFFS,
     port_only_meta=PORT_ONLY_META,
     features=tuple(FEATURES),
@@ -51,5 +53,5 @@ __all__ = [
     "HTFFeeder", "HTFWindow", "htf_window_opens",
     "ImbalanceHit", "find_imbalance", "is_engulfing", "is_pin_bar",
     "SdPattern", "Zone", "ZoneBook", "ZoneSource", "detect_sd_pattern", "snap_time",
-    "REMOVED_INPUTS", "INTENTIONAL_DEFAULT_DIFFS", "PORT_ONLY_META", "FEATURES", "PARAM_NOTES", "LAYERS", "KIND_TITLES",
+    "REMOVED_INPUTS", "INERT_INPUTS", "INTENTIONAL_DEFAULT_DIFFS", "PORT_ONLY_META", "FEATURES", "PARAM_NOTES", "LAYERS", "KIND_TITLES",
 ]

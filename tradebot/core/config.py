@@ -127,7 +127,10 @@ class StrategyConfig:
     @classmethod
     def from_dict(cls, data: dict[str, Any]):
         known = {f.name for f in fields(cls)}  # type: ignore[arg-type]
-        unknown = set(data) - known - META_KEYS
+        # Kľúče s podtržníkom sú metadáta profilu, nie polia configu: `_strategy`, `_instrument`,
+        # `_title`/`_comment` a nastavenia behu vo vlastných profiloch testera
+        # (`_timeframe`, `_timerange`, `_fee`, `_wallet`, `_detail`, `_base`).
+        unknown = {k for k in set(data) - known if not k.startswith("_")}
         if unknown:
             raise ConfigError(f"neznáme kľúče v configu: {sorted(unknown)}")
         return cls(**{k: v for k, v in data.items() if k in known})

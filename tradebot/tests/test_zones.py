@@ -266,6 +266,24 @@ def test_oldest_zone_is_evicted_over_the_limit(cfg):
     assert [z.uid for z in book.zones] == list(range(5, 15))
 
 
+def test_eviction_counts_zones_that_were_still_alive(cfg):
+    """Strop je Pine dedičstvo — pokiaľ vyhadzuje len vypršané zóny, na výsledok nemá
+    vplyv. Rozlíšenie musí byť v čísle, inak sa to nedá overiť."""
+    cfg.maxSdZones = 10
+    cfg.zoneValidHours = 1
+    book = ZoneBook(cfg, MNQ, chart_tf_minutes=3)
+    for i in range(15):
+        book.create_from_pattern(_pattern(book, cfg, T0 + i * FIVE_MIN), now_ms=T0)
+    assert book.evicted == 5 and book.evicted_alive == 5  # všetko v tej istej sekunde
+
+    later = ZoneBook(cfg, MNQ, chart_tf_minutes=3)
+    for i in range(15):
+        # každá zóna o hodinu neskôr — kým strop zaberie, najstaršia je dávno mŕtva
+        ts = T0 + i * 3_600_000
+        later.create_from_pattern(_pattern(later, cfg, ts), now_ms=ts)
+    assert later.evicted == 5 and later.evicted_alive == 0
+
+
 def test_hard_cap_of_200_applies(cfg):
     cfg.maxSdZones = 999
     book = ZoneBook(cfg, MNQ, chart_tf_minutes=3)

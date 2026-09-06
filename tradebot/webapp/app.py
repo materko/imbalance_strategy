@@ -28,9 +28,11 @@ from ..core.config import ConfigError
 from ..strategies import STRATEGIES
 from . import chart as chart_data
 from . import gitsync
+from . import profiles as user_profiles
 from .pine_meta import param_metadata
 from .runner import (
-    REPO, BacktestRunner, available_pairs, default_params, list_profiles, profile_instruments, profile_titles, tf_minutes,
+    REPO, BacktestRunner, available_pairs, default_params, instrument_for_pair, list_profiles,
+    profile_instruments, profile_titles, tf_minutes,
 )
 from .store import RunStore, strategy_of, summarize_for_list
 
@@ -61,6 +63,28 @@ class GitPushRequest(BaseModel):
     message: str | None = Field(None, max_length=200)
 
 
+class ProfileSaveRequest(BaseModel):
+    """Nový vlastný profil — buď z behu (`from_run`), alebo priamo z parametrov."""
+
+    name: str = Field(..., max_length=48)
+    strategy: str = Field("ibs", description="stratégia profilu; pri `from_run` sa berie z behu")
+    from_run: str | None = None
+    params: dict[str, Any] | None = None
+    instrument: str | None = None
+    timeframe: str | None = Field(None, description="TF grafu, na ktorom je profil ladený")
+    timerange: str | None = None
+    fee: float | None = None
+    wallet: float | None = None
+    timeframe_detail: str | None = None
+    base: str | None = Field(None, max_length=200, description="profil, z ktorého sa vychádzalo")
+    note: str = Field("", max_length=200)
+    overwrite: bool = False
+
+
+class ProfileRenameRequest(BaseModel):
+    name: str = Field(..., max_length=48)
+
+
 def _clean_user(name: str | None) -> str:
     name = (name or "").strip()
     return name[:80] if name else current_user()
@@ -74,16 +98,19 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
     app.state.runner = runner
     #: Pine defaulty každej stratégie — proti nim sa počítajú odchýlky behu.
     DEFAULTS = {key: spec.config_cls().to_dict() for key, spec in STRATEGIES.items()}
-    STRATEGY_META = {
-        key: {
-            "params": param_metadata(spec),
+    #: Metadáta formulára stratégie. Parametre a defaulty sú kód (nemenia sa za behu),
+    #: zoznam profilov sa číta vždy nanovo — tester si ich cez API ukladá, premenúva a maže.
+    PARAM_META = {key: param_metadata(spec) for key, spec in STRATEGIES.items()}
+
+    def strategy_meta(key: str) -> dict[str, Any]:
+        return {
+            "params": PARAM_META[key],
             "defaults": DEFAULTS[key],
             "profiles": list_profiles(key),
             "profile_titles": profile_titles(key),
             "profile_instruments": profile_instruments(key),
+            "user_profiles": user_profiles.user_names(key),
         }
-        for key, spec in STRATEGIES.items()
-    }
 
     def defaults_of(rec: dict[str, Any]) -> dict[str, Any]:
         return DEFAULTS.get(strategy_of(rec), DEFAULTS["ibs"])
@@ -95,17 +122,87 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
     @app.get("/api/meta")
     def meta():
         pairs = available_pairs()
+        by_key = {key: strategy_meta(key) for key in STRATEGIES}
         return {
             # `params`/`defaults`/`profiles`… na najvyššej úrovni = stratégia "ibs" (spätná
             # kompatibilita pre CLI a testy); stránka pracuje so `strategy_meta[key]`.
-            **STRATEGY_META["ibs"],
+            **by_key["ibs"],
             "strategies": [spec.public() for spec in STRATEGIES.values()],
-            "strategy_meta": STRATEGY_META,
+            "strategy_meta": by_key,
             "pairs": pairs,
             "user": current_user(),
             "branch": gitsync.branch(),
             "queue": runner.snapshot(),
         }
+
+    @app.get("/api/profiles")
+    def profiles_list(strategy: str = Query("ibs")):
+        """Profily stratégie do formulára: z repozitára (nemenné) a vlastné (menné aj mazateľné)."""
+        if strategy not in STRATEGIES:
+            raise HTTPException(404, f"neznáma stratégia {strategy!r}")
+        return {"strategy": strategy, "profiles": list_profiles(strategy), "user_profiles": user_profiles.user_names(strategy),
+                "profile_titles": profile_titles(strategy), "profile_instruments": profile_instruments(strategy)}
+
+    @app.post("/api/profiles")
+    def profile_save(req: ProfileSaveRequest):
+        params, instrument, comment = req.params, req.instrument, req.note or None
+        strategy = req.strategy
+        setup = {"timeframe": req.timeframe, "timerange": req.timerange, "fee": req.fee,
+                 "wallet": req.wallet, "detail": req.timeframe_detail}
+        base = req.base
+        if req.from_run:
+            rec = store.get(req.from_run)
+            if rec is None:
+                raise HTTPException(404, "beh neexistuje")
+            params = rec["params"]
+            settings = rec.get("settings", {})
+            strategy = strategy_of(rec)
+            instrument = instrument or instrument_for_pair(settings["pair"])
+            # beh vie všetko, čo profil potrebuje — čo prišlo v requeste, má prednosť
+            for key, src in (("timeframe", "timeframe"), ("timerange", "timerange"),
+                             ("fee", "fee"), ("wallet", "wallet"), ("detail", "timeframe_detail")):
+                setup[key] = setup[key] if setup[key] is not None else settings.get(src)
+            base = base or settings.get("profile")
+            popis = f"z behu {req.from_run} ({settings.get('pair')}, {settings.get('timerange')})"
+            comment = f"{comment} — {popis}" if comment else popis
+        if params is None:
+            raise HTTPException(422, "chýbajú parametre: pošli `from_run` alebo `params`")
+        # vypnutý 1m detail je tiež informácia, nie „nič" — ulož ho ako false
+        setup["detail"] = setup["detail"] or False
+        if not instrument:
+            raise HTTPException(422, "chýba `instrument` profilu")
+        try:
+            if strategy not in STRATEGIES:
+                raise HTTPException(422, f"neznáma stratégia {strategy!r}")
+            user_profiles.save(req.name, params, instrument, comment=comment,
+                               title=req.note or None, base=base, settings=setup,
+                               overwrite=req.overwrite, strategy=strategy)
+        except FileExistsError as exc:
+            raise HTTPException(409, str(exc))
+        except (user_profiles.ProfileError, ConfigError) as exc:
+            raise HTTPException(422, str(exc))
+        return {"name": req.name.strip(), **profiles_list(strategy)}
+
+    @app.patch("/api/profiles/{name}")
+    def profile_rename(name: str, req: ProfileRenameRequest, strategy: str = Query("ibs")):
+        try:
+            user_profiles.rename(name, req.name)
+        except FileNotFoundError as exc:
+            raise HTTPException(404, str(exc))
+        except FileExistsError as exc:
+            raise HTTPException(409, str(exc))
+        except user_profiles.ProfileError as exc:
+            raise HTTPException(422, str(exc))
+        return {"name": req.name.strip(), **profiles_list(strategy)}
+
+    @app.delete("/api/profiles/{name}")
+    def profile_delete(name: str, strategy: str = Query("ibs")):
+        try:
+            if not user_profiles.delete(name):
+                raise HTTPException(404, f"profil {name} neexistuje")
+        except user_profiles.ProfileError as exc:
+            raise HTTPException(422, str(exc))
+        return {"ok": True, **profiles_list(strategy)}
 
     @app.get("/api/profiles/{name:path}")
     def profile(name: str, strategy: str = Query("ibs")):
@@ -127,7 +224,11 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             params, instrument = default_params(target, strategy)
         except (ConfigError, FileNotFoundError) as exc:
             raise HTTPException(404, str(exc))
-        return {"name": name, "strategy": strategy, "params": params, "instrument": instrument}
+        setup = user_profiles.settings_of(name, strategy)
+        return {"name": name, "strategy": strategy, "params": params, "instrument": instrument,
+                "timeframe": setup.get("timeframe"), "settings": setup,
+                "base": user_profiles.base_of(name, strategy),
+                "kind": "user" if user_profiles.is_user(name, strategy) else "builtin"}
 
     @app.get("/api/runs")
     def runs(q: str = "", limit: int = 500):
@@ -230,7 +331,6 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         params = dict(rec["params"])
         params["_comment"] = [f"profil z behu {run_id} ({rec.get('settings', {}).get('pair')}, "
                               f"{rec.get('settings', {}).get('timerange')}) - export z webapp"]
-        from .runner import instrument_for_pair
         params["_strategy"] = strategy_of(rec)
         params["_instrument"] = instrument_for_pair(rec["settings"]["pair"])
         return JSONResponse(params, headers={"Content-Disposition": f'attachment; filename="{run_id}.json"'})

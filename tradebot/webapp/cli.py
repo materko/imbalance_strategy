@@ -204,7 +204,8 @@ def cmd_status(args: argparse.Namespace) -> int:
         q = api(args.url, "/api/queue")
         print(f"fronta: {len(q)} " + ", ".join(f"{j['id']} {j['status']}" for j in q))
     st = gitsync.status()
-    print(f"git: vetva {st['branch']}, necommitnuté behy {st['uncommitted_runs']}, "
+    print(f"git: vetva {st['branch']} → {st.get('target', 'main')}, "
+          f"necommitnuté behy a profily {st['uncommitted']}, "
           f"ahead {st['ahead']}, behind {st['behind']}")
     return 0
 
@@ -239,6 +240,13 @@ def cmd_params(args: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Windows konzola je cp1250 a log Freqtradu má znaky, ktoré v nej nie sú —
+    # bez tohto padne celý príkaz na UnicodeEncodeError uprostred behu.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
     ap = argparse.ArgumentParser(prog="python -m tradebot.webapp.cli", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--url", default=DEFAULT_URL, help="adresa webapp (default %(default)s, alebo TRADEBOT_WEB_URL)")
@@ -275,7 +283,7 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("pull", help="stiahni históriu behov z GitHubu (git pull --rebase)")
     p.set_defaults(func=cmd_pull)
 
-    p = sub.add_parser("push", help="commitni LEN runs/ a pushni")
+    p = sub.add_parser("push", help="commitni LEN runs/ a profiles/ a pushni")
     p.add_argument("--user", help="autor commitu (default TRADEBOT_USER)")
     p.set_defaults(func=cmd_push)
 

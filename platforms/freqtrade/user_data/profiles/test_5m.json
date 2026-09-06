@@ -1,0 +1,19 @@
+{
+  "_title": "test 5min 11",
+  "_comment": "test 5min 11 — z behu 20260905-212337-2cdae5 (BTC/USDT:USDT, 20250904-20260904)",
+  "_instrument": "btcusdt_binance",
+  "enablePinBarEntry": true,
+  "enableEngulfingEntry": true,
+  "enableSrTrading": true,
+  "enableLqTrading": true,
+  "rrRatio": 5,
+  "tradeDirection": "Long only",
+  "sess2ZoneStartH": 8,
+  "sess3On": false,
+  "useStructureFilter": true,
+  "showElliott": false,
+  "slLookback": 20,
+  "maxLossDollar": 100,
+  "minSlDistance": 0.2,
+  "leverage": 10
+}

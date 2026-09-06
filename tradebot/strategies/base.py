@@ -48,6 +48,8 @@ class StrategySpec:
     pine_input_count: int = 0
     #: Pine vstupy, ktoré sa vedome neportujú, a polia, kde sa default vedome líši.
     removed_inputs: frozenset[str] = frozenset()
+    #: Pine vstupy, ktoré v configu ostávajú (parita panela), ale v porte nič nerobia — formulár ich neponúka.
+    inert_inputs: frozenset[str] = frozenset()
     intentional_default_diffs: frozenset[str] = frozenset()
     #: titulok/tooltip polí, ktoré Pine nemá (rozšírenia portu)
     port_only_meta: dict[str, dict[str, str]] = field(default_factory=dict)
