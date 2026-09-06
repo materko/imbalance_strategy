@@ -7,8 +7,9 @@ const GREEN = "#089981", RED = "#f23645", BLUE = "#2962ff";
 const UNITS = ["abs", "ticks", "atr", "pct"];
 
 const state = {
-  meta: null,          // /api/meta
-  params: {},          // aktuálne hodnoty formulára (v tvare pre IBSConfig.from_dict)
+  meta: null,          // /api/meta; params/defaults/profiles… sú vždy aktívnej stratégie (viď setStrategy)
+  strategy: "ibs",     // kľúč aktívnej stratégie vo formulári
+  params: {},          // aktuálne hodnoty formulára (v tvare pre config_cls.from_dict)
   base: {},            // hodnoty východiskového profilu (na zvýraznenie odchýlok)
   profile: null,
   pollTimer: null,
@@ -315,12 +316,36 @@ function applyParamFilter() {
 // Nastavenia behu
 // --------------------------------------------------------------------------- //
 
-function fillSettings() {
+/** Stratégia vo formulári: metadáta, defaulty a profily sú na najvyššej úrovni `state.meta`
+ *  vždy tie aktívnej stratégie, takže formulár, profily a diff nič iné nepoznajú. */
+function strategyMeta(key) { return (state.meta.strategy_meta || {})[key] || null; }
+function strategySpec(key) { return (state.meta.strategies || []).find(s => s.key === key) || null; }
+
+function setStrategy(key) {
+  const sm = strategyMeta(key);
+  if (!sm) return;
+  state.strategy = key;
+  Object.assign(state.meta, sm);
+  state.activeGroup = null;
+  $("#strategy").value = key;
+  fillProfiles();
+  const spec = strategySpec(key);
+  if (spec && spec.default_timeframe) fillTimeframes($("#pair").value, spec.default_timeframe);
+}
+
+function fillProfiles() {
   const ps = $("#profile"); ps.innerHTML = `<option value="">(Pine defaulty)</option>`;
   for (const p of state.meta.profiles) {
     const o = document.createElement("option"); o.value = p;
     o.textContent = `${p} — ${(state.meta.profile_titles || {})[p] || ""}`; o.title = (state.meta.profile_titles || {})[p] || p; ps.append(o);
   }
+}
+
+function fillSettings() {
+  const ss = $("#strategy"); ss.innerHTML = "";
+  for (const s of state.meta.strategies) { const o = document.createElement("option"); o.value = s.key; o.textContent = s.title; ss.append(o); }
+  ss.onchange = async () => { setStrategy(ss.value); $("#profile").value = ""; await loadProfile(""); };
+  fillProfiles();
   const pair = $("#pair"); pair.innerHTML = "";
   for (const p of state.meta.pairs) {
     const o = document.createElement("option"); o.value = p.pair;
@@ -360,7 +385,7 @@ async function loadProfile(name) {
   state.profile = name || null;
   state.profileInstrument = null;
   if (!name) { setParams({}, true); checkPairProfile(); return; }
-  const r = await api(`/api/profiles/${encodeURIComponent(name)}`);
+  const r = await api(`/api/profiles/${encodeURIComponent(name)}?strategy=${encodeURIComponent(state.strategy)}`);
   state.profileInstrument = r.instrument;
   setParams(r.params, true);
   // profil určuje aj nástroj -> prepni pár, ak zodpovedá
@@ -389,6 +414,7 @@ async function submitRun() {
   try {
     const body = {
       params: state.params,
+      strategy: state.strategy,
       pair: $("#pair").value,
       timeframe: $("#tf").value,
       timerange: timerange(),
@@ -453,7 +479,9 @@ async function loadRuns() {
     const tr = document.createElement("tr");
     const ov = Object.entries(run.overrides || {}).map(([k, v]) => `<span class="kv">${k}=${esc(fmtVal(v))}</span>`).join("");
     const failed = run.status !== "done";
+    const strat = run.settings?.strategy || "ibs";
     tr.innerHTML = `<td><div>${run.id}</div><div class="muted small">${(run.created || "").replace("T", " ").slice(0, 16)} · ${esc(run.user || "")}</div></td>
+      <td title="${esc(strat)}">${esc((strategySpec(strat) || {}).title || strat)}</td>
       <td>${esc(run.settings?.pair || "")}<div class="muted small">${esc(run.settings?.timeframe || "3m")}</div></td><td>${esc(run.settings?.timerange || "")}<div class="muted small">fee ${run.settings?.fee != null ? (run.settings.fee * 100).toFixed(3) + " %" : "—"} · ${run.settings?.wallet ?? ""}</div></td>
       <td class="num">${failed ? `<span class="status-failed">${esc(run.status)}</span>` : res.trades ?? "—"}</td>
       <td class="num">${signed(res.pnl_pct, 2, " %")}</td><td class="num">${fmt(res.profit_factor, 3)}</td>
@@ -471,7 +499,9 @@ async function openRun(id) {
   state.detailId = id;
   $("#runs-table").parentElement.parentElement.hidden = true;
   $("#run-detail").hidden = false;
-  $("#detail-title").textContent = `${rec.settings.pair} · ${rec.settings.timeframe || "3m"} · ${rec.settings.timerange}`;
+  const runStrategy = rec.settings.strategy || "ibs";
+  const runMeta = strategyMeta(runStrategy) || state.meta;
+  $("#detail-title").textContent = `${(strategySpec(runStrategy) || {}).title || runStrategy} · ${rec.settings.pair} · ${rec.settings.timeframe || "3m"} · ${rec.settings.timerange}`;
   $("#detail-meta").textContent = `${rec.id} · ${rec.user || ""} · ${(rec.created || "").replace("T", " ").slice(0, 16)} · profil ${rec.settings.profile || "(Pine)"} · poplatok ${rec.settings.fee != null ? (rec.settings.fee * 100).toFixed(3) + " %" : "—"} · peňaženka ${rec.settings.wallet} · detail ${rec.settings.timeframe_detail || "bez"}${rec.note ? " · " + rec.note : ""}`;
   $("#download-profile").href = `/api/runs/${id}/profile.json`;
   $("#detail-error").hidden = !rec.error; $("#detail-error").textContent = rec.error || "";
@@ -491,7 +521,7 @@ async function openRun(id) {
 
   const ov = rec.overrides || {};
   $("#detail-overrides").innerHTML = Object.keys(ov).length
-    ? `<table class="runs"><tbody>${Object.entries(ov).map(([k, v]) => `<tr><td><code>${k}</code></td><td>${esc(fmtVal(v))}</td><td class="muted">Pine: ${esc(fmtVal(state.meta.defaults[k]))}</td></tr>`).join("")}</tbody></table>`
+    ? `<table class="runs"><tbody>${Object.entries(ov).map(([k, v]) => `<tr><td><code>${k}</code></td><td>${esc(fmtVal(v))}</td><td class="muted">Pine: ${esc(fmtVal(runMeta.defaults[k]))}</td></tr>`).join("")}</tbody></table>`
     : `<div class="muted">Pine defaulty bez zmeny.</div>`;
   const ex = res.exits || {};
   $("#detail-exits").innerHTML = Object.keys(ex).length
@@ -563,43 +593,38 @@ function drawChart(series, res) {
 // Časy sú UTC: Plotly ignoruje časové pásmo v reťazci, tak mu dávame UTC text.
 // --------------------------------------------------------------------------- //
 
-const LAYERS = [
-  { id: "session",   title: "Seansy",                kinds: ["session"],                           sw: "#6366f1" },
-  { id: "zones",     title: "SD zóny",               kinds: ["sd_zone_pre", "sd_zone_post"],       sw: "#be3c46" },
-  { id: "imb",       title: "Imbalance",             kinds: ["imb_box", "imb_zero"],               sw: "#94a3b8" },
-  { id: "patterns",  title: "Pin bar / Engulfing",   kinds: ["pin_bar_box", "engulfing_box"],      sw: "#d97706" },
-  { id: "tpsl",      title: "TP / SL boxy",          kinds: ["tp_box", "sl_box", "entry", "exit"], sw: "#10b981" },
-  { id: "labels",    title: "Štítky stavov",         kinds: ["skip", "counter", "state34", "expired", "max_daily"], sw: "#334155" },
-  { id: "structure", title: "Štruktúra (BOS/CHoCH)", kinds: ["swing", "structure"],                sw: "#334155" },
-  { id: "sr",        title: "S/R úrovne",            kinds: ["sr_level", "sr_golden"],             sw: "#3b82f6" },
-  { id: "liq",       title: "Likvidita",             kinds: ["liq_sweep"],                         sw: "#9333ea" },
-  { id: "elliott",   title: "Elliott",               kinds: ["elliott_wave", "elliott_proj"],      sw: "#0d9488" },
-  { id: "trades",    title: "Obchody Freqtrade",     kinds: [],                                    sw: GREEN },
-];
-const LAYER_BY_KIND = Object.fromEntries(LAYERS.flatMap(l => l.kinds.map(k => [k, l.id])));
-const KIND_TITLE = {
-  sd_zone_pre: "SD zóna (formácia)", sd_zone_post: "SD zóna", imb_box: "Imbalance sviečka", imb_zero: "Imbalance 0",
-  pin_bar_box: "Pin bar", engulfing_box: "Engulfing", tp_box: "TP box", sl_box: "SL box", entry: "Vstup", exit: "Výstup",
-  skip: "SKIP", counter: "Počítadlo", state34: "STATE 3/4", expired: "Expirovaný order", max_daily: "Denný limit",
-  swing: "Swing", structure: "Štruktúra", sr_level: "S/R úroveň", sr_golden: "S/R golden", liq_sweep: "Liquidity sweep",
-  elliott_wave: "Elliott vlna", elliott_proj: "Elliott projekcia", session: "Seansa",
-};
+// Vrstvy grafu (prepínače) a názvy druhov kresieb dodáva stratégia cez /api/meta
+// (`strategies[].layers`, `kind_titles`); vrstva „Obchody Freqtrade" je spoločná.
+const TRADES_LAYER = { id: "trades", title: "Obchody Freqtrade", kinds: [], sw: GREEN, hollow_kinds: [] };
+function layersFor(strategyKey) {
+  const spec = strategySpec(strategyKey);
+  const layers = [...((spec && spec.layers) || []), TRADES_LAYER];
+  return {
+    layers,
+    byKind: Object.fromEntries(layers.flatMap(l => l.kinds.map(k => [k, l.id]))),
+    titles: (spec && spec.kind_titles) || {},
+    hollow: new Set(layers.flatMap(l => l.hollow_kinds || [])),
+  };
+}
 const TF_MINUTES = { "1m": 1, "3m": 3, "5m": 5, "15m": 15, "30m": 30, "1h": 60 };
 const SPANS = [["4 h", 4 * 3600e3], ["12 h", 12 * 3600e3], ["1 deň", 86400e3], ["3 dni", 3 * 86400e3], ["1 týždeň", 7 * 86400e3]];
 const MAX_CANDLES = 6000;  // rovnaké ako server (tradebot/webapp/chart.py)
 const DASH = { dotted: "dot", dashed: "dash" };
 
 const pc = { rec: null, trades: [], runFrom: 0, runTo: 0, from: 0, to: 0, tf: "auto", layers: {}, meta: null, last: null,
-  seq: 0, bound: false, relayoutTimer: null, quietUntil: 0 };
+  seq: 0, bound: false, relayoutTimer: null, quietUntil: 0, strategy: "ibs", L: null };
 
 const utc = ms => new Date(ms).toISOString().slice(0, 19).replace("T", " ");
 const parseUtc = s => Date.parse(String(s).replace(" ", "T").replace(/(\.\d+)?$/, "Z"));
 const fmtPrice = v => Number(v).toLocaleString("en-US", { maximumFractionDigits: 6 });
 
+function layerPrefsKey() { return `tradebot.layers.${pc.strategy}`; }
+
 function loadLayerPrefs() {
   let saved = null;
-  try { saved = JSON.parse(localStorage.getItem("ibs.layers") || "null"); } catch (_) { /* ignoruj */ }
-  for (const l of LAYERS) pc.layers[l.id] = saved && l.id in saved ? !!saved[l.id] : true;
+  try { saved = JSON.parse(localStorage.getItem(layerPrefsKey()) || "null"); } catch (_) { /* ignoruj */ }
+  pc.layers = {};
+  for (const l of pc.L.layers) pc.layers[l.id] = saved && l.id in saved ? !!saved[l.id] : true;
 }
 
 function tfOptions() {
@@ -610,6 +635,8 @@ function tfOptions() {
 
 function initPairChart(rec, trades) {
   pc.rec = rec; pc.trades = trades; pc.meta = null; pc.last = null; pc.seq++;
+  pc.strategy = rec.settings.strategy || "ibs";
+  pc.L = layersFor(pc.strategy);
   const [a, b] = rec.settings.timerange.split("-");
   pc.runFrom = Date.parse(`${a.slice(0, 4)}-${a.slice(4, 6)}-${a.slice(6)}T00:00:00Z`);
   pc.runTo = Date.parse(`${b.slice(0, 4)}-${b.slice(4, 6)}-${b.slice(6)}T00:00:00Z`);
@@ -673,14 +700,14 @@ function jumpToTrade(t) {
 function renderLayerToggles() {
   const box = $("#pc-layers"); box.innerHTML = "";
   const counts = (pc.meta && pc.meta.counts) || {};
-  for (const l of LAYERS) {
+  for (const l of pc.L.layers) {
     if (!pc.rec.has_chart && l.id !== "trades") continue;
     const n = l.id === "trades" ? pc.trades.length : l.kinds.reduce((s, k) => s + (counts[k] || 0), 0);
     const lab = document.createElement("label"); lab.classList.toggle("off", !pc.layers[l.id]);
     lab.innerHTML = `<input type="checkbox" ${pc.layers[l.id] ? "checked" : ""}> <span class="sw" style="background:${l.sw}"></span>${esc(l.title)} <span class="n">${pc.meta || l.id === "trades" ? n : ""}</span>`;
     lab.querySelector("input").onchange = e => {
       pc.layers[l.id] = e.target.checked; lab.classList.toggle("off", !e.target.checked);
-      try { localStorage.setItem("ibs.layers", JSON.stringify(pc.layers)); } catch (_) { /* ignoruj */ }
+      try { localStorage.setItem(layerPrefsKey(), JSON.stringify(pc.layers)); } catch (_) { /* ignoruj */ }
       if (pc.last) renderPairChart(pc.last.candles, pc.last.objects);
     };
     box.append(lab);
@@ -710,7 +737,7 @@ async function loadPairChart() {
 }
 
 function describe(o) {
-  const head = `<b>${esc(KIND_TITLE[o.k] || o.k)}</b>${o.tx ? " · " + esc(o.tx).replace(/\n/g, " ") : ""}${o.z != null ? ` · zóna #${o.z}` : ""}`;
+  const head = `<b>${esc(pc.L.titles[o.k] || o.k)}</b>${o.tx ? " · " + esc(o.tx).replace(/\n/g, " ") : ""}${o.z != null ? ` · zóna #${o.z}` : ""}`;
   if (o.t === "label") return `${head}<br>${utc(o.x).slice(0, 16)} · ${fmtPrice(o.y)}`;
   const y = o.t === "bg" ? "" : `<br>${fmtPrice(Math.max(o.y1, o.y2))} – ${fmtPrice(Math.min(o.y1, o.y2))}`;
   return `${head}<br>${utc(o.x1).slice(0, 16)} → ${utc(o.x2).slice(0, 16)}${y}`;
@@ -720,10 +747,10 @@ function objectTraces(objects) {
   const groups = new Map(), shapes = [];
   const group = (key, init) => { let g = groups.get(key); if (!g) { g = init(); groups.set(key, g); } return g; };
   for (const o of objects) {
-    const layer = LAYER_BY_KIND[o.k] || "labels";
-    if (!pc.layers[layer]) continue;
-    if (o.k === "imb_box") continue;  // imbalance sviečka sa kreslí ako dutá sviečka, viď candleTraces
-    const name = (LAYERS.find(l => l.id === layer) || {}).title || o.k;
+    const layer = pc.L.byKind[o.k];  // druh mimo vrstiev sa kreslí vždy
+    if (layer && !pc.layers[layer]) continue;
+    if (pc.L.hollow.has(o.k)) continue;  // kreslí sa ako dutá sviečka, viď candleTraces
+    const name = (pc.L.layers.find(l => l.id === layer) || {}).title || o.k;
     const desc = describe(o);
     if (o.t === "bg") {
       shapes.push({ type: "rect", xref: "x", yref: "paper", layer: "below", x0: utc(o.x1), x1: utc(o.x2), y0: 0, y1: 1, fillcolor: o.c, line: { width: 0 } });
@@ -767,10 +794,12 @@ function objectTraces(objects) {
  */
 function candleTraces(candles, objects) {
   const marks = new Map();  // index sviečky -> farba obrysu
-  if (pc.layers.imb) {
+  if (pc.L.hollow.size) {
     const t = candles.t;
     for (const o of objects) {
-      if (o.k !== "imb_box") continue;
+      if (!pc.L.hollow.has(o.k) || o.t !== "box") continue;
+      const layer = pc.L.byKind[o.k];
+      if (layer && !pc.layers[layer]) continue;
       let lo = 0, hi = t.length - 1, idx = -1;
       while (lo <= hi) { const m = (lo + hi) >> 1; if (t[m] <= o.x1) { idx = m; lo = m + 1; } else hi = m - 1; }
       if (idx >= 0 && (idx + 1 >= t.length || o.x1 < t[idx + 1])) marks.set(idx, o.bc);
@@ -785,7 +814,7 @@ function candleTraces(candles, objects) {
     const col = marks.get(i);
     if (col) {
       tr = hollow.get(col);
-      if (!tr) { tr = base("Imbalance sviečka", col, col, "rgba(0,0,0,0)"); hollow.set(col, tr); }
+      if (!tr) { tr = base("Dutá sviečka", col, col, "rgba(0,0,0,0)"); hollow.set(col, tr); }
     }
     tr.x.push(utc(candles.t[i])); tr.open.push(candles.o[i]); tr.high.push(candles.h[i]); tr.low.push(candles.l[i]); tr.close.push(candles.c[i]);
   }
@@ -862,12 +891,13 @@ function closeDetail() {
 async function loadDetailIntoForm() {
   const r = await api(`/api/runs/${state.detailId}`);
   const rec = r.record;
+  setStrategy(rec.settings.strategy || "ibs");  // formulár musí byť tej stratégie, ktorej sú parametre
   state.profile = rec.settings.profile || null;
   // základ = profil (aby sa zvýraznili odchýlky), hodnoty = beh. Profil behu už nemusí
   // existovať (archivované presety) — vtedy je základom Pine default a odchýlky sú voči nemu.
   let base = {};
   if (state.profile) {
-    try { base = (await api(`/api/profiles/${state.profile.split("/").map(encodeURIComponent).join("/")}`)).params; }
+    try { base = (await api(`/api/profiles/${state.profile.split("/").map(encodeURIComponent).join("/")}?strategy=${encodeURIComponent(state.strategy)}`)).params; }
     catch (_) { state.profile = null; }
   }
   $("#profile").value = state.profile && state.meta.profiles.includes(state.profile) ? state.profile : "";
@@ -919,7 +949,9 @@ function showView(name) {
 
 async function init() {
   state.meta = await api("/api/meta");
+  Object.assign(state.meta, strategyMeta(state.strategy) || {});
   fillSettings();
+  $("#strategy").value = state.strategy;
   // Východisko sú Pine defaulty; referenčné profily (golden test, MultiCharts) sú na výber.
   const preferred = "";
   $("#profile").value = preferred;

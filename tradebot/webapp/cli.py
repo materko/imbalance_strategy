@@ -99,10 +99,12 @@ def fmt_summary(rec: dict[str, Any]) -> str:
 
 
 def cmd_run(args: argparse.Namespace) -> int:
-    from ..core import IBSConfig
+    from ..strategies import STRATEGIES
     from .runner import default_params, instrument_for_pair
 
-    params, instrument = default_params(args.profile) if args.profile else (IBSConfig().to_dict(), None)
+    if args.strategy not in STRATEGIES:
+        raise SystemExit(f"neznáma stratégia {args.strategy!r}; známe: {', '.join(sorted(STRATEGIES))}")
+    params, instrument = default_params(args.profile, args.strategy)
     for item in args.set or []:
         k, v = parse_set(item)
         if k not in params:
@@ -117,11 +119,11 @@ def cmd_run(args: argparse.Namespace) -> int:
     pair_instrument = instrument_for_pair(pair)
     if instrument and pair_instrument != instrument:
         print(f"POZOR: profil {args.profile} je pre {instrument}, ale pár {pair} je {pair_instrument}. "
-              f"Prahy v bodoch/tickoch nesedia - použi profil pre tento nástroj (napr. {pair_instrument.split('_')[0]}_3m_binance_ny_sl_risk1).",
+              "Prahy v bodoch/tickoch nesedia - použi profil pre tento nástroj.",
               file=sys.stderr)
 
     settings = {
-        "pair": pair, "timeframe": args.timeframe, "timerange": args.timerange, "fee": args.fee,
+        "strategy": args.strategy, "pair": pair, "timeframe": args.timeframe, "timerange": args.timerange, "fee": args.fee,
         "wallet": args.wallet, "timeframe_detail": None if args.no_detail else "1m", "profile": args.profile,
     }
     user = args.user or getenv("USER") or ""
@@ -175,15 +177,16 @@ def cmd_list(args: argparse.Namespace) -> int:
 
 
 def cmd_show(args: argparse.Namespace) -> int:
-    from ..core import IBSConfig
-    from .store import RunStore, diff_from_defaults
+    from ..strategies import get_spec
+    from .store import RunStore, diff_from_defaults, strategy_of
 
     rec = RunStore().get(args.run_id)
     if rec is None:
         raise SystemExit(f"beh {args.run_id} neexistuje")
     print(fmt_summary(rec))
     print("nastavenia:", json.dumps(rec.get("settings"), ensure_ascii=False))
-    print("odchýlky od Pine defaultov:", json.dumps(diff_from_defaults(rec.get("params") or {}, IBSConfig().to_dict()), ensure_ascii=False))
+    defaults = get_spec(strategy_of(rec)).config_cls().to_dict()
+    print("odchýlky od Pine defaultov:", json.dumps(diff_from_defaults(rec.get("params") or {}, defaults), ensure_ascii=False))
     r = rec.get("result") or {}
     if r.get("exits"):
         print("výstupy:", json.dumps(r["exits"], ensure_ascii=False))
@@ -225,7 +228,7 @@ def cmd_push(args: argparse.Namespace) -> int:
 def cmd_params(args: argparse.Namespace) -> int:
     from .pine_meta import param_metadata
 
-    for m in param_metadata():
+    for m in param_metadata(args.strategy):
         if args.filter and args.filter.lower() not in f"{m['name']} {m['title']} {m['tooltip']}".lower():
             continue
         rng = f"  [{m['min']}–{m['max']}]" if m.get("min") is not None else ""
@@ -242,7 +245,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("run", help="spusti backtest (cez webapp, alebo priamo) a ulož do histórie")
-    p.add_argument("--profile", help="východiskový profil z tradebot/configs/ibs (bez neho Pine defaulty)")
+    p.add_argument("--strategy", default="ibs", help="stratégia z registry (default ibs)")
+    p.add_argument("--profile", help="východiskový profil z tradebot/configs/<strategia> alebo cesta k JSON (bez neho Pine defaulty)")
     p.add_argument("--set", action="append", metavar="KLUC=HODNOTA", help="zmena parametra, opakovateľné")
     p.add_argument("--pair", help="napr. BTC/USDT:USDT alebo ETH/USDT:USDT (default podľa profilu)")
     p.add_argument("--timerange", required=True, help="YYYYMMDD-YYYYMMDD")
@@ -277,6 +281,7 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser("params", help="zoznam parametrov (názov, skupina, titulok, typ, rozsah)")
     p.add_argument("filter", nargs="?")
+    p.add_argument("--strategy", default="ibs", help="stratégia z registry (default ibs)")
     p.set_defaults(func=cmd_params)
 
     args = ap.parse_args(argv)

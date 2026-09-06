@@ -46,6 +46,22 @@ def _read_json(path: Path) -> Any:
         return json.load(fh)
 
 
+#: Stratégia behov spred registry stratégií (záznamy bez `settings.strategy`).
+LEGACY_STRATEGY = "ibs"
+
+
+def _with_strategy(record: dict[str, Any]) -> dict[str, Any]:
+    """Staré `run.json` nemajú `settings.strategy` — doplní sa len pri čítaní, disk sa nemení."""
+    settings = record.get("settings")
+    if isinstance(settings, dict) and not settings.get("strategy"):
+        settings["strategy"] = LEGACY_STRATEGY
+    return record
+
+
+def strategy_of(record: dict[str, Any]) -> str:
+    return ((record.get("settings") or {}).get("strategy")) or LEGACY_STRATEGY
+
+
 def _write_json(path: Path, data: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as fh:
@@ -89,7 +105,7 @@ class RunStore:
 
     def get(self, run_id: str) -> dict[str, Any] | None:
         p = self.root / run_id / "run.json"
-        return _read_json(p) if p.exists() else None
+        return _with_strategy(_read_json(p)) if p.exists() else None
 
     def trades(self, run_id: str) -> list[dict[str, Any]]:
         p = self.root / run_id / "trades.json"
@@ -114,7 +130,7 @@ class RunStore:
         out = []
         for p in self.root.glob("*/run.json"):
             try:
-                out.append(_read_json(p))
+                out.append(_with_strategy(_read_json(p)))
             except (OSError, json.JSONDecodeError):
                 continue  # rozbitý súbor nemá zhodiť celý zoznam
         out.sort(key=lambda r: r.get("id", ""), reverse=True)
@@ -150,6 +166,8 @@ ALIASES = {
     "breakeven": "result.break_even_pct",
     "be": "result.break_even_pct",
     "pair": "settings.pair",
+    "strategy": "settings.strategy",
+    "strat": "settings.strategy",
     "tf": "settings.timeframe",
     "timeframe": "settings.timeframe",
     "timerange": "settings.timerange",
@@ -208,6 +226,7 @@ def _match(record: dict[str, Any], cond: tuple[str, str, str]) -> bool:
                 record.get("id"), record.get("note"), record.get("user"),
                 (record.get("settings") or {}).get("pair"),
                 (record.get("settings") or {}).get("profile"),
+                (record.get("settings") or {}).get("strategy"),
             ) if x
         ).lower()
         return raw.lower() in hay

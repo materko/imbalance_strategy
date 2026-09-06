@@ -246,6 +246,29 @@ def test_submit_validates_timeframe(client, monkeypatch):
     assert c.post("/api/runs", json=base).json()["settings"]["timeframe"] == "3m"
 
 
+def test_meta_carries_every_strategy_and_runs_default_to_ibs(client):
+    c, store = client
+    m = c.get("/api/meta").json()
+    keys = [s["key"] for s in m["strategies"]]
+    assert "ibs" in keys and set(m["strategy_meta"]) == set(keys)
+    ibs = m["strategy_meta"]["ibs"]
+    assert len(ibs["params"]) == len(m["params"]) and ibs["defaults"] == m["defaults"]
+    assert any(l["id"] == "imb" and l["hollow_kinds"] == ["imb_box"] for l in m["strategies"][keys.index("ibs")]["layers"])
+
+    # starý záznam bez settings.strategy sa číta ako ibs, nový beh nesie stratégiu
+    store.save(_record("20260905-120000-aaaaaa"), trades=[], log="")
+    lst = c.get("/api/runs", params={"q": "strat=ibs"}).json()
+    assert lst["total"] == 1 and lst["runs"][0]["settings"]["strategy"] == "ibs"
+    assert c.get("/api/runs/20260905-120000-aaaaaa").json()["record"]["settings"]["strategy"] == "ibs"
+    base = {"params": IBSConfig().to_dict(), "pair": "BTC/USDT:USDT", "timerange": "20260801-20260901"}
+    assert c.post("/api/runs", json={**base, "strategy": "neexistuje"}).status_code == 422
+    job = c.post("/api/runs", json={**base, "strategy": "ibs"}).json()
+    assert job["settings"]["strategy"] == "ibs"
+    prof = c.get("/api/profiles/ibs/golden_binance_btcusdt_3m").json()
+    assert prof["strategy"] == "ibs" and prof["params"]["legacyPineSizing"] is True
+    assert c.get("/api/profiles/golden_binance_btcusdt_3m", params={"strategy": "neexistuje"}).status_code == 404
+
+
 def test_submit_uses_tester_name_from_request(client, monkeypatch):
     """Meno z hlavičky stránky ide k behu; bez neho sa použije predvolené."""
     import tradebot.webapp.app as app_mod
