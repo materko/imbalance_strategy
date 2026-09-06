@@ -1,7 +1,9 @@
 # Pokyny pre Claude Code v tomto repozitári
 
-Repozitár je port TradingView stratégie „IBS Imbalance Breakout" do Pythonu (jadro
-`tradebot/core`, Freqtrade adaptér) plus webová aplikácia pre testerov (`tradebot/webapp`).
+Repozitár je TradeBot — rámec pre porty TradingView stratégií do Pythonu (generické jadro
+`tradebot/core`, registry stratégií `tradebot/strategies` — dnes „IBS Imbalance Breakout" a
+ukážková „Demo Donchian Breakout" —, Freqtrade a MultiCharts adaptéry) plus webová aplikácia
+pre testerov (`tradebot/webapp`). Ako pridať stratégiu: [docs/STRATEGIE.md](docs/STRATEGIE.md).
 Pracujú v ňom dva druhy ľudí a pre každého platí iné:
 
 | rola | kto | čo platí |
@@ -32,7 +34,10 @@ Bez obmedzení. Platia len konvencie repozitára:
 
 - Zmeny jadra musia prejsť `pytest` vrátane golden testov proti TradingView
   (`tradebot/tests/test_golden_tv_binance.py`). Rozšírenia mimo Pine majú default zhodný
-  s Pine a sú v `PORT_ONLY_FIELDS` (`tradebot/core/config.py`).
+  s Pine a sú v `PORT_ONLY_FIELDS` configu stratégie (`tradebot/strategies/<key>/config.py`).
+- Nová stratégia = balík `tradebot/strategies/<key>/` + riadok v registry; checklist a testy
+  (`test_registry.py`, `test_pine_parity.py`) sú v [docs/STRATEGIE.md](docs/STRATEGIE.md).
+  Jadro a adaptéry nesmú poznať konkrétnu stratégiu menom — všetko ide cez `StrategySpec`.
 - Backtest vždy s `--timeframe-detail 1m` a `--cache none` (skripty to robia samy);
   stratégiu nespúšťať priamo na 1m grafe (limity `*MaxBars` sú v baroch).
 - Merania sa zapisujú ako datované dokumenty v `docs/` s číslami **po rokoch** na piatich
@@ -55,6 +60,8 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
 
 ## Zlaté pravidlá
 
+0. Stratégia sa volí prepínačom `--strategy <kľúč>` (default `ibs`; zoznam v
+   [docs/STRATEGIE.md](docs/STRATEGIE.md)); profil musí patriť tej istej stratégii.
 1. **Backtesty spúšťaj len cez `python -m tradebot.webapp.cli run …`** (alebo cez webapp
    v prehliadači). Holý `freqtrade backtesting` výsledok do histórie webapp **nezapíše**
    a tester ho neuvidí.
