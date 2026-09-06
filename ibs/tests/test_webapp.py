@@ -444,6 +444,39 @@ def test_profile_params_are_validated_before_save(own_profiles):
     assert profiles.user_names() == []
 
 
+def test_git_target_is_main_not_the_current_branch(monkeypatch):
+    """História behov patrí do `main`. Keď webapp bežala z vývojárskeho worktree,
+    push šiel na vetvu `claude/...` a v `main` po ňom nebolo ani stopy."""
+    from ibs.webapp import gitsync
+
+    monkeypatch.delenv("IBS_GIT_BRANCH", raising=False)
+    assert gitsync.target() == "main"
+    monkeypatch.setenv("IBS_GIT_BRANCH", "test-vetva")
+    assert gitsync.target() == "test-vetva"
+
+
+def test_git_push_refuses_commits_outside_tester_data(monkeypatch):
+    """Kód z testerského klonu do `main` nepatrí — Push to musí zastaviť."""
+    from ibs.webapp import gitsync
+
+    calls = {}
+
+    def fake_git(*args, check=False):
+        calls["last"] = args
+        out = ""
+        if args[0] == "rev-list":
+            out = "aaaaaaa1 bbbbbbb2"
+        elif args[0] == "show":
+            out = ("ibs/core/engine.py" if args[-1] == "aaaaaaa1"
+                   else "platforms/freqtrade/user_data/runs/x/run.json")
+        return type("P", (), {"args": ("git", *args), "stdout": out, "stderr": "", "returncode": 0})()
+
+    monkeypatch.setattr(gitsync, "_git", fake_git)
+    monkeypatch.setattr(gitsync, "_paths", lambda: ["platforms/freqtrade/user_data/runs",
+                                                    "platforms/freqtrade/user_data/profiles"])
+    assert gitsync._foreign_commits("main") == ["aaaaaaa"]  # len ten commit s kódom
+
+
 def test_git_commit_message_counts_runs_and_profiles():
     from ibs.webapp.gitsync import _message
 

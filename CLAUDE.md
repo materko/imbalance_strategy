@@ -206,7 +206,8 @@ PY -m ibs.webapp.cli pull    # stiahni behy ostatných (git pull --rebase --auto
 PY -m ibs.webapp.cli push    # commitni LEN runs/ a profiles/ a pushni na aktuálnu vetvu
 ```
 
-To isté robia tlačidlá Pull/Push vo webapp. Push commituje **výhradne** adresáre
+To isté robia tlačidlá Pull/Push vo webapp. Push ide vždy do **`main`** (nie na vetvu,
+na ktorej klon stojí; iný cieľ cez `IBS_GIT_BRANCH`) a commituje **výhradne** adresáre
 `platforms/freqtrade/user_data/runs/` a `platforms/freqtrade/user_data/profiles/`,
 autor je meno testera (`IBS_USER` alebo `git config user.name`). Každý beh je nový
 adresár, konflikty prakticky nevznikajú.

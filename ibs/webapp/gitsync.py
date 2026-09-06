@@ -4,10 +4,17 @@ Tester klikne „Push": zmeny v histórii behov a vo vlastných profiloch sa com
 spraví sa `pull --rebase` a `push`. Kód ani iné súbory sa nedotýkajú, takže si tester
 nemôže omylom commitnúť rozpracovanú zmenu stratégie. Konflikt prakticky nevzniká
 (každý beh je nový adresár), ale keby predsa, výstup gitu sa zobrazí celý.
+
+Cieľom je vždy **`main`** (alebo to, čo je v `IBS_GIT_BRANCH`), nie vetva, na ktorej
+klon práve stojí: keď webapp bežala z vývojárskeho worktree, história skončila na
+vetve `claude/...` a v `main` po nej nebolo ani stopy. Ak by pritom mala vetva
+commity mimo `runs/` a `profiles/`, Push to odmietne — kód testera do `main`
+nepatrí, ten ide cez pull request.
 """
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -32,8 +39,30 @@ def _paths() -> list[str]:
 
 
 def branch() -> str:
+    """Vetva, na ktorej stojí klon (len informácia do hlavičky stránky)."""
     r = _git("branch", "--show-current")
     return r.stdout.strip() or "HEAD"
+
+
+def target() -> str:
+    """Vetva, do ktorej história behov patrí — `main`, ak sa nepovie inak."""
+    return os.environ.get("IBS_GIT_BRANCH", "").strip() or "main"
+
+
+def _foreign_commits(br: str) -> list[str]:
+    """Commity, ktoré sú na HEAD navyše oproti `origin/<br>` a siahajú mimo dát testera."""
+    paths = tuple(_paths())
+    if not paths:
+        return []
+    rev = _git("rev-list", f"origin/{br}..HEAD")
+    if rev.returncode != 0:
+        return []
+    out = []
+    for sha in rev.stdout.split():
+        files = _git("show", "--name-only", "--pretty=format:", sha).stdout.split()
+        if any(not f.startswith(paths) for f in files):
+            out.append(sha[:7])
+    return out
 
 
 def user_name() -> str:
@@ -42,7 +71,7 @@ def user_name() -> str:
 
 
 def status() -> dict[str, Any]:
-    br = branch()
+    br = target()
     paths = _paths()
     changed = _git("status", "--porcelain", "--", *paths).stdout.splitlines() if paths else []
     _git("fetch", "--quiet", "origin", br)
@@ -52,7 +81,8 @@ def status() -> dict[str, Any]:
         b, a = rev.stdout.split()
         ahead, behind = int(a), int(b)
     return {
-        "branch": br,
+        "branch": branch(),
+        "target": br,
         "uncommitted": len(changed),
         "changed": changed[:50],
         "ahead": ahead,
@@ -88,13 +118,13 @@ def _message(changed: list[str]) -> str:
 
 
 def pull() -> dict[str, Any]:
-    br = branch()
+    br = target()
     p = _git("pull", "--rebase", "--autostash", "origin", br)
     return {"ok": p.returncode == 0, "output": _out(p), **status()}
 
 
 def push(message: str | None = None, author: str | None = None) -> dict[str, Any]:
-    br = branch()
+    br = target()
     steps: list[subprocess.CompletedProcess] = []
     paths = _paths()
     changed = _git("status", "--porcelain", "--", *paths).stdout.splitlines() if paths else []
@@ -112,6 +142,12 @@ def push(message: str | None = None, author: str | None = None) -> dict[str, Any
     steps.append(p)
     if p.returncode != 0:
         return {"ok": False, "output": _out(*steps), **status()}
-    q = _git("push", "origin", br)
+    foreign = _foreign_commits(br)
+    if foreign:
+        note = (f"Push zrušený: vetva {branch()} má oproti origin/{br} commity mimo histórie "
+                f"behov ({', '.join(foreign)}). Kód z testerského klonu do {br} neposielam "
+                "— rieš to pull requestom.")
+        return {"ok": False, "output": _out(*steps) + chr(10) + note, **status()}
+    q = _git("push", "origin", f"HEAD:{br}")
     steps.append(q)
     return {"ok": q.returncode == 0, "output": _out(*steps), **status()}

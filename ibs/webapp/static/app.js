@@ -1117,6 +1117,13 @@ async function loadDetailIntoForm() {
 async function gitStatus() {
   try {
     const s = await api("/api/git/status");
+    // história ide vždy do `main` — keď klon stojí inde, nech je to vidno v hlavičke
+    if (s.target && s.branch && s.target !== s.branch) {
+      $("#branch").textContent = `${s.branch} → ${s.target}`;
+      $("#branch").title = `klon je na vetve ${s.branch}, história behov ide do ${s.target}`;
+    } else if (s.target) {
+      $("#branch").textContent = s.target; $("#branch").title = "";
+    }
     const parts = [];
     if (s.uncommitted) parts.push(`${s.uncommitted} necommitnutých`);
     if (s.ahead) parts.push(`↑${s.ahead}`);
