@@ -29,7 +29,10 @@ header.top { display: flex; align-items: center; gap: 18px; padding: 10px 18px; 
 .git { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 13px; }
 .who { font: inherit; font-size: 13px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; width: 150px; }
 .who:focus { border-color: var(--green); outline: none; }
-.git-output { margin: 8px 18px 0; padding: 10px; background: #111827; color: #e5e7eb; border-radius: 8px; font-size: 12px; max-height: 240px; overflow: auto; white-space: pre-wrap; }
+.git-box { margin: 8px 18px 0; background: #111827; color: #e5e7eb; border-radius: 8px; }
+.git-box-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px 0; font-size: 12px; color: #9ca3af; }
+.git-box-head button { color: #e5e7eb; border-color: #374151; }
+.git-output { margin: 0; padding: 6px 10px 10px; font-size: 12px; max-height: 240px; overflow: auto; white-space: pre-wrap; }
 
 main.view { display: grid; grid-template-columns: 360px 1fr; gap: 16px; padding: 16px 18px; align-items: start; }
 #view-history { grid-template-columns: 1fr; }
