@@ -28,6 +28,7 @@ from ..core import IBSConfig
 from ..core.config import ConfigError
 from . import chart as chart_data
 from . import gitsync
+from ..strategies import STRATEGIES
 from .pine_meta import param_metadata
 from .runner import (
     REPO, BacktestRunner, available_pairs, default_params, list_profiles, profile_instruments, profile_titles, tf_minutes,
@@ -83,6 +84,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         return {
             "params": param_metadata(),
             "defaults": defaults,
+            "strategies": [spec.public() for spec in STRATEGIES.values()],
             "profiles": list_profiles(),
             "profile_titles": profile_titles(),
             "profile_instruments": profile_instruments(),

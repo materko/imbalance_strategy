@@ -25,6 +25,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum
+from typing import ClassVar
 
 __all__ = [
     "Palette",
@@ -100,40 +101,79 @@ class LabelStyle(str, Enum):
     LEFT = "left"  # label.style_label_left
 
 
-class DrawKind(str, Enum):
-    """Čo objekt znamená — adaptér podľa toho volí vrstvu a štýl.
+class _DrawKindMeta(type):
+    """`DrawKind.IMB_BOX` pred importom stratégie: doimportuje registry a skúsi znova.
 
-    Hodnoty kopírujú miesta v Pine, aby sa dali porovnať vedľa seba.
+    Druhy registrujú stratégie pri importe (`tradebot/strategies/<key>/drawing.py`); kód,
+    ktorý siahne na druh skôr (testy jadra, nástroje), tak nemusí vedieť, komu patrí.
     """
 
-    # -- SD zóny a ich sprievodné boxy (Pine 652, 656, 697, 1684, 1758) ----
-    SD_ZONE_PRE = "sd_zone_pre"  # formácia zóny, bodkovaný obrys bez výplne
-    SD_ZONE_POST = "sd_zone_post"  # potvrdená zóna, plná výplň
-    IMB_BOX = "imb_box"
-    PIN_BAR_BOX = "pin_bar_box"  # Pine 1572
-    ENGULFING_BOX = "engulfing_box"  # Pine 1617
-    # -- obchod (Pine 2097, 2098) -----------------------------------------
-    TP_BOX = "tp_box"
-    SL_BOX = "sl_box"
-    ENTRY = "entry"
-    EXIT = "exit"
-    # -- štítky stavového automatu ----------------------------------------
-    SKIP = "skip"  # Pine 2042
-    COUNTER = "counter"  # Pine 2265
-    STATE34 = "state34"  # Pine 1850 / 1872
-    EXPIRED = "expired"  # Pine 2173
-    MAX_DAILY = "max_daily"  # Pine 1894
-    IMB_ZERO = "imb_zero"  # Pine 2246 - "0" pri imbalance
-    # -- display-only moduly ----------------------------------------------
-    SWING = "swing"  # HH/HL/LH/LL štítky (Pine 750, 762)
-    STRUCTURE = "structure"  # BOS/CHoCH čiara + štítok (Pine 781-812)
-    SR_LEVEL = "sr_level"  # Pine 1126 / 1129
-    SR_GOLDEN = "sr_golden"  # Pine 1114 / 1117
-    LIQ_SWEEP = "liq_sweep"  # Pine 1181-1231
-    ELLIOTT_WAVE = "elliott_wave"  # Pine 1346 / 1357
-    ELLIOTT_PROJ = "elliott_proj"  # Pine 1425 / 1468
-    # -- pozadie seansy (Pine 331-333) ------------------------------------
-    SESSION = "session"
+    def __getattr__(cls, name: str):
+        if name.startswith("_"):
+            raise AttributeError(name)
+        import importlib
+
+        importlib.import_module("tradebot.strategies")
+        try:
+            return cls.__dict__[name]
+        except KeyError:
+            raise AttributeError(f"DrawKind nemá druh {name!r}; registrované: {sorted(cls._names.values())}") from None
+
+
+class DrawKind(str, metaclass=_DrawKindMeta):
+    """Čo objekt znamená — adaptér a graf podľa toho volia vrstvu a štýl.
+
+    Otvorený registr reťazcov (nie uzavretý Enum), aby si každá stratégia mohla pridať
+    vlastné druhy. Jadro registruje generické druhy obchodu a seansy, IBS svoje v
+    `tradebot/strategies/ibs/drawing.py`. Registrovaný druh je vždy ten istý objekt,
+    takže `o.kind is DrawKind.TP_BOX` aj `o.kind == "tp_box"` platia.
+    """
+
+    _registry: ClassVar[dict[str, "DrawKind"]] = {}
+    _names: ClassVar[dict[str, str]] = {}
+
+    def __new__(cls, value: str) -> "DrawKind":
+        try:
+            return cls._registry[value]
+        except KeyError:
+            raise ValueError(f"neznámy DrawKind {value!r}; registrované: {sorted(cls._registry)}") from None
+
+    @classmethod
+    def register(cls, value: str, attr: str) -> "DrawKind":
+        """Zaregistruje druh (idempotentne) a sprístupní ho ako `DrawKind.<attr>`."""
+        kind = cls._registry.get(value)
+        if kind is None:
+            kind = str.__new__(cls, value)
+            cls._registry[value] = kind
+            cls._names[value] = attr
+        type.__setattr__(cls, attr, kind)
+        return kind
+
+    @classmethod
+    def known(cls) -> dict[str, "DrawKind"]:
+        return dict(cls._registry)
+
+    @property
+    def value(self) -> str:
+        return str(self)
+
+    @property
+    def name(self) -> str:
+        return type(self)._names[str(self)]
+
+    def __repr__(self) -> str:
+        return f"<DrawKind.{self.name}: {self.value!r}>"
+
+    def __reduce__(self):
+        return (DrawKind, (str(self),))
+
+
+# -- generické druhy: obchod (Pine 2097, 2098) a pozadie seansy (Pine 331-333) -------
+DrawKind.register("tp_box", "TP_BOX")
+DrawKind.register("sl_box", "SL_BOX")
+DrawKind.register("entry", "ENTRY")
+DrawKind.register("exit", "EXIT")
+DrawKind.register("session", "SESSION")
 
 
 @dataclass(slots=True)
