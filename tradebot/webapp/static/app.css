@@ -98,8 +98,10 @@ label.inline { flex-direction: row; align-items: center; gap: 8px; color: var(--
 @media (max-width: 1200px) { .params-body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; } .param-nav { flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--line); overflow: visible; } .nav-item { width: auto; } }
 
 .queue .job { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; font-size: 12px; }
-.queue .job .head { display: flex; align-items: center; gap: 8px; }
+.queue .job .head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .queue .job .head .spacer { flex: 1; }
+.queue .job .head .actions { display: flex; gap: 6px; flex-shrink: 0; white-space: nowrap; margin-left: auto; }
+.queue .job .head .note { flex-basis: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .queue pre { margin: 6px 0 0; max-height: 200px; overflow: auto; background: #f9fafb; padding: 6px; border-radius: 6px; font-size: 11px; white-space: pre; }
 .live-log { position: fixed; inset: 56px 20px 20px; z-index: 60; display: flex; flex-direction: column; background: #111827; color: #e5e7eb; border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,.35); }
 .live-log-head { display: flex; align-items: center; gap: 12px; padding: 8px 12px; font-size: 12px; color: #d1d5db; border-bottom: 1px solid #374151; }

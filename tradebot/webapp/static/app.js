@@ -688,11 +688,13 @@ async function pollQueue() {
       box.append(el);
     }
     const running = j.status === "running";
+    // Dva riadky: stav + pár + tlačidlá (nikdy sa nezalomia ani nevytlačia z karty),
+    // pod tým poznámka s výpustkou — dlhá poznámka predtým vytlačila ✕ mimo kartu.
     el.querySelector(".head").innerHTML = `<span class="chip ${running ? "warn" : ""}">${j.status}</span>
       <b>${j.settings.pair}</b> <span class="muted">${j.settings.timeframe || "3m"} · ${j.settings.timerange}</span> <span class="spacer"></span>
-      <span class="muted">${esc(j.note || "")}</span>
-      ${running ? `<button class="ghost small" data-expand="${j.id}" title="celý log v plnej šírke, s formátovaním">⤢ Log</button>` : ""}
-      <button class="ghost small" data-cancel="${j.id}" title="zrušiť beh">✕</button>`;
+      <span class="actions">${running ? `<button class="ghost small" data-expand="${j.id}" title="celý log v plnej šírke, s formátovaním">⤢ Log</button>` : ""}
+      <button class="ghost small" data-cancel="${j.id}" title="zrušiť beh">✕</button></span>
+      ${j.note ? `<div class="note muted" title="${esc(j.note)}">${esc(j.note)}</div>` : ""}`;
     el.querySelector("[data-cancel]").onclick = async () => { await api(`/api/queue/${j.id}/cancel`, { method: "POST" }); pollQueue(); };
     const expand = el.querySelector("[data-expand]");
     if (expand) expand.onclick = () => openLiveLog(j);
