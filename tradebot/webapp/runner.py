@@ -28,9 +28,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
-from ..core import IBSConfig, load_profile
-from ..strategies import STRATEGIES, get_spec
-from ..strategies.ibs.config import CONFIG_DIR
+from ..core import load_profile
+from ..strategies import get_spec
 from ..core.types import INSTRUMENTS
 from .store import RunStore, make_run_id
 
@@ -58,9 +57,14 @@ def available_pairs() -> list[dict[str, Any]]:
     import pandas as pd
 
     out = []
-    for p in sorted(DATA_DIR.glob("*-3m-futures.feather")):
-        base = p.name.split("-3m-")[0]  # BTC_USDT_USDT
-        parts = base.split("_")
+    # pár -> súbor, z ktorého sa čítajú dátumy (3m, ak je; inak prvý dostupný TF)
+    files: dict[str, Path] = {}
+    for p in sorted(DATA_DIR.glob("*-*-futures.feather")):
+        base, _, tf = p.name[: -len("-futures.feather")].rpartition("-")
+        if base not in files or tf == "3m":
+            files[base] = p
+    for base, p in sorted(files.items()):
+        parts = base.split("_")  # BTC_USDT_USDT
         if len(parts) != 3:
             continue
         pair = f"{parts[0]}/{parts[1]}:{parts[2]}"
@@ -69,19 +73,18 @@ def available_pairs() -> list[dict[str, Any]]:
         except ValueError:
             continue
         dates = pd.read_feather(p, columns=["date"])["date"]
-        detail = (p.parent / p.name.replace("-3m-", "-1m-")).exists()
-        htf = (p.parent / p.name.replace("-3m-", "-5m-")).exists()
         from .chart import available_timeframes
 
+        tfs = available_timeframes(pair)
         out.append({
             "pair": pair,
             "instrument": instrument_for_pair(pair),
             "from": str(dates.min())[:10],
             "to": str(dates.max())[:10],
-            "bars_3m": int(len(dates)),
-            "has_1m": detail,
-            "has_5m": htf,
-            "timeframes": available_timeframes(pair),
+            "bars": int(len(dates)),
+            "has_1m": "1m" in tfs,
+            "has_5m": "5m" in tfs,
+            "timeframes": tfs,
         })
     return out
 
@@ -406,36 +409,34 @@ def _trim_log(lines: list[str]) -> list[str]:
     return keep_head + ["… (skrátené) …"] + interesting + ["…"] + tail
 
 
-def default_params(profile: "str | Path | None" = None) -> tuple[dict[str, Any], str | None]:
-    """Parametre formulára: Pine defaulty, alebo profil z `tradebot/configs/ibs/`."""
+def default_params(profile: "str | Path | None" = None, strategy: str = "ibs") -> tuple[dict[str, Any], str | None]:
+    """Parametre formulára: Pine defaulty stratégie, alebo profil (názov z jej priečinka alebo cesta)."""
     if profile:
-        cfg, inst = load_profile(profile)
+        cfg, inst = load_profile(profile, strategy=strategy)
         key = next(k for k, v in INSTRUMENTS.items() if v is inst)
         return cfg.to_dict(), key
-    return IBSConfig().to_dict(), None
+    return get_spec(strategy).config_cls().to_dict(), None
 
 
-def list_profiles() -> list[str]:
-    return sorted(p.stem for p in CONFIG_DIR.glob("*.json"))
+def list_profiles(strategy: str = "ibs") -> list[str]:
+    return sorted(p.stem for p in get_spec(strategy).profile_dir.glob("*.json"))
 
 
-def profile_instruments() -> dict[str, str]:
+def _profile_meta(strategy: str, key: str, fallback) -> dict[str, str]:
+    out = {}
+    for p in get_spec(strategy).profile_dir.glob("*.json"):
+        try:
+            out[p.stem] = str(json.loads(p.read_text(encoding="utf-8")).get(key) or fallback(p))
+        except (OSError, json.JSONDecodeError):
+            out[p.stem] = fallback(p)
+    return out
+
+
+def profile_instruments(strategy: str = "ibs") -> dict[str, str]:
     """`_instrument` z profilu — aby stránka vedela, ktorý profil sedí na ktorý pár."""
-    out = {}
-    for p in CONFIG_DIR.glob("*.json"):
-        try:
-            out[p.stem] = str(json.loads(p.read_text(encoding="utf-8")).get("_instrument") or "")
-        except (OSError, json.JSONDecodeError):
-            out[p.stem] = ""
-    return out
+    return _profile_meta(strategy, "_instrument", lambda p: "")
 
 
-def profile_titles() -> dict[str, str]:
+def profile_titles(strategy: str = "ibs") -> dict[str, str]:
     """`_title` z profilu — ľudský popis do dropdownu (bez neho ostane názov súboru)."""
-    out = {}
-    for p in CONFIG_DIR.glob("*.json"):
-        try:
-            out[p.stem] = str(json.loads(p.read_text(encoding="utf-8")).get("_title") or p.stem)
-        except (OSError, json.JSONDecodeError):
-            out[p.stem] = p.stem
-    return out
+    return _profile_meta(strategy, "_title", lambda p: p.stem)

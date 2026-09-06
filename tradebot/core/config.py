@@ -189,9 +189,9 @@ def load_profile(name: str | Path, *, strategy: str | None = None):
     prednosť; nezhoda s argumentom je chyba, aby sa profil nenačítal do cudzej triedy.
     """
     path = Path(name)
-    if path.suffix:
+    if path.suffix == ".json":
         pass  # cesta k súboru
-    elif "/" in str(name):
+    elif "/" in str(name).replace("\\", "/"):
         strat, _, base = str(name).partition("/")
         if strategy is not None and strategy != strat:
             raise ConfigError(f"profil {name!r} patrí stratégii {strat!r}, nie {strategy!r}")
@@ -204,8 +204,13 @@ def load_profile(name: str | Path, *, strategy: str | None = None):
             f"{list_profiles(strategy or DEFAULT_STRATEGY)}"
         )
 
-    with open(path, encoding="utf-8") as fh:
-        data = json.load(fh)
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+    except json.JSONDecodeError as exc:
+        raise ConfigError(f"{path}: nie je platný JSON profil ({exc})") from None
+    if not isinstance(data, dict):
+        raise ConfigError(f"{path}: profil musí byť JSON objekt")
 
     declared = data.get("_strategy")
     if declared is not None and strategy is not None and declared != strategy:
