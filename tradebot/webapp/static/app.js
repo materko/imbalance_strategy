@@ -1165,13 +1165,18 @@ async function gitStatus() {
 }
 
 async function gitAction(kind) {
-  const out = $("#git-output"); out.hidden = false; out.textContent = `git ${kind} …`;
+  const box = $("#git-box"), out = $("#git-output"), close = $("#git-close");
+  box.hidden = false; close.disabled = true; out.textContent = `git ${kind} …`;
+  $("#git-title").textContent = `git ${kind}`;
   try {
     const r = await api(`/api/git/${kind}`, { method: "POST", body: kind === "push" ? JSON.stringify({ author: currentUser() }) : undefined });
     out.textContent = (r.ok ? "OK\n" : "CHYBA\n") + r.output;
+    $("#git-title").textContent = `git ${kind} — ${r.ok ? "hotovo" : "chyba"}`;
     $("#git-status").textContent = r.uncommitted ? `${r.uncommitted} necommitnutých` : "synchronizované";
     if (kind === "pull" && !$("#view-history").hidden) loadRuns();
-  } catch (e) { out.textContent = e.message; }
+  } catch (e) { out.textContent = e.message; $("#git-title").textContent = `git ${kind} — chyba`; }
+  // zavrieť sa dá až po dobehnutí — inak by výstup zmizol uprostred behu
+  close.disabled = false;
 }
 
 // --------------------------------------------------------------------------- //
@@ -1181,7 +1186,8 @@ async function gitAction(kind) {
 function showView(name) {
   for (const b of $$(".tabs button")) b.classList.toggle("active", b.dataset.view === name);
   $("#view-new").hidden = name !== "new"; $("#view-history").hidden = name !== "history";
-  if (name === "history") loadRuns();
+  // karta História je vždy celý zoznam — otvorený detail behu sa zavrie, nech neprekrýva tabuľku
+  if (name === "history") { closeDetail(); loadRuns(); }
 }
 
 async function init() {
@@ -1205,6 +1211,7 @@ async function init() {
   $("#search").onkeydown = e => { if (e.key === "Enter") loadRuns(); };
   $("#search-help-btn").onclick = () => $("#search-help").hidden = !$("#search-help").hidden;
   $("#back").onclick = closeDetail;
+  $("#git-close").onclick = () => { $("#git-box").hidden = true; };
   $("#load-params").onclick = loadDetailIntoForm;
   $("#delete-run").onclick = async () => {
     if (!confirm("Zmazať tento beh z histórie? (zmaže adresár v runs/)")) return;
