@@ -1,7 +1,7 @@
 # Pokyny pre Claude Code v tomto repozitári
 
 Repozitár je port TradingView stratégie „IBS Imbalance Breakout" do Pythonu (jadro
-`ibs/core`, Freqtrade adaptér) plus webová aplikácia pre testerov (`ibs/webapp`).
+`tradebot/core`, Freqtrade adaptér) plus webová aplikácia pre testerov (`tradebot/webapp`).
 Pracujú v ňom dva druhy ľudí a pre každého platí iné:
 
 | rola | kto | čo platí |
@@ -31,8 +31,8 @@ je to tester.
 Bez obmedzení. Platia len konvencie repozitára:
 
 - Zmeny jadra musia prejsť `pytest` vrátane golden testov proti TradingView
-  (`ibs/tests/test_golden_tv_binance.py`). Rozšírenia mimo Pine majú default zhodný
-  s Pine a sú v `PORT_ONLY_FIELDS` (`ibs/core/config.py`).
+  (`tradebot/tests/test_golden_tv_binance.py`). Rozšírenia mimo Pine majú default zhodný
+  s Pine a sú v `PORT_ONLY_FIELDS` (`tradebot/core/config.py`).
 - Backtest vždy s `--timeframe-detail 1m` a `--cache none` (skripty to robia samy);
   stratégiu nespúšťať priamo na 1m grafe (limity `*MaxBars` sú v baroch).
 - Merania sa zapisujú ako datované dokumenty v `docs/` s číslami **po rokoch** na piatich
@@ -40,7 +40,7 @@ Bez obmedzení. Platia len konvencie repozitára:
   `20240904-20250904`, `20250904-20260904`); kľúčová metrika je break-even poplatok.
 - Dáta len v oficiálnych timeframoch búrz, commitované po rokoch v `data_archive/`.
 - Commity v štýle histórie: slovenská veta v imperatíve, čo a prečo.
-- Backtesty, ktoré majú byť v histórii webapp, spúšťaj cez `python -m ibs.webapp.cli run`
+- Backtesty, ktoré majú byť v histórii webapp, spúšťaj cez `python -m tradebot.webapp.cli run`
   (holý Freqtrade CLI ich do `runs/` nezapíše) — inak je to jedno.
 
 Podrobnosti: [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md),
@@ -55,22 +55,22 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
 
 ## Zlaté pravidlá
 
-1. **Backtesty spúšťaj len cez `python -m ibs.webapp.cli run …`** (alebo cez webapp
+1. **Backtesty spúšťaj len cez `python -m tradebot.webapp.cli run …`** (alebo cez webapp
    v prehliadači). Holý `freqtrade backtesting` výsledok do histórie webapp **nezapíše**
    a tester ho neuvidí.
 2. **Vždy `--timeframe-detail 1m`** — CLI aj webapp ho majú zapnutý, nevypínaj ho
    (`--no-detail` len na rýchly hrubý odhad, do záverov nie). Stratégiu nikdy nespúšťaj
    na 1m grafe: limity `*MaxBars` sú v baroch.
 3. **Ku každému behu napíš `--note`**, čo testuje. Bez poznámky je história na nič.
-4. **Testerov klon nie je vývojová vetva.** Neupravuj `ibs/core`, adaptéry ani profily
-   v `ibs/configs`, pokiaľ ťa o to výslovne nepožiadajú. Parametre sa menia cez `--set`
+4. **Testerov klon nie je vývojová vetva.** Neupravuj `tradebot/core`, adaptéry ani profily
+   v `tradebot/configs/ibs`, pokiaľ ťa o to výslovne nepožiadajú. Parametre sa menia cez `--set`
    alebo vo formulári, nie v kóde. Do gitu ide len história behov (`runs/`).
 5. Jeden backtest naraz. Rok s 1m detailom trvá ~20–40 s; päť rokov ~3 minúty.
 6. Nesťahuj dáta z burzy. Páry a obdobia sú len tie, čo sú v `data_archive/`
    (BTC/USDT:USDT a ETH/USDT:USDT, 2019–2026).
 7. Profil musí sedieť s párom: pre ETH použi `ethusdt_*` profil z `docs/profily_archiv/`.
    BTC profil na ETH dá stovky nezmyselných obchodov (prahy v bodoch nesedia) — webapp aj
-   CLI na to varujú. V `ibs/configs/` sú len tri referenčné profily (golden testy proti
+   CLI na to varujú. V `tradebot/configs/ibs/` sú len tri referenčné profily (golden testy proti
    TradingView, MultiCharts); skúšané konfigurácie sú v `docs/profily_archiv/` a `--profile`
    berie aj cestu k súboru.
 8. **„Len mi nastav parametre" znamená naozaj len nastaviť.** Keď má tester otvorenú
@@ -93,14 +93,14 @@ Nižšie píšem `PY` = ten Python. Ak `.venv` neexistuje, najprv spusti setup (
 ## Backtest, ktorý sa objaví v histórii
 
 ```bash
-PY -m ibs.webapp.cli run --profile docs/profily_archiv/btcusdt_3m_binance_ny_sl_risk1.json \
+PY -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json \
    --timerange 20250904-20260904 --note "základ, rok 2025-26"
 
-PY -m ibs.webapp.cli run --profile docs/profily_archiv/btcusdt_3m_binance_ny_sl_risk1.json \
+PY -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json \
    --set rrRatio=4 --set minSlDistance=0.25@pct \
    --timerange 20250904-20260904 --note "RR 4, SL filter 0,25 %"
 
-PY -m ibs.webapp.cli run --profile docs/profily_archiv/ethusdt_3m_binance_ny_sl_risk1.json --pair ETH/USDT:USDT \
+PY -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/ethusdt_3m_binance_ny_sl_risk1.json --pair ETH/USDT:USDT \
    --timerange 20240904-20250904 --note "ETH kontrola"
 ```
 
@@ -111,7 +111,7 @@ PY -m ibs.webapp.cli run --profile docs/profily_archiv/ethusdt_3m_binance_ny_sl_
   o stratégii nič nepovie: `20211001-20221001`, `20221001-20231001`, `20231001-20241001`,
   `20240904-20250904`, `20250904-20260904`.
 - `--set` hodnoty: `true/false`, čísla, text; veľkostné polia `hodnota@jednotka`
-  (`abs`, `ticks`, `atr`, `pct`). Zoznam parametrov: `PY -m ibs.webapp.cli params [filter]`.
+  (`abs`, `ticks`, `atr`, `pct`). Zoznam parametrov: `PY -m tradebot.webapp.cli params [filter]`.
 - Poplatok `--fee 0.0005` (Binance taker 0,05 %) a `--wallet 10000` sú default; pri
   porovnávaní s TradingView použi `--fee 0 --wallet 400000` a profil `*_ny_sl` (1 BTC)
   z `docs/profily_archiv/`.
@@ -131,7 +131,7 @@ beh", „len to navoľ, spustím si to sám" — je to **nastavenie formulára, 
 4. Nakoniec vypíš, čo si nastavil (pole → hodnota), a upozorni na polia, ktoré si nechal
    nezmenené a mohli by prekvapiť (napr. stará poznámka alebo iný timerange z minula).
 5. Ak niektorý parameter vo formulári nie je alebo hodnota nesedí do rozsahu, nehádaj —
-   povedz to a ukáž `PY -m ibs.webapp.cli params <filter>`.
+   povedz to a ukáž `PY -m tradebot.webapp.cli params <filter>`.
 
 Ak tester chce parametre pripraviť **bez webapp**, nespúšťaj `run` — len mu poskladaj
 príkaz s `--set` a nechaj ho naň kliknúť.
@@ -139,9 +139,9 @@ príkaz s `--set` a nechaj ho naň kliknúť.
 ## Čítanie výsledkov
 
 ```bash
-PY -m ibs.webapp.cli list                       # posledné behy
-PY -m ibs.webapp.cli list "rrRatio>=4 pnl>0"    # rovnaká syntax ako vyhľadávanie vo webapp
-PY -m ibs.webapp.cli show <run_id> [--json]
+PY -m tradebot.webapp.cli list                       # posledné behy
+PY -m tradebot.webapp.cli list "rrRatio>=4 pnl>0"    # rovnaká syntax ako vyhľadávanie vo webapp
+PY -m tradebot.webapp.cli show <run_id> [--json]
 ```
 
 Kľúčové číslo je **break-even poplatok** (% na stranu): koľko smie burza brať, aby beh
@@ -152,7 +152,7 @@ Pri záveroch pozeraj **znamienko po rokoch**, nie súčet.
 ## Webapp: spustiť, overiť, reštartovať, zastaviť
 
 ```bash
-PY -m ibs.webapp.cli status              # beží? čo je vo fronte? stav gitu
+PY -m tradebot.webapp.cli status              # beží? čo je vo fronte? stav gitu
 ```
 
 **Spustenie na pozadí** (aby si mohol ďalej pracovať v tom istom termináli):
@@ -175,17 +175,17 @@ lsof -ti :8765 | xargs kill            # potom znova nohup ./webapp.sh …
 Get-NetTCPConnection -LocalPort 8765 -State Listen | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
 ```
 
-Reštart je potrebný po `git pull`, ktorý zmenil kód (`ibs/`), a po zmene `.venv`.
+Reštart je potrebný po `git pull`, ktorý zmenil kód (`tradebot/`), a po zmene `.venv`.
 Zmeny v `runs/` reštart nepotrebujú — história sa číta zo súborov pri každom dopyte.
 
-Iný port: `IBS_WEB_PORT=9000 ./webapp.sh` (a potom `--url http://127.0.0.1:9000` v CLI).
+Iný port: `TRADEBOT_WEB_PORT=9000 ./webapp.sh` (a potom `--url http://127.0.0.1:9000` v CLI).
 
 ## Aktualizácia na najnovšiu verziu
 
 ```bash
-PY -m ibs.webapp.cli push          # najprv odlož vlastné behy (viď nižšie)
+PY -m tradebot.webapp.cli push          # najprv odlož vlastné behy (viď nižšie)
 git pull --rebase --autostash      # v koreni repozitára
-PY -m ibs.tools.data_archive merge # ak pull priniesol nové dáta v data_archive/
+PY -m tradebot.tools.data_archive merge # ak pull priniesol nové dáta v data_archive/
 PY -m pytest -q                    # voliteľné: overenie (~30 s, 300+ testov)
 ```
 
@@ -197,12 +197,12 @@ celá aktualizácia spraviť aj opätovným spustením inštalátora:
 ## História behov cez GitHub
 
 ```bash
-PY -m ibs.webapp.cli pull    # stiahni behy ostatných (git pull --rebase --autostash)
-PY -m ibs.webapp.cli push    # commitni LEN runs/ a pushni na aktuálnu vetvu
+PY -m tradebot.webapp.cli pull    # stiahni behy ostatných (git pull --rebase --autostash)
+PY -m tradebot.webapp.cli push    # commitni LEN runs/ a pushni na aktuálnu vetvu
 ```
 
 To isté robia tlačidlá Pull/Push vo webapp. Push commituje **výhradne** adresár
-`platforms/freqtrade/user_data/runs/`, autor je meno testera (`IBS_USER` alebo
+`platforms/freqtrade/user_data/runs/`, autor je meno testera (`TRADEBOT_USER` alebo
 `git config user.name`). Každý beh je nový adresár, konflikty prakticky nevznikajú.
 Ak push zlyhá na „rejected", sprav pull a push znova. Ak tester zmenil kód a chce
 ho poslať, to už nie je história behov — povedz mu, nech to rieši s autorom repozitára
@@ -212,7 +212,7 @@ ho poslať, to už nie je história behov — povedz mu, nech to rieši s autoro
 
 ```bash
 PY -m pytest -q                                  # všetko, ~30 s
-PY -m pytest ibs/tests/test_golden_tv_binance.py # parita s TradingView
+PY -m pytest tradebot/tests/test_golden_tv_binance.py # parita s TradingView
 ```
 
 Spúšťaj ich po `git pull`, alebo keď niečo padá a nevieš prečo. Ak padnú golden
@@ -221,9 +221,9 @@ testy, kód alebo dáta nesedia s referenciou — neopravuj to u testera, nahlá
 ## Keď niečo nefunguje
 
 - `Permission denied` na `.sh`: `bash ./webapp.sh` (alebo `chmod +x *.sh platforms/freqtrade/scripts/*.sh`).
-- „chýbajú dáta" / prázdny zoznam párov: `PY -m ibs.tools.data_archive merge`.
+- „chýbajú dáta" / prázdny zoznam párov: `PY -m tradebot.tools.data_archive merge`.
 - Webapp odmietne beh s „Neplatný config": hodnota mimo Pine rozsahu — `params` ukáže rozsahy.
-- Beh skončil `failed`: `PY -m ibs.webapp.cli show <id>` vypíše chybu, log je v
+- Beh skončil `failed`: `PY -m tradebot.webapp.cli show <id>` vypíše chybu, log je v
   `runs/<id>/log.txt`.
 - Port 8765 obsadený: stará inštancia beží — zastav ju (vyššie) alebo použi iný port.
 - macOS `ta-lib`/`freqtrade` pri inštalácii: `brew install ta-lib`, potom setup znova.

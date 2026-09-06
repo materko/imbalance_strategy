@@ -2,7 +2,7 @@
 # Preladi prahy strategie hyperoptom. Podrobnosti su v hyperopt.ps1.
 #
 #   ./platforms/freqtrade/scripts/hyperopt.sh 20250901-20260904 300
-#   IBS_PROFILE=docs/profily_archiv/btcusdt_3m_binance_hyper.json ./platforms/freqtrade/scripts/hyperopt.sh 20260601-20260904 200
+#   TRADEBOT_PROFILE=docs/profily_archiv/tradebot/btcusdt_3m_binance_hyper.json ./platforms/freqtrade/scripts/hyperopt.sh 20260601-20260904 200
 set -euo pipefail
 
 TIMERANGE="${1:?pouzitie: hyperopt.sh <timerange> [epochs] [loss]}"
@@ -14,8 +14,8 @@ ft="$repo/platforms/freqtrade"
 py="$repo/.venv/bin/python"
 [ -x "$py" ] || py="$repo/.venv/Scripts/python.exe"
 
-export IBS_PROFILE="${IBS_PROFILE:-docs/profily_archiv/btcusdt_3m_binance_hyper.json}"
-echo "Profil: $IBS_PROFILE"
+export TRADEBOT_PROFILE="${TRADEBOT_PROFILE:-docs/profily_archiv/tradebot/btcusdt_3m_binance_hyper.json}"
+echo "Profil: $TRADEBOT_PROFILE"
 echo "Okno:   $TIMERANGE   epoch: $EPOCHS   loss: $LOSS"
 echo
 echo "POZOR: pri 10 parametroch a radovo stovkach obchodov je pretrenovanie realne."

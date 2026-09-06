@@ -84,7 +84,7 @@ shortmi je pritom overená — nie je to chyba portu, tá strana proste nemá ed
 ## Ako to zopakovať
 
 ```bash
-IBS_PROFILE=ibs/configs/btcusdt_3m_binance_tv.json .venv/bin/python -m freqtrade backtesting \
+TRADEBOT_PROFILE=tradebot/configs/ibs/btcusdt_3m_binance_tv.json .venv/bin/python -m freqtrade backtesting \
   --config platforms/freqtrade/config.binance.json \
   --userdir platforms/freqtrade/user_data --strategy IBSImbalanceStrategy \
   --timeframe-detail 1m --timerange 20250904-20260904

@@ -3,7 +3,7 @@
 #
 # Windows ekvivalent: setup.ps1
 # MultiCharts na macOS nebeží - je to Windows aplikácia. Na Macu sa dá robiť
-# jadro (ibs/), testy a celá Freqtrade vetva.
+# jadro (tradebot/), testy a celá Freqtrade vetva.
 #
 #   ./platforms/freqtrade/scripts/setup.sh
 #   PYTHON=python3.12 ./platforms/freqtrade/scripts/setup.sh
@@ -45,7 +45,8 @@ fi
 echo "Instalujem freqtrade (chvilu to trva)..."
 "$PY" -m pip install freqtrade
 
-echo "Instalujem lokalny balik ibs (editovatelne)..."
+echo "Instalujem lokalny balik tradebot (editovatelne)..."
+"$PY" -m pip uninstall -y ibs >/dev/null 2>&1 || true   # stary nazov balika (pred premenovanim na tradebot)
 "$PY" -m pip install -e "$REPO[dev]"
 
 echo ""

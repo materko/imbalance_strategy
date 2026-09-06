@@ -72,7 +72,7 @@ rozdielom medzi nulou a ziskom.
 ## Ako to zopakovať
 
 ```bash
-IBS_PROFILE=btcusdt_3m_binance_struct \
+TRADEBOT_PROFILE=btcusdt_3m_binance_struct \
 ./platforms/freqtrade/scripts/hyperopt.sh 20211001-20241001 150
 ```
 

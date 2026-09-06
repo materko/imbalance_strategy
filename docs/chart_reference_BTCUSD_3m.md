@@ -52,7 +52,7 @@ RISK / OBCHOD:    $350
 
 ## Porovnanie s portom (2026-09-04)
 
-Beh: `python -m ibs.tools.scan_trades --exchange coinbase --profile btcusd_3m_coinbase`
+Beh: `python -m tradebot.tools.scan_trades --exchange coinbase --profile btcusd_3m_coinbase`
 nad Coinbase dátami **2026-08-01 → 2026-09-04**. Signály na uzavretých 3m barech,
 vyplnenie a výstupy prehrané po **1m** sviečkach.
 
@@ -86,6 +86,6 @@ akú hlbokú históriu mal graf načítanú, a `WORST SL STREAK: 4×` napovedá,
 ### Prečo sa to porovnáva mimo Freqtrade
 
 Freqtrade Coinbase nepodporuje a burza neponúka 3m sviečky, takže backtest tam
-spustiť nejde. `ibs.tools.scan_trades` si 3m poskladá z 1m v pamäti (na disk sa nič
+spustiť nejde. `tradebot.tools.scan_trades` si 3m poskladá z 1m v pamäti (na disk sa nič
 odvodené nezapisuje) a použije 1m detail na rozhodnutie „SL alebo TP skôr" — rovnaký
 princíp ako `--timeframe-detail 1m`.

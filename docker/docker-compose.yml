@@ -11,19 +11,19 @@
 # Vsetko okrem `freqtrade` je pod profilom, aby `docker compose up` samo o sebe
 # spustilo len bota a nie aj jednorazove ulohy.
 
-name: ibs
+name: tradebot
 
 x-freqtrade-base: &freqtrade-base
   build:
     context: ..
     dockerfile: docker/Dockerfile.freqtrade
-  image: ibs-freqtrade:latest
+  image: tradebot-freqtrade:latest
   volumes:
     # user_data (configy, stiahnute sviecky, strategie, vysledky) je zapisovatelny
     - ../platforms/freqtrade/user_data:/freqtrade/user_data
     - ../platforms/freqtrade:/freqtrade/cfg:ro
     # zdrojaky jadra read-only, aby sa zmeny prejavili bez rebuildu
-    - ../ibs:/app/ibs:ro
+    - ../tradebot:/app/tradebot:ro
   environment:
     TZ: ${TZ:-Europe/Bratislava}
   env_file:
@@ -36,9 +36,9 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.core
-    image: ibs-core:latest
+    image: tradebot-core:latest
     volumes:
-      - ../ibs:/app/ibs:ro
+      - ../tradebot:/app/tradebot:ro
       - ../pine:/app/pine:ro
 
   download:
@@ -79,20 +79,20 @@ services:
     # pushuj/pulluj behy z hostitela, alebo spustaj webapp nativne.
     <<: *freqtrade-base
     profiles: ["tools"]
-    container_name: ibs-webapp
-    entrypoint: ["python", "-m", "ibs.webapp"]
+    container_name: tradebot-webapp
+    entrypoint: ["python", "-m", "tradebot.webapp"]
     command: []
     environment:
       TZ: ${TZ:-Europe/Bratislava}
-      IBS_WEB_HOST: 0.0.0.0
-      IBS_WEB_PORT: "8765"
+      TRADEBOT_WEB_HOST: 0.0.0.0
+      TRADEBOT_WEB_PORT: "8765"
       PYTHONPATH: /app
     ports:
       - "127.0.0.1:8765:8765"
 
   freqtrade:
     <<: *freqtrade-base
-    container_name: ibs-freqtrade
+    container_name: tradebot-freqtrade
     restart: unless-stopped
     ports:
       # FreqUI / REST API. Naviazane na localhost - na server daj pred to reverse proxy.

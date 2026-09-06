@@ -16,17 +16,17 @@ platforms/freqtrade/user_data/backtest_results/
 graf.html
 *.html
 # statická stránka webapp je zdroj, nie generovaný report
-!ibs/webapp/static/*.html
+!tradebot/webapp/static/*.html
 platforms/freqtrade/user_data/hyperopt_results/
 # Pracovne subory Freqtradu sa poskladaju z data_archive/ prikazom
-#   python -m ibs.tools.data_archive merge
+#   python -m tradebot.tools.data_archive merge
 # V gite je archiv po rokoch - stary rok sa uz nikdy nezmeni, takze jeho blob
 # v historii existuje raz. Cely subor by sa pri kazdom stiahnuti dat commitol znova.
 platforms/freqtrade/user_data/data/
 platforms/freqtrade/user_data/strategies/*.json
 platforms/freqtrade/user_data/hyperopt.lock
 
-# HTML reporty z `python -m ibs.tools.report` - generovane, nie zdroj
+# HTML reporty z `python -m tradebot.tools.report` - generovane, nie zdroj
 reports/
 
 # webapp: docasne profily behov a konfiguracia Claude Code
@@ -34,4 +34,4 @@ platforms/freqtrade/user_data/runs/.profiles/
 .claude/
 
 # rola pre Claude Code v tomto klone (tester | developer) - kazdy klon ma vlastnu
-.ibs-role
+.tradebot-role

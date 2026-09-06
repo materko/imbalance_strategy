@@ -1,16 +1,16 @@
 <#
 .SYNOPSIS
-    Sprístupní balík `ibs` Pythonu, ktorý používa MultiCharts.
+    Sprístupní balík `tradebot` Pythonu, ktorý používa MultiCharts.
 
 .DESCRIPTION
     POZOR - MultiCharts NEPOUŽÍVA virtuálne prostredie. Volá jednu konkrétnu
-    globálnu 64-bitovú inštaláciu CPythonu cez Python.NET. Preto sa `ibs`
+    globálnu 64-bitovú inštaláciu CPythonu cez Python.NET. Preto sa `tradebot`
     NEDÁ nainštalovať do .venv, ktoré používa Freqtrade - musí ísť do toho
     globálneho interpretera.
 
     Skript:
       1. overí, že cieľový Python je 64-bitový,
-      2. nainštaluje `ibs` v editovateľnom režime (pip install -e),
+      2. nainštaluje `tradebot` v editovateľnom režime (pip install -e),
       3. overí, že sa dá naimportovať a načítať profil.
 
 .PARAMETER Python
@@ -48,20 +48,21 @@ if ($bits -ne "64") {
     throw "MultiCharts x64 potrebuje 64-bitovy Python, tento je ${bits}-bit."
 }
 
-Write-Host "Instalujem ibs do globalneho Pythonu (editovatelne)..."
+Write-Host "Instalujem tradebot do globalneho Pythonu (editovatelne)..."
+& $exe -m pip uninstall -y ibs *> $null   # stary nazov balika (pred premenovanim na tradebot)
 & $exe -m pip install -e $repo
 if ($LASTEXITCODE -ne 0) { throw "pip install -e zlyhalo" }
 
 Write-Host "Overujem import..."
 & $exe -c @"
-from ibs.core import load_profile, list_profiles
+from tradebot.core import load_profile, list_profiles
 print('profily:', list_profiles())
 cfg, inst = load_profile('multicharts_mnq_3m')
 print('multicharts_mnq_3m ->', inst.symbol, 'tick', inst.tick_size, 'point_value', inst.point_value)
-from ibs.adapters.multicharts import MCRunner, MCDrawSink
+from tradebot.adapters.multicharts import MCRunner, MCDrawSink
 print('adapter: MCRunner + MCDrawSink OK')
 "@
-if ($LASTEXITCODE -ne 0) { throw "import ibs zlyhal" }
+if ($LASTEXITCODE -ne 0) { throw "import tradebot zlyhal" }
 
 Write-Host ""
 Write-Host "Hotovo. V MultiCharts:" -ForegroundColor Green

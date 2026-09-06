@@ -85,10 +85,10 @@ to, čo zarobí.
 
 ## Profil
 
-Uložené ako `ibs/configs/btcusdt_3m_binance_struct.json`:
+Uložené ako `tradebot/configs/ibs/btcusdt_3m_binance_struct.json`:
 
 ```bash
-IBS_PROFILE=btcusdt_3m_binance_struct ./platforms/freqtrade/scripts/backtest.sh
+TRADEBOT_PROFILE=btcusdt_3m_binance_struct ./platforms/freqtrade/scripts/backtest.sh
 ```
 
 **Nie je to odporúčanie na obchodovanie** — je to najlepšia konfigurácia, akú sa

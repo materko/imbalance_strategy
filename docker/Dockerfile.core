@@ -1,7 +1,7 @@
-# Samotné jadro `ibs` bez Freqtrade - na testy a CI.
+# Samotné jadro `tradebot` bez Freqtrade - na testy a CI.
 #
-#   docker build -f docker/Dockerfile.core -t ibs-core .
-#   docker run --rm ibs-core
+#   docker build -f docker/Dockerfile.core -t tradebot-core .
+#   docker run --rm tradebot-core
 #
 # Jadro nemá žiadne runtime závislosti mimo stdlib, takže tento image je malý
 # a beží rovnako na serveri aj na Macu (vrátane arm64). MultiCharts sa
@@ -16,7 +16,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 COPY pyproject.toml ./
-COPY ibs/ ./ibs/
+COPY tradebot/ ./tradebot/
 # Pine subor je potrebny pre test_pine_parity.py - straz nad 115 vstupmi.
 COPY pine/imbalance_strategy_FULL.pine ./pine/
 

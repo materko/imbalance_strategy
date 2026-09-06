@@ -3,7 +3,7 @@
     Postaví Python prostredie pre Freqtrade vetvu portu.
 
 .DESCRIPTION
-    Vytvorí .venv v koreni repozitára, nainštaluje Freqtrade a náš balík `ibs`
+    Vytvorí .venv v koreni repozitára, nainštaluje Freqtrade a náš balík `tradebot`
     v editovateľnom režime. Freqtrade beží v izolovanom venv - na rozdiel od
     MultiCharts, ktorý potrebuje globálny Python (viď platforms/multicharts/scripts/setup.ps1).
 
@@ -43,9 +43,10 @@ Write-Host "Instalujem freqtrade (chvilu to trva)..."
 & $py -m pip install freqtrade
 if ($LASTEXITCODE -ne 0) { throw "instalacia freqtrade zlyhala" }
 
-Write-Host "Instalujem lokalny balik ibs (editovatelne)..."
+Write-Host "Instalujem lokalny balik tradebot (editovatelne)..."
+& $py -m pip uninstall -y ibs *> $null   # stary nazov balika (pred premenovanim na tradebot)
 & $py -m pip install -e "$repo[dev]"
-if ($LASTEXITCODE -ne 0) { throw "instalacia ibs zlyhala" }
+if ($LASTEXITCODE -ne 0) { throw "instalacia tradebot zlyhala" }
 
 Write-Host ""
 & $py -m freqtrade --version

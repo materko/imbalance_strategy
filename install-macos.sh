@@ -150,19 +150,19 @@ main() {
     fi
     git -C "$TARGET" config user.name "$TESTER"
     git -C "$TARGET" config user.email "$TESTER_MAIL"
-    echo tester > "$TARGET/.ibs-role"   # Claude Code v tomto klone: rezim tester (CLAUDE.md)
+    echo tester > "$TARGET/.tradebot-role"   # Claude Code v tomto klone: rezim tester (CLAUDE.md)
     ok "git identita v repozitári: $TESTER <$TESTER_MAIL>"
 
     # ---------------------------------------------------------------------------- #
     # 6. Python prostredie, dáta
     # ---------------------------------------------------------------------------- #
     echo
-    bold "Python prostredie (freqtrade + ibs, prvýkrát ~10 minút)"
+    bold "Python prostredie (freqtrade + tradebot, prvýkrát ~10 minút)"
     PYTHON="$PYTHON_BIN" bash "$TARGET/platforms/freqtrade/scripts/setup.sh" < /dev/null
 
     echo
     bold "Dáta"
-    "$TARGET/.venv/bin/python" -m ibs.tools.data_archive merge < /dev/null
+    "$TARGET/.venv/bin/python" -m tradebot.tools.data_archive merge < /dev/null
 
     # ---------------------------------------------------------------------------- #
     # 7. Spúšťač na Ploche + štart
@@ -172,7 +172,7 @@ main() {
         cat > "$LAUNCHER" <<EOF
 #!/bin/bash
 # Dvojklik spustí IBS Backtester (webapp) a otvorí prehliadač. Ctrl+C v tomto okne ho ukončí.
-export IBS_USER="$TESTER"
+export TRADEBOT_USER="$TESTER"
 cd "$TARGET" && exec bash ./webapp.sh
 EOF
         chmod +x "$LAUNCHER"
@@ -189,7 +189,7 @@ EOF
     echo
 
     if yesno "Spustiť webapp teraz?" Y; then
-        export IBS_USER="$TESTER"
+        export TRADEBOT_USER="$TESTER"
         cd "$TARGET"
         exec bash ./webapp.sh
     fi

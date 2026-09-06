@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Stačí mať Python 3.11+ (64-bit) a git. Ak chýba .venv, skript ho sám postaví
-    (setup.ps1: freqtrade + balík ibs, trvá ~10 minút, len prvýkrát). Ak chýbajú
+    (setup.ps1: freqtrade + balík tradebot, trvá ~10 minút, len prvýkrát). Ak chýbajú
     pracovné dáta, webapp ich pri štarte zloží z data_archive/.
 
     Formulár so všetkými parametrami stratégie, výber páru a obdobia, fronta
@@ -32,8 +32,8 @@ if (-not (Test-Path $py)) {
     if (-not (Test-Path $py)) { throw "setup.ps1 nevytvoril $py" }
 }
 
-$env:IBS_WEB_PORT = "$Port"
-$env:IBS_WEB_HOST = $BindHost
+$env:TRADEBOT_WEB_PORT = "$Port"
+$env:TRADEBOT_WEB_HOST = $BindHost
 Set-Location $repo
 
 $url = "http://$BindHost`:$Port"
@@ -51,4 +51,4 @@ if (-not $NoBrowser) {
     } -ArgumentList $url | Out-Null
 }
 
-& $py -m ibs.webapp
+& $py -m tradebot.webapp

@@ -62,7 +62,7 @@ So zmiešaným poplatkom (vstup limitkou ako maker, kde leží pod trhom; viď
 [EXEKUCIA_maker_taker_2026-09-05.md](EXEKUCIA_maker_taker_2026-09-05.md)): podiel
 maker vstupov stúpol z 52 % na 66 %, čistý za päť rokov +16 686 namiesto +11 937 USDT.
 
-Profil: `ibs/configs/btcusdt_3m_binance_ny_sl.json`.
+Profil: `tradebot/configs/ibs/btcusdt_3m_binance_ny_sl.json`.
 
 **Upozornenie.** Pri risk-based sizingu (`maxLossDollar`, nie 1 BTC) je efekt ešte
 väčší, lebo tesný SL znamená väčší nominál a teda väčší poplatok pri rovnakom riziku.
@@ -144,7 +144,7 @@ S poplatkami 0,05 %: bez filtra 3 z 5 rokov ziskové (−0,18 / −0,40 / +0,43 
 malé, lebo `legacyPineSizing` dáva na ETH pozíciu 1–2 ETH (~3 000 USDT) na účte 10 000;
 porovnateľné číslo je break-even, nie percento.
 
-Profil: `ibs/configs/ethusdt_3m_binance_ny_sl.json`.
+Profil: `tradebot/configs/ibs/ethusdt_3m_binance_ny_sl.json`.
 
 **Volatilitný filter sa na ETH nepotvrdil.** Horný kvartil hodinovej ATR má na ETH
 break-even −0,047 %, ale po rokoch −0,34 / **+0,21** / −0,21 / −0,01 / **+0,07** — dva
@@ -242,10 +242,10 @@ ostáva na nule vo všetkých verziách.
 ## Ako to zopakovať
 
 ```bash
-IBS_PROFILE=btcusdt_3m_binance_ny_sl .venv/Scripts/python.exe -m freqtrade backtesting \
+TRADEBOT_PROFILE=btcusdt_3m_binance_ny_sl .venv/Scripts/python.exe -m freqtrade backtesting \
   --config platforms/freqtrade/config.binance.json \
   --userdir platforms/freqtrade/user_data --strategy IBSImbalanceStrategy \
   --timeframe-detail 1m --timerange 20250904-20260904 --cache none
 ```
 
-Pre break-even pridaj `--fee 0 --dry-run-wallet 400000` a `python -m ibs.tools.fees`.
+Pre break-even pridaj `--fee 0 --dry-run-wallet 400000` a `python -m tradebot.tools.fees`.

@@ -3,5 +3,5 @@
 # Tenký obal nad platforms/freqtrade/scripts/webapp.sh - viď docs/WEBAPP.md.
 #
 #   ./webapp.sh
-#   IBS_WEB_PORT=9000 NO_BROWSER=1 ./webapp.sh
+#   TRADEBOT_WEB_PORT=9000 NO_BROWSER=1 ./webapp.sh
 exec "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/platforms/freqtrade/scripts/webapp.sh" "$@"

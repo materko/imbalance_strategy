@@ -31,7 +31,7 @@ Vektorizovať sa dajú len čisté indikátory (pivoty, ATR, SMA volume) — tie
 ## 2. Rozdelenie balíka
 
 ```
-ibs/
+tradebot/
 ├── core/                        # ŽIADNY import z freqtrade ani MultiCharts
 │   ├── types.py                 # Bar, Zone, PendingOrder, TradeRecord, Direction, ZoneState
 │   ├── config.py                # IBSConfig — 1:1 všetkých 115 Pine inputov + from_dict/from_json
@@ -455,10 +455,10 @@ MultiCharts ekvivalent: `IntrabarOrderGeneration = True` + druhá 1-min dátová
    inputov ako dataclass, načítané z JSON profilov.
 2. ✅ **hotové** — `core/clock.py` + `core/zones.py` + `core/drawing.py`: session okná, detekcia SD
    zón na detekčnom TF, `snapMode`, evidencia zón a ich boxy ako `DrawCommand`.
-   Overené na reálnych dátach cez `python -m ibs.tools.scan_zones`.
+   Overené na reálnych dátach cez `python -m tradebot.tools.scan_zones`.
 3. ✅ **hotové** — `core/history.py`, `core/ta/{imbalance,patterns}.py`, `core/risk.py`,
    `core/statemachine.py`: celý STATE 0-5 vrátane re-entry, OCO, SKIP dôvodov, Pin Bar
-   a Engulfing modelu. Overené cez `python -m ibs.tools.scan_trades`.
+   a Engulfing modelu. Overené cez `python -m tradebot.tools.scan_trades`.
 4. ✅ **hotové** — `core/engine.py` (`IBSEngine` ako jediný vstupný bod) +
    `adapters/freqtrade/`. Backtest dáva 5 obchodov zhodných s TradingView na minútu
    vyplnenia, vstupnú cenu, veľkosť aj výstup (`test_golden_tv_binance.py`).
@@ -467,7 +467,7 @@ MultiCharts ekvivalent: `IntrabarOrderGeneration = True` + druhá 1-min dátová
    ktorý sa dotýka PowerLanguage API). Šablóna štúdie je v `platforms/multicharts/IBS_Signal.py`.
 6. ✅ **hotové** — `core/ta/{structure,sr,liquidity,elliott}.py` + kreslenie životného
    cyklu objektov (`obj_id`, `DrawUpdate`, `DrawRegistry`) + plotly renderer
-   `ibs/tools/plot.py`. Market Structure a likvidita sú overené proti TradingView
+   `tradebot/tools/plot.py`. Market Structure a likvidita sú overené proti TradingView
    (`test_golden_tv_draw.py`, 76 z 76 objektov).
 
 Zostáva: preladiť ATR prahy exekučného profilu hyperoptom a rozhodnúť wallet/páku

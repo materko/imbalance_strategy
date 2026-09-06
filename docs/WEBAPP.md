@@ -11,7 +11,7 @@ medzi testermi a hľadať v nej podľa parametrov.
 
 Treba len **Python 3.11+ (64-bit)** a **git**; na macOS ešte `brew install ta-lib`
 (Freqtrade ho potrebuje). Skript pri prvom spustení sám postaví `.venv`
-(freqtrade + balík `ibs`, zhruba 10 minút), pri štarte zloží dáta z `data_archive/`,
+(freqtrade + balík `tradebot`, zhruba 10 minút), pri štarte zloží dáta z `data_archive/`,
 ak chýbajú, a otvorí prehliadač na http://127.0.0.1:8765.
 
 **Windows**: klonuj repozitár a dvojklikni na `webapp.cmd` v jeho koreni (obíde
@@ -33,7 +33,7 @@ a ponúkne spustenie:
 curl -fsSL https://raw.githubusercontent.com/materko/imbalance_strategy/main/install-macos.sh | bash
 ```
 Otázky číta z terminálu, takže funguje aj cez `curl | bash`. Opakované spustenie len
-aktualizuje, čo treba. Meno testera ide do `git config` repozitára a do `IBS_USER`
+aktualizuje, čo treba. Meno testera ide do `git config` repozitára a do `TRADEBOT_USER`
 v spúšťači na Ploche, takže webapp ho má predvyplnené.
 
 **macOS / Linux ručne**:
@@ -45,7 +45,7 @@ cd imbalance_strategy
 ```
 
 Koreňové `webapp.*` sú len obaly nad `platforms/freqtrade/scripts/webapp.*`.
-Voliteľné: `-Port 9000` / `IBS_WEB_PORT=9000`, `-NoBrowser` / `NO_BROWSER=1`.
+Voliteľné: `-Port 9000` / `TRADEBOT_WEB_PORT=9000`, `-NoBrowser` / `NO_BROWSER=1`.
 Server sa ukončí Ctrl+C. Aktualizácia kódu je `git pull` v koreni repozitára.
 
 **Docker** (alternatíva, bez Git tlačidiel v UI):
@@ -57,13 +57,13 @@ docker compose -f docker/docker-compose.yml run --rm --service-ports webapp
 
 V hlavičke stránky je pole s menom. Ukladá sa ku každému behu (stĺpec v histórii,
 hľadanie `user~jana`) a použije sa ako autor commitu pri Push. Drží sa v tomto
-prehliadači; predvolené je `IBS_USER` z prostredia, inak `git config user.name`.
+prehliadači; predvolené je `TRADEBOT_USER` z prostredia, inak `git config user.name`.
 
 ## Nový beh
 
 **Východiskový profil** je len balík odchýlok od Pine defaultov. „(Pine defaulty)" dá
 presne to, čo má TradingView bez zásahu do nastavení; okrem toho sú na výber iba tri
-referenčné profily z `ibs/configs/` (golden test proti TradingView na Binance a Coinbase,
+referenčné profily z `tradebot/configs/ibs/` (golden test proti TradingView na Binance a Coinbase,
 MultiCharts MNQ) — profil prepne aj pár na ten, pre ktorý je určený. Skúšané konfigurácie
 z vývoja (NY seansa, SL filter, risk sizing…) sú v `docs/profily_archiv/` s tabuľkou
 odchýlok a dajú sa načítať cestou cez CLI; vo formulári si tie isté hodnoty nastavíš
@@ -88,7 +88,7 @@ vedľa seba „▸ N nastavení skrytých". Hľadanie a „len zmenené" ukážu
 Hlavný prepínač feature má vedľa seba zrkadlový checkbox „kresliť" (IMB entry ↔
 `showImbalance`, S/R ↔ `showSR`, likvidita ↔ `showLiqSweep`) — je to to isté pole ako
 v jeho Pine skupine, len po ruke. Pine defaulty kreslia všetko. Závislosti sú ručná
-tabuľka `FEATURES` v `ibs/webapp/pine_meta.py`, lebo Pine ich nedeklaruje.
+tabuľka `FEATURES` v `tradebot/webapp/pine_meta.py`, lebo Pine ich nedeklaruje.
 
 Polia s veľkosťou (`*Points`, `*Ticks`, `minSlDistance`) majú jednotku:
 `abs` cenové body, `ticks` násobky ticku, `atr` násobky ATR grafového TF,
@@ -162,7 +162,7 @@ obchodov, všetky parametre a skrátený log Freqtradu.
 
 **Načítať do formulára** vráti parametre aj nastavenia behu do formulára — na
 úpravu jedného parametra a nový beh. **Stiahnuť profil** dá JSON použiteľný
-priamo cez `IBS_PROFILE=cesta.json` v CLI. **Zmazať** odstráni adresár behu.
+priamo cez `TRADEBOT_PROFILE=cesta.json` v CLI. **Zmazať** odstráni adresár behu.
 
 ## Kde história žije a ako sa zdieľa
 
@@ -181,8 +181,8 @@ neukladajú — čítajú sa z `user_data/data` (v gite ako `data_archive/`), ta
 funguje aj pre beh stiahnutý od iného testera. Behy z čias pred týmto súborom ukážu
 sviečky a obchody bez kresieb.
 
-Ako kresby vznikajú: stratégia dostane cez `IBS_DRAW_OUT` cestu, kam má po backteste
-vysypať finálny stav `DrawRegistry` (rovnaký mechanizmus ako `ibs.tools.plot`);
+Ako kresby vznikajú: stratégia dostane cez `TRADEBOT_DRAW_OUT` cestu, kam má po backteste
+vysypať finálny stav `DrawRegistry` (rovnaký mechanizmus ako `tradebot.tools.plot`);
 webapp súbor po dobehnutí presunie do adresára behu.
 Tlačidlá **Pull** (`git pull --rebase --autostash`) a **Push** (commitne **len**
 `runs/` a pushne na aktuálnu vetvu) sú v hlavičke; výstup gitu sa zobrazí celý.
@@ -193,16 +193,16 @@ nepotrebuje, všetko podstatné je v `run.json`.
 
 ## Príkazový riadok a Claude Code
 
-`python -m ibs.webapp.cli` robí to isté, čo stránka, z terminálu — pre Claude Code
+`python -m tradebot.webapp.cli` robí to isté, čo stránka, z terminálu — pre Claude Code
 testera a pre skripty. `run` ide cez API bežiacej webapp (beh vidno vo fronte), a keď
 webapp nebeží, spustí backtest priamo do toho istého `runs/`. `list`/`show` čítajú
 históriu, `pull`/`push` synchronizujú `runs/`, `status` povie, či webapp beží,
 `params` vypíše parametre s rozsahmi.
 
 ```bash
-python -m ibs.webapp.cli run --profile docs/profily_archiv/btcusdt_3m_binance_ny_sl_risk1.json [--timeframe 5m] \
+python -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json [--timeframe 5m] \
     --set rrRatio=4 --set minSlDistance=0.25@pct --timerange 20250904-20260904 --note "RR 4"
-python -m ibs.webapp.cli list "rrRatio>=4 pnl>0"
+python -m tradebot.webapp.cli list "rrRatio>=4 pnl>0"
 ```
 
 Kompletné pokyny pre Claude Code (spúšťanie, reštart, aktualizácia, Git) sú
@@ -216,16 +216,16 @@ inštalátor pre macOS zapisuje `tester` automaticky. Rola sa dá kedykoľvek pr
 ## Čo aplikácia nerobí
 
 * Nesťahuje dáta — páry a obdobia sú len tie, čo sú v archíve
-  (`python -m ibs.tools.data_archive`, docs/RUNNING.md §C).
+  (`python -m tradebot.tools.data_archive`, docs/RUNNING.md §C).
 * Nemá prihlásenie — je na lokálne spustenie (alebo za reverse proxy).
 * Nespúšťa hyperopt; na ten sú skripty v `platforms/freqtrade/scripts/`.
 
 ## Kód
 
-`ibs/webapp/`: `pine_meta.py` (metadáta z Pine), `store.py` (behy a vyhľadávanie),
+`tradebot/webapp/`: `pine_meta.py` (metadáta z Pine), `store.py` (behy a vyhľadávanie),
 `runner.py` (fronta, Freqtrade podproces, spracovanie zipu), `chart.py` (sviečky
 z feather súborov po oknách, orezanie kresieb na okno), `gitsync.py`,
 `app.py` (FastAPI), `static/` (stránka bez frameworku, Plotly z CDN).
-Export kresieb: `ibs/adapters/freqtrade/runner.py::export_chart`, serializácia
-`ibs/core/drawing.py::objects_to_dicts`.
-Testy: `ibs/tests/test_webapp.py`, `ibs/tests/test_chart_export.py`.
+Export kresieb: `tradebot/adapters/freqtrade/runner.py::export_chart`, serializácia
+`tradebot/core/drawing.py::objects_to_dicts`.
+Testy: `tradebot/tests/test_webapp.py`, `tradebot/tests/test_chart_export.py`.

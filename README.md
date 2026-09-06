@@ -1,6 +1,6 @@
 # IBS Imbalance Breakout Strategy
 
-Port TradingView (Pine) stratégie do Pythonu: **jedno spoločné jadro** (`ibs/core`) a dva tenké
+Port TradingView (Pine) stratégie do Pythonu: **jedno spoločné jadro** (`tradebot/core`) a dva tenké
 adaptéry — **Freqtrade** (krypto futures, Binance) a **MultiCharts** (MNQ, akcie, forex).
 Cieľ je rovnaké obchody aj rovnaké vykreslovanie ako v TradingView; parita je overená
 golden testom na cent ([GOLDEN_binance_2026-08-24.md](docs/GOLDEN_binance_2026-08-24.md)).
@@ -47,7 +47,7 @@ do gitu a dá sa v nej hľadať podľa parametrov. Podrobne: [docs/WEBAPP.md](do
 ```
 ```bash
 ./platforms/freqtrade/scripts/setup.sh            # macOS / Linux
-IBS_PROFILE=docs/profily_archiv/btcusdt_3m_binance_ny_sl_risk1.json ./platforms/freqtrade/scripts/backtest.sh
+TRADEBOT_PROFILE=docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json ./platforms/freqtrade/scripts/backtest.sh
 .venv/bin/python -m pytest                        # 315 testov vrátane parity s Pine
 ```
 
@@ -60,26 +60,26 @@ Docker, sťahovanie dát, hyperopt, MultiCharts a riešenie problémov: [docs/RU
 | Cesta | Čo tam je |
 |---|---|
 | [`pine/imbalance_strategy_FULL.pine`](pine/imbalance_strategy_FULL.pine) | **Referenčný Pine skript** (v5, 115 vstupov). Zdroj pravdy pre logiku, defaulty aj tooltipy — testy a webapp ho parsujú priamo. Vedľa neho staršie buildy `imbalance_strategy_SD_IMB.pine` a `Imbalance_strategy.pine` — len na porovnanie, **nie** referencia. |
-| [`ibs/core/`](ibs/core) | Jadro bez závislostí: `IBSConfig` (config + validácia), `IBSEngine` (bar-by-bar), stavový automat zón, zóny, hodiny seáns, risk/sizing, `ta/` (štruktúra, S/R, likvidita, Elliott). |
-| [`ibs/adapters/freqtrade/`](ibs/adapters/freqtrade) | Freqtrade stratégia `IBSImbalanceStrategy` + runner (engine nad DataFrame, fill model). |
-| [`ibs/adapters/multicharts/`](ibs/adapters/multicharts) | MultiCharts signál a kreslenie (len Windows). |
-| [`ibs/configs/`](ibs/configs) | JSON profily — len odchýlky od Pine defaultov, viď nižšie. |
-| [`ibs/webapp/`](ibs/webapp) | Webová aplikácia pre testerov (FastAPI + Plotly). |
-| [`ibs/tools/`](ibs/tools) | `report` (HTML ako Strategy Tester), `fees` (maker/taker, break-even), `scan_trades`/`scan_zones` (diagnostika), `data_archive` (ročné súbory dát), `plot`. |
-| [`ibs/tests/`](ibs/tests) | Testy jadra, adaptérov, webapp a **golden testy** proti TradingView (`golden/`). |
+| [`tradebot/core/`](tradebot/core) | Jadro bez závislostí: `IBSConfig` (config + validácia), `IBSEngine` (bar-by-bar), stavový automat zón, zóny, hodiny seáns, risk/sizing, `ta/` (štruktúra, S/R, likvidita, Elliott). |
+| [`tradebot/adapters/freqtrade/`](tradebot/adapters/freqtrade) | Freqtrade stratégia `IBSImbalanceStrategy` + runner (engine nad DataFrame, fill model). |
+| [`tradebot/adapters/multicharts/`](tradebot/adapters/multicharts) | MultiCharts signál a kreslenie (len Windows). |
+| [`tradebot/configs/ibs/`](tradebot/configs/ibs) | JSON profily — len odchýlky od Pine defaultov, viď nižšie. |
+| [`tradebot/webapp/`](tradebot/webapp) | Webová aplikácia pre testerov (FastAPI + Plotly). |
+| [`tradebot/tools/`](tradebot/tools) | `report` (HTML ako Strategy Tester), `fees` (maker/taker, break-even), `scan_trades`/`scan_zones` (diagnostika), `data_archive` (ročné súbory dát), `plot`. |
+| [`tradebot/tests/`](tradebot/tests) | Testy jadra, adaptérov, webapp a **golden testy** proti TradingView (`golden/`). |
 | [`platforms/freqtrade/`](platforms/freqtrade) | Freqtrade configy (`config.binance.json`, `config.coinbase.json`), skripty, `user_data/` (stratégia-ukazovateľ, hyperopt loss, `data_archive/` so sviečkami, `runs/` s históriou behov z webapp). |
 | [`platforms/multicharts/`](platforms/multicharts) | Štúdia pre MultiCharts a jej inštalačné skripty. |
 | [`docker/`](docker) | `docker-compose.yml` (tests, download, backtest, freqtrade bot, webapp). |
 | `webapp.cmd`, `webapp.ps1`, `webapp.sh` | Spúšťače webapp z koreňa repozitára (obaly nad `platforms/freqtrade/scripts/`). |
-| [`CLAUDE.md`](CLAUDE.md) | Pokyny pre Claude Code v dvoch režimoch podľa `.ibs-role` (gitignored, pýta sa raz): **tester** = backtesty do histórie cez `python -m ibs.webapp.cli`, reštart a aktualizácia webapp, Pull/Push histórie, bez zásahov do kódu; **developer** = bez obmedzení, len konvencie. |
+| [`CLAUDE.md`](CLAUDE.md) | Pokyny pre Claude Code v dvoch režimoch podľa `.ibs-role` (gitignored, pýta sa raz): **tester** = backtesty do histórie cez `python -m tradebot.webapp.cli`, reštart a aktualizácia webapp, Pull/Push histórie, bez zásahov do kódu; **developer** = bez obmedzení, len konvencie. |
 | `install-macos.sh` | Inštalátor pre macOS jedným príkazom (`curl \| bash`): Homebrew, Python, TA-Lib, klon, venv, dáta, spúšťač na Ploche. |
 | [`docs/`](docs) | Architektúra, návody, parita a všetky merania (zoznam nižšie). |
 
 ---
 
-## Profily stratégie (`ibs/configs/`)
+## Profily stratégie (`tradebot/configs/ibs/`)
 
-Profil = Pine defaulty + odchýlky + `_instrument`. Prepína sa cez `IBS_PROFILE=<meno>` alebo
+Profil = Pine defaulty + odchýlky + `_instrument`. Prepína sa cez `TRADEBOT_PROFILE=<meno>` alebo
 vo webapp.
 
 | Profil | Na čo |
@@ -87,7 +87,7 @@ vo webapp.
 | `golden_binance_btcusdt_3m` | **Referenčný na golden test** — presne nastavenia z grafu TradingView na Binance BTCUSDT.P (RR 1, trailing, 1 BTC). Nie na obchodovanie. |
 | `golden_coinbase_btcusd_3m` | Referenčný pre Coinbase BTCUSD — parita jadra s TradingView screenshotmi (MultiCharts a testy). |
 | `multicharts_mnq_3m` | MNQ futures pre MultiCharts, 1:1 s Pine jednotkami. |
-| ostatné | Skúšané konfigurácie (NY seansa, SL filter, risk sizing, hyperopt…) sú v [docs/profily_archiv/](docs/profily_archiv/README.md) s tabuľkou odchýlok; načítajú sa cestou (`--profile docs/profily_archiv/<nazov>.json`). Odporúčaný štart na nasadenie je `btcusdt_3m_binance_ny_sl_risk1` odtiaľ. |
+| ostatné | Skúšané konfigurácie (NY seansa, SL filter, risk sizing, hyperopt…) sú v [docs/profily_archiv/](docs/profily_archiv/ibs/README.md) s tabuľkou odchýlok; načítajú sa cestou (`--profile docs/profily_archiv/ibs/<nazov>.json`). Odporúčaný štart na nasadenie je `btcusdt_3m_binance_ny_sl_risk1` odtiaľ. |
 
 ---
 
@@ -150,11 +150,11 @@ je ten istý sizing +0,2 % — filter a risk sizing patria k sebe.
 ## Pravidlá práce s repozitárom
 
 - **Dáta** sa sťahujú len v oficiálnych timeframoch búrz a commitujú sa po rokoch do
-  `platforms/freqtrade/user_data/data_archive/`; pracovné súbory zloží `python -m ibs.tools.data_archive merge`.
+  `platforms/freqtrade/user_data/data_archive/`; pracovné súbory zloží `python -m tradebot.tools.data_archive merge`.
 - **Backtest vždy s `--timeframe-detail 1m` a `--cache none`** — skripty to robia samy.
   Stratégiu nikdy nespúšťať priamo na 1m (limity `*MaxBars` sú v baroch).
 - **Parita pred optimalizáciou**: každá zmena jadra musí prejsť golden testom
-  (`pytest ibs/tests/test_golden_tv_binance.py`). Rozšírenia mimo Pine majú default, pri ktorom
+  (`pytest tradebot/tests/test_golden_tv_binance.py`). Rozšírenia mimo Pine majú default, pri ktorom
   sa správanie rovná Pine, a sú v `PORT_ONLY_FIELDS`.
 - **Merania sa zapisujú** ako datované dokumenty v `docs/` s číslami po rokoch, nie len súhrn —
   jeden rok o stratégii nič nepovie.

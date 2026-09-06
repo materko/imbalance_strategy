@@ -11,10 +11,10 @@
 #   Data2 = detekčný TF (`zoneDetectionTF` z profilu, štandardne 5m)
 # Bez Data2 nevznikne ani jedna SD zóna — študia to napíše do Output okna.
 #
-# Profil sa prepína premennou prostredia IBS_PROFILE (predvolene "multicharts_mnq_3m"),
+# Profil sa prepína premennou prostredia TRADEBOT_PROFILE (predvolene "multicharts_mnq_3m"),
 # alebo natvrdo nižšie cez PROFILE.
 
-from ibs.adapters.multicharts.signal import IBSSignal
+from tradebot.adapters.multicharts.signal import IBSSignal
 
 
 class IBS(IBSSignal):

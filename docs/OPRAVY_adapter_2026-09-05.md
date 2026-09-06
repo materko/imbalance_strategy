@@ -1,6 +1,6 @@
 # Štyri opravy Freqtrade adaptéra (2026-09-05)
 
-Revízia adaptéra po systematickom prechode Pine skriptu. Jadro (`ibs/core`) sa
+Revízia adaptéra po systematickom prechode Pine skriptu. Jadro (`tradebot/core`) sa
 nemenilo — všetky nálezy sú v tom, ako adaptér prekladá engine na Freqtrade.
 Prvé dve môžu meniť obchody, ďalšie dve sú správnosť a hygiena.
 
@@ -50,7 +50,7 @@ po zavretí z modelu vypadne a pozícia sa odvádza zo skutočne vyplnených ord
 
 ## 4. `maxDailyWins` sa vo Freqtrade nikdy neuplatnil
 
-`MarketContext.daily_win_limit_reached` plnil len `ibs.tools.scan_trades`; runner ho
+`MarketContext.daily_win_limit_reached` plnil len `tradebot.tools.scan_trades`; runner ho
 nechával `False`. Doplnené podľa Pine: UTC deň, výhra = zavretie na TP, limit platí
 od nasledujúceho baru (Pine počíta `dailyWinLimitReached` pred pripočítaním výhry
 z aktuálneho baru). Bar so SL aj TP sa berie ako strata, rovnako ako v `scan_trades`.
@@ -70,8 +70,8 @@ aby v dlhom live behu nerástol.
 
 ## Testy
 
-* `ibs/tests/test_freqtrade_runner.py` — fill model, denný limit, `signal_at`.
-* `ibs/tests/test_freqtrade_entries.py` — tag → signál, `check_entry_timeout`,
+* `tradebot/tests/test_freqtrade_runner.py` — fill model, denný limit, `signal_at`.
+* `tradebot/tests/test_freqtrade_entries.py` — tag → signál, `check_entry_timeout`,
   config timeout, upratanie trailingu. Beží len s nainštalovaným Freqtrade.
 
 Po týchto zmenách treba **znova prebehnúť backtesty** z `docs/*_2026-09-04.md`
@@ -170,11 +170,11 @@ by tiež spustil okamžite. Výsledok je +11 a +36 USDT, teda šum.
 ## Ako to zopakovať
 
 ```bash
-IBS_PROFILE=btcusdt_3m_binance_ny .venv/Scripts/python.exe -m freqtrade backtesting \
+TRADEBOT_PROFILE=btcusdt_3m_binance_ny .venv/Scripts/python.exe -m freqtrade backtesting \
   --config platforms/freqtrade/config.binance.json \
   --userdir platforms/freqtrade/user_data --strategy IBSImbalanceStrategy \
   --timeframe-detail 1m --timerange 20250904-20260904 --cache none
 ```
 
 Pre break-even pridaj `--fee 0 --dry-run-wallet 400000` a výsledok prežeň cez
-`python -m ibs.tools.fees`. Jeden rok trvá zhruba 30 sekúnd.
+`python -m tradebot.tools.fees`. Jeden rok trvá zhruba 30 sekúnd.
