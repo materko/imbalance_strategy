@@ -84,7 +84,7 @@ def test_filtrovanie_podla_druhu():
 
 def _zone():
     from tradebot.core import Direction
-    from tradebot.core.zones import Zone
+    from tradebot.strategies.ibs.zones import Zone
 
     return Zone(
         uid=7, direction=Direction.LONG, top=110.0, bot=100.0,

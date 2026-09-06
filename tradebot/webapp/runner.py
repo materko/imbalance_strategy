@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from ..core import IBSConfig, load_profile
-from ..core.config import CONFIG_DIR
+from ..strategies.ibs.config import CONFIG_DIR
 from ..core.types import INSTRUMENTS
 from .store import RunStore, make_run_id
 

@@ -19,9 +19,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..drawing import PAL, DrawCommand, DrawKind, DrawLabel, DrawLine, LabelStyle, LineStyle, with_alpha
-from ..history import BarHistory
-from ..types import Bar, Direction, InstrumentSpec
+from tradebot.core.drawing import PAL, DrawCommand, DrawKind, DrawLabel, DrawLine, LabelStyle, LineStyle, with_alpha
+from tradebot.core.history import BarHistory
+from tradebot.core.types import Bar, Direction, InstrumentSpec
 from .structure import pivot
 
 __all__ = ["LiquiditySweep", "SweepZone"]

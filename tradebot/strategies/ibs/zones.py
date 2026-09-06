@@ -18,8 +18,8 @@ from dataclasses import dataclass
 from enum import Enum
 
 from .config import IBSConfig
-from .drawing import DrawBox, DrawKind, DrawUpdate, LineStyle, with_alpha, zone_color
-from .types import Direction, HTFWindow, InstrumentSpec, SnapMode
+from tradebot.core.drawing import DrawBox, DrawKind, DrawUpdate, LineStyle, with_alpha, zone_color
+from tradebot.core.types import Direction, HTFWindow, InstrumentSpec, SnapMode
 
 __all__ = [
     "ZoneSource",

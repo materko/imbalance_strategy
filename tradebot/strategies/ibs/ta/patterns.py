@@ -11,8 +11,8 @@ Používateľ si to zmenil na jednoduchšie a spoľahlivejšie kritérium — sv
 from __future__ import annotations
 
 from ..config import IBSConfig
-from ..history import BarHistory
-from ..types import Bar, Direction, InstrumentSpec
+from tradebot.core.history import BarHistory
+from tradebot.core.types import Bar, Direction, InstrumentSpec
 
 __all__ = ["is_pin_bar", "is_engulfing"]
 

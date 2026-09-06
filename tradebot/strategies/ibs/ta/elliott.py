@@ -23,7 +23,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..drawing import (
+from tradebot.core.drawing import (
     DrawBox,
     DrawCommand,
     DrawKind,
@@ -33,8 +33,8 @@ from ..drawing import (
     LineStyle,
     with_alpha,
 )
-from ..history import BarHistory
-from ..types import Bar, InstrumentSpec
+from tradebot.core.history import BarHistory
+from tradebot.core.types import Bar, InstrumentSpec
 from .structure import pivot
 
 __all__ = ["ElliottWaves", "ZigZagPoint"]

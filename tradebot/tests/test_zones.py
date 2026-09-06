@@ -18,7 +18,7 @@ from tradebot.core import (
     snap_time,
 )
 from tradebot.core.drawing import DrawKind, LineStyle
-from tradebot.core.zones import MAX_ZONES_HARD_CAP
+from tradebot.strategies.ibs.zones import MAX_ZONES_HARD_CAP
 
 FIVE_MIN = 300_000
 THREE_MIN = 180_000

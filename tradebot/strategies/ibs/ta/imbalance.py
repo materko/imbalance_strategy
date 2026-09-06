@@ -16,8 +16,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from ..config import IBSConfig
-from ..history import BarHistory
-from ..types import Direction, InstrumentSpec
+from tradebot.core.history import BarHistory
+from tradebot.core.types import Direction, InstrumentSpec
 
 __all__ = ["ImbalanceHit", "find_imbalance"]
 

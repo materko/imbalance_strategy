@@ -22,7 +22,7 @@ from tradebot.core import (
     list_profiles,
     load_profile,
 )
-from tradebot.core.config import CONFIG_DIR, PORT_ONLY_FIELDS, SIZE_FIELDS
+from tradebot.strategies.ibs.config import CONFIG_DIR, PORT_ONLY_FIELDS, SIZE_FIELDS
 
 
 # --------------------------------------------------------------------------- #

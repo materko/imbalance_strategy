@@ -1,7 +1,16 @@
-"""Platformovo neutrálne jadro — nesmie importovať Freqtrade ani MultiCharts."""
+"""Platformovo neutrálne jadro — nesmie importovať Freqtrade ani MultiCharts.
+
+IBS názvy (`IBSConfig`, `IBSEngine`, `StateMachine`, `ZoneBook`…) žijú v
+`tradebot.strategies.ibs`; tu sú dostupné lenivo cez `__getattr__`, aby staré importy
+`from tradebot.core import IBSConfig` ďalej fungovali bez cyklu core ↔ strategies.
+"""
+
+from __future__ import annotations
+
+from importlib import import_module
 
 from .clock import ClockState, SessionClock, SessionSpec, SessionWindow
-from .config import CONFIG_DIR, ConfigError, IBSConfig, list_profiles, load_profile
+from .config import CONFIGS_ROOT, ConfigError, StrategyConfig, list_profiles, load_profile
 from .drawing import (
     PAL,
     DrawBg,
@@ -18,19 +27,10 @@ from .drawing import (
     LineStyle,
     Palette,
 )
-from .engine import EngineOutput, IBSEngine
+from .engine import Engine, EngineOutput
 from .history import BarHistory
+from .orders import MarketContext, OrderAction, OrderIntent, StateEvent
 from .risk import TradePlan, TrailingPlan, build_trade_plan, swing_stop_loss
-from .statemachine import (
-    MarketContext,
-    OrderAction,
-    OrderIntent,
-    StateEvent,
-    StateMachine,
-    ZoneState,
-)
-from .ta import ImbalanceHit, find_imbalance, is_engulfing, is_pin_bar
-from .zones import Zone, ZoneBook, ZoneSource, SdPattern, detect_sd_pattern, snap_time
 from .types import (
     BTCUSD_COINBASE,
     BTCUSDT_BINANCE,
@@ -49,6 +49,20 @@ from .types import (
     TradeDirection,
 )
 
+#: Názvy, ktoré patria IBS stratégii — lenivo z `tradebot.strategies.ibs`.
+_IBS_NAMES = frozenset({
+    "IBSConfig", "CONFIG_DIR", "IBSEngine", "IBSEngineOutput", "StateMachine", "ZoneState",
+    "Zone", "ZoneBook", "ZoneSource", "SdPattern", "detect_sd_pattern", "snap_time",
+    "ImbalanceHit", "find_imbalance", "is_pin_bar", "is_engulfing",
+})
+
+
+def __getattr__(name: str):
+    if name in _IBS_NAMES:
+        return getattr(import_module("tradebot.strategies.ibs"), name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
 __all__ = [
     "Bar",
     "HTFWindow",
@@ -65,9 +79,9 @@ __all__ = [
     "BTCUSDT_BINANCE",
     "ETHUSDT_BINANCE",
     "INSTRUMENTS",
-    "IBSConfig",
+    "StrategyConfig",
     "ConfigError",
-    "CONFIG_DIR",
+    "CONFIGS_ROOT",
     "load_profile",
     "list_profiles",
     "SessionClock",
@@ -88,27 +102,16 @@ __all__ = [
     "DrawUpdate",
     "LabelStyle",
     "LineStyle",
-    "Zone",
-    "ZoneBook",
-    "ZoneSource",
-    "SdPattern",
-    "detect_sd_pattern",
-    "snap_time",
     "BarHistory",
-    "IBSEngine",
+    "Engine",
     "EngineOutput",
     "TradePlan",
     "TrailingPlan",
     "build_trade_plan",
     "swing_stop_loss",
-    "ZoneState",
     "OrderAction",
     "OrderIntent",
     "StateEvent",
     "MarketContext",
-    "StateMachine",
-    "ImbalanceHit",
-    "find_imbalance",
-    "is_pin_bar",
-    "is_engulfing",
+    *sorted(_IBS_NAMES),
 ]
