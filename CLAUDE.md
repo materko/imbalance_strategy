@@ -211,7 +211,10 @@ na ktorej klon stojí; iný cieľ cez `IBS_GIT_BRANCH`) a commituje **výhradne*
 `platforms/freqtrade/user_data/runs/` a `platforms/freqtrade/user_data/profiles/`,
 autor je meno testera (`IBS_USER` alebo `git config user.name`). Každý beh je nový
 adresár, konflikty prakticky nevznikajú.
-Ak push zlyhá na „rejected", sprav pull a push znova. Ak tester zmenil kód a chce
+Ak push zlyhá na „rejected", sprav pull a push znova. Ak zlyhá na „could not read
+Username" alebo „Authentication failed", GitHub nemá uložené prihlásenie — `gh auth
+login && gh auth setup-git` (macOS/Linux), prípadne credential helper podľa systému;
+webapp návod vypíše sama. Commit ostáva lokálne, takže po prihlásení stačí Push znova. Ak tester zmenil kód a chce
 ho poslať, to už nie je história behov — povedz mu, nech to rieši s autorom repozitára
 (pull request), a **necommituj kód** za neho.
 

@@ -25,11 +25,40 @@ from .store import RUNS_DIR
 REPO = Path(__file__).resolve().parents[2]
 
 
+#: Git sa nesmie nikoho pýtať na heslo — webapp beží bez terminálu, takže by request
+#: buď zamrzol, alebo (na macOS) spadol na „could not read Username: Device not
+#: configured". Nech radšej hneď zlyhá a my povieme, čo s tým.
+_NO_PROMPT_ENV = {"GIT_TERMINAL_PROMPT": "0", "GCM_INTERACTIVE": "never"}
+
+#: Podľa čoho poznáme, že to nebola chyba gitu, ale chýbajúce prihlásenie.
+_AUTH_MARKERS = (
+    "could not read Username", "could not read Password", "Authentication failed",
+    "Permission denied (publickey)", "Invalid username or token", "terminal prompts disabled",
+)
+
+AUTH_HELP = """
+GitHub nepustil push: webapp beží bez terminálu, takže sa nemá koho spýtať na heslo.
+Prihlásenie stačí uložiť raz, potom už Push funguje sám:
+
+  macOS/Linux, cez GitHub CLI:   gh auth login   (a potom: gh auth setup-git)
+  macOS, cez token:              git config --global credential.helper osxkeychain
+                                 a raz spraviť `git push` v termináli — meno a Personal
+                                 Access Token (Settings → Developer settings) sa uložia
+  Windows:                       git config --global credential.helper manager
+
+Overenie: v termináli v adresári repozitára `git push` musí prejsť bez pýtania sa.
+""".strip()
+
+
 def _git(*args: str, check: bool = False) -> subprocess.CompletedProcess:
     return subprocess.run(
         ["git", *args], cwd=str(REPO), capture_output=True, text=True, encoding="utf-8",
-        errors="replace", check=check,
+        errors="replace", check=check, env={**os.environ, **_NO_PROMPT_ENV},
     )
+
+
+def _auth_failed(output: str) -> bool:
+    return any(marker in output for marker in _AUTH_MARKERS)
 
 
 def _paths() -> list[str]:
@@ -120,7 +149,10 @@ def _message(changed: list[str]) -> str:
 def pull() -> dict[str, Any]:
     br = target()
     p = _git("pull", "--rebase", "--autostash", "origin", br)
-    return {"ok": p.returncode == 0, "output": _out(p), **status()}
+    out = _out(p)
+    if p.returncode != 0 and _auth_failed(out):
+        out += chr(10) + AUTH_HELP
+    return {"ok": p.returncode == 0, "output": out, **status()}
 
 
 def push(message: str | None = None, author: str | None = None) -> dict[str, Any]:
@@ -150,4 +182,8 @@ def push(message: str | None = None, author: str | None = None) -> dict[str, Any
         return {"ok": False, "output": _out(*steps) + chr(10) + note, **status()}
     q = _git("push", "origin", f"HEAD:{br}")
     steps.append(q)
-    return {"ok": q.returncode == 0, "output": _out(*steps), **status()}
+    out = _out(*steps)
+    if q.returncode != 0 and _auth_failed(out):
+        # commit ostáva lokálne — po prihlásení stačí kliknúť Push znova
+        out += chr(10) + AUTH_HELP
+    return {"ok": q.returncode == 0, "output": out, **status()}
