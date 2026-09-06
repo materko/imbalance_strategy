@@ -243,10 +243,15 @@ pôvodu, nie odkaz: keď sa východiskový profil neskôr zmení, tvoj sa nepohn
 Meno súboru má 2–48 znakov: písmená bez diakritiky, číslice, `.`, `-`, `_`;
 meno profilu repozitára sa použiť nedá, aby sa nedal prekryť.
 
-Tlačidlá **Pull** (`git pull --rebase --autostash`) a **Push** (commitne **len**
-`runs/` a `profiles/` a pushne na aktuálnu vetvu) sú v hlavičke; výstup gitu sa zobrazí
-celý. Kód ani iné súbory sa z UI nikdy necommitujú. Autor commitu je meno testera
-z hlavičky.
+Tlačidlá **Pull** a **Push** sú v hlavičke; výstup gitu sa zobrazí celý. Push commitne
+**len** `runs/` a `profiles/` a pushne ich do **`main`** — nie na vetvu, na ktorej klon
+práve stojí (inak história skončí na vývojárskej vetve a nikto ju neuvidí). Iný cieľ sa
+dá nastaviť cez `IBS_GIT_BRANCH`. Keď sa vetva klonu a cieľ líšia, hlavička to ukáže
+ako `vetva → main`.
+
+Ak by mala vetva klonu oproti `main` commity mimo `runs/` a `profiles/`, Push sa
+zastaví a povie to: kód z testerského klonu do `main` nepatrí, ten ide pull requestom.
+Autor commitu je meno testera z hlavičky.
 
 Výsledkové zipy Freqtradu ostávajú v `backtest_results/` (gitignored) — beh ich
 nepotrebuje, všetko podstatné je v `run.json`.

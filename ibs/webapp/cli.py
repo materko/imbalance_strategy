@@ -199,7 +199,8 @@ def cmd_status(args: argparse.Namespace) -> int:
         q = api(args.url, "/api/queue")
         print(f"fronta: {len(q)} " + ", ".join(f"{j['id']} {j['status']}" for j in q))
     st = gitsync.status()
-    print(f"git: vetva {st['branch']}, necommitnuté behy a profily {st['uncommitted']}, "
+    print(f"git: vetva {st['branch']} → {st.get('target', 'main')}, "
+          f"necommitnuté behy a profily {st['uncommitted']}, "
           f"ahead {st['ahead']}, behind {st['behind']}")
     return 0
 
