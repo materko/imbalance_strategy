@@ -1,87 +1,30 @@
-"""Metadáta parametrov pre formulár — z Pine skriptu, nie ručne.
+"""Metadáta parametrov pre formulár — z Pine skriptu stratégie, nie ručne.
 
 Formulár má ukazovať to isté, čo panel nastavení v TradingView: rovnaké skupiny,
 rovnaké titulky, rovnaké tooltipy. Všetko to v Pine skripte už je, takže sa parsuje
-odtiaľ (`pine/imbalance_strategy_FULL.pine`) a k tomu sa pridajú polia, ktoré Pine nemá
-(`PORT_ONLY_FIELDS`). Keď niekto v Pine zmení tooltip, formulár ho zmení tiež.
+odtiaľ (`StrategySpec.pine_path`) a k tomu sa pridajú polia, ktoré Pine nemá
+(`config_cls.PORT_ONLY_FIELDS`, titulky v `spec.port_only_meta`). Keď niekto v Pine
+zmení tooltip, formulár ho zmení tiež. Parser je spoločný pre všetky stratégie.
 """
 
 from __future__ import annotations
 
 import re
-from dataclasses import asdict, dataclass, field, fields
+from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 from typing import Any
 
-from ..core import IBSConfig
-from ..strategies.ibs.config import CONSTRAINTS, PORT_ONLY_FIELDS, SIZE_FIELDS
 from ..core.types import SizeSpec
+from ..strategies import STRATEGIES, StrategySpec, get_spec
+from ..strategies.ibs import SPEC as IBS_SPEC
 
 REPO = Path(__file__).resolve().parents[2]
-PINE_FILE = REPO / "pine" / "imbalance_strategy_FULL.pine"
-
-#: Vstupy, ktoré sa neportujú (viď `tradebot/tests/test_pine_parity.py`).
-REMOVED_INPUTS = {"pmtToken", "pmtAccountId", "pmtStratName", "pmtMarketOrderType", "trailFreqPct"}
+#: Spätná kompatibilita — metadáta IBS bez argumentu.
+PINE_FILE = IBS_SPEC.pine_path
+REMOVED_INPUTS = IBS_SPEC.removed_inputs
+FEATURES = IBS_SPEC.features
 
 PORT_GROUP = "🧩 Rozšírenia portu (nie sú v Pine)"
-
-#: Metadáta polí, ktoré Pine nemá — ručne, lebo niet odkiaľ ich parsovať.
-_PORT_ONLY_META: dict[str, dict[str, Any]] = {
-    "atrLen": dict(
-        title="ATR dĺžka pre jednotku „atr“",
-        tooltip="Dĺžka ATR na grafovom TF, z ktorej sa prepočítavajú parametre zadané v jednotke atr. "
-        "V Pine ATR nie je; slúži na prenos prahov medzi nástrojmi s inou cenovou škálou.",
-    ),
-    "legacyPineSizing": dict(
-        title="Pine sizing (1 kontrakt/BTC, ako TradingView)",
-        tooltip="Doslovný Pine vzorec veľkosti pozície vrátane int() a max(1, …) — na BTC vždy 1 BTC bez ohľadu "
-        "na maxLossDollar. Zapnúť len na porovnanie s TradingView. Vyžaduje tickDollarValue.",
-    ),
-    "leverage": dict(
-        title="Páka",
-        tooltip="Páka vo Freqtrade futures. Nemení edge, len umožní otvoriť pozíciu z risk-based sizingu, "
-        "ktorá by sa inak na účet nezmestila (stake by sa orezal a riziko by bolo menšie než maxLossDollar).",
-    ),
-    "minSlDistance": dict(
-        title="Min. vzdialenosť SL od vstupu",
-        tooltip="Obchod s tesnejším SL sa preskočí (SKIP: SL PRILIS TESNY). Poplatok je percento z nominálu, "
-        "zisk rastie s R — tesné SL majú najhorší pomer edge k poplatku. 0 = vypnuté. "
-        "Odporúčaná jednotka pct (0,20 % ceny), viď docs/OPTIMALIZACIA_2026-09-05.md.",
-    ),
-}
-
-#: Závislosti medzi vstupmi. Pine ich nedeklaruje (panel v TradingView ukazuje vždy
-#: všetko), tak sú tu ručne. `switches`: podnastavenia v `params` majú zmysel, len keď
-#: je aspoň jeden z prepínačov zapnutý — formulár ich inak skryje. `show`: kresliaci
-#: prepínač tej istej feature; formulár ho zrkadlí hneď vedľa hlavného prepínača, keď
-#: sú v Pine v rôznych skupinách. Reťazenie funguje (volume filter je pod SD zónami).
-FEATURES: list[dict[str, Any]] = [
-    {"switches": ["enableImbEntry"], "show": "showImbalance",
-     "params": ["state1MaxBars", "state2MaxBars", "state2ConfirmTicks", "state3MaxBars"]},
-    {"switches": ["enablePinBarEntry"], "params": ["pbWickToBodyRatio", "pbBodyPositionPct", "pbMinRangePoints"]},
-    {"switches": ["enableEngulfingEntry"],
-     "params": ["engMinRangePoints", "engSizeAvgLen", "engSizeMultiplier", "engTouchWindowBars"]},
-    {"switches": ["enablePinBarEntry", "enableEngulfingEntry"], "params": ["pbEngOrderType"]},
-    {"switches": ["enableTrailing"], "params": ["trailActivationR", "trailOffsetR"]},
-    {"switches": ["enableZoneDetection"],
-     "params": ["enableGapDetection", "zoneDetectionTF", "zoneValidHours", "maxSdZones", "snapMode",
-                "invalidateOnFill", "useVolumeFilter"]},
-    {"switches": ["enableGapDetection"], "params": ["imbLookback", "imbMaxDistTicks", "minImbSizePoints"]},
-    {"switches": ["useVolumeFilter"], "params": ["volumeFilterBlockTrading", "volSmaLen", "volMultiplier"]},
-    *[{"switches": [f"sess{i}On"],
-       "params": [f"sess{i}{part}{hm}" for part in ("ZoneStart", "ZoneEnd", "TradeStart", "TradeEnd") for hm in "HM"]}
-      for i in (1, 2, 3)],
-    {"switches": ["useStructureFilter", "showMarketStructure"], "params": ["structureSwingLen"]},
-    {"switches": ["enableSrTrading", "showSR"], "show": "showSR",
-     "params": ["srSwingLen", "srClusterPoints", "srMinTouches", "srMaxLevels", "srLookbackDays", "srZoneSaturationPct"]},
-    {"switches": ["enableLqTrading", "showLiqSweep"], "show": "showLiqSweep",
-     "params": ["liqSweepLen", "liqSweepMinWick", "liqSweepConfirmBars", "liqStrengthLen"]},
-    {"switches": ["showElliott"], "params": ["ewSwingLen", "ewMinWavePoints", "ewShowLabels", "ewShowProjection", "ewLineColor"]},
-    {"switches": ["ewShowProjection"], "params": ["ewProjExtendBars"]},
-    {"switches": ["showDashboard"], "params": ["dashPos", "dashboardRows", "showTradeLog"]},
-    {"switches": ["showTradeLog"], "params": ["tradeLogRows"]},
-    {"switches": ["showDebugTable"], "params": ["debugTableRows", "debugPos"]},
-]
 
 _INPUT_RE = re.compile(r"^\s*(\w+)\s*=\s*input\.(\w+)\((.*)$")
 _GROUP_ORDER_RE = re.compile(r'group\s*=\s*"([^"]*)"')
@@ -174,9 +117,9 @@ def _num(s: str | None) -> float | None:
         return None
 
 
-def _parse_pine(path: Path = PINE_FILE) -> dict[str, ParamMeta]:
+def _parse_pine(path: Path | None = PINE_FILE) -> dict[str, ParamMeta]:
     out: dict[str, ParamMeta] = {}
-    if not path.exists():
+    if path is None or not path.exists():
         return out
     for line in path.read_text(encoding="utf-8").splitlines():
         m = _INPUT_RE.match(line)
@@ -203,10 +146,10 @@ def _parse_pine(path: Path = PINE_FILE) -> dict[str, ParamMeta]:
     return out
 
 
-def _group_order(path: Path = PINE_FILE) -> list[str]:
+def _group_order(path: Path | None = PINE_FILE) -> list[str]:
     """Skupiny v poradí, v akom sa objavujú v Pine — tak ich radí aj TradingView."""
     order: list[str] = []
-    if path.exists():
+    if path is not None and path.exists():
         for m in _GROUP_ORDER_RE.finditer(path.read_text(encoding="utf-8")):
             if m.group(1) not in order:
                 order.append(m.group(1))
@@ -215,26 +158,31 @@ def _group_order(path: Path = PINE_FILE) -> list[str]:
     return order
 
 
-def param_metadata() -> list[dict[str, Any]]:
-    """Jeden záznam na každé pole `IBSConfig`, v poradí Pine skupín.
+def param_metadata(spec: StrategySpec | str | None = None) -> list[dict[str, Any]]:
+    """Jeden záznam na každé pole configu stratégie, v poradí Pine skupín.
 
-    Default je Pine default (= `IBSConfig()`), nie hodnota z profilu — profil sa
-    do formulára načíta zvlášť a formulár zvýrazní odchýlky.
+    Default je Pine default (= `config_cls()`), nie hodnota z profilu — profil sa
+    do formulára načíta zvlášť a formulár zvýrazní odchýlky. Bez argumentu IBS.
     """
-    pine = _parse_pine()
-    defaults = IBSConfig()
-    cfg_fields = {f.name: f for f in fields(IBSConfig)}
-    order = {g: i for i, g in enumerate(_group_order())}
+    if spec is None:
+        spec = IBS_SPEC
+    elif isinstance(spec, str):
+        spec = get_spec(spec)
+    cls = spec.config_cls
+    pine = _parse_pine(spec.pine_path)
+    defaults = cls()
+    cfg_fields = {f.name: f for f in fields(cls)}
+    order = {g: i for i, g in enumerate(_group_order(spec.pine_path))}
 
     metas: list[ParamMeta] = []
     for name in cfg_fields:
-        if name in REMOVED_INPUTS:
+        if name in spec.removed_inputs:
             continue
         default = getattr(defaults, name)
         if name in pine:
             meta = pine[name]
         else:
-            extra = _PORT_ONLY_META.get(name, {})
+            extra = spec.port_only_meta.get(name, {})
             meta = ParamMeta(
                 name=name,
                 type="string",
@@ -245,7 +193,7 @@ def param_metadata() -> list[dict[str, Any]]:
         # typ podľa configu, nie podľa Pine — SizeSpec a enumy sú iné
         if isinstance(default, SizeSpec):
             meta.type = "size"
-            meta.pine_unit = SIZE_FIELDS[name]
+            meta.pine_unit = cls.SIZE_FIELDS[name]
             meta.default = default.value if default.unit == meta.pine_unit else default.to_json()
         elif isinstance(default, bool):
             meta.type = "bool"
@@ -257,22 +205,23 @@ def param_metadata() -> list[dict[str, Any]]:
             meta.type = "float"
             meta.default = default
         elif default is None:
-            meta.type = "float" if name == "tickDollarValue" else "string"
+            # voliteľné pole (napr. tickDollarValue): typ podľa Pine vstupu, inak text
+            meta.type = meta.type if meta.type in ("int", "float", "bool", "string") else "string"
             meta.default = None
         else:
             v = getattr(default, "value", default)
             meta.type = "color" if meta.type == "color" else "string"
             meta.default = v
-        if name in CONSTRAINTS and meta.min is None:
-            meta.min, meta.max = CONSTRAINTS[name]
-        if name == "state4MaxBars":
-            meta.note = "Pine tento parameter nikde nepoužíva."
-        if name in PORT_ONLY_FIELDS:
+        if name in cls.CONSTRAINTS and meta.min is None:
+            meta.min, meta.max = cls.CONSTRAINTS[name]
+        if name in spec.param_notes:
+            meta.note = spec.param_notes[name]
+        if name in cls.PORT_ONLY_FIELDS:
             meta.group = PORT_GROUP
         metas.append(meta)
 
     by_name = {m.name: m for m in metas}
-    for feat in FEATURES:
+    for feat in spec.features:
         for name in feat["params"]:
             by_name[name].depends_on = list(feat["switches"])
         if feat.get("show"):
@@ -282,9 +231,14 @@ def param_metadata() -> list[dict[str, Any]]:
     return [m.to_dict() for m in metas]
 
 
-def groups() -> list[str]:
+def strategy_meta(spec: StrategySpec) -> dict[str, Any]:
+    """Balík pre prehliadač: metadáta polí a Pine defaulty jednej stratégie."""
+    return {"params": param_metadata(spec), "defaults": spec.config_cls().to_dict()}
+
+
+def groups(spec: StrategySpec | str | None = None) -> list[str]:
     seen: list[str] = []
-    for m in param_metadata():
+    for m in param_metadata(spec):
         if m["group"] not in seen:
             seen.append(m["group"])
     return seen
