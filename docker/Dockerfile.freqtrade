@@ -22,8 +22,8 @@ ENV PYTHONPATH=/app \
 
 # Sanity check uz pri buildovani - ked sa profily rozbiju, build spadne tu,
 # nie az na serveri.
-RUN python -c "from tradebot.core import list_profiles, load_profile; \
-    print('tradebot profily:', list_profiles()); \
-    load_profile('golden_binance_btcusdt_3m')"
+RUN python -c "from tradebot.core import load_profile; from tradebot.strategies import STRATEGIES; \
+    [load_profile(f'{k}/{s.default_profile}') for k, s in STRATEGIES.items()]; \
+    print('strategie:', sorted(STRATEGIES))"
 
 WORKDIR /freqtrade

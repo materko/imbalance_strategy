@@ -29,6 +29,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from ..core import IBSConfig, load_profile
+from ..strategies import STRATEGIES, get_spec
 from ..strategies.ibs.config import CONFIG_DIR
 from ..core.types import INSTRUMENTS
 from .store import RunStore, make_run_id
@@ -124,7 +125,7 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
         python, "-m", "freqtrade", "backtesting",
         "--config", str(FT_DIR / "config.binance.json"),
         "--userdir", str(USER_DIR),
-        "--strategy", "IBSImbalanceStrategy",
+        "--strategy", get_spec(settings.get("strategy") or "ibs").freqtrade_class,
         "--cache", "none",
         "--export", "trades",
         "--timerange", settings["timerange"],
@@ -140,10 +141,11 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
     return cmd
 
 
-def write_profile(run_id: str, params: dict[str, Any], instrument: str) -> Path:
+def write_profile(run_id: str, params: dict[str, Any], instrument: str, strategy: str = "ibs") -> Path:
     """Dočasný profil pre `TRADEBOT_PROFILE`. Validácia configu tu spadne skôr než Freqtrade."""
-    cfg = IBSConfig.from_dict({k: v for k, v in params.items() if not k.startswith("_")})
+    cfg = get_spec(strategy).config_cls.from_dict({k: v for k, v in params.items() if not k.startswith("_")})
     data = cfg.to_dict()
+    data["_strategy"] = strategy
     data["_instrument"] = instrument
     data["_comment"] = [f"docasny profil behu {run_id} (webapp) - negeneruj rucne"]
     TMP_PROFILES.mkdir(parents=True, exist_ok=True)
@@ -260,7 +262,9 @@ class BacktestRunner:
 
     def submit(self, params: dict[str, Any], settings: dict[str, Any], note: str = "", user: str = "") -> Job:
         # config sa validuje HNEĎ, aby tester dostal chybu do formulára a nie do logu behu
-        IBSConfig.from_dict({k: v for k, v in params.items() if not k.startswith("_")})
+        get_spec(settings.get("strategy") or "ibs").config_cls.from_dict(
+            {k: v for k, v in params.items() if not k.startswith("_")}
+        )
         instrument_for_pair(settings["pair"])
         job = Job(id=make_run_id(params, settings), params=params, settings=settings, note=note, user=user)
         with self._lock:
@@ -314,7 +318,7 @@ class BacktestRunner:
         job.started = datetime.now(timezone.utc).isoformat(timespec="seconds")
         t0 = time.time()
         instrument = instrument_for_pair(job.settings["pair"])
-        profile = write_profile(job.id, job.params, instrument)
+        profile = write_profile(job.id, job.params, instrument, job.settings.get("strategy") or "ibs")
         cmd = self.build_command(self.python, profile, job.settings)
         job.log_lines.append("$ " + " ".join(cmd))
 

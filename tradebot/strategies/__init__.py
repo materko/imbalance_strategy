@@ -13,7 +13,15 @@ STRATEGIES: dict[str, StrategySpec] = {
     IBS_SPEC.key: IBS_SPEC,
 }
 
-__all__ = ["STRATEGIES", "StrategySpec", "get_spec"]
+__all__ = ["STRATEGIES", "StrategySpec", "get_spec", "spec_for_config"]
+
+
+def spec_for_config(cfg) -> StrategySpec:
+    """Stratégia podľa triedy configu — adaptéry tak nepotrebujú kľúč navyše."""
+    for spec in STRATEGIES.values():
+        if isinstance(cfg, spec.config_cls):
+            return spec
+    raise KeyError(f"config {type(cfg).__name__} nepatrí žiadnej registrovanej stratégii")
 
 
 def get_spec(key: str) -> StrategySpec:
