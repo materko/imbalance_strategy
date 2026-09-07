@@ -1,0 +1,18 @@
+{
+  "_comment": [
+    "Dukascopy CFD symboly pre burzu MultiCharts (webapp emulator aj MultiCharts studia).",
+    "Jeden riadok = jeden symbol; nacita ich tradebot/core/types.py do INSTRUMENTS s",
+    "venue=multicharts a has_real_volume=false (objem Dukascopy je len tickovy).",
+    "Novy symbol pridava `python -m tradebot.tools.dukas_import ... --symbol X --tick ... --point-value ...`",
+    "alebo sa dopise sem rucne. Hodnota bodu musi sedieť s Big Point Value v QuoteManageri."
+  ],
+  "nas100_dukascopy": {
+    "symbol": "NAS100/USD",
+    "tick_size": 0.01,
+    "point_value": 1.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "note": "Dukascopy USA100.IDX/USD - ten isty podklad ako MNQ, takze prahy v bodoch z multicharts_mnq_3m sedia 1:1. Tick 0.01 je najmensi, ktory Pine rozsah tickDollarValue (>= 0.01) pripusta; v QuoteManageri moze mat symbol Price Scale 1/1000, ordre sa len zaokruhlia na stotiny."
+  }
+}

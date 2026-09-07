@@ -73,8 +73,10 @@ services:
       --timeframe-detail 1m
 
   webapp:
-    # Webova aplikacia pre testerov (docs/WEBAPP.md). Kod jadra je namountovany
-    # read-only, historia behov ide do user_data/runs (zapisovatelny mount).
+    # Webova aplikacia pre testerov (docs/WEBAPP.md). Bezi s PYTHONPATH=/app, takze
+    # korenom repozitara je pre nu /app - vsetko, co cita alebo zapisuje, musi byt
+    # namountovane pod /app (tradebot/core/paths.py). Historia behov a profily testera
+    # su zapisovatelne, zdrojaky a Pine read-only.
     # Git synchronizacia z UI v kontajneri nefunguje (nie je tam .git ani git) -
     # pushuj/pulluj behy z hostitela, alebo spustaj webapp nativne.
     <<: *freqtrade-base
@@ -82,6 +84,14 @@ services:
     container_name: tradebot-webapp
     entrypoint: ["python", "-m", "tradebot.webapp"]
     command: []
+    volumes:
+      - ../tester:/app/tester
+      - ../platforms/freqtrade/user_data:/app/platforms/freqtrade/user_data
+      - ../platforms/multicharts:/app/platforms/multicharts
+      - ../platforms/freqtrade:/freqtrade/cfg:ro
+      - ../tradebot:/app/tradebot:ro
+      - ../pine:/app/pine:ro
+      - ../docs:/app/docs:ro
     environment:
       TZ: ${TZ:-Europe/Bratislava}
       TRADEBOT_WEB_HOST: 0.0.0.0

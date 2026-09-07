@@ -7,7 +7,7 @@
     "len preto, aby sa pozicia pri SL 0,2 % (nominal ~50 000) zmestila na ucet - bez nej by",
     "Freqtrade stake orezal a riziko na obchod by bolo v skutocnosti mensie (viď warning",
     "'stake orezany' v logu).",
-    "Vysledky v docs/OPTIMALIZACIA_2026-09-05.md, sekcia 6."
+    "Vysledky v docs/merania/OPTIMALIZACIA_2026-09-05.md, sekcia 6."
   ],
   "_instrument": "btcusdt_binance",
   "enablePinBarEntry": true,

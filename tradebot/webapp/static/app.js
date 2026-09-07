@@ -488,7 +488,7 @@ async function renameProfile() {
 
 async function deleteProfile() {
   const cur = $("#profile").value;
-  if (!cur || !confirm(`Zmazať vlastný profil ${cur}? (zmaže súbor v user_data/profiles/)`)) return;
+  if (!cur || !confirm(`Zmazať vlastný profil ${cur}? (zmaže súbor v tester/profiles/)`)) return;
   try {
     const r = await api(`/api/profiles/${encodeURIComponent(cur)}?strategy=${encodeURIComponent(state.strategy)}`, { method: "DELETE" });
     await applyProfileList(r, "");

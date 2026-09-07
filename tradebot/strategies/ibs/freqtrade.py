@@ -50,7 +50,7 @@ class IBSImbalanceStrategy(TradebotStrategyBase):
     # Prvá verzia ladila desať prahov v jednotke `atr` plus prepínače entry modelov
     # a dopadla presne tak, ako sa to pri desiatich stupňoch voľnosti a ~150 obchodoch
     # za rok dá čakať: víťazná epocha bola na ladenom roku +34,8 %, ale **všetky štyri**
-    # out-of-sample roky boli stratové (−11 % až −65 %), viď docs/HYPEROPT_btcusdt_2026-09-04.md.
+    # out-of-sample roky boli stratové (−11 % až −65 %), viď docs/merania/HYPEROPT_btcusdt_2026-09-04.md.
     #
     # Čo naopak prežilo naprieč piatimi rokmi, boli zmeny s jedným stupňom voľnosti:
     # `rrRatio`, `slLookback` a zapnutie štruktúrneho filtra. Preto sa ladia práve

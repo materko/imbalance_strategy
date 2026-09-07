@@ -1,4 +1,4 @@
-"""Vlastné profily testera — JSON v `user_data/profiles/`, vedľa histórie behov.
+"""Vlastné profily testera — JSON v `tester/profiles/`, vedľa histórie behov.
 
 Profily v `tradebot/configs/<stratégia>/` sú kód repozitára: držia paritu s Pine, ukazujú
 na ne testy a dokumenty s meraniami, takže ich tester nesmie premenovať ani zmazať. Čo si
@@ -25,11 +25,9 @@ from pathlib import Path
 from typing import Any
 
 from ..core.config import ConfigError
+from ..core.paths import PROFILES_DIR
 from ..core.types import INSTRUMENTS
 from ..strategies import get_spec
-
-REPO = Path(__file__).resolve().parents[2]
-PROFILES_DIR = REPO / "platforms" / "freqtrade" / "user_data" / "profiles"
 
 #: Stratégia vlastných profilov bez `_strategy` (spred registry stratégií).
 LEGACY_STRATEGY = "ibs"

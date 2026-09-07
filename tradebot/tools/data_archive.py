@@ -15,17 +15,21 @@ nezmení, takže jeho blob v histórii existuje raz. Denne rastie iba súbor za
 aktuálny rok.
 
 ### Ako sa to používa
-Archív (`data_archive/`) je to, čo je v gite. Pracovné súbory pre Freqtrade
-(`data/`) sú z neho odvodené a v `.gitignore`.
+Archív (`data_archive/`) je to, čo je v gite. Pracovné súbory (`data/`) sú z neho
+odvodené a v `.gitignore`.
 
     stiahnutie dat  ->  data/  ->  split  ->  data_archive/  ->  commit
     klon            ->  data_archive/  ->  merge  ->  data/  ->  backtest
+
+Platformy majú vlastné korene (`tradebot.core.paths.ARCHIVE_ROOTS`) — burzové sviečky
+pod `platforms/freqtrade/user_data/`, Dukascopy 1m sviečky pod
+`platforms/multicharts/`. Formát súborov je rovnaký, príkaz prejde oba.
 
 Delenie je **bezstratové** — `merge(split(x))` dá presne to isté, čo bolo v `x`.
 Overuje to `tradebot/tests/test_data_archive.py`.
 
 Žiadne sviečky sa tu nedopočítavajú ani neupravujú, len sa presúvajú medzi
-súbormi — na disku sú výhradne skutočné burzové dáta.
+súbormi — na disku sú výhradne skutočné dáta, tak ako prišli z burzy či z exportu.
 """
 
 from __future__ import annotations
@@ -35,9 +39,10 @@ import re
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
-DATA = REPO / "platforms" / "freqtrade" / "user_data" / "data"
-ARCHIVE = REPO / "platforms" / "freqtrade" / "user_data" / "data_archive"
+from ..core.paths import ARCHIVE_ROOTS
+
+#: Dvojice (archív, pracovný adresár). Testy si ich prepisujú.
+ROOTS: tuple[tuple[Path, Path], ...] = ARCHIVE_ROOTS
 
 #: `BTC_USDT_USDT-1m-futures.feather` -> ročný `BTC_USDT_USDT-1m-futures.2019.feather`
 _YEAR_SUFFIX = re.compile(r"\.(\d{4})\.feather$")
@@ -58,11 +63,11 @@ def _write(df, path: Path) -> None:
     df.reset_index(drop=True).to_feather(path)
 
 
-def split(verbose: bool = True) -> list[Path]:
-    """`data/` -> `data_archive/`, jeden súbor na rok. Vráti zapísané súbory."""
+def split_root(archive: Path, data: Path, verbose: bool = True) -> list[Path]:
+    """`data/` -> `data_archive/` jedného koreňa, jeden súbor na rok."""
     written: list[Path] = []
-    for src in sorted(DATA.rglob("*.feather")):
-        rel = src.relative_to(DATA)
+    for src in sorted(data.rglob("*.feather")):
+        rel = src.relative_to(data)
         df = _read(src)
         if "date" not in df.columns or df.empty:
             if verbose:
@@ -72,7 +77,7 @@ def split(verbose: bool = True) -> list[Path]:
         years = df["date"].dt.year
         for year in sorted(years.unique()):
             part = df[years == year]
-            out = ARCHIVE / rel.parent / f"{_stem(src)}.{year}.feather"
+            out = archive / rel.parent / f"{_stem(src)}.{year}.feather"
             # Zapisujeme len ak sa obsah naozaj zmenil - inak by git videl novy
             # blob aj pri roku, ktory sa nemenil (feather nie je bajtovo stabilny).
             if out.exists() and len(_read(out)) == len(part):
@@ -80,27 +85,27 @@ def split(verbose: bool = True) -> list[Path]:
             _write(part, out)
             written.append(out)
             if verbose:
-                print(f"  {out.relative_to(ARCHIVE)}  {len(part):>8} barov")
+                print(f"  {out.relative_to(archive)}  {len(part):>8} barov")
     return written
 
 
-def merge(verbose: bool = True) -> list[Path]:
-    """`data_archive/` -> `data/`. Vráti zložené súbory."""
+def merge_root(archive: Path, data: Path, verbose: bool = True) -> list[Path]:
+    """`data_archive/` -> `data/` jedného koreňa."""
     import pandas as pd
 
     groups: dict[Path, list[Path]] = {}
-    for src in sorted(ARCHIVE.rglob("*.feather")):
+    for src in sorted(archive.rglob("*.feather")):
         m = _YEAR_SUFFIX.search(src.name)
         if not m:
             continue
         base = src.name[: m.start()] + ".feather"
-        groups.setdefault(src.parent.relative_to(ARCHIVE) / base, []).append(src)
+        groups.setdefault(src.parent.relative_to(archive) / base, []).append(src)
 
     out_paths: list[Path] = []
     for rel, parts in sorted(groups.items()):
         df = pd.concat([_read(p) for p in sorted(parts)], ignore_index=True)
         df = df.sort_values("date").drop_duplicates(subset="date", keep="last")
-        out = DATA / rel
+        out = data / rel
         _write(df, out)
         out_paths.append(out)
         if verbose:
@@ -108,28 +113,46 @@ def merge(verbose: bool = True) -> list[Path]:
     return out_paths
 
 
+def split(verbose: bool = True, roots: tuple[tuple[Path, Path], ...] | None = None) -> list[Path]:
+    """`data/` -> `data_archive/` vo všetkých koreňoch. Vráti zapísané súbory."""
+    written: list[Path] = []
+    for archive, data in roots if roots is not None else ROOTS:
+        if data.exists():
+            written += split_root(archive, data, verbose=verbose)
+    return written
+
+
+def merge(verbose: bool = True, roots: tuple[tuple[Path, Path], ...] | None = None) -> list[Path]:
+    """`data_archive/` -> `data/` vo všetkých koreňoch. Vráti zložené súbory."""
+    out: list[Path] = []
+    for archive, data in roots if roots is not None else ROOTS:
+        if archive.exists():
+            out += merge_root(archive, data, verbose=verbose)
+    return out
+
+
 def status() -> int:
-    import pandas as pd
+    for archive, data in ROOTS:
+        print(f"pracovne subory ({data}):")
+        work = sorted(data.rglob("*.feather")) if data.exists() else []
+        if not work:
+            print("  ziadne - spusti `merge`")
+        for p in work:
+            df = _read(p)
+            span = f"{df['date'].min():%Y-%m-%d} -> {df['date'].max():%Y-%m-%d}" if len(df) else "-"
+            print(f"  {p.relative_to(data)}  {len(df):>8} barov  {span}  {p.stat().st_size/1e6:.1f} MB")
 
-    print(f"pracovne subory ({DATA}):")
-    work = sorted(DATA.rglob("*.feather"))
-    if not work:
-        print("  ziadne - spusti `merge`")
-    for p in work:
-        df = _read(p)
-        span = f"{df['date'].min():%Y-%m-%d} -> {df['date'].max():%Y-%m-%d}" if len(df) else "-"
-        print(f"  {p.relative_to(DATA)}  {len(df):>8} barov  {span}  {p.stat().st_size/1e6:.1f} MB")
-
-    print(f"\narchiv ({ARCHIVE}):")
-    arch = sorted(ARCHIVE.rglob("*.feather"))
-    if not arch:
-        print("  ziadny - spusti `split`")
-    total = 0
-    for p in arch:
-        total += p.stat().st_size
-        print(f"  {p.relative_to(ARCHIVE)}  {p.stat().st_size/1e6:>6.1f} MB")
-    if arch:
-        print(f"  {'spolu':<52} {total/1e6:>6.1f} MB")
+        print(f"\narchiv ({archive}):")
+        arch = sorted(archive.rglob("*.feather")) if archive.exists() else []
+        if not arch:
+            print("  ziadny - spusti `split`")
+        total = 0
+        for p in arch:
+            total += p.stat().st_size
+            print(f"  {p.relative_to(archive)}  {p.stat().st_size/1e6:>6.1f} MB")
+        if arch:
+            print(f"  {'spolu':<52} {total/1e6:>6.1f} MB")
+        print()
     return 0
 
 
@@ -149,9 +172,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\nZapisanych {len(n)} suborov. Nezmenene roky sa preskocili.")
         return 0
 
-    print("Skladam rocne subory pre Freqtrade...")
-    if not ARCHIVE.exists():
-        print(f"Archiv neexistuje: {ARCHIVE}", file=sys.stderr)
+    print("Skladam rocne subory z archivu...")
+    if not any(archive.exists() for archive, _ in ROOTS):
+        print(f"Ziadny archiv neexistuje: {', '.join(str(a) for a, _ in ROOTS)}", file=sys.stderr)
         return 1
     n = merge(verbose=not args.quiet)
     print(f"\nZlozenych {len(n)} suborov.")

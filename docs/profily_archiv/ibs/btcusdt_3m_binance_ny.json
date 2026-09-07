@@ -9,7 +9,7 @@
     "",
     "Break-even poplatok 0,088 % na stranu proti 0,05 %, ktore berie Binance ako taker.",
     "Styri z piatich rokov su po realnych poplatkoch ziskove, spolu +17,0 %, max DD 7,1 %.",
-    "Detaily v docs/SEANSY_2026-09-05.md; cisla po opravach adaptera (timeout limitky)",
+    "Detaily v docs/merania/SEANSY_2026-09-05.md; cisla po opravach adaptera (timeout limitky)",
     "v docs/OPRAVY_adapter_2026-09-05.md."
   ],
   "_instrument": "btcusdt_binance",

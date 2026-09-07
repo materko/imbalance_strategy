@@ -16,6 +16,7 @@ Dnes sú v registry dve:
 
 ```
 tradebot/
+  core/paths.py         cesty v repozitári (dáta, archívy, tester/) - jediné miesto, kde sú napísané
   core/                 generické jadro: Bar, InstrumentSpec, SizeSpec, BarHistory, SessionClock,
                         StrategyConfig (báza configu + load_profile), Engine protokol + EngineOutput,
                         OrderIntent/StateEvent/MarketContext, TradePlan, DrawCommand + DrawKind registr
@@ -31,6 +32,7 @@ pine/<key>.pine         zdroj pravdy pre parametre stratégie
 platforms/freqtrade/user_data/strategies/<FreqtradeTrieda>.py   shim (Freqtrade resolver)
 platforms/multicharts/<Nazov>_Signal.py                          šablóna študie
 docs/profily_archiv/<key>/                                       archivované profily
+tester/runs/, tester/profiles/                                   história behov a profily testerov
 ```
 
 ## Checklist: nová stratégia `moja`

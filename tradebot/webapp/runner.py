@@ -29,22 +29,23 @@ from pathlib import Path
 from typing import Any, Callable
 
 from ..core import load_profile
+from ..core.paths import (
+    BACKTEST_RESULTS as RESULTS_DIR,
+    FREQTRADE_DATA,
+    FREQTRADE_DIR as FT_DIR,
+    FREQTRADE_USER_DIR as USER_DIR,
+    MULTICHARTS_DATA as MC_DIR,
+    REPO,
+    TMP_PROFILES,
+)
 from ..core.types import INSTRUMENTS, TradeDirection
 from ..strategies import get_spec
 from . import profiles
 from .store import RunStore, make_run_id
 
-REPO = Path(__file__).resolve().parents[2]
-FT_DIR = REPO / "platforms" / "freqtrade"
-USER_DIR = FT_DIR / "user_data"
-RESULTS_DIR = USER_DIR / "backtest_results"
-DATA_DIR = USER_DIR / "data" / "binance" / "futures"
+DATA_DIR = FREQTRADE_DATA / "binance" / "futures"
 #: Spot je o adresár vyššie a bez prípony `-futures` v mene súboru (tak to píše Freqtrade).
-SPOT_DIR = USER_DIR / "data" / "binance"
-#: „Burza" MultiCharts: 1m sviečky z Dukascopy CSV (`tradebot.tools.dukas_archive` +
-#: `data_archive merge`), beh cez emulátor MultiCharts, nie cez Freqtrade.
-MC_DIR = USER_DIR / "data" / "multicharts"
-TMP_PROFILES = USER_DIR / "runs" / ".profiles"
+SPOT_DIR = FREQTRADE_DATA / "binance"
 
 #: Koľko riadkov logu sa uloží k behu — celý log Freqtradu má stovky riadkov
 #: o načítavaní dát, ktoré nikoho nezaujímajú.
@@ -476,7 +477,7 @@ class BacktestRunner:
         data_path = MC_DIR / f"{inst.data_stem}-1m.feather"
         job.log_lines.append(f"$ emulator MultiCharts {inst.exchange_symbol} {tf} {settings['timerange']} ({data_path.name})")
         if not data_path.exists():
-            raise FileNotFoundError(f"chýbajú 1m dáta {data_path} — spusti dukas_archive a data_archive merge")
+            raise FileNotFoundError(f"chýbajú 1m dáta {data_path} — spusti `python -m tradebot.tools.dukas_import <csv> --symbol <symbol>`")
 
         import pandas as pd
 

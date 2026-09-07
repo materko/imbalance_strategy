@@ -57,7 +57,7 @@ function Invoke-Download {
         @range @eraseArg
 
     if ($LASTEXITCODE -ne 0) {
-        Write-Warning "$Label - download zlyhal (exit $LASTEXITCODE). Viz docs/RUNNING.md."
+        Write-Warning "$Label - download zlyhal (exit $LASTEXITCODE). Viz docs/DATA.md."
         return $false
     }
     return $true

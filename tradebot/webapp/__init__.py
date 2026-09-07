@@ -6,7 +6,7 @@ Tester si vo formulári nastaví parametre stratégie (všetkých ~110 Pine vstu
 zoskupených ako v TradingView plus rozšírenia portu), vyberie pár a obdobie, spustí
 backtest a po dobehnutí vidí kartu s kľúčovými číslami, graf výnosnosti ako
 v Strategy Testeri a zoznam obchodov. Každý beh sa uloží ako adresár JSON súborov
-do `platforms/freqtrade/user_data/runs/`, ktorý sa commituje — história sa dá
+do `tester/runs/`, ktorý sa commituje — história sa dá
 pushovať a pullovať a nestratí sa. Behy sa dajú vyhľadávať podľa parametrov.
 
 Moduly:

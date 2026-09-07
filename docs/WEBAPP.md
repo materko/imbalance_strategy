@@ -1,17 +1,21 @@
 # Webová aplikácia pre testerov
 
-Lokálna stránka nad Freqtrade backtestom: tester si nastaví parametre stratégie,
+Lokálna stránka nad backtestom: tester si nastaví parametre stratégie,
 vyberie pár a obdobie, spustí beh a po dobehnutí vidí to isté, čo Strategy Tester
 v TradingView — štyri karty (Total PnL, Max drawdown, Profitable trades, Profit
 factor), graf výnosnosti (kumulatívny PnL, buy and hold, stĺpce za obchod) a zoznam
 obchodov. Každý beh sa uloží do gitu, takže história sa dá pushovať a pullovať
 medzi testermi a hľadať v nej podľa parametrov.
 
+Beh na Binance páre ide cez Freqtrade, beh na Dukascopy symbole (`NAS100`) cez emulátor
+MultiCharts — v histórii sú vedľa seba a nič sa pre testera nemení
+([MULTICHARTS.md §E](MULTICHARTS.md), [DATA.md](DATA.md)).
+
 ## Spustenie bez Dockeru
 
 Treba len **Python 3.11+ (64-bit)** a **git**; na macOS ešte `brew install ta-lib`
 (Freqtrade ho potrebuje). Skript pri prvom spustení sám postaví `.venv`
-(freqtrade + balík `tradebot`, zhruba 10 minút), pri štarte zloží dáta z `data_archive/`,
+(freqtrade + balík `tradebot`, zhruba 10 minút), pri štarte zloží dáta z archívov v gite,
 ak chýbajú, a otvorí prehliadač na http://127.0.0.1:8765.
 
 **Windows**: klonuj repozitár a dvojklikni na `webapp.cmd` v jeho koreni (obíde
@@ -44,7 +48,7 @@ cd imbalance_strategy
 ./webapp.sh
 ```
 
-Koreňové `webapp.*` sú len obaly nad `platforms/freqtrade/scripts/webapp.*`.
+Koreňové `webapp.*` sú len obaly nad `tester/scripts/webapp.*`.
 Voliteľné: `-Port 9000` / `TRADEBOT_WEB_PORT=9000`, `-NoBrowser` / `NO_BROWSER=1`.
 Server sa ukončí Ctrl+C. Aktualizácia kódu je `git pull` v koreni repozitára.
 
@@ -76,7 +80,7 @@ ručne alebo cez „Načítať do formulára" z histórie.
 Vlastný profil patrí stratégii, s ktorou vznikol (kľúč `_strategy`), a ponuka ukazuje
 len profily aktívnej stratégie. Ponuka má dve skupiny: **profily repozitára** (`tradebot/configs/<stratégia>/`, sú kód — testy a
 merania sa na ne odvolávajú, preto sa z webapp nedajú meniť) a **vlastné profily**
-testera (`user_data/profiles/`). Vlastný profil vznikne dvoma spôsobmi: tlačidlom
+testera (`tester/profiles/`). Vlastný profil vznikne dvoma spôsobmi: tlačidlom
 **Uložiť ako profil** pod ponukou (uloží celý formulár — parametre, pár, TF, obdobie,
 poplatok, peňaženku aj 1m detail) alebo rovnakým tlačidlom v detaile behu (uloží
 nastavenie toho behu). **Premenovať**
@@ -212,7 +216,7 @@ použiteľný priamo cez `TRADEBOT_PROFILE=cesta.json` v CLI. **Zmazať** odstr�
 ## Kde história žije a ako sa zdieľa
 
 ```
-platforms/freqtrade/user_data/runs/<YYYYMMDD-HHMMSS-odtlačok>/
+tester/runs/<YYYYMMDD-HHMMSS-odtlačok>/
     run.json        parametre, nastavenia (vrátane settings.strategy), výsledok (súhrn), séria pre graf
     trades.json     obchody
     log.txt         skrátený log
@@ -222,7 +226,7 @@ platforms/freqtrade/user_data/runs/<YYYYMMDD-HHMMSS-odtlačok>/
 Všetko okrem kresieb je čitateľný JSON, jeden adresár na beh, takže sa to mergeuje bez
 konfliktov. Kresby sú gzip: ročný beh má ~90 000 objektov (12 MB v JSON, 1,5 MB
 zbalené) a súbor sa po zápise už nemení, takže diff netreba. Sviečky sa k behu
-neukladajú — čítajú sa z `user_data/data` (v gite ako `data_archive/`), takže graf
+neukladajú — čítajú sa z pracovných `data/` platformy (v gite ako `data_archive/`), takže graf
 funguje aj pre beh stiahnutý od iného testera. Behy z čias pred týmto súborom ukážu
 sviečky a obchody bez kresieb.
 
@@ -233,7 +237,7 @@ webapp súbor po dobehnutí presunie do adresára behu.
 Vlastné profily žijú vedľa histórie:
 
 ```
-platforms/freqtrade/user_data/profiles/<meno>.json
+tester/profiles/<meno>.json
 ```
 
 Na rozdiel od profilov repozitára (tie držia len odchýlky od Pine defaultov) je
@@ -308,7 +312,7 @@ inštalátor pre macOS zapisuje `tester` automaticky. Rola sa dá kedykoľvek pr
 ## Čo aplikácia nerobí
 
 * Nesťahuje dáta — páry a obdobia sú len tie, čo sú v archíve
-  (`python -m tradebot.tools.data_archive`, docs/RUNNING.md §C).
+  (`python -m tradebot.tools.data_archive`, docs/DATA.md).
 * Nemá prihlásenie — je na lokálne spustenie (alebo za reverse proxy).
 * Nespúšťa hyperopt; na ten sú skripty v `platforms/freqtrade/scripts/`.
 
@@ -316,9 +320,11 @@ inštalátor pre macOS zapisuje `tester` automaticky. Rola sa dá kedykoľvek pr
 
 `tradebot/webapp/`: `pine_meta.py` (metadáta z Pine súboru stratégie, `param_metadata(spec)`),
 `store.py` (behy a vyhľadávanie),
-`runner.py` (fronta, Freqtrade podproces, spracovanie zipu), `chart.py` (sviečky
+`runner.py` (fronta, Freqtrade podproces alebo emulátor MultiCharts, spracovanie zipu), `chart.py` (sviečky
 z feather súborov po oknách, orezanie kresieb na okno), `gitsync.py`,
 `app.py` (FastAPI), `static/` (stránka bez frameworku, Plotly z CDN).
 Export kresieb: `tradebot/adapters/freqtrade/runner.py::export_chart`, serializácia
 `tradebot/core/drawing.py::objects_to_dicts`.
-Testy: `tradebot/tests/test_webapp.py`, `tradebot/tests/test_chart_export.py`.
+Testy: `tradebot/tests/test_webapp.py`, `tradebot/tests/test_chart_export.py`,
+`tradebot/tests/test_webapp_multicharts.py`.
+Cesty (`tester/runs`, `tester/profiles`, dáta platforiem): `tradebot/core/paths.py`.

@@ -21,7 +21,7 @@ def main() -> int:
 
     host = getenv("WEB_HOST", "127.0.0.1")
     port = int(getenv("WEB_PORT", "8765"))
-    print(f"IBS webapp: http://{host}:{port}", flush=True)
+    print(f"TradeBot Tester: http://{host}:{port}", flush=True)
     uvicorn.run("tradebot.webapp.app:app", host=host, port=port, log_level="info")
     return 0
 

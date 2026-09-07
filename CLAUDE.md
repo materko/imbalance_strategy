@@ -40,16 +40,22 @@ Bez obmedzení. Platia len konvencie repozitára:
   Jadro a adaptéry nesmú poznať konkrétnu stratégiu menom — všetko ide cez `StrategySpec`.
 - Backtest vždy s `--timeframe-detail 1m` a `--cache none` (skripty to robia samy);
   stratégiu nespúšťať priamo na 1m grafe (limity `*MaxBars` sú v baroch).
-- Merania sa zapisujú ako datované dokumenty v `docs/` s číslami **po rokoch** na piatich
+- Merania sa zapisujú ako datované dokumenty v `docs/merania/` s číslami **po rokoch** na piatich
   referenčných oknách (`20211001-20221001`, `20221001-20231001`, `20231001-20241001`,
   `20240904-20250904`, `20250904-20260904`); kľúčová metrika je break-even poplatok.
-- Dáta len v oficiálnych timeframoch búrz, commitované po rokoch v `data_archive/`.
+- Dáta len v oficiálnych timeframoch búrz, commitované po rokoch v `data_archive/` príslušnej
+  platformy (Binance/Coinbase pod `platforms/freqtrade/user_data/`, Dukascopy pod
+  `platforms/multicharts/`). Surový Dukascopy export spracuje `tradebot.tools.dukas_import`
+  (obal `./dukas-import.sh`, `.\dukas-import.ps1`) — viď [docs/DATA.md](docs/DATA.md).
+- Cesty v repozitári sú na jednom mieste v `tradebot/core/paths.py`; nikde inde sa nepíšu.
 - Commity v štýle histórie: slovenská veta v imperatíve, čo a prečo.
 - Backtesty, ktoré majú byť v histórii webapp, spúšťaj cez `python -m tradebot.webapp.cli run`
   (holý Freqtrade CLI ich do `runs/` nezapíše) — inak je to jedno.
 
-Podrobnosti: [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md),
-[docs/RUNNING.md](docs/RUNNING.md), [docs/WEBAPP.md](docs/WEBAPP.md), [README.md](README.md).
+Podrobnosti: [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) (návrh),
+[docs/FREQTRADE.md](docs/FREQTRADE.md) (krypto vetva), [docs/MULTICHARTS.md](docs/MULTICHARTS.md)
+(MultiCharts vetva), [docs/DATA.md](docs/DATA.md) (dáta), [docs/WEBAPP.md](docs/WEBAPP.md)
+(Tester), [docs/RUNNING.md](docs/RUNNING.md) (rozcestník), [README.md](README.md).
 
 ---
 
@@ -71,8 +77,8 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
 3. **Ku každému behu napíš `--note`**, čo testuje. Bez poznámky je história na nič.
 4. **Testerov klon nie je vývojová vetva.** Neupravuj `tradebot/core`, adaptéry ani profily
    v `tradebot/configs/<stratégia>`, pokiaľ ťa o to výslovne nepožiadajú. Parametre sa menia cez `--set`
-   alebo vo formulári, nie v kóde. Do gitu idú len dáta testera: história behov (`runs/`)
-   a vlastné profily (`user_data/profiles/`). Vlastný profil si tester uloží tlačidlom
+   alebo vo formulári, nie v kóde. Do gitu idú len dáta testera: história behov (`tester/runs/`)
+   a vlastné profily (`tester/profiles/`). Vlastný profil si tester uloží tlačidlom
    **Uložiť ako profil** — z formulára (aj so zvoleným TF) alebo z detailu behu; tam sa
    dá aj premenovať a zmazať. Profily repozitára v `tradebot/configs/<stratégia>/` sa nemenia.
 5. Jeden backtest naraz. Rok s 1m detailom trvá ~20–40 s; päť rokov ~3 minúty.
@@ -121,7 +127,7 @@ PY -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/ethusdt_3m_binan
 
 - Ak webapp beží, beh ide do jej fronty a tester ho vidí v prehliadači naživo; CLI
   počká na výsledok a vypíše súhrn. Ak nebeží, CLI spustí backtest priamo a uloží ho
-  do toho istého `platforms/freqtrade/user_data/runs/` — história je rovnaká.
+  do toho istého `tester/runs/` — história je rovnaká.
 - Vždy zopakuj **päť referenčných okien**, keď hodnotíš zmenu parametra — jeden rok
   o stratégii nič nepovie: `20211001-20221001`, `20221001-20231001`, `20231001-20241001`,
   `20240904-20250904`, `20250904-20260904`.
@@ -218,7 +224,7 @@ PY -m tradebot.webapp.cli push    # commitni LEN runs/ a profiles/ a pushni na a
 
 To isté robia tlačidlá Pull/Push vo webapp. Push ide vždy do **`main`** (nie na vetvu,
 na ktorej klon stojí; iný cieľ cez `TRADEBOT_GIT_BRANCH`) a commituje **výhradne** adresáre
-`platforms/freqtrade/user_data/runs/` a `platforms/freqtrade/user_data/profiles/`,
+`tester/runs/` a `tester/profiles/`,
 autor je meno testera (`TRADEBOT_USER` alebo `git config user.name`). Každý beh je nový
 adresár, konflikty prakticky nevznikajú.
 Ak push zlyhá na „rejected", sprav pull a push znova. Ak zlyhá na „could not read

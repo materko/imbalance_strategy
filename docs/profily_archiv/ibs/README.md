@@ -93,7 +93,7 @@ Ako `--set` pre CLI:
 
 ### `btcusdt_3m_binance_opt`  (btcusdt_binance)
 
-BINANCE BTCUSDT.P, 3m - VYSLEDOK HYPEROPTU (epocha 288 z 300).  Ladene na okne 2025-09-05 az 2026-09-04 (365 dni), loss IBSHyperOptLoss (Calmar so spodnym limitom na pocet obchodov), sizing legacyPineSizing aby bol experiment porovnatelny s TradingView.  Vysledok NA OKNE, KDE SA LADILO (teda optimisticky):   103 obchodov, +34.8 %, win rate 44.7 %, max DD 24.7 %, PF 1.24  POZOR: cisla mimo tohto okna su v docs/HYPEROPT_btcusdt_2026-09-04.md. Priestor ma 10 parametrov a strategia robi ~150 obchodov za rok, takze pretrenovanie je realne - bez pohladu na out-of-sample vysledky sa tomuto profilu nedaju verit.  enableSrTrading a enableLqTrading su OVERENE proti TradingView (2026-09-04): po ich zapnuti sa pocet obchodov zmenil z 5 (3W/2L) na 6 (4W/2L) rovnako v TradingView aj v engine - viz test_sr_a_likviditne_zony_sedia_s_tradingview.
+BINANCE BTCUSDT.P, 3m - VYSLEDOK HYPEROPTU (epocha 288 z 300).  Ladene na okne 2025-09-05 az 2026-09-04 (365 dni), loss IBSHyperOptLoss (Calmar so spodnym limitom na pocet obchodov), sizing legacyPineSizing aby bol experiment porovnatelny s TradingView.  Vysledok NA OKNE, KDE SA LADILO (teda optimisticky):   103 obchodov, +34.8 %, win rate 44.7 %, max DD 24.7 %, PF 1.24  POZOR: cisla mimo tohto okna su v docs/merania/HYPEROPT_btcusdt_2026-09-04.md. Priestor ma 10 parametrov a strategia robi ~150 obchodov za rok, takze pretrenovanie je realne - bez pohladu na out-of-sample vysledky sa tomuto profilu nedaju verit.  enableSrTrading a enableLqTrading su OVERENE proti TradingView (2026-09-04): po ich zapnuti sa pocet obchodov zmenil z 5 (3W/2L) na 6 (4W/2L) rovnako v TradingView aj v engine - viz test_sr_a_likviditne_zony_sedia_s_tradingview.
 
 Odchýlky od Pine defaultov:
 
@@ -129,7 +129,7 @@ Ako `--set` pre CLI:
 
 ### `btcusdt_3m_binance_struct`  (btcusdt_binance)
 
-BINANCE BTCUSDT.P 3m - najlepsia konfiguracia zo systematickeho hladania (2026-09-04).  Rozdiely oproti btcusdt_3m_binance_tv: rrRatio 5, trailing vypnuty, slLookback 20, zapnuty struktury filter (BOS/CHoCH) a obchodovanie z S/R aj likviditnych zon. Vsetky tri entry modely zapnute.  POZOR - toto NIE JE odporucanie na obchodovanie. Priemerny break-even poplatok je 0,045 % na stranu (spolu cez pat rokov 0,040 %) proti 0,05 %, ktore berie Binance; dva z piatich rokov su po poplatkoch ziskove a sucet za pat rokov je prakticky nula. Detaily v docs/FILTRE_vstupu_2026-09-04.md, cisla po opravach adaptera v docs/OPRAVY_adapter_2026-09-05.md.
+BINANCE BTCUSDT.P 3m - najlepsia konfiguracia zo systematickeho hladania (2026-09-04).  Rozdiely oproti btcusdt_3m_binance_tv: rrRatio 5, trailing vypnuty, slLookback 20, zapnuty struktury filter (BOS/CHoCH) a obchodovanie z S/R aj likviditnych zon. Vsetky tri entry modely zapnute.  POZOR - toto NIE JE odporucanie na obchodovanie. Priemerny break-even poplatok je 0,045 % na stranu (spolu cez pat rokov 0,040 %) proti 0,05 %, ktore berie Binance; dva z piatich rokov su po poplatkoch ziskove a sucet za pat rokov je prakticky nula. Detaily v docs/merania/FILTRE_vstupu_2026-09-04.md, cisla po opravach adaptera v docs/OPRAVY_adapter_2026-09-05.md.
 
 Odchýlky od Pine defaultov:
 
@@ -156,7 +156,7 @@ Ako `--set` pre CLI:
 
 ### `btcusdt_3m_binance_ny`  (btcusdt_binance)
 
-BINANCE BTCUSDT.P 3m - najlepsia najdena konfiguracia (2026-09-05).  Rozdiely oproti btcusdt_3m_binance_tv: rrRatio 5, trailing vypnuty, slLookback 20, strukturny filter (BOS/CHoCH), obchodovanie z S/R aj likviditnych zon, a VYPNUTA londynska seansa - tam stratégia edge nema (break-even -0,0007 % za pat rokov), len riedi vysledok a plati poplatky.  Break-even poplatok 0,088 % na stranu proti 0,05 %, ktore berie Binance ako taker. Styri z piatich rokov su po realnych poplatkoch ziskove, spolu +17,0 %, max DD 7,1 %. Detaily v docs/SEANSY_2026-09-05.md; cisla po opravach adaptera (timeout limitky) v docs/OPRAVY_adapter_2026-09-05.md.
+BINANCE BTCUSDT.P 3m - najlepsia najdena konfiguracia (2026-09-05).  Rozdiely oproti btcusdt_3m_binance_tv: rrRatio 5, trailing vypnuty, slLookback 20, strukturny filter (BOS/CHoCH), obchodovanie z S/R aj likviditnych zon, a VYPNUTA londynska seansa - tam stratégia edge nema (break-even -0,0007 % za pat rokov), len riedi vysledok a plati poplatky.  Break-even poplatok 0,088 % na stranu proti 0,05 %, ktore berie Binance ako taker. Styri z piatich rokov su po realnych poplatkoch ziskove, spolu +17,0 %, max DD 7,1 %. Detaily v docs/merania/SEANSY_2026-09-05.md; cisla po opravach adaptera (timeout limitky) v docs/OPRAVY_adapter_2026-09-05.md.
 
 Odchýlky od Pine defaultov:
 
@@ -184,7 +184,7 @@ Ako `--set` pre CLI:
 
 ### `btcusdt_3m_binance_ny_sl`  (btcusdt_binance)
 
-BINANCE BTCUSDT.P 3m - NY profil + filter tesneho SL (2026-09-05).  Rozdiel oproti btcusdt_3m_binance_ny: minSlDistance 0,20 % ceny. Obchod, ktoreho SL je blizsie nez 0,2 % od vstupu, sa preskoci (SKIP: SL PRILIS TESNY). Rozsirenie portu, Pine ho nema - dovod su poplatky: zisk obchodu rastie s velkostou R, poplatok je vzdy percento z nominalu, takze tesne SL maju najhorsi pomer edge k poplatku.  Pat rokov, bez poplatkov: 149 obchodov namiesto 215 pri ROVNAKOM hrubom zisku (+22 907 vs +22 221 USDT pri 1 BTC), break-even 0,141 % namiesto 0,088 % na stranu. S poplatkami 0,05 %: +23,2 % za pat rokov namiesto +17,0 %, styri z piatich rokov ziskove, max DD 6,7 %. Prah 0,15 aj 0,25 % davaju ten isty smer (plato, nie spicka). Detaily v docs/OPTIMALIZACIA_2026-09-05.md.
+BINANCE BTCUSDT.P 3m - NY profil + filter tesneho SL (2026-09-05).  Rozdiel oproti btcusdt_3m_binance_ny: minSlDistance 0,20 % ceny. Obchod, ktoreho SL je blizsie nez 0,2 % od vstupu, sa preskoci (SKIP: SL PRILIS TESNY). Rozsirenie portu, Pine ho nema - dovod su poplatky: zisk obchodu rastie s velkostou R, poplatok je vzdy percento z nominalu, takze tesne SL maju najhorsi pomer edge k poplatku.  Pat rokov, bez poplatkov: 149 obchodov namiesto 215 pri ROVNAKOM hrubom zisku (+22 907 vs +22 221 USDT pri 1 BTC), break-even 0,141 % namiesto 0,088 % na stranu. S poplatkami 0,05 %: +23,2 % za pat rokov namiesto +17,0 %, styri z piatich rokov ziskove, max DD 6,7 %. Prah 0,15 aj 0,25 % davaju ten isty smer (plato, nie spicka). Detaily v docs/merania/OPTIMALIZACIA_2026-09-05.md.
 
 Odchýlky od Pine defaultov:
 
@@ -213,7 +213,7 @@ Ako `--set` pre CLI:
 
 ### `btcusdt_3m_binance_ny_sl_risk1`  (btcusdt_binance)
 
-BINANCE BTC/USDT.P 3m - btcusdt_3m_binance_ny_sl s REALNYM risk-based sizingom namiesto 1 BTC/ETH.  maxLossDollar 100 = 1 % z dry_run_wallet 10 000 (pevna suma, nie percento z aktualneho zostatku). legacyPineSizing vypnuty, qty = maxLossDollar / SL vzdialenost. Paka 10 je len preto, aby sa pozicia pri SL 0,2 % (nominal ~50 000) zmestila na ucet - bez nej by Freqtrade stake orezal a riziko na obchod by bolo v skutocnosti mensie (viď warning 'stake orezany' v logu). Vysledky v docs/OPTIMALIZACIA_2026-09-05.md, sekcia 6.
+BINANCE BTC/USDT.P 3m - btcusdt_3m_binance_ny_sl s REALNYM risk-based sizingom namiesto 1 BTC/ETH.  maxLossDollar 100 = 1 % z dry_run_wallet 10 000 (pevna suma, nie percento z aktualneho zostatku). legacyPineSizing vypnuty, qty = maxLossDollar / SL vzdialenost. Paka 10 je len preto, aby sa pozicia pri SL 0,2 % (nominal ~50 000) zmestila na ucet - bez nej by Freqtrade stake orezal a riziko na obchod by bolo v skutocnosti mensie (viď warning 'stake orezany' v logu). Vysledky v docs/merania/OPTIMALIZACIA_2026-09-05.md, sekcia 6.
 
 Odchýlky od Pine defaultov:
 
@@ -278,7 +278,7 @@ Ako `--set` pre CLI:
 
 ### `ethusdt_3m_binance_ny_sl`  (ethusdt_binance)
 
-BINANCE ETH/USDT.P 3m - ethusdt_3m_binance_ny + filter tesneho SL (minSlDistance 0,20 % ceny).  Nezavisle overenie filtra, ktory bol najdeny na BTC (btcusdt_3m_binance_ny_sl): na ETH sa NIC neladilo, prah 0,20 % je prevzaty. Pat rokov bez poplatkov: 164 obchodov namiesto 203 pri rovnakom hrubom zisku, break-even 0,096 % namiesto 0,056 % na stranu, lepsi v styroch rokoch z piatich (piaty rovnaky). S poplatkami 0,05 % vsetkych pat rokov ziskovych. Detaily v docs/OPTIMALIZACIA_2026-09-05.md.  Prahy v ATR su prevzate z ethusdt_3m_binance_ny (viz jeho komentar). Spusta sa cez --pairs ETH/USDT:USDT, ETH nie je vo whiteliste.
+BINANCE ETH/USDT.P 3m - ethusdt_3m_binance_ny + filter tesneho SL (minSlDistance 0,20 % ceny).  Nezavisle overenie filtra, ktory bol najdeny na BTC (btcusdt_3m_binance_ny_sl): na ETH sa NIC neladilo, prah 0,20 % je prevzaty. Pat rokov bez poplatkov: 164 obchodov namiesto 203 pri rovnakom hrubom zisku, break-even 0,096 % namiesto 0,056 % na stranu, lepsi v styroch rokoch z piatich (piaty rovnaky). S poplatkami 0,05 % vsetkych pat rokov ziskovych. Detaily v docs/merania/OPTIMALIZACIA_2026-09-05.md.  Prahy v ATR su prevzate z ethusdt_3m_binance_ny (viz jeho komentar). Spusta sa cez --pairs ETH/USDT:USDT, ETH nie je vo whiteliste.
 
 Odchýlky od Pine defaultov:
 
@@ -315,7 +315,7 @@ Ako `--set` pre CLI:
 
 ### `ethusdt_3m_binance_ny_sl_risk1`  (ethusdt_binance)
 
-BINANCE ETH/USDT.P 3m - ethusdt_3m_binance_ny_sl s REALNYM risk-based sizingom namiesto 1 BTC/ETH.  maxLossDollar 100 = 1 % z dry_run_wallet 10 000 (pevna suma, nie percento z aktualneho zostatku). legacyPineSizing vypnuty, qty = maxLossDollar / SL vzdialenost. Paka 10 je len preto, aby sa pozicia pri SL 0,2 % (nominal ~50 000) zmestila na ucet - bez nej by Freqtrade stake orezal a riziko na obchod by bolo v skutocnosti mensie (viď warning 'stake orezany' v logu). Spusta sa cez --pairs ETH/USDT:USDT. Vysledky v docs/OPTIMALIZACIA_2026-09-05.md, sekcia 6.
+BINANCE ETH/USDT.P 3m - ethusdt_3m_binance_ny_sl s REALNYM risk-based sizingom namiesto 1 BTC/ETH.  maxLossDollar 100 = 1 % z dry_run_wallet 10 000 (pevna suma, nie percento z aktualneho zostatku). legacyPineSizing vypnuty, qty = maxLossDollar / SL vzdialenost. Paka 10 je len preto, aby sa pozicia pri SL 0,2 % (nominal ~50 000) zmestila na ucet - bez nej by Freqtrade stake orezal a riziko na obchod by bolo v skutocnosti mensie (viď warning 'stake orezany' v logu). Spusta sa cez --pairs ETH/USDT:USDT. Vysledky v docs/merania/OPTIMALIZACIA_2026-09-05.md, sekcia 6.
 
 Odchýlky od Pine defaultov:
 
@@ -353,7 +353,7 @@ Ako `--set` pre CLI:
 
 ### `nas100_dukas_3m`  (nas100_dukascopy)
 
-MultiCharts NAS100 CFD (Dukascopy USA100.IDX/USD) 3m, 2026-09-06 - odvodene z multicharts_mnq_3m. Ten isty podklad ako MNQ, preto su prahy v bodoch (abs) rovnake; tick je 0.01 (najmensi, ktory Pine rozsah tickDollarValue pripusta; data maju 3 desatinne miesta), nie 0.25, takze tickove polia su prepocitane na absolutne body (100 x 0.25 = 25, 1 x 0.25 = 0.25, 2 x 0.25 = 0.5), inak by boli 25x tesnejsie. tickDollarValue = 0.01 x 1 USD, legacyPineSizing ako na MNQ (qty v jednotkach po 1 USD/bod). Objem je len tickovy, useVolumeFilter ostava vypnuty. Data sa pripravuju cez `tradebot.tools.dukas_to_mc` a importuju do QuoteManagera (docs/RUNNING.md, sekcia E).
+MultiCharts NAS100 CFD (Dukascopy USA100.IDX/USD) 3m, 2026-09-06 - odvodene z multicharts_mnq_3m. Ten isty podklad ako MNQ, preto su prahy v bodoch (abs) rovnake; tick je 0.01 (najmensi, ktory Pine rozsah tickDollarValue pripusta; data maju 3 desatinne miesta), nie 0.25, takze tickove polia su prepocitane na absolutne body (100 x 0.25 = 25, 1 x 0.25 = 0.25, 2 x 0.25 = 0.5), inak by boli 25x tesnejsie. tickDollarValue = 0.01 x 1 USD, legacyPineSizing ako na MNQ (qty v jednotkach po 1 USD/bod). Objem je len tickovy, useVolumeFilter ostava vypnuty. Data sa pripravuju cez `tradebot.tools.dukas_import` (docs/DATA.md).
 
 Odchýlky od Pine defaultov:
 

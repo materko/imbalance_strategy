@@ -15,16 +15,14 @@ nepatrí, ten ide cez pull request.
 from __future__ import annotations
 
 import os
-
-from tradebot.core.env import getenv
 import subprocess
 from pathlib import Path
 from typing import Any
 
+from ..core.env import getenv
+from ..core.paths import REPO
 from .profiles import PROFILES_DIR
 from .store import RUNS_DIR
-
-REPO = Path(__file__).resolve().parents[2]
 
 
 #: Git sa nesmie nikoho pýtať na heslo — webapp beží bez terminálu, takže by request

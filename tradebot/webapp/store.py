@@ -25,8 +25,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
-REPO = Path(__file__).resolve().parents[2]
-RUNS_DIR = REPO / "platforms" / "freqtrade" / "user_data" / "runs"
+from ..core.paths import REPO, RUNS_DIR  # noqa: F401  (REPO sa reexportuje)
 
 _ID_RE = re.compile(r"^[0-9]{8}-[0-9]{6}-[0-9a-f]{6}$")
 

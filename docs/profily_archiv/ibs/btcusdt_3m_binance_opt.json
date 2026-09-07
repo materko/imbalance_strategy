@@ -9,7 +9,7 @@
     "Vysledok NA OKNE, KDE SA LADILO (teda optimisticky):",
     "  103 obchodov, +34.8 %, win rate 44.7 %, max DD 24.7 %, PF 1.24",
     "",
-    "POZOR: cisla mimo tohto okna su v docs/HYPEROPT_btcusdt_2026-09-04.md.",
+    "POZOR: cisla mimo tohto okna su v docs/merania/HYPEROPT_btcusdt_2026-09-04.md.",
     "Priestor ma 10 parametrov a strategia robi ~150 obchodov za rok, takze",
     "pretrenovanie je realne - bez pohladu na out-of-sample vysledky sa tomuto",
     "profilu nedaju verit.",

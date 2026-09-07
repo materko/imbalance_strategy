@@ -115,8 +115,9 @@ def test_beh_na_burze_multicharts_ide_cez_emulator_a_ulozi_sa(mc_data, tmp_path:
     assert store.has_chart(job.id) and "emulacia: test" in store.log(job.id)
 
 
-def test_dukas_archive_zapise_rocne_subory(tmp_path: Path, capsys):
-    from tradebot.tools.dukas_archive import load_dukas_frame, main, write_years
+def test_dukas_import_zapise_rocne_subory(tmp_path: Path, capsys):
+    """Cesta pre Tester: surový export -> ročné feather súbory v archíve MultiCharts."""
+    from tradebot.tools.dukas_import import load_dukas_frame, main, write_years
 
     csv = tmp_path / "X_M1.csv"
     csv.write_text(
@@ -132,6 +133,48 @@ def test_dukas_archive_zapise_rocne_subory(tmp_path: Path, capsys):
     files = write_years(df, "NAS100_USD", archive=tmp_path / "arch", from_year=2025, verbose=False)
     assert [f.name for f in files] == ["NAS100_USD-1m.2025.feather", "NAS100_USD-1m.2026.feather"]
     assert len(pd.read_feather(files[0])) == 1
-    assert main([str(csv), "--instrument", "nas100_dukascopy", "--archive", str(tmp_path / "arch2"), "--to-year", "2025"]) == 0
-    assert "zapisanych 2 suborov" in capsys.readouterr().out
-    assert main([str(csv), "--instrument", "btcusdt_binance", "--archive", str(tmp_path / "arch3")]) == 1
+
+    rc = main([str(csv), "--symbol", "NAS100", "--target", "tester",
+               "--archive", str(tmp_path / "arch2"), "--no-merge"])
+    assert rc == 0
+    assert sorted(p.name for p in (tmp_path / "arch2").glob("*.feather")) == [
+        "NAS100_USD-1m.2024.feather", "NAS100_USD-1m.2025.feather", "NAS100_USD-1m.2026.feather"]
+    assert "zapisanych 3 rocnych suborov" in capsys.readouterr().err
+
+
+def test_dukas_import_odmietne_neznamy_symbol_bez_hodnoty_bodu(tmp_path: Path, capsys):
+    """Bez Big Point Value by sizing v Testeri a v MultiCharts nebol ten istý."""
+    from tradebot.tools.dukas_import import main
+
+    csv = tmp_path / "Y_M1.csv"
+    csv.write_text("dt,o,h,l,c,vol\n2025-01-01 00:00:00,1,2,0.5,1.5,1\n", encoding="utf-8")
+    assert main([str(csv), "--symbol", "NECOTAKE", "--target", "tester"]) == 1
+    err = capsys.readouterr().err
+    assert "--point-value" in err and "nas100_dukascopy" in err
+
+
+def test_dukas_import_prida_novy_symbol_a_kostru_profilu(tmp_path: Path):
+    """Nový symbol = riadok v tabuľke Dukascopy + profil, ktorý sa dá rovno spustiť."""
+    import json
+
+    from tradebot.core.types import INSTRUMENTS, dukascopy_specs
+    from tradebot.tools import dukas_import as di
+
+    registry = tmp_path / "instruments_dukascopy.json"
+    registry.write_text("{}", encoding="utf-8")
+    try:
+        key, inst = di.register_symbol("EURUSD", point_value=100000.0, tick_size=0.00001,
+                                       registry=registry)
+        assert key == "eurusd_dukascopy" and inst.symbol == "EURUSD/USD"
+        assert inst.venue == "multicharts" and inst.has_real_volume is False
+        assert json.loads(registry.read_text(encoding="utf-8"))["eurusd_dukascopy"]["point_value"] == 100000.0
+        assert di.resolve_symbol("EURUSD") == (key, inst)
+
+        profile = di.write_profile_skeleton(key, inst, out_dir=tmp_path)
+        data = json.loads(profile.read_text(encoding="utf-8"))
+        assert profile.name == "eurusd_dukas_3m.json"
+        assert data["_instrument"] == key and data["tickDollarValue"] == pytest.approx(1.0)
+        assert any("atr" in line for line in data["_comment"])
+    finally:
+        INSTRUMENTS.pop("eurusd_dukascopy", None)
+        INSTRUMENTS.update(dukascopy_specs())
