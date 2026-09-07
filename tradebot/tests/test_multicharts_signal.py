@@ -119,6 +119,9 @@ class FakeOrderCreator:
     def MarketNextBar(self, p):
         return self._make("market", p)
 
+    def MarketThisBar(self, p):
+        return self._make("market_this_bar", p)
+
 
 class FakeDrawObj:
     def __init__(self, kind, *args):
@@ -386,11 +389,16 @@ def test_vystupy_a_koniec_seansy(fake_dotnet, monkeypatch):
     s.CalcBar()
     assert s._orders["sl_long"].sent == [(99.6,)] and s._orders["tp_long"].sent == [(102.0,)]
 
-    short = plan(direction=Direction.SHORT, entry=100.0, sl=101.0, tp=98.0)
-    monkeypatch.setattr(s.runner, "on_bar", lambda bar, position_size=0.0, **kw: BarOutput(exit_plan=short, close_session=True))
+    ctx.StrategyInfo.MarketPosition = -3
+    monkeypatch.setattr(s.runner, "on_bar", lambda bar, position_size=0.0, **kw: BarOutput(exit_plan=None, close_session=True))
     s.CalcBar()
-    assert s._orders["end_short"].sent == [()]
+    assert s._orders["end_short"].sent == [()] and s._orders["end_short"].kind == "market_this_bar"
     assert s._orders["sl_short"].sent == []  # pri zatvorení seansy sa SL/TP neposielajú
+
+    ctx.StrategyInfo.MarketPosition = 0
+    monkeypatch.setattr(s.runner, "on_bar", lambda bar, position_size=0.0, **kw: BarOutput(close_session=True))
+    s.CalcBar()
+    assert s._orders["end_long"].sent == [] and s._orders["end_short"].sent == [()]  # bez pozicie nic
 
 
 def test_kreslenie_kotvi_na_cas_zatvorenia_a_destroy_zmaze(fake_dotnet, monkeypatch):

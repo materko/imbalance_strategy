@@ -101,12 +101,17 @@ Párovanie obchodov podľa dňa a vstupnej ceny (do 5 bodov):
 | 20250904–20260904 | 106 | 105 | 16 | 9 |
 
 Konkrétne rozdiely na dohľadanie: 2025-06-11 09:18 LONG (sim WIN, MC LOSS vnútri baru),
-2025-07-11 15:39 LONG (sim LOSS, MC WIN), 2026-08-24 09:03 LONG (sim LOSS, MC WIN);
-nespárované sú väčšinou limitky, ktoré simulátor vyplní pri dotyku a MultiCharts až pri
-prechode cez cenu, prípadne ich MultiCharts vyplní o pár dní neskôr na tej istej cene
-(2025-10-24 → 10-30, 2026-02-27 → 03-02) — čakajúca limitka prežila cez víkend, hoci
-v simulátore bola dávno vyplnená. Toto je ďalší bod na overenie v jadre (expirácia
-čakajúceho orderu cez koniec seansy pri `in_trade_window=True` v MultiCharts runneri).
+2025-07-11 15:39 LONG (sim LOSS, MC WIN), 2026-08-24 09:03 LONG (sim LOSS, MC WIN) a
+obchody, ktoré MultiCharts zavrel o dni neskôr (2025-10-24 → 10-30, 2026-02-27 → 03-02).
+
+**Príčina nájdená (2026-09-07):** nebolo to pravidlo plnenia limitky — 1m dáta ukázali, že
+limitku z 24. 10. vyplnil aj simulátor až o 15:45. Chyba bola v MultiCharts runneri: engine
+na konci seansy posiela CANCEL aj na order, ktorý drží pozíciu (spolu s CLOSE), runner tým
+zahodil plán a študia v tom bare neposlala ani SL/TP, ani zatvorenie. Pozícia prežila
+víkend (4 loty, +1 919 USD namiesto TP +296 USD), blokovala ďalšie vstupy a zavrela sa až
+o dni neskôr. Oprava: plán sa drží, kým `MarketPosition` nie je nula, zatvorenie seansy ide
+podľa znamienka pozície cez `MarketThisBar` (close aktuálneho baru ako Pine
+`strategy.close`). Porovnanie po oprave — viď ďalší beh.
 
 ## Súvisiace
 
