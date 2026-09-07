@@ -134,6 +134,30 @@ Beh `NAS100/USD` na webapp „burze" MultiCharts (emulátor, `--fee 0`, január 
 Emulátor je od 2026-09-07 predvolená cesta pre Dukascopy symboly v Tester aplikácii;
 MultiCharts ostáva referenciou na overenie adaptéra.
 
+## Freqtrade cesta (2026-09-07)
+
+Ten istý symbol sa dá prehnať aj cez Freqtrade — kvôli hyperoptu a FreqAI, ktoré emulátor
+nemá ([FREQTRADE.md §G](../FREQTRADE.md)). Sviečky 3m a 5m sa skladajú z 1m tým istým
+pravidlom ako v emulátore, takže vstupom sú tie isté bary. Január 2025, `--fee 0`:
+
+| | obchodov | W / L | PnL |
+|---|---|---|---|
+| simulátor / emulátor | 12 | 9 / 3 | +1 992 USD |
+| MultiCharts študia | 12 | 9 / 3 | +1 991,66 USD |
+| Freqtrade | 13 | 9 / 4 | +1 833 USD |
+
+Každý spárovaný obchod má rovnakú vstupnú aj výstupnú cenu — signály sedia. Rozdiel je
+dvojaký a oba sú vo fill modeli:
+
+- **obchod navyše 6. 1. 16:28**: vstup na sviečke hneď po výstupe. V Pine aj v MultiCharts
+  order po zavretí pozície zaniká, Freqtrade ho nechá vyplniť.
+- **veľkosť pozície** pri market vstupoch: vstupná cena sa líši o cent a `legacyPineSizing`
+  počíta `qty = floor(maxLossDollar / SL vzdialenosť)`, takže blízko hranice zaokrúhlenia
+  vyjde iné qty (24. 1. 08:48: −174 vs −360 USD pri tej istej vstupnej aj výstupnej cene).
+
+Záver: Freqtrade je na **hľadanie** parametrov, referenciou pre NAS100 ostáva emulátor —
+ten sedí s tým, čo v MultiCharts naozaj pobeží.
+
 ## Súvisiace
 
 - Prevod dát a import do QuoteManagera: [DATA.md §B](../DATA.md), [MULTICHARTS.md §B](../MULTICHARTS.md).

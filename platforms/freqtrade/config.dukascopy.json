@@ -1,0 +1,72 @@
+{
+    "$schema": "https://schema.freqtrade.io/schema.json",
+    "_comment": [
+        "Dukascopy CFD (NAS100, forex, komodity) cez Freqtrade - kvoli hyperoptu a FreqAI.",
+        "Dukascopy nie je burza v ccxt, takze sa tu pouziva bitstamp ako NOSIC: potrebujeme",
+        "od nej jedine dve veci - ma USD ako quote menu (validate_stakecurrency) a pozna 3m",
+        "(validate_timeframes). Coinbase 3m nema, Binance zase USD. Par NAS100/USD na nej",
+        "neexistuje - preto StaticPairList s allow_inactive. Ziadne data sa z nej neberu:",
+        "sviecky su lokalne z dukas_import --target freqtrade, beh ich vidi cez --datadir.",
+        "trading_mode je spot, lebo futures rezim by chcel funding_rate a mark sviecky, ktore",
+        "CFD nema; IBS je aj tak long only. Preto ziadne shorty a paka 1.",
+        "Penazenka je zamerne velka: profil nas100_dukas_3m ma legacyPineSizing (qty v",
+        "jednotkach po 1 USD/bod), takze pri 10 000 by Freqtrade stake orezal a PnL by",
+        "neznamenalo nic - rovnaky dovod ako pri golden porovnani s TradingView.",
+        "Podrobne: docs/DATA.md a docs/FREQTRADE.md."
+    ],
+    "max_open_trades": 1,
+    "stake_currency": "USD",
+    "stake_amount": "unlimited",
+    "tradable_balance_ratio": 0.99,
+    "fiat_display_currency": "USD",
+    "dry_run": true,
+    "dry_run_wallet": 1000000,
+    "cancel_open_orders_on_exit": true,
+    "trading_mode": "spot",
+    "timeframe": "3m",
+    "unfilledtimeout": {
+        "entry": 30,
+        "exit": 10,
+        "exit_timeout_count": 0,
+        "unit": "minutes"
+    },
+    "entry_pricing": {
+        "price_side": "same",
+        "use_order_book": false,
+        "order_book_top": 1,
+        "price_last_balance": 0.0,
+        "check_depth_of_market": {
+            "enabled": false,
+            "bids_to_ask_delta": 1
+        }
+    },
+    "exit_pricing": {
+        "price_side": "same",
+        "use_order_book": false,
+        "order_book_top": 1
+    },
+    "exchange": {
+        "name": "bitstamp",
+        "key": "",
+        "secret": "",
+        "ccxt_config": {},
+        "ccxt_async_config": {},
+        "pair_whitelist": [
+            "NAS100/USD"
+        ],
+        "pair_blacklist": []
+    },
+    "pairlists": [
+        {
+            "method": "StaticPairList",
+            "allow_inactive": true
+        }
+    ],
+    "dataformat_ohlcv": "feather",
+    "bot_name": "tradebot-dukascopy",
+    "initial_state": "stopped",
+    "force_entry_enable": false,
+    "internals": {
+        "process_throttle_secs": 5
+    }
+}

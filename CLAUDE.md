@@ -48,6 +48,9 @@ Bez obmedzení. Platia len konvencie repozitára:
   `platforms/multicharts/`). Surový Dukascopy export spracuje `tradebot.tools.dukas_import`
   (obal `./dukas-import.sh`, `.\dukas-import.ps1`) — viď [docs/DATA.md](docs/DATA.md).
 - Cesty v repozitári sú na jednom mieste v `tradebot/core/paths.py`; nikde inde sa nepíšu.
+- Vyšší TF sa z 1m skladá výhradne cez `tradebot/tools/candles.py` (webapp graf, simulátor,
+  emulátor, súbory pre Freqtrade) — keby sa pravidlo rozišlo, porovnanie platforiem prestane
+  niečo znamenať. Freqtrade si TF sám nedopočíta, pre `--timeframe` chce súbor na disku.
 - Commity v štýle histórie: slovenská veta v imperatíve, čo a prečo.
 - Backtesty, ktoré majú byť v histórii webapp, spúšťaj cez `python -m tradebot.webapp.cli run`
   (holý Freqtrade CLI ich do `runs/` nezapíše) — inak je to jedno.

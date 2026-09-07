@@ -14,6 +14,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+from ..tools.candles import resample_ohlcv
 from .runner import DATA_DIR, MC_DIR, SPOT_DIR, is_multicharts_pair
 
 #: Timeframy, ktoré má zmysel ponúknuť v grafe; súbor musí existovať (nič sa neskladá).
@@ -51,14 +52,7 @@ def _frame(path: str, mtime_ns: int, minutes: int = 1):
     import pandas as pd
 
     df = pd.read_feather(path, columns=["date", "open", "high", "low", "close", "volume"])
-    if minutes > 1:
-        df = (
-            df.set_index("date")
-            .resample(f"{minutes}min", label="left", closed="left", origin="epoch")
-            .agg({"open": "first", "high": "max", "low": "min", "close": "last", "volume": "sum"})
-            .dropna(subset=["open"])
-            .reset_index()
-        )
+    df = resample_ohlcv(df, minutes)
     ts = (df["date"].astype("datetime64[ns, UTC]").astype("int64") // 1_000_000).to_numpy()
     cols = {c: df[c].astype(float).to_numpy() for c in ("open", "high", "low", "close", "volume")}
     return ts, cols
