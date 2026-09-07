@@ -9,7 +9,7 @@ Konkrétna stratégia je podtrieda so `STRATEGY_KEY` (viď `tradebot/strategies/
 a prepíše len to, čo je jej vlastné: hyperopt priestor, plnenie HTF, trailing, výstup na
 konci seansy. Freqtrade resolver navyše vyžaduje shim vo `user_data/strategies/<Trieda>.py`.
 
-Nastavenia stratégie sa berú z profilu (`tradebot/configs/<stratégia>/*.json` alebo cesta),
+Nastavenia stratégie sa berú z profilu (`tradebot/strategies/<stratégia>/configs/*.json` alebo cesta),
 **nie** z Freqtrade configu. Profil sa volí cez `TRADEBOT_PROFILE` v prostredí.
 """
 
@@ -99,7 +99,7 @@ class TradebotStrategyBase(IStrategy):
         super().__init__(config)
         self.spec: StrategySpec = get_spec(self.STRATEGY_KEY)
         profile = getenv("PROFILE", self.spec.default_profile) or self.spec.default_profile
-        self.tb_cfg, self.tb_inst = load_profile(profile, strategy=self.spec.key)
+        self.tb_cfg, self.tb_inst = load_profile(profile, strategy=self.spec.key, engine="freqtrade")
         for w in self.tb_cfg.check_instrument(self.tb_inst):
             logger.warning("%s config: %s", self.spec.key, w)
         self._runners: dict[str, EngineRunner] = {}

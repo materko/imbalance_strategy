@@ -203,7 +203,7 @@ def test_volume_filter_flagged_without_real_volume():
 
 
 def test_all_profiles_exist():
-    """V tradebot/configs/ibs sú len referenčné profily; experimenty a medzikroky sú v docs/profily_archiv/."""
+    """V tradebot/strategies/ibs/configs sú len referenčné profily; experimenty a medzikroky sú v docs/profily_archiv/."""
     assert set(list_profiles()) == {"multicharts_mnq_3m", "golden_coinbase_btcusd_3m", "golden_binance_btcusdt_3m"}
     for p in CONFIG_DIR.glob("*.json"):
         assert json.loads(p.read_text(encoding="utf-8")).get("_title"), f"{p.name}: chýba _title pre webapp"

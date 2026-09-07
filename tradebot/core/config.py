@@ -6,7 +6,7 @@ tabuľky `SIZE_FIELDS`, `ENUM_FIELDS`, `CONSTRAINTS` a `PORT_ONLY_FIELDS` sú at
 triedy — báza podľa nich dotypuje hodnoty, kontroluje rozsahy a serializuje.
 
 Profil = JSON s odchýlkami od Pine defaultov plus metakľúče `_strategy`, `_instrument`,
-`_title`, `_comment`. Profily žijú v `tradebot/configs/<stratégia>/`; načítať sa dajú
+`_title`, `_comment`. Profily žijú v `tradebot/strategies/<stratégia>/configs/`; načítať sa dajú
 menom (`"ibs/golden_binance_btcusdt_3m"`, alebo holé meno s argumentom `strategy`)
 alebo cestou k súboru (napr. archív v `docs/profily_archiv/<stratégia>/`).
 """
@@ -24,7 +24,6 @@ from .types import INSTRUMENTS, InstrumentSpec, SizeSpec, SizeUnit
 __all__ = [
     "StrategyConfig",
     "ConfigError",
-    "CONFIGS_ROOT",
     "DEFAULT_STRATEGY",
     "META_KEYS",
     "load_profile",
@@ -33,13 +32,12 @@ __all__ = [
 ]
 
 #: Koreň profilov; každá stratégia má vlastný podpriečinok.
-CONFIGS_ROOT = Path(__file__).resolve().parent.parent / "configs"
 
 #: Stratégia, ktorá sa použije, keď meno profilu ani JSON stratégiu neuvádza.
 DEFAULT_STRATEGY = "ibs"
 
 #: Kľúče v JSON profile, ktoré nie sú parametre stratégie.
-META_KEYS = frozenset({"_comment", "_instrument", "_title", "_strategy"})
+META_KEYS = frozenset({"_comment", "_instrument", "_title", "_strategy", "_engine_overrides"})
 
 
 class ConfigError(ValueError):
@@ -175,21 +173,38 @@ def _spec(strategy: str):
     return STRATEGIES[strategy]
 
 
+def profile_dir(strategy: str = DEFAULT_STRATEGY) -> Path:
+    """Kde má stratégia svoje profily — `tradebot/strategies/<kľúč>/configs/`.
+
+    Profily bývajú pri stratégii zámerne: balík stratégie je tak sebestačný a dá sa
+    presunúť aj do iného repozitára jedným adresárom, bez toho, aby sa niekde inde
+    zabudli jej configy.
+    """
+    return _spec(strategy).profile_dir
+
+
 def profile_path(strategy: str, name: str) -> Path:
-    return CONFIGS_ROOT / strategy / f"{name}.json"
+    return profile_dir(strategy) / f"{name}.json"
 
 
 def list_profiles(strategy: str = DEFAULT_STRATEGY) -> list[str]:
-    """Mená JSON profilov stratégie v `tradebot/configs/<stratégia>/`."""
-    return sorted(p.stem for p in (CONFIGS_ROOT / strategy).glob("*.json"))
+    """Mená JSON profilov stratégie."""
+    return sorted(p.stem for p in profile_dir(strategy).glob("*.json"))
 
 
-def load_profile(name: str | Path, *, strategy: str | None = None):
+def load_profile(name: str | Path, *, strategy: str | None = None, engine: str | None = None):
     """Načíta profil a vráti `(config, InstrumentSpec)`.
 
     `name` je `"<stratégia>/<profil>"`, holé meno profilu (stratégia z argumentu,
     inak `DEFAULT_STRATEGY`) alebo cesta k JSON súboru. Kľúč `_strategy` v súbore má
     prednosť; nezhoda s argumentom je chyba, aby sa profil nenačítal do cudzej triedy.
+
+    `engine` (`freqtrade`, `multicharts`) doplní hodnoty z bloku `_engine_overrides`.
+    Parametre stratégie sú na engine nezávislé — to je pointa portu a stráži to golden
+    test —, takže sem patria len polia, ktoré sa engine naozaj týkajú. Preto jeden
+    config na stratégiu s malým blokom výnimiek, nie dva takmer rovnaké súbory, ktoré
+    by sa časom potichu rozišli. Aplikovanie je idempotentné: profil, ktorý už raz
+    prešiel týmto krokom (napr. dočasný profil behu z webapp), sa nezmení.
     """
     path = Path(name)
     if path.suffix == ".json":
@@ -214,6 +229,15 @@ def load_profile(name: str | Path, *, strategy: str | None = None):
         raise ConfigError(f"{path}: nie je platný JSON profil ({exc})") from None
     if not isinstance(data, dict):
         raise ConfigError(f"{path}: profil musí byť JSON objekt")
+
+    overrides = data.get("_engine_overrides") or {}
+    if not isinstance(overrides, dict):
+        raise ConfigError(f"{path.name}: _engine_overrides musí byť objekt engine -> hodnoty")
+    if engine:
+        unknown = [e for e in overrides if not isinstance(overrides[e], dict)]
+        if unknown:
+            raise ConfigError(f"{path.name}: _engine_overrides[{unknown[0]!r}] musí byť objekt")
+        data = {**data, **overrides.get(engine, {})}
 
     declared = data.get("_strategy")
     if declared is not None and strategy is not None and declared != strategy:

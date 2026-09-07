@@ -15,7 +15,7 @@
 # Graf: Time Zone Exchange, burza symbolu v pásme GMT (adaptér berie čas baru ako UTC).
 #
 # Profil sa prepína premennou prostredia TRADEBOT_PROFILE (predvolene "multicharts_mnq_3m"
-# z tradebot/configs/ibs), alebo natvrdo nižšie cez PROFILE (názov alebo cesta k JSON).
+# z tradebot/strategies/ibs/configs), alebo natvrdo nižšie cez PROFILE (názov alebo cesta k JSON).
 # Ordery študie: vstupy tb_long_<n>/tb_short_<n> (meno konkrétneho orderu LONG_<uid> sa
 # dosadí pri Send), výstupy tb_sl, tb_tp a tb_session_end.
 

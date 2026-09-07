@@ -255,7 +255,7 @@ class TradebotSignal:
     """
 
     STRATEGY_KEY: ClassVar[str] = ""
-    #: Profil natvrdo (názov z tradebot/configs/<stratégia> alebo cesta); None = prostredie.
+    #: Profil natvrdo (názov z tradebot/strategies/<stratégia>/configs alebo cesta); None = prostredie.
     PROFILE: ClassVar[str | None] = None
     #: Koľko vstupných limitiek na stranu môže ležať naraz. Order objekty musia
     #: vzniknúť v `Create`, takže je to pevný pool; meno sa dosadí pri `Send`.
@@ -333,7 +333,7 @@ class TradebotSignal:
     def _start_calc(self):
         spec = get_spec(self.STRATEGY_KEY)
         profile = self.PROFILE or getenv("PROFILE") or spec.default_profile
-        cfg, inst = load_profile(profile, strategy=spec.key)
+        cfg, inst = load_profile(profile, strategy=spec.key, engine="multicharts")
         for w in cfg.check_instrument(inst):
             self._out(f"{spec.key} config: {w}")
 

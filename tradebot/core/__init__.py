@@ -10,7 +10,7 @@ from __future__ import annotations
 from importlib import import_module
 
 from .clock import ClockState, SessionClock, SessionSpec, SessionWindow
-from .config import CONFIGS_ROOT, ConfigError, StrategyConfig, list_profiles, load_profile
+from .config import ConfigError, StrategyConfig, list_profiles, load_profile, profile_dir
 from .drawing import (
     PAL,
     DrawBg,
@@ -82,7 +82,7 @@ __all__ = [
     "INSTRUMENTS",
     "StrategyConfig",
     "ConfigError",
-    "CONFIGS_ROOT",
+    "profile_dir",
     "load_profile",
     "list_profiles",
     "SessionClock",

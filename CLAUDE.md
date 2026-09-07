@@ -82,11 +82,11 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
    na 1m grafe: limity `*MaxBars` sú v baroch.
 3. **Ku každému behu napíš `--note`**, čo testuje. Bez poznámky je história na nič.
 4. **Testerov klon nie je vývojová vetva.** Neupravuj `tradebot/core`, adaptéry ani profily
-   v `tradebot/configs/<stratégia>`, pokiaľ ťa o to výslovne nepožiadajú. Parametre sa menia cez `--set`
+   v `tradebot/strategies/<stratégia>/configs`, pokiaľ ťa o to výslovne nepožiadajú. Parametre sa menia cez `--set`
    alebo vo formulári, nie v kóde. Do gitu idú len dáta testera: história behov (`tester/runs/`)
    a vlastné profily (`tester/profiles/`). Vlastný profil si tester uloží tlačidlom
    **Uložiť ako profil** — z formulára (aj so zvoleným TF) alebo z detailu behu; tam sa
-   dá aj premenovať a zmazať. Profily repozitára v `tradebot/configs/<stratégia>/` sa nemenia.
+   dá aj premenovať a zmazať. Profily repozitára v `tradebot/strategies/<stratégia>/configs/` sa nemenia.
 5. Jeden backtest naraz. Rok s 1m detailom trvá ~20–40 s; päť rokov ~3 minúty.
 6. Nesťahuj dáta z burzy. Páry a obdobia sú len tie, čo sú v `data_archive/`:
    futures perpetuály `BTC/USDT:USDT`, `ETH/USDT:USDT` (v ponuke `BTCUSDT.P`,
@@ -97,7 +97,7 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
    s shortmi či pákou odmietnu.
 7. Profil musí sedieť s párom: pre ETH použi `ethusdt_*` profil z `docs/profily_archiv/`.
    BTC profil na ETH dá stovky nezmyselných obchodov (prahy v bodoch nesedia) — webapp aj
-   CLI na to varujú. V `tradebot/configs/ibs/` sú len tri referenčné profily (golden testy proti
+   CLI na to varujú. V `tradebot/strategies/ibs/configs/` sú len tri referenčné profily (golden testy proti
    TradingView, MultiCharts); skúšané konfigurácie sú v `docs/profily_archiv/` a `--profile`
    berie aj cestu k súboru.
 8. **„Len mi nastav parametre" znamená naozaj len nastaviť.** Keď má tester otvorenú

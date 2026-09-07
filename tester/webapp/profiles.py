@@ -1,6 +1,6 @@
 """Vlastné profily testera — JSON v `tester/profiles/`, vedľa histórie behov.
 
-Profily v `tradebot/configs/<stratégia>/` sú kód repozitára: držia paritu s Pine, ukazujú
+Profily v `tradebot/strategies/<stratégia>/configs/` sú kód repozitára: držia paritu s Pine, ukazujú
 na ne testy a dokumenty s meraniami, takže ich tester nesmie premenovať ani zmazať. Čo si
 uloží z vlastného behu, patrí k jeho dátam — ide do gitu spolu s `runs/` cez Push, dá sa
 premenovať aj zmazať a nikdy neprepíše profil z repozitára.
@@ -120,7 +120,7 @@ def check_name(name: str, strategy: str | None = None) -> str:
 def config_values(params: dict[str, Any], strategy: str = LEGACY_STRATEGY) -> dict[str, Any]:
     """Všetky polia configu — profil má byť úplný, nie diff.
 
-    Odchýlkový zápis (ako v `tradebot/configs/`) by znamenal, že profil závisí na tom, čo je
+    Odchýlkový zápis (ako v `tradebot/strategies/<stratégia>/configs/`) by znamenal, že profil závisí na tom, čo je
     práve default: keby sa Pine default posunul, posunul by sa aj rok starý profil
     a beh by sa už nedal zopakovať. Preto sa zapíše celý config, aj keď je súbor dlhší.
 

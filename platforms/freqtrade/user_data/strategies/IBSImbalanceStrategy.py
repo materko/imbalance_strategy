@@ -9,7 +9,7 @@ ktorych `__module__` sa zhoduje s nazvom TOHTO suboru (viz IResolver._get_valid_
 takze naimportovanu triedu treba este podedit. Preto ten prazdny subclass nizsie.
 
 Profil sa prepina premennou prostredia TRADEBOT_PROFILE (default: golden_binance_btcusdt_3m;
-nazov z tradebot/configs/ibs alebo cesta k JSON).
+nazov z tradebot/strategies/ibs/configs alebo cesta k JSON).
 """
 
 from tradebot.strategies.ibs.freqtrade import IBSImbalanceStrategy as _IBSImbalanceStrategy

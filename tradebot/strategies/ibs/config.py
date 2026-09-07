@@ -17,10 +17,12 @@ aby test parity vedel, že chýbajú zámerne.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from dataclasses import dataclass, field
 from typing import ClassVar, Iterable
 
-from tradebot.core.config import CONFIGS_ROOT, ConfigError, StrategyConfig, list_profiles, load_profile
+from tradebot.core.config import ConfigError, StrategyConfig, list_profiles, load_profile
 
 from tradebot.core.types import (
     InstrumentSpec,
@@ -45,7 +47,8 @@ __all__ = [
 
 #: Adresár s JSON profilmi IBS. Profil obsahuje LEN odchýlky od Pine defaultov,
 #: takže je čitateľný a diff proti originálu je zrejmý.
-CONFIG_DIR = CONFIGS_ROOT / "ibs"
+#: Profily stratégie ležia pri nej, aby bol balík sebestačný.
+CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 
 
 #: Polia, ktoré sú `SizeSpec`, a ich pôvodná Pine jednotka.

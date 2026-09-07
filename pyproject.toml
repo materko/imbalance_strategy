@@ -24,7 +24,7 @@ web = ["fastapi", "uvicorn", "pandas", "pyarrow"]
 include = ["tradebot*"]
 
 [tool.setuptools.package-data]
-tradebot = ["configs/*/*.json", "core/*.json"]
+tradebot = ["strategies/*/configs/*.json", "core/*.json"]
 
 [tool.pytest.ini_options]
 # tradebot/tests = produkt, tester/tests = nastroje Testera a porovnavacie (golden) testy

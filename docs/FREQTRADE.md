@@ -75,7 +75,7 @@ PY -m freqtrade backtesting \
 
 Stratégia je v [`tradebot/adapters/freqtrade/strategy.py`](../tradebot/adapters/freqtrade/strategy.py);
 súbor v `user_data/strategies/` je len shim pre resolver. Profil sa prepína cez
-`TRADEBOT_PROFILE` (názov z `tradebot/configs/<stratégia>/` alebo cesta k JSON):
+`TRADEBOT_PROFILE` (názov z `tradebot/strategies/<stratégia>/configs/` alebo cesta k JSON):
 
 ```bash
 TRADEBOT_PROFILE=golden_coinbase_btcusd_3m ./platforms/freqtrade/scripts/backtest.sh
@@ -227,9 +227,23 @@ docker compose -f docker/docker-compose.yml up -d --build freqtrade
 
 ## E. Konfiguračné profily
 
-Profily sú per stratégia v `tradebot/configs/<stratégia>/` (kľúč `_strategy`), načítajú sa
-menom (`load_profile("ibs/golden_binance_btcusdt_3m")`, holé meno = stratégia `ibs`) alebo
-cestou k JSON.
+Profily sú **pri stratégii** v `tradebot/strategies/<kľúč>/configs/` (kľúč `_strategy`),
+načítajú sa menom (`load_profile("ibs/golden_binance_btcusdt_3m")`, holé meno = stratégia
+`ibs`) alebo cestou k JSON. Balík stratégie je tak sebestačný — presunie sa jedným adresárom
+aj s configmi.
+
+Parametre stratégie sú na engine nezávislé, preto je **jeden config na stratégiu**. Čo sa
+naozaj líši (napr. sizing viazaný na platformu), ide do bloku `_engine_overrides`:
+
+```json
+{ "_instrument": "mnq", "rrRatio": 5.0,
+  "_engine_overrides": { "multicharts": { "legacyPineSizing": true } } }
+```
+
+Doplní sa pri načítaní podľa engine (`load_profile(..., engine="multicharts")`), takže
+tester vidí vo formulári presne to, s čím beh pobeží. Dva takmer rovnaké súbory na stratégiu
+by sa časom potichu rozišli — a nikto by si nevšimol, že tá istá stratégia obchoduje na
+každom engine inak.
 
 | Profil | Burza / inštrument | Použitie |
 |---|---|---|

@@ -78,14 +78,14 @@ Imbalance Breakout a ukážková Demo Donchian Breakout; ako pridať ďalšiu: `
 
 **Východiskový profil** je len balík odchýlok od Pine defaultov zvolenej stratégie. „(Pine defaulty)" dá
 presne to, čo má TradingView bez zásahu do nastavení; okrem toho sú na výber iba tri
-referenčné profily z `tradebot/configs/ibs/` (golden test proti TradingView na Binance a Coinbase,
+referenčné profily z `tradebot/strategies/ibs/configs/` (golden test proti TradingView na Binance a Coinbase,
 MultiCharts MNQ) — profil prepne aj pár na ten, pre ktorý je určený. Skúšané konfigurácie
 z vývoja (NY seansa, SL filter, risk sizing…) sú v `docs/profily_archiv/` s tabuľkou
 odchýlok a dajú sa načítať cestou cez CLI; vo formulári si tie isté hodnoty nastavíš
 ručne alebo cez „Načítať do formulára" z histórie.
 
 Vlastný profil patrí stratégii, s ktorou vznikol (kľúč `_strategy`), a ponuka ukazuje
-len profily aktívnej stratégie. Ponuka má dve skupiny: **profily repozitára** (`tradebot/configs/<stratégia>/`, sú kód — testy a
+len profily aktívnej stratégie. Ponuka má dve skupiny: **profily repozitára** (`tradebot/strategies/<stratégia>/configs/`, sú kód — testy a
 merania sa na ne odvolávajú, preto sa z webapp nedajú meniť) a **vlastné profily**
 testera (`tester/profiles/`). Vlastný profil vznikne dvoma spôsobmi: tlačidlom
 **Uložiť ako profil** pod ponukou (uloží celý formulár — parametre, pár, TF, obdobie,

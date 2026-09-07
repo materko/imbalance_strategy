@@ -6,16 +6,19 @@ rozšírenie portu (Freqtrade futures), Pine ho nemá.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import ClassVar, Iterable
 
-from tradebot.core.config import CONFIGS_ROOT, StrategyConfig
+from tradebot.core.config import StrategyConfig
 from tradebot.core.types import SizeSpec, SizeUnit
 
 __all__ = ["DemoBreakoutConfig", "ExitMode", "CONFIG_DIR"]
 
-CONFIG_DIR = CONFIGS_ROOT / "demo_breakout"
+#: Profily stratégie ležia pri nej, aby bol balík sebestačný.
+CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 
 
 class ExitMode(str, Enum):
