@@ -4,9 +4,12 @@ Dáta sú **jedny**, delené podľa toho, **odkiaľ sú** — nie podľa toho, �
 Zdroj je adresár, takže z cesty vidno pôvod sviečky:
 
 ```
-data_archive/<zdroj>/    sviečky po rokoch           — v gite
-data/<zdroj>/            pracovná podoba tých istých — gitignored
+data_archive/<zdroj>/<trh>/    sviečky po rokoch           — v gite
+data/<zdroj>/<trh>/            pracovná podoba tých istých — gitignored
 ```
+
+Zdroj je `binance`, `coinbase`, `dukascopy`; trh je `spot` alebo `futures`. Z cesty tak
+vidno, čo súbor obsahuje, bez otvárania.
 
 | zdroj | čo to je | ako pribudne |
 |---|---|---|
@@ -19,8 +22,10 @@ emulátor MultiCharts si berie 1m súbor odtiaľ istadiaľ. Preto sa dá krypto 
 emulátorom a Dukascopy cez Freqtrade — dáta v tom nebránia
 ([FREQTRADE.md §G](FREQTRADE.md), [`tester/engines.py`](../tester/engines.py)).
 
-Vnútri zdroja platí pomenovanie Freqtradu: futures majú podadresár `futures/` a príponu
-`-futures` v mene, spot ani CFD nie. Cesty počíta jedno miesto —
+Podadresár `futures/` a príponu `-futures` v mene si Freqtrade drží natvrdo, pre spot
+nepridáva nič — preto mu `--datadir` podávame rôzne podľa trhu (pri futures o úroveň
+vyššie, pri spote priamo na `spot/`). Na disku je tým rozloženie súmerné. Cesty počíta
+jedno miesto —
 [`tester/engines.py`](../tester/engines.py); korene sú v
 [`tradebot/core/paths.py`](../tradebot/core/paths.py).
 
@@ -131,9 +136,9 @@ pre koho dáta vyrobiť; dá sa vymenovať viac naraz (`--target tester freqtrad
 
 | `--target` | čo vznikne | pre koho |
 |---|---|---|
-| `tester` | `data_archive/dukascopy/<STEM>-1m.<rok>.feather` (commitni ich) a hneď z nich pracovný súbor v `data/dukascopy/` | webapp Tester — pár je po reštarte v ponuke Nový beh |
+| `tester` | `data_archive/dukascopy/futures/<STEM>-1m.<rok>.feather` (commitni ich) a hneď z nich pracovný súbor v `data/dukascopy/futures/` | webapp Tester — pár je po reštarte v ponuke Nový beh |
 | `multicharts` | `<zdroj>_mc.csv` — ASCII pre QuoteManager, hlavička `Date,Time,Open,High,Low,Close,Volume` | MultiCharts študia (import do QuoteManagera) |
-| `freqtrade` | `data/dukascopy/<STEM>-{3m,5m}.feather` — dopočítané z 1m, negitujú sa | hyperopt a FreqAI ([FREQTRADE.md §G](FREQTRADE.md)) |
+| `freqtrade` | `data/dukascopy/futures/<STEM>-{3m,5m}.feather` — dopočítané z 1m, negitujú sa | hyperopt a FreqAI ([FREQTRADE.md §G](FREQTRADE.md)) |
 | `all` | všetky tri | |
 
 Predvolené je `tester multicharts`. Užitočné prepínače: `--from 2021-01-01 --to 2026-09-05`

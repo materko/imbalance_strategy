@@ -517,19 +517,20 @@ def main(argv: list[str] | None = None, stderr: TextIO | None = None) -> int:
 
         if "tester" in targets:
             print("Tester (burza MultiCharts):", file=err)
-            files = write_years(df, inst.data_stem, archive=args.archive / inst.data_source)
+            files = write_years(df, inst.data_stem, archive=args.archive / inst.data_source / inst.market)
             print(f"zapisanych {len(files)} rocnych suborov do {args.archive} (commitni ich)", file=err)
             if not args.no_merge:
                 from . import data_archive
 
                 data_archive.merge(verbose=False, roots=((args.archive, DATA),))
-                print(f"pracovny subor: {DATA / inst.data_source / f'{inst.data_stem}-1m.feather'}",
-                      file=err)
+                from . import engines
+
+                print(f"pracovny subor: {engines.one_minute_file(inst)}", file=err)
             print(f"par {inst.exchange_symbol} je po restarte webapp v ponuke Novy beh", file=err)
 
         if "freqtrade" in targets:
             print("Freqtrade (hyperopt, FreqAI):", file=err)
-            write_freqtrade(df, inst.data_stem, datadir=args.ft_datadir / inst.data_source,
+            write_freqtrade(df, inst.data_stem, datadir=args.ft_datadir / inst.data_source / inst.market,
                             timeframes=args.ft_timeframes)
             print(f"odvodene subory v {args.ft_datadir} (negituju sa, kedykolvek znova z 1m)", file=err)
             print(f"beh: --config deploy/freqtrade/config.dukascopy.json "

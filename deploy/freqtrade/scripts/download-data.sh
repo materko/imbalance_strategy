@@ -35,32 +35,34 @@ ERASE_ARG=()
 # Sviecky nepatria do userdiru Freqtradu, ale do spolocneho data/<zdroj>/ - z toho
 # istého stromu ich cita aj emulator MultiCharts (tester/engines.py).
 download() {
-    local label="$1" config="$2" source="$3"; shift 3
+    # `datadir` je to, co dostane Freqtrade: pri futures o uroven vyssie (podadresar
+    # `futures/` si doplni sam), pri spote priamo na `spot/`. Na disku je to sumerne.
+    local label="$1" config="$2" datadir="$3"; shift 3
     echo ""
     echo "=== $label ==="
     echo "timeframes: $*"
     "$PY" -m freqtrade download-data \
         --config "$FT/$config" \
         --userdir "$USERDIR" \
-        --datadir "$REPO/data/$source" \
+        --datadir "$REPO/data/$datadir" \
         --timeframes "$@" \
         "${RANGE[@]}" "${ERASE_ARG[@]}"
 }
 
 if [[ "${SKIP_BINANCE:-0}" != "1" ]]; then
     download "Binance BTC/USDT:USDT (futures)" config.binance.json binance 1m 3m 5m
-    download "Binance BTC/USDT + ETH/USDT (spot)" config.binance.spot.json binance 1m 3m 5m 15m
+    download "Binance BTC/USDT + ETH/USDT (spot)" config.binance.spot.json binance/spot 1m 3m 5m 15m
 fi
 
 if [[ "${SKIP_COINBASE:-0}" != "1" ]]; then
-    download "Coinbase BTC/USD (spot, referencne)" config.coinbase.json coinbase 1m 5m
+    download "Coinbase BTC/USD (spot, referencne)" config.coinbase.json coinbase/spot 1m 5m
     echo "Coinbase 3m sa nestahuje - burza ho neponuka. Strategia si ho poskladá z 1m."
 fi
 
 echo ""
 echo "=== Co je stiahnute ==="
 "$PY" -m freqtrade list-data --userdir "$USERDIR" --datadir "$REPO/data/binance" --config "$FT/config.binance.json"
-"$PY" -m freqtrade list-data --userdir "$USERDIR" --datadir "$REPO/data/coinbase" --config "$FT/config.coinbase.json"
+"$PY" -m freqtrade list-data --userdir "$USERDIR" --datadir "$REPO/data/coinbase/spot" --config "$FT/config.coinbase.json"
 
 echo
 echo "=== Delim na rocne subory pre git ==="

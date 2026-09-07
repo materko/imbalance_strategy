@@ -46,7 +46,7 @@ $eraseArg = if ($Erase) { @("--erase") } else { @() }
 # Sviecky nepatria do userdiru Freqtradu, ale do spolocneho data\<zdroj>\ - z toho
 # isteho stromu ich cita aj emulator MultiCharts (tester/engines.py).
 function Invoke-Download {
-    param([string]$Label, [string]$ConfigName, [string]$Source, [string[]]$Tf)
+    param([string]$Label, [string]$ConfigName, [string]$DataDir, [string[]]$Tf)
 
     Write-Host ""
     Write-Host "=== $Label ===" -ForegroundColor Cyan
@@ -55,7 +55,7 @@ function Invoke-Download {
     & $py -m freqtrade download-data `
         --config (Join-Path $ft $ConfigName) `
         --userdir $userdir `
-        --datadir (Join-Path $repo "data\$Source") `
+        --datadir (Join-Path $repo "data\$DataDir") `
         --timeframes $Tf `
         @range @eraseArg
 
@@ -68,12 +68,12 @@ function Invoke-Download {
 
 if (-not $SkipBinance) {
     Invoke-Download -Label "Binance BTC/USDT:USDT (futures)" `
-        -ConfigName "config.binance.json" -Source "binance" -Tf @("1m", "3m", "5m") | Out-Null
+        -ConfigName "config.binance.json" -DataDir "binance" -Tf @("1m", "3m", "5m") | Out-Null
 }
 
 if (-not $SkipCoinbase) {
     $ok = Invoke-Download -Label "Coinbase BTC/USD (spot, referencne)" `
-        -ConfigName "config.coinbase.json" -Source "coinbase" -Tf @("1m", "5m")
+        -ConfigName "config.coinbase.json" -DataDir "coinbase\spot" -Tf @("1m", "5m")
 
     if ($ok) {
         Write-Host "Coinbase 3m sa nesťahuje - burza ho neponúka. Stratégia si ho poskladá z 1m." -ForegroundColor DarkGray
@@ -83,7 +83,7 @@ if (-not $SkipCoinbase) {
 Write-Host ""
 Write-Host "=== Co je stiahnute ===" -ForegroundColor Cyan
 & $py -m freqtrade list-data --userdir $userdir --datadir (Join-Path $repo "data\binance") --config (Join-Path $ft "config.binance.json")
-& $py -m freqtrade list-data --userdir $userdir --datadir (Join-Path $repo "data\coinbase") --config (Join-Path $ft "config.coinbase.json")
+& $py -m freqtrade list-data --userdir $userdir --datadir (Join-Path $repo "data\coinbase\spot") --config (Join-Path $ft "config.coinbase.json")
 
 Write-Host ""
 Write-Host "=== Delim na rocne subory pre git ===" -ForegroundColor Cyan
