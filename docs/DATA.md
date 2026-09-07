@@ -15,9 +15,9 @@ Cesty sú na jednom mieste v [`tradebot/core/paths.py`](../tradebot/core/paths.p
 inde v kóde sa nepíšu.
 
 ```bash
-PY -m tradebot.tools.data_archive status    # čo je kde, koľko barov, aké obdobie
-PY -m tradebot.tools.data_archive merge     # archív -> pracovné súbory (po klonovaní)
-PY -m tradebot.tools.data_archive split     # pracovné súbory -> archív (po stiahnutí)
+PY -m tester.data_archive status    # čo je kde, koľko barov, aké obdobie
+PY -m tester.data_archive merge     # archív -> pracovné súbory (po klonovaní)
+PY -m tester.data_archive split     # pracovné súbory -> archív (po stiahnutí)
 ```
 
 `PY` = Python z `.venv` (`\.venv\Scripts\python.exe` na Windows, `.venv/bin/python` inde).
@@ -42,7 +42,7 @@ platforms/freqtrade/user_data/data_archive/binance/futures/
 ```
 
 Delenie je bezstratové — `merge(split(x))` dá presne to isté, čo bolo v `x`
-([`test_data_archive.py`](../tradebot/tests/test_data_archive.py)). `split` navyše
+([`test_data_archive.py`](../tester/tests/test_data_archive.py)). `split` navyše
 neprepíše rok, ktorého obsah sa nezmenil, aby git nedostal nový blob zadarmo.
 
 ---
@@ -116,7 +116,7 @@ Priamo použiteľný nie je. Všetko potrebné spraví jeden príkaz:
 ./dukas-import.sh ~/dukas/NAS100_M1_10Y.csv --symbol NAS100
 ```
 
-alebo priamo `PY -m tradebot.tools.dukas_import <csv> --symbol NAS100`. `--target` hovorí,
+alebo priamo `PY -m tester.dukas_import <csv> --symbol NAS100`. `--target` hovorí,
 pre koho dáta vyrobiť; dá sa vymenovať viac naraz (`--target tester freqtrade`, `--target all`):
 
 | `--target` | čo vznikne | pre koho |
@@ -135,7 +135,7 @@ Celý zoznam: `./dukas-import.sh` bez parametrov.
 Súbory pre Freqtrade sú jediné **odvodené** dáta v repozitári: 3m a 5m sa skladajú z 1m,
 lebo Dukascopy ich nedodáva a Freqtrade si ich sám nedopočíta. Preto ležia v gitignorovanom
 `user_data/data/`, nikdy v archíve, a kedykoľvek sa dajú vyrobiť znova. Skladajú sa tým istým
-pravidlom ako v emulátore a v grafe webapp ([`tools/candles.py`](../tradebot/tools/candles.py)),
+pravidlom ako v emulátore a v grafe webapp ([`core/candles.py`](../tradebot/core/candles.py)),
 takže všetky cesty vidia tie isté bary.
 
 ### Čo sa v exporte opravuje a prečo
@@ -183,7 +183,7 @@ ich nerozlišuje (`result.engine` je `multicharts-emulator`). Podrobne:
 [MULTICHARTS.md](MULTICHARTS.md).
 
 ```bash
-PY -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/nas100_dukas_3m.json \
+PY -m tester.webapp.cli run --profile docs/profily_archiv/ibs/nas100_dukas_3m.json \
    --pair NAS100/USD --timerange 20250106-20250201 --fee 0 --note "NAS100 emulator, januar"
 ```
 
@@ -196,9 +196,9 @@ Spread v dátach nie je (bid strana), počíta sa cez poplatok ako percento z no
 ## C. Rýchla kontrola dát bez webapp aj bez MultiCharts
 
 ```bash
-PY -m tradebot.tools.scan_zones  --exchange binance          # aké zóny by vznikli
-PY -m tradebot.tools.scan_trades --exchange binance          # celý STATE 0-5 + ordre
-PY -m tradebot.tools.scan_trades --csv C:/dukas/NAS100_M1_10Y.csv \
+PY -m tester.compare.scan_zones  --exchange binance          # aké zóny by vznikli
+PY -m tester.compare.scan_trades --exchange binance          # celý STATE 0-5 + ordre
+PY -m tester.compare.scan_trades --csv C:/dukas/NAS100_M1_10Y.csv \
     --profile docs/profily_archiv/ibs/nas100_dukas_3m.json --from 2025-01-01 --to 2025-01-31
 ```
 

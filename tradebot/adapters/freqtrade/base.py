@@ -430,7 +430,7 @@ class TradebotStrategyBase(IStrategy):
 
         `trade.max_rate`/`min_rate` aktualizuje Freqtrade v `should_exit()` **pred** týmto
         volaním, takže extrém už zahŕňa aktuálnu sviečku — rovnako ako offline simulácia
-        v `tradebot.tools.scan_trades`. S `--timeframe-detail 1m` je teda trailing po minútach.
+        v `tester.compare.scan_trades`. S `--timeframe-detail 1m` je teda trailing po minútach.
         """
         levels = self._levels(pair, trade)
         if levels is None or current_rate <= 0:

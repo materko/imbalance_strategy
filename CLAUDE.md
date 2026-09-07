@@ -3,7 +3,7 @@
 Repozitár je TradeBot — rámec pre porty TradingView stratégií do Pythonu (generické jadro
 `tradebot/core`, registry stratégií `tradebot/strategies` — dnes „IBS Imbalance Breakout" a
 ukážková „Demo Donchian Breakout" —, Freqtrade a MultiCharts adaptéry) plus webová aplikácia
-pre testerov (`tradebot/webapp`). Ako pridať stratégiu: [docs/STRATEGIE.md](docs/STRATEGIE.md).
+pre testerov (`tester/webapp`). Ako pridať stratégiu: [docs/STRATEGIE.md](docs/STRATEGIE.md).
 Pracujú v ňom dva druhy ľudí a pre každého platí iné:
 
 | rola | kto | čo platí |
@@ -33,7 +33,7 @@ je to tester.
 Bez obmedzení. Platia len konvencie repozitára:
 
 - Zmeny jadra musia prejsť `pytest` vrátane golden testov proti TradingView
-  (`tradebot/tests/test_golden_tv_binance.py`). Rozšírenia mimo Pine majú default zhodný
+  (`tester/tests/test_golden_tv_binance.py`). Rozšírenia mimo Pine majú default zhodný
   s Pine a sú v `PORT_ONLY_FIELDS` configu stratégie (`tradebot/strategies/<key>/config.py`).
 - Nová stratégia = balík `tradebot/strategies/<key>/` + riadok v registry; checklist a testy
   (`test_registry.py`, `test_pine_parity.py`) sú v [docs/STRATEGIE.md](docs/STRATEGIE.md).
@@ -45,14 +45,14 @@ Bez obmedzení. Platia len konvencie repozitára:
   `20240904-20250904`, `20250904-20260904`); kľúčová metrika je break-even poplatok.
 - Dáta len v oficiálnych timeframoch búrz, commitované po rokoch v `data_archive/` príslušnej
   platformy (Binance/Coinbase pod `platforms/freqtrade/user_data/`, Dukascopy pod
-  `platforms/multicharts/`). Surový Dukascopy export spracuje `tradebot.tools.dukas_import`
+  `platforms/multicharts/`). Surový Dukascopy export spracuje `tester.dukas_import`
   (obal `./dukas-import.sh`, `.\dukas-import.ps1`) — viď [docs/DATA.md](docs/DATA.md).
 - Cesty v repozitári sú na jednom mieste v `tradebot/core/paths.py`; nikde inde sa nepíšu.
-- Vyšší TF sa z 1m skladá výhradne cez `tradebot/tools/candles.py` (webapp graf, simulátor,
+- Vyšší TF sa z 1m skladá výhradne cez `tester/candles.py` (webapp graf, simulátor,
   emulátor, súbory pre Freqtrade) — keby sa pravidlo rozišlo, porovnanie platforiem prestane
   niečo znamenať. Freqtrade si TF sám nedopočíta, pre `--timeframe` chce súbor na disku.
 - Commity v štýle histórie: slovenská veta v imperatíve, čo a prečo.
-- Backtesty, ktoré majú byť v histórii webapp, spúšťaj cez `python -m tradebot.webapp.cli run`
+- Backtesty, ktoré majú byť v histórii webapp, spúšťaj cez `python -m tester.webapp.cli run`
   (holý Freqtrade CLI ich do `runs/` nezapíše) — inak je to jedno.
 
 Podrobnosti: [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) (návrh),
@@ -71,7 +71,7 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
 
 0. Stratégia sa volí prepínačom `--strategy <kľúč>` (default `ibs`; zoznam v
    [docs/STRATEGIE.md](docs/STRATEGIE.md)); profil musí patriť tej istej stratégii.
-1. **Backtesty spúšťaj len cez `python -m tradebot.webapp.cli run …`** (alebo cez webapp
+1. **Backtesty spúšťaj len cez `python -m tester.webapp.cli run …`** (alebo cez webapp
    v prehliadači). Holý `freqtrade backtesting` výsledok do histórie webapp **nezapíše**
    a tester ho neuvidí.
 2. **Vždy `--timeframe-detail 1m`** — CLI aj webapp ho majú zapnutý, nevypínaj ho
@@ -117,14 +117,14 @@ Nižšie píšem `PY` = ten Python. Ak `.venv` neexistuje, najprv spusti setup (
 ## Backtest, ktorý sa objaví v histórii
 
 ```bash
-PY -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json \
+PY -m tester.webapp.cli run --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json \
    --timerange 20250904-20260904 --note "základ, rok 2025-26"
 
-PY -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json \
+PY -m tester.webapp.cli run --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json \
    --set rrRatio=4 --set minSlDistance=0.25@pct \
    --timerange 20250904-20260904 --note "RR 4, SL filter 0,25 %"
 
-PY -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/ethusdt_3m_binance_ny_sl_risk1.json --pair ETH/USDT:USDT \
+PY -m tester.webapp.cli run --profile docs/profily_archiv/ibs/ethusdt_3m_binance_ny_sl_risk1.json --pair ETH/USDT:USDT \
    --timerange 20240904-20250904 --note "ETH kontrola"
 ```
 
@@ -135,7 +135,7 @@ PY -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/ethusdt_3m_binan
   o stratégii nič nepovie: `20211001-20221001`, `20221001-20231001`, `20231001-20241001`,
   `20240904-20250904`, `20250904-20260904`.
 - `--set` hodnoty: `true/false`, čísla, text; veľkostné polia `hodnota@jednotka`
-  (`abs`, `ticks`, `atr`, `pct`). Zoznam parametrov: `PY -m tradebot.webapp.cli params [filter]`.
+  (`abs`, `ticks`, `atr`, `pct`). Zoznam parametrov: `PY -m tester.webapp.cli params [filter]`.
 - Poplatok `--fee 0.0005` (Binance taker 0,05 %) a `--wallet 10000` sú default; pri
   porovnávaní s TradingView použi `--fee 0 --wallet 400000` a profil `*_ny_sl` (1 BTC)
   z `docs/profily_archiv/`.
@@ -155,7 +155,7 @@ beh", „len to navoľ, spustím si to sám" — je to **nastavenie formulára, 
 4. Nakoniec vypíš, čo si nastavil (pole → hodnota), a upozorni na polia, ktoré si nechal
    nezmenené a mohli by prekvapiť (napr. stará poznámka alebo iný timerange z minula).
 5. Ak niektorý parameter vo formulári nie je alebo hodnota nesedí do rozsahu, nehádaj —
-   povedz to a ukáž `PY -m tradebot.webapp.cli params <filter>`.
+   povedz to a ukáž `PY -m tester.webapp.cli params <filter>`.
 
 Ak tester chce parametre pripraviť **bez webapp**, nespúšťaj `run` — len mu poskladaj
 príkaz s `--set` a nechaj ho naň kliknúť.
@@ -163,9 +163,9 @@ príkaz s `--set` a nechaj ho naň kliknúť.
 ## Čítanie výsledkov
 
 ```bash
-PY -m tradebot.webapp.cli list                       # posledné behy
-PY -m tradebot.webapp.cli list "rrRatio>=4 pnl>0"    # rovnaká syntax ako vyhľadávanie vo webapp
-PY -m tradebot.webapp.cli show <run_id> [--json]
+PY -m tester.webapp.cli list                       # posledné behy
+PY -m tester.webapp.cli list "rrRatio>=4 pnl>0"    # rovnaká syntax ako vyhľadávanie vo webapp
+PY -m tester.webapp.cli show <run_id> [--json]
 ```
 
 Kľúčové číslo je **break-even poplatok** (% na stranu): koľko smie burza brať, aby beh
@@ -176,7 +176,7 @@ Pri záveroch pozeraj **znamienko po rokoch**, nie súčet.
 ## Webapp: spustiť, overiť, reštartovať, zastaviť
 
 ```bash
-PY -m tradebot.webapp.cli status              # beží? čo je vo fronte? stav gitu
+PY -m tester.webapp.cli status              # beží? čo je vo fronte? stav gitu
 ```
 
 **Spustenie na pozadí** (aby si mohol ďalej pracovať v tom istom termináli):
@@ -207,9 +207,9 @@ Iný port: `TRADEBOT_WEB_PORT=9000 ./webapp.sh` (a potom `--url http://127.0.0.1
 ## Aktualizácia na najnovšiu verziu
 
 ```bash
-PY -m tradebot.webapp.cli push          # najprv odlož vlastné behy (viď nižšie)
+PY -m tester.webapp.cli push          # najprv odlož vlastné behy (viď nižšie)
 git pull --rebase --autostash      # v koreni repozitára
-PY -m tradebot.tools.data_archive merge # ak pull priniesol nové dáta v data_archive/
+PY -m tester.data_archive merge # ak pull priniesol nové dáta v data_archive/
 PY -m pytest -q                    # voliteľné: overenie (~30 s, 300+ testov)
 ```
 
@@ -221,8 +221,8 @@ celá aktualizácia spraviť aj opätovným spustením inštalátora:
 ## História behov cez GitHub
 
 ```bash
-PY -m tradebot.webapp.cli pull    # stiahni behy ostatných (git pull --rebase --autostash)
-PY -m tradebot.webapp.cli push    # commitni LEN runs/ a profiles/ a pushni na aktuálnu vetvu
+PY -m tester.webapp.cli pull    # stiahni behy ostatných (git pull --rebase --autostash)
+PY -m tester.webapp.cli push    # commitni LEN runs/ a profiles/ a pushni na aktuálnu vetvu
 ```
 
 To isté robia tlačidlá Pull/Push vo webapp. Push ide vždy do **`main`** (nie na vetvu,
@@ -241,7 +241,7 @@ ho poslať, to už nie je história behov — povedz mu, nech to rieši s autoro
 
 ```bash
 PY -m pytest -q                                  # všetko, ~30 s
-PY -m pytest tradebot/tests/test_golden_tv_binance.py # parita s TradingView
+PY -m pytest tester/tests/test_golden_tv_binance.py # parita s TradingView
 ```
 
 Spúšťaj ich po `git pull`, alebo keď niečo padá a nevieš prečo. Ak padnú golden
@@ -250,9 +250,9 @@ testy, kód alebo dáta nesedia s referenciou — neopravuj to u testera, nahlá
 ## Keď niečo nefunguje
 
 - `Permission denied` na `.sh`: `bash ./webapp.sh` (alebo `chmod +x *.sh platforms/freqtrade/scripts/*.sh`).
-- „chýbajú dáta" / prázdny zoznam párov: `PY -m tradebot.tools.data_archive merge`.
+- „chýbajú dáta" / prázdny zoznam párov: `PY -m tester.data_archive merge`.
 - Webapp odmietne beh s „Neplatný config": hodnota mimo Pine rozsahu — `params` ukáže rozsahy.
-- Beh skončil `failed`: `PY -m tradebot.webapp.cli show <id>` vypíše chybu, log je v
+- Beh skončil `failed`: `PY -m tester.webapp.cli show <id>` vypíše chybu, log je v
   `runs/<id>/log.txt`.
 - Port 8765 obsadený: stará inštancia beží — zastav ju (vyššie) alebo použi iný port.
 - macOS `ta-lib`/`freqtrade` pri inštalácii: `brew install ta-lib`, potom setup znova.

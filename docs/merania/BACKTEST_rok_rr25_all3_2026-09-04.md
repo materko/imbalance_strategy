@@ -108,4 +108,4 @@ TRADEBOT_PROFILE=<profil s rrRatio 2.5 a vsetkymi 3 modelmi> \
 ```
 
 Pre porovnanie s TradingView pridaj `--fee 0 --dry-run-wallet 400000`.
-Report: `python -m tradebot.tools.report`.
+Report: `python -m tester.report`.

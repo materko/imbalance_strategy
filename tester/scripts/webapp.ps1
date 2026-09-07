@@ -51,4 +51,4 @@ if (-not $NoBrowser) {
     } -ArgumentList $url | Out-Null
 }
 
-& $py -m tradebot.webapp
+& $py -m tester.webapp

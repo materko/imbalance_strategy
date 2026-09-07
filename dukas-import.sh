@@ -20,6 +20,6 @@ fi
 
 cd "$REPO"
 if [[ $# -eq 0 ]]; then
-    exec "$PY" -m tradebot.tools.dukas_import --help
+    exec "$PY" -m tester.dukas_import --help
 fi
-exec "$PY" -m tradebot.tools.dukas_import "$@"
+exec "$PY" -m tester.dukas_import "$@"

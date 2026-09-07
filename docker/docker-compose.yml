@@ -82,7 +82,7 @@ services:
     <<: *freqtrade-base
     profiles: ["tools"]
     container_name: tradebot-webapp
-    entrypoint: ["python", "-m", "tradebot.webapp"]
+    entrypoint: ["python", "-m", "tester.webapp"]
     command: []
     volumes:
       - ../tester:/app/tester

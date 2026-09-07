@@ -162,7 +162,7 @@ main() {
 
     echo
     bold "Dáta"
-    "$TARGET/.venv/bin/python" -m tradebot.tools.data_archive merge < /dev/null
+    "$TARGET/.venv/bin/python" -m tester.data_archive merge < /dev/null
 
     # ---------------------------------------------------------------------------- #
     # 7. Spúšťač na Ploche + štart

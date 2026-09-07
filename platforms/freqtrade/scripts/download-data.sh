@@ -61,8 +61,8 @@ echo "=== Co je stiahnute ==="
 
 echo
 echo "=== Delim na rocne subory pre git ==="
-"$PY" -m tradebot.tools.data_archive split
+"$PY" -m tester.data_archive split
 echo
 echo "Commituj len platforms/freqtrade/user_data/data_archive/ - pracovne subory"
 echo "v data/ su v .gitignore. Po klonovani sa poskladaju prikazom:"
-echo "  python -m tradebot.tools.data_archive merge"
+echo "  python -m tester.data_archive merge"

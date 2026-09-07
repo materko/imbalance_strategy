@@ -9,7 +9,7 @@ Súbory tu sú **nezmenené** a dajú sa ďalej načítať cestou — všade, kd
 profilu, funguje aj cesta k súboru:
 
 ```bash
-python -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json --timerange 20250904-20260904 --note "..."
+python -m tester.webapp.cli run --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json --timerange 20250904-20260904 --note "..."
 TRADEBOT_PROFILE=docs/profily_archiv/ibs/btcusdt_3m_binance_hyper.json ./platforms/freqtrade/scripts/hyperopt.sh 20250904-20260904 200
 ```
 
@@ -353,7 +353,7 @@ Ako `--set` pre CLI:
 
 ### `nas100_dukas_3m`  (nas100_dukascopy)
 
-MultiCharts NAS100 CFD (Dukascopy USA100.IDX/USD) 3m, 2026-09-06 - odvodene z multicharts_mnq_3m. Ten isty podklad ako MNQ, preto su prahy v bodoch (abs) rovnake; tick je 0.01 (najmensi, ktory Pine rozsah tickDollarValue pripusta; data maju 3 desatinne miesta), nie 0.25, takze tickove polia su prepocitane na absolutne body (100 x 0.25 = 25, 1 x 0.25 = 0.25, 2 x 0.25 = 0.5), inak by boli 25x tesnejsie. tickDollarValue = 0.01 x 1 USD, legacyPineSizing ako na MNQ (qty v jednotkach po 1 USD/bod). Objem je len tickovy, useVolumeFilter ostava vypnuty. Data sa pripravuju cez `tradebot.tools.dukas_import` (docs/DATA.md).
+MultiCharts NAS100 CFD (Dukascopy USA100.IDX/USD) 3m, 2026-09-06 - odvodene z multicharts_mnq_3m. Ten isty podklad ako MNQ, preto su prahy v bodoch (abs) rovnake; tick je 0.01 (najmensi, ktory Pine rozsah tickDollarValue pripusta; data maju 3 desatinne miesta), nie 0.25, takze tickove polia su prepocitane na absolutne body (100 x 0.25 = 25, 1 x 0.25 = 0.25, 2 x 0.25 = 0.5), inak by boli 25x tesnejsie. tickDollarValue = 0.01 x 1 USD, legacyPineSizing ako na MNQ (qty v jednotkach po 1 USD/bod). Objem je len tickovy, useVolumeFilter ostava vypnuty. Data sa pripravuju cez `tester.dukas_import` (docs/DATA.md).
 
 Odchýlky od Pine defaultov:
 

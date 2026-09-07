@@ -3,14 +3,17 @@
 Adresáre sú rozdelené podľa toho, **komu patria**, nie podľa toho, kto ich prvý
 potreboval:
 
+Sviečky sú vždy `<dáta>/<zdroj>/<PÁR>-<TF>.feather` — zdroj (burza alebo dodávateľ
+dát) je adresár, aby bolo z cesty vidno, odkiaľ sú.
+
 ```
 platforms/freqtrade/user_data/       userdir Freqtradu (jeho formát, jeho nástroje)
-    data_archive/<burza>/            burzové sviečky po rokoch  — v gite
+    data_archive/<zdroj>/            burzové sviečky po rokoch  — v gite
     data/                            pracovné súbory Freqtradu   — gitignored
     backtest_results/                zipy z backtestu            — gitignored
 platforms/multicharts/
-    data_archive/                    Dukascopy 1m sviečky po rokoch — v gite
-    data/                            pracovné 1m sviečky            — gitignored
+    data_archive/<zdroj>/            1m sviečky po rokoch (dukascopy) — v gite
+    data/<zdroj>/                    pracovné 1m sviečky              — gitignored
 tester/
     runs/                            história behov z webapp     — v gite
     profiles/                        vlastné profily testerov    — v gite
@@ -21,7 +24,7 @@ Freqtrade, beh na Dukascopy symbole cez emulátor MultiCharts a v histórii sú 
 seba. Preto nesedia pod `user_data` ani jednej z nich.
 
 Pracovné adresáre (`data/`) sa skladajú z archívu príkazom
-``python -m tradebot.tools.data_archive merge`` a nikdy sa necommitujú — celý súbor
+``python -m tester.data_archive merge`` a nikdy sa necommitujú — celý súbor
 by sa pri každom doťahovaní dát pridal do histórie gitu znova.
 """
 
@@ -32,7 +35,7 @@ from pathlib import Path
 __all__ = [
     "REPO",
     "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "FREQTRADE_DATA", "FREQTRADE_ARCHIVE",
-    "BACKTEST_RESULTS", "DUKASCOPY_FT_DATA",
+    "BACKTEST_RESULTS",
     "MULTICHARTS_DIR", "MULTICHARTS_DATA", "MULTICHARTS_ARCHIVE",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES",
     "ARCHIVE_ROOTS",
@@ -48,16 +51,13 @@ FREQTRADE_USER_DIR = FREQTRADE_DIR / "user_data"
 FREQTRADE_DATA = FREQTRADE_USER_DIR / "data"
 FREQTRADE_ARCHIVE = FREQTRADE_USER_DIR / "data_archive"
 BACKTEST_RESULTS = FREQTRADE_USER_DIR / "backtest_results"
-#: Dukascopy sviečky prevedené pre Freqtrade (hyperopt, FreqAI). Odvodené z 1m
-#: archívu MultiCharts, preto sa necommitujú a beh ich berie cez `--datadir`.
-DUKASCOPY_FT_DATA = FREQTRADE_DATA / "dukascopy"
 
 # -- MultiCharts ------------------------------------------------------------ #
 
 MULTICHARTS_DIR = REPO / "platforms" / "multicharts"
 #: 1m sviečky z Dukascopy CSV, pracovná podoba (`data_archive merge`).
 MULTICHARTS_DATA = MULTICHARTS_DIR / "data"
-#: To isté po rokoch, ako je to v gite (`tradebot.tools.dukas_import`).
+#: To isté po rokoch, ako je to v gite (`tester.dukas_import`).
 MULTICHARTS_ARCHIVE = MULTICHARTS_DIR / "data_archive"
 
 # -- Tester (webapp) -------------------------------------------------------- #

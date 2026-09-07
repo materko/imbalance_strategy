@@ -70,7 +70,7 @@ tester/runs/, tester/profiles/                                   história behov
 5. **Shim** `platforms/freqtrade/user_data/strategies/MojaStrategy.py` — prázdna podtrieda
    (Freqtrade resolver berie len triedu, ktorej `__module__` == názov súboru).
 6. **Šablóna** `platforms/multicharts/Moja_Signal.py` — import študie + prázdna podtrieda.
-7. **Testy**: `pytest tradebot/tests/test_registry.py tradebot/tests/test_pine_parity.py` — registry
+7. **Testy**: `pytest tradebot/tests/test_registry.py tester/tests/test_pine_parity.py` — registry
    test skontroluje profil, Pine súbor, shim, šablónu, druhy vo vrstvách a FEATURES; parity test
    porovná config s Pine (názvy, defaulty, rozsahy). Pridaj test enginu na syntetických baroch
    (vzor: `tradebot/tests/test_demo_engine.py`).
@@ -91,5 +91,5 @@ Stratégia bez informatívneho TF dá `None` a engine dostáva `htf=None`.
   Data2 len ak stratégia má informatívny TF; ordery `tb_sl`, `tb_tp`, `tb_session_end`.
 - **Webapp**: select Stratégia prekreslí formulár a profily, beh nesie `settings.strategy`,
   história má stĺpec Stratégia (hľadanie `strat=moja`), graf berie vrstvy zo `SPEC.layers`.
-- **CLI**: `python -m tradebot.webapp.cli run --strategy moja --profile <nazov|cesta> …`,
+- **CLI**: `python -m tester.webapp.cli run --strategy moja --profile <nazov|cesta> …`,
   `params --strategy moja`.
