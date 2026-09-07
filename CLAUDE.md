@@ -71,6 +71,9 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
 
 0. Stratégia sa volí prepínačom `--strategy <kľúč>` (default `ibs`; zoznam v
    [docs/STRATEGIE.md](docs/STRATEGIE.md)); profil musí patriť tej istej stratégii.
+   Engine sa volí `--engine freqtrade|multicharts` (bez neho podľa toho, pre ktorý sú
+   dáta). Signály sú v oboch rovnaké, fill model nie — závery pre MultiCharts patria
+   emulátoru. Celý postup testovania: [tester/AI_TESTING.md](tester/AI_TESTING.md).
 1. **Backtesty spúšťaj len cez `python -m tester.webapp.cli run …`** (alebo cez webapp
    v prehliadači). Holý `freqtrade backtesting` výsledok do histórie webapp **nezapíše**
    a tester ho neuvidí.

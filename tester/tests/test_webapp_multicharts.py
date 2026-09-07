@@ -10,6 +10,7 @@ pd = pytest.importorskip("pandas")
 
 from tradebot.core.types import INSTRUMENTS
 from tester.webapp import chart as chart_mod
+from tester import engines
 from tester.webapp import runner as runner_mod
 
 MIN = 60_000
@@ -33,6 +34,9 @@ def mc_data(tmp_path: Path, monkeypatch) -> Path:
     m1(60).to_feather(path)
     monkeypatch.setattr(runner_mod, "MC_DIR", mc_dir)
     monkeypatch.setattr(chart_mod, "MC_DIR", mc_dir)
+    # engines rozhoduje, ktory engine ma data a odkial ich cita
+    monkeypatch.setattr(engines, "MULTICHARTS_DATA", mc_dir)
+    monkeypatch.setattr(engines, "FREQTRADE_DATA", tmp_path / "data")
     # Binance adresáre nech sú prázdne, aby test videl len MultiCharts pár
     monkeypatch.setattr(runner_mod, "DATA_DIR", tmp_path / "data" / "binance" / "futures")
     monkeypatch.setattr(runner_mod, "SPOT_DIR", tmp_path / "data" / "binance")

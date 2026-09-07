@@ -60,6 +60,10 @@
         <small id="pair-market" class="muted"></small>
         <small id="pair-range" class="muted"></small>
       </label>
+      <label>Engine
+        <select id="engine" title="Čím beh prehrať. Freqtrade = backtest Freqtradu; MultiCharts (emulátor) = ten istý MCRunner, ktorý beží v štúdii, s brokerom podľa MultiCharts."></select>
+        <small id="engine-note" class="muted"></small>
+      </label>
       <label>Timeframe grafu
         <select id="tf" title="TF, na ktorom stratégia počíta — ako TF grafu v TradingView. Limity v baroch (*MaxBars) sa neprepočítavajú."></select>
         <small class="muted">ako TF grafu v TradingView; limity v baroch sa neprepočítavajú</small>
@@ -150,6 +154,7 @@
     <div id="save-profile-msg" class="muted small"></div>
     <div id="detail-meta" class="muted"></div>
     <div id="detail-error" class="error" hidden></div>
+    <div id="detail-warning" class="error" hidden></div>
     <div id="cards" class="cards"></div>
     <div id="chart" class="chart"></div>
 
