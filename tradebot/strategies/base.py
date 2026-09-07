@@ -9,7 +9,7 @@ from typing import Any, Callable
 from ..core.config import StrategyConfig
 from ..core.types import InstrumentSpec
 
-#: Koreň repozitára (pine/, platforms/, docs/).
+#: Koreň repozitára (platforms/, docs/).
 REPO = Path(__file__).resolve().parents[2]
 
 

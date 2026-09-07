@@ -9,8 +9,8 @@ Dnes sú v registry dve:
 
 | kľúč | názov | Pine zdroj | na čo |
 |---|---|---|---|
-| `ibs` | IBS Imbalance Breakout | `pine/imbalance_strategy_FULL.pine` (115 vstupov) | ostrá stratégia, golden testy proti TradingView |
-| `demo_breakout` | Demo Donchian Breakout | `pine/demo_breakout.pine` (8 vstupov) | ukážka, ktorá overuje rámec end-to-end; nie je to obchodné odporúčanie |
+| `ibs` | IBS Imbalance Breakout | `tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine` (115 vstupov) | ostrá stratégia, golden testy proti TradingView |
+| `demo_breakout` | Demo Donchian Breakout | `tradebot/strategies/demo_breakout/docs/sources/demo_breakout.pine` (8 vstupov) | ukážka, ktorá overuje rámec end-to-end; nie je to obchodné odporúčanie |
 
 ## Čo je kde
 
@@ -27,7 +27,6 @@ tradebot/
   adapters/freqtrade/   TradebotStrategyBase (generická IStrategy), EngineRunner, export_chart
   adapters/multicharts/ TradebotSignal (generická študia), MCRunner, MCDrawSink
   webapp/               tester: výber stratégie, formulár z Pine metadát, história, graf s vrstvami
-pine/<key>.pine         zdroj pravdy pre parametre stratégie
 platforms/freqtrade/user_data/strategies/<FreqtradeTrieda>.py   shim (Freqtrade resolver)
 platforms/multicharts/<Nazov>_Signal.py                          šablóna študie
 docs/profily_archiv/<key>/                                       archivované profily
@@ -36,7 +35,7 @@ tester/runs/, tester/profiles/                                   história behov
 
 ## Checklist: nová stratégia `moja`
 
-1. **Pine zdroj** `pine/moja.pine` — všetky vstupy ako `x = input.<typ>(default, "Titulok", minval=…,
+1. **Pine zdroj** `tradebot/strategies/moja/docs/sources/moja.pine` — všetky vstupy ako `x = input.<typ>(default, "Titulok", minval=…,
    maxval=…, options=[…], tooltip="…", group="…")`. Z tohto sa parsuje formulár webapp
    (titulky, tooltipy, skupiny, rozsahy) a test parity stráži, že config sedí s Pine.
 2. **Balík** `tradebot/strategies/moja/`:

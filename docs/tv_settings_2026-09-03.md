@@ -2,15 +2,15 @@
 **Zdroj:** screenshoty z panelu nastaveni, BTCUSD 3m (Coinbase), 2026-09-03
 **Pouzi ako referenciu pri portovani do Python/Freqtrade — ciel je rovnake vykreslovanie a rovnake obchody.**
 
-> Tieto nastavenia zodpovedaju **plnej verzii** [`pine/imbalance_strategy_FULL.pine`](../pine/imbalance_strategy_FULL.pine)
+> Tieto nastavenia zodpovedaju **plnej verzii** [`tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine`](../tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine)
 > (Pine v5, 2539 riadkov, 115 inputov, slovenske nazvy) — to je referencny subor pre port.
 >
 > Polozky oznacene `[len FULL]` **neexistuju** v stripped builde
-> [`pine/imbalance_strategy_SD_IMB.pine`](../pine/imbalance_strategy_SD_IMB.pine) (Pine v6, 80 inputov, len SD zony + IMB entry).
+> [`tradebot/strategies/ibs/docs/sources/imbalance_strategy_SD_IMB.pine`](../tradebot/strategies/ibs/docs/sources/imbalance_strategy_SD_IMB.pine) (Pine v6, 80 inputov, len SD zony + IMB entry).
 
 ## ⚠️ Rozdiely: nastavenia na grafe vs. defaulty v kóde
 
-Toto je presne to, čo používateľ prestavil oproti `input.*` defaultom v `pine/imbalance_strategy_FULL.pine`.
+Toto je presne to, čo používateľ prestavil oproti `input.*` defaultom v `tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine`.
 **Pri porte použi ĽAVÝ stĺpec (hodnotu z grafu), nie default.**
 
 | Pine premenná | Default v kóde | **Na grafe (screenshot)** |

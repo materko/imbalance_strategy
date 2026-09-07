@@ -279,7 +279,7 @@ docker compose -f docker/docker-compose.yml run --rm tests
 - `test_multicharts*.py` — MultiCharts runner, emulátor, kreslenie, zhoda s Freqtrade
 - `test_golden_tv_binance.py`, `test_golden_tv_draw.py`, `test_golden_tv_elliott.py` —
   **parita obchodov, zón a kreslenia** s TradingView
-- `test_pine_parity.py` — **parsuje `pine/imbalance_strategy_FULL.pine`** a stráži, že všetky
+- `test_pine_parity.py` — **parsuje `tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine`** a stráži, že všetky
   portované vstupy, ich defaulty aj rozsahy stále sedia, a že vedome odstránené vstupy
   (`REMOVED_INPUTS`) sa nevrátili. Hlavná poistka portu: keby sa jeden vstup stratil,
   spadne test namiesto toho, aby stratégia ticho obchodovala inak.

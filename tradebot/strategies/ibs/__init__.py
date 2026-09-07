@@ -1,9 +1,14 @@
-"""IBS Imbalance Breakout Strategy — port Pine skriptu `pine/imbalance_strategy_FULL.pine`."""
+"""IBS Imbalance Breakout Strategy — port Pine skriptu `docs/sources/imbalance_strategy_FULL.pine`."""
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from . import drawing as _drawing  # noqa: F401  — registrácia druhov kresieb musí byť prvá
 from ..base import REPO, StrategySpec
+#: Zdrojové skripty stratégie (Pine) — pri nej, aby bol balík sebestačný.
+SOURCES = Path(__file__).resolve().parent / "docs" / "sources"
+
 from .config import CONFIG_DIR, CONSTRAINTS, DETECTION_TFS, PORT_ONLY_FIELDS, SIZE_FIELDS, IBSConfig
 from .engine import IBSEngine, IBSEngineOutput
 from .htf import HTFFeeder, HTFWindow, htf_window_opens
@@ -27,7 +32,7 @@ SPEC = StrategySpec(
     config_cls=IBSConfig,
     profile_dir=CONFIG_DIR,
     default_profile="golden_binance_btcusdt_3m",
-    pine_path=REPO / "pine" / "imbalance_strategy_FULL.pine",
+    pine_path=SOURCES / "imbalance_strategy_FULL.pine",
     pine_input_count=115,
     removed_inputs=REMOVED_INPUTS,
     inert_inputs=INERT_INPUTS,

@@ -3,7 +3,7 @@
 Cieľ: **jedna implementácia logiky**, dva tenké adaptéry. Rovnaké obchody aj rovnaké vykreslovanie
 na oboch platformách aj v TradingView.
 
-Referenčný zdroj pravdy: [`pine/imbalance_strategy_FULL.pine`](../pine/imbalance_strategy_FULL.pine) +
+Referenčný zdroj pravdy: [`tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine`](../tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine) +
 [`tv_settings_2026-09-03.md`](tv_settings_2026-09-03.md).
 
 ---

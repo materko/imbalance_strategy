@@ -1,12 +1,17 @@
 """Demo Donchian Breakout — ukážková druhá stratégia, ktorá overuje rámec pre viac stratégií.
 
-Zdroj pravdy pre parametre: `pine/demo_breakout.pine`. Nie je to obchodné odporúčanie.
+Zdroj pravdy pre parametre: `docs/sources/demo_breakout.pine`. Nie je to obchodné odporúčanie.
 """
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from . import drawing as _drawing  # noqa: F401  — registrácia druhov kresieb musí byť prvá
 from ..base import REPO, StrategySpec
+#: Zdrojové skripty stratégie (Pine) — pri nej, aby bol balík sebestačný.
+SOURCES = Path(__file__).resolve().parent / "docs" / "sources"
+
 from .config import CONFIG_DIR, DemoBreakoutConfig, ExitMode
 from .engine import DemoBreakoutEngine
 from .meta import (
@@ -25,7 +30,7 @@ SPEC = StrategySpec(
     config_cls=DemoBreakoutConfig,
     profile_dir=CONFIG_DIR,
     default_profile="binance_btcusdt_5m",
-    pine_path=REPO / "pine" / "demo_breakout.pine",
+    pine_path=SOURCES / "demo_breakout.pine",
     pine_input_count=8,
     removed_inputs=REMOVED_INPUTS,
     intentional_default_diffs=INTENTIONAL_DEFAULT_DIFFS,
