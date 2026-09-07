@@ -237,6 +237,8 @@ def test_submit_validates_timeframe(client, monkeypatch):
     import tester.webapp.app as app_mod
 
     monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["1m", "3m", "5m"])
+    # test je o kontrole timeframu, nie o tom, pre ktory engine su na disku data
+    monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m": ["freqtrade", "multicharts"])
     c, _ = client
     base = {"params": IBSConfig().to_dict(), "pair": "BTC/USDT:USDT", "timerange": "20260801-20260901"}
     assert c.post("/api/runs", json={**base, "timeframe": "2m"}).status_code == 422
@@ -333,6 +335,7 @@ def test_submit_rejects_shorts_on_spot(client, monkeypatch):
     import tester.webapp.app as app_mod
 
     monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["1m", "3m"])
+    monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m": ["freqtrade", "multicharts"])
     c, _ = client
     body = {"params": {**IBSConfig().to_dict(), "tradeDirection": "Both"}, "pair": "BTC/USDT",
             "timerange": "20260801-20260901"}

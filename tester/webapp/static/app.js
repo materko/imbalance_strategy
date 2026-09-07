@@ -373,6 +373,7 @@ function fillSettings() {
     showMarket();
     if (enforceSpotParams()) renderParams(); else lockSpotParams();
     $("#pair-range").textContent = `dáta ${o.dataset.from} → ${o.dataset.to}`;
+    fillEngines(o.value);
     fillTimeframes(o.value);
     $("#from").min = o.dataset.from; $("#from").max = o.dataset.to; $("#to").min = o.dataset.from; $("#to").max = o.dataset.to;
     if (!$("#to").value || $("#to").value > o.dataset.to) $("#to").value = o.dataset.to;
@@ -386,6 +387,32 @@ function fillSettings() {
   who.value = saved || state.meta.user || "";
   who.onchange = () => { try { localStorage.setItem("ibs.user", who.value.trim()); } catch (_) { /* ignoruj */ } };
   $("#branch").textContent = state.meta.branch;
+}
+
+const ENGINE_TITLES = { freqtrade: "Freqtrade", multicharts: "MultiCharts (emulátor)" };
+const ENGINE_NOTES = {
+  freqtrade: "backtest Freqtradu — jeho fill model, hyperopt a FreqAI",
+  multicharts: "emulátor MultiCharts — ten istý runner, čo beží v štúdii; referencia pre MultiCharts",
+};
+
+/** Engine pre beh: ponuka podľa toho, pre ktorý sú na disku dáta. */
+function fillEngines(pairName, wanted) {
+  const sel = $("#engine");
+  const p = state.meta.pairs.find(x => x.pair === pairName);
+  const list = (p && p.engines && p.engines.length) ? p.engines : ["freqtrade"];
+  const keep = wanted || sel.value;
+  sel.innerHTML = "";
+  for (const e of list) {
+    const o = document.createElement("option"); o.value = e; o.textContent = ENGINE_TITLES[e] || e; sel.append(o);
+  }
+  sel.value = list.includes(keep) ? keep : ((p && p.default_engine) || list[0]);
+  sel.onchange = showEngineNote;
+  showEngineNote();
+}
+
+function showEngineNote() {
+  const e = $("#engine").value;
+  $("#engine-note").textContent = ENGINE_NOTES[e] || "";
 }
 
 /** TF grafu pre beh: ponuka podľa stiahnutých dát páru, zachová voľbu, inak 3m. */
@@ -551,6 +578,7 @@ async function loadProfile(name) {
   if (pair) { $("#pair").value = pair.pair; $("#pair").onchange(); }
   // limity *MaxBars sú v baroch, takže k profilu patrí aj TF, na ktorom bol ladený;
   // profil bez `_timeframe` (tie z repozitára) znamená 3m, nie „nechaj, čo tam bolo"
+  fillEngines($("#pair").value, r.engine);
   fillTimeframes($("#pair").value, r.timeframe || "3m");
   applyProfileSettings(r.settings || {});
   $("#profile-base").textContent = r.base ? `vychádza z profilu ${r.base}` : "";
@@ -645,6 +673,7 @@ async function submitRun() {
       params: state.params,
       strategy: state.strategy,
       pair: $("#pair").value,
+      engine: $("#engine").value || null,
       timeframe: $("#tf").value,
       timerange: timerange(),
       fee: $("#fee").value === "" ? null : Number($("#fee").value) / 100,
@@ -782,10 +811,13 @@ async function openRun(id) {
   const runStrategy = rec.settings.strategy || "ibs";
   const runMeta = strategyMeta(runStrategy) || state.meta;
   $("#detail-title").textContent = `${(strategySpec(runStrategy) || {}).title || runStrategy} · ${rec.settings.pair} · ${rec.settings.timeframe || "3m"} · ${rec.settings.timerange}`;
-  $("#detail-meta").textContent = `${rec.id} · ${rec.user || ""} · ${(rec.created || "").replace("T", " ").slice(0, 16)} · profil ${rec.settings.profile || "(Pine)"} · poplatok ${rec.settings.fee != null ? (rec.settings.fee * 100).toFixed(3) + " %" : "—"} · peňaženka ${rec.settings.wallet} · detail ${rec.settings.timeframe_detail || "bez"}${rec.note ? " · " + rec.note : ""}`;
+  $("#detail-meta").textContent = `${rec.id} · ${rec.user || ""} · ${(rec.created || "").replace("T", " ").slice(0, 16)} · profil ${rec.settings.profile || "(Pine)"} · poplatok ${rec.settings.fee != null ? (rec.settings.fee * 100).toFixed(3) + " %" : "—"} · peňaženka ${rec.settings.wallet} · engine ${rec.settings.engine || "freqtrade"} · detail ${rec.settings.timeframe_detail || "bez"}${rec.note ? " · " + rec.note : ""}`;
   $("#download-profile").href = `/api/runs/${id}/profile.json`;
   $("#save-profile-msg").textContent = ""; $("#save-profile-msg").classList.remove("err");
   $("#detail-error").hidden = !rec.error; $("#detail-error").textContent = rec.error || "";
+  // beh, ktory mal signaly ale ziadny obchod, nie je platny vysledok - musi to povedat
+  const warn = (rec.result || {}).warning;
+  $("#detail-warning").hidden = !warn; $("#detail-warning").textContent = warn || "";
 
   const res = rec.result || {};
   const cur = res.stake_currency || "USDT";

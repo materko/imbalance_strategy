@@ -30,9 +30,11 @@ from . import chart as chart_data
 from . import gitsync
 from . import profiles as user_profiles
 from .pine_meta import param_metadata
+from tradebot.core.types import INSTRUMENTS
+from .. import engines
 from .runner import (
-    REPO, BacktestRunner, available_pairs, default_params, instrument_for_pair, list_profiles,
-    profile_instruments, profile_titles, tf_minutes,
+    REPO, BacktestRunner, available_pairs, check_market_rules, default_params, instrument_for_pair,
+    list_profiles, profile_instruments, profile_titles, tf_minutes,
 )
 from .store import RunStore, strategy_of, summarize_for_list
 
@@ -53,6 +55,7 @@ class RunRequest(BaseModel):
     fee: float | None = Field(0.0005, description="poplatok na stranu ako podiel (0.0005 = 0,05 %)")
     wallet: float = 10000
     timeframe_detail: str | None = "1m"
+    engine: str | None = Field(None, description="freqtrade | multicharts (emulátor); None = podľa dát")
     profile: str | None = None
     note: str = ""
     user: str | None = Field(None, max_length=80, description="meno testera z hlavičky stránky")
@@ -251,9 +254,26 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         detail = req.timeframe_detail or None
         if detail and tf_minutes(detail) >= tf_minutes(req.timeframe):
             detail = None  # detail fillov musí byť jemnejší než TF grafu, inak ho Freqtrade odmietne
+        # Pravidlá trhu (spot: bez shortov a páky) sa kontrolujú skôr než engine —
+        # nezmyselný beh má povedať, čo je zle na ňom, nie na výbere engine.
+        try:
+            check_market_rules(req.pair, req.params)
+        except ValueError as exc:
+            raise HTTPException(422, str(exc))
+        inst = INSTRUMENTS[instrument_for_pair(req.pair)]
+        engine = req.engine or engines.default_engine(inst, req.timeframe)
+        if engine not in engines.ENGINES:
+            raise HTTPException(422, f"neznámy engine {engine!r}; známe: {', '.join(engines.ENGINES)}")
+        possible = engines.available(inst, req.timeframe)
+        if engine not in possible:
+            raise HTTPException(422, (
+                f"engine {engines.ENGINE_TITLES[engine]} nemá pre {req.pair} dáta "
+                f"({'chýba súbor pre ' + req.timeframe if engine == engines.FREQTRADE else 'chýbajú 1m sviečky'}); "
+                f"dostupné: {', '.join(engines.ENGINE_TITLES[e] for e in possible) or 'žiadne'}"))
         settings = {
             "strategy": req.strategy,
             "pair": req.pair,
+            "engine": engine,
             "timeframe": req.timeframe,
             "timerange": req.timerange,
             "fee": req.fee,

@@ -86,6 +86,7 @@ reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. `--target freqtrade` 
 | dáta: archív, Dukascopy import, nový symbol | [docs/DATA.md](docs/DATA.md) |
 | pridať ďalšiu stratégiu | [docs/STRATEGIE.md](docs/STRATEGIE.md) |
 | ako je to postavené a prečo | [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) |
+| testovať z CLI (aj pre AI) | [tester/AI_TESTING.md](tester/AI_TESTING.md) |
 | čísla z meraní | [docs/merania/](docs/merania/README.md) |
 | kde čo beží a mapa repozitára | [docs/RUNNING.md](docs/RUNNING.md) |
 
@@ -112,6 +113,8 @@ reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. `--target freqtrade` 
 | `tester/dukas_import.py`, `tester/data_archive.py` | Prevod a čistenie surových exportov, ročný archív sviečok. |
 | `tester/report.py`, `tester/fees.py`, `tester/plot.py` | HTML report ako Strategy Tester, maker/taker a break-even, grafy. |
 | [`tester/tests/`](tester/tests) | Testy nástrojov Testera a **golden testy** proti TradingView (`golden/`). |
+| [`tester/AI_TESTING.md`](tester/AI_TESTING.md) | Ako sa na tomto repozitári testuje z príkazového riadku — čo spustiť, čo to znamená a čomu neveriť. |
+| [`tester/engines.py`](tester/engines.py) | Dva enginy (Freqtrade, emulátor MultiCharts) a kde má každý dáta. |
 | `tester/runs/`, `tester/profiles/` | História behov vrátane kresieb a vlastné configy testerov; oboje sa commituje a zdieľa cez GitHub. |
 | `tester/scripts/` | Spúšťač webapp. |
 | **Ostatné** | |

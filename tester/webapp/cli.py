@@ -85,12 +85,16 @@ def fmt_summary(rec: dict[str, Any]) -> str:
     if rec.get("status") != "done":
         return f"{rec.get('id')}  {rec.get('status')}  {s.get('pair')} {s.get('timerange')}  {rec.get('error') or ''}"
     be = r.get("break_even_pct")
+    engine = s.get("engine")
+    tail = "\n  POZOR: " + r["warning"] if r.get("warning") else ""
     return (
-        f"{rec.get('id')}  {s.get('pair')} {s.get('timerange')}  "
+        f"{rec.get('id')}  {s.get('pair')} {s.get('timerange')}"
+        f"{' [' + engine + ']' if engine else ''}  "
         f"obchodov {r.get('trades')}  PnL {r.get('pnl_pct'):+.2f} % ({r.get('pnl_abs'):+.0f} {r.get('stake_currency', 'USDT')})  "
         f"PF {r.get('profit_factor')}  WR {r.get('winrate')} %  maxDD {r.get('max_drawdown_pct')} %  "
-        f"break-even {be if be is None else f'{be:.4f} %'}"
+        f"break-even {be if be is None else f'{be:.4f} %'}{tail}"
     )
+
 
 
 # --------------------------------------------------------------------------- #
@@ -122,8 +126,21 @@ def cmd_run(args: argparse.Namespace) -> int:
               "Prahy v bodoch/tickoch nesedia - použi profil pre tento nástroj.",
               file=sys.stderr)
 
+    from tradebot.core.types import INSTRUMENTS as _INST
+
+    from .. import engines
+
+    inst = _INST[pair_instrument]
+    engine = args.engine or engines.default_engine(inst, args.timeframe)
+    possible = engines.available(inst, args.timeframe)
+    if engine not in possible:
+        raise SystemExit(
+            f"engine {engines.ENGINE_TITLES[engine]} nemá pre {pair} dáta; "
+            f"dostupné: {', '.join(engines.ENGINE_TITLES[e] for e in possible) or 'žiadne'}")
+
     settings = {
-        "strategy": args.strategy, "pair": pair, "timeframe": args.timeframe, "timerange": args.timerange, "fee": args.fee,
+        "strategy": args.strategy, "pair": pair, "engine": engine, "timeframe": args.timeframe,
+        "timerange": args.timerange, "fee": args.fee,
         "wallet": args.wallet, "timeframe_detail": None if args.no_detail else "1m", "profile": args.profile,
     }
     user = args.user or getenv("USER") or ""
@@ -259,6 +276,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--pair", help="napr. BTC/USDT:USDT alebo ETH/USDT:USDT (default podľa profilu)")
     p.add_argument("--timerange", required=True, help="YYYYMMDD-YYYYMMDD")
     p.add_argument("--timeframe", default="3m", help="TF grafu, na ktorom stratégia počíta (default 3m; ako TF grafu v TradingView)")
+    p.add_argument("--engine", choices=("freqtrade", "multicharts"),
+                   help="čím beh prehrať: freqtrade alebo multicharts (emulátor); "
+                        "bez neho podľa toho, aké dáta pár má")
     p.add_argument("--fee", type=float, default=0.0005, help="poplatok na stranu ako podiel (default 0.0005 = 0,05 %%)")
     p.add_argument("--wallet", type=float, default=10000)
     p.add_argument("--no-detail", action="store_true", help="bez 1m detailu fillov (rýchlejšie, hrubšie)")

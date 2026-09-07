@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import os
 import queue
+import re
 import subprocess
 import sys
 import threading
@@ -39,6 +40,7 @@ from tradebot.core.paths import (
     TMP_PROFILES,
 )
 from tradebot.core.types import INSTRUMENTS, TradeDirection
+from .. import engines
 from tradebot.strategies import get_spec
 from . import profiles
 from .store import RunStore, make_run_id
@@ -50,6 +52,37 @@ SPOT_DIR = FREQTRADE_DATA / "binance"
 #: Koľko riadkov logu sa uloží k behu — celý log Freqtradu má stovky riadkov
 #: o načítavaní dát, ktoré nikoho nezaujímajú.
 LOG_KEEP_LINES = 400
+
+
+#: `IBS NAS100/USD: 12445 barov, 7467 HTF barov, 147 zon, 13 signalov (13 long / 0 short)`
+_SIGNALS_RE = re.compile(r"(\d+) signalov")
+
+
+def entry_signals(log_lines: list[str]) -> int | None:
+    """Koľko vstupných signálov engine vôbec vygeneroval — z logu adaptéra."""
+    for line in reversed(log_lines):
+        m = _SIGNALS_RE.search(line)
+        if m:
+            return int(m.group(1))
+    return None
+
+
+def zero_trade_warning(summary: dict, log_lines: list[str]) -> str | None:
+    """Beh bez obchodov, hoci signály boli — Freqtrade odmietol každý vstup.
+
+    Najčastejšie je to malá peňaženka pri `legacyPineSizing`: engine pýta množstvo
+    v jednotkách po 1 USD/bod (na NAS100 desiatky jednotiek, nominál stovky tisíc),
+    Freqtrade stake oreže na zostatok a vstup zahodí. Bez tohto riadka vyzerá beh ako
+    platný výsledok „stratégia neobchoduje", čo je nepravda.
+    """
+    if summary.get("trades"):
+        return None
+    signals = entry_signals(log_lines)
+    if not signals:
+        return None
+    return (f"engine dal {signals} vstupných signálov, ale nevznikol ani jeden obchod — "
+            f"Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` "
+            f"pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh.")
 
 
 def instrument_for_pair(pair: str) -> str:
@@ -125,6 +158,9 @@ def available_pairs() -> list[dict[str, Any]]:
         out.append({
             "pair": pair,
             "instrument": key,
+            "source": inst.data_source,
+            "engines": engines.available(inst),
+            "default_engine": engines.default_engine(inst),
             "exchange": "binance",
             "market": inst.market,
             "exchange_symbol": inst.exchange_symbol,
@@ -147,6 +183,9 @@ def available_pairs() -> list[dict[str, Any]]:
         out.append({
             "pair": inst.symbol,
             "instrument": key,
+            "source": inst.data_source,
+            "engines": engines.available(inst),
+            "default_engine": engines.default_engine(inst),
             "exchange": "multicharts",
             "market": inst.market,
             "exchange_symbol": inst.exchange_symbol,
@@ -202,13 +241,10 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
     """`timeframe` je TF grafu, na ktorom stratégia počíta (ako TF grafu v TradingView);
     Freqtrade ním prebije `timeframe` stratégie. 1m detail má zmysel len pod ním."""
     tf = settings.get("timeframe") or "3m"
-    # spot má vlastný config (trading_mode: spot) — s futures configom by Freqtrade
-    # spotový pár ani nenašiel
-    spot = ":" not in settings["pair"]
-    config = "config.binance.spot.json" if spot else "config.binance.json"
+    inst = INSTRUMENTS[instrument_for_pair(settings["pair"])]
     cmd = [
         python, "-m", "freqtrade", "backtesting",
-        "--config", str(FT_DIR / config),
+        "--config", str(engines.freqtrade_config(inst)),
         "--userdir", str(USER_DIR),
         "--strategy", get_spec(settings.get("strategy") or "ibs").freqtrade_class,
         "--cache", "none",
@@ -223,6 +259,10 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
     detail = settings.get("timeframe_detail", "1m")
     if detail and tf_minutes(detail) < tf_minutes(tf):
         cmd += ["--timeframe-detail", detail]
+    # Symbol mimo ccxt búrz má dáta pod svojím zdrojom, nie pod menom nosnej burzy
+    datadir = engines.freqtrade_datadir(inst)
+    if datadir.name != "binance":
+        cmd += ["--datadir", str(datadir)]
     return cmd
 
 
@@ -404,7 +444,10 @@ class BacktestRunner:
         t0 = time.time()
         instrument = instrument_for_pair(job.settings["pair"])
         profile = write_profile(job.id, job.params, instrument, job.settings.get("strategy") or "ibs")
-        if INSTRUMENTS[instrument].venue == "multicharts":
+        # Engine si volí tester; keď nepovie, rozhodne to, čo je na disku (tester.engines).
+        engine = job.settings.get("engine") or engines.default_engine(
+            INSTRUMENTS[instrument], job.settings.get("timeframe") or "3m")
+        if engine == engines.MULTICHARTS:
             self._run_multicharts(job, instrument, profile, t0)
             return
         cmd = self.build_command(self.python, profile, job.settings)
@@ -454,6 +497,10 @@ class BacktestRunner:
         summary, trades, series = result_from_zip(new[-1])
         summary["duration_s"] = duration
         summary["zip"] = new[-1].name
+        warning = zero_trade_warning(summary, job.log_lines)
+        if warning:
+            summary["warning"] = warning
+            job.log_lines.append("POZOR: " + warning)
         job.status = "done"
         self._persist(job, (summary, trades, series), duration, chart_path=chart_tmp)
 
@@ -474,10 +521,12 @@ class BacktestRunner:
         start_s, _, end_s = settings["timerange"].partition("-")
         from_ms = int(datetime.strptime(start_s, "%Y%m%d").replace(tzinfo=timezone.utc).timestamp() * 1000) if start_s else None
         to_ms = int(datetime.strptime(end_s, "%Y%m%d").replace(tzinfo=timezone.utc).timestamp() * 1000) if end_s else None
-        data_path = MC_DIR / inst.data_source / f"{inst.data_stem}-1m.feather"
+        data_path = engines.one_minute_file(inst)
         job.log_lines.append(f"$ emulator MultiCharts {inst.exchange_symbol} {tf} {settings['timerange']} ({data_path.name})")
         if not data_path.exists():
-            raise FileNotFoundError(f"chýbajú 1m dáta {data_path} — spusti `python -m tester.dukas_import <csv> --symbol <symbol>`")
+            raise FileNotFoundError(
+                f"chýbajú 1m dáta {data_path} — stiahni ich (download-data.sh) alebo naimportuj "
+                f"(`python -m tester.dukas_import <csv> --symbol {inst.exchange_symbol}`)")
 
         import pandas as pd
 

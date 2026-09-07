@@ -7,9 +7,16 @@ factor), graf výnosnosti (kumulatívny PnL, buy and hold, stĺpce za obchod) a 
 obchodov. Každý beh sa uloží do gitu, takže história sa dá pushovať a pullovať
 medzi testermi a hľadať v nej podľa parametrov.
 
-Beh na Binance páre ide cez Freqtrade, beh na Dukascopy symbole (`NAS100`) cez emulátor
-MultiCharts — v histórii sú vedľa seba a nič sa pre testera nemení
-([MULTICHARTS.md §E](MULTICHARTS.md), [DATA.md](DATA.md)).
+**Engine si vyberáš** — `Freqtrade` (backtest Freqtradu) alebo `MultiCharts (emulátor)`
+(ten istý runner, ktorý beží v štúdii, s brokerom podľa MultiCharts). Ponuka ukazuje len tie,
+pre ktoré sú na disku dáta: Freqtrade potrebuje súbor pre zvolený timeframe, emulátor jediný
+1m súbor. Krypto sa teda dá prehrať aj emulátorom a Dukascopy CFD aj cez Freqtrade — z toho
+je porovnanie oboch ciest. Výsledok má v oboch prípadoch rovnaký tvar a história ich nerozlišuje
+(engine je v detaile behu a dá sa podľa neho hľadať).
+
+Pozor: signály sú v oboch enginoch rovnaké, **fill model nie**. Pre Dukascopy symboly je
+referenciou emulátor — sedí s tým, čo v MultiCharts naozaj pobeží
+([MULTICHARTS.md §E](MULTICHARTS.md), [FREQTRADE.md §G](FREQTRADE.md)).
 
 ## Spustenie bez Dockeru
 

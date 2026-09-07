@@ -9,6 +9,7 @@ nemiešalo, čo platí pre ktorú:
 | **krypto: prostredie, backtest, hyperopt, Docker, server** | [FREQTRADE.md](FREQTRADE.md) |
 | **MultiCharts: študia, QuoteManager, emulátor** | [MULTICHARTS.md](MULTICHARTS.md) |
 | **dáta: odkiaľ sú, archív, Dukascopy import, nový symbol** | [DATA.md](DATA.md) |
+| **testovať z CLI (aj pre AI)** | [../tester/AI_TESTING.md](../tester/AI_TESTING.md) |
 | **pridať ďalšiu stratégiu** | [STRATEGIE.md](STRATEGIE.md) |
 | **ako je to postavené a prečo** | [ARCHITECTURE_port.md](ARCHITECTURE_port.md) |
 
@@ -49,7 +50,9 @@ platforms/freqtrade/            configy burz, skripty, user_data/ (data, vysledk
 platforms/multicharts/          sablony studii, setup skript, data_archive/<zdroj>/
 
 tester/                         TESTER - cim sa to skusa
-  webapp/                       aplikacia pre testerov + CLI
+  webapp/                       aplikacia pre testerov + CLI (vyber engine)
+  engines.py                    freqtrade | multicharts emulator + kde maju data
+  AI_TESTING.md                 ako sa testuje z prikazoveho riadku
   compare/                      scan_zones, scan_trades, mc_log_trades, mc_compare
   dukas_import.py               cistenie a prevod surovych exportov
   data_archive.py               rocny archiv sviecok
