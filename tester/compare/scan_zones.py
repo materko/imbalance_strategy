@@ -7,7 +7,7 @@ hotové: session okná + detekciu SD zón na detekčnom TF + evidenciu zón.
     python -m tester.compare.scan_zones --exchange coinbase --profile golden_coinbase_btcusd_3m --limit 20
     python -m tester.compare.scan_zones --csv C:/dukas/NAS100_M1_10Y.csv --profile docs/profily_archiv/ibs/nas100_dukas_3m.json
 
-Zdroj dát je buď burza z `data_archive` (`--exchange`), alebo Dukascopy 1m CSV
+Zdroj dát je buď burza z `data_archive/` (`--exchange`), alebo Dukascopy 1m CSV
 (`--csv`, formát `dt,o,h,l,c,vol`, UTC, čas otvorenia) — z neho sa graf aj detekčný
 TF skladajú v pamäti rovnako ako z 1m feather súborov. Vypchávka Dukascopy exportu
 (plochý bar s cenou predchádzajúceho uzavretia, víkendy a prestávky) sa zahodí,

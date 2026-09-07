@@ -15,11 +15,11 @@ nezmení, takže jeho blob v histórii existuje raz. Denne rastie iba súbor za
 aktuálny rok.
 
 ### Ako sa to používa
-Archív (`data_archive/`) je to, čo je v gite. Pracovné súbory (`data/`) sú z neho
+Archív (`data_archive/tester/`) je to, čo je v gite. Pracovné súbory (`data/`) sú z neho
 odvodené a v `.gitignore`.
 
-    stiahnutie dat  ->  data/  ->  split  ->  data_archive/  ->  commit
-    klon            ->  data_archive/  ->  merge  ->  data/  ->  backtest
+    stiahnutie dat  ->  data/  ->  split  ->  data_archive/tester/  ->  commit
+    klon            ->  data_archive/tester/  ->  merge  ->  data/  ->  backtest
 
 Platformy majú vlastné korene (`tradebot.core.paths.ARCHIVE_ROOTS`) — burzové sviečky
 pod `deploy/freqtrade/user_data/`, Dukascopy 1m sviečky pod
@@ -64,7 +64,7 @@ def _write(df, path: Path) -> None:
 
 
 def split_root(archive: Path, data: Path, verbose: bool = True) -> list[Path]:
-    """`data/` -> `data_archive/` jedného koreňa, jeden súbor na rok."""
+    """`data/` -> `data_archive/tester/` jedného koreňa, jeden súbor na rok."""
     written: list[Path] = []
     for src in sorted(data.rglob("*.feather")):
         rel = src.relative_to(data)
@@ -90,7 +90,7 @@ def split_root(archive: Path, data: Path, verbose: bool = True) -> list[Path]:
 
 
 def merge_root(archive: Path, data: Path, verbose: bool = True) -> list[Path]:
-    """`data_archive/` -> `data/` jedného koreňa."""
+    """`data_archive/tester/` -> `data/` jedného koreňa."""
     import pandas as pd
 
     groups: dict[Path, list[Path]] = {}
@@ -114,7 +114,7 @@ def merge_root(archive: Path, data: Path, verbose: bool = True) -> list[Path]:
 
 
 def split(verbose: bool = True, roots: tuple[tuple[Path, Path], ...] | None = None) -> list[Path]:
-    """`data/` -> `data_archive/` vo všetkých koreňoch. Vráti zapísané súbory."""
+    """`data/` -> `data_archive/tester/` vo všetkých koreňoch. Vráti zapísané súbory."""
     written: list[Path] = []
     for archive, data in roots if roots is not None else ROOTS:
         if data.exists():
@@ -123,7 +123,7 @@ def split(verbose: bool = True, roots: tuple[tuple[Path, Path], ...] | None = No
 
 
 def merge(verbose: bool = True, roots: tuple[tuple[Path, Path], ...] | None = None) -> list[Path]:
-    """`data_archive/` -> `data/` vo všetkých koreňoch. Vráti zložené súbory."""
+    """`data_archive/tester/` -> `data/` vo všetkých koreňoch. Vráti zložené súbory."""
     out: list[Path] = []
     for archive, data in roots if roots is not None else ROOTS:
         if archive.exists():

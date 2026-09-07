@@ -1,9 +1,9 @@
 """Kde v repozitári čo leží — jediné miesto, kde sú cesty napísané.
 
 ```
-data_archive/<zdroj>/<trh>/       sviečky po rokoch — v gite
-data/tester/<zdroj>/<trh>/        pracovná podoba tých istých — gitignored
-data/quotemanager/<zdroj>/        ASCII exporty na import do QuoteManagera — gitignored
+data_archive/tester/<zdroj>/<trh>/   sviečky po rokoch — v gite
+data/tester/<zdroj>/<trh>/          pracovná podoba tých istých — gitignored
+data/quotemanager/<zdroj>/          ASCII exporty na import do QuoteManagera — gitignored
 deploy/freqtrade/                 čo potrebuje Freqtrade: configy búrz, skripty, user_data
 deploy/multicharts/               čo potrebuje MultiCharts: šablóny štúdií, setup
 tester/runs/, tester/profiles/   história behov a configy testerov — v gite
@@ -36,7 +36,7 @@ from pathlib import Path
 
 __all__ = [
     "REPO",
-    "DATA", "TESTER_DATA", "QUOTEMANAGER_DATA", "DATA_ARCHIVE",
+    "DATA", "DATA_ARCHIVE", "TESTER_DATA", "QUOTEMANAGER_DATA",
     "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS",
     "MULTICHARTS_DIR",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES",
@@ -54,7 +54,10 @@ DATA = REPO / "data"
 TESTER_DATA = DATA / "tester"
 #: ASCII exporty pre QuoteManager, `data/quotemanager/<zdroj>/…` — výstup zo skladu.
 QUOTEMANAGER_DATA = DATA / "quotemanager"
-#: To isté po rokoch, ako je to v gite.
+#: To isté po rokoch a v gite. **Zrkadlí `data/` cestu za cestou**, takže `split`/`merge`
+#: je obyčajné kopírovanie koreň na koreň a nikde sa cesty neprekladajú. Uzavretý rok sa
+#: už nezmení, takže jeho blob v histórii existuje raz; celý súbor by pribudol pri každom
+#: sťahovaní znova.
 DATA_ARCHIVE = REPO / "data_archive"
 
 # -- Integrácia s platformami ----------------------------------------------- #
@@ -79,7 +82,6 @@ TMP_PROFILES = RUNS_DIR / ".profiles"
 
 # -- Archív ----------------------------------------------------------------- #
 
-#: Dvojice (archív v gite, pracovný adresár) pre `data_archive split|merge`.
-#: Odkedy sú dáta na jednom mieste, je to jediná dvojica; zoznam ostáva, aby sa testy
-#: dali púšťať nad dočasným adresárom a aby sa dal pridať ďalší koreň.
-ARCHIVE_ROOTS: tuple[tuple[Path, Path], ...] = ((DATA_ARCHIVE, TESTER_DATA),)
+#: Dvojica (archív, pracovný strom) pre `data_archive split|merge`. Keďže archív zrkadlí
+#: `data/`, stačí jediná — zoznam ostáva, aby sa testy dali púšťať nad dočasným adresárom.
+ARCHIVE_ROOTS: tuple[tuple[Path, Path], ...] = ((DATA_ARCHIVE, DATA),)

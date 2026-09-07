@@ -12,7 +12,7 @@ def main() -> int:
     from .runner import DATA_DIR
 
     if not any(DATA_DIR.glob("*-3m-futures.feather")):
-        print("Pracovne data chybaju - skladam ich z data_archive/ ...", flush=True)
+        print("Pracovne data chybaju - skladam ich z data_archive/tester/ ...", flush=True)
         from .. import data_archive
 
         data_archive.main(["merge"])

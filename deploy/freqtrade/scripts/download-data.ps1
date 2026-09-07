@@ -89,6 +89,6 @@ Write-Host ""
 Write-Host "=== Delim na rocne subory pre git ===" -ForegroundColor Cyan
 & $py -m tester.data_archive split
 Write-Host ""
-Write-Host "Commituj len data_archive\ - pracovne subory v data\ su" -ForegroundColor Green
+Write-Host "Commituj len data\archive\ - pracovne subory v data\ su" -ForegroundColor Green
 Write-Host "v .gitignore. Po klonovani sa poskladaju prikazom:" -ForegroundColor Green
 Write-Host "  python -m tester.data_archive merge"
