@@ -343,8 +343,18 @@ class TradebotSignal:
         self.runner = MCRunner(cfg, inst, self.chart_tf, spec=spec)
         self.sink = MCDrawSink(PowerLanguageCanvas(self.ctx, shift_ms=self.chart_tf * 60_000))
         self._informative_tfs = list(spec.informative_tfs(cfg)) if spec.informative_tfs else []
+        # MultiCharts pri prepočte (zmena vlastností stratégie, Bar Magnifier, iný rozsah)
+        # študiu nevytvára nanovo — volá len StartCalc. Všetok stav z minulého behu preč,
+        # inak by napr. počítadlo obchodov z minulého behu zablokovalo [trade] riadky.
         self._slots.clear()
         self._stats = dict.fromkeys(self._stats, 0)
+        self._last_position = 0.0
+        self._last_closed_trades = None
+        self._last_closed_equity = 0.0
+        self._last_entry = None
+        self._open_entry = None
+        self._warned.clear()
+        self._fpu_last_cw = None
         self._out(f"{spec.key}: profil {profile}, {inst.symbol}, graf {self.chart_tf}m, "
                   f"informativne TF {self._informative_tfs or '-'}, log {self._log_path}")
 
