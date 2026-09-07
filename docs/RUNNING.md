@@ -47,7 +47,7 @@ tradebot/                       PRODUKT - to, co obchoduje
   configs/<key>/                referencne profily
   tests/                        testy produktu
 deploy/freqtrade/            configy burz, skripty, user_data/ (data, vysledky, shim)
-deploy/multicharts/          sablony studii, setup skript, data_archive/<zdroj>/
+deploy/multicharts/          sablony studii, setup skript, data_archive/tester/<zdroj>/
 
 tester/                         TESTER - cim sa to skusa
   webapp/                       aplikacia pre testerov + CLI (vyber engine)

@@ -68,6 +68,6 @@ echo
 echo "=== Delim na rocne subory pre git ==="
 "$PY" -m tester.data_archive split
 echo
-echo "Commituj len data_archive/ - pracovne subory"
+echo "Commituj len data_archive/tester/ - pracovne subory"
 echo "v data/ su v .gitignore. Po klonovani sa poskladaju prikazom:"
 echo "  python -m tester.data_archive merge"

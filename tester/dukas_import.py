@@ -8,7 +8,7 @@
 
 Vyrobí dve veci (`--target tester | multicharts | both`, predvolene obe):
 
-**Tester** — ročné feather súbory `data_archive/<STEM>-1m.<rok>.feather`
+**Tester** — ročné feather súbory `data_archive/tester/<STEM>-1m.<rok>.feather`
 (commitujú sa) a hneď z nich zloží pracovný súbor v `data/`. Pár je
 potom v ponuke webapp; beží cez emulátor MultiCharts, nie cez Freqtrade (Dukascopy CFD nie
 sú ccxt burza). Čas baru ostáva časom **otvorenia**, ako v jadre a v Pine.

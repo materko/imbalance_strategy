@@ -23,7 +23,10 @@ deploy/freqtrade/user_data/hyperopt_results/
 # V gite je archiv po rokoch (data_archive/<zdroj>/) - stary rok sa uz nikdy nezmeni,
 # takze jeho blob v historii existuje raz. Cely subor by sa pri kazdom stiahnuti dat
 # commitol znova.
-# Vsetko pod data/ je odvodene: data/tester/ z archivu, data/quotemanager/ z neho.
+# Cele data/ je odvodene: data/tester/ sa poskladá z data_archive/ prikazom
+#   python -m tester.data_archive merge
+# a data/quotemanager/ je z neho dalsi export. V gite je len archiv - zrkadli tento
+# strom cestu za cestou, len po rokoch.
 data/
 deploy/freqtrade/user_data/strategies/*.json
 deploy/freqtrade/user_data/hyperopt.lock

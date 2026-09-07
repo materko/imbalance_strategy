@@ -1,18 +1,21 @@
 # Dáta: odkiaľ sú, kde ležia a ako pribudne nový symbol
 
-Dáta sú **jedny**, delené podľa toho, **odkiaľ sú** — nie podľa toho, čím sa prehrajú.
-Zdroj je adresár, takže z cesty vidno pôvod sviečky:
+Prvá úroveň hovorí, **kto to konzumuje**, ďalšie dve, **odkiaľ sviečka je** — nie to,
+čím sa prehrá:
 
 ```
-data_archive/<zdroj>/<trh>/    sviečky po rokoch                    — v gite
-data/tester/<zdroj>/<trh>/     pracovná podoba tých istých          — gitignored
-data/quotemanager/<zdroj>/     ASCII export na import do QuoteManagera — gitignored
+data/tester/<zdroj>/<trh>/          sklad sviečok                          gitignored
+data/quotemanager/<zdroj>/          ASCII export na import do QuoteManagera  gitignored
+data_archive/tester/<zdroj>/<trh>/  ten istý sklad po rokoch                 v gite
 ```
 
-Pod `data/` sa delí podľa toho, **kto to konzumuje**: `tester/` je sklad sviečok, ktorý
-číta Tester **oboma enginmi** (Freqtrade aj emulátor MultiCharts čítajú ten istý súbor —
-práve preto sa dajú porovnať), `quotemanager/` je z neho odvodený výstup pre cudziu
-aplikáciu. Späť ho nikto nečíta a vyrobí sa znova jedným príkazom, preto sa negituje.
+`tester/` je sklad sviečok, ktorý číta Tester **oboma enginmi** (Freqtrade aj emulátor
+MultiCharts čítajú ten istý súbor — práve preto sa dajú porovnať), `quotemanager/` je
+z neho odvodený výstup pre cudziu aplikáciu; späť ho nikto nečíta a vyrobí sa znova
+jedným príkazom, preto sa negituje.
+
+**Archív zrkadlí `data/` cestu za cestou**, len po rokoch — `split` a `merge` sú preto
+obyčajné kopírovanie koreň na koreň a niet miesta, kde by sa cesty mohli rozísť.
 
 Zdroj je `binance`, `coinbase`, `dukascopy`; trh je `spot` alebo `futures`. Z cesty tak
 vidno, čo súbor obsahuje, bez otvárania.
@@ -56,7 +59,7 @@ do histórie ďalších 86 MB, ktoré sa už nedajú odstrániť bez prepísania
 Rok, ktorý sa skončil, sa už nikdy nezmení, takže jeho blob v histórii existuje raz:
 
 ```
-data_archive/binance/futures/
+data_archive/tester/binance/futures/
     BTC_USDT_USDT-1m-futures.2019.feather    4.7 MB
     ...
     BTC_USDT_USDT-1m-futures.2026.feather    9.8 MB   <- jediný, ktorý sa mení
@@ -79,7 +82,7 @@ TIMERANGE=20260801-20260905 ./deploy/freqtrade/scripts/download-data.sh
 SKIP_COINBASE=1 DAYS=180 ./deploy/freqtrade/scripts/download-data.sh
 ```
 
-Skripty volajú `split` samy, takže po stiahnutí stačí commitnúť `data_archive/`.
+Skripty volajú `split` samy, takže po stiahnutí stačí commitnúť `data_archive/tester/`.
 
 ### Sťahujú sa len oficiálne timeframy búrz
 
@@ -142,7 +145,7 @@ pre koho dáta vyrobiť; dá sa vymenovať viac naraz (`--target tester freqtrad
 
 | `--target` | čo vznikne | pre koho |
 |---|---|---|
-| `tester` | `data_archive/dukascopy/futures/<STEM>-1m.<rok>.feather` (commitni ich) a hneď z nich pracovný súbor v `data/tester/dukascopy/futures/` | webapp Tester — pár je po reštarte v ponuke Nový beh |
+| `tester` | `data_archive/tester/dukascopy/futures/<STEM>-1m.<rok>.feather` (commitni ich) a hneď z nich pracovný súbor v `data/tester/dukascopy/futures/` | webapp Tester — pár je po reštarte v ponuke Nový beh |
 | `multicharts` | `<zdroj>_mc.csv` — ASCII pre QuoteManager, hlavička `Date,Time,Open,High,Low,Close,Volume` | MultiCharts študia (import do QuoteManagera) |
 | `freqtrade` | `data/tester/dukascopy/futures/<STEM>-{3m,5m}.feather` — dopočítané z 1m, negitujú sa | hyperopt a FreqAI ([FREQTRADE.md §G](FREQTRADE.md)) |
 | `all` | všetky tri | |

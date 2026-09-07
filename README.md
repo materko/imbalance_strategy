@@ -103,8 +103,8 @@ reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. `--target freqtrade` 
 | [`tradebot/adapters/multicharts/`](tradebot/adapters/multicharts) | Generická študia `TradebotSignal`, `MCRunner`, kreslenie (len Windows) a **emulátor** MultiCharts (beží všade). |
 
 | [`tradebot/tests/`](tradebot/tests) | Testy produktu: jadro, stratégie, oba adaptéry. |
-| [`deploy/freqtrade/`](deploy/freqtrade) | Configy búrz (`config.binance.json`, `config.coinbase.json`, `config.dukascopy.json`), skripty (setup, download, backtest, hyperopt), `user_data/` (shim na stratégiu, hyperopt loss, `data_archive/<zdroj>/` so sviečkami). |
-| [`deploy/multicharts/`](deploy/multicharts) | Šablóny študií (`IBS_Signal.py`, `DemoBreakout_Signal.py`), inštalačný skript a `data_archive/<zdroj>/` s 1m sviečkami. |
+| [`deploy/freqtrade/`](deploy/freqtrade) | Configy búrz (`config.binance.json`, `config.coinbase.json`, `config.dukascopy.json`), skripty (setup, download, backtest, hyperopt), `user_data/` (shim na stratégiu, hyperopt loss, `data_archive/tester/<zdroj>/` so sviečkami). |
+| [`deploy/multicharts/`](deploy/multicharts) | Šablóny študií (`IBS_Signal.py`, `DemoBreakout_Signal.py`), inštalačný skript a `data_archive/tester/<zdroj>/` s 1m sviečkami. |
 | [`docker/`](docker) | `docker-compose.yml` (tests, download, backtest, freqtrade bot, webapp). |
 | **TradeBot Tester** | |
 | [`tester/webapp/`](tester/webapp) | Webová aplikácia pre testerov (FastAPI + Plotly) a jej CLI. |
@@ -181,7 +181,7 @@ Všetky merania po rokoch: [docs/merania/](docs/merania/README.md).
 ## Pravidlá práce s repozitárom
 
 - **Dáta** sa sťahujú len v oficiálnych timeframoch búrz a commitujú sa po rokoch do
-  `data_archive/` príslušnej platformy; pracovné súbory zloží
+  `data_archive/tester/` príslušnej platformy; pracovné súbory zloží
   `python -m tester.data_archive merge` ([docs/DATA.md](docs/DATA.md)).
 - **Backtest vždy s `--timeframe-detail 1m` a `--cache none`** — skripty to robia samy.
   Stratégiu nikdy nespúšťať priamo na 1m (limity `*MaxBars` sú v baroch).

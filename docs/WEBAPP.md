@@ -233,7 +233,7 @@ tester/runs/<YYYYMMDD-HHMMSS-odtlačok>/
 Všetko okrem kresieb je čitateľný JSON, jeden adresár na beh, takže sa to mergeuje bez
 konfliktov. Kresby sú gzip: ročný beh má ~90 000 objektov (12 MB v JSON, 1,5 MB
 zbalené) a súbor sa po zápise už nemení, takže diff netreba. Sviečky sa k behu
-neukladajú — čítajú sa z pracovných `data/` platformy (v gite ako `data_archive/`), takže graf
+neukladajú — čítajú sa z pracovných `data/` platformy (v gite ako `data_archive/tester/`), takže graf
 funguje aj pre beh stiahnutý od iného testera. Behy z čias pred týmto súborom ukážu
 sviečky a obchody bez kresieb.
 

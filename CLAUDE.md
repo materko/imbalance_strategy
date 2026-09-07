@@ -43,7 +43,7 @@ Bez obmedzení. Platia len konvencie repozitára:
 - Merania sa zapisujú ako datované dokumenty v `docs/merania/` s číslami **po rokoch** na piatich
   referenčných oknách (`20211001-20221001`, `20221001-20231001`, `20231001-20241001`,
   `20240904-20250904`, `20250904-20260904`); kľúčová metrika je break-even poplatok.
-- Dáta len v oficiálnych timeframoch búrz, commitované po rokoch v `data_archive/` príslušnej
+- Dáta len v oficiálnych timeframoch búrz, commitované po rokoch v `data_archive/tester/` príslušnej
   platformy (Binance/Coinbase pod `deploy/freqtrade/user_data/`, Dukascopy pod
   `deploy/multicharts/`). Surový Dukascopy export spracuje `tester.dukas_import`
   (obal `./dukas-import.sh`, `.\dukas-import.ps1`) — viď [docs/DATA.md](docs/DATA.md).
@@ -88,7 +88,7 @@ výsledky cez GitHub. Podrobnosti: [docs/WEBAPP.md](docs/WEBAPP.md).
    **Uložiť ako profil** — z formulára (aj so zvoleným TF) alebo z detailu behu; tam sa
    dá aj premenovať a zmazať. Profily repozitára v `tradebot/strategies/<stratégia>/configs/` sa nemenia.
 5. Jeden backtest naraz. Rok s 1m detailom trvá ~20–40 s; päť rokov ~3 minúty.
-6. Nesťahuj dáta z burzy. Páry a obdobia sú len tie, čo sú v `data_archive/`:
+6. Nesťahuj dáta z burzy. Páry a obdobia sú len tie, čo sú v `data_archive/tester/`:
    futures perpetuály `BTC/USDT:USDT`, `ETH/USDT:USDT` (v ponuke `BTCUSDT.P`,
    `ETHUSDT.P`) a spot `BTC/USDT`, `ETH/USDT` (`BTCUSDT`, `ETHUSDT`), 2019–2026,
    a „burza" **MultiCharts** s Dukascopy CFD `NAS100/USD` (v ponuke `NAS100`), 2021–2026 —
@@ -212,7 +212,7 @@ Iný port: `TRADEBOT_WEB_PORT=9000 ./webapp.sh` (a potom `--url http://127.0.0.1
 ```bash
 PY -m tester.webapp.cli push          # najprv odlož vlastné behy (viď nižšie)
 git pull --rebase --autostash      # v koreni repozitára
-PY -m tester.data_archive merge # ak pull priniesol nové dáta v data_archive/
+PY -m tester.data_archive merge # ak pull priniesol nové dáta v data_archive/tester/
 PY -m pytest -q                    # voliteľné: overenie (~30 s, 300+ testov)
 ```
 
