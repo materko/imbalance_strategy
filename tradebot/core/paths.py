@@ -1,8 +1,8 @@
 """Kde v repozitári čo leží — jediné miesto, kde sú cesty napísané.
 
 ```
-data_archive/<zdroj>/        sviečky po rokoch           — v gite
-data/<zdroj>/                pracovná podoba tých istých — gitignored
+data_archive/<zdroj>/<trh>/  sviečky po rokoch           — v gite
+data/<zdroj>/<trh>/          pracovná podoba tých istých — gitignored
 deploy/freqtrade/            čo potrebuje Freqtrade: configy búrz, skripty, user_data
 deploy/multicharts/          čo potrebuje MultiCharts: šablóny štúdií, setup
 tester/runs/, tester/profiles/   história behov a configy testerov — v gite
@@ -12,8 +12,8 @@ tester/runs/, tester/profiles/   história behov a configy testerov — v gite
 líšia zdrojom, nie tým, čím ich kto prehrá — tá istá stratégia beží cez Freqtrade aj cez
 emulátor MultiCharts na ktoromkoľvek páre (`tester.engines`). Preto je adresárom **zdroj**
 (`binance`, `coinbase`, `dukascopy`) a nie platforma. Freqtrade dostane svoj koreň
-prepínačom `--datadir data/<zdroj>`; vnútri si drží vlastnú konvenciu (futures
-v podadresári `futures/` s príponou `-futures` v mene).
+prepínačom `--datadir`, ktorý mu `tester.engines` poskladá tak, aby jeho vlastná
+konvencia (`futures/` a prípona `-futures`) vyšla na tú istú cestu.
 
 `deploy/` je integračná vrstva — to, čo treba na strane cudzej aplikácie, aby v nej adaptér
 bežal. Kód tam nie je (ten je v `tradebot/adapters/`) a dáta tiež nie.

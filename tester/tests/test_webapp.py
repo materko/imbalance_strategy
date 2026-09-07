@@ -321,7 +321,7 @@ def test_spot_pair_runs_with_spot_config_and_file_layout():
 
     assert pair_file("BTC/USDT", "3m").name == "BTC_USDT-3m.feather"
     assert pair_file("BTC/USDT:USDT", "3m").name == "BTC_USDT_USDT-3m-futures.feather"
-    assert pair_file("BTC/USDT", "3m").parent.name == "binance"
+    assert pair_file("BTC/USDT", "3m").parent.name == "spot"
     assert pair_file("BTC/USDT:USDT", "3m").parent.name == "futures"
 
 

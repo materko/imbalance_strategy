@@ -61,7 +61,7 @@ services:
       download-data
       --config /freqtrade/cfg/config.coinbase.json
       --userdir /freqtrade/user_data
-      --datadir /app/data/coinbase
+      --datadir /app/data/coinbase/spot
       --timeframes 1m 5m
       --days ${DAYS:-60}
 

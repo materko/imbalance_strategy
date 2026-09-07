@@ -13,9 +13,14 @@ cez Freqtrade — práve na tom stojí porovnanie oboch ciest
 ([docs/FREQTRADE.md §G](../docs/FREQTRADE.md)). Obmedzuje to len to, aké dáta sú na disku,
 a to hovorí `available()`.
 
-Sviečky sú vždy `data/<zdroj>/<PÁR>-<TF>.feather`; zdroj je `InstrumentSpec.data_source`.
-Freqtrade si pomenúva futures súbory príponou `-futures` a drží ich v podadresári, spot
-nie — preto to rozlíšenie nižšie.
+Sviečky sú vždy `data/<zdroj>/<trh>/<PÁR>-<TF>.feather` — zdroj (`binance`, `dukascopy`)
+aj trh (`spot`, `futures`) sú adresáre, takže z cesty vidno, čo to je.
+
+Podadresár `futures/` a príponu `-futures` v mene si Freqtrade drží natvrdo
+(`IDataHandler._pair_data_filename`), pre spot nepridáva nič. Preto sa mu `--datadir`
+podáva rôzne podľa trhu — pri futures o úroveň vyššie, aby si `futures/` doplnil sám,
+pri spote priamo na `spot/`. Na disku je tým rozloženie súmerné a `data_dir()` je jediné
+miesto, kde tú asymetriu treba vedieť.
 """
 
 from __future__ import annotations
@@ -26,7 +31,7 @@ from tradebot.core.paths import DATA, FREQTRADE_DIR
 from tradebot.core.types import InstrumentSpec
 
 __all__ = ["FREQTRADE", "MULTICHARTS", "ENGINES", "ENGINE_TITLES",
-           "one_minute_file", "freqtrade_file", "data_dir", "freqtrade_config",
+           "one_minute_file", "freqtrade_file", "market_dir", "data_dir", "freqtrade_config",
            "available", "default_engine"]
 
 FREQTRADE = "freqtrade"
@@ -47,21 +52,31 @@ def _is_off_exchange(inst: InstrumentSpec) -> bool:
     return inst.data_source in _OFF_EXCHANGE
 
 
+def market_dir(inst: InstrumentSpec) -> Path:
+    """`data/<zdroj>/<trh>/` — kde sviečky tohto inštrumentu naozaj ležia."""
+    return DATA / inst.data_source / inst.market
+
+
 def data_dir(inst: InstrumentSpec) -> Path:
-    """`data/<zdroj>/` — jeden strom pre oba enginy, delený podľa zdroja sviečok."""
+    """Čo podať Freqtradu ako `--datadir`.
+
+    Pri futures na burze je to o úroveň vyššie než `market_dir` — `futures/` si Freqtrade
+    doplní sám. Pri spote (a pri CFD, ktoré bežia cez spotový config) je to priamo
+    `market_dir`, lebo tam nič nedopĺňa.
+    """
+    if _is_off_exchange(inst) or inst.is_spot:
+        return market_dir(inst)
     return DATA / inst.data_source
 
 
 def freqtrade_file(inst: InstrumentSpec, timeframe: str) -> Path:
     """`BTC/USDT:USDT`, `3m` → `data/binance/futures/BTC_USDT_USDT-3m-futures.feather`.
 
-    Pomenovanie je Freqtradu — futures majú podadresár aj príponu. Emulátor číta tie isté
-    súbory, preto je tá konvencia jediná pre oba enginy.
+    Príponu `-futures` pridáva Freqtrade len tomu, čo u neho beží ako futures; CFD cez
+    spotový config ju nemá. Emulátor číta tie isté súbory, takže konvencia je jedna.
     """
-    base = inst.data_stem
-    if _is_off_exchange(inst) or inst.is_spot:
-        return data_dir(inst) / f"{base}-{timeframe}.feather"
-    return data_dir(inst) / "futures" / f"{base}-{timeframe}-futures.feather"
+    suffix = "" if (_is_off_exchange(inst) or inst.is_spot) else "-futures"
+    return market_dir(inst) / f"{inst.data_stem}-{timeframe}{suffix}.feather"
 
 
 def one_minute_file(inst: InstrumentSpec) -> Path:

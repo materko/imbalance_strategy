@@ -29,8 +29,8 @@ def m1(n: int, start_ms: int = T0) -> "pd.DataFrame":
 @pytest.fixture
 def mc_data(tmp_path: Path, monkeypatch) -> Path:
     data = tmp_path / "data"
-    (data / INST.data_source).mkdir(parents=True)
-    path = data / INST.data_source / f"{INST.data_stem}-1m.feather"
+    (data / INST.data_source / INST.market).mkdir(parents=True)
+    path = data / INST.data_source / INST.market / f"{INST.data_stem}-1m.feather"
     m1(60).to_feather(path)
     # cesty k svieckam pocita jedno miesto - tester.engines
     monkeypatch.setattr(engines, "DATA", data)
@@ -136,8 +136,8 @@ def test_dukas_import_zapise_rocne_subory(tmp_path: Path, capsys):
     rc = main([str(csv), "--symbol", "NAS100", "--target", "tester",
                "--archive", str(tmp_path / "arch2"), "--no-merge"])
     assert rc == 0
-    # zdroj je adresar: <archiv>/<zdroj>/<PAR>-1m.<rok>.feather
-    out = tmp_path / "arch2" / INST.data_source
+    # zdroj a trh su adresare: <archiv>/<zdroj>/<trh>/<PAR>-1m.<rok>.feather
+    out = tmp_path / "arch2" / INST.data_source / INST.market
     assert sorted(p.name for p in out.glob("*.feather")) == [
         "NAS100_USD-1m.2024.feather", "NAS100_USD-1m.2025.feather", "NAS100_USD-1m.2026.feather"]
     assert "zapisanych 3 rocnych suborov" in capsys.readouterr().err
