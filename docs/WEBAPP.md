@@ -89,6 +89,11 @@ s dôvodom. K profilu patrí aj **TF grafu**: limity `*MaxBars` sú v baroch, ta
 profil ladený na 5m nesedí na 3m. Výber profilu preto TF prepne — profil repozitára
 (nemá uložený TF) na 3m.
 
+**Burza MultiCharts**: páry s Dukascopy dátami (`NAS100`) idú cez emulátor MultiCharts
+priamo v procese webapp (bez Freqtrade) — ten istý runner ako študia v MultiCharts, jedna
+pozícia, SL/TP po 1m; `timeframe_detail` sa ignoruje, 1m je vždy. Ako pridať symbol:
+README, sekcia „Dukascopy dáta".
+
 **Pár** je pomenovaný tak, ako ho volá burza, a ponuka je rozdelená na **Futures
 (perpetual)** a **Spot**: `BTCUSDT.P` je perpetuál (`BTC/USDT:USDT` vo Freqtrade),
 `BTCUSDT` je spot (`BTC/USDT`). Pod ponukou je vidno, o ktorý trh ide.

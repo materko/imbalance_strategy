@@ -457,6 +457,12 @@ Potom v QuoteManageri:
    `TRADEBOT_PROFILE=docs/profily_archiv/ibs/nas100_dukas_3m.json` (inštrument
    `nas100_dukascopy`, prahy v bodoch rovnaké ako `multicharts_mnq_3m`).
 
+**Bez MultiCharts, ale ako MultiCharts:** webapp „burza" MultiCharts
+(`tradebot/adapters/multicharts/emulator.py`) prehrá ten istý `MCRunner` nad 1m dátami z
+`data_archive/multicharts/` s emulovaným brokerom MultiCharts a uloží beh do histórie ako
+každý iný (README, „Dukascopy dáta"). Na porovnanie so skutočným MultiCharts slúži
+`mc_compare` / `[trade]` riadky logu študie.
+
 ### Tri rozdiely oproti Pine, ktoré treba vedieť
 
 **Bar je razený časom zatvorenia.** `Bars.Time[0]` 3m baru 10:00–10:03 je 10:03; jadro

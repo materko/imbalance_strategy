@@ -92,9 +92,37 @@ Profil = Pine defaulty stratégie + odchýlky + `_strategy` + `_instrument`. Pre
 | `golden_binance_btcusdt_3m` | **Referenčný na golden test** — presne nastavenia z grafu TradingView na Binance BTCUSDT.P (RR 1, trailing, 1 BTC). Nie na obchodovanie. |
 | `golden_coinbase_btcusd_3m` | Referenčný pre Coinbase BTCUSD — parita jadra s TradingView screenshotmi (MultiCharts a testy). |
 | `multicharts_mnq_3m` | MNQ futures pre MultiCharts, 1:1 s Pine jednotkami. |
-| `nas100_dukas_3m` (archív) | NAS100 CFD z Dukascopy CSV pre MultiCharts — rovnaké prahy v bodoch ako MNQ; dáta cez `tradebot.tools.dukas_to_mc` ([RUNNING.md §E](docs/RUNNING.md)). |
+| `nas100_dukas_3m` (archív) | NAS100 CFD z Dukascopy CSV — rovnaké prahy v bodoch ako MNQ. Beží vo webapp na „burze" MultiCharts (viď nižšie) aj v MultiCharts samotnom ([RUNNING.md §E](docs/RUNNING.md)). |
 | `demo_breakout/binance_btcusdt_5m` | Jediný profil ukážkovej stratégie (Pine defaulty, páka 5). |
 | ostatné | Skúšané konfigurácie (NY seansa, SL filter, risk sizing, hyperopt…) sú v [docs/profily_archiv/](docs/profily_archiv/ibs/README.md) s tabuľkou odchýlok; načítajú sa cestou (`--profile docs/profily_archiv/ibs/<nazov>.json`). Odporúčaný štart na nasadenie je `btcusdt_3m_binance_ny_sl_risk1` odtiaľ. |
+
+## Dukascopy dáta a „burza" MultiCharts (2026-09-07)
+
+Dukascopy CFD (NAS100, forex, komodity…) nie sú burza v ccxt, takže Freqtrade ich
+nevezme. Webapp má preto vlastnú „burzu" **MultiCharts**: 1m sviečky z Dukascopy CSV
+ležia v `data_archive/multicharts/`, pár sa v ponuke volá ako v MultiCharts (`NAS100`)
+a beh nejde cez Freqtrade, ale cez **emulátor MultiCharts** — ten istý `MCRunner`, ktorý
+beží v študii MultiCharts, plus broker podľa MultiCharts (jedna pozícia, order platí na
+ďalší bar, market na otvorení, limitka pri dotyku, SL/TP po 1m sviečkach, koniec seansy na
+close baru). Výsledok má rovnaký tvar ako Freqtrade beh, história ich nerozlišuje; v
+`result.engine` je `multicharts-emulator`. Na NAS100 dáva to isté, čo MultiCharts
+(január 2025: 12 obchodov 9 W / 3 L na oboch stranách, viď
+[docs/NAS100_dukas_simulator_2026-09-06.md](docs/NAS100_dukas_simulator_2026-09-06.md)).
+
+```bash
+# nový symbol z Dukascopy: instrument v tradebot/core/types.py (venue "multicharts"), potom
+PY -m tradebot.tools.dukas_archive C:/dukas/NAS100_M1_10Y.csv --instrument nas100_dukascopy --from-year 2021
+PY -m tradebot.tools.data_archive merge
+# beh ako pri Binance páre — cez webapp alebo CLI
+PY -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/nas100_dukas_3m.json --pair NAS100/USD \
+   --timerange 20250106-20250201 --fee 0 --note "NAS100 emulator, januar"
+```
+
+Forex a futures z Dukascopy sa na tejto burze nelíšia: všetko sú CFD s longmi, shortmi aj
+pákou (typ `futures`); líšia sa len inštrumentom (tick, hodnota bodu, mena) a profilom —
+prahy v bodoch z MNQ sedia na NAS100, na EURUSD treba jednotku `atr` (ako pri ETH).
+Poplatok je percento z nominálu na stranu ako pri Binance; spread Dukascopy v dátach nie je
+(bid strana), počíta sa cez poplatok.
 
 ---
 
