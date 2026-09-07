@@ -187,7 +187,11 @@ class MCRunner:
             if intent.action is OrderAction.CANCEL:
                 if self._live.pop(intent.order_id, None) is not None:
                     result.cancelled.append(intent.order_id)
-                if intent.order_id == self._open_id:
+                # Engine na konci seansy posle CANCEL aj na order, ktory drzi poziciu
+                # (spolu s CLOSE). Plan treba podrzat, kym MultiCharts poziciu naozaj
+                # nezavrie — inak by sa v tom bare neposlal ani SL/TP, ani zatvorenie,
+                # a pozicia by prezila vikend (NAS100 24.10.2025 -> 30.10.2025).
+                if intent.order_id == self._open_id and position_size == 0.0:
                     self._open_plan = None
                     self._open_id = None
                     self._open_extreme = None

@@ -450,8 +450,8 @@ class TradebotSignal:
         if not self.NO_DRAW:
             self.sink.render(out.drawings)
         self._send_entries(out)
-        if out.close_session:
-            self._close_market(out.exit_plan)
+        if out.close_session and position != 0.0:
+            self._close_market(position)
         elif out.exit_plan is not None:
             self._send_exits(out.exit_plan, out.exit_stop)
         if busy or out.entries:
@@ -647,7 +647,9 @@ class TradebotSignal:
         for side, action in (("long", EOrderAction.Sell), ("short", EOrderAction.BuyToCover)):
             orders[f"sl_{side}"] = oc.Stop(P(Contracts.Default, "tb_sl", action, OrderExit.FromAll))
             orders[f"tp_{side}"] = oc.Limit(P(Contracts.Default, "tb_tp", action, OrderExit.FromAll))
-            orders[f"end_{side}"] = oc.MarketNextBar(P(Contracts.Default, "tb_session_end", action, OrderExit.FromAll))
+            # Pine `strategy.close(immediately=true)` = close AKTUALNEHO baru -> MarketThisBar;
+            # MarketNextBar by na konci piatkovej seansy zavrel az na nedelnom otvoreni.
+            orders[f"end_{side}"] = oc.MarketThisBar(P(Contracts.Default, "tb_session_end", action, OrderExit.FromAll))
         self._orders = orders
 
     def _slot_for(self, live) -> str | None:
@@ -709,11 +711,13 @@ class TradebotSignal:
             for plan in pre_exit.values():
                 self._send_exits(plan)
 
-    def _close_market(self, plan):
-        """Pine `strategy.close(immediately=true)` na konci poslednej seansy dňa."""
-        if plan is None:
-            return
-        side = "long" if plan.direction.value == 1 else "short"
+    def _close_market(self, position: float):
+        """Pine `strategy.close(immediately=true)` na konci poslednej seansy dňa.
+
+        Strana sa berie zo znamienka pozície, nie z plánu — plán môže byť v tom bare
+        už zrušený (engine posiela CANCEL spolu s CLOSE).
+        """
+        side = "long" if position > 0 else "short"
         self._trace(f"Send end_{side}")
         self._orders[f"end_{side}"].Send()
 

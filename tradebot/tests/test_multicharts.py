@@ -187,6 +187,26 @@ def test_obchod_otvoreny_a_zavrety_v_jednom_bare(runner, monkeypatch):
     assert runner._live == {} and runner._open_id is None
 
 
+def test_cancel_otvoreneho_orderu_nezahodi_plan_kym_pozicia_zije(runner, monkeypatch):
+    """Koniec seansy: engine posle CANCEL na order drziaci poziciu; SL/TP a zatvorenie musia ist dalej."""
+    from tradebot.core.orders import OrderAction, OrderIntent
+
+    plan = _live_order(runner)
+    runner.on_bar(bar(T0 + MIN3), position_size=2.0)
+    real = runner.engine.on_bar
+
+    class Out:
+        def __init__(self, inner):
+            self.orders = [OrderIntent(OrderAction.CANCEL, "LONG_1", 1, reason="koniec seansy")]
+            self.drawings, self.close_session = inner.drawings, True
+
+    monkeypatch.setattr(runner.engine, "on_bar", lambda b, h, c: Out(real(b, h, c)))
+    out = runner.on_bar(bar(T0 + 2 * MIN3), position_size=2.0)
+    assert out.close_session and out.exit_plan is plan and runner._open_id == "LONG_1"
+    out2 = runner.on_bar(bar(T0 + 3 * MIN3), position_size=0.0)
+    assert out2.exit_plan is None and runner._open_id is None
+
+
 def test_ten_isty_bar_druhykrat_neurobi_nic(runner):
     """MultiCharts vie zavolať CalcBar na tom istom bare viackrát."""
     _live_order(runner)
