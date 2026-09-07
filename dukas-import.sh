@@ -14,7 +14,7 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PY="$REPO/.venv/bin/python"
 [[ -x "$PY" ]] || PY="$REPO/.venv/Scripts/python.exe"   # Git Bash na Windows
 if [[ ! -x "$PY" ]]; then
-    echo "Chyba .venv - spusti najprv platforms/freqtrade/scripts/setup.sh" >&2
+    echo "Chyba .venv - spusti najprv deploy/freqtrade/scripts/setup.sh" >&2
     exit 1
 fi
 

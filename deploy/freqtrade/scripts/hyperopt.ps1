@@ -28,9 +28,9 @@
     za 90 dní, len preto, že mala malý drawdown.
 
 .EXAMPLE
-    .\platforms\freqtrade\scripts\hyperopt.ps1 -Timerange 20250901-20260904 -Epochs 300
+    .\deploy\freqtrade\scripts\hyperopt.ps1 -Timerange 20250901-20260904 -Epochs 300
 .EXAMPLE
-    .\platforms\freqtrade\scripts\hyperopt.ps1 -Timerange 20260601-20260904 -Epochs 200 -Loss SharpeHyperOptLoss
+    .\deploy\freqtrade\scripts\hyperopt.ps1 -Timerange 20260601-20260904 -Epochs 200 -Loss SharpeHyperOptLoss
 #>
 [CmdletBinding()]
 param(
@@ -46,11 +46,11 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..")).Path
-$ft = Join-Path $repo "platforms\freqtrade"
+$ft = Join-Path $repo "deploy\freqtrade"
 $userdir = Join-Path $ft "user_data"
 $py = Join-Path $repo ".venv\Scripts\python.exe"
 
-if (-not (Test-Path $py)) { throw "Chyba .venv - spusti najprv platforms\freqtrade\scripts\setup.ps1" }
+if (-not (Test-Path $py)) { throw "Chyba .venv - spusti najprv deploy\freqtrade\scripts\setup.ps1" }
 
 $env:TRADEBOT_PROFILE = $Profile
 Write-Host "Profil: $Profile" -ForegroundColor Cyan
@@ -64,6 +64,7 @@ $args = @(
     "-m", "freqtrade", "hyperopt",
     "--config", (Join-Path $ft $Config),
     "--userdir", $userdir,
+    "--datadir", (Join-Path $repo "data\binance"),
     "--strategy", $Strategy,
     "--hyperopt-loss", $Loss,
     "--timerange", $Timerange,

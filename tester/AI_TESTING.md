@@ -94,7 +94,7 @@ referenciu**.
 ## 6. Hyperopt (len engine Freqtrade)
 
 ```bash
-./platforms/freqtrade/scripts/hyperopt.sh 20260601-20260904 200
+./deploy/freqtrade/scripts/hyperopt.sh 20260601-20260904 200
 ```
 
 Čo treba vedieť, inak dostaneš nezmysel: `--analyze-per-epoch` je povinné (bez neho majú

@@ -10,18 +10,18 @@
 # oficiálne TF - 3m si z 1m poskladá samotná Freqtrade stratégia. Na disk sa
 # žiadny umelý timeframe neukladá.
 #
-#   ./platforms/freqtrade/scripts/download-data.sh
-#   TIMERANGE=20260801-20260905 ./platforms/freqtrade/scripts/download-data.sh
-#   SKIP_COINBASE=1 DAYS=180 ./platforms/freqtrade/scripts/download-data.sh
+#   ./deploy/freqtrade/scripts/download-data.sh
+#   TIMERANGE=20260801-20260905 ./deploy/freqtrade/scripts/download-data.sh
+#   SKIP_COINBASE=1 DAYS=180 ./deploy/freqtrade/scripts/download-data.sh
 
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-FT="$REPO/platforms/freqtrade"
+FT="$REPO/deploy/freqtrade"
 USERDIR="$FT/user_data"
 PY="$REPO/.venv/bin/python"
 
-[[ -x "$PY" ]] || { echo "Chyba .venv - spusti najprv ./platforms/freqtrade/scripts/setup.sh" >&2; exit 1; }
+[[ -x "$PY" ]] || { echo "Chyba .venv - spusti najprv ./deploy/freqtrade/scripts/setup.sh" >&2; exit 1; }
 
 DAYS="${DAYS:-60}"
 if [[ -n "${TIMERANGE:-}" ]]; then
@@ -32,37 +32,40 @@ fi
 ERASE_ARG=()
 [[ "${ERASE:-0}" == "1" ]] && ERASE_ARG=(--erase)
 
+# Sviecky nepatria do userdiru Freqtradu, ale do spolocneho data/<zdroj>/ - z toho
+# istého stromu ich cita aj emulator MultiCharts (tester/engines.py).
 download() {
-    local label="$1" config="$2"; shift 2
+    local label="$1" config="$2" source="$3"; shift 3
     echo ""
     echo "=== $label ==="
     echo "timeframes: $*"
     "$PY" -m freqtrade download-data \
         --config "$FT/$config" \
         --userdir "$USERDIR" \
+        --datadir "$REPO/data/$source" \
         --timeframes "$@" \
         "${RANGE[@]}" "${ERASE_ARG[@]}"
 }
 
 if [[ "${SKIP_BINANCE:-0}" != "1" ]]; then
-    download "Binance BTC/USDT:USDT (futures)" config.binance.json 1m 3m 5m
-    download "Binance BTC/USDT + ETH/USDT (spot)" config.binance.spot.json 1m 3m 5m 15m
+    download "Binance BTC/USDT:USDT (futures)" config.binance.json binance 1m 3m 5m
+    download "Binance BTC/USDT + ETH/USDT (spot)" config.binance.spot.json binance 1m 3m 5m 15m
 fi
 
 if [[ "${SKIP_COINBASE:-0}" != "1" ]]; then
-    download "Coinbase BTC/USD (spot, referencne)" config.coinbase.json 1m 5m
+    download "Coinbase BTC/USD (spot, referencne)" config.coinbase.json coinbase 1m 5m
     echo "Coinbase 3m sa nestahuje - burza ho neponuka. Strategia si ho poskladá z 1m."
 fi
 
 echo ""
 echo "=== Co je stiahnute ==="
-"$PY" -m freqtrade list-data --userdir "$USERDIR" --config "$FT/config.binance.json"
-"$PY" -m freqtrade list-data --userdir "$USERDIR" --config "$FT/config.coinbase.json"
+"$PY" -m freqtrade list-data --userdir "$USERDIR" --datadir "$REPO/data/binance" --config "$FT/config.binance.json"
+"$PY" -m freqtrade list-data --userdir "$USERDIR" --datadir "$REPO/data/coinbase" --config "$FT/config.coinbase.json"
 
 echo
 echo "=== Delim na rocne subory pre git ==="
 "$PY" -m tester.data_archive split
 echo
-echo "Commituj len platforms/freqtrade/user_data/data_archive/ - pracovne subory"
+echo "Commituj len data_archive/ - pracovne subory"
 echo "v data/ su v .gitignore. Po klonovani sa poskladaju prikazom:"
 echo "  python -m tester.data_archive merge"

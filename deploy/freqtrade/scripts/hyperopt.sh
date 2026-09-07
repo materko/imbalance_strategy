@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Preladi prahy strategie hyperoptom. Podrobnosti su v hyperopt.ps1.
 #
-#   ./platforms/freqtrade/scripts/hyperopt.sh 20250901-20260904 300
-#   TRADEBOT_PROFILE=docs/profily_archiv/tradebot/btcusdt_3m_binance_hyper.json ./platforms/freqtrade/scripts/hyperopt.sh 20260601-20260904 200
+#   ./deploy/freqtrade/scripts/hyperopt.sh 20250901-20260904 300
+#   TRADEBOT_PROFILE=docs/profily_archiv/tradebot/btcusdt_3m_binance_hyper.json ./deploy/freqtrade/scripts/hyperopt.sh 20260601-20260904 200
 set -euo pipefail
 
 TIMERANGE="${1:?pouzitie: hyperopt.sh <timerange> [epochs] [loss]}"
@@ -10,7 +10,7 @@ EPOCHS="${2:-300}"
 LOSS="${3:-IBSEdgeLoss}"
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-ft="$repo/platforms/freqtrade"
+ft="$repo/deploy/freqtrade"
 py="$repo/.venv/bin/python"
 [ -x "$py" ] || py="$repo/.venv/Scripts/python.exe"
 
@@ -25,6 +25,7 @@ echo
 exec "$py" -m freqtrade hyperopt \
     --config "$ft/config.binance.json" \
     --userdir "$ft/user_data" \
+    --datadir "$repo/data/binance" \
     --strategy "${STRATEGY:-IBSImbalanceStrategy}" \
     --hyperopt-loss "$LOSS" \
     --timerange "$TIMERANGE" \

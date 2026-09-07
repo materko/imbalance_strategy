@@ -8,8 +8,8 @@
 
 Vyrobí dve veci (`--target tester | multicharts | both`, predvolene obe):
 
-**Tester** — ročné feather súbory `platforms/multicharts/data_archive/<STEM>-1m.<rok>.feather`
-(commitujú sa) a hneď z nich zloží pracovný súbor v `platforms/multicharts/data/`. Pár je
+**Tester** — ročné feather súbory `data_archive/<STEM>-1m.<rok>.feather`
+(commitujú sa) a hneď z nich zloží pracovný súbor v `data/`. Pár je
 potom v ponuke webapp; beží cez emulátor MultiCharts, nie cez Freqtrade (Dukascopy CFD nie
 sú ccxt burza). Čas baru ostáva časom **otvorenia**, ako v jadre a v Pine.
 
@@ -59,7 +59,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Iterable, Iterator, Sequence, TextIO
 
-from tradebot.core.paths import FREQTRADE_DATA, MULTICHARTS_ARCHIVE, MULTICHARTS_DATA, REPO
+from tradebot.core.paths import DATA, DATA_ARCHIVE, DATA, REPO
 from tradebot.core.types import DUKASCOPY_REGISTRY, INSTRUMENTS, InstrumentSpec, dukascopy_specs
 from tradebot.core.candles import resample_ohlcv
 
@@ -262,7 +262,7 @@ def load_dukas_frame(path: str | Path, *, drop_padding: bool = True):
     return df.reset_index(drop=True)
 
 
-def write_years(df, stem: str, *, archive: Path = MULTICHARTS_ARCHIVE, from_year: int | None = None,
+def write_years(df, stem: str, *, archive: Path = DATA_ARCHIVE, from_year: int | None = None,
                 to_year: int | None = None, verbose: bool = True) -> list[Path]:
     """Rok = jeden súbor. Uzavretý rok sa už nezmení, takže jeho blob je v gite raz."""
     written: list[Path] = []
@@ -420,11 +420,11 @@ def _build_parser() -> argparse.ArgumentParser:
                     help="objem = round(vol × N); QuoteManager chce celé číslo, CFD majú loty s desatinami")
 
     ts = ap.add_argument_group("Tester (webapp)")
-    ts.add_argument("--archive", type=Path, default=MULTICHARTS_ARCHIVE, help="kam ročné feather súbory")
+    ts.add_argument("--archive", type=Path, default=DATA_ARCHIVE, help="kam ročné feather súbory")
     ts.add_argument("--no-merge", action="store_true", help="nezložiť pracovný súbor pre webapp")
 
     ft = ap.add_argument_group("Freqtrade (hyperopt, FreqAI)")
-    ft.add_argument("--ft-datadir", type=Path, default=FREQTRADE_DATA,
+    ft.add_argument("--ft-datadir", type=Path, default=DATA,
                     help="kam sviečky po timeframoch (beh ich berie cez --datadir)")
     ft.add_argument("--ft-timeframes", nargs="+", default=list(FT_TIMEFRAMES),
                     help="ktoré timeframy poskladať z 1m")
@@ -522,8 +522,8 @@ def main(argv: list[str] | None = None, stderr: TextIO | None = None) -> int:
             if not args.no_merge:
                 from . import data_archive
 
-                data_archive.merge(verbose=False, roots=((args.archive, MULTICHARTS_DATA),))
-                print(f"pracovny subor: {MULTICHARTS_DATA / inst.data_source / f'{inst.data_stem}-1m.feather'}",
+                data_archive.merge(verbose=False, roots=((args.archive, DATA),))
+                print(f"pracovny subor: {DATA / inst.data_source / f'{inst.data_stem}-1m.feather'}",
                       file=err)
             print(f"par {inst.exchange_symbol} je po restarte webapp v ponuke Novy beh", file=err)
 
@@ -532,7 +532,7 @@ def main(argv: list[str] | None = None, stderr: TextIO | None = None) -> int:
             write_freqtrade(df, inst.data_stem, datadir=args.ft_datadir / inst.data_source,
                             timeframes=args.ft_timeframes)
             print(f"odvodene subory v {args.ft_datadir} (negituju sa, kedykolvek znova z 1m)", file=err)
-            print(f"beh: --config platforms/freqtrade/config.dukascopy.json "
+            print(f"beh: --config deploy/freqtrade/config.dukascopy.json "
                   f"--datadir {args.ft_datadir} --pairs {inst.symbol}", file=err)
 
     return rc

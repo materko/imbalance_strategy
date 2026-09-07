@@ -260,7 +260,10 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             check_market_rules(req.pair, req.params)
         except ValueError as exc:
             raise HTTPException(422, str(exc))
-        inst = INSTRUMENTS[instrument_for_pair(req.pair)]
+        try:
+            inst = INSTRUMENTS[instrument_for_pair(req.pair)]
+        except ValueError as exc:
+            raise HTTPException(422, str(exc))
         engine = req.engine or engines.default_engine(inst, req.timeframe)
         if engine not in engines.ENGINES:
             raise HTTPException(422, f"neznámy engine {engine!r}; známe: {', '.join(engines.ENGINES)}")

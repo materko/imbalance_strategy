@@ -102,8 +102,8 @@ Aj tak je break-even poplatok 0,0237 % stále **2,1× pod** tým, čo berie Bina
 ```bash
 TRADEBOT_PROFILE=<profil s rrRatio 2.5 a vsetkymi 3 modelmi> \
 .venv/bin/python -m freqtrade backtesting \
-  --config platforms/freqtrade/config.binance.json \
-  --userdir platforms/freqtrade/user_data --strategy IBSImbalanceStrategy \
+  --config deploy/freqtrade/config.binance.json \
+  --userdir deploy/freqtrade/user_data --strategy IBSImbalanceStrategy \
   --timeframe-detail 1m --timerange 20250904-20260904 --cache none
 ```
 

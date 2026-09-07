@@ -2,7 +2,7 @@
 # Webová aplikácia pre testerov bez Dockeru (macOS / Linux). Windows: webapp.ps1
 #
 # Stačí Python 3.11+ a git (na macOS aj `brew install ta-lib`, viď docs/FREQTRADE.md §B).
-# Ak chýba .venv, skript ho sám postaví cez platforms/freqtrade/scripts/setup.sh
+# Ak chýba .venv, skript ho sám postaví cez deploy/freqtrade/scripts/setup.sh
 # (prvýkrát ~10 minút). Ak chýbajú pracovné dáta, webapp ich pri štarte zloží
 # z archívov v gite. Po štarte otvorí prehliadač.
 #
@@ -20,7 +20,7 @@ PY="$REPO/.venv/bin/python"
 [[ -x "$PY" ]] || PY="$REPO/.venv/Scripts/python.exe"   # Git Bash na Windows
 if [[ ! -x "$PY" ]]; then
     echo "Chyba .venv - staviam prostredie (prvykrat ~10 minut)..."
-    "$REPO/platforms/freqtrade/scripts/setup.sh"
+    "$REPO/deploy/freqtrade/scripts/setup.sh"
     PY="$REPO/.venv/bin/python"
     [[ -x "$PY" ]] || PY="$REPO/.venv/Scripts/python.exe"
     [[ -x "$PY" ]] || { echo "setup.sh nevytvoril venv" >&2; exit 1; }

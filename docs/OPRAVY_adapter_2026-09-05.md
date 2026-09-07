@@ -171,8 +171,8 @@ by tiež spustil okamžite. Výsledok je +11 a +36 USDT, teda šum.
 
 ```bash
 TRADEBOT_PROFILE=btcusdt_3m_binance_ny .venv/Scripts/python.exe -m freqtrade backtesting \
-  --config platforms/freqtrade/config.binance.json \
-  --userdir platforms/freqtrade/user_data --strategy IBSImbalanceStrategy \
+  --config deploy/freqtrade/config.binance.json \
+  --userdir deploy/freqtrade/user_data --strategy IBSImbalanceStrategy \
   --timeframe-detail 1m --timerange 20250904-20260904 --cache none
 ```
 

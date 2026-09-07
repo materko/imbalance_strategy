@@ -14,7 +14,7 @@ import pytest
 from tradebot.strategies import STRATEGIES
 
 REQUIRED = {"GetInputs", "GetInputValue", "SetInputValue", "Create", "StartCalc", "CalcBar", "StopCalc", "Destroy"}
-TEMPLATES = Path("platforms/multicharts")
+TEMPLATES = Path("deploy/multicharts")
 
 
 @pytest.mark.parametrize("spec", list(STRATEGIES.values()), ids=lambda s: s.key)

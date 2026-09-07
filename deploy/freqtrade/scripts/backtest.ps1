@@ -9,7 +9,7 @@
     priamo na 1m - všetky *MaxBars limity sú v baroch, nie v minútach.
 
 .EXAMPLE
-    .\platforms\freqtrade\scripts\backtest.ps1 -Timerange 20260801-20260905
+    .\deploy\freqtrade\scripts\backtest.ps1 -Timerange 20260801-20260905
 #>
 [CmdletBinding()]
 param(
@@ -23,11 +23,11 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..")).Path
-$ft = Join-Path $repo "platforms\freqtrade"
+$ft = Join-Path $repo "deploy\freqtrade"
 $userdir = Join-Path $ft "user_data"
 $py = Join-Path $repo ".venv\Scripts\python.exe"
 
-if (-not (Test-Path $py)) { throw "Chyba .venv - spusti najprv platforms\freqtrade\scripts\setup.ps1" }
+if (-not (Test-Path $py)) { throw "Chyba .venv - spusti najprv deploy\freqtrade\scripts\setup.ps1" }
 
 $stratFile = Join-Path $userdir "strategies\$Strategy.py"
 if (-not (Test-Path $stratFile)) {
@@ -41,6 +41,7 @@ $args = @(
     "-m", "freqtrade", "backtesting",
     "--config", (Join-Path $ft $Config),
     "--userdir", $userdir,
+    "--datadir", (Join-Path $repo "data\binance"),
     "--strategy", $Strategy,
     "--cache", "none"
 )

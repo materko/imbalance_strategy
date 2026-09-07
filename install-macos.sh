@@ -45,7 +45,7 @@ yesno() {  # yesno "otázka" "Y|N"
 # a detsky proces (brew, pip) si moze zvysok skriptu precitat - skript by ticho skoncil
 # uprostred. Funkcia sa zavola az na poslednom riadku, ked je cely subor nacitany.
 main() {
-    [ "$(uname -s)" = "Darwin" ] || die "Tento skript je pre macOS. Na Windows použi webapp.cmd, na Linuxe platforms/freqtrade/scripts/setup.sh."
+    [ "$(uname -s)" = "Darwin" ] || die "Tento skript je pre macOS. Na Windows použi webapp.cmd, na Linuxe deploy/freqtrade/scripts/setup.sh."
 
     bold "IBS Backtester - inštalácia na macOS"
     echo
@@ -158,7 +158,7 @@ main() {
     # ---------------------------------------------------------------------------- #
     echo
     bold "Python prostredie (freqtrade + tradebot, prvýkrát ~10 minút)"
-    PYTHON="$PYTHON_BIN" bash "$TARGET/platforms/freqtrade/scripts/setup.sh" < /dev/null
+    PYTHON="$PYTHON_BIN" bash "$TARGET/deploy/freqtrade/scripts/setup.sh" < /dev/null
 
     echo
     bold "Dáta"

@@ -33,7 +33,7 @@ Všetko sa spúšťa **z koreňa repozitára**. `PY` = Python z `.venv`:
 | Python | `.venv/bin/python` | `.venv\Scripts\python.exe` |
 | Tester (webapp) | `./webapp.sh` | `.\webapp.ps1` alebo `webapp.cmd` |
 | Dukascopy import | `./dukas-import.sh` | `.\dukas-import.ps1` |
-| Setup (ak `.venv` chýba) | `platforms/freqtrade/scripts/setup.sh` | `platforms\freqtrade\scripts\setup.ps1` |
+| Setup (ak `.venv` chýba) | `deploy/freqtrade/scripts/setup.sh` | `deploy\freqtrade\scripts\setup.ps1` |
 
 ## Mapa repozitára
 
@@ -46,8 +46,8 @@ tradebot/                       PRODUKT - to, co obchoduje
   adapters/multicharts/         TradebotSignal, MCRunner, emulator, kreslenie
   configs/<key>/                referencne profily
   tests/                        testy produktu
-platforms/freqtrade/            configy burz, skripty, user_data/ (data, vysledky, shim)
-platforms/multicharts/          sablony studii, setup skript, data_archive/<zdroj>/
+deploy/freqtrade/            configy burz, skripty, user_data/ (data, vysledky, shim)
+deploy/multicharts/          sablony studii, setup skript, data_archive/<zdroj>/
 
 tester/                         TESTER - cim sa to skusa
   webapp/                       aplikacia pre testerov + CLI (vyber engine)

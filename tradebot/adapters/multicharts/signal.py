@@ -24,12 +24,12 @@ Všetko rozhodovanie je v `runner.py` a `drawing.py` — tu je len preklad volan
 `STRATEGY_KEY` (viď `tradebot/strategies/ibs/multicharts.py`).
 
 ### Ako to nasadiť
-1. `platforms/multicharts/scripts/setup.ps1` (nainštaluje `tradebot` do Pythonu,
+1. `deploy/multicharts/scripts/setup.ps1` (nainštaluje `tradebot` do Pythonu,
    ktorý MultiCharts našiel cez `where python`), potom **MultiCharts reštartovať** —
    StudyServer si Python drží od štartu a nový balík inak nevidí
 2. PowerLanguage .NET Editor → **File → New → Signal**, jazyk **Python**, názov
    rovnaký ako trieda v šablóne (`IBS`)
-3. Vložiť šablónu `platforms/multicharts/<Strategia>_Signal.py` — trieda so
+3. Vložiť šablónu `deploy/multicharts/<Strategia>_Signal.py` — trieda so
    `PROFILE` a metódami, ktoré len delegujú sem (kompilátor bety vyžaduje `Create`
    a `CalcBar` priamo v triede študie, zdedené nevidí; stráži to
    `test_multicharts_templates.py`)

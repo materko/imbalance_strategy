@@ -321,7 +321,7 @@ inštalátor pre macOS zapisuje `tester` automaticky. Rola sa dá kedykoľvek pr
 * Nesťahuje dáta — páry a obdobia sú len tie, čo sú v archíve
   (`python -m tester.data_archive`, docs/DATA.md).
 * Nemá prihlásenie — je na lokálne spustenie (alebo za reverse proxy).
-* Nespúšťa hyperopt; na ten sú skripty v `platforms/freqtrade/scripts/`.
+* Nespúšťa hyperopt; na ten sú skripty v `deploy/freqtrade/scripts/`.
 
 ## Kód
 

@@ -5,10 +5,10 @@
 .DESCRIPTION
     Vytvorí .venv v koreni repozitára, nainštaluje Freqtrade a náš balík `tradebot`
     v editovateľnom režime. Freqtrade beží v izolovanom venv - na rozdiel od
-    MultiCharts, ktorý potrebuje globálny Python (viď platforms/multicharts/scripts/setup.ps1).
+    MultiCharts, ktorý potrebuje globálny Python (viď deploy/multicharts/scripts/setup.ps1).
 
 .EXAMPLE
-    .\platforms\freqtrade\scripts\setup.ps1
+    .\deploy\freqtrade\scripts\setup.ps1
 #>
 [CmdletBinding()]
 param(
@@ -54,4 +54,4 @@ Write-Host ""
 
 Write-Host ""
 Write-Host "Hotovo. Dalsi krok:"
-Write-Host "  .\platforms\freqtrade\scripts\download-data.ps1"
+Write-Host "  .\deploy\freqtrade\scripts\download-data.ps1"

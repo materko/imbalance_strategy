@@ -1,18 +1,28 @@
 # Dáta: odkiaľ sú, kde ležia a ako pribudne nový symbol
 
-Dáta majú v repozitári dva pôvody a každý má vlastný adresár. Spoločné je pravidlo:
-**na disku sú výhradne skutočné sviečky** — žiadny timeframe sa nedopočítava a neukladá.
-Vyššie TF skladajú z 1m až za behu v pamäti naše vlastné nástroje (webapp graf, offline
-simulátor, emulátor MultiCharts). Freqtrade to nerobí: pre svoj `--timeframe` potrebuje
-súbor na disku (viď upozornenie v §A).
+Dáta sú **jedny**, delené podľa toho, **odkiaľ sú** — nie podľa toho, čím sa prehrajú.
+Zdroj je adresár, takže z cesty vidno pôvod sviečky:
 
-| pôvod | čo to je | archív (v gite) | pracovné (gitignored) |
-|---|---|---|---|
-| **burza cez ccxt** | Binance futures a spot, Coinbase spot — oficiálne TF burzy | `platforms/freqtrade/user_data/data_archive/<burza>/` | `platforms/freqtrade/user_data/data/` |
-| **Dukascopy export** | CFD (NAS100, forex, komodity) — 1m, UTC, bid strana | `platforms/multicharts/data_archive/` | `platforms/multicharts/data/` |
+```
+data_archive/<zdroj>/    sviečky po rokoch           — v gite
+data/<zdroj>/            pracovná podoba tých istých — gitignored
+```
 
-Cesty sú na jednom mieste v [`tradebot/core/paths.py`](../tradebot/core/paths.py); nikde
-inde v kóde sa nepíšu.
+| zdroj | čo to je | ako pribudne |
+|---|---|---|
+| `binance` | futures aj spot, oficiálne TF burzy | `deploy/freqtrade/scripts/download-data.sh` |
+| `coinbase` | BTC/USD spot, referenčný | to isté |
+| `dukascopy` | CFD (NAS100, forex, komodity) — 1m, UTC, bid strana | `./dukas-import.sh` (§B) |
+
+Ten istý strom čítajú **oba enginy**: Freqtrade dostane koreň cez `--datadir data/<zdroj>`,
+emulátor MultiCharts si berie 1m súbor odtiaľ istadiaľ. Preto sa dá krypto prehrať
+emulátorom a Dukascopy cez Freqtrade — dáta v tom nebránia
+([FREQTRADE.md §G](FREQTRADE.md), [`tester/engines.py`](../tester/engines.py)).
+
+Vnútri zdroja platí pomenovanie Freqtradu: futures majú podadresár `futures/` a príponu
+`-futures` v mene, spot ani CFD nie. Cesty počíta jedno miesto —
+[`tester/engines.py`](../tester/engines.py); korene sú v
+[`tradebot/core/paths.py`](../tradebot/core/paths.py).
 
 ```bash
 PY -m tester.data_archive status    # čo je kde, koľko barov, aké obdobie
@@ -35,7 +45,7 @@ do histórie ďalších 86 MB, ktoré sa už nedajú odstrániť bez prepísania
 Rok, ktorý sa skončil, sa už nikdy nezmení, takže jeho blob v histórii existuje raz:
 
 ```
-platforms/freqtrade/user_data/data_archive/binance/futures/
+data_archive/binance/futures/
     BTC_USDT_USDT-1m-futures.2019.feather    4.7 MB
     ...
     BTC_USDT_USDT-1m-futures.2026.feather    9.8 MB   <- jediný, ktorý sa mení
@@ -50,12 +60,12 @@ neprepíše rok, ktorého obsah sa nezmenil, aby git nedostal nový blob zadarmo
 ## A. Burzové dáta (Freqtrade)
 
 ```powershell
-.\platforms\freqtrade\scripts\download-data.ps1              # Windows
+.\deploy\freqtrade\scripts\download-data.ps1              # Windows
 ```
 ```bash
-./platforms/freqtrade/scripts/download-data.sh               # macOS / Linux
-TIMERANGE=20260801-20260905 ./platforms/freqtrade/scripts/download-data.sh
-SKIP_COINBASE=1 DAYS=180 ./platforms/freqtrade/scripts/download-data.sh
+./deploy/freqtrade/scripts/download-data.sh               # macOS / Linux
+TIMERANGE=20260801-20260905 ./deploy/freqtrade/scripts/download-data.sh
+SKIP_COINBASE=1 DAYS=180 ./deploy/freqtrade/scripts/download-data.sh
 ```
 
 Skripty volajú `split` samy, takže po stiahnutí stačí commitnúť `data_archive/`.
@@ -121,9 +131,9 @@ pre koho dáta vyrobiť; dá sa vymenovať viac naraz (`--target tester freqtrad
 
 | `--target` | čo vznikne | pre koho |
 |---|---|---|
-| `tester` | `platforms/multicharts/data_archive/<STEM>-1m.<rok>.feather` (commitni ich) a hneď z nich pracovný súbor v `platforms/multicharts/data/` | webapp Tester — pár je po reštarte v ponuke Nový beh |
+| `tester` | `data_archive/dukascopy/<STEM>-1m.<rok>.feather` (commitni ich) a hneď z nich pracovný súbor v `data/dukascopy/` | webapp Tester — pár je po reštarte v ponuke Nový beh |
 | `multicharts` | `<zdroj>_mc.csv` — ASCII pre QuoteManager, hlavička `Date,Time,Open,High,Low,Close,Volume` | MultiCharts študia (import do QuoteManagera) |
-| `freqtrade` | `platforms/freqtrade/user_data/data/dukascopy/<STEM>-{1m,3m,5m}.feather` (negitujú sa) | hyperopt a FreqAI ([FREQTRADE.md §G](FREQTRADE.md)) |
+| `freqtrade` | `data/dukascopy/<STEM>-{3m,5m}.feather` — dopočítané z 1m, negitujú sa | hyperopt a FreqAI ([FREQTRADE.md §G](FREQTRADE.md)) |
 | `all` | všetky tri | |
 
 Predvolené je `tester multicharts`. Užitočné prepínače: `--from 2021-01-01 --to 2026-09-05`

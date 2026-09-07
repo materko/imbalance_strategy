@@ -1,7 +1,7 @@
 # Šablóna MultiCharts študie pre Demo Donchian Breakout — skopíruj obsah do
 # PowerLanguage .NET Editora (File → New → Signal, jazyk Python, názov DemoBreakout = trieda nižšie).
 #
-# Celá logika je v balíku `tradebot` (nainštaluje ho platforms/multicharts/scripts/setup.ps1).
+# Celá logika je v balíku `tradebot` (nainštaluje ho deploy/multicharts/scripts/setup.ps1).
 # Trieda je v tvare, aký MultiCharts x Python vyžaduje: bez rodiča, metódy priamo v triede,
 # len delegujú na balík. Stratégia nemá informatívny TF, na grafe stačí Data1.
 #

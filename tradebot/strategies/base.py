@@ -9,7 +9,7 @@ from typing import Any, Callable
 from ..core.config import StrategyConfig
 from ..core.types import InstrumentSpec
 
-#: Koreň repozitára (platforms/, docs/).
+#: Koreň repozitára (deploy/, docs/).
 REPO = Path(__file__).resolve().parents[2]
 
 
@@ -67,7 +67,7 @@ class StrategySpec:
     #: názvy tried v adaptéroch (shim vo Freqtrade user_data, šablóna v MultiCharts)
     freqtrade_class: str = ""
     multicharts_class: str = ""
-    #: názov šablóny študie v platforms/multicharts/ (kopíruje sa do PowerLanguage editora)
+    #: názov šablóny študie v deploy/multicharts/ (kopíruje sa do PowerLanguage editora)
     multicharts_template: str = ""
     #: informatívne TF, ktoré adaptér musí dodať (Freqtrade informative pairs, MC Data2)
     informative_tfs: Callable[[StrategyConfig], list[str]] | None = None

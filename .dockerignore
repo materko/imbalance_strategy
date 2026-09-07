@@ -5,10 +5,9 @@ __pycache__
 **/__pycache__
 *.pyc
 .pytest_cache
-platforms/freqtrade/user_data/data
-platforms/freqtrade/user_data/backtest_results
-platforms/freqtrade/user_data/logs
-platforms/multicharts/data
+data
+deploy/freqtrade/user_data/backtest_results
+deploy/freqtrade/user_data/logs
 tester/runs
 docs
 *.rtf

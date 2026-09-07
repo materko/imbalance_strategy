@@ -23,11 +23,11 @@ brew install ta-lib
 
 **Windows**
 ```powershell
-.\platforms\freqtrade\scripts\setup.ps1
+.\deploy\freqtrade\scripts\setup.ps1
 ```
 **macOS / Linux**
 ```bash
-./platforms/freqtrade/scripts/setup.sh
+./deploy/freqtrade/scripts/setup.sh
 ```
 
 Skript vytvorí `.venv`, nainštaluje Freqtrade a `tradebot` v editovateľnom režime, vypíše
@@ -46,17 +46,17 @@ python -m venv .venv
 ## B. Backtest
 
 ```powershell
-.\platforms\freqtrade\scripts\backtest.ps1 -Timerange 20260801-20260905
+.\deploy\freqtrade\scripts\backtest.ps1 -Timerange 20260801-20260905
 ```
 ```bash
-TIMERANGE=20260801-20260905 ./platforms/freqtrade/scripts/backtest.sh
+TIMERANGE=20260801-20260905 ./deploy/freqtrade/scripts/backtest.sh
 ```
 
 Ekvivalent:
 ```bash
 PY -m freqtrade backtesting \
-  --config platforms/freqtrade/config.binance.json \
-  --userdir platforms/freqtrade/user_data \
+  --config deploy/freqtrade/config.binance.json \
+  --userdir deploy/freqtrade/user_data \
   --strategy IBSImbalanceStrategy \
   --timeframe-detail 1m \
   --timerange 20260801-20260905 \
@@ -78,7 +78,7 @@ súbor v `user_data/strategies/` je len shim pre resolver. Profil sa prepína ce
 `TRADEBOT_PROFILE` (názov z `tradebot/strategies/<stratégia>/configs/` alebo cesta k JSON):
 
 ```bash
-TRADEBOT_PROFILE=golden_coinbase_btcusd_3m ./platforms/freqtrade/scripts/backtest.sh
+TRADEBOT_PROFILE=golden_coinbase_btcusd_3m ./deploy/freqtrade/scripts/backtest.sh
 ```
 
 > ⚠️ **Pozor na veľkosť pozície.** `maxLossDollar = 350` pri SL vzdialenosti ~$87 znamená
@@ -104,10 +104,10 @@ len sa kreslí to, čo je v zipe — takže sa to dá klásť vedľa screenshotu
 ## C. Hyperopt
 
 ```powershell
-.\platforms\freqtrade\scripts\hyperopt.ps1 -Timerange 20260601-20260904 -Epochs 200
+.\deploy\freqtrade\scripts\hyperopt.ps1 -Timerange 20260601-20260904 -Epochs 200
 ```
 ```bash
-./platforms/freqtrade/scripts/hyperopt.sh 20260601-20260904 200
+./deploy/freqtrade/scripts/hyperopt.sh 20260601-20260904 200
 ```
 
 Prvý beh potrebuje závislosti navyše:
@@ -258,7 +258,7 @@ cfg, inst = load_profile("golden_binance_btcusdt_3m")
 print(cfg.check_instrument(inst))   # varovania ku kombinácii config × inštrument
 ```
 
-Freqtrade config (`platforms/freqtrade/config.*.json`) rieši len burzu, páry, peňaženku
+Freqtrade config (`deploy/freqtrade/config.*.json`) rieši len burzu, páry, peňaženku
 a trading mode. Logika stratégie ide výhradne z profilu.
 
 ---
@@ -297,9 +297,9 @@ Preto sa dá ten istý symbol prehnať aj cez Freqtrade vetvu:
 PY -m tester.dukas_import C:/dukas/NAS100_M1_10Y.csv --symbol NAS100 --target freqtrade
 
 TRADEBOT_PROFILE=docs/profily_archiv/ibs/nas100_dukas_3m.json PY -m freqtrade backtesting \
-  --config platforms/freqtrade/config.dukascopy.json \
-  --userdir platforms/freqtrade/user_data \
-  --datadir platforms/freqtrade/user_data/data/dukascopy \
+  --config deploy/freqtrade/config.dukascopy.json \
+  --userdir deploy/freqtrade/user_data \
+  --datadir data/dukascopy \
   --strategy IBSImbalanceStrategy --timeframe 3m --timeframe-detail 1m \
   --timerange 20250106-20250201 --fee 0 --cache none
 ```

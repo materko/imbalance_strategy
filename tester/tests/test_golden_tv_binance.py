@@ -2,7 +2,7 @@
 
 Referencia je `golden/tv_btcusdt_binance_3m.json` - List of Trades odčítaný priamo
 zo Strategy Testera - a `golden/tv_zones_btcusdt_binance_3m.json` - zoznam SD zón
-z Pine logov. Test beží nad dátami commitnutými v `platforms/freqtrade/user_data/data`,
+z Pine logov. Test beží nad dátami commitnutými v `data`,
 takže je deterministický a nepotrebuje sieť.
 """
 

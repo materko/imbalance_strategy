@@ -17,6 +17,7 @@ from tradebot.adapters.freqtrade import EngineRunner
 from tradebot.adapters.freqtrade.runner import export_chart
 from tradebot.core import MNQ, Bar, DrawBg, DrawBox, DrawKind, DrawLabel, DrawLine, IBSConfig, LabelStyle, LineStyle
 from tradebot.core.drawing import merge_backgrounds, object_to_dict, objects_to_dicts
+from tester import engines
 from tester.webapp import chart as chart_mod
 from tester.webapp.store import CHART_FILE, RunStore
 
@@ -143,8 +144,11 @@ def fake_data(tmp_path: Path, monkeypatch):
         "open": [100.0 + i for i in range(n)], "high": [101.0 + i for i in range(n)],
         "low": [99.0 + i for i in range(n)], "close": [100.5 + i for i in range(n)], "volume": [1.0] * n,
     })
-    df.to_feather(tmp_path / "BTC_USDT_USDT-3m-futures.feather")
-    monkeypatch.setattr(chart_mod, "DATA_DIR", tmp_path)
+    # cesta je data/<zdroj>/futures/… - pocita ju tester.engines
+    out = tmp_path / "binance" / "futures"
+    out.mkdir(parents=True)
+    df.to_feather(out / "BTC_USDT_USDT-3m-futures.feather")
+    monkeypatch.setattr(engines, "DATA", tmp_path)
     chart_mod._frame.cache_clear()
     return tmp_path
 

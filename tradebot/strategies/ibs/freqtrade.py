@@ -4,7 +4,7 @@ Generická časť (engine cez DataFrame, `tb_*` stĺpce, SL/TP/veľkosť z plán
 kresieb) je v `tradebot.adapters.freqtrade.base`. Tu je: HTF sviečky detekčného TF,
 hyperopt priestor, trailing, zavretie na konci seansy a timeout limitky.
 Freqtrade resolver berie len triedu, ktorej `__module__` == názov súboru, preto
-existuje shim `platforms/freqtrade/user_data/strategies/IBSImbalanceStrategy.py`.
+existuje shim `deploy/freqtrade/user_data/strategies/IBSImbalanceStrategy.py`.
 """
 
 from __future__ import annotations

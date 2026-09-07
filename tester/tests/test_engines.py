@@ -20,8 +20,7 @@ NAS = INSTRUMENTS["nas100_dukascopy"]
 
 @pytest.fixture
 def data(tmp_path: Path, monkeypatch):
-    monkeypatch.setattr(engines, "FREQTRADE_DATA", tmp_path / "ft")
-    monkeypatch.setattr(engines, "MULTICHARTS_DATA", tmp_path / "mc")
+    monkeypatch.setattr(engines, "DATA", tmp_path / "data")
     return tmp_path
 
 
@@ -37,15 +36,15 @@ def touch(path: Path) -> Path:
 
 
 def test_cesty_su_vzdy_pod_zdrojom(data):
-    assert engines.freqtrade_file(BTC, "3m") == data / "ft/binance/futures/BTC_USDT_USDT-3m-futures.feather"
-    assert engines.freqtrade_file(BTC_SPOT, "3m") == data / "ft/binance/BTC_USDT-3m.feather"
-    assert engines.freqtrade_file(NAS, "3m") == data / "ft/dukascopy/NAS100_USD-3m.feather"
+    """Adresár je zdroj sviečok, nie platforma — dáta sú pre oba enginy jedny."""
+    assert engines.freqtrade_file(BTC, "3m") == data / "data/binance/futures/BTC_USDT_USDT-3m-futures.feather"
+    assert engines.freqtrade_file(BTC_SPOT, "3m") == data / "data/binance/BTC_USDT-3m.feather"
+    assert engines.freqtrade_file(NAS, "3m") == data / "data/dukascopy/NAS100_USD-3m.feather"
 
 
-def test_1m_pre_emulator_ide_z_archivu_zdroja(data):
-    """Dukascopy 1m má MultiCharts vetva, burzové 1m si emulátor berie z dát Freqtradu."""
-    assert engines.one_minute_file(NAS) == data / "mc/dukascopy/NAS100_USD-1m.feather"
-    assert engines.one_minute_file(BTC) == data / "ft/binance/futures/BTC_USDT_USDT-1m-futures.feather"
+def test_emulator_cita_ten_isty_strom_ako_freqtrade(data):
+    assert engines.one_minute_file(NAS) == data / "data/dukascopy/NAS100_USD-1m.feather"
+    assert engines.one_minute_file(BTC) == data / "data/binance/futures/BTC_USDT_USDT-1m-futures.feather"
 
 
 def test_config_podla_trhu_a_zdroja():

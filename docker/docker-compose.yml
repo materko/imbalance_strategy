@@ -19,9 +19,11 @@ x-freqtrade-base: &freqtrade-base
     dockerfile: docker/Dockerfile.freqtrade
   image: tradebot-freqtrade:latest
   volumes:
-    # user_data (configy, stiahnute sviecky, strategie, vysledky) je zapisovatelny
-    - ../platforms/freqtrade/user_data:/freqtrade/user_data
-    - ../platforms/freqtrade:/freqtrade/cfg:ro
+    # userdir Freqtradu (strategie, hyperopty, vysledky) je zapisovatelny
+    - ../deploy/freqtrade/user_data:/freqtrade/user_data
+    - ../deploy/freqtrade:/freqtrade/cfg:ro
+    # sviecky su spolocne pre oba enginy: data/<zdroj>/ - dava sa cez --datadir
+    - ../data:/app/data
     # zdrojaky jadra read-only, aby sa zmeny prejavili bez rebuildu
     - ../tradebot:/app/tradebot:ro
   environment:
@@ -47,6 +49,7 @@ services:
       download-data
       --config /freqtrade/cfg/config.binance.json
       --userdir /freqtrade/user_data
+      --datadir /app/data/binance
       --timeframes 1m 3m 5m
       --days ${DAYS:-60}
 
@@ -58,6 +61,7 @@ services:
       download-data
       --config /freqtrade/cfg/config.coinbase.json
       --userdir /freqtrade/user_data
+      --datadir /app/data/coinbase
       --timeframes 1m 5m
       --days ${DAYS:-60}
 
@@ -68,6 +72,7 @@ services:
       backtesting
       --config /freqtrade/cfg/config.binance.json
       --userdir /freqtrade/user_data
+      --datadir /app/data/binance
       --strategy ${STRATEGY:-IBSImbalanceStrategy}
       --timeframe-detail 1m
 
@@ -85,9 +90,9 @@ services:
     command: []
     volumes:
       - ../tester:/app/tester
-      - ../platforms/freqtrade/user_data:/app/platforms/freqtrade/user_data
-      - ../platforms/multicharts:/app/platforms/multicharts
-      - ../platforms/freqtrade:/freqtrade/cfg:ro
+      - ../data:/app/data
+      - ../deploy/freqtrade/user_data:/app/deploy/freqtrade/user_data
+      - ../deploy/freqtrade:/freqtrade/cfg:ro
       - ../tradebot:/app/tradebot:ro
       - ../docs:/app/docs:ro
     environment:
@@ -109,6 +114,7 @@ services:
       trade
       --config /freqtrade/cfg/config.binance.json
       --userdir /freqtrade/user_data
+      --datadir /app/data/binance
       --strategy ${STRATEGY:-IBSImbalanceStrategy}
     logging:
       driver: json-file

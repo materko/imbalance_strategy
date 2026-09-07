@@ -475,7 +475,7 @@ MultiCharts ekvivalent: `IntrabarOrderGeneration = True` + druhá 1-min dátová
    vyplnenia, vstupnú cenu, veľkosť aj výstup (`test_golden_tv_binance.py`).
 5. ✅ **hotové** — `adapters/multicharts/`: `MCRunner` (bez PowerLanguage,
    testovateľný), `MCDrawSink` (`DrawCommand` → `Drw*`) a `signal.py` (jediný súbor,
-   ktorý sa dotýka PowerLanguage API). Šablóna štúdie je v `platforms/multicharts/IBS_Signal.py`.
+   ktorý sa dotýka PowerLanguage API). Šablóna štúdie je v `deploy/multicharts/IBS_Signal.py`.
 6. ✅ **hotové** — `core/ta/{structure,sr,liquidity,elliott}.py` + kreslenie životného
    cyklu objektov (`obj_id`, `DrawUpdate`, `DrawRegistry`) + plotly renderer
    `tester/plot.py`. Market Structure a likvidita sú overené proti TradingView

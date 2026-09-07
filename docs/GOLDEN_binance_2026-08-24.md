@@ -171,7 +171,7 @@ Regresný test: `tester/tests/test_golden_tv_binance.py`.
 Backtest musí bežať s profilom, ktorý zodpovedá nastaveniam v TradingView:
 
 ```bash
-TRADEBOT_PROFILE=btcusdt_3m_binance_tv ./platforms/freqtrade/scripts/backtest.sh --timerange 20260824-20260905
+TRADEBOT_PROFILE=btcusdt_3m_binance_tv ./deploy/freqtrade/scripts/backtest.sh --timerange 20260824-20260905
 ```
 
 S ním dá Freqtrade **5 obchodov, uid zón 10, 9, 12, 31, 44 a vstupné ceny na cent
@@ -347,7 +347,7 @@ obchod, je to ten istý obchod s inou ekonomikou.
 Preto sa porovnáva takto:
 
 ```bash
-TRADEBOT_PROFILE=btcusdt_3m_binance_tv .venv/bin/python -m freqtrade backtesting   --config platforms/freqtrade/config.binance.json   --userdir platforms/freqtrade/user_data --strategy IBSImbalanceStrategy   --timeframe-detail 1m --timerange 20260824-20260905 --fee 0 --dry-run-wallet 400000
+TRADEBOT_PROFILE=btcusdt_3m_binance_tv .venv/bin/python -m freqtrade backtesting   --config deploy/freqtrade/config.binance.json   --userdir deploy/freqtrade/user_data --strategy IBSImbalanceStrategy   --timeframe-detail 1m --timerange 20260824-20260905 --fee 0 --dry-run-wallet 400000
 ```
 
 `--fee 0` vypne poplatky ako v Pine, `--dry-run-wallet 400000` zabezpečí, že sa

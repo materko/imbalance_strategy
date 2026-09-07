@@ -28,20 +28,15 @@ def m1(n: int, start_ms: int = T0) -> "pd.DataFrame":
 
 @pytest.fixture
 def mc_data(tmp_path: Path, monkeypatch) -> Path:
-    mc_dir = tmp_path / "data" / "multicharts"
-    (mc_dir / INST.data_source).mkdir(parents=True)
-    path = mc_dir / INST.data_source / f"{INST.data_stem}-1m.feather"
+    data = tmp_path / "data"
+    (data / INST.data_source).mkdir(parents=True)
+    path = data / INST.data_source / f"{INST.data_stem}-1m.feather"
     m1(60).to_feather(path)
-    monkeypatch.setattr(runner_mod, "MC_DIR", mc_dir)
-    monkeypatch.setattr(chart_mod, "MC_DIR", mc_dir)
-    # engines rozhoduje, ktory engine ma data a odkial ich cita
-    monkeypatch.setattr(engines, "MULTICHARTS_DATA", mc_dir)
-    monkeypatch.setattr(engines, "FREQTRADE_DATA", tmp_path / "data")
-    # Binance adresáre nech sú prázdne, aby test videl len MultiCharts pár
-    monkeypatch.setattr(runner_mod, "DATA_DIR", tmp_path / "data" / "binance" / "futures")
-    monkeypatch.setattr(runner_mod, "SPOT_DIR", tmp_path / "data" / "binance")
-    monkeypatch.setattr(chart_mod, "DATA_DIR", tmp_path / "data" / "binance" / "futures")
-    monkeypatch.setattr(chart_mod, "SPOT_DIR", tmp_path / "data" / "binance")
+    # cesty k svieckam pocita jedno miesto - tester.engines
+    monkeypatch.setattr(engines, "DATA", data)
+    # burzove adresare nech su prazdne, aby test videl len Dukascopy par
+    monkeypatch.setattr(runner_mod, "BINANCE_FUTURES", data / "binance" / "futures")
+    monkeypatch.setattr(runner_mod, "BINANCE_SPOT", data / "binance")
     chart_mod._frame.cache_clear()
     return path
 

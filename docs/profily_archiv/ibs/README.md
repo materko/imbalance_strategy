@@ -10,7 +10,7 @@ profilu, funguje aj cesta k súboru:
 
 ```bash
 python -m tester.webapp.cli run --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json --timerange 20250904-20260904 --note "..."
-TRADEBOT_PROFILE=docs/profily_archiv/ibs/btcusdt_3m_binance_hyper.json ./platforms/freqtrade/scripts/hyperopt.sh 20250904-20260904 200
+TRADEBOT_PROFILE=docs/profily_archiv/ibs/btcusdt_3m_binance_hyper.json ./deploy/freqtrade/scripts/hyperopt.sh 20250904-20260904 200
 ```
 
 Staršie dokumenty v `docs/` sa na ne odkazujú pôvodnými názvami — sú to záznamy meraní,

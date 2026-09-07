@@ -278,6 +278,8 @@ def test_submit_uses_tester_name_from_request(client, monkeypatch):
     import tester.webapp.app as app_mod
 
     monkeypatch.setattr(app_mod, "current_user", lambda: "predvolene")
+    # test je o mene testera, nie o tom, pre ktory engine su na disku data
+    monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m": ["freqtrade", "multicharts"])
     c, _ = client
     base = {"params": IBSConfig().to_dict(), "pair": "BTC/USDT:USDT", "timerange": "20260801-20260901"}
     job = c.post("/api/runs", json={**base, "user": "  Jana  "}).json()

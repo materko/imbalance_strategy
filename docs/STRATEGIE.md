@@ -27,8 +27,8 @@ tradebot/
   adapters/freqtrade/   TradebotStrategyBase (generická IStrategy), EngineRunner, export_chart
   adapters/multicharts/ TradebotSignal (generická študia), MCRunner, MCDrawSink
   webapp/               tester: výber stratégie, formulár z Pine metadát, história, graf s vrstvami
-platforms/freqtrade/user_data/strategies/<FreqtradeTrieda>.py   shim (Freqtrade resolver)
-platforms/multicharts/<Nazov>_Signal.py                          šablóna študie
+deploy/freqtrade/user_data/strategies/<FreqtradeTrieda>.py   shim (Freqtrade resolver)
+deploy/multicharts/<Nazov>_Signal.py                          šablóna študie
 docs/profily_archiv/<key>/                                       archivované profily
 tester/runs/, tester/profiles/                                   história behov a profily testerov
 ```
@@ -68,9 +68,9 @@ tester/runs/, tester/profiles/                                   história behov
 3. **Registry**: v `tradebot/strategies/__init__.py` pridaj import a riadok do `STRATEGIES`.
 4. **Profil** `tradebot/strategies/moja/configs/<default_profile>.json` s `_title`, `_strategy: "moja"`,
    `_instrument` (kľúč z `tradebot.core.types.INSTRUMENTS`) a len odchýlkami od Pine defaultov.
-5. **Shim** `platforms/freqtrade/user_data/strategies/MojaStrategy.py` — prázdna podtrieda
+5. **Shim** `deploy/freqtrade/user_data/strategies/MojaStrategy.py` — prázdna podtrieda
    (Freqtrade resolver berie len triedu, ktorej `__module__` == názov súboru).
-6. **Šablóna** `platforms/multicharts/Moja_Signal.py` — import študie + prázdna podtrieda.
+6. **Šablóna** `deploy/multicharts/Moja_Signal.py` — import študie + prázdna podtrieda.
 7. **Testy**: `pytest tradebot/tests/test_registry.py tester/tests/test_pine_parity.py` — registry
    test skontroluje profil, Pine súbor, shim, šablónu, druhy vo vrstvách a FEATURES; parity test
    porovná config s Pine (názvy, defaulty, rozsahy). Pridaj test enginu na syntetických baroch

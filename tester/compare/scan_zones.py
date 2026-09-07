@@ -35,7 +35,7 @@ from tradebot.core import (
     detect_sd_pattern,
     load_profile,
 )
-from tradebot.core.paths import FREQTRADE_DATA as DATA_DIR
+from tradebot.core.paths import DATA as DATA_DIR
 from tradebot.core.candles import resample_ohlcv as _resample
 
 #: Kde ktorá burza drží súbory a ako sa volajú.
@@ -102,7 +102,7 @@ def _load(exchange: str | Path, timeframe: str):
         if not src.exists():
             raise SystemExit(
                 f"Chybaju data: {path}\n"
-                "Stiahni ich: ./platforms/freqtrade/scripts/download-data.sh (alebo .ps1)"
+                "Stiahni ich: ./deploy/freqtrade/scripts/download-data.sh (alebo .ps1)"
             )
         print(f"  i {exchange} neponuka {timeframe} - skladam ho z 1m v pamati", file=sys.stderr)
         df = _resample(pd.read_feather(src), minutes)
