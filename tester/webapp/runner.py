@@ -47,7 +47,7 @@ from .store import RunStore, make_run_id
 #: Kde ležia sviečky ktorého inštrumentu, rieši `tester.engines` — jedno miesto pre
 #: oba enginy. Tu ostáva len prehľadanie burzových adresárov pri stavaní ponuky párov.
 BINANCE_FUTURES = DATA / "binance" / "futures"
-BINANCE_SPOT = DATA / "binance"
+BINANCE_SPOT = DATA / "binance" / "spot"
 
 #: Koľko riadkov logu sa uloží k behu — celý log Freqtradu má stovky riadkov
 #: o načítavaní dát, ktoré nikoho nezaujímajú.
