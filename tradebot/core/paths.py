@@ -5,11 +5,12 @@ data_archive/<zdroj>/<trh>/  sviečky po rokoch           — v gite
 data/<zdroj>/<trh>/          pracovná podoba tých istých — gitignored
 deploy/freqtrade/            čo potrebuje Freqtrade: configy búrz, skripty, user_data
 deploy/multicharts/          čo potrebuje MultiCharts: šablóny štúdií, setup
+deploy/multicharts/quotemanager/<zdroj>/   ASCII exporty na import do QuoteManagera
 tester/runs/, tester/profiles/   história behov a configy testerov — v gite
 ```
 
-**Dáta sú jedny, nerozdelené podľa engine.** Sviečka z Binance a sviečka z Dukascopy sa
-líšia zdrojom, nie tým, čím ich kto prehrá — tá istá stratégia beží cez Freqtrade aj cez
+**Sklad sviečok je jeden, nerozdelený podľa engine.** Sviečka z Binance a sviečka
+z Dukascopy sa líšia zdrojom, nie tým, čím ich kto prehrá — tá istá stratégia beží cez Freqtrade aj cez
 emulátor MultiCharts na ktoromkoľvek páre (`tester.engines`). Preto je adresárom **zdroj**
 (`binance`, `coinbase`, `dukascopy`) a nie platforma. Freqtrade dostane svoj koreň
 prepínačom `--datadir`, ktorý mu `tester.engines` poskladá tak, aby jeho vlastná
@@ -31,7 +32,8 @@ from pathlib import Path
 __all__ = [
     "REPO",
     "DATA", "DATA_ARCHIVE",
-    "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS", "MULTICHARTS_DIR",
+    "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS",
+    "MULTICHARTS_DIR", "QUOTEMANAGER_DIR",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES",
     "ARCHIVE_ROOTS",
 ]
@@ -57,6 +59,10 @@ FREQTRADE_USER_DIR = FREQTRADE_DIR / "user_data"
 BACKTEST_RESULTS = FREQTRADE_USER_DIR / "backtest_results"
 
 MULTICHARTS_DIR = DEPLOY_DIR / "multicharts"
+#: ASCII exporty pre QuoteManager — to, čo sa importuje do MultiCharts. Nie je to sklad
+#: sviečok (ten je jeden, v `data/`), ale **výstup** z neho v inom formáte: bar razený
+#: zatvorením, objem ako celé číslo, CSV. Späť ich nikto nečíta, preto sa negitujú.
+QUOTEMANAGER_DIR = MULTICHARTS_DIR / "quotemanager"
 
 # -- Tester (webapp) -------------------------------------------------------- #
 

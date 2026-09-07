@@ -72,8 +72,14 @@ jeden príkaz, popísaný v [DATA.md §B](DATA.md):
 
 ```powershell
 .\dukas-import.ps1 C:\dukas\NAS100_M1_10Y.csv --symbol NAS100 --target multicharts
-# -> C:\dukas\NAS100_M1_mc.csv, hlavička Date,Time,Open,High,Low,Close,Volume
+# -> deploy\multicharts\quotemanager\dukascopy\NAS100_USD-1m.csv
+#    hlavička Date,Time,Open,High,Low,Close,Volume; inam cez --mc-out
 ```
+
+Export nejde vedľa surového zdroja, ale k aplikácii, ktorú živí — vedľa šablón štúdií
+a setup skriptu. Nie je to sklad sviečok (ten je jeden, `data/<zdroj>/<trh>/`, a číta ho
+Tester oboma enginmi), ale výstup z neho v inom formáte: bar razený zatvorením, objem ako
+celé číslo, CSV. Späť ho nikto nečíta, preto sa negituje.
 
 Potom v QuoteManageri:
 

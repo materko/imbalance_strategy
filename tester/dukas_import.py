@@ -13,8 +13,10 @@ Vyrobí dve veci (`--target tester | multicharts | both`, predvolene obe):
 potom v ponuke webapp; beží cez emulátor MultiCharts, nie cez Freqtrade (Dukascopy CFD nie
 sú ccxt burza). Čas baru ostáva časom **otvorenia**, ako v jadre a v Pine.
 
-**MultiCharts** — jeden ASCII súbor pre QuoteManager s hlavičkou
-`Date,Time,Open,High,Low,Close,Volume`, čas **zatvorenia** baru a objem ako celé číslo.
+**MultiCharts** — ASCII súbor pre QuoteManager v `deploy/multicharts/quotemanager/<zdroj>/`
+s hlavičkou `Date,Time,Open,High,Low,Close,Volume`, čas **zatvorenia** baru a objem ako celé
+číslo. Nie je to sklad sviečok (ten je jeden, v `data/`), ale výstup z neho pre cudziu
+aplikáciu — späť ho nikto nečíta, preto sa negituje.
 
 Obe cesty čistia export rovnakým pravidlom, takže webapp, MultiCharts aj offline
 simulátor (`scan_trades --csv`) vidia tie isté bary:
@@ -59,7 +61,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Iterable, Iterator, Sequence, TextIO
 
-from tradebot.core.paths import DATA, DATA_ARCHIVE, DATA, REPO
+from tradebot.core.paths import DATA, DATA_ARCHIVE, QUOTEMANAGER_DIR, REPO
 from tradebot.core.types import DUKASCOPY_REGISTRY, INSTRUMENTS, InstrumentSpec, dukascopy_specs
 from tradebot.core.candles import resample_ohlcv
 
@@ -412,7 +414,8 @@ def _build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--keep-padding", action="store_true", help="nevyhadzovať ploché opakované bary")
 
     mc = ap.add_argument_group("MultiCharts (QuoteManager)")
-    mc.add_argument("--mc-out", type=Path, help="výstupný ASCII súbor (predvolene <src>_mc.csv vedľa zdroja)")
+    mc.add_argument("--mc-out", type=Path,
+                    help="výstupný ASCII súbor (predvolene deploy/multicharts/quotemanager/<zdroj>/<PÁR>-1m.csv)")
     mc.add_argument("--stamp", choices=("close", "open"), default="close",
                     help="čas baru: close = +1 min (konvencia MultiCharts), open = ako v zdroji")
     mc.add_argument("--date-format", default="%Y-%m-%d", help="strftime formát dátumu (predvolene ISO)")
@@ -489,7 +492,7 @@ def main(argv: list[str] | None = None, stderr: TextIO | None = None) -> int:
 
     rc = 0
     if "multicharts" in targets:
-        dst = args.mc_out or args.src.with_name(f"{args.src.stem}_mc.csv")
+        dst = args.mc_out or QUOTEMANAGER_DIR / inst.data_source / f"{inst.data_stem}-1m.csv"
         stats = convert(
             args.src, dst,
             date_from=args.date_from, date_to=args.date_to, stamp=args.stamp,

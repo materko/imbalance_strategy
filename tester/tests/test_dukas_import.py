@@ -130,7 +130,10 @@ def test_fix_scale_deli_a_nasobi_tisicom():
 # --------------------------------------------------------------------------- #
 
 
-def test_convert_zapise_hlavicku_a_cli_vrati_2_pri_neopravenej_mierke(tmp_path: Path, capsys):
+def test_convert_zapise_hlavicku_a_cli_vrati_2_pri_neopravenej_mierke(tmp_path: Path, capsys,
+                                                                     monkeypatch):
+    from tester import dukas_import
+
     src = tmp_path / "X_M1.csv"
     src.write_text("".join(SCALED), encoding="utf-8")
     st = convert(src, tmp_path / "x_mc.csv")
@@ -138,9 +141,13 @@ def test_convert_zapise_hlavicku_a_cli_vrati_2_pri_neopravenej_mierke(tmp_path: 
     assert text[0] == "Date,Time,Open,High,Low,Close,Volume" and len(text) == 5
     assert st.reference == 2046.3 and st.scale_outliers == 2
 
+    # export pre QuoteManager ide k aplikacii, ktoru zivi - nie vedla surového zdroja
+    qm = tmp_path / "quotemanager"
+    monkeypatch.setattr(dukas_import, "QUOTEMANAGER_DIR", qm)
+
     mc = ["--symbol", "NAS100", "--target", "multicharts"]
     assert main([str(src), *mc]) == 2
-    assert (tmp_path / "X_M1_mc.csv").exists()
+    assert (qm / "dukascopy" / "NAS100_USD-1m.csv").exists()
     assert main([str(src), *mc, "--fix-scale", "--mc-out", str(tmp_path / "ok.csv")]) == 0
     err = capsys.readouterr().err
     assert "riadky inej mierky: 2 opravene" in err
