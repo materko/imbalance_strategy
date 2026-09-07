@@ -6,6 +6,7 @@ __pycache__
 *.pyc
 .pytest_cache
 data
+deploy/multicharts/quotemanager
 deploy/freqtrade/user_data/backtest_results
 deploy/freqtrade/user_data/logs
 tester/runs
