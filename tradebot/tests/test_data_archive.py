@@ -19,8 +19,7 @@ from tradebot.tools import data_archive as da
 def dirs(tmp_path, monkeypatch):
     data, archive = tmp_path / "data", tmp_path / "archive"
     data.mkdir()
-    monkeypatch.setattr(da, "DATA", data)
-    monkeypatch.setattr(da, "ARCHIVE", archive)
+    monkeypatch.setattr(da, "ROOTS", ((archive, data),))
     return data, archive
 
 

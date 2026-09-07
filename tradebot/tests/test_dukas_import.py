@@ -1,4 +1,4 @@
-"""Prevod Dukascopy CSV na ASCII pre MultiCharts — vypchávka, čas baru, mierka, NAS100 profil."""
+"""Import Dukascopy CSV — vypchávka, čas baru, mierka, ASCII pre QuoteManager, NAS100 profil."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ import pytest
 
 from tradebot.core import load_profile
 from tradebot.core.types import INSTRUMENTS
-from tradebot.tools.dukas_to_mc import ConvertStats, convert, convert_lines, main, scale_reference
+from tradebot.tools.dukas_import import ConvertStats, convert, convert_lines, main, scale_reference
 
 HEADER = "dt,o,h,l,c,vol\n"
 
@@ -138,9 +138,10 @@ def test_convert_zapise_hlavicku_a_cli_vrati_2_pri_neopravenej_mierke(tmp_path: 
     assert text[0] == "Date,Time,Open,High,Low,Close,Volume" and len(text) == 5
     assert st.reference == 2046.3 and st.scale_outliers == 2
 
-    assert main([str(src)]) == 2
+    mc = ["--symbol", "NAS100", "--target", "multicharts"]
+    assert main([str(src), *mc]) == 2
     assert (tmp_path / "X_M1_mc.csv").exists()
-    assert main([str(src), "--fix-scale", "--out", str(tmp_path / "ok.csv")]) == 0
+    assert main([str(src), *mc, "--fix-scale", "--mc-out", str(tmp_path / "ok.csv")]) == 0
     err = capsys.readouterr().err
     assert "riadky inej mierky: 2 opravene" in err
 

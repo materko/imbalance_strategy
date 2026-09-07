@@ -2,7 +2,7 @@
 
 Rámec pre viac stratégií: **jedno generické jadro** (`tradebot/core`), **registry stratégií**
 (`tradebot/strategies`, každá s vlastným Pine zdrojom, configom, enginom a profilmi) a dva tenké
-adaptéry — **Freqtrade** (krypto futures, Binance) a **MultiCharts** (MNQ, akcie, forex) — plus
+adaptéry — **Freqtrade** (krypto futures, Binance) a **MultiCharts** (MNQ, akcie, forex, CFD) — plus
 webová aplikácia pre testerov. Cieľ je rovnaké obchody aj rovnaké vykreslovanie ako
 v TradingView; parita je overená golden testom na cent
 ([GOLDEN_binance_2026-08-24.md](docs/GOLDEN_binance_2026-08-24.md)).
@@ -52,10 +52,36 @@ do gitu a dá sa v nej hľadať podľa parametrov. Podrobne: [docs/WEBAPP.md](do
 ```bash
 ./platforms/freqtrade/scripts/setup.sh            # macOS / Linux
 TRADEBOT_PROFILE=docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json ./platforms/freqtrade/scripts/backtest.sh
-.venv/bin/python -m pytest                        # 315 testov vrátane parity s Pine
+.venv/bin/python -m pytest                        # 440 testov vrátane parity s Pine
 ```
 
-Docker, sťahovanie dát, hyperopt, MultiCharts a riešenie problémov: [docs/RUNNING.md](docs/RUNNING.md).
+### Dáta z Dukascopy (NAS100, forex, CFD) do Testera aj do MultiCharts
+
+```powershell
+.\dukas-import.ps1 C:\dukas\NAS100_M1_10Y.csv --symbol NAS100
+```
+```bash
+./dukas-import.sh ~/dukas/NAS100_M1_10Y.csv --symbol NAS100
+```
+
+Vyčistí surový export, zapíše ročné sviečky do archívu MultiCharts (Tester ich uvidí po
+reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. Nový symbol pridá sám
+(`--symbol EURUSD --point-value 100000 --tick 0.00001`). Podrobne: [docs/DATA.md](docs/DATA.md).
+
+---
+
+## Rozcestník dokumentácie
+
+| chcem… | kam |
+|---|---|
+| spúšťať backtesty, pozerať a zdieľať históriu | [docs/WEBAPP.md](docs/WEBAPP.md) |
+| krypto: prostredie, backtest, hyperopt, Docker, server | [docs/FREQTRADE.md](docs/FREQTRADE.md) |
+| MultiCharts: študia, QuoteManager, emulátor | [docs/MULTICHARTS.md](docs/MULTICHARTS.md) |
+| dáta: archív, Dukascopy import, nový symbol | [docs/DATA.md](docs/DATA.md) |
+| pridať ďalšiu stratégiu | [docs/STRATEGIE.md](docs/STRATEGIE.md) |
+| ako je to postavené a prečo | [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) |
+| čísla z meraní | [docs/merania/](docs/merania/README.md) |
+| kde čo beží a mapa repozitára | [docs/RUNNING.md](docs/RUNNING.md) |
 
 ---
 
@@ -64,21 +90,23 @@ Docker, sťahovanie dát, hyperopt, MultiCharts a riešenie problémov: [docs/RU
 | Cesta | Čo tam je |
 |---|---|
 | [`pine/`](pine) | Pine zdroje stratégií: `imbalance_strategy_FULL.pine` (**referenčný IBS**, v5, 115 vstupov — zdroj pravdy pre logiku, defaulty aj tooltipy; staršie buildy `imbalance_strategy_SD_IMB.pine` a `Imbalance_strategy.pine` sú len na porovnanie) a `demo_breakout.pine`. |
-| [`tradebot/core/`](tradebot/core) | Generické jadro bez závislostí: `StrategyConfig` (báza configu, profily), `Engine`/`EngineOutput`, `OrderIntent`/`TradePlan`, `BarHistory`, hodiny seáns, `DrawCommand` + `DrawKind` registr, inštrumenty. |
+| [`tradebot/core/`](tradebot/core) | Generické jadro bez závislostí: `StrategyConfig` (báza configu, profily), `Engine`/`EngineOutput`, `OrderIntent`/`TradePlan`, `BarHistory`, hodiny seáns, `DrawCommand` + `DrawKind` registr, inštrumenty, `paths.py` (všetky cesty repozitára na jednom mieste). |
 | [`tradebot/strategies/`](tradebot/strategies) | Registry `STRATEGIES` a jedna stratégia = jeden balík: `ibs/` (config, engine, stavový automat zón, `ta/`, HTF feeder, Freqtrade a MultiCharts podtriedy, meta pre webapp), `demo_breakout/`. Postup: [docs/STRATEGIE.md](docs/STRATEGIE.md). |
 | [`tradebot/adapters/freqtrade/`](tradebot/adapters/freqtrade) | Generická Freqtrade stratégia `TradebotStrategyBase` + `EngineRunner` (engine nad DataFrame, fill model) + export kresieb. |
-| [`tradebot/adapters/multicharts/`](tradebot/adapters/multicharts) | Generická študia `TradebotSignal`, `MCRunner` a kreslenie (len Windows). |
+| [`tradebot/adapters/multicharts/`](tradebot/adapters/multicharts) | Generická študia `TradebotSignal`, `MCRunner`, kreslenie (len Windows) a **emulátor** MultiCharts pre webapp (beží všade). |
 | [`tradebot/configs/<stratégia>/`](tradebot/configs) | JSON profily — len odchýlky od Pine defaultov, viď nižšie. |
 | [`tradebot/webapp/`](tradebot/webapp) | Webová aplikácia pre testerov (FastAPI + Plotly). |
-| [`tradebot/tools/`](tradebot/tools) | `report` (HTML ako Strategy Tester), `fees` (maker/taker, break-even), `scan_trades`/`scan_zones` (diagnostika), `data_archive` (ročné súbory dát), `plot`. |
+| [`tradebot/tools/`](tradebot/tools) | `dukas_import` (Dukascopy → Tester aj MultiCharts), `data_archive` (ročné súbory dát), `report` (HTML ako Strategy Tester), `fees` (maker/taker, break-even), `scan_trades`/`scan_zones` (diagnostika), `mc_compare`/`mc_log_trades` (párovanie s MultiCharts), `plot`. |
 | [`tradebot/tests/`](tradebot/tests) | Testy jadra, adaptérov, webapp a **golden testy** proti TradingView (`golden/`). |
-| [`platforms/freqtrade/`](platforms/freqtrade) | Freqtrade configy (`config.binance.json`, `config.coinbase.json`), skripty, `user_data/` (shim na stratégiu v `strategies/`, hyperopt loss, `data_archive/` so sviečkami, `runs/` s históriou behov z webapp). |
-| [`platforms/multicharts/`](platforms/multicharts) | Šablóny študií pre MultiCharts (`IBS_Signal.py`, `DemoBreakout_Signal.py`) a inštalačný skript. |
+| [`platforms/freqtrade/`](platforms/freqtrade) | Freqtrade configy (`config.binance.json`, `config.coinbase.json`), skripty (setup, download, backtest, hyperopt), `user_data/` (shim na stratégiu, hyperopt loss, `data_archive/` s burzovými sviečkami). |
+| [`platforms/multicharts/`](platforms/multicharts) | Šablóny študií (`IBS_Signal.py`, `DemoBreakout_Signal.py`), inštalačný skript a `data_archive/` s 1m sviečkami z Dukascopy. |
+| [`tester/`](tester) | Dáta testera — `runs/` (história behov vrátane kresieb) a `profiles/` (vlastné profily); oboje sa commituje a zdieľa cez GitHub. `scripts/` spúšťa webapp. |
 | [`docker/`](docker) | `docker-compose.yml` (tests, download, backtest, freqtrade bot, webapp). |
-| `webapp.cmd`, `webapp.ps1`, `webapp.sh` | Spúšťače webapp z koreňa repozitára (obaly nad `platforms/freqtrade/scripts/`). |
+| `webapp.cmd`, `webapp.ps1`, `webapp.sh` | Spúšťače Testera z koreňa repozitára (obaly nad `tester/scripts/`). |
+| `dukas-import.ps1`, `dukas-import.sh` | Import surových Dukascopy dát (obaly nad `tradebot.tools.dukas_import`). |
 | [`CLAUDE.md`](CLAUDE.md) | Pokyny pre Claude Code v dvoch režimoch podľa `.ibs-role` (gitignored, pýta sa raz): **tester** = backtesty do histórie cez `python -m tradebot.webapp.cli`, reštart a aktualizácia webapp, Pull/Push histórie, bez zásahov do kódu; **developer** = bez obmedzení, len konvencie. |
-| `install-macos.sh` | Inštalátor pre macOS jedným príkazom (`curl \| bash`): Homebrew, Python, TA-Lib, klon, venv, dáta, spúšťač na Ploche. |
-| [`docs/`](docs) | Architektúra, návody, parita a všetky merania (zoznam nižšie). |
+| `install-macos.sh` | Inštalátor pre macOS jedným príkazom (`curl \| bash`): Homebrew, Python, TA-Lib, klon, venv, dáta, spúšťač na Plochu. |
+| [`docs/`](docs) | Návody a architektúra; merania v [`docs/merania/`](docs/merania/README.md), archív profilov v [`docs/profily_archiv/`](docs/profily_archiv/ibs/README.md). |
 
 ---
 
@@ -92,88 +120,9 @@ Profil = Pine defaulty stratégie + odchýlky + `_strategy` + `_instrument`. Pre
 | `golden_binance_btcusdt_3m` | **Referenčný na golden test** — presne nastavenia z grafu TradingView na Binance BTCUSDT.P (RR 1, trailing, 1 BTC). Nie na obchodovanie. |
 | `golden_coinbase_btcusd_3m` | Referenčný pre Coinbase BTCUSD — parita jadra s TradingView screenshotmi (MultiCharts a testy). |
 | `multicharts_mnq_3m` | MNQ futures pre MultiCharts, 1:1 s Pine jednotkami. |
-| `nas100_dukas_3m` (archív) | NAS100 CFD z Dukascopy CSV — rovnaké prahy v bodoch ako MNQ. Beží vo webapp na „burze" MultiCharts (viď nižšie) aj v MultiCharts samotnom ([RUNNING.md §E](docs/RUNNING.md)). |
+| `nas100_dukas_3m` (archív) | NAS100 CFD z Dukascopy — rovnaké prahy v bodoch ako MNQ. Beží vo webapp na „burze" MultiCharts aj v MultiCharts samotnom ([docs/MULTICHARTS.md](docs/MULTICHARTS.md)). |
 | `demo_breakout/binance_btcusdt_5m` | Jediný profil ukážkovej stratégie (Pine defaulty, páka 5). |
 | ostatné | Skúšané konfigurácie (NY seansa, SL filter, risk sizing, hyperopt…) sú v [docs/profily_archiv/](docs/profily_archiv/ibs/README.md) s tabuľkou odchýlok; načítajú sa cestou (`--profile docs/profily_archiv/ibs/<nazov>.json`). Odporúčaný štart na nasadenie je `btcusdt_3m_binance_ny_sl_risk1` odtiaľ. |
-
-## Dukascopy dáta a „burza" MultiCharts (2026-09-07)
-
-Dukascopy CFD (NAS100, forex, komodity…) nie sú burza v ccxt, takže Freqtrade ich
-nevezme. Webapp má preto vlastnú „burzu" **MultiCharts**: 1m sviečky z Dukascopy CSV
-ležia v `data_archive/multicharts/`, pár sa v ponuke volá ako v MultiCharts (`NAS100`)
-a beh nejde cez Freqtrade, ale cez **emulátor MultiCharts** — ten istý `MCRunner`, ktorý
-beží v študii MultiCharts, plus broker podľa MultiCharts (jedna pozícia, order platí na
-ďalší bar, market na otvorení, limitka pri dotyku, SL/TP po 1m sviečkach, koniec seansy na
-close baru). Výsledok má rovnaký tvar ako Freqtrade beh, história ich nerozlišuje; v
-`result.engine` je `multicharts-emulator`. Na NAS100 dáva to isté, čo MultiCharts
-(január 2025: 12 obchodov 9 W / 3 L na oboch stranách, viď
-[docs/NAS100_dukas_simulator_2026-09-06.md](docs/NAS100_dukas_simulator_2026-09-06.md)).
-
-### Od surových Dukascopy dát po test
-
-Surový export z Dukascopy (napr. `NAS100_M1_10Y.csv`) vyzerá takto — 1m, **UTC**, čas
-**otvorenia** baru, len **bid** strana bez spreadu, objem v lotoch s desatinami:
-
-```
-dt,o,h,l,c,vol
-2025-01-05 23:00:00,21339.209,21345.543,21324.419,21333.753,0.03
-```
-
-Priamo sa použiť nedá, má tri chyby, ktoré obidva nástroje nižšie opravia rovnakým
-pravidlom (aby MultiCharts, webapp aj offline simulátor videli tie isté bary):
-
-| chyba v exporte | čo s tým | prečo |
-|---|---|---|
-| **vypchávka**: riadok pre každú minútu vrátane víkendov a prestávok — plochý bar `o=h=l=c` s cenou posledného uzavretia, ~40 % súboru | zahodiť každý plochý bar, ktorého cena sa rovná predchádzajúcemu uzavretiu | limity `*MaxBars` sú v baroch, ATR a SMA objemu by sa skreslili |
-| **čas otvorenia** baru | pre MultiCharts +1 minúta (MultiCharts razí bar časom zatvorenia); pre webapp ostáva | inak by seansy sedeli o bar vedľa |
-| **cena ×1000** na niektorých dňoch (US500 2015–2019) | `--fix-scale` v `dukas_to_mc`; nástroj to vždy nahlási | jeden zlý deň by zhodil ATR aj zóny |
-
-Objem Dukascopy je len tickový (loty klientov), nie burzový; `useVolumeFilter` nechaj vypnutý.
-
-**1. Nový symbol** = inštrument v `tradebot/core/types.py` (`venue="multicharts"`, tick, hodnota
-bodu, mena; NAS100 je vzor) a profil v `docs/profily_archiv/ibs/` (`_instrument` na ten
-inštrument; prahy v bodoch len ak je podklad ako MNQ, inak jednotka `atr`).
-
-**2a. Pre MultiCharts (QuoteManager)** — jeden CSV s hlavičkou
-`Date,Time,Open,High,Low,Close,Volume`, čas zatvorenia baru, objem celé číslo:
-
-```bash
-PY -m tradebot.tools.dukas_to_mc C:/dukas/NAS100_M1_10Y.csv --volume-scale 100      # -> NAS100_M1_mc.csv
-#   --from 2021-01-01 --to 2026-09-05   orezanie obdobia      --fix-scale   oprava ×1000 dní
-```
-
-V QuoteManageri: Add Symbol → Manually (Data Source ten, čo ponúka graf; Exchange s pásmom GMT
-bez letného času; Category Futures; Price Scale 1/1000, Min. Movement 1, Big Point Value 1,
-Currency USD), potom Import Data → ASCII (Time Zone GMT, Field Trade, 1 Minute). Kontrola:
-Edit Data v pásme GMT, nedeľa 5. 1. 2025 začína barom 23:01. Ďalej [docs/RUNNING.md §E](docs/RUNNING.md).
-
-**2b. Pre Tester webapp („burza" MultiCharts)** — ročné feather súbory v archíve, čas otvorenia
-baru, rovnaký tvar ako Freqtrade sviečky:
-
-```bash
-PY -m tradebot.tools.dukas_archive C:/dukas/NAS100_M1_10Y.csv --instrument nas100_dukascopy --from-year 2021
-#   -> platforms/freqtrade/user_data/data_archive/multicharts/NAS100_USD-1m.<rok>.feather (commitni ich)
-PY -m tradebot.tools.data_archive merge      # archív -> data/multicharts/NAS100_USD-1m.feather pre webapp
-```
-
-Potom reštartuj webapp; pár `NAS100` je v ponuke Nový beh (3m aj 5m sa skladajú z 1m v pamäti).
-Beh cez webapp alebo CLI ako pri Binance páre:
-
-```bash
-PY -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/nas100_dukas_3m.json --pair NAS100/USD \
-   --timerange 20250106-20250201 --fee 0 --note "NAS100 emulator, januar"
-```
-
-**3. Bez MultiCharts aj bez webapp** (rýchla kontrola, len zoznam obchodov a winrate) číta surový
-CSV priamo offline simulátor: `PY -m tradebot.tools.scan_trades --csv C:/dukas/NAS100_M1_10Y.csv
---profile docs/profily_archiv/ibs/nas100_dukas_3m.json --from 2025-01-01 --to 2025-01-31`.
-Porovnanie obchodov MultiCharts (z logu študie) so simulátorom: `PY -m tradebot.tools.mc_compare …`.
-
-Forex a futures z Dukascopy sa na tejto burze nelíšia: všetko sú CFD s longmi, shortmi aj
-pákou (typ `futures`); líšia sa len inštrumentom (tick, hodnota bodu, mena) a profilom —
-prahy v bodoch z MNQ sedia na NAS100, na EURUSD treba jednotku `atr` (ako pri ETH).
-Poplatok je percento z nominálu na stranu ako pri Binance; spread Dukascopy v dátach nie je
-(bid strana), počíta sa cez poplatok.
 
 ---
 
@@ -184,11 +133,11 @@ na nulu. Binance taker berie 0,05 %. Päť rokov BTC/USDT.P 3m, bez poplatkov, 1
 
 | krok | break-even | obchodov / rok | dokument |
 |---|---|---|---|
-| pôvodné nastavenie (RR 1, trailing) | 0,0050 % | 166 | [BACKTEST_rok_btcusdt](docs/BACKTEST_rok_btcusdt_2026-09-04.md) |
-| RR 5, bez trailingu, `slLookback` 20 | 0,0226 % | 203 | [SWEEP_rr_a_tf](docs/SWEEP_rr_a_tf_2026-09-04.md) |
-| + štruktúrny filter (BOS/CHoCH) | 0,0423 % | 96 | [FILTRE_vstupu](docs/FILTRE_vstupu_2026-09-04.md) |
-| + len NY seansa | 0,0879 % | 43 | [SEANSY](docs/SEANSY_2026-09-05.md) |
-| **+ `minSlDistance` 0,20 % ceny** | **0,1410 %** | **30** | [OPTIMALIZACIA](docs/OPTIMALIZACIA_2026-09-05.md) |
+| pôvodné nastavenie (RR 1, trailing) | 0,0050 % | 166 | [BACKTEST_rok_btcusdt](docs/merania/BACKTEST_rok_btcusdt_2026-09-04.md) |
+| RR 5, bez trailingu, `slLookback` 20 | 0,0226 % | 203 | [SWEEP_rr_a_tf](docs/merania/SWEEP_rr_a_tf_2026-09-04.md) |
+| + štruktúrny filter (BOS/CHoCH) | 0,0423 % | 96 | [FILTRE_vstupu](docs/merania/FILTRE_vstupu_2026-09-04.md) |
+| + len NY seansa | 0,0879 % | 43 | [SEANSY](docs/merania/SEANSY_2026-09-05.md) |
+| **+ `minSlDistance` 0,20 % ceny** | **0,1410 %** | **30** | [OPTIMALIZACIA](docs/merania/OPTIMALIZACIA_2026-09-05.md) |
 
 Každý krok zdvojnásobil edge tým, že **odobral** obchody, nie že pridal. Ladenie prahov
 hyperoptom overfitovalo; prežili len binárne rozhodnutia s mechanizmom. NY seansa aj filter SL
@@ -201,46 +150,28 @@ je ten istý sizing +0,2 % — filter a risk sizing patria k sebe.
 Čo nefunguje: shorty (PF < 1), londýnska seansa (edge 0), volume filter, trendové HTF filtre,
 časový stop, vyšší timeframe grafu, ATR ako jednotka filtra SL, páka (mení len mierku).
 
+Všetky merania po rokoch: [docs/merania/](docs/merania/README.md).
+
 ---
 
-## Dokumentácia
-
-**Návody a architektúra**
-
-- [RUNNING.md](docs/RUNNING.md) — Docker, venv, dáta, backtest, hyperopt, MultiCharts, riešenie problémov
-- [WEBAPP.md](docs/WEBAPP.md) — webová aplikácia pre testerov
-- [ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) — návrh jadra a adaptérov, rozhodnutia, rozšírenia mimo Pine
-
-**Parita s TradingView**
+## Parita s TradingView
 
 - [GOLDEN_binance_2026-08-24.md](docs/GOLDEN_binance_2026-08-24.md) — golden test: zóny, obchody, kresby, Elliott sedia na cent
 - [AUDIT_pine_2026-09-05.md](docs/AUDIT_pine_2026-09-05.md) — systematický prechod Pine skriptu, čo chýbalo
 - [OPRAVY_adapter_2026-09-05.md](docs/OPRAVY_adapter_2026-09-05.md) — štyri opravy Freqtrade adaptéra a ich vplyv
 - [tv_settings_2026-09-03.md](docs/tv_settings_2026-09-03.md), [chart_reference_BTCUSD_3m.md](docs/chart_reference_BTCUSD_3m.md) — nastavenia grafu a čo stratégia kreslí
 
-**Merania (chronologicky)**
-
-- [BACKTEST_rok_btcusdt_2026-09-04.md](docs/BACKTEST_rok_btcusdt_2026-09-04.md) — rok s reálnymi poplatkami, prečo ich RR 1 neunesie
-- [BACKTEST_rok_rr25_all3_2026-09-04.md](docs/BACKTEST_rok_rr25_all3_2026-09-04.md) — RR 2,5, tri entry modely, trailing
-- [SWEEP_rr_a_tf_2026-09-04.md](docs/SWEEP_rr_a_tf_2026-09-04.md) — RR pomer a timeframe grafu
-- [HYPEROPT_btcusdt_2026-09-04.md](docs/HYPEROPT_btcusdt_2026-09-04.md), [HYPEROPT_uzky_2026-09-04.md](docs/HYPEROPT_uzky_2026-09-04.md) — široký hyperopt overfituje, úzky nenašiel nič
-- [HYPOTEZA_koniec_seansy_2026-09-04.md](docs/HYPOTEZA_koniec_seansy_2026-09-04.md) — kde vznikajú straty
-- [FILTRE_vstupu_2026-09-04.md](docs/FILTRE_vstupu_2026-09-04.md) — štruktúrny a volume filter
-- [SEANSY_2026-09-05.md](docs/SEANSY_2026-09-05.md) — NY má edge, Londýn nie; hodiny neladiť
-- [PAKA_2026-09-05.md](docs/PAKA_2026-09-05.md) — páka mení mierku, nie edge
-- [EXEKUCIA_maker_taker_2026-09-05.md](docs/EXEKUCIA_maker_taker_2026-09-05.md) — koľko príkazov by ležalo v knihe
-- [OPTIMALIZACIA_2026-09-05.md](docs/OPTIMALIZACIA_2026-09-05.md) — filter tesného SL, regime filtre, časový stop, ETH, ATR vs %, risk sizing
-
 ---
 
 ## Pravidlá práce s repozitárom
 
 - **Dáta** sa sťahujú len v oficiálnych timeframoch búrz a commitujú sa po rokoch do
-  `platforms/freqtrade/user_data/data_archive/`; pracovné súbory zloží `python -m tradebot.tools.data_archive merge`.
+  `data_archive/` príslušnej platformy; pracovné súbory zloží
+  `python -m tradebot.tools.data_archive merge` ([docs/DATA.md](docs/DATA.md)).
 - **Backtest vždy s `--timeframe-detail 1m` a `--cache none`** — skripty to robia samy.
   Stratégiu nikdy nespúšťať priamo na 1m (limity `*MaxBars` sú v baroch).
 - **Parita pred optimalizáciou**: každá zmena jadra musí prejsť golden testom
   (`pytest tradebot/tests/test_golden_tv_binance.py`). Rozšírenia mimo Pine majú default, pri ktorom
   sa správanie rovná Pine, a sú v `PORT_ONLY_FIELDS`.
-- **Merania sa zapisujú** ako datované dokumenty v `docs/` s číslami po rokoch, nie len súhrn —
-  jeden rok o stratégii nič nepovie.
+- **Merania sa zapisujú** ako datované dokumenty v `docs/merania/` s číslami po rokoch, nie len
+  súhrn — jeden rok o stratégii nič nepovie.

@@ -491,13 +491,12 @@ def test_git_push_refuses_commits_outside_tester_data(monkeypatch):
         if args[0] == "rev-list":
             out = "aaaaaaa1 bbbbbbb2"
         elif args[0] == "show":
-            out = ("ibs/core/engine.py" if args[-1] == "aaaaaaa1"
-                   else "platforms/freqtrade/user_data/runs/x/run.json")
+            out = ("tradebot/core/engine.py" if args[-1] == "aaaaaaa1"
+                   else "tester/runs/x/run.json")
         return type("P", (), {"args": ("git", *args), "stdout": out, "stderr": "", "returncode": 0})()
 
     monkeypatch.setattr(gitsync, "_git", fake_git)
-    monkeypatch.setattr(gitsync, "_paths", lambda: ["platforms/freqtrade/user_data/runs",
-                                                    "platforms/freqtrade/user_data/profiles"])
+    monkeypatch.setattr(gitsync, "_paths", lambda: ["tester/runs", "tester/profiles"])
     assert gitsync._foreign_commits("main") == ["aaaaaaa"]  # len ten commit s kódom
 
 
@@ -516,11 +515,11 @@ def test_git_recognizes_missing_github_login():
 def test_git_commit_message_counts_runs_and_profiles():
     from tradebot.webapp.gitsync import _message
 
-    assert _message([" M platforms/freqtrade/user_data/runs/a/run.json"]) == "Pridaj 1 beh backtestu z webapp"
-    assert _message(["?? platforms/freqtrade/user_data/profiles/moj.json"]) == "Pridaj 1 profil z webapp"
-    mixed = _message([" M platforms/freqtrade/user_data/runs/a/run.json",
-                      "?? platforms/freqtrade/user_data/runs/b/run.json",
-                      "?? platforms/freqtrade/user_data/profiles/moj.json"])
+    assert _message([" M tester/runs/a/run.json"]) == "Pridaj 1 beh backtestu z webapp"
+    assert _message(["?? tester/profiles/moj.json"]) == "Pridaj 1 profil z webapp"
+    mixed = _message([" M tester/runs/a/run.json",
+                      "?? tester/runs/b/run.json",
+                      "?? tester/profiles/moj.json"])
     assert mixed == "Pridaj 2 behy backtestu a 1 profil z webapp"
 
 

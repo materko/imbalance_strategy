@@ -11,13 +11,13 @@ nepočítajú. Break-even poplatok tu preto nie je.
   2015-01-01 až 2026-09-05 (v roku 2016 chýba ~100 dní).
 - Surový súbor má 5 994 720 riadkov, z toho 2 461 494 je vypchávka (plochý bar s cenou
   predchádzajúceho uzavretia cez víkendy a prestávky). Simulátor aj prevod pre MultiCharts
-  (`tradebot.tools.dukas_to_mc`, pre CFD s `--volume-scale 100`) ju zahadzujú rovnakým
+  (`tradebot.tools.dukas_import`) ju zahadzujú rovnakým
   pravidlom, takže obe strany vidia tie isté 1m bary.
 - Graf 3m a detekčný TF 5m sa skladajú z 1m v pamäti; vyplnenie sa rozhoduje po 1m.
 
 ```bash
 .venv/Scripts/python.exe -m tradebot.tools.scan_trades --csv C:/dukas/NAS100_M1_10Y.csv \
-    --profile docs/profily_archiv/ibs/nas100_dukas_3m.json --from 2024-09-04 --to 2025-09-04 --limit 0
+    --profile ../profily_archiv/ibs/nas100_dukas_3m.json --from 2024-09-04 --to 2025-09-04 --limit 0
 ```
 
 ## Výsledky po rokoch
@@ -73,8 +73,8 @@ MultiCharts zrekonštruované z logu študie (zmeny pozície + `ClosedEquity`):
 
 Všetkých 13 obchodov v rozsahu grafu má rovnaký smer a výsledok; limitky sedia na cent,
 market vstupy (Pin Bar) sa líšia o cenu otvorenia ďalšieho baru, čo je správne — simulátor
-ich plní naivne ako limitku. Čo bolo treba na strane adaptéra vyriešiť, je v `docs/RUNNING.md`
-§E (FPU výnimky, Data2 z CSV, obchod vnútri baru, ordre s menom pri `Send`).
+ich plní naivne ako limitku. Čo bolo treba na strane adaptéra vyriešiť, je v `../MULTICHARTS.md`
+§C a §D (FPU výnimky, Data2 z CSV, obchod vnútri baru, ordre s menom pri `Send`).
 
 Zoznam obchodov MultiCharts sa dá od 2026-09-07 vytiahnuť z logu študie
 (`python -m tradebot.tools.mc_log_trades --from … --to …`); január potvrdil 12 obchodov,
@@ -136,7 +136,7 @@ MultiCharts ostáva referenciou na overenie adaptéra.
 
 ## Súvisiace
 
-- Prevod dát a import do QuoteManagera: [RUNNING.md §E](RUNNING.md).
-- Profil: [profily_archiv/ibs/nas100_dukas_3m.json](profily_archiv/ibs/nas100_dukas_3m.json).
+- Prevod dát a import do QuoteManagera: [DATA.md §B](../DATA.md), [MULTICHARTS.md §B](../MULTICHARTS.md).
+- Profil: [profily_archiv/ibs/nas100_dukas_3m.json](../profily_archiv/ibs/nas100_dukas_3m.json).
 - Oprava razenia času baru v MultiCharts adaptéri (čas zatvorenia → otvorenia):
   `tradebot/adapters/multicharts/signal.py`, `TradebotSignal._open_ms`.

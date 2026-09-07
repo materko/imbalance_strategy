@@ -1,7 +1,7 @@
 # Optimalizácia po opravách adaptéra: hypotézy na BTC a overenie na ETH (2026-09-05)
 
 Východisko: profil `btcusdt_3m_binance_ny` po opravách z
-[OPRAVY_adapter_2026-09-05.md](OPRAVY_adapter_2026-09-05.md) — 215 obchodov za päť
+[OPRAVY_adapter_2026-09-05.md](../OPRAVY_adapter_2026-09-05.md) — 215 obchodov za päť
 rokov, break-even 0,0879 % na stranu, +17,0 % s poplatkami.
 
 Pravidlo z predchádzajúcich meraní ostáva: ladenie prahov na ~40 obchodoch ročne

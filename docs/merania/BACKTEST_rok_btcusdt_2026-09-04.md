@@ -6,7 +6,7 @@ Nastavenia sú presne tie, čo boli v ten deň na TradingView grafe: profil
 Beh je cez celý Freqtrade s `--timeframe-detail 1m`.
 
 Krátke okno Aug 24 – Sep 4 sedí s TradingView na cent
-([GOLDEN_binance_2026-08-24.md](GOLDEN_binance_2026-08-24.md)), takže rozdiely
+([GOLDEN_binance_2026-08-24.md](../GOLDEN_binance_2026-08-24.md)), takže rozdiely
 nižšie nie sú chybou portu — sú to náklady, ktoré TradingView nemodeluje.
 
 ## Výsledok

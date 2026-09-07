@@ -84,7 +84,7 @@ PORT_ONLY_META: dict[str, dict[str, Any]] = {
         title="Min. vzdialenosť SL od vstupu",
         tooltip="Obchod s tesnejším SL sa preskočí (SKIP: SL PRILIS TESNY). Poplatok je percento z nominálu, "
         "zisk rastie s R — tesné SL majú najhorší pomer edge k poplatku. 0 = vypnuté. "
-        "Odporúčaná jednotka pct (0,20 % ceny), viď docs/OPTIMALIZACIA_2026-09-05.md.",
+        "Odporúčaná jednotka pct (0,20 % ceny), viď docs/merania/OPTIMALIZACIA_2026-09-05.md.",
     ),
 }
 

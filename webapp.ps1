@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
     Spustí webovú aplikáciu pre testerov z koreňa repozitára.
-    Tenký obal nad platforms\freqtrade\scripts\webapp.ps1 - viď docs/WEBAPP.md.
+    Tenký obal nad tester\scripts\webapp.ps1 - viď docs/WEBAPP.md.
 
 .EXAMPLE
     .\webapp.ps1
@@ -13,4 +13,4 @@ param(
     [string]$BindHost = "127.0.0.1",
     [switch]$NoBrowser
 )
-& (Join-Path $PSScriptRoot "platforms\freqtrade\scripts\webapp.ps1") -Port $Port -BindHost $BindHost -NoBrowser:$NoBrowser
+& (Join-Path $PSScriptRoot "tester\scripts\webapp.ps1") -Port $Port -BindHost $BindHost -NoBrowser:$NoBrowser

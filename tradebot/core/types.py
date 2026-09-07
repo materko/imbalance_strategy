@@ -6,9 +6,11 @@ platformovo neutrálne (viď docs/ARCHITECTURE_port.md §2).
 
 from __future__ import annotations
 
+import json
 import math
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 from typing import ClassVar, Literal
 
 __all__ = [
@@ -27,7 +29,9 @@ __all__ = [
     "BTCUSDT_BINANCE",
     "BTCUSDT_BINANCE_SPOT",
     "ETHUSDT_BINANCE_SPOT",
+    "NAS100_DUKASCOPY",
     "INSTRUMENTS",
+    "dukascopy_specs",
 ]
 
 
@@ -363,30 +367,52 @@ ETHUSDT_BINANCE_SPOT = InstrumentSpec(
     market="spot",
 )
 
-#: Dukascopy CFD na Nasdaq-100 (u Dukascopy `USA100.IDX/USD`) — ten istý podklad ako MNQ, takže
-#: prahy v bodoch z `multicharts_mnq_3m` sedia 1:1. Dáta sú bid strana bez spreadu,
-#: 1m, UTC, s tromi desatinnými miestami; objem je len tickový. Tick 0.01 je najmenší,
-#: ktorý Pine rozsah `tickDollarValue` (>= 0.01) pripúšťa — v QuoteManageri môže mať symbol
-#: Price Scale 1/1000, ordre sa len zaokrúhlia na stotiny. Hodnota bodu 1 USD za jednotku
-#: je predpoklad — v QuoteManageri ju treba nastaviť ako Big Point Value.
-#: `venue="multicharts"` = webapp „burza" MultiCharts: dáta z Dukascopy CSV
-#: (`tradebot.tools.dukas_archive`), beh cez emulátor MultiCharts, nie cez Freqtrade.
-NAS100_DUKASCOPY = InstrumentSpec(
-    symbol="NAS100/USD",
-    venue="multicharts",
-    tick_size=0.01,
-    point_value=1.0,
-    qty_step=1.0,
-    min_qty=1.0,
-    has_real_volume=False,
-)
-
 INSTRUMENTS: dict[str, InstrumentSpec] = {
     "mnq": MNQ,
-    "nas100_dukascopy": NAS100_DUKASCOPY,
     "btcusd_coinbase": BTCUSD_COINBASE,
     "btcusdt_binance": BTCUSDT_BINANCE,
     "ethusdt_binance": ETHUSDT_BINANCE,
     "btcusdt_binance_spot": BTCUSDT_BINANCE_SPOT,
     "ethusdt_binance_spot": ETHUSDT_BINANCE_SPOT,
 }
+
+
+# --------------------------------------------------------------------------- #
+# Dukascopy CFD — burza „MultiCharts"
+# --------------------------------------------------------------------------- #
+
+#: Symboly, ktoré nie sú na žiadnej ccxt burze (CFD na indexy, forex, komodity).
+#: Freqtrade ich nevezme, takže beh ide cez emulátor MultiCharts nad 1m sviečkami
+#: z Dukascopy exportu (`tradebot.tools.dukas_import`). Sú v dátovej tabuľke, nie
+#: v kóde, aby pridanie symbolu bol jeden riadok — dopíše ho aj samotný import.
+DUKASCOPY_REGISTRY = Path(__file__).with_name("instruments_dukascopy.json")
+
+
+def dukascopy_specs(path: Path | None = None) -> dict[str, InstrumentSpec]:
+    """Načíta tabuľku Dukascopy symbolov. Kľúče začínajúce `_` sú komentáre."""
+    src = path or DUKASCOPY_REGISTRY
+    if not src.exists():
+        return {}
+    raw = json.loads(src.read_text(encoding="utf-8"))
+    out: dict[str, InstrumentSpec] = {}
+    for key, row in raw.items():
+        if key.startswith("_"):
+            continue
+        out[key] = InstrumentSpec(
+            symbol=row["symbol"],
+            venue="multicharts",
+            tick_size=float(row["tick_size"]),
+            point_value=float(row["point_value"]),
+            qty_step=float(row.get("qty_step", 1.0)),
+            min_qty=float(row.get("min_qty", 1.0)),
+            has_real_volume=False,  # Dukascopy dáva tickový objem klientov, nie burzový
+            quote_currency=row.get("quote_currency", "USD"),
+            market=row.get("market", "futures"),
+        )
+    return out
+
+
+INSTRUMENTS.update(dukascopy_specs())
+
+#: Ponechané meno pre staršie importy — vzorový Dukascopy symbol.
+NAS100_DUKASCOPY = INSTRUMENTS["nas100_dukascopy"]

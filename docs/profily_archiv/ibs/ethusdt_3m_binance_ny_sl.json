@@ -6,7 +6,7 @@
     "NIC neladilo, prah 0,20 % je prevzaty. Pat rokov bez poplatkov: 164 obchodov namiesto 203",
     "pri rovnakom hrubom zisku, break-even 0,096 % namiesto 0,056 % na stranu, lepsi v styroch",
     "rokoch z piatich (piaty rovnaky). S poplatkami 0,05 % vsetkych pat rokov ziskovych.",
-    "Detaily v docs/OPTIMALIZACIA_2026-09-05.md.",
+    "Detaily v docs/merania/OPTIMALIZACIA_2026-09-05.md.",
     "",
     "Prahy v ATR su prevzate z ethusdt_3m_binance_ny (viz jeho komentar). Spusta sa cez",
     "--pairs ETH/USDT:USDT, ETH nie je vo whiteliste."

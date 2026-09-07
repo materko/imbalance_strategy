@@ -26,8 +26,7 @@ import json
 import zipfile
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
-RESULTS = REPO / "platforms" / "freqtrade" / "user_data" / "backtest_results"
+from ..core.paths import BACKTEST_RESULTS as RESULTS
 
 #: Rovnaké farby ako Strategy Tester, aby sa dali obrázky klásť vedľa seba.
 GREEN, RED, BLUE = "#089981", "#f23645", "#2962ff"

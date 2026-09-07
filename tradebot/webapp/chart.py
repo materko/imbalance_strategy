@@ -1,6 +1,6 @@
 """Dáta pre graf páru v detaile behu: sviečky z feather súborov a orezanie kresieb.
 
-Sviečky sa **neukladajú k behu** — sú v `user_data/data` (a v archíve v gite), takže
+Sviečky sa **neukladajú k behu** — sú v `data/` platformy (a v archíve v gite), takže
 by sa len duplikovali. K behu patria iba kresby enginu (`chart.json.gz`), lebo tie
 závisia od parametrov a znovu ich vyrobiť znamená prehrať celý backtest.
 

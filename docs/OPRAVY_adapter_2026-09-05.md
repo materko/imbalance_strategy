@@ -75,7 +75,7 @@ aby v dlhom live behu nerástol.
   config timeout, upratanie trailingu. Beží len s nainštalovaným Freqtrade.
 
 Po týchto zmenách treba **znova prebehnúť backtesty** z `docs/*_2026-09-04.md`
-a `SEANSY_2026-09-05.md`: oprava 1 pridá vstupy vyplnené medzi 4. a 10. barom,
+a `merania/SEANSY_2026-09-05.md`: oprava 1 pridá vstupy vyplnené medzi 4. a 10. barom,
 oprava 2 môže zmeniť SL/TP obchodov, ktoré mali susedný signál.
 
 ---
@@ -83,8 +83,8 @@ oprava 2 môže zmeniť SL/TP obchodov, ktoré mali susedný signál.
 # Výsledok po opravách
 
 Prebehnuté s Freqtrade 2026.8, `--timeframe-detail 1m`, na tých istých piatich
-oknách ako v [SEANSY_2026-09-05.md](SEANSY_2026-09-05.md) a
-[FILTRE_vstupu_2026-09-04.md](FILTRE_vstupu_2026-09-04.md).
+oknách ako v [SEANSY_2026-09-05.md](merania/SEANSY_2026-09-05.md) a
+[FILTRE_vstupu_2026-09-04.md](merania/FILTRE_vstupu_2026-09-04.md).
 
 ## Golden okno: parita drží
 

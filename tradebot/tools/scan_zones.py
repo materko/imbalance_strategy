@@ -11,7 +11,7 @@ Zdroj dát je buď burza z `data_archive` (`--exchange`), alebo Dukascopy 1m CSV
 (`--csv`, formát `dt,o,h,l,c,vol`, UTC, čas otvorenia) — z neho sa graf aj detekčný
 TF skladajú v pamäti rovnako ako z 1m feather súborov. Vypchávka Dukascopy exportu
 (plochý bar s cenou predchádzajúceho uzavretia, víkendy a prestávky) sa zahodí,
-presne ako pri prevode pre MultiCharts (`tradebot.tools.dukas_to_mc`).
+presne ako pri prevode pre MultiCharts (`tradebot.tools.dukas_import`).
 
 Vyžaduje pandas (ťahá sa s Freqtrade), takže sa spúšťa z `.venv`, nie z jadra.
 """
@@ -35,8 +35,7 @@ from ..core import (
     detect_sd_pattern,
     load_profile,
 )
-
-DATA_DIR = Path(__file__).resolve().parents[2] / "platforms" / "freqtrade" / "user_data" / "data"
+from ..core.paths import FREQTRADE_DATA as DATA_DIR
 
 #: Kde ktorá burza drží súbory a ako sa volajú.
 _LAYOUT = {
@@ -66,7 +65,7 @@ def _load_dukas_csv(path: str):
     )
     df["date"] = pd.to_datetime(df["date"], utc=True)
     # vypchávka: plochý bar s cenou rovnou predchádzajúcemu uzavretiu — rovnaké
-    # pravidlo ako v dukas_to_mc, aby simulátor videl tie isté bary ako MultiCharts
+    # pravidlo ako v dukas_import, aby simulátor videl tie isté bary ako MultiCharts
     flat = (df["open"] == df["close"]) & (df["high"] == df["low"]) & (df["open"] == df["high"])
     padding = flat & (df["close"] == df["close"].shift(1))
     dropped = int(padding.sum())
@@ -91,7 +90,7 @@ def _load(exchange: str | Path, timeframe: str):
     `exchange` je kľúč burzy z `_LAYOUT`, alebo cesta k Dukascopy 1m CSV (`--csv`);
     z CSV sa každý TF okrem 1m skladá v pamäti.
 
-    Na disk sa nikdy nič dopočítané nezapisuje — v `user_data/data` sú výhradne
+    Na disk sa nikdy nič dopočítané nezapisuje — v `data/` platformy sú výhradne
     skutočné burzové sviečky. Presne to isté bude robiť aj Freqtrade stratégia
     (napr. Coinbase 3m, ktoré burza neponúka).
     """

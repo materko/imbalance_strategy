@@ -3,7 +3,7 @@
 MultiCharts x Python beta odmieta študii `BarsOfData(2)` (väzba série padá v
 `PriceSeriesImpl.ReBind`), hoci graf druhú sériu má. Kým to beta neopraví, dá sa
 detekčný TF poskladať z **1m Dukascopy CSV** na disku — z toho istého súboru, z ktorého
-vznikli dáta v QuoteManageri (`tradebot.tools.dukas_to_mc`) a ktorý číta offline
+vznikli dáta v QuoteManageri (`tradebot.tools.dukas_import`) a ktorý číta offline
 simulátor (`scan_trades --csv`). Všetky tri cesty tak vidia tie isté 5m bary.
 
 Čisté stdlib: v Pythone, ktorý používa MultiCharts, nemusí byť pandas. Desaťročný
@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from ...core import Bar
-from ...tools.dukas_to_mc import _parse
+from ...tools.dukas_import import _parse
 
 __all__ = ["CsvHtfFeed", "aggregate_csv"]
 

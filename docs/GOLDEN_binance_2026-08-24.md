@@ -389,7 +389,7 @@ v Pine). Preto sa počty long obchodov medzi behmi nedajú porovnávať priamo.
 Strategy Tester na účte **Basic** počíta len z barov načítaných na grafe —
 na 3m je to ~11 dní. Voľba „Last 365 days" otvorí ponuku na **Deep Backtesting**,
 ktoré je len v Premium. Dlhšie okná sa preto merajú výhradne vo Freqtrade
-([BACKTEST_rok_btcusdt_2026-09-04.md](BACKTEST_rok_btcusdt_2026-09-04.md)),
+([BACKTEST_rok_btcusdt_2026-09-04.md](merania/BACKTEST_rok_btcusdt_2026-09-04.md)),
 a TradingView slúži ako referencia na krátkom okne, kde parita sedí na cent.
 
 ## Dve veci, ktoré sa ukázali až pri RR 2,5 (2026-09-04)
@@ -400,7 +400,7 @@ odhalilo:
 
 **Trailing stop.** Aktivuje sa na 1R, čo je pri RR 1 presne tam, kde už je TP —
 obchod skončí skôr. Pri RR 2,5 rozhoduje o väčšine výstupov. Detaily
-v [BACKTEST_rok_rr25_all3_2026-09-04.md](BACKTEST_rok_rr25_all3_2026-09-04.md).
+v [BACKTEST_rok_rr25_all3_2026-09-04.md](merania/BACKTEST_rok_rr25_all3_2026-09-04.md).
 
 **`closeAtSessionEnd`.** Pine po poslednej seanse dňa zruší čakajúce ordre
 a zavrie otvorenú pozíciu (`strategy.close(immediately=true)`). S RR 1 sa žiadny

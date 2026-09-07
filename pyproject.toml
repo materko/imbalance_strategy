@@ -21,7 +21,7 @@ web = ["fastapi", "uvicorn", "pandas", "pyarrow"]
 include = ["tradebot*"]
 
 [tool.setuptools.package-data]
-tradebot = ["configs/*/*.json"]
+tradebot = ["configs/*/*.json", "core/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tradebot/tests"]

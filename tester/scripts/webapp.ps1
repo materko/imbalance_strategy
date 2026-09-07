@@ -4,16 +4,16 @@
 
 .DESCRIPTION
     Stačí mať Python 3.11+ (64-bit) a git. Ak chýba .venv, skript ho sám postaví
-    (setup.ps1: freqtrade + balík tradebot, trvá ~10 minút, len prvýkrát). Ak chýbajú
-    pracovné dáta, webapp ich pri štarte zloží z data_archive/.
+    (platforms\freqtrade\scripts\setup.ps1: freqtrade + balík tradebot, trvá ~10 minút,
+    len prvýkrát). Ak chýbajú pracovné dáta, webapp ich pri štarte zloží z archívov v gite.
 
     Formulár so všetkými parametrami stratégie, výber páru a obdobia, fronta
-    backtestov, história behov (user_data/runs/, commituje sa) s vyhľadávaním
+    backtestov, história behov (tester\runs\, commituje sa) s vyhľadávaním
     a grafom výnosnosti ako v TradingView. Viď docs/WEBAPP.md.
 
 .EXAMPLE
-    .\platforms\freqtrade\scripts\webapp.ps1
-    .\platforms\freqtrade\scripts\webapp.ps1 -Port 9000 -NoBrowser
+    .\webapp.ps1                       # obal v koreni repozitára
+    .\tester\scripts\webapp.ps1 -Port 9000 -NoBrowser
 #>
 [CmdletBinding()]
 param(
@@ -23,12 +23,12 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..")).Path
+$repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $py = Join-Path $repo ".venv\Scripts\python.exe"
 
 if (-not (Test-Path $py)) {
     Write-Host "Chyba .venv - staviam prostredie (prvykrat ~10 minut)..." -ForegroundColor Yellow
-    & (Join-Path $PSScriptRoot "setup.ps1")
+    & (Join-Path $repo "platforms\freqtrade\scripts\setup.ps1")
     if (-not (Test-Path $py)) { throw "setup.ps1 nevytvoril $py" }
 }
 
@@ -37,7 +37,7 @@ $env:TRADEBOT_WEB_HOST = $BindHost
 Set-Location $repo
 
 $url = "http://$BindHost`:$Port"
-Write-Host "IBS webapp: $url  (Ctrl+C ukonci)" -ForegroundColor Green
+Write-Host "TradeBot Tester: $url  (Ctrl+C ukonci)" -ForegroundColor Green
 
 if (-not $NoBrowser) {
     # Prehliadac otvorime, ked server zacne odpovedat - v samostatnom jobe,
