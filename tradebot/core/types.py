@@ -355,8 +355,25 @@ ETHUSDT_BINANCE_SPOT = InstrumentSpec(
     market="spot",
 )
 
+#: Dukascopy CFD na Nasdaq-100 (`USA100.IDX/USD`) — ten istý podklad ako MNQ, takže
+#: prahy v bodoch z `multicharts_mnq_3m` sedia 1:1. Dáta sú bid strana bez spreadu,
+#: 1m, UTC, s tromi desatinnými miestami; objem je len tickový. Tick 0.01 je najmenší,
+#: ktorý Pine rozsah `tickDollarValue` (>= 0.01) pripúšťa — v QuoteManageri môže mať symbol
+#: Price Scale 1/1000, ordre sa len zaokrúhlia na stotiny. Hodnota bodu 1 USD za jednotku
+#: je predpoklad — v QuoteManageri ju treba nastaviť ako Big Point Value.
+NAS100_DUKASCOPY = InstrumentSpec(
+    symbol="USA100.IDX/USD",
+    venue="dukascopy",
+    tick_size=0.01,
+    point_value=1.0,
+    qty_step=1.0,
+    min_qty=1.0,
+    has_real_volume=False,
+)
+
 INSTRUMENTS: dict[str, InstrumentSpec] = {
     "mnq": MNQ,
+    "nas100_dukascopy": NAS100_DUKASCOPY,
     "btcusd_coinbase": BTCUSD_COINBASE,
     "btcusdt_binance": BTCUSDT_BINANCE,
     "ethusdt_binance": ETHUSDT_BINANCE,
