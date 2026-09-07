@@ -190,7 +190,9 @@ class FakeCtx:
 
 
 @pytest.fixture
-def fake_dotnet(monkeypatch):
+def fake_dotnet(monkeypatch, tmp_path):
+    # log študie do tmp — testy nesmú písať do skutočného %LOCALAPPDATA%/tradebot/multicharts.log
+    monkeypatch.setenv("TRADEBOT_MC_LOG", str(tmp_path / "multicharts.log"))
     pl = types.ModuleType("PowerLanguage")
     for name, obj in {
         "ChartPoint": ChartPoint, "SOrderParameters": SOrderParameters, "Contracts": Contracts,
@@ -440,6 +442,35 @@ def test_fpu_masky_sa_vratia_a_zmena_sa_zaloguje(fake_dotnet, monkeypatch):
     s.CalcBar()  # iná hodnota -> hláška
     fpu_lines = [line for line in ctx.lines if "FPU vynimky boli odmaskovane" in line]
     assert len(fpu_lines) == 2 and "0x00080000" in fpu_lines[0] and "0x00080010" in fpu_lines[1]
+
+
+def test_startcalc_zabudne_stav_minuleho_behu(fake_dotnet, monkeypatch):
+    """MultiCharts pri prepočte volá len StartCalc — počítadlo obchodov musí začať odznova."""
+    ctx = FakeCtx(FakeBars(3, [closed(T0, 3)]))
+    ctx.TotalTrades = 0
+    ctx.StrategyInfo.ClosedEquity = 0.0
+    s = make_signal(monkeypatch, ctx)
+    monkeypatch.setattr(s.runner, "on_bar", lambda bar, position_size=0.0, **kw: BarOutput())
+    s._last_entry = ("LONG_1", 2.0, 100.0)
+    s.CalcBar()
+    ctx.TotalTrades, ctx.StrategyInfo.ClosedEquity = 5, 50.0   # minulý beh skončil na 5 obchodoch
+    s.CalcBar()
+    assert s._last_closed_trades == 5
+
+    s.StartCalc()                                                # prepočet: MultiCharts začína od 0
+    assert s._last_closed_trades is None and s._last_position == 0.0 and s._open_entry is None
+    ctx.TotalTrades, ctx.StrategyInfo.ClosedEquity = 0, 0.0
+    monkeypatch.setattr(s.runner, "on_bar", lambda bar, position_size=0.0, **kw: BarOutput())
+    s._last_entry = ("LONG_7", 3.0, 100.0)
+    s.CalcBar()
+    ctx.TotalTrades, ctx.StrategyInfo.ClosedEquity = 1, 12.5
+    s.CalcBar()
+    trade_lines = [line for line in _read_log(s) if "[trade]" in line]
+    assert trade_lines and "n=1" in trade_lines[-1] and "order=LONG_7" in trade_lines[-1] and "pnl=12.50" in trade_lines[-1]
+
+
+def _read_log(s) -> list[str]:
+    return s._log_path.read_text(encoding="utf-8").splitlines() if s._log_path.exists() else []
 
 
 def test_output_zdvoji_zlozene_zatvorky(fake_dotnet, monkeypatch):
