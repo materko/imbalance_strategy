@@ -41,6 +41,9 @@ RESULTS_DIR = USER_DIR / "backtest_results"
 DATA_DIR = USER_DIR / "data" / "binance" / "futures"
 #: Spot je o adresár vyššie a bez prípony `-futures` v mene súboru (tak to píše Freqtrade).
 SPOT_DIR = USER_DIR / "data" / "binance"
+#: „Burza" MultiCharts: 1m sviečky z Dukascopy CSV (`tradebot.tools.dukas_archive` +
+#: `data_archive merge`), beh cez emulátor MultiCharts, nie cez Freqtrade.
+MC_DIR = USER_DIR / "data" / "multicharts"
 TMP_PROFILES = USER_DIR / "runs" / ".profiles"
 
 #: Koľko riadkov logu sa uloží k behu — celý log Freqtradu má stovky riadkov
@@ -121,6 +124,7 @@ def available_pairs() -> list[dict[str, Any]]:
         out.append({
             "pair": pair,
             "instrument": key,
+            "exchange": "binance",
             "market": inst.market,
             "exchange_symbol": inst.exchange_symbol,
             "from": str(dates.min())[:10],
@@ -130,7 +134,36 @@ def available_pairs() -> list[dict[str, Any]]:
             "has_5m": "5m" in tfs,
             "timeframes": tfs,
         })
+    # „burza" MultiCharts: len 1m súbory, ostatné TF sa skladajú v pamäti
+    for key, inst in INSTRUMENTS.items():
+        if inst.venue != "multicharts":
+            continue
+        p = MC_DIR / f"{inst.data_stem}-1m.feather"
+        if not p.exists():
+            continue
+        dates = pd.read_feather(p, columns=["date"])["date"]
+        tfs = available_timeframes(inst.symbol)
+        out.append({
+            "pair": inst.symbol,
+            "instrument": key,
+            "exchange": "multicharts",
+            "market": inst.market,
+            "exchange_symbol": inst.exchange_symbol,
+            "from": str(dates.min())[:10],
+            "to": str(dates.max())[:10],
+            "bars": int(len(dates)),
+            "has_1m": True,
+            "has_5m": True,
+            "timeframes": tfs,
+        })
     return out
+
+
+def is_multicharts_pair(pair: str) -> bool:
+    try:
+        return INSTRUMENTS[instrument_for_pair(pair)].venue == "multicharts"
+    except ValueError:
+        return False
 
 
 @dataclass
@@ -370,6 +403,9 @@ class BacktestRunner:
         t0 = time.time()
         instrument = instrument_for_pair(job.settings["pair"])
         profile = write_profile(job.id, job.params, instrument, job.settings.get("strategy") or "ibs")
+        if INSTRUMENTS[instrument].venue == "multicharts":
+            self._run_multicharts(job, instrument, profile, t0)
+            return
         cmd = self.build_command(self.python, profile, job.settings)
         job.log_lines.append("$ " + " ".join(cmd))
 
@@ -419,6 +455,56 @@ class BacktestRunner:
         summary["zip"] = new[-1].name
         job.status = "done"
         self._persist(job, (summary, trades, series), duration, chart_path=chart_tmp)
+
+    def _run_multicharts(self, job: Job, instrument: str, profile: Path, t0: float) -> None:
+        """Beh na „burze" MultiCharts: emulátor MultiCharts v tomto procese, bez Freqtrade.
+
+        Ten istý `MCRunner` ako študia v MultiCharts, 1m sviečky z `data/multicharts/`,
+        výsledok v tvare Freqtrade behu — história webapp ich nerozlišuje.
+        """
+        from ..adapters.multicharts.emulator import emulate, rows_from_trades, summarize, write_chart
+        from ..core import DrawRegistry
+
+        settings = job.settings
+        inst = INSTRUMENTS[instrument]
+        cfg, _ = load_profile(profile)
+        tf = settings.get("timeframe") or "3m"
+        chart_tf = tf_minutes(tf)
+        start_s, _, end_s = settings["timerange"].partition("-")
+        from_ms = int(datetime.strptime(start_s, "%Y%m%d").replace(tzinfo=timezone.utc).timestamp() * 1000) if start_s else None
+        to_ms = int(datetime.strptime(end_s, "%Y%m%d").replace(tzinfo=timezone.utc).timestamp() * 1000) if end_s else None
+        data_path = MC_DIR / f"{inst.data_stem}-1m.feather"
+        job.log_lines.append(f"$ emulator MultiCharts {inst.exchange_symbol} {tf} {settings['timerange']} ({data_path.name})")
+        if not data_path.exists():
+            raise FileNotFoundError(f"chýbajú 1m dáta {data_path} — spusti dukas_archive a data_archive merge")
+
+        import pandas as pd
+
+        m1 = pd.read_feather(data_path)
+        registry = DrawRegistry()
+        result, mc_runner = emulate(
+            cfg, inst, m1, chart_tf, from_ms=from_ms, to_ms=to_ms,
+            log=lambda s: job.log_lines.append(s), should_stop=lambda: job.cancel_requested,
+            registry=registry,
+        )
+        duration = round(time.time() - t0, 1)
+        job.finished = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        if job.cancel_requested:
+            job.status = "failed"
+            job.error = "zrušené používateľom"
+            self._persist(job, None, duration)
+            return
+        fee = float(settings.get("fee") or 0.0)
+        wallet = float(settings.get("wallet") or 10000)
+        leverage = float(job.params.get("leverage") or 1.0)
+        rows = rows_from_trades(result.trades, inst, fee, leverage)
+        summary, series = summarize(rows, wallet, result, currency=inst.quote_currency)
+        summary["duration_s"] = duration
+        chart_tmp = TMP_PROFILES / f"{job.id}.chart.json.gz"
+        header = write_chart(mc_runner, registry, result, settings["pair"], tf, chart_tmp)
+        job.log_lines.append(f"kresby: {header.get('counts')}")
+        job.status = "done"
+        self._persist(job, (summary, rows, series), duration, chart_path=chart_tmp)
 
     def _persist(self, job: Job, result, duration: float | None = None,
                  chart_path: Path | None = None) -> None:

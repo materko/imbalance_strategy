@@ -127,6 +127,13 @@ v tom istom 3m bare — simulátor ich rozhodne po 1m sviečkach, MultiCharts be
 Bar Magnifier vlastným pravidlom. Zvyšok sedí; to je úroveň parity, s akou sa dá jadro
 v MultiCharts používať.
 
+## Emulátor MultiCharts vo webapp (2026-09-07)
+
+Beh `NAS100/USD` na webapp „burze" MultiCharts (emulátor, `--fee 0`, január 2025):
+12 obchodov, 9 W / 3 L, +1 992 USD — MultiCharts na tých istých dátach +1 991,66 USD.
+Emulátor je od 2026-09-07 predvolená cesta pre Dukascopy symboly v Tester aplikácii;
+MultiCharts ostáva referenciou na overenie adaptéra.
+
 ## Súvisiace
 
 - Prevod dát a import do QuoteManagera: [RUNNING.md §E](RUNNING.md).

@@ -1,0 +1,339 @@
+{
+  "id": "20260907-092945-d2d3c7",
+  "status": "done",
+  "created": "2026-09-07T09:29:45+00:00",
+  "started": "2026-09-07T09:29:45+00:00",
+  "finished": "2026-09-07T09:29:48+00:00",
+  "user": "claude",
+  "note": "NAS100 emulator MultiCharts, januar 2025, bez poplatkov",
+  "settings": {
+    "strategy": "ibs",
+    "pair": "NAS100/USD",
+    "timeframe": "3m",
+    "timerange": "20250106-20250201",
+    "fee": 0.0,
+    "wallet": 10000,
+    "timeframe_detail": "1m",
+    "profile": "docs/profily_archiv/ibs/nas100_dukas_3m.json"
+  },
+  "params": {
+    "enableImbEntry": true,
+    "enablePinBarEntry": true,
+    "enableEngulfingEntry": false,
+    "pbWickToBodyRatio": 4.0,
+    "pbBodyPositionPct": 20.0,
+    "pbMinRangePoints": 2.0,
+    "engMinRangePoints": 2.0,
+    "engSizeAvgLen": 10,
+    "engSizeMultiplier": 2.0,
+    "engTouchWindowBars": 3,
+    "pbEngOrderType": "Market",
+    "enableTrailing": true,
+    "trailActivationR": 1.0,
+    "trailOffsetR": 0.5,
+    "weekdaysOnly": true,
+    "enableTrading": true,
+    "enableZoneDetection": true,
+    "enableGapDetection": true,
+    "enableSrTrading": false,
+    "enableLqTrading": false,
+    "closeAtSessionEnd": true,
+    "sess1On": false,
+    "sess1TZ": "Europe/Prague",
+    "sess1ZoneStartH": 1,
+    "sess1ZoneStartM": 0,
+    "sess1ZoneEndH": 9,
+    "sess1ZoneEndM": 0,
+    "sess1TradeStartH": 2,
+    "sess1TradeStartM": 0,
+    "sess1TradeEndH": 5,
+    "sess1TradeEndM": 0,
+    "sess2On": true,
+    "sess2TZ": "America/New_York",
+    "sess2ZoneStartH": 8,
+    "sess2ZoneStartM": 0,
+    "sess2ZoneEndH": 11,
+    "sess2ZoneEndM": 0,
+    "sess2TradeStartH": 10,
+    "sess2TradeStartM": 0,
+    "sess2TradeEndH": 15,
+    "sess2TradeEndM": 45,
+    "sess3On": true,
+    "sess3TZ": "Europe/London",
+    "sess3ZoneStartH": 8,
+    "sess3ZoneStartM": 0,
+    "sess3ZoneEndH": 10,
+    "sess3ZoneEndM": 0,
+    "sess3TradeStartH": 8,
+    "sess3TradeStartM": 0,
+    "sess3TradeEndH": 11,
+    "sess3TradeEndM": 0,
+    "zoneDetectionTF": "5",
+    "zoneValidHours": 6,
+    "maxSdZones": 200,
+    "snapMode": "Floor",
+    "invalidateOnFill": true,
+    "useVolumeFilter": false,
+    "volumeFilterBlockTrading": false,
+    "volSmaLen": 20,
+    "volMultiplier": 1.5,
+    "showMarketStructure": true,
+    "structureSwingLen": 5,
+    "useStructureFilter": false,
+    "showSR": true,
+    "srSwingLen": 10,
+    "srClusterPoints": 15.0,
+    "srMinTouches": 2,
+    "srMaxLevels": 10,
+    "srLookbackDays": 5,
+    "srZoneSaturationPct": 30,
+    "showLiqSweep": true,
+    "liqSweepLen": 10,
+    "liqSweepMinWick": 5.0,
+    "liqSweepConfirmBars": 2,
+    "liqStrengthLen": 50,
+    "showElliott": false,
+    "ewSwingLen": 8,
+    "ewMinWavePoints": 20.0,
+    "ewShowLabels": true,
+    "ewShowProjection": true,
+    "ewProjExtendBars": 40,
+    "ewLineColor": "#334155",
+    "showImbalance": true,
+    "showDashboard": true,
+    "dashPos": "Top Right",
+    "dashboardRows": 6,
+    "showTradeLog": false,
+    "tradeLogRows": 20,
+    "showDebugTable": false,
+    "debugTableRows": 8,
+    "debugPos": "Bottom Right",
+    "imbLookback": 20,
+    "imbMaxDistTicks": {
+      "value": 25.0,
+      "unit": "abs"
+    },
+    "minImbSizePoints": 2.5,
+    "state1MaxBars": 10,
+    "state2MaxBars": 15,
+    "state2ConfirmTicks": {
+      "value": 0.25,
+      "unit": "abs"
+    },
+    "state3MaxBars": 1,
+    "state4MaxBars": 10,
+    "state5MaxBars": 10,
+    "alertOnState2": false,
+    "alertOnState3": false,
+    "alertOnState4": false,
+    "rrRatio": 1.0,
+    "slLookback": 10,
+    "slBufferTicks": {
+      "value": 0.5,
+      "unit": "abs"
+    },
+    "maxLossDollar": 350.0,
+    "maxDailyWins": 5,
+    "tradeDirection": "Long only",
+    "tickDollarValue": 0.01,
+    "legacyPineSizing": true,
+    "atrLen": 14,
+    "minSlDistance": 0.0,
+    "leverage": 1.0
+  },
+  "error": null,
+  "result": {
+    "trades": 12,
+    "wins": 9,
+    "losses": 3,
+    "draws": 0,
+    "winrate": 75.0,
+    "pnl_abs": 1991.65,
+    "pnl_pct": 19.916,
+    "profit_factor": 2.929,
+    "max_drawdown_abs": 360.09,
+    "max_drawdown_pct": 3.601,
+    "starting_balance": 10000.0,
+    "final_balance": 11991.65,
+    "stake_currency": "USD",
+    "gross_abs": 1991.65,
+    "volume_abs": 11313235.75,
+    "break_even_pct": 0.0176,
+    "market_change_pct": 0.592,
+    "backtest_start": "2025-01-06T00:00:00+00:00",
+    "backtest_end": "2025-01-31T21:12:00+00:00",
+    "holding_avg": "0:20:00",
+    "exits": {
+      "take_profit": {
+        "n": 9,
+        "pnl_abs": 3024.01
+      },
+      "stop_loss": {
+        "n": 3,
+        "pnl_abs": -1032.35
+      }
+    },
+    "bars": 8655,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 3.3
+  },
+  "series": {
+    "equity": [
+      [
+        "2025-01-06T16:27:00+00:00",
+        3.2098,
+        3.2098
+      ],
+      [
+        "2025-01-13T16:57:00+00:00",
+        -3.4172,
+        -0.2075
+      ],
+      [
+        "2025-01-14T08:40:00+00:00",
+        3.4504,
+        3.2429
+      ],
+      [
+        "2025-01-15T15:58:00+00:00",
+        -3.3054,
+        -0.0625
+      ],
+      [
+        "2025-01-15T17:38:00+00:00",
+        3.3214,
+        3.2589
+      ],
+      [
+        "2025-01-17T16:24:00+00:00",
+        3.3271,
+        6.586
+      ],
+      [
+        "2025-01-17T17:20:00+00:00",
+        3.6023,
+        10.1883
+      ],
+      [
+        "2025-01-20T16:36:00+00:00",
+        3.1886,
+        13.3769
+      ],
+      [
+        "2025-01-22T09:14:00+00:00",
+        3.5356,
+        16.9125
+      ],
+      [
+        "2025-01-24T08:54:00+00:00",
+        -3.6009,
+        13.3116
+      ],
+      [
+        "2025-01-24T12:03:00+00:00",
+        3.4789,
+        16.7905
+      ],
+      [
+        "2025-01-27T20:24:00+00:00",
+        3.126,
+        19.9165
+      ]
+    ],
+    "market": [
+      [
+        "2025-01-06T00:00:00+00:00",
+        1.1848
+      ],
+      [
+        "2025-01-07T00:00:00+00:00",
+        -0.5673
+      ],
+      [
+        "2025-01-08T00:00:00+00:00",
+        -0.9222
+      ],
+      [
+        "2025-01-09T00:00:00+00:00",
+        -1.2547
+      ],
+      [
+        "2025-01-10T00:00:00+00:00",
+        -2.2481
+      ],
+      [
+        "2025-01-12T00:00:00+00:00",
+        -2.3324
+      ],
+      [
+        "2025-01-13T00:00:00+00:00",
+        -2.1025
+      ],
+      [
+        "2025-01-14T00:00:00+00:00",
+        -2.5362
+      ],
+      [
+        "2025-01-15T00:00:00+00:00",
+        -0.3855
+      ],
+      [
+        "2025-01-16T00:00:00+00:00",
+        -1.1655
+      ],
+      [
+        "2025-01-17T00:00:00+00:00",
+        0.4713
+      ],
+      [
+        "2025-01-19T00:00:00+00:00",
+        0.2943
+      ],
+      [
+        "2025-01-20T00:00:00+00:00",
+        1.182
+      ],
+      [
+        "2025-01-21T00:00:00+00:00",
+        1.5522
+      ],
+      [
+        "2025-01-22T00:00:00+00:00",
+        2.2765
+      ],
+      [
+        "2025-01-23T00:00:00+00:00",
+        2.5428
+      ],
+      [
+        "2025-01-24T00:00:00+00:00",
+        2.0253
+      ],
+      [
+        "2025-01-26T00:00:00+00:00",
+        0.9387
+      ],
+      [
+        "2025-01-27T00:00:00+00:00",
+        -0.6084
+      ],
+      [
+        "2025-01-28T00:00:00+00:00",
+        0.4348
+      ],
+      [
+        "2025-01-29T00:00:00+00:00",
+        0.4119
+      ],
+      [
+        "2025-01-30T00:00:00+00:00",
+        1.1879
+      ],
+      [
+        "2025-01-31T00:00:00+00:00",
+        0.5919
+      ]
+    ]
+  }
+}

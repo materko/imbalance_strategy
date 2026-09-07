@@ -219,10 +219,18 @@ class InstrumentSpec:
         """Ako pár volá burza: `BTC/USDT:USDT` → `BTCUSDT.P`, `BTC/USDT` → `BTCUSDT`.
 
         `.P` je značka perpetuálu (rovnako to píše TradingView), aby bolo na prvý
-        pohľad vidno, či ide o futures alebo spot.
+        pohľad vidno, či ide o futures alebo spot. Na „burze" MultiCharts (Dukascopy
+        CFD) je to len názov symbolu, ako ho vidí MultiCharts: `NAS100/USD` → `NAS100`.
         """
+        if self.venue == "multicharts":
+            return self.symbol.split("/")[0]
         base = self.symbol.split(":")[0].replace("/", "").replace("-", "")
         return f"{base}.P" if self.market == "futures" and ":" in self.symbol else base
+
+    @property
+    def data_stem(self) -> str:
+        """Meno dátového súboru bez TF: `NAS100/USD` → `NAS100_USD` (ako Freqtrade `BTC_USDT_USDT`)."""
+        return self.symbol.replace("/", "_").replace(":", "_")
 
     # -- odvodené ----------------------------------------------------------- #
 
@@ -355,15 +363,17 @@ ETHUSDT_BINANCE_SPOT = InstrumentSpec(
     market="spot",
 )
 
-#: Dukascopy CFD na Nasdaq-100 (`USA100.IDX/USD`) — ten istý podklad ako MNQ, takže
+#: Dukascopy CFD na Nasdaq-100 (u Dukascopy `USA100.IDX/USD`) — ten istý podklad ako MNQ, takže
 #: prahy v bodoch z `multicharts_mnq_3m` sedia 1:1. Dáta sú bid strana bez spreadu,
 #: 1m, UTC, s tromi desatinnými miestami; objem je len tickový. Tick 0.01 je najmenší,
 #: ktorý Pine rozsah `tickDollarValue` (>= 0.01) pripúšťa — v QuoteManageri môže mať symbol
 #: Price Scale 1/1000, ordre sa len zaokrúhlia na stotiny. Hodnota bodu 1 USD za jednotku
 #: je predpoklad — v QuoteManageri ju treba nastaviť ako Big Point Value.
+#: `venue="multicharts"` = webapp „burza" MultiCharts: dáta z Dukascopy CSV
+#: (`tradebot.tools.dukas_archive`), beh cez emulátor MultiCharts, nie cez Freqtrade.
 NAS100_DUKASCOPY = InstrumentSpec(
-    symbol="USA100.IDX/USD",
-    venue="dukascopy",
+    symbol="NAS100/USD",
+    venue="multicharts",
     tick_size=0.01,
     point_value=1.0,
     qty_step=1.0,

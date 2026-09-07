@@ -1,7 +1,8 @@
 {
   "_title": "MultiCharts NAS100 CFD (Dukascopy) 3m — odvodené z multicharts_mnq_3m",
   "_comment": [
-    "Dukascopy USA100.IDX/USD, 1m dáta prevedené cez tradebot.tools.dukas_to_mc a importované do QuoteManagera.",
+    "Dukascopy USA100.IDX/USD (v repozitari NAS100/USD): 1m data cez tradebot.tools.dukas_to_mc do QuoteManagera,",
+    "alebo cez tradebot.tools.dukas_archive do webapp (burza MultiCharts, emulator MultiCharts bez Freqtrade).",
     "Ten istý podklad ako MNQ, preto su prahy v bodoch (abs) rovnake ako v multicharts_mnq_3m.",
     "Tick je 0.01 (Pine rozsah tickDollarValue zacina na 0.01; data maju 3 desatinne miesta),",
     "nie 0.25 ako na MNQ - tickove polia su preto",
