@@ -43,7 +43,7 @@ from tradebot.core import (
 )
 from tradebot.core.risk import TradePlan, extreme_before_stop
 from tradebot.core.types import Direction
-from .scan_zones import _LAYOUT, _load, _to_bar
+from .scan_zones import _PAIRS, _load, _to_bar
 
 
 def _utc_day(ts_ms: int) -> str:
@@ -303,7 +303,7 @@ def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str | Path, chart_tf: in
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     src = ap.add_mutually_exclusive_group()
-    src.add_argument("--exchange", choices=sorted(_LAYOUT), default="binance")
+    src.add_argument("--exchange", choices=sorted(_PAIRS), default="binance")
     src.add_argument("--csv", type=Path, help="Dukascopy 1m CSV (dt,o,h,l,c,vol; UTC) namiesto burzy")
     ap.add_argument("--profile", default="golden_binance_btcusdt_3m")
     ap.add_argument("--chart-tf", type=int, default=3)

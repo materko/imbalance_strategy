@@ -23,9 +23,8 @@ deploy/freqtrade/user_data/hyperopt_results/
 # V gite je archiv po rokoch (data_archive/<zdroj>/) - stary rok sa uz nikdy nezmeni,
 # takze jeho blob v historii existuje raz. Cely subor by sa pri kazdom stiahnuti dat
 # commitol znova.
+# Vsetko pod data/ je odvodene: data/tester/ z archivu, data/quotemanager/ z neho.
 data/
-# ASCII exporty pre QuoteManager - vystup z data/, vyrobia sa znova jednym prikazom
-deploy/multicharts/quotemanager/
 deploy/freqtrade/user_data/strategies/*.json
 deploy/freqtrade/user_data/hyperopt.lock
 

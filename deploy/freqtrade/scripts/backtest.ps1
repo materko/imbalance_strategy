@@ -41,7 +41,7 @@ $args = @(
     "-m", "freqtrade", "backtesting",
     "--config", (Join-Path $ft $Config),
     "--userdir", $userdir,
-    "--datadir", (Join-Path $repo "data\binance"),
+    "--datadir", (Join-Path $repo "data\tester\binance"),
     "--strategy", $Strategy,
     "--cache", "none"
 )

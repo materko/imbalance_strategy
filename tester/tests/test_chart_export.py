@@ -148,7 +148,7 @@ def fake_data(tmp_path: Path, monkeypatch):
     out = tmp_path / "binance" / "futures"
     out.mkdir(parents=True)
     df.to_feather(out / "BTC_USDT_USDT-3m-futures.feather")
-    monkeypatch.setattr(engines, "DATA", tmp_path)
+    monkeypatch.setattr(engines, "TESTER_DATA", tmp_path)
     chart_mod._frame.cache_clear()
     return tmp_path
 

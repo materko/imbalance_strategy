@@ -55,7 +55,7 @@ function Invoke-Download {
     & $py -m freqtrade download-data `
         --config (Join-Path $ft $ConfigName) `
         --userdir $userdir `
-        --datadir (Join-Path $repo "data\$DataDir") `
+        --datadir (Join-Path $repo "data\tester\$DataDir") `
         --timeframes $Tf `
         @range @eraseArg
 
@@ -82,8 +82,8 @@ if (-not $SkipCoinbase) {
 
 Write-Host ""
 Write-Host "=== Co je stiahnute ===" -ForegroundColor Cyan
-& $py -m freqtrade list-data --userdir $userdir --datadir (Join-Path $repo "data\binance") --config (Join-Path $ft "config.binance.json")
-& $py -m freqtrade list-data --userdir $userdir --datadir (Join-Path $repo "data\coinbase\spot") --config (Join-Path $ft "config.coinbase.json")
+& $py -m freqtrade list-data --userdir $userdir --datadir (Join-Path $repo "data\tester\binance") --config (Join-Path $ft "config.binance.json")
+& $py -m freqtrade list-data --userdir $userdir --datadir (Join-Path $repo "data\tester\coinbase\spot") --config (Join-Path $ft "config.coinbase.json")
 
 Write-Host ""
 Write-Host "=== Delim na rocne subory pre git ===" -ForegroundColor Cyan

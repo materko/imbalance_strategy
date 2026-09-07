@@ -25,7 +25,7 @@ echo
 exec "$py" -m freqtrade hyperopt \
     --config "$ft/config.binance.json" \
     --userdir "$ft/user_data" \
-    --datadir "$repo/data/binance" \
+    --datadir "$repo/data/tester/binance" \
     --strategy "${STRATEGY:-IBSImbalanceStrategy}" \
     --hyperopt-loss "$LOSS" \
     --timerange "$TIMERANGE" \

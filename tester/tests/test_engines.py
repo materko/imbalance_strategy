@@ -20,7 +20,7 @@ NAS = INSTRUMENTS["nas100_dukascopy"]
 
 @pytest.fixture
 def data(tmp_path: Path, monkeypatch):
-    monkeypatch.setattr(engines, "DATA", tmp_path / "data")
+    monkeypatch.setattr(engines, "TESTER_DATA", tmp_path / "data" / "tester")
     return tmp_path
 
 
@@ -37,24 +37,24 @@ def touch(path: Path) -> Path:
 
 def test_cesty_su_pod_zdrojom_a_trhom(data):
     """Adresár je zdroj a trh, nie platforma — dáta sú pre oba enginy jedny."""
-    assert engines.freqtrade_file(BTC, "3m") == data / "data/binance/futures/BTC_USDT_USDT-3m-futures.feather"
-    assert engines.freqtrade_file(BTC_SPOT, "3m") == data / "data/binance/spot/BTC_USDT-3m.feather"
-    assert engines.freqtrade_file(NAS, "3m") == data / "data/dukascopy/futures/NAS100_USD-3m.feather"
+    assert engines.freqtrade_file(BTC, "3m") == data / "data/tester/binance/futures/BTC_USDT_USDT-3m-futures.feather"
+    assert engines.freqtrade_file(BTC_SPOT, "3m") == data / "data/tester/binance/spot/BTC_USDT-3m.feather"
+    assert engines.freqtrade_file(NAS, "3m") == data / "data/tester/dukascopy/futures/NAS100_USD-3m.feather"
 
 
 def test_datadir_dopocita_freqtradeov_podadresar(data):
     """`futures/` si Freqtrade pridáva sám, pri spote nie — preto rôzny `--datadir`."""
-    assert engines.data_dir(BTC) == data / "data/binance"
-    assert engines.data_dir(BTC_SPOT) == data / "data/binance/spot"
-    assert engines.data_dir(NAS) == data / "data/dukascopy/futures"
+    assert engines.data_dir(BTC) == data / "data/tester/binance"
+    assert engines.data_dir(BTC_SPOT) == data / "data/tester/binance/spot"
+    assert engines.data_dir(NAS) == data / "data/tester/dukascopy/futures"
     # nech je datadir akykolvek, subor musi vyjst pod market_dir
     for inst in (BTC, BTC_SPOT, NAS):
         assert engines.freqtrade_file(inst, "3m").parent == engines.market_dir(inst)
 
 
 def test_emulator_cita_ten_isty_strom_ako_freqtrade(data):
-    assert engines.one_minute_file(NAS) == data / "data/dukascopy/futures/NAS100_USD-1m.feather"
-    assert engines.one_minute_file(BTC) == data / "data/binance/futures/BTC_USDT_USDT-1m-futures.feather"
+    assert engines.one_minute_file(NAS) == data / "data/tester/dukascopy/futures/NAS100_USD-1m.feather"
+    assert engines.one_minute_file(BTC) == data / "data/tester/binance/futures/BTC_USDT_USDT-1m-futures.feather"
 
 
 def test_config_podla_trhu_a_zdroja():

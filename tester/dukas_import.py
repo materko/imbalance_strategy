@@ -13,10 +13,10 @@ Vyrobí dve veci (`--target tester | multicharts | both`, predvolene obe):
 potom v ponuke webapp; beží cez emulátor MultiCharts, nie cez Freqtrade (Dukascopy CFD nie
 sú ccxt burza). Čas baru ostáva časom **otvorenia**, ako v jadre a v Pine.
 
-**MultiCharts** — ASCII súbor pre QuoteManager v `deploy/multicharts/quotemanager/<zdroj>/`
-s hlavičkou `Date,Time,Open,High,Low,Close,Volume`, čas **zatvorenia** baru a objem ako celé
-číslo. Nie je to sklad sviečok (ten je jeden, v `data/`), ale výstup z neho pre cudziu
-aplikáciu — späť ho nikto nečíta, preto sa negituje.
+**MultiCharts** — ASCII súbor pre QuoteManager v `data/quotemanager/<zdroj>/` s hlavičkou
+`Date,Time,Open,High,Low,Close,Volume`, čas **zatvorenia** baru a objem ako celé číslo.
+Nie je to sklad sviečok (ten je `data/tester/`), ale výstup z neho pre cudziu aplikáciu —
+späť ho nikto nečíta, preto sa negituje.
 
 Obe cesty čistia export rovnakým pravidlom, takže webapp, MultiCharts aj offline
 simulátor (`scan_trades --csv`) vidia tie isté bary:
@@ -61,7 +61,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Iterable, Iterator, Sequence, TextIO
 
-from tradebot.core.paths import DATA, DATA_ARCHIVE, QUOTEMANAGER_DIR, REPO
+from tradebot.core.paths import DATA_ARCHIVE, QUOTEMANAGER_DATA, REPO, TESTER_DATA
 from tradebot.core.types import DUKASCOPY_REGISTRY, INSTRUMENTS, InstrumentSpec, dukascopy_specs
 from tradebot.core.candles import resample_ohlcv
 
@@ -415,7 +415,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     mc = ap.add_argument_group("MultiCharts (QuoteManager)")
     mc.add_argument("--mc-out", type=Path,
-                    help="výstupný ASCII súbor (predvolene deploy/multicharts/quotemanager/<zdroj>/<PÁR>-1m.csv)")
+                    help="výstupný ASCII súbor (predvolene data/quotemanager/<zdroj>/<PÁR>-1m.csv)")
     mc.add_argument("--stamp", choices=("close", "open"), default="close",
                     help="čas baru: close = +1 min (konvencia MultiCharts), open = ako v zdroji")
     mc.add_argument("--date-format", default="%Y-%m-%d", help="strftime formát dátumu (predvolene ISO)")
@@ -427,7 +427,7 @@ def _build_parser() -> argparse.ArgumentParser:
     ts.add_argument("--no-merge", action="store_true", help="nezložiť pracovný súbor pre webapp")
 
     ft = ap.add_argument_group("Freqtrade (hyperopt, FreqAI)")
-    ft.add_argument("--ft-datadir", type=Path, default=DATA,
+    ft.add_argument("--ft-datadir", type=Path, default=TESTER_DATA,
                     help="kam sviečky po timeframoch (beh ich berie cez --datadir)")
     ft.add_argument("--ft-timeframes", nargs="+", default=list(FT_TIMEFRAMES),
                     help="ktoré timeframy poskladať z 1m")
@@ -492,7 +492,7 @@ def main(argv: list[str] | None = None, stderr: TextIO | None = None) -> int:
 
     rc = 0
     if "multicharts" in targets:
-        dst = args.mc_out or QUOTEMANAGER_DIR / inst.data_source / f"{inst.data_stem}-1m.csv"
+        dst = args.mc_out or QUOTEMANAGER_DATA / inst.data_source / f"{inst.data_stem}-1m.csv"
         stats = convert(
             args.src, dst,
             date_from=args.date_from, date_to=args.date_to, stamp=args.stamp,
@@ -525,7 +525,7 @@ def main(argv: list[str] | None = None, stderr: TextIO | None = None) -> int:
             if not args.no_merge:
                 from . import data_archive
 
-                data_archive.merge(verbose=False, roots=((args.archive, DATA),))
+                data_archive.merge(verbose=False, roots=((args.archive, TESTER_DATA),))
                 from . import engines
 
                 print(f"pracovny subor: {engines.one_minute_file(inst)}", file=err)

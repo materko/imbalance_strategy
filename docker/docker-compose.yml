@@ -22,7 +22,7 @@ x-freqtrade-base: &freqtrade-base
     # userdir Freqtradu (strategie, hyperopty, vysledky) je zapisovatelny
     - ../deploy/freqtrade/user_data:/freqtrade/user_data
     - ../deploy/freqtrade:/freqtrade/cfg:ro
-    # sviecky su spolocne pre oba enginy: data/<zdroj>/ - dava sa cez --datadir
+    # sviecky su spolocne pre oba enginy: data/tester/<zdroj>/<trh>/ - cez --datadir
     - ../data:/app/data
     # zdrojaky jadra read-only, aby sa zmeny prejavili bez rebuildu
     - ../tradebot:/app/tradebot:ro
@@ -49,7 +49,7 @@ services:
       download-data
       --config /freqtrade/cfg/config.binance.json
       --userdir /freqtrade/user_data
-      --datadir /app/data/binance
+      --datadir /app/data/tester/binance
       --timeframes 1m 3m 5m
       --days ${DAYS:-60}
 
@@ -61,7 +61,7 @@ services:
       download-data
       --config /freqtrade/cfg/config.coinbase.json
       --userdir /freqtrade/user_data
-      --datadir /app/data/coinbase/spot
+      --datadir /app/data/tester/coinbase/spot
       --timeframes 1m 5m
       --days ${DAYS:-60}
 
@@ -72,7 +72,7 @@ services:
       backtesting
       --config /freqtrade/cfg/config.binance.json
       --userdir /freqtrade/user_data
-      --datadir /app/data/binance
+      --datadir /app/data/tester/binance
       --strategy ${STRATEGY:-IBSImbalanceStrategy}
       --timeframe-detail 1m
 
@@ -114,7 +114,7 @@ services:
       trade
       --config /freqtrade/cfg/config.binance.json
       --userdir /freqtrade/user_data
-      --datadir /app/data/binance
+      --datadir /app/data/tester/binance
       --strategy ${STRATEGY:-IBSImbalanceStrategy}
     logging:
       driver: json-file

@@ -35,13 +35,16 @@ from tradebot.core import (
     detect_sd_pattern,
     load_profile,
 )
-from tradebot.core.paths import DATA as DATA_DIR
 from tradebot.core.candles import resample_ohlcv as _resample
+from tradebot.core.types import INSTRUMENTS
 
-#: Kde ktorá burza drží súbory a ako sa volajú.
-_LAYOUT = {
-    "binance": ("BTC_USDT_USDT", "futures", "-futures"),
-    "coinbase": ("BTC_USD", "", ""),
+from .. import engines
+
+#: Referenčný pár každej burzy. Kde jeho súbor leží, vie `engines` — tu sa cesta
+#: neskladá, aby sa pri zmene rozloženia dát nedalo zabudnúť práve na toto miesto.
+_PAIRS = {
+    "binance": "btcusdt_binance",
+    "coinbase": "btcusd_coinbase",
 }
 
 
@@ -78,10 +81,10 @@ def _load_dukas_csv(path: str):
 def _load(exchange: str | Path, timeframe: str):
     """Načíta sviečky. Ak burza daný TF neponúka, poskladá ho z 1m **v pamäti**.
 
-    `exchange` je kľúč burzy z `_LAYOUT`, alebo cesta k Dukascopy 1m CSV (`--csv`);
+    `exchange` je kľúč burzy z `_PAIRS`, alebo cesta k Dukascopy 1m CSV (`--csv`);
     z CSV sa každý TF okrem 1m skladá v pamäti.
 
-    Na disk sa nikdy nič dopočítané nezapisuje — v `data/` platformy sú výhradne
+    Na disk sa nikdy nič dopočítané nezapisuje — v sklade `data/tester/` sú výhradne
     skutočné burzové sviečky. Presne to isté bude robiť aj Freqtrade stratégia
     (napr. Coinbase 3m, ktoré burza neponúka).
     """
@@ -94,11 +97,11 @@ def _load(exchange: str | Path, timeframe: str):
         df["ts"] = df["date"].astype("datetime64[ns, UTC]").astype("int64") // 1_000_000
         return df
 
-    pair, subdir, suffix = _LAYOUT[exchange]
-    path = DATA_DIR / exchange / subdir / f"{pair}-{timeframe}{suffix}.feather"
+    inst = INSTRUMENTS[_PAIRS[exchange]]
+    path = engines.freqtrade_file(inst, timeframe)
 
     if not path.exists():
-        src = DATA_DIR / exchange / subdir / f"{pair}-1m{suffix}.feather"
+        src = engines.freqtrade_file(inst, "1m")
         if not src.exists():
             raise SystemExit(
                 f"Chybaju data: {path}\n"
@@ -198,7 +201,7 @@ def scan(
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     src = ap.add_mutually_exclusive_group()
-    src.add_argument("--exchange", choices=sorted(_LAYOUT), default="binance")
+    src.add_argument("--exchange", choices=sorted(_PAIRS), default="binance")
     src.add_argument("--csv", type=Path, help="Dukascopy 1m CSV (dt,o,h,l,c,vol; UTC) namiesto burzy")
     ap.add_argument("--profile", default="golden_binance_btcusdt_3m")
     ap.add_argument("--chart-tf", type=int, default=3, help="timeframe grafu v minutach")
