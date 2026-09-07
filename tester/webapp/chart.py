@@ -16,7 +16,8 @@ from typing import Any
 
 from tradebot.core.candles import resample_ohlcv
 from tradebot.core.types import INSTRUMENTS
-from .runner import DATA_DIR, MC_DIR, SPOT_DIR, instrument_for_pair, is_multicharts_pair
+from .. import engines
+from .runner import instrument_for_pair, is_multicharts_pair
 
 #: Timeframy, ktoré má zmysel ponúknuť v grafe; súbor musí existovať (nič sa neskladá).
 TIMEFRAMES = ("1m", "3m", "5m", "15m", "30m", "1h")
@@ -31,20 +32,24 @@ def pair_file(pair: str, timeframe: str) -> Path:
     spotový `BTC/USDT` → `.../BTC_USDT-3m.feather` (Freqtrade pomenovanie)."""
     if timeframe not in TIMEFRAMES:
         raise ValueError(f"nepodporovaný timeframe {timeframe!r}; povolené: {', '.join(TIMEFRAMES)}")
-    base = pair.replace("/", "_").replace(":", "_")
+    inst = INSTRUMENTS[instrument_for_pair(pair)]
     if is_multicharts_pair(pair):
-        # „burza" MultiCharts má na disku len 1m; ostatné TF sa skladajú v pamäti (`candles`)
-        inst = INSTRUMENTS[instrument_for_pair(pair)]
-        return MC_DIR / inst.data_source / f"{base}-1m.feather"
-    if ":" not in pair:
-        return SPOT_DIR / f"{base}-{timeframe}.feather"
-    return DATA_DIR / f"{base}-{timeframe}-futures.feather"
+        # Dukascopy má na disku len 1m; ostatné TF sa skladajú v pamäti (`core.candles`)
+        return engines.one_minute_file(inst)
+    return engines.freqtrade_file(inst, timeframe)
 
 
 def available_timeframes(pair: str) -> list[str]:
+    """Timeframy, pre ktoré má pár dáta. Neznámy pár nemá žiadne — nie je to chyba, len
+    prázdna ponuka (validáciu behu rieši `app.submit`, ktorá povie, čo je zle)."""
+    try:
+        inst = INSTRUMENTS[instrument_for_pair(pair)]
+    except ValueError:
+        return []
     if is_multicharts_pair(pair):
-        return list(TIMEFRAMES) if pair_file(pair, "1m").exists() else []
-    return [tf for tf in TIMEFRAMES if pair_file(pair, tf).exists()]
+        # Dukascopy má na disku len 1m, vyššie TF sa skladajú v pamäti
+        return list(TIMEFRAMES) if engines.one_minute_file(inst).exists() else []
+    return [tf for tf in TIMEFRAMES if engines.freqtrade_file(inst, tf).exists()]
 
 
 @lru_cache(maxsize=6)

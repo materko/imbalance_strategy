@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Stiahne sviečkové dáta pre obe burzy do platforms/freqtrade/user_data/data.
+    Stiahne sviečkové dáta pre obe burzy do data.
 
 .DESCRIPTION
     Timeframy majú v tomto porte konkrétnu úlohu (ARCHITECTURE_port.md §7):
@@ -17,11 +17,11 @@
                na disk sa žiadny umelý timeframe neukladá.
 
 .EXAMPLE
-    .\platforms\freqtrade\scripts\download-data.ps1
+    .\deploy\freqtrade\scripts\download-data.ps1
 .EXAMPLE
-    .\platforms\freqtrade\scripts\download-data.ps1 -Timerange 20260801-20260905
+    .\deploy\freqtrade\scripts\download-data.ps1 -Timerange 20260801-20260905
 .EXAMPLE
-    .\platforms\freqtrade\scripts\download-data.ps1 -SkipCoinbase -Days 180
+    .\deploy\freqtrade\scripts\download-data.ps1 -SkipCoinbase -Days 180
 #>
 [CmdletBinding()]
 param(
@@ -34,17 +34,19 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..")).Path
-$ft = Join-Path $repo "platforms\freqtrade"
+$ft = Join-Path $repo "deploy\freqtrade"
 $userdir = Join-Path $ft "user_data"
 $py = Join-Path $repo ".venv\Scripts\python.exe"
 
-if (-not (Test-Path $py)) { throw "Chyba .venv - spusti najprv platforms\freqtrade\scripts\setup.ps1" }
+if (-not (Test-Path $py)) { throw "Chyba .venv - spusti najprv deploy\freqtrade\scripts\setup.ps1" }
 
 $range = if ($Timerange) { @("--timerange", $Timerange) } else { @("--days", "$Days") }
 $eraseArg = if ($Erase) { @("--erase") } else { @() }
 
+# Sviecky nepatria do userdiru Freqtradu, ale do spolocneho data\<zdroj>\ - z toho
+# isteho stromu ich cita aj emulator MultiCharts (tester/engines.py).
 function Invoke-Download {
-    param([string]$Label, [string]$ConfigName, [string[]]$Tf)
+    param([string]$Label, [string]$ConfigName, [string]$Source, [string[]]$Tf)
 
     Write-Host ""
     Write-Host "=== $Label ===" -ForegroundColor Cyan
@@ -53,6 +55,7 @@ function Invoke-Download {
     & $py -m freqtrade download-data `
         --config (Join-Path $ft $ConfigName) `
         --userdir $userdir `
+        --datadir (Join-Path $repo "data\$Source") `
         --timeframes $Tf `
         @range @eraseArg
 
@@ -65,12 +68,12 @@ function Invoke-Download {
 
 if (-not $SkipBinance) {
     Invoke-Download -Label "Binance BTC/USDT:USDT (futures)" `
-        -ConfigName "config.binance.json" -Tf @("1m", "3m", "5m") | Out-Null
+        -ConfigName "config.binance.json" -Source "binance" -Tf @("1m", "3m", "5m") | Out-Null
 }
 
 if (-not $SkipCoinbase) {
     $ok = Invoke-Download -Label "Coinbase BTC/USD (spot, referencne)" `
-        -ConfigName "config.coinbase.json" -Tf @("1m", "5m")
+        -ConfigName "config.coinbase.json" -Source "coinbase" -Tf @("1m", "5m")
 
     if ($ok) {
         Write-Host "Coinbase 3m sa nesťahuje - burza ho neponúka. Stratégia si ho poskladá z 1m." -ForegroundColor DarkGray
@@ -79,13 +82,13 @@ if (-not $SkipCoinbase) {
 
 Write-Host ""
 Write-Host "=== Co je stiahnute ===" -ForegroundColor Cyan
-& $py -m freqtrade list-data --userdir $userdir --config (Join-Path $ft "config.binance.json")
-& $py -m freqtrade list-data --userdir $userdir --config (Join-Path $ft "config.coinbase.json")
+& $py -m freqtrade list-data --userdir $userdir --datadir (Join-Path $repo "data\binance") --config (Join-Path $ft "config.binance.json")
+& $py -m freqtrade list-data --userdir $userdir --datadir (Join-Path $repo "data\coinbase") --config (Join-Path $ft "config.coinbase.json")
 
 Write-Host ""
 Write-Host "=== Delim na rocne subory pre git ===" -ForegroundColor Cyan
 & $py -m tester.data_archive split
 Write-Host ""
-Write-Host "Commituj len user_data\data_archive\ - pracovne subory v data\ su" -ForegroundColor Green
+Write-Host "Commituj len data_archive\ - pracovne subory v data\ su" -ForegroundColor Green
 Write-Host "v .gitignore. Po klonovani sa poskladaju prikazom:" -ForegroundColor Green
 Write-Host "  python -m tester.data_archive merge"

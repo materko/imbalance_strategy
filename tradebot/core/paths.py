@@ -1,31 +1,27 @@
 """Kde v repozitári čo leží — jediné miesto, kde sú cesty napísané.
 
-Adresáre sú rozdelené podľa toho, **komu patria**, nie podľa toho, kto ich prvý
-potreboval:
-
-Sviečky sú vždy `<dáta>/<zdroj>/<PÁR>-<TF>.feather` — zdroj (burza alebo dodávateľ
-dát) je adresár, aby bolo z cesty vidno, odkiaľ sú.
-
 ```
-platforms/freqtrade/user_data/       userdir Freqtradu (jeho formát, jeho nástroje)
-    data_archive/<zdroj>/            burzové sviečky po rokoch  — v gite
-    data/                            pracovné súbory Freqtradu   — gitignored
-    backtest_results/                zipy z backtestu            — gitignored
-platforms/multicharts/
-    data_archive/<zdroj>/            1m sviečky po rokoch (dukascopy) — v gite
-    data/<zdroj>/                    pracovné 1m sviečky              — gitignored
-tester/
-    runs/                            história behov z webapp     — v gite
-    profiles/                        vlastné profily testerov    — v gite
+data_archive/<zdroj>/        sviečky po rokoch           — v gite
+data/<zdroj>/                pracovná podoba tých istých — gitignored
+deploy/freqtrade/            čo potrebuje Freqtrade: configy búrz, skripty, user_data
+deploy/multicharts/          čo potrebuje MultiCharts: šablóny štúdií, setup
+tester/runs/, tester/profiles/   história behov a configy testerov — v gite
 ```
 
-Dáta testera (`tester/`) sú spoločné pre obe platformy: beh na Binance ide cez
-Freqtrade, beh na Dukascopy symbole cez emulátor MultiCharts a v histórii sú vedľa
-seba. Preto nesedia pod `user_data` ani jednej z nich.
+**Dáta sú jedny, nerozdelené podľa engine.** Sviečka z Binance a sviečka z Dukascopy sa
+líšia zdrojom, nie tým, čím ich kto prehrá — tá istá stratégia beží cez Freqtrade aj cez
+emulátor MultiCharts na ktoromkoľvek páre (`tester.engines`). Preto je adresárom **zdroj**
+(`binance`, `coinbase`, `dukascopy`) a nie platforma. Freqtrade dostane svoj koreň
+prepínačom `--datadir data/<zdroj>`; vnútri si drží vlastnú konvenciu (futures
+v podadresári `futures/` s príponou `-futures` v mene).
+
+`deploy/` je integračná vrstva — to, čo treba na strane cudzej aplikácie, aby v nej adaptér
+bežal. Kód tam nie je (ten je v `tradebot/adapters/`) a dáta tiež nie.
 
 Pracovné adresáre (`data/`) sa skladajú z archívu príkazom
-``python -m tester.data_archive merge`` a nikdy sa necommitujú — celý súbor
-by sa pri každom doťahovaní dát pridal do histórie gitu znova.
+``python -m tester.data_archive merge`` a nikdy sa necommitujú — celý súbor by sa pri
+každom doťahovaní dát pridal do histórie gitu znova, kým uzavretý rok v archíve sa už
+nikdy nezmení.
 """
 
 from __future__ import annotations
@@ -34,9 +30,8 @@ from pathlib import Path
 
 __all__ = [
     "REPO",
-    "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "FREQTRADE_DATA", "FREQTRADE_ARCHIVE",
-    "BACKTEST_RESULTS",
-    "MULTICHARTS_DIR", "MULTICHARTS_DATA", "MULTICHARTS_ARCHIVE",
+    "DATA", "DATA_ARCHIVE",
+    "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS", "MULTICHARTS_DIR",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES",
     "ARCHIVE_ROOTS",
 ]
@@ -44,21 +39,24 @@ __all__ = [
 #: Koreň repozitára — `tradebot/core/paths.py` → `tradebot/core` → `tradebot` → repo.
 REPO = Path(__file__).resolve().parents[2]
 
-# -- Freqtrade -------------------------------------------------------------- #
+# -- Dáta ------------------------------------------------------------------- #
 
-FREQTRADE_DIR = REPO / "platforms" / "freqtrade"
+#: Pracovné sviečky, `data/<zdroj>/…` — odvodené z archívu, gitignored.
+DATA = REPO / "data"
+#: To isté po rokoch, ako je to v gite.
+DATA_ARCHIVE = REPO / "data_archive"
+
+# -- Integrácia s platformami ----------------------------------------------- #
+
+DEPLOY_DIR = REPO / "deploy"
+
+FREQTRADE_DIR = DEPLOY_DIR / "freqtrade"
+#: `--userdir` Freqtradu: shim stratégie pre resolver, hyperopt loss, výsledky, logy.
+#: Sviečky tu **nie sú** — tie idú cez `--datadir`.
 FREQTRADE_USER_DIR = FREQTRADE_DIR / "user_data"
-FREQTRADE_DATA = FREQTRADE_USER_DIR / "data"
-FREQTRADE_ARCHIVE = FREQTRADE_USER_DIR / "data_archive"
 BACKTEST_RESULTS = FREQTRADE_USER_DIR / "backtest_results"
 
-# -- MultiCharts ------------------------------------------------------------ #
-
-MULTICHARTS_DIR = REPO / "platforms" / "multicharts"
-#: 1m sviečky z Dukascopy CSV, pracovná podoba (`data_archive merge`).
-MULTICHARTS_DATA = MULTICHARTS_DIR / "data"
-#: To isté po rokoch, ako je to v gite (`tester.dukas_import`).
-MULTICHARTS_ARCHIVE = MULTICHARTS_DIR / "data_archive"
+MULTICHARTS_DIR = DEPLOY_DIR / "multicharts"
 
 # -- Tester (webapp) -------------------------------------------------------- #
 
@@ -71,8 +69,6 @@ TMP_PROFILES = RUNS_DIR / ".profiles"
 # -- Archív ----------------------------------------------------------------- #
 
 #: Dvojice (archív v gite, pracovný adresár) pre `data_archive split|merge`.
-#: Obe platformy majú rovnaký formát súborov, len iný koreň.
-ARCHIVE_ROOTS: tuple[tuple[Path, Path], ...] = (
-    (FREQTRADE_ARCHIVE, FREQTRADE_DATA),
-    (MULTICHARTS_ARCHIVE, MULTICHARTS_DATA),
-)
+#: Odkedy sú dáta na jednom mieste, je to jediná dvojica; zoznam ostáva, aby sa testy
+#: dali púšťať nad dočasným adresárom a aby sa dal pridať ďalší koreň.
+ARCHIVE_ROOTS: tuple[tuple[Path, Path], ...] = ((DATA_ARCHIVE, DATA),)

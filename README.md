@@ -50,12 +50,12 @@ do gitu a dá sa v nej hľadať podľa parametrov. Podrobne: [docs/WEBAPP.md](do
 ### Vývojár — venv, testy, backtest z príkazového riadku
 
 ```powershell
-.\platforms\freqtrade\scripts\setup.ps1           # .venv + freqtrade + tradebot (Windows)
-.\platforms\freqtrade\scripts\backtest.ps1 -Timerange 20250904-20260904
+.\deploy\freqtrade\scripts\setup.ps1           # .venv + freqtrade + tradebot (Windows)
+.\deploy\freqtrade\scripts\backtest.ps1 -Timerange 20250904-20260904
 ```
 ```bash
-./platforms/freqtrade/scripts/setup.sh            # macOS / Linux
-TRADEBOT_PROFILE=docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json ./platforms/freqtrade/scripts/backtest.sh
+./deploy/freqtrade/scripts/setup.sh            # macOS / Linux
+TRADEBOT_PROFILE=docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json ./deploy/freqtrade/scripts/backtest.sh
 .venv/bin/python -m pytest                        # 440 testov vrátane parity s Pine
 ```
 
@@ -103,8 +103,8 @@ reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. `--target freqtrade` 
 | [`tradebot/adapters/multicharts/`](tradebot/adapters/multicharts) | Generická študia `TradebotSignal`, `MCRunner`, kreslenie (len Windows) a **emulátor** MultiCharts (beží všade). |
 
 | [`tradebot/tests/`](tradebot/tests) | Testy produktu: jadro, stratégie, oba adaptéry. |
-| [`platforms/freqtrade/`](platforms/freqtrade) | Configy búrz (`config.binance.json`, `config.coinbase.json`, `config.dukascopy.json`), skripty (setup, download, backtest, hyperopt), `user_data/` (shim na stratégiu, hyperopt loss, `data_archive/<zdroj>/` so sviečkami). |
-| [`platforms/multicharts/`](platforms/multicharts) | Šablóny študií (`IBS_Signal.py`, `DemoBreakout_Signal.py`), inštalačný skript a `data_archive/<zdroj>/` s 1m sviečkami. |
+| [`deploy/freqtrade/`](deploy/freqtrade) | Configy búrz (`config.binance.json`, `config.coinbase.json`, `config.dukascopy.json`), skripty (setup, download, backtest, hyperopt), `user_data/` (shim na stratégiu, hyperopt loss, `data_archive/<zdroj>/` so sviečkami). |
+| [`deploy/multicharts/`](deploy/multicharts) | Šablóny študií (`IBS_Signal.py`, `DemoBreakout_Signal.py`), inštalačný skript a `data_archive/<zdroj>/` s 1m sviečkami. |
 | [`docker/`](docker) | `docker-compose.yml` (tests, download, backtest, freqtrade bot, webapp). |
 | **TradeBot Tester** | |
 | [`tester/webapp/`](tester/webapp) | Webová aplikácia pre testerov (FastAPI + Plotly) a jej CLI. |

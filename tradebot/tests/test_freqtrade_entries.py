@@ -161,7 +161,7 @@ def test_config_timeout_nesmie_byt_kratsi_nez_engine():
     import json
     from pathlib import Path
 
-    root = Path(__file__).resolve().parents[2] / "platforms" / "freqtrade"
+    root = Path(__file__).resolve().parents[2] / "deploy" / "freqtrade"
     from tradebot.core import load_profile
 
     cfg, _ = load_profile("golden_binance_btcusdt_3m")

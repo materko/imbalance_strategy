@@ -22,8 +22,8 @@ z hyperoptu treba overiť emulátorom.
 ## A. Inštalácia študie (Windows)
 
 ```powershell
-.\platforms\multicharts\scripts\setup.ps1
-.\platforms\multicharts\scripts\setup.ps1 -Python "C:\Python313\python.exe"
+.\deploy\multicharts\scripts\setup.ps1
+.\deploy\multicharts\scripts\setup.ps1 -Python "C:\Python313\python.exe"
 ```
 
 MultiCharts **nepoužíva virtuálne prostredie** — volá jednu konkrétnu globálnu 64-bitovú
@@ -33,14 +33,14 @@ to je: MultiCharts x Python (od verzie 15) ho hľadá cez `where python`, teda p
 prípadne cez premennú `PYTHONNET_PYDLL`. **Po inštalácii MultiCharts reštartuj** — StudyServer
 si Python drží od štartu a nový balík inak nevidí („No module named tradebot").
 Ak PowerShell odmietne skript spustiť:
-`powershell -ExecutionPolicy Bypass -File .\platforms\multicharts\scripts\setup.ps1`.
+`powershell -ExecutionPolicy Bypass -File .\deploy\multicharts\scripts\setup.ps1`.
 
 Potom v MultiCharts:
 
 1. **PowerLanguage .NET Editor**
 2. **File → New → Signal**, jazyk **Python**, názov **rovnaký ako trieda v šablóne**
    (`IBS`, `DemoBreakout`) — MultiCharts hľadá triedu podľa mena študie
-3. Vlož obsah šablóny z [`platforms/multicharts/`](../platforms/multicharts)
+3. Vlož obsah šablóny z [`deploy/multicharts/`](../deploy/multicharts)
    (`IBS_Signal.py`, `DemoBreakout_Signal.py`) — trieda, ktorá len deleguje na balík
    `tradebot` (MultiCharts vyžaduje metódy `Create`/`CalcBar` priamo v triede študie,
    zdedené nevidí); profil nastav v `PROFILE` (názov alebo cesta). Skompiluj (F7).
@@ -165,7 +165,7 @@ Get-Process MultiCharts64, tsServer, StudyServer.NET, TradingServer, ATCenterSer
 ```
 
 **MultiCharts nenájde modul `tradebot`** — má nastavený iný Python, než do ktorého sa
-inštalovalo. Zisti ktorý a spusti `platforms\multicharts\scripts\setup.ps1 -Python <cesta>`.
+inštalovalo. Zisti ktorý a spusti `deploy\multicharts\scripts\setup.ps1 -Python <cesta>`.
 Nikdy to nesmie byť `.venv`. Ak `pip install -e .` v globálnom Pythone hlási chýbajúce
 oprávnenia: PowerShell ako správca, alebo `--user`.
 
@@ -174,7 +174,7 @@ oprávnenia: PowerShell ako správca, alebo `--user`.
 ## E. Beh bez MultiCharts
 
 **Tester (webapp).** Webapp má „burzu" **MultiCharts**: 1m sviečky z Dukascopy ležia
-v `platforms/multicharts/data/`, pár sa v ponuke volá ako v MultiCharts (`NAS100`) a beh
+v `data/`, pár sa v ponuke volá ako v MultiCharts (`NAS100`) a beh
 nejde cez Freqtrade, ale cez **emulátor** — ten istý `MCRunner`, ktorý beží v študii, plus
 broker podľa MultiCharts (jedna pozícia, order platí na ďalší bar, market na otvorení,
 limitka pri dotyku, SL/TP po 1m sviečkach, koniec seansy na close baru). Výsledok má

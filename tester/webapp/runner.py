@@ -32,10 +32,9 @@ from typing import Any, Callable
 from tradebot.core import load_profile
 from tradebot.core.paths import (
     BACKTEST_RESULTS as RESULTS_DIR,
-    FREQTRADE_DATA,
+    DATA,
     FREQTRADE_DIR as FT_DIR,
     FREQTRADE_USER_DIR as USER_DIR,
-    MULTICHARTS_DATA as MC_DIR,
     REPO,
     TMP_PROFILES,
 )
@@ -45,9 +44,10 @@ from tradebot.strategies import get_spec
 from . import profiles
 from .store import RunStore, make_run_id
 
-DATA_DIR = FREQTRADE_DATA / "binance" / "futures"
-#: Spot je o adresár vyššie a bez prípony `-futures` v mene súboru (tak to píše Freqtrade).
-SPOT_DIR = FREQTRADE_DATA / "binance"
+#: Kde ležia sviečky ktorého inštrumentu, rieši `tester.engines` — jedno miesto pre
+#: oba enginy. Tu ostáva len prehľadanie burzových adresárov pri stavaní ponuky párov.
+BINANCE_FUTURES = DATA / "binance" / "futures"
+BINANCE_SPOT = DATA / "binance"
 
 #: Koľko riadkov logu sa uloží k behu — celý log Freqtradu má stovky riadkov
 #: o načítavaní dát, ktoré nikoho nezaujímajú.
@@ -133,11 +133,11 @@ def available_pairs() -> list[dict[str, Any]]:
 
     # pár -> súbor, z ktorého sa čítajú dátumy (3m, ak je; inak prvý dostupný TF)
     files: dict[str, Path] = {}
-    for p in sorted(DATA_DIR.glob("*-*-futures.feather")):
+    for p in sorted(BINANCE_FUTURES.glob("*-*-futures.feather")):
         base, _, tf = p.name[: -len("-futures.feather")].rpartition("-")
         if base not in files or tf == "3m":
             files[base] = p
-    for p in sorted(SPOT_DIR.glob("*-*.feather")):
+    for p in sorted(BINANCE_SPOT.glob("*-*.feather")):
         base, _, tf = p.name[: -len(".feather")].rpartition("-")
         if base.count("_") != 1:  # BTC_USDT; funding/mark súbory sú vo futures
             continue
@@ -175,7 +175,7 @@ def available_pairs() -> list[dict[str, Any]]:
     for key, inst in INSTRUMENTS.items():
         if inst.venue != "multicharts":
             continue
-        p = MC_DIR / inst.data_source / f"{inst.data_stem}-1m.feather"
+        p = engines.one_minute_file(inst)
         if not p.exists():
             continue
         dates = pd.read_feather(p, columns=["date"])["date"]
@@ -260,7 +260,7 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
     if detail and tf_minutes(detail) < tf_minutes(tf):
         cmd += ["--timeframe-detail", detail]
     # Symbol mimo ccxt búrz má dáta pod svojím zdrojom, nie pod menom nosnej burzy
-    datadir = engines.freqtrade_datadir(inst)
+    datadir = engines.data_dir(inst)
     if datadir.name != "binance":
         cmd += ["--datadir", str(datadir)]
     return cmd

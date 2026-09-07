@@ -3,7 +3,7 @@
 #   File → New → Signal, jazyk Python, názov študie IBS (= trieda nižšie), potom sem
 #   vlož tento súbor a skompiluj (F7). Po setup.ps1 treba MultiCharts reštartovať.
 #
-# Celá logika je v balíku `tradebot` (nainštaluje ho platforms/multicharts/scripts/setup.ps1),
+# Celá logika je v balíku `tradebot` (nainštaluje ho deploy/multicharts/scripts/setup.ps1),
 # takže sa dá testovať bez MultiCharts a je zdieľaná s Freqtrade vetvou. Trieda nižšie
 # je v tvare, aký MultiCharts x Python vyžaduje (ako jeho vlastná šablóna Strategy.PY):
 # bez rodiča, metódy Create/CalcBar priamo v triede, len delegujú na balík.

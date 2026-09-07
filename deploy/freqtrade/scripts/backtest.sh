@@ -6,14 +6,14 @@
 # sviečky prehráva po 1m krokoch. Stratégiu NIKDY nespúšťaj priamo na 1m -
 # všetky *MaxBars limity sú v baroch, nie v minútach.
 #
-#   ./platforms/freqtrade/scripts/backtest.sh
-#   TIMERANGE=20260801-20260905 ./platforms/freqtrade/scripts/backtest.sh
-#   CONFIG=config.coinbase.json ./platforms/freqtrade/scripts/backtest.sh
+#   ./deploy/freqtrade/scripts/backtest.sh
+#   TIMERANGE=20260801-20260905 ./deploy/freqtrade/scripts/backtest.sh
+#   CONFIG=config.coinbase.json ./deploy/freqtrade/scripts/backtest.sh
 
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-FT="$REPO/platforms/freqtrade"
+FT="$REPO/deploy/freqtrade"
 USERDIR="$FT/user_data"
 PY="$REPO/.venv/bin/python"
 
@@ -21,7 +21,7 @@ STRATEGY="${STRATEGY:-IBSImbalanceStrategy}"
 CONFIG="${CONFIG:-config.binance.json}"
 TIMEFRAME_DETAIL="${TIMEFRAME_DETAIL:-1m}"
 
-[[ -x "$PY" ]] || { echo "Chyba .venv - spusti najprv ./platforms/freqtrade/scripts/setup.sh" >&2; exit 1; }
+[[ -x "$PY" ]] || { echo "Chyba .venv - spusti najprv ./deploy/freqtrade/scripts/setup.sh" >&2; exit 1; }
 
 if [[ ! -f "$USERDIR/strategies/$STRATEGY.py" ]]; then
     echo "Strategia $STRATEGY este neexistuje ($USERDIR/strategies/$STRATEGY.py)." >&2
@@ -34,7 +34,8 @@ fi
 # zmena profilu cache nezneplatni a dostanes ticho stary vysledok.
 ARGS=(-m freqtrade backtesting
       --config "$FT/$CONFIG"
-      --userdir "$USERDIR"
+      --userdir "$USERDIR" \
+      --datadir "$REPO/data/binance"
       --strategy "$STRATEGY"
       --cache none)
 

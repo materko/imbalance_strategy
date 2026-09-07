@@ -19,9 +19,9 @@
     Python pridaný do PATH.
 
 .EXAMPLE
-    .\platforms\multicharts\scripts\setup.ps1
+    .\deploy\multicharts\scripts\setup.ps1
 .EXAMPLE
-    .\platforms\multicharts\scripts\setup.ps1 -Python "C:\Python313\python.exe"
+    .\deploy\multicharts\scripts\setup.ps1 -Python "C:\Python313\python.exe"
 #>
 [CmdletBinding()]
 param(
@@ -82,7 +82,7 @@ Write-Host ""
 Write-Host "Hotovo. RESTARTUJ MultiCharts (StudyServer si Python drzi od startu), potom:" -ForegroundColor Green
 Write-Host "  1. Otvor PowerLanguage .NET Editor"
 Write-Host "  2. File -> New -> Signal, jazyk: Python, nazov = trieda v sablone (IBS)"
-Write-Host "  3. Vloz obsah sablony platforms\multicharts\<Strategia>_Signal.py (IBS: IBS_Signal.py)"
+Write-Host "  3. Vloz obsah sablony deploy\multicharts\<Strategia>_Signal.py (IBS: IBS_Signal.py)"
 Write-Host "  4. Na graf pridaj DVE serie: Data1 = graf TF, Data2 = informativny TF strategie (IBS: 5m)"
 Write-Host "     Bez Data2 nevznikne ani jedna SD zona."
 Write-Host ""

@@ -44,8 +44,8 @@ Bez obmedzení. Platia len konvencie repozitára:
   referenčných oknách (`20211001-20221001`, `20221001-20231001`, `20231001-20241001`,
   `20240904-20250904`, `20250904-20260904`); kľúčová metrika je break-even poplatok.
 - Dáta len v oficiálnych timeframoch búrz, commitované po rokoch v `data_archive/` príslušnej
-  platformy (Binance/Coinbase pod `platforms/freqtrade/user_data/`, Dukascopy pod
-  `platforms/multicharts/`). Surový Dukascopy export spracuje `tester.dukas_import`
+  platformy (Binance/Coinbase pod `deploy/freqtrade/user_data/`, Dukascopy pod
+  `deploy/multicharts/`). Surový Dukascopy export spracuje `tester.dukas_import`
   (obal `./dukas-import.sh`, `.\dukas-import.ps1`) — viď [docs/DATA.md](docs/DATA.md).
 - Cesty v repozitári sú na jednom mieste v `tradebot/core/paths.py`; nikde inde sa nepíšu.
 - Vyšší TF sa z 1m skladá výhradne cez `tester/candles.py` (webapp graf, simulátor,
@@ -113,7 +113,7 @@ Všetko sa spúšťa z **koreňa repozitára** Pythonom z `.venv`:
 |---|---|---|
 | Python | `.venv/bin/python` | `.venv\Scripts\python.exe` |
 | Webapp | `./webapp.sh` | `.\webapp.ps1` alebo `webapp.cmd` |
-| Setup (ak `.venv` chýba) | `platforms/freqtrade/scripts/setup.sh` | `platforms\freqtrade\scripts\setup.ps1` |
+| Setup (ak `.venv` chýba) | `deploy/freqtrade/scripts/setup.sh` | `deploy\freqtrade\scripts\setup.ps1` |
 
 Nižšie píšem `PY` = ten Python. Ak `.venv` neexistuje, najprv spusti setup (~10 min).
 
@@ -252,7 +252,7 @@ testy, kód alebo dáta nesedia s referenciou — neopravuj to u testera, nahlá
 
 ## Keď niečo nefunguje
 
-- `Permission denied` na `.sh`: `bash ./webapp.sh` (alebo `chmod +x *.sh platforms/freqtrade/scripts/*.sh`).
+- `Permission denied` na `.sh`: `bash ./webapp.sh` (alebo `chmod +x *.sh deploy/freqtrade/scripts/*.sh`).
 - „chýbajú dáta" / prázdny zoznam párov: `PY -m tester.data_archive merge`.
 - Webapp odmietne beh s „Neplatný config": hodnota mimo Pine rozsahu — `params` ukáže rozsahy.
 - Beh skončil `failed`: `PY -m tester.webapp.cli show <id>` vypíše chybu, log je v

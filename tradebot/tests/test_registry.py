@@ -74,7 +74,7 @@ def test_layers_and_features_reference_real_things(spec):
 def test_freqtrade_shim_exists_with_matching_class(spec):
     """Freqtrade resolver berie len triedu, ktorej __module__ == názov súboru v user_data/strategies."""
     assert spec.freqtrade_class
-    shim = REPO / "platforms" / "freqtrade" / "user_data" / "strategies" / f"{spec.freqtrade_class}.py"
+    shim = REPO / "deploy" / "freqtrade" / "user_data" / "strategies" / f"{spec.freqtrade_class}.py"
     assert shim.exists(), f"{spec.key}: chýba shim {shim}"
     assert f"class {spec.freqtrade_class}(" in shim.read_text(encoding="utf-8")
 
@@ -88,7 +88,7 @@ def test_multicharts_signal_class_and_template(spec):
     mod = importlib.import_module(f"tradebot.strategies.{spec.key}.multicharts")
     cls = getattr(mod, spec.multicharts_class)
     assert cls.STRATEGY_KEY == spec.key
-    template = REPO / "platforms" / "multicharts" / spec.multicharts_template
+    template = REPO / "deploy" / "multicharts" / spec.multicharts_template
     assert template.exists(), f"{spec.key}: chýba šablóna {template}"
     assert spec.multicharts_class in template.read_text(encoding="utf-8")
 

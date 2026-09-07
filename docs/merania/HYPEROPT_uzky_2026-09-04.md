@@ -73,7 +73,7 @@ rozdielom medzi nulou a ziskom.
 
 ```bash
 TRADEBOT_PROFILE=btcusdt_3m_binance_struct \
-./platforms/freqtrade/scripts/hyperopt.sh 20211001-20241001 150
+./deploy/freqtrade/scripts/hyperopt.sh 20211001-20241001 150
 ```
 
 `IBSEdgeLoss` je odteraz predvolená loss funkcia v oboch skriptoch.

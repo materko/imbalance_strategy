@@ -85,8 +85,8 @@ shortmi je pritom overená — nie je to chyba portu, tá strana proste nemá ed
 
 ```bash
 TRADEBOT_PROFILE=tradebot/strategies/ibs/configs/btcusdt_3m_binance_tv.json .venv/bin/python -m freqtrade backtesting \
-  --config platforms/freqtrade/config.binance.json \
-  --userdir platforms/freqtrade/user_data --strategy IBSImbalanceStrategy \
+  --config deploy/freqtrade/config.binance.json \
+  --userdir deploy/freqtrade/user_data --strategy IBSImbalanceStrategy \
   --timeframe-detail 1m --timerange 20250904-20260904
 ```
 

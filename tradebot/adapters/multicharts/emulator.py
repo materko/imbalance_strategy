@@ -1,6 +1,6 @@
 """Emulátor backtestu MultiCharts nad 1m dátami — ten istý `MCRunner`, ale bez MultiCharts.
 
-Webapp „burza" **MultiCharts** (Dukascopy dáta v `platforms/multicharts/data/`) nejde cez
+Webapp „burza" **MultiCharts** (Dukascopy dáta v `data/`) nejde cez
 Freqtrade: Dukascopy nie je burza v ccxt a Freqtrade by pár odmietol. Beh sa preto počíta
 tu, cez presne tú istú cestu ako študia v MultiCharts (`MCRunner` -> engine stratégie),
 a broker MultiCharts sa emuluje podľa toho, ako sa naozaj správa:

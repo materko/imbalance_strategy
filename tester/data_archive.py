@@ -22,8 +22,8 @@ odvodené a v `.gitignore`.
     klon            ->  data_archive/  ->  merge  ->  data/  ->  backtest
 
 Platformy majú vlastné korene (`tradebot.core.paths.ARCHIVE_ROOTS`) — burzové sviečky
-pod `platforms/freqtrade/user_data/`, Dukascopy 1m sviečky pod
-`platforms/multicharts/`. Formát súborov je rovnaký, príkaz prejde oba.
+pod `deploy/freqtrade/user_data/`, Dukascopy 1m sviečky pod
+`deploy/multicharts/`. Formát súborov je rovnaký, príkaz prejde oba.
 
 Delenie je **bezstratové** — `merge(split(x))` dá presne to isté, čo bolo v `x`.
 Overuje to `tester/tests/test_data_archive.py`.

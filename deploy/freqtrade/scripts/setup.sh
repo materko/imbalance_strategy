@@ -5,9 +5,9 @@
 # MultiCharts na macOS nebeží - je to Windows aplikácia. Na Macu sa dá robiť
 # jadro (tradebot/), testy a celá Freqtrade vetva.
 #
-#   ./platforms/freqtrade/scripts/setup.sh
-#   PYTHON=python3.12 ./platforms/freqtrade/scripts/setup.sh
-#   RECREATE=1 ./platforms/freqtrade/scripts/setup.sh
+#   ./deploy/freqtrade/scripts/setup.sh
+#   PYTHON=python3.12 ./deploy/freqtrade/scripts/setup.sh
+#   RECREATE=1 ./deploy/freqtrade/scripts/setup.sh
 
 set -euo pipefail
 
@@ -55,4 +55,4 @@ echo ""
 
 echo ""
 echo "Hotovo. Dalsi krok:"
-echo "  ./platforms/freqtrade/scripts/download-data.sh"
+echo "  ./deploy/freqtrade/scripts/download-data.sh"

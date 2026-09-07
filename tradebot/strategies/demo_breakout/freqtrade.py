@@ -1,6 +1,6 @@
 """Demo Donchian Breakout vo Freqtrade — nad generickým adaptérom nič navyše.
 
-Shim pre resolver: `platforms/freqtrade/user_data/strategies/DemoBreakoutStrategy.py`.
+Shim pre resolver: `deploy/freqtrade/user_data/strategies/DemoBreakoutStrategy.py`.
 """
 
 from __future__ import annotations

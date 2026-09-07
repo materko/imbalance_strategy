@@ -108,7 +108,7 @@ Profil `btcusdt_3m_binance_opt` preto **nie je odporúčaním na obchodovanie**.
 ## Ako to zopakovať
 
 ```bash
-./platforms/freqtrade/scripts/hyperopt.sh 20250905-20260904 300
+./deploy/freqtrade/scripts/hyperopt.sh 20250905-20260904 300
 ```
 
 Podrobnosti v [FREQTRADE.md §C](../FREQTRADE.md).
