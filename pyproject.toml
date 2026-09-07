@@ -5,18 +5,21 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "tradebot"
 version = "0.1.0"
-description = "IBS Imbalance Breakout Strategy - spolocne jadro pre Freqtrade a MultiCharts"
+description = "TradeBot - spolocne jadro strategii pre Freqtrade a MultiCharts"
 requires-python = ">=3.11"
 dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
 # Jadro (tradebot.core) je zamerne bez zavislosti - beha aj v MultiCharts CPythone.
-# Nastroje v tradebot.tools uz pandas/plotly potrebuju; pandas sa taha s Freqtrade.
+# Nastroje Testera (tester/) uz pandas/plotly potrebuju; pandas sa taha s Freqtrade.
 plot = ["plotly>=5", "pandas"]
-# Webapp pre testerov (tradebot.webapp) - fastapi aj uvicorn su uz zavislosti Freqtradu.
+# Webapp pre testerov (tester.webapp) - fastapi aj uvicorn su uz zavislosti Freqtradu.
 web = ["fastapi", "uvicorn", "pandas", "pyarrow"]
 
+# Instaluje sa LEN produkt. Balik `tester` je naradie tohto repozitara, spusta sa
+# z jeho korena (`python -m tester.webapp`) a zamerne sa nedostane do globalneho
+# Pythonu, kde bezi MultiCharts - tam by generic meno "tester" nemalo co robit.
 [tool.setuptools.packages.find]
 include = ["tradebot*"]
 
@@ -24,4 +27,5 @@ include = ["tradebot*"]
 tradebot = ["configs/*/*.json", "core/*.json"]
 
 [tool.pytest.ini_options]
-testpaths = ["tradebot/tests"]
+# tradebot/tests = produkt, tester/tests = nastroje Testera a porovnavacie (golden) testy
+testpaths = ["tradebot/tests", "tester/tests"]

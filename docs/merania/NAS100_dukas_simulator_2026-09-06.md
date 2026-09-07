@@ -11,12 +11,12 @@ nepočítajú. Break-even poplatok tu preto nie je.
   2015-01-01 až 2026-09-05 (v roku 2016 chýba ~100 dní).
 - Surový súbor má 5 994 720 riadkov, z toho 2 461 494 je vypchávka (plochý bar s cenou
   predchádzajúceho uzavretia cez víkendy a prestávky). Simulátor aj prevod pre MultiCharts
-  (`tradebot.tools.dukas_import`) ju zahadzujú rovnakým
+  (`tester.dukas_import`) ju zahadzujú rovnakým
   pravidlom, takže obe strany vidia tie isté 1m bary.
 - Graf 3m a detekčný TF 5m sa skladajú z 1m v pamäti; vyplnenie sa rozhoduje po 1m.
 
 ```bash
-.venv/Scripts/python.exe -m tradebot.tools.scan_trades --csv C:/dukas/NAS100_M1_10Y.csv \
+.venv/Scripts/python.exe -m tester.compare.scan_trades --csv C:/dukas/NAS100_M1_10Y.csv \
     --profile ../profily_archiv/ibs/nas100_dukas_3m.json --from 2024-09-04 --to 2025-09-04 --limit 0
 ```
 
@@ -77,7 +77,7 @@ ich plní naivne ako limitku. Čo bolo treba na strane adaptéra vyriešiť, je 
 §C a §D (FPU výnimky, Data2 z CSV, obchod vnútri baru, ordre s menom pri `Send`).
 
 Zoznam obchodov MultiCharts sa dá od 2026-09-07 vytiahnuť z logu študie
-(`python -m tradebot.tools.mc_log_trades --from … --to …`); január potvrdil 12 obchodov,
+(`python -m tester.compare.mc_log_trades --from … --to …`); január potvrdil 12 obchodov,
 9 W / 3 L, presne ako simulátor bez obchodu z 2. 1. Celé okná (MultiCharts vs. simulátor,
 len vyplnené obchody):
 
@@ -114,7 +114,7 @@ podľa znamienka pozície cez `MarketThisBar` (close aktuálneho baru ako Pine
 `strategy.close`). Druhá oprava bola v simulátore: plnil ďalší vstup, kým prvá pozícia
 bežala (Pine `pyramiding=0` ani MultiCharts to nedovolia).
 
-**Po oboch opravách** (`python -m tradebot.tools.mc_compare …`, párovanie podľa entry do
+**Po oboch opravách** (`python -m tester.compare.mc_compare …`, párovanie podľa entry do
 5 bodov):
 
 | okno | simulátor | MultiCharts | spárované | rovnaký výsledok | len jedna strana |

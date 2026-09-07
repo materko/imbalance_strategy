@@ -3,7 +3,7 @@
     Surové Dukascopy dáta -> dáta pre Tester (webapp) aj pre MultiCharts (QuoteManager).
 
 .DESCRIPTION
-    Obal nad `python -m tradebot.tools.dukas_import` z koreňa repozitára. Všetky
+    Obal nad `python -m tester.dukas_import` z koreňa repozitára. Všetky
     prepínače idú ďalej nezmenené; bez parametrov vypíše nápovedu.
     Podrobne: docs/DATA.md.
 
@@ -29,8 +29,8 @@ if (-not (Test-Path $py)) {
 
 Set-Location $repo
 if (-not $Args -or $Args.Count -eq 0) {
-    & $py -m tradebot.tools.dukas_import --help
+    & $py -m tester.dukas_import --help
 } else {
-    & $py -m tradebot.tools.dukas_import @Args
+    & $py -m tester.dukas_import @Args
 }
 exit $LASTEXITCODE

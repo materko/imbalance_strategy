@@ -160,7 +160,7 @@ class EngineRunner:
 
             # Pine počíta výhry podľa `strategy.closedtrades.profit`. Bar, ktorý
             # pretne SL aj TP, je bez 1m detailu nerozhodnuteľný — berie sa
-            # konzervatívne ako strata, rovnako ako v `tradebot.tools.scan_trades`.
+            # konzervatívne ako strata, rovnako ako v `tester.compare.scan_trades`.
             if hit_tp and not hit_sl:
                 day = _utc_day(bar.time)
                 self._daily_wins[day] = self._daily_wins.get(day, 0) + 1

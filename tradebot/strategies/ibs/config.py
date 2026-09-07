@@ -11,7 +11,7 @@ Nastavenia z grafu, ktoré sa líšia od Pine defaultov, sú v `docs/tv_settings
 **PickMyTrade sa neportuje** (rozhodnutie z 2026-09-04). Vypadlo teda päť Pine vstupov:
 `pmtToken`, `pmtAccountId`, `pmtStratName`, `pmtMarketOrderType` a `trailFreqPct`
 (ten bol podľa vlastného Pine tooltipu použiteľný LEN pre PickMyTrade — `strategy.exit`
-v TradingView pre neho nemá ekvivalent). Zoznam je aj v `tradebot/tests/test_pine_parity.py`,
+v TradingView pre neho nemá ekvivalent). Zoznam je aj v `tester/tests/test_pine_parity.py`,
 aby test parity vedel, že chýbajú zámerne.
 """
 

@@ -231,7 +231,7 @@ funguje aj pre beh stiahnutý od iného testera. Behy z čias pred týmto súbor
 sviečky a obchody bez kresieb.
 
 Ako kresby vznikajú: stratégia dostane cez `TRADEBOT_DRAW_OUT` cestu, kam má po backteste
-vysypať finálny stav `DrawRegistry` (rovnaký mechanizmus ako `tradebot.tools.plot`);
+vysypať finálny stav `DrawRegistry` (rovnaký mechanizmus ako `tester.plot`);
 webapp súbor po dobehnutí presunie do adresára behu.
 
 Vlastné profily žijú vedľa histórie:
@@ -289,16 +289,16 @@ nepotrebuje, všetko podstatné je v `run.json`.
 
 ## Príkazový riadok a Claude Code
 
-`python -m tradebot.webapp.cli` robí to isté, čo stránka, z terminálu — pre Claude Code
+`python -m tester.webapp.cli` robí to isté, čo stránka, z terminálu — pre Claude Code
 testera a pre skripty. `run` ide cez API bežiacej webapp (beh vidno vo fronte), a keď
 webapp nebeží, spustí backtest priamo do toho istého `runs/`. `list`/`show` čítajú
 históriu, `pull`/`push` synchronizujú `runs/` a `profiles/`, `status` povie, či webapp beží,
 `params` vypíše parametre s rozsahmi. `run` aj `params` majú `--strategy <kľúč>` (default `ibs`).
 
 ```bash
-python -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json [--timeframe 5m] \
+python -m tester.webapp.cli run --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json [--timeframe 5m] \
     --set rrRatio=4 --set minSlDistance=0.25@pct --timerange 20250904-20260904 --note "RR 4"
-python -m tradebot.webapp.cli list "rrRatio>=4 pnl>0"
+python -m tester.webapp.cli list "rrRatio>=4 pnl>0"
 ```
 
 Kompletné pokyny pre Claude Code (spúšťanie, reštart, aktualizácia, Git) sú
@@ -312,19 +312,19 @@ inštalátor pre macOS zapisuje `tester` automaticky. Rola sa dá kedykoľvek pr
 ## Čo aplikácia nerobí
 
 * Nesťahuje dáta — páry a obdobia sú len tie, čo sú v archíve
-  (`python -m tradebot.tools.data_archive`, docs/DATA.md).
+  (`python -m tester.data_archive`, docs/DATA.md).
 * Nemá prihlásenie — je na lokálne spustenie (alebo za reverse proxy).
 * Nespúšťa hyperopt; na ten sú skripty v `platforms/freqtrade/scripts/`.
 
 ## Kód
 
-`tradebot/webapp/`: `pine_meta.py` (metadáta z Pine súboru stratégie, `param_metadata(spec)`),
+`tester/webapp/`: `pine_meta.py` (metadáta z Pine súboru stratégie, `param_metadata(spec)`),
 `store.py` (behy a vyhľadávanie),
 `runner.py` (fronta, Freqtrade podproces alebo emulátor MultiCharts, spracovanie zipu), `chart.py` (sviečky
 z feather súborov po oknách, orezanie kresieb na okno), `gitsync.py`,
 `app.py` (FastAPI), `static/` (stránka bez frameworku, Plotly z CDN).
 Export kresieb: `tradebot/adapters/freqtrade/runner.py::export_chart`, serializácia
 `tradebot/core/drawing.py::objects_to_dicts`.
-Testy: `tradebot/tests/test_webapp.py`, `tradebot/tests/test_chart_export.py`,
-`tradebot/tests/test_webapp_multicharts.py`.
+Testy: `tester/tests/test_webapp.py`, `tester/tests/test_chart_export.py`,
+`tester/tests/test_webapp_multicharts.py`.
 Cesty (`tester/runs`, `tester/profiles`, dáta platforiem): `tradebot/core/paths.py`.

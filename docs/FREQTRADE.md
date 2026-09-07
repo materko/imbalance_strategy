@@ -70,7 +70,7 @@ PY -m freqtrade backtesting \
 > ručnom volaní na to netreba zabudnúť.
 
 > ⚠️ **Backtest, ktorý má byť v histórii Testera, spúšťaj cez
-> `PY -m tradebot.webapp.cli run …`** — holý Freqtrade CLI do `tester/runs/` nezapíše nič
+> `PY -m tester.webapp.cli run …`** — holý Freqtrade CLI do `tester/runs/` nezapíše nič
 > ([WEBAPP.md](WEBAPP.md)).
 
 Stratégia je v [`tradebot/adapters/freqtrade/strategy.py`](../tradebot/adapters/freqtrade/strategy.py);
@@ -90,8 +90,8 @@ TRADEBOT_PROFILE=golden_coinbase_btcusd_3m ./platforms/freqtrade/scripts/backtes
 ### Report ako v TradingView
 
 ```bash
-PY -m tradebot.tools.report            # posledny backtest -> HTML vedla zipu
-PY -m tradebot.tools.report --list     # ake vysledky su k dispozicii
+PY -m tester.report            # posledny backtest -> HTML vedla zipu
+PY -m tester.report --list     # ake vysledky su k dispozicii
 ```
 
 Z `backtest_results/*.zip` spraví stránku s rovnakými štyrmi číslami, aké má hore
@@ -280,7 +280,7 @@ sa zhoduje so skutočným MultiCharts na cent — ale **hyperopt a FreqAI vie le
 Preto sa dá ten istý symbol prehnať aj cez Freqtrade vetvu:
 
 ```bash
-PY -m tradebot.tools.dukas_import C:/dukas/NAS100_M1_10Y.csv --symbol NAS100 --target freqtrade
+PY -m tester.dukas_import C:/dukas/NAS100_M1_10Y.csv --symbol NAS100 --target freqtrade
 
 TRADEBOT_PROFILE=docs/profily_archiv/ibs/nas100_dukas_3m.json PY -m freqtrade backtesting \
   --config platforms/freqtrade/config.dukascopy.json \
@@ -362,7 +362,7 @@ sviečky základného TF. Buď stiahni ten TF, alebo si ho vyrob ako súbor ([DA
 Chýba `--cache none` — dostal si starý výsledok spred zmeny profilu.
 
 **„chýbajú dáta" / prázdny zoznam párov**
-`PY -m tradebot.tools.data_archive merge` ([DATA.md](DATA.md)).
+`PY -m tester.data_archive merge` ([DATA.md](DATA.md)).
 
 **Testy nevidia `tradebot`**
 Balík nie je v tom Pythone, ktorým púšťaš pytest. Buď `pip install -e ".[dev]"`, alebo pytest

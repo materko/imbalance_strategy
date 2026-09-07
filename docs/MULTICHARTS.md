@@ -187,10 +187,10 @@ sa dá vytiahnuť z jej logu (`%LOCALAPPDATA%\tradebot\multicharts.log`, premenn
 obchod):
 
 ```bash
-PY -m tradebot.tools.mc_log_trades --from 2025-01-01 --to 2025-01-31
-PY -m tradebot.tools.scan_trades --csv C:/dukas/NAS100_M1_10Y.csv \
+PY -m tester.compare.mc_log_trades --from 2025-01-01 --to 2025-01-31
+PY -m tester.compare.scan_trades --csv C:/dukas/NAS100_M1_10Y.csv \
     --profile docs/profily_archiv/ibs/nas100_dukas_3m.json --from 2025-01-01 --to 2025-01-31
-PY -m tradebot.tools.mc_compare --csv … --profile … --from … --to …
+PY -m tester.compare.mc_compare --csv … --profile … --from … --to …
 ```
 
 `mc_compare` oba zoznamy spáruje podľa vstupnej ceny a vypíše rozdiely — to je porovnanie

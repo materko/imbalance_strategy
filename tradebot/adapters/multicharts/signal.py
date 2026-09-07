@@ -470,7 +470,7 @@ class TradebotSignal:
     def _record_closed_trades(self, closed_trades: int | None, position: float) -> None:
         """Každý nárast `TotalTrades` = uzavretý obchod → riadok `[trade] …` do logu.
 
-        Formát číta `tradebot.tools.mc_log_trades`. `intrabar=1` = obchod sa otvoril aj
+        Formát číta `tester.compare.mc_log_trades`. `intrabar=1` = obchod sa otvoril aj
         zavrel v jednom bare (pozícia na close nula), vstupná cena je vtedy z plánu jadra.
         """
         if closed_trades is None:

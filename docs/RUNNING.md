@@ -37,19 +37,27 @@ Všetko sa spúšťa **z koreňa repozitára**. `PY` = Python z `.venv`:
 ## Mapa repozitára
 
 ```
-tradebot/                       spoločné jadro a všetko, čo nie je viazané na platformu
-  core/                         Bar, InstrumentSpec, SizeSpec, config, kreslenie, hodiny, paths
-  strategies/<key>/             jedna stratégia = jeden balík (STRATEGIE.md)
-  adapters/freqtrade/           generická IStrategy + EngineRunner
-  adapters/multicharts/         TradebotSignal, MCRunner, emulátor, kreslenie
-  configs/<key>/                referenčné profily
-  webapp/                       Tester (FastAPI + Plotly)
-  tools/                        data_archive, dukas_import, report, fees, scan_*, mc_*
-  tests/                        pytest vrátane golden testov proti TradingView
-platforms/freqtrade/            configy búrz, skripty, user_data/ (dáta, výsledky, shim)
-platforms/multicharts/          šablóny študií, setup skript, Dukascopy dáta
-tester/                         runs/ (história behov) + profiles/ (profily testerov), oboje v gite
+tradebot/                       PRODUKT - to, co obchoduje
+  core/                         Bar, InstrumentSpec, config, kreslenie, hodiny, candles, paths
+  strategies/<key>/             jedna strategia = jeden balik (STRATEGIE.md)
+  adapters/freqtrade/           genericka IStrategy + EngineRunner
+  adapters/multicharts/         TradebotSignal, MCRunner, emulator, kreslenie
+  configs/<key>/                referencne profily
+  tests/                        testy produktu
+pine/                           Pine zdroje strategii - zdroj pravdy pre parametre
+platforms/freqtrade/            configy burz, skripty, user_data/ (data, vysledky, shim)
+platforms/multicharts/          sablony studii, setup skript, data_archive/<zdroj>/
+
+tester/                         TESTER - cim sa to skusa
+  webapp/                       aplikacia pre testerov + CLI
+  compare/                      scan_zones, scan_trades, mc_log_trades, mc_compare
+  dukas_import.py               cistenie a prevod surovych exportov
+  data_archive.py               rocny archiv sviecok
+  report.py, fees.py, plot.py   reporty a metriky
+  tests/                        testy nastrojov + golden parita s TradingView
+  runs/, profiles/              historia behov a configy testerov (v gite)
+  scripts/                      spustac webapp
+
 docker/                         Dockerfile.core, Dockerfile.freqtrade, docker-compose.yml
-pine/                           Pine zdroje stratégií — zdroj pravdy pre parametre
-docs/                           návody, architektúra, parita; merania v docs/merania/
+docs/                           navody, architektura, parita; merania v docs/merania/
 ```

@@ -1,11 +1,15 @@
 # TradeBot — porty TradingView stratégií do Freqtrade a MultiCharts
 
-Rámec pre viac stratégií: **jedno generické jadro** (`tradebot/core`), **registry stratégií**
-(`tradebot/strategies`, každá s vlastným Pine zdrojom, configom, enginom a profilmi) a dva tenké
-adaptéry — **Freqtrade** (krypto futures, Binance) a **MultiCharts** (MNQ, akcie, forex, CFD) — plus
-webová aplikácia pre testerov. Cieľ je rovnaké obchody aj rovnaké vykreslovanie ako
-v TradingView; parita je overená golden testom na cent
-([GOLDEN_binance_2026-08-24.md](docs/GOLDEN_binance_2026-08-24.md)).
+Repozitár sú **dva celky**:
+
+| | čo to je | kde |
+|---|---|---|
+| **TradeBot** | produkt, ktorý obchoduje: generické jadro, stratégie a dva tenké adaptéry — **Freqtrade** (Docker alebo priamo) a **MultiCharts** (Windows aplikácia). Stratégia je natoľko generická, že tá istá beží cez oba. | [`tradebot/`](tradebot) |
+| **TradeBot Tester** | čím sa to skúša: sťahovanie a čistenie dát, porovnávacie behy (Pine ↔ port, MultiCharts ↔ emulátor ↔ Freqtrade), reporty a webová aplikácia pre testerov. | [`tester/`](tester) |
+
+Závislosť ide jedným smerom — Tester importuje `tradebot`, produkt o Testeri nevie.
+Cieľ je rovnaké obchody aj rovnaké vykreslovanie ako v TradingView; parita je overená
+golden testom na cent ([GOLDEN_binance_2026-08-24.md](docs/GOLDEN_binance_2026-08-24.md)).
 
 Stratégie v registry (ako pridať ďalšiu: [docs/STRATEGIE.md](docs/STRATEGIE.md)):
 
@@ -91,23 +95,30 @@ reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. `--target freqtrade` 
 
 | Cesta | Čo tam je |
 |---|---|
-| [`pine/`](pine) | Pine zdroje stratégií: `imbalance_strategy_FULL.pine` (**referenčný IBS**, v5, 115 vstupov — zdroj pravdy pre logiku, defaulty aj tooltipy; staršie buildy `imbalance_strategy_SD_IMB.pine` a `Imbalance_strategy.pine` sú len na porovnanie) a `demo_breakout.pine`. |
-| [`tradebot/core/`](tradebot/core) | Generické jadro bez závislostí: `StrategyConfig` (báza configu, profily), `Engine`/`EngineOutput`, `OrderIntent`/`TradePlan`, `BarHistory`, hodiny seáns, `DrawCommand` + `DrawKind` registr, inštrumenty, `paths.py` (všetky cesty repozitára na jednom mieste). |
+| **TradeBot — produkt** | |
+| [`tradebot/core/`](tradebot/core) | Generické jadro bez závislostí: `StrategyConfig` (báza configu, profily), `Engine`/`EngineOutput`, `OrderIntent`/`TradePlan`, `BarHistory`, hodiny seáns, `DrawCommand` + `DrawKind` registr, inštrumenty, skladanie TF z 1m (`candles`), čítanie Dukascopy exportu (`dukascopy`), `paths.py` so všetkými cestami repozitára. |
 | [`tradebot/strategies/`](tradebot/strategies) | Registry `STRATEGIES` a jedna stratégia = jeden balík: `ibs/` (config, engine, stavový automat zón, `ta/`, HTF feeder, Freqtrade a MultiCharts podtriedy, meta pre webapp), `demo_breakout/`. Postup: [docs/STRATEGIE.md](docs/STRATEGIE.md). |
 | [`tradebot/adapters/freqtrade/`](tradebot/adapters/freqtrade) | Generická Freqtrade stratégia `TradebotStrategyBase` + `EngineRunner` (engine nad DataFrame, fill model) + export kresieb. |
-| [`tradebot/adapters/multicharts/`](tradebot/adapters/multicharts) | Generická študia `TradebotSignal`, `MCRunner`, kreslenie (len Windows) a **emulátor** MultiCharts pre webapp (beží všade). |
+| [`tradebot/adapters/multicharts/`](tradebot/adapters/multicharts) | Generická študia `TradebotSignal`, `MCRunner`, kreslenie (len Windows) a **emulátor** MultiCharts (beží všade). |
 | [`tradebot/configs/<stratégia>/`](tradebot/configs) | JSON profily — len odchýlky od Pine defaultov, viď nižšie. |
-| [`tradebot/webapp/`](tradebot/webapp) | Webová aplikácia pre testerov (FastAPI + Plotly). |
-| [`tradebot/tools/`](tradebot/tools) | `dukas_import` (Dukascopy → Tester aj MultiCharts), `data_archive` (ročné súbory dát), `candles` (skladanie TF z 1m), `report` (HTML ako Strategy Tester), `fees` (maker/taker, break-even), `scan_trades`/`scan_zones` (diagnostika), `mc_compare`/`mc_log_trades` (párovanie s MultiCharts), `plot`. |
-| [`tradebot/tests/`](tradebot/tests) | Testy jadra, adaptérov, webapp a **golden testy** proti TradingView (`golden/`). |
-| [`platforms/freqtrade/`](platforms/freqtrade) | Freqtrade configy (`config.binance.json`, `config.coinbase.json`, `config.dukascopy.json`), skripty (setup, download, backtest, hyperopt), `user_data/` (shim na stratégiu, hyperopt loss, `data_archive/` s burzovými sviečkami). |
-| [`platforms/multicharts/`](platforms/multicharts) | Šablóny študií (`IBS_Signal.py`, `DemoBreakout_Signal.py`), inštalačný skript a `data_archive/` s 1m sviečkami z Dukascopy. |
-| [`tester/`](tester) | Dáta testera — `runs/` (história behov vrátane kresieb) a `profiles/` (vlastné profily); oboje sa commituje a zdieľa cez GitHub. `scripts/` spúšťa webapp. |
+| [`tradebot/tests/`](tradebot/tests) | Testy produktu: jadro, stratégie, oba adaptéry. |
+| [`pine/`](pine) | Pine zdroje stratégií: `imbalance_strategy_FULL.pine` (**referenčný IBS**, v5, 115 vstupov — zdroj pravdy pre logiku, defaulty aj tooltipy) a `demo_breakout.pine`. |
+| [`platforms/freqtrade/`](platforms/freqtrade) | Configy búrz (`config.binance.json`, `config.coinbase.json`, `config.dukascopy.json`), skripty (setup, download, backtest, hyperopt), `user_data/` (shim na stratégiu, hyperopt loss, `data_archive/<zdroj>/` so sviečkami). |
+| [`platforms/multicharts/`](platforms/multicharts) | Šablóny študií (`IBS_Signal.py`, `DemoBreakout_Signal.py`), inštalačný skript a `data_archive/<zdroj>/` s 1m sviečkami. |
 | [`docker/`](docker) | `docker-compose.yml` (tests, download, backtest, freqtrade bot, webapp). |
+| **TradeBot Tester** | |
+| [`tester/webapp/`](tester/webapp) | Webová aplikácia pre testerov (FastAPI + Plotly) a jej CLI. |
+| [`tester/compare/`](tester/compare) | Porovnávacie behy: `scan_zones`/`scan_trades` (engine offline nad burzou alebo surovým CSV), `mc_log_trades` (obchody z logu MultiCharts študie), `mc_compare` (spárovanie oboch zoznamov). |
+| `tester/dukas_import.py`, `tester/data_archive.py` | Prevod a čistenie surových exportov, ročný archív sviečok. |
+| `tester/report.py`, `tester/fees.py`, `tester/plot.py` | HTML report ako Strategy Tester, maker/taker a break-even, grafy. |
+| [`tester/tests/`](tester/tests) | Testy nástrojov Testera a **golden testy** proti TradingView (`golden/`). |
+| `tester/runs/`, `tester/profiles/` | História behov vrátane kresieb a vlastné configy testerov; oboje sa commituje a zdieľa cez GitHub. |
+| `tester/scripts/` | Spúšťač webapp. |
+| **Ostatné** | |
 | `webapp.cmd`, `webapp.ps1`, `webapp.sh` | Spúšťače Testera z koreňa repozitára (obaly nad `tester/scripts/`). |
-| `dukas-import.ps1`, `dukas-import.sh` | Import surových Dukascopy dát (obaly nad `tradebot.tools.dukas_import`). |
-| [`CLAUDE.md`](CLAUDE.md) | Pokyny pre Claude Code v dvoch režimoch podľa `.ibs-role` (gitignored, pýta sa raz): **tester** = backtesty do histórie cez `python -m tradebot.webapp.cli`, reštart a aktualizácia webapp, Pull/Push histórie, bez zásahov do kódu; **developer** = bez obmedzení, len konvencie. |
-| `install-macos.sh` | Inštalátor pre macOS jedným príkazom (`curl \| bash`): Homebrew, Python, TA-Lib, klon, venv, dáta, spúšťač na Plochu. |
+| `dukas-import.ps1`, `dukas-import.sh` | Import surových Dukascopy dát (obaly nad `tester.dukas_import`). |
+| [`CLAUDE.md`](CLAUDE.md) | Pokyny pre Claude Code v dvoch režimoch podľa `.ibs-role` (gitignored, pýta sa raz): **tester** = backtesty do histórie cez `python -m tester.webapp.cli`, bez zásahov do kódu; **developer** = bez obmedzení, len konvencie. |
+| `install-macos.sh` | Inštalátor pre macOS jedným príkazom (`curl \| bash`). |
 | [`docs/`](docs) | Návody a architektúra; merania v [`docs/merania/`](docs/merania/README.md), archív profilov v [`docs/profily_archiv/`](docs/profily_archiv/ibs/README.md). |
 
 ---
@@ -169,11 +180,11 @@ Všetky merania po rokoch: [docs/merania/](docs/merania/README.md).
 
 - **Dáta** sa sťahujú len v oficiálnych timeframoch búrz a commitujú sa po rokoch do
   `data_archive/` príslušnej platformy; pracovné súbory zloží
-  `python -m tradebot.tools.data_archive merge` ([docs/DATA.md](docs/DATA.md)).
+  `python -m tester.data_archive merge` ([docs/DATA.md](docs/DATA.md)).
 - **Backtest vždy s `--timeframe-detail 1m` a `--cache none`** — skripty to robia samy.
   Stratégiu nikdy nespúšťať priamo na 1m (limity `*MaxBars` sú v baroch).
 - **Parita pred optimalizáciou**: každá zmena jadra musí prejsť golden testom
-  (`pytest tradebot/tests/test_golden_tv_binance.py`). Rozšírenia mimo Pine majú default, pri ktorom
+  (`pytest tester/tests/test_golden_tv_binance.py`). Rozšírenia mimo Pine majú default, pri ktorom
   sa správanie rovná Pine, a sú v `PORT_ONLY_FIELDS`.
 - **Merania sa zapisujú** ako datované dokumenty v `docs/merania/` s číslami po rokoch, nie len
   súhrn — jeden rok o stratégii nič nepovie.

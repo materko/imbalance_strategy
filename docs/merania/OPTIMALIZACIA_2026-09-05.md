@@ -248,4 +248,4 @@ TRADEBOT_PROFILE=btcusdt_3m_binance_ny_sl .venv/Scripts/python.exe -m freqtrade 
   --timeframe-detail 1m --timerange 20250904-20260904 --cache none
 ```
 
-Pre break-even pridaj `--fee 0 --dry-run-wallet 400000` a `python -m tradebot.tools.fees`.
+Pre break-even pridaj `--fee 0 --dry-run-wallet 400000` a `python -m tester.fees`.

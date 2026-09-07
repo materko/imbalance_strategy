@@ -205,6 +205,10 @@ class InstrumentSpec:
     #: "futures" (perpetual/kontrakt, dajú sa shorty aj páka) alebo "spot" (len longy,
     #: páka 1). Rozhoduje o tom, čo webapp povolí a s akým Freqtrade configom sa beží.
     market: str = "futures"
+    #: Odkiaľ sviečky pochádzajú — je to **adresár** v dátach (`data/<zdroj>/<PÁR>-<TF>.feather`).
+    #: Nie je to to isté, čo `venue`: Dukascopy CFD majú zdroj `dukascopy`, ale obchodovať
+    #: sa dajú cez ktorýkoľvek engine. Prázdne = zdroj sa volá ako `venue` (burzy).
+    source: str = ""
 
     def __post_init__(self) -> None:
         for field in ("tick_size", "point_value", "qty_step", "min_qty"):
@@ -230,6 +234,11 @@ class InstrumentSpec:
             return self.symbol.split("/")[0]
         base = self.symbol.split(":")[0].replace("/", "").replace("-", "")
         return f"{base}.P" if self.market == "futures" and ":" in self.symbol else base
+
+    @property
+    def data_source(self) -> str:
+        """Adresár, v ktorom ležia sviečky tohto inštrumentu (`binance`, `dukascopy`…)."""
+        return self.source or self.venue
 
     @property
     def data_stem(self) -> str:
@@ -383,7 +392,7 @@ INSTRUMENTS: dict[str, InstrumentSpec] = {
 
 #: Symboly, ktoré nie sú na žiadnej ccxt burze (CFD na indexy, forex, komodity).
 #: Freqtrade ich nevezme, takže beh ide cez emulátor MultiCharts nad 1m sviečkami
-#: z Dukascopy exportu (`tradebot.tools.dukas_import`). Sú v dátovej tabuľke, nie
+#: z Dukascopy exportu (`tester.dukas_import`). Sú v dátovej tabuľke, nie
 #: v kóde, aby pridanie symbolu bol jeden riadok — dopíše ho aj samotný import.
 DUKASCOPY_REGISTRY = Path(__file__).with_name("instruments_dukascopy.json")
 
@@ -408,6 +417,7 @@ def dukascopy_specs(path: Path | None = None) -> dict[str, InstrumentSpec]:
             has_real_volume=False,  # Dukascopy dáva tickový objem klientov, nie burzový
             quote_currency=row.get("quote_currency", "USD"),
             market=row.get("market", "futures"),
+            source=row.get("source", "dukascopy"),
         )
     return out
 

@@ -50,7 +50,7 @@ po zavretí z modelu vypadne a pozícia sa odvádza zo skutočne vyplnených ord
 
 ## 4. `maxDailyWins` sa vo Freqtrade nikdy neuplatnil
 
-`MarketContext.daily_win_limit_reached` plnil len `tradebot.tools.scan_trades`; runner ho
+`MarketContext.daily_win_limit_reached` plnil len `tester.compare.scan_trades`; runner ho
 nechával `False`. Doplnené podľa Pine: UTC deň, výhra = zavretie na TP, limit platí
 od nasledujúceho baru (Pine počíta `dailyWinLimitReached` pred pripočítaním výhry
 z aktuálneho baru). Bar so SL aj TP sa berie ako strata, rovnako ako v `scan_trades`.
@@ -177,4 +177,4 @@ TRADEBOT_PROFILE=btcusdt_3m_binance_ny .venv/Scripts/python.exe -m freqtrade bac
 ```
 
 Pre break-even pridaj `--fee 0 --dry-run-wallet 400000` a výsledok prežeň cez
-`python -m tradebot.tools.fees`. Jeden rok trvá zhruba 30 sekúnd.
+`python -m tester.fees`. Jeden rok trvá zhruba 30 sekúnd.

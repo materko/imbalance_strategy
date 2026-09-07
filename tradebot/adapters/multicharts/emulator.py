@@ -34,7 +34,7 @@ from ...core import Bar, DrawRegistry, InstrumentSpec
 from ...core.config import StrategyConfig
 from ...core.drawing import objects_to_dicts
 from ...core.types import Direction
-from ...tools.candles import resample_ohlcv
+from ...core.candles import resample_ohlcv
 from .runner import LiveOrder, MCRunner
 
 __all__ = ["EmuTrade", "EmulationResult", "emulate", "bars_from_frame", "rows_from_trades", "summarize", "write_chart"]

@@ -101,7 +101,7 @@ def test_realny_bar_z_tradingview():
 @pytest.fixture
 def sim_trade():
     from tradebot.core.risk import TradePlan
-    from tradebot.tools.scan_trades import SimTrade
+    from tester.compare.scan_trades import SimTrade
 
     plan = TradePlan(
         direction=Direction.LONG,
@@ -123,7 +123,7 @@ def _bar(o, h, l, c):
 
 
 def test_priaznivy_extrem_prvy_moze_vyhodit_v_tej_istej_sviecke(sim_trade):
-    from tradebot.tools.scan_trades import FillSimulator
+    from tester.compare.scan_trades import FillSimulator
 
     # open 1000 -> high 1200 (blizsie k openu nez low) -> low 1100 -> close
     stop, hit = FillSimulator._trailing(sim_trade, _bar(1190.0, 1200.0, 1100.0, 1150.0), True)
@@ -132,7 +132,7 @@ def test_priaznivy_extrem_prvy_moze_vyhodit_v_tej_istej_sviecke(sim_trade):
 
 
 def test_nepriaznivy_extrem_prvy_testuje_este_stary_stop(sim_trade):
-    from tradebot.tools.scan_trades import FillSimulator
+    from tester.compare.scan_trades import FillSimulator
 
     # Cena najprv spadne na povodny SL - trailing to uz nezachrani.
     stop, hit = FillSimulator._trailing(sim_trade, _bar(999.0, 1200.0, 899.0, 1150.0), True)
@@ -142,7 +142,7 @@ def test_nepriaznivy_extrem_prvy_testuje_este_stary_stop(sim_trade):
 
 def test_navrat_k_zatvoreniu_sa_tiez_testuje(sim_trade):
     """Bar išiel najprv dole, potom na extrém a vrátil sa pod trailing do close."""
-    from tradebot.tools.scan_trades import FillSimulator
+    from tester.compare.scan_trades import FillSimulator
 
     stop, hit = FillSimulator._trailing(sim_trade, _bar(1001.0, 1200.0, 1000.0, 1120.0), True)
     assert stop == pytest.approx(1150.0)
@@ -151,7 +151,7 @@ def test_navrat_k_zatvoreniu_sa_tiez_testuje(sim_trade):
 
 def test_ked_sa_close_udrzi_nad_trailingom_obchod_zije(sim_trade):
     """Ten istý tvar baru, len close ostal nad trailingom — presne prípad z TradingView."""
-    from tradebot.tools.scan_trades import FillSimulator
+    from tester.compare.scan_trades import FillSimulator
 
     stop, hit = FillSimulator._trailing(sim_trade, _bar(1001.0, 1200.0, 1000.0, 1180.0), True)
     assert hit is False
@@ -164,7 +164,7 @@ def test_fill_simulator_neplni_druhy_vstup_kym_pozicia_bezi():
     from tradebot.core.orders import OrderAction, OrderIntent
     from tradebot.core.risk import TradePlan
     from tradebot.core.types import Direction
-    from tradebot.tools.scan_trades import FillSimulator
+    from tester.compare.scan_trades import FillSimulator
 
     def plan(entry):
         return TradePlan(direction=Direction.LONG, entry=entry, stop_loss=entry - 5, take_profit=entry + 50, qty=1.0, sl_distance=5.0)

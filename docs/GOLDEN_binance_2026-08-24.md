@@ -1,7 +1,7 @@
 # Golden test: TradingView vs port — BINANCE:BTCUSDT.P, 3m
 
 Referencia odčítaná priamo z TradingView Strategy Testera (2026-09-04), uložená v
-[`tradebot/tests/golden/tv_btcusdt_binance_3m.json`](../tradebot/tests/golden/tv_btcusdt_binance_3m.json).
+[`tradebot/tests/golden/tv_btcusdt_binance_3m.json`](../tester/tests/golden/tv_btcusdt_binance_3m.json).
 
 Nastavenia: čerstvo vložený `pine/imbalance_strategy_FULL.pine` + 5 odchýlok od Pine defaultov
 (`enablePinBarEntry`, `enableTrailing`, `tradeDirection="Long only"`, `sess2ZoneStartH=8`,
@@ -10,7 +10,7 @@ Nastavenia: čerstvo vložený `pine/imbalance_strategy_FULL.pine` + 5 odchýlok
 Časy TradingView sú v zóne grafu **UTC+2**, nižšie prepočítané na UTC.
 
 ```bash
-python -m tradebot.tools.scan_trades --exchange binance --profile btcusdt_3m_binance_tv \
+python -m tester.compare.scan_trades --exchange binance --profile btcusdt_3m_binance_tv \
     --from 2026-08-24 --to 2026-09-04 --limit 0
 ```
 
@@ -164,7 +164,7 @@ sedí na minútu vyplnenia, vstupnú cenu, veľkosť aj výstupnú cenu**:
 Šiesty order (`LONG_64`, 09-02 15:15) sa nikdy nevyplnil a expiroval — TradingView ho
 v Pine logoch tiež má v STATE 4 a v List of Trades tiež nie je.
 
-Regresný test: `tradebot/tests/test_golden_tv_binance.py`.
+Regresný test: `tester/tests/test_golden_tv_binance.py`.
 
 ## Overenie cez Freqtrade
 
@@ -248,7 +248,7 @@ aj text:
 Rozdiel v y súradnici štítkov je zámerný a test s ním počíta: Pine loguje surovú cenu
 pivota, ale štítok kreslí o 25 tickov vedľa (`syminfo.mintick * 25`).
 
-Regresný test: `tradebot/tests/test_golden_tv_draw.py`.
+Regresný test: `tester/tests/test_golden_tv_draw.py`.
 
 ### Čo tento fixture nepokrýva
 
@@ -276,7 +276,7 @@ vznikne presne jeden obchod navyše — ten istý, čo v TradingView, a v oboch 
 
 Regresný test: `test_sr_a_likviditne_zony_sedia_s_tradingview`.
 
-> **Pozor pri písaní ďalších testov:** `tradebot.tools.scan_trades` si stavia `ZoneBook`
+> **Pozor pri písaní ďalších testov:** `tester.compare.scan_trades` si stavia `ZoneBook`
 > a `StateMachine` sám a **nikdy nezavolá `IBSEngine`**, takže spawnovanie zón z S/R
 > ani zo sweepu cez neho neprejde. Prvý pokus o toto meranie preto ukázal „SR/LQ
 > nemá žiadny efekt" — test musí ísť cez `IBSEngine`.
@@ -305,7 +305,7 @@ neskôr posunie posledný bod na extrémnejšiu hodnotu, log nevznikne. Prvé po
 (TV pushe proti našim finálnym bodom) dalo 32 zo 41 a vyzeralo to ako ďalšia chyba
 v porte. Test preto porovnáva **push udalosti**, nie finálny zoznam bodov.
 
-Regresný test: `tradebot/tests/test_golden_tv_elliott.py`.
+Regresný test: `tester/tests/test_golden_tv_elliott.py`.
 
 ## Celý Freqtrade backtest vs TradingView (2026-09-04)
 

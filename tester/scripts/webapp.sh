@@ -46,4 +46,4 @@ if [[ "${NO_BROWSER:-0}" != "1" ]]; then
 fi
 
 cd "$REPO"
-exec "$PY" -m tradebot.webapp
+exec "$PY" -m tester.webapp

@@ -367,7 +367,7 @@ def test_multicharts_a_freqtrade_daju_rovnake_zony():
 
     from tradebot.adapters.freqtrade.runner import EngineRunner
     from tradebot.core import load_profile
-    from tradebot.tools.scan_zones import _load, _to_bar
+    from tester.compare.scan_zones import _load, _to_bar
 
     cfg, inst = load_profile("golden_binance_btcusdt_3m")
     try:
