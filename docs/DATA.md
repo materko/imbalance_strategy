@@ -1,8 +1,10 @@
 # Dáta: odkiaľ sú, kde ležia a ako pribudne nový symbol
 
 Dáta majú v repozitári dva pôvody a každý má vlastný adresár. Spoločné je pravidlo:
-**na disku sú výhradne skutočné sviečky** — žiadny timeframe sa nedopočítava a neukladá,
-vyššie TF si skladá stratégia až za behu v pamäti.
+**na disku sú výhradne skutočné sviečky** — žiadny timeframe sa nedopočítava a neukladá.
+Vyššie TF skladajú z 1m až za behu v pamäti naše vlastné nástroje (webapp graf, offline
+simulátor, emulátor MultiCharts). Freqtrade to nerobí: pre svoj `--timeframe` potrebuje
+súbor na disku (viď upozornenie v §A).
 
 | pôvod | čo to je | archív (v gite) | pracovné (gitignored) |
 |---|---|---|---|
@@ -66,9 +68,21 @@ Skripty volajú `split` samy, takže po stiahnutí stačí commitnúť `data_arc
 | Binance | `BTC/USDT`, `ETH/USDT` spot | **1m, 3m, 5m** | len longy, páka 1 |
 | Coinbase | `BTC/USD` spot | **1m, 5m** | **3m neponúka** — ccxt hlási len `1m/5m/15m/30m/1h/2h/6h/1d` |
 
-**Coinbase 3m sa nikde neukladá ako súbor.** Poskladá si ho stratégia z 1m dát. Na disku
-sú len skutočné burzové sviečky — žiadne umelo dorobené timeframy, ktoré by sa dali
-omylom zameniť za reálne dáta.
+**Coinbase 3m sa nikde neukladá ako súbor** — na disku sú len skutočné burzové sviečky,
+žiadne umelo dorobené timeframy, ktoré by sa dali omylom zameniť za reálne dáta.
+
+> ⚠️ **Freqtrade si vyšší timeframe z 1m nedopočíta.** Ak súbor pre `--timeframe` nie je na
+> disku, backtest skončí na `No history for <pár>, <typ>, <TF> found` — overené na páre,
+> ktorý má 1m/3m/5m/15m/30m a spustí sa s `--timeframe 1h`. Jediné, čo Freqtrade naozaj
+> resampluje, sú **obchody** (`trades-to-ohlcv`, dáta z `download-data --dl-trades`);
+> `--timeframe-detail 1m` používa 1m len na rozlíšenie SL/TP **vnútri** sviečky základného
+> TF, ktorý musí existovať. Z 1m skladajú vyšší TF **naše vlastné nástroje** v pamäti —
+> webapp graf, offline simulátor (`scan_zones`, `scan_trades --csv`), emulátor MultiCharts
+> a HTF feeder študie —, nie Freqtrade.
+
+Coinbase preto cez Freqtrade zabacktestuješ len na 1m alebo 5m; jej profil
+`golden_coinbase_btcusd_3m` slúži na golden testy jadra proti TradingView, ktoré bežia nad
+uloženými referenčnými dátami, nie cez Freqtrade.
 
 ### Načo sú tie tri timeframy
 

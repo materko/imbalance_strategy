@@ -276,7 +276,12 @@ docker compose -f docker/docker-compose.yml run --rm tests
 ## Riešenie problémov
 
 **`Invalid timeframe '3m'. This exchange supports: [...]`**
-Správne správanie — Coinbase 3m neponúka. Sťahuj z nej len `1m 5m`; 3m si poskladá stratégia.
+Správne správanie — Coinbase 3m neponúka. Sťahuj z nej len `1m 5m`.
+
+**`No history for <pár>, <typ>, <TF> found` a `No data found. Terminating.`**
+Pre `--timeframe` chýba súbor. Freqtrade vyšší TF z 1m **nedopočíta** — resampluje len
+z obchodov (`trades-to-ohlcv`), a `--timeframe-detail 1m` rieši výlučne rozlíšenie vnútri
+sviečky základného TF. Buď stiahni ten TF, alebo si ho vyrob ako súbor ([DATA.md](DATA.md)).
 
 **Backtest nič neobchoduje a v logu je `Loading backtest result from …zip`**
 Chýba `--cache none` — dostal si starý výsledok spred zmeny profilu.
