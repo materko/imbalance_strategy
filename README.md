@@ -109,14 +109,65 @@ close baru). Výsledok má rovnaký tvar ako Freqtrade beh, história ich nerozl
 (január 2025: 12 obchodov 9 W / 3 L na oboch stranách, viď
 [docs/NAS100_dukas_simulator_2026-09-06.md](docs/NAS100_dukas_simulator_2026-09-06.md)).
 
+### Od surových Dukascopy dát po test
+
+Surový export z Dukascopy (napr. `NAS100_M1_10Y.csv`) vyzerá takto — 1m, **UTC**, čas
+**otvorenia** baru, len **bid** strana bez spreadu, objem v lotoch s desatinami:
+
+```
+dt,o,h,l,c,vol
+2025-01-05 23:00:00,21339.209,21345.543,21324.419,21333.753,0.03
+```
+
+Priamo sa použiť nedá, má tri chyby, ktoré obidva nástroje nižšie opravia rovnakým
+pravidlom (aby MultiCharts, webapp aj offline simulátor videli tie isté bary):
+
+| chyba v exporte | čo s tým | prečo |
+|---|---|---|
+| **vypchávka**: riadok pre každú minútu vrátane víkendov a prestávok — plochý bar `o=h=l=c` s cenou posledného uzavretia, ~40 % súboru | zahodiť každý plochý bar, ktorého cena sa rovná predchádzajúcemu uzavretiu | limity `*MaxBars` sú v baroch, ATR a SMA objemu by sa skreslili |
+| **čas otvorenia** baru | pre MultiCharts +1 minúta (MultiCharts razí bar časom zatvorenia); pre webapp ostáva | inak by seansy sedeli o bar vedľa |
+| **cena ×1000** na niektorých dňoch (US500 2015–2019) | `--fix-scale` v `dukas_to_mc`; nástroj to vždy nahlási | jeden zlý deň by zhodil ATR aj zóny |
+
+Objem Dukascopy je len tickový (loty klientov), nie burzový; `useVolumeFilter` nechaj vypnutý.
+
+**1. Nový symbol** = inštrument v `tradebot/core/types.py` (`venue="multicharts"`, tick, hodnota
+bodu, mena; NAS100 je vzor) a profil v `docs/profily_archiv/ibs/` (`_instrument` na ten
+inštrument; prahy v bodoch len ak je podklad ako MNQ, inak jednotka `atr`).
+
+**2a. Pre MultiCharts (QuoteManager)** — jeden CSV s hlavičkou
+`Date,Time,Open,High,Low,Close,Volume`, čas zatvorenia baru, objem celé číslo:
+
 ```bash
-# nový symbol z Dukascopy: instrument v tradebot/core/types.py (venue "multicharts"), potom
+PY -m tradebot.tools.dukas_to_mc C:/dukas/NAS100_M1_10Y.csv --volume-scale 100      # -> NAS100_M1_mc.csv
+#   --from 2021-01-01 --to 2026-09-05   orezanie obdobia      --fix-scale   oprava ×1000 dní
+```
+
+V QuoteManageri: Add Symbol → Manually (Data Source ten, čo ponúka graf; Exchange s pásmom GMT
+bez letného času; Category Futures; Price Scale 1/1000, Min. Movement 1, Big Point Value 1,
+Currency USD), potom Import Data → ASCII (Time Zone GMT, Field Trade, 1 Minute). Kontrola:
+Edit Data v pásme GMT, nedeľa 5. 1. 2025 začína barom 23:01. Ďalej [docs/RUNNING.md §E](docs/RUNNING.md).
+
+**2b. Pre Tester webapp („burza" MultiCharts)** — ročné feather súbory v archíve, čas otvorenia
+baru, rovnaký tvar ako Freqtrade sviečky:
+
+```bash
 PY -m tradebot.tools.dukas_archive C:/dukas/NAS100_M1_10Y.csv --instrument nas100_dukascopy --from-year 2021
-PY -m tradebot.tools.data_archive merge
-# beh ako pri Binance páre — cez webapp alebo CLI
+#   -> platforms/freqtrade/user_data/data_archive/multicharts/NAS100_USD-1m.<rok>.feather (commitni ich)
+PY -m tradebot.tools.data_archive merge      # archív -> data/multicharts/NAS100_USD-1m.feather pre webapp
+```
+
+Potom reštartuj webapp; pár `NAS100` je v ponuke Nový beh (3m aj 5m sa skladajú z 1m v pamäti).
+Beh cez webapp alebo CLI ako pri Binance páre:
+
+```bash
 PY -m tradebot.webapp.cli run --profile docs/profily_archiv/ibs/nas100_dukas_3m.json --pair NAS100/USD \
    --timerange 20250106-20250201 --fee 0 --note "NAS100 emulator, januar"
 ```
+
+**3. Bez MultiCharts aj bez webapp** (rýchla kontrola, len zoznam obchodov a winrate) číta surový
+CSV priamo offline simulátor: `PY -m tradebot.tools.scan_trades --csv C:/dukas/NAS100_M1_10Y.csv
+--profile docs/profily_archiv/ibs/nas100_dukas_3m.json --from 2025-01-01 --to 2025-01-31`.
+Porovnanie obchodov MultiCharts (z logu študie) so simulátorom: `PY -m tradebot.tools.mc_compare …`.
 
 Forex a futures z Dukascopy sa na tejto burze nelíšia: všetko sú CFD s longmi, shortmi aj
 pákou (typ `futures`); líšia sa len inštrumentom (tick, hodnota bodu, mena) a profilom —
