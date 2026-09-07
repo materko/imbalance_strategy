@@ -5,6 +5,13 @@ hotové: session okná + detekciu SD zón na detekčnom TF + evidenciu zón.
 
     python -m tradebot.tools.scan_zones --exchange binance --profile golden_binance_btcusdt_3m
     python -m tradebot.tools.scan_zones --exchange coinbase --profile golden_coinbase_btcusd_3m --limit 20
+    python -m tradebot.tools.scan_zones --csv C:/dukas/NAS100_M1_10Y.csv --profile docs/profily_archiv/ibs/nas100_dukas_3m.json
+
+Zdroj dát je buď burza z `data_archive` (`--exchange`), alebo Dukascopy 1m CSV
+(`--csv`, formát `dt,o,h,l,c,vol`, UTC, čas otvorenia) — z neho sa graf aj detekčný
+TF skladajú v pamäti rovnako ako z 1m feather súborov. Vypchávka Dukascopy exportu
+(plochý bar s cenou predchádzajúceho uzavretia, víkendy a prestávky) sa zahodí,
+presne ako pri prevode pre MultiCharts (`tradebot.tools.dukas_to_mc`).
 
 Vyžaduje pandas (ťahá sa s Freqtrade), takže sa spúšťa z `.venv`, nie z jadra.
 """
@@ -13,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 from ..core import (
@@ -37,8 +45,51 @@ _LAYOUT = {
 }
 
 
-def _load(exchange: str, timeframe: str):
+def is_csv_source(source: str | Path) -> bool:
+    """`--csv` zdroj sa od kľúča burzy pozná podľa prípony."""
+    return str(source).lower().endswith(".csv")
+
+
+@lru_cache(maxsize=2)
+def _load_dukas_csv(path: str):
+    """Dukascopy 1m export ako DataFrame v tvare Freqtrade sviečok (`date` UTC, OHLCV).
+
+    Cache je tu preto, že jeden beh pýta ten istý súbor trikrát (graf, detekčný TF,
+    1m detail) a 375 MB CSV sa číta ~20 s.
+    """
+    import pandas as pd
+
+    df = pd.read_csv(
+        path, usecols=[0, 1, 2, 3, 4, 5], header=0,
+        names=["date", "open", "high", "low", "close", "volume"],
+        dtype={"open": "float64", "high": "float64", "low": "float64", "close": "float64", "volume": "float64"},
+    )
+    df["date"] = pd.to_datetime(df["date"], utc=True)
+    # vypchávka: plochý bar s cenou rovnou predchádzajúcemu uzavretiu — rovnaké
+    # pravidlo ako v dukas_to_mc, aby simulátor videl tie isté bary ako MultiCharts
+    flat = (df["open"] == df["close"]) & (df["high"] == df["low"]) & (df["open"] == df["high"])
+    padding = flat & (df["close"] == df["close"].shift(1))
+    dropped = int(padding.sum())
+    df = df[~padding].reset_index(drop=True)
+    print(f"  i {Path(path).name}: {len(df)} 1m barov, vyhodena vypchavka {dropped}", file=sys.stderr)
+    return df
+
+
+def _resample(base, minutes: int):
+    return (
+        base.set_index("date")
+        .resample(f"{minutes}min", label="left", closed="left", origin="epoch")
+        .agg({"open": "first", "high": "max", "low": "min", "close": "last", "volume": "sum"})
+        .dropna(subset=["open"])
+        .reset_index()
+    )
+
+
+def _load(exchange: str | Path, timeframe: str):
     """Načíta sviečky. Ak burza daný TF neponúka, poskladá ho z 1m **v pamäti**.
+
+    `exchange` je kľúč burzy z `_LAYOUT`, alebo cesta k Dukascopy 1m CSV (`--csv`);
+    z CSV sa každý TF okrem 1m skladá v pamäti.
 
     Na disk sa nikdy nič dopočítané nezapisuje — v `user_data/data` sú výhradne
     skutočné burzové sviečky. Presne to isté bude robiť aj Freqtrade stratégia
@@ -46,11 +97,17 @@ def _load(exchange: str, timeframe: str):
     """
     import pandas as pd
 
+    minutes = int(timeframe.rstrip("m"))
+    if is_csv_source(exchange):
+        base = _load_dukas_csv(str(exchange))
+        df = base.copy() if minutes == 1 else _resample(base, minutes)
+        df["ts"] = df["date"].astype("datetime64[ns, UTC]").astype("int64") // 1_000_000
+        return df
+
     pair, subdir, suffix = _LAYOUT[exchange]
     path = DATA_DIR / exchange / subdir / f"{pair}-{timeframe}{suffix}.feather"
 
     if not path.exists():
-        minutes = int(timeframe.rstrip("m"))
         src = DATA_DIR / exchange / subdir / f"{pair}-1m{suffix}.feather"
         if not src.exists():
             raise SystemExit(
@@ -58,14 +115,7 @@ def _load(exchange: str, timeframe: str):
                 "Stiahni ich: ./platforms/freqtrade/scripts/download-data.sh (alebo .ps1)"
             )
         print(f"  i {exchange} neponuka {timeframe} - skladam ho z 1m v pamati", file=sys.stderr)
-        base = pd.read_feather(src)
-        df = (
-            base.set_index("date")
-            .resample(f"{minutes}min", label="left", closed="left", origin="epoch")
-            .agg({"open": "first", "high": "max", "low": "min", "close": "last", "volume": "sum"})
-            .dropna(subset=["open"])
-            .reset_index()
-        )
+        df = _resample(pd.read_feather(src), minutes)
     else:
         df = pd.read_feather(path)
     # Freqtrade uklada datetime64[ms]; pretypovanie na ns je tu zamerne, aby //1e6
@@ -88,7 +138,7 @@ def _to_bar(row) -> Bar:
 def scan(
     cfg: IBSConfig,
     inst: InstrumentSpec,
-    exchange: str,
+    exchange: str | Path,
     chart_tf_minutes: int,
 ) -> tuple[ZoneBook, dict[str, int]]:
     htf_minutes = int(cfg.zoneDetectionTF)
@@ -157,7 +207,9 @@ def scan(
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--exchange", choices=sorted(_LAYOUT), default="binance")
+    src = ap.add_mutually_exclusive_group()
+    src.add_argument("--exchange", choices=sorted(_LAYOUT), default="binance")
+    src.add_argument("--csv", type=Path, help="Dukascopy 1m CSV (dt,o,h,l,c,vol; UTC) namiesto burzy")
     ap.add_argument("--profile", default="golden_binance_btcusdt_3m")
     ap.add_argument("--chart-tf", type=int, default=3, help="timeframe grafu v minutach")
     ap.add_argument("--limit", type=int, default=15, help="kolko zon vypisat")
@@ -167,14 +219,15 @@ def main(argv: list[str] | None = None) -> int:
     for w in cfg.check_instrument(inst):
         print(f"  ! {w}", file=sys.stderr)
 
-    book, stats = scan(cfg, inst, args.exchange, args.chart_tf)
+    source = args.csv or args.exchange
+    book, stats = scan(cfg, inst, source, args.chart_tf)
 
     from datetime import datetime, timezone
 
     def fmt(ms: int) -> str:
         return datetime.fromtimestamp(ms / 1000, tz=timezone.utc).strftime("%Y-%m-%d %H:%M")
 
-    print(f"\nProfil {args.profile} na {args.exchange}, graf {args.chart_tf}m, detekcia {cfg.zoneDetectionTF}m")
+    print(f"\nProfil {args.profile} na {source}, graf {args.chart_tf}m, detekcia {cfg.zoneDetectionTF}m")
     print(f"  barov grafu:        {stats['bars']}")
     print(f"  v zone okne:        {stats['in_zone_window']}")
     print(f"  uzavretych HTF:     {stats['htf_closes']}")

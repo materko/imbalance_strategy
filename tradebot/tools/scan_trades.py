@@ -1,6 +1,12 @@
 """Prejde reálne dáta celým stavovým automatom a vypíše obchody — smoke test kroku 3.
 
     python -m tradebot.tools.scan_trades --exchange binance --profile golden_binance_btcusdt_3m
+    python -m tradebot.tools.scan_trades --csv C:/dukas/NAS100_M1_10Y.csv \\
+        --profile docs/profily_archiv/ibs/nas100_dukas_3m.json --from 2025-01-01 --to 2025-01-31
+
+`--csv` berie Dukascopy 1m export (viď `scan_zones._load`) — tak sa dá stratégia prehrať
+na dátach pre MultiCharts bez MultiCharts aj bez Freqtrade a porovnať zoznam obchodov
+s tým, čo dá študia v MultiCharts.
 
 Signály generuje engine na uzavretých barech grafu (3m). Vyplnenie a výstupy sa
 prehrávajú po **1m** sviečkach vnútri každého 3m baru — rovnaký princíp ako
@@ -18,6 +24,7 @@ import argparse
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from pathlib import Path
 
 from ..core import (
     htf_window_opens,
@@ -196,8 +203,9 @@ class FillSimulator:
         return self.daily_wins.get(_utc_day(ts_ms), 0)
 
 
-def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str, chart_tf: int,
+def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str | Path, chart_tf: int,
         date_from: str | None = None, date_to: str | None = None):
+    """`exchange` je kľúč burzy alebo cesta k Dukascopy CSV — viď `scan_zones._load`."""
     htf_minutes = int(cfg.zoneDetectionTF)
     htf_ms = htf_minutes * 60_000
 
@@ -292,7 +300,9 @@ def run(cfg: IBSConfig, inst: InstrumentSpec, exchange: str, chart_tf: int,
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--exchange", choices=sorted(_LAYOUT), default="binance")
+    src = ap.add_mutually_exclusive_group()
+    src.add_argument("--exchange", choices=sorted(_LAYOUT), default="binance")
+    src.add_argument("--csv", type=Path, help="Dukascopy 1m CSV (dt,o,h,l,c,vol; UTC) namiesto burzy")
     ap.add_argument("--profile", default="golden_binance_btcusdt_3m")
     ap.add_argument("--chart-tf", type=int, default=3)
     ap.add_argument("--limit", type=int, default=20)
@@ -301,7 +311,10 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     cfg, inst = load_profile(args.profile)
-    book, sim, transitions, reasons = run(cfg, inst, args.exchange, args.chart_tf, args.date_from, args.date_to)
+    for w in cfg.check_instrument(inst):
+        print(f"  ! {w}", file=sys.stderr)
+    source = args.csv or args.exchange
+    book, sim, transitions, reasons = run(cfg, inst, source, args.chart_tf, args.date_from, args.date_to)
 
     def fmt(ms: int | None) -> str:
         if ms is None:
@@ -318,7 +331,7 @@ def main(argv: list[str] | None = None) -> int:
     for t in trades:
         counts[t.outcome] = counts.get(t.outcome, 0) + 1
 
-    print(f"\nProfil {args.profile} na {args.exchange}, graf {args.chart_tf}m")
+    print(f"\nProfil {args.profile} na {source}, graf {args.chart_tf}m")
     print(f"  zon v evidencii:  {len(book)}")
     print(f"  prechodov stavov: {transitions}")
     print(f"  orderov:          {len(trades)}")
