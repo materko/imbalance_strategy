@@ -1,4 +1,4 @@
-"""Config ukážkovej stratégie Demo Donchian Breakout — 8 vstupov z `pine/demo_breakout.pine`.
+"""Config ukážkovej stratégie Demo Donchian Breakout — 8 vstupov z `tradebot/strategies/demo_breakout/docs/sources/demo_breakout.pine`.
 
 Názvy polí sú zhodné s Pine identifikátormi, rovnako ako pri IBS. `leverage` je
 rozšírenie portu (Freqtrade futures), Pine ho nemá.

@@ -18,7 +18,6 @@ WORKDIR /app
 COPY pyproject.toml ./
 COPY tradebot/ ./tradebot/
 # Pine subor je potrebny pre test_pine_parity.py - straz nad 115 vstupmi.
-COPY pine/imbalance_strategy_FULL.pine ./pine/
 
 RUN pip install --no-cache-dir -e ".[dev]"
 

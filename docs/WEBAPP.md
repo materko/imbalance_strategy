@@ -118,7 +118,7 @@ Freqtrade configom (`config.binance.spot.json`, `trading_mode: spot`).
 **Parametre** sú všetky polia configu zvolenej stratégie — Pine vstupy v rovnakých
 skupinách, s rovnakými titulkami a tooltipmi ako v TradingView (parsujú sa priamo z Pine
 súboru stratégie, takže sa nemôžu rozísť), plus skupina „Rozšírenia portu" (polia, ktoré
-Pine nemá). Pri IBS je to `pine/imbalance_strategy_FULL.pine` a rozšírenia `atrLen`,
+Pine nemá). Pri IBS je to `tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine` a rozšírenia `atrLen`,
 `legacyPineSizing`, `leverage`, `minSlDistance`; pri demo stratégii 9 polí.
 Pri IBS sa neponúkajú polia, ktoré v porte nerobia nič: `alert*` (v Pine notifikácie
 TradingView) a tabuľky kreslené na graf v TradingView — `showDashboard`, `showTradeLog`,

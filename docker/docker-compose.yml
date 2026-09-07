@@ -39,7 +39,6 @@ services:
     image: tradebot-core:latest
     volumes:
       - ../tradebot:/app/tradebot:ro
-      - ../pine:/app/pine:ro
 
   download:
     <<: *freqtrade-base
@@ -90,7 +89,6 @@ services:
       - ../platforms/multicharts:/app/platforms/multicharts
       - ../platforms/freqtrade:/freqtrade/cfg:ro
       - ../tradebot:/app/tradebot:ro
-      - ../pine:/app/pine:ro
       - ../docs:/app/docs:ro
     environment:
       TZ: ${TZ:-Europe/Bratislava}

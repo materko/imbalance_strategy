@@ -40,12 +40,12 @@ Všetko sa spúšťa **z koreňa repozitára**. `PY` = Python z `.venv`:
 ```
 tradebot/                       PRODUKT - to, co obchoduje
   core/                         Bar, InstrumentSpec, config, kreslenie, hodiny, candles, paths
-  strategies/<key>/             jedna strategia = jeden balik (STRATEGIE.md)
+  strategies/<key>/             jedna strategia = jeden SEBESTACNY balik (STRATEGIE.md):
+                                engine, config, meta, configs/ (profily), docs/sources/ (Pine)
   adapters/freqtrade/           genericka IStrategy + EngineRunner
   adapters/multicharts/         TradebotSignal, MCRunner, emulator, kreslenie
   configs/<key>/                referencne profily
   tests/                        testy produktu
-pine/                           Pine zdroje strategii - zdroj pravdy pre parametre
 platforms/freqtrade/            configy burz, skripty, user_data/ (data, vysledky, shim)
 platforms/multicharts/          sablony studii, setup skript, data_archive/<zdroj>/
 
