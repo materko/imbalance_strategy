@@ -4,9 +4,15 @@ Dáta sú **jedny**, delené podľa toho, **odkiaľ sú** — nie podľa toho, �
 Zdroj je adresár, takže z cesty vidno pôvod sviečky:
 
 ```
-data_archive/<zdroj>/<trh>/    sviečky po rokoch           — v gite
-data/<zdroj>/<trh>/            pracovná podoba tých istých — gitignored
+data_archive/<zdroj>/<trh>/    sviečky po rokoch                    — v gite
+data/tester/<zdroj>/<trh>/     pracovná podoba tých istých          — gitignored
+data/quotemanager/<zdroj>/     ASCII export na import do QuoteManagera — gitignored
 ```
+
+Pod `data/` sa delí podľa toho, **kto to konzumuje**: `tester/` je sklad sviečok, ktorý
+číta Tester **oboma enginmi** (Freqtrade aj emulátor MultiCharts čítajú ten istý súbor —
+práve preto sa dajú porovnať), `quotemanager/` je z neho odvodený výstup pre cudziu
+aplikáciu. Späť ho nikto nečíta a vyrobí sa znova jedným príkazom, preto sa negituje.
 
 Zdroj je `binance`, `coinbase`, `dukascopy`; trh je `spot` alebo `futures`. Z cesty tak
 vidno, čo súbor obsahuje, bez otvárania.
@@ -136,9 +142,9 @@ pre koho dáta vyrobiť; dá sa vymenovať viac naraz (`--target tester freqtrad
 
 | `--target` | čo vznikne | pre koho |
 |---|---|---|
-| `tester` | `data_archive/dukascopy/futures/<STEM>-1m.<rok>.feather` (commitni ich) a hneď z nich pracovný súbor v `data/dukascopy/futures/` | webapp Tester — pár je po reštarte v ponuke Nový beh |
+| `tester` | `data_archive/dukascopy/futures/<STEM>-1m.<rok>.feather` (commitni ich) a hneď z nich pracovný súbor v `data/tester/dukascopy/futures/` | webapp Tester — pár je po reštarte v ponuke Nový beh |
 | `multicharts` | `<zdroj>_mc.csv` — ASCII pre QuoteManager, hlavička `Date,Time,Open,High,Low,Close,Volume` | MultiCharts študia (import do QuoteManagera) |
-| `freqtrade` | `data/dukascopy/futures/<STEM>-{3m,5m}.feather` — dopočítané z 1m, negitujú sa | hyperopt a FreqAI ([FREQTRADE.md §G](FREQTRADE.md)) |
+| `freqtrade` | `data/tester/dukascopy/futures/<STEM>-{3m,5m}.feather` — dopočítané z 1m, negitujú sa | hyperopt a FreqAI ([FREQTRADE.md §G](FREQTRADE.md)) |
 | `all` | všetky tri | |
 
 Predvolené je `tester multicharts`. Užitočné prepínače: `--from 2021-01-01 --to 2026-09-05`

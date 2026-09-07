@@ -1,16 +1,21 @@
 """Kde v repozitári čo leží — jediné miesto, kde sú cesty napísané.
 
 ```
-data_archive/<zdroj>/<trh>/  sviečky po rokoch           — v gite
-data/<zdroj>/<trh>/          pracovná podoba tých istých — gitignored
-deploy/freqtrade/            čo potrebuje Freqtrade: configy búrz, skripty, user_data
-deploy/multicharts/          čo potrebuje MultiCharts: šablóny štúdií, setup
-deploy/multicharts/quotemanager/<zdroj>/   ASCII exporty na import do QuoteManagera
+data_archive/<zdroj>/<trh>/       sviečky po rokoch — v gite
+data/tester/<zdroj>/<trh>/        pracovná podoba tých istých — gitignored
+data/quotemanager/<zdroj>/        ASCII exporty na import do QuoteManagera — gitignored
+deploy/freqtrade/                 čo potrebuje Freqtrade: configy búrz, skripty, user_data
+deploy/multicharts/               čo potrebuje MultiCharts: šablóny štúdií, setup
 tester/runs/, tester/profiles/   história behov a configy testerov — v gite
 ```
 
-**Sklad sviečok je jeden, nerozdelený podľa engine.** Sviečka z Binance a sviečka
-z Dukascopy sa líšia zdrojom, nie tým, čím ich kto prehrá — tá istá stratégia beží cez Freqtrade aj cez
+Dáta sa delia podľa toho, **kto ich konzumuje** — nie podľa engine. `tester/` je sklad
+sviečok, ktorý číta Tester **oboma enginmi** (Freqtrade aj emulátor MultiCharts čítajú ten
+istý súbor, práve preto sa dajú porovnať). `quotemanager/` je z neho odvodený výstup pre
+MultiCharts v inom formáte (bar razený zatvorením, objem celé číslo, CSV); späť ho nikto
+nečíta, vyrobí sa znova jedným príkazom.
+
+V sklade sa sviečka z Binance a sviečka z Dukascopy líšia zdrojom, nie tým, čím ich kto prehrá — tá istá stratégia beží cez Freqtrade aj cez
 emulátor MultiCharts na ktoromkoľvek páre (`tester.engines`). Preto je adresárom **zdroj**
 (`binance`, `coinbase`, `dukascopy`) a nie platforma. Freqtrade dostane svoj koreň
 prepínačom `--datadir`, ktorý mu `tester.engines` poskladá tak, aby jeho vlastná
@@ -19,7 +24,7 @@ konvencia (`futures/` a prípona `-futures`) vyšla na tú istú cestu.
 `deploy/` je integračná vrstva — to, čo treba na strane cudzej aplikácie, aby v nej adaptér
 bežal. Kód tam nie je (ten je v `tradebot/adapters/`) a dáta tiež nie.
 
-Pracovné adresáre (`data/`) sa skladajú z archívu príkazom
+Sklad (`data/tester/`) sa skladá z archívu príkazom
 ``python -m tester.data_archive merge`` a nikdy sa necommitujú — celý súbor by sa pri
 každom doťahovaní dát pridal do histórie gitu znova, kým uzavretý rok v archíve sa už
 nikdy nezmení.
@@ -31,9 +36,9 @@ from pathlib import Path
 
 __all__ = [
     "REPO",
-    "DATA", "DATA_ARCHIVE",
+    "DATA", "TESTER_DATA", "QUOTEMANAGER_DATA", "DATA_ARCHIVE",
     "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS",
-    "MULTICHARTS_DIR", "QUOTEMANAGER_DIR",
+    "MULTICHARTS_DIR",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES",
     "ARCHIVE_ROOTS",
 ]
@@ -43,8 +48,12 @@ REPO = Path(__file__).resolve().parents[2]
 
 # -- Dáta ------------------------------------------------------------------- #
 
-#: Pracovné sviečky, `data/<zdroj>/…` — odvodené z archívu, gitignored.
+#: Koreň všetkých dát. Podadresár = konzument, nie platforma.
 DATA = REPO / "data"
+#: Sklad sviečok, `data/tester/<zdroj>/<trh>/…` — odvodený z archívu, gitignored.
+TESTER_DATA = DATA / "tester"
+#: ASCII exporty pre QuoteManager, `data/quotemanager/<zdroj>/…` — výstup zo skladu.
+QUOTEMANAGER_DATA = DATA / "quotemanager"
 #: To isté po rokoch, ako je to v gite.
 DATA_ARCHIVE = REPO / "data_archive"
 
@@ -59,10 +68,6 @@ FREQTRADE_USER_DIR = FREQTRADE_DIR / "user_data"
 BACKTEST_RESULTS = FREQTRADE_USER_DIR / "backtest_results"
 
 MULTICHARTS_DIR = DEPLOY_DIR / "multicharts"
-#: ASCII exporty pre QuoteManager — to, čo sa importuje do MultiCharts. Nie je to sklad
-#: sviečok (ten je jeden, v `data/`), ale **výstup** z neho v inom formáte: bar razený
-#: zatvorením, objem ako celé číslo, CSV. Späť ich nikto nečíta, preto sa negitujú.
-QUOTEMANAGER_DIR = MULTICHARTS_DIR / "quotemanager"
 
 # -- Tester (webapp) -------------------------------------------------------- #
 
@@ -77,4 +82,4 @@ TMP_PROFILES = RUNS_DIR / ".profiles"
 #: Dvojice (archív v gite, pracovný adresár) pre `data_archive split|merge`.
 #: Odkedy sú dáta na jednom mieste, je to jediná dvojica; zoznam ostáva, aby sa testy
 #: dali púšťať nad dočasným adresárom a aby sa dal pridať ďalší koreň.
-ARCHIVE_ROOTS: tuple[tuple[Path, Path], ...] = ((DATA_ARCHIVE, DATA),)
+ARCHIVE_ROOTS: tuple[tuple[Path, Path], ...] = ((DATA_ARCHIVE, TESTER_DATA),)

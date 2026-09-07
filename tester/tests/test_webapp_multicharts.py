@@ -28,12 +28,12 @@ def m1(n: int, start_ms: int = T0) -> "pd.DataFrame":
 
 @pytest.fixture
 def mc_data(tmp_path: Path, monkeypatch) -> Path:
-    data = tmp_path / "data"
+    data = tmp_path / "data" / "tester"
     (data / INST.data_source / INST.market).mkdir(parents=True)
     path = data / INST.data_source / INST.market / f"{INST.data_stem}-1m.feather"
     m1(60).to_feather(path)
     # cesty k svieckam pocita jedno miesto - tester.engines
-    monkeypatch.setattr(engines, "DATA", data)
+    monkeypatch.setattr(engines, "TESTER_DATA", data)
     # burzove adresare nech su prazdne, aby test videl len Dukascopy par
     monkeypatch.setattr(runner_mod, "BINANCE_FUTURES", data / "binance" / "futures")
     monkeypatch.setattr(runner_mod, "BINANCE_SPOT", data / "binance")

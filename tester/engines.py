@@ -5,15 +5,15 @@
 | `freqtrade` | Freqtrade backtest v podprocese, fill model Freqtradu | súbor na každý timeframe |
 | `multicharts` | emulátor MultiCharts v tomto procese (`MCRunner` + broker podľa MultiCharts) | jeden 1m súbor, vyššie TF sa skladajú v pamäti |
 
-Dáta sú pre oba spoločné — `data/<zdroj>/…`, delené podľa zdroja sviečok, nie podľa
-platformy.
+Dáta sú pre oba spoločné — `data/tester/<zdroj>/<trh>/`, delené podľa zdroja a trhu,
+nie podľa platformy.
 
 Engine **nie je vlastnosť páru**. Krypto sa dá prehrať aj emulátorom a Dukascopy CFD aj
 cez Freqtrade — práve na tom stojí porovnanie oboch ciest
 ([docs/FREQTRADE.md §G](../docs/FREQTRADE.md)). Obmedzuje to len to, aké dáta sú na disku,
 a to hovorí `available()`.
 
-Sviečky sú vždy `data/<zdroj>/<trh>/<PÁR>-<TF>.feather` — zdroj (`binance`, `dukascopy`)
+Sviečky sú vždy `data/tester/<zdroj>/<trh>/<PÁR>-<TF>.feather` — zdroj (`binance`, `dukascopy`)
 aj trh (`spot`, `futures`) sú adresáre, takže z cesty vidno, čo to je.
 
 Podadresár `futures/` a príponu `-futures` v mene si Freqtrade drží natvrdo
@@ -27,7 +27,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tradebot.core.paths import DATA, FREQTRADE_DIR
+from tradebot.core.paths import FREQTRADE_DIR, TESTER_DATA
 from tradebot.core.types import InstrumentSpec
 
 __all__ = ["FREQTRADE", "MULTICHARTS", "ENGINES", "ENGINE_TITLES",
@@ -53,8 +53,8 @@ def _is_off_exchange(inst: InstrumentSpec) -> bool:
 
 
 def market_dir(inst: InstrumentSpec) -> Path:
-    """`data/<zdroj>/<trh>/` — kde sviečky tohto inštrumentu naozaj ležia."""
-    return DATA / inst.data_source / inst.market
+    """`data/tester/<zdroj>/<trh>/` — kde sviečky tohto inštrumentu naozaj ležia."""
+    return TESTER_DATA / inst.data_source / inst.market
 
 
 def data_dir(inst: InstrumentSpec) -> Path:
@@ -66,11 +66,11 @@ def data_dir(inst: InstrumentSpec) -> Path:
     """
     if _is_off_exchange(inst) or inst.is_spot:
         return market_dir(inst)
-    return DATA / inst.data_source
+    return TESTER_DATA / inst.data_source
 
 
 def freqtrade_file(inst: InstrumentSpec, timeframe: str) -> Path:
-    """`BTC/USDT:USDT`, `3m` → `data/binance/futures/BTC_USDT_USDT-3m-futures.feather`.
+    """`BTC/USDT:USDT`, `3m` → `data/tester/binance/futures/BTC_USDT_USDT-3m-futures.feather`.
 
     Príponu `-futures` pridáva Freqtrade len tomu, čo u neho beží ako futures; CFD cez
     spotový config ju nemá. Emulátor číta tie isté súbory, takže konvencia je jedna.

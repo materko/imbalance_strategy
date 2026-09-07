@@ -143,7 +143,7 @@ def test_convert_zapise_hlavicku_a_cli_vrati_2_pri_neopravenej_mierke(tmp_path: 
 
     # export pre QuoteManager ide k aplikacii, ktoru zivi - nie vedla surového zdroja
     qm = tmp_path / "quotemanager"
-    monkeypatch.setattr(dukas_import, "QUOTEMANAGER_DIR", qm)
+    monkeypatch.setattr(dukas_import, "QUOTEMANAGER_DATA", qm)
 
     mc = ["--symbol", "NAS100", "--target", "multicharts"]
     assert main([str(src), *mc]) == 2

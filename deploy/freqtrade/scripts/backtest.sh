@@ -35,7 +35,7 @@ fi
 ARGS=(-m freqtrade backtesting
       --config "$FT/$CONFIG"
       --userdir "$USERDIR" \
-      --datadir "$REPO/data/binance"
+      --datadir "$REPO/data/tester/binance"
       --strategy "$STRATEGY"
       --cache none)
 

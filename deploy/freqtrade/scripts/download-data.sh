@@ -44,7 +44,7 @@ download() {
     "$PY" -m freqtrade download-data \
         --config "$FT/$config" \
         --userdir "$USERDIR" \
-        --datadir "$REPO/data/$datadir" \
+        --datadir "$REPO/data/tester/$datadir" \
         --timeframes "$@" \
         "${RANGE[@]}" "${ERASE_ARG[@]}"
 }
@@ -61,8 +61,8 @@ fi
 
 echo ""
 echo "=== Co je stiahnute ==="
-"$PY" -m freqtrade list-data --userdir "$USERDIR" --datadir "$REPO/data/binance" --config "$FT/config.binance.json"
-"$PY" -m freqtrade list-data --userdir "$USERDIR" --datadir "$REPO/data/coinbase/spot" --config "$FT/config.coinbase.json"
+"$PY" -m freqtrade list-data --userdir "$USERDIR" --datadir "$REPO/data/tester/binance" --config "$FT/config.binance.json"
+"$PY" -m freqtrade list-data --userdir "$USERDIR" --datadir "$REPO/data/tester/coinbase/spot" --config "$FT/config.coinbase.json"
 
 echo
 echo "=== Delim na rocne subory pre git ==="
