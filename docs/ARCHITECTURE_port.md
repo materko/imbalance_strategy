@@ -376,8 +376,8 @@ MultiCharts Python študia je trieda so životným cyklom `Create → StartCalc 
 postavená nad PowerLanguage .NET API.
 
 ```python
-class IBS_Signal(SignalObject):
-    def __init__(self, ctx): super().__init__(ctx)
+class IBS_Signal:   # MultiCharts x Python: obyčajná trieda, graf príde ako ctx v Create()
+    def Create(self, ctx): self.ctx = ctx      # tu (a len tu) vznikajú order objekty
 
     def StartCalc(self):
         self.eng = IBSEngine(load_config(), tick_size=self.Bars.Info.MinMove/self.Bars.Info.PriceScale,
@@ -386,7 +386,8 @@ class IBS_Signal(SignalObject):
         self.draw = MCDrawSink(self)
 
     def CalcBar(self):
-        bar = Bar(self.Bars.Time[0], self.Bars.Open[0], self.Bars.High[0],
+        bar = Bar(self._open_ms(self.Bars, 0),  # Time[0] je čas ZATVORENIA baru -> odpočítať TF
+                  self.Bars.Open[0], self.Bars.High[0],
                   self.Bars.Low[0],  self.Bars.Close[0], self.Bars.Volume[0])
         out = self.eng.on_bar(bar, htf_bar=self._data2_bar())
         self.draw.render(out.drawings)          # DrawBox → self.DrwRectangle.Create(...)

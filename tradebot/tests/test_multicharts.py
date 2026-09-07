@@ -123,6 +123,70 @@ def test_po_zavreti_pozicie_sa_vystupny_plan_zahodi(runner):
     assert out.exit_plan is None
 
 
+def test_vyplneny_order_sa_po_zavreti_pozicie_neposle_znova(runner):
+    """Market vstup (Pin Bar) by sa inak po zavretí obchodu poslal druhýkrát."""
+    _live_order(runner)
+    runner.on_bar(bar(T0 + MIN3), position_size=2.0)
+    assert runner._live == {} and runner._open_id == "LONG_1"
+    out = runner.on_bar(bar(T0 + 2 * MIN3), position_size=0.0)
+    assert out.entries == [] and runner._open_id is None
+
+
+def test_engine_dostane_ako_otvorene_len_vyplneny_order(runner, monkeypatch):
+    """`open_order_ids` znamená v jadre ordre držiace pozíciu (ako vo Freqtrade), nie čakajúce."""
+    from tradebot.core import MarketContext
+
+    seen: list[frozenset] = []
+    real = runner.engine.on_bar
+
+    def spy(bar_, htf, ctx: MarketContext):
+        seen.append(ctx.open_order_ids)
+        return real(bar_, htf, ctx)
+
+    monkeypatch.setattr(runner.engine, "on_bar", spy)
+    _live_order(runner)
+    runner.on_bar(bar(T0 + MIN3))                          # čaká
+    runner.on_bar(bar(T0 + 2 * MIN3), position_size=2.0)   # vyplnený -> FILLED v tom istom bare
+    runner.on_bar(bar(T0 + 3 * MIN3), position_size=0.0)   # zavretý
+    assert seen == [frozenset(), frozenset({"LONG_1"}), frozenset()]
+
+
+def test_trailing_extrem_nie_je_nan(runner):
+    """NaN sentinel by pri odmaskovaných FPU výnimkách v MultiCharts zhodil CalcBar."""
+    import math
+
+    from tradebot.core.risk import TrailingPlan
+
+    plan = _live_order(runner)
+    assert runner._open_extreme is None
+    runner.on_bar(bar(T0 + MIN3), position_size=2.0)
+    assert runner._open_extreme is None or not math.isnan(runner._open_extreme)
+    runner.on_bar(bar(T0 + 2 * MIN3), position_size=0.0)
+    assert runner._open_extreme is None
+
+
+def test_obchod_otvoreny_a_zavrety_v_jednom_bare(runner, monkeypatch):
+    """Market vstup + TP v tom istom bare: pozícia je na close 0, ale TotalTrades narástol."""
+    from tradebot.core import MarketContext
+
+    seen: list[frozenset] = []
+    real = runner.engine.on_bar
+
+    def spy(bar_, htf, ctx: MarketContext):
+        seen.append(ctx.open_order_ids)
+        return real(bar_, htf, ctx)
+
+    monkeypatch.setattr(runner.engine, "on_bar", spy)
+    _live_order(runner)
+    out1 = runner.on_bar(bar(T0 + MIN3), closed_trades=0)          # order sa posiela
+    out2 = runner.on_bar(bar(T0 + 2 * MIN3), closed_trades=1)      # vyplnený aj zavretý vnútri baru
+    out3 = runner.on_bar(bar(T0 + 3 * MIN3), closed_trades=1)
+    assert [o.order_id for o in out1.entries] == ["LONG_1"]
+    assert out2.entries == [] and out3.entries == []               # nič sa neposiela znova
+    assert seen == [frozenset(), frozenset({"LONG_1"}), frozenset()]
+    assert runner._live == {} and runner._open_id is None
+
+
 def test_ten_isty_bar_druhykrat_neurobi_nic(runner):
     """MultiCharts vie zavolať CalcBar na tom istom bare viackrát."""
     _live_order(runner)

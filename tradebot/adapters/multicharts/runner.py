@@ -101,8 +101,13 @@ class MCRunner:
         self._open_plan: TradePlan | None = None
         self._open_id: str | None = None
         #: Najlepšia cena od otvorenia pozície — vstup do trailingu.
-        self._open_extreme: float = float("nan")
+        #: None = prvý bar pozície. Zámerne nie NaN: MultiCharts x Python beží s
+        #: odmaskovanými FPU výnimkami a porovnanie NaN by zhodilo celý CalcBar.
+        self._open_extreme: float | None = None
         self.last_ts: int | None = None
+        #: `TotalTrades` z MultiCharts na predchádzajúcom bare — z jeho nárastu pri
+        #: nulovej pozícii sa pozná obchod otvorený aj zavretý vnútri jedného baru.
+        self._closed_trades: int | None = None
 
     # ------------------------------------------------------------------ #
     # HTF
@@ -128,22 +133,51 @@ class MCRunner:
     # hlavný krok
     # ------------------------------------------------------------------ #
 
-    def on_bar(self, bar: Bar, *, position_size: float = 0.0) -> BarOutput:
+    def on_bar(self, bar: Bar, *, position_size: float = 0.0, closed_trades: int | None = None) -> BarOutput:
         """Spracuje jeden uzavretý bar grafu.
 
         `position_size` je `self.MarketPosition` zo študie: > 0 long, < 0 short.
-        Engine z toho číta `oppositeOpen` a OCO.
+        Engine z toho číta `oppositeOpen` a OCO. `closed_trades` je `TotalTrades`
+        zo študie: keď narastie a pozícia je stále nula, order sa vyplnil AJ zavrel
+        vnútri baru (market vstup a TP v tom istom bare) — bez toho by sa vyplnený
+        order posielal ďalej a v Pine by takýto obchod bol jediný.
         """
         if self.last_ts is not None and bar.time <= self.last_ts:
             return BarOutput()  # MultiCharts vie zavolať CalcBar na tom istom bare
         self.last_ts = bar.time
 
-        # Obchodné okno si engine nastaví sám (IBS z vlastných hodín seáns); stratégia
-        # bez seáns obchoduje vždy.
+        round_trip_id: str | None = None
+        if (
+            closed_trades is not None and self._closed_trades is not None
+            and closed_trades > self._closed_trades and position_size == 0.0
+            and self._open_plan is None and self._live
+        ):
+            _plan, round_trip_id = self._adopt_open_plan()
+            if round_trip_id is not None:
+                self._live.pop(round_trip_id, None)
+        if closed_trades is not None:
+            self._closed_trades = closed_trades
+
+        # Pozícia sa otvorila -> ktorý order to bol, sa určí ešte PRED enginom, aby
+        # dostal FILLED v tom istom bare (Freqtrade runner simuluje fill tiež pred enginom).
+        # Vyplnený order sa z množiny živých vyradí — v Pine vyplnená `strategy.entry`
+        # už neexistuje; inak by sa po zavretí pozície poslal znova (market vstup).
+        if position_size != 0.0 and self._open_plan is None:
+            self._open_plan, self._open_id = self._adopt_open_plan()
+            self._open_extreme = None
+            if self._open_id is not None:
+                self._live.pop(self._open_id, None)
+
+        # `open_order_ids` sú pre engine ordre, ktoré VYPLNILI a držia pozíciu (rovnako
+        # ako `_open_ids` vo Freqtrade runneri) — nie čakajúce limitky. Obchodné okno si
+        # engine nastaví sám (IBS z vlastných hodín seáns); stratégia bez seáns obchoduje vždy.
+        open_ids = frozenset({self._open_id}) if position_size != 0.0 and self._open_id else frozenset()
+        if round_trip_id is not None:
+            open_ids = frozenset({round_trip_id})  # engine dostane FILLED; ďalší bar už "zavretý"
         ctx = MarketContext(
             in_trade_window=True,
             position_size=position_size,
-            open_order_ids=frozenset(self._live),
+            open_order_ids=open_ids,
         )
         htf = self.htf.window_for(bar.time) if self.htf is not None else None
         out = self.engine.on_bar(bar, htf, ctx)
@@ -156,21 +190,18 @@ class MCRunner:
                 if intent.order_id == self._open_id:
                     self._open_plan = None
                     self._open_id = None
-                    self._open_extreme = float("nan")
+                    self._open_extreme = None
             elif intent.plan is not None:
                 self._live[intent.order_id] = self._to_live(intent)
 
         # Pozícia je otvorená -> ordre na vstup už nemajú čo robiť, ale SL/TP áno.
         if position_size != 0.0:
-            if self._open_plan is None:
-                self._open_plan, self._open_id = self._adopt_open_plan()
-                self._open_extreme = float("nan")
             result.exit_plan = self._open_plan
             result.exit_stop = self._trailed_stop(bar)
         else:
             self._open_plan = None
             self._open_id = None
-            self._open_extreme = float("nan")
+            self._open_extreme = None
             result.entries = list(self._live.values())
 
         return result
@@ -190,7 +221,7 @@ class MCRunner:
 
         long = plan.direction is Direction.LONG
         best = bar.high if long else bar.low
-        if self._open_extreme != self._open_extreme:  # NaN = prvý bar pozície
+        if self._open_extreme is None:  # prvý bar pozície
             self._open_extreme = plan.entry
         self._open_extreme = max(self._open_extreme, best) if long else min(
             self._open_extreme, best

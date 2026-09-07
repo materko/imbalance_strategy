@@ -49,7 +49,16 @@ if ($bits -ne "64") {
 }
 
 Write-Host "Instalujem tradebot do globalneho Pythonu (editovatelne)..."
-& $exe -m pip uninstall -y ibs *> $null   # stary nazov balika (pred premenovanim na tradebot)
+# Stary nazov balika (pred premenovanim na tradebot). Ak nie je nainstalovany, pip
+# vypise varovanie na stderr a PowerShell 5.1 by ho pri "Stop" bral ako chybu.
+$prevEap = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+& $exe -m pip show ibs 2>&1 | Out-Null
+$hasOld = ($LASTEXITCODE -eq 0)
+$ErrorActionPreference = $prevEap
+if ($hasOld) {
+    & $exe -m pip uninstall -y ibs
+}
 & $exe -m pip install -e $repo
 if ($LASTEXITCODE -ne 0) { throw "pip install -e zlyhalo" }
 
@@ -70,9 +79,9 @@ print('adapter: MCRunner + MCDrawSink OK')
 if ($LASTEXITCODE -ne 0) { throw "import tradebot zlyhal" }
 
 Write-Host ""
-Write-Host "Hotovo. V MultiCharts:" -ForegroundColor Green
+Write-Host "Hotovo. RESTARTUJ MultiCharts (StudyServer si Python drzi od startu), potom:" -ForegroundColor Green
 Write-Host "  1. Otvor PowerLanguage .NET Editor"
-Write-Host "  2. File -> New -> Signal, jazyk: Python.NET"
+Write-Host "  2. File -> New -> Signal, jazyk: Python, nazov = trieda v sablone (IBS)"
 Write-Host "  3. Vloz obsah sablony platforms\multicharts\<Strategia>_Signal.py (IBS: IBS_Signal.py)"
 Write-Host "  4. Na graf pridaj DVE serie: Data1 = graf TF, Data2 = informativny TF strategie (IBS: 5m)"
 Write-Host "     Bez Data2 nevznikne ani jedna SD zona."

@@ -340,17 +340,69 @@ inak ich odtlačok neuvidí.
 ```
 
 MultiCharts **nepoužíva virtuálne prostredie** — volá jednu konkrétnu globálnu 64-bitovú
-inštaláciu CPythonu cez Python.NET. Preto sa `tradebot` musí nainštalovať do nej, nie do `.venv`.
-Skript to overí (odmietne venv aj 32-bit) a na záver skúsi načítať profil.
+inštaláciu CPythonu cez pythonnet. Preto sa `tradebot` musí nainštalovať do nej, nie do `.venv`.
+Skript to overí (odmietne venv aj 32-bit) a na záver skúsi načítať profil. Ktorý Python
+to je: MultiCharts x Python (od verzie 15) ho hľadá cez `where python`, teda prvý v PATH,
+prípadne cez premennú `PYTHONNET_PYDLL`. **Po inštalácii MultiCharts reštartuj** — StudyServer
+si Python drží od štartu a nový balík inak nevidí („No module named tradebot").
+Ak PowerShell odmietne skript spustiť: `powershell -ExecutionPolicy Bypass -File .\platforms\multicharts\scripts\setup.ps1`.
 
 Potom v MultiCharts:
 1. **PowerLanguage .NET Editor**
-2. **File → New → Signal**, jazyk **Python.NET**
+2. **File → New → Signal**, jazyk **Python**, názov **rovnaký ako trieda v šablóne**
+   (`IBS`, `DemoBreakout`) — MultiCharts hľadá triedu podľa mena študie
 3. Vlož obsah šablóny stratégie z [`platforms/multicharts/`](../platforms/multicharts)
-   (`IBS_Signal.py` pre IBS, `DemoBreakout_Signal.py` pre demo) — sú to štyri riadky,
-   celá logika je v balíku `tradebot`
+   (`IBS_Signal.py` pre IBS, `DemoBreakout_Signal.py` pre demo) — trieda, ktorá len
+   deleguje na balík `tradebot` (MultiCharts vyžaduje metódy `Create`/`CalcBar` priamo
+   v triede študie, zdedené nevidí); profil nastav v `PROFILE` (názov alebo cesta). Skompiluj (F7).
 4. Na graf pridaj **Data1** = graf TF (napr. MNQ 3m) a, ak stratégia potrebuje informatívny
-   TF, **Data2** = ten TF (IBS: `zoneDetectionTF`, štandardne 5m; demo stratégia Data2 nemá)
+   TF, **Data2** = ten TF (IBS: `zoneDetectionTF`, štandardne 5m; demo stratégia Data2 nemá).
+   Graf musí mať **Time Zone: Exchange** a burza symbolu pásmo GMT — adaptér berie čas
+   baru ako UTC.
+5. **Insert → Signal** na graf, potom **View → Output**: študia vypíše profil a prvý bar
+   (`prvy bar grafu Time[0]=… -> otvorenie …`), z ktorého vidno, či pásmo a razenie baru sedia.
+   Obchody: View → Strategy Performance Report → List of Trades.
+
+> **Data2 v bete (15.0.27717) Python študii nefunguje**: `BarsOfData(2)` padá v
+> `PriceSeriesImpl.ReBind`, hoci `MaxDataStream` hlási 2 série a Data1 ide. Adaptér má
+> preto zálohu: v šablóne nastav `HTF_CSV` na 1m Dukascopy CSV (alebo premennú
+> prostredia `TRADEBOT_MC_HTF_CSV`) a informatívny TF sa poskladá zo súboru
+> (`tradebot/adapters/multicharts/htf_csv.py`, ~8 s pre desaťročný export). Sú to tie
+> isté 5m bary, aké má QuoteManager aj offline simulátor. Ak Data2 jedného dňa pôjde,
+> adaptér ju uprednostní a CSV sa nepoužije.
+
+> **FPU výnimky.** Po prvom spracovanom obchode necháva MultiCharts vo vlákne študie
+> odmaskované FPU výnimky (control word `0x00080007`: neplatná operácia a delenie nulou
+> nie sú maskované). Python s tým nepočíta — prvé porovnanie s NaN zhodí CalcBar ako
+> `System.ArithmeticException: Overflow or underflow…` bez Python tracebacku. Adaptér
+> preto pri každom `CalcBar` volá `_controlfp` a masky vráti (`fpu_mask_exceptions`);
+> v Output okne/logu to hlási riadok „FPU vynimky boli odmaskovane".
+
+> **Obchod vnútri jedného baru.** Market vstup sa v MultiCharts vyplní na otvorení
+> ďalšieho baru a TP/SL môže trafiť ešte v tom istom bare — na close je pozícia nula.
+> Runner to pozná z `TotalTrades` (`closed_trades`) a vyplnený order už neposiela znova;
+> bez toho by sa ten istý market vstup opakoval každý bar.
+
+**Log a zoznam obchodov.** Študia píše všetko, čo ide do Output okna, aj do
+`%LOCALAPPDATA%\tradebot\multicharts.log` (`TRADEBOT_MC_LOG`), plus `[trace]` riadky
+(každý `Send`, zmeny pozície) a `[trade]` riadok pri každom uzavretom obchode. Zoznam
+obchodov z posledného behu:
+
+```bash
+.venv/Scripts/python.exe -m tradebot.tools.mc_log_trades --from 2025-01-01 --to 2025-01-31
+```
+
+vedľa neho `scan_trades --csv … --from 2025-01-01 --to 2025-01-31` — to je porovnanie
+MultiCharts vs. jadro (výsledok pre NAS100: `docs/NAS100_dukas_simulator_2026-09-06.md`).
+**Po každej zmene v `tradebot/` treba MultiCharts naozaj reštartovať**: `File → Exit`
+nechá bežať `StudyServer.NET`, `tsServer` a ďalšie procesy, ktoré držia Python so starým
+kódom — ukonči ich (`Get-Process MultiCharts64, tsServer, StudyServer.NET, TradingServer,
+ATCenterServer, PLEditor.NET | Stop-Process -Force`) a spusti MultiCharts znova.
+
+Rozhranie MultiCharts x Python (nie C# `SignalObject`): študia je obyčajná trieda,
+MultiCharts volá `Create(ctx)`, `StartCalc`, `CalcBar`, `Destroy`; ordre musia vzniknúť
+v `Create`, preto má `TradebotSignal` pevný pool vstupných orderov (`ENTRY_POOL`, 4 na
+stranu) a meno konkrétneho orderu (`LONG_<uid>`) dosadí pri každom `Send`.
 
 > **IBS bez Data2 nevytvorí ani jednu SD zónu.** Študia to napíše do Output okna,
 > ale inak beží ďalej — je to ľahké prehliadnuť.
@@ -371,7 +423,45 @@ Prvé dva sú zámerne bez závislosti na PowerLanguage, takže sa testujú na o
 Pythone (`tradebot/tests/test_multicharts.py`) — vrátane testu, že MultiCharts runner dá
 z tých istých barov tie isté zóny ako Freqtrade.
 
-### Dva rozdiely oproti Pine, ktoré treba vedieť
+### Dáta z CSV (Dukascopy) do QuoteManagera
+
+MultiCharts študia číta bary z grafu, teda z QuoteManagera — CSV sa doň musí najprv
+importovať. Dukascopy 1m export (`dt,o,h,l,c,vol`, bid strana, UTC) sa priamo importovať
+nedá: má riadok pre každú minútu vrátane víkendov (plochý bar s poslednou cenou, ~40 %
+súboru), razí bar časom otvorenia (MultiCharts časom zatvorenia) a niektoré súbory majú
+dni s cenou ×1000 (US500 2015–2019). Prevod:
+
+```powershell
+.venv\Scripts\python.exe -m tradebot.tools.dukas_to_mc C:\dukas\NAS100_M1_10Y.csv
+# -> C:\dukas\NAS100_M1_mc.csv, hlavička Date,Time,Open,High,Low,Close,Volume
+# --from 2021-01-01 --to 2026-09-05   orezanie obdobia
+# --fix-scale                          oprava ×1000 dní (nástroj ich vždy nahlási)
+# --stamp open                         ak import berie čas otvorenia baru
+# --volume-scale 100                   objem ako celé číslo (QuoteManager "0.01" odmietne)
+```
+
+Potom v QuoteManageri:
+1. **Add Symbol → Manually**: Exchange (napr. `Dukascopy`), Category podľa trhu,
+   **Price Scale 1/1000, Min. Movement 1** (dáta majú tri desatinné miesta),
+   **Big Point Value 1** (1 USD za bod na jednotku CFD — over si to v obchodných
+   podmienkach), **Time Zone GMT/UTC** a session template 24/7 alebo podľa trhu.
+   Adaptér berie čas grafu ako UTC, takže iné pásmo symbolu posunie seansy.
+2. **Import Data → ASCII** na tom symbole: čas súboru = GMT, rozlíšenie 1 minute,
+   stĺpce podľa hlavičky.
+   Kontrola po importe: Edit Data v pásme GMT, nedeľa 5. 1. 2025 — prvý bar **23:01**
+   (trh otvára 18:00 New York, v zime 23:00 UTC, v lete 22:00 UTC; bar je razený
+   zatvorením, preto :01). Graf s Time Zone Exchange ukáže to isté.
+3. Na graf Data1 = 3m, Data2 = 5m (obe si MultiCharts poskladá z 1m), profil
+   `TRADEBOT_PROFILE=docs/profily_archiv/ibs/nas100_dukas_3m.json` (inštrument
+   `nas100_dukascopy`, prahy v bodoch rovnaké ako `multicharts_mnq_3m`).
+
+### Tri rozdiely oproti Pine, ktoré treba vedieť
+
+**Bar je razený časom zatvorenia.** `Bars.Time[0]` 3m baru 10:00–10:03 je 10:03; jadro
+pracuje s časom otvorenia ako Pine, takže adaptér odpočíta rozlíšenie série
+(`TradebotSignal._bar`). Bez toho by seansy aj okno Data2 sedeli o bar neskôr. Kreslenie ide
+opačným smerom: objekty jadra majú x = otvorenie baru, plátno pripočíta TF, aby sedeli na bary.
+
 
 **Ordre platia len jeden bar.** V Pine `strategy.entry` položí order, ktorý leží, kým
 ho niekto nezruší. V MultiCharts platí order len na nasledujúci bar — runner ich preto
@@ -414,7 +504,15 @@ Okrem testov sú tu dva nástroje na overenie proti reálnym dátam:
 ```bash
 .venv/bin/python -m tradebot.tools.scan_zones    --exchange binance   # aké zóny by vznikli
 .venv/bin/python -m tradebot.tools.scan_trades   --exchange binance   # celý STATE 0-5 + ordre
+# to isté nad Dukascopy 1m CSV (NAS100 pre MultiCharts) — bez MultiCharts aj bez Freqtrade
+.venv/bin/python -m tradebot.tools.scan_trades --csv C:/dukas/NAS100_M1_10Y.csv \
+    --profile docs/profily_archiv/ibs/nas100_dukas_3m.json --from 2025-01-01 --to 2025-01-31
 ```
+
+`--csv` číta surový Dukascopy export (vypchávku zahodí rovnako ako `dukas_to_mc`), graf
+aj detekčný TF skladá z 1m v pamäti a vyplnenie rozhoduje po 1m sviečkach. Fill model je
+naivný a poplatky nepočíta — je to na porovnanie zoznamu obchodov so študiou
+v MultiCharts, nie na PnL.
 
 ---
 
