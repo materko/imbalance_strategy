@@ -117,3 +117,15 @@ def test_bez_signalov_alebo_s_obchodmi_sa_nehlasi_nic():
     assert zero_trade_warning({"trades": 5}, log) is None
     assert zero_trade_warning({"trades": 0}, ["ziadny signal v logu"]) is None
     assert zero_trade_warning({"trades": 0}, ["IBS X: 0 signalov (0 long / 0 short)"]) is None
+
+
+def test_ponuka_parov_hlada_tam_kde_sviecky_naozaj_su():
+    """Ponuka párov skenuje adresáre priamo, nie cez `engines` — musia sedieť.
+
+    Keď sa pridali podadresáre `spot/` a `futures/`, sken ostal na starom mieste
+    a spotové páry ticho zmizli z ponuky. Toto to nedovolí zopakovať.
+    """
+    from tester.webapp import runner
+
+    assert runner.BINANCE_FUTURES == engines.market_dir(BTC)
+    assert runner.BINANCE_SPOT == engines.market_dir(BTC_SPOT)
