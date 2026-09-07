@@ -35,3 +35,4 @@ platforms/freqtrade/user_data/runs/.profiles/
 
 # rola pre Claude Code v tomto klone (tester | developer) - kazdy klon ma vlastnu
 .tradebot-role
+.ibs-role

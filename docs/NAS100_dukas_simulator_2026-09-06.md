@@ -76,6 +76,22 @@ market vstupy (Pin Bar) sa líšia o cenu otvorenia ďalšieho baru, čo je spr�
 ich plní naivne ako limitku. Čo bolo treba na strane adaptéra vyriešiť, je v `docs/RUNNING.md`
 §E (FPU výnimky, Data2 z CSV, obchod vnútri baru, ordre s menom pri `Send`).
 
+Zoznam obchodov MultiCharts sa dá od 2026-09-07 vytiahnuť z logu študie
+(`python -m tradebot.tools.mc_log_trades --from … --to …`); január potvrdil 12 obchodov,
+9 W / 3 L, presne ako simulátor bez obchodu z 2. 1. Celé okná (MultiCharts vs. simulátor,
+len vyplnené obchody):
+
+| okno | MultiCharts | simulátor |
+|---|---|---|
+| 20250106–20250904 | 104 (56 W / 48 L) | 106 (59 W / 47 L) |
+| 20250904–20260904 | 115 (66 W / 48 L) | 122 (70 W / 52 L) |
+
+Rozdiel je vo fill modeli, nie v signáloch: simulátor rozhoduje vyplnenie a poradie SL/TP
+po 1m sviečkach, MultiCharts bez Bar Magnifier len z 3m baru (limitka sa plní až keď cena
+prejde cez limit, SL aj TP v jednom bare rieši vlastným pravidlom). Ďalší krok na presnú
+zhodu je zapnúť v Strategy Properties → Backtesting **Bar Magnifier** na 1 minútu — 1m dáta
+v QuoteManageri sú.
+
 ## Súvisiace
 
 - Prevod dát a import do QuoteManagera: [RUNNING.md §E](RUNNING.md).
