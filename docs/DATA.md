@@ -116,18 +116,27 @@ Priamo použiteľný nie je. Všetko potrebné spraví jeden príkaz:
 ./dukas-import.sh ~/dukas/NAS100_M1_10Y.csv --symbol NAS100
 ```
 
-alebo priamo `PY -m tradebot.tools.dukas_import <csv> --symbol NAS100`. Vyrobí obe veci:
+alebo priamo `PY -m tradebot.tools.dukas_import <csv> --symbol NAS100`. `--target` hovorí,
+pre koho dáta vyrobiť; dá sa vymenovať viac naraz (`--target tester freqtrade`, `--target all`):
 
 | `--target` | čo vznikne | pre koho |
 |---|---|---|
 | `tester` | `platforms/multicharts/data_archive/<STEM>-1m.<rok>.feather` (commitni ich) a hneď z nich pracovný súbor v `platforms/multicharts/data/` | webapp Tester — pár je po reštarte v ponuke Nový beh |
 | `multicharts` | `<zdroj>_mc.csv` — ASCII pre QuoteManager, hlavička `Date,Time,Open,High,Low,Close,Volume` | MultiCharts študia (import do QuoteManagera) |
-| `both` (predvolené) | obe | |
+| `freqtrade` | `platforms/freqtrade/user_data/data/dukascopy/<STEM>-{1m,3m,5m}.feather` (negitujú sa) | hyperopt a FreqAI ([FREQTRADE.md §G](FREQTRADE.md)) |
+| `all` | všetky tri | |
 
-Užitočné prepínače: `--from 2021-01-01 --to 2026-09-05` (orezanie obdobia), `--fix-scale`
-(oprava dní s cenou ×1000), `--mc-out <cesta>` (kam ASCII súbor), `--no-merge` (nezložiť
-pracovný súbor), `--stamp open` (ak import v QuoteManageri berie čas otvorenia baru).
+Predvolené je `tester multicharts`. Užitočné prepínače: `--from 2021-01-01 --to 2026-09-05`
+(orezanie obdobia), `--fix-scale` (oprava dní s cenou ×1000), `--mc-out <cesta>` (kam ASCII
+súbor), `--no-merge` (nezložiť pracovný súbor), `--stamp open` (ak import v QuoteManageri
+berie čas otvorenia baru), `--ft-timeframes 1m 3m 5m` (ktoré TF poskladať pre Freqtrade).
 Celý zoznam: `./dukas-import.sh` bez parametrov.
+
+Súbory pre Freqtrade sú jediné **odvodené** dáta v repozitári: 3m a 5m sa skladajú z 1m,
+lebo Dukascopy ich nedodáva a Freqtrade si ich sám nedopočíta. Preto ležia v gitignorovanom
+`user_data/data/`, nikdy v archíve, a kedykoľvek sa dajú vyrobiť znova. Skladajú sa tým istým
+pravidlom ako v emulátore a v grafe webapp ([`tools/candles.py`](../tradebot/tools/candles.py)),
+takže všetky cesty vidia tie isté bary.
 
 ### Čo sa v exporte opravuje a prečo
 

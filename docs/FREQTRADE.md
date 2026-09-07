@@ -273,6 +273,81 @@ docker compose -f docker/docker-compose.yml run --rm tests
 
 ---
 
+## G. Dukascopy symboly cez Freqtrade (hyperopt, FreqAI)
+
+Dukascopy CFD (NAS100, forex, komodity) bežia v Testeri cez emulátor MultiCharts, ktorý
+sa zhoduje so skutočným MultiCharts na cent — ale **hyperopt a FreqAI vie len Freqtrade**.
+Preto sa dá ten istý symbol prehnať aj cez Freqtrade vetvu:
+
+```bash
+PY -m tradebot.tools.dukas_import C:/dukas/NAS100_M1_10Y.csv --symbol NAS100 --target freqtrade
+
+TRADEBOT_PROFILE=docs/profily_archiv/ibs/nas100_dukas_3m.json PY -m freqtrade backtesting \
+  --config platforms/freqtrade/config.dukascopy.json \
+  --userdir platforms/freqtrade/user_data \
+  --datadir platforms/freqtrade/user_data/data/dukascopy \
+  --strategy IBSImbalanceStrategy --timeframe 3m --timeframe-detail 1m \
+  --timerange 20250106-20250201 --fee 0 --cache none
+```
+
+### Čo si to vyžiadalo a prečo
+
+Freqtrade je postavený na ccxt burzách a Dukascopy medzi nimi nie je. Prekážky sú tri
+a všetky rieši `config.dukascopy.json` plus adaptér:
+
+| prekážka | prečo | riešenie |
+|---|---|---|
+| burza musí byť z ccxt | `validate_stakecurrency` aj `validate_timeframes` sa volajú aj v backteste | ako **nosič** sa použije `bitstamp` — jediné, čo od nej chceme, je USD ako quote mena a znalosť 3m (Coinbase 3m nemá, Binance zase USD). Žiadne dáta sa z nej neberú. |
+| pár `NAS100/USD` na nej neexistuje | `StaticPairList` by ho vyhodil | `"allow_inactive": true` v pairliste |
+| chýba market info páru | pri vstupe do obchodu si Freqtrade pýta `exchange.markets[pair]` a bez neho padne na `Can't get market information for symbol …` | `TradebotStrategyBase.bot_start` ho doplní z `InstrumentSpec` (tick, krok množstva, min) — sú to presnejšie čísla, než keby sme ich požičali od cudzieho páru. Robí sa to len pre inštrument mimo burzy a len pre pár, ktorý na nosnej burze naozaj nie je. |
+
+`trading_mode` je **spot**: futures režim by chcel `funding_rate` a `mark` sviečky, ktoré CFD
+nemá, a IBS je aj tak long only. Peňaženka je zámerne 1 000 000 — profil má `legacyPineSizing`
+(qty v jednotkách po 1 USD/bod), takže pri 10 000 by Freqtrade stake orezal a PnL by
+neznamenalo nič. **Poplatok zadaj vždy sám** (`--fee`): z nosnej burzy sa nemá odkiaľ vziať
+a syntetický market má nulu.
+
+### Výsledok nie je zameniteľný s emulátorom
+
+Signály sú identické, líši sa **fill model**. Január 2025, `--fee 0`, profil `nas100_dukas_3m`:
+
+| | obchodov | W / L | PnL |
+|---|---|---|---|
+| emulátor MultiCharts (Tester) | 12 | 9 / 3 | +1 992 USD |
+| MultiCharts študia | 12 | 9 / 3 | +1 991,66 USD |
+| **Freqtrade** | **13** | **9 / 4** | **+1 833 USD** |
+
+Každý spárovaný obchod má rovnakú vstupnú aj výstupnú cenu; rozdiely sú dva:
+
+- **jeden obchod navyše** (6. 1. 16:28) — vstup hneď na ďalšej sviečke po výstupe. V Pine
+  aj v MultiCharts order po zavretí pozície zaniká, Freqtrade ho nechá vyplniť.
+- **veľkosť pozície** sa pri market vstupoch líši o cent vo vstupnej cene, a keďže
+  `legacyPineSizing` počíta `qty = floor(maxLossDollar / SL vzdialenosť)`, blízko hranice
+  zaokrúhlenia to zmení qty aj o polovicu (24. 1.: −174 vs −360 USD pri tej istej cene).
+
+Preto: **laď cez Freqtrade, ale záver over emulátorom.** Referencia pre NAS100 ostáva
+emulátor, lebo ten sedí s tým, čo v MultiCharts naozaj pobeží.
+
+### FreqAI
+
+Kód FreqAI je súčasťou Freqtradu, chýbajú mu len závislosti:
+`pip install "freqtrade[freqai]"` (`datasieve`, `lightgbm`/`xgboost`/`catboost`).
+
+Stratégia je deterministický stavový automat, ktorého parita s Pine je zmyslom celého portu,
+takže sa nedá nahradiť modelom bez toho, aby prestala byť tou stratégiou. Zmysluplné napojenie
+je jediné: engine nájde setup ako doteraz a model predpovie pravdepodobnosť, že **tento**
+setup skončí ako výhra (features: veľkosť zóny, vzdialenosť SL, ATR, hodina, štruktúra, RR);
+vstup sa vykoná len nad prahom. To je presne ten istý druh zásahu ako štruktúrny filter,
+NY seansa a filter tesného SL — každý z nich zdvojnásobil edge tým, že obchody **odobral**
+([merania/OPTIMALIZACIA_2026-09-05.md](merania/OPTIMALIZACIA_2026-09-05.md)). Ako rozšírenie
+mimo Pine by patril do `PORT_ONLY_FIELDS` s defaultom „vypnuté", takže parita ostane nedotknutá.
+
+Pozor na to isté, čo pri hyperopte, len horšie: stratégia robí 30–200 obchodov za rok a model
+má rádovo viac stupňov voľnosti než 10 parametrov, ktoré už raz overfitovali. Bez walk-forward
+(FreqAI ho má vstavaný) a overenia na inom okne to nemá výpovednú hodnotu.
+
+---
+
 ## Riešenie problémov
 
 **`Invalid timeframe '3m'. This exchange supports: [...]`**

@@ -35,6 +35,12 @@ logger = logging.getLogger(__name__)
 __all__ = ["TradebotStrategyBase", "_ts_ms", "_bar"]
 
 
+def _decimals(step: float) -> int:
+    """0.01 -> 2, 1.0 -> 0 — presnosť ako počet desatinných miest (ccxt DECIMAL_PLACES)."""
+    text = f"{step:.10f}".rstrip("0")
+    return len(text.partition(".")[2])
+
+
 def _ts_ms(series) -> list[int]:
     """Stĺpec `date` → ms epoch.
 
@@ -112,6 +118,66 @@ class TradebotStrategyBase(IStrategy):
         probe = self.spec.engine_factory(self.tb_cfg, self.tb_inst, int(self.timeframe.rstrip("m")))
         self.startup_candle_count = max(int(type(self).startup_candle_count), int(probe.required_history))
         self._after_profile()
+
+    # ------------------------------------------------------------------ #
+    # Inštrument, ktorý na burze neexistuje (Dukascopy CFD)
+    # ------------------------------------------------------------------ #
+
+    def bot_start(self, **kwargs) -> None:
+        """Doplní Freqtradu market info pre pár, ktorý nosná burza nepozná.
+
+        Dukascopy CFD (NAS100, forex, komodity) nie sú burza v ccxt, takže sa beh vezie
+        na burze, od ktorej potrebujeme len quote menu a timeframe (`config.dukascopy.json`).
+        Pri vstupe do obchodu si však Freqtrade pýta `exchange.markets[pair]` — presnosť
+        ceny, krok množstva a limity — a bez neho padne na „Can't get market information
+        for symbol …". Tie čísla máme v `InstrumentSpec` a sú **presnejšie**, než keby sme
+        ich požičali od cudzieho páru.
+
+        Robí sa to len pre inštrument mimo burzy (`venue="multicharts"`) a len pre pár,
+        ktorý na nosnej burze naozaj nie je — skutočný trh sa nikdy neprepisuje.
+        """
+        exchange = getattr(self.dp, "_exchange", None) if self.dp else None
+        if exchange is None or self.tb_inst.venue != "multicharts":
+            return
+        markets = getattr(exchange, "_markets", None)
+        if markets is None:
+            return
+        for pair in self.config.get("exchange", {}).get("pair_whitelist", []):
+            if pair in markets:
+                continue
+            markets[pair] = self._synthetic_market(pair, exchange)
+            logger.warning(
+                "%s nie je na burze %s - market info doplnene z instrumentu %s "
+                "(tick %g, krok mnozstva %g, min %g). Poplatok musis zadat sam (--fee), "
+                "z burzy sa nema odkial vziat.",
+                pair, self.config.get("exchange", {}).get("name"), self.tb_inst.symbol,
+                self.tb_inst.tick_size, self.tb_inst.qty_step, self.tb_inst.min_qty,
+            )
+
+    def _synthetic_market(self, pair: str, exchange) -> dict:
+        """Market podľa `InstrumentSpec` v tvare, aký čaká ccxt/Freqtrade."""
+        base, _, quote = pair.partition("/")
+        inst = self.tb_inst
+        # ccxt: TICK_SIZE (4) berie presnosť ako krok, ostatné režimy ako počet desatinných miest
+        tick_size_mode = getattr(exchange, "precisionMode", None) == 4
+        price_prec = inst.tick_size if tick_size_mode else _decimals(inst.tick_size)
+        amount_prec = inst.qty_step if tick_size_mode else _decimals(inst.qty_step)
+        return {
+            "id": pair.replace("/", ""), "symbol": pair, "base": base, "quote": quote,
+            "type": "spot", "spot": True, "margin": False, "swap": False, "future": False,
+            "option": False, "contract": False, "contractSize": None, "active": True,
+            "precision": {"price": price_prec, "amount": amount_prec},
+            "limits": {
+                "amount": {"min": inst.min_qty, "max": None},
+                "price": {"min": None, "max": None},
+                "cost": {"min": None, "max": None},
+                "leverage": {"min": 1.0, "max": 1.0},
+            },
+            # Poplatok CFD brokera nemá s nosnou burzou nič spoločné - zadáva sa cez
+            # `--fee`; nula tu je len preto, aby `get_fee()` nespadlo, keď sa zabudne.
+            "taker": 0.0, "maker": 0.0,
+            "info": {"tradebot": "synteticky market z InstrumentSpec, nie z burzy"},
+        }
 
     # ------------------------------------------------------------------ #
     # Háky pre stratégiu

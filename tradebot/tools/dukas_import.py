@@ -57,14 +57,15 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Iterable, Iterator, TextIO
+from typing import Iterable, Iterator, Sequence, TextIO
 
-from ..core.paths import MULTICHARTS_ARCHIVE, MULTICHARTS_DATA, REPO
+from ..core.paths import DUKASCOPY_FT_DATA, MULTICHARTS_ARCHIVE, MULTICHARTS_DATA, REPO
 from ..core.types import DUKASCOPY_REGISTRY, INSTRUMENTS, InstrumentSpec, dukascopy_specs
+from .candles import resample_ohlcv
 
 __all__ = [
     "ConvertStats", "convert", "convert_lines", "scale_reference",
-    "load_dukas_frame", "write_years",
+    "load_dukas_frame", "write_years", "write_freqtrade",
     "resolve_symbol", "register_symbol", "write_profile_skeleton",
 ]
 
@@ -280,6 +281,40 @@ def write_years(df, stem: str, *, archive: Path = MULTICHARTS_ARCHIVE, from_year
 
 
 # --------------------------------------------------------------------------- #
+# Cesta pre Freqtrade: sviečky po timeframoch
+# --------------------------------------------------------------------------- #
+
+#: Čo potrebuje IBS: graf 3m, detekčný TF 5m a 1m na `--timeframe-detail`.
+FT_TIMEFRAMES = ("1m", "3m", "5m")
+
+
+def write_freqtrade(df, stem: str, *, datadir: Path = DUKASCOPY_FT_DATA,
+                    timeframes: Sequence[str] = FT_TIMEFRAMES, verbose: bool = True) -> list[Path]:
+    """1m sviečky → `<datadir>/<STEM>-<TF>.feather` pre každý žiadaný timeframe.
+
+    Freqtrade si vyšší TF z 1m **nedopočíta** — keď preň nemá súbor, backtest skončí na
+    „No history … found". Dukascopy pritom 3m ani 5m nedodáva (a nie je to burza v ccxt,
+    takže sa nedá stiahnuť), takže jediná cesta je poskladať ich tým istým pravidlom, aké
+    používa emulátor MultiCharts aj graf webapp (`tools.candles.resample_ohlcv`) — inak by
+    Freqtrade beh a emulátor počítali z iných barov.
+
+    Sú to **odvodené** súbory: ležia v gitignorovanom `user_data/data/`, nikdy v archíve,
+    a kedykoľvek sa dajú vyrobiť znova z 1m. Beh ich vidí cez `--datadir`.
+    """
+    written: list[Path] = []
+    datadir.mkdir(parents=True, exist_ok=True)
+    for tf in timeframes:
+        minutes = int(tf.rstrip("m")) if tf.endswith("m") else int(tf.rstrip("h")) * 60
+        part = resample_ohlcv(df, minutes)
+        out = datadir / f"{stem}-{tf}.feather"
+        part.to_feather(out)
+        written.append(out)
+        if verbose:
+            print(f"  {out.name}  {len(part):>8} barov  {out.stat().st_size / 1e6:.1f} MB")
+    return written
+
+
+# --------------------------------------------------------------------------- #
 # Symboly: tabuľka Dukascopy inštrumentov
 # --------------------------------------------------------------------------- #
 
@@ -368,8 +403,9 @@ def _build_parser() -> argparse.ArgumentParser:
     ap.add_argument("src", type=Path, help="Dukascopy CSV: dt,o,h,l,c,vol (1m, UTC)")
     ap.add_argument("--symbol", required=True,
                     help="meno symbolu (NAS100, EURUSD…) alebo kľúč inštrumentu (nas100_dukascopy)")
-    ap.add_argument("--target", choices=("tester", "multicharts", "both"), default="both",
-                    help="kam dáta vyrobiť (predvolene obe cesty)")
+    ap.add_argument("--target", nargs="+", default=["tester", "multicharts"],
+                    choices=("tester", "multicharts", "freqtrade", "both", "all"),
+                    help="kam dáta vyrobiť; dá sa vymenovať viac (predvolene tester multicharts)")
     ap.add_argument("--from", dest="date_from", help="YYYY-MM-DD, vrátane")
     ap.add_argument("--to", dest="date_to", help="YYYY-MM-DD, vrátane")
     ap.add_argument("--fix-scale", action="store_true", help="opraviť riadky s cenou ×1000 / ÷1000")
@@ -386,6 +422,12 @@ def _build_parser() -> argparse.ArgumentParser:
     ts = ap.add_argument_group("Tester (webapp)")
     ts.add_argument("--archive", type=Path, default=MULTICHARTS_ARCHIVE, help="kam ročné feather súbory")
     ts.add_argument("--no-merge", action="store_true", help="nezložiť pracovný súbor pre webapp")
+
+    ft = ap.add_argument_group("Freqtrade (hyperopt, FreqAI)")
+    ft.add_argument("--ft-datadir", type=Path, default=DUKASCOPY_FT_DATA,
+                    help="kam sviečky po timeframoch (beh ich berie cez --datadir)")
+    ft.add_argument("--ft-timeframes", nargs="+", default=list(FT_TIMEFRAMES),
+                    help="ktoré timeframy poskladať z 1m")
 
     new = ap.add_argument_group("nový symbol (ak ešte nie je v tabuľke)")
     new.add_argument("--point-value", type=float, help="$ za pohyb ceny o 1.0 na jednotku = Big Point Value")
@@ -422,6 +464,12 @@ def _instrument(args, err: TextIO) -> tuple[str, InstrumentSpec] | None:
 
 
 def main(argv: list[str] | None = None, stderr: TextIO | None = None) -> int:
+    # Windows konzola beží v cp1250 a na ‚→‘ v nápovede by spadla na UnicodeEncodeError.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(errors="replace")
+        except (AttributeError, ValueError):  # pytest capsys, presmerovanie
+            pass
     args = _build_parser().parse_args(argv)
     err = stderr or sys.stderr  # až tu, aby pytest capsys videl výstup
 
@@ -433,8 +481,14 @@ def main(argv: list[str] | None = None, stderr: TextIO | None = None) -> int:
         return 1
     _, inst = resolved
 
+    targets = set(args.target)
+    if "all" in targets:
+        targets |= {"tester", "multicharts", "freqtrade"}
+    if "both" in targets:
+        targets |= {"tester", "multicharts"}
+
     rc = 0
-    if args.target in ("multicharts", "both"):
+    if "multicharts" in targets:
         dst = args.mc_out or args.src.with_name(f"{args.src.stem}_mc.csv")
         stats = convert(
             args.src, dst,
@@ -448,7 +502,7 @@ def main(argv: list[str] | None = None, stderr: TextIO | None = None) -> int:
             print("POZOR: subor obsahuje riadky inej mierky a neboli opravene.", file=err)
             rc = 2
 
-    if args.target in ("tester", "both"):
+    if targets & {"tester", "freqtrade"}:
         df = load_dukas_frame(args.src, drop_padding=not args.keep_padding)
         if args.date_from:
             df = df[df["date"] >= f"{args.date_from} 00:00:00+00:00"]
@@ -458,16 +512,26 @@ def main(argv: list[str] | None = None, stderr: TextIO | None = None) -> int:
         if df.empty:
             print("po orezani --from/--to neostal ziadny bar", file=err)
             return 1
-        print(f"\nTester (burza MultiCharts): {len(df)} 1m barov "
-              f"{df['date'].min():%Y-%m-%d} .. {df['date'].max():%Y-%m-%d} -> {inst.data_stem}", file=err)
-        files = write_years(df, inst.data_stem, archive=args.archive)
-        print(f"zapisanych {len(files)} rocnych suborov do {args.archive} (commitni ich)", file=err)
-        if not args.no_merge:
-            from . import data_archive
+        print(f"\n{len(df)} 1m barov {df['date'].min():%Y-%m-%d} .. "
+              f"{df['date'].max():%Y-%m-%d} -> {inst.data_stem}", file=err)
 
-            data_archive.merge(verbose=False, roots=((args.archive, MULTICHARTS_DATA),))
-            print(f"pracovny subor: {MULTICHARTS_DATA / f'{inst.data_stem}-1m.feather'}", file=err)
-        print(f"par {inst.exchange_symbol} je po restarte webapp v ponuke Novy beh", file=err)
+        if "tester" in targets:
+            print("Tester (burza MultiCharts):", file=err)
+            files = write_years(df, inst.data_stem, archive=args.archive)
+            print(f"zapisanych {len(files)} rocnych suborov do {args.archive} (commitni ich)", file=err)
+            if not args.no_merge:
+                from . import data_archive
+
+                data_archive.merge(verbose=False, roots=((args.archive, MULTICHARTS_DATA),))
+                print(f"pracovny subor: {MULTICHARTS_DATA / f'{inst.data_stem}-1m.feather'}", file=err)
+            print(f"par {inst.exchange_symbol} je po restarte webapp v ponuke Novy beh", file=err)
+
+        if "freqtrade" in targets:
+            print("Freqtrade (hyperopt, FreqAI):", file=err)
+            write_freqtrade(df, inst.data_stem, datadir=args.ft_datadir, timeframes=args.ft_timeframes)
+            print(f"odvodene subory v {args.ft_datadir} (negituju sa, kedykolvek znova z 1m)", file=err)
+            print(f"beh: --config platforms/freqtrade/config.dukascopy.json "
+                  f"--datadir {args.ft_datadir} --pairs {inst.symbol}", file=err)
 
     return rc
 

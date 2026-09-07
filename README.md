@@ -65,7 +65,9 @@ TRADEBOT_PROFILE=docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json ./p
 ```
 
 Vyčistí surový export, zapíše ročné sviečky do archívu MultiCharts (Tester ich uvidí po
-reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. Nový symbol pridá sám
+reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. `--target freqtrade` k tomu poskladá
+3m a 5m sviečky, aby sa na symbole dal spustiť hyperopt
+([docs/FREQTRADE.md §G](docs/FREQTRADE.md)). Nový symbol pridá sám
 (`--symbol EURUSD --point-value 100000 --tick 0.00001`). Podrobne: [docs/DATA.md](docs/DATA.md).
 
 ---
@@ -96,9 +98,9 @@ reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. Nový symbol pridá s
 | [`tradebot/adapters/multicharts/`](tradebot/adapters/multicharts) | Generická študia `TradebotSignal`, `MCRunner`, kreslenie (len Windows) a **emulátor** MultiCharts pre webapp (beží všade). |
 | [`tradebot/configs/<stratégia>/`](tradebot/configs) | JSON profily — len odchýlky od Pine defaultov, viď nižšie. |
 | [`tradebot/webapp/`](tradebot/webapp) | Webová aplikácia pre testerov (FastAPI + Plotly). |
-| [`tradebot/tools/`](tradebot/tools) | `dukas_import` (Dukascopy → Tester aj MultiCharts), `data_archive` (ročné súbory dát), `report` (HTML ako Strategy Tester), `fees` (maker/taker, break-even), `scan_trades`/`scan_zones` (diagnostika), `mc_compare`/`mc_log_trades` (párovanie s MultiCharts), `plot`. |
+| [`tradebot/tools/`](tradebot/tools) | `dukas_import` (Dukascopy → Tester aj MultiCharts), `data_archive` (ročné súbory dát), `candles` (skladanie TF z 1m), `report` (HTML ako Strategy Tester), `fees` (maker/taker, break-even), `scan_trades`/`scan_zones` (diagnostika), `mc_compare`/`mc_log_trades` (párovanie s MultiCharts), `plot`. |
 | [`tradebot/tests/`](tradebot/tests) | Testy jadra, adaptérov, webapp a **golden testy** proti TradingView (`golden/`). |
-| [`platforms/freqtrade/`](platforms/freqtrade) | Freqtrade configy (`config.binance.json`, `config.coinbase.json`), skripty (setup, download, backtest, hyperopt), `user_data/` (shim na stratégiu, hyperopt loss, `data_archive/` s burzovými sviečkami). |
+| [`platforms/freqtrade/`](platforms/freqtrade) | Freqtrade configy (`config.binance.json`, `config.coinbase.json`, `config.dukascopy.json`), skripty (setup, download, backtest, hyperopt), `user_data/` (shim na stratégiu, hyperopt loss, `data_archive/` s burzovými sviečkami). |
 | [`platforms/multicharts/`](platforms/multicharts) | Šablóny študií (`IBS_Signal.py`, `DemoBreakout_Signal.py`), inštalačný skript a `data_archive/` s 1m sviečkami z Dukascopy. |
 | [`tester/`](tester) | Dáta testera — `runs/` (história behov vrátane kresieb) a `profiles/` (vlastné profily); oboje sa commituje a zdieľa cez GitHub. `scripts/` spúšťa webapp. |
 | [`docker/`](docker) | `docker-compose.yml` (tests, download, backtest, freqtrade bot, webapp). |

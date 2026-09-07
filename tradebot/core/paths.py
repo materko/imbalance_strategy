@@ -32,7 +32,7 @@ from pathlib import Path
 __all__ = [
     "REPO",
     "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "FREQTRADE_DATA", "FREQTRADE_ARCHIVE",
-    "BACKTEST_RESULTS",
+    "BACKTEST_RESULTS", "DUKASCOPY_FT_DATA",
     "MULTICHARTS_DIR", "MULTICHARTS_DATA", "MULTICHARTS_ARCHIVE",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES",
     "ARCHIVE_ROOTS",
@@ -48,6 +48,9 @@ FREQTRADE_USER_DIR = FREQTRADE_DIR / "user_data"
 FREQTRADE_DATA = FREQTRADE_USER_DIR / "data"
 FREQTRADE_ARCHIVE = FREQTRADE_USER_DIR / "data_archive"
 BACKTEST_RESULTS = FREQTRADE_USER_DIR / "backtest_results"
+#: Dukascopy sviečky prevedené pre Freqtrade (hyperopt, FreqAI). Odvodené z 1m
+#: archívu MultiCharts, preto sa necommitujú a beh ich berie cez `--datadir`.
+DUKASCOPY_FT_DATA = FREQTRADE_DATA / "dukascopy"
 
 # -- MultiCharts ------------------------------------------------------------ #
 

@@ -13,6 +13,10 @@ Sú tri spôsoby, ako tú istú logiku spustiť na MultiCharts dátach — od na
 | **offline simulátor** | `scan_trades --csv` nad surovým Dukascopy exportom | nič navyše |
 | **MultiCharts študia** | skutočný MultiCharts, referencia pre adaptér | Windows + licencia |
 
+Na **hyperopt** (a FreqAI) sa ten istý symbol dá prehnať aj cez Freqtrade —
+[FREQTRADE.md §G](FREQTRADE.md). Signály sú rovnaké, fill model nie, takže výsledok
+z hyperoptu treba overiť emulátorom.
+
 ---
 
 ## A. Inštalácia študie (Windows)

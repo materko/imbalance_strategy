@@ -36,6 +36,7 @@ from ..core import (
     load_profile,
 )
 from ..core.paths import FREQTRADE_DATA as DATA_DIR
+from .candles import resample_ohlcv as _resample
 
 #: Kde ktorá burza drží súbory a ako sa volajú.
 _LAYOUT = {
@@ -72,16 +73,6 @@ def _load_dukas_csv(path: str):
     df = df[~padding].reset_index(drop=True)
     print(f"  i {Path(path).name}: {len(df)} 1m barov, vyhodena vypchavka {dropped}", file=sys.stderr)
     return df
-
-
-def _resample(base, minutes: int):
-    return (
-        base.set_index("date")
-        .resample(f"{minutes}min", label="left", closed="left", origin="epoch")
-        .agg({"open": "first", "high": "max", "low": "min", "close": "last", "volume": "sum"})
-        .dropna(subset=["open"])
-        .reset_index()
-    )
 
 
 def _load(exchange: str | Path, timeframe: str):

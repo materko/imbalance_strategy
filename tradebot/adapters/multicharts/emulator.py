@@ -34,6 +34,7 @@ from ...core import Bar, DrawRegistry, InstrumentSpec
 from ...core.config import StrategyConfig
 from ...core.drawing import objects_to_dicts
 from ...core.types import Direction
+from ...tools.candles import resample_ohlcv
 from .runner import LiveOrder, MCRunner
 
 __all__ = ["EmuTrade", "EmulationResult", "emulate", "bars_from_frame", "rows_from_trades", "summarize", "write_chart"]
@@ -98,14 +99,7 @@ def bars_from_frame(m1, minutes: int, from_ms: int | None = None, to_ms: int | N
         df = df[df["date"] >= pd.Timestamp(from_ms, unit="ms", tz="UTC")]
     if to_ms is not None:
         df = df[df["date"] < pd.Timestamp(to_ms, unit="ms", tz="UTC")]
-    if minutes != 1:
-        df = (
-            df.set_index("date")
-            .resample(f"{minutes}min", label="left", closed="left", origin="epoch")
-            .agg({"open": "first", "high": "max", "low": "min", "close": "last", "volume": "sum"})
-            .dropna(subset=["open"])
-            .reset_index()
-        )
+    df = resample_ohlcv(df, minutes)
     ts = (df["date"].astype("datetime64[ns, UTC]").astype("int64") // 1_000_000).to_numpy()
     o, h, l, c, v = (df[k].astype(float).to_numpy() for k in ("open", "high", "low", "close", "volume"))
     return [Bar(time=int(ts[i]), open=float(o[i]), high=float(h[i]), low=float(l[i]), close=float(c[i]), volume=float(v[i]))
