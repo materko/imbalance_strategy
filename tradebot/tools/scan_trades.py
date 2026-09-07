@@ -126,7 +126,9 @@ class FillSimulator:
     def _step_one(self, bar: Bar, *, ambiguous_ok: bool) -> None:
         for t in self.trades.values():
             if t.outcome == "PENDING":
-                if bar.low <= t.plan.entry <= bar.high:
+                # Pine `pyramiding=0` a MultiCharts (jedna pozicia): kym pozicia bezi, dalsi
+                # vstup sa neplni - caka, kym engine order nezrusi alebo pozicia neskonci.
+                if self.position_size == 0.0 and bar.low <= t.plan.entry <= bar.high:
                     t.outcome = "FILLED"
                     t.filled_ms = bar.time
                     t.extreme = t.plan.entry

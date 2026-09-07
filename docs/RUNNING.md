@@ -392,8 +392,10 @@ obchodov z posledného behu:
 .venv/Scripts/python.exe -m tradebot.tools.mc_log_trades --from 2025-01-01 --to 2025-01-31
 ```
 
-vedľa neho `scan_trades --csv … --from 2025-01-01 --to 2025-01-31` — to je porovnanie
-MultiCharts vs. jadro (výsledok pre NAS100: `docs/NAS100_dukas_simulator_2026-09-06.md`).
+vedľa neho `scan_trades --csv … --from 2025-01-01 --to 2025-01-31`, alebo rovno
+`python -m tradebot.tools.mc_compare --csv … --profile … --from … --to …`, ktorý oba
+zoznamy spáruje podľa vstupnej ceny a vypíše rozdiely — to je porovnanie MultiCharts
+vs. jadro (výsledok pre NAS100: `docs/NAS100_dukas_simulator_2026-09-06.md`).
 **Po každej zmene v `tradebot/` treba MultiCharts naozaj reštartovať**: `File → Exit`
 nechá bežať `StudyServer.NET`, `tsServer` a ďalšie procesy, ktoré držia Python so starým
 kódom — ukonči ich (`Get-Process MultiCharts64, tsServer, StudyServer.NET, TradingServer,
