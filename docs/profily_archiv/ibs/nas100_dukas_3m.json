@@ -1,0 +1,24 @@
+{
+  "_title": "MultiCharts NAS100 CFD (Dukascopy) 3m — odvodené z multicharts_mnq_3m",
+  "_comment": [
+    "Dukascopy USA100.IDX/USD, 1m dáta prevedené cez tradebot.tools.dukas_to_mc a importované do QuoteManagera.",
+    "Ten istý podklad ako MNQ, preto su prahy v bodoch (abs) rovnake ako v multicharts_mnq_3m.",
+    "Tick je 0.01 (Pine rozsah tickDollarValue zacina na 0.01; data maju 3 desatinne miesta),",
+    "nie 0.25 ako na MNQ - tickove polia su preto",
+    "prepocitane na absolutne body (100 ticks x 0.25 = 25, 1 x 0.25 = 0.25, 2 x 0.25 = 0.5),",
+    "inak by boli 25x tesnejsie. tickDollarValue = 0.01 x 1 USD; legacyPineSizing ako na MNQ,",
+    "qty vyjde v jednotkach po 1 USD/bod (MNQ kontrakt je 2 USD/bod).",
+    "Objem je len tickovy - useVolumeFilter nechaj vypnuty."
+  ],
+  "_instrument": "nas100_dukascopy",
+  "enablePinBarEntry": true,
+  "enableTrailing": true,
+  "tradeDirection": "Long only",
+  "sess2ZoneStartH": 8,
+  "showElliott": false,
+  "imbMaxDistTicks": {"value": 25.0, "unit": "abs"},
+  "state2ConfirmTicks": {"value": 0.25, "unit": "abs"},
+  "slBufferTicks": {"value": 0.5, "unit": "abs"},
+  "tickDollarValue": 0.01,
+  "legacyPineSizing": true
+}

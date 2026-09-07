@@ -350,3 +350,28 @@ Ako `--set` pre CLI:
 --set enablePinBarEntry=true --set enableEngulfingEntry=true --set pbMinRangePoints=0.03@atr --set engMinRangePoints=0.03@atr --set enableSrTrading=true --set enableLqTrading=true --set sess2ZoneStartH=8 --set sess3On=false --set useStructureFilter=true --set srClusterPoints=0.222@atr --set liqSweepMinWick=0.074@atr --set showElliott=false --set imbMaxDistTicks=0.148@atr --set minImbSizePoints=0.037@atr --set state2ConfirmTicks=0.0015@atr --set rrRatio=5.0 --set slLookback=20 --set slBufferTicks=0.003@atr --set maxLossDollar=100.0 --set tradeDirection="Long only" --set minSlDistance=0.2 --set leverage=10.0
 ```
 
+
+### `nas100_dukas_3m`  (nas100_dukascopy)
+
+MultiCharts NAS100 CFD (Dukascopy USA100.IDX/USD) 3m, 2026-09-06 - odvodene z multicharts_mnq_3m. Ten isty podklad ako MNQ, preto su prahy v bodoch (abs) rovnake; tick je 0.01 (najmensi, ktory Pine rozsah tickDollarValue pripusta; data maju 3 desatinne miesta), nie 0.25, takze tickove polia su prepocitane na absolutne body (100 x 0.25 = 25, 1 x 0.25 = 0.25, 2 x 0.25 = 0.5), inak by boli 25x tesnejsie. tickDollarValue = 0.01 x 1 USD, legacyPineSizing ako na MNQ (qty v jednotkach po 1 USD/bod). Objem je len tickovy, useVolumeFilter ostava vypnuty. Data sa pripravuju cez `tradebot.tools.dukas_to_mc` a importuju do QuoteManagera (docs/RUNNING.md, sekcia E).
+
+Odchýlky od Pine defaultov:
+
+| Parameter | Hodnota |
+|---|---|
+| `enablePinBarEntry` | `True` |
+| `enableTrailing` | `True` |
+| `sess2ZoneStartH` | `8` |
+| `showElliott` | `False` |
+| `imbMaxDistTicks` | `25.0 abs` |
+| `state2ConfirmTicks` | `0.25 abs` |
+| `slBufferTicks` | `0.5 abs` |
+| `tradeDirection` | `Long only` |
+| `tickDollarValue` | `0.01` |
+| `legacyPineSizing` | `True` |
+
+Ako `--set` pre CLI:
+
+```
+--set enablePinBarEntry=true --set enableTrailing=true --set sess2ZoneStartH=8 --set showElliott=false --set imbMaxDistTicks=25.0@abs --set state2ConfirmTicks=0.25@abs --set slBufferTicks=0.5@abs --set tradeDirection="Long only" --set tickDollarValue=0.01 --set legacyPineSizing=true
+```

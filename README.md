@@ -92,6 +92,7 @@ Profil = Pine defaulty stratégie + odchýlky + `_strategy` + `_instrument`. Pre
 | `golden_binance_btcusdt_3m` | **Referenčný na golden test** — presne nastavenia z grafu TradingView na Binance BTCUSDT.P (RR 1, trailing, 1 BTC). Nie na obchodovanie. |
 | `golden_coinbase_btcusd_3m` | Referenčný pre Coinbase BTCUSD — parita jadra s TradingView screenshotmi (MultiCharts a testy). |
 | `multicharts_mnq_3m` | MNQ futures pre MultiCharts, 1:1 s Pine jednotkami. |
+| `nas100_dukas_3m` (archív) | NAS100 CFD z Dukascopy CSV pre MultiCharts — rovnaké prahy v bodoch ako MNQ; dáta cez `tradebot.tools.dukas_to_mc` ([RUNNING.md §E](docs/RUNNING.md)). |
 | `demo_breakout/binance_btcusdt_5m` | Jediný profil ukážkovej stratégie (Pine defaulty, páka 5). |
 | ostatné | Skúšané konfigurácie (NY seansa, SL filter, risk sizing, hyperopt…) sú v [docs/profily_archiv/](docs/profily_archiv/ibs/README.md) s tabuľkou odchýlok; načítajú sa cestou (`--profile docs/profily_archiv/ibs/<nazov>.json`). Odporúčaný štart na nasadenie je `btcusdt_3m_binance_ny_sl_risk1` odtiaľ. |
 
