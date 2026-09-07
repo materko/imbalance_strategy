@@ -515,7 +515,7 @@ class BacktestRunner:
 
         settings = job.settings
         inst = INSTRUMENTS[instrument]
-        cfg, _ = load_profile(profile)
+        cfg, _ = load_profile(profile, engine=engines.MULTICHARTS)
         tf = settings.get("timeframe") or "3m"
         chart_tf = tf_minutes(tf)
         start_s, _, end_s = settings["timerange"].partition("-")
@@ -593,11 +593,15 @@ def _trim_log(lines: list[str]) -> list[str]:
     return keep_head + ["… (skrátené) …"] + interesting + ["…"] + tail
 
 
-def default_params(profile: "str | Path | None" = None, strategy: str = "ibs") -> tuple[dict[str, Any], str | None]:
+def default_params(profile: "str | Path | None" = None, strategy: str = "ibs",
+                   engine: str | None = None) -> tuple[dict[str, Any], str | None]:
     """Parametre formulára: Pine defaulty stratégie, profil z jej priečinka, vlastný profil testera
-    alebo cesta k JSON v repozitári (archív profilov)."""
+    alebo cesta k JSON v repozitári (archív profilov).
+
+    `engine` doplní hodnoty z bloku `_engine_overrides` profilu, aby tester videl vo
+    formulári presne to, s čím sa beh spustí."""
     if profile:
-        cfg, inst = load_profile(profiles.resolve(profile, strategy), strategy=strategy)
+        cfg, inst = load_profile(profiles.resolve(profile, strategy), strategy=strategy, engine=engine)
         key = next(k for k, v in INSTRUMENTS.items() if v is inst)
         return cfg.to_dict(), key
     return get_spec(strategy).config_cls().to_dict(), None

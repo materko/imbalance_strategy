@@ -5,7 +5,7 @@ Implementacia zije v `tradebot/strategies/demo_breakout/freqtrade.py` (nad gener
 do uvahy len triedy, ktorych `__module__` sa zhoduje s nazvom TOHTO suboru, preto ten
 prazdny subclass.
 
-Profil: TRADEBOT_PROFILE (default: binance_btcusdt_5m z tradebot/configs/demo_breakout).
+Profil: TRADEBOT_PROFILE (default: binance_btcusdt_5m z tradebot/strategies/<stratégia>/configs/demo_breakout).
 """
 
 from tradebot.strategies.demo_breakout.freqtrade import DemoBreakoutStrategy as _DemoBreakoutStrategy

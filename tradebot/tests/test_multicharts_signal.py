@@ -246,7 +246,7 @@ def make_signal(monkeypatch, ctx, strategy_key="ibs"):
     class Sig(sig_mod.TradebotSignal):
         STRATEGY_KEY = strategy_key
 
-    monkeypatch.setattr(sig_mod, "load_profile", lambda profile, strategy=None: (cfg(), MNQ))
+    monkeypatch.setattr(sig_mod, "load_profile", lambda profile, strategy=None, engine=None: (cfg(), MNQ))
     s = Sig()
     assert s.GetInputs() == [] and s.GetInputValue("x") is None
     s.SetInputValue("x", 1)

@@ -85,7 +85,7 @@ to, čo zarobí.
 
 ## Profil
 
-Uložené ako `tradebot/configs/ibs/btcusdt_3m_binance_struct.json`:
+Uložené ako `tradebot/strategies/ibs/configs/btcusdt_3m_binance_struct.json`:
 
 ```bash
 TRADEBOT_PROFILE=btcusdt_3m_binance_struct ./platforms/freqtrade/scripts/backtest.sh

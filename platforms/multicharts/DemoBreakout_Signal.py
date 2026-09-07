@@ -6,7 +6,7 @@
 # len delegujú na balík. Stratégia nemá informatívny TF, na grafe stačí Data1.
 #
 # Profil sa prepína premennou prostredia TRADEBOT_PROFILE (predvolene "binance_btcusdt_5m"
-# z tradebot/configs/demo_breakout), alebo natvrdo nižšie cez PROFILE.
+# z tradebot/strategies/<stratégia>/configs/demo_breakout), alebo natvrdo nižšie cez PROFILE.
 # Ordery študie sa volajú tb_sl, tb_tp a tb_session_end.
 
 import clr

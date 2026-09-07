@@ -98,10 +98,10 @@ reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. `--target freqtrade` 
 |---|---|
 | **TradeBot — produkt** | |
 | [`tradebot/core/`](tradebot/core) | Generické jadro bez závislostí: `StrategyConfig` (báza configu, profily), `Engine`/`EngineOutput`, `OrderIntent`/`TradePlan`, `BarHistory`, hodiny seáns, `DrawCommand` + `DrawKind` registr, inštrumenty, skladanie TF z 1m (`candles`), čítanie Dukascopy exportu (`dukascopy`), `paths.py` so všetkými cestami repozitára. |
-| [`tradebot/strategies/`](tradebot/strategies) | Registry `STRATEGIES` a jedna stratégia = jeden balík: `ibs/` (config, engine, stavový automat zón, `ta/`, HTF feeder, Freqtrade a MultiCharts podtriedy, meta pre webapp), `demo_breakout/`. Postup: [docs/STRATEGIE.md](docs/STRATEGIE.md). |
+| [`tradebot/strategies/`](tradebot/strategies) | Registry `STRATEGIES` a jedna stratégia = jeden **sebestačný** balík vrátane vlastných `configs/` (profily): `ibs/` (config, engine, stavový automat zón, `ta/`, HTF feeder, Freqtrade a MultiCharts podtriedy, meta pre webapp), `demo_breakout/`. Postup: [docs/STRATEGIE.md](docs/STRATEGIE.md). |
 | [`tradebot/adapters/freqtrade/`](tradebot/adapters/freqtrade) | Generická Freqtrade stratégia `TradebotStrategyBase` + `EngineRunner` (engine nad DataFrame, fill model) + export kresieb. |
 | [`tradebot/adapters/multicharts/`](tradebot/adapters/multicharts) | Generická študia `TradebotSignal`, `MCRunner`, kreslenie (len Windows) a **emulátor** MultiCharts (beží všade). |
-| [`tradebot/configs/<stratégia>/`](tradebot/configs) | JSON profily — len odchýlky od Pine defaultov, viď nižšie. |
+
 | [`tradebot/tests/`](tradebot/tests) | Testy produktu: jadro, stratégie, oba adaptéry. |
 | [`pine/`](pine) | Pine zdroje stratégií: `imbalance_strategy_FULL.pine` (**referenčný IBS**, v5, 115 vstupov — zdroj pravdy pre logiku, defaulty aj tooltipy) a `demo_breakout.pine`. |
 | [`platforms/freqtrade/`](platforms/freqtrade) | Configy búrz (`config.binance.json`, `config.coinbase.json`, `config.dukascopy.json`), skripty (setup, download, backtest, hyperopt), `user_data/` (shim na stratégiu, hyperopt loss, `data_archive/<zdroj>/` so sviečkami). |
@@ -126,10 +126,10 @@ reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. `--target freqtrade` 
 
 ---
 
-## Profily (`tradebot/configs/<stratégia>/`)
+## Profily (`tradebot/strategies/<stratégia>/configs/`)
 
 Profil = Pine defaulty stratégie + odchýlky + `_strategy` + `_instrument`. Prepína sa cez
-`TRADEBOT_PROFILE=<meno alebo cesta>` alebo vo webapp. Profily IBS (`tradebot/configs/ibs/`):
+`TRADEBOT_PROFILE=<meno alebo cesta>` alebo vo webapp. Profily IBS (`tradebot/strategies/ibs/configs/`):
 
 | Profil | Na čo |
 |---|---|

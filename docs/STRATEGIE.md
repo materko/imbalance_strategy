@@ -23,10 +23,9 @@ tradebot/
   strategies/
     __init__.py         STRATEGIES = {"ibs": …, "demo_breakout": …}, get_spec(), spec_for_config()
     base.py             StrategySpec (popis stratégie), ChartLayer (vrstva grafu)
-    <key>/              jedna stratégia (viď checklist nižšie)
+    <key>/              jedna stratégia (viď checklist nižšie) — vrátane jej configs/
   adapters/freqtrade/   TradebotStrategyBase (generická IStrategy), EngineRunner, export_chart
   adapters/multicharts/ TradebotSignal (generická študia), MCRunner, MCDrawSink
-  configs/<key>/        profily = JSON s odchýlkami od Pine defaultov + _strategy, _instrument, _title
   webapp/               tester: výber stratégie, formulár z Pine metadát, história, graf s vrstvami
 pine/<key>.pine         zdroj pravdy pre parametre stratégie
 platforms/freqtrade/user_data/strategies/<FreqtradeTrieda>.py   shim (Freqtrade resolver)
@@ -43,6 +42,9 @@ tester/runs/, tester/profiles/                                   história behov
 2. **Balík** `tradebot/strategies/moja/`:
    - `drawing.py` — druhy kresieb: `MOJ_DRUH = DrawKind.register("moj_druh", "MOJ_DRUH")`.
      Generické druhy (`tp_box`, `sl_box`, `entry`, `exit`, `session`) registruje jadro.
+   - `configs/` — profily stratégie (JSON). Ležia pri nej zámerne: balík stratégie je tak
+     sebestačný a presunie sa jedným adresárom. Profil, ktorý sa má na dvoch enginoch líšiť,
+     má blok `_engine_overrides` (`{"multicharts": {…}}`) — nie dva takmer rovnaké súbory.
    - `config.py` — `@dataclass class MojaConfig(StrategyConfig)` s poľami pomenovanými presne ako
      Pine identifikátory a s tabuľkami ako `ClassVar`: `SIZE_FIELDS` (polia so `SizeSpec` a ich
      Pine jednotka), `ENUM_FIELDS`, `CONSTRAINTS` (Pine `minval`/`maxval`), `PORT_ONLY_FIELDS`
@@ -65,7 +67,7 @@ tester/runs/, tester/profiles/                                   história behov
      `multicharts_class`, `multicharts_template`, `default_timeframe`, `informative_tfs`,
      `htf_feeder`, `layers`, `kind_titles`, `features`, `profile_dir`, `default_profile`).
 3. **Registry**: v `tradebot/strategies/__init__.py` pridaj import a riadok do `STRATEGIES`.
-4. **Profil** `tradebot/configs/moja/<default_profile>.json` s `_title`, `_strategy: "moja"`,
+4. **Profil** `tradebot/strategies/moja/configs/<default_profile>.json` s `_title`, `_strategy: "moja"`,
    `_instrument` (kľúč z `tradebot.core.types.INSTRUMENTS`) a len odchýlkami od Pine defaultov.
 5. **Shim** `platforms/freqtrade/user_data/strategies/MojaStrategy.py` — prázdna podtrieda
    (Freqtrade resolver berie len triedu, ktorej `__module__` == názov súboru).

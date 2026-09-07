@@ -1,8 +1,8 @@
 # Archív profilov (2026-09-05)
 
-Tieto profily boli do 2026-09-05 v `tradebot/configs/ibs/` a webapp ich ponúkala v zozname
+Tieto profily boli do 2026-09-05 v `tradebot/strategies/ibs/configs/` a webapp ich ponúkala v zozname
 východiskových profilov. Boli to medzikroky vývoja a experimenty; každú kombináciu si
-tester nastaví vo formulári alebo cez `--set`, a história behov ju drží. V `tradebot/configs/ibs/`
+tester nastaví vo formulári alebo cez `--set`, a história behov ju drží. V `tradebot/strategies/ibs/configs/`
 ostali len referenčné profily pre golden testy proti TradingView a pre MultiCharts.
 
 Súbory tu sú **nezmenené** a dajú sa ďalej načítať cestou — všade, kde sa berie názov
@@ -16,7 +16,7 @@ TRADEBOT_PROFILE=docs/profily_archiv/ibs/btcusdt_3m_binance_hyper.json ./platfor
 Staršie dokumenty v `docs/` sa na ne odkazujú pôvodnými názvami — sú to záznamy meraní,
 nemenili sa.
 
-## Premenované referenčné profily (ostávajú v `tradebot/configs/ibs/`)
+## Premenované referenčné profily (ostávajú v `tradebot/strategies/ibs/configs/`)
 
 | Starý názov | Nový názov | Na čo |
 |---|---|---|

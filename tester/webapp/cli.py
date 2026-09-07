@@ -271,7 +271,7 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser("run", help="spusti backtest (cez webapp, alebo priamo) a ulož do histórie")
     p.add_argument("--strategy", default="ibs", help="stratégia z registry (default ibs)")
-    p.add_argument("--profile", help="východiskový profil z tradebot/configs/<strategia> alebo cesta k JSON (bez neho Pine defaulty)")
+    p.add_argument("--profile", help="východiskový profil z tradebot/strategies/<stratégia>/configs/<strategia> alebo cesta k JSON (bez neho Pine defaulty)")
     p.add_argument("--set", action="append", metavar="KLUC=HODNOTA", help="zmena parametra, opakovateľné")
     p.add_argument("--pair", help="napr. BTC/USDT:USDT alebo ETH/USDT:USDT (default podľa profilu)")
     p.add_argument("--timerange", required=True, help="YYYYMMDD-YYYYMMDD")
