@@ -87,10 +87,26 @@ len vyplnené obchody):
 | 20250904–20260904 | 115 (66 W / 48 L) | 122 (70 W / 52 L) |
 
 Rozdiel je vo fill modeli, nie v signáloch: simulátor rozhoduje vyplnenie a poradie SL/TP
-po 1m sviečkach, MultiCharts bez Bar Magnifier len z 3m baru (limitka sa plní až keď cena
-prejde cez limit, SL aj TP v jednom bare rieši vlastným pravidlom). Ďalší krok na presnú
-zhodu je zapnúť v Strategy Properties → Backtesting **Bar Magnifier** na 1 minútu — 1m dáta
-v QuoteManageri sú.
+po 1m sviečkach, MultiCharts z 3m baru (limitka sa plní až keď cena prejde cez limit, SL aj
+TP v jednom bare rieši vlastným pravidlom). Zapnutie **Bar Magnifier** na 1 minútu
+(Strategy Properties → Backtesting) výsledok nezmenilo ani o cent — v logu MultiCharts
+`CreateDetailedSeries res_size=1` dostal rovnaký počet barov ako 3m graf, takže detailná
+séria sa zo symbolu pod Market Data Sim zjavne neberie z 1m dát QuoteManagera.
+
+Párovanie obchodov podľa dňa a vstupnej ceny (do 5 bodov):
+
+| okno | spárované | rovnaký výsledok | len simulátor | len MultiCharts |
+|---|---|---|---|---|
+| 20250106–20250904 | 102 | 100 | 4 | 2 |
+| 20250904–20260904 | 106 | 105 | 16 | 9 |
+
+Konkrétne rozdiely na dohľadanie: 2025-06-11 09:18 LONG (sim WIN, MC LOSS vnútri baru),
+2025-07-11 15:39 LONG (sim LOSS, MC WIN), 2026-08-24 09:03 LONG (sim LOSS, MC WIN);
+nespárované sú väčšinou limitky, ktoré simulátor vyplní pri dotyku a MultiCharts až pri
+prechode cez cenu, prípadne ich MultiCharts vyplní o pár dní neskôr na tej istej cene
+(2025-10-24 → 10-30, 2026-02-27 → 03-02) — čakajúca limitka prežila cez víkend, hoci
+v simulátore bola dávno vyplnená. Toto je ďalší bod na overenie v jadre (expirácia
+čakajúceho orderu cez koniec seansy pri `in_trade_window=True` v MultiCharts runneri).
 
 ## Súvisiace
 
