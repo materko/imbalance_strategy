@@ -111,7 +111,21 @@ zahodil plán a študia v tom bare neposlala ani SL/TP, ani zatvorenie. Pozícia
 víkend (4 loty, +1 919 USD namiesto TP +296 USD), blokovala ďalšie vstupy a zavrela sa až
 o dni neskôr. Oprava: plán sa drží, kým `MarketPosition` nie je nula, zatvorenie seansy ide
 podľa znamienka pozície cez `MarketThisBar` (close aktuálneho baru ako Pine
-`strategy.close`). Porovnanie po oprave — viď ďalší beh.
+`strategy.close`). Druhá oprava bola v simulátore: plnil ďalší vstup, kým prvá pozícia
+bežala (Pine `pyramiding=0` ani MultiCharts to nedovolia).
+
+**Po oboch opravách** (`python -m tradebot.tools.mc_compare …`, párovanie podľa entry do
+5 bodov):
+
+| okno | simulátor | MultiCharts | spárované | rovnaký výsledok | len jedna strana |
+|---|---|---|---|---|---|
+| 20250106–20250904 | 106 | 106 | 105 | 104 | 1 + 1 (18./19. 2., rôzny deň, blízky entry) |
+| 20250904–20260904 | 117 | 118 | 117 | 115 | 0 + 1 (10. 7. 2026, nulový obchod vnútri baru) |
+
+Tri obchody s opačným výsledkom (11. 6. 2025, 27. 2. 2026, 25. 6. 2026) majú SL aj TP
+v tom istom 3m bare — simulátor ich rozhodne po 1m sviečkach, MultiCharts bez účinného
+Bar Magnifier vlastným pravidlom. Zvyšok sedí; to je úroveň parity, s akou sa dá jadro
+v MultiCharts používať.
 
 ## Súvisiace
 

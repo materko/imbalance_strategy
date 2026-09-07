@@ -156,3 +156,28 @@ def test_ked_sa_close_udrzi_nad_trailingom_obchod_zije(sim_trade):
     stop, hit = FillSimulator._trailing(sim_trade, _bar(1001.0, 1200.0, 1000.0, 1180.0), True)
     assert hit is False
     assert sim_trade.extreme == pytest.approx(1200.0)
+
+
+def test_fill_simulator_neplni_druhy_vstup_kym_pozicia_bezi():
+    """Pine pyramiding=0 / MultiCharts jedna pozicia: dva cakajuce ordre, vyplni sa len prvy."""
+    from tradebot.core import Bar
+    from tradebot.core.orders import OrderAction, OrderIntent
+    from tradebot.core.risk import TradePlan
+    from tradebot.core.types import Direction
+    from tradebot.tools.scan_trades import FillSimulator
+
+    def plan(entry):
+        return TradePlan(direction=Direction.LONG, entry=entry, stop_loss=entry - 5, take_profit=entry + 50, qty=1.0, sl_distance=5.0)
+
+    sim = FillSimulator()
+    bar0 = Bar(time=0, open=100, high=101, low=99, close=100, volume=1)
+    sim.apply([OrderIntent(OrderAction.ENTRY, "LONG_1", 1, plan=plan(100.0)),
+               OrderIntent(OrderAction.ENTRY, "LONG_2", 2, plan=plan(100.5))], bar0)
+    sim.step(Bar(time=60_000, open=100, high=102, low=99, close=101, volume=1))
+    assert sim.trades["LONG_1"].outcome == "FILLED" and sim.trades["LONG_2"].outcome == "PENDING"
+    assert sim.position_size == 1.0
+    # SL pretne -> pozicia zavreta; az potom sa moze vyplnit druhy order
+    sim.step(Bar(time=120_000, open=100, high=100.2, low=94, close=95, volume=1))
+    assert sim.trades["LONG_1"].outcome == "LOSS" and sim.trades["LONG_2"].outcome == "PENDING"
+    sim.step(Bar(time=180_000, open=100, high=101, low=99, close=100.5, volume=1))
+    assert sim.trades["LONG_2"].outcome == "FILLED"
