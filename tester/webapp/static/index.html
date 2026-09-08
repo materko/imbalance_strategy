@@ -178,6 +178,19 @@
       <div><h3>Odchýlky od Pine defaultov</h3><div id="detail-overrides"></div></div>
       <div><h3>Dôvody výstupu</h3><div id="detail-exits"></div></div>
     </div>
+    <details id="mc-box"><summary>Monte Carlo <span class="muted small">— aký široký je interval okolo nameraných čísel</span></summary>
+      <div class="pc-toolbar">
+        <label class="inline small">poplatok <input type="number" id="mc-fee" step="0.005" min="0" max="1"> % na stranu</label>
+        <label class="inline small">opakovaní <select id="mc-iter">
+          <option value="2000">2 000</option><option value="10000" selected>10 000</option><option value="50000">50 000</option>
+        </select></label>
+        <button id="mc-run" class="ghost">Prepočítať</button>
+        <span id="mc-status" class="muted small"></span>
+      </div>
+      <div id="mc-cards" class="cards"></div>
+      <div id="mc-chart" class="chart"></div>
+      <div id="mc-note" class="muted small"></div>
+    </details>
     <details><summary>Zoznam obchodov (<span id="trade-count"></span>) <span class="muted small">— klik na riadok ukáže obchod na grafe</span></summary>
       <div class="scroll"><table id="trades" class="runs"><thead></thead><tbody></tbody></table></div>
     </details>

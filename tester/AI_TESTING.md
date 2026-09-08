@@ -99,6 +99,9 @@ obchody, takže zhlukovanie strát nemodeluje, a počíta bez zloženého úroč
 
 Pod 30 obchodov výpis sám napíše, že interval je príliš široký na akýkoľvek záver.
 
+To isté je vo webapp v detaile behu — rozbaľovacia sekcia **Monte Carlo** s histogramom
+rozdelenia ([docs/WEBAPP.md](../docs/WEBAPP.md)).
+
 ## 6. Porovnávacie behy
 
 ```bash

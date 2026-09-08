@@ -90,6 +90,15 @@ def _drawdown(equity):
     return (np.maximum.accumulate(eq, axis=1) - eq).max(axis=1)
 
 
+def _histogram(sample, bins: int = 40) -> dict[str, list[float]]:
+    """Rozdelenie pre graf vo webapp — stredy stĺpcov a početnosti."""
+    import numpy as np
+
+    counts, edges = np.histogram(sample[~np.isnan(sample)], bins=bins)
+    centers = (edges[:-1] + edges[1:]) / 2.0
+    return {"centers": [float(c) for c in centers], "counts": [int(c) for c in counts]}
+
+
 def _stats(sample, observed: float, lo_q: float, hi_q: float) -> dict[str, float]:
     import numpy as np
 
@@ -136,8 +145,8 @@ def analyze(
     net_trade = gross - volume * fee_pct / 100.0
     dd_s = []
     for chunk in _chunks(iterations, n):
-        perm = rng.random((chunk, n)).argsort(axis=1)
-        dd_s.append(_drawdown(np.cumsum(net_trade[perm], axis=1)))
+        rows = rng.permuted(np.tile(net_trade, (chunk, 1)), axis=1)
+        dd_s.append(_drawdown(np.cumsum(rows, axis=1)))
     dd_s = np.concatenate(dd_s)
 
     gross_sum = float(gross.sum())
@@ -147,6 +156,7 @@ def analyze(
 
     return {
         "n": n,
+        "min_trades": MIN_TRADES,   # aby hranicu nemusel duplikovať výpis ani webapp
         "iterations": iterations,
         "seed": seed,
         "ci": ci,
@@ -156,6 +166,7 @@ def analyze(
         "break_even": {
             **_stats(be_s, observed_be, lo_q, hi_q),
             "p_above_fee": float((be_s > fee_pct).mean()),
+            "hist": _histogram(be_s),
         },
         # `p_positive` je tá istá udalosť ako `p_above_fee` (zisk > 0 práve vtedy, keď
         # hrubý zisk na objem prevýši sadzbu) — vo výpise sa preto uvádza raz.
@@ -198,9 +209,9 @@ def report(result: dict[str, Any], label: str = "", currency: str = "USDT") -> s
     out.append(f"    95. percentil       {dd['p95']:,.0f}")
     out.append(f"    najhorsia cesta     {dd['worst']:,.0f}")
 
-    if result["n"] < MIN_TRADES:
+    if result["n"] < result["min_trades"]:
         out.append(
-            f"\n  POZOR: {result['n']} obchodov je pod hranicou {MIN_TRADES}. Interval je taky"
+            f"\n  POZOR: {result['n']} obchodov je pod hranicou {result['min_trades']}. Interval je taky"
             "\n  siroky, ze o strategii nehovori nic - je to anekdota, nie vysledok."
         )
     if be["p_above_fee"] < 0.95 and fee > 0:
