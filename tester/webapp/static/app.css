@@ -153,3 +153,7 @@ table.runs tbody tr.hl { background: #fffbeb; }
 .log { background: #111827; color: #e5e7eb; padding: 10px; border-radius: 8px; font-size: 11.5px; max-height: 360px; overflow: auto; white-space: pre-wrap; }
 details > summary { cursor: pointer; padding: 8px 0; font-weight: 600; }
 @media (max-width: 1000px) { main.view { grid-template-columns: 1fr; } .cols { grid-template-columns: 1fr; } }
+
+/* Monte Carlo: histogram je nizsi nez equity krivka, tabulky pod nim maju miesto */
+#mc-chart { height: 300px; }
+#mc-note { margin-top: 6px; line-height: 1.5; }

@@ -9,9 +9,10 @@ import sys
 
 
 def main() -> int:
-    from .runner import DATA_DIR
+    from tradebot.core.paths import TESTER_DATA
 
-    if not any(DATA_DIR.glob("*-3m-futures.feather")):
+    # sviečky sú v data/tester/<zdroj>/<trh>/; stačí, že tam nejaká je
+    if not any(TESTER_DATA.rglob("*.feather")):
         print("Pracovne data chybaju - skladam ich z data_archive/tester/ ...", flush=True)
         from .. import data_archive
 

@@ -211,8 +211,25 @@ začiatku okna. Ťahanie myšou posúva, koliesko zoomuje; keď vyjdeš z načí
 dotiahne sa ďalšie. Zaškrtávacie polia vypínajú vrstvy (počet v zátvorke je za celý
 beh) a voľba sa pamätá v prehliadači. Časy sú UTC.
 
-Pod tým odchýlky od Pine defaultov (s Pine hodnotou vedľa), dôvody výstupu, zoznam
-obchodov, všetky parametre a skrátený log Freqtradu.
+Pod tým odchýlky od Pine defaultov (s Pine hodnotou vedľa), dôvody výstupu, Monte Carlo
+(nižšie), zoznam obchodov, všetky parametre a skrátený log Freqtradu.
+
+#### Monte Carlo — interval okolo nameraných čísel
+
+Rozbaľovacia sekcia. Bootstrap obchodov behu (ťahanie s opakovaním) povie, aký široký je
+interval okolo break-even poplatku a čistého PnL, a s akou pravdepodobnosťou edge prevýši
+sadzbu; permutácia poradia tých istých obchodov dá rozdelenie max drawdownu — nameraný je
+len jedna z ciest. Histogram ukazuje rozdelenie break-even poplatku so zvislicami na
+zvolenej sadzbe a nameranej hodnote, zvýraznený je 90 % interval.
+
+Poplatok je predvyplnený ten, s ktorým beh bežal (dá sa prepísať — napr. maker 0,02 %),
+počet opakovaní 10 000. Ráta sa až po rozbalení, lebo beh s tisíckami obchodov trvá
+jednotky sekúnd; výsledok si server pamätá, takže opätovné otvorenie je okamžité.
+
+Pod 30 obchodov to samo napíše, že vzorka je primalá. A platí, že **bootstrap nemeria
+pretrénovanie** — obchody preladenej konfigurácie boli ziskové naozaj, chyba bola vo výbere
+najlepšej epochy; proti tomu chránia len dáta, ktoré optimalizátor nevidel. To isté z CLI:
+`python -m tester.montecarlo <run_id>` ([tester/AI_TESTING.md §5](../tester/AI_TESTING.md)).
 
 **Načítať do formulára** vráti parametre aj nastavenia behu do formulára — na
 úpravu jedného parametra a nový beh. **Uložiť ako profil** spraví z behu východiskový
@@ -332,6 +349,9 @@ z feather súborov po oknách, orezanie kresieb na okno), `gitsync.py`,
 `app.py` (FastAPI), `static/` (stránka bez frameworku, Plotly z CDN).
 Export kresieb: `tradebot/adapters/freqtrade/runner.py::export_chart`, serializácia
 `tradebot/core/drawing.py::objects_to_dicts`.
+Monte Carlo v detaile počíta `tester/montecarlo.py` (čistý výpočet nad obchodmi, bez znalosti
+webapp); `app.py` ho len obalí endpointom `/api/runs/<id>/montecarlo` s pamäťou na posledné
+výsledky.
 Testy: `tester/tests/test_webapp.py`, `tester/tests/test_chart_export.py`,
-`tester/tests/test_webapp_multicharts.py`.
+`tester/tests/test_webapp_multicharts.py`, `tester/tests/test_montecarlo.py`.
 Cesty (`tester/runs`, `tester/profiles`, dáta platforiem): `tradebot/core/paths.py`.

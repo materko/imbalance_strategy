@@ -856,12 +856,102 @@ async function openRun(id) {
   for (const tr of $$("#trades tbody tr")) tr.onclick = () => jumpToTrade(trades[Number(tr.dataset.trade)]);
 
   initPairChart(rec, trades);
+  initMonteCarlo(rec);
 
   $("#detail-params").innerHTML = `<table class="runs"><tbody>${Object.entries(rec.params || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => `<tr><td><code>${k}</code></td><td>${esc(fmtVal(v))}</td></tr>`).join("")}</tbody></table>`;
   $("#detail-log").textContent = await api(`/api/runs/${id}/log`);
 }
 
 function card(k, v, s) { return `<div class="kcard"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`; }
+
+// --------------------------------------------------------------------------- //
+// Monte Carlo — aký široký je interval okolo nameraného čísla
+//
+// Bootstrap obchodov behu; ráta server (/api/runs/<id>/montecarlo, tester/montecarlo.py).
+// Až po rozbalení sekcie: pri behu s tisíckami obchodov to trvá jednotky sekúnd.
+// --------------------------------------------------------------------------- //
+
+const mc = { key: null, busy: false };
+
+function mcKey() { return `${state.detailId}|${$("#mc-fee").value}|${$("#mc-iter").value}`; }
+
+function initMonteCarlo(rec) {
+  $("#mc-box").open = false;
+  mc.key = null;
+  $("#mc-cards").innerHTML = ""; $("#mc-chart").innerHTML = ""; $("#mc-note").textContent = "";
+  // predvolený poplatok je ten, s ktorým beh bežal (rovnako ako v CLI) — aj keď je nulový;
+  // vymyslieť burzovú sadzbu behu na CFD by bolo horšie než ukázať čistý edge
+  $("#mc-fee").value = (rec.settings.fee != null ? rec.settings.fee * 100 : 0.05).toFixed(3);
+  const n = (rec.result || {}).trades || 0;
+  $("#mc-run").disabled = !n;
+  $("#mc-status").textContent = n ? "" : "Beh nemá obchody, nie je čo premiešavať.";
+}
+
+async function loadMonteCarlo(force = false) {
+  const id = state.detailId;
+  if (!id || mc.busy || !((state.detailRecord || {}).result || {}).trades) return;
+  const key = mcKey();
+  if (key === mc.key && !force) return;
+  mc.busy = true;
+  $("#mc-status").textContent = "počítam…";
+  try {
+    const q = `fee=${encodeURIComponent($("#mc-fee").value)}&iterations=${$("#mc-iter").value}`;
+    const r = await api(`/api/runs/${id}/montecarlo?${q}`);
+    if (state.detailId !== id) return;          // medzitým sa otvoril iný beh
+    mc.key = key;
+    renderMonteCarlo(r);
+    $("#mc-status").textContent = `${r.n} obchodov · ${r.iterations.toLocaleString("sk-SK")} opakovaní`;
+  } catch (e) {
+    $("#mc-status").textContent = e.message;
+  } finally { mc.busy = false; }
+}
+
+function renderMonteCarlo(r) {
+  const cur = ((state.detailRecord || {}).result || {}).stake_currency || "USDT";
+  const be = r.break_even, net = r.net, dd = r.drawdown;
+  $("#mc-cards").innerHTML = [
+    card("Break-even poplatok", `${fmt(be.median, 4)} %`, `nameraný ${fmt(be.observed, 4)} %`),
+    card(`${fmt(r.ci, 0)} % interval`, `${fmt(be.lo, 4)} – ${fmt(be.hi, 4)}`, "% na stranu"),
+    card("P(edge > poplatok)", `${fmt(100 * be.p_above_fee, 1)} %`, `pri ${fmt(r.fee_pct, 4)} % = P(zisk > 0)`),
+    card(`Čistý PnL (${cur})`, signed(net.median, 0), `${signed(net.lo, 0)} … ${signed(net.hi, 0)}`),
+    card(`Max drawdown (${cur})`, fmt(dd.median, 0), `nameraný ${fmt(dd.observed, 0)} · 95 % ${fmt(dd.p95, 0)}`),
+  ].join("");
+  drawMcChart(be, r.fee_pct);
+
+  const notes = [];
+  if (r.n < r.min_trades) {
+    notes.push(`${r.n} obchodov je pod hranicou ${r.min_trades} — interval je taký široký, že o stratégii nehovorí nič.`);
+  }
+  if (r.fee_pct > 0 && be.p_above_fee < 0.95) {
+    notes.push(`V ${fmt(100 * (1 - be.p_above_fee), 0)} % vzoriek by burza zobrala viac, než stratégia zarobí.`);
+  }
+  notes.push("Bootstrap meria rozptyl vzorky, nie pretrénovanie — či nastavenie prežije, ukážu až dáta, "
+    + "ktoré optimalizátor nevidel (päť referenčných okien). Drawdown je z permutácie poradia tých istých obchodov.");
+  $("#mc-note").innerHTML = notes.map(esc).join("<br>");
+}
+
+const vline = (x, color, dash) => ({ type: "line", x0: x, x1: x, yref: "paper", y0: 0, y1: 1,
+  line: { color, width: 2, dash } });
+const vlabel = (x, text, color) => ({ x, y: 1, yref: "paper", text, showarrow: false, yanchor: "bottom",
+  font: { size: 11, color } });
+
+/** Rozdelenie break-even poplatku; zvýraznený je interval, zvislice sú poplatok a nameraná hodnota. */
+function drawMcChart(be, feePct) {
+  const h = be.hist;
+  const color = h.centers.map(c => (c >= be.lo && c <= be.hi) ? "rgba(41,98,255,0.55)" : "rgba(41,98,255,0.16)");
+  Plotly.newPlot("mc-chart", [{
+    type: "bar", x: h.centers, y: h.counts, marker: { color, line: { width: 0 } },
+    hovertemplate: "%{x:.4f} %<br>%{y} vzoriek<extra></extra>",
+  }], {
+    height: 300, margin: { l: 48, r: 16, t: 18, b: 40 }, template: "plotly_white", bargap: 0.02,
+    showlegend: false,
+    xaxis: { title: "break-even poplatok (% na stranu)", ticksuffix: " %" },
+    yaxis: { title: "vzoriek", showgrid: true },
+    shapes: [vline(feePct, RED, "solid"), vline(be.observed, GREEN, "dash")],
+    annotations: [vlabel(feePct, "poplatok", RED), vlabel(be.observed, "nameraný", GREEN)],
+    paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+  }, { displaylogo: false, responsive: true });
+}
 
 /** Krivka ako v Strategy Testeri: stĺpce za obchod (vlastná skrytá os), kumulatívny PnL, buy and hold. */
 function drawChart(series, res) {
@@ -1298,6 +1388,8 @@ async function init() {
   $("#live-log-close").onclick = closeLiveLog;
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#live-log").hidden) closeLiveLog(); });
   $("#load-params").onclick = loadDetailIntoForm;
+  $("#mc-box").addEventListener("toggle", () => { if ($("#mc-box").open) loadMonteCarlo(); });
+  $("#mc-run").onclick = () => loadMonteCarlo(true);
   $("#delete-run").onclick = async () => {
     if (!confirm("Zmazať tento beh z histórie? (zmaže adresár v runs/)")) return;
     await api(`/api/runs/${state.detailId}`, { method: "DELETE" }); closeDetail(); loadRuns();

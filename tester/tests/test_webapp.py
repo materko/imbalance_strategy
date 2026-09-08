@@ -590,3 +590,78 @@ def test_user_profile_belongs_to_its_strategy(client, own_profiles):
     assert c.get("/api/profiles/demo_moj", params={"strategy": "ibs"}).status_code == 404
     # IBS parametre pod demo stratégiou config odmietne
     assert c.post("/api/profiles", json={**body, "name": "zle", "params": IBSConfig().to_dict()}).status_code == 422
+
+
+# --------------------------------------------------------------------------- #
+# Monte Carlo v detaile behu
+# --------------------------------------------------------------------------- #
+
+
+MC_TRADES = [{"open_rate": 100.0, "close_rate": 110.0, "amount": 1.0, "is_short": False}] * 4 + [
+    {"open_rate": 100.0, "close_rate": 90.0, "amount": 1.0, "is_short": False}]
+
+
+def test_montecarlo_endpoint_vrati_interval_a_histogram(client):
+    c, store = client
+    store.save(_record("20260905-120000-abc123"), trades=MC_TRADES)
+    r = c.get("/api/runs/20260905-120000-abc123/montecarlo", params={"iterations": 500}).json()
+    assert r["n"] == 5 and r["iterations"] == 500 and r["run_id"] == "20260905-120000-abc123"
+    assert r["fee_pct"] == pytest.approx(0.05)          # 0,0005 zo settings behu
+    be = r["break_even"]
+    assert be["lo"] < be["observed"] < be["hi"]
+    assert len(be["hist"]["centers"]) == len(be["hist"]["counts"]) == 40
+    assert sum(be["hist"]["counts"]) == 500
+    assert r["n"] < r["min_trades"]                     # webapp na malú vzorku upozorní
+
+
+def test_montecarlo_endpoint_berie_poplatok_z_dopytu(client):
+    c, store = client
+    store.save(_record("20260905-120000-abc123"), trades=MC_TRADES)
+    url = "/api/runs/20260905-120000-abc123/montecarlo"
+    lacne = c.get(url, params={"fee": 0.0, "iterations": 500}).json()
+    drahe = c.get(url, params={"fee": 1.0, "iterations": 500}).json()
+    assert lacne["net"]["observed"] > drahe["net"]["observed"]
+    assert lacne["break_even"]["p_above_fee"] > drahe["break_even"]["p_above_fee"]
+    # break-even samotný od sadzby nezávisí, počíta sa z cien
+    assert lacne["break_even"]["observed"] == pytest.approx(drahe["break_even"]["observed"])
+
+
+def test_montecarlo_endpoint_hlasi_chybajuci_beh_aj_beh_bez_obchodov(client):
+    c, store = client
+    store.save(_record("20260905-120000-abc123"), trades=[])
+    assert c.get("/api/runs/20260905-999999-zzzzzz/montecarlo").status_code == 404
+    assert c.get("/api/runs/20260905-120000-abc123/montecarlo").status_code == 422
+
+
+def test_montecarlo_sa_pamata_a_neprepocitava(client):
+    from tester.webapp import app as app_mod
+
+    c, store = client
+    store.save(_record("20260905-120000-abc123"), trades=MC_TRADES)
+    url = "/api/runs/20260905-120000-abc123/montecarlo"
+    app_mod._MC_CACHE.clear()
+    prvy = c.get(url, params={"iterations": 500}).json()
+    assert len(app_mod._MC_CACHE) == 1
+    assert c.get(url, params={"iterations": 500}).json() == prvy
+    assert len(app_mod._MC_CACHE) == 1
+    c.get(url, params={"iterations": 500, "fee": 0.2})       # iná sadzba je iný záznam
+    assert len(app_mod._MC_CACHE) == 2
+
+
+def test_spustac_webapp_pozna_cestu_k_datam(monkeypatch, capsys):
+    """`python -m tester.webapp` sa pred štartom pozerá, či sú sviečky rozbalené.
+
+    Regresia: po presune dát ukazoval na `runner.DATA_DIR`, ktorý už neexistoval, a
+    spúšťač padol na ImportError skôr, než stihol povedať čokoľvek užitočné.
+    """
+    import sys
+    import types
+
+    from tester.webapp import __main__ as entry
+
+    monkeypatch.setitem(sys.modules, "uvicorn", types.SimpleNamespace(run=lambda *a, **k: None))
+    merges: list[list[str]] = []
+    monkeypatch.setattr("tester.data_archive.main", lambda argv: merges.append(argv) or 0)
+    assert entry.main() == 0
+    assert "TradeBot Tester: http://" in capsys.readouterr().out
+    assert merges in ([], [["merge"]])

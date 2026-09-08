@@ -15,6 +15,7 @@ import os
 
 from tradebot.core.env import getenv
 import re
+from collections import OrderedDict
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -40,6 +41,26 @@ from .store import RunStore, strategy_of, summarize_for_list
 
 STATIC = Path(__file__).resolve().parent / "static"
 _TIMERANGE_RE = re.compile(r"^\d{8}-\d{8}$")
+
+#: Posledné výsledky Monte Carla. Beh sa po dokončení už nemení, takže rovnaký dopyt
+#: dá vždy to isté (seed je fixný) — a pri behu s tisíckami obchodov to trvá sekundy.
+_MC_CACHE: "OrderedDict[tuple, dict[str, Any]]" = OrderedDict()
+_MC_CACHE_MAX = 32
+
+
+def montecarlo_cached(run_id: str, trades: list[dict[str, Any]], fee_pct: float,
+                      iterations: int, seed: int) -> dict[str, Any]:
+    from ..montecarlo import analyze
+
+    key = (run_id, round(fee_pct, 6), iterations, seed)
+    if key not in _MC_CACHE:
+        result = analyze(trades, fee_pct=fee_pct, iterations=iterations, seed=seed)
+        result["run_id"] = run_id
+        _MC_CACHE[key] = result
+        while len(_MC_CACHE) > _MC_CACHE_MAX:
+            _MC_CACHE.popitem(last=False)
+    _MC_CACHE.move_to_end(key)
+    return _MC_CACHE[key]
 
 
 def current_user() -> str:
@@ -338,6 +359,25 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(422, str(exc))
         except FileNotFoundError as exc:
             raise HTTPException(404, str(exc))
+
+    @app.get("/api/runs/{run_id}/montecarlo")
+    def run_montecarlo(run_id: str, fee: float | None = None,
+                       iterations: int = 10_000, seed: int = 0):
+        """Bootstrap nad obchodmi behu — interval okolo break-even poplatku.
+
+        Ráta sa až na vyžiadanie (rozbalenie sekcie v detaile), lebo pri behu s
+        tisíckami obchodov to trvá jednotky sekúnd. Beh je nemenný, takže sa
+        výsledok pamätá.
+        """
+        rec = store.get(run_id)
+        if rec is None:
+            raise HTTPException(404, "beh neexistuje")
+        trades = store.trades(run_id)
+        if not trades:
+            raise HTTPException(422, "beh nemá obchody, nie je čo premiešavať")
+        fee_pct = fee if fee is not None else float(rec.get("settings", {}).get("fee") or 0.0) * 100.0
+        iterations = max(200, min(int(iterations), 50_000))
+        return montecarlo_cached(run_id, trades, fee_pct, iterations, int(seed))
 
     @app.get("/api/runs/{run_id}/log", response_class=PlainTextResponse)
     def run_log(run_id: str):
