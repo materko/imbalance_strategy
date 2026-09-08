@@ -124,6 +124,38 @@ def test_custom_entry_price_a_stake_idu_podla_tagu(strategy, two_signals):
     assert strategy.confirm_trade_entry(PAIR, "limit", 1.0, 200.0, "GTC", when, tag2, "long") is False
 
 
+#: (cena, páka, qty) — trojice, na ktorých spätný prepočet `stake / cena * páka`
+#: v plávajúcej rádovej čiarke spadne tesne pod celé číslo. Sú to skutočné vstupy
+#: golden behu proti TradingView (Aug 2026, BTCUSDT.P).
+ROUND_TRIP = [(79419.5, 20.0, 1.0), (79022.0, 20.0, 1.0), (78765.1, 20.0, 2.0),
+              (80516.1, 20.0, 1.0), (79250.0, 1.0, 1.0), (12.3456, 3.0, 7.0)]
+
+
+@pytest.mark.parametrize("rate,leverage,qty", ROUND_TRIP)
+def test_stake_prezije_orezanie_na_krok_kontraktu(strategy, rate, leverage, qty):
+    """Freqtrade si z nášho stake dopočíta množstvo a **oreže** ho na krok kontraktu.
+
+    Bez rezervy vyšlo 1 BTC pri 79 419,5 a páke 20 ako 0,999999999999999 9, z čoho
+    Freqtrade spravil 0,999 — o krok menšiu pozíciu, než plán žiada. Golden beh proti
+    TradingView tým strácal 0,26 USD z 86.
+    """
+    amount_to_contract_precision = pytest.importorskip(
+        "freqtrade.exchange").amount_to_contract_precision
+
+    row = SignalRow(enter_long=1, entry=rate, stop_loss=rate * 0.99, take_profit=rate * 1.01,
+                    qty=qty, in_trade_window=True)
+    strategy._runners[PAIR] = _Runner(row, row)
+    tag = f"{ENTRY_TAG_PREFIX}{_ms(T_SIGNAL)}"
+
+    stake = strategy.custom_stake_amount(
+        PAIR, T_SIGNAL + MIN3, rate, 999.0, None, 1e12, leverage, tag, "long"
+    )
+    assert stake == pytest.approx(qty * rate / leverage, rel=1e-9)
+    # to isté, čo robí freqtrade/optimize/backtesting.py::_enter_trade
+    amount = amount_to_contract_precision((stake / rate) * leverage, 0.001, 4, 1.0)
+    assert amount == pytest.approx(qty)
+
+
 # --------------------------------------------------------------------------- #
 # check_entry_timeout
 # --------------------------------------------------------------------------- #

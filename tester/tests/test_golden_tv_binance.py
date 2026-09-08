@@ -86,6 +86,37 @@ def test_obchod_sedi(result, tv):
     assert exit_price == pytest.approx(tv["exit_price"], abs=0.11)
 
 
+def _pnl(trade) -> float:
+    """PnL obchodu v mene účtu — TradingView ho počíta z tých istých dvoch cien."""
+    exit_price = trade.plan.take_profit if trade.outcome == "WIN" else trade.plan.stop_loss
+    direction = 1.0 if int(trade.plan.direction) > 0 else -1.0
+    return (exit_price - trade.plan.entry) * trade.plan.qty * direction
+
+
+def test_celkovy_zisk_a_percento_sedia_s_tradingview(result):
+    """Nielen obchody, ale aj súčet: −86,0 USD a −0,86 % z kapitálu 10 000.
+
+    Percento je podiel z `initial_capital` fixture, teda z toho istého kapitálu, s akým
+    bežal Strategy Tester — inak by sedieť nemohlo. Tolerancia 0,15 USD je zaokrúhlenie
+    referencie: TradingView zobrazuje ceny na desatinu.
+
+    Cez Freqtrade to isté vyjde vtedy, keď dostane rovnaký kapitál (`--wallet 10000`),
+    nulový poplatok a takú páku, aby mu peňaženka nezorezala pozíciu — postup a
+    namerané čísla sú v docs/merania/PARITA_pnl_tradingview_2026-09-08.md.
+    """
+    _, sim = result
+    summary = TRADES["summary"]
+    total = sum(_pnl(t) for t in _filled(sim))
+
+    assert total == pytest.approx(summary["total_pnl"], abs=0.15)
+    assert total / TRADES["initial_capital"] * 100.0 == pytest.approx(
+        summary["total_pnl_pct"], abs=0.002)
+
+    wins = sum(p for p in map(_pnl, _filled(sim)) if p > 0)
+    losses = -sum(p for p in map(_pnl, _filled(sim)) if p < 0)
+    assert wins / losses == pytest.approx(summary["profit_factor"], abs=0.005)
+
+
 def test_winrate(result):
     _, sim = result
     wins = sum(1 for t in _filled(sim) if t.outcome == "WIN")

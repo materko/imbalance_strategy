@@ -35,6 +35,16 @@ logger = logging.getLogger(__name__)
 __all__ = ["TradebotStrategyBase", "_ts_ms", "_bar"]
 
 
+#: Freqtrade si z nášho stake spätne dopočíta množstvo ako ``stake / cena * páka``
+#: a výsledok **oreže** na krok kontraktu. Delenie a násobenie tou istou cenou ale
+#: v plávajúcej rádovej čiarke presné nie je: 1 BTC pri 79 419,5 sa vráti ako
+#: 0,9999999999999999 a z toho je po orezaní 0,999 — teda o krok menšia pozícia, než
+#: plán žiada. Na piatich obchodoch golden testu to robilo rozdiel 0,26 USD oproti
+#: TradingView. Zlomok promile navyše chybu prekryje a na veľkosť pozície vplyv nemá:
+#: krok kontraktu je o desať rádov väčší.
+_STAKE_EPS = 1e-12
+
+
 def _decimals(step: float) -> int:
     """0.01 -> 2, 1.0 -> 0 — presnosť ako počet desatinných miest (ccxt DECIMAL_PLACES)."""
     text = f"{step:.10f}".rstrip("0")
@@ -398,13 +408,16 @@ class TradebotStrategyBase(IStrategy):
         """Veľkosť z plánu enginu (`qty` kontraktov).
 
         Freqtrade pracuje so **stake v quote mene**, nie s počtom kontraktov, takže
-        sa qty prepočíta cez aktuálnu cenu a páku.
+        sa qty prepočíta cez cenu (tú z plánu, rovnakú ako dá `custom_entry_price`)
+        a páku. Späť si qty dopočíta ako ``stake / cena * páka`` a výsledok **oreže**
+        na krok kontraktu — preto ten zlomok promile navyše, viď `_STAKE_EPS`.
         """
         row = self._signal(pair, current_time, entry_tag)
         if row is None or row.qty != row.qty or current_rate <= 0:
             return proposed_stake
 
-        wanted = row.qty * current_rate / max(leverage, 1.0)
+        rate = row.entry if row.entry == row.entry and row.entry > 0 else current_rate
+        wanted = row.qty * rate / max(leverage, 1.0) * (1.0 + _STAKE_EPS)
         stake = wanted
         if min_stake is not None:
             stake = max(stake, min_stake)
