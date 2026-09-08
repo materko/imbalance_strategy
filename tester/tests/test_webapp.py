@@ -673,20 +673,42 @@ def test_montecarlo_sa_pamata_a_neprepocitava(client):
     assert len(app_mod._MC_CACHE) == 2
 
 
-def test_spustac_webapp_pozna_cestu_k_datam(monkeypatch, capsys):
-    """`python -m tester.webapp` sa pred štartom pozerá, či sú sviečky rozbalené.
-
-    Regresia: po presune dát ukazoval na `runner.DATA_DIR`, ktorý už neexistoval, a
-    spúšťač padol na ImportError skôr, než stihol povedať čokoľvek užitočné.
-    """
+def _stub_launcher(monkeypatch, chyba: list):
+    """`python -m tester.webapp` bez uvicornu a bez skladania dát; vráti zoznam volaní."""
     import sys
     import types
 
-    from tester.webapp import __main__ as entry
-
     monkeypatch.setitem(sys.modules, "uvicorn", types.SimpleNamespace(run=lambda *a, **k: None))
     merges: list[list[str]] = []
+    monkeypatch.setattr("tester.data_archive.missing", lambda: chyba)
     monkeypatch.setattr("tester.data_archive.main", lambda argv: merges.append(argv) or 0)
+    return merges
+
+
+def test_spustac_webapp_sklada_data_ked_nejake_chybaju(monkeypatch, capsys):
+    """`python -m tester.webapp` pred štartom doplní, čo z archívu chýba.
+
+    Dve regresie naraz: spúšťač najprv ukazoval na `runner.DATA_DIR`, ktorý po presune
+    dát neexistoval (padol na ImportError), a potom sa pýtal len „je v data/ aspoň jeden
+    feather" — čo pri jedinom rozbalenom zdroji prešlo a backtest spadol až na chýbajúcu
+    históriu páru.
+    """
+    from pathlib import Path
+
+    from tester.webapp import __main__ as entry
+
+    merges = _stub_launcher(monkeypatch, [Path("data/tester/binance/futures/BTC-3m.feather")])
     assert entry.main() == 0
+    out = capsys.readouterr().out
+    assert merges == [["merge"]]
+    assert "Chyba 1 pracovnych suborov" in out
+    assert "TradeBot Tester: http://" in out
+
+
+def test_spustac_webapp_nesklada_ked_je_vsetko_rozbalene(monkeypatch, capsys):
+    from tester.webapp import __main__ as entry
+
+    merges = _stub_launcher(monkeypatch, [])
+    assert entry.main() == 0
+    assert merges == []
     assert "TradeBot Tester: http://" in capsys.readouterr().out
-    assert merges in ([], [["merge"]])

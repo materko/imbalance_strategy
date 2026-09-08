@@ -118,3 +118,27 @@ def test_prazdny_subor_sa_preskoci(dirs):
     _write(data / "ex" / "P-1m.feather", _frame("2025-01-01", 0))
     da.split(verbose=False)
     assert list(archive.rglob("*.feather")) == []
+
+
+def test_missing_hlasi_kazdy_chybajuci_subor_nie_len_prazdny_strom(dirs):
+    """Jeden rozbalený zdroj nesmie vyhlásiť dáta za kompletné.
+
+    Presne na tomto spúšťač webapp zlyhal: v `data/` bol Dukascopy, Binance nie,
+    kontrola „je tam aspoň jeden feather" prešla a backtest spadol až na chýbajúcu
+    históriu páru.
+    """
+    data, archive = dirs
+    _write(data / "binance" / "futures" / "BTC-3m.feather", _frame("2024-01-01", 5))
+    _write(data / "dukascopy" / "spot" / "NAS100-1m.feather", _frame("2024-01-01", 5))
+    da.split(verbose=False)
+    assert da.missing() == []
+
+    (data / "binance" / "futures" / "BTC-3m.feather").unlink()
+    assert [p.name for p in da.missing()] == ["BTC-3m.feather"]
+
+    da.merge(verbose=False)
+    assert da.missing() == []
+
+
+def test_missing_bez_archivu_nic_nehlasi(dirs):
+    assert da.missing() == []

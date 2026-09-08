@@ -9,13 +9,14 @@ import sys
 
 
 def main() -> int:
-    from tradebot.core.paths import TESTER_DATA
+    from .. import data_archive
 
-    # sviečky sú v data/tester/<zdroj>/<trh>/; stačí, že tam nejaká je
-    if not any(TESTER_DATA.rglob("*.feather")):
-        print("Pracovne data chybaju - skladam ich z data_archive/tester/ ...", flush=True)
-        from .. import data_archive
-
+    # Pozerá sa na KAZDY subor z archivu, nie len na to, ci je v data/ nieco: s jednym
+    # rozbalenym zdrojom by webapp nabehla s poloprazdnou ponukou parov a backtest by
+    # spadol az na "No history for ... found".
+    chyba = data_archive.missing()
+    if chyba:
+        print(f"Chyba {len(chyba)} pracovnych suborov - skladam ich z data_archive/ ...", flush=True)
         data_archive.main(["merge"])
 
     import uvicorn
