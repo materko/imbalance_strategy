@@ -154,6 +154,7 @@ table.runs tbody tr.hl { background: #fffbeb; }
 details > summary { cursor: pointer; padding: 8px 0; font-weight: 600; }
 @media (max-width: 1000px) { main.view { grid-template-columns: 1fr; } .cols { grid-template-columns: 1fr; } }
 
-/* Monte Carlo: histogram je nizsi nez equity krivka, tabulky pod nim maju miesto */
-#mc-chart { height: 300px; }
+/* Monte Carlo: dva histogramy vedla seba, nizsie nez equity krivka */
+#mc-chart, #mc-dd-chart { height: 280px; }
+#mc-hits h4, .cols h4 { margin: 10px 0 4px; font-size: 13px; }
 #mc-note { margin-top: 6px; line-height: 1.5; }

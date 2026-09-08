@@ -214,28 +214,34 @@ beh) a voľba sa pamätá v prehliadači. Časy sú UTC.
 Pod tým odchýlky od Pine defaultov (s Pine hodnotou vedľa), dôvody výstupu, Monte Carlo
 (nižšie), zoznam obchodov, všetky parametre a skrátený log Freqtradu.
 
-#### Monte Carlo — interval okolo nameraných čísel
+#### Monte Carlo — interval okolo výsledku a veľkosť účtu
 
-Rozbaľovacia sekcia. Bootstrap obchodov behu (ťahanie s opakovaním) povie, aký široký je
-interval okolo break-even poplatku a čistého PnL, a s akou pravdepodobnosťou edge prevýši
-sadzbu; permutácia poradia tých istých obchodov dá rozdelenie max drawdownu — nameraný je
-len jedna z ciest. Histogram ukazuje rozdelenie break-even poplatku so zvislicami na
-zvolenej sadzbe a nameranej hodnote, zvýraznený je 90 % interval.
+Rozbaľovacia sekcia. Z obchodov behu sa losujú tisíce nových sérií — **po blokoch**
+desiatich po sebe idúcich obchodov, aby sa série strát nerozsypali (jeden režim trhu
+vyrobí päť SL za sebou a práve tie zabíjajú účet; `bloky po 1` je klasický bootstrap
+s nezávislými obchodmi).
 
-Poplatok je predvyplnený ten, s ktorým beh bežal (dá sa prepísať — napr. maker 0,02 %),
-počet opakovaní 10 000. Ráta sa až po rozbalení, lebo beh s tisíckami obchodov trvá
-jednotky sekúnd; výsledok si server pamätá, takže opätovné otvorenie je okamžité.
+Karty ukazujú **edge**: break-even poplatok, jeho 90 % interval a pravdepodobnosť, že
+prevýši zvolenú sadzbu — a **účet**: max drawdown v % z vrcholu, najdlhšiu sériu strát,
+najdlhšie čakanie na nové maximum a konečný zostatok. Pod nimi sú dva histogramy
+(rozdelenie break-even poplatku a max drawdownu) a tabuľka, ako často účet klesne pod
+−10/−20/−30/−50 % počiatočného zostatku a ako často skončí na nule.
+
+V paneli sa dá zmeniť poplatok (predvyplnený ten, s akým beh bežal — aj nulový),
+**veľkosť účtu** a **riziko na obchod**: obchody sa preškálujú z `maxLossDollar` profilu,
+takže sa dá pýtať „čo s tou istou stratégiou na účte 25 000 a rizikom 250". Pod tabuľkou
+je odpoveď na opačnú otázku: koľko sa smie riskovať, aby 95 % ciest zostalo nad −20 %.
+Profil s `legacyPineSizing` (pevný počet kontraktov) sa preškálovať nedá — pole je vtedy
+zamknuté a odporúčanie sa nevypíše.
+
+Ráta sa až po rozbalení, lebo beh s tisíckami obchodov trvá jednotky sekúnd; výsledok si
+server pamätá, takže opätovné otvorenie je okamžité.
 
 Pod 30 obchodov to samo napíše, že vzorka je primalá. A platí, že **bootstrap nemeria
-pretrénovanie** — obchody preladenej konfigurácie boli ziskové naozaj, chyba bola vo výbere
-najlepšej epochy; proti tomu chránia len dáta, ktoré optimalizátor nevidel. To isté z CLI:
-`python -m tester.montecarlo <run_id>` ([tester/AI_TESTING.md §5](../tester/AI_TESTING.md)).
-
-**Načítať do formulára** vráti parametre aj nastavenia behu do formulára — na
-úpravu jedného parametra a nový beh. **Uložiť ako profil** spraví z behu východiskový
-profil pod vlastným menom (pýta si meno a krátky popis) — objaví sa v ponuke
-„Východiskový profil" v skupine *Vlastné profily*. **Stiahnuť profil** dá JSON
-použiteľný priamo cez `TRADEBOT_PROFILE=cesta.json` v CLI. **Zmazať** odstráni adresár behu.
+pretrénovanie** (proti tomu chránia len dáta, ktoré optimalizátor nevidel) a že účet sa
+počíta z uzavretých obchodov — priebeh otvorenej pozície, a teda margin, v tom nie je,
+rovnako ako denné limity strát. To isté z CLI: `python -m tester.montecarlo <run_id>`
+([tester/AI_TESTING.md §5](../tester/AI_TESTING.md)).
 
 ## Kde história žije a ako sa zdieľa
 

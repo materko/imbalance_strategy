@@ -612,6 +612,7 @@ def test_montecarlo_endpoint_vrati_interval_a_histogram(client):
     assert len(be["hist"]["centers"]) == len(be["hist"]["counts"]) == 40
     assert sum(be["hist"]["counts"]) == 500
     assert r["n"] < r["min_trades"]                     # webapp na malú vzorku upozorní
+    assert r["block"] == 1                              # z piatich obchodov sa dlhší blok nelosuje
 
 
 def test_montecarlo_endpoint_berie_poplatok_z_dopytu(client):
@@ -624,6 +625,30 @@ def test_montecarlo_endpoint_berie_poplatok_z_dopytu(client):
     assert lacne["break_even"]["p_above_fee"] > drahe["break_even"]["p_above_fee"]
     # break-even samotný od sadzby nezávisí, počíta sa z cien
     assert lacne["break_even"]["observed"] == pytest.approx(drahe["break_even"]["observed"])
+
+
+def test_montecarlo_endpoint_pocita_ucet_z_penazenky_a_profilu(client):
+    c, store = client
+    rec = _record("20260905-120000-abc123")           # wallet 10 000, maxLossDollar z Pine defaultu
+    rec["params"]["maxLossDollar"] = 100.0
+    rec["params"]["legacyPineSizing"] = False
+    store.save(rec, trades=MC_TRADES)
+    url = "/api/runs/20260905-120000-abc123/montecarlo"
+    acc = c.get(url, params={"iterations": 500}).json()["account"]
+    assert acc["start"] == 10_000.0 and acc["risk"] == 100.0 and acc["scalable"] is True
+    assert [h["limit"] for h in acc["hits"]] == [10.0, 20.0, 30.0, 50.0]
+    assert acc["advice"]["limit"] == 20.0
+
+    vacsie = c.get(url, params={"iterations": 500, "risk": 300}).json()["account"]
+    assert vacsie["risk"] == 300.0
+    assert vacsie["drawdown_abs"]["median"] > acc["drawdown_abs"]["median"]
+    # odporúčané riziko je vlastnosť stratégie a účtu, nie práve zvoleného rizika
+    assert vacsie["advice"]["risk"] == pytest.approx(acc["advice"]["risk"], rel=1e-6)
+
+    # malý účet a väčšie riziko: jedna strata je 15 % účtu, takže hranice začnú padať
+    maly = c.get(url, params={"iterations": 500, "account": 1000, "risk": 1500}).json()["account"]
+    assert maly["start"] == 1000.0
+    assert maly["hits"][0]["p"] > acc["hits"][0]["p"] == 0.0
 
 
 def test_montecarlo_endpoint_hlasi_chybajuci_beh_aj_beh_bez_obchodov(client):

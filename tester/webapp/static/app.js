@@ -873,15 +873,24 @@ function card(k, v, s) { return `<div class="kcard"><div class="k">${k}</div><di
 
 const mc = { key: null, busy: false };
 
-function mcKey() { return `${state.detailId}|${$("#mc-fee").value}|${$("#mc-iter").value}`; }
+const mcInputs = () => ["#mc-fee", "#mc-account", "#mc-risk", "#mc-block", "#mc-iter"].map(s => $(s).value);
+function mcKey() { return [state.detailId, ...mcInputs()].join("|"); }
 
 function initMonteCarlo(rec) {
   $("#mc-box").open = false;
   mc.key = null;
-  $("#mc-cards").innerHTML = ""; $("#mc-chart").innerHTML = ""; $("#mc-note").textContent = "";
+  for (const id of ["#mc-cards", "#mc-chart", "#mc-dd-chart", "#mc-hits"]) $(id).innerHTML = "";
+  $("#mc-note").textContent = "";
   // predvolený poplatok je ten, s ktorým beh bežal (rovnako ako v CLI) — aj keď je nulový;
   // vymyslieť burzovú sadzbu behu na CFD by bolo horšie než ukázať čistý edge
   $("#mc-fee").value = (rec.settings.fee != null ? rec.settings.fee * 100 : 0.05).toFixed(3);
+  $("#mc-account").value = rec.settings.wallet || 10000;
+  // riziko na obchod sa dá meniť len tam, kde je sizing rizikový; pri legacyPineSizing
+  // je veľkosť pozície pevný počet kontraktov a prepočet na iný účet nedáva zmysel
+  const risk = (rec.params || {}).legacyPineSizing ? null : (rec.params || {}).maxLossDollar;
+  $("#mc-risk").value = risk || "";
+  $("#mc-risk").disabled = !risk;
+  $("#mc-risk").title = risk ? "maxLossDollar z profilu behu" : "beh má pevný počet kontraktov, nie dolárové riziko";
   const n = (rec.result || {}).trades || 0;
   $("#mc-run").disabled = !n;
   $("#mc-status").textContent = n ? "" : "Beh nemá obchody, nie je čo premiešavať.";
@@ -895,7 +904,9 @@ async function loadMonteCarlo(force = false) {
   mc.busy = true;
   $("#mc-status").textContent = "počítam…";
   try {
-    const q = `fee=${encodeURIComponent($("#mc-fee").value)}&iterations=${$("#mc-iter").value}`;
+    const q = new URLSearchParams({ fee: $("#mc-fee").value, account: $("#mc-account").value,
+      block: $("#mc-block").value, iterations: $("#mc-iter").value });
+    if ($("#mc-risk").value && !$("#mc-risk").disabled) q.set("risk", $("#mc-risk").value);
     const r = await api(`/api/runs/${id}/montecarlo?${q}`);
     if (state.detailId !== id) return;          // medzitým sa otvoril iný beh
     mc.key = key;
@@ -908,49 +919,90 @@ async function loadMonteCarlo(force = false) {
 
 function renderMonteCarlo(r) {
   const cur = ((state.detailRecord || {}).result || {}).stake_currency || "USDT";
-  const be = r.break_even, net = r.net, dd = r.drawdown;
+  const be = r.break_even, net = r.net, acc = r.account;
+  const dd = acc.drawdown_pct, st = acc.losing_streak, wt = acc.wait_for_high, fin = acc.final_pct;
   $("#mc-cards").innerHTML = [
     card("Break-even poplatok", `${fmt(be.median, 4)} %`, `nameraný ${fmt(be.observed, 4)} %`),
     card(`${fmt(r.ci, 0)} % interval`, `${fmt(be.lo, 4)} – ${fmt(be.hi, 4)}`, "% na stranu"),
     card("P(edge > poplatok)", `${fmt(100 * be.p_above_fee, 1)} %`, `pri ${fmt(r.fee_pct, 4)} % = P(zisk > 0)`),
     card(`Čistý PnL (${cur})`, signed(net.median, 0), `${signed(net.lo, 0)} … ${signed(net.hi, 0)}`),
-    card(`Max drawdown (${cur})`, fmt(dd.median, 0), `nameraný ${fmt(dd.observed, 0)} · 95 % ${fmt(dd.p95, 0)}`),
+    card("Max drawdown", `${fmt(dd.median, 1)} %`, `95. p. ${fmt(dd.p95, 1)} % · nameraný ${fmt(dd.observed, 1)} %`),
+    card("Séria strát", `${fmt(st.median, 0)}`, `95. p. ${fmt(st.p95, 0)} · najdlhšia ${fmt(st.max, 0)} obchodov`),
+    card("Čakanie na nové max", `${fmt(wt.median, 0)}`, `95. p. ${fmt(wt.p95, 0)} obchodov`),
+    card("Konečný zostatok", signed(fin.median, 1, " %"), `${signed(fin.lo, 1, " %")} … ${signed(fin.hi, 1, " %")}`),
   ].join("");
-  drawMcChart(be, r.fee_pct);
+  drawBeChart(be, r.fee_pct);
+  drawDdChart(dd);
+
+  const sizing = acc.risk_pct ? `riziko ${acc.risk_pct} % z equity (zložené úročenie)`
+    : acc.risk ? `riziko ${money(acc.risk)} ${cur} na obchod`
+    : "veľkosť pozície z behu (pevný počet kontraktov, nedá sa preškálovať)";
+  $("#mc-hits").innerHTML = `<h4>Účet ${money(acc.start)} ${cur}, ${esc(sizing)}</h4>`
+    + `<table class="runs"><thead><tr><th>pokles účtu pod počiatočný zostatok</th>`
+    + acc.hits.map(h => `<th class="num">−${fmt(h.limit, 0)} %</th>`).join("")
+    + `<th class="num">ruina (0)</th></tr></thead><tbody><tr><td>stane sa v … % ciest</td>`
+    + acc.hits.map(h => `<td class="num">${fmt(100 * h.p, 1)} %</td>`).join("")
+    + `<td class="num">${fmt(100 * acc.p_ruin, 1)} %</td></tr></tbody></table>`;
 
   const notes = [];
+  if (acc.advice) {
+    notes.push(`Aby 95 % ciest zostalo nad −${fmt(acc.advice.limit, 0)} %, riskuj najviac `
+      + `${money(acc.advice.risk)} ${cur} na obchod (teraz ${money(acc.risk)}).`);
+  }
   if (r.n < r.min_trades) {
     notes.push(`${r.n} obchodov je pod hranicou ${r.min_trades} — interval je taký široký, že o stratégii nehovorí nič.`);
   }
   if (r.fee_pct > 0 && be.p_above_fee < 0.95) {
     notes.push(`V ${fmt(100 * (1 - be.p_above_fee), 0)} % vzoriek by burza zobrala viac, než stratégia zarobí.`);
   }
-  notes.push("Bootstrap meria rozptyl vzorky, nie pretrénovanie — či nastavenie prežije, ukážu až dáta, "
-    + "ktoré optimalizátor nevidel (päť referenčných okien). Drawdown je z permutácie poradia tých istých obchodov.");
+  notes.push(`Losuje sa po blokoch ${r.block} obchodov, aby sa série strát nerozsypali. Bootstrap meria `
+    + "rozptyl vzorky, nie pretrénovanie — či nastavenie prežije, ukážu až dáta, ktoré optimalizátor nevidel. "
+    + "Účet sa počíta z uzavretých obchodov: priebeh otvorenej pozície (a teda margin) v tom nie je, "
+    + "rovnako ako denné limity strát.");
   $("#mc-note").innerHTML = notes.map(esc).join("<br>");
 }
+
+const money = v => Number(v).toLocaleString("sk-SK", { maximumFractionDigits: 0 });
 
 const vline = (x, color, dash) => ({ type: "line", x0: x, x1: x, yref: "paper", y0: 0, y1: 1,
   line: { color, width: 2, dash } });
 const vlabel = (x, text, color) => ({ x, y: 1, yref: "paper", text, showarrow: false, yanchor: "bottom",
   font: { size: 11, color } });
 
+function histLayout(title, suffix, extra) {
+  return Object.assign({
+    height: 280, margin: { l: 48, r: 16, t: 18, b: 40 }, template: "plotly_white", bargap: 0.02,
+    showlegend: false,
+    xaxis: { title, ticksuffix: suffix },
+    yaxis: { title: "vzoriek", showgrid: true },
+    paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+  }, extra);
+}
+
 /** Rozdelenie break-even poplatku; zvýraznený je interval, zvislice sú poplatok a nameraná hodnota. */
-function drawMcChart(be, feePct) {
+function drawBeChart(be, feePct) {
   const h = be.hist;
   const color = h.centers.map(c => (c >= be.lo && c <= be.hi) ? "rgba(41,98,255,0.55)" : "rgba(41,98,255,0.16)");
   Plotly.newPlot("mc-chart", [{
     type: "bar", x: h.centers, y: h.counts, marker: { color, line: { width: 0 } },
     hovertemplate: "%{x:.4f} %<br>%{y} vzoriek<extra></extra>",
-  }], {
-    height: 300, margin: { l: 48, r: 16, t: 18, b: 40 }, template: "plotly_white", bargap: 0.02,
-    showlegend: false,
-    xaxis: { title: "break-even poplatok (% na stranu)", ticksuffix: " %" },
-    yaxis: { title: "vzoriek", showgrid: true },
+  }], histLayout("break-even poplatok (% na stranu)", " %", {
     shapes: [vline(feePct, RED, "solid"), vline(be.observed, GREEN, "dash")],
     annotations: [vlabel(feePct, "poplatok", RED), vlabel(be.observed, "nameraný", GREEN)],
-    paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
-  }, { displaylogo: false, responsive: true });
+  }), { displaylogo: false, responsive: true });
+}
+
+/** Rozdelenie max drawdownu v % z vrcholu; zvislice sú nameraný a 95. percentil. */
+function drawDdChart(dd) {
+  const h = dd.hist;
+  const color = h.centers.map(c => c <= dd.p95 ? "rgba(242,54,69,0.45)" : "rgba(242,54,69,0.8)");
+  Plotly.newPlot("mc-dd-chart", [{
+    type: "bar", x: h.centers, y: h.counts, marker: { color, line: { width: 0 } },
+    hovertemplate: "%{x:.1f} %<br>%{y} vzoriek<extra></extra>",
+  }], histLayout("max drawdown (% z vrcholu)", " %", {
+    shapes: [vline(dd.p95, RED, "solid"), vline(dd.observed, GREEN, "dash")],
+    annotations: [vlabel(dd.p95, "95. p.", RED), vlabel(dd.observed, "nameraný", GREEN)],
+  }), { displaylogo: false, responsive: true });
 }
 
 /** Krivka ako v Strategy Testeri: stĺpce za obchod (vlastná skrytá os), kumulatívny PnL, buy and hold. */

@@ -72,35 +72,54 @@ break-even nie.
 - **Stratégiu nikdy nespúšťaj na 1m grafe** — limity `*MaxBars` sú v baroch, na 1m by to
   bola iná stratégia.
 
-## 5. Interval okolo výsledku (Monte Carlo)
+## 5. Monte Carlo: interval okolo výsledku a veľkosť účtu
 
-Backtest dá jedno číslo. Koľko z neho je edge a koľko vzorka, povie bootstrap nad
-obchodmi hotového behu — bez ďalšieho backtestu, číta sa `runs/<id>/trades.json`:
+Backtest dá jedno číslo. Koľko z neho je edge a koľko vzorka — a aký veľký musí byť účet,
+aby ho séria strát neodpísala — povie bootstrap nad obchodmi hotového behu. Bez ďalšieho
+backtestu, číta sa `runs/<id>/trades.json`:
 
 ```bash
-PY -m tester.montecarlo                       # posledný beh v histórii
-PY -m tester.montecarlo <run_id> --fee 0.05   # poplatok na stranu (default: ten z behu)
-PY -m tester.montecarlo <run_id> --json
+PY -m tester.montecarlo                          # posledný beh v histórii
+PY -m tester.montecarlo <run_id> --fee 0.05      # poplatok na stranu (default: ten z behu)
+PY -m tester.montecarlo <run_id> --risk 250      # 250 USD rizika na obchod
+PY -m tester.montecarlo <run_id> --account 25000 --limits 10,20,30
+PY -m tester.montecarlo <run_id> --risk-pct 1    # riziko ako % z equity (zložené úročenie)
+PY -m tester.montecarlo <run_id> --block 1       # nezávislé obchody namiesto blokov
 ```
 
-Výpis má tri bloky:
+Losuje sa **po blokoch** desiatich po sebe idúcich obchodov (`--block`). Straty totiž
+nechodia rovnomerne: jeden režim trhu vyrobí päť SL za sebou a losovanie obchod po obchode
+by takú sériu skoro nikdy nevyrobilo — a práve tá zabíja účet. Na tom istom behu je
+rozdiel vidno: 95. percentil drawdownu 28,9 % pri `--block 1` a 32,9 % pri blokoch.
 
-- **break-even poplatok** — nameraný, medián a 90 % interval, plus `P(edge > poplatok)`.
-  Toto je hlavné číslo: pri 161 obchodoch za päť rokov vyšiel break-even 0,0995 % s
-  intervalom 0,044–0,155 % a pravdepodobnosťou 93 %, že edge prevýši 0,05 % taker.
-- **čistý PnL** pri zvolenej sadzbe — ten istý rozptyl v mene účtu.
-- **max drawdown** z permutácie poradia: tie isté obchody v inom poradí. Nameraný
-  drawdown je jedna cesta a spravidla nie tá najhoršia.
+**Edge:** break-even poplatok — nameraný, medián, 90 % interval a `P(edge > poplatok)`.
+Pri 161 obchodoch za päť rokov: 0,0995 %, interval 0,037–0,163 %, edge nad taker 0,05 %
+s pravdepodobnosťou 90 %.
 
-Čo z toho **nevyplýva**: bootstrap nemeria pretrénovanie. Obchody preladenej konfigurácie
-naozaj ziskové boli, chyba bola vo výbere najlepšej z dvesto epoch — proti tomu chránia
-len dáta, ktoré optimalizátor nevidel (§4, päť okien). Rovnako predpokladá nezávislé
-obchody, takže zhlukovanie strát nemodeluje, a počíta bez zloženého úročenia.
+**Účet:** max drawdown (% z vrcholu), ako často účet klesne pod hranice −10/−20/−30/−50 %
+počiatočného zostatku, pravdepodobnosť ruiny, najdlhšia séria strát, najdlhšie čakanie na
+nové maximum a konečný zostatok. Veľkosť pozície sa preškáluje z rizika behu
+(`maxLossDollar`) na `--risk`, takže rovnaká stratégia sa dá prepočítať na iný účet.
+Na záver vypíše, **koľko sa smie riskovať**, aby 95 % ciest zostalo nad hranicou −20 %
+(na spomínanom behu 71 USDT na obchod pri účte 10 000 a riziku 100).
+
+Profil s `legacyPineSizing` (pevný počet kontraktov) sa preškálovať nedá — vtedy sa
+počíta veľkosť z behu tak, ako je, a odporúčanie k riziku sa nevypíše.
+
+Čo z toho **nevyplýva**:
+
+- **Pretrénovanie to nemeria.** Obchody preladenej konfigurácie naozaj ziskové boli, chyba
+  bola vo výbere najlepšej z dvesto epoch — proti tomu chránia len dáta, ktoré optimalizátor
+  nevidel (§4, päť okien).
+- **Počíta len uzavreté obchody.** Pozícia, ktorá išla hlboko proti a nakoniec vyšla na TP,
+  je neviditeľná — pre margin a likvidáciu pri páke je pritom rozhodujúca.
+- Nie sú tu denné limity strát (séria nemá dátumy), zmena režimu trhu ani korelácia medzi
+  viacerými účtami na tej istej stratégii.
 
 Pod 30 obchodov výpis sám napíše, že interval je príliš široký na akýkoľvek záver.
 
-To isté je vo webapp v detaile behu — rozbaľovacia sekcia **Monte Carlo** s histogramom
-rozdelenia ([docs/WEBAPP.md](../docs/WEBAPP.md)).
+To isté je vo webapp v detaile behu — rozbaľovacia sekcia **Monte Carlo** s oboma
+histogramami a poľami na účet a riziko ([docs/WEBAPP.md](../docs/WEBAPP.md)).
 
 ## 6. Porovnávacie behy
 

@@ -33,6 +33,7 @@ from . import profiles as user_profiles
 from .pine_meta import param_metadata
 from tradebot.core.types import INSTRUMENTS
 from .. import engines
+from .. import montecarlo
 from .runner import (
     REPO, BacktestRunner, available_pairs, check_market_rules, default_params, instrument_for_pair,
     list_profiles, profile_instruments, profile_titles, tf_minutes,
@@ -48,13 +49,10 @@ _MC_CACHE: "OrderedDict[tuple, dict[str, Any]]" = OrderedDict()
 _MC_CACHE_MAX = 32
 
 
-def montecarlo_cached(run_id: str, trades: list[dict[str, Any]], fee_pct: float,
-                      iterations: int, seed: int) -> dict[str, Any]:
-    from ..montecarlo import analyze
-
-    key = (run_id, round(fee_pct, 6), iterations, seed)
+def montecarlo_cached(run_id: str, trades: list[dict[str, Any]], opts: dict[str, Any]) -> dict[str, Any]:
+    key = (run_id, *(round(v, 6) if isinstance(v, float) else v for v in opts.values()))
     if key not in _MC_CACHE:
-        result = analyze(trades, fee_pct=fee_pct, iterations=iterations, seed=seed)
+        result = montecarlo.analyze(trades, **opts)
         result["run_id"] = run_id
         _MC_CACHE[key] = result
         while len(_MC_CACHE) > _MC_CACHE_MAX:
@@ -361,9 +359,11 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(404, str(exc))
 
     @app.get("/api/runs/{run_id}/montecarlo")
-    def run_montecarlo(run_id: str, fee: float | None = None,
+    def run_montecarlo(run_id: str, fee: float | None = None, account: float | None = None,
+                       risk: float | None = None, risk_pct: float | None = None,
+                       block: int = montecarlo.DEFAULT_BLOCK,
                        iterations: int = 10_000, seed: int = 0):
-        """Bootstrap nad obchodmi behu — interval okolo break-even poplatku.
+        """Bootstrap nad obchodmi behu — interval okolo výsledku a riziko účtu.
 
         Ráta sa až na vyžiadanie (rozbalenie sekcie v detaile), lebo pri behu s
         tisíckami obchodov to trvá jednotky sekúnd. Beh je nemenný, takže sa
@@ -375,9 +375,19 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         trades = store.trades(run_id)
         if not trades:
             raise HTTPException(422, "beh nemá obchody, nie je čo premiešavať")
-        fee_pct = fee if fee is not None else float(rec.get("settings", {}).get("fee") or 0.0) * 100.0
-        iterations = max(200, min(int(iterations), 50_000))
-        return montecarlo_cached(run_id, trades, fee_pct, iterations, int(seed))
+        settings = rec.get("settings") or {}
+        risk_ref = montecarlo.sizing_of(rec)
+        opts = {
+            "fee_pct": fee if fee is not None else float(settings.get("fee") or 0.0) * 100.0,
+            "account": account if account else float(settings.get("wallet") or 10_000.0),
+            "risk_ref": risk_ref,
+            "risk": risk if risk else risk_ref,
+            "risk_pct": risk_pct or None,
+            "block": max(1, min(int(block), 200)),
+            "iterations": max(200, min(int(iterations), 50_000)),
+            "seed": int(seed),
+        }
+        return montecarlo_cached(run_id, trades, opts)
 
     @app.get("/api/runs/{run_id}/log", response_class=PlainTextResponse)
     def run_log(run_id: str):
