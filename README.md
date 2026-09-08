@@ -111,7 +111,7 @@ reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. `--target freqtrade` 
 | [`tester/compare/`](tester/compare) | Porovnávacie behy: `scan_zones`/`scan_trades` (engine offline nad burzou alebo surovým CSV), `mc_log_trades` (obchody z logu MultiCharts študie), `mc_compare` (spárovanie oboch zoznamov). |
 | `tester/dukas_import.py`, `tester/data_archive.py` | Prevod a čistenie surových exportov, ročný archív sviečok. |
 | `tester/report.py`, `tester/fees.py`, `tester/plot.py` | HTML report ako Strategy Tester, maker/taker a break-even, grafy. |
-| `tester/montecarlo.py` | Bootstrap nad obchodmi hotového behu: interval okolo break-even poplatku a rozdelenie drawdownu. |
+| `tester/montecarlo.py` | Blokový bootstrap nad obchodmi hotového behu: interval okolo break-even poplatku a riziko účtu (drawdown, hranice, ruina, odporúčané riziko na obchod). |
 | [`tester/tests/`](tester/tests) | Testy nástrojov Testera a **golden testy** proti TradingView (`golden/`). |
 | [`tester/AI_TESTING.md`](tester/AI_TESTING.md) | Ako sa na tomto repozitári testuje z príkazového riadku — čo spustiť, čo to znamená a čomu neveriť. |
 | [`tester/engines.py`](tester/engines.py) | Dva enginy (Freqtrade, emulátor MultiCharts) a kde má každý dáta. |

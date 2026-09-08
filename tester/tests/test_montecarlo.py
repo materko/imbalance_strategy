@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 
 import pytest
 
@@ -56,14 +57,14 @@ def test_poplatok_znizuje_cisty_zisk_o_objem_krat_sadzba():
 
 def test_drawdown_pocita_vrchol_od_startovacieho_zostatku():
     """Prvý obchod v strate je drawdown, hoci pred ním nie je žiadny vrchol."""
-    r = mc.analyze([trade(100, 90), trade(100, 110)], iterations=200, seed=0)
-    assert r["drawdown"]["observed"] == pytest.approx(10.0)
+    r = mc.analyze([trade(100, 90), trade(100, 110)], iterations=200, seed=0, account=1000.0)
+    assert r["account"]["drawdown_abs"]["observed"] == pytest.approx(10.0)
+    assert r["account"]["drawdown_pct"]["observed"] == pytest.approx(1.0)   # % z vrcholu
 
 
-def test_permutacia_nemeni_sucet_ale_meni_cestu():
-    r = mc.analyze(SAMPLE * 4, iterations=2000, seed=0)
-    dd = r["drawdown"]
-    assert dd["worst"] > dd["observed"]      # existuje horšie poradie tých istých obchodov
+def test_horsie_poradie_da_hlbsi_drawdown_nez_namerane():
+    dd = mc.analyze(SAMPLE * 4, iterations=2000, seed=0)["account"]["drawdown_abs"]
+    assert dd["max"] > dd["observed"]        # existuje horšia postupnosť tých istých obchodov
     assert dd["median"] > 0
 
 
@@ -92,6 +93,88 @@ def test_vypis_nevarije_pri_dostatocnej_vzorke():
     text = mc.report(mc.analyze(SAMPLE * 10, fee_pct=0.05, iterations=500, seed=0), "beh")
     assert "pod hranicou" not in text
 
+
+
+# --------------------------------------------------------------------------- #
+# Účet: riziko, hranice, ruina
+# --------------------------------------------------------------------------- #
+
+
+def test_blok_drzi_serie_strat_pokope():
+    """Blokový bootstrap musí dať dlhšie série strát než losovanie obchod po obchode."""
+    trades = [trade(100, 90)] * 8 + [trade(100, 110)] * 24     # straty pokope v origináli
+    iid = mc.analyze(trades, iterations=2000, seed=0, block=1)["account"]["losing_streak"]
+    blok = mc.analyze(trades, iterations=2000, seed=0, block=6)["account"]["losing_streak"]
+    assert blok["median"] > iid["median"]
+
+
+def test_blok_sa_skrati_na_kratkej_vzorke():
+    assert mc.block_size(10, 161) == 10
+    assert mc.block_size(10, 12) == 2        # z 12 obchodov by blok 10 nelosoval takmer nič
+    assert mc.block_size(1, 161) == 1
+
+
+def test_riziko_skaluje_drawdown_lineárne():
+    kw = dict(iterations=1000, seed=0, account=100_000.0, risk_ref=100.0)
+    maly = mc.analyze(SAMPLE * 8, risk=100.0, **kw)["account"]
+    velky = mc.analyze(SAMPLE * 8, risk=300.0, **kw)["account"]
+    assert velky["drawdown_abs"]["median"] == pytest.approx(3 * maly["drawdown_abs"]["median"])
+    assert velky["risk"] == 300.0 and maly["risk"] == 100.0
+    # odporúčanie je vlastnosť stratégie a účtu, nie práve zvoleného rizika
+    assert velky["advice"]["risk"] == pytest.approx(maly["advice"]["risk"], rel=1e-6)
+
+
+def test_hranice_a_ruina_su_z_najnizsieho_bodu():
+    """Samé straty (40 x -10) na účte 300: padne cez každú hranicu a skončí na nule, nie v mínuse."""
+    trades = [trade(100, 90)] * 40
+    acc = mc.analyze(trades, iterations=500, seed=0, account=300.0, risk_ref=10.0, risk=10.0)["account"]
+    assert [round(h["p"], 3) for h in acc["hits"]] == [1.0, 1.0, 1.0, 1.0]
+    assert acc["p_ruin"] == 1.0
+    assert acc["drawdown_pct"]["max"] == pytest.approx(100.0)
+    assert acc["final_pct"]["median"] == pytest.approx(-100.0)
+
+
+def test_ziskova_seria_nema_ruinu_ani_hlboky_pokles():
+    acc = mc.analyze([trade(100, 110)] * 40, iterations=500, seed=0, account=1000.0)["account"]
+    assert acc["p_ruin"] == 0.0
+    assert all(h["p"] == 0.0 for h in acc["hits"])
+    assert acc["wait_for_high"]["max"] == 0        # každý obchod je nové maximum
+
+
+#: Obchody so spojito rozptýlenými veľkosťami. Na percentily nestačí pár celých čísel:
+#: rovnaké hodnoty sa zhlukujú a `P(x >= p95)` potom vyjde 10 % namiesto 5 %.
+VARIED = [trade(100.0, 100.0 + round(math.sin(i * 1.7) * 13 + 1.9, 4)) for i in range(60)]
+
+
+def test_odporucane_riziko_drzi_95_percent_ciest_nad_hranicou():
+    kw = dict(iterations=4000, seed=0, account=10_000.0, risk_ref=100.0, limits=(10.0, 20.0))
+    advice = mc.analyze(VARIED, risk=100.0, **kw)["account"]["advice"]
+    assert advice["limit"] == 20.0
+    # pri odporúčanom riziku má hranicu -20 % preraziť práve tých 5 % ciest
+    over = mc.analyze(VARIED, risk=advice["risk"], **kw)["account"]
+    hit20 = next(h for h in over["hits"] if h["limit"] == 20.0)
+    assert hit20["p"] == pytest.approx(0.05, abs=0.015)
+
+
+def test_zlozene_urocenie_nepusti_ucet_na_nulu():
+    """Pri % z equity sa riskuje stále menej, takže séria strát účet nevynuluje."""
+    trades = [trade(100, 90)] * 40
+    acc = mc.analyze(trades, iterations=300, seed=0, account=1000.0,
+                     risk_ref=10.0, risk_pct=2.0)["account"]
+    assert acc["risk_pct"] == 2.0 and acc["p_ruin"] == 0.0
+    assert acc["advice"] is None                  # linearita v riziku tu neplatí
+
+
+def test_bez_dolaroveho_rizika_sa_neskaluje():
+    """Profil s pevným počtom kontraktov sa premiešať dá, prepočítať na iný účet nie."""
+    acc = mc.analyze(SAMPLE, iterations=300, seed=0, risk=250.0)["account"]
+    assert acc["scalable"] is False and acc["risk"] is None and acc["advice"] is None
+
+
+def test_sizing_of_cita_profil_behu():
+    assert mc.sizing_of({"params": {"maxLossDollar": 100.0, "legacyPineSizing": False}}) == 100.0
+    assert mc.sizing_of({"params": {"maxLossDollar": 100.0, "legacyPineSizing": True}}) is None
+    assert mc.sizing_of({"params": {}}) is None
 
 # --------------------------------------------------------------------------- #
 # CLI nad históriou behov

@@ -181,6 +181,12 @@
     <details id="mc-box"><summary>Monte Carlo <span class="muted small">— aký široký je interval okolo nameraných čísel</span></summary>
       <div class="pc-toolbar">
         <label class="inline small">poplatok <input type="number" id="mc-fee" step="0.005" min="0" max="1"> % na stranu</label>
+        <label class="inline small">účet <input type="number" id="mc-account" step="1000" min="100"></label>
+        <label class="inline small">riziko na obchod <input type="number" id="mc-risk" step="10" min="1"></label>
+        <label class="inline small">bloky po <select id="mc-block">
+          <option value="10" selected>10 obchodoch</option><option value="20">20 obchodoch</option>
+          <option value="1">1 (nezávislé)</option>
+        </select></label>
         <label class="inline small">opakovaní <select id="mc-iter">
           <option value="2000">2 000</option><option value="10000" selected>10 000</option><option value="50000">50 000</option>
         </select></label>
@@ -188,7 +194,11 @@
         <span id="mc-status" class="muted small"></span>
       </div>
       <div id="mc-cards" class="cards"></div>
-      <div id="mc-chart" class="chart"></div>
+      <div class="cols">
+        <div><h4>Rozdelenie break-even poplatku</h4><div id="mc-chart" class="chart"></div></div>
+        <div><h4>Rozdelenie max drawdownu</h4><div id="mc-dd-chart" class="chart"></div></div>
+      </div>
+      <div id="mc-hits"></div>
       <div id="mc-note" class="muted small"></div>
     </details>
     <details><summary>Zoznam obchodov (<span id="trade-count"></span>) <span class="muted small">— klik na riadok ukáže obchod na grafe</span></summary>
