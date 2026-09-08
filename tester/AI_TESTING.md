@@ -72,7 +72,34 @@ break-even nie.
 - **Stratégiu nikdy nespúšťaj na 1m grafe** — limity `*MaxBars` sú v baroch, na 1m by to
   bola iná stratégia.
 
-## 5. Porovnávacie behy
+## 5. Interval okolo výsledku (Monte Carlo)
+
+Backtest dá jedno číslo. Koľko z neho je edge a koľko vzorka, povie bootstrap nad
+obchodmi hotového behu — bez ďalšieho backtestu, číta sa `runs/<id>/trades.json`:
+
+```bash
+PY -m tester.montecarlo                       # posledný beh v histórii
+PY -m tester.montecarlo <run_id> --fee 0.05   # poplatok na stranu (default: ten z behu)
+PY -m tester.montecarlo <run_id> --json
+```
+
+Výpis má tri bloky:
+
+- **break-even poplatok** — nameraný, medián a 90 % interval, plus `P(edge > poplatok)`.
+  Toto je hlavné číslo: pri 161 obchodoch za päť rokov vyšiel break-even 0,0995 % s
+  intervalom 0,044–0,155 % a pravdepodobnosťou 93 %, že edge prevýši 0,05 % taker.
+- **čistý PnL** pri zvolenej sadzbe — ten istý rozptyl v mene účtu.
+- **max drawdown** z permutácie poradia: tie isté obchody v inom poradí. Nameraný
+  drawdown je jedna cesta a spravidla nie tá najhoršia.
+
+Čo z toho **nevyplýva**: bootstrap nemeria pretrénovanie. Obchody preladenej konfigurácie
+naozaj ziskové boli, chyba bola vo výbere najlepšej z dvesto epoch — proti tomu chránia
+len dáta, ktoré optimalizátor nevidel (§4, päť okien). Rovnako predpokladá nezávislé
+obchody, takže zhlukovanie strát nemodeluje, a počíta bez zloženého úročenia.
+
+Pod 30 obchodov výpis sám napíše, že interval je príliš široký na akýkoľvek záver.
+
+## 6. Porovnávacie behy
 
 ```bash
 # engine offline nad burzovými dátami alebo surovým Dukascopy CSV (bez Freqtrade aj bez MultiCharts)
@@ -91,7 +118,7 @@ PY -m pytest tester/tests/test_golden_tv_binance.py tester/tests/test_pine_parit
 Ak padnú golden testy, kód alebo dáta nesedia s referenciou — **nahlás to, neopravuj
 referenciu**.
 
-## 6. Hyperopt (len engine Freqtrade)
+## 7. Hyperopt (len engine Freqtrade)
 
 ```bash
 ./deploy/freqtrade/scripts/hyperopt.sh 20260601-20260904 200
@@ -104,6 +131,10 @@ over na inom okne než na tom, na ktorom si ladil. Priestor má 10 parametrov a 
 robí 150–200 obchodov za rok — pretrénovanie je reálne a už sa raz stalo
 ([docs/merania/HYPEROPT_btcusdt_2026-09-04.md](../docs/merania/HYPEROPT_btcusdt_2026-09-04.md)).
 
+Poradie, v ktorom to dáva zmysel: hyperopt nájde parametre → out-of-sample okná rozhodnú,
+či to prežije → `tester.montecarlo` (§5) dá k prežitému číslu interval. Monte Carlo
+hyperopt **nenahrádza** ani neodhalí jeho pretrénovanie; sú to dve rôzne otázky.
+
 Dukascopy symboly potrebujú pred hyperoptom sviečky pre Freqtrade:
 
 ```bash
@@ -112,14 +143,14 @@ PY -m tester.dukas_import C:/dukas/NAS100_M1_10Y.csv --symbol NAS100 --target fr
 
 Podrobne: [docs/FREQTRADE.md §C a §G](../docs/FREQTRADE.md).
 
-## 7. FreqAI
+## 8. FreqAI
 
 Kód je súčasťou Freqtradu, chýbajú závislosti: `pip install "freqtrade[freqai]"`.
 Stratégia je deterministický stavový automat a jeho parita s Pine je zmyslom celého portu,
 takže model ju **nenahrádza** — dáva sa nad ňu ako filter (engine nájde setup, model
 predpovie, či ho brať). Detaily a riziká: [docs/FREQTRADE.md §G](../docs/FREQTRADE.md).
 
-## 8. Čo nerobiť
+## 9. Čo nerobiť
 
 - Needituj `tradebot/core`, adaptéry ani referenčné profily kvôli tomu, aby beh „vyšiel".
 - Nesťahuj dáta z burzy pri bežnom testovaní — páry a obdobia sú tie, čo sú v archíve
