@@ -1,0 +1,459 @@
+{
+  "id": "20260908-172914-26a0f9",
+  "status": "done",
+  "created": "2026-09-08T17:29:14+00:00",
+  "started": "2026-09-08T17:29:14+00:00",
+  "finished": "2026-09-08T17:29:15+00:00",
+  "user": "IBS",
+  "note": "",
+  "settings": {
+    "strategy": "ibs",
+    "pair": "NAS100/USD",
+    "engine": "multicharts",
+    "timeframe": "3m",
+    "timerange": "20260702-20260904",
+    "fee": 0.0,
+    "wallet": 10000.0,
+    "timeframe_detail": "1m",
+    "profile": "golden_coinbase_btcusd_3m"
+  },
+  "params": {
+    "enableImbEntry": true,
+    "enablePinBarEntry": false,
+    "enableEngulfingEntry": false,
+    "pbWickToBodyRatio": 4,
+    "pbBodyPositionPct": 20,
+    "pbMinRangePoints": 2,
+    "engMinRangePoints": 2,
+    "engSizeAvgLen": 10,
+    "engSizeMultiplier": 2,
+    "engTouchWindowBars": 3,
+    "pbEngOrderType": "Market",
+    "enableTrailing": false,
+    "trailActivationR": 1,
+    "trailOffsetR": 0.5,
+    "enableZoneDetection": true,
+    "enableSrTrading": false,
+    "enableLqTrading": false,
+    "rrRatio": 1,
+    "tradeDirection": "Long only",
+    "weekdaysOnly": true,
+    "enableTrading": true,
+    "closeAtSessionEnd": true,
+    "enableGapDetection": true,
+    "zoneDetectionTF": "5",
+    "zoneValidHours": 6,
+    "maxSdZones": 200,
+    "snapMode": "Floor",
+    "invalidateOnFill": true,
+    "useVolumeFilter": false,
+    "volumeFilterBlockTrading": false,
+    "volSmaLen": 20,
+    "volMultiplier": 1.5,
+    "imbLookback": 20,
+    "imbMaxDistTicks": 100,
+    "minImbSizePoints": 2.5,
+    "sess1On": false,
+    "sess1TZ": "Europe/Prague",
+    "sess1ZoneStartH": 1,
+    "sess1ZoneStartM": 0,
+    "sess1ZoneEndH": 9,
+    "sess1ZoneEndM": 0,
+    "sess1TradeStartH": 2,
+    "sess1TradeStartM": 0,
+    "sess1TradeEndH": 5,
+    "sess1TradeEndM": 0,
+    "sess2On": true,
+    "sess2TZ": "America/New_York",
+    "sess2ZoneStartH": 8,
+    "sess2ZoneStartM": 0,
+    "sess2ZoneEndH": 11,
+    "sess2ZoneEndM": 0,
+    "sess2TradeStartH": 10,
+    "sess2TradeStartM": 0,
+    "sess2TradeEndH": 15,
+    "sess2TradeEndM": 45,
+    "sess3On": true,
+    "sess3TZ": "Europe/London",
+    "sess3ZoneStartH": 8,
+    "sess3ZoneStartM": 0,
+    "sess3ZoneEndH": 10,
+    "sess3ZoneEndM": 0,
+    "sess3TradeStartH": 8,
+    "sess3TradeStartM": 0,
+    "sess3TradeEndH": 11,
+    "sess3TradeEndM": 0,
+    "showMarketStructure": true,
+    "structureSwingLen": 5,
+    "useStructureFilter": false,
+    "showSR": true,
+    "srSwingLen": 10,
+    "srClusterPoints": 15,
+    "srMinTouches": 2,
+    "srMaxLevels": 10,
+    "srLookbackDays": 5,
+    "srZoneSaturationPct": 30,
+    "showLiqSweep": true,
+    "liqSweepLen": 10,
+    "liqSweepMinWick": 5,
+    "liqSweepConfirmBars": 2,
+    "liqStrengthLen": 50,
+    "showElliott": false,
+    "ewSwingLen": 8,
+    "ewMinWavePoints": 20,
+    "ewShowLabels": true,
+    "ewShowProjection": true,
+    "ewProjExtendBars": 40,
+    "ewLineColor": "#334155",
+    "showImbalance": true,
+    "state1MaxBars": 10,
+    "state2MaxBars": 15,
+    "state2ConfirmTicks": 1,
+    "state3MaxBars": 1,
+    "state4MaxBars": 10,
+    "state5MaxBars": 10,
+    "slLookback": 10,
+    "slBufferTicks": 2,
+    "maxLossDollar": 100,
+    "maxDailyWins": 5,
+    "tickDollarValue": 0.5,
+    "legacyPineSizing": true,
+    "atrLen": 14,
+    "minSlDistance": 0,
+    "leverage": 1
+  },
+  "error": null,
+  "result": {
+    "trades": 15,
+    "wins": 12,
+    "losses": 3,
+    "draws": 0,
+    "winrate": 80.0,
+    "pnl_abs": 438.09,
+    "pnl_pct": 4.381,
+    "profit_factor": 3.213,
+    "max_drawdown_abs": 97.14,
+    "max_drawdown_pct": 0.971,
+    "starting_balance": 10000.0,
+    "final_balance": 10438.09,
+    "stake_currency": "USD",
+    "gross_abs": 438.09,
+    "volume_abs": 879499.86,
+    "break_even_pct": 0.0498,
+    "market_change_pct": -0.923,
+    "backtest_start": "2026-07-02T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:54:00",
+    "exits": {
+      "stop_loss": {
+        "n": 3,
+        "pnl_abs": -197.97
+      },
+      "take_profit": {
+        "n": 12,
+        "pnl_abs": 636.07
+      }
+    },
+    "bars": 19960,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.8
+  },
+  "series": {
+    "equity": [
+      [
+        "2026-07-02T08:07:00+00:00",
+        -0.5491,
+        -0.5491
+      ],
+      [
+        "2026-07-06T19:17:00+00:00",
+        0.7272,
+        0.1781
+      ],
+      [
+        "2026-07-08T15:14:00+00:00",
+        -0.9714,
+        -0.7933
+      ],
+      [
+        "2026-07-09T10:19:00+00:00",
+        0.2646,
+        -0.5288
+      ],
+      [
+        "2026-07-13T08:27:00+00:00",
+        0.6608,
+        0.132
+      ],
+      [
+        "2026-07-14T11:24:00+00:00",
+        0.555,
+        0.687
+      ],
+      [
+        "2026-07-31T16:24:00+00:00",
+        1.0331,
+        1.7201
+      ],
+      [
+        "2026-08-06T09:56:00+00:00",
+        0.4047,
+        2.1247
+      ],
+      [
+        "2026-08-11T10:22:00+00:00",
+        0.3539,
+        2.4786
+      ],
+      [
+        "2026-08-12T09:08:00+00:00",
+        0.2264,
+        2.705
+      ],
+      [
+        "2026-08-24T11:38:00+00:00",
+        0.8004,
+        3.5054
+      ],
+      [
+        "2026-08-26T17:16:00+00:00",
+        0.4508,
+        3.9562
+      ],
+      [
+        "2026-08-27T15:06:00+00:00",
+        0.4296,
+        4.3858
+      ],
+      [
+        "2026-09-01T15:40:00+00:00",
+        0.4543,
+        4.8401
+      ],
+      [
+        "2026-09-01T17:25:00+00:00",
+        -0.4592,
+        4.3809
+      ]
+    ],
+    "market": [
+      [
+        "2026-07-02T00:00:00+00:00",
+        -1.2427
+      ],
+      [
+        "2026-07-03T00:00:00+00:00",
+        -0.2183
+      ],
+      [
+        "2026-07-05T00:00:00+00:00",
+        0.0536
+      ],
+      [
+        "2026-07-06T00:00:00+00:00",
+        -0.4072
+      ],
+      [
+        "2026-07-07T00:00:00+00:00",
+        -2.2405
+      ],
+      [
+        "2026-07-08T00:00:00+00:00",
+        -1.5473
+      ],
+      [
+        "2026-07-09T00:00:00+00:00",
+        -0.0475
+      ],
+      [
+        "2026-07-10T00:00:00+00:00",
+        0.3247
+      ],
+      [
+        "2026-07-12T00:00:00+00:00",
+        -0.1858
+      ],
+      [
+        "2026-07-13T00:00:00+00:00",
+        -1.7505
+      ],
+      [
+        "2026-07-14T00:00:00+00:00",
+        -0.1611
+      ],
+      [
+        "2026-07-15T00:00:00+00:00",
+        -0.8098
+      ],
+      [
+        "2026-07-16T00:00:00+00:00",
+        -2.7845
+      ],
+      [
+        "2026-07-17T00:00:00+00:00",
+        -3.9601
+      ],
+      [
+        "2026-07-19T00:00:00+00:00",
+        -3.5113
+      ],
+      [
+        "2026-07-20T00:00:00+00:00",
+        -3.7897
+      ],
+      [
+        "2026-07-21T00:00:00+00:00",
+        -2.0452
+      ],
+      [
+        "2026-07-22T00:00:00+00:00",
+        -2.5565
+      ],
+      [
+        "2026-07-23T00:00:00+00:00",
+        -4.0753
+      ],
+      [
+        "2026-07-24T00:00:00+00:00",
+        -5.3817
+      ],
+      [
+        "2026-07-26T00:00:00+00:00",
+        -3.9039
+      ],
+      [
+        "2026-07-27T00:00:00+00:00",
+        -5.7971
+      ],
+      [
+        "2026-07-28T00:00:00+00:00",
+        -5.9911
+      ],
+      [
+        "2026-07-29T00:00:00+00:00",
+        -7.9231
+      ],
+      [
+        "2026-07-30T00:00:00+00:00",
+        -4.8427
+      ],
+      [
+        "2026-07-31T00:00:00+00:00",
+        -4.9338
+      ],
+      [
+        "2026-08-02T00:00:00+00:00",
+        -4.1869
+      ],
+      [
+        "2026-08-03T00:00:00+00:00",
+        -2.9866
+      ],
+      [
+        "2026-08-04T00:00:00+00:00",
+        -0.0881
+      ],
+      [
+        "2026-08-05T00:00:00+00:00",
+        -0.9282
+      ],
+      [
+        "2026-08-06T00:00:00+00:00",
+        -0.8518
+      ],
+      [
+        "2026-08-07T00:00:00+00:00",
+        -0.0995
+      ],
+      [
+        "2026-08-09T00:00:00+00:00",
+        -0.0652
+      ],
+      [
+        "2026-08-10T00:00:00+00:00",
+        -0.4825
+      ],
+      [
+        "2026-08-11T00:00:00+00:00",
+        -0.6053
+      ],
+      [
+        "2026-08-12T00:00:00+00:00",
+        -0.1169
+      ],
+      [
+        "2026-08-13T00:00:00+00:00",
+        1.2411
+      ],
+      [
+        "2026-08-14T00:00:00+00:00",
+        1.0068
+      ],
+      [
+        "2026-08-16T00:00:00+00:00",
+        1.2905
+      ],
+      [
+        "2026-08-17T00:00:00+00:00",
+        0.894
+      ],
+      [
+        "2026-08-18T00:00:00+00:00",
+        -0.9951
+      ],
+      [
+        "2026-08-20T00:00:00+00:00",
+        -1.7659
+      ],
+      [
+        "2026-08-21T00:00:00+00:00",
+        -1.4571
+      ],
+      [
+        "2026-08-23T00:00:00+00:00",
+        -1.1626
+      ],
+      [
+        "2026-08-24T00:00:00+00:00",
+        -2.4059
+      ],
+      [
+        "2026-08-25T00:00:00+00:00",
+        -1.9944
+      ],
+      [
+        "2026-08-26T00:00:00+00:00",
+        -0.515
+      ],
+      [
+        "2026-08-27T00:00:00+00:00",
+        -0.6488
+      ],
+      [
+        "2026-08-28T00:00:00+00:00",
+        -1.0228
+      ],
+      [
+        "2026-08-30T00:00:00+00:00",
+        -1.6819
+      ],
+      [
+        "2026-08-31T00:00:00+00:00",
+        -0.9608
+      ],
+      [
+        "2026-09-01T00:00:00+00:00",
+        -2.1797
+      ],
+      [
+        "2026-09-02T00:00:00+00:00",
+        -1.9527
+      ],
+      [
+        "2026-09-03T00:00:00+00:00",
+        -0.9226
+      ]
+    ]
+  }
+}
