@@ -22,6 +22,7 @@ Chronologicky:
 | [EXEKUCIA_maker_taker_2026-09-05](EXEKUCIA_maker_taker_2026-09-05.md) | koľko príkazov by ležalo v knihe |
 | [OPTIMALIZACIA_2026-09-05](OPTIMALIZACIA_2026-09-05.md) | filter tesného SL, regime filtre, časový stop, ETH, ATR vs %, risk sizing |
 | [NAS100_dukas_simulator_2026-09-06](NAS100_dukas_simulator_2026-09-06.md) | NAS100 z Dukascopy: simulátor, MultiCharts a emulátor vedľa seba |
+| [PARITA_pnl_tradingview_2026-09-08](PARITA_pnl_tradingview_2026-09-08.md) | celkový zisk a % sedia s TradingView, keď kapitál aj páka sedia |
 
 Súhrn, kam sa merania dopracovali, je v [README repozitára](../../README.md) v sekcii
 „Kde sme s výsledkami". Parita s TradingView (nie meranie edge) je v

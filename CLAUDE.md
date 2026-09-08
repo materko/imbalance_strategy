@@ -140,8 +140,12 @@ PY -m tester.webapp.cli run --profile docs/profily_archiv/ibs/ethusdt_3m_binance
 - `--set` hodnoty: `true/false`, čísla, text; veľkostné polia `hodnota@jednotka`
   (`abs`, `ticks`, `atr`, `pct`). Zoznam parametrov: `PY -m tester.webapp.cli params [filter]`.
 - Poplatok `--fee 0.0005` (Binance taker 0,05 %) a `--wallet 10000` sú default; pri
-  porovnávaní s TradingView použi `--fee 0 --wallet 400000` a profil `*_ny_sl` (1 BTC)
-  z `docs/profily_archiv/`.
+  porovnávaní s TradingView použi `--fee 0` a profil `*_ny_sl` (1 BTC)
+  z `docs/profily_archiv/`. Peňaženka musí byť **rovná initial capital z grafu**
+  (`--wallet 10000`), inak sedí PnL v mene, ale nie v percentách — TradingView ich počíta
+  z počiatočného kapitálu. A páka musí stačiť na najväčšiu pozíciu, lebo Freqtrade na
+  rozdiel od TradingView margin stráži a pozíciu oreže
+  ([docs/merania/PARITA_pnl_tradingview_2026-09-08.md](docs/merania/PARITA_pnl_tradingview_2026-09-08.md)).
 
 ## Len nastaviť parametre vo webapp (bez spustenia)
 
