@@ -89,6 +89,27 @@ def split_root(archive: Path, data: Path, verbose: bool = True) -> list[Path]:
     return written
 
 
+def missing(roots: tuple[tuple[Path, Path], ...] | None = None) -> list[Path]:
+    """Súbory, ktoré archív obsahuje, ale v pracovnom strome chýbajú.
+
+    Prečo nie „je tam aspoň jeden feather": stačí mať rozbalený jediný zdroj (napríklad
+    Dukascopy) a taká kontrola vyhlási dáta za kompletné. Webapp sa potom spustí, ponuka
+    párov je poloprázdna a backtest spadne až na „No history for … found".
+    """
+    out: list[Path] = []
+    for archive, data in roots if roots is not None else ROOTS:
+        if not archive.exists():
+            continue
+        for src in sorted(archive.rglob("*.feather")):
+            m = _YEAR_SUFFIX.search(src.name)
+            if not m:
+                continue
+            target = data / src.parent.relative_to(archive) / (src.name[: m.start()] + ".feather")
+            if not target.exists() and target not in out:
+                out.append(target)
+    return out
+
+
 def merge_root(archive: Path, data: Path, verbose: bool = True) -> list[Path]:
     """`data_archive/tester/` -> `data/` jedného koreňa."""
     import pandas as pd
