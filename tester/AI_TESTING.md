@@ -161,6 +161,16 @@ na serveri. Cena je čas: každý bod je celý backtest, rok je asi 30 sekúnd, 
 na piatich referenčných oknách je hodina a pol. Vo webapp sa celá mriežka dá zrušiť jedným
 tlačidlom, z CLI Ctrl+C.
 
+K hotovej mriežke sa dá kedykoľvek vrátiť — je v histórii ako každý beh:
+
+```bash
+PY -m tester.webapp.cli sweeps                    # zoznam mriežok, od najnovšej
+PY -m tester.webapp.cli sweeps 20260909-185815    # tá istá tabuľka aj s poradím
+```
+
+Je jedno, či mriežka vznikla tu alebo vo webapp — v ponuke **Predošlá mriežka** aj v tomto
+výpise je to isté.
+
 **Kritérium hovorí, čo je lepšie** — bez neho sa „optimálne" nedá určiť:
 
 | `--goal` | vyberá | kedy |

@@ -117,6 +117,9 @@
       <details id="sweep-box" class="sweep-box">
         <summary>Hľadať parameter <span class="muted small">— mriežka behov, nie jeden</span></summary>
         <div class="sweep-body">
+          <label class="field sweep-past" hidden>Predošlá mriežka
+            <select id="sweep-past" title="Mriežky z histórie — otvorí sa tabuľka aj s poradím."></select>
+          </label>
           <div id="sweep-rows"></div>
           <button id="sweep-add" class="ghost small" type="button">+ ďalší parameter</button>
           <div class="form-grid sweep-goal">
@@ -212,6 +215,8 @@
     </div>
     <div id="save-profile-msg" class="muted small"></div>
     <div id="detail-meta" class="muted"></div>
+    <button id="detail-sweep" class="ghost small" type="button" hidden
+            title="späť na celú mriežku"></button>
     <div id="detail-error" class="error" hidden></div>
     <div id="detail-warning" class="error" hidden></div>
     <div id="cards" class="cards"></div>

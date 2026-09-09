@@ -567,6 +567,34 @@ def test_cli_list_and_show_read_the_store(tmp_path: Path, monkeypatch, capsys):
         cli.main(["show", "neexistuje"])
 
 
+def test_cli_sweeps_najde_mriezku_v_historii(tmp_path: Path, monkeypatch, capsys):
+    """Mriežka spustená vo webapp sa musí dať otvoriť aj z terminálu — je to tá istá história."""
+    import tester.webapp.cli as cli
+    import tester.webapp.store as store_mod
+
+    store = RunStore(tmp_path)
+    for i, (rr, be) in enumerate([(2, 0.10), (5, 0.30)]):
+        rec = _record(f"2026090{i + 1}-120000-bbbb0{i}", params={"rrRatio": float(rr)})
+        rec["settings"]["sweep"] = {"id": "20260901-120000-abcd", "values": {"rrRatio": rr},
+                                    "goal": "break_even", "max_dd": None, "min_trades": None}
+        rec["result"] = {**rec["result"], "break_even_pct": be}
+        store.save(rec)
+    monkeypatch.setattr(store_mod, "RUNS_DIR", tmp_path)
+
+    assert cli.main(["sweeps"]) == 0
+    out = capsys.readouterr().out
+    assert "20260901-120000-abcd" in out and "rrRatio" in out
+
+    assert cli.main(["sweeps", "20260901-120000-abcd"]) == 0
+    out = capsys.readouterr().out
+    assert out.splitlines()[0].startswith("=== sweep 20260901-120000-abcd")
+    assert "<- najlepsi" in out                      # najvyšší break-even je rrRatio 5
+    assert out.index("0.3000") < out.index("0.1000")
+
+    with pytest.raises(SystemExit):
+        cli.main(["sweeps", "20990101-000000-zzzz"])
+
+
 def test_user_profile_belongs_to_its_strategy(client, own_profiles):
     """Vlastný profil nesie `_strategy`; ponuka inej stratégie ho neukáže a načíta sa jej configom."""
     from tradebot.strategies.demo_breakout.config import DemoBreakoutConfig
@@ -980,6 +1008,39 @@ def test_mriezka_nema_strop_kym_ho_nikto_nezapne(client, monkeypatch):
     assert c.get("/api/meta").json()["max_sweep_runs"] == 0
     r = c.post("/api/sweeps", json=_sweep_body(space={"rrRatio": "0.5:10:0.05"}))
     assert r.status_code == 200 and r.json()["points"] == 191
+
+
+def test_zoznam_mriezok_sa_posklada_z_historie(client, monkeypatch):
+    """Mriežky sa neukladajú zvlášť — značka je v každom behu, zoznam je preskupená história.
+
+    Vďaka tomu prežije reštart appky aj `git pull` cudzích behov a nedá sa rozísť s tým,
+    čo je naozaj odbehnuté.
+    """
+    from tester.webapp import app as app_mod
+
+    c, store = client
+    monkeypatch.setattr(app_mod.engines, "available",
+                        lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+
+    for i, rr in enumerate([2, 3]):
+        rec = _record(f"2026090{i + 1}-120000-aaaa0{i}")
+        rec["settings"]["sweep"] = {"id": "20260901-120000-abcd", "values": {"rrRatio": rr},
+                                    "goal": "winrate", "max_dd": 15.0, "min_trades": None}
+        store.save(rec)
+    bezi = c.post("/api/sweeps", json=_sweep_body()).json()["id"]
+
+    body = c.get("/api/sweeps").json()
+    podla_id = {s["id"]: s for s in body["sweeps"]}
+
+    assert body["total"] == 2
+    assert body["sweeps"][0]["id"] == bezi           # najnovšia hore
+    stara = podla_id["20260901-120000-abcd"]
+    assert stara["done"] == 2 and stara["pending"] == 0
+    assert stara["params"] == ["rrRatio"] and stara["goal"] == "winrate"
+    assert "drawdown" in stara["goal_note"]
+    # Mriežka, ktorá ešte beží, je v zozname tiež — inak by z nej cez noc nebolo vidieť nič.
+    assert podla_id[bezi]["pending"] == 3 and podla_id[bezi]["done"] == 0
 
 
 def test_sweep_detail_zoradi_podla_kriteria(client):

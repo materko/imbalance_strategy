@@ -243,4 +243,5 @@ details > summary { cursor: pointer; padding: 8px 0; font-weight: 600; }
 .sweep-result tr.pending td { color: var(--muted); font-style: italic; }
 .sweep-result tr.pending { cursor: default; }
 .sweep-actions { display: flex; gap: 8px; align-items: center; }
+.sweep-past { margin-bottom: 8px; }
 .sweep-result tr:hover td { background: #f8fafc; }

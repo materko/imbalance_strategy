@@ -876,6 +876,7 @@ async function startSweep() {
     // rovnako ako ▶ Spustiť backtest, inak karta Fronta tvrdí „Nič nebeží".
     pollQueue();
     pollSweep();
+    loadSweepHistory();
   } catch (e) {
     $("#sweep-status").textContent = e.message;
   } finally {
@@ -891,6 +892,8 @@ async function pollSweep() {
     if (r.running) {
       clearTimeout(sweep.timer);
       sweep.timer = setTimeout(pollSweep, 3000);
+    } else {
+      loadSweepHistory();          // dobehnutá mriežka už nesie konečné počty
     }
   } catch (e) { /* beh ešte nič neuložil */ clearTimeout(sweep.timer); sweep.timer = setTimeout(pollSweep, 3000); }
 }
@@ -929,6 +932,45 @@ function renderSweep(r) {
   }
 }
 
+/** Naplní ponuku predošlých mriežok — sweep sa dá otvoriť aj o týždeň. */
+async function loadSweepHistory() {
+  let list = [];
+  try { list = (await api("/api/sweeps?limit=50")).sweeps; } catch (e) { return; }
+  const sel = $("#sweep-past");
+  const wrap = sel.closest(".sweep-past");
+  wrap.hidden = !list.length;
+  if (!list.length) return;
+  sel.innerHTML = `<option value="">— vyber mriežku z histórie —</option>`;
+  for (const s of list) {
+    const o = document.createElement("option");
+    o.value = s.id;
+    const stav = s.pending ? `${s.done}/${s.done + s.pending}` : `${s.done} behov`;
+    o.textContent = `${sweepStamp(s.id)} · ${s.params.join(" × ")} · ${s.pair} ${s.timeframe}`
+      + ` · ${stav}`;
+    o.title = `${s.timerange} · ${s.goal_note}`;
+    sel.append(o);
+  }
+  sel.value = sweep.id || "";
+}
+
+/** `20260909-201203-ed78` -> `9. 9. 20:12` — id je čitateľné, ale nie na pozeranie. */
+function sweepStamp(id) {
+  const m = /^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})/.exec(id || "");
+  return m ? `${+m[3]}. ${+m[2]}. ${m[4]}:${m[5]}` : id;
+}
+
+/** Otvorí mriežku z histórie — tú istú tabuľku, aká bola po dobehnutí. */
+function openSweep(id) {
+  sweep.id = id || null;
+  const sel = $("#sweep-past");
+  if (sel && [...sel.options].some(o => o.value === id)) sel.value = id;
+  try { id ? localStorage.setItem("sweep", id) : localStorage.removeItem("sweep"); } catch (e) { /* */ }
+  clearTimeout(sweep.timer);
+  if (!id) { $("#sweep-status").textContent = ""; $("#sweep-result").innerHTML = ""; return; }
+  $("#sweep-box").open = true;
+  pollSweep();
+}
+
 /** Zruší všetky nedobehnuté body mriežky — náhrada za strop na jej veľkosť. */
 async function cancelSweep() {
   if (!sweep.id) return;
@@ -955,6 +997,8 @@ function initSweep() {
   $("#sweep-add").onclick = () => addSweepRow();
   $("#sweep-run").onclick = startSweep;
   $("#sweep-cancel").onclick = cancelSweep;
+  $("#sweep-past").onchange = () => openSweep($("#sweep-past").value);
+  loadSweepHistory();
   // Sweep cez noc: po zavretí a otvorení stránky sa mriežka nájde tam, kde skončila.
   try {
     const ulozeny = localStorage.getItem("sweep");
@@ -1113,6 +1157,16 @@ async function openRun(id) {
   const runMeta = strategyMeta(runStrategy) || state.meta;
   $("#detail-title").textContent = `${(strategySpec(runStrategy) || {}).title || runStrategy} · ${rec.settings.pair} · ${rec.settings.timeframe || "3m"} · ${rec.settings.timerange}`;
   $("#detail-meta").textContent = `${rec.id} · ${rec.user || ""} · ${(rec.created || "").replace("T", " ").slice(0, 16)} · profil ${rec.settings.profile || "(Pine)"} · poplatok ${rec.settings.fee != null ? (rec.settings.fee * 100).toFixed(3) + " %" : "—"} · peňaženka ${rec.settings.wallet} · engine ${rec.settings.engine || "freqtrade"}${rec.settings.exchange ? " (" + rec.settings.exchange + ")" : ""} · detail ${rec.settings.timeframe_detail || "bez"}${rec.note ? " · " + rec.note : ""}`;
+  // Beh z mriežky sa dá otvoriť aj z histórie, takže musí byť vidieť, že je jej súčasťou
+  // — a musí sa dať vrátiť späť na celú tabuľku.
+  const znacka = (rec.settings.sweep || {}).id;
+  const spat = $("#detail-sweep");
+  spat.hidden = !znacka;
+  if (znacka) {
+    spat.textContent = `↩ mriežka ${sweepStamp(znacka)}`;
+    spat.title = `celá mriežka ${znacka}`;
+    spat.onclick = () => { showView("new"); openSweep(znacka); };
+  }
   $("#download-profile").href = `/api/runs/${id}/profile.json`;
   $("#save-profile-msg").textContent = ""; $("#save-profile-msg").classList.remove("err");
   $("#detail-error").hidden = !rec.error; $("#detail-error").textContent = rec.error || "";
