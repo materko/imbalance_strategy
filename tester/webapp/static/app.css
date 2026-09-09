@@ -268,6 +268,24 @@ main.view.single { grid-template-columns: minmax(0, 1fr); }
 .headline { margin: 12px 0; padding: 10px 12px; border-radius: 9px; background: #eef6f8;
   font-size: 13px; max-width: 900px; }
 .an-runs { color: var(--muted); font-size: 11px; margin-top: 4px; }
+/* Charakter strategie: cisla, dokazy a co z toho vyplyva. */
+.ch-box { border: 1px solid var(--line); border-radius: 11px; padding: 12px 14px;
+  margin: 12px 0; max-width: 900px; }
+.ch-head { display: flex; align-items: center; gap: 10px; }
+.ch-head h3 { margin: 0; font-size: 15px; }
+.ch-evidence { margin: 8px 0; padding-left: 18px; color: var(--muted); font-size: 12px; }
+.ch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px 14px; margin: 10px 0; }
+.ch-grid > div { display: flex; flex-direction: column; }
+.ch-grid span { font-size: 10px; letter-spacing: .3px; color: var(--muted);
+  text-transform: uppercase; }
+.ch-grid b { font-size: 15px; font-variant-numeric: tabular-nums; }
+.ch-advice { margin: 8px 0 0; font-size: 12px; }
+.ch-advice dt { font-weight: 650; margin-top: 6px; }
+.ch-advice dd { margin: 2px 0 0; color: var(--muted); }
+.ch-types { margin: 0 0 12px; max-width: 900px; }
+.ch-types summary { cursor: pointer; font-size: 12px; color: var(--muted); }
+.ch-types td.wide { text-align: left; color: var(--muted); }
 #search-hint { grid-column: 1 / -1; margin: 0; }
 .inline-check { flex-direction: row; align-items: center; gap: 6px; }
 .inline-check input { width: auto; }

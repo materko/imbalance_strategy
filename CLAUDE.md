@@ -66,6 +66,7 @@ Podrobnosti: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) (prehľad a cesta dát
 [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) (návrh),
 [docs/FREQTRADE.md](docs/FREQTRADE.md) (krypto vetva), [docs/MULTICHARTS.md](docs/MULTICHARTS.md)
 (MultiCharts vetva), [docs/HYPEROPT.md](docs/HYPEROPT.md) (hľadanie parametrov, FreqAI),
+[docs/TYPY_STRATEGII.md](docs/TYPY_STRATEGII.md) (charakter stratégie a čo z neho vyplýva),
 [docs/DATA.md](docs/DATA.md) (dáta), [docs/WEBAPP.md](docs/WEBAPP.md)
 (Tester), [docs/RUNNING.md](docs/RUNNING.md) (rozcestník), [README.md](README.md).
 
