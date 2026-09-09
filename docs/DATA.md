@@ -225,13 +225,15 @@ v QuoteManageri (inak by sizing v Testeri a v MultiCharts nebol ten istý):
 ```
 
 Príkaz dopíše riadok do [`tradebot/core/instruments_dukascopy.json`](../tradebot/core/instruments_dukascopy.json)
-(odtiaľ ho vidí webapp, emulátor aj MultiCharts študia), vyrobí dáta a k tomu **kostru
-profilu** `docs/profily_archiv/ibs/<symbol>_dukas_3m.json`. Oboje commitni.
+(odtiaľ ho vidí webapp, emulátor aj MultiCharts študia) a vyrobí dáta. Oboje commitni.
 
-Kostra je kópia NAS100 profilu, takže **prahy v bodoch sú prevzaté z MNQ** — sedia len na
-podklade s podobnou mierkou pohybu (NAS100, US500). Na forexe alebo komoditách ich prepni
-na jednotku `atr` (`--set minImbSizePoints=0.5@atr`), rovnako ako pri ETH. Píše to aj
-`_comment` vo vygenerovanom profile.
+**Profil sa k tomu nevyrába.** Prahy v cenových bodoch platia len na podklade s podobnou
+mierkou pohybu, takže skopírovať ich z NAS100 na EURUSD (cena 1,08) alebo na kakao je
+nezmysel — a profil, ktorý vyzerá hotovo, sa nezmyslu ťažšie všimne než jeho neprítomnosti.
+Prvý beh na novom symbole preto choď bez `--profile` (Pine defaulty; inštrument si Tester
+nájde podľa páru) a veľkostné polia zadaj v jednotke `atr`
+(`--set minImbSizePoints=0.5@atr`), rovnako ako pri ETH. Keď z toho vypadne niečo, čo drží,
+ulož si to tlačidlom **Uložiť ako profil**.
 
 Bez `--point-value` príkaz neznámy symbol odmietne a vypíše, čo mu chýba — radšej chyba
 než ticho zlý sizing.
