@@ -361,8 +361,8 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
 
     params, settings = _prepare(args)
 
-    space = {}
-    for item in args.param:
+    space = ho.suggested(args.strategy) if args.suggested else {}
+    for item in args.param or []:
         if "=" not in item:
             raise SystemExit(f"--param chce NAZOV=HODNOTY, dostal {item!r}")
         name, spec = item.split("=", 1)
@@ -370,6 +370,9 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
         if name not in params:
             raise SystemExit(f"neznámy parameter {name!r} (pozri `python -m tester.webapp.cli params`)")
         space[name] = spec.strip()
+    if not space:
+        raise SystemExit("hyperopt potrebuje aspoň jeden --param (alebo --suggested pre "
+                         "priestor, ktorý stratégia odporúča)")
     warn_parity(space, args.strategy)
 
     try:
@@ -603,9 +606,12 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(func=cmd_sweep)
 
     p = sub.add_parser("hyperopt", help="hľadanie parametrov optimalizátorom (to isté zadanie ako sweep)")
-    p.add_argument("--param", action="append", required=True, metavar="NAZOV=HODNOTY",
+    p.add_argument("--param", action="append", metavar="NAZOV=HODNOTY",
                    help="rozsah `od:do:krok` (hľadá sa v ňom spojito) alebo zoznam `a,b,c` "
                         "(hľadá sa medzi nimi); dá sa opakovať")
+    p.add_argument("--suggested", action="store_true",
+                   help="priestor podľa odporúčania stratégie (`hyperopt_cls.SUGGESTED`) — "
+                        "to, čo na nej prežilo out-of-sample")
     p.add_argument("--goal", choices=tuple(_GOALS), default="break_even",
                    help="podľa čoho vybrať najlepšiu epochu (default break-even poplatok)")
     p.add_argument("--max-dd", type=float, help="strop na max drawdown v %%")

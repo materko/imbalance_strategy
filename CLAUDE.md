@@ -65,7 +65,8 @@ Bez obmedzení. Platia len konvencie repozitára:
 Podrobnosti: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) (prehľad a cesta dát),
 [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) (návrh),
 [docs/FREQTRADE.md](docs/FREQTRADE.md) (krypto vetva), [docs/MULTICHARTS.md](docs/MULTICHARTS.md)
-(MultiCharts vetva), [docs/DATA.md](docs/DATA.md) (dáta), [docs/WEBAPP.md](docs/WEBAPP.md)
+(MultiCharts vetva), [docs/HYPEROPT.md](docs/HYPEROPT.md) (hľadanie parametrov, FreqAI),
+[docs/DATA.md](docs/DATA.md) (dáta), [docs/WEBAPP.md](docs/WEBAPP.md)
 (Tester), [docs/RUNNING.md](docs/RUNNING.md) (rozcestník), [README.md](README.md).
 
 ---
@@ -153,6 +154,9 @@ PY -m tester.webapp.cli run --profile docs/profily_archiv/ibs/ethusdt_3m_binance
   určujú, čo je „najlepšie". Mriežka nemá strop, pokojne beží cez noc, a `cli sweeps`
   (alebo ponuka **Predošlá mriežka** vo webapp) sa k nej vráti
   ([tester/AI_TESTING.md §7](tester/AI_TESTING.md)).
+- Od troch parametrov `cli hyperopt --param rrRatio=2:8:0.5 …` (alebo `--suggested`): to
+  isté zadanie, ale hľadá sa v rozsahu a víťaz sa sám preverí na piatich referenčných
+  oknách — [docs/HYPEROPT.md](docs/HYPEROPT.md).
 - Poplatok `--fee 0.0005` (Binance taker 0,05 %) a `--wallet 10000` sú default; pri
   porovnávaní s TradingView použi `--fee 0` a profil `*_ny_sl` (1 BTC)
   z `docs/profily_archiv/`. Peňaženka musí byť **rovná initial capital z grafu**
