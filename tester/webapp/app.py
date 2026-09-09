@@ -476,20 +476,25 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 "goal_note": goal_note, "minutes": minutes}
 
     @app.get("/api/sweeps")
-    def sweeps_list(limit: int = 50):
-        """Mriežky z histórie, od najnovšej.
+    def sweeps_list(limit: int = 50, strategy: str | None = None):
+        """Mriežky z histórie, od najnovšej; `strategy` obmedzí na jednu stratégiu.
 
         Nikde sa neukladajú zvlášť — značka `settings.sweep` je v každom behu, takže
         zoznam je len preskupená história. Vďaka tomu prežije reštart aj `git pull`
         cudzích behov a nedá sa rozísť s tým, čo je naozaj odbehnuté.
+
+        Filter podľa stratégie nie je pohodlie: parametre sú v každej stratégii iné,
+        takže mriežka cez `rrRatio` nemá v ponuke pre Donchian breakout čo robiť.
         """
+        if strategy is not None and strategy not in STRATEGIES:
+            raise HTTPException(404, f"neznáma stratégia {strategy!r}")
         from .. import sweep as sweep_mod
 
         skupiny: dict[str, dict[str, Any]] = {}
         for rec in list(store.all()) + list(runner.snapshot()):
             tag = (rec.get("settings") or {}).get("sweep") or {}
             sweep_id = tag.get("id")
-            if not sweep_id:
+            if not sweep_id or (strategy is not None and strategy_of(rec) != strategy):
                 continue
             nastavenia = rec["settings"]
             polozka = skupiny.setdefault(sweep_id, {
@@ -501,7 +506,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 "pair": nastavenia.get("pair"),
                 "timeframe": nastavenia.get("timeframe"),
                 "timerange": nastavenia.get("timerange"),
-                "strategy": nastavenia.get("strategy") or "ibs",
+                "strategy": strategy_of(rec),
                 "user": rec.get("user") or "",
                 "done": 0, "pending": 0,
             })

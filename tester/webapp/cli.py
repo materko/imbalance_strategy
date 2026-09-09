@@ -214,10 +214,15 @@ def cmd_sweeps(args: argparse.Namespace) -> int:
     skupiny: dict[str, list[dict]] = {}
     for rec in zaznamy:
         tag = (rec.get("settings") or {}).get("sweep") or {}
+        # Parametre su v kazdej strategii ine, takze mriezka cez rrRatio nema pri
+        # Donchian breakoute co robit - zoznam patri strategii.
+        if args.strategy and (rec.get("settings") or {}).get("strategy", "ibs") != args.strategy:
+            continue
         if tag.get("id"):
             skupiny.setdefault(tag["id"], []).append(rec)
     if not skupiny:
-        print("v historii nie je ziadna mriezka (sweep)")
+        kde = f" pre strategiu {args.strategy}" if args.strategy else ""
+        print(f"v historii nie je ziadna mriezka (sweep){kde}")
         return 0
 
     if args.sweep_id:
@@ -474,6 +479,7 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser("sweeps", help="mriežky z histórie; s argumentom vypíše tabuľku jednej")
     p.add_argument("sweep_id", nargs="?", help="značka mriežky (bez nej sa vypíše zoznam)")
+    p.add_argument("--strategy", help="len mriežky tejto stratégie (parametre sú v každej iné)")
     p.add_argument("--limit", type=int, default=30)
     p.set_defaults(func=cmd_sweeps)
 
