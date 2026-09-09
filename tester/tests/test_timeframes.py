@@ -205,3 +205,18 @@ def test_split_bez_manifestu_archivuje_vsetko(sklad, tmp_path, monkeypatch):
     da.split(verbose=False, skip=set())
 
     assert (archive / "binance" / "spot" / "BTC_USDT-3m.2025.feather").exists()
+
+
+def test_merge_zrusi_znacku_odvodeneho(sklad, config, tmp_path, monkeypatch):
+    """Čo príde z archívu, je zase originál — inak by `split` neskoršiu aktualizáciu zahodil."""
+    manifest = sklad / ".derived.json"
+    monkeypatch.setattr("tradebot.core.derived.MANIFEST", manifest)
+    tf.ensure(sklad, config, verbose=False, manifest=manifest)
+    assert any("BTC_USDT-5m" in p.name for p in tf.derived(manifest))
+
+    archive = tmp_path / "archive"
+    monkeypatch.setattr(da, "ROOTS", ((archive, sklad),))
+    da.split(verbose=False, skip=set())          # aj odvodené (simuluje stiahnuté dáta)
+    da.merge(verbose=False)
+
+    assert not any("BTC_USDT-5m" in p.name for p in tf.derived(manifest))

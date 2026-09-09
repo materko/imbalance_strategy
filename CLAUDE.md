@@ -45,7 +45,9 @@ Bez obmedzení. Platia len konvencie repozitára:
   `20240904-20250904`, `20250904-20260904`); kľúčová metrika je break-even poplatok.
 - Sťahujú a commitujú sa len oficiálne timeframy búrz (po rokoch v `data_archive/tester/`);
   zvyšok podľa [`tester/timeframes.json`](tester/timeframes.json) dopočíta `tester.timeframes`
-  z 1m pri štarte webapp — nič stiahnuté neprepíše a dopočítané do archívu nejde.
+  z 1m pri štarte webapp a čo aj tak chýba, si poskladá stratégia sama
+  (`TradebotStrategyBase.ensure_timeframe`, len v backteste/hyperopte) — nič stiahnuté sa
+  neprepíše a dopočítané do archívu nejde.
   Freqtrade beží len na TF, ktoré pozná jeho burza (2m a 4m sú preto len pre emulátor).
   Surový Dukascopy export spracuje `tester.dukas_import`
   (obal `./dukas-import.sh`, `.\dukas-import.ps1`) — viď [docs/DATA.md](docs/DATA.md).

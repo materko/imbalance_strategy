@@ -28,10 +28,11 @@ import json
 from pathlib import Path
 
 from tradebot.core.candles import timeframe_minutes as minutes
-from tradebot.core.paths import DERIVED_MANIFEST, TESTER_DATA
+from tradebot.core.derived import MANIFEST, derived, forget, remember
+from tradebot.core.paths import TESTER_DATA
 
 __all__ = ["CONFIG", "SOURCE_TF", "wanted", "minutes", "sources", "targets",
-           "missing", "ensure", "derived", "remember", "main"]
+           "missing", "ensure", "derived", "forget", "remember", "main"]
 
 #: Konfigurácia — jediné miesto, kde sa zoznam timeframov mení.
 CONFIG = Path(__file__).with_name("timeframes.json")
@@ -42,9 +43,9 @@ SOURCE_TF = "1m"
 #: Keď config chýba alebo je pokazený (klon bez neho, preklep v JSON).
 FALLBACK: tuple[str, ...] = ("2m", "3m", "4m", "5m", "15m", "30m", "1h", "4h", "1d", "1w")
 
-#: Zoznam vyrobených súborov, aby ich `data_archive split` nepridal do gitu.
-#: Cesty v ňom sú relatívne k adresáru, v ktorom leží.
-MANIFEST = DERIVED_MANIFEST
+#: Zoznam vyrobených súborov, aby ich `data_archive split` nepridal do gitu. Vedie ho
+#: jadro (`tradebot.core.derived`), lebo doň píše aj Freqtrade adaptér, keď si timeframe
+#: dopočíta počas behu.
 
 def wanted(config: Path | None = None) -> tuple[str, ...]:
     """Timeframy zo `timeframes.json`, bez zdrojového 1m."""
@@ -88,56 +89,6 @@ def missing(root: Path | None = None, config: Path | None = None) -> list[Path]:
     return [out for outs in targets(root, config).values() for out in outs if not out.exists()]
 
 
-def derived(manifest: Path | None = None) -> list[Path]:
-    """Súbory, ktoré vyrobil tento modul — z manifestu vedľa sviečok."""
-    path = Path(manifest or MANIFEST)
-    try:
-        rows = json.loads(path.read_text(encoding="utf-8"))["files"]
-    except (OSError, ValueError, KeyError, TypeError):
-        return []
-    return [path.parent / row for row in rows]
-
-
-def remember(made: list[Path], manifest: Path | None = None) -> None:
-    """Zapíše súbory ako odvodené — `data_archive split` ich potom preskočí.
-
-    Volá to aj `dukas_import`: sviečky, ktoré si sám poskladá z 1m, sú rovnako odvodené
-    ako tie odtiaľto a v archíve nemajú čo robiť.
-    """
-    _remember(Path(manifest or MANIFEST), [Path(p) for p in made])
-
-
-def _under(root: Path, paths: list[Path]) -> set[str]:
-    """Cesty relatívne ku koreňu manifestu; čo je mimo neho, sa nezapisuje.
-
-    Súbory vyrobené inam (`dukas_import --ft-datadir` do dočasného adresára, testy) nemá
-    zmysel v manifeste evidovať — `split` sa na ne aj tak nikdy nepozrie.
-    """
-    out = set()
-    for p in paths:
-        try:
-            out.add(p.resolve().relative_to(root.resolve()).as_posix())
-        except ValueError:
-            continue
-    return out
-
-
-def _remember(manifest: Path, made: list[Path]) -> None:
-    root = manifest.parent
-    known = _under(root, [p for p in derived(manifest) if p.exists()]) | _under(root, made)
-    if not known:
-        return
-    manifest.parent.mkdir(parents=True, exist_ok=True)
-    manifest.write_text(
-        json.dumps({
-            "_comment": "Odvodene z 1m (tester/timeframes.py). Do gitu nejdu, "
-                        "`data_archive split` ich preskakuje.",
-            "files": sorted(known),
-        }, indent=2) + "\n",
-        encoding="utf-8",
-    )
-
-
 def ensure(root: Path | None = None, config: Path | None = None, force: bool = False,
            verbose: bool = True, manifest: Path | None = None) -> list[Path]:
     """Doplní chýbajúce timeframy z 1m. Vráti, čo vzniklo."""
@@ -160,7 +111,7 @@ def ensure(root: Path | None = None, config: Path | None = None, force: bool = F
                 print(f"  {out.relative_to(base).as_posix()}  {len(part):>8} barov  "
                       f"{out.stat().st_size / 1e6:.1f} MB")
     if made:
-        _remember(Path(manifest) if manifest else (base / MANIFEST.name), made)
+        remember(made, Path(manifest) if manifest else (base / MANIFEST.name))
     return made
 
 

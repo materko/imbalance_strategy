@@ -143,6 +143,8 @@ def merge_root(archive: Path, data: Path, verbose: bool = True) -> list[Path]:
         out_paths.append(out)
         if verbose:
             print(f"  {rel}  {len(df):>8} barov z {len(parts)} rokov")
+    # Čo prišlo z archívu, je zase originál — nesmie ostať označené ako dopočítané
+    timeframes.forget(out_paths)
     return out_paths
 
 
