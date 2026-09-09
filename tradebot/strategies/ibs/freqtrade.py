@@ -14,8 +14,6 @@ from datetime import datetime
 
 from pandas import DataFrame
 
-from freqtrade.strategy import DecimalParameter, IntParameter
-
 from tradebot.adapters.freqtrade.base import TradebotStrategyBase, _bar, _ts_ms
 from tradebot.adapters.freqtrade.runner import EngineRunner
 from tradebot.core.candles import timeframe_minutes
@@ -39,48 +37,11 @@ class IBSImbalanceStrategy(TradebotStrategyBase):
 
     timeframe = "3m"
 
-    # ------------------------------------------------------------------ #
-    # Hyperopt priestor
-    #
-    # Parametre stratégie žijú v `IBSConfig`, nie vo Freqtrade. Tieto objekty sú
-    # len most: `_apply_hyperopt_params()` ich pred každým výpočtom vloží do configu.
-    #
-    # POZOR - priestor je zámerne MALÝ a obsahuje len parametre, ktoré menia
-    # **štruktúru** obchodu, nie citlivosť filtra.
-    #
-    # Prvá verzia ladila desať prahov v jednotke `atr` plus prepínače entry modelov
-    # a dopadla presne tak, ako sa to pri desiatich stupňoch voľnosti a ~150 obchodoch
-    # za rok dá čakať: víťazná epocha bola na ladenom roku +34,8 %, ale **všetky štyri**
-    # out-of-sample roky boli stratové (−11 % až −65 %), viď docs/merania/HYPEROPT_btcusdt_2026-09-04.md.
-    #
-    # Čo naopak prežilo naprieč piatimi rokmi, boli zmeny s jedným stupňom voľnosti:
-    # `rrRatio`, `slLookback` a zapnutie štruktúrneho filtra. Preto sa ladia práve
-    # tie tri - a `structureSwingLen`, ktorý sa nikdy neladil, hoci filter, ktorý ho
-    # používa, je najsilnejšia páka, akú sme našli.
-    #
-    # STATE timeouty ani sizing sa neladia - tie su prevzate z TradingView
-    # a menili by paritu. Obchodne okno seansy 2 je vynimka, viz nizsie.
-    # ------------------------------------------------------------------ #
-
-    p_rr = DecimalParameter(1.0, 8.0, default=5.0, decimals=1, space="sell", optimize=True)
-    p_sl_lookback = IntParameter(5, 40, default=20, space="sell", optimize=True)
-    p_struct_len = IntParameter(3, 25, default=5, space="buy", optimize=True)
-
-    #: Obchodne okno seansy 2 (New York) - jediny casovy parameter, ktory sa ladi.
-    #: Duvod: rozdelenie po seansach ukazalo, ze cely edge je v NY seanse (break-even
-    #: 0,0944 % a kladny vo vsetkych piatich rokoch), kym londynska seansa ma -0,0007 %
-    #: a len riedi vysledok. Ked jedno okno rozhoduje o vsetkom, oplati sa vediet, ci
-    #: je nastavene spravne. Ladia sa len CELE hodiny a len obchodne okno - okno vzniku
-    #: zon ostava, aby zony vznikali rovnako. Zije v priestore "protection", takze sa
-    #: zapina samostatne cez --spaces protection a nemiesa sa do ostatnych behov.
-    p_s2_start = IntParameter(6, 15, default=10, space="protection", optimize=True)
-    p_s2_end = IntParameter(11, 23, default=15, space="protection", optimize=True)
-
-    #: Ktorý hyperopt parameter ide do ktorého poľa configu (celé čísla).
-    _INT_PARAMS = {
-        "slLookback": "p_sl_lookback",
-        "structureSwingLen": "p_struct_len",
-    }
+    # Hyperopt priestor tu NIE JE. Čo sa ladí, si volí tester vo formulári a plán
+    # z toho pri importe triedy dorobí Freqtrade parametre
+    # (`tradebot/adapters/freqtrade/hyperplan.py`). Čo o ladení IBS vieme — odporúčané
+    # parametre, pred čím varovať a väzba „koniec okna za začiatkom" — je v
+    # `tradebot/strategies/ibs/hyperopt.py`, teda pri stratégii, nie v adaptéri.
 
     # -- IBS názvy configu a nástroja (testy a hyperopt kód ich používajú) -------
 
@@ -139,32 +100,6 @@ class IBSImbalanceStrategy(TradebotStrategyBase):
                 "= %d min. Freqtrade zruší limitky skôr než engine; nastav aspoň %d.",
                 minutes, need, need,
             )
-
-    def _apply_hyperopt_params(self) -> None:
-        """Vloží hodnoty hyperopt parametrov do `ibs_cfg`.
-
-        Volá sa na začiatku `populate_indicators`, teda EŠTE PRED `_runner()` —
-        odtlačok configu tak zmenu uvidí a runner sa postaví nanovo.
-
-        **Hyperopt sa MUSÍ spúšťať s `--analyze-per-epoch`.** Freqtrade štandardne
-        počíta `populate_indicators` len raz pre celý beh a per-epochu prepočítava
-        iba `populate_entry_trend` — lebo predpokladá, že parametre priestoru „buy"
-        ovplyvňujú len signály. Celý náš engine ale beží v `populate_indicators`,
-        takže bez toho prepínača dá každá epocha ten istý výsledok. Prejaví sa to
-        tak, že všetkých N epoch má identický PnL aj počet obchodov.
-        """
-        if not self.hyperopt_active:
-            return
-        for field, attr in self._INT_PARAMS.items():
-            setattr(self.ibs_cfg, field, int(getattr(self, attr).value))
-        self.ibs_cfg.rrRatio = float(self.p_rr.value)
-
-        # Okno musi mat kladnu dlzku. Hyperopt obmedzenia medzi parametrami nevie
-        # vyjadrit, takze sa koniec posunie za zaciatok tu - inak by cela vetva
-        # priestoru davala nula obchodov a optimalizator by v nej blúdil naslepo.
-        start, end = int(self.p_s2_start.value), int(self.p_s2_end.value)
-        self.ibs_cfg.sess2TradeStartH = start
-        self.ibs_cfg.sess2TradeEndH = max(end, start + 1)
 
     # ------------------------------------------------------------------ #
     # HTF: sviečky detekčného TF zón

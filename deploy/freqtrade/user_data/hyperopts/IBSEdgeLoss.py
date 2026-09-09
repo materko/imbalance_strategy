@@ -24,7 +24,7 @@ from datetime import datetime
 
 from pandas import DataFrame
 
-from freqtrade.optimize.hyperopt import IHyperOptLoss
+from freqtrade.optimize.hyperopt_loss.hyperopt_loss_interface import IHyperOptLoss
 
 #: Pod týmto počtom obchodov za 90 dní je výsledok šum. Nižšie než v
 #: `IBSHyperOptLoss`, lebo štruktúrny filter počet obchodov legitímne polovičí

@@ -954,6 +954,8 @@ def test_tu_istu_mriezku_druhy_raz_nezaradime(client, monkeypatch):
     monkeypatch.setattr(app_mod.engines, "available",
                         lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
     monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+    # Testujeme cakajucu frontu; rychly podproces nesmie nahodou dobehnut pred GET.
+    monkeypatch.setattr(c.app.state.runner, "start", lambda: None)
 
     assert c.post("/api/sweeps", json=_sweep_body()).status_code == 200
     znova = c.post("/api/sweeps", json=_sweep_body())
@@ -1038,6 +1040,8 @@ def test_zoznam_mriezok_sa_posklada_z_historie(client, monkeypatch):
     monkeypatch.setattr(app_mod.engines, "available",
                         lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
     monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+    # Testujeme cakajucu frontu; rychly podproces nesmie nahodou dobehnut pred GET.
+    monkeypatch.setattr(c.app.state.runner, "start", lambda: None)
 
     for i, rr in enumerate([2, 3]):
         rec = _record(f"2026090{i + 1}-120000-aaaa0{i}")
@@ -1068,6 +1072,8 @@ def test_historia_mriezok_patri_strategii(client, monkeypatch):
     monkeypatch.setattr(app_mod.engines, "available",
                         lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
     monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+    # Testujeme cakajucu frontu; rychly podproces nesmie nahodou dobehnut pred GET.
+    monkeypatch.setattr(c.app.state.runner, "start", lambda: None)
 
     for i, (strategia, znacka) in enumerate([("ibs", "20260901-120000-aaaa"),
                                              ("demo_breakout", "20260902-120000-bbbb")]):

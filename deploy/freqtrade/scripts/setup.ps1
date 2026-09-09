@@ -40,7 +40,11 @@ Write-Host "Aktualizujem pip..."
 & $py -m pip install --upgrade pip --quiet
 
 Write-Host "Instalujem freqtrade (chvilu to trva)..."
-& $py -m pip install freqtrade
+# Extra `hyperopt` doklada optuna, cmaes, filelock a scikit-learn - bez nich sa
+# `freqtrade hyperopt` ani nenaimportuje (ModuleNotFoundError: optuna).
+# joblib < 1.6: v 1.6 zmizol `joblib.externals.cloudpickle`, ktory freqtrade
+# 2026.8 v hyperopt_optimizer importuje.
+& $py -m pip install "freqtrade[hyperopt]" "joblib<1.6"
 if ($LASTEXITCODE -ne 0) { throw "instalacia freqtrade zlyhala" }
 
 Write-Host "Instalujem lokalny balik tradebot (editovatelne)..."
