@@ -35,6 +35,8 @@ reports/
 
 # webapp: docasne profily behov a konfiguracia Claude Code
 tester/runs/.profiles/
+# Plany hyperopt priestoru: docasne, patria k behu a nesu ich jeho settings.
+tester/runs/.plans/
 .claude/
 
 # rola pre Claude Code v tomto klone (tester | developer) - kazdy klon ma vlastnu
