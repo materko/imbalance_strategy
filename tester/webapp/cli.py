@@ -204,6 +204,10 @@ def cmd_run(args: argparse.Namespace) -> int:
 def cmd_sweep(args: argparse.Namespace) -> int:
     """Mriežka behov cez zadané parametre a výber podľa kritéria."""
     from datetime import datetime, timezone
+    from uuid import uuid4
+
+    from tradebot.core.config import ConfigError
+    from tradebot.strategies import STRATEGIES
 
     from .. import sweep as sweep_mod
 
@@ -225,11 +229,24 @@ def cmd_sweep(args: argparse.Namespace) -> int:
     points = sweep_mod.expand(space)
     if len(points) > args.max_runs:
         raise SystemExit(
-            f"mriežka má {len(points)} behov, limit je {args.max_runs} (--max-runs). "
+            f"mriežka má {len(points)} behov, strop je {args.max_runs} (--max-runs). "
             "Zúž rozsah alebo krok - každý bod je celý backtest.")
 
+    # Celá mriežka sa overí naraz: keby hodnota mimo Pine rozsahu vypadla až v piatom
+    # bode, tester by mal za sebou štyri hotové backtesty a sweep by skončil na výnimke.
+    config_cls = STRATEGIES[args.strategy].config_cls
+    for point in points:
+        merged = {**params, **point}
+        try:
+            config_cls.from_dict({k: v for k, v in merged.items() if not k.startswith("_")})
+        except ConfigError as exc:
+            popis = ", ".join(f"{k}={sweep_mod._fmt(v)}" for k, v in point.items())
+            raise SystemExit(f"bod {popis}: {exc}")
+
     zadanie = sweep_mod.describe(args.goal, args.max_dd, args.min_trades)
-    sweep_id = f"{datetime.now(timezone.utc):%Y%m%d-%H%M%S}"
+    # Sekunda nestačí: dva sweepy rýchlo za sebou by mali tú istú značku a v tabuľke
+    # by sa zliali do jednej mriežky.
+    sweep_id = f"{datetime.now(timezone.utc):%Y%m%d-%H%M%S}-{uuid4().hex[:4]}"
     print(f"sweep {sweep_id}: {len(points)} behov, kriterium: {zadanie}")
     print(f"  {', '.join(f'{k} = {v}' for k, v in space.items())}\n")
 
@@ -401,7 +418,9 @@ def main(argv: list[str] | None = None) -> int:
                    help="podľa čoho vybrať najlepší beh (default break-even poplatok)")
     p.add_argument("--max-dd", type=float, help="strop na max drawdown v %%")
     p.add_argument("--min-trades", type=int, help="minimálny počet obchodov, inak je bod mimo")
-    p.add_argument("--max-runs", type=int, default=40, help="poistka na veľkosť mriežky (default 40)")
+    p.add_argument("--max-runs", type=int, default=300,
+                   help="poistka proti preklepu v kroku (default 300); cena mriežky je čas, "
+                        "rok backtestu je ~30 s na bod")
     _run_args(p)
     p.set_defaults(func=cmd_sweep)
 

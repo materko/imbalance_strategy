@@ -19,6 +19,7 @@ from collections import OrderedDict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse
@@ -207,6 +208,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             "exchanges": [{"key": e, "title": engines.EXCHANGE_TITLES.get(e, e)}
                           for e in engines.EXCHANGES],
             "default_exchange": engines.DEFAULT_EXCHANGE,
+            # Strop mriežky a cena jedného roka behu — stránka z toho poskladá odhad času.
+            "max_sweep_runs": MAX_SWEEP_RUNS,
+            "sweep_seconds_per_year": SECONDS_PER_YEAR,
             "strategy_meta": by_key,
             "pairs": pairs,
             "user": current_user(),
@@ -377,8 +381,27 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(422, str(exc))
         return job.public()
 
-    #: Strop na veľkosť mriežky — každý bod je celý backtest, nie riadok v tabuľke.
-    MAX_SWEEP_RUNS = 40
+    #: Strop na počet behov v mriežke. Nie je to výkonový limit, ale poistka proti
+    #: preklepu v kroku (`1:100:0.1` je 991 backtestov) — cena mriežky sa platí časom,
+    #: nie pamäťou, a ten si tester vie prečítať z odhadu vo výsledku. Kto chce viac,
+    #: zdvihne `TRADEBOT_MAX_SWEEP_RUNS`.
+    MAX_SWEEP_RUNS = max(1, int(getenv("MAX_SWEEP_RUNS", "300") or 300))
+
+    #: Meraný čas jedného roka backtestu s 1m detailom na tomto stroji (~30 s).
+    #: Slúži len na odhad „ako dlho to pobeží", nie na rozhodovanie.
+    SECONDS_PER_YEAR = 30
+
+    def _sweep_minutes(points: int, timerange: str) -> int:
+        """Hrubý odhad, ako dlho mriežka pobeží — behy idú za sebou, jeden po druhom."""
+        try:
+            a, b = (datetime.strptime(x, "%Y%m%d") for x in timerange.split("-"))
+        except ValueError:
+            return 0
+        years = max((b - a).days, 1) / 365.0
+        return max(1, round(points * years * SECONDS_PER_YEAR / 60))
+
+    def _point_note(point: dict[str, Any]) -> str:
+        return ", ".join(f"{k}={_fmt_value(v)}" for k, v in point.items())
 
     @app.post("/api/sweeps")
     def sweep_start(req: SweepRequest):
@@ -404,24 +427,41 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(422, "sweep potrebuje aspoň jeden parameter")
 
         points = sweep_mod.expand(space)
+        minutes = _sweep_minutes(len(points), req.timerange)
         if len(points) > MAX_SWEEP_RUNS:
-            raise HTTPException(422, f"mriežka má {len(points)} behov, limit je {MAX_SWEEP_RUNS} — "
-                                     "každý bod je celý backtest, zúž rozsah alebo krok")
+            raise HTTPException(422, (
+                f"mriežka má {len(points)} behov (odhadom {minutes} min), strop je {MAX_SWEEP_RUNS} — "
+                "zúž rozsah alebo krok; strop sa dá zdvihnúť premennou TRADEBOT_MAX_SWEEP_RUNS"))
 
-        sweep_id = f"{datetime.now(timezone.utc):%Y%m%d-%H%M%S}"
+        # Celá mriežka sa overí ešte pred zaradením: keby prvý bod prešiel a piaty mal
+        # hodnotu mimo Pine rozsahu, tester by mal vo fronte štyri behy a chybu k tomu.
+        config_cls = STRATEGIES[req.strategy].config_cls
+        for point in points:
+            merged = {**req.params, **point}
+            try:
+                config_cls.from_dict({k: v for k, v in merged.items() if not k.startswith("_")})
+                check_market_rules(req.pair, merged)
+            except (ConfigError, ValueError) as exc:
+                raise HTTPException(422, f"bod {_point_note(point)}: {exc}")
+
+        base = _run_settings(req)
+        # Sekunda nestačí: dva sweepy spustené rýchlo za sebou by mali tú istú značku
+        # a v tabuľke by sa zliali do jednej mriežky.
+        sweep_id = f"{datetime.now(timezone.utc):%Y%m%d-%H%M%S}-{uuid4().hex[:4]}"
         goal_note = sweep_mod.describe(req.goal, req.max_dd, req.min_trades)
         ids = []
         for point in points:
-            settings = _run_settings(req)
-            settings["sweep"] = {"id": sweep_id, "values": point, "goal": req.goal,
-                                 "max_dd": req.max_dd, "min_trades": req.min_trades}
-            popis = ", ".join(f"{k}={_fmt_value(v)}" for k, v in point.items())
-            note = f"sweep {sweep_id}: {popis}" + (f" — {req.note}" if req.note else "")
-            job = runner.submit({**req.params, **point}, settings, note=note,
-                                user=_clean_user(req.user))
+            settings = {**base, "sweep": {"id": sweep_id, "values": point, "goal": req.goal,
+                                          "max_dd": req.max_dd, "min_trades": req.min_trades}}
+            note = f"sweep {sweep_id}: {_point_note(point)}" + (f" — {req.note}" if req.note else "")
+            try:
+                job = runner.submit({**req.params, **point}, settings, note=note,
+                                    user=_clean_user(req.user))
+            except (ConfigError, ValueError) as exc:  # sieť pod sieťou, keby overenie niečo minulo
+                raise HTTPException(422, f"bod {_point_note(point)}: {exc}")
             ids.append(job.id)
         return {"id": sweep_id, "runs": ids, "points": len(points), "goal": req.goal,
-                "goal_note": goal_note}
+                "goal_note": goal_note, "minutes": minutes}
 
     @app.get("/api/sweeps/{sweep_id}")
     def sweep_detail(sweep_id: str):
