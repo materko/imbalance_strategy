@@ -824,7 +824,7 @@ def test_sweep_zaradi_kazdy_bod_ako_samostatny_beh(client, monkeypatch):
     assert {j["settings"]["sweep"]["id"] for j in jobs} == {body["id"]}
 
 
-def test_sweep_odmietne_prilis_velku_mriezku_a_nezmysly(client, monkeypatch):
+def test_sweep_odmietne_nezmyselne_zadanie(client, monkeypatch):
     from tester.webapp import app as app_mod
 
     c, _ = client
@@ -832,11 +832,73 @@ def test_sweep_odmietne_prilis_velku_mriezku_a_nezmysly(client, monkeypatch):
                         lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
     monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
 
-    assert c.post("/api/sweeps", json=_sweep_body(space={"rrRatio": "1:100:1"})).status_code == 422
     assert c.post("/api/sweeps", json=_sweep_body(space={"nieco": "1,2"})).status_code == 422
     assert c.post("/api/sweeps", json=_sweep_body(space={})).status_code == 422
     assert c.post("/api/sweeps", json=_sweep_body(goal="nieco")).status_code == 422
     assert c.post("/api/sweeps", json=_sweep_body(space={"rrRatio": "2:6"})).status_code == 422
+
+
+def test_sweep_s_hodnotou_mimo_rozsahu_nezaradi_nic(client, monkeypatch):
+    """Regresia: bod mimo Pine rozsahu padal až v `submit` a stránka dostala 500.
+
+    Mriežka sa preto overí celá ešte pred zaradením — inak by pri chybe v piatom bode
+    ostali vo fronte štyri behy a tester by k tomu dostal hlášku, ktorá nesúvisí.
+    """
+    from tester.webapp import app as app_mod
+
+    c, _ = client
+    monkeypatch.setattr(app_mod.engines, "available",
+                        lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+
+    r = c.post("/api/sweeps", json=_sweep_body(space={"rrRatio": "0:3:1"}))
+    assert r.status_code == 422
+    assert "rrRatio=0" in r.json()["detail"] and "mimo rozsahu" in r.json()["detail"]
+    assert c.get("/api/queue").json() == []
+
+
+def test_strop_mriezky_sa_da_zdvihnut(tmp_path, monkeypatch):
+    """Strop je poistka proti preklepu v kroku, nie výkonový limit — preto sa dá posunúť."""
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.webapp import app as app_mod
+    from tester.webapp.runner import BacktestRunner
+
+    monkeypatch.setattr(app_mod.engines, "available",
+                        lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+
+    def app_with_cap(cap: str):
+        monkeypatch.setenv("TRADEBOT_MAX_SWEEP_RUNS", cap)
+        runner = BacktestRunner(RunStore(tmp_path / cap),
+                                command_builder=lambda *a: ["python", "-c", "raise SystemExit(0)"])
+        return TestClient(app_mod.create_app(RunStore(tmp_path / cap), runner))
+
+    tesna = app_with_cap("4")
+    r = tesna.post("/api/sweeps", json=_sweep_body(space={"rrRatio": "2:10:1"}))   # 9 bodov
+    assert r.status_code == 422 and "strop je 4" in r.json()["detail"]
+    assert tesna.get("/api/meta").json()["max_sweep_runs"] == 4
+
+    siroka = app_with_cap("50")
+    assert siroka.post("/api/sweeps", json=_sweep_body(space={"rrRatio": "2:10:1"})).status_code == 200
+
+
+def test_sweep_hlasi_odhad_casu_a_ma_vlastnu_znacku(client, monkeypatch):
+    """Rok backtestu je ~30 s, takže mriežka je otázka času, nie počtu riadkov."""
+    from tester.webapp import app as app_mod
+
+    c, _ = client
+    monkeypatch.setattr(app_mod.engines, "available",
+                        lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+
+    prvy = c.post("/api/sweeps", json=_sweep_body()).json()
+    druhy = c.post("/api/sweeps", json=_sweep_body()).json()
+
+    assert prvy["minutes"] == 2                      # 3 body x rok x 30 s
+    # Dva sweepy v tej istej sekunde sa nesmú zliať do jednej mriežky.
+    assert prvy["id"] != druhy["id"]
 
 
 def test_sweep_detail_zoradi_podla_kriteria(client):

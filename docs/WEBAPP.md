@@ -204,7 +204,12 @@ seáns, sizing), chyba sa ukáže vo formulári a nič sa nespustí.
 Rozbaľovacia sekcia pod formulárom. Vyberieš parameter a hodnoty — rozsah `od:do:krok`
 alebo zoznam `a,b,c` — a appka pustí mriežku behov: **každý bod je obyčajný backtest**,
 ide do tej istej fronty a do histórie, takže sa dá otvoriť, porovnať aj prehnať Monte
-Carlom. Parametrov môže byť viac (vznikne kartézsky súčin, strop je 40 behov).
+Carlom. Parametrov môže byť viac — vznikne kartézsky súčin.
+
+Cena mriežky je **čas, nie počet riadkov**: behy idú za sebou a rok s 1m detailom je asi
+30 sekúnd, takže tlačidlo hovorí aj odhad („20 behov ≈ 10 min"). Strop je 300 behov a je
+to poistka proti preklepu v kroku (`1:100:0.1` je 991 backtestov), nie výkonový limit —
+posunie ho premenná `TRADEBOT_MAX_SWEEP_RUNS`.
 
 **Vybrať podľa** hovorí, čo je lepšie — bez toho sa „optimálne" nedá určiť: najvyšší
 break-even poplatok (predvolené, nezávisí od sizingu ani peňaženky), najvyšší zisk,

@@ -803,18 +803,43 @@ function sweepSpace() {
   return space;
 }
 
+/** Odhad, ako dlho mriežka pobeží — behy idú za sebou, jeden po druhom. */
+function sweepMinutes(total) {
+  const a = $("#from").value, b = $("#to").value;
+  const days = (new Date(b) - new Date(a)) / 86400000;
+  if (!(days > 0)) return 0;
+  const perYear = state.meta.sweep_seconds_per_year || 30;
+  return Math.max(1, Math.round(total * (days / 365) * perYear / 60));
+}
+
+function fmtMinutes(min) {
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60), m = min % 60;
+  return m ? `${h} h ${m} min` : `${h} h`;
+}
+
 function refreshSweep() {
   const space = sweepSpace();
   const count = Object.values(space).reduce((n, spec) => n * (sweepPoints(spec) || 0), 1);
   const total = Object.keys(space).length ? count : 0;
-  $("#sweep-run").textContent = total ? `▶ Spustiť sweep (${total} behov)` : "▶ Spustiť sweep";
-  $("#sweep-run").disabled = !total || total > 40;
+  const cap = state.meta.max_sweep_runs || 300;
+  const min = total ? sweepMinutes(total) : 0;
+  $("#sweep-run").textContent = total
+    ? `▶ Spustiť sweep (${total} behov${min ? ` ≈ ${fmtMinutes(min)}` : ""})`
+    : "▶ Spustiť sweep";
+  $("#sweep-run").disabled = !total || total > cap;
 
   const meta = metaByName();
   const risky = Object.keys(space).filter(n => meta[n] && meta[n].breaks_parity);
   const warn = $("#sweep-warn");
   const parts = [];
-  if (total > 40) parts.push(`Mriežka má ${total} behov, limit je 40 — každý bod je celý backtest.`);
+  if (total > cap) {
+    parts.push(`Mriežka má ${total} behov, strop je ${cap}. Zúž rozsah alebo krok`
+      + " (strop dvíha premenná TRADEBOT_MAX_SWEEP_RUNS).");
+  } else if (min >= 60) {
+    parts.push(`${total} behov je odhadom ${fmtMinutes(min)} — každý bod je celý backtest`
+      + " a idú za sebou. Kratšie obdobie alebo hrubší krok to skráti.");
+  }
   if (risky.length) {
     parts.push(`${risky.map(n => meta[n].title).join(", ")}: mení sizing alebo časovanie prevzaté `
       + "z TradingView. Ladiť sa dá, ale výsledok sa už nedá porovnať s Pine ani s golden testami.");
@@ -839,7 +864,8 @@ async function startSweep() {
     };
     const r = await api("/api/sweeps", { method: "POST", body: JSON.stringify(body) });
     sweep.id = r.id;
-    $("#sweep-status").textContent = `${r.points} behov vo fronte · ${r.goal_note}`;
+    $("#sweep-status").textContent = `${r.points} behov vo fronte`
+      + (r.minutes ? ` · odhadom ${fmtMinutes(r.minutes)}` : "") + ` · ${r.goal_note}`;
     pollSweep();
   } catch (e) {
     $("#sweep-status").textContent = e.message;
