@@ -9,7 +9,7 @@ import sys
 
 
 def main() -> int:
-    from .. import data_archive
+    from .. import data_archive, timeframes
 
     # Pozerá sa na KAZDY subor z archivu, nie len na to, ci je v data/ nieco: s jednym
     # rozbalenym zdrojom by webapp nabehla s poloprazdnou ponukou parov a backtest by
@@ -18,6 +18,14 @@ def main() -> int:
     if chyba:
         print(f"Chyba {len(chyba)} pracovnych suborov - skladam ich z data_archive/ ...", flush=True)
         data_archive.main(["merge"])
+
+    # Vyssie timeframy si Freqtrade z 1m nedopocita, chce subor na disku. Zoznam je
+    # v tester/timeframes.json; doplni sa len to, co chyba (prvy start po pridani TF
+    # preto trva dlhsie).
+    chybajuce_tf = timeframes.missing()
+    if chybajuce_tf:
+        print(f"Chyba {len(chybajuce_tf)} timeframov - skladam ich z 1m ...", flush=True)
+        timeframes.ensure()
 
     import uvicorn
 

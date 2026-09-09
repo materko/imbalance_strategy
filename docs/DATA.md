@@ -92,8 +92,30 @@ Skripty volajú `split` samy, takže po stiahnutí stačí commitnúť `data_arc
 | Binance | `BTC/USDT`, `ETH/USDT` spot | **1m, 3m, 5m** | len longy, páka 1 |
 | Coinbase | `BTC/USD` spot | **1m, 5m** | **3m neponúka** — ccxt hlási len `1m/5m/15m/30m/1h/2h/6h/1d` |
 
-**Coinbase 3m sa nikde neukladá ako súbor** — na disku sú len skutočné burzové sviečky,
-žiadne umelo dorobené timeframy, ktoré by sa dali omylom zameniť za reálne dáta.
+Z burzy sa sťahuje len to, čo burza naozaj má. Zvyšok si Tester **dopočíta z 1m** —
+zoznam je v [`tester/timeframes.json`](../tester/timeframes.json) (dnes 2m, 3m, 4m, 5m,
+15m, 30m, 1h, 4h, 1d, 1w) a doplní sa pri štarte webapp alebo príkazom:
+
+```bash
+PY -m tester.timeframes            # doplní, čo chýba
+PY -m tester.timeframes --status   # čo je z burzy a čo dopočítané
+```
+
+Dve pravidlá, aby sa dopočítané a stiahnuté nedalo zameniť:
+
+* **Nič stiahnuté sa neprepisuje.** Doplní sa len súbor, ktorý na disku nie je.
+* **Dopočítané sa necommituje.** Vyrobené súbory sú v `data/tester/.derived.json`
+  a `data_archive split` ich preskočí — v archíve ostáva len to, čo prišlo z burzy
+  alebo z raw exportu. Kedykoľvek sa dajú vyrobiť znova.
+
+Skladá sa tým istým pravidlom ako graf webapp a emulátor (`tradebot/core/candles.py`),
+takže bary sú všade rovnaké. Denné začínajú o polnoci UTC, **týždenné v pondelok** (od
+epochy by vyšiel štvrtok).
+
+> ⚠️ **Freqtrade akceptuje len timeframy, ktoré pozná jeho burza.** Súbor na disku
+> nestačí: `2m` a `4m` Binance nepozná, takže beh na nich ide **len cez emulátor
+> MultiCharts** — webapp aj CLI to povedia dopredu („burza binance timeframe 2m nepozná")
+> a samy prepnú engine. Coinbase nepozná ani `3m`.
 
 > ⚠️ **Freqtrade si vyšší timeframe z 1m nedopočíta.** Ak súbor pre `--timeframe` nie je na
 > disku, backtest skončí na `No history for <pár>, <typ>, <TF> found` — overené na páre,

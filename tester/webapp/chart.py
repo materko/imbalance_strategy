@@ -17,10 +17,13 @@ from typing import Any
 from tradebot.core.candles import resample_ohlcv
 from tradebot.core.types import INSTRUMENTS
 from .. import engines
+from .. import timeframes as tf_config
 from .runner import instrument_for_pair, is_multicharts_pair
 
-#: Timeframy, ktoré má zmysel ponúknuť v grafe; súbor musí existovať (nič sa neskladá).
-TIMEFRAMES = ("1m", "3m", "5m", "15m", "30m", "1h")
+#: Timeframy, ktoré má zmysel ponúknuť v grafe — zdrojový 1m plus tie z `timeframes.json`,
+#: zoradené od najkratšieho. Pri burzových pároch musí súbor existovať (graf nič neskladá);
+#: doplní ich `tester.timeframes` pri štarte webapp.
+TIMEFRAMES = tuple(sorted({tf_config.SOURCE_TF, *tf_config.wanted()}, key=tf_config.minutes))
 
 #: Horná hranica sviečok v jednej odpovedi. Plotly kreslí ~6 000 sviečok bez trhania;
 #: pri väčšom okne si má stránka vypýtať hrubší timeframe.

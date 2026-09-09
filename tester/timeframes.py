@@ -1,0 +1,212 @@
+"""Timeframy, ktoré má mať Tester na disku — a ich odvodenie z 1m sviečok.
+
+    python -m tester.timeframes             # doplní, čo chýba
+    python -m tester.timeframes --status    # čo je na disku a čo by pribudlo
+    python -m tester.timeframes --force     # prepíše aj to, čo existuje
+
+### Načo to je
+Freqtrade si vyšší TF z 1m **nedopočíta**: keď preň nemá súbor na disku, backtest skončí
+na „No history … found". Burza pritom niektoré timeframy nedáva vôbec (2m, 4m) a
+Dukascopy export nedáva žiadny okrem 1m. Zoznam v `timeframes.json` preto hovorí, čo má
+byť k dispozícii, a tento modul to z 1m poskladá.
+
+Skladá sa tým istým pravidlom, aké používa graf webapp, offline simulátor aj emulátor
+MultiCharts (`tradebot.core.candles.resample_ohlcv`) — keby sa pravidlo rozišlo,
+porovnanie výsledkov medzi platformami by prestalo niečo znamenať.
+
+### Čo sa neprepisuje a necommituje
+Doplní sa len to, čo na disku **nie je**: oficiálne stiahnuté TF z burzy (3m, 5m, 15m…)
+ostanú tak, ako prišli. Vyrobené súbory sa zapíšu do `data/tester/.derived.json` a
+`data_archive split` ich preskočí — v gite majú byť len dáta z burzy a z exportov,
+nie to, čo sa kedykoľvek dopočíta z 1m.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+from tradebot.core.candles import timeframe_minutes as minutes
+from tradebot.core.paths import DERIVED_MANIFEST, TESTER_DATA
+
+__all__ = ["CONFIG", "SOURCE_TF", "wanted", "minutes", "sources", "targets",
+           "missing", "ensure", "derived", "remember", "main"]
+
+#: Konfigurácia — jediné miesto, kde sa zoznam timeframov mení.
+CONFIG = Path(__file__).with_name("timeframes.json")
+
+#: Z čoho sa skladá. Nikdy sa neodvodzuje, vždy je to stiahnuté alebo importované.
+SOURCE_TF = "1m"
+
+#: Keď config chýba alebo je pokazený (klon bez neho, preklep v JSON).
+FALLBACK: tuple[str, ...] = ("2m", "3m", "4m", "5m", "15m", "30m", "1h", "4h", "1d", "1w")
+
+#: Zoznam vyrobených súborov, aby ich `data_archive split` nepridal do gitu.
+#: Cesty v ňom sú relatívne k adresáru, v ktorom leží.
+MANIFEST = DERIVED_MANIFEST
+
+def wanted(config: Path | None = None) -> tuple[str, ...]:
+    """Timeframy zo `timeframes.json`, bez zdrojového 1m."""
+    path = Path(config or CONFIG)
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        tfs = [str(tf) for tf in data["derive"]]
+    except (OSError, ValueError, KeyError, TypeError):
+        tfs = list(FALLBACK)
+    return tuple(tf for tf in tfs if tf != SOURCE_TF)
+
+
+def sources(root: Path | None = None) -> list[Path]:
+    """Všetky 1m súbory v sklade sviečok — z každého sa dá odvodiť zvyšok.
+
+    Vyberá sa podľa mena, nie podľa adresára: `-1h-funding_rate.feather` a `-1h-mark.feather`
+    sú tiež vo `futures/`, ale sviečky to nie sú a skladať sa z nich nedá.
+    """
+    base = Path(root or TESTER_DATA)
+    if not base.exists():
+        return []
+    found = list(base.rglob(f"*-{SOURCE_TF}.feather")) + list(base.rglob(f"*-{SOURCE_TF}-futures.feather"))
+    return sorted(found)
+
+
+def _target(src: Path, timeframe: str) -> Path:
+    """`BTC_USDT_USDT-1m-futures.feather` + `4h` → `BTC_USDT_USDT-4h-futures.feather`."""
+    name = src.name[: -len(".feather")]
+    suffix = "-futures" if name.endswith("-futures") else ""
+    stem = name[: -len(f"-{SOURCE_TF}{suffix}")]
+    return src.parent / f"{stem}-{timeframe}{suffix}.feather"
+
+
+def targets(root: Path | None = None, config: Path | None = None) -> dict[Path, list[Path]]:
+    """1m súbor → súbory, ktoré z neho podľa configu majú vzniknúť."""
+    return {src: [_target(src, tf) for tf in wanted(config)] for src in sources(root)}
+
+
+def missing(root: Path | None = None, config: Path | None = None) -> list[Path]:
+    """Ktoré z nich na disku ešte nie sú."""
+    return [out for outs in targets(root, config).values() for out in outs if not out.exists()]
+
+
+def derived(manifest: Path | None = None) -> list[Path]:
+    """Súbory, ktoré vyrobil tento modul — z manifestu vedľa sviečok."""
+    path = Path(manifest or MANIFEST)
+    try:
+        rows = json.loads(path.read_text(encoding="utf-8"))["files"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return []
+    return [path.parent / row for row in rows]
+
+
+def remember(made: list[Path], manifest: Path | None = None) -> None:
+    """Zapíše súbory ako odvodené — `data_archive split` ich potom preskočí.
+
+    Volá to aj `dukas_import`: sviečky, ktoré si sám poskladá z 1m, sú rovnako odvodené
+    ako tie odtiaľto a v archíve nemajú čo robiť.
+    """
+    _remember(Path(manifest or MANIFEST), [Path(p) for p in made])
+
+
+def _under(root: Path, paths: list[Path]) -> set[str]:
+    """Cesty relatívne ku koreňu manifestu; čo je mimo neho, sa nezapisuje.
+
+    Súbory vyrobené inam (`dukas_import --ft-datadir` do dočasného adresára, testy) nemá
+    zmysel v manifeste evidovať — `split` sa na ne aj tak nikdy nepozrie.
+    """
+    out = set()
+    for p in paths:
+        try:
+            out.add(p.resolve().relative_to(root.resolve()).as_posix())
+        except ValueError:
+            continue
+    return out
+
+
+def _remember(manifest: Path, made: list[Path]) -> None:
+    root = manifest.parent
+    known = _under(root, [p for p in derived(manifest) if p.exists()]) | _under(root, made)
+    if not known:
+        return
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    manifest.write_text(
+        json.dumps({
+            "_comment": "Odvodene z 1m (tester/timeframes.py). Do gitu nejdu, "
+                        "`data_archive split` ich preskakuje.",
+            "files": sorted(known),
+        }, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+def ensure(root: Path | None = None, config: Path | None = None, force: bool = False,
+           verbose: bool = True, manifest: Path | None = None) -> list[Path]:
+    """Doplní chýbajúce timeframy z 1m. Vráti, čo vzniklo."""
+    import pandas as pd  # noqa: F401  (drží sa lenivo, aby import modulu nebol drahý)
+
+    from tradebot.core.candles import resample_ohlcv
+
+    base = Path(root or TESTER_DATA)
+    made: list[Path] = []
+    for src, outs in targets(base, config).items():
+        todo = [(out, tf) for out, tf in zip(outs, wanted(config)) if force or not out.exists()]
+        if not todo:
+            continue
+        df = pd.read_feather(src)
+        for out, tf in todo:
+            part = resample_ohlcv(df, minutes(tf))
+            part.to_feather(out)
+            made.append(out)
+            if verbose:
+                print(f"  {out.relative_to(base).as_posix()}  {len(part):>8} barov  "
+                      f"{out.stat().st_size / 1e6:.1f} MB")
+    if made:
+        _remember(Path(manifest) if manifest else (base / MANIFEST.name), made)
+    return made
+
+
+def status(root: Path | None = None, config: Path | None = None) -> int:
+    base = Path(root or TESTER_DATA)
+    tfs = wanted(config)
+    print(f"config: {CONFIG}")
+    print(f"  odvodzuje sa z {SOURCE_TF}: {', '.join(tfs)}\n")
+    src_list = sources(base)
+    if not src_list:
+        print(f"ziadne {SOURCE_TF} sviecky v {base} - najprv `python -m tester.data_archive merge`")
+        return 0
+    made = set(derived(base / MANIFEST.name))
+    for src in src_list:
+        print(f"{src.relative_to(base).as_posix()}")
+        for tf in tfs:
+            out = _target(src, tf)
+            if not out.exists():
+                stav = "CHYBA"
+            elif out in made:
+                stav = "odvodene"
+            else:
+                stav = "z burzy"
+            print(f"  {tf:>4}  {stav}")
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(
+        prog="python -m tester.timeframes",
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    ap.add_argument("--status", action="store_true", help="len vypíš, čo je a čo chýba")
+    ap.add_argument("--force", action="store_true", help="prepíš aj existujúce odvodené súbory")
+    ap.add_argument("-q", "--quiet", action="store_true")
+    args = ap.parse_args(argv)
+
+    if args.status:
+        return status()
+
+    made = ensure(force=args.force, verbose=not args.quiet)
+    if not args.quiet:
+        print(f"hotovo: {len(made)} suborov" if made else "vsetky timeframy uz na disku su")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

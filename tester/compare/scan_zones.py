@@ -35,7 +35,7 @@ from tradebot.core import (
     detect_sd_pattern,
     load_profile,
 )
-from tradebot.core.candles import resample_ohlcv as _resample
+from tradebot.core.candles import resample_ohlcv as _resample, timeframe_minutes
 from tradebot.core.types import INSTRUMENTS
 
 from .. import engines
@@ -90,7 +90,7 @@ def _load(exchange: str | Path, timeframe: str):
     """
     import pandas as pd
 
-    minutes = int(timeframe.rstrip("m"))
+    minutes = timeframe_minutes(timeframe)
     if is_csv_source(exchange):
         base = _load_dukas_csv(str(exchange))
         df = base.copy() if minutes == 1 else _resample(base, minutes)

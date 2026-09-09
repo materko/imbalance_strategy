@@ -16,7 +16,7 @@ pd = pytest.importorskip("pandas")
 
 from tradebot.core.types import INSTRUMENTS
 from tradebot.core.candles import resample_ohlcv
-from tester.dukas_import import write_freqtrade
+from tester.dukas_import import FT_TIMEFRAMES, write_freqtrade
 
 INST = INSTRUMENTS["nas100_dukascopy"]
 MIN = 60_000
@@ -38,13 +38,14 @@ def m1(n: int) -> "pd.DataFrame":
 
 
 def test_write_freqtrade_vyrobi_subor_na_kazdy_timeframe(tmp_path: Path):
+    """Zoznam timeframov je v `tester/timeframes.json` — import ani webapp nemajú vlastný."""
     files = write_freqtrade(m1(60), "NAS100_USD", datadir=tmp_path, verbose=False)
 
-    assert [f.name for f in files] == [
-        "NAS100_USD-1m.feather", "NAS100_USD-3m.feather", "NAS100_USD-5m.feather"]
-    assert len(pd.read_feather(files[0])) == 60
-    assert len(pd.read_feather(files[1])) == 20
-    assert len(pd.read_feather(files[2])) == 12
+    assert [f.name for f in files] == [f"NAS100_USD-{tf}.feather" for tf in FT_TIMEFRAMES]
+    by = {f.name: f for f in files}
+    assert len(pd.read_feather(by["NAS100_USD-1m.feather"])) == 60
+    assert len(pd.read_feather(by["NAS100_USD-3m.feather"])) == 20
+    assert len(pd.read_feather(by["NAS100_USD-5m.feather"])) == 12
 
 
 def test_svicky_pre_freqtrade_su_tie_iste_ako_v_emulatore(tmp_path: Path):

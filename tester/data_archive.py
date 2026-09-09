@@ -41,6 +41,8 @@ from pathlib import Path
 
 from tradebot.core.paths import ARCHIVE_ROOTS
 
+from . import timeframes
+
 #: Dvojice (archív, pracovný adresár). Testy si ich prepisujú.
 ROOTS: tuple[tuple[Path, Path], ...] = ARCHIVE_ROOTS
 
@@ -63,11 +65,21 @@ def _write(df, path: Path) -> None:
     df.reset_index(drop=True).to_feather(path)
 
 
-def split_root(archive: Path, data: Path, verbose: bool = True) -> list[Path]:
-    """`data/` -> `data_archive/tester/` jedného koreňa, jeden súbor na rok."""
+def split_root(archive: Path, data: Path, verbose: bool = True,
+               skip: set[Path] | frozenset[Path] = frozenset()) -> list[Path]:
+    """`data/` -> `data_archive/tester/` jedného koreňa, jeden súbor na rok.
+
+    `skip` sú odvodené timeframy (`tester.timeframes`) — prepočítané 1m sviečky, ktoré
+    do gitu nepatria: v archíve má byť len to, čo prišlo z burzy alebo z raw exportu,
+    zvyšok sa kedykoľvek dopočíta.
+    """
     written: list[Path] = []
     for src in sorted(data.rglob("*.feather")):
         rel = src.relative_to(data)
+        if src in skip:
+            if verbose:
+                print(f"  preskakujem {rel} (odvodene z 1m)")
+            continue
         df = _read(src)
         if "date" not in df.columns or df.empty:
             if verbose:
@@ -134,12 +146,14 @@ def merge_root(archive: Path, data: Path, verbose: bool = True) -> list[Path]:
     return out_paths
 
 
-def split(verbose: bool = True, roots: tuple[tuple[Path, Path], ...] | None = None) -> list[Path]:
+def split(verbose: bool = True, roots: tuple[tuple[Path, Path], ...] | None = None,
+          skip: set[Path] | None = None) -> list[Path]:
     """`data/` -> `data_archive/tester/` vo všetkých koreňoch. Vráti zapísané súbory."""
+    ignore = set(timeframes.derived()) if skip is None else set(skip)
     written: list[Path] = []
     for archive, data in roots if roots is not None else ROOTS:
         if data.exists():
-            written += split_root(archive, data, verbose=verbose)
+            written += split_root(archive, data, verbose=verbose, skip=ignore)
     return written
 
 

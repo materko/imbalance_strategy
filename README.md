@@ -110,6 +110,7 @@ reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. `--target freqtrade` 
 | [`tester/webapp/`](tester/webapp) | Webová aplikácia pre testerov (FastAPI + Plotly) a jej CLI. |
 | [`tester/compare/`](tester/compare) | Porovnávacie behy: `scan_zones`/`scan_trades` (engine offline nad burzou alebo surovým CSV), `mc_log_trades` (obchody z logu MultiCharts študie), `mc_compare` (spárovanie oboch zoznamov). |
 | `tester/dukas_import.py`, `tester/data_archive.py` | Prevod a čistenie surových exportov, ročný archív sviečok. |
+| `tester/timeframes.py`, [`tester/timeframes.json`](tester/timeframes.json) | Ktoré timeframy má mať Tester na disku a ich dopočet z 1m (webapp ich doplní pri štarte). |
 | `tester/report.py`, `tester/fees.py`, `tester/plot.py` | HTML report ako Strategy Tester, maker/taker a break-even, grafy. |
 | `tester/montecarlo.py` | Blokový bootstrap nad obchodmi hotového behu: interval okolo break-even poplatku a riziko účtu (drawdown, hranice, ruina, odporúčané riziko na obchod). |
 | [`tester/tests/`](tester/tests) | Testy nástrojov Testera a **golden testy** proti TradingView (`golden/`). |

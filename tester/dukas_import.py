@@ -64,6 +64,7 @@ from typing import Iterable, Iterator, Sequence, TextIO
 from tradebot.core.paths import DATA_ARCHIVE, QUOTEMANAGER_DATA, REPO, TESTER_DATA
 from tradebot.core.types import DUKASCOPY_REGISTRY, INSTRUMENTS, InstrumentSpec, dukascopy_specs
 from tradebot.core.candles import resample_ohlcv
+from . import timeframes as tf_config
 
 __all__ = [
     "ConvertStats", "convert", "convert_lines", "scale_reference",
@@ -286,8 +287,9 @@ def write_years(df, stem: str, *, archive: Path = DATA_ARCHIVE, from_year: int |
 # Cesta pre Freqtrade: sviečky po timeframoch
 # --------------------------------------------------------------------------- #
 
-#: Čo potrebuje IBS: graf 3m, detekčný TF 5m a 1m na `--timeframe-detail`.
-FT_TIMEFRAMES = ("1m", "3m", "5m")
+#: To isté, čo má na disku mať zvyšok Testera (`tester/timeframes.json`), plus 1m —
+#: import a webapp nesmú mať každý svoj zoznam.
+FT_TIMEFRAMES = (tf_config.SOURCE_TF,) + tf_config.wanted()
 
 
 def write_freqtrade(df, stem: str, *, datadir: Path,
@@ -300,19 +302,25 @@ def write_freqtrade(df, stem: str, *, datadir: Path,
     používa emulátor MultiCharts aj graf webapp (`tools.candles.resample_ohlcv`) — inak by
     Freqtrade beh a emulátor počítali z iných barov.
 
-    Sú to **odvodené** súbory: ležia v gitignorovanom `user_data/data/`, nikdy v archíve,
-    a kedykoľvek sa dajú vyrobiť znova z 1m. Beh ich vidí cez `--datadir`.
+    Sú to **odvodené** súbory: sklad sviečok je gitignorovaný a `data_archive split` ich
+    preskočí (zapíšu sa do `data/tester/.derived.json`), takže v archíve ostane len 1m,
+    tak ako prišlo z exportu. Vyrobiť sa dajú kedykoľvek znova. Beh ich vidí cez `--datadir`.
     """
     written: list[Path] = []
+    derived: list[Path] = []
     datadir.mkdir(parents=True, exist_ok=True)
     for tf in timeframes:
-        minutes = int(tf.rstrip("m")) if tf.endswith("m") else int(tf.rstrip("h")) * 60
-        part = resample_ohlcv(df, minutes)
+        part = resample_ohlcv(df, tf_config.minutes(tf))
         out = datadir / f"{stem}-{tf}.feather"
         part.to_feather(out)
         written.append(out)
+        if tf != tf_config.SOURCE_TF:
+            derived.append(out)
         if verbose:
             print(f"  {out.name}  {len(part):>8} barov  {out.stat().st_size / 1e6:.1f} MB")
+    if derived:
+        # 1m je zdroj a patrí do archívu; vyššie TF sú z neho dopočítané a do gitu nejdú
+        tf_config.remember(derived)
     return written
 
 

@@ -36,7 +36,7 @@ from pathlib import Path
 
 __all__ = [
     "REPO",
-    "DATA", "DATA_ARCHIVE", "TESTER_DATA", "QUOTEMANAGER_DATA",
+    "DATA", "DATA_ARCHIVE", "TESTER_DATA", "DERIVED_MANIFEST", "QUOTEMANAGER_DATA",
     "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS",
     "MULTICHARTS_DIR",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES",
@@ -52,6 +52,9 @@ REPO = Path(__file__).resolve().parents[2]
 DATA = REPO / "data"
 #: Sklad sviečok, `data/tester/<zdroj>/<trh>/…` — odvodený z archívu, gitignored.
 TESTER_DATA = DATA / "tester"
+#: Zoznam sviečok, ktoré nevznikli sťahovaním, ale prepočtom z 1m (`tester.timeframes`).
+#: Vďaka nemu ich `data_archive split` nepridá do gitu — dopočítať sa dajú kedykoľvek.
+DERIVED_MANIFEST = TESTER_DATA / ".derived.json"
 #: ASCII exporty pre QuoteManager, `data/quotemanager/<zdroj>/…` — výstup zo skladu.
 QUOTEMANAGER_DATA = DATA / "quotemanager"
 #: To isté po rokoch a v gite. **Zrkadlí `data/` cestu za cestou**, takže `split`/`merge`
