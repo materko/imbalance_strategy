@@ -311,12 +311,6 @@ header .git button { color: #dcecee; border-color: #3d5962; border-radius: 8px; 
 header .git .muted { color: #a2bec6; }
 header .chip { background: #244650; color: #8ee2d3; }
 main.view { max-width: 1760px; margin: 0 auto; grid-template-columns: 340px minmax(0, 1fr); gap: 22px; padding: 26px; }
-.workspace-intro { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 4px 0 8px; }
-.eyebrow { font-size: 10px; font-weight: 750; letter-spacing: 1.9px; color: #56817f; }
-h1 { margin: 7px 0; font-size: clamp(24px, 2.5vw, 34px); letter-spacing: -1.1px; line-height: 1.18; }
-.workspace-intro p { margin: 0; color: var(--muted); font-size: 13px; }
-.workspace-tag { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #4a7474; white-space: nowrap; }
-.workspace-tag > span { width: 7px; height: 7px; border-radius: 50%; background: #23a28b; }
 .card { border-radius: 15px; box-shadow: 0 3px 12px #163a4505; border-color: #dce7e9; }
 .run-card { padding: 20px 18px 0; }
 .run-card h2 { margin-bottom: 22px; font-size: 16px; }
@@ -366,7 +360,7 @@ button.primary:hover { background: #066b66; border-color: #066b66; }
 .kcard .v { letter-spacing: -.7px; font-size: 26px; }
 table.runs th { background: #f5f9fa; padding: 12px 10px; }
 table.runs td { padding: 10px; }
-@media (max-width: 1250px) { .basic-mode #param-groups { grid-template-columns: 1fr; } .workspace-tag { display: none; } }
+@media (max-width: 1250px) { .basic-mode #param-groups { grid-template-columns: 1fr; } }
 @media (max-width: 1000px) {
   main.view { grid-template-columns: 1fr; padding: 18px; gap: 14px; }
   .settings { position: static; max-height: none; overflow: visible; }
@@ -376,7 +370,6 @@ table.runs td { padding: 10px; }
 }
 @media (max-width: 640px) {
   main.view { padding: 12px; }
-  .workspace-intro { padding: 8px 0; }
   .basic-mode #param-groups { grid-template-columns: 1fr; }
   .params-head { padding: 14px; }
   .params-head h2 { flex-basis: 100%; }
