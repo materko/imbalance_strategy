@@ -244,6 +244,19 @@ details > summary { cursor: pointer; padding: 8px 0; font-weight: 600; }
 .sweep-result tr.pending { cursor: default; }
 .sweep-actions { display: flex; gap: 8px; align-items: center; }
 .sweep-past { margin-bottom: 8px; }
+.search-mode { grid-column: 1 / -1; justify-self: start; }
+#search-hint { grid-column: 1 / -1; margin: 0; }
+.inline-check { flex-direction: row; align-items: center; gap: 6px; }
+.inline-check input { width: auto; }
+/* Vitaz hyperoptu na referencnych oknach: ladene okno je jedine, ktore videl. */
+.verify-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
+.verify-table td, .verify-table th { padding: 3px 4px; text-align: right; border-bottom: 1px solid var(--line); }
+.verify-table td:first-child, .verify-table th:first-child { text-align: left; }
+.verify-table tr.tuned td { font-weight: 700; }
+.verdict { margin-top: 8px; padding: 8px 10px; border-radius: 8px; font-size: 12px; }
+.verdict.good { background: #eafaf3; color: #0b6b4f; }
+.verdict.bad { background: #fdecec; color: #8c2020; }
+.verdict.unsure { background: #fff7e6; color: #8a5b00; }
 .sweep-result tr:hover td { background: #f8fafc; }
 
 /* Sweep potrebuje priestor na porovnanie výsledkov aj viacerých parametrov. */

@@ -93,6 +93,21 @@ class RunStore:
             shutil.move(str(chart_path), str(d / CHART_FILE))
         return d
 
+    def save_extra(self, run_id: str, name: str, data: Any) -> Path:
+        """Ďalší JSON k behu (`epochs.json` hyperoptu) — do zoznamu histórie by nesadol."""
+        if not _ID_RE.match(run_id) or "/" in name or "\\" in name:
+            raise ValueError(f"neplatné run_id/meno: {run_id!r}/{name!r}")
+        cesta = self.root / run_id / name
+        _write_json(cesta, data)
+        return cesta
+
+    def extra(self, run_id: str, name: str) -> Any | None:
+        """Prečíta `save_extra`, alebo `None`, keď taký súbor nie je."""
+        if not _ID_RE.match(run_id) or "/" in name or "\\" in name:
+            return None
+        cesta = self.root / run_id / name
+        return _read_json(cesta) if cesta.exists() else None
+
     def delete(self, run_id: str) -> bool:
         d = self.root / run_id
         if not _ID_RE.match(run_id) or not d.is_dir():

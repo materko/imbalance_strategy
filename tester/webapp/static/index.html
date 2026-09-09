@@ -131,10 +131,17 @@
 
   <section class="col params">
       <details id="sweep-box" class="card sweep-box">
-        <summary>Hľadať parameter <span class="muted small">— mriežka behov, nie jeden</span></summary>
+        <summary>Hľadať parametre <span class="muted small">— viac behov, nie jeden</span></summary>
         <div class="sweep-body">
-          <label class="field sweep-past" hidden>Predošlá mriežka
-            <select id="sweep-past" title="Mriežky z histórie — otvorí sa tabuľka aj s poradím."></select>
+          <div class="mode-switch search-mode" role="group" aria-label="Ako hľadať">
+            <button id="mode-sweep" class="active" aria-pressed="true"
+                    title="Prejde všetky hodnoty, ktoré vypíšeš. Čitateľné, nemá ako pretrénovať viac, než koľko bodov mriežka má.">Prejsť mriežku</button>
+            <button id="mode-hyper" aria-pressed="false"
+                    title="Hľadá v rozsahu a učí sa z odpovedí. Od troch parametrov; víťaz sa sám preverí na piatich oknách.">Hľadať optimalizátorom</button>
+          </div>
+          <p id="search-hint" class="mode-hint">Každý bod mriežky je obyčajný backtest a ostane v histórii.</p>
+          <label class="field sweep-past" hidden>Predošlé hľadanie
+            <select id="sweep-past" title="Z histórie — otvorí sa tabuľka aj s poradím."></select>
           </label>
           <div id="sweep-rows"></div>
           <button id="sweep-add" class="ghost small" type="button">+ ďalší parameter</button>
@@ -148,10 +155,20 @@
             <label class="field">Min. obchodov
               <input type="number" id="sweep-mintrades" step="1" min="0" placeholder="bez limitu">
             </label>
+            <label class="field hyper-only" hidden>Epoch
+              <input type="number" id="hyper-epochs" step="10" min="1" max="5000" value="200"
+                     title="Koľko konfigurácií vyskúšať. Každá je celý backtest ladeného okna.">
+            </label>
+            <label class="field hyper-only inline-check" hidden>
+              <input type="checkbox" id="hyper-verify" checked>
+              <span title="Víťaz sa pustí na piatich referenčných oknách. Bez toho výsledok o stratégii nič nepovie — hyperopt našiel optimum práve ladeného okna.">Overiť na 5 oknách</span>
+            </label>
           </div>
           <div id="sweep-warn" class="warnbox" hidden></div>
           <div class="sweep-actions">
             <button id="sweep-run" class="primary sweep-start" type="button">▶ Spustiť sweep</button>
+            <button id="hyper-suggested" class="ghost small hyper-only" type="button" hidden
+                    title="Priestor, ktorý stratégia odporúča — to, čo na nej prežilo out-of-sample.">Odporúčaný priestor</button>
             <button id="sweep-cancel" class="ghost small" type="button" hidden
                     title="zruší všetky nedobehnuté body tejto mriežky">✕ Zrušiť mriežku</button>
           </div>
