@@ -139,6 +139,8 @@
                     title="Prejde všetky hodnoty, ktoré vypíšeš. Čitateľné, nemá ako pretrénovať viac, než koľko bodov mriežka má.">Prejsť mriežku</button>
             <button id="mode-hyper" aria-pressed="false"
                     title="Hľadá v rozsahu a učí sa z odpovedí. Od troch parametrov; víťaz sa sám preverí na piatich oknách.">Hľadať optimalizátorom</button>
+            <button id="mode-matrix" aria-pressed="false"
+                    title="Ten istý profil na viacerých trhoch a TF. Že myšlienka drží aj mimo trhu, na ktorom sa ladila, je najsilnejší dôkaz kvality.">Prejsť trhy</button>
           </div>
           <p id="search-hint" class="mode-hint">Každý bod mriežky je obyčajný backtest a ostane v histórii.</p>
           <label class="field sweep-past" hidden>Predošlé hľadanie
@@ -146,6 +148,23 @@
           </label>
           <div id="sweep-rows"></div>
           <button id="sweep-add" class="ghost small" type="button">+ ďalší parameter</button>
+          <div class="matrix-pick matrix-only" hidden>
+            <label class="field">Trhy
+              <select id="matrix-pairs" multiple size="9"
+                      title="Ctrl/Cmd + klik pre viac. Break-even sa dá porovnať aj medzi triedami aktív."></select>
+            </label>
+            <div class="field">
+              <span class="field-label">Timeframy</span>
+              <div id="matrix-tfs" class="tf-chips"></div>
+            </div>
+            <div class="matrix-actions">
+              <button id="matrix-all" class="ghost small" type="button">Všetky trhy</button>
+              <label class="inline small" title="Prahy v absolútnych cenových bodoch znamenajú na každom trhu inú vec. Bez prepočtu tabuľka nehovorí o stratégii, ale o profile.">
+                <input type="checkbox" id="matrix-relative" checked> prepočítať prahy na ATR
+              </label>
+            </div>
+            <div id="matrix-warn" class="warnbox" hidden></div>
+          </div>
           <div class="form-grid sweep-goal">
             <label class="field span2">Vybrať podľa
               <select id="sweep-goal" title="Podľa čoho určiť najlepší beh. Break-even poplatok nezávisí od sizingu ani peňaženky, preto je predvolený."></select>

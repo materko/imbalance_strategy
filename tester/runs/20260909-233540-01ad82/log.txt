@@ -1,0 +1,190 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tester\runs\.profiles\config.tester.jpy.cfd.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data --strategy IBSImbalanceStrategy --cache none --export trades --timerange 20250904-20260904 --pairs USDJPY/JPY --timeframe 3m --dry-run-wallet 40000000.0 --fee 0.0005 --timeframe-detail 1m --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\dukascopy\futures
+2026-09-10 01:35:42,076 - freqtrade - INFO - freqtrade 2026.8
+2026-09-10 01:35:42,844 - freqtrade.configuration.load_config - INFO - Using config: 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tester\runs\.profiles\config.tester.jpy.cfd.json ...
+2026-09-10 01:35:42,852 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-10 01:35:42,852 - freqtrade.loggers - INFO - Logfile configured
+2026-09-10 01:35:42,852 - freqtrade.loggers - INFO - Verbosity set to 0
+2026-09-10 01:35:42,852 - freqtrade.configuration.configuration - INFO - Parameter -i/--timeframe detected ... Using timeframe: 3m ...
+2026-09-10 01:35:42,853 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2026-09-10 01:35:42,853 - freqtrade.configuration.configuration - INFO - Parameter --timeframe-detail detected, using 1m for intra-candle backtesting ...
+2026-09-10 01:35:42,853 - freqtrade.configuration.configuration - INFO - Parameter --dry-run-wallet detected, overriding dry_run_wallet to: 40000000.0 ...
+2026-09-10 01:35:42,853 - freqtrade.configuration.configuration - INFO - Parameter --fee detected, setting fee to: 0.0005 ...
+2026-09-10 01:35:42,853 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20250904-20260904 ...
+2026-09-10 01:35:42,853 - freqtrade.configuration.configuration - INFO - Using user-data directory: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data 
+...
+2026-09-10 01:35:42,853 - freqtrade.configuration.configuration - INFO - Using data directory: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\dukascopy\futures ...
+2026-09-10 01:35:42,853 - freqtrade.configuration.configuration - INFO - Parameter --export detected: trades ...
+2026-09-10 01:35:42,853 - freqtrade.configuration.configuration - INFO - Parameter --cache=none detected ...
+2026-09-10 01:35:42,853 - freqtrade.configuration.configuration - INFO - Using pairs ['USDJPY/JPY']
+2026-09-10 01:35:42,853 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20250904-20260904
+2026-09-10 01:35:42,853 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2026-09-10 01:35:42,858 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+team. It may work flawlessly (please report back) or have serious issues. Use it at your own discretion.
+2026-09-10 01:35:42,858 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 01:35:42,860 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2026-09-10 01:35:42,860 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2026-09-10 01:35:42,860 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.77
+2026-09-10 01:35:42,866 - freqtrade.exchange.exchange - INFO - Using Exchange "Tester"
+2026-09-10 01:35:42,866 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange class 'Tester' ...
+2026-09-10 01:35:42,899 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSImbalanceStrategy from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.py'...
+2026-09-10 01:35:42,899 - freqtrade.strategy.hyper - INFO - Loading parameters from file 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.json
+2026-09-10 01:35:43,443 - freqtrade.data.converter.converter - INFO - Missing data fillup for USDJPY/JPY, 3m: before: 1416107 - after: 2047140 - 44.56%
+2026-09-10 01:35:43,753 - freqtrade.data.converter.converter - INFO - Missing data fillup for USDJPY/JPY, 5m: before: 850347 - after: 1228284 - 44.45%
+2026-09-10 01:35:43,760 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 3m.
+2026-09-10 01:35:43,760 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: JPY.
+2026-09-10 01:35:43,760 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2026-09-10 01:35:43,760 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'unfilledtimeout' with value from the configuration: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 
+'unit': 'minutes'}.
+2026-09-10 01:35:43,760 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2026-09-10 01:35:43,760 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 100.0}
+2026-09-10 01:35:43,760 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 3m
+2026-09-10 01:35:43,760 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.99
+2026-09-10 01:35:43,760 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2026-09-10 01:35:43,760 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2026-09-10 01:35:43,760 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2026-09-10 01:35:43,760 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: True
+2026-09-10 01:35:43,760 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2026-09-10 01:35:43,764 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2026-09-10 01:35:43,764 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2026-09-10 01:35:43,764 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: JPY
+2026-09-10 01:35:43,764 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2026-09-10 01:35:43,764 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 300
+2026-09-10 01:35:43,764 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using unfilledtimeout: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 'unit': 'minutes'}
+2026-09-10 01:35:43,764 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2026-09-10 01:35:43,765 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2026-09-10 01:35:43,765 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2026-09-10 01:35:43,765 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2026-09-10 01:35:43,766 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2026-09-10 01:35:43,766 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2026-09-10 01:35:43,766 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2026-09-10 01:35:43,766 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2026-09-10 01:35:43,766 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2026-09-10 01:35:43,766 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 01:35:43,770 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\freqtrade\plugins\pairlist\StaticPairList.py'...
+2026-09-10 01:35:43,770 - freqtrade.optimize.backtesting - INFO - Using fee 0.0500% from config.
+2026-09-10 01:35:43,844 - freqtrade.data.converter.converter - INFO - Missing data fillup for USDJPY/JPY, 3m: before: 122219 - after: 175501 - 43.60%
+2026-09-10 01:35:43,844 - freqtrade.optimize.backtesting - INFO - Loading data from 2025-09-03 09:00:00 up to 2026-09-04 00:00:00 (365 days).
+2026-09-10 01:35:44,043 - freqtrade.data.converter.converter - INFO - Missing data fillup for USDJPY/JPY, 1m: before: 362963 - after: 525601 - 44.81%
+2026-09-10 01:35:45,155 - freqtrade.optimize.backtesting - INFO - Dataload complete. Calculating indicators
+2026-09-10 01:35:45,156 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSImbalanceStrategy
+2026-09-10 01:35:45,169 - freqtrade.data.dataprovider - INFO - Loading data for USDJPY/JPY 5m from 2025-09-02 23:00:00 to 2026-09-04 00:00:00
+2026-09-10 01:35:45,211 - freqtrade.data.converter.converter - INFO - Missing data fillup for USDJPY/JPY, 5m: before: 73516 - after: 105421 - 43.40%
+2026-09-10 01:35:58,225 - tradebot.strategies.ibs.freqtrade - INFO - IBS USDJPY/JPY: 175501 barov, 105421 HTF barov, 200 zon, 1 signalov (1 long / 0 short)
+2026-09-10 01:35:58,475 - tradebot.adapters.freqtrade.base - INFO - ibs USDJPY/JPY: kresby ulozene do 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tester\runs\.profiles\20260909-233540-01ad82.chart.json.gz (61343 objektov)
+2026-09-10 01:35:58,505 - freqtrade.optimize.backtesting - INFO - Backtesting with data from 2025-09-04 00:00:00 up to 2026-09-04 00:00:00 (365 days).
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 4/4           100% • 0:00:14 • 0:00:00
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 175200/175200 100% • 0:00:16 • 0:00:00
+2026-09-10 01:36:00,613 - freqtrade.misc - INFO - dumping json to 
+"C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\backtest_results\backtest-result-2026-09-09_23-36-00.meta.json"
+Result for strategy IBSImbalanceStrategy
+                                              BACKTESTING REPORT                                              
+┌────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│       Pair │ Trades │ Avg Profit % │ Tot Profit JPY │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ USDJPY/JPY │      1 │         0.32 │          0.469 │          0.0 │      5:45:00 │    1     0     0   100 │
+│      TOTAL │      1 │         0.32 │          0.469 │          0.0 │      5:45:00 │    1     0     0   100 │
+└────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┌───────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│  Pair │ Trades │ Avg Profit % │ Tot Profit JPY │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                   ENTER TAG STATS                                                    
+┌───────────────────┬─────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│         Enter Tag │ Entries │ Avg Profit % │ Tot Profit JPY │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────────┼─────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ ibs:1757426400000 │       1 │         0.32 │          0.469 │          0.0 │      5:45:00 │    1     0     0   100 │
+│             TOTAL │       1 │         0.32 │          0.469 │          0.0 │      5:45:00 │    1     0     0   100 │
+└───────────────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                              EXIT REASON STATS                                               
+┌─────────────┬───────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│ Exit Reason │ Exits │ Avg Profit % │ Tot Profit JPY │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├─────────────┼───────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ session_end │     1 │         0.32 │          0.469 │          0.0 │      5:45:00 │    1     0     0   100 │
+│       TOTAL │     1 │         0.32 │          0.469 │          0.0 │      5:45:00 │    1     0     0   100 │
+└─────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                          MIXED TAG STATS                                                          
+┌───────────────────┬─────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│         Enter Tag │ Exit Reason │ Trades │ Avg Profit % │ Tot Profit JPY │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────────┼─────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ ibs:1757426400000 │ session_end │      1 │         0.32 │          0.469 │          0.0 │      5:45:00 │    1     0     0   100 │
+│             TOTAL │             │      1 │         0.32 │          0.469 │          0.0 │      5:45:00 │    1     0     0   100 │
+└───────────────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2025-09-04 00:00:00                       │
+│ Backtesting to                         │ 2026-09-04 00:00:00                       │
+│ Trading Mode                           │ Spot                                      │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 1 / 0.0                                   │
+│ Starting balance                       │ 40000000 JPY                              │
+│ Final balance                          │ 40000000.469 JPY                          │
+│ Absolute profit                        │ 0.469 JPY                                 │
+│ Total profit %                         │ 0.00%                                     │
+│ CAGR %                                 │ 0.00%                                     │
+│ Sharpe (closed trades)                 │ -100.00                                   │
+│ Sortino (closed trades)                │ -100.00                                   │
+│ Calmar (closed trades)                 │ -100.00                                   │
+│ SQN                                    │ -100.00                                   │
+│ Mean profit p-value                    │ 1                                         │
+│ Profit factor                          │ 0.00                                      │
+│ Expectancy (Ratio)                     │ 0.47 (100.00)                             │
+│ Avg. daily profit                      │ 0.001 JPY                                 │
+│ Avg. stake amount                      │ 146.837 JPY                               │
+│ Market change                          │ 5.14%                                     │
+│ Total trade volume                     │ 294.437 JPY                               │
+│                                        │                                           │
+│ Best Pair                              │ USDJPY/JPY 0.00%                          │
+│ Worst Pair                             │ USDJPY/JPY 0.00%                          │
+│ Best trade                             │ USDJPY/JPY 0.32%                          │
+│ Worst trade                            │ USDJPY/JPY 0.32%                          │
+│ Best day                               │ 0.469 JPY                                 │
+│ Worst day                              │ 0.469 JPY                                 │
+│ Days win/draw/lose                     │ 1 / 0 / 0                                 │
+│ Min/Max/Avg. Duration Winners          │ 0d 05:45 / 0d 05:45 / 0d 05:45            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:00 / 0d 00:00 / 0d 00:00            │
+│ Max Consecutive Wins / Loss            │ 1 / 0                                     │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 0 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 40000000.469 JPY / 40000000.469 JPY       │
+│ Max % of account underwater            │ 0.00%                                     │
+│ Absolute drawdown                      │ 0 JPY (0.00%)                             │
+│ Drawdown duration                      │ 0 days 00:00:00                           │
+│ Profit at drawdown start               │ 0 JPY                                     │
+│ Profit at drawdown end                 │ 0 JPY                                     │
+│ Drawdown start                         │ 2025-09-09 19:48:00                       │
+│ Drawdown end                           │ 2025-09-09 19:48:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 40000000 JPY / 40000000.616 JPY           │
+│ Min/Max balance dates (wallet balance) │ 2025-09-04 00:03:00 / 2025-09-09 19:48:00 │
+│ Max % of account underwater (balance)  │ 0.00%                                     │
+│ Absolute drawdown (wallet balance)     │ 0.156 JPY (0.00%)                         │
+│ Drawdown duration                      │ 0 days 00:06:00                           │
+│ Profit at drawdown start               │ 0.187 JPY                                 │
+│ Profit at drawdown end                 │ 0.031 JPY                                 │
+│ Drawdown start                         │ 2025-09-09 14:21:00                       │
+│ Drawdown end                           │ 2025-09-09 14:27:00                       │
+│ Sharpe (daily wallet balance)          │ 1.00                                      │
+│ Sortino (daily wallet balance)         │ -100.00                                   │
+│ Calmar (daily wallet balance)          │ 15.77                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                           STRATEGY SUMMARY                                                            
+┌──────────────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┬──────────────┐
+│             Strategy │ Trades │ Avg Profit % │ Tot Profit JPY │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │     Drawdown │
+├──────────────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┼──────────────┤
+│ IBSImbalanceStrategy │      1 │         0.32 │          0.469 │          0.0 │      5:45:00 │    1     0     0   100 │ 0 JPY  0.00% │
+└──────────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────┘

@@ -874,7 +874,15 @@ function refreshSweep() {
   const total = Object.keys(space).length ? count : 0;
   const cap = state.meta.max_sweep_runs || 0;      // 0 = bez stropu (predvolené)
   const min = total ? sweepMinutes(total) : 0;
-  if (isHyper()) {
+  if (isMatrix()) {
+    const pocet = matrixPairs().length * matrixTimeframes().length;
+    const min = pocet ? sweepMinutes(pocet) : 0;
+    $("#sweep-run").textContent = pocet
+      ? `▶ Prejsť trhy (${pocet} ${slovom(pocet, "beh", "behy", "behov")}${min ? ` ≈ ${fmtMinutes(min)}` : ""})`
+      : "▶ Prejsť trhy";
+    $("#sweep-run").disabled = !pocet;
+    matrixWalletCheck();
+  } else if (isHyper()) {
     // Hyperopt nemá mriežku: počet behov je počet epoch a ten si tester zadáva sám.
     const epoch = Number($("#hyper-epochs").value) || 0;
     const pocet = Object.keys(space).length;
@@ -894,7 +902,15 @@ function refreshSweep() {
   const warn = $("#sweep-warn");
   const parts = [];
   const varovania = (state.hyperMeta.warn || {});
-  if (isHyper()) {
+  if (isMatrix()) {
+    const pocet = matrixPairs().length * matrixTimeframes().length;
+    const min = pocet ? sweepMinutes(pocet) : 0;
+    $("#sweep-run").textContent = pocet
+      ? `▶ Prejsť trhy (${pocet} ${slovom(pocet, "beh", "behy", "behov")}${min ? ` ≈ ${fmtMinutes(min)}` : ""})`
+      : "▶ Prejsť trhy";
+    $("#sweep-run").disabled = !pocet;
+    matrixWalletCheck();
+  } else if (isHyper()) {
     const rizikove = Object.keys(space).filter(n => varovania[n]);
     for (const n of rizikove) parts.push(`${n}: ${varovania[n]}.`);
     if (Object.keys(space).length < 3) {
@@ -916,6 +932,7 @@ function refreshSweep() {
 }
 
 async function startSearch() {
+  if (isMatrix()) return startMatrix();
   return isHyper() ? startHyperopt() : startSweep();
 }
 
@@ -1123,6 +1140,7 @@ const sweepKey = () => `sweep:${state.strategy}`;
 /** „sweep" prejde mriežku, „hyper" v nej hľadá. Zadanie je pre oboje to isté. */
 let searchMode = "sweep";
 const isHyper = () => searchMode === "hyper";
+const isMatrix = () => searchMode === "matrix";
 
 /** Otvorí naposledy pozeranú mriežku tejto stratégie (alebo nechá sekciu prázdnu). */
 function restoreSweep() {
@@ -1147,10 +1165,10 @@ function resetSweepForStrategy() {
 /** Naplní ponuku predošlých mriežok — sweep sa dá otvoriť aj o týždeň. */
 async function loadSweepHistory() {
   let list = [];
-  const cesta = isHyper() ? "/api/hyperopts" : "/api/sweeps";
+  const cesta = isMatrix() ? "/api/matrices" : (isHyper() ? "/api/hyperopts" : "/api/sweeps");
   try {
     const r = await api(`${cesta}?limit=50&strategy=${encodeURIComponent(state.strategy)}`);
-    list = isHyper() ? r.hyperopts : r.sweeps;
+    list = isMatrix() ? r.matrices : (isHyper() ? r.hyperopts : r.sweeps);
   } catch (e) { return; }
   const sel = $("#sweep-past");
   const wrap = sel.closest(".sweep-past");
@@ -1165,6 +1183,14 @@ async function loadSweepHistory() {
     const stav = isHyper()
       ? `${s.epochs_done || 0}/${s.epochs || "?"} epoch`
       : (s.pending ? `${s.done}/${s.done + s.pending}` : `${s.done} behov`);
+    if (isMatrix()) {
+      const o = document.createElement("option");
+      o.value = s.id;
+      o.textContent = `${sweepStamp(s.id)} · ${s.pairs.length} trhov × ${s.timeframes.length} TF · ${stav}`;
+      o.title = `${s.timerange} · ${s.relative ? "prahy v ATR" : "prahy nezmenené"}`;
+      sel.append(o);
+      continue;
+    }
     o.textContent = `${sweepStamp(s.id)} · ${s.params.join(" × ")} · ${s.pair} ${s.timeframe}`
       + ` · ${stav}`;
     o.title = `${s.timerange} · ${s.goal_note}`;
@@ -1182,17 +1208,23 @@ function sweepStamp(id) {
 /** Prepne medzi „prejdi mriežku" a „hľadaj v nej" — riadky parametrov ostávajú. */
 async function setSearchMode(mode) {
   searchMode = mode;
-  $("#mode-sweep").classList.toggle("active", mode === "sweep");
-  $("#mode-hyper").classList.toggle("active", mode === "hyper");
-  $("#mode-sweep").setAttribute("aria-pressed", String(mode === "sweep"));
-  $("#mode-hyper").setAttribute("aria-pressed", String(mode === "hyper"));
+  for (const [key, id] of [["sweep", "#mode-sweep"], ["hyper", "#mode-hyper"], ["matrix", "#mode-matrix"]]) {
+    $(id).classList.toggle("active", mode === key);
+    $(id).setAttribute("aria-pressed", String(mode === key));
+  }
   for (const el of $$(".hyper-only")) el.hidden = mode !== "hyper";
+  for (const el of $$(".matrix-only")) el.hidden = mode !== "matrix";
+  // Matica nemení parameter, ale trh — riadky parametrov by tam mýlili.
+  $("#sweep-rows").hidden = mode === "matrix";
+  $("#sweep-add").hidden = mode === "matrix";
+  if (mode === "matrix") await initMatrixPick();
   $("#sweep-status").textContent = "";
   $("#sweep-result").innerHTML = "";
   $("#sweep-cancel").hidden = true;
   if (mode === "hyper") await loadHyperMeta();
-  $("#search-hint").textContent = mode === "hyper"
-    ? (state.hyperMeta.note || "Hľadá v rozsahu a učí sa. Víťaz sa preverí na piatich oknách.")
+  $("#search-hint").textContent =
+    mode === "hyper" ? (state.hyperMeta.note || "Hľadá v rozsahu a učí sa. Víťaz sa preverí na piatich oknách.")
+    : mode === "matrix" ? "Že myšlienka drží aj mimo trhu, na ktorom sa ladila, je najsilnejší dôkaz kvality, aký sa z histórie dá dostať."
     : "Každý bod mriežky je obyčajný backtest a ostane v histórii.";
   refreshSweep();
   loadSweepHistory();
@@ -1223,8 +1255,161 @@ async function fillSuggested() {
   refreshSweep();
 }
 
+/** Naplní výber trhov a timeframov; zvýrazní trhy, kde sa nezmestí jeden kontrakt. */
+async function initMatrixPick() {
+  const sel = $("#matrix-pairs");
+  if (!sel.options.length) {
+    for (const p of state.meta.pairs || []) {
+      const o = document.createElement("option");
+      o.value = p.pair;
+      o.textContent = `${p.source || "?"} · ${p.kind || ""} · ${p.pair}`;
+      if (p.pair === $("#pair").value) o.selected = true;
+      sel.append(o);
+    }
+  }
+  const box = $("#matrix-tfs");
+  if (!box.children.length) {
+    // Timeframy sú vlastnosť páru (nie všetky trhy majú všetky), takže tu je zjednotenie
+    // toho, čo je aspoň na jednom trhu — čo na konkrétnom páre nie je, sa preskočí.
+    const vsetky = [...new Set((state.meta.pairs || []).flatMap(p => p.timeframes || []))]
+      .sort((a, b) => (tfMinutes(a) || 0) - (tfMinutes(b) || 0));
+    for (const tf of (vsetky.length ? vsetky : ["3m"])) {
+      const label = document.createElement("label");
+      label.innerHTML = `<input type="checkbox" value="${tf}"${tf === $("#tf").value ? " checked" : ""}> ${tf}`;
+      label.querySelector("input").onchange = refreshSweep;
+      box.append(label);
+    }
+  }
+  await matrixWalletCheck();
+}
+
+/** Jeden lot EURUSD je ~112 000 — s peňaženkou 10 000 sa nezmestí a bunka dá nula obchodov. */
+async function matrixWalletCheck() {
+  const box = $("#matrix-warn");
+  try {
+    const tf = matrixTimeframes()[0] || "3m";
+    const r = await api(`/api/matrix/meta?wallet=${encodeURIComponent($("#wallet").value || 10000)}`
+      + `&timeframe=${encodeURIComponent(tf)}&strategy=${encodeURIComponent(state.strategy)}`);
+    const male = Object.entries(r.small_wallet || {})
+      .filter(([pair]) => matrixPairs().includes(pair))
+      .sort((a, b) => b[1] - a[1]);
+    if (!male.length) { box.hidden = true; return; }
+    box.hidden = false;
+    box.textContent = `Peňaženka ${$("#wallet").value} nestačí na jeden kontrakt na `
+      + `${male.length} vybraných trhoch (${male.slice(0, 3).map(([p, n]) =>
+        `${p} ${Math.round(n).toLocaleString("sk")}`).join(", ")}…). `
+      + `Tie bunky skončia s nula obchodmi. Break-even od peňaženky nezávisí, tak ju zvýš `
+      + `na ${Math.round(male[0][1] * 2).toLocaleString("sk")}.`;
+  } catch (e) { box.hidden = true; }
+}
+
+/** `3m` -> 3, `1h` -> 60. Na zoradenie timeframov podľa dĺžky, nie abecedy. */
+function tfMinutes(tf) {
+  const m = /^(\d+)([mhdw])$/.exec(String(tf || ""));
+  if (!m) return 0;
+  const n = Number(m[1]);
+  return n * { m: 1, h: 60, d: 1440, w: 10080 }[m[2]];
+}
+
+const matrixPairs = () => [...$("#matrix-pairs").selectedOptions].map(o => o.value);
+const matrixTimeframes = () => [...$$("#matrix-tfs input:checked")].map(i => i.value);
+
+/** Matica: každá bunka je obyčajný beh s tou istou značkou. */
+async function startMatrix() {
+  const pairs = matrixPairs(), timeframes = matrixTimeframes();
+  if (!pairs.length || !timeframes.length) return;
+  const btn = $("#sweep-run");
+  btn.disabled = true;
+  $("#sweep-status").textContent = "zaraďujem do fronty…";
+  try {
+    const r = await api("/api/matrices", {
+      method: "POST",
+      body: JSON.stringify({
+        ...runBody(), pairs, timeframes,
+        goal: $("#sweep-goal").value,
+        min_trades: $("#sweep-mintrades").value === "" ? 10 : Number($("#sweep-mintrades").value),
+        relative: $("#matrix-relative").checked,
+      }),
+    });
+    matrixState.id = r.id;
+    try { localStorage.setItem(matrixKey(), r.id); } catch (e) { /* súkromné okno */ }
+    const preskocene = Object.keys(r.skipped || {}).length;
+    $("#sweep-status").textContent = `${r.cells} buniek vo fronte`
+      + (preskocene ? ` · ${preskocene} preskočených` : "");
+    if ((r.converted || []).length) {
+      $("#sweep-warn").hidden = false;
+      $("#sweep-warn").textContent = "Prahy prepočítané: " + r.converted.join("; ");
+    }
+    pollQueue();
+    pollMatrix();
+    loadSweepHistory();
+  } catch (e) {
+    $("#sweep-status").textContent = e.message;
+  } finally { refreshSweep(); }
+}
+
+const matrixKey = () => `matrix:${state.strategy}`;
+const matrixState = { id: null, timer: null };
+
+async function pollMatrix() {
+  if (!matrixState.id) return;
+  try {
+    const r = await api(`/api/matrices/${matrixState.id}`);
+    renderMatrix(r);
+    if (r.pending) {
+      clearTimeout(matrixState.timer);
+      matrixState.timer = setTimeout(pollMatrix, 4000);
+    }
+  } catch (e) {
+    clearTimeout(matrixState.timer);
+    matrixState.timer = setTimeout(pollMatrix, 4000);
+  }
+}
+
+function renderMatrix(r) {
+  $("#sweep-status").textContent = `hotových ${r.done} z ${r.done + r.pending}`
+    + ` · ${r.goal_note}` + (r.relative ? " · prahy v ATR" : " · prahy nezmenené (!)");
+  const t = r.table || {};
+  const casti = [];
+  if ((t.pairs || []).length) {
+    const head = ["trh", ...t.timeframes].map(h => `<th>${esc(h)}</th>`).join("");
+    const rows = t.pairs.map(pair => {
+      const cells = t.timeframes.map(tf => {
+        const b = (t.cells[pair] || {})[tf];
+        if (!b) return `<td class="wait">.</td>`;
+        if (b.status !== "done") return `<td class="wait">${esc(b.status || "…")}</td>`;
+        if (b.value === null || b.value === undefined) {
+          // Rozdiel je zásadný: „0 setupov" je vlastnosť stratégie na tom trhu,
+          // „odmietnuté" je náš problém s peňaženkou alebo sizingom.
+          const text = b.empty === "bez setupu" ? "0 setupov"
+            : b.empty === "odmietnute" ? "odmietnuté" : "—";
+          return `<td class="wait" title="${esc(b.warning || "")}">${text}</td>`;
+        }
+        const cls = !b.ok ? "noise" : (b.value > 0 ? "pos" : "neg");
+        const title = b.ok ? `${b.trades} obchodov` : esc(b.why || "mimo mantinelov");
+        return `<td class="${cls}" data-run="${b.id}" title="${title}">${fmt(b.value, 4)}</td>`;
+      }).join("");
+      return `<tr><td>${esc(pair)}</td>${cells}</tr>`;
+    }).join("");
+    casti.push(`<table class="mx-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`);
+    casti.push('<p class="an-note">Čísla sú break-even poplatok v % na stranu. Kurzívou sú bunky'
+      + " s málo obchodmi — číslo tam je, ale záver z neho nie. PnL % nie je medzi trhmi"
+      + " porovnateľné (závisí od peňaženky), break-even áno.</p>");
+  }
+  if (r.verdict) {
+    const trieda = r.verdict.startsWith("MYSLIENKA DRZI") ? "good"
+      : (r.verdict.includes("LEN NA JEDNOM") || r.verdict.startsWith("SLABE") ? "bad" : "unsure");
+    casti.push(`<div class="verdict ${trieda}">${esc(r.verdict)}</div>`);
+  }
+  $("#sweep-result").innerHTML = casti.join("");
+  for (const td of $$("#sweep-result td[data-run]")) {
+    td.onclick = () => { showView("history"); openRun(td.dataset.run); };
+  }
+}
+
 /** Otvorí mriežku z histórie — tú istú tabuľku, aká bola po dobehnutí. */
 function openSweep(id) {
+  if (isMatrix()) return openMatrix(id);
   if (isHyper()) return openHyper(id);
   sweep.id = id || null;
   const sel = $("#sweep-past");
@@ -1236,6 +1421,18 @@ function openSweep(id) {
   if (!id) { $("#sweep-status").textContent = ""; $("#sweep-result").innerHTML = ""; return; }
   $("#sweep-box").open = true;
   pollSweep();
+}
+
+/** Otvorí maticu z histórie. */
+function openMatrix(id) {
+  matrixState.id = id || null;
+  try {
+    id ? localStorage.setItem(matrixKey(), id) : localStorage.removeItem(matrixKey());
+  } catch (e) { /* súkromné okno */ }
+  clearTimeout(matrixState.timer);
+  if (!id) { $("#sweep-status").textContent = ""; $("#sweep-result").innerHTML = ""; return; }
+  $("#sweep-box").open = true;
+  pollMatrix();
 }
 
 /** Otvorí hyperopt z histórie — epochy, víťaz aj overenie na oknách. */
@@ -1289,6 +1486,13 @@ function initSweep() {
   $("#sweep-cancel").onclick = () => (isHyper() ? cancelHyper() : cancelSweep());
   $("#mode-sweep").onclick = () => setSearchMode("sweep");
   $("#mode-hyper").onclick = () => setSearchMode("hyper");
+  $("#mode-matrix").onclick = () => setSearchMode("matrix");
+  $("#matrix-pairs").onchange = refreshSweep;
+  $("#matrix-all").onclick = () => {
+    for (const o of $("#matrix-pairs").options) o.selected = true;
+    refreshSweep();
+  };
+  $("#matrix-relative").onchange = refreshSweep;
   $("#hyper-suggested").onclick = fillSuggested;
   $("#hyper-epochs").oninput = refreshSweep;
   $("#sweep-past").onchange = () => openSweep($("#sweep-past").value);
@@ -2227,7 +2431,15 @@ async function prepareTuning(name) {
   $("#sweep-rows").innerHTML = "";
   addSweepRow(name);
   const row = $$("#sweep-rows .sweep-row").at(-1);
-  if (isHyper()) {
+  if (isMatrix()) {
+    const pocet = matrixPairs().length * matrixTimeframes().length;
+    const min = pocet ? sweepMinutes(pocet) : 0;
+    $("#sweep-run").textContent = pocet
+      ? `▶ Prejsť trhy (${pocet} ${slovom(pocet, "beh", "behy", "behov")}${min ? ` ≈ ${fmtMinutes(min)}` : ""})`
+      : "▶ Prejsť trhy";
+    $("#sweep-run").disabled = !pocet;
+    matrixWalletCheck();
+  } else if (isHyper()) {
     const odporucane = (state.hyperMeta.suggested || {})[name];
     if (odporucane) row.querySelector("input.spec").value = odporucane;
   } else if (meta) {
