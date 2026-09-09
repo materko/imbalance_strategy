@@ -21,7 +21,7 @@ from datetime import datetime
 
 from pandas import DataFrame
 
-from freqtrade.optimize.hyperopt import IHyperOptLoss
+from freqtrade.optimize.hyperopt_loss.hyperopt_loss_interface import IHyperOptLoss
 
 #: Referencia: manuálny prieskum v TradingView dal 39-40 obchodov za 90 dní
 #: a 174 za rok. Pod tento počet už výsledok nie je čím podložiť.

@@ -59,7 +59,7 @@ tester/runs/, tester/profiles/                                   história behov
      `KIND_TITLES`.
    - `freqtrade.py` — `class MojaStrategy(TradebotStrategyBase)`: `STRATEGY_KEY = "moja"`,
      `ENTRY_TAG_PREFIX`, `timeframe`; háky podľa potreby (`_after_profile`, `_feed_informative`,
-     `_apply_hyperopt_params`, `_trailing_stop`, `custom_exit`).
+     `_feed_informative`, `_trailing_stop`, `custom_exit`).
    - `multicharts.py` — `class MojaSignal(TradebotSignal)`: `STRATEGY_KEY = "moja"`.
    - `__init__.py` — najprv `from . import drawing`, potom `SPEC = StrategySpec(key="moja", …)`
      so všetkým z hora (`pine_path`, `pine_input_count`, `engine_factory`, `freqtrade_class`,

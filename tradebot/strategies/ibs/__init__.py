@@ -10,6 +10,7 @@ from ..base import REPO, StrategySpec
 SOURCES = Path(__file__).resolve().parent / "docs" / "sources"
 
 from .config import CONFIG_DIR, CONSTRAINTS, DETECTION_TFS, PORT_ONLY_FIELDS, SIZE_FIELDS, IBSConfig
+from .hyperopt import IBSHyperopt
 from .engine import IBSEngine, IBSEngineOutput
 from .htf import HTFFeeder, HTFWindow, htf_window_opens
 from .meta import (
@@ -51,10 +52,11 @@ SPEC = StrategySpec(
     multicharts_template="IBS_Signal.py",
     informative_tfs=lambda cfg: [f"{int(cfg.zoneDetectionTF)}m"],
     htf_feeder=HTFFeeder,
+    hyperopt_cls=IBSHyperopt,
 )
 
 __all__ = [
-    "SPEC",
+    "SPEC", "IBSHyperopt",
     "IBSConfig", "CONFIG_DIR", "CONSTRAINTS", "DETECTION_TFS", "PORT_ONLY_FIELDS", "SIZE_FIELDS",
     "IBSEngine", "IBSEngineOutput", "StateMachine", "ZoneState",
     "HTFFeeder", "HTFWindow", "htf_window_opens",

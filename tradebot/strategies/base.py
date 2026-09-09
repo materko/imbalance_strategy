@@ -76,6 +76,10 @@ class StrategySpec:
     informative_tfs: Callable[[StrategyConfig], list[str]] | None = None
     #: (cfg, chart_tf_minutes) -> feeder s `load/feed/window_for`, alebo None (engine bez HTF)
     htf_feeder: Callable[[StrategyConfig, int], Any] | None = None
+    #: Čo o ladení vie stratégia: odporúčané parametre, varovania, väzby medzi
+    #: parametrami (`tradebot/strategies/<key>/hyperopt.py`). Generický hyperopt si ju
+    #: vyzdvihne odtiaľto, menom ju nepozná; bez nej platí základ `StrategyHyperopt`.
+    hyperopt_cls: type | None = None
 
     def public(self) -> dict[str, Any]:
         """Čo o stratégii dostane prehliadač."""

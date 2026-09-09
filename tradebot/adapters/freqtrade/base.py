@@ -31,6 +31,7 @@ from tradebot.core.derived import remember
 from tradebot.core.env import getenv
 from tradebot.strategies import StrategySpec, get_spec
 
+from . import hyperplan
 from .runner import COLUMN_ATTRS, EngineRunner, SignalRow, export_chart
 
 logger = logging.getLogger(__name__)
@@ -107,6 +108,19 @@ class TradebotStrategyBase(IStrategy):
     minimal_roi = {"0": 100.0}
 
     startup_candle_count = 300
+
+    def __init_subclass__(cls, **kwargs) -> None:
+        """Doplní na triedu hyperopt parametre z plánu (`TRADEBOT_HYPEROPT_PLAN`).
+
+        Musí to byť tu, pri vzniku triedy: Freqtrade hľadá parametre v atribútoch až
+        keď triedu dostane od resolvera, ale robí to na hotovej triede — takže parameter
+        prilepený pri importe je preň nerozoznateľný od napísaného v tele triedy.
+        Bez plánu sa nedeje nič a ladí sa priestor napísaný v stratégii.
+        """
+        super().__init_subclass__(**kwargs)
+        installed = hyperplan.install(cls)
+        if installed:
+            logger.info("hyperopt plan: %s -> priestor %r", ", ".join(installed), hyperplan.SPACE)
 
     def __init__(self, config: dict) -> None:
         super().__init__(config)
@@ -296,7 +310,17 @@ class TradebotStrategyBase(IStrategy):
         """Volá sa po načítaní profilu (IBS: hodiny seáns, kontrola unfilledtimeout)."""
 
     def _apply_hyperopt_params(self) -> None:
-        """Vloží hodnoty hyperopt parametrov do configu — stratégia bez hyperoptu nič."""
+        """Hodnoty aktuálnej epochy do configu.
+
+        Čo sa ladí, hovorí plán testera (`TRADEBOT_HYPEROPT_PLAN`) — priestor sa v kóde
+        stratégie nepíše. Bez plánu sa nedeje nič a hyperopt skončí na tom, že nemá čo
+        ladiť; to je správna odpoveď, nie tichý beh s cudzími parametrami.
+        """
+        if not self.hyperopt_active:
+            return
+        plan = hyperplan.plan_from_env()
+        if plan is not None and plan.strategy == self.spec.key:
+            hyperplan.apply(self, plan)
 
     def _feed_informative(self, runner: EngineRunner, pair: str) -> None:
         """Dodá runneru informatívne sviečky (IBS: bary detekčného TF do `runner.htf`)."""
