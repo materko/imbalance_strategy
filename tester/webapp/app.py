@@ -315,9 +315,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 "kind": "user" if user_profiles.is_user(name, strategy) else "builtin"}
 
     @app.get("/api/runs")
-    def runs(q: str = "", limit: int = 500):
+    def runs(q: str = "", limit: int = Query(500, ge=1, le=5000), offset: int = Query(0, ge=0)):
         recs = store.search(q) if q.strip() else store.all()
-        return {"total": len(recs), "runs": [summarize_for_list(r, defaults_of(r)) for r in recs[:limit]]}
+        return {"total": len(recs), "runs": [summarize_for_list(r, defaults_of(r)) for r in recs[offset:offset + limit]]}
 
     def _run_settings(req: RunRequest) -> dict[str, Any]:
         """Overí zadanie a poskladá `settings` behu. Spoločné pre jeden beh aj pre sweep."""

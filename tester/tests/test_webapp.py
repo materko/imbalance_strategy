@@ -174,6 +174,20 @@ def client(tmp_path: Path):
     return TestClient(create_app(store, runner)), store
 
 
+def test_history_pages_apply_filter_before_offset(client):
+    c, store = client
+    for i in range(6):
+        store.save(_record(f"20260905-12000{i}-abc123", note="selected" if i % 2 else "other"))
+    expected = [r["id"] for r in store.search("note=selected")]
+    first = c.get("/api/runs", params={"q": "note=selected", "limit": 2}).json()
+    second = c.get("/api/runs", params={"q": "note=selected", "limit": 2, "offset": 2}).json()
+    assert first["total"] == second["total"] == 3
+    assert [r["id"] for r in first["runs"] + second["runs"]] == expected
+    assert c.get("/api/runs?offset=10").json()["runs"] == []
+    assert c.get("/api/runs?offset=-1").status_code == 422
+    assert c.get("/api/runs?limit=0").status_code == 422
+
+
 def test_meta_endpoint(client):
     c, _ = client
     m = c.get("/api/meta").json()
@@ -953,6 +967,8 @@ def test_sweep_vidno_od_zaradenia_aj_ked_este_nic_nedobehlo(client, monkeypatch)
     from tester.webapp import app as app_mod
 
     c, _ = client
+    # Testujeme čakajúcu frontu; rýchly podproces nesmie náhodou dobehnúť pred GET.
+    monkeypatch.setattr(c.app.state.runner, "start", lambda: None)
     monkeypatch.setattr(app_mod.engines, "available",
                         lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
     monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])

@@ -9,7 +9,7 @@
 </head>
 <body>
 <header class="top">
-  <div class="brand">TradeBot <span>Backtester</span></div>
+  <div class="brand"><span class="brand-icon">↗</span> TradeBot <span>Lab</span></div>
   <nav class="tabs">
     <button data-view="new" class="active">Nový beh</button>
     <button data-view="history">História</button>
@@ -39,9 +39,14 @@
 </div>
 
 <main id="view-new" class="view">
+  <div class="workspace-intro">
+    <div><span class="eyebrow">PRACOVNÝ PRIESTOR / BACKTEST</span><h1>Od nápadu k výsledku.</h1>
+    <p>Vyber trh a obdobie, uprav stratégiu a otestuj ju na historických dátach.</p></div>
+    <div class="workspace-tag"><span></span> Historické dáta · lokálny tester</div>
+  </div>
   <section class="col settings">
     <div class="card run-card">
-      <h2>Beh</h2>
+      <h2><span class="step-number">1</span> Priprav test</h2>
       <div class="form-grid">
         <label class="field span2">Stratégia
           <select id="strategy"></select>
@@ -72,20 +77,12 @@
           <span id="pair-market"></span><span id="pair-range"></span>
         </div>
 
-        <label class="field">Engine
-          <select id="engine" title="Čím beh prehrať. Freqtrade = backtest Freqtradu; MultiCharts (emulátor) = ten istý MCRunner, ktorý beží v štúdii, s brokerom podľa MultiCharts."></select>
-        </label>
-        <label class="field">Burza
-          <select id="exchange" title="Cez ktorú burzu má Freqtrade beh prejsť. Tester je naša fiktívna burza — pozná všetky naše timeframy vrátane tých, čo skutočné burzy nemajú (2m, 4m). Emulátor MultiCharts burzu nepotrebuje."></select>
-        </label>
-        <div class="hint hint-row span2">
-          <span id="engine-note"></span><span id="exchange-note"></span>
-        </div>
+
 
         <div class="sep span2"></div>
 
         <div class="field span2 range-head">
-          <span class="field-label">Obdobie</span>
+          <span class="field-label">Testované obdobie</span>
           <span class="chips">
             <button type="button" class="chip-btn" data-range="1">1 rok</button>
             <button type="button" class="chip-btn" data-range="2">2 roky</button>
@@ -98,7 +95,7 @@
         <label class="field">Poplatok % / strana
           <input type="number" id="fee" step="0.001" min="0" value="0.05" title="Poplatok burzy na jednu stranu. Binance taker berie 0,05 %.">
         </label>
-        <label class="field">Peňaženka
+        <label class="field">Počiatočný kapitál
           <input type="number" id="wallet" step="100" min="100" value="10000" title="Počiatočný zostatok účtu. Pri porovnaní s TradingView daj toľko, koľko má graf.">
         </label>
         <label class="field switch-field span2" title="Fill ceny SL a TP sa hľadajú na 1m sviečkach vnútri baru — presnejšie, ale pomalšie. Bez toho sú fill ceny hrubé a do záverov sa nehodia.">
@@ -106,6 +103,15 @@
           <span>1m detail fillov <span class="hint">— presnejšie SL/TP vnútri sviečky, pomalšie</span></span>
         </label>
 
+<details class="execution-settings span2"><summary>Spôsob simulácie <span>engine a burza</span></summary><div class="form-grid">        <label class="field">Engine
+          <select id="engine" title="Čím beh prehrať. Freqtrade = backtest Freqtradu; MultiCharts (emulátor) = ten istý MCRunner, ktorý beží v štúdii, s brokerom podľa MultiCharts."></select>
+        </label>
+        <label class="field">Burza
+          <select id="exchange" title="Cez ktorú burzu má Freqtrade beh prejsť. Tester je naša fiktívna burza — pozná všetky naše timeframy vrátane tých, čo skutočné burzy nemajú (2m, 4m). Emulátor MultiCharts burzu nepotrebuje."></select>
+        </label>
+        <div class="hint hint-row span2">
+          <span id="engine-note"></span><span id="exchange-note"></span>
+        </div></div></details>
         <div id="pair-warn" class="warnbox span2" hidden></div>
         <div id="trading-warn" class="warnbox span2" hidden></div>
 
@@ -114,7 +120,22 @@
         </label>
       </div>
 
-      <details id="sweep-box" class="sweep-box">
+
+
+      <div class="run-bar">
+        <button id="run" class="primary">▶ Spustiť backtest</button>
+      </div>
+      <div id="run-error" class="error" hidden></div>
+    </div>
+
+    <div class="card">
+      <h2>Fronta <span id="queue-count" class="chip"></span></h2>
+      <div id="queue" class="queue"><div class="muted">Nič nebeží.</div></div>
+    </div>
+  </section>
+
+  <section class="col params">
+      <details id="sweep-box" class="card sweep-box">
         <summary>Hľadať parameter <span class="muted small">— mriežka behov, nie jeden</span></summary>
         <div class="sweep-body">
           <label class="field sweep-past" hidden>Predošlá mriežka
@@ -143,23 +164,14 @@
           <div id="sweep-result"></div>
         </div>
       </details>
-
-      <div class="run-bar">
-        <button id="run" class="primary">▶ Spustiť backtest</button>
-      </div>
-      <div id="run-error" class="error" hidden></div>
-    </div>
-
-    <div class="card">
-      <h2>Fronta <span id="queue-count" class="chip"></span></h2>
-      <div id="queue" class="queue"><div class="muted">Nič nebeží.</div></div>
-    </div>
-  </section>
-
-  <section class="col params">
     <div class="card params-card">
       <div class="params-head">
-        <h2>Parametre stratégie <span id="override-count" class="chip"></span></h2>
+        <h2><span class="step-number">2</span> Nastav stratégiu <span id="override-count" class="chip"></span></h2>
+        <div class="mode-switch" role="group" aria-label="Rozsah nastavení">
+          <button id="mode-basic" class="active" aria-pressed="true">Základné</button>
+          <button id="mode-all" aria-pressed="false">Všetky parametre</button>
+        </div>
+        <p id="mode-hint" class="mode-hint">Najčastejšie nastavenia. Ostatné hodnoty zostávajú podľa zvoleného profilu.</p>
         <input type="search" id="param-filter" placeholder="hľadať v názve, popise alebo identifikátore…">
         <label class="inline small"><input type="checkbox" id="only-changed"> len zmenené</label>
         <button id="reset-params" class="ghost" title="vráti všetky hodnoty z východiskového profilu">Reset na profil</button>
@@ -181,7 +193,7 @@
       <input type="search" id="search" placeholder="napr. rrRatio>=5 useStructureFilter=true pair~ETH pnl>0 note~seansa">
       <button id="search-btn" class="primary">Hľadať</button>
       <button id="search-help-btn" class="ghost">?</button>
-      <span id="search-count" class="muted"></span>
+      <span id="search-count" class="muted" role="status"></span>
     </div>
     <div id="search-help" class="help" hidden>
       Podmienky oddeľ medzerou, všetky musia platiť. <code>názovParametra op hodnota</code>, kde op je
@@ -201,6 +213,15 @@
         <tbody></tbody>
       </table>
     </div>
+    <div class="history-pages">
+      <label class="inline small">Na stranu
+        <select id="history-size"><option>25</option><option selected>50</option><option>100</option></select>
+      </label>
+      <span id="history-page" class="muted small" role="status"></span>
+      <button id="history-prev" class="ghost" disabled>← Predošlá</button>
+      <button id="history-next" class="ghost" disabled>Ďalšia →</button>
+    </div>
+    <div id="history-error" class="error" role="alert" hidden></div>
   </div>
 
   <div id="run-detail" class="card" hidden>
