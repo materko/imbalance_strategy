@@ -2091,9 +2091,111 @@ async function gitAction(kind) {
 // Navigácia a štart
 // --------------------------------------------------------------------------- //
 
+// --------------------------------------------------------------------------- //
+// Analytika: ktora skupina obchodov kazi vysledok
+// --------------------------------------------------------------------------- //
+
+async function loadAnalytics() {
+  const btn = $("#an-run");
+  btn.disabled = true;
+  $("#an-status").textContent = "počítam…";
+  const params = new URLSearchParams({
+    q: $("#an-query").value.trim(),
+    strategy: state.strategy,
+    quantiles: $("#an-quantiles").value,
+    min_bucket: $("#an-minbucket").value || 8,
+    limit_runs: $("#an-limit").value || 40,
+  });
+  try {
+    const r = await api(`/api/analytics?${params}`);
+    renderAnalytics(r);
+    $("#an-status").textContent = "";
+  } catch (e) {
+    $("#an-status").textContent = e.message;
+    $("#an-summary").innerHTML = "";
+    $("#an-result").innerHTML = "";
+  } finally { btn.disabled = false; }
+}
+
+function renderAnalytics(r) {
+  const zhrnutie = [
+    `<div class="headline">${esc(r.headline)}</div>`,
+    `<p class="an-note"><b>${r.trades}</b> obchodov z <b>${r.runs.length}</b> behov`
+      + ` · break-even <b>${fmt(r.break_even_pct, 4)} %</b> · winrate ${fmt(r.winrate, 1)} %`
+      + ` · ${esc(r.pairs.join(", "))}</p>`,
+  ];
+  if (r.mixed_pairs) {
+    zhrnutie.push('<div class="warnbox">Zliate sú obchody z viacerých párov. Vzdialenosť'
+      + " stopu ani prahy v cenových bodoch medzi nimi porovnateľné nie sú — pozeraj hlavne"
+      + " hodinu, deň a smer, alebo si vyber jeden pár.</div>");
+  }
+  zhrnutie.push(`<div class="an-runs">${r.runs.map(x =>
+    `<span title="${esc(x.note)}">${esc(x.id)} (${x.trades})</span>`).join(" · ")}</div>`);
+  $("#an-summary").innerHTML = zhrnutie.join("");
+
+  const sekcia = (s, neskor) => {
+    const posledny = s.buckets.length - 1;
+    const rows = s.buckets.map((b, i) => {
+      const cls = i === 0 ? "worst" : (i === posledny ? "best" : "");
+      return `<tr class="${cls}"><td>${esc(b.label)}</td>`
+        + `<td>${b.trades}</td><td>${fmt(b.share_pct, 1)} %</td>`
+        + `<td>${fmt(b.winrate, 1)}</td><td>${fmt(b.break_even_pct, 4)}</td>`
+        + `<td>${fmt(b.without_pct, 4)}</td>`
+        + `<td>${b.impact === null ? "—" : (b.impact > 0 ? "+" : "") + fmt(b.impact, 4)}</td></tr>`;
+    }).join("");
+    // Parameter, ktory vlastnost riadi, je vedomost strategie - klik z neho spravi zadanie.
+    const gate = s.param
+      ? `<button class="ghost small param" data-param="${esc(s.param)}"
+           title="Nachystá hľadanie tohto parametra na karte Nový beh">preladiť ${esc(s.param)}</button>`
+      : "";
+    return `<div class="an-split ${neskor ? "an-later" : ""}">
+        <div class="an-head"><h3>${esc(s.title)}</h3>${gate}</div>
+        <p class="an-note">${esc(s.note)}</p>
+        <table><thead><tr><th>skupina</th><th>obch.</th><th>podiel</th><th>WR %</th>
+          <th>break-even</th><th>bez nej</th><th>zmena</th></tr></thead>
+        <tbody>${rows}</tbody></table>
+      </div>`;
+  };
+
+  const casti = ["<h3>Vopred známe — podľa toho sa dá filtrovať</h3>"];
+  casti.push(...r.splits.map(s => sekcia(s, false)));
+  if ((r.descriptive || []).length) {
+    casti.push("<h3>Známe až po obchode — len opis</h3>");
+    casti.push('<p class="an-note">Tieto vlastnosti sa pri vstupe nedajú poznať, takže'
+      + " „bez nej by break-even bol" + '" tu nie je príležitosť, ale pohľad dozadu.'
+      + " Užitočné sú na to, aby bolo vidieť, kde obchody končia.</p>");
+    casti.push(...r.descriptive.map(s => sekcia(s, true)));
+  }
+  $("#an-result").innerHTML = casti.join("");
+
+  for (const b of $$("#an-result [data-param]")) {
+    b.onclick = () => prepareTuning(b.dataset.param);
+  }
+}
+
+/** Z analytiky rovno do hľadania: nachystá riadok parametra a prepne na formulár. */
+async function prepareTuning(name) {
+  showView("new");
+  $("#sweep-box").open = true;
+  const meta = metaByName()[name];
+  $("#sweep-rows").innerHTML = "";
+  addSweepRow(name);
+  const row = $$("#sweep-rows .sweep-row").at(-1);
+  if (isHyper()) {
+    const odporucane = (state.hyperMeta.suggested || {})[name];
+    if (odporucane) row.querySelector("input.spec").value = odporucane;
+  } else if (meta) {
+    row.querySelector("input.spec").value = defaultSpec(meta);
+  }
+  refreshSweep();
+  $("#sweep-status").textContent = `nachystané z analytiky: ${name}`;
+  row.querySelector("input.spec").focus();
+}
+
 function showView(name) {
   for (const b of $$(".tabs button")) b.classList.toggle("active", b.dataset.view === name);
   $("#view-new").hidden = name !== "new"; $("#view-history").hidden = name !== "history";
+  $("#view-analytics").hidden = name !== "analytics";
   // karta História je vždy celý zoznam — otvorený detail behu sa zavrie, nech neprekrýva tabuľku
   if (name === "history") { closeDetail(); loadRuns(); }
 }
@@ -2130,6 +2232,8 @@ async function init() {
   $("#load-params").onclick = loadDetailIntoForm;
   for (const b of $$(".chip-btn[data-range]")) b.onclick = () => setQuickRange(b.dataset.range);
   initSweep();
+  $("#an-run").onclick = loadAnalytics;
+  $("#an-query").onkeydown = e => { if (e.key === "Enter") loadAnalytics(); };
   $("#mc-box").addEventListener("toggle", () => { if ($("#mc-box").open) loadMonteCarlo(); });
   $("#mc-run").onclick = () => loadMonteCarlo(true);
   $("#delete-run").onclick = async () => {

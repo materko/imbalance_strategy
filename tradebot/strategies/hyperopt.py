@@ -52,6 +52,11 @@ class StrategyHyperopt:
     #: Krátka veta do formulára — čo o ladení tejto stratégie vieme.
     NOTE: ClassVar[str] = ""
 
+    #: `vlastnosť obchodu -> parameter configu, ktorý ju riadi`. Vďaka tomu analytika
+    #: (`tester.analytics`) nekončí zistením „tesné stopy nezarábajú", ale odkazom na
+    #: parameter, ktorý sa tým dá zmeniť — a ten sa dá rovno preladiť.
+    FEATURE_PARAMS: ClassVar[dict[str, str]] = {}
+
     @classmethod
     def constrain(cls, cfg: Any) -> None:
         """Opraví väzby medzi parametrami po vložení hodnôt epochy do configu.

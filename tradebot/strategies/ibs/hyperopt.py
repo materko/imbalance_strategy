@@ -45,6 +45,17 @@ class IBSHyperopt(StrategyHyperopt):
         "minSlDistance": {"low": 0.0, "high": 0.6, "step": 0.05, "unit": "pct"},
     }
 
+    #: Ktorý parameter riadi ktorú vlastnosť obchodu — analytika podľa toho vie povedať
+    #: nielen „táto skupina kazí výsledok", ale aj čím sa dá odstrániť.
+    FEATURE_PARAMS: ClassVar[dict[str, str]] = {
+        "sl_pct": "minSlDistance",        # tesné stopy sa dajú odfiltrovať prahom
+        "rr_planned": "rrRatio",          # plánovaný pomer TP k SL
+        "direction": "tradeDirection",    # keď edge nesie jedna strana
+        "hour": "sess2TradeStartH",       # celý edge bol v NY seanse
+        "exit_reason": "closeAtSessionEnd",  # výstupy na čas riadi tento prepínač
+        "duration_min": "state2MaxBars",  # ako dlho sa čaká na potvrdenie
+    }
+
     WARN: ClassVar[dict[str, str]] = {
         "minImbSizePoints": "prah v cenových bodoch; na hyperopte sa prefitoval — ak už, tak v jednotke atr",
         "pbMinRangePoints": "to isté ako minImbSizePoints — prah citlivosti, nie štruktúra obchodu",
