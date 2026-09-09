@@ -772,3 +772,19 @@ def test_stranka_sa_necachuje(client):
     c, _ = client
     r = c.get("/")
     assert r.status_code == 200 and "no-cache" in r.headers.get("cache-control", "")
+
+
+def test_odkazy_na_skript_a_styly_maju_verziu(client):
+    """`no-cache` nestačí na kópiu, ktorú si prehliadač uložil ešte pred jej pridaním.
+
+    Chrome takú považuje za čerstvú podľa vlastnej heuristiky a znova sa nepýta (Edge áno),
+    takže stránka bola nová a štýly staré. Verzia v URL je iný kľúč cache.
+    """
+    import re
+
+    c, _ = client
+    html = c.get("/").text
+    assert re.search(r'href="/static/app\.css\?v=[0-9a-f]+"', html)
+    assert re.search(r'src="/static/app\.js\?v=[0-9a-f]+"', html)
+    # verzia sa mení len so súborom, nie s každým načítaním
+    assert c.get("/").text == html

@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -59,6 +59,17 @@ def montecarlo_cached(run_id: str, trades: list[dict[str, Any]], opts: dict[str,
             _MC_CACHE.popitem(last=False)
     _MC_CACHE.move_to_end(key)
     return _MC_CACHE[key]
+
+
+def _asset_version() -> str:
+    """Odtlačok skriptu a štýlov — mení sa s každou zmenou súboru, inak je stály."""
+    stamp = 0.0
+    for name in ("app.js", "app.css"):
+        try:
+            stamp = max(stamp, (STATIC / name).stat().st_mtime)
+        except OSError:
+            continue
+    return format(int(stamp), "x")
 
 
 class _NoCacheStatic(StaticFiles):
@@ -157,10 +168,15 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
 
     @app.get("/")
     def index():
-        # aj samotná stránka bez cache — inak by prehliadač po aktualizácii držal starú
-        # a odkazy na nový skript by sa k nemu nedostali
-        return FileResponse(STATIC / "index.html",
-                            headers={"Cache-Control": "no-cache, must-revalidate"})
+        # Stránka bez cache a odkazy na skript a štýly s verziou. `no-cache` samo nestačí:
+        # prehliadač, ktorý si súbor uložil ešte PREDTÝM, než sme hlavičku pridali, ho
+        # považuje za čerstvý podľa vlastnej heuristiky a znova sa nepýta (Chrome to robí,
+        # Edge nie). Verzia v URL je iný kľúč cache, takže stará kópia sa nemá ako použiť.
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        v = _asset_version()
+        html = html.replace('href="/static/app.css"', f'href="/static/app.css?v={v}"')
+        html = html.replace('src="/static/app.js"', f'src="/static/app.js?v={v}"')
+        return HTMLResponse(html, headers={"Cache-Control": "no-cache, must-revalidate"})
 
     @app.get("/api/meta")
     def meta():
