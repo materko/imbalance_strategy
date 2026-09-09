@@ -136,9 +136,11 @@ priamo v procese webapp (bez Freqtrade) — ten istý runner ako študia v Multi
 pozícia, SL/TP po 1m; `timeframe_detail` sa ignoruje, 1m je vždy. Ako pridať symbol:
 README, sekcia „Dukascopy dáta".
 
-**Pár** je pomenovaný tak, ako ho volá burza, a ponuka je rozdelená na **Futures
-(perpetual)** a **Spot**: `BTCUSDT.P` je perpetuál (`BTC/USDT:USDT` vo Freqtrade),
-`BTCUSDT` je spot (`BTC/USDT`). Pod ponukou je vidno, o ktorý trh ide.
+**Pár** je v ponuke ako **zdroj · trh · symbol** — `binance · futures · BTCUSDT.P`,
+`binance · spot · BTCUSDT`, `dukascopy · cfd · NAS100` —, zoskupený podľa zdroja dát.
+Z jedného riadku je tak vidno, odkiaľ sviečky sú a čo sa obchoduje, aj keď je select
+zavretý; symbol je ten, ako ho volá burza (`BTCUSDT.P` je perpetuál, vo Freqtrade
+`BTC/USDT:USDT`). Pod ponukou je celý popis trhu a rozsah dát.
 
 Na spote sa nedá shortovať ani páčiť — burza nemá čo požičať. Pri spotovom páre sa
 preto `tradeDirection` prepne na „Long only", `leverage` na 1 a obe polia sa zamknú;

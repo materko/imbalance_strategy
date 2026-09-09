@@ -61,6 +61,23 @@ def montecarlo_cached(run_id: str, trades: list[dict[str, Any]], opts: dict[str,
     return _MC_CACHE[key]
 
 
+class _NoCacheStatic(StaticFiles):
+    """Stránka a skript sa po aktualizácii nesmú ťahať z cache prehliadača.
+
+    Bez toho tester po `git pull` a reštarte vidí starú stránku (a nové pole jednoducho
+    chýba), kým si nespraví hard refresh. Súbory sú lokálne a malé, takže revalidácia
+    pri každom načítaní nič nestojí.
+    """
+
+    def is_not_modified(self, response_headers, request_headers) -> bool:  # noqa: D102
+        return False
+
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        response.headers["Cache-Control"] = "no-cache, must-revalidate"
+        return response
+
+
 def current_user() -> str:
     return getenv("USER") or gitsync.user_name() or os.environ.get("USERNAME", "") or "tester"
 
@@ -437,7 +454,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         req = req or GitPushRequest()
         return gitsync.push(message=req.message, author=_clean_user(req.author))
 
-    app.mount("/static", StaticFiles(directory=str(STATIC)), name="static")
+    app.mount("/static", _NoCacheStatic(directory=str(STATIC)), name="static")
     return app
 
 
