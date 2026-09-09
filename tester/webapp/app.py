@@ -157,7 +157,10 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
 
     @app.get("/")
     def index():
-        return FileResponse(STATIC / "index.html")
+        # aj samotná stránka bez cache — inak by prehliadač po aktualizácii držal starú
+        # a odkazy na nový skript by sa k nemu nedostali
+        return FileResponse(STATIC / "index.html",
+                            headers={"Cache-Control": "no-cache, must-revalidate"})
 
     @app.get("/api/meta")
     def meta():

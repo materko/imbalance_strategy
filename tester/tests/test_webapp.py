@@ -765,3 +765,10 @@ def test_formular_ma_vsetky_ovladace_ktore_stranka_pouziva():
                  "fee", "wallet", "detail", "note", "run", "run-error",
                  "pair-warn", "trading-warn"):
         assert f'id="{name}"' in html, name
+
+
+def test_stranka_sa_necachuje(client):
+    """Keby cachovala index.html, odkaz na nový skript by sa k prehliadaču nedostal."""
+    c, _ = client
+    r = c.get("/")
+    assert r.status_code == 200 and "no-cache" in r.headers.get("cache-control", "")
