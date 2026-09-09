@@ -475,6 +475,43 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         return {"id": sweep_id, "runs": ids, "points": len(points), "goal": req.goal,
                 "goal_note": goal_note, "minutes": minutes}
 
+    @app.get("/api/sweeps")
+    def sweeps_list(limit: int = 50):
+        """Mriežky z histórie, od najnovšej.
+
+        Nikde sa neukladajú zvlášť — značka `settings.sweep` je v každom behu, takže
+        zoznam je len preskupená história. Vďaka tomu prežije reštart aj `git pull`
+        cudzích behov a nedá sa rozísť s tým, čo je naozaj odbehnuté.
+        """
+        from .. import sweep as sweep_mod
+
+        skupiny: dict[str, dict[str, Any]] = {}
+        for rec in list(store.all()) + list(runner.snapshot()):
+            tag = (rec.get("settings") or {}).get("sweep") or {}
+            sweep_id = tag.get("id")
+            if not sweep_id:
+                continue
+            nastavenia = rec["settings"]
+            polozka = skupiny.setdefault(sweep_id, {
+                "id": sweep_id,
+                "goal": tag.get("goal") or "break_even",
+                "goal_note": sweep_mod.describe(tag.get("goal") or "break_even",
+                                                tag.get("max_dd"), tag.get("min_trades")),
+                "params": list(tag.get("values") or {}),
+                "pair": nastavenia.get("pair"),
+                "timeframe": nastavenia.get("timeframe"),
+                "timerange": nastavenia.get("timerange"),
+                "strategy": nastavenia.get("strategy") or "ibs",
+                "user": rec.get("user") or "",
+                "done": 0, "pending": 0,
+            })
+            if rec.get("status") in ("queued", "running"):
+                polozka["pending"] += 1
+            else:
+                polozka["done"] += 1
+        rad = sorted(skupiny.values(), key=lambda x: x["id"], reverse=True)
+        return {"total": len(rad), "sweeps": rad[:limit]}
+
     @app.get("/api/sweeps/{sweep_id}")
     def sweep_detail(sweep_id: str):
         """Stav a poradie mriežky — vidno ju od zaradenia, nie až od prvého výsledku."""

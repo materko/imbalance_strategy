@@ -213,9 +213,16 @@ je** — sweep sa dá nechať bežať cez noc alebo na serveri. Namiesto obmedze
 stojí jeden klik. (Kto strop chce, zapne ho `TRADEBOT_MAX_SWEEP_RUNS`, v CLI `--max-runs`.)
 
 Body sú v tabuľke **od zaradenia**, nie až od prvého výsledku: čakajúce riadky sú kurzívou
-a stav píše, ktorý bod práve beží a koľko cudzích behov je pred mriežkou vo fronte. Sweep
-prežije zavretie stránky — po otvorení sa mriežka nájde tam, kde skončila. Tú istú mriežku
-appka druhý raz nezaradí; keby sa nič nedialo, je to fronta, nie stratené kliknutie.
+a stav píše, ktorý bod práve beží a koľko cudzích behov je pred mriežkou vo fronte. Tú istú
+mriežku appka druhý raz nezaradí; keby sa nič nedialo, je to fronta, nie stratené kliknutie.
+
+**Mriežky sú v histórii.** Rozbaľovacia ponuka **Predošlá mriežka** hore v sekcii ich vypíše
+od najnovšej (dátum, parametre, pár, koľko z nich dobehlo) a výber otvorí presne tú tabuľku
+aj s poradím. V detaile behu, ktorý z mriežky pochádza, je tlačidlo **↩ mriežka …** späť na
+celok. Nikde sa neukladajú zvlášť — značka je v každom behu, takže zoznam je len preskupená
+história: prežije reštart appky aj `git pull` cudzích behov a nemá sa ako rozísť s tým, čo
+je naozaj odbehnuté. Rozbehnutá mriežka je v ponuke tiež, takže sweep pustený cez noc sa
+ráno otvorí tam, kde je (naposledy otvorenú si stránka pamätá aj sama).
 
 **Vybrať podľa** hovorí, čo je lepšie — bez toho sa „optimálne" nedá určiť: najvyšší
 break-even poplatok (predvolené, nezávisí od sizingu ani peňaženky), najvyšší zisk,

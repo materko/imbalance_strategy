@@ -201,6 +201,54 @@ def cmd_run(args: argparse.Namespace) -> int:
     return 0 if rec.get("status") == "done" else 1
 
 
+def cmd_sweeps(args: argparse.Namespace) -> int:
+    """Zoznam mriežok z histórie, alebo tabuľka jednej z nich.
+
+    Mriežky sa nikde neukladajú zvlášť — značka je v každom behu, takže zoznam je len
+    preskupená história. Aj mriežka spustená vo webapp sa dá otvoriť tu a naopak.
+    """
+    from .. import sweep as sweep_mod
+    from .store import RunStore
+
+    zaznamy = RunStore().all()
+    skupiny: dict[str, list[dict]] = {}
+    for rec in zaznamy:
+        tag = (rec.get("settings") or {}).get("sweep") or {}
+        if tag.get("id"):
+            skupiny.setdefault(tag["id"], []).append(rec)
+    if not skupiny:
+        print("v historii nie je ziadna mriezka (sweep)")
+        return 0
+
+    if args.sweep_id:
+        rows = skupiny.get(args.sweep_id)
+        if rows is None:
+            raise SystemExit(f"mriezka {args.sweep_id} v historii nie je; "
+                             "zoznam vypise `cli sweeps` bez argumentu")
+        tag = rows[0]["settings"]["sweep"]
+        zadanie = sweep_mod.describe(tag.get("goal") or "break_even",
+                                     tag.get("max_dd"), tag.get("min_trades"))
+        ranked = sweep_mod.rank(rows, tag.get("goal") or "break_even",
+                                max_dd=tag.get("max_dd"), min_trades=tag.get("min_trades"))
+        nastavenia = rows[0]["settings"]
+        print(f"=== sweep {args.sweep_id} - {zadanie} ===")
+        print(f"{nastavenia.get('pair')} {nastavenia.get('timeframe')} "
+              f"{nastavenia.get('timerange')}, behov {len(rows)}\n")
+        print(sweep_mod.table(ranked, list(tag.get("values") or {}), tag.get("goal")))
+        return 0
+
+    print(f"{'mriezka':<24} {'behov':>6}  parametre / par / obdobie")
+    for sweep_id in sorted(skupiny, reverse=True)[:args.limit]:
+        rows = skupiny[sweep_id]
+        tag = rows[0]["settings"]["sweep"]
+        nastavenia = rows[0]["settings"]
+        popis = " x ".join(tag.get("values") or {})
+        print(f"{sweep_id:<24} {len(rows):>6}  {popis} | {nastavenia.get('pair')} "
+              f"{nastavenia.get('timeframe')} {nastavenia.get('timerange')}")
+    print("\ndetail: python -m tester.webapp.cli sweeps <mriezka>")
+    return 0
+
+
 def cmd_sweep(args: argparse.Namespace) -> int:
     """Mriežka behov cez zadané parametre a výber podľa kritéria."""
     from datetime import datetime, timezone
@@ -423,6 +471,11 @@ def main(argv: list[str] | None = None) -> int:
                         "cez noc. Cena je čas: rok backtestu je asi 30 s na bod")
     _run_args(p)
     p.set_defaults(func=cmd_sweep)
+
+    p = sub.add_parser("sweeps", help="mriežky z histórie; s argumentom vypíše tabuľku jednej")
+    p.add_argument("sweep_id", nargs="?", help="značka mriežky (bez nej sa vypíše zoznam)")
+    p.add_argument("--limit", type=int, default=30)
+    p.set_defaults(func=cmd_sweeps)
 
     p = sub.add_parser("list", help="história behov, voliteľne s dopytom (rovnaká syntax ako vo webapp)")
     p.add_argument("query", nargs="*")

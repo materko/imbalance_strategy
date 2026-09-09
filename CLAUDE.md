@@ -150,7 +150,9 @@ PY -m tester.webapp.cli run --profile docs/profily_archiv/ibs/ethusdt_3m_binance
   (`abs`, `ticks`, `atr`, `pct`). Zoznam parametrov: `PY -m tester.webapp.cli params [filter]`.
 - Hľadanie parametra: `PY -m tester.webapp.cli sweep --param rrRatio=2:6:1 --goal break_even
   --max-dd 15` — mriežka obyčajných behov, každý ostane v histórii; kritérium a mantinely
-  určujú, čo je „najlepšie" ([tester/AI_TESTING.md §7](tester/AI_TESTING.md)).
+  určujú, čo je „najlepšie". Mriežka nemá strop, pokojne beží cez noc, a `cli sweeps`
+  (alebo ponuka **Predošlá mriežka** vo webapp) sa k nej vráti
+  ([tester/AI_TESTING.md §7](tester/AI_TESTING.md)).
 - Poplatok `--fee 0.0005` (Binance taker 0,05 %) a `--wallet 10000` sú default; pri
   porovnávaní s TradingView použi `--fee 0` a profil `*_ny_sl` (1 BTC)
   z `docs/profily_archiv/`. Peňaženka musí byť **rovná initial capital z grafu**
