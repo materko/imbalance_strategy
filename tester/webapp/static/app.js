@@ -353,14 +353,17 @@ function fillSettings() {
   ss.onchange = async () => { setStrategy(ss.value); $("#profile").value = ""; await loadProfile(""); };
   fillProfiles();
   const pair = $("#pair"); pair.innerHTML = "";
-  // pár sa volá tak, ako ho volá burza: BTCUSDT.P je perpetual, BTCUSDT spot
-  for (const [label, market] of [["Futures (perpetual)", "futures"], ["Spot", "spot"]]) {
-    const list = state.meta.pairs.filter(p => (p.market || "futures") === market);
+  // z jedného riadku má byť vidno, odkiaľ sviečky sú, aký je to trh a ako sa pár volá
+  // na burze (BTCUSDT.P je perpetual, BTCUSDT spot) — aj keď je select zavretý
+  for (const source of [...new Set(state.meta.pairs.map(p => p.source || "?"))].sort()) {
+    const list = state.meta.pairs.filter(p => (p.source || "?") === source);
     if (!list.length) continue;
-    const g = document.createElement("optgroup"); g.label = label;
-    for (const p of list) {
+    const g = document.createElement("optgroup"); g.label = source;
+    for (const p of list.sort((a, b) => (a.kind || a.market || "").localeCompare(b.kind || b.market || "")
+        || (a.exchange_symbol || a.pair).localeCompare(b.exchange_symbol || b.pair))) {
       const o = document.createElement("option"); o.value = p.pair;
-      o.textContent = `${p.exchange_symbol || p.pair}${p.has_1m ? "" : " (bez 1m)"}`;
+      o.textContent = `${source} · ${p.kind || p.market || "futures"} · ${p.exchange_symbol || p.pair}`
+        + (p.has_1m ? "" : " (bez 1m)");
       o.title = p.pair;
       o.dataset.from = p.from; o.dataset.to = p.to;
       g.append(o);
@@ -625,9 +628,11 @@ function showMarket() {
   const p = currentPair();
   const el = $("#pair-market");
   if (!p) { el.textContent = ""; return; }
-  el.textContent = (p.market || "futures") === "spot"
-    ? `Binance ${p.exchange_symbol} · spot (${p.pair}) — len longy, bez páky`
-    : `Binance ${p.exchange_symbol} · futures perpetual (${p.pair})`;
+  const src = p.source || "?";
+  const kind = p.kind || p.market || "futures";
+  const popis = {spot: "spot — len longy, bez páky", futures: "futures perpetual",
+                 cfd: "CFD (mimo burzy)"}[kind] || kind;
+  el.textContent = `${src} ${p.exchange_symbol} · ${popis} (${p.pair})`;
 }
 
 /** Na spote nie sú shorty ani páka — hodnoty sa nastavia natvrdo, nech beh zodpovedá

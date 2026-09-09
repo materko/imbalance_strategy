@@ -732,3 +732,23 @@ def test_spustac_webapp_doplni_chybajuce_timeframy(monkeypatch, capsys):
     assert entry.main() == 0
     assert volania == ["ensure"]
     assert "Chyba 1 timeframov" in capsys.readouterr().out
+
+
+def test_ponuka_parov_nesie_zdroj_trh_aj_druh(client, monkeypatch):
+    """Z jedného riadku ponuky má byť vidno, odkiaľ sviečky sú a aký je to trh."""
+    c, _ = client
+    pairs = c.get("/api/meta").json()["pairs"]
+    if not pairs:
+        pytest.skip("bez dát nie je čo ponúkať")
+    for p in pairs:
+        assert p["source"] and p["market"] in ("spot", "futures")
+        assert p["kind"] in ("spot", "futures", "cfd")
+        assert p["exchanges"] == [] or p["exchanges"][0] in ("tester", p["source"], "dukascopy")
+
+
+def test_staticke_subory_sa_necachuju(client):
+    """Po aktualizácii nesmie prehliadač podať starú stránku — tester by nové pole nevidel."""
+    c, _ = client
+    r = c.get("/static/app.js")
+    assert r.status_code == 200
+    assert "no-cache" in r.headers.get("cache-control", "")
