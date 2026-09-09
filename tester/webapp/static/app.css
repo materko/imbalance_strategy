@@ -245,6 +245,29 @@ details > summary { cursor: pointer; padding: 8px 0; font-weight: 600; }
 .sweep-actions { display: flex; gap: 8px; align-items: center; }
 .sweep-past { margin-bottom: 8px; }
 .search-mode { grid-column: 1 / -1; justify-self: start; }
+/* Analytika: jednostlpcova podstranka. */
+main.view.single { grid-template-columns: minmax(0, 1fr); }
+.an-form { max-width: 900px; }
+.an-actions { display: flex; align-items: center; gap: 12px; }
+.an-head { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; margin: 14px 0 6px; }
+.an-head h3 { margin: 0; font-size: 14px; }
+.an-head .param { font-size: 11px; }
+.an-note { margin: 0 0 6px; color: var(--muted); font-size: 12px; max-width: 900px; }
+.an-split { margin-bottom: 18px; }
+.an-split table { width: 100%; border-collapse: collapse; font-size: 12px; max-width: 900px; }
+.an-split th { text-align: right; color: var(--muted); font-weight: 600; padding: 4px 6px;
+  border-bottom: 1px solid var(--line); }
+.an-split td { text-align: right; padding: 4px 6px; border-bottom: 1px solid var(--line);
+  font-variant-numeric: tabular-nums; }
+.an-split th:first-child, .an-split td:first-child { text-align: left; }
+.an-split tr.worst td { color: #8c2020; font-weight: 650; }
+.an-split tr.best td { color: #0b6b4f; }
+.an-later { opacity: .75; }
+.an-later h3::after { content: " — až po obchode, opis nie filter"; font-weight: 400;
+  color: var(--muted); font-size: 11px; }
+.headline { margin: 12px 0; padding: 10px 12px; border-radius: 9px; background: #eef6f8;
+  font-size: 13px; max-width: 900px; }
+.an-runs { color: var(--muted); font-size: 11px; margin-top: 4px; }
 #search-hint { grid-column: 1 / -1; margin: 0; }
 .inline-check { flex-direction: row; align-items: center; gap: 6px; }
 .inline-check input { width: auto; }

@@ -1,0 +1,402 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data --strategy IBSImbalanceStrategy --cache none --export trades --timerange 20231001-20241001 --pairs BTC/USDT:USDT --timeframe 3m --dry-run-wallet 10000.0 --fee 0.0005 --timeframe-detail 1m --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\binance
+2026-09-10 00:34:33,706 - freqtrade - INFO - freqtrade 2026.8
+2026-09-10 00:34:34,373 - freqtrade.configuration.load_config - INFO - Using config: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.json ...
+2026-09-10 00:34:34,373 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-10 00:34:34,373 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-09-10 00:34:34,373 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-10 00:34:34,406 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSImbalanceStrategy from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.py'...
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.json
+2026-09-10 00:34:34,420 - tradebot.adapters.freqtrade.base - WARNING - ibs config: engMinRangePoints, ewMinWavePoints, liqSweepMinWick, minImbSizePoints, pbMinRangePoints, srClusterPoints sú v 
+2026-09-10 00:34:35,904 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSImbalanceStrategy
+2026-09-10 00:34:45,603 - tradebot.strategies.ibs.freqtrade - INFO - IBS BTC/USDT:USDT: 175981 barov, 105709 HTF barov, 200 zon, 222 signalov (118 long / 104 short)
+2026-09-10 00:34:46,128 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 28978.80 na 9900.00 (34.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:46,153 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 101952.67 na 9900.00 (9.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:46,204 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 187983.62 na 9856.62 (5.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:46,206 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 59119.71 na 9828.76 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:46,260 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 429893.50 na 9796.27 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:46,328 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 126186.03 na 9797.55 (7.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:46,413 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 49047.20 na 9761.07 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:46,488 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 63690.82 na 9879.29 (15.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:46,506 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 66920.06 na 9870.93 (14.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:46,549 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 43805.44 na 9903.05 (22.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:46,744 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 88873.66 na 10086.64 (11.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:46,756 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 48017.32 na 10086.64 (21.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:46,903 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 109661.74 na 10002.96 (9.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:46,945 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 75784.88 na 9961.56 (13.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,021 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 211224.34 na 10004.11 (4.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,107 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 60984.28 na 9977.84 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,121 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 178739.29 na 9957.21 (5.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,144 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 82684.72 na 9928.08 (12.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,155 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 53204.84 na 9918.23 (18.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,187 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 190186.08 na 9842.95 (5.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,204 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 133424.31 na 9815.30 (7.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,313 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 56001.38 na 9924.96 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,514 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 228014.30 na 10098.48 (4.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,563 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 71456.60 na 10160.44 (14.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,574 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 80576.40 na 10101.30 (12.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,646 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 73728.35 na 10047.95 (13.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,654 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 129720.67 na 10047.95 (7.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,674 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 222860.75 na 10011.22 (4.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,685 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 125088.08 na 10011.22 (8.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,707 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 73709.22 na 9973.65 (13.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,715 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 141819.97 na 9916.98 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,721 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 42308.43 na 9916.98 (23.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,921 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 92097.59 na 10037.25 (10.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:47,999 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 56981.17 na 9989.63 (17.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:48,009 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 82165.33 na 9989.63 (12.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:48,062 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 34785.58 na 9937.65 (28.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:48,165 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 58315.23 na 10265.29 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:48,229 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 71371.28 na 10194.32 (14.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:48,322 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 81654.16 na 10136.90 (12.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:48,341 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 116223.76 na 10084.03 (8.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:48,388 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 154155.55 na 10044.11 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:48,411 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 42170.04 na 10011.66 (23.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:48,424 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 71042.39 na 9919.69 (14.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:48,442 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 92477.17 na 9861.54 (10.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:48,515 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 31113.84 na 9815.01 (31.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:48,539 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 140109.40 na 9696.33 (6.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:48,549 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 170700.11 na 9662.77 (5.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:48,606 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 98721.45 na 9745.03 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:48,806 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 66094.20 na 9892.18 (15.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,006 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 77231.12 na 10035.52 (13.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,019 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 65298.17 na 10035.52 (15.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,104 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 20245.70 na 10275.68 (50.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,197 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 61300.36 na 10323.44 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,238 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 103973.16 na 10587.00 (10.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,246 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 103341.25 na 10587.00 (10.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,273 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 38897.28 na 10742.80 (27.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,289 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 96208.69 na 10636.77 (11.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,324 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 66281.54 na 10588.08 (16.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,410 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 86475.32 na 10712.80 (12.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,421 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 64202.31 na 10659.42 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,470 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 176111.47 na 10652.94 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,488 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 97793.71 na 10621.54 (10.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,637 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 68451.68 na 10788.84 (15.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,713 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 69641.71 na 10723.69 (15.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,758 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 64982.60 na 10659.88 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,774 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 62689.64 na 10592.68 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,788 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 131425.01 na 10592.68 (8.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,821 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 77260.94 na 10554.34 (13.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,841 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 44379.20 na 10554.34 (23.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,852 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 201932.89 na 10554.34 (5.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,870 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 88897.47 na 10525.81 (11.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,925 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 65494.33 na 10530.60 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,954 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 171932.16 na 10464.75 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:49,990 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 111431.92 na 10433.43 (9.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,092 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 73321.22 na 10575.15 (14.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,168 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 75716.37 na 10662.63 (14.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,239 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 84751.23 na 10603.38 (12.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,259 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 45892.49 na 10549.74 (23.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,273 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 47790.67 na 10459.79 (21.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,373 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 72855.41 na 10446.44 (14.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,389 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 69499.63 na 10386.60 (14.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,489 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 173470.86 na 10427.61 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,506 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 82163.21 na 10396.62 (12.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,521 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 99602.12 na 10396.62 (10.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,529 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 146821.61 na 10350.20 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,540 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 53257.05 na 10315.62 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,655 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 51137.70 na 10238.41 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,739 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 32269.95 na 10159.21 (31.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,745 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 65030.22 na 10159.21 (15.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,837 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 26589.72 na 10095.31 (38.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,857 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 170631.52 na 10095.31 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,957 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 80581.65 na 10181.52 (12.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:50,988 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 29089.46 na 10127.81 (34.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:51,005 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 78002.11 na 10127.81 (13.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:51,006 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 82938.94 na 10127.81 (12.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:51,054 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 30341.67 na 10075.85 (33.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:51,172 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 90364.99 na 9953.86 (11.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:51,205 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 36456.61 na 10123.19 (27.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:51,272 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 62354.94 na 10209.12 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:51,385 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 24232.25 na 10465.31 (43.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:51,472 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 72631.80 na 10477.75 (14.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:51,488 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 55719.39 na 10417.54 (18.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:51,539 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 112643.38 na 10342.49 (9.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:51,604 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 63864.14 na 10300.59 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:51,689 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 29966.08 na 10233.71 (34.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:51,772 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 25746.79 na 10179.36 (39.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:51,854 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 64898.30 na 10357.41 (16.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,088 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 70792.39 na 10440.49 (14.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,105 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 89064.67 na 10379.31 (11.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,105 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 35866.93 na 10379.31 (28.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,174 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 90615.77 na 10411.65 (11.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,188 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 99266.60 na 10361.66 (10.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,206 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 44354.61 na 10361.66 (23.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,305 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 34638.13 na 10526.48 (30.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,312 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 73483.82 na 10526.48 (14.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,371 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 64753.14 na 10748.93 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,443 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 43812.10 na 10680.84 (24.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,530 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 47018.94 na 10677.60 (22.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,639 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 117779.54 na 10831.98 (9.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,690 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 168990.88 na 10789.42 (6.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,705 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 51052.82 na 10882.11 (21.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,845 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 70250.66 na 10797.86 (15.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,901 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 83597.25 na 10734.02 (12.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,905 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 54962.05 na 10679.10 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,971 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 110298.52 na 10601.44 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:52,971 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 58701.06 na 10601.44 (18.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,038 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 13292.45 na 10528.63 (79.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,122 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 53811.66 na 10572.24 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,222 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 57506.82 na 10494.92 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,322 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 59253.36 na 10421.40 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,388 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 71440.92 na 10349.32 (14.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,471 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 112975.81 na 10376.06 (9.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,557 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 88879.58 na 10334.21 (11.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,623 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 35709.59 na 10283.89 (28.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,660 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 132160.88 na 10283.89 (7.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,687 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 99653.43 na 10246.78 (10.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,875 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 105170.14 na 10272.74 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,904 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 194545.64 na 10228.99 (5.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,904 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 99314.90 na 10199.78 (10.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,961 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 57283.77 na 10154.16 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,971 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 97760.83 na 10154.16 (10.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:53,995 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 73190.88 na 10108.31 (13.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,059 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 68830.65 na 10321.30 (15.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,092 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 118248.86 na 10259.25 (8.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,104 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 89259.71 na 10259.25 (11.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,104 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 44160.00 na 10209.46 (23.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,254 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 167485.62 na 10575.28 (6.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,271 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 38530.30 na 10667.50 (27.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,287 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 60777.61 na 10667.50 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,298 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 97014.44 na 10667.50 (11.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,393 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 93652.08 na 10834.39 (11.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,526 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 27119.78 na 10783.74 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,748 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 55393.03 na 10766.98 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,844 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 51698.00 na 10857.96 (21.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,853 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 107004.74 na 10774.78 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,871 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 160468.16 na 10774.78 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,914 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 41236.06 na 10872.96 (26.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,938 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 131932.55 na 10770.80 (8.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,955 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 105373.57 na 10731.90 (10.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:54,973 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 51026.53 na 10686.27 (20.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:55,162 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 102164.50 na 10602.20 (10.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:55,272 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 154406.02 na 10555.77 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:55,272 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 167906.89 na 10555.77 (6.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:55,303 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 132476.56 na 10523.64 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:55,338 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 157892.59 na 10485.79 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:55,463 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 92360.30 na 10583.03 (11.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:55,487 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 99709.02 na 10532.89 (10.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:55,504 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 100089.23 na 10486.11 (10.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:55,625 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 44562.95 na 10439.46 (23.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:55,769 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 13720.42 na 10348.26 (75.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:55,849 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 78910.22 na 10554.99 (13.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:55,862 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 71342.45 na 10498.29 (14.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:55,869 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 26291.85 na 10437.11 (39.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,039 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 40806.37 na 10284.47 (25.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,125 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 39610.33 na 10187.51 (25.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,149 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 40167.99 na 10089.64 (25.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,188 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 89379.68 na 9993.81 (11.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,237 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 32099.81 na 9945.47 (31.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,257 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 110024.70 na 9828.95 (8.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,271 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 29686.46 na 9788.48 (33.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,338 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 96646.56 na 9665.07 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,451 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 68691.82 na 9620.74 (14.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,471 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 94498.40 na 9620.74 (10.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,523 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 48495.34 na 9576.21 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,558 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 127481.70 na 9498.74 (7.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,581 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 47486.24 na 9463.41 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,597 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 42748.52 na 9488.51 (22.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,606 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 53002.34 na 9488.51 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,612 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 117082.43 na 9488.51 (8.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,625 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 110948.01 na 9488.51 (8.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,737 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 78012.40 na 9449.58 (12.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,787 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 72393.64 na 9398.41 (13.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,827 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 118896.71 na 9344.27 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:56,887 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 72324.31 na 9307.81 (12.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:57,004 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 164316.84 na 9507.32 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:57,057 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 46562.91 na 9592.08 (20.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:57,104 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 76218.58 na 9510.90 (12.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:57,221 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 66724.40 na 9458.54 (14.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:57,225 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 80918.75 na 9458.54 (11.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:57,307 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 32160.40 na 9468.32 (29.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:57,337 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 277756.66 na 9357.18 (3.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:57,354 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 152108.65 na 9357.18 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:57,371 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 231506.52 na 9326.67 (4.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:57,388 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 183867.26 na 9303.52 (5.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:57,391 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 107667.55 na 9303.52 (8.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 00:34:57,410 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 76483.01 na 9303.52 (12.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+Result for strategy IBSImbalanceStrategy
+│ IBSImbalanceStrategy │    172 │        -0.03 │        -568.903 │        -5.69 │      3:04:00 │   52     0   120  30.2 │ 1594.528 USDT  14.51% │
+…
+│ ibs:1705520160000 │ trailing_stop_loss │      1 │         -0.3 │         -31.726 │        -0.32 │      0:51:00 │    0     0     1     0 │
+│ ibs:1721982780000 │ trailing_stop_loss │      1 │        -0.31 │         -32.452 │        -0.32 │      0:40:00 │    0     0     1     0 │
+│ ibs:1702636920000 │          stop_loss │      1 │        -0.33 │         -32.785 │        -0.33 │      0:34:00 │    0     0     1     0 │
+│ ibs:1697130000000 │        session_end │      1 │        -0.33 │         -32.816 │        -0.33 │      2:45:00 │    0     0     1     0 │
+│ ibs:1703235960000 │          stop_loss │      1 │        -0.35 │         -33.904 │        -0.34 │      0:07:00 │    0     0     1     0 │
+│ ibs:1708593120000 │          stop_loss │      1 │        -0.34 │         -34.929 │        -0.35 │      0:34:00 │    0     0     1     0 │
+│ ibs:1724743620000 │          stop_loss │      1 │        -0.38 │         -35.693 │        -0.36 │      0:59:00 │    0     0     1     0 │
+│ ibs:1726218900000 │          stop_loss │      1 │        -0.39 │         -36.827 │        -0.37 │      2:38:00 │    0     0     1     0 │
+│ ibs:1697444280000 │ trailing_stop_loss │      1 │        -0.38 │         -36.846 │        -0.37 │      4:43:00 │    0     0     1     0 │
+│ ibs:1700472780000 │ trailing_stop_loss │      1 │        -0.37 │         -37.106 │        -0.37 │      1:06:00 │    0     0     1     0 │
+│ ibs:1718006580000 │          stop_loss │      1 │        -0.36 │         -37.482 │        -0.37 │      1:25:00 │    0     0     1     0 │
+│ ibs:1700641260000 │          stop_loss │      1 │        -0.38 │         -37.952 │        -0.38 │      0:35:00 │    0     0     1     0 │
+│ ibs:1722242340000 │ trailing_stop_loss │      1 │        -0.36 │         -38.238 │        -0.38 │      2:12:00 │    0     0     1     0 │
+│ ibs:1706174100000 │          stop_loss │      1 │        -0.37 │         -38.735 │        -0.39 │      1:55:00 │    0     0     1     0 │
+│ ibs:1721635560000 │          stop_loss │      1 │        -0.36 │         -39.294 │        -0.39 │      0:40:00 │    0     0     1     0 │
+│ ibs:1725441300000 │          stop_loss │      1 │        -0.42 │         -39.326 │        -0.39 │      5:25:00 │    0     0     1     0 │
+│ ibs:1702460700000 │          stop_loss │      1 │         -0.4 │         -40.322 │         -0.4 │      1:53:00 │    0     0     1     0 │
+│ ibs:1724058360000 │          stop_loss │      1 │        -0.42 │         -40.880 │        -0.41 │      0:38:00 │    0     0     1     0 │
+│ ibs:1698748560000 │          stop_loss │      1 │        -0.42 │         -41.814 │        -0.42 │      2:07:00 │    0     0     1     0 │
+│ ibs:1717141140000 │ trailing_stop_loss │      1 │        -0.41 │         -42.266 │        -0.42 │      4:40:00 │    0     0     1     0 │
+│ ibs:1711958400000 │ trailing_stop_loss │      1 │        -0.41 │         -42.317 │        -0.42 │      3:09:00 │    0     0     1     0 │
+│ ibs:1715678280000 │ trailing_stop_loss │      1 │         -0.4 │         -42.989 │        -0.43 │      2:58:00 │    0     0     1     0 │
+│ ibs:1696866300000 │ trailing_stop_loss │      1 │        -0.44 │         -43.819 │        -0.44 │      2:06:00 │    0     0     1     0 │
+│ ibs:1718210340000 │          stop_loss │      1 │        -0.43 │         -44.188 │        -0.44 │      1:18:00 │    0     0     1     0 │
+│ ibs:1724312520000 │          stop_loss │      1 │        -0.46 │         -44.773 │        -0.45 │      5:59:00 │    0     0     1     0 │
+│ ibs:1724660460000 │ trailing_stop_loss │      1 │        -0.47 │         -44.982 │        -0.45 │      2:16:00 │    0     0     1     0 │
+│ ibs:1718357580000 │ trailing_stop_loss │      1 │        -0.45 │         -46.076 │        -0.46 │      2:44:00 │    0     0     1     0 │
+│ ibs:1721663820000 │          stop_loss │      1 │        -0.43 │         -46.085 │        -0.46 │      0:46:00 │    0     0     1     0 │
+│ ibs:1718613720000 │          stop_loss │      1 │        -0.46 │         -46.317 │        -0.46 │      1:08:00 │    0     0     1     0 │
+│ ibs:1708532460000 │ trailing_stop_loss │      1 │        -0.45 │         -46.887 │        -0.47 │      0:21:00 │    0     0     1     0 │
+│ ibs:1721900700000 │          stop_loss │      1 │        -0.44 │         -46.904 │        -0.47 │      4:50:00 │    0     0     1     0 │
+│ ibs:1702976940000 │          stop_loss │      1 │        -0.48 │         -46.998 │        -0.47 │      3:09:00 │    0     0     1     0 │
+│ ibs:1722499200000 │          stop_loss │      1 │        -0.45 │         -47.125 │        -0.47 │      6:28:00 │    0     0     1     0 │
+│ ibs:1722450600000 │          stop_loss │      1 │        -0.45 │         -47.246 │        -0.47 │      0:46:00 │    0     0     1     0 │
+│ ibs:1701339480000 │          stop_loss │      1 │        -0.48 │         -48.104 │        -0.48 │      3:42:00 │    0     0     1     0 │
+│ ibs:1723799700000 │          stop_loss │      1 │        -0.49 │         -48.831 │        -0.49 │      1:53:00 │    0     0     1     0 │
+│ ibs:1705054320000 │ trailing_stop_loss │      1 │        -0.46 │         -49.181 │        -0.49 │      0:39:00 │    0     0     1     0 │
+│ ibs:1719216540000 │ trailing_stop_loss │      1 │        -0.49 │         -50.291 │         -0.5 │      0:10:00 │    0     0     1     0 │
+│ ibs:1713803400000 │          stop_loss │      1 │        -0.49 │         -50.487 │         -0.5 │      0:54:00 │    0     0     1     0 │
+│ ibs:1722443220000 │          stop_loss │      1 │        -0.48 │         -50.645 │        -0.51 │      1:11:00 │    0     0     1     0 │
+│ ibs:1717405740000 │ trailing_stop_loss │      1 │        -0.49 │         -50.831 │        -0.51 │      3:09:00 │    0     0     1     0 │
+│ ibs:1719565020000 │          stop_loss │      1 │        -0.47 │         -51.163 │        -0.51 │      5:18:00 │    0     0     1     0 │
+│ ibs:1725962040000 │ trailing_stop_loss │      1 │        -0.55 │         -51.684 │        -0.52 │      2:22:00 │    0     0     1     0 │
+│ ibs:1710405900000 │          stop_loss │      1 │        -0.52 │         -52.486 │        -0.52 │      1:25:00 │    0     0     1     0 │
+│ ibs:1701710100000 │          stop_loss │      1 │        -0.53 │         -52.510 │        -0.53 │      1:44:00 │    0     0     1     0 │
+│ ibs:1727080380000 │ trailing_stop_loss │      1 │        -0.56 │         -52.881 │        -0.53 │      5:43:00 │    0     0     1     0 │
+│ ibs:1702372860000 │          stop_loss │      1 │        -0.53 │         -53.398 │        -0.53 │      0:44:00 │    0     0     1     0 │
+│ ibs:1700125920000 │          stop_loss │      1 │        -0.53 │         -53.890 │        -0.54 │      2:38:00 │    0     0     1     0 │
+│ ibs:1705400280000 │          stop_loss │      1 │         -0.5 │         -53.921 │        -0.54 │      1:15:00 │    0     0     1     0 │
+│ ibs:1707816060000 │          stop_loss │      1 │        -0.51 │         -54.188 │        -0.54 │      1:18:00 │    0     0     1     0 │
+│ ibs:1710235980000 │ trailing_stop_loss │      1 │        -0.53 │         -54.252 │        -0.54 │      1:43:00 │    0     0     1     0 │
+│ ibs:1726046640000 │ trailing_stop_loss │      1 │        -0.58 │         -54.681 │        -0.55 │      2:05:00 │    0     0     1     0 │
+│ ibs:1712331540000 │        session_end │      1 │        -0.54 │         -54.904 │        -0.55 │      4:06:00 │    0     0     1     0 │
+│ ibs:1716217560000 │          stop_loss │      1 │        -0.52 │         -55.475 │        -0.55 │      0:08:00 │    0     0     1     0 │
+│ ibs:1701102960000 │ trailing_stop_loss │      1 │        -0.57 │         -57.234 │        -0.57 │      0:06:00 │    0     0     1     0 │
+│ ibs:1723106340000 │          stop_loss │      1 │        -0.54 │         -57.275 │        -0.57 │      0:26:00 │    0     0     1     0 │
+│ ibs:1702050660000 │          stop_loss │      1 │        -0.57 │         -58.003 │        -0.58 │      4:36:00 │    0     0     1     0 │
+│ ibs:1702922220000 │          stop_loss │      1 │        -0.59 │         -58.740 │        -0.59 │      1:00:00 │    0     0     1     0 │
+│ ibs:1700043120000 │ trailing_stop_loss │      1 │        -0.59 │         -59.738 │         -0.6 │      0:56:00 │    0     0     1     0 │
+│ ibs:1707734700000 │ trailing_stop_loss │      1 │        -0.56 │         -59.843 │         -0.6 │      3:36:00 │    0     0     1     0 │
+│ ibs:1708074360000 │ trailing_stop_loss │      1 │        -0.58 │         -60.449 │         -0.6 │      1:11:00 │    0     0     1     0 │
+│ ibs:1711620720000 │ trailing_stop_loss │      1 │        -0.58 │         -60.817 │        -0.61 │      0:55:00 │    0     0     1     0 │
+│ ibs:1713171060000 │          stop_loss │      1 │        -0.59 │         -61.793 │        -0.62 │      0:26:00 │    0     0     1     0 │
+│ ibs:1723196700000 │          stop_loss │      1 │        -0.59 │         -61.804 │        -0.62 │      0:15:00 │    0     0     1     0 │
+│ ibs:1718700120000 │          stop_loss │      1 │        -0.61 │         -62.676 │        -0.63 │      1:22:00 │    0     0     1     0 │
+│ ibs:1705941540000 │          stop_loss │      1 │         -0.6 │         -64.452 │        -0.64 │      2:07:00 │    0     0     1     0 │
+│ ibs:1715934420000 │          stop_loss │      1 │         -0.6 │         -64.485 │        -0.64 │      2:29:00 │    0     0     1     0 │
+│ ibs:1709288280000 │          stop_loss │      1 │        -0.64 │         -64.555 │        -0.65 │      4:16:00 │    0     0     1     0 │
+│ ibs:1705915980000 │          stop_loss │      1 │        -0.61 │         -65.814 │        -0.66 │      3:33:00 │    0     0     1     0 │
+│ ibs:1707211440000 │          stop_loss │      1 │        -0.63 │         -66.512 │        -0.67 │      1:18:00 │    0     0     1     0 │
+│ ibs:1712129940000 │          stop_loss │      1 │        -0.66 │         -67.557 │        -0.68 │      3:23:00 │    0     0     1     0 │
+│ ibs:1706088060000 │          stop_loss │      1 │        -0.64 │         -67.876 │        -0.68 │      1:04:00 │    0     0     1     0 │
+│ ibs:1714725360000 │          stop_loss │      1 │        -0.64 │         -68.778 │        -0.69 │      2:02:00 │    0     0     1     0 │
+│ ibs:1701854100000 │          stop_loss │      1 │         -0.7 │         -71.686 │        -0.72 │      2:16:00 │    0     0     1     0 │
+│ ibs:1716908940000 │          stop_loss │      1 │         -0.7 │         -72.811 │        -0.73 │      3:24:00 │    0     0     1     0 │
+│ ibs:1716369840000 │          stop_loss │      1 │        -0.69 │         -73.543 │        -0.74 │      3:24:00 │    0     0     1     0 │
+│ ibs:1716801300000 │ trailing_stop_loss │      1 │        -0.71 │         -74.259 │        -0.74 │      3:58:00 │    0     0     1     0 │
+│ ibs:1711704060000 │ trailing_stop_loss │      1 │        -0.73 │         -75.816 │        -0.76 │      2:00:00 │    0     0     1     0 │
+│ ibs:1699285140000 │          stop_loss │      1 │        -0.77 │         -76.037 │        -0.76 │      1:23:00 │    0     0     1     0 │
+│ ibs:1708677180000 │ trailing_stop_loss │      1 │        -0.76 │         -77.988 │        -0.78 │      5:46:00 │    0     0     1     0 │
+│ ibs:1716536340000 │ trailing_stop_loss │      1 │        -0.74 │         -78.104 │        -0.78 │      5:11:00 │    0     0     1     0 │
+│ ibs:1724687100000 │ trailing_stop_loss │      1 │        -0.82 │         -78.250 │        -0.78 │      1:45:00 │    0     0     1     0 │
+│ ibs:1716280200000 │ trailing_stop_loss │      1 │        -0.74 │         -78.440 │        -0.78 │      3:16:00 │    0     0     1     0 │
+│ ibs:1709048520000 │ trailing_stop_loss │      1 │        -0.78 │         -79.996 │         -0.8 │      4:02:00 │    0     0     1     0 │
+│ ibs:1726846380000 │          stop_loss │      1 │        -0.86 │         -81.999 │        -0.82 │      2:31:00 │    0     0     1     0 │
+│ ibs:1720710900000 │          stop_loss │      1 │        -0.78 │         -84.018 │        -0.84 │      0:23:00 │    0     0     1     0 │
+│ ibs:1698661980000 │          stop_loss │      1 │        -0.84 │         -84.523 │        -0.85 │      6:36:00 │    0     0     1     0 │
+│ ibs:1721812680000 │          stop_loss │      1 │        -0.79 │         -84.918 │        -0.85 │      9:22:00 │    0     0     1     0 │
+│ ibs:1715846760000 │          stop_loss │      1 │        -0.78 │         -85.100 │        -0.85 │      6:48:00 │    0     0     1     0 │
+│ ibs:1707841800000 │          stop_loss │      1 │        -0.86 │         -90.857 │        -0.91 │      0:37:00 │    0     0     1     0 │
+│ ibs:1722587220000 │          stop_loss │      1 │        -0.88 │         -92.122 │        -0.92 │      6:20:00 │    0     0     1     0 │
+│ ibs:1702892880000 │          stop_loss │      1 │        -0.93 │         -92.892 │        -0.93 │      0:35:00 │    0     0     1     0 │
+│ ibs:1723735080000 │          stop_loss │      1 │        -0.96 │         -96.799 │        -0.97 │      2:37:00 │    0     0     1     0 │
+│ ibs:1723542120000 │          stop_loss │      1 │        -0.96 │         -97.936 │        -0.98 │      4:01:00 │    0     0     1     0 │
+│ ibs:1723649940000 │          stop_loss │      1 │        -0.97 │         -98.854 │        -0.99 │      1:03:00 │    0     0     1     0 │
+│ ibs:1721229300000 │          stop_loss │      1 │        -0.95 │        -103.198 │        -1.03 │      0:52:00 │    0     0     1     0 │
+│ ibs:1704899700000 │ trailing_stop_loss │      1 │         -1.0 │        -107.105 │        -1.07 │      0:33:00 │    0     0     1     0 │
+│ ibs:1727192160000 │ trailing_stop_loss │      1 │        -1.19 │        -112.263 │        -1.12 │      2:00:00 │    0     0     1     0 │
+│ ibs:1723823280000 │          stop_loss │      1 │        -1.19 │        -117.695 │        -1.18 │      0:37:00 │    0     0     1     0 │
+│ ibs:1703088180000 │          stop_loss │      1 │        -1.22 │        -119.877 │         -1.2 │      0:50:00 │    0     0     1     0 │
+│ ibs:1710842760000 │ trailing_stop_loss │      1 │        -1.23 │        -123.222 │        -1.23 │      6:01:00 │    0     0     1     0 │
+│ ibs:1724251680000 │ trailing_stop_loss │      1 │        -1.28 │        -124.657 │        -1.25 │      3:30:00 │    0     0     1     0 │
+│ ibs:1723478400000 │        session_end │      1 │        -2.21 │        -205.290 │        -2.05 │      3:45:00 │    0     0     1     0 │
+│             TOTAL │                    │    172 │        -0.03 │        -568.903 │        -5.69 │      3:04:00 │   52     0   120  30.2 │
+└───────────────────┴────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2023-10-01 00:00:00                       │
+│ Backtesting to                         │ 2024-10-01 00:00:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 172 / 0.47                                │
+│ Starting balance                       │ 10000 USDT                                │
+│ Final balance                          │ 9431.097 USDT                             │
+│ Absolute profit                        │ -568.903 USDT                             │
+│ Total profit %                         │ -5.69%                                    │
+│ CAGR %                                 │ -5.67%                                    │
+│ Sharpe (closed trades)                 │ -0.31                                     │
+│ Sortino (closed trades)                │ -1.04                                     │
+│ Calmar (closed trades)                 │ -2.05                                     │
+│ SQN                                    │ -0.45                                     │
+│ Mean profit p-value                    │ 0.6541                                    │
+│ Profit factor                          │ 0.92                                      │
+│ Expectancy (Ratio)                     │ -3.31 (-0.06)                             │
+│ Avg. daily profit                      │ -1.554 USDT                               │
+│ Avg. stake amount                      │ 10189.99 USDT                             │
+│ Market change                          │ 135.05%                                   │
+│ Total trade volume                     │ 3509182.756 USDT                          │
+│                                        │                                           │
+│ Long / Short trades                    │ 89 / 83                                   │
+│ Long / Short profit %                  │ 6.97% / -12.66%                           │
+│ Long / Short profit USDT               │ 696.606 / -1265.509                       │
+│                                        │                                           │
+│ Best Pair                              │ BTC/USDT:USDT -5.69%                      │
+│ Worst Pair                             │ BTC/USDT:USDT -5.69%                      │
+│ Best trade                             │ BTC/USDT:USDT 3.63%                       │
+│ Worst trade                            │ BTC/USDT:USDT -2.21%                      │
+│ Best day                               │ 330.952 USDT                              │
+│ Worst day                              │ -205.29 USDT                              │
+│ Days win/draw/lose                     │ 44 / 210 / 104                            │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:23 / 0d 10:54 / 0d 04:44            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:06 / 0d 11:33 / 0d 02:21            │
+│ Max Consecutive Wins / Loss            │ 7 / 12                                    │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 35 / 0                                    │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 9397.499 USDT / 10992.028 USDT            │
+│ Max % of account underwater            │ 14.51%                                    │
+│ Absolute drawdown                      │ 1594.528 USDT (14.51%)                    │
+│ Drawdown duration                      │ 133 days 23:39:00                         │
+│ Profit at drawdown start               │ 992.028 USDT                              │
+│ Profit at drawdown end                 │ -602.501 USDT                             │
+│ Drawdown start                         │ 2024-05-15 09:47:00                       │
+│ Drawdown end                           │ 2024-09-26 09:26:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 9397.499 USDT / 10992.028 USDT            │
+│ Min/Max balance dates (wallet balance) │ 2024-09-26 09:27:00 / 2024-05-15 09:48:00 │
+│ Max % of account underwater (balance)  │ 14.51%                                    │
+│ Absolute drawdown (wallet balance)     │ 1594.528 USDT (14.51%)                    │
+│ Drawdown duration                      │ 133 days 23:39:00                         │
+│ Profit at drawdown start               │ 992.028 USDT                              │
+│ Profit at drawdown end                 │ -602.501 USDT                             │
+│ Drawdown start                         │ 2024-05-15 09:48:00                       │
+│ Drawdown end                           │ 2024-09-26 09:27:00                       │
+│ Sharpe (daily wallet balance)          │ -0.41                                     │
+│ Sortino (daily wallet balance)         │ -0.79                                     │
+│ Calmar (daily wallet balance)          │ -2.05                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2023-10-01 00:00:00 -> 2024-10-01 00:00:00 | Max open trades : 1
+                                                                STRATEGY SUMMARY                                                                 
+┌──────────────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┬───────────────────────┐
+│             Strategy │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │              Drawdown │
+├──────────────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┼───────────────────────┤
+│ IBSImbalanceStrategy │    172 │        -0.03 │        -568.903 │        -5.69 │      3:04:00 │   52     0   120  30.2 │ 1594.528 USDT  14.51% │
+└──────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┴───────────────────────┘

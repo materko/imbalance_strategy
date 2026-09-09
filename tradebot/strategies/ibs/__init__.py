@@ -52,6 +52,8 @@ SPEC = StrategySpec(
     multicharts_template="IBS_Signal.py",
     informative_tfs=lambda cfg: [f"{int(cfg.zoneDetectionTF)}m"],
     htf_feeder=HTFFeeder,
+    sl_kind="sl_box",
+    tp_kind="tp_box",
     hyperopt_cls=IBSHyperopt,
 )
 

@@ -13,6 +13,7 @@
   <nav class="tabs">
     <button data-view="new" class="active">Nový beh</button>
     <button data-view="history">História</button>
+    <button data-view="analytics">Analytika</button>
   </nav>
   <div class="git">
     <input id="who" class="who" type="text" maxlength="80" placeholder="meno testera" title="Meno testera – ukladá sa ku každému behu a ako autor commitu. Drží sa v tomto prehliadači.">
@@ -197,6 +198,39 @@
       </div>
     </div>
   </section>
+</main>
+
+<main id="view-analytics" class="view single" hidden>
+  <div class="card">
+    <h2>Analytika obchodov</h2>
+    <p class="mode-hint">Backtest povie jedno číslo za celý beh. Tu sa obchody rozrežú na
+      skupiny a pri každej sa spočíta break-even poplatok — tak je vidieť, či výsledok kazí
+      jedna skupina (dá sa s tým niečo robiť), alebo je rozložený rovnomerne (nedá).</p>
+    <div class="form-grid an-form">
+      <label class="field span2">Behy (rovnaká syntax ako vyhľadávanie v histórii)
+        <input type="text" id="an-query" placeholder="napr. pair=BTC/USDT:USDT rrRatio&gt;=4">
+      </label>
+      <label class="field">Skupín na vlastnosť
+        <select id="an-quantiles">
+          <option>2</option><option>3</option><option selected>4</option>
+          <option>5</option><option>6</option>
+        </select>
+      </label>
+      <label class="field">Min. obchodov v skupine
+        <input type="number" id="an-minbucket" value="8" min="2" max="200" step="1">
+      </label>
+      <label class="field">Behov najviac
+        <input type="number" id="an-limit" value="40" min="1" max="500" step="10"
+               title="Obchody z viacerých behov sa zlejú dokopy — jeden beh má na delenie málo obchodov.">
+      </label>
+      <div class="an-actions span2">
+        <button id="an-run" class="primary" type="button">Spočítať</button>
+        <span id="an-status" class="hint"></span>
+      </div>
+    </div>
+    <div id="an-summary"></div>
+    <div id="an-result"></div>
+  </div>
 </main>
 
 <main id="view-history" class="view" hidden>

@@ -62,6 +62,12 @@ class StrategySpec:
     parity_fields: frozenset[str] = frozenset()
     #: vrstvy grafu a ľudské názvy druhov kresieb
     layers: tuple[ChartLayer, ...] = ()
+    #: Ktorý druh kresby nesie SL a TP úroveň obchodu. Analytika z nich počíta skutočnú
+    #: vzdialenosť stopu a plánovaný RR — v `trades.json` je len to, čo Freqtrade nakoniec
+    #: urobil, nie plán, ktorý engine vypočítal. Bez týchto mien sa tie dve vlastnosti
+    #: jednoducho nepočítajú.
+    sl_kind: str = ""
+    tp_kind: str = ""
     kind_titles: dict[str, str] = field(default_factory=dict)
     #: TF grafu, na ktorom stratégia bežala v TradingView
     default_timeframe: str = "3m"

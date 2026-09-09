@@ -719,6 +719,61 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             "verdict": ho.verdict(overenia, ladene) if overenia else "",
         }
 
+    @app.get("/api/analytics")
+    def analytics(q: str = "", runs: str = "", strategy: str = "ibs",
+                  quantiles: int = Query(4, ge=2, le=10),
+                  min_bucket: int = Query(8, ge=2, le=200),
+                  limit_runs: int = Query(40, ge=1, le=500)):
+        """Ktorá skupina obchodov kazí výsledok — nad jedným behom alebo nad viacerými.
+
+        `runs` je zoznam id oddelený čiarkou; bez neho sa vezmú behy podľa `q` (tá istá
+        syntax ako vyhľadávanie v histórii). Obchody sa zliajú dokopy: jeden beh má rádovo
+        desiatky obchodov a to je na rozdelenie na skupiny málo.
+        """
+        from .. import analytics as an
+
+        if strategy not in STRATEGIES:
+            raise HTTPException(404, f"neznáma stratégia {strategy!r}")
+        if runs.strip():
+            chcene = [r.strip() for r in runs.split(",") if r.strip()]
+            zaznamy = [rec for rec in (store.get(i) for i in chcene) if rec]
+        else:
+            vsetky = store.search(q) if q.strip() else store.all()
+            zaznamy = [r for r in vsetky if strategy_of(r) == strategy
+                       and r.get("status") == "done"
+                       and ((r.get("result") or {}).get("trades") or 0) > 0]
+        zaznamy = zaznamy[:limit_runs]
+        if not zaznamy:
+            raise HTTPException(404, "žiadne dobehnuté behy s obchodmi")
+
+        obchody: list[dict[str, Any]] = []
+        pouzite = []
+        for rec in zaznamy:
+            t = store.trades(rec["id"])
+            if not t:
+                continue
+            # Kresby nesú plán obchodu (SL/TP úroveň), z ktorého je vzdialenosť stopu
+            # a plánovaný RR — bez nich tie dve vlastnosti vypadnú.
+            obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]), strategy)
+            pouzite.append({"id": rec["id"], "pair": rec["settings"].get("pair"),
+                            "timeframe": rec["settings"].get("timeframe"),
+                            "timerange": rec["settings"].get("timerange"),
+                            "trades": len(t), "profile": rec["settings"].get("profile"),
+                            "note": rec.get("note") or ""})
+        if not obchody:
+            raise HTTPException(404, "vybrané behy nemajú uložené obchody")
+
+        report = an.analyze(obchody, strategy=strategy, quantiles=quantiles,
+                            min_bucket=min_bucket)
+        pary = sorted({r["pair"] for r in pouzite if r["pair"]})
+        report["runs"] = pouzite
+        report["pairs"] = pary
+        # Zliať obchody z rôznych párov ide, ale prahy v bodoch ani vzdialenosti stopu
+        # nie sú medzi nimi porovnateľné - nech to je vidieť.
+        report["mixed_pairs"] = len(pary) > 1
+        report["strategy"] = strategy
+        return report
+
     @app.get("/api/queue")
     def queue():
         return runner.snapshot()
