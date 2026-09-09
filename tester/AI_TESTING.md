@@ -156,9 +156,10 @@ PY -m tester.webapp.cli sweep --param rrRatio=3,5 --param slLookback=10,20,30   
 
 Hodnoty sú buď rozsah `od:do:krok` (vrátane hornej hranice), alebo zoznam `a,b,c`
 (aj `true,false`, `Long only,Both`, `0.25@pct`). `--param` sa dá opakovať — vznikne
-kartézsky súčin. Strop `--max-runs` (default 300) je poistka proti preklepu v kroku, nie
-výkonový limit; skutočná cena je čas — každý bod je celý backtest, rok je asi 30 sekúnd,
-takže 40 bodov na piatich referenčných oknách je hodina a pol.
+kartézsky súčin. Strop nie je žiadny (`--max-runs 0`) — mriežka smie bežať cez noc alebo
+na serveri. Cena je čas: každý bod je celý backtest, rok je asi 30 sekúnd, takže 40 bodov
+na piatich referenčných oknách je hodina a pol. Vo webapp sa celá mriežka dá zrušiť jedným
+tlačidlom, z CLI Ctrl+C.
 
 **Kritérium hovorí, čo je lepšie** — bez neho sa „optimálne" nedá určiť:
 

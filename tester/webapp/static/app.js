@@ -803,6 +803,11 @@ function sweepSpace() {
   return space;
 }
 
+/** Bod mriežky ako veta: „rrRatio 4, trailActivationR 2,5". */
+function sweepPointText(params, values) {
+  return params.map(n => `${n} ${fmtVal(values[n])}`).join(", ");
+}
+
 /** Odhad, ako dlho mriežka pobeží — behy idú za sebou, jeden po druhom. */
 function sweepMinutes(total) {
   const a = $("#from").value, b = $("#to").value;
@@ -822,23 +827,23 @@ function refreshSweep() {
   const space = sweepSpace();
   const count = Object.values(space).reduce((n, spec) => n * (sweepPoints(spec) || 0), 1);
   const total = Object.keys(space).length ? count : 0;
-  const cap = state.meta.max_sweep_runs || 300;
+  const cap = state.meta.max_sweep_runs || 0;      // 0 = bez stropu (predvolené)
   const min = total ? sweepMinutes(total) : 0;
   $("#sweep-run").textContent = total
     ? `▶ Spustiť sweep (${total} behov${min ? ` ≈ ${fmtMinutes(min)}` : ""})`
     : "▶ Spustiť sweep";
-  $("#sweep-run").disabled = !total || total > cap;
+  $("#sweep-run").disabled = !total || (cap && total > cap);
 
   const meta = metaByName();
   const risky = Object.keys(space).filter(n => meta[n] && meta[n].breaks_parity);
   const warn = $("#sweep-warn");
   const parts = [];
-  if (total > cap) {
-    parts.push(`Mriežka má ${total} behov, strop je ${cap}. Zúž rozsah alebo krok`
-      + " (strop dvíha premenná TRADEBOT_MAX_SWEEP_RUNS).");
-  } else if (min >= 60) {
-    parts.push(`${total} behov je odhadom ${fmtMinutes(min)} — každý bod je celý backtest`
-      + " a idú za sebou. Kratšie obdobie alebo hrubší krok to skráti.");
+  if (cap && total > cap) {
+    parts.push(`Mriežka má ${total} behov, strop je ${cap} (TRADEBOT_MAX_SWEEP_RUNS).`);
+  } else if (min >= 120) {
+    // Nie zákaz, len číslo: dlhá mriežka je legitímna, púšťa sa cez noc.
+    parts.push(`${total} behov je odhadom ${fmtMinutes(min)} — behy idú za sebou, takže`
+      + " sa to hodí nechať bežať cez noc. Mriežku sa dá kedykoľvek zrušiť celú.");
   }
   if (risky.length) {
     parts.push(`${risky.map(n => meta[n].title).join(", ")}: mení sizing alebo časovanie prevzaté `
@@ -864,8 +869,12 @@ async function startSweep() {
     };
     const r = await api("/api/sweeps", { method: "POST", body: JSON.stringify(body) });
     sweep.id = r.id;
+    try { localStorage.setItem("sweep", r.id); } catch (e) { /* súkromné okno */ }
     $("#sweep-status").textContent = `${r.points} behov vo fronte`
       + (r.minutes ? ` · odhadom ${fmtMinutes(r.minutes)}` : "") + ` · ${r.goal_note}`;
+    // Fronta sa prestane obtáčať, keď raz dobehne do prázdna; sweep ju musí zobudiť
+    // rovnako ako ▶ Spustiť backtest, inak karta Fronta tvrdí „Nič nebeží".
+    pollQueue();
     pollSweep();
   } catch (e) {
     $("#sweep-status").textContent = e.message;
@@ -879,7 +888,7 @@ async function pollSweep() {
   try {
     const r = await api(`/api/sweeps/${sweep.id}`);
     renderSweep(r);
-    if (r.done < r.done + r.running || r.running) {
+    if (r.running) {
       clearTimeout(sweep.timer);
       sweep.timer = setTimeout(pollSweep, 3000);
     }
@@ -887,27 +896,52 @@ async function pollSweep() {
 }
 
 function renderSweep(r) {
-  $("#sweep-status").textContent = `${r.goal_note} · hotových ${r.done}`
-    + (r.running ? `, vo fronte ${r.running}` : "");
+  const casti = [`hotových ${r.done} z ${r.done + r.running}`];
+  if (r.running_values) casti.push(`beží ${sweepPointText(r.params, r.running_values)}`);
+  else if (r.ahead) casti.push(`čaká, pred ňou je vo fronte ${r.ahead} behov`);
+  casti.push(r.goal_note);
+  $("#sweep-status").textContent = casti.join(" · ");
+  $("#sweep-cancel").hidden = !r.running;
   if (!r.rows.length) { $("#sweep-result").innerHTML = ""; return; }
   const head = [...r.params, "obch.", "PnL %", "WR %", "DD %", "break-even"];
+  const ceka = row => row.status === "queued" || row.status === "running";
   const rows = r.rows.map((row, i) => {
+    const hodnoty = r.params.map(n => `<td>${esc(fmtVal(row.values[n]))}</td>`).join("");
+    if (ceka(row)) {
+      // Body, ktoré ešte len čakajú, sú v tabuľke od začiatku — inak sekcia vyzerá
+      // po zaradení mriežky prázdna a nie je vidieť, že sa niečo deje.
+      return `<tr class="pending" title="beh ešte nedobehol">${hodnoty}`
+        + `<td colspan="5" class="muted">${row.status === "running" ? "beží…" : "čaká vo fronte"}</td></tr>`;
+    }
     const cls = !row.ok ? "out" : (i === 0 ? "best" : "");
     const cells = [
-      ...r.params.map(n => esc(fmtVal(row.values[n]))),
       row.result.trades ?? "—",
       fmt(row.result.pnl_pct, 2), fmt(row.result.winrate, 1),
       fmt(row.result.max_drawdown_pct, 2), fmt(row.result.break_even_pct, 4),
-    ];
+    ].map(c => `<td>${c}</td>`).join("");
     const title = row.why ? `mimo mantinelov: ${row.why}` : "klikni pre detail behu";
-    return `<tr class="${cls}" data-run="${row.id}" title="${esc(title)}">`
-      + cells.map(c => `<td>${c}</td>`).join("") + "</tr>";
+    return `<tr class="${cls}" data-run="${row.id}" title="${esc(title)}">${hodnoty}${cells}</tr>`;
   }).join("");
   $("#sweep-result").innerHTML = `<table><thead><tr>${head.map(h => `<th>${esc(h)}</th>`).join("")}`
     + `</tr></thead><tbody>${rows}</tbody></table>`;
   for (const tr of $$("#sweep-result tr[data-run]")) {
     tr.onclick = () => { showView("history"); openRun(tr.dataset.run); };
   }
+}
+
+/** Zruší všetky nedobehnuté body mriežky — náhrada za strop na jej veľkosť. */
+async function cancelSweep() {
+  if (!sweep.id) return;
+  const btn = $("#sweep-cancel");
+  btn.disabled = true;
+  try {
+    const r = await api(`/api/sweeps/${sweep.id}/cancel`, { method: "POST" });
+    $("#sweep-status").textContent = `zrušených ${r.cancelled} behov`;
+    pollQueue();
+    pollSweep();
+  } catch (e) {
+    $("#sweep-status").textContent = e.message;
+  } finally { btn.disabled = false; }
 }
 
 function initSweep() {
@@ -920,6 +954,12 @@ function initSweep() {
   addSweepRow();
   $("#sweep-add").onclick = () => addSweepRow();
   $("#sweep-run").onclick = startSweep;
+  $("#sweep-cancel").onclick = cancelSweep;
+  // Sweep cez noc: po zavretí a otvorení stránky sa mriežka nájde tam, kde skončila.
+  try {
+    const ulozeny = localStorage.getItem("sweep");
+    if (ulozeny) { sweep.id = ulozeny; pollSweep(); }
+  } catch (e) { /* súkromné okno */ }
 }
 
 /** Zadanie behu z formulára — to isté telo použije jeden beh aj sweep. */

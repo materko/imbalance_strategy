@@ -894,11 +894,92 @@ def test_sweep_hlasi_odhad_casu_a_ma_vlastnu_znacku(client, monkeypatch):
     monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
 
     prvy = c.post("/api/sweeps", json=_sweep_body()).json()
-    druhy = c.post("/api/sweeps", json=_sweep_body()).json()
+    druhy = c.post("/api/sweeps", json=_sweep_body(space={"rrRatio": "5,6"})).json()
 
     assert prvy["minutes"] == 2                      # 3 body x rok x 30 s
     # Dva sweepy v tej istej sekunde sa nesmú zliať do jednej mriežky.
     assert prvy["id"] != druhy["id"]
+
+
+def test_tu_istu_mriezku_druhy_raz_nezaradime(client, monkeypatch):
+    """Kým mriežka čaká vo fronte, v tabuľke sa nič nedeje — a tester klikne znova.
+
+    Štyri rovnaké mriežky za sebou znamenajú štvornásobok času a ani jeden nový výsledok.
+    """
+    from tester.webapp import app as app_mod
+
+    c, _ = client
+    monkeypatch.setattr(app_mod.engines, "available",
+                        lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+
+    assert c.post("/api/sweeps", json=_sweep_body()).status_code == 200
+    znova = c.post("/api/sweeps", json=_sweep_body())
+    assert znova.status_code == 409 and "už čaká vo fronte" in znova.json()["detail"]
+    assert len(c.get("/api/queue").json()) == 3      # nič nepribudlo
+
+
+def test_sweep_vidno_od_zaradenia_aj_ked_este_nic_nedobehlo(client, monkeypatch):
+    """Regresia: detail vracal len hotové behy, takže hneď po zaradení bola tabuľka
+    prázdna a stav hlásil „hotových 0" — vyzeralo to, že sa nič nedeje."""
+    from tester.webapp import app as app_mod
+
+    c, _ = client
+    monkeypatch.setattr(app_mod.engines, "available",
+                        lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+
+    sweep_id = c.post("/api/sweeps", json=_sweep_body()).json()["id"]
+    body = c.get(f"/api/sweeps/{sweep_id}").json()
+
+    assert body["done"] == 0 and body["running"] == 3
+    assert len(body["rows"]) == 3
+    assert {row["status"] for row in body["rows"]} <= {"queued", "running"}
+    assert sorted(row["values"]["rrRatio"] for row in body["rows"]) == [2, 3, 4]
+
+
+def test_cela_mriezka_sa_da_zrusit_naraz(tmp_path, monkeypatch):
+    """Mriežka nemá strop, tak musí ísť zrušiť — inak by preklep v kroku zapchal frontu.
+
+    Zrušenie je náhrada za obmedzenie: sweep smie bežať aj celú noc, ale omyl sa opraví
+    jedným klikom, nie ✕ pri každom bode.
+    """
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.webapp import app as app_mod
+    from tester.webapp.runner import BacktestRunner
+
+    monkeypatch.setattr(app_mod.engines, "available",
+                        lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+
+    runner = BacktestRunner(RunStore(tmp_path), command_builder=lambda *a: ["python", "-c", ""])
+    monkeypatch.setattr(runner, "start", lambda: None)   # fronta stojí, nech sa dá rušiť
+    c = TestClient(app_mod.create_app(RunStore(tmp_path), runner))
+
+    sweep_id = c.post("/api/sweeps", json=_sweep_body()).json()["id"]
+    iny = c.post("/api/sweeps", json=_sweep_body(space={"rrRatio": "5,6"})).json()["id"]
+
+    r = c.post(f"/api/sweeps/{sweep_id}/cancel")
+    assert r.status_code == 200 and r.json()["cancelled"] == 3
+    # Cudzia mriežka ostáva nedotknutá.
+    assert c.get(f"/api/sweeps/{iny}").json()["running"] == 2
+    assert c.post(f"/api/sweeps/{sweep_id}/cancel").status_code == 404
+
+
+def test_mriezka_nema_strop_kym_ho_nikto_nezapne(client, monkeypatch):
+    """Sweep sa púšťa cez noc alebo na serveri; vymyslené číslo by len prekážalo."""
+    from tester.webapp import app as app_mod
+
+    c, _ = client
+    monkeypatch.setattr(app_mod.engines, "available",
+                        lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+
+    assert c.get("/api/meta").json()["max_sweep_runs"] == 0
+    r = c.post("/api/sweeps", json=_sweep_body(space={"rrRatio": "0.5:10:0.05"}))
+    assert r.status_code == 200 and r.json()["points"] == 191
 
 
 def test_sweep_detail_zoradi_podla_kriteria(client):

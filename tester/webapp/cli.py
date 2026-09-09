@@ -227,7 +227,7 @@ def cmd_sweep(args: argparse.Namespace) -> int:
 
     warn_parity(space, args.strategy)
     points = sweep_mod.expand(space)
-    if len(points) > args.max_runs:
+    if args.max_runs and len(points) > args.max_runs:
         raise SystemExit(
             f"mriežka má {len(points)} behov, strop je {args.max_runs} (--max-runs). "
             "Zúž rozsah alebo krok - každý bod je celý backtest.")
@@ -418,9 +418,9 @@ def main(argv: list[str] | None = None) -> int:
                    help="podľa čoho vybrať najlepší beh (default break-even poplatok)")
     p.add_argument("--max-dd", type=float, help="strop na max drawdown v %%")
     p.add_argument("--min-trades", type=int, help="minimálny počet obchodov, inak je bod mimo")
-    p.add_argument("--max-runs", type=int, default=300,
-                   help="poistka proti preklepu v kroku (default 300); cena mriežky je čas, "
-                        "rok backtestu je ~30 s na bod")
+    p.add_argument("--max-runs", type=int, default=0,
+                   help="strop na veľkosť mriežky; 0 (default) = bez stropu, sweep smie bežať "
+                        "cez noc. Cena je čas: rok backtestu je asi 30 s na bod")
     _run_args(p)
     p.set_defaults(func=cmd_sweep)
 

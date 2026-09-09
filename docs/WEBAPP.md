@@ -207,9 +207,15 @@ ide do tej istej fronty a do histórie, takže sa dá otvoriť, porovnať aj pre
 Carlom. Parametrov môže byť viac — vznikne kartézsky súčin.
 
 Cena mriežky je **čas, nie počet riadkov**: behy idú za sebou a rok s 1m detailom je asi
-30 sekúnd, takže tlačidlo hovorí aj odhad („20 behov ≈ 10 min"). Strop je 300 behov a je
-to poistka proti preklepu v kroku (`1:100:0.1` je 991 backtestov), nie výkonový limit —
-posunie ho premenná `TRADEBOT_MAX_SWEEP_RUNS`.
+30 sekúnd, takže tlačidlo hovorí aj odhad („20 behov ≈ 10 min"). **Strop na veľkosť nie
+je** — sweep sa dá nechať bežať cez noc alebo na serveri. Namiesto obmedzenia je tam
+**✕ Zrušiť mriežku**, ktoré zahodí všetky nedobehnuté body naraz, takže preklep v kroku
+stojí jeden klik. (Kto strop chce, zapne ho `TRADEBOT_MAX_SWEEP_RUNS`, v CLI `--max-runs`.)
+
+Body sú v tabuľke **od zaradenia**, nie až od prvého výsledku: čakajúce riadky sú kurzívou
+a stav píše, ktorý bod práve beží a koľko cudzích behov je pred mriežkou vo fronte. Sweep
+prežije zavretie stránky — po otvorení sa mriežka nájde tam, kde skončila. Tú istú mriežku
+appka druhý raz nezaradí; keby sa nič nedialo, je to fronta, nie stratené kliknutie.
 
 **Vybrať podľa** hovorí, čo je lepšie — bez toho sa „optimálne" nedá určiť: najvyšší
 break-even poplatok (predvolené, nezávisí od sizingu ani peňaženky), najvyšší zisk,
