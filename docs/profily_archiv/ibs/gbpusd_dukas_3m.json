@@ -1,0 +1,30 @@
+{
+  "_title": "MultiCharts GBPUSD CFD (Dukascopy) 3m — kostra z nas100_dukas_3m",
+  "_comment": [
+    "Kostra vyrobena prikazom `python -m tester.dukas_import ... --symbol GBPUSD`.",
+    "Instrument gbpusd_dukascopy: tick 1e-05, hodnota bodu 100000 USD.",
+    "PREVERIT: prahy v bodoch (unit abs) su prevzate z MNQ a sedia len na podobnom podklade;",
+    "na inom trhu ich prepni na jednotku atr (`--set minImbSizePoints=0.5@atr`).",
+    "Objem Dukascopy je len tickovy - useVolumeFilter nechaj vypnuty."
+  ],
+  "_instrument": "gbpusd_dukascopy",
+  "enablePinBarEntry": true,
+  "enableTrailing": true,
+  "tradeDirection": "Long only",
+  "sess2ZoneStartH": 8,
+  "showElliott": false,
+  "imbMaxDistTicks": {
+    "value": 25.0,
+    "unit": "abs"
+  },
+  "state2ConfirmTicks": {
+    "value": 0.25,
+    "unit": "abs"
+  },
+  "slBufferTicks": {
+    "value": 0.5,
+    "unit": "abs"
+  },
+  "tickDollarValue": 1.0,
+  "legacyPineSizing": true
+}

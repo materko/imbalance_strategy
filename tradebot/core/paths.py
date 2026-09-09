@@ -36,7 +36,8 @@ from pathlib import Path
 
 __all__ = [
     "REPO",
-    "DATA", "DATA_ARCHIVE", "TESTER_DATA", "DERIVED_MANIFEST", "QUOTEMANAGER_DATA",
+    "DATA", "DATA_ARCHIVE", "TESTER_ARCHIVE", "TESTER_DATA", "DERIVED_MANIFEST",
+    "QUOTEMANAGER_DATA",
     "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS",
     "MULTICHARTS_DIR",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES",
@@ -87,4 +88,8 @@ TMP_PROFILES = RUNS_DIR / ".profiles"
 
 #: Dvojica (archív, pracovný strom) pre `data_archive split|merge`. Keďže archív zrkadlí
 #: `data/`, stačí jediná — zoznam ostáva, aby sa testy dali púšťať nad dočasným adresárom.
+#: Sklad sviečok v archíve — zrkadlo `TESTER_DATA`. Importéry píšu sem, nie o úroveň
+#: vyššie: `data_archive/<zdroj>/…` by `merge` do `data/tester/` nepreniesol.
+TESTER_ARCHIVE = DATA_ARCHIVE / "tester"
+
 ARCHIVE_ROOTS: tuple[tuple[Path, Path], ...] = ((DATA_ARCHIVE, DATA),)

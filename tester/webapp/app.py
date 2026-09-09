@@ -16,7 +16,7 @@ import os
 from tradebot.core.env import getenv
 import re
 from collections import OrderedDict
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -110,6 +110,15 @@ class RunRequest(BaseModel):
     user: str | None = Field(None, max_length=80, description="meno testera z hlavičky stránky")
 
 
+class SweepRequest(RunRequest):
+    """Beh na mriežke hodnôt — inak to isté zadanie ako jeden beh."""
+
+    space: dict[str, str] = Field(..., description="parameter -> `od:do:krok` alebo `a,b,c`")
+    goal: str = Field("break_even", description="podľa čoho vybrať najlepší beh")
+    max_dd: float | None = Field(None, description="strop na max drawdown v %")
+    min_trades: int | None = Field(None, description="menej obchodov = bod je mimo mantinelov")
+
+
 class GitPushRequest(BaseModel):
     author: str | None = Field(None, max_length=80)
     message: str | None = Field(None, max_length=200)
@@ -135,6 +144,13 @@ class ProfileSaveRequest(BaseModel):
 
 class ProfileRenameRequest(BaseModel):
     name: str = Field(..., max_length=48)
+
+
+def _fmt_value(value: Any) -> str:
+    """Hodnota bodu mriežky do poznámky behu."""
+    if isinstance(value, dict):
+        return f"{value.get('value')}@{value.get('unit')}"
+    return f"{value:g}" if isinstance(value, float) else str(value)
 
 
 def _clean_user(name: str | None) -> str:
@@ -298,8 +314,8 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         recs = store.search(q) if q.strip() else store.all()
         return {"total": len(recs), "runs": [summarize_for_list(r, defaults_of(r)) for r in recs[:limit]]}
 
-    @app.post("/api/runs")
-    def submit(req: RunRequest):
+    def _run_settings(req: RunRequest) -> dict[str, Any]:
+        """Overí zadanie a poskladá `settings` behu. Spoločné pre jeden beh aj pre sweep."""
         if not _TIMERANGE_RE.match(req.timerange):
             raise HTTPException(422, "timerange musí byť YYYYMMDD-YYYYMMDD")
         a, b = req.timerange.split("-")
@@ -338,7 +354,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 f"engine {engines.ENGINE_TITLES[engine]} sa na {req.pair} {req.timeframe} "
                 f"spustiť nedá ({preco}); dostupné: "
                 f"{', '.join(engines.ENGINE_TITLES[e] for e in possible) or 'žiadne'}"))
-        settings = {
+        return {
             "strategy": req.strategy,
             "exchange": exchange if engine == engines.FREQTRADE else None,
             "sweep": req.sweep,
@@ -351,11 +367,96 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             "timeframe_detail": detail,
             "profile": req.profile,
         }
+
+    @app.post("/api/runs")
+    def submit(req: RunRequest):
+        settings = _run_settings(req)
         try:
             job = runner.submit(req.params, settings, note=req.note, user=_clean_user(req.user))
         except (ConfigError, ValueError) as exc:
             raise HTTPException(422, str(exc))
         return job.public()
+
+    #: Strop na veľkosť mriežky — každý bod je celý backtest, nie riadok v tabuľke.
+    MAX_SWEEP_RUNS = 40
+
+    @app.post("/api/sweeps")
+    def sweep_start(req: SweepRequest):
+        """Rozbalí mriežku a zaradí každý bod ako samostatný beh s tou istou značkou."""
+        from .. import sweep as sweep_mod
+
+        if req.goal not in sweep_mod.GOALS:
+            raise HTTPException(422, f"neznáme kritérium {req.goal!r}; "
+                                     f"známe: {', '.join(sweep_mod.GOALS)}")
+        defaults = DEFAULTS.get(req.strategy) or DEFAULTS["ibs"]
+        space = {}
+        for name, spec in req.space.items():
+            if name not in defaults:
+                raise HTTPException(422, f"neznámy parameter {name!r}")
+            try:
+                values = sweep_mod.parse_values(spec)
+            except ValueError as exc:
+                raise HTTPException(422, f"{name}: {exc}")
+            if not values:
+                raise HTTPException(422, f"{name}: žiadne hodnoty")
+            space[name] = values
+        if not space:
+            raise HTTPException(422, "sweep potrebuje aspoň jeden parameter")
+
+        points = sweep_mod.expand(space)
+        if len(points) > MAX_SWEEP_RUNS:
+            raise HTTPException(422, f"mriežka má {len(points)} behov, limit je {MAX_SWEEP_RUNS} — "
+                                     "každý bod je celý backtest, zúž rozsah alebo krok")
+
+        sweep_id = f"{datetime.now(timezone.utc):%Y%m%d-%H%M%S}"
+        goal_note = sweep_mod.describe(req.goal, req.max_dd, req.min_trades)
+        ids = []
+        for point in points:
+            settings = _run_settings(req)
+            settings["sweep"] = {"id": sweep_id, "values": point, "goal": req.goal,
+                                 "max_dd": req.max_dd, "min_trades": req.min_trades}
+            popis = ", ".join(f"{k}={_fmt_value(v)}" for k, v in point.items())
+            note = f"sweep {sweep_id}: {popis}" + (f" — {req.note}" if req.note else "")
+            job = runner.submit({**req.params, **point}, settings, note=note,
+                                user=_clean_user(req.user))
+            ids.append(job.id)
+        return {"id": sweep_id, "runs": ids, "points": len(points), "goal": req.goal,
+                "goal_note": goal_note}
+
+    @app.get("/api/sweeps/{sweep_id}")
+    def sweep_detail(sweep_id: str):
+        """Stav a poradie mriežky — beží aj kým sa dopočítava."""
+        from .. import sweep as sweep_mod
+
+        records = [r for r in store.all()
+                   if (r.get("settings", {}).get("sweep") or {}).get("id") == sweep_id]
+        live = [j for j in runner.snapshot()
+                if (j.get("settings", {}).get("sweep") or {}).get("id") == sweep_id]
+        if not records and not live:
+            raise HTTPException(404, "taký sweep v histórii nie je")
+
+        tag = (records or live)[0]["settings"]["sweep"]
+        ranked = sweep_mod.rank(records, tag.get("goal") or "break_even",
+                                max_dd=tag.get("max_dd"), min_trades=tag.get("min_trades"))
+        names = list(tag.get("values") or {})
+        return {
+            "id": sweep_id,
+            "goal": tag.get("goal"),
+            "goal_note": sweep_mod.describe(tag.get("goal") or "break_even",
+                                            tag.get("max_dd"), tag.get("min_trades")),
+            "params": names,
+            "done": len(records),
+            "running": len(live),
+            "rows": [{
+                "id": r["id"],
+                "values": r["settings"]["sweep"]["values"],
+                "status": r.get("status"),
+                "ok": r["sweep_ok"],
+                "why": r["sweep_why"],
+                "result": {k: (r.get("result") or {}).get(k) for k in
+                           ("trades", "pnl_pct", "winrate", "max_drawdown_pct", "break_even_pct")},
+            } for r in ranked],
+        }
 
     @app.get("/api/queue")
     def queue():

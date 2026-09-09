@@ -16,5 +16,167 @@
     "min_qty": 1.0,
     "quote_currency": "USD",
     "note": "Dukascopy USA100.IDX/USD - ten isty podklad ako MNQ, takze prahy v bodoch z multicharts_mnq_3m sedia 1:1. Tick 0.01 je najmensi, ktory Pine rozsah tickDollarValue (>= 0.01) pripusta; v QuoteManageri moze mat symbol Price Scale 1/1000, ordre sa len zaokruhlia na stotiny."
+  },
+  "cocoa_dukascopy": {
+    "symbol": "COCOA/USD",
+    "tick_size": 0.01,
+    "point_value": 10.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "note": "Dukascopy CFD COCOA; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "audusd_dukascopy": {
+    "symbol": "AUDUSD/USD",
+    "tick_size": 1e-05,
+    "point_value": 100000.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "note": "Dukascopy CFD AUDUSD; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "eurusd_dukascopy": {
+    "symbol": "EURUSD/USD",
+    "tick_size": 1e-05,
+    "point_value": 100000.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "note": "Dukascopy CFD EURUSD; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "gbpusd_dukascopy": {
+    "symbol": "GBPUSD/USD",
+    "tick_size": 1e-05,
+    "point_value": 100000.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "note": "Dukascopy CFD GBPUSD; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "usdcad_dukascopy": {
+    "symbol": "USDCAD/CAD",
+    "tick_size": 1e-05,
+    "point_value": 100000.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "CAD",
+    "note": "Dukascopy CFD USDCAD; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "usdjpy_dukascopy": {
+    "symbol": "USDJPY/JPY",
+    "tick_size": 0.001,
+    "point_value": 100000.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "JPY",
+    "note": "Dukascopy CFD USDJPY; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "gbpjpy_dukascopy": {
+    "symbol": "GBPJPY/JPY",
+    "tick_size": 0.001,
+    "point_value": 100000.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "JPY",
+    "note": "Dukascopy CFD GBPJPY; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "chfjpy_dukascopy": {
+    "symbol": "CHFJPY/JPY",
+    "tick_size": 0.001,
+    "point_value": 100000.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "JPY",
+    "note": "Dukascopy CFD CHFJPY; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "us500_dukascopy": {
+    "symbol": "US500/USD",
+    "tick_size": 0.01,
+    "point_value": 1.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "note": "Dukascopy CFD US500; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "dj30_dukascopy": {
+    "symbol": "DJ30/USD",
+    "tick_size": 0.01,
+    "point_value": 1.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "note": "Dukascopy CFD DJ30; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "dax_dukascopy": {
+    "symbol": "DAX/EUR",
+    "tick_size": 0.01,
+    "point_value": 1.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "EUR",
+    "note": "Dukascopy CFD DAX; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "jp225_dukascopy": {
+    "symbol": "JP225/JPY",
+    "tick_size": 0.01,
+    "point_value": 1.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "JPY",
+    "note": "Dukascopy CFD JP225; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "btc_dukascopy": {
+    "symbol": "BTC/USD",
+    "tick_size": 0.01,
+    "point_value": 1.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "note": "Dukascopy CFD BTC; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "eth_dukascopy": {
+    "symbol": "ETH/USD",
+    "tick_size": 0.01,
+    "point_value": 1.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "note": "Dukascopy CFD ETH; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "xau_dukascopy": {
+    "symbol": "XAU/USD",
+    "tick_size": 0.01,
+    "point_value": 100.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "note": "Dukascopy CFD XAU; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "wti_dukascopy": {
+    "symbol": "WTI/USD",
+    "tick_size": 0.01,
+    "point_value": 1000.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "note": "Dukascopy CFD WTI; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "ngas_dukascopy": {
+    "symbol": "NGAS/USD",
+    "tick_size": 0.001,
+    "point_value": 10000.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "note": "Dukascopy CFD NGAS; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
+  },
+  "coffee_dukascopy": {
+    "symbol": "COFFEE/USD",
+    "tick_size": 0.01,
+    "point_value": 375.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "note": "Dukascopy CFD COFFEE; hodnota bodu musi sediet s Big Point Value v QuoteManageri."
   }
 }

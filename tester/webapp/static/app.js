@@ -713,25 +713,212 @@ function timerange() {
   return `${a}-${b}`;
 }
 
+
+// --------------------------------------------------------------------------- //
+// Sweep: mriežka behov cez hodnoty parametra
+//
+// Každý bod je obyčajný beh vo fronte, takže sa dá otvoriť ako ktorýkoľvek iný.
+// Formulár len povie, ktoré parametre a aké hodnoty, a podľa čoho vybrať najlepší.
+// --------------------------------------------------------------------------- //
+
+const sweep = { id: null, timer: null };
+
+const GOAL_TITLES = {
+  break_even: "najvyšší break-even poplatok",
+  profit: "najvyšší zisk",
+  winrate: "najvyšší podiel ziskových",
+  drawdown: "najnižší drawdown",
+};
+
+/** Prednastavené hodnoty pre parameter: rozsah z Pine, krok podľa typu. */
+function defaultSpec(meta) {
+  if (!meta) return "";
+  if (meta.type === "bool") return "true,false";
+  if (meta.options) return meta.options.join(",");
+  const lo = meta.min ?? 0, hi = meta.max ?? 10;
+  const span = hi - lo;
+  const step = meta.type === "int" ? Math.max(1, Math.round(span / 5)) : Number((span / 5).toPrecision(1));
+  return `${lo}:${hi}:${step}`;
+}
+
+function sweepParamOptions() {
+  const groups = {};
+  for (const m of state.meta.params) {
+    if (m.type === "color" || m.type === "string") continue;
+    (groups[m.group] = groups[m.group] || []).push(m);
+  }
+  return groups;
+}
+
+function addSweepRow(name) {
+  const wrap = document.createElement("div");
+  wrap.className = "sweep-row";
+  const sel = document.createElement("select");
+  for (const [group, metas] of Object.entries(sweepParamOptions())) {
+    const g = document.createElement("optgroup"); g.label = group;
+    for (const m of metas) {
+      const o = document.createElement("option");
+      o.value = m.name;
+      o.textContent = (m.breaks_parity ? "⚠ " : "") + m.title;
+      o.title = m.name + (m.breaks_parity ? " — mení sizing/časovanie prevzaté z Pine" : "");
+      g.append(o);
+    }
+    sel.append(g);
+  }
+  const spec = document.createElement("input");
+  spec.type = "text"; spec.className = "spec"; spec.title = "od:do:krok alebo zoznam a,b,c";
+  const del = document.createElement("button");
+  del.type = "button"; del.className = "ghost small"; del.textContent = "✕";
+  del.onclick = () => { wrap.remove(); refreshSweep(); };
+
+  sel.value = name || sel.options[0].value;
+  spec.value = defaultSpec(metaByName()[sel.value]);
+  sel.onchange = () => { spec.value = defaultSpec(metaByName()[sel.value]); refreshSweep(); };
+  spec.oninput = refreshSweep;
+
+  wrap.append(sel, spec, del);
+  $("#sweep-rows").append(wrap);
+  refreshSweep();
+}
+
+/** Rozbalí zadanie tak, ako to spraví server — len aby sa dal ukázať počet behov. */
+function sweepPoints(specText) {
+  const text = (specText || "").trim();
+  if (!text) return 0;
+  if (text.includes(":") && !text.includes(",")) {
+    const [lo, hi, step] = text.split(":").map(Number);
+    if (!isFinite(lo) || !isFinite(hi) || !(step > 0)) return 0;
+    return Math.floor((hi - lo) / step + 1e-9) + 1;
+  }
+  return text.split(",").filter(v => v.trim()).length;
+}
+
+function sweepSpace() {
+  const space = {};
+  for (const row of $$("#sweep-rows .sweep-row")) {
+    const name = row.querySelector("select").value;
+    const spec = row.querySelector("input.spec").value.trim();
+    if (name && spec) space[name] = spec;
+  }
+  return space;
+}
+
+function refreshSweep() {
+  const space = sweepSpace();
+  const count = Object.values(space).reduce((n, spec) => n * (sweepPoints(spec) || 0), 1);
+  const total = Object.keys(space).length ? count : 0;
+  $("#sweep-run").textContent = total ? `▶ Spustiť sweep (${total} behov)` : "▶ Spustiť sweep";
+  $("#sweep-run").disabled = !total || total > 40;
+
+  const meta = metaByName();
+  const risky = Object.keys(space).filter(n => meta[n] && meta[n].breaks_parity);
+  const warn = $("#sweep-warn");
+  const parts = [];
+  if (total > 40) parts.push(`Mriežka má ${total} behov, limit je 40 — každý bod je celý backtest.`);
+  if (risky.length) {
+    parts.push(`${risky.map(n => meta[n].title).join(", ")}: mení sizing alebo časovanie prevzaté `
+      + "z TradingView. Ladiť sa dá, ale výsledok sa už nedá porovnať s Pine ani s golden testami.");
+  }
+  warn.hidden = !parts.length;
+  warn.textContent = parts.join(" ");
+}
+
+async function startSweep() {
+  const space = sweepSpace();
+  if (!Object.keys(space).length) return;
+  const btn = $("#sweep-run");
+  btn.disabled = true;
+  $("#sweep-status").textContent = "zaraďujem do fronty…";
+  try {
+    const body = {
+      ...runBody(),
+      space,
+      goal: $("#sweep-goal").value,
+      max_dd: $("#sweep-maxdd").value === "" ? null : Number($("#sweep-maxdd").value),
+      min_trades: $("#sweep-mintrades").value === "" ? null : Number($("#sweep-mintrades").value),
+    };
+    const r = await api("/api/sweeps", { method: "POST", body: JSON.stringify(body) });
+    sweep.id = r.id;
+    $("#sweep-status").textContent = `${r.points} behov vo fronte · ${r.goal_note}`;
+    pollSweep();
+  } catch (e) {
+    $("#sweep-status").textContent = e.message;
+  } finally {
+    refreshSweep();
+  }
+}
+
+async function pollSweep() {
+  if (!sweep.id) return;
+  try {
+    const r = await api(`/api/sweeps/${sweep.id}`);
+    renderSweep(r);
+    if (r.done < r.done + r.running || r.running) {
+      clearTimeout(sweep.timer);
+      sweep.timer = setTimeout(pollSweep, 3000);
+    }
+  } catch (e) { /* beh ešte nič neuložil */ clearTimeout(sweep.timer); sweep.timer = setTimeout(pollSweep, 3000); }
+}
+
+function renderSweep(r) {
+  $("#sweep-status").textContent = `${r.goal_note} · hotových ${r.done}`
+    + (r.running ? `, vo fronte ${r.running}` : "");
+  if (!r.rows.length) { $("#sweep-result").innerHTML = ""; return; }
+  const head = [...r.params, "obch.", "PnL %", "WR %", "DD %", "break-even"];
+  const rows = r.rows.map((row, i) => {
+    const cls = !row.ok ? "out" : (i === 0 ? "best" : "");
+    const cells = [
+      ...r.params.map(n => esc(fmtVal(row.values[n]))),
+      row.result.trades ?? "—",
+      fmt(row.result.pnl_pct, 2), fmt(row.result.winrate, 1),
+      fmt(row.result.max_drawdown_pct, 2), fmt(row.result.break_even_pct, 4),
+    ];
+    const title = row.why ? `mimo mantinelov: ${row.why}` : "klikni pre detail behu";
+    return `<tr class="${cls}" data-run="${row.id}" title="${esc(title)}">`
+      + cells.map(c => `<td>${c}</td>`).join("") + "</tr>";
+  }).join("");
+  $("#sweep-result").innerHTML = `<table><thead><tr>${head.map(h => `<th>${esc(h)}</th>`).join("")}`
+    + `</tr></thead><tbody>${rows}</tbody></table>`;
+  for (const tr of $$("#sweep-result tr[data-run]")) {
+    tr.onclick = () => { showView("history"); openRun(tr.dataset.run); };
+  }
+}
+
+function initSweep() {
+  const goal = $("#sweep-goal");
+  goal.innerHTML = "";
+  for (const [key, title] of Object.entries(GOAL_TITLES)) {
+    const o = document.createElement("option"); o.value = key; o.textContent = title; goal.append(o);
+  }
+  $("#sweep-rows").innerHTML = "";
+  addSweepRow();
+  $("#sweep-add").onclick = () => addSweepRow();
+  $("#sweep-run").onclick = startSweep;
+}
+
+/** Zadanie behu z formulára — to isté telo použije jeden beh aj sweep. */
+function runBody() {
+  return {
+    params: state.params,
+    strategy: state.strategy,
+    pair: $("#pair").value,
+    engine: $("#engine").value || null,
+    exchange: $("#exchange").value || null,
+    timeframe: $("#tf").value,
+    timerange: timerange(),
+    fee: $("#fee").value === "" ? null : Number($("#fee").value) / 100,
+    wallet: Number($("#wallet").value),
+    timeframe_detail: $("#detail").checked ? "1m" : null,
+    profile: profileForRun(),
+    note: $("#note").value.trim(),
+    user: currentUser(),
+  };
+}
+
 async function submitRun() {
   const btn = $("#run"); btn.disabled = true; $("#run-error").hidden = true;
   try {
-    const body = {
-      params: state.params,
-      strategy: state.strategy,
-      pair: $("#pair").value,
-      engine: $("#engine").value || null,
-      exchange: $("#exchange").value || null,
-      timeframe: $("#tf").value,
-      timerange: timerange(),
-      fee: $("#fee").value === "" ? null : Number($("#fee").value) / 100,
-      wallet: Number($("#wallet").value),
-      timeframe_detail: $("#detail").checked ? "1m" : null,
-      profile: profileForRun(),
-      note: $("#note").value.trim(),
-      user: currentUser(),
-    };
-    await api("/api/runs", { method: "POST", body: JSON.stringify(body) });
+    await api("/api/runs", { method: "POST", body: JSON.stringify(runBody()) });
     await pollQueue();
   } catch (e) {
     $("#run-error").textContent = e.message; $("#run-error").hidden = false;
@@ -1493,6 +1680,7 @@ async function init() {
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#live-log").hidden) closeLiveLog(); });
   $("#load-params").onclick = loadDetailIntoForm;
   for (const b of $$(".chip-btn[data-range]")) b.onclick = () => setQuickRange(b.dataset.range);
+  initSweep();
   $("#mc-box").addEventListener("toggle", () => { if ($("#mc-box").open) loadMonteCarlo(); });
   $("#mc-run").onclick = () => loadMonteCarlo(true);
   $("#delete-run").onclick = async () => {

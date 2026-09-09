@@ -788,3 +788,68 @@ def test_odkazy_na_skript_a_styly_maju_verziu(client):
     assert re.search(r'src="/static/app\.js\?v=[0-9a-f]+"', html)
     # verzia sa mení len so súborom, nie s každým načítaním
     assert c.get("/").text == html
+
+
+# --------------------------------------------------------------------------- #
+# sweep: mriežka behov
+# --------------------------------------------------------------------------- #
+
+
+def _sweep_body(**over):
+    body = {"params": IBSConfig().to_dict(), "pair": "BTC/USDT:USDT",
+            "timerange": "20250904-20260904", "space": {"rrRatio": "2:4:1"},
+            "goal": "break_even", "note": "test"}
+    body.update(over)
+    return body
+
+
+def test_sweep_zaradi_kazdy_bod_ako_samostatny_beh(client, monkeypatch):
+    from tester.webapp import app as app_mod
+
+    c, store = client
+    monkeypatch.setattr(app_mod.engines, "available",
+                        lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+
+    r = c.post("/api/sweeps", json=_sweep_body())
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["points"] == 3 and len(body["runs"]) == 3
+    assert body["goal_note"] == "najvyšší break-even poplatok"
+
+    # každý beh nesie svoju hodnotu aj spoločnú značku
+    jobs = c.get("/api/queue").json()
+    hodnoty = sorted(j["settings"]["sweep"]["values"]["rrRatio"] for j in jobs)
+    assert hodnoty == [2, 3, 4]
+    assert {j["settings"]["sweep"]["id"] for j in jobs} == {body["id"]}
+
+
+def test_sweep_odmietne_prilis_velku_mriezku_a_nezmysly(client, monkeypatch):
+    from tester.webapp import app as app_mod
+
+    c, _ = client
+    monkeypatch.setattr(app_mod.engines, "available",
+                        lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+
+    assert c.post("/api/sweeps", json=_sweep_body(space={"rrRatio": "1:100:1"})).status_code == 422
+    assert c.post("/api/sweeps", json=_sweep_body(space={"nieco": "1,2"})).status_code == 422
+    assert c.post("/api/sweeps", json=_sweep_body(space={})).status_code == 422
+    assert c.post("/api/sweeps", json=_sweep_body(goal="nieco")).status_code == 422
+    assert c.post("/api/sweeps", json=_sweep_body(space={"rrRatio": "2:6"})).status_code == 422
+
+
+def test_sweep_detail_zoradi_podla_kriteria(client):
+    c, store = client
+    for i, (rr, be, dd) in enumerate([(2, 0.10, 4.0), (3, 0.30, 30.0), (4, 0.20, 5.0)]):
+        rec = _record(f"2026090{i+1}-120000-abc12{i}")
+        rec["settings"]["sweep"] = {"id": "s1", "values": {"rrRatio": rr},
+                                    "goal": "break_even", "max_dd": 10.0, "min_trades": None}
+        rec["result"] = {**rec["result"], "break_even_pct": be, "max_drawdown_pct": dd, "trades": 40}
+        store.save(rec)
+
+    body = c.get("/api/sweeps/s1").json()
+    assert body["params"] == ["rrRatio"] and body["done"] == 3
+    assert [row["values"]["rrRatio"] for row in body["rows"]] == [4, 2, 3]
+    assert body["rows"][-1]["why"] == "drawdown 30.0 % > 10 %"
+    assert c.get("/api/sweeps/neznamy").status_code == 404

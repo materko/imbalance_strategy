@@ -199,6 +199,28 @@ vidíš v histórii, tak napíš, čo beh testuje.
 Config sa validuje pri odoslaní (rozsahy z Pine `minval`/`maxval`, konzistencia
 seáns, sizing), chyba sa ukáže vo formulári a nič sa nespustí.
 
+### Hľadať parameter (sweep)
+
+Rozbaľovacia sekcia pod formulárom. Vyberieš parameter a hodnoty — rozsah `od:do:krok`
+alebo zoznam `a,b,c` — a appka pustí mriežku behov: **každý bod je obyčajný backtest**,
+ide do tej istej fronty a do histórie, takže sa dá otvoriť, porovnať aj prehnať Monte
+Carlom. Parametrov môže byť viac (vznikne kartézsky súčin, strop je 40 behov).
+
+**Vybrať podľa** hovorí, čo je lepšie — bez toho sa „optimálne" nedá určiť: najvyšší
+break-even poplatok (predvolené, nezávisí od sizingu ani peňaženky), najvyšší zisk,
+najvyšší podiel ziskových alebo najnižší drawdown. K tomu mantinely **max drawdown**
+a **min. obchodov**; body, ktoré ich porušia, ostanú v tabuľke pod čiarou aj s dôvodom,
+nech je vidno, že optimum tam je, len je mimo dohodnutých hraníc.
+
+Výsledok sa dopĺňa priebežne, ako behy dobiehajú — tabuľka je zoradená podľa kritéria,
+najlepší riadok je zvýraznený a klik na riadok otvorí detail toho behu. Parametre, ktoré
+rozbijú paritu s TradingView (sizing, STATE timeouty), sú v ponuke označené ⚠ a sekcia na
+ne upozorní; zakázané nie sú.
+
+Než z víťaza spravíš profil, prežeň ho ostatnými referenčnými oknami — mriežka vie len to
+okno, na ktorom bežala. To isté z CLI: `python -m tester.webapp.cli sweep`
+([tester/AI_TESTING.md §7](../tester/AI_TESTING.md)).
+
 ## Fronta
 
 Beží vždy jeden backtest; ostatné čakajú. Pri bežiacom sa ukazuje živý koniec logu.
