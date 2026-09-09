@@ -49,8 +49,11 @@ Bez obmedzení. Platia len konvencie repozitára:
   (`TradebotStrategyBase.ensure_timeframe`, len v backteste/hyperopte) — nič stiahnuté sa
   neprepíše a dopočítané do archívu nejde.
   Freqtrade beží len na TF, ktoré pozná jeho burza (2m a 4m sú preto len pre emulátor).
-  Surový Dukascopy export spracuje `tester.dukas_import`
-  (obal `./dukas-import.sh`, `.\dukas-import.ps1`) — viď [docs/DATA.md](docs/DATA.md).
+  Surový export spracuje importér zdroja — dnes `tester.dukas_import`
+  (obal `./dukas-import.sh`, `.\dukas-import.ps1`): vyčistí, spraví feather v TF zdroja
+  a rozdelí po rokoch do archívu; nič iné. ASCII pre QuoteManager robí `tester.quotemanager`
+  zo skladu sviečok. Celá cesta dát: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md),
+  podrobne [docs/DATA.md](docs/DATA.md).
 - Cesty v repozitári sú na jednom mieste v `tradebot/core/paths.py`; nikde inde sa nepíšu.
 - Vyšší TF sa z 1m skladá výhradne cez `tradebot/core/candles.py` (webapp graf, simulátor,
   emulátor, súbory pre Freqtrade) — keby sa pravidlo rozišlo, porovnanie platforiem prestane
@@ -59,7 +62,8 @@ Bez obmedzení. Platia len konvencie repozitára:
 - Backtesty, ktoré majú byť v histórii webapp, spúšťaj cez `python -m tester.webapp.cli run`
   (holý Freqtrade CLI ich do `runs/` nezapíše) — inak je to jedno.
 
-Podrobnosti: [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) (návrh),
+Podrobnosti: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) (prehľad a cesta dát),
+[docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) (návrh),
 [docs/FREQTRADE.md](docs/FREQTRADE.md) (krypto vetva), [docs/MULTICHARTS.md](docs/MULTICHARTS.md)
 (MultiCharts vetva), [docs/DATA.md](docs/DATA.md) (dáta), [docs/WEBAPP.md](docs/WEBAPP.md)
 (Tester), [docs/RUNNING.md](docs/RUNNING.md) (rozcestník), [README.md](README.md).

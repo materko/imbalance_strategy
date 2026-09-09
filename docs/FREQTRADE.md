@@ -294,7 +294,7 @@ sa zhoduje so skutočným MultiCharts na cent — ale **hyperopt a FreqAI vie le
 Preto sa dá ten istý symbol prehnať aj cez Freqtrade vetvu:
 
 ```bash
-PY -m tester.dukas_import C:/dukas/NAS100_M1_10Y.csv --symbol NAS100 --target freqtrade
+PY -m tester.dukas_import C:/dukas/NAS100_M1_10Y.csv --symbol NAS100
 
 TRADEBOT_PROFILE=docs/profily_archiv/ibs/nas100_dukas_3m.json PY -m freqtrade backtesting \
   --config deploy/freqtrade/config.dukascopy.json \

@@ -71,9 +71,10 @@ importovať. Prevod surového Dukascopy exportu (vypchávka, čas baru, mierka, 
 jeden príkaz, popísaný v [DATA.md §B](DATA.md):
 
 ```powershell
-.\dukas-import.ps1 C:\dukas\NAS100_M1_10Y.csv --symbol NAS100 --target multicharts
+.\dukas-import.ps1 C:\dukas\NAS100_M1_10Y.csv --symbol NAS100
+.\.venv\Scripts\python.exe -m tester.quotemanager --symbol NAS100
 # -> data\quotemanager\dukascopy\NAS100_USD-1m.csv
-#    hlavička Date,Time,Open,High,Low,Close,Volume; inam cez --mc-out
+#    hlavička Date,Time,Open,High,Low,Close,Volume; inam cez --out
 ```
 
 Dáta sú delené podľa toho, kto ich konzumuje: `data/tester/` je sklad sviečok (číta ho

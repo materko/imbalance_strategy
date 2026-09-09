@@ -10,7 +10,7 @@
 .EXAMPLE
     .\dukas-import.ps1 C:\dukas\NAS100_M1_10Y.csv --symbol NAS100
 .EXAMPLE
-    .\dukas-import.ps1 C:\dukas\NAS100_M1_10Y.csv --symbol NAS100 --target multicharts --from 2021-01-01
+    .\dukas-import.ps1 C:\dukas\NAS100_M1_10Y.csv --symbol NAS100 --from 2021-01-01
 .EXAMPLE
     .\dukas-import.ps1 C:\dukas\EURUSD_M1.csv --symbol EURUSD --point-value 100000 --tick 0.00001
 #>

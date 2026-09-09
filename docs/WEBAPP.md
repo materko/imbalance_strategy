@@ -74,7 +74,9 @@ Než začne počúvať, dorobí, čo chýba, a povie to na konzole:
 2. **vyššie timeframy z 1m** — podľa [`tester/timeframes.json`](../tester/timeframes.json),
    dnes 2m, 3m, 4m, 5m, 15m, 30m, 1h, 4h, 1d, 1w. Freqtrade si ich z 1m nedopočíta, chce
    súbor na disku. Doplní sa len to, čo chýba; stiahnuté z burzy sa neprepisuje a
-   dopočítané sa necommituje ([docs/DATA.md](DATA.md)).
+   dopočítané sa necommituje ([docs/DATA.md](DATA.md));
+3. **ASCII pre QuoteManager** — pre symboly, ktoré bežia v MultiCharts (`TRADEBOT_QUOTEMANAGER=all`
+   aj krypto, `=off` nič).
 
 Prvý štart po pridaní timeframu preto chvíľu trvá (u nás 43 súborov ≈ 10 s), ďalšie už nie.
 Ručne: `python -m tester.timeframes` a `python -m tester.data_archive merge`.

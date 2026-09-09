@@ -68,11 +68,11 @@ TRADEBOT_PROFILE=docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json ./d
 ./dukas-import.sh ~/dukas/NAS100_M1_10Y.csv --symbol NAS100
 ```
 
-Vyčistí surový export, zapíše ročné sviečky do archívu MultiCharts (Tester ich uvidí po
-reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. `--target freqtrade` k tomu poskladá
-3m a 5m sviečky, aby sa na symbole dal spustiť hyperopt
-([docs/FREQTRADE.md §G](docs/FREQTRADE.md)). Nový symbol pridá sám
-(`--symbol EURUSD --point-value 100000 --tick 0.00001`). Podrobne: [docs/DATA.md](docs/DATA.md).
+Vyčistí surový export, spraví z neho 1m feather a rozdelí ho po rokoch do archívu — Tester
+si zvyšok (pracovné súbory, vyššie timeframy, ASCII pre QuoteManager) dopočíta sám pri štarte.
+Nový symbol pridá import sám (`--symbol EURUSD --point-value 100000 --tick 0.00001`).
+Podrobne: [docs/DATA.md](docs/DATA.md), prehľad celej cesty dát:
+[docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md).
 
 ---
 
@@ -85,7 +85,8 @@ reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. `--target freqtrade` 
 | MultiCharts: študia, QuoteManager, emulátor | [docs/MULTICHARTS.md](docs/MULTICHARTS.md) |
 | dáta: archív, Dukascopy import, nový symbol | [docs/DATA.md](docs/DATA.md) |
 | pridať ďalšiu stratégiu | [docs/STRATEGIE.md](docs/STRATEGIE.md) |
-| ako je to postavené a prečo | [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) |
+| prehľad architektúry a cesty dát (diagramy) | [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) |
+| ako je port navrhnutý a prečo | [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) |
 | testovať z CLI (aj pre AI) | [tester/AI_TESTING.md](tester/AI_TESTING.md) |
 | čísla z meraní | [docs/merania/](docs/merania/README.md) |
 | kde čo beží a mapa repozitára | [docs/RUNNING.md](docs/RUNNING.md) |
@@ -111,6 +112,7 @@ reštarte webapp) a vyrobí ASCII súbor pre QuoteManager. `--target freqtrade` 
 | [`tester/compare/`](tester/compare) | Porovnávacie behy: `scan_zones`/`scan_trades` (engine offline nad burzou alebo surovým CSV), `mc_log_trades` (obchody z logu MultiCharts študie), `mc_compare` (spárovanie oboch zoznamov). |
 | `tester/dukas_import.py`, `tester/data_archive.py` | Prevod a čistenie surových exportov, ročný archív sviečok. |
 | `tester/timeframes.py`, [`tester/timeframes.json`](tester/timeframes.json) | Ktoré timeframy má mať Tester na disku a ich dopočet z 1m (webapp ich doplní pri štarte). |
+| `tester/quotemanager.py` | ASCII export pre QuoteManager (MultiCharts) zo skladu 1m sviečok. |
 | `tester/report.py`, `tester/fees.py`, `tester/plot.py` | HTML report ako Strategy Tester, maker/taker a break-even, grafy. |
 | `tester/montecarlo.py` | Blokový bootstrap nad obchodmi hotového behu: interval okolo break-even poplatku a riziko účtu (drawdown, hranice, ruina, odporúčané riziko na obchod). |
 | [`tester/tests/`](tester/tests) | Testy nástrojov Testera a **golden testy** proti TradingView (`golden/`). |

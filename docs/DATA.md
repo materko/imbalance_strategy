@@ -180,27 +180,25 @@ Priamo použiteľný nie je. Všetko potrebné spraví jeden príkaz:
 ./dukas-import.sh ~/dukas/NAS100_M1_10Y.csv --symbol NAS100
 ```
 
-alebo priamo `PY -m tester.dukas_import <csv> --symbol NAS100`. `--target` hovorí,
-pre koho dáta vyrobiť; dá sa vymenovať viac naraz (`--target tester freqtrade`, `--target all`):
+alebo priamo `PY -m tester.dukas_import <csv> --symbol NAS100`. Import robí vždy to isté
+a nič viac: **vyčistí** surový súbor, spraví z neho **feather v timeframe zdroja** (Dukascopy
+= 1m), **rozdelí po rokoch** a uloží do `data_archive/`. Tam jeho práca končí.
 
-| `--target` | čo vznikne | pre koho |
+```
+raw  ->  import (čistenie, feather, split po rokoch)  ->  data_archive/  (commituje sa)
+```
+
+Všetko ostatné je odvodené a robí si to Tester sám z archívu:
+
+| čo | čím | kedy |
 |---|---|---|
-| `tester` | `data_archive/tester/dukascopy/futures/<STEM>-1m.<rok>.feather` (commitni ich) a hneď z nich pracovný súbor v `data/tester/dukascopy/futures/` | webapp Tester — pár je po reštarte v ponuke Nový beh |
-| `multicharts` | `<zdroj>_mc.csv` — ASCII pre QuoteManager, hlavička `Date,Time,Open,High,Low,Close,Volume` | MultiCharts študia (import do QuoteManagera) |
-| `freqtrade` | `data/tester/dukascopy/futures/<STEM>-{3m,5m}.feather` — dopočítané z 1m, negitujú sa | hyperopt a FreqAI ([FREQTRADE.md §G](FREQTRADE.md)) |
-| `all` | všetky tri | |
+| pracovné sviečky `data/tester/` | `tester.data_archive merge` | pri štarte webapp |
+| vyššie timeframy | `tester.timeframes` alebo Freqtrade adaptér počas behu | pri štarte webapp / behu |
+| ASCII pre QuoteManager | `tester.quotemanager` | pri štarte webapp (Dukascopy symboly) |
 
-Predvolené je `tester multicharts`. Užitočné prepínače: `--from 2021-01-01 --to 2026-09-05`
-(orezanie obdobia), `--fix-scale` (oprava dní s cenou ×1000), `--mc-out <cesta>` (kam ASCII
-súbor), `--no-merge` (nezložiť pracovný súbor), `--stamp open` (ak import v QuoteManageri
-berie čas otvorenia baru), `--ft-timeframes 1m 3m 5m` (ktoré TF poskladať pre Freqtrade).
-Celý zoznam: `./dukas-import.sh` bez parametrov.
-
-Súbory pre Freqtrade sú jediné **odvodené** dáta v repozitári: 3m a 5m sa skladajú z 1m,
-lebo Dukascopy ich nedodáva a Freqtrade si ich sám nedopočíta. Preto ležia v gitignorovanom
-`user_data/data/`, nikdy v archíve, a kedykoľvek sa dajú vyrobiť znova. Skladajú sa tým istým
-pravidlom ako v emulátore a v grafe webapp ([`core/candles.py`](../tradebot/core/candles.py)),
-takže všetky cesty vidia tie isté bary.
+Prepínače importu: `--from` / `--to` (orezanie obdobia), `--fix-scale` (oprava dní s cenou
+×1000), `--keep-padding` (nevyhadzovať ploché bary), `--archive` (iný archív),
+`--no-merge` (nezložiť hneď pracovný súbor).
 
 ### Čo sa v exporte opravuje a prečo
 
@@ -254,6 +252,29 @@ PY -m tester.webapp.cli run --profile docs/profily_archiv/ibs/nas100_dukas_3m.js
 Forex a futures z Dukascopy sa na tejto burze nelíšia: všetko sú CFD s longmi, shortmi aj
 pákou (typ `futures`); líšia sa len inštrumentom (tick, hodnota bodu, mena) a profilom.
 Spread v dátach nie je (bid strana), počíta sa cez poplatok ako percento z nominálu.
+
+---
+
+## B2. ASCII pre QuoteManager (MultiCharts)
+
+MultiCharts si sviečky nesťahuje — nakŕmi sa cez QuoteManager z ASCII súboru. Ten sa robí
+**zo skladu sviečok**, nie zo surového exportu, takže v MultiCharts je presne to, na čom
+bežali backtesty:
+
+```bash
+PY -m tester.quotemanager                     # čo treba a ešte nie je (Dukascopy symboly)
+PY -m tester.quotemanager --all               # aj krypto — MultiCharts vie testovať aj to
+PY -m tester.quotemanager --symbol NAS100 --force
+PY -m tester.quotemanager --status
+```
+
+Výstup je `data/quotemanager/<zdroj>/<PÁR>-1m.csv` s hlavičkou
+`Date,Time,Open,High,Low,Close,Volume`, časom **zatvorenia** baru (+1 minúta oproti skladu,
+konvencia MultiCharts) a objemom ako celé číslo (`round(vol × 100)`; QuoteManager desatiny
+neberie). Import v QuoteManageri má časové pásmo súboru **GMT**.
+
+Webapp si pri štarte vyrobí, čo chýba: predvolene len Dukascopy symboly (`TRADEBOT_QUOTEMANAGER=all`
+aj krypto, `=off` nič) — celý export BTC 1m má cez 200 MB, preto sa nerobí nasilu.
 
 ---
 

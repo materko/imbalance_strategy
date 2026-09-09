@@ -133,8 +133,7 @@ def test_dukas_import_zapise_rocne_subory(tmp_path: Path, capsys):
     assert [f.name for f in files] == ["NAS100_USD-1m.2025.feather", "NAS100_USD-1m.2026.feather"]
     assert len(pd.read_feather(files[0])) == 1
 
-    rc = main([str(csv), "--symbol", "NAS100", "--target", "tester",
-               "--archive", str(tmp_path / "arch2"), "--no-merge"])
+    rc = main([str(csv), "--symbol", "NAS100", "--archive", str(tmp_path / "arch2"), "--no-merge"])
     assert rc == 0
     # zdroj a trh su adresare: <archiv>/<zdroj>/<trh>/<PAR>-1m.<rok>.feather
     out = tmp_path / "arch2" / INST.data_source / INST.market
@@ -149,7 +148,7 @@ def test_dukas_import_odmietne_neznamy_symbol_bez_hodnoty_bodu(tmp_path: Path, c
 
     csv = tmp_path / "Y_M1.csv"
     csv.write_text("dt,o,h,l,c,vol\n2025-01-01 00:00:00,1,2,0.5,1.5,1\n", encoding="utf-8")
-    assert main([str(csv), "--symbol", "NECOTAKE", "--target", "tester"]) == 1
+    assert main([str(csv), "--symbol", "NECOTAKE"]) == 1
     err = capsys.readouterr().err
     assert "--point-value" in err and "nas100_dukascopy" in err
 

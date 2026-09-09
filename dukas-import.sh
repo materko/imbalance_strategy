@@ -3,7 +3,7 @@
 # Windows: dukas-import.ps1. Podrobne: docs/DATA.md.
 #
 #   ./dukas-import.sh ~/dukas/NAS100_M1_10Y.csv --symbol NAS100
-#   ./dukas-import.sh ~/dukas/NAS100_M1_10Y.csv --symbol NAS100 --target tester --from 2021-01-01
+#   ./dukas-import.sh ~/dukas/NAS100_M1_10Y.csv --symbol NAS100 --from 2021-01-01
 #   ./dukas-import.sh ~/dukas/EURUSD_M1.csv --symbol EURUSD --point-value 100000 --tick 0.00001
 #
 # Bez parametrov vypíše nápovedu so všetkými prepínačmi.

@@ -9,7 +9,7 @@ import sys
 
 
 def main() -> int:
-    from .. import data_archive, timeframes
+    from .. import data_archive, quotemanager, timeframes
 
     # Pozerá sa na KAZDY subor z archivu, nie len na to, ci je v data/ nieco: s jednym
     # rozbalenym zdrojom by webapp nabehla s poloprazdnou ponukou parov a backtest by
@@ -26,6 +26,12 @@ def main() -> int:
     if chybajuce_tf:
         print(f"Chyba {len(chybajuce_tf)} timeframov - skladam ich z 1m ...", flush=True)
         timeframes.ensure()
+
+    # ASCII pre QuoteManager (MultiCharts) - predvolene len symboly, ktore v nom naozaj
+    # bezia; `TRADEBOT_QUOTEMANAGER=all` aj krypto, `=off` nic.
+    if quotemanager.missing(quotemanager.scope()):
+        print("Vyrabam export pre QuoteManager ...", flush=True)
+        quotemanager.ensure()
 
     import uvicorn
 
