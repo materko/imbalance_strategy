@@ -694,6 +694,20 @@ function profileForRun() {
   return state.profile && !state.meta.profiles.includes(state.profile) ? state.profile : null;
 }
 
+/** Rýchly rozsah obdobia: posledný rok, dva roky alebo celé dáta páru.
+ *  Koniec je vždy koniec dát — na nedávnom okne testuje človek najčastejšie. */
+function setQuickRange(years) {
+  const o = $("#pair").selectedOptions[0];
+  if (!o) return;
+  const first = o.dataset.from, last = o.dataset.to;
+  $("#to").value = last;
+  if (years === "max") { $("#from").value = first; return; }
+  const d = new Date(last + "T00:00:00Z");
+  d.setUTCFullYear(d.getUTCFullYear() - Number(years));
+  const want = d.toISOString().slice(0, 10);
+  $("#from").value = want < first ? first : want;
+}
+
 function timerange() {
   const a = $("#from").value.replaceAll("-", ""), b = $("#to").value.replaceAll("-", "");
   return `${a}-${b}`;
@@ -1478,6 +1492,7 @@ async function init() {
   $("#live-log-close").onclick = closeLiveLog;
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#live-log").hidden) closeLiveLog(); });
   $("#load-params").onclick = loadDetailIntoForm;
+  for (const b of $$(".chip-btn[data-range]")) b.onclick = () => setQuickRange(b.dataset.range);
   $("#mc-box").addEventListener("toggle", () => { if ($("#mc-box").open) loadMonteCarlo(); });
   $("#mc-run").onclick = () => loadMonteCarlo(true);
   $("#delete-run").onclick = async () => {
