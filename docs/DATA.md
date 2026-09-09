@@ -1,21 +1,29 @@
 # Dáta: odkiaľ sú, kde ležia a ako pribudne nový symbol
 
-Prvá úroveň hovorí, **kto to konzumuje**, ďalšie dve, **odkiaľ sviečka je** — nie to,
-čím sa prehrá:
+Dva stromy a jedno pravidlo medzi nimi:
 
 ```
-data/tester/<zdroj>/<trh>/          sklad sviečok                          gitignored
-data/quotemanager/<zdroj>/          ASCII export na import do QuoteManagera  gitignored
-data_archive/tester/<zdroj>/<trh>/  ten istý sklad po rokoch                 v gite
+data_archive/tester/<zdroj>/<trh>/  po rokoch, LEN z burzy alebo z raw exportu   v gite
+data/tester/<zdroj>/<trh>/          sklad sviečok: zložené z archívu + dopočítané  gitignored
+data/quotemanager/<zdroj>/          ASCII export na import do QuoteManagera        gitignored
 ```
 
-`tester/` je sklad sviečok, ktorý číta Tester **oboma enginmi** (Freqtrade aj emulátor
-MultiCharts čítajú ten istý súbor — práve preto sa dajú porovnať), `quotemanager/` je
-z neho odvodený výstup pre cudziu aplikáciu; späť ho nikto nečíta a vyrobí sa znova
-jedným príkazom, preto sa negituje.
+**Do `data_archive/` ide výhradne to, čo naozaj prišlo z burzy alebo z raw dát** — píše doň
+`split` (a `dukas_import` pri importe surového exportu). Nič dopočítané: vyššie timeframy
+poskladané z 1m sú evidované a `split` ich preskočí.
 
-**Archív zrkadlí `data/` cestu za cestou**, len po rokoch — `split` a `merge` sú preto
-obyčajné kopírovanie koreň na koreň a niet miesta, kde by sa cesty mohli rozísť.
+**`data/` do gitu nejde nikdy.** Je celé odvodené: sviečky sa zložia z archívu, chýbajúce
+timeframy sa dopočítajú z 1m a `quotemanager/` je ďalší export z toho istého. Preto stačí,
+že je `data/` v `.gitignore` — nie je čo strážiť ručne.
+
+**Tester si `data/` pri prvom spustení vyrobí celý sám** (`webapp.cmd` / `./webapp.sh`):
+zloží archív a dopočíta timeframy, a čo by aj tak chýbalo, si poskladá stratégia pri behu.
+Odmerané na tomto repozitári: z prázdneho `data/` 71 súborov (1,17 GB) za 15 sekúnd.
+
+`tester/` číta Tester **oboma enginmi** (Freqtrade aj emulátor MultiCharts čítajú ten istý
+súbor — práve preto sa dajú porovnať). **Archív zrkadlí `data/` cestu za cestou**, len po
+rokoch — `split` a `merge` sú preto obyčajné kopírovanie koreň na koreň a niet miesta, kde
+by sa cesty mohli rozísť.
 
 Zdroj je `binance`, `coinbase`, `dukascopy`; trh je `spot` alebo `futures`. Z cesty tak
 vidno, čo súbor obsahuje, bez otvárania.

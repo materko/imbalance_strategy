@@ -142,3 +142,16 @@ def test_missing_hlasi_kazdy_chybajuci_subor_nie_len_prazdny_strom(dirs):
 
 def test_missing_bez_archivu_nic_nehlasi(dirs):
     assert da.missing() == []
+
+
+def test_pracovne_data_su_gitignored_a_archiv_nie():
+    """`data/` je celé odvodené (archív + dopočet), takže do gitu nesmie ísť nič z neho.
+
+    Archív naopak áno — je to jediná vec z dát, ktorú repozitár nesie.
+    """
+    from tradebot.core.paths import DATA, DATA_ARCHIVE, REPO
+
+    pravidla = (REPO / ".gitignore").read_text(encoding="utf-8").splitlines()
+    assert "data/" in [r.strip() for r in pravidla]
+    assert not any(r.strip().startswith(("data_archive", "!data")) for r in pravidla)
+    assert DATA_ARCHIVE.name == "data_archive" and DATA.name == "data"
