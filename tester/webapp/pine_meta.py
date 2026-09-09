@@ -71,6 +71,9 @@ class ParamMeta:
     depends_on: list[str] | None = None
     #: kresliaci prepínač feature, ktorú toto pole zapína (zrkadlí sa vedľa neho)
     show_param: str | None = None
+    #: zmena tohto poľa rozbije paritu s Pine (sizing, STATE timeouty). Ladiť sa dá,
+    #: ale výsledok sa už nedá porovnať s TradingView — formulár aj sweep to povedia.
+    breaks_parity: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -238,6 +241,8 @@ def param_metadata(spec: StrategySpec | str | None = None) -> list[dict[str, Any
             meta.note = spec.param_notes[name]
         if name in cls.PORT_ONLY_FIELDS:
             meta.group = PORT_GROUP
+        if name in spec.parity_fields:
+            meta.breaks_parity = True
         metas.append(meta)
 
     by_name = {m.name: m for m in metas}

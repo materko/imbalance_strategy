@@ -19,6 +19,7 @@ from .meta import (
     KIND_TITLES,
     LAYERS,
     PARAM_NOTES,
+    PARITY_FIELDS,
     PORT_ONLY_META,
     REMOVED_INPUTS,
 )
@@ -40,6 +41,7 @@ SPEC = StrategySpec(
     port_only_meta=PORT_ONLY_META,
     features=tuple(FEATURES),
     param_notes=PARAM_NOTES,
+    parity_fields=PARITY_FIELDS,
     layers=LAYERS,
     kind_titles=KIND_TITLES,
     default_timeframe="3m",
