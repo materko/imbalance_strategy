@@ -2117,6 +2117,50 @@ async function loadAnalytics() {
   } finally { btn.disabled = false; }
 }
 
+/** Charakter stratégie: čísla, dôkazy a čo z toho vyplýva pre ladenie. */
+function characterHtml(ch) {
+  if (!ch || !ch.title) return "";
+  const cisla = [
+    ["winrate", ch.winrate, "%"],
+    ["payoff (zisk / strata)", ch.payoff, ""],
+    ["očakávanie na obchod", ch.expectancy_pct, "%"],
+    ["medián držania", ch.median_bars, "barov"],
+    ["obchodov za deň", ch.trades_per_day, ""],
+    ["šikmosť výnosov", ch.skew, ""],
+    ["pohyb pred vstupom", ch.pre_entry_atr, "ATR"],
+    ["vstupov po pohybe", ch.momentum_share, "%"],
+    ["teplo pred ziskom", ch.heat_ratio, "MAE/MFE"],
+  ].filter(([, v]) => v !== null && v !== undefined);
+
+  const vystupy = Object.entries(ch.exits || {})
+    .map(([k, v]) => `${esc(k)} ${fmt(v, 1)} %`).join(" · ");
+
+  return `<div class="ch-box">
+      <div class="ch-head"><h3>${esc(ch.title)}</h3>
+        <span class="chip ${ch.confidence === "dobrá" ? "" : "warn"}">istota ${esc(ch.confidence)}</span></div>
+      <ul class="ch-evidence">${(ch.evidence || []).map(e => `<li>${esc(e)}</li>`).join("")}</ul>
+      <div class="ch-grid">${cisla.map(([meno, v, u]) =>
+        `<div><span>${esc(meno)}</span><b>${fmt(v, 2)}${u ? " " + esc(u) : ""}</b></div>`).join("")}</div>
+      ${vystupy ? `<p class="an-note">výstupy: ${vystupy}</p>` : ""}
+      <dl class="ch-advice">
+        <dt>Čo je pri tomto type normálne</dt><dd>${esc(ch.normal || "")}</dd>
+        <dt>Na čo pozor</dt><dd>${esc(ch.watch || "")}</dd>
+        <dt>Čo ladiť</dt><dd>${esc(ch.tune || "")}</dd>
+      </dl>
+    </div>`;
+}
+
+/** Ostatné typy — aby bolo vidieť, do čoho sa stratégia zaradila a čo je vedľa. */
+function archetypesHtml(list, aktivny) {
+  if (!list || !list.length) return "";
+  const rows = list.map(a => `<tr class="${a.key === aktivny ? "tuned" : ""}">
+      <td>${esc(a.title)}</td><td class="wide">${esc(a.signature)}</td></tr>`).join("");
+  return `<details class="ch-types"><summary>Aké typy stratégií rozoznávame</summary>
+      <table class="verify-table"><tbody>${rows}</tbody></table>
+      <p class="an-note">Zaradenie je pravidlá nad zmeranými číslami, nie model — vidno,
+        prečo to vyšlo. Podrobne: docs/TYPY_STRATEGII.md</p></details>`;
+}
+
 function renderAnalytics(r) {
   const zhrnutie = [
     `<div class="headline">${esc(r.headline)}</div>`,
@@ -2129,6 +2173,8 @@ function renderAnalytics(r) {
       + " stopu ani prahy v cenových bodoch medzi nimi porovnateľné nie sú — pozeraj hlavne"
       + " hodinu, deň a smer, alebo si vyber jeden pár.</div>");
   }
+  zhrnutie.push(characterHtml(r.character));
+  zhrnutie.push(archetypesHtml(r.archetypes, (r.character || {}).archetype));
   zhrnutie.push(`<div class="an-runs">${r.runs.map(x =>
     `<span title="${esc(x.note)}">${esc(x.id)} (${x.trades})</span>`).join(" · ")}</div>`);
   $("#an-summary").innerHTML = zhrnutie.join("");

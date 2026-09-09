@@ -68,6 +68,19 @@ def _frame(path: str, mtime_ns: int, minutes: int = 1):
     return ts, cols
 
 
+def series(pair: str, timeframe: str):
+    """Celé sviečky páru ako `(časy_ms, {open,high,low,close,volume})` — bez orezania okna.
+
+    `candles()` je pre graf a orezáva na `MAX_CANDLES`; analytika potrebuje kontext pred
+    každým vstupom, takže musí vidieť celý rad. Cache je tá istá.
+    """
+    path = pair_file(pair, timeframe)
+    if not path.exists():
+        raise FileNotFoundError(f"chýbajú {timeframe} dáta pre {pair} ({path.name})")
+    minutes = _tf_minutes(timeframe) if is_multicharts_pair(pair) else 1
+    return _frame(str(path), path.stat().st_mtime_ns, minutes)
+
+
 def candles(pair: str, timeframe: str, from_ms: int, to_ms: int, limit: int = MAX_CANDLES) -> dict[str, Any]:
     """Sviečky v okne `[from_ms, to_ms)`, najviac `limit` — vtedy sa okno oreže odpredu
     a `truncated` je `True`, aby si stránka mohla vybrať hrubší timeframe."""

@@ -772,6 +772,17 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         # nie sú medzi nimi porovnateľné - nech to je vidieť.
         report["mixed_pairs"] = len(pary) > 1
         report["strategy"] = strategy
+
+        # Charakter sa meria z tych istych obchodov: aky typ strategie to je, sa neda
+        # oddelit od toho, ktora skupina obchodov kazi vysledok - jedno vysvetluje druhe.
+        # Pohyb pred vstupom sa da zmerat len na jednom pare (sviecky su parove).
+        from .. import character as chr_mod
+
+        prvy = pouzite[0]
+        report["character"] = chr_mod.measure(
+            obchody, pair="" if len(pary) > 1 else (prvy["pair"] or ""),
+            timeframe=prvy["timeframe"] or "3m").to_dict()
+        report["archetypes"] = [a.__dict__ for a in chr_mod.ARCHETYPES]
         return report
 
     @app.get("/api/queue")

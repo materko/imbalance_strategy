@@ -224,6 +224,24 @@ hyperopt **nenahrádza** ani neodhalí jeho pretrénovanie; sú to dve rôzne ot
 Ako sa nastavujú hranice, ako pridať hyperopt k novej stratégii a čo sa deje vnútri:
 [docs/HYPEROPT.md](../docs/HYPEROPT.md).
 
+## 8b. Analytika: ktorá skupina obchodov kazí výsledok
+
+Karta **Analytika** vo webapp. Backtest povie jedno číslo za celý beh; tu sa obchody
+rozrežú na skupiny (hodina, deň, smer, vzdialenosť stopu, plánovaný RR) a pri každej sa
+spočíta break-even poplatok **a čo by sa stalo, keby tá skupina nebola**. To je odpoveď na
+otázku, či sa oplatí filter — a keď je najhoršia skupina väčšina obchodov, tak to nie je
+filter, ale nastavenie parametra (appka to povie a ponúkne ho preladiť).
+
+Vlastnosti známe **až po obchode** (dôvod výstupu, dĺžka, kam cena zašla) sú zvlášť
+a označené. „Obchody, ktoré skončili na stope, majú zlý break-even" je pravda a zároveň
+bezcenná — pri vstupe to nikto nevie.
+
+Tá istá karta zaradí stratégiu do typu (prerazenie / trendová / protitrendová / scalping /
+formácia / swingová) a povie, čo je pri tom type normálne, na čo pozor a čo ladiť. Meria sa
+to z obchodov, hlavne z **pohybu pred vstupom**: [docs/TYPY_STRATEGII.md](../docs/TYPY_STRATEGII.md).
+Na IBS vyšlo prerazenie (vstup po pohybe +1,01 ATR, winrate 29,7 %, payoff 2,30) — z toho
+vyplýva, že ladiť winrate nemá zmysel a 42 % výstupov na stope nie je chyba.
+
 ## 9. FreqAI
 
 Dá sa pripojiť, ale odpovedá na inú otázku: hyperopt vyberie statické parametre, FreqAI
