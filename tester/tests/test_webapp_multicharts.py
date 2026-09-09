@@ -153,8 +153,14 @@ def test_dukas_import_odmietne_neznamy_symbol_bez_hodnoty_bodu(tmp_path: Path, c
     assert "--point-value" in err and "nas100_dukascopy" in err
 
 
-def test_dukas_import_prida_novy_symbol_a_kostru_profilu(tmp_path: Path):
-    """Nový symbol = riadok v tabuľke Dukascopy + profil, ktorý sa dá rovno spustiť."""
+def test_dukas_import_prida_novy_symbol_ale_nevyraba_profil(tmp_path: Path):
+    """Nový symbol = riadok v tabuľke Dukascopy. Profil nie.
+
+    Kostra sa kedysi kopírovala z NAS100, takže EURUSD dostalo prahy v cenových bodoch
+    odvodené z MNQ (`imbMaxDistTicks: 25` na cene 1,08). Vyzeralo to ako hotový profil
+    a pritom to bol nezmysel — beh bez profilu na Pine defaultoch je poctivejší východiskový
+    bod a inštrument si Tester nájde podľa páru.
+    """
     import json
 
     from tradebot.core.types import INSTRUMENTS, dukascopy_specs
@@ -169,12 +175,7 @@ def test_dukas_import_prida_novy_symbol_a_kostru_profilu(tmp_path: Path):
         assert inst.venue == "multicharts" and inst.has_real_volume is False
         assert json.loads(registry.read_text(encoding="utf-8"))["eurusd_dukascopy"]["point_value"] == 100000.0
         assert di.resolve_symbol("EURUSD") == (key, inst)
-
-        profile = di.write_profile_skeleton(key, inst, out_dir=tmp_path)
-        data = json.loads(profile.read_text(encoding="utf-8"))
-        assert profile.name == "eurusd_dukas_3m.json"
-        assert data["_instrument"] == key and data["tickDollarValue"] == pytest.approx(1.0)
-        assert any("atr" in line for line in data["_comment"])
+        assert not hasattr(di, "write_profile_skeleton")
     finally:
         INSTRUMENTS.pop("eurusd_dukascopy", None)
         INSTRUMENTS.update(dukascopy_specs())

@@ -36,9 +36,12 @@ Zvyšok si spraví Tester sám: `tester.data_archive merge` zloží pracovné s�
 
 **Nový symbol** stačí pomenovať: `--symbol EURUSD --point-value 100000 --tick 0.00001`
 dopíše riadok do `tradebot/core/instruments_dukascopy.json` (odtiaľ ho vidí webapp,
-emulátor aj MultiCharts študia) a vyrobí kostru profilu v `docs/profily_archiv/ibs/`.
-Hodnota bodu musí sedieť s **Big Point Value** symbolu v QuoteManageri, inak by sizing
-v MultiCharts a v Testeri nebol ten istý.
+emulátor aj MultiCharts študia). Hodnota bodu musí sedieť s **Big Point Value** symbolu
+v QuoteManageri, inak by sizing v MultiCharts a v Testeri nebol ten istý.
+
+Profil sa **nevyrába** — prahy v bodoch sa z iného trhu prebrať nedajú a profil, ktorý
+vyzerá hotovo a pritom nesie cudzie čísla, je horší než žiadny. Beh bez `--profile` ide
+na Pine defaultoch a inštrument si Tester nájde podľa páru.
 
 Čas v Dukascopy exporte je UTC; v QuoteManageri sa pri importe volí ako časové pásmo
 súboru GMT.
@@ -53,23 +56,18 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TextIO
 
-from tradebot.core.paths import ARCHIVE_ROOTS, REPO, TESTER_ARCHIVE
+from tradebot.core.paths import ARCHIVE_ROOTS, TESTER_ARCHIVE
 from tradebot.core.types import DUKASCOPY_REGISTRY, INSTRUMENTS, InstrumentSpec, dukascopy_specs
 
 __all__ = [
     "ImportStats", "load_dukas_frame", "scale_reference", "write_years", "store",
-    "resolve_symbol", "register_symbol", "write_profile_skeleton",
+    "resolve_symbol", "register_symbol",
 ]
 
 #: Odchýlka ceny od mediánu, od ktorej je riadok "inou mierkou" (×1000 glitch).
 #: Za desať rokov sa index pohne ~5×, takže 100× je bezpečne mimo.
 SCALE_RATIO = 100.0
 SCALE_FACTOR = 1000.0
-
-#: Kostra profilu pre nový symbol sa berie odtiaľto — je to najbližší hotový
-#: Dukascopy profil (prahy v bodoch odvodené z MNQ).
-PROFILE_TEMPLATE = REPO / "docs" / "profily_archiv" / "ibs" / "nas100_dukas_3m.json"
-PROFILE_DIR = REPO / "docs" / "profily_archiv" / "ibs"
 
 
 # --------------------------------------------------------------------------- #
@@ -254,32 +252,6 @@ def register_symbol(
     return key, INSTRUMENTS[key]
 
 
-def write_profile_skeleton(key: str, inst: InstrumentSpec, *, template: Path = PROFILE_TEMPLATE,
-                           out_dir: Path = PROFILE_DIR) -> Path:
-    """Kostra profilu pre nový symbol — kópia NAS100 profilu s vymeneným inštrumentom.
-
-    Prahy v bodoch prevzaté z MNQ sedia len na podklade s podobnou mierkou pohybu
-    (NAS100). Na inom trhu (forex, komodity) ich treba prepnúť na jednotku `atr` —
-    hlási to aj výstup príkazu.
-    """
-    data = json.loads(template.read_text(encoding="utf-8"))
-    name = inst.exchange_symbol
-    data["_title"] = f"MultiCharts {name} CFD (Dukascopy) 3m — kostra z {template.stem}"
-    data["_comment"] = [
-        f"Kostra vyrobena prikazom `python -m tester.dukas_import ... --symbol {name}`.",
-        f"Instrument {key}: tick {inst.tick_size:g}, hodnota bodu {inst.point_value:g} {inst.quote_currency}.",
-        "PREVERIT: prahy v bodoch (unit abs) su prevzate z MNQ a sedia len na podobnom podklade;",
-        "na inom trhu ich prepni na jednotku atr (`--set minImbSizePoints=0.5@atr`).",
-        "Objem Dukascopy je len tickovy - useVolumeFilter nechaj vypnuty.",
-    ]
-    data["_instrument"] = key
-    data["tickDollarValue"] = inst.tick_dollar_value
-    out = out_dir / f"{name.lower()}_dukas_3m.json"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    return out
-
-
 # --------------------------------------------------------------------------- #
 # CLI
 # --------------------------------------------------------------------------- #
@@ -308,7 +280,6 @@ def _build_parser() -> argparse.ArgumentParser:
     new.add_argument("--currency", default="USD", help="mena kótovania (predvolene USD)")
     new.add_argument("--qty-step", type=float, default=1.0)
     new.add_argument("--min-qty", type=float, default=1.0)
-    new.add_argument("--no-profile", action="store_true", help="nevyrábať kostru profilu")
     return ap
 
 
@@ -330,9 +301,9 @@ def _instrument(args, err: TextIO) -> tuple[str, InstrumentSpec] | None:
         qty_step=args.qty_step, min_qty=args.min_qty, currency=args.currency,
     )
     print(f"novy symbol {inst.symbol} -> {DUKASCOPY_REGISTRY.name} ({key}); commitni ten subor", file=err)
-    if not args.no_profile:
-        prof = write_profile_skeleton(key, inst)
-        print(f"kostra profilu: {prof.relative_to(REPO)} — PREVER prahy (viď _comment v subore)", file=err)
+    print("profil sa nevyraba - prahy v bodoch z ineho trhu nesedia; spusti bez --profile "
+          "(Pine defaulty) a velkostne polia zadaj v jednotke atr, napr. --set minImbSizePoints=0.5@atr",
+          file=err)
     return key, inst
 
 
