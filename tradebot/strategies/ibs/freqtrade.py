@@ -176,11 +176,8 @@ class IBSImbalanceStrategy(TradebotStrategyBase):
         htf_sma: dict[int, float] = {}
         tf = self._informative_tfs[0]
         if self.dp is not None:
-            htf = self.dp.get_pair_dataframe(
-                pair=pair,
-                timeframe=tf,
-                candle_type=self.config.get("candle_type_def", ""),
-            )
+            # `informative_frame` súbor pre TF dopočíta z 1m, keď na disku nie je
+            htf = self.informative_frame(pair, tf)
             if htf is not None and not htf.empty:
                 htf = htf.copy()
                 # Pine ta.sma(volume, volSmaLen)[1] - posun o 1 je zámerný, aby sa
@@ -191,8 +188,8 @@ class IBSImbalanceStrategy(TradebotStrategyBase):
                     htf_sma[ts] = float(row.vol_sma) if row.vol_sma == row.vol_sma else 0.0
             else:
                 logger.warning(
-                    "IBS: chýbajú %s dáta pre %s - bez nich sa nevytvorí ani jedna SD zóna",
-                    tf, pair,
+                    "IBS: chýbajú %s dáta pre %s a nedali sa poskladať ani z 1m - "
+                    "bez nich sa nevytvorí ani jedna SD zóna", tf, pair,
                 )
         runner.htf.load(htf_bars, htf_sma)
 

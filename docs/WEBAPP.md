@@ -79,6 +79,10 @@ Než začne počúvať, dorobí, čo chýba, a povie to na konzole:
 Prvý štart po pridaní timeframu preto chvíľu trvá (u nás 43 súborov ≈ 10 s), ďalšie už nie.
 Ručne: `python -m tester.timeframes` a `python -m tester.data_archive merge`.
 
+Ani to však nie je podmienka: **keď súbor pre beh chýba, poskladá si ho stratégia sama**
+pri štarte behu (`ensure_timeframe` vo Freqtrade adaptéri, [docs/DATA.md](DATA.md)). Stačí
+mať 1m sviečky — ponuka enginov to už tak aj počíta.
+
 **Freqtrade beží len na timeframoch, ktoré pozná jeho burza.** Binance nemá 2m ani 4m,
 Coinbase nemá 3m — na takých TF ponúkne webapp len emulátor MultiCharts (skladá si ich
 z 1m sám) a beh cez Freqtrade odmietne s vysvetlením, nie až chybou z Freqtradu.

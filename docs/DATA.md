@@ -112,6 +112,16 @@ Skladá sa tým istým pravidlom ako graf webapp a emulátor (`tradebot/core/can
 takže bary sú všade rovnaké. Denné začínajú o polnoci UTC, **týždenné v pondelok** (od
 epochy by vyšiel štvrtok).
 
+Dopredu to však nemusí byť: **keď súbor pre beh chýba, poskladá si ho samotná stratégia.**
+Freqtrade adaptér to robí v `TradebotStrategyBase.ensure_timeframe` — pre základný TF behu
+aj pre informatívny (detekčný TF zón) — cez dátový handler Freqtradu, takže pomenovanie aj
+formát súboru sú jeho. Deje sa to v `__init__` stratégie, teda **skôr**, než si Freqtrade
+načíta dáta backtestu (`bot_start` je už neskoro), a vyrobené súbory sa evidujú rovnako ako
+tie z `tester.timeframes`. Jediná podmienka sú 1m sviečky.
+
+V živom a dry-run behu sa **nedopočítava nič** — tam sviečky prichádzajú z burzy a
+vymyslený bar by bol chyba, nie pomoc.
+
 > ⚠️ **Freqtrade akceptuje len timeframy, ktoré pozná jeho burza.** Súbor na disku
 > nestačí: `2m` a `4m` Binance nepozná, takže beh na nich ide **len cez emulátor
 > MultiCharts** — webapp aj CLI to povedia dopredu („burza binance timeframe 2m nepozná")

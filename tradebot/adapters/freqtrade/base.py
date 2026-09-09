@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import logging
 from datetime import datetime
+from pathlib import Path
 from typing import ClassVar
 
 from pandas import DataFrame, Series
@@ -25,7 +26,8 @@ from pandas import DataFrame, Series
 from freqtrade.strategy import IStrategy, stoploss_from_absolute
 
 from tradebot.core import Bar, load_profile
-from tradebot.core.candles import timeframe_minutes
+from tradebot.core.candles import resample_ohlcv, timeframe_minutes
+from tradebot.core.derived import remember
 from tradebot.core.env import getenv
 from tradebot.strategies import StrategySpec, get_spec
 
@@ -125,6 +127,15 @@ class TradebotStrategyBase(IStrategy):
         self._informative_tfs: list[str] = (
             list(self.spec.informative_tfs(self.tb_cfg)) if self.spec.informative_tfs else []
         )
+        # Chýbajúce sviečky treba doplniť TERAZ: `Backtesting.start()` si dáta načíta skôr,
+        # než zavolá čokoľvek iné zo stratégie (`bot_start` je už neskoro). Timeframe sa
+        # berie z configu (`--timeframe`), nie z atribútu triedy — ten Freqtrade prepíše
+        # až po vytvorení inštancie, takže tu by ešte držal východiskových 3m.
+        run_tf = self.config.get("timeframe") or self.timeframe
+        for pair in self.config.get("exchange", {}).get("pair_whitelist", []):
+            for tf in (run_tf, *self._informative_tfs):
+                self.ensure_timeframe(pair, tf)
+
         # Freqtrade potrebuje vedieť, koľko sviečok histórie stratégia chce pred prvým signálom.
         probe = self.spec.engine_factory(self.tb_cfg, self.tb_inst, timeframe_minutes(self.timeframe))
         self.startup_candle_count = max(int(type(self).startup_candle_count), int(probe.required_history))
@@ -193,6 +204,93 @@ class TradebotStrategyBase(IStrategy):
     # ------------------------------------------------------------------ #
     # Háky pre stratégiu
     # ------------------------------------------------------------------ #
+
+    # ------------------------------------------------------------------ #
+    # Chýbajúci timeframe si stratégia dopočíta z 1m
+    # ------------------------------------------------------------------ #
+
+    def ensure_timeframe(self, pair: str, timeframe: str) -> bool:
+        """Postará sa, aby pre `pair` a `timeframe` boli sviečky na disku. Vráti, či sú.
+
+        Freqtrade si vyšší TF **nedopočíta**: pre základný TF behu skončí na „No history …
+        found", informatívny TF ticho vráti prázdny DataFrame (a stratégia potom nevytvorí
+        ani jednu zónu). Chýbajúci TF sa preto poskladá z 1m — z toho istého zdroja a tým
+        istým pravidlom (`tradebot.core.candles.resample_ohlcv`), aké používa graf webapp
+        aj emulátor MultiCharts, takže bary sú všade rovnaké.
+
+        Číta aj zapisuje **cez dátový handler Freqtradu**, takže pomenovanie súboru,
+        formát aj `futures/` podadresár sú jeho (nič sa tu o cestách nehádže).
+
+        Volá sa v `__init__`, teda **pred** tým, než si Freqtrade načíta dáta backtestu
+        (`Backtesting.start` → `load_bt_data`), a ešte raz lenivo pri informatívnom TF.
+        """
+        if not self._may_derive():
+            return True
+        source_tf = "1m"
+        try:
+            from freqtrade.data.history import get_datahandler
+
+            handler = get_datahandler(
+                Path(self.config["datadir"]), self.config.get("dataformat_ohlcv", "feather")
+            )
+            candle_type = self.config.get("candle_type_def", "")
+            have = handler.ohlcv_load(pair, timeframe, candle_type=candle_type, warn_no_data=False)
+            if not have.empty:
+                return True
+            if timeframe == source_tf:
+                return False
+            minutes = timeframe_minutes(timeframe)
+            base = handler.ohlcv_load(pair, source_tf, candle_type=candle_type, warn_no_data=False)
+            if base.empty:
+                logger.warning(
+                    "%s %s: chyba %s aj %s - dopocitat sa nema z coho", self.spec.key, pair,
+                    timeframe, source_tf,
+                )
+                return False
+            out = resample_ohlcv(base[["date", "open", "high", "low", "close", "volume"]], minutes)
+            handler.ohlcv_store(pair, timeframe, data=out, candle_type=candle_type)
+            path = handler._pair_data_filename(
+                Path(self.config["datadir"]), pair, timeframe, candle_type
+            )
+            remember([path])
+            logger.warning(
+                "%s %s: %s sviecky na disku neboli, poskladal som ich z %s (%d barov, %s). "
+                "Su odvodene - do archivu nejdu.",
+                self.spec.key, pair, timeframe, source_tf, len(out), path.name,
+            )
+            return True
+        except Exception as exc:  # noqa: BLE001  (dopocet je pomoc, nie podmienka behu)
+            logger.warning("%s %s: %s sa dopocitat nepodarilo (%s)", self.spec.key, pair,
+                           timeframe, exc)
+            return False
+
+    def _may_derive(self) -> bool:
+        """Dopočítavať sa smie len tam, kde sa počíta z histórie.
+
+        V dry/live behu prichádzajú sviečky z burzy a vymyslený bar by bol chyba, nie pomoc.
+        """
+        from freqtrade.enums import RunMode
+
+        return self.config.get("runmode") in (
+            RunMode.BACKTEST, RunMode.HYPEROPT, RunMode.PLOT, RunMode.UTIL_NO_EXCHANGE,
+            RunMode.UTIL_EXCHANGE, RunMode.OTHER,
+        )
+
+    def informative_frame(self, pair: str, timeframe: str) -> DataFrame:
+        """Sviečky informatívneho TF; keď súbor nie je, dopočítajú sa z 1m."""
+        if self.dp is None:
+            return DataFrame()
+        frame = self.dp.get_pair_dataframe(
+            pair=pair, timeframe=timeframe, candle_type=self.config.get("candle_type_def", ""),
+        )
+        if frame is not None and not frame.empty:
+            return frame
+        if not self.ensure_timeframe(pair, timeframe):
+            return DataFrame()
+        frame = self.dp.get_pair_dataframe(
+            pair=pair, timeframe=timeframe, candle_type=self.config.get("candle_type_def", ""),
+        )
+        return frame if frame is not None else DataFrame()
 
     def _after_profile(self) -> None:
         """Volá sa po načítaní profilu (IBS: hodiny seáns, kontrola unfilledtimeout)."""

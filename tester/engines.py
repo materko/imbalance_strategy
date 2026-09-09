@@ -125,13 +125,16 @@ def exchange_timeframes(name: str) -> frozenset[str]:
 def freqtrade_blocker(inst: InstrumentSpec, timeframe: str) -> str | None:
     """Prečo sa tento timeframe nedá prehrať Freqtradom — alebo `None`, keď sa dá.
 
-    Dve rôzne prekážky: chýbajúci súbor (vyšší TF si Freqtrade z 1m nedopočíta) a
-    timeframe, ktorý **burza nepozná**. Ten druhý je dôvod, prečo 2m a 4m ostávajú
-    len pre emulátor: Freqtrade beh odmietne už pri validácii configu, hoci sviečky
-    na disku sú (`tester.timeframes` ich vyrobí pre graf aj pre emulátor).
+    Chýbajúci súbor prekážka **nie je**: Freqtrade si vyšší TF z 1m síce nedopočíta, ale
+    adaptér áno — poskladá ho pri štarte behu (`TradebotStrategyBase.ensure_timeframe`),
+    takže stačí mať 1m sviečky. Bez nich sa nedá nič.
+
+    Skutočná prekážka je timeframe, ktorý **burza nepozná**: taký beh Freqtrade odmietne
+    už pri validácii configu, ešte než sa stratégia vôbec načíta. Preto 2m a 4m ostávajú
+    na Binance len pre emulátor.
     """
-    if not freqtrade_file(inst, timeframe).exists():
-        return f"chýba súbor pre {timeframe}"
+    if not freqtrade_file(inst, timeframe).exists() and not one_minute_file(inst).exists():
+        return f"chýba súbor pre {timeframe} a nie sú ani 1m sviečky, z ktorých ho poskladať"
     exchange = freqtrade_exchange(freqtrade_config(inst))
     known = exchange_timeframes(exchange)
     if known and timeframe not in known:
@@ -142,8 +145,8 @@ def freqtrade_blocker(inst: InstrumentSpec, timeframe: str) -> str | None:
 def available(inst: InstrumentSpec, timeframe: str = "3m") -> list[str]:
     """Ktoré enginy sa na tomto inštrumente a timeframe dajú spustiť.
 
-    Freqtrade potrebuje súbor pre `timeframe` a burzu, ktorá ten timeframe pozná;
-    emulátor jediný 1m súbor — vyššie TF si skladá sám, takže mu stačí čokoľvek.
+    Obom stačí 1m: emulátor si vyššie TF skladá v pamäti, Freqtrade adaptér ich zapíše
+    na disk pri štarte behu. Freqtrade navyše potrebuje timeframe, ktorý pozná jeho burza.
     Chýbajúce dáta pre Dukascopy doplní `tester.dukas_import`.
     """
     out = []
