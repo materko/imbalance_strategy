@@ -245,6 +245,27 @@ details > summary { cursor: pointer; padding: 8px 0; font-weight: 600; }
 .sweep-actions { display: flex; gap: 8px; align-items: center; }
 .sweep-past { margin-bottom: 8px; }
 .search-mode { grid-column: 1 / -1; justify-self: start; }
+/* Matica trhov: vyber parov a TF namiesto riadkov parametrov. */
+.matrix-pick { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px 16px; }
+.matrix-pick select[multiple] { height: auto; padding: 4px; }
+.tf-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.tf-chips label { display: inline-flex; align-items: center; gap: 4px; font-size: 11px;
+  padding: 3px 7px; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; }
+.tf-chips input { width: auto; margin: 0; }
+.matrix-actions { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; }
+#matrix-warn { grid-column: 1 / -1; }
+/* Tabulka matice: trhy v riadkoch, TF v stupcoch. */
+.mx-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
+.mx-table th { color: var(--muted); font-weight: 600; padding: 4px 6px; text-align: right;
+  border-bottom: 1px solid var(--line); }
+.mx-table td { padding: 4px 6px; text-align: right; border-bottom: 1px solid var(--line);
+  font-variant-numeric: tabular-nums; }
+.mx-table th:first-child, .mx-table td:first-child { text-align: left; }
+.mx-table td.pos { color: #0b6b4f; font-weight: 650; }
+.mx-table td.neg { color: #8c2020; }
+.mx-table td.noise { color: var(--muted); font-style: italic; }
+.mx-table td.wait { color: var(--muted); }
 /* Analytika: jednostlpcova podstranka. */
 main.view.single { grid-template-columns: minmax(0, 1fr); }
 .an-form { max-width: 900px; }

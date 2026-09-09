@@ -114,23 +114,38 @@ def to_relative(params: dict[str, Any], *, strategy: str = "ibs", ref_pair: str,
     Vráti `(nové parametre, čo sa zmenilo)`. Bez referenčných sviečok nezmení nič a vráti
     dôvod — tichý prepočet zlou mierkou by bol horší než žiadny.
     """
+    from .webapp.runner import instrument_for_pair
+
     cls = get_spec(strategy).config_cls
-    absolutne = [n for n in cls.SIZE_FIELDS if _unit_of(params, n, cls) == "abs"
-                 and _value_of(params, n) > 0]
-    if not absolutne:
+    # `abs` aj `ticks` treba prepočítať, len každé inou mierkou. Prah v tickoch sa medzi
+    # trhmi škáluje veľkosťou ticku, a tá s typickým rozsahom baru nijako nesúvisí:
+    # `imbMaxDistTicks = 100` je na BTC 0,115 ATR, na EURUSD 3,86 ATR (ATR/tick je 602
+    # oproti 26, teda 23-násobný rozdiel). Prvá verzia prepočtu prepisovala len `abs`
+    # a forex mal preto NULA signálov — nie nula obchodov, žiadne signály.
+    prepocitat = [n for n in cls.SIZE_FIELDS
+                  if _unit_of(params, n, cls) in ("abs", "ticks") and _value_of(params, n) > 0]
+    if not prepocitat:
         return dict(params), []
 
     atr = median_atr(ref_pair, ref_timeframe, timerange)
     if not atr or atr <= 0:
         return dict(params), [f"prepočet sa nedal urobiť: chýbajú sviečky {ref_pair} {ref_timeframe}"]
 
+    try:
+        tick = float(INSTRUMENTS[instrument_for_pair(ref_pair)].tick_size)
+    except (KeyError, ValueError):
+        return dict(params), [f"prepočet sa nedal urobiť: neznámy inštrument {ref_pair}"]
+
     out = dict(params)
-    zmeny = [f"referenčný ATR({ATR_LEN}) na {ref_pair} {ref_timeframe} je {atr:g}"]
-    for name in absolutne:
+    zmeny = [f"referenčný ATR({ATR_LEN}) na {ref_pair} {ref_timeframe} je {atr:g}"
+             f" (tick {tick:g}, teda {atr / tick:.0f} tickov na ATR)"]
+    for name in prepocitat:
+        jednotka = _unit_of(params, name, cls)
         stara = _value_of(params, name)
-        nova = round(stara / atr, 6)
+        v_cene = stara * tick if jednotka == "ticks" else stara
+        nova = round(v_cene / atr, 6)
         out[name] = {"value": nova, "unit": "atr"}
-        zmeny.append(f"{name}: {stara:g} abs → {nova:g} atr")
+        zmeny.append(f"{name}: {stara:g} {jednotka} → {nova:g} atr")
     return out, zmeny
 
 
@@ -295,6 +310,10 @@ def matrix(records: Sequence[dict[str, Any]], metric: str = "break_even_pct") ->
         if tf not in tfs:
             tfs.append(tf)
         vysledok = rec.get("result") or {}
+        # Rozdiel medzi „setup tu nikdy nenastane" a „signály boli, ale Freqtrade každý
+        # vstup odmietol" je zásadný: prvé je vlastnosť stratégie na tom trhu, druhé je
+        # náš problém s peňaženkou alebo sizingom. `zero_trade_warning` to už rozlišuje.
+        bez_obchodov = not (vysledok.get("trades") or 0)
         bunky.setdefault(pair, {})[tf] = {
             "id": rec.get("id"),
             "status": rec.get("status"),
@@ -303,6 +322,10 @@ def matrix(records: Sequence[dict[str, Any]], metric: str = "break_even_pct") ->
             "pnl_pct": vysledok.get("pnl_pct"),
             "ok": bool(rec.get("sweep_ok", True)),
             "why": rec.get("sweep_why", ""),
+            "empty": ("odmietnute" if bez_obchodov and vysledok.get("warning")
+                      else "bez setupu" if bez_obchodov and rec.get("status") == "done"
+                      else ""),
+            "warning": vysledok.get("warning"),
         }
     tfs.sort(key=_tf_key)
     return {"metric": metric, "pairs": pary, "timeframes": tfs, "cells": bunky}
@@ -371,7 +394,10 @@ def table(report: dict[str, Any], width: int = 9) -> str:
             elif bunka["status"] != "done":
                 riadok += f"{bunka['status'][:7]:>{width}}"
             elif bunka["value"] is None:
-                riadok += f"{'-':>{width}}"
+                # `0 sig` = engine tu nenasel ani jeden setup (vlastnost strategie na tom
+                # trhu). `odmiet` = signaly boli, ale vstupy neprosli (nas problem).
+                znak = {"bez setupu": "0 sig", "odmietnute": "odmiet"}.get(bunka["empty"], "-")
+                riadok += f"{znak:>{width}}"
             else:
                 # `!` = bunka je mimo mantinelov (malo obchodov alebo drawdown) - cislo
                 # tam je, ale zaver z neho robit netreba.
