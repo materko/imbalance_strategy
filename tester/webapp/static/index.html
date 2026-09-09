@@ -131,7 +131,11 @@
             </label>
           </div>
           <div id="sweep-warn" class="warnbox" hidden></div>
-          <button id="sweep-run" class="primary sweep-start" type="button">▶ Spustiť sweep</button>
+          <div class="sweep-actions">
+            <button id="sweep-run" class="primary sweep-start" type="button">▶ Spustiť sweep</button>
+            <button id="sweep-cancel" class="ghost small" type="button" hidden
+                    title="zruší všetky nedobehnuté body tejto mriežky">✕ Zrušiť mriežku</button>
+          </div>
           <div id="sweep-status" class="hint"></div>
           <div id="sweep-result"></div>
         </div>

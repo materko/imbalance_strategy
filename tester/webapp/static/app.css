@@ -238,4 +238,9 @@ details > summary { cursor: pointer; padding: 8px 0; font-weight: 600; }
   font-variant-numeric: tabular-nums; cursor: pointer; }
 .sweep-result tr.best td { font-weight: 700; }
 .sweep-result tr.out td { color: var(--muted); }
+/* Body, ktoré ešte len čakajú vo fronte — sú v tabuľke od začiatku, ale nesmú
+   vyzerať ako výsledok. */
+.sweep-result tr.pending td { color: var(--muted); font-style: italic; }
+.sweep-result tr.pending { cursor: default; }
+.sweep-actions { display: flex; gap: 8px; align-items: center; }
 .sweep-result tr:hover td { background: #f8fafc; }

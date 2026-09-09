@@ -11,6 +11,7 @@ je `TRADEBOT_USER`, inak `git config user.name`.
 
 from __future__ import annotations
 
+import json
 import os
 
 from tradebot.core.env import getenv
@@ -381,11 +382,11 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(422, str(exc))
         return job.public()
 
-    #: Strop na počet behov v mriežke. Nie je to výkonový limit, ale poistka proti
-    #: preklepu v kroku (`1:100:0.1` je 991 backtestov) — cena mriežky sa platí časom,
-    #: nie pamäťou, a ten si tester vie prečítať z odhadu vo výsledku. Kto chce viac,
-    #: zdvihne `TRADEBOT_MAX_SWEEP_RUNS`.
-    MAX_SWEEP_RUNS = max(1, int(getenv("MAX_SWEEP_RUNS", "300") or 300))
+    #: Mriežka nemá strop: sweep má zmysel púšťať cez noc alebo na serveri a číslo,
+    #: ktoré by sme vymysleli, by len prekážalo. Namiesto obmedzenia dostane tester
+    #: odhad času vopred a tlačidlo, ktorým celú mriežku zruší naraz.
+    #: `TRADEBOT_MAX_SWEEP_RUNS` strop zapne tomu, kto ho chce (0 = bez stropu).
+    MAX_SWEEP_RUNS = max(0, int(getenv("MAX_SWEEP_RUNS", "0") or 0))
 
     #: Meraný čas jedného roka backtestu s 1m detailom na tomto stroji (~30 s).
     #: Slúži len na odhad „ako dlho to pobeží", nie na rozhodovanie.
@@ -428,7 +429,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
 
         points = sweep_mod.expand(space)
         minutes = _sweep_minutes(len(points), req.timerange)
-        if len(points) > MAX_SWEEP_RUNS:
+        if MAX_SWEEP_RUNS and len(points) > MAX_SWEEP_RUNS:
             raise HTTPException(422, (
                 f"mriežka má {len(points)} behov (odhadom {minutes} min), strop je {MAX_SWEEP_RUNS} — "
                 "zúž rozsah alebo krok; strop sa dá zdvihnúť premennou TRADEBOT_MAX_SWEEP_RUNS"))
@@ -445,6 +446,16 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 raise HTTPException(422, f"bod {_point_note(point)}: {exc}")
 
         base = _run_settings(req)
+        # Kým mriežka čaká vo fronte, nič sa v tabuľke nedeje — a tester klikne znova.
+        # Rovnaké zadanie preto odmietneme a povieme, kde ho má hľadať.
+        podpis = json.dumps([base, points], sort_keys=True, default=str)
+        for job in runner.snapshot():
+            tag = (job.get("settings") or {}).get("sweep") or {}
+            if tag.get("signature") == podpis:
+                raise HTTPException(409, (
+                    f"tá istá mriežka už čaká vo fronte ({tag['id']}) — nedokončené body "
+                    "sa dopočítavajú, výsledky pribúdajú v tabuľke. Zruš ich vo fronte, "
+                    "ak si to rozmyslel."))
         # Sekunda nestačí: dva sweepy spustené rýchlo za sebou by mali tú istú značku
         # a v tabuľke by sa zliali do jednej mriežky.
         sweep_id = f"{datetime.now(timezone.utc):%Y%m%d-%H%M%S}-{uuid4().hex[:4]}"
@@ -452,7 +463,8 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         ids = []
         for point in points:
             settings = {**base, "sweep": {"id": sweep_id, "values": point, "goal": req.goal,
-                                          "max_dd": req.max_dd, "min_trades": req.min_trades}}
+                                          "max_dd": req.max_dd, "min_trades": req.min_trades,
+                                          "signature": podpis}}
             note = f"sweep {sweep_id}: {_point_note(point)}" + (f" — {req.note}" if req.note else "")
             try:
                 job = runner.submit({**req.params, **point}, settings, note=note,
@@ -465,12 +477,13 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
 
     @app.get("/api/sweeps/{sweep_id}")
     def sweep_detail(sweep_id: str):
-        """Stav a poradie mriežky — beží aj kým sa dopočítava."""
+        """Stav a poradie mriežky — vidno ju od zaradenia, nie až od prvého výsledku."""
         from .. import sweep as sweep_mod
 
         records = [r for r in store.all()
                    if (r.get("settings", {}).get("sweep") or {}).get("id") == sweep_id]
-        live = [j for j in runner.snapshot()
+        fronta = runner.snapshot()
+        live = [j for j in fronta
                 if (j.get("settings", {}).get("sweep") or {}).get("id") == sweep_id]
         if not records and not live:
             raise HTTPException(404, "taký sweep v histórii nie je")
@@ -479,6 +492,15 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         ranked = sweep_mod.rank(records, tag.get("goal") or "break_even",
                                 max_dd=tag.get("max_dd"), min_trades=tag.get("min_trades"))
         names = list(tag.get("values") or {})
+        prazdny = dict.fromkeys(
+            ("trades", "pnl_pct", "winrate", "max_drawdown_pct", "break_even_pct"))
+
+        # Koľko cudzích behov je pred prvým bodom tejto mriežky. Bez toho vyzerá čakanie
+        # ako zaseknutá appka — pritom pred ňou môže stáť iná mriežka.
+        prve = next((i for i, j in enumerate(fronta) if j in live), None)
+        pred = 0 if prve is None else sum(1 for j in fronta[:prve] if j not in live)
+        bezi = next((j for j in live if j.get("status") == "running"), None)
+
         return {
             "id": sweep_id,
             "goal": tag.get("goal"),
@@ -487,15 +509,23 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             "params": names,
             "done": len(records),
             "running": len(live),
+            "ahead": pred,
+            "running_values": (bezi or {}).get("settings", {}).get("sweep", {}).get("values"),
             "rows": [{
                 "id": r["id"],
                 "values": r["settings"]["sweep"]["values"],
                 "status": r.get("status"),
                 "ok": r["sweep_ok"],
                 "why": r["sweep_why"],
-                "result": {k: (r.get("result") or {}).get(k) for k in
-                           ("trades", "pnl_pct", "winrate", "max_drawdown_pct", "break_even_pct")},
-            } for r in ranked],
+                "result": {k: (r.get("result") or {}).get(k) for k in prazdny},
+            } for r in ranked] + [{
+                "id": j["id"],
+                "values": j["settings"]["sweep"]["values"],
+                "status": j.get("status"),
+                "ok": True,
+                "why": "",
+                "result": dict(prazdny),
+            } for j in live],
         }
 
     @app.get("/api/queue")
@@ -507,6 +537,19 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         if not runner.cancel(job_id):
             raise HTTPException(404, "beh nie je vo fronte ani nebeží")
         return {"ok": True}
+
+    @app.post("/api/sweeps/{sweep_id}/cancel")
+    def sweep_cancel(sweep_id: str):
+        """Zruší všetky nedobehnuté body mriežky naraz.
+
+        Toto je náhrada za strop na veľkosť: preklep v kroku sa opraví jedným klikom
+        namiesto toho, aby sa mriežky zhora orezávali.
+        """
+        ids = [j["id"] for j in runner.snapshot()
+               if (j.get("settings", {}).get("sweep") or {}).get("id") == sweep_id]
+        if not ids:
+            raise HTTPException(404, "z tejto mriežky už nič nebeží ani nečaká")
+        return {"cancelled": sum(1 for i in ids if runner.cancel(i))}
 
     @app.get("/api/runs/{run_id}")
     def run(run_id: str):
