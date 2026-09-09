@@ -60,9 +60,14 @@
 
         <div class="sep span2"></div>
 
-        <label class="field span2">Pár
-          <select id="pair"></select>
-        </label>
+        <div class="span2 pair-row">
+          <label class="field">Pár
+            <select id="pair"></select>
+          </label>
+          <label class="field">TF grafu
+            <select id="tf" title="TF, na ktorom stratégia počíta — ako TF grafu v TradingView. Limity v baroch (*MaxBars) sa neprepočítavajú."></select>
+          </label>
+        </div>
         <div class="hint hint-row span2">
           <span id="pair-market"></span><span id="pair-range"></span>
         </div>
@@ -90,19 +95,15 @@
         <label class="field">Od <input type="date" id="from"></label>
         <label class="field">Do <input type="date" id="to"></label>
 
-        <label class="field">Timeframe grafu
-          <select id="tf" title="TF, na ktorom stratégia počíta — ako TF grafu v TradingView. Limity v baroch (*MaxBars) sa neprepočítavajú."></select>
-        </label>
         <label class="field">Poplatok % / strana
           <input type="number" id="fee" step="0.001" min="0" value="0.05" title="Poplatok burzy na jednu stranu. Binance taker berie 0,05 %.">
         </label>
-
         <label class="field">Peňaženka
-          <input type="number" id="wallet" step="100" min="100" value="10000">
+          <input type="number" id="wallet" step="100" min="100" value="10000" title="Počiatočný zostatok účtu. Pri porovnaní s TradingView daj toľko, koľko má graf.">
         </label>
-        <label class="field switch-field" title="Fill ceny SL a TP sa hľadajú na 1m sviečkach vnútri baru — presnejšie, ale pomalšie. Bez toho sú fill ceny hrubé a do záverov sa nehodia.">
+        <label class="field switch-field span2" title="Fill ceny SL a TP sa hľadajú na 1m sviečkach vnútri baru — presnejšie, ale pomalšie. Bez toho sú fill ceny hrubé a do záverov sa nehodia.">
           <input type="checkbox" id="detail" checked>
-          <span>1m detail fillov</span>
+          <span>1m detail fillov <span class="hint">— presnejšie SL/TP vnútri sviečky, pomalšie</span></span>
         </label>
 
         <div id="pair-warn" class="warnbox span2" hidden></div>

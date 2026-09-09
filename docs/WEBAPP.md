@@ -103,9 +103,9 @@ prehliadači; predvolené je `TRADEBOT_USER` z prostredia, inak `git config user
 
 ## Nový beh
 
-Formulár je dvojstĺpcová mriežka: čo spolu súvisí, je vedľa seba (engine a burza, od a do,
-timeframe a poplatok), sekcie oddeľuje vlások a dlhé vysvetlenia sú v tooltipoch, nie pod
-každým poľom. Ľavý stĺpec skroluje sám a **Spustiť backtest** ostáva pripnuté na jeho
+Formulár je dvojstĺpcová mriežka: čo spolu súvisí, je vedľa seba — **pár a jeho timeframe**,
+engine a burza, od a do, **poplatok a peňaženka** —, sekcie oddeľuje vlások a dlhé
+vysvetlenia sú v tooltipoch, nie pod každým poľom. Ľavý stĺpec skroluje sám a **Spustiť backtest** ostáva pripnuté na jeho
 spodku, takže je na dosah aj pri rozpísanom formulári. Nad dátumami sú rýchle rozsahy
 **1 rok / 2 roky / celé dáta** — počítajú sa od konca dát zvoleného páru.
 

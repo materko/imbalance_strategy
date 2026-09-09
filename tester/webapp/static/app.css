@@ -177,6 +177,11 @@ details > summary { cursor: pointer; padding: 8px 0; font-weight: 600; }
 .form-grid .hint-row span:empty { display: none; }
 .form-grid .profile-actions { flex-direction: row; align-items: center; gap: 6px; margin: -4px 0 0; }
 
+/* Pár a jeho timeframe patria k sebe; páru treba viac miesta (nesie zdroj aj trh) */
+.pair-row { display: grid; grid-template-columns: minmax(0, 1fr) 84px; gap: 10px; }
+/* pár nesie zdroj aj trh, tak nech sa doň zmestí celý; TF je vždy krátke */
+.pair-row #pair { font-size: 13px; }
+
 /* Obdobie: rýchle rozsahy vedľa nadpisu, nie ďalšie pole navyše */
 .range-head { flex-direction: row; align-items: center; justify-content: space-between; gap: 8px; }
 .range-head .field-label { font-size: 11.5px; color: var(--muted); letter-spacing: .02em; }
@@ -186,8 +191,9 @@ details > summary { cursor: pointer; padding: 8px 0; font-weight: 600; }
 
 /* 1m detail: prepínač so svojím popisom, nie holý checkbox v riadku */
 .switch-field { flex-direction: row !important; align-items: center; gap: 8px; color: var(--ink);
-                font-size: 13px; padding-top: 18px; white-space: nowrap; }
+                font-size: 13px; margin-top: 2px; }
 .switch-field input { width: auto; }
+.switch-field .hint { display: inline; }
 
 /* Ľavý stĺpec skroluje sám, aby tlačidlo Spustiť ostalo na dosah a pravý stĺpec
    (parametre) sa nehýbal spolu s ním. */
