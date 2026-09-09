@@ -249,7 +249,10 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
         # nie holy freqtrade: obal najprv zaregistruje fiktivnu burzu Tester, ktora pozna
         # nase pary aj vsetky timeframy (tester/ftexchange.py)
         python, "-m", "tester.ftrun", "backtesting",
-        "--config", str(engines.freqtrade_config(inst, settings.get("exchange"))),
+        # Fiktivna burza dostane config s `stake_currency` podla kotacie paru - Dukascopy
+        # symboly su v USD, JPY, EUR aj CAD a Freqtrade vyhodi z whitelistu kazdy par,
+        # ktoreho mena nesedi so stake_currency (a hned potom skonci na "No pair in whitelist").
+        "--config", str(engines.stake_config(inst, settings.get("exchange"))),
         "--userdir", str(USER_DIR),
         "--strategy", get_spec(settings.get("strategy") or "ibs").freqtrade_class,
         "--cache", "none",
@@ -535,7 +538,7 @@ class BacktestRunner:
         inst = INSTRUMENTS[instrument]
         cmd = ho.command(
             self.python, plan=plan_file,
-            config=engines.freqtrade_config(inst, settings.get("exchange")),
+            config=engines.stake_config(inst, settings.get("exchange")),
             userdir=USER_DIR, datadir=engines.data_dir(inst),
             strategy_class=get_spec(settings.get("strategy") or "ibs").freqtrade_class,
             pair=settings["pair"], timerange=settings["timerange"],

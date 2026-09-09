@@ -1,0 +1,205 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.cfd.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data --strategy IBSImbalanceStrategy --cache none --export trades --timerange 20250904-20260904 --pairs NAS100/USD --timeframe 3m --dry-run-wallet 10000.0 --fee 0.0005 --timeframe-detail 1m --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\dukascopy\futures
+2026-09-10 01:19:19,146 - freqtrade - INFO - freqtrade 2026.8
+2026-09-10 01:19:19,750 - freqtrade.configuration.load_config - INFO - Using config: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.cfd.json ...
+2026-09-10 01:19:19,751 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-10 01:19:19,752 - freqtrade.loggers - INFO - Logfile configured
+2026-09-10 01:19:19,752 - freqtrade.loggers - INFO - Verbosity set to 0
+2026-09-10 01:19:19,752 - freqtrade.configuration.configuration - INFO - Parameter -i/--timeframe detected ... Using timeframe: 3m ...
+2026-09-10 01:19:19,752 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2026-09-10 01:19:19,752 - freqtrade.configuration.configuration - INFO - Parameter --timeframe-detail detected, using 1m for intra-candle backtesting ...
+2026-09-10 01:19:19,753 - freqtrade.configuration.configuration - INFO - Parameter --dry-run-wallet detected, overriding dry_run_wallet to: 10000.0 ...
+2026-09-10 01:19:19,753 - freqtrade.configuration.configuration - INFO - Parameter --fee detected, setting fee to: 0.0005 ...
+2026-09-10 01:19:19,753 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20250904-20260904 ...
+2026-09-10 01:19:19,753 - freqtrade.configuration.configuration - INFO - Using user-data directory: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data 
+...
+2026-09-10 01:19:19,753 - freqtrade.configuration.configuration - INFO - Using data directory: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\dukascopy\futures ...
+2026-09-10 01:19:19,754 - freqtrade.configuration.configuration - INFO - Parameter --export detected: trades ...
+2026-09-10 01:19:19,754 - freqtrade.configuration.configuration - INFO - Parameter --cache=none detected ...
+2026-09-10 01:19:19,754 - freqtrade.configuration.configuration - INFO - Using pairs ['NAS100/USD']
+2026-09-10 01:19:19,754 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20250904-20260904
+2026-09-10 01:19:19,754 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2026-09-10 01:19:19,756 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+team. It may work flawlessly (please report back) or have serious issues. Use it at your own discretion.
+2026-09-10 01:19:19,757 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 01:19:19,758 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2026-09-10 01:19:19,758 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2026-09-10 01:19:19,759 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.77
+2026-09-10 01:19:19,762 - freqtrade.exchange.exchange - INFO - Using Exchange "Tester"
+2026-09-10 01:19:19,762 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange class 'Tester' ...
+2026-09-10 01:19:19,788 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSImbalanceStrategy from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.py'...
+2026-09-10 01:19:19,788 - freqtrade.strategy.hyper - INFO - Loading parameters from file 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.json
+2026-09-10 01:19:19,794 - tradebot.adapters.freqtrade.base - WARNING - ibs config: engMinRangePoints, ewMinWavePoints, liqSweepMinWick, minImbSizePoints, pbMinRangePoints, srClusterPoints sú v 
+absolútnych cenových bodoch — tie hodnoty sú ladené na MNQ a na NAS100/USD nemusia dávať zmysel; zváž unit='atr'.
+2026-09-10 01:19:20,044 - freqtrade.data.converter.converter - INFO - Missing data fillup for NAS100/USD, 3m: before: 647400 - after: 993545 - 53.47%
+2026-09-10 01:19:20,193 - freqtrade.data.converter.converter - INFO - Missing data fillup for NAS100/USD, 5m: before: 388524 - after: 596127 - 53.43%
+2026-09-10 01:19:20,196 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 3m.
+2026-09-10 01:19:20,196 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USD.
+2026-09-10 01:19:20,196 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2026-09-10 01:19:20,196 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'unfilledtimeout' with value from the configuration: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 
+'unit': 'minutes'}.
+2026-09-10 01:19:20,197 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2026-09-10 01:19:20,197 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 100.0}
+2026-09-10 01:19:20,197 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 3m
+2026-09-10 01:19:20,197 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.99
+2026-09-10 01:19:20,197 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2026-09-10 01:19:20,197 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2026-09-10 01:19:20,197 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2026-09-10 01:19:20,198 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: True
+2026-09-10 01:19:20,198 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2026-09-10 01:19:20,198 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2026-09-10 01:19:20,198 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2026-09-10 01:19:20,198 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USD
+2026-09-10 01:19:20,198 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2026-09-10 01:19:20,198 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 300
+2026-09-10 01:19:20,198 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using unfilledtimeout: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 'unit': 'minutes'}
+2026-09-10 01:19:20,198 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2026-09-10 01:19:20,198 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2026-09-10 01:19:20,198 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2026-09-10 01:19:20,199 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2026-09-10 01:19:20,199 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2026-09-10 01:19:20,199 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2026-09-10 01:19:20,199 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2026-09-10 01:19:20,200 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2026-09-10 01:19:20,200 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2026-09-10 01:19:20,200 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 01:19:20,204 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\freqtrade\plugins\pairlist\StaticPairList.py'...
+2026-09-10 01:19:20,229 - freqtrade.optimize.backtesting - INFO - Using fee 0.0500% from config.
+2026-09-10 01:19:20,286 - freqtrade.data.converter.converter - INFO - Missing data fillup for NAS100/USD, 3m: before: 113865 - after: 175501 - 54.13%
+2026-09-10 01:19:20,288 - freqtrade.optimize.backtesting - INFO - Loading data from 2025-09-03 09:00:00 up to 2026-09-04 00:00:00 (365 days).
+2026-09-10 01:19:20,465 - freqtrade.data.converter.converter - INFO - Missing data fillup for NAS100/USD, 1m: before: 340678 - after: 525601 - 54.28%
+2026-09-10 01:19:21,104 - freqtrade.optimize.backtesting - INFO - Dataload complete. Calculating indicators
+2026-09-10 01:19:21,105 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSImbalanceStrategy
+2026-09-10 01:19:21,119 - freqtrade.data.dataprovider - INFO - Loading data for NAS100/USD 5m from 2025-09-02 23:00:00 to 2026-09-04 00:00:00
+2026-09-10 01:19:21,149 - freqtrade.data.converter.converter - INFO - Missing data fillup for NAS100/USD, 5m: before: 68447 - after: 105421 - 54.02%
+2026-09-10 01:19:32,430 - tradebot.strategies.ibs.freqtrade - INFO - IBS NAS100/USD: 175501 barov, 105421 HTF barov, 200 zon, 13 signalov (13 long / 0 short)
+2026-09-10 01:19:32,657 - tradebot.adapters.freqtrade.base - INFO - ibs NAS100/USD: kresby ulozene do 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tester\runs\.profiles\20260909-231918-ec79fd.chart.json.gz (48414 objektov)
+2026-09-10 01:19:32,685 - freqtrade.optimize.backtesting - INFO - Backtesting with data from 2025-09-04 00:00:00 up to 2026-09-04 00:00:00 (365 days).
+2026-09-10 01:19:32,891 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 23820.11 na 9900.00 (41.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:32,892 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 23820.11 na 9900.00 (41.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:32,892 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 23820.11 na 9900.00 (41.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,055 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 25121.97 na 9900.00 (39.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,056 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 25121.97 na 9900.00 (39.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,056 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 25121.97 na 9900.00 (39.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,186 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 25542.59 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,188 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 25542.59 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,188 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 25542.59 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,190 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 25526.32 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,190 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 25526.32 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,190 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 25526.32 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,334 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 25722.01 na 9900.00 (38.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,334 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 25722.01 na 9900.00 (38.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,334 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 25722.01 na 9900.00 (38.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,413 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 25742.31 na 9900.00 (38.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,413 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 25742.31 na 9900.00 (38.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,413 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 25742.31 na 9900.00 (38.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,553 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 24879.57 na 9900.00 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,554 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 24879.57 na 9900.00 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,554 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 24879.57 na 9900.00 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,726 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 28008.13 na 9900.00 (35.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,726 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 28008.13 na 9900.00 (35.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,726 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 28008.13 na 9900.00 (35.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,752 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 29157.81 na 9900.00 (34.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,753 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 29157.81 na 9900.00 (34.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,753 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 29157.81 na 9900.00 (34.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,842 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 29464.03 na 9900.00 (33.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,842 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 29464.03 na 9900.00 (33.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,842 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 29464.03 na 9900.00 (33.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,867 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 30269.62 na 9900.00 (32.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,868 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 30269.62 na 9900.00 (32.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,868 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 30269.62 na 9900.00 (32.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,958 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 29617.57 na 9900.00 (33.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,959 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 29617.57 na 9900.00 (33.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:33,959 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 29617.57 na 9900.00 (33.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:34,155 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 29510.95 na 9900.00 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:34,156 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 29510.95 na 9900.00 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 01:19:34,156 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 29510.95 na 9900.00 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 4/4           100% • 0:00:12 • 0:00:00
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 175200/175200 100% • 0:00:13 • 0:00:00
+2026-09-10 01:19:34,456 - freqtrade.misc - INFO - dumping json to 
+"C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\backtest_results\backtest-result-2026-09-09_23-19-34.meta.json"
+Result for strategy IBSImbalanceStrategy
+                                              BACKTESTING REPORT                                              
+┌────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│       Pair │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ NAS100/USD │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+│      TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┌───────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│  Pair │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                               ENTER TAG STATS                                                
+┌───────────┬─────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│ Enter Tag │ Entries │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────┼─────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│     TOTAL │       0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                              EXIT REASON STATS                                               
+┌─────────────┬───────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│ Exit Reason │ Exits │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├─────────────┼───────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│       TOTAL │     0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                      MIXED TAG STATS                                                      
+┌───────────┬─────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│ Enter Tag │ Exit Reason │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────┼─────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│     TOTAL │             │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+No trades made. Your starting balance was 10000 USD, and your stake was unlimited.
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                           STRATEGY SUMMARY                                                            
+┌──────────────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┬──────────────┐
+│             Strategy │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │     Drawdown │
+├──────────────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┼──────────────┤
+│ IBSImbalanceStrategy │      0 │         0.00 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │ 0 USD  0.00% │
+└──────────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────┘
+POZOR: engine dal 13 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh.

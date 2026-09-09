@@ -348,6 +348,142 @@ def warn_parity(space: dict, strategy: str) -> None:
           "je to v poriadku.\n", file=sys.stderr)
 
 
+def cmd_matrix(args: argparse.Namespace) -> int:
+    """Matica trhov a timeframov: drží myšlienka aj mimo trhu, na ktorom sa ladila?"""
+    from datetime import datetime, timezone
+    from uuid import uuid4
+
+    from .. import matrix as mx, sweep as sweep_mod
+    from .runner import available_pairs
+
+    params, settings = _prepare(args)
+
+    vsetky = [p["pair"] for p in available_pairs()]
+    if args.pairs.strip().lower() in ("all", "vsetky", "*"):
+        pary = vsetky
+    else:
+        pary = [x.strip() for x in args.pairs.split(",") if x.strip()]
+        nezname = [x for x in pary if x not in vsetky]
+        if nezname:
+            raise SystemExit(f"neznáme páry: {', '.join(nezname)}\nznáme: {', '.join(vsetky)}")
+    tfs = [x.strip() for x in args.timeframes.split(",") if x.strip()]
+
+    try:
+        bunky = mx.expand(pary, tfs)
+    except ValueError as exc:
+        raise SystemExit(str(exc))
+    bunky, preskocene = mx.playable(bunky, exchange=settings.get("exchange") or "tester",
+                                    engine=args.engine, params=params)
+    if not bunky:
+        raise SystemExit("žiadna bunka matice sa spustiť nedá:\n  "
+                         + "\n  ".join(f"{k}: {v}" for k, v in preskocene.items()))
+
+    # Prahy v absolútnych cenových bodoch sa medzi trhmi preniesť nedajú. Bez prepočtu by
+    # tabuľka nehovorila „na forexe to nefunguje", ale „profil je tam nezmysel".
+    if args.relative:
+        params, zmeny = mx.to_relative(params, strategy=args.strategy,
+                                       ref_pair=settings["pair"],
+                                       ref_timeframe=settings.get("timeframe") or "3m",
+                                       timerange=settings["timerange"])
+        for riadok in zmeny:
+            print(f"  {riadok}")
+        if zmeny:
+            print()
+    else:
+        for pair, problemy in mx.warnings_for(params, pary, strategy=args.strategy).items():
+            print(f"POZOR {pair}: {problemy[0]}", file=sys.stderr)
+
+    # Jeden lot EURUSD je 100 000 jednotiek bazy, teda ~108 000 USD. S penazenkou 10 000
+    # sa nezmesti, velkost sa oreze na nulu a bunka skonci s nula obchodmi - co vyzera
+    # ako "tu to nefunguje". Break-even od penazenky nezavisi, takze ju zvysit sa smie.
+    male = mx.wallet_check([c.pair for c in bunky], float(settings.get("wallet") or 10000),
+                           timeframe=tfs[0], timerange=settings["timerange"])
+    if male:
+        print(f"POZOR: penazenka {settings.get('wallet')} je mala na jeden kontrakt na "
+              f"{len(male)} trhoch:", file=sys.stderr)
+        for pair, nominal in sorted(male.items(), key=lambda kv: -kv[1])[:8]:
+            print(f"  {pair}: 1 kontrakt = {nominal:,.0f}".replace(",", " "), file=sys.stderr)
+        print(f"  Tie bunky skoncia s nula obchodmi. Break-even od penazenky nezavisi, "
+              f"tak ju zvys: --wallet {max(male.values()) * 2:,.0f}".replace(",", " "),
+              file=sys.stderr)
+        print(file=sys.stderr)
+
+    matrix_id = f"{datetime.now(timezone.utc):%Y%m%d-%H%M%S}-{uuid4().hex[:4]}"
+    print(f"matica {matrix_id}: {len(bunky)} behov "
+          f"({len(pary)} trhov x {len(tfs)} TF), okno {settings['timerange']}")
+    if preskocene:
+        print(f"  preskocene: {len(preskocene)} buniek "
+              f"({', '.join(sorted(preskocene)[:3])}{'...' if len(preskocene) > 3 else ''})")
+    print(f"  kriterium: {sweep_mod.describe(args.goal, args.max_dd, args.min_trades)}\n",
+          flush=True)
+
+    zaznamy = []
+    for i, cell in enumerate(bunky, 1):
+        beh = {**settings, "pair": cell.pair, "timeframe": cell.timeframe,
+               "matrix": {"id": matrix_id, "pair": cell.pair, "timeframe": cell.timeframe,
+                          "goal": args.goal, "relative": bool(args.relative)}}
+        print(f"[{i}/{len(bunky)}] {cell.pair} {cell.timeframe}", flush=True)
+        try:
+            rec = _execute(args, params, beh,
+                           note=f"matica {matrix_id}: {cell.pair} {cell.timeframe}"
+                                + (f" — {args.note}" if args.note else ""),
+                           quiet=True)
+        except SystemExit as exc:
+            print(f"      neslo spustit: {exc}", flush=True)
+            continue
+        rec.setdefault("settings", beh)
+        zaznamy.append(rec)
+        r = rec.get("result") or {}
+        print(f"      {rec.get('status')}  obchodov {r.get('trades', '-')}  "
+              f"PnL {r.get('pnl_pct', '-')} %  break-even {r.get('break_even_pct', '-')} %",
+              flush=True)
+
+    poradie = mx.rank(zaznamy, args.goal, max_dd=args.max_dd, min_trades=args.min_trades)
+    print(f"\n=== matica {matrix_id} — break-even poplatok (% na stranu) ===")
+    print(mx.table(mx.matrix(poradie)))
+    print(f"\n{mx.verdict(zaznamy)}")
+    print(f"cele porovnanie: python -m tester.webapp.cli matrices {matrix_id}")
+    return 0
+
+
+def cmd_matrices(args: argparse.Namespace) -> int:
+    """Matice z histórie; s argumentom vypíše tabuľku jednej."""
+    from .. import matrix as mx
+    from .store import RunStore
+
+    skupiny: dict[str, list[dict]] = {}
+    for rec in RunStore().all():
+        tag = (rec.get("settings") or {}).get("matrix") or {}
+        if not tag.get("id"):
+            continue
+        if args.strategy and (rec.get("settings") or {}).get("strategy", "ibs") != args.strategy:
+            continue
+        skupiny.setdefault(tag["id"], []).append(rec)
+    if not skupiny:
+        print("v historii nie je ziadna matica")
+        return 0
+
+    if args.matrix_id:
+        rows = skupiny.get(args.matrix_id)
+        if rows is None:
+            raise SystemExit(f"matica {args.matrix_id} v historii nie je")
+        poradie = mx.rank(rows, (rows[0]["settings"]["matrix"].get("goal") or "break_even"))
+        print(f"=== matica {args.matrix_id} — break-even poplatok (% na stranu) ===")
+        print(f"okno {rows[0]['settings'].get('timerange')}, behov {len(rows)}\n")
+        print(mx.table(mx.matrix(poradie)))
+        print(f"\n{mx.verdict(rows)}")
+        return 0
+
+    print(f"{'matica':<24} {'behov':>6}  okno / trhy")
+    for matrix_id in sorted(skupiny, reverse=True)[:args.limit]:
+        rows = skupiny[matrix_id]
+        pary = sorted({r["settings"]["pair"] for r in rows})
+        print(f"{matrix_id:<24} {len(rows):>6}  {rows[0]['settings'].get('timerange')} | "
+              f"{len(pary)} trhov")
+    print("\ndetail: python -m tester.webapp.cli matrices <matica>")
+    return 0
+
+
 def cmd_hyperopt(args: argparse.Namespace) -> int:
     """Hyperopt na tom istom zadaní ako sweep, plus overenie na ďalších oknách."""
     import subprocess
@@ -394,7 +530,7 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
     inst = INSTRUMENTS[instrument_for_pair(settings["pair"])]
     cmd = ho.command(
         sys.executable, plan=plan_file,
-        config=engines.freqtrade_config(inst, settings.get("exchange")),
+        config=engines.stake_config(inst, settings.get("exchange")),
         userdir=USER_DIR, datadir=engines.data_dir(inst),
         strategy_class=get_spec_class(args.strategy), pair=settings["pair"],
         timerange=settings["timerange"], timeframe=settings["timeframe"],
@@ -604,6 +740,28 @@ def main(argv: list[str] | None = None) -> int:
                         "cez noc. Cena je čas: rok backtestu je asi 30 s na bod")
     _run_args(p)
     p.set_defaults(func=cmd_sweep)
+
+    p = sub.add_parser("matrix", help="ten istý profil na viacerých trhoch a TF (drží myšlienka?)")
+    p.add_argument("--pairs", default="all",
+                   help="`all` (default) alebo zoznam párov oddelený čiarkou")
+    p.add_argument("--timeframes", default="3m",
+                   help="zoznam timeframov oddelený čiarkou (default 3m)")
+    p.add_argument("--goal", choices=tuple(_GOALS), default="break_even",
+                   help="podľa čoho zoradiť bunky (default break-even poplatok)")
+    p.add_argument("--max-dd", type=float, help="strop na max drawdown v %%")
+    p.add_argument("--min-trades", type=int, default=10,
+                   help="pod týmto počtom obchodov je bunka označená ako šum (default 10)")
+    p.add_argument("--no-relative", dest="relative", action="store_false",
+                   help="neprepočítavať prahy z absolútnych bodov na atr (závery z toho "
+                        "nepatria nikam - prah v bodoch znamená na každom trhu inú vec)")
+    _run_args(p)
+    p.set_defaults(func=cmd_matrix, relative=True)
+
+    p = sub.add_parser("matrices", help="matice z histórie; s argumentom vypíše tabuľku jednej")
+    p.add_argument("matrix_id", nargs="?", help="značka matice (bez nej sa vypíše zoznam)")
+    p.add_argument("--strategy", help="len matice tejto stratégie")
+    p.add_argument("--limit", type=int, default=30)
+    p.set_defaults(func=cmd_matrices)
 
     p = sub.add_parser("hyperopt", help="hľadanie parametrov optimalizátorom (to isté zadanie ako sweep)")
     p.add_argument("--param", action="append", metavar="NAZOV=HODNOTY",

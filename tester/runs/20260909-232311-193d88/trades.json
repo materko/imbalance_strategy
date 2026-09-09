@@ -1,0 +1,24 @@
+[
+  {
+    "open_date": "2025-09-23T14:12:00+00:00",
+    "close_date": "2025-09-23T14:35:00+00:00",
+    "open_rate": 432.211,
+    "close_rate": 427.987,
+    "amount": 1.0,
+    "stake_amount": 432.211,
+    "leverage": 1.0,
+    "profit_abs": -4.654099,
+    "profit_ratio": -0.01076273651860614,
+    "exit_reason": "stop_loss",
+    "enter_tag": "ibs:1758636540000",
+    "is_short": false,
+    "fee_open": 0.0005,
+    "fee_close": 0.0005,
+    "funding_fees": 0.0,
+    "trade_duration": 23,
+    "initial_stop_loss_abs": 4.323,
+    "stop_loss_abs": 428.389,
+    "max_rate": 432.586,
+    "min_rate": 427.75
+  }
+]
