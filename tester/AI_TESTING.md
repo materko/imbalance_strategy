@@ -194,37 +194,48 @@ a sweep na ne upozorní; zakázané nie sú — ak ich chceš ladiť vedome, lad
 
 ## 8. Hyperopt (len engine Freqtrade)
 
+Tie isté `--param` ako sweep, len sa v rozsahu **hľadá** namiesto prechádzania. Zadanie sa
+nepíše dvakrát: `2:8:0.5` je pre sweep 13 hodnôt, pre hyperopt rozsah, v ktorom hľadá.
+
 ```bash
-./deploy/freqtrade/scripts/hyperopt.sh 20260601-20260904 200
+PY -m tester.webapp.cli hyperopt --param rrRatio=2:8:0.5 --param slLookback=5:40:1 \
+   --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json \
+   --timerange 20250904-20260904 --goal break_even --min-trades 15 --epochs 200
+
+PY -m tester.webapp.cli hyperopt --suggested --timerange 20250904-20260904 --epochs 200
 ```
 
-Čo treba vedieť, inak dostaneš nezmysel: `--analyze-per-epoch` je povinné (bez neho majú
-všetky epochy identický výsledok), počet obchodov musí byť strážený loss funkciou
-(`IBSHyperOptLoss`), sizing musí byť rovnaký ako v porovnávanom behu, a výsledok **vždy**
-over na inom okne než na tom, na ktorom si ladil. Priestor má 10 parametrov a stratégia
-robí 150–200 obchodov za rok — pretrénovanie je reálne a už sa raz stalo
-([docs/merania/HYPEROPT_btcusdt_2026-09-04.md](../docs/merania/HYPEROPT_btcusdt_2026-09-04.md)).
+`--suggested` vezme priestor, ktorý **odporúča stratégia** — to, čo na nej prežilo
+out-of-sample. To isté robí `./deploy/freqtrade/scripts/hyperopt.sh <okno> [epochy]`.
 
-Na jeden–dva parametre je čitateľnejší **sweep** (§7): prejde mriežku obyčajných backtestov, ktoré ostanú v histórii. Hyperopt sa oplatí až pri troch a viac.
+Po dobehnutí sa víťaz **sám** pustí na piatich referenčných oknách a výsledky sa ukážu
+vedľa seba (ladené okno označené) s jednou vetou na záver: `VITAZ PREZIL` / `NEJASNE` /
+`PRETRENOVANE`. Nie je to doplnok — hyperopt nájde optimum práve toho okna, ktoré videl,
+a už sa raz stalo, že víťaz mal na ladenom roku +34,8 % a stratu vo všetkých štyroch
+ostatných ([docs/merania/HYPEROPT_btcusdt_2026-09-04.md](../docs/merania/HYPEROPT_btcusdt_2026-09-04.md)).
+Overovacie behy sú obyčajné behy v histórii, dajú sa otvoriť aj prehnať Monte Carlom.
+
+Na jeden–dva parametre je čitateľnejší **sweep** (§7). Hyperopt sa oplatí od troch.
 
 Poradie, v ktorom to dáva zmysel: hyperopt nájde parametre → out-of-sample okná rozhodnú,
 či to prežije → `tester.montecarlo` (§5) dá k prežitému číslu interval. Monte Carlo
 hyperopt **nenahrádza** ani neodhalí jeho pretrénovanie; sú to dve rôzne otázky.
 
-Dukascopy symboly potrebujú pred hyperoptom sviečky pre Freqtrade:
-
-```bash
-PY -m tester.dukas_import C:/dukas/NAS100_M1_10Y.csv --symbol NAS100 --target freqtrade
-```
-
-Podrobne: [docs/FREQTRADE.md §C a §G](../docs/FREQTRADE.md).
+Ako sa nastavujú hranice, ako pridať hyperopt k novej stratégii a čo sa deje vnútri:
+[docs/HYPEROPT.md](../docs/HYPEROPT.md).
 
 ## 9. FreqAI
 
-Kód je súčasťou Freqtradu, chýbajú závislosti: `pip install "freqtrade[freqai]"`.
-Stratégia je deterministický stavový automat a jeho parita s Pine je zmyslom celého portu,
-takže model ju **nenahrádza** — dáva sa nad ňu ako filter (engine nájde setup, model
-predpovie, či ho brať). Detaily a riziká: [docs/FREQTRADE.md §G](../docs/FREQTRADE.md).
+Dá sa pripojiť, ale odpovedá na inú otázku: hyperopt vyberie statické parametre, FreqAI
+trénuje model, ktorý sa v čase mení. Stratégia je deterministický stavový automat a jeho
+parita s Pine je zmyslom celého portu, takže model ju **nenahrádza** — dáva sa nad ňu ako
+filter (engine nájde setup, model predpovie, či ho brať), a to paritu poruší, takže by to
+bolo rozšírenie mimo Pine s defaultom „vypnuté".
+
+Chýbajú závislosti (`pip install "freqtrade[freqai]"`) a hlavne obchody: máme 20–170
+obchodov za rok, teda ~100–800 nálepiek za päť rokov. Čo presne by sa muselo dorobiť, čo
+to stojí a prečo sa najprv oplatí ručne zmerať, či má filter vôbec priestor:
+[docs/HYPEROPT.md — FreqAI](../docs/HYPEROPT.md).
 
 ## 10. Čo nerobiť
 

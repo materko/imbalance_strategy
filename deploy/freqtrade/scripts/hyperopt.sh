@@ -1,34 +1,25 @@
 #!/usr/bin/env bash
-# Preladi prahy strategie hyperoptom. Podrobnosti su v hyperopt.ps1.
+# Hyperopt s priestorom, ktory strategia odporucuje (jej `hyperopt_cls.SUGGESTED`).
+# Vlastny priestor sa zadava priamo prikazom, nie tymto obalom:
 #
-#   ./deploy/freqtrade/scripts/hyperopt.sh 20250901-20260904 300
-#   TRADEBOT_PROFILE=docs/profily_archiv/tradebot/btcusdt_3m_binance_hyper.json ./deploy/freqtrade/scripts/hyperopt.sh 20260601-20260904 200
+#   PY -m tester.webapp.cli hyperopt --param rrRatio=2:8:0.5 --param slLookback=5:40:1 \
+#      --goal break_even --min-trades 15 --timerange 20250904-20260904
+#
+# Podrobnosti a ako nastavit hranice: docs/HYPEROPT.md
+#
+#   ./deploy/freqtrade/scripts/hyperopt.sh 20250904-20260904 200
 set -euo pipefail
 
-TIMERANGE="${1:?pouzitie: hyperopt.sh <timerange> [epochs] [loss]}"
-EPOCHS="${2:-300}"
-LOSS="${3:-IBSEdgeLoss}"
+TIMERANGE="${1:?pouzitie: hyperopt.sh <timerange> [epochs] [goal]}"
+EPOCHS="${2:-200}"
+GOAL="${3:-break_even}"
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-ft="$repo/deploy/freqtrade"
 py="$repo/.venv/bin/python"
 [ -x "$py" ] || py="$repo/.venv/Scripts/python.exe"
 
-export TRADEBOT_PROFILE="${TRADEBOT_PROFILE:-docs/profily_archiv/tradebot/btcusdt_3m_binance_hyper.json}"
-echo "Profil: $TRADEBOT_PROFILE"
-echo "Okno:   $TIMERANGE   epoch: $EPOCHS   loss: $LOSS"
-echo
-echo "POZOR: pri 10 parametroch a radovo stovkach obchodov je pretrenovanie realne."
-echo "Vysledok VZDY over na inom okne, nez na akom si ladil."
-echo
-
-# tester.ftrun = freqtrade s registrovanou fiktivnou burzou Tester (vsetky nase TF)
-exec "$py" -m tester.ftrun hyperopt \
-    --config "$ft/config.tester.json" \
-    --userdir "$ft/user_data" \
-    --datadir "$repo/data/tester/binance" \
-    --strategy "${STRATEGY:-IBSImbalanceStrategy}" \
-    --hyperopt-loss "$LOSS" \
-    --timerange "$TIMERANGE" \
-    --epochs "$EPOCHS" \
-    --spaces buy sell
+cd "$repo"
+exec "$py" -m tester.webapp.cli hyperopt --suggested \
+    --timerange "$TIMERANGE" --epochs "$EPOCHS" --goal "$GOAL" \
+    --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json \
+    --note "hyperopt: odporucany priestor, okno $TIMERANGE"
