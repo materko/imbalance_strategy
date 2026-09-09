@@ -18,6 +18,7 @@ const state = {
   activeGroup: null,
   profileInstrument: null,
   paramMode: "basic",
+  hyperMeta: {},
 };
 
 function currentUser() { return ($("#who").value || "").trim() || null; }
@@ -873,16 +874,33 @@ function refreshSweep() {
   const total = Object.keys(space).length ? count : 0;
   const cap = state.meta.max_sweep_runs || 0;      // 0 = bez stropu (predvolené)
   const min = total ? sweepMinutes(total) : 0;
-  $("#sweep-run").textContent = total
-    ? `▶ Spustiť sweep (${total} behov${min ? ` ≈ ${fmtMinutes(min)}` : ""})`
-    : "▶ Spustiť sweep";
-  $("#sweep-run").disabled = !total || (cap && total > cap);
+  if (isHyper()) {
+    // Hyperopt nemá mriežku: počet behov je počet epoch a ten si tester zadáva sám.
+    const epoch = Number($("#hyper-epochs").value) || 0;
+    const pocet = Object.keys(space).length;
+    $("#sweep-run").textContent = epoch
+      ? `▶ Hľadať (${epoch} epoch, ${pocet} ${slovom(pocet, "parameter", "parametre", "parametrov")})`
+      : "▶ Hľadať";
+    $("#sweep-run").disabled = !pocet || !epoch;
+  } else {
+    $("#sweep-run").textContent = total
+      ? `▶ Spustiť sweep (${total} behov${min ? ` ≈ ${fmtMinutes(min)}` : ""})`
+      : "▶ Spustiť sweep";
+    $("#sweep-run").disabled = !total || (cap && total > cap);
+  }
 
   const meta = metaByName();
   const risky = Object.keys(space).filter(n => meta[n] && meta[n].breaks_parity);
   const warn = $("#sweep-warn");
   const parts = [];
-  if (cap && total > cap) {
+  const varovania = (state.hyperMeta.warn || {});
+  if (isHyper()) {
+    const rizikove = Object.keys(space).filter(n => varovania[n]);
+    for (const n of rizikove) parts.push(`${n}: ${varovania[n]}.`);
+    if (Object.keys(space).length < 3) {
+      parts.push("Na jeden–dva parametre je čitateľnejšia mriežka — hyperopt sa oplatí od troch.");
+    }
+  } else if (cap && total > cap) {
     parts.push(`Mriežka má ${total} behov, strop je ${cap} (TRADEBOT_MAX_SWEEP_RUNS).`);
   } else if (min >= 120) {
     // Nie zákaz, len číslo: dlhá mriežka je legitímna, púšťa sa cez noc.
@@ -895,6 +913,129 @@ function refreshSweep() {
   }
   warn.hidden = !parts.length;
   warn.textContent = parts.join(" ");
+}
+
+async function startSearch() {
+  return isHyper() ? startHyperopt() : startSweep();
+}
+
+/** Hyperopt: jeden beh vo fronte, po ňom overenie na referenčných oknách. */
+async function startHyperopt() {
+  const space = sweepSpace();
+  if (!Object.keys(space).length) return;
+  const btn = $("#sweep-run");
+  btn.disabled = true;
+  $("#sweep-status").textContent = "zaraďujem do fronty…";
+  try {
+    const body = {
+      ...runBody(),
+      space,
+      goal: $("#sweep-goal").value,
+      max_dd: $("#sweep-maxdd").value === "" ? null : Number($("#sweep-maxdd").value),
+      min_trades: $("#sweep-mintrades").value === "" ? null : Number($("#sweep-mintrades").value),
+      epochs: Number($("#hyper-epochs").value) || 200,
+      verify: $("#hyper-verify").checked,
+    };
+    const r = await api("/api/hyperopts", { method: "POST", body: JSON.stringify(body) });
+    hyper.id = r.id;
+    try { localStorage.setItem(hyperKey(), r.id); } catch (e) { /* súkromné okno */ }
+    $("#sweep-status").textContent = `${r.epochs} epoch vo fronte · ${r.goal_note}`;
+    if (r.warn && r.warn.length) {
+      $("#sweep-warn").hidden = false;
+      $("#sweep-warn").textContent = r.warn.join(" ");
+    }
+    pollQueue();
+    pollHyper();
+    loadSweepHistory();
+  } catch (e) {
+    $("#sweep-status").textContent = e.message;
+  } finally {
+    refreshSweep();
+  }
+}
+
+/** Slovencina pocita inak nez anglictina: 1 parameter, 2-4 parametre, 5+ parametrov. */
+function slovom(n, jeden, malo, mnoho) {
+  if (n === 1) return jeden;
+  return n >= 2 && n <= 4 ? malo : mnoho;
+}
+
+const hyperKey = () => `hyperopt:${state.strategy}`;
+const hyper = { id: null, timer: null };
+
+async function pollHyper() {
+  if (!hyper.id) return;
+  try {
+    const r = await api(`/api/hyperopts/${hyper.id}`);
+    renderHyper(r);
+    if (r.status === "queued" || r.status === "running"
+        || (r.verify || []).some(v => v.status === "queued" || v.status === "running")) {
+      clearTimeout(hyper.timer);
+      hyper.timer = setTimeout(pollHyper, 4000);
+    }
+  } catch (e) {
+    clearTimeout(hyper.timer);
+    hyper.timer = setTimeout(pollHyper, 4000);
+  }
+}
+
+function renderHyper(r) {
+  const casti = [];
+  if (r.status === "queued") casti.push("čaká vo fronte");
+  else if (r.status === "running") casti.push(`beží · ${r.hyperopt.epochs} epoch`);
+  else if (r.status === "failed") casti.push("zlyhalo");
+  else casti.push(`hotovo · ${r.hyperopt.epochs_done || 0} epoch`);
+  casti.push(r.goal_note);
+  $("#sweep-status").textContent = casti.join(" · ");
+  $("#sweep-cancel").hidden = !(r.status === "queued" || r.status === "running");
+
+  const box = $("#sweep-result");
+  if (r.status === "failed") { box.innerHTML = `<div class="error">${esc(r.error || "beh zlyhal")}</div>`; return; }
+  const casti_html = [];
+
+  if ((r.epochs || []).length) {
+    const head = [...r.params, "obch.", "PnL %", "WR %", "DD %", "skóre"];
+    const rows = r.epochs.slice(0, 20).map((e, i) => {
+      const cls = !e.usable ? "out" : (i === 0 ? "best" : "");
+      const cells = [
+        ...r.params.map(n => esc(fmtVal(e.params["hp_" + n]))),
+        e.trades ?? "—", fmt(e.pnl_pct, 2), fmt(e.winrate, 1),
+        fmt(e.max_drawdown_pct, 2), fmt(-e.loss, 4),
+      ];
+      const title = e.usable ? "" : "mimo mantinelov (počet obchodov alebo drawdown)";
+      return `<tr class="${cls}" title="${esc(title)}">` + cells.map(c => `<td>${c}</td>`).join("") + "</tr>";
+    }).join("");
+    casti_html.push(`<table><thead><tr>${head.map(h => `<th>${esc(h)}</th>`).join("")}`
+      + `</tr></thead><tbody>${rows}</tbody></table>`);
+  }
+
+  if (r.overrides) {
+    const zoznam = Object.entries(r.overrides).map(([k, v]) => `${k} = ${esc(fmtVal(v))}`).join(", ");
+    casti_html.push(`<p class="mode-hint">Najlepšia epocha: ${zoznam}</p>`);
+  }
+
+  if ((r.verify || []).length) {
+    const rows = r.verify.map(v => {
+      const res = v.result || {};
+      const cells = [v.timerange + (v.tuned ? " (ladené)" : ""), v.status,
+        res.trades ?? "—", fmt(res.pnl_pct, 2), fmt(res.break_even_pct, 4)];
+      return `<tr class="${v.tuned ? "tuned" : ""}" data-run="${v.id}" title="klikni pre detail behu">`
+        + cells.map(c => `<td>${c}</td>`).join("") + "</tr>";
+    }).join("");
+    casti_html.push('<table class="verify-table"><thead><tr><th>okno</th><th>stav</th>'
+      + "<th>obch.</th><th>PnL %</th><th>break-even</th></tr></thead>"
+      + `<tbody>${rows}</tbody></table>`);
+  }
+
+  if (r.verdict) {
+    const trieda = r.verdict.startsWith("VITAZ PREZIL") ? "good"
+      : (r.verdict.startsWith("PRETRENOVANE") ? "bad" : "unsure");
+    casti_html.push(`<div class="verdict ${trieda}">${esc(r.verdict)}</div>`);
+  }
+  box.innerHTML = casti_html.join("");
+  for (const tr of $$("#sweep-result tr[data-run]")) {
+    tr.onclick = () => { showView("history"); openRun(tr.dataset.run); };
+  }
 }
 
 async function startSweep() {
@@ -979,6 +1120,10 @@ function renderSweep(r) {
 /** Mriežka patrí stratégii, aj tá zapamätaná — parametre sú v každej iné. */
 const sweepKey = () => `sweep:${state.strategy}`;
 
+/** „sweep" prejde mriežku, „hyper" v nej hľadá. Zadanie je pre oboje to isté. */
+let searchMode = "sweep";
+const isHyper = () => searchMode === "hyper";
+
 /** Otvorí naposledy pozeranú mriežku tejto stratégie (alebo nechá sekciu prázdnu). */
 function restoreSweep() {
   let ulozeny = null;
@@ -1002,8 +1147,10 @@ function resetSweepForStrategy() {
 /** Naplní ponuku predošlých mriežok — sweep sa dá otvoriť aj o týždeň. */
 async function loadSweepHistory() {
   let list = [];
+  const cesta = isHyper() ? "/api/hyperopts" : "/api/sweeps";
   try {
-    list = (await api(`/api/sweeps?limit=50&strategy=${encodeURIComponent(state.strategy)}`)).sweeps;
+    const r = await api(`${cesta}?limit=50&strategy=${encodeURIComponent(state.strategy)}`);
+    list = isHyper() ? r.hyperopts : r.sweeps;
   } catch (e) { return; }
   const sel = $("#sweep-past");
   const wrap = sel.closest(".sweep-past");
@@ -1015,7 +1162,9 @@ async function loadSweepHistory() {
   for (const s of list) {
     const o = document.createElement("option");
     o.value = s.id;
-    const stav = s.pending ? `${s.done}/${s.done + s.pending}` : `${s.done} behov`;
+    const stav = isHyper()
+      ? `${s.epochs_done || 0}/${s.epochs || "?"} epoch`
+      : (s.pending ? `${s.done}/${s.done + s.pending}` : `${s.done} behov`);
     o.textContent = `${sweepStamp(s.id)} · ${s.params.join(" × ")} · ${s.pair} ${s.timeframe}`
       + ` · ${stav}`;
     o.title = `${s.timerange} · ${s.goal_note}`;
@@ -1030,8 +1179,53 @@ function sweepStamp(id) {
   return m ? `${+m[3]}. ${+m[2]}. ${m[4]}:${m[5]}` : id;
 }
 
+/** Prepne medzi „prejdi mriežku" a „hľadaj v nej" — riadky parametrov ostávajú. */
+async function setSearchMode(mode) {
+  searchMode = mode;
+  $("#mode-sweep").classList.toggle("active", mode === "sweep");
+  $("#mode-hyper").classList.toggle("active", mode === "hyper");
+  $("#mode-sweep").setAttribute("aria-pressed", String(mode === "sweep"));
+  $("#mode-hyper").setAttribute("aria-pressed", String(mode === "hyper"));
+  for (const el of $$(".hyper-only")) el.hidden = mode !== "hyper";
+  $("#sweep-status").textContent = "";
+  $("#sweep-result").innerHTML = "";
+  $("#sweep-cancel").hidden = true;
+  if (mode === "hyper") await loadHyperMeta();
+  $("#search-hint").textContent = mode === "hyper"
+    ? (state.hyperMeta.note || "Hľadá v rozsahu a učí sa. Víťaz sa preverí na piatich oknách.")
+    : "Každý bod mriežky je obyčajný backtest a ostane v histórii.";
+  refreshSweep();
+  loadSweepHistory();
+}
+
+/** Čo o ladení vie stratégia — odporúčaný priestor a varovania. */
+async function loadHyperMeta() {
+  try {
+    state.hyperMeta = await api(`/api/hyperopt/meta?strategy=${encodeURIComponent(state.strategy)}`);
+  } catch (e) { state.hyperMeta = {}; }
+  return state.hyperMeta;
+}
+
+/** Naplní riadky priestorom, ktorý stratégia odporúča. */
+async function fillSuggested() {
+  const meta = await loadHyperMeta();
+  const odporucane = meta.suggested || {};
+  if (!Object.keys(odporucane).length) {
+    $("#sweep-status").textContent = "táto stratégia odporúčaný priestor nemá";
+    return;
+  }
+  $("#sweep-rows").innerHTML = "";
+  for (const [name, spec] of Object.entries(odporucane)) {
+    addSweepRow(name);
+    const row = $$("#sweep-rows .sweep-row").at(-1);
+    row.querySelector("input.spec").value = spec;
+  }
+  refreshSweep();
+}
+
 /** Otvorí mriežku z histórie — tú istú tabuľku, aká bola po dobehnutí. */
 function openSweep(id) {
+  if (isHyper()) return openHyper(id);
   sweep.id = id || null;
   const sel = $("#sweep-past");
   if (sel && [...sel.options].some(o => o.value === id)) sel.value = id;
@@ -1042,6 +1236,29 @@ function openSweep(id) {
   if (!id) { $("#sweep-status").textContent = ""; $("#sweep-result").innerHTML = ""; return; }
   $("#sweep-box").open = true;
   pollSweep();
+}
+
+/** Otvorí hyperopt z histórie — epochy, víťaz aj overenie na oknách. */
+function openHyper(id) {
+  hyper.id = id || null;
+  try {
+    id ? localStorage.setItem(hyperKey(), id) : localStorage.removeItem(hyperKey());
+  } catch (e) { /* súkromné okno */ }
+  clearTimeout(hyper.timer);
+  if (!id) { $("#sweep-status").textContent = ""; $("#sweep-result").innerHTML = ""; return; }
+  $("#sweep-box").open = true;
+  pollHyper();
+}
+
+/** Zruší bežiaci hyperopt (a s ním overovacie behy, ktoré ešte nezačali). */
+async function cancelHyper() {
+  if (!hyper.id) return;
+  try {
+    await api(`/api/queue/${hyper.id}/cancel`, { method: "POST" });
+    $("#sweep-status").textContent = "zrušené";
+    pollQueue();
+    pollHyper();
+  } catch (e) { $("#sweep-status").textContent = e.message; }
 }
 
 /** Zruší všetky nedobehnuté body mriežky — náhrada za strop na jej veľkosť. */
@@ -1068,8 +1285,12 @@ function initSweep() {
   $("#sweep-rows").innerHTML = "";
   addSweepRow();
   $("#sweep-add").onclick = () => addSweepRow();
-  $("#sweep-run").onclick = startSweep;
-  $("#sweep-cancel").onclick = cancelSweep;
+  $("#sweep-run").onclick = startSearch;
+  $("#sweep-cancel").onclick = () => (isHyper() ? cancelHyper() : cancelSweep());
+  $("#mode-sweep").onclick = () => setSearchMode("sweep");
+  $("#mode-hyper").onclick = () => setSearchMode("hyper");
+  $("#hyper-suggested").onclick = fillSuggested;
+  $("#hyper-epochs").oninput = refreshSweep;
   $("#sweep-past").onchange = () => openSweep($("#sweep-past").value);
   // Sweep cez noc: po zavretí a otvorení stránky sa mriežka nájde tam, kde skončila
   // — tá, ktorú tester pozeral pri tejto stratégii.

@@ -1,0 +1,61 @@
+{
+  "id": "20260909-223204-60faae",
+  "status": "done",
+  "created": "2026-09-09T22:32:04+00:00",
+  "started": "2026-09-09T22:32:04+00:00",
+  "finished": "2026-09-09T22:33:04+00:00",
+  "user": "materko",
+  "note": "hyperopt rrRatio=2:8:0.5, slLookback=5:40:1 — webapp test",
+  "settings": {
+    "strategy": "ibs",
+    "exchange": "tester",
+    "sweep": null,
+    "pair": "BTC/USDT:USDT",
+    "engine": "freqtrade",
+    "timeframe": "3m",
+    "timerange": "20250904-20260904",
+    "fee": 0.0005,
+    "wallet": 10000.0,
+    "timeframe_detail": "1m",
+    "profile": null,
+    "hyperopt": {
+      "knobs": {
+        "rrRatio": "2:8:0.5",
+        "slLookback": "5:40:1"
+      },
+      "goal": "break_even",
+      "max_dd": null,
+      "min_trades": 15,
+      "epochs": 6,
+      "seed": null,
+      "verify": true,
+      "epochs_done": 6,
+      "best": {
+        "epoch": 6,
+        "loss": -0.06589950423996883,
+        "params": {
+          "hp_rrRatio": 4.7,
+          "hp_slLookback": 40
+        },
+        "trades": 167,
+        "pnl_pct": 5.4076,
+        "winrate": 34.7305,
+        "max_drawdown_pct": 7.2051,
+        "profit_factor": 1.0946,
+        "usable": true,
+        "is_best": true
+      },
+      "overrides": {
+        "rrRatio": 4.7,
+        "slLookback": 40
+      },
+      "results_file": "strategy_IBSImbalanceStrategy_2026-09-09_22-32-06.fthypt"
+    }
+  },
+  "params": {},
+  "error": null,
+  "result": {
+    "duration_s": 60.3
+  },
+  "series": null
+}

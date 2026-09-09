@@ -28,7 +28,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from tradebot.core.config import ConfigError
-from tradebot.strategies import STRATEGIES
+from tradebot.strategies import STRATEGIES, get_spec
 from . import chart as chart_data
 from . import gitsync
 from . import profiles as user_profiles
@@ -121,6 +121,18 @@ class SweepRequest(RunRequest):
     min_trades: int | None = Field(None, description="menej obchodov = bod je mimo mantinelov")
 
 
+class HyperoptRequest(RunRequest):
+    """Hľadanie parametrov — to isté zadanie ako sweep, len sa v rozsahu hľadá."""
+
+    space: dict[str, str] = Field(..., description="parameter -> `od:do:krok` alebo `a,b,c`")
+    goal: str = Field("break_even", description="podľa čoho vybrať najlepšiu epochu")
+    max_dd: float | None = Field(None, description="strop na max drawdown v %")
+    min_trades: int | None = Field(None, description="minimum obchodov za rok, inak je epocha mimo")
+    epochs: int = Field(200, ge=1, le=5000, description="koľko konfigurácií vyskúšať")
+    seed: int | None = Field(None, description="random-state optimalizátora, na zopakovateľný beh")
+    verify: bool = Field(True, description="pustiť víťaza na referenčných oknách")
+
+
 class GitPushRequest(BaseModel):
     author: str | None = Field(None, max_length=80)
     message: str | None = Field(None, max_length=200)
@@ -146,6 +158,13 @@ class ProfileSaveRequest(BaseModel):
 
 class ProfileRenameRequest(BaseModel):
     name: str = Field(..., max_length=48)
+
+
+def _goal_note(goal: str, max_dd: float | None, min_trades: int | None) -> str:
+    """Zadanie ako veta — to isté pre sweep aj hyperopt, aby sa nedali rozísť."""
+    from .. import sweep as sweep_mod
+
+    return sweep_mod.describe(goal, max_dd, min_trades)
 
 
 def _fmt_value(value: Any) -> str:
@@ -568,6 +587,136 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 "why": "",
                 "result": dict(prazdny),
             } for j in live],
+        }
+
+    @app.get("/api/hyperopt/meta")
+    def hyperopt_meta(strategy: str = "ibs"):
+        """Čo o ladení vie stratégia — odporúčaný priestor a varovania.
+
+        Vedomosť je pri stratégii (`hyperopt_cls`), nie v appke; stránka ju len ukáže.
+        """
+        from .. import hyperopt as ho
+
+        if strategy not in STRATEGIES:
+            raise HTTPException(404, f"neznáma stratégia {strategy!r}")
+        znalosti = ho.knowledge_note(strategy)
+        return {"strategy": strategy, "note": znalosti,
+                "suggested": ho.suggested(strategy),
+                "warn": dict(ho.knowledge(get_spec(strategy)).WARN),
+                "windows": list(ho.REFERENCE_WINDOWS),
+                "default_epochs": ho.DEFAULT_EPOCHS}
+
+    @app.post("/api/hyperopts")
+    def hyperopt_start(req: HyperoptRequest):
+        """Zaradí hyperopt do tej istej fronty ako backtesty — vyťaží všetky jadrá."""
+        from .. import hyperopt as ho
+
+        if not req.space:
+            raise HTTPException(422, "hyperopt potrebuje aspoň jeden parameter")
+        defaults = DEFAULTS.get(req.strategy) or DEFAULTS["ibs"]
+        for name in req.space:
+            if name not in defaults:
+                raise HTTPException(422, f"neznámy parameter {name!r}")
+        try:
+            plan = ho.build_plan(req.space, strategy=req.strategy, goal=req.goal,
+                                 max_dd=req.max_dd, min_trades=req.min_trades, note=req.note)
+        except ValueError as exc:
+            raise HTTPException(422, str(exc))
+
+        base = _run_settings(req)
+        settings = {**base, "hyperopt": {
+            "knobs": dict(req.space), "goal": req.goal, "max_dd": req.max_dd,
+            "min_trades": req.min_trades, "epochs": req.epochs, "seed": req.seed,
+            "verify": req.verify,
+        }}
+        popis = ", ".join(f"{k}={v}" for k, v in req.space.items())
+        note = f"hyperopt {popis}" + (f" — {req.note}" if req.note else "")
+        try:
+            job = runner.submit(req.params, settings, note=note, user=_clean_user(req.user))
+        except (ConfigError, ValueError) as exc:
+            raise HTTPException(422, str(exc))
+        return {"id": job.id, "epochs": req.epochs, "goal": req.goal,
+                "goal_note": _goal_note(req.goal, req.max_dd, req.min_trades),
+                "warn": ho.warnings_for(req.space, req.strategy),
+                "knobs": {k.name: (list(k.choices) if k.choices is not None
+                                   else {"low": k.low, "high": k.high, "step": k.step})
+                          for k in plan.knobs}}
+
+    @app.get("/api/hyperopts")
+    def hyperopts_list(limit: int = 50, strategy: str | None = None):
+        """Hyperopty z histórie, od najnovšieho; `strategy` obmedzí na jednu stratégiu."""
+        if strategy is not None and strategy not in STRATEGIES:
+            raise HTTPException(404, f"neznáma stratégia {strategy!r}")
+        out = []
+        for rec in list(store.all()) + list(runner.snapshot()):
+            zadanie = (rec.get("settings") or {}).get("hyperopt") or {}
+            if not zadanie.get("knobs"):
+                continue
+            if strategy is not None and strategy_of(rec) != strategy:
+                continue
+            nastavenia = rec["settings"]
+            out.append({
+                "id": rec["id"],
+                "status": rec.get("status"),
+                "strategy": strategy_of(rec),
+                "params": list(zadanie["knobs"]),
+                "goal": zadanie.get("goal"),
+                "goal_note": _goal_note(zadanie.get("goal") or "break_even",
+                                        zadanie.get("max_dd"), zadanie.get("min_trades")),
+                "pair": nastavenia.get("pair"),
+                "timeframe": nastavenia.get("timeframe"),
+                "timerange": nastavenia.get("timerange"),
+                "epochs": zadanie.get("epochs"),
+                "epochs_done": zadanie.get("epochs_done"),
+                "user": rec.get("user") or "",
+            })
+        out.sort(key=lambda x: x["id"], reverse=True)
+        return {"total": len(out), "hyperopts": out[:limit]}
+
+    @app.get("/api/hyperopts/{run_id}")
+    def hyperopt_detail(run_id: str):
+        """Zadanie, epochy, víťaz a overovacie behy na referenčných oknách."""
+        from .. import hyperopt as ho
+
+        rec = store.get(run_id)
+        if rec is None:
+            live = [j for j in runner.snapshot() if j["id"] == run_id]
+            if not live:
+                raise HTTPException(404, "taký hyperopt v histórii nie je")
+            rec = live[0]
+        zadanie = (rec.get("settings") or {}).get("hyperopt") or {}
+        if not zadanie.get("knobs"):
+            raise HTTPException(404, "tento beh nie je hyperopt")
+
+        epochs = store.extra(run_id, "epochs.json") or []
+        overenia = [r for r in store.all()
+                    if ((r.get("settings", {}).get("hyperopt_run") or {}).get("id")) == run_id]
+        overenia += [j for j in runner.snapshot()
+                     if ((j.get("settings", {}).get("hyperopt_run") or {}).get("id")) == run_id]
+        ladene = rec["settings"].get("timerange")
+        return {
+            "id": run_id,
+            "status": rec.get("status"),
+            "error": rec.get("error"),
+            "strategy": strategy_of(rec),
+            "settings": {k: rec["settings"].get(k) for k in
+                         ("pair", "timeframe", "timerange", "fee", "wallet", "exchange", "profile")},
+            "hyperopt": zadanie,
+            "goal_note": _goal_note(zadanie.get("goal") or "break_even",
+                                    zadanie.get("max_dd"), zadanie.get("min_trades")),
+            "params": list(zadanie["knobs"]),
+            "epochs": sorted(epochs, key=lambda e: (not e.get("usable"), e.get("loss", 0)))[:60],
+            "best": zadanie.get("best"),
+            "overrides": zadanie.get("overrides"),
+            "verify": [{
+                "id": r["id"],
+                "status": r.get("status"),
+                "timerange": r["settings"].get("timerange"),
+                "tuned": bool((r["settings"].get("hyperopt_run") or {}).get("tuned")),
+                "result": {k: (r.get("result") or {}).get(k) for k in
+                           ("trades", "pnl_pct", "winrate", "max_drawdown_pct", "break_even_pct")},
+            } for r in sorted(overenia, key=lambda r: r["settings"].get("timerange") or "")],
+            "verdict": ho.verdict(overenia, ladene) if overenia else "",
         }
 
     @app.get("/api/queue")
