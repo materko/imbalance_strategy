@@ -24,6 +24,7 @@ import json
 import os
 
 from tradebot.core.env import getenv
+from tradebot.core.paths import REPO
 import sys
 import time
 import urllib.error
@@ -347,6 +348,130 @@ def warn_parity(space: dict, strategy: str) -> None:
           "je to v poriadku.\n", file=sys.stderr)
 
 
+def cmd_hyperopt(args: argparse.Namespace) -> int:
+    """Hyperopt na tom istom zadaní ako sweep, plus overenie na ďalších oknách."""
+    import subprocess
+    from datetime import datetime, timezone
+    from uuid import uuid4
+
+    from tradebot.core.types import INSTRUMENTS
+
+    from .. import engines, hyperopt as ho, sweep as sweep_mod
+    from .runner import USER_DIR, instrument_for_pair
+
+    params, settings = _prepare(args)
+
+    space = {}
+    for item in args.param:
+        if "=" not in item:
+            raise SystemExit(f"--param chce NAZOV=HODNOTY, dostal {item!r}")
+        name, spec = item.split("=", 1)
+        name = name.strip()
+        if name not in params:
+            raise SystemExit(f"neznámy parameter {name!r} (pozri `python -m tester.webapp.cli params`)")
+        space[name] = spec.strip()
+    warn_parity(space, args.strategy)
+
+    try:
+        plan = ho.build_plan(space, strategy=args.strategy, goal=args.goal, max_dd=args.max_dd,
+                             min_trades=args.min_trades, note=args.note or "")
+    except ValueError as exc:
+        raise SystemExit(str(exc))
+
+    znalosti = ho.knowledge_note(args.strategy)
+    if znalosti:
+        print(f"POZNAMKA k {args.strategy}: {znalosti}\n", file=sys.stderr)
+    for varovanie in ho.warnings_for(space, args.strategy):
+        print(f"POZOR: {varovanie}", file=sys.stderr)
+
+    hyper_id = f"{datetime.now(timezone.utc):%Y%m%d-%H%M%S}-{uuid4().hex[:4]}"
+    zadanie = sweep_mod.describe(args.goal, args.max_dd, args.min_trades)
+    plan_file = ho.plan_path(hyper_id, plan)
+
+    inst = INSTRUMENTS[instrument_for_pair(settings["pair"])]
+    cmd = ho.command(
+        sys.executable, plan=plan_file,
+        config=engines.freqtrade_config(inst, settings.get("exchange")),
+        userdir=USER_DIR, datadir=engines.data_dir(inst),
+        strategy_class=get_spec_class(args.strategy), pair=settings["pair"],
+        timerange=settings["timerange"], timeframe=settings["timeframe"],
+        epochs=args.epochs, detail=settings.get("timeframe_detail"),
+        wallet=settings.get("wallet", 10000), fee=settings.get("fee"),
+        seed=args.seed, jobs=args.jobs,
+    )
+
+    print(f"hyperopt {hyper_id}: {args.epochs} epoch, kriterium: {zadanie}")
+    print(f"  ladi sa: {', '.join(f'{k} = {v}' for k, v in space.items())}")
+    print(f"  okno:    {settings['timerange']}  ({settings['pair']} {settings['timeframe']})")
+    print(f"  plan:    {plan_file.relative_to(REPO)}\n", flush=True)
+
+    from .runner import write_profile
+    # Východiskový profil: hodnoty, na ktorých optimalizátor stojí. Ladené polia z neho
+    # prepíše plán, ostatné (sizing, seansy, entry modely) ostávajú z profilu testera.
+    zaklad = write_profile(f"hyperopt-{hyper_id}", params, instrument_for_pair(settings["pair"]),
+                           args.strategy)
+    prostredie = {**os.environ, "TRADEBOT_HYPEROPT_PLAN": str(plan_file),
+                  "TRADEBOT_PROFILE": str(zaklad)}
+    start = time.time()
+    code = subprocess.call(cmd, env=prostredie)
+    if code != 0:
+        raise SystemExit(f"freqtrade hyperopt skoncil s kodom {code}")
+
+    results = ho.latest_results(start)
+    if results is None:
+        raise SystemExit(f"hyperopt nezapisal ziadne epochy do {ho.RESULTS_DIR}")
+    epochs = ho.read_results(results)
+    print(f"\n=== hyperopt {hyper_id} — {zadanie} ===")
+    print(ho.table(epochs, plan))
+
+    vitaz = ho.best(epochs)
+    if vitaz is None:
+        print("\nZIADNA epocha nesplnila mantinely (min. obchodov, strop na drawdown).")
+        print("Zniz --min-trades, uvolni --max-dd, alebo daj sirsi rozsah.")
+        return 1
+
+    najdene = ho.overrides(plan, vitaz.params)
+    print("\nnajlepsia epocha: " + str(vitaz.number))
+    for k, v in najdene.items():
+        print(f"  {k} = {sweep_mod._fmt(v)}")
+
+    if args.no_verify:
+        print("\nOverenie na dalsich oknach preskocene (--no-verify). Vysledok jedneho okna "
+              "o strategii nepovie nic - hyperopt nasiel optimum PRAVE toho okna.")
+        return 0
+
+    okna = [settings["timerange"]] + [w for w in ho.REFERENCE_WINDOWS if w != settings["timerange"]]
+    print(f"\nOverujem vitaza na {len(okna)} oknach (ladene okno je prve)...", flush=True)
+    zaznamy = []
+    for i, okno in enumerate(okna, 1):
+        beh = {**settings, "timerange": okno,
+               "hyperopt": {"id": hyper_id, "values": najdene, "goal": args.goal,
+                            "max_dd": args.max_dd, "min_trades": args.min_trades,
+                            "tuned": okno == settings["timerange"]}}
+        popis = ", ".join(f"{k}={sweep_mod._fmt(v)}" for k, v in najdene.items())
+        print(f"[{i}/{len(okna)}] {okno}", flush=True)
+        rec = _execute(args, {**params, **najdene}, beh,
+                       note=f"hyperopt {hyper_id}: {popis}" + (f" — {args.note}" if args.note else ""),
+                       quiet=True)
+        rec.setdefault("settings", beh)
+        zaznamy.append(rec)
+        r = rec.get("result") or {}
+        znacka = " (ladene)" if okno == settings["timerange"] else ""
+        print(f"      {rec.get('status')}  obchodov {r.get('trades', '-')}  "
+              f"PnL {r.get('pnl_pct', '-')} %  break-even {r.get('break_even_pct', '-')} %{znacka}",
+              flush=True)
+
+    print(f"\n{ho.verdict(zaznamy, settings['timerange'])}")
+    print(f"cele porovnanie: python -m tester.webapp.cli hyperopts {hyper_id}")
+    return 0
+
+
+def get_spec_class(strategy: str) -> str:
+    from tradebot.strategies import get_spec
+
+    return get_spec(strategy).freqtrade_class
+
+
 def cmd_list(args: argparse.Namespace) -> int:
     from .store import RunStore
 
@@ -476,6 +601,23 @@ def main(argv: list[str] | None = None) -> int:
                         "cez noc. Cena je čas: rok backtestu je asi 30 s na bod")
     _run_args(p)
     p.set_defaults(func=cmd_sweep)
+
+    p = sub.add_parser("hyperopt", help="hľadanie parametrov optimalizátorom (to isté zadanie ako sweep)")
+    p.add_argument("--param", action="append", required=True, metavar="NAZOV=HODNOTY",
+                   help="rozsah `od:do:krok` (hľadá sa v ňom spojito) alebo zoznam `a,b,c` "
+                        "(hľadá sa medzi nimi); dá sa opakovať")
+    p.add_argument("--goal", choices=tuple(_GOALS), default="break_even",
+                   help="podľa čoho vybrať najlepšiu epochu (default break-even poplatok)")
+    p.add_argument("--max-dd", type=float, help="strop na max drawdown v %%")
+    p.add_argument("--min-trades", type=int, help="minimálny počet obchodov za rok, inak je epocha mimo")
+    p.add_argument("--epochs", type=int, default=200,
+                   help="koľko konfigurácií vyskúšať (default 200; každá je celý backtest)")
+    p.add_argument("--seed", type=int, help="`--random-state` optimalizátora, na zopakovateľný beh")
+    p.add_argument("--jobs", type=int, help="koľko epoch paralelne (default všetky jadrá)")
+    p.add_argument("--no-verify", action="store_true",
+                   help="nespúšťať víťaza na ďalších referenčných oknách (do záverov to nepatrí)")
+    _run_args(p)
+    p.set_defaults(func=cmd_hyperopt)
 
     p = sub.add_parser("sweeps", help="mriežky z histórie; s argumentom vypíše tabuľku jednej")
     p.add_argument("sweep_id", nargs="?", help="značka mriežky (bez nej sa vypíše zoznam)")

@@ -233,6 +233,26 @@ def _knob(name: str, spec: StrategySpec, opts: dict[str, Any]) -> Knob:
             raise ValueError(f"{name}: na ladenie treba aspoň dve možnosti")
         return Knob(name, choices=tuple(choices))
 
+    # Vypísaný zoznam platí aj pre čísla: keď tester vymenuje `3,5,8`, iné číslo nechce
+    # a hyperopt to vyjadriť vie. Rozsah by mu dovolil aj 4,2.
+    if opts.get("choices"):
+        hodnoty = list(opts["choices"])
+        if len(hodnoty) < 2:
+            raise ValueError(f"{name}: na ladenie treba aspoň dve možnosti")
+        for h in hodnoty:
+            cislo = _number(h if not isinstance(h, dict) else h.get("value"))
+            if cislo is None:
+                continue
+            if info["low"] is not None and not (float(info["low"]) <= cislo <= float(info["high"])):
+                raise ValueError(f"{name}: {cislo:g} je mimo Pine rozsahu "
+                                 f"<{info['low']}, {info['high']}>")
+        if isinstance(hodnoty[0], dict):        # veľkostné pole zadané ako 0.1@pct,0.5@pct
+            unit = hodnoty[0].get("unit") or info.get("unit")
+            return Knob(name, choices=tuple(h["value"] for h in hodnoty), unit=unit)
+        if kind == "int":
+            hodnoty = [int(h) for h in hodnoty]
+        return Knob(name, choices=tuple(hodnoty), unit=info.get("unit") if kind == "size" else None)
+
     low, high = _number(opts.get("low")), _number(opts.get("high"))
     if low is None:
         low = _number(info["low"])

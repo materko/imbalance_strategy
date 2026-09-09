@@ -33,7 +33,8 @@ from __future__ import annotations
 
 from typing import Any, Iterable, Sequence
 
-__all__ = ["GOALS", "GOAL_TITLES", "parse_values", "expand", "rank", "table", "describe"]
+__all__ = ["GOALS", "GOAL_TITLES", "parse_values", "to_knob", "expand", "rank",
+           "table", "describe"]
 
 #: kritérium -> (pole vo výsledku behu, väčšie je lepšie)
 GOALS: dict[str, tuple[str, bool]] = {
@@ -74,6 +75,45 @@ def parse_values(spec: str) -> list[Any]:
             value += step
         return out
     return [parse_set(f"x={item.strip()}")[1] for item in text.split(",") if item.strip()]
+
+
+def to_knob(spec: str) -> dict[str, Any]:
+    """Ten istý text pre hyperopt: `2:8:0.5` → rozsah, `3,5,8` → zoznam možností.
+
+    Zadanie sa medzi sweepom a hyperoptom nepíše dvakrát — tester napíše hodnoty raz
+    a rozhodne sa až, či sa má mriežka prejsť celá (sweep), alebo sa v nej má hľadať
+    (hyperopt). Rozdiel je v tom, čo si z textu vezmú: sweep zoznam hodnôt, hyperopt
+    krajné hodnoty a krok ako presnosť.
+
+    Rozsah `od:do:krok` sa preto stane rozsahom, nie zoznamom — hyperopt hľadá spojito
+    a `2:8:0.5` znamená „medzi 2 a 8, po desatinách", nie „presne týchto trinásť hodnôt".
+    Vypísaný zoznam ostáva zoznamom možností aj tu: keď tester vymenuje `3,5,8`, iné
+    číslo nechce, a to hyperopt vyjadriť vie (`CategoricalParameter`).
+    """
+    text = spec.strip()
+    if ":" in text and "," not in text:
+        parts = text.split(":")
+        if len(parts) != 3:
+            raise ValueError(f"rozsah chce od:do:krok, dostal {spec!r}")
+        lo, hi, step = (float(p) for p in parts)
+        if step <= 0:
+            raise ValueError(f"krok musí byť kladný, dostal {step}")
+        if lo >= hi:
+            raise ValueError(f"dolná hranica {lo:g} musí byť pod hornou {hi:g}")
+        return {"low": lo, "high": hi, "step": step}
+
+    values = parse_values(text)
+    if not values:
+        raise ValueError(f"{spec!r}: žiadne hodnoty")
+    if len(values) == 1:
+        raise ValueError(f"{spec!r}: na hľadanie treba rozsah alebo aspoň dve možnosti")
+    # Veľkostné pole (`0.25@pct`) je slovník — ladí sa číslo, jednotka je pevná.
+    if isinstance(values[0], dict):
+        cisla = [v["value"] for v in values]
+        return {"low": min(cisla), "high": max(cisla), "unit": values[0].get("unit")}
+    if all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in values):
+        return {"choices": values}
+    return {"choices": values}
 
 
 def expand(space: dict[str, list[Any]]) -> list[dict[str, Any]]:
