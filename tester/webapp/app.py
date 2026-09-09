@@ -104,6 +104,7 @@ class RunRequest(BaseModel):
     timeframe_detail: str | None = "1m"
     engine: str | None = Field(None, description="freqtrade | multicharts (emulátor); None = podľa dát")
     exchange: str | None = Field(None, description="burza pre Freqtrade beh; None = fiktívna Tester")
+    sweep: dict[str, Any] | None = Field(None, description="značka behu z mriežky: id, hodnoty, kritérium")
     profile: str | None = None
     note: str = ""
     user: str | None = Field(None, max_length=80, description="meno testera z hlavičky stránky")
@@ -340,6 +341,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         settings = {
             "strategy": req.strategy,
             "exchange": exchange if engine == engines.FREQTRADE else None,
+            "sweep": req.sweep,
             "pair": req.pair,
             "engine": engine,
             "timeframe": req.timeframe,

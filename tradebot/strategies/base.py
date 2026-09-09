@@ -57,6 +57,9 @@ class StrategySpec:
     features: tuple[dict[str, Any], ...] = ()
     #: poznámky k poliam (napr. „Pine tento parameter nepoužíva")
     param_notes: dict[str, str] = field(default_factory=dict)
+    #: polia, ktorých zmena rozbije paritu s Pine (sizing, časovanie prevzaté z TradingView).
+    #: Formulár aj sweep na ne upozornia, ale nezakážu ich — je to rozhodnutie testera.
+    parity_fields: frozenset[str] = frozenset()
     #: vrstvy grafu a ľudské názvy druhov kresieb
     layers: tuple[ChartLayer, ...] = ()
     kind_titles: dict[str, str] = field(default_factory=dict)

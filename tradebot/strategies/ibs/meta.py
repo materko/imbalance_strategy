@@ -139,3 +139,12 @@ KIND_TITLES: dict[str, str] = {
     "swing": "Swing", "structure": "Štruktúra", "sr_level": "S/R úroveň", "sr_golden": "S/R golden", "liq_sweep": "Liquidity sweep",
     "elliott_wave": "Elliott vlna", "elliott_proj": "Elliott projekcia", "session": "Seansa",
 }
+
+
+#: Polia, ktorých zmena rozbije paritu s TradingView — sizing (veľkosť pozície a hodnota
+#: bodu) a STATE timeouty, ktoré sú prevzaté z Pine a strážia ich golden testy. Ladiť sa
+#: dajú, ale výsledok sa už nedá porovnať s Pine; formulár aj sweep to povedia dopredu.
+PARITY_FIELDS: frozenset[str] = frozenset({
+    "legacyPineSizing", "tickDollarValue", "maxLossDollar", "leverage",
+    "state1MaxBars", "state2MaxBars", "state3MaxBars", "state4MaxBars", "state5MaxBars",
+})

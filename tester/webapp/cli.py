@@ -102,8 +102,12 @@ def fmt_summary(rec: dict[str, Any]) -> str:
 # --------------------------------------------------------------------------- #
 
 
-def cmd_run(args: argparse.Namespace) -> int:
+def _prepare(args: argparse.Namespace) -> tuple[dict, dict]:
+    """(parametre, nastavenia behu) z argumentov — spoločné pre `run` aj `sweep`."""
+    from tradebot.core.types import INSTRUMENTS
     from tradebot.strategies import STRATEGIES
+
+    from .. import engines
     from .runner import default_params, instrument_for_pair
 
     if args.strategy not in STRATEGIES:
@@ -117,8 +121,6 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     pair = args.pair
     if pair is None:
-        from tradebot.core.types import INSTRUMENTS
-
         pair = INSTRUMENTS[instrument].symbol if instrument else "BTC/USDT:USDT"
     pair_instrument = instrument_for_pair(pair)
     if instrument and pair_instrument != instrument:
@@ -126,11 +128,7 @@ def cmd_run(args: argparse.Namespace) -> int:
               "Prahy v bodoch/tickoch nesedia - použi profil pre tento nástroj.",
               file=sys.stderr)
 
-    from tradebot.core.types import INSTRUMENTS as _INST
-
-    from .. import engines
-
-    inst = _INST[pair_instrument]
+    inst = INSTRUMENTS[pair_instrument]
     engine = args.engine or engines.default_engine(inst, args.timeframe)
     exchange = args.exchange or engines.DEFAULT_EXCHANGE
     possible = engines.available(inst, args.timeframe, exchange)
@@ -146,29 +144,36 @@ def cmd_run(args: argparse.Namespace) -> int:
         "strategy": args.strategy, "pair": pair, "engine": engine, "timeframe": args.timeframe,
         "exchange": exchange if engine == engines.FREQTRADE else None,
         "timerange": args.timerange, "fee": args.fee,
-        "wallet": args.wallet, "timeframe_detail": None if args.no_detail else "1m", "profile": args.profile,
+        "wallet": args.wallet, "timeframe_detail": None if args.no_detail else "1m",
+        "profile": args.profile,
     }
+    return params, settings
+
+
+def _execute(args: argparse.Namespace, params: dict, settings: dict, note: str,
+             quiet: bool = False) -> dict:
+    """Spustí jeden beh (cez frontu webapp, alebo priamo) a vráti jeho záznam."""
     user = args.user or getenv("USER") or ""
 
     if server_alive(args.url):
-        body = {"params": params, "note": args.note or "", "user": user or None, **settings}
+        body = {"params": params, "note": note, "user": user or None, **settings}
         try:
             job = api(args.url, "/api/runs", body)
         except urllib.error.HTTPError as exc:
             raise SystemExit(f"webapp odmietla beh: {exc.read().decode('utf-8', 'replace')}")
-        print(f"zaradené do fronty webapp: {job['id']}  ({args.url})")
-        if args.no_wait:
-            return 0
+        if not quiet:
+            print(f"zaradené do fronty webapp: {job['id']}  ({args.url})")
+        if getattr(args, "no_wait", False):
+            return {"id": job["id"], "status": "queued", "settings": settings}
         while True:
             time.sleep(3)
             det = api(args.url, f"/api/runs/{job['id']}")
             rec = det["record"]
             if not det.get("live") and rec.get("status") in ("done", "failed"):
-                break
-            tail = (rec.get("log_tail") or [""])[-1]
-            print(f"  … {rec.get('status')}  {tail[:100]}", flush=True)
-        print(fmt_summary(rec))
-        return 0 if rec.get("status") == "done" else 1
+                return rec
+            if not quiet:
+                tail = (rec.get("log_tail") or [""])[-1]
+                print(f"  … {rec.get('status')}  {tail[:100]}", flush=True)
 
     # webapp nebeží → priamo, do toho istého adresára runs/
     from .runner import BacktestRunner
@@ -176,15 +181,100 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     store = RunStore()
     runner = BacktestRunner(store)
-    job = runner.submit(params, settings, note=args.note or "", user=user)
-    print(f"webapp nebeží, spúšťam priamo: {job.id}")
+    job = runner.submit(params, settings, note=note, user=user)
+    if not quiet:
+        print(f"webapp nebeží, spúšťam priamo: {job.id}")
     while job.status in ("queued", "running"):
         time.sleep(2)
-        if job.log_lines:
+        if not quiet and job.log_lines:
             print(f"  … {job.log_lines[-1][:100]}", flush=True)
-    rec = store.get(job.id) or {"id": job.id, "status": job.status, "error": job.error, "settings": settings}
+    return store.get(job.id) or {"id": job.id, "status": job.status, "error": job.error,
+                                 "settings": settings}
+
+
+def cmd_run(args: argparse.Namespace) -> int:
+    params, settings = _prepare(args)
+    rec = _execute(args, params, settings, args.note or "")
+    if rec.get("status") == "queued":
+        return 0
     print(fmt_summary(rec))
-    return 0 if job.status == "done" else 1
+    return 0 if rec.get("status") == "done" else 1
+
+
+def cmd_sweep(args: argparse.Namespace) -> int:
+    """Mriežka behov cez zadané parametre a výber podľa kritéria."""
+    from datetime import datetime, timezone
+
+    from .. import sweep as sweep_mod
+
+    params, settings = _prepare(args)
+    space = {}
+    for item in args.param:
+        if "=" not in item:
+            raise SystemExit(f"--param očakáva nazov=hodnoty, dostal {item!r}")
+        name, spec = item.split("=", 1)
+        name = name.strip()
+        if name not in params:
+            raise SystemExit(f"neznámy parameter {name!r} (pozri `python -m tester.webapp.cli params`)")
+        try:
+            space[name] = sweep_mod.parse_values(spec)
+        except ValueError as exc:
+            raise SystemExit(str(exc))
+
+    warn_parity(space, args.strategy)
+    points = sweep_mod.expand(space)
+    if len(points) > args.max_runs:
+        raise SystemExit(
+            f"mriežka má {len(points)} behov, limit je {args.max_runs} (--max-runs). "
+            "Zúž rozsah alebo krok - každý bod je celý backtest.")
+
+    zadanie = sweep_mod.describe(args.goal, args.max_dd, args.min_trades)
+    sweep_id = f"{datetime.now(timezone.utc):%Y%m%d-%H%M%S}"
+    print(f"sweep {sweep_id}: {len(points)} behov, kriterium: {zadanie}")
+    print(f"  {', '.join(f'{k} = {v}' for k, v in space.items())}\n")
+
+    records = []
+    for i, point in enumerate(points, 1):
+        popis = ", ".join(f"{k}={sweep_mod._fmt(v)}" for k, v in point.items())
+        print(f"[{i}/{len(points)}] {popis}", flush=True)
+        run_settings = {**settings, "sweep": {"id": sweep_id, "values": point, "goal": args.goal}}
+        rec = _execute(args, {**params, **point}, run_settings,
+                       note=f"sweep {sweep_id}: {popis}" + (f" — {args.note}" if args.note else ""),
+                       quiet=True)
+        rec.setdefault("settings", run_settings)
+        records.append(rec)
+        result = rec.get("result") or {}
+        print(f"      {rec.get('status')}  obchodov {result.get('trades', '-')}  "
+              f"PnL {result.get('pnl_pct', '-')} %  break-even {result.get('break_even_pct', '-')} %",
+              flush=True)
+
+    ranked = sweep_mod.rank(records, args.goal, max_dd=args.max_dd, min_trades=args.min_trades)
+    print(f"\n=== sweep {sweep_id} — {zadanie} ===")
+    print(sweep_mod.table(ranked, list(space), args.goal))
+    best = ranked[0] if ranked and ranked[0].get("sweep_ok") else None
+    if best:
+        values = best["settings"]["sweep"]["values"]
+        print("\nnajlepsi beh: " + best["id"])
+        print("  " + ", ".join(f"{k}={sweep_mod._fmt(v)}" for k, v in values.items()))
+        print("  over ho na dalsich referencnych oknach, nez z neho spravis profil "
+              "(jedno okno o strategii nic nepovie)")
+    else:
+        print("\nziadny beh nepresiel mantinelmi - uvolni --max-dd/--min-trades alebo zmen rozsah")
+    return 0
+
+
+def warn_parity(space: dict, strategy: str) -> None:
+    """Upozorní na parametre, ktoré rozbijú paritu s Pine — ale nezakáže ich."""
+    from .pine_meta import param_metadata
+
+    risky = {m["name"]: m for m in param_metadata(strategy) if m.get("breaks_parity")}
+    hit = [name for name in space if name in risky]
+    if not hit:
+        return
+    print("POZOR: " + ", ".join(hit) + " mení sizing alebo časovanie prevzaté z TradingView.",
+          file=sys.stderr)
+    print("       Výsledok sa už nedá porovnať s Pine ani s golden testami - ak to je zámer, "
+          "je to v poriadku.\n", file=sys.stderr)
 
 
 def cmd_list(args: argparse.Namespace) -> int:
@@ -261,22 +351,14 @@ def cmd_params(args: argparse.Namespace) -> int:
     return 0
 
 
-def main(argv: list[str] | None = None) -> int:
-    # Windows konzola je cp1250 a log Freqtradu má znaky, ktoré v nej nie sú —
-    # bez tohto padne celý príkaz na UnicodeEncodeError uprostred behu.
-    for stream in (sys.stdout, sys.stderr):
-        try:
-            stream.reconfigure(encoding="utf-8", errors="replace")
-        except (AttributeError, ValueError):
-            pass
-    ap = argparse.ArgumentParser(prog="python -m tester.webapp.cli", description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--url", default=DEFAULT_URL, help="adresa webapp (default %(default)s, alebo TRADEBOT_WEB_URL)")
-    sub = ap.add_subparsers(dest="cmd", required=True)
+#: kritériá výberu pre `sweep` (definícia je v `tester/sweep.py`)
+_GOALS = ("break_even", "profit", "winrate", "drawdown")
 
-    p = sub.add_parser("run", help="spusti backtest (cez webapp, alebo priamo) a ulož do histórie")
+
+def _run_args(p: argparse.ArgumentParser) -> None:
+    """Argumenty spoločné pre `run` aj `sweep` — nech sa nemôžu rozísť."""
     p.add_argument("--strategy", default="ibs", help="stratégia z registry (default ibs)")
-    p.add_argument("--profile", help="východiskový profil z tradebot/strategies/<stratégia>/configs/<strategia> alebo cesta k JSON (bez neho Pine defaulty)")
+    p.add_argument("--profile", help="východiskový profil z tradebot/strategies/<stratégia>/configs/ alebo cesta k JSON (bez neho Pine defaulty)")
     p.add_argument("--set", action="append", metavar="KLUC=HODNOTA", help="zmena parametra, opakovateľné")
     p.add_argument("--pair", help="napr. BTC/USDT:USDT alebo ETH/USDT:USDT (default podľa profilu)")
     p.add_argument("--timerange", required=True, help="YYYYMMDD-YYYYMMDD")
@@ -292,8 +374,36 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--no-detail", action="store_true", help="bez 1m detailu fillov (rýchlejšie, hrubšie)")
     p.add_argument("--note", help="poznámka do histórie — napíš, čo beh testuje")
     p.add_argument("--user", help="meno testera (default TRADEBOT_USER)")
+
+
+def main(argv: list[str] | None = None) -> int:
+    # Windows konzola je cp1250 a log Freqtradu má znaky, ktoré v nej nie sú —
+    # bez tohto padne celý príkaz na UnicodeEncodeError uprostred behu.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
+    ap = argparse.ArgumentParser(prog="python -m tester.webapp.cli", description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--url", default=DEFAULT_URL, help="adresa webapp (default %(default)s, alebo TRADEBOT_WEB_URL)")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+
+    p = sub.add_parser("run", help="spusti backtest (cez webapp, alebo priamo) a ulož do histórie")
+    _run_args(p)
     p.add_argument("--no-wait", action="store_true", help="len zaradiť do fronty webapp, nečakať")
     p.set_defaults(func=cmd_run)
+
+    p = sub.add_parser("sweep", help="mriežka behov cez hodnoty parametra a výber podľa kritéria")
+    p.add_argument("--param", action="append", required=True, metavar="NAZOV=HODNOTY",
+                   help="rozsah `od:do:krok` alebo zoznam `a,b,c`; dá sa opakovať")
+    p.add_argument("--goal", choices=tuple(_GOALS), default="break_even",
+                   help="podľa čoho vybrať najlepší beh (default break-even poplatok)")
+    p.add_argument("--max-dd", type=float, help="strop na max drawdown v %%")
+    p.add_argument("--min-trades", type=int, help="minimálny počet obchodov, inak je bod mimo")
+    p.add_argument("--max-runs", type=int, default=40, help="poistka na veľkosť mriežky (default 40)")
+    _run_args(p)
+    p.set_defaults(func=cmd_sweep)
 
     p = sub.add_parser("list", help="história behov, voliteľne s dopytom (rovnaká syntax ako vo webapp)")
     p.add_argument("query", nargs="*")

@@ -143,7 +143,42 @@ PY -m pytest tester/tests/test_golden_tv_binance.py tester/tests/test_pine_parit
 Ak padnú golden testy, kód alebo dáta nesedia s referenciou — **nahlás to, neopravuj
 referenciu**.
 
-## 7. Hyperopt (len engine Freqtrade)
+## 7. Sweep: hľadanie parametra bez písania kódu
+
+Mriežka behov cez hodnoty jedného či viacerých parametrov. Každý bod je **obyčajný
+backtest** — uloží sa do histórie, dá sa otvoriť, porovnať aj prehnať Monte Carlom.
+
+```bash
+PY -m tester.webapp.cli sweep --param rrRatio=2:6:1    --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json    --timerange 20250904-20260904 --goal break_even --min-trades 20
+
+PY -m tester.webapp.cli sweep --param rrRatio=3,5 --param slLookback=10,20,30    --goal winrate --max-dd 15 --timerange 20250904-20260904
+```
+
+Hodnoty sú buď rozsah `od:do:krok` (vrátane hornej hranice), alebo zoznam `a,b,c`
+(aj `true,false`, `Long only,Both`, `0.25@pct`). `--param` sa dá opakovať — vznikne
+kartézsky súčin, strop je `--max-runs 40`, lebo každý bod je celý backtest.
+
+**Kritérium hovorí, čo je lepšie** — bez neho sa „optimálne" nedá určiť:
+
+| `--goal` | vyberá | kedy |
+|---|---|---|
+| `break_even` | najvyšší break-even poplatok | prednastavené; nezávisí od sizingu ani peňaženky |
+| `profit` | najvyšší zisk v % | keď ide o výnos a drawdown stráži limit |
+| `winrate` | najvyšší podiel ziskových | keď má byť séria strát krátka |
+| `drawdown` | najnižší max drawdown | keď je hranicou účet, nie výnos |
+
+K tomu mantinely `--max-dd` (strop na drawdown v %) a `--min-trades`. Body, ktoré ich
+porušia, sa nezahodia — ukážu sa pod čiarou s dôvodom, nech je vidno, že optimum tam je,
+len je mimo dohodnutých hraníc.
+
+Výsledok je tabuľka zoradená podľa kritéria a id najlepšieho behu. **Než z neho spravíš
+profil, prežeň ho ostatnými referenčnými oknami** (§4) — mriežka vie len to okno, na ktorom
+bežala.
+
+Parametre, ktoré rozbijú paritu s TradingView (sizing, STATE timeouty), sú označené
+a sweep na ne upozorní; zakázané nie sú — ak ich chceš ladiť vedome, ladia sa.
+
+## 8. Hyperopt (len engine Freqtrade)
 
 ```bash
 ./deploy/freqtrade/scripts/hyperopt.sh 20260601-20260904 200
@@ -155,6 +190,8 @@ všetky epochy identický výsledok), počet obchodov musí byť strážený los
 over na inom okne než na tom, na ktorom si ladil. Priestor má 10 parametrov a stratégia
 robí 150–200 obchodov za rok — pretrénovanie je reálne a už sa raz stalo
 ([docs/merania/HYPEROPT_btcusdt_2026-09-04.md](../docs/merania/HYPEROPT_btcusdt_2026-09-04.md)).
+
+Na jeden–dva parametre je čitateľnejší **sweep** (§7): prejde mriežku obyčajných backtestov, ktoré ostanú v histórii. Hyperopt sa oplatí až pri troch a viac.
 
 Poradie, v ktorom to dáva zmysel: hyperopt nájde parametre → out-of-sample okná rozhodnú,
 či to prežije → `tester.montecarlo` (§5) dá k prežitému číslu interval. Monte Carlo
@@ -168,14 +205,14 @@ PY -m tester.dukas_import C:/dukas/NAS100_M1_10Y.csv --symbol NAS100 --target fr
 
 Podrobne: [docs/FREQTRADE.md §C a §G](../docs/FREQTRADE.md).
 
-## 8. FreqAI
+## 9. FreqAI
 
 Kód je súčasťou Freqtradu, chýbajú závislosti: `pip install "freqtrade[freqai]"`.
 Stratégia je deterministický stavový automat a jeho parita s Pine je zmyslom celého portu,
 takže model ju **nenahrádza** — dáva sa nad ňu ako filter (engine nájde setup, model
 predpovie, či ho brať). Detaily a riziká: [docs/FREQTRADE.md §G](../docs/FREQTRADE.md).
 
-## 9. Čo nerobiť
+## 10. Čo nerobiť
 
 - Needituj `tradebot/core`, adaptéry ani referenčné profily kvôli tomu, aby beh „vyšiel".
 - Nesťahuj dáta z burzy pri bežnom testovaní — páry a obdobia sú tie, čo sú v archíve

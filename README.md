@@ -115,6 +115,7 @@ Podrobne: [docs/DATA.md](docs/DATA.md), prehľad celej cesty dát:
 | `tester/quotemanager.py` | ASCII export pre QuoteManager (MultiCharts) zo skladu 1m sviečok. |
 | `tester/ftexchange.py`, `tester/ftrun.py` | Fiktívna burza **Tester** pre Freqtrade (pozná naše páry a všetky TF) a obal, ktorý ju zaregistruje pred behom. |
 | `tester/report.py`, `tester/fees.py`, `tester/plot.py` | HTML report ako Strategy Tester, maker/taker a break-even, grafy. |
+| `tester/sweep.py` | Mriežka behov cez hodnoty parametra a výber podľa kritéria (break-even, zisk, winrate, drawdown). |
 | `tester/montecarlo.py` | Blokový bootstrap nad obchodmi hotového behu: interval okolo break-even poplatku a riziko účtu (drawdown, hranice, ruina, odporúčané riziko na obchod). |
 | [`tester/tests/`](tester/tests) | Testy nástrojov Testera a **golden testy** proti TradingView (`golden/`). |
 | [`tester/AI_TESTING.md`](tester/AI_TESTING.md) | Ako sa na tomto repozitári testuje z príkazového riadku — čo spustiť, čo to znamená a čomu neveriť. |
