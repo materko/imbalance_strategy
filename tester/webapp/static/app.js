@@ -17,6 +17,7 @@ const state = {
   detailId: null,
   activeGroup: null,
   profileInstrument: null,
+  paramMode: "basic",
 };
 
 function currentUser() { return ($("#who").value || "").trim() || null; }
@@ -206,9 +207,27 @@ function renderParams() {
       const deps = metas.map(m => m.depends_on).find(d => d && d.length);
       if (deps) row.dataset.dependsOn = deps.join(" ");
       const ctls = document.createElement("div"); ctls.className = "pctl";
-      for (const meta of metas) {
+      const sessionTime = /^sess[123](Zone|Trade)(Start|End)H$/.test(first.name)
+        && metas.length === 2 && metas[1].name === first.name.slice(0, -1) + "M";
+      if (sessionTime) {
+        const minute = metas[1];
+        label.textContent = first.name.includes("Zone") ? "Vznik zón" : "Obchodovanie";
+        label.textContent += first.name.includes("Start") ? " · od" : " · do";
+        const wrap = document.createElement("div"); wrap.className = "ctl"; wrap.dataset.name = first.name;
+        const input = document.createElement("input"); input.type = "time"; input.step = "60";
+        input.setAttribute("aria-label", `${g}: ${label.textContent}`);
+        input.value = `${String(state.params[first.name]).padStart(2, "0")}:${String(state.params[minute.name]).padStart(2, "0")}`;
+        input.onchange = () => {
+          if (!input.value) { renderParams(); return; }
+          const [hour, min] = input.value.split(":").map(Number);
+          state.params[first.name] = hour; state.params[minute.name] = min; refreshChanged();
+        };
+        wrap.append(input); ctls.append(wrap);
+      }
+      for (const meta of sessionTime ? [] : metas) {
         const ctl = paramInput(meta);
         ctl.dataset.name = meta.name;
+        for (const input of ctl.querySelectorAll("input, select")) input.setAttribute("aria-label", `${g}: ${meta.title}${input.title ? " — " + input.title : ""}`);
         if (metas.length > 1 && meta !== first) {
           const cap = document.createElement("span"); cap.className = "cap"; cap.textContent = meta.title; cap.title = tooltipFor(meta);
           ctls.append(cap);
@@ -299,6 +318,8 @@ function applyParamFilter() {
   const q = $("#param-filter").value.trim().toLowerCase();
   const onlyChanged = $("#only-changed").checked;
   const browsing = !q && !onlyChanged;
+  const basic = browsing && state.paramMode === "basic";
+  $(".params-card").classList.toggle("basic-mode", basic);
   for (const b of $$(".nav-item")) b.classList.toggle("active", b.dataset.group === state.activeGroup);
   let shown = 0;
   const collapsed = {};  // prepínač -> počet podnastavení, ktoré kvôli nemu nevidno
@@ -310,6 +331,9 @@ function applyParamFilter() {
       if (hit && browsing && !dependencyMet(row)) {
         hit = false;
         for (const d of row.dataset.dependsOn.split(" ")) collapsed[d] = (collapsed[d] || 0) + 1;
+      }
+      if (hit && basic && state.strategy === "ibs") {
+        hit = row.dataset.names.split(" ").some(name => BASIC_PARAMS.has(name) || /^sess[123]/.test(name));
       }
       row.hidden = !hit; if (hit) visible++;
     }
@@ -324,6 +348,24 @@ function applyParamFilter() {
     hint.title = "podnastavenia sa ukážu po zapnutí prepínača";
   }
   $("#param-empty").hidden = shown > 0;
+}
+
+const BASIC_PARAMS = new Set(["tradeDirection", "rrRatio", "enableImbEntry", "enablePinBarEntry",
+  "enableEngulfingEntry", "enableTrailing", "trailActivationR", "trailOffsetR", "maxLossDollar",
+  "legacyPineSizing", "leverage", "minSlDistance", "slLookback", "slBufferTicks", "maxDailyWins",
+  "useStructureFilter", "zoneDetectionTF", "enableTrading", "closeAtSessionEnd", "weekdaysOnly"]);
+
+function setParamMode(mode) {
+  state.paramMode = mode;
+  for (const name of ["basic", "all"]) {
+    const button = $(`#mode-${name}`);
+    button.classList.toggle("active", mode === name);
+    button.setAttribute("aria-pressed", String(mode === name));
+  }
+  $("#mode-hint").textContent = mode === "basic"
+    ? "Najčastejšie nastavenia. Ostatné hodnoty zostávajú podľa zvoleného profilu. Hľadanie prechádza všetky parametre."
+    : "Úplné nastavenia stratégie vrátane vizualizácie a pokročilých filtrov.";
+  applyParamFilter();
 }
 
 // --------------------------------------------------------------------------- //
@@ -1150,11 +1192,31 @@ const signed = (v, d = 2, suffix = "") => v === null || v === undefined ? "—" 
 function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 function fmtVal(v) { return typeof v === "object" && v !== null ? `${v.value} ${v.unit}` : String(v); }
 
+const historyPage = { offset: 0, size: 50, query: "", seq: 0, controller: null };
+
 async function loadRuns() {
   const q = $("#search").value.trim();
-  const r = await api(`/api/runs?q=${encodeURIComponent(q)}`);
+  if (q !== historyPage.query) { historyPage.offset = 0; historyPage.query = q; }
+  const seq = ++historyPage.seq;
+  historyPage.controller?.abort();
+  historyPage.controller = new AbortController();
+  $("#history-error").hidden = true;
+  $("#search-count").textContent = "Načítavam…";
+  $("#runs-table").setAttribute("aria-busy", "true");
+  $("#history-prev").disabled = $("#history-next").disabled = true;
+  try {
+  const r = await api(`/api/runs?q=${encodeURIComponent(q)}&limit=${historyPage.size}&offset=${historyPage.offset}`,
+    { signal: historyPage.controller.signal });
+  if (seq !== historyPage.seq) return;
+  if (r.total && historyPage.offset >= r.total) {
+    historyPage.offset = Math.floor((r.total - 1) / historyPage.size) * historyPage.size;
+    return loadRuns();
+  }
   $("#search-count").textContent = `${r.total} behov`;
-  const tb = $("#runs-table tbody"); tb.innerHTML = "";
+  $("#history-page").textContent = r.total ? `${historyPage.offset + 1}–${historyPage.offset + r.runs.length} z ${r.total}` : "Žiadne behy";
+  $("#history-prev").disabled = historyPage.offset === 0;
+  $("#history-next").disabled = historyPage.offset + historyPage.size >= r.total;
+  const tb = $("#runs-table tbody"), fragment = document.createDocumentFragment();
   for (const run of r.runs) {
     const res = run.result || {};
     const tr = document.createElement("tr");
@@ -1169,8 +1231,21 @@ async function loadRuns() {
       <td class="num">${fmt(res.winrate, 1)}</td><td class="num">${fmt(res.max_drawdown_pct, 2)}</td>
       <td class="num">${res.break_even_pct != null ? fmt(res.break_even_pct, 4) : "—"}</td>
       <td class="ov">${ov || '<span class="muted">Pine defaulty</span>'}</td><td>${esc(run.note || "")}</td>`;
+    tr.tabIndex = 0;
     tr.onclick = () => openRun(run.id);
-    tb.append(tr);
+    tr.onkeydown = e => { if (e.key === "Enter") openRun(run.id); };
+    fragment.append(tr);
+  }
+  tb.replaceChildren(fragment);
+  if (!r.runs.length) tb.innerHTML = '<tr><td colspan="12" class="empty muted">Žiadne behy nezodpovedajú hľadaniu.</td></tr>';
+  tb.closest(".scroll").scrollTop = 0;
+  } catch (e) {
+    if (seq !== historyPage.seq || e.name === "AbortError") return;
+    $("#search-count").textContent = "Načítanie zlyhalo";
+    $("#history-error").textContent = `${e.message} — skús Hľadať znova.`;
+    $("#history-error").hidden = false;
+  } finally {
+    if (seq === historyPage.seq) $("#runs-table").removeAttribute("aria-busy");
   }
 }
 
@@ -1817,9 +1892,14 @@ async function init() {
   $$(".tabs button").forEach(b => b.onclick = () => showView(b.dataset.view));
   $("#run").onclick = submitRun;
   $("#param-filter").oninput = applyParamFilter;
+  $("#mode-basic").onclick = () => setParamMode("basic");
+  $("#mode-all").onclick = () => setParamMode("all");
   $("#only-changed").onchange = applyParamFilter;
   $("#reset-params").onclick = () => setParams(state.base, false);
   $("#search-btn").onclick = loadRuns;
+  $("#history-prev").onclick = () => { historyPage.offset = Math.max(0, historyPage.offset - historyPage.size); loadRuns(); };
+  $("#history-next").onclick = () => { historyPage.offset += historyPage.size; loadRuns(); };
+  $("#history-size").onchange = e => { historyPage.size = Number(e.target.value); historyPage.offset = 0; loadRuns(); };
   $("#search").onkeydown = e => { if (e.key === "Enter") loadRuns(); };
   $("#search-help-btn").onclick = () => $("#search-help").hidden = !$("#search-help").hidden;
   $("#back").onclick = closeDetail;
