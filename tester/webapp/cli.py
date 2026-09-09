@@ -132,10 +132,11 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     inst = _INST[pair_instrument]
     engine = args.engine or engines.default_engine(inst, args.timeframe)
-    possible = engines.available(inst, args.timeframe)
+    exchange = args.exchange or engines.DEFAULT_EXCHANGE
+    possible = engines.available(inst, args.timeframe, exchange)
     if engine not in possible:
-        preco = (engines.freqtrade_blocker(inst, args.timeframe) if engine == engines.FREQTRADE
-                 else "chýbajú 1m sviečky")
+        preco = (engines.freqtrade_blocker(inst, args.timeframe, exchange)
+                 if engine == engines.FREQTRADE else "chýbajú 1m sviečky")
         raise SystemExit(
             f"engine {engines.ENGINE_TITLES[engine]} sa na {pair} {args.timeframe} spustiť nedá "
             f"({preco}); dostupné: "
@@ -143,6 +144,7 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     settings = {
         "strategy": args.strategy, "pair": pair, "engine": engine, "timeframe": args.timeframe,
+        "exchange": exchange if engine == engines.FREQTRADE else None,
         "timerange": args.timerange, "fee": args.fee,
         "wallet": args.wallet, "timeframe_detail": None if args.no_detail else "1m", "profile": args.profile,
     }
@@ -279,6 +281,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--pair", help="napr. BTC/USDT:USDT alebo ETH/USDT:USDT (default podľa profilu)")
     p.add_argument("--timerange", required=True, help="YYYYMMDD-YYYYMMDD")
     p.add_argument("--timeframe", default="3m", help="TF grafu, na ktorom stratégia počíta (default 3m; ako TF grafu v TradingView)")
+    p.add_argument("--exchange", choices=("tester", "binance", "coinbase", "dukascopy"),
+                   help="burza pre Freqtrade beh (predvolene fiktivna 'tester', ktora pozna "
+                        "vsetky nase timeframy)")
     p.add_argument("--engine", choices=("freqtrade", "multicharts"),
                    help="čím beh prehrať: freqtrade alebo multicharts (emulátor); "
                         "bez neho podľa toho, aké dáta pár má")

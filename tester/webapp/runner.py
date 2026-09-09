@@ -162,6 +162,7 @@ def available_pairs() -> list[dict[str, Any]]:
             "source": inst.data_source,
             "engines": engines.available(inst),
             "default_engine": engines.default_engine(inst),
+            "exchanges": engines.exchanges_for(inst),
             "exchange": "binance",
             "market": inst.market,
             "exchange_symbol": inst.exchange_symbol,
@@ -187,6 +188,7 @@ def available_pairs() -> list[dict[str, Any]]:
             "source": inst.data_source,
             "engines": engines.available(inst),
             "default_engine": engines.default_engine(inst),
+            "exchanges": engines.exchanges_for(inst),
             "exchange": "multicharts",
             "market": inst.market,
             "exchange_symbol": inst.exchange_symbol,
@@ -242,8 +244,10 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
     tf = settings.get("timeframe") or "3m"
     inst = INSTRUMENTS[instrument_for_pair(settings["pair"])]
     cmd = [
-        python, "-m", "freqtrade", "backtesting",
-        "--config", str(engines.freqtrade_config(inst)),
+        # nie holy freqtrade: obal najprv zaregistruje fiktivnu burzu Tester, ktora pozna
+        # nase pary aj vsetky timeframy (tester/ftexchange.py)
+        python, "-m", "tester.ftrun", "backtesting",
+        "--config", str(engines.freqtrade_config(inst, settings.get("exchange"))),
         "--userdir", str(USER_DIR),
         "--strategy", get_spec(settings.get("strategy") or "ibs").freqtrade_class,
         "--cache", "none",

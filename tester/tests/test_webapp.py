@@ -238,7 +238,7 @@ def test_submit_validates_timeframe(client, monkeypatch):
 
     monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["1m", "3m", "5m"])
     # test je o kontrole timeframu, nie o tom, pre ktory engine su na disku data
-    monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m": ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
     c, _ = client
     base = {"params": IBSConfig().to_dict(), "pair": "BTC/USDT:USDT", "timerange": "20260801-20260901"}
     assert c.post("/api/runs", json={**base, "timeframe": "2m"}).status_code == 422
@@ -279,7 +279,7 @@ def test_submit_uses_tester_name_from_request(client, monkeypatch):
 
     monkeypatch.setattr(app_mod, "current_user", lambda: "predvolene")
     # test je o mene testera, nie o tom, pre ktory engine su na disku data
-    monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m": ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
     c, _ = client
     base = {"params": IBSConfig().to_dict(), "pair": "BTC/USDT:USDT", "timerange": "20260801-20260901"}
     job = c.post("/api/runs", json={**base, "user": "  Jana  "}).json()
@@ -316,8 +316,10 @@ def test_spot_pair_runs_with_spot_config_and_file_layout():
     base = {"timerange": "20250101-20250201", "wallet": 10000, "fee": 0.0005, "timeframe": "3m"}
     spot = build_command("py", Path("p.json"), {**base, "pair": "BTC/USDT"})
     futures = build_command("py", Path("p.json"), {**base, "pair": "BTC/USDT:USDT"})
-    assert spot[spot.index("--config") + 1].endswith("config.binance.spot.json")
-    assert futures[futures.index("--config") + 1].endswith("config.binance.json")
+    assert spot[spot.index("--config") + 1].endswith("config.tester.spot.json")
+    assert futures[futures.index("--config") + 1].endswith("config.tester.json")
+    # beh ide cez obal, ktory najprv zaregistruje burzu Tester
+    assert futures[:4] == [futures[0], "-m", "tester.ftrun", "backtesting"]
 
     assert pair_file("BTC/USDT", "3m").name == "BTC_USDT-3m.feather"
     assert pair_file("BTC/USDT:USDT", "3m").name == "BTC_USDT_USDT-3m-futures.feather"
@@ -337,7 +339,7 @@ def test_submit_rejects_shorts_on_spot(client, monkeypatch):
     import tester.webapp.app as app_mod
 
     monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["1m", "3m"])
-    monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m": ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
     c, _ = client
     body = {"params": {**IBSConfig().to_dict(), "tradeDirection": "Both"}, "pair": "BTC/USDT",
             "timerange": "20260801-20260901"}

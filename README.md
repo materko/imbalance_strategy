@@ -113,6 +113,7 @@ Podrobne: [docs/DATA.md](docs/DATA.md), prehľad celej cesty dát:
 | `tester/dukas_import.py`, `tester/data_archive.py` | Prevod a čistenie surových exportov, ročný archív sviečok. |
 | `tester/timeframes.py`, [`tester/timeframes.json`](tester/timeframes.json) | Ktoré timeframy má mať Tester na disku a ich dopočet z 1m (webapp ich doplní pri štarte). |
 | `tester/quotemanager.py` | ASCII export pre QuoteManager (MultiCharts) zo skladu 1m sviečok. |
+| `tester/ftexchange.py`, `tester/ftrun.py` | Fiktívna burza **Tester** pre Freqtrade (pozná naše páry a všetky TF) a obal, ktorý ju zaregistruje pred behom. |
 | `tester/report.py`, `tester/fees.py`, `tester/plot.py` | HTML report ako Strategy Tester, maker/taker a break-even, grafy. |
 | `tester/montecarlo.py` | Blokový bootstrap nad obchodmi hotového behu: interval okolo break-even poplatku a riziko účtu (drawdown, hranice, ruina, odporúčané riziko na obchod). |
 | [`tester/tests/`](tester/tests) | Testy nástrojov Testera a **golden testy** proti TradingView (`golden/`). |

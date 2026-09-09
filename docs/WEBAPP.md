@@ -85,9 +85,15 @@ Ani to však nie je podmienka: **keď súbor pre beh chýba, poskladá si ho str
 pri štarte behu (`ensure_timeframe` vo Freqtrade adaptéri, [docs/DATA.md](DATA.md)). Stačí
 mať 1m sviečky — ponuka enginov to už tak aj počíta.
 
-**Freqtrade beží len na timeframoch, ktoré pozná jeho burza.** Binance nemá 2m ani 4m,
-Coinbase nemá 3m — na takých TF ponúkne webapp len emulátor MultiCharts (skladá si ich
-z 1m sám) a beh cez Freqtrade odmietne s vysvetlením, nie až chybou z Freqtradu.
+**Burza** je vlastný výber vedľa enginu. Predvolená je **Tester** — fiktívna burza
+(`tester/ftexchange.py`), ktorá pozná naše páry aj všetky timeframy z `timeframes.json`,
+takže 2m aj 4m sa dajú backtestovať a hyperoptovať, hoci ich Binance nemá. V ponuke je aj
+skutočná burza, odkiaľ sviečky sú (Binance, prípadne nosná burza pre CFD) — na kontrolu, či
+sa niečo nerozišlo s realitou; overené je, že na tom istom páre a profile dá **obchod po
+obchode to isté** ([meranie](merania/BURZA_tester_vs_binance_2026-09-09.md)). Pri emulátore
+MultiCharts je pole zamknuté: ten burzu nepotrebuje, číta priamo 1m sviečky.
+
+Jediná podmienka behu sú 1m sviečky ([docs/FREQTRADE.md](FREQTRADE.md)).
 
 ## Meno testera
 

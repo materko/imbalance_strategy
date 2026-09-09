@@ -75,6 +75,7 @@ class RunRequest(BaseModel):
     wallet: float = 10000
     timeframe_detail: str | None = "1m"
     engine: str | None = Field(None, description="freqtrade | multicharts (emulátor); None = podľa dát")
+    exchange: str | None = Field(None, description="burza pre Freqtrade beh; None = fiktívna Tester")
     profile: str | None = None
     note: str = ""
     user: str | None = Field(None, max_length=80, description="meno testera z hlavičky stránky")
@@ -150,6 +151,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             # kompatibilita pre CLI a testy); stránka pracuje so `strategy_meta[key]`.
             **by_key["ibs"],
             "strategies": [spec.public() for spec in STRATEGIES.values()],
+            "exchanges": [{"key": e, "title": engines.EXCHANGE_TITLES.get(e, e)}
+                          for e in engines.EXCHANGES],
+            "default_exchange": engines.DEFAULT_EXCHANGE,
             "strategy_meta": by_key,
             "pairs": pairs,
             "user": current_user(),
@@ -286,16 +290,20 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         engine = req.engine or engines.default_engine(inst, req.timeframe)
         if engine not in engines.ENGINES:
             raise HTTPException(422, f"neznámy engine {engine!r}; známe: {', '.join(engines.ENGINES)}")
-        possible = engines.available(inst, req.timeframe)
+        exchange = req.exchange or engines.DEFAULT_EXCHANGE
+        if engine == engines.FREQTRADE and exchange not in engines.EXCHANGES:
+            raise HTTPException(422, f"neznáma burza {exchange!r}; známe: {', '.join(engines.EXCHANGES)}")
+        possible = engines.available(inst, req.timeframe, exchange)
         if engine not in possible:
-            preco = (engines.freqtrade_blocker(inst, req.timeframe) if engine == engines.FREQTRADE
-                     else "chýbajú 1m sviečky")
+            preco = (engines.freqtrade_blocker(inst, req.timeframe, exchange)
+                     if engine == engines.FREQTRADE else "chýbajú 1m sviečky")
             raise HTTPException(422, (
                 f"engine {engines.ENGINE_TITLES[engine]} sa na {req.pair} {req.timeframe} "
                 f"spustiť nedá ({preco}); dostupné: "
                 f"{', '.join(engines.ENGINE_TITLES[e] for e in possible) or 'žiadne'}"))
         settings = {
             "strategy": req.strategy,
+            "exchange": exchange if engine == engines.FREQTRADE else None,
             "pair": req.pair,
             "engine": engine,
             "timeframe": req.timeframe,

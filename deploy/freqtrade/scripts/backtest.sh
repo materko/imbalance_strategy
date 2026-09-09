@@ -32,7 +32,7 @@ fi
 # --cache none je POVINNE. Freqtrade cachuje vysledok podla hashu suboru
 # strategie, ale nase nastavenia su v profile mimo neho (TRADEBOT_PROFILE), takze
 # zmena profilu cache nezneplatni a dostanes ticho stary vysledok.
-ARGS=(-m freqtrade backtesting
+ARGS=(-m tester.ftrun backtesting
       --config "$FT/$CONFIG"
       --userdir "$USERDIR" \
       --datadir "$REPO/data/tester/binance"

@@ -9,6 +9,33 @@ Všetko sa spúšťa **z koreňa repozitára**. `PY` = Python z `.venv`
 
 ---
 
+## Burza Tester (fiktívna)
+
+Freqtrade nepustí beh na timeframe, ktorý jeho burza nepozná, ani na páre, ktorý nemá
+v trhoch. Binance nemá 2m ani 4m, Coinbase nemá 3m a Dukascopy CFD nie je v ccxt vôbec —
+preto je predvolenou burzou backtestov **Tester** ([`tester/ftexchange.py`](../tester/ftexchange.py)):
+ccxt trieda bez siete, ktorá zoznam trhov poskladá z `INSTRUMENTS` (tick, krok množstva a
+limity sedia s inštrumentom) a zoznam timeframov z [`tester/timeframes.json`](../tester/timeframes.json).
+
+```bash
+# beh cez obal, ktory burzu najprv zaregistruje (webapp aj skripty to robia samy)
+PY -m tester.ftrun backtesting --config deploy/freqtrade/config.tester.json …
+PY -m tester.ftexchange            # co burza ponuka (kontrola)
+PY -m tester.webapp.cli run --exchange binance …   # ta ista strategia cez skutocnu burzu
+```
+
+Configy: `config.tester.json` (perpetuály v USDT — páka a shorty), `config.tester.spot.json`
+(spot v USDT) a `config.tester.cfd.json` (CFD kótované v USD). Vyberá ich
+[`tester/engines.py`](../tester/engines.py) podľa trhu.
+
+**Čo burza nemá:** poplatky (zadáva ich beh cez `--fee`), funding (nula), likvidáciu ani
+leverage tiery. V dry-run a live sa nesmie použiť — je to popis trhu pre backtest, hyperopt
+a FreqAI, nie burza.
+
+**Že to nič nemení**, je overené: ten istý pár a profil cez Tester a cez Binance dá obchod
+po obchode to isté ([meranie](merania/BURZA_tester_vs_binance_2026-09-09.md)). Burza dodáva
+len popis trhu; sviečky, fill model aj poplatok sú od nej nezávislé.
+
 ## A. Prostredie (venv)
 
 Python **3.11+, 64-bit**:
