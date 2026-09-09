@@ -53,7 +53,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TextIO
 
-from tradebot.core.paths import DATA_ARCHIVE, REPO, TESTER_DATA
+from tradebot.core.paths import ARCHIVE_ROOTS, REPO, TESTER_ARCHIVE
 from tradebot.core.types import DUKASCOPY_REGISTRY, INSTRUMENTS, InstrumentSpec, dukascopy_specs
 
 __all__ = [
@@ -171,7 +171,7 @@ def load_dukas_frame(path: str | Path, *, drop_padding: bool = True, fix_scale: 
     return df
 
 
-def write_years(df, stem: str, *, archive: Path = DATA_ARCHIVE, from_year: int | None = None,
+def write_years(df, stem: str, *, archive: Path = TESTER_ARCHIVE, from_year: int | None = None,
                 to_year: int | None = None, verbose: bool = True) -> list[Path]:
     """Rok = jeden súbor. Uzavretý rok sa už nezmení, takže jeho blob je v gite raz."""
     written: list[Path] = []
@@ -189,8 +189,8 @@ def write_years(df, stem: str, *, archive: Path = DATA_ARCHIVE, from_year: int |
     return written
 
 
-def store(df, inst: InstrumentSpec, *, archive: Path = DATA_ARCHIVE, merge: bool = True,
-          verbose: bool = True) -> list[Path]:
+def store(df, inst: InstrumentSpec, *, archive: Path = TESTER_ARCHIVE, merge: bool = True,
+          verbose: bool = True, roots: tuple[tuple[Path, Path], ...] | None = None) -> list[Path]:
     """Vyčistené sviečky → ročné súbory v archíve (+ pracovná kópia pre Tester).
 
     Spoločný koniec každého importu, nech je zdroj akýkoľvek: do archívu ide timeframe
@@ -201,7 +201,7 @@ def store(df, inst: InstrumentSpec, *, archive: Path = DATA_ARCHIVE, merge: bool
     if merge:
         from . import data_archive
 
-        data_archive.merge(verbose=False, roots=((archive, TESTER_DATA),))
+        data_archive.merge(verbose=False, roots=roots or ARCHIVE_ROOTS)
     return written
 
 
@@ -298,7 +298,8 @@ def _build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--to", dest="date_to", help="YYYY-MM-DD, vrátane")
     ap.add_argument("--fix-scale", action="store_true", help="opraviť riadky s cenou ×1000 / ÷1000")
     ap.add_argument("--keep-padding", action="store_true", help="nevyhadzovať ploché opakované bary")
-    ap.add_argument("--archive", type=Path, default=DATA_ARCHIVE, help="kam ročné feather súbory")
+    ap.add_argument("--archive", type=Path, default=TESTER_ARCHIVE,
+                    help="kam ročné feather súbory (default data_archive/tester/)")
     ap.add_argument("--no-merge", action="store_true", help="nezložiť pracovný súbor pre Tester")
 
     new = ap.add_argument_group("nový symbol (ak ešte nie je v tabuľke)")

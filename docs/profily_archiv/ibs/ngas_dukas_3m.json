@@ -1,0 +1,30 @@
+{
+  "_title": "MultiCharts NGAS CFD (Dukascopy) 3m — kostra z nas100_dukas_3m",
+  "_comment": [
+    "Kostra vyrobena prikazom `python -m tester.dukas_import ... --symbol NGAS`.",
+    "Instrument ngas_dukascopy: tick 0.001, hodnota bodu 10000 USD.",
+    "PREVERIT: prahy v bodoch (unit abs) su prevzate z MNQ a sedia len na podobnom podklade;",
+    "na inom trhu ich prepni na jednotku atr (`--set minImbSizePoints=0.5@atr`).",
+    "Objem Dukascopy je len tickovy - useVolumeFilter nechaj vypnuty."
+  ],
+  "_instrument": "ngas_dukascopy",
+  "enablePinBarEntry": true,
+  "enableTrailing": true,
+  "tradeDirection": "Long only",
+  "sess2ZoneStartH": 8,
+  "showElliott": false,
+  "imbMaxDistTicks": {
+    "value": 25.0,
+    "unit": "abs"
+  },
+  "state2ConfirmTicks": {
+    "value": 0.25,
+    "unit": "abs"
+  },
+  "slBufferTicks": {
+    "value": 0.5,
+    "unit": "abs"
+  },
+  "tickDollarValue": 10.0,
+  "legacyPineSizing": true
+}

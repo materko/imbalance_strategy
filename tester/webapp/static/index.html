@@ -114,6 +114,29 @@
         </label>
       </div>
 
+      <details id="sweep-box" class="sweep-box">
+        <summary>Hľadať parameter <span class="muted small">— mriežka behov, nie jeden</span></summary>
+        <div class="sweep-body">
+          <div id="sweep-rows"></div>
+          <button id="sweep-add" class="ghost small" type="button">+ ďalší parameter</button>
+          <div class="form-grid sweep-goal">
+            <label class="field span2">Vybrať podľa
+              <select id="sweep-goal" title="Podľa čoho určiť najlepší beh. Break-even poplatok nezávisí od sizingu ani peňaženky, preto je predvolený."></select>
+            </label>
+            <label class="field">Max drawdown %
+              <input type="number" id="sweep-maxdd" step="1" min="0" placeholder="bez limitu">
+            </label>
+            <label class="field">Min. obchodov
+              <input type="number" id="sweep-mintrades" step="1" min="0" placeholder="bez limitu">
+            </label>
+          </div>
+          <div id="sweep-warn" class="warnbox" hidden></div>
+          <button id="sweep-run" class="primary sweep-start" type="button">▶ Spustiť sweep</button>
+          <div id="sweep-status" class="hint"></div>
+          <div id="sweep-result"></div>
+        </div>
+      </details>
+
       <div class="run-bar">
         <button id="run" class="primary">▶ Spustiť backtest</button>
       </div>

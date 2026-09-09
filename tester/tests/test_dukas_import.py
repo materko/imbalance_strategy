@@ -125,33 +125,30 @@ def test_fix_scale_deli_a_nasobi_tisicom(tmp_path):
 # --------------------------------------------------------------------------- #
 
 
-def test_store_rozdeli_po_rokoch_a_zlozi_pracovny_subor(tmp_path, monkeypatch):
-    from tester import dukas_import
-
+def test_store_rozdeli_po_rokoch_a_zlozi_pracovny_subor(tmp_path):
+    """Archív je zrkadlo skladu: `data_archive/tester/<zdroj>/<trh>/` ↔ `data/tester/…`."""
     df, _ = frame(
         tmp_path,
         "2024-12-31 23:59:00,1,2,0.5,1.5,1",
         "2025-01-01 00:00:00,1.5,2,1,1.9,1",
         "2025-01-01 00:01:00,1.9,2,1,1.7,1",
     )
-    work = tmp_path / "work"
-    monkeypatch.setattr(dukas_import, "TESTER_DATA", work)
+    work = tmp_path / "data" / "tester"
+    archive = tmp_path / "archive" / "tester"
     inst = INSTRUMENTS["nas100_dukascopy"]
 
-    files = store(df, inst, archive=tmp_path / "archive", verbose=False)
+    files = store(df, inst, archive=archive, verbose=False,
+                  roots=((tmp_path / "archive", tmp_path / "data"),))
 
     assert [f.name for f in files] == ["NAS100_USD-1m.2024.feather", "NAS100_USD-1m.2025.feather"]
-    assert files[0].parent == tmp_path / "archive" / "dukascopy" / "futures"
+    assert files[0].parent == archive / "dukascopy" / "futures"
     zlozene = work / "dukascopy" / "futures" / "NAS100_USD-1m.feather"
     assert len(pd.read_feather(zlozene)) == 3
 
 
-def test_cli_vrati_2_pri_neopravenej_mierke_a_0_po_oprave(tmp_path, capsys, monkeypatch):
-    from tester import dukas_import
-
-    monkeypatch.setattr(dukas_import, "TESTER_DATA", tmp_path / "work")
+def test_cli_vrati_2_pri_neopravenej_mierke_a_0_po_oprave(tmp_path, capsys):
     src = raw(tmp_path, *SCALED)
-    args = [str(src), "--symbol", "NAS100", "--archive", str(tmp_path / "archive")]
+    args = [str(src), "--symbol", "NAS100", "--archive", str(tmp_path / "archive"), "--no-merge"]
 
     assert main(args) == 2
     assert (tmp_path / "archive" / "dukascopy" / "futures" / "NAS100_USD-1m.2015.feather").exists()
@@ -162,10 +159,7 @@ def test_cli_vrati_2_pri_neopravenej_mierke_a_0_po_oprave(tmp_path, capsys, monk
     assert "python -m tester.quotemanager" in err     # CSV robí iný nástroj
 
 
-def test_cli_odmietne_prazdny_vysledok(tmp_path, capsys, monkeypatch):
-    from tester import dukas_import
-
-    monkeypatch.setattr(dukas_import, "TESTER_DATA", tmp_path / "work")
+def test_cli_odmietne_prazdny_vysledok(tmp_path, capsys):
     src = raw(tmp_path, "2025-01-06 10:00:00,1,2,0.5,1.5,0")
     assert main([str(src), "--symbol", "NAS100", "--from", "2030-01-01",
                  "--archive", str(tmp_path / "archive")]) == 1
@@ -181,3 +175,19 @@ def test_nas100_profil_sedi_s_mnq_v_cenovych_bodoch():
     cfg, inst = load_profile("docs/profily_archiv/ibs/nas100_dukas_3m.json")
     assert inst.symbol == "NAS100/USD" and inst.venue == "multicharts"
     assert cfg.tickDollarValue == pytest.approx(inst.tick_dollar_value)
+
+
+def test_archiv_je_zrkadlom_skladu_sviecok():
+    """Import píše do `data_archive/tester/`, nie o úroveň vyššie.
+
+    Regresia: importér písal do `data_archive/<zdroj>/`, kam sa `merge` (ktorý mapuje
+    `data_archive/` na `data/`) nikdy nepozrel — dáta boli v archíve, ale Tester ich nevidel.
+    """
+    import inspect
+
+    from tradebot.core.paths import DATA_ARCHIVE, TESTER_ARCHIVE, TESTER_DATA
+    from tester import dukas_import
+
+    assert TESTER_ARCHIVE == DATA_ARCHIVE / TESTER_DATA.name
+    for func in (dukas_import.store, dukas_import.write_years):
+        assert inspect.signature(func).parameters["archive"].default == TESTER_ARCHIVE, func.__name__
