@@ -1,0 +1,128 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tester\runs\.profiles\config.tester.cad.cfd.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data --strategy IBSImbalanceStrategy --cache none --export trades --timerange 20250904-20260904 --pairs USDCAD/CAD --timeframe 3m --dry-run-wallet 10000 --fee 0.0005 --timeframe-detail 1m --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\dukascopy\futures
+2026-09-10 01:30:31,445 - freqtrade - INFO - freqtrade 2026.8
+2026-09-10 01:30:32,112 - freqtrade.configuration.load_config - INFO - Using config: 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tester\runs\.profiles\config.tester.cad.cfd.json ...
+2026-09-10 01:30:32,125 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-10 01:30:32,125 - freqtrade.loggers - INFO - Logfile configured
+2026-09-10 01:30:32,126 - freqtrade.loggers - INFO - Verbosity set to 0
+2026-09-10 01:30:32,126 - freqtrade.configuration.configuration - INFO - Parameter -i/--timeframe detected ... Using timeframe: 3m ...
+2026-09-10 01:30:32,126 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2026-09-10 01:30:32,126 - freqtrade.configuration.configuration - INFO - Parameter --timeframe-detail detected, using 1m for intra-candle backtesting ...
+2026-09-10 01:30:32,126 - freqtrade.configuration.configuration - INFO - Parameter --dry-run-wallet detected, overriding dry_run_wallet to: 10000.0 ...
+2026-09-10 01:30:32,126 - freqtrade.configuration.configuration - INFO - Parameter --fee detected, setting fee to: 0.0005 ...
+2026-09-10 01:30:32,126 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20250904-20260904 ...
+2026-09-10 01:30:32,126 - freqtrade.configuration.configuration - INFO - Using user-data directory: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data 
+...
+2026-09-10 01:30:32,126 - freqtrade.configuration.configuration - INFO - Using data directory: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\dukascopy\futures ...
+2026-09-10 01:30:32,126 - freqtrade.configuration.configuration - INFO - Parameter --export detected: trades ...
+2026-09-10 01:30:32,128 - freqtrade.configuration.configuration - INFO - Parameter --cache=none detected ...
+2026-09-10 01:30:32,128 - freqtrade.configuration.configuration - INFO - Using pairs ['USDCAD/CAD']
+2026-09-10 01:30:32,128 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20250904-20260904
+2026-09-10 01:30:32,128 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2026-09-10 01:30:32,131 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+team. It may work flawlessly (please report back) or have serious issues. Use it at your own discretion.
+2026-09-10 01:30:32,131 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 01:30:32,131 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2026-09-10 01:30:32,131 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2026-09-10 01:30:32,131 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.77
+2026-09-10 01:30:32,131 - freqtrade.exchange.exchange - INFO - Using Exchange "Tester"
+2026-09-10 01:30:32,131 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange class 'Tester' ...
+2026-09-10 01:30:32,171 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSImbalanceStrategy from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.py'...
+2026-09-10 01:30:32,171 - freqtrade.strategy.hyper - INFO - Loading parameters from file 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.json
+2026-09-10 01:30:32,719 - freqtrade.data.converter.converter - INFO - Missing data fillup for USDCAD/CAD, 3m: before: 1434470 - after: 2047201 - 42.71%
+2026-09-10 01:30:33,022 - freqtrade.data.converter.converter - INFO - Missing data fillup for USDCAD/CAD, 5m: before: 861360 - after: 1228321 - 42.60%
+2026-09-10 01:30:33,025 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 3m.
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: CAD.
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'unfilledtimeout' with value from the configuration: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 
+'unit': 'minutes'}.
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 100.0}
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 3m
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.99
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: True
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: CAD
+2026-09-10 01:30:33,026 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2026-09-10 01:30:33,029 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 300
+2026-09-10 01:30:33,029 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using unfilledtimeout: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 'unit': 'minutes'}
+2026-09-10 01:30:33,029 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2026-09-10 01:30:33,029 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2026-09-10 01:30:33,029 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2026-09-10 01:30:33,029 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2026-09-10 01:30:33,029 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2026-09-10 01:30:33,029 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2026-09-10 01:30:33,029 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2026-09-10 01:30:33,029 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2026-09-10 01:30:33,029 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2026-09-10 01:30:33,029 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 01:30:33,035 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\freqtrade\plugins\pairlist\StaticPairList.py'...
+2026-09-10 01:30:33,035 - freqtrade.optimize.backtesting - INFO - Using fee 0.0500% from config.
+2026-09-10 01:30:33,053 - freqtrade.data.history.datahandlers.idatahandler - WARNING - USDCAD/CAD, spot, 3m, data ends at 2026-08-31 23:57:00
+2026-09-10 01:30:33,101 - freqtrade.data.converter.converter - INFO - Missing data fillup for USDCAD/CAD, 3m: before: 123162 - after: 174060 - 41.33%
+2026-09-10 01:30:33,103 - freqtrade.optimize.backtesting - INFO - Loading data from 2025-09-03 09:00:00 up to 2026-08-31 23:57:00 (362 days).
+2026-09-10 01:30:33,129 - freqtrade.data.history.datahandlers.idatahandler - WARNING - USDCAD/CAD, spot, 1m, data ends at 2026-08-31 23:59:00
+2026-09-10 01:30:33,280 - freqtrade.data.converter.converter - INFO - Missing data fillup for USDCAD/CAD, 1m: before: 365844 - after: 521280 - 42.49%
+2026-09-10 01:30:33,995 - freqtrade.optimize.backtesting - INFO - Dataload complete. Calculating indicators
+2026-09-10 01:30:34,004 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSImbalanceStrategy
+2026-09-10 01:30:34,012 - freqtrade.data.dataprovider - INFO - Loading data for USDCAD/CAD 5m from 2025-09-02 23:00:00 to 2026-09-04 00:00:00
+2026-09-10 01:30:34,029 - freqtrade.data.history.datahandlers.idatahandler - WARNING - USDCAD/CAD, spot, 5m, data ends at 2026-08-31 23:55:00
+2026-09-10 01:30:34,054 - freqtrade.data.converter.converter - INFO - Missing data fillup for USDCAD/CAD, 5m: before: 74077 - after: 104556 - 41.15%
+2026-09-10 01:30:43,796 - tradebot.strategies.ibs.freqtrade - INFO - IBS USDCAD/CAD: 174060 barov, 104556 HTF barov, 200 zon, 0 signalov (0 long / 0 short)
+2026-09-10 01:30:44,012 - tradebot.adapters.freqtrade.base - INFO - ibs USDCAD/CAD: kresby ulozene do 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tester\runs\.profiles\20260909-233030-e4ea99.chart.json.gz (62899 objektov)
+2026-09-10 01:30:44,045 - freqtrade.optimize.backtesting - INFO - Backtesting with data from 2025-09-04 00:00:00 up to 2026-08-31 23:57:00 (361 days).
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 4/4           100% • 0:00:11 • 0:00:00
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 173759/173759 100% • 0:00:12 • 0:00:00
+2026-09-10 01:30:45,546 - freqtrade.misc - INFO - dumping json to 
+"C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\backtest_results\backtest-result-2026-09-09_23-30-45.meta.json"
+Result for strategy IBSImbalanceStrategy
+                                              BACKTESTING REPORT                                              
+┌────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│       Pair │ Trades │ Avg Profit % │ Tot Profit CAD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ USDCAD/CAD │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+│      TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┌───────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│  Pair │ Trades │ Avg Profit % │ Tot Profit CAD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                               ENTER TAG STATS                                                
+┌───────────┬─────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│ Enter Tag │ Entries │ Avg Profit % │ Tot Profit CAD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────┼─────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│     TOTAL │       0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                              EXIT REASON STATS                                               
+┌─────────────┬───────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│ Exit Reason │ Exits │ Avg Profit % │ Tot Profit CAD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├─────────────┼───────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│       TOTAL │     0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                      MIXED TAG STATS                                                      
+┌───────────┬─────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│ Enter Tag │ Exit Reason │ Trades │ Avg Profit % │ Tot Profit CAD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────┼─────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│     TOTAL │             │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+No trades made. Your starting balance was 10000 CAD, and your stake was unlimited.
+
+Backtested 2025-09-04 00:00:00 -> 2026-08-31 23:57:00 | Max open trades : 1
+                                                           STRATEGY SUMMARY                                                            
+┌──────────────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┬──────────────┐
+│             Strategy │ Trades │ Avg Profit % │ Tot Profit CAD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │     Drawdown │
+├──────────────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┼──────────────┤
+│ IBSImbalanceStrategy │      0 │         0.00 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │ 0 CAD  0.00% │
+└──────────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────┘

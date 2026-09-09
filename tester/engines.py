@@ -135,6 +135,35 @@ def exchanges_for(inst: InstrumentSpec) -> list[str]:
     return out
 
 
+def stake_config(inst, exchange: str | None = None) -> Path:
+    """Config fiktívnej burzy s `stake_currency` podľa meny kótovania inštrumentu.
+
+    Freqtrade vyhodí z whitelistu každý pár, ktorého kótovacia mena nesedí so
+    `stake_currency` configu („Pair JP225/JPY is not compatible with your stake currency
+    USD. Removing it from whitelist" a hneď za tým „No pair in whitelist"). Naše
+    Dukascopy symboly sú kótované v USD, JPY, EUR aj CAD, takže jeden hotový config
+    pokryť nemôže — a bez tohto by šesť trhov matice tichým zlyhaním chýbalo.
+
+    Robí sa to len pre **fiktívnu** burzu Tester: u skutočných búrz je mena daná burzou
+    a config sa vymýšľať nesmie.
+    """
+    import json
+
+    from tradebot.core.paths import TMP_PROFILES
+
+    povodny = freqtrade_config(inst, exchange)
+    if exchange not in (None, DEFAULT_EXCHANGE):
+        return povodny
+    data = json.loads(Path(povodny).read_text(encoding="utf-8"))
+    if data.get("stake_currency") == inst.quote_currency:
+        return povodny
+    data["stake_currency"] = inst.quote_currency
+    out = TMP_PROFILES / f"config.tester.{inst.quote_currency.lower()}.{market_kind(inst)}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return out
+
+
 def freqtrade_config(inst: InstrumentSpec, exchange: str | None = None) -> Path:
     """Ktorý Freqtrade config na tento inštrument a burzu sedí.
 
