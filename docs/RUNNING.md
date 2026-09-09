@@ -54,7 +54,9 @@ tester/                         TESTER - cim sa to skusa
   engines.py                    freqtrade | multicharts emulator + kde maju data
   AI_TESTING.md                 ako sa testuje z prikazoveho riadku
   compare/                      scan_zones, scan_trades, mc_log_trades, mc_compare
-  dukas_import.py               cistenie a prevod surovych exportov
+  dukas_import.py               import surovych exportov: cistenie, 1m feather, archiv
+  timeframes.py                 dopocet vyssich TF z 1m (tester/timeframes.json)
+  quotemanager.py               ASCII export pre QuoteManager (MultiCharts)
   data_archive.py               rocny archiv sviecok
   report.py, fees.py, plot.py   reporty a metriky
   tests/                        testy nastrojov + golden parita s TradingView

@@ -1,9 +1,11 @@
-"""Dukascopy symbol cez Freqtrade — sviečky po timeframoch a market info z inštrumentu.
+"""Dukascopy symbol cez Freqtrade — market info z inštrumentu.
 
-Freqtrade si vyšší TF z 1m nedopočíta a pre pár, ktorý nosná burza nepozná, nemá
-market info. Oboje dodáva port: `dukas_import --target freqtrade` vyrobí súbory,
-`TradebotStrategyBase.bot_start` doplní market z `InstrumentSpec`. Keby sa čokoľvek
-z toho stratilo, backtest padne až pri prvom obchode — preto sú tu testy.
+Pre pár, ktorý nosná burza nepozná, nemá Freqtrade market info (presnosť ceny, krok
+množstva, limity) a padol by na „Can't get market information for symbol …" až pri prvom
+obchode. Dodáva ho `TradebotStrategyBase.bot_start` z `InstrumentSpec`.
+
+Chýbajúce timeframy rieši `tester.timeframes` a `ensure_timeframe` v adaptéri — testy
+sú v `tester/tests/test_timeframes.py` a `tradebot/tests/test_freqtrade_timeframes.py`.
 """
 
 from __future__ import annotations
@@ -15,8 +17,6 @@ import pytest
 pd = pytest.importorskip("pandas")
 
 from tradebot.core.types import INSTRUMENTS
-from tradebot.core.candles import resample_ohlcv
-from tester.dukas_import import FT_TIMEFRAMES, write_freqtrade
 
 INST = INSTRUMENTS["nas100_dukascopy"]
 MIN = 60_000
@@ -30,39 +30,6 @@ def m1(n: int) -> "pd.DataFrame":
         "low": [99.0 + i for i in range(n)], "close": [100.5 + i for i in range(n)],
         "volume": [1.0] * n,
     })
-
-
-# --------------------------------------------------------------------------- #
-# sviečky pre Freqtrade
-# --------------------------------------------------------------------------- #
-
-
-def test_write_freqtrade_vyrobi_subor_na_kazdy_timeframe(tmp_path: Path):
-    """Zoznam timeframov je v `tester/timeframes.json` — import ani webapp nemajú vlastný."""
-    files = write_freqtrade(m1(60), "NAS100_USD", datadir=tmp_path, verbose=False)
-
-    assert [f.name for f in files] == [f"NAS100_USD-{tf}.feather" for tf in FT_TIMEFRAMES]
-    by = {f.name: f for f in files}
-    assert len(pd.read_feather(by["NAS100_USD-1m.feather"])) == 60
-    assert len(pd.read_feather(by["NAS100_USD-3m.feather"])) == 20
-    assert len(pd.read_feather(by["NAS100_USD-5m.feather"])) == 12
-
-
-def test_svicky_pre_freqtrade_su_tie_iste_ako_v_emulatore(tmp_path: Path):
-    """Inak by Freqtrade beh a emulátor MultiCharts počítali z iných barov."""
-    base = m1(60)
-    files = write_freqtrade(base, "NAS100_USD", datadir=tmp_path, timeframes=["3m"], verbose=False)
-
-    assert pd.read_feather(files[0]).equals(resample_ohlcv(base, 3))
-
-
-def test_agregacia_zarovna_na_nasobky_tf_od_epochy():
-    """Ako TradingView aj MultiCharts: 3m bar začína na 00, 03, 06… nie od prvého baru."""
-    df = m1(10).iloc[1:]  # séria začína o 00:01
-    out = resample_ohlcv(df, 3)
-
-    assert [str(t)[11:16] for t in out["date"]] == ["00:00", "00:03", "00:06", "00:09"]
-    assert out.iloc[0]["open"] == 101.0 and out.iloc[0]["high"] == 103.0  # z barov 1 a 2
 
 
 # --------------------------------------------------------------------------- #

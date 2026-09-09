@@ -1,44 +1,38 @@
-"""Surový Dukascopy export → dáta pre Tester (webapp) aj pre MultiCharts, jedným príkazom.
+"""Import surového Dukascopy exportu: vyčistí ho, spraví 1m feather a rozdelí po rokoch.
 
     python -m tester.dukas_import C:/dukas/NAS100_M1_10Y.csv --symbol NAS100
     python -m tester.dukas_import C:/dukas/EURUSD_M1.csv --symbol EURUSD \\
-        --point-value 100000 --tick 0.00001 --target tester
+        --point-value 100000 --tick 0.00001
     python -m tester.dukas_import C:/dukas/US500_M1.csv --symbol US500 \\
         --point-value 1 --fix-scale --from 2021-01-01
 
-Vyrobí dve veci (`--target tester | multicharts | both`, predvolene obe):
+### Kam to patrí v ceste dát
+Importér je **jeden na zdroj** a robí vždy to isté: vyčistí surový súbor, prevedie ho do
+feather v tom timeframe, v akom sú surové dáta (Dukascopy = 1m), rozdelí po rokoch a uloží
+do `data_archive/`. Tam jeho práca končí — v archíve je len to, čo naozaj prišlo zo zdroja.
 
-**Tester** — ročné feather súbory `data_archive/tester/<STEM>-1m.<rok>.feather`
-(commitujú sa) a hneď z nich zloží pracovný súbor v `data/`. Pár je
-potom v ponuke webapp; beží cez emulátor MultiCharts, nie cez Freqtrade (Dukascopy CFD nie
-sú ccxt burza). Čas baru ostáva časom **otvorenia**, ako v jadre a v Pine.
+    raw  ->  import (čistenie, feather v TF zdroja, split po rokoch)  ->  data_archive/
+    data_archive/  ->  merge  ->  data/tester/  ->  vyššie TF, export pre QuoteManager
 
-**MultiCharts** — ASCII súbor pre QuoteManager v `data/quotemanager/<zdroj>/` s hlavičkou
-`Date,Time,Open,High,Low,Close,Volume`, čas **zatvorenia** baru a objem ako celé číslo.
-Nie je to sklad sviečok (ten je `data/tester/`), ale výstup z neho pre cudziu aplikáciu —
-späť ho nikto nečíta, preto sa negituje.
+Zvyšok si spraví Tester sám: `tester.data_archive merge` zloží pracovné súbory,
+`tester.timeframes` (alebo Freqtrade adaptér počas behu) dopočíta vyššie timeframy a
+`tester.quotemanager` vyrobí ASCII súbor pre QuoteManager. Nič z toho tu už nie je.
 
-Obe cesty čistia export rovnakým pravidlom, takže webapp, MultiCharts aj offline
-simulátor (`scan_trades --csv`) vidia tie isté bary:
-
+### Čo sa pri čistení robí
 1. **Vypchávka.** Dukascopy export má riadok pre každú minútu vrátane víkendov a
    prestávok — plochý bar `o=h=l=c` s cenou posledného uzavretia, opakovaný dookola
    (~40 % súboru). Berie sa ako skutočný bar a stratégia by ho počítala do limitov
    `*MaxBars` (sú v baroch), do ATR aj do SMA objemu. Vyhadzujú sa riadky, ktoré
    nenesú žiadnu informáciu: plochý bar s cenou rovnou predchádzajúcemu uzavretiu.
    Skutočná plochá minúta (cena sa oproti minulému baru pohla a stála) ostáva.
-2. **Čas baru.** Dukascopy razí bar časom OTVORENIA, MultiCharts časom ZATVORENIA.
-   Do QuoteManagera sa preto k času pripočíta jedna minúta (`--stamp close`); ak import
-   dostane prepínač na čas otvorenia, daj `--stamp open`. Feather pre Tester si čas
-   otvorenia ponecháva vždy.
-3. **Mierka.** Niektoré exporty (US500 2015–2019) majú celé dni s cenou ×1000.
-   Nástroj to nahlási vždy; opraví len s `--fix-scale` (delí/násobí 1000 podľa
-   mediánu ceny v súbore).
-4. **Objem.** QuoteManager berie len celé číslo, Dukascopy CFD majú objem v lotoch
-   s desatinami (0.01), preto sa zapisuje ako `round(vol × --volume-scale)`; predvolené
-   100 znamená, že sa väčšina barov nezaokrúhli na nulu. Objem je aj tak len tickový
-   (loty klientov, nie burzový obrat) — inštrument má `has_real_volume=False`
-   a `useVolumeFilter` treba nechať vypnutý.
+2. **Mierka.** Niektoré exporty (US500 2015–2019) majú celé dni s cenou ×1000.
+   Nástroj to nahlási vždy; opraví len s `--fix-scale` (delí/násobí 1000 podľa mediánu
+   ceny v súbore). Predtým sa mierka opravovala len v ASCII výstupe pre QuoteManager,
+   takže archív si glitch niesol ďalej — teraz sa čistí to, čo sa ukladá.
+3. **Čas baru** ostáva časom **otvorenia**, ako v jadre a v Pine. Posun na čas zatvorenia
+   (konvencia MultiCharts) rieši až export pre QuoteManager.
+4. **Objem** ostáva taký, aký je — tickový (loty klientov, nie burzový obrat). Inštrument
+   má `has_real_volume=False` a `useVolumeFilter` treba nechať vypnutý.
 
 **Nový symbol** stačí pomenovať: `--symbol EURUSD --point-value 100000 --tick 0.00001`
 dopíše riadok do `tradebot/core/instruments_dukascopy.json` (odtiaľ ho vidí webapp,
@@ -47,8 +41,7 @@ Hodnota bodu musí sedieť s **Big Point Value** symbolu v QuoteManageri, inak b
 v MultiCharts a v Testeri nebol ten istý.
 
 Čas v Dukascopy exporte je UTC; v QuoteManageri sa pri importe volí ako časové pásmo
-súboru GMT. Súbor sa pre MultiCharts číta prúdom, takže 375 MB desaťročný export prejde
-bez toho, aby sa celý načítal do pamäte (feather cesta pandas potrebuje).
+súboru GMT.
 """
 
 from __future__ import annotations
@@ -57,18 +50,14 @@ import argparse
 import json
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Iterable, Iterator, Sequence, TextIO
+from typing import TextIO
 
-from tradebot.core.paths import DATA_ARCHIVE, QUOTEMANAGER_DATA, REPO, TESTER_DATA
+from tradebot.core.paths import DATA_ARCHIVE, REPO, TESTER_DATA
 from tradebot.core.types import DUKASCOPY_REGISTRY, INSTRUMENTS, InstrumentSpec, dukascopy_specs
-from tradebot.core.candles import resample_ohlcv
-from . import timeframes as tf_config
 
 __all__ = [
-    "ConvertStats", "convert", "convert_lines", "scale_reference",
-    "load_dukas_frame", "write_years", "write_freqtrade",
+    "ImportStats", "load_dukas_frame", "scale_reference", "write_years", "store",
     "resolve_symbol", "register_symbol", "write_profile_skeleton",
 ]
 
@@ -76,7 +65,6 @@ __all__ = [
 #: Za desať rokov sa index pohne ~5×, takže 100× je bezpečne mimo.
 SCALE_RATIO = 100.0
 SCALE_FACTOR = 1000.0
-MINUTE = timedelta(minutes=1)
 
 #: Kostra profilu pre nový symbol sa berie odtiaľto — je to najbližší hotový
 #: Dukascopy profil (prahy v bodoch odvodené z MNQ).
@@ -85,12 +73,12 @@ PROFILE_DIR = REPO / "docs" / "profily_archiv" / "ibs"
 
 
 # --------------------------------------------------------------------------- #
-# Prevod riadkov (spoločný pre obe cesty)
+# Čistenie a prevod do feather
 # --------------------------------------------------------------------------- #
 
 
 @dataclass
-class ConvertStats:
+class ImportStats:
     rows_in: int = 0
     rows_out: int = 0
     dropped_padding: int = 0
@@ -119,150 +107,68 @@ class ConvertStats:
         return "\n".join(lines)
 
 
-def _parse(line: str) -> tuple[str, float, float, float, float, float] | None:
-    parts = line.rstrip("\r\n").split(",")
-    if len(parts) < 6 or not parts[0] or not parts[0][0].isdigit():
-        return None  # hlavička alebo prázdny riadok
-    dt, o, h, l, c, v = parts[:6]
-    return dt, float(o), float(h), float(l), float(c), float(v)
+def scale_reference(close) -> float | None:
+    """Referenčná cena súboru — horný medián uzavretí. Podľa nej sa poznajú riadky ×1000."""
+    import numpy as np
 
-
-#: Koľko riadkov sa vzorkuje husto, kým prejde vzorkovanie na každý `step`-tý riadok.
-MIN_SAMPLE = 1000
-
-
-def scale_reference(lines: Iterable[str], step: int = 1000) -> float | None:
-    """Medián uzavretia: prvých `MIN_SAMPLE` riadkov celé, potom každý `step`-tý.
-
-    Lacný prvý prechod súborom — 6 miliónov riadkov dá ~7 000 vzoriek.
-    """
-    sample: list[float] = []
-    for i, line in enumerate(lines):
-        if len(sample) >= MIN_SAMPLE and i % step:
-            continue
-        row = _parse(line)
-        if row is not None:
-            sample.append(row[4])
-    if not sample:
+    values = np.asarray(close, dtype="float64")
+    values = values[~np.isnan(values)]
+    if not len(values):
         return None
-    sample.sort()
-    return sample[len(sample) // 2]
+    return float(np.sort(values)[len(values) // 2])
 
 
-def _num(x: float) -> str:
-    """Číslo bez exponentu a bez zbytočných núl: 24271.599 -> '24271.599', 0.0 -> '0'."""
-    return f"{x:.12g}"
+def load_dukas_frame(path: str | Path, *, drop_padding: bool = True, fix_scale: bool = False,
+                     date_from: str | None = None, date_to: str | None = None,
+                     stats: ImportStats | None = None):
+    """Dukascopy CSV (`dt,o,h,l,c,vol`, UTC, čas otvorenia) → vyčistený DataFrame sviečok.
 
-
-def _rescale(price: float, ref: float) -> tuple[float, bool]:
-    if price > ref * SCALE_RATIO:
-        return price / SCALE_FACTOR, True
-    if price < ref / SCALE_RATIO:
-        return price * SCALE_FACTOR, True
-    return price, False
-
-
-def convert_lines(
-    lines: Iterable[str],
-    *,
-    reference: float | None,
-    date_from: str | None = None,
-    date_to: str | None = None,
-    stamp: str = "close",
-    drop_padding: bool = True,
-    fix_scale: bool = False,
-    date_format: str = "%Y-%m-%d",
-    volume_scale: float = 1.0,
-    stats: ConvertStats | None = None,
-) -> Iterator[str]:
-    """Jadro prevodu nad riadkami — bez súborov, aby sa dalo testovať v pamäti."""
-    if stamp not in ("close", "open"):
-        raise ValueError(f"stamp musí byť 'close' alebo 'open', nie {stamp!r}")
-    st = stats if stats is not None else ConvertStats()
-    st.reference = reference
-    lo = f"{date_from} 00:00:00" if date_from else None
-    hi = f"{date_to} 23:59:59" if date_to else None
-    prev_close: float | None = None
-    seen_days: set[str] = set()
-
-    for line in lines:
-        row = _parse(line)
-        if row is None:
-            continue
-        st.rows_in += 1
-        dt, o, h, l, c, v = row
-
-        if reference is not None:
-            o2, f1 = _rescale(o, reference)
-            h2, f2 = _rescale(h, reference)
-            l2, f3 = _rescale(l, reference)
-            c2, f4 = _rescale(c, reference)
-            if f1 or f2 or f3 or f4:
-                st.scale_outliers += 1
-                day = dt[:10]
-                if day not in seen_days:
-                    seen_days.add(day)
-                    st.outlier_days.append(day)
-                if fix_scale:
-                    o, h, l, c = o2, h2, l2, c2
-                    st.scale_fixed += 1
-
-        # vypchávka sa posudzuje ešte pred orezaním obdobia, aby prvý bar okna
-        # nebol plochý zvyšok víkendu
-        is_padding = o == h == l == c and prev_close is not None and c == prev_close
-        prev_close = c
-        if drop_padding and is_padding:
-            st.dropped_padding += 1
-            continue
-        if (lo and dt < lo) or (hi and dt > hi):
-            st.dropped_range += 1
-            continue
-
-        t = datetime.fromisoformat(dt)
-        if stamp == "close":
-            t += MINUTE
-        vol = int(round(v * volume_scale))
-        out = f"{t.strftime(date_format)},{t.strftime('%H:%M:%S')},{_num(o)},{_num(h)},{_num(l)},{_num(c)},{vol}"
-        if st.first is None:
-            st.first = dt
-        st.last = dt
-        st.rows_out += 1
-        yield out
-
-
-def convert(src: Path, dst: Path, *, fix_scale: bool = False, **kw) -> ConvertStats:
-    """Dva prechody súborom: referencia mierky, potom samotný prevod pre QuoteManager."""
-    stats = ConvertStats()
-    with open(src, encoding="utf-8") as fh:
-        reference = scale_reference(fh)
-    dst.parent.mkdir(parents=True, exist_ok=True)
-    with open(src, encoding="utf-8") as fh, open(dst, "w", encoding="utf-8", newline="\n") as out:
-        out.write("Date,Time,Open,High,Low,Close,Volume\n")
-        for line in convert_lines(fh, reference=reference, fix_scale=fix_scale, stats=stats, **kw):
-            out.write(line + "\n")
-    return stats
-
-
-# --------------------------------------------------------------------------- #
-# Cesta pre Tester: ročné feather súbory
-# --------------------------------------------------------------------------- #
-
-
-def load_dukas_frame(path: str | Path, *, drop_padding: bool = True):
-    """Dukascopy CSV (`dt,o,h,l,c,vol`, UTC, čas otvorenia) → DataFrame v tvare Freqtrade sviečok."""
+    Jediné miesto, kde sa surové dáta čistia — všetko ostatné už číta výsledok z archívu.
+    """
     import pandas as pd
 
+    st = stats if stats is not None else ImportStats()
     df = pd.read_csv(
         path, usecols=[0, 1, 2, 3, 4, 5], header=0,
         names=["date", "open", "high", "low", "close", "volume"],
-        dtype={"open": "float64", "high": "float64", "low": "float64", "close": "float64", "volume": "float64"},
+        dtype={"open": "float64", "high": "float64", "low": "float64",
+               "close": "float64", "volume": "float64"},
     )
     df["date"] = pd.to_datetime(df["date"], utc=True)
+    st.rows_in = len(df)
+
     if drop_padding:
         flat = (df["open"] == df["close"]) & (df["high"] == df["low"]) & (df["open"] == df["high"])
         padding = flat & (df["close"] == df["close"].shift(1))
+        st.dropped_padding = int(padding.sum())
         df = df[~padding]
-    return df.reset_index(drop=True)
+
+    st.reference = scale_reference(df["close"])
+    if st.reference:
+        ohlc = ["open", "high", "low", "close"]
+        high = df["close"] > st.reference * SCALE_RATIO
+        low = df["close"] < st.reference / SCALE_RATIO
+        st.scale_outliers = int((high | low).sum())
+        st.outlier_days = sorted({d.strftime("%Y-%m-%d") for d in df.loc[high | low, "date"]})
+        if fix_scale and st.scale_outliers:
+            df = df.copy()
+            df.loc[high, ohlc] = df.loc[high, ohlc] / SCALE_FACTOR
+            df.loc[low, ohlc] = df.loc[low, ohlc] * SCALE_FACTOR
+            st.scale_fixed = st.scale_outliers
+
+    before = len(df)
+    if date_from:
+        df = df[df["date"] >= f"{date_from} 00:00:00+00:00"]
+    if date_to:
+        df = df[df["date"] <= f"{date_to} 23:59:59+00:00"]
+    st.dropped_range = before - len(df)
+
+    df = df.reset_index(drop=True)
+    st.rows_out = len(df)
+    if len(df):
+        st.first = f"{df['date'].iloc[0]:%Y-%m-%d %H:%M}"
+        st.last = f"{df['date'].iloc[-1]:%Y-%m-%d %H:%M}"
+    return df
 
 
 def write_years(df, stem: str, *, archive: Path = DATA_ARCHIVE, from_year: int | None = None,
@@ -283,44 +189,19 @@ def write_years(df, stem: str, *, archive: Path = DATA_ARCHIVE, from_year: int |
     return written
 
 
-# --------------------------------------------------------------------------- #
-# Cesta pre Freqtrade: sviečky po timeframoch
-# --------------------------------------------------------------------------- #
+def store(df, inst: InstrumentSpec, *, archive: Path = DATA_ARCHIVE, merge: bool = True,
+          verbose: bool = True) -> list[Path]:
+    """Vyčistené sviečky → ročné súbory v archíve (+ pracovná kópia pre Tester).
 
-#: To isté, čo má na disku mať zvyšok Testera (`tester/timeframes.json`), plus 1m —
-#: import a webapp nesmú mať každý svoj zoznam.
-FT_TIMEFRAMES = (tf_config.SOURCE_TF,) + tf_config.wanted()
-
-
-def write_freqtrade(df, stem: str, *, datadir: Path,
-                    timeframes: Sequence[str] = FT_TIMEFRAMES, verbose: bool = True) -> list[Path]:
-    """1m sviečky → `<datadir>/<STEM>-<TF>.feather` pre každý žiadaný timeframe.
-
-    Freqtrade si vyšší TF z 1m **nedopočíta** — keď preň nemá súbor, backtest skončí na
-    „No history … found". Dukascopy pritom 3m ani 5m nedodáva (a nie je to burza v ccxt,
-    takže sa nedá stiahnuť), takže jediná cesta je poskladať ich tým istým pravidlom, aké
-    používa emulátor MultiCharts aj graf webapp (`tools.candles.resample_ohlcv`) — inak by
-    Freqtrade beh a emulátor počítali z iných barov.
-
-    Sú to **odvodené** súbory: sklad sviečok je gitignorovaný a `data_archive split` ich
-    preskočí (zapíšu sa do `data/tester/.derived.json`), takže v archíve ostane len 1m,
-    tak ako prišlo z exportu. Vyrobiť sa dajú kedykoľvek znova. Beh ich vidí cez `--datadir`.
+    Spoločný koniec každého importu, nech je zdroj akýkoľvek: do archívu ide timeframe
+    zdroja, zvyšok si Tester dopočíta z neho.
     """
-    written: list[Path] = []
-    derived: list[Path] = []
-    datadir.mkdir(parents=True, exist_ok=True)
-    for tf in timeframes:
-        part = resample_ohlcv(df, tf_config.minutes(tf))
-        out = datadir / f"{stem}-{tf}.feather"
-        part.to_feather(out)
-        written.append(out)
-        if tf != tf_config.SOURCE_TF:
-            derived.append(out)
-        if verbose:
-            print(f"  {out.name}  {len(part):>8} barov  {out.stat().st_size / 1e6:.1f} MB")
-    if derived:
-        # 1m je zdroj a patrí do archívu; vyššie TF sú z neho dopočítané a do gitu nejdú
-        tf_config.remember(derived)
+    written = write_years(df, inst.data_stem, archive=archive / inst.data_source / inst.market,
+                          verbose=verbose)
+    if merge:
+        from . import data_archive
+
+        data_archive.merge(verbose=False, roots=((archive, TESTER_DATA),))
     return written
 
 
@@ -413,32 +294,12 @@ def _build_parser() -> argparse.ArgumentParser:
     ap.add_argument("src", type=Path, help="Dukascopy CSV: dt,o,h,l,c,vol (1m, UTC)")
     ap.add_argument("--symbol", required=True,
                     help="meno symbolu (NAS100, EURUSD…) alebo kľúč inštrumentu (nas100_dukascopy)")
-    ap.add_argument("--target", nargs="+", default=["tester", "multicharts"],
-                    choices=("tester", "multicharts", "freqtrade", "both", "all"),
-                    help="kam dáta vyrobiť; dá sa vymenovať viac (predvolene tester multicharts)")
     ap.add_argument("--from", dest="date_from", help="YYYY-MM-DD, vrátane")
     ap.add_argument("--to", dest="date_to", help="YYYY-MM-DD, vrátane")
     ap.add_argument("--fix-scale", action="store_true", help="opraviť riadky s cenou ×1000 / ÷1000")
     ap.add_argument("--keep-padding", action="store_true", help="nevyhadzovať ploché opakované bary")
-
-    mc = ap.add_argument_group("MultiCharts (QuoteManager)")
-    mc.add_argument("--mc-out", type=Path,
-                    help="výstupný ASCII súbor (predvolene data/quotemanager/<zdroj>/<PÁR>-1m.csv)")
-    mc.add_argument("--stamp", choices=("close", "open"), default="close",
-                    help="čas baru: close = +1 min (konvencia MultiCharts), open = ako v zdroji")
-    mc.add_argument("--date-format", default="%Y-%m-%d", help="strftime formát dátumu (predvolene ISO)")
-    mc.add_argument("--volume-scale", type=float, default=100.0,
-                    help="objem = round(vol × N); QuoteManager chce celé číslo, CFD majú loty s desatinami")
-
-    ts = ap.add_argument_group("Tester (webapp)")
-    ts.add_argument("--archive", type=Path, default=DATA_ARCHIVE, help="kam ročné feather súbory")
-    ts.add_argument("--no-merge", action="store_true", help="nezložiť pracovný súbor pre webapp")
-
-    ft = ap.add_argument_group("Freqtrade (hyperopt, FreqAI)")
-    ft.add_argument("--ft-datadir", type=Path, default=TESTER_DATA,
-                    help="kam sviečky po timeframoch (beh ich berie cez --datadir)")
-    ft.add_argument("--ft-timeframes", nargs="+", default=list(FT_TIMEFRAMES),
-                    help="ktoré timeframy poskladať z 1m")
+    ap.add_argument("--archive", type=Path, default=DATA_ARCHIVE, help="kam ročné feather súbory")
+    ap.add_argument("--no-merge", action="store_true", help="nezložiť pracovný súbor pre Tester")
 
     new = ap.add_argument_group("nový symbol (ak ešte nie je v tabuľke)")
     new.add_argument("--point-value", type=float, help="$ za pohyb ceny o 1.0 na jednotku = Big Point Value")
@@ -492,62 +353,33 @@ def main(argv: list[str] | None = None, stderr: TextIO | None = None) -> int:
         return 1
     _, inst = resolved
 
-    targets = set(args.target)
-    if "all" in targets:
-        targets |= {"tester", "multicharts", "freqtrade"}
-    if "both" in targets:
-        targets |= {"tester", "multicharts"}
+    stats = ImportStats()
+    df = load_dukas_frame(
+        args.src, drop_padding=not args.keep_padding, fix_scale=args.fix_scale,
+        date_from=args.date_from, date_to=args.date_to, stats=stats,
+    )
+    print(f"\n{args.src.name} -> {inst.data_stem}", file=err)
+    print(stats.summary(), file=err)
+    if df.empty:
+        print("po cisteni a orezani neostal ziadny bar", file=err)
+        return 1
 
-    rc = 0
-    if "multicharts" in targets:
-        dst = args.mc_out or QUOTEMANAGER_DATA / inst.data_source / f"{inst.data_stem}-1m.csv"
-        stats = convert(
-            args.src, dst,
-            date_from=args.date_from, date_to=args.date_to, stamp=args.stamp,
-            drop_padding=not args.keep_padding, fix_scale=args.fix_scale,
-            date_format=args.date_format, volume_scale=args.volume_scale,
-        )
-        print(f"\nMultiCharts (QuoteManager): {dst}", file=err)
-        print(stats.summary(), file=err)
-        if stats.scale_outliers and not args.fix_scale:
-            print("POZOR: subor obsahuje riadky inej mierky a neboli opravene.", file=err)
-            rc = 2
+    print("\narchiv (commitni ho):", file=err)
+    files = store(df, inst, archive=args.archive, merge=not args.no_merge)
+    print(f"zapisanych {len(files)} rocnych suborov do {args.archive}", file=err)
+    if not args.no_merge:
+        from . import engines
 
-    if targets & {"tester", "freqtrade"}:
-        df = load_dukas_frame(args.src, drop_padding=not args.keep_padding)
-        if args.date_from:
-            df = df[df["date"] >= f"{args.date_from} 00:00:00+00:00"]
-        if args.date_to:
-            df = df[df["date"] <= f"{args.date_to} 23:59:59+00:00"]
-        df = df.reset_index(drop=True)
-        if df.empty:
-            print("po orezani --from/--to neostal ziadny bar", file=err)
-            return 1
-        print(f"\n{len(df)} 1m barov {df['date'].min():%Y-%m-%d} .. "
-              f"{df['date'].max():%Y-%m-%d} -> {inst.data_stem}", file=err)
+        print(f"pracovny subor: {engines.one_minute_file(inst)}", file=err)
+    print(f"par {inst.exchange_symbol} je po restarte webapp v ponuke Novy beh; "
+          f"vyssie TF si Tester dopocita sam", file=err)
+    print(f"CSV pre QuoteManager: python -m tester.quotemanager --symbol {inst.exchange_symbol}",
+          file=err)
 
-        if "tester" in targets:
-            print("Tester (burza MultiCharts):", file=err)
-            files = write_years(df, inst.data_stem, archive=args.archive / inst.data_source / inst.market)
-            print(f"zapisanych {len(files)} rocnych suborov do {args.archive} (commitni ich)", file=err)
-            if not args.no_merge:
-                from . import data_archive
-
-                data_archive.merge(verbose=False, roots=((args.archive, TESTER_DATA),))
-                from . import engines
-
-                print(f"pracovny subor: {engines.one_minute_file(inst)}", file=err)
-            print(f"par {inst.exchange_symbol} je po restarte webapp v ponuke Novy beh", file=err)
-
-        if "freqtrade" in targets:
-            print("Freqtrade (hyperopt, FreqAI):", file=err)
-            write_freqtrade(df, inst.data_stem, datadir=args.ft_datadir / inst.data_source / inst.market,
-                            timeframes=args.ft_timeframes)
-            print(f"odvodene subory v {args.ft_datadir} (negituju sa, kedykolvek znova z 1m)", file=err)
-            print(f"beh: --config deploy/freqtrade/config.dukascopy.json "
-                  f"--datadir {args.ft_datadir} --pairs {inst.symbol}", file=err)
-
-    return rc
+    if stats.scale_outliers and not args.fix_scale:
+        print("POZOR: subor obsahuje riadky inej mierky a neboli opravene (--fix-scale).", file=err)
+        return 2
+    return 0
 
 
 if __name__ == "__main__":
