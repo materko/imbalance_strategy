@@ -345,6 +345,8 @@ function setStrategy(key) {
   fillProfiles("");
   const spec = strategySpec(key);
   if (spec && spec.default_timeframe) fillTimeframes($("#pair").value, spec.default_timeframe);
+  // Sekcia sweepu ponúkala parametre stratégie, z ktorej sa prepínalo, a históriu všetkých.
+  if ($("#sweep-rows")) resetSweepForStrategy();
 }
 
 function fillSettings() {
@@ -869,7 +871,7 @@ async function startSweep() {
     };
     const r = await api("/api/sweeps", { method: "POST", body: JSON.stringify(body) });
     sweep.id = r.id;
-    try { localStorage.setItem("sweep", r.id); } catch (e) { /* súkromné okno */ }
+    try { localStorage.setItem(sweepKey(), r.id); } catch (e) { /* súkromné okno */ }
     $("#sweep-status").textContent = `${r.points} behov vo fronte`
       + (r.minutes ? ` · odhadom ${fmtMinutes(r.minutes)}` : "") + ` · ${r.goal_note}`;
     // Fronta sa prestane obtáčať, keď raz dobehne do prázdna; sweep ju musí zobudiť
@@ -932,15 +934,42 @@ function renderSweep(r) {
   }
 }
 
+/** Mriežka patrí stratégii, aj tá zapamätaná — parametre sú v každej iné. */
+const sweepKey = () => `sweep:${state.strategy}`;
+
+/** Otvorí naposledy pozeranú mriežku tejto stratégie (alebo nechá sekciu prázdnu). */
+function restoreSweep() {
+  let ulozeny = null;
+  try { ulozeny = localStorage.getItem(sweepKey()); } catch (e) { /* súkromné okno */ }
+  sweep.id = ulozeny || null;
+  clearTimeout(sweep.timer);
+  $("#sweep-status").textContent = "";
+  $("#sweep-result").innerHTML = "";
+  $("#sweep-cancel").hidden = true;
+  loadSweepHistory();
+  if (ulozeny) pollSweep();
+}
+
+/** Po zmene stratégie: iné parametre v ponuke, iná história, iná zapamätaná mriežka. */
+function resetSweepForStrategy() {
+  $("#sweep-rows").innerHTML = "";
+  addSweepRow();
+  restoreSweep();
+}
+
 /** Naplní ponuku predošlých mriežok — sweep sa dá otvoriť aj o týždeň. */
 async function loadSweepHistory() {
   let list = [];
-  try { list = (await api("/api/sweeps?limit=50")).sweeps; } catch (e) { return; }
+  try {
+    list = (await api(`/api/sweeps?limit=50&strategy=${encodeURIComponent(state.strategy)}`)).sweeps;
+  } catch (e) { return; }
   const sel = $("#sweep-past");
   const wrap = sel.closest(".sweep-past");
   wrap.hidden = !list.length;
-  if (!list.length) return;
+  // Aj skrytú ponuku treba vyprázdniť, nech v nej po prepnutí stratégie nezostanú
+  // mriežky tej predošlej.
   sel.innerHTML = `<option value="">— vyber mriežku z histórie —</option>`;
+  if (!list.length) return;
   for (const s of list) {
     const o = document.createElement("option");
     o.value = s.id;
@@ -964,7 +993,9 @@ function openSweep(id) {
   sweep.id = id || null;
   const sel = $("#sweep-past");
   if (sel && [...sel.options].some(o => o.value === id)) sel.value = id;
-  try { id ? localStorage.setItem("sweep", id) : localStorage.removeItem("sweep"); } catch (e) { /* */ }
+  try {
+    id ? localStorage.setItem(sweepKey(), id) : localStorage.removeItem(sweepKey());
+  } catch (e) { /* súkromné okno */ }
   clearTimeout(sweep.timer);
   if (!id) { $("#sweep-status").textContent = ""; $("#sweep-result").innerHTML = ""; return; }
   $("#sweep-box").open = true;
@@ -998,12 +1029,9 @@ function initSweep() {
   $("#sweep-run").onclick = startSweep;
   $("#sweep-cancel").onclick = cancelSweep;
   $("#sweep-past").onchange = () => openSweep($("#sweep-past").value);
-  loadSweepHistory();
-  // Sweep cez noc: po zavretí a otvorení stránky sa mriežka nájde tam, kde skončila.
-  try {
-    const ulozeny = localStorage.getItem("sweep");
-    if (ulozeny) { sweep.id = ulozeny; pollSweep(); }
-  } catch (e) { /* súkromné okno */ }
+  // Sweep cez noc: po zavretí a otvorení stránky sa mriežka nájde tam, kde skončila
+  // — tá, ktorú tester pozeral pri tejto stratégii.
+  restoreSweep();
 }
 
 /** Zadanie behu z formulára — to isté telo použije jeden beh aj sweep. */

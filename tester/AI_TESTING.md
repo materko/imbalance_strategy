@@ -165,6 +165,7 @@ K hotovej mriežke sa dá kedykoľvek vrátiť — je v histórii ako každý be
 
 ```bash
 PY -m tester.webapp.cli sweeps                    # zoznam mriežok, od najnovšej
+PY -m tester.webapp.cli sweeps --strategy ibs     # len mriežky jednej stratégie
 PY -m tester.webapp.cli sweeps 20260909-185815    # tá istá tabuľka aj s poradím
 ```
 

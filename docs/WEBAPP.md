@@ -216,9 +216,11 @@ Body sú v tabuľke **od zaradenia**, nie až od prvého výsledku: čakajúce r
 a stav píše, ktorý bod práve beží a koľko cudzích behov je pred mriežkou vo fronte. Tú istú
 mriežku appka druhý raz nezaradí; keby sa nič nedialo, je to fronta, nie stratené kliknutie.
 
-**Mriežky sú v histórii.** Rozbaľovacia ponuka **Predošlá mriežka** hore v sekcii ich vypíše
-od najnovšej (dátum, parametre, pár, koľko z nich dobehlo) a výber otvorí presne tú tabuľku
-aj s poradím. V detaile behu, ktorý z mriežky pochádza, je tlačidlo **↩ mriežka …** späť na
+**Mriežky sú v histórii, každá stratégia má svoju.** Rozbaľovacia ponuka **Predošlá
+mriežka** hore v sekcii vypíše mriežky **zvolenej stratégie** od najnovšej (dátum,
+parametre, pár, koľko z nich dobehlo) a výber otvorí presne tú tabuľku aj s poradím.
+Prepnutie stratégie prehodí celú sekciu: iné parametre v ponuke, iná história, iná
+naposledy otvorená mriežka — `rrRatio` nemá pri Donchian breakoute čo robiť. V detaile behu, ktorý z mriežky pochádza, je tlačidlo **↩ mriežka …** späť na
 celok. Nikde sa neukladajú zvlášť — značka je v každom behu, takže zoznam je len preskupená
 história: prežije reštart appky aj `git pull` cudzích behov a nemá sa ako rozísť s tým, čo
 je naozaj odbehnuté. Rozbehnutá mriežka je v ponuke tiež, takže sweep pustený cez noc sa

@@ -1043,6 +1043,37 @@ def test_zoznam_mriezok_sa_posklada_z_historie(client, monkeypatch):
     assert podla_id[bezi]["pending"] == 3 and podla_id[bezi]["done"] == 0
 
 
+def test_historia_mriezok_patri_strategii(client, monkeypatch):
+    """Parametre sú v každej stratégii iné, takže mriežka cez `rrRatio` nemá pri Donchian
+    breakoute čo robiť — zoznam sa prepína spolu s formulárom."""
+    from tester.webapp import app as app_mod
+
+    c, store = client
+    monkeypatch.setattr(app_mod.engines, "available",
+                        lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+
+    for i, (strategia, znacka) in enumerate([("ibs", "20260901-120000-aaaa"),
+                                             ("demo_breakout", "20260902-120000-bbbb")]):
+        rec = _record(f"2026090{i + 1}-120000-cccc0{i}")
+        rec["settings"]["strategy"] = strategia
+        rec["settings"]["sweep"] = {"id": znacka, "values": {"rrRatio": 3},
+                                    "goal": "break_even", "max_dd": None, "min_trades": None}
+        store.save(rec)
+
+    vsetky = c.get("/api/sweeps").json()
+    assert {s["id"] for s in vsetky["sweeps"]} == {"20260901-120000-aaaa", "20260902-120000-bbbb"}
+
+    len_ibs = c.get("/api/sweeps", params={"strategy": "ibs"}).json()
+    assert [s["id"] for s in len_ibs["sweeps"]] == ["20260901-120000-aaaa"]
+    assert len_ibs["sweeps"][0]["strategy"] == "ibs"
+
+    len_demo = c.get("/api/sweeps", params={"strategy": "demo_breakout"}).json()
+    assert [s["id"] for s in len_demo["sweeps"]] == ["20260902-120000-bbbb"]
+
+    assert c.get("/api/sweeps", params={"strategy": "nieco"}).status_code == 404
+
+
 def test_sweep_detail_zoradi_podla_kriteria(client):
     c, store = client
     for i, (rr, be, dd) in enumerate([(2, 0.10, 4.0), (3, 0.30, 30.0), (4, 0.20, 5.0)]):
