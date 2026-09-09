@@ -16,22 +16,21 @@ deploy/freqtrade/user_data/backtest_results/
 graf.html
 *.html
 # statická stránka webapp je zdroj, nie generovaný report
-!tradebot/webapp/static/*.html
+!tester/webapp/static/*.html
 deploy/freqtrade/user_data/hyperopt_results/
-# Pracovne sviecky sa poskladaju z archivu prikazom
-#   python -m tester.data_archive merge
-# V gite je archiv po rokoch (data_archive/<zdroj>/) - stary rok sa uz nikdy nezmeni,
-# takze jeho blob v historii existuje raz. Cely subor by sa pri kazdom stiahnuti dat
-# commitol znova.
-# Cele data/ je odvodene: data/tester/ sa poskladá z data_archive/ prikazom
-#   python -m tester.data_archive merge
-# a data/quotemanager/ je z neho dalsi export. V gite je len archiv - zrkadli tento
-# strom cestu za cestou, len po rokoch.
+# Cele data/ je odvodene a do gitu nejde nikdy: data/tester/ sa zlozi z archivu
+# (`python -m tester.data_archive merge`), chybajuce timeframy sa dopocitaju z 1m
+# (`python -m tester.timeframes`, pripadne si ich poskladá strategia za behu) a
+# data/quotemanager/ je z toho isteho dalsi export. Tester si cely strom pri prvom
+# spusteni vyrobi sam.
+# V gite je len data_archive/ - po rokoch a VYHRADNE to, co prislo z burzy alebo
+# z raw exportu. Uzavrety rok sa uz nemeni, takze jeho blob v historii existuje raz;
+# cely subor by pri kazdom stiahnuti pribudol znova.
 data/
 deploy/freqtrade/user_data/strategies/*.json
 deploy/freqtrade/user_data/hyperopt.lock
 
-# HTML reporty z `python -m tradebot.tools.report` - generovane, nie zdroj
+# HTML reporty z `python -m tester.report` - generovane, nie zdroj
 reports/
 
 # webapp: docasne profily behov a konfiguracia Claude Code
