@@ -25,6 +25,7 @@ from pandas import DataFrame, Series
 from freqtrade.strategy import IStrategy, stoploss_from_absolute
 
 from tradebot.core import Bar, load_profile
+from tradebot.core.candles import timeframe_minutes
 from tradebot.core.env import getenv
 from tradebot.strategies import StrategySpec, get_spec
 
@@ -125,7 +126,7 @@ class TradebotStrategyBase(IStrategy):
             list(self.spec.informative_tfs(self.tb_cfg)) if self.spec.informative_tfs else []
         )
         # Freqtrade potrebuje vedieť, koľko sviečok histórie stratégia chce pred prvým signálom.
-        probe = self.spec.engine_factory(self.tb_cfg, self.tb_inst, int(self.timeframe.rstrip("m")))
+        probe = self.spec.engine_factory(self.tb_cfg, self.tb_inst, timeframe_minutes(self.timeframe))
         self.startup_candle_count = max(int(type(self).startup_candle_count), int(probe.required_history))
         self._after_profile()
 
@@ -242,7 +243,7 @@ class TradebotStrategyBase(IStrategy):
             self._runner_fp = fp
         runner = self._runners.get(pair)
         if runner is None:
-            runner = EngineRunner(self.tb_cfg, self.tb_inst, int(self.timeframe.rstrip("m")), spec=self.spec)
+            runner = EngineRunner(self.tb_cfg, self.tb_inst, timeframe_minutes(self.timeframe), spec=self.spec)
             self._runners[pair] = runner
         return runner
 

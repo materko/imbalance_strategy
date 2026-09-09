@@ -25,6 +25,8 @@ miesto, kde tú asymetriu treba vedieť.
 
 from __future__ import annotations
 
+import json
+from functools import lru_cache
 from pathlib import Path
 
 from tradebot.core.paths import FREQTRADE_DIR, TESTER_DATA
@@ -32,6 +34,7 @@ from tradebot.core.types import InstrumentSpec
 
 __all__ = ["FREQTRADE", "MULTICHARTS", "ENGINES", "ENGINE_TITLES",
            "one_minute_file", "freqtrade_file", "market_dir", "data_dir", "freqtrade_config",
+           "freqtrade_exchange", "exchange_timeframes", "freqtrade_blocker",
            "available", "default_engine"]
 
 FREQTRADE = "freqtrade"
@@ -97,14 +100,54 @@ def freqtrade_config(inst: InstrumentSpec) -> Path:
     return FREQTRADE_DIR / "config.binance.json"
 
 
-def available(inst: InstrumentSpec, timeframe: str = "3m") -> list[str]:
-    """Ktoré enginy sa na tomto inštrumente dajú spustiť — podľa toho, čo je na disku.
+@lru_cache(maxsize=8)
+def freqtrade_exchange(config: Path) -> str:
+    """Meno burzy z Freqtrade configu — podľa nej sa validuje timeframe."""
+    try:
+        return str(json.loads(config.read_text(encoding="utf-8"))["exchange"]["name"])
+    except (OSError, ValueError, KeyError, TypeError):
+        return ""
 
-    Freqtrade potrebuje súbor pre `timeframe` (vyšší TF si z 1m nedopočíta), emulátor
-    jediný 1m súbor. Chýbajúce dáta pre Dukascopy doplní `tester.dukas_import`.
+
+@lru_cache(maxsize=8)
+def exchange_timeframes(name: str) -> frozenset[str]:
+    """Timeframy, ktoré burza pozná (z ccxt, bez siete). Prázdne = neobmedzujeme."""
+    if not name:
+        return frozenset()
+    try:
+        import ccxt
+
+        return frozenset(getattr(ccxt, name)().timeframes or ())
+    except Exception:  # noqa: BLE001  (chýbajúce ccxt ani neznáma burza nesmú zhodiť ponuku)
+        return frozenset()
+
+
+def freqtrade_blocker(inst: InstrumentSpec, timeframe: str) -> str | None:
+    """Prečo sa tento timeframe nedá prehrať Freqtradom — alebo `None`, keď sa dá.
+
+    Dve rôzne prekážky: chýbajúci súbor (vyšší TF si Freqtrade z 1m nedopočíta) a
+    timeframe, ktorý **burza nepozná**. Ten druhý je dôvod, prečo 2m a 4m ostávajú
+    len pre emulátor: Freqtrade beh odmietne už pri validácii configu, hoci sviečky
+    na disku sú (`tester.timeframes` ich vyrobí pre graf aj pre emulátor).
+    """
+    if not freqtrade_file(inst, timeframe).exists():
+        return f"chýba súbor pre {timeframe}"
+    exchange = freqtrade_exchange(freqtrade_config(inst))
+    known = exchange_timeframes(exchange)
+    if known and timeframe not in known:
+        return f"burza {exchange} timeframe {timeframe} nepozná"
+    return None
+
+
+def available(inst: InstrumentSpec, timeframe: str = "3m") -> list[str]:
+    """Ktoré enginy sa na tomto inštrumente a timeframe dajú spustiť.
+
+    Freqtrade potrebuje súbor pre `timeframe` a burzu, ktorá ten timeframe pozná;
+    emulátor jediný 1m súbor — vyššie TF si skladá sám, takže mu stačí čokoľvek.
+    Chýbajúce dáta pre Dukascopy doplní `tester.dukas_import`.
     """
     out = []
-    if freqtrade_file(inst, timeframe).exists():
+    if freqtrade_blocker(inst, timeframe) is None:
         out.append(FREQTRADE)
     if one_minute_file(inst).exists():
         out.append(MULTICHARTS)

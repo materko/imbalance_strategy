@@ -134,9 +134,12 @@ def cmd_run(args: argparse.Namespace) -> int:
     engine = args.engine or engines.default_engine(inst, args.timeframe)
     possible = engines.available(inst, args.timeframe)
     if engine not in possible:
+        preco = (engines.freqtrade_blocker(inst, args.timeframe) if engine == engines.FREQTRADE
+                 else "chýbajú 1m sviečky")
         raise SystemExit(
-            f"engine {engines.ENGINE_TITLES[engine]} nemá pre {pair} dáta; "
-            f"dostupné: {', '.join(engines.ENGINE_TITLES[e] for e in possible) or 'žiadne'}")
+            f"engine {engines.ENGINE_TITLES[engine]} sa na {pair} {args.timeframe} spustiť nedá "
+            f"({preco}); dostupné: "
+            f"{', '.join(engines.ENGINE_TITLES[e] for e in possible) or 'žiadne'}")
 
     settings = {
         "strategy": args.strategy, "pair": pair, "engine": engine, "timeframe": args.timeframe,

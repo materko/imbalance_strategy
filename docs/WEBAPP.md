@@ -64,6 +64,25 @@ Server sa ukončí Ctrl+C. Aktualizácia kódu je `git pull` v koreni repozitár
 docker compose -f docker/docker-compose.yml run --rm --service-ports webapp
 ```
 
+## Čo si aplikácia doplní pri štarte
+
+Než začne počúvať, dorobí, čo chýba, a povie to na konzole:
+
+1. **sviečky z archívu** — `data_archive merge`, keď v `data/tester/` chýba čokoľvek, čo
+   je v `data_archive/` (nestačí, že tam je „aspoň niečo": s jediným rozbaleným zdrojom by
+   bola ponuka párov poloprázdna);
+2. **vyššie timeframy z 1m** — podľa [`tester/timeframes.json`](../tester/timeframes.json),
+   dnes 2m, 3m, 4m, 5m, 15m, 30m, 1h, 4h, 1d, 1w. Freqtrade si ich z 1m nedopočíta, chce
+   súbor na disku. Doplní sa len to, čo chýba; stiahnuté z burzy sa neprepisuje a
+   dopočítané sa necommituje ([docs/DATA.md](DATA.md)).
+
+Prvý štart po pridaní timeframu preto chvíľu trvá (u nás 43 súborov ≈ 10 s), ďalšie už nie.
+Ručne: `python -m tester.timeframes` a `python -m tester.data_archive merge`.
+
+**Freqtrade beží len na timeframoch, ktoré pozná jeho burza.** Binance nemá 2m ani 4m,
+Coinbase nemá 3m — na takých TF ponúkne webapp len emulátor MultiCharts (skladá si ich
+z 1m sám) a beh cez Freqtrade odmietne s vysvetlením, nie až chybou z Freqtradu.
+
 ## Meno testera
 
 V hlavičke stránky je pole s menom. Ukladá sa ku každému behu (stĺpec v histórii,

@@ -18,6 +18,7 @@ from freqtrade.strategy import DecimalParameter, IntParameter
 
 from tradebot.adapters.freqtrade.base import TradebotStrategyBase, _bar, _ts_ms
 from tradebot.adapters.freqtrade.runner import EngineRunner
+from tradebot.core.candles import timeframe_minutes
 from tradebot.core import Bar, SessionClock
 from tradebot.core.risk import TrailingPlan, extreme_before_stop
 from tradebot.core.types import Direction, TradeDirection
@@ -115,7 +116,7 @@ class IBSImbalanceStrategy(TradebotStrategyBase):
 
     def _entry_timeout_minutes(self) -> int:
         """Ako dlho smie limitka čakať — Pine `state5MaxBars` prevedené na minúty."""
-        return int(self.ibs_cfg.state5MaxBars) * int(self.timeframe.rstrip("m"))
+        return int(self.ibs_cfg.state5MaxBars) * timeframe_minutes(self.timeframe)
 
     def _check_unfilled_timeout(self) -> None:
         """`unfilledtimeout.entry` vo Freqtrade configu nesmie byť kratší než engine.

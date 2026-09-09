@@ -682,6 +682,8 @@ def _stub_launcher(monkeypatch, chyba: list):
     merges: list[list[str]] = []
     monkeypatch.setattr("tester.data_archive.missing", lambda: chyba)
     monkeypatch.setattr("tester.data_archive.main", lambda argv: merges.append(argv) or 0)
+    monkeypatch.setattr("tester.timeframes.missing", lambda: [])
+    monkeypatch.setattr("tester.timeframes.ensure", lambda: [])
     return merges
 
 
@@ -712,3 +714,19 @@ def test_spustac_webapp_nesklada_ked_je_vsetko_rozbalene(monkeypatch, capsys):
     assert entry.main() == 0
     assert merges == []
     assert "TradeBot Tester: http://" in capsys.readouterr().out
+
+
+def test_spustac_webapp_doplni_chybajuce_timeframy(monkeypatch, capsys):
+    """Vyšší TF si Freqtrade z 1m nedopočíta — musí byť na disku pred prvým behom."""
+    from pathlib import Path
+
+    from tester.webapp import __main__ as entry
+
+    _stub_launcher(monkeypatch, [])
+    volania: list[str] = []
+    monkeypatch.setattr("tester.timeframes.missing",
+                        lambda: [Path("data/tester/binance/spot/BTC_USDT-4h.feather")])
+    monkeypatch.setattr("tester.timeframes.ensure", lambda: volania.append("ensure") or [])
+    assert entry.main() == 0
+    assert volania == ["ensure"]
+    assert "Chyba 1 timeframov" in capsys.readouterr().out

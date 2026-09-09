@@ -288,10 +288,12 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(422, f"neznámy engine {engine!r}; známe: {', '.join(engines.ENGINES)}")
         possible = engines.available(inst, req.timeframe)
         if engine not in possible:
+            preco = (engines.freqtrade_blocker(inst, req.timeframe) if engine == engines.FREQTRADE
+                     else "chýbajú 1m sviečky")
             raise HTTPException(422, (
-                f"engine {engines.ENGINE_TITLES[engine]} nemá pre {req.pair} dáta "
-                f"({'chýba súbor pre ' + req.timeframe if engine == engines.FREQTRADE else 'chýbajú 1m sviečky'}); "
-                f"dostupné: {', '.join(engines.ENGINE_TITLES[e] for e in possible) or 'žiadne'}"))
+                f"engine {engines.ENGINE_TITLES[engine]} sa na {req.pair} {req.timeframe} "
+                f"spustiť nedá ({preco}); dostupné: "
+                f"{', '.join(engines.ENGINE_TITLES[e] for e in possible) or 'žiadne'}"))
         settings = {
             "strategy": req.strategy,
             "pair": req.pair,

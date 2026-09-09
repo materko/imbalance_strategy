@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from tradebot.core import load_profile
+from tradebot.core.candles import timeframe_minutes
 from tradebot.core.paths import (
     BACKTEST_RESULTS as RESULTS_DIR,
     TESTER_DATA,
@@ -230,11 +231,9 @@ class Job:
         }
 
 
-def tf_minutes(tf: str) -> int:
-    """`3m` → 3, `1h` → 60, `1d` → 1440."""
-    unit = tf[-1]
-    n = int(tf[:-1])
-    return n * {"m": 1, "h": 60, "d": 1440}[unit]
+#: `3m` → 3, `4h` → 240, `1w` → 10080. Prevod je v jadre, aby ho adaptéry aj nástroje
+#: mali rovnaký (a aby `4h` nepadalo tam, kde niekto parsoval len minúty).
+tf_minutes = timeframe_minutes
 
 
 def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> list[str]:
@@ -259,10 +258,10 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
     detail = settings.get("timeframe_detail", "1m")
     if detail and tf_minutes(detail) < tf_minutes(tf):
         cmd += ["--timeframe-detail", detail]
-    # Symbol mimo ccxt búrz má dáta pod svojím zdrojom, nie pod menom nosnej burzy
-    datadir = engines.data_dir(inst)
-    if datadir.name != "binance":
-        cmd += ["--datadir", str(datadir)]
+    # Vzdy explicitne: bez `--datadir` si Freqtrade vezme `<userdir>/data/<burza>`, kde od
+    # presunu dat lezia uz len stare kopie. Beh by potom ticho pocital z inych suborov,
+    # nez ma zvysok Testera (a novy timeframe by tam vobec nenasiel).
+    cmd += ["--datadir", str(engines.data_dir(inst))]
     return cmd
 
 

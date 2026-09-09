@@ -1,0 +1,15 @@
+{
+  "_comment": [
+    "Timeframy, ktore ma mat Tester na disku. Zdroj je vzdy 1m: stiahnuty z burzy alebo",
+    "vyrobeny z raw exportu (dukas_import). Vsetko ostatne sa z neho poskladá tym istym",
+    "pravidlom ako graf webapp a emulator MultiCharts (tradebot/core/candles.py), takze",
+    "vsetky cesty vidia tie iste bary.",
+    "",
+    "Doplni sa len to, co na disku CHYBA - oficialne stiahnute TF z burzy sa neprepisuju.",
+    "Odvodene subory sa NEcommituju: v archive maju byt len data z burzy, zvysok sa",
+    "kedykolvek dopocita (`python -m tester.timeframes`).",
+    "",
+    "Pridanie TF do zoznamu staci; vyrobi sa pri najblizsom starte webapp."
+  ],
+  "derive": ["2m", "3m", "4m", "5m", "15m", "30m", "1h", "4h", "1d", "1w"]
+}

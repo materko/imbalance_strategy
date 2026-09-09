@@ -1061,8 +1061,12 @@ function layersFor(strategyKey) {
     hollow: new Set(layers.flatMap(l => l.hollow_kinds || [])),
   };
 }
-const TF_MINUTES = { "1m": 1, "3m": 3, "5m": 5, "15m": 15, "30m": 30, "1h": 60 };
-const SPANS = [["4 h", 4 * 3600e3], ["12 h", 12 * 3600e3], ["1 deň", 86400e3], ["3 dni", 3 * 86400e3], ["1 týždeň", 7 * 86400e3]];
+// Minúty na timeframe; ponuku dáva server (/api/meta → pair.timeframes, tester/timeframes.json),
+// tu musí byť aspoň to, čo je v nej, inak graf taký TF ticho preskočí.
+const TF_MINUTES = { "1m": 1, "2m": 2, "3m": 3, "4m": 4, "5m": 5, "15m": 15, "30m": 30,
+  "1h": 60, "2h": 120, "4h": 240, "1d": 1440, "1w": 10080 };
+const SPANS = [["4 h", 4 * 3600e3], ["12 h", 12 * 3600e3], ["1 deň", 86400e3], ["3 dni", 3 * 86400e3],
+  ["1 týždeň", 7 * 86400e3], ["1 mesiac", 30 * 86400e3], ["1 rok", 365 * 86400e3]];
 const MAX_CANDLES = 6000;  // rovnaké ako server (tradebot/webapp/chart.py)
 const DASH = { dotted: "dot", dashed: "dash" };
 

@@ -43,9 +43,11 @@ Bez obmedzení. Platia len konvencie repozitára:
 - Merania sa zapisujú ako datované dokumenty v `docs/merania/` s číslami **po rokoch** na piatich
   referenčných oknách (`20211001-20221001`, `20221001-20231001`, `20231001-20241001`,
   `20240904-20250904`, `20250904-20260904`); kľúčová metrika je break-even poplatok.
-- Dáta len v oficiálnych timeframoch búrz, commitované po rokoch v `data_archive/tester/` príslušnej
-  platformy (Binance/Coinbase pod `deploy/freqtrade/user_data/`, Dukascopy pod
-  `deploy/multicharts/`). Surový Dukascopy export spracuje `tester.dukas_import`
+- Sťahujú a commitujú sa len oficiálne timeframy búrz (po rokoch v `data_archive/tester/`);
+  zvyšok podľa [`tester/timeframes.json`](tester/timeframes.json) dopočíta `tester.timeframes`
+  z 1m pri štarte webapp — nič stiahnuté neprepíše a dopočítané do archívu nejde.
+  Freqtrade beží len na TF, ktoré pozná jeho burza (2m a 4m sú preto len pre emulátor).
+  Surový Dukascopy export spracuje `tester.dukas_import`
   (obal `./dukas-import.sh`, `.\dukas-import.ps1`) — viď [docs/DATA.md](docs/DATA.md).
 - Cesty v repozitári sú na jednom mieste v `tradebot/core/paths.py`; nikde inde sa nepíšu.
 - Vyšší TF sa z 1m skladá výhradne cez `tradebot/core/candles.py` (webapp graf, simulátor,

@@ -30,6 +30,10 @@ MIN3 = 180_000
 # --------------------------------------------------------------------------- #
 
 
+#: Timeframe, ktorý v ponuke nie je a byť nemá — na overenie, že ju server stráži.
+UNKNOWN_TF = "7m"
+
+
 def test_box_to_dict_keeps_only_non_default_fields():
     box = DrawBox(kind=DrawKind.SD_ZONE_POST, x1_ms=0, y1=110.0, x2_ms=1000, y2=100.0, border_color="#fff",
                   fill_color="#10b98126", border_style=LineStyle.DOTTED, obj_id="z0.post", zone_uid=7, text="zona")
@@ -130,8 +134,10 @@ def test_window_keeps_objects_touching_the_range():
 
 def test_pair_file_uses_freqtrade_naming():
     assert chart_mod.pair_file("BTC/USDT:USDT", "3m").name == "BTC_USDT_USDT-3m-futures.feather"
+    # timeframe mimo ponuky (`tester/timeframes.json`) sa má odmietnuť, nie hádať súbor
+    assert UNKNOWN_TF not in chart_mod.TIMEFRAMES
     with pytest.raises(ValueError):
-        chart_mod.pair_file("BTC/USDT:USDT", "2m")
+        chart_mod.pair_file("BTC/USDT:USDT", UNKNOWN_TF)
 
 
 @pytest.fixture
@@ -239,5 +245,6 @@ def test_candles_endpoint(client, fake_data):
     r = c.get("/api/candles", params={"pair": "BTC/USDT:USDT", "tf": "3m", "from": T0, "to": T0 + 3 * MIN3})
     assert r.status_code == 200 and r.json()["c"] == [100.5, 101.5, 102.5]
     assert c.get("/api/candles", params={"pair": "BTC/USDT:USDT", "tf": "3m", "from": T0, "to": T0}).status_code == 422
-    assert c.get("/api/candles", params={"pair": "BTC/USDT:USDT", "tf": "2m", "from": T0, "to": T0 + 1}).status_code == 422
+    assert c.get("/api/candles", params={"pair": "BTC/USDT:USDT", "tf": UNKNOWN_TF,
+                                        "from": T0, "to": T0 + 1}).status_code == 422
     assert c.get("/api/candles", params={"pair": "ETH/USDT:USDT", "tf": "3m", "from": T0, "to": T0 + 1}).status_code == 404
