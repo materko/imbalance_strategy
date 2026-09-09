@@ -752,3 +752,16 @@ def test_staticke_subory_sa_necachuju(client):
     r = c.get("/static/app.js")
     assert r.status_code == 200
     assert "no-cache" in r.headers.get("cache-control", "")
+
+
+def test_formular_ma_vsetky_ovladace_ktore_stranka_pouziva():
+    """Redizajn formulára nesmie zahodiť žiadne pole — JS ich hľadá podľa `id`."""
+    from tester.webapp.app import STATIC
+
+    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    for name in ("strategy", "profile", "profile-save", "profile-rename", "profile-delete",
+                 "profile-msg", "profile-base", "pair", "pair-market", "pair-range",
+                 "engine", "engine-note", "exchange", "exchange-note", "tf", "from", "to",
+                 "fee", "wallet", "detail", "note", "run", "run-error",
+                 "pair-warn", "trading-warn"):
+        assert f'id="{name}"' in html, name
