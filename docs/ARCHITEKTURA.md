@@ -88,7 +88,7 @@ sequenceDiagram
     U->>W: parametre, pár, TF, obdobie, engine
     W->>R: job
     alt engine = freqtrade
-        R->>E: freqtrade backtesting (podproces)
+        R->>E: tester.ftrun backtesting (podproces, burza Tester)
         Note over E: TradebotStrategyBase<br/>chýbajúci TF si poskladá z 1m
     else engine = multicharts
         R->>E: emulátor v procese (MCRunner)
@@ -110,6 +110,7 @@ ktoré tester commituje** — tlačidlami Pull/Push alebo `python -m tester.weba
 | skladanie vyššieho TF z 1m | [`tradebot/core/candles.py`](../tradebot/core/candles.py) |
 | ktoré TF majú byť na disku | [`tester/timeframes.json`](../tester/timeframes.json) |
 | kde ležia sviečky pre engine | [`tester/engines.py`](../tester/engines.py) |
+| aké páry a TF pozná Freqtrade | [`tester/ftexchange.py`](../tester/ftexchange.py) — fiktívna burza Tester |
 | čo je dopočítané (a teda mimo gitu) | `data/tester/.derived.json` + [`tradebot/core/derived.py`](../tradebot/core/derived.py) |
 | parametre stratégie | `tradebot/strategies/<kľúč>/config.py` + jej Pine zdroj |
 | parita s TradingView | [`tester/tests/test_golden_tv_binance.py`](../tester/tests/test_golden_tv_binance.py) |

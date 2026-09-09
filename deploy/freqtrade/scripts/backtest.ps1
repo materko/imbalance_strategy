@@ -14,7 +14,7 @@
 [CmdletBinding()]
 param(
     [string]$Strategy = "IBSImbalanceStrategy",
-    [string]$Config = "config.binance.json",
+    [string]$Config = "config.tester.json",
     [string]$Timerange,
     [string]$TimeframeDetail = "1m",
     [switch]$NoDetail,
@@ -38,7 +38,7 @@ if (-not (Test-Path $stratFile)) {
 # strategie, ale nase nastavenia su v profile mimo neho (TRADEBOT_PROFILE), takze
 # zmena profilu cache nezneplatni a dostanes ticho stary vysledok.
 $args = @(
-    "-m", "freqtrade", "backtesting",
+    "-m", "tester.ftrun", "backtesting",
     "--config", (Join-Path $ft $Config),
     "--userdir", $userdir,
     "--datadir", (Join-Path $repo "data\tester\binance"),

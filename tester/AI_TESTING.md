@@ -67,6 +67,9 @@ break-even nie.
 - **Výsledky z rôznych enginov nie sú zameniteľné.** Signály sú rovnaké, fill model nie
   (Freqtrade vs. MultiCharts). Ladiť sa dá cez Freqtrade, ale záver pre MultiCharts over
   emulátorom — [docs/FREQTRADE.md §G](../docs/FREQTRADE.md).
+- **Freqtrade beží na fiktívnej burze Tester** (`tester/ftexchange.py`), ktorá pozná naše
+  páry aj všetky timeframy. Nie je to skutočný trh: poplatok zadávaš cez `--fee`, funding je
+  nula a likvidácia sa nepočíta. Na porovnanie s reálnou burzou sú configy `config.binance*.json`.
 - **Bez `--timeframe-detail 1m`** (CLI ho má zapnutý) sú fill ceny hrubé. `--no-detail` je
   len na rýchly odhad, nie do záverov.
 - **Stratégiu nikdy nespúšťaj na 1m grafe** — limity `*MaxBars` sú v baroch, na 1m by to

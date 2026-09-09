@@ -35,7 +35,7 @@
 [CmdletBinding()]
 param(
     [string]$Strategy = "IBSImbalanceStrategy",
-    [string]$Config = "config.binance.json",
+    [string]$Config = "config.tester.json",
     [Parameter(Mandatory = $true)][string]$Timerange,
     [int]$Epochs = 300,
     [string]$Loss = "IBSEdgeLoss",
@@ -61,7 +61,7 @@ Write-Host "realne. Vysledok VZDY over na inom okne, nez na akom si ladil." -For
 Write-Host ""
 
 $args = @(
-    "-m", "freqtrade", "hyperopt",
+    "-m", "tester.ftrun", "hyperopt",
     "--config", (Join-Path $ft $Config),
     "--userdir", $userdir,
     "--datadir", (Join-Path $repo "data\tester\binance"),

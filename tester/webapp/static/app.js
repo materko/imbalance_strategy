@@ -374,6 +374,7 @@ function fillSettings() {
     if (enforceSpotParams()) renderParams(); else lockSpotParams();
     $("#pair-range").textContent = `dáta ${o.dataset.from} → ${o.dataset.to}`;
     fillEngines(o.value);
+    fillExchanges(o.value);
     fillTimeframes(o.value);
     $("#from").min = o.dataset.from; $("#from").max = o.dataset.to; $("#to").min = o.dataset.from; $("#to").max = o.dataset.to;
     if (!$("#to").value || $("#to").value > o.dataset.to) $("#to").value = o.dataset.to;
@@ -406,13 +407,39 @@ function fillEngines(pairName, wanted) {
     const o = document.createElement("option"); o.value = e; o.textContent = ENGINE_TITLES[e] || e; sel.append(o);
   }
   sel.value = list.includes(keep) ? keep : ((p && p.default_engine) || list[0]);
-  sel.onchange = showEngineNote;
+  sel.onchange = () => { showEngineNote(); fillExchanges($("#pair").value); };
   showEngineNote();
 }
 
 function showEngineNote() {
   const e = $("#engine").value;
   $("#engine-note").textContent = ENGINE_NOTES[e] || "";
+}
+
+/** Burza pre Freqtrade beh: naša fiktívna Tester a tá, odkiaľ sviečky naozaj sú.
+ *  Emulátor MultiCharts burzu nepotrebuje — vtedy je pole zamknuté. */
+function fillExchanges(pairName, wanted) {
+  const sel = $("#exchange");
+  const p = state.meta.pairs.find(x => x.pair === pairName);
+  const list = (p && p.exchanges && p.exchanges.length) ? p.exchanges : [state.meta.default_exchange];
+  const titles = Object.fromEntries((state.meta.exchanges || []).map(e => [e.key, e.title]));
+  const keep = wanted || sel.value;
+  sel.innerHTML = "";
+  for (const e of list) {
+    const o = document.createElement("option");
+    o.value = e; o.textContent = titles[e] || e;
+    sel.append(o);
+  }
+  sel.value = list.includes(keep) ? keep : (list.includes(state.meta.default_exchange)
+    ? state.meta.default_exchange : list[0]);
+  const emulator = $("#engine").value === "multicharts";
+  sel.disabled = emulator;
+  $("#exchange-note").textContent = emulator
+    ? "emulátor MultiCharts burzu nepotrebuje — číta priamo 1m sviečky"
+    : (sel.value === state.meta.default_exchange
+      ? "fiktívna burza: pozná všetky naše timeframy, poplatok zadáva beh"
+      : "skutočná burza: platia jej timeframy a pravidlá trhu");
+  sel.onchange = () => fillExchanges(pairName, sel.value);
 }
 
 /** TF grafu pre beh: ponuka podľa stiahnutých dát páru, zachová voľbu, inak 3m. */
@@ -579,6 +606,7 @@ async function loadProfile(name) {
   // limity *MaxBars sú v baroch, takže k profilu patrí aj TF, na ktorom bol ladený;
   // profil bez `_timeframe` (tie z repozitára) znamená 3m, nie „nechaj, čo tam bolo"
   fillEngines($("#pair").value, r.engine);
+  fillExchanges($("#pair").value, r.exchange);
   fillTimeframes($("#pair").value, r.timeframe || "3m");
   applyProfileSettings(r.settings || {});
   $("#profile-base").textContent = r.base ? `vychádza z profilu ${r.base}` : "";
@@ -674,6 +702,7 @@ async function submitRun() {
       strategy: state.strategy,
       pair: $("#pair").value,
       engine: $("#engine").value || null,
+      exchange: $("#exchange").value || null,
       timeframe: $("#tf").value,
       timerange: timerange(),
       fee: $("#fee").value === "" ? null : Number($("#fee").value) / 100,
@@ -811,7 +840,7 @@ async function openRun(id) {
   const runStrategy = rec.settings.strategy || "ibs";
   const runMeta = strategyMeta(runStrategy) || state.meta;
   $("#detail-title").textContent = `${(strategySpec(runStrategy) || {}).title || runStrategy} · ${rec.settings.pair} · ${rec.settings.timeframe || "3m"} · ${rec.settings.timerange}`;
-  $("#detail-meta").textContent = `${rec.id} · ${rec.user || ""} · ${(rec.created || "").replace("T", " ").slice(0, 16)} · profil ${rec.settings.profile || "(Pine)"} · poplatok ${rec.settings.fee != null ? (rec.settings.fee * 100).toFixed(3) + " %" : "—"} · peňaženka ${rec.settings.wallet} · engine ${rec.settings.engine || "freqtrade"} · detail ${rec.settings.timeframe_detail || "bez"}${rec.note ? " · " + rec.note : ""}`;
+  $("#detail-meta").textContent = `${rec.id} · ${rec.user || ""} · ${(rec.created || "").replace("T", " ").slice(0, 16)} · profil ${rec.settings.profile || "(Pine)"} · poplatok ${rec.settings.fee != null ? (rec.settings.fee * 100).toFixed(3) + " %" : "—"} · peňaženka ${rec.settings.wallet} · engine ${rec.settings.engine || "freqtrade"}${rec.settings.exchange ? " (" + rec.settings.exchange + ")" : ""} · detail ${rec.settings.timeframe_detail || "bez"}${rec.note ? " · " + rec.note : ""}`;
   $("#download-profile").href = `/api/runs/${id}/profile.json`;
   $("#save-profile-msg").textContent = ""; $("#save-profile-msg").classList.remove("err");
   $("#detail-error").hidden = !rec.error; $("#detail-error").textContent = rec.error || "";

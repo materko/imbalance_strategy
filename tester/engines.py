@@ -25,17 +25,15 @@ miesto, kde tú asymetriu treba vedieť.
 
 from __future__ import annotations
 
-import json
-from functools import lru_cache
 from pathlib import Path
 
 from tradebot.core.paths import FREQTRADE_DIR, TESTER_DATA
 from tradebot.core.types import InstrumentSpec
 
 __all__ = ["FREQTRADE", "MULTICHARTS", "ENGINES", "ENGINE_TITLES",
-           "one_minute_file", "freqtrade_file", "market_dir", "data_dir", "freqtrade_config",
-           "freqtrade_exchange", "exchange_timeframes", "freqtrade_blocker",
-           "available", "default_engine"]
+           "EXCHANGES", "EXCHANGE_TITLES", "DEFAULT_EXCHANGE", "exchanges_for",
+           "exchange_timeframes", "one_minute_file", "freqtrade_file", "market_dir",
+           "data_dir", "freqtrade_config", "freqtrade_blocker", "available", "default_engine"]
 
 FREQTRADE = "freqtrade"
 MULTICHARTS = "multicharts"
@@ -87,33 +85,77 @@ def one_minute_file(inst: InstrumentSpec) -> Path:
     return freqtrade_file(inst, "1m")
 
 
-def freqtrade_config(inst: InstrumentSpec) -> Path:
-    """Ktorý Freqtrade config na tento inštrument sedí.
+#: Burzy, cez ktoré sa dá beh prehnať, a config na každý trh. `tester` je naša fiktívna
+#: burza (`tester/ftexchange.py`) — pozná všetky naše páry aj timeframy; ostatné sú
+#: skutočné burzy z ccxt a slúžia na kontrolu, či sa niečo nerozišlo s realitou.
+TESTER_EXCHANGE = "tester"
+DEFAULT_EXCHANGE = TESTER_EXCHANGE
 
-    Spot má vlastný (`trading_mode: spot`), inak by Freqtrade pár ani nenašiel; symboly
-    mimo ccxt búrz majú config s nosnou burzou a `allow_inactive`.
-    """
+_CONFIGS: dict[str, dict[str, str]] = {
+    "tester": {"futures": "config.tester.json", "spot": "config.tester.spot.json",
+               "cfd": "config.tester.cfd.json"},
+    "binance": {"futures": "config.binance.json", "spot": "config.binance.spot.json"},
+    "coinbase": {"spot": "config.coinbase.json"},
+    "dukascopy": {"cfd": "config.dukascopy.json"},
+}
+
+EXCHANGES = tuple(_CONFIGS)
+
+EXCHANGE_TITLES = {
+    "tester": "Tester (fiktívna)",
+    "binance": "Binance",
+    "coinbase": "Coinbase",
+    "dukascopy": "Bitstamp (nosná pre CFD)",
+}
+
+
+def market_kind(inst: InstrumentSpec) -> str:
+    """`futures`, `spot` alebo `cfd` — podľa toho sa vyberá config."""
     if _is_off_exchange(inst):
-        return FREQTRADE_DIR / "config.dukascopy.json"
-    if inst.is_spot:
-        return FREQTRADE_DIR / "config.binance.spot.json"
-    return FREQTRADE_DIR / "config.binance.json"
+        return "cfd"
+    return "spot" if inst.is_spot else "futures"
 
 
-@lru_cache(maxsize=8)
-def freqtrade_exchange(config: Path) -> str:
-    """Meno burzy z Freqtrade configu — podľa nej sa validuje timeframe."""
-    try:
-        return str(json.loads(config.read_text(encoding="utf-8"))["exchange"]["name"])
-    except (OSError, ValueError, KeyError, TypeError):
-        return ""
+def exchanges_for(inst: InstrumentSpec) -> list[str]:
+    """Burzy, cez ktoré má zmysel tento pár prehnať.
+
+    Vždy naša fiktívna (ak pár pozná) a k tomu tá, odkiaľ sviečky naozaj sú — beh na cudzej
+    burze by dal cudzie pravidlá trhu k našim dátam a nič by to nepovedalo.
+    """
+    from .ftexchange import markets
+
+    kind = market_kind(inst)
+    out = []
+    if TESTER_EXCHANGE in _CONFIGS and kind in _CONFIGS[TESTER_EXCHANGE]:
+        if any(m["symbol"] == inst.symbol for m in markets()):
+            out.append(TESTER_EXCHANGE)
+    native = "dukascopy" if kind == "cfd" else inst.data_source
+    if native != TESTER_EXCHANGE and kind in _CONFIGS.get(native, {}):
+        out.append(native)
+    return out
 
 
-@lru_cache(maxsize=8)
-def exchange_timeframes(name: str) -> frozenset[str]:
-    """Timeframy, ktoré burza pozná (z ccxt, bez siete). Prázdne = neobmedzujeme."""
-    if not name:
-        return frozenset()
+def freqtrade_config(inst: InstrumentSpec, exchange: str | None = None) -> Path:
+    """Ktorý Freqtrade config na tento inštrument a burzu sedí.
+
+    Predvolene fiktívna burza **Tester**: pozná naše páry aj všetky timeframy, takže beh
+    nie je obmedzený tým, čo ponúka skutočná burza. Configy skutočných búrz ostávajú na
+    sťahovanie dát a na kontrolu, či sa niečo nerozišlo s reálnou burzou.
+    """
+    want = exchange or DEFAULT_EXCHANGE
+    configs = _CONFIGS.get(want) or _CONFIGS[DEFAULT_EXCHANGE]
+    kind = market_kind(inst)
+    name = configs.get(kind) or _CONFIGS[DEFAULT_EXCHANGE][kind]
+    return FREQTRADE_DIR / name
+
+
+def exchange_timeframes(exchange: str) -> frozenset[str]:
+    """Timeframy, ktoré burza pozná. Naša fiktívna všetky naše, ostatné podľa ccxt."""
+    if exchange == TESTER_EXCHANGE:
+        from .ftexchange import timeframes
+
+        return frozenset(timeframes())
+    name = "bitstamp" if exchange == "dukascopy" else exchange
     try:
         import ccxt
 
@@ -122,27 +164,30 @@ def exchange_timeframes(name: str) -> frozenset[str]:
         return frozenset()
 
 
-def freqtrade_blocker(inst: InstrumentSpec, timeframe: str) -> str | None:
-    """Prečo sa tento timeframe nedá prehrať Freqtradom — alebo `None`, keď sa dá.
+def freqtrade_blocker(inst: InstrumentSpec, timeframe: str,
+                     exchange: str | None = None) -> str | None:
+    """Prečo sa tento beh cez Freqtrade nedá spustiť — alebo `None`, keď sa dá.
 
-    Chýbajúci súbor prekážka **nie je**: Freqtrade si vyšší TF z 1m síce nedopočíta, ale
-    adaptér áno — poskladá ho pri štarte behu (`TradebotStrategyBase.ensure_timeframe`),
-    takže stačí mať 1m sviečky. Bez nich sa nedá nič.
-
-    Skutočná prekážka je timeframe, ktorý **burza nepozná**: taký beh Freqtrade odmietne
-    už pri validácii configu, ešte než sa stratégia vôbec načíta. Preto 2m a 4m ostávajú
-    na Binance len pre emulátor.
+    Chýbajúci súbor prekážka nie je: adaptér si vyšší TF poskladá z 1m
+    (`TradebotStrategyBase.ensure_timeframe`), stačí mať 1m sviečky. Prekážkou je
+    **timeframe, ktorý zvolená burza nepozná** — taký beh Freqtrade odmietne už pri
+    validácii configu. Naša fiktívna burza pozná všetky, skutočné nie (Binance nemá 2m
+    ani 4m, Coinbase ani 3m), a práve preto je predvolená.
     """
     if not freqtrade_file(inst, timeframe).exists() and not one_minute_file(inst).exists():
         return f"chýba súbor pre {timeframe} a nie sú ani 1m sviečky, z ktorých ho poskladať"
-    exchange = freqtrade_exchange(freqtrade_config(inst))
-    known = exchange_timeframes(exchange)
-    if known and timeframe not in known:
-        return f"burza {exchange} timeframe {timeframe} nepozná"
+    want = exchange or DEFAULT_EXCHANGE
+    if want not in exchanges_for(inst):
+        known = ", ".join(EXCHANGE_TITLES.get(e, e) for e in exchanges_for(inst)) or "žiadna"
+        return f"burza {EXCHANGE_TITLES.get(want, want)} tento pár nemá; dostupné: {known}"
+    known_tfs = exchange_timeframes(want)
+    if known_tfs and timeframe not in known_tfs:
+        return f"burza {EXCHANGE_TITLES.get(want, want)} timeframe {timeframe} nepozná"
     return None
 
 
-def available(inst: InstrumentSpec, timeframe: str = "3m") -> list[str]:
+def available(inst: InstrumentSpec, timeframe: str = "3m",
+              exchange: str | None = None) -> list[str]:
     """Ktoré enginy sa na tomto inštrumente a timeframe dajú spustiť.
 
     Obom stačí 1m: emulátor si vyššie TF skladá v pamäti, Freqtrade adaptér ich zapíše
@@ -150,7 +195,7 @@ def available(inst: InstrumentSpec, timeframe: str = "3m") -> list[str]:
     Chýbajúce dáta pre Dukascopy doplní `tester.dukas_import`.
     """
     out = []
-    if freqtrade_blocker(inst, timeframe) is None:
+    if freqtrade_blocker(inst, timeframe, exchange) is None:
         out.append(FREQTRADE)
     if one_minute_file(inst).exists():
         out.append(MULTICHARTS)

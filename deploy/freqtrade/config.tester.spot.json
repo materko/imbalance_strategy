@@ -1,0 +1,71 @@
+{
+    "$schema": "https://schema.freqtrade.io/schema.json",
+    "_comment": [
+        "Fiktivna burza Tester (tester/ftexchange.py): pozna nase pary a VSETKY timeframy",
+        "z tester/timeframes.json, takze backtest ani hyperopt uz nezavisia od toho, co ponuka",
+        "skutocna burza (Binance nema 2m ani 4m, Coinbase ani 3m).",
+        "",
+        "Beh sa spusta cez `python -m tester.ftrun ...`, ktory burzu zaregistruje do ccxt",
+        "a Freqtradu. Poplatok zadaj cez --fee; burza ma nulovy maker aj taker a nulovy funding.",
+        "Data prichadzaju cez --datadir z data/tester/<zdroj>/<trh>/.",
+        "",
+        "Na stahovanie dat a na kontrolu parity sluzia nadalej configy skutocnych burz",
+        "(config.binance.json, config.binance.spot.json, config.coinbase.json).",
+        "",
+        "Tento config: spot v USDT - len longy a paka 1, ako na burze."
+    ],
+    "max_open_trades": 1,
+    "stake_currency": "USDT",
+    "stake_amount": "unlimited",
+    "tradable_balance_ratio": 0.99,
+    "fiat_display_currency": "USD",
+    "dry_run": true,
+    "dry_run_wallet": 10000,
+    "cancel_open_orders_on_exit": true,
+    "trading_mode": "spot",
+    "timeframe": "3m",
+    "unfilledtimeout": {
+        "entry": 30,
+        "exit": 10,
+        "exit_timeout_count": 0,
+        "unit": "minutes"
+    },
+    "entry_pricing": {
+        "price_side": "same",
+        "use_order_book": true,
+        "order_book_top": 1,
+        "price_last_balance": 0.0,
+        "check_depth_of_market": {
+            "enabled": false,
+            "bids_to_ask_delta": 1
+        }
+    },
+    "exit_pricing": {
+        "price_side": "same",
+        "use_order_book": true,
+        "order_book_top": 1
+    },
+    "exchange": {
+        "name": "tester",
+        "key": "",
+        "secret": "",
+        "ccxt_config": {},
+        "ccxt_async_config": {},
+        "pair_whitelist": [
+            "BTC/USDT"
+        ],
+        "pair_blacklist": []
+    },
+    "pairlists": [
+        {
+            "method": "StaticPairList"
+        }
+    ],
+    "dataformat_ohlcv": "feather",
+    "bot_name": "tradebot-tester-spot",
+    "initial_state": "running",
+    "force_entry_enable": false,
+    "internals": {
+        "process_throttle_secs": 5
+    }
+}

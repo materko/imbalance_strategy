@@ -22,8 +22,9 @@ echo "POZOR: pri 10 parametroch a radovo stovkach obchodov je pretrenovanie real
 echo "Vysledok VZDY over na inom okne, nez na akom si ladil."
 echo
 
-exec "$py" -m freqtrade hyperopt \
-    --config "$ft/config.binance.json" \
+# tester.ftrun = freqtrade s registrovanou fiktivnou burzou Tester (vsetky nase TF)
+exec "$py" -m tester.ftrun hyperopt \
+    --config "$ft/config.tester.json" \
     --userdir "$ft/user_data" \
     --datadir "$repo/data/tester/binance" \
     --strategy "${STRATEGY:-IBSImbalanceStrategy}" \

@@ -64,6 +64,10 @@
         <select id="engine" title="Čím beh prehrať. Freqtrade = backtest Freqtradu; MultiCharts (emulátor) = ten istý MCRunner, ktorý beží v štúdii, s brokerom podľa MultiCharts."></select>
         <small id="engine-note" class="muted"></small>
       </label>
+      <label>Burza
+        <select id="exchange" title="Cez ktorú burzu má Freqtrade beh prejsť. Tester je naša fiktívna burza — pozná všetky naše timeframy vrátane tých, čo skutočné burzy nemajú (2m, 4m). Emulátor MultiCharts burzu nepotrebuje."></select>
+        <small id="exchange-note" class="muted"></small>
+      </label>
       <label>Timeframe grafu
         <select id="tf" title="TF, na ktorom stratégia počíta — ako TF grafu v TradingView. Limity v baroch (*MaxBars) sa neprepočítavajú."></select>
         <small class="muted">ako TF grafu v TradingView; limity v baroch sa neprepočítavajú</small>

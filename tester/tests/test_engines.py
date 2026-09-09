@@ -58,9 +58,10 @@ def test_emulator_cita_ten_isty_strom_ako_freqtrade(data):
 
 
 def test_config_podla_trhu_a_zdroja():
-    assert engines.freqtrade_config(BTC).name == "config.binance.json"
-    assert engines.freqtrade_config(BTC_SPOT).name == "config.binance.spot.json"
-    assert engines.freqtrade_config(NAS).name == "config.dukascopy.json"
+    # vsetky bezia na fiktivnej burze Tester, lisi sa trh a mena (tester/ftexchange.py)
+    assert engines.freqtrade_config(BTC).name == "config.tester.json"
+    assert engines.freqtrade_config(BTC_SPOT).name == "config.tester.spot.json"
+    assert engines.freqtrade_config(NAS).name == "config.tester.cfd.json"
 
 
 # --------------------------------------------------------------------------- #
