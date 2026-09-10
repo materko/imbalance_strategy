@@ -1,0 +1,4 @@
+$ emulator MultiCharts COFFEE 15m 20250904-20260904 (COFFEE_USD-1m.feather)
+emulacia MultiCharts: 4591 barov 15m, 68346 1m, 0 HTF
+hotovo: 34 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb_box': 81, 'orb_high': 81, 'orb_low': 81, 'orb_entry': 34}

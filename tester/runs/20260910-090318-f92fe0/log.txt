@@ -1,0 +1,5 @@
+$ emulator MultiCharts AUDUSD 15m 20250904-20260904 (AUDUSD_USD-1m.feather)
+emulacia MultiCharts: 22682 barov 15m, 336674 1m, 0 HTF
+  20000/22682 barov, 29 obchodov
+hotovo: 30 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb_box': 236, 'orb_high': 236, 'orb_low': 236, 'orb_entry': 30}

@@ -1,0 +1,9 @@
+$ emulator MultiCharts DJ30 3m 20250904-20260904 (DJ30_USD-1m.feather)
+emulacia MultiCharts: 114016 barov 3m, 341787 1m, 114016 HTF
+  20000/114016 barov, 24 obchodov
+  40000/114016 barov, 40 obchodov
+  60000/114016 barov, 65 obchodov
+  80000/114016 barov, 88 obchodov
+  100000/114016 barov, 120 obchodov
+hotovo: 134 obchodov, nerozhodnutelnych minut 0
+kresby: {'imb_box': 14484, 'structure': 10916, 'swing': 13827, 'session': 794, 'liq_sweep': 2890, 'sd_zone_pre': 6532, 'sd_zone_post': 6532, 'tp_box': 178, 'sl_box': 178, 'expired': 42, 'skip': 196}

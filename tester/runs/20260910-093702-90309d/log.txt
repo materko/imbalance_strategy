@@ -1,0 +1,5 @@
+$ emulator MultiCharts US500 15m 20250830-20260830 (US500_USD-1m.feather)
+emulacia MultiCharts: 22712 barov 15m, 339397 1m, 0 HTF
+  20000/22712 barov, 118 obchodov
+hotovo: 133 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb_box': 257, 'orb_high': 257, 'orb_low': 257, 'orb_entry': 133}

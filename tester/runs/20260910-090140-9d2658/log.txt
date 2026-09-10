@@ -1,0 +1,10 @@
+$ emulator MultiCharts GBPJPY 3m 20250904-20260904 (GBPJPY_JPY-1m.feather)
+emulacia MultiCharts: 124136 barov 3m, 371221 1m, 124136 HTF
+  20000/124136 barov, 30 obchodov
+  40000/124136 barov, 63 obchodov
+  60000/124136 barov, 85 obchodov
+  80000/124136 barov, 118 obchodov
+  100000/124136 barov, 137 obchodov
+  120000/124136 barov, 161 obchodov
+hotovo: 166 obchodov, nerozhodnutelnych minut 0
+kresby: {'imb_box': 14285, 'structure': 11634, 'swing': 15218, 'liq_sweep': 3248, 'session': 778, 'sd_zone_pre': 5966, 'sd_zone_post': 5966, 'skip': 199, 'tp_box': 220, 'sl_box': 220, 'expired': 51, 'sr_level': 8}

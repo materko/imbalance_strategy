@@ -1,0 +1,12 @@
+$ emulator MultiCharts ETH 3m 20250904-20260904 (ETH_USD-1m.feather)
+emulacia MultiCharts: 172262 barov 3m, 514606 1m, 172262 HTF
+  20000/172262 barov, 18 obchodov
+  40000/172262 barov, 37 obchodov
+  60000/172262 barov, 47 obchodov
+  80000/172262 barov, 54 obchodov
+  100000/172262 barov, 66 obchodov
+  120000/172262 barov, 96 obchodov
+  140000/172262 barov, 115 obchodov
+  160000/172262 barov, 130 obchodov
+hotovo: 140 obchodov, nerozhodnutelnych minut 0
+kresby: {'imb_box': 25266, 'swing': 21738, 'structure': 16094, 'liq_sweep': 3846, 'session': 774, 'sd_zone_pre': 6134, 'sd_zone_post': 6134, 'tp_box': 199, 'sl_box': 199, 'expired': 57, 'skip': 227, 'sr_level': 20}

@@ -1,0 +1,4 @@
+$ emulator MultiCharts NGAS 15m 20250904-20260904 (NGAS_USD-1m.feather)
+emulacia MultiCharts: 11842 barov 15m, 157035 1m, 0 HTF
+hotovo: 41 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb_box': 83, 'orb_high': 83, 'orb_low': 83, 'orb_entry': 41}

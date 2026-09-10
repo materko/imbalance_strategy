@@ -1,0 +1,5 @@
+$ emulator MultiCharts USDJPY 15m 20250904-20260904 (USDJPY_JPY-1m.feather)
+emulacia MultiCharts: 24412 barov 15m, 362962 1m, 0 HTF
+  20000/24412 barov, 6 obchodov
+hotovo: 7 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb_box': 254, 'orb_high': 254, 'orb_low': 254, 'orb_entry': 7}

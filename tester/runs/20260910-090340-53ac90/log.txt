@@ -1,0 +1,5 @@
+$ emulator MultiCharts GBPJPY 15m 20250904-20260904 (GBPJPY_JPY-1m.feather)
+emulacia MultiCharts: 24885 barov 15m, 371221 1m, 0 HTF
+  20000/24885 barov, 10 obchodov
+hotovo: 10 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb_box': 259, 'orb_high': 259, 'orb_low': 259, 'orb_entry': 10}

@@ -1,0 +1,12 @@
+$ emulator MultiCharts ETHUSDT.P 3m 20250904-20260904 (ETH_USDT_USDT-1m-futures.feather)
+emulacia MultiCharts: 175200 barov 3m, 525600 1m, 175200 HTF
+  20000/175200 barov, 16 obchodov
+  40000/175200 barov, 32 obchodov
+  60000/175200 barov, 47 obchodov
+  80000/175200 barov, 61 obchodov
+  100000/175200 barov, 72 obchodov
+  120000/175200 barov, 93 obchodov
+  140000/175200 barov, 113 obchodov
+  160000/175200 barov, 129 obchodov
+hotovo: 143 obchodov, nerozhodnutelnych minut 0
+kresby: {'imb_box': 23807, 'structure': 16454, 'swing': 22254, 'liq_sweep': 3916, 'session': 783, 'sd_zone_pre': 6565, 'sd_zone_post': 6565, 'tp_box': 195, 'sl_box': 195, 'expired': 48, 'skip': 251}
