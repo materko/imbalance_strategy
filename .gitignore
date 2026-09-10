@@ -42,3 +42,7 @@ tester/runs/.plans/
 # rola pre Claude Code v tomto klone (tester | developer) - kazdy klon ma vlastnu
 .tradebot-role
 .ibs-role
+
+# Synteticke trhy: velke a deterministicke - recept je v registri, data sa daju
+# kedykolvek vygenerovat znova (`python -m tester.synthetic build`).
+data/tester/synthetic/

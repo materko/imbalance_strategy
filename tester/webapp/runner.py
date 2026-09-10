@@ -204,6 +204,20 @@ def available_pairs() -> list[dict[str, Any]]:
     return out
 
 
+def only_1m_on_disk(pair: str) -> bool:
+    """Má tento pár na disku len 1m a vyššie TF sa skladajú v pamäti?
+
+    Platí to pre všetko, čo nepochádza z burzy: Dukascopy CFD (emulátor MultiCharts) aj
+    syntetické trhy (`tester.synthetic`). Burzové páry majú každý TF stiahnutý, lebo len
+    tak sedia s tým, čo burza naozaj hlási.
+    """
+    try:
+        inst = INSTRUMENTS[instrument_for_pair(pair)]
+    except ValueError:
+        return False
+    return inst.venue == "multicharts" or inst.data_source == "synthetic"
+
+
 def is_multicharts_pair(pair: str) -> bool:
     try:
         return INSTRUMENTS[instrument_for_pair(pair)].venue == "multicharts"

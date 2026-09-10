@@ -32,6 +32,8 @@ __all__ = [
     "NAS100_DUKASCOPY",
     "INSTRUMENTS",
     "dukascopy_specs",
+    "synthetic_specs",
+    "SYNTHETIC_REGISTRY",
 ]
 
 
@@ -224,6 +226,11 @@ class InstrumentSpec:
     #: aby bolo vidieť, či je zmerané, alebo odhadnuté — odhad, ktorý sa tvári ako
     #: meranie, je horší než chýbajúce číslo.
     cost_note: str = ""
+
+    #: Kľúč inštrumentu, od ktorého má tento prevzatú **mierku** (tick, hodnota bodu,
+    #: cenová úroveň). Vypĺňajú ho syntetické trhy: prahy v bodoch, ktoré platia na
+    #: zdroji, platia aj tu, takže varovanie „profil je pre iný nástroj“ by bolo falošné.
+    scale_of: str = ""
 
     def __post_init__(self) -> None:
         for field in ("tick_size", "point_value", "qty_step", "min_qty"):
@@ -487,7 +494,46 @@ def dukascopy_specs(path: Path | None = None) -> dict[str, InstrumentSpec]:
     return out
 
 
+#: Syntetické trhy — premiešané bary skutočného trhu (`tester.synthetic`). Register je
+#: **recept**, nie dáta: zdroj, okno, blok a seed, z ktorých sa trh dá kedykoľvek
+#: vygenerovať znova bit po bite. Samotné sviečky sa nikam necommitujú.
+SYNTHETIC_REGISTRY = Path(__file__).with_name("instruments_synthetic.json")
+
+
+def synthetic_specs(path: Path | None = None) -> dict[str, InstrumentSpec]:
+    """Inštrumenty syntetických trhov. Vlastnosti trhu dedia zo zdrojového páru."""
+    src = path or SYNTHETIC_REGISTRY
+    if not src.exists():
+        return {}
+    raw = json.loads(src.read_text(encoding="utf-8"))
+    out: dict[str, InstrumentSpec] = {}
+    for key, row in raw.items():
+        if key.startswith("_"):
+            continue
+        vzor = INSTRUMENTS.get(row.get("like") or "")
+        if vzor is None:
+            continue
+        out[key] = InstrumentSpec(
+            symbol=row["symbol"],
+            venue="synthetic",
+            tick_size=vzor.tick_size,
+            point_value=vzor.point_value,
+            qty_step=vzor.qty_step,
+            min_qty=vzor.min_qty,
+            has_real_volume=False,      # objem je premiešaný, nie obchodovaný
+            quote_currency=vzor.quote_currency,
+            market=vzor.market,
+            source="synthetic",
+            cost=vzor.cost,
+            cost_unit=vzor.cost_unit,
+            cost_note=f"prevzaté zo zdroja {vzor.symbol}",
+            scale_of=row.get("like") or "",
+        )
+    return out
+
+
 INSTRUMENTS.update(dukascopy_specs())
+INSTRUMENTS.update(synthetic_specs())
 
 #: Ponechané meno pre staršie importy — vzorový Dukascopy symbol.
 NAS100_DUKASCOPY = INSTRUMENTS["nas100_dukascopy"]

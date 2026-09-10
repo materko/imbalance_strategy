@@ -581,6 +581,56 @@ proti a nakoniec vyšla na TP, tu účet nezabije — v skutočnosti by mohla. S
 teda **nižšia** než tá vypísaná. Nie sú tu ani pravidlá o novinkách, držaní cez noc a
 podobne, ktorými firmy výplaty zamietajú.
 
+## 8j. Syntetický trh: nechytáme sa vlastného backtestu?
+
+Test proti náhode (§8c) losuje **vstupy** na skutočnom trhu. Toto je opačná otázka:
+stratégia ostane nezmenená a náhodný je **trh**. Keď na trhu, v ktorom žiadna štruktúra
+nie je, stratégia stále „nájde edge", tá výhoda nevznikla na trhu — vznikla v našom
+backteste. Je to teda hlavne **detektor chýb enginu**: pohľad dopredu, fill model, ktorý
+rozhoduje sporné bary v náš prospech, sizing, ktorý zvýhodňuje výhry. Také chyby na
+skutočných dátach vyzerajú ako zisk a nič iné ich nechytí.
+
+Nie je to náhodná prechádzka s vymyslenou volatilitou — tú by sa dalo odmietnuť tým, že
+„nevyzerá ako trh". Berú sa **skutočné 1m bary** zdrojového trhu, zapamätá sa tvar každého
+baru a **výnosy sa premiešajú po blokoch**. Zachová sa presne:
+
+| | zdroj (BTC 1m, 2021-10 → 2026-09) | syntetický |
+|---|---|---|
+| σ výnosu 1m | 0,000747 | 0,000747 |
+| špicatosť (fat tails) | 129,8 | 129,8 |
+| zhluky volatility (autokorelácia \|r\|) | 0,390 | 0,383 |
+| konečná cena | 81 231 | 81 231 |
+
+Rozdelenie výnosov je tá istá množina čísel, len v inom poradí — preto sedí aj celkový
+drift a stratégia s dlhým biasom nie je trestaná. Zmizne **poradie**: trendy, úrovne,
+návraty, všetko, na čom môže stáť skutočná výhoda.
+
+### Trh je pevný
+Vygeneruje sa **raz** a ostáva. Keby vznikal pri každom teste nanovo, dva výsledky by sa
+nedali porovnať. Recept (zdroj, okno, blok, seed) je v `tradebot/core/instruments_synthetic.json`
+a `sha256` overí, že sviečky s ním stále sedia. Dáta sa **necommitujú** — sú veľké a
+z receptu vzniknú bit po bite tie isté.
+
+```bash
+python -m tester.synthetic build synth      # vygeneruje (existujúci odmietne)
+python -m tester.synthetic list             # recepty a či dáta sedia
+python -m tester.synthetic verify synth
+python -m tester.synthetic build synth --force   # POZOR: skoršie behy prestanú byť porovnateľné
+```
+
+Potom je to **obyčajný pár** — `SYNTH/USDT:USDT` je v ponuke ako každý iný (webapp ho
+uvidí po reštarte) a beh na ňom ide do histórie ako každý iný.
+
+Prvé použitie a čo z neho vyšlo: [docs/merania/SYNTETICKY_trh_2026-09-10.md](../docs/merania/SYNTETICKY_trh_2026-09-10.md) — edge na premiešanom trhu nie je (znamienka sa striedajú), ale vyplní sa tam len 0-57 % signálov oproti 72-95 % na skutočnom BTC. Limitka na úrovni medzery sa dočká len vtedy, keď sa cena na tú úroveň vráti.
+
+### Ako to čítať
+Na syntetickom trhu má vyjsť **nula**. Jedno okno nič nehovorí — pri dvadsiatich obchodoch
+vyjde občas aj +0,12 %, presne ako na skutočnom trhu. Pozeraj **všetkých päť okien**: keď
+sa čísla motajú okolo nuly a striedajú znamienko, engine je v poriadku. Keby vyšli
+súvisle kladné, je to nález — ale o **nás**, nie o stratégii.
+
+Záporný výsledok naopak nedokazuje nič: poplatky a spread berú aj na náhodnom trhu.
+
 ## 9. FreqAI
 
 Dá sa pripojiť, ale odpovedá na inú otázku: hyperopt vyberie statické parametre, FreqAI

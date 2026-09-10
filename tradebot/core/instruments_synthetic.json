@@ -1,0 +1,23 @@
+{
+  "_comment": [
+    "Recepty na synteticke trhy (tester/synthetic.py). Je to RECEPT, nie data:",
+    "zdroj, okno, metoda, blok a seed, z ktorych sa trh da vygenerovat znova bit po",
+    "bite. Sviecky sa necommituju - su velke a daju sa kedykolvek vyrobit.",
+    "`like` je klucom instrumentu, od ktoreho sa preberu vlastnosti trhu (tick,",
+    "hodnota bodu, mena, naklad). `sha256` je kontrolny sucet 1m suboru.",
+    "Pregenerovat sa da len vyslovne: `python -m tester.synthetic build <kluc> --force`.",
+    "Prepisanie znamena, ze skorsie behy na tomto trhu uz nie su porovnatelne."
+  ],
+  "synth": {
+    "symbol": "SYNTH/USDT:USDT",
+    "source_pair": "BTC/USDT:USDT",
+    "timerange": "20211001-20260904",
+    "block": 60,
+    "seed": 20260910,
+    "method": "block_shuffle",
+    "sha256": "b29861a145e010f259e8a9eeab600a6e242a0c15834c2a5903799cf24d89a63a",
+    "created": "2026-09-10T10:12:21+00:00",
+    "note": "premiešané 1m bary BTC/USDT:USDT po blokoch 60",
+    "like": "btcusdt_binance"
+  }
+}
