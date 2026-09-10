@@ -15,10 +15,22 @@ MultiCharts (`tradebot.core.candles.resample_ohlcv`) — keby sa pravidlo roziš
 porovnanie výsledkov medzi platformami by prestalo niečo znamenať.
 
 ### Čo sa neprepisuje a necommituje
-Doplní sa len to, čo na disku **nie je**: oficiálne stiahnuté TF z burzy (3m, 5m, 15m…)
-ostanú tak, ako prišli. Vyrobené súbory sa zapíšu do `data/tester/.derived.json` a
+Oficiálne stiahnuté TF z burzy (3m, 5m, 15m…) ostanú tak, ako prišli — nikdy sa
+neprepisujú. Vyrobené súbory sa zapíšu do `data/tester/.derived.json` a
 `data_archive split` ich preskočí — v gite majú byť len dáta z burzy a z exportov,
 nie to, čo sa kedykoľvek dopočíta z 1m.
+
+### Zastaraný odvodený súbor
+Doplniť len to, čo **chýba**, nestačí: keď sa 1m zdroj prerobí (`tester.synthetic build
+--force`, nový `dukas_import`, `data_archive merge` s novšími dátami), už odvodené vyššie
+TF ostanú na disku staré a nič si toho nevšimne. Backtest potom beží na 5m sérii, ktorá
+nemá nič spoločné s 1m detailom, ktorým sa plnia ordre — a výsledok vyzerá úplne normálne.
+Presne to sa stalo synthetickému trhu 2026-09-10 (3m a 5m odvodené o tri minúty skôr, než
+sa 1m pregeneroval) a chytilo sa to až na obchodoch so stratou 40× väčšou, než bol plán.
+
+Preto sa odvodený súbor prerobí aj vtedy, keď je **starší než jeho 1m zdroj**. Platí to
+len pre súbory, ktoré sú v `.derived.json`, teda pre tie, ktoré sme vyrobili sami:
+stiahnutý timeframe v tom zozname nie je a prepísať sa preto nemôže.
 """
 
 from __future__ import annotations
@@ -89,6 +101,20 @@ def missing(root: Path | None = None, config: Path | None = None) -> list[Path]:
     return [out for outs in targets(root, config).values() for out in outs if not out.exists()]
 
 
+def _zastarany(out: Path, src: Path, nase: set[str]) -> bool:
+    """Je `out` náš odvodený súbor, ktorý je starší než jeho 1m zdroj?
+
+    Bez tejto otázky by sa prerobený 1m zdroj do vyšších TF nikdy nepremietol a beh by
+    ticho miešal dve rôzne série — viď hlavičku modulu.
+    """
+    if str(out) not in nase:
+        return False
+    try:
+        return out.stat().st_mtime < src.stat().st_mtime
+    except OSError:  # pragma: no cover - súbor zmizol medzi dvoma volaniami
+        return False
+
+
 def ensure(root: Path | None = None, config: Path | None = None, force: bool = False,
            verbose: bool = True, manifest: Path | None = None) -> list[Path]:
     """Doplní chýbajúce timeframy z 1m. Vráti, čo vzniklo."""
@@ -97,9 +123,13 @@ def ensure(root: Path | None = None, config: Path | None = None, force: bool = F
     from tradebot.core.candles import resample_ohlcv
 
     base = Path(root or TESTER_DATA)
+    manifest_path = Path(manifest) if manifest else (base / MANIFEST.name)
+    # Len to, čo sme sami vyrobili, sa smie prepísať — stiahnutý TF z burzy tu nie je.
+    nase = {str(p) for p in derived(manifest_path)}
     made: list[Path] = []
     for src, outs in targets(base, config).items():
-        todo = [(out, tf) for out, tf in zip(outs, wanted(config)) if force or not out.exists()]
+        todo = [(out, tf) for out, tf in zip(outs, wanted(config))
+                if force or not out.exists() or _zastarany(out, src, nase)]
         if not todo:
             continue
         df = pd.read_feather(src)
@@ -111,7 +141,7 @@ def ensure(root: Path | None = None, config: Path | None = None, force: bool = F
                 print(f"  {out.relative_to(base).as_posix()}  {len(part):>8} barov  "
                       f"{out.stat().st_size / 1e6:.1f} MB")
     if made:
-        remember(made, Path(manifest) if manifest else (base / MANIFEST.name))
+        remember(made, manifest_path)
     return made
 
 
