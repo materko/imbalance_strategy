@@ -25,9 +25,14 @@ vedia až potom a filter sa na nich postaviť nedá.
     ATR pri vstupe delené mediánom ATR celého trhu. 1,0 je typický deň, 2,0 dvojnásobne
     rozkolísaný. Je to náhrada za „pozri sa na VIX", ktorá funguje na každom trhu.
 
-``regime_pos`` — **kde v rozsahu sa vstupovalo** (0 až 1)
-    0 = na spodku posledných N barov, 1 = na vrchu. Pri prerazení je to kľúčové: vstup
-    v strede rozsahu je iná vec než vstup na jeho hrane.
+``regime_pos`` — **kde v rozsahu sa vstupovalo, v smere obchodu** (0 až 1)
+    1 = cena už došla na koniec rozsahu v smere obchodu (long na vrchu, short na spodku),
+    0 = na opačnom konci. Pri prerazení je to kľúčové: vstup na hrane rozsahu je iná vec
+    než v jeho strede.
+
+    Musí to byť **v smere obchodu**, nie surová poloha. Prvá verzia merala surovú polohu
+    a na konfigurácii s polovicou shortov sa efekt vyrušil — pre short je spodok rozsahu
+    to isté, čo pre long vrch, takže sa tie dve skupiny navzájom prekryli.
 
 ``regime_align`` — **s trendom, alebo proti nemu**
     Smer obchodu voči sklonu posledných N barov. Klasický filter „neobchoduj proti trendu"
@@ -125,12 +130,15 @@ def annotate(trades: Sequence[dict[str, Any]], pair: str, timeframe: str,
         if stredny_atr > 0:
             t["_regime_vol"] = round(float(atr[i]) / stredny_atr, 3)
 
+        smer = -1.0 if t.get("is_short") else 1.0
+
         hi, lo = float(high[okno].max()), float(low[okno].min())
         if hi > lo:
-            t["_regime_pos"] = round((float(close[i]) - lo) / (hi - lo), 4)
+            podiel = (float(close[i]) - lo) / (hi - lo)
+            # V smere obchodu: pre short je spodok rozsahu to iste, co pre long vrch.
+            t["_regime_pos"] = round(podiel if smer > 0 else 1.0 - podiel, 4)
 
         # Sklon okna voči smeru obchodu. Rovnaké znamienko = s trendom.
         sklon = float(c[-1] - c[0])
-        smer = -1.0 if t.get("is_short") else 1.0
         t["_regime_align"] = "s trendom" if sklon * smer > 0 else "proti trendu"
     return out

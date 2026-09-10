@@ -248,9 +248,14 @@ filter, ale nastavenie parametra (appka to povie a ponúkne ho preladiť).
 Delí sa aj podľa **stavu trhu pri vstupe** (`tester.regime`): či bol v trende alebo
 v rozsahu, aká bola volatilita voči normálu, kde v rozsahu sa vstupovalo a či išiel obchod
 s trendom alebo proti nemu. Počíta sa to z barov **pred** vstupom, takže sa podľa toho
-filtrovať dá — a práve tam býva zvyšný edge, keď ho v samotnom patterne už niet. Na IBS to
-hneď ukázalo dve veci: obchody **s trendom** majú break-even 0,0825 % oproti 0,0277 %
-proti trendu, a vstupy pri **vrchu rozsahu** 0,1190 % oproti 0,0222 % pri spodku.
+filtrovať dá — a práve tam býva zvyšný edge, keď ho v samotnom patterne už niet.
+
+Na IBS to na zliatych obchodoch ukázalo trojnásobný rozdiel medzi obchodmi s trendom a proti
+nemu — a overenie po jednotlivých oknách ho **nepotvrdilo**: drží na jednej konfigurácii
+(5 z 5 okien) a na inej, so šesťkrát väčšou vzorkou, nedrží ani v polovici
+([docs/merania/REZIM_filtre_btcusdt_2026-09-10.md](../docs/merania/REZIM_filtre_btcusdt_2026-09-10.md)).
+Je to dobrá ukážka toho, prečo sa zliate číslo overuje po oknách, a prečo sa nemiešajú
+rôzne konfigurácie do jednej vzorky.
 
 Vlastnosti známe **až po obchode** (dôvod výstupu, dĺžka, kam cena zašla) sú zvlášť
 a označené. „Obchody, ktoré skončili na stope, majú zlý break-even" je pravda a zároveň
