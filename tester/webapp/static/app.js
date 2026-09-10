@@ -2548,13 +2548,21 @@ async function loadAnalyticsHistory(vybrat = "") {
   const sel = $("#an-history");
   if (!sel) return;
   try {
-    const r = await api(`/api/analytics/history?strategy=${encodeURIComponent(state.strategy)}`);
-    sel.innerHTML = '<option value="">— nová analytika —</option>'
+    // Vybraná konfigurácia zúži aj históriu: analytika patrí ku konfigurácii, nie len
+    // k stratégii - záver o inom nastavení by tu len miatol.
+    const konfig = $("#an-config")?.value || "";
+    const r = await api(`/api/analytics/history?strategy=${encodeURIComponent(state.strategy)}`
+      + (konfig ? `&config_key=${encodeURIComponent(konfig)}` : ""));
+    sel.innerHTML = `<option value="">— nová analytika${konfig ? " (história len tejto konfigurácie)" : ""} —</option>`
       + (r.items || []).map(x => {
         const be = x.break_even_pct === null || x.break_even_pct === undefined
           ? "" : ` · break-even ${fmt(x.break_even_pct, 4)} %`;
-        const popis = `${anStamp(x.created)} · ${x.trades} obch. z ${x.runs} behov${be}`
-          + (x.note ? ` · ${x.note}` : "");
+        const profil = x.profile ? ` · ${String(x.profile).split("/").pop().replace(/\.json$/, "")}` : "";
+        const okna = (x.timeranges || []).length;
+        const popis = `${anStamp(x.created)}${profil} · ${x.trades} obch. z ${x.runs} behov`
+          + (okna ? ` / ${okna} ${slovom(okna, "okno", "okná", "okien")}` : "")
+          + (x.config_key === "mixed" ? " · zmiešané konfigurácie" : "")
+          + `${be}` + (x.note ? ` · ${x.note}` : "");
         return `<option value="${esc(x.id)}">${esc(popis)}</option>`;
       }).join("");
     sel.value = vybrat;
@@ -3317,7 +3325,7 @@ async function init() {
   initSweep();
   $("#an-run").onclick = loadAnalytics;
   $("#an-fill").onclick = fillMissingWindows;
-  $("#an-config").onchange = updateFillButton;
+  $("#an-config").onchange = () => { updateFillButton(); loadAnalyticsHistory(); };
   $("#an-paper").onclick = writePaper;
   $("#an-save").onclick = saveAnalytics;
   $("#posudok-save").onclick = savePosudok;

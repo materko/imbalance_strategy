@@ -222,3 +222,22 @@ def test_endpoint_ulozi_posudok_a_vrati_zadanie(klient):
 def test_posudok_k_neznamej_analytike_je_404(klient):
     assert klient.post("/api/analytics/history/nic/posudok", json={"text": "x"}).status_code == 404
     assert klient.get("/api/analytics/history/nic/zadanie").status_code == 404
+
+
+def test_analytika_patri_ku_konfiguracii(tmp_path):
+    """Záznam nesie konfiguráciu behov a zoznam sa podľa nej dá zúžiť — záver o inom
+    nastavení tej istej stratégie do ponuky nepatrí."""
+    store = AnalyticsStore(tmp_path)
+    a = store.save(report(), strategy="ibs", config_key="cfgA|BTC|3m", profile="p1.json",
+                   timeranges=["20250904-20260904", "20240904-20250904"], timeframes=["3m"])
+    store.save(report(), strategy="ibs", config_key="cfgB|BTC|3m", profile="p2.json")
+
+    assert a["config_key"] == "cfgA|BTC|3m" and a["timeranges"] == ["20240904-20250904", "20250904-20260904"]
+    assert [x["profile"] for x in store.list("ibs", config_key="cfgA|BTC|3m")] == ["p1.json"]
+    assert len(store.list("ibs")) == 2                       # bez filtra obe
+
+    # Starší záznam bez konfigurácie sa dá doplniť dodatočne.
+    stary = store.save(report(), strategy="ibs")
+    assert store.get(stary["id"])["config_key"] == ""
+    store.patch(stary["id"], config_key="cfgA|BTC|3m", profile="p1.json")
+    assert len(store.list("ibs", config_key="cfgA|BTC|3m")) == 2
