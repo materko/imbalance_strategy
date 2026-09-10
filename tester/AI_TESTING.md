@@ -618,7 +618,10 @@ a povie to. Vo webapp platia polia len so zaškrtnutými vlastnými pravidlami.
 **Pred rozhodovaním ich prepíš podľa zmluvy, ktorú naozaj máš.**
 
 **Ako sa to počíta.** Nie jedným behom, ale stovkami pokusov: výzva sa začne postupne na
-každom obchode histórie a prehrá sa dopredu, kým nepadne cieľ alebo pravidlo. Zámerne to
+každom obchode histórie a prehrá sa dopredu, kým nepadne cieľ alebo pravidlo. Pokus,
+ktorému len došla história (začal tesne pred koncom dát), sa nepočíta ani ako úspech, ani
+ako neúspech — `P(výplata)` je z pokusov, ktoré sa rozhodli; pokus, ktorý nestihol zadaný
+`--horizon`, neúspech je. Zámerne to
 **nie je bootstrap** — denný limit je o tom, ako sa straty zhlukujú v čase, a preskladanie
 obchodov práve to rozbije. Pokusy sa prekrývajú, takže to nie je interval spoľahlivosti,
 ale odpoveď na „keby som začal v náhodnom bode tejto histórie".
