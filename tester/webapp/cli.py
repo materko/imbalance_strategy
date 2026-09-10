@@ -145,11 +145,30 @@ def _prepare(args: argparse.Namespace) -> tuple[dict, dict]:
     settings = {
         "strategy": args.strategy, "pair": pair, "engine": engine, "timeframe": args.timeframe,
         "exchange": exchange if engine == engines.FREQTRADE else None,
-        "timerange": args.timerange, "fee": args.fee,
+        "timerange": args.timerange, **_fee_for(args, pair),
         "wallet": args.wallet, "timeframe_detail": None if args.no_detail else "1m",
         "profile": args.profile,
     }
     return params, settings
+
+
+def _fee_for(args: argparse.Namespace, pair: str) -> dict:
+    """`{"fee": …, "fee_note": …}` — zadané číslo, alebo náklad toho trhu.
+
+    Jeden default pre všetky trhy nefunguje: 0,05 % je Binance taker, kým na CFD je
+    provízia drobná a náklad je spread. Preto sa default berie z inštrumentu a do behu
+    sa uloží aj to, odkiaľ číslo je — bez toho sa o mesiac nedá zistiť, či bolo zmerané.
+    """
+    from .. import fees as fees_mod
+
+    if args.fee is not None:
+        return {"fee": args.fee, "fee_note": "zadané cez --fee"}
+    fee, note = fees_mod.for_pair(pair, args.timeframe, args.timerange)
+    if fee is None:
+        print(f"POZOR: naklad na {pair} nepozname ({note}); bezi sa s nulou, "
+              f"break-even sa proti nicomu neposudzuje", file=sys.stderr)
+        return {"fee": 0.0, "fee_note": f"neznámy: {note}"}
+    return {"fee": fee, "fee_note": note}
 
 
 def _execute(args: argparse.Namespace, params: dict, settings: dict, note: str,
@@ -759,6 +778,7 @@ def cmd_checkup(args: argparse.Namespace) -> int:
     risk_ref = mc.sizing_of(hotove[-1]) if hotove else None
     report = ck.measure(zaznamy, obchody, strategy=args.strategy, pair=settings["pair"],
                         timeframe=settings["timeframe"], fee_pct=float(settings.get("fee") or 0) * 100,
+                        fee_note=settings.get("fee_note") or "",
                         profile=args.profile or "", engine=settings.get("engine") or "freqtrade",
                         account=float(settings.get("wallet") or 10000), risk_ref=risk_ref,
                         iterations=args.iterations, seed=args.seed)
@@ -839,7 +859,7 @@ def _checkup_command(args: argparse.Namespace, okna: list[str]) -> str:
     if args.pair:
         cmd.append(f"--pair {args.pair}")
     cmd.append(f"--timeframe {args.timeframe}")
-    if args.fee != 0.0005:
+    if args.fee is not None:
         cmd.append(f"--fee {args.fee}")
     if float(args.wallet) != 10000.0:
         cmd.append(f"--wallet {args.wallet:g}")
@@ -1110,7 +1130,9 @@ def _run_args(p: argparse.ArgumentParser, *, timerange: bool = True) -> None:
     p.add_argument("--engine", choices=("freqtrade", "multicharts"),
                    help="čím beh prehrať: freqtrade alebo multicharts (emulátor); "
                         "bez neho podľa toho, aké dáta pár má")
-    p.add_argument("--fee", type=float, default=0.0005, help="poplatok na stranu ako podiel (default 0.0005 = 0,05 %%)")
+    p.add_argument("--fee", type=float, default=None,
+                   help="poplatok na stranu ako podiel; bez neho podľa trhu "
+                        "(krypto 0.0005, CFD polovica spreadu)")
     p.add_argument("--wallet", type=float, default=10000)
     p.add_argument("--no-detail", action="store_true", help="bez 1m detailu fillov (rýchlejšie, hrubšie)")
     p.add_argument("--note", help="poznámka do histórie — napíš, čo beh testuje")

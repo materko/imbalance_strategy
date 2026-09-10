@@ -184,10 +184,16 @@ def _interval(report: dict[str, Any]) -> Section:
     telo = [f"Namerané **{_num(be.get('observed'))} %**; preskladaním vlastných obchodov "
             f"(blokový bootstrap) vyjde medzi **{_num(be.get('lo'))}** a "
             f"**{_num(be.get('hi'))} %**, medián {_num(be.get('median'))} %."]
-    if be.get("p_above_fee") is not None and fee is not None:
-        telo += ["", f"Nad poplatkom {_num(fee, 3, plus=False)} % skončí "
-                     f"**{be['p_above_fee'] * 100:.0f} %** preskladaní. Keď je toto číslo "
-                     f"blízko sto, výsledok neunesie len jedna šťastná séria obchodov."]
+    if be.get("p_above_fee") is not None and fee:
+        odkial = report.get("fee_note") or ""
+        telo += ["", f"Nad nákladom {_num(fee, 5, plus=False)} % na stranu"
+                     + (f" ({odkial})" if odkial else "")
+                     + f" skončí **{be['p_above_fee'] * 100:.0f} %** preskladaní. Keď je "
+                       f"toto číslo blízko sto, výsledok neunesie len jedna šťastná séria "
+                       f"obchodov."]
+    elif not fee:
+        telo += ["", "Náklad na tomto trhu nepoznáme, takže break-even sa tu proti ničomu "
+                     "neposudzuje — doplň ho do inštrumentu (`half_spread_ticks`)."]
     return Section("Interval okolo výsledku", "\n".join(telo),
                    verdict=f"{_num(be.get('lo'))} až {_num(be.get('hi'))} %")
 
@@ -410,9 +416,11 @@ def build(records: Sequence[dict[str, Any]], store, *, strategy: str = "ibs",
     jeden_par = pary[0] if len(pary) == 1 else ""
     tf = tfs[0] if tfs else "3m"
     fee = float(zaznamy[0]["settings"].get("fee") or 0) * 100
+    fee_note = zaznamy[0]["settings"].get("fee_note") or ""
 
     report = ck.measure(zaznamy, obchody, strategy=strategy, pair=jeden_par, timeframe=tf,
-                        fee_pct=fee, profile=zaznamy[0]["settings"].get("profile") or "",
+                        fee_pct=fee, fee_note=fee_note,
+                        profile=zaznamy[0]["settings"].get("profile") or "",
                         engine=zaznamy[0]["settings"].get("engine") or "freqtrade",
                         risk_ref=mc.sizing_of(zaznamy[-1]), iterations=null_iterations)
 

@@ -101,7 +101,8 @@ class RunRequest(BaseModel):
     strategy: str = Field("ibs", description="kľúč stratégie z registry (tradebot.strategies.STRATEGIES)")
     timeframe: str = Field("3m", description="TF grafu, na ktorom stratégia počíta (ako v TradingView)")
     timerange: str = Field(..., description="YYYYMMDD-YYYYMMDD")
-    fee: float | None = Field(0.0005, description="poplatok na stranu ako podiel (0.0005 = 0,05 %)")
+    fee: float | None = Field(None, description="poplatok na stranu ako podiel; "
+                                                "bez neho podľa trhu (krypto 0.0005, CFD polovica spreadu)")
     wallet: float = 10000
     timeframe_detail: str | None = "1m"
     engine: str | None = Field(None, description="freqtrade | multicharts (emulátor); None = podľa dát")
@@ -384,6 +385,17 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         recs = store.search(q) if q.strip() else store.all()
         return {"total": len(recs), "runs": [summarize_for_list(r, defaults_of(r)) for r in recs[offset:offset + limit]]}
 
+    def _fee_for(fee: float | None, pair: str, timeframe: str, timerange: str) -> dict[str, Any]:
+        """`{"fee": …, "fee_note": …}` — zadané číslo, alebo náklad toho trhu."""
+        from .. import fees as fees_mod
+
+        if fee is not None:
+            return {"fee": fee, "fee_note": "zadané vo formulári"}
+        hodnota, note = fees_mod.for_pair(pair, timeframe, timerange)
+        if hodnota is None:
+            return {"fee": 0.0, "fee_note": f"neznámy: {note}"}
+        return {"fee": hodnota, "fee_note": note}
+
     def _run_settings(req: RunRequest) -> dict[str, Any]:
         """Overí zadanie a poskladá `settings` behu. Spoločné pre jeden beh aj pre sweep."""
         if not _TIMERANGE_RE.match(req.timerange):
@@ -432,7 +444,10 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             "engine": engine,
             "timeframe": req.timeframe,
             "timerange": req.timerange,
-            "fee": req.fee,
+            # Jeden default pre vsetky trhy nefunguje: 0,05 % je Binance taker, kym na
+            # CFD je provizia drobna a naklad je spread. Bez zadaneho `fee` sa berie
+            # naklad instrumentu a ulozi sa aj to, odkial cislo je.
+            **_fee_for(req.fee, req.pair, req.timeframe, req.timerange),
             "wallet": req.wallet,
             "timeframe_detail": detail,
             "profile": req.profile,

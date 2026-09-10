@@ -109,6 +109,7 @@ def _positive(rows: Sequence[dict[str, Any]]) -> tuple[int, int]:
 
 def measure(records: Sequence[dict[str, Any]], trades: Sequence[dict[str, Any]], *,
             strategy: str, pair: str, timeframe: str, fee_pct: float = 0.05,
+            fee_note: str = "",
             profile: str = "", engine: str = "freqtrade", account: float = 10_000.0,
             risk_ref: float | None = None, iterations: int = 1000,
             mc_iterations: int = 10_000, seed: int = 12345) -> dict[str, Any]:
@@ -132,6 +133,9 @@ def measure(records: Sequence[dict[str, Any]], trades: Sequence[dict[str, Any]],
         "engine": engine,
         "profile": profile,
         "fee_pct": fee_pct,
+        # Odkial je to cislo. Krypto sadzba a CFD spread sa lisia o dva rady, takze
+        # "poplatok 0,05 %" bez povodu je udaj, ktoremu sa neda verit.
+        "fee_note": fee_note,
         "account": account,
         "windows": rows,
         "years_positive": kladne,
@@ -202,6 +206,9 @@ def verdicts(report: dict[str, Any]) -> tuple[list[str], list[str]]:
 
     # -- edge oproti poplatku -------------------------------------------------- #
     be = report.get("break_even_pct")
+    if be is not None and fee <= 0:
+        slabe.append("náklad na tomto trhu nepoznáme, takže break-even sa proti ničomu "
+                     "neposudzuje — doplň ho do inštrumentu (`half_spread_ticks`)")
     if be is not None and fee > 0:
         if be > fee:
             silne.append(f"break-even {be:.4f} % je nad poplatkom {fee:.4f} % "
@@ -213,7 +220,9 @@ def verdicts(report: dict[str, Any]) -> tuple[list[str], list[str]]:
     mcr = report.get("montecarlo") or {}
     if mcr:
         p = mcr["break_even"]["p_above_fee"]
-        if p >= 0.95:
+        if fee <= 0:
+            pass  # bez znameho nakladu je "nad poplatkom" porovnanie s nulou
+        elif p >= 0.95:
             silne.append(f"edge nad poplatkom v {100 * p:.0f} % bootstrapových vzoriek")
         elif fee > 0:
             slabe.append(f"edge nad poplatkom len v {100 * p:.0f} % vzoriek — v zvyšku by "
@@ -426,6 +435,7 @@ def table(report: dict[str, Any]) -> str:
     lines = [f"=== zakladna analytika: {report['title']} ({report['strategy']}) ===",
              f"{report['pair']} {report['timeframe']}, engine {report['engine']}, "
              f"poplatok {report['fee_pct']:.4f} % na stranu"
+             + (f" ({report['fee_note']})" if report.get("fee_note") else "")
              + (f", profil {report['profile']}" if report.get("profile") else "")]
     lines.append("")
     lines.append(f"{_HEAD[0]:<22}{_HEAD[1]:>9}{_HEAD[2]:>9}{_HEAD[3]:>14}{_HEAD[4]:>10}{_HEAD[5]:>7}")
@@ -462,6 +472,7 @@ def markdown(report: dict[str, Any], *, command: str = "", generated: datetime |
     out = [f"# Základná analytika — {report['title']} (`{report['strategy']}`)", "",
            f"Zmerané {kedy} na `{report['pair']}` {report['timeframe']}, engine "
            f"`{report['engine']}`, poplatok {report['fee_pct']:.4f} % na stranu"
+           + (f" ({report['fee_note']})" if report.get("fee_note") else "")
            + (f", profil `{report['profile']}`" if report.get("profile") else "") + ".",
            "",
            "Dokument je **generovaný** — píše ho `cli checkup` celý znova, ručné úpravy sa "
