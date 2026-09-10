@@ -139,6 +139,40 @@ def test_druhe_spustenie_uz_nic_nerobi(sklad, config):
     assert tf.missing(sklad, config) == []
 
 
+def test_prerobeny_1m_zdroj_prepise_odvodeny_timeframe(sklad, config):
+    """Keď sa 1m zdroj vyrobí nanovo, odvodené TF musia ísť s ním.
+
+    Bez toho ostane na disku stará 5m séria, backtest na nej beží a 1m detail plní ordre
+    z úplne inej — a nič to nepovie. Presne to sa stalo syntetickému trhu 2026-09-10.
+    """
+    manifest = sklad / ".derived.json"
+    made = tf.ensure(sklad, config, verbose=False, manifest=manifest)
+    odvodeny = next(p for p in made if p.name.endswith("-5m.feather"))
+    stary = len(pd.read_feather(odvodeny))
+
+    zdroj = sklad / "binance" / "spot" / "BTC_USDT-1m.feather"
+    m1(1200).to_feather(zdroj)                       # dvakrát toľko minút než predtým
+    import os, time
+    os.utime(odvodeny, (time.time() - 60, time.time() - 60))
+
+    znova = tf.ensure(sklad, config, verbose=False, manifest=manifest)
+    assert odvodeny in znova, "odvodený TF starší než jeho 1m zdroj sa musí prerobiť"
+    assert len(pd.read_feather(odvodeny)) == 240 != stary
+
+
+def test_stiahnuty_timeframe_sa_neprepise_ani_ked_je_starsi_nez_1m(sklad, config):
+    """To isté pravidlo sa nesmie dotknúť dát z burzy — tie v `.derived.json` nie sú."""
+    import os, time
+
+    manifest = sklad / ".derived.json"
+    cudzi = sklad / "binance" / "spot" / "BTC_USDT-5m.feather"
+    m1(3).to_feather(cudzi)
+    os.utime(cudzi, (time.time() - 60, time.time() - 60))
+    tf.ensure(sklad, config, verbose=False, manifest=manifest)
+
+    assert len(pd.read_feather(cudzi)) == 3, "stiahnutý timeframe sa neprepisuje nikdy"
+
+
 def test_bez_1m_sa_neodvodzuje_nic(tmp_path, config):
     assert tf.ensure(tmp_path, config, verbose=False) == []
     assert tf.missing(tmp_path, config) == []
