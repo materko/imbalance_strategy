@@ -40,7 +40,7 @@ from .runner import (
     REPO, BacktestRunner, available_pairs, check_market_rules, default_params, instrument_for_pair,
     list_profiles, profile_instruments, profile_titles, tf_minutes,
 )
-from .anstore import AnalyticsStore
+from .anstore import AnalyticsStore, fingerprint as an_fingerprint, summary as an_summary
 from .store import RunStore, strategy_of, summarize_for_list
 
 STATIC = Path(__file__).resolve().parent / "static"
@@ -144,6 +144,12 @@ class FillWindowsRequest(BaseModel):
 
     run_id: str = Field(..., description="beh konfigurácie, z ktorého sa vezmú parametre a nastavenia")
     user: str | None = Field(None, max_length=80)
+
+
+class NoteRequest(BaseModel):
+    """Poznámka k uloženej analytike — čo sa tým zisťovalo."""
+
+    note: str = Field("", max_length=500)
 
 
 class AnalyticsSaveRequest(BaseModel):
@@ -1163,9 +1169,26 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(422, f"neznáma stratégia {strategy!r}")
         if not (req.report.get("runs") or []):
             raise HTTPException(422, "report nemá behy, z ktorých vznikol")
+        # Tá istá vzorka (behy, obchody, break-even) je jeden záznam: ukladá sa pri každom
+        # výpočte automaticky, takže opakované Spočítať nesmie plodiť duplicity - a keď
+        # už záznam má posudok, tester ho dostane hneď.
+        existujuci = anstore.find_by_numbers(strategy, an_fingerprint(req.report))
+        if existujuci is not None:
+            if req.note.strip() and req.note.strip() != (existujuci.get("note") or ""):
+                anstore.patch(existujuci["id"], note=req.note.strip())
+                existujuci = anstore.get(existujuci["id"]) or existujuci
+            return {**an_summary(existujuci), "reused": True}
         konfig = _config_of_runs([r.get("id") for r in req.report["runs"] if r.get("id")])
-        return anstore.save(req.report, strategy=strategy, note=req.note.strip(),
-                            user=_clean_user(req.user) or "", **konfig)
+        return {**anstore.save(req.report, strategy=strategy, note=req.note.strip(),
+                               user=_clean_user(req.user) or "", **konfig), "reused": False}
+
+    @app.post("/api/analytics/history/{an_id}/note")
+    def analytics_note(an_id: str, req: NoteRequest):
+        """Poznámka k uloženej analytike — dopĺňa sa dodatočne, ukladanie je automatické."""
+        out = anstore.patch(an_id, note=req.note.strip())
+        if out is None:
+            raise HTTPException(404, "taká analytika v histórii nie je")
+        return out
 
     @app.get("/api/analytics/history/{an_id}/zadanie")
     def analytics_zadanie(an_id: str):

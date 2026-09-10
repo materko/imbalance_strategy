@@ -124,6 +124,30 @@ class AnalyticsStore:
                                      encoding="utf-8")
         return summary(zaznam)
 
+    def find_by_numbers(self, strategy: str, numbers: str) -> dict[str, Any] | None:
+        """Záznam s tým istým odtlačkom čísel (tie isté behy, obchody, break-even).
+
+        Analytika sa ukladá automaticky pri každom výpočte; bez tejto kontroly by každé
+        stlačenie Spočítať nad tou istou vzorkou pridalo súbor do `tester/analytics/`
+        (a ten sa pushuje). Ten istý výsledok je jeden záznam — aj s jeho posudkom.
+        """
+        if not numbers:
+            return None
+        kandidati = []
+        for path in self.root.glob("*.json"):
+            try:
+                zaznam = json.loads(path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                continue
+            if zaznam.get("strategy") == strategy and zaznam.get("numbers") == numbers:
+                kandidati.append(zaznam)
+        if not kandidati:
+            return None
+        # Pri viacerých (staré duplicity) ten s posudkom, inak najnovší.
+        kandidati.sort(key=lambda z: (bool((z.get("posudok") or "").strip()),
+                                      str(z.get("created") or ""), int(z.get("seq") or 0)))
+        return kandidati[-1]
+
     def patch(self, an_id: str, **fields: Any) -> dict[str, Any] | None:
         """Doplní hlavičkové polia (napr. konfiguráciu k starším záznamom). `None` = niet."""
         zaznam = self.get(an_id)

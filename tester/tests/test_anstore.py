@@ -241,3 +241,18 @@ def test_analytika_patri_ku_konfiguracii(tmp_path):
     assert store.get(stary["id"])["config_key"] == ""
     store.patch(stary["id"], config_key="cfgA|BTC|3m", profile="p1.json")
     assert len(store.list("ibs", config_key="cfgA|BTC|3m")) == 2
+
+
+def test_ta_ista_vzorka_sa_najde_podla_odtlacku(tmp_path):
+    """Automatické ukladanie nesmie plodiť duplicity: rovnaké čísla = jeden záznam,
+    prednostne ten s posudkom."""
+    store = AnalyticsStore(tmp_path)
+    a = store.save(report(), strategy="ibs")
+    b = store.save(report(), strategy="ibs")            # tie isté čísla, druhý súbor
+    assert a["numbers"] == b["numbers"]
+    store.set_posudok(a["id"], "posudok", "ja")
+
+    najdeny = store.find_by_numbers("ibs", a["numbers"])
+    assert najdeny["id"] == a["id"]                      # s posudkom má prednosť
+    assert store.find_by_numbers("demo_breakout", a["numbers"]) is None
+    assert store.find_by_numbers("ibs", "") is None
