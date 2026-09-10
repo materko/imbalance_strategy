@@ -571,6 +571,65 @@ def cmd_paper(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_prop(args: argparse.Namespace) -> int:
+    """Prop vyzva: dostane sa strategia k vyplate skor, nez ucet zhori?"""
+    from dataclasses import replace
+
+    from .. import analytics as an, prop as pr
+    from .store import RunStore
+
+    if args.rules not in pr.PRESETS:
+        raise SystemExit(f"nezname pravidla {args.rules!r}; zname: {', '.join(pr.PRESETS)}")
+    pravidla = pr.PRESETS[args.rules]
+    # Kazde pole sa da prepisat: cisla v presetoch su bezny tvar pravidiel, nie ponuka
+    # konkretnej firmy - pred pouzitim patri prepisat podla zmluvy, ktoru tester ma.
+    zmeny = {k: v for k, v in (
+        ("account", args.account), ("max_daily_loss_pct", args.daily),
+        ("max_loss_pct", args.max_loss), ("min_days", args.min_days),
+        ("max_day_share_pct", args.day_share), ("cost", args.cost),
+        ("payout_pct", args.payout), ("horizon_days", args.horizon),
+        ("trailing", args.trailing),
+    ) if v is not None}
+    if args.targets:
+        try:
+            zmeny["targets"] = tuple(float(x) for x in args.targets.split(","))
+        except ValueError:
+            raise SystemExit("--targets su ciele faz oddelene ciarkou, napr. 10,5")
+    try:
+        pravidla = replace(pravidla, **zmeny)
+    except ValueError as exc:
+        raise SystemExit(str(exc))
+
+    store = RunStore()
+    if args.runs:
+        chcene = [x.strip() for x in args.runs.split(",") if x.strip()]
+        zaznamy = [r for r in (store.get(i) for i in chcene) if r]
+    else:
+        vsetky = store.search(" ".join(args.query)) if args.query else store.all()
+        zaznamy = [r for r in vsetky if r.get("status") == "done"
+                   and ((r.get("result") or {}).get("trades") or 0) > 0]
+    zaznamy = zaznamy[:args.limit]
+    if not zaznamy:
+        raise SystemExit("ziadne dobehnute behy s obchodmi (skus iny dopyt)")
+
+    obchody = []
+    for rec in zaznamy:
+        t = store.trades(rec["id"])
+        if t:
+            obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]),
+                                 rec["settings"].get("strategy") or "ibs")
+    if not obchody:
+        raise SystemExit("vybrane behy nemaju ulozene obchody")
+
+    pary = sorted({r["settings"].get("pair") for r in zaznamy if r["settings"].get("pair")})
+    print(f"{len(zaznamy)} behov, {len(obchody)} obchodov, {', '.join(pary)}\n")
+    rizika = [args.risk] if args.risk else list(pr.RISKS)
+    vysledky = pr.risk_table(obchody, pravidla, risks=rizika, step=args.step)
+    print(pr.report(vysledky, ", ".join(pary)))
+    najlepsi = max(vysledky, key=lambda r: (r.ev if r.ev is not None else -1e18))
+    return 0 if (najlepsi.ev or 0) > 0 else 1
+
+
 def cmd_decay(args: argparse.Namespace) -> int:
     """Slabne edge? Posledné obdobie proti tomu, čo stratégia robievala."""
     from .. import analytics as an, decay as dc
@@ -1215,6 +1274,28 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--limit", type=int, default=40, help="najviac toľko behov (default 40)")
     p.add_argument("--stdout", action="store_true", help="vypísať, nezapisovať súbor")
     p.set_defaults(func=cmd_paper)
+
+    p = sub.add_parser("prop", help="prop výzva: aká je šanca dostať sa k výplate?")
+    p.add_argument("query", nargs="*", help="dopyt na behy (rovnaká syntax ako `list`)")
+    p.add_argument("--runs", help="konkrétne behy oddelené čiarkou (namiesto dopytu)")
+    p.add_argument("--rules", default="dvojfazova",
+                   help="predloha pravidiel (dvojfazova, jednofazova, trailing, mierna)")
+    p.add_argument("--account", type=float, help="veľkosť účtu")
+    p.add_argument("--targets", help="ciele fáz v %% oddelené čiarkou (napr. 10,5)")
+    p.add_argument("--daily", type=float, help="denný limit straty v %%")
+    p.add_argument("--max-loss", type=float, dest="max_loss", help="celkový limit straty v %%")
+    p.add_argument("--trailing", choices=("nie", "vrchol", "koniec_dna"),
+                   help="od čoho sa počíta celkový limit (default podľa predlohy)")
+    p.add_argument("--day-share", type=float, dest="day_share",
+                   help="pravidlo konzistencie: najlepší deň max toľko %% zisku (0 = žiadne)")
+    p.add_argument("--min-days", type=int, dest="min_days", help="minimum odobchodovaných dní")
+    p.add_argument("--cost", type=float, help="cena výzvy")
+    p.add_argument("--payout", type=float, help="podiel zo zisku v %%")
+    p.add_argument("--horizon", type=int, help="horizont v dňoch (0 = bez limitu)")
+    p.add_argument("--risk", type=float, help="jedno riziko na obchod v %%; bez neho celá tabuľka")
+    p.add_argument("--step", type=int, default=1, help="každý N-tý obchod ako štart pokusu")
+    p.add_argument("--limit", type=int, default=40, help="najviac toľko behov (default 40)")
+    p.set_defaults(func=cmd_prop)
 
     p = sub.add_parser("decay", help="slabne edge? posledné obdobie proti vlastnej minulosti")
     p.add_argument("query", nargs="*", help="dopyt na behy (rovnaká syntax ako `list`)")

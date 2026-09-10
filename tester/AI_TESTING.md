@@ -490,6 +490,49 @@ Tri veci, kvôli ktorým to má zmysel:
 sa pustila, ale tak, že sa nájde tá najväčšia v histórii. Keď je meranie hotové, prečítaj
 ho a dopíš záver — a keď v ňom niečo chýba, dopusti behy a spusti príkaz znova.
 
+## 8i. Prop výzva: dostaneš sa k výplate skôr, než účet zhorí?
+
+Portfólio (§8d) povie, koľko by stratégia zarobila na vlastnom účte. Na prop účte to
+nestačí, lebo tam **účet zomiera podľa pravidla**, nie podľa toho, či došli peniaze: séria
+strát, ktorá by na vlastnom účte znamenala zlý mesiac, tu znamená koniec a zaplatený
+poplatok. Otázka teda znie inak — *s akou pravdepodobnosťou sa dostanem k výplate a koľko
+výziev na to spálim*.
+
+```bash
+PY -m tester.webapp.cli prop "pair=BTC/USDT:USDT" --rules ftmo2
+PY -m tester.webapp.cli prop --runs <id1>,<id2> --rules apex100 --risk 1
+PY -m tester.webapp.cli prop "note~matica" --limit 50 --rules ftmo2 --daily 4 --cost 400
+```
+
+Predlohy pravidiel (`--rules`): `ftmo2`, `ftmo1`, `apex100`, `apex50`, `tradeify_growth`,
+`tradeify_select`. Sú odpísané z verejných stránok firiem **k 2026-09-10** a firmy ich menia
+často — výpis zdroj vypíše aj s upozornením. Každé pole sa dá prepísať (`--targets 10,5`,
+`--daily`, `--max-loss`, `--trailing`, `--min-days`, `--day-share`, `--cost`, `--payout`,
+`--horizon`), takže **pred rozhodovaním ich prepíš podľa zmluvy, ktorú naozaj máš**.
+
+**Ako sa to počíta.** Nie jedným behom, ale stovkami pokusov: výzva sa začne postupne na
+každom obchode histórie a prehrá sa dopredu, kým nepadne cieľ alebo pravidlo. Zámerne to
+**nie je bootstrap** — denný limit je o tom, ako sa straty zhlukujú v čase, a preskladanie
+obchodov práve to rozbije. Pokusy sa prekrývajú, takže to nie je interval spoľahlivosti,
+ale odpoveď na „keby som začal v náhodnom bode tejto histórie".
+
+Hlavná páka je **riziko na obchod**, preto sa vypisuje celá tabuľka: väčšie riziko dosiahne
+cieľ rýchlejšie **a** narazí na limit častejšie, a kde je optimum, sa nedá odhadnúť.
+
+Čo výpis povie sám, keď na to príde:
+
+| hláška | čo znamená |
+|---|---|
+| `PRILIS POMALA` | väčšina pokusov sa do horizontu k cieľu ani nedostane — nie je to o riziku, stratégia neurobí dosť obchodov |
+| medián 0–2 dni | cieľ padol na jednom-dvoch obchodoch; taká výplata stojí na šťastí (firmy proti tomu majú minimum dní a konzistenciu) |
+| „bežalo naraz až N pozícií" | obchody z viacerých trhov sa zliali do jedného účtu, ale simulácia ich odohrá za sebou — denný limit je podstrelený |
+
+**Čo to nevie a robí to optimistickým:** vidí len **uzavreté** obchody, kým firmy merajú
+denný limit aj drawdown na equity **vrátane otvorených pozícií**. Pozícia, ktorá išla hlboko
+proti a nakoniec vyšla na TP, tu účet nezabije — v skutočnosti by mohla. Skutočná šanca je
+teda **nižšia** než tá vypísaná. Nie sú tu ani pravidlá o novinkách, držaní cez noc a
+podobne, ktorými firmy výplaty zamietajú.
+
 ## 9. FreqAI
 
 Dá sa pripojiť, ale odpovedá na inú otázku: hyperopt vyberie statické parametre, FreqAI
