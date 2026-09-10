@@ -196,6 +196,35 @@
           <div id="sweep-result"></div>
         </div>
       </details>
+      <details id="ai-box" class="card sweep-box">
+        <summary>AI filter (FreqAI) <span class="muted small">— model rozhodne, ktorý signál brať</span></summary>
+        <div class="sweep-body">
+          <p class="mode-hint">Model <b>nenahrádza</b> stratégiu, dáva sa nad ňu: engine nájde
+            setup ako doteraz, model predpovie, či skôr príde take profit alebo stop, a signály
+            pod prahom sa preskočia. Zapnutý filter poruší paritu s Pine (obchodov bude menej),
+            takže je to rozšírenie mimo Pine — <b>bez zaškrtnutia sa nemení nič</b>.</p>
+          <label class="inline small"><input type="checkbox" id="ai-enabled"> zapnúť AI vrstvu</label>
+          <div class="form-grid an-form">
+            <label class="field">Prah istoty <span class="hint">0 = nefiltrovať, len škálovať</span>
+              <input type="number" id="ai-minprob" min="0" max="1" step="0.01">
+            </label>
+            <label class="field">Tréning (dní)
+              <input type="number" id="ai-train" min="30" step="30">
+            </label>
+            <label class="field">Pretrénovať po (dňoch)
+              <input type="number" id="ai-backtest" min="7" step="7">
+            </label>
+            <label class="field">Model
+              <input type="text" id="ai-model">
+            </label>
+          </div>
+          <div id="ai-warn" class="warnbox" hidden></div>
+          <p class="an-note"><b>Čo smie model meniť podľa istoty.</b> Prázdne = nemeniť.
+            Škáluje sa vzdialenosť od vstupu, nie cena; pri stope sa dopočíta veľkosť, aby
+            riziko na obchod ostalo to isté.</p>
+          <div id="ai-adjust" class="form-grid an-form"></div>
+        </div>
+      </details>
       <details id="nprop-box" class="card sweep-box">
         <summary>Prop výzva <span class="muted small">— unesie tento beh pravidlá propky?</span></summary>
         <div class="sweep-body">

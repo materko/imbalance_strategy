@@ -223,3 +223,61 @@ def test_sl_a_size_sa_nasobia_tak_aby_riziko_ostalo():
     assert s.ai_scale("X", 1, "sl") == pytest.approx(2.0)
     # tak, ako to počíta custom_stake_amount
     assert s.ai_scale("X", 1, "size") / s.ai_scale("X", 1, "sl") == pytest.approx(0.5)
+
+
+# --------------------------------------------------------------------------- #
+# webapp
+# --------------------------------------------------------------------------- #
+
+
+@pytest.fixture
+def klient():
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.webapp.app import create_app
+
+    return TestClient(create_app())
+
+
+def test_meta_da_predvolby_aj_kluce_strategie(klient):
+    m = klient.get("/api/ai/meta?strategy=ibs").json()
+
+    assert m["defaults"]["min_probability"] > 0
+    kluce = {a["key"]: a for a in m["adjustable"]}
+    assert set(kluce) == {"size", "tp", "sl"}
+    assert kluce["tp"]["param"] == "rrRatio"      # IBS povie, co to robi staticky
+    assert all(a["title"] for a in m["adjustable"])
+
+
+def test_meta_neznamej_strategie_je_404(klient):
+    assert klient.get("/api/ai/meta?strategy=neexistuje").status_code == 404
+
+
+def beh(ai=None):
+    return {"params": {}, "pair": "BTC/USDT:USDT", "timerange": "20250904-20260904",
+            "timeframe": "3m", "ai": ai}
+
+
+def test_beh_bez_ai_ostava_bez_ai(klient):
+    """Parita s Pine: vypnutá vrstva nesmie do behu pridať nič."""
+    from tester.webapp.app import create_app       # noqa: F401 - fixture uz app vyrobila
+
+    r = klient.post("/api/runs", json=beh())
+    assert r.status_code in (200, 422)             # 422 = iny dovod (parametre), nie AI
+    if r.status_code == 200:
+        assert not (r.json().get("settings") or {}).get("ai")
+
+
+def test_nepovoleny_kluc_endpoint_odmietne(klient):
+    r = klient.post("/api/runs", json=beh({"enabled": True,
+                                           "adjust": {"minSlDistance": [0.5, 1.5]}}))
+
+    assert r.status_code == 422
+    assert "minSlDistance" in r.json()["detail"]
+
+
+def test_zaporny_nasobok_endpoint_odmietne(klient):
+    r = klient.post("/api/runs", json=beh({"enabled": True, "adjust": {"size": [0, 1.5]}}))
+
+    assert r.status_code == 422
