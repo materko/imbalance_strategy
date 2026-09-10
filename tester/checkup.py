@@ -12,7 +12,9 @@ stratégie (ani tá istá o mesiac neskôr) nedajú porovnať. Tento modul je to
    a či sa to dá odfiltrovať, alebo je to nastavenie parametra.
 4. **Test proti náhode** ([nulltest.py](nulltest.py)) — je ten edge odlíšiteľný od hodu
    mincou, a nie je celý len v tom, *kedy* obchoduje?
-5. **Monte Carlo** ([montecarlo.py](montecarlo.py)) — aký široký je interval okolo
+5. **Slabne edge?** ([decay.py](decay.py)) — drží to aj dnes, alebo sa zarobilo v prvých
+   rokoch a odvtedy stratégia stojí?
+6. **Monte Carlo** ([montecarlo.py](montecarlo.py)) — aký široký je interval okolo
    nameraného čísla a čo to robí s účtom.
 
 Nič z toho nie je nové; nové je, že to je **jedna vec s jedným výstupom**, ktorý sa dá
@@ -116,7 +118,7 @@ def measure(records: Sequence[dict[str, Any]], trades: Sequence[dict[str, Any]],
     stopu a plánovaný RR sú v kresbách, nie v `trades.json`, a bez nich sú to dve
     vlastnosti, ktoré by v analytike ticho chýbali.
     """
-    from . import analytics as an, character as ch, montecarlo as mc, nulltest as nt
+    from . import analytics as an, character as ch, decay as dc, montecarlo as mc, nulltest as nt
 
     spec = get_spec(strategy)
     rows = window_rows(records)
@@ -139,6 +141,7 @@ def measure(records: Sequence[dict[str, Any]], trades: Sequence[dict[str, Any]],
         "character": None,
         "analytics": None,
         "null": {},
+        "decay": None,
         "montecarlo": None,
     }
     if not trades:
@@ -152,6 +155,8 @@ def measure(records: Sequence[dict[str, Any]], trades: Sequence[dict[str, Any]],
     for null in nt.NULLS:
         report["null"][null] = nt.compare(list(trades), pair=pair, timeframe=timeframe,
                                           iterations=iterations, null=null, seed=seed).to_dict()
+    # Obchody z piatich okien idú po sebe, takže delenie kalendára na obdobia dáva zmysel.
+    report["decay"] = dc.analyze(list(trades), seed=seed).to_dict()
     report["montecarlo"] = mc.analyze(list(trades), fee_pct=fee_pct, iterations=mc_iterations,
                                       seed=0, account=account, risk_ref=risk_ref,
                                       risk=risk_ref)
@@ -239,6 +244,24 @@ def verdicts(report: dict[str, Any]) -> tuple[list[str], list[str]]:
         slabe.append(f"proti náhode v tých istých hodinách je rozdiel podstatne menší "
                      f"({sig_s:+.1f} vs {sig_a:+.1f} sigma) — veľká časť edge je v tom, "
                      "KEDY obchoduje, nie v tom, čo si vyberá")
+
+    # -- slabne edge? ---------------------------------------------------------- #
+    # Verdikt aj vetu s číslami vyrába `tester.decay`; tu sa len rozhoduje, na ktorú
+    # stranu patria. „MALO DAT" nie je ani plus, ani mínus — to už povedal počet obchodov.
+    dec = report.get("decay") or {}
+    posledne = (dec.get("periods") or [{}])[-1]
+    # „Drží" je silná stránka len vtedy, keď je čo držať: stabilne záporný edge drží tiež.
+    ma_edge = be is not None and (fee <= 0 or be > fee)
+    if dec.get("verdict") == "DRZI" and ma_edge:
+        silne.append(f"edge drží aj v poslednom období ({posledne.get('label', '?')} na "
+                     f"{(posledne.get('percentile') or 0):.0f}. percentile toho, čo stratégia "
+                     "vyrobí sama od seba)")
+    elif dec.get("verdict") in ("SLABNE", "POZOR NA TREND"):
+        slabe.append(dec.get("note") or dec["verdict"])
+    elif dec.get("verdict") == "ZLEPSUJE SA" and ma_edge:
+        silne.append(f"posledné obdobie ({posledne.get('label', '?')}) je nad horným "
+                     "intervalom vlastnej minulosti — dôvod zvyšovať riziko to ale nie je, "
+                     "rovnako dobre to môže byť priaznivý režim")
 
     # -- charakter ------------------------------------------------------------- #
     char = report.get("character") or {}
@@ -412,6 +435,9 @@ def table(report: dict[str, Any]) -> str:
     lines.append("")
     lines.append(f"ziskova v {report['years_positive']} z {report['years_done']} okien, "
                  f"obchodov spolu {report['trades']}, break-even {_num(report.get('break_even_pct'), 4)} %")
+    dec = report.get("decay") or {}
+    if dec.get("verdict"):
+        lines.append(f"slabne edge? {dec['verdict']}")
 
     lines += ["", "V COM JE DOBRA"]
     lines += [f"  + {v}" for v in report.get("strengths") or ["(nic, co by vycnievalo)"]]
@@ -510,6 +536,27 @@ def markdown(report: dict[str, Any], *, command: str = "", generated: datetime |
         prvy = next(iter(nulls.values()), {})
         if prvy.get("verdict"):
             out += ["", prvy["verdict"]]
+
+    dec = report.get("decay") or {}
+    if dec.get("periods"):
+        out += ["", "## Slabne edge?", "",
+                "Posledné obdobie proti **vlastnej minulosti**: nie proti celkovému číslu "
+                "(kratší úsek je prirodzene rozkolísanejší), ale proti rozdeleniu úsekov "
+                "tej istej dĺžky, aké by tá istá stratégia vyrobila, keby sa edge nemenil.",
+                "",
+                "| obdobie | obchodov | za mesiac | WR % | break-even % | percentil |",
+                "|---|---|---|---|---|---|"]
+        for per in dec["periods"]:
+            out.append(f"| {per['label']} | {per['trades']} | {_num(per['per_month'], 1)} | "
+                       f"{_num(per['winrate'], 1)} | {_num(per['break_even_pct'], 4)} | "
+                       f"{_num(per['percentile'], 0)} |")
+        if dec.get("lo") is not None:
+            out += ["", f"Hranice pre úsek veľkosti posledného obdobia: {dec['lo']:+.4f} až "
+                        f"{dec['hi']:+.4f} % (medián {_num(dec.get('median'), 4)})."]
+        # `note` začína tým istým verdiktom; v dokumente by stálo dvakrát za sebou.
+        znacka = dec.get("verdict", "?")
+        poznamka = (dec.get("note") or "").removeprefix(znacka + ":").strip()
+        out += ["", f"**{znacka}** — {poznamka}"]
 
     if mcr:
         be, acc = mcr["break_even"], mcr["account"]

@@ -38,6 +38,20 @@ def bootstrap(*, p_above_fee=0.97, dd_median=10.0, dd_p95=18.0, p_ruin=0.0) -> d
     }
 
 
+def upadok(verdict: str, *, percentile=55.0) -> dict:
+    """Test slabnúceho edge v tvare, aký vracia `decay.Decay.to_dict()`."""
+    return {
+        "verdict": verdict, "note": f"{verdict}: posledné obdobie je na {percentile:g}. percentile.",
+        "trades": 200, "whole_break_even": 0.09, "lo": 0.01, "hi": 0.18, "median": 0.09,
+        "slope": -0.001,
+        "periods": [{"label": f"2024-{m:02d} - 2024-{m + 2:02d}", "trades": 50, "per_month": 8.0,
+                     "winrate": 35.0, "break_even_pct": 0.09, "percentile": 50.0}
+                    for m in (1, 4, 7)]
+                   + [{"label": "2025-10 - 2026-09", "trades": 50, "per_month": 8.0,
+                       "winrate": 35.0, "break_even_pct": 0.05, "percentile": percentile}],
+    }
+
+
 def nahoda(sigma: float) -> dict:
     """Výsledok testu proti náhode v tvare, aký vracia `nulltest.Result.to_dict()`."""
     return {"sigma": sigma, "observed": 0.09, "mean": 0.0, "sd": 0.03, "percentile": 99.0,
@@ -65,6 +79,7 @@ def report(**zmeny) -> dict:
                                                "winrate": 20.0, "break_even_pct": -0.04,
                                                "without_pct": 0.13, "impact": 0.04}]}]},
         "null": {"anytime": nahoda(3.0), "session": nahoda(2.8)},
+        "decay": upadok("DRZI"),
         "montecarlo": bootstrap(),
     }
     zaklad.update(zmeny)
@@ -141,6 +156,43 @@ def test_co_sa_nedalo_zmerat_sa_nehodnoti():
 # --------------------------------------------------------------------------- #
 # účet a skupiny obchodov
 # --------------------------------------------------------------------------- #
+
+
+def test_slabnuci_edge_je_chyba_aj_pri_ziskovom_celku():
+    """Súčet za päť rokov môže byť pekný a stratégia pritom už rok nefunguje."""
+    silne, slabe = ck.verdicts(report(decay=upadok("SLABNE", percentile=2.0)))
+    assert "SLABNE" in texty(slabe)
+    assert "edge drží" not in texty(silne)
+
+
+def test_klesajuci_rad_obdobi_je_varovanie_nie_potvrdeny_upadok():
+    _, slabe = ck.verdicts(report(decay=upadok("POZOR NA TREND")))
+    assert "POZOR NA TREND" in texty(slabe)
+
+
+def test_ked_edge_drzi_je_to_silna_stranka_s_cislom():
+    silne, slabe = ck.verdicts(report())
+    assert "edge drží" in texty(silne) and "percentile" in texty(silne)
+    assert "SLABNE" not in texty(slabe)
+
+
+def test_stabilne_zaporny_edge_nie_je_silna_stranka():
+    """Stratégia bez edge „drží" tiež — a vyhlásiť to za plus by bolo zavádzajúce."""
+    silne, _ = ck.verdicts(report(break_even_pct=-0.01, decay=upadok("DRZI")))
+    assert "edge drží" not in texty(silne)
+
+
+def test_malo_dat_na_upadok_nie_je_ani_plus_ani_minus():
+    """Že sa úpadok nedal zmerať, už povedal počet obchodov — netreba to hovoriť druhýkrát."""
+    silne, slabe = ck.verdicts(report(decay={"verdict": "MALO DAT", "note": "málo obchodov",
+                                             "periods": []}))
+    assert "MALO DAT" not in texty(silne) + texty(slabe)
+
+
+def test_dokument_ma_tabulku_obdobi():
+    md = ck.markdown(report(strengths=[], weaknesses=[]))
+    assert "## Slabne edge?" in md and "| 2025-10 - 2026-09 |" in md and "**DRZI**" in md
+    assert "**DRZI** — DRZI" not in md      # verdikt je aj v poznámke, nemá stáť dvakrát
 
 
 def test_hlboky_drawdown_je_chyba_aj_pri_ziskovej_strategii():

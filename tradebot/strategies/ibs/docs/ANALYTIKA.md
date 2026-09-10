@@ -17,6 +17,7 @@ python -m tester.webapp.cli checkup \
 - edge nad poplatkom v 96 % bootstrapových vzoriek
 - drawdown drží: 95. percentil 23.8 %
 - odlíšiteľná od náhody (+4.3 sigma proti náhodnému vstupu)
+- edge drží aj v poslednom období (2025-06 - 2026-08 na 83. percentile toho, čo stratégia vyrobí sama od seba)
 - charakter: prerazenie (breakout) (istota dobrá) — vie sa teda, čo je pri nej normálne a čo ladiť
 
 ## Kde má chyby
@@ -103,6 +104,21 @@ Tá istá stratégia s náhodnými vstupmi — rovnako často, rovnakým smerom,
 
 Edge je odlisitelny od nahody (4.3 sigma, percentil 100.0).
 
+## Slabne edge?
+
+Posledné obdobie proti **vlastnej minulosti**: nie proti celkovému číslu (kratší úsek je prirodzene rozkolísanejší), ale proti rozdeleniu úsekov tej istej dĺžky, aké by tá istá stratégia vyrobila, keby sa edge nemenil.
+
+| obdobie | obchodov | za mesiac | WR % | break-even % | percentil |
+|---|---|---|---|---|---|
+| 2021-10 - 2023-01 | 37 | 2.5 | 40.5 | 0.1758 | 86 |
+| 2023-01 - 2024-03 | 38 | 2.6 | 28.9 | 0.0435 | 15 |
+| 2024-03 - 2025-06 | 49 | 3.4 | 32.6 | 0.0612 | 24 |
+| 2025-06 - 2026-08 | 25 | 1.7 | 60.0 | 0.1782 | 83 |
+
+Hranice pre úsek veľkosti posledného obdobia: -0.0275 až +0.2434 % (medián 0.1006).
+
+**DRZI** — posledné obdobie (2025-06 - 2026-08) je na 83. percentile, teda v medziach -0.0275 až +0.2434 %, ktoré tá istá stratégia vyrobí sama od seba. Úpadok v dátach vidieť nie je.
+
 ## Interval okolo výsledku a čo to robí s účtom
 
 Bootstrap po blokoch 10 obchodov, 10 000 opakovaní.
@@ -124,14 +140,6 @@ Bootstrap **nemeria pretrénovanie** — hovorí len o rozptyle vzorky. Proti pr
 
 ## Posudok (AI)
 
-Chýba. Napíše ho AI: prečíta čísla vyššie a odpovie na týchto šesť otázok. Text patrí **medzi značky** nižšie, aby ho ďalší `cli checkup` preniesol ďalej.
-
-1. **Na čo sa to hodí a na čo nie** — trh, timeframe, režim, veľkosť účtu; kde by to isté číslo znamenalo niečo iné.
-2. **Má to potenciál?** Čo z čísel hovorí, že za tým je skutočný jav, a čo hovorí, že je to vlastnosť vzorky.
-3. **Čo treba dorobiť** v samotnej stratégii — filtre, výstupy, sizing, sviatky a seansy, chýbajúce parametre.
-4. **Čo otestovať ďalej** — konkrétne príkazy (`cli sweep`, `cli matrix`, `cli hyperopt`, druhý engine) a čo by ich výsledok rozhodol.
-5. **Je to použiteľné, alebo je to o ničom?** Odpoveď má byť jednoznačná; „ešte uvidíme" je odpoveď len vtedy, keď je za ňou konkrétny test.
-6. **Čo by som pridal** — nápad, ktorý v stratégii nie je a z týchto čísel dáva zmysel.
 <!-- POSUDOK cisla=ef298f1a -->
 
 **Zhrnutie:** použiteľný kandidát s edge dvojnásobným oproti poplatku, ale s takou tenkou
@@ -149,10 +157,12 @@ poplatkom než ~0,1 % na stranu: tam z edge neostane nič. Prahy sú v tomto pro
 percentuálne a v ATR, takže prenos na iný trh je technicky možný — či drží aj tam, ale
 zmerané nie je (matica sa nespúšťala).
 
-**2. Má to potenciál?** Za skutočný jav hovoria tri veci: odstup od náhody je rovnaký
+**2. Má to potenciál?** Za skutočný jav hovoria štyri veci: odstup od náhody je rovnaký
 proti `anytime` aj `session` (edge teda nie je len „obchoduj v NY"), charakter je
 učebnicové prerazenie (vstup +0,73 ATR po pohybe, winrate 38 %, payoff 2,24 — to sedí
-navzájom), a break-even je nad poplatkom v 96 % bootstrapových vzoriek. Proti hovorí
+navzájom), break-even je nad poplatkom v 96 % bootstrapových vzoriek, a posledné obdobie
+(2025-06 – 2026-08) je na 83. percentile vlastnej minulosti, teda úpadok v dátach vidieť
+nie je. Proti hovorí
 vzorka: 149 obchodov spolu a 90 % interval break-evenu 0,053–0,157 % je stále široký,
 plus rok 2021/22 (+22 %) nesie neúmerne veľa. Rozdiel medzi „edge" a „vlastnosť vzorky"
 tu zatiaľ rozhodnúť nevieme; vieme len, že náhoda to nevysvetlí.
@@ -187,6 +197,11 @@ MultiCharts vôbec použiteľná (fill model je iný); (d) či je štvrtina výs
 chyba alebo cena za to, že sa cez noc nedrží.
 
 **5. Je to použiteľné?** Áno, ale ako **kandidát na malé riziko**, nie ako hotový systém.
+Jedna vec z testu úpadku stojí za sledovanie: break-even posledného obdobia je pekný
+(0,1782 %), ale **signálov ubudlo** — 1,7 obchodu za mesiac oproti 2,5–3,4 v predošlých
+obdobiach. Na verdikt to nestačí (test si všíma až pokles pod polovicu), pri 25 obchodoch
+v období je to skôr šum; ale keby to pokračovalo, je to úpadok rovnako ako klesajúci
+break-even, len ho v ňom vidieť nie je.
 Monte Carlo hovorí: pri účte 10 000 riskuj najviac 110 na obchod, aby 95 % ciest zostalo
 nad −20 %. Pri tom riziku je to obchodovateľné a rok tichého behu je normálny stav, nie
 signál, že sa niečo pokazilo. Za „hotové" to bude možné vyhlásiť až vtedy, keď prejde

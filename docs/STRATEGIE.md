@@ -251,8 +251,8 @@ v `tradebot/strategies/<key>/docs/ANALYTIKA.md` a vzniká jedným príkazom:
 PY -m tester.webapp.cli checkup --strategy moja --profile moj_profil --timeframe 5m
 ```
 
-Päť referenčných okien → charakter → skupiny obchodov → test proti náhode → Monte Carlo,
-z toho dva zoznamy („v čom je dobrá", „kde má chyby") a dokument. Čo presne sa meria
+Päť referenčných okien → charakter → skupiny obchodov → test proti náhode → slabnúci edge
+→ Monte Carlo, z toho dva zoznamy („v čom je dobrá", „kde má chyby") a dokument. Čo presne sa meria
 a prečo práve to: [ANALYTIKA.md](ANALYTIKA.md).
 
 Aby sa dala zmerať celá, musí `SPEC` deklarovať štyri veci:

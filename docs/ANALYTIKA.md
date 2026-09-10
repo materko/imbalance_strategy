@@ -29,6 +29,7 @@ Bez zápisu (len výpis do konzoly) `--no-write`, z hotových behov namiesto nov
 | **charakter** | prerazenie, trend, protitrend, scalp, formácia, swing — a teda čo je normálne | [`tester/character.py`](../tester/character.py), [TYPY_STRATEGII.md](TYPY_STRATEGII.md) |
 | **skupiny obchodov** | ktorá časť obchodov výsledok kazí a či sa to dá odfiltrovať | [`tester/analytics.py`](../tester/analytics.py) |
 | **test proti náhode** | je ten edge odlíšiteľný od hodu mincou — a nie je celý len v tom, *kedy* obchoduje? | [`tester/nulltest.py`](../tester/nulltest.py) |
+| **slabne edge?** | drží to aj dnes, alebo sa zarobilo v prvých rokoch a odvtedy stratégia stojí? | [`tester/decay.py`](../tester/decay.py) |
 | **Monte Carlo** | aký široký je interval okolo nameraného čísla a čo to robí s účtom | [`tester/montecarlo.py`](../tester/montecarlo.py) |
 
 Nič z toho nie je nové — nové je, že to je **jedna vec s jedným výstupom**. Poradie nie je
@@ -36,6 +37,11 @@ náhodné: každý ďalší krok má zmysel len vtedy, keď predošlý nespadol.
 obchodov je hádanie; skupiny obchodov stratégie, ktorá nie je lepšia než náhoda, sú
 skupiny šumu; interval okolo čísla, ktoré v troch z piatich rokov bolo záporné, je
 presné vyjadrenie neistoty o niečom, čo nefunguje.
+
+Dva z tých krokov sa pýtajú na to isté z opačných strán a práve preto sú tu obidva:
+**okná** hovoria, či to fungovalo rovnomerne **po rokoch**, **úpadok** hovorí, či to drží
+**dnes** — päť rokov v pluse a posledný rok mimo intervalu vlastnej minulosti je stále
+zisková stratégia, s ktorou sa nemá začínať.
 
 ## Ako sa číta výstup
 
@@ -58,6 +64,7 @@ Hranice, na ktorých pravidlá stoja, a prečo sú tam:
 | odlíšiteľné od náhody | ≥ 2 sigma | pod tým rozdiely takej veľkosti náhoda robí bežne |
 | edge je len v čase | `anytime` − `session` > 1 sigma | keď je stratégia lepšia než náhoda kedykoľvek, ale nie než náhoda v tých istých hodinách, jej edge je v tom, KEDY obchoduje — a to sa dá mať aj bez nej |
 | drawdown | 95. percentil ≥ 25 % | nad tým to bežný účet neustojí, aj keď je stratégia zisková |
+| slabnúci edge | posledné obdobie pod 5. percentilom vlastnej minulosti | kratší úsek je prirodzene rozkolísanejší, tak sa neporovnáva s celkom, ale s rozdelením úsekov tej istej dĺžky |
 | výstupy na čase | ≥ 20 % obchodov | toľko obchodov nekončí na pláne, ale na konci seansy: je to nastavenie okna, nie vlastnosť vstupu |
 | najhoršia skupina | zlepšenie ≥ 0,01 break-even | menej je šum; a keď je tá skupina väčšina obchodov, nie je to filter, ale nastavenie parametra |
 
