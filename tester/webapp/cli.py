@@ -511,6 +511,47 @@ def cmd_nulltest(args: argparse.Namespace) -> int:
     return 0 if (najprv and najprv.sigma is not None) else 1
 
 
+def cmd_paper(args: argparse.Namespace) -> int:
+    """Meranie, ktore sa napise samo — z behov v historii do docs/merania/."""
+    import shlex
+
+    from .. import paper as pp
+    from .store import RunStore, strategy_of
+
+    store = RunStore()
+    if args.runs:
+        chcene = [x.strip() for x in args.runs.split(",") if x.strip()]
+        zaznamy = [r for r in (store.get(i) for i in chcene) if r]
+    else:
+        vsetky = store.search(" ".join(args.query)) if args.query else store.all()
+        zaznamy = [r for r in vsetky if strategy_of(r) == args.strategy
+                   and r.get("status") == "done"
+                   and ((r.get("result") or {}).get("trades") or 0) > 0]
+    zaznamy = zaznamy[:args.limit]
+    if not zaznamy:
+        raise SystemExit("ziadne dobehnute behy s obchodmi (skus iny dopyt)")
+
+    # Prikaz ide do dokumentu, aby sa dal zopakovat - bez neho je meranie neoveritelne.
+    prikaz = "python -m tester.webapp.cli " + " ".join(shlex.quote(a) for a in sys.argv[1:])
+    print(f"{len(zaznamy)} behov, pocitam...", flush=True)
+    try:
+        doc = pp.build(zaznamy, store, strategy=args.strategy, title=args.title,
+                       risk_pct=args.risk_pct, null_iterations=args.iterations,
+                       command=prikaz)
+    except ValueError as exc:
+        raise SystemExit(str(exc))
+
+    if args.stdout:
+        print(pp.render(doc))
+        return 0
+    cesta = pp.write(doc, args.name)
+    print(f"zapisane: {cesta.relative_to(REPO) if cesta.is_relative_to(REPO) else cesta}")
+    for sek in doc.sections:
+        stav = f"CHYBA: {sek.gap}" if sek.gap else (sek.verdict or "ok")
+        print(f"  {sek.title:<36} {stav}")
+    return 0
+
+
 def cmd_decay(args: argparse.Namespace) -> int:
     """Slabne edge? Posledné obdobie proti tomu, čo stratégia robievala."""
     from .. import analytics as an, decay as dc
@@ -1138,6 +1179,20 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--seed", type=int, default=12345)
     p.add_argument("--limit", type=int, default=40, help="najviac toľko behov (default 40)")
     p.set_defaults(func=cmd_nulltest)
+
+    p = sub.add_parser("paper", help="meranie do docs/merania/ zo všetkého, čo vieme")
+    p.add_argument("query", nargs="*", help="dopyt na behy (rovnaká syntax ako `list`)")
+    p.add_argument("--runs", help="konkrétne behy oddelené čiarkou (namiesto dopytu)")
+    p.add_argument("--strategy", default="ibs", help="stratégia (default ibs)")
+    p.add_argument("--title", default="", help="nadpis dokumentu")
+    p.add_argument("--name", default="", help="názov súboru (inak MERANIE_<strategia>_<trh>_<datum>.md)")
+    p.add_argument("--risk-pct", type=float, default=1.0, dest="risk_pct",
+                   help="riziko na obchod pre portfólio v %% (default 1)")
+    p.add_argument("--iterations", type=int, default=400,
+                   help="opakovaní testu proti náhode (default 400)")
+    p.add_argument("--limit", type=int, default=40, help="najviac toľko behov (default 40)")
+    p.add_argument("--stdout", action="store_true", help="vypísať, nezapisovať súbor")
+    p.set_defaults(func=cmd_paper)
 
     p = sub.add_parser("decay", help="slabne edge? posledné obdobie proti vlastnej minulosti")
     p.add_argument("query", nargs="*", help="dopyt na behy (rovnaká syntax ako `list`)")

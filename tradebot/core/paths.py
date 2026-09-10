@@ -41,6 +41,7 @@ __all__ = [
     "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS",
     "MULTICHARTS_DIR",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES",
+    "DOCS_DIR", "MERANIA_DIR",
     "ARCHIVE_ROOTS",
 ]
 
@@ -83,6 +84,12 @@ RUNS_DIR = TESTER_DIR / "runs"
 PROFILES_DIR = TESTER_DIR / "profiles"
 #: Dočasné profily rozbehnutých behov — vedľa histórie, ale gitignored.
 TMP_PROFILES = RUNS_DIR / ".profiles"
+
+# -- Dokumentácia ----------------------------------------------------------- #
+
+DOCS_DIR = REPO / "docs"
+#: Datované merania. Píše sem `tester.paper`, inak sa písali ručne.
+MERANIA_DIR = DOCS_DIR / "merania"
 
 # -- Archív ----------------------------------------------------------------- #
 
