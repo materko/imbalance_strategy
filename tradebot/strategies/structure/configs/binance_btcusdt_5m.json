@@ -1,0 +1,12 @@
+{
+  "_title": "Binance BTCUSDT.P 5m — Pine defaulty štruktúry, páka 5",
+  "_strategy": "structure",
+  "_instrument": "btcusdt_binance",
+  "_comment": [
+    "Vychodiskovy profil strategie struktury. Vsetko su Pine defaulty z",
+    "tradebot/strategies/structure/docs/sources/structure.pine (entryMode choch, exitMode rr,",
+    "swing 5/5, SL za swingom + 0,1 ATR, RR 2), jedina odchylka je paka 5 (rozsirenie portu),",
+    "aby sa risk-based pozicia na BTC zmestila na ucet 10 000."
+  ],
+  "leverage": 5.0
+}

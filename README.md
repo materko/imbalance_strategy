@@ -15,9 +15,10 @@ Stratégie v registry (ako sa píše ďalšia: [docs/STRATEGIE.md](docs/STRATEGI
 sa píše **pre oba enginy** a každá má vlastnú základnú analytiku s posudkom
 (`tradebot/strategies/<key>/docs/ANALYTIKA.md`, [docs/ANALYTIKA.md](docs/ANALYTIKA.md)):
 
-| kľúč | stratégia | Pine zdroj |
+| kľúč | stratégia | Pine zdroj (voliteľný, robí sa na vyžiadanie) |
 |---|---|---|
 | `ibs` | **IBS Imbalance Breakout** — na detekčnom TF (5m) vznikajú supply/demand zóny, v nich sa hľadá imbalance (gap), Pin Bar alebo Engulfing, vstup je limitka na cene gapu, SL zo swingu, TP z pomeru RR; seansy (New York), long only, štruktúrny filter, filter tesného SL | [`tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine`](tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine) |
+| `structure` | **Market Structure BOS / CHoCH** — potvrdené swingy (`swingLeft`/`swingRight`), z nich stav štruktúry a udalosti BOS/CHoCH na zatvorení baru; vstup prepínačom `choch` / `bos` / `sweep` (sweep ide proti CHoCH), SL za swingom alebo z ATR, výstup RR / ďalšia štruktúrna udalosť / čas. Zmerané: [ANALYTIKA](tradebot/strategies/structure/docs/ANALYTIKA.md) | [`tradebot/strategies/structure/docs/sources/structure.pine`](tradebot/strategies/structure/docs/sources/structure.pine) |
 | `demo_breakout` | **Demo Donchian Breakout** — ukážka, ktorá overuje rámec end-to-end (8 parametrov); nie je to obchodné odporúčanie | [`tradebot/strategies/demo_breakout/docs/sources/demo_breakout.pine`](tradebot/strategies/demo_breakout/docs/sources/demo_breakout.pine) |
 
 ---
@@ -102,7 +103,7 @@ Podrobne: [docs/DATA.md](docs/DATA.md), prehľad celej cesty dát:
 |---|---|
 | **TradeBot — produkt** | |
 | [`tradebot/core/`](tradebot/core) | Generické jadro bez závislostí: `StrategyConfig` (báza configu, profily), `Engine`/`EngineOutput`, `OrderIntent`/`TradePlan`, `BarHistory`, hodiny seáns, `DrawCommand` + `DrawKind` registr, inštrumenty, skladanie TF z 1m (`candles`), evidencia dopočítaných sviečok (`derived`), čítanie Dukascopy exportu (`dukascopy`), `paths.py` so všetkými cestami repozitára. |
-| [`tradebot/strategies/`](tradebot/strategies) | Registry `STRATEGIES` a jedna stratégia = jeden **sebestačný** balík: engine, config, meta, `configs/` (profily) aj `docs/sources/` (Pine zdroj — pravda o parametroch): `ibs/` (config, engine, stavový automat zón, `ta/`, HTF feeder, Freqtrade a MultiCharts podtriedy, meta pre webapp), `demo_breakout/`. Postup: [docs/STRATEGIE.md](docs/STRATEGIE.md). |
+| [`tradebot/strategies/`](tradebot/strategies) | Registry `STRATEGIES` a jedna stratégia = jeden **sebestačný** balík: engine, config, `params.py` (popisy parametrov pre formulár), meta, `configs/` (profily) a voliteľný `docs/sources/` (Pine zdroj): `ibs/` (config, engine, stavový automat zón, `ta/`, HTF feeder, Freqtrade a MultiCharts podtriedy, meta pre webapp), `structure/`, `demo_breakout/`. Postup: [docs/STRATEGIE.md](docs/STRATEGIE.md). |
 | [`tradebot/adapters/freqtrade/`](tradebot/adapters/freqtrade) | Generická Freqtrade stratégia `TradebotStrategyBase` + `EngineRunner` (engine nad DataFrame, fill model) + export kresieb. |
 | [`tradebot/adapters/multicharts/`](tradebot/adapters/multicharts) | Generická študia `TradebotSignal`, `MCRunner`, kreslenie (len Windows) a **emulátor** MultiCharts (beží všade). |
 
@@ -145,6 +146,7 @@ Profil = Pine defaulty stratégie + odchýlky + `_strategy` + `_instrument`. Pre
 | `golden_coinbase_btcusd_3m` | Referenčný pre Coinbase BTCUSD — parita jadra s TradingView screenshotmi (MultiCharts a testy). |
 | `multicharts_mnq_3m` | MNQ futures pre MultiCharts, 1:1 s Pine jednotkami. |
 | `nas100_dukas_3m` (archív) | NAS100 CFD z Dukascopy — rovnaké prahy v bodoch ako MNQ. Beží vo webapp na „burze" MultiCharts aj v MultiCharts samotnom ([docs/MULTICHARTS.md](docs/MULTICHARTS.md)). |
+| `structure/binance_btcusdt_5m` | Východiskový profil stratégie štruktúry (defaulty, páka 5). |
 | `demo_breakout/binance_btcusdt_5m` | Jediný profil ukážkovej stratégie (Pine defaulty, páka 5). |
 | ostatné | Skúšané konfigurácie (NY seansa, SL filter, risk sizing, hyperopt…) sú v [docs/profily_archiv/](docs/profily_archiv/ibs/README.md) s tabuľkou odchýlok; načítajú sa cestou (`--profile docs/profily_archiv/ibs/<nazov>.json`). Odporúčaný štart na nasadenie je `btcusdt_3m_binance_ny_sl_risk1` odtiaľ. |
 

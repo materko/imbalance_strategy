@@ -9,9 +9,11 @@ from __future__ import annotations
 from .base import StrategySpec
 from .demo_breakout import SPEC as DEMO_SPEC
 from .ibs import SPEC as IBS_SPEC
+from .structure import SPEC as STRUCTURE_SPEC
 
 STRATEGIES: dict[str, StrategySpec] = {
     IBS_SPEC.key: IBS_SPEC,
+    STRUCTURE_SPEC.key: STRUCTURE_SPEC,
     DEMO_SPEC.key: DEMO_SPEC,
 }
 
