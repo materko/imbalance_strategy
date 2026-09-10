@@ -139,6 +139,13 @@ class PosudokRequest(BaseModel):
     user: str = Field("", max_length=100)
 
 
+class FillWindowsRequest(BaseModel):
+    """Doplnenie chýbajúcich referenčných okien konfigurácie — podľa vzorového behu."""
+
+    run_id: str = Field(..., description="beh konfigurácie, z ktorého sa vezmú parametre a nastavenia")
+    user: str | None = Field(None, max_length=80)
+
+
 class AnalyticsSaveRequest(BaseModel):
     """Uloženie záveru analytiky do histórie."""
 
@@ -1013,29 +1020,27 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                                       "note": _null_note(vysledky)}
         return report
 
-    @app.get("/api/analytics/configs")
-    def analytics_configs(strategy: str = "ibs", limit: int = Query(30, ge=1, le=200)):
-        """Konfigurácie v histórii: skupiny behov s **tými istými parametrami** stratégie
-        na **tom istom trhu a TF**, s ich oknami a počtom obchodov.
-
-        Analytika má zmysel len nad jednou konfiguráciou (zliať rôzne znamená zliať rôzne
-        stratégie), a textový dopyt to nestráži. Tu si tester vyberie konfiguráciu a dostane
-        presne jej behy — a hneď vidí, koľko okien pokrýva.
-        """
+    def _config_key(rec: dict[str, Any]) -> str:
+        """Konfigurácia = parametre + trh + TF: analytika (náhoda, charakter, dĺžka
+        v baroch) je párová a limity v baroch znamenajú na inom TF inú stratégiu,
+        takže ten istý profil na inom trhu alebo TF je iný výber."""
         from .. import analytics as an
 
-        if strategy not in STRATEGIES:
-            raise HTTPException(404, f"neznáma stratégia {strategy!r}")
+        s = rec.get("settings") or {}
+        return f"{an.config_key(rec)}|{s.get('pair') or '?'}|{s.get('timeframe') or '?'}"
+
+    def _config_groups(strategy: str) -> list[dict[str, Any]]:
+        """Skupiny hotových behov s obchodmi podľa konfigurácie — s oknami, pármi
+        a s tým, ktoré referenčné okná ešte chýbajú."""
+        from .. import hyperopt as ho
+
         skupiny: dict[str, dict[str, Any]] = {}
         for rec in store.all():
             obchodov = int((rec.get("result") or {}).get("trades") or 0)
             if strategy_of(rec) != strategy or rec.get("status") != "done" or obchodov <= 0:
                 continue
             s = rec.get("settings") or {}
-            # Konfigurácia = parametre + trh + TF: analytika (náhoda, charakter, dĺžka
-            # v baroch) je párová a limity v baroch znamenajú na inom TF inú stratégiu,
-            # takže ten istý profil na inom trhu alebo TF je iný výber.
-            kluc = f"{an.config_key(rec)}|{s.get('pair') or '?'}|{s.get('timeframe') or '?'}"
+            kluc = _config_key(rec)
             g = skupiny.setdefault(kluc, {
                 "key": kluc, "profile": "", "run_ids": [], "pairs": set(),
                 "timeframes": set(), "timeranges": set(), "trades": 0, "latest": ""})
@@ -1049,12 +1054,70 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             g["latest"] = max(g["latest"], rec["id"])
         out = [{**g, "profile": g["profile"] or "(Pine defaulty)",
                 "runs": len(g["run_ids"]), "run_ids": sorted(g["run_ids"]),
+                "sample": max(g["run_ids"]),
                 "pairs": sorted(g["pairs"]), "timeframes": sorted(g["timeframes"]),
-                "timeranges": sorted(g["timeranges"])} for g in skupiny.values()]
+                "timeranges": sorted(g["timeranges"]),
+                # Referenčné okná, ktoré konfigurácia ešte nemá - to sa dá doplniť.
+                "missing": [w for w in ho.REFERENCE_WINDOWS if w not in g["timeranges"]]}
+               for g in skupiny.values()]
         # Najviac behov hore (to je tá, na ktorej sa meralo), pri zhode novšia.
         out.sort(key=lambda g: g["latest"], reverse=True)
         out.sort(key=lambda g: g["runs"], reverse=True)
-        return {"configs": out[:limit]}
+        return out
+
+    @app.get("/api/analytics/configs")
+    def analytics_configs(strategy: str = "ibs", limit: int = Query(30, ge=1, le=200)):
+        """Konfigurácie v histórii: skupiny behov s **tými istými parametrami** stratégie
+        na **tom istom trhu a TF**, s ich oknami a počtom obchodov.
+
+        Analytika má zmysel len nad jednou konfiguráciou (zliať rôzne znamená zliať rôzne
+        stratégie), a textový dopyt to nestráži. Tu si tester vyberie konfiguráciu a dostane
+        presne jej behy — a hneď vidí, koľko okien pokrýva a koľko referenčných chýba.
+        """
+        from .. import hyperopt as ho
+
+        if strategy not in STRATEGIES:
+            raise HTTPException(404, f"neznáma stratégia {strategy!r}")
+        return {"configs": _config_groups(strategy)[:limit],
+                "reference_windows": list(ho.REFERENCE_WINDOWS)}
+
+    @app.post("/api/analytics/fill-windows")
+    def analytics_fill_windows(req: FillWindowsRequest):
+        """Zaradí behy pre referenčné okná, ktoré konfigurácii vzorového behu chýbajú.
+
+        Málo behov = málo obchodov a každý test batérie povie „málo dát". Odpoveď nie
+        je zmeniť prahy, ale dobehnúť tie isté parametre na ostatných oknách — presne
+        to, čo robí `cli checkup`, len z webapp a bez nového backtestu tam, kde už je.
+        """
+        from .. import hyperopt as ho
+
+        vzor = store.get(req.run_id)
+        if vzor is None:
+            raise HTTPException(404, "vzorový beh v histórii nie je")
+        strategy = strategy_of(vzor)
+        skupina = next((g for g in _config_groups(strategy) if g["key"] == _config_key(vzor)), None)
+        chybaju = skupina["missing"] if skupina else list(ho.REFERENCE_WINDOWS)
+        if not chybaju:
+            return {"queued": [], "windows": [], "note": "konfigurácia má všetkých päť referenčných okien"}
+
+        s = vzor.get("settings") or {}
+        ids = []
+        for okno in chybaju:
+            r = RunRequest(params=vzor.get("params") or {}, pair=s.get("pair") or "BTC/USDT:USDT",
+                           strategy=strategy, timeframe=s.get("timeframe") or "3m", timerange=okno,
+                           fee=s.get("fee"), wallet=s.get("wallet") or 10000,
+                           timeframe_detail=s.get("timeframe_detail", "1m"), engine=s.get("engine"),
+                           exchange=s.get("exchange"), profile=s.get("profile"), ai=s.get("ai"),
+                           note=f"doplnenie okna {okno} pre analytiku (podľa {vzor['id']})",
+                           user=req.user)
+            settings = {**_run_settings(r), "checkup": {"fill": vzor["id"], "strategy": strategy}}
+            try:
+                job = runner.submit(r.params, settings, note=r.note, user=_clean_user(req.user))
+            except (ConfigError, ValueError) as exc:
+                raise HTTPException(422, f"okno {okno}: {exc}")
+            ids.append(job.id)
+        return {"queued": ids, "windows": chybaju,
+                "note": f"zaradených {len(ids)} behov; po dobehnutí spusti Spočítať znova"}
 
     @app.get("/api/analytics/history")
     def analytics_history(strategy: str = "", limit: int = Query(50, ge=1, le=500)):

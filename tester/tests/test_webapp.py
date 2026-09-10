@@ -1134,3 +1134,35 @@ def test_analytics_configs_zoskupi_behy_s_rovnakymi_parametrami(tmp_path: Path):
     assert out[0]["timeranges"] == ["20240904-20250904", "20250904-20260904"]
     assert out[0]["run_ids"] == ["20260905-120000-aaaaaa", "20260906-120000-bbbbbb"]
     assert out[0]["profile"] == "btcusdt_3m_binance_ny" and out[0]["trades"] == 298
+
+
+def test_doplnenie_okien_zaradi_len_chybajuce_referencne_okna(tmp_path: Path, monkeypatch):
+    """Konfigurácia s jedným rokom: doplnia sa štyri ostatné referenčné okná s tými istými
+    parametrami; konfigurácia so všetkými piatimi nedostane nič."""
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.hyperopt import REFERENCE_WINDOWS
+    from tester.webapp import app as app_mod
+    from tester.webapp.runner import BacktestRunner
+
+    monkeypatch.setattr(app_mod.engines, "available",
+                        lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+    store = RunStore(tmp_path)
+    store.save(_record("20260905-120000-aaaaaa", params={"rrRatio": 5.0}))
+    runner = BacktestRunner(store, command_builder=lambda *a: ["python", "-c", "raise SystemExit(0)"])
+    c = TestClient(app_mod.create_app(store, runner))
+
+    konfig = c.get("/api/analytics/configs?strategy=ibs").json()["configs"][0]
+    assert konfig["missing"] == [w for w in REFERENCE_WINDOWS if w != "20250904-20260904"]
+
+    out = c.post("/api/analytics/fill-windows", json={"run_id": konfig["sample"]}).json()
+    assert out["windows"] == konfig["missing"] and len(out["queued"]) == 4
+    # Falošný runner behy hneď dokončí, takže sú už v sklade, nie vo fronte.
+    fronta = {j["id"]: j for j in runner.snapshot()}
+    for run_id in out["queued"]:
+        j = fronta.get(run_id) or store.get(run_id)
+        assert j["settings"]["timerange"] in konfig["missing"]
+        assert j["settings"]["checkup"]["fill"] == "20260905-120000-aaaaaa"
+    assert c.post("/api/analytics/fill-windows", json={"run_id": "neexistuje"}).status_code == 404
