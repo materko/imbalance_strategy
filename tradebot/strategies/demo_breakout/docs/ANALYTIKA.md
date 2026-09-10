@@ -106,6 +106,21 @@ Tá istá stratégia s náhodnými vstupmi — rovnako často, rovnakým smerom,
 
 HORSIE nez nahoda (-2.0 sigma). Nahodny vstup za tych istych pravidiel dava lepsi vysledok - vyber vstupu vysledku skodi.
 
+## Slabne edge?
+
+Posledné obdobie proti **vlastnej minulosti**: nie proti celkovému číslu (kratší úsek je prirodzene rozkolísanejší), ale proti rozdeleniu úsekov tej istej dĺžky, aké by tá istá stratégia vyrobila, keby sa edge nemenil.
+
+| obdobie | obchodov | za mesiac | WR % | break-even % | percentil |
+|---|---|---|---|---|---|
+| 2021-10 - 2022-12 | 2162 | 154.1 | 29.8 | -0.0221 | 3 |
+| 2022-12 - 2024-02 | 2113 | 150.6 | 31.9 | 0.0035 | 90 |
+| 2024-02 - 2025-04 | 1277 | 91.0 | 31.7 | -0.0010 | 73 |
+| 2025-04 - 2026-06 | 1410 | 100.5 | 31.4 | -0.0022 | 67 |
+
+Hranice pre úsek veľkosti posledného obdobia: -0.0225 až +0.0093 % (medián -0.0064).
+
+**DRZI** — posledné obdobie (2025-04 - 2026-06) je na 67. percentile, teda v medziach -0.0225 až +0.0093 %, ktoré tá istá stratégia vyrobí sama od seba. Úpadok v dátach vidieť nie je.
+
 ## Interval okolo výsledku a čo to robí s účtom
 
 Bootstrap po blokoch 10 obchodov, 10 000 opakovaní.
@@ -127,14 +142,6 @@ Bootstrap **nemeria pretrénovanie** — hovorí len o rozptyle vzorky. Proti pr
 
 ## Posudok (AI)
 
-Chýba. Napíše ho AI: prečíta čísla vyššie a odpovie na týchto šesť otázok. Text patrí **medzi značky** nižšie, aby ho ďalší `cli checkup` preniesol ďalej.
-
-1. **Na čo sa to hodí a na čo nie** — trh, timeframe, režim, veľkosť účtu; kde by to isté číslo znamenalo niečo iné.
-2. **Má to potenciál?** Čo z čísel hovorí, že za tým je skutočný jav, a čo hovorí, že je to vlastnosť vzorky.
-3. **Čo treba dorobiť** v samotnej stratégii — filtre, výstupy, sizing, sviatky a seansy, chýbajúce parametre.
-4. **Čo otestovať ďalej** — konkrétne príkazy (`cli sweep`, `cli matrix`, `cli hyperopt`, druhý engine) a čo by ich výsledok rozhodol.
-5. **Je to použiteľné, alebo je to o ničom?** Odpoveď má byť jednoznačná; „ešte uvidíme" je odpoveď len vtedy, keď je za ňou konkrétny test.
-6. **Čo by som pridal** — nápad, ktorý v stratégii nie je a z týchto čísel dáva zmysel.
 <!-- POSUDOK cisla=b401fb0b -->
 
 **Zhrnutie:** ako obchodná stratégia je to **o ničom** a nie je to prekvapenie — je to
@@ -155,7 +162,9 @@ očakávaná hodnota na obchod rádovo taká veľká ako poplatok, takže o výs
 poplatok, nie stratégia (klasický scalpingový problém, [TYPY_STRATEGII.md](../../../../docs/TYPY_STRATEGII.md)).
 Ani jedno okno z piatich nie je ziskové a rozdiely medzi rokmi (−0,0249 až +0,0035
 break-even) sú menšie než poplatok — to nie je „raz vyšla, raz nie", to je konzistentne
-nulový až záporný edge. Jediný náznak: longy majú break-even +0,0061 % a shorty
+nulový až záporný edge. Test úpadku to potvrdzuje z druhej strany: verdikt `DRZI`
+neznamená, že to drží, ale že sa nič nemení — posledné obdobie je presne tam, kde všetky
+ostatné, teda pod poplatkom. Jediný náznak: longy majú break-even +0,0061 % a shorty
 −0,0217 %; aj tak sú longy hlboko pod poplatkom.
 
 **3. Čo treba dorobiť.** Nie „doladiť", ale zmeniť podstatu: (a) **žiadny filter režimu** —

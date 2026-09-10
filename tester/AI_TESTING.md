@@ -426,8 +426,8 @@ jedného terminálu:
 PY -m tester.webapp.cli checkup --strategy ibs    --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json --timeframe 3m
 ```
 
-Päť referenčných okien → charakter → skupiny obchodov → test proti náhode → Monte Carlo,
-z toho dva zoznamy („v čom je dobrá", „kde má chyby") a dokument
+Päť referenčných okien → charakter → skupiny obchodov → test proti náhode → slabnúci edge
+→ Monte Carlo, z toho dva zoznamy („v čom je dobrá", „kde má chyby") a dokument
 `tradebot/strategies/<key>/docs/ANALYTIKA.md`. Behy sú obyčajné behy v histórii, takže sa
 dajú otvoriť aj použiť znova (`--runs id,id,…` poskladá dokument bez nových backtestov).
 

@@ -41,7 +41,7 @@ Bez obmedzení. Platia len konvencie repozitára:
   Stratégia sa píše **pre oba enginy naraz** (Freqtrade aj MultiCharts) a hotová je až
   so **základnou analytikou a posudkom**: `python -m tester.webapp.cli checkup --strategy
   <key> …` vyrobí `tradebot/strategies/<key>/docs/ANALYTIKA.md` (päť okien, charakter,
-  skupiny obchodov, test proti náhode, Monte Carlo) a posudok od AI do nej dopíše AI —
+  skupiny obchodov, test proti náhode, slabnúci edge, Monte Carlo) a posudok dopíše AI —
   šesť otázok v tom dokumente ([docs/ANALYTIKA.md](docs/ANALYTIKA.md)).
 - Backtest vždy s `--timeframe-detail 1m` a `--cache none` (skripty to robia samy);
   stratégiu nespúšťať priamo na 1m grafe (limity `*MaxBars` sú v baroch).
