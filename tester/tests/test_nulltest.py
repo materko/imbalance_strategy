@@ -176,3 +176,36 @@ def test_pri_malo_obchodoch_verdikt_upozorni_ze_je_ich_malo():
 
 def test_vypis_je_ascii_kvoli_konzole_na_windows():
     assert nt.report(vysledok(2.5)).encode("ascii", "replace")
+
+
+# --------------------------------------------------------------------------- #
+# okná a plán bez TP
+# --------------------------------------------------------------------------- #
+
+
+def test_maska_okien_vyberie_len_sviecky_z_okien():
+    ts = np.arange(0, 400) * 86_400_000 + int(
+        __import__("datetime").datetime(2023, 1, 1, tzinfo=__import__("datetime").timezone.utc)
+        .timestamp() * 1000)
+    maska = nt._window_mask(ts, ["20230201-20230301", "20230601-20230611", "nezmysel"])
+    assert maska.sum() == 28 + 10
+    assert not maska[:31].any()
+
+
+def test_plan_bez_tp_nema_ciel_pre_nahodu():
+    """Výstup na štruktúru: plán má stop, ale TP nie — náhoda nesmie dostať RR 1."""
+    obchody = [{**trade(), "_rr_planned": None} for _ in range(5)]
+    p = nt.plan_from_trades(obchody, 3)
+    assert np.isinf(p["rr"]).all()
+
+    bez_planu = [{**trade(exit_reason="stop_loss", close_rate=99.0), "_sl_pct": None,
+                  "_rr_planned": None} for _ in range(5)]
+    p = nt.plan_from_trades(bez_planu, 3)
+    assert (p["rr"] == 1.0).all()                   # bez plánu ostáva neutrálna jednotka
+
+
+def test_nahoda_bez_tp_konci_na_stope_alebo_na_case():
+    candles = rovny_trh()
+    p = plan(count=20, rr=float("inf"))
+    vzorka = nt.simulate(candles, p, iterations=20)
+    assert len(vzorka) == 20 and all(np.isfinite(v) for v in vzorka)

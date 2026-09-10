@@ -1,6 +1,6 @@
 # Základná analytika — Demo Donchian Breakout (`demo_breakout`)
 
-Zmerané 2026-09-10 na `BTC/USDT:USDT` 5m, engine `freqtrade`, poplatok 0.0500 % na stranu, profil `binance_btcusdt_5m`.
+Zmerané 2026-09-10 na `BTC/USDT:USDT` 5m, engine `freqtrade`, poplatok 0.0500 % na stranu (Binance USDⓈ-M taker, VIP 0), profil `binance_btcusdt_5m`.
 
 Dokument je **generovaný** — píše ho `cli checkup` celý znova, ručné úpravy sa stratia. Čo tu je a prečo práve to: [docs/ANALYTIKA.md](../../../../docs/ANALYTIKA.md).
 
@@ -22,9 +22,9 @@ python -m tester.webapp.cli checkup \
 - edge nad poplatkom len v 0 % vzoriek — v zvyšku by burza zobrala viac, než stratégia zarobí
 - 95. percentil max drawdownu 100.0 % (namerané 100.0 % medián) — na účet to treba mať
 - pravdepodobnosť ruiny účtu 100.0 % pri riziku, s akým beh bežal
-- nie je lepšia než náhodný vstup za tých istých pravidiel (-2.0 sigma) — výber vstupu nepridáva nič
+- nie je lepšia než náhodný vstup za tých istých pravidiel (-2.1 sigma) — výber vstupu nepridáva nič
 - charakter: prerazenie (breakout) (istota priemerná) — zaradenie je neisté, závery o tom, čo je pri nej normálne, treba brať opatrne
-- najhoršia skupina 'short' vlastnosti 'Smer': 3491 obchodov (50.1 %), bez nej by break-even bol o +0.0129 lepší (riadi `allowShort`)
+- najhoršia skupina 'polovičný deň (deň po Vďakyvzdaní)' vlastnosti 'Sviatok na burze v USA': 63 obchodov (0.9 %), bez nej by break-even bol o +0.0613 lepší
 
 ## Päť referenčných okien
 
@@ -60,38 +60,39 @@ Výstupy: `stop_loss` 51.5 %, `roi` 31.3 %, `trailing_stop_loss` 12.7 %, `signal
 
 ## Ktorá skupina obchodov kazí výsledok
 
-Najhorsia skupina je 'short' vlastnosti 'Smer': 3491 obchodov (50.1 %), break-even -0.0217 % oproti -0.0068 % celku. Bez nej by break-even bol 0.0061 % (+0.0129). Je to ale VACSINA obchodov, takze to nie je filter, ale nastavenie: skus preladit `allowShort`.
+Najhorsia skupina je 'polovičný deň (deň po Vďakyvzdaní)' vlastnosti 'Sviatok na burze v USA': 63 obchodov (0.9 %), break-even -0.0503 % oproti -0.0068 % celku. Bez nej by break-even bol -0.0067 % (+0.0613). Ziadny parameter tuto vlastnost priamo neriadi, takze ak sa to potvrdi aj na inych oknach, je to kandidat na filter.
 
 
-**Smer** (riadi `allowShort`)
-
-| skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
-|---|---|---|---|---|---|---|
-| short | 3491 | 50.1 % | 30.1 | -0.0217 | 0.0061 | +0.0129 |
-| long | 3471 | 49.9 % | 32.1 | 0.0061 | -0.0217 | -0.0149 |
-
-**Vzdialenosť stopu** (riadi `slAtrMult`)
+**Sviatok na burze v USA**
 
 | skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
 |---|---|---|---|---|---|---|
-| 0.255 % – 0.3786 % | 1737 | 24.9 % | 31.3 | -0.0319 | 0.0005 | +0.0073 |
-| 0.1625 % – 0.255 % | 1743 | 25.0 % | 32.6 | -0.0007 | -0.0093 | -0.0025 |
-| do 0.1625 % | 1743 | 25.0 % | 29.4 | 0.0004 | -0.0103 | -0.0035 |
-| nad 0.3786 % | 1739 | 25.0 % | 31.1 | 0.0030 | -0.0086 | -0.0018 |
-
-**Mesiac**
-
-| skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
-|---|---|---|---|---|---|---|
-| 2026-02 | 17 | 0.2 % | 17.6 | -0.1452 | -0.0068 | +0.0000 |
-| 2022-01 | 46 | 0.7 % | 26.1 | -0.0465 | -0.0068 | +0.0000 |
-| 2021-10 | 388 | 5.6 % | 28.6 | -0.0254 | -0.0037 | +0.0031 |
-| 2022-10 | 410 | 5.9 % | 25.9 | -0.0210 | -0.0043 | +0.0025 |
+| polovičný deň (deň po Vďakyvzdaní) | 63 | 0.9 % | 22.2 | -0.0503 | -0.0067 | +0.0001 |
+| sviatok v USA (Vianoce) | 37 | 0.5 % | 24.3 | -0.0309 | -0.0068 | +0.0000 |
+| bežný deň | 6459 | 92.8 % | 31.1 | -0.0070 | 0.0545 | +0.0613 |
+| sviatok v USA (Deň M. L. Kinga) | 14 | 0.2 % | 35.7 | 0.0038 | -0.0068 | +0.0000 |
 | … | | | | | | |
-| 2024-11 | 406 | 5.8 % | 32.5 | 0.0099 | -0.0068 | +0.0000 |
-| 2022-06 | 141 | 2.0 % | 34.0 | 0.0213 | -0.0068 | +0.0000 |
-| 2025-12 | 45 | 0.6 % | 40.0 | 0.0323 | -0.0068 | +0.0000 |
-| 2026-01 | 15 | 0.2 % | 40.0 | 0.0474 | -0.0068 | +0.0000 |
+| sviatok v USA (Vďakyvzdanie) | 61 | 0.9 % | 34.4 | 0.0192 | -0.0068 | +0.0000 |
+| sviatok v USA (Nový rok) | 30 | 0.4 % | 43.3 | 0.0390 | -0.0068 | +0.0000 |
+| sviatok v USA (Juneteenth) | 11 | 0.2 % | 45.5 | 0.1797 | -0.0068 | +0.0000 |
+| deň po sviatku | 106 | 1.5 % | 27.4 | 0.3346 | -0.0070 | -0.0002 |
+
+**Makro udalosť v ten deň**
+
+| skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
+|---|---|---|---|---|---|---|
+| žiadna | 6354 | 91.3 % | 30.6 | -0.0096 | 0.0156 | +0.0224 |
+| CPI | 227 | 3.3 % | 33.5 | -0.0058 | -0.0068 | +0.0000 |
+| NFP | 225 | 3.2 % | 38.2 | 0.0286 | -0.0086 | -0.0018 |
+| FOMC | 156 | 2.2 % | 36.5 | 0.0292 | -0.0075 | -0.0007 |
+
+**Pred vyhlásením, alebo po ňom**
+
+| skupina | obchodov | podiel | WR % | break-even % | bez nej | zmena |
+|---|---|---|---|---|---|---|
+| bez udalosti | 6354 | 91.3 % | 30.6 | -0.0096 | 0.0156 | +0.0224 |
+| pred vyhlásením | 263 | 3.8 % | 35.0 | 0.0134 | -0.0079 | -0.0011 |
+| po vyhlásení | 345 | 5.0 % | 36.8 | 0.0176 | -0.0083 | -0.0015 |
 
 Parametre, ktorými sa dá s tým niečo spraviť: `allowShort`, `exitMode`, `slAtrMult`.
 
@@ -101,10 +102,10 @@ Tá istá stratégia s náhodnými vstupmi — rovnako často, rovnakým smerom,
 
 | náhoda | break-even stratégie | break-even náhody | sigma | percentil |
 |---|---|---|---|---|
-| anytime (vstupy kedykoľvek v okne) | -0.0045 % | 0.0004 % ± 0.0025 | -1.96 | 2.3 |
-| session (vstupy v tých istých hodinách, v akých obchoduje stratégia) | -0.0045 % | 0.0004 % ± 0.0025 | -1.96 | 2.3 |
+| anytime (vstupy kedykoľvek v okne) | -0.0045 % | 0.0004 % ± 0.0023 | -2.10 | 1.4 |
+| session (vstupy v tých istých hodinách, v akých obchoduje stratégia) | -0.0045 % | 0.0004 % ± 0.0023 | -2.10 | 1.4 |
 
-HORSIE nez nahoda (-2.0 sigma). Nahodny vstup za tych istych pravidiel dava lepsi vysledok - vyber vstupu vysledku skodi.
+HORSIE nez nahoda (-2.1 sigma). Nahodny vstup za tych istych pravidiel dava lepsi vysledok - vyber vstupu vysledku skodi.
 
 ## Slabne edge?
 

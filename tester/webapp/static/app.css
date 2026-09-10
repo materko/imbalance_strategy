@@ -476,3 +476,7 @@ pre.cmd { background: var(--panel, #f6f7f8); border: 1px solid var(--line); bord
                 line-height: 1.45; padding: 8px; border: 1px solid var(--line);
                 border-radius: 4px; margin-top: 8px; }
 #posudok-box .chip.stale { background: #fde68a; color: #78350f; }
+.prop-presets { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 4px; }
+.prop-presets label.inline { margin: 0; }
+.prop-variant { margin-top: 10px; }
+.prop-variant > summary { cursor: pointer; font-weight: 600; }

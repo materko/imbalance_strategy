@@ -112,12 +112,15 @@ def measure(records: Sequence[dict[str, Any]], trades: Sequence[dict[str, Any]],
             fee_note: str = "",
             profile: str = "", engine: str = "freqtrade", account: float = 10_000.0,
             risk_ref: float | None = None, iterations: int = 1000,
-            mc_iterations: int = 10_000, seed: int = 12345) -> dict[str, Any]:
+            mc_iterations: int = 10_000, seed: int = 12345,
+            duplicates: int = 0) -> dict[str, Any]:
     """Celá batéria nad hotovými behmi. `trades` sú obchody zo všetkých okien spolu.
 
     Obchody musia prísť **obohatené** (`analytics.enrich` s kresbami behu) — vzdialenosť
     stopu a plánovaný RR sú v kresbách, nie v `trades.json`, a bez nich sú to dve
-    vlastnosti, ktoré by v analytike ticho chýbali.
+    vlastnosti, ktoré by v analytike ticho chýbali. A **bez duplicít** (`analytics.dedupe`):
+    referenčné okná sa prekrývajú a `duplicates` je počet obchodov, ktoré preto vypadli —
+    ide do dokumentu, nech je vidieť, že sa to riešilo.
     """
     from . import analytics as an, character as ch, decay as dc, montecarlo as mc, nulltest as nt
 
@@ -141,6 +144,7 @@ def measure(records: Sequence[dict[str, Any]], trades: Sequence[dict[str, Any]],
         "years_positive": kladne,
         "years_done": hotove,
         "trades": len(trades),
+        "duplicates": duplicates,
         "break_even_pct": an.break_even_pct(list(trades)) if trades else None,
         "character": None,
         "analytics": None,
@@ -155,9 +159,17 @@ def measure(records: Sequence[dict[str, Any]], trades: Sequence[dict[str, Any]],
         return report
 
     report["character"] = ch.measure(list(trades), pair=pair, timeframe=timeframe).to_dict()
-    report["analytics"] = an.analyze(list(trades), strategy=strategy)
+    # Pár a TF idú aj do skupín obchodov: bez nich by chýbal stav trhu pri vstupe
+    # (trend/rozsah, volatilita, poloha, s trendom), ktorý je práve tá časť, kde býva
+    # zvyšný edge a ktorú docs sľubujú.
+    report["analytics"] = an.analyze(list(trades), strategy=strategy, pair=pair,
+                                     timeframe=timeframe)
+    # Náhoda sa losuje z tých istých okien, v ktorých stratégia obchodovala — z celej
+    # histórie páru by referenčný drift niesol aj roky, ktoré v batérii nie sú.
+    okna = [r["timerange"] for r in rows if r.get("timerange") and r["timerange"] != "?"]
     for null in nt.NULLS:
         report["null"][null] = nt.compare(list(trades), pair=pair, timeframe=timeframe,
+                                          timerange=okna or None,
                                           iterations=iterations, null=null, seed=seed).to_dict()
     # Obchody z piatich okien idú po sebe, takže delenie kalendára na obdobia dáva zmysel.
     report["decay"] = dc.analyze(list(trades), seed=seed).to_dict()
@@ -496,7 +508,9 @@ def markdown(report: dict[str, Any], *, command: str = "", generated: datetime |
                                      for i, c in enumerate(cells)) + " |")
     out += ["", f"Zisková v **{report['years_positive']} z {report['years_done']}** okien, "
                 f"obchodov spolu {report['trades']}, break-even celkom "
-                f"{_num(report.get('break_even_pct'), 4)} %."]
+                f"{_num(report.get('break_even_pct'), 4)} %."
+                + (f" Okná sa prekrývajú, {report['duplicates']} obchodov započítaných "
+                   "dvakrát vypadlo." if report.get("duplicates") else "")]
 
     if char.get("title"):
         out += ["", "## Charakter", "",

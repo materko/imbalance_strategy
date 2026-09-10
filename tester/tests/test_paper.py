@@ -40,8 +40,10 @@ class FakeStore:
 
     def __init__(self, records, per_run=None):
         self._records = list(records)
-        self._trades = per_run or {r["id"]: [obchod(i, vyhra=i % 3 != 2) for i in range(30)]
-                                   for r in records}
+        # Každý beh má vlastný úsek kalendára: rovnaké obchody v dvoch behoch by
+        # `analytics.dedupe` správne zlial (prekrývajúce sa okná), a to tu netestujeme.
+        self._trades = per_run or {r["id"]: [obchod(i + 1000 * k, vyhra=i % 3 != 2) for i in range(30)]
+                                   for k, r in enumerate(records)}
 
     def all(self):
         return list(self._records)

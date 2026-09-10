@@ -131,3 +131,15 @@ def test_drawkind_registry_is_open_and_stable():
     assert DrawKind.IMB_BOX.value == "imb_box"  # IBS druh dostupný aj bez explicitného importu stratégie
     with pytest.raises(ValueError):
         DrawKind("neexistuje")
+
+
+@pytest.mark.parametrize("spec", SPECS, ids=IDS)
+def test_entry_tag_prefix_konci_dvojbodkou(spec):
+    """Analytika páruje obchod s kresbou cez `enter_tag.rsplit(":")` — prefix bez dvojbodky
+    by vzdialenosť stopu aj plánovaný RR ticho zrušil."""
+    pytest.importorskip("freqtrade")
+    from importlib import import_module
+
+    modul = import_module(f"tradebot.strategies.{spec.key}.freqtrade")
+    trieda = getattr(modul, spec.freqtrade_class)
+    assert trieda.ENTRY_TAG_PREFIX.endswith(":"), spec.key

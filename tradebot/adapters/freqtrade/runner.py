@@ -45,6 +45,9 @@ COLUMN_ATTRS = {
     "tb_qty": "qty",
     "tb_source_id": "source_id",
     "tb_in_trade_window": "in_trade_window",
+    #: engine povedal „zavri všetko" (koniec seansy) — AI nálepka na tom bare obchod
+    #: uzavrie tak, ako ho uzavrie stratégia, namiesto čakania na TP/SL do nekonečna
+    "tb_close_session": "close_session",
 }
 
 #: Stĺpce, ktoré runner zapisuje do DataFrame.

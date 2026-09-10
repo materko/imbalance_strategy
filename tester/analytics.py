@@ -57,7 +57,7 @@ from tradebot.adapters.freqtrade.hyperplan import knowledge
 from tradebot.strategies import get_spec
 
 __all__ = [
-    "config_spread",
+    "config_spread", "dedupe",
     "FEATURES", "Feature", "Bucket", "Split", "break_even_pct", "gross_and_volume",
     "features_for", "split", "analyze", "table",
 ]
@@ -298,6 +298,27 @@ def enrich(trades: list[dict[str, Any]], chart: dict[str, Any] | None,
     return trades
 
 
+def dedupe(trades: Sequence[dict[str, Any]]) -> tuple[list[dict[str, Any]], int]:
+    """Ten istý obchod len raz. Vracia `(obchody, koľko duplicít vypadlo)`.
+
+    Referenčné okná sa prekrývajú (`20231001-20241001` a `20240904-20250904` majú
+    spoločných 27 dní), takže zliate behy tej istej konfigurácie by ten mesiac počítali
+    dvakrát — v Monte Carle, v teste úpadku aj v počte obchodov. Kľúč je trh, vstup
+    **a výstup**: dve konfigurácie s rovnakým signálom, ale iným výstupom (sweep na tom
+    istom okne) sú dva rôzne obchody a ostanú obidva.
+    """
+    videne: set[tuple[Any, ...]] = set()
+    out: list[dict[str, Any]] = []
+    for t in trades:
+        kluc = (t.get("pair"), t.get("open_date"), t.get("enter_tag"), bool(t.get("is_short")),
+                t.get("close_date"), t.get("close_rate"))
+        if kluc in videne:
+            continue
+        videne.add(kluc)
+        out.append(t)
+    return out, len(trades) - len(out)
+
+
 # --------------------------------------------------------------------------- #
 # delenie na skupiny
 # --------------------------------------------------------------------------- #
@@ -432,13 +453,17 @@ def _finish(out: Split, skupiny: dict[str, list[dict[str, Any]]],
 
 def analyze(trades: Sequence[dict[str, Any]], *, strategy: str = "ibs",
             chart: dict[str, Any] | None = None, quantiles: int = QUANTILES,
-            min_bucket: int = MIN_BUCKET) -> dict[str, Any]:
+            min_bucket: int = MIN_BUCKET, pair: str = "", timeframe: str = "") -> dict[str, Any]:
     """Celá analytika behu (alebo viacerých behov spolu).
 
     Vlastnosti sú zoradené podľa toho, koľko by sa dalo získať odfiltrovaním najhoršej
-    skupiny — hore je to, čo sa najviac oplatí riešiť.
+    skupiny — hore je to, čo sa najviac oplatí riešiť. `pair` a `timeframe` treba na
+    stav trhu pri vstupe (`tester.regime`): bez nich tie štyri vlastnosti ticho chýbajú.
+    Obchody, ktoré už stav trhu nesú (obohatené po behoch), sa neprepočítavajú.
     """
-    obchody = enrich([dict(t) for t in trades], chart, strategy)
+    obchody = enrich([dict(t) for t in trades], chart, strategy,
+                     pair="" if any("_regime_trend" in t for t in trades) else pair,
+                     timeframe=timeframe)
     riadene = knowledge(get_spec(strategy)).FEATURE_PARAMS
 
     splits: list[Split] = []

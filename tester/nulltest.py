@@ -49,6 +49,7 @@ použiť rovnako na oboch stranách.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Sequence
@@ -166,7 +167,13 @@ def plan_from_trades(trades: Sequence[dict[str, Any]], minutes: int) -> dict[str
                 podiel = abs(close_rate - open_rate) / open_rate * 100.0
         if podiel:
             sl.append(float(podiel) / 100.0)
-            rr.append(float(t.get("_rr_planned") or 1.0))
+            # Plán bez TP (výstup na štruktúru, trailing): náhoda nemá kde brať zisk
+            # skôr než na stope alebo na čase. RR 1 by jej dala cieľ, ktorý stratégia
+            # nemá, a referenčný bod by sa posunul. Bez plánu vôbec (stop len zo
+            # skutočného výstupu) ostáva neutrálna jednotka.
+            rr_plan = t.get("_rr_planned")
+            rr.append(float(rr_plan) if rr_plan
+                      else (math.inf if t.get("_sl_pct") is not None else 1.0))
     return {
         "count": len(trades),
         "sl_frac": np.array(sl or [0.005]),
@@ -269,10 +276,32 @@ def _histogram(sample: Sequence[float], bins: int = 30) -> dict[str, list[float]
 # --------------------------------------------------------------------------- #
 
 
+def _window_mask(ts, timeranges: Sequence[str]):
+    """Maska sviečok, ktoré padnú do niektorého z okien `YYYYMMDD-YYYYMMDD`."""
+    import numpy as np
+
+    maska = np.zeros(len(ts), dtype=bool)
+    for okno in timeranges:
+        try:
+            a, b = str(okno).split("-")
+            od = int(datetime.strptime(a, "%Y%m%d").replace(tzinfo=timezone.utc).timestamp() * 1000)
+            do = int(datetime.strptime(b, "%Y%m%d").replace(tzinfo=timezone.utc).timestamp() * 1000)
+        except ValueError:
+            continue
+        i, j = int(np.searchsorted(ts, od)), int(np.searchsorted(ts, do))
+        maska[i:j] = True
+    return maska
+
+
 def compare(trades: Sequence[dict[str, Any]], *, pair: str, timeframe: str,
-            timerange: str | None = None, iterations: int = DEFAULT_ITERATIONS,
+            timerange: str | Sequence[str] | None = None, iterations: int = DEFAULT_ITERATIONS,
             null: str = "anytime", seed: int = 12345) -> Result:
-    """Porovná skutočný break-even s rozdelením náhodných behov."""
+    """Porovná skutočný break-even s rozdelením náhodných behov.
+
+    `timerange` je okno alebo zoznam okien, z ktorých obchody sú. Náhoda dedí drift
+    trhu, takže sa musí losovať z **toho istého obdobia** — z celej histórie páru by
+    referenčný bod niesol aj roky, v ktorých stratégia vôbec nebežala.
+    """
     import numpy as np
 
     from tradebot.core.candles import timeframe_minutes
@@ -299,14 +328,10 @@ def compare(trades: Sequence[dict[str, Any]], *, pair: str, timeframe: str,
         out.note = str(exc)
         return out
     if timerange:
-        try:
-            a, b = timerange.split("-")
-            od = int(datetime.strptime(a, "%Y%m%d").replace(tzinfo=timezone.utc).timestamp() * 1000)
-            do = int(datetime.strptime(b, "%Y%m%d").replace(tzinfo=timezone.utc).timestamp() * 1000)
-            i, j = int(np.searchsorted(ts, od)), int(np.searchsorted(ts, do))
-            ts, cols = ts[i:j], {k: v[i:j] for k, v in cols.items()}
-        except ValueError:
-            pass
+        okna = [timerange] if isinstance(timerange, str) else list(timerange)
+        maska = _window_mask(ts, okna)
+        if maska.any():
+            ts, cols = ts[maska], {k: v[maska] for k, v in cols.items()}
 
     hodiny = ((ts // 3_600_000) % 24).astype(int)
     # Plán drží dĺžku držania v baroch TF stratégie; simulácia beží na minútach.

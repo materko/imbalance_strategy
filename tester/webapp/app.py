@@ -151,7 +151,8 @@ class PropRequest(BaseModel):
     runs: list[str] = Field(default_factory=list, description="behy; prázdne = podľa `q`")
     q: str = Field("", description="dopyt na behy (syntax ako vyhľadávanie v histórii)")
     strategy: str = Field("ibs")
-    rules: str = Field("ftmo2", description="ktorá predloha pravidiel")
+    rules: str | list[str] = Field("ftmo2", description="predloha alebo zoznam predlôh; "
+                                                        "`custom` = pravidlá z polí, `all` = všetky")
     limit: int = Field(40, ge=1, le=500)
     step: int = Field(1, ge=1, le=100, description="každý N-tý obchod ako štart pokusu")
     risks: list[float] = Field(default_factory=list, description="riziká v %; prázdne = default")
@@ -914,6 +915,12 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         zaznamy = zaznamy[:limit_runs]
         if not zaznamy:
             raise HTTPException(404, "žiadne dobehnuté behy s obchodmi")
+        # Vlastnosti aj parametre (`FEATURE_PARAMS`) sú vec stratégie: behy inej
+        # stratégie by dostali cudzie odkazy „preladiť tento parameter".
+        cudzie = sorted({strategy_of(r) for r in zaznamy} - {strategy})
+        if cudzie:
+            raise HTTPException(422, f"vybrané behy patria stratégii {', '.join(cudzie)}, "
+                                     f"nie {strategy} — prepni stratégiu podľa behov")
 
         obchody: list[dict[str, Any]] = []
         pouzite = []
@@ -933,15 +940,23 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                             "note": rec.get("note") or ""})
         if not obchody:
             raise HTTPException(404, "vybrané behy nemajú uložené obchody")
+        # Referenčné okná sa prekrývajú o mesiac - ten istý obchod sa má počítať raz.
+        obchody, duplicity = an.dedupe(obchody)
 
         report = an.analyze(obchody, strategy=strategy, quantiles=quantiles,
                             min_bucket=min_bucket)
         pary = sorted({r["pair"] for r in pouzite if r["pair"]})
+        tfs = sorted({r["timeframe"] for r in pouzite if r["timeframe"]})
+        okna = sorted({r["timerange"] for r in pouzite if r["timerange"]})
         report["runs"] = pouzite
         report["pairs"] = pary
+        report["timeframes"] = tfs
+        report["duplicates"] = duplicity
         # Zliať obchody z rôznych párov ide, ale prahy v bodoch ani vzdialenosti stopu
         # nie sú medzi nimi porovnateľné - nech to je vidieť.
         report["mixed_pairs"] = len(pary) > 1
+        # Rôzne TF: dĺžka v baroch a limity `*MaxBars` znamenajú na každom inú vec.
+        report["mixed_timeframes"] = len(tfs) > 1
         # Z akej konfiguracie tie obchody su. Zliat behy tej istej konfiguracie na roznych
         # oknach je v poriadku; zliat rozne konfiguracie znamena miesat rozne strategie.
         report["config"] = an.config_spread(zaznamy)
@@ -955,7 +970,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         prvy = pouzite[0]
         report["character"] = chr_mod.measure(
             obchody, pair="" if len(pary) > 1 else (prvy["pair"] or ""),
-            timeframe=prvy["timeframe"] or "3m").to_dict()
+            timeframe="" if len(tfs) > 1 else (prvy["timeframe"] or "3m")).to_dict()
         report["archetypes"] = [a.__dict__ for a in chr_mod.ARCHETYPES]
 
         # Test proti nahode ide z tej istej vzorky obchodov: "break-even 0,064 %" je bez
@@ -999,14 +1014,17 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             report["synthetic"] = None
 
         report["nulltest"] = None
-        if nulltest and not report["mixed_pairs"]:
+        if nulltest and not report["mixed_pairs"] and not report["mixed_timeframes"]:
             from .. import nulltest as nt_mod
 
             vysledky = {}
             for null in nt_mod.NULLS:
                 try:
+                    # Z okien behov, nie z celej histórie páru - náhoda dedí drift trhu
+                    # a ten má byť z toho istého obdobia ako obchody.
                     vysledky[null] = nt_mod.compare(
                         obchody, pair=pary[0], timeframe=prvy["timeframe"] or "3m",
+                        timerange=okna or None,
                         iterations=null_iterations, null=null).to_dict()
                 except (ValueError, FileNotFoundError):
                     vysledky = {}
@@ -1098,22 +1116,24 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
 
     @app.post("/api/prop")
     def prop_run(req: PropRequest):
-        """Prehrá obchody vybraných behov cez pravidlá výzvy, riziko po riziku."""
-        from dataclasses import replace
+        """Prehrá obchody vybraných behov cez pravidlá výzvy, riziko po riziku.
 
+        `rules` je jedna predloha alebo zoznam — tie isté obchody sa prehrajú cez každú
+        a odpoveď nesie `variants` vedľa seba, nech je vidieť, ktorá firma to unesie.
+        """
         from .. import analytics as an, prop as pr
 
         if req.strategy not in STRATEGIES:
             raise HTTPException(404, f"neznáma stratégia {req.strategy!r}")
-        if req.rules not in pr.PRESETS:
-            raise HTTPException(422, f"neznáme pravidlá {req.rules!r}; "
-                                     f"známe: {', '.join(pr.PRESETS)}")
         zmeny = {k: v for k, v in req.model_dump().items()
                  if v is not None and k in pr.Rules.__dataclass_fields__ and k != "name"}
         if req.targets:
             zmeny["targets"] = tuple(req.targets)
+        # Viac predlôh naraz: tie isté obchody, pravidlá rôznych firiem vedľa seba.
+        # Prepisy z polí platia na `custom` a na jedinú vybranú predlohu.
+        kluce = req.rules if isinstance(req.rules, list) else [req.rules]
         try:
-            pravidla = replace(pr.PRESETS[req.rules], **zmeny)
+            predlohy = pr.rules_for(kluce, zmeny)
         except ValueError as exc:
             raise HTTPException(422, str(exc))
 
@@ -1135,21 +1155,31 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]), req.strategy)
         if not obchody:
             raise HTTPException(404, "vybrané behy nemajú uložené obchody")
+        obchody, duplicity = an.dedupe(obchody)
 
         rizika = req.risks or list(pr.RISKS)
-        vysledky = pr.risk_table(obchody, pravidla, risks=rizika, step=req.step)
-        najlepsi = max(vysledky, key=lambda r: (r.ev if r.ev is not None else -1e18))
-        return {"rules": {**pravidla.__dict__, "targets": list(pravidla.targets),
+        varianty = []
+        for kluc, pravidla in predlohy:
+            vysledky = pr.risk_table(obchody, pravidla, risks=rizika, step=req.step)
+            najlepsi = max(vysledky, key=lambda r: (r.ev if r.ev is not None else -1e18))
+            varianty.append({
+                "key": kluc,
+                "rules": {**pravidla.__dict__, "targets": list(pravidla.targets),
                           "phases": pravidla.phases},
-                "trades": len(obchody), "runs": len(zaznamy),
+                "results": [r.to_dict() for r in vysledky],
+                "best_risk": najlepsi.risk_pct, "verdict": najlepsi.verdict,
+            })
+        prvy = varianty[0]
+        return {"trades": len(obchody), "runs": len(zaznamy), "duplicates": duplicity,
                 # Odkial su obchody: prop vyzva sa nepocita z ziadnej vlastnej
                 # konfiguracie, ale z obchodov vybranych behov.
                 "config": an.config_spread(zaznamy),
                 "pairs": sorted({r["settings"].get("pair") for r in zaznamy
                                  if r["settings"].get("pair")}),
                 "run_ids": [r["id"] for r in zaznamy],
-                "results": [r.to_dict() for r in vysledky],
-                "best_risk": najlepsi.risk_pct, "verdict": najlepsi.verdict}
+                "variants": varianty,
+                # Prvý variant aj na vrchu - tvar, na ktorý sú zvyknuté staršie skripty.
+                **{k: prvy[k] for k in ("rules", "results", "best_risk", "verdict")}}
 
     @app.post("/api/paper")
     def paper_write(req: PaperRequest):

@@ -24,7 +24,8 @@ Stratégia sa nedá „optimalizovať" všeobecne — treba povedať, čo je lep
 | `winrate` | podiel ziskových obchodov | keď má byť séria strát krátka |
 | `drawdown` | najnižší max drawdown | keď je hranicou účet, nie výnos |
 
-Ku každému sa dá pridať strop `--max-dd` (max drawdown v %) a `--min-trades`. Body, ktoré
+Ku každému sa dá pridať strop `--max-dd` (max drawdown v %) a `--min-trades` (obchodov
+**za rok**, prepočíta sa na dĺžku okna — rovnako ako v hyperopte). Body, ktoré
 ich porušia, sa nezahodia — zobrazia sa pod čiarou a označia, aby bolo vidno, že tam
 optimum „je", len je mimo dohodnutých mantinelov.
 """
@@ -107,12 +108,8 @@ def to_knob(spec: str) -> dict[str, Any]:
         raise ValueError(f"{spec!r}: žiadne hodnoty")
     if len(values) == 1:
         raise ValueError(f"{spec!r}: na hľadanie treba rozsah alebo aspoň dve možnosti")
-    # Veľkostné pole (`0.25@pct`) je slovník — ladí sa číslo, jednotka je pevná.
-    if isinstance(values[0], dict):
-        cisla = [v["value"] for v in values]
-        return {"low": min(cisla), "high": max(cisla), "unit": values[0].get("unit")}
-    if all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in values):
-        return {"choices": values}
+    # Vypísaný zoznam je zoznam možností aj pri veľkostnom poli (`0.1@pct,0.5@pct`):
+    # ladí sa číslo, jednotka je pevná a plán si ju z prvej hodnoty vezme.
     return {"choices": values}
 
 
@@ -131,6 +128,28 @@ def _metric(row: dict[str, Any], key: str) -> float | None:
     return None if value is None else float(value)
 
 
+def _window_days(row: dict[str, Any]) -> float | None:
+    """Dĺžka okna behu v dňoch z `settings.timerange`, alebo `None`."""
+    from datetime import datetime
+
+    okno = (row.get("settings") or {}).get("timerange") or ""
+    try:
+        a, b = okno.split("-")
+        return max((datetime.strptime(b, "%Y%m%d") - datetime.strptime(a, "%Y%m%d")).days, 1)
+    except ValueError:
+        return None
+
+
+def required_trades(min_trades: int, row: dict[str, Any]) -> int:
+    """`min_trades` platí **na rok** — prepočíta sa na dĺžku okna behu (ako v loss funkcii
+    hyperoptu), aby zadanie znamenalo to isté v sweepe aj v hyperopte. Bez okna platí
+    číslo tak, ako je."""
+    dni = _window_days(row)
+    if dni is None:
+        return int(min_trades)
+    return max(3, int(min_trades * dni / 365))
+
+
 def _within(row: dict[str, Any], max_dd: float | None, min_trades: int | None) -> str | None:
     """Prečo je bod mimo mantinelov — alebo `None`, keď je v nich."""
     result = row.get("result") or {}
@@ -139,8 +158,9 @@ def _within(row: dict[str, Any], max_dd: float | None, min_trades: int | None) -
     trades = int(result.get("trades") or 0)
     if not trades:
         return "0 obchodov"
-    if min_trades is not None and trades < min_trades:
-        return f"< {min_trades} obchodov"
+    if min_trades is not None and trades < required_trades(min_trades, row):
+        treba = required_trades(min_trades, row)
+        return f"< {treba} obchodov" + (f" ({min_trades}/rok)" if treba != min_trades else "")
     dd = _metric(row, "max_drawdown_pct")
     if max_dd is not None and dd is not None and dd > max_dd:
         return f"drawdown {dd:.1f} % > {max_dd:g} %"

@@ -440,6 +440,8 @@ def build(records: Sequence[dict[str, Any]], store, *, strategy: str = "ibs",
                                  timeframe=rec["settings"].get("timeframe") or "3m")
     if not obchody:
         raise ValueError("vybrané behy nemajú uložené obchody")
+    # Referenčné okná sa prekrývajú o mesiac — ten istý obchod sa má počítať raz.
+    obchody, duplicity = an.dedupe(obchody)
 
     pary = sorted({r["settings"].get("pair") for r in zaznamy if r["settings"].get("pair")})
     tfs = sorted({r["settings"].get("timeframe") for r in zaznamy if r["settings"].get("timeframe")})
@@ -455,7 +457,8 @@ def build(records: Sequence[dict[str, Any]], store, *, strategy: str = "ibs",
                         fee_pct=fee, fee_note=fee_note,
                         profile=zaznamy[0]["settings"].get("profile") or "",
                         engine=zaznamy[0]["settings"].get("engine") or "freqtrade",
-                        risk_ref=mc.sizing_of(zaznamy[-1]), iterations=null_iterations)
+                        risk_ref=mc.sizing_of(zaznamy[-1]), iterations=null_iterations,
+                        duplicates=duplicity)
 
     paper = Paper(title=title or f"{strategy.upper()} na {', '.join(pary) or 'histórii'}",
                   strategy=strategy, pairs=pary, timeframes=tfs, windows=okna,

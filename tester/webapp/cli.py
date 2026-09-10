@@ -104,8 +104,13 @@ def fmt_summary(rec: dict[str, Any]) -> str:
 # --------------------------------------------------------------------------- #
 
 
-def _prepare(args: argparse.Namespace) -> tuple[dict, dict]:
-    """(parametre, nastavenia behu) z argumentov — spoločné pre `run` aj `sweep`."""
+def _prepare(args: argparse.Namespace, *, check_engine: bool = True) -> tuple[dict, dict]:
+    """(parametre, nastavenia behu) z argumentov — spoločné pre `run` aj `sweep`.
+
+    `check_engine=False` preskočí kontrolu, či sa dá engine na páre a TF spustiť —
+    pre príkazy, ktoré nič nespúšťajú (`checkup --runs`), by inak klon bez dát padol
+    skôr, než sa dostane k hotovým behom.
+    """
     from tradebot.core.types import INSTRUMENTS
     from tradebot.strategies import STRATEGIES
 
@@ -114,6 +119,10 @@ def _prepare(args: argparse.Namespace) -> tuple[dict, dict]:
 
     if args.strategy not in STRATEGIES:
         raise SystemExit(f"neznáma stratégia {args.strategy!r}; známe: {', '.join(sorted(STRATEGIES))}")
+    # TF grafu bez prepínača je TF, na ktorom stratégia bežala v TradingView — nie 3m
+    # pre všetky. `checkup --strategy structure` by inak ticho meral 5m stratégiu na 3m.
+    if not getattr(args, "timeframe", None):
+        args.timeframe = STRATEGIES[args.strategy].default_timeframe
     params, instrument = default_params(args.profile, args.strategy)
     for item in args.set or []:
         k, v = parse_set(item)
@@ -136,7 +145,7 @@ def _prepare(args: argparse.Namespace) -> tuple[dict, dict]:
     inst = INSTRUMENTS[pair_instrument]
     engine = args.engine or engines.default_engine(inst, args.timeframe)
     exchange = args.exchange or engines.DEFAULT_EXCHANGE
-    possible = engines.available(inst, args.timeframe, exchange)
+    possible = engines.available(inst, args.timeframe, exchange) if check_engine else [engine]
     if engine not in possible:
         preco = (engines.freqtrade_blocker(inst, args.timeframe, exchange)
                  if engine == engines.FREQTRADE else "chýbajú 1m sviečky")
@@ -519,38 +528,70 @@ def cmd_plateau(args: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_nulltest(args: argparse.Namespace) -> int:
-    """Porovná break-even stratégie s náhodným vstupom za tých istých pravidiel."""
-    from .. import analytics as an, nulltest as nt
-    from .store import RunStore
-
-    store = RunStore()
+def _selected_runs(args: argparse.Namespace, store: Any, *, strategy: str | None = None) -> list[dict]:
+    """Behy z `--runs` alebo z dopytu — hotové, s obchodmi, najviac `--limit`."""
     if args.runs:
         chcene = [x.strip() for x in args.runs.split(",") if x.strip()]
         zaznamy = [r for r in (store.get(i) for i in chcene) if r]
     else:
+        from .store import strategy_of
+
         vsetky = store.search(" ".join(args.query)) if args.query else store.all()
         zaznamy = [r for r in vsetky if r.get("status") == "done"
-                   and ((r.get("result") or {}).get("trades") or 0) > 0]
+                   and ((r.get("result") or {}).get("trades") or 0) > 0
+                   and (strategy is None or strategy_of(r) == strategy)]
     zaznamy = zaznamy[:args.limit]
     if not zaznamy:
         raise SystemExit("ziadne dobehnute behy s obchodmi (skus iny dopyt)")
+    return zaznamy
+
+
+def _trades_of(store: Any, zaznamy: list[dict], *, with_market: bool = True) -> list[dict]:
+    """Obchody vybraných behov, obohatené kresbami (a stavom trhu) a bez duplicít.
+
+    Referenčné okná sa prekrývajú o mesiac, takže bez `analytics.dedupe` by zliate behy
+    tej istej konfigurácie ten mesiac počítali dvakrát. Koľko vypadlo, sa vypíše.
+    """
+    from .. import analytics as an
+
+    obchody: list[dict] = []
+    for rec in zaznamy:
+        t = store.trades(rec["id"])
+        if t:
+            nast = rec.get("settings") or {}
+            obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]),
+                                 nast.get("strategy") or "ibs",
+                                 pair=(nast.get("pair") or "") if with_market else "",
+                                 timeframe=nast.get("timeframe") or "")
+    if not obchody:
+        raise SystemExit("vybrane behy nemaju ulozene obchody")
+    obchody, duplicity = an.dedupe(obchody)
+    if duplicity:
+        print(f"POZOR: {duplicity} obchodov bolo v dvoch behoch naraz (prekryvajuce sa okna) "
+              "- pocitaju sa raz.", file=sys.stderr)
+    return obchody
+
+
+def cmd_nulltest(args: argparse.Namespace) -> int:
+    """Porovná break-even stratégie s náhodným vstupom za tých istých pravidiel."""
+    from .. import nulltest as nt
+    from .store import RunStore
+
+    store = RunStore()
+    zaznamy = _selected_runs(args, store)
 
     pary = {r["settings"].get("pair") for r in zaznamy}
     if len(pary) > 1:
         raise SystemExit("nahodne vstupy sa losuju zo sviecok jedneho paru, takze behy "
                          f"musia byt z jedneho trhu; vybrane su: {', '.join(sorted(pary))}")
+    tfs = {r["settings"].get("timeframe") or "3m" for r in zaznamy}
+    if len(tfs) > 1:
+        raise SystemExit("dlzka drzania sa prepocitava z barov TF, takze behy musia byt "
+                         f"z jedneho timeframu; vybrane su: {', '.join(sorted(tfs))}")
     pair = zaznamy[0]["settings"]["pair"]
-    timeframe = zaznamy[0]["settings"].get("timeframe") or "3m"
+    timeframe = tfs.pop()
 
-    obchody = []
-    for rec in zaznamy:
-        t = store.trades(rec["id"])
-        if t:
-            obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]),
-                                 rec["settings"].get("strategy") or "ibs")
-    if not obchody:
-        raise SystemExit("vybrane behy nemaju ulozene obchody")
+    obchody = _trades_of(store, zaznamy, with_market=False)
 
     print(f"{len(zaznamy)} behov, {len(obchody)} obchodov, {pair} {timeframe}")
     okna = sorted({r["settings"].get("timerange") for r in zaznamy if r["settings"].get("timerange")})
@@ -558,7 +599,9 @@ def cmd_nulltest(args: argparse.Namespace) -> int:
 
     najprv = None
     for null in ([args.null] if args.null else list(nt.NULLS)):
-        vysledok = nt.compare(obchody, pair=pair, timeframe=timeframe,
+        # Nahoda sa losuje z tych istych okien - z celej historie paru by niesla drift
+        # rokov, v ktorych strategia nebezala.
+        vysledok = nt.compare(obchody, pair=pair, timeframe=timeframe, timerange=okna or None,
                               iterations=args.iterations, null=null, seed=args.seed)
         print(nt.report(vysledok, label=null))
         print()
@@ -679,16 +722,13 @@ def cmd_analytics(args: argparse.Namespace) -> int:
 
 def cmd_prop(args: argparse.Namespace) -> int:
     """Prop vyzva: dostane sa strategia k vyplate skor, nez ucet zhori?"""
-    from dataclasses import replace
-
     from .. import analytics as an, prop as pr
     from .store import RunStore
 
-    if args.rules not in pr.PRESETS:
-        raise SystemExit(f"nezname pravidla {args.rules!r}; zname: {', '.join(pr.PRESETS)}")
-    pravidla = pr.PRESETS[args.rules]
     # Kazde pole sa da prepisat: cisla v presetoch su bezny tvar pravidiel, nie ponuka
     # konkretnej firmy - pred pouzitim patri prepisat podla zmluvy, ktoru tester ma.
+    # Prepisy platia na `custom` a na jedinu vybranu predlohu; pri porovnani viacerych
+    # firiem sa beru ich pravidla tak, ako su.
     zmeny = {k: v for k, v in (
         ("account", args.account), ("max_daily_loss_pct", args.daily),
         ("max_loss_pct", args.max_loss), ("min_days", args.min_days),
@@ -702,30 +742,13 @@ def cmd_prop(args: argparse.Namespace) -> int:
         except ValueError:
             raise SystemExit("--targets su ciele faz oddelene ciarkou, napr. 10,5")
     try:
-        pravidla = replace(pravidla, **zmeny)
+        predlohy = pr.rules_for([args.rules], zmeny)
     except ValueError as exc:
         raise SystemExit(str(exc))
 
     store = RunStore()
-    if args.runs:
-        chcene = [x.strip() for x in args.runs.split(",") if x.strip()]
-        zaznamy = [r for r in (store.get(i) for i in chcene) if r]
-    else:
-        vsetky = store.search(" ".join(args.query)) if args.query else store.all()
-        zaznamy = [r for r in vsetky if r.get("status") == "done"
-                   and ((r.get("result") or {}).get("trades") or 0) > 0]
-    zaznamy = zaznamy[:args.limit]
-    if not zaznamy:
-        raise SystemExit("ziadne dobehnute behy s obchodmi (skus iny dopyt)")
-
-    obchody = []
-    for rec in zaznamy:
-        t = store.trades(rec["id"])
-        if t:
-            obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]),
-                                 rec["settings"].get("strategy") or "ibs")
-    if not obchody:
-        raise SystemExit("vybrane behy nemaju ulozene obchody")
+    zaznamy = _selected_runs(args, store)
+    obchody = _trades_of(store, zaznamy, with_market=False)
 
     pary = sorted({r["settings"].get("pair") for r in zaznamy if r["settings"].get("pair")})
     print(f"{len(zaznamy)} behov, {len(obchody)} obchodov, {', '.join(pary)}\n")
@@ -739,40 +762,27 @@ def cmd_prop(args: argparse.Namespace) -> int:
     print()
 
     rizika = [args.risk] if args.risk else list(pr.RISKS)
-    vysledky = pr.risk_table(obchody, pravidla, risks=rizika, step=args.step)
-    print(pr.report(vysledky, ", ".join(pary)))
-    najlepsi = max(vysledky, key=lambda r: (r.ev if r.ev is not None else -1e18))
-    return 0 if (najlepsi.ev or 0) > 0 else 1
+    varianty = []
+    for kluc, pravidla in predlohy:
+        vysledky = pr.risk_table(obchody, pravidla, risks=rizika, step=args.step)
+        varianty.append((kluc, vysledky))
+        print(pr.report(vysledky, f"{kluc} — {', '.join(pary)}"))
+        print()
+    if len(varianty) > 1:
+        print(pr.compare(varianty))
+    najlepsie = [max(v, key=lambda r: (r.ev if r.ev is not None else -1e18)) for _, v in varianty if v]
+    return 0 if any((r.ev or 0) > 0 for r in najlepsie) else 1
 
 
 def cmd_decay(args: argparse.Namespace) -> int:
     """Slabne edge? Posledné obdobie proti tomu, čo stratégia robievala."""
-    from .. import analytics as an, decay as dc
+    from .. import decay as dc
     from .store import RunStore
 
     store = RunStore()
-    if args.runs:
-        chcene = [x.strip() for x in args.runs.split(",") if x.strip()]
-        zaznamy = [r for r in (store.get(i) for i in chcene) if r]
-    else:
-        vsetky = store.search(" ".join(args.query)) if args.query else store.all()
-        zaznamy = [r for r in vsetky if r.get("status") == "done"
-                   and ((r.get("result") or {}).get("trades") or 0) > 0]
-    zaznamy = zaznamy[:args.limit]
-    if not zaznamy:
-        raise SystemExit("ziadne dobehnute behy s obchodmi (skus iny dopyt)")
+    zaznamy = _selected_runs(args, store)
+    obchody = _trades_of(store, zaznamy, with_market=False)
 
-    obchody = []
-    for rec in zaznamy:
-        t = store.trades(rec["id"])
-        if t:
-            obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]),
-                                 rec["settings"].get("strategy") or "ibs")
-    if not obchody:
-        raise SystemExit("vybrane behy nemaju ulozene obchody")
-
-    # Zliate behy z prekryvajucich sa okien by tie iste obchody zapocitali viackrat a
-    # obdobie by vyzeralo hustejsie, nez bolo. Nech je to aspon vidiet.
     okna = sorted({r["settings"].get("timerange") for r in zaznamy if r["settings"].get("timerange")})
     pary = sorted({r["settings"].get("pair") for r in zaznamy if r["settings"].get("pair")})
     print(f"{len(zaznamy)} behov, {len(obchody)} obchodov, {', '.join(pary)}")
@@ -902,17 +912,35 @@ def cmd_checkup(args: argparse.Namespace) -> int:
     # `_prepare` chce jedno okno; ostatné sa dosadia pri behu. Musí to byť okno zo
     # zoznamu, nech kontrola dát (páry, engine) platí o tom, čo sa naozaj spustí.
     args.timerange = okna[0]
-    params, settings = _prepare(args)
+    params, settings = _prepare(args, check_engine=not args.runs)
     store = RunStore()
 
     if args.runs:
+        from .store import strategy_of
+
         chcene = [x.strip() for x in args.runs.split(",") if x.strip()]
         zaznamy = [r for r in (_run_record(store, args.url, i) for i in chcene) if r]
         if not zaznamy:
             raise SystemExit("ziadny z behov v --runs v historii nie je")
+        # Dokument patri jednej strategii na jednom trhu a TF: nahoda aj charakter beru
+        # sviecky jedneho paru a vzdialenosti stopu sa medzi trhmi porovnat nedaju.
+        cudzie = sorted({strategy_of(r) for r in zaznamy} - {args.strategy})
+        if cudzie:
+            raise SystemExit(f"behy v --runs patria strategii {', '.join(cudzie)}, nie "
+                             f"{args.strategy} - zadaj --strategy podla behov")
+        for kluc, popis in (("pair", "paru"), ("timeframe", "timeframu"), ("engine", "enginu")):
+            hodnoty = sorted({str((r.get("settings") or {}).get(kluc)) for r in zaznamy})
+            if len(hodnoty) > 1:
+                raise SystemExit(f"behy v --runs su z viacerych {popis} ({', '.join(hodnoty)}); "
+                                 "analytika strategie sa meria na jednom")
+        konfig = an.config_spread(zaznamy)
+        if konfig["severity"] != "ok":
+            print(f"POZOR: {konfig['note']}", file=sys.stderr)
         okna = [(r.get("settings") or {}).get("timerange") or "?" for r in zaznamy]
         settings = {**settings, **{k: (zaznamy[0].get("settings") or {}).get(k, settings.get(k))
-                                   for k in ("pair", "timeframe", "engine", "fee", "wallet")}}
+                                   for k in ("pair", "timeframe", "engine", "fee", "fee_note",
+                                             "wallet")}}
+        args.timeframe = settings["timeframe"]
         print(f"analytika z {len(zaznamy)} hotovych behov (nic sa nespusta)")
     else:
         checkup_id = f"{datetime.now(timezone.utc):%Y%m%d-%H%M%S}-{uuid4().hex[:4]}"
@@ -937,14 +965,18 @@ def cmd_checkup(args: argparse.Namespace) -> int:
                   flush=True)
 
     # Obchody zo všetkých okien spolu: jedno okno má na delenie na skupiny málo obchodov.
-    # Obohatia sa kresbami toho behu, z ktorého sú — v nich je plán obchodu (SL, TP).
+    # Obohatia sa kresbami toho behu, z ktorého sú — v nich je plán obchodu (SL, TP) —
+    # a sviečkami páru (stav trhu pri vstupe).
     obchody: list[dict] = []
     for rec in zaznamy:
         if rec.get("status") != "done":
             continue
         t, kresby = _run_data(store, args.url, rec["id"])
         if t:
-            obchody += an.enrich([dict(x) for x in t], kresby, args.strategy)
+            obchody += an.enrich([dict(x) for x in t], kresby, args.strategy,
+                                 pair=settings["pair"], timeframe=settings["timeframe"])
+    # Referenčné okná sa prekrývajú o mesiac — ten sa má počítať raz.
+    obchody, duplicity = an.dedupe(obchody)
 
     hotove = [r for r in zaznamy if r.get("status") == "done"]
     if not obchody and any((r.get("result") or {}).get("trades") for r in hotove):
@@ -960,7 +992,7 @@ def cmd_checkup(args: argparse.Namespace) -> int:
                         fee_note=settings.get("fee_note") or "",
                         profile=args.profile or "", engine=settings.get("engine") or "freqtrade",
                         account=float(settings.get("wallet") or 10000), risk_ref=risk_ref,
-                        iterations=args.iterations, seed=args.seed)
+                        iterations=args.iterations, seed=args.seed, duplicates=duplicity)
     print()
     print(ck.table(report))
 
@@ -1095,6 +1127,7 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
 
     from .. import engines, hyperopt as ho, sweep as sweep_mod
     from .runner import USER_DIR, instrument_for_pair
+    from .store import RunStore, make_run_id
 
     params, settings = _prepare(args)
 
@@ -1152,6 +1185,13 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
                            args.strategy)
     prostredie = {**os.environ, "TRADEBOT_HYPEROPT_PLAN": str(plan_file),
                   "TRADEBOT_PROFILE": str(zaklad)}
+    # Hyperopt je beh v histórii ako vo webapp: rovnaký tvar záznamu, overovacie behy
+    # sa naň odkazujú cez `hyperopt_run.id`. Bez toho by ho zoznam vo webapp, detail
+    # ani `cli plateau` nenašli.
+    from datetime import datetime as _dt, timezone
+    store = RunStore()
+    run_id = make_run_id(params, {**settings, "hyperopt": {"id": hyper_id, "knobs": space}})
+    created = _dt.now(timezone.utc).isoformat(timespec="seconds")
     start = time.time()
     code = subprocess.call(cmd, env=prostredie)
     if code != 0:
@@ -1161,10 +1201,20 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
     if results is None:
         raise SystemExit(f"hyperopt nezapisal ziadne epochy do {ho.RESULTS_DIR}")
     epochs = ho.read_results(results)
-    print(f"\n=== hyperopt {hyper_id} — {zadanie} ===")
+    print(f"\n=== hyperopt {run_id} — {zadanie} ===")
     print(ho.table(epochs, plan))
 
     vitaz = ho.best(epochs)
+    zaznam = ho.cli_record(
+        run_id, params=params, settings=settings, space=space, plan=plan, epochs=epochs,
+        winner=vitaz, results_file=results, epochs_wanted=args.epochs, seed=args.seed,
+        verify=not args.no_verify, note=args.note or "",
+        user=args.user or getenv("USER") or "", created=created,
+        finished=_dt.now(timezone.utc).isoformat(timespec="seconds"),
+        duration=round(time.time() - start, 1))
+    store.save(zaznam)
+    store.save_extra(run_id, "epochs.json", [e.to_dict() for e in epochs])
+
     if vitaz is None:
         print("\nZIADNA epocha nesplnila mantinely (min. obchodov, strop na drawdown).")
         print("Zniz --min-trades, uvolni --max-dd, alebo daj sirsi rozsah.")
@@ -1185,13 +1235,12 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
     zaznamy = []
     for i, okno in enumerate(okna, 1):
         beh = {**settings, "timerange": okno,
-               "hyperopt": {"id": hyper_id, "values": najdene, "goal": args.goal,
-                            "max_dd": args.max_dd, "min_trades": args.min_trades,
-                            "tuned": okno == settings["timerange"]}}
+               "hyperopt_run": {"id": run_id, "values": najdene, "goal": args.goal,
+                                "tuned": okno == settings["timerange"]}}
         popis = ", ".join(f"{k}={sweep_mod._fmt(v)}" for k, v in najdene.items())
         print(f"[{i}/{len(okna)}] {okno}", flush=True)
         rec = _execute(args, {**params, **najdene}, beh,
-                       note=f"hyperopt {hyper_id}: {popis}" + (f" — {args.note}" if args.note else ""),
+                       note=f"hyperopt {run_id}: {popis}" + (f" — {args.note}" if args.note else ""),
                        quiet=True)
         rec.setdefault("settings", beh)
         zaznamy.append(rec)
@@ -1202,7 +1251,75 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
               flush=True)
 
     print(f"\n{ho.verdict(zaznamy, settings['timerange'])}")
-    print(f"cele porovnanie: python -m tester.webapp.cli hyperopts {hyper_id}")
+    print(f"cele porovnanie: python -m tester.webapp.cli hyperopts {run_id}")
+    print(f"okolie vitaza:   python -m tester.webapp.cli plateau {run_id}")
+    return 0
+
+
+def cmd_hyperopts(args: argparse.Namespace) -> int:
+    """Hyperopty z histórie; s argumentom detail: epochy, víťaz, overenie na oknách."""
+    from .. import hyperopt as ho, sweep as sweep_mod
+    from .store import RunStore, strategy_of
+
+    store = RunStore()
+    vsetky = [r for r in store.all() if ((r.get("settings") or {}).get("hyperopt") or {}).get("knobs")]
+    if args.strategy:
+        vsetky = [r for r in vsetky if strategy_of(r) == args.strategy]
+
+    if args.hyperopt_id:
+        rec = store.get(args.hyperopt_id)
+        zadanie = ((rec or {}).get("settings") or {}).get("hyperopt") or {}
+        if rec is None or not zadanie.get("knobs"):
+            raise SystemExit(f"hyperopt {args.hyperopt_id} v historii nie je")
+        nast = rec["settings"]
+        popis = sweep_mod.describe(zadanie.get("goal") or "break_even",
+                                   zadanie.get("max_dd"), zadanie.get("min_trades"))
+        print(f"=== hyperopt {rec['id']} ({strategy_of(rec)}) — {popis} ===")
+        print(f"{nast.get('pair')} {nast.get('timeframe')}, ladene okno {nast.get('timerange')}, "
+              f"epoch {zadanie.get('epochs_done', '?')} z {zadanie.get('epochs', '?')}"
+              + (f", profil {nast.get('profile')}" if nast.get("profile") else ""))
+        print("  ladilo sa: " + ", ".join(f"{k} = {v}" for k, v in zadanie["knobs"].items()))
+        if rec.get("note"):
+            print(f"  poznamka: {rec['note']}")
+        print()
+        try:
+            plan = ho.build_plan(zadanie["knobs"], strategy=strategy_of(rec),
+                                 goal=zadanie.get("goal") or "break_even",
+                                 max_dd=zadanie.get("max_dd"), min_trades=zadanie.get("min_trades"))
+            epochs = ho.epochs_from_dicts(store.extra(rec["id"], "epochs.json") or [])
+            print(ho.table(epochs, plan))
+        except ValueError as exc:
+            print(f"(epochy sa nedaju vypisat: {exc})")
+        if zadanie.get("overrides"):
+            print("\nvitaz: " + ", ".join(f"{k}={sweep_mod._fmt(v)}"
+                                          for k, v in zadanie["overrides"].items()))
+        overenia = sorted(
+            [r for r in store.all()
+             if ((r.get("settings", {}).get("hyperopt_run") or {}).get("id")) == rec["id"]],
+            key=lambda r: r["settings"].get("timerange") or "")
+        if overenia:
+            print(f"\n{'okno':<22}{'stav':>8}{'obchodov':>10}{'PnL %':>9}{'break-even':>12}")
+            for r in overenia:
+                v = r.get("result") or {}
+                znacka = "  (ladene)" if (r["settings"].get("hyperopt_run") or {}).get("tuned") else ""
+                print(f"{r['settings'].get('timerange', '?'):<22}{r.get('status', '?'):>8}"
+                      f"{str(v.get('trades', '-')):>10}{str(v.get('pnl_pct', '-')):>9}"
+                      f"{str(v.get('break_even_pct', '-')):>12}{znacka}")
+            print(f"\n{ho.verdict(overenia, nast.get('timerange'))}")
+        else:
+            print("\nbez overovacich behov (--no-verify, alebo este bezia)")
+        return 0
+
+    if not vsetky:
+        print("v historii nie je ziadny hyperopt"
+              + (f" pre strategiu {args.strategy}" if args.strategy else ""))
+        return 0
+    print(f"{'hyperopt':<24}{'strategia':<12}{'epoch':>7}  okno / parametre")
+    for rec in sorted(vsetky, key=lambda r: r["id"], reverse=True)[:args.limit]:
+        z = rec["settings"]["hyperopt"]
+        print(f"{rec['id']:<24}{strategy_of(rec):<12}{str(z.get('epochs_done', '?')):>7}  "
+              f"{rec['settings'].get('timerange')} | {', '.join(z['knobs'])}")
+    print("\ndetail: python -m tester.webapp.cli hyperopts <hyperopt>")
     return 0
 
 
@@ -1302,7 +1419,9 @@ def _run_args(p: argparse.ArgumentParser, *, timerange: bool = True) -> None:
     p.add_argument("--pair", help="napr. BTC/USDT:USDT alebo ETH/USDT:USDT (default podľa profilu)")
     if timerange:
         p.add_argument("--timerange", required=True, help="YYYYMMDD-YYYYMMDD")
-    p.add_argument("--timeframe", default="3m", help="TF grafu, na ktorom stratégia počíta (default 3m; ako TF grafu v TradingView)")
+    p.add_argument("--timeframe", default=None,
+                   help="TF grafu, na ktorom stratégia počíta (bez neho default stratégie, "
+                        "napr. ibs 3m, structure 5m; ako TF grafu v TradingView)")
     p.add_argument("--exchange", choices=("tester", "binance", "coinbase", "dukascopy"),
                    help="burza pre Freqtrade beh (predvolene fiktivna 'tester', ktora pozna "
                         "vsetky nase timeframy)")
@@ -1359,7 +1478,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--goal", choices=tuple(_GOALS), default="break_even",
                    help="podľa čoho vybrať najlepší beh (default break-even poplatok)")
     p.add_argument("--max-dd", type=float, help="strop na max drawdown v %%")
-    p.add_argument("--min-trades", type=int, help="minimálny počet obchodov, inak je bod mimo")
+    p.add_argument("--min-trades", type=int,
+                   help="minimálny počet obchodov za rok (prepočíta sa na dĺžku okna), inak je bod mimo")
     p.add_argument("--max-runs", type=int, default=0,
                    help="strop na veľkosť mriežky; 0 (default) = bez stropu, sweep smie bežať "
                         "cez noc. Cena je čas: rok backtestu je asi 30 s na bod")
@@ -1423,8 +1543,10 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("prop", help="prop výzva: aká je šanca dostať sa k výplate?")
     p.add_argument("query", nargs="*", help="dopyt na behy (rovnaká syntax ako `list`)")
     p.add_argument("--runs", help="konkrétne behy oddelené čiarkou (namiesto dopytu)")
-    p.add_argument("--rules", default="dvojfazova",
-                   help="predloha pravidiel (dvojfazova, jednofazova, trailing, mierna)")
+    p.add_argument("--rules", default="all",
+                   help="predlohy pravidiel oddelené čiarkou, `all` (default) = všetky firmy, "
+                        "`custom` = pravidlá z prepínačov nižšie; známe: "
+                        + ", ".join(__import__("tester.prop", fromlist=["PRESETS"]).PRESETS))
     p.add_argument("--account", type=float, help="veľkosť účtu")
     p.add_argument("--targets", help="ciele fáz v %% oddelené čiarkou (napr. 10,5)")
     p.add_argument("--daily", type=float, help="denný limit straty v %%")
@@ -1509,6 +1631,12 @@ def main(argv: list[str] | None = None) -> int:
                    help="nespúšťať víťaza na ďalších referenčných oknách (do záverov to nepatrí)")
     _run_args(p)
     p.set_defaults(func=cmd_hyperopt)
+
+    p = sub.add_parser("hyperopts", help="hyperopty z histórie; s argumentom vypíše detail jedného")
+    p.add_argument("hyperopt_id", nargs="?", help="beh hyperoptu (bez neho sa vypíše zoznam)")
+    p.add_argument("--strategy", help="len hyperopty tejto stratégie")
+    p.add_argument("--limit", type=int, default=30)
+    p.set_defaults(func=cmd_hyperopts)
 
     p = sub.add_parser("sweeps", help="mriežky z histórie; s argumentom vypíše tabuľku jednej")
     p.add_argument("sweep_id", nargs="?", help="značka mriežky (bez nej sa vypíše zoznam)")

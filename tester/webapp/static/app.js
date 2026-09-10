@@ -2662,7 +2662,15 @@ function aiWarn() {
 /** Markup formulára pravidiel. `p` je prefix id (`prop` alebo `nprop`). */
 function propFormHtml(p) {
   return `<div class="form-grid an-form">
-      <label class="field span2">Pravidlá
+      <div class="field span2">Ktoré predlohy porovnať
+        <span class="hint">zaškrtni firmy; tie isté obchody sa prehrajú cez každú</span>
+        <div id="${p}-presets" class="prop-presets"></div>
+      </div>
+      <label class="field inline small span2"><input type="checkbox" id="${p}-custom">
+        aj vlastné pravidlá z polí nižšie
+        <span class="hint">(pri jednej zaškrtnutej predlohe polia upravujú ju; pri viacerých
+        sa firmy berú tak, ako sú)</span></label>
+      <label class="field span2">Predvyplniť polia z predlohy
         <select id="${p}-preset"></select>
       </label>
       <label class="field">Účet
@@ -2716,8 +2724,15 @@ async function loadPropMeta(p) {
   state.propMeta = state.propMeta || await api("/api/prop/meta");
   const sel = $(`#${p}-preset`);
   if (!sel.options.length) {
-    sel.innerHTML = Object.entries(state.propMeta.presets)
+    const predlohy = Object.entries(state.propMeta.presets);
+    sel.innerHTML = predlohy
       .map(([k, v]) => `<option value="${esc(k)}">${esc(v.name)}</option>`).join("");
+    // Zaskrtavacie predlohy: prva je zaskrtnuta, ostatne si tester prida. Kazda
+    // predloha navyse je dalsia simulacia nad tymi istymi obchodmi.
+    $(`#${p}-presets`).innerHTML = predlohy.map(([k, v], i) =>
+      `<label class="inline small" title="${esc(v.source || "")}">`
+      + `<input type="checkbox" data-preset="${esc(k)}"${i === 0 ? " checked" : ""}> ${esc(v.name)}</label>`)
+      .join("");
     $(`#${p}-trailing`).innerHTML = Object.entries(state.propMeta.trailing)
       .map(([k, v]) => `<option value="${esc(k)}">${esc(v)}</option>`).join("");
     sel.onchange = () => fillPropForm(p, sel.value);
@@ -2725,6 +2740,14 @@ async function loadPropMeta(p) {
     fillPropForm(p, sel.value);
   }
   return state.propMeta;
+}
+
+/** Zaskrtnute predlohy (+ `custom`, ked su polia zapnute). */
+function propRulesSelected(p) {
+  const kluce = [...document.querySelectorAll(`#${p}-presets input[data-preset]:checked`)]
+    .map(el => el.dataset.preset);
+  if ($(`#${p}-custom`)?.checked) kluce.push("custom");
+  return kluce;
 }
 
 /** Predloha do formulara. Kazde pole sa da prepisat - firmy pravidla menia. */
@@ -2754,7 +2777,7 @@ function propBody(p) {
   const ciele = $(`#${p}-targets`).value.split(",").map(x => Number(x.trim()))
     .filter(x => Number.isFinite(x) && x > 0);
   return {
-    rules: $(`#${p}-preset`).value,
+    rules: propRulesSelected(p),
     account: Number($(`#${p}-account`).value),
     targets: ciele.length ? ciele : null,
     max_daily_loss_pct: Number($(`#${p}-daily`).value),
@@ -2774,6 +2797,10 @@ function propBody(p) {
 async function runProp(p, runIds = null) {
   const behy = runIds || ((state.analytics || {}).runs || []).map(x => x.id);
   if (!behy.length) { $(`#${p}-status`).textContent = "najprv spočítaj analytiku"; return; }
+  if (!propRulesSelected(p).length) {
+    $(`#${p}-status`).textContent = "zaškrtni aspoň jednu predlohu (alebo vlastné pravidlá)";
+    return;
+  }
   const btn = $(`#${p}-run`);
   btn.disabled = true;
   $(`#${p}-status`).textContent = "počítam…";
@@ -2795,9 +2822,10 @@ async function runProp(p, runIds = null) {
   } finally { btn.disabled = false; }
 }
 
-function renderProp(p, out) {
-  const najlepsi = out.best_risk;
-  const rows = (out.results || []).map(x => {
+/** Jedna predloha: tabulka rizik, preco pokusy koncia, verdikt. */
+function propVariantHtml(v) {
+  const najlepsi = v.best_risk;
+  const rows = (v.results || []).map(x => {
     const dni = x.median_days === null || x.median_days === undefined ? "—" : fmt(x.median_days, 0);
     const ev = x.ev === null || x.ev === undefined ? "—"
       : `<span class="${x.ev > 0 ? "good" : "bad"}">${x.ev > 0 ? "+" : ""}${fmt(x.ev, 0)}</span>`;
@@ -2808,21 +2836,53 @@ function renderProp(p, out) {
   }).join("");
   // Preco pokusy koncia je casto dolezitejsie nez samotna pravdepodobnost: iny dovod
   // znamena iny zasah (ine riziko vs. viac trhov vs. ina firma).
-  const naj = (out.results || []).find(x => x.risk_pct === najlepsi) || {};
+  const naj = (v.results || []).find(x => x.risk_pct === najlepsi) || {};
   const dovody = Object.entries(naj.reasons || {}).sort((a, b) => b[1] - a[1])
-    .map(([k, v]) => `${esc(k)} ${v}×`).join(" · ");
+    .map(([k, r]) => `${esc(k)} ${r}×`).join(" · ");
   const trieda = (naj.ev || 0) > 0 ? "good" : "bad";
-  $(`#${p}-result`).innerHTML = `<div class="ch-box">
-      ${configHtml(out.config)}
-      <p class="an-note">${out.trades} obchodov z ${out.runs} behov ·
-        ${esc((out.pairs || []).join(", "))} ·
-        ${out.rules.phases} ${out.rules.phases === 1 ? "fáza" : "fázy"} ·
-        ciele ${(out.rules.targets || []).map(x => fmt(x, 2) + " %").join(" + ")}</p>
+  const r = v.rules || {};
+  return `<p class="an-note"><b>${esc(r.name || v.key)}</b> ·
+        ${r.phases} ${r.phases === 1 ? "fáza" : "fázy"} ·
+        ciele ${(r.targets || []).map(x => fmt(x, 2) + " %").join(" + ")}
+        · denný limit ${r.max_daily_loss_pct ? fmt(r.max_daily_loss_pct, 1) + " %" : "žiadny"}
+        · celkový ${fmt(r.max_loss_pct, 1)} % (${esc(r.trailing)})</p>
       <table class="mx-table"><thead><tr><th>riziko</th><th>pokusov</th><th>prešiel</th>
         <th>spálený</th><th>nedobehol</th><th>P(výplata)</th><th>dní</th><th>EV</th></tr></thead>
         <tbody>${rows}</tbody></table>
       ${dovody ? `<p class="an-note">prečo pokusy končia (pri ${fmt(najlepsi, 2)} %): ${dovody}</p>` : ""}
-      <div class="verdict ${trieda}">${esc(out.verdict || "")}</div>
+      <div class="verdict ${trieda}">${esc(v.verdict || "")}</div>`;
+}
+
+function renderProp(p, out) {
+  const varianty = out.variants || [{ key: "", rules: out.rules, results: out.results,
+                                       best_risk: out.best_risk, verdict: out.verdict }];
+  // Porovnanie firiem vedla seba: pri kazdej najlepsie riziko podla EV. To je odpoved
+  // na otazku "ktoru propku" - jednotlive tabulky su az pod tym.
+  let porovnanie = "";
+  if (varianty.length > 1) {
+    const rows = varianty.map(v => {
+      const naj = (v.results || []).find(x => x.risk_pct === v.best_risk) || {};
+      const ev = naj.ev === null || naj.ev === undefined ? "—"
+        : `<span class="${naj.ev > 0 ? "good" : "bad"}">${naj.ev > 0 ? "+" : ""}${fmt(naj.ev, 0)}</span>`;
+      const dni = naj.median_days === null || naj.median_days === undefined ? "—" : fmt(naj.median_days, 0);
+      const znacka = (v.verdict || "").split(":")[0];
+      return `<tr><td>${esc((v.rules || {}).name || v.key)}</td><td>${fmt(v.best_risk, 2)} %</td>
+          <td>${fmt((naj.p_pass || 0) * 100, 1)} %</td><td>${dni}</td><td>${ev}</td>
+          <td class="${(naj.ev || 0) > 0 ? "good" : "bad"}">${esc(znacka)}</td></tr>`;
+    }).join("");
+    porovnanie = `<table class="mx-table"><thead><tr><th>predloha</th><th>najlepšie riziko</th>
+        <th>P(výplata)</th><th>dní</th><th>EV</th><th>verdikt</th></tr></thead>
+        <tbody>${rows}</tbody></table>`;
+  }
+  const detaily = varianty.map(v => varianty.length > 1
+    ? `<details class="prop-variant"><summary>${esc((v.rules || {}).name || v.key)}</summary>${propVariantHtml(v)}</details>`
+    : propVariantHtml(v)).join("");
+  $(`#${p}-result`).innerHTML = `<div class="ch-box">
+      ${configHtml(out.config)}
+      <p class="an-note">${out.trades} obchodov z ${out.runs} behov ·
+        ${esc((out.pairs || []).join(", "))}${out.duplicates ? ` · ${out.duplicates} duplicít z prekrývajúcich sa okien vynechaných` : ""}</p>
+      ${porovnanie}
+      ${detaily}
     </div>`;
 }
 
@@ -3032,6 +3092,15 @@ function renderAnalytics(r) {
     zhrnutie.push('<div class="warnbox">Zliate sú obchody z viacerých párov. Vzdialenosť'
       + " stopu ani prahy v cenových bodoch medzi nimi porovnateľné nie sú — pozeraj hlavne"
       + " hodinu, deň a smer, alebo si vyber jeden pár.</div>");
+  }
+  if (r.mixed_timeframes) {
+    zhrnutie.push('<div class="warnbox">Zliate sú behy z viacerých timeframov ('
+      + esc((r.timeframes || []).join(", ")) + "). Dĺžka v baroch a limity v baroch znamenajú"
+      + " na každom inú vec — charakter je bez dĺžky držania a test proti náhode sa nepočíta.</div>");
+  }
+  if (r.duplicates) {
+    zhrnutie.push(`<p class="an-note">${r.duplicates} obchodov bolo v dvoch behoch naraz`
+      + " (prekrývajúce sa okná) — počítajú sa raz.</p>");
   }
   zhrnutie.push(portfolioHtml(r.portfolio));
   zhrnutie.push(decayHtml(r.decay));

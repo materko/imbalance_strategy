@@ -47,9 +47,12 @@ from typing import Any, Sequence
 from .portfolio import _dt, _sl_distance
 
 __all__ = [
-    "Rules", "PRESETS", "Attempt", "Result", "attempt", "simulate", "risk_table",
-    "report", "RISKS", "max_concurrent",
+    "Rules", "PRESETS", "CUSTOM", "Attempt", "Result", "attempt", "simulate", "risk_table",
+    "report", "RISKS", "max_concurrent", "rules_for", "compare",
 ]
+
+#: Kľúč pre pravidlá poskladané z polí (nie z predlohy firmy).
+CUSTOM = "custom"
 
 #: Riziká na obchod, ktoré sa skúšajú v tabuľke (% zo zostatku).
 RISKS: tuple[float, ...] = (0.25, 0.5, 1.0, 1.5, 2.0, 3.0)
@@ -484,4 +487,67 @@ def report(results: Sequence[Result], label: str = "") -> str:
         out.append("preco pokusy koncia (pri tom riziku): "
                    + ", ".join(f"{k} {v}x" for k, v in poradie))
     out += ["", najlepsi.verdict]
+    return "\n".join(out)
+
+
+# --------------------------------------------------------------------------- #
+# viac predlôh naraz
+# --------------------------------------------------------------------------- #
+#
+# Otázka „unesie to propku?" má zmysel až ako porovnanie: tie isté obchody, pravidlá
+# rôznych firiem vedľa seba. Preto sa vyberá zoznam predlôh, nie jedna — a k nim
+# voliteľne `custom`, pravidlá poskladané z polí formulára.
+
+
+def rules_for(keys: Sequence[str], overrides: dict[str, Any] | None = None) -> list[tuple[str, Rules]]:
+    """Predlohy podľa kľúčov: `all` = všetky firmy, `custom` = pravidlá z polí.
+
+    Prepisy z polí (`overrides`) sa uplatnia na `custom` vždy a na predlohu firmy len
+    vtedy, keď je vybraná práve jedna — pri porovnaní viacerých firiem sa berú pravidlá
+    tak, ako ich firmy majú, inak by tabuľka porovnávala jedno a to isté.
+    """
+    vybrane: list[str] = []
+    for k in keys:
+        for cast in str(k).split(","):
+            cast = cast.strip()
+            if not cast:
+                continue
+            if cast == "all":
+                vybrane += [p for p in PRESETS if p not in vybrane]
+            elif cast not in vybrane:
+                vybrane.append(cast)
+    if not vybrane:
+        raise ValueError(f"vyber aspoň jednu predlohu; známe: {', '.join(PRESETS)}, {CUSTOM}, all")
+    nezname = [k for k in vybrane if k != CUSTOM and k not in PRESETS]
+    if nezname:
+        raise ValueError(f"neznáme pravidlá {', '.join(nezname)}; známe: "
+                         f"{', '.join(PRESETS)}, {CUSTOM}, all")
+
+    zmeny = {k: v for k, v in (overrides or {}).items() if v is not None}
+    out: list[tuple[str, Rules]] = []
+    for k in vybrane:
+        if k == CUSTOM:
+            out.append((k, replace(Rules(name="vlastné pravidlá"), **zmeny)))
+        elif len(vybrane) == 1 and zmeny:
+            out.append((k, replace(PRESETS[k], **zmeny)))
+        else:
+            out.append((k, PRESETS[k]))
+    return out
+
+
+def compare(variants: Sequence[tuple[str, Sequence[Result]]]) -> str:
+    """Porovnanie predlôh: pri každej najlepšie riziko podľa EV a čo z toho vyšlo."""
+    if not variants:
+        return "ziadne predlohy"
+    out = ["=== Porovnanie predloh (najlepsie riziko podla EV) ===",
+           f"{'predloha':<18}{'riziko':>8}{'P(vyplata)':>12}{'dni':>6}{'EV':>9}  verdikt"]
+    for kluc, vysledky in variants:
+        if not vysledky:
+            out.append(f"{kluc:<18}{'-':>8}{'-':>12}{'-':>6}{'-':>9}  bez vysledku")
+            continue
+        naj = max(vysledky, key=lambda r: (r.ev if r.ev is not None else -1e18))
+        dni = "-" if naj.median_days is None else f"{naj.median_days:.0f}"
+        ev = "-" if naj.ev is None else f"{naj.ev:+.0f}"
+        znacka = naj.verdict.split(":")[0] if naj.verdict else ""
+        out.append(f"{kluc:<18}{naj.risk_pct:>7.2f}%{naj.p_pass * 100:>11.1f}%{dni:>6}{ev:>9}  {znacka}")
     return "\n".join(out)

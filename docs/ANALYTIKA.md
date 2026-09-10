@@ -37,6 +37,16 @@ Bez zápisu (len výpis do konzoly) `--no-write`, z hotových behov namiesto nov
 | **slabne edge?** | drží to aj dnes, alebo sa zarobilo v prvých rokoch a odvtedy stratégia stojí? | [`tester/decay.py`](../tester/decay.py) |
 | **Monte Carlo** | aký široký je interval okolo nameraného čísla a čo to robí s účtom | [`tester/montecarlo.py`](../tester/montecarlo.py) |
 
+Tri veci, ktoré batéria robí sama a bez ktorých by čísla klamali:
+
+- **Obchody z okien sa zlievajú bez duplicít.** Referenčné okná `20231001-20241001`
+  a `20240904-20250904` sa prekrývajú o 27 dní; `analytics.dedupe` ten mesiac počíta raz
+  a dokument povie, koľko obchodov vypadlo.
+- **Náhoda sa losuje z tých istých okien**, nie z celej histórie páru — dedí drift trhu
+  a ten musí byť z obdobia, v ktorom stratégia naozaj obchodovala.
+- **Skupiny obchodov dostanú aj stav trhu pri vstupe** (`tester.regime`: trend/rozsah,
+  volatilita, poloha v rozsahu, s trendom) — batéria pozná pár a TF, takže sa počítajú.
+
 Nič z toho nie je nové — nové je, že to je **jedna vec s jedným výstupom**. Poradie nie je
 náhodné: každý ďalší krok má zmysel len vtedy, keď predošlý nespadol. Charakter zo 40
 obchodov je hádanie; skupiny obchodov stratégie, ktorá nie je lepšia než náhoda, sú

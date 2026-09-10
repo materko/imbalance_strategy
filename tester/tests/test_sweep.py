@@ -130,3 +130,21 @@ def test_parametre_lamuce_paritu_su_oznacene():
     by_name = {m["name"]: m for m in param_metadata("ibs")}
     assert by_name["legacyPineSizing"]["breaks_parity"] and by_name["state2MaxBars"]["breaks_parity"]
     assert not by_name["rrRatio"]["breaks_parity"]
+
+
+def test_velkostny_zoznam_je_pre_hyperopt_zoznam_moznosti():
+    """`0.1@pct,0.5@pct` sú dve možnosti, nie rozsah — ako každý vypísaný zoznam."""
+    knob = sweep.to_knob("0.1@pct,0.5@pct")
+    assert "choices" in knob and len(knob["choices"]) == 2
+    assert knob["choices"][0] == {"value": 0.1, "unit": "pct"}
+
+
+def test_min_trades_plati_na_rok_a_prepocita_sa_na_okno():
+    rok = {"status": "done", "settings": {"timerange": "20250904-20260904"},
+           "result": {"trades": 40, "break_even_pct": 0.1}}
+    stvrtrok = {"status": "done", "settings": {"timerange": "20250904-20251204"},
+                "result": {"trades": 20, "break_even_pct": 0.1}}
+    assert sweep.required_trades(60, rok) == 60
+    assert sweep.required_trades(60, stvrtrok) == 14
+    assert sweep.rank([rok], min_trades=60)[0]["sweep_ok"] is False
+    assert sweep.rank([stvrtrok], min_trades=60)[0]["sweep_ok"] is True

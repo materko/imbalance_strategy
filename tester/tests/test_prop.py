@@ -285,3 +285,44 @@ def test_bez_behov_endpoint_povie_ze_nie_su(klient):
     r = klient.post("/api/prop", json={"rules": "ftmo2", "q": "note~urcite-nic-take-nie-je"})
 
     assert r.status_code == 404
+
+
+# --------------------------------------------------------------------------- #
+# viac predlôh naraz
+# --------------------------------------------------------------------------- #
+
+
+def test_rules_for_vezme_zoznam_all_aj_custom():
+    vsetky = prop.rules_for(["all"])
+    assert [k for k, _ in vsetky] == list(prop.PRESETS)
+
+    dve = prop.rules_for(["ftmo2,apex100", "custom"], {"cost": 100.0})
+    assert [k for k, _ in dve] == ["ftmo2", "apex100", "custom"]
+    # Pri viacerých firmách sa ich pravidlá neprepisujú; `custom` prepisy dostane vždy.
+    assert dict(dve)["ftmo2"].cost == prop.PRESETS["ftmo2"].cost
+    assert dict(dve)["custom"].cost == 100.0
+
+    jedna = prop.rules_for(["ftmo2"], {"cost": 100.0})
+    assert dict(jedna)["ftmo2"].cost == 100.0        # jediná vybraná: polia ju upravujú
+
+
+def test_rules_for_nezname_a_prazdne_odmietne():
+    with pytest.raises(ValueError, match="neexistuje"):
+        prop.rules_for(["neexistuje"])
+    with pytest.raises(ValueError):
+        prop.rules_for([""])
+
+
+def test_porovnanie_predloh_ma_riadok_pre_kazdu():
+    obchody = [obchod(d, r=(1.5 if d % 3 else -1.0), poradie=0) for d in range(60)]
+    varianty = [(k, prop.risk_table(obchody, r, risks=(1.0,))) for k, r in prop.rules_for(["ftmo2,ftmo1"])]
+    text = prop.compare(varianty)
+    assert "ftmo2" in text and "ftmo1" in text
+    text.encode("ascii", "replace")
+
+
+def test_endpoint_prijme_zoznam_predloh(klient):
+    r = klient.post("/api/prop", json={"rules": ["ftmo2", "neexistuje"], "q": "note~nic"})
+
+    assert r.status_code == 422
+    assert "neexistuje" in r.json()["detail"]

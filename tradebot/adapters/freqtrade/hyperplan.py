@@ -194,8 +194,8 @@ class Plan:
                 knobs[k.name] = {"choices": list(k.choices)}
             else:
                 knobs[k.name] = {"low": k.low, "high": k.high, "step": k.step}
-                if k.unit:
-                    knobs[k.name]["unit"] = k.unit
+            if k.unit:
+                knobs[k.name]["unit"] = k.unit
         return {"strategy": self.strategy, "goal": self.goal, "max_dd": self.max_dd,
                 "min_trades": self.min_trades, "note": self.note, "knobs": knobs,
                 "meta": self.meta}
@@ -247,11 +247,14 @@ def _knob(name: str, spec: StrategySpec, opts: dict[str, Any]) -> Knob:
                 raise ValueError(f"{name}: {cislo:g} je mimo Pine rozsahu "
                                  f"<{info['low']}, {info['high']}>")
         if isinstance(hodnoty[0], dict):        # veľkostné pole zadané ako 0.1@pct,0.5@pct
-            unit = hodnoty[0].get("unit") or info.get("unit")
+            unit = hodnoty[0].get("unit") or opts.get("unit") or info.get("unit")
             return Knob(name, choices=tuple(h["value"] for h in hodnoty), unit=unit)
         if kind == "int":
             hodnoty = [int(h) for h in hodnoty]
-        return Knob(name, choices=tuple(hodnoty), unit=info.get("unit") if kind == "size" else None)
+        # Jednotka zo zadania má prednosť pred defaultom poľa — plán uložený na disk
+        # (`to_dict`) ju nesie vedľa zoznamu, inak by sa `pct` po načítaní stalo `abs`.
+        unit = (opts.get("unit") or info.get("unit")) if kind == "size" else None
+        return Knob(name, choices=tuple(hodnoty), unit=unit)
 
     low, high = _number(opts.get("low")), _number(opts.get("high"))
     if low is None:
