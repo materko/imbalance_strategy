@@ -1,0 +1,838 @@
+2026-09-10 10:01:23,271 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 3734.45 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 10:01:23,271 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 3734.45 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 10:01:23,271 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 3734.45 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+… (skrátené) …
+2026-09-10 10:01:23,271 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 3734.45 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,271 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5994.61 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,271 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5994.61 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,271 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5994.61 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,271 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5994.61 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,278 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5994.61 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,278 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6021.63 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,278 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6021.63 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,278 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6021.63 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,278 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6021.63 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,278 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6021.63 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,281 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6206.05 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,281 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6206.05 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,281 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6206.05 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,282 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6206.05 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,282 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6206.05 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,282 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6759.82 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,282 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6759.82 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,282 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6759.82 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,282 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6759.82 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,282 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6759.82 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,285 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4441.15 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,285 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4441.15 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,285 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4441.15 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,285 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4441.15 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,285 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4441.15 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,287 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5435.28 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,287 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5435.28 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,287 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5435.28 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,287 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5435.28 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,287 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5435.28 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,288 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6078.10 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,288 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6078.10 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,288 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6078.10 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,288 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6078.10 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,288 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6078.10 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8252.46 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8252.46 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8252.46 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8252.46 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8252.46 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7572.71 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7572.71 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7572.71 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7572.71 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7572.71 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5409.14 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5409.14 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5409.14 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5409.14 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5409.14 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6700.01 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6700.01 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6700.01 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6700.01 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6700.01 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,290 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6396.63 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,298 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6396.63 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,298 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6396.63 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,298 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6396.63 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,298 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6396.63 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,298 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8833.27 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,298 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8833.27 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,298 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8833.27 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,301 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8833.27 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,301 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8833.27 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,302 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8167.02 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,302 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8167.02 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,302 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8167.02 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,302 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8167.02 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,303 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8167.02 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,303 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9015.12 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,303 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9015.12 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,303 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9015.12 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,303 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9015.12 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,305 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9015.12 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,305 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7719.38 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,305 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7719.38 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,305 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7719.38 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,305 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7719.38 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,305 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7719.38 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,305 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5241.60 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,305 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5241.60 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,308 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5241.60 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,308 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5241.60 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,308 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5241.60 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,308 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6976.95 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,308 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6976.95 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,308 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6976.95 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,308 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6976.95 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,311 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6976.95 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,311 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9922.90 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9922.90 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9922.90 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9922.90 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9922.90 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9307.43 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9307.43 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9307.43 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9307.43 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9307.43 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9278.12 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9278.12 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9278.12 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9278.12 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9278.12 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12236.60 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12236.60 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,312 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12236.60 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,318 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12236.60 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,318 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12236.60 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,319 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13176.16 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,319 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13176.16 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,320 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13176.16 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,320 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13176.16 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,320 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13176.16 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,320 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13398.74 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13398.74 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13398.74 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13398.74 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13398.74 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9909.82 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9909.82 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9909.82 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9909.82 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9909.82 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6805.77 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6805.77 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6805.77 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6805.77 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6805.77 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6932.75 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6932.75 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6932.75 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6932.75 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,321 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6932.75 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,328 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5255.67 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,328 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5255.67 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,328 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5255.67 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,328 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5255.67 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,328 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5255.67 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,328 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6558.33 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,328 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6558.33 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,328 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6558.33 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,328 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6558.33 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,331 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6558.33 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,331 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5671.37 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,331 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5671.37 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,331 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5671.37 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,331 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5671.37 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,331 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5671.37 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,331 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5153.14 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,331 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5153.14 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,331 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5153.14 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,331 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5153.14 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,335 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5153.14 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,335 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4370.59 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,335 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4370.59 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,336 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4370.59 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,337 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4370.59 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,337 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4370.59 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,338 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5492.82 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,338 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5492.82 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,338 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5492.82 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,338 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5492.82 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,338 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5492.82 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,338 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5987.73 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,338 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5987.73 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,338 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5987.73 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,338 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5987.73 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,341 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5987.73 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10895.06 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10895.06 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10895.06 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10895.06 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10895.06 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8971.88 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8971.88 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8971.88 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8971.88 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8971.88 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7172.20 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7172.20 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7172.20 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7172.20 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7172.20 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5485.69 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5485.69 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5485.69 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,342 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5485.69 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,348 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5485.69 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,348 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7165.76 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,348 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7165.76 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,348 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7165.76 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,350 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7165.76 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,350 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7165.76 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,350 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8129.56 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,351 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8129.56 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,351 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8129.56 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,351 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8129.56 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,352 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8129.56 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,353 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9599.00 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,353 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9599.00 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,353 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9599.00 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,353 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9599.00 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,355 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9599.00 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,355 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12013.68 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,355 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12013.68 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,355 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12013.68 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,355 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12013.68 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,355 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12013.68 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,355 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10952.11 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,355 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10952.11 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,355 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10952.11 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,355 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10952.11 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,358 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10952.11 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,358 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9973.78 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,358 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9973.78 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,358 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9973.78 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,358 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9973.78 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,358 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9973.78 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,358 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9861.52 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,358 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9861.52 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,358 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9861.52 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9861.52 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9861.52 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10854.42 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10854.42 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10854.42 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10854.42 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10854.42 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9467.55 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9467.55 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9467.55 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9467.55 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9467.55 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4993.62 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4993.62 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4993.62 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4993.62 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4993.62 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 3962.44 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,361 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 3962.44 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,368 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 3962.44 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,368 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 3962.44 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,368 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 3962.44 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,368 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 3207.39 na 11.97 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,370 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 3207.39 na 11.97 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,370 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 3207.39 na 11.97 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,370 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 3207.39 na 11.97 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,370 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 3207.39 na 11.97 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,370 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5301.01 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,371 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5301.01 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,371 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5301.01 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,371 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5301.01 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,372 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5301.01 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,372 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11491.41 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,372 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11491.41 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,372 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11491.41 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,372 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11491.41 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,372 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11491.41 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,372 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 14456.34 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,372 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 14456.34 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,372 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 14456.34 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,372 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 14456.34 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,372 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 14456.34 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,372 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 16364.11 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,372 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 16364.11 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,372 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 16364.11 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 16364.11 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 16364.11 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 18169.56 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 18169.56 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 18169.56 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 18169.56 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 18169.56 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 22627.37 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 22627.37 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 22627.37 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 22627.37 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 22627.37 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 19687.38 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 19687.38 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 19687.38 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 19687.38 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 19687.38 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 20228.79 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,378 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 20228.79 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,385 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 20228.79 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,385 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 20228.79 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,385 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 20228.79 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,386 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 20233.05 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,386 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 20233.05 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,386 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 20233.05 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,386 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 20233.05 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,386 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 20233.05 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,388 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 22080.49 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,388 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 22080.49 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,388 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 22080.49 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,388 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 22080.49 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,388 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 22080.49 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,390 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23792.96 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,390 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23792.96 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,390 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23792.96 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,390 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23792.96 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23792.96 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 17199.04 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 17199.04 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 17199.04 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 17199.04 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 17199.04 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 14690.19 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 14690.19 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 14690.19 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 14690.19 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 14690.19 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 19725.91 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 19725.91 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 19725.91 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 19725.91 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 19725.91 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,392 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23645.87 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,398 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23645.87 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,398 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23645.87 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,398 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23645.87 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,398 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23645.87 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,398 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 19536.87 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,398 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 19536.87 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,398 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 19536.87 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,398 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 19536.87 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,401 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 19536.87 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,402 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 20926.29 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,402 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 20926.29 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,402 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 20926.29 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,403 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 20926.29 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,403 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 20926.29 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,403 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 21511.63 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,403 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 21511.63 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,403 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 21511.63 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,403 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 21511.63 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,403 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 21511.63 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,403 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 31848.17 na 11.97 (0.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,403 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 31848.17 na 11.97 (0.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,403 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 31848.17 na 11.97 (0.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,403 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 31848.17 na 11.97 (0.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,403 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 31848.17 na 11.97 (0.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,403 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23529.72 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23529.72 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23529.72 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23529.72 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23529.72 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 24666.64 na 11.97 (0.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 24666.64 na 11.97 (0.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 24666.64 na 11.97 (0.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 24666.64 na 11.97 (0.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 24666.64 na 11.97 (0.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 26014.97 na 11.97 (0.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 26014.97 na 11.97 (0.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 26014.97 na 11.97 (0.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 26014.97 na 11.97 (0.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 26014.97 na 11.97 (0.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23108.04 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23108.04 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23108.04 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23108.04 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 23108.04 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 21488.55 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 21488.55 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 21488.55 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 21488.55 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 21488.55 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13476.17 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13476.17 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13476.17 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,408 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13476.17 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,418 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13476.17 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,418 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10685.02 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,419 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10685.02 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,419 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10685.02 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,419 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10685.02 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,419 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10685.02 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,420 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10584.39 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,420 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10584.39 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,420 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10584.39 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,421 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10584.39 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,422 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10584.39 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,422 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11207.68 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,423 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11207.68 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,423 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11207.68 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,423 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11207.68 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,423 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11207.68 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,423 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8224.83 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,423 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8224.83 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,423 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8224.83 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,423 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8224.83 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,423 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8224.83 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,423 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12116.38 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,423 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12116.38 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,423 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12116.38 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,423 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12116.38 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,423 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12116.38 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,428 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6391.98 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,428 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6391.98 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,428 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6391.98 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,428 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6391.98 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,428 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6391.98 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,428 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5254.21 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,428 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5254.21 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,428 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5254.21 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,428 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5254.21 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,428 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5254.21 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,432 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6919.17 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,432 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6919.17 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,432 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6919.17 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,433 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6919.17 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,433 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6919.17 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,433 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8081.21 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,433 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8081.21 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,435 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8081.21 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,435 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8081.21 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,435 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8081.21 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,435 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8796.02 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,436 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8796.02 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,437 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8796.02 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,437 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8796.02 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,437 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8796.02 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,437 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9528.23 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,437 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9528.23 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,438 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9528.23 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,438 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9528.23 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,438 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9528.23 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,438 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7509.65 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,438 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7509.65 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,438 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7509.65 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,438 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7509.65 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,438 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7509.65 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,438 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10786.72 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10786.72 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10786.72 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10786.72 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10786.72 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8746.08 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8746.08 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8746.08 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8746.08 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8746.08 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6928.93 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6928.93 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6928.93 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6928.93 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6928.93 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4347.92 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4347.92 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4347.92 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4347.92 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,442 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4347.92 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,448 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8353.98 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,448 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8353.98 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,448 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8353.98 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,448 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8353.98 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,448 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8353.98 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,448 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13350.71 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,451 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13350.71 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,451 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13350.71 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,451 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13350.71 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,451 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13350.71 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,452 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12403.42 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,452 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12403.42 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,453 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12403.42 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,453 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12403.42 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,453 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12403.42 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,455 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 14084.54 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,455 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 14084.54 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,455 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 14084.54 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,455 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 14084.54 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,455 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 14084.54 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,455 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9891.77 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,455 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9891.77 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,455 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9891.77 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,455 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9891.77 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,458 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9891.77 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,458 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10069.34 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,458 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10069.34 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,458 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10069.34 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,458 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10069.34 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,458 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10069.34 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,458 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10277.57 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,458 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10277.57 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,458 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10277.57 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,458 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10277.57 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,458 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10277.57 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,462 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10338.00 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,462 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10338.00 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,463 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10338.00 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,463 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10338.00 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,463 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10338.00 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,463 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11207.71 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,463 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11207.71 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,463 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11207.71 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,463 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11207.71 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,463 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11207.71 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,463 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9486.64 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,463 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9486.64 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,463 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9486.64 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,463 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9486.64 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,463 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9486.64 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,468 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7739.26 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,468 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7739.26 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,468 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7739.26 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,469 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7739.26 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,469 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7739.26 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8633.73 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8633.73 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8633.73 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8633.73 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8633.73 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8572.22 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8572.22 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8572.22 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8572.22 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8572.22 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5059.96 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5059.96 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5059.96 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5059.96 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5059.96 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6893.60 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6893.60 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6893.60 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6893.60 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6893.60 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,470 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7320.42 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,478 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7320.42 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,478 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7320.42 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,478 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7320.42 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,478 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7320.42 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,478 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5841.64 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,478 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5841.64 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,478 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5841.64 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,478 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5841.64 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,478 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5841.64 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,478 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8170.49 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,478 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8170.49 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,478 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8170.49 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,478 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8170.49 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,483 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8170.49 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,483 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10304.35 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,484 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10304.35 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,484 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10304.35 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,485 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10304.35 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,485 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10304.35 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,486 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9367.89 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,486 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9367.89 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,486 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9367.89 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,486 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9367.89 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,486 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9367.89 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,486 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8690.98 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,486 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8690.98 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,486 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8690.98 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,488 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8690.98 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,488 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8690.98 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,488 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8782.50 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,488 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8782.50 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,488 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8782.50 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,488 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8782.50 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,490 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8782.50 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,490 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10523.29 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,490 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10523.29 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,490 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10523.29 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,490 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10523.29 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,492 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10523.29 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,492 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11894.18 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,493 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11894.18 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,493 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11894.18 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,493 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11894.18 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,493 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11894.18 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,493 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11057.04 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,493 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11057.04 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,493 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11057.04 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,493 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11057.04 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,493 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 11057.04 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,493 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9695.95 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,493 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9695.95 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,493 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9695.95 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,493 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9695.95 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,493 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9695.95 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,498 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7886.74 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,498 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7886.74 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,498 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7886.74 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,498 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7886.74 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,498 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7886.74 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,498 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7218.13 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,498 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7218.13 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,498 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7218.13 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,498 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7218.13 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,501 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7218.13 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,501 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5754.96 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,503 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5754.96 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,503 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5754.96 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,503 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5754.96 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,504 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5754.96 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,504 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5606.58 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,504 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5606.58 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,504 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5606.58 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,505 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5606.58 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,505 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5606.58 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,505 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6883.62 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,505 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6883.62 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,505 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6883.62 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,505 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6883.62 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,505 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6883.62 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,508 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10211.22 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,508 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10211.22 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,508 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10211.22 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,508 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10211.22 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,508 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10211.22 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,508 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10614.88 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,508 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10614.88 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,508 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10614.88 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,508 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10614.88 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,508 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10614.88 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,508 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13811.08 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,508 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13811.08 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,508 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13811.08 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,508 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13811.08 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,508 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 13811.08 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,513 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12484.63 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,513 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12484.63 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,513 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12484.63 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,513 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12484.63 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,513 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 12484.63 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,513 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9641.55 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,513 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9641.55 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,513 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9641.55 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,513 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9641.55 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,513 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9641.55 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,517 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8408.38 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,518 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8408.38 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,518 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8408.38 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,518 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8408.38 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,518 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8408.38 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,519 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10162.66 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,519 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10162.66 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,520 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10162.66 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,520 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10162.66 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,520 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10162.66 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,520 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8503.23 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,521 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8503.23 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,521 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8503.23 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,521 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8503.23 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,521 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8503.23 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,522 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9185.18 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,522 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9185.18 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,523 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9185.18 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,523 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9185.18 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,523 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 9185.18 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,523 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8478.36 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,523 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8478.36 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,523 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8478.36 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,523 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8478.36 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,523 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8478.36 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,523 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10306.18 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,523 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10306.18 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,523 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10306.18 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,523 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10306.18 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,523 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10306.18 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10610.57 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10610.57 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10610.57 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10610.57 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 10610.57 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8279.40 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8279.40 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8279.40 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8279.40 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 8279.40 na 11.97 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6965.42 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6965.42 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6965.42 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6965.42 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6965.42 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6255.07 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6255.07 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,528 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6255.07 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,535 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6255.07 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,535 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6255.07 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,535 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5494.10 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,535 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5494.10 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,535 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5494.10 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,536 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5494.10 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,536 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5494.10 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,537 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4353.84 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,537 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4353.84 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,537 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4353.84 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,538 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4353.84 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,538 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4353.84 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,538 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4013.71 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,538 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4013.71 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,538 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4013.71 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,538 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4013.71 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,538 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 4013.71 na 11.97 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,538 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6259.19 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,538 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6259.19 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,538 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6259.19 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,538 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6259.19 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,538 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6259.19 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,542 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7017.11 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,542 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7017.11 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,542 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7017.11 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,544 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7017.11 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,544 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 7017.11 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,544 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5862.86 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,544 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5862.86 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,544 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5862.86 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,544 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5862.86 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,544 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5862.86 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,544 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6311.60 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,544 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6311.60 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,544 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6311.60 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,544 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6311.60 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,544 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 6311.60 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,548 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5317.15 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,548 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5317.15 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,548 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5317.15 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,548 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5317.15 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,548 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5317.15 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,548 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5514.24 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,548 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5514.24 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,548 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5514.24 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,548 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5514.24 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 10:01:23,548 - tradebot.adapters.freqtrade.base - WARNING - demo_breakout BTC/USDT:USDT: stake orezany z 5514.24 na 11.97 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+…
+│ demo:1757074500000 │          stop_loss │      1 │        -1.23 │        -112.320 │        -1.12 │      0:01:00 │    0     0     1     0 │
+│ demo:1756980600000 │          stop_loss │      1 │        -1.17 │        -114.004 │        -1.14 │      0:15:00 │    0     0     1     0 │
+│ demo:1757598900000 │          stop_loss │      1 │        -2.22 │        -117.320 │        -1.17 │      0:06:00 │    0     0     1     0 │
+│ demo:1757084400000 │ trailing_stop_loss │      1 │        -2.93 │        -118.564 │        -1.19 │      3:24:00 │    0     0     1     0 │
+│ demo:1757341800000 │          stop_loss │      1 │        -1.83 │        -119.125 │        -1.19 │      1:40:00 │    0     0     1     0 │
+│ demo:1756983300000 │ trailing_stop_loss │      1 │        -1.26 │        -120.779 │        -1.21 │      0:11:00 │    0     0     1     0 │
+│ demo:1756945200000 │          stop_loss │      1 │        -1.24 │        -122.287 │        -1.22 │      0:46:00 │    0     0     1     0 │
+│ demo:1757063700000 │ trailing_stop_loss │      1 │        -1.31 │        -122.597 │        -1.23 │      0:47:00 │    0     0     1     0 │
+│ demo:1757511600000 │       signal_close │      1 │        -2.02 │        -124.194 │        -1.24 │      2:35:00 │    0     0     1     0 │
+│ demo:1757432100000 │          stop_loss │      1 │        -2.13 │        -126.690 │        -1.27 │      2:36:00 │    0     0     1     0 │
+│ demo:1757509500000 │          stop_loss │      1 │        -2.06 │        -129.127 │        -1.29 │      0:22:00 │    0     0     1     0 │
+│ demo:1756954800000 │ trailing_stop_loss │      1 │        -1.36 │        -131.126 │        -1.31 │      0:12:00 │    0     0     1     0 │
+│ demo:1756952700000 │          stop_loss │      1 │        -1.35 │        -132.210 │        -1.32 │      0:05:00 │    0     0     1     0 │
+│ demo:1757102100000 │          stop_loss │      1 │        -1.47 │        -133.841 │        -1.34 │      0:07:00 │    0     0     1     0 │
+│ demo:1756966800000 │ trailing_stop_loss │      1 │        -1.38 │        -134.562 │        -1.35 │      0:51:00 │    0     0     1     0 │
+│ demo:1756994700000 │ trailing_stop_loss │      1 │        -1.93 │        -134.934 │        -1.35 │      0:25:00 │    0     0     1     0 │
+│ demo:1757075400000 │          stop_loss │      1 │         -1.9 │        -135.701 │        -1.36 │      0:01:00 │    0     0     1     0 │
+│ demo:1757040600000 │          stop_loss │      1 │        -1.53 │        -142.680 │        -1.43 │      0:07:00 │    0     0     1     0 │
+│ demo:1757026500000 │          stop_loss │      1 │        -1.49 │        -143.961 │        -1.44 │      0:18:00 │    0     0     1     0 │
+│ demo:1757037900000 │          stop_loss │      1 │        -1.54 │        -145.759 │        -1.46 │      0:07:00 │    0     0     1     0 │
+│ demo:1757033700000 │ trailing_stop_loss │      1 │        -1.56 │        -147.118 │        -1.47 │      0:19:00 │    0     0     1     0 │
+│ demo:1757009100000 │          stop_loss │      1 │        -1.55 │        -147.536 │        -1.48 │      0:14:00 │    0     0     1     0 │
+│ demo:1757056800000 │          stop_loss │      1 │         -1.6 │        -151.854 │        -1.52 │      1:37:00 │    0     0     1     0 │
+│              TOTAL │                    │   1409 │        -0.52 │       -9987.905 │       -99.88 │      0:43:00 │  442     0   967  31.4 │
+└────────────────────┴────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2025-09-04 00:00:00                       │
+│ Backtesting to                         │ 2026-09-04 00:00:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 1409 / 3.86                               │
+│ Starting balance                       │ 10000 USDT                                │
+│ Final balance                          │ 12.095 USDT                               │
+│ Absolute profit                        │ -9987.905 USDT                            │
+│ Total profit %                         │ -99.88%                                   │
+│ CAGR %                                 │ -99.88%                                   │
+│ Sharpe (closed trades)                 │ -16.52                                    │
+│ Sortino (closed trades)                │ -18.48                                    │
+│ Calmar (closed trades)                 │ -5.23                                     │
+│ SQN                                    │ -8.41                                     │
+│ Mean profit p-value                    │ 1.018e-16                                 │
+│ Profit factor                          │ 0.38                                      │
+│ Expectancy (Ratio)                     │ -7.09 (-0.43)                             │
+│ Avg. daily profit                      │ -27.364 USDT                              │
+│ Avg. stake amount                      │ 1357.892 USDT                             │
+│ Market change                          │ -27.34%                                   │
+│ Total trade volume                     │ 19143857.073 USDT                         │
+│                                        │                                           │
+│ Long / Short trades                    │ 674 / 735                                 │
+│ Long / Short profit %                  │ -47.03% / -52.85%                         │
+│ Long / Short profit USDT               │ -4702.981 / -5284.924                     │
+│                                        │                                           │
+│ Best Pair                              │ BTC/USDT:USDT -99.88%                     │
+│ Worst Pair                             │ BTC/USDT:USDT -99.88%                     │
+│ Best trade                             │ BTC/USDT:USDT 12.35%                      │
+│ Worst trade                            │ BTC/USDT:USDT -8.20%                      │
+│ Best day                               │ 105.734 USDT                              │
+│ Worst day                              │ -1272.772 USDT                            │
+│ Days win/draw/lose                     │ 14 / 174 / 87                             │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:00 / 0d 07:20 / 0d 00:54            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:00 / 0d 06:10 / 0d 00:38            │
+│ Max Consecutive Wins / Loss            │ 6 / 31                                    │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 6 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 12.095 USDT / 9877.713 USDT               │
+│ Max % of account underwater            │ 99.88%                                    │
+│ Absolute drawdown                      │ 9987.905 USDT (99.88%)                    │
+│ Drawdown duration                      │ 274 days 18:14:00                         │
+│ Profit at drawdown start               │ 0 USDT                                    │
+│ Profit at drawdown end                 │ -9987.905 USDT                            │
+│ Drawdown start                         │ 2025-09-04 01:11:00                       │
+│ Drawdown end                           │ 2026-06-05 19:25:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 12.095 USDT / 10000 USDT                  │
+│ Min/Max balance dates (wallet balance) │ 2026-06-05 19:30:00 / 2025-09-04 00:05:00 │
+│ Max % of account underwater (balance)  │ 99.88%                                    │
+│ Absolute drawdown (wallet balance)     │ 9987.905 USDT (99.88%)                    │
+│ Drawdown duration                      │ 274 days 19:25:00                         │
+│ Profit at drawdown start               │ 0 USDT                                    │
+│ Profit at drawdown end                 │ -9987.905 USDT                            │
+│ Drawdown start                         │ 2025-09-04 00:05:00                       │
+│ Drawdown end                           │ 2026-06-05 19:30:00                       │
+│ Sharpe (daily wallet balance)          │ -7.13                                     │
+│ Sortino (daily wallet balance)         │ -6.98                                     │
+│ Calmar (daily wallet balance)          │ -5.25                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                                STRATEGY SUMMARY                                                                 
+┌──────────────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┬───────────────────────┐
+│             Strategy │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │              Drawdown │
+├──────────────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┼───────────────────────┤
+│ DemoBreakoutStrategy │   1409 │        -0.52 │       -9987.905 │       -99.88 │      0:43:00 │  442     0   967  31.4 │ 9987.905 USDT  99.88% │
+└──────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┴───────────────────────┘

@@ -35,9 +35,14 @@ Bez obmedzení. Platia len konvencie repozitára:
 - Zmeny jadra musia prejsť `pytest` vrátane golden testov proti TradingView
   (`tester/tests/test_golden_tv_binance.py`). Rozšírenia mimo Pine majú default zhodný
   s Pine a sú v `PORT_ONLY_FIELDS` configu stratégie (`tradebot/strategies/<key>/config.py`).
-- Nová stratégia = balík `tradebot/strategies/<key>/` + riadok v registry; checklist a testy
-  (`test_registry.py`, `test_pine_parity.py`) sú v [docs/STRATEGIE.md](docs/STRATEGIE.md).
+- Nová stratégia = balík `tradebot/strategies/<key>/` + riadok v registry; celý postup,
+  kontrakt enginu a definícia hotového sú v [docs/STRATEGIE.md](docs/STRATEGIE.md).
   Jadro a adaptéry nesmú poznať konkrétnu stratégiu menom — všetko ide cez `StrategySpec`.
+  Stratégia sa píše **pre oba enginy naraz** (Freqtrade aj MultiCharts) a hotová je až
+  so **základnou analytikou a posudkom**: `python -m tester.webapp.cli checkup --strategy
+  <key> …` vyrobí `tradebot/strategies/<key>/docs/ANALYTIKA.md` (päť okien, charakter,
+  skupiny obchodov, test proti náhode, Monte Carlo) a posudok od AI do nej dopíše AI —
+  šesť otázok v tom dokumente ([docs/ANALYTIKA.md](docs/ANALYTIKA.md)).
 - Backtest vždy s `--timeframe-detail 1m` a `--cache none` (skripty to robia samy);
   stratégiu nespúšťať priamo na 1m grafe (limity `*MaxBars` sú v baroch).
 - Merania sa zapisujú ako datované dokumenty v `docs/merania/` s číslami **po rokoch** na piatich
@@ -67,6 +72,7 @@ Podrobnosti: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) (prehľad a cesta dát
 [docs/FREQTRADE.md](docs/FREQTRADE.md) (krypto vetva), [docs/MULTICHARTS.md](docs/MULTICHARTS.md)
 (MultiCharts vetva), [docs/HYPEROPT.md](docs/HYPEROPT.md) (hľadanie parametrov, FreqAI),
 [docs/TYPY_STRATEGII.md](docs/TYPY_STRATEGII.md) (charakter stratégie a čo z neho vyplýva),
+[docs/ANALYTIKA.md](docs/ANALYTIKA.md) (základná analytika stratégie a posudok),
 [docs/DATA.md](docs/DATA.md) (dáta), [docs/WEBAPP.md](docs/WEBAPP.md)
 (Tester), [docs/RUNNING.md](docs/RUNNING.md) (rozcestník), [README.md](README.md).
 

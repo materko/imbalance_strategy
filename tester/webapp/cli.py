@@ -25,6 +25,7 @@ import os
 
 from tradebot.core.env import getenv
 from tradebot.core.paths import REPO
+from pathlib import Path
 import sys
 import time
 import urllib.error
@@ -647,6 +648,165 @@ def cmd_matrix(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_checkup(args: argparse.Namespace) -> int:
+    """Základná analytika stratégie: päť okien a nad nimi celá batéria meraní."""
+    from datetime import datetime, timezone
+    from uuid import uuid4
+
+    from .. import analytics as an, checkup as ck, hyperopt as ho, montecarlo as mc
+    from .store import RunStore
+
+    okna = ([x.strip() for x in args.windows.split(",") if x.strip()]
+            if args.windows else list(ho.REFERENCE_WINDOWS))
+    if not okna:
+        raise SystemExit("--windows nesmie byt prazdne")
+    # `_prepare` chce jedno okno; ostatné sa dosadia pri behu. Musí to byť okno zo
+    # zoznamu, nech kontrola dát (páry, engine) platí o tom, čo sa naozaj spustí.
+    args.timerange = okna[0]
+    params, settings = _prepare(args)
+    store = RunStore()
+
+    if args.runs:
+        chcene = [x.strip() for x in args.runs.split(",") if x.strip()]
+        zaznamy = [r for r in (_run_record(store, args.url, i) for i in chcene) if r]
+        if not zaznamy:
+            raise SystemExit("ziadny z behov v --runs v historii nie je")
+        okna = [(r.get("settings") or {}).get("timerange") or "?" for r in zaznamy]
+        settings = {**settings, **{k: (zaznamy[0].get("settings") or {}).get(k, settings.get(k))
+                                   for k in ("pair", "timeframe", "engine", "fee", "wallet")}}
+        print(f"analytika z {len(zaznamy)} hotovych behov (nic sa nespusta)")
+    else:
+        checkup_id = f"{datetime.now(timezone.utc):%Y%m%d-%H%M%S}-{uuid4().hex[:4]}"
+        print(f"checkup {checkup_id}: {len(okna)} behov, {settings['pair']} "
+              f"{settings['timeframe']}, engine {settings['engine']}"
+              + (f", profil {args.profile}" if args.profile else " (Pine defaulty)"))
+        print(f"  okna: {', '.join(okna)}\n", flush=True)
+        zaznamy = []
+        for i, okno in enumerate(okna, 1):
+            beh = {**settings, "timerange": okno,
+                   "checkup": {"id": checkup_id, "strategy": args.strategy}}
+            print(f"[{i}/{len(okna)}] {okno}", flush=True)
+            rec = _execute(args, params, beh,
+                           note=f"checkup {checkup_id}: {okno}"
+                                + (f" — {args.note}" if args.note else ""),
+                           quiet=True)
+            rec.setdefault("settings", beh)
+            zaznamy.append(rec)
+            r = rec.get("result") or {}
+            print(f"      {rec.get('status')}  obchodov {r.get('trades', '-')}  "
+                  f"PnL {r.get('pnl_pct', '-')} %  break-even {r.get('break_even_pct', '-')} %",
+                  flush=True)
+
+    # Obchody zo všetkých okien spolu: jedno okno má na delenie na skupiny málo obchodov.
+    # Obohatia sa kresbami toho behu, z ktorého sú — v nich je plán obchodu (SL, TP).
+    obchody: list[dict] = []
+    for rec in zaznamy:
+        if rec.get("status") != "done":
+            continue
+        t, kresby = _run_data(store, args.url, rec["id"])
+        if t:
+            obchody += an.enrich([dict(x) for x in t], kresby, args.strategy)
+
+    hotove = [r for r in zaznamy if r.get("status") == "done"]
+    if not obchody and any((r.get("result") or {}).get("trades") for r in hotove):
+        raise SystemExit("\n".join([
+            "behy dobehli a obchody majú, ale nedajú sa načítať: sklad `tester/runs/` ich nemá.",
+            "Typicky beží webapp nad INÝM klonom repozitára a beh sa uložil do jeho histórie.",
+            "Spusti ju odtiaľto, alebo zadaj `--url` na tú správnu (prípadne adresu, na ktorej",
+            "nič nepočúva, nech beh ide priamo).",
+        ]))
+    risk_ref = mc.sizing_of(hotove[-1]) if hotove else None
+    report = ck.measure(zaznamy, obchody, strategy=args.strategy, pair=settings["pair"],
+                        timeframe=settings["timeframe"], fee_pct=float(settings.get("fee") or 0) * 100,
+                        profile=args.profile or "", engine=settings.get("engine") or "freqtrade",
+                        account=float(settings.get("wallet") or 10000), risk_ref=risk_ref,
+                        iterations=args.iterations, seed=args.seed)
+    print()
+    print(ck.table(report))
+
+    if args.no_write:
+        print("\ndokument sa nezapisal (--no-write)")
+        return 0
+    cesta = Path(args.out) if args.out else ck.doc_path(args.strategy)
+    cesta.parent.mkdir(parents=True, exist_ok=True)
+    # Posudok je jediná časť dokumentu, ktorú generátor nevyrobí — prenesie sa z predošlej
+    # verzie a označí sa, keď sa čísla medzitým zmenili.
+    stary, odtlacok = (ck.extract_posudok(cesta.read_text(encoding="utf-8"))
+                       if cesta.exists() else ("", ""))
+    cesta.write_text(ck.markdown(report, command=_checkup_command(args, okna),
+                                 posudok=stary, posudok_stamp=odtlacok),
+                     encoding="utf-8", newline="\n")
+    try:
+        kde = cesta.relative_to(REPO)
+    except ValueError:
+        kde = cesta
+    print(f"\nzapisane: {kde}")
+    print(_posudok_status(stary, odtlacok, ck.fingerprint(report), kde))
+    return 0
+
+
+def _posudok_status(stary: str, odtlacok: str, teraz: str, kde: Any) -> str:
+    """Čo na dokumente ešte chýba: posudok od AI. Bez neho je to len tabuľka čísel."""
+    if stary.strip() and odtlacok == teraz:
+        return "posudok od AI: aktualny"
+    stav = ("chyba" if not stary.strip()
+            else f"je k inej vzorke ({odtlacok or '?'} vs {teraz}), treba prepisat")
+    return "\n".join([
+        f"posudok od AI: {stav}",
+        f"  Precitaj {kde}, odpovedz na sest otazok v sekcii `Posudok (AI)`",
+        "  a zapis odpoved medzi znacky POSUDOK (docs/ANALYTIKA.md).",
+    ])
+
+
+def _run_record(store: Any, url: str, run_id: str) -> dict | None:
+    """Záznam behu zo skladu, a keď tam nie je, z bežiacej webapp (iný klon, iný `runs/`)."""
+    rec = store.get(run_id)
+    if rec is not None or not server_alive(url):
+        return rec
+    try:
+        return (api(url, f"/api/runs/{run_id}") or {}).get("record")
+    except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError):
+        return None
+
+
+def _run_data(store: Any, url: str, run_id: str) -> tuple[list[dict], dict | None]:
+    """Obchody a kresby behu — zo skladu, a keď tam nie sú, z bežiacej webapp.
+
+    Beh mohol vzniknúť vo webapp, ktorá stojí nad iným klonom repozitára a má vlastný
+    `runs/`. Vtedy ho lokálny sklad nevidí a jediný, kto ho má, je práve tá webapp.
+    """
+    trades = store.trades(run_id)
+    if trades:
+        return trades, store.chart(run_id)
+    if not server_alive(url):
+        return [], None
+    try:
+        det = api(url, f"/api/runs/{run_id}")
+        chart = api(url, f"/api/runs/{run_id}/chart")
+    except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError):
+        return [], None
+    return det.get("trades") or [], {"objects": chart.get("objects") or []}
+
+
+def _checkup_command(args: argparse.Namespace, okna: list[str]) -> str:
+    """Príkaz, ktorým sa tá istá analytika zopakuje — patrí do dokumentu, nie do hlavy."""
+    from .. import hyperopt as ho
+
+    cmd = ["python -m tester.webapp.cli checkup", f"--strategy {args.strategy}"]
+    if args.profile:
+        cmd.append(f"--profile {args.profile}")
+    if args.pair:
+        cmd.append(f"--pair {args.pair}")
+    cmd.append(f"--timeframe {args.timeframe}")
+    if args.fee != 0.0005:
+        cmd.append(f"--fee {args.fee}")
+    if float(args.wallet) != 10000.0:
+        cmd.append(f"--wallet {args.wallet:g}")
+    if list(okna) != list(ho.REFERENCE_WINDOWS):
+        cmd.append("--windows " + ",".join(okna))
+    return (" \\" + "\n   ").join(cmd)
+
+
 def cmd_matrices(args: argparse.Namespace) -> int:
     """Matice z histórie; s argumentom vypíše tabuľku jednej."""
     from .. import matrix as mx
@@ -890,13 +1050,18 @@ def cmd_params(args: argparse.Namespace) -> int:
 _GOALS = ("break_even", "profit", "winrate", "drawdown")
 
 
-def _run_args(p: argparse.ArgumentParser) -> None:
-    """Argumenty spoločné pre `run` aj `sweep` — nech sa nemôžu rozísť."""
+def _run_args(p: argparse.ArgumentParser, *, timerange: bool = True) -> None:
+    """Argumenty spoločné pre `run` aj `sweep` — nech sa nemôžu rozísť.
+
+    `checkup` beží na piatich oknách naraz, takže jediné `--timerange` nemá; všetko
+    ostatné (profil, pár, poplatok, peňaženka) má rovnaké, a preto to je tu.
+    """
     p.add_argument("--strategy", default="ibs", help="stratégia z registry (default ibs)")
     p.add_argument("--profile", help="východiskový profil z tradebot/strategies/<stratégia>/configs/ alebo cesta k JSON (bez neho Pine defaulty)")
     p.add_argument("--set", action="append", metavar="KLUC=HODNOTA", help="zmena parametra, opakovateľné")
     p.add_argument("--pair", help="napr. BTC/USDT:USDT alebo ETH/USDT:USDT (default podľa profilu)")
-    p.add_argument("--timerange", required=True, help="YYYYMMDD-YYYYMMDD")
+    if timerange:
+        p.add_argument("--timerange", required=True, help="YYYYMMDD-YYYYMMDD")
     p.add_argument("--timeframe", default="3m", help="TF grafu, na ktorom stratégia počíta (default 3m; ako TF grafu v TradingView)")
     p.add_argument("--exchange", choices=("tester", "binance", "coinbase", "dukascopy"),
                    help="burza pre Freqtrade beh (predvolene fiktivna 'tester', ktora pozna "
@@ -1002,6 +1167,19 @@ def main(argv: list[str] | None = None) -> int:
                         "nepatria nikam - prah v bodoch znamená na každom trhu inú vec)")
     _run_args(p)
     p.set_defaults(func=cmd_matrix, relative=True)
+
+    p = sub.add_parser("checkup", help="základná analytika stratégie: päť okien a celá batéria meraní")
+    p.add_argument("--windows", help="okná oddelené čiarkou (default päť referenčných)")
+    p.add_argument("--runs", help="poskladať dokument z hotových behov namiesto nových "
+                                  "(id oddelené čiarkou)")
+    p.add_argument("--iterations", type=int, default=1000,
+                   help="koľko náhodných behov v teste proti náhode (default 1000)")
+    p.add_argument("--seed", type=int, default=12345)
+    p.add_argument("--out", help="kam zapísať dokument (default "
+                                 "tradebot/strategies/<stratégia>/docs/ANALYTIKA.md)")
+    p.add_argument("--no-write", action="store_true", help="len vypísať, dokument nezapisovať")
+    _run_args(p, timerange=False)
+    p.set_defaults(func=cmd_checkup)
 
     p = sub.add_parser("matrices", help="matice z histórie; s argumentom vypíše tabuľku jednej")
     p.add_argument("matrix_id", nargs="?", help="značka matice (bez nej sa vypíše zoznam)")

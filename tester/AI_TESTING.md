@@ -417,6 +417,25 @@ Tri veci, ktoré test nevie:
 - **O budúcnosti nehovorí nič.** `DRZI` znamená, že úpadok v dátach vidieť nie je — nie
   že nepríde.
 
+## 8g. Celá batéria naraz: základná analytika stratégie
+
+Kroky 5 a 8a–8f majú spoločné poradie a spoločný výstup — a ten patrí k stratégii, nie do
+jedného terminálu:
+
+```bash
+PY -m tester.webapp.cli checkup --strategy ibs    --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json --timeframe 3m
+```
+
+Päť referenčných okien → charakter → skupiny obchodov → test proti náhode → Monte Carlo,
+z toho dva zoznamy („v čom je dobrá", „kde má chyby") a dokument
+`tradebot/strategies/<key>/docs/ANALYTIKA.md`. Behy sú obyčajné behy v histórii, takže sa
+dajú otvoriť aj použiť znova (`--runs id,id,…` poskladá dokument bez nových backtestov).
+
+Dokument sa **generuje celý znova**; jediná časť, ktorá prežije, je **posudok od AI** na
+konci — šesť otázok (kam sa stratégia hodí, či má potenciál, čo dorobiť, čo otestovať
+ďalej, či je vôbec použiteľná, čo pridať). Keď sa čísla medzitým zmenili, posudok sa
+označí za starý a treba ho prepísať. Podrobne: [docs/ANALYTIKA.md](../docs/ANALYTIKA.md).
+
 ## 9. FreqAI
 
 Dá sa pripojiť, ale odpovedá na inú otázku: hyperopt vyberie statické parametre, FreqAI

@@ -11,6 +11,7 @@ nemiešalo, čo platí pre ktorú:
 | **dáta: odkiaľ sú, archív, Dukascopy import, nový symbol** | [DATA.md](DATA.md) |
 | **testovať z CLI (aj pre AI)** | [../tester/AI_TESTING.md](../tester/AI_TESTING.md) |
 | **pridať ďalšiu stratégiu** | [STRATEGIE.md](STRATEGIE.md) |
+| **zistiť, čo tá stratégia je** (analytika, posudok) | [ANALYTIKA.md](ANALYTIKA.md) |
 | **ako je to postavené a prečo** | [ARCHITECTURE_port.md](ARCHITECTURE_port.md) |
 
 ## Kde čo beží
