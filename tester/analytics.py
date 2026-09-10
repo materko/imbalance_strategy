@@ -178,6 +178,34 @@ FEATURES: tuple[Feature, ...] = (
     Feature("mfe_pct", "Ako ďaleko šiel v náš prospech", lambda t: _excursion(t, True), unit="%",
             at_entry=False,
             note="Keď je MFE vysoké a zisk nie, výstup je nastavený zle (TP ďaleko, trailing skoro)."),
+    Feature("day_of_month", "Deň v mesiaci",
+            lambda t: (_dt(t.get("open_date")) or None) and _dt(t["open_date"]).day,
+            note="Larryho Williamsa preslávilo hľadanie tendencií v kalendári — začiatok "
+                 "mesiaca býva iný než koniec (výplaty, rebalansovanie fondov). Je to "
+                 "zároveň klasická pasca na preoptimalizovanie: rozdiel medzi 3. a 17. dňom "
+                 "vyzerá presvedčivo, kým sa neoverí po oknách."),
+    Feature("month_of_year", "Kalendárny mesiac",
+            lambda t: (_dt(t.get("open_date")) or None) and f"{_dt(t['open_date']):%m}",
+            numeric=False,
+            note="Sezónnosť naprieč rokmi — nie „marec 2023“, ale „marec vôbec“. "
+                 "Pri piatich rokoch je to päť pozorovaní na mesiac, takže to skôr ukazuje "
+                 "smer na overenie než hotový záver."),
+
+    # -- kalendár: sviatky a makro (tester.calendar) -------------------------- #
+    Feature("cal_event", "Makro udalosť v ten deň", lambda t: t.get("_cal_event"),
+            numeric=False,
+            note="Deň rozhodnutia Fedu, inflácie alebo zamestnanosti v USA. Dátumy sú "
+                 "odpísané z federalreserve.gov a bls.gov, nie odvodené pravidlom — "
+                 "a keďže sa vedia dopredu, filtrovať sa podľa nich dá."),
+    Feature("cal_event_window", "Pred vyhlásením, alebo po ňom",
+            lambda t: t.get("_cal_event_window"), numeric=False,
+            note="Rozdiel medzi vstupom pred vyhlásením a po ňom je celý rozdiel medzi "
+                 "hazardom a obchodovaním na už známej informácii."),
+    Feature("cal_session", "Sviatok na burze v USA", lambda t: t.get("_cal_session"),
+            numeric=False,
+            note="Keď je Wall Street zavretá, likvidita zmizne aj tam, kde sa obchoduje "
+                 "ďalej (krypto, CFD). Sviatky sa počítajú pravidlom, platia pre každý rok."),
+
     Feature("month", "Mesiac", lambda t: (_dt(t.get("open_date")) or None) and f"{_dt(t['open_date']):%Y-%m}",
             numeric=False, note="Režim trhu. Keď je edge len v dvoch mesiacoch z dvanástich, "
                                 "je to o režime, nie o parametroch."),
@@ -231,6 +259,11 @@ def enrich(trades: list[dict[str, Any]], chart: dict[str, Any] | None,
         from . import regime as regime_mod
 
         regime_mod.annotate(trades, pair, timeframe or "3m")
+
+    # Kalendár nepotrebuje ani sviečky, ani pár — dátum stačí.
+    from . import calendar as cal_mod
+
+    cal_mod.annotate(trades)
 
     spec = get_spec(strategy)
     sl_kind, tp_kind = getattr(spec, "sl_kind", ""), getattr(spec, "tp_kind", "")
