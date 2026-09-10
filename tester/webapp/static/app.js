@@ -2759,6 +2759,68 @@ function decayHtml(d) {
     </div>`;
 }
 
+/** Portfólio: koľko sa dá zarobiť a za aký drawdown. */
+function portfolioHtml(p) {
+  if (!p || !p.risks) return "";
+  const risks = p.risks.map(r => `<tr><td>${fmt(r.risk_pct, 2)} %</td>`
+    + `<td>${fmt(r.return_pct, 1)} %</td><td>${fmt(r.cagr_pct, 1)} %</td>`
+    + `<td class="${r.max_drawdown_pct > 30 ? "neg" : ""}">${fmt(r.max_drawdown_pct, 1)} %</td>`
+    + `<td>${r.ruin ? "RUINA" : r.trades}</td></tr>`).join("");
+  const roky = (p.by_year || []).map(r => `<tr><td>${esc(r.year)}</td>`
+    + `<td class="${r.return_pct < 0 ? "neg" : "pos"}">${fmt(r.return_pct, 1)} %</td>`
+    + `<td>${r.trades}</td></tr>`).join("");
+  const dvojice = ((p.correlations || {}).pairs || []).slice(0, 5).map(
+    ([a, b, r, m]) => `<tr><td class="${r >= 0.7 ? "neg" : ""}">${fmt(r, 2)}</td>`
+      + `<td>${esc(a)}</td><td>${esc(b)}</td><td>${m} mes.</td></tr>`).join("");
+  const trieda = p.verdict.startsWith("TO NIE JE PORTFOLIO") ? "bad"
+    : (p.verdict.startsWith("CLENOVIA SU MALO") ? "good" : "unsure");
+  return `<div class="ch-box">
+      <div class="ch-head"><h3>Portfólio</h3>
+        <span class="chip">${p.members.length} členov · ${p.trades} obchodov</span></div>
+      <p class="an-note">Vybrané behy prehraté cez jeden účet. Veľkosť pozície sa prepočíta
+        na zvolené riziko — bez toho by sa sčítavali veľkosti z rôznych behov a výsledok by
+        hovoril o peňaženkách, nie o stratégii.</p>
+      <table class="mx-table"><thead><tr><th>riziko/obchod</th><th>zhodnotenie</th>
+        <th>ročne (CAGR)</th><th>max drawdown</th><th>obchodov</th></tr></thead>
+        <tbody>${risks}</tbody></table>
+      ${roky ? `<p class="an-note">Rok po roku (pri ${fmt(p.risks.find(r => r.risk_pct === 1)
+        ? 1 : p.risks[0].risk_pct, 2)} % na obchod) — nesie to jeden rok, alebo je to rozložené?</p>
+        <table class="mx-table"><thead><tr><th>rok</th><th>zhodnotenie</th><th>obchodov</th>
+        </tr></thead><tbody>${roky}</tbody></table>` : ""}
+      ${dvojice ? `<p class="an-note">Najkorelovanejšie dvojice — nad +0,70 sa členovia
+        nediverzifikujú, len zväčšujú pozíciu.</p>
+        <table class="mx-table"><thead><tr><th>r</th><th>člen</th><th>člen</th>
+        <th>prekryv</th></tr></thead><tbody>${dvojice}</tbody></table>` : ""}
+      <div class="verdict ${trieda}">${esc(p.verdict)}</div>
+    </div>`;
+}
+
+/** Test proti náhode: je ten edge odlíšiteľný od hodu mincou? */
+function nullHtml(nt) {
+  if (!nt || !nt.nulls) return "";
+  const riadky = Object.entries(nt.nulls).map(([kluc, v]) => {
+    const trieda = v.sigma >= 2 ? "pos" : (v.sigma <= -1 ? "neg" : "noise");
+    return `<tr><td>${esc(v.null_note || kluc)}</td>`
+      + `<td>${fmt(v.observed, 4)}</td>`
+      + `<td>${fmt(v.mean, 4)} ± ${fmt(v.sd, 4)}</td>`
+      + `<td class="${trieda}">${v.sigma > 0 ? "+" : ""}${fmt(v.sigma, 2)} σ</td>`
+      + `<td>${fmt(v.percentile, 1)}</td></tr>`;
+  }).join("");
+  const prvy = Object.values(nt.nulls)[0] || {};
+  const trieda = prvy.sigma >= 2 ? "good" : (prvy.sigma <= -1 ? "bad" : "unsure");
+  return `<div class="ch-box">
+      <div class="ch-head"><h3>Je to odlíšiteľné od náhody?</h3></div>
+      <p class="an-note">Tá istá stratégia, ktorá obchoduje rovnako často, rovnakým smerom
+        a s rovnakým stopom aj take profitom — len si nevyberá, kedy vstúpiť. Rozdiel je
+        presne to, čo výber vstupu prináša.</p>
+      <table class="mx-table"><thead><tr><th>náhoda</th><th>stratégia</th>
+        <th>náhoda</th><th>rozdiel</th><th>percentil</th></tr></thead>
+        <tbody>${riadky}</tbody></table>
+      <div class="verdict ${trieda}">${esc(prvy.verdict || "")}</div>
+      ${nt.note ? `<p class="an-note">${esc(nt.note)}</p>` : ""}
+    </div>`;
+}
+
 /** Charakter stratégie: čísla, dôkazy a čo z toho vyplýva pre ladenie. */
 function characterHtml(ch) {
   if (!ch || !ch.title) return "";

@@ -43,7 +43,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 from tradebot.core.types import INSTRUMENTS, SYNTHETIC_REGISTRY, InstrumentSpec, synthetic_specs
 
@@ -327,3 +327,108 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+# --------------------------------------------------------------------------- #
+# vyhodnotenie: to isté zadanie na skutočnom a na premiešanom trhu
+# --------------------------------------------------------------------------- #
+
+#: Menej než toľko okien so syntetickým behom a porovnanie nič nehovorí.
+MIN_WINDOWS = 3
+
+
+def synthetic_symbols() -> set[str]:
+    """Symboly syntetických trhov — tie, ktorých sviečky vyrobil tento modul."""
+    return {i.symbol for i in INSTRUMENTS.values() if i.data_source == "synthetic"}
+
+
+def _row(rec: dict[str, Any], store) -> dict[str, Any]:
+    from .webapp.runner import entry_signals
+
+    v = rec.get("result") or {}
+    try:
+        signaly = entry_signals((store.log(rec["id"]) or "").splitlines())
+    except Exception:                                   # noqa: BLE001 - log je nepovinný
+        signaly = None
+    obchodov = v.get("trades") or 0
+    return {"run_id": rec["id"], "trades": obchodov, "break_even_pct": v.get("break_even_pct"),
+            "signals": signaly,
+            "fill_pct": round(100 * obchodov / signaly, 1) if signaly else None}
+
+
+def _best(records: list[dict[str, Any]]) -> dict[str, Any]:
+    """Z viacerých behov jedného okna ten s najviac obchodmi — nie ich zmes."""
+    return max(records, key=lambda r: (r.get("result") or {}).get("trades") or 0)
+
+
+def assess(records: Sequence[dict[str, Any]], store, *, strategy: str = "ibs") -> dict[str, Any]:
+    """Porovná vybrané behy s behmi tej istej konfigurácie na syntetickom trhu.
+
+    Nič nespúšťa — hľadá v histórii. Keď syntetické behy nie sú, povie to aj s príkazom,
+    ktorým vzniknú; vymýšľať si čísla by bolo horšie než priznať, že chýbajú.
+    """
+    import statistics
+
+    from .webapp.store import strategy_of
+
+    skutocne = [r for r in records if r.get("status") == "done"
+                and ((r.get("result") or {}).get("trades") or 0) > 0]
+    if not skutocne:
+        return {"severity": "chyba dat", "rows": [], "verdict": "žiadne dobehnuté behy"}
+
+    profil = (skutocne[0].get("settings") or {}).get("profile") or ""
+    okna = {(r.get("settings") or {}).get("timerange") for r in skutocne}
+    okna.discard(None)
+    symboly = synthetic_symbols()
+    prikaz = (f"python -m tester.webapp.cli run --profile {profil or '<profil>'} "
+              f"--pair {sorted(symboly)[0] if symboly else 'SYNTH/USDT:USDT'} "
+              f"--timerange <okno> --note \"synteticky trh\"")
+
+    out: dict[str, Any] = {"profile": profil, "rows": [], "missing": [],
+                           "pairs": sorted(symboly), "command": prikaz}
+    if not symboly:
+        out["severity"] = "chyba dat"
+        out["verdict"] = ("syntetický trh ešte nie je vyrobený — "
+                          "`python -m tester.synthetic build synth`")
+        return out
+
+    # Porovnáva sa len to, čo sa porovnať dá: ten istý profil a to isté okno.
+    synt: dict[str, list[dict[str, Any]]] = {}
+    for rec in store.all():
+        nast = rec.get("settings") or {}
+        if (rec.get("status") == "done" and nast.get("pair") in symboly
+                and strategy_of(rec) == strategy and (nast.get("profile") or "") == profil):
+            synt.setdefault(nast.get("timerange") or "", []).append(rec)
+
+    for okno in sorted(okna):
+        realny = _row(_best([r for r in skutocne
+                             if (r.get("settings") or {}).get("timerange") == okno]), store)
+        if okno not in synt:
+            out["missing"].append(okno)
+            out["rows"].append({"timerange": okno, "real": realny, "synth": None})
+            continue
+        out["rows"].append({"timerange": okno, "real": realny,
+                            "synth": _row(_best(synt[okno]), store)})
+
+    dvojice = [r for r in out["rows"] if r["synth"]]
+    hotove = [r for r in dvojice if r["synth"]["break_even_pct"] is not None]
+    out["windows"] = len(hotove)
+    if len(hotove) < MIN_WINDOWS:
+        out["severity"] = "chyba dat"
+        out["verdict"] = (
+            f"na porovnanie treba aspoň {MIN_WINDOWS} okná so behom na syntetickom trhu, "
+            f"sú {len(hotove)}. Dobehni ich: {prikaz}")
+        return out
+
+    real_be = [r["real"]["break_even_pct"] for r in hotove
+               if r["real"]["break_even_pct"] is not None]
+    synt_be = [r["synth"]["break_even_pct"] for r in hotove]
+    out["real_median"] = round(statistics.median(real_be), 4) if real_be else None
+    out["synth_median"] = round(statistics.median(synt_be), 4)
+    out["real_positive"] = sum(1 for x in real_be if x > 0)
+    out["synth_positive"] = sum(1 for x in synt_be if x > 0)
+    fill = lambda kluc: [r[kluc]["fill_pct"] for r in hotove if r[kluc]["fill_pct"] is not None]
+    out["real_fill"] = round(statistics.median(fill("real")), 1) if fill("real") else None
+    out["synth_fill"] = round(statistics.median(fill("synth")), 1) if fill("synth") else None
+    out["severity"], out["verdict"] = _verdict(out)
+    return out
