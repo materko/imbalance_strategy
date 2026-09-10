@@ -82,19 +82,27 @@ class AnalyticsStore:
         return True
 
     def list(self, strategy: str = "", limit: int = 50) -> list[dict[str, Any]]:
-        """Hlavičky od najnovšej. Bez `strategy` sa vrátia všetky."""
-        out = []
-        for path in sorted(self.root.glob("*.json"), reverse=True):
+        """Hlavičky od najnovšej. Bez `strategy` sa vrátia všetky.
+
+        Radí sa podľa času uloženia, nie podľa mena súboru: dva záznamy z tej istej
+        sekundy sa v mene líšia len náhodnou príponou, takže by vyšli v ľubovoľnom
+        poradí. Pri zhode rozhodne čas súboru.
+        """
+        najdene: list[tuple[str, float, dict[str, Any]]] = []
+        for path in self.root.glob("*.json"):
             try:
                 zaznam = json.loads(path.read_text(encoding="utf-8"))
             except (json.JSONDecodeError, OSError):
                 continue
             if strategy and zaznam.get("strategy") != strategy:
                 continue
-            out.append(summary(zaznam))
-            if len(out) >= limit:
-                break
-        return out
+            try:
+                mtime = path.stat().st_mtime
+            except OSError:
+                mtime = 0.0
+            najdene.append((str(zaznam.get("created") or ""), mtime, summary(zaznam)))
+        najdene.sort(key=lambda x: (x[0], x[1]), reverse=True)
+        return [x[2] for x in najdene[:limit]]
 
 
 def summary(zaznam: dict[str, Any]) -> dict[str, Any]:

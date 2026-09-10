@@ -333,6 +333,21 @@ Dve veci, ktoré treba pri čítaní vedieť:
 Súbežné pozície sa nekrátia — keď majú dvaja členovia otvorené naraz, obaja sú sizovaní
 z vtedajšieho zostatku a margin sa nekontroluje. Je to teda horná hranica toho, čo by šlo.
 
+### Z akej konfigurácie tie obchody sú
+Analytika, prop výzva aj meranie počítajú nad **zliatymi** obchodmi z viacerých behov.
+Kým je to tá istá konfigurácia na rôznych oknách alebo trhoch, je to presne to, na čo sa
+zlievajú. Keď nie je, mieša sa dokopy niekoľko rôznych stratégií a výsledok nehovorí
+o žiadnej z nich — tak vznikli neplatné čísla v
+[REZIM_filtre_btcusdt_2026-09-10.md](../docs/merania/REZIM_filtre_btcusdt_2026-09-10.md).
+
+Hlavička preto hovorí, z čoho sa počítalo, v troch stupňoch:
+
+| | čo to znamená |
+|---|---|
+| jedna konfigurácia | behy sa líšia len oknom alebo trhom — v poriadku |
+| jeden profil, iné čísla | `--set`, alebo prepočet prahov na ATR v matici; over, či to tak má byť |
+| **rôzne profily** | zliate rôzne stratégie — vyber si jednu, inak čísla nehovoria o ničom |
+
 ### História analytiky
 Analytika sa počíta nad výberom behov a inak by zmizla s obnovením stránky. Tlačidlo
 **Uložiť do histórie** zapíše **záver, nie obchody** (tie ostávajú v behoch, na ktoré sa
@@ -524,7 +539,18 @@ PY -m tester.webapp.cli prop --runs <id1>,<id2> --rules apex100 --risk 1
 PY -m tester.webapp.cli prop "note~matica" --limit 50 --rules ftmo2 --daily 4 --cost 400
 ```
 
-To isté je na karte **Analytika** v rozbaľovacom bloku **Prop výzva** — formulár predvyplní predloha a každé pole sa dá prepísať; zdroj čísel je hneď pod ním.
+**Z čoho sa to počíta.** Výzva nemá žiadnu vlastnú konfiguráciu — berie **obchody
+vybraných behov**, takže konfigurácia je tá, ktorou tie behy vznikli. Veľkosť pozície sa
+neberie z behu, prepočíta sa z rizika (`riziko = zostatok × risk %`), takže peňaženka ani
+poplatok behu na výsledok nevplývajú; parametre stratégie áno, celé. Výpis aj stránka preto
+hlásia, z akej konfigurácie obchody sú, a varujú, keď sú **zliate rôzne konfigurácie**.
+
+To isté je vo webapp na dvoch miestach — formulár je ten istý:
+
+- karta **Analytika**, blok **Prop výzva** — nad vybranými behmi;
+- karta **Nový beh**, blok **Prop výzva** — nad tým jedným behom, keď dobehne
+  (zaškrtávatko „spočítať po dobehnutí behu"). Jeden beh býva na to málo obchodov, takže
+  výpis zvyčajne povie `MALO DAT` — je to orientácia, nie záver.
 
 Predlohy pravidiel (`--rules`): `ftmo2`, `ftmo1`, `apex100`, `apex50`, `tradeify_growth`,
 `tradeify_select`. Sú odpísané z verejných stránok firiem **k 2026-09-10** a firmy ich menia

@@ -909,6 +909,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         # Zliať obchody z rôznych párov ide, ale prahy v bodoch ani vzdialenosti stopu
         # nie sú medzi nimi porovnateľné - nech to je vidieť.
         report["mixed_pairs"] = len(pary) > 1
+        # Z akej konfiguracie tie obchody su. Zliat behy tej istej konfiguracie na roznych
+        # oknach je v poriadku; zliat rozne konfiguracie znamena miesat rozne strategie.
+        report["config"] = an.config_spread(zaznamy)
         report["strategy"] = strategy
 
         # Charakter sa meria z tych istych obchodov: aky typ strategie to je, sa neda
@@ -1065,6 +1068,12 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         return {"rules": {**pravidla.__dict__, "targets": list(pravidla.targets),
                           "phases": pravidla.phases},
                 "trades": len(obchody), "runs": len(zaznamy),
+                # Odkial su obchody: prop vyzva sa nepocita z ziadnej vlastnej
+                # konfiguracie, ale z obchodov vybranych behov.
+                "config": an.config_spread(zaznamy),
+                "pairs": sorted({r["settings"].get("pair") for r in zaznamy
+                                 if r["settings"].get("pair")}),
+                "run_ids": [r["id"] for r in zaznamy],
                 "results": [r.to_dict() for r in vysledky],
                 "best_risk": najlepsi.risk_pct, "verdict": najlepsi.verdict}
 

@@ -66,6 +66,8 @@ class Paper:
     #: `checkup.verdicts()` — tie isté vety, aké má stratégia vo svojej ANALYTIKA.md
     strengths: list[str] = field(default_factory=list)
     weaknesses: list[str] = field(default_factory=list)
+    #: `analytics.config_spread()` — z akej konfigurácie tie obchody sú
+    config: dict[str, Any] = field(default_factory=dict)
 
 
 def _num(value: Any, digits: int = 4, plus: bool = True) -> str:
@@ -428,7 +430,8 @@ def build(records: Sequence[dict[str, Any]], store, *, strategy: str = "ibs",
                   strategy=strategy, pairs=pary, timeframes=tfs, windows=okna,
                   runs=zaznamy, command=command,
                   strengths=list(report.get("strengths") or []),
-                  weaknesses=list(report.get("weaknesses") or []))
+                  weaknesses=list(report.get("weaknesses") or []),
+                  config=an.config_spread(zaznamy))
     paper.sections = [
         _charakter(report),
         _po_oknach(zaznamy),
@@ -455,6 +458,9 @@ def render(paper: Paper) -> str:
             f"{', '.join('`' + t + '`' for t in paper.timeframes) or '—'}.", ""]
     if paper.command:
         out += ["```bash", paper.command, "```", ""]
+    if paper.config.get("note"):
+        znacka = {"chyba": "> **Pozor:** ", "pozor": "> "}.get(paper.config.get("severity"), "")
+        out += [f"{znacka}Konfigurácia: {paper.config['note']}", ""]
 
     out += ["## Záver", "",
             "_Sem patrí jedna veta: čo z čísel dole plynie. Nechávam ju prázdnu zámerne —"

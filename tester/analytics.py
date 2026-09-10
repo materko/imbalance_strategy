@@ -46,6 +46,8 @@ to, čo sa dá ladiť.
 
 from __future__ import annotations
 
+import json
+
 import math
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -55,6 +57,7 @@ from tradebot.adapters.freqtrade.hyperplan import knowledge
 from tradebot.strategies import get_spec
 
 __all__ = [
+    "config_spread",
     "FEATURES", "Feature", "Bucket", "Split", "break_even_pct", "gross_and_volume",
     "features_for", "split", "analyze", "table",
 ]
@@ -497,3 +500,67 @@ def table(report: dict[str, Any], limit: int = 6, descriptive: bool = False) -> 
                 f"{(b['without_pct'] if b['without_pct'] is not None else 0):>10.4f}"
                 f"{(b['impact'] if b['impact'] is not None else 0):>+9.4f}")
     return "\n".join(lines)
+
+
+# --------------------------------------------------------------------------- #
+# z akej konfigurácie tie obchody vlastne sú
+# --------------------------------------------------------------------------- #
+#
+# Analytika, prop výzva aj meranie počítajú nad **zliatymi** obchodmi z viacerých behov.
+# Kým sú tie behy tá istá konfigurácia na rôznych oknách alebo trhoch, je to v poriadku.
+# Keď nie sú, zlieva sa dokopy niekoľko rôznych stratégií a výsledok nehovorí o žiadnej
+# z nich — presne tak vznikli čísla „3× a 5×“ v REZIM_filtre_btcusdt_2026-09-10.md, ktoré
+# neplatili. Pri zmiešaných pároch sa už varovalo; toto je to isté pre konfigurácie.
+
+#: Koľko rozdielnych parametrov sa vymenuje, kým sa to stane nečitateľným.
+MAX_DIFFS = 8
+
+
+def config_spread(records: Sequence[dict[str, Any]]) -> dict[str, Any]:
+    """Čo majú behy spoločné a v čom sa líšia.
+
+    Vracia zoznam profilov, parametre s viac než jednou hodnotou a vetu do výpisu.
+    Okná a trhy sa za rozdiel nepovažujú — práve preto sa behy zlievajú.
+    """
+    zoznam = [r for r in records if r.get("params")]
+    profily = sorted({(r.get("settings") or {}).get("profile") or "(Pine defaulty)"
+                      for r in records})
+    #: `severity`: "ok" = jedna konfigurácia, "pozor" = jeden profil s inými číslami
+    #: (typicky `--set` alebo prepočet na ATR), "chyba" = zliate rôzne profily.
+    out: dict[str, Any] = {"runs": len(records), "profiles": profily,
+                           "differing": {}, "mixed": False, "severity": "ok", "note": ""}
+    if len(zoznam) < 2:
+        out["note"] = f"jedna konfigurácia: {profily[0]}" if profily else ""
+        return out
+
+    kluce = {k for r in zoznam for k in (r.get("params") or {})}
+    rozdiely: dict[str, list[Any]] = {}
+    for k in sorted(kluce):
+        hodnoty = {json.dumps((r.get("params") or {}).get(k), sort_keys=True, default=str)
+                   for r in zoznam}
+        if len(hodnoty) > 1:
+            rozdiely[k] = [json.loads(v) for v in sorted(hodnoty)][:6]
+    out["differing"] = dict(list(rozdiely.items())[:MAX_DIFFS])
+    out["mixed"] = bool(rozdiely)
+    out["severity"] = "ok" if not rozdiely else ("chyba" if len(profily) > 1 else "pozor")
+    if not rozdiely:
+        out["note"] = ("všetky behy majú tú istú konfiguráciu"
+                       + (f": {profily[0]}" if len(profily) == 1 else ""))
+        return out
+
+    mena = list(rozdiely)[:4]
+    vymenovane = ", ".join(f"`{m}`" for m in mena) + ("…" if len(rozdiely) > len(mena) else "")
+    kolko = f"{len(rozdiely)} {'parametri' if len(rozdiely) == 1 else 'parametroch'}"
+    if len(profily) > 1:
+        # Rozne profily = rozne strategie zliate dokopy. To je ta chyba, ktora vyrobila
+        # neplatne cisla v REZIM_filtre_btcusdt_2026-09-10.md.
+        out["note"] = (f"behy NIE SÚ jedna konfigurácia: {len(profily)} rôznych profilov "
+                       f"a líšia sa v {kolko} ({vymenovane}). Zliate obchody potom "
+                       f"nehovoria o žiadnej z nich — vyber si jednu.")
+    else:
+        # Jeden profil a predsa iné čísla: buď `--set`, alebo prepočet prahov na ATR
+        # v matici (tam je to zámer, lebo prah v bodoch znamená na každom trhu inú vec).
+        out["note"] = (f"všetky behy sú z profilu {profily[0]}, ale v {kolko} sa líšia "
+                       f"({vymenovane}) — typicky `--set`, alebo prepočet prahov na ATR "
+                       f"v matici trhov. Over, či to tak má byť.")
+    return out
