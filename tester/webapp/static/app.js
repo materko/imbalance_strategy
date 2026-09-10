@@ -19,6 +19,8 @@ const state = {
   profileInstrument: null,
   paramMode: "basic",
   hyperMeta: {},
+  propMeta: null,
+  propAfterRun: null,   // beh, ktoreho prop vyzva sa spocita, ked dobehne
 };
 
 function currentUser() { return ($("#who").value || "").trim() || null; }
@@ -1585,7 +1587,9 @@ function runBody() {
 async function submitRun() {
   const btn = $("#run"); btn.disabled = true; $("#run-error").hidden = true;
   try {
-    await api("/api/runs", { method: "POST", body: JSON.stringify(runBody()) });
+    const job = await api("/api/runs", { method: "POST", body: JSON.stringify(runBody()) });
+    // Vyzva sa pocita az z hotovych obchodov, takze si beh zapamatame a pockame naň.
+    state.propAfterRun = ($("#nprop-after")?.checked && job?.id) ? job.id : null;
     await pollQueue();
   } catch (e) {
     $("#run-error").textContent = e.message; $("#run-error").hidden = false;
@@ -1598,6 +1602,12 @@ async function submitRun() {
 
 async function pollQueue() {
   const jobs = await api("/api/queue");
+  // Beh, na ktory caka prop vyzva, uz vo fronte nie je - teda dobehol.
+  if (state.propAfterRun && !jobs.some(j => j.id === state.propAfterRun)) {
+    const id = state.propAfterRun;
+    state.propAfterRun = null;
+    runPropForRun(id).catch(e => { const el = $("#nprop-status"); if (el) el.textContent = e.message; });
+  }
   const box = $("#queue");
   $("#queue-count").textContent = jobs.length ? String(jobs.length) : "";
   if (!jobs.length) {
@@ -2524,83 +2534,148 @@ async function saveAnalytics() {
 // --------------------------------------------------------------------------- //
 // Prop vyzva: dostanes sa k vyplate skor, nez ucet zhori?
 // --------------------------------------------------------------------------- //
+//
+// Formular je jeden a montuje sa na dve miesta: do Analytiky (nad vybranymi behmi) a
+// k Novemu behu (nad tym jednym, ked dobehne). Preto vsetky id nesu prefix - dve kopie
+// s rovnakymi id by boli chyba, ktoru prehliadac nenahlasi, len prestane fungovat.
+
+/** Markup formulára pravidiel. `p` je prefix id (`prop` alebo `nprop`). */
+function propFormHtml(p) {
+  return `<div class="form-grid an-form">
+      <label class="field span2">Pravidlá
+        <select id="${p}-preset"></select>
+      </label>
+      <label class="field">Účet
+        <input type="number" id="${p}-account" min="1000" step="1000">
+      </label>
+      <label class="field">Ciele fáz (% oddelené čiarkou)
+        <input type="text" id="${p}-targets" placeholder="10,5">
+      </label>
+      <label class="field">Denný limit % <span class="hint">0 = firma ho nemá</span>
+        <input type="number" id="${p}-daily" min="0" step="0.1">
+      </label>
+      <label class="field">Celkový limit %
+        <input type="number" id="${p}-maxloss" min="0.1" step="0.1">
+      </label>
+      <label class="field">Od čoho sa počíta celkový limit
+        <select id="${p}-trailing"></select>
+      </label>
+      <label class="field inline small"><input type="checkbox" id="${p}-freeze">
+        hranica sa zastaví na počiatočnom zostatku</label>
+      <label class="field">Minimum dní
+        <input type="number" id="${p}-mindays" min="0" step="1">
+      </label>
+      <label class="field">Najlepší deň max % zisku <span class="hint">0 = bez pravidla</span>
+        <input type="number" id="${p}-dayshare" min="0" max="100" step="5">
+      </label>
+      <label class="field">Cena výzvy
+        <input type="number" id="${p}-cost" min="0" step="10">
+      </label>
+      <label class="field">Podiel zo zisku %
+        <input type="number" id="${p}-payout" min="1" max="100" step="5">
+      </label>
+      <label class="field inline small"><input type="checkbox" id="${p}-refund">
+        cena sa vracia pri prvej výplate</label>
+      <label class="field">Horizont v dňoch <span class="hint">0 = bez limitu</span>
+        <input type="number" id="${p}-horizon" min="0" step="10">
+      </label>
+      <div class="an-actions span2">
+        <button id="${p}-run" class="primary" type="button">Spočítať výzvu</button>
+        <span id="${p}-status" class="hint"></span>
+      </div>
+    </div>
+    <p id="${p}-source" class="an-note"></p>
+    <div id="${p}-result"></div>`;
+}
 
 /** Predlohy pravidiel firiem; nacitaju sa raz a drzia sa v state. */
-async function loadPropMeta() {
-  if (state.propMeta) return state.propMeta;
-  state.propMeta = await api("/api/prop/meta");
-  const sel = $("#prop-preset");
-  sel.innerHTML = Object.entries(state.propMeta.presets)
-    .map(([k, v]) => `<option value="${esc(k)}">${esc(v.name)}</option>`).join("");
-  $("#prop-trailing").innerHTML = Object.entries(state.propMeta.trailing)
-    .map(([k, v]) => `<option value="${esc(k)}">${esc(v)}</option>`).join("");
-  sel.onchange = () => fillPropForm(sel.value);
-  fillPropForm(sel.value);
+async function loadPropMeta(p) {
+  const box = $(`#${p}-form`);
+  if (!box) return null;
+  if (!box.dataset.ready) { box.innerHTML = propFormHtml(p); box.dataset.ready = "1"; }
+  state.propMeta = state.propMeta || await api("/api/prop/meta");
+  const sel = $(`#${p}-preset`);
+  if (!sel.options.length) {
+    sel.innerHTML = Object.entries(state.propMeta.presets)
+      .map(([k, v]) => `<option value="${esc(k)}">${esc(v.name)}</option>`).join("");
+    $(`#${p}-trailing`).innerHTML = Object.entries(state.propMeta.trailing)
+      .map(([k, v]) => `<option value="${esc(k)}">${esc(v)}</option>`).join("");
+    sel.onchange = () => fillPropForm(p, sel.value);
+    $(`#${p}-run`).onclick = () => runProp(p);
+    fillPropForm(p, sel.value);
+  }
   return state.propMeta;
 }
 
 /** Predloha do formulara. Kazde pole sa da prepisat - firmy pravidla menia. */
-function fillPropForm(key) {
+function fillPropForm(p, key) {
   const r = (state.propMeta.presets || {})[key];
   if (!r) return;
-  $("#prop-account").value = r.account;
-  $("#prop-targets").value = (r.targets || []).join(",");
-  $("#prop-daily").value = r.max_daily_loss_pct;
-  $("#prop-maxloss").value = r.max_loss_pct;
-  $("#prop-trailing").value = r.trailing;
-  $("#prop-freeze").checked = !!r.trailing_freeze_at_start;
-  $("#prop-mindays").value = r.min_days;
-  $("#prop-dayshare").value = r.max_day_share_pct;
-  $("#prop-cost").value = r.cost;
-  $("#prop-payout").value = r.payout_pct;
-  $("#prop-refund").checked = !!r.refund;
-  $("#prop-horizon").value = r.horizon_days;
-  $("#prop-source").innerHTML = r.source
+  $(`#${p}-account`).value = r.account;
+  $(`#${p}-targets`).value = (r.targets || []).join(",");
+  $(`#${p}-daily`).value = r.max_daily_loss_pct;
+  $(`#${p}-maxloss`).value = r.max_loss_pct;
+  $(`#${p}-trailing`).value = r.trailing;
+  $(`#${p}-freeze`).checked = !!r.trailing_freeze_at_start;
+  $(`#${p}-mindays`).value = r.min_days;
+  $(`#${p}-dayshare`).value = r.max_day_share_pct;
+  $(`#${p}-cost`).value = r.cost;
+  $(`#${p}-payout`).value = r.payout_pct;
+  $(`#${p}-refund`).checked = !!r.refund;
+  $(`#${p}-horizon`).value = r.horizon_days;
+  $(`#${p}-source`).innerHTML = r.source
     ? `Zdroj čísel: ${esc(r.source)}<br><b>Firmy pravidlá menia často — over si ich`
       + " podľa svojej zmluvy.</b>"
     : "";
 }
 
-/** Spusti simulaciu nad tymi istymi behmi, ake su prave na stranke. */
-async function runProp() {
-  const r = state.analytics;
-  if (!r) { $("#prop-status").textContent = "najprv spočítaj analytiku"; return; }
-  const btn = $("#prop-run");
-  btn.disabled = true;
-  $("#prop-status").textContent = "počítam…";
-  const ciele = $("#prop-targets").value.split(",").map(x => Number(x.trim()))
+/** Pravidla z formulara ako telo requestu. */
+function propBody(p) {
+  const ciele = $(`#${p}-targets`).value.split(",").map(x => Number(x.trim()))
     .filter(x => Number.isFinite(x) && x > 0);
+  return {
+    rules: $(`#${p}-preset`).value,
+    account: Number($(`#${p}-account`).value),
+    targets: ciele.length ? ciele : null,
+    max_daily_loss_pct: Number($(`#${p}-daily`).value),
+    max_loss_pct: Number($(`#${p}-maxloss`).value),
+    trailing: $(`#${p}-trailing`).value,
+    trailing_freeze_at_start: $(`#${p}-freeze`).checked,
+    min_days: Number($(`#${p}-mindays`).value),
+    max_day_share_pct: Number($(`#${p}-dayshare`).value),
+    cost: Number($(`#${p}-cost`).value),
+    payout_pct: Number($(`#${p}-payout`).value),
+    refund: $(`#${p}-refund`).checked,
+    horizon_days: Number($(`#${p}-horizon`).value),
+  };
+}
+
+/** Spusti simulaciu. V Analytike nad vybranymi behmi, pri Novom behu nad `runIds`. */
+async function runProp(p, runIds = null) {
+  const behy = runIds || ((state.analytics || {}).runs || []).map(x => x.id);
+  if (!behy.length) { $(`#${p}-status`).textContent = "najprv spočítaj analytiku"; return; }
+  const btn = $(`#${p}-run`);
+  btn.disabled = true;
+  $(`#${p}-status`).textContent = "počítam…";
   try {
     const out = await api("/api/prop", {
       method: "POST",
       body: JSON.stringify({
-        runs: (r.runs || []).map(x => x.id),
-        strategy: r.strategy || state.strategy,
-        rules: $("#prop-preset").value,
-        limit: Number($("#an-limit").value) || 40,
-        account: Number($("#prop-account").value),
-        targets: ciele.length ? ciele : null,
-        max_daily_loss_pct: Number($("#prop-daily").value),
-        max_loss_pct: Number($("#prop-maxloss").value),
-        trailing: $("#prop-trailing").value,
-        trailing_freeze_at_start: $("#prop-freeze").checked,
-        min_days: Number($("#prop-mindays").value),
-        max_day_share_pct: Number($("#prop-dayshare").value),
-        cost: Number($("#prop-cost").value),
-        payout_pct: Number($("#prop-payout").value),
-        refund: $("#prop-refund").checked,
-        horizon_days: Number($("#prop-horizon").value),
+        ...propBody(p),
+        runs: behy,
+        strategy: (state.analytics || {}).strategy || state.strategy,
+        limit: Math.max(behy.length, Number($("#an-limit")?.value) || 40),
       }),
     });
-    renderProp(out);
-    $("#prop-status").textContent = "";
+    renderProp(p, out);
+    $(`#${p}-status`).textContent = "";
   } catch (e) {
-    $("#prop-status").textContent = e.message;
-    $("#prop-result").innerHTML = "";
+    $(`#${p}-status`).textContent = e.message;
+    $(`#${p}-result`).innerHTML = "";
   } finally { btn.disabled = false; }
 }
 
-function renderProp(out) {
+function renderProp(p, out) {
   const najlepsi = out.best_risk;
   const rows = (out.results || []).map(x => {
     const dni = x.median_days === null || x.median_days === undefined ? "—" : fmt(x.median_days, 0);
@@ -2617,8 +2692,10 @@ function renderProp(out) {
   const dovody = Object.entries(naj.reasons || {}).sort((a, b) => b[1] - a[1])
     .map(([k, v]) => `${esc(k)} ${v}×`).join(" · ");
   const trieda = (naj.ev || 0) > 0 ? "good" : "bad";
-  $("#prop-result").innerHTML = `<div class="ch-box">
+  $(`#${p}-result`).innerHTML = `<div class="ch-box">
+      ${configHtml(out.config)}
       <p class="an-note">${out.trades} obchodov z ${out.runs} behov ·
+        ${esc((out.pairs || []).join(", "))} ·
         ${out.rules.phases} ${out.rules.phases === 1 ? "fáza" : "fázy"} ·
         ciele ${(out.rules.targets || []).map(x => fmt(x, 2) + " %").join(" + ")}</p>
       <table class="mx-table"><thead><tr><th>riziko</th><th>pokusov</th><th>prešiel</th>
@@ -2629,66 +2706,28 @@ function renderProp(out) {
     </div>`;
 }
 
-/** Portfólio: koľko sa dá zarobiť a za aký drawdown. */
-function portfolioHtml(p) {
-  if (!p || !p.risks) return "";
-  const risks = p.risks.map(r => `<tr><td>${fmt(r.risk_pct, 2)} %</td>`
-    + `<td>${fmt(r.return_pct, 1)} %</td><td>${fmt(r.cagr_pct, 1)} %</td>`
-    + `<td class="${r.max_drawdown_pct > 30 ? "neg" : ""}">${fmt(r.max_drawdown_pct, 1)} %</td>`
-    + `<td>${r.ruin ? "RUINA" : r.trades}</td></tr>`).join("");
-  const roky = (p.by_year || []).map(r => `<tr><td>${esc(r.year)}</td>`
-    + `<td class="${r.return_pct < 0 ? "neg" : "pos"}">${fmt(r.return_pct, 1)} %</td>`
-    + `<td>${r.trades}</td></tr>`).join("");
-  const dvojice = ((p.correlations || {}).pairs || []).slice(0, 5).map(
-    ([a, b, r, m]) => `<tr><td class="${r >= 0.7 ? "neg" : ""}">${fmt(r, 2)}</td>`
-      + `<td>${esc(a)}</td><td>${esc(b)}</td><td>${m} mes.</td></tr>`).join("");
-  const trieda = p.verdict.startsWith("TO NIE JE PORTFOLIO") ? "bad"
-    : (p.verdict.startsWith("CLENOVIA SU MALO") ? "good" : "unsure");
-  return `<div class="ch-box">
-      <div class="ch-head"><h3>Portfólio</h3>
-        <span class="chip">${p.members.length} členov · ${p.trades} obchodov</span></div>
-      <p class="an-note">Vybrané behy prehraté cez jeden účet. Veľkosť pozície sa prepočíta
-        na zvolené riziko — bez toho by sa sčítavali veľkosti z rôznych behov a výsledok by
-        hovoril o peňaženkách, nie o stratégii.</p>
-      <table class="mx-table"><thead><tr><th>riziko/obchod</th><th>zhodnotenie</th>
-        <th>ročne (CAGR)</th><th>max drawdown</th><th>obchodov</th></tr></thead>
-        <tbody>${risks}</tbody></table>
-      ${roky ? `<p class="an-note">Rok po roku (pri ${fmt(p.risks.find(r => r.risk_pct === 1)
-        ? 1 : p.risks[0].risk_pct, 2)} % na obchod) — nesie to jeden rok, alebo je to rozložené?</p>
-        <table class="mx-table"><thead><tr><th>rok</th><th>zhodnotenie</th><th>obchodov</th>
-        </tr></thead><tbody>${roky}</tbody></table>` : ""}
-      ${dvojice ? `<p class="an-note">Najkorelovanejšie dvojice — nad +0,70 sa členovia
-        nediverzifikujú, len zväčšujú pozíciu.</p>
-        <table class="mx-table"><thead><tr><th>r</th><th>člen</th><th>člen</th>
-        <th>prekryv</th></tr></thead><tbody>${dvojice}</tbody></table>` : ""}
-      <div class="verdict ${trieda}">${esc(p.verdict)}</div>
-    </div>`;
+/** Po dobehnutí behu z karty Nový beh: spočítať výzvu z jeho obchodov. */
+async function runPropForRun(runId) {
+  if (!runId) return;
+  $("#nprop-box").open = true;
+  await loadPropMeta("nprop");
+  await runProp("nprop", [runId]);
 }
 
-/** Test proti náhode: je ten edge odlíšiteľný od hodu mincou? */
-function nullHtml(nt) {
-  if (!nt || !nt.nulls) return "";
-  const riadky = Object.entries(nt.nulls).map(([kluc, v]) => {
-    const trieda = v.sigma >= 2 ? "pos" : (v.sigma <= -1 ? "neg" : "noise");
-    return `<tr><td>${esc(v.null_note || kluc)}</td>`
-      + `<td>${fmt(v.observed, 4)}</td>`
-      + `<td>${fmt(v.mean, 4)} ± ${fmt(v.sd, 4)}</td>`
-      + `<td class="${trieda}">${v.sigma > 0 ? "+" : ""}${fmt(v.sigma, 2)} σ</td>`
-      + `<td>${fmt(v.percentile, 1)}</td></tr>`;
-  }).join("");
-  const prvy = Object.values(nt.nulls)[0] || {};
-  const trieda = prvy.sigma >= 2 ? "good" : (prvy.sigma <= -1 ? "bad" : "unsure");
-  return `<div class="ch-box">
-      <div class="ch-head"><h3>Je to odlíšiteľné od náhody?</h3></div>
-      <p class="an-note">Tá istá stratégia, ktorá obchoduje rovnako často, rovnakým smerom
-        a s rovnakým stopom aj take profitom — len si nevyberá, kedy vstúpiť. Rozdiel je
-        presne to, čo výber vstupu prináša.</p>
-      <table class="mx-table"><thead><tr><th>náhoda</th><th>stratégia</th>
-        <th>náhoda</th><th>rozdiel</th><th>percentil</th></tr></thead>
-        <tbody>${riadky}</tbody></table>
-      <div class="verdict ${trieda}">${esc(prvy.verdict || "")}</div>
-      ${nt.note ? `<p class="an-note">${esc(nt.note)}</p>` : ""}
-    </div>`;
+/** Z akej konfigurácie tie obchody sú. Bez toho sa nedá vedieť, o čom čísla hovoria. */
+function configHtml(c) {
+  if (!c || !c.note) return "";
+  const zoznam = Object.entries(c.differing || {}).map(([k, v]) =>
+    `<li><b>${esc(k)}</b>: ${v.map(x => esc(typeof x === "object" && x
+      ? `${x.value} ${x.unit || ""}`.trim() : String(x))).join(" · ")}</li>`).join("");
+  const detail = zoznam
+    ? `<details class="cfg-diff"><summary>v čom sa behy líšia</summary><ul>${zoznam}</ul></details>`
+    : "";
+  // Rozne profily su chyba (zliate rozne strategie), rozne cisla jedneho profilu su
+  // zvycajne zamer (--set, prepocet na ATR) - preto dva stupne, nie jeden.
+  if (c.severity === "chyba") return `<div class="warnbox">${esc(c.note)}${detail}</div>`;
+  return `<p class="an-note${c.severity === "pozor" ? " warn" : ""}">`
+    + `<b>Konfigurácia:</b> ${esc(c.note)}</p>${detail}`;
 }
 
 /** Slabne edge? Obdobia proti intervalu, ktorý stratégia vyrobí sama od seba. */
@@ -2771,6 +2810,7 @@ function renderAnalytics(r) {
       + ` · break-even <b>${fmt(r.break_even_pct, 4)} %</b> · winrate ${fmt(r.winrate, 1)} %`
       + ` · ${esc(r.pairs.join(", "))}</p>`,
   ];
+  zhrnutie.push(configHtml(r.config));
   if (r.mixed_pairs) {
     zhrnutie.push('<div class="warnbox">Zliate sú obchody z viacerých párov. Vzdialenosť'
       + " stopu ani prahy v cenových bodoch medzi nimi porovnateľné nie sú — pozeraj hlavne"
@@ -2899,10 +2939,11 @@ async function init() {
   $("#an-paper").onclick = writePaper;
   $("#an-save").onclick = saveAnalytics;
   $("#an-history").onchange = () => openAnalyticsHistory($("#an-history").value);
-  $("#prop-run").onclick = runProp;
-  $("#prop-box").addEventListener("toggle", () => {
-    if ($("#prop-box").open) loadPropMeta().catch(e => { $("#prop-status").textContent = e.message; });
-  });
+  for (const [box, p] of [["#prop-box", "prop"], ["#nprop-box", "nprop"]]) {
+    $(box).addEventListener("toggle", () => {
+      if ($(box).open) loadPropMeta(p).catch(e => { $(`#${p}-status`) && ($(`#${p}-status`).textContent = e.message); });
+    });
+  }
   $("#an-query").onkeydown = e => { if (e.key === "Enter") loadAnalytics(); };
   $("#mc-box").addEventListener("toggle", () => { if ($("#mc-box").open) loadMonteCarlo(); });
   $("#mc-run").onclick = () => loadMonteCarlo(true);

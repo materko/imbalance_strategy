@@ -659,6 +659,15 @@ def cmd_prop(args: argparse.Namespace) -> int:
 
     pary = sorted({r["settings"].get("pair") for r in zaznamy if r["settings"].get("pair")})
     print(f"{len(zaznamy)} behov, {len(obchody)} obchodov, {', '.join(pary)}\n")
+    # Vyzva sa pocita z obchodov vybranych behov, nie z nejakej vlastnej konfiguracie -
+    # nech je vidiet, z ktorej.
+    konfig = an.config_spread(zaznamy)
+    print(f"konfiguracia: {konfig['note']}")
+    if konfig["severity"] == "chyba":
+        print("POZOR: zliate obchody roznych konfiguracii hovoria o kazdej z nich trochu "
+              "a o ziadnej presne.", file=sys.stderr)
+    print()
+
     rizika = [args.risk] if args.risk else list(pr.RISKS)
     vysledky = pr.risk_table(obchody, pravidla, risks=rizika, step=args.step)
     print(pr.report(vysledky, ", ".join(pary)))
