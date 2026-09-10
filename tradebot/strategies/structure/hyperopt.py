@@ -35,6 +35,16 @@ class StructureHyperopt(StrategyHyperopt):
         "je jasne, ktory variant vobec drzi, znamena doladit ten nespravny."
     )
 
+    #: Čo smie meniť model AI vrstvy a ktorý parameter to isté drží staticky.
+    #: `sl` je tu `slAtrMult`, nie `slBuffer`: rezerva za swingom posúva stop len
+    #: o kúsok, kým násobok ATR určuje celú jeho vzdialenosť — a práve tú model mení.
+    AI_ADJUSTABLE = {
+        "size": ("riskDollar", "veľkosť pozície — koľko sa na obchod stavia"),
+        "tp": ("rrRatio", "vzdialenosť take profitu (RR); riziko na obchod sa nemení"),
+        "sl": ("slAtrMult", "vzdialenosť stopu; veľkosť sa dopočíta tak, aby riziko "
+                            "na obchod ostalo rovnaké"),
+    }
+
     SUGGESTED: ClassVar[dict[str, Suggestion]] = {
         # Tri varianty tej istej štruktúry. Nie je to citlivosť filtra, je to iná myšlienka.
         "entryMode": {"choices": ["choch", "bos", "sweep"]},
