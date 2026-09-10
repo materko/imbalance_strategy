@@ -1,0 +1,402 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tester\runs\.profiles\config.ai.usdt.futures.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data --strategy IBSImbalanceStrategy --cache none --export trades --timerange 20221001-20231001 --pairs BTC/USDT:USDT --timeframe 3m --dry-run-wallet 40000000.0 --fee 0.0005 --timeframe-detail 1m --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\binance --freqaimodel LightGBMClassifier
+2026-09-10 14:43:22,804 - freqtrade - INFO - freqtrade 2026.8
+2026-09-10 14:43:23,454 - freqtrade.configuration.load_config - INFO - Using config: 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tester\runs\.profiles\config.ai.usdt.futures.json ...
+2026-09-10 14:43:23,457 - freqtrade.loggers - INFO - Enabling colorized output.
+… (skrátené) …
+2026-09-10 14:43:23,463 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-10 14:43:23,495 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSImbalanceStrategy from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.py'...
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.json
+2026-09-10 14:43:23,503 - tradebot.adapters.freqtrade.base - WARNING - ibs config: engMinRangePoints, ewMinWavePoints, liqSweepMinWick, minImbSizePoints, pbMinRangePoints, srClusterPoints sú v 
+2026-09-10 14:43:26,523 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSImbalanceStrategy
+2026-09-10 14:44:00,410 - datasieve.pipeline - WARNING - Could not find step di in pipeline, returning None
+2026-09-10 14:44:00,843 - datasieve.pipeline - WARNING - Could not find step di in pipeline, returning None
+2026-09-10 14:44:01,249 - datasieve.pipeline - WARNING - Could not find step di in pipeline, returning None
+2026-09-10 14:44:53,430 - tradebot.strategies.ibs.freqtrade - INFO - IBS BTC/USDT:USDT: 525901 barov, 315661 HTF barov, 200 zon, 434 signalov (209 long / 225 short)
+Result for strategy IBSImbalanceStrategy
+│ IBSImbalanceStrategy │     32 │         0.04 │       -1628.323 │         -0.0 │      3:12:00 │   10     0    22  31.2 │ 2228.937 USDT  0.01% │
+…
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Info] Number of positive: 62, number of negative: 254
+[LightGBM] [Info] Auto-choosing col-wise multi-threading, the overhead of testing was 0.000053 seconds.
+You can set `force_col_wise=true` to remove the overhead.
+[LightGBM] [Info] Total Bins 491
+[LightGBM] [Info] Number of data points in the train set: 316, number of used features: 72026-09-10 14:44:01,242 - freqtrade.freqai.base_models.BaseClassifierModel - INFO - -------------------- Done training BTC/USDT:USDT (0.06 secs) --------------------
+2026-09-10 14:44:01,242 - freqtrade.freqai.freqai_interface - INFO - Saving metadata to disk.
+2026-09-10 14:44:01,249 - datasieve.pipeline - WARNING - Could not find step di in pipeline, returning None
+2026-09-10 14:44:01,257 - freqtrade.freqai.freqai_interface - INFO - Applying fit_live_predictions in backtesting
+2026-09-10 14:44:53,429 - tradebot.adapters.freqtrade.ai - INFO - ibs BTC/USDT:USDT: AI filter zahodil 212 z 646 signalov (prah 0.42)
+2026-09-10 14:44:53,430 - tradebot.strategies.ibs.freqtrade - INFO - IBS BTC/USDT:USDT: 525901 barov, 315661 HTF barov, 200 zon, 434 signalov (209 long / 225 short)
+2026-09-10 14:44:54,273 - tradebot.adapters.freqtrade.base - INFO - ibs BTC/USDT:USDT: kresby ulozene do 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tester\runs\.profiles\20260910-124321-2464a5.chart.json.gz (241080 objektov)
+2026-09-10 14:44:54,490 - freqtrade.optimize.backtesting - INFO - Backtesting with data from 2022-10-01 00:00:00 up to 2023-10-01 00:00:00 (365 days).
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 4/4           100% • 0:01:30 • 0:00:00
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 175200/175200 100% • 0:01:33 • 0:00:00
+2026-09-10 14:44:58,815 - freqtrade.misc - INFO - dumping json to 
+"C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\backtest_results\backtest-result-2026-09-10_12-44-58.meta.json"
+
+[LightGBM] [Info] [binary:BoostFromScore]: pavg=0.196203 -> initscore=-1.410200
+[LightGBM] [Info] Start training from score -1.410200
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+Result for strategy IBSImbalanceStrategy
+                                                BACKTESTING REPORT                                                
+┌───────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│          Pair │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ BTC/USDT:USDT │     32 │         0.04 │       -1628.323 │         -0.0 │      3:12:00 │   10     0    22  31.2 │
+│         TOTAL │     32 │         0.04 │       -1628.323 │         -0.0 │      3:12:00 │   10     0    22  31.2 │
+└───────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                          
+┌───────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│  Pair │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ TOTAL │      0 │          0.0 │           0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                    ENTER TAG STATS                                                    
+┌───────────────────┬─────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│         Enter Tag │ Entries │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────────┼─────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ ibs:1675095660000 │       1 │         2.55 │        1583.670 │          0.0 │      3:58:00 │    1     0     0   100 │
+│ ibs:1681374600000 │       1 │         1.17 │        1514.705 │          0.0 │      6:18:00 │    1     0     0   100 │
+│ ibs:1692950580000 │       1 │         0.83 │        1467.973 │          0.0 │      6:10:00 │    1     0     0   100 │
+│ ibs:1689000480000 │       1 │         1.17 │         796.318 │          0.0 │      4:57:00 │    1     0     0   100 │
+│ ibs:1680189660000 │       1 │         1.41 │         793.414 │          0.0 │      4:24:00 │    1     0     0   100 │
+│ ibs:1683821160000 │       1 │         1.29 │         614.786 │          0.0 │      3:39:00 │    1     0     0   100 │
+│ ibs:1693583100000 │       1 │         0.89 │         519.982 │          0.0 │      4:00:00 │    1     0     0   100 │
+│ ibs:1677771000000 │       1 │         0.78 │         427.660 │          0.0 │      5:15:00 │    1     0     0   100 │
+│ ibs:1687795560000 │       1 │         0.47 │         258.312 │          0.0 │      3:39:00 │    1     0     0   100 │
+│ ibs:1672333380000 │       1 │          0.1 │         162.357 │          0.0 │      3:42:00 │    1     0     0   100 │
+│ ibs:1683212940000 │       1 │         -0.1 │         -50.804 │         -0.0 │      4:36:00 │    0     0     1     0 │
+│ ibs:1677167100000 │       1 │        -0.24 │         -96.588 │         -0.0 │      5:00:00 │    0     0     1     0 │
+│ ibs:1668420000000 │       1 │        -1.26 │        -380.358 │         -0.0 │      3:10:00 │    0     0     1     0 │
+│ ibs:1679902560000 │       1 │        -0.67 │        -413.029 │         -0.0 │      6:00:00 │    0     0     1     0 │
+│ ibs:1677688740000 │       1 │        -0.63 │        -415.709 │         -0.0 │      3:07:00 │    0     0     1     0 │
+│ ibs:1692778860000 │       1 │        -0.55 │        -426.879 │         -0.0 │      6:59:00 │    0     0     1     0 │
+│ ibs:1695133980000 │       1 │        -0.55 │        -427.231 │         -0.0 │      0:27:00 │    0     0     1     0 │
+│ ibs:1684162620000 │       1 │        -0.53 │        -430.469 │         -0.0 │      1:39:00 │    0     0     1     0 │
+│ ibs:1685633940000 │       1 │        -0.41 │        -448.907 │         -0.0 │      1:10:00 │    0     0     1     0 │
+│ ibs:1692197640000 │       1 │        -0.48 │        -453.692 │         -0.0 │      1:14:00 │    0     0     1     0 │
+│ ibs:1680016140000 │       1 │        -0.42 │        -458.382 │         -0.0 │      0:19:00 │    0     0     1     0 │
+│ ibs:1681370460000 │       1 │        -0.39 │        -463.193 │         -0.0 │      1:07:00 │    0     0     1     0 │
+│ ibs:1671101280000 │       1 │         -0.4 │        -466.398 │         -0.0 │      2:22:00 │    0     0     1     0 │
+│ ibs:1692171540000 │       1 │        -0.43 │        -470.496 │         -0.0 │      1:56:00 │    0     0     1     0 │
+│ ibs:1690303500000 │       1 │        -0.38 │        -477.297 │         -0.0 │      1:20:00 │    0     0     1     0 │
+│ ibs:1680681960000 │       1 │        -0.37 │        -481.551 │         -0.0 │      0:13:00 │    0     0     1     0 │
+│ ibs:1694073600000 │       1 │        -0.28 │        -549.470 │         -0.0 │      6:57:00 │    0     0     1     0 │
+│ ibs:1693556460000 │       1 │        -0.27 │        -551.868 │         -0.0 │      0:53:00 │    0     0     1     0 │
+│ ibs:1671014520000 │       1 │        -0.26 │        -563.259 │         -0.0 │      0:20:00 │    0     0     1     0 │
+│ ibs:1675678320000 │       1 │        -0.26 │        -568.913 │         -0.0 │      0:22:00 │    0     0     1     0 │
+│ ibs:1686904560000 │       1 │        -0.25 │        -575.826 │         -0.0 │      4:49:00 │    0     0     1     0 │
+│ ibs:1674208440000 │       1 │        -0.24 │        -597.181 │         -0.0 │      2:17:00 │    0     0     1     0 │
+│             TOTAL │      32 │         0.04 │       -1628.323 │         -0.0 │      3:12:00 │   10     0    22  31.2 │
+└───────────────────┴─────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                  EXIT REASON STATS                                                   
+┌────────────────────┬───────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│        Exit Reason │ Exits │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├────────────────────┼───────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│                roi │     3 │         1.52 │        4566.347 │         0.01 │      5:29:00 │    3     0     0   100 │
+│        session_end │     9 │         0.64 │        3425.438 │         0.01 │      4:21:00 │    7     0     2  77.8 │
+│ trailing_stop_loss │     6 │        -0.36 │       -3025.474 │        -0.01 │      1:20:00 │    0     0     6     0 │
+│          stop_loss │    14 │        -0.49 │       -6594.635 │        -0.02 │      2:46:00 │    0     0    14     0 │
+│              TOTAL │    32 │         0.04 │       -1628.323 │         -0.0 │      3:12:00 │   10     0    22  31.2 │
+└────────────────────┴───────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                              MIXED TAG STATS                                                              
+┌───────────────────┬────────────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│         Enter Tag │        Exit Reason │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────────┼────────────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ ibs:1675095660000 │                roi │      1 │         2.55 │        1583.670 │          0.0 │      3:58:00 │    1     0     0   100 │
+│ ibs:1681374600000 │                roi │      1 │         1.17 │        1514.705 │          0.0 │      6:18:00 │    1     0     0   100 │
+│ ibs:1692950580000 │                roi │      1 │         0.83 │        1467.973 │          0.0 │      6:10:00 │    1     0     0   100 │
+│ ibs:1689000480000 │        session_end │      1 │         1.17 │         796.318 │          0.0 │      4:57:00 │    1     0     0   100 │
+│ ibs:1680189660000 │        session_end │      1 │         1.41 │         793.414 │          0.0 │      4:24:00 │    1     0     0   100 │
+│ ibs:1683821160000 │        session_end │      1 │         1.29 │         614.786 │          0.0 │      3:39:00 │    1     0     0   100 │
+│ ibs:1693583100000 │        session_end │      1 │         0.89 │         519.982 │          0.0 │      4:00:00 │    1     0     0   100 │
+│ ibs:1677771000000 │        session_end │      1 │         0.78 │         427.660 │          0.0 │      5:15:00 │    1     0     0   100 │
+│ ibs:1687795560000 │        session_end │      1 │         0.47 │         258.312 │          0.0 │      3:39:00 │    1     0     0   100 │
+│ ibs:1672333380000 │        session_end │      1 │          0.1 │         162.357 │          0.0 │      3:42:00 │    1     0     0   100 │
+│ ibs:1683212940000 │        session_end │      1 │         -0.1 │         -50.804 │         -0.0 │      4:36:00 │    0     0     1     0 │
+│ ibs:1677167100000 │        session_end │      1 │        -0.24 │         -96.588 │         -0.0 │      5:00:00 │    0     0     1     0 │
+│ ibs:1668420000000 │          stop_loss │      1 │        -1.26 │        -380.358 │         -0.0 │      3:10:00 │    0     0     1     0 │
+│ ibs:1679902560000 │          stop_loss │      1 │        -0.67 │        -413.029 │         -0.0 │      6:00:00 │    0     0     1     0 │
+│ ibs:1677688740000 │          stop_loss │      1 │        -0.63 │        -415.709 │         -0.0 │      3:07:00 │    0     0     1     0 │
+│ ibs:1692778860000 │          stop_loss │      1 │        -0.55 │        -426.879 │         -0.0 │      6:59:00 │    0     0     1     0 │
+│ ibs:1695133980000 │ trailing_stop_loss │      1 │        -0.55 │        -427.231 │         -0.0 │      0:27:00 │    0     0     1     0 │
+│ ibs:1684162620000 │          stop_loss │      1 │        -0.53 │        -430.469 │         -0.0 │      1:39:00 │    0     0     1     0 │
+│ ibs:1685633940000 │ trailing_stop_loss │      1 │        -0.41 │        -448.907 │         -0.0 │      1:10:00 │    0     0     1     0 │
+│ ibs:1692197640000 │          stop_loss │      1 │        -0.48 │        -453.692 │         -0.0 │      1:14:00 │    0     0     1     0 │
+│ ibs:1680016140000 │ trailing_stop_loss │      1 │        -0.42 │        -458.382 │         -0.0 │      0:19:00 │    0     0     1     0 │
+│ ibs:1681370460000 │          stop_loss │      1 │        -0.39 │        -463.193 │         -0.0 │      1:07:00 │    0     0     1     0 │
+│ ibs:1671101280000 │          stop_loss │      1 │         -0.4 │        -466.398 │         -0.0 │      2:22:00 │    0     0     1     0 │
+│ ibs:1692171540000 │          stop_loss │      1 │        -0.43 │        -470.496 │         -0.0 │      1:56:00 │    0     0     1     0 │
+│ ibs:1690303500000 │          stop_loss │      1 │        -0.38 │        -477.297 │         -0.0 │      1:20:00 │    0     0     1     0 │
+│ ibs:1680681960000 │          stop_loss │      1 │        -0.37 │        -481.551 │         -0.0 │      0:13:00 │    0     0     1     0 │
+│ ibs:1694073600000 │          stop_loss │      1 │        -0.28 │        -549.470 │         -0.0 │      6:57:00 │    0     0     1     0 │
+│ ibs:1693556460000 │ trailing_stop_loss │      1 │        -0.27 │        -551.868 │         -0.0 │      0:53:00 │    0     0     1     0 │
+│ ibs:1671014520000 │ trailing_stop_loss │      1 │        -0.26 │        -563.259 │         -0.0 │      0:20:00 │    0     0     1     0 │
+│ ibs:1675678320000 │          stop_loss │      1 │        -0.26 │        -568.913 │         -0.0 │      0:22:00 │    0     0     1     0 │
+│ ibs:1686904560000 │ trailing_stop_loss │      1 │        -0.25 │        -575.826 │         -0.0 │      4:49:00 │    0     0     1     0 │
+│ ibs:1674208440000 │          stop_loss │      1 │        -0.24 │        -597.181 │         -0.0 │      2:17:00 │    0     0     1     0 │
+│             TOTAL │                    │     32 │         0.04 │       -1628.323 │         -0.0 │      3:12:00 │   10     0    22  31.2 │
+└───────────────────┴────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2022-10-01 00:00:00                       │
+│ Backtesting to                         │ 2023-10-01 00:00:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 32 / 0.09                                 │
+│ Starting balance                       │ 40000000 USDT                             │
+│ Final balance                          │ 39998371.677 USDT                         │
+│ Absolute profit                        │ -1628.323 USDT                            │
+│ Total profit %                         │ -0.00%                                    │
+│ CAGR %                                 │ -0.00%                                    │
+│ Sharpe (closed trades)                 │ -0.13                                     │
+│ Sortino (closed trades)                │ -0.65                                     │
+│ Calmar (closed trades)                 │ -3.82                                     │
+│ SQN                                    │ -0.43                                     │
+│ Mean profit p-value                    │ 0.6689                                    │
+│ Profit factor                          │ 0.83                                      │
+│ Expectancy (Ratio)                     │ -50.89 (-0.11)                            │
+│ Avg. daily profit                      │ -4.461 USDT                               │
+│ Avg. stake amount                      │ 111720.304 USDT                           │
+│ Market change                          │ 38.81%                                    │
+│ Total trade volume                     │ 7156817.322 USDT                          │
+│                                        │                                           │
+│ Long / Short trades                    │ 11 / 21                                   │
+│ Long / Short profit %                  │ 0.00% / -0.01%                            │
+│ Long / Short profit USDT               │ 1367.615 / -2995.938                      │
+│                                        │                                           │
+│ Best Pair                              │ BTC/USDT:USDT -0.00%                      │
+│ Worst Pair                             │ BTC/USDT:USDT -0.00%                      │
+│ Best trade                             │ BTC/USDT:USDT 2.55%                       │
+│ Worst trade                            │ BTC/USDT:USDT -1.26%                      │
+│ Best day                               │ 1583.67 USDT                              │
+│ Worst day                              │ -924.188 USDT                             │
+│ Days win/draw/lose                     │ 9 / 281 / 20                              │
+│ Min/Max/Avg. Duration Winners          │ 0d 03:39 / 0d 06:18 / 0d 04:36            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:13 / 0d 06:59 / 0d 02:34            │
+│ Max Consecutive Wins / Loss            │ 2 / 4                                     │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 5 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 39997912.291 USDT / 40000141.228 USDT     │
+│ Max % of account underwater            │ 0.01%                                     │
+│ Absolute drawdown                      │ 2228.937 USDT (0.01%)                     │
+│ Drawdown duration                      │ 103 days 19:35:00                         │
+│ Profit at drawdown start               │ 141.228 USDT                              │
+│ Profit at drawdown end                 │ -2087.709 USDT                            │
+│ Drawdown start                         │ 2023-05-11 19:48:00                       │
+│ Drawdown end                           │ 2023-08-23 15:23:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 39997912.291 USDT / 40000141.228 USDT     │
+│ Min/Max balance dates (wallet balance) │ 2023-08-23 15:24:00 / 2023-05-11 19:51:00 │
+│ Max % of account underwater (balance)  │ 0.01%                                     │
+│ Absolute drawdown (wallet balance)     │ 2228.937 USDT (0.01%)                     │
+│ Drawdown duration                      │ 103 days 19:33:00                         │
+│ Profit at drawdown start               │ 141.228 USDT                              │
+│ Profit at drawdown end                 │ -2087.709 USDT                            │
+│ Drawdown start                         │ 2023-05-11 19:51:00                       │
+│ Drawdown end                           │ 2023-08-23 15:24:00                       │
+│ Sharpe (daily wallet balance)          │ -0.46                                     │
+│ Sortino (daily wallet balance)         │ -0.44                                     │
+│ Calmar (daily wallet balance)          │ -3.83                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2022-10-01 00:00:00 -> 2023-10-01 00:00:00 | Max open trades : 1
+                                                                STRATEGY SUMMARY                                                                
+┌──────────────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┬──────────────────────┐
+│             Strategy │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │             Drawdown │
+├──────────────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┼──────────────────────┤
+│ IBSImbalanceStrategy │     32 │         0.04 │       -1628.323 │         -0.0 │      3:12:00 │   10     0    22  31.2 │ 2228.937 USDT  0.01% │
+└──────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────────────┘
