@@ -2849,7 +2849,9 @@ function propVariantHtml(v) {
         · denný limit ${r.max_daily_loss_pct ? fmt(r.max_daily_loss_pct, 1) + " %" : "žiadny"}
         · celkový ${fmt(r.max_loss_pct, 1)} % (${esc(r.trailing)})</p>
       <table class="mx-table"><thead><tr><th>riziko</th><th>pokusov</th><th>prešiel</th>
-        <th>spálený</th><th>nedobehol</th><th>P(výplata)</th><th>dní</th><th>EV</th></tr></thead>
+        <th>spálený</th><th title="došla história alebo horizont">nedobehol</th>
+        <th title="prešiel / rozhodnuté pokusy; pokusy, ktorým len došla história, sa nepočítajú">P(výplata)</th>
+        <th>dní</th><th>EV</th></tr></thead>
         <tbody>${rows}</tbody></table>
       ${dovody ? `<p class="an-note">prečo pokusy končia (pri ${fmt(najlepsi, 2)} %): ${dovody}</p>` : ""}
       <div class="verdict ${trieda}">${esc(v.verdict || "")}</div>`;

@@ -15,6 +15,9 @@ histórie a prehrá sa dopredu, kým nepadne cieľ alebo pravidlo. To zámerne n
 — denný limit straty je o tom, ako sa straty **zhlukujú v čase**, a preskladanie obchodov
 práve to zhlukovanie rozbije. Pokusy sa prekrývajú, takže nie sú nezávislé; výsledok treba
 čítať ako „keby som začal v náhodnom bode tejto histórie“, nie ako interval spoľahlivosti.
+Pokus, ktorému len došla história (začal tesne pred koncom dát), sa **nepočíta** ani ako
+úspech, ani ako neúspech — pravdepodobnosť výplaty je z pokusov, ktoré sa rozhodli.
+Pokus, ktorý nestihol zadaný horizont, neúspech je: výzva je zaplatená a bez výplaty.
 
 Veľkosť pozície sa prepočítava z rizika (`riziko = zostatok × risk %`), rovnako ako
 v `tester.portfolio` — inak by čísla hovorili o peňaženke behu, nie o stratégii.
@@ -332,6 +335,11 @@ class Result:
     passed: int = 0
     burned: int = 0
     unfinished: int = 0
+    #: pokusy, ktorým len došla história (bez horizontu) — o nich sa nevie nič,
+    #: do pravdepodobnosti nejdú ani ako úspech, ani ako neúspech
+    censored: int = 0
+    #: pokusy, ktoré sa rozhodli: prešli, spálili sa, alebo nestihli horizont
+    decided: int = 0
     p_pass: float = 0.0
     #: koľko výziev sa v priemere zaplatí na jednu výplatu
     per_payout: float | None = None
@@ -375,9 +383,14 @@ def simulate(trades: Sequence[dict[str, Any]], rules: Rules | None = None, *,
     for a in pokusy:
         out.reasons[a.reason] = out.reasons.get(a.reason, 0) + 1
 
-    # Nedobehnuté pokusy sa do pravdepodobnosti počítajú ako neúspech: výzva, ktorá sa
-    # do horizontu nedostala k cieľu, je zaplatená a bez výplaty rovnako ako spálená.
-    out.p_pass = round(out.passed / out.attempts, 4) if out.attempts else 0.0
+    # Pokus, ktorý nestihol HORIZONT, je neúspech: zaplatená výzva bez výplaty. Pokus,
+    # ktorému len došla história (bez horizontu), je niečo iné — začal tesne pred koncom
+    # dát a o jeho osude sa nevie nič. Keby sa počítal ako neúspech, každý pokus z
+    # posledných mesiacov histórie by ťahal pravdepodobnosť nadol len preto, že dáta
+    # končia; pri krátkej histórii by to bola väčšina pokusov.
+    out.censored = sum(1 for a in pokusy if a.reason in ("došli obchody", "žiadne obchody"))
+    out.decided = out.attempts - out.censored
+    out.p_pass = round(out.passed / out.decided, 4) if out.decided else 0.0
     if out.passed:
         out.per_payout = round(1 / out.p_pass, 1)
         out.median_days = statistics.median([a.days for a in pokusy if a.passed])
@@ -405,8 +418,11 @@ def _verdict(r: Result, trades: int) -> str:
                 f"{r.rules.horizon_days} dní k cieľu ani nedostane. Nie je to o riziku ani "
                 f"o pravidlách — stratégia jednoducho neurobí dosť obchodov. Riešenie je "
                 f"viac trhov naraz alebo výzva bez časového limitu, nie väčšie pozície.")
+    if not r.decided:
+        return (f"MALO DAT: ani jeden z {r.attempts} pokusov sa nerozhodol — všetkým došla "
+                f"história skôr, než padol cieľ alebo pravidlo. Pridaj okná alebo trhy.")
     if not r.passed:
-        return (f"NEPREJDE: ani jeden z {r.attempts} pokusov sa nedostal k výplate "
+        return (f"NEPREJDE: ani jeden z {r.decided} rozhodnutých pokusov sa nedostal k výplate "
                 f"(najčastejšie končí na: {hlavny}). Pri riziku {r.risk_pct:g} % je to "
                 f"zaplatený poplatok bez šance.")
 
@@ -415,8 +431,13 @@ def _verdict(r: Result, trades: int) -> str:
                f"pozícií, ale simulácia ich odohrá za sebou — denný limit je tým pádom "
                f"podstrelený a šanca nadhodnotená.")
     ev = r.ev or 0.0
-    zaklad = (f"{r.p_pass * 100:.0f} % pokusov prejde (asi {r.per_payout:g} výziev na jednu "
-              f"výplatu), medián {r.median_days:.0f} dní, EV na výzvu {ev:+.0f}")
+    zaklad = (f"{r.p_pass * 100:.0f} % rozhodnutých pokusov prejde ({r.passed} z {r.decided}; "
+              f"asi {r.per_payout:g} výziev na jednu výplatu), medián {r.median_days:.0f} dní, "
+              f"EV na výzvu {ev:+.0f}")
+    docla = ("" if not r.censored else
+             f" {r.censored} pokusom došla história skôr, než sa rozhodli — do "
+             f"pravdepodobnosti nejdú.")
+    zaklad += docla
     # Ciel, ktory padne za den-dva, nepadol vdaka strategii, ale vdaka jednemu obchodu.
     rychle = ("" if r.median_days is None or r.median_days > 2 else
               f" Medián {r.median_days:.0f} dní znamená, že cieľ padne na jednom-dvoch "
@@ -475,6 +496,8 @@ def report(results: Sequence[Result], label: str = "") -> str:
         ev = "-" if r.ev is None else f"{r.ev:+.0f}"
         out.append(f"{r.risk_pct:>7.2f}%{r.attempts:>9}{r.passed:>9}{r.burned:>9}"
                    f"{r.unfinished:>11}{r.p_pass * 100:>11.1f}%{dni:>7}{ev:>10}")
+    out.append("P(vyplata) = presiel / rozhodnute pokusy; pokusy, ktorym len dosla historia "
+               "(nedobehol bez horizontu), sa nepocitaju")
 
     najlepsi = max(results, key=lambda r: (r.ev if r.ev is not None else -1e18))
     out += ["", f"najlepsie riziko podla EV: {najlepsi.risk_pct:g} %"]

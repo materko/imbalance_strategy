@@ -335,3 +335,18 @@ def test_endpoint_prepisy_bez_custom_odmietne_a_s_custom_prijme(klient):
 
     r = klient.post("/api/prop", json={"rules": ["ftmo2", "custom"], "cost": 100.0, "q": "note~nic"})
     assert r.status_code == 404                      # prešlo validáciou, len behy nie sú
+
+
+def test_pokus_ktoremu_dosla_historia_nie_je_neuspech():
+    """Začať tesne pred koncom dát nie je vlastnosť stratégie — taký pokus sa nerozhodol
+    a do pravdepodobnosti nejde. Pokus, ktorý nestihol horizont, neúspech je."""
+    t = [obchod(d, r=1.5, poradie=0) for d in range(60)]       # stabilne rastie
+    r = prop.simulate(t, pravidla(), risk_pct=1.0)
+    assert r.censored > 0 and r.decided == r.attempts - r.censored
+    assert r.p_pass == round(r.passed / r.decided, 4)
+    assert r.reasons.get("došli obchody", 0) == r.censored
+
+    s_horizontom = prop.simulate(t, replace(pravidla(), horizon_days=2), risk_pct=1.0)   # cieľ padá až 4. deň
+    assert s_horizontom.reasons.get("horizont", 0) > 0          # nestihnutý horizont je neúspech
+    assert s_horizontom.decided == s_horizontom.attempts - s_horizontom.censored
+    assert s_horizontom.censored <= r.censored                   # horizont nepridá cenzurované
