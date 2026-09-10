@@ -436,6 +436,38 @@ konci — šesť otázok (kam sa stratégia hodí, či má potenciál, čo dorob
 ďalej, či je vôbec použiteľná, čo pridať). Keď sa čísla medzitým zmenili, posudok sa
 označí za starý a treba ho prepísať. Podrobne: [docs/ANALYTIKA.md](../docs/ANALYTIKA.md).
 
+## 8h. Meranie, ktoré sa napíše samo
+
+Rozdiel oproti batérii vyššie: `checkup` udržiava **jeden dokument pri stratégii**, ktorý sa celý prepisuje a hovorí, aká tá stratégia je dnes. `paper` zapíše **datovaný snímok** do `docs/merania/` z tých behov, ktoré mu dáš — teda čo sa meralo v ten deň a čo z toho vyšlo. Prvý sa mení, druhý ostáva.
+
+Analýz je osem a každá odpovedá na inú otázku. Kým sú roztrúsené po termináli, nikto z nich
+záver neposkladá — a o týždeň si už nikto nespomenie, z ktorých behov to bolo. Tento
+príkaz vezme behy z histórie, pustí nad nimi všetko a zapíše datovaný dokument do
+`docs/merania/` v tvare, aký repozitár používa.
+
+```bash
+PY -m tester.webapp.cli paper --runs <id1>,<id2>,... --title "IBS na BTC 3m"
+PY -m tester.webapp.cli paper "pair=BTC/USDT:USDT" --limit 12 --stdout
+```
+
+To isté je tlačidlo **Zapísať meranie** na karte Analytika (z tých istých behov, aké sú
+práve na stránke).
+
+Dokument má osem sekcií — charakter, po oknách, interval okolo výsledku, proti náhode,
+slabne edge, ktorá skupina obchodov ho kazí, matica trhov, cena rizika — a k tomu tri
+veci, kvôli ktorým to má zmysel:
+
+- **Prázdny `## Záver`.** Vygenerovaná záverečná veta by vyzerala ako zistenie, a nie je;
+  patrí tam veta človeka. Zhrnutie hore je zoznam verdiktov jednotlivých testov.
+- **Sekcia „Na čo behy nestačili".** Čo sa nespočítalo, sa nezamlčí — dokument to povie
+  aj s príkazom, ktorým sa to doplní. Prázdna tabuľka plná pomlčiek vyzerá ako zmerané
+  nič, hoci sa nemeralo.
+- **Zoznam behov na konci** a príkaz, ktorým dokument vznikol, takže sa dá zopakovať.
+
+**Nespúšťa backtesty.** Píše sa len to, čo v histórii už je; matica sa nehľadá tak, že by
+sa pustila, ale tak, že sa nájde tá najväčšia v histórii. Keď je meranie hotové, prečítaj
+ho a dopíš záver — a keď v ňom niečo chýba, dopusti behy a spusti príkaz znova.
+
 ## 9. FreqAI
 
 Dá sa pripojiť, ale odpovedá na inú otázku: hyperopt vyberie statické parametre, FreqAI

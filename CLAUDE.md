@@ -45,7 +45,8 @@ Bez obmedzení. Platia len konvencie repozitára:
   šesť otázok v tom dokumente ([docs/ANALYTIKA.md](docs/ANALYTIKA.md)).
 - Backtest vždy s `--timeframe-detail 1m` a `--cache none` (skripty to robia samy);
   stratégiu nespúšťať priamo na 1m grafe (limity `*MaxBars` sú v baroch).
-- Merania sa zapisujú ako datované dokumenty v `docs/merania/` s číslami **po rokoch** na piatich
+- Merania sa zapisujú ako datované dokumenty v `docs/merania/` (`python -m tester.webapp.cli paper`
+  ich napíše z behov v histórii; záver dopisuje človek) s číslami **po rokoch** na piatich
   referenčných oknách (`20211001-20221001`, `20221001-20231001`, `20231001-20241001`,
   `20240904-20250904`, `20250904-20260904`); kľúčová metrika je break-even poplatok.
 - Sťahujú a commitujú sa len oficiálne timeframy búrz (po rokoch v `data_archive/tester/`);

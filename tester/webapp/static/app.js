@@ -2367,11 +2367,40 @@ async function loadAnalytics() {
   try {
     const r = await api(`/api/analytics?${params}`);
     renderAnalytics(r);
+    // Meranie sa pise z tych istych behov, takze tlacidlo ma zmysel az teraz.
+    state.analytics = r;
+    $("#an-paper").disabled = false;
     $("#an-status").textContent = "";
   } catch (e) {
     $("#an-status").textContent = e.message;
     $("#an-summary").innerHTML = "";
     $("#an-result").innerHTML = "";
+    $("#an-paper").disabled = true;
+  } finally { btn.disabled = false; }
+}
+
+/** Zapíše meranie do docs/merania/ z tých istých behov, aké sú na stránke. */
+async function writePaper() {
+  const r = state.analytics;
+  if (!r) return;
+  const btn = $("#an-paper");
+  btn.disabled = true;
+  $("#an-status").textContent = "píšem meranie…";
+  try {
+    const out = await api("/api/paper", {
+      method: "POST",
+      body: JSON.stringify({
+        runs: (r.runs || []).map(x => x.id),
+        strategy: r.strategy || state.strategy,
+        limit: Number($("#an-limit").value) || 40,
+      }),
+    });
+    const chyby = (out.sections || []).filter(s => s.gap);
+    $("#an-status").innerHTML = `zapísané: <code>${esc(out.path)}</code>`
+      + (chyby.length ? ` · ${chyby.length} ${slovom(chyby.length, "sekcia nemá dosť dát",
+          "sekcie nemajú dosť dát", "sekcií nemá dosť dát")}` : "");
+  } catch (e) {
+    $("#an-status").textContent = e.message;
   } finally { btn.disabled = false; }
 }
 
@@ -2639,6 +2668,7 @@ async function init() {
   for (const b of $$(".chip-btn[data-range]")) b.onclick = () => setQuickRange(b.dataset.range);
   initSweep();
   $("#an-run").onclick = loadAnalytics;
+  $("#an-paper").onclick = writePaper;
   $("#an-query").onkeydown = e => { if (e.key === "Enter") loadAnalytics(); };
   $("#mc-box").addEventListener("toggle", () => { if ($("#mc-box").open) loadMonteCarlo(); });
   $("#mc-run").onclick = () => loadMonteCarlo(true);

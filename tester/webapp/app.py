@@ -121,6 +121,19 @@ class SweepRequest(RunRequest):
     min_trades: int | None = Field(None, description="menej obchodov = bod je mimo mantinelov")
 
 
+class PaperRequest(BaseModel):
+    """Zadanie merania — tie isté behy, aké má karta Analytika."""
+
+    runs: list[str] = Field(default_factory=list, description="behy; prázdne = podľa `q`")
+    q: str = Field("", description="dopyt na behy (syntax ako vyhľadávanie v histórii)")
+    strategy: str = Field("ibs")
+    title: str = Field("", description="nadpis dokumentu")
+    name: str = Field("", description="názov súboru; inak MERANIE_<strategia>_<trh>_<datum>.md")
+    risk_pct: float = Field(1.0, gt=0, le=10)
+    iterations: int = Field(400, ge=50, le=5000, description="opakovaní testu proti náhode")
+    limit: int = Field(40, ge=1, le=500)
+
+
 class HyperoptRequest(RunRequest):
     """Hľadanie parametrov — to isté zadanie ako sweep, len sa v rozsahu hľadá."""
 
@@ -902,6 +915,40 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 report["nulltest"] = {"nulls": vysledky,
                                       "note": _null_note(vysledky)}
         return report
+
+    @app.post("/api/paper")
+    def paper_write(req: PaperRequest):
+        """Zapíše meranie do `docs/merania/` zo všetkého, čo o tých behoch vieme.
+
+        Nové backtesty nespúšťa — píše sa len to, čo v histórii už je. Na čo behy
+        nestačia, dokument povie nahlas aj s príkazom, ktorým sa to doplní.
+        """
+        from .. import paper as pp
+
+        if req.strategy not in STRATEGIES:
+            raise HTTPException(404, f"neznáma stratégia {req.strategy!r}")
+        if req.runs:
+            zaznamy = [rec for rec in (store.get(i) for i in req.runs) if rec]
+        else:
+            vsetky = store.search(req.q) if req.q.strip() else store.all()
+            zaznamy = [r for r in vsetky if strategy_of(r) == req.strategy
+                       and r.get("status") == "done"
+                       and ((r.get("result") or {}).get("trades") or 0) > 0]
+        zaznamy = zaznamy[:req.limit]
+
+        prikaz = ("python -m tester.webapp.cli paper --runs "
+                  + ",".join(r["id"] for r in zaznamy))
+        try:
+            doc = pp.build(zaznamy, store, strategy=req.strategy, title=req.title,
+                           risk_pct=req.risk_pct, null_iterations=req.iterations,
+                           command=prikaz)
+        except ValueError as exc:
+            raise HTTPException(422, str(exc))
+        cesta = pp.write(doc, req.name)
+        return {"path": str(cesta.relative_to(REPO) if cesta.is_relative_to(REPO) else cesta),
+                "runs": len(zaznamy),
+                "sections": [{"title": x.title, "verdict": x.verdict, "gap": x.gap}
+                             for x in doc.sections]}
 
     @app.post("/api/hyperopts/{run_id}/plateau")
     def hyperopt_plateau(run_id: str):
