@@ -311,6 +311,15 @@ prestane niečo znamenať.
 Až potom je odpoveď na otázku „čo tá stratégia je" v repozitári, a nie v hlave toho,
 kto ju písal.
 
+## Rozpracované zadania
+
+Stratégia, ktorá sa ešte len má postaviť, má zadanie v `docs/zadania/` — úplné
+natoľko, aby sa dalo otvoriť v samostatnom sedení bez ďalšieho kontextu:
+
+- [Tržná štruktúra (BOS / CHoCH)](zadania/STRUKTURA_strategia.md) — druhá skutočná
+  stratégia do registry; iný archetyp než IBS, takže z nich má portfólio šancu byť
+  nekorelované.
+
 ## Časté chyby
 
 - **Zásah do jadra kvôli jednej stratégii.** Keď `tradebot/core` alebo adaptér potrebuje
