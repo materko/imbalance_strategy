@@ -26,6 +26,13 @@ priniesol, keby sa tá skupina dala vopred rozoznať:
 To je odpoveď na otázku, či sa filter (a teda aj model, ktorý by ho robil) oplatí. Keď
 žiadna skupina nevyčnieva, nie je čo filtrovať a model nemá čo nájsť — ušetrí sa práca.
 
+### Stav trhu je tiež vlastnosť — a je známa pri vstupe
+Okrem vlastností obchodu (hodina, smer, vzdialenosť stopu) sa delí aj podľa toho, **v akom
+stave bol trh**, keď obchod vznikol: či bol v trende alebo v rozsahu, aká bola volatilita
+voči normálu, kde v rozsahu sa vstupovalo a či išiel obchod s trendom alebo proti nemu
+(`tester.regime`). Všetko sa počíta z barov **pred** vstupom, takže sa podľa toho filtrovať
+dá — a práve tam býva zvyšný edge, keď ho v samotnom patterne už niet.
+
 ### Čo je generické a čo vie len stratégia
 Vlastnosti odvodené z obchodu sú generické: `trades.json` má rovnaké polia pre každú
 stratégiu, lebo ho píše Freqtrade. Presnú vzdialenosť stopu a plánovaný RR pozná len
@@ -171,6 +178,22 @@ FEATURES: tuple[Feature, ...] = (
     Feature("month", "Mesiac", lambda t: (_dt(t.get("open_date")) or None) and f"{_dt(t['open_date']):%Y-%m}",
             numeric=False, note="Režim trhu. Keď je edge len v dvoch mesiacoch z dvanástich, "
                                 "je to o režime, nie o parametroch."),
+
+    # -- stav trhu pri vstupe (tester.regime) -------------------------------- #
+    Feature("regime_trend", "Trend alebo rozsah", lambda t: t.get("_regime_trend"),
+            note="Efektivita pohybu za posledných 50 barov: 1 je priamka, 0 pílka okolo "
+                 "jednej úrovne. Prerazenie v rozsahu je falošné častejšie než v trende — "
+                 "a toto je číslo, ktorým sa to dá odfiltrovať."),
+    Feature("regime_vol", "Volatilita voči normálu", lambda t: t.get("_regime_vol"),
+            note="ATR pri vstupe delené typickým ATR trhu. 1,0 je bežný deň, 2,0 dvojnásobne "
+                 "rozkolísaný. Náhrada za „pozri sa na VIX“, ktorá funguje na každom trhu."),
+    Feature("regime_pos", "Kde v rozsahu sa vstupovalo", lambda t: t.get("_regime_pos"),
+            note="0 = na spodku posledných 50 barov, 1 = na vrchu. Pri prerazení je rozdiel "
+                 "medzi vstupom na hrane rozsahu a v jeho strede zásadný."),
+    Feature("regime_align", "S trendom, alebo proti", lambda t: t.get("_regime_align"),
+            numeric=False,
+            note="Smer obchodu voči sklonu posledných 50 barov. Klasické „neobchoduj proti "
+                 "trendu“ sa dá overiť práve týmto rozdelením."),
 )
 
 
@@ -191,13 +214,20 @@ def features_for(strategy: str = "ibs") -> tuple[Feature, ...]:
 
 
 def enrich(trades: list[dict[str, Any]], chart: dict[str, Any] | None,
-           strategy: str = "ibs") -> list[dict[str, Any]]:
+           strategy: str = "ibs", *, pair: str = "", timeframe: str = "") -> list[dict[str, Any]]:
     """Doplní obchodom vzdialenosť stopu a plánovaný RR z kresieb stratégie.
 
     Kresby sú jediné miesto, kde je plán obchodu (SL a TP úroveň) uložený tak, ako ho
     engine vypočítal — v `trades.json` je len to, čo Freqtrade nakoniec urobil. Spája sa
     to časom baru signálu: `enter_tag` je `<prefix><čas v ms>` a kresba ho má v `x1`.
     """
+    # Stav trhu pri vstupe potrebuje sviečky páru, nie kresby — doplní sa nezávisle
+    # od plánu obchodu, takže funguje aj pre behy bez uložených kresieb.
+    if pair:
+        from . import regime as regime_mod
+
+        regime_mod.annotate(trades, pair, timeframe or "3m")
+
     spec = get_spec(strategy)
     sl_kind, tp_kind = getattr(spec, "sl_kind", ""), getattr(spec, "tp_kind", "")
     if not chart or not sl_kind:
