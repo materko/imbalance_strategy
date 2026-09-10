@@ -1,0 +1,11 @@
+{
+  "_title": "NAS100 Dukascopy 5m — výplň medzery na New York open, malé medzery s potvrdením",
+  "_strategy": "gap",
+  "_instrument": "nas100_dukascopy",
+  "_comment": [
+    "Vychodiskovy profil Gap Fill. Defaulty su z merania na 2 791 dnoch NQ (2015-2025):",
+    "medzera pod 0,3 ATR sa vyplni v 77,8 % dni, s potvrdenim prvej 15m sviecky v 93,1 %.",
+    "Stop 1,0 ATR pokryva 90. percentil pohybu proti sebe (0,97 ATR).",
+    "Nie je to obchodne odporucanie - je to port publikovaneho merania na overenie."
+  ]
+}

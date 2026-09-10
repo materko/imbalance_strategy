@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from .base import StrategySpec
 from .demo_breakout import SPEC as DEMO_SPEC
+from .gap import SPEC as GAP_SPEC
 from .ibs import SPEC as IBS_SPEC
 from .orb import SPEC as ORB_SPEC
 from .structure import SPEC as STRUCTURE_SPEC
@@ -17,6 +18,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     STRUCTURE_SPEC.key: STRUCTURE_SPEC,
     DEMO_SPEC.key: DEMO_SPEC,
     ORB_SPEC.key: ORB_SPEC,
+    GAP_SPEC.key: GAP_SPEC,
 }
 
 __all__ = ["STRATEGIES", "StrategySpec", "get_spec", "spec_for_config"]
