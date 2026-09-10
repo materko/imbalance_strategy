@@ -11,7 +11,9 @@ Závislosť ide jedným smerom — Tester importuje `tradebot`, produkt o Tester
 Cieľ je rovnaké obchody aj rovnaké vykreslovanie ako v TradingView; parita je overená
 golden testom na cent ([GOLDEN_binance_2026-08-24.md](docs/GOLDEN_binance_2026-08-24.md)).
 
-Stratégie v registry (ako pridať ďalšiu: [docs/STRATEGIE.md](docs/STRATEGIE.md)):
+Stratégie v registry (ako sa píše ďalšia: [docs/STRATEGIE.md](docs/STRATEGIE.md)). Každá
+sa píše **pre oba enginy** a každá má vlastnú základnú analytiku s posudkom
+(`tradebot/strategies/<key>/docs/ANALYTIKA.md`, [docs/ANALYTIKA.md](docs/ANALYTIKA.md)):
 
 | kľúč | stratégia | Pine zdroj |
 |---|---|---|
@@ -85,6 +87,7 @@ Podrobne: [docs/DATA.md](docs/DATA.md), prehľad celej cesty dát:
 | MultiCharts: študia, QuoteManager, emulátor | [docs/MULTICHARTS.md](docs/MULTICHARTS.md) |
 | dáta: archív, Dukascopy import, nový symbol | [docs/DATA.md](docs/DATA.md) |
 | pridať ďalšiu stratégiu | [docs/STRATEGIE.md](docs/STRATEGIE.md) |
+| čo tá stratégia je: v čom je dobrá, kde má chyby | [docs/ANALYTIKA.md](docs/ANALYTIKA.md) |
 | prehľad architektúry a cesty dát (diagramy) | [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) |
 | ako je port navrhnutý a prečo | [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) |
 | testovať z CLI (aj pre AI) | [tester/AI_TESTING.md](tester/AI_TESTING.md) |
