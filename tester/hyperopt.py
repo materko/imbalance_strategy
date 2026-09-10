@@ -48,7 +48,7 @@ __all__ = [
     "REFERENCE_WINDOWS", "DEFAULT_EPOCHS", "LOSS_CLASS", "RESULTS_DIR", "Epoch",
     "build_plan", "suggested", "plan_path", "latest_results", "command", "read_results",
     "best", "overrides", "table", "verdict", "knowledge_note", "warnings_for",
-    "edge_of", "epochs_from_dicts", "cli_record",
+    "edge_of", "epochs_from_dicts", "detail", "verification_rows",
 ]
 
 #: Päť referenčných okien repozitára — na nich sa hodnotí každá zmena parametra.
@@ -372,28 +372,48 @@ def verdict(records: list[dict[str, Any]], tuned: str) -> str:
             "Pozri znamienko po rokoch, nie sucet; jedno dobre okno nestaci.")
 
 
-def cli_record(run_id: str, *, params: dict[str, Any], settings: dict[str, Any],
-               space: dict[str, str], plan: Plan, epochs: list[Epoch], winner: Epoch | None,
-               results_file: Path | None, epochs_wanted: int, seed: int | None,
-               verify: bool, note: str, user: str, created: str, finished: str,
-               duration: float) -> dict[str, Any]:
-    """Záznam hyperoptu do histórie v tom istom tvare, aký zapisuje webapp runner.
+def verification_rows(records: Iterable[dict[str, Any]], run_id: str) -> list[dict[str, Any]]:
+    """Overovacie behy víťaza (`settings.hyperopt_run.id == run_id`), zoradené po oknách."""
+    out = [r for r in records
+           if (((r.get("settings") or {}).get("hyperopt_run") or {}).get("id")) == run_id]
+    return sorted(out, key=lambda r: (r.get("settings") or {}).get("timerange") or "")
 
-    Bez neho by CLI hyperopt nebolo v histórii vidieť: webapp zoznam, detail aj
-    `plateau` hľadajú beh so `settings.hyperopt.knobs` a overovacie behy s
-    `settings.hyperopt_run.id` rovným jeho id.
+
+def detail(record: dict[str, Any], epochs: Iterable[dict[str, Any]],
+           verifications: Iterable[dict[str, Any]]) -> dict[str, Any]:
+    """Detail hyperoptu — jeden tvar pre webapp endpoint aj CLI, aby sa nerozišli.
+
+    `epochs` sú riadky `epochs.json` behu, `verifications` overovacie behy (hotové aj
+    bežiace — kto ich má, ich sem dá).
     """
+    from . import sweep as sweep_mod
+    from .webapp.store import strategy_of
+
+    nast = record.get("settings") or {}
+    zadanie = nast.get("hyperopt") or {}
+    overenia = verification_rows(verifications, record.get("id") or "")
     return {
-        "id": run_id, "status": "done", "created": created, "started": created,
-        "finished": finished, "user": user, "note": note,
-        "settings": {**settings, "hyperopt": {
-            "knobs": dict(space), "goal": plan.goal, "max_dd": plan.max_dd,
-            "min_trades": plan.min_trades, "epochs": int(epochs_wanted), "seed": seed,
-            "verify": bool(verify), "epochs_done": len(epochs),
-            "best": winner.to_dict() if winner else None,
-            "overrides": overrides(plan, winner.params) if winner else None,
-            "results_file": results_file.name if results_file else None,
-        }},
-        "params": dict(params), "error": None,
-        "result": {"duration_s": duration}, "series": None,
+        "id": record.get("id"),
+        "status": record.get("status"),
+        "error": record.get("error"),
+        "note": record.get("note") or "",
+        "strategy": strategy_of(record),
+        "settings": {k: nast.get(k) for k in
+                     ("pair", "timeframe", "timerange", "fee", "wallet", "exchange", "profile")},
+        "hyperopt": zadanie,
+        "goal_note": sweep_mod.describe(zadanie.get("goal") or "break_even",
+                                        zadanie.get("max_dd"), zadanie.get("min_trades")),
+        "params": list(zadanie.get("knobs") or {}),
+        "epochs": sorted(epochs, key=lambda e: (not e.get("usable"), e.get("loss", 0)))[:60],
+        "best": zadanie.get("best"),
+        "overrides": zadanie.get("overrides"),
+        "verify": [{
+            "id": r.get("id"),
+            "status": r.get("status"),
+            "timerange": (r.get("settings") or {}).get("timerange"),
+            "tuned": bool(((r.get("settings") or {}).get("hyperopt_run") or {}).get("tuned")),
+            "result": {k: (r.get("result") or {}).get(k) for k in
+                       ("trades", "pnl_pct", "winrate", "max_drawdown_pct", "break_even_pct")},
+        } for r in overenia],
+        "verdict": verdict(overenia, nast.get("timerange")) if overenia else "",
     }

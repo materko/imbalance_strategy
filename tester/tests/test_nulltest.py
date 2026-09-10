@@ -209,3 +209,19 @@ def test_nahoda_bez_tp_konci_na_stope_alebo_na_case():
     p = plan(count=20, rr=float("inf"))
     vzorka = nt.simulate(candles, p, iterations=20)
     assert len(vzorka) == 20 and all(np.isfinite(v) for v in vzorka)
+
+
+def test_nahoda_nesmie_vstupit_tam_kde_by_presla_do_dalsieho_okna():
+    """Dve nesusediace okná zliate do jedného poľa: vstup na konci prvého by bral výstup
+    z prvých sviečok druhého — také vstupy sú zakázané."""
+    allowed = nt._entry_allowed([(0, 100), (500, 560)], 160, max_bars=10)
+    assert allowed[:89].all() and not allowed[89:100].any()      # koniec prvého úseku
+    assert allowed[100:149].all() and not allowed[149:].any()    # koniec druhého úseku
+
+
+def test_zliate_okna_sa_preveria_a_prekryv_sa_zlepi():
+    ts = np.arange(0, 400) * 86_400_000 + int(
+        __import__("datetime").datetime(2023, 1, 1, tzinfo=__import__("datetime").timezone.utc)
+        .timestamp() * 1000)
+    useky = nt._window_ranges(ts, ["20230201-20230301", "20230215-20230320", "20230601-20230611"])
+    assert useky == [(31, 78), (151, 161)]

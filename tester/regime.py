@@ -45,6 +45,7 @@ Okno je predvolene 50 barov grafu — dosť na to, aby to bol režim, a nie posl
 from __future__ import annotations
 
 from datetime import datetime
+from functools import lru_cache
 from typing import Any, Sequence
 
 __all__ = ["LOOKBACK", "KEYS", "annotate", "median_atr_of"]
@@ -88,32 +89,56 @@ def median_atr_of(atr) -> float:
     return float(np.median(atr[ATR_LEN:])) if len(atr) > ATR_LEN else 0.0
 
 
+def _atr_of(cols):
+    atr = _atr_series(cols["high"], cols["low"], cols["close"])
+    return atr, median_atr_of(atr)
+
+
+@lru_cache(maxsize=16)
+def _atr_cached(pair: str, timeframe: str, mtime_ns: int):
+    """ATR celej série a jeho medián — raz na (pár, TF, verzia súboru), nie na každý beh.
+
+    Wilderov ATR je rekurzívny cyklus v Pythone nad 1,2M barmi (~0,2 s); analytika nad
+    štyridsiatimi behmi by ho bez cache počítala štyridsaťkrát.
+    """
+    from .webapp.chart import series
+
+    return _atr_of(series(pair, timeframe)[1])
+
+
 def annotate(trades: Sequence[dict[str, Any]], pair: str, timeframe: str,
              lookback: int = LOOKBACK) -> list[dict[str, Any]]:
     """Doplní obchodom stav trhu pri vstupe. Vracia ten istý zoznam (mení ho na mieste).
 
     Bez sviečok páru sa nedoplní nič a obchody ostanú, aké boli — analytika si potom tie
-    vlastnosti jednoducho nevšimne, namiesto toho, aby ukázala vymyslené čísla.
+    vlastnosti jednoducho nevšimne, namiesto toho, aby ukázala vymyslené čísla. Obchody,
+    ktoré stav trhu už nesú, sa preskočia — volanie je idempotentné.
     """
     import numpy as np
 
-    from .webapp.chart import series
+    from .webapp.chart import pair_file, series
 
     out = list(trades)
-    if not pair or not out:
+    todo = [t for t in out if not all(k in t for k in KEYS)]
+    if not pair or not todo:
         return out
     try:
         ts, cols = series(pair, timeframe)
     except (FileNotFoundError, ValueError):
         return out
+    # Cache len pri skutočnom súbore (kľúč je jeho verzia); séria podstrčená inak
+    # (testy, pamäť) sa počíta priamo, aby cache nevrátila cudzie čísla.
+    try:
+        mtime = pair_file(pair, timeframe).stat().st_mtime_ns
+    except (OSError, ValueError):
+        mtime = None
+    atr, stredny_atr = _atr_cached(pair, timeframe, mtime) if mtime is not None else _atr_of(cols)
     if len(ts) < lookback + ATR_LEN + 2:
         return out
 
     high, low, close = cols["high"], cols["low"], cols["close"]
-    atr = _atr_series(high, low, close)
-    stredny_atr = median_atr_of(atr)
 
-    for t in out:
+    for t in todo:
         cas = _dt_ms(t.get("open_date"))
         if cas is None:
             continue

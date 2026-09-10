@@ -148,3 +148,10 @@ def test_min_trades_plati_na_rok_a_prepocita_sa_na_okno():
     assert sweep.required_trades(60, stvrtrok) == 14
     assert sweep.rank([rok], min_trades=60)[0]["sweep_ok"] is False
     assert sweep.rank([stvrtrok], min_trades=60)[0]["sweep_ok"] is True
+
+
+def test_absolutny_min_trades_pre_maticu_a_stare_mriezky():
+    stvrtrok = {"status": "done", "settings": {"timerange": "20250904-20251204"},
+                "result": {"trades": 5, "break_even_pct": 0.1}}
+    assert sweep.rank([stvrtrok], min_trades=10)[0]["sweep_ok"] is True            # 10/rok → 3
+    assert sweep.rank([stvrtrok], min_trades=10, per_year=False)[0]["sweep_ok"] is False

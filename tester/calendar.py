@@ -199,6 +199,8 @@ def annotate(trades: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
     out = list(trades)
 
     for t in out:
+        if "_cal_session" in t:
+            continue                      # už doplnené — volanie je idempotentné
         cas = _dt(t.get("open_date"))
         if cas is None:
             continue

@@ -2668,8 +2668,7 @@ function propFormHtml(p) {
       </div>
       <label class="field inline small span2"><input type="checkbox" id="${p}-custom">
         aj vlastné pravidlá z polí nižšie
-        <span class="hint">(pri jednej zaškrtnutej predlohe polia upravujú ju; pri viacerých
-        sa firmy berú tak, ako sú)</span></label>
+        <span class="hint">(predlohy firiem sa nemenia; polia platia len pre vlastné pravidlá)</span></label>
       <label class="field span2">Predvyplniť polia z predlohy
         <select id="${p}-preset"></select>
       </label>
@@ -2774,6 +2773,9 @@ function fillPropForm(p, key) {
 
 /** Pravidla z formulara ako telo requestu. */
 function propBody(p) {
+  // Polia pravidiel sa posielaju LEN pre vlastne pravidla: predlohy firiem sa nemenia,
+  // inak by jedina zaskrtnuta firma dostala cisla predvyplnene z inej predlohy.
+  if (!$(`#${p}-custom`)?.checked) return { rules: propRulesSelected(p) };
   const ciele = $(`#${p}-targets`).value.split(",").map(x => Number(x.trim()))
     .filter(x => Number.isFinite(x) && x > 0);
   return {
