@@ -68,6 +68,12 @@ class StrategySpec:
     #: jednoducho nepočítajú.
     sl_kind: str = ""
     tp_kind: str = ""
+    #: Pole configu s dolárovým rizikom na obchod (IBS `maxLossDollar`, demo `riskDollar`).
+    #: Monte Carlo z neho preškáluje obchody na iný účet — bez neho vie beh len premiešať.
+    risk_field: str = ""
+    #: Prepínač, ktorý sizing prepne na pevný počet kontraktov (IBS `legacyPineSizing`).
+    #: Taký beh sa na iné riziko prepočítať nedá, aj keď `risk_field` v configu je.
+    fixed_size_field: str = ""
     kind_titles: dict[str, str] = field(default_factory=dict)
     #: TF grafu, na ktorom stratégia bežala v TradingView
     default_timeframe: str = "3m"

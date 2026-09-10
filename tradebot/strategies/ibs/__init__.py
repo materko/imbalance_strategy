@@ -54,6 +54,8 @@ SPEC = StrategySpec(
     htf_feeder=HTFFeeder,
     sl_kind="sl_box",
     tp_kind="tp_box",
+    risk_field="maxLossDollar",
+    fixed_size_field="legacyPineSizing",
     hyperopt_cls=IBSHyperopt,
 )
 

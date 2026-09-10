@@ -26,9 +26,11 @@ Z každej série sa počíta:
 * **priebeh účtu** — max drawdown, ako často účet klesne pod zadané hranice, najdlhšia
   séria strát, najdlhšie čakanie na nové maximum a konečný zostatok.
 
-Veľkosť pozície: obchody sa preškálujú z rizika, s akým beh bežal (`maxLossDollar`),
-na `--risk`. Pri `--risk-pct` sa riskuje percento z **aktuálnej** equity, teda so
-zloženým úročením. Profil s `legacyPineSizing` (pevný počet kontraktov) sa škálovať
+Veľkosť pozície: obchody sa preškálujú z rizika, s akým beh bežal, na `--risk`. Ktoré
+pole configu to riziko nesie, povie stratégia v registry (`SPEC.risk_field` — IBS
+`maxLossDollar`, ukážka `riskDollar`); tento modul názov poľa nepozná. Pri `--risk-pct`
+sa riskuje percento z **aktuálnej** equity, teda so zloženým úročením. Profil s pevným
+počtom kontraktov (`SPEC.fixed_size_field`, pri IBS `legacyPineSizing`) sa škálovať
 nedá — vtedy sa počíta veľkosť z behu tak, ako je.
 
 ### Čo to NErieši
@@ -373,13 +375,23 @@ def report(result: dict[str, Any], label: str = "", currency: str = "USDT") -> s
 def sizing_of(record: dict[str, Any]) -> float | None:
     """Dolárové riziko na obchod, s akým beh bežal — alebo `None`, ak sa nedá preškálovať.
 
-    `legacyPineSizing` je pevný počet kontraktov z Pine, nie riziko; taký beh sa dá
-    premiešať, ale nie prepočítať na iný účet.
+    Ktoré pole je riziko a ktoré prepínač pevnej veľkosti, vie len stratégia
+    (`SPEC.risk_field`, `SPEC.fixed_size_field`). Pevný počet kontraktov (pri IBS Pine
+    `legacyPineSizing`) nie je riziko: taký beh sa dá premiešať, ale nie prepočítať
+    na iný účet.
     """
+    from tradebot.strategies import get_spec
+
+    from .webapp.store import strategy_of
+
     params = record.get("params") or {}
-    if params.get("legacyPineSizing"):
+    try:
+        spec = get_spec(strategy_of(record))
+    except KeyError:
         return None
-    value = params.get("maxLossDollar")
+    if spec.fixed_size_field and params.get(spec.fixed_size_field):
+        return None
+    value = params.get(spec.risk_field) if spec.risk_field else None
     return float(value) if value else None
 
 

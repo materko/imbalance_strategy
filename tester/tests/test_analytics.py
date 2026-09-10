@@ -9,6 +9,8 @@ falošné príležitosti.
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import pytest
 
 pytest.importorskip("freqtrade")
@@ -167,12 +169,17 @@ def test_vzdialenost_stopu_sa_berie_z_kresieb_strategie():
     assert obchody[0]["_rr_planned"] == pytest.approx(3.0)  # TP 3 body, SL 1 bod
 
 
-def test_bez_kresieb_vlastnosti_planu_jednoducho_nie_su():
+def test_bez_kresieb_vlastnosti_planu_jednoducho_nie_su(monkeypatch):
     obchody = [trade()]
     an.enrich(obchody, None, "ibs")
     assert "_sl_pct" not in obchody[0]
+
+    # Stratégia, ktorá nepovie, ktorá kresba nesie SL, tú vlastnosť jednoducho nemá.
+    # Obe stratégie v registry to dnes hovoria (a majú), tak sa taký spec vyrobí tu.
+    holy = replace(get_spec("demo_breakout"), sl_kind="", tp_kind="")
+    monkeypatch.setattr(an, "get_spec", lambda key: holy)
     kluce = {f.key for f in an.features_for("demo_breakout")}
-    assert "sl_pct" not in kluce        # stratégia bez `sl_kind` tú vlastnosť nemá
+    assert "sl_pct" not in kluce and "rr_planned" not in kluce
 
 
 def test_ktory_parameter_vlastnost_riadi_vie_strategia():
