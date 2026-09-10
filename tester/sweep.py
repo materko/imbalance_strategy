@@ -150,7 +150,8 @@ def required_trades(min_trades: int, row: dict[str, Any]) -> int:
     return max(3, int(min_trades * dni / 365))
 
 
-def _within(row: dict[str, Any], max_dd: float | None, min_trades: int | None) -> str | None:
+def _within(row: dict[str, Any], max_dd: float | None, min_trades: int | None,
+            per_year: bool = True) -> str | None:
     """Prečo je bod mimo mantinelov — alebo `None`, keď je v nich."""
     result = row.get("result") or {}
     if row.get("status") != "done":
@@ -158,9 +159,10 @@ def _within(row: dict[str, Any], max_dd: float | None, min_trades: int | None) -
     trades = int(result.get("trades") or 0)
     if not trades:
         return "0 obchodov"
-    if min_trades is not None and trades < required_trades(min_trades, row):
-        treba = required_trades(min_trades, row)
-        return f"< {treba} obchodov" + (f" ({min_trades}/rok)" if treba != min_trades else "")
+    if min_trades is not None:
+        treba = required_trades(min_trades, row) if per_year else int(min_trades)
+        if trades < treba:
+            return f"< {treba} obchodov" + (f" ({min_trades}/rok)" if treba != min_trades else "")
     dd = _metric(row, "max_drawdown_pct")
     if max_dd is not None and dd is not None and dd > max_dd:
         return f"drawdown {dd:.1f} % > {max_dd:g} %"
@@ -168,10 +170,13 @@ def _within(row: dict[str, Any], max_dd: float | None, min_trades: int | None) -
 
 
 def rank(rows: Iterable[dict[str, Any]], goal: str = "break_even", *,
-         max_dd: float | None = None, min_trades: int | None = None) -> list[dict[str, Any]]:
+         max_dd: float | None = None, min_trades: int | None = None,
+         per_year: bool = True) -> list[dict[str, Any]]:
     """Body zoradené podľa kritéria; tie mimo mantinelov idú na koniec s dôvodom.
 
     Vracia tie isté záznamy doplnené o `sweep_ok` (v mantineloch) a `sweep_why` (dôvod).
+    `per_year=False` berie `min_trades` ako absolútny počet — pre maticu (prah šumu na
+    bunku) a pre mriežky z histórie, ktoré vznikli ešte so starým významom.
     """
     if goal not in GOALS:
         raise ValueError(f"neznáme kritérium {goal!r}; známe: {', '.join(GOALS)}")
@@ -179,7 +184,7 @@ def rank(rows: Iterable[dict[str, Any]], goal: str = "break_even", *,
 
     out = []
     for row in rows:
-        why = _within(row, max_dd, min_trades)
+        why = _within(row, max_dd, min_trades, per_year)
         value = _metric(row, key)
         out.append({**row, "sweep_ok": why is None and value is not None, "sweep_why": why,
                     "sweep_value": value})

@@ -291,8 +291,14 @@ def playable(cells: Sequence[Cell], *, exchange: str = "tester", engine: str | N
 
 def rank(records: Sequence[dict[str, Any]], goal: str = "break_even",
          max_dd: float | None = None, min_trades: int | None = MIN_TRADES) -> list[dict[str, Any]]:
-    """Poradie buniek podľa toho istého kritéria ako sweep — aby to bola jedna reč."""
-    return sweep_mod.rank(list(records), goal, max_dd=max_dd, min_trades=min_trades)
+    """Poradie buniek podľa toho istého kritéria ako sweep — aby to bola jedna reč.
+
+    `min_trades` je tu prah šumu **na bunku** (absolútne, ako vo `verdict`), nie počet za
+    rok — všetky bunky matice majú to isté okno, prepočet by nič nepridal a tabuľka by sa
+    rozišla s verdiktom pod ňou.
+    """
+    return sweep_mod.rank(list(records), goal, max_dd=max_dd, min_trades=min_trades,
+                          per_year=False)
 
 
 def matrix(records: Sequence[dict[str, Any]], metric: str = "break_even_pct") -> dict[str, Any]:

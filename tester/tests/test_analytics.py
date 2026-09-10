@@ -232,3 +232,19 @@ def test_analyze_bez_paru_stav_trhu_nedoplna_a_nespadne():
     obchody = [trade(hour=h) for h in range(9, 18)] * 3
     r = an.analyze(obchody, strategy="ibs")
     assert not any(s["feature"].startswith("regime") for s in r["splits"])
+
+
+def test_loader_zlieva_behy_a_deduplikuje_len_tu_istu_konfiguraciu():
+    """Dva behy tej istej konfigurácie na prekrývajúcich sa oknách → obchod raz; dva body
+    sweepu (iné parametre) s rovnakým obchodom → obidva."""
+    zaznamy = [
+        {"id": "a", "settings": {"strategy": "ibs", "pair": "X", "timeframe": "3m"}, "params": {"rrRatio": 2}},
+        {"id": "b", "settings": {"strategy": "ibs", "pair": "X", "timeframe": "3m"}, "params": {"rrRatio": 2}},
+        {"id": "c", "settings": {"strategy": "ibs", "pair": "X", "timeframe": "3m"}, "params": {"rrRatio": 5}},
+    ]
+    obchod = {**trade(), "pair": "X"}
+    nacitane = an.trades_of(zaznamy, lambda i: [dict(obchod)], lambda i: None, with_market=False)
+
+    assert nacitane.per_run == {"a": 1, "b": 1, "c": 1}
+    assert nacitane.duplicates == 1 and len(nacitane.trades) == 2
+    assert {t["_cfg"] for t in nacitane.trades} == {an.config_key(zaznamy[0]), an.config_key(zaznamy[2])}

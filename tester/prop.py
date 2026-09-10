@@ -502,9 +502,10 @@ def report(results: Sequence[Result], label: str = "") -> str:
 def rules_for(keys: Sequence[str], overrides: dict[str, Any] | None = None) -> list[tuple[str, Rules]]:
     """Predlohy podľa kľúčov: `all` = všetky firmy, `custom` = pravidlá z polí.
 
-    Prepisy z polí (`overrides`) sa uplatnia na `custom` vždy a na predlohu firmy len
-    vtedy, keď je vybraná práve jedna — pri porovnaní viacerých firiem sa berú pravidlá
-    tak, ako ich firmy majú, inak by tabuľka porovnávala jedno a to isté.
+    Prepisy z polí (`overrides`) sa uplatnia **len na `custom`**. Predlohy firiem sú
+    nemenné — inak by jedna zaškrtnutá firma dostala čísla predvyplnené z inej a výpis
+    by niesol jej meno s cudzími pravidlami. Prepisy bez `custom` v zozname sú chyba,
+    nie tiché ignorovanie.
     """
     vybrane: list[str] = []
     for k in keys:
@@ -524,12 +525,13 @@ def rules_for(keys: Sequence[str], overrides: dict[str, Any] | None = None) -> l
                          f"{', '.join(PRESETS)}, {CUSTOM}, all")
 
     zmeny = {k: v for k, v in (overrides or {}).items() if v is not None}
+    if zmeny and CUSTOM not in vybrane:
+        raise ValueError(f"prepisy pravidiel ({', '.join(sorted(zmeny))}) platia len na predlohu "
+                         f"`{CUSTOM}` — pridaj ju do zoznamu, predlohy firiem sa nemenia")
     out: list[tuple[str, Rules]] = []
     for k in vybrane:
         if k == CUSTOM:
             out.append((k, replace(Rules(name="vlastné pravidlá"), **zmeny)))
-        elif len(vybrane) == 1 and zmeny:
-            out.append((k, replace(PRESETS[k], **zmeny)))
         else:
             out.append((k, PRESETS[k]))
     return out

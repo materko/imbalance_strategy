@@ -266,9 +266,15 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
         # parametrami (alebo inou stratégiou) ticho bežal na modeli natrénovanom na
         # cudzích signáloch. Meno preto nesie stratégiu a odtlačok profilu.
         import hashlib
+        import json as _json
 
-        odtlacok = hashlib.sha1(Path(profile_path).read_bytes()
-                                + f"|{settings.get('strategy') or 'ibs'}|{tf}".encode()).hexdigest()[:10]
+        # Z parametrov, nie z bajtov súboru: dočasný profil nesie v `_comment` id behu,
+        # takže hash súboru by bol pre každý beh iný a model by sa nikdy nepoužil znova.
+        profil = _json.loads(Path(profile_path).read_text(encoding="utf-8"))
+        parametre = {k: v for k, v in profil.items() if not k.startswith("_")}
+        odtlacok = hashlib.sha1(_json.dumps(
+            {"p": parametre, "s": settings.get("strategy") or "ibs", "tf": tf},
+            sort_keys=True, default=str).encode("utf-8")).hexdigest()[:10]
         ai = {**ai, "identifier": f"tb-{settings.get('strategy') or 'ibs'}-{odtlacok}"}
     cmd = [
         # nie holy freqtrade: obal najprv zaregistruje fiktivnu burzu Tester, ktora pozna

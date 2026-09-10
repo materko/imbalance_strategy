@@ -306,7 +306,8 @@ def cmd_sweeps(args: argparse.Namespace) -> int:
         zadanie = sweep_mod.describe(tag.get("goal") or "break_even",
                                      tag.get("max_dd"), tag.get("min_trades"))
         ranked = sweep_mod.rank(rows, tag.get("goal") or "break_even",
-                                max_dd=tag.get("max_dd"), min_trades=tag.get("min_trades"))
+                                max_dd=tag.get("max_dd"), min_trades=tag.get("min_trades"),
+                                per_year=bool(tag.get("per_year")))
         nastavenia = rows[0]["settings"]
         print(f"=== sweep {args.sweep_id} - {zadanie} ===")
         print(f"{nastavenia.get('pair')} {nastavenia.get('timeframe')} "
@@ -379,7 +380,9 @@ def cmd_sweep(args: argparse.Namespace) -> int:
     for i, point in enumerate(points, 1):
         popis = ", ".join(f"{k}={sweep_mod._fmt(v)}" for k, v in point.items())
         print(f"[{i}/{len(points)}] {popis}", flush=True)
-        run_settings = {**settings, "sweep": {"id": sweep_id, "values": point, "goal": args.goal}}
+        run_settings = {**settings, "sweep": {"id": sweep_id, "values": point, "goal": args.goal,
+                                              "max_dd": args.max_dd, "min_trades": args.min_trades,
+                                              "per_year": True}}
         rec = _execute(args, {**params, **point}, run_settings,
                        note=f"sweep {sweep_id}: {popis}" + (f" — {args.note}" if args.note else ""),
                        quiet=True)
@@ -554,22 +557,13 @@ def _trades_of(store: Any, zaznamy: list[dict], *, with_market: bool = True) -> 
     """
     from .. import analytics as an
 
-    obchody: list[dict] = []
-    for rec in zaznamy:
-        t = store.trades(rec["id"])
-        if t:
-            nast = rec.get("settings") or {}
-            obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]),
-                                 nast.get("strategy") or "ibs",
-                                 pair=(nast.get("pair") or "") if with_market else "",
-                                 timeframe=nast.get("timeframe") or "")
-    if not obchody:
+    nacitane = an.trades_of(zaznamy, store.trades, store.chart, with_market=with_market)
+    if not nacitane.trades:
         raise SystemExit("vybrane behy nemaju ulozene obchody")
-    obchody, duplicity = an.dedupe(obchody)
-    if duplicity:
-        print(f"POZOR: {duplicity} obchodov bolo v dvoch behoch naraz (prekryvajuce sa okna) "
-              "- pocitaju sa raz.", file=sys.stderr)
-    return obchody
+    if nacitane.duplicates:
+        print(f"POZOR: {nacitane.duplicates} obchodov bolo v dvoch behoch naraz (prekryvajuce "
+              "sa okna) - pocitaju sa raz.", file=sys.stderr)
+    return nacitane.trades
 
 
 def cmd_nulltest(args: argparse.Namespace) -> int:
@@ -620,20 +614,10 @@ def cmd_paper(args: argparse.Namespace) -> int:
     import shlex
 
     from .. import paper as pp
-    from .store import RunStore, strategy_of
+    from .store import RunStore
 
     store = RunStore()
-    if args.runs:
-        chcene = [x.strip() for x in args.runs.split(",") if x.strip()]
-        zaznamy = [r for r in (store.get(i) for i in chcene) if r]
-    else:
-        vsetky = store.search(" ".join(args.query)) if args.query else store.all()
-        zaznamy = [r for r in vsetky if strategy_of(r) == args.strategy
-                   and r.get("status") == "done"
-                   and ((r.get("result") or {}).get("trades") or 0) > 0]
-    zaznamy = zaznamy[:args.limit]
-    if not zaznamy:
-        raise SystemExit("ziadne dobehnute behy s obchodmi (skus iny dopyt)")
+    zaznamy = _selected_runs(args, store, strategy=args.strategy)
 
     # Prikaz ide do dokumentu, aby sa dal zopakovat - bez neho je meranie neoveritelne.
     prikaz = "python -m tester.webapp.cli " + " ".join(shlex.quote(a) for a in sys.argv[1:])
@@ -741,8 +725,15 @@ def cmd_prop(args: argparse.Namespace) -> int:
             zmeny["targets"] = tuple(float(x) for x in args.targets.split(","))
         except ValueError:
             raise SystemExit("--targets su ciele faz oddelene ciarkou, napr. 10,5")
+    kluce = [x.strip() for x in str(args.rules).split(",") if x.strip()]
+    if zmeny and pr.CUSTOM not in kluce:
+        # Prepisy patria len vlastnym pravidlam - predlohy firiem sa nemenia. Kto zada
+        # prepinac, chce ich vidiet, tak sa `custom` prida a povie sa to.
+        kluce.append(pr.CUSTOM)
+        print(f"prepisy ({', '.join(sorted(zmeny))}) platia len na `custom` - pridany "
+              "k porovnaniu; predlohy firiem ostavaju tak, ako su", file=sys.stderr)
     try:
-        predlohy = pr.rules_for([args.rules], zmeny)
+        predlohy = pr.rules_for(kluce, zmeny)
     except ValueError as exc:
         raise SystemExit(str(exc))
 
@@ -929,7 +920,10 @@ def cmd_checkup(args: argparse.Namespace) -> int:
             raise SystemExit(f"behy v --runs patria strategii {', '.join(cudzie)}, nie "
                              f"{args.strategy} - zadaj --strategy podla behov")
         for kluc, popis in (("pair", "paru"), ("timeframe", "timeframu"), ("engine", "enginu")):
-            hodnoty = sorted({str((r.get("settings") or {}).get(kluc)) for r in zaznamy})
+            # Staršie záznamy `engine` nemajú (bežali vo Freqtrade); chýbajúca hodnota
+            # nie je iný engine.
+            hodnoty = sorted({str(v) for r in zaznamy
+                              if (v := (r.get("settings") or {}).get(kluc)) is not None})
             if len(hodnoty) > 1:
                 raise SystemExit(f"behy v --runs su z viacerych {popis} ({', '.join(hodnoty)}); "
                                  "analytika strategie sa meria na jednom")
@@ -967,16 +961,11 @@ def cmd_checkup(args: argparse.Namespace) -> int:
     # Obchody zo všetkých okien spolu: jedno okno má na delenie na skupiny málo obchodov.
     # Obohatia sa kresbami toho behu, z ktorého sú — v nich je plán obchodu (SL, TP) —
     # a sviečkami páru (stav trhu pri vstupe).
-    obchody: list[dict] = []
-    for rec in zaznamy:
-        if rec.get("status") != "done":
-            continue
-        t, kresby = _run_data(store, args.url, rec["id"])
-        if t:
-            obchody += an.enrich([dict(x) for x in t], kresby, args.strategy,
-                                 pair=settings["pair"], timeframe=settings["timeframe"])
-    # Referenčné okná sa prekrývajú o mesiac — ten sa má počítať raz.
-    obchody, duplicity = an.dedupe(obchody)
+    hotove = [r for r in zaznamy if r.get("status") == "done"]
+    data = {r["id"]: _run_data(store, args.url, r["id"]) for r in hotove}
+    nacitane = an.trades_of(hotove, lambda i: data[i][0], lambda i: data[i][1],
+                            strategy=args.strategy)
+    obchody, duplicity = nacitane.trades, nacitane.duplicates
 
     hotove = [r for r in zaznamy if r.get("status") == "done"]
     if not obchody and any((r.get("result") or {}).get("trades") for r in hotove):
@@ -1118,18 +1107,20 @@ def cmd_matrices(args: argparse.Namespace) -> int:
 
 
 def cmd_hyperopt(args: argparse.Namespace) -> int:
-    """Hyperopt na tom istom zadaní ako sweep, plus overenie na ďalších oknách."""
-    import subprocess
-    from datetime import datetime, timezone
-    from uuid import uuid4
+    """Hyperopt na tom istom zadaní ako sweep, plus overenie na ďalších oknách.
 
-    from tradebot.core.types import INSTRUMENTS
-
+    Beh ide tou istou cestou ako vo webapp: keď webapp beží, zaradí sa do jej fronty
+    (`POST /api/hyperopts`), inak ho odohrá lokálny runner. Záznam v histórii, epochy,
+    víťaz aj overovacie behy na referenčných oknách tak vznikajú **jedným kódom**
+    (`runner._run_hyperopt`), nie kópiou v CLI.
+    """
     from .. import engines, hyperopt as ho, sweep as sweep_mod
-    from .runner import USER_DIR, instrument_for_pair
-    from .store import RunStore, make_run_id
+    from .store import RunStore
 
     params, settings = _prepare(args)
+    if settings.get("engine") != engines.FREQTRADE:
+        raise SystemExit("hyperopt bezi len na engine Freqtrade (emulator MultiCharts "
+                         "optimalizator nema)")
 
     space = ho.suggested(args.strategy) if args.suggested else {}
     for item in args.param or []:
@@ -1157,159 +1148,146 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
     for varovanie in ho.warnings_for(space, args.strategy):
         print(f"POZOR: {varovanie}", file=sys.stderr)
 
-    hyper_id = f"{datetime.now(timezone.utc):%Y%m%d-%H%M%S}-{uuid4().hex[:4]}"
-    zadanie = sweep_mod.describe(args.goal, args.max_dd, args.min_trades)
-    plan_file = ho.plan_path(hyper_id, plan)
+    zadanie_txt = sweep_mod.describe(args.goal, args.max_dd, args.min_trades)
+    zadanie = {"knobs": dict(space), "goal": args.goal, "max_dd": args.max_dd,
+               "min_trades": args.min_trades, "epochs": int(args.epochs), "seed": args.seed,
+               "verify": not args.no_verify}
+    if args.jobs:
+        zadanie["jobs"] = int(args.jobs)
+    popis = ", ".join(f"{k}={v}" for k, v in space.items())
+    note = f"hyperopt {popis}" + (f" — {args.note}" if args.note else "")
+    user = args.user or getenv("USER") or ""
 
-    inst = INSTRUMENTS[instrument_for_pair(settings["pair"])]
-    cmd = ho.command(
-        sys.executable, plan=plan_file,
-        config=engines.stake_config(inst, settings.get("exchange")),
-        userdir=USER_DIR, datadir=engines.data_dir(inst),
-        strategy_class=get_spec_class(args.strategy), pair=settings["pair"],
-        timerange=settings["timerange"], timeframe=settings["timeframe"],
-        epochs=args.epochs, detail=settings.get("timeframe_detail"),
-        wallet=settings.get("wallet", 10000), fee=settings.get("fee"),
-        seed=args.seed, jobs=args.jobs,
-    )
-
-    print(f"hyperopt {hyper_id}: {args.epochs} epoch, kriterium: {zadanie}")
+    print(f"hyperopt: {args.epochs} epoch, kriterium: {zadanie_txt}")
     print(f"  ladi sa: {', '.join(f'{k} = {v}' for k, v in space.items())}")
-    print(f"  okno:    {settings['timerange']}  ({settings['pair']} {settings['timeframe']})")
-    print(f"  plan:    {plan_file.relative_to(REPO)}\n", flush=True)
+    print(f"  okno:    {settings['timerange']}  ({settings['pair']} {settings['timeframe']})",
+          flush=True)
 
-    from .runner import write_profile
-    # Východiskový profil: hodnoty, na ktorých optimalizátor stojí. Ladené polia z neho
-    # prepíše plán, ostatné (sizing, seansy, entry modely) ostávajú z profilu testera.
-    zaklad = write_profile(f"hyperopt-{hyper_id}", params, instrument_for_pair(settings["pair"]),
-                           args.strategy)
-    prostredie = {**os.environ, "TRADEBOT_HYPEROPT_PLAN": str(plan_file),
-                  "TRADEBOT_PROFILE": str(zaklad)}
-    # Hyperopt je beh v histórii ako vo webapp: rovnaký tvar záznamu, overovacie behy
-    # sa naň odkazujú cez `hyperopt_run.id`. Bez toho by ho zoznam vo webapp, detail
-    # ani `cli plateau` nenašli.
-    from datetime import datetime as _dt, timezone
     store = RunStore()
-    run_id = make_run_id(params, {**settings, "hyperopt": {"id": hyper_id, "knobs": space}})
-    created = _dt.now(timezone.utc).isoformat(timespec="seconds")
-    start = time.time()
-    code = subprocess.call(cmd, env=prostredie)
-    if code != 0:
-        raise SystemExit(f"freqtrade hyperopt skoncil s kodom {code}")
+    if server_alive(args.url):
+        telo = {"params": params, "space": space, "goal": args.goal, "max_dd": args.max_dd,
+                "min_trades": args.min_trades, "epochs": int(args.epochs), "seed": args.seed,
+                "verify": not args.no_verify, "note": args.note or "", "user": user or None,
+                **{k: settings.get(k) for k in ("strategy", "pair", "timeframe", "timerange",
+                                                "fee", "wallet", "timeframe_detail", "engine",
+                                                "exchange", "profile", "ai")}}
+        if args.jobs:
+            print("  (--jobs sa cez webapp neprenasa, pouzije vsetky jadra)", file=sys.stderr)
+        try:
+            job = api(args.url, "/api/hyperopts", telo)
+        except urllib.error.HTTPError as exc:
+            raise SystemExit(f"webapp odmietla hyperopt: {exc.read().decode('utf-8', 'replace')}")
+        run_id = job["id"]
+        print(f"zaradene do fronty webapp: {run_id}  ({args.url})", flush=True)
+        while True:
+            time.sleep(5)
+            det = api(args.url, f"/api/hyperopts/{run_id}")
+            if det.get("status") in ("done", "failed"):
+                overenia = det.get("verify") or []
+                if (det["status"] == "failed" or args.no_verify or not det.get("overrides")
+                        or (overenia and all(v.get("status") in ("done", "failed") for v in overenia))):
+                    break
+            print(f"  … {det.get('status')}", flush=True)
+    else:
+        from .runner import BacktestRunner
 
-    results = ho.latest_results(start)
-    if results is None:
-        raise SystemExit(f"hyperopt nezapisal ziadne epochy do {ho.RESULTS_DIR}")
-    epochs = ho.read_results(results)
-    print(f"\n=== hyperopt {run_id} — {zadanie} ===")
-    print(ho.table(epochs, plan))
+        runner = BacktestRunner(store)
+        try:
+            job = runner.submit(params, {**settings, "hyperopt": zadanie}, note=note, user=user)
+        except (ValueError, KeyError) as exc:
+            raise SystemExit(str(exc))
+        run_id = job.id
+        print(f"webapp nebezi, spustam priamo: {run_id}", flush=True)
+        while job.status in ("queued", "running"):
+            time.sleep(3)
+            if job.log_lines:
+                print(f"  … {job.log_lines[-1][:100]}", flush=True)
+        # Overovacie behy si runner zaradil sám - počká sa, kým fronta nedobehne.
+        while any(j.get("status") in ("queued", "running") for j in runner.snapshot()):
+            time.sleep(3)
+        rec = store.get(run_id) or {}
+        det = ho.detail(rec, store.extra(run_id, "epochs.json") or [], store.all())
 
-    vitaz = ho.best(epochs)
-    zaznam = ho.cli_record(
-        run_id, params=params, settings=settings, space=space, plan=plan, epochs=epochs,
-        winner=vitaz, results_file=results, epochs_wanted=args.epochs, seed=args.seed,
-        verify=not args.no_verify, note=args.note or "",
-        user=args.user or getenv("USER") or "", created=created,
-        finished=_dt.now(timezone.utc).isoformat(timespec="seconds"),
-        duration=round(time.time() - start, 1))
-    store.save(zaznam)
-    store.save_extra(run_id, "epochs.json", [e.to_dict() for e in epochs])
-
-    if vitaz is None:
+    if det.get("status") != "done":
+        raise SystemExit(f"hyperopt skoncil: {det.get('error') or det.get('status')}")
+    print()
+    _print_hyperopt(det, plan)
+    if not det.get("overrides"):
         print("\nZIADNA epocha nesplnila mantinely (min. obchodov, strop na drawdown).")
         print("Zniz --min-trades, uvolni --max-dd, alebo daj sirsi rozsah.")
         return 1
-
-    najdene = ho.overrides(plan, vitaz.params)
-    print("\nnajlepsia epocha: " + str(vitaz.number))
-    for k, v in najdene.items():
-        print(f"  {k} = {sweep_mod._fmt(v)}")
-
     if args.no_verify:
         print("\nOverenie na dalsich oknach preskocene (--no-verify). Vysledok jedneho okna "
               "o strategii nepovie nic - hyperopt nasiel optimum PRAVE toho okna.")
-        return 0
-
-    okna = [settings["timerange"]] + [w for w in ho.REFERENCE_WINDOWS if w != settings["timerange"]]
-    print(f"\nOverujem vitaza na {len(okna)} oknach (ladene okno je prve)...", flush=True)
-    zaznamy = []
-    for i, okno in enumerate(okna, 1):
-        beh = {**settings, "timerange": okno,
-               "hyperopt_run": {"id": run_id, "values": najdene, "goal": args.goal,
-                                "tuned": okno == settings["timerange"]}}
-        popis = ", ".join(f"{k}={sweep_mod._fmt(v)}" for k, v in najdene.items())
-        print(f"[{i}/{len(okna)}] {okno}", flush=True)
-        rec = _execute(args, {**params, **najdene}, beh,
-                       note=f"hyperopt {run_id}: {popis}" + (f" — {args.note}" if args.note else ""),
-                       quiet=True)
-        rec.setdefault("settings", beh)
-        zaznamy.append(rec)
-        r = rec.get("result") or {}
-        znacka = " (ladene)" if okno == settings["timerange"] else ""
-        print(f"      {rec.get('status')}  obchodov {r.get('trades', '-')}  "
-              f"PnL {r.get('pnl_pct', '-')} %  break-even {r.get('break_even_pct', '-')} %{znacka}",
-              flush=True)
-
-    print(f"\n{ho.verdict(zaznamy, settings['timerange'])}")
-    print(f"cele porovnanie: python -m tester.webapp.cli hyperopts {run_id}")
+    print(f"\ncele porovnanie: python -m tester.webapp.cli hyperopts {run_id}")
     print(f"okolie vitaza:   python -m tester.webapp.cli plateau {run_id}")
     return 0
 
 
+def _print_hyperopt(det: dict, plan: Any) -> None:
+    """Výpis detailu hyperoptu (`tester.hyperopt.detail`) — ten istý pre `hyperopt` aj `hyperopts`."""
+    from .. import hyperopt as ho, sweep as sweep_mod
+
+    nast, zadanie = det.get("settings") or {}, det.get("hyperopt") or {}
+    print(f"=== hyperopt {det['id']} ({det.get('strategy')}) — {det.get('goal_note')} ===")
+    print(f"{nast.get('pair')} {nast.get('timeframe')}, ladene okno {nast.get('timerange')}, "
+          f"epoch {zadanie.get('epochs_done', '?')} z {zadanie.get('epochs', '?')}"
+          + (f", profil {nast.get('profile')}" if nast.get("profile") else ""))
+    print("  ladilo sa: " + ", ".join(f"{k} = {v}" for k, v in (zadanie.get("knobs") or {}).items()))
+    if det.get("note"):
+        print(f"  poznamka: {det['note']}")
+    print()
+    print(ho.table(ho.epochs_from_dicts(det.get("epochs") or []), plan))
+    if det.get("overrides"):
+        print("\nvitaz: " + ", ".join(f"{k}={sweep_mod._fmt(v)}" for k, v in det["overrides"].items()))
+    overenia = det.get("verify") or []
+    if overenia:
+        print(f"\n{'okno':<22}{'stav':>8}{'obchodov':>10}{'PnL %':>9}{'break-even':>12}")
+        for r in overenia:
+            v = r.get("result") or {}
+            znacka = "  (ladene)" if r.get("tuned") else ""
+            print(f"{str(r.get('timerange') or '?'):<22}{str(r.get('status') or '?'):>8}"
+                  f"{str(v.get('trades', '-')):>10}{str(v.get('pnl_pct', '-')):>9}"
+                  f"{str(v.get('break_even_pct', '-')):>12}{znacka}")
+        if det.get("verdict"):
+            print(f"\n{det['verdict']}")
+    else:
+        print("\nbez overovacich behov (--no-verify, alebo este bezia)")
+
+
 def cmd_hyperopts(args: argparse.Namespace) -> int:
     """Hyperopty z histórie; s argumentom detail: epochy, víťaz, overenie na oknách."""
-    from .. import hyperopt as ho, sweep as sweep_mod
+    from .. import hyperopt as ho
     from .store import RunStore, strategy_of
 
     store = RunStore()
-    vsetky = [r for r in store.all() if ((r.get("settings") or {}).get("hyperopt") or {}).get("knobs")]
-    if args.strategy:
-        vsetky = [r for r in vsetky if strategy_of(r) == args.strategy]
-
     if args.hyperopt_id:
         rec = store.get(args.hyperopt_id)
         zadanie = ((rec or {}).get("settings") or {}).get("hyperopt") or {}
         if rec is None or not zadanie.get("knobs"):
             raise SystemExit(f"hyperopt {args.hyperopt_id} v historii nie je")
-        nast = rec["settings"]
-        popis = sweep_mod.describe(zadanie.get("goal") or "break_even",
-                                   zadanie.get("max_dd"), zadanie.get("min_trades"))
-        print(f"=== hyperopt {rec['id']} ({strategy_of(rec)}) — {popis} ===")
-        print(f"{nast.get('pair')} {nast.get('timeframe')}, ladene okno {nast.get('timerange')}, "
-              f"epoch {zadanie.get('epochs_done', '?')} z {zadanie.get('epochs', '?')}"
-              + (f", profil {nast.get('profile')}" if nast.get("profile") else ""))
-        print("  ladilo sa: " + ", ".join(f"{k} = {v}" for k, v in zadanie["knobs"].items()))
-        if rec.get("note"):
-            print(f"  poznamka: {rec['note']}")
-        print()
+        # Bežiaca webapp vidí aj overovacie behy, ktoré ešte len bežia - detail od nej
+        # je úplnejší než zo skladu.
+        det = None
+        if server_alive(args.url):
+            try:
+                det = api(args.url, f"/api/hyperopts/{args.hyperopt_id}")
+            except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError):
+                det = None
+        if det is None:
+            det = ho.detail(rec, store.extra(rec["id"], "epochs.json") or [], store.all())
         try:
             plan = ho.build_plan(zadanie["knobs"], strategy=strategy_of(rec),
                                  goal=zadanie.get("goal") or "break_even",
                                  max_dd=zadanie.get("max_dd"), min_trades=zadanie.get("min_trades"))
-            epochs = ho.epochs_from_dicts(store.extra(rec["id"], "epochs.json") or [])
-            print(ho.table(epochs, plan))
         except ValueError as exc:
-            print(f"(epochy sa nedaju vypisat: {exc})")
-        if zadanie.get("overrides"):
-            print("\nvitaz: " + ", ".join(f"{k}={sweep_mod._fmt(v)}"
-                                          for k, v in zadanie["overrides"].items()))
-        overenia = sorted(
-            [r for r in store.all()
-             if ((r.get("settings", {}).get("hyperopt_run") or {}).get("id")) == rec["id"]],
-            key=lambda r: r["settings"].get("timerange") or "")
-        if overenia:
-            print(f"\n{'okno':<22}{'stav':>8}{'obchodov':>10}{'PnL %':>9}{'break-even':>12}")
-            for r in overenia:
-                v = r.get("result") or {}
-                znacka = "  (ladene)" if (r["settings"].get("hyperopt_run") or {}).get("tuned") else ""
-                print(f"{r['settings'].get('timerange', '?'):<22}{r.get('status', '?'):>8}"
-                      f"{str(v.get('trades', '-')):>10}{str(v.get('pnl_pct', '-')):>9}"
-                      f"{str(v.get('break_even_pct', '-')):>12}{znacka}")
-            print(f"\n{ho.verdict(overenia, nast.get('timerange'))}")
-        else:
-            print("\nbez overovacich behov (--no-verify, alebo este bezia)")
+            raise SystemExit(f"zadanie hyperoptu sa neda precitat: {exc}")
+        _print_hyperopt(det, plan)
         return 0
 
+    vsetky = [r for r in store.all() if ((r.get("settings") or {}).get("hyperopt") or {}).get("knobs")]
+    if args.strategy:
+        vsetky = [r for r in vsetky if strategy_of(r) == args.strategy]
     if not vsetky:
         print("v historii nie je ziadny hyperopt"
               + (f" pre strategiu {args.strategy}" if args.strategy else ""))
@@ -1321,12 +1299,6 @@ def cmd_hyperopts(args: argparse.Namespace) -> int:
               f"{rec['settings'].get('timerange')} | {', '.join(z['knobs'])}")
     print("\ndetail: python -m tester.webapp.cli hyperopts <hyperopt>")
     return 0
-
-
-def get_spec_class(strategy: str) -> str:
-    from tradebot.strategies import get_spec
-
-    return get_spec(strategy).freqtrade_class
 
 
 def cmd_list(args: argparse.Namespace) -> int:

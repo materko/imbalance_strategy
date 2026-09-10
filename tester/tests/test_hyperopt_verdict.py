@@ -38,3 +38,21 @@ def test_matica_porovnava_s_poplatkom_bunky():
 
     trhy = [beh("w", 0.03, fee=0.0005, pair=p) for p in ("A", "B", "C")]
     assert "MYSLIENKA DRZI" not in mx.verdict(trhy)
+
+
+def test_detail_ma_jeden_tvar_pre_webapp_aj_cli():
+    rec = {"id": "h1", "status": "done", "note": "x",
+           "settings": {"strategy": "ibs", "pair": "A", "timeframe": "3m", "timerange": "tuned",
+                        "fee": 0.0005, "hyperopt": {"knobs": {"rrRatio": "2:8:0.5"}, "goal": "break_even",
+                                                    "overrides": {"rrRatio": 4.0}}}}
+    overenia = [{**beh("tuned", 0.3), "settings": {**beh("tuned", 0.3)["settings"],
+                                                    "hyperopt_run": {"id": "h1", "tuned": True}}}]
+    overenia += [{**beh(f"w{i}", 0.09), "settings": {**beh(f"w{i}", 0.09)["settings"],
+                                                      "hyperopt_run": {"id": "h1"}}} for i in range(4)]
+    cudzi = {**beh("w9", 0.09), "settings": {**beh("w9", 0.09)["settings"], "hyperopt_run": {"id": "h2"}}}
+
+    d = ho.detail(rec, [{"epoch": 1, "loss": -0.1, "usable": True}], overenia + [cudzi])
+
+    assert d["params"] == ["rrRatio"] and d["overrides"] == {"rrRatio": 4.0}
+    assert len(d["verify"]) == 5 and d["verify"][0]["tuned"] is True
+    assert "VITAZ PREZIL" in d["verdict"]

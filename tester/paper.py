@@ -431,17 +431,10 @@ def build(records: Sequence[dict[str, Any]], store, *, strategy: str = "ibs",
     if not zaznamy:
         raise ValueError("žiadne dobehnuté behy s obchodmi")
 
-    obchody: list[dict[str, Any]] = []
-    for rec in zaznamy:
-        t = store.trades(rec["id"])
-        if t:
-            obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]), strategy,
-                                 pair=rec["settings"].get("pair") or "",
-                                 timeframe=rec["settings"].get("timeframe") or "3m")
+    nacitane = an.trades_of(zaznamy, store.trades, store.chart, strategy=strategy)
+    obchody, duplicity = nacitane.trades, nacitane.duplicates
     if not obchody:
         raise ValueError("vybrané behy nemajú uložené obchody")
-    # Referenčné okná sa prekrývajú o mesiac — ten istý obchod sa má počítať raz.
-    obchody, duplicity = an.dedupe(obchody)
 
     pary = sorted({r["settings"].get("pair") for r in zaznamy if r["settings"].get("pair")})
     tfs = sorted({r["settings"].get("timeframe") for r in zaznamy if r["settings"].get("timeframe")})

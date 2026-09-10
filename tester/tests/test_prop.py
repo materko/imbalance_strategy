@@ -298,12 +298,13 @@ def test_rules_for_vezme_zoznam_all_aj_custom():
 
     dve = prop.rules_for(["ftmo2,apex100", "custom"], {"cost": 100.0})
     assert [k for k, _ in dve] == ["ftmo2", "apex100", "custom"]
-    # Pri viacerých firmách sa ich pravidlá neprepisujú; `custom` prepisy dostane vždy.
+    # Predlohy firiem sa neprepisujú nikdy; prepisy dostane len `custom`.
     assert dict(dve)["ftmo2"].cost == prop.PRESETS["ftmo2"].cost
     assert dict(dve)["custom"].cost == 100.0
 
-    jedna = prop.rules_for(["ftmo2"], {"cost": 100.0})
-    assert dict(jedna)["ftmo2"].cost == 100.0        # jediná vybraná: polia ju upravujú
+    # Prepisy bez `custom` v zozname sú chyba, nie tiché ignorovanie ani prepis firmy.
+    with pytest.raises(ValueError, match="custom"):
+        prop.rules_for(["ftmo2"], {"cost": 100.0})
 
 
 def test_rules_for_nezname_a_prazdne_odmietne():
@@ -326,3 +327,11 @@ def test_endpoint_prijme_zoznam_predloh(klient):
 
     assert r.status_code == 422
     assert "neexistuje" in r.json()["detail"]
+
+
+def test_endpoint_prepisy_bez_custom_odmietne_a_s_custom_prijme(klient):
+    r = klient.post("/api/prop", json={"rules": ["ftmo2"], "cost": 100.0, "q": "note~nic"})
+    assert r.status_code == 422 and "custom" in r.json()["detail"]
+
+    r = klient.post("/api/prop", json={"rules": ["ftmo2", "custom"], "cost": 100.0, "q": "note~nic"})
+    assert r.status_code == 404                      # prešlo validáciou, len behy nie sú

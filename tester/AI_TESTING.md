@@ -227,6 +227,9 @@ PY -m tester.webapp.cli hyperopt --suggested --timerange 20250904-20260904 --epo
 `--suggested` vezme priestor, ktorý **odporúča stratégia** — to, čo na nej prežilo
 out-of-sample. To isté robí `./deploy/freqtrade/scripts/hyperopt.sh <okno> [epochy]`.
 
+Beh ide tou istou cestou ako vo webapp: keď webapp beží, CLI ho zaradí do jej fronty,
+inak ho odohrá lokálny runner — záznam v histórii je v oboch prípadoch rovnaký a
+`cli hyperopts [id]` ho vypíše (aj s bežiacim overením, keď webapp beží).
 Po dobehnutí sa víťaz **sám** pustí na piatich referenčných oknách a výsledky sa ukážu
 vedľa seba (ladené okno označené) s jednou vetou na záver: `VITAZ PREZIL` / `NEJASNE` /
 `PRETRENOVANE`. Nie je to doplnok — hyperopt nájde optimum práve toho okna, ktoré videl,
@@ -609,8 +612,9 @@ je **porovnávacia tabuľka** — pri každej firme najlepšie riziko podľa EV,
 a verdikt. Vo webapp sú predlohy zaškrtávacie. Čísla sú odpísané z verejných stránok firiem
 **k 2026-09-10** a firmy ich menia často — výpis zdroj vypíše aj s upozornením. Každé pole
 sa dá prepísať (`--targets 10,5`, `--daily`, `--max-loss`, `--trailing`, `--min-days`,
-`--day-share`, `--cost`, `--payout`, `--horizon`); prepisy platia na `custom` a na jedinú
-vybranú predlohu — pri porovnaní viacerých firiem sa ich pravidlá berú tak, ako sú.
+`--day-share`, `--cost`, `--payout`, `--horizon`); prepisy platia **len na `custom`** —
+predlohy firiem sa nemenia, a keď zadáš prepínač bez `custom` v zozname, CLI ho pridá
+a povie to. Vo webapp platia polia len so zaškrtnutými vlastnými pravidlami.
 **Pred rozhodovaním ich prepíš podľa zmluvy, ktorú naozaj máš.**
 
 **Ako sa to počíta.** Nie jedným behom, ale stovkami pokusov: výzva sa začne postupne na

@@ -222,8 +222,12 @@ def _exits(high, low, close, idx, smery, sl, tp, max_bars: int):
 
 
 def simulate(candles: tuple, plan: dict[str, Any], *, iterations: int = DEFAULT_ITERATIONS,
-             null: str = "anytime", seed: int = 12345) -> list[float]:
-    """`iterations` náhodných behov; vráti ich break-even poplatky (% na stranu)."""
+             null: str = "anytime", seed: int = 12345, allowed=None) -> list[float]:
+    """`iterations` náhodných behov; vráti ich break-even poplatky (% na stranu).
+
+    `allowed` je voliteľná maska barov, kde smie obchod vstúpiť (okná zliate do jedného
+    poľa — viď `_entry_allowed`); bez nej kdekoľvek, kde sa zmestí celé okno obchodu.
+    """
     import numpy as np
 
     ts, high, low, close, hodiny = candles
@@ -234,14 +238,18 @@ def simulate(candles: tuple, plan: dict[str, Any], *, iterations: int = DEFAULT_
     if n <= max_bars + 2 or pocet <= 0:
         return []
 
+    zaklad = (np.flatnonzero(allowed[: n - max_bars - 1]) if allowed is not None
+              else np.arange(n - max_bars - 1))
+    if not len(zaklad):
+        return []
     # `session`: losuje sa len z barov, ktoré padnú do tých istých hodín, v akých
     # stratégia obchoduje. Inak by sa meral aj výber času, nie len výber vstupu.
     if null == "session":
-        povolene = np.flatnonzero(np.isin(hodiny[: n - max_bars - 1], np.unique(plan["hours"])))
+        povolene = zaklad[np.isin(hodiny[zaklad], np.unique(plan["hours"]))]
         if len(povolene) < pocet:
-            povolene = np.arange(n - max_bars - 1)
+            povolene = zaklad
     else:
-        povolene = np.arange(n - max_bars - 1)
+        povolene = zaklad
 
     out: list[float] = []
     for _ in range(iterations):
@@ -276,11 +284,11 @@ def _histogram(sample: Sequence[float], bins: int = 30) -> dict[str, list[float]
 # --------------------------------------------------------------------------- #
 
 
-def _window_mask(ts, timeranges: Sequence[str]):
-    """Maska sviečok, ktoré padnú do niektorého z okien `YYYYMMDD-YYYYMMDD`."""
+def _window_ranges(ts, timeranges: Sequence[str]) -> list[tuple[int, int]]:
+    """Súvislé úseky `[i, j)` sviečok pre okná `YYYYMMDD-YYYYMMDD`, zliate, kde sa prekrývajú."""
     import numpy as np
 
-    maska = np.zeros(len(ts), dtype=bool)
+    useky: list[tuple[int, int]] = []
     for okno in timeranges:
         try:
             a, b = str(okno).split("-")
@@ -289,8 +297,47 @@ def _window_mask(ts, timeranges: Sequence[str]):
         except ValueError:
             continue
         i, j = int(np.searchsorted(ts, od)), int(np.searchsorted(ts, do))
+        if j > i:
+            useky.append((i, j))
+    useky.sort()
+    zliate: list[tuple[int, int]] = []
+    for i, j in useky:
+        if zliate and i <= zliate[-1][1]:
+            zliate[-1] = (zliate[-1][0], max(zliate[-1][1], j))
+        else:
+            zliate.append((i, j))
+    return zliate
+
+
+def _window_mask(ts, timeranges: Sequence[str]):
+    """Maska sviečok, ktoré padnú do niektorého z okien `YYYYMMDD-YYYYMMDD`."""
+    import numpy as np
+
+    maska = np.zeros(len(ts), dtype=bool)
+    for i, j in _window_ranges(ts, timeranges):
         maska[i:j] = True
     return maska
+
+
+def _entry_allowed(ranges: Sequence[tuple[int, int]], n: int, max_bars: int):
+    """Kde smie náhodný obchod vstúpiť, keď sú okná zliate do jedného poľa.
+
+    Simulácia chodí dopredu po indexe; vstup na konci jedného okna by inak bral SL, TP
+    a záverečnú cenu z prvých sviečok ďalšieho okna — pri BTC 2022 vs. 2025 je to skok
+    z 19k na 110k. Vstup je preto dovolený len tam, kde celé okno obchodu ostáva v tom
+    istom úseku. `ranges` sú úseky v pôvodných indexoch, `n` dĺžka zliateho poľa.
+    """
+    import numpy as np
+
+    allowed = np.zeros(n, dtype=bool)
+    posun = 0
+    for i, j in ranges:
+        dlzka = j - i
+        koniec = dlzka - max_bars - 1
+        if koniec > 0:
+            allowed[posun:posun + koniec] = True
+        posun += dlzka
+    return allowed
 
 
 def compare(trades: Sequence[dict[str, Any]], *, pair: str, timeframe: str,
@@ -327,18 +374,22 @@ def compare(trades: Sequence[dict[str, Any]], *, pair: str, timeframe: str,
     except (FileNotFoundError, ValueError) as exc:
         out.note = str(exc)
         return out
+    useky: list[tuple[int, int]] = []
     if timerange:
         okna = [timerange] if isinstance(timerange, str) else list(timerange)
-        maska = _window_mask(ts, okna)
-        if maska.any():
+        useky = _window_ranges(ts, okna)
+        if useky:
+            maska = _window_mask(ts, okna)
             ts, cols = ts[maska], {k: v[maska] for k, v in cols.items()}
 
     hodiny = ((ts // 3_600_000) % 24).astype(int)
     # Plán drží dĺžku držania v baroch TF stratégie; simulácia beží na minútach.
     plan = plan_from_trades(trades, timeframe_minutes(timeframe))
     plan["max_bars"] = max(1, int(plan["max_bars"] * timeframe_minutes(timeframe)))
+    # Zliate okná: obchod nesmie vstúpiť tam, kde by jeho okno prešlo do ďalšieho úseku.
+    allowed = _entry_allowed(useky, len(ts), plan["max_bars"]) if len(useky) > 1 else None
     vzorka = simulate((ts, cols["high"], cols["low"], cols["close"], hodiny), plan,
-                      iterations=iterations, null=null, seed=seed)
+                      iterations=iterations, null=null, seed=seed, allowed=allowed)
     if not vzorka:
         out.note = "náhodné behy sa nedali zostaviť (málo sviečok alebo obchodov)"
         return out

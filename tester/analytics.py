@@ -57,7 +57,7 @@ from tradebot.adapters.freqtrade.hyperplan import knowledge
 from tradebot.strategies import get_spec
 
 __all__ = [
-    "config_spread", "dedupe",
+    "config_spread", "dedupe", "config_key", "trades_of", "Loaded",
     "FEATURES", "Feature", "Bucket", "Split", "break_even_pct", "gross_and_volume",
     "features_for", "split", "analyze", "table",
 ]
@@ -298,25 +298,79 @@ def enrich(trades: list[dict[str, Any]], chart: dict[str, Any] | None,
     return trades
 
 
+def config_key(record: dict[str, Any]) -> str:
+    """Odtlačok konfigurácie behu (parametre + stratégia) — identita obchodu pre dedupe."""
+    import hashlib
+
+    from .webapp.store import strategy_of
+
+    blob = json.dumps({"s": strategy_of(record), "p": record.get("params") or {}},
+                      sort_keys=True, default=str)
+    return hashlib.sha1(blob.encode("utf-8")).hexdigest()[:10]
+
+
 def dedupe(trades: Sequence[dict[str, Any]]) -> tuple[list[dict[str, Any]], int]:
     """Ten istý obchod len raz. Vracia `(obchody, koľko duplicít vypadlo)`.
 
     Referenčné okná sa prekrývajú (`20231001-20241001` a `20240904-20250904` majú
     spoločných 27 dní), takže zliate behy tej istej konfigurácie by ten mesiac počítali
-    dvakrát — v Monte Carle, v teste úpadku aj v počte obchodov. Kľúč je trh, vstup
-    **a výstup**: dve konfigurácie s rovnakým signálom, ale iným výstupom (sweep na tom
-    istom okne) sú dva rôzne obchody a ostanú obidva.
+    dvakrát — v Monte Carle, v teste úpadku aj v počte obchodov. Kľúč je **konfigurácia**
+    (`_cfg`, dopĺňa `trades_of`), trh, vstup a výstup: dva body sweepu na tom istom okne
+    sú dve rôzne stratégie a ich obchody ostanú obidva, aj keď skončili na tom istom stope.
     """
     videne: set[tuple[Any, ...]] = set()
     out: list[dict[str, Any]] = []
     for t in trades:
-        kluc = (t.get("pair"), t.get("open_date"), t.get("enter_tag"), bool(t.get("is_short")),
-                t.get("close_date"), t.get("close_rate"))
+        kluc = (t.get("_cfg"), t.get("pair"), t.get("open_date"), t.get("enter_tag"),
+                bool(t.get("is_short")), t.get("close_date"), t.get("close_rate"))
         if kluc in videne:
             continue
         videne.add(kluc)
         out.append(t)
     return out, len(trades) - len(out)
+
+
+@dataclass
+class Loaded:
+    """Obchody vybraných behov po obohatení a dedupe."""
+
+    trades: list[dict[str, Any]] = field(default_factory=list)
+    #: koľko obchodov vypadlo ako duplicita z prekrývajúcich sa okien
+    duplicates: int = 0
+    #: `id behu -> počet obchodov` pred dedupe (do hlavičky výpisu)
+    per_run: dict[str, int] = field(default_factory=dict)
+
+
+def trades_of(records: Sequence[dict[str, Any]], trades_fn: Callable[[str], Any],
+              chart_fn: Callable[[str], Any], *, strategy: str = "",
+              with_market: bool = True) -> Loaded:
+    """Obchody behov, obohatené kresbami (a stavom trhu) a bez duplicít — **jediné**
+    miesto, kde sa zliate obchody skladajú. Každý konzument (checkup, webapp analytika,
+    prop, paper, CLI) ide tadiaľto, inak by sa dedupe alebo enrichment v niektorej
+    kópii stratili.
+
+    `trades_fn(run_id)` a `chart_fn(run_id)` sú sklad behov (`RunStore.trades/chart`)
+    alebo čokoľvek, čo ten istý tvar vráti (webapp API pri cudzom klone).
+    """
+    out = Loaded()
+    vsetky: list[dict[str, Any]] = []
+    for rec in records:
+        run_id = rec.get("id") or ""
+        t = trades_fn(run_id)
+        if not t:
+            continue
+        nast = rec.get("settings") or {}
+        strat = strategy or nast.get("strategy") or "ibs"
+        obohatene = enrich([dict(x) for x in t], chart_fn(run_id), strat,
+                           pair=(nast.get("pair") or "") if with_market else "",
+                           timeframe=nast.get("timeframe") or "")
+        cfg = config_key(rec)
+        for x in obohatene:
+            x["_cfg"] = cfg
+        out.per_run[run_id] = len(obohatene)
+        vsetky += obohatene
+    out.trades, out.duplicates = dedupe(vsetky)
+    return out
 
 
 # --------------------------------------------------------------------------- #
@@ -459,11 +513,10 @@ def analyze(trades: Sequence[dict[str, Any]], *, strategy: str = "ibs",
     Vlastnosti sú zoradené podľa toho, koľko by sa dalo získať odfiltrovaním najhoršej
     skupiny — hore je to, čo sa najviac oplatí riešiť. `pair` a `timeframe` treba na
     stav trhu pri vstupe (`tester.regime`): bez nich tie štyri vlastnosti ticho chýbajú.
-    Obchody, ktoré už stav trhu nesú (obohatené po behoch), sa neprepočítavajú.
+    `enrich` je idempotentný (stav trhu aj kalendár preskočia už doplnené obchody),
+    takže obohatené obchody z `trades_of` sa neprepočítavajú.
     """
-    obchody = enrich([dict(t) for t in trades], chart, strategy,
-                     pair="" if any("_regime_trend" in t for t in trades) else pair,
-                     timeframe=timeframe)
+    obchody = enrich([dict(t) for t in trades], chart, strategy, pair=pair, timeframe=timeframe)
     riadene = knowledge(get_spec(strategy)).FEATURE_PARAMS
 
     splits: list[Split] = []

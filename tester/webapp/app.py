@@ -109,6 +109,13 @@ class RunRequest(BaseModel):
     engine: str | None = Field(None, description="freqtrade | multicharts (emulátor); None = podľa dát")
     exchange: str | None = Field(None, description="burza pre Freqtrade beh; None = fiktívna Tester")
     sweep: dict[str, Any] | None = Field(None, description="značka behu z mriežky: id, hodnoty, kritérium")
+    # Ďalšie značky, ktorými CLI aj runner spájajú behy do celkov. Musia prejsť API
+    # nezmenené, inak beh z CLI cez bežiacu webapp stratí väzbu na svoj hyperopt,
+    # okolie víťaza, checkup alebo maticu.
+    hyperopt_run: dict[str, Any] | None = Field(None, description="overovací beh víťaza hyperoptu")
+    plateau: dict[str, Any] | None = Field(None, description="sused víťaza hyperoptu")
+    checkup: dict[str, Any] | None = Field(None, description="beh základnej analytiky stratégie")
+    matrix: dict[str, Any] | None = Field(None, description="bunka matice trhov")
     profile: str | None = None
     note: str = ""
     user: str | None = Field(None, max_length=80, description="meno testera z hlavičky stránky")
@@ -509,7 +516,10 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 f"engine {engines.ENGINE_TITLES[engine]} sa na {req.pair} {req.timeframe} "
                 f"spustiť nedá ({preco}); dostupné: "
                 f"{', '.join(engines.ENGINE_TITLES[e] for e in possible) or 'žiadne'}"))
+        znacky = {k: getattr(req, k) for k in ("hyperopt_run", "plateau", "checkup", "matrix")
+                  if getattr(req, k, None)}
         return {
+            **znacky,
             "strategy": req.strategy,
             "exchange": exchange if engine == engines.FREQTRADE else None,
             "sweep": req.sweep,
@@ -618,7 +628,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         for point in points:
             settings = {**base, "sweep": {"id": sweep_id, "values": point, "goal": req.goal,
                                           "max_dd": req.max_dd, "min_trades": req.min_trades,
-                                          "signature": podpis}}
+                                          # `min_trades` je za rok; mriežky bez tejto
+                                          # značky vznikli s absolútnym významom
+                                          "per_year": True, "signature": podpis}}
             note = f"sweep {sweep_id}: {_point_note(point)}" + (f" — {req.note}" if req.note else "")
             try:
                 job = runner.submit({**req.params, **point}, settings, note=note,
@@ -686,7 +698,8 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
 
         tag = (records or live)[0]["settings"]["sweep"]
         ranked = sweep_mod.rank(records, tag.get("goal") or "break_even",
-                                max_dd=tag.get("max_dd"), min_trades=tag.get("min_trades"))
+                                max_dd=tag.get("max_dd"), min_trades=tag.get("min_trades"),
+                                per_year=bool(tag.get("per_year")))
         names = list(tag.get("values") or {})
         prazdny = dict.fromkeys(
             ("trades", "pnl_pct", "winrate", "max_drawdown_pct", "break_even_pct"))
@@ -851,37 +864,11 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         if not zadanie.get("knobs"):
             raise HTTPException(404, "tento beh nie je hyperopt")
 
+        # Jeden tvar detailu pre webapp aj CLI (`tester.hyperopt.detail`); tu sa len
+        # pridajú bežiace overovacie behy a okolie víťaza.
         epochs = store.extra(run_id, "epochs.json") or []
-        overenia = [r for r in store.all()
-                    if ((r.get("settings", {}).get("hyperopt_run") or {}).get("id")) == run_id]
-        overenia += [j for j in runner.snapshot()
-                     if ((j.get("settings", {}).get("hyperopt_run") or {}).get("id")) == run_id]
-        ladene = rec["settings"].get("timerange")
-        return {
-            "id": run_id,
-            "status": rec.get("status"),
-            "error": rec.get("error"),
-            "strategy": strategy_of(rec),
-            "settings": {k: rec["settings"].get(k) for k in
-                         ("pair", "timeframe", "timerange", "fee", "wallet", "exchange", "profile")},
-            "hyperopt": zadanie,
-            "goal_note": _goal_note(zadanie.get("goal") or "break_even",
-                                    zadanie.get("max_dd"), zadanie.get("min_trades")),
-            "params": list(zadanie["knobs"]),
-            "epochs": sorted(epochs, key=lambda e: (not e.get("usable"), e.get("loss", 0)))[:60],
-            "best": zadanie.get("best"),
-            "overrides": zadanie.get("overrides"),
-            "verify": [{
-                "id": r["id"],
-                "status": r.get("status"),
-                "timerange": r["settings"].get("timerange"),
-                "tuned": bool((r["settings"].get("hyperopt_run") or {}).get("tuned")),
-                "result": {k: (r.get("result") or {}).get(k) for k in
-                           ("trades", "pnl_pct", "winrate", "max_drawdown_pct", "break_even_pct")},
-            } for r in sorted(overenia, key=lambda r: r["settings"].get("timerange") or "")],
-            "verdict": ho.verdict(overenia, ladene) if overenia else "",
-            "plateau": _plateau_of(run_id, zadanie),
-        }
+        overenia = list(store.all()) + list(runner.snapshot())
+        return {**ho.detail(rec, epochs, overenia), "plateau": _plateau_of(run_id, zadanie)}
 
     @app.get("/api/analytics")
     def analytics(q: str = "", runs: str = "", strategy: str = "ibs",
@@ -922,26 +909,18 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(422, f"vybrané behy patria stratégii {', '.join(cudzie)}, "
                                      f"nie {strategy} — prepni stratégiu podľa behov")
 
-        obchody: list[dict[str, Any]] = []
-        pouzite = []
-        for rec in zaznamy:
-            t = store.trades(rec["id"])
-            if not t:
-                continue
-            # Kresby nesú plán obchodu (SL/TP úroveň), z ktorého je vzdialenosť stopu
-            # a plánovaný RR — bez nich tie dve vlastnosti vypadnú.
-            obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]), strategy,
-                                 pair=rec["settings"].get("pair") or "",
-                                 timeframe=rec["settings"].get("timeframe") or "3m")
-            pouzite.append({"id": rec["id"], "pair": rec["settings"].get("pair"),
-                            "timeframe": rec["settings"].get("timeframe"),
-                            "timerange": rec["settings"].get("timerange"),
-                            "trades": len(t), "profile": rec["settings"].get("profile"),
-                            "note": rec.get("note") or ""})
+        # Jeden loader pre všetky zliate obchody: kresby (plán obchodu), stav trhu,
+        # kalendár a dedupe prekrývajúcich sa okien (`analytics.trades_of`).
+        nacitane = an.trades_of(zaznamy, store.trades, store.chart, strategy=strategy)
+        obchody, duplicity = nacitane.trades, nacitane.duplicates
+        pouzite = [{"id": rec["id"], "pair": rec["settings"].get("pair"),
+                    "timeframe": rec["settings"].get("timeframe"),
+                    "timerange": rec["settings"].get("timerange"),
+                    "trades": nacitane.per_run[rec["id"]], "profile": rec["settings"].get("profile"),
+                    "note": rec.get("note") or ""}
+                   for rec in zaznamy if rec["id"] in nacitane.per_run]
         if not obchody:
             raise HTTPException(404, "vybrané behy nemajú uložené obchody")
-        # Referenčné okná sa prekrývajú o mesiac - ten istý obchod sa má počítať raz.
-        obchody, duplicity = an.dedupe(obchody)
 
         report = an.analyze(obchody, strategy=strategy, quantiles=quantiles,
                             min_bucket=min_bucket)
@@ -1148,14 +1127,11 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         if not zaznamy:
             raise HTTPException(404, "žiadne dobehnuté behy s obchodmi")
 
-        obchody: list[dict[str, Any]] = []
-        for rec in zaznamy:
-            t = store.trades(rec["id"])
-            if t:
-                obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]), req.strategy)
+        nacitane = an.trades_of(zaznamy, store.trades, store.chart, strategy=req.strategy,
+                                with_market=False)
+        obchody, duplicity = nacitane.trades, nacitane.duplicates
         if not obchody:
             raise HTTPException(404, "vybrané behy nemajú uložené obchody")
-        obchody, duplicity = an.dedupe(obchody)
 
         rizika = req.risks or list(pr.RISKS)
         varianty = []
