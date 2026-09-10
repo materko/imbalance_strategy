@@ -1,0 +1,402 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\config.tester.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\user_data --strategy StructureStrategy --cache none --export trades --timerange 20231001-20241001 --pairs BTC/USDT:USDT --timeframe 5m --dry-run-wallet 10000 --fee 0.0005 --timeframe-detail 1m --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\data\tester\binance
+2026-09-10 14:10:07,803 - freqtrade - INFO - freqtrade 2026.8
+2026-09-10 14:10:08,518 - freqtrade.configuration.load_config - INFO - Using config: 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\config.tester.json ...
+2026-09-10 14:10:08,519 - freqtrade.loggers - INFO - Enabling colorized output.
+… (skrátené) …
+2026-09-10 14:10:08,523 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-10 14:10:22,879 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 10136.83 na 9653.91 (95.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 14:10:28,557 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 12748.61 na 8173.84 (64.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 14:10:28,619 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 8704.57 na 8260.31 (94.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:10:46,389 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 8969.94 na 7077.98 (78.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:10:51,456 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 7172.96 na 5176.75 (72.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:10:51,468 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 5604.63 na 5079.92 (90.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:10:51,697 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 5791.89 na 4881.03 (84.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:02,220 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 6365.33 na 6234.51 (97.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:13,058 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 5134.03 na 4132.09 (80.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:13,120 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 7640.68 na 4032.17 (52.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:13,144 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 4984.42 na 3960.09 (79.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:14,475 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 5817.05 na 4220.71 (72.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:14,808 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 5690.18 na 4001.80 (70.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:27,395 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 4699.44 na 4319.98 (91.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:30,501 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 5105.27 na 3851.96 (75.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:34,059 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3318.10 na 3003.96 (90.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:34,991 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3959.67 na 2576.84 (65.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:35,175 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3058.11 na 2501.07 (81.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:35,236 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3286.15 na 2408.14 (73.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:35,256 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 8326.58 na 2324.34 (27.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:35,328 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2446.46 na 2367.73 (96.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:36,250 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3860.41 na 2045.66 (53.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:44,021 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 4868.69 na 2608.26 (53.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:44,071 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 4642.54 na 2542.43 (54.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:44,421 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3664.86 na 2370.09 (64.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:44,484 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 5168.34 na 2294.62 (44.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:44,749 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3306.01 na 2238.59 (67.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:44,983 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3816.91 na 2161.29 (56.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:45,170 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2297.89 na 2094.37 (91.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:45,795 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2704.32 na 2187.34 (80.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:46,265 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2839.70 na 2124.96 (74.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:47,033 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3138.04 na 2026.12 (64.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:47,140 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2360.73 na 1951.33 (82.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:48,755 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 4612.79 na 2047.12 (44.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:48,761 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 8196.35 na 2124.51 (25.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:48,778 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2101.76 na 2088.39 (99.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:48,918 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2811.20 na 1981.14 (70.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:49,189 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3243.40 na 1903.78 (58.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:49,294 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 7180.56 na 1836.73 (25.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:49,308 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 4594.54 na 1802.38 (39.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:49,316 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2140.15 na 1755.08 (82.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:49,526 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 4286.83 na 1666.41 (38.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:49,561 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3043.31 na 1619.80 (53.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:49,630 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1592.36 na 1560.48 (98.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:51,385 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2897.27 na 1354.48 (46.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:51,489 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3785.62 na 1439.65 (38.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:51,526 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 5549.02 na 1396.01 (25.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:51,562 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 6513.17 na 1364.40 (20.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:51,625 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3608.98 na 1337.85 (37.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:51,707 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3449.77 na 1294.59 (37.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:51,729 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1559.03 na 1362.05 (87.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:53,079 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3130.84 na 1518.29 (48.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:53,136 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 12889.03 na 1607.00 (12.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 14:11:53,160 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 6142.04 na 1586.81 (25.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:53,296 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 8367.79 na 1552.69 (18.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:53,436 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 11012.03 na 1526.07 (13.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-10 14:11:53,741 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 9257.40 na 1506.32 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:53,751 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 8242.46 na 1530.95 (18.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:54,035 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 4666.74 na 1504.48 (32.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:54,050 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2043.26 na 1465.29 (71.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:54,190 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2885.79 na 1599.79 (55.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:54,300 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3381.09 na 1701.93 (50.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:54,373 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 7462.80 na 1688.58 (22.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:54,437 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 6296.13 na 1657.08 (26.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:54,443 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2077.96 na 1700.71 (81.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:54,956 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 4565.75 na 1804.33 (39.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:54,975 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3902.18 na 1756.55 (45.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:55,005 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 5996.74 na 1703.74 (28.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:55,200 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2594.31 na 1666.49 (64.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:55,209 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2839.79 na 1785.67 (62.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:56,001 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 5651.37 na 1895.91 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:56,239 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3532.05 na 1851.58 (52.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:56,341 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2803.74 na 1945.56 (69.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:56,536 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 5063.96 na 1762.10 (34.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:56,558 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 5895.90 na 1719.28 (29.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:56,612 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2859.99 na 1768.43 (61.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:56,757 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2574.00 na 1882.56 (73.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:56,770 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 6711.47 na 1801.05 (26.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:56,779 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2566.02 na 1765.69 (68.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:57,243 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2306.80 na 1689.89 (73.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:57,410 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2455.41 na 1609.07 (65.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:57,459 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 6619.66 na 1536.74 (23.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:57,485 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3057.30 na 1506.42 (49.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:57,517 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 6924.59 na 1450.76 (21.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:57,525 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2232.39 na 1422.92 (63.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:58,897 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2489.46 na 1544.98 (62.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:59,041 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1980.62 na 1659.71 (83.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:59,531 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1772.35 na 1467.21 (82.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:59,871 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 5171.91 na 1377.04 (26.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:59,896 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3600.18 na 1343.99 (37.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:11:59,929 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2540.37 na 1300.50 (51.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:00,338 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 4005.55 na 1244.97 (31.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:00,397 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 7333.26 na 1208.40 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:00,472 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3211.19 na 1234.37 (38.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:00,696 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2403.13 na 1304.50 (54.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:00,812 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1864.66 na 1245.09 (66.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:01,651 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2041.25 na 1367.51 (67.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:01,988 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2857.02 na 1387.01 (48.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:02,056 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2022.48 na 1475.36 (72.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:02,635 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2008.74 na 1614.80 (80.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:02,777 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2796.06 na 1766.23 (63.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:02,853 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1961.83 na 1695.28 (86.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:03,009 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3138.72 na 1497.38 (47.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:03,266 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1917.81 na 1479.53 (77.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:04,403 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2471.85 na 1418.66 (57.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:04,468 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1479.20 na 1355.54 (91.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:04,933 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2301.71 na 1511.91 (65.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:05,061 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3418.44 na 1439.12 (42.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:05,086 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1569.52 na 1515.18 (96.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:05,987 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2511.51 na 1489.70 (59.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:06,071 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1493.22 na 1423.46 (95.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:06,547 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2146.87 na 1601.78 (74.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:07,120 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2303.24 na 1930.88 (83.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:07,207 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3530.34 na 1838.67 (52.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:07,306 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1948.70 na 1931.88 (99.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:07,659 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2725.67 na 1723.48 (63.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:07,714 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1924.88 na 1653.01 (85.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:07,737 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2069.79 na 1560.62 (75.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:07,900 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2547.44 na 1478.37 (58.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:07,906 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1921.35 na 1413.85 (73.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:08,833 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2400.88 na 1233.26 (51.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:10,695 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2717.51 na 1074.86 (39.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:10,815 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 5125.40 na 1031.40 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:10,863 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 4465.02 na 1065.52 (23.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:10,876 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1808.35 na 1036.84 (57.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:10,911 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1581.02 na 975.61 (61.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:11,444 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 6632.63 na 990.94 (14.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:11,452 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1738.59 na 1015.49 (58.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:11,704 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 4459.74 na 1124.29 (25.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:11,749 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1636.32 na 1093.93 (66.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-10 14:12:12,208 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1129.23 na 920.17 (81.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:12,741 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1658.61 na 837.94 (50.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:13,006 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1562.02 na 784.51 (50.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:13,471 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1896.32 na 879.42 (46.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:13,480 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1272.44 na 829.40 (65.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:13,941 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2957.30 na 761.49 (25.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:14,039 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 3312.11 na 807.75 (24.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:14,053 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1519.59 na 779.79 (51.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:14,190 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2306.13 na 725.60 (31.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:14,213 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1015.96 na 691.44 (68.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:14,723 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 928.23 na 620.57 (66.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:15,618 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1238.87 na 650.24 (52.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:27,131 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2652.08 na 738.08 (27.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:27,141 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 4986.56 na 707.26 (14.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:27,153 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1250.90 na 690.01 (55.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:27,571 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2201.77 na 632.71 (28.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:27,653 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1978.89 na 601.35 (30.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:27,744 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1532.95 na 658.38 (42.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:31,703 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1351.88 na 808.97 (59.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:32,052 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 4261.09 na 746.07 (17.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:32,170 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 4100.33 na 725.50 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:32,186 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2224.50 na 704.54 (31.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:32,485 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1724.30 na 670.54 (38.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:32,848 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2227.80 na 744.70 (33.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:32,886 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1904.00 na 806.64 (42.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:33,258 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2930.36 na 760.84 (26.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:33,330 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 2803.95 na 807.97 (28.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:12:36,562 - tradebot.adapters.freqtrade.base - WARNING - structure BTC/USDT:USDT: stake orezany z 1748.94 na 952.96 (54.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+…
+│ struct:1713062100000 │          stop_loss │      1 │        -8.01 │        -106.201 │        -1.06 │           1:46:00 │    0     0     1     0 │
+│ struct:1720107600000 │          stop_loss │      1 │        -9.01 │        -106.275 │        -1.06 │           7:56:00 │    0     0     1     0 │
+│ struct:1718645400000 │ trailing_stop_loss │      1 │        -8.56 │        -106.539 │        -1.07 │           8:08:00 │    0     0     1     0 │
+│ struct:1713270900000 │          stop_loss │      1 │        -8.02 │        -106.572 │        -1.07 │           1:05:00 │    0     0     1     0 │
+│ struct:1715871300000 │          stop_loss │      1 │        -6.63 │        -106.926 │        -1.07 │          16:15:00 │    0     0     1     0 │
+│ struct:1707982800000 │ trailing_stop_loss │      1 │        -6.81 │        -107.038 │        -1.07 │           3:44:00 │    0     0     1     0 │
+│ struct:1704487800000 │          stop_loss │      1 │        -7.64 │        -107.313 │        -1.07 │          10:00:00 │    0     0     1     0 │
+│ struct:1704669900000 │ trailing_stop_loss │      1 │        -6.33 │        -107.321 │        -1.07 │           6:51:00 │    0     0     1     0 │
+│ struct:1704291000000 │          stop_loss │      1 │        -7.01 │        -107.329 │        -1.07 │           1:39:00 │    0     0     1     0 │
+│ struct:1720514400000 │          stop_loss │      1 │        -7.04 │        -107.493 │        -1.07 │           4:56:00 │    0     0     1     0 │
+│ struct:1721081400000 │          stop_loss │      1 │         -5.6 │        -107.655 │        -1.08 │           7:41:00 │    0     0     1     0 │
+│ struct:1699024800000 │          stop_loss │      1 │        -7.33 │        -107.662 │        -1.08 │           2:11:00 │    0     0     1     0 │
+│ struct:1717076700000 │          stop_loss │      1 │        -6.94 │        -107.668 │        -1.08 │    1 day, 0:34:00 │    0     0     1     0 │
+│ struct:1720282800000 │          stop_loss │      1 │        -7.93 │        -107.685 │        -1.08 │          21:46:00 │    0     0     1     0 │
+│ struct:1705341000000 │          stop_loss │      1 │        -7.91 │        -107.689 │        -1.08 │          20:48:00 │    0     0     1     0 │
+│ struct:1700594100000 │          stop_loss │      1 │        -6.61 │        -107.715 │        -1.08 │           3:10:00 │    0     0     1     0 │
+│ struct:1714263900000 │          stop_loss │      1 │        -4.57 │        -107.779 │        -1.08 │          22:01:00 │    0     0     1     0 │
+│ struct:1704400500000 │          stop_loss │      1 │         -7.1 │        -108.051 │        -1.08 │           4:47:00 │    0     0     1     0 │
+│ struct:1702504200000 │          stop_loss │      1 │        -7.86 │        -108.066 │        -1.08 │          15:34:00 │    0     0     1     0 │
+│ struct:1714437900000 │          stop_loss │      1 │        -6.05 │        -108.283 │        -1.08 │           1:09:00 │    0     0     1     0 │
+│ struct:1700752800000 │ trailing_stop_loss │      1 │        -5.15 │        -108.320 │        -1.08 │           9:42:00 │    0     0     1     0 │
+│ struct:1716866700000 │ trailing_stop_loss │      1 │        -5.19 │        -108.338 │        -1.08 │           6:47:00 │    0     0     1     0 │
+│ struct:1698077100000 │          stop_loss │      1 │        -6.29 │        -108.355 │        -1.08 │           2:34:00 │    0     0     1     0 │
+│ struct:1704428400000 │ trailing_stop_loss │      1 │        -6.18 │        -108.675 │        -1.09 │           2:25:00 │    0     0     1     0 │
+│ struct:1713409500000 │          stop_loss │      1 │         -5.8 │        -108.693 │        -1.09 │           2:26:00 │    0     0     1     0 │
+│ struct:1700508600000 │          stop_loss │      1 │         -6.1 │        -108.707 │        -1.09 │           1:44:00 │    0     0     1     0 │
+│ struct:1705090800000 │          stop_loss │      1 │        -6.14 │        -108.745 │        -1.09 │           1:19:00 │    0     0     1     0 │
+│ struct:1707758100000 │          stop_loss │      1 │        -7.38 │        -108.762 │        -1.09 │          20:16:00 │    0     0     1     0 │
+│ struct:1702422900000 │          stop_loss │      1 │        -6.67 │        -108.790 │        -1.09 │           2:07:00 │    0     0     1     0 │
+│ struct:1700496000000 │          stop_loss │      1 │        -6.07 │        -108.868 │        -1.09 │           0:57:00 │    0     0     1     0 │
+│ struct:1708083300000 │          stop_loss │      1 │        -5.81 │        -108.920 │        -1.09 │           3:14:00 │    0     0     1     0 │
+│ struct:1702366800000 │          stop_loss │      1 │        -6.34 │        -108.927 │        -1.09 │           7:00:00 │    0     0     1     0 │
+│ struct:1698150900000 │          stop_loss │      1 │        -5.85 │        -109.180 │        -1.09 │           0:31:00 │    0     0     1     0 │
+│ struct:1714358100000 │          stop_loss │      1 │        -4.92 │        -109.263 │        -1.09 │          19:38:00 │    0     0     1     0 │
+│ struct:1698883800000 │          stop_loss │      1 │        -5.69 │        -109.291 │        -1.09 │           5:12:00 │    0     0     1     0 │
+│ struct:1702573500000 │          stop_loss │      1 │        -6.71 │        -109.508 │         -1.1 │          21:14:00 │    0     0     1     0 │
+│ struct:1704465300000 │ trailing_stop_loss │      1 │        -4.96 │        -109.632 │         -1.1 │           6:14:00 │    0     0     1     0 │
+│ struct:1709572500000 │          stop_loss │      1 │        -7.94 │        -109.643 │         -1.1 │          11:43:00 │    0     0     1     0 │
+│ struct:1698054300000 │          stop_loss │      1 │        -5.59 │        -109.645 │         -1.1 │           2:00:00 │    0     0     1     0 │
+│ struct:1702200000000 │          stop_loss │      1 │        -4.21 │        -109.664 │         -1.1 │          11:44:00 │    0     0     1     0 │
+│ struct:1704746100000 │          stop_loss │      1 │        -6.06 │        -109.677 │         -1.1 │           3:57:00 │    0     0     1     0 │
+│ struct:1700489400000 │          stop_loss │      1 │        -5.57 │        -109.677 │         -1.1 │           0:28:00 │    0     0     1     0 │
+│ struct:1699353900000 │          stop_loss │      1 │        -4.94 │        -109.783 │         -1.1 │           7:16:00 │    0     0     1     0 │
+│ struct:1704571800000 │          stop_loss │      1 │        -4.91 │        -109.943 │         -1.1 │           4:23:00 │    0     0     1     0 │
+│ struct:1704445200000 │          stop_loss │      1 │        -5.32 │        -110.031 │         -1.1 │           1:53:00 │    0     0     1     0 │
+│ struct:1704062700000 │ trailing_stop_loss │      1 │        -3.38 │        -110.040 │         -1.1 │           2:46:00 │    0     0     1     0 │
+│ struct:1698274800000 │ trailing_stop_loss │      1 │        -4.79 │        -110.202 │         -1.1 │           1:54:00 │    0     0     1     0 │
+│ struct:1698339000000 │ trailing_stop_loss │      1 │        -5.26 │        -110.354 │         -1.1 │           3:04:00 │    0     0     1     0 │
+│ struct:1700434800000 │          stop_loss │      1 │        -6.22 │        -110.413 │         -1.1 │          15:06:00 │    0     0     1     0 │
+│ struct:1706009100000 │ trailing_stop_loss │      1 │        -5.14 │        -110.438 │         -1.1 │           4:10:00 │    0     0     1     0 │
+│ struct:1698938400000 │ trailing_stop_loss │      1 │        -4.69 │        -110.452 │         -1.1 │           4:29:00 │    0     0     1     0 │
+│ struct:1713314700000 │          stop_loss │      1 │        -5.01 │        -110.495 │         -1.1 │           6:16:00 │    0     0     1     0 │
+│ struct:1716319500000 │ trailing_stop_loss │      1 │        -5.14 │        -110.505 │        -1.11 │           3:06:00 │    0     0     1     0 │
+│ struct:1714034100000 │          stop_loss │      1 │        -4.98 │        -110.534 │        -1.11 │           8:07:00 │    0     0     1     0 │
+│ struct:1705429500000 │ trailing_stop_loss │      1 │        -4.96 │        -110.852 │        -1.11 │           1:48:00 │    0     0     1     0 │
+│ struct:1705561500000 │          stop_loss │      1 │        -2.27 │        -110.885 │        -1.11 │           1:41:00 │    0     0     1     0 │
+│ struct:1705440300000 │          stop_loss │      1 │        -5.33 │        -111.258 │        -1.11 │           2:59:00 │    0     0     1     0 │
+│ struct:1714014000000 │          stop_loss │      1 │        -4.77 │        -111.276 │        -1.11 │           4:42:00 │    0     0     1     0 │
+│ struct:1704707400000 │ trailing_stop_loss │      1 │        -4.83 │        -111.298 │        -1.11 │           0:57:00 │    0     0     1     0 │
+│ struct:1705115100000 │          stop_loss │      1 │        -4.91 │        -111.390 │        -1.11 │           2:04:00 │    0     0     1     0 │
+│ struct:1709925600000 │          stop_loss │      1 │         -4.8 │        -111.437 │        -1.11 │           0:34:00 │    0     0     1     0 │
+│ struct:1707652500000 │          stop_loss │      1 │        -5.75 │        -111.440 │        -1.11 │          18:47:00 │    0     0     1     0 │
+│ struct:1707518100000 │          stop_loss │      1 │        -3.45 │        -111.446 │        -1.11 │          20:42:00 │    0     0     1     0 │
+│ struct:1698718500000 │ trailing_stop_loss │      1 │        -3.82 │        -111.454 │        -1.11 │          16:42:00 │    0     0     1     0 │
+│ struct:1704014100000 │          stop_loss │      1 │        -4.62 │        -111.720 │        -1.12 │           3:36:00 │    0     0     1     0 │
+│ struct:1709118900000 │          stop_loss │      1 │        -4.56 │        -111.793 │        -1.12 │           0:30:00 │    0     0     1     0 │
+│ struct:1702401600000 │ trailing_stop_loss │      1 │        -4.62 │        -111.962 │        -1.12 │           1:03:00 │    0     0     1     0 │
+│ struct:1710063600000 │          stop_loss │      1 │        -4.45 │        -112.062 │        -1.12 │           4:13:00 │    0     0     1     0 │
+│ struct:1709186400000 │          stop_loss │      1 │       -10.25 │        -112.372 │        -1.12 │          10:35:00 │    0     0     1     0 │
+│ struct:1709557800000 │          stop_loss │      1 │        -4.47 │        -112.394 │        -1.12 │           0:48:00 │    0     0     1     0 │
+│ struct:1700238900000 │ trailing_stop_loss │      1 │        -4.42 │        -112.500 │        -1.13 │           0:22:00 │    0     0     1     0 │
+│ struct:1698994200000 │ trailing_stop_loss │      1 │        -4.03 │        -112.601 │        -1.13 │           7:34:00 │    0     0     1     0 │
+│ struct:1710313500000 │          stop_loss │      1 │        -7.14 │        -112.622 │        -1.13 │           6:45:00 │    0     0     1     0 │
+│ struct:1704804300000 │          stop_loss │      1 │        -4.36 │        -112.697 │        -1.13 │           0:06:00 │    0     0     1     0 │
+│ struct:1705146000000 │ trailing_stop_loss │      1 │        -4.37 │        -112.915 │        -1.13 │           2:49:00 │    0     0     1     0 │
+│ struct:1698655200000 │          stop_loss │      1 │        -4.64 │        -113.105 │        -1.13 │           8:31:00 │    0     0     1     0 │
+│ struct:1712666700000 │          stop_loss │      1 │        -2.62 │        -113.130 │        -1.13 │           0:15:00 │    0     0     1     0 │
+│ struct:1698600900000 │          stop_loss │      1 │        -4.41 │        -114.050 │        -1.14 │           8:20:00 │    0     0     1     0 │
+│ struct:1708007100000 │          stop_loss │      1 │         -4.0 │        -114.151 │        -1.14 │           1:01:00 │    0     0     1     0 │
+│ struct:1699620900000 │          stop_loss │      1 │        -6.02 │        -114.196 │        -1.14 │    1 day, 9:11:00 │    0     0     1     0 │
+│ struct:1709526900000 │          stop_loss │      1 │        -3.93 │        -114.433 │        -1.14 │           0:55:00 │    0     0     1     0 │
+│ struct:1701873000000 │          stop_loss │      1 │        -3.92 │        -114.551 │        -1.15 │           0:04:00 │    0     0     1     0 │
+│ struct:1701315300000 │          stop_loss │      1 │        -4.22 │        -114.627 │        -1.15 │           4:43:00 │    0     0     1     0 │
+│ struct:1709940900000 │          stop_loss │      1 │        -3.17 │        -114.662 │        -1.15 │           7:07:00 │    0     0     1     0 │
+│ struct:1700685000000 │          stop_loss │      1 │        -4.62 │        -114.820 │        -1.15 │          18:45:00 │    0     0     1     0 │
+│ struct:1705156200000 │          stop_loss │      1 │        -5.31 │        -114.885 │        -1.15 │    1 day, 5:27:00 │    0     0     1     0 │
+│ struct:1712819100000 │          stop_loss │      1 │        -4.49 │        -114.932 │        -1.15 │           3:49:00 │    0     0     1     0 │
+│ struct:1699309800000 │          stop_loss │      1 │        -4.15 │        -115.101 │        -1.15 │           2:00:00 │    0     0     1     0 │
+│ struct:1712801100000 │          stop_loss │      1 │        -3.73 │        -115.369 │        -1.15 │           2:07:00 │    0     0     1     0 │
+│ struct:1710359700000 │          stop_loss │      1 │         -4.6 │        -115.518 │        -1.16 │           4:50:00 │    0     0     1     0 │
+│ struct:1698783300000 │          stop_loss │      1 │         -3.7 │        -115.539 │        -1.16 │           1:29:00 │    0     0     1     0 │
+│ struct:1708052100000 │          stop_loss │      1 │        -3.65 │        -115.543 │        -1.16 │           4:06:00 │    0     0     1     0 │
+│ struct:1700215500000 │ trailing_stop_loss │      1 │        -3.66 │        -115.608 │        -1.16 │           1:26:00 │    0     0     1     0 │
+│ struct:1705051500000 │ trailing_stop_loss │      1 │        -3.67 │        -115.795 │        -1.16 │           0:11:00 │    0     0     1     0 │
+│ struct:1698067500000 │          stop_loss │      1 │        -3.64 │        -115.949 │        -1.16 │           1:17:00 │    0     0     1     0 │
+│ struct:1701284700000 │          stop_loss │      1 │         -3.6 │        -115.969 │        -1.16 │           1:25:00 │    0     0     1     0 │
+│ struct:1707934200000 │          stop_loss │      1 │         -3.6 │        -116.007 │        -1.16 │           1:52:00 │    0     0     1     0 │
+│ struct:1699600800000 │ trailing_stop_loss │      1 │        -3.19 │        -116.103 │        -1.16 │           3:35:00 │    0     0     1     0 │
+│ struct:1708024500000 │ trailing_stop_loss │      1 │        -3.21 │        -116.260 │        -1.16 │           6:05:00 │    0     0     1     0 │
+│ struct:1710389100000 │          stop_loss │      1 │        -3.47 │        -116.608 │        -1.17 │           0:31:00 │    0     0     1     0 │
+│ struct:1707921900000 │          stop_loss │      1 │        -3.43 │        -116.907 │        -1.17 │           0:21:00 │    0     0     1     0 │
+│ struct:1705057200000 │          stop_loss │      1 │        -3.42 │        -116.930 │        -1.17 │           1:37:00 │    0     0     1     0 │
+│ struct:1701091800000 │ trailing_stop_loss │      1 │         -3.1 │        -116.992 │        -1.17 │           3:10:00 │    0     0     1     0 │
+│ struct:1700195700000 │          stop_loss │      1 │        -3.41 │        -117.026 │        -1.17 │           0:35:00 │    0     0     1     0 │
+│ struct:1699873800000 │          stop_loss │      1 │        -2.72 │        -117.099 │        -1.17 │           5:10:00 │    0     0     1     0 │
+│ struct:1699232700000 │          stop_loss │      1 │        -3.39 │        -117.112 │        -1.17 │           0:32:00 │    0     0     1     0 │
+│ struct:1705488900000 │          stop_loss │      1 │        -3.37 │        -117.306 │        -1.17 │           1:12:00 │    0     0     1     0 │
+│ struct:1705129500000 │          stop_loss │      1 │        -3.57 │        -117.957 │        -1.18 │           2:14:00 │    0     0     1     0 │
+│ struct:1698037800000 │          stop_loss │      1 │        -3.24 │        -118.083 │        -1.18 │           2:39:00 │    0     0     1     0 │
+│ struct:1702083900000 │          stop_loss │      1 │        -3.21 │        -118.498 │        -1.18 │           4:10:00 │    0     0     1     0 │
+│ struct:1704797100000 │          stop_loss │      1 │        -3.12 │        -118.891 │        -1.19 │           1:12:00 │    0     0     1     0 │
+│ struct:1700002800000 │          stop_loss │      1 │         -3.4 │        -119.074 │        -1.19 │           2:44:00 │    0     0     1     0 │
+│ struct:1707720300000 │          stop_loss │      1 │        -3.12 │        -119.156 │        -1.19 │           0:09:00 │    0     0     1     0 │
+│ struct:1698350400000 │          stop_loss │      1 │        -3.36 │        -119.405 │        -1.19 │           5:41:00 │    0     0     1     0 │
+│ struct:1699959900000 │ trailing_stop_loss │      1 │        -3.03 │        -119.608 │         -1.2 │           2:20:00 │    0     0     1     0 │
+│ struct:1700670900000 │ trailing_stop_loss │      1 │        -3.03 │        -119.622 │         -1.2 │           0:41:00 │    0     0     1     0 │
+│ struct:1708069800000 │ trailing_stop_loss │      1 │        -2.68 │        -120.037 │         -1.2 │           0:51:00 │    0     0     1     0 │
+│ struct:1705523700000 │          stop_loss │      1 │        -2.96 │        -120.063 │         -1.2 │           0:16:00 │    0     0     1     0 │
+│ struct:1704047700000 │          stop_loss │      1 │        -2.92 │        -120.415 │         -1.2 │           3:39:00 │    0     0     1     0 │
+│ struct:1699572900000 │          stop_loss │      1 │        -3.18 │        -120.808 │        -1.21 │           1:06:00 │    0     0     1     0 │
+│ struct:1704612600000 │          stop_loss │      1 │        -3.38 │        -121.310 │        -1.21 │           9:27:00 │    0     0     1     0 │
+│ struct:1705294800000 │          stop_loss │      1 │         -3.1 │        -121.486 │        -1.21 │           9:23:00 │    0     0     1     0 │
+│ struct:1698263400000 │          stop_loss │      1 │        -2.78 │        -121.664 │        -1.22 │           1:40:00 │    0     0     1     0 │
+│ struct:1707996300000 │          stop_loss │      1 │        -2.78 │        -121.675 │        -1.22 │           0:48:00 │    0     0     1     0 │
+│ struct:1701309300000 │          stop_loss │      1 │        -2.79 │        -121.690 │        -1.22 │           0:38:00 │    0     0     1     0 │
+│ struct:1705540200000 │          stop_loss │      1 │        -2.79 │        -121.738 │        -1.22 │           4:46:00 │    0     0     1     0 │
+│ struct:1699155000000 │          stop_loss │      1 │        -3.05 │        -121.748 │        -1.22 │          10:21:00 │    0     0     1     0 │
+│ struct:1700634600000 │          stop_loss │      1 │        -3.02 │        -121.916 │        -1.22 │           8:18:00 │    0     0     1     0 │
+│ struct:1698291300000 │          stop_loss │      1 │        -2.71 │        -122.351 │        -1.22 │           1:29:00 │    0     0     1     0 │
+│ struct:1702099200000 │          stop_loss │      1 │         -2.7 │        -122.598 │        -1.23 │           2:17:00 │    0     0     1     0 │
+│ struct:1699294200000 │ trailing_stop_loss │      1 │        -2.68 │        -122.895 │        -1.23 │           1:19:00 │    0     0     1     0 │
+│ struct:1701368400000 │          stop_loss │      1 │        -2.59 │        -123.616 │        -1.24 │           4:36:00 │    0     0     1     0 │
+│ struct:1704778200000 │          stop_loss │      1 │         -2.6 │        -123.762 │        -1.24 │           1:42:00 │    0     0     1     0 │
+│ struct:1702145400000 │          stop_loss │      1 │         -2.5 │        -124.844 │        -1.25 │           3:19:00 │    0     0     1     0 │
+│ struct:1701211500000 │ trailing_stop_loss │      1 │        -2.25 │        -124.850 │        -1.25 │           2:12:00 │    0     0     1     0 │
+│ struct:1698796200000 │          stop_loss │      1 │        -2.65 │        -125.993 │        -1.26 │           0:32:00 │    0     0     1     0 │
+│ struct:1696152000000 │          stop_loss │      1 │        -2.33 │        -127.225 │        -1.27 │           5:16:00 │    0     0     1     0 │
+│ struct:1701891300000 │          stop_loss │      1 │        -2.32 │        -127.248 │        -1.27 │           1:12:00 │    0     0     1     0 │
+│ struct:1703951400000 │          stop_loss │      1 │        -3.18 │        -127.503 │        -1.28 │           6:57:00 │    0     0     1     0 │
+│ struct:1700550300000 │          stop_loss │      1 │        -2.08 │        -127.750 │        -1.28 │           1:48:00 │    0     0     1     0 │
+│ struct:1699583100000 │          stop_loss │      1 │        -2.28 │        -127.955 │        -1.28 │           3:55:00 │    0     0     1     0 │
+│ struct:1701300600000 │          stop_loss │      1 │         -2.5 │        -128.007 │        -1.28 │           2:21:00 │    0     0     1     0 │
+│ struct:1701231600000 │          stop_loss │      1 │        -2.24 │        -128.679 │        -1.29 │           1:29:00 │    0     0     1     0 │
+│ struct:1707648000000 │ trailing_stop_loss │      1 │        -2.07 │        -128.986 │        -1.29 │           0:24:00 │    0     0     1     0 │
+│ struct:1699949400000 │          stop_loss │      1 │        -2.16 │        -129.806 │         -1.3 │           1:10:00 │    0     0     1     0 │
+│ struct:1704566100000 │          stop_loss │      1 │        -2.12 │        -130.604 │        -1.31 │           0:39:00 │    0     0     1     0 │
+│ struct:1704600600000 │ trailing_stop_loss │      1 │        -2.11 │        -130.911 │        -1.31 │           0:46:00 │    0     0     1     0 │
+│ struct:1701343800000 │          stop_loss │      1 │        -2.11 │        -130.946 │        -1.31 │           2:20:00 │    0     0     1     0 │
+│ struct:1696182300000 │ trailing_stop_loss │      1 │        -2.11 │        -130.973 │        -1.31 │           2:22:00 │    0     0     1     0 │
+│ struct:1699329300000 │          stop_loss │      1 │        -2.25 │        -132.251 │        -1.32 │           5:38:00 │    0     0     1     0 │
+│ struct:1702120800000 │ trailing_stop_loss │      1 │        -2.03 │        -132.565 │        -1.33 │           1:41:00 │    0     0     1     0 │
+│ struct:1696245600000 │          stop_loss │      1 │        -1.99 │        -133.437 │        -1.33 │           0:17:00 │    0     0     1     0 │
+│ struct:1702935900000 │          stop_loss │      1 │       -18.08 │        -134.439 │        -1.34 │  11 days, 0:30:00 │    0     0     1     0 │
+│ struct:1700289900000 │          stop_loss │      1 │        -1.65 │        -136.146 │        -1.36 │           1:03:00 │    0     0     1     0 │
+│ struct:1698809700000 │ trailing_stop_loss │      1 │        -1.82 │        -137.812 │        -1.38 │           4:07:00 │    0     0     1     0 │
+│ struct:1697009100000 │          stop_loss │      1 │        -1.57 │        -141.314 │        -1.41 │           1:10:00 │    0     0     1     0 │
+│ struct:1698542100000 │ trailing_stop_loss │      1 │        -1.65 │        -143.277 │        -1.43 │           5:23:00 │    0     0     1     0 │
+│ struct:1698711000000 │          stop_loss │      1 │        -1.48 │        -143.424 │        -1.43 │           1:01:00 │    0     0     1     0 │
+│ struct:1698518100000 │          stop_loss │      1 │        -1.64 │        -143.815 │        -1.44 │           3:53:00 │    0     0     1     0 │
+│                TOTAL │                    │    459 │        -0.94 │       -9172.372 │       -91.72 │          16:11:00 │  141     0   318  30.7 │
+└──────────────────────┴────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴───────────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2023-10-01 00:00:00                       │
+│ Backtesting to                         │ 2024-10-01 00:00:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 459 / 1.25                                │
+│ Starting balance                       │ 10000 USDT                                │
+│ Final balance                          │ 827.628 USDT                              │
+│ Absolute profit                        │ -9172.372 USDT                            │
+│ Total profit %                         │ -91.72%                                   │
+│ CAGR %                                 │ -91.67%                                   │
+│ Sharpe (closed trades)                 │ -3.98                                     │
+│ Sortino (closed trades)                │ -16.63                                    │
+│ Calmar (closed trades)                 │ -5.07                                     │
+│ SQN                                    │ -3.55                                     │
+│ Mean profit p-value                    │ 0.0004238                                 │
+│ Profit factor                          │ 0.70                                      │
+│ Expectancy (Ratio)                     │ -19.98 (-0.21)                            │
+│ Avg. daily profit                      │ -25.061 USDT                              │
+│ Avg. stake amount                      │ 2283.847 USDT                             │
+│ Market change                          │ 134.88%                                   │
+│ Total trade volume                     │ 10491099.811 USDT                         │
+│                                        │                                           │
+│ Long / Short trades                    │ 249 / 210                                 │
+│ Long / Short profit %                  │ -36.49% / -55.24%                         │
+│ Long / Short profit USDT               │ -3648.694 / -5523.678                     │
+│                                        │                                           │
+│ Best Pair                              │ BTC/USDT:USDT -91.72%                     │
+│ Worst Pair                             │ BTC/USDT:USDT -91.72%                     │
+│ Best trade                             │ BTC/USDT:USDT 84.67%                      │
+│ Worst trade                            │ BTC/USDT:USDT -33.09%                     │
+│ Best day                               │ 566.794 USDT                              │
+│ Worst day                              │ -618.886 USDT                             │
+│ Days win/draw/lose                     │ 77 / 163 / 127                            │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:04 / 18d 03:55 / 1d 01:35           │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:04 / 24d 05:24 / 0d 12:01           │
+│ Max Consecutive Wins / Loss            │ 5 / 16                                    │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 1 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 607.42 USDT / 10822.444 USDT              │
+│ Max % of account underwater            │ 94.39%                                    │
+│ Absolute drawdown                      │ 10215.024 USDT (94.39%)                   │
+│ Drawdown duration                      │ 311 days 14:10:00                         │
+│ Profit at drawdown start               │ 822.444 USDT                              │
+│ Profit at drawdown end                 │ -9392.58 USDT                             │
+│ Drawdown start                         │ 2023-10-23 04:00:00                       │
+│ Drawdown end                           │ 2024-08-29 18:10:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 607.42 USDT / 10822.444 USDT              │
+│ Min/Max balance dates (wallet balance) │ 2024-08-29 18:15:00 / 2023-10-23 04:05:00 │
+│ Max % of account underwater (balance)  │ 94.39%                                    │
+│ Absolute drawdown (wallet balance)     │ 10215.024 USDT (94.39%)                   │
+│ Drawdown duration                      │ 311 days 14:10:00                         │
+│ Profit at drawdown start               │ 822.444 USDT                              │
+│ Profit at drawdown end                 │ -9392.58 USDT                             │
+│ Drawdown start                         │ 2023-10-23 04:05:00                       │
+│ Drawdown end                           │ 2024-08-29 18:15:00                       │
+│ Sharpe (daily wallet balance)          │ -1.74                                     │
+│ Sortino (daily wallet balance)         │ -2.56                                     │
+│ Calmar (daily wallet balance)          │ -5.10                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2023-10-01 00:00:00 -> 2024-10-01 00:00:00 | Max open trades : 1
+                                                               STRATEGY SUMMARY                                                                
+┌───────────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┬────────────────────────┐
+│          Strategy │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │               Drawdown │
+├───────────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┼────────────────────────┤
+│ StructureStrategy │    459 │        -0.94 │       -9172.372 │       -91.72 │     16:11:00 │  141     0   318  30.7 │ 10215.024 USDT  94.39% │
+└───────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┴────────────────────────┘

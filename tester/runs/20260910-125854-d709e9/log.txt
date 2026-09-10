@@ -1,0 +1,402 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\config.tester.cfd.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\user_data --strategy StructureStrategy --cache none --export trades --timerange 20240904-20250904 --pairs COFFEE/USD --timeframe 3m --dry-run-wallet 10000 --fee 0.0005 --timeframe-detail 1m --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\data\tester\dukascopy\futures
+2026-09-10 14:58:55,600 - freqtrade - INFO - freqtrade 2026.8
+2026-09-10 14:58:56,250 - freqtrade.configuration.load_config - INFO - Using config: 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\config.tester.cfd.json ...
+2026-09-10 14:58:56,250 - freqtrade.loggers - INFO - Enabling colorized output.
+… (skrátené) …
+2026-09-10 14:58:56,258 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-10 14:58:56,484 - freqtrade.data.history.datahandlers.idatahandler - WARNING - COFFEE/USD, spot, 3m, data ends at 2025-09-03 17:27:00
+2026-09-10 14:58:56,530 - freqtrade.data.history.datahandlers.idatahandler - WARNING - COFFEE/USD, spot, 1m, data starts at 2024-09-04 08:15:00
+2026-09-10 14:58:56,530 - freqtrade.data.history.datahandlers.idatahandler - WARNING - COFFEE/USD, spot, 1m, data ends at 2025-09-03 17:29:00
+…
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.99
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: True
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USD
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 300
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using unfilledtimeout: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 'unit': 'minutes'}
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2026-09-10 14:58:56,463 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2026-09-10 14:58:56,463 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 14:58:56,481 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\freqtrade\plugins\pairlist\StaticPairList.py'...
+2026-09-10 14:58:56,481 - freqtrade.optimize.backtesting - INFO - Using fee 0.0500% from config.
+2026-09-10 14:58:56,484 - freqtrade.data.history.datahandlers.idatahandler - WARNING - COFFEE/USD, spot, 3m, data ends at 2025-09-03 17:27:00
+2026-09-10 14:58:56,496 - freqtrade.data.history.datahandlers.idatahandler - INFO - Price jump in COFFEE/USD, 3m, spot between two candles of 18.53% detected.
+2026-09-10 14:58:56,518 - freqtrade.data.converter.converter - INFO - Missing data fillup for COFFEE/USD, 3m: before: 41164 - after: 175370 - 326.03%
+2026-09-10 14:58:56,518 - freqtrade.optimize.backtesting - INFO - Loading data from 2024-09-03 09:00:00 up to 2025-09-03 17:27:00 (365 days).
+2026-09-10 14:58:56,530 - freqtrade.data.history.datahandlers.idatahandler - WARNING - COFFEE/USD, spot, 1m, data starts at 2024-09-04 08:15:00
+2026-09-10 14:58:56,530 - freqtrade.data.history.datahandlers.idatahandler - WARNING - COFFEE/USD, spot, 1m, data ends at 2025-09-03 17:29:00
+2026-09-10 14:58:56,538 - freqtrade.data.history.datahandlers.idatahandler - INFO - Price jump in COFFEE/USD, 1m, spot between two candles of 18.53% detected.
+2026-09-10 14:58:56,597 - freqtrade.data.converter.converter - INFO - Missing data fillup for COFFEE/USD, 1m: before: 122361 - after: 524715 - 328.83%
+2026-09-10 14:58:57,247 - freqtrade.optimize.backtesting - INFO - Dataload complete. Calculating indicators
+2026-09-10 14:58:57,249 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy StructureStrategy
+2026-09-10 14:58:58,188 - tradebot.adapters.freqtrade.base - INFO - structure COFFEE/USD: 175370 barov, 250 signalov (126 long / 124 short)
+2026-09-10 14:58:58,230 - tradebot.adapters.freqtrade.base - INFO - structure COFFEE/USD: kresby ulozene do 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\tester\runs\.profiles\20260910-125854-d709e9.chart.json.gz (13188 objektov)
+2026-09-10 14:58:58,255 - freqtrade.optimize.backtesting - INFO - Backtesting with data from 2024-09-04 00:00:00 up to 2025-09-03 17:27:00 (364 days).
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 4/4           100% • 0:00:01 • 0:00:00
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 175069/175069 100% • 0:01:47 • 0:00:00
+2026-09-10 15:00:45,735 - freqtrade.misc - INFO - dumping json to 
+"C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\user_data\backtest_results\backtest-result-2026-09-10_13-00-45.met
+a.json"
+Result for strategy StructureStrategy
+                                               BACKTESTING REPORT                                                
+┌────────────┬────────┬──────────────┬────────────────┬──────────────┬─────────────────┬────────────────────────┐
+│       Pair │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │    Avg Duration │  Win  Draw  Loss  Win% │
+├────────────┼────────┼──────────────┼────────────────┼──────────────┼─────────────────┼────────────────────────┤
+│ COFFEE/USD │    119 │         0.13 │         39.028 │         0.39 │ 2 days, 3:35:00 │   49     0    70  41.2 │
+│      TOTAL │    119 │         0.13 │         39.028 │         0.39 │ 2 days, 3:35:00 │   49     0    70  41.2 │
+└────────────┴────────┴──────────────┴────────────────┴──────────────┴─────────────────┴────────────────────────┘
+                                           LEFT OPEN TRADES REPORT                                            
+┌────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│       Pair │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ COFFEE/USD │      1 │         0.09 │          0.358 │          0.0 │      4:30:00 │    1     0     0   100 │
+│      TOTAL │      1 │         0.09 │          0.358 │          0.0 │      4:30:00 │    1     0     0   100 │
+└────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                        ENTER TAG STATS                                                        
+┌──────────────────────┬─────────┬──────────────┬────────────────┬──────────────┬────────────────────┬────────────────────────┐
+│            Enter Tag │ Entries │ Avg Profit % │ Tot Profit USD │ Tot Profit % │       Avg Duration │  Win  Draw  Loss  Win% │
+├──────────────────────┼─────────┼──────────────┼────────────────┼──────────────┼────────────────────┼────────────────────────┤
+│ struct:1732984020000 │       1 │         18.2 │         58.115 │         0.58 │   31 days, 7:30:00 │    1     0     0   100 │
+│ struct:1752240960000 │       1 │         4.89 │         15.079 │         0.15 │   3 days, 22:25:00 │    1     0     0   100 │
+│ struct:1752843600000 │       1 │         4.19 │         13.948 │         0.14 │     1 day, 1:25:00 │    1     0     0   100 │
+│ struct:1753110900000 │       1 │          3.4 │         12.312 │         0.12 │           22:51:00 │    1     0     0   100 │
+│ struct:1756136520000 │       1 │         3.21 │         11.851 │         0.12 │           19:15:00 │    1     0     0   100 │
+│ struct:1730034000000 │       1 │         3.48 │         11.129 │         0.11 │    1 day, 20:12:00 │    1     0     0   100 │
+│ struct:1752940620000 │       1 │         2.98 │         10.335 │          0.1 │    1 day, 20:37:00 │    1     0     0   100 │
+│ struct:1731152880000 │       1 │         3.14 │         10.327 │          0.1 │           21:24:00 │    1     0     0   100 │
+│ struct:1750588920000 │       1 │         3.54 │         10.316 │          0.1 │     1 day, 5:39:00 │    1     0     0   100 │
+│ struct:1756218420000 │       1 │         2.27 │          8.553 │         0.09 │   2 days, 18:40:00 │    1     0     0   100 │
+│ struct:1754308800000 │       1 │         2.27 │          8.451 │         0.08 │            2:33:00 │    1     0     0   100 │
+│ struct:1730821500000 │       1 │         2.41 │          7.524 │         0.08 │           19:18:00 │    1     0     0   100 │
+│ struct:1725870780000 │       1 │         2.77 │          6.931 │         0.07 │    5 days, 1:40:00 │    1     0     0   100 │
+│ struct:1731861180000 │       1 │         2.14 │          6.895 │         0.07 │           17:01:00 │    1     0     0   100 │
+│ struct:1755947700000 │       1 │         1.89 │          6.784 │         0.07 │            2:28:00 │    1     0     0   100 │
+│ struct:1731945780000 │       1 │         1.95 │          6.464 │         0.06 │           20:44:00 │    1     0     0   100 │
+│ struct:1728818820000 │       1 │         2.41 │          6.351 │         0.06 │            3:34:00 │    1     0     0   100 │
+│ struct:1728989640000 │       1 │         2.19 │          6.127 │         0.06 │   2 days, 22:18:00 │    1     0     0   100 │
+│ struct:1749543840000 │       1 │          1.9 │          5.440 │         0.05 │            0:15:00 │    1     0     0   100 │
+│ struct:1730740320000 │       1 │         1.76 │          5.352 │         0.05 │           19:23:00 │    1     0     0   100 │
+│ struct:1749997440000 │       1 │         1.79 │          5.334 │         0.05 │           19:28:00 │    1     0     0   100 │
+│ struct:1727514900000 │       1 │         2.12 │          5.289 │         0.05 │            3:01:00 │    1     0     0   100 │
+│ struct:1727094420000 │       1 │         2.03 │          5.068 │         0.05 │           20:26:00 │    1     0     0   100 │
+│ struct:1749370860000 │       1 │         1.67 │          4.684 │         0.05 │            7:49:00 │    1     0     0   100 │
+│ struct:1730628900000 │       1 │         1.59 │          4.675 │         0.05 │            3:40:00 │    1     0     0   100 │
+│ struct:1751617260000 │       1 │         1.61 │          4.648 │         0.05 │            4:47:00 │    1     0     0   100 │
+│ struct:1755255420000 │       1 │         1.14 │          4.564 │         0.05 │            0:29:00 │    1     0     0   100 │
+│ struct:1754147340000 │       1 │         1.18 │          4.369 │         0.04 │            1:49:00 │    1     0     0   100 │
+│ struct:1728905580000 │       1 │         1.59 │          4.338 │         0.04 │            2:37:00 │    1     0     0   100 │
+│ struct:1732357980000 │       1 │         1.26 │          4.087 │         0.04 │            2:46:00 │    1     0     0   100 │
+│ struct:1729598220000 │       1 │         1.33 │          3.917 │         0.04 │            2:33:00 │    1     0     0   100 │
+│ struct:1732100940000 │       1 │          1.2 │          3.863 │         0.04 │            1:36:00 │    1     0     0   100 │
+│ struct:1753613100000 │       1 │         1.04 │          3.832 │         0.04 │            1:51:00 │    1     0     0   100 │
+│ struct:1753528860000 │       1 │         0.97 │          3.545 │         0.04 │            1:14:00 │    1     0     0   100 │
+│ struct:1726920000000 │       1 │         1.32 │          3.312 │         0.03 │            3:33:00 │    1     0     0   100 │
+│ struct:1729522800000 │       1 │         1.13 │          3.298 │         0.03 │            1:06:00 │    1     0     0   100 │
+│ struct:1749660660000 │       1 │         1.07 │          3.085 │         0.03 │   2 days, 15:24:00 │    1     0     0   100 │
+│ struct:1728742500000 │       1 │         1.06 │          2.751 │         0.03 │            0:25:00 │    1     0     0   100 │
+│ struct:1756055880000 │       1 │         0.71 │          2.614 │         0.03 │           15:06:00 │    1     0     0   100 │
+│ struct:1725444180000 │       1 │          1.0 │          2.550 │         0.03 │            1:55:00 │    1     0     0   100 │
+│ struct:1751646240000 │       1 │         0.88 │          2.547 │         0.03 │           18:54:00 │    1     0     0   100 │
+│ struct:1728119700000 │       1 │         0.98 │          2.423 │         0.02 │            4:17:00 │    1     0     0   100 │
+│ struct:1729966140000 │       1 │         0.73 │          2.269 │         0.02 │           15:05:00 │    1     0     0   100 │
+│ struct:1727792280000 │       1 │         0.91 │          2.211 │         0.02 │            0:34:00 │    1     0     0   100 │
+│ struct:1756550340000 │       1 │         0.58 │          2.147 │         0.02 │            0:20:00 │    1     0     0   100 │
+│ struct:1726313940000 │       1 │         0.74 │          1.914 │         0.02 │            3:54:00 │    1     0     0   100 │
+│ struct:1725724980000 │       1 │         0.78 │          1.907 │         0.02 │            1:20:00 │    1     0     0   100 │
+│ struct:1750872240000 │       1 │         0.64 │          1.905 │         0.02 │   2 days, 14:48:00 │    1     0     0   100 │
+│ struct:1756904040000 │       1 │         0.09 │          0.358 │          0.0 │            4:30:00 │    1     0     0   100 │
+│ struct:1729511460000 │       1 │        -0.33 │         -0.982 │        -0.01 │            0:17:00 │    0     0     1     0 │
+│ struct:1727079840000 │       1 │         -0.4 │         -1.007 │        -0.01 │            3:31:00 │    0     0     1     0 │
+│ struct:1726914060000 │       1 │        -0.46 │         -1.146 │        -0.01 │            0:32:00 │    0     0     1     0 │
+│ struct:1727799660000 │       1 │        -0.54 │         -1.310 │        -0.01 │   2 days, 16:51:00 │    0     0     1     0 │
+│ struct:1728984060000 │       1 │        -0.54 │         -1.519 │        -0.02 │            0:23:00 │    0     0     1     0 │
+│ struct:1748865780000 │       1 │        -0.54 │         -1.563 │        -0.02 │            0:34:00 │    0     0     1     0 │
+│ struct:1729858140000 │       1 │        -0.53 │         -1.616 │        -0.02 │            1:05:00 │    0     0     1     0 │
+│ struct:1756746360000 │       1 │        -0.44 │         -1.683 │        -0.02 │           15:32:00 │    0     0     1     0 │
+│ struct:1727016120000 │       1 │        -0.68 │         -1.701 │        -0.02 │            1:44:00 │    0     0     1     0 │
+│ struct:1748852280000 │       1 │        -0.59 │         -1.702 │        -0.02 │            0:36:00 │    0     0     1     0 │
+│ struct:1747759680000 │       1 │        -0.59 │         -1.855 │        -0.02 │   2 days, 15:24:00 │    0     0     1     0 │
+│ struct:1732624380000 │       1 │        -0.57 │         -1.887 │        -0.02 │            0:36:00 │    0     0     1     0 │
+│ struct:1727189460000 │       1 │        -0.77 │         -1.926 │        -0.02 │            0:49:00 │    0     0     1     0 │
+│ struct:1725703380000 │       1 │         -0.8 │         -1.997 │        -0.02 │            1:43:00 │    0     0     1     0 │
+│ struct:1728815220000 │       1 │        -0.79 │         -2.073 │        -0.02 │            0:11:00 │    0     0     1     0 │
+│ struct:1727701560000 │       1 │        -0.84 │         -2.076 │        -0.02 │           23:01:00 │    0     0     1     0 │
+│ struct:1751106420000 │       1 │         -0.7 │         -2.131 │        -0.02 │            2:27:00 │    0     0     1     0 │
+│ struct:1731940920000 │       1 │        -0.65 │         -2.158 │        -0.02 │            0:01:00 │    0     0     1     0 │
+│ struct:1756541700000 │       1 │        -0.58 │         -2.168 │        -0.02 │            0:05:00 │    0     0     1     0 │
+│ struct:1750781700000 │       1 │        -0.75 │         -2.274 │        -0.02 │           20:10:00 │    0     0     1     0 │
+│ struct:1751193360000 │       1 │        -0.78 │         -2.347 │        -0.02 │            1:55:00 │    0     0     1     0 │
+│ struct:1750080060000 │       1 │        -0.78 │         -2.391 │        -0.02 │           20:43:00 │    0     0     1     0 │
+│ struct:1731341160000 │       1 │        -0.75 │         -2.419 │        -0.02 │     1 day, 1:25:00 │    0     0     1     0 │
+│ struct:1750162140000 │       1 │        -0.81 │         -2.461 │        -0.02 │            2:15:00 │    0     0     1     0 │
+│ struct:1728306000000 │       1 │        -0.96 │         -2.465 │        -0.02 │            0:54:00 │    0     0     1     0 │
+│ struct:1727536500000 │       1 │         -1.0 │         -2.534 │        -0.03 │            1:53:00 │    0     0     1     0 │
+│ struct:1732971960000 │       1 │         -0.8 │         -2.551 │        -0.03 │            2:29:00 │    0     0     1     0 │
+│ struct:1748248920000 │       1 │        -0.85 │         -2.603 │        -0.03 │           23:51:00 │    0     0     1     0 │
+│ struct:1729938780000 │       1 │        -0.86 │         -2.654 │        -0.03 │            0:25:00 │    0     0     1     0 │
+│ struct:1732638780000 │       1 │        -0.83 │         -2.694 │        -0.03 │            0:38:00 │    0     0     1     0 │
+│ struct:1732704840000 │       1 │        -0.86 │         -2.767 │        -0.03 │   2 days, 23:40:00 │    0     0     1     0 │
+│ struct:1727611200000 │       1 │        -1.11 │         -2.772 │        -0.03 │            5:10:00 │    0     0     1     0 │
+│ struct:1751809860000 │       1 │        -0.95 │         -2.808 │        -0.03 │            0:51:00 │    0     0     1     0 │
+│ struct:1725455340000 │       1 │        -1.11 │         -2.837 │        -0.03 │            0:24:00 │    0     0     1     0 │
+│ struct:1729515600000 │       1 │        -0.98 │         -2.884 │        -0.03 │            0:37:00 │    0     0     1     0 │
+│ struct:1728315180000 │       1 │        -1.13 │         -2.928 │        -0.03 │           21:36:00 │    0     0     1     0 │
+│ struct:1726992900000 │       1 │        -1.18 │         -3.004 │        -0.03 │            4:46:00 │    0     0     1     0 │
+│ struct:1730563920000 │       1 │        -1.01 │         -3.030 │        -0.03 │            0:16:00 │    0     0     1     0 │
+│ struct:1727601300000 │       1 │        -1.21 │         -3.060 │        -0.03 │            0:42:00 │    0     0     1     0 │
+│ struct:1729864800000 │       1 │        -1.03 │         -3.147 │        -0.03 │            1:49:00 │    0     0     1     0 │
+│ struct:1731767220000 │       1 │        -1.01 │         -3.303 │        -0.03 │           18:45:00 │    0     0     1     0 │
+│ struct:1750173480000 │       1 │         -1.1 │         -3.352 │        -0.03 │           23:47:00 │    0     0     1     0 │
+│ struct:1732120740000 │       1 │        -1.07 │         -3.507 │        -0.04 │            0:13:00 │    0     0     1     0 │
+│ struct:1751729940000 │       1 │        -1.19 │         -3.558 │        -0.04 │           20:31:00 │    0     0     1     0 │
+│ struct:1755432360000 │       1 │        -0.93 │         -3.639 │        -0.04 │            0:59:00 │    0     0     1     0 │
+│ struct:1751286600000 │       1 │        -1.28 │         -3.816 │        -0.04 │            1:44:00 │    0     0     1     0 │
+│ struct:1749917160000 │       1 │         -1.3 │         -3.901 │        -0.04 │           21:35:00 │    0     0     1     0 │
+│ struct:1748768400000 │       1 │        -1.31 │         -3.909 │        -0.04 │            1:21:00 │    0     0     1     0 │
+│ struct:1756126440000 │       1 │        -1.07 │         -3.949 │        -0.04 │            0:42:00 │    0     0     1     0 │
+│ struct:1751374440000 │       1 │        -1.41 │         -4.120 │        -0.04 │            3:04:00 │    0     0     1     0 │
+│ struct:1751298660000 │       1 │        -1.46 │         -4.305 │        -0.04 │           19:49:00 │    0     0     1     0 │
+│ struct:1732024440000 │       1 │        -1.28 │         -4.324 │        -0.04 │            1:10:00 │    0     0     1     0 │
+│ struct:1753704000000 │       1 │        -1.13 │         -4.337 │        -0.04 │            2:06:00 │    0     0     1     0 │
+│ struct:1751119200000 │       1 │        -1.45 │         -4.408 │        -0.04 │            2:45:00 │    0     0     1     0 │
+│ struct:1748781000000 │       1 │        -1.52 │         -4.529 │        -0.05 │            3:43:00 │    0     0     1     0 │
+│ struct:1748335680000 │       1 │        -1.51 │         -4.620 │        -0.05 │            4:32:00 │    0     0     1     0 │
+│ struct:1754126640000 │       1 │        -1.28 │         -4.894 │        -0.05 │            1:55:00 │    0     0     1     0 │
+│ struct:1748160900000 │       1 │        -1.56 │         -4.922 │        -0.05 │            3:32:00 │    0     0     1     0 │
+│ struct:1753545240000 │       1 │        -1.33 │         -4.937 │        -0.05 │           16:28:00 │    0     0     1     0 │
+│ struct:1748092320000 │       1 │        -1.57 │         -5.001 │        -0.05 │            2:44:00 │    0     0     1     0 │
+│ struct:1753691400000 │       1 │         -1.3 │         -5.018 │        -0.05 │            2:25:00 │    0     0     1     0 │
+│ struct:1749629700000 │       1 │        -1.76 │         -5.132 │        -0.05 │            7:24:00 │    0     0     1     0 │
+│ struct:1755610380000 │       1 │        -1.43 │         -5.212 │        -0.05 │   3 days, 20:16:00 │    0     0     1     0 │
+│ struct:1748876580000 │       1 │        -1.84 │         -5.238 │        -0.05 │    5 days, 0:26:00 │    0     0     1     0 │
+│ struct:1755450180000 │       1 │        -1.44 │         -5.425 │        -0.05 │    1 day, 18:38:00 │    0     0     1     0 │
+│ struct:1754221860000 │       1 │        -1.57 │         -5.883 │        -0.06 │           23:14:00 │    0     0     1     0 │
+│ struct:1748361600000 │       1 │        -2.21 │         -6.696 │        -0.07 │   4 days, 16:12:00 │    0     0     1     0 │
+│ struct:1753795440000 │       1 │        -1.96 │         -7.493 │        -0.07 │   3 days, 18:48:00 │    0     0     1     0 │
+│ struct:1730223720000 │       1 │         -2.4 │         -7.679 │        -0.08 │   3 days, 15:30:00 │    0     0     1     0 │
+│ struct:1735689600000 │       1 │       -16.02 │        -60.529 │        -0.61 │ 139 days, 14:08:00 │    0     0     1     0 │
+│                TOTAL │     119 │         0.13 │         39.028 │         0.39 │    2 days, 3:35:00 │   49     0    70  41.2 │
+└──────────────────────┴─────────┴──────────────┴────────────────┴──────────────┴────────────────────┴────────────────────────┘
+                                                    EXIT REASON STATS                                                    
+┌────────────────────┬───────┬──────────────┬────────────────┬──────────────┬──────────────────┬────────────────────────┐
+│        Exit Reason │ Exits │ Avg Profit % │ Tot Profit USD │ Tot Profit % │     Avg Duration │  Win  Draw  Loss  Win% │
+├────────────────────┼───────┼──────────────┼────────────────┼──────────────┼──────────────────┼────────────────────────┤
+│                roi │    48 │         2.17 │        325.435 │         3.25 │  1 day, 10:40:00 │   48     0     0   100 │
+│         force_exit │     1 │         0.09 │          0.358 │          0.0 │          4:30:00 │    1     0     0   100 │
+│ trailing_stop_loss │     1 │        -1.13 │         -2.928 │        -0.03 │         21:36:00 │    0     0     1     0 │
+│          stop_loss │    69 │        -1.27 │       -283.838 │        -2.84 │ 2 days, 16:28:00 │    0     0    69     0 │
+│              TOTAL │   119 │         0.13 │         39.028 │         0.39 │  2 days, 3:35:00 │   49     0    70  41.2 │
+└────────────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────────┴────────────────────────┘
+                                                                  MIXED TAG STATS                                                                  
+┌──────────────────────┬────────────────────┬────────┬──────────────┬────────────────┬──────────────┬────────────────────┬────────────────────────┐
+│            Enter Tag │        Exit Reason │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │       Avg Duration │  Win  Draw  Loss  Win% │
+├──────────────────────┼────────────────────┼────────┼──────────────┼────────────────┼──────────────┼────────────────────┼────────────────────────┤
+│ struct:1732984020000 │                roi │      1 │         18.2 │         58.115 │         0.58 │   31 days, 7:30:00 │    1     0     0   100 │
+│ struct:1752240960000 │                roi │      1 │         4.89 │         15.079 │         0.15 │   3 days, 22:25:00 │    1     0     0   100 │
+│ struct:1752843600000 │                roi │      1 │         4.19 │         13.948 │         0.14 │     1 day, 1:25:00 │    1     0     0   100 │
+│ struct:1753110900000 │                roi │      1 │          3.4 │         12.312 │         0.12 │           22:51:00 │    1     0     0   100 │
+│ struct:1756136520000 │                roi │      1 │         3.21 │         11.851 │         0.12 │           19:15:00 │    1     0     0   100 │
+│ struct:1730034000000 │                roi │      1 │         3.48 │         11.129 │         0.11 │    1 day, 20:12:00 │    1     0     0   100 │
+│ struct:1752940620000 │                roi │      1 │         2.98 │         10.335 │          0.1 │    1 day, 20:37:00 │    1     0     0   100 │
+│ struct:1731152880000 │                roi │      1 │         3.14 │         10.327 │          0.1 │           21:24:00 │    1     0     0   100 │
+│ struct:1750588920000 │                roi │      1 │         3.54 │         10.316 │          0.1 │     1 day, 5:39:00 │    1     0     0   100 │
+│ struct:1756218420000 │                roi │      1 │         2.27 │          8.553 │         0.09 │   2 days, 18:40:00 │    1     0     0   100 │
+│ struct:1754308800000 │                roi │      1 │         2.27 │          8.451 │         0.08 │            2:33:00 │    1     0     0   100 │
+│ struct:1730821500000 │                roi │      1 │         2.41 │          7.524 │         0.08 │           19:18:00 │    1     0     0   100 │
+│ struct:1725870780000 │                roi │      1 │         2.77 │          6.931 │         0.07 │    5 days, 1:40:00 │    1     0     0   100 │
+│ struct:1731861180000 │                roi │      1 │         2.14 │          6.895 │         0.07 │           17:01:00 │    1     0     0   100 │
+│ struct:1755947700000 │                roi │      1 │         1.89 │          6.784 │         0.07 │            2:28:00 │    1     0     0   100 │
+│ struct:1731945780000 │                roi │      1 │         1.95 │          6.464 │         0.06 │           20:44:00 │    1     0     0   100 │
+│ struct:1728818820000 │                roi │      1 │         2.41 │          6.351 │         0.06 │            3:34:00 │    1     0     0   100 │
+│ struct:1728989640000 │                roi │      1 │         2.19 │          6.127 │         0.06 │   2 days, 22:18:00 │    1     0     0   100 │
+│ struct:1749543840000 │                roi │      1 │          1.9 │          5.440 │         0.05 │            0:15:00 │    1     0     0   100 │
+│ struct:1730740320000 │                roi │      1 │         1.76 │          5.352 │         0.05 │           19:23:00 │    1     0     0   100 │
+│ struct:1749997440000 │                roi │      1 │         1.79 │          5.334 │         0.05 │           19:28:00 │    1     0     0   100 │
+│ struct:1727514900000 │                roi │      1 │         2.12 │          5.289 │         0.05 │            3:01:00 │    1     0     0   100 │
+│ struct:1727094420000 │                roi │      1 │         2.03 │          5.068 │         0.05 │           20:26:00 │    1     0     0   100 │
+│ struct:1749370860000 │                roi │      1 │         1.67 │          4.684 │         0.05 │            7:49:00 │    1     0     0   100 │
+│ struct:1730628900000 │                roi │      1 │         1.59 │          4.675 │         0.05 │            3:40:00 │    1     0     0   100 │
+│ struct:1751617260000 │                roi │      1 │         1.61 │          4.648 │         0.05 │            4:47:00 │    1     0     0   100 │
+│ struct:1755255420000 │                roi │      1 │         1.14 │          4.564 │         0.05 │            0:29:00 │    1     0     0   100 │
+│ struct:1754147340000 │                roi │      1 │         1.18 │          4.369 │         0.04 │            1:49:00 │    1     0     0   100 │
+│ struct:1728905580000 │                roi │      1 │         1.59 │          4.338 │         0.04 │            2:37:00 │    1     0     0   100 │
+│ struct:1732357980000 │                roi │      1 │         1.26 │          4.087 │         0.04 │            2:46:00 │    1     0     0   100 │
+│ struct:1729598220000 │                roi │      1 │         1.33 │          3.917 │         0.04 │            2:33:00 │    1     0     0   100 │
+│ struct:1732100940000 │                roi │      1 │          1.2 │          3.863 │         0.04 │            1:36:00 │    1     0     0   100 │
+│ struct:1753613100000 │                roi │      1 │         1.04 │          3.832 │         0.04 │            1:51:00 │    1     0     0   100 │
+│ struct:1753528860000 │                roi │      1 │         0.97 │          3.545 │         0.04 │            1:14:00 │    1     0     0   100 │
+│ struct:1726920000000 │                roi │      1 │         1.32 │          3.312 │         0.03 │            3:33:00 │    1     0     0   100 │
+│ struct:1729522800000 │                roi │      1 │         1.13 │          3.298 │         0.03 │            1:06:00 │    1     0     0   100 │
+│ struct:1749660660000 │                roi │      1 │         1.07 │          3.085 │         0.03 │   2 days, 15:24:00 │    1     0     0   100 │
+│ struct:1728742500000 │                roi │      1 │         1.06 │          2.751 │         0.03 │            0:25:00 │    1     0     0   100 │
+│ struct:1756055880000 │                roi │      1 │         0.71 │          2.614 │         0.03 │           15:06:00 │    1     0     0   100 │
+│ struct:1725444180000 │                roi │      1 │          1.0 │          2.550 │         0.03 │            1:55:00 │    1     0     0   100 │
+│ struct:1751646240000 │                roi │      1 │         0.88 │          2.547 │         0.03 │           18:54:00 │    1     0     0   100 │
+│ struct:1728119700000 │                roi │      1 │         0.98 │          2.423 │         0.02 │            4:17:00 │    1     0     0   100 │
+│ struct:1729966140000 │                roi │      1 │         0.73 │          2.269 │         0.02 │           15:05:00 │    1     0     0   100 │
+│ struct:1727792280000 │                roi │      1 │         0.91 │          2.211 │         0.02 │            0:34:00 │    1     0     0   100 │
+│ struct:1756550340000 │                roi │      1 │         0.58 │          2.147 │         0.02 │            0:20:00 │    1     0     0   100 │
+│ struct:1726313940000 │                roi │      1 │         0.74 │          1.914 │         0.02 │            3:54:00 │    1     0     0   100 │
+│ struct:1725724980000 │                roi │      1 │         0.78 │          1.907 │         0.02 │            1:20:00 │    1     0     0   100 │
+│ struct:1750872240000 │                roi │      1 │         0.64 │          1.905 │         0.02 │   2 days, 14:48:00 │    1     0     0   100 │
+│ struct:1756904040000 │         force_exit │      1 │         0.09 │          0.358 │          0.0 │            4:30:00 │    1     0     0   100 │
+│ struct:1729511460000 │          stop_loss │      1 │        -0.33 │         -0.982 │        -0.01 │            0:17:00 │    0     0     1     0 │
+│ struct:1727079840000 │          stop_loss │      1 │         -0.4 │         -1.007 │        -0.01 │            3:31:00 │    0     0     1     0 │
+│ struct:1726914060000 │          stop_loss │      1 │        -0.46 │         -1.146 │        -0.01 │            0:32:00 │    0     0     1     0 │
+│ struct:1727799660000 │          stop_loss │      1 │        -0.54 │         -1.310 │        -0.01 │   2 days, 16:51:00 │    0     0     1     0 │
+│ struct:1728984060000 │          stop_loss │      1 │        -0.54 │         -1.519 │        -0.02 │            0:23:00 │    0     0     1     0 │
+│ struct:1748865780000 │          stop_loss │      1 │        -0.54 │         -1.563 │        -0.02 │            0:34:00 │    0     0     1     0 │
+│ struct:1729858140000 │          stop_loss │      1 │        -0.53 │         -1.616 │        -0.02 │            1:05:00 │    0     0     1     0 │
+│ struct:1756746360000 │          stop_loss │      1 │        -0.44 │         -1.683 │        -0.02 │           15:32:00 │    0     0     1     0 │
+│ struct:1727016120000 │          stop_loss │      1 │        -0.68 │         -1.701 │        -0.02 │            1:44:00 │    0     0     1     0 │
+│ struct:1748852280000 │          stop_loss │      1 │        -0.59 │         -1.702 │        -0.02 │            0:36:00 │    0     0     1     0 │
+│ struct:1747759680000 │          stop_loss │      1 │        -0.59 │         -1.855 │        -0.02 │   2 days, 15:24:00 │    0     0     1     0 │
+│ struct:1732624380000 │          stop_loss │      1 │        -0.57 │         -1.887 │        -0.02 │            0:36:00 │    0     0     1     0 │
+│ struct:1727189460000 │          stop_loss │      1 │        -0.77 │         -1.926 │        -0.02 │            0:49:00 │    0     0     1     0 │
+│ struct:1725703380000 │          stop_loss │      1 │         -0.8 │         -1.997 │        -0.02 │            1:43:00 │    0     0     1     0 │
+│ struct:1728815220000 │          stop_loss │      1 │        -0.79 │         -2.073 │        -0.02 │            0:11:00 │    0     0     1     0 │
+│ struct:1727701560000 │          stop_loss │      1 │        -0.84 │         -2.076 │        -0.02 │           23:01:00 │    0     0     1     0 │
+│ struct:1751106420000 │          stop_loss │      1 │         -0.7 │         -2.131 │        -0.02 │            2:27:00 │    0     0     1     0 │
+│ struct:1731940920000 │          stop_loss │      1 │        -0.65 │         -2.158 │        -0.02 │            0:01:00 │    0     0     1     0 │
+│ struct:1756541700000 │          stop_loss │      1 │        -0.58 │         -2.168 │        -0.02 │            0:05:00 │    0     0     1     0 │
+│ struct:1750781700000 │          stop_loss │      1 │        -0.75 │         -2.274 │        -0.02 │           20:10:00 │    0     0     1     0 │
+│ struct:1751193360000 │          stop_loss │      1 │        -0.78 │         -2.347 │        -0.02 │            1:55:00 │    0     0     1     0 │
+│ struct:1750080060000 │          stop_loss │      1 │        -0.78 │         -2.391 │        -0.02 │           20:43:00 │    0     0     1     0 │
+│ struct:1731341160000 │          stop_loss │      1 │        -0.75 │         -2.419 │        -0.02 │     1 day, 1:25:00 │    0     0     1     0 │
+│ struct:1750162140000 │          stop_loss │      1 │        -0.81 │         -2.461 │        -0.02 │            2:15:00 │    0     0     1     0 │
+│ struct:1728306000000 │          stop_loss │      1 │        -0.96 │         -2.465 │        -0.02 │            0:54:00 │    0     0     1     0 │
+│ struct:1727536500000 │          stop_loss │      1 │         -1.0 │         -2.534 │        -0.03 │            1:53:00 │    0     0     1     0 │
+│ struct:1732971960000 │          stop_loss │      1 │         -0.8 │         -2.551 │        -0.03 │            2:29:00 │    0     0     1     0 │
+│ struct:1748248920000 │          stop_loss │      1 │        -0.85 │         -2.603 │        -0.03 │           23:51:00 │    0     0     1     0 │
+│ struct:1729938780000 │          stop_loss │      1 │        -0.86 │         -2.654 │        -0.03 │            0:25:00 │    0     0     1     0 │
+│ struct:1732638780000 │          stop_loss │      1 │        -0.83 │         -2.694 │        -0.03 │            0:38:00 │    0     0     1     0 │
+│ struct:1732704840000 │          stop_loss │      1 │        -0.86 │         -2.767 │        -0.03 │   2 days, 23:40:00 │    0     0     1     0 │
+│ struct:1727611200000 │          stop_loss │      1 │        -1.11 │         -2.772 │        -0.03 │            5:10:00 │    0     0     1     0 │
+│ struct:1751809860000 │          stop_loss │      1 │        -0.95 │         -2.808 │        -0.03 │            0:51:00 │    0     0     1     0 │
+│ struct:1725455340000 │          stop_loss │      1 │        -1.11 │         -2.837 │        -0.03 │            0:24:00 │    0     0     1     0 │
+│ struct:1729515600000 │          stop_loss │      1 │        -0.98 │         -2.884 │        -0.03 │            0:37:00 │    0     0     1     0 │
+│ struct:1728315180000 │ trailing_stop_loss │      1 │        -1.13 │         -2.928 │        -0.03 │           21:36:00 │    0     0     1     0 │
+│ struct:1726992900000 │          stop_loss │      1 │        -1.18 │         -3.004 │        -0.03 │            4:46:00 │    0     0     1     0 │
+│ struct:1730563920000 │          stop_loss │      1 │        -1.01 │         -3.030 │        -0.03 │            0:16:00 │    0     0     1     0 │
+│ struct:1727601300000 │          stop_loss │      1 │        -1.21 │         -3.060 │        -0.03 │            0:42:00 │    0     0     1     0 │
+│ struct:1729864800000 │          stop_loss │      1 │        -1.03 │         -3.147 │        -0.03 │            1:49:00 │    0     0     1     0 │
+│ struct:1731767220000 │          stop_loss │      1 │        -1.01 │         -3.303 │        -0.03 │           18:45:00 │    0     0     1     0 │
+│ struct:1750173480000 │          stop_loss │      1 │         -1.1 │         -3.352 │        -0.03 │           23:47:00 │    0     0     1     0 │
+│ struct:1732120740000 │          stop_loss │      1 │        -1.07 │         -3.507 │        -0.04 │            0:13:00 │    0     0     1     0 │
+│ struct:1751729940000 │          stop_loss │      1 │        -1.19 │         -3.558 │        -0.04 │           20:31:00 │    0     0     1     0 │
+│ struct:1755432360000 │          stop_loss │      1 │        -0.93 │         -3.639 │        -0.04 │            0:59:00 │    0     0     1     0 │
+│ struct:1751286600000 │          stop_loss │      1 │        -1.28 │         -3.816 │        -0.04 │            1:44:00 │    0     0     1     0 │
+│ struct:1749917160000 │          stop_loss │      1 │         -1.3 │         -3.901 │        -0.04 │           21:35:00 │    0     0     1     0 │
+│ struct:1748768400000 │          stop_loss │      1 │        -1.31 │         -3.909 │        -0.04 │            1:21:00 │    0     0     1     0 │
+│ struct:1756126440000 │          stop_loss │      1 │        -1.07 │         -3.949 │        -0.04 │            0:42:00 │    0     0     1     0 │
+│ struct:1751374440000 │          stop_loss │      1 │        -1.41 │         -4.120 │        -0.04 │            3:04:00 │    0     0     1     0 │
+│ struct:1751298660000 │          stop_loss │      1 │        -1.46 │         -4.305 │        -0.04 │           19:49:00 │    0     0     1     0 │
+│ struct:1732024440000 │          stop_loss │      1 │        -1.28 │         -4.324 │        -0.04 │            1:10:00 │    0     0     1     0 │
+│ struct:1753704000000 │          stop_loss │      1 │        -1.13 │         -4.337 │        -0.04 │            2:06:00 │    0     0     1     0 │
+│ struct:1751119200000 │          stop_loss │      1 │        -1.45 │         -4.408 │        -0.04 │            2:45:00 │    0     0     1     0 │
+│ struct:1748781000000 │          stop_loss │      1 │        -1.52 │         -4.529 │        -0.05 │            3:43:00 │    0     0     1     0 │
+│ struct:1748335680000 │          stop_loss │      1 │        -1.51 │         -4.620 │        -0.05 │            4:32:00 │    0     0     1     0 │
+│ struct:1754126640000 │          stop_loss │      1 │        -1.28 │         -4.894 │        -0.05 │            1:55:00 │    0     0     1     0 │
+│ struct:1748160900000 │          stop_loss │      1 │        -1.56 │         -4.922 │        -0.05 │            3:32:00 │    0     0     1     0 │
+│ struct:1753545240000 │          stop_loss │      1 │        -1.33 │         -4.937 │        -0.05 │           16:28:00 │    0     0     1     0 │
+│ struct:1748092320000 │          stop_loss │      1 │        -1.57 │         -5.001 │        -0.05 │            2:44:00 │    0     0     1     0 │
+│ struct:1753691400000 │          stop_loss │      1 │         -1.3 │         -5.018 │        -0.05 │            2:25:00 │    0     0     1     0 │
+│ struct:1749629700000 │          stop_loss │      1 │        -1.76 │         -5.132 │        -0.05 │            7:24:00 │    0     0     1     0 │
+│ struct:1755610380000 │          stop_loss │      1 │        -1.43 │         -5.212 │        -0.05 │   3 days, 20:16:00 │    0     0     1     0 │
+│ struct:1748876580000 │          stop_loss │      1 │        -1.84 │         -5.238 │        -0.05 │    5 days, 0:26:00 │    0     0     1     0 │
+│ struct:1755450180000 │          stop_loss │      1 │        -1.44 │         -5.425 │        -0.05 │    1 day, 18:38:00 │    0     0     1     0 │
+│ struct:1754221860000 │          stop_loss │      1 │        -1.57 │         -5.883 │        -0.06 │           23:14:00 │    0     0     1     0 │
+│ struct:1748361600000 │          stop_loss │      1 │        -2.21 │         -6.696 │        -0.07 │   4 days, 16:12:00 │    0     0     1     0 │
+│ struct:1753795440000 │          stop_loss │      1 │        -1.96 │         -7.493 │        -0.07 │   3 days, 18:48:00 │    0     0     1     0 │
+│ struct:1730223720000 │          stop_loss │      1 │         -2.4 │         -7.679 │        -0.08 │   3 days, 15:30:00 │    0     0     1     0 │
+│ struct:1735689600000 │          stop_loss │      1 │       -16.02 │        -60.529 │        -0.61 │ 139 days, 14:08:00 │    0     0     1     0 │
+│                TOTAL │                    │    119 │         0.13 │         39.028 │         0.39 │    2 days, 3:35:00 │   49     0    70  41.2 │
+└──────────────────────┴────────────────────┴────────┴──────────────┴────────────────┴──────────────┴────────────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2024-09-04 00:00:00                       │
+│ Backtesting to                         │ 2025-09-03 17:27:00                       │
+│ Trading Mode                           │ Spot                                      │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 119 / 0.33                                │
+│ Starting balance                       │ 10000 USD                                 │
+│ Final balance                          │ 10039.028 USD                             │
+│ Absolute profit                        │ 39.028 USD                                │
+│ Total profit %                         │ 0.39%                                     │
+│ CAGR %                                 │ 0.39%                                     │
+│ Sharpe (closed trades)                 │ 0.22                                      │
+│ Sortino (closed trades)                │ 0.29                                      │
+│ Calmar (closed trades)                 │ 1.83                                      │
+│ SQN                                    │ 0.39                                      │
+│ Mean profit p-value                    │ 0.6979                                    │
+│ Profit factor                          │ 1.14                                      │
+│ Expectancy (Ratio)                     │ 0.33 (0.08)                               │
+│ Avg. daily profit                      │ 0.107 USD                                 │
+│ Avg. stake amount                      │ 308.681 USD                               │
+│ Market change                          │ 52.79%                                    │
+│ Total trade volume                     │ 73578.67 USD                              │
+│                                        │                                           │
+│ Best Pair                              │ COFFEE/USD 0.39%                          │
+│ Worst Pair                             │ COFFEE/USD 0.39%                          │
+│ Best trade                             │ COFFEE/USD 18.20%                         │
+│ Worst trade                            │ COFFEE/USD -16.02%                        │
+│ Best day                               │ 58.115 USD                                │
+│ Worst day                              │ -60.529 USD                               │
+│ Days win/draw/lose                     │ 40 / 282 / 43                             │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:15 / 31d 07:30 / 1d 10:03           │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:01 / 139d 14:08 / 2d 15:52          │
+│ Max Consecutive Wins / Loss            │ 5 / 12                                    │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 4 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 9984.092 USD / 10097.134 USD              │
+│ Max % of account underwater            │ 1.12%                                     │
+│ Absolute drawdown                      │ 113.041 USD (1.12%)                       │
+│ Drawdown duration                      │ 181 days 16:01:00                         │
+│ Profit at drawdown start               │ 97.134 USD                                │
+│ Profit at drawdown end                 │ -15.908 USD                               │
+│ Drawdown start                         │ 2025-01-01 00:00:00                       │
+│ Drawdown end                           │ 2025-07-01 16:01:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 9981.257 USD / 10148.233 USD              │
+│ Min/Max balance dates (wallet balance) │ 2025-07-12 12:09:00 / 2025-01-11 09:15:00 │
+│ Max % of account underwater (balance)  │ 1.65%                                     │
+│ Absolute drawdown (wallet balance)     │ 166.976 USD (1.65%)                       │
+│ Drawdown duration                      │ 182 days 02:54:00                         │
+│ Profit at drawdown start               │ 148.233 USD                               │
+│ Profit at drawdown end                 │ -18.743 USD                               │
+│ Drawdown start                         │ 2025-01-11 09:15:00                       │
+│ Drawdown end                           │ 2025-07-12 12:09:00                       │
+│ Sharpe (daily wallet balance)          │ 0.35                                      │
+│ Sortino (daily wallet balance)         │ 0.41                                      │
+│ Calmar (daily wallet balance)          │ 1.26                                      │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2024-09-04 00:00:00 -> 2025-09-03 17:27:00 | Max open trades : 1
+                                                              STRATEGY SUMMARY                                                               
+┌───────────────────┬────────┬──────────────┬────────────────┬──────────────┬─────────────────┬────────────────────────┬────────────────────┐
+│          Strategy │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │    Avg Duration │  Win  Draw  Loss  Win% │           Drawdown │
+├───────────────────┼────────┼──────────────┼────────────────┼──────────────┼─────────────────┼────────────────────────┼────────────────────┤
+│ StructureStrategy │    119 │         0.13 │         39.028 │         0.39 │ 2 days, 3:35:00 │   49     0    70  41.2 │ 113.041 USD  1.12% │
+└───────────────────┴────────┴──────────────┴────────────────┴──────────────┴─────────────────┴────────────────────────┴────────────────────┘

@@ -1,0 +1,402 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\config.tester.cfd.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\user_data --strategy StructureStrategy --cache none --export trades --timerange 20240904-20250904 --pairs US500/USD --timeframe 3m --dry-run-wallet 10000 --fee 0.0005 --timeframe-detail 1m --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\data\tester\dukascopy\futures
+2026-09-10 14:51:23,206 - freqtrade - INFO - freqtrade 2026.8
+2026-09-10 14:51:23,851 - freqtrade.configuration.load_config - INFO - Using config: 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\config.tester.cfd.json ...
+2026-09-10 14:51:23,853 - freqtrade.loggers - INFO - Enabling colorized output.
+… (skrátené) …
+2026-09-10 14:51:23,858 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-10 14:51:27,230 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 55239.51 na 9900.00 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:27,261 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 49228.41 na 9884.93 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:27,334 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 233184.17 na 9900.36 (4.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:27,360 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 55573.49 na 9892.52 (17.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:27,625 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 16696.06 na 9877.90 (59.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:28,213 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 39343.30 na 9933.45 (25.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:28,576 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 39649.23 na 9953.31 (25.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:28,636 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 45042.18 na 9934.85 (22.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:29,143 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11345.94 na 9953.59 (87.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:29,166 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11438.09 na 9909.45 (86.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:29,718 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 22786.27 na 9870.47 (43.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:32,839 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 138467.04 na 9909.24 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:32,863 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 63486.46 na 9899.41 (15.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:32,872 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 28686.89 na 9884.71 (34.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:35,004 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 85899.17 na 9862.40 (11.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:35,055 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 45917.17 na 9869.30 (21.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:35,127 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 34419.86 na 9852.46 (28.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:35,563 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17136.57 na 9830.42 (57.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:36,059 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17116.64 na 9793.30 (57.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:39,899 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 57858.46 na 9853.35 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:39,914 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 127340.11 na 9837.78 (7.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:40,076 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 109886.56 na 9828.03 (8.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:40,133 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 86770.76 na 9817.39 (11.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:40,156 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 34928.56 na 9805.19 (28.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:41,333 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 127850.07 na 9785.21 (7.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:41,344 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 371912.06 na 9775.12 (2.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:41,378 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 186269.34 na 9772.45 (5.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:41,410 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 64473.09 na 9772.86 (15.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:41,904 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 40725.07 na 9758.66 (24.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:42,415 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 250673.96 na 9780.44 (3.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:42,431 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23463.77 na 9779.24 (41.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:42,510 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 76017.25 na 9749.88 (12.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:42,543 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 99376.51 na 9736.89 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:42,697 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 111313.95 na 9742.61 (8.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:42,714 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 76162.70 na 9731.68 (12.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:44,415 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 116926.40 na 9718.78 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:44,448 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23143.36 na 9722.77 (42.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:45,552 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23305.00 na 9765.33 (41.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:45,557 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 75911.85 na 9765.33 (12.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:45,827 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 52543.03 na 9752.20 (18.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:45,898 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 46684.46 na 9736.08 (20.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:45,956 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 221354.41 na 9718.39 (4.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:45,978 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 139814.93 na 9710.09 (6.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:45,991 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 87432.39 na 9700.25 (11.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:46,001 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 29101.71 na 9688.28 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:46,714 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 168173.67 na 9663.59 (5.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:46,738 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 103927.99 na 9654.51 (9.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:46,772 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 28677.65 na 9659.39 (33.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:46,823 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 125854.89 na 9635.43 (7.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:46,849 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 51654.84 na 9638.66 (18.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:46,963 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 28626.55 na 9623.03 (33.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:47,028 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 51478.47 na 9600.67 (18.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:47,075 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 62865.30 na 9584.52 (15.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:47,378 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 34411.63 na 9596.43 (27.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:47,404 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 40437.80 na 9623.06 (23.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:47,514 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23311.14 na 9644.06 (41.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:47,614 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17717.85 na 9681.01 (54.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:48,140 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23911.27 na 9728.16 (40.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:50,189 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 78059.01 na 9764.76 (12.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:50,251 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 84013.02 na 9751.34 (11.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:50,291 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 203893.68 na 9738.62 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:50,302 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 102006.15 na 9729.85 (9.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:50,322 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 101936.01 na 9718.24 (9.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:50,382 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23933.81 na 9723.44 (40.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:51,446 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 29849.87 na 9693.75 (32.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:51,490 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 130524.44 na 9670.37 (7.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:51,581 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 118298.40 na 9660.14 (8.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:51,649 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 41060.75 na 9664.19 (23.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:53,136 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 88561.65 na 9686.49 (10.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:53,150 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 41142.11 na 9674.36 (23.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:53,183 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17630.94 na 9656.13 (54.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:53,377 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23564.46 na 9700.52 (41.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:53,863 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 53439.21 na 9740.43 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:53,943 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 449597.40 na 9754.94 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:53,955 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 131859.84 na 9747.84 (7.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:54,095 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 150334.25 na 9750.51 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:54,158 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 47956.25 na 9740.70 (20.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:54,838 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 60183.97 na 9757.11 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:54,941 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 48123.83 na 9741.77 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:55,000 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 108445.86 na 9758.14 (9.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:55,144 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 66543.99 na 9762.98 (14.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:55,551 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 60425.99 na 9748.54 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:55,893 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 115253.92 na 9761.26 (8.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:55,988 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 42509.73 na 9750.24 (22.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,047 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 91252.19 na 9770.25 (10.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,109 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 42476.86 na 9757.91 (23.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,156 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 254157.16 na 9737.88 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,172 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 96984.54 na 9729.56 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,177 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 102952.63 na 9717.48 (9.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,186 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 42292.29 na 9705.89 (22.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,489 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 376694.21 na 9725.31 (2.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,571 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 194461.98 na 9717.72 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,577 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 36455.24 na 9708.62 (26.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,672 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 54520.25 na 9686.57 (17.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,680 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 284586.13 na 9686.57 (3.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,686 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 48612.95 na 9686.57 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,701 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 212367.40 na 9668.63 (4.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,753 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 133290.81 na 9668.22 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,815 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 66612.29 na 9657.89 (14.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,822 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 30278.76 na 9643.63 (31.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,911 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 60436.70 na 9618.93 (15.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:57,960 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 157284.45 na 9603.87 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:58,018 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 84842.90 na 9605.45 (11.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:58,093 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 18201.31 na 9592.64 (52.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:58,152 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11766.65 na 9559.44 (81.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:58,936 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 64072.62 na 9506.69 (14.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:58,966 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11684.09 na 9492.16 (81.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:59,007 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11912.80 na 9568.80 (80.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:59,318 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23767.92 na 9527.54 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:59,326 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23871.46 na 9497.56 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:59,793 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 96211.79 na 9533.30 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:59,809 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 60151.32 na 9521.31 (15.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:51:59,874 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 18083.21 na 9505.99 (52.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:00,402 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 29742.50 na 9473.44 (31.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:01,863 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17694.37 na 9450.37 (53.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:03,136 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 71023.48 na 9413.91 (13.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:03,157 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 29248.15 na 9400.16 (32.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:03,283 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23697.09 na 9428.92 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:04,711 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17994.35 na 9463.39 (52.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:04,846 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 41850.01 na 9428.40 (22.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:05,025 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 53746.02 na 9409.19 (17.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:05,215 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 65030.97 na 9423.49 (14.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:05,221 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 100702.68 na 9423.49 (9.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:05,296 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 124262.04 na 9412.32 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:05,323 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23608.60 na 9415.65 (39.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:05,415 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17759.17 na 9389.45 (52.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:05,683 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23636.25 na 9355.86 (39.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:06,012 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 41248.42 na 9328.06 (22.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:06,221 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23322.68 na 9348.18 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:07,383 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 63841.53 na 9318.23 (14.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:07,431 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 57787.75 na 9303.53 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:07,548 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11744.02 na 9316.74 (79.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:07,596 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 34932.11 na 9277.58 (26.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:07,620 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17507.70 na 9303.72 (53.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:07,945 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 41571.27 na 9350.73 (22.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:08,207 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 47673.06 na 9371.10 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:08,216 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 29776.83 na 9353.10 (31.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:08,260 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 41570.73 na 9330.02 (22.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:08,560 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 89840.49 na 9352.06 (10.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:08,719 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 24017.97 na 9358.59 (39.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:09,011 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 48081.41 na 9330.42 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:09,255 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 78653.16 na 9348.02 (11.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:09,382 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 91182.47 na 9357.11 (10.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:09,461 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 60943.38 na 9364.46 (15.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:09,555 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 109425.02 na 9348.53 (8.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:09,647 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 78949.38 na 9337.19 (11.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:09,794 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 146764.30 na 9345.45 (6.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:09,845 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 158941.02 na 9335.29 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:09,882 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 158863.41 na 9325.54 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:09,917 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 60988.32 na 9326.95 (15.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:09,941 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 73207.46 na 9311.57 (12.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:11,033 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 35760.77 na 9274.24 (25.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:11,069 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 36170.41 na 9296.63 (25.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:11,091 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 12057.80 na 9275.83 (76.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:12,662 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 30529.39 na 9343.64 (30.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:12,746 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 29724.33 na 9320.62 (31.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:12,767 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 41449.63 na 9296.52 (22.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:12,849 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17896.03 na 9317.18 (52.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:13,030 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 12064.49 na 9384.42 (77.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:13,145 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 65838.95 na 9339.58 (14.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:13,189 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 60310.18 na 9350.20 (15.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:13,197 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 54697.17 na 9335.01 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:13,261 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 84955.71 na 9318.77 (11.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:13,335 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 72900.98 na 9305.92 (12.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:13,380 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 30319.03 na 9291.68 (30.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:13,827 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 24183.62 na 9267.24 (38.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:13,857 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 12074.13 na 9240.22 (76.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:17,712 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 36688.63 na 9323.84 (25.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:18,120 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 196040.90 na 9349.51 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:18,170 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 36602.03 na 9349.53 (25.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:18,563 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 54186.15 na 9328.15 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:18,581 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 90586.74 na 9311.25 (10.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:18,685 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 54320.68 na 9298.92 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:18,804 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 18039.03 na 9282.98 (51.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:18,885 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 41953.60 na 9244.25 (22.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:19,013 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 53758.15 na 9224.68 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:19,047 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11902.14 na 9240.55 (77.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:19,897 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 35174.30 na 9191.78 (26.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:20,083 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17631.36 na 9169.92 (52.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:20,134 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11767.51 na 9131.28 (77.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:20,167 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 47662.93 na 9198.23 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:20,232 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 59606.79 na 9181.01 (15.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:20,285 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17751.39 na 9194.26 (51.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:20,285 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17286.67 na 9157.88 (53.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:20,624 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23128.05 na 9145.54 (39.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:20,635 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11571.57 na 9119.01 (78.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:20,672 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17253.64 na 9072.24 (52.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:20,679 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11501.58 na 9035.91 (78.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:21,014 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11399.97 na 8990.61 (78.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:21,047 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 45856.93 na 9052.21 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:21,052 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 28680.57 na 9035.21 (31.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:21,181 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 34271.18 na 9012.22 (26.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:21,194 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17000.43 na 8990.74 (52.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:21,295 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11219.97 na 8887.08 (79.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:22,316 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 72304.34 na 8726.51 (12.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:22,395 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 66695.15 na 8713.55 (13.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:22,401 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 33425.18 na 8700.20 (26.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:22,463 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 90924.21 na 8725.78 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:22,468 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 152793.68 na 8714.34 (5.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:22,490 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 39642.97 na 8715.94 (22.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:22,537 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 28080.05 na 8697.39 (31.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:22,914 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 68398.46 na 8730.62 (12.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:23,029 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 33939.71 na 8717.14 (25.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:23,048 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 28281.21 na 8696.53 (30.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:23,054 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 22662.62 na 8724.92 (38.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:23,286 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 56420.79 na 8696.35 (15.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:23,341 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 16896.99 na 8681.63 (51.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:24,269 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 34232.21 na 8738.77 (25.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:24,499 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 57416.22 na 8764.19 (15.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:24,529 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 63485.88 na 8777.25 (13.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:24,537 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 132760.12 na 8762.59 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:24,559 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 34296.83 na 8752.80 (25.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:24,569 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 80133.19 na 8732.73 (10.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:24,574 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 28561.92 na 8720.03 (30.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:24,653 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11417.97 na 8696.69 (76.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:24,956 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 39743.40 na 8653.78 (21.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:25,030 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 28075.37 na 8635.47 (30.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:25,063 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 77523.38 na 8613.33 (11.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:25,105 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 38782.56 na 8601.21 (22.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:25,131 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 77393.62 na 8583.24 (11.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:25,141 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11069.07 na 8570.74 (77.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:35,753 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 50934.27 na 9265.36 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:35,780 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 56476.31 na 9249.37 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:35,880 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 50824.02 na 9234.37 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:35,899 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 39748.30 na 9218.36 (23.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:35,921 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 39468.63 na 9199.81 (23.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:35,933 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 50475.38 na 9181.04 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:35,933 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11238.04 na 9165.16 (81.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:36,411 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11273.11 na 9126.41 (81.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:38,088 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 76214.13 na 9221.80 (12.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:38,113 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23547.16 na 9230.36 (39.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:38,408 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 71176.61 na 9264.23 (13.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:38,453 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23705.83 na 9250.74 (39.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:39,380 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 29804.26 na 9224.97 (31.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:39,544 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 53529.76 na 9202.01 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:39,651 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 41638.58 na 9185.88 (22.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:39,688 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17812.42 na 9166.68 (51.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:39,867 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 65057.48 na 9132.08 (14.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:39,880 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17742.96 na 9117.33 (51.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:39,972 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 58441.29 na 9084.77 (15.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:40,198 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11553.63 na 9069.33 (78.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:41,176 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 111427.76 na 9132.39 (8.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:41,189 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 82540.21 na 9121.51 (11.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:41,195 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11780.74 na 9108.88 (77.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:41,741 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 41587.24 na 9174.11 (22.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:41,751 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 29524.42 na 9155.15 (31.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:41,863 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23607.49 na 9131.72 (38.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:42,036 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 53191.04 na 9104.14 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:42,082 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 41828.49 na 9119.07 (21.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:42,742 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11981.96 na 9100.33 (76.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:42,746 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 77270.49 na 9100.33 (11.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:42,830 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 83501.12 na 9109.44 (10.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:42,914 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23909.99 na 9096.55 (38.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:44,365 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 48021.75 na 9135.21 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:44,499 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 18125.84 na 9153.24 (50.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:44,881 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 36127.72 na 9114.86 (25.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:44,970 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 120032.38 na 9092.94 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:45,048 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 30031.89 na 9096.87 (30.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:45,082 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 53985.38 na 9071.82 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:45,112 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 17866.88 na 9087.58 (50.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:45,297 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 23938.04 na 9145.26 (38.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:46,150 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 41859.04 na 9109.87 (21.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:46,273 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 66210.28 na 9130.57 (13.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:46,281 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 66344.61 na 9142.50 (13.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:46,329 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 42088.89 na 9128.18 (21.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:46,353 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 30079.39 na 9109.58 (30.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:46,426 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 42041.50 na 9084.45 (21.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:46,467 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 36012.92 na 9064.99 (25.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:46,470 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 42109.44 na 9064.99 (21.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:46,521 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 41912.09 na 9046.21 (21.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:46,574 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 71857.36 na 9026.44 (12.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:46,647 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 29975.67 na 9036.09 (30.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:46,732 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 59654.69 na 9013.44 (15.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:46,798 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 77440.75 na 8998.40 (11.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:46,849 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 29662.42 na 8985.31 (30.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:46,981 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 41847.09 na 9014.24 (21.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:47,003 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 89783.01 na 8995.65 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:47,006 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 11966.82 na 8995.65 (75.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:47,229 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 85385.71 na 9072.87 (10.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:47,246 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 176591.79 na 9059.92 (5.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:47,331 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 79246.26 na 9060.55 (11.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:47,443 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 85267.45 na 9047.44 (10.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:47,652 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 67274.49 na 9054.69 (13.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:47,730 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 61191.16 na 9040.31 (14.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:47,782 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 30844.36 na 9053.80 (29.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:47,864 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 12343.76 na 9029.59 (73.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:50,196 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 100531.17 na 9103.90 (9.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:50,204 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 87389.67 na 9091.68 (10.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:50,226 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 25028.57 na 9078.82 (36.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:50,541 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 43595.76 na 9049.92 (20.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:50,581 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 55981.10 na 9030.81 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:50,729 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 56134.49 na 9046.41 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:50,731 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 56242.79 na 9029.95 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:51,112 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 100158.00 na 9045.26 (9.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:51,185 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 74989.50 na 9032.93 (12.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:51,207 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 25028.50 na 9019.06 (36.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:52,164 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 149553.22 na 8986.18 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:52,213 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 62268.66 na 8975.92 (14.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:52,215 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 87382.62 na 8975.92 (10.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:52,254 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 81446.96 na 8982.98 (11.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:52,400 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 37796.27 na 8991.91 (23.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:52,400 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 37589.41 na 8969.50 (23.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:52,443 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 87243.51 na 8948.61 (10.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:52,571 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 130801.00 na 8935.57 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:52,596 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 93594.20 na 8938.80 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:52,632 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 81334.28 na 8945.30 (11.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:52,771 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 331308.04 na 8932.01 (2.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:52,802 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 189408.48 na 8929.57 (4.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:52,843 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 100898.14 na 8920.03 (8.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:52,874 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 56654.38 na 8907.74 (15.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:53,933 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 56811.86 na 8922.47 (15.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:53,933 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 69439.47 na 8922.47 (12.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:54,063 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 264815.12 na 8907.65 (3.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:54,089 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 88214.31 na 8906.06 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:54,096 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 50417.15 na 8892.95 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:54,208 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 101118.85 na 8910.48 (8.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:54,326 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 184687.49 na 8916.78 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:54,379 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 165529.88 na 8907.13 (5.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:54,387 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 171801.76 na 8897.03 (5.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:54,397 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 38238.20 na 8897.90 (23.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:55,749 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 19236.22 na 8931.97 (46.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:56,059 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 44768.72 na 8899.59 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:56,081 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 108500.72 na 8880.51 (8.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:56,128 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 134301.83 na 8885.64 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:56,263 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 50999.05 na 8888.39 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:56,621 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 25440.28 na 8870.87 (34.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:56,668 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 76979.14 na 8913.49 (11.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:56,784 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 75964.57 na 8923.05 (11.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:56,882 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 25142.49 na 8908.79 (35.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:56,912 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 31248.81 na 8882.20 (28.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:56,936 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 31423.14 na 8859.22 (28.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:56,985 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 37836.59 na 8887.19 (23.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:57,088 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 62968.78 na 8864.74 (14.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:57,170 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 18984.19 na 8877.20 (46.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:57,464 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 50638.87 na 8925.12 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:57,516 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 114431.00 na 8941.44 (7.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:57,616 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 50854.27 na 8929.76 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:57,729 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 31925.00 na 8946.61 (28.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:58,982 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 76537.61 na 8922.14 (11.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:59,093 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 82899.22 na 8908.50 (10.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:59,099 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 19244.20 na 8916.41 (46.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:59,507 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 155649.07 na 8968.60 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:59,546 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 64572.19 na 8958.11 (13.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:59,599 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 45196.42 na 8941.94 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:59,756 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 58019.57 na 8922.25 (15.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:59,766 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 96685.19 na 8905.70 (9.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:59,779 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 103122.10 na 8893.01 (8.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:59,799 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 25817.50 na 8880.61 (34.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:52:59,817 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 25542.17 na 8854.25 (34.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:00,181 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 25524.50 na 8824.31 (34.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:00,240 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 25496.55 na 8793.33 (34.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:00,466 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 25486.49 na 8764.43 (34.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:00,575 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 129043.62 na 8807.03 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:00,605 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 45053.74 na 8810.36 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:00,682 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 45097.14 na 8791.60 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:00,787 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 349524.67 na 8812.24 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:00,801 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 226489.69 na 8804.00 (3.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:00,817 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 84112.33 na 8794.79 (10.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:00,878 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 58204.21 na 8781.05 (15.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:01,190 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 90763.79 na 8794.98 (9.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:01,216 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 64856.19 na 8781.73 (13.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:01,296 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 25578.50 na 8766.25 (34.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:01,316 - tradebot.adapters.freqtrade.base - WARNING - structure US500/USD: stake orezany z 19166.10 na 8736.69 (45.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+…
+│ Min/Max balance (closed trades)        │ 8657.314 USD / 10054.128 USD              │
+│ Max % of account underwater            │ 13.89%                                    │
+│ Absolute drawdown                      │ 1396.815 USD (13.89%)                     │
+│ Drawdown duration                      │ 193 days 17:06:00                         │
+│ Profit at drawdown start               │ 54.128 USD                                │
+│ Profit at drawdown end                 │ -1342.686 USD                             │
+│ Drawdown start                         │ 2024-09-18 18:00:00                       │
+│ Drawdown end                           │ 2025-03-31 11:06:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 8546.747 USD / 10058.984 USD              │
+│ Min/Max balance dates (wallet balance) │ 2025-04-09 05:39:00 / 2024-09-17 14:51:00 │
+│ Max % of account underwater (balance)  │ 15.03%                                    │
+│ Absolute drawdown (wallet balance)     │ 1512.237 USD (15.03%)                     │
+│ Drawdown duration                      │ 203 days 14:48:00                         │
+│ Profit at drawdown start               │ 58.984 USD                                │
+│ Profit at drawdown end                 │ -1453.253 USD                             │
+│ Drawdown start                         │ 2024-09-17 14:51:00                       │
+│ Drawdown end                           │ 2025-04-09 05:39:00                       │
+│ Sharpe (daily wallet balance)          │ -1.12                                     │
+│ Sortino (daily wallet balance)         │ -1.56                                     │
+│ Calmar (daily wallet balance)          │ -3.92                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2024-09-04 00:00:00 -> 2025-09-04 00:00:00 | Max open trades : 1
+                                                              STRATEGY SUMMARY                                                              
+┌───────────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┬──────────────────────┐
+│          Strategy │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │             Drawdown │
+├───────────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┼──────────────────────┤
+│ StructureStrategy │    361 │        -0.05 │      -1123.387 │       -11.23 │     13:10:00 │  123     0   238  34.1 │ 1396.815 USD  13.89% │
+└───────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────────────┘

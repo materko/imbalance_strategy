@@ -1,0 +1,402 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\config.tester.cfd.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\user_data --strategy StructureStrategy --cache none --export trades --timerange 20240904-20250904 --pairs ETH/USD --timeframe 3m --dry-run-wallet 10000 --fee 0.0005 --timeframe-detail 1m --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\data\tester\dukascopy\futures
+2026-09-10 14:53:51,346 - freqtrade - INFO - freqtrade 2026.8
+2026-09-10 14:53:51,980 - freqtrade.configuration.load_config - INFO - Using config: 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\config.tester.cfd.json ...
+2026-09-10 14:53:51,980 - freqtrade.loggers - INFO - Enabling colorized output.
+… (skrátené) …
+2026-09-10 14:53:51,985 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-10 14:53:54,716 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11895.50 na 9900.00 (83.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:54,896 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14494.80 na 10039.40 (69.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,049 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 16646.70 na 9881.97 (59.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,081 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18982.40 na 9818.33 (51.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,093 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11858.00 na 9764.60 (82.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,113 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11766.00 na 9888.20 (84.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,163 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13297.20 na 10017.41 (75.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,271 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 22889.00 na 10123.82 (44.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,293 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 16101.40 na 10078.74 (62.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,313 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 27424.80 na 10013.42 (36.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,329 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 22649.00 na 9971.92 (44.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,392 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 25151.50 na 10036.17 (39.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,475 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15813.70 na 10099.15 (63.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,580 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11494.50 na 10083.02 (87.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,697 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14173.80 na 10557.44 (74.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,717 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 16338.00 na 10483.97 (64.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,818 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 30503.20 na 10469.23 (34.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,826 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18781.60 na 10430.65 (55.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,849 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 16594.20 na 10513.58 (63.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,878 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 21246.30 na 10452.74 (49.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,913 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18773.60 na 10402.23 (55.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:55,929 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18595.20 na 10262.74 (55.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:56,154 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 30505.80 na 10248.15 (33.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:56,200 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14136.60 na 10299.02 (72.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:56,430 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 77315.20 na 10320.43 (13.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:57,237 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 16158.10 na 10161.66 (62.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:57,248 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12101.00 na 10096.32 (83.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:57,808 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18318.30 na 10258.89 (56.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:57,830 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15925.80 na 10333.94 (64.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:57,883 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10635.60 na 10279.45 (96.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:57,931 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18368.00 na 10202.39 (55.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:58,025 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13099.50 na 10153.93 (77.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:58,056 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 20672.80 na 10093.01 (48.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:58,067 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 20823.20 na 10050.01 (48.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:58,084 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18219.60 na 10007.25 (54.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:58,092 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10534.80 na 10007.25 (95.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:59,492 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13105.50 na 9833.28 (75.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:59,600 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13055.00 na 9772.06 (74.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:53:59,679 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 26066.00 na 9712.66 (37.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:00,337 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11911.00 na 9323.15 (78.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:00,906 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 16792.30 na 9338.07 (55.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:01,013 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 21712.50 na 9409.90 (43.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:01,057 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 24261.00 na 9372.46 (38.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:01,111 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14706.60 na 9421.95 (64.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:01,464 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9680.00 na 9327.16 (96.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:01,625 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14619.60 na 9460.98 (64.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:02,115 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 17000.20 na 9599.70 (56.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:02,213 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 51710.40 na 9675.90 (18.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:02,320 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 27107.30 na 9654.93 (35.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:02,346 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 26884.00 na 9621.20 (35.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:02,446 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 22915.80 na 9663.81 (42.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:02,474 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13039.00 na 9721.26 (74.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:02,585 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11050.40 na 9829.26 (88.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:02,620 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18701.90 na 9750.40 (52.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:02,736 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13215.00 na 9616.07 (72.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:02,873 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18363.80 na 9551.82 (52.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:03,166 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10303.60 na 9408.26 (91.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:05,363 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13452.50 na 9572.07 (71.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:05,384 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15351.00 na 9509.45 (61.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:05,387 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 22554.00 na 9458.81 (41.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:05,403 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15044.40 na 9421.09 (62.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:05,484 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 20456.80 na 9451.55 (46.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:05,518 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 21241.50 na 9521.83 (44.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:05,721 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 34291.40 na 9648.51 (28.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:06,986 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12301.60 na 10135.49 (82.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:07,019 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18691.80 na 10269.73 (54.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:07,030 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12371.20 na 10211.79 (82.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:07,068 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12360.00 na 10132.85 (82.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:07,082 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12279.20 na 10064.00 (82.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:07,185 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13324.80 na 10089.73 (75.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:07,213 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 16760.00 na 10202.43 (60.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:07,218 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13256.00 na 10139.34 (76.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:08,528 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 20508.00 na 10436.02 (50.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:08,683 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10672.50 na 10355.37 (97.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:09,028 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18341.00 na 10463.50 (57.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:09,196 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11062.20 na 10444.09 (94.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:09,397 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 46685.60 na 10548.21 (22.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:09,397 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10840.50 na 10526.65 (97.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:10,023 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14873.60 na 10609.56 (71.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:10,037 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15193.20 na 10559.65 (69.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:10,396 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11613.00 na 10415.19 (89.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:10,842 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 33353.10 na 10474.47 (31.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:10,994 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11673.60 na 10656.04 (91.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:11,013 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11655.60 na 10588.96 (90.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:11,613 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11612.10 na 10431.44 (89.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:11,680 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11567.40 na 10366.98 (89.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:11,696 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 26986.40 na 10294.24 (38.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:11,754 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15392.00 na 10340.63 (67.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:11,853 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11714.70 na 10418.31 (88.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:11,971 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11870.40 na 10456.79 (88.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:12,068 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11743.20 na 10386.61 (88.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:12,383 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 19762.00 na 10386.80 (52.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:12,464 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15440.00 na 10153.10 (65.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:13,397 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13342.00 na 10080.41 (75.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:14,097 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10247.40 na 9865.72 (96.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:14,097 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13628.00 na 9794.63 (71.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:14,116 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 23777.60 na 9746.33 (41.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:14,202 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 17210.50 na 9719.89 (56.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:14,218 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10118.10 na 9673.89 (95.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:14,284 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13420.40 na 9603.68 (71.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:14,297 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10069.50 na 9548.35 (94.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:14,338 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14715.60 na 9486.30 (64.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:14,364 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10977.30 na 9434.48 (85.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:14,389 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13718.80 na 9528.57 (69.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:14,398 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10086.90 na 9478.43 (94.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:14,432 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 16449.50 na 9415.57 (57.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:14,457 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 23311.40 na 9481.89 (40.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:14,458 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9753.60 na 9481.89 (97.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:16,903 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 16531.50 na 9730.41 (58.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:16,930 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 16892.50 na 9803.02 (58.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:16,976 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13683.60 na 9875.30 (72.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:17,089 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13308.40 na 9966.88 (74.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:18,585 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 19820.40 na 10133.70 (51.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:18,614 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 43417.40 na 10076.99 (23.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:18,627 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 29723.40 na 10045.70 (33.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:18,764 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12289.60 na 10009.02 (81.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:19,332 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 16010.00 na 10127.86 (63.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:19,346 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15987.50 na 10062.84 (62.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:19,514 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 19480.80 na 10065.00 (51.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:19,604 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12932.00 na 10009.94 (77.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:19,763 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13198.00 na 9894.50 (75.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:21,296 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13087.50 na 9875.92 (75.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:21,315 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13061.50 na 9817.68 (75.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:21,369 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10430.80 na 9754.11 (93.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:21,547 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15795.60 na 9885.89 (62.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:28,417 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11387.50 na 9671.13 (84.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:28,617 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 51296.90 na 9569.47 (18.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:28,684 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11121.50 na 9704.83 (87.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:28,797 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12237.00 na 10029.59 (82.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:31,486 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11256.60 na 9310.31 (82.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:32,486 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 17019.90 na 9318.10 (54.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:32,505 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9423.00 na 9269.84 (98.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:32,705 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11516.40 na 9405.66 (81.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:32,718 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 22839.60 na 9337.90 (40.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:32,764 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 19005.00 na 9299.09 (48.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:32,813 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15178.40 na 9252.38 (61.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:32,838 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15054.40 na 9198.16 (61.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:32,863 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 19372.00 na 9288.87 (47.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:32,893 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10191.50 na 9356.40 (91.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:33,020 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9937.00 na 9271.15 (93.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:33,106 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15748.80 na 9191.64 (58.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:33,370 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11812.80 na 9134.76 (77.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:33,387 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 35746.20 na 9066.80 (25.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:33,400 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 29950.50 na 9102.48 (30.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:33,419 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 25889.50 na 9070.03 (35.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:33,470 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9977.50 na 9032.06 (90.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:33,514 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 27815.20 na 8952.13 (32.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:34,068 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 17191.80 na 8901.28 (51.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:34,101 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18531.00 na 8854.14 (47.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:34,130 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9091.00 na 8809.20 (96.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:34,451 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 27213.00 na 8735.50 (32.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:34,471 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14440.80 na 8702.20 (60.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:35,133 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14882.40 na 8946.75 (60.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:35,492 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9681.60 na 9048.89 (93.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:35,551 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12766.40 na 8966.69 (70.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:35,586 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11139.80 na 8897.94 (79.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:36,016 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15748.00 na 9165.23 (58.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:36,019 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11195.80 na 9110.43 (81.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:36,047 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 16111.00 na 9233.63 (57.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:36,128 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 17428.40 na 9179.64 (52.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:36,153 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9558.60 na 9259.86 (96.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:36,167 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14715.00 na 9395.95 (63.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:36,252 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14370.40 na 9236.96 (64.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:36,297 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 25085.20 na 9171.17 (36.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:36,297 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10771.20 na 9128.17 (84.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:36,315 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15943.50 na 9042.59 (56.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:36,330 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 21266.40 na 8980.39 (42.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:36,352 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 24403.40 na 8932.53 (36.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:37,523 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 19543.70 na 9121.66 (46.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:37,841 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10986.00 na 9279.68 (84.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:37,916 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 23654.80 na 9189.98 (38.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:38,007 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 25393.20 na 9311.74 (36.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:38,040 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14595.20 na 9373.01 (64.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:38,146 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 32992.20 na 9487.67 (28.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:38,183 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 16435.80 na 9452.38 (57.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:38,198 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12740.00 na 9391.88 (73.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:38,703 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10889.40 na 9314.60 (85.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:38,713 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12672.80 na 9234.37 (72.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:38,743 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10843.80 na 9159.61 (84.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:38,918 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14415.20 na 9079.42 (63.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:39,400 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12786.50 na 9230.12 (72.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:39,415 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12533.50 na 9164.04 (73.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:41,767 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12418.00 na 9195.49 (74.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:42,535 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10216.80 na 9069.22 (88.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:42,783 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15211.20 na 8995.14 (59.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:42,804 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 28255.70 na 8938.34 (31.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:42,834 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 17810.10 na 8983.25 (50.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:42,883 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13190.00 na 9058.52 (68.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:43,143 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 29043.30 na 9080.53 (31.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:43,148 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 23704.20 na 9080.53 (38.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:43,461 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 21203.20 na 9080.25 (42.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:43,484 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15642.00 na 9038.83 (57.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:43,520 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15696.00 na 9119.55 (58.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:44,042 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 22461.30 na 8990.33 (40.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:45,151 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14952.60 na 9094.96 (60.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:45,208 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 17824.80 na 9178.39 (51.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:45,221 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 17820.60 na 9131.94 (51.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:49,117 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9624.40 na 8858.35 (92.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:49,450 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9608.40 na 8777.59 (91.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:50,128 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12123.00 na 8895.01 (73.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:50,196 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 19332.00 na 8837.05 (45.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,395 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9913.20 na 8953.51 (90.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,434 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9851.60 na 8879.95 (90.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,510 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 46732.40 na 9018.69 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,514 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 56609.90 na 8996.24 (15.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,529 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9790.40 na 8976.47 (91.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,538 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 20764.00 na 8898.25 (42.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,566 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15472.80 na 8854.03 (57.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,585 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18210.50 na 8803.33 (48.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,600 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10422.00 na 8755.82 (84.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,614 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12999.00 na 8686.93 (66.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,628 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13011.50 na 8624.29 (66.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,655 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 20659.20 na 8564.91 (41.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,796 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 25778.00 na 8523.99 (33.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,881 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12458.50 na 8400.40 (67.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,930 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 19878.40 na 8337.79 (41.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:51,963 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 17658.20 na 8403.73 (47.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:52,038 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 17631.60 na 8355.57 (47.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:52,140 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 25033.00 na 8310.39 (33.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:52,331 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 20442.40 na 8356.98 (40.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:52,350 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 20644.00 na 8314.07 (40.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:52,362 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 23496.30 na 8273.45 (35.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:52,377 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15703.20 na 8233.05 (52.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:52,388 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10604.80 na 8179.85 (77.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:52,463 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 8926.20 na 8487.14 (95.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:52,547 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 8831.40 na 8592.86 (97.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:52,564 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 59118.00 na 8534.79 (14.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:52,593 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 20735.40 na 8519.44 (41.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:52,640 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 23644.80 na 8486.26 (35.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:52,665 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9172.20 na 8526.32 (93.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:52,683 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11826.00 na 8465.65 (71.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:53,414 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10740.00 na 8715.45 (81.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:53,928 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10918.20 na 8793.76 (80.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:54,018 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11181.30 na 8905.10 (79.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:54,148 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18808.50 na 8898.68 (47.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:54,363 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14764.40 na 8909.92 (60.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:54,373 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14486.40 na 8859.47 (61.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:54,590 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10932.00 na 9084.72 (83.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:54,654 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11219.40 na 9194.66 (82.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:54,927 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 41027.80 na 9131.05 (22.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:54,930 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15029.20 na 9159.09 (60.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:54,958 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 48651.20 na 9111.08 (18.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:54,972 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 26471.90 na 9133.56 (34.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:55,013 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 22675.20 na 9098.17 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:55,018 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 49036.00 na 9060.40 (18.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:55,030 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15589.20 na 9081.43 (58.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:55,070 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15571.20 na 9027.21 (58.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:55,096 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15194.40 na 8974.58 (59.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:55,131 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15148.40 na 8926.49 (58.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:55,193 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11519.40 na 8870.90 (77.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:55,663 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 15106.40 na 8740.03 (57.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:55,686 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 30912.80 na 8823.58 (28.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:55,795 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11378.40 na 8792.19 (77.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:55,838 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11242.80 na 8722.73 (77.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:55,853 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11092.50 na 8662.47 (78.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:55,905 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10894.20 na 8603.30 (79.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:55,938 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18114.50 na 8543.47 (47.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:56,266 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 38119.40 na 8524.44 (22.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:56,266 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10504.50 na 8500.56 (80.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:56,292 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 17408.50 na 8437.23 (48.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:56,404 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 10536.60 na 8498.22 (80.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:56,637 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 29260.00 na 8616.73 (29.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:57,049 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18319.00 na 8521.67 (46.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:57,079 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 11577.00 na 8582.49 (74.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:57,093 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 23272.80 na 8516.27 (36.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:57,145 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 28155.40 na 8519.45 (30.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:57,296 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 16995.20 na 8653.17 (50.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:57,447 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9485.20 na 8784.19 (92.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:57,697 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 14162.70 na 8734.87 (61.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:57,705 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13287.60 na 8701.30 (65.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:58,357 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 22403.50 na 8774.76 (39.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:58,368 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 17308.40 na 8806.34 (50.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:58,380 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12671.70 na 8748.70 (69.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:58,513 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 12316.50 na 8761.18 (71.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:59,016 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 18436.00 na 8940.28 (48.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:59,045 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9129.60 na 8913.94 (97.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:59,522 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 9004.40 na 8951.06 (99.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:59,547 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 22355.50 na 8904.25 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:59,568 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 21714.50 na 8938.02 (41.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:59,613 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 44566.00 na 9004.42 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 14:54:59,621 - tradebot.adapters.freqtrade.base - WARNING - structure ETH/USD: stake orezany z 13202.70 na 9034.98 (68.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+…
+│ struct:1734992820000 │   stop_loss │      1 │        -1.42 │        -98.267 │        -0.98 │          1:16:00 │    0     0     1     0 │
+│ struct:1734536340000 │   stop_loss │      1 │        -1.27 │        -98.486 │        -0.98 │          4:04:00 │    0     0     1     0 │
+│ struct:1737740700000 │   stop_loss │      1 │        -0.97 │        -98.655 │        -0.99 │          1:57:00 │    0     0     1     0 │
+│ struct:1730874060000 │   stop_loss │      1 │        -1.26 │        -98.709 │        -0.99 │          0:29:00 │    0     0     1     0 │
+│ struct:1726169040000 │   stop_loss │      1 │        -1.05 │        -98.990 │        -0.99 │         11:24:00 │    0     0     1     0 │
+│ struct:1729606140000 │   stop_loss │      1 │        -1.25 │        -99.056 │        -0.99 │         13:15:00 │    0     0     1     0 │
+│ struct:1727948160000 │   stop_loss │      1 │        -1.41 │        -99.094 │        -0.99 │          5:16:00 │    0     0     1     0 │
+│ struct:1748038320000 │   stop_loss │      1 │         -1.3 │       -100.015 │         -1.0 │          0:56:00 │    0     0     1     0 │
+│ struct:1753149060000 │   stop_loss │      1 │        -2.64 │       -100.145 │         -1.0 │          2:47:00 │    0     0     1     0 │
+│ struct:1743021000000 │   stop_loss │      1 │        -1.66 │       -100.181 │         -1.0 │   1 day, 8:06:00 │    0     0     1     0 │
+│ struct:1747449900000 │   stop_loss │      1 │        -2.01 │       -100.545 │        -1.01 │         11:01:00 │    0     0     1     0 │
+│ struct:1748540700000 │   stop_loss │      1 │        -1.26 │       -100.633 │        -1.01 │          1:25:00 │    0     0     1     0 │
+│ struct:1727817120000 │   stop_loss │      1 │        -2.05 │       -100.669 │        -1.01 │         20:59:00 │    0     0     1     0 │
+│ struct:1726582320000 │   stop_loss │      1 │        -1.44 │       -100.847 │        -1.01 │         19:42:00 │    0     0     1     0 │
+│ struct:1750450500000 │   stop_loss │      1 │        -1.38 │       -100.858 │        -1.01 │          1:50:00 │    0     0     1     0 │
+│ struct:1749731760000 │   stop_loss │      1 │        -1.23 │       -100.877 │        -1.01 │          7:06:00 │    0     0     1     0 │
+│ struct:1741545000000 │   stop_loss │      1 │        -1.24 │       -100.882 │        -1.01 │          0:05:00 │    0     0     1     0 │
+│ struct:1738555200000 │   stop_loss │      1 │        -1.99 │       -101.249 │        -1.01 │          0:21:00 │    0     0     1     0 │
+│ struct:1741098780000 │   stop_loss │      1 │        -2.43 │       -101.526 │        -1.02 │          0:44:00 │    0     0     1     0 │
+│ struct:1740717720000 │   stop_loss │      1 │        -2.37 │       -101.629 │        -1.02 │          2:01:00 │    0     0     1     0 │
+│ struct:1732382460000 │   stop_loss │      1 │        -0.99 │       -101.717 │        -1.02 │          2:57:00 │    0     0     1     0 │
+│ struct:1744003080000 │   stop_loss │      1 │        -1.64 │       -101.771 │        -1.02 │          0:55:00 │    0     0     1     0 │
+│ struct:1745427780000 │   stop_loss │      1 │        -1.13 │       -101.942 │        -1.02 │          2:17:00 │    0     0     1     0 │
+│ struct:1743977340000 │   stop_loss │      1 │        -1.59 │       -101.959 │        -1.02 │          0:25:00 │    0     0     1     0 │
+│ struct:1737378900000 │   stop_loss │      1 │        -1.54 │       -101.977 │        -1.02 │          3:48:00 │    0     0     1     0 │
+│ struct:1752744420000 │   stop_loss │      1 │        -1.47 │       -102.296 │        -1.02 │          2:36:00 │    0     0     1     0 │
+│ struct:1734399540000 │   stop_loss │      1 │        -1.28 │       -102.530 │        -1.03 │         13:40:00 │    0     0     1     0 │
+│ struct:1740726900000 │   stop_loss │      1 │        -2.42 │       -102.998 │        -1.03 │          0:59:00 │    0     0     1     0 │
+│ struct:1744196040000 │   stop_loss │      1 │        -1.39 │       -103.397 │        -1.03 │          0:04:00 │    0     0     1     0 │
+│ struct:1734794640000 │   stop_loss │      1 │        -1.02 │       -103.745 │        -1.04 │          0:38:00 │    0     0     1     0 │
+│ struct:1740987900000 │   stop_loss │      1 │        -1.46 │       -104.295 │        -1.04 │          1:00:00 │    0     0     1     0 │
+│ struct:1726056900000 │   stop_loss │      1 │        -1.12 │       -104.471 │        -1.04 │          1:32:00 │    0     0     1     0 │
+│ struct:1745763480000 │   stop_loss │      1 │        -1.18 │       -105.949 │        -1.06 │          9:46:00 │    0     0     1     0 │
+│ struct:1755637920000 │   stop_loss │      1 │        -1.29 │       -107.073 │        -1.07 │          2:02:00 │    0     0     1     0 │
+│ struct:1738248660000 │   stop_loss │      1 │         -1.1 │       -107.861 │        -1.08 │          5:46:00 │    0     0     1     0 │
+│ struct:1725843600000 │   stop_loss │      1 │        -1.17 │       -108.012 │        -1.08 │          2:15:00 │    0     0     1     0 │
+│ struct:1739140920000 │   stop_loss │      1 │        -4.83 │       -127.680 │        -1.28 │ 15 days, 0:13:00 │    0     0     1     0 │
+│ struct:1756325880000 │   stop_loss │      3 │        -1.25 │       -171.247 │        -1.71 │          0:30:00 │    0     0     3     0 │
+│ struct:1732550040000 │   stop_loss │      1 │        -5.19 │       -182.936 │        -1.83 │         17:51:00 │    0     0     1     0 │
+│ struct:1733785740000 │   stop_loss │      1 │        -5.69 │       -212.225 │        -2.12 │         18:47:00 │    0     0     1     0 │
+│                TOTAL │             │    525 │         0.02 │      -1187.518 │       -11.88 │          7:11:00 │  189     0   336  36.0 │
+└──────────────────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2024-09-04 00:00:00                       │
+│ Backtesting to                         │ 2025-09-04 00:00:00                       │
+│ Trading Mode                           │ Spot                                      │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 525 / 1.44                                │
+│ Starting balance                       │ 10000 USD                                 │
+│ Final balance                          │ 8812.483 USD                              │
+│ Absolute profit                        │ -1187.518 USD                             │
+│ Total profit %                         │ -11.88%                                   │
+│ CAGR %                                 │ -11.88%                                   │
+│ Sharpe (closed trades)                 │ -0.64                                     │
+│ Sortino (closed trades)                │ -2.64                                     │
+│ Calmar (closed trades)                 │ -2.67                                     │
+│ SQN                                    │ -0.54                                     │
+│ Mean profit p-value                    │ 0.5925                                    │
+│ Profit factor                          │ 0.95                                      │
+│ Expectancy (Ratio)                     │ -2.26 (-0.03)                             │
+│ Avg. daily profit                      │ -3.253 USD                                │
+│ Avg. stake amount                      │ 7001.662 USD                              │
+│ Market change                          │ 83.40%                                    │
+│ Total trade volume                     │ 7357912.117 USD                           │
+│                                        │                                           │
+│ Best Pair                              │ ETH/USD -11.88%                           │
+│ Worst Pair                             │ ETH/USD -11.88%                           │
+│ Best trade                             │ ETH/USD 9.29%                             │
+│ Worst trade                            │ ETH/USD -5.69%                            │
+│ Best day                               │ 431.603 USD                               │
+│ Worst day                              │ -366.612 USD                              │
+│ Days win/draw/lose                     │ 125 / 107 / 132                           │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:08 / 2d 21:21 / 0d 07:46            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:00 / 15d 00:13 / 0d 06:51           │
+│ Max Consecutive Wins / Loss            │ 4 / 17                                    │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 5 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 8262.48 USD / 10763.673 USD               │
+│ Max % of account underwater            │ 23.24%                                    │
+│ Absolute drawdown                      │ 2501.193 USD (23.24%)                     │
+│ Drawdown duration                      │ 209 days 05:16:00                         │
+│ Profit at drawdown start               │ 763.673 USD                               │
+│ Profit at drawdown end                 │ -1737.52 USD                              │
+│ Drawdown start                         │ 2024-12-11 20:23:00                       │
+│ Drawdown end                           │ 2025-07-09 01:39:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 8244.48 USD / 10861.87 USD                │
+│ Min/Max balance dates (wallet balance) │ 2025-07-09 15:39:00 / 2024-12-08 23:54:00 │
+│ Max % of account underwater (balance)  │ 24.10%                                    │
+│ Absolute drawdown (wallet balance)     │ 2617.39 USD (24.10%)                      │
+│ Drawdown duration                      │ 212 days 15:45:00                         │
+│ Profit at drawdown start               │ 861.87 USD                                │
+│ Profit at drawdown end                 │ -1755.52 USD                              │
+│ Drawdown start                         │ 2024-12-08 23:54:00                       │
+│ Drawdown end                           │ 2025-07-09 15:39:00                       │
+│ Sharpe (daily wallet balance)          │ -0.47                                     │
+│ Sortino (daily wallet balance)         │ -0.71                                     │
+│ Calmar (daily wallet balance)          │ -2.59                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2024-09-04 00:00:00 -> 2025-09-04 00:00:00 | Max open trades : 1
+                                                              STRATEGY SUMMARY                                                              
+┌───────────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┬──────────────────────┐
+│          Strategy │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │             Drawdown │
+├───────────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┼──────────────────────┤
+│ StructureStrategy │    525 │         0.02 │      -1187.518 │       -11.88 │      7:11:00 │  189     0   336  36.0 │ 2501.193 USD  23.24% │
+└───────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────────────┘
