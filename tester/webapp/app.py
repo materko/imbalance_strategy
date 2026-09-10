@@ -1119,16 +1119,34 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         return {"queued": ids, "windows": chybaju,
                 "note": f"zaradených {len(ids)} behov; po dobehnutí spusti Spočítať znova"}
 
+    def _config_of_runs(run_ids: list[str]) -> dict[str, Any]:
+        """Konfigurácia behov analytiky: kľúč (`mixed` pri viacerých), profil, okná, TF."""
+        zaznamy = [z for z in (store.get(i) for i in run_ids) if z]
+        kluce = {_config_key(z) for z in zaznamy}
+        nast = [z.get("settings") or {} for z in zaznamy]
+        return {
+            "config_key": (kluce.pop() if len(kluce) == 1 else ("mixed" if kluce else "")),
+            "profile": next((s.get("profile") for s in nast if s.get("profile")), "")
+                       or ("(Pine defaulty)" if nast else ""),
+            "timeranges": sorted({s["timerange"] for s in nast if s.get("timerange")}),
+            "timeframes": sorted({s["timeframe"] for s in nast if s.get("timeframe")}),
+        }
+
     @app.get("/api/analytics/history")
-    def analytics_history(strategy: str = "", limit: int = Query(50, ge=1, le=500)):
-        """Uložené analytiky — per stratégia, od najnovšej.
+    def analytics_history(strategy: str = "", limit: int = Query(50, ge=1, le=500),
+                          config_key: str = ""):
+        """Uložené analytiky — per stratégia (a voliteľne per konfigurácia), od najnovšej.
 
         Vlastnosti aj parametre sú pri každej stratégii iné, takže zliať ich do jedného
-        zoznamu by znamenalo porovnávať neporovnateľné.
+        zoznamu by znamenalo porovnávať neporovnateľné. Staršie záznamy bez konfigurácie
+        si ju doplnia z behov, na ktoré sa odkazujú.
         """
         if strategy and strategy not in STRATEGIES:
             raise HTTPException(404, f"neznáma stratégia {strategy!r}")
-        return {"items": anstore.list(strategy, limit=limit)}
+        for x in anstore.list(strategy, limit=500):
+            if "config_key" not in x:
+                anstore.patch(x["id"], **_config_of_runs(x.get("run_ids") or []))
+        return {"items": anstore.list(strategy, limit=limit, config_key=config_key)}
 
     @app.get("/api/analytics/history/{an_id}")
     def analytics_history_one(an_id: str):
@@ -1145,8 +1163,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(422, f"neznáma stratégia {strategy!r}")
         if not (req.report.get("runs") or []):
             raise HTTPException(422, "report nemá behy, z ktorých vznikol")
+        konfig = _config_of_runs([r.get("id") for r in req.report["runs"] if r.get("id")])
         return anstore.save(req.report, strategy=strategy, note=req.note.strip(),
-                            user=_clean_user(req.user) or "")
+                            user=_clean_user(req.user) or "", **konfig)
 
     @app.get("/api/analytics/history/{an_id}/zadanie")
     def analytics_zadanie(an_id: str):

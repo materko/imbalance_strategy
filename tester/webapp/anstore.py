@@ -54,8 +54,14 @@ class AnalyticsStore:
         return najvyssie + 1
 
     def save(self, report: dict[str, Any], *, strategy: str, note: str = "",
-             user: str = "") -> dict[str, Any]:
-        """Uloží záver analytiky. Vráti hlavičku záznamu (bez rozdelení)."""
+             user: str = "", config_key: str = "", profile: str = "",
+             timeranges: Iterable[str] = (), timeframes: Iterable[str] = ()) -> dict[str, Any]:
+        """Uloží záver analytiky. Vráti hlavičku záznamu (bez rozdelení).
+
+        `config_key` je konfigurácia behov (parametre + trh + TF; `mixed`, keď ich bolo
+        viac) — analytika patrí ku konfigurácii rovnako ako k stratégii, inak by sa
+        v ponuke miešali závery o rôznych nastaveniach.
+        """
         self.root.mkdir(parents=True, exist_ok=True)
         teraz = datetime.now(timezone.utc)
         an_id = f"{teraz:%Y%m%d-%H%M%S}-{uuid4().hex[:4]}"
@@ -67,6 +73,10 @@ class AnalyticsStore:
             # by ich zoradil náhodne.
             "seq": self._next_seq(),
             "strategy": strategy,
+            "config_key": config_key,
+            "profile": profile,
+            "timeranges": sorted(set(timeranges)),
+            "timeframes": sorted(set(timeframes)),
             "note": note,
             "user": user,
             "run_ids": [r.get("id") for r in (report.get("runs") or []) if r.get("id")],
@@ -114,6 +124,16 @@ class AnalyticsStore:
                                      encoding="utf-8")
         return summary(zaznam)
 
+    def patch(self, an_id: str, **fields: Any) -> dict[str, Any] | None:
+        """Doplní hlavičkové polia (napr. konfiguráciu k starším záznamom). `None` = niet."""
+        zaznam = self.get(an_id)
+        if zaznam is None:
+            return None
+        zaznam.update(fields)
+        self._path(an_id).write_text(json.dumps(zaznam, ensure_ascii=False, indent=1),
+                                     encoding="utf-8")
+        return summary(zaznam)
+
     def delete(self, an_id: str) -> bool:
         path = self._path(an_id)
         if not path.exists():
@@ -121,8 +141,9 @@ class AnalyticsStore:
         path.unlink()
         return True
 
-    def list(self, strategy: str = "", limit: int = 50) -> list[dict[str, Any]]:
-        """Hlavičky od najnovšej. Bez `strategy` sa vrátia všetky.
+    def list(self, strategy: str = "", limit: int = 50, config_key: str = "") -> list[dict[str, Any]]:
+        """Hlavičky od najnovšej. Bez `strategy` sa vrátia všetky; `config_key` zúži
+        na jednu konfiguráciu.
 
         Radí sa podľa času uloženia, nie podľa mena súboru: dva záznamy z tej istej
         sekundy sa v mene líšia len náhodnou príponou, takže by vyšli v ľubovoľnom
@@ -135,6 +156,8 @@ class AnalyticsStore:
             except (json.JSONDecodeError, OSError):
                 continue
             if strategy and zaznam.get("strategy") != strategy:
+                continue
+            if config_key and zaznam.get("config_key") != config_key:
                 continue
             try:
                 mtime = path.stat().st_mtime
