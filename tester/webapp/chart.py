@@ -18,7 +18,7 @@ from tradebot.core.candles import resample_ohlcv
 from tradebot.core.types import INSTRUMENTS
 from .. import engines
 from .. import timeframes as tf_config
-from .runner import instrument_for_pair, is_multicharts_pair
+from .runner import instrument_for_pair, only_1m_on_disk
 
 #: Timeframy, ktoré má zmysel ponúknuť v grafe — zdrojový 1m plus tie z `timeframes.json`,
 #: zoradené od najkratšieho. Pri burzových pároch musí súbor existovať (graf nič neskladá);
@@ -36,7 +36,7 @@ def pair_file(pair: str, timeframe: str) -> Path:
     if timeframe not in TIMEFRAMES:
         raise ValueError(f"nepodporovaný timeframe {timeframe!r}; povolené: {', '.join(TIMEFRAMES)}")
     inst = INSTRUMENTS[instrument_for_pair(pair)]
-    if is_multicharts_pair(pair):
+    if only_1m_on_disk(pair):
         # Dukascopy má na disku len 1m; ostatné TF sa skladajú v pamäti (`core.candles`)
         return engines.one_minute_file(inst)
     return engines.freqtrade_file(inst, timeframe)
@@ -49,7 +49,7 @@ def available_timeframes(pair: str) -> list[str]:
         inst = INSTRUMENTS[instrument_for_pair(pair)]
     except ValueError:
         return []
-    if is_multicharts_pair(pair):
+    if only_1m_on_disk(pair):
         # Dukascopy má na disku len 1m, vyššie TF sa skladajú v pamäti
         return list(TIMEFRAMES) if engines.one_minute_file(inst).exists() else []
     return [tf for tf in TIMEFRAMES if engines.freqtrade_file(inst, tf).exists()]
@@ -77,7 +77,7 @@ def series(pair: str, timeframe: str):
     path = pair_file(pair, timeframe)
     if not path.exists():
         raise FileNotFoundError(f"chýbajú {timeframe} dáta pre {pair} ({path.name})")
-    minutes = _tf_minutes(timeframe) if is_multicharts_pair(pair) else 1
+    minutes = _tf_minutes(timeframe) if only_1m_on_disk(pair) else 1
     return _frame(str(path), path.stat().st_mtime_ns, minutes)
 
 
@@ -89,7 +89,7 @@ def candles(pair: str, timeframe: str, from_ms: int, to_ms: int, limit: int = MA
     path = pair_file(pair, timeframe)
     if not path.exists():
         raise FileNotFoundError(f"chýbajú {timeframe} dáta pre {pair} ({path.name})")
-    minutes = _tf_minutes(timeframe) if is_multicharts_pair(pair) else 1
+    minutes = _tf_minutes(timeframe) if only_1m_on_disk(pair) else 1
     ts, cols = _frame(str(path), path.stat().st_mtime_ns, minutes)
     a = int(np.searchsorted(ts, from_ms, side="left"))
     b = int(np.searchsorted(ts, to_ms, side="left"))

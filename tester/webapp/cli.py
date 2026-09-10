@@ -125,7 +125,10 @@ def _prepare(args: argparse.Namespace) -> tuple[dict, dict]:
     if pair is None:
         pair = INSTRUMENTS[instrument].symbol if instrument else "BTC/USDT:USDT"
     pair_instrument = instrument_for_pair(pair)
-    if instrument and pair_instrument != instrument:
+    # Syntetický trh dedí mierku zo zdroja, takže prahy v bodoch na ňom platia —
+    # varovanie by tam bolo falošné.
+    mierka = INSTRUMENTS[pair_instrument].scale_of or pair_instrument
+    if instrument and mierka != instrument:
         print(f"POZOR: profil {args.profile} je pre {instrument}, ale pár {pair} je {pair_instrument}. "
               "Prahy v bodoch/tickoch nesedia - použi profil pre tento nástroj.",
               file=sys.stderr)

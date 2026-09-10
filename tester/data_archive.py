@@ -65,6 +65,10 @@ def _write(df, path: Path) -> None:
     df.reset_index(drop=True).to_feather(path)
 
 
+#: Adresár zdroja, ktorý sa do archívu nekopíruje — dá sa vygenerovať (`tester.synthetic`).
+SYNTHETIC_SOURCE = "synthetic"
+
+
 def split_root(archive: Path, data: Path, verbose: bool = True,
                skip: set[Path] | frozenset[Path] = frozenset()) -> list[Path]:
     """`data/` -> `data_archive/tester/` jedného koreňa, jeden súbor na rok.
@@ -76,6 +80,13 @@ def split_root(archive: Path, data: Path, verbose: bool = True,
     written: list[Path] = []
     for src in sorted(data.rglob("*.feather")):
         rel = src.relative_to(data)
+        # Syntetické trhy sú deterministické: z receptu v `instruments_synthetic.json`
+        # vzniknú bit po bite tie isté. Do archívu teda nepatria — bol by to stovky MB
+        # veľký súbor s niečím, čo sa vyrobí jedným príkazom.
+        if SYNTHETIC_SOURCE in rel.parts:
+            if verbose:
+                print(f"  preskakujem {rel} (synteticky trh, da sa vygenerovat z receptu)")
+            continue
         if src in skip:
             if verbose:
                 print(f"  preskakujem {rel} (odvodene z 1m)")
