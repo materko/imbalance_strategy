@@ -224,6 +224,19 @@ hyperopt **nenahrádza** ani neodhalí jeho pretrénovanie; sú to dve rôzne ot
 Ako sa nastavujú hranice, ako pridať hyperopt k novej stratégii a čo sa deje vnútri:
 [docs/HYPEROPT.md](../docs/HYPEROPT.md).
 
+## 8a. Okolie víťaza hyperoptu
+
+```bash
+PY -m tester.webapp.cli plateau <hyperopt_id>
+```
+
+Hyperopt vráti jedno číslo. Okolie povie, či je to stred niečoho (**plató** — presná hodnota
+nie je kritická), alebo náhodná diera v šume (**špička** — optimum je tvar toho okna).
+Susedia sa berú o krok a o dva kroky, vždy len na jednom parametri; „drží" znamená, že
+sused padol do intervalu spoľahlivosti víťaza z Monte Carla. Vo webapp je to v detaile
+hyperoptu tlačidlom **Preveriť okolie víťaza**.
+[docs/HYPEROPT.md](../docs/HYPEROPT.md#okolie-víťaza-plató-alebo-osamelá-špička).
+
 ## 8b. Analytika: ktorá skupina obchodov kazí výsledok
 
 Karta **Analytika** vo webapp. Backtest povie jedno číslo za celý beh; tu sa obchody

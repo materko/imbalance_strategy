@@ -170,6 +170,11 @@ class ProfileRenameRequest(BaseModel):
     name: str = Field(..., max_length=48)
 
 
+def _plateau_note() -> str:
+    return ("Susedia víťaza: o krok a o dva kroky na každom ladenom parametri. Plató znamená, "
+            "že presná hodnota nie je kritická; špička, že optimum je tvar toho okna.")
+
+
 def _null_note(vysledky: dict[str, Any]) -> str:
     """Rozdiel medzi dvoma náhodami je hodnota samotného výberu času.
 
@@ -701,6 +706,34 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         out.sort(key=lambda x: x["id"], reverse=True)
         return {"total": len(out), "hyperopts": out[:limit]}
 
+    def _plateau_of(run_id: str, zadanie: dict[str, Any]) -> dict[str, Any] | None:
+        """Vyhodnotenie okolia víťaza, keď už nejakí susedia bežali."""
+        from .. import montecarlo as mc, plateau as pl
+
+        susedia = [r for r in store.all()
+                   if ((r.get("settings", {}).get("plateau") or {}).get("id")) == run_id]
+        bezia = [j for j in runner.snapshot()
+                 if ((j.get("settings", {}).get("plateau") or {}).get("id")) == run_id]
+        if not susedia and not bezia:
+            return None
+        ladene = [r for r in store.all()
+                  if ((r.get("settings", {}).get("hyperopt_run") or {}).get("id")) == run_id
+                  and (r["settings"].get("hyperopt_run") or {}).get("tuned")]
+        if not ladene:
+            return {"pending": len(bezia), "rows": [], "verdict": ""}
+        vitaz = ladene[0]
+
+        # Interval vitaza z Monte Carla je meradlo, ktorym sa rozhoduje, ci sused "drzi".
+        interval = (None, None)
+        obchody = store.trades(vitaz["id"])
+        if len(obchody) >= mc.MIN_TRADES:
+            vysledok = mc.analyze(obchody, fee_pct=(vitaz["settings"].get("fee") or 0) * 100,
+                                  iterations=1500)
+            be = vysledok["break_even"]
+            interval = (be["lo"], be["hi"])
+        hodnotenie = pl.assess(vitaz, susedia, interval)
+        return {**hodnotenie.to_dict(), "pending": len(bezia), "note": _plateau_note()}
+
     @app.get("/api/hyperopts/{run_id}")
     def hyperopt_detail(run_id: str):
         """Zadanie, epochy, víťaz a overovacie behy na referenčných oknách."""
@@ -745,6 +778,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                            ("trades", "pnl_pct", "winrate", "max_drawdown_pct", "break_even_pct")},
             } for r in sorted(overenia, key=lambda r: r["settings"].get("timerange") or "")],
             "verdict": ho.verdict(overenia, ladene) if overenia else "",
+            "plateau": _plateau_of(run_id, zadanie),
         }
 
     @app.get("/api/analytics")
@@ -834,6 +868,54 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 report["nulltest"] = {"nulls": vysledky,
                                       "note": _null_note(vysledky)}
         return report
+
+    @app.post("/api/hyperopts/{run_id}/plateau")
+    def hyperopt_plateau(run_id: str):
+        """Zaradí susedov víťaza — o krok a o dva kroky na každom ladenom parametri.
+
+        Hyperopt vráti jedno číslo a to nehovorí nič o tom, či je stredom niečoho, alebo
+        náhodnou dierou v šume. Susedia to rozhodnú.
+        """
+        from .. import plateau as pl
+
+        rec = store.get(run_id)
+        zadanie = ((rec or {}).get("settings") or {}).get("hyperopt") or {}
+        if not zadanie.get("knobs"):
+            raise HTTPException(404, "taký hyperopt v histórii nie je")
+        vitaz_params = zadanie.get("overrides")
+        if not vitaz_params:
+            raise HTTPException(422, "hyperopt nemá víťaza (žiadna epocha nesplnila mantinely)")
+
+        ladene = [r for r in store.all()
+                  if ((r.get("settings", {}).get("hyperopt_run") or {}).get("id")) == run_id
+                  and (r["settings"].get("hyperopt_run") or {}).get("tuned")]
+        if not ladene:
+            raise HTTPException(422, "beh víťaza na ladenom okne v histórii nie je "
+                                     "(hyperopt bežal bez overenia?)")
+        vitaz = ladene[0]
+
+        susedia = pl.neighbours(zadanie["knobs"], vitaz_params)
+        if not susedia:
+            raise HTTPException(422, "víťaz nemá v rozsahu plánu žiadnych susedov")
+
+        base = {k: v for k, v in vitaz["settings"].items() if k != "hyperopt_run"}
+        ids, preskocene = [], {}
+        for sused in susedia:
+            params = {**(vitaz.get("params") or {}), sused.param: sused.value}
+            settings = {**base, "plateau": {"id": run_id, "param": sused.param,
+                                            "value": sused.value, "step": sused.step}}
+            try:
+                job = runner.submit(params, settings,
+                                    note=f"okolie {run_id}: {sused.param}={sused.value}",
+                                    user=_clean_user(None))
+            except (ConfigError, ValueError) as exc:
+                preskocene[sused.label] = str(exc)
+                continue
+            ids.append(job.id)
+        if not ids:
+            raise HTTPException(422, "žiadny sused sa nezaradil: "
+                                     + "; ".join(f"{k}: {v}" for k, v in preskocene.items()))
+        return {"id": run_id, "runs": ids, "neighbours": len(ids), "skipped": preskocene}
 
     @app.get("/api/matrix/meta")
     def matrix_meta(wallet: float = 10000, timeframe: str = "3m", strategy: str = "ibs"):

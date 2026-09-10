@@ -1049,9 +1049,63 @@ function renderHyper(r) {
       : (r.verdict.startsWith("PRETRENOVANE") ? "bad" : "unsure");
     casti_html.push(`<div class="verdict ${trieda}">${esc(r.verdict)}</div>`);
   }
+  casti_html.push(plateauHtml(r));
   box.innerHTML = casti_html.join("");
   for (const tr of $$("#sweep-result tr[data-run]")) {
     tr.onclick = () => { showView("history"); openRun(tr.dataset.run); };
+  }
+  const tlacidlo = $("#plateau-run");
+  if (tlacidlo) tlacidlo.onclick = () => startPlateau(r.id);
+}
+
+/** Okolie víťaza: plató, alebo osamelá špička? */
+function plateauHtml(r) {
+  if (!r.overrides) return "";
+  const p = r.plateau;
+  if (!p) {
+    return `<p class="an-note"><button id="plateau-run" class="ghost small" type="button"
+        title="Pustí susedov víťaza — o krok a o dva kroky na každom ladenom parametri.">
+        Preveriť okolie víťaza</button>
+      Hyperopt vrátil jedno číslo; susedia povedia, či je to stred niečoho, alebo náhodná
+      diera v šume.</p>`;
+  }
+  const rows = (p.rows || []).map(x => {
+    const znak = x.step > 0 ? "+" : "";
+    return `<tr class="${x.holds ? "" : "out"}" data-run="${x.id}" title="klikni pre detail behu">`
+      + `<td>${esc(x.param)} ${znak}${x.step}</td><td>${esc(fmtVal(x.value))}</td>`
+      + `<td>${x.trades ?? "—"}</td><td>${fmt(x.break_even_pct, 4)}</td>`
+      + `<td>${x.holds ? "áno" : "NIE"}</td></tr>`;
+  }).join("");
+  const trieda = p.verdict.startsWith("PLATO") ? "good"
+    : (p.verdict.startsWith("SPICKA") ? "bad" : "unsure");
+  const hlavicka = p.ci_lo !== null && p.ci_lo !== undefined
+    ? `<p class="an-note">Interval víťaza (Monte Carlo): ${fmt(p.ci_lo, 4)} až ${fmt(p.ci_hi, 4)} %`
+      + (p.spread !== null ? ` · rozptyl okolia ${fmt(p.spread, 4)} %` : "") + "</p>"
+    : "";
+  return `<div class="ch-box">
+      <div class="ch-head"><h3>Okolie víťaza</h3>
+        ${p.pending ? `<span class="chip warn">${p.pending} beží</span>` : ""}</div>
+      <p class="an-note">${esc(p.note || "")}</p>
+      ${hlavicka}
+      ${rows ? `<table class="mx-table"><thead><tr><th>sused</th><th>hodnota</th>
+        <th>obch.</th><th>break-even</th><th>drží</th></tr></thead>
+        <tbody>${rows}</tbody></table>` : ""}
+      <div class="verdict ${trieda}">${esc(p.verdict)}</div>
+    </div>`;
+}
+
+/** Zaradí susedov víťaza do fronty. */
+async function startPlateau(id) {
+  const btn = $("#plateau-run");
+  if (btn) btn.disabled = true;
+  try {
+    const r = await api(`/api/hyperopts/${id}/plateau`, { method: "POST" });
+    $("#sweep-status").textContent = `${r.neighbours} susedov vo fronte`;
+    pollQueue();
+    pollHyper();
+  } catch (e) {
+    $("#sweep-status").textContent = e.message;
+    if (btn) btn.disabled = false;
   }
 }
 

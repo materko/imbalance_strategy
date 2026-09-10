@@ -49,6 +49,57 @@ nepatrí.
 Overovacie behy sú obyčajné behy v histórii so značkou `hyperopt`, takže sa dajú otvoriť,
 porovnať aj prehnať Monte Carlom — rovnako ako body sweepu.
 
+## Okolie víťaza: plató, alebo osamelá špička?
+
+Overenie na ďalších oknách hovorí, či víťaz prežije **inde**. Okolie víťaza hovorí niečo
+iné a rovnako dôležité: či je to číslo **stredom niečoho**, alebo náhodná diera v šume.
+
+- **plató** — susedné hodnoty dávajú podobný výsledok. Optimalizátor našiel oblasť, kde
+  stratégia funguje, a presná hodnota nie je kritická. Takú konfiguráciu možno používať.
+- **špička** — susedia spadnú. Optimum drží len na tej jednej hodnote, teda je to tvar
+  **toho okna**, nie stratégie.
+
+```bash
+PY -m tester.webapp.cli plateau 20260909-223204-60faae
+```
+
+To isté je v detaile hyperoptu vo webapp tlačidlom **Preveriť okolie víťaza**. Susedia sa
+berú o krok a o dva kroky hore aj dole, **vždy len na jednom parametri naraz** — keby sa
+hýbali všetky, nevedelo by sa, ktorý z nich výsledok drží. Každý sused je obyčajný beh
+v histórii.
+
+**Ako sa rozhoduje, či sused „drží".** Nie percentom — to by bola vymyslená hranica.
+Meradlom je **vlastný interval spoľahlivosti víťaza** z Monte Carla: keď sused padne
+dovnútra intervalu, ktorý by víťaz dosiahol už len preskladaním vlastných obchodov, nie je
+od neho odlíšiteľný. A o plató rozhoduje **rozptyl susedov voči šírke toho intervalu**, nie
+šírka intervalu samotná — bootstrap interval break-even je pri malých kladných hodnotách
+takmer vždy širší než samotná hodnota, takže porovnávať tie dve veci nepovie nikdy nič.
+
+Príklad z behu, ktorý to preveril:
+
+```
+vitaz: break-even 0.0659 %, 167 obchodov
+interval vitaza (Monte Carlo): 0.0156 az 0.1194 %
+rozptyl okolia: 0.0139 % (13% sirky intervalu)
+
+sused              hodnota  obchodov  break-even   drzi
+rrRatio -2             3.7       168      0.0546    ano
+rrRatio +2             5.7       166      0.0601    ano
+slLookback -1           39       167      0.0685    ano
+
+PLATO: vsetkych 6 susedov drzi a lisia sa medzi sebou o 0.0139 %, co je 13 % sirky
+intervalu vitaza. Parameter v tomto rozsahu nerozhoduje, takze presna cifra nie je
+kriticka - to je dobre znamenie.
+```
+
+Posunutie `rrRatio` zo 4,7 na 3,7 alebo 5,7 zmení break-even o stotinu percenta. To je
+plocha, nie hrot — a znamená to aj, že hyperopt tu vlastne nemal čo vyberať, lebo v tom
+rozsahu je jedno, ktorú hodnotu vezme.
+
+Poradie, v ktorom to dáva zmysel: hyperopt nájde parametre → **okolie** povie, či je to
+plocha → **ostatné okná** povedia, či to prežije inde → Monte Carlo dá k prežitému číslu
+interval.
+
 ## Odkiaľ sa berú hranice
 
 Poradie je: **čo napíšeš** → **čo odporučí stratégia** → **čo dovolí Pine**.
