@@ -681,18 +681,73 @@ súvisle kladné, je to nález — ale o **nás**, nie o stratégii.
 
 Záporný výsledok naopak nedokazuje nič: poplatky a spread berú aj na náhodnom trhu.
 
-## 9. FreqAI
+## 9. AI filter (FreqAI)
 
-Dá sa pripojiť, ale odpovedá na inú otázku: hyperopt vyberie statické parametre, FreqAI
-trénuje model, ktorý sa v čase mení. Stratégia je deterministický stavový automat a jeho
-parita s Pine je zmyslom celého portu, takže model ju **nenahrádza** — dáva sa nad ňu ako
-filter (engine nájde setup, model predpovie, či ho brať), a to paritu poruší, takže by to
-bolo rozšírenie mimo Pine s defaultom „vypnuté".
+Model **nenahrádza** engine, dáva sa nad neho. Engine nájde setup presne ako dnes (parita
+s Pine ostáva), model k signálu predpovie, či skôr príde take profit alebo stop, a signály
+pod prahom sa preskočia. Zapnutý filter paritu **poruší** — obchodov bude menej — takže je
+to rozšírenie mimo Pine a je **predvolene vypnuté**.
 
-Chýbajú závislosti (`pip install "freqtrade[freqai]"`) a hlavne obchody: máme 20–170
-obchodov za rok, teda ~100–800 nálepiek za päť rokov. Čo presne by sa muselo dorobiť, čo
-to stojí a prečo sa najprv oplatí ručne zmerať, či má filter vôbec priestor:
-[docs/HYPEROPT.md — FreqAI](../docs/HYPEROPT.md).
+```bash
+PY -m tester.webapp.cli run --profile <profil> --timerange 20250904-20260904 --ai
+PY -m tester.webapp.cli run … --ai --ai-min-prob 0.45 --ai-size 0.5:1.5
+```
+
+| prepínač | čo robí |
+|---|---|
+| `--ai` | zapne filter s predvolenými hodnotami |
+| `--ai-min-prob` | prah istoty; pod ním sa signál preskočí (default 0,55) |
+| `--ai-train-days` | dĺžka tréningového okna (default 730) |
+| `--ai-backtest-days` | ako často sa pretrénuje (default 180) |
+| `--ai-model` | model FreqAI (default `LightGBMClassifier`) |
+| `--ai-size OD:DO` | veľkosť pozície podľa istoty, napr. `0.5:1.5` |
+| `--ai-rr OD:DO` | vzdialenosť take profitu podľa istoty |
+
+### Nálepka, ktorú netreba vymýšľať
+FreqAI štandardne predpovedá zmenu ceny o N sviečok dopredu, čo je vždy sporný cieľ. My
+pre **každý signál** poznáme jeho SL aj TP z plánu, ktorý engine vypočítal — nálepka je
+teda „tento signál skončil na TP" alebo „na SL". Keď v jednom bare padne oboje, počíta sa
+to ako **stop**: v jednom bare nevieme, čo prišlo skôr, a optimistický odhad by model
+naučil, že sporné obchody vychádzajú.
+
+Bary bez signálu ostávajú bez nálepky a FreqAI ich z tréningu vyhodí — model sa učí len na
+tom, čo engine naozaj ponúkol, nie na každom bare grafu.
+
+### Prečo je príznakov len sedem
+Trend, volatilita voči normálu, poloha v rozsahu (v smere obchodu), vzdialenosť stopu,
+plánovaný RR, hodina a smer. Sú to tie isté veci, ktoré meria analytika, takže model vidí
+ten istý svet, v akom robíme závery. Viac príznakov by sa pri stovkách nálepiek naučilo
+vzorku — a to sme už raz videli pri úzkom hyperopte, ktorý skončil stratou vo všetkých
+štyroch out-of-sample rokoch. Štandardné rozširovanie FreqAI (posunuté sviečky, korelované
+páry, desiatky periód) je preto **vypnuté**.
+
+### Prah závisí od winrate, nie od pocitu
+**Toto je tá vec, na ktorej sa dá najľahšie pomýliť.** Model predpovedá pravdepodobnosť
+výhry a tá sa točí okolo winrate stratégie. Pri winrate 35 % model málokedy prekročí 0,55,
+takže prah 0,55 zahodí skoro všetko. Prah patrí **nad** winrate, nie nad 0,5 — pri 35 %
+winrate skús 0,40–0,45 a pozri, koľko obchodov ostane.
+
+### Časť 2: zmena parametrov podľa istoty
+`--ai-size` a `--ai-rr` škálujú **plán obchodu** podľa toho, aký si je model istý: pri
+istote na prahu dolný koniec rozsahu, pri istote 1 horný. Mantinely sú zo zadania behu,
+takže model nemôže poslať veľkosť ani do neba, ani na nulu.
+
+Čo sa meniť **nedá**: prahy, ktoré rozhodujú, či signál vôbec vznikne (`minSlDistance`,
+štruktúrny filter, hodiny seansy). V čase, keď model predpovedá, engine už dobehol a signál
+buď je, alebo nie je — pri takých parametroch je jediná zmysluplná odpoveď „ber / neber",
+a to robí filter.
+
+### Čo to stojí
+- **Beh sa spomalí.** FreqAI trénuje walk-forward; s predvolenými hodnotami sú to dva
+  tréningy na rok navrch k backtestu.
+- **Výsledok prestane byť determinovaný.** Golden testy aj porovnanie s TradingView
+  a MultiCharts platia len pre vetvu s vypnutým filtrom.
+- **Málo nálepiek.** Nálepku dostane len bar so signálom, takže stratégia s 30 obchodmi
+  za rok má v tréningovom okne pár desiatok nálepiek. Keď model v okne nevidí obe triedy,
+  nenatrénuje sa — vtedy sa **nefiltruje** a beh dobehne ako obyčajný (v logu je o tom
+  riadok). Filter má zmysel skúšať na konfigurácii, ktorá obchoduje často.
+
+Prvé čísla: [docs/merania/AI_filter_2026-09-10.md](../docs/merania/AI_filter_2026-09-10.md).
 
 ## 10. Čo nerobiť
 

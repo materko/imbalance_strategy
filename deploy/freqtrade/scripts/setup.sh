@@ -47,7 +47,7 @@ echo "Instalujem freqtrade (chvilu to trva)..."
 # `freqtrade hyperopt` ani nenaimportuje (ModuleNotFoundError: optuna).
 # joblib < 1.6: v 1.6 zmizol `joblib.externals.cloudpickle`, ktory freqtrade
 # 2026.8 v hyperopt_optimizer importuje.
-"$PY" -m pip install "freqtrade[hyperopt]" "joblib<1.6"
+"$PY" -m pip install "freqtrade[hyperopt,freqai]" "joblib<1.6"
 
 echo "Instalujem lokalny balik tradebot (editovatelne)..."
 "$PY" -m pip uninstall -y ibs >/dev/null 2>&1 || true   # stary nazov balika (pred premenovanim na tradebot)

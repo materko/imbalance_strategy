@@ -148,11 +148,33 @@ def _prepare(args: argparse.Namespace) -> tuple[dict, dict]:
     settings = {
         "strategy": args.strategy, "pair": pair, "engine": engine, "timeframe": args.timeframe,
         "exchange": exchange if engine == engines.FREQTRADE else None,
-        "timerange": args.timerange, **_fee_for(args, pair),
+        "timerange": args.timerange, **_fee_for(args, pair), "ai": _ai_for(args),
         "wallet": args.wallet, "timeframe_detail": None if args.no_detail else "1m",
         "profile": args.profile,
     }
     return params, settings
+
+
+def _ai_for(args: argparse.Namespace) -> dict | None:
+    """Nastavenie AI vrstvy z prepínačov, alebo `None`, keď je vypnutá."""
+    def rozsah(text: str | None, meno: str):
+        if not text:
+            return None
+        try:
+            a, b = (float(x) for x in text.split(":"))
+        except ValueError:
+            raise SystemExit(f"--ai-{meno} chce tvar OD:DO, napr. 0.5:1.5")
+        return [a, b]
+
+    zapnute = {k: v for k, v in (
+        ("min_probability", args.ai_min_prob), ("train_period_days", args.ai_train_days),
+        ("backtest_period_days", args.ai_backtest_days), ("model", args.ai_model),
+    ) if v is not None}
+    adjust = {k: v for k, v in (("size", rozsah(args.ai_size, "size")),
+                                ("rr", rozsah(args.ai_rr, "rr"))) if v}
+    if not (args.ai or zapnute or adjust):
+        return None
+    return {"enabled": True, **zapnute, **({"adjust": adjust} if adjust else {})}
 
 
 def _fee_for(args: argparse.Namespace, pair: str) -> dict:
@@ -1272,6 +1294,22 @@ def _run_args(p: argparse.ArgumentParser, *, timerange: bool = True) -> None:
     p.add_argument("--no-detail", action="store_true", help="bez 1m detailu fillov (rýchlejšie, hrubšie)")
     p.add_argument("--note", help="poznámka do histórie — napíš, čo beh testuje")
     p.add_argument("--user", help="meno testera (default TRADEBOT_USER)")
+    # AI vrstva (FreqAI) - filter nad portom. Bez `--ai` sa nic nemeni a parita s Pine
+    # ostava; so zapnutou sa obchodov ubuda, takze je to rozsirenie mimo Pine.
+    p.add_argument("--ai", action="store_true",
+                   help="zapni AI filter (FreqAI): model rozhodne, ktorý signál brať")
+    p.add_argument("--ai-min-prob", type=float, dest="ai_min_prob",
+                   help="prah istoty, pod ktorým sa signál preskočí (default 0.55)")
+    p.add_argument("--ai-train-days", type=int, dest="ai_train_days",
+                   help="dĺžka tréningového okna v dňoch (default 180)")
+    p.add_argument("--ai-backtest-days", type=int, dest="ai_backtest_days",
+                   help="ako často sa pretrénuje, v dňoch (default 30)")
+    p.add_argument("--ai-model", dest="ai_model",
+                   help="model FreqAI (default LightGBMClassifier)")
+    p.add_argument("--ai-size", dest="ai_size", metavar="OD:DO",
+                   help="veľkosť pozície podľa istoty, napr. 0.5:1.5 (bez neho sa nemení)")
+    p.add_argument("--ai-rr", dest="ai_rr", metavar="OD:DO",
+                   help="vzdialenosť take profitu podľa istoty, napr. 0.8:1.4")
 
 
 def main(argv: list[str] | None = None) -> int:

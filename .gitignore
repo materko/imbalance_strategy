@@ -18,6 +18,9 @@ graf.html
 # statická stránka webapp je zdroj, nie generovaný report
 !tester/webapp/static/*.html
 deploy/freqtrade/user_data/hyperopt_results/
+# Natrenovane modely a cache predikcii FreqAI: generuje ich kazdy beh s --ai,
+# su velke a z receptu (config + data) vzniknu znova.
+deploy/freqtrade/user_data/models/
 # Cele data/ je odvodene a do gitu nejde nikdy: data/tester/ sa zlozi z archivu
 # (`python -m tester.data_archive merge`), chybajuce timeframy sa dopocitaju z 1m
 # (`python -m tester.timeframes`, pripadne si ich poskladá strategia za behu) a

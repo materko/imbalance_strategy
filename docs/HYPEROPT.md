@@ -246,7 +246,15 @@ oplatí od troch.
 
 ---
 
-# FreqAI: dá sa pripojiť, ale odpovedá na inú otázku
+# FreqAI: pripojený ako filter nad portom
+
+> **Hotové.** Tento dokument bol pôvodne rozbor „dalo by sa to?"; odvtedy je AI vrstva
+> postavená a používa sa cez `cli run --ai`. Návod je v
+> [AI_TESTING.md §9](../tester/AI_TESTING.md), prvé čísla v
+> [merania/AI_filter_2026-09-10.md](merania/AI_filter_2026-09-10.md). Text nižšie ostáva,
+> lebo vysvetľuje **prečo** je to postavené takto — a ten dôvod sa nezmenil.
+
+## Pôvodný rozbor
 
 **Áno, technicky sa dá** — FreqAI je súčasť tej istej inštalácie Freqtradu a Tester ním
 beží cez rovnaký obal (`tester.ftrun`). Nie je to ale „hyperopt, len lepší": hyperopt

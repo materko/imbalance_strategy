@@ -266,7 +266,10 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
         # Fiktivna burza dostane config s `stake_currency` podla kotacie paru - Dukascopy
         # symboly su v USD, JPY, EUR aj CAD a Freqtrade vyhodi z whitelistu kazdy par,
         # ktoreho mena nesedi so stake_currency (a hned potom skonci na "No pair in whitelist").
-        "--config", str(engines.stake_config(inst, settings.get("exchange"))),
+        # So zapnutou AI vrstvou ide config s blokom `freqai` navyše; inak je to ten istý.
+        "--config", str(engines.ai_config(inst, settings.get("exchange"), tf, settings["ai"])
+                        if settings.get("ai") else
+                        engines.stake_config(inst, settings.get("exchange"))),
         "--userdir", str(USER_DIR),
         "--strategy", get_spec(settings.get("strategy") or "ibs").freqtrade_class,
         "--cache", "none",
@@ -285,6 +288,9 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
     # presunu dat lezia uz len stare kopie. Beh by potom ticho pocital z inych suborov,
     # nez ma zvysok Testera (a novy timeframe by tam vobec nenasiel).
     cmd += ["--datadir", str(engines.data_dir(inst))]
+    if settings.get("ai"):
+        model = (settings["ai"].get("model") or engines.AI_DEFAULTS["model"])
+        cmd += ["--freqaimodel", model]
     return cmd
 
 
