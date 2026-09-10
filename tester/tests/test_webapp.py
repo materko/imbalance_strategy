@@ -1159,10 +1159,20 @@ def test_doplnenie_okien_zaradi_len_chybajuce_referencne_okna(tmp_path: Path, mo
 
     out = c.post("/api/analytics/fill-windows", json={"run_id": konfig["sample"]}).json()
     assert out["windows"] == konfig["missing"] and len(out["queued"]) == 4
-    # Falošný runner behy hneď dokončí, takže sú už v sklade, nie vo fronte.
-    fronta = {j["id"]: j for j in runner.snapshot()}
+    # Falošný runner behy hneď dokončí: počká sa, kým fronta dobehne, a záznamy sa
+    # čítajú zo skladu - medzi frontou a skladom je krátke okno, kde beh nie je nikde.
+    import time as _time
+
+    for _ in range(100):
+        if not any(j.get("status") in ("queued", "running") for j in runner.snapshot()):
+            break
+        _time.sleep(0.05)
     for run_id in out["queued"]:
-        j = fronta.get(run_id) or store.get(run_id)
+        for _ in range(100):
+            j = store.get(run_id)
+            if j is not None:
+                break
+            _time.sleep(0.05)
         assert j["settings"]["timerange"] in konfig["missing"]
         assert j["settings"]["checkup"]["fill"] == "20260905-120000-aaaaaa"
     assert c.post("/api/analytics/fill-windows", json={"run_id": "neexistuje"}).status_code == 404
