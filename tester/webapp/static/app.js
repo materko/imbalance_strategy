@@ -20,6 +20,7 @@ const state = {
   paramMode: "basic",
   hyperMeta: {},
   propMeta: null,
+  posudokId: null,     // uložená analytika, ku ktorej sa píše posudok
   propAfterRun: null,   // beh, ktoreho prop vyzva sa spocita, ked dobehne
 };
 
@@ -2427,6 +2428,7 @@ async function loadAnalytics() {
     $("#an-paper").disabled = false;
     $("#an-save").disabled = false;
     $("#an-history").value = "";
+    showPosudok(null);          // cerstva analytika este nie je v historii
     $("#an-status").textContent = "";
   } catch (e) {
     $("#an-status").textContent = e.message;
@@ -2493,6 +2495,53 @@ function anStamp(iso) {
     : d.toLocaleString("sk-SK", { dateStyle: "short", timeStyle: "short" });
 }
 
+/** Posudok patrí k uloženej analytike — čerstvá ho ešte nemá kam pripísať. */
+function showPosudok(zaznam) {
+  const box = $("#posudok-box");
+  if (!zaznam) { box.hidden = true; state.posudokId = null; return; }
+  state.posudokId = zaznam.id;
+  box.hidden = false;
+  $("#posudok-text").value = zaznam.posudok || "";
+  // Posudok napísaný k iným číslam nie je nepravdivý, len starý — a to musí byť vidieť.
+  const stary = zaznam.posudok && zaznam.posudok_stamp !== zaznam.numbers;
+  const chip = $("#posudok-stav");
+  chip.className = "chip" + (stary ? " stale" : "");
+  chip.textContent = !zaznam.posudok ? "zatiaľ nenapísaný"
+    : (stary ? "starý — čísla sa medzitým zmenili" : `napísaný ${anStamp(zaznam.posudok_at)}`);
+  box.open = !zaznam.posudok;
+  $("#posudok-status").textContent = "";
+}
+
+async function copyZadanie() {
+  if (!state.posudokId) return;
+  try {
+    const r = await api(`/api/analytics/history/${encodeURIComponent(state.posudokId)}/zadanie`);
+    await navigator.clipboard.writeText(r.text);
+    $("#posudok-status").textContent = "zadanie je v schránke — vlož ho AI";
+  } catch (e) {
+    $("#posudok-status").textContent = e.message;
+  }
+}
+
+async function savePosudok() {
+  if (!state.posudokId) return;
+  const btn = $("#posudok-save");
+  btn.disabled = true;
+  $("#posudok-status").textContent = "ukladám…";
+  try {
+    const out = await api(`/api/analytics/history/${encodeURIComponent(state.posudokId)}/posudok`, {
+      method: "POST",
+      body: JSON.stringify({ text: $("#posudok-text").value, user: currentUser() || "" }),
+    });
+    $("#posudok-status").textContent = "uložené";
+    $("#posudok-stav").className = "chip";
+    $("#posudok-stav").textContent = `napísaný ${anStamp(out.posudok_at)}`;
+    await loadAnalyticsHistory(state.posudokId);
+  } catch (e) {
+    $("#posudok-status").textContent = e.message;
+  } finally { btn.disabled = false; }
+}
+
 /** Otvori ulozenu analytiku — vykresli sa tym istym kodom ako cerstva. */
 async function openAnalyticsHistory(id) {
   if (!id) return;
@@ -2503,6 +2552,7 @@ async function openAnalyticsHistory(id) {
     renderAnalytics(z.report);
     $("#an-paper").disabled = false;
     $("#an-save").disabled = true;      // ulozene sa neuklada druhykrat
+    showPosudok(z);
     $("#an-status").innerHTML = `uložená ${esc(anStamp(z.created))}`
       + (z.note ? ` · ${esc(z.note)}` : "");
   } catch (e) {
@@ -2524,6 +2574,7 @@ async function saveAnalytics() {
       body: JSON.stringify({ report: r, note, user: currentUser() || "" }),
     });
     await loadAnalyticsHistory(out.id);
+    showPosudok({ ...out, posudok: "" });
     $("#an-status").textContent = `uložené ako ${out.id}`;
   } catch (e) {
     $("#an-status").textContent = e.message;
@@ -2821,6 +2872,41 @@ function nullHtml(nt) {
     </div>`;
 }
 
+/** Syntetický trh: nevyrába tú výhodu náš backtest? */
+function syntheticHtml(v) {
+  if (!v || !v.rows || !v.rows.length) {
+    if (!v || !v.verdict) return "";
+    // Chýbajúce behy sa nezamlčia — je pri nich rovno príkaz, ktorým vzniknú.
+    return `<div class="ch-box"><div class="ch-head"><h3>Nevyrába to náš backtest?</h3></div>
+        <p class="an-note">${esc(v.verdict)}</p>
+        ${v.command ? `<pre class="cmd">${esc(v.command)}</pre>` : ""}</div>`;
+  }
+  const cely = x => (x === null || x === undefined) ? "—" : fmt(x, 0) + " %";
+  const riadky = v.rows.map(r => {
+    const s2 = r.synth;
+    return `<tr class="${s2 ? "" : "muted"}"><td>${esc(r.timerange)}</td>
+        <td>${fmt(r.real.break_even_pct, 4)}</td><td>${r.real.trades}</td>
+        <td>${cely(r.real.fill_pct)}</td>
+        <td>${s2 ? fmt(s2.break_even_pct, 4) : "—"}</td>
+        <td>${s2 ? s2.trades : "—"}</td><td>${s2 ? cely(s2.fill_pct) : "—"}</td></tr>`;
+  }).join("");
+  const trieda = { ok: "good", chyba: "bad" }[v.severity] || "unsure";
+  return `<div class="ch-box">
+      <div class="ch-head"><h3>Nevyrába to náš backtest?</h3>
+        <span class="chip ${v.severity === "chyba" ? "warn" : ""}">${esc(v.severity || "")}</span></div>
+      <p class="an-note">Tá istá konfigurácia na <b>premiešanom</b> trhu: rozdelenie výnosov
+        aj celkový drift sú tie isté, zmizlo len poradie. Edge tam nemá z čoho vzniknúť —
+        a keď predsa vznikne, vyrobil ho backtest.</p>
+      <table class="mx-table"><thead><tr><th>okno</th><th>break-even</th><th>obch.</th>
+        <th>vyplnené</th><th>synt. break-even</th><th>obch.</th><th>vyplnené</th></tr></thead>
+        <tbody>${riadky}</tbody></table>
+      <div class="verdict ${trieda}">${esc(v.verdict || "")}</div>
+      ${v.command && (v.missing || []).length
+        ? `<p class="an-note">Bez syntetického behu: ${v.missing.map(esc).join(", ")}</p>
+           <pre class="cmd">${esc(v.command)}</pre>` : ""}
+    </div>`;
+}
+
 /** Charakter stratégie: čísla, dôkazy a čo z toho vyplýva pre ladenie. */
 function characterHtml(ch) {
   if (!ch || !ch.title) return "";
@@ -2881,6 +2967,7 @@ function renderAnalytics(r) {
   zhrnutie.push(portfolioHtml(r.portfolio));
   zhrnutie.push(decayHtml(r.decay));
   zhrnutie.push(nullHtml(r.nulltest));
+  zhrnutie.push(syntheticHtml(r.synthetic));
   zhrnutie.push(characterHtml(r.character));
   zhrnutie.push(archetypesHtml(r.archetypes, (r.character || {}).archetype));
   zhrnutie.push(`<div class="an-runs">${r.runs.map(x =>
@@ -3000,6 +3087,8 @@ async function init() {
   $("#an-run").onclick = loadAnalytics;
   $("#an-paper").onclick = writePaper;
   $("#an-save").onclick = saveAnalytics;
+  $("#posudok-save").onclick = savePosudok;
+  $("#posudok-zadanie").onclick = copyZadanie;
   $("#an-history").onchange = () => openAnalyticsHistory($("#an-history").value);
   for (const [box, p] of [["#prop-box", "prop"], ["#nprop-box", "nprop"]]) {
     $(box).addEventListener("toggle", () => {

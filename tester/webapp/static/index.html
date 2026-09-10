@@ -276,6 +276,19 @@
         pred rozhodovaním ich prepíš podľa svojej zmluvy.</p>
       <div id="prop-form"></div>
     </details>
+    <details id="posudok-box" hidden>
+      <summary>Posudok (AI) <span id="posudok-stav" class="chip"></span></summary>
+      <p class="an-note">Čísla povedia, čo sa stalo. Nepovedia, čo z toho plynie — či je
+        najhoršia skupina príležitosť alebo vlastnosť vzorky a čo pustiť ďalej. Skopíruj
+        zadanie, nechaj naň odpovedať AI a odpoveď sem vlož; uloží sa k tejto analytike.</p>
+      <div class="an-actions">
+        <button id="posudok-zadanie" class="ghost" type="button">Skopírovať zadanie pre AI</button>
+        <button id="posudok-save" class="primary" type="button">Uložiť posudok</button>
+        <span id="posudok-status" class="hint"></span>
+      </div>
+      <textarea id="posudok-text" rows="12" spellcheck="false"
+                placeholder="Sem patrí odpoveď na otázky zo zadania."></textarea>
+    </details>
     <div id="an-summary"></div>
     <div id="an-result"></div>
   </div>
