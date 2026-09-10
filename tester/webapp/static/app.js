@@ -2500,10 +2500,20 @@ async function loadAnalytics() {
     // Meranie sa pise z tych istych behov, takze tlacidlo ma zmysel az teraz.
     state.analytics = r;
     $("#an-paper").disabled = false;
+    $("#an-status").textContent = "ukladám do histórie…";
+    // Ukladá sa automaticky: analytika, ktorá zmizne s obnovením stránky, je na nič.
+    // Tá istá vzorka je jeden záznam (server ho nájde podľa odtlačku čísel), takže
+    // opakované Spočítať nič neduplikuje - a posudok, ak už je, sa ukáže hneď.
+    const ulozene = await api("/api/analytics/history", {
+      method: "POST",
+      body: JSON.stringify({ report: r, note: "", user: currentUser() || "" }),
+    });
+    await loadAnalyticsHistory(ulozene.id);
+    showPosudok(await api(`/api/analytics/history/${encodeURIComponent(ulozene.id)}`));
     $("#an-save").disabled = false;
-    $("#an-history").value = "";
-    showPosudok(null);          // cerstva analytika este nie je v historii
-    $("#an-status").textContent = "";
+    $("#an-status").textContent = ulozene.reused
+      ? `v histórii už je (${ulozene.id})${ulozene.note ? " · " + ulozene.note : ""}`
+      : `uložené do histórie ako ${ulozene.id}`;
   } catch (e) {
     $("#an-status").textContent = e.message;
     $("#an-summary").innerHTML = "";
@@ -2633,7 +2643,7 @@ async function openAnalyticsHistory(id) {
     state.analytics = z.report;
     renderAnalytics(z.report);
     $("#an-paper").disabled = false;
-    $("#an-save").disabled = true;      // ulozene sa neuklada druhykrat
+    $("#an-save").disabled = false;     // poznamka sa da dopisat aj k starsiemu zaznamu
     showPosudok(z);
     $("#an-status").innerHTML = `uložená ${esc(anStamp(z.created))}`
       + (z.note ? ` · ${esc(z.note)}` : "");
@@ -2642,26 +2652,24 @@ async function openAnalyticsHistory(id) {
   }
 }
 
-/** Ulozi zaver do historie. Obchody sa neukladaju - tie su v behoch. */
+/** Poznamka k ulozenej analytike - ukladanie je automaticke, poznamka sa dopise. */
 async function saveAnalytics() {
-  const r = state.analytics;
-  if (!r) return;
-  const note = prompt("Čo si tým zisťoval? (poznámka do histórie)", "") ?? "";
+  if (!state.posudokId) return;
+  const note = prompt("Čo si tým zisťoval? (poznámka k uloženej analytike)", "");
+  if (note === null) return;
   const btn = $("#an-save");
   btn.disabled = true;
-  $("#an-status").textContent = "ukladám…";
+  $("#an-status").textContent = "ukladám poznámku…";
   try {
-    const out = await api("/api/analytics/history", {
+    const out = await api(`/api/analytics/history/${encodeURIComponent(state.posudokId)}/note`, {
       method: "POST",
-      body: JSON.stringify({ report: r, note, user: currentUser() || "" }),
+      body: JSON.stringify({ note }),
     });
     await loadAnalyticsHistory(out.id);
-    showPosudok({ ...out, posudok: "" });
-    $("#an-status").textContent = `uložené ako ${out.id}`;
+    $("#an-status").textContent = `poznámka uložená k ${out.id}`;
   } catch (e) {
     $("#an-status").textContent = e.message;
-    btn.disabled = false;
-  }
+  } finally { btn.disabled = false; }
 }
 
 // --------------------------------------------------------------------------- //

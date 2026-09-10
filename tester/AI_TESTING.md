@@ -375,7 +375,7 @@ v histórii sú, a keď chýbajú, je pri tom rovno príkaz, ktorým vzniknú.
 príležitosť alebo vlastnosť vzorky, čo tomu v tom istom výpise protirečí a čo pustiť ďalej.
 Preto má uložená analytika miesto na posudok:
 
-1. **Uložiť do histórie** (posudok sa píše k záznamu, nie k výpisu na obrazovke),
+1. spočítať analytiku — do histórie sa uloží sama (posudok sa píše k záznamu),
 2. **Skopírovať zadanie pre AI** — čísla plus päť otázok,
 3. odpoveď vložiť a **Uložiť posudok**.
 
@@ -402,11 +402,14 @@ Hlavička preto hovorí, z čoho sa počítalo, v troch stupňoch:
 | **rôzne profily** | zliate rôzne stratégie — vyber si jednu, inak čísla nehovoria o ničom |
 
 ### História analytiky
-Analytika sa počíta nad výberom behov a inak by zmizla s obnovením stránky. Tlačidlo
-**Uložiť do histórie** zapíše **záver, nie obchody** (tie ostávajú v behoch, na ktoré sa
-záznam odkazuje) do `tester/analytics/` a ponuka **Predošlé analytiky tejto stratégie** sa
-k nemu vráti. Rovnako ako mriežky a matice je to **per stratégia**: vlastnosti aj parametre
-sú pri každej iné, takže zliate v jednom zozname by sa neporovnávali.
+Analytika sa počíta nad výberom behov a inak by zmizla s obnovením stránky. Preto sa
+**ukladá automaticky** pri každom výpočte — **záver, nie obchody** (tie ostávajú v behoch,
+na ktoré sa záznam odkazuje) do `tester/analytics/`. Tá istá vzorka (tie isté behy,
+obchody a break-even) je **jeden záznam**: opakované Spočítať nič neduplikuje a keď už
+záznam má posudok, ukáže sa hneď. Tlačidlo **Poznámka k analytike** k záznamu dopíše, čo
+sa tým zisťovalo. Ponuka **Predošlé analytiky** je per stratégia a pri vybranej
+konfigurácii len per konfigurácia: vlastnosti aj parametre sú pri každej iné, takže zliate
+v jednom zozname by sa neporovnávali.
 
 ```bash
 PY -m tester.webapp.cli analytics                 # zoznam
