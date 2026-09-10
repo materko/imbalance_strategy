@@ -163,6 +163,8 @@ PY -m tester.webapp.cli run --profile docs/profily_archiv/ibs/ethusdt_3m_binance
 - Je ten edge odlíšiteľný od náhody? `cli nulltest "pair=BTC/USDT:USDT"` — tá istá
   stratégia s náhodnými vstupmi ako referenčný bod
   ([tester/AI_TESTING.md §8c](tester/AI_TESTING.md)).
+- Koľko sa dá zarobiť a za aký drawdown? `cli portfolio --runs <id>,<id>,…` — vybrané behy
+  ako jeden účet, tabuľka rizika a korelácie medzi členmi (§8d).
 - Poplatok `--fee 0.0005` (Binance taker 0,05 %) a `--wallet 10000` sú default; pri
   porovnávaní s TradingView použi `--fee 0` a profil `*_ny_sl` (1 BTC)
   z `docs/profily_archiv/`. Peňaženka musí byť **rovná initial capital z grafu**

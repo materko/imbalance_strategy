@@ -2375,6 +2375,42 @@ async function loadAnalytics() {
   } finally { btn.disabled = false; }
 }
 
+/** Portfólio: koľko sa dá zarobiť a za aký drawdown. */
+function portfolioHtml(p) {
+  if (!p || !p.risks) return "";
+  const risks = p.risks.map(r => `<tr><td>${fmt(r.risk_pct, 2)} %</td>`
+    + `<td>${fmt(r.return_pct, 1)} %</td><td>${fmt(r.cagr_pct, 1)} %</td>`
+    + `<td class="${r.max_drawdown_pct > 30 ? "neg" : ""}">${fmt(r.max_drawdown_pct, 1)} %</td>`
+    + `<td>${r.ruin ? "RUINA" : r.trades}</td></tr>`).join("");
+  const roky = (p.by_year || []).map(r => `<tr><td>${esc(r.year)}</td>`
+    + `<td class="${r.return_pct < 0 ? "neg" : "pos"}">${fmt(r.return_pct, 1)} %</td>`
+    + `<td>${r.trades}</td></tr>`).join("");
+  const dvojice = ((p.correlations || {}).pairs || []).slice(0, 5).map(
+    ([a, b, r, m]) => `<tr><td class="${r >= 0.7 ? "neg" : ""}">${fmt(r, 2)}</td>`
+      + `<td>${esc(a)}</td><td>${esc(b)}</td><td>${m} mes.</td></tr>`).join("");
+  const trieda = p.verdict.startsWith("TO NIE JE PORTFOLIO") ? "bad"
+    : (p.verdict.startsWith("CLENOVIA SU MALO") ? "good" : "unsure");
+  return `<div class="ch-box">
+      <div class="ch-head"><h3>Portfólio</h3>
+        <span class="chip">${p.members.length} členov · ${p.trades} obchodov</span></div>
+      <p class="an-note">Vybrané behy prehraté cez jeden účet. Veľkosť pozície sa prepočíta
+        na zvolené riziko — bez toho by sa sčítavali veľkosti z rôznych behov a výsledok by
+        hovoril o peňaženkách, nie o stratégii.</p>
+      <table class="mx-table"><thead><tr><th>riziko/obchod</th><th>zhodnotenie</th>
+        <th>ročne (CAGR)</th><th>max drawdown</th><th>obchodov</th></tr></thead>
+        <tbody>${risks}</tbody></table>
+      ${roky ? `<p class="an-note">Rok po roku (pri ${fmt(p.risks.find(r => r.risk_pct === 1)
+        ? 1 : p.risks[0].risk_pct, 2)} % na obchod) — nesie to jeden rok, alebo je to rozložené?</p>
+        <table class="mx-table"><thead><tr><th>rok</th><th>zhodnotenie</th><th>obchodov</th>
+        </tr></thead><tbody>${roky}</tbody></table>` : ""}
+      ${dvojice ? `<p class="an-note">Najkorelovanejšie dvojice — nad +0,70 sa členovia
+        nediverzifikujú, len zväčšujú pozíciu.</p>
+        <table class="mx-table"><thead><tr><th>r</th><th>člen</th><th>člen</th>
+        <th>prekryv</th></tr></thead><tbody>${dvojice}</tbody></table>` : ""}
+      <div class="verdict ${trieda}">${esc(p.verdict)}</div>
+    </div>`;
+}
+
 /** Test proti náhode: je ten edge odlíšiteľný od hodu mincou? */
 function nullHtml(nt) {
   if (!nt || !nt.nulls) return "";
@@ -2457,6 +2493,7 @@ function renderAnalytics(r) {
       + " stopu ani prahy v cenových bodoch medzi nimi porovnateľné nie sú — pozeraj hlavne"
       + " hodinu, deň a smer, alebo si vyber jeden pár.</div>");
   }
+  zhrnutie.push(portfolioHtml(r.portfolio));
   zhrnutie.push(nullHtml(r.nulltest));
   zhrnutie.push(characterHtml(r.character));
   zhrnutie.push(archetypesHtml(r.archetypes, (r.character || {}).archetype));

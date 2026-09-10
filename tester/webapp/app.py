@@ -787,7 +787,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                   min_bucket: int = Query(8, ge=2, le=200),
                   limit_runs: int = Query(40, ge=1, le=500),
                   nulltest: bool = True,
-                  null_iterations: int = Query(600, ge=50, le=5000)):
+                  null_iterations: int = Query(600, ge=50, le=5000),
+                  portfolio: bool = True,
+                  risk_pct: float = Query(1.0, gt=0, le=10)):
         """Ktorá skupina obchodov kazí výsledok — nad jedným behom alebo nad viacerými.
 
         `runs` je zoznam id oddelený čiarkou; bez neho sa vezmú behy podľa `q` (tá istá
@@ -851,6 +853,23 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         # Test proti nahode ide z tej istej vzorky obchodov: "break-even 0,064 %" je bez
         # referencie cislo, nie odpoved. Nahodne vstupy sa losuju zo sviecok, takze to ide
         # len na jednom trhu - pri zliatych paroch by sa nemalo z coho losovat.
+        # Portfolio: tie iste behy ako jeden ucet. Clen je JEDEN beh - behy toho isteho
+        # trhu v tom istom case su alternativy, nie clenovia, a modul to nahlasi.
+        report["portfolio"] = None
+        if portfolio and len(zaznamy) > 1:
+            from .. import portfolio as pf_mod
+
+            per: dict[str, list[dict[str, Any]]] = {}
+            for rec in zaznamy:
+                t = store.trades(rec["id"])
+                if not t:
+                    continue
+                nast = rec["settings"]
+                meno = f"{nast.get('pair')} {nast.get('timeframe')} {nast.get('timerange')}"
+                per[meno] = an.enrich([dict(x) for x in t], store.chart(rec["id"]), strategy)
+            if len(per) > 1:
+                report["portfolio"] = pf_mod.analyze(per, records=zaznamy, risk_pct=risk_pct)
+
         report["nulltest"] = None
         if nulltest and not report["mixed_pairs"]:
             from .. import nulltest as nt_mod
