@@ -54,6 +54,9 @@ class IBSHyperopt(StrategyHyperopt):
         "hour": "sess2TradeStartH",       # celý edge bol v NY seanse
         "exit_reason": "closeAtSessionEnd",  # výstupy na čas riadi tento prepínač
         "duration_min": "state2MaxBars",  # ako dlho sa čaká na potvrdenie
+        # Stav trhu: štruktúrny filter je práve ten gate „obchoduj s trendom".
+        "regime_align": "useStructureFilter",
+        "regime_trend": "useStructureFilter",
     }
 
     WARN: ClassVar[dict[str, str]] = {

@@ -820,7 +820,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 continue
             # Kresby nesú plán obchodu (SL/TP úroveň), z ktorého je vzdialenosť stopu
             # a plánovaný RR — bez nich tie dve vlastnosti vypadnú.
-            obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]), strategy)
+            obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]), strategy,
+                                 pair=rec["settings"].get("pair") or "",
+                                 timeframe=rec["settings"].get("timeframe") or "3m")
             pouzite.append({"id": rec["id"], "pair": rec["settings"].get("pair"),
                             "timeframe": rec["settings"].get("timeframe"),
                             "timerange": rec["settings"].get("timerange"),

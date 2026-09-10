@@ -245,6 +245,13 @@ spočíta break-even poplatok **a čo by sa stalo, keby tá skupina nebola**. To
 otázku, či sa oplatí filter — a keď je najhoršia skupina väčšina obchodov, tak to nie je
 filter, ale nastavenie parametra (appka to povie a ponúkne ho preladiť).
 
+Delí sa aj podľa **stavu trhu pri vstupe** (`tester.regime`): či bol v trende alebo
+v rozsahu, aká bola volatilita voči normálu, kde v rozsahu sa vstupovalo a či išiel obchod
+s trendom alebo proti nemu. Počíta sa to z barov **pred** vstupom, takže sa podľa toho
+filtrovať dá — a práve tam býva zvyšný edge, keď ho v samotnom patterne už niet. Na IBS to
+hneď ukázalo dve veci: obchody **s trendom** majú break-even 0,0825 % oproti 0,0277 %
+proti trendu, a vstupy pri **vrchu rozsahu** 0,1190 % oproti 0,0222 % pri spodku.
+
 Vlastnosti známe **až po obchode** (dôvod výstupu, dĺžka, kam cena zašla) sú zvlášť
 a označené. „Obchody, ktoré skončili na stope, majú zlý break-even" je pravda a zároveň
 bezcenná — pri vstupe to nikto nevie.
