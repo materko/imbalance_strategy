@@ -241,3 +241,47 @@ def test_neznamy_trailing_sa_neda_zadat():
 def test_bez_faz_sa_pravidla_nedaju_vyrobit():
     with pytest.raises(ValueError, match="targets"):
         pravidla(targets=())
+
+
+# --------------------------------------------------------------------------- #
+# webapp
+# --------------------------------------------------------------------------- #
+
+
+@pytest.fixture
+def klient():
+    fastapi = pytest.importorskip("fastapi")          # noqa: F841
+    from fastapi.testclient import TestClient
+
+    from tester.webapp.app import create_app
+
+    return TestClient(create_app())
+
+
+def test_meta_da_predlohy_aj_so_zdrojom(klient):
+    m = klient.get("/api/prop/meta").json()
+
+    assert set(prop.PRESETS) <= set(m["presets"])
+    for meno, r in m["presets"].items():
+        assert r["source"], meno
+        assert isinstance(r["targets"], list)
+    assert "nie" in m["trailing"] and "koniec_dna" in m["trailing"]
+
+
+def test_nezname_pravidla_endpoint_odmietne(klient):
+    r = klient.post("/api/prop", json={"rules": "neexistuje"})
+
+    assert r.status_code == 422
+    assert "neexistuje" in r.json()["detail"]
+
+
+def test_nezmyselne_trailing_endpoint_odmietne(klient):
+    r = klient.post("/api/prop", json={"rules": "ftmo2", "trailing": "hocico"})
+
+    assert r.status_code == 422
+
+
+def test_bez_behov_endpoint_povie_ze_nie_su(klient):
+    r = klient.post("/api/prop", json={"rules": "ftmo2", "q": "note~urcite-nic-take-nie-je"})
+
+    assert r.status_code == 404

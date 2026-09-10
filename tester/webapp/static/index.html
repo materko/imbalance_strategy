@@ -250,6 +250,56 @@
         <span id="an-status" class="hint"></span>
       </div>
     </div>
+    <details id="prop-box">
+      <summary>Prop výzva — dostaneš sa k výplate skôr, než účet zhorí?</summary>
+      <p class="an-note">Na prop účte účet zomiera <b>podľa pravidla</b>, nie podľa toho, či
+        došli peniaze. Pokus sa začne na každom obchode histórie a ide dopredu, kým nepadne
+        cieľ alebo pravidlo. Čísla predlôh sú odpísané z verejných stránok firiem a menia sa —
+        pred rozhodovaním ich prepíš podľa svojej zmluvy.</p>
+      <div class="form-grid an-form">
+        <label class="field span2">Pravidlá
+          <select id="prop-preset"></select>
+        </label>
+        <label class="field">Účet
+          <input type="number" id="prop-account" min="1000" step="1000">
+        </label>
+        <label class="field">Ciele fáz (% oddelené čiarkou)
+          <input type="text" id="prop-targets" placeholder="10,5">
+        </label>
+        <label class="field">Denný limit % <span class="hint">0 = firma ho nemá</span>
+          <input type="number" id="prop-daily" min="0" step="0.1">
+        </label>
+        <label class="field">Celkový limit %
+          <input type="number" id="prop-maxloss" min="0.1" step="0.1">
+        </label>
+        <label class="field">Od čoho sa počíta celkový limit
+          <select id="prop-trailing"></select>
+        </label>
+        <label class="field inline small"><input type="checkbox" id="prop-freeze"> hranica sa zastaví na počiatočnom zostatku</label>
+        <label class="field">Minimum dní
+          <input type="number" id="prop-mindays" min="0" step="1">
+        </label>
+        <label class="field">Najlepší deň max % zisku <span class="hint">0 = bez pravidla</span>
+          <input type="number" id="prop-dayshare" min="0" max="100" step="5">
+        </label>
+        <label class="field">Cena výzvy
+          <input type="number" id="prop-cost" min="0" step="10">
+        </label>
+        <label class="field">Podiel zo zisku %
+          <input type="number" id="prop-payout" min="1" max="100" step="5">
+        </label>
+        <label class="field inline small"><input type="checkbox" id="prop-refund"> cena sa vracia pri prvej výplate</label>
+        <label class="field">Horizont v dňoch <span class="hint">0 = bez limitu</span>
+          <input type="number" id="prop-horizon" min="0" step="10">
+        </label>
+        <div class="an-actions span2">
+          <button id="prop-run" class="primary" type="button">Spočítať výzvu</button>
+          <span id="prop-status" class="hint"></span>
+        </div>
+      </div>
+      <p id="prop-source" class="an-note"></p>
+      <div id="prop-result"></div>
+    </details>
     <div id="an-summary"></div>
     <div id="an-result"></div>
   </div>

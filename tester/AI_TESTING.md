@@ -504,6 +504,8 @@ PY -m tester.webapp.cli prop --runs <id1>,<id2> --rules apex100 --risk 1
 PY -m tester.webapp.cli prop "note~matica" --limit 50 --rules ftmo2 --daily 4 --cost 400
 ```
 
+To isté je na karte **Analytika** v rozbaľovacom bloku **Prop výzva** — formulár predvyplní predloha a každé pole sa dá prepísať; zdroj čísel je hneď pod ním.
+
 Predlohy pravidiel (`--rules`): `ftmo2`, `ftmo1`, `apex100`, `apex50`, `tradeify_growth`,
 `tradeify_select`. Sú odpísané z verejných stránok firiem **k 2026-09-10** a firmy ich menia
 často — výpis zdroj vypíše aj s upozornením. Každé pole sa dá prepísať (`--targets 10,5`,
