@@ -1,0 +1,385 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\config.tester.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\user_data --strategy StructureStrategy --cache none --export trades --timerange 20250904-20260904 --pairs SYNTH/USDT:USDT --timeframe 5m --dry-run-wallet 10000 --fee 0.0005 --timeframe-detail 1m --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\data\tester\synthetic
+2026-09-10 14:31:31,851 - freqtrade - INFO - freqtrade 2026.8
+2026-09-10 14:31:32,477 - freqtrade.configuration.load_config - INFO - Using config: 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\config.tester.json ...
+2026-09-10 14:31:32,479 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-10 14:31:32,479 - freqtrade.loggers - INFO - Logfile configured
+2026-09-10 14:31:32,479 - freqtrade.loggers - INFO - Verbosity set to 0
+2026-09-10 14:31:32,480 - freqtrade.configuration.configuration - INFO - Parameter -i/--timeframe detected ... Using timeframe: 5m ...
+2026-09-10 14:31:32,480 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2026-09-10 14:31:32,480 - freqtrade.configuration.configuration - INFO - Parameter --timeframe-detail detected, using 1m for intra-candle backtesting ...
+2026-09-10 14:31:32,480 - freqtrade.configuration.configuration - INFO - Parameter --dry-run-wallet detected, overriding dry_run_wallet to: 10000.0 ...
+2026-09-10 14:31:32,480 - freqtrade.configuration.configuration - INFO - Parameter --fee detected, setting fee to: 0.0005 ...
+2026-09-10 14:31:32,480 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20250904-20260904 ...
+2026-09-10 14:31:32,481 - freqtrade.configuration.configuration - INFO - Using user-data directory: 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\user_data ...
+2026-09-10 14:31:32,481 - freqtrade.configuration.configuration - INFO - Using data directory: 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\data\tester\synthetic ...
+2026-09-10 14:31:32,481 - freqtrade.configuration.configuration - INFO - Parameter --export detected: trades ...
+2026-09-10 14:31:32,481 - freqtrade.configuration.configuration - INFO - Parameter --cache=none detected ...
+2026-09-10 14:31:32,482 - freqtrade.configuration.configuration - INFO - Using pairs ['SYNTH/USDT:USDT']
+2026-09-10 14:31:32,482 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20250904-20260904
+2026-09-10 14:31:32,482 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2026-09-10 14:31:32,483 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+team. It may work flawlessly (please report back) or have serious issues. Use it at your own discretion.
+2026-09-10 14:31:32,484 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 14:31:32,485 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2026-09-10 14:31:32,486 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2026-09-10 14:31:32,486 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.77
+2026-09-10 14:31:32,486 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-10 14:31:32,488 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-10 14:31:32,490 - freqtrade.exchange.exchange - INFO - Using Exchange "Tester"
+2026-09-10 14:31:32,491 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange class 'Tester' ...
+2026-09-10 14:31:32,522 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy StructureStrategy from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\user_data\strategies\StructureStrategy.py'...
+2026-09-10 14:31:32,523 - freqtrade.strategy.hyper - INFO - Found no parameter file.
+2026-09-10 14:31:32,688 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 5m.
+2026-09-10 14:31:32,689 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USDT.
+2026-09-10 14:31:32,689 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2026-09-10 14:31:32,689 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'unfilledtimeout' with value from the configuration: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 
+'unit': 'minutes'}.
+2026-09-10 14:31:32,689 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2026-09-10 14:31:32,689 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 100.0}
+2026-09-10 14:31:32,690 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 5m
+2026-09-10 14:31:32,690 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.99
+2026-09-10 14:31:32,690 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2026-09-10 14:31:32,690 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2026-09-10 14:31:32,690 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2026-09-10 14:31:32,690 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: True
+2026-09-10 14:31:32,690 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2026-09-10 14:31:32,690 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2026-09-10 14:31:32,690 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2026-09-10 14:31:32,690 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USDT
+2026-09-10 14:31:32,690 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2026-09-10 14:31:32,692 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 300
+2026-09-10 14:31:32,692 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using unfilledtimeout: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 'unit': 'minutes'}
+2026-09-10 14:31:32,692 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2026-09-10 14:31:32,692 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2026-09-10 14:31:32,692 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2026-09-10 14:31:32,692 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2026-09-10 14:31:32,692 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2026-09-10 14:31:32,692 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2026-09-10 14:31:32,693 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2026-09-10 14:31:32,693 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2026-09-10 14:31:32,693 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2026-09-10 14:31:32,693 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 14:31:32,698 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\freqtrade\plugins\pairlist\StaticPairList.py'...
+2026-09-10 14:31:32,699 - freqtrade.optimize.backtesting - INFO - Using fee 0.0500% from config.
+2026-09-10 14:31:32,714 - freqtrade.data.history.datahandlers.idatahandler - WARNING - SYNTH/USDT:USDT, futures, 5m, data ends at 2026-09-03 23:55:00
+2026-09-10 14:31:32,741 - freqtrade.optimize.backtesting - INFO - Loading data from 2025-09-02 23:00:00 up to 2026-09-03 23:55:00 (366 days).
+2026-09-10 14:31:32,775 - freqtrade.data.history.datahandlers.idatahandler - WARNING - SYNTH/USDT:USDT, futures, 1m, data ends at 2026-09-03 23:59:00
+2026-09-10 14:31:32,948 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for SYNTH/USDT:USDT, funding_rate, 1h found. Use `freqtrade download-data` to download the data
+2026-09-10 14:31:32,950 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for SYNTH/USDT:USDT, mark, 1h found. Use `freqtrade download-data` to download the data
+2026-09-10 14:31:33,360 - freqtrade.optimize.backtesting - INFO - Dataload complete. Calculating indicators
+2026-09-10 14:31:33,361 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy StructureStrategy
+2026-09-10 14:31:34,010 - tradebot.adapters.freqtrade.base - INFO - structure SYNTH/USDT:USDT: 105420 barov, 791 signalov (393 long / 398 short)
+2026-09-10 14:31:34,174 - tradebot.adapters.freqtrade.base - INFO - structure SYNTH/USDT:USDT: kresby ulozene do 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\tester\runs\.profiles\20260910-123130-67d0d1.chart.json.gz (33561 objektov)
+2026-09-10 14:31:34,185 - freqtrade.optimize.backtesting - INFO - Backtesting with data from 2025-09-04 00:00:00 up to 2026-09-03 23:55:00 (364 days).
+2026-09-10 14:32:06,579 - tradebot.adapters.freqtrade.base - WARNING - structure SYNTH/USDT:USDT: stake orezany z 5632.61 na 5243.09 (93.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 14:33:16,925 - tradebot.adapters.freqtrade.base - WARNING - structure SYNTH/USDT:USDT: stake orezany z 6702.32 na 4514.36 (67.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 14:33:16,941 - tradebot.adapters.freqtrade.base - WARNING - structure SYNTH/USDT:USDT: stake orezany z 6040.36 na 4514.36 (74.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 14:33:17,780 - tradebot.adapters.freqtrade.base - WARNING - structure SYNTH/USDT:USDT: stake orezany z 4634.21 na 4163.35 (89.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 14:33:20,946 - tradebot.adapters.freqtrade.base - WARNING - structure SYNTH/USDT:USDT: stake orezany z 4236.17 na 4054.11 (95.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 14:33:21,278 - tradebot.adapters.freqtrade.base - WARNING - structure SYNTH/USDT:USDT: stake orezany z 5416.43 na 4167.00 (76.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 14:33:21,288 - tradebot.adapters.freqtrade.base - WARNING - structure SYNTH/USDT:USDT: stake orezany z 6757.93 na 4101.17 (60.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 14:33:21,291 - tradebot.adapters.freqtrade.base - WARNING - structure SYNTH/USDT:USDT: stake orezany z 4226.80 na 4051.89 (95.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 14:33:23,692 - tradebot.adapters.freqtrade.base - WARNING - structure SYNTH/USDT:USDT: stake orezany z 4710.51 na 4595.72 (97.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 14:33:23,862 - tradebot.adapters.freqtrade.base - WARNING - structure SYNTH/USDT:USDT: stake orezany z 5953.40 na 4983.30 (83.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 14:33:24,339 - tradebot.adapters.freqtrade.base - WARNING - structure SYNTH/USDT:USDT: stake orezany z 6521.29 na 5485.52 (84.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 14:33:25,485 - tradebot.adapters.freqtrade.base - WARNING - structure SYNTH/USDT:USDT: stake orezany z 6155.20 na 5963.91 (96.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 14:33:25,489 - tradebot.adapters.freqtrade.base - WARNING - structure SYNTH/USDT:USDT: stake orezany z 7130.14 na 5963.91 (83.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 14:33:39,177 - tradebot.adapters.freqtrade.base - WARNING - structure SYNTH/USDT:USDT: stake orezany z 8412.23 na 7329.05 (87.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-10 14:33:44,823 - tradebot.adapters.freqtrade.base - WARNING - structure SYNTH/USDT:USDT: stake orezany z 9036.83 na 8247.10 (91.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 4/4           100% • 0:00:01 • 0:00:00
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 105119/105119 100% • 0:02:18 • 0:00:00
+2026-09-10 14:33:52,812 - freqtrade.misc - INFO - dumping json to 
+"C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.claude\worktrees\struktura-strategia-6e810b\deploy\freqtrade\user_data\backtest_results\backtest-result-2026-09-10_12-33-52.met
+a.json"
+Result for strategy StructureStrategy
+                                                   BACKTESTING REPORT                                                   
+┌─────────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────────┬────────────────────────┐
+│            Pair │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │     Avg Duration │  Win  Draw  Loss  Win% │
+├─────────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────────┼────────────────────────┤
+│ SYNTH/USDT:USDT │     87 │         -1.0 │         126.266 │         1.26 │ 3 days, 13:58:00 │   45     0    42  51.7 │
+│           TOTAL │     87 │         -1.0 │         126.266 │         1.26 │ 3 days, 13:58:00 │   45     0    42  51.7 │
+└─────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                          
+┌───────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│  Pair │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ TOTAL │      0 │          0.0 │           0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                        ENTER TAG STATS                                                        
+┌──────────────────────┬─────────┬──────────────┬─────────────────┬──────────────┬───────────────────┬────────────────────────┐
+│            Enter Tag │ Entries │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │      Avg Duration │  Win  Draw  Loss  Win% │
+├──────────────────────┼─────────┼──────────────┼─────────────────┼──────────────┼───────────────────┼────────────────────────┤
+│ struct:1763586600000 │       1 │        63.93 │        3349.814 │         33.5 │ 50 days, 22:49:00 │    1     0     0   100 │
+│ struct:1780624200000 │       1 │         10.1 │         602.094 │         6.02 │           2:10:00 │    1     0     0   100 │
+│ struct:1768096800000 │       1 │        32.12 │         574.390 │         5.74 │          17:56:00 │    1     0     0   100 │
+│ struct:1771876800000 │       1 │        16.48 │         521.089 │         5.21 │  23 days, 5:59:00 │    1     0     0   100 │
+│ struct:1779732300000 │       1 │        10.14 │         504.803 │         5.05 │          19:46:00 │    1     0     0   100 │
+│ struct:1787584500000 │       1 │         9.29 │         477.407 │         4.77 │   3 days, 0:16:00 │    1     0     0   100 │
+│ struct:1787490600000 │       1 │         8.81 │         393.298 │         3.93 │           2:43:00 │    1     0     0   100 │
+│ struct:1780192800000 │       1 │         7.17 │         392.501 │         3.93 │   2 days, 5:10:00 │    1     0     0   100 │
+│ struct:1779677100000 │       1 │         8.53 │         391.497 │         3.91 │           9:16:00 │    1     0     0   100 │
+│ struct:1779291300000 │       1 │        12.02 │         387.979 │         3.88 │          11:53:00 │    1     0     0   100 │
+│ struct:1779416100000 │       1 │        10.17 │         250.579 │         2.51 │  2 days, 17:34:00 │    1     0     0   100 │
+│ struct:1774019400000 │       1 │         9.78 │         234.690 │         2.35 │ 42 days, 21:37:00 │    1     0     0   100 │
+│ struct:1783726800000 │       1 │         38.6 │         223.274 │         2.23 │  2 days, 11:32:00 │    1     0     0   100 │
+│ struct:1780913700000 │       1 │          6.6 │         223.253 │         2.23 │ 28 days, 17:32:00 │    1     0     0   100 │
+│ struct:1786654800000 │       1 │         6.28 │         209.390 │         2.09 │           5:54:00 │    1     0     0   100 │
+│ struct:1784572500000 │       1 │         6.11 │         207.822 │         2.08 │           2:57:00 │    1     0     0   100 │
+│ struct:1786894200000 │       1 │         3.86 │         206.304 │         2.06 │           1:58:00 │    1     0     0   100 │
+│ struct:1788372300000 │       1 │         8.07 │         204.344 │         2.04 │           9:07:00 │    1     0     0   100 │
+│ struct:1783407900000 │       1 │          4.2 │         199.972 │          2.0 │           0:36:00 │    1     0     0   100 │
+│ struct:1785334200000 │       1 │        36.56 │         194.364 │         1.94 │   1 day, 13:44:00 │    1     0     0   100 │
+│ struct:1784805300000 │       1 │         20.0 │         193.786 │         1.94 │   4 days, 3:10:00 │    1     0     0   100 │
+│ struct:1788431700000 │       1 │        11.92 │         190.897 │         1.91 │          10:26:00 │    1     0     0   100 │
+│ struct:1785942900000 │       1 │         9.39 │         189.747 │          1.9 │          16:56:00 │    1     0     0   100 │
+│ struct:1778401200000 │       1 │         9.77 │         189.524 │          1.9 │    1 day, 4:16:00 │    1     0     0   100 │
+│ struct:1778878800000 │       1 │         4.62 │         186.433 │         1.86 │          17:16:00 │    1     0     0   100 │
+│ struct:1785527100000 │       1 │         6.55 │         185.723 │         1.86 │          11:17:00 │    1     0     0   100 │
+│ struct:1788414300000 │       1 │         6.56 │         185.039 │         1.85 │           4:46:00 │    1     0     0   100 │
+│ struct:1786867800000 │       1 │         3.46 │         174.395 │         1.74 │           2:09:00 │    1     0     0   100 │
+│ struct:1787299200000 │       1 │         4.98 │         168.912 │         1.69 │    1 day, 0:17:00 │    1     0     0   100 │
+│ struct:1784643600000 │       1 │         2.14 │         156.597 │         1.57 │           0:18:00 │    1     0     0   100 │
+│ struct:1786204200000 │       1 │         5.66 │         141.728 │         1.42 │  3 days, 23:41:00 │    1     0     0   100 │
+│ struct:1777737600000 │       1 │         3.89 │         129.566 │          1.3 │           0:21:00 │    1     0     0   100 │
+│ struct:1786015200000 │       1 │          4.6 │         122.003 │         1.22 │           2:47:00 │    1     0     0   100 │
+│ struct:1787933400000 │       1 │         5.55 │         118.790 │         1.19 │           5:53:00 │    1     0     0   100 │
+│ struct:1787967900000 │       1 │         4.28 │          83.918 │         0.84 │   2 days, 0:11:00 │    1     0     0   100 │
+│ struct:1780505700000 │       1 │          3.6 │          59.549 │          0.6 │           1:51:00 │    1     0     0   100 │
+│ struct:1778285400000 │       1 │         1.54 │          56.936 │         0.57 │           0:11:00 │    1     0     0   100 │
+│ struct:1777800300000 │       1 │         1.02 │          45.959 │         0.46 │    1 day, 2:17:00 │    1     0     0   100 │
+│ struct:1780001100000 │       1 │         2.83 │          36.400 │         0.36 │           1:51:00 │    1     0     0   100 │
+│ struct:1780408200000 │       1 │         2.98 │          31.164 │         0.31 │           7:00:00 │    1     0     0   100 │
+│ struct:1785489000000 │       1 │         0.37 │          16.501 │         0.17 │           3:49:00 │    1     0     0   100 │
+│ struct:1783961100000 │       1 │         0.26 │          13.302 │         0.13 │           4:24:00 │    1     0     0   100 │
+│ struct:1778560500000 │       1 │         0.18 │           5.738 │         0.06 │  2 days, 23:59:00 │    1     0     0   100 │
+│ struct:1785591000000 │       2 │         0.12 │           4.467 │         0.04 │   1 day, 19:08:00 │    1     0     1  50.0 │
+│ struct:1783609800000 │       1 │        -0.43 │         -11.327 │        -0.11 │           0:01:00 │    0     0     1     0 │
+│ struct:1780824000000 │       2 │        -0.56 │         -14.444 │        -0.14 │           0:02:00 │    0     0     2     0 │
+│ struct:1783668900000 │       2 │        -0.47 │         -20.044 │         -0.2 │           0:06:00 │    0     0     2     0 │
+│ struct:1780158600000 │       1 │        -2.31 │         -33.905 │        -0.34 │           1:40:00 │    0     0     1     0 │
+│ struct:1777759800000 │       1 │        -1.36 │         -37.832 │        -0.38 │           0:01:00 │    0     0     1     0 │
+│ struct:1788142200000 │       1 │        -2.08 │         -39.042 │        -0.39 │           0:02:00 │    0     0     1     0 │
+│ struct:1784526000000 │       3 │        -0.91 │         -44.966 │        -0.45 │           0:14:00 │    0     0     3     0 │
+│ struct:1779043800000 │       1 │        -1.22 │         -49.783 │         -0.5 │           0:01:00 │    0     0     1     0 │
+│ struct:1778833200000 │       1 │        -5.88 │         -54.193 │        -0.54 │           4:45:00 │    0     0     1     0 │
+│ struct:1785175500000 │       1 │         -2.4 │         -57.402 │        -0.57 │           9:34:00 │    0     0     1     0 │
+│ struct:1786617300000 │       1 │        -2.34 │         -58.466 │        -0.58 │           1:12:00 │    0     0     1     0 │
+│ struct:1779022500000 │       4 │        -0.56 │         -66.494 │        -0.66 │           0:00:00 │    1     0     3  25.0 │
+│ struct:1787018100000 │       1 │        -4.26 │         -72.293 │        -0.72 │           1:08:00 │    0     0     1     0 │
+│ struct:1778990700000 │       1 │        -3.05 │         -72.397 │        -0.72 │           0:01:00 │    0     0     1     0 │
+│ struct:1786742400000 │       3 │        -0.82 │         -76.951 │        -0.77 │           0:09:00 │    0     0     3     0 │
+│ struct:1785228600000 │       1 │        -3.74 │         -78.465 │        -0.78 │          23:37:00 │    0     0     1     0 │
+│ struct:1777967100000 │       1 │         -4.0 │         -87.025 │        -0.87 │           5:02:00 │    0     0     1     0 │
+│ struct:1786760100000 │       1 │        -6.37 │         -88.248 │        -0.88 │           4:40:00 │    0     0     1     0 │
+│ struct:1786835400000 │       1 │        -1.49 │         -88.322 │        -0.88 │           0:25:00 │    0     0     1     0 │
+│ struct:1779086100000 │       1 │       -11.76 │         -89.234 │        -0.89 │   2 days, 0:39:00 │    0     0     1     0 │
+│ struct:1778073300000 │       1 │        -4.42 │         -91.332 │        -0.91 │    1 day, 7:29:00 │    0     0     1     0 │
+│ struct:1778008200000 │       1 │        -5.61 │         -92.185 │        -0.92 │           0:59:00 │    0     0     1     0 │
+│ struct:1788164700000 │       1 │       -11.77 │        -103.513 │        -1.04 │   1 day, 22:29:00 │    0     0     1     0 │
+│ struct:1777905900000 │       1 │        -8.69 │        -105.625 │        -1.06 │          10:09:00 │    0     0     1     0 │
+│ struct:1778295600000 │       1 │        -7.37 │        -106.648 │        -1.07 │    1 day, 5:01:00 │    0     0     1     0 │
+│ struct:1778050800000 │       1 │        -2.66 │        -110.370 │         -1.1 │           0:28:00 │    0     0     1     0 │
+│ struct:1786795200000 │       1 │        -4.09 │        -113.805 │        -1.14 │           4:38:00 │    0     0     1     0 │
+│ struct:1777957500000 │       1 │        -3.63 │        -115.688 │        -1.16 │           1:18:00 │    0     0     1     0 │
+│ struct:1788407100000 │       1 │        -3.24 │        -117.920 │        -1.18 │           1:39:00 │    0     0     1     0 │
+│ struct:1756974600000 │       1 │        -99.6 │       -1134.277 │       -11.34 │  45 days, 0:50:00 │    0     0     1     0 │
+│ struct:1768161600000 │       1 │        -99.6 │       -1372.790 │       -13.73 │ 30 days, 15:30:00 │    0     0     1     0 │
+│ struct:1761055200000 │       1 │        -99.6 │       -3569.675 │        -35.7 │  29 days, 5:17:00 │    0     0     1     0 │
+│ struct:1770831600000 │       1 │        -99.6 │       -4135.010 │       -41.35 │  12 days, 1:02:00 │    0     0     1     0 │
+│                TOTAL │      87 │         -1.0 │         126.266 │         1.26 │  3 days, 13:58:00 │   45     0    42  51.7 │
+└──────────────────────┴─────────┴──────────────┴─────────────────┴──────────────┴───────────────────┴────────────────────────┘
+                                                    EXIT REASON STATS                                                     
+┌────────────────────┬───────┬──────────────┬─────────────────┬──────────────┬──────────────────┬────────────────────────┐
+│        Exit Reason │ Exits │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │     Avg Duration │  Win  Draw  Loss  Win% │
+├────────────────────┼───────┼──────────────┼─────────────────┼──────────────┼──────────────────┼────────────────────────┤
+│ trailing_stop_loss │    52 │          3.7 │        8729.705 │         87.3 │ 3 days, 10:00:00 │   32     0    20  61.5 │
+│                roi │    13 │        12.86 │        2554.610 │        25.55 │         22:19:00 │   13     0     0   100 │
+│          stop_loss │    22 │       -20.28 │      -11158.049 │      -111.58 │ 5 days, 12:56:00 │    0     0    22     0 │
+│              TOTAL │    87 │         -1.0 │         126.266 │         1.26 │ 3 days, 13:58:00 │   45     0    42  51.7 │
+└────────────────────┴───────┴──────────────┴─────────────────┴──────────────┴──────────────────┴────────────────────────┘
+                                                                  MIXED TAG STATS                                                                  
+┌──────────────────────┬────────────────────┬────────┬──────────────┬─────────────────┬──────────────┬───────────────────┬────────────────────────┐
+│            Enter Tag │        Exit Reason │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │      Avg Duration │  Win  Draw  Loss  Win% │
+├──────────────────────┼────────────────────┼────────┼──────────────┼─────────────────┼──────────────┼───────────────────┼────────────────────────┤
+│ struct:1763586600000 │ trailing_stop_loss │      1 │        63.93 │        3349.814 │         33.5 │ 50 days, 22:49:00 │    1     0     0   100 │
+│ struct:1780624200000 │ trailing_stop_loss │      1 │         10.1 │         602.094 │         6.02 │           2:10:00 │    1     0     0   100 │
+│ struct:1768096800000 │ trailing_stop_loss │      1 │        32.12 │         574.390 │         5.74 │          17:56:00 │    1     0     0   100 │
+│ struct:1771876800000 │ trailing_stop_loss │      1 │        16.48 │         521.089 │         5.21 │  23 days, 5:59:00 │    1     0     0   100 │
+│ struct:1779732300000 │ trailing_stop_loss │      1 │        10.14 │         504.803 │         5.05 │          19:46:00 │    1     0     0   100 │
+│ struct:1787584500000 │ trailing_stop_loss │      1 │         9.29 │         477.407 │         4.77 │   3 days, 0:16:00 │    1     0     0   100 │
+│ struct:1787490600000 │ trailing_stop_loss │      1 │         8.81 │         393.298 │         3.93 │           2:43:00 │    1     0     0   100 │
+│ struct:1780192800000 │ trailing_stop_loss │      1 │         7.17 │         392.501 │         3.93 │   2 days, 5:10:00 │    1     0     0   100 │
+│ struct:1779677100000 │ trailing_stop_loss │      1 │         8.53 │         391.497 │         3.91 │           9:16:00 │    1     0     0   100 │
+│ struct:1779291300000 │ trailing_stop_loss │      1 │        12.02 │         387.979 │         3.88 │          11:53:00 │    1     0     0   100 │
+│ struct:1779416100000 │ trailing_stop_loss │      1 │        10.17 │         250.579 │         2.51 │  2 days, 17:34:00 │    1     0     0   100 │
+│ struct:1774019400000 │ trailing_stop_loss │      1 │         9.78 │         234.690 │         2.35 │ 42 days, 21:37:00 │    1     0     0   100 │
+│ struct:1783726800000 │                roi │      1 │         38.6 │         223.274 │         2.23 │  2 days, 11:32:00 │    1     0     0   100 │
+│ struct:1780913700000 │ trailing_stop_loss │      1 │          6.6 │         223.253 │         2.23 │ 28 days, 17:32:00 │    1     0     0   100 │
+│ struct:1786654800000 │                roi │      1 │         6.28 │         209.390 │         2.09 │           5:54:00 │    1     0     0   100 │
+│ struct:1784572500000 │                roi │      1 │         6.11 │         207.822 │         2.08 │           2:57:00 │    1     0     0   100 │
+│ struct:1786894200000 │                roi │      1 │         3.86 │         206.304 │         2.06 │           1:58:00 │    1     0     0   100 │
+│ struct:1788372300000 │                roi │      1 │         8.07 │         204.344 │         2.04 │           9:07:00 │    1     0     0   100 │
+│ struct:1783407900000 │ trailing_stop_loss │      1 │          4.2 │         199.972 │          2.0 │           0:36:00 │    1     0     0   100 │
+│ struct:1785334200000 │                roi │      1 │        36.56 │         194.364 │         1.94 │   1 day, 13:44:00 │    1     0     0   100 │
+│ struct:1784805300000 │                roi │      1 │         20.0 │         193.786 │         1.94 │   4 days, 3:10:00 │    1     0     0   100 │
+│ struct:1788431700000 │                roi │      1 │        11.92 │         190.897 │         1.91 │          10:26:00 │    1     0     0   100 │
+│ struct:1785942900000 │                roi │      1 │         9.39 │         189.747 │          1.9 │          16:56:00 │    1     0     0   100 │
+│ struct:1778401200000 │                roi │      1 │         9.77 │         189.524 │          1.9 │    1 day, 4:16:00 │    1     0     0   100 │
+│ struct:1778878800000 │ trailing_stop_loss │      1 │         4.62 │         186.433 │         1.86 │          17:16:00 │    1     0     0   100 │
+│ struct:1785527100000 │                roi │      1 │         6.55 │         185.723 │         1.86 │          11:17:00 │    1     0     0   100 │
+│ struct:1788414300000 │                roi │      1 │         6.56 │         185.039 │         1.85 │           4:46:00 │    1     0     0   100 │
+│ struct:1786867800000 │                roi │      1 │         3.46 │         174.395 │         1.74 │           2:09:00 │    1     0     0   100 │
+│ struct:1787299200000 │ trailing_stop_loss │      1 │         4.98 │         168.912 │         1.69 │    1 day, 0:17:00 │    1     0     0   100 │
+│ struct:1784643600000 │ trailing_stop_loss │      1 │         2.14 │         156.597 │         1.57 │           0:18:00 │    1     0     0   100 │
+│ struct:1786204200000 │ trailing_stop_loss │      1 │         5.66 │         141.728 │         1.42 │  3 days, 23:41:00 │    1     0     0   100 │
+│ struct:1777737600000 │ trailing_stop_loss │      1 │         3.89 │         129.566 │          1.3 │           0:21:00 │    1     0     0   100 │
+│ struct:1786015200000 │ trailing_stop_loss │      1 │          4.6 │         122.003 │         1.22 │           2:47:00 │    1     0     0   100 │
+│ struct:1787933400000 │ trailing_stop_loss │      1 │         5.55 │         118.790 │         1.19 │           5:53:00 │    1     0     0   100 │
+│ struct:1787967900000 │ trailing_stop_loss │      1 │         4.28 │          83.918 │         0.84 │   2 days, 0:11:00 │    1     0     0   100 │
+│ struct:1780505700000 │ trailing_stop_loss │      1 │          3.6 │          59.549 │          0.6 │           1:51:00 │    1     0     0   100 │
+│ struct:1778285400000 │ trailing_stop_loss │      1 │         1.54 │          56.936 │         0.57 │           0:11:00 │    1     0     0   100 │
+│ struct:1777800300000 │ trailing_stop_loss │      1 │         1.02 │          45.959 │         0.46 │    1 day, 2:17:00 │    1     0     0   100 │
+│ struct:1780001100000 │ trailing_stop_loss │      1 │         2.83 │          36.400 │         0.36 │           1:51:00 │    1     0     0   100 │
+│ struct:1780408200000 │ trailing_stop_loss │      1 │         2.98 │          31.164 │         0.31 │           7:00:00 │    1     0     0   100 │
+│ struct:1785489000000 │ trailing_stop_loss │      1 │         0.37 │          16.501 │         0.17 │           3:49:00 │    1     0     0   100 │
+│ struct:1785591000000 │ trailing_stop_loss │      1 │          0.8 │          14.799 │         0.15 │  3 days, 14:17:00 │    1     0     0   100 │
+│ struct:1783961100000 │ trailing_stop_loss │      1 │         0.26 │          13.302 │         0.13 │           4:24:00 │    1     0     0   100 │
+│ struct:1778560500000 │ trailing_stop_loss │      1 │         0.18 │           5.738 │         0.06 │  2 days, 23:59:00 │    1     0     0   100 │
+│ struct:1779022500000 │ trailing_stop_loss │      1 │         0.07 │           2.051 │         0.02 │           0:02:00 │    1     0     0   100 │
+│ struct:1780824000000 │ trailing_stop_loss │      1 │        -0.21 │          -2.703 │        -0.03 │           0:04:00 │    0     0     1     0 │
+│ struct:1784526000000 │ trailing_stop_loss │      1 │        -0.46 │          -7.536 │        -0.08 │           0:41:00 │    0     0     1     0 │
+│ struct:1783668900000 │ trailing_stop_loss │      1 │        -0.43 │          -9.214 │        -0.09 │           0:11:00 │    0     0     1     0 │
+│ struct:1785591000000 │          stop_loss │      1 │        -0.56 │         -10.332 │         -0.1 │           0:00:00 │    0     0     1     0 │
+│ struct:1783668900000 │          stop_loss │      1 │        -0.51 │         -10.830 │        -0.11 │           0:00:00 │    0     0     1     0 │
+│ struct:1783609800000 │ trailing_stop_loss │      1 │        -0.43 │         -11.327 │        -0.11 │           0:01:00 │    0     0     1     0 │
+│ struct:1780824000000 │          stop_loss │      1 │        -0.92 │         -11.741 │        -0.12 │           0:00:00 │    0     0     1     0 │
+│ struct:1786742400000 │          stop_loss │      1 │        -0.93 │         -29.157 │        -0.29 │           0:00:00 │    0     0     1     0 │
+│ struct:1780158600000 │          stop_loss │      1 │        -2.31 │         -33.905 │        -0.34 │           1:40:00 │    0     0     1     0 │
+│ struct:1784526000000 │          stop_loss │      2 │        -1.14 │         -37.430 │        -0.37 │           0:00:00 │    0     0     2     0 │
+│ struct:1777759800000 │ trailing_stop_loss │      1 │        -1.36 │         -37.832 │        -0.38 │           0:01:00 │    0     0     1     0 │
+│ struct:1788142200000 │ trailing_stop_loss │      1 │        -2.08 │         -39.042 │        -0.39 │           0:02:00 │    0     0     1     0 │
+│ struct:1786742400000 │ trailing_stop_loss │      2 │        -0.76 │         -47.795 │        -0.48 │           0:14:00 │    0     0     2     0 │
+│ struct:1779043800000 │ trailing_stop_loss │      1 │        -1.22 │         -49.783 │         -0.5 │           0:01:00 │    0     0     1     0 │
+│ struct:1778833200000 │ trailing_stop_loss │      1 │        -5.88 │         -54.193 │        -0.54 │           4:45:00 │    0     0     1     0 │
+│ struct:1785175500000 │          stop_loss │      1 │         -2.4 │         -57.402 │        -0.57 │           9:34:00 │    0     0     1     0 │
+│ struct:1786617300000 │          stop_loss │      1 │        -2.34 │         -58.466 │        -0.58 │           1:12:00 │    0     0     1     0 │
+│ struct:1779022500000 │          stop_loss │      3 │        -0.77 │         -68.545 │        -0.69 │           0:00:00 │    0     0     3     0 │
+│ struct:1787018100000 │ trailing_stop_loss │      1 │        -4.26 │         -72.293 │        -0.72 │           1:08:00 │    0     0     1     0 │
+│ struct:1778990700000 │ trailing_stop_loss │      1 │        -3.05 │         -72.397 │        -0.72 │           0:01:00 │    0     0     1     0 │
+│ struct:1785228600000 │          stop_loss │      1 │        -3.74 │         -78.465 │        -0.78 │          23:37:00 │    0     0     1     0 │
+│ struct:1777967100000 │ trailing_stop_loss │      1 │         -4.0 │         -87.025 │        -0.87 │           5:02:00 │    0     0     1     0 │
+│ struct:1786760100000 │ trailing_stop_loss │      1 │        -6.37 │         -88.248 │        -0.88 │           4:40:00 │    0     0     1     0 │
+│ struct:1786835400000 │ trailing_stop_loss │      1 │        -1.49 │         -88.322 │        -0.88 │           0:25:00 │    0     0     1     0 │
+│ struct:1779086100000 │ trailing_stop_loss │      1 │       -11.76 │         -89.234 │        -0.89 │   2 days, 0:39:00 │    0     0     1     0 │
+│ struct:1778073300000 │ trailing_stop_loss │      1 │        -4.42 │         -91.332 │        -0.91 │    1 day, 7:29:00 │    0     0     1     0 │
+│ struct:1778008200000 │ trailing_stop_loss │      1 │        -5.61 │         -92.185 │        -0.92 │           0:59:00 │    0     0     1     0 │
+│ struct:1788164700000 │          stop_loss │      1 │       -11.77 │        -103.513 │        -1.04 │   1 day, 22:29:00 │    0     0     1     0 │
+│ struct:1777905900000 │ trailing_stop_loss │      1 │        -8.69 │        -105.625 │        -1.06 │          10:09:00 │    0     0     1     0 │
+│ struct:1778295600000 │          stop_loss │      1 │        -7.37 │        -106.648 │        -1.07 │    1 day, 5:01:00 │    0     0     1     0 │
+│ struct:1778050800000 │          stop_loss │      1 │        -2.66 │        -110.370 │         -1.1 │           0:28:00 │    0     0     1     0 │
+│ struct:1786795200000 │          stop_loss │      1 │        -4.09 │        -113.805 │        -1.14 │           4:38:00 │    0     0     1     0 │
+│ struct:1777957500000 │          stop_loss │      1 │        -3.63 │        -115.688 │        -1.16 │           1:18:00 │    0     0     1     0 │
+│ struct:1788407100000 │ trailing_stop_loss │      1 │        -3.24 │        -117.920 │        -1.18 │           1:39:00 │    0     0     1     0 │
+│ struct:1756974600000 │          stop_loss │      1 │        -99.6 │       -1134.277 │       -11.34 │  45 days, 0:50:00 │    0     0     1     0 │
+│ struct:1768161600000 │          stop_loss │      1 │        -99.6 │       -1372.790 │       -13.73 │ 30 days, 15:30:00 │    0     0     1     0 │
+│ struct:1761055200000 │          stop_loss │      1 │        -99.6 │       -3569.675 │        -35.7 │  29 days, 5:17:00 │    0     0     1     0 │
+│ struct:1770831600000 │          stop_loss │      1 │        -99.6 │       -4135.010 │       -41.35 │  12 days, 1:02:00 │    0     0     1     0 │
+│                TOTAL │                    │     87 │         -1.0 │         126.266 │         1.26 │  3 days, 13:58:00 │   45     0    42  51.7 │
+└──────────────────────┴────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴───────────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2025-09-04 00:00:00                       │
+│ Backtesting to                         │ 2026-09-03 23:55:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 87 / 0.24                                 │
+│ Starting balance                       │ 10000 USDT                                │
+│ Final balance                          │ 10126.266 USDT                            │
+│ Absolute profit                        │ 126.266 USDT                              │
+│ Total profit %                         │ 1.26%                                     │
+│ CAGR %                                 │ 1.27%                                     │
+│ Sharpe (closed trades)                 │ 0.01                                      │
+│ Sortino (closed trades)                │ 0.01                                      │
+│ Calmar (closed trades)                 │ 0.11                                      │
+│ SQN                                    │ 0.02                                      │
+│ Mean profit p-value                    │ 0.9855                                    │
+│ Profit factor                          │ 1.01                                      │
+│ Expectancy (Ratio)                     │ 1.45 (0.00)                               │
+│ Avg. daily profit                      │ 0.347 USDT                                │
+│ Avg. stake amount                      │ 2819.502 USDT                             │
+│ Market change                          │ 116.99%                                   │
+│ Total trade volume                     │ 2459453.408 USDT                          │
+│                                        │                                           │
+│ Long / Short trades                    │ 36 / 51                                   │
+│ Long / Short profit %                  │ 28.03% / -26.76%                          │
+│ Long / Short profit USDT               │ 2802.678 / -2676.412                      │
+│                                        │                                           │
+│ Best Pair                              │ SYNTH/USDT:USDT 1.26%                     │
+│ Worst Pair                             │ SYNTH/USDT:USDT 1.26%                     │
+│ Best trade                             │ SYNTH/USDT:USDT 63.93%                    │
+│ Worst trade                            │ SYNTH/USDT:USDT -99.60%                   │
+│ Best day                               │ 3349.814 USDT                             │
+│ Worst day                              │ -4135.01 USDT                             │
+│ Days win/draw/lose                     │ 34 / 265 / 21                             │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:02 / 50d 22:49 / 4d 02:45           │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:00 / 45d 00:50 / 3d 00:16           │
+│ Max Consecutive Wins / Loss            │ 5 / 6                                     │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 69 / 0                                    │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 3712.452 USDT / 10126.266 USDT            │
+│ Max % of account underwater            │ 62.88%                                    │
+│ Absolute drawdown                      │ 6287.548 USDT (62.88%)                    │
+│ Drawdown duration                      │ 127 days 09:22:00                         │
+│ Profit at drawdown start               │ 0 USDT                                    │
+│ Profit at drawdown end                 │ -6287.548 USDT                            │
+│ Drawdown start                         │ 2025-10-19 09:25:00                       │
+│ Drawdown end                           │ 2026-02-23 18:47:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 3712.452 USDT / 10126.266 USDT            │
+│ Min/Max balance dates (wallet balance) │ 2026-02-23 18:50:00 / 2026-09-03 21:10:00 │
+│ Max % of account underwater (balance)  │ 62.88%                                    │
+│ Absolute drawdown (wallet balance)     │ 6287.548 USDT (62.88%)                    │
+│ Drawdown duration                      │ 172 days 18:45:00                         │
+│ Profit at drawdown start               │ 0 USDT                                    │
+│ Profit at drawdown end                 │ -6287.548 USDT                            │
+│ Drawdown start                         │ 2025-09-04 00:05:00                       │
+│ Drawdown end                           │ 2026-02-23 18:50:00                       │
+│ Sharpe (daily wallet balance)          │ 0.57                                      │
+│ Sortino (daily wallet balance)         │ 0.22                                      │
+│ Calmar (daily wallet balance)          │ 0.11                                      │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-03 23:55:00 | Max open trades : 1
+                                                                 STRATEGY SUMMARY                                                                 
+┌───────────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────────┬────────────────────────┬───────────────────────┐
+│          Strategy │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │     Avg Duration │  Win  Draw  Loss  Win% │              Drawdown │
+├───────────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────────┼────────────────────────┼───────────────────────┤
+│ StructureStrategy │     87 │        -1.00 │         126.266 │         1.26 │ 3 days, 13:58:00 │   45     0    42  51.7 │ 6287.548 USDT  62.88% │
+└───────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────────┴────────────────────────┴───────────────────────┘
