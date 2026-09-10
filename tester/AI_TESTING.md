@@ -250,12 +250,19 @@ v rozsahu, aká bola volatilita voči normálu, kde v rozsahu sa vstupovalo a č
 s trendom alebo proti nemu. Počíta sa to z barov **pred** vstupom, takže sa podľa toho
 filtrovať dá — a práve tam býva zvyšný edge, keď ho v samotnom patterne už niet.
 
-Na IBS to na zliatych obchodoch ukázalo trojnásobný rozdiel medzi obchodmi s trendom a proti
-nemu — a overenie po jednotlivých oknách ho **nepotvrdilo**: drží na jednej konfigurácii
-(5 z 5 okien) a na inej, so šesťkrát väčšou vzorkou, nedrží ani v polovici
-([docs/merania/REZIM_filtre_btcusdt_2026-09-10.md](../docs/merania/REZIM_filtre_btcusdt_2026-09-10.md)).
-Je to dobrá ukážka toho, prečo sa zliate číslo overuje po oknách, a prečo sa nemiešajú
-rôzne konfigurácie do jednej vzorky.
+Na IBS z toho vyšli dve zistenia a dopadli opačne
+([docs/merania/REZIM_filtre_btcusdt_2026-09-10.md](../docs/merania/REZIM_filtre_btcusdt_2026-09-10.md)):
+
+- **S trendom vs. proti trendu — potvrdené.** Na desiatich trhoch × piatich oknách je
+  break-even obchodov s trendom vyšší v **23 z 26 buniek** (medián +0,105 p. b.,
+  znamienkový test p = 0,00004), kladné na ôsmich trhoch z deviatich.
+- **Vrch vs. spodok rozsahu — nepotvrdené.** 14 z 25 buniek, teda hod mincou. Na
+  `BTC/USDT:USDT` pritom vyšlo 5 z 5 — ale na `BTC/USD`, čo je ten istý podklad z iného
+  zdroja, 1 zo 4. Efekt je vlastnosťou tej jednej série, nie trhu.
+
+Obe zliate čísla (3× a 5×) pôvodne vyzerali rovnako presvedčivo. Rozdiel medzi nimi
+ukázalo až rozloženie na bunky — a to je dôvod, prečo sa zliate číslo overuje po oknách
+a trhoch, a prečo sa do jednej vzorky nemiešajú rôzne konfigurácie.
 
 Vlastnosti známe **až po obchode** (dôvod výstupu, dĺžka, kam cena zašla) sú zvlášť
 a označené. „Obchody, ktoré skončili na stope, majú zlý break-even" je pravda a zároveň

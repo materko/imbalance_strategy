@@ -1,0 +1,254 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data --strategy IBSImbalanceStrategy --cache none --export trades --timerange 20221001-20231001 --pairs BTC/USDT:USDT --timeframe 3m --dry-run-wallet 40000000.0 --fee 0.0005 --timeframe-detail 1m --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\binance
+2026-09-10 10:08:32,105 - freqtrade - INFO - freqtrade 2026.8
+2026-09-10 10:08:32,951 - freqtrade.configuration.load_config - INFO - Using config: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.json ...
+2026-09-10 10:08:32,953 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-10 10:08:32,953 - freqtrade.loggers - INFO - Logfile configured
+2026-09-10 10:08:32,954 - freqtrade.loggers - INFO - Verbosity set to 0
+2026-09-10 10:08:32,954 - freqtrade.configuration.configuration - INFO - Parameter -i/--timeframe detected ... Using timeframe: 3m ...
+2026-09-10 10:08:32,954 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2026-09-10 10:08:32,954 - freqtrade.configuration.configuration - INFO - Parameter --timeframe-detail detected, using 1m for intra-candle backtesting ...
+2026-09-10 10:08:32,954 - freqtrade.configuration.configuration - INFO - Parameter --dry-run-wallet detected, overriding dry_run_wallet to: 40000000.0 ...
+2026-09-10 10:08:32,955 - freqtrade.configuration.configuration - INFO - Parameter --fee detected, setting fee to: 0.0005 ...
+2026-09-10 10:08:32,955 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20221001-20231001 ...
+2026-09-10 10:08:32,955 - freqtrade.configuration.configuration - INFO - Using user-data directory: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data 
+...
+2026-09-10 10:08:32,956 - freqtrade.configuration.configuration - INFO - Using data directory: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\binance ...
+2026-09-10 10:08:32,956 - freqtrade.configuration.configuration - INFO - Parameter --export detected: trades ...
+2026-09-10 10:08:32,956 - freqtrade.configuration.configuration - INFO - Parameter --cache=none detected ...
+2026-09-10 10:08:32,956 - freqtrade.configuration.configuration - INFO - Using pairs ['BTC/USDT:USDT']
+2026-09-10 10:08:32,956 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20221001-20231001
+2026-09-10 10:08:32,956 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2026-09-10 10:08:32,959 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+team. It may work flawlessly (please report back) or have serious issues. Use it at your own discretion.
+2026-09-10 10:08:32,959 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 10:08:32,961 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2026-09-10 10:08:32,962 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2026-09-10 10:08:32,962 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.77
+2026-09-10 10:08:32,962 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-10 10:08:32,964 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-10 10:08:32,966 - freqtrade.exchange.exchange - INFO - Using Exchange "Tester"
+2026-09-10 10:08:32,968 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange class 'Tester' ...
+2026-09-10 10:08:32,998 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSImbalanceStrategy from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.py'...
+2026-09-10 10:08:32,998 - freqtrade.strategy.hyper - INFO - Loading parameters from file 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.json
+2026-09-10 10:08:33,669 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 3m.
+2026-09-10 10:08:33,669 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USDT.
+2026-09-10 10:08:33,669 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2026-09-10 10:08:33,670 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'unfilledtimeout' with value from the configuration: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 
+'unit': 'minutes'}.
+2026-09-10 10:08:33,670 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2026-09-10 10:08:33,670 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 100.0}
+2026-09-10 10:08:33,670 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 3m
+2026-09-10 10:08:33,670 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.99
+2026-09-10 10:08:33,671 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2026-09-10 10:08:33,671 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2026-09-10 10:08:33,671 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2026-09-10 10:08:33,671 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: True
+2026-09-10 10:08:33,671 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2026-09-10 10:08:33,671 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2026-09-10 10:08:33,671 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2026-09-10 10:08:33,671 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USDT
+2026-09-10 10:08:33,671 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2026-09-10 10:08:33,672 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 300
+2026-09-10 10:08:33,672 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using unfilledtimeout: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 'unit': 'minutes'}
+2026-09-10 10:08:33,672 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2026-09-10 10:08:33,672 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2026-09-10 10:08:33,672 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2026-09-10 10:08:33,672 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2026-09-10 10:08:33,673 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2026-09-10 10:08:33,673 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2026-09-10 10:08:33,673 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2026-09-10 10:08:33,673 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2026-09-10 10:08:33,673 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2026-09-10 10:08:33,673 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 10:08:33,680 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\freqtrade\plugins\pairlist\StaticPairList.py'...
+2026-09-10 10:08:33,680 - freqtrade.optimize.backtesting - INFO - Using fee 0.0500% from config.
+2026-09-10 10:08:33,770 - freqtrade.optimize.backtesting - INFO - Loading data from 2022-09-30 09:00:00 up to 2023-10-01 00:00:00 (365 days).
+2026-09-10 10:08:34,788 - freqtrade.optimize.backtesting - INFO - Dataload complete. Calculating indicators
+2026-09-10 10:08:34,789 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSImbalanceStrategy
+2026-09-10 10:08:34,800 - freqtrade.data.dataprovider - INFO - Loading data for BTC/USDT:USDT 5m from 2022-09-29 23:00:00 to 2023-10-01 00:00:00
+2026-09-10 10:08:47,152 - tradebot.strategies.ibs.freqtrade - INFO - IBS BTC/USDT:USDT: 175501 barov, 105421 HTF barov, 200 zon, 40 signalov (40 long / 0 short)
+2026-09-10 10:08:47,460 - tradebot.adapters.freqtrade.base - INFO - ibs BTC/USDT:USDT: kresby ulozene do 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tester\runs\.profiles\20260910-080830-727ef0.chart.json.gz (84916 objektov)
+2026-09-10 10:08:47,486 - freqtrade.optimize.backtesting - INFO - Backtesting with data from 2022-10-01 00:00:00 up to 2023-10-01 00:00:00 (365 days).
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 4/4           100% • 0:00:14 • 0:00:00
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 175200/175200 100% • 0:00:16 • 0:00:00
+2026-09-10 10:08:51,362 - freqtrade.misc - INFO - dumping json to 
+"C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\backtest_results\backtest-result-2026-09-10_08-08-51.meta.json"
+Result for strategy IBSImbalanceStrategy
+                                                BACKTESTING REPORT                                                
+┌───────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│          Pair │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ BTC/USDT:USDT │     34 │         0.15 │         -12.774 │         -0.0 │      2:06:00 │   10     0    24  29.4 │
+│         TOTAL │     34 │         0.15 │         -12.774 │         -0.0 │      2:06:00 │   10     0    24  29.4 │
+└───────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                          
+┌───────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│  Pair │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ TOTAL │      0 │          0.0 │           0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                    ENTER TAG STATS                                                    
+┌───────────────────┬─────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│         Enter Tag │ Entries │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────────┼─────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ ibs:1676476260000 │       1 │        33.25 │         484.949 │          0.0 │      4:15:00 │    1     0     0   100 │
+│ ibs:1673887860000 │       1 │        16.65 │         471.073 │          0.0 │      2:10:00 │    1     0     0   100 │
+│ ibs:1667570400000 │       1 │        15.31 │         469.041 │          0.0 │      0:19:00 │    1     0     0   100 │
+│ ibs:1687275900000 │       1 │        13.21 │         465.365 │          0.0 │      0:57:00 │    1     0     0   100 │
+│ ibs:1682607780000 │       1 │        12.05 │         461.262 │          0.0 │      0:15:00 │    1     0     0   100 │
+│ ibs:1689000480000 │       1 │         11.7 │         296.535 │          0.0 │      4:57:00 │    1     0     0   100 │
+│ ibs:1673366760000 │       1 │         6.46 │         190.535 │          0.0 │      4:39:00 │    1     0     0   100 │
+│ ibs:1669993560000 │       1 │         3.11 │         133.024 │          0.0 │      5:39:00 │    1     0     0   100 │
+│ ibs:1693841580000 │       1 │         0.96 │          17.910 │          0.0 │      4:12:00 │    1     0     0   100 │
+│ ibs:1688058180000 │       1 │         0.26 │          10.682 │          0.0 │      2:42:00 │    1     0     0   100 │
+│ ibs:1674837720000 │       1 │        -0.13 │          -1.528 │         -0.0 │      4:03:00 │    0     0     1     0 │
+│ ibs:1669407480000 │       1 │        -2.69 │         -95.468 │         -0.0 │      0:27:00 │    0     0     1     0 │
+│ ibs:1668526200000 │       1 │       -10.88 │        -110.248 │         -0.0 │      2:58:00 │    0     0     1     0 │
+│ ibs:1686234600000 │       1 │        -7.05 │        -117.136 │         -0.0 │      2:15:00 │    0     0     1     0 │
+│ ibs:1677688740000 │       1 │         -6.3 │        -118.698 │         -0.0 │      3:07:00 │    0     0     1     0 │
+│ ibs:1678463460000 │       1 │        -5.86 │        -119.899 │         -0.0 │      1:14:00 │    0     0     1     0 │
+│ ibs:1666884780000 │       1 │        -6.06 │        -119.907 │         -0.0 │      0:52:00 │    0     0     1     0 │
+│ ibs:1689691320000 │       1 │        -6.13 │        -120.980 │         -0.0 │      2:01:00 │    0     0     1     0 │
+│ ibs:1675791540000 │       1 │        -5.39 │        -122.594 │         -0.0 │      0:43:00 │    0     0     1     0 │
+│ ibs:1694706660000 │       1 │        -4.95 │        -123.600 │         -0.0 │      0:44:00 │    0     0     1     0 │
+│ ibs:1677771000000 │       1 │        -5.38 │        -125.039 │         -0.0 │      1:45:00 │    0     0     1     0 │
+│ ibs:1692197640000 │       1 │        -4.79 │        -129.454 │         -0.0 │      1:14:00 │    0     0     1     0 │
+│ ibs:1692108360000 │       1 │        -4.12 │        -131.832 │         -0.0 │      1:33:00 │    0     0     1     0 │
+│ ibs:1684418760000 │       1 │        -3.97 │        -133.433 │         -0.0 │      0:36:00 │    0     0     1     0 │
+│ ibs:1689089580000 │       1 │        -3.94 │        -135.584 │         -0.0 │      2:54:00 │    0     0     1     0 │
+│ ibs:1671204600000 │       1 │         -3.7 │        -135.841 │         -0.0 │      0:35:00 │    0     0     1     0 │
+│ ibs:1695392460000 │       1 │        -3.68 │        -138.145 │         -0.0 │      3:02:00 │    0     0     1     0 │
+│ ibs:1677683160000 │       1 │        -3.75 │        -141.343 │         -0.0 │      1:02:00 │    0     0     1     0 │
+│ ibs:1688739840000 │       1 │        -3.14 │        -146.226 │         -0.0 │      2:55:00 │    0     0     1     0 │
+│ ibs:1680271380000 │       1 │        -3.36 │        -148.300 │         -0.0 │      3:33:00 │    0     0     1     0 │
+│ ibs:1691079120000 │       1 │        -3.04 │        -148.764 │         -0.0 │      1:54:00 │    0     0     1     0 │
+│ ibs:1678978980000 │       1 │        -3.34 │        -148.969 │         -0.0 │      1:17:00 │    0     0     1     0 │
+│ ibs:1685628000000 │       1 │         -3.0 │        -149.689 │         -0.0 │      0:16:00 │    0     0     1     0 │
+│ ibs:1669132260000 │       1 │        -3.21 │        -150.472 │         -0.0 │      0:12:00 │    0     0     1     0 │
+│             TOTAL │      34 │         0.15 │         -12.774 │         -0.0 │      2:06:00 │   10     0    24  29.4 │
+└───────────────────┴─────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                               EXIT REASON STATS                                               
+┌─────────────┬───────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│ Exit Reason │ Exits │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├─────────────┼───────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│         roi │     5 │        18.09 │        2351.689 │         0.01 │      1:35:00 │    5     0     0   100 │
+│ session_end │     7 │         2.81 │         551.689 │          0.0 │      3:48:00 │    5     0     2  71.4 │
+│   stop_loss │    22 │        -4.77 │       -2916.152 │        -0.01 │      1:40:00 │    0     0    22     0 │
+│       TOTAL │    34 │         0.15 │         -12.774 │         -0.0 │      2:06:00 │   10     0    24  29.4 │
+└─────────────┴───────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                          MIXED TAG STATS                                                           
+┌───────────────────┬─────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┐
+│         Enter Tag │ Exit Reason │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────────┼─────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ ibs:1676476260000 │         roi │      1 │        33.25 │         484.949 │          0.0 │      4:15:00 │    1     0     0   100 │
+│ ibs:1673887860000 │         roi │      1 │        16.65 │         471.073 │          0.0 │      2:10:00 │    1     0     0   100 │
+│ ibs:1667570400000 │         roi │      1 │        15.31 │         469.041 │          0.0 │      0:19:00 │    1     0     0   100 │
+│ ibs:1687275900000 │         roi │      1 │        13.21 │         465.365 │          0.0 │      0:57:00 │    1     0     0   100 │
+│ ibs:1682607780000 │         roi │      1 │        12.05 │         461.262 │          0.0 │      0:15:00 │    1     0     0   100 │
+│ ibs:1689000480000 │ session_end │      1 │         11.7 │         296.535 │          0.0 │      4:57:00 │    1     0     0   100 │
+│ ibs:1673366760000 │ session_end │      1 │         6.46 │         190.535 │          0.0 │      4:39:00 │    1     0     0   100 │
+│ ibs:1669993560000 │ session_end │      1 │         3.11 │         133.024 │          0.0 │      5:39:00 │    1     0     0   100 │
+│ ibs:1693841580000 │ session_end │      1 │         0.96 │          17.910 │          0.0 │      4:12:00 │    1     0     0   100 │
+│ ibs:1688058180000 │ session_end │      1 │         0.26 │          10.682 │          0.0 │      2:42:00 │    1     0     0   100 │
+│ ibs:1674837720000 │ session_end │      1 │        -0.13 │          -1.528 │         -0.0 │      4:03:00 │    0     0     1     0 │
+│ ibs:1669407480000 │ session_end │      1 │        -2.69 │         -95.468 │         -0.0 │      0:27:00 │    0     0     1     0 │
+│ ibs:1668526200000 │   stop_loss │      1 │       -10.88 │        -110.248 │         -0.0 │      2:58:00 │    0     0     1     0 │
+│ ibs:1686234600000 │   stop_loss │      1 │        -7.05 │        -117.136 │         -0.0 │      2:15:00 │    0     0     1     0 │
+│ ibs:1677688740000 │   stop_loss │      1 │         -6.3 │        -118.698 │         -0.0 │      3:07:00 │    0     0     1     0 │
+│ ibs:1678463460000 │   stop_loss │      1 │        -5.86 │        -119.899 │         -0.0 │      1:14:00 │    0     0     1     0 │
+│ ibs:1666884780000 │   stop_loss │      1 │        -6.06 │        -119.907 │         -0.0 │      0:52:00 │    0     0     1     0 │
+│ ibs:1689691320000 │   stop_loss │      1 │        -6.13 │        -120.980 │         -0.0 │      2:01:00 │    0     0     1     0 │
+│ ibs:1675791540000 │   stop_loss │      1 │        -5.39 │        -122.594 │         -0.0 │      0:43:00 │    0     0     1     0 │
+│ ibs:1694706660000 │   stop_loss │      1 │        -4.95 │        -123.600 │         -0.0 │      0:44:00 │    0     0     1     0 │
+│ ibs:1677771000000 │   stop_loss │      1 │        -5.38 │        -125.039 │         -0.0 │      1:45:00 │    0     0     1     0 │
+│ ibs:1692197640000 │   stop_loss │      1 │        -4.79 │        -129.454 │         -0.0 │      1:14:00 │    0     0     1     0 │
+│ ibs:1692108360000 │   stop_loss │      1 │        -4.12 │        -131.832 │         -0.0 │      1:33:00 │    0     0     1     0 │
+│ ibs:1684418760000 │   stop_loss │      1 │        -3.97 │        -133.433 │         -0.0 │      0:36:00 │    0     0     1     0 │
+│ ibs:1689089580000 │   stop_loss │      1 │        -3.94 │        -135.584 │         -0.0 │      2:54:00 │    0     0     1     0 │
+│ ibs:1671204600000 │   stop_loss │      1 │         -3.7 │        -135.841 │         -0.0 │      0:35:00 │    0     0     1     0 │
+│ ibs:1695392460000 │   stop_loss │      1 │        -3.68 │        -138.145 │         -0.0 │      3:02:00 │    0     0     1     0 │
+│ ibs:1677683160000 │   stop_loss │      1 │        -3.75 │        -141.343 │         -0.0 │      1:02:00 │    0     0     1     0 │
+│ ibs:1688739840000 │   stop_loss │      1 │        -3.14 │        -146.226 │         -0.0 │      2:55:00 │    0     0     1     0 │
+│ ibs:1680271380000 │   stop_loss │      1 │        -3.36 │        -148.300 │         -0.0 │      3:33:00 │    0     0     1     0 │
+│ ibs:1691079120000 │   stop_loss │      1 │        -3.04 │        -148.764 │         -0.0 │      1:54:00 │    0     0     1     0 │
+│ ibs:1678978980000 │   stop_loss │      1 │        -3.34 │        -148.969 │         -0.0 │      1:17:00 │    0     0     1     0 │
+│ ibs:1685628000000 │   stop_loss │      1 │         -3.0 │        -149.689 │         -0.0 │      0:16:00 │    0     0     1     0 │
+│ ibs:1669132260000 │   stop_loss │      1 │        -3.21 │        -150.472 │         -0.0 │      0:12:00 │    0     0     1     0 │
+│             TOTAL │             │     34 │         0.15 │         -12.774 │         -0.0 │      2:06:00 │   10     0    24  29.4 │
+└───────────────────┴─────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2022-10-01 00:00:00                       │
+│ Backtesting to                         │ 2023-10-01 00:00:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 34 / 0.09                                 │
+│ Starting balance                       │ 40000000 USDT                             │
+│ Final balance                          │ 39999987.226 USDT                         │
+│ Absolute profit                        │ -12.774 USDT                              │
+│ Total profit %                         │ -0.00%                                    │
+│ CAGR %                                 │ -0.00%                                    │
+│ Sharpe (closed trades)                 │ -0.00                                     │
+│ Sortino (closed trades)                │ -0.02                                     │
+│ Calmar (closed trades)                 │ -0.07                                     │
+│ SQN                                    │ -0.01                                     │
+│ Mean profit p-value                    │ 0.9922                                    │
+│ Profit factor                          │ 1.00                                      │
+│ Expectancy (Ratio)                     │ -0.38 (-0.00)                             │
+│ Avg. daily profit                      │ -0.035 USDT                               │
+│ Avg. stake amount                      │ 3083.849 USDT                             │
+│ Market change                          │ 38.81%                                    │
+│ Total trade volume                     │ 2099123.613 USDT                          │
+│                                        │                                           │
+│ Best Pair                              │ BTC/USDT:USDT -0.00%                      │
+│ Worst Pair                             │ BTC/USDT:USDT -0.00%                      │
+│ Best trade                             │ BTC/USDT:USDT 33.25%                      │
+│ Worst trade                            │ BTC/USDT:USDT -10.88%                     │
+│ Best day                               │ 484.949 USDT                              │
+│ Worst day                              │ -260.042 USDT                             │
+│ Days win/draw/lose                     │ 10 / 298 / 23                             │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:15 / 0d 05:39 / 0d 03:00            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:12 / 0d 04:03 / 0d 01:43            │
+│ Max Consecutive Wins / Loss            │ 2 / 6                                     │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 4 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 39999880.093 USDT / 40001012.564 USDT     │
+│ Max % of account underwater            │ 0.00%                                     │
+│ Absolute drawdown                      │ 1025.337 USDT (0.00%)                     │
+│ Drawdown duration                      │ 218 days 21:17:00                         │
+│ Profit at drawdown start               │ 1012.564 USDT                             │
+│ Profit at drawdown end                 │ -12.774 USDT                              │
+│ Drawdown start                         │ 2023-02-15 20:09:00                       │
+│ Drawdown end                           │ 2023-09-22 17:26:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 39999880.093 USDT / 40001012.564 USDT     │
+│ Min/Max balance dates (wallet balance) │ 2022-10-27 16:30:00 / 2023-02-15 20:12:00 │
+│ Max % of account underwater (balance)  │ 0.00%                                     │
+│ Absolute drawdown (wallet balance)     │ 1025.337 USDT (0.00%)                     │
+│ Drawdown duration                      │ 218 days 21:15:00                         │
+│ Profit at drawdown start               │ 1012.564 USDT                             │
+│ Profit at drawdown end                 │ -12.774 USDT                              │
+│ Drawdown start                         │ 2023-02-15 20:12:00                       │
+│ Drawdown end                           │ 2023-09-22 17:27:00                       │
+│ Sharpe (daily wallet balance)          │ -0.01                                     │
+│ Sortino (daily wallet balance)         │ -0.02                                     │
+│ Calmar (daily wallet balance)          │ -0.07                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2022-10-01 00:00:00 -> 2023-10-01 00:00:00 | Max open trades : 1
+                                                                STRATEGY SUMMARY                                                                
+┌──────────────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┬──────────────────────┐
+│             Strategy │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │             Drawdown │
+├──────────────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┼──────────────────────┤
+│ IBSImbalanceStrategy │     34 │         0.15 │         -12.774 │         -0.0 │      2:06:00 │   10     0    24  29.4 │ 1025.337 USDT  0.00% │
+└──────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────────────┘
