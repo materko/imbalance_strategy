@@ -1013,6 +1013,49 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                                       "note": _null_note(vysledky)}
         return report
 
+    @app.get("/api/analytics/configs")
+    def analytics_configs(strategy: str = "ibs", limit: int = Query(30, ge=1, le=200)):
+        """Konfigurácie v histórii: skupiny behov s **tými istými parametrami** stratégie
+        na **tom istom trhu a TF**, s ich oknami a počtom obchodov.
+
+        Analytika má zmysel len nad jednou konfiguráciou (zliať rôzne znamená zliať rôzne
+        stratégie), a textový dopyt to nestráži. Tu si tester vyberie konfiguráciu a dostane
+        presne jej behy — a hneď vidí, koľko okien pokrýva.
+        """
+        from .. import analytics as an
+
+        if strategy not in STRATEGIES:
+            raise HTTPException(404, f"neznáma stratégia {strategy!r}")
+        skupiny: dict[str, dict[str, Any]] = {}
+        for rec in store.all():
+            obchodov = int((rec.get("result") or {}).get("trades") or 0)
+            if strategy_of(rec) != strategy or rec.get("status") != "done" or obchodov <= 0:
+                continue
+            s = rec.get("settings") or {}
+            # Konfigurácia = parametre + trh + TF: analytika (náhoda, charakter, dĺžka
+            # v baroch) je párová a limity v baroch znamenajú na inom TF inú stratégiu,
+            # takže ten istý profil na inom trhu alebo TF je iný výber.
+            kluc = f"{an.config_key(rec)}|{s.get('pair') or '?'}|{s.get('timeframe') or '?'}"
+            g = skupiny.setdefault(kluc, {
+                "key": kluc, "profile": "", "run_ids": [], "pairs": set(),
+                "timeframes": set(), "timeranges": set(), "trades": 0, "latest": ""})
+            g["profile"] = g["profile"] or s.get("profile") or ""
+            g["run_ids"].append(rec["id"])
+            g["pairs"].add(s.get("pair") or "?")
+            g["timeframes"].add(s.get("timeframe") or "?")
+            if s.get("timerange"):
+                g["timeranges"].add(s["timerange"])
+            g["trades"] += obchodov
+            g["latest"] = max(g["latest"], rec["id"])
+        out = [{**g, "profile": g["profile"] or "(Pine defaulty)",
+                "runs": len(g["run_ids"]), "run_ids": sorted(g["run_ids"]),
+                "pairs": sorted(g["pairs"]), "timeframes": sorted(g["timeframes"]),
+                "timeranges": sorted(g["timeranges"])} for g in skupiny.values()]
+        # Najviac behov hore (to je tá, na ktorej sa meralo), pri zhode novšia.
+        out.sort(key=lambda g: g["latest"], reverse=True)
+        out.sort(key=lambda g: g["runs"], reverse=True)
+        return {"configs": out[:limit]}
+
     @app.get("/api/analytics/history")
     def analytics_history(strategy: str = "", limit: int = Query(50, ge=1, le=500)):
         """Uložené analytiky — per stratégia, od najnovšej.

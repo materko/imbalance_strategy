@@ -267,7 +267,12 @@
       skupiny a pri každej sa spočíta break-even poplatok — tak je vidieť, či výsledok kazí
       jedna skupina (dá sa s tým niečo robiť), alebo je rozložený rovnomerne (nedá).</p>
     <div class="form-grid an-form">
-      <label class="field span2">Behy (rovnaká syntax ako vyhľadávanie v histórii)
+      <label class="field span2">Konfigurácia
+        <span class="hint">behy s tými istými parametrami — analytika sa počíta nad jednou;
+        vidíš, koľko okien a trhov pokrýva</span>
+        <select id="an-config"><option value="">— vybrať behy dopytom nižšie —</option></select>
+      </label>
+      <label class="field span2">…alebo behy dopytom (rovnaká syntax ako vyhľadávanie v histórii)
         <input type="text" id="an-query" placeholder="napr. pair=BTC/USDT:USDT rrRatio&gt;=4">
       </label>
       <label class="field">Skupín na vlastnosť
