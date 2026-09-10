@@ -510,6 +510,45 @@ def cmd_nulltest(args: argparse.Namespace) -> int:
     return 0 if (najprv and najprv.sigma is not None) else 1
 
 
+def cmd_decay(args: argparse.Namespace) -> int:
+    """Slabne edge? Posledné obdobie proti tomu, čo stratégia robievala."""
+    from .. import analytics as an, decay as dc
+    from .store import RunStore
+
+    store = RunStore()
+    if args.runs:
+        chcene = [x.strip() for x in args.runs.split(",") if x.strip()]
+        zaznamy = [r for r in (store.get(i) for i in chcene) if r]
+    else:
+        vsetky = store.search(" ".join(args.query)) if args.query else store.all()
+        zaznamy = [r for r in vsetky if r.get("status") == "done"
+                   and ((r.get("result") or {}).get("trades") or 0) > 0]
+    zaznamy = zaznamy[:args.limit]
+    if not zaznamy:
+        raise SystemExit("ziadne dobehnute behy s obchodmi (skus iny dopyt)")
+
+    obchody = []
+    for rec in zaznamy:
+        t = store.trades(rec["id"])
+        if t:
+            obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]),
+                                 rec["settings"].get("strategy") or "ibs")
+    if not obchody:
+        raise SystemExit("vybrane behy nemaju ulozene obchody")
+
+    # Zliate behy z prekryvajucich sa okien by tie iste obchody zapocitali viackrat a
+    # obdobie by vyzeralo hustejsie, nez bolo. Nech je to aspon vidiet.
+    okna = sorted({r["settings"].get("timerange") for r in zaznamy if r["settings"].get("timerange")})
+    pary = sorted({r["settings"].get("pair") for r in zaznamy if r["settings"].get("pair")})
+    print(f"{len(zaznamy)} behov, {len(obchody)} obchodov, {', '.join(pary)}")
+    print(f"okna: {', '.join(okna)}\n")
+
+    vysledok = dc.analyze(obchody, parts=args.parts, by=args.by,
+                          iterations=args.iterations, block=args.block, seed=args.seed)
+    print(dc.report(vysledok, label=", ".join(pary)))
+    return 0 if vysledok.verdict != "MALO DAT" else 1
+
+
 def cmd_matrix(args: argparse.Namespace) -> int:
     """Matica trhov a timeframov: drží myšlienka aj mimo trhu, na ktorom sa ladila?"""
     from datetime import datetime, timezone
@@ -934,6 +973,19 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--seed", type=int, default=12345)
     p.add_argument("--limit", type=int, default=40, help="najviac toľko behov (default 40)")
     p.set_defaults(func=cmd_nulltest)
+
+    p = sub.add_parser("decay", help="slabne edge? posledné obdobie proti vlastnej minulosti")
+    p.add_argument("query", nargs="*", help="dopyt na behy (rovnaká syntax ako `list`)")
+    p.add_argument("--runs", help="konkrétne behy oddelené čiarkou (namiesto dopytu)")
+    p.add_argument("--parts", type=int, default=4, help="na koľko období deliť (default 4)")
+    p.add_argument("--by", choices=("time", "count"), default="time",
+                   help="rovnako dlhé kalendárne úseky (default) alebo rovnako početné")
+    p.add_argument("--iterations", type=int, default=2000, help="koľko vzoriek (default 2000)")
+    p.add_argument("--block", type=int, default=10,
+                   help="dĺžka bloku pri losovaní; 1 = nezávislé obchody (default 10)")
+    p.add_argument("--seed", type=int, default=12345)
+    p.add_argument("--limit", type=int, default=40, help="najviac toľko behov (default 40)")
+    p.set_defaults(func=cmd_decay)
 
     p = sub.add_parser("matrix", help="ten istý profil na viacerých trhoch a TF (drží myšlienka?)")
     p.add_argument("--pairs", default="all",
