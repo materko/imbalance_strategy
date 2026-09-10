@@ -1,0 +1,306 @@
+$ /Users/martin/document/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/document/IBS/deploy/freqtrade/config.tester.json --userdir /Users/martin/document/IBS/deploy/freqtrade/user_data --strategy GapStrategy --cache none --export trades --timerange 20250904-20260904 --pairs BTC/USDT:USDT --timeframe 5m --dry-run-wallet 10000.0 --fee 0.0005 --timeframe-detail 1m --datadir /Users/martin/document/IBS/data/tester/binance
+2026-09-10 19:48:02,878 - freqtrade - INFO - freqtrade 2026.8
+2026-09-10 19:48:03,611 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/document/IBS/deploy/freqtrade/config.tester.json ...
+2026-09-10 19:48:03,612 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-10 19:48:03,613 - freqtrade.loggers - INFO - Logfile configured
+2026-09-10 19:48:03,613 - freqtrade.loggers - INFO - Verbosity set to 0
+2026-09-10 19:48:03,613 - freqtrade.configuration.configuration - INFO - Parameter -i/--timeframe detected ... Using timeframe: 5m ...
+2026-09-10 19:48:03,613 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2026-09-10 19:48:03,613 - freqtrade.configuration.configuration - INFO - Parameter --timeframe-detail detected, using 1m for intra-candle backtesting ...
+2026-09-10 19:48:03,613 - freqtrade.configuration.configuration - INFO - Parameter --dry-run-wallet detected, overriding dry_run_wallet to: 10000.0 ...
+2026-09-10 19:48:03,613 - freqtrade.configuration.configuration - INFO - Parameter --fee detected, setting fee to: 0.0005 ...
+2026-09-10 19:48:03,613 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20250904-20260904 ...
+2026-09-10 19:48:03,614 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/document/IBS/deploy/freqtrade/user_data ...
+2026-09-10 19:48:03,614 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/document/IBS/data/tester/binance ...
+2026-09-10 19:48:03,614 - freqtrade.configuration.configuration - INFO - Parameter --export detected: trades ...
+2026-09-10 19:48:03,614 - freqtrade.configuration.configuration - INFO - Parameter --cache=none detected ...
+2026-09-10 19:48:03,614 - freqtrade.configuration.configuration - INFO - Using pairs ['BTC/USDT:USDT']
+2026-09-10 19:48:03,614 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20250904-20260904
+2026-09-10 19:48:03,614 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2026-09-10 19:48:03,616 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+team. It may work flawlessly (please report back) or have serious issues. Use it at your own discretion.
+2026-09-10 19:48:03,616 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 19:48:03,617 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2026-09-10 19:48:03,617 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2026-09-10 19:48:03,617 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.77
+2026-09-10 19:48:03,617 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-10 19:48:03,618 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-10 19:48:03,619 - freqtrade.exchange.exchange - INFO - Using Exchange "Tester"
+2026-09-10 19:48:03,620 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange class 'Tester' ...
+2026-09-10 19:48:03,642 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy GapStrategy from '/Users/martin/document/IBS/deploy/freqtrade/user_data/strategies/GapStrategy.py'...
+2026-09-10 19:48:03,642 - freqtrade.strategy.hyper - INFO - Found no parameter file.
+2026-09-10 19:48:03,856 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 5m.
+2026-09-10 19:48:03,857 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USDT.
+2026-09-10 19:48:03,857 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2026-09-10 19:48:03,857 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'unfilledtimeout' with value from the configuration: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 
+'unit': 'minutes'}.
+2026-09-10 19:48:03,857 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2026-09-10 19:48:03,857 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 100.0}
+2026-09-10 19:48:03,857 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 5m
+2026-09-10 19:48:03,857 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.99
+2026-09-10 19:48:03,857 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2026-09-10 19:48:03,857 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2026-09-10 19:48:03,857 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2026-09-10 19:48:03,857 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: True
+2026-09-10 19:48:03,857 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2026-09-10 19:48:03,858 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2026-09-10 19:48:03,858 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2026-09-10 19:48:03,858 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USDT
+2026-09-10 19:48:03,858 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2026-09-10 19:48:03,858 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 300
+2026-09-10 19:48:03,858 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using unfilledtimeout: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 'unit': 'minutes'}
+2026-09-10 19:48:03,858 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2026-09-10 19:48:03,858 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2026-09-10 19:48:03,858 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2026-09-10 19:48:03,858 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2026-09-10 19:48:03,858 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2026-09-10 19:48:03,858 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2026-09-10 19:48:03,858 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2026-09-10 19:48:03,859 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2026-09-10 19:48:03,859 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2026-09-10 19:48:03,859 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 19:48:03,862 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-09-10 19:48:03,862 - freqtrade.optimize.backtesting - INFO - Using fee 0.0500% from config.
+2026-09-10 19:48:03,889 - freqtrade.optimize.backtesting - INFO - Loading data from 2025-09-02 23:00:00 up to 2026-09-04 00:00:00 (366 days).
+2026-09-10 19:48:04,254 - freqtrade.optimize.backtesting - INFO - Dataload complete. Calculating indicators
+2026-09-10 19:48:04,254 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy GapStrategy
+2026-09-10 19:48:04,621 - tradebot.adapters.freqtrade.base - INFO - gap BTC/USDT:USDT: 105421 barov, 60 signalov (33 long / 27 short)
+2026-09-10 19:48:04,622 - tradebot.adapters.freqtrade.base - INFO - gap BTC/USDT:USDT: kresby ulozene do /Users/martin/document/IBS/tester/runs/.profiles/20260910-174802-b22c70.chart.json.gz (180 
+objektov)
+2026-09-10 19:48:04,624 - freqtrade.optimize.backtesting - INFO - Backtesting with data from 2025-09-04 00:00:00 up to 2026-09-04 00:00:00 (365 days).
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4/4           100% • 0:00:00 • 0:00:00
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 105120/105120 100% • 0:00:01 • 0:00:00
+2026-09-10 19:48:06,318 - freqtrade.misc - INFO - dumping json to "/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/backtest-result-2026-09-10_17-48-06.meta.json"
+Result for strategy GapStrategy
+                                                BACKTESTING REPORT                                                
+┏━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃          Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ BTC/USDT:USDT │     60 │        -0.04 │         -56.363 │        -0.56 │      0:58:00 │   42     0    18  70.0 │
+│         TOTAL │     60 │        -0.04 │         -56.363 │        -0.56 │      0:58:00 │   42     0    18  70.0 │
+└───────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                          
+┏━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ TOTAL │      0 │          0.0 │           0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                    ENTER TAG STATS                                                    
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃         Enter Tag ┃ Entries ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ gap:1768488300000 │       1 │         0.66 │          24.007 │         0.24 │      1:08:00 │    1     0     0   100 │
+│ gap:1783431900000 │       1 │         1.02 │          23.800 │         0.24 │      1:55:00 │    1     0     0   100 │
+│ gap:1760103900000 │       1 │         0.68 │          21.532 │         0.22 │      1:08:00 │    1     0     0   100 │
+│ gap:1765291500000 │       1 │         0.52 │          21.290 │         0.21 │      0:11:00 │    1     0     0   100 │
+│ gap:1771340400000 │       1 │         0.46 │          21.254 │         0.21 │      0:56:00 │    1     0     0   100 │
+│ gap:1777038300000 │       1 │         0.47 │          21.065 │         0.21 │      1:16:00 │    1     0     0   100 │
+│ gap:1778766600000 │       1 │         0.38 │          20.671 │         0.21 │      0:12:00 │    1     0     0   100 │
+│ gap:1762527000000 │       1 │         0.51 │          18.985 │         0.19 │      0:20:00 │    1     0     0   100 │
+│ gap:1770908100000 │       1 │         0.63 │          16.712 │         0.17 │      0:09:00 │    1     0     0   100 │
+│ gap:1763045700000 │       1 │         0.66 │          16.259 │         0.16 │      0:04:00 │    1     0     0   100 │
+│ gap:1770130200000 │       1 │         0.38 │          16.105 │         0.16 │      0:02:00 │    1     0     0   100 │
+│ gap:1768575300000 │       1 │         0.33 │          15.553 │         0.16 │      0:29:00 │    1     0     0   100 │
+│ gap:1775224200000 │       1 │          0.4 │          15.334 │         0.15 │      1:15:00 │    1     0     0   100 │
+│ gap:1787060700000 │       1 │         0.27 │          15.075 │         0.15 │      0:29:00 │    1     0     0   100 │
+│ gap:1759932300000 │       1 │          0.5 │          14.185 │         0.14 │      0:45:00 │    1     0     0   100 │
+│ gap:1781271900000 │       1 │         0.36 │          14.085 │         0.14 │      0:17:00 │    1     0     0   100 │
+│ gap:1785764700000 │       1 │          0.3 │          13.617 │         0.14 │      0:02:00 │    1     0     0   100 │
+│ gap:1788357000000 │       1 │         0.34 │          12.987 │         0.13 │      0:27:00 │    1     0     0   100 │
+│ gap:1774965300000 │       1 │         0.33 │          12.248 │         0.12 │      0:48:00 │    1     0     0   100 │
+│ gap:1785937500000 │       1 │         0.14 │          11.171 │         0.11 │      0:15:00 │    1     0     0   100 │
+│ gap:1782481800000 │       1 │         0.62 │          11.170 │         0.11 │      0:05:00 │    1     0     0   100 │
+│ gap:1786629000000 │       1 │         0.13 │          10.950 │         0.11 │      2:00:00 │    1     0     0   100 │
+│ gap:1771512300000 │       1 │         0.42 │          10.928 │         0.11 │      0:03:00 │    1     0     0   100 │
+│ gap:1786456200000 │       1 │         0.18 │           9.995 │          0.1 │      0:30:00 │    1     0     0   100 │
+│ gap:1767970200000 │       1 │         0.24 │           9.568 │          0.1 │      0:25:00 │    1     0     0   100 │
+│ gap:1764860400000 │       1 │         0.19 │           9.260 │         0.09 │      0:03:00 │    1     0     0   100 │
+│ gap:1769179500000 │       1 │         0.14 │           8.324 │         0.08 │      0:27:00 │    1     0     0   100 │
+│ gap:1774014300000 │       1 │          0.2 │           7.911 │         0.08 │      0:01:00 │    1     0     0   100 │
+│ gap:1776779700000 │       1 │         0.18 │           7.487 │         0.07 │      0:17:00 │    1     0     0   100 │
+│ gap:1773755100000 │       1 │         0.16 │           7.460 │         0.07 │      0:40:00 │    1     0     0   100 │
+│ gap:1761659400000 │       1 │         0.08 │           7.323 │         0.07 │      0:46:00 │    1     0     0   100 │
+│ gap:1775742900000 │       1 │         0.18 │           6.450 │         0.06 │      0:46:00 │    1     0     0   100 │
+│ gap:1774360500000 │       1 │         0.14 │           5.797 │         0.06 │      0:01:00 │    1     0     0   100 │
+│ gap:1767710700000 │       1 │         0.15 │           5.654 │         0.06 │      0:05:00 │    1     0     0   100 │
+│ gap:1781790600000 │       1 │          0.2 │           5.278 │         0.05 │      0:03:00 │    1     0     0   100 │
+│ gap:1773236700000 │       1 │         0.18 │           5.055 │         0.05 │      0:01:00 │    1     0     0   100 │
+│ gap:1765378500000 │       1 │         0.26 │           4.994 │         0.05 │      2:00:00 │    1     0     0   100 │
+│ gap:1758030300000 │       1 │         0.05 │           4.687 │         0.05 │      0:01:00 │    1     0     0   100 │
+│ gap:1776261000000 │       1 │         0.13 │           4.431 │         0.04 │      1:35:00 │    1     0     0   100 │
+│ gap:1771599000000 │       1 │          0.1 │           4.391 │         0.04 │      0:05:00 │    1     0     0   100 │
+│ gap:1777297500000 │       1 │         0.02 │           1.843 │         0.02 │      1:14:00 │    1     0     0   100 │
+│ gap:1782740700000 │       1 │         0.05 │           1.673 │         0.02 │      0:15:00 │    1     0     0   100 │
+│ gap:1781876700000 │       1 │        -0.24 │          -7.136 │        -0.07 │      2:00:00 │    0     0     1     0 │
+│ gap:1767278700000 │       1 │        -0.19 │          -9.540 │         -0.1 │      2:00:00 │    0     0     1     0 │
+│ gap:1765896600000 │       1 │         -0.6 │         -10.396 │         -0.1 │      2:00:00 │    0     0     1     0 │
+│ gap:1781099100000 │       1 │        -0.33 │         -11.409 │        -0.11 │      2:00:00 │    0     0     1     0 │
+│ gap:1769093400000 │       1 │        -0.54 │         -13.988 │        -0.14 │      2:00:00 │    0     0     1     0 │
+│ gap:1775829000000 │       1 │        -0.42 │         -14.445 │        -0.14 │      2:00:00 │    0     0     1     0 │
+│ gap:1757339100000 │       1 │        -0.45 │         -16.319 │        -0.16 │      2:00:00 │    0     0     1     0 │
+│ gap:1758894300000 │       1 │        -0.52 │         -18.409 │        -0.18 │      2:00:00 │    0     0     1     0 │
+│ gap:1758116700000 │       1 │        -0.39 │         -20.037 │         -0.2 │      2:00:00 │    0     0     1     0 │
+│ gap:1780494300000 │       1 │        -0.83 │         -20.610 │        -0.21 │      2:00:00 │    0     0     1     0 │
+│ gap:1788183900000 │       1 │        -1.05 │         -27.058 │        -0.27 │      2:00:00 │    0     0     1     0 │
+│ gap:1771253100000 │       1 │        -1.08 │         -27.452 │        -0.27 │      2:00:00 │    0     0     1     0 │
+│ gap:1772721900000 │       1 │        -1.23 │         -31.143 │        -0.31 │      2:00:00 │    0     0     1     0 │
+│ gap:1779198300000 │       1 │        -0.54 │         -33.123 │        -0.33 │      2:00:00 │    0     0     1     0 │
+│ gap:1770216300000 │       1 │        -2.93 │         -39.806 │         -0.4 │      2:00:00 │    0     0     1     0 │
+│ gap:1779457500000 │       1 │        -0.76 │         -42.963 │        -0.43 │      2:00:00 │    0     0     1     0 │
+│ gap:1759845300000 │       1 │        -1.68 │        -104.312 │        -1.04 │      1:09:00 │    0     0     1     0 │
+│ gap:1782914400000 │       1 │        -1.96 │        -104.776 │        -1.05 │      1:18:00 │    0     0     1     0 │
+│             TOTAL │      60 │        -0.04 │         -56.363 │        -0.56 │      0:58:00 │   42     0    18  70.0 │
+└───────────────────┴─────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                  EXIT REASON STATS                                                   
+┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃        Exit Reason ┃ Exits ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│                roi │    40 │         0.32 │         480.619 │         4.81 │      0:29:00 │   40     0     0   100 │
+│          stop_loss │     1 │        -1.68 │        -104.312 │        -1.04 │      1:09:00 │    0     0     1     0 │
+│ trailing_stop_loss │     1 │        -1.96 │        -104.776 │        -1.05 │      1:18:00 │    0     0     1     0 │
+│       signal_close │    18 │        -0.65 │        -327.893 │        -3.28 │      2:00:00 │    2     0    16  11.1 │
+│              TOTAL │    60 │        -0.04 │         -56.363 │        -0.56 │      0:58:00 │   42     0    18  70.0 │
+└────────────────────┴───────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                              MIXED TAG STATS                                                              
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃         Enter Tag ┃        Exit Reason ┃ Trades ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ gap:1768488300000 │                roi │      1 │         0.66 │          24.007 │         0.24 │      1:08:00 │    1     0     0   100 │
+│ gap:1783431900000 │                roi │      1 │         1.02 │          23.800 │         0.24 │      1:55:00 │    1     0     0   100 │
+│ gap:1760103900000 │                roi │      1 │         0.68 │          21.532 │         0.22 │      1:08:00 │    1     0     0   100 │
+│ gap:1765291500000 │                roi │      1 │         0.52 │          21.290 │         0.21 │      0:11:00 │    1     0     0   100 │
+│ gap:1771340400000 │                roi │      1 │         0.46 │          21.254 │         0.21 │      0:56:00 │    1     0     0   100 │
+│ gap:1777038300000 │                roi │      1 │         0.47 │          21.065 │         0.21 │      1:16:00 │    1     0     0   100 │
+│ gap:1778766600000 │                roi │      1 │         0.38 │          20.671 │         0.21 │      0:12:00 │    1     0     0   100 │
+│ gap:1762527000000 │                roi │      1 │         0.51 │          18.985 │         0.19 │      0:20:00 │    1     0     0   100 │
+│ gap:1770908100000 │                roi │      1 │         0.63 │          16.712 │         0.17 │      0:09:00 │    1     0     0   100 │
+│ gap:1763045700000 │                roi │      1 │         0.66 │          16.259 │         0.16 │      0:04:00 │    1     0     0   100 │
+│ gap:1770130200000 │                roi │      1 │         0.38 │          16.105 │         0.16 │      0:02:00 │    1     0     0   100 │
+│ gap:1768575300000 │                roi │      1 │         0.33 │          15.553 │         0.16 │      0:29:00 │    1     0     0   100 │
+│ gap:1775224200000 │                roi │      1 │          0.4 │          15.334 │         0.15 │      1:15:00 │    1     0     0   100 │
+│ gap:1787060700000 │                roi │      1 │         0.27 │          15.075 │         0.15 │      0:29:00 │    1     0     0   100 │
+│ gap:1759932300000 │                roi │      1 │          0.5 │          14.185 │         0.14 │      0:45:00 │    1     0     0   100 │
+│ gap:1781271900000 │                roi │      1 │         0.36 │          14.085 │         0.14 │      0:17:00 │    1     0     0   100 │
+│ gap:1785764700000 │                roi │      1 │          0.3 │          13.617 │         0.14 │      0:02:00 │    1     0     0   100 │
+│ gap:1788357000000 │                roi │      1 │         0.34 │          12.987 │         0.13 │      0:27:00 │    1     0     0   100 │
+│ gap:1774965300000 │                roi │      1 │         0.33 │          12.248 │         0.12 │      0:48:00 │    1     0     0   100 │
+│ gap:1785937500000 │                roi │      1 │         0.14 │          11.171 │         0.11 │      0:15:00 │    1     0     0   100 │
+│ gap:1782481800000 │                roi │      1 │         0.62 │          11.170 │         0.11 │      0:05:00 │    1     0     0   100 │
+│ gap:1786629000000 │       signal_close │      1 │         0.13 │          10.950 │         0.11 │      2:00:00 │    1     0     0   100 │
+│ gap:1771512300000 │                roi │      1 │         0.42 │          10.928 │         0.11 │      0:03:00 │    1     0     0   100 │
+│ gap:1786456200000 │                roi │      1 │         0.18 │           9.995 │          0.1 │      0:30:00 │    1     0     0   100 │
+│ gap:1767970200000 │                roi │      1 │         0.24 │           9.568 │          0.1 │      0:25:00 │    1     0     0   100 │
+│ gap:1764860400000 │                roi │      1 │         0.19 │           9.260 │         0.09 │      0:03:00 │    1     0     0   100 │
+│ gap:1769179500000 │                roi │      1 │         0.14 │           8.324 │         0.08 │      0:27:00 │    1     0     0   100 │
+│ gap:1774014300000 │                roi │      1 │          0.2 │           7.911 │         0.08 │      0:01:00 │    1     0     0   100 │
+│ gap:1776779700000 │                roi │      1 │         0.18 │           7.487 │         0.07 │      0:17:00 │    1     0     0   100 │
+│ gap:1773755100000 │                roi │      1 │         0.16 │           7.460 │         0.07 │      0:40:00 │    1     0     0   100 │
+│ gap:1761659400000 │                roi │      1 │         0.08 │           7.323 │         0.07 │      0:46:00 │    1     0     0   100 │
+│ gap:1775742900000 │                roi │      1 │         0.18 │           6.450 │         0.06 │      0:46:00 │    1     0     0   100 │
+│ gap:1774360500000 │                roi │      1 │         0.14 │           5.797 │         0.06 │      0:01:00 │    1     0     0   100 │
+│ gap:1767710700000 │                roi │      1 │         0.15 │           5.654 │         0.06 │      0:05:00 │    1     0     0   100 │
+│ gap:1781790600000 │                roi │      1 │          0.2 │           5.278 │         0.05 │      0:03:00 │    1     0     0   100 │
+│ gap:1773236700000 │                roi │      1 │         0.18 │           5.055 │         0.05 │      0:01:00 │    1     0     0   100 │
+│ gap:1765378500000 │       signal_close │      1 │         0.26 │           4.994 │         0.05 │      2:00:00 │    1     0     0   100 │
+│ gap:1758030300000 │                roi │      1 │         0.05 │           4.687 │         0.05 │      0:01:00 │    1     0     0   100 │
+│ gap:1776261000000 │                roi │      1 │         0.13 │           4.431 │         0.04 │      1:35:00 │    1     0     0   100 │
+│ gap:1771599000000 │                roi │      1 │          0.1 │           4.391 │         0.04 │      0:05:00 │    1     0     0   100 │
+│ gap:1777297500000 │                roi │      1 │         0.02 │           1.843 │         0.02 │      1:14:00 │    1     0     0   100 │
+│ gap:1782740700000 │                roi │      1 │         0.05 │           1.673 │         0.02 │      0:15:00 │    1     0     0   100 │
+│ gap:1781876700000 │       signal_close │      1 │        -0.24 │          -7.136 │        -0.07 │      2:00:00 │    0     0     1     0 │
+│ gap:1767278700000 │       signal_close │      1 │        -0.19 │          -9.540 │         -0.1 │      2:00:00 │    0     0     1     0 │
+│ gap:1765896600000 │       signal_close │      1 │         -0.6 │         -10.396 │         -0.1 │      2:00:00 │    0     0     1     0 │
+│ gap:1781099100000 │       signal_close │      1 │        -0.33 │         -11.409 │        -0.11 │      2:00:00 │    0     0     1     0 │
+│ gap:1769093400000 │       signal_close │      1 │        -0.54 │         -13.988 │        -0.14 │      2:00:00 │    0     0     1     0 │
+│ gap:1775829000000 │       signal_close │      1 │        -0.42 │         -14.445 │        -0.14 │      2:00:00 │    0     0     1     0 │
+│ gap:1757339100000 │       signal_close │      1 │        -0.45 │         -16.319 │        -0.16 │      2:00:00 │    0     0     1     0 │
+│ gap:1758894300000 │       signal_close │      1 │        -0.52 │         -18.409 │        -0.18 │      2:00:00 │    0     0     1     0 │
+│ gap:1758116700000 │       signal_close │      1 │        -0.39 │         -20.037 │         -0.2 │      2:00:00 │    0     0     1     0 │
+│ gap:1780494300000 │       signal_close │      1 │        -0.83 │         -20.610 │        -0.21 │      2:00:00 │    0     0     1     0 │
+│ gap:1788183900000 │       signal_close │      1 │        -1.05 │         -27.058 │        -0.27 │      2:00:00 │    0     0     1     0 │
+│ gap:1771253100000 │       signal_close │      1 │        -1.08 │         -27.452 │        -0.27 │      2:00:00 │    0     0     1     0 │
+│ gap:1772721900000 │       signal_close │      1 │        -1.23 │         -31.143 │        -0.31 │      2:00:00 │    0     0     1     0 │
+│ gap:1779198300000 │       signal_close │      1 │        -0.54 │         -33.123 │        -0.33 │      2:00:00 │    0     0     1     0 │
+│ gap:1770216300000 │       signal_close │      1 │        -2.93 │         -39.806 │         -0.4 │      2:00:00 │    0     0     1     0 │
+│ gap:1779457500000 │       signal_close │      1 │        -0.76 │         -42.963 │        -0.43 │      2:00:00 │    0     0     1     0 │
+│ gap:1759845300000 │          stop_loss │      1 │        -1.68 │        -104.312 │        -1.04 │      1:09:00 │    0     0     1     0 │
+│ gap:1782914400000 │ trailing_stop_loss │      1 │        -1.96 │        -104.776 │        -1.05 │      1:18:00 │    0     0     1     0 │
+│             TOTAL │                    │     60 │        -0.04 │         -56.363 │        -0.56 │      0:58:00 │   42     0    18  70.0 │
+└───────────────────┴────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Metric                                 ┃ Value                                     ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Backtesting from                       │ 2025-09-04 00:00:00                       │
+│ Backtesting to                         │ 2026-09-04 00:00:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 60 / 0.16                                 │
+│ Starting balance                       │ 10000 USDT                                │
+│ Final balance                          │ 9943.637 USDT                             │
+│ Absolute profit                        │ -56.363 USDT                              │
+│ Total profit %                         │ -0.56%                                    │
+│ CAGR %                                 │ -0.56%                                    │
+│ Sharpe (closed trades)                 │ -0.12                                     │
+│ Sortino (closed trades)                │ -0.11                                     │
+│ Calmar (closed trades)                 │ -1.58                                     │
+│ SQN                                    │ -0.28                                     │
+│ Mean profit p-value                    │ 0.7767                                    │
+│ Profit factor                          │ 0.90                                      │
+│ Expectancy (Ratio)                     │ -0.94 (-0.03)                             │
+│ Avg. daily profit                      │ -0.154 USDT                               │
+│ Avg. stake amount                      │ 4174.629 USDT                             │
+│ Market change                          │ -27.34%                                   │
+│ Total trade volume                     │ 501067.119 USDT                           │
+│                                        │                                           │
+│ Long / Short trades                    │ 33 / 27                                   │
+│ Long / Short profit %                  │ -1.01% / 0.45%                            │
+│ Long / Short profit USDT               │ -101.282 / 44.919                         │
+│                                        │                                           │
+│ Best Pair                              │ BTC/USDT:USDT -0.56%                      │
+│ Worst Pair                             │ BTC/USDT:USDT -0.56%                      │
+│ Best trade                             │ BTC/USDT:USDT 1.02%                       │
+│ Worst trade                            │ BTC/USDT:USDT -2.93%                      │
+│ Best day                               │ 24.007 USDT                               │
+│ Worst day                              │ -104.776 USDT                             │
+│ Days win/draw/lose                     │ 42 / 300 / 18                             │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:01 / 0d 02:00 / 0d 00:34            │
+│ Min/Max/Avg. Duration Losers           │ 0d 01:09 / 0d 02:00 / 0d 01:55            │
+│ Max Consecutive Wins / Loss            │ 8 / 4                                     │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 0 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 9845.609 USDT / 10060.914 USDT            │
+│ Max % of account underwater            │ 1.87%                                     │
+│ Absolute drawdown                      │ 187.814 USDT (1.87%)                      │
+│ Drawdown duration                      │ 48 days 01:16:00                          │
+│ Profit at drawdown start               │ 60.914 USDT                               │
+│ Profit at drawdown end                 │ -126.899 USDT                             │
+│ Drawdown start                         │ 2026-05-14 14:07:00                       │
+│ Drawdown end                           │ 2026-07-01 15:23:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 9845.609 USDT / 10060.914 USDT            │
+│ Min/Max balance dates (wallet balance) │ 2025-10-07 15:10:00 / 2026-05-14 14:10:00 │
+│ Max % of account underwater (balance)  │ 1.87%                                     │
+│ Absolute drawdown (wallet balance)     │ 187.814 USDT (1.87%)                      │
+│ Drawdown duration                      │ 48 days 01:15:00                          │
+│ Profit at drawdown start               │ 60.914 USDT                               │
+│ Profit at drawdown end                 │ -126.899 USDT                             │
+│ Drawdown start                         │ 2026-05-14 14:10:00                       │
+│ Drawdown end                           │ 2026-07-01 15:25:00                       │
+│ Sharpe (daily wallet balance)          │ -0.28                                     │
+│ Sortino (daily wallet balance)         │ -0.10                                     │
+│ Calmar (daily wallet balance)          │ -1.58                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                           STRATEGY SUMMARY                                                           
+┏━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃    Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃            Drawdown ┃
+┡━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│ GapStrategy │     60 │        -0.04 │         -56.363 │        -0.56 │      0:58:00 │   42     0    18  70.0 │ 187.814 USDT  1.87% │
+└─────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┴─────────────────────┘

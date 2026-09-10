@@ -1,0 +1,252 @@
+$ /Users/martin/document/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json --userdir /Users/martin/document/IBS/deploy/freqtrade/user_data --strategy GapStrategy --cache none --export trades --timerange 20250904-20260904 --pairs NAS100/USD --timeframe 5m --dry-run-wallet 500000.0 --fee 3.9087247113328627e-07 --timeframe-detail 1m --datadir /Users/martin/document/IBS/data/tester/dukascopy/futures
+2026-09-10 20:45:21,054 - freqtrade - INFO - freqtrade 2026.8
+2026-09-10 20:45:21,521 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json ...
+2026-09-10 20:45:21,522 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-10 20:45:21,522 - freqtrade.loggers - INFO - Logfile configured
+2026-09-10 20:45:21,522 - freqtrade.loggers - INFO - Verbosity set to 0
+2026-09-10 20:45:21,522 - freqtrade.configuration.configuration - INFO - Parameter -i/--timeframe detected ... Using timeframe: 5m ...
+2026-09-10 20:45:21,522 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2026-09-10 20:45:21,522 - freqtrade.configuration.configuration - INFO - Parameter --timeframe-detail detected, using 1m for intra-candle backtesting ...
+2026-09-10 20:45:21,522 - freqtrade.configuration.configuration - INFO - Parameter --dry-run-wallet detected, overriding dry_run_wallet to: 500000.0 ...
+2026-09-10 20:45:21,523 - freqtrade.configuration.configuration - INFO - Parameter --fee detected, setting fee to: 3.9087247113328627e-07 ...
+2026-09-10 20:45:21,523 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20250904-20260904 ...
+2026-09-10 20:45:21,523 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/document/IBS/deploy/freqtrade/user_data ...
+2026-09-10 20:45:21,523 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/document/IBS/data/tester/dukascopy/futures ...
+2026-09-10 20:45:21,523 - freqtrade.configuration.configuration - INFO - Parameter --export detected: trades ...
+2026-09-10 20:45:21,523 - freqtrade.configuration.configuration - INFO - Parameter --cache=none detected ...
+2026-09-10 20:45:21,523 - freqtrade.configuration.configuration - INFO - Using pairs ['NAS100/USD']
+2026-09-10 20:45:21,523 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20250904-20260904
+2026-09-10 20:45:21,523 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2026-09-10 20:45:21,525 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+team. It may work flawlessly (please report back) or have serious issues. Use it at your own discretion.
+2026-09-10 20:45:21,525 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 20:45:21,525 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2026-09-10 20:45:21,526 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2026-09-10 20:45:21,526 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.77
+2026-09-10 20:45:21,528 - freqtrade.exchange.exchange - INFO - Using Exchange "Tester"
+2026-09-10 20:45:21,528 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange class 'Tester' ...
+2026-09-10 20:45:21,544 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy GapStrategy from '/Users/martin/document/IBS/deploy/freqtrade/user_data/strategies/GapStrategy.py'...
+2026-09-10 20:45:21,544 - freqtrade.strategy.hyper - INFO - Found no parameter file.
+2026-09-10 20:45:21,633 - freqtrade.data.converter.converter - INFO - Missing data fillup for NAS100/USD, 5m: before: 388524 - after: 596127 - 53.43%
+2026-09-10 20:45:21,634 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 5m.
+2026-09-10 20:45:21,634 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USD.
+2026-09-10 20:45:21,634 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2026-09-10 20:45:21,634 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'unfilledtimeout' with value from the configuration: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 
+'unit': 'minutes'}.
+2026-09-10 20:45:21,634 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2026-09-10 20:45:21,634 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 100.0}
+2026-09-10 20:45:21,635 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 5m
+2026-09-10 20:45:21,635 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.99
+2026-09-10 20:45:21,635 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2026-09-10 20:45:21,635 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2026-09-10 20:45:21,635 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2026-09-10 20:45:21,635 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: True
+2026-09-10 20:45:21,635 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2026-09-10 20:45:21,635 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2026-09-10 20:45:21,635 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2026-09-10 20:45:21,635 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USD
+2026-09-10 20:45:21,635 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2026-09-10 20:45:21,635 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 300
+2026-09-10 20:45:21,635 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using unfilledtimeout: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 'unit': 'minutes'}
+2026-09-10 20:45:21,635 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2026-09-10 20:45:21,636 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2026-09-10 20:45:21,636 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2026-09-10 20:45:21,636 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2026-09-10 20:45:21,636 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2026-09-10 20:45:21,636 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2026-09-10 20:45:21,636 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2026-09-10 20:45:21,636 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2026-09-10 20:45:21,636 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2026-09-10 20:45:21,636 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 20:45:21,640 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-09-10 20:45:21,640 - freqtrade.optimize.backtesting - INFO - Using fee 0.0000% from config.
+2026-09-10 20:45:21,656 - freqtrade.data.converter.converter - INFO - Missing data fillup for NAS100/USD, 5m: before: 68447 - after: 105421 - 54.02%
+2026-09-10 20:45:21,657 - freqtrade.optimize.backtesting - INFO - Loading data from 2025-09-02 23:00:00 up to 2026-09-04 00:00:00 (366 days).
+2026-09-10 20:45:21,710 - freqtrade.data.converter.converter - INFO - Missing data fillup for NAS100/USD, 1m: before: 340678 - after: 525601 - 54.28%
+2026-09-10 20:45:21,986 - freqtrade.optimize.backtesting - INFO - Dataload complete. Calculating indicators
+2026-09-10 20:45:21,987 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy GapStrategy
+2026-09-10 20:45:22,368 - tradebot.adapters.freqtrade.base - INFO - gap NAS100/USD: 105421 barov, 64 signalov (35 long / 29 short)
+2026-09-10 20:45:22,369 - tradebot.adapters.freqtrade.base - INFO - gap NAS100/USD: kresby ulozene do /Users/martin/document/IBS/tester/runs/.profiles/20260910-184520-84194f.chart.json.gz (194 
+objektov)
+2026-09-10 20:45:22,373 - freqtrade.optimize.backtesting - INFO - Backtesting with data from 2025-09-04 00:00:00 up to 2026-09-04 00:00:00 (365 days).
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4/4           100% • 0:00:00 • 0:00:00
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 105120/105120 100% • 0:00:01 • 0:00:00
+2026-09-10 20:45:23,681 - freqtrade.misc - INFO - dumping json to "/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/backtest-result-2026-09-10_18-45-23.meta.json"
+Result for strategy GapStrategy
+                                              BACKTESTING REPORT                                              
+┏━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃       Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ NAS100/USD │     37 │        -0.07 │       -702.063 │        -0.14 │      0:57:00 │   27     0    10  73.0 │
+│      TOTAL │     37 │        -0.07 │       -702.063 │        -0.14 │      0:57:00 │   27     0    10  73.0 │
+└────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┏━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                   ENTER TAG STATS                                                    
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃         Enter Tag ┃ Entries ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ gap:1770648300000 │       1 │         0.57 │        144.200 │         0.03 │      1:06:00 │    1     0     0   100 │
+│ gap:1764082200000 │       1 │         0.49 │        120.511 │         0.02 │      0:50:00 │    1     0     0   100 │
+│ gap:1760708700000 │       1 │         0.36 │         88.051 │         0.02 │      0:04:00 │    1     0     0   100 │
+│ gap:1785765000000 │       1 │          0.3 │         86.028 │         0.02 │      0:04:00 │    1     0     0   100 │
+│ gap:1771857900000 │       1 │         0.28 │         69.201 │         0.01 │      0:01:00 │    1     0     0   100 │
+│ gap:1776951900000 │       1 │         0.24 │         64.819 │         0.01 │      1:33:00 │    1     0     0   100 │
+│ gap:1780321500000 │       1 │          0.2 │         59.716 │         0.01 │      1:32:00 │    1     0     0   100 │
+│ gap:1774015200000 │       1 │         0.23 │         55.506 │         0.01 │      2:00:00 │    1     0     0   100 │
+│ gap:1767883500000 │       1 │         0.21 │         53.445 │         0.01 │      0:34:00 │    1     0     0   100 │
+│ gap:1787926500000 │       1 │         0.16 │         48.747 │         0.01 │      0:02:00 │    1     0     0   100 │
+│ gap:1772119500000 │       1 │         0.17 │         42.961 │         0.01 │      0:09:00 │    1     0     0   100 │
+│ gap:1767105900000 │       1 │         0.15 │         39.190 │         0.01 │      1:30:00 │    1     0     0   100 │
+│ gap:1767797100000 │       1 │         0.15 │         38.420 │         0.01 │      0:45:00 │    1     0     0   100 │
+│ gap:1770993900000 │       1 │         0.15 │         36.041 │         0.01 │      0:20:00 │    1     0     0   100 │
+│ gap:1758116700000 │       2 │         0.07 │         33.922 │         0.01 │      0:02:00 │    2     0     0   100 │
+│ gap:1771253100000 │       1 │         0.13 │         32.501 │         0.01 │      0:05:00 │    1     0     0   100 │
+│ gap:1776693000000 │       2 │         0.06 │         32.458 │         0.01 │      0:02:00 │    2     0     0   100 │
+│ gap:1769179800000 │       1 │         0.12 │         31.680 │         0.01 │      0:01:00 │    1     0     0   100 │
+│ gap:1777297800000 │       1 │          0.1 │         27.089 │         0.01 │      0:04:00 │    1     0     0   100 │
+│ gap:1781617500000 │       1 │         0.08 │         24.846 │          0.0 │      0:05:00 │    1     0     0   100 │
+│ gap:1786369500000 │       1 │         0.08 │         22.857 │          0.0 │      0:16:00 │    1     0     0   100 │
+│ gap:1761054600000 │       1 │         0.09 │         22.230 │          0.0 │      0:25:00 │    1     0     0   100 │
+│ gap:1768317000000 │       1 │         0.08 │         20.840 │          0.0 │      1:17:00 │    1     0     0   100 │
+│ gap:1765378500000 │       1 │         0.07 │         18.399 │          0.0 │      2:00:00 │    1     0     0   100 │
+│ gap:1781876700000 │       1 │         0.04 │         11.501 │          0.0 │      2:00:00 │    1     0     0   100 │
+│ gap:1788183900000 │       1 │         -0.1 │        -28.906 │        -0.01 │      2:00:00 │    0     0     1     0 │
+│ gap:1767192600000 │       1 │        -0.13 │        -32.821 │        -0.01 │      2:00:00 │    0     0     1     0 │
+│ gap:1783691100000 │       1 │        -0.11 │        -33.394 │        -0.01 │      2:00:00 │    0     0     1     0 │
+│ gap:1763390700000 │       1 │        -0.28 │        -70.495 │        -0.01 │      2:00:00 │    0     0     1     0 │
+│ gap:1769784300000 │       1 │        -0.36 │        -91.731 │        -0.02 │      2:00:00 │    0     0     1     0 │
+│ gap:1769697900000 │       1 │        -0.76 │       -197.110 │        -0.04 │      0:11:00 │    0     0     1     0 │
+│ gap:1785333600000 │       1 │        -1.17 │       -324.750 │        -0.06 │      2:00:00 │    0     0     1     0 │
+│ gap:1781099100000 │       1 │        -1.27 │       -369.529 │        -0.07 │      2:00:00 │    0     0     1     0 │
+│ gap:1762440300000 │       1 │        -1.52 │       -387.620 │        -0.08 │      1:53:00 │    0     0     1     0 │
+│ gap:1770216300000 │       1 │        -1.55 │       -390.865 │        -0.08 │      2:00:00 │    0     0     1     0 │
+│             TOTAL │      37 │        -0.07 │       -702.063 │        -0.14 │      0:57:00 │   27     0    10  73.0 │
+└───────────────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                               EXIT REASON STATS                                               
+┏━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Exit Reason ┃ Exits ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│          roi │    24 │         0.18 │       1139.751 │         0.23 │      0:27:00 │   24     0     0   100 │
+│    stop_loss │     2 │        -1.14 │       -584.730 │        -0.12 │      1:02:00 │    0     0     2     0 │
+│ signal_close │    11 │        -0.42 │      -1257.084 │        -0.25 │      2:00:00 │    3     0     8  27.3 │
+│        TOTAL │    37 │        -0.07 │       -702.063 │        -0.14 │      0:57:00 │   27     0    10  73.0 │
+└──────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                          MIXED TAG STATS                                                           
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃         Enter Tag ┃  Exit Reason ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ gap:1770648300000 │          roi │      1 │         0.57 │        144.200 │         0.03 │      1:06:00 │    1     0     0   100 │
+│ gap:1764082200000 │          roi │      1 │         0.49 │        120.511 │         0.02 │      0:50:00 │    1     0     0   100 │
+│ gap:1760708700000 │          roi │      1 │         0.36 │         88.051 │         0.02 │      0:04:00 │    1     0     0   100 │
+│ gap:1785765000000 │          roi │      1 │          0.3 │         86.028 │         0.02 │      0:04:00 │    1     0     0   100 │
+│ gap:1771857900000 │          roi │      1 │         0.28 │         69.201 │         0.01 │      0:01:00 │    1     0     0   100 │
+│ gap:1776951900000 │          roi │      1 │         0.24 │         64.819 │         0.01 │      1:33:00 │    1     0     0   100 │
+│ gap:1780321500000 │          roi │      1 │          0.2 │         59.716 │         0.01 │      1:32:00 │    1     0     0   100 │
+│ gap:1774015200000 │ signal_close │      1 │         0.23 │         55.506 │         0.01 │      2:00:00 │    1     0     0   100 │
+│ gap:1767883500000 │          roi │      1 │         0.21 │         53.445 │         0.01 │      0:34:00 │    1     0     0   100 │
+│ gap:1787926500000 │          roi │      1 │         0.16 │         48.747 │         0.01 │      0:02:00 │    1     0     0   100 │
+│ gap:1772119500000 │          roi │      1 │         0.17 │         42.961 │         0.01 │      0:09:00 │    1     0     0   100 │
+│ gap:1767105900000 │          roi │      1 │         0.15 │         39.190 │         0.01 │      1:30:00 │    1     0     0   100 │
+│ gap:1767797100000 │          roi │      1 │         0.15 │         38.420 │         0.01 │      0:45:00 │    1     0     0   100 │
+│ gap:1770993900000 │          roi │      1 │         0.15 │         36.041 │         0.01 │      0:20:00 │    1     0     0   100 │
+│ gap:1758116700000 │          roi │      2 │         0.07 │         33.922 │         0.01 │      0:02:00 │    2     0     0   100 │
+│ gap:1771253100000 │          roi │      1 │         0.13 │         32.501 │         0.01 │      0:05:00 │    1     0     0   100 │
+│ gap:1776693000000 │          roi │      2 │         0.06 │         32.458 │         0.01 │      0:02:00 │    2     0     0   100 │
+│ gap:1769179800000 │          roi │      1 │         0.12 │         31.680 │         0.01 │      0:01:00 │    1     0     0   100 │
+│ gap:1777297800000 │          roi │      1 │          0.1 │         27.089 │         0.01 │      0:04:00 │    1     0     0   100 │
+│ gap:1781617500000 │          roi │      1 │         0.08 │         24.846 │          0.0 │      0:05:00 │    1     0     0   100 │
+│ gap:1786369500000 │          roi │      1 │         0.08 │         22.857 │          0.0 │      0:16:00 │    1     0     0   100 │
+│ gap:1761054600000 │          roi │      1 │         0.09 │         22.230 │          0.0 │      0:25:00 │    1     0     0   100 │
+│ gap:1768317000000 │          roi │      1 │         0.08 │         20.840 │          0.0 │      1:17:00 │    1     0     0   100 │
+│ gap:1765378500000 │ signal_close │      1 │         0.07 │         18.399 │          0.0 │      2:00:00 │    1     0     0   100 │
+│ gap:1781876700000 │ signal_close │      1 │         0.04 │         11.501 │          0.0 │      2:00:00 │    1     0     0   100 │
+│ gap:1788183900000 │ signal_close │      1 │         -0.1 │        -28.906 │        -0.01 │      2:00:00 │    0     0     1     0 │
+│ gap:1767192600000 │ signal_close │      1 │        -0.13 │        -32.821 │        -0.01 │      2:00:00 │    0     0     1     0 │
+│ gap:1783691100000 │ signal_close │      1 │        -0.11 │        -33.394 │        -0.01 │      2:00:00 │    0     0     1     0 │
+│ gap:1763390700000 │ signal_close │      1 │        -0.28 │        -70.495 │        -0.01 │      2:00:00 │    0     0     1     0 │
+│ gap:1769784300000 │ signal_close │      1 │        -0.36 │        -91.731 │        -0.02 │      2:00:00 │    0     0     1     0 │
+│ gap:1769697900000 │    stop_loss │      1 │        -0.76 │       -197.110 │        -0.04 │      0:11:00 │    0     0     1     0 │
+│ gap:1785333600000 │ signal_close │      1 │        -1.17 │       -324.750 │        -0.06 │      2:00:00 │    0     0     1     0 │
+│ gap:1781099100000 │ signal_close │      1 │        -1.27 │       -369.529 │        -0.07 │      2:00:00 │    0     0     1     0 │
+│ gap:1762440300000 │    stop_loss │      1 │        -1.52 │       -387.620 │        -0.08 │      1:53:00 │    0     0     1     0 │
+│ gap:1770216300000 │ signal_close │      1 │        -1.55 │       -390.865 │        -0.08 │      2:00:00 │    0     0     1     0 │
+│             TOTAL │              │     37 │        -0.07 │       -702.063 │        -0.14 │      0:57:00 │   27     0    10  73.0 │
+└───────────────────┴──────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Metric                                 ┃ Value                                     ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Backtesting from                       │ 2025-09-04 00:00:00                       │
+│ Backtesting to                         │ 2026-09-04 00:00:00                       │
+│ Trading Mode                           │ Spot                                      │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 37 / 0.1                                  │
+│ Starting balance                       │ 500000 USD                                │
+│ Final balance                          │ 499297.937 USD                            │
+│ Absolute profit                        │ -702.063 USD                              │
+│ Total profit %                         │ -0.14%                                    │
+│ CAGR %                                 │ -0.14%                                    │
+│ Sharpe (closed trades)                 │ -0.27                                     │
+│ Sortino (closed trades)                │ -0.24                                     │
+│ Calmar (closed trades)                 │ -3.77                                     │
+│ SQN                                    │ -0.85                                     │
+│ Mean profit p-value                    │ 0.4034                                    │
+│ Profit factor                          │ 0.64                                      │
+│ Expectancy (Ratio)                     │ -18.97 (-0.10)                            │
+│ Avg. daily profit                      │ -1.923 USD                                │
+│ Avg. stake amount                      │ 26479.591 USD                             │
+│ Market change                          │ 25.80%                                    │
+│ Total trade volume                     │ 1958789.199 USD                           │
+│                                        │                                           │
+│ Best Pair                              │ NAS100/USD -0.14%                         │
+│ Worst Pair                             │ NAS100/USD -0.14%                         │
+│ Best trade                             │ NAS100/USD 0.57%                          │
+│ Worst trade                            │ NAS100/USD -1.55%                         │
+│ Best day                               │ 144.2 USD                                 │
+│ Worst day                              │ -390.865 USD                              │
+│ Days win/draw/lose                     │ 25 / 314 / 10                             │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:00 / 0d 02:00 / 0d 00:37            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:11 / 0d 02:00 / 0d 01:48            │
+│ Max Consecutive Wins / Loss            │ 11 / 3                                    │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 0 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 499169.212 USD / 500144.203 USD           │
+│ Max % of account underwater            │ 0.19%                                     │
+│ Absolute drawdown                      │ 974.991 USD (0.19%)                       │
+│ Drawdown duration                      │ 281 days 01:45:00                         │
+│ Profit at drawdown start               │ 144.203 USD                               │
+│ Profit at drawdown end                 │ -830.788 USD                              │
+│ Drawdown start                         │ 2025-10-21 14:20:00                       │
+│ Drawdown end                           │ 2026-07-29 16:05:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 499169.212 USD / 500144.203 USD           │
+│ Min/Max balance dates (wallet balance) │ 2026-07-29 16:10:00 / 2025-10-21 14:25:00 │
+│ Max % of account underwater (balance)  │ 0.19%                                     │
+│ Absolute drawdown (wallet balance)     │ 974.991 USD (0.19%)                       │
+│ Drawdown duration                      │ 281 days 01:45:00                         │
+│ Profit at drawdown start               │ 144.203 USD                               │
+│ Profit at drawdown end                 │ -830.788 USD                              │
+│ Drawdown start                         │ 2025-10-21 14:25:00                       │
+│ Drawdown end                           │ 2026-07-29 16:10:00                       │
+│ Sharpe (daily wallet balance)          │ -0.85                                     │
+│ Sortino (daily wallet balance)         │ -0.24                                     │
+│ Calmar (daily wallet balance)          │ -3.78                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                          STRATEGY SUMMARY                                                          
+┏━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
+┃    Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃           Drawdown ┃
+┡━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━┩
+│ GapStrategy │     37 │        -0.07 │       -702.063 │        -0.14 │      0:57:00 │   27     0    10  73.0 │ 974.991 USD  0.19% │
+└─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴────────────────────┘
