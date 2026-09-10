@@ -1,0 +1,5 @@
+$ emulator MultiCharts WTI 15m 20240413-20250413 (WTI_USD-1m.feather)
+emulacia MultiCharts: 21154 barov 15m, 309169 1m, 0 HTF
+  20000/21154 barov, 74 obchodov
+hotovo: 78 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb_box': 144, 'orb_high': 144, 'orb_low': 144, 'orb_entry': 78}

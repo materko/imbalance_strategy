@@ -1,0 +1,5 @@
+$ emulator MultiCharts COCOA 3m 20250904-20260904 (COCOA_USD-1m.feather)
+emulacia MultiCharts: 21660 barov 3m, 63888 1m, 21660 HTF
+  20000/21660 barov, 36 obchodov
+hotovo: 41 obchodov, nerozhodnutelnych minut 0
+kresby: {'imb_box': 3847, 'swing': 2641, 'structure': 2082, 'liq_sweep': 476, 'session': 257, 'sd_zone_pre': 1644, 'sd_zone_post': 1644, 'tp_box': 59, 'sl_box': 59, 'expired': 18, 'skip': 56}

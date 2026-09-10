@@ -1,0 +1,9 @@
+$ emulator MultiCharts JP225 3m 20250904-20260904 (JP225_JPY-1m.feather)
+emulacia MultiCharts: 112675 barov 3m, 335304 1m, 112675 HTF
+  20000/112675 barov, 20 obchodov
+  40000/112675 barov, 43 obchodov
+  60000/112675 barov, 73 obchodov
+  80000/112675 barov, 102 obchodov
+  100000/112675 barov, 120 obchodov
+hotovo: 139 obchodov, nerozhodnutelnych minut 0
+kresby: {'imb_box': 15349, 'structure': 10762, 'swing': 13405, 'session': 778, 'sd_zone_pre': 6230, 'sd_zone_post': 6230, 'liq_sweep': 2726, 'skip': 197, 'tp_box': 197, 'sl_box': 197, 'expired': 58}

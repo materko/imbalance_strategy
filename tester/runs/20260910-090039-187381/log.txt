@@ -1,0 +1,9 @@
+$ emulator MultiCharts AUDUSD 3m 20250904-20260904 (AUDUSD_USD-1m.feather)
+emulacia MultiCharts: 113240 barov 3m, 336674 1m, 113240 HTF
+  20000/113240 barov, 24 obchodov
+  40000/113240 barov, 49 obchodov
+  60000/113240 barov, 69 obchodov
+  80000/113240 barov, 100 obchodov
+  100000/113240 barov, 122 obchodov
+hotovo: 147 obchodov, nerozhodnutelnych minut 0
+kresby: {'structure': 10660, 'imb_box': 16321, 'swing': 13801, 'liq_sweep': 2910, 'session': 712, 'sd_zone_pre': 5458, 'sd_zone_post': 5458, 'skip': 195, 'tp_box': 196, 'sl_box': 196, 'expired': 49, 'sr_level': 16}

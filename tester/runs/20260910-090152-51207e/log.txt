@@ -1,0 +1,10 @@
+$ emulator MultiCharts CHFJPY 3m 20250904-20260904 (CHFJPY_JPY-1m.feather)
+emulacia MultiCharts: 123726 barov 3m, 369747 1m, 123726 HTF
+  20000/123726 barov, 20 obchodov
+  40000/123726 barov, 44 obchodov
+  60000/123726 barov, 64 obchodov
+  80000/123726 barov, 94 obchodov
+  100000/123726 barov, 117 obchodov
+  120000/123726 barov, 136 obchodov
+hotovo: 138 obchodov, nerozhodnutelnych minut 0
+kresby: {'imb_box': 14719, 'swing': 15026, 'structure': 11402, 'liq_sweep': 3166, 'session': 779, 'sd_zone_pre': 6029, 'sd_zone_post': 6029, 'tp_box': 172, 'sl_box': 172, 'expired': 34, 'skip': 202, 'sr_level': 6}

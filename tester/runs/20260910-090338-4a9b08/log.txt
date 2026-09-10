@@ -1,0 +1,6 @@
+$ emulator MultiCharts NGAS 3m 20250904-20260904 (NGAS_USD-1m.feather)
+emulacia MultiCharts: 58027 barov 3m, 157035 1m, 58027 HTF
+  20000/58027 barov, 18 obchodov
+  40000/58027 barov, 44 obchodov
+hotovo: 60 obchodov, nerozhodnutelnych minut 0
+kresby: {'imb_box': 10074, 'structure': 5650, 'swing': 7343, 'liq_sweep': 1508, 'session': 288, 'sd_zone_pre': 2001, 'sd_zone_post': 2001, 'skip': 80, 'tp_box': 77, 'sl_box': 77, 'expired': 16, 'sr_level': 4}

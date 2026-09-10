@@ -1,0 +1,8 @@
+$ emulator MultiCharts WTI 2m 20250904-20260904 (WTI_USD-1m.feather)
+emulacia MultiCharts: 88813 barov 2m, 175682 1m, 0 HTF
+  20000/88813 barov, 11 obchodov
+  40000/88813 barov, 20 obchodov
+  60000/88813 barov, 30 obchodov
+  80000/88813 barov, 46 obchodov
+hotovo: 51 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb_box': 83, 'orb_high': 83, 'orb_low': 83, 'orb_entry': 51}

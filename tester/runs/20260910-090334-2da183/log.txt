@@ -1,0 +1,5 @@
+$ emulator MultiCharts USDCAD 15m 20250904-20260904 (USDCAD_CAD-1m.feather)
+emulacia MultiCharts: 24601 barov 15m, 365844 1m, 0 HTF
+  20000/24601 barov, 5 obchodov
+hotovo: 5 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb_box': 256, 'orb_high': 256, 'orb_low': 256, 'orb_entry': 5}

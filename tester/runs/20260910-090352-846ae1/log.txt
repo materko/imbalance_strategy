@@ -1,0 +1,4 @@
+$ emulator MultiCharts DAX 15m 20250904-20260904 (DAX_EUR-1m.feather)
+emulacia MultiCharts: 11553 barov 15m, 170953 1m, 0 HTF
+hotovo: 40 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb_box': 83, 'orb_high': 83, 'orb_low': 83, 'orb_entry': 40}

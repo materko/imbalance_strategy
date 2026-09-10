@@ -1,0 +1,10 @@
+$ emulator MultiCharts GBPUSD 3m 20250904-20260904 (GBPUSD_USD-1m.feather)
+emulacia MultiCharts: 122379 barov 3m, 364047 1m, 122379 HTF
+  20000/122379 barov, 31 obchodov
+  40000/122379 barov, 49 obchodov
+  60000/122379 barov, 80 obchodov
+  80000/122379 barov, 102 obchodov
+  100000/122379 barov, 124 obchodov
+  120000/122379 barov, 151 obchodov
+hotovo: 155 obchodov, nerozhodnutelnych minut 0
+kresby: {'imb_box': 17834, 'structure': 11772, 'swing': 14930, 'liq_sweep': 3114, 'session': 766, 'sd_zone_pre': 6080, 'sd_zone_post': 6080, 'skip': 236, 'tp_box': 199, 'sl_box': 199, 'expired': 43, 'sr_level': 18}
