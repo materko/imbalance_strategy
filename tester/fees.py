@@ -227,3 +227,68 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+# --------------------------------------------------------------------------- #
+# Koľko stojí strana obchodu na TOMTO trhu
+# --------------------------------------------------------------------------- #
+#
+# `MAKER_PCT` a `TAKER_PCT` vyššie sú Binance. Na CFD to neplatí ani rádovo: provízia je
+# malá až nulová a skutočný náklad je **spread**, teda pevný posun ceny, nie percento
+# z nominálu. Krypto sadzba na CFD urobí zo ziskového trhu stratový — break-even
+# 0,0287 % na NAS100 je proti 0,05 % „strata" a proti skutočnému nákladu pohodlný zisk.
+#
+# Číslo preto patrí inštrumentu (`InstrumentSpec.cost`, `cost_unit`, `cost_note`) a tu sa
+# len prepočíta na podiel z objemu pri cene, akú ten trh v danom okne mal.
+
+
+def for_pair(pair: str, timeframe: str = "3m",
+             timerange: str | None = None) -> tuple[float | None, str]:
+    """(poplatok na stranu ako **podiel**, odkiaľ to číslo je).
+
+    `None` znamená „pre tento trh náklad nepoznáme“ — vtedy je poctivé break-even proti
+    ničomu neposudzovať, nie ho porovnať s krypto sadzbou.
+    """
+    from tradebot.core.types import INSTRUMENTS
+
+    from .webapp.runner import instrument_for_pair
+
+    try:
+        inst = INSTRUMENTS[instrument_for_pair(pair)]
+    except (KeyError, ValueError):
+        return None, f"neznámy inštrument {pair}"
+
+    if inst.cost_unit == "pct":
+        return inst.cost / 100.0, inst.cost_note or "sadzba burzy"
+
+    cena = typical_price(pair, timeframe, timerange)
+    if not cena:
+        return None, f"chýbajú sviečky {pair} {timeframe}, takže spread sa nedá prepočítať"
+    pct = inst.cost_pct(cena)
+    return pct / 100.0, (f"{inst.cost:g} tick na stranu pri cene {cena:g} = {pct:.5f} %"
+                         + (f"; {inst.cost_note}" if inst.cost_note else ""))
+
+
+def typical_price(pair: str, timeframe: str = "3m",
+                  timerange: str | None = None) -> float | None:
+    """Medián zatváracej ceny trhu v okne. Medián, nie priemer — trend by priemer ťahal."""
+    import numpy as np
+
+    from .webapp.chart import series
+
+    try:
+        ts, cols = series(pair, timeframe)
+    except (FileNotFoundError, ValueError):
+        return None
+    close = cols["close"]
+    if timerange:
+        from datetime import datetime, timezone
+
+        try:
+            a, b = timerange.split("-")
+            od = int(datetime.strptime(a, "%Y%m%d").replace(tzinfo=timezone.utc).timestamp() * 1000)
+            do = int(datetime.strptime(b, "%Y%m%d").replace(tzinfo=timezone.utc).timestamp() * 1000)
+            close = close[int(np.searchsorted(ts, od)):int(np.searchsorted(ts, do))]
+        except ValueError:
+            pass
+    return float(np.median(close)) if len(close) else None

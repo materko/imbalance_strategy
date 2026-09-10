@@ -50,8 +50,22 @@ PY -m tester.webapp.cli show <run_id> [--json]
 ```
 
 Kľúčové číslo je **break-even poplatok** (% na stranu): koľko smie burza brať, aby beh
-vyšiel na nulu. Binance taker berie 0,05 %. PnL v % závisí od sizingu a peňaženky,
+vyšiel na nulu. PnL v % závisí od sizingu a peňaženky,
 break-even nie.
+
+**Poplatok nie je jedno číslo pre všetky trhy.** Na krypte je to provízia z nominálu
+(Binance taker 0,05 %), na CFD je provízia drobná až nulová a skutočný náklad je **spread**
+— teda pevný posun ceny. Krypto sadzba na CFD urobí zo ziskového trhu stratový: break-even
+0,0287 % na NAS100 je proti 0,05 % „strata“ a proti spreadu pohodlný zisk. Preto `--fee`
+bez hodnoty berie náklad **toho inštrumentu** (`InstrumentSpec.cost` / `cost_unit`) a do
+behu sa uloží aj to, odkiaľ číslo je.
+
+Pri Dukascopy CFD je to zatiaľ **odhad, nie meranie**: polovica spreadu = 1 tick. Spread sa
+z našich dát zistiť nedá, lebo export má len jednu stranu trhu (bid). Keď sa zistí skutočná
+hodnota od brokera, je to jeden riadok v `tradebot/core/instruments_dukascopy.json`
+(`half_spread_ticks` a `cost_note`). Pozor na symboly s umelo jemným tickom — NAS100 má tick
+0,01, teda sto tickov na jeden bod indexu, takže jeden tick je tam hlboko pod skutočným
+spreadom.
 
 ## 4. Čomu neveriť
 

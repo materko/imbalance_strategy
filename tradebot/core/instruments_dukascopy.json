@@ -5,7 +5,16 @@
     "venue=multicharts a has_real_volume=false (objem Dukascopy je len tickovy).",
     "Novy symbol pridava `python -m tester.dukas_import ... --symbol X --tick ... --point-value ...`",
     "source je adresar, v ktorom lezia sviecky: data/<zdroj>/<PAR>-<TF>.feather.",
-    "alebo sa dopise sem rucne. Hodnota bodu musi sedieť s Big Point Value v QuoteManageri."
+    "alebo sa dopise sem rucne. Hodnota bodu musi sediet s Big Point Value v QuoteManageri.",
+    "",
+    "NAKLAD NA STRANU: na CFD nie je provizia z nominalu (ta je mala az nulova), ale",
+    "SPREAD. Berie sa polovica spreadu na stranu, v tickoch, pole `half_spread_ticks`.",
+    "Bez neho plati DEFAULT_HALF_SPREAD_TICKS = 1 z types.py - je to DOHODA, nie meranie:",
+    "Dukascopy export ma len jednu stranu trhu (bid), takze spread sa z nasich dat zistit",
+    "neda. Ked sa zisti skutocna hodnota od brokera, dopis symbolu `half_spread_ticks`",
+    "(a `cost_note`, odkial to cislo je) - nic ine sa menit nemusi.",
+    "POZOR: na symboloch s umelo jemnym tickom (NAS100 ma tick 0.01, teda 100 tickov na",
+    "jeden bod indexu) je jeden tick hlboko pod skutocnym spreadom."
   ],
   "nas100_dukascopy": {
     "symbol": "NAS100/USD",

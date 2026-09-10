@@ -184,3 +184,92 @@ def test_taker_vstup_nie_je_pochybny_nikdy(tmp_path, m1):
     stats, tr = fees.load(_zip(tmp_path, [_trade(100.5)]))
     tr = fees.fill_depth(fees.classify(stats, tr), inst_tick=0.1)
     assert bool(tr["fill_doubtful"].iloc[0]) is False
+
+
+# --------------------------------------------------------------------------- #
+# Koľko stojí strana obchodu na TOMTO trhu
+# --------------------------------------------------------------------------- #
+#
+# Binance taker 0,05 % na CFD neplatí ani rádovo — provízia je tam drobná a náklad je
+# spread. Jeden default pre všetky trhy urobí zo ziskového CFD stratový, takže tieto
+# testy strážia, že sa číslo berie z inštrumentu a že je pri ňom vidieť, odkiaľ je.
+
+
+def test_krypto_ma_naklad_v_percentach_z_objemu():
+    from tradebot.core.types import INSTRUMENTS
+
+    inst = INSTRUMENTS["btcusdt_binance"]
+
+    assert inst.cost_unit == "pct"
+    assert inst.cost_pct(60_000) == inst.cost_pct(20_000) == 0.05
+    assert "Binance" in inst.cost_note
+
+
+def test_cfd_ma_naklad_v_tickoch_a_zavisi_od_ceny():
+    """Pevný posun ceny je na drahom trhu iné percento než na lacnom."""
+    from tradebot.core.types import INSTRUMENTS
+
+    inst = INSTRUMENTS["nas100_dukascopy"]
+
+    assert inst.cost_unit == "ticks"
+    assert inst.cost_pct(20_000) == pytest.approx(inst.cost * inst.tick_size / 20_000 * 100)
+    assert inst.cost_pct(10_000) == pytest.approx(2 * inst.cost_pct(20_000))
+
+
+def test_bez_ceny_je_naklad_nula_a_nie_vymyslene_cislo():
+    from tradebot.core.types import INSTRUMENTS
+
+    assert INSTRUMENTS["nas100_dukascopy"].cost_pct(0) == 0.0
+
+
+def test_naklad_cfd_je_o_rady_nizsi_nez_krypto_sadzba():
+    """Toto je celý dôvod, prečo je to per inštrument: rozdiel nie je v percentách,
+    ale v rádoch. Break-even 0,03 % je proti 0,05 % strata a proti spreadu zisk."""
+    from tradebot.core.types import INSTRUMENTS
+
+    krypto = INSTRUMENTS["btcusdt_binance"].cost_pct(60_000)
+    cfd = INSTRUMENTS["nas100_dukascopy"].cost_pct(20_000)
+
+    assert cfd * 100 < krypto
+
+
+def test_kazdy_symbol_registra_povie_odkial_ma_cislo():
+    from tradebot.core.types import dukascopy_specs
+
+    for key, inst in dukascopy_specs().items():
+        assert inst.cost_note, key
+        assert inst.cost > 0, key
+
+
+def test_symbol_si_moze_naklad_prepisat(tmp_path):
+    """Keď sa zistí skutočná hodnota od brokera, je to jeden riadok v registri."""
+    import json
+
+    from tradebot.core.types import dukascopy_specs
+
+    src = tmp_path / "reg.json"
+    src.write_text(json.dumps({
+        "_comment": "test",
+        "vlastny": {"symbol": "X/USD", "tick_size": 0.1, "point_value": 1.0,
+                    "half_spread_ticks": 12, "cost_note": "od brokera, 2026-09"},
+    }), encoding="utf-8")
+    inst = dukascopy_specs(src)["vlastny"]
+
+    assert inst.cost == 12
+    assert inst.cost_note == "od brokera, 2026-09"
+
+
+def test_neznamy_naklad_sa_neda_zamenit_s_nulovym():
+    """`None` znamená „nevieme“ — a vtedy sa break-even proti ničomu neposudzuje."""
+    hodnota, note = fees.for_pair("NIECO/NEEXISTUJE")
+
+    assert hodnota is None
+    assert "NIECO/NEEXISTUJE" in note
+
+
+def test_zle_jednotky_nakladu_sa_nedaju_zadat():
+    from tradebot.core.types import InstrumentSpec
+
+    with pytest.raises(ValueError, match="cost_unit"):
+        InstrumentSpec(symbol="X", venue="v", tick_size=1, point_value=1, qty_step=1,
+                       min_qty=1, cost_unit="atr")

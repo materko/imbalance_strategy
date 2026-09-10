@@ -210,12 +210,31 @@ class InstrumentSpec:
     #: sa dajú cez ktorýkoľvek engine. Prázdne = zdroj sa volá ako `venue` (burzy).
     source: str = ""
 
+    #: Čo stojí jedna strana obchodu, a v čom je to vyjadrené — `"pct"` (percento
+    #: z objemu, tak to berú burzy) alebo `"ticks"` (pevný posun ceny).
+    #:
+    #: Nie je to to isté číslo na každom trhu a **nedá sa nahradiť jedným defaultom**:
+    #: na krypte je to provízia z nominálu (Binance taker 0,05 %), na CFD je provízia
+    #: malá až nulová a skutočný náklad je **spread** — teda pevný posun ceny, nie
+    #: percento. Break-even poplatok sa proti tomuto číslu posudzuje, takže krypto
+    #: sadzba na CFD urobí zo ziskového trhu stratový.
+    cost: float = 0.05
+    cost_unit: str = "pct"
+    #: Odkiaľ to číslo je. Vypisuje sa všade, kde sa proti nákladu posudzuje break-even,
+    #: aby bolo vidieť, či je zmerané, alebo odhadnuté — odhad, ktorý sa tvári ako
+    #: meranie, je horší než chýbajúce číslo.
+    cost_note: str = ""
+
     def __post_init__(self) -> None:
         for field in ("tick_size", "point_value", "qty_step", "min_qty"):
             if getattr(self, field) <= 0:
                 raise ValueError(f"InstrumentSpec.{field} musí byť > 0")
         if self.market not in ("futures", "spot"):
             raise ValueError(f"InstrumentSpec.market musí byť 'futures' alebo 'spot', nie {self.market!r}")
+        if self.cost_unit not in ("pct", "ticks"):
+            raise ValueError(f"InstrumentSpec.cost_unit musí byť 'pct' alebo 'ticks', nie {self.cost_unit!r}")
+        if self.cost < 0:
+            raise ValueError("InstrumentSpec.cost nesmie byť záporný")
 
     @property
     def is_spot(self) -> bool:
@@ -251,6 +270,17 @@ class InstrumentSpec:
     def tick_dollar_value(self) -> float:
         """Pine `tickDollarValue` pre tento inštrument — na krížovú kontrolu configu."""
         return self.tick_size * self.point_value
+
+    def cost_pct(self, price: float) -> float:
+        """Náklad na jednu stranu ako **% z objemu** pri danej cene.
+
+        Percento sa vráti tak, ako je; ticky sa prepočítajú, lebo pevný posun ceny je
+        na drahom trhu iné percento než na lacnom. Bez ceny (0 alebo menej) sa vráti 0 —
+        vymyslené číslo by bolo horšie než priznaná nula.
+        """
+        if self.cost_unit == "pct":
+            return self.cost
+        return 0.0 if price <= 0 else self.cost * self.tick_size / price * 100.0
 
     def round_price(self, price: float) -> float:
         return round(price / self.tick_size) * self.tick_size
@@ -311,6 +341,9 @@ MNQ = InstrumentSpec(
     point_value=2.0,
     qty_step=1.0,
     min_qty=1.0,
+    cost=1.0,
+    cost_unit="ticks",
+    cost_note="odhad: polovica spreadu = 1 tick (0,25 bodu); provízia CME je proti tomu drobná",
 )
 
 #: Referenčný pár zo screenshotov v docs/ — Freqtrade Coinbase NEPODPORUJE,
@@ -324,6 +357,9 @@ BTCUSD_COINBASE = InstrumentSpec(
     min_qty=0.00000001,
     quote_currency="USD",
     market="spot",
+    cost=0.05,
+    cost_unit="pct",
+    cost_note="Coinbase taker (referenčný graf, na behy sa nepoužíva)",
 )
 
 #: Exekučný pár — USDⓈ-M perpetual. tick_size/qty_step si adaptér za behu
@@ -336,6 +372,9 @@ BTCUSDT_BINANCE = InstrumentSpec(
     qty_step=0.001,
     min_qty=0.001,
     quote_currency="USDT",
+    cost=0.05,
+    cost_unit="pct",
+    cost_note="Binance USDⓈ-M taker, VIP 0",
 )
 
 #: Binance ETH/USDT perpetual. Tick je 0,01 - teda **desaťkrát jemnejší než BTC**
@@ -349,6 +388,9 @@ ETHUSDT_BINANCE = InstrumentSpec(
     qty_step=0.001,
     min_qty=0.001,
     quote_currency="USDT",
+    cost=0.05,
+    cost_unit="pct",
+    cost_note="Binance USDⓈ-M taker, VIP 0",
 )
 
 #: Binance SPOT — ten istý trh bez páky a bez shortov. Ceny sa od perpetuálu líšia
@@ -363,6 +405,9 @@ BTCUSDT_BINANCE_SPOT = InstrumentSpec(
     min_qty=0.00001,
     quote_currency="USDT",
     market="spot",
+    cost=0.05,
+    cost_unit="pct",
+    cost_note="Binance spot taker, VIP 0",
 )
 
 ETHUSDT_BINANCE_SPOT = InstrumentSpec(
@@ -374,6 +419,9 @@ ETHUSDT_BINANCE_SPOT = InstrumentSpec(
     min_qty=0.0001,
     quote_currency="USDT",
     market="spot",
+    cost=0.05,
+    cost_unit="pct",
+    cost_note="Binance spot taker, VIP 0",
 )
 
 INSTRUMENTS: dict[str, InstrumentSpec] = {
@@ -395,6 +443,18 @@ INSTRUMENTS: dict[str, InstrumentSpec] = {
 #: z Dukascopy exportu (`tester.dukas_import`). Sú v dátovej tabuľke, nie
 #: v kóde, aby pridanie symbolu bol jeden riadok — dopíše ho aj samotný import.
 DUKASCOPY_REGISTRY = Path(__file__).with_name("instruments_dukascopy.json")
+
+#: Polovica spreadu na stranu, keď symbol vlastné číslo nemá. **Je to dohoda, nie
+#: meranie**: Dukascopy export má len jednu stranu trhu (bid), takže spread sa z našich
+#: dát zistiť nedá, a provízia na CFD je malá až nulová. Jeden tick je hrubý odhad, ktorý
+#: si každý symbol môže prepísať poľom `half_spread_ticks` v registri, keď sa zistí
+#: skutočná hodnota od brokera. Pozor: na symboloch s umelo jemným tickom (NAS100 má
+#: 0,01) je jeden tick hlboko pod skutočným spreadom.
+DEFAULT_HALF_SPREAD_TICKS = 1.0
+
+#: Text, ktorý pôjde do každého výpisu, kde sa proti nákladu posudzuje break-even.
+DEFAULT_COST_NOTE = ("odhad: polovica spreadu = 1 tick, nezmerané "
+                     "(Dukascopy export má len bid, spread v ňom nie je)")
 
 
 def dukascopy_specs(path: Path | None = None) -> dict[str, InstrumentSpec]:
@@ -418,6 +478,11 @@ def dukascopy_specs(path: Path | None = None) -> dict[str, InstrumentSpec]:
             quote_currency=row.get("quote_currency", "USD"),
             market=row.get("market", "futures"),
             source=row.get("source", "dukascopy"),
+            # CFD: naklad nie je provizia z nominalu, ale spread. Berie sa polovica
+            # spreadu na stranu; `half_spread_ticks` je per symbol prepisatelny.
+            cost=float(row.get("half_spread_ticks", DEFAULT_HALF_SPREAD_TICKS)),
+            cost_unit="ticks",
+            cost_note=row.get("cost_note") or DEFAULT_COST_NOTE,
         )
     return out
 

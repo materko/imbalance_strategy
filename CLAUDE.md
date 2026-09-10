@@ -172,7 +172,8 @@ PY -m tester.webapp.cli run --profile docs/profily_archiv/ibs/ethusdt_3m_binance
   ([tester/AI_TESTING.md §8c](tester/AI_TESTING.md)).
 - Koľko sa dá zarobiť a za aký drawdown? `cli portfolio --runs <id>,<id>,…` — vybrané behy
   ako jeden účet, tabuľka rizika a korelácie medzi členmi (§8d).
-- Poplatok `--fee 0.0005` (Binance taker 0,05 %) a `--wallet 10000` sú default; pri
+- Poplatok bez `--fee` je náklad **toho trhu** (krypto 0,05 % z objemu,
+  CFD polovica spreadu v tickoch — `InstrumentSpec.cost`), `--wallet 10000` je default; pri
   porovnávaní s TradingView použi `--fee 0` a profil `*_ny_sl` (1 BTC)
   z `docs/profily_archiv/`. Peňaženka musí byť **rovná initial capital z grafu**
   (`--wallet 10000`), inak sedí PnL v mene, ale nie v percentách — TradingView ich počíta
@@ -209,7 +210,8 @@ PY -m tester.webapp.cli show <run_id> [--json]
 ```
 
 Kľúčové číslo je **break-even poplatok** (% na stranu): koľko smie burza brať, aby beh
-vyšiel na nulu. Binance taker berie 0,05 %. Referenčné hodnoty pre `*_ny_sl` profil sú
+vyšiel na nulu; koľko berie tá burza, závisí od trhu (krypto 0,05 %, CFD spread).
+Referenčné hodnoty pre `*_ny_sl` profil sú
 v README („Kde sme s výsledkami"). PnL v % závisí od sizingu a peňaženky, break-even nie.
 Pri záveroch pozeraj **znamienko po rokoch**, nie súčet.
 
