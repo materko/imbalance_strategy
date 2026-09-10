@@ -40,13 +40,45 @@ def test_profiles_dir_has_titled_profiles_and_default_loads(spec):
 
 
 @pytest.mark.parametrize("spec", SPECS, ids=IDS)
-def test_pine_source_and_engine(spec):
-    assert spec.pine_path is not None and spec.pine_path.exists(), f"{spec.key}: chýba Pine súbor"
-    assert spec.pine_input_count > 0
+def test_engine_sa_da_postavit_z_default_profilu(spec):
     assert spec.engine_factory is not None
     cfg, inst = load_profile(f"{spec.key}/{spec.default_profile}")
     engine = spec.engine_factory(cfg, inst, 3)
     assert engine.required_history > 0 and callable(engine.on_bar) and callable(engine.final_drawings)
+
+
+@pytest.mark.parametrize("spec", SPECS, ids=IDS)
+def test_pine_je_volitelny_ale_ked_je_tak_uplny(spec):
+    """Pine skript sa robí **na vyžiadanie** — aby sa dala stratégia pozrieť na TradingView.
+
+    Stratégia bez neho je v poriadku (formulár aj analytika bežia z balíka stratégie).
+    Keď ale je, musí sedieť: `pine_input_count` stráži parser testu parity, aby sa
+    nestalo, že sa polovica vstupov ticho prestane parsovať.
+    """
+    if spec.pine_path is None:
+        assert spec.pine_input_count == 0, f"{spec.key}: počet Pine vstupov bez Pine súboru"
+        return
+    assert spec.pine_path.exists(), f"{spec.key}: pine_path ukazuje na neexistujúci súbor"
+    assert spec.pine_input_count > 0
+
+
+@pytest.mark.parametrize("spec", SPECS, ids=IDS)
+def test_kazde_pole_formulara_ma_popis_v_baliku_strategie(spec):
+    """Titulky a tooltipy sú v `tradebot/strategies/<key>/params.py`, nie v Pine.
+
+    Pole bez popisu by vo formulári bolo holé meno premennej — a keďže Pine je
+    voliteľný, nemá ho odkiaľ doplniť.
+    """
+    viditelne = {f.name for f in fields(spec.config_cls)} - spec.removed_inputs - spec.inert_inputs
+    chyba = sorted(n for n in viditelne if not (spec.param_meta.get(n) or {}).get("title"))
+    assert chyba == [], f"{spec.key}: bez titulku v params.py: {chyba}"
+    bez_skupiny = sorted(
+        n for n in viditelne - set(spec.config_cls.PORT_ONLY_FIELDS)
+        if (spec.param_meta.get(n) or {}).get("group") not in spec.param_groups
+    )
+    assert bez_skupiny == [], f"{spec.key}: skupina mimo param_groups: {bez_skupiny}"
+    navyse = sorted(set(spec.param_meta) - {f.name for f in fields(spec.config_cls)})
+    assert navyse == [], f"{spec.key}: params.py popisuje polia, ktoré config nemá: {navyse}"
 
 
 @pytest.mark.parametrize("spec", SPECS, ids=IDS)
@@ -66,8 +98,6 @@ def test_layers_and_features_reference_real_things(spec):
             assert name in names, f"{spec.key}: FEATURES pole {name!r} neexistuje"
             assert name not in seen, f"{spec.key}: {name} je v dvoch featurách"
             seen.add(name)
-    for name in spec.port_only_meta:
-        assert name in spec.config_cls.PORT_ONLY_FIELDS, f"{spec.key}: port_only_meta pre {name!r}, ktoré nie je port-only"
 
 
 @pytest.mark.parametrize("spec", SPECS, ids=IDS)

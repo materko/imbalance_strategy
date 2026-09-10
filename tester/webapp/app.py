@@ -32,7 +32,7 @@ from tradebot.strategies import STRATEGIES, get_spec
 from . import chart as chart_data
 from . import gitsync
 from . import profiles as user_profiles
-from .pine_meta import param_metadata
+from .param_meta import param_metadata
 from tradebot.core.types import INSTRUMENTS
 from .. import engines
 from .. import montecarlo

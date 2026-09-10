@@ -43,7 +43,15 @@ class StrategySpec:
     config_cls: type[StrategyConfig]
     profile_dir: Path
     default_profile: str
-    #: Pine zdroj pravdy pre titulky/tooltipy/defaulty; `pine_input_count` stráži parser.
+    #: Popisy parametrov pre formulár webapp: `pole -> {group, title, tooltip, …}`
+    #: (`tradebot/strategies/<key>/params.py`). Je to **jediný** zdroj titulkov a tooltipov —
+    #: Pine skript vzniká len na vyžiadanie a formulár na ňom nesmie závisieť. Rozsahy
+    #: a defaulty sem nepatria: tie sú v configu a formulár si ich vyzdvihne odtiaľ.
+    param_meta: dict[str, dict[str, Any]] = field(default_factory=dict)
+    #: Poradie skupín vo formulári (tak, ako ich vidí tester zhora nadol).
+    param_groups: tuple[str, ...] = ()
+    #: Pine zdroj — aby sa dala tá istá stratégia pozrieť na TradingView. **Voliteľný**:
+    #: robí sa na vyžiadanie a keď je, `pine_input_count` stráži parser testu parity.
     pine_path: Path | None = None
     pine_input_count: int = 0
     #: Pine vstupy, ktoré sa vedome neportujú, a polia, kde sa default vedome líši.
@@ -51,8 +59,6 @@ class StrategySpec:
     #: Pine vstupy, ktoré v configu ostávajú (parita panela), ale v porte nič nerobia — formulár ich neponúka.
     inert_inputs: frozenset[str] = frozenset()
     intentional_default_diffs: frozenset[str] = frozenset()
-    #: titulok/tooltip polí, ktoré Pine nemá (rozšírenia portu)
-    port_only_meta: dict[str, dict[str, str]] = field(default_factory=dict)
     #: závislosti prepínač -> podnastavenia (viď tradebot/strategies/ibs/meta.py)
     features: tuple[dict[str, Any], ...] = ()
     #: poznámky k poliam (napr. „Pine tento parameter nepoužíva")

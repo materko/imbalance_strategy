@@ -63,31 +63,6 @@ PARAM_NOTES: dict[str, str] = {
                       "V Pine malo pole zmysel na graf pripojený k reálnemu účtu."),
 }
 
-#: Metadáta polí, ktoré Pine nemá — ručne, lebo niet odkiaľ ich parsovať.
-PORT_ONLY_META: dict[str, dict[str, Any]] = {
-    "atrLen": dict(
-        title="ATR dĺžka pre jednotku „atr“",
-        tooltip="Dĺžka ATR na grafovom TF, z ktorej sa prepočítavajú parametre zadané v jednotke atr. "
-        "V Pine ATR nie je; slúži na prenos prahov medzi nástrojmi s inou cenovou škálou.",
-    ),
-    "legacyPineSizing": dict(
-        title="Pine sizing (1 kontrakt/BTC, ako TradingView)",
-        tooltip="Doslovný Pine vzorec veľkosti pozície vrátane int() a max(1, …) — na BTC vždy 1 BTC bez ohľadu "
-        "na maxLossDollar. Zapnúť len na porovnanie s TradingView. Vyžaduje tickDollarValue.",
-    ),
-    "leverage": dict(
-        title="Páka",
-        tooltip="Páka vo Freqtrade futures. Nemení edge, len umožní otvoriť pozíciu z risk-based sizingu, "
-        "ktorá by sa inak na účet nezmestila (stake by sa orezal a riziko by bolo menšie než maxLossDollar).",
-    ),
-    "minSlDistance": dict(
-        title="Min. vzdialenosť SL od vstupu",
-        tooltip="Obchod s tesnejším SL sa preskočí (SKIP: SL PRILIS TESNY). Poplatok je percento z nominálu, "
-        "zisk rastie s R — tesné SL majú najhorší pomer edge k poplatku. 0 = vypnuté. "
-        "Odporúčaná jednotka pct (0,20 % ceny), viď docs/merania/OPTIMALIZACIA_2026-09-05.md.",
-    ),
-}
-
 #: Závislosti medzi vstupmi. Pine ich nedeklaruje (panel v TradingView ukazuje vždy
 #: všetko), tak sú tu ručne. `switches`: podnastavenia v `params` majú zmysel, len keď
 #: je aspoň jeden z prepínačov zapnutý — formulár ich inak skryje. `show`: kresliaci

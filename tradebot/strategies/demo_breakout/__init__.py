@@ -15,13 +15,13 @@ SOURCES = Path(__file__).resolve().parent / "docs" / "sources"
 from .config import CONFIG_DIR, DemoBreakoutConfig, ExitMode
 from .engine import DemoBreakoutEngine
 from .hyperopt import DemoBreakoutHyperopt
+from .params import GROUPS, PARAMS
 from .meta import (
     FEATURES,
     INTENTIONAL_DEFAULT_DIFFS,
     KIND_TITLES,
     LAYERS,
     PARAM_NOTES,
-    PORT_ONLY_META,
     REMOVED_INPUTS,
 )
 
@@ -35,7 +35,8 @@ SPEC = StrategySpec(
     pine_input_count=8,
     removed_inputs=REMOVED_INPUTS,
     intentional_default_diffs=INTENTIONAL_DEFAULT_DIFFS,
-    port_only_meta=PORT_ONLY_META,
+    param_meta=PARAMS,
+    param_groups=GROUPS,
     features=tuple(FEATURES),
     param_notes=PARAM_NOTES,
     layers=LAYERS,

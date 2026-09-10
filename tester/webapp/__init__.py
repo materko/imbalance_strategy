@@ -10,7 +10,7 @@ do `tester/runs/`, ktorý sa commituje — história sa dá
 pushovať a pullovať a nestratí sa. Behy sa dajú vyhľadávať podľa parametrov.
 
 Moduly:
-  pine_meta  — metadáta vstupov (titulky, skupiny, tooltipy, rozsahy) z Pine skriptu
+  param_meta — metadáta vstupov (titulky, skupiny, tooltipy, rozsahy) z balíka stratégie
   store      — ukladanie a vyhľadávanie behov
   runner     — fronta a spúšťanie Freqtrade backtestu v podprocese
   app        — FastAPI aplikácia a statická stránka
