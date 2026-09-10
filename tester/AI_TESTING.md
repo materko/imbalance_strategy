@@ -347,6 +347,76 @@ takže edge nie je len o výbere času.
 Pod 15 obchodov je rozdelenie náhody také široké, že jediný poctivý záver je „málo dát" —
 výpis to povie sám.
 
+## 8e. Matica trhov: drží tá myšlienka aj inde?
+
+Že stratégia funguje na BTC, hovorí o BTC. Že tá istá myšlienka funguje na indexe, na
+komodite **aj** na krypte, hovorí o myšlienke. Matica je sweep, v ktorom sa nemení
+parameter, ale **trh a timeframe**; každá bunka je obyčajný beh a ostane v histórii.
+
+```bash
+PY -m tester.webapp.cli matrix --profile <profil> --pairs all --timeframes 3m \
+   --timerange 20250904-20260904 --wallet 40000000
+PY -m tester.webapp.cli matrices              # matice z histórie
+```
+
+Dve veci, bez ktorých je tabuľka na nič, a modul ich robí sám:
+
+- **Prahy sa prepočítajú na ATR.** `minImbSizePoints = 2,5` znamená 2,5 dolára na BTC,
+  ale 2,5 **celej ceny** na EURUSD — teda podmienku, ktorá nikdy nenastane. Prepočítava sa
+  `abs` aj `ticks` (`imbMaxDistTicks = 100` je na BTC 0,115 ATR, na EURUSD 3,86 ATR).
+  Bez toho by v tabuľke nebolo „na forexe to nefunguje", ale „profil je tam nezmysel" —
+  a to dvoje sa v nej nedá rozlíšiť. Vypnúť sa to dá (`--no-relative`), závery z toho
+  nikam nepatria.
+- **Peňaženka musí stačiť na jeden kontrakt.** Jeden lot EURUSD je ~108 000 USD; s
+  peňaženkou 10 000 sa veľkosť oreže na nulu a bunka vyzerá ako „tu to nefunguje".
+  Príkaz to skontroluje vopred a navrhne peňaženku. Break-even od peňaženky nezávisí,
+  takže ju zvýšiť sa smie.
+
+Výsledok na IBS (21 trhov, okno 2025-26): break-even je kladný na **8 z 10** trhov s dosť
+obchodmi — indexy, krypto, energie. Edge teda nie je vlastnosťou BTC.
+
+## 8f. Slabne edge?
+
+Backtest za päť rokov dá jedno číslo. Nepovie, či stratégia zarábala rovnomerne, alebo
+zarobila v rokoch 2021-2023 a odvtedy stojí — a pre rozhodnutie „ideme s tým naostro" je
+to rozdiel zásadný. Edge sa opotrebúva.
+
+```bash
+PY -m tester.webapp.cli decay "pair=BTC/USDT:USDT" --limit 12
+PY -m tester.webapp.cli decay --runs <id1>,<id2>,... --parts 4
+```
+
+To isté je na karte **Analytika** (z tých istých vybraných behov).
+
+**Prečo sa posledná štvrtina neporovnáva s celkom.** Má štyrikrát menej obchodov, teda je
+aj prirodzene rozkolísanejšia; oproti celkovému číslu by vyšla horšie asi v polovici
+prípadov a test by hlásil úpadok stále. Referenciou je preto niečo iné: **ako by vyzeral
+úsek tej istej dĺžky, keby sa edge nemenil.** Z celej histórie sa blokovým bootstrapom
+natiahnu vzorky presne takej veľkosti, akú má posledné obdobie, a namerané číslo sa
+porovná s ich rozdelením. Blok (10 obchodov) drží série strát pokope — bez neho by bolo
+rozdelenie príliš úzke.
+
+| verdikt | čo znamená |
+|---|---|
+| `DRZI` | posledné obdobie je v medziach, ktoré stratégia vyrobí sama od seba |
+| `SLABNE` | je pod dolnou hranicou — úsek taký zlý by náhodou vyšiel v menej než 5 % prípadov |
+| `POZOR NA TREND` | posledné je ešte v medziach, ale **každé** obdobie je horšie než predošlé |
+| `ZLEPSUJE SA` | nad hornou hranicou; nie je to dôvod zvyšovať riziko |
+| `MALO DAT` | menej než 60 obchodov celkom alebo 12 v poslednom období |
+
+Sleduje sa aj **počet obchodov na mesiac**: keď stratégia prestane nachádzať signály, je to
+úpadok rovnako, len sa v break-evene neprejaví.
+
+Tri veci, ktoré test nevie:
+
+- **Nerozlíši dohorený edge od nepriaznivého režimu.** Slabá posledná štvrtina môže byť
+  oboje a z tých istých dát sa to oddeliť nedá — na to je stav trhu (`tester.regime`) a čas.
+- **Percentil je test len pre posledné obdobie**, lebo to bolo vybraté vopred. Percentily
+  ostatných období sú opis: pri štyroch obdobiach vyjde jedno pod piatym percentilom
+  náhodou zhruba raz z piatich prípadov.
+- **O budúcnosti nehovorí nič.** `DRZI` znamená, že úpadok v dátach vidieť nie je — nie
+  že nepríde.
+
 ## 9. FreqAI
 
 Dá sa pripojiť, ale odpovedá na inú otázku: hyperopt vyberie statické parametre, FreqAI

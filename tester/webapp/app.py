@@ -789,7 +789,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                   nulltest: bool = True,
                   null_iterations: int = Query(600, ge=50, le=5000),
                   portfolio: bool = True,
-                  risk_pct: float = Query(1.0, gt=0, le=10)):
+                  risk_pct: float = Query(1.0, gt=0, le=10),
+                  decay: bool = True,
+                  decay_parts: int = Query(4, ge=2, le=12)):
         """Ktorá skupina obchodov kazí výsledok — nad jedným behom alebo nad viacerými.
 
         `runs` je zoznam id oddelený čiarkou; bez neho sa vezmú behy podľa `q` (tá istá
@@ -871,6 +873,17 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 per[meno] = an.enrich([dict(x) for x in t], store.chart(rec["id"]), strategy)
             if len(per) > 1:
                 report["portfolio"] = pf_mod.analyze(per, records=zaznamy, risk_pct=risk_pct)
+
+        # Slabne edge? Posledne obdobie proti tomu, co strategia robievala. Ide to aj
+        # pri zliatych paroch: break-even je pomer zisku k objemu, takze sa da scitat.
+        report["decay"] = None
+        if decay:
+            from .. import decay as dc_mod
+
+            try:
+                report["decay"] = dc_mod.analyze(obchody, parts=decay_parts).to_dict()
+            except ValueError:
+                report["decay"] = None
 
         report["nulltest"] = None
         if nulltest and not report["mixed_pairs"]:

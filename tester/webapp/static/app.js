@@ -2437,6 +2437,35 @@ function nullHtml(nt) {
     </div>`;
 }
 
+/** Slabne edge? Obdobia proti intervalu, ktorý stratégia vyrobí sama od seba. */
+function decayHtml(d) {
+  if (!d || !d.periods || !d.periods.length) return "";
+  const trieda = { "DRZI": "good", "ZLEPSUJE SA": "good", "SLABNE": "bad" }[d.verdict] || "unsure";
+  const posledny = d.periods.length - 1;
+  const riadky = d.periods.map((p, i) => {
+    // Percentil je test len pre posledne obdobie - ostatne su opis, nech to je vidiet.
+    const cls = i === posledny ? "best" : "";
+    const pc = p.percentile === null || p.percentile === undefined ? "—"
+      : `${fmt(p.percentile, 0)}${i === posledny ? "" : "<span class=\"muted\"> (opis)</span>"}`;
+    return `<tr class="${cls}"><td>${esc(p.label)}</td><td>${p.trades}</td>`
+      + `<td>${fmt(p.per_month, 1)}</td><td>${fmt(p.winrate, 1)}</td>`
+      + `<td>${fmt(p.break_even_pct, 4)}</td><td>${pc}</td></tr>`;
+  }).join("");
+  const pasmo = d.lo === null || d.lo === undefined ? ""
+    : `<p class="an-note">Úsek takej dĺžky, akú má posledné obdobie, vyjde tej istej
+        stratégii medzi <b>${fmt(d.lo, 4)}</b> a <b>${fmt(d.hi, 4)} %</b> už len
+        preskladaním vlastných obchodov. Preto sa posledné obdobie neporovnáva s celkom:
+        je kratšie, teda aj prirodzene rozkolísanejšie.</p>`;
+  return `<div class="ch-box">
+      <div class="ch-head"><h3>Slabne edge?</h3></div>
+      ${pasmo}
+      <table class="mx-table"><thead><tr><th>obdobie</th><th>obch.</th><th>/mes.</th>
+        <th>WR %</th><th>break-even</th><th>percentil</th></tr></thead>
+        <tbody>${riadky}</tbody></table>
+      <div class="verdict ${trieda}">${esc(d.note || d.verdict)}</div>
+    </div>`;
+}
+
 /** Charakter stratégie: čísla, dôkazy a čo z toho vyplýva pre ladenie. */
 function characterHtml(ch) {
   if (!ch || !ch.title) return "";
@@ -2494,6 +2523,7 @@ function renderAnalytics(r) {
       + " hodinu, deň a smer, alebo si vyber jeden pár.</div>");
   }
   zhrnutie.push(portfolioHtml(r.portfolio));
+  zhrnutie.push(decayHtml(r.decay));
   zhrnutie.push(nullHtml(r.nulltest));
   zhrnutie.push(characterHtml(r.character));
   zhrnutie.push(archetypesHtml(r.archetypes, (r.character || {}).archetype));
