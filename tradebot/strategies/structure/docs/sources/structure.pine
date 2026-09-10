@@ -1,0 +1,211 @@
+//@version=5
+// Market Structure (BOS / CHoCH) — druhá ostrá stratégia TradeBotu.
+//
+// Tento súbor je ZDROJ PRAVDY pre parametre portu (tradebot/strategies/structure/config.py):
+// názvy, defaulty, rozsahy, titulky a tooltipy sa z neho parsujú do formulára webapp
+// a stráži ich test parity (tester/tests/test_pine_parity.py).
+//
+// Celá myšlienka je v tom, že štruktúra je definovaná PRAVIDLOM, nie okom:
+//
+//   swing high = bar, ktorého high je vyššie než high všetkých `swingLeft` barov vľavo
+//                a všetkých `swingRight` barov vpravo (swing low symetricky s low)
+//
+// Swing sa teda dá POTVRDIT az `swingRight` barov potom, co nastal. Skript ho skor
+// nepouzije ani na rozhodnutie, ani na kreslenie — preto je vsade `high[swingRight]`
+// a znacky maju `offset=-swingRight`. Vacsina strukturnych skriptov tu podvadza
+// a preto vyzera v backteste skvele.
+//
+//   BOS   = v stave bullish sa bar ZAVRIE nad poslednym potvrdenym swing high
+//           (v bearish pod swing low) -> stav ostava, referencna uroven sa posuva
+//   CHoCH = v stave bullish sa bar ZAVRIE pod poslednym potvrdenym swing low
+//           (v bearish nad swing high) -> stav sa otoci
+//
+// Rozhoduje ZATVORENIE baru, nie dotyk knotom — knot je ten isty spor "vidim/nevidim",
+// akemu sa celym tymto pravidlom vyhybame.
+strategy("Market Structure BOS / CHoCH", overlay=true, initial_capital=10000, default_qty_type=strategy.fixed, default_qty_value=1, pyramiding=0, process_orders_on_close=true)
+
+// ---------------------------------------------------------------------------
+// INPUTS
+// ---------------------------------------------------------------------------
+swingLeft      = input.int(5, "Swing: barov vlavo", minval=2, maxval=20, tooltip="Kolko barov vlavo musi byt nizsich (swing high) resp. vyssich (swing low). Vacsie cislo = menej a vyznamnejsich swingov.", group="🎯 Struktura")
+swingRight     = input.int(5, "Swing: barov vpravo (potvrdenie)", minval=2, maxval=20, tooltip="Kolko barov vpravo musi swing prezit, aby sa POTVRDIL. Az potvrdeny swing sa smie pouzit na rozhodnutie aj na kreslenie — dovtedy o nom stratégia nevie. Vyssie cislo = neskorsie potvrdenie, ale menej falosnych swingov.", group="🎯 Struktura")
+minSwingSize   = input.float(0.0, "Min. velkost swingu (nasobok ATR)", minval=0, maxval=3, step=0.1, tooltip="Swing, ktoreho vzdialenost od posledneho potvrdeneho swingu v protismere je mensia nez tolkoto ATR, sa ignoruje ako sum — uroven sa neposuva a swing sa ani nenakresli. 0 = filter vypnuty.", group="🎯 Struktura")
+atrLen         = input.int(14, "ATR dlzka", minval=2, maxval=100, tooltip="Dlzka ATR (Wilder) na grafovom TF. Z neho sa pocitaju vsetky prahy zadane v nasobkoch ATR — vdaka tomu plati ten isty config na BTC aj na NAS100.", group="🎯 Struktura")
+
+entryMode      = input.string("choch", "Variant vstupu", options=["choch", "bos", "sweep"], tooltip="choch = vstup v smere NOVEJ struktury na zatvoreni baru, ktory CHoCH sposobil (otocenie trendu); bos = vstup v smere pokracovania po BOS; sweep = PROTI CHoCH (CHoCH nadol znamena long) — falosne prerazenie / odber likvidity.", group="🚪 Vstup")
+tradeDirection = input.string("Both", "Smer obchodov", options=["Both", "Long only", "Short only"], tooltip="Ktoru stranu obchodovat. Na spotovom pare musi byt Long only — burza nema co pozicat.", group="🚪 Vstup")
+
+exitMode       = input.string("rr", "Vystup", options=["rr", "structure"], tooltip="rr = take profit je nasobok rizika (rrRatio); structure = obchod konci na DALSEJ strukturnej udalosti (BOS alebo CHoCH) v smere obchodu. Pri structure sa TP box nekresli — obchod ziadny pevny ciel nema.", group="🛑 Vystup")
+rrRatio        = input.float(2.0, "Risk:Reward pomer", minval=1, maxval=8, step=0.5, tooltip="Take profit = rrRatio × vzdialenost SL. Plati len pri exitMode = rr.", group="🛑 Vystup")
+slMode         = input.string("swing", "Odkial stop", options=["swing", "atr"], tooltip="swing = za poslednym potvrdenym swingom v protismere plus rezerva; atr = pevny nasobok ATR od vstupu. Ked potvrdeny swing v protismere este nie je, pouzije sa ATR aj v rezime swing.", group="🛑 Vystup")
+slBuffer       = input.float(0.1, "Rezerva za swing (nasobok ATR)", minval=0, maxval=1, step=0.05, tooltip="O kolko ATR sa stop odsunie za swing, aby ho nezobral sum. Plati len pri slMode = swing.", group="🛑 Vystup")
+slAtrMult      = input.float(1.5, "SL vzdialenost (nasobok ATR)", minval=0.5, maxval=5, step=0.1, tooltip="Stop loss = vstup -/+ tolkoto nasobkov ATR. Plati pri slMode = atr a ako zaloha, ked swing stop vyjde na zlu stranu vstupu (typicky pri sweep vstupe).", group="🛑 Vystup")
+maxBars        = input.int(0, "Casovy limit obchodu (bary)", minval=0, maxval=500, tooltip="Obchod, ktory po tolkoto baroch grafu od baru signalu stale bezi, sa zavrie za trh. 0 = bez casoveho limitu. Pozor: je to v BAROCH, takze na inom TF je to iny cas.", group="🛑 Vystup")
+
+riskDollar     = input.float(100, "Riziko na obchod ($)", minval=0, maxval=100000, step=10, tooltip="Velkost pozicie = riziko / vzdialenost SL. Vdaka tomu sa vysledok da prepocitat na iny ucet a Monte Carlo vie dat odporucanie k riziku. 0 = 1 kontrakt.", group="💰 Riziko")
+
+useSession     = input.bool(false, "Obchodovat len v okne", tooltip="Zapnute = vstupy len v case medzi Zaciatkom a Koncom okna. Struktura sa pocita a kresli stale, obmedzene su len vstupy. Predvolene vypnute — krypto obchoduje 24/7 a okno je tvrdenie, ktore treba najprv zmerat.", group="🕒 Seansa")
+sessionTZ      = input.string("UTC", "Casove pasmo okna", options=["UTC", "America/New_York", "Europe/London", "Asia/Tokyo"], tooltip="V ktorom pasme sa citaju hodiny nizsie. Bez neho su hodiny nejednoznacne a cez prechod na letny cas by okno ubehlo.", group="🕒 Seansa")
+sessionStartH  = input.int(8, "Zaciatok okna (hodina)", minval=0, maxval=23, tooltip="Prva hodina okna vratane. Okno cez polnoc sa zada tak, ze koniec je mensi nez zaciatok (napr. 22 -> 6).", group="🕒 Seansa")
+sessionEndH    = input.int(16, "Koniec okna (hodina)", minval=0, maxval=23, tooltip="Prva hodina UZ MIMO okna. Musi sa lisit od zaciatku — rovnake hodiny znamenaju nulove okno a ziadny obchod.", group="🕒 Seansa")
+
+showStructure  = input.bool(true, "Kreslit strukturu", tooltip="Znacky potvrdenych swingov, urovne a stitky BOS/CHoCH. Vypnutim sa graf odlahci — na piatich rokoch je tych objektov desattisice.", group="🎨 Vizualizacia")
+
+// ---------------------------------------------------------------------------
+// SWINGY — potvrdenie az `swingRight` barov po tom, co swing nastal
+// ---------------------------------------------------------------------------
+atr = ta.atr(atrLen)
+
+// Prisne `>` na oboch stranach: plato rovnakych high nie je swing. Vdaka tomu
+// dvaja ludia nezavisle naprogramuju to iste.
+f_swingHigh(L, R) =>
+    ok = bar_index >= L + R
+    if ok
+        for i = 1 to L
+            if high[R + i] >= high[R]
+                ok := false
+        for i = 1 to R
+            if high[R - i] >= high[R]
+                ok := false
+    ok
+
+f_swingLow(L, R) =>
+    ok = bar_index >= L + R
+    if ok
+        for i = 1 to L
+            if low[R + i] <= low[R]
+                ok := false
+        for i = 1 to R
+            if low[R - i] <= low[R]
+                ok := false
+    ok
+
+newHigh = f_swingHigh(swingLeft, swingRight)
+newLow  = f_swingLow(swingLeft, swingRight)
+
+var float swHigh = na
+var float swLow  = na
+var float lastSwing = na    // uroven posledneho PRIJATEHO swingu — referencia filtra sumu
+var bool swHighUsed = false
+var bool swLowUsed  = false
+var int structState = 0     // 0 neutral, 1 bullish, -1 bearish
+
+minLeg = minSwingSize * atr
+
+// Referencia filtra je jedna a spolocna pre obe strany. Keby sa swing high meral len
+// proti poslednemu swing LOW, v uzkom rozsahu by sa ziadne low neprijalo, referencia
+// by ostala prazdna a vsetky high by presli — strategia by v sume obchodovala len
+// jednu stranu. To nie je filter, to je asymetria.
+//
+// Poradie je zamerne: najprv high, potom low. Bar, ktory je zaroven swing high aj
+// swing low (outside bar medzi inside barmi), je mozny a bez pevneho poradia by
+// filter sumu dal raz tak a raz inak.
+if newHigh
+    lev = high[swingRight]
+    if na(lastSwing) or minLeg <= 0 or math.abs(lev - lastSwing) >= minLeg
+        swHigh := lev
+        swHighUsed := false
+        lastSwing := lev
+if newLow
+    lev = low[swingRight]
+    if na(lastSwing) or minLeg <= 0 or math.abs(lev - lastSwing) >= minLeg
+        swLow := lev
+        swLowUsed := false
+        lastSwing := lev
+
+// ---------------------------------------------------------------------------
+// UDALOSTI — rozhoduje ZATVORENIE baru
+// ---------------------------------------------------------------------------
+upBreak   = not na(swHigh) and not swHighUsed and close > swHigh
+downBreak = not na(swLow)  and not swLowUsed  and close < swLow
+
+// Ked zaberu obe naraz (uroven swing low lezi nad swing high), vyhrava pokracovanie
+// stavu; v neutrale rozhodne smer tela baru. Je to zriedkave, ale musi to byt jednoznacne.
+evUp   = upBreak and (not downBreak or structState == 1 or (structState == 0 and close >= open))
+evDown = downBreak and not evUp
+
+isBos   = (evUp and structState >= 0) or (evDown and structState <= 0)
+isChoch = (evUp and structState == -1) or (evDown and structState == 1)
+
+if evUp
+    swHighUsed := true
+    structState := 1
+if evDown
+    swLowUsed := true
+    structState := -1
+
+// ---------------------------------------------------------------------------
+// VSTUP
+// ---------------------------------------------------------------------------
+longSig  = entryMode == "bos" ? (isBos and evUp) : entryMode == "choch" ? (isChoch and evUp) : (isChoch and evDown)
+shortSig = entryMode == "bos" ? (isBos and evDown) : entryMode == "choch" ? (isChoch and evDown) : (isChoch and evUp)
+
+h = hour(time, sessionTZ)
+inWin = sessionStartH < sessionEndH ? (h >= sessionStartH and h < sessionEndH) : (h >= sessionStartH or h < sessionEndH)
+inSess = not useSession or inWin
+
+longOk  = longSig and inSess and tradeDirection != "Short only"
+shortOk = shortSig and inSess and tradeDirection != "Long only"
+
+// ---------------------------------------------------------------------------
+// STOP, CIEL, VELKOST
+// ---------------------------------------------------------------------------
+// Pri sweep vstupe je swing v protismere uz prekonany (prave preto sa vstupuje),
+// takze stop musi ist za extrem signalneho baru, nie za swing.
+baseLong  = na(swLow)  ? na : math.min(swLow, low)
+baseShort = na(swHigh) ? na : math.max(swHigh, high)
+rawLong   = slMode == "swing" and not na(baseLong)  ? baseLong - slBuffer * atr  : close - slAtrMult * atr
+rawShort  = slMode == "swing" and not na(baseShort) ? baseShort + slBuffer * atr : close + slAtrMult * atr
+stopLong  = rawLong  >= close ? close - slAtrMult * atr : rawLong
+stopShort = rawShort <= close ? close + slAtrMult * atr : rawShort
+
+distLong  = close - stopLong
+distShort = stopShort - close
+
+// V rezime `structure` obchod pevny ciel nema — konci na strukturnej udalosti, stope
+// alebo case. TP order sa aj tak musi poslat (MultiCharts ho vyzaduje), preto lezi
+// 50 R daleko: je to poistka, nie ciel, a preto sa TP box nekresli.
+tpBackstopR = 50.0
+tpLong  = exitMode == "rr" ? close + rrRatio * distLong  : close + tpBackstopR * distLong
+tpShort = exitMode == "rr" ? close - rrRatio * distShort : close - tpBackstopR * distShort
+
+qtyLong  = riskDollar > 0 ? math.max(1, math.floor(riskDollar / distLong))  : 1
+qtyShort = riskDollar > 0 ? math.max(1, math.floor(riskDollar / distShort)) : 1
+
+// ---------------------------------------------------------------------------
+// OBCHODOVANIE
+// ---------------------------------------------------------------------------
+// Vystup na strukturnej udalosti a casovy limit — obe su trhove zatvorenia.
+if strategy.position_size != 0
+    barsHeld = bar_index - strategy.opentrades.entry_bar_index(0)
+    structOut = exitMode == "structure" and ((strategy.position_size > 0 and evUp) or (strategy.position_size < 0 and evDown))
+    timeOut = maxBars > 0 and barsHeld >= maxBars
+    if structOut
+        strategy.close_all(comment="structure")
+    else if timeOut
+        strategy.close_all(comment="maxBars")
+
+if longOk and strategy.position_size == 0 and distLong > 0 and atr > 0
+    strategy.entry("LONG", strategy.long, qty=qtyLong)
+    strategy.exit("LONG-X", "LONG", stop=stopLong, limit=tpLong)
+
+if shortOk and strategy.position_size == 0 and distShort > 0 and atr > 0
+    strategy.entry("SHORT", strategy.short, qty=qtyShort)
+    strategy.exit("SHORT-X", "SHORT", stop=stopShort, limit=tpShort)
+
+// ---------------------------------------------------------------------------
+// KRESLENIE — vsetko az po potvrdeni, teda s posunom o `swingRight` barov dozadu
+// ---------------------------------------------------------------------------
+plotshape(showStructure and newHigh, "Swing high", shape.triangledown, location.absolute, color.new(color.gray, 0), offset=-swingRight, text="H")
+plotshape(showStructure and newLow, "Swing low", shape.triangleup, location.absolute, color.new(color.gray, 0), offset=-swingRight, text="L")
+
+if showStructure and (isBos or isChoch)
+    txt = isChoch ? "CHoCH" : "BOS"
+    col = isChoch ? color.new(color.orange, 0) : color.new(color.teal, 0)
+    label.new(bar_index, evUp ? high : low, txt, style=evUp ? label.style_label_down : label.style_label_up, color=col, textcolor=color.white)
+
+if showStructure and (newHigh or newLow)
+    lev = newHigh ? high[swingRight] : low[swingRight]
+    line.new(bar_index - swingRight, lev, bar_index, lev, color=color.new(color.gray, 40), style=line.style_dotted, extend=extend.right)
+
+bgcolor(useSession and inWin ? color.new(color.blue, 92) : na, title="Obchodne okno")

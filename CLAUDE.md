@@ -1,8 +1,9 @@
 # Pokyny pre Claude Code v tomto repozitári
 
 Repozitár je TradeBot — rámec pre porty TradingView stratégií do Pythonu (generické jadro
-`tradebot/core`, registry stratégií `tradebot/strategies` — dnes „IBS Imbalance Breakout" a
-ukážková „Demo Donchian Breakout" —, Freqtrade a MultiCharts adaptéry) plus webová aplikácia
+`tradebot/core`, registry stratégií `tradebot/strategies` — dnes „IBS Imbalance Breakout",
+„Market Structure BOS / CHoCH" a ukážková „Demo Donchian Breakout" —, Freqtrade
+a MultiCharts adaptéry) plus webová aplikácia
 pre testerov (`tester/webapp`). Ako pridať stratégiu: [docs/STRATEGIE.md](docs/STRATEGIE.md).
 Pracujú v ňom dva druhy ľudí a pre každého platí iné:
 
@@ -37,6 +38,8 @@ Bez obmedzení. Platia len konvencie repozitára:
   s Pine a sú v `PORT_ONLY_FIELDS` configu stratégie (`tradebot/strategies/<key>/config.py`).
 - Nová stratégia = balík `tradebot/strategies/<key>/` + riadok v registry; celý postup,
   kontrakt enginu a definícia hotového sú v [docs/STRATEGIE.md](docs/STRATEGIE.md).
+  Popisy parametrov pre formulár sú v `params.py` pri stratégii; **Pine zdroj sa robí
+  len na vyžiadanie** a formulár na ňom nezávisí.
   Jadro a adaptéry nesmú poznať konkrétnu stratégiu menom — všetko ide cez `StrategySpec`.
   Stratégia sa píše **pre oba enginy naraz** (Freqtrade aj MultiCharts) a hotová je až
   so **základnou analytikou a posudkom**: `python -m tester.webapp.cli checkup --strategy
