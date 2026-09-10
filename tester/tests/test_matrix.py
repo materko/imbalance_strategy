@@ -193,3 +193,25 @@ def test_skutocnej_burze_sa_mena_nevymysla():
 
     inst = INSTRUMENTS["btcusdt_binance"]
     assert engines.stake_config(inst, "binance") == engines.freqtrade_config(inst, "binance")
+
+
+def test_kazda_bunka_matice_dostane_poplatok_svojho_trhu():
+    """Matica púšťa jeden profil na cudzích trhoch — poplatok musí ísť s trhom.
+
+    `_prepare` spočíta poplatok raz, z páru profilu. Keby si ho bunky zobrali odtiaľ,
+    matica by CFD na kávu účtovala Binance taker 0,05 % a jej PnL aj profit factor by
+    boli nezmysel. (Na poradie buniek to vplyv nemá — break-even od poplatku nezávisí —
+    ale práve preto by si toho nikto nevšimol.)
+    """
+    import argparse
+
+    from tester.webapp.cli import _fee_for
+
+    args = argparse.Namespace(fee=None, timeframe="3m", timerange="20240904-20250904")
+    krypto = _fee_for(args, "BTC/USDT:USDT")
+    cfd = _fee_for(args, "COFFEE/USD")
+    assert krypto["fee"] != cfd["fee"], "krypto taker a spread na CFD nemôžu byť to isté číslo"
+    assert "Binance" in krypto["fee_note"] and "Binance" not in cfd["fee_note"]
+    # a zadaný --fee prebije oboje, aby sa dalo porovnávať s TradingView
+    zadany = argparse.Namespace(fee=0.0, timeframe="3m", timerange="20240904-20250904")
+    assert _fee_for(zadany, "COFFEE/USD") == {"fee": 0.0, "fee_note": "zadané cez --fee"}

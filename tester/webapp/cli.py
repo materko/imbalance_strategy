@@ -855,7 +855,12 @@ def cmd_matrix(args: argparse.Namespace) -> int:
 
     zaznamy = []
     for i, cell in enumerate(bunky, 1):
+        # Poplatok patrí TOMU trhu, nie referenčnému: `settings` ich má z páru profilu,
+        # takže bez tohto by matica účtovala Binance taker 0,05 % aj CFD na kávu, kde je
+        # náklad polovica spreadu. Na poradie buniek to nemá vplyv (break-even od poplatku
+        # nezávisí), ale PnL a profit factor každej cudzej bunky by boli nezmysel.
         beh = {**settings, "pair": cell.pair, "timeframe": cell.timeframe,
+               **_fee_for(args, cell.pair, cell.timeframe),
                "matrix": {"id": matrix_id, "pair": cell.pair, "timeframe": cell.timeframe,
                           "goal": args.goal, "relative": bool(args.relative)}}
         print(f"[{i}/{len(bunky)}] {cell.pair} {cell.timeframe}", flush=True)
