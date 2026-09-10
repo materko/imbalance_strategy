@@ -10,14 +10,6 @@ REMOVED_INPUTS: frozenset[str] = frozenset()
 INTENTIONAL_DEFAULT_DIFFS: frozenset[str] = frozenset()
 PARAM_NOTES: dict[str, str] = {}
 
-PORT_ONLY_META: dict[str, dict[str, Any]] = {
-    "leverage": dict(
-        title="Páka",
-        tooltip="Páka vo Freqtrade futures. Nemení edge, len umožní otvoriť pozíciu z risk-based sizingu, "
-        "ktorá by sa inak na účet nezmestila.",
-    ),
-}
-
 #: Závislosti prepínač -> podnastavenia (ukážka: showChannel nemá podnastavenia, allowShort tiež).
 FEATURES: list[dict[str, Any]] = []
 

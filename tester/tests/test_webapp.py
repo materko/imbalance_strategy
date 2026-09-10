@@ -16,12 +16,12 @@ import pytest
 
 from tradebot.core import IBSConfig
 from tradebot.strategies.ibs.config import PORT_ONLY_FIELDS
-from tester.webapp.pine_meta import INERT_INPUTS, PORT_GROUP, REMOVED_INPUTS, param_metadata
+from tester.webapp.param_meta import INERT_INPUTS, PORT_GROUP, REMOVED_INPUTS, param_metadata
 from tester.webapp.store import RunStore, make_run_id, parse_query
 
 
 # --------------------------------------------------------------------------- #
-# pine_meta
+# param_meta
 # --------------------------------------------------------------------------- #
 
 
@@ -38,8 +38,8 @@ def test_metadata_types_and_groups():
     assert by["rrRatio"]["type"] == "float" and by["rrRatio"]["min"] == 0.5 and by["rrRatio"]["max"] == 10.0
     assert by["enableImbEntry"]["type"] == "bool" and by["enableImbEntry"]["default"] is True
     assert by["snapMode"]["options"] == ["Off", "Floor", "Ceil", "Round"]
-    assert by["minImbSizePoints"]["type"] == "size" and by["minImbSizePoints"]["pine_unit"] == "abs"
-    assert by["minSlDistance"]["type"] == "size" and by["minSlDistance"]["pine_unit"] == "pct"
+    assert by["minImbSizePoints"]["type"] == "size" and by["minImbSizePoints"]["base_unit"] == "abs"
+    assert by["minSlDistance"]["type"] == "size" and by["minSlDistance"]["base_unit"] == "pct"
     assert by["ewLineColor"]["type"] == "color"
     for name in PORT_ONLY_FIELDS:
         assert by[name]["group"] == PORT_GROUP, name
@@ -52,7 +52,7 @@ def test_metadata_types_and_groups():
 def test_feature_dependencies_reference_real_bool_switches():
     """Tabuľka FEATURES je ručná — každé meno musí existovať, prepínače musia byť bool
     a jedno pole nesmie visieť na dvoch featurách naraz (formulár by nevedel, čo poslúchať)."""
-    from tester.webapp.pine_meta import FEATURES
+    from tester.webapp.param_meta import FEATURES
 
     by = {m["name"]: m for m in param_metadata()}
     seen: set[str] = set()

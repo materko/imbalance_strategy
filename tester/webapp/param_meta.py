@@ -1,15 +1,21 @@
-"""Metadáta parametrov pre formulár — z Pine skriptu stratégie, nie ručne.
+"""Metadáta parametrov pre formulár — z balíka stratégie, nie z Pine.
 
-Formulár má ukazovať to isté, čo panel nastavení v TradingView: rovnaké skupiny,
-rovnaké titulky, rovnaké tooltipy. Všetko to v Pine skripte už je, takže sa parsuje
-odtiaľ (`StrategySpec.pine_path`) a k tomu sa pridajú polia, ktoré Pine nemá
-(`config_cls.PORT_ONLY_FIELDS`, titulky v `spec.port_only_meta`). Keď niekto v Pine
-zmení tooltip, formulár ho zmení tiež. Parser je spoločný pre všetky stratégie.
+Formulár skladá každé pole z dvoch zdrojov a ani jeden z nich nie je Pine:
+
+* **popis** (skupina, titulok, tooltip, krok, `inline`) — `tradebot/strategies/<key>/params.py`,
+  vyzdvihnuté cez `StrategySpec.param_meta` a `param_groups`;
+* **typ, default, rozsah a hodnoty enumu** — priamo z configu stratégie (typy polí
+  dataclass, `CONSTRAINTS`, `SIZE_FIELDS`, `ENUM_FIELDS`), takže sa formulár nemá ako
+  rozísť s tým, čo config prijme.
+
+Pine skript sa pre stratégiu vyrába **len na vyžiadanie** (aby sa dala pozrieť na
+TradingView), takže formulár na ňom závisieť nesmie — stratégia bez Pine musí mať
+plnohodnotný formulár. Že config sedí s Pine tam, kde Pine je, stráži test parity
+(`tester/tests/test_pine_parity.py`), ktorý má vlastný parser.
 """
 
 from __future__ import annotations
 
-import re
 from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 from typing import Any
@@ -20,7 +26,6 @@ from tradebot.strategies.ibs import SPEC as IBS_SPEC
 
 REPO = Path(__file__).resolve().parents[2]
 #: Spätná kompatibilita — metadáta IBS bez argumentu.
-PINE_FILE = IBS_SPEC.pine_path
 REMOVED_INPUTS = IBS_SPEC.removed_inputs
 FEATURES = IBS_SPEC.features
 INERT_INPUTS = IBS_SPEC.inert_inputs
@@ -45,9 +50,7 @@ INERT_INPUTS = {
 }
 
 PORT_GROUP = "🧩 Rozšírenia portu (nie sú v Pine)"
-
-_INPUT_RE = re.compile(r"^\s*(\w+)\s*=\s*input\.(\w+)\((.*)$")
-_GROUP_ORDER_RE = re.compile(r'group\s*=\s*"([^"]*)"')
+OTHER_GROUP = "⚙️ Ostatné"
 
 
 @dataclass
@@ -62,8 +65,9 @@ class ParamMeta:
     min: float | None = None
     max: float | None = None
     step: float | None = None
-    #: pre `size` polia: jednotka, v ktorej je hodnota v Pine (abs/ticks)
-    pine_unit: str | None = None
+    #: pre `size` polia: základná jednotka poľa z `config_cls.SIZE_FIELDS` — holé číslo
+    #: v profile znamená práve ju (`abs`/`ticks`/`atr`/`pct`)
+    base_unit: str | None = None
     inline: str | None = None
     #: pole, ktoré Pine skript sám nepoužíva (napr. state4MaxBars) alebo je len vizuálne
     note: str = ""
@@ -79,145 +83,63 @@ class ParamMeta:
         return asdict(self)
 
 
-def _split_args(rest: str) -> list[str]:
-    args: list[str] = []
-    depth = 0
-    cur = ""
-    in_str = False
-    for ch in rest:
-        if in_str:
-            cur += ch
-            if ch == '"':
-                in_str = False
-            continue
-        if ch == '"':
-            in_str = True
-            cur += ch
-            continue
-        if ch in "([":
-            depth += 1
-        elif ch in ")]":
-            if depth == 0:
-                break
-            depth -= 1
-        elif ch == "," and depth == 0:
-            args.append(cur.strip())
-            cur = ""
-            continue
-        cur += ch
-    if cur.strip():
-        args.append(cur.strip())
-    return args
-
-
-def _kwargs(args: list[str]) -> tuple[list[str], dict[str, str]]:
-    pos: list[str] = []
-    kw: dict[str, str] = {}
-    for a in args:
-        m = re.match(r"^(\w+)\s*=\s*(.*)$", a, re.S)
-        if m and m.group(1) not in ("true", "false"):
-            kw[m.group(1)] = m.group(2).strip()
-        else:
-            pos.append(a)
-    return pos, kw
-
-
-def _unquote(s: str | None) -> str:
-    if s is None:
-        return ""
-    s = s.strip()
-    if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
-        return s[1:-1]
-    return s
-
-
-def _num(s: str | None) -> float | None:
-    if s is None:
-        return None
-    try:
-        return float(s)
-    except ValueError:
-        return None
-
-
-def _parse_pine(path: Path | None = PINE_FILE) -> dict[str, ParamMeta]:
+def _declared(spec: StrategySpec) -> dict[str, ParamMeta]:
+    """Popisy, ktoré o sebe stratégia povedala (`params.py`), ako `ParamMeta`."""
     out: dict[str, ParamMeta] = {}
-    if path is None or not path.exists():
-        return out
-    for line in path.read_text(encoding="utf-8").splitlines():
-        m = _INPUT_RE.match(line)
-        if not m:
-            continue
-        name, typ, rest = m.groups()
-        pos, kw = _kwargs(_split_args(rest))
-        title = _unquote(kw.get("title") or (pos[1] if len(pos) > 1 else name))
-        options = None
-        if "options" in kw:
-            options = [_unquote(o) for o in _split_args(kw["options"].strip()[1:-1])]
+    for name, row in (spec.param_meta or {}).items():
         out[name] = ParamMeta(
             name=name,
-            type=typ,
-            title=title,
-            group=_unquote(kw.get("group")) or "⚙️ Ostatné",
-            tooltip=_unquote(kw.get("tooltip")),
-            options=options,
-            min=_num(kw.get("minval")),
-            max=_num(kw.get("maxval")),
-            step=_num(kw.get("step")),
-            inline=_unquote(kw.get("inline")) or None,
+            type=row.get("type", "string"),
+            title=row.get("title", name),
+            group=row.get("group") or OTHER_GROUP,
+            tooltip=row.get("tooltip", ""),
+            options=list(row["options"]) if row.get("options") else None,
+            min=row.get("min"),
+            max=row.get("max"),
+            step=row.get("step"),
+            inline=row.get("inline"),
         )
     return out
 
 
-def _group_order(path: Path | None = PINE_FILE) -> list[str]:
-    """Skupiny v poradí, v akom sa objavujú v Pine — tak ich radí aj TradingView."""
-    order: list[str] = []
-    if path is not None and path.exists():
-        for m in _GROUP_ORDER_RE.finditer(path.read_text(encoding="utf-8")):
-            if m.group(1) not in order:
-                order.append(m.group(1))
-    order.append("⚙️ Ostatné")
+def _group_order(spec: StrategySpec) -> list[str]:
+    """Skupiny v poradí, v akom ich stratégia deklarovala; zvyšné na koniec."""
+    order = [g for g in spec.param_groups]
+    order.append(OTHER_GROUP)
     order.append(PORT_GROUP)
     return order
 
 
 def param_metadata(spec: StrategySpec | str | None = None) -> list[dict[str, Any]]:
-    """Jeden záznam na každé pole configu stratégie, v poradí Pine skupín.
+    """Jeden záznam na každé pole configu stratégie, v poradí skupín stratégie.
 
-    Default je Pine default (= `config_cls()`), nie hodnota z profilu — profil sa
+    Default je default configu (= `config_cls()`), nie hodnota z profilu — profil sa
     do formulára načíta zvlášť a formulár zvýrazní odchýlky. Bez argumentu IBS.
+
+    Pole bez popisu v `params.py` dostane holý názov ako titulok a skončí v „Ostatné".
+    Nie je to výnimka, ktorá by sa mala využívať — stráži to `test_registry.py`.
     """
     if spec is None:
         spec = IBS_SPEC
     elif isinstance(spec, str):
         spec = get_spec(spec)
     cls = spec.config_cls
-    pine = _parse_pine(spec.pine_path)
+    declared = _declared(spec)
     defaults = cls()
     cfg_fields = {f.name: f for f in fields(cls)}
-    order = {g: i for i, g in enumerate(_group_order(spec.pine_path))}
+    order = {g: i for i, g in enumerate(_group_order(spec))}
 
     metas: list[ParamMeta] = []
     for name in cfg_fields:
         if name in spec.removed_inputs or name in spec.inert_inputs:
             continue
         default = getattr(defaults, name)
-        if name in pine:
-            meta = pine[name]
-        else:
-            extra = spec.port_only_meta.get(name, {})
-            meta = ParamMeta(
-                name=name,
-                type="string",
-                title=extra.get("title", name),
-                group=PORT_GROUP,
-                tooltip=extra.get("tooltip", ""),
-            )
-        # typ podľa configu, nie podľa Pine — SizeSpec a enumy sú iné
+        meta = declared.get(name) or ParamMeta(name=name, type="string", title=name, group=OTHER_GROUP)
+        # typ podľa configu, nie podľa popisu — SizeSpec a enumy sú iné
         if isinstance(default, SizeSpec):
             meta.type = "size"
-            meta.pine_unit = cls.SIZE_FIELDS[name]
-            meta.default = default.value if default.unit == meta.pine_unit else default.to_json()
+            meta.base_unit = cls.SIZE_FIELDS[name]
+            meta.default = default.value if default.unit == meta.base_unit else default.to_json()
         elif isinstance(default, bool):
             meta.type = "bool"
             meta.default = default
@@ -228,7 +150,7 @@ def param_metadata(spec: StrategySpec | str | None = None) -> list[dict[str, Any
             meta.type = "float"
             meta.default = default
         elif default is None:
-            # voliteľné pole (napr. tickDollarValue): typ podľa Pine vstupu, inak text
+            # voliteľné pole (napr. tickDollarValue): typ deklaruje `params.py`, inak text
             meta.type = meta.type if meta.type in ("int", "float", "bool", "string") else "string"
             meta.default = None
         else:
@@ -237,6 +159,10 @@ def param_metadata(spec: StrategySpec | str | None = None) -> list[dict[str, Any
             meta.default = v
         if name in cls.CONSTRAINTS and meta.min is None:
             meta.min, meta.max = cls.CONSTRAINTS[name]
+        # Hodnoty enumu sú v samotnom enume; opakovať ich v popise by znamenalo dve
+        # pravdy o tom, čo config prijme.
+        if not meta.options and name in cls.ENUM_FIELDS:
+            meta.options = [e.value for e in cls.ENUM_FIELDS[name]]
         if name in spec.param_notes:
             meta.note = spec.param_notes[name]
         if name in cls.PORT_ONLY_FIELDS:

@@ -13,6 +13,7 @@ from .config import CONFIG_DIR, CONSTRAINTS, DETECTION_TFS, PORT_ONLY_FIELDS, SI
 from .hyperopt import IBSHyperopt
 from .engine import IBSEngine, IBSEngineOutput
 from .htf import HTFFeeder, HTFWindow, htf_window_opens
+from .params import GROUPS, PARAMS
 from .meta import (
     FEATURES,
     INERT_INPUTS,
@@ -21,7 +22,6 @@ from .meta import (
     LAYERS,
     PARAM_NOTES,
     PARITY_FIELDS,
-    PORT_ONLY_META,
     REMOVED_INPUTS,
 )
 from .statemachine import StateMachine, ZoneState
@@ -39,7 +39,8 @@ SPEC = StrategySpec(
     removed_inputs=REMOVED_INPUTS,
     inert_inputs=INERT_INPUTS,
     intentional_default_diffs=INTENTIONAL_DEFAULT_DIFFS,
-    port_only_meta=PORT_ONLY_META,
+    param_meta=PARAMS,
+    param_groups=GROUPS,
     features=tuple(FEATURES),
     param_notes=PARAM_NOTES,
     parity_fields=PARITY_FIELDS,
@@ -66,5 +67,5 @@ __all__ = [
     "HTFFeeder", "HTFWindow", "htf_window_opens",
     "ImbalanceHit", "find_imbalance", "is_engulfing", "is_pin_bar",
     "SdPattern", "Zone", "ZoneBook", "ZoneSource", "detect_sd_pattern", "snap_time",
-    "REMOVED_INPUTS", "INERT_INPUTS", "INTENTIONAL_DEFAULT_DIFFS", "PORT_ONLY_META", "FEATURES", "PARAM_NOTES", "LAYERS", "KIND_TITLES",
+    "REMOVED_INPUTS", "INERT_INPUTS", "INTENTIONAL_DEFAULT_DIFFS", "FEATURES", "PARAM_NOTES", "LAYERS", "KIND_TITLES",
 ]

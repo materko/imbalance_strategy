@@ -194,7 +194,7 @@ def _ai_for(args: argparse.Namespace) -> dict | None:
     return {"enabled": True, **zapnute, **({"adjust": adjust} if adjust else {})}
 
 
-def _fee_for(args: argparse.Namespace, pair: str) -> dict:
+def _fee_for(args: argparse.Namespace, pair: str, timeframe: str | None = None) -> dict:
     """`{"fee": …, "fee_note": …}` — zadané číslo, alebo náklad toho trhu.
 
     Jeden default pre všetky trhy nefunguje: 0,05 % je Binance taker, kým na CFD je
@@ -205,7 +205,7 @@ def _fee_for(args: argparse.Namespace, pair: str) -> dict:
 
     if args.fee is not None:
         return {"fee": args.fee, "fee_note": "zadané cez --fee"}
-    fee, note = fees_mod.for_pair(pair, args.timeframe, args.timerange)
+    fee, note = fees_mod.for_pair(pair, timeframe or args.timeframe, args.timerange)
     if fee is None:
         print(f"POZOR: naklad na {pair} nepozname ({note}); bezi sa s nulou, "
               f"break-even sa proti nicomu neposudzuje", file=sys.stderr)
@@ -398,7 +398,7 @@ def cmd_sweep(args: argparse.Namespace) -> int:
 
 def warn_parity(space: dict, strategy: str) -> None:
     """Upozorní na parametre, ktoré rozbijú paritu s Pine — ale nezakáže ich."""
-    from .pine_meta import param_metadata
+    from .param_meta import param_metadata
 
     risky = {m["name"]: m for m in param_metadata(strategy) if m.get("breaks_parity")}
     hit = [name for name in space if name in risky]
@@ -1269,14 +1269,14 @@ def cmd_push(args: argparse.Namespace) -> int:
 
 
 def cmd_params(args: argparse.Namespace) -> int:
-    from .pine_meta import param_metadata
+    from .param_meta import param_metadata
 
     for m in param_metadata(args.strategy):
         if args.filter and args.filter.lower() not in f"{m['name']} {m['title']} {m['tooltip']}".lower():
             continue
         rng = f"  [{m['min']}–{m['max']}]" if m.get("min") is not None else ""
         opts = f"  {m['options']}" if m.get("options") else ""
-        unit = f"  (size, Pine {m['pine_unit']})" if m["type"] == "size" else f"  ({m['type']})"
+        unit = f"  (size, jednotka {m['base_unit']})" if m["type"] == "size" else f"  ({m['type']})"
         print(f"{m['name']:<24} {m['group']} · {m['title']}{unit}{rng}{opts}")
     return 0
 

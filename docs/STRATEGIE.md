@@ -16,12 +16,13 @@ poradí, čo si smie stratégia určiť sama a kedy je hotová.
    ([nižšie](#analytika-a-posudok-bez-nich-to-nie-je-hotové)). Kód, ktorý beží, ešte nie
    je odpoveď na otázku, či to k niečomu je.
 
-Dnes sú v registry dve:
+Dnes sú v registry tri:
 
-| kľúč | názov | Pine zdroj | na čo |
+| kľúč | názov | parametrov | na čo |
 |---|---|---|---|
-| `ibs` | IBS Imbalance Breakout | `tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine` (115 vstupov) | ostrá stratégia, golden testy proti TradingView |
-| `demo_breakout` | Demo Donchian Breakout | `tradebot/strategies/demo_breakout/docs/sources/demo_breakout.pine` (8 vstupov) | ukážka, ktorá overuje rámec end-to-end; nie je to obchodné odporúčanie |
+| `ibs` | IBS Imbalance Breakout | 115 | ostrá stratégia, golden testy proti TradingView |
+| `structure` | Market Structure BOS / CHoCH | 18 | druhý archetyp (štruktúra, protitrendový `sweep`); [ANALYTIKA](../tradebot/strategies/structure/docs/ANALYTIKA.md) |
+| `demo_breakout` | Demo Donchian Breakout | 8 | ukážka, ktorá overuje rámec end-to-end; nie je to obchodné odporúčanie |
 
 `demo_breakout` je zámerne malá a zámerne **úplná**: má všetko, čo tento návod vyžaduje,
 takže sa dá kopírovať riadok po riadku. Keď si vyberáš vzor, ber ju — IBS je port
@@ -35,7 +36,7 @@ Toto je celý model. Kto ho má v hlave, nemusí hľadať, kam čo napísať:
 |---|---|
 | prehratie barov, sviečky, timeframy, sklad dát | logika: kedy je setup, kedy vstup, aký SL a TP |
 | Freqtrade `IStrategy`, MultiCharts študia, emulátor | čísla a prepínače (config) a ich rozsahy |
-| formulár webapp, história behov, graf, hľadanie | Pine zdroj pravdy pre názvy, tooltipy a defaulty |
+| formulár webapp, história behov, graf, hľadanie | popisy parametrov (`params.py`): skupina, titulok, tooltip |
 | break-even, charakter, skupiny obchodov, náhoda, Monte Carlo | mená kresieb, ktoré nesú SL/TP, pole s rizikom, vedomosti o ladení |
 | sizing z rizika, tick size, zaokrúhľovanie ceny | čo znamená „setup" a koľko histórie na to treba |
 
@@ -51,13 +52,13 @@ tradebot/
                         StrategyConfig (báza configu + load_profile), Engine protokol + EngineOutput,
                         OrderIntent/StateEvent/MarketContext, TradePlan, DrawCommand + DrawKind registr
   strategies/
-    __init__.py         STRATEGIES = {"ibs": …, "demo_breakout": …}, get_spec(), spec_for_config()
+    __init__.py         STRATEGIES = {"ibs": …, "structure": …, "demo_breakout": …}, get_spec(), spec_for_config()
     base.py             StrategySpec (popis stratégie), ChartLayer (vrstva grafu)
     hyperopt.py         StrategyHyperopt — čo o ladení vie stratégia (báza)
     <key>/              jedna stratégia (viď checklist nižšie) — vrátane jej configs/ a docs/
   adapters/freqtrade/   TradebotStrategyBase (generická IStrategy), EngineRunner, export_chart
   adapters/multicharts/ TradebotSignal (generická študia), MCRunner, MCDrawSink, emulátor
-  webapp/               tester: výber stratégie, formulár z Pine metadát, história, graf s vrstvami
+  webapp/               tester: výber stratégie, formulár z popisov stratégie, história, graf s vrstvami
 deploy/freqtrade/user_data/strategies/<FreqtradeTrieda>.py   shim (Freqtrade resolver)
 deploy/multicharts/<Nazov>_Signal.py                          šablóna študie
 docs/profily_archiv/<key>/                                    archivované profily
@@ -70,6 +71,7 @@ Balík jednej stratégie:
 tradebot/strategies/moja/
   __init__.py        SPEC = StrategySpec(...) — jediné, čo o nej vie zvyšok sveta
   config.py          parametre (dataclass), rozsahy, jednotky, vlastné kontroly
+  params.py          popisy parametrov pre formulár: skupina, titulok, tooltip
   engine.py          logika: on_bar() -> EngineOutput
   drawing.py         vlastné druhy kresieb
   meta.py            metadáta pre webapp: vrstvy grafu, názvy, závislosti prepínačov
@@ -77,34 +79,37 @@ tradebot/strategies/moja/
   freqtrade.py       trieda nad TradebotStrategyBase (obvykle 5 riadkov)
   multicharts.py     trieda nad TradebotSignal (obvykle 3 riadky)
   configs/           profily stratégie (JSON)
-  docs/sources/      Pine zdroj pravdy
+  docs/sources/      Pine zdroj — LEN keď o neho niekto požiada
   docs/ANALYTIKA.md  generovaná analytika + posudok (viď nižšie)
 ```
 
 ## Postup
 
-### 1. Pine zdroj
+### 1. Popisy parametrov
 
-`tradebot/strategies/moja/docs/sources/moja.pine` — všetky vstupy ako
-`x = input.<typ>(default, "Titulok", minval=…, maxval=…, options=[…], tooltip="…", group="…")`.
-Z tohto sa parsuje formulár webapp (titulky, tooltipy, skupiny, rozsahy) a test parity
-stráži, že config s Pine sedí.
+`params.py`: `GROUPS` (poradie skupín vo formulári) a `PARAMS` — `pole -> {group, title,
+tooltip, [step], [inline], [options], [type]}`. Je to **jediný** zdroj toho, ako sa
+parameter volá po ľudsky a čo robí; formulár webapp aj `cli params` ho čítajú odtiaľ
+(`StrategySpec.param_meta`).
 
-Aj stratégia, ktorá nikdy nebežala v TradingView, má tento súbor mať: je to jediné miesto,
-kde sú **názvy, rozsahy a defaulty** napísané raz a pre všetkých. Písať ho len pre parser
-je zbytočné — napíš rovno funkčný Pine skript, aby sa dala pozrieť na grafe a porovnať
-(to je celý zmysel tohto repozitára).
+Čo sem **nepatrí**: rozsahy, defaulty, typy a hodnoty enumov. Tie sú v `config.py`
+(`CONSTRAINTS`, defaulty dataclass, `SIZE_FIELDS`, `ENUM_FIELDS`) a formulár si ich
+vyzdvihne odtiaľ, takže sa nemajú ako rozísť s tým, čo config prijme. `type` sa deklaruje
+len tam, kde sa z hodnoty odvodiť nedá — farba a voliteľné pole s defaultom `None`.
+
+Že popis má **každé** viditeľné pole, stráži `test_registry.py`.
 
 ### 2. Config — čísla a ich hranice
 
-`config.py`: `@dataclass class MojaConfig(StrategyConfig)` s poľami pomenovanými **presne
-ako Pine identifikátory** a s tabuľkami ako `ClassVar`:
+`config.py`: `@dataclass class MojaConfig(StrategyConfig)` s poľami a s tabuľkami ako
+`ClassVar`. Keď stratégia Pine má, názvy polí sú zhodné s Pine identifikátormi — test
+parity ich porovná:
 
 | tabuľka | na čo |
 |---|---|
-| `SIZE_FIELDS` | veľkostné polia so `SizeSpec` a ich Pine jednotkou (`abs`, `ticks`, `atr`, `pct`) |
-| `ENUM_FIELDS` | polia s `options=[…]` v Pine |
-| `CONSTRAINTS` | `minval`/`maxval` z Pine — webapp aj CLI podľa nich odmietnu nezmysel |
+| `SIZE_FIELDS` | veľkostné polia so `SizeSpec` a ich jednotkou (`abs`, `ticks`, `atr`, `pct`) |
+| `ENUM_FIELDS` | polia s uzavretým zoznamom hodnôt; formulár si z enumu vezme aj ponuku |
+| `CONSTRAINTS` | `min`/`max` — webapp aj CLI podľa nich odmietnu nezmysel |
 | `PORT_ONLY_FIELDS` | polia, ktoré Pine nemá (`leverage`) — rozšírenia portu s defaultom zhodným s Pine správaním |
 
 Vlastné pravidlá (napr. „koniec okna musí byť za začiatkom") idú do `_problems()`.
@@ -153,9 +158,8 @@ class MojaEngine:
 `drawing.py`: vlastné druhy, `MOJ_DRUH = DrawKind.register("moj_druh", "MOJ_DRUH")`.
 Generické druhy (`tp_box`, `sl_box`, `entry`, `exit`, `session`) registruje jadro.
 
-`meta.py`: `REMOVED_INPUTS`, `INTENTIONAL_DEFAULT_DIFFS`, `PORT_ONLY_META` (titulok
-a tooltip polí mimo Pine), `FEATURES` (prepínač → podnastavenia, ktoré formulár skryje,
-keď je vypnutý), `PARAM_NOTES`, `LAYERS` (`ChartLayer(id, titulok, druhy, farba)`),
+`meta.py`: `REMOVED_INPUTS`, `INTENTIONAL_DEFAULT_DIFFS`, `FEATURES` (prepínač →
+podnastavenia, ktoré formulár skryje, keď je vypnutý), `PARAM_NOTES`, `LAYERS` (`ChartLayer(id, titulok, druhy, farba)`),
 `KIND_TITLES`. Vrstva smie obsahovať len **registrované** druhy a stratégia má naozaj
 kresliť to, čo vo vrstve deklaruje — inak je vo webapp prepínač, ktorý nič nezapína.
 
@@ -204,8 +208,8 @@ PY -m pytest tradebot/tests/test_registry.py tester/tests/test_pine_parity.py
 ```
 
 Registry test je [tento checklist ako test](../tradebot/tests/test_registry.py): profil,
-Pine súbor, shim, šablóna, druhy vo vrstvách, FEATURES. Parity test porovná config s Pine
-(názvy, defaulty, rozsahy). K tomu napíš **test enginu na syntetických baroch** (vzor:
+popis každého parametra, shim, šablóna, druhy vo vrstvách, FEATURES. Parity test porovná
+config s Pine (názvy, defaulty, rozsahy) — a keď stratégia Pine nemá, ticho sa preskočí. K tomu napíš **test enginu na syntetických baroch** (vzor:
 [`tradebot/tests/test_demo_engine.py`](../tradebot/tests/test_demo_engine.py)) — bez neho
 je jediná kontrola logiky backtest, a ten povie „menej obchodov", nie „tu je chyba".
 
@@ -299,8 +303,8 @@ prestane niečo znamenať.
 
 | # | čo | ako to overiť |
 |---|---|---|
-| 1 | balík, registry, shim, šablóna | `pytest tradebot/tests/test_registry.py` |
-| 2 | config sedí s Pine | `pytest tester/tests/test_pine_parity.py` |
+| 1 | balík, registry, popisy parametrov, shim, šablóna | `pytest tradebot/tests/test_registry.py` |
+| 2 | config sedí s Pine (ak Pine je) | `pytest tester/tests/test_pine_parity.py` |
 | 3 | logika enginu | vlastný test na syntetických baroch |
 | 4 | celý balík nič nerozbil | `pytest -q` (vrátane golden testov IBS) |
 | 5 | beží vo Freqtrade | `cli run --strategy moja --engine freqtrade …` |
@@ -314,16 +318,16 @@ kto ju písal.
 ## Rozpracované zadania
 
 Stratégia, ktorá sa ešte len má postaviť, má zadanie v `docs/zadania/` — úplné
-natoľko, aby sa dalo otvoriť v samostatnom sedení bez ďalšieho kontextu:
-
-- [Tržná štruktúra (BOS / CHoCH)](zadania/STRUKTURA_strategia.md) — druhá skutočná
-  stratégia do registry; iný archetyp než IBS, takže z nich má portfólio šancu byť
-  nekorelované.
+natoľko, aby sa dalo otvoriť v samostatnom sedení bez ďalšieho kontextu. Dnes tam
+žiadne otvorené nie je; [tržná štruktúra](zadania/STRUKTURA_strategia.md) je hotová
+a v registry ako `structure`.
 
 ## Časté chyby
 
 - **Zásah do jadra kvôli jednej stratégii.** Keď `tradebot/core` alebo adaptér potrebuje
   vedieť meno stratégie, návrh je zlý. Chýbajúcu informáciu pridaj do `StrategySpec`.
+- **Popisy parametrov v Pine.** Pine sa robí len na vyžiadanie a formulár na ňom závisieť
+  nesmie — titulky a tooltipy patria do `params.py` pri stratégii.
 - **Prahy v absolútnych bodoch.** Fungujú presne na jednom trhu. `atr` alebo `pct`.
 - **Pevný počet kontraktov.** Výsledok sa nedá prepočítať na iný účet a Monte Carlo
   nedá odporúčanie k riziku.

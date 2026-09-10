@@ -430,7 +430,7 @@ inštalátor pre macOS zapisuje `tester` automaticky. Rola sa dá kedykoľvek pr
 
 ## Kód
 
-`tester/webapp/`: `pine_meta.py` (metadáta z Pine súboru stratégie, `param_metadata(spec)`),
+`tester/webapp/`: `param_meta.py` (popisy parametrov z `tradebot/strategies/<key>/params.py`, `param_metadata(spec)`),
 `store.py` (behy a vyhľadávanie),
 `runner.py` (fronta, Freqtrade podproces alebo emulátor MultiCharts, spracovanie zipu), `chart.py` (sviečky
 z feather súborov po oknách, orezanie kresieb na okno), `gitsync.py`,

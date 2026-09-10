@@ -125,7 +125,7 @@ def test_tabulka_oznaci_najlepsi_a_dovod_vyradenia():
 
 def test_parametre_lamuce_paritu_su_oznacene():
     """Ladiť sa dajú, ale tester má vedieť, že výsledok sa už nedá porovnať s Pine."""
-    from tester.webapp.pine_meta import param_metadata
+    from tester.webapp.param_meta import param_metadata
 
     by_name = {m["name"]: m for m in param_metadata("ibs")}
     assert by_name["legacyPineSizing"]["breaks_parity"] and by_name["state2MaxBars"]["breaks_parity"]

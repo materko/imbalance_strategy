@@ -52,7 +52,7 @@ function normSize(v, pineUnit) {
 
 function sameValue(meta, a, b) {
   if (meta.type === "size") {
-    const x = normSize(a, meta.pine_unit), y = normSize(b, meta.pine_unit);
+    const x = normSize(a, meta.base_unit), y = normSize(b, meta.base_unit);
     return x.value === y.value && x.unit === y.unit;
   }
   if (a === null || a === undefined) return b === null || b === undefined;
@@ -101,7 +101,7 @@ function paramInput(meta) {
     s.onchange = () => onChange(s.value); wrap.append(s); return wrap;
   }
   if (meta.type === "size") {
-    const cur = normSize(v, meta.pine_unit);
+    const cur = normSize(v, meta.base_unit);
     wrap.classList.add("size");
     const n = document.createElement("input"); n.type = "number"; n.step = "any"; n.value = cur.value;
     const u = document.createElement("select"); u.title = "jednotka: abs = cenové body, ticks = násobky ticku, atr = násobky ATR, pct = % ceny";
@@ -109,7 +109,7 @@ function paramInput(meta) {
     u.value = cur.unit;
     const emit = () => {
       const val = Number(n.value);
-      onChange(u.value === meta.pine_unit ? val : { value: val, unit: u.value });
+      onChange(u.value === meta.base_unit ? val : { value: val, unit: u.value });
     };
     n.oninput = emit; u.onchange = emit;
     wrap.append(n, u); return wrap;
@@ -154,7 +154,7 @@ function groupRows(group) {
 function tooltipFor(meta) {
   const parts = [meta.tooltip || meta.title, "", `[${meta.name}]`];
   if (meta.min !== null && meta.min !== undefined) parts.push(`rozsah ${meta.min} – ${meta.max}`);
-  if (meta.pine_unit) parts.push(`Pine jednotka: ${meta.pine_unit}`);
+  if (meta.base_unit) parts.push(`Základná jednotka: ${meta.base_unit}`);
   if (meta.note) parts.push(meta.note);
   return parts.join("\n");
 }
