@@ -123,6 +123,13 @@ class SweepRequest(RunRequest):
     min_trades: int | None = Field(None, description="menej obchodov = bod je mimo mantinelov")
 
 
+class PosudokRequest(BaseModel):
+    """Posudok k uloženej analytike — text, ktorý čísla nepovedia."""
+
+    text: str = Field("", max_length=20000)
+    user: str = Field("", max_length=100)
+
+
 class AnalyticsSaveRequest(BaseModel):
     """Uloženie záveru analytiky do histórie."""
 
@@ -956,6 +963,15 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             except ValueError:
                 report["decay"] = None
 
+        # Syntetický trh: to isté zadanie na trhu bez štruktúry. Nič sa nespúšťa —
+        # hľadajú sa behy, ktoré v histórii už sú.
+        from .. import synthetic as syn_mod
+
+        try:
+            report["synthetic"] = syn_mod.assess(zaznamy, store, strategy=strategy)
+        except (ValueError, KeyError):
+            report["synthetic"] = None
+
         report["nulltest"] = None
         if nulltest and not report["mixed_pairs"]:
             from .. import nulltest as nt_mod
@@ -1002,6 +1018,24 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(422, "report nemá behy, z ktorých vznikol")
         return anstore.save(req.report, strategy=strategy, note=req.note.strip(),
                             user=_clean_user(req.user) or "")
+
+    @app.get("/api/analytics/history/{an_id}/zadanie")
+    def analytics_zadanie(an_id: str):
+        """Čísla plus otázky v tvare, ktorý sa dá podať AI."""
+        from .anstore import POSUDOK_OTAZKY, zadanie
+
+        zaznam = anstore.get(an_id)
+        if zaznam is None:
+            raise HTTPException(404, f"analytika {an_id} v histórii nie je")
+        return {"id": an_id, "text": zadanie(zaznam.get("report") or {}),
+                "questions": list(POSUDOK_OTAZKY)}
+
+    @app.post("/api/analytics/history/{an_id}/posudok")
+    def analytics_posudok(an_id: str, req: PosudokRequest):
+        out = anstore.set_posudok(an_id, req.text, _clean_user(req.user) or "")
+        if out is None:
+            raise HTTPException(404, f"analytika {an_id} v histórii nie je")
+        return out
 
     @app.delete("/api/analytics/history/{an_id}")
     def analytics_delete(an_id: str):

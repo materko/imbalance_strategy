@@ -466,3 +466,13 @@ table.runs td { padding: 10px; }
 .cfg-diff { font-size: 12px; margin: 2px 0 8px; }
 .cfg-diff ul { margin: 4px 0 0 18px; padding: 0; }
 .cfg-diff code { font-size: 11px; }
+
+/* Príkaz, ktorým chýbajúce behy vzniknú — nech sa dá rovno skopírovať. */
+pre.cmd { background: var(--panel, #f6f7f8); border: 1px solid var(--line); border-radius: 4px;
+          padding: 6px 8px; font-size: 11px; overflow-x: auto; margin: 4px 0 0; }
+
+/* Posudok: text, ktorý čísla nepovedia. */
+#posudok-text { width: 100%; box-sizing: border-box; font-family: inherit; font-size: 13px;
+                line-height: 1.45; padding: 8px; border: 1px solid var(--line);
+                border-radius: 4px; margin-top: 8px; }
+#posudok-box .chip.stale { background: #fde68a; color: #78350f; }

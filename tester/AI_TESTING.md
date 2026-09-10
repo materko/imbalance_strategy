@@ -333,6 +333,33 @@ Dve veci, ktoré treba pri čítaní vedieť:
 Súbežné pozície sa nekrátia — keď majú dvaja členovia otvorené naraz, obaja sú sizovaní
 z vtedajšieho zostatku a margin sa nekontroluje. Je to teda horná hranica toho, čo by šlo.
 
+### Syntetický trh priamo v analytike
+Karta ukáže aj to, ako tá istá konfigurácia dopadla na **premiešanom trhu** (§8j) — okno po
+okne, vrátane toho, koľko signálov sa vyplnilo. Nič sa nespúšťa; hľadajú sa behy, ktoré
+v histórii sú, a keď chýbajú, je pri tom rovno príkaz, ktorým vzniknú.
+
+| verdikt | čo znamená |
+|---|---|
+| `ENGINE OK` | na premiešanom trhu edge nie je — namerané čísla nevyrába backtest |
+| `POZOR NA ENGINE` | edge vyšiel aj tam, kde ho trh nemá z čoho dať — hľadaj pohľad dopredu, fill model, sizing |
+| `NEJASNE` | málo okien alebo málo obchodov na rozhodnutie |
+
+### Posudok (AI)
+Čísla povedia, čo sa stalo. Nepovedia, **čo z toho plynie** — či je najhoršia skupina
+príležitosť alebo vlastnosť vzorky, čo tomu v tom istom výpise protirečí a čo pustiť ďalej.
+Preto má uložená analytika miesto na posudok:
+
+1. **Uložiť do histórie** (posudok sa píše k záznamu, nie k výpisu na obrazovke),
+2. **Skopírovať zadanie pre AI** — čísla plus päť otázok,
+3. odpoveď vložiť a **Uložiť posudok**.
+
+To isté z príkazového riadku: `cli analytics <id>` vypíše zadanie, keď posudok chýba, a
+`cli analytics <id> --posudok @subor.md` ho uloží.
+
+Posudok patrí ku **konkrétnym číslam**, takže sa k nemu ukladá ich odtlačok. Keď sa
+analytika prepočíta na inej vzorke, text ostane (písať ho znova je práca), ale je označený
+za **starý** — inak by o mesiac nikto nevedel, o čom hovorí.
+
 ### Z akej konfigurácie tie obchody sú
 Analytika, prop výzva aj meranie počítajú nad **zliatymi** obchodmi z viacerých behov.
 Kým je to tá istá konfigurácia na rôznych oknách alebo trhoch, je to presne to, na čo sa

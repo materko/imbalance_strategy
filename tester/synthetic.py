@@ -432,3 +432,39 @@ def assess(records: Sequence[dict[str, Any]], store, *, strategy: str = "ibs") -
     out["synth_fill"] = round(statistics.median(fill("synth")), 1) if fill("synth") else None
     out["severity"], out["verdict"] = _verdict(out)
     return out
+
+
+def _verdict(out: dict[str, Any]) -> tuple[str, str]:
+    """Čo z porovnania plynie. Kladné číslo na premiešanom trhu je nález o **nás**."""
+    n = out["windows"]
+    kladnych = out["synth_positive"]
+    synt, realny = out["synth_median"], out.get("real_median")
+    fill_r, fill_s = out.get("real_fill"), out.get("synth_fill")
+
+    # Vyplnenie signálov je vedľajšia informácia, ale často zaujímavejšia než hlavná:
+    # keď sa na premiešanom trhu vyplní podstatne menej vstupov, stratégia sa spolieha
+    # na to, že sa cena k nejakej úrovni vráti — a to je skutočná štruktúra trhu.
+    doplnok = ""
+    if fill_r is not None and fill_s is not None and fill_r - fill_s >= 15:
+        doplnok = (f" Vedľajšia vec, ktorá stojí za pozretie: na skutočnom trhu sa vyplní "
+                   f"{fill_r:g} % signálov, na premiešanom {fill_s:g} %. Vstup teda čaká na "
+                   f"návrat ceny k úrovni — a to premiešaním zmizne.")
+
+    if kladnych >= n - 1 and synt > 0:
+        return "chyba", (
+            f"POZOR NA ENGINE: aj na trhu bez akejkoľvek štruktúry vyšiel break-even kladný "
+            f"v {kladnych} z {n} okien (medián {synt:+.4f} %). Takú výhodu trh nemá z čoho "
+            f"dať — hľadaj ju v backteste: pohľad dopredu, fill model, sizing." + doplnok)
+
+    if realny is not None and realny > 0 and synt < realny / 2 and kladnych <= n / 2 + 0.5:
+        return "ok", (
+            f"ENGINE OK: na premiešanom trhu edge nie je — kladný v {kladnych} z {n} okien, "
+            f"medián {synt:+.4f} % oproti {realny:+.4f} % na skutočnom trhu. To, čo stratégia "
+            f"nameria, teda nevyrába backtest sám od seba." + doplnok)
+
+    return "pozor", (
+        f"NEJASNE: na premiešanom trhu je break-even kladný v {kladnych} z {n} okien "
+        f"(medián {synt:+.4f} %"
+        + (f" oproti {realny:+.4f} % na skutočnom" if realny is not None else "") + "). "
+        f"Nie je to dosť na obvinenie enginu ani na jeho očistenie — dobehni viac okien "
+        f"alebo viac obchodov." + doplnok)

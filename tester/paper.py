@@ -310,6 +310,37 @@ def _matica(store) -> Section:
                    verdict=verdikt.split(":")[0])
 
 
+def _synteticky(records: Sequence[dict[str, Any]], store, strategy: str) -> Section:
+    """Nevyrába tú výhodu náš backtest? Porovnanie s trhom bez štruktúry."""
+    from . import synthetic as syn
+
+    v = syn.assess(records, store, strategy=strategy)
+    if v.get("severity") == "chyba dat":
+        return Section("Nevyrába to náš backtest?", "", gap=v.get("verdict") or "chýbajú behy")
+
+    riadky = []
+    for r in v["rows"]:
+        s_ = r["synth"] or {}
+        riadky.append([r["timerange"],
+                       _num(r["real"]["break_even_pct"]), r["real"]["trades"],
+                       _num(r["real"]["fill_pct"], 0, plus=False) + " %"
+                       if r["real"]["fill_pct"] is not None else "—",
+                       _num(s_.get("break_even_pct")) if s_ else "—",
+                       s_.get("trades", "—") if s_ else "—",
+                       _num(s_["fill_pct"], 0, plus=False) + " %"
+                       if s_.get("fill_pct") is not None else "—"])
+    telo = ["Tá istá konfigurácia na **premiešanom** trhu: rozdelenie výnosov aj celkový "
+            "drift sú tie isté, zmizlo len poradie. Edge tam nemá z čoho vzniknúť — a keď "
+            "predsa vznikne, vyrobil ho backtest.", "",
+            _tabulka(["okno", "break-even", "obch.", "vyplnené",
+                      "synt. break-even", "obch.", "vyplnené"], riadky), "",
+            v.get("verdict") or ""]
+    if v.get("missing"):
+        telo += ["", f"Bez syntetického behu: {', '.join('`' + x + '`' for x in v['missing'])}."]
+    return Section("Nevyrába to náš backtest?", "\n".join(telo),
+                   verdict=(v.get("verdict") or "").split(":")[0])
+
+
 def _portfolio(records: Sequence[dict[str, Any]], store, strategy: str,
                risk_pct: float) -> Section:
     from . import analytics as an, portfolio as pf
@@ -439,6 +470,7 @@ def build(records: Sequence[dict[str, Any]], store, *, strategy: str = "ibs",
         _nahoda(report),
         _slabne(report),
         _analytika(report, len(pary) > 1),
+        _synteticky(zaznamy, store, strategy),
         _matica(store),
         _portfolio(zaznamy, store, strategy, risk_pct),
     ]

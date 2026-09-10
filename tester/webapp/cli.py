@@ -577,9 +577,21 @@ def cmd_paper(args: argparse.Namespace) -> int:
 def cmd_analytics(args: argparse.Namespace) -> int:
     """Ulozene analytiky - per strategia, od najnovsej."""
     from .. import analytics as an
+    from . import anstore as ast
     from .anstore import AnalyticsStore
 
     st = AnalyticsStore()
+    if args.analytics_id and args.posudok:
+        text = args.posudok
+        if text.startswith("@"):
+            try:
+                text = Path(text[1:]).read_text(encoding="utf-8")
+            except OSError as exc:
+                raise SystemExit(f"posudok sa neda precitat: {exc}")
+        if st.set_posudok(args.analytics_id, text, args.user or "") is None:
+            raise SystemExit(f"analytika {args.analytics_id} v historii nie je")
+        print(f"posudok ulozeny k {args.analytics_id}")
+        return 0
     if args.analytics_id:
         z = st.get(args.analytics_id)
         if z is None:
@@ -594,6 +606,22 @@ def cmd_analytics(args: argparse.Namespace) -> int:
         print(f"behy: {', '.join(z['run_ids'])}")
         print()
         print(an.table(z["report"]))
+
+        # Posudok je to, co cisla nepovedia. Ked chyba, vypise sa zadanie, ktore sa da
+        # podat AI - namiesto toho, aby tam bolo prazdne miesto bez navodu.
+        posudok = (z.get("posudok") or "").strip()
+        print()
+        if not posudok:
+            print("=== Posudok chyba ===")
+            print(ast.zadanie(z.get("report") or {}))
+            print()
+            print(f"Ulozit: python -m tester.webapp.cli analytics {z['id']} "
+                  f"--posudok @subor.md")
+        else:
+            stary_p = z.get("posudok_stamp") != z.get("numbers")
+            print("=== Posudok" + (" (STARY: cisla sa medzitym zmenili)" if stary_p else "")
+                  + f", {z.get('posudok_at', '')[:19]} {z.get('posudok_user', '')} ===")
+            print(posudok)
         return 0
 
     polozky = st.list(args.strategy or "", limit=args.limit)
@@ -1327,6 +1355,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("analytics_id", nargs="?", help="id analytiky (bez neho sa vypíše zoznam)")
     p.add_argument("--strategy", help="len analytiky tejto stratégie")
     p.add_argument("--limit", type=int, default=30)
+    p.add_argument("--posudok", help="uloží posudok k tejto analytike (`@subor` číta zo súboru)")
+    p.add_argument("--user", help="kto posudok napísal")
     p.set_defaults(func=cmd_analytics)
 
     p = sub.add_parser("prop", help="prop výzva: aká je šanca dostať sa k výplate?")
