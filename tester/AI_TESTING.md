@@ -747,7 +747,15 @@ a to robí filter.
   nenatrénuje sa — vtedy sa **nefiltruje** a beh dobehne ako obyčajný (v logu je o tom
   riadok). Filter má zmysel skúšať na konfigurácii, ktorá obchoduje často.
 
-Prvé čísla: [docs/merania/AI_filter_2026-09-10.md](../docs/merania/AI_filter_2026-09-10.md).
+### Ako to dopadlo na IBS
+Vrstva funguje mechanicky, ale **na IBS ju zapínať netreba**: na piatich referenčných
+oknách je s filtrom lepšie 3 z 5 (medián +0,007 bodu, p = 0,50), teda hod mincou — a stojí
+to 85 % obchodov (zo ~170 na okno ostáva 19–32). Podrobne aj s tabuľkou:
+[docs/merania/AI_filter_2026-09-10.md](../docs/merania/AI_filter_2026-09-10.md).
+
+Nie je to prekvapenie: analytika už skôr ukázala to isté z druhej strany — žiadna vopred
+známa vlastnosť obchodov výsledok výrazne nekazí, takže nie je čo filtrovať. Model má
+zmysel skúšať tam, kde je nálepiek rádovo viac.
 
 ## 10. Čo nerobiť
 
