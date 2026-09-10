@@ -2426,6 +2426,7 @@ async function loadAnalyticsConfigs() {
   try {
     const out = await api(`/api/analytics/configs?strategy=${encodeURIComponent(state.strategy)}`);
     state.anConfigs = out.configs || [];
+    state.anReferenceWindows = out.reference_windows || [];
   } catch (e) {
     state.anConfigs = [];
   }
@@ -2433,11 +2434,46 @@ async function loadAnalyticsConfigs() {
     + state.anConfigs.map(c => {
       const okna = c.timeranges || [];
       const rozsah = okna.length ? ` (${fmtWindow(okna[0]).slice(0, 10)} → ${fmtWindow(okna[okna.length - 1]).slice(-10)})` : "";
+      const chyba = (c.missing || []).length;
       return `<option value="${esc(c.key)}">${esc(c.profile)} · ${c.runs} ${slovom(c.runs, "beh", "behy", "behov")}`
         + ` · ${okna.length} ${slovom(okna.length, "okno", "okná", "okien")}${rozsah}`
+        + (chyba ? ` · chýba ${chyba} ref.` : " · všetkých 5 ref. okien")
         + ` · ${esc((c.pairs || []).join(", "))} ${esc((c.timeframes || []).join("/"))}</option>`;
     }).join("");
   if (povodne && state.anConfigs.some(c => c.key === povodne)) sel.value = povodne;
+  updateFillButton();
+}
+
+/** Tlačidlo na doplnenie okien má zmysel len pri konfigurácii, ktorej referenčné okná chýbajú. */
+function updateFillButton() {
+  const btn = $("#an-fill");
+  if (!btn) return;
+  const konfig = (state.anConfigs || []).find(c => c.key === $("#an-config")?.value);
+  const chyba = konfig ? (konfig.missing || []).length : 0;
+  btn.disabled = !chyba;
+  btn.textContent = chyba ? `Doplniť ${chyba} ${slovom(chyba, "chýbajúce okno", "chýbajúce okná", "chýbajúcich okien")}`
+                          : "Doplniť chýbajúce okná";
+}
+
+/** Zaradí behy pre referenčné okná, ktoré vybraná konfigurácia nemá. Po dobehnutí
+ *  treba analytiku spočítať znova - obchody pribudnú. */
+async function fillMissingWindows() {
+  const konfig = (state.anConfigs || []).find(c => c.key === $("#an-config")?.value);
+  if (!konfig) return;
+  const btn = $("#an-fill");
+  btn.disabled = true;
+  $("#an-status").textContent = "zaraďujem…";
+  try {
+    const out = await api("/api/analytics/fill-windows", {
+      method: "POST",
+      body: JSON.stringify({ run_id: konfig.sample, user: currentUser() }),
+    });
+    $("#an-status").textContent = `${out.note} (${(out.windows || []).map(fmtWindow).join(", ")})`;
+    pollQueue();
+  } catch (e) {
+    $("#an-status").textContent = e.message;
+    btn.disabled = false;
+  }
 }
 
 async function loadAnalytics() {
@@ -3129,6 +3165,8 @@ function renderAnalytics(r) {
     ? `okná: ${unikat.map(w => esc(fmtWindow(w))).join(" · ")}`
       + (okna.length > unikat.length ? ` · <b>${okna.length - unikat.length}×</b> to isté okno viackrát` : "")
     : "behy nemajú uložené okno";
+  const ref = (state.anReferenceWindows || []);
+  const chybaRef = ref.filter(w => !unikat.includes(w));
   const zhrnutie = [
     `<div class="headline">${esc(r.headline)}</div>`,
     `<p class="an-note"><b>${r.trades}</b> obchodov z <b>${r.runs.length}</b> behov`
@@ -3136,6 +3174,12 @@ function renderAnalytics(r) {
       + ` · ${esc(r.pairs.join(", "))}</p>`,
     `<p class="an-note">${oknaText}</p>`,
   ];
+  if (ref.length && chybaRef.length) {
+    zhrnutie.push(`<div class="warnbox">Pokrýva len ${ref.length - chybaRef.length} z ${ref.length}`
+      + " referenčných okien — jeden rok o stratégii nepovie nič. Chýbajú: "
+      + chybaRef.map(w => esc(fmtWindow(w))).join(", ")
+      + ". Pri vybranej konfigurácii ich doplní tlačidlo „Doplniť chýbajúce okná“.</div>");
+  }
   zhrnutie.push(configHtml(r.config));
   if (r.mixed_pairs) {
     zhrnutie.push('<div class="warnbox">Zliate sú obchody z viacerých párov. Vzdialenosť'
@@ -3272,6 +3316,8 @@ async function init() {
   for (const b of $$(".chip-btn[data-range]")) b.onclick = () => setQuickRange(b.dataset.range);
   initSweep();
   $("#an-run").onclick = loadAnalytics;
+  $("#an-fill").onclick = fillMissingWindows;
+  $("#an-config").onchange = updateFillButton;
   $("#an-paper").onclick = writePaper;
   $("#an-save").onclick = saveAnalytics;
   $("#posudok-save").onclick = savePosudok;
