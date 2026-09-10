@@ -348,6 +348,43 @@ def warn_parity(space: dict, strategy: str) -> None:
           "je to v poriadku.\n", file=sys.stderr)
 
 
+def cmd_portfolio(args: argparse.Namespace) -> int:
+    """Vybrané behy ako jedno portfólio: cena rizika, rok po roku, korelácie."""
+    from .. import analytics as an, portfolio as pf
+    from .store import RunStore
+
+    store = RunStore()
+    if args.runs:
+        chcene = [x.strip() for x in args.runs.split(",") if x.strip()]
+        zaznamy = [r for r in (store.get(i) for i in chcene) if r]
+    else:
+        vsetky = store.search(" ".join(args.query)) if args.query else store.all()
+        zaznamy = [r for r in vsetky if r.get("status") == "done"
+                   and ((r.get("result") or {}).get("trades") or 0) >= args.min_trades]
+    zaznamy = zaznamy[:args.limit]
+    if not zaznamy:
+        raise SystemExit("ziadne dobehnute behy s obchodmi (skus iny dopyt)")
+
+    per: dict[str, list] = {}
+    for rec in zaznamy:
+        t = store.trades(rec["id"])
+        if not t:
+            continue
+        # Clen je JEDEN beh. Zlucovat behy podla paru by znamenalo scitat obchody
+        # z prekryvajucich sa okien, teda zapocitat to iste obdobie viackrat.
+        meno = (f"{rec['settings'].get('pair')} {rec['settings'].get('timeframe')} "
+                f"{rec['settings'].get('timerange')}")
+        per[meno] = an.enrich([dict(x) for x in t], store.chart(rec["id"]),
+                              rec["settings"].get("strategy") or "ibs")
+
+    risks = [float(x) for x in args.risks.split(",") if x.strip()] if args.risks else pf.RISKS
+    vysledok = pf.analyze(per, records=zaznamy, account=args.account, risks=risks,
+                          risk_pct=args.risk)
+    print(f"behov {len(zaznamy)}, clenov {len(per)}\n")
+    print(pf.report(vysledok))
+    return 0
+
+
 def cmd_plateau(args: argparse.Namespace) -> int:
     """Okolie víťaza hyperoptu: susedné hodnoty ako test robustnosti."""
     from .. import montecarlo as mc, plateau as pl
@@ -865,6 +902,17 @@ def main(argv: list[str] | None = None) -> int:
                         "cez noc. Cena je čas: rok backtestu je asi 30 s na bod")
     _run_args(p)
     p.set_defaults(func=cmd_sweep)
+
+    p = sub.add_parser("portfolio", help="vybrané behy ako portfólio: koľko a za aký drawdown")
+    p.add_argument("query", nargs="*", help="dopyt na behy (rovnaká syntax ako `list`)")
+    p.add_argument("--runs", help="konkrétne behy oddelené čiarkou (namiesto dopytu)")
+    p.add_argument("--account", type=float, default=10000.0, help="účet (default 10000)")
+    p.add_argument("--risk", type=float, default=1.0,
+                   help="riziko na obchod v %% pre rozpis po rokoch (default 1)")
+    p.add_argument("--risks", help="riziká do tabuľky oddelené čiarkou (default 0.25,0.5,1,2,3)")
+    p.add_argument("--min-trades", type=int, default=10, help="beh s menej obchodmi sa vynechá")
+    p.add_argument("--limit", type=int, default=40)
+    p.set_defaults(func=cmd_portfolio)
 
     p = sub.add_parser("plateau", help="okolie víťaza hyperoptu — je to plató alebo špička?")
     p.add_argument("hyperopt_id", help="beh hyperoptu z histórie")

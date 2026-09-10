@@ -255,6 +255,46 @@ to z obchodov, hlavne z **pohybu pred vstupom**: [docs/TYPY_STRATEGII.md](../doc
 Na IBS vyšlo prerazenie (vstup po pohybe +1,01 ATR, winrate 29,7 %, payoff 2,30) — z toho
 vyplýva, že ladiť winrate nemá zmysel a 42 % výstupov na stope nie je chyba.
 
+## 8d. Portfólio: koľko sa dá zarobiť a za aký drawdown
+
+„Koľko sa na tom dá zarobiť?" je otázka, na ktorú jeden beh odpovedať nevie — odpoveď
+závisí od toho, **koľko riskuješ na obchod** a **čo všetko obchoduješ naraz**.
+
+```bash
+PY -m tester.webapp.cli portfolio --runs <id1>,<id2>,...
+PY -m tester.webapp.cli portfolio "note~matica" --limit 12
+```
+
+To isté je na karte **Analytika** (počíta sa z tých istých vybraných behov). Výstup má tri
+časti:
+
+| | čo hovorí |
+|---|---|
+| **cena rizika** | riziko na obchod → zhodnotenie → ročne (CAGR) → max drawdown |
+| **rok po roku** | nesie to jeden dobrý rok, alebo je to rozložené? |
+| **korelácie** | koľko z toho, čo robí jeden člen, robia aj ostatní |
+
+**Korelácie sú to najdôležitejšie číslo.** Portfólio má zmysel len vtedy, keď sa členovia
+nechovajú rovnako: keď jeden prehráva a druhý zarába, krivka je hladšia než ktorýkoľvek
+z nich. Keď sú korelovaní, je to len jeden beh s väčšou pozíciou a **drawdown sa nezmenší,
+len sa znásobí**. U nás je to zvyčajne jedna stratégia na viacerých trhoch, takže korelácia
+bude vyššia než pri naozaj rôznych stratégiách — výpis to meria a nehovorí „portfólio je
+hladšie", kým to čísla nepotvrdia.
+
+Dve veci, ktoré treba pri čítaní vedieť:
+
+- **Člen je jeden beh.** Dva behy toho istého trhu v tom istom období nie sú dvaja
+  členovia, ale dve **alternatívy** jednej veci; keby sa ich obchody sčítali, to isté
+  obdobie by sa započítalo dvakrát. Modul takú dvojicu nájde a povie `TO NIE JE PORTFOLIO`.
+  Dobrým zdrojom členov je **matica trhov** (§8e) — rôzne trhy, to isté okno.
+- **Veľkosť pozície sa prepočíta**, nepreberá sa z behu: `riziko = zostatok × risk %`,
+  `množstvo = riziko / vzdialenosť stopu`. Bez toho by sa sčítavali veľkosti z rôznych
+  behov a výsledok by hovoril o peňaženkách, nie o stratégii. Obchod bez známej vzdialenosti
+  stopu do prepočtu nevstúpi a výpis povie, koľko ich bolo.
+
+Súbežné pozície sa nekrátia — keď majú dvaja členovia otvorené naraz, obaja sú sizovaní
+z vtedajšieho zostatku a margin sa nekontroluje. Je to teda horná hranica toho, čo by šlo.
+
 ## 8c. Je ten edge odlíšiteľný od náhody?
 
 Break-even 0,064 % je veľa alebo málo? Bez referencie to nie je odpoveď, ale číslo. Test
