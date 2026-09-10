@@ -187,9 +187,10 @@ FEATURES: tuple[Feature, ...] = (
     Feature("regime_vol", "Volatilita voči normálu", lambda t: t.get("_regime_vol"),
             note="ATR pri vstupe delené typickým ATR trhu. 1,0 je bežný deň, 2,0 dvojnásobne "
                  "rozkolísaný. Náhrada za „pozri sa na VIX“, ktorá funguje na každom trhu."),
-    Feature("regime_pos", "Kde v rozsahu sa vstupovalo", lambda t: t.get("_regime_pos"),
-            note="0 = na spodku posledných 50 barov, 1 = na vrchu. Pri prerazení je rozdiel "
-                 "medzi vstupom na hrane rozsahu a v jeho strede zásadný."),
+    Feature("regime_pos", "Kde v rozsahu, v smere obchodu", lambda t: t.get("_regime_pos"),
+            note="1 = cena už došla na koniec rozsahu v smere obchodu (long na vrchu, short "
+                 "na spodku), 0 = na opačnom konci. V smere obchodu preto, že surová poloha "
+                 "sa pri polovici shortov vyruší — pre short je spodok to isté, čo pre long vrch."),
     Feature("regime_align", "S trendom, alebo proti", lambda t: t.get("_regime_align"),
             numeric=False,
             note="Smer obchodu voči sklonu posledných 50 barov. Klasické „neobchoduj proti "
