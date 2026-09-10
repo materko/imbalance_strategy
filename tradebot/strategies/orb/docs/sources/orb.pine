@@ -1,0 +1,67 @@
+//@version=5
+// ORB — Opening Range Breakout na dvoch seansach.
+//
+// Kazda zapnuta seansa si postavi vlastny opening range z prvych N minut od svojho
+// otvorenia a obchoduje jeho prerazenie. Prepinac `sessionMode` rozhoduje, ci bezi
+// New York, Londyn, alebo obe naraz.
+//
+// Tento subor je ZDROJ PRAVDY pre parametre portu (tradebot/strategies/orb/config.py):
+// nazvy, defaulty, rozsahy, titulky a tooltipy sa z neho parsuju do formulara webapp.
+strategy("ORB Opening Range Breakout", overlay=true, initial_capital=10000, default_qty_type=strategy.fixed, default_qty_value=1, pyramiding=0, process_orders_on_close=true)
+
+// ---------------------------------------------------------------------------
+// INPUTS
+// ---------------------------------------------------------------------------
+sessionMode        = input.string("both", "Ktore seansy obchodovat", options=["both", "ny", "london"], tooltip="both = New York aj Londyn, kazda ma vlastny range aj vlastny obchod; ny = len New York open; london = len Londyn open.", group="🕐 Seansy")
+nyStartH           = input.int(9, "New York: otvorenie (H)", minval=0, maxval=23, tooltip="Hodina otvorenia New York cash seansy v pasme America/New_York. Standardne 9:30.", group="🕐 Seansy")
+nyStartM           = input.int(30, "New York: otvorenie (M)", minval=0, maxval=59, tooltip="Minuta otvorenia New York seansy.", group="🕐 Seansy")
+nyRangeMinutes     = input.string("15", "New York: dlzka rangu", options=["15", "30", "60"], tooltip="Kolko minut od otvorenia NY tvori opening range. 15 = viac signalov a viac falosnych; 30 = vyvazene; 60 = najmenej obchodov, ale najcistejsie.", group="🕐 Seansy")
+nyEndH             = input.int(15, "New York: koniec seansy (H)", minval=0, maxval=23, tooltip="Hodina, kedy sa NY pozicie zatvaraju a prestava sa vstupovat.", group="🕐 Seansy")
+nyEndM             = input.int(55, "New York: koniec seansy (M)", minval=0, maxval=59, tooltip="Minuta konca NY seansy.", group="🕐 Seansy")
+lonStartH          = input.int(8, "Londyn: otvorenie (H)", minval=0, maxval=23, tooltip="Hodina otvorenia londynskej seansy v pasme Europe/London. Standardne 8:00.", group="🕐 Seansy")
+lonStartM          = input.int(0, "Londyn: otvorenie (M)", minval=0, maxval=59, tooltip="Minuta otvorenia londynskej seansy.", group="🕐 Seansy")
+lonRangeMinutes    = input.string("15", "Londyn: dlzka rangu", options=["15", "30", "60"], tooltip="Kolko minut od otvorenia Londyna tvori opening range.", group="🕐 Seansy")
+lonEndH            = input.int(16, "Londyn: koniec seansy (H)", minval=0, maxval=23, tooltip="Hodina, kedy sa londynske pozicie zatvaraju a prestava sa vstupovat.", group="🕐 Seansy")
+lonEndM            = input.int(30, "Londyn: koniec seansy (M)", minval=0, maxval=59, tooltip="Minuta konca londynskej seansy.", group="🕐 Seansy")
+
+tradeDirection     = input.string("Both", "Smer obchodov", options=["Both", "Long only", "Short only"], tooltip="Ktore prerazenia sa obchoduju. Na indexoch s dlhodobym rastom byva Long only silnejsi.", group="🚀 Vstup")
+entryMode          = input.string("close", "Typ vstupu", options=["close", "retest", "stop"], tooltip="close = vstup na zavreti sviecky za hranicou (vyvazene); retest = caka sa na navrat na prerazenu hranicu a vstup limitkou (lepsi RR, cast pohybov utecie); stop = agresivny stop order priamo na hranici.", group="🚀 Vstup")
+breakBufferAtr     = input.float(0.05, "Buffer prerazenia (nasobok ATR)", minval=0.0, maxval=2.0, step=0.01, tooltip="O kolko musi cena prekrocit hranicu, aby sa to ratalo ako prerazenie. Filtruje dotyky hranice na tick.", group="🚀 Vstup")
+retestMaxBars      = input.int(10, "Retest: max barov na navrat", minval=1, maxval=100, tooltip="Pri type vstupu retest: kolko barov po prerazeni sa caka na navrat k hranici. Potom sa setup zahadzuje.", group="🚀 Vstup")
+entryWindowMinutes = input.int(90, "Vstup najneskor do (minuty od otvorenia)", minval=0, maxval=480, tooltip="Plati zvlast pre kazdu seansu, od jej vlastneho otvorenia. Prerazenia neskor v seanse vyrazne zaostavaju. 0 = bez obmedzenia.", group="🚀 Vstup")
+maxTradesPerDay    = input.int(1, "Max obchodov na seansu a den", minval=1, maxval=20, tooltip="Kolko pokusov o prerazenie sa smie spravit v jednej seanse za jeden den. Pri oboch zapnutych seansach je denne maximum dvojnasobok.", group="🚀 Vstup")
+
+minRangePct        = input.float(0.15, "Min. sirka rangu (% ceny)", minval=0.0, maxval=5.0, step=0.05, tooltip="Prilis uzky range = dominuju falosne prerazenia. Merania odporucaju aspon 0,3 % na indexoch.", group="🚦 Filtre")
+maxRangePct        = input.float(1.5, "Max. sirka rangu (% ceny)", minval=0.1, maxval=10.0, step=0.1, tooltip="Prilis siroky range = stop je daleko a RR sa kazi.", group="🚦 Filtre")
+useVolumeFilter    = input.bool(false, "Zapnut volume filter", tooltip="Vyzaduje, aby prerazovacia sviecka mala nadpriemerny objem. Na CFD datach moze byt objem nespolahlivy.", group="🚦 Filtre")
+volSmaLen          = input.int(20, "Volume: priemer za N sviecok", minval=2, maxval=200, tooltip="Dlzka priemeru objemu, s ktorym sa prerazovacia sviecka porovnava.", group="🚦 Filtre")
+volMultiplier      = input.float(1.5, "Volume: min. nasobok priemeru", minval=0.5, maxval=10.0, step=0.1, tooltip="Objem prerazovacej sviecky musi byt aspon tolkokrat nad priemerom.", group="🚦 Filtre")
+minClosePosPct     = input.int(50, "Min. poloha zavretia v sviecke (%)", minval=0, maxval=100, tooltip="Pri LONG musi sviecka zavriet aspon v tejto hornej casti svojho rozsahu (pri SHORT v dolnej). Odfiltruje prerazenia s dlhym odmietacim knotom.", group="🚦 Filtre")
+weekdaysOnly       = input.bool(true, "Obchoduj len Pondelok-Piatok", tooltip="Vypne vikendove bary.", group="🚦 Filtre")
+
+slMode             = input.string("opposite", "Umiestnenie SL", options=["opposite", "mid", "range_pct", "atr", "break_candle"], tooltip="opposite = na opacnu hranu rangu (= 100 % vysky rangu); mid = na stred rangu (= 50 %); range_pct = do rangu o nastavene percento jeho vysky, meria sa od prerazenej hranice; atr = nasobok ATR od vstupu; break_candle = za low/high prerazovacej sviecky (najtesnejsi).", group="🛡️ Stop loss")
+slRangePct         = input.float(50, "SL: hlbka do rangu (% vysky rangu)", minval=5, maxval=150, step=5, tooltip="Pouzije sa pri umiestneni SL nastavenom na range_pct. Meria sa od prerazenej hranice smerom do rangu: 25 % = tesny stop tesne pod hranicou, 50 % = stred rangu, 100 % = opacna hrana. Nad 100 % ide stop az za range.", group="🛡️ Stop loss")
+atrLen             = input.int(14, "ATR dlzka", minval=2, maxval=100, tooltip="Dlzka ATR (Wilder) pre vsetky ATR jednotky.", group="🛡️ Stop loss")
+slAtrMult          = input.float(1.0, "SL vzdialenost (nasobok ATR)", minval=0.1, maxval=10.0, step=0.1, tooltip="Pouzije sa len ked je umiestnenie SL nastavene na atr.", group="🛡️ Stop loss")
+slBufferAtr        = input.float(0.1, "Buffer za SL uroven (nasobok ATR)", minval=0.0, maxval=2.0, step=0.05, tooltip="Kolko sa prida za vypocitanu SL uroven, aby stop prezil bezny knot.", group="🛡️ Stop loss")
+
+tpMode             = input.string("rr", "Vypocet ciela", options=["rr", "measured", "atr"], tooltip="rr = nasobok vzdialenosti SL (riadi ho Risk:Reward pomer nizsie); measured = vyska rangu premietnuta za prerazenie (klasicky measured move); atr = nasobok ATR.", group="🎯 Ciel")
+rrRatio            = input.float(1.5, "Risk:Reward pomer", minval=0.5, maxval=10.0, step=0.1, tooltip="Take profit = rrRatio × vzdialenost SL. Pouzije sa pri vypocte ciela rr.", group="🎯 Ciel")
+measuredMult       = input.float(1.0, "Measured move: nasobok vysky rangu", minval=0.2, maxval=5.0, step=0.1, tooltip="Ciel = miesto prerazenia -/+ (vyska rangu × tento nasobok). Pouzije sa pri vypocte ciela measured.", group="🎯 Ciel")
+tpAtrMult          = input.float(2.0, "TP vzdialenost (nasobok ATR)", minval=0.1, maxval=20.0, step=0.1, tooltip="Pouzije sa pri vypocte ciela atr.", group="🎯 Ciel")
+
+enableTrailing     = input.bool(false, "Zapnut trailing stop", tooltip="Po dosiahnuti aktivacnej urovne sa stop tiahne za cenou.", group="⏱️ Riadenie pozicie")
+trailActivationR   = input.float(1.0, "Aktivacia trailingu (R-nasobok)", minval=0.1, maxval=10.0, step=0.1, tooltip="Pri akom zisku v nasobkoch rizika sa trailing zapne.", group="⏱️ Riadenie pozicie")
+trailOffsetR       = input.float(0.5, "Trailing vzdialenost (R-nasobok)", minval=0.1, maxval=10.0, step=0.1, tooltip="Ako daleko za cenou sa stop tiahne, v nasobkoch rizika.", group="⏱️ Riadenie pozicie")
+closeAtSessionEnd  = input.bool(true, "Zatvor poziciu na konci seansy", tooltip="Intradenne: pozicia sa nedrzi cez noc. Zatvara ju koniec tej seansy, v ktorej vznikla.", group="⏱️ Riadenie pozicie")
+
+riskDollar         = input.float(100, "Riziko na obchod ($)", minval=0, maxval=100000, step=10, tooltip="Velkost pozicie = riziko / vzdialenost SL. 0 = 1 kontrakt.", group="💰 Riziko")
+
+showRange          = input.bool(true, "Kreslit opening range", tooltip="Zapne box opening rangu pre kazdu zapnutu seansu.", group="🎨 Vizualizacia")
+showLevels         = input.bool(true, "Kreslit hranice rangu", tooltip="Zapne predlzene ciary high a low rangu cez zvysok seansy.", group="🎨 Vizualizacia")
+
+// ---------------------------------------------------------------------------
+// LOGIKA (referencia pre port; presna implementacia je v engine.py)
+// ---------------------------------------------------------------------------
+atr = ta.atr(atrLen)
+plot(atr, "ATR", display=display.none)
