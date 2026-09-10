@@ -247,8 +247,14 @@
         <button id="an-paper" class="ghost" type="button" disabled
                 title="Zapíše všetko z tejto stránky ako datovaný dokument do docs/merania/">
           Zapísať meranie</button>
+        <button id="an-save" class="ghost" type="button" disabled
+                title="Uloží záver do histórie analytiky (obchody ostávajú v behoch)">
+          Uložiť do histórie</button>
         <span id="an-status" class="hint"></span>
       </div>
+      <label class="field span2">Predošlé analytiky tejto stratégie
+        <select id="an-history"><option value="">— nová analytika —</option></select>
+      </label>
     </div>
     <details id="prop-box">
       <summary>Prop výzva — dostaneš sa k výplate skôr, než účet zhorí?</summary>
@@ -312,6 +318,18 @@
       <button id="search-btn" class="primary">Hľadať</button>
       <button id="search-help-btn" class="ghost">?</button>
       <span id="search-count" class="muted" role="status"></span>
+    </div>
+    <div class="filter-row">
+      <label class="inline small">Stratégia
+        <select id="filter-strategy"><option value="">všetky</option></select>
+      </label>
+      <label class="inline small">Pár
+        <select id="filter-pair"><option value="">všetky</option></select>
+      </label>
+      <label class="inline small">Timeframe
+        <select id="filter-tf"><option value="">všetky</option></select>
+      </label>
+      <button id="filter-reset" class="ghost small" type="button">Zrušiť filtre</button>
     </div>
     <div id="search-help" class="help" hidden>
       Podmienky oddeľ medzerou, všetky musia platiť. <code>názovParametra op hodnota</code>, kde op je

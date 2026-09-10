@@ -40,6 +40,7 @@ from .runner import (
     REPO, BacktestRunner, available_pairs, check_market_rules, default_params, instrument_for_pair,
     list_profiles, profile_instruments, profile_titles, tf_minutes,
 )
+from .anstore import AnalyticsStore
 from .store import RunStore, strategy_of, summarize_for_list
 
 STATIC = Path(__file__).resolve().parent / "static"
@@ -120,6 +121,14 @@ class SweepRequest(RunRequest):
     goal: str = Field("break_even", description="podľa čoho vybrať najlepší beh")
     max_dd: float | None = Field(None, description="strop na max drawdown v %")
     min_trades: int | None = Field(None, description="menej obchodov = bod je mimo mantinelov")
+
+
+class AnalyticsSaveRequest(BaseModel):
+    """Uloženie záveru analytiky do histórie."""
+
+    report: dict[str, Any] = Field(..., description="celý výstup `/api/analytics`")
+    note: str = Field("", max_length=500, description="čo sa tým zisťovalo")
+    user: str = Field("", max_length=100)
 
 
 class PropRequest(BaseModel):
@@ -258,6 +267,7 @@ def _clean_user(name: str | None) -> str:
 
 def create_app(store: RunStore | None = None, runner: BacktestRunner | None = None) -> FastAPI:
     store = store or RunStore()
+    anstore = AnalyticsStore()
     runner = runner or BacktestRunner(store)
     app = FastAPI(title="TradeBot backtest webapp", version="0.2")
     app.state.store = store
@@ -960,6 +970,41 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 report["nulltest"] = {"nulls": vysledky,
                                       "note": _null_note(vysledky)}
         return report
+
+    @app.get("/api/analytics/history")
+    def analytics_history(strategy: str = "", limit: int = Query(50, ge=1, le=500)):
+        """Uložené analytiky — per stratégia, od najnovšej.
+
+        Vlastnosti aj parametre sú pri každej stratégii iné, takže zliať ich do jedného
+        zoznamu by znamenalo porovnávať neporovnateľné.
+        """
+        if strategy and strategy not in STRATEGIES:
+            raise HTTPException(404, f"neznáma stratégia {strategy!r}")
+        return {"items": anstore.list(strategy, limit=limit)}
+
+    @app.get("/api/analytics/history/{an_id}")
+    def analytics_history_one(an_id: str):
+        zaznam = anstore.get(an_id)
+        if zaznam is None:
+            raise HTTPException(404, f"analytika {an_id} v histórii nie je")
+        return zaznam
+
+    @app.post("/api/analytics/history")
+    def analytics_save(req: AnalyticsSaveRequest):
+        """Uloží záver, nie obchody — tie ostávajú v behoch, na ktoré sa záznam odkazuje."""
+        strategy = req.report.get("strategy") or "ibs"
+        if strategy not in STRATEGIES:
+            raise HTTPException(422, f"neznáma stratégia {strategy!r}")
+        if not (req.report.get("runs") or []):
+            raise HTTPException(422, "report nemá behy, z ktorých vznikol")
+        return anstore.save(req.report, strategy=strategy, note=req.note.strip(),
+                            user=_clean_user(req.user) or "")
+
+    @app.delete("/api/analytics/history/{an_id}")
+    def analytics_delete(an_id: str):
+        if not anstore.delete(an_id):
+            raise HTTPException(404, f"analytika {an_id} v histórii nie je")
+        return {"deleted": an_id}
 
     @app.get("/api/prop/meta")
     def prop_meta():

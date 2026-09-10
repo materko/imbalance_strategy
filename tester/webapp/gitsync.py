@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from tradebot.core.env import getenv
-from tradebot.core.paths import REPO
+from tradebot.core.paths import ANALYTICS_DIR, REPO
 from .profiles import PROFILES_DIR
 from .store import RUNS_DIR
 
@@ -63,7 +63,7 @@ def _auth_failed(output: str) -> bool:
 
 def _paths() -> list[str]:
     """Adresáre, ktoré Push commituje — prázdny (neexistujúci) sa vynechá, git by naň nadával."""
-    dirs = [Path(RUNS_DIR), Path(PROFILES_DIR)]
+    dirs = [Path(RUNS_DIR), Path(PROFILES_DIR), Path(ANALYTICS_DIR)]
     return [d.relative_to(REPO).as_posix() for d in dirs if d.exists()]
 
 

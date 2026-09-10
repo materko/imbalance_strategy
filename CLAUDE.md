@@ -264,12 +264,12 @@ celá aktualizácia spraviť aj opätovným spustením inštalátora:
 
 ```bash
 PY -m tester.webapp.cli pull    # stiahni behy ostatných (git pull --rebase --autostash)
-PY -m tester.webapp.cli push    # commitni LEN runs/ a profiles/ a pushni na aktuálnu vetvu
+PY -m tester.webapp.cli push    # commitni LEN runs/, profiles/ a analytics/ a pushni na aktuálnu vetvu
 ```
 
 To isté robia tlačidlá Pull/Push vo webapp. Push ide vždy do **`main`** (nie na vetvu,
 na ktorej klon stojí; iný cieľ cez `TRADEBOT_GIT_BRANCH`) a commituje **výhradne** adresáre
-`tester/runs/` a `tester/profiles/`,
+`tester/runs/`, `tester/profiles/` a `tester/analytics/` (uložené analytiky),
 autor je meno testera (`TRADEBOT_USER` alebo `git config user.name`). Každý beh je nový
 adresár, konflikty prakticky nevznikajú.
 Ak push zlyhá na „rejected", sprav pull a push znova. Ak zlyhá na „could not read

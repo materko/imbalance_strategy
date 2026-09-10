@@ -67,6 +67,11 @@ hodnota od brokera, je to jeden riadok v `tradebot/core/instruments_dukascopy.js
 0,01, teda sto tickov na jeden bod indexu, takže jeden tick je tam hlboko pod skutočným
 spreadom.
 
+**Filtre v histórii.** Nad tabuľkou behov sú tri ponuky — **stratégia** (predvolene tá,
+ktorá je práve nastavená vo formulári), **pár** a **timeframe**. Skladajú sa s tým, čo je
+vo vyhľadávaní, ale do textu sa nezapisujú, aby sa testerovi neprepisovalo, čo si sám
+napísal. To isté z príkazového riadku: `list "strategy=ibs pair=NAS100/USD tf=3m"`.
+
 ## 4. Čomu neveriť
 
 - **Jeden rok o stratégii nič nepovie.** Každý záver over na piatich referenčných oknách:
@@ -327,6 +332,21 @@ Dve veci, ktoré treba pri čítaní vedieť:
 
 Súbežné pozície sa nekrátia — keď majú dvaja členovia otvorené naraz, obaja sú sizovaní
 z vtedajšieho zostatku a margin sa nekontroluje. Je to teda horná hranica toho, čo by šlo.
+
+### História analytiky
+Analytika sa počíta nad výberom behov a inak by zmizla s obnovením stránky. Tlačidlo
+**Uložiť do histórie** zapíše **záver, nie obchody** (tie ostávajú v behoch, na ktoré sa
+záznam odkazuje) do `tester/analytics/` a ponuka **Predošlé analytiky tejto stratégie** sa
+k nemu vráti. Rovnako ako mriežky a matice je to **per stratégia**: vlastnosti aj parametre
+sú pri každej iné, takže zliate v jednom zozname by sa neporovnávali.
+
+```bash
+PY -m tester.webapp.cli analytics                 # zoznam
+PY -m tester.webapp.cli analytics --strategy ibs
+PY -m tester.webapp.cli analytics <id>            # detail aj s tabuľkou
+```
+
+Push ich commituje spolu s behmi, takže sa dajú zdieľať cez GitHub.
 
 ## 8c. Je ten edge odlíšiteľný od náhody?
 

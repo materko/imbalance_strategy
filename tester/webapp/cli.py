@@ -571,6 +571,42 @@ def cmd_paper(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_analytics(args: argparse.Namespace) -> int:
+    """Ulozene analytiky - per strategia, od najnovsej."""
+    from .. import analytics as an
+    from .anstore import AnalyticsStore
+
+    st = AnalyticsStore()
+    if args.analytics_id:
+        z = st.get(args.analytics_id)
+        if z is None:
+            raise SystemExit(f"analytika {args.analytics_id} v historii nie je")
+        print(f"=== {z['id']} ({z['strategy']}) ===")
+        print(f"ulozena {z['created'][:19]}"
+              + (f", {z['user']}" if z.get("user") else ""))
+        if z.get("note"):
+            print(f"poznamka: {z['note']}")
+        print(f"{z['trades']} obchodov z {len(z['run_ids'])} behov: "
+              f"{', '.join(z.get('pairs') or []) or '-'}")
+        print(f"behy: {', '.join(z['run_ids'])}")
+        print()
+        print(an.table(z["report"]))
+        return 0
+
+    polozky = st.list(args.strategy or "", limit=args.limit)
+    if not polozky:
+        print("historia analytiky je prazdna"
+              + (f" pre strategiu {args.strategy}" if args.strategy else ""))
+        return 1
+    print(f"{'analytika':<24}{'strategia':<12}{'obch.':>7}{'behov':>7}{'break-even':>12}  poznamka")
+    for x in polozky:
+        be = "-" if x.get("break_even_pct") is None else f"{x['break_even_pct']:+.4f}"
+        print(f"{x['id']:<24}{x['strategy']:<12}{x['trades'] or 0:>7}{x['runs']:>7}{be:>12}  "
+              f"{(x.get('note') or '')[:50]}")
+    print("\ndetail: python -m tester.webapp.cli analytics <id>")
+    return 0
+
+
 def cmd_prop(args: argparse.Namespace) -> int:
     """Prop vyzva: dostane sa strategia k vyplate skor, nez ucet zhori?"""
     from dataclasses import replace
@@ -1275,6 +1311,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--stdout", action="store_true", help="vypísať, nezapisovať súbor")
     p.set_defaults(func=cmd_paper)
 
+    p = sub.add_parser("analytics", help="uložené analytiky (per stratégia); s id vypíše jednu")
+    p.add_argument("analytics_id", nargs="?", help="id analytiky (bez neho sa vypíše zoznam)")
+    p.add_argument("--strategy", help="len analytiky tejto stratégie")
+    p.add_argument("--limit", type=int, default=30)
+    p.set_defaults(func=cmd_analytics)
+
     p = sub.add_parser("prop", help="prop výzva: aká je šanca dostať sa k výplate?")
     p.add_argument("query", nargs="*", help="dopyt na behy (rovnaká syntax ako `list`)")
     p.add_argument("--runs", help="konkrétne behy oddelené čiarkou (namiesto dopytu)")
@@ -1387,7 +1429,7 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("pull", help="stiahni históriu behov z GitHubu (git pull --rebase)")
     p.set_defaults(func=cmd_pull)
 
-    p = sub.add_parser("push", help="commitni LEN runs/ a profiles/ a pushni")
+    p = sub.add_parser("push", help="commitni LEN runs/, profiles/ a analytics/ a pushni")
     p.add_argument("--user", help="autor commitu (default TRADEBOT_USER)")
     p.set_defaults(func=cmd_push)
 

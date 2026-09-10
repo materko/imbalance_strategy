@@ -456,3 +456,7 @@ table.runs td { padding: 10px; }
   .params-body { min-height: 320px; }
   .basic-mode .params-body { min-height: 0; }
 }
+/* Filtre histórie: stratégia je povinná otázka, pár a TF sú spresnenie. */
+.filter-row { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center;
+              margin: 6px 0 10px; }
+.filter-row select { min-width: 120px; }
