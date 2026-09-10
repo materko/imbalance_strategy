@@ -40,7 +40,7 @@ __all__ = [
     "QUOTEMANAGER_DATA",
     "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS",
     "MULTICHARTS_DIR",
-    "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES",
+    "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES", "ANALYTICS_DIR",
     "DOCS_DIR", "MERANIA_DIR",
     "ARCHIVE_ROOTS",
 ]
@@ -84,6 +84,9 @@ RUNS_DIR = TESTER_DIR / "runs"
 PROFILES_DIR = TESTER_DIR / "profiles"
 #: Dočasné profily rozbehnutých behov — vedľa histórie, ale gitignored.
 TMP_PROFILES = RUNS_DIR / ".profiles"
+#: História analytiky. Vedľa behov, nie v nich: analytika nie je beh, je to pohľad na
+#: viac behov naraz — a rovnako ako behy sa zdieľa cez git (Push ju commituje).
+ANALYTICS_DIR = TESTER_DIR / "analytics"
 
 # -- Dokumentácia ----------------------------------------------------------- #
 

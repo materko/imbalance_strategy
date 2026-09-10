@@ -393,9 +393,17 @@ function setStrategy(key) {
 }
 
 function fillSettings() {
+  fillHistoryFilters();
   const ss = $("#strategy"); ss.innerHTML = "";
   for (const s of state.meta.strategies) { const o = document.createElement("option"); o.value = s.key; o.textContent = s.title; ss.append(o); }
-  ss.onchange = async () => { setStrategy(ss.value); $("#profile").value = ""; await loadProfile(""); };
+  ss.onchange = async () => {
+    setStrategy(ss.value);
+    const f = $("#filter-strategy");
+    if (f && f.value) { f.value = ss.value; historyPage.offset = 0; }
+    loadAnalyticsHistory();
+    $("#profile").value = "";
+    await loadProfile("");
+  };
   fillProfiles();
   const pair = $("#pair"); pair.innerHTML = "";
   // z jedného riadku má byť vidno, odkiaľ sviečky sú, aký je to trh a ako sa pár volá
@@ -1673,8 +1681,45 @@ function fmtVal(v) { return typeof v === "object" && v !== null ? `${v.value} ${
 
 const historyPage = { offset: 0, size: 50, query: "", seq: 0, controller: null };
 
+/** Naplní filtre histórie z metadát. Volá sa raz, po načítaní `/api/meta`. */
+function fillHistoryFilters() {
+  const strat = $("#filter-strategy");
+  const pair = $("#filter-pair");
+  const tf = $("#filter-tf");
+  if (!strat || strat.dataset.ready) return;
+  for (const x of state.meta.strategies || []) {
+    strat.append(new Option(x.title, x.key));
+  }
+  for (const p of state.meta.pairs || []) pair.append(new Option(p.pair, p.pair));
+  const tfs = [...new Set((state.meta.pairs || []).flatMap(p => p.timeframes || []))]
+    .sort((a, b) => (TF_MINUTES[a] || 0) - (TF_MINUTES[b] || 0));
+  for (const x of tfs) tf.append(new Option(x, x));
+  strat.dataset.ready = "1";
+  // Predvolene sa ukazuje prave aktivna strategia: behy inej strategie maju ine
+  // parametre, takze zmiesane v jednej tabulke sa neporovnavaju.
+  strat.value = state.strategy || "";
+  for (const el of [strat, pair, tf]) el.onchange = () => { historyPage.offset = 0; loadRuns(); };
+  $("#filter-reset").onclick = () => {
+    strat.value = pair.value = tf.value = "";
+    historyPage.offset = 0;
+    loadRuns();
+  };
+}
+
+/** Dopyt = to, co je v hladani, plus zvolene filtre. Filtre sa do textu nepisu, aby
+ *  sa uzivatelovi neprepisovalo, co si sam napisal. */
+function historyQuery() {
+  const casti = [$("#search").value.trim()];
+  for (const [id, kluc] of [["#filter-strategy", "strategy"], ["#filter-pair", "pair"],
+                            ["#filter-tf", "tf"]]) {
+    const v = ($(id)?.value || "").trim();
+    if (v) casti.push(`${kluc}=${v}`);
+  }
+  return casti.filter(Boolean).join(" ");
+}
+
 async function loadRuns() {
-  const q = $("#search").value.trim();
+  const q = historyQuery();
   if (q !== historyPage.query) { historyPage.offset = 0; historyPage.query = q; }
   const seq = ++historyPage.seq;
   historyPage.controller?.abort();
@@ -2370,12 +2415,15 @@ async function loadAnalytics() {
     // Meranie sa pise z tych istych behov, takze tlacidlo ma zmysel az teraz.
     state.analytics = r;
     $("#an-paper").disabled = false;
+    $("#an-save").disabled = false;
+    $("#an-history").value = "";
     $("#an-status").textContent = "";
   } catch (e) {
     $("#an-status").textContent = e.message;
     $("#an-summary").innerHTML = "";
     $("#an-result").innerHTML = "";
     $("#an-paper").disabled = true;
+    $("#an-save").disabled = true;
   } finally { btn.disabled = false; }
 }
 
@@ -2402,6 +2450,75 @@ async function writePaper() {
   } catch (e) {
     $("#an-status").textContent = e.message;
   } finally { btn.disabled = false; }
+}
+
+// --------------------------------------------------------------------------- //
+// Historia analytiky — per strategia, rovnako ako mriezky a matice
+// --------------------------------------------------------------------------- //
+
+/** Naplni ponuku ulozenych analytik. Per strategia: vlastnosti aj parametre su pri
+ *  kazdej ine, takze zliate v jednom zozname by sa neporovnavali. */
+async function loadAnalyticsHistory(vybrat = "") {
+  const sel = $("#an-history");
+  if (!sel) return;
+  try {
+    const r = await api(`/api/analytics/history?strategy=${encodeURIComponent(state.strategy)}`);
+    sel.innerHTML = '<option value="">— nová analytika —</option>'
+      + (r.items || []).map(x => {
+        const be = x.break_even_pct === null || x.break_even_pct === undefined
+          ? "" : ` · break-even ${fmt(x.break_even_pct, 4)} %`;
+        const popis = `${anStamp(x.created)} · ${x.trades} obch. z ${x.runs} behov${be}`
+          + (x.note ? ` · ${x.note}` : "");
+        return `<option value="${esc(x.id)}">${esc(popis)}</option>`;
+      }).join("");
+    sel.value = vybrat;
+  } catch (e) {
+    sel.innerHTML = `<option value="">história sa nenačítala: ${esc(e.message)}</option>`;
+  }
+}
+
+function anStamp(iso) {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? String(iso).slice(0, 16)
+    : d.toLocaleString("sk-SK", { dateStyle: "short", timeStyle: "short" });
+}
+
+/** Otvori ulozenu analytiku — vykresli sa tym istym kodom ako cerstva. */
+async function openAnalyticsHistory(id) {
+  if (!id) return;
+  $("#an-status").textContent = "načítavam…";
+  try {
+    const z = await api(`/api/analytics/history/${encodeURIComponent(id)}`);
+    state.analytics = z.report;
+    renderAnalytics(z.report);
+    $("#an-paper").disabled = false;
+    $("#an-save").disabled = true;      // ulozene sa neuklada druhykrat
+    $("#an-status").innerHTML = `uložená ${esc(anStamp(z.created))}`
+      + (z.note ? ` · ${esc(z.note)}` : "");
+  } catch (e) {
+    $("#an-status").textContent = e.message;
+  }
+}
+
+/** Ulozi zaver do historie. Obchody sa neukladaju - tie su v behoch. */
+async function saveAnalytics() {
+  const r = state.analytics;
+  if (!r) return;
+  const note = prompt("Čo si tým zisťoval? (poznámka do histórie)", "") ?? "";
+  const btn = $("#an-save");
+  btn.disabled = true;
+  $("#an-status").textContent = "ukladám…";
+  try {
+    const out = await api("/api/analytics/history", {
+      method: "POST",
+      body: JSON.stringify({ report: r, note, user: currentUser() || "" }),
+    });
+    await loadAnalyticsHistory(out.id);
+    $("#an-status").textContent = `uložené ako ${out.id}`;
+  } catch (e) {
+    $("#an-status").textContent = e.message;
+    btn.disabled = false;
+  }
 }
 
 // --------------------------------------------------------------------------- //
@@ -2741,6 +2858,9 @@ function showView(name) {
   $("#view-analytics").hidden = name !== "analytics";
   // karta História je vždy celý zoznam — otvorený detail behu sa zavrie, nech neprekrýva tabuľku
   if (name === "history") { closeDetail(); loadRuns(); }
+  // Historia analytiky je per strategia, takze sa nacita az pri otvoreni karty - vtedy
+  // uz je jasne, ktora strategia je zvolena.
+  if (name === "analytics") loadAnalyticsHistory();
 }
 
 async function init() {
@@ -2777,6 +2897,8 @@ async function init() {
   initSweep();
   $("#an-run").onclick = loadAnalytics;
   $("#an-paper").onclick = writePaper;
+  $("#an-save").onclick = saveAnalytics;
+  $("#an-history").onchange = () => openAnalyticsHistory($("#an-history").value);
   $("#prop-run").onclick = runProp;
   $("#prop-box").addEventListener("toggle", () => {
     if ($("#prop-box").open) loadPropMeta().catch(e => { $("#prop-status").textContent = e.message; });
