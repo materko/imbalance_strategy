@@ -18,6 +18,11 @@ Príkaz spustí päť referenčných okien (behy ostanú v histórii ako každý
 obchodmi prejde celú batériu a dokument prepíše. Ručné úpravy v ňom nemajú zmysel —
 nabudúce sa stratia; čo treba doplniť rukou, patrí do merania v `docs/merania/`.
 
+To meranie píše `cli paper` a **meria tou istou batériou** (`checkup.measure`), len ho
+zapíše ako datovaný snímok a pridá k nemu dve veci, ktoré k jednej stratégii nepatria:
+maticu trhov a cenu rizika. Rozdiel je v živote dokumentu — tento sa prepisuje, meranie
+ostáva ([AI_TESTING.md §8h](../tester/AI_TESTING.md)).
+
 Bez zápisu (len výpis do konzoly) `--no-write`, z hotových behov namiesto nových
 `--runs <id>,<id>,…`, iné okná `--windows`.
 

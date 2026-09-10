@@ -445,12 +445,14 @@ označí za starý a treba ho prepísať. Podrobne: [docs/ANALYTIKA.md](../docs/
 
 ## 8h. Meranie, ktoré sa napíše samo
 
-Rozdiel oproti batérii vyššie: `checkup` udržiava **jeden dokument pri stratégii**, ktorý sa celý prepisuje a hovorí, aká tá stratégia je dnes. `paper` zapíše **datovaný snímok** do `docs/merania/` z tých behov, ktoré mu dáš — teda čo sa meralo v ten deň a čo z toho vyšlo. Prvý sa mení, druhý ostáva.
+Rozdiel oproti batérii vyššie je v **živote dokumentu**, nie v meraní: `checkup` udržiava
+jeden dokument pri stratégii, ktorý sa celý prepisuje a hovorí, aká tá stratégia je dnes.
+`paper` zapíše **datovaný snímok** do `docs/merania/` z tých behov, ktoré mu dáš — čo sa
+meralo v ten deň a čo z toho vyšlo. Prvý sa mení, druhý ostáva.
 
-Analýz je osem a každá odpovedá na inú otázku. Kým sú roztrúsené po termináli, nikto z nich
-záver neposkladá — a o týždeň si už nikto nespomenie, z ktorých behov to bolo. Tento
-príkaz vezme behy z histórie, pustí nad nimi všetko a zapíše datovaný dokument do
-`docs/merania/` v tvare, aký repozitár používa.
+Merá sa **tou istou batériou** (`checkup.measure`), inak by sa dva dokumenty o tej istej
+stratégii nedali porovnať. Meranie navyše pridáva dve veci, ktoré k jednej stratégii
+nepatria, ale k otázke áno: **maticu trhov** a **cenu rizika**.
 
 ```bash
 PY -m tester.webapp.cli paper --runs <id1>,<id2>,... --title "IBS na BTC 3m"
@@ -460,12 +462,11 @@ PY -m tester.webapp.cli paper "pair=BTC/USDT:USDT" --limit 12 --stdout
 To isté je tlačidlo **Zapísať meranie** na karte Analytika (z tých istých behov, aké sú
 práve na stránke).
 
-Dokument má osem sekcií — charakter, po oknách, interval okolo výsledku, proti náhode,
-slabne edge, ktorá skupina obchodov ho kazí, matica trhov, cena rizika — a k tomu tri
-veci, kvôli ktorým to má zmysel:
+Tri veci, kvôli ktorým to má zmysel:
 
 - **Prázdny `## Záver`.** Vygenerovaná záverečná veta by vyzerala ako zistenie, a nie je;
-  patrí tam veta človeka. Zhrnutie hore je zoznam verdiktov jednotlivých testov.
+  patrí tam veta človeka. Zhrnutie hore je tabuľka verdiktov a pod ňou tie isté vety
+  („v čom je dobrá", „kde má chyby"), aké má stratégia vo svojej `ANALYTIKA.md`.
 - **Sekcia „Na čo behy nestačili".** Čo sa nespočítalo, sa nezamlčí — dokument to povie
   aj s príkazom, ktorým sa to doplní. Prázdna tabuľka plná pomlčiek vyzerá ako zmerané
   nič, hoci sa nemeralo.
