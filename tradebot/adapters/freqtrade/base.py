@@ -32,6 +32,7 @@ from tradebot.core.env import getenv
 from tradebot.strategies import StrategySpec, get_spec
 
 from . import hyperplan
+from .ai import AIMixin, settings_of as ai_settings
 from .runner import COLUMN_ATTRS, EngineRunner, SignalRow, export_chart
 
 logger = logging.getLogger(__name__)
@@ -77,7 +78,7 @@ def _bar(row, ts: int) -> Bar:
     )
 
 
-class TradebotStrategyBase(IStrategy):
+class TradebotStrategyBase(AIMixin, IStrategy):
     """Spoločné správanie pre všetky stratégie TradeBotu vo Freqtrade."""
 
     #: kľúč v `tradebot.strategies.STRATEGIES`
@@ -388,8 +389,34 @@ class TradebotStrategyBase(IStrategy):
         for col, attr in COLUMN_ATTRS.items():
             dataframe[col] = [getattr(rows.get(ts, empty), attr) for ts in ts_index]
 
+        # AI vrstva ide AŽ TERAZ: príznaky aj nálepka stoja na tom, čo engine vypočítal
+        # (signál a plán obchodu), takže bez `tb_*` stĺpcov by nemala z čoho vychádzať.
+        dataframe = self._ai_step(dataframe, metadata, pair)
+
         self._log_populate(pair, dataframe, runner)
         self._export_chart(pair, runner)
+        return dataframe
+
+    def _ai_step(self, dataframe: DataFrame, metadata: dict, pair: str) -> DataFrame:
+        """Model nad hotovými signálmi. Bez zapnutej AI vrstvy nerobí nič."""
+        if not ai_settings(self.config):
+            return dataframe
+        freqai = getattr(self, "freqai", None)
+        if freqai is None:      # pragma: no cover - config bez sekcie `freqai`
+            logger.warning("%s: AI vrstva je zapnuta, ale Freqtrade nema `freqai` config",
+                           self.spec.key)
+            return dataframe
+        # Keď sa model nenatrénuje (v okne bola len jedna trieda, málo nálepiek), FreqAI
+        # to zahlási a predikcia v dataframe nie je. Vtedy sa NEFILTRUJE — model, ktorý
+        # nevie, nemá právo vetovať, a beh má dobehnúť ako obyčajný.
+        try:
+            dataframe = freqai.start(dataframe, metadata, self)
+        except (KeyError, ValueError) as exc:
+            logger.warning("%s %s: AI vrstva sa nenatrenovala (%s) - bezi sa bez filtra",
+                           self.spec.key, pair, exc)
+            return dataframe
+        self.ai_remember(pair, dataframe)
+        dataframe, _ = self.ai_gate(dataframe, pair)
         return dataframe
 
     def _export_chart(self, pair: str, runner: EngineRunner) -> None:
@@ -540,7 +567,10 @@ class TradebotStrategyBase(IStrategy):
             return proposed_stake
 
         rate = row.entry if row.entry == row.entry and row.entry > 0 else current_rate
-        wanted = row.qty * rate / max(leverage, 1.0) * (1.0 + _STAKE_EPS)
+        # Časť 2: čím si je model istejší, tým väčšia pozícia. Mantinely sú zo zadania
+        # behu, takže model nemôže poslať veľkosť ani do neba, ani na nulu.
+        nasobok = self.ai_scale(pair, self._tag_ts(entry_tag) or 0, "size")
+        wanted = row.qty * nasobok * rate / max(leverage, 1.0) * (1.0 + _STAKE_EPS)
         stake = wanted
         if min_stake is not None:
             stake = max(stake, min_stake)
@@ -601,9 +631,17 @@ class TradebotStrategyBase(IStrategy):
         levels = self._levels(pair, trade)
         if levels is None:
             return None
-        _, take_profit = levels
+        stop_loss, take_profit = levels
         if take_profit != take_profit:  # NaN
             return None
+        # Časť 2: istejší model si dovolí vzdialenejší take profit. Posúva sa NÁSOBOK
+        # rizika, nie cena — vzdialenosť stopu ostáva tá, ktorú spočítal engine, takže
+        # riziko na obchod sa nemení, mení sa len to, koľko sa zaň pýta.
+        nasobok = self.ai_scale(pair, self._tag_ts(getattr(trade, "enter_tag", None)) or 0, "rr")
+        if nasobok != 1.0 and stop_loss == stop_loss:
+            riziko = abs(trade.open_rate - stop_loss)
+            smer = -1.0 if trade.is_short else 1.0
+            take_profit = trade.open_rate + smer * riziko * abs(take_profit - trade.open_rate) / max(riziko, 1e-12) * nasobok
         return trade.calc_profit_ratio(take_profit)
 
     def custom_exit(

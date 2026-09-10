@@ -241,3 +241,71 @@ def default_engine(inst: InstrumentSpec, timeframe: str = "3m") -> str:
     if _is_off_exchange(inst):
         return MULTICHARTS if MULTICHARTS in engines else FREQTRADE
     return engines[0] if engines else FREQTRADE
+
+
+# --------------------------------------------------------------------------- #
+# FreqAI: filter nad portom
+# --------------------------------------------------------------------------- #
+
+#: Predvolené nastavenie AI vrstvy. Zámerne skromné — model má rádovo stovky nálepiek,
+#: takže široké okno a málo pretrénovaní je bezpečnejšie než opak.
+AI_DEFAULTS: dict[str, Any] = {
+    "model": "LightGBMClassifier",
+    # Dva roky tréningu a pol roka medzi pretrénovaniami. Sú to zámerne veľké čísla:
+    # nálepku dostane len bar so signálom, takže stratégia s 30 obchodmi za rok má
+    # v polročnom okne pätnásť nálepiek — a model, ktorý v tréningu nevidí obe triedy,
+    # sa vôbec nenatrénuje. Menšie okná znamenajú častejšie pretrénovanie a ešte menej
+    # nálepiek na jedno.
+    "train_period_days": 730,
+    "backtest_period_days": 180,
+    "min_probability": 0.55,
+    "adjust": {},
+}
+
+
+def ai_config(inst: InstrumentSpec, exchange: str | None, timeframe: str,
+              ai: dict[str, Any]) -> Path:
+    """Config s blokom `freqai` a s naším nastavením filtra.
+
+    Vyrába sa zo `stake_config`, aby ostalo všetko ostatné (mena, burza) rovnaké. Príznaky
+    si stratégia počíta sama v `feature_engineering_standard`, takže sa tu **vypína** celé
+    štandardné rozširovanie FreqAI: žiadne posunuté sviečky, žiadne korelované páry,
+    jedna perióda. Pri stovkách nálepiek by desiatky príznakov naučili model vzorku.
+    """
+    import json
+
+    from tradebot.core.paths import TMP_PROFILES
+
+    nastavenie = {**AI_DEFAULTS, **(ai or {})}
+    data = json.loads(Path(stake_config(inst, exchange)).read_text(encoding="utf-8"))
+    data["freqai"] = {
+        "enabled": True,
+        "identifier": nastavenie.get("identifier") or "tradebot",
+        "train_period_days": int(nastavenie["train_period_days"]),
+        "backtest_period_days": int(nastavenie["backtest_period_days"]),
+        "fit_live_predictions_candles": 300,
+        "purge_old_models": 2,
+        "feature_parameters": {
+            "include_timeframes": [timeframe],
+            "include_corr_pairlist": [],
+            "label_period_candles": 0,
+            "include_shifted_candles": 0,
+            "indicator_periods_candles": [10],
+            "DI_threshold": 0,
+            "weight_factor": 0,
+            "principal_component_analysis": False,
+            "use_SVM_to_remove_outliers": False,
+        },
+        "data_split_parameters": {"test_size": 0.2, "shuffle": False},
+        "model_training_parameters": dict(nastavenie.get("model_training_parameters") or {}),
+    }
+    # Naše nastavenie ide do configu vedľa, nie do `freqai` — Freqtrade by cudzí kľúč
+    # v jeho schéme odmietol.
+    data["tradebot_ai"] = {
+        "min_probability": float(nastavenie["min_probability"]),
+        "adjust": dict(nastavenie.get("adjust") or {}),
+    }
+    out = TMP_PROFILES / f"config.ai.{inst.quote_currency.lower()}.{market_kind(inst)}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return out
