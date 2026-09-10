@@ -1,0 +1,402 @@
+$ /Users/martin/document/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json --userdir /Users/martin/document/IBS/deploy/freqtrade/user_data --strategy GapStrategy --cache none --export trades --timerange 20250904-20260904 --pairs NAS100/USD --timeframe 5m --dry-run-wallet 10000.0 --fee 3.9087247113328627e-07 --timeframe-detail 1m --datadir /Users/martin/document/IBS/data/tester/dukascopy/futures
+2026-09-10 20:44:44,052 - freqtrade - INFO - freqtrade 2026.8
+2026-09-10 20:44:44,714 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json ...
+2026-09-10 20:44:44,716 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-10 20:44:44,716 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-09-10 20:44:44,717 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/document/IBS/deploy/freqtrade/user_data ...
+2026-09-10 20:44:44,717 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/document/IBS/data/tester/dukascopy/futures ...
+2026-09-10 20:44:44,719 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-10 20:44:44,741 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy GapStrategy from '/Users/martin/document/IBS/deploy/freqtrade/user_data/strategies/GapStrategy.py'...
+'/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-09-10 20:44:45,584 - tradebot.adapters.freqtrade.base - INFO - gap NAS100/USD: kresby ulozene do /Users/martin/document/IBS/tester/runs/.profiles/20260910-184443-f94972.chart.json.gz (194 
+2026-09-10 20:44:45,661 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24247.37 na 9900.00 (40.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,661 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24247.37 na 9900.00 (40.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,661 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24247.37 na 9900.00 (40.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,662 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24247.37 na 9900.00 (40.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,662 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24247.37 na 9900.00 (40.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,703 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24600.68 na 9900.00 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,703 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24600.68 na 9900.00 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,704 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24600.68 na 9900.00 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,704 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24600.68 na 9900.00 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,704 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24600.68 na 9900.00 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,710 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25089.72 na 9900.00 (39.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,710 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25089.72 na 9900.00 (39.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,710 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25089.72 na 9900.00 (39.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,710 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25089.72 na 9900.00 (39.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,710 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25089.72 na 9900.00 (39.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,733 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25507.97 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,733 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25507.97 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,733 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25507.97 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,733 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25507.97 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,733 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25507.97 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,749 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25131.09 na 9900.00 (39.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,749 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25131.09 na 9900.00 (39.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,749 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25131.09 na 9900.00 (39.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,749 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25131.09 na 9900.00 (39.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,749 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25131.09 na 9900.00 (39.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,761 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24677.85 na 9900.00 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,761 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24677.85 na 9900.00 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,761 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24677.85 na 9900.00 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,761 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24677.85 na 9900.00 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,761 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24677.85 na 9900.00 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,782 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25601.29 na 9900.00 (38.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,782 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25601.29 na 9900.00 (38.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,782 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25601.29 na 9900.00 (38.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,782 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25601.29 na 9900.00 (38.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,782 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25601.29 na 9900.00 (38.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,810 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25524.03 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,810 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25524.03 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,810 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25524.03 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,810 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25524.03 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,811 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25524.03 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,812 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25419.14 na 9900.00 (38.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,812 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25419.14 na 9900.00 (38.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,813 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25419.14 na 9900.00 (38.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,813 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25419.14 na 9900.00 (38.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,813 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25419.14 na 9900.00 (38.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,823 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25675.09 na 9900.00 (38.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,823 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25675.09 na 9900.00 (38.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,823 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25675.09 na 9900.00 (38.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,823 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25675.09 na 9900.00 (38.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,823 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25675.09 na 9900.00 (38.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,825 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25474.59 na 9900.00 (38.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,825 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25474.59 na 9900.00 (38.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,825 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25474.59 na 9900.00 (38.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,825 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25474.59 na 9900.00 (38.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,825 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25474.59 na 9900.00 (38.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,833 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25748.60 na 9900.00 (38.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,833 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25748.60 na 9900.00 (38.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,833 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25748.60 na 9900.00 (38.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,833 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25748.60 na 9900.00 (38.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,833 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25748.60 na 9900.00 (38.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,849 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25487.48 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,849 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25487.48 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,849 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25487.48 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,849 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25487.48 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,849 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25487.48 na 9900.00 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,858 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25858.98 na 9900.00 (38.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,858 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25858.98 na 9900.00 (38.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,859 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25858.98 na 9900.00 (38.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,859 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25858.98 na 9900.00 (38.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,859 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25858.98 na 9900.00 (38.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,861 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25773.77 na 9900.00 (38.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,861 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25773.77 na 9900.00 (38.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,861 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25773.77 na 9900.00 (38.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,861 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25773.77 na 9900.00 (38.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,861 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25773.77 na 9900.00 (38.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,868 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25240.53 na 9900.00 (39.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,869 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25240.53 na 9900.00 (39.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,869 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25240.53 na 9900.00 (39.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,869 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25240.53 na 9900.00 (39.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,869 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25240.53 na 9900.00 (39.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,876 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25084.46 na 9900.00 (39.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,876 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25084.46 na 9900.00 (39.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,877 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25084.46 na 9900.00 (39.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,877 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25084.46 na 9900.00 (39.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,877 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 25084.46 na 9900.00 (39.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,883 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24701.89 na 9900.00 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,883 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24701.89 na 9900.00 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,883 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24701.89 na 9900.00 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,883 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24701.89 na 9900.00 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,883 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24701.89 na 9900.00 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,888 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24657.14 na 9900.00 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,889 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24657.14 na 9900.00 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,889 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24657.14 na 9900.00 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,889 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24657.14 na 9900.00 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,889 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24657.14 na 9900.00 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,899 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24835.09 na 9900.00 (39.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,899 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24835.09 na 9900.00 (39.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,899 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24835.09 na 9900.00 (39.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,899 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24835.09 na 9900.00 (39.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,900 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24835.09 na 9900.00 (39.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,904 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24888.70 na 9900.00 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,904 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24888.70 na 9900.00 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,904 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24888.70 na 9900.00 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,904 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24888.70 na 9900.00 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,904 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24888.70 na 9900.00 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,935 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24079.28 na 9900.00 (41.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,935 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24079.28 na 9900.00 (41.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,935 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24079.28 na 9900.00 (41.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,935 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24079.28 na 9900.00 (41.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,935 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24079.28 na 9900.00 (41.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,978 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26616.44 na 9900.00 (37.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,978 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26616.44 na 9900.00 (37.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,979 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26616.44 na 9900.00 (37.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,979 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26616.44 na 9900.00 (37.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,979 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26616.44 na 9900.00 (37.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,983 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26932.77 na 9900.00 (36.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,983 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26932.77 na 9900.00 (36.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,983 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26932.77 na 9900.00 (36.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,984 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26932.77 na 9900.00 (36.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,984 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26932.77 na 9900.00 (36.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,989 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27243.03 na 9900.00 (36.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,989 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27243.03 na 9900.00 (36.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,990 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27243.03 na 9900.00 (36.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,990 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27243.03 na 9900.00 (36.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:45,990 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27243.03 na 9900.00 (36.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,038 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30366.11 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,038 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30366.11 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,039 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30366.11 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,039 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30366.11 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,039 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30366.11 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,052 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29104.46 na 9900.00 (34.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,052 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29104.46 na 9900.00 (34.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,052 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29104.46 na 9900.00 (34.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,052 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29104.46 na 9900.00 (34.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,053 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29104.46 na 9900.00 (34.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,061 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30536.25 na 9900.00 (32.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,061 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30536.25 na 9900.00 (32.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,062 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30536.25 na 9900.00 (32.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,062 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30536.25 na 9900.00 (32.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,062 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30536.25 na 9900.00 (32.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,066 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30359.75 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,066 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30359.75 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,067 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30359.75 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,067 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30359.75 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,067 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30359.75 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,096 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29730.45 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,096 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29730.45 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,096 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29730.45 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,097 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29730.45 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,097 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29730.45 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,123 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27642.55 na 9900.00 (35.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,123 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27642.55 na 9900.00 (35.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,123 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27642.55 na 9900.00 (35.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,124 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27642.55 na 9900.00 (35.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,124 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27642.55 na 9900.00 (35.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,131 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 28401.80 na 9900.00 (34.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,131 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 28401.80 na 9900.00 (34.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,131 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 28401.80 na 9900.00 (34.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,131 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 28401.80 na 9900.00 (34.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,132 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 28401.80 na 9900.00 (34.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,142 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29706.26 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,142 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29706.26 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,142 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29706.26 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,143 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29706.26 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,143 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29706.26 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,168 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29550.93 na 9900.00 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,168 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29550.93 na 9900.00 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,169 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29550.93 na 9900.00 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,169 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29550.93 na 9900.00 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,169 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29550.93 na 9900.00 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,173 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29386.18 na 9900.00 (33.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,173 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29386.18 na 9900.00 (33.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,173 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29386.18 na 9900.00 (33.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,173 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29386.18 na 9900.00 (33.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,174 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29386.18 na 9900.00 (33.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-10 20:44:46,264 - freqtrade.misc - INFO - dumping json to "/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/backtest-result-2026-09-10_18-44-46.meta.json"
+…
+2026-09-10 20:44:45,889 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24657.14 na 9900.00 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,889 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24657.14 na 9900.00 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,889 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24657.14 na 9900.00 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,889 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24657.14 na 9900.00 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,899 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24835.09 na 9900.00 (39.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,899 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24835.09 na 9900.00 (39.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,899 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24835.09 na 9900.00 (39.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,899 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24835.09 na 9900.00 (39.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,900 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24835.09 na 9900.00 (39.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,904 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24888.70 na 9900.00 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,904 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24888.70 na 9900.00 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,904 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24888.70 na 9900.00 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,904 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24888.70 na 9900.00 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,904 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24888.70 na 9900.00 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,935 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24079.28 na 9900.00 (41.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,935 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24079.28 na 9900.00 (41.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,935 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24079.28 na 9900.00 (41.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,935 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24079.28 na 9900.00 (41.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,935 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 24079.28 na 9900.00 (41.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,978 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26616.44 na 9900.00 (37.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,978 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26616.44 na 9900.00 (37.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,979 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26616.44 na 9900.00 (37.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,979 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26616.44 na 9900.00 (37.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,979 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26616.44 na 9900.00 (37.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,983 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26932.77 na 9900.00 (36.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,983 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26932.77 na 9900.00 (36.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,983 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26932.77 na 9900.00 (36.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,984 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26932.77 na 9900.00 (36.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,984 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 26932.77 na 9900.00 (36.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,989 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27243.03 na 9900.00 (36.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,989 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27243.03 na 9900.00 (36.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,990 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27243.03 na 9900.00 (36.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,990 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27243.03 na 9900.00 (36.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:45,990 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27243.03 na 9900.00 (36.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,038 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30366.11 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,038 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30366.11 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,039 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30366.11 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,039 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30366.11 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,039 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30366.11 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,052 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29104.46 na 9900.00 (34.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,052 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29104.46 na 9900.00 (34.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,052 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29104.46 na 9900.00 (34.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,052 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29104.46 na 9900.00 (34.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,053 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29104.46 na 9900.00 (34.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,061 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30536.25 na 9900.00 (32.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,061 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30536.25 na 9900.00 (32.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,062 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30536.25 na 9900.00 (32.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,062 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30536.25 na 9900.00 (32.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,062 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30536.25 na 9900.00 (32.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,066 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30359.75 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,066 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30359.75 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,067 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30359.75 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,067 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30359.75 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,067 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 30359.75 na 9900.00 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,096 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29730.45 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,096 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29730.45 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,096 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29730.45 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,097 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29730.45 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,097 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29730.45 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,123 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27642.55 na 9900.00 (35.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,123 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27642.55 na 9900.00 (35.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,123 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27642.55 na 9900.00 (35.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,124 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27642.55 na 9900.00 (35.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,124 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 27642.55 na 9900.00 (35.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,131 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 28401.80 na 9900.00 (34.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,131 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 28401.80 na 9900.00 (34.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,131 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 28401.80 na 9900.00 (34.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,131 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 28401.80 na 9900.00 (34.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,132 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 28401.80 na 9900.00 (34.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,142 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29706.26 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,142 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29706.26 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,142 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29706.26 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,143 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29706.26 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,143 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29706.26 na 9900.00 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,168 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29550.93 na 9900.00 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,168 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29550.93 na 9900.00 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,169 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29550.93 na 9900.00 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,169 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29550.93 na 9900.00 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,169 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29550.93 na 9900.00 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,173 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29386.18 na 9900.00 (33.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,173 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29386.18 na 9900.00 (33.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,173 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29386.18 na 9900.00 (33.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,173 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29386.18 na 9900.00 (33.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-10 20:44:46,174 - tradebot.adapters.freqtrade.base - WARNING - gap NAS100/USD: stake orezany z 29386.18 na 9900.00 (33.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4/4           100% • 0:00:00 • 0:00:00
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 105120/105120 100% • 0:00:01 • 0:00:00
+2026-09-10 20:44:46,264 - freqtrade.misc - INFO - dumping json to "/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/backtest-result-2026-09-10_18-44-46.meta.json"
+Result for strategy GapStrategy
+                                              BACKTESTING REPORT                                              
+┏━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃       Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ NAS100/USD │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+│      TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┏━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                               ENTER TAG STATS                                                
+┏━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Entries ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │       0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                              EXIT REASON STATS                                               
+┏━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Exit Reason ┃ Exits ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│       TOTAL │     0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                      MIXED TAG STATS                                                      
+┏━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Exit Reason ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │             │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+No trades made. Your starting balance was 10000 USD, and your stake was unlimited.
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                       STRATEGY SUMMARY                                                       
+┏━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃    Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃     Drawdown ┃
+┡━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ GapStrategy │      0 │         0.00 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │ 0 USD  0.00% │
+└─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────┘
+POZOR: engine dal 64 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh.
