@@ -333,6 +333,29 @@ Dve veci, ktoré treba pri čítaní vedieť:
 Súbežné pozície sa nekrátia — keď majú dvaja členovia otvorené naraz, obaja sú sizovaní
 z vtedajšieho zostatku a margin sa nekontroluje. Je to teda horná hranica toho, čo by šlo.
 
+### Kalendár: deň v mesiaci, sviatky a makro
+Delí sa aj podľa kalendára — **deň v mesiaci**, **kalendárny mesiac** (marec vôbec, nie
+marec 2023), **makro udalosť** v ten deň (Fed, CPI, NFP), **pred vyhlásením či po ňom** a
+**sviatok na burze v USA**. Všetko sa vie dopredu, takže sú to legitímne filtre.
+
+Zdroje sú dva a líšia sa zámerne:
+
+- **Sviatky sa počítajú pravidlom** („tretí pondelok januára", Veľký piatok z Veľkej noci),
+  takže platia pre ktorýkoľvek rok a nič sa nesťahuje.
+- **Makro dátumy sú odpísané** z `federalreserve.gov` a `bls.gov` do
+  [tester/calendar_us.json](calendar_us.json) aj so zdrojom — pravidlo nemajú, NFP nie je
+  vždy prvý piatok a CPI nie je vždy trinásteho.
+
+Súbor nesie `coverage`, dokedy je zoznam úplný. Obchod mimo toho rozsahu **nedostane nič**,
+nie „žiadna udalosť" — inak by sa mlčanie kalendára čítalo ako pokojný deň. Ďalší rok sa
+doplní z tých istých stránok.
+
+> **Pozor, toto je pasca na preoptimalizovanie.** Rozdiel medzi začiatkom a koncom mesiaca
+> vyzerá na zliatej vzorke presvedčivo a po rozklade na bunky zmizne — u nás 22 z 36
+> buniek, p = 0,12, viď
+> [KALENDAR_dni_a_makro_2026-09-10.md](../docs/merania/KALENDAR_dni_a_makro_2026-09-10.md).
+> Kalendár čítaj ako otázku na overenie, nie ako hotový filter.
+
 ### Syntetický trh priamo v analytike
 Karta ukáže aj to, ako tá istá konfigurácia dopadla na **premiešanom trhu** (§8j) — okno po
 okne, vrátane toho, koľko signálov sa vyplnilo. Nič sa nespúšťa; hľadajú sa behy, ktoré
