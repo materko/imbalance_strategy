@@ -266,6 +266,7 @@ details > summary { cursor: pointer; padding: 8px 0; font-weight: 600; }
 .mx-table td.neg { color: #8c2020; }
 .mx-table td.noise { color: var(--muted); font-style: italic; }
 .mx-table td.wait { color: var(--muted); }
+.mx-table td.noise { color: var(--muted); }
 /* Analytika: jednostlpcova podstranka. */
 main.view.single { grid-template-columns: minmax(0, 1fr); }
 .an-form { max-width: 900px; }

@@ -242,6 +242,46 @@ to z obchodov, hlavne z **pohybu pred vstupom**: [docs/TYPY_STRATEGII.md](../doc
 Na IBS vyšlo prerazenie (vstup po pohybe +1,01 ATR, winrate 29,7 %, payoff 2,30) — z toho
 vyplýva, že ladiť winrate nemá zmysel a 42 % výstupov na stope nie je chyba.
 
+## 8c. Je ten edge odlíšiteľný od náhody?
+
+Break-even 0,064 % je veľa alebo málo? Bez referencie to nie je odpoveď, ale číslo. Test
+proti náhode postaví „hlúpu" verziu tej istej stratégie — obchoduje rovnako často, rovnakým
+smerom, s rovnakým stopom aj take profitom a drží rovnako dlho, **len si nevyberá, kedy
+vstúpiť** — spraví tisíc takých behov a povie, kde skutočný výsledok medzi nimi leží.
+
+```bash
+PY -m tester.webapp.cli nulltest "pair=BTC/USDT:USDT" --limit 12
+```
+
+To isté je na karte **Analytika** hneď pod hlavičkou (počíta sa z tej istej vzorky obchodov).
+
+Merajú sa **dve rôzne náhody** a rozdiel medzi nimi je to zaujímavé:
+
+| náhoda | vstupy | čo z toho vieme |
+|---|---|---|
+| `anytime` | kedykoľvek v okne | o celej stratégii vrátane toho, **kedy** obchoduje |
+| `session` | v tých istých hodinách ako stratégia | o tom, čo robí **vnútri** svojho okna |
+
+Keď je stratégia výrazne lepšia než `anytime`, ale nie než `session`, celý jej edge je
+v tom, že obchoduje v NY seanse — a to sa dá mať aj bez nej.
+
+Dve veci, ktoré test robí zámerne a treba o nich vedieť:
+
+- **Náhoda dedí drift trhu.** Keď trh rástol, náhodné longy na ňom zarobia a stratégia to
+  musí prekonať. Bez toho by „nakúp a drž" vyzeralo ako edge; latka je teda edge **nad
+  driftom**, nie nad nulou.
+- **Simuluje sa na 1m sviečkach**, aj keď stratégia beží na 3m. Vnútri baru nevieme, či
+  prišiel skôr stop alebo take profit, a pri hrubších sviečkach tá nevedomosť vychýli
+  referenčný bod — čím by edge stratégie vyzeral lepší, než je. Je to ten istý dôvod, pre
+  ktorý sa každý backtest púšťa s `--timeframe-detail 1m`.
+
+Výsledok na IBS (1014 obchodov z piatich referenčných okien, BTC/USDT:USDT 3m): break-even
+0,064 % oproti náhode −0,001 % ± 0,015, teda **4,4 sigma** — a obe náhody dávajú to isté,
+takže edge nie je len o výbere času.
+
+Pod 15 obchodov je rozdelenie náhody také široké, že jediný poctivý záver je „málo dát" —
+výpis to povie sám.
+
 ## 9. FreqAI
 
 Dá sa pripojiť, ale odpovedá na inú otázku: hyperopt vyberie statické parametre, FreqAI
