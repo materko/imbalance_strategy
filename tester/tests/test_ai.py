@@ -169,3 +169,57 @@ def test_bez_predikcie_pre_ten_bar_sa_nemeni_nic():
 def test_konfiguracia_behu_sa_cita_zo_spravneho_kluca():
     assert ai.settings_of({"tradebot_ai": {"min_probability": 0.6}})["min_probability"] == 0.6
     assert ai.settings_of({}) == {}
+
+
+# --------------------------------------------------------------------------- #
+# ktoré parametre sa dajú vybrať
+# --------------------------------------------------------------------------- #
+
+
+def test_strategia_hovori_co_sa_meni_moze():
+    """Generická vrstva kľúče menom nepozná — vie ich len stratégia."""
+    from tradebot.strategies import get_spec
+    from tradebot.strategies.hyperopt import StrategyHyperopt
+
+    zaklad = StrategyHyperopt.ai_adjustable()
+    assert set(zaklad) == {"size", "tp", "sl"}
+
+    ibs = get_spec("ibs").hyperopt_cls.ai_adjustable()
+    # IBS navyše povie, ktorý jej parameter robí staticky to isté.
+    assert ibs["tp"][0] == "rrRatio"
+    assert ibs["sl"][0] == "minSlDistance"
+    assert all(popis for _, popis in ibs.values())
+
+
+def test_kluce_su_len_veci_ktore_sa_tykaju_jedneho_obchodu():
+    """Filtre vstupu medzi nimi byť nesmú: v čase predikcie engine už dobehol."""
+    from tradebot.strategies import get_spec
+
+    ibs = get_spec("ibs").hyperopt_cls.ai_adjustable()
+
+    assert "useStructureFilter" not in ibs
+    assert "sess2TradeStartH" not in ibs
+
+
+def test_vzdialenost_sa_skaluje_od_vstupu_nie_cena():
+    """Násobok 1,2 znamená „o pätinu ďalej od vstupu", nie „o pätinu vyššie"."""
+    s = Falosna(config={"tradebot_ai": {"min_probability": 0.5,
+                                        "adjust": {"tp": [1.0, 2.0]}}})
+    s._ai_predictions = {"X": {7: 1.0}}          # istota 1 -> horný koniec, teda 2.0
+
+    vstup, tp = 100.0, 110.0
+    nasobok = s.ai_scale("X", 7, "tp")
+    assert nasobok == pytest.approx(2.0)
+    assert vstup + (tp - vstup) * nasobok == pytest.approx(120.0)
+
+
+def test_sl_a_size_sa_nasobia_tak_aby_riziko_ostalo():
+    """Vzdialenejší stop pri tej istej veľkosti = väčšia strata. Množstvo sa preto delí
+    násobkom stopu — riziko na obchod ostane, čo bolo zadané."""
+    s = Falosna(config={"tradebot_ai": {"min_probability": 0.5,
+                                        "adjust": {"sl": [2.0, 2.0], "size": [1.0, 1.0]}}})
+    s._ai_predictions = {"X": {1: 0.8}}
+
+    assert s.ai_scale("X", 1, "sl") == pytest.approx(2.0)
+    # tak, ako to počíta custom_stake_amount
+    assert s.ai_scale("X", 1, "size") / s.ai_scale("X", 1, "sl") == pytest.approx(0.5)

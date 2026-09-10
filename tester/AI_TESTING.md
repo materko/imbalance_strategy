@@ -700,8 +700,7 @@ PY -m tester.webapp.cli run … --ai --ai-min-prob 0.45 --ai-size 0.5:1.5
 | `--ai-train-days` | dĺžka tréningového okna (default 730) |
 | `--ai-backtest-days` | ako často sa pretrénuje (default 180) |
 | `--ai-model` | model FreqAI (default `LightGBMClassifier`) |
-| `--ai-size OD:DO` | veľkosť pozície podľa istoty, napr. `0.5:1.5` |
-| `--ai-rr OD:DO` | vzdialenosť take profitu podľa istoty |
+| `--ai-adjust KLUC=OD:DO` | čo smie model meniť podľa istoty; opakovateľné |
 
 ### Nálepka, ktorú netreba vymýšľať
 FreqAI štandardne predpovedá zmenu ceny o N sviečok dopredu, čo je vždy sporný cieľ. My
@@ -727,15 +726,50 @@ výhry a tá sa točí okolo winrate stratégie. Pri winrate 35 % model máloked
 takže prah 0,55 zahodí skoro všetko. Prah patrí **nad** winrate, nie nad 0,5 — pri 35 %
 winrate skús 0,40–0,45 a pozri, koľko obchodov ostane.
 
-### Časť 2: zmena parametrov podľa istoty
-`--ai-size` a `--ai-rr` škálujú **plán obchodu** podľa toho, aký si je model istý: pri
-istote na prahu dolný koniec rozsahu, pri istote 1 horný. Mantinely sú zo zadania behu,
-takže model nemôže poslať veľkosť ani do neba, ani na nulu.
+### Časť 2: zmena vybraných parametrov podľa istoty
 
-Čo sa meniť **nedá**: prahy, ktoré rozhodujú, či signál vôbec vznikne (`minSlDistance`,
-štruktúrny filter, hodiny seansy). V čase, keď model predpovedá, engine už dobehol a signál
-buď je, alebo nie je — pri takých parametroch je jediná zmysluplná odpoveď „ber / neber",
-a to robí filter.
+`--ai-adjust` škáluje **plán obchodu** podľa toho, aký si je model istý: pri istote na
+prahu dolný koniec rozsahu, pri istote 1 horný. Mantinely sú zo zadania behu, takže model
+nemôže poslať hodnotu ani do neba, ani na nulu.
+
+```bash
+PY -m tester.webapp.cli run … --ai --ai-adjust size=0.5:1.5 --ai-adjust tp=0.8:1.4
+```
+
+Vyberá sa zo zoznamu, ktorý **hovorí stratégia** (`StrategyHyperopt.AI_ADJUSTABLE`) —
+generická vrstva kľúče menom nepozná. Pre IBS:
+
+| kľúč | čo mení | staticky to isté robí |
+|---|---|---|
+| `size` | veľkosť pozície | `maxLossDollar` |
+| `tp` | vzdialenosť take profitu (RR) | `rrRatio` |
+| `sl` | vzdialenosť stopu | `minSlDistance` |
+
+Škáluje sa **vzdialenosť od vstupu**, nie cena: `tp=…:1.2` znamená „o pätinu ďalej od
+vstupu", nie „o pätinu vyššie". Pri `sl` sa navyše dopočíta množstvo — vzdialenejší stop
+by pri tej istej veľkosti znamenal väčšiu stratu, takže **riziko na obchod ostáva to,
+ktoré bolo zadané**, a mení sa len to, kde stop leží. Kto chce meniť aj riziko, má na to
+`size`; oba násobky sa vtedy vynásobia.
+
+Iný parameter zadať nejde a príkaz povie prečo:
+
+```
+'minSlDistance' sa modelom menit neda. Strategia ibs dovoli:
+  size   veľkosť pozície  (staticky: maxLossDollar)
+  tp     vzdialenosť take profitu (RR)  (staticky: rrRatio)
+  sl     vzdialenosť stopu  (staticky: minSlDistance)
+Ostatne parametre rozhoduju, ci signal VOBEC vznikne - v case, ked model predpoveda,
+engine uz dobehol. Tam je jedina odpoved 'ber / neber' a to robi filter.
+```
+
+**Prečo len tri.** Všetko ostatné rozhoduje, či signál **vôbec vznikne** — `minSlDistance`
+ako filter, štruktúrny filter, hodiny seansy. V čase, keď model predpovedá, engine už
+dobehol a signál buď je, alebo nie je; tam je jediná zmysluplná odpoveď „ber / neber",
+a to robí filter (`--ai-min-prob`).
+
+**Filter sa dá aj vypnúť** (`--ai-min-prob 0`) a nechať len škálovanie. Je to jemnejší
+zásah: vzorka ostane celá a model môže pridať hodnotu bez toho, aby ju najprv zničil —
+čo je po výsledku filtra (nižšie) rozumnejší začiatok.
 
 ### Čo to stojí
 - **Beh sa spomalí.** FreqAI trénuje walk-forward; s predvolenými hodnotami sú to dva

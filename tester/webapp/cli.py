@@ -157,21 +157,38 @@ def _prepare(args: argparse.Namespace) -> tuple[dict, dict]:
 
 def _ai_for(args: argparse.Namespace) -> dict | None:
     """Nastavenie AI vrstvy z prepínačov, alebo `None`, keď je vypnutá."""
-    def rozsah(text: str | None, meno: str):
-        if not text:
-            return None
-        try:
-            a, b = (float(x) for x in text.split(":"))
-        except ValueError:
-            raise SystemExit(f"--ai-{meno} chce tvar OD:DO, napr. 0.5:1.5")
-        return [a, b]
+    from tradebot.strategies import get_spec
+    from tradebot.strategies.hyperopt import StrategyHyperopt
 
     zapnute = {k: v for k, v in (
         ("min_probability", args.ai_min_prob), ("train_period_days", args.ai_train_days),
         ("backtest_period_days", args.ai_backtest_days), ("model", args.ai_model),
     ) if v is not None}
-    adjust = {k: v for k, v in (("size", rozsah(args.ai_size, "size")),
-                                ("rr", rozsah(args.ai_rr, "rr"))) if v}
+
+    # Ktore kluce ta strategia dovoli menit, vie len ona sama - generická vrstva ich
+    # menom nepozna.
+    povolene = (get_spec(args.strategy).hyperopt_cls or StrategyHyperopt).ai_adjustable()
+    adjust: dict[str, list[float]] = {}
+    for polozka in args.ai_adjust or []:
+        kluc, _, rozsah = polozka.partition("=")
+        kluc = kluc.strip()
+        if kluc not in povolene:
+            zoznam = "\n  ".join(\
+                f"{k:<6} {v[1]}" + (f"  (staticky: {v[0]})" if v[0] else "")
+                for k, v in povolene.items())
+            raise SystemExit(
+                f"{kluc!r} sa modelom menit neda. Strategia {args.strategy} dovoli:\n  {zoznam}\n"
+                f"Ostatne parametre rozhoduju, ci signal VOBEC vznikne - v case, ked model "
+                f"predpoveda, engine uz dobehol. Tam je jedina odpoved 'ber / neber' a to "
+                f"robi filter (--ai-min-prob).")
+        try:
+            a, b = (float(x) for x in rozsah.split(":"))
+        except ValueError:
+            raise SystemExit(f"--ai-adjust {kluc} chce tvar {kluc}=OD:DO, napr. {kluc}=0.5:1.5")
+        if a <= 0 or b <= 0:
+            raise SystemExit(f"--ai-adjust {kluc}: nasobok musi byt kladny")
+        adjust[kluc] = [a, b]
+
     if not (args.ai or zapnute or adjust):
         return None
     return {"enabled": True, **zapnute, **({"adjust": adjust} if adjust else {})}
@@ -1306,10 +1323,11 @@ def _run_args(p: argparse.ArgumentParser, *, timerange: bool = True) -> None:
                    help="ako často sa pretrénuje, v dňoch (default 30)")
     p.add_argument("--ai-model", dest="ai_model",
                    help="model FreqAI (default LightGBMClassifier)")
-    p.add_argument("--ai-size", dest="ai_size", metavar="OD:DO",
-                   help="veľkosť pozície podľa istoty, napr. 0.5:1.5 (bez neho sa nemení)")
-    p.add_argument("--ai-rr", dest="ai_rr", metavar="OD:DO",
-                   help="vzdialenosť take profitu podľa istoty, napr. 0.8:1.4")
+    p.add_argument("--ai-adjust", dest="ai_adjust", action="append",
+                   metavar="KLUC=OD:DO",
+                   help="čo smie model meniť podľa istoty, napr. `size=0.5:1.5` alebo "
+                        "`tp=0.8:1.4`; opakovateľné. Zoznam kľúčov danej stratégie "
+                        "vypíše `ai-adjust` bez hodnoty")
 
 
 def main(argv: list[str] | None = None) -> int:

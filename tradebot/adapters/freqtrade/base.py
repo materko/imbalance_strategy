@@ -496,11 +496,29 @@ class TradebotStrategyBase(AIMixin, IStrategy):
         return self._signal(pair, trade.open_date_utc, getattr(trade, "enter_tag", None))
 
     def _levels(self, pair: str, trade) -> tuple[float, float] | None:
-        """(SL, TP) zo signálu, na ktorom obchod vznikol."""
+        """(SL, TP) zo signálu, na ktorom obchod vznikol — po prípadnej úprave modelom.
+
+        Je to jediné miesto, kde sa plán mení, takže stop aj take profit vidia tú istú
+        úpravu. Škáluje sa **vzdialenosť od vstupu**, nie cena: násobok 1,2 znamená
+        „o pätinu ďalej", nie „o pätinu vyššie".
+        """
         row = self._trade_signal(pair, trade)
         if row is None or row.stop_loss != row.stop_loss:  # NaN check
             return None
-        return row.stop_loss, row.take_profit
+        stop_loss, take_profit = row.stop_loss, row.take_profit
+        ts = self._tag_ts(getattr(trade, "enter_tag", None)) or 0
+        vstup = row.entry if row.entry == row.entry and row.entry > 0 else trade.open_rate
+        for kluc, uroven in (("sl", "stop_loss"), ("tp", "take_profit")):
+            nasobok = self.ai_scale(pair, ts, kluc)
+            hodnota = stop_loss if uroven == "stop_loss" else take_profit
+            if nasobok == 1.0 or hodnota != hodnota:
+                continue
+            posunuta = vstup + (hodnota - vstup) * nasobok
+            if uroven == "stop_loss":
+                stop_loss = posunuta
+            else:
+                take_profit = posunuta
+        return stop_loss, take_profit
 
     def ft_stoploss_adjust(
         self, current_rate, trade, current_time, current_profit, force_stoploss,
@@ -569,7 +587,11 @@ class TradebotStrategyBase(AIMixin, IStrategy):
         rate = row.entry if row.entry == row.entry and row.entry > 0 else current_rate
         # Časť 2: čím si je model istejší, tým väčšia pozícia. Mantinely sú zo zadania
         # behu, takže model nemôže poslať veľkosť ani do neba, ani na nulu.
-        nasobok = self.ai_scale(pair, self._tag_ts(entry_tag) or 0, "size")
+        ts = self._tag_ts(entry_tag) or 0
+        # Vzdialenejší stop znamená pri tej istej veľkosti väčšiu stratu, tak sa množstvo
+        # dopočíta späť: riziko na obchod ostane to, čo bolo zadané, a mení sa len to,
+        # kde stop leží. Kto chce meniť aj riziko, má na to `size`.
+        nasobok = self.ai_scale(pair, ts, "size") / max(self.ai_scale(pair, ts, "sl"), 1e-9)
         wanted = row.qty * nasobok * rate / max(leverage, 1.0) * (1.0 + _STAKE_EPS)
         stake = wanted
         if min_stake is not None:
@@ -631,17 +653,9 @@ class TradebotStrategyBase(AIMixin, IStrategy):
         levels = self._levels(pair, trade)
         if levels is None:
             return None
-        stop_loss, take_profit = levels
+        _, take_profit = levels
         if take_profit != take_profit:  # NaN
             return None
-        # Časť 2: istejší model si dovolí vzdialenejší take profit. Posúva sa NÁSOBOK
-        # rizika, nie cena — vzdialenosť stopu ostáva tá, ktorú spočítal engine, takže
-        # riziko na obchod sa nemení, mení sa len to, koľko sa zaň pýta.
-        nasobok = self.ai_scale(pair, self._tag_ts(getattr(trade, "enter_tag", None)) or 0, "rr")
-        if nasobok != 1.0 and stop_loss == stop_loss:
-            riziko = abs(trade.open_rate - stop_loss)
-            smer = -1.0 if trade.is_short else 1.0
-            take_profit = trade.open_rate + smer * riziko * abs(take_profit - trade.open_rate) / max(riziko, 1e-12) * nasobok
         return trade.calc_profit_ratio(take_profit)
 
     def custom_exit(

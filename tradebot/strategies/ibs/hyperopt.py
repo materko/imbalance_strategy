@@ -47,6 +47,15 @@ class IBSHyperopt(StrategyHyperopt):
 
     #: Ktorý parameter riadi ktorú vlastnosť obchodu — analytika podľa toho vie povedať
     #: nielen „táto skupina kazí výsledok", ale aj čím sa dá odstrániť.
+    #: Ktorý parameter IBS robí staticky to, čo model mení za behu — aby bolo vo výpise
+    #: vidieť, čoho sa zmena týka.
+    AI_ADJUSTABLE = {
+        "size": ("maxLossDollar", "veľkosť pozície — koľko sa na obchod stavia"),
+        "tp": ("rrRatio", "vzdialenosť take profitu (RR); riziko na obchod sa nemení"),
+        "sl": ("minSlDistance", "vzdialenosť stopu; veľkosť sa dopočíta tak, aby riziko "
+                                "na obchod ostalo rovnaké"),
+    }
+
     FEATURE_PARAMS: ClassVar[dict[str, str]] = {
         "sl_pct": "minSlDistance",        # tesné stopy sa dajú odfiltrovať prahom
         "rr_planned": "rrRatio",          # plánovaný pomer TP k SL

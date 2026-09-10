@@ -41,6 +41,27 @@ Suggestion = dict[str, Any]
 class StrategyHyperopt:
     """Vedomosti stratégie o ladení. Bez prepísania je to „neviem nič", nie zákaz."""
 
+
+    #: Čo z **plánu obchodu** smie AI meniť podľa svojej istoty: kľúč → (parameter
+    #: configu, ktorý to isté robí staticky; opis). Kľúče sú tri, lebo toľko vecí sa
+    #: k jednému obchodu vzťahuje — všetko ostatné rozhoduje, či signál **vôbec vznikne**,
+    #: a to sa v čase predikcie už stalo. Tam je jediná zmysluplná odpoveď „ber / neber",
+    #: a to robí filter.
+    #:
+    #: Stratégia môže zoznam rozšíriť alebo doplniť, ktorý jej parameter ktorému kľúču
+    #: zodpovedá — vo výpise je to potom vidieť.
+    AI_ADJUSTABLE: dict[str, tuple[str, str]] = {
+        "size": ("", "veľkosť pozície — koľko sa na obchod stavia"),
+        "tp": ("", "vzdialenosť take profitu od vstupu (teda odmena za to isté riziko)"),
+        "sl": ("", "vzdialenosť stopu; veľkosť sa dopočíta tak, aby riziko na obchod "
+                   "ostalo rovnaké"),
+    }
+
+    @classmethod
+    def ai_adjustable(cls) -> dict[str, tuple[str, str]]:
+        """Kľúče, ktoré táto stratégia dovolí meniť modelu."""
+        return dict(cls.AI_ADJUSTABLE)
+
     #: Parametre, ktoré sa na tejto stratégii oplatí ladiť, s rozsahmi. Poradie je
     #: poradie ponuky vo webapp — najsilnejšia páka prvá.
     SUGGESTED: ClassVar[dict[str, Suggestion]] = {}
