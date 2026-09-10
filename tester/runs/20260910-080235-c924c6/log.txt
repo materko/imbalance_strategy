@@ -1,0 +1,224 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.cfd.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data --strategy IBSImbalanceStrategy --cache none --export trades --timerange 20240904-20250904 --pairs NAS100/USD --timeframe 3m --dry-run-wallet 40000000.0 --fee 0.0005 --timeframe-detail 1m --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\dukascopy\futures
+2026-09-10 10:02:36,636 - freqtrade - INFO - freqtrade 2026.8
+2026-09-10 10:02:37,273 - freqtrade.configuration.load_config - INFO - Using config: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.cfd.json ...
+2026-09-10 10:02:37,276 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-10 10:02:37,276 - freqtrade.loggers - INFO - Logfile configured
+2026-09-10 10:02:37,276 - freqtrade.loggers - INFO - Verbosity set to 0
+2026-09-10 10:02:37,277 - freqtrade.configuration.configuration - INFO - Parameter -i/--timeframe detected ... Using timeframe: 3m ...
+2026-09-10 10:02:37,277 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2026-09-10 10:02:37,277 - freqtrade.configuration.configuration - INFO - Parameter --timeframe-detail detected, using 1m for intra-candle backtesting ...
+2026-09-10 10:02:37,277 - freqtrade.configuration.configuration - INFO - Parameter --dry-run-wallet detected, overriding dry_run_wallet to: 40000000.0 ...
+2026-09-10 10:02:37,277 - freqtrade.configuration.configuration - INFO - Parameter --fee detected, setting fee to: 0.0005 ...
+2026-09-10 10:02:37,277 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20240904-20250904 ...
+2026-09-10 10:02:37,277 - freqtrade.configuration.configuration - INFO - Using user-data directory: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data 
+...
+2026-09-10 10:02:37,278 - freqtrade.configuration.configuration - INFO - Using data directory: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\dukascopy\futures ...
+2026-09-10 10:02:37,278 - freqtrade.configuration.configuration - INFO - Parameter --export detected: trades ...
+2026-09-10 10:02:37,278 - freqtrade.configuration.configuration - INFO - Parameter --cache=none detected ...
+2026-09-10 10:02:37,278 - freqtrade.configuration.configuration - INFO - Using pairs ['NAS100/USD']
+2026-09-10 10:02:37,278 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20240904-20250904
+2026-09-10 10:02:37,279 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2026-09-10 10:02:37,280 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+team. It may work flawlessly (please report back) or have serious issues. Use it at your own discretion.
+2026-09-10 10:02:37,281 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 10:02:37,282 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2026-09-10 10:02:37,283 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2026-09-10 10:02:37,283 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.77
+2026-09-10 10:02:37,286 - freqtrade.exchange.exchange - INFO - Using Exchange "Tester"
+2026-09-10 10:02:37,287 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange class 'Tester' ...
+2026-09-10 10:02:37,315 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSImbalanceStrategy from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.py'...
+2026-09-10 10:02:37,315 - freqtrade.strategy.hyper - INFO - Loading parameters from file 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.json
+2026-09-10 10:02:37,559 - freqtrade.data.converter.converter - INFO - Missing data fillup for NAS100/USD, 3m: before: 647400 - after: 993545 - 53.47%
+2026-09-10 10:02:37,691 - freqtrade.data.converter.converter - INFO - Missing data fillup for NAS100/USD, 5m: before: 388524 - after: 596127 - 53.43%
+2026-09-10 10:02:37,693 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 3m.
+2026-09-10 10:02:37,693 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USD.
+2026-09-10 10:02:37,694 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2026-09-10 10:02:37,694 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'unfilledtimeout' with value from the configuration: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 
+'unit': 'minutes'}.
+2026-09-10 10:02:37,694 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2026-09-10 10:02:37,694 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 100.0}
+2026-09-10 10:02:37,694 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 3m
+2026-09-10 10:02:37,694 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.99
+2026-09-10 10:02:37,695 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2026-09-10 10:02:37,695 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2026-09-10 10:02:37,695 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2026-09-10 10:02:37,696 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: True
+2026-09-10 10:02:37,696 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2026-09-10 10:02:37,696 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2026-09-10 10:02:37,696 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2026-09-10 10:02:37,696 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USD
+2026-09-10 10:02:37,696 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2026-09-10 10:02:37,696 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 300
+2026-09-10 10:02:37,696 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using unfilledtimeout: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 'unit': 'minutes'}
+2026-09-10 10:02:37,696 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2026-09-10 10:02:37,696 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2026-09-10 10:02:37,696 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2026-09-10 10:02:37,696 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2026-09-10 10:02:37,696 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2026-09-10 10:02:37,696 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2026-09-10 10:02:37,698 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2026-09-10 10:02:37,698 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2026-09-10 10:02:37,698 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2026-09-10 10:02:37,698 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-10 10:02:37,703 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\freqtrade\plugins\pairlist\StaticPairList.py'...
+2026-09-10 10:02:37,704 - freqtrade.optimize.backtesting - INFO - Using fee 0.0500% from config.
+2026-09-10 10:02:37,760 - freqtrade.data.converter.converter - INFO - Missing data fillup for NAS100/USD, 3m: before: 113945 - after: 175501 - 54.02%
+2026-09-10 10:02:37,761 - freqtrade.optimize.backtesting - INFO - Loading data from 2024-09-03 09:00:00 up to 2025-09-04 00:00:00 (365 days).
+2026-09-10 10:02:37,936 - freqtrade.data.converter.converter - INFO - Missing data fillup for NAS100/USD, 1m: before: 340851 - after: 525601 - 54.20%
+2026-09-10 10:02:38,588 - freqtrade.optimize.backtesting - INFO - Dataload complete. Calculating indicators
+2026-09-10 10:02:38,590 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSImbalanceStrategy
+2026-09-10 10:02:38,601 - freqtrade.data.dataprovider - INFO - Loading data for NAS100/USD 5m from 2024-09-02 23:00:00 to 2025-09-04 00:00:00
+2026-09-10 10:02:38,636 - freqtrade.data.converter.converter - INFO - Missing data fillup for NAS100/USD, 5m: before: 68518 - after: 105421 - 53.86%
+2026-09-10 10:02:50,489 - tradebot.strategies.ibs.freqtrade - INFO - IBS NAS100/USD: 175501 barov, 105421 HTF barov, 200 zon, 24 signalov (24 long / 0 short)
+2026-09-10 10:02:50,733 - tradebot.adapters.freqtrade.base - INFO - ibs NAS100/USD: kresby ulozene do 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tester\runs\.profiles\20260910-080235-c924c6.chart.json.gz (56460 objektov)
+2026-09-10 10:02:50,757 - freqtrade.optimize.backtesting - INFO - Backtesting with data from 2024-09-04 00:00:00 up to 2025-09-04 00:00:00 (365 days).
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 4/4           100% • 0:00:13 • 0:00:00
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 175200/175200 100% • 0:00:15 • 0:00:00
+2026-09-10 10:02:54,224 - freqtrade.misc - INFO - dumping json to 
+"C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\backtest_results\backtest-result-2026-09-10_08-02-54.meta.json"
+Result for strategy IBSImbalanceStrategy
+                                              BACKTESTING REPORT                                              
+┌────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│       Pair │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ NAS100/USD │     18 │        -0.03 │       -154.175 │         -0.0 │      2:50:00 │    8     0    10  44.4 │
+│      TOTAL │     18 │        -0.03 │       -154.175 │         -0.0 │      2:50:00 │    8     0    10  44.4 │
+└────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┌───────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│  Pair │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                   ENTER TAG STATS                                                    
+┌───────────────────┬─────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│         Enter Tag │ Entries │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────────┼─────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ ibs:1742407200000 │       1 │         0.75 │        146.488 │          0.0 │      1:45:00 │    1     0     0   100 │
+│ ibs:1754492040000 │       1 │         0.59 │        136.970 │          0.0 │      4:51:00 │    1     0     0   100 │
+│ ibs:1726237800000 │       1 │         0.31 │        120.355 │          0.0 │      5:15:00 │    1     0     0   100 │
+│ ibs:1745592120000 │       1 │         0.49 │         95.023 │          0.0 │      5:03:00 │    1     0     0   100 │
+│ ibs:1750952700000 │       1 │          0.2 │         91.251 │          0.0 │      4:00:00 │    1     0     0   100 │
+│ ibs:1746116640000 │       1 │         0.11 │         22.665 │          0.0 │      3:21:00 │    1     0     0   100 │
+│ ibs:1749047580000 │       1 │         0.03 │          6.663 │          0.0 │      5:12:00 │    1     0     0   100 │
+│ ibs:1747671300000 │       1 │         0.03 │          5.702 │          0.0 │      3:30:00 │    1     0     0   100 │
+│ ibs:1755876240000 │       1 │        -0.04 │         -9.028 │         -0.0 │      4:21:00 │    0     0     1     0 │
+│ ibs:1752247800000 │       1 │        -0.04 │        -20.204 │         -0.0 │      4:15:00 │    0     0     1     0 │
+│ ibs:1746718740000 │       1 │        -0.26 │        -51.718 │         -0.0 │      4:06:00 │    0     0     1     0 │
+│ ibs:1742568840000 │       1 │        -0.39 │        -76.689 │         -0.0 │      0:23:00 │    0     0     1     0 │
+│ ibs:1750171680000 │       1 │        -0.38 │        -82.310 │         -0.0 │      2:04:00 │    0     0     1     0 │
+│ ibs:1743092100000 │       1 │        -0.43 │        -86.403 │         -0.0 │      0:32:00 │    0     0     1     0 │
+│ ibs:1736956260000 │       1 │        -0.45 │        -95.839 │         -0.0 │      0:38:00 │    0     0     1     0 │
+│ ibs:1741188060000 │       1 │        -0.49 │       -100.389 │         -0.0 │      0:47:00 │    0     0     1     0 │
+│ ibs:1729521900000 │       1 │        -0.31 │       -125.912 │         -0.0 │      0:19:00 │    0     0     1     0 │
+│ ibs:1728315000000 │       1 │        -0.33 │       -130.801 │         -0.0 │      0:37:00 │    0     0     1     0 │
+│             TOTAL │      18 │        -0.03 │       -154.175 │         -0.0 │      2:50:00 │    8     0    10  44.4 │
+└───────────────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                              EXIT REASON STATS                                               
+┌─────────────┬───────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│ Exit Reason │ Exits │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├─────────────┼───────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ session_end │    11 │          0.2 │        544.168 │          0.0 │      4:09:00 │    8     0     3  72.7 │
+│   stop_loss │     7 │         -0.4 │       -698.343 │         -0.0 │      0:46:00 │    0     0     7     0 │
+│       TOTAL │    18 │        -0.03 │       -154.175 │         -0.0 │      2:50:00 │    8     0    10  44.4 │
+└─────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                          MIXED TAG STATS                                                          
+┌───────────────────┬─────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│         Enter Tag │ Exit Reason │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────────┼─────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ ibs:1742407200000 │ session_end │      1 │         0.75 │        146.488 │          0.0 │      1:45:00 │    1     0     0   100 │
+│ ibs:1754492040000 │ session_end │      1 │         0.59 │        136.970 │          0.0 │      4:51:00 │    1     0     0   100 │
+│ ibs:1726237800000 │ session_end │      1 │         0.31 │        120.355 │          0.0 │      5:15:00 │    1     0     0   100 │
+│ ibs:1745592120000 │ session_end │      1 │         0.49 │         95.023 │          0.0 │      5:03:00 │    1     0     0   100 │
+│ ibs:1750952700000 │ session_end │      1 │          0.2 │         91.251 │          0.0 │      4:00:00 │    1     0     0   100 │
+│ ibs:1746116640000 │ session_end │      1 │         0.11 │         22.665 │          0.0 │      3:21:00 │    1     0     0   100 │
+│ ibs:1749047580000 │ session_end │      1 │         0.03 │          6.663 │          0.0 │      5:12:00 │    1     0     0   100 │
+│ ibs:1747671300000 │ session_end │      1 │         0.03 │          5.702 │          0.0 │      3:30:00 │    1     0     0   100 │
+│ ibs:1755876240000 │ session_end │      1 │        -0.04 │         -9.028 │         -0.0 │      4:21:00 │    0     0     1     0 │
+│ ibs:1752247800000 │ session_end │      1 │        -0.04 │        -20.204 │         -0.0 │      4:15:00 │    0     0     1     0 │
+│ ibs:1746718740000 │ session_end │      1 │        -0.26 │        -51.718 │         -0.0 │      4:06:00 │    0     0     1     0 │
+│ ibs:1742568840000 │   stop_loss │      1 │        -0.39 │        -76.689 │         -0.0 │      0:23:00 │    0     0     1     0 │
+│ ibs:1750171680000 │   stop_loss │      1 │        -0.38 │        -82.310 │         -0.0 │      2:04:00 │    0     0     1     0 │
+│ ibs:1743092100000 │   stop_loss │      1 │        -0.43 │        -86.403 │         -0.0 │      0:32:00 │    0     0     1     0 │
+│ ibs:1736956260000 │   stop_loss │      1 │        -0.45 │        -95.839 │         -0.0 │      0:38:00 │    0     0     1     0 │
+│ ibs:1741188060000 │   stop_loss │      1 │        -0.49 │       -100.389 │         -0.0 │      0:47:00 │    0     0     1     0 │
+│ ibs:1729521900000 │   stop_loss │      1 │        -0.31 │       -125.912 │         -0.0 │      0:19:00 │    0     0     1     0 │
+│ ibs:1728315000000 │   stop_loss │      1 │        -0.33 │       -130.801 │         -0.0 │      0:37:00 │    0     0     1     0 │
+│             TOTAL │             │     18 │        -0.03 │       -154.175 │         -0.0 │      2:50:00 │    8     0    10  44.4 │
+└───────────────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2024-09-04 00:00:00                       │
+│ Backtesting to                         │ 2025-09-04 00:00:00                       │
+│ Trading Mode                           │ Spot                                      │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 18 / 0.05                                 │
+│ Starting balance                       │ 40000000 USD                              │
+│ Final balance                          │ 39999845.825 USD                          │
+│ Absolute profit                        │ -154.175 USD                              │
+│ Total profit %                         │ -0.00%                                    │
+│ CAGR %                                 │ -0.00%                                    │
+│ Sharpe (closed trades)                 │ -0.09                                     │
+│ Sortino (closed trades)                │ -0.21                                     │
+│ Calmar (closed trades)                 │ -1.70                                     │
+│ SQN                                    │ -0.39                                     │
+│ Mean profit p-value                    │ 0.7007                                    │
+│ Profit factor                          │ 0.80                                      │
+│ Expectancy (Ratio)                     │ -8.57 (-0.11)                             │
+│ Avg. daily profit                      │ -0.422 USD                                │
+│ Avg. stake amount                      │ 26733.086 USD                             │
+│ Market change                          │ 23.73%                                    │
+│ Total trade volume                     │ 963199.639 USD                            │
+│                                        │                                           │
+│ Best Pair                              │ NAS100/USD -0.00%                         │
+│ Worst Pair                             │ NAS100/USD -0.00%                         │
+│ Best trade                             │ NAS100/USD 0.75%                          │
+│ Worst trade                            │ NAS100/USD -0.49%                         │
+│ Best day                               │ 146.488 USD                               │
+│ Worst day                              │ -130.801 USD                              │
+│ Days win/draw/lose                     │ 8 / 326 / 10                              │
+│ Min/Max/Avg. Duration Winners          │ 0d 01:45 / 0d 05:15 / 0d 04:07            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:19 / 0d 04:21 / 0d 01:48            │
+│ Max Consecutive Wins / Loss            │ 2 / 4                                     │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 5 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 39999646.836 USD / 40000120.355 USD       │
+│ Max % of account underwater            │ 0.00%                                     │
+│ Absolute drawdown                      │ 473.52 USD (0.00%)                        │
+│ Drawdown duration                      │ 276 days 21:07:00                         │
+│ Profit at drawdown start               │ 120.355 USD                               │
+│ Profit at drawdown end                 │ -353.164 USD                              │
+│ Drawdown start                         │ 2024-09-13 19:48:00                       │
+│ Drawdown end                           │ 2025-06-17 16:55:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 39999617.644 USD / 40000228.11 USD        │
+│ Min/Max balance dates (wallet balance) │ 2025-04-25 14:57:00 / 2024-09-13 17:54:00 │
+│ Max % of account underwater (balance)  │ 0.00%                                     │
+│ Absolute drawdown (wallet balance)     │ 610.466 USD (0.00%)                       │
+│ Drawdown duration                      │ 223 days 21:03:00                         │
+│ Profit at drawdown start               │ 228.11 USD                                │
+│ Profit at drawdown end                 │ -382.356 USD                              │
+│ Drawdown start                         │ 2024-09-13 17:54:00                       │
+│ Drawdown end                           │ 2025-04-25 14:57:00                       │
+│ Sharpe (daily wallet balance)          │ -0.40                                     │
+│ Sortino (daily wallet balance)         │ -0.21                                     │
+│ Calmar (daily wallet balance)          │ -1.33                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2024-09-04 00:00:00 -> 2025-09-04 00:00:00 | Max open trades : 1
+                                                              STRATEGY SUMMARY                                                              
+┌──────────────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┬───────────────────┐
+│             Strategy │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │          Drawdown │
+├──────────────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┼───────────────────┤
+│ IBSImbalanceStrategy │     18 │        -0.03 │       -154.175 │         -0.0 │      2:50:00 │    8     0    10  44.4 │ 473.52 USD  0.00% │
+└──────────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴───────────────────┘
