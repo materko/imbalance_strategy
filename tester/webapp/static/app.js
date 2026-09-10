@@ -2404,6 +2404,114 @@ async function writePaper() {
   } finally { btn.disabled = false; }
 }
 
+// --------------------------------------------------------------------------- //
+// Prop vyzva: dostanes sa k vyplate skor, nez ucet zhori?
+// --------------------------------------------------------------------------- //
+
+/** Predlohy pravidiel firiem; nacitaju sa raz a drzia sa v state. */
+async function loadPropMeta() {
+  if (state.propMeta) return state.propMeta;
+  state.propMeta = await api("/api/prop/meta");
+  const sel = $("#prop-preset");
+  sel.innerHTML = Object.entries(state.propMeta.presets)
+    .map(([k, v]) => `<option value="${esc(k)}">${esc(v.name)}</option>`).join("");
+  $("#prop-trailing").innerHTML = Object.entries(state.propMeta.trailing)
+    .map(([k, v]) => `<option value="${esc(k)}">${esc(v)}</option>`).join("");
+  sel.onchange = () => fillPropForm(sel.value);
+  fillPropForm(sel.value);
+  return state.propMeta;
+}
+
+/** Predloha do formulara. Kazde pole sa da prepisat - firmy pravidla menia. */
+function fillPropForm(key) {
+  const r = (state.propMeta.presets || {})[key];
+  if (!r) return;
+  $("#prop-account").value = r.account;
+  $("#prop-targets").value = (r.targets || []).join(",");
+  $("#prop-daily").value = r.max_daily_loss_pct;
+  $("#prop-maxloss").value = r.max_loss_pct;
+  $("#prop-trailing").value = r.trailing;
+  $("#prop-freeze").checked = !!r.trailing_freeze_at_start;
+  $("#prop-mindays").value = r.min_days;
+  $("#prop-dayshare").value = r.max_day_share_pct;
+  $("#prop-cost").value = r.cost;
+  $("#prop-payout").value = r.payout_pct;
+  $("#prop-refund").checked = !!r.refund;
+  $("#prop-horizon").value = r.horizon_days;
+  $("#prop-source").innerHTML = r.source
+    ? `Zdroj čísel: ${esc(r.source)}<br><b>Firmy pravidlá menia často — over si ich`
+      + " podľa svojej zmluvy.</b>"
+    : "";
+}
+
+/** Spusti simulaciu nad tymi istymi behmi, ake su prave na stranke. */
+async function runProp() {
+  const r = state.analytics;
+  if (!r) { $("#prop-status").textContent = "najprv spočítaj analytiku"; return; }
+  const btn = $("#prop-run");
+  btn.disabled = true;
+  $("#prop-status").textContent = "počítam…";
+  const ciele = $("#prop-targets").value.split(",").map(x => Number(x.trim()))
+    .filter(x => Number.isFinite(x) && x > 0);
+  try {
+    const out = await api("/api/prop", {
+      method: "POST",
+      body: JSON.stringify({
+        runs: (r.runs || []).map(x => x.id),
+        strategy: r.strategy || state.strategy,
+        rules: $("#prop-preset").value,
+        limit: Number($("#an-limit").value) || 40,
+        account: Number($("#prop-account").value),
+        targets: ciele.length ? ciele : null,
+        max_daily_loss_pct: Number($("#prop-daily").value),
+        max_loss_pct: Number($("#prop-maxloss").value),
+        trailing: $("#prop-trailing").value,
+        trailing_freeze_at_start: $("#prop-freeze").checked,
+        min_days: Number($("#prop-mindays").value),
+        max_day_share_pct: Number($("#prop-dayshare").value),
+        cost: Number($("#prop-cost").value),
+        payout_pct: Number($("#prop-payout").value),
+        refund: $("#prop-refund").checked,
+        horizon_days: Number($("#prop-horizon").value),
+      }),
+    });
+    renderProp(out);
+    $("#prop-status").textContent = "";
+  } catch (e) {
+    $("#prop-status").textContent = e.message;
+    $("#prop-result").innerHTML = "";
+  } finally { btn.disabled = false; }
+}
+
+function renderProp(out) {
+  const najlepsi = out.best_risk;
+  const rows = (out.results || []).map(x => {
+    const dni = x.median_days === null || x.median_days === undefined ? "—" : fmt(x.median_days, 0);
+    const ev = x.ev === null || x.ev === undefined ? "—"
+      : `<span class="${x.ev > 0 ? "good" : "bad"}">${x.ev > 0 ? "+" : ""}${fmt(x.ev, 0)}</span>`;
+    return `<tr class="${x.risk_pct === najlepsi ? "best" : ""}">
+        <td>${fmt(x.risk_pct, 2)} %</td><td>${x.attempts}</td><td>${x.passed}</td>
+        <td>${x.burned}</td><td>${x.unfinished}</td>
+        <td>${fmt(x.p_pass * 100, 1)} %</td><td>${dni}</td><td>${ev}</td></tr>`;
+  }).join("");
+  // Preco pokusy koncia je casto dolezitejsie nez samotna pravdepodobnost: iny dovod
+  // znamena iny zasah (ine riziko vs. viac trhov vs. ina firma).
+  const naj = (out.results || []).find(x => x.risk_pct === najlepsi) || {};
+  const dovody = Object.entries(naj.reasons || {}).sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => `${esc(k)} ${v}×`).join(" · ");
+  const trieda = (naj.ev || 0) > 0 ? "good" : "bad";
+  $("#prop-result").innerHTML = `<div class="ch-box">
+      <p class="an-note">${out.trades} obchodov z ${out.runs} behov ·
+        ${out.rules.phases} ${out.rules.phases === 1 ? "fáza" : "fázy"} ·
+        ciele ${(out.rules.targets || []).map(x => fmt(x, 2) + " %").join(" + ")}</p>
+      <table class="mx-table"><thead><tr><th>riziko</th><th>pokusov</th><th>prešiel</th>
+        <th>spálený</th><th>nedobehol</th><th>P(výplata)</th><th>dní</th><th>EV</th></tr></thead>
+        <tbody>${rows}</tbody></table>
+      ${dovody ? `<p class="an-note">prečo pokusy končia (pri ${fmt(najlepsi, 2)} %): ${dovody}</p>` : ""}
+      <div class="verdict ${trieda}">${esc(out.verdict || "")}</div>
+    </div>`;
+}
+
 /** Portfólio: koľko sa dá zarobiť a za aký drawdown. */
 function portfolioHtml(p) {
   if (!p || !p.risks) return "";
@@ -2669,6 +2777,10 @@ async function init() {
   initSweep();
   $("#an-run").onclick = loadAnalytics;
   $("#an-paper").onclick = writePaper;
+  $("#prop-run").onclick = runProp;
+  $("#prop-box").addEventListener("toggle", () => {
+    if ($("#prop-box").open) loadPropMeta().catch(e => { $("#prop-status").textContent = e.message; });
+  });
   $("#an-query").onkeydown = e => { if (e.key === "Enter") loadAnalytics(); };
   $("#mc-box").addEventListener("toggle", () => { if ($("#mc-box").open) loadMonteCarlo(); });
   $("#mc-run").onclick = () => loadMonteCarlo(true);

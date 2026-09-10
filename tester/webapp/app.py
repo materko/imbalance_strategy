@@ -122,6 +122,36 @@ class SweepRequest(RunRequest):
     min_trades: int | None = Field(None, description="menej obchodov = bod je mimo mantinelov")
 
 
+class PropRequest(BaseModel):
+    """Prop výzva nad tými istými behmi, aké má karta Analytika.
+
+    Polia pravidiel sú `None` = nechať tak, ako ich má predloha. Čísla predlôh sú
+    odpísané z verejných stránok firiem a menia sa — formulár ich preto ukazuje aj
+    so zdrojom a dá sa každé prepísať.
+    """
+
+    runs: list[str] = Field(default_factory=list, description="behy; prázdne = podľa `q`")
+    q: str = Field("", description="dopyt na behy (syntax ako vyhľadávanie v histórii)")
+    strategy: str = Field("ibs")
+    rules: str = Field("ftmo2", description="ktorá predloha pravidiel")
+    limit: int = Field(40, ge=1, le=500)
+    step: int = Field(1, ge=1, le=100, description="každý N-tý obchod ako štart pokusu")
+    risks: list[float] = Field(default_factory=list, description="riziká v %; prázdne = default")
+
+    account: float | None = Field(None, gt=0)
+    targets: list[float] | None = Field(None, description="ciele fáz v %")
+    max_daily_loss_pct: float | None = Field(None, ge=0)
+    max_loss_pct: float | None = Field(None, gt=0)
+    trailing: str | None = None
+    trailing_freeze_at_start: bool | None = None
+    min_days: int | None = Field(None, ge=0)
+    max_day_share_pct: float | None = Field(None, ge=0, le=100)
+    cost: float | None = Field(None, ge=0)
+    payout_pct: float | None = Field(None, gt=0, le=100)
+    refund: bool | None = None
+    horizon_days: int | None = Field(None, ge=0)
+
+
 class PaperRequest(BaseModel):
     """Zadanie merania — tie isté behy, aké má karta Analytika."""
 
@@ -930,6 +960,68 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 report["nulltest"] = {"nulls": vysledky,
                                       "note": _null_note(vysledky)}
         return report
+
+    @app.get("/api/prop/meta")
+    def prop_meta():
+        """Predlohy pravidiel pre formulár — vrátane toho, odkiaľ sú čísla."""
+        from .. import prop as pr
+
+        return {"presets": {k: {**v.__dict__, "targets": list(v.targets),
+                                "phases": v.phases}
+                            for k, v in pr.PRESETS.items()},
+                "risks": list(pr.RISKS),
+                "trailing": {"nie": "statický (z počiatočného zostatku)",
+                             "vrchol": "trailing z vrcholu (intraday)",
+                             "koniec_dna": "trailing z konca dňa (EOD)"}}
+
+    @app.post("/api/prop")
+    def prop_run(req: PropRequest):
+        """Prehrá obchody vybraných behov cez pravidlá výzvy, riziko po riziku."""
+        from dataclasses import replace
+
+        from .. import analytics as an, prop as pr
+
+        if req.strategy not in STRATEGIES:
+            raise HTTPException(404, f"neznáma stratégia {req.strategy!r}")
+        if req.rules not in pr.PRESETS:
+            raise HTTPException(422, f"neznáme pravidlá {req.rules!r}; "
+                                     f"známe: {', '.join(pr.PRESETS)}")
+        zmeny = {k: v for k, v in req.model_dump().items()
+                 if v is not None and k in pr.Rules.__dataclass_fields__ and k != "name"}
+        if req.targets:
+            zmeny["targets"] = tuple(req.targets)
+        try:
+            pravidla = replace(pr.PRESETS[req.rules], **zmeny)
+        except ValueError as exc:
+            raise HTTPException(422, str(exc))
+
+        if req.runs:
+            zaznamy = [rec for rec in (store.get(i) for i in req.runs) if rec]
+        else:
+            vsetky = store.search(req.q) if req.q.strip() else store.all()
+            zaznamy = [r for r in vsetky if strategy_of(r) == req.strategy
+                       and r.get("status") == "done"
+                       and ((r.get("result") or {}).get("trades") or 0) > 0]
+        zaznamy = zaznamy[:req.limit]
+        if not zaznamy:
+            raise HTTPException(404, "žiadne dobehnuté behy s obchodmi")
+
+        obchody: list[dict[str, Any]] = []
+        for rec in zaznamy:
+            t = store.trades(rec["id"])
+            if t:
+                obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]), req.strategy)
+        if not obchody:
+            raise HTTPException(404, "vybrané behy nemajú uložené obchody")
+
+        rizika = req.risks or list(pr.RISKS)
+        vysledky = pr.risk_table(obchody, pravidla, risks=rizika, step=req.step)
+        najlepsi = max(vysledky, key=lambda r: (r.ev if r.ev is not None else -1e18))
+        return {"rules": {**pravidla.__dict__, "targets": list(pravidla.targets),
+                          "phases": pravidla.phases},
+                "trades": len(obchody), "runs": len(zaznamy),
+                "results": [r.to_dict() for r in vysledky],
+                "best_risk": najlepsi.risk_pct, "verdict": najlepsi.verdict}
 
     @app.post("/api/paper")
     def paper_write(req: PaperRequest):
