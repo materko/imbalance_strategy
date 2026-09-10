@@ -112,6 +112,8 @@ class RunRequest(BaseModel):
     profile: str | None = None
     note: str = ""
     user: str | None = Field(None, max_length=80, description="meno testera z hlavičky stránky")
+    ai: dict[str, Any] | None = Field(None, description="AI vrstva (FreqAI): prah, okná, "
+                                                        "model a čo smie meniť; None = vypnutá")
 
 
 class SweepRequest(RunRequest):
@@ -432,6 +434,29 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         recs = store.search(q) if q.strip() else store.all()
         return {"total": len(recs), "runs": [summarize_for_list(r, defaults_of(r)) for r in recs[offset:offset + limit]]}
 
+    def _ai_for(ai: dict[str, Any] | None, strategy: str) -> dict[str, Any] | None:
+        """Overí zadanie AI vrstvy. `None` alebo bez `enabled` = vypnutá."""
+        from tradebot.strategies.hyperopt import StrategyHyperopt
+
+        if not ai or not ai.get("enabled"):
+            return None
+        povolene = (get_spec(strategy).hyperopt_cls or StrategyHyperopt).ai_adjustable()
+        adjust = {}
+        for kluc, rozsah in (ai.get("adjust") or {}).items():
+            if kluc not in povolene:
+                raise HTTPException(422, f"{kluc!r} sa modelom meniť nedá; stratégia "
+                                         f"{strategy} dovolí: {', '.join(povolene)}")
+            try:
+                a, b = (float(x) for x in rozsah)
+            except (TypeError, ValueError):
+                raise HTTPException(422, f"{kluc}: rozsah musí byť dvojica čísel")
+            if a <= 0 or b <= 0:
+                raise HTTPException(422, f"{kluc}: násobok musí byť kladný")
+            adjust[kluc] = [a, b]
+        cisla = {k: ai[k] for k in ("min_probability", "train_period_days",
+                                    "backtest_period_days", "model") if ai.get(k) is not None}
+        return {"enabled": True, **cisla, **({"adjust": adjust} if adjust else {})}
+
     def _fee_for(fee: float | None, pair: str, timeframe: str, timerange: str) -> dict[str, Any]:
         """`{"fee": …, "fee_note": …}` — zadané číslo, alebo náklad toho trhu."""
         from .. import fees as fees_mod
@@ -495,6 +520,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             # CFD je provizia drobna a naklad je spread. Bez zadaneho `fee` sa berie
             # naklad instrumentu a ulozi sa aj to, odkial cislo je.
             **_fee_for(req.fee, req.pair, req.timeframe, req.timerange),
+            "ai": _ai_for(req.ai, req.strategy),
             "wallet": req.wallet,
             "timeframe_detail": detail,
             "profile": req.profile,
@@ -1042,6 +1068,20 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         if not anstore.delete(an_id):
             raise HTTPException(404, f"analytika {an_id} v histórii nie je")
         return {"deleted": an_id}
+
+    @app.get("/api/ai/meta")
+    def ai_meta(strategy: str = "ibs"):
+        """Predvolené hodnoty AI vrstvy a to, čo daná stratégia dovolí meniť."""
+        from tradebot.strategies.hyperopt import StrategyHyperopt
+
+        from .. import engines as eng
+
+        if strategy not in STRATEGIES:
+            raise HTTPException(404, f"neznáma stratégia {strategy!r}")
+        povolene = (get_spec(strategy).hyperopt_cls or StrategyHyperopt).ai_adjustable()
+        return {"defaults": dict(eng.AI_DEFAULTS),
+                "adjustable": [{"key": k, "param": v[0], "title": v[1]}
+                               for k, v in povolene.items()]}
 
     @app.get("/api/prop/meta")
     def prop_meta():

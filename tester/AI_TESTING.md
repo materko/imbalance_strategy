@@ -702,6 +702,11 @@ PY -m tester.webapp.cli run … --ai --ai-min-prob 0.45 --ai-size 0.5:1.5
 | `--ai-model` | model FreqAI (default `LightGBMClassifier`) |
 | `--ai-adjust KLUC=OD:DO` | čo smie model meniť podľa istoty; opakovateľné |
 
+To isté je vo webapp na karte **Nový beh** v bloku **AI filter (FreqAI)**: zaškrtávatko,
+prah, okná, model a políčko na rozsah pri každom kľúči, ktorý daná stratégia dovolí meniť
+(zoznam sa načíta z nej, takže sa mení so stratégiou). Kým nie je zaškrtnuté, do behu sa
+nepridá nič.
+
 ### Nálepka, ktorú netreba vymýšľať
 FreqAI štandardne predpovedá zmenu ceny o N sviečok dopredu, čo je vždy sporný cieľ. My
 pre **každý signál** poznáme jeho SL aj TP z plánu, ktorý engine vypočítal — nálepka je
