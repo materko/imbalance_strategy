@@ -243,3 +243,53 @@ def test_viac_trhov_ma_v_nazve_viac_trhov():
     d = pp.build(zaznamy, FakeStore(zaznamy), strategy="ibs")
 
     assert "viac_trhov" in pp.filename(d).name
+
+
+# --------------------------------------------------------------------------- #
+# jeden merací engine
+# --------------------------------------------------------------------------- #
+
+
+def test_meria_sa_bateriou_checkupu_a_nie_vlastnym_poradim(monkeypatch):
+    """Keby si meranie počítalo vlastné poradie, dva dokumenty o tej istej stratégii
+    by sa nedali porovnať — a to je presne to, čo majú riešiť."""
+    from tester import checkup as ck
+
+    volania = []
+    povodne = ck.measure
+
+    def sleduj(records, trades, **kw):
+        volania.append((len(records), len(trades), kw.get("strategy")))
+        return povodne(records, trades, **kw)
+
+    monkeypatch.setattr(ck, "measure", sleduj)
+    zaznamy = [beh("r0", "20240904-20250904"), beh("r1", "20250904-20260904")]
+    pp.build(zaznamy, FakeStore(zaznamy), strategy="ibs")
+
+    assert volania == [(2, 60, "ibs")]
+
+
+def test_posudok_baterie_ide_do_dokumentu(doc):
+    """Silné stránky a chyby sú tie isté vety, aké má stratégia vo svojej ANALYTIKA.md."""
+    doc.strengths = ["Break-even drží nad poplatkom."]
+    doc.weaknesses = ["Málo obchodov."]
+    text = pp.render(doc)
+
+    assert "**V čom je dobrá**" in text
+    assert "Break-even drží nad poplatkom." in text
+    assert "**Kde má chyby**" in text
+    assert "Málo obchodov." in text
+
+
+def test_poplatok_do_baterie_ide_z_behov(monkeypatch):
+    """`fee` je v behu ako podiel (0,0005), batéria ho chce v percentách."""
+    from tester import checkup as ck
+
+    videne = {}
+    povodne = ck.measure
+    monkeypatch.setattr(ck, "measure", lambda r, t, **kw: (videne.update(kw),
+                                                           povodne(r, t, **kw))[1])
+    zaznamy = [beh("r0", "20250904-20260904")]
+    pp.build(zaznamy, FakeStore(zaznamy), strategy="ibs")
+
+    assert videne["fee_pct"] == pytest.approx(0.05)
