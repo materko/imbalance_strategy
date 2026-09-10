@@ -1110,3 +1110,27 @@ def test_sweep_detail_zoradi_podla_kriteria(client):
     assert [row["values"]["rrRatio"] for row in body["rows"]] == [4, 2, 3]
     assert body["rows"][-1]["why"] == "drawdown 30.0 % > 10 %"
     assert c.get("/api/sweeps/neznamy").status_code == 404
+
+
+def test_analytics_configs_zoskupi_behy_s_rovnakymi_parametrami(tmp_path: Path):
+    """Analytika sa počíta nad jednou konfiguráciou; ponuka konfigurácií hovorí, koľko
+    okien a trhov ktorá pokrýva — bez toho by tester zlieval rôzne stratégie."""
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.webapp import app as app_mod
+
+    store = RunStore(tmp_path)
+    store.save(_record("20260905-120000-aaaaaa"))
+    ine_okno = _record("20260906-120000-bbbbbb")
+    ine_okno["settings"] = {**ine_okno["settings"], "timerange": "20240904-20250904"}
+    store.save(ine_okno)
+    store.save(_record("20260907-120000-cccccc", params={"rrRatio": 5.0}))
+    c = TestClient(app_mod.create_app(store))
+
+    out = c.get("/api/analytics/configs?strategy=ibs").json()["configs"]
+
+    assert [g["runs"] for g in out] == [2, 1]
+    assert out[0]["timeranges"] == ["20240904-20250904", "20250904-20260904"]
+    assert out[0]["run_ids"] == ["20260905-120000-aaaaaa", "20260906-120000-bbbbbb"]
+    assert out[0]["profile"] == "btcusdt_3m_binance_ny" and out[0]["trades"] == 298

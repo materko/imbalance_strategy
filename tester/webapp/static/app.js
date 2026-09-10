@@ -404,6 +404,7 @@ function fillSettings() {
     const f = $("#filter-strategy");
     if (f && f.value) { f.value = ss.value; historyPage.offset = 0; }
     loadAnalyticsHistory();
+    loadAnalyticsConfigs();
     if ($("#ai-box")?.open) loadAiMeta();
     $("#profile").value = "";
     await loadProfile("");
@@ -2411,6 +2412,34 @@ async function gitAction(kind) {
 // Analytika: ktora skupina obchodov kazi vysledok
 // --------------------------------------------------------------------------- //
 
+/** `20211001-20221001` → `2021-10-01 → 2022-10-01`; okno behu má byť vidieť, nie hádať. */
+function fmtWindow(w) {
+  const m = /^(\d{4})(\d{2})(\d{2})-(\d{4})(\d{2})(\d{2})$/.exec(String(w || ""));
+  return m ? `${m[1]}-${m[2]}-${m[3]} → ${m[4]}-${m[5]}-${m[6]}` : String(w || "?");
+}
+
+/** Konfigurácie v histórii (behy s tými istými parametrami) do ponuky Analytiky. */
+async function loadAnalyticsConfigs() {
+  const sel = $("#an-config");
+  if (!sel) return;
+  const povodne = sel.value;
+  try {
+    const out = await api(`/api/analytics/configs?strategy=${encodeURIComponent(state.strategy)}`);
+    state.anConfigs = out.configs || [];
+  } catch (e) {
+    state.anConfigs = [];
+  }
+  sel.innerHTML = '<option value="">— vybrať behy dopytom nižšie —</option>'
+    + state.anConfigs.map(c => {
+      const okna = c.timeranges || [];
+      const rozsah = okna.length ? ` (${fmtWindow(okna[0]).slice(0, 10)} → ${fmtWindow(okna[okna.length - 1]).slice(-10)})` : "";
+      return `<option value="${esc(c.key)}">${esc(c.profile)} · ${c.runs} ${slovom(c.runs, "beh", "behy", "behov")}`
+        + ` · ${okna.length} ${slovom(okna.length, "okno", "okná", "okien")}${rozsah}`
+        + ` · ${esc((c.pairs || []).join(", "))} ${esc((c.timeframes || []).join("/"))}</option>`;
+    }).join("");
+  if (povodne && state.anConfigs.some(c => c.key === povodne)) sel.value = povodne;
+}
+
 async function loadAnalytics() {
   const btn = $("#an-run");
   btn.disabled = true;
@@ -2422,6 +2451,13 @@ async function loadAnalytics() {
     min_bucket: $("#an-minbucket").value || 8,
     limit_runs: $("#an-limit").value || 40,
   });
+  // Vybraná konfigurácia: presne jej behy, bez ohľadu na dopyt - zliať rôzne
+  // konfigurácie by znamenalo zliať rôzne stratégie.
+  const konfig = (state.anConfigs || []).find(c => c.key === $("#an-config")?.value);
+  if (konfig) {
+    params.set("runs", konfig.run_ids.join(","));
+    params.set("limit_runs", String(Math.max(konfig.run_ids.length, Number($("#an-limit").value) || 40)));
+  }
   try {
     const r = await api(`/api/analytics?${params}`);
     renderAnalytics(r);
@@ -3085,11 +3121,20 @@ function archetypesHtml(list, aktivny) {
 }
 
 function renderAnalytics(r) {
+  // Okná behov: bez nich nie je vidieť, že "40 behov" je päť rokov, alebo štyridsaťkrát
+  // ten istý rok s inými parametrami.
+  const okna = (r.runs || []).map(x => x.timerange).filter(Boolean);
+  const unikat = [...new Set(okna)].sort();
+  const oknaText = unikat.length
+    ? `okná: ${unikat.map(w => esc(fmtWindow(w))).join(" · ")}`
+      + (okna.length > unikat.length ? ` · <b>${okna.length - unikat.length}×</b> to isté okno viackrát` : "")
+    : "behy nemajú uložené okno";
   const zhrnutie = [
     `<div class="headline">${esc(r.headline)}</div>`,
     `<p class="an-note"><b>${r.trades}</b> obchodov z <b>${r.runs.length}</b> behov`
       + ` · break-even <b>${fmt(r.break_even_pct, 4)} %</b> · winrate ${fmt(r.winrate, 1)} %`
       + ` · ${esc(r.pairs.join(", "))}</p>`,
+    `<p class="an-note">${oknaText}</p>`,
   ];
   zhrnutie.push(configHtml(r.config));
   if (r.mixed_pairs) {
@@ -3113,7 +3158,7 @@ function renderAnalytics(r) {
   zhrnutie.push(characterHtml(r.character));
   zhrnutie.push(archetypesHtml(r.archetypes, (r.character || {}).archetype));
   zhrnutie.push(`<div class="an-runs">${r.runs.map(x =>
-    `<span title="${esc(x.note)}">${esc(x.id)} (${x.trades})</span>`).join(" · ")}</div>`);
+    `<span title="${esc(x.note)}">${esc(x.id)} · ${esc(fmtWindow(x.timerange))} (${x.trades})</span>`).join(" · ")}</div>`);
   $("#an-summary").innerHTML = zhrnutie.join("");
 
   const sekcia = (s, neskor) => {
@@ -3191,7 +3236,7 @@ function showView(name) {
   if (name === "history") { closeDetail(); loadRuns(); }
   // Historia analytiky je per strategia, takze sa nacita az pri otvoreni karty - vtedy
   // uz je jasne, ktora strategia je zvolena.
-  if (name === "analytics") loadAnalyticsHistory();
+  if (name === "analytics") { loadAnalyticsHistory(); loadAnalyticsConfigs(); }
 }
 
 async function init() {
