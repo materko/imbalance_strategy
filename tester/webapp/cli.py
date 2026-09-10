@@ -348,6 +348,78 @@ def warn_parity(space: dict, strategy: str) -> None:
           "je to v poriadku.\n", file=sys.stderr)
 
 
+def cmd_plateau(args: argparse.Namespace) -> int:
+    """Okolie víťaza hyperoptu: susedné hodnoty ako test robustnosti."""
+    from .. import montecarlo as mc, plateau as pl
+    from .store import RunStore
+
+    store = RunStore()
+    hyper = store.get(args.hyperopt_id)
+    if hyper is None:
+        raise SystemExit(f"beh {args.hyperopt_id} v historii nie je")
+    zadanie = (hyper.get("settings") or {}).get("hyperopt") or {}
+    if not zadanie.get("knobs"):
+        raise SystemExit(f"beh {args.hyperopt_id} nie je hyperopt")
+    vitaz_params = zadanie.get("overrides")
+    if not vitaz_params:
+        raise SystemExit("hyperopt nema vitaza (ziadna epocha nesplnila mantinely)")
+
+    # Vitaz uz raz bezal ako obycajny beh na ladenom okne - z neho su obchody aj interval.
+    overenia = [r for r in store.all()
+                if ((r.get("settings", {}).get("hyperopt_run") or {}).get("id")) == args.hyperopt_id]
+    ladene = [r for r in overenia if (r["settings"].get("hyperopt_run") or {}).get("tuned")]
+    if not ladene:
+        raise SystemExit("beh vitaza na ladenom okne v historii nie je (spustil sa hyperopt "
+                         "s --no-verify?)")
+    vitaz = ladene[0]
+
+    interval = (None, None)
+    obchody = store.trades(vitaz["id"])
+    if len(obchody) >= mc.MIN_TRADES:
+        vysledok = mc.analyze(obchody, fee_pct=(vitaz["settings"].get("fee") or 0) * 100,
+                              iterations=args.iterations, seed=args.seed)
+        be = vysledok["break_even"]
+        interval = (be["lo"], be["hi"])
+    else:
+        print(f"POZOR: vitaz ma len {len(obchody)} obchodov, interval spolahlivosti sa "
+              f"nepocita (treba aspon {mc.MIN_TRADES}).", file=sys.stderr)
+
+    susedia = pl.neighbours(zadanie["knobs"], vitaz_params)
+    if not susedia:
+        raise SystemExit("vitaz nema ziadnych susedov v rozsahu planu")
+
+    zaklad = {k: v for k, v in (vitaz.get("params") or {}).items()}
+    settings_zaklad = {k: v for k, v in vitaz["settings"].items() if k != "hyperopt_run"}
+    print(f"okolie vitaza {args.hyperopt_id}: {len(susedia)} susedov, okno "
+          f"{settings_zaklad.get('timerange')}")
+    print(f"  vitaz: {', '.join(f'{k}={v}' for k, v in vitaz_params.items())}\n", flush=True)
+
+    zaznamy = []
+    for i, sused in enumerate(susedia, 1):
+        params = {**zaklad, sused.param: sused.value}
+        settings = {**settings_zaklad,
+                    "plateau": {"id": args.hyperopt_id, "param": sused.param,
+                                "value": sused.value, "step": sused.step}}
+        print(f"[{i}/{len(susedia)}] {sused.label} = {sused.value}", flush=True)
+        try:
+            rec = _execute(args, params, settings,
+                           note=f"okolie {args.hyperopt_id}: {sused.param}={sused.value}",
+                           quiet=True)
+        except SystemExit as exc:
+            print(f"      neslo spustit: {exc}", flush=True)
+            continue
+        rec.setdefault("settings", settings)
+        zaznamy.append(rec)
+        r = rec.get("result") or {}
+        print(f"      {rec.get('status')}  obchodov {r.get('trades', '-')}  "
+              f"break-even {r.get('break_even_pct', '-')} %", flush=True)
+
+    hodnotenie = pl.assess(vitaz, zaznamy, interval)
+    print(f"\n=== okolie vitaza {args.hyperopt_id} ===")
+    print(pl.table(hodnotenie))
+    return 0
+
+
 def cmd_nulltest(args: argparse.Namespace) -> int:
     """Porovná break-even stratégie s náhodným vstupom za tých istých pravidiel."""
     from .. import analytics as an, nulltest as nt
@@ -793,6 +865,17 @@ def main(argv: list[str] | None = None) -> int:
                         "cez noc. Cena je čas: rok backtestu je asi 30 s na bod")
     _run_args(p)
     p.set_defaults(func=cmd_sweep)
+
+    p = sub.add_parser("plateau", help="okolie víťaza hyperoptu — je to plató alebo špička?")
+    p.add_argument("hyperopt_id", help="beh hyperoptu z histórie")
+    p.add_argument("--iterations", type=int, default=2000, help="opakovaní Monte Carla (default 2000)")
+    p.add_argument("--seed", type=int, default=12345)
+    # Nastavenie behu (par, okno, poplatok, profil) sa berie z vitaza, nie z prikazu -
+    # sused sa musi lisit LEN v tom jednom parametri, inak sa neporovnava okolie.
+    p.add_argument("--note", default="", help="poznámka k susedným behom")
+    p.add_argument("--user", help="meno testera (inak TRADEBOT_USER)")
+    p.add_argument("--no-wait", action="store_true", help="nečakať na dobehnutie")
+    p.set_defaults(func=cmd_plateau)
 
     p = sub.add_parser("nulltest", help="je edge odlíšiteľný od náhody? (porovnanie s náhodným vstupom)")
     p.add_argument("query", nargs="*", help="dopyt na behy (rovnaká syntax ako `list`)")
