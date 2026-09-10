@@ -52,6 +52,28 @@ def test_breakout_long_gives_market_entry_with_sl_below_and_tp_above():
         assert DrawKind(k.value) is k  # registrované
 
 
+def test_entry_draws_tp_and_sl_box_at_signal_bar_time():
+    """Boxy nie sú ozdoba: je v nich PLÁN obchodu, ktorý inde nikde neostane.
+
+    Analytika (`tester/analytics.py`) z nich počíta vzdialenosť stopu a plánovaný RR
+    a páruje ich s obchodom cez čas baru signálu — `x1_ms` teda musí byť čas toho baru,
+    lebo `enter_tag` vo Freqtrade je `demo:<ten istý čas>`.
+    """
+    engine = DemoBreakoutEngine(DemoBreakoutConfig(), BTCUSDT_BINANCE, 5)
+    warm(engine)
+    signal = bar(40, o=100.5, h=104.0, low=100.0, c=103.5)
+    out = engine.on_bar(signal, None, MarketContext(in_trade_window=True))
+    plan = [o for o in out.orders if o.action is OrderAction.ENTRY][0].plan
+
+    boxy = {o.kind: o for o in out.drawings if o.kind in (DrawKind.TP_BOX, DrawKind.SL_BOX)}
+    assert set(boxy) == {DrawKind.TP_BOX, DrawKind.SL_BOX}
+    for kind, box in boxy.items():
+        assert box.x1_ms == signal.time and box.x2_ms > box.x1_ms
+        assert box.y2 <= plan.entry <= box.y1        # box je rozdelený na úrovni vstupu
+    assert boxy[DrawKind.TP_BOX].y1 == plan.take_profit
+    assert boxy[DrawKind.SL_BOX].y2 == plan.stop_loss
+
+
 def test_short_disabled_when_allow_short_off():
     engine = DemoBreakoutEngine(DemoBreakoutConfig(allowShort=False), BTCUSDT_BINANCE, 5)
     warm(engine)

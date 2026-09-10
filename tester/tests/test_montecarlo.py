@@ -176,6 +176,16 @@ def test_sizing_of_cita_profil_behu():
     assert mc.sizing_of({"params": {"maxLossDollar": 100.0, "legacyPineSizing": True}}) is None
     assert mc.sizing_of({"params": {}}) is None
 
+
+def test_sizing_of_berie_meno_pola_zo_strategie_nie_z_ibs():
+    """Riziko na obchod sa v každej stratégii volá inak — vie to `SPEC.risk_field`."""
+    demo = {"settings": {"strategy": "demo_breakout"}, "params": {"riskDollar": 250.0}}
+    assert mc.sizing_of(demo) == 250.0
+    # pole IBS v cudzej stratégii nič neznamená
+    assert mc.sizing_of({"settings": {"strategy": "demo_breakout"},
+                         "params": {"maxLossDollar": 100.0}}) is None
+    assert mc.sizing_of({"settings": {"strategy": "neexistuje"}, "params": {"riskDollar": 1}}) is None
+
 # --------------------------------------------------------------------------- #
 # CLI nad históriou behov
 # --------------------------------------------------------------------------- #

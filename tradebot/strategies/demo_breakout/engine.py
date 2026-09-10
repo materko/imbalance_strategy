@@ -8,7 +8,7 @@ na trhový výstup pri opačnom breakoute. Žiadny informatívny TF (htf je vžd
 
 from __future__ import annotations
 
-from tradebot.core.drawing import DrawCommand, DrawLabel, DrawLine, LabelStyle
+from tradebot.core.drawing import DrawBox, DrawCommand, DrawKind, DrawLabel, DrawLine, LabelStyle
 from tradebot.core.engine import EngineOutput
 from tradebot.core.history import BarHistory
 from tradebot.core.orders import MarketContext, OrderAction, OrderIntent
@@ -23,6 +23,10 @@ __all__ = ["DemoBreakoutEngine"]
 _LONG_COLOR = "#10b981"
 _SHORT_COLOR = "#ef4444"
 _CHANNEL_COLOR = "#3b82f6b3"
+
+#: Ako ďaleko dopredu siaha TP/SL box. Obchod má vopred neznámu dĺžku, takže je to len
+#: čitateľnosť grafu — analytika číta z boxu úrovne, nie jeho pravý okraj.
+_BOX_BARS = 30
 
 
 class DemoBreakoutEngine:
@@ -73,6 +77,26 @@ class DemoBreakoutEngine:
             sl_distance=sl_distance,
         )
 
+    def _trade_boxes(self, bar: Bar, plan: TradePlan) -> list[DrawCommand]:
+        """TP a SL box obchodu — dva bloky rozdelené na úrovni vstupu, ako pri IBS.
+
+        Nie je to len ozdoba grafu: kresba je jediné miesto, kde ostane **plán** obchodu
+        tak, ako ho engine vypočítal. `trades.json` má len to, čo Freqtrade nakoniec
+        urobil, takže bez týchto boxov analytika nevie vzdialenosť stopu ani plánovaný RR
+        (`SPEC.sl_kind` / `tp_kind`, `tester/analytics.py`). Spája sa to časom baru
+        signálu, preto `x1_ms` musí byť `bar.time` — ten je aj v `enter_tag`.
+        """
+        right = bar.time + _BOX_BARS * self.step_ms
+        return [
+            DrawBox(kind=kind, x1_ms=bar.time, y1=max(plan.entry, price), x2_ms=right,
+                    y2=min(plan.entry, price), border_color=color, fill_color=color + "40",
+                    border_width=0, obj_id=f"demo{bar.time}.{kind.value}")
+            for kind, price, color in (
+                (DrawKind.TP_BOX, plan.take_profit, _LONG_COLOR),
+                (DrawKind.SL_BOX, plan.stop_loss, _SHORT_COLOR),
+            )
+        ]
+
     def on_bar(self, bar: Bar, htf=None, ctx: MarketContext | None = None) -> EngineOutput:
         ctx = ctx or MarketContext(in_trade_window=True)
         out = EngineOutput()
@@ -117,6 +141,7 @@ class DemoBreakoutEngine:
                     "#ffffff", style=LabelStyle.UP if long else LabelStyle.DOWN, above=not long,
                     bg_color=_LONG_COLOR if long else _SHORT_COLOR, obj_id=f"demo_entry.{bar.time}",
                 ))
+                out.drawings += self._trade_boxes(bar, plan)
 
         if ctx.position_size != 0.0:
             self._pending = None  # vyplnené — sledovanie preberá adaptér

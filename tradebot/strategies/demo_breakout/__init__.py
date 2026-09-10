@@ -14,6 +14,7 @@ SOURCES = Path(__file__).resolve().parent / "docs" / "sources"
 
 from .config import CONFIG_DIR, DemoBreakoutConfig, ExitMode
 from .engine import DemoBreakoutEngine
+from .hyperopt import DemoBreakoutHyperopt
 from .meta import (
     FEATURES,
     INTENTIONAL_DEFAULT_DIFFS,
@@ -46,6 +47,14 @@ SPEC = StrategySpec(
     multicharts_template="DemoBreakout_Signal.py",
     informative_tfs=None,
     htf_feeder=None,
+    # Čo z balíka potrebuje analytika: kresby s plánom obchodu, pole s rizikom
+    # a vedomosti o ladení. Bez nich beží tiež, len bez vzdialenosti stopu,
+    # plánovaného RR, prepočtu na iný účet a odkazov „preladiť tento parameter".
+    sl_kind="sl_box",
+    tp_kind="tp_box",
+    risk_field="riskDollar",
+    hyperopt_cls=DemoBreakoutHyperopt,
 )
 
-__all__ = ["SPEC", "DemoBreakoutConfig", "DemoBreakoutEngine", "ExitMode", "CONFIG_DIR"]
+__all__ = ["SPEC", "DemoBreakoutConfig", "DemoBreakoutEngine", "DemoBreakoutHyperopt",
+           "ExitMode", "CONFIG_DIR"]

@@ -83,9 +83,12 @@ def test_vedomosti_o_ladeni_si_generik_vyzdvihne_z_registry():
 
     from tradebot.strategies.ibs.hyperopt import IBSHyperopt
 
+    from dataclasses import replace
+
     assert hp.knowledge(IBS) is IBSHyperopt
+    assert hp.knowledge(get_spec("demo_breakout")).SUGGESTED   # aj ukážka niečo odporúča
     # Stratégia bez vlastnej triedy sa ladiť dá tiež — dostane základ, nie výnimku.
-    assert hp.knowledge(get_spec("demo_breakout")) is StrategyHyperopt
+    assert hp.knowledge(replace(IBS, hyperopt_cls=None)) is StrategyHyperopt
 
 
 def test_odporucania_su_platny_plan():
