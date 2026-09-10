@@ -348,6 +348,59 @@ def warn_parity(space: dict, strategy: str) -> None:
           "je to v poriadku.\n", file=sys.stderr)
 
 
+def cmd_nulltest(args: argparse.Namespace) -> int:
+    """Porovná break-even stratégie s náhodným vstupom za tých istých pravidiel."""
+    from .. import analytics as an, nulltest as nt
+    from .store import RunStore
+
+    store = RunStore()
+    if args.runs:
+        chcene = [x.strip() for x in args.runs.split(",") if x.strip()]
+        zaznamy = [r for r in (store.get(i) for i in chcene) if r]
+    else:
+        vsetky = store.search(" ".join(args.query)) if args.query else store.all()
+        zaznamy = [r for r in vsetky if r.get("status") == "done"
+                   and ((r.get("result") or {}).get("trades") or 0) > 0]
+    zaznamy = zaznamy[:args.limit]
+    if not zaznamy:
+        raise SystemExit("ziadne dobehnute behy s obchodmi (skus iny dopyt)")
+
+    pary = {r["settings"].get("pair") for r in zaznamy}
+    if len(pary) > 1:
+        raise SystemExit("nahodne vstupy sa losuju zo sviecok jedneho paru, takze behy "
+                         f"musia byt z jedneho trhu; vybrane su: {', '.join(sorted(pary))}")
+    pair = zaznamy[0]["settings"]["pair"]
+    timeframe = zaznamy[0]["settings"].get("timeframe") or "3m"
+
+    obchody = []
+    for rec in zaznamy:
+        t = store.trades(rec["id"])
+        if t:
+            obchody += an.enrich([dict(x) for x in t], store.chart(rec["id"]),
+                                 rec["settings"].get("strategy") or "ibs")
+    if not obchody:
+        raise SystemExit("vybrane behy nemaju ulozene obchody")
+
+    print(f"{len(zaznamy)} behov, {len(obchody)} obchodov, {pair} {timeframe}")
+    okna = sorted({r["settings"].get("timerange") for r in zaznamy if r["settings"].get("timerange")})
+    print(f"okna: {', '.join(okna)}\n")
+
+    najprv = None
+    for null in ([args.null] if args.null else list(nt.NULLS)):
+        vysledok = nt.compare(obchody, pair=pair, timeframe=timeframe,
+                              iterations=args.iterations, null=null, seed=args.seed)
+        print(nt.report(vysledok, label=null))
+        print()
+        if najprv is None:
+            najprv = vysledok
+        elif (najprv.sigma is not None and vysledok.sigma is not None
+              and najprv.sigma - vysledok.sigma > 1.0):
+            print("Rozdiel medzi tymi dvoma je hodnota samotneho vyberu casu: proti nahode "
+                  "kedykolvek je strategia vyrazne lepsia, proti nahode v tych istych "
+                  "hodinach uz nie. Cely jej edge je v tom, KEDY obchoduje.\n")
+    return 0 if (najprv and najprv.sigma is not None) else 1
+
+
 def cmd_matrix(args: argparse.Namespace) -> int:
     """Matica trhov a timeframov: drží myšlienka aj mimo trhu, na ktorom sa ladila?"""
     from datetime import datetime, timezone
@@ -740,6 +793,16 @@ def main(argv: list[str] | None = None) -> int:
                         "cez noc. Cena je čas: rok backtestu je asi 30 s na bod")
     _run_args(p)
     p.set_defaults(func=cmd_sweep)
+
+    p = sub.add_parser("nulltest", help="je edge odlíšiteľný od náhody? (porovnanie s náhodným vstupom)")
+    p.add_argument("query", nargs="*", help="dopyt na behy (rovnaká syntax ako `list`)")
+    p.add_argument("--runs", help="konkrétne behy oddelené čiarkou (namiesto dopytu)")
+    p.add_argument("--null", choices=("anytime", "session"),
+                   help="typ náhody; bez neho sa spočítajú obe a porovnajú")
+    p.add_argument("--iterations", type=int, default=1000, help="koľko náhodných behov (default 1000)")
+    p.add_argument("--seed", type=int, default=12345)
+    p.add_argument("--limit", type=int, default=40, help="najviac toľko behov (default 40)")
+    p.set_defaults(func=cmd_nulltest)
 
     p = sub.add_parser("matrix", help="ten istý profil na viacerých trhoch a TF (drží myšlienka?)")
     p.add_argument("--pairs", default="all",

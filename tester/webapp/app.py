@@ -170,6 +170,24 @@ class ProfileRenameRequest(BaseModel):
     name: str = Field(..., max_length=48)
 
 
+def _null_note(vysledky: dict[str, Any]) -> str:
+    """Rozdiel medzi dvoma náhodami je hodnota samotného výberu času.
+
+    Keď je stratégia výrazne lepšia než náhoda kedykoľvek, ale nie než náhoda v tých
+    istých hodinách, celý jej edge je v tom, KEDY obchoduje — a to sa dá mať aj bez nej.
+    """
+    kedykolvek = (vysledky.get("anytime") or {}).get("sigma")
+    v_seanse = (vysledky.get("session") or {}).get("sigma")
+    if kedykolvek is None or v_seanse is None:
+        return ""
+    if kedykolvek - v_seanse > 1.0:
+        return ("Proti náhode kedykoľvek je stratégia výrazne lepšia, proti náhode v tých "
+                "istých hodinách už nie — väčšina jej edge je v tom, KEDY obchoduje, "
+                "nie na čom vstupuje.")
+    return ("Obe náhody dávajú podobný výsledok, takže edge nie je len o výbere času — "
+            "je v tom, na čom stratégia vstupuje.")
+
+
 def _goal_note(goal: str, max_dd: float | None, min_trades: int | None) -> str:
     """Zadanie ako veta — to isté pre sweep aj hyperopt, aby sa nedali rozísť."""
     from .. import sweep as sweep_mod
@@ -733,7 +751,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
     def analytics(q: str = "", runs: str = "", strategy: str = "ibs",
                   quantiles: int = Query(4, ge=2, le=10),
                   min_bucket: int = Query(8, ge=2, le=200),
-                  limit_runs: int = Query(40, ge=1, le=500)):
+                  limit_runs: int = Query(40, ge=1, le=500),
+                  nulltest: bool = True,
+                  null_iterations: int = Query(600, ge=50, le=5000)):
         """Ktorá skupina obchodov kazí výsledok — nad jedným behom alebo nad viacerými.
 
         `runs` je zoznam id oddelený čiarkou; bez neho sa vezmú behy podľa `q` (tá istá
@@ -793,6 +813,26 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             obchody, pair="" if len(pary) > 1 else (prvy["pair"] or ""),
             timeframe=prvy["timeframe"] or "3m").to_dict()
         report["archetypes"] = [a.__dict__ for a in chr_mod.ARCHETYPES]
+
+        # Test proti nahode ide z tej istej vzorky obchodov: "break-even 0,064 %" je bez
+        # referencie cislo, nie odpoved. Nahodne vstupy sa losuju zo sviecok, takze to ide
+        # len na jednom trhu - pri zliatych paroch by sa nemalo z coho losovat.
+        report["nulltest"] = None
+        if nulltest and not report["mixed_pairs"]:
+            from .. import nulltest as nt_mod
+
+            vysledky = {}
+            for null in nt_mod.NULLS:
+                try:
+                    vysledky[null] = nt_mod.compare(
+                        obchody, pair=pary[0], timeframe=prvy["timeframe"] or "3m",
+                        iterations=null_iterations, null=null).to_dict()
+                except (ValueError, FileNotFoundError):
+                    vysledky = {}
+                    break
+            if vysledky:
+                report["nulltest"] = {"nulls": vysledky,
+                                      "note": _null_note(vysledky)}
         return report
 
     @app.get("/api/matrix/meta")

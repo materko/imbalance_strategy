@@ -2321,6 +2321,32 @@ async function loadAnalytics() {
   } finally { btn.disabled = false; }
 }
 
+/** Test proti náhode: je ten edge odlíšiteľný od hodu mincou? */
+function nullHtml(nt) {
+  if (!nt || !nt.nulls) return "";
+  const riadky = Object.entries(nt.nulls).map(([kluc, v]) => {
+    const trieda = v.sigma >= 2 ? "pos" : (v.sigma <= -1 ? "neg" : "noise");
+    return `<tr><td>${esc(v.null_note || kluc)}</td>`
+      + `<td>${fmt(v.observed, 4)}</td>`
+      + `<td>${fmt(v.mean, 4)} ± ${fmt(v.sd, 4)}</td>`
+      + `<td class="${trieda}">${v.sigma > 0 ? "+" : ""}${fmt(v.sigma, 2)} σ</td>`
+      + `<td>${fmt(v.percentile, 1)}</td></tr>`;
+  }).join("");
+  const prvy = Object.values(nt.nulls)[0] || {};
+  const trieda = prvy.sigma >= 2 ? "good" : (prvy.sigma <= -1 ? "bad" : "unsure");
+  return `<div class="ch-box">
+      <div class="ch-head"><h3>Je to odlíšiteľné od náhody?</h3></div>
+      <p class="an-note">Tá istá stratégia, ktorá obchoduje rovnako často, rovnakým smerom
+        a s rovnakým stopom aj take profitom — len si nevyberá, kedy vstúpiť. Rozdiel je
+        presne to, čo výber vstupu prináša.</p>
+      <table class="mx-table"><thead><tr><th>náhoda</th><th>stratégia</th>
+        <th>náhoda</th><th>rozdiel</th><th>percentil</th></tr></thead>
+        <tbody>${riadky}</tbody></table>
+      <div class="verdict ${trieda}">${esc(prvy.verdict || "")}</div>
+      ${nt.note ? `<p class="an-note">${esc(nt.note)}</p>` : ""}
+    </div>`;
+}
+
 /** Charakter stratégie: čísla, dôkazy a čo z toho vyplýva pre ladenie. */
 function characterHtml(ch) {
   if (!ch || !ch.title) return "";
@@ -2377,6 +2403,7 @@ function renderAnalytics(r) {
       + " stopu ani prahy v cenových bodoch medzi nimi porovnateľné nie sú — pozeraj hlavne"
       + " hodinu, deň a smer, alebo si vyber jeden pár.</div>");
   }
+  zhrnutie.push(nullHtml(r.nulltest));
   zhrnutie.push(characterHtml(r.character));
   zhrnutie.push(archetypesHtml(r.archetypes, (r.character || {}).archetype));
   zhrnutie.push(`<div class="an-runs">${r.runs.map(x =>
