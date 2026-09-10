@@ -326,3 +326,39 @@ def test_kazda_strategia_ma_analytiku_a_posudok(key):
     telo, _ = ck.extract_posudok(cesta.read_text(encoding="utf-8"))
     assert telo.strip(), (f"{key}: analytika je bez posudku od AI. Prečítaj {cesta.name}, "
                           "odpovedz na šesť otázok a zapíš odpoveď medzi značky POSUDOK.")
+
+
+def test_bateria_da_skupinam_par_a_tf_a_nahode_okna(monkeypatch):
+    """Bez páru by chýbal stav trhu pri vstupe; bez okien by náhoda niesla drift celej
+    histórie páru. Obidve veci batéria posiela sama."""
+    from tester import analytics as an, character as ch, decay as dc, montecarlo as mc
+    from tester import nulltest as nt
+
+    videne = {}
+
+    def falosny_analyze(trades, **kw):
+        videne["analyze"] = kw
+        return {"splits": [], "descriptive": [], "tunable": [], "headline": "", "trades": len(trades),
+                "break_even_pct": 0.1, "winrate": 50.0, "pnl_abs": 0.0}
+
+    def falosny_compare(trades, **kw):
+        videne.setdefault("compare", []).append(kw)
+        return nt.Result()
+
+    monkeypatch.setattr(an, "analyze", falosny_analyze)
+    monkeypatch.setattr(nt, "compare", falosny_compare)
+    monkeypatch.setattr(ch, "measure", lambda *a, **k: ch.Character())
+    monkeypatch.setattr(dc, "analyze", lambda *a, **k: dc.Decay())
+    monkeypatch.setattr(mc, "analyze", lambda *a, **k: {
+        "break_even": {"p_above_fee": 1.0},
+        "account": {"drawdown_pct": {"p95": 5.0, "median": 3.0}, "p_ruin": 0.0}})
+
+    obchody = [{"open_rate": 100.0, "close_rate": 101.0, "amount": 1.0, "profit_abs": 1.0}] * 5
+    r = ck.measure([okno(w) for w in ck.REFERENCE_WINDOWS], obchody, strategy="ibs",
+                   pair="BTC/USDT:USDT", timeframe="3m", duplicates=3)
+
+    assert videne["analyze"]["pair"] == "BTC/USDT:USDT" and videne["analyze"]["timeframe"] == "3m"
+    assert videne["compare"][0]["timerange"] == list(ck.REFERENCE_WINDOWS)
+    assert r["duplicates"] == 3
+    r["montecarlo"] = None                      # falošné MC nemá polia pre výpis
+    assert "3 obchodov započítaných dvakrát" in ck.markdown(r)

@@ -48,6 +48,7 @@ __all__ = [
     "REFERENCE_WINDOWS", "DEFAULT_EPOCHS", "LOSS_CLASS", "RESULTS_DIR", "Epoch",
     "build_plan", "suggested", "plan_path", "latest_results", "command", "read_results",
     "best", "overrides", "table", "verdict", "knowledge_note", "warnings_for",
+    "edge_of", "epochs_from_dicts", "cli_record",
 ]
 
 #: Päť referenčných okien repozitára — na nich sa hodnotí každá zmena parametra.
@@ -244,6 +245,20 @@ def _winrate(m: dict[str, Any]) -> float | None:
     return round(float(wins or 0) / float(total) * 100.0, 4)
 
 
+def epochs_from_dicts(rows: Iterable[dict[str, Any]]) -> list[Epoch]:
+    """Epochy z `epochs.json` behu (tvar `Epoch.to_dict`) späť na objekty."""
+    out: list[Epoch] = []
+    for row in rows:
+        out.append(Epoch(
+            number=int(row.get("epoch") or len(out) + 1), loss=float(row.get("loss") or 0.0),
+            params=dict(row.get("params") or {}), trades=int(row.get("trades") or 0),
+            pnl_pct=row.get("pnl_pct"), winrate=row.get("winrate"),
+            max_drawdown_pct=row.get("max_drawdown_pct"), profit_factor=row.get("profit_factor"),
+            is_best=bool(row.get("is_best")),
+        ))
+    return out
+
+
 def best(epochs: Iterable[Epoch]) -> Epoch | None:
     """Najlepšia použiteľná epocha — najmenší loss. `None`, keď žiadna nesplnila mantinely."""
     pouzitelne = [e for e in epochs if e.usable]
@@ -315,12 +330,27 @@ def table(epochs: list[Epoch], plan: Plan, limit: int = 10) -> str:
     return "\n".join(lines)
 
 
+def edge_of(record: dict[str, Any]) -> float | None:
+    """Break-even behu **mínus poplatok**, s ktorým bežal (v % na stranu).
+
+    Kladný break-even ešte nie je zisk: 0,01 % pri poplatku 0,05 % je strata. Preto sa
+    okno hodnotí podľa toho, čo ostane nad nákladom — tá istá latka ako v celom repe.
+    """
+    r = record.get("result") or {}
+    be = r.get("break_even_pct")
+    if be is None:
+        return None
+    fee = float((record.get("settings") or {}).get("fee") or 0.0) * 100.0
+    return float(be) - fee
+
+
 def verdict(records: list[dict[str, Any]], tuned: str) -> str:
     """Jedna veta o tom, či víťaz prežil aj mimo ladeného okna.
 
     Toto je to, na čo sa hyperopt naráža: optimum ladeného okna nie je dobrá stratégia.
     Preto sa nehodnotí súčet, ale **znamienko po oknách** — a ladené okno sa počíta zvlášť,
-    lebo je jediné, ktoré optimalizátor videl.
+    lebo je jediné, ktoré optimalizátor videl. Znamienko je break-even **nad poplatkom**
+    behu (`edge_of`), nie nad nulou.
     """
     ostatne = [r for r in records if (r.get("settings", {}).get("timerange")) != tuned]
     hotove = [r for r in ostatne if r.get("status") == "done"]
@@ -328,14 +358,42 @@ def verdict(records: list[dict[str, Any]], tuned: str) -> str:
         return "Overovacie behy nedobehli — bez nich sa vysledok hodnotit neda."
 
     kladne = [r for r in hotove
-              if ((r.get("result") or {}).get("break_even_pct") or 0) > 0
+              if (edge_of(r) or 0) > 0
               and ((r.get("result") or {}).get("trades") or 0) > 0]
     n, k = len(hotove), len(kladne)
     if k == n:
-        return (f"VITAZ PREZIL: break-even je kladny vo vsetkych {n} oknach mimo ladeneho. "
-                "To je najlepsie, co sa da o najdenych parametroch povedat.")
+        return (f"VITAZ PREZIL: break-even je nad poplatkom vo vsetkych {n} oknach mimo "
+                "ladeneho. To je najlepsie, co sa da o najdenych parametroch povedat.")
     if k == 0:
-        return (f"PRETRENOVANE: break-even je kladny len na ladenom okne, v {n} ostatnych nie. "
-                "Optimalizator nasiel tvar TOHO okna, nie strategiu - parametre nepouzivaj.")
-    return (f"NEJASNE: break-even je kladny v {k} z {n} okien mimo ladeneho. "
+        return (f"PRETRENOVANE: break-even je nad poplatkom len na ladenom okne, v {n} "
+                "ostatnych nie. Optimalizator nasiel tvar TOHO okna, nie strategiu - "
+                "parametre nepouzivaj.")
+    return (f"NEJASNE: break-even je nad poplatkom v {k} z {n} okien mimo ladeneho. "
             "Pozri znamienko po rokoch, nie sucet; jedno dobre okno nestaci.")
+
+
+def cli_record(run_id: str, *, params: dict[str, Any], settings: dict[str, Any],
+               space: dict[str, str], plan: Plan, epochs: list[Epoch], winner: Epoch | None,
+               results_file: Path | None, epochs_wanted: int, seed: int | None,
+               verify: bool, note: str, user: str, created: str, finished: str,
+               duration: float) -> dict[str, Any]:
+    """Záznam hyperoptu do histórie v tom istom tvare, aký zapisuje webapp runner.
+
+    Bez neho by CLI hyperopt nebolo v histórii vidieť: webapp zoznam, detail aj
+    `plateau` hľadajú beh so `settings.hyperopt.knobs` a overovacie behy s
+    `settings.hyperopt_run.id` rovným jeho id.
+    """
+    return {
+        "id": run_id, "status": "done", "created": created, "started": created,
+        "finished": finished, "user": user, "note": note,
+        "settings": {**settings, "hyperopt": {
+            "knobs": dict(space), "goal": plan.goal, "max_dd": plan.max_dd,
+            "min_trades": plan.min_trades, "epochs": int(epochs_wanted), "seed": seed,
+            "verify": bool(verify), "epochs_done": len(epochs),
+            "best": winner.to_dict() if winner else None,
+            "overrides": overrides(plan, winner.params) if winner else None,
+            "results_file": results_file.name if results_file else None,
+        }},
+        "params": dict(params), "error": None,
+        "result": {"duration_s": duration}, "series": None,
+    }

@@ -11,6 +11,7 @@ má s hodnotami stať.
 | koľko behov | presne koľko bodov | koľko epoch zadáš |
 | `2:8:0.5` | 13 hodnôt | spojito medzi 2 a 8, po desatinách |
 | `3,5,8` | 3 hodnoty | 3 možnosti (aj tu) |
+| `--min-trades 60` | 60 za rok, prepočítané na okno | to isté |
 | v histórii | každý bod ako beh | víťaz na 5 oknách, epochy v `.fthypt` |
 | kedy | 1–2 parametre, chcem vidieť tvar | 3 a viac parametrov |
 
@@ -22,6 +23,8 @@ PY -m tester.webapp.cli hyperopt --param rrRatio=2:8:0.5 --param slLookback=5:40
 
 Kritériá sú tie isté štyri ako pri sweepe (`break_even`, `profit`, `winrate`, `drawdown`)
 a k nim `--max-dd` a `--min-trades` — [tester/AI_TESTING.md §7](../tester/AI_TESTING.md).
+`--min-trades` je v oboch počet obchodov **za rok** a prepočíta sa na dĺžku okna
+(v hyperopte to robí loss funkcia, v sweepe `sweep.required_trades`).
 Mantinely nie sú zákaz, ale penalizácia rastúca so vzdialenosťou od limitu: plochá stena
 je pre optimalizátor slepá, nevidí, ktorým smerom sa má vydať.
 
@@ -39,10 +42,11 @@ referenčných oknách a povie jednu vetu:
 [1/5] 20250904-20260904   done  obchodov 20  PnL 21.067 %  break-even 0.2428 % (ladene)
 [2/5] 20211001-20221001   done  obchodov 27  PnL  5.885 %  break-even 0.0917 %
 ...
-VITAZ PREZIL: break-even je kladny vo vsetkych 4 oknach mimo ladeneho.
+VITAZ PREZIL: break-even je nad poplatkom vo vsetkych 4 oknach mimo ladeneho.
 ```
 
-Verdikt pozerá **znamienko po oknách, nie súčet**. `PRETRENOVANE` znamená, že parametre
+Verdikt pozerá **znamienko po oknách, nie súčet** — a znamienkom je break-even **nad
+poplatkom** behu, nie nad nulou (0,01 % pri poplatku 0,05 % je strata). `PRETRENOVANE` znamená, že parametre
 netreba ani ukladať. Preskočiť sa to dá (`--no-verify`), ale do záverov taký výsledok
 nepatrí.
 
@@ -114,7 +118,8 @@ Poradie je: **čo napíšeš** → **čo odporučí stratégia** → **čo dovol
 
 Typ parametra sa nikde nepíše druhýkrát: berie sa z polí configu (`int`, `float`, `bool`,
 `SizeSpec`, enum), takže sa nemá ako rozísť s tým, čo config prijme. Veľkostné pole si
-drží jednotku — `minSlDistance=0.1@pct,0.5@pct` ladí číslo, `pct` je pevné. Bez jednotky
+drží jednotku — `minSlDistance=0.1@pct,0.5@pct` sú dve možnosti (ako každý vypísaný
+zoznam), `pct` je pevné a plán si ju uloží vedľa zoznamu. Bez jednotky
 sa vezme predvolená jednotka poľa.
 
 **Krok pri hyperopte znamená presnosť, nie mriežku.** `DecimalParameter` inú mriežku než

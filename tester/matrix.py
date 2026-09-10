@@ -347,12 +347,17 @@ def verdict(records: Sequence[dict[str, Any]], min_trades: int = MIN_TRADES) -> 
     if not hotove:
         return "Ziadna bunka nedobehla s dostatkom obchodov - bez nich sa hodnotit neda."
 
+    from .hyperopt import edge_of
+
+    # Break-even mínus poplatok TEJ bunky: krypto platí 0,05 %, CFD polovicu spreadu,
+    # takže „kladný break-even" bez nákladu by na jednom trhu znamenal zisk a na inom
+    # stratu.
     podla_paru: dict[str, list[float]] = {}
     for r in hotove:
-        be = (r.get("result") or {}).get("break_even_pct")
-        if be is None:
+        edge = edge_of(r)
+        if edge is None:
             continue
-        podla_paru.setdefault(r["settings"]["pair"], []).append(float(be))
+        podla_paru.setdefault(r["settings"]["pair"], []).append(edge)
     if not podla_paru:
         return "Bunky dobehli, ale break-even sa nedal spocitat."
 
@@ -364,15 +369,15 @@ def verdict(records: Sequence[dict[str, Any]], min_trades: int = MIN_TRADES) -> 
         return (f"Dobehli len {n} trhy - na zaver naprieč trhmi treba aspoň tri. "
                 "Pozri, preco ostatne bunky nedobehli (preskocene / failed).")
     if k == n and n >= 3:
-        return (f"MYSLIENKA DRZI: break-even je kladny na vsetkych {n} trhoch. "
+        return (f"MYSLIENKA DRZI: break-even je nad poplatkom na vsetkych {n} trhoch. "
                 "To je najsilnejsi dokaz kvality, aky sa z historickych dat da dostat.")
     if k <= 1 and n >= 3:
         return (f"EDGE JE LEN NA JEDNOM TRHU ({k} z {n}). S vysokou pravdepodobnostou je to "
                 "vlastnost toho paru alebo toho, ako sme prahy ladili, nie strategie.")
     if k * 2 >= n:
-        return (f"CIASTOCNE: break-even je kladny na {k} z {n} trhov. Pozri, ci maju tie trhy "
+        return (f"CIASTOCNE: break-even je nad poplatkom na {k} z {n} trhov. Pozri, ci maju tie trhy "
                 "nieco spolocne (trieda aktiva, volatilita) - to uz je pouzitelny zaver.")
-    return (f"SLABE: break-even je kladny len na {k} z {n} trhov. Skor nahoda nez myslienka.")
+    return (f"SLABE: break-even je nad poplatkom len na {k} z {n} trhov. Skor nahoda nez myslienka.")
 
 
 # --------------------------------------------------------------------------- #

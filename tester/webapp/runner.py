@@ -259,6 +259,17 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
     Freqtrade ním prebije `timeframe` stratégie. 1m detail má zmysel len pod ním."""
     tf = settings.get("timeframe") or "3m"
     inst = INSTRUMENTS[instrument_for_pair(settings["pair"])]
+    ai = settings.get("ai")
+    if ai and not ai.get("identifier"):
+        # FreqAI si v backteste modely UKLADÁ pod `identifier` a pri rovnakom páre a okne
+        # ich nabudúce načíta namiesto tréningu. S jedným menom pre všetko by beh s inými
+        # parametrami (alebo inou stratégiou) ticho bežal na modeli natrénovanom na
+        # cudzích signáloch. Meno preto nesie stratégiu a odtlačok profilu.
+        import hashlib
+
+        odtlacok = hashlib.sha1(Path(profile_path).read_bytes()
+                                + f"|{settings.get('strategy') or 'ibs'}|{tf}".encode()).hexdigest()[:10]
+        ai = {**ai, "identifier": f"tb-{settings.get('strategy') or 'ibs'}-{odtlacok}"}
     cmd = [
         # nie holy freqtrade: obal najprv zaregistruje fiktivnu burzu Tester, ktora pozna
         # nase pary aj vsetky timeframy (tester/ftexchange.py)
@@ -267,8 +278,8 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
         # symboly su v USD, JPY, EUR aj CAD a Freqtrade vyhodi z whitelistu kazdy par,
         # ktoreho mena nesedi so stake_currency (a hned potom skonci na "No pair in whitelist").
         # So zapnutou AI vrstvou ide config s blokom `freqai` navyše; inak je to ten istý.
-        "--config", str(engines.ai_config(inst, settings.get("exchange"), tf, settings["ai"])
-                        if settings.get("ai") else
+        "--config", str(engines.ai_config(inst, settings.get("exchange"), tf, ai)
+                        if ai else
                         engines.stake_config(inst, settings.get("exchange"))),
         "--userdir", str(USER_DIR),
         "--strategy", get_spec(settings.get("strategy") or "ibs").freqtrade_class,

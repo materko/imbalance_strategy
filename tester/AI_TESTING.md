@@ -602,11 +602,16 @@ To isté je vo webapp na dvoch miestach — formulár je ten istý:
   (zaškrtávatko „spočítať po dobehnutí behu"). Jeden beh býva na to málo obchodov, takže
   výpis zvyčajne povie `MALO DAT` — je to orientácia, nie záver.
 
-Predlohy pravidiel (`--rules`): `ftmo2`, `ftmo1`, `apex100`, `apex50`, `tradeify_growth`,
-`tradeify_select`. Sú odpísané z verejných stránok firiem **k 2026-09-10** a firmy ich menia
-často — výpis zdroj vypíše aj s upozornením. Každé pole sa dá prepísať (`--targets 10,5`,
-`--daily`, `--max-loss`, `--trailing`, `--min-days`, `--day-share`, `--cost`, `--payout`,
-`--horizon`), takže **pred rozhodovaním ich prepíš podľa zmluvy, ktorú naozaj máš**.
+Predlohy pravidiel (`--rules`, oddelené čiarkou; `all` = všetky, to je aj default):
+`ftmo2`, `ftmo1`, `apex100`, `apex50`, `tradeify_growth`, `tradeify_select` a `custom`
+(pravidlá z prepínačov nižšie). Tie isté obchody sa prehrajú cez každú predlohu a na konci
+je **porovnávacia tabuľka** — pri každej firme najlepšie riziko podľa EV, šanca na výplatu
+a verdikt. Vo webapp sú predlohy zaškrtávacie. Čísla sú odpísané z verejných stránok firiem
+**k 2026-09-10** a firmy ich menia často — výpis zdroj vypíše aj s upozornením. Každé pole
+sa dá prepísať (`--targets 10,5`, `--daily`, `--max-loss`, `--trailing`, `--min-days`,
+`--day-share`, `--cost`, `--payout`, `--horizon`); prepisy platia na `custom` a na jedinú
+vybranú predlohu — pri porovnaní viacerých firiem sa ich pravidlá berú tak, ako sú.
+**Pred rozhodovaním ich prepíš podľa zmluvy, ktorú naozaj máš.**
 
 **Ako sa to počíta.** Nie jedným behom, ale stovkami pokusov: výzva sa začne postupne na
 každom obchode histórie a prehrá sa dopredu, kým nepadne cieľ alebo pravidlo. Zámerne to
@@ -690,7 +695,7 @@ to rozšírenie mimo Pine a je **predvolene vypnuté**.
 
 ```bash
 PY -m tester.webapp.cli run --profile <profil> --timerange 20250904-20260904 --ai
-PY -m tester.webapp.cli run … --ai --ai-min-prob 0.45 --ai-size 0.5:1.5
+PY -m tester.webapp.cli run … --ai --ai-min-prob 0.45 --ai-adjust size=0.5:1.5
 ```
 
 | prepínač | čo robí |
@@ -716,6 +721,16 @@ naučil, že sporné obchody vychádzajú.
 
 Bary bez signálu ostávajú bez nálepky a FreqAI ich z tréningu vyhodí — model sa učí len na
 tom, čo engine naozaj ponúkol, nie na každom bare grafu.
+
+Nálepka je **skutočný výsledok tak, ako ho stratégia obchoduje**: keď engine pred zásahom
+TP alebo SL povie „zavri všetko" (koniec seansy — IBS tak končí ~27 % obchodov), obchod sa
+v nálepke uzavrie na závere toho baru a `win`/`loss` je podľa znamienka. Model sa tak učí to
+isté, čo sa potom hodnotí v behu, nie „bol by to dobrý obchod, keby sa držal do rána".
+Trailing sa v nálepke nesimuluje (port-only, predvolene vypnutý).
+
+Modely si FreqAI ukladá pod `identifier` a pri rovnakom páre a okne ich nabudúce načíta
+namiesto tréningu. Meno preto nesie stratégiu a odtlačok profilu (`tb-<stratégia>-<hash>`),
+inak by beh s inými parametrami ticho bežal na modeli z cudzích signálov.
 
 ### Prečo je príznakov len sedem
 Trend, volatilita voči normálu, poloha v rozsahu (v smere obchodu), vzdialenosť stopu,

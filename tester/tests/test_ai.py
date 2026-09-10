@@ -281,3 +281,28 @@ def test_zaporny_nasobok_endpoint_odmietne(klient):
     r = klient.post("/api/runs", json=beh({"enabled": True, "adjust": {"size": [0, 1.5]}}))
 
     assert r.status_code == 422
+
+
+def test_zavretie_na_konci_seansy_da_nalepku_podla_vysledku():
+    """Stratégia obchod na konci seansy zavrie — nálepka nesmie čakať na TP, ktorý by
+    prišiel až po ňom."""
+    df = bary()
+    df["tb_close_session"] = 0
+    df.loc[0, ["tb_enter_long", "tb_entry", "tb_sl", "tb_tp"]] = [1, 100.0, 95.0, 105.0]
+    df.loc[6, "tb_close_session"] = 1
+    df.loc[6, "close"] = 101.0                     # v pluse pri zavretí seansy
+    df.loc[10, "high"] = 106.0                     # TP by prišiel až po seanse
+
+    assert Falosna().set_freqai_targets(df, {"pair": "X"})[ai.TARGET][0] == ai.WIN
+
+    df.loc[6, "close"] = 99.0                      # v mínuse pri zavretí seansy
+    assert Falosna().set_freqai_targets(df, {"pair": "X"})[ai.TARGET][0] == ai.LOSS
+
+    df.loc[3, "low"] = 94.0                        # stop pred koncom seansy vyhráva
+    assert Falosna().set_freqai_targets(df, {"pair": "X"})[ai.TARGET][0] == ai.LOSS
+
+
+def test_okno_volatility_je_tyzden_na_kazdom_tf():
+    assert ai.vol_window("3m") == 7 * 480
+    assert ai.vol_window("1h") == 7 * 24
+    assert ai.vol_window("1d") == 14                 # nikdy pod dĺžku ATR

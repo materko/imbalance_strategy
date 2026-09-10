@@ -258,9 +258,11 @@ def measure(trades: Sequence[dict[str, Any]], *, pair: str = "", timeframe: str 
     out.expectancy_pct = round(sum(ratios) / len(ratios) * 100, 4)
     out.skew = _skew(ratios)
 
-    minutes = timeframe_minutes(timeframe) if timeframe else 1
+    # Bez TF (zliate behy z rôznych timeframov) sa dĺžka v baroch nedá určiť —
+    # radšej chýba, než by sa počítala v minútach a tvárila sa ako bary.
     trvania = [float(t["trade_duration"]) for t in trades if t.get("trade_duration") is not None]
-    if trvania:
+    if trvania and timeframe:
+        minutes = timeframe_minutes(timeframe)
         out.median_bars = round((_median(trvania) or 0) / max(minutes, 1), 1)
 
     casy = [c for c in (_dt_ms(t.get("open_date")) for t in trades) if c]

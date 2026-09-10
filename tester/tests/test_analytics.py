@@ -209,3 +209,26 @@ def test_odkazovane_parametre_naozaj_existuju():
         for feature, param in knowledge(spec).FEATURE_PARAMS.items():
             assert param in polia, f"{key}: {param!r} nie je pole configu"
             assert feature in vlastnosti, f"{key}: {feature!r} nie je vlastnosť obchodu"
+
+
+# --------------------------------------------------------------------------- #
+# duplicity z prekrývajúcich sa okien
+# --------------------------------------------------------------------------- #
+
+
+def test_ten_isty_obchod_z_dvoch_okien_sa_pocita_raz():
+    a = {**trade(), "pair": "BTC/USDT:USDT"}
+    b = dict(a)                                     # ten istý obchod z druhého okna
+    iny_vystup = {**a, "close_rate": 102.0, "close_date": "2025-09-04T11:00:00+00:00"}
+
+    obchody, vypadlo = an.dedupe([a, b, iny_vystup])
+
+    assert vypadlo == 1
+    # Rovnaký vstup, iný výstup = iná konfigurácia na tom istom okne - ostáva.
+    assert len(obchody) == 2
+
+
+def test_analyze_bez_paru_stav_trhu_nedoplna_a_nespadne():
+    obchody = [trade(hour=h) for h in range(9, 18)] * 3
+    r = an.analyze(obchody, strategy="ibs")
+    assert not any(s["feature"].startswith("regime") for s in r["splits"])

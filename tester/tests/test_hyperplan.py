@@ -284,3 +284,17 @@ def test_hodnoty_epochy_idu_do_configu_v_spravnom_type():
     assert s.tb_cfg.slLookback == 12 and isinstance(s.tb_cfg.slLookback, int)
     assert s.tb_cfg.minSlDistance == SizeSpec(value=0.25, unit="pct")
     assert s.tb_cfg.tradeDirection.value == "Long only"
+
+
+def test_jednotka_velkostneho_zoznamu_prezije_ulozenie_planu(tmp_path):
+    """Plán na disku musí niesť jednotku aj pri zozname možností — inak sa `pct`
+    po načítaní stane defaultom poľa."""
+    from tradebot.adapters.freqtrade.hyperplan import Plan
+
+    p = Plan.from_dict({"strategy": "ibs", "knobs": {
+        "minSlDistance": {"choices": [{"value": 0.1, "unit": "pct"}, {"value": 0.5, "unit": "pct"}]}}})
+    assert p.knobs[0].unit == "pct" and p.knobs[0].choices == (0.1, 0.5)
+
+    cesta = p.save(tmp_path / "plan.json")
+    znova = Plan.load(cesta)
+    assert znova.knobs[0].unit == "pct" and znova.knobs[0].choices == (0.1, 0.5)

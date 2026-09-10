@@ -58,6 +58,23 @@ PREDICTION_COL = WIN
 #: obchod žije; dlhšie okno len pridá NaN riadky, kratšie by nálepku vyrobilo nesprávne.
 LOOKAHEAD_BARS = 300
 
+#: Okno pre „typický ATR" v príznaku volatility, v **dňoch** — prepočíta sa na bary podľa
+#: TF grafu, aby týždeň bol týždňom na 3m aj na 1h. Rolling, nie medián celého dataframe:
+#: ten by v predikčnom okne niesol budúcnosť toho okna a mierka by sa medzi tréningom
+#: a predikciou líšila.
+VOL_DAYS = 7
+
+
+def vol_window(timeframe: str) -> int:
+    """Počet barov v `VOL_DAYS` dňoch na danom TF, najmenej dĺžka ATR."""
+    from tradebot.core.candles import timeframe_minutes
+
+    try:
+        minut = max(1, timeframe_minutes(timeframe))
+    except (ValueError, TypeError):
+        minut = 3
+    return max(14, int(VOL_DAYS * 1440 / minut))
+
 
 def settings_of(config: dict[str, Any]) -> dict[str, Any]:
     """Nastavenie AI vrstvy z configu behu. Prázdne = vypnuté."""
@@ -139,7 +156,8 @@ class AIMixin:
         tr = np.maximum(high - low, np.maximum((high - close.shift()).abs(),
                                                (low - close.shift()).abs()))
         atr = tr.ewm(alpha=1 / 14, adjust=False).mean()
-        dataframe["%-vol"] = (atr / atr.median()).fillna(1.0)
+        typicky = atr.rolling(vol_window(getattr(self, "timeframe", "3m")), min_periods=14).median()
+        dataframe["%-vol"] = (atr / typicky.replace(0, np.nan)).fillna(1.0)
 
         hi, lo = high.rolling(okno).max(), low.rolling(okno).min()
         podiel = ((close - lo) / (hi - lo).replace(0, np.nan)).fillna(0.5)
@@ -173,6 +191,12 @@ class AIMixin:
 
         Bary bez signálu ostávajú `NaN` a FreqAI ich z tréningu vyhodí. Model sa teda učí
         len na tom, čo engine naozaj ponúkol — nie na každom bare grafu.
+
+        Nálepka je **skutočný výsledok tak, ako ho stratégia obchoduje**, nie len plán:
+        keď engine pred zásahom TP alebo SL povie „zavri všetko" (`tb_close_session`,
+        IBS `closeAtSessionEnd` — asi 27 % obchodov), obchod sa uzavrie na závere toho
+        baru a nálepka je podľa znamienka výsledku. Model sa tak učí to isté, čo sa
+        potom hodnotí v behu — nie „bol by to dobrý obchod, keby sa držal do rána".
         """
         import numpy as np
 
@@ -184,13 +208,21 @@ class AIMixin:
         tp = dataframe["tb_tp"].to_numpy(dtype=float)
         high = dataframe["high"].to_numpy(dtype=float)
         low = dataframe["low"].to_numpy(dtype=float)
+        close = dataframe["close"].to_numpy(dtype=float)
         je_long = (dataframe.get("tb_enter_long", 0) == 1).to_numpy()
         je_short = (dataframe.get("tb_enter_short", 0) == 1).to_numpy()
+        zavri = (dataframe["tb_close_session"].fillna(0).astype(float) == 1).to_numpy() \
+            if "tb_close_session" in dataframe.columns else np.zeros(n, dtype=bool)
 
         for i in np.flatnonzero(je_long | je_short):
             if not (np.isfinite(sl[i]) and np.isfinite(tp[i]) and np.isfinite(vstup[i])):
                 continue
             koniec = min(i + 1 + LOOKAHEAD_BARS, n)
+            # Koniec seansy: stratégia obchod zavrie na tom bare, ďalej sa nepozerá.
+            seansa = np.flatnonzero(zavri[i + 1:koniec])
+            k_seansa = int(seansa[0]) if len(seansa) else -1
+            if k_seansa >= 0:
+                koniec = i + 1 + k_seansa + 1
             h, l = high[i + 1:koniec], low[i + 1:koniec]
             if je_long[i]:
                 tp_kedy = np.argmax(h >= tp[i]) if (h >= tp[i]).any() else -1
@@ -199,8 +231,12 @@ class AIMixin:
                 tp_kedy = np.argmax(l <= tp[i]) if (l <= tp[i]).any() else -1
                 sl_kedy = np.argmax(h >= sl[i]) if (h >= sl[i]).any() else -1
             if tp_kedy < 0 and sl_kedy < 0:
-                continue                      # do konca okna sa nestalo nič — bez nálepky
-            if sl_kedy < 0:
+                if k_seansa < 0:
+                    continue                  # do konca okna sa nestalo nič — bez nálepky
+                # Zavreté na čase: výsledok je znamienko zisku na závere baru seansy.
+                smer = 1.0 if je_long[i] else -1.0
+                vysledok[i] = WIN if (close[koniec - 1] - vstup[i]) * smer > 0 else LOSS
+            elif sl_kedy < 0:
                 vysledok[i] = WIN
             elif tp_kedy < 0:
                 vysledok[i] = LOSS
