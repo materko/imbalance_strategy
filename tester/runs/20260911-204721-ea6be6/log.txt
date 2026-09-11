@@ -1,0 +1,9 @@
+$ emulator MultiCharts SYNTHNAS100USD 3m 20240904-20250904 (SYNTH-NAS100_USD-1m-futures.feather)
+emulacia MultiCharts: 113680 barov 3m, 340850 1m, 113680 HTF
+  20000/113680 barov, 44 obchodov
+  40000/113680 barov, 88 obchodov
+  60000/113680 barov, 126 obchodov
+  80000/113680 barov, 169 obchodov
+  100000/113680 barov, 221 obchodov
+hotovo: 247 obchodov, nerozhodnutelnych minut 2
+kresby: {'imb_box': 15536, 'structure': 10912, 'swing': 13628, 'liq_sweep': 2144, 'session': 783, 'sd_zone_pre': 6517, 'sd_zone_post': 6517, 'tp_box': 328, 'sl_box': 328, 'expired': 77, 'skip': 16, 'sr_level': 10, 'sr_golden': 4}
