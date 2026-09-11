@@ -3,7 +3,7 @@
  "created": "2026-09-10T22:15:53.822752+00:00",
  "seq": 2,
  "strategy": "ibs",
- "config_key": "84ae99f4ab",
+ "config_key": "a880f38e75",
  "profile": "golden_coinbase_btcusd_3m",
  "timeranges": [
   "20210103-20260904",
