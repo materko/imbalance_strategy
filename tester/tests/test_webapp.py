@@ -1223,3 +1223,38 @@ def test_analytics_configs_nevidia_body_mriezky_ani_plato(tmp_path: Path):
 
     assert len(out) == 1 and out[0]["runs"] == 2
     assert out[0]["markets"][0]["run_ids"] == ["20260905-120000-aaaaaa", "20260907-120000-dddddd"]
+
+
+def test_store_cache_vidi_novy_zmeneny_aj_zmazany_beh(tmp_path: Path):
+    """Cache záznamov je len úspora čítania - pravda je disk: nový beh (aj z git pull),
+    zmenený súbor a zmazaný adresár sa v ďalšom `all()`/`get()` prejavia."""
+    import os
+    import shutil
+    import time as _time
+
+    store = RunStore(tmp_path)
+    store.save(_record("20260905-120000-aaaaaa"))
+    assert [r["id"] for r in store.all()] == ["20260905-120000-aaaaaa"]
+
+    # nový beh pribudol mimo store (git pull)
+    (tmp_path / "20260906-120000-bbbbbb").mkdir()
+    novy = _record("20260906-120000-bbbbbb")
+    (tmp_path / "20260906-120000-bbbbbb" / "run.json").write_text(json.dumps(novy), encoding="utf-8")
+    assert [r["id"] for r in store.all()] == ["20260906-120000-bbbbbb", "20260905-120000-aaaaaa"]
+
+    # zmenený súbor (iný obsah aj mtime) - cache ho prečíta nanovo
+    p = tmp_path / "20260905-120000-aaaaaa" / "run.json"
+    zmeneny = {**_record("20260905-120000-aaaaaa"), "note": "prepisane"}
+    _time.sleep(0.01)
+    p.write_text(json.dumps(zmeneny), encoding="utf-8")
+    os.utime(p, None)
+    assert store.get("20260905-120000-aaaaaa")["note"] == "prepisane"
+
+    # detail si do záznamu dopisuje polia - cache ostane čistá
+    store.get("20260905-120000-aaaaaa")["has_chart"] = True
+    assert "has_chart" not in store.get("20260905-120000-aaaaaa")
+
+    # zmazaný adresár vypadne
+    shutil.rmtree(tmp_path / "20260906-120000-bbbbbb")
+    assert [r["id"] for r in store.all()] == ["20260905-120000-aaaaaa"]
+    assert store.get("20260906-120000-bbbbbb") is None

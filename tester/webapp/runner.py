@@ -126,8 +126,47 @@ def _pair_from_base(base: str) -> str | None:
     return None
 
 
+_PAIRS_CACHE: dict[str, Any] = {"podpis": None, "pairs": []}
+
+
+def _data_signature() -> tuple[tuple[str, int, int], ...]:
+    """Odtlačok dátových súborov (cesta, mtime, veľkosť) - kým sa nezmení, ponuka párov
+    je tá istá. Dáta sa menia len po `data_archive merge` a `timeframes.ensure`, no
+    `/api/meta` sa pýta pri každom načítaní stránky a čítanie dátumov z feather
+    súborov každého páru trvá sekundu."""
+    out = []
+    for d in (BINANCE_FUTURES, BINANCE_SPOT):
+        try:
+            for e in os.scandir(d):
+                if e.name.endswith(".feather"):
+                    st = e.stat()
+                    out.append((e.path, st.st_mtime_ns, st.st_size))
+        except OSError:
+            continue
+    for inst in INSTRUMENTS.values():
+        if inst.venue != "multicharts":
+            continue
+        p = engines.one_minute_file(inst)
+        try:
+            st = p.stat()
+            out.append((str(p), st.st_mtime_ns, st.st_size))
+        except OSError:
+            out.append((str(p), -1, -1))
+    return tuple(sorted(out))
+
+
 def available_pairs() -> list[dict[str, Any]]:
-    """Páry, pre ktoré sú stiahnuté dáta (futures aj spot, ľubovoľný TF), a ich dátumový rozsah."""
+    """Páry, pre ktoré sú stiahnuté dáta (futures aj spot, ľubovoľný TF), a ich dátumový
+    rozsah. Výsledok drží cache, kým sa dátové súbory nezmenia."""
+    podpis = _data_signature()
+    if _PAIRS_CACHE["podpis"] == podpis:
+        return [dict(p) for p in _PAIRS_CACHE["pairs"]]
+    pairs = _scan_pairs()
+    _PAIRS_CACHE.update(podpis=podpis, pairs=pairs)
+    return [dict(p) for p in pairs]
+
+
+def _scan_pairs() -> list[dict[str, Any]]:
     import pandas as pd
 
     from .chart import available_timeframes
