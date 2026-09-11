@@ -2531,13 +2531,22 @@ async function loadAnalyticsConfigs() {
   } catch (e) {
     state.anSettings = [];
   }
+  // Skupiny podľa profilu (v poradí najnovšieho nastavenia v skupine): stovky bodov
+  // mriežky pod „(Pine defaulty)" by inak pochovali pomenované profily.
+  const skupiny = new Map();
+  for (const s of state.anSettings) {
+    const meno = String(s.profile || "").split("/").pop().replace(/\.json$/, "");
+    if (!skupiny.has(meno)) skupiny.set(meno, []);
+    skupiny.get(meno).push(s);
+  }
   sel.innerHTML = '<option value="">— vybrať behy dopytom nižšie —</option>'
-    + state.anSettings.map(s => {
-      const okna = (s.timeranges || []).length;
-      const trhy = (s.markets || []).length;
-      return `<option value="${esc(s.key)}">${esc(settingLabel(s))} · ${s.runs} ${slovom(s.runs, "beh", "behy", "behov")}`
-        + ` · ${trhy} ${slovom(trhy, "trh", "trhy", "trhov")} · ${okna} ${slovom(okna, "okno", "okná", "okien")}</option>`;
-    }).join("");
+    + [...skupiny].map(([meno, zoznam]) => `<optgroup label="${esc(meno)} · ${zoznam.length} ${slovom(zoznam.length, "nastavenie", "nastavenia", "nastavení")}">`
+      + zoznam.map(s => {
+        const okna = (s.timeranges || []).length;
+        const trhy = (s.markets || []).length;
+        return `<option value="${esc(s.key)}">${esc(settingLabel(s))} · ${s.runs} ${slovom(s.runs, "beh", "behy", "behov")}`
+          + ` · ${trhy} ${slovom(trhy, "trh", "trhy", "trhov")} · ${okna} ${slovom(okna, "okno", "okná", "okien")}</option>`;
+      }).join("") + "</optgroup>").join("");
   if (povodne && state.anSettings.some(s => s.key === povodne)) sel.value = povodne;
   fillMarketSelect();
   fillOverviewMarkets();
