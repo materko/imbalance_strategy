@@ -1,0 +1,36 @@
+$ emulator MultiCharts DJ30 3m 20210103-20260904 (DJ30_USD-1m.feather)
+emulacia MultiCharts: 647007 barov 3m, 1938981 1m, 647007 HTF
+  20000/647007 barov, 5 obchodov
+  40000/647007 barov, 5 obchodov
+  60000/647007 barov, 6 obchodov
+  80000/647007 barov, 6 obchodov
+  100000/647007 barov, 6 obchodov
+  120000/647007 barov, 9 obchodov
+  140000/647007 barov, 13 obchodov
+  160000/647007 barov, 18 obchodov
+  180000/647007 barov, 24 obchodov
+  200000/647007 barov, 26 obchodov
+  220000/647007 barov, 29 obchodov
+  240000/647007 barov, 34 obchodov
+  260000/647007 barov, 37 obchodov
+  280000/647007 barov, 39 obchodov
+  300000/647007 barov, 39 obchodov
+  320000/647007 barov, 39 obchodov
+  340000/647007 barov, 40 obchodov
+  360000/647007 barov, 40 obchodov
+  380000/647007 barov, 40 obchodov
+  400000/647007 barov, 42 obchodov
+  420000/647007 barov, 43 obchodov
+  440000/647007 barov, 45 obchodov
+  460000/647007 barov, 46 obchodov
+  480000/647007 barov, 51 obchodov
+  500000/647007 barov, 53 obchodov
+  520000/647007 barov, 55 obchodov
+  540000/647007 barov, 56 obchodov
+  560000/647007 barov, 58 obchodov
+  580000/647007 barov, 60 obchodov
+  600000/647007 barov, 65 obchodov
+  620000/647007 barov, 65 obchodov
+  640000/647007 barov, 66 obchodov
+hotovo: 66 obchodov, nerozhodnutelnych minut 0
+kresby: {'imb_box': 74917, 'structure': 62142, 'swing': 77844, 'session': 2946, 'sd_zone_pre': 27716, 'sd_zone_post': 27716, 'liq_sweep': 10850, 'skip': 244, 'tp_box': 87, 'sl_box': 87, 'expired': 21, 'sr_level': 16, 'sr_golden': 2}

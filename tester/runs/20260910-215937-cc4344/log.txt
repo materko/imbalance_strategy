@@ -1,0 +1,35 @@
+$ emulator MultiCharts JP225 3m 20210103-20260904 (JP225_JPY-1m.feather)
+emulacia MultiCharts: 634807 barov 3m, 1840859 1m, 634807 HTF
+  20000/634807 barov, 0 obchodov
+  40000/634807 barov, 0 obchodov
+  60000/634807 barov, 0 obchodov
+  80000/634807 barov, 0 obchodov
+  100000/634807 barov, 0 obchodov
+  120000/634807 barov, 2 obchodov
+  140000/634807 barov, 5 obchodov
+  160000/634807 barov, 8 obchodov
+  180000/634807 barov, 11 obchodov
+  200000/634807 barov, 12 obchodov
+  220000/634807 barov, 12 obchodov
+  240000/634807 barov, 13 obchodov
+  260000/634807 barov, 15 obchodov
+  280000/634807 barov, 15 obchodov
+  300000/634807 barov, 15 obchodov
+  320000/634807 barov, 18 obchodov
+  340000/634807 barov, 19 obchodov
+  360000/634807 barov, 20 obchodov
+  380000/634807 barov, 22 obchodov
+  400000/634807 barov, 22 obchodov
+  420000/634807 barov, 29 obchodov
+  440000/634807 barov, 32 obchodov
+  460000/634807 barov, 34 obchodov
+  480000/634807 barov, 41 obchodov
+  500000/634807 barov, 42 obchodov
+  520000/634807 barov, 42 obchodov
+  540000/634807 barov, 44 obchodov
+  560000/634807 barov, 45 obchodov
+  580000/634807 barov, 51 obchodov
+  600000/634807 barov, 59 obchodov
+  620000/634807 barov, 63 obchodov
+hotovo: 64 obchodov, nerozhodnutelnych minut 0
+kresby: {'imb_box': 112183, 'swing': 75861, 'structure': 59710, 'liq_sweep': 11950, 'session': 3749, 'sd_zone_pre': 27778, 'sd_zone_post': 27778, 'skip': 282, 'tp_box': 80, 'sl_box': 80, 'expired': 14, 'sr_level': 16, 'sr_golden': 2}

@@ -1,0 +1,37 @@
+$ emulator MultiCharts XAU 3m 20210103-20260904 (XAU_USD-1m.feather)
+emulacia MultiCharts: 670204 barov 3m, 2009112 1m, 670204 HTF
+  20000/670204 barov, 0 obchodov
+  40000/670204 barov, 0 obchodov
+  60000/670204 barov, 0 obchodov
+  80000/670204 barov, 0 obchodov
+  100000/670204 barov, 0 obchodov
+  120000/670204 barov, 0 obchodov
+  140000/670204 barov, 0 obchodov
+  160000/670204 barov, 0 obchodov
+  180000/670204 barov, 0 obchodov
+  200000/670204 barov, 0 obchodov
+  220000/670204 barov, 0 obchodov
+  240000/670204 barov, 0 obchodov
+  260000/670204 barov, 0 obchodov
+  280000/670204 barov, 0 obchodov
+  300000/670204 barov, 0 obchodov
+  320000/670204 barov, 0 obchodov
+  340000/670204 barov, 0 obchodov
+  360000/670204 barov, 0 obchodov
+  380000/670204 barov, 0 obchodov
+  400000/670204 barov, 0 obchodov
+  420000/670204 barov, 0 obchodov
+  440000/670204 barov, 0 obchodov
+  460000/670204 barov, 0 obchodov
+  480000/670204 barov, 0 obchodov
+  500000/670204 barov, 0 obchodov
+  520000/670204 barov, 0 obchodov
+  540000/670204 barov, 1 obchodov
+  560000/670204 barov, 1 obchodov
+  580000/670204 barov, 1 obchodov
+  600000/670204 barov, 3 obchodov
+  620000/670204 barov, 6 obchodov
+  640000/670204 barov, 7 obchodov
+  660000/670204 barov, 7 obchodov
+hotovo: 7 obchodov, nerozhodnutelnych minut 0
+kresby: {'swing': 81513, 'structure': 63772, 'session': 2928, 'sd_zone_pre': 21557, 'sd_zone_post': 21557, 'imb_box': 3213, 'liq_sweep': 928, 'tp_box': 8, 'sl_box': 8, 'skip': 1, 'expired': 1, 'sr_golden': 6, 'sr_level': 6}

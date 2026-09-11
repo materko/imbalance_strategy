@@ -1,0 +1,30 @@
+$ emulator MultiCharts DAX 3m 20210103-20260904 (DAX_EUR-1m.feather)
+emulacia MultiCharts: 532435 barov 3m, 1566126 1m, 532435 HTF
+  20000/532435 barov, 0 obchodov
+  40000/532435 barov, 0 obchodov
+  60000/532435 barov, 0 obchodov
+  80000/532435 barov, 0 obchodov
+  100000/532435 barov, 1 obchodov
+  120000/532435 barov, 5 obchodov
+  140000/532435 barov, 6 obchodov
+  160000/532435 barov, 6 obchodov
+  180000/532435 barov, 8 obchodov
+  200000/532435 barov, 8 obchodov
+  220000/532435 barov, 10 obchodov
+  240000/532435 barov, 10 obchodov
+  260000/532435 barov, 10 obchodov
+  280000/532435 barov, 11 obchodov
+  300000/532435 barov, 11 obchodov
+  320000/532435 barov, 11 obchodov
+  340000/532435 barov, 11 obchodov
+  360000/532435 barov, 11 obchodov
+  380000/532435 barov, 11 obchodov
+  400000/532435 barov, 12 obchodov
+  420000/532435 barov, 17 obchodov
+  440000/532435 barov, 18 obchodov
+  460000/532435 barov, 18 obchodov
+  480000/532435 barov, 18 obchodov
+  500000/532435 barov, 18 obchodov
+  520000/532435 barov, 21 obchodov
+hotovo: 21 obchodov, nerozhodnutelnych minut 0
+kresby: {'imb_box': 46261, 'structure': 50852, 'swing': 63883, 'liq_sweep': 6444, 'session': 1572, 'sd_zone_pre': 13707, 'sd_zone_post': 13707, 'skip': 76, 'tp_box': 24, 'sl_box': 24, 'expired': 3, 'sr_golden': 6, 'sr_level': 8}
