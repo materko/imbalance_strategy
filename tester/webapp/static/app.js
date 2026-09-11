@@ -1195,7 +1195,7 @@ async function pollSweep() {
 }
 
 function renderSweep(r) {
-  const casti = [`hotových ${r.done} z ${r.done + r.running}`];
+  const casti = [`hotových ${r.done} z ${r.total ?? (r.done + r.running)}`];
   if (r.running_values) casti.push(`beží ${sweepPointText(r.params, r.running_values)}`);
   else if (r.ahead) casti.push(`čaká, pred ňou je vo fronte ${r.ahead} behov`);
   casti.push(r.goal_note);
@@ -1461,7 +1461,7 @@ async function pollMatrix() {
 }
 
 function renderMatrix(r) {
-  $("#sweep-status").textContent = `hotových ${r.done} z ${r.done + r.pending}`
+  $("#sweep-status").textContent = `hotových ${r.done} z ${r.total ?? (r.done + r.pending)}`
     + ` · ${r.goal_note}` + (r.relative ? " · prahy v ATR" : " · prahy nezmenené (!)");
   const t = r.table || {};
   const casti = [];

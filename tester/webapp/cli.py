@@ -382,7 +382,7 @@ def cmd_sweep(args: argparse.Namespace) -> int:
         print(f"[{i}/{len(points)}] {popis}", flush=True)
         run_settings = {**settings, "sweep": {"id": sweep_id, "values": point, "goal": args.goal,
                                               "max_dd": args.max_dd, "min_trades": args.min_trades,
-                                              "per_year": True}}
+                                              "per_year": True, "points": len(points)}}
         rec = _execute(args, {**params, **point}, run_settings,
                        note=f"sweep {sweep_id}: {popis}" + (f" — {args.note}" if args.note else ""),
                        quiet=True)
@@ -863,7 +863,8 @@ def cmd_matrix(args: argparse.Namespace) -> int:
         beh = {**settings, "pair": cell.pair, "timeframe": cell.timeframe,
                **_fee_for(args, cell.pair, cell.timeframe),
                "matrix": {"id": matrix_id, "pair": cell.pair, "timeframe": cell.timeframe,
-                          "goal": args.goal, "relative": bool(args.relative)}}
+                          "goal": args.goal, "relative": bool(args.relative),
+                          "cells": len(bunky)}}
         print(f"[{i}/{len(bunky)}] {cell.pair} {cell.timeframe}", flush=True)
         try:
             rec = _execute(args, params, beh,

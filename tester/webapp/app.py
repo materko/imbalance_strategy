@@ -641,6 +641,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         for point in points:
             settings = {**base, "sweep": {"id": sweep_id, "values": point, "goal": req.goal,
                                           "max_dd": req.max_dd, "min_trades": req.min_trades,
+                                          "points": len(points),
                                           # `min_trades` je za rok; mriežky bez tejto
                                           # značky vznikli s absolútnym významom
                                           "per_year": True, "signature": podpis}}
@@ -731,6 +732,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             "params": names,
             "done": len(records),
             "running": len(live),
+            # Beh medzi „dobehol" a „uložený" nie je ani vo fronte, ani v sklade — bez
+            # celkového počtu by stav na chvíľu tvrdil „hotových 1 z 1" pri dvoch bodoch.
+            "total": max(int(tag.get("points") or 0), len(records) + len(live)),
             "ahead": pred,
             "running_values": (bezi or {}).get("settings", {}).get("sweep", {}).get("values"),
             "rows": [{
@@ -1546,7 +1550,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                         "matrix": {"id": matrix_id, "pair": cell.pair,
                                    "timeframe": cell.timeframe, "goal": req.goal,
                                    "relative": bool(req.relative),
-                                   "min_trades": req.min_trades}}
+                                   "min_trades": req.min_trades, "cells": len(bunky)}}
             note = (f"matica {matrix_id}: {cell.pair} {cell.timeframe}"
                     + (f" — {req.note}" if req.note else ""))
             try:
@@ -1621,6 +1625,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             "timerange": (zaznamy or live)[0]["settings"].get("timerange"),
             "done": len(zaznamy),
             "pending": len(live),
+            "total": max(int(tag.get("cells") or 0), len(zaznamy) + len(live)),
             "table": tabulka,
             "verdict": mx.verdict(zaznamy) if zaznamy else "",
             "best": [{"pair": r["settings"]["pair"], "timeframe": r["settings"].get("timeframe"),

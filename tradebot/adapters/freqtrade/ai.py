@@ -40,6 +40,8 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from freqtrade.strategy import IStrategy
+
 logger = logging.getLogger(__name__)
 
 __all__ = ["AIMixin", "TARGET", "PREDICTION_COL", "settings_of"]
@@ -81,8 +83,16 @@ def settings_of(config: dict[str, Any]) -> dict[str, Any]:
     return dict((config or {}).get("tradebot_ai") or {})
 
 
-class AIMixin:
+class AIMixin(IStrategy):
     """Metódy, ktoré FreqAI od stratégie čaká. Mieša sa do `TradebotStrategyBase`.
+
+    Dedí z `IStrategy`, hoci sám nič z nej nepotrebuje — kvôli hyperoptu. Freqtrade pri
+    hyperopte prechádza bázy triedy stratégie (`hyperopt_pickle_magic`) a každý modul
+    registruje do cloudpickle „po hodnote"; zastaví sa až na triede menom `IStrategy`.
+    Mixin s bázou `object` by ho pustil ďalej k `builtins`, celý `builtins` by sa
+    pickloval po hodnote a druhá dávka epoch spadne na nekonečnú rekurziu
+    (`Could not pickle object as excessively deep recursion required`). Stráži to
+    `tradebot/tests/test_registry.py`.
 
     Všetko je generické — o konkrétnej stratégii vie len toľko, čo je v dataframe po
     `populate_indicators`: signál, plán obchodu a sviečky. Nová stratégia teda AI vrstvu
