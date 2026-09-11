@@ -1,0 +1,9 @@
+$ emulator MultiCharts XAU 3m 20250904-20260904 (XAU_USD-1m.feather)
+emulacia MultiCharts: 117736 barov 3m, 353155 1m, 0 HTF
+  20000/117736 barov, 45 obchodov
+  40000/117736 barov, 90 obchodov
+  60000/117736 barov, 133 obchodov
+  80000/117736 barov, 177 obchodov
+  100000/117736 barov, 220 obchodov
+hotovo: 259 obchodov, nerozhodnutelnych minut 0
+kresby: {'range_box': 976, 'range_high': 976, 'range_low': 976, 'range_break': 259, 'range_entry': 259}

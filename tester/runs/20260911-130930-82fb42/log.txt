@@ -1,0 +1,33 @@
+$ emulator MultiCharts XAU 3m 20211001-20260904 (XAU_USD-1m.feather)
+emulacia MultiCharts: 581796 barov 3m, 1744199 1m, 0 HTF
+  20000/581796 barov, 31 obchodov
+  40000/581796 barov, 40 obchodov
+  60000/581796 barov, 84 obchodov
+  80000/581796 barov, 123 obchodov
+  100000/581796 barov, 164 obchodov
+  120000/581796 barov, 198 obchodov
+  140000/581796 barov, 237 obchodov
+  160000/581796 barov, 275 obchodov
+  180000/581796 barov, 316 obchodov
+  200000/581796 barov, 348 obchodov
+  220000/581796 barov, 376 obchodov
+  240000/581796 barov, 417 obchodov
+  260000/581796 barov, 454 obchodov
+  280000/581796 barov, 496 obchodov
+  300000/581796 barov, 536 obchodov
+  320000/581796 barov, 572 obchodov
+  340000/581796 barov, 605 obchodov
+  360000/581796 barov, 648 obchodov
+  380000/581796 barov, 677 obchodov
+  400000/581796 barov, 718 obchodov
+  420000/581796 barov, 760 obchodov
+  440000/581796 barov, 803 obchodov
+  460000/581796 barov, 844 obchodov
+  480000/581796 barov, 887 obchodov
+  500000/581796 barov, 925 obchodov
+  520000/581796 barov, 963 obchodov
+  540000/581796 barov, 1003 obchodov
+  560000/581796 barov, 1044 obchodov
+  580000/581796 barov, 1076 obchodov
+hotovo: 1080 obchodov, nerozhodnutelnych minut 0
+kresby: {'range_box': 7271, 'range_high': 7271, 'range_low': 7271, 'range_break': 1080, 'range_entry': 1080}
