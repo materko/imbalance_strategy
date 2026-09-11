@@ -780,3 +780,24 @@ def profile_instruments(strategy: str = "ibs") -> dict[str, str]:
 def profile_titles(strategy: str = "ibs") -> dict[str, str]:
     """`_title` z profilu — ľudský popis do dropdownu (bez neho ostane názov súboru)."""
     return {name: title or name for name, title in _profile_key(strategy, "_title").items()}
+
+
+def profile_info(strategy: str = "ibs") -> dict[str, dict[str, str]]:
+    """Ku každému profilu: kedy vznikol, pár, TF a popis — stránka z toho skladá názov
+    „dátum · pár TF · popis". Vlastný profil bez `_created` (starší) dostane čas súboru;
+    profil repozitára dátum nemá (čas súboru je čas checkoutu, nie vzniku)."""
+    vlastne = set(profiles.user_names(strategy))
+    out: dict[str, dict[str, str]] = {}
+    for name, path in profiles.all_paths(strategy).items():
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            data = {}
+        created = str(data.get("_created") or "")
+        if not created and name in vlastne:
+            created = datetime.fromtimestamp(path.stat().st_mtime).astimezone().isoformat(timespec="seconds")
+        inst = INSTRUMENTS.get(str(data.get("_instrument") or ""))
+        out[name] = {"created": created, "pair": inst.symbol if inst else "",
+                     "timeframe": str(data.get("_timeframe") or ""),
+                     "title": str(data.get("_title") or "")}
+    return out

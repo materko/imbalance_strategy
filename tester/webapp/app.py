@@ -38,7 +38,7 @@ from .. import engines
 from .. import montecarlo
 from .runner import (
     REPO, BacktestRunner, available_pairs, check_market_rules, default_params, instrument_for_pair,
-    list_profiles, profile_instruments, profile_titles, tf_minutes,
+    list_profiles, profile_info, profile_instruments, profile_titles, tf_minutes,
 )
 from .anstore import AnalyticsStore, fingerprint as an_fingerprint, summary as an_summary
 from .store import RunStore, strategy_of, summarize_for_list
@@ -315,6 +315,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             "profiles": list_profiles(key),
             "profile_titles": profile_titles(key),
             "profile_instruments": profile_instruments(key),
+            "profile_info": profile_info(key),
             "user_profiles": user_profiles.user_names(key),
         }
 
@@ -361,7 +362,8 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         if strategy not in STRATEGIES:
             raise HTTPException(404, f"neznáma stratégia {strategy!r}")
         return {"strategy": strategy, "profiles": list_profiles(strategy), "user_profiles": user_profiles.user_names(strategy),
-                "profile_titles": profile_titles(strategy), "profile_instruments": profile_instruments(strategy)}
+                "profile_titles": profile_titles(strategy), "profile_instruments": profile_instruments(strategy),
+                "profile_info": profile_info(strategy)}
 
     @app.post("/api/profiles")
     def profile_save(req: ProfileSaveRequest):
@@ -1131,21 +1133,28 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         from .. import hyperopt as ho
 
         ref = list(ho.REFERENCE_WINDOWS)
+        tituly = profile_titles(strategy)
         nastavenia: dict[str, dict[str, Any]] = {}
         for trh in _config_groups(strategy):
             kluc_nast = trh["key"].split("|", 1)[0]
             pair, tf = trh["pairs"][0], trh["timeframes"][0]
             okna = _windows_of(trh["run_ids"])
             kladne = sum(1 for w in ref if w in okna and (okna[w]["edge"] or 0) > 0)
+            # Popis nastavenia: `_title` profilu, keď ho má; inak meno súboru bez cesty.
+            meno = str(trh["profile"]).replace("\\", "/").rsplit("/", 1)[-1].removesuffix(".json")
             n = nastavenia.setdefault(kluc_nast, {
                 "key": kluc_nast, "profile": trh["profile"], "runs": 0, "trades": 0,
-                "pairs": set(), "timeframes": set(), "timeranges": set(), "latest": "",
+                "title": "" if tituly.get(meno, meno) == meno else tituly[meno],
+                "pairs": set(), "timeframes": set(), "timeranges": set(),
+                # `first` = najstarší beh: kedy nastavenie vzniklo, podľa toho sa volá aj radí.
+                "first": min(trh["run_ids"]), "latest": "",
                 "markets": []})
             n["runs"] += trh["runs"]
             n["trades"] += trh["trades"]
             n["pairs"].add(pair)
             n["timeframes"].add(tf)
             n["timeranges"].update(trh["timeranges"])
+            n["first"] = min(n["first"], min(trh["run_ids"]))
             n["latest"] = max(n["latest"], trh["latest"])
             # Kľúč trhu je `pár|TF` bez parametrov - nastavenie je už rodič, a prehľad
             # nastavení na trhu porovnáva práve cez tento kľúč naprieč nastaveniami.
@@ -1169,16 +1178,46 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         for skupina in podla_profilu.values():
             if len(skupina) < 2:
                 continue
-            parametre = {n["key"]: ((store.get(n["markets"][0]["sample"]) or {}).get("params") or {})
-                         for n in skupina}
-            kluce = {k for p in parametre.values() for k in p}
-            rozne = [k for k in sorted(kluce)
-                     if len({json.dumps(p.get(k), sort_keys=True, default=str)
-                             for p in parametre.values()}) > 1]
+            # Parametre doplnené Pine defaultmi: beh bez kľúča a beh s jeho defaultom sú
+            # to isté nastavenie, nie rozdiel „alertOnState2=null vs false".
+            parametre = {}
             for n in skupina:
-                n["variant"] = {k: parametre[n["key"]].get(k) for k in rozne[:4]}
-        out.sort(key=lambda n: n["latest"], reverse=True)
-        out.sort(key=lambda n: n["runs"], reverse=True)
+                rec = store.get(n["markets"][0]["sample"]) or {}
+                parametre[n["key"]] = {**defaults_of(rec), **(rec.get("params") or {})}
+            kluce = {k for p in parametre.values() for k in p}
+            hodnoty = {k: [json.dumps(p.get(k), sort_keys=True, default=str) for p in parametre.values()]
+                       for k in kluce}
+            # Parametre, v ktorých sa skupina líši, od najrozmanitejšieho (v mriežke je to ten
+            # prechádzaný, nie zapnutý filter spoločný všetkým bodom).
+            rozne = sorted((k for k in kluce if len(set(hodnoty[k])) > 1),
+                           key=lambda k: (-len(set(hodnoty[k])), k))
+            # Do názvu ide, čím sa nastavenie líši od najbežnejšej hodnoty skupiny - to, čo
+            # majú všetky ostatné rovnako, nastavenie nerozlíši.
+            bezne = {k: max(set(hodnoty[k]), key=hodnoty[k].count) for k in rozne}
+            dump = lambda v: json.dumps(v, sort_keys=True, default=str)  # noqa: E731
+            for n in skupina:
+                moje = parametre[n["key"]]
+                odchylky = [k for k in rozne if dump(moje.get(k)) != bezne[k]]
+                n["variant"] = {k: moje.get(k) for k in (odchylky or rozne)[:4]}
+            # Kým majú dve nastavenia rovnaký názov, pridá sa im parameter, v ktorom sa od
+            # seba líšia - inak by tester v ponuke nevedel, ktoré je ktoré.
+            for _ in range(4):
+                rovnake: dict[str, list[dict[str, Any]]] = {}
+                for n in skupina:
+                    rovnake.setdefault(dump(n["variant"]), []).append(n)
+                kolizie = [g for g in rovnake.values() if len(g) > 1]
+                if not kolizie:
+                    break
+                for g in kolizie:
+                    dalsi = next((k for k in rozne if k not in g[0]["variant"]
+                                  and len({dump(parametre[n["key"]].get(k)) for n in g}) > 1), None)
+                    if dalsi is None:
+                        continue
+                    for n in g:
+                        n["variant"][dalsi] = parametre[n["key"]].get(dalsi)
+        # Najnovšie vzniknuté nastavenie hore - ponuka sa volá dátumom vzniku, tak nech
+        # je aj v tom poradí (ako história).
+        out.sort(key=lambda n: n["first"], reverse=True)
         return out
 
     @app.get("/api/analytics/configs")

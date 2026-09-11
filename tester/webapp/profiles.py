@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -180,6 +181,9 @@ def save(name: str, params: dict[str, Any], instrument: str, *,
         value = (settings or {}).get(key)
         if value is not None:
             data = {f"_{key}": value, **data}
+    # Kedy profil vznikol - ponuka profilov sa volá „dátum · pár TF · popis", a čas
+    # súboru na to nestačí (klon z gitu má všetko z času checkoutu).
+    data = {"_created": datetime.now().astimezone().isoformat(timespec="seconds"), **data}
     if base:
         data = {"_base": base, **data}
     if comment:

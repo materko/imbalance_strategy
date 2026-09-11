@@ -528,21 +528,47 @@ function fillTimeframes(pairName, wanted) {
   sel.value = tfs.includes(keep) ? keep : (tfs.includes("3m") ? "3m" : tfs[0]);
 }
 
-/** Ponuka profilov: z repozitára (nemenné) a vlastné (premenovať/zmazať sa dajú len tie). */
+/** Pár tak, ako sa volá na burze (BTCUSDT.P, NAS100) - keď ho stránka pozná; inak ako je. */
+function pairShort(pair) {
+  const p = (state.meta?.pairs || []).find(x => x.pair === pair);
+  return (p && p.exchange_symbol) || pair || "";
+}
+
+/** Dátum z id behu (`20260910-082607-…`) v tom istom tvare ako dátumy histórie. */
+function runIdStamp(id) {
+  const m = /^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})/.exec(String(id || ""));
+  return m ? anStamp(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`) : "";
+}
+
+/** Názov profilu v ponuke: „dátum · pár TF · popis". Vlastné profily majú dátum vzniku;
+ *  profily repozitára ho nemajú (sú z gitu), tie ostávajú „meno — popis". */
+function profileLabel(name) {
+  const info = (state.meta.profile_info || {})[name] || {};
+  const titles = state.meta.profile_titles || {};
+  const popis = info.title || (titles[name] && titles[name] !== name ? titles[name] : "") || name;
+  if (!info.created) return popis === name ? name : `${name} — ${popis}`;
+  const trh = `${pairShort(info.pair)} ${info.timeframe || ""}`.trim();
+  return [anStamp(info.created), trh, popis].filter(Boolean).join(" · ");
+}
+
+/** Ponuka profilov: z repozitára (nemenné) a vlastné (premenovať/zmazať sa dajú len tie);
+ *  vlastné zoradené od najnovšieho, lebo sa volajú dátumom vzniku. */
 function fillProfiles(selected) {
   const ps = $("#profile");
   const keep = selected !== undefined ? selected : ps.value;
   const own = new Set(state.meta.user_profiles || []);
+  const info = state.meta.profile_info || {};
+  const vlastne = state.meta.profiles.filter(p => own.has(p))
+    .sort((a, b) => String(info[b]?.created || "").localeCompare(String(info[a]?.created || "")) || a.localeCompare(b));
   ps.innerHTML = `<option value="">(Pine defaulty)</option>`;
   for (const [label, names] of [["Profily repozitára", state.meta.profiles.filter(p => !own.has(p))],
-                                ["Vlastné profily", state.meta.profiles.filter(p => own.has(p))]]) {
+                                ["Vlastné profily", vlastne]]) {
     if (!names.length) continue;
     const g = document.createElement("optgroup"); g.label = label;
-    const titles = state.meta.profile_titles || {};
     for (const p of names) {
       const o = document.createElement("option"); o.value = p;
-      o.textContent = titles[p] && titles[p] !== p ? `${p} — ${titles[p]}` : p;
-      o.title = titles[p] || p;
+      o.textContent = profileLabel(p);
+      o.title = p;                       // meno súboru v tester/profiles/ - to sa premenúva a maže
       g.append(o);
     }
     ps.append(g);
@@ -571,6 +597,7 @@ async function applyProfileList(r, pick) {
     target.profiles = r.profiles; target.user_profiles = r.user_profiles;
     if (r.profile_titles) target.profile_titles = r.profile_titles;
     if (r.profile_instruments) target.profile_instruments = r.profile_instruments;
+    if (r.profile_info) target.profile_info = r.profile_info;
   }
   fillProfiles(pick);
   if (pick !== undefined) await loadProfile($("#profile").value);
@@ -2445,12 +2472,17 @@ function fmtWindow(w) {
   return m ? `${m[1]}-${m[2]}-${m[3]} → ${m[4]}-${m[5]}-${m[6]}` : String(w || "?");
 }
 
-/** Názov nastavenia: profil (v prehľade len jeho meno) a parametre, v ktorých sa líši od
- *  iných nastavení s tým istým profilom - inak by dva riadky vyzerali rovnako. */
+/** Názov nastavenia: „dátum vzniku · pár TF · popis" - popis je `_title` profilu alebo
+ *  jeho meno, plus parametre, v ktorých sa líši od iných nastavení s tým istým profilom
+ *  (inak by dva riadky vyzerali rovnako). `kratko` (prehľad na jednom trhu) vynechá
+ *  dátum a trh - tam sú v hlavičke tabuľky. */
 function settingLabel(s, kratko = false) {
-  const profil = kratko ? String(s.profile).split("/").pop().replace(/\.json$/, "") : s.profile;
+  const meno = String(s.profile || "").split("/").pop().replace(/\.json$/, "");
   const rozdiely = Object.entries(s.variant || {}).map(([k, v]) => `${k}=${typeof v === "object" && v ? (v.value + "@" + v.unit) : v}`);
-  return rozdiely.length ? `${profil} (${rozdiely.join(", ")})` : profil;
+  const popis = (s.title || meno) + (rozdiely.length ? ` (${rozdiely.join(", ")})` : "");
+  if (kratko) return popis;
+  const trh = `${(s.pairs || []).map(pairShort).join(", ")} ${(s.timeframes || []).join("/")}`.trim();
+  return [runIdStamp(s.first), trh, popis].filter(Boolean).join(" · ");
 }
 
 /** Stratégia karty Analytika - prvá úroveň výberu. Predvolene tá z hlavičky, ale dá sa
@@ -2504,8 +2536,7 @@ async function loadAnalyticsConfigs() {
       const okna = (s.timeranges || []).length;
       const trhy = (s.markets || []).length;
       return `<option value="${esc(s.key)}">${esc(settingLabel(s))} · ${s.runs} ${slovom(s.runs, "beh", "behy", "behov")}`
-        + ` · ${trhy} ${slovom(trhy, "trh", "trhy", "trhov")} · ${okna} ${slovom(okna, "okno", "okná", "okien")}`
-        + ` · ${esc((s.timeframes || []).join("/"))}</option>`;
+        + ` · ${trhy} ${slovom(trhy, "trh", "trhy", "trhov")} · ${okna} ${slovom(okna, "okno", "okná", "okien")}</option>`;
     }).join("");
   if (povodne && state.anSettings.some(s => s.key === povodne)) sel.value = povodne;
   fillMarketSelect();
@@ -2523,7 +2554,7 @@ function fillMarketSelect() {
   sel.innerHTML = `<option value="">všetky trhy${trhy.length ? ` (${trhy.length})` : ""}</option>`
     + trhy.map(m => {
       const chyba = (m.missing || []).length;
-      return `<option value="${esc(m.key)}">${esc(m.pair)} ${esc(m.timeframe)} · ${m.runs} ${slovom(m.runs, "beh", "behy", "behov")}`
+      return `<option value="${esc(m.key)}">${esc(pairShort(m.pair))} ${esc(m.timeframe)} · ${m.runs} ${slovom(m.runs, "beh", "behy", "behov")}`
         + ` · ${m.positive} z ${m.done_ref} ref. okien nad poplatkom`
         + (chyba ? ` · chýba ${chyba}` : "") + `</option>`;
     }).join("");
@@ -2545,7 +2576,7 @@ function fillOverviewMarkets() {
   const trhy = new Map();
   for (const s of state.anSettings || []) for (const m of s.markets || []) trhy.set(m.key, m);
   const zoznam = [...trhy.values()].sort((a, b) => (a.pair + a.timeframe).localeCompare(b.pair + b.timeframe));
-  sel.innerHTML = zoznam.map(m => `<option value="${esc(m.key)}">${esc(m.pair)} ${esc(m.timeframe)}</option>`).join("");
+  sel.innerHTML = zoznam.map(m => `<option value="${esc(m.key)}">${esc(pairShort(m.pair))} ${esc(m.timeframe)}</option>`).join("");
   if (zoznam.some(m => m.key === povodne)) sel.value = povodne;
   else if (selectedMarket()) sel.value = selectedMarket().key;
   renderOverview();

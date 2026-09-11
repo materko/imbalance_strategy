@@ -358,8 +358,11 @@ práve default ani na profile, z ktorého vznikol: keď sa hocičo z toho neskô
 starý profil ostane presne taký, aký bol, a beh sa dá zopakovať.
 
 K tomu metadáta s podtržníkom: `_instrument` (z neho sa nastaví pár), `_title` a
-`_comment` (popis a z ktorého behu profil vznikol) a celé nastavenie behu —
-`_timeframe`, `_timerange`, `_fee`, `_wallet`, `_detail`. Výber profilu ich všetky
+`_comment` (popis a z ktorého behu profil vznikol), `_created` (kedy profil vznikol)
+a celé nastavenie behu — `_timeframe`, `_timerange`, `_fee`, `_wallet`, `_detail`.
+V ponuke **Profil** sa vlastný profil volá **„dátum · pár TF · popis"** (popis je
+`_title`, bez neho meno súboru) a vlastné profily sú od najnovšieho; meno súboru je
+v tooltipe a používa ho Premenovať/Zmazať. Profily repozitára dátum nemajú (sú z gitu). Výber profilu ich všetky
 prenesie do formulára (obdobie orezané na dáta, ktoré pre pár sú); čo profil nemá —
 napríklad profily repozitára — nechá formulár tak, ako si ho nastavil.
 
