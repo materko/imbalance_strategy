@@ -1311,13 +1311,59 @@ def test_analytics_prepare_pouzije_hotove_behy_a_zaradi_len_chybajuce_okna(tmp_p
 
     out = c.post("/api/analytics/prepare", json=body).json()
     assert out["ready"] == ["20260905-120000-aaaaaa"] and len(out["queued"]) == 4
-    assert set(out["pending"]) == set(out["queued"])
+    assert set(out["queued"]) <= set(out["pending"])          # pending nesie aj syntetické dvojča
     for job_id in out["queued"]:
         j = runner.job(job_id)
         assert j.settings["timerange"] in dry["missing"] and j.settings["checkup"]["analytics"] == "(Pine defaulty)"
         assert j.settings["pair"] == "BTC/USDT:USDT" and j.params["rrRatio"] == IBSConfig().rrRatio
     # druhé Spočítať to isté nezaradí znova: čakajúce behy sa vrátia ako pending
     znova = c.post("/api/analytics/prepare", json=body).json()
-    assert znova["queued"] == [] and set(znova["pending"]) == set(out["queued"])
+    assert znova["queued"] == [] and set(znova["pending"]) >= set(out["queued"])
 
     assert c.post("/api/analytics/prepare", json={**body, "profile": "neexistuje"}).status_code == 404
+
+
+def test_analytics_prepare_planuje_aj_synteticke_dvojca(tmp_path: Path, monkeypatch):
+    """K analytike patrí to isté zadanie na premiešanom trhu: dvojča páru dostane svoje
+    okná (hotový beh s tými istými parametrami sa použije, zvyšok sa zaradí) a čaká sa
+    naň spolu s ostatnými. Pár bez dvojčaťa ho v `dry_run` len ohlási."""
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester import synthetic as syn_mod
+    from tester.webapp import app as app_mod
+    from tester.webapp.runner import BacktestRunner
+
+    monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.engines, "default_engine", lambda inst, tf="3m": "freqtrade")
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+    monkeypatch.setattr(app_mod, "available_pairs", lambda: [{"pair": "BTC/USDT:USDT", "from": "2019-01-01", "to": "2026-09-10"}])
+    store = RunStore(tmp_path)
+    synt = _record("20260905-120000-aaaaaa")
+    synt["settings"] = {**synt["settings"], "pair": "SYNTH/USDT:USDT", "timeframe": "3m", "engine": "freqtrade"}
+    store.save(synt)
+    runner = BacktestRunner(store, command_builder=lambda *a: ["python", "-c", "raise SystemExit(0)"])
+    monkeypatch.setattr(runner, "start", lambda: None)
+    c = TestClient(app_mod.create_app(store, runner))
+    body = {"strategy": "ibs", "profile": "", "pair": "BTC/USDT:USDT", "timeframe": "3m"}
+
+    dry = c.post("/api/analytics/prepare", json={**body, "dry_run": True}).json()
+    s = dry["synthetic"]
+    assert s["pair"] == "SYNTH/USDT:USDT" and s["key"] == "synth"
+    stav = {w["window"]: w["status"] for w in s["windows"]}
+    assert stav["20250904-20260904"] == "done" and stav["20231001-20241001"] == "missing"
+    # recept dvojčaťa siaha od 2021-10, staršie okno je bez dát
+    assert stav["20211001-20221001"] in ("missing", "no_data")
+
+    out = c.post("/api/analytics/prepare", json=body).json()
+    assert len(out["queued"]) == 5                                  # skutočný pár: všetkých päť
+    assert out["synthetic"]["ready"] == ["20260905-120000-aaaaaa"]
+    assert out["synthetic"]["queued"] and set(out["synthetic"]["pending"]) <= set(out["pending"])
+    for job_id in out["synthetic"]["queued"]:
+        j = runner.job(job_id)
+        assert j.settings["pair"] == "SYNTH/USDT:USDT" and "syntetický" in j.note
+
+    # pár bez dvojčaťa: dry_run len povie, že vznikne pri Spočítať
+    monkeypatch.setattr(syn_mod, "twin_for", lambda pair, registry=None: None)
+    bez = c.post("/api/analytics/prepare", json={**body, "dry_run": True}).json()["synthetic"]
+    assert bez["pair"] is None and "Spočítať" in bez["note"]

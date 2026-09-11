@@ -149,6 +149,11 @@ class AnalyticsStore:
                                       str(z.get("created") or ""), int(z.get("seq") or 0)))
         return kandidati[-1]
 
+    def refresh_report(self, an_id: str, report: dict[str, Any]) -> dict[str, Any] | None:
+        """Vymení uložený report za nový s tými istými číslami - pribudli sekcie (napr.
+        syntetické behy dobehli neskôr), id, poznámka aj posudok ostávajú."""
+        return self.patch(an_id, report=_bez_obchodov(report))
+
     def patch(self, an_id: str, **fields: Any) -> dict[str, Any] | None:
         """Doplní hlavičkové polia (napr. konfiguráciu k starším záznamom). `None` = niet."""
         zaznam = self.get(an_id)

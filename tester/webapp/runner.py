@@ -144,7 +144,7 @@ def _data_signature() -> tuple[tuple[str, int, int], ...]:
         except OSError:
             continue
     for inst in INSTRUMENTS.values():
-        if inst.venue != "multicharts":
+        if inst.venue != "multicharts" and inst.data_source != "synthetic":
             continue
         p = engines.one_minute_file(inst)
         try:
@@ -213,9 +213,9 @@ def _scan_pairs() -> list[dict[str, Any]]:
             "has_5m": "5m" in tfs,
             "timeframes": tfs,
         })
-    # „burza" MultiCharts: len 1m súbory, ostatné TF sa skladajú v pamäti
+    # „burza" MultiCharts a syntetické trhy: len 1m súbory, ostatné TF sa skladajú v pamäti
     for key, inst in INSTRUMENTS.items():
-        if inst.venue != "multicharts":
+        if inst.venue != "multicharts" and inst.data_source != "synthetic":
             continue
         p = engines.one_minute_file(inst)
         if not p.exists():
@@ -229,7 +229,7 @@ def _scan_pairs() -> list[dict[str, Any]]:
             "engines": engines.available(inst),
             "default_engine": engines.default_engine(inst),
             "exchanges": engines.exchanges_for(inst),
-            "exchange": "multicharts",
+            "exchange": "synthetic" if inst.data_source == "synthetic" else "multicharts",
             "market": inst.market,
             "kind": engines.market_kind(inst),
             "exchange_symbol": inst.exchange_symbol,

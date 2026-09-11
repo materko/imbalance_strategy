@@ -2576,9 +2576,15 @@ function renderPlan(plan) {
   const box = $("#an-plan");
   if (!box) return;
   if (!plan) { box.textContent = ""; return; }
-  box.innerHTML = (plan.windows || []).map(w =>
+  const riadok = ws => (ws || []).map(w =>
     `<span class="an-win ${esc(w.status)}" title="${esc(w.run_id || "")}">${esc(fmtWindow(w.window).replace(/-\d\d-\d\d/g, ""))}: ${PLAN_WORDS[w.status] || esc(w.status)}`
     + (w.status === "done" && w.trades !== undefined ? ` (${w.trades} obch.)` : "") + `</span>`).join("");
+  const s = plan.synthetic || {};
+  // Syntetické dvojča: to isté zadanie na premiešanom trhu ide s analytikou vždy.
+  const synt = s.pair
+    ? `<div class="an-plan-row"><b title="premiešané bary páru - edge tam nemá z čoho vzniknúť">${esc(pairShort(s.pair))}</b> ${riadok(s.windows)}</div>`
+    : (s.note ? `<div class="an-plan-row muted">syntetický trh: ${esc(s.note)}</div>` : "");
+  box.innerHTML = `<div class="an-plan-row"><b>${esc(pairShort(plan.pair))}</b> ${riadok(plan.windows)}</div>${synt}`;
 }
 
 /** Stav okien pre zvolený profil a trh - len zistí, nič nezaraďuje. Zúži aj históriu
@@ -2638,11 +2644,12 @@ async function loadAnalytics() {
       renderPlan(plan);
       if (plan.pending.length) {
         pollQueue();
-        const celkom = plan.windows.filter(w => w.status !== "no_data").length;
+        const celkom = plan.windows.filter(w => w.status !== "no_data").length
+          + ((plan.synthetic || {}).windows || []).filter(w => w.status !== "no_data").length;
         const tick = n => { status.textContent = `dopočítavam ${n} ${slovom(n, "okno", "okná", "okien")}… (${celkom - n} z ${celkom} hotových)`; };
         tick(plan.pending.length);
         const vysledok = await waitForRuns(plan.pending, tick);
-        for (const w of plan.windows) if (vysledok[w.run_id]) w.status = vysledok[w.run_id];
+        for (const w of [...plan.windows, ...((plan.synthetic || {}).windows || [])]) if (vysledok[w.run_id]) w.status = vysledok[w.run_id];
         renderPlan(plan);
       }
       const behy = plan.windows.filter(w => w.status === "done" && w.run_id).map(w => w.run_id);
