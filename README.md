@@ -20,6 +20,7 @@ sa píše **pre oba enginy** a každá má vlastnú základnú analytiku s posud
 | `ibs` | **IBS Imbalance Breakout** — na detekčnom TF (5m) vznikajú supply/demand zóny, v nich sa hľadá imbalance (gap), Pin Bar alebo Engulfing, vstup je limitka na cene gapu, SL zo swingu, TP z pomeru RR; seansy (New York), long only, štruktúrny filter, filter tesného SL | [`tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine`](tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine) |
 | `structure` | **Market Structure BOS / CHoCH** — potvrdené swingy (`swingLeft`/`swingRight`), z nich stav štruktúry a udalosti BOS/CHoCH na zatvorení baru; vstup prepínačom `choch` / `bos` / `sweep` (sweep ide proti CHoCH), SL za swingom alebo z ATR, výstup RR / ďalšia štruktúrna udalosť / čas. Zmerané: [ANALYTIKA](tradebot/strategies/structure/docs/ANALYTIKA.md) | [`tradebot/strategies/structure/docs/sources/structure.pine`](tradebot/strategies/structure/docs/sources/structure.pine) |
 | `demo_breakout` | **Demo Donchian Breakout** — ukážka, ktorá overuje rámec end-to-end (8 parametrov); nie je to obchodné odporúčanie | [`tradebot/strategies/demo_breakout/docs/sources/demo_breakout.pine`](tradebot/strategies/demo_breakout/docs/sources/demo_breakout.pine) |
+| `divergence` | **Divergence** — port Freqtrade stratégie z r. 2022: na Heikin Ashi sviečkach grafu (15m) divergencie RSI, MACD, stochastiku, OBV, … („Divergence for Many Indicators v4"), vstup len v smere supertrendu na 1h aj 4h pri pullbacku na grafe a mimo období s divergenciou proti obchodu na vyšších TF; vstup s potvrdením pohybom, SL z ATR, dvojstupňový trailing, výstup prerazením supertrendu 4h. Vyššie TF si skladá sama z barov grafu. Čo sa portom zmenilo: [PORT](tradebot/strategies/divergence/docs/PORT.md); zmerané: [ANALYTIKA](tradebot/strategies/divergence/docs/ANALYTIKA.md) | — (bez Pine; zdroj je Python) |
 
 ---
 
@@ -103,7 +104,7 @@ Podrobne: [docs/DATA.md](docs/DATA.md), prehľad celej cesty dát:
 |---|---|
 | **TradeBot — produkt** | |
 | [`tradebot/core/`](tradebot/core) | Generické jadro bez závislostí: `StrategyConfig` (báza configu, profily), `Engine`/`EngineOutput`, `OrderIntent`/`TradePlan`, `BarHistory`, hodiny seáns, `DrawCommand` + `DrawKind` registr, inštrumenty, skladanie TF z 1m (`candles`), evidencia dopočítaných sviečok (`derived`), čítanie Dukascopy exportu (`dukascopy`), `paths.py` so všetkými cestami repozitára. |
-| [`tradebot/strategies/`](tradebot/strategies) | Registry `STRATEGIES` a jedna stratégia = jeden **sebestačný** balík: engine, config, `params.py` (popisy parametrov pre formulár), meta, `configs/` (profily) a voliteľný `docs/sources/` (Pine zdroj): `ibs/` (config, engine, stavový automat zón, `ta/`, HTF feeder, Freqtrade a MultiCharts podtriedy, meta pre webapp), `structure/`, `demo_breakout/`. Postup: [docs/STRATEGIE.md](docs/STRATEGIE.md). |
+| [`tradebot/strategies/`](tradebot/strategies) | Registry `STRATEGIES` a jedna stratégia = jeden **sebestačný** balík: engine, config, `params.py` (popisy parametrov pre formulár), meta, `configs/` (profily) a voliteľný `docs/sources/` (Pine zdroj): `ibs/` (config, engine, stavový automat zón, `ta/`, HTF feeder, Freqtrade a MultiCharts podtriedy, meta pre webapp), `structure/`, `demo_breakout/`, `divergence/` (vlastné inkrementálne indikátory `ta.py`, detektor divergencií, skladanie HTF z barov grafu). Postup: [docs/STRATEGIE.md](docs/STRATEGIE.md). |
 | [`tradebot/adapters/freqtrade/`](tradebot/adapters/freqtrade) | Generická Freqtrade stratégia `TradebotStrategyBase` + `EngineRunner` (engine nad DataFrame, fill model) + export kresieb. |
 | [`tradebot/adapters/multicharts/`](tradebot/adapters/multicharts) | Generická študia `TradebotSignal`, `MCRunner`, kreslenie (len Windows) a **emulátor** MultiCharts (beží všade). |
 
@@ -149,6 +150,7 @@ Profil = Pine defaulty stratégie + odchýlky + `_strategy` + `_instrument`. Pre
 | `nas100_dukas_3m` (archív) | NAS100 CFD z Dukascopy — rovnaké prahy v bodoch ako MNQ. Beží vo webapp na „burze" MultiCharts aj v MultiCharts samotnom ([docs/MULTICHARTS.md](docs/MULTICHARTS.md)). |
 | `structure/binance_btcusdt_5m` | Východiskový profil stratégie štruktúry (defaulty, páka 5). |
 | `demo_breakout/binance_btcusdt_5m` | Jediný profil ukážkovej stratégie (Pine defaulty, páka 5). |
+| `divergence/binance_btcusdt_15m` | Východiskový profil divergenčnej stratégie (posledný naladený config originálu, páka 2,5). |
 | ostatné | Skúšané konfigurácie (NY seansa, SL filter, risk sizing, hyperopt…) sú v [docs/profily_archiv/](docs/profily_archiv/ibs/README.md) s tabuľkou odchýlok; načítajú sa cestou (`--profile docs/profily_archiv/ibs/<nazov>.json`). Odporúčaný štart na nasadenie je `btcusdt_3m_binance_ny_sl_risk1` odtiaľ. |
 
 ---

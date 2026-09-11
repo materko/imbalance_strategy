@@ -13,7 +13,7 @@ Všetko sa spúšťa **z koreňa repozitára**.
 
 | | |
 |---|---|
-| **stratégia** | logika (`--strategy ibs`, `structure`, `demo_breakout`). Zoznam: `PY -m tester.webapp.cli params --help` |
+| **stratégia** | logika (`--strategy ibs`, `structure`, `demo_breakout`, `divergence`, …). Zoznam: `PY -m tester.webapp.cli params --help` |
 | **engine** | čím sa beh prehrá: `freqtrade` (backtest Freqtradu) alebo `multicharts` (emulátor MultiCharts — ten istý runner, čo beží v štúdii) |
 | **pár** | čo sa obchoduje: `BTC/USDT:USDT`, `ETH/USDT:USDT`, `NAS100/USD`… |
 | **profil** | parametre stratégie (JSON). Bez neho sa berú Pine defaulty. |

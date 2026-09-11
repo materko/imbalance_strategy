@@ -111,8 +111,9 @@ spodku, takže je na dosah aj pri rozpísanom formulári. Nad dátumami sú rýc
 
 
 **Stratégia** je prvý select: prepne formulár na parametre zvolenej stratégie, jej profily
-a predvolený timeframe. Stratégie sú v registry `tradebot.strategies.STRATEGIES` (dnes IBS
-Imbalance Breakout a ukážková Demo Donchian Breakout; ako pridať ďalšiu: `docs/STRATEGIE.md`).
+a predvolený timeframe. Stratégie sú v registry `tradebot.strategies.STRATEGIES` (IBS
+Imbalance Breakout, Market Structure, ukážková Demo Donchian Breakout, Divergence a ďalšie;
+zoznam a ako pridať ďalšiu: `docs/STRATEGIE.md`).
 
 **Východiskový profil** je len balík odchýlok od Pine defaultov zvolenej stratégie. „(Pine defaulty)" dá
 presne to, čo má TradingView bez zásahu do nastavení; okrem toho sú na výber iba tri
