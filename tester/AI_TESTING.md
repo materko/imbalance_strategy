@@ -293,7 +293,8 @@ si appka sama nájde v histórii hotové behy, ktoré presne sedia (tie isté pa
 doplnené Pine defaultmi, pár, TF, engine, referenčné okno) a použije ich; okná, ktoré
 chýbajú, dopočíta a počká na ne — nič sa neklikne navyše a nič sa nepočíta dvakrát.
 Riadok pod formulárom ukazuje stav piatich okien už pri výbere (v histórii / dopočíta sa /
-bez dát). Behy z mriežky (sweep) a susedia z testu plató sa ako hotové neberú — každý bod
+bez dát) — a pod ním to isté pre **syntetické dvojča páru** (§8f): behy na premiešanom
+trhu sa zaradia a čakajú rovnako, dvojča sa pri prvom Spočítať vyrobí samo. Behy z mriežky (sweep) a susedia z testu plató sa ako hotové neberú — každý bod
 je iná stratégia na jednom okne a hovorí len o tom, kde má parameter ležať. Keď mriežka
 niečo nájde, ulož si ten bod ako profil (**Uložiť ako profil** v detaile behu) a analytiku
 rob nad ním. Ručný výber behov dopytom ostal pod „Pokročilé" (API `/api/analytics?runs=`).
@@ -697,7 +698,11 @@ python -m tester.synthetic build synth --force   # POZOR: skoršie behy prestan�
 ```
 
 Potom je to **obyčajný pár** — `SYNTH/USDT:USDT` je v ponuke ako každý iný (webapp ho
-uvidí po reštarte) a beh na ňom ide do histórie ako každý iný.
+uvidí po reštarte) a beh na ňom ide do histórie ako každý iný. Ručne to ale robiť netreba:
+**Analytika si dvojča páru vyrobí sama** pri prvom Spočítať (`synth_<pár>`, symbol
+`SYNTH-<pár>`, celý rozsah dát páru) a behy na ňom po referenčných oknách zaradí spolu
+s ostatnými; porovnanie „Nevyrába to náš backtest?" je tak v analytike vždy. Behy sa
+párujú podľa **parametrov** (doplnených Pine defaultmi), TF a okna, nie podľa mena profilu.
 
 Prvé použitie a čo z neho vyšlo: [docs/merania/SYNTETICKY_trh_2026-09-10.md](../docs/merania/SYNTETICKY_trh_2026-09-10.md) — edge na premiešanom trhu nie je (znamienka sa striedajú), ale vyplní sa tam len 0-57 % signálov oproti 72-95 % na skutočnom BTC. Limitka na úrovni medzery sa dočká len vtedy, keď sa cena na tú úroveň vráti.
 

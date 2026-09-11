@@ -19,5 +19,17 @@
     "created": "2026-09-10T10:12:21+00:00",
     "note": "premiešané 1m bary BTC/USDT:USDT po blokoch 60",
     "like": "btcusdt_binance"
+  },
+  "synth_nas100_usd": {
+    "symbol": "SYNTH-NAS100/USD",
+    "source_pair": "NAS100/USD",
+    "timerange": "20210103-20260905",
+    "block": 60,
+    "seed": 20260910,
+    "method": "block_shuffle",
+    "sha256": "0a95bab05123b632e345f22f580c3554946131ae5c3a1d44a567c34b3f3b9fa3",
+    "created": "2026-09-11T20:47:21+00:00",
+    "note": "premiešané 1m bary NAS100/USD po blokoch 60",
+    "like": "nas100_dukascopy"
   }
 }

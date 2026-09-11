@@ -1383,42 +1383,98 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         rozsah = next((p for p in available_pairs() if p["pair"] == req.pair), None) or {}
         od, do = str(rozsah.get("from") or "").replace("-", ""), str(rozsah.get("to") or "").replace("-", "")
 
-        windows, queued = [], []
-        for w in okna:
-            if w in hotove:
-                rec = hotove[w]
-                windows.append({"window": w, "run_id": rec["id"], "status": "done",
-                                "trades": int((rec.get("result") or {}).get("trades") or 0)})
-            elif w in vo_fronte:
-                windows.append({"window": w, "run_id": vo_fronte[w]["id"], "status": vo_fronte[w]["status"]})
-            elif od and do and (w[9:] <= od or w[:8] >= do):
-                windows.append({"window": w, "run_id": None, "status": "no_data"})
-            elif req.dry_run:
-                windows.append({"window": w, "run_id": None, "status": "missing"})
-            else:
-                r = RunRequest(params=params, pair=req.pair, strategy=strategy, timeframe=req.timeframe,
-                               timerange=w, fee=setup.get("fee"), wallet=setup.get("wallet") or 10000,
-                               timeframe_detail=setup.get("detail", "1m") or None, engine=engine,
-                               profile=req.profile or None,
-                               note=f"analytika: {req.profile or 'Pine defaulty'} · okno {w}", user=req.user)
-                settings = {**_run_settings(r), "checkup": {"analytics": req.profile or "(Pine defaulty)",
-                                                            "strategy": strategy}}
-                try:
-                    job = runner.submit(r.params, settings, note=r.note, user=_clean_user(req.user))
-                except (ConfigError, ValueError) as exc:
-                    raise HTTPException(422, f"okno {w}: {exc}")
-                windows.append({"window": w, "run_id": job.id, "status": "queued"})
-                queued.append(job.id)
-        return {
-            "strategy": strategy, "profile": req.profile, "pair": req.pair, "timeframe": req.timeframe,
-            "engine": engine, "config_key": config_key, "market": f"{req.pair}|{req.timeframe}",
-            "windows": windows,
-            "ready": [x["run_id"] for x in windows if x["status"] == "done"],
-            "pending": [x["run_id"] for x in windows if x["status"] in ("queued", "running")],
-            "queued": queued,
-            "missing": [x["window"] for x in windows if x["status"] == "missing"],
-            "no_data": [x["window"] for x in windows if x["status"] == "no_data"],
-        }
+        def plan_okien(pair: str, hotove: dict[str, dict[str, Any]], vo_fronte: dict[str, dict[str, Any]],
+                       od: str, do: str, poznamka: str, engine: str) -> tuple[list[dict[str, Any]], list[str]]:
+            windows, queued = [], []
+            for w in okna:
+                if w in hotove:
+                    rec = hotove[w]
+                    windows.append({"window": w, "run_id": rec["id"], "status": "done",
+                                    "trades": int((rec.get("result") or {}).get("trades") or 0)})
+                elif w in vo_fronte:
+                    windows.append({"window": w, "run_id": vo_fronte[w]["id"], "status": vo_fronte[w]["status"]})
+                elif od and do and (w[9:] <= od or w[:8] >= do):
+                    windows.append({"window": w, "run_id": None, "status": "no_data"})
+                elif req.dry_run:
+                    windows.append({"window": w, "run_id": None, "status": "missing"})
+                else:
+                    r = RunRequest(params=params, pair=pair, strategy=strategy, timeframe=req.timeframe,
+                                   timerange=w, fee=setup.get("fee"), wallet=setup.get("wallet") or 10000,
+                                   timeframe_detail=setup.get("detail", "1m") or None, engine=engine,
+                                   profile=req.profile or None,
+                                   note=f"analytika: {req.profile or 'Pine defaulty'} · okno {w}{poznamka}",
+                                   user=req.user)
+                    settings = {**_run_settings(r), "checkup": {"analytics": req.profile or "(Pine defaulty)",
+                                                                "strategy": strategy}}
+                    try:
+                        job = runner.submit(r.params, settings, note=r.note, user=_clean_user(req.user))
+                    except (ConfigError, ValueError) as exc:
+                        raise HTTPException(422, f"okno {w}: {exc}")
+                    windows.append({"window": w, "run_id": job.id, "status": "queued"})
+                    queued.append(job.id)
+            return windows, queued
+
+        def suhrn(windows: list[dict[str, Any]], queued: list[str]) -> dict[str, Any]:
+            return {
+                "windows": windows, "queued": queued,
+                "ready": [x["run_id"] for x in windows if x["status"] == "done"],
+                "pending": [x["run_id"] for x in windows if x["status"] in ("queued", "running")],
+                "missing": [x["window"] for x in windows if x["status"] == "missing"],
+                "no_data": [x["window"] for x in windows if x["status"] == "no_data"],
+            }
+
+        windows, queued = plan_okien(req.pair, hotove, vo_fronte, od, do, "", engine)
+        out = {"strategy": strategy, "profile": req.profile, "pair": req.pair, "timeframe": req.timeframe,
+               "engine": engine, "config_key": config_key, "market": f"{req.pair}|{req.timeframe}",
+               **suhrn(windows, queued)}
+
+        # Syntetické dvojča páru (premiešané bary): to isté zadanie na trhu bez štruktúry
+        # patrí k analytike vždy - kladný edge tam je nález o backteste, nie o stratégii.
+        # Dvojča sa vyrobí pri prvom Spočítať, potom je pevné ako každý recept.
+        out["synthetic"] = _plan_twin(req, strategy, engine, okna, norm, plan_okien, suhrn)
+        out["pending"] = out["pending"] + out["synthetic"].get("pending", [])
+        return out
+
+    def _plan_twin(req: AnalyticsPrepareRequest, strategy: str, engine: str, okna: list[str],
+                   norm: dict[str, Any], plan_okien, suhrn) -> dict[str, Any]:
+        from .. import synthetic as syn_mod
+
+        if req.pair in syn_mod.synthetic_symbols():
+            return {"pair": None, "note": "pár je sám syntetický"}
+        dvojca = syn_mod.twin_for(req.pair)
+        if dvojca is None and req.dry_run:
+            return {"pair": None, "note": "syntetický trh páru vznikne pri Spočítať (premiešané bary páru)"}
+        if dvojca is None:
+            try:
+                dvojca = syn_mod.ensure_twin(req.pair)
+            except (FileNotFoundError, ValueError, KeyError) as exc:
+                return {"pair": None, "note": f"syntetický trh sa nedá vyrobiť: {exc}"}
+        key, inst = dvojca
+        recept = syn_mod.recipes().get(key)
+        od, do = (recept.timerange.split("-") + ["", ""])[:2] if recept else ("", "")
+        moznosti = engines.available(inst, req.timeframe)
+        engine_dvojcata = engine if engine in moznosti else (moznosti[0] if moznosti else engine)
+        hotove: dict[str, dict[str, Any]] = {}
+        for rec in store.all():
+            s = rec.get("settings") or {}
+            if (strategy_of(rec) != strategy or rec.get("status") != "done" or s.get("pair") != inst.symbol
+                    or s.get("timeframe") != req.timeframe or s.get("timerange") not in okna
+                    or (s.get("engine") or engine_dvojcata) != engine_dvojcata
+                    or s.get("sweep") or s.get("plateau") or not _same_config(norm, rec)):
+                continue
+            w = s["timerange"]
+            if w not in hotove or rec["id"] > hotove[w]["id"]:
+                hotove[w] = rec
+        vo_fronte: dict[str, dict[str, Any]] = {}
+        for j in runner.snapshot():
+            s = j.get("settings") or {}
+            job = runner.job(j["id"])
+            if (s.get("pair") == inst.symbol and s.get("timeframe") == req.timeframe
+                    and s.get("timerange") in okna and (s.get("strategy") or "ibs") == strategy
+                    and job is not None and _same_config(norm, {"settings": s, "params": job.params})):
+                vo_fronte[s["timerange"]] = j
+        windows, queued = plan_okien(inst.symbol, hotove, vo_fronte, od, do, " · syntetický trh", engine_dvojcata)
+        return {"pair": inst.symbol, "key": key, "engine": engine_dvojcata, **suhrn(windows, queued)}
 
     def _config_of_runs(run_ids: list[str]) -> dict[str, Any]:
         """Konfigurácia behov analytiky: nastavenie (parametre; `mixed` pri viacerých),
@@ -1475,9 +1531,12 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         # už záznam má posudok, tester ho dostane hneď.
         existujuci = anstore.find_by_numbers(strategy, an_fingerprint(req.report))
         if existujuci is not None:
+            # Tie isté čísla, ale report môže mať viac: syntetické behy alebo iné sekcie
+            # dobehli až teraz. Uložený záznam sa obnoví, id a posudok ostávajú.
+            anstore.refresh_report(existujuci["id"], req.report)
             if req.note.strip() and req.note.strip() != (existujuci.get("note") or ""):
                 anstore.patch(existujuci["id"], note=req.note.strip())
-                existujuci = anstore.get(existujuci["id"]) or existujuci
+            existujuci = anstore.get(existujuci["id"]) or existujuci
             return {**an_summary(existujuci), "reused": True}
         konfig = _config_of_runs([r.get("id") for r in req.report["runs"] if r.get("id")])
         return {**anstore.save(req.report, strategy=strategy, note=req.note.strip(),

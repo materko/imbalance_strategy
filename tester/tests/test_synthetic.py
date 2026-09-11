@@ -189,3 +189,43 @@ def test_synteticke_data_do_archivu_nejdu():
     from tester import data_archive
 
     assert data_archive.SYNTHETIC_SOURCE == "synthetic"
+
+
+def test_dvojca_paru_a_kluc():
+    from tester import synthetic as syn
+
+    assert syn.twin_for("BTC/USDT:USDT")[0] == "synth"
+    assert syn.twin_for("NAS100/USD") is None or syn.twin_for("NAS100/USD")[1].data_source == "synthetic"
+    assert syn.twin_key("NAS100/USD") == "synth_nas100_usd"
+
+
+def test_assess_paruje_podla_parametrov_nie_mena_profilu(tmp_path):
+    """Syntetický beh s tými istými parametrami sa priradí aj pod iným menom profilu;
+    iné parametre nie."""
+    from tradebot.strategies.ibs.config import IBSConfig
+    from tester import synthetic as syn
+    from tester.webapp.store import RunStore
+
+    store = RunStore(tmp_path)
+    params = IBSConfig().to_dict()
+
+    def rec(run_id, pair, timerange, profile, **over):
+        r = {"id": run_id, "status": "done", "note": "", "params": {**params, **over},
+             "settings": {"pair": pair, "timeframe": "3m", "timerange": timerange, "profile": profile,
+                          "strategy": "ibs"},
+             "result": {"trades": 40, "break_even_pct": 0.1}}
+        store.save(r)
+        return r
+
+    realne = [rec(f"2026090{i}-120000-aaaaaa", "BTC/USDT:USDT", w, "p1")
+              for i, w in enumerate(["20231001-20241001", "20240904-20250904", "20250904-20260904"], 1)]
+    rec("20260904-120000-bbbbbb", "SYNTH/USDT:USDT", "20231001-20241001", "ine_meno")
+    rec("20260905-120000-cccccc", "SYNTH/USDT:USDT", "20240904-20250904", "p1")
+    rec("20260906-120000-dddddd", "SYNTH/USDT:USDT", "20250904-20260904", "p1", rrRatio=params["rrRatio"] + 1)
+
+    out = syn.assess(realne, store)
+    synt = {r["timerange"]: r["synth"] for r in out["rows"]}
+    assert synt["20231001-20241001"]["run_id"] == "20260904-120000-bbbbbb"   # iné meno, tie isté parametre
+    assert synt["20240904-20250904"]["run_id"] == "20260905-120000-cccccc"
+    assert synt["20250904-20260904"] is None                                  # iné parametre
+    assert out["missing"] == ["20250904-20260904"]

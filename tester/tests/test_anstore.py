@@ -266,3 +266,16 @@ def test_historia_sa_da_zuzit_aj_na_trh(tmp_path):
 
     assert len(store.list("ibs", config_key="cfgA")) == 3
     assert len(store.list("ibs", config_key="cfgA", market="BTC/USDT:USDT|3m")) == 1
+
+
+def test_obnovenie_reportu_necha_id_poznamku_a_posudok(tmp_path):
+    """Tá istá vzorka spočítaná znova môže mať viac sekcií (syntetické behy dobehli
+    neskôr): report sa vymení, záznam ostáva ten istý."""
+    store = AnalyticsStore(tmp_path)
+    a = store.save(report(), strategy="ibs", note="pozn")
+    store.set_posudok(a["id"], "posudok", "ja")
+    novy = {**report(), "synthetic": {"severity": "ok", "rows": [1]}}
+    out = store.refresh_report(a["id"], novy)
+    z = store.get(a["id"])
+    assert out["id"] == a["id"] and z["note"] == "pozn" and z["posudok"] == "posudok"
+    assert z["report"]["synthetic"]["severity"] == "ok" and z["numbers"] == a["numbers"]

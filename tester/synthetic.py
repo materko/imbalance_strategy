@@ -342,6 +342,48 @@ def synthetic_symbols() -> set[str]:
     return {i.symbol for i in INSTRUMENTS.values() if i.data_source == "synthetic"}
 
 
+def twin_for(pair: str, registry: Path | None = None) -> tuple[str, InstrumentSpec] | None:
+    """Syntetické dvojča páru: trh premiešaný z jeho barov (recept so `source_pair`).
+    Pri viacerých ten s najširším oknom. `None` = ešte nevyrobené."""
+    kandidati = [(k, r) for k, r in recipes(registry).items() if r.source_pair == pair and k in INSTRUMENTS]
+    if not kandidati:
+        return None
+    kandidati.sort(key=lambda kr: (kr[1].timerange.split("-")[0], kr[1].timerange.split("-")[-1]))
+    key = kandidati[0][0]
+    return key, INSTRUMENTS[key]
+
+
+def twin_key(pair: str) -> str:
+    """`NAS100/USD` → `synth_nas100_usd`; BTC má z histórie kľúč `synth`."""
+    return "synth_" + pair.replace("/", "_").replace(":", "_").lower()
+
+
+def ensure_twin(pair: str, *, registry: Path | None = None) -> tuple[str, InstrumentSpec]:
+    """Dvojča páru; keď nie je, vyrobí ho z celého rozsahu dát páru (recept + 1m sviečky).
+
+    Analytika ho potrebuje pri každom páre - tester nemá vedieť, že má najprv niečo
+    „vybuildovať". Trh je potom pevný ako každý iný recept.
+    """
+    import pandas as pd
+
+    from .webapp.runner import instrument_for_pair
+
+    hotove = twin_for(pair, registry)
+    if hotove is not None:
+        return hotove
+    like = instrument_for_pair(pair)
+    df = _source_frame(pair, "")
+    if df.empty:
+        raise FileNotFoundError(f"pár {pair} nemá 1m sviečky, z ktorých by sa dal premiešať")
+    a = df["date"].iloc[0].strftime("%Y%m%d")
+    b = (df["date"].iloc[-1] + pd.Timedelta(days=1)).strftime("%Y%m%d")
+    base, _, quote = pair.partition("/")
+    symbol = f"SYNTH-{base}/{quote}" if quote else f"SYNTH-{base}/USD"
+    key = twin_key(pair)
+    build(key, symbol=symbol, source_pair=pair, timerange=f"{a}-{b}", like=like, registry=registry)
+    return key, INSTRUMENTS[key]
+
+
 def _row(rec: dict[str, Any], store) -> dict[str, Any]:
     from .webapp.runner import entry_signals
 
@@ -376,10 +418,16 @@ def assess(records: Sequence[dict[str, Any]], store, *, strategy: str = "ibs") -
     if not skutocne:
         return {"severity": "chyba dat", "rows": [], "verdict": "žiadne dobehnuté behy"}
 
-    profil = (skutocne[0].get("settings") or {}).get("profile") or ""
+    from .analytics import normalized_params
+
+    prve = skutocne[0].get("settings") or {}
+    profil = prve.get("profile") or ""
+    par, tf = prve.get("pair") or "", prve.get("timeframe") or ""
     okna = {(r.get("settings") or {}).get("timerange") for r in skutocne}
     okna.discard(None)
-    symboly = synthetic_symbols()
+    # Dvojča páru (premiešané z jeho barov); keď ho pár nemá, hocijaký syntetický trh.
+    dvojca = twin_for(par)
+    symboly = {dvojca[1].symbol} if dvojca else synthetic_symbols()
     prikaz = (f"python -m tester.webapp.cli run --profile {profil or '<profil>'} "
               f"--pair {sorted(symboly)[0] if symboly else 'SYNTH/USDT:USDT'} "
               f"--timerange <okno> --note \"synteticky trh\"")
@@ -388,16 +436,19 @@ def assess(records: Sequence[dict[str, Any]], store, *, strategy: str = "ibs") -
                            "pairs": sorted(symboly), "command": prikaz}
     if not symboly:
         out["severity"] = "chyba dat"
-        out["verdict"] = ("syntetický trh ešte nie je vyrobený — "
-                          "`python -m tester.synthetic build synth`")
+        out["verdict"] = ("syntetický trh ešte nie je vyrobený — vznikne pri Spočítať "
+                          "na karte Analytika (alebo `python -m tester.synthetic build`)")
         return out
 
-    # Porovnáva sa len to, čo sa porovnať dá: ten istý profil a to isté okno.
+    # Porovnáva sa len to, čo sa porovnať dá: tie isté parametre (doplnené Pine
+    # defaultmi - nie meno profilu, to sa dá prepísať), ten istý TF a to isté okno.
+    norm = normalized_params(skutocne[0])
     synt: dict[str, list[dict[str, Any]]] = {}
     for rec in store.all():
         nast = rec.get("settings") or {}
         if (rec.get("status") == "done" and nast.get("pair") in symboly
-                and strategy_of(rec) == strategy and (nast.get("profile") or "") == profil):
+                and strategy_of(rec) == strategy and (nast.get("timeframe") or tf) == tf
+                and normalized_params(rec) == norm):
             synt.setdefault(nast.get("timerange") or "", []).append(rec)
 
     for okno in sorted(okna):
