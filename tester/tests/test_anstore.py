@@ -256,3 +256,13 @@ def test_ta_ista_vzorka_sa_najde_podla_odtlacku(tmp_path):
     assert najdeny["id"] == a["id"]                      # s posudkom má prednosť
     assert store.find_by_numbers("demo_breakout", a["numbers"]) is None
     assert store.find_by_numbers("ibs", "") is None
+
+
+def test_historia_sa_da_zuzit_aj_na_trh(tmp_path):
+    store = AnalyticsStore(tmp_path)
+    store.save(report(), strategy="ibs", config_key="cfgA", market="BTC/USDT:USDT|3m")
+    store.save(report(), strategy="ibs", config_key="cfgA", market="ETH/USDT:USDT|3m")
+    store.save(report(), strategy="ibs", config_key="cfgA", market="mixed")
+
+    assert len(store.list("ibs", config_key="cfgA")) == 3
+    assert len(store.list("ibs", config_key="cfgA", market="BTC/USDT:USDT|3m")) == 1

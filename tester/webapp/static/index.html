@@ -267,11 +267,22 @@
       skupiny a pri každej sa spočíta break-even poplatok — tak je vidieť, či výsledok kazí
       jedna skupina (dá sa s tým niečo robiť), alebo je rozložený rovnomerne (nedá).</p>
     <div class="form-grid an-form">
-      <label class="field span2">Konfigurácia
-        <span class="hint">behy s tými istými parametrami — analytika sa počíta nad jednou;
-        vidíš, koľko okien a trhov pokrýva</span>
-        <select id="an-config"><option value="">— vybrať behy dopytom nižšie —</option></select>
+      <label class="field">Nastavenie
+        <span class="hint">profil a parametre, bez trhu — analytika sa počíta nad jedným</span>
+        <select id="an-setting"><option value="">— vybrať behy dopytom nižšie —</option></select>
       </label>
+      <label class="field">Trh a TF
+        <span class="hint">jeden trh = plná analytika; všetky trhy = drží myšlienka aj inde?</span>
+        <select id="an-market"><option value="">všetky trhy</option></select>
+      </label>
+      <details id="an-overview" class="span2">
+        <summary>Prehľad nastavení na trhu
+          <span class="hint">— hľadám nastavenie: ktoré na tomto trhu drží po oknách? (break-even nad poplatkom)</span></summary>
+        <label class="field">Trh a TF
+          <select id="an-ov-market"></select>
+        </label>
+        <div id="an-ov-table"></div>
+      </details>
       <label class="field span2">…alebo behy dopytom (rovnaká syntax ako vyhľadávanie v histórii)
         <input type="text" id="an-query" placeholder="napr. pair=BTC/USDT:USDT rrRatio&gt;=4">
       </label>

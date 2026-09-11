@@ -54,7 +54,7 @@ class AnalyticsStore:
         return najvyssie + 1
 
     def save(self, report: dict[str, Any], *, strategy: str, note: str = "",
-             user: str = "", config_key: str = "", profile: str = "",
+             user: str = "", config_key: str = "", market: str = "", profile: str = "",
              timeranges: Iterable[str] = (), timeframes: Iterable[str] = ()) -> dict[str, Any]:
         """Uloží záver analytiky. Vráti hlavičku záznamu (bez rozdelení).
 
@@ -74,6 +74,7 @@ class AnalyticsStore:
             "seq": self._next_seq(),
             "strategy": strategy,
             "config_key": config_key,
+            "market": market,
             "profile": profile,
             "timeranges": sorted(set(timeranges)),
             "timeframes": sorted(set(timeframes)),
@@ -165,9 +166,10 @@ class AnalyticsStore:
         path.unlink()
         return True
 
-    def list(self, strategy: str = "", limit: int = 50, config_key: str = "") -> list[dict[str, Any]]:
+    def list(self, strategy: str = "", limit: int = 50, config_key: str = "",
+             market: str = "") -> list[dict[str, Any]]:
         """Hlavičky od najnovšej. Bez `strategy` sa vrátia všetky; `config_key` zúži
-        na jednu konfiguráciu.
+        na jedno nastavenie, `market` (`pár|TF`) na jeden trh.
 
         Radí sa podľa času uloženia, nie podľa mena súboru: dva záznamy z tej istej
         sekundy sa v mene líšia len náhodnou príponou, takže by vyšli v ľubovoľnom
@@ -182,6 +184,8 @@ class AnalyticsStore:
             if strategy and zaznam.get("strategy") != strategy:
                 continue
             if config_key and zaznam.get("config_key") != config_key:
+                continue
+            if market and zaznam.get("market") != market:
                 continue
             try:
                 mtime = path.stat().st_mtime

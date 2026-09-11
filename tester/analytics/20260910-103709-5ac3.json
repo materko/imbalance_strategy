@@ -1120,5 +1120,18 @@
    },
    "note": "Obe náhody dávajú podobný výsledok, takže edge nie je len o výbere času — je v tom, na čom stratégia vstupuje."
   }
- }
+ },
+ "config_key": "c651d7f8d7",
+ "market": "BTC/USDT:USDT|3m",
+ "profile": "docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json",
+ "timeranges": [
+  "20211001-20221001",
+  "20221001-20231001",
+  "20231001-20241001",
+  "20240904-20250904",
+  "20250904-20260904"
+ ],
+ "timeframes": [
+  "3m"
+ ]
 }
