@@ -12,6 +12,7 @@ from .gap import SPEC as GAP_SPEC
 from .ibs import SPEC as IBS_SPEC
 from .orb import SPEC as ORB_SPEC
 from .range import SPEC as RANGE_SPEC
+from .sdzone import SPEC as SDZONE_SPEC
 from .structure import SPEC as STRUCTURE_SPEC
 
 STRATEGIES: dict[str, StrategySpec] = {
@@ -21,6 +22,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     ORB_SPEC.key: ORB_SPEC,
     GAP_SPEC.key: GAP_SPEC,
     RANGE_SPEC.key: RANGE_SPEC,
+    SDZONE_SPEC.key: SDZONE_SPEC,
 }
 
 __all__ = ["STRATEGIES", "StrategySpec", "get_spec", "spec_for_config"]

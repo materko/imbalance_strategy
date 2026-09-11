@@ -1,0 +1,21 @@
+{
+  "_title": "XAU Dukascopy 15m — SD zóny, vstup na odmietnutí zóny",
+  "_strategy": "sdzone",
+  "_instrument": "xau_dukascopy",
+  "_comment": [
+    "Vychodiskovy profil SD Zones, uz s vysledkom ladenia v den vzniku (2026-09-11).",
+    "Baza max 3 sviecky s telom do 40 % rozsahu, impulz aspon 0,8 ATR a 55 % tela,",
+    "zona siroka (WFZ) od knotu po knot, ciel 1:3.",
+    "KLUCOVA ZMENA oproti holym defaultom: entryMode='reject' a slBufferAtr 0,3 ATR.",
+    "Ceka sa na sviecku, ktora zonu ODMIETNE a zavrie mimo nej - bez toho je strategia",
+    "na zlate len tesne kladna. Vstup limitkou do padajucej ceny sa neosvedcil.",
+    "TRH: zlato. NAS100 aj US500 su otestovane a pre tuto strategiu nevhodne.",
+    "Metodika bez COT dat a sezonnosti - ramec ich nema; je to jej cenova cast."
+  ],
+  "tickDollarValue": 0.5,
+  "entryMode": "reject",
+  "slBufferAtr": {
+    "value": 0.3,
+    "unit": "atr"
+  }
+}
