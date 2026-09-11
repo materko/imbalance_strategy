@@ -143,3 +143,24 @@ def test_entry_tag_prefix_konci_dvojbodkou(spec):
     modul = import_module(f"tradebot.strategies.{spec.key}.freqtrade")
     trieda = getattr(modul, spec.freqtrade_class)
     assert trieda.ENTRY_TAG_PREFIX.endswith(":"), spec.key
+
+
+@pytest.mark.parametrize("spec", SPECS, ids=IDS)
+def test_bazy_strategie_koncia_na_istrategy_nie_na_object(spec):
+    """Freqtrade pri hyperopte registruje moduly báz stratégie do cloudpickle „po hodnote"
+    a zastaví sa až na `IStrategy`. Mixin s bázou `object` by dotiahol `builtins`, celý
+    `builtins` by sa pickloval po hodnote a druhá dávka epoch spadne na rekurziu."""
+    pytest.importorskip("freqtrade")
+    from importlib import import_module
+
+    trieda = getattr(import_module(f"tradebot.strategies.{spec.key}.freqtrade"), spec.freqtrade_class)
+    moduly: set[str] = set()
+
+    def ako_freqtrade(bases):
+        for b in bases:
+            if b.__name__ != "IStrategy":
+                moduly.add(b.__module__)
+                ako_freqtrade(b.__bases__)
+
+    ako_freqtrade(trieda.__bases__)
+    assert "builtins" not in moduly, f"{spec.key}: bázy vedú k `object`, hyperopt by spadol"

@@ -18,6 +18,12 @@ from tradebot.adapters.freqtrade import ai
 class Falosna(ai.AIMixin):
     """Stratégia len s tým, čo mixin potrebuje."""
 
+    # `AIMixin` dedí z `IStrategy` (kvôli hyperoptu), takže abstraktné metódy treba doplniť.
+    def populate_indicators(self, dataframe, metadata):
+        return dataframe
+
+    populate_entry_trend = populate_exit_trend = populate_indicators
+
     def __init__(self, config=None, runners=None):
         self.config = config or {}
         self._runners = runners or {}
