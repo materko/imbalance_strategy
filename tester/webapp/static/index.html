@@ -276,26 +276,24 @@
         <span class="hint">prvá úroveň výberu — nastavenia, trhy aj história sú jej</span>
         <select id="an-strategy"></select>
       </label>
-      <label class="field">Nastavenie
-        <span class="hint">profil a parametre, bez trhu — analytika sa počíta nad jedným; body mriežky a plató tu nie sú (sú to skúšky parametra, nie nastavenie)</span>
-        <input type="text" id="an-setting-filter" placeholder="filter: profil, poznámka, parameter…" autocomplete="off">
-        <select id="an-setting"><option value="">— vybrať behy dopytom nižšie —</option></select>
+      <label class="field span2">Profil
+        <span class="hint">parametre stratégie — analytika sa počíta nad jedným nastavením; body mriežky a jednorazové behy tu nie sú, mriežkou nájdený bod si najprv ulož ako profil</span>
+        <select id="an-profile"><option value="">(Pine defaulty)</option></select>
       </label>
-      <label class="field">Trh a TF
-        <span class="hint">jeden trh = plná analytika; všetky trhy = drží myšlienka aj inde?</span>
-        <select id="an-market"><option value="">všetky trhy</option></select>
+      <label class="field">Pár
+        <select id="an-pair"></select>
       </label>
-      <details id="an-overview" class="span2">
-        <summary>Prehľad nastavení na trhu
-          <span class="hint">— hľadám nastavenie: ktoré na tomto trhu drží po oknách? (break-even nad poplatkom)</span></summary>
-        <label class="field">Trh a TF
-          <select id="an-ov-market"></select>
+      <label class="field">Timeframe
+        <select id="an-tf"></select>
+      </label>
+      <div id="an-plan" class="span2 hint an-plan"
+           title="Päť referenčných okien: čo už má hotový beh v histórii (tie isté parametre, pár, TF a engine), sa použije; zvyšok sa po Spočítať dopočíta sám"></div>
+      <details class="span2 an-advanced">
+        <summary>Pokročilé: behy dopytom namiesto profilu</summary>
+        <label class="field span2">Behy dopytom (rovnaká syntax ako vyhľadávanie v histórii; prázdne = podľa profilu vyššie)
+          <input type="text" id="an-query" placeholder="napr. pair=BTC/USDT:USDT rrRatio&gt;=4">
         </label>
-        <div id="an-ov-table"></div>
       </details>
-      <label class="field span2">…alebo behy dopytom (rovnaká syntax ako vyhľadávanie v histórii)
-        <input type="text" id="an-query" placeholder="napr. pair=BTC/USDT:USDT rrRatio&gt;=4">
-      </label>
       <label class="field">Skupín na vlastnosť
         <select id="an-quantiles">
           <option>2</option><option>3</option><option selected>4</option>
@@ -310,10 +308,8 @@
                title="Obchody z viacerých behov sa zlejú dokopy — jeden beh má na delenie málo obchodov.">
       </label>
       <div class="an-actions span2">
-        <button id="an-run" class="primary" type="button">Spočítať</button>
-        <button id="an-fill" class="ghost" type="button" disabled
-                title="Zaradí backtesty pre referenčné okná, ktoré vybraná konfigurácia ešte nemá — tie isté parametre, trh a TF">
-          Doplniť chýbajúce okná</button>
+        <button id="an-run" class="primary" type="button"
+                title="Behy z histórie, ktoré presne sedia, sa použijú; chýbajúce referenčné okná sa dopočítajú a potom sa analytika spočíta">Spočítať</button>
         <button id="an-paper" class="ghost" type="button" disabled
                 title="Zapíše všetko z tejto stránky ako datovaný dokument do docs/merania/">
           Zapísať meranie</button>

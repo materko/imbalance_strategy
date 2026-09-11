@@ -146,6 +146,20 @@ class FillWindowsRequest(BaseModel):
     user: str | None = Field(None, max_length=80)
 
 
+class AnalyticsPrepareRequest(BaseModel):
+    """Analytika profilu na trhu: ktoré referenčné okná už v histórii sú (a použijú sa)
+    a ktoré sa dopočítajú. Tester zadá profil, pár a TF - behy si to nájde samo."""
+
+    strategy: str = "ibs"
+    profile: str = Field("", description="profil (repozitár, vlastný alebo cesta k JSON); prázdne = Pine defaulty")
+    pair: str
+    timeframe: str = "3m"
+    engine: str | None = Field(None, description="freqtrade | multicharts; None = podľa dát")
+    windows: list[str] | None = Field(None, description="okná YYYYMMDD-YYYYMMDD; None = referenčné")
+    dry_run: bool = Field(False, description="len zistiť stav okien, nič nezaraďovať")
+    user: str | None = Field(None, max_length=80)
+
+
 class NoteRequest(BaseModel):
     """Poznámka k uloženej analytike — čo sa tým zisťovalo."""
 
@@ -1289,6 +1303,123 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         return {"queued": ids, "windows": chybaju,
                 "note": f"zaradených {len(ids)} behov; po dobehnutí spusti Spočítať znova"}
 
+    def _profile_setup(profile: str, strategy: str, engine: str | None) -> tuple[dict[str, Any], dict[str, Any]]:
+        """Parametre a nastavenia behu z profilu, ako na karte Nový beh: Pine defaulty
+        prepísané profilom; poplatok, peňaženka a 1m detail z vlastného profilu."""
+        target: str | Path | None = profile or None
+        if profile.endswith(".json"):
+            path = (REPO / profile).resolve()
+            if not path.is_relative_to(REPO) or not path.exists():
+                raise HTTPException(404, f"profil {profile!r} nie je JSON v repozitári")
+            target = path
+        try:
+            params, _ = default_params(target, strategy, engine=engine)
+        except (ConfigError, FileNotFoundError) as exc:
+            raise HTTPException(404, str(exc))
+        # Cesta k JSON (archív profilov) nastavenia behu nemá; vlastný profil áno.
+        setup = user_profiles.settings_of(profile, strategy) if profile and not isinstance(target, Path) else {}
+        return params, setup
+
+    def _same_config(norm: dict[str, Any], rec: dict[str, Any]) -> bool:
+        """Beh má tie isté parametre ako zadanie (obe doplnené Pine defaultmi)."""
+        from .. import analytics as an
+
+        other = an.normalized_params(rec)
+        return all(norm.get(k) == other.get(k) for k in set(norm) | set(other))
+
+    @app.post("/api/analytics/prepare")
+    def analytics_prepare(req: AnalyticsPrepareRequest):
+        """Behy pre analytiku profilu na trhu - každé referenčné okno buď **má hotový beh
+        v histórii** (tie isté parametre, pár, TF a engine: použije sa, nič sa nepočíta
+        znova), alebo sa **zaradí** do fronty. Tester klikne Spočítať a nič iné: nevyberá
+        behy z histórie a neklikne „doplniť okná" - analytika je o profile na trhu, nie
+        o tom, čo sa kedy náhodou spustilo.
+
+        `dry_run` len povie stav okien (formulár to ukáže pri výbere). Okno mimo dát páru
+        je `no_data`; body mriežky a plató sa ako hotové behy neberú (sú to skúšky
+        parametra). Beh, ktorý na to isté zadanie už čaká vo fronte, sa nezaradí druhýkrát.
+        """
+        from .. import analytics as an
+        from .. import hyperopt as ho
+
+        strategy = req.strategy
+        if strategy not in STRATEGIES:
+            raise HTTPException(404, f"neznáma stratégia {strategy!r}")
+        params, setup = _profile_setup(req.profile, strategy, req.engine)
+        try:
+            inst = INSTRUMENTS[instrument_for_pair(req.pair)]
+        except ValueError as exc:
+            raise HTTPException(422, str(exc))
+        if req.timeframe not in chart_data.available_timeframes(req.pair):
+            raise HTTPException(422, f"pre {req.pair} nie sú {req.timeframe} dáta")
+        engine = req.engine or engines.default_engine(inst, req.timeframe)
+        okna = list(req.windows or ho.REFERENCE_WINDOWS)
+        for w in okna:
+            if not _TIMERANGE_RE.match(w):
+                raise HTTPException(422, f"okno {w!r} musí byť YYYYMMDD-YYYYMMDD")
+        norm = an.normalized_params({"settings": {"strategy": strategy}, "params": params})
+        config_key = an.config_key({"settings": {"strategy": strategy}, "params": params})
+
+        hotove: dict[str, dict[str, Any]] = {}
+        for rec in store.all():
+            s = rec.get("settings") or {}
+            if (strategy_of(rec) != strategy or rec.get("status") != "done"
+                    or s.get("pair") != req.pair or s.get("timeframe") != req.timeframe
+                    or s.get("timerange") not in okna or (s.get("engine") or engine) != engine
+                    or s.get("sweep") or s.get("plateau") or not _same_config(norm, rec)):
+                continue
+            w = s["timerange"]
+            if w not in hotove or rec["id"] > hotove[w]["id"]:
+                hotove[w] = rec
+        vo_fronte: dict[str, dict[str, Any]] = {}
+        for j in runner.snapshot():
+            s = j.get("settings") or {}
+            job = runner.job(j["id"])
+            if (s.get("pair") == req.pair and s.get("timeframe") == req.timeframe
+                    and s.get("timerange") in okna and (s.get("strategy") or "ibs") == strategy
+                    and (s.get("engine") or engine) == engine and job is not None
+                    and _same_config(norm, {"settings": s, "params": job.params})):
+                vo_fronte[s["timerange"]] = j
+        rozsah = next((p for p in available_pairs() if p["pair"] == req.pair), None) or {}
+        od, do = str(rozsah.get("from") or "").replace("-", ""), str(rozsah.get("to") or "").replace("-", "")
+
+        windows, queued = [], []
+        for w in okna:
+            if w in hotove:
+                rec = hotove[w]
+                windows.append({"window": w, "run_id": rec["id"], "status": "done",
+                                "trades": int((rec.get("result") or {}).get("trades") or 0)})
+            elif w in vo_fronte:
+                windows.append({"window": w, "run_id": vo_fronte[w]["id"], "status": vo_fronte[w]["status"]})
+            elif od and do and (w[9:] <= od or w[:8] >= do):
+                windows.append({"window": w, "run_id": None, "status": "no_data"})
+            elif req.dry_run:
+                windows.append({"window": w, "run_id": None, "status": "missing"})
+            else:
+                r = RunRequest(params=params, pair=req.pair, strategy=strategy, timeframe=req.timeframe,
+                               timerange=w, fee=setup.get("fee"), wallet=setup.get("wallet") or 10000,
+                               timeframe_detail=setup.get("detail", "1m") or None, engine=engine,
+                               profile=req.profile or None,
+                               note=f"analytika: {req.profile or 'Pine defaulty'} · okno {w}", user=req.user)
+                settings = {**_run_settings(r), "checkup": {"analytics": req.profile or "(Pine defaulty)",
+                                                            "strategy": strategy}}
+                try:
+                    job = runner.submit(r.params, settings, note=r.note, user=_clean_user(req.user))
+                except (ConfigError, ValueError) as exc:
+                    raise HTTPException(422, f"okno {w}: {exc}")
+                windows.append({"window": w, "run_id": job.id, "status": "queued"})
+                queued.append(job.id)
+        return {
+            "strategy": strategy, "profile": req.profile, "pair": req.pair, "timeframe": req.timeframe,
+            "engine": engine, "config_key": config_key, "market": f"{req.pair}|{req.timeframe}",
+            "windows": windows,
+            "ready": [x["run_id"] for x in windows if x["status"] == "done"],
+            "pending": [x["run_id"] for x in windows if x["status"] in ("queued", "running")],
+            "queued": queued,
+            "missing": [x["window"] for x in windows if x["status"] == "missing"],
+            "no_data": [x["window"] for x in windows if x["status"] == "no_data"],
+        }
+
     def _config_of_runs(run_ids: list[str]) -> dict[str, Any]:
         """Konfigurácia behov analytiky: nastavenie (parametre; `mixed` pri viacerých),
         trh (`pár|TF`; `mixed` pri viacerých), profil, okná, TF."""
@@ -1319,8 +1450,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         if strategy and strategy not in STRATEGIES:
             raise HTTPException(404, f"neznáma stratégia {strategy!r}")
         for x in anstore.list(strategy, limit=500):
-            if "market" not in x:
-                anstore.patch(x["id"], **_config_of_runs(x.get("run_ids") or []))
+            konfig = _config_of_runs(x.get("run_ids") or [])
+            if any(x.get(k) != v for k, v in konfig.items()):
+                anstore.patch(x["id"], **konfig)   # starší záznam alebo kľúč z čias pred defaultmi
         return {"items": anstore.list(strategy, limit=limit, config_key=config_key, market=market)}
 
     @app.get("/api/analytics/history/{an_id}")

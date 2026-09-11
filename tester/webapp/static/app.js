@@ -417,8 +417,7 @@ function fillSettings() {
     const f = $("#filter-strategy");
     if (f && f.value) { f.value = ss.value; historyPage.offset = 0; }
     fillAnalyticsStrategy(ss.value);
-    loadAnalyticsHistory();
-    loadAnalyticsConfigs();
+    fillAnalyticsProfile(); fillAnalyticsPairs(); refreshAnalyticsPlan();
     if ($("#ai-box")?.open) loadAiMeta();
     $("#profile").value = "";
     await loadProfile("");
@@ -542,9 +541,9 @@ function runIdStamp(id) {
 
 /** Názov profilu v ponuke: „dátum · pár TF · popis". Vlastné profily majú dátum vzniku;
  *  profily repozitára ho nemajú (sú z gitu), tie ostávajú „meno — popis". */
-function profileLabel(name) {
-  const info = (state.meta.profile_info || {})[name] || {};
-  const titles = state.meta.profile_titles || {};
+function profileLabel(name, meta = state.meta) {
+  const info = (meta.profile_info || {})[name] || {};
+  const titles = meta.profile_titles || {};
   const popis = info.title || (titles[name] && titles[name] !== name ? titles[name] : "") || name;
   if (!info.created) return popis === name ? name : `${name} — ${popis}`;
   const trh = `${pairShort(info.pair)} ${info.timeframe || ""}`.trim();
@@ -600,6 +599,7 @@ async function applyProfileList(r, pick) {
     if (r.profile_info) target.profile_info = r.profile_info;
   }
   fillProfiles(pick);
+  fillAnalyticsProfile();
   if (pick !== undefined) await loadProfile($("#profile").value);
 }
 
@@ -2472,55 +2472,6 @@ function fmtWindow(w) {
   return m ? `${m[1]}-${m[2]}-${m[3]} → ${m[4]}-${m[5]}-${m[6]}` : String(w || "?");
 }
 
-/** Názov nastavenia: „dátum vzniku · pár TF · popis" - popis je `_title` profilu alebo
- *  jeho meno, plus parametre, v ktorých sa líši od iných nastavení s tým istým profilom
- *  (inak by dva riadky vyzerali rovnako). `kratko` (prehľad na jednom trhu) vynechá
- *  dátum a trh - tam sú v hlavičke tabuľky. */
-function settingLabel(s, kratko = false) {
-  const meno = String(s.profile || "").split("/").pop().replace(/\.json$/, "");
-  const rozdiely = Object.entries(s.variant || {}).map(([k, v]) => `${k}=${typeof v === "object" && v ? (v.value + "@" + v.unit) : v}`);
-  const titul = String(s.title || "");
-  // Dlhý `_title` (golden profily majú celú vetu) by v ponuke zatlačil to podstatné.
-  const popis = (titul.length > 60 ? titul.slice(0, 59) + "…" : titul || meno)
-    + (rozdiely.length ? ` (${rozdiely.join(", ")})` : "");
-  if (kratko) return popis;
-  const trh = `${(s.pairs || []).map(pairShort).join(", ")} ${(s.timeframes || []).join("/")}`.trim();
-  // Poznámka najstaršieho behu: pri ručne ladených behoch jediný text, čo hovorí, čo sa skúšalo.
-  const pozn = String(s.note || "").trim();
-  return [runIdStamp(s.first), trh, popis, pozn.length > 70 ? pozn.slice(0, 69) + "…" : pozn].filter(Boolean).join(" · ");
-}
-
-/** Ponuka nastavení podľa textového filtra (profil, popis, parametre, poznámka) - pri
- *  stovkách ručne ladených behov sa inak nedá nájsť ten správny. */
-function renderSettingOptions() {
-  const sel = $("#an-setting");
-  if (!sel) return;
-  const povodne = sel.value;
-  const hladane = ($("#an-setting-filter")?.value || "").trim().toLowerCase();
-  // Skupiny podľa profilu (v poradí najnovšieho nastavenia v skupine): desiatky ručne
-  // ladených behov pod jedným profilom by inak pochovali ostatné.
-  const skupiny = new Map();
-  let vidno = 0;
-  for (const s of state.anSettings || []) {
-    const meno = String(s.profile || "").split("/").pop().replace(/\.json$/, "");
-    const text = settingLabel(s);
-    if (hladane && !`${meno} ${text}`.toLowerCase().includes(hladane)) continue;
-    vidno++;
-    if (!skupiny.has(meno)) skupiny.set(meno, []);
-    skupiny.get(meno).push({ s, text });
-  }
-  const celkom = (state.anSettings || []).length;
-  sel.innerHTML = `<option value="">— vybrať behy dopytom nižšie${hladane ? ` (${vidno} z ${celkom})` : ""} —</option>`
-    + [...skupiny].map(([meno, zoznam]) => `<optgroup label="${esc(meno)} · ${zoznam.length} ${slovom(zoznam.length, "nastavenie", "nastavenia", "nastavení")}">`
-      + zoznam.map(({ s, text }) => {
-        const okna = (s.timeranges || []).length;
-        const trhy = (s.markets || []).length;
-        return `<option value="${esc(s.key)}">${esc(text)} · ${s.runs} ${slovom(s.runs, "beh", "behy", "behov")}`
-          + ` · ${trhy} ${slovom(trhy, "trh", "trhy", "trhov")} · ${okna} ${slovom(okna, "okno", "okná", "okien")}</option>`;
-      }).join("") + "</optgroup>").join("");
-  if (povodne && [...skupiny.values()].some(z => z.some(({ s }) => s.key === povodne))) sel.value = povodne;
-}
-
 /** Stratégia karty Analytika - prvá úroveň výberu. Predvolene tá z hlavičky, ale dá sa
  *  prepnúť nezávisle: analytika inej stratégie nemá meniť formulár Nového behu. */
 function anStrategy() {
@@ -2539,148 +2490,138 @@ function fillAnalyticsStrategy(key = "") {
       $("#an-summary").innerHTML = ""; $("#an-result").innerHTML = "";
       state.analytics = null; showPosudok(null);
       $("#an-paper").disabled = true; $("#an-save").disabled = true;
-      loadAnalyticsConfigs(); loadAnalyticsHistory();
+      fillAnalyticsProfile(); fillAnalyticsPairs(); refreshAnalyticsPlan(); loadAnalyticsHistory();
     };
   }
   sel.value = key || state.strategy;
 }
 
-/** Vybrané nastavenie (profil + parametre) a v ňom trh; `null` = nevybrané / všetky. */
-function selectedSetting() {
-  return (state.anSettings || []).find(s => s.key === $("#an-setting")?.value) || null;
-}
-function selectedMarket() {
-  const s = selectedSetting();
-  const v = $("#an-market")?.value;
-  return s && v ? ((s.markets || []).find(m => m.key === v) || null) : null;
-}
-
-/** Nastavenia v histórii → trhy → výsledky po oknách; do dvoch ponúk a do prehľadu. */
-async function loadAnalyticsConfigs() {
-  const sel = $("#an-setting");
+/** Ponuka profilov na Analytike - profily stratégie z karty Analytika (nie z hlavičky),
+ *  s tým istým názvom „dátum · pár TF · popis" ako v Novom behu. */
+function fillAnalyticsProfile() {
+  const sel = $("#an-profile");
   if (!sel) return;
-  const povodne = sel.value;
-  try {
-    const out = await api(`/api/analytics/configs?strategy=${encodeURIComponent(anStrategy())}`);
-    state.anSettings = out.settings || [];
-    state.anReferenceWindows = out.reference_windows || [];
-  } catch (e) {
-    state.anSettings = [];
+  const meta = strategyMeta(anStrategy()) || state.meta;
+  const own = new Set(meta.user_profiles || []);
+  const info = meta.profile_info || {};
+  const keep = sel.value;
+  const vlastne = (meta.profiles || []).filter(p => own.has(p))
+    .sort((a, b) => String(info[b]?.created || "").localeCompare(String(info[a]?.created || "")) || a.localeCompare(b));
+  sel.innerHTML = `<option value="">(Pine defaulty)</option>`;
+  for (const [label, names] of [["Profily repozitára", (meta.profiles || []).filter(p => !own.has(p))],
+                                ["Vlastné profily", vlastne]]) {
+    if (!names.length) continue;
+    const g = document.createElement("optgroup"); g.label = label;
+    for (const p of names) {
+      const o = document.createElement("option"); o.value = p; o.textContent = profileLabel(p, meta); o.title = p;
+      g.append(o);
+    }
+    sel.append(g);
   }
-  sel.innerHTML = `<option value="${esc(povodne)}"></option>`;
-  sel.value = povodne;                 // renderSettingOptions si vybrané nastavenie nechá
-  renderSettingOptions();
-  fillMarketSelect();
-  fillOverviewMarkets();
-  updateFillButton();
+  sel.value = (meta.profiles || []).includes(keep) ? keep : "";
 }
 
-/** Trhy vybraného nastavenia. Jediný trh sa vyberie sám; inak „všetky trhy". */
-function fillMarketSelect() {
-  const sel = $("#an-market");
+/** Pár a TF na Analytike - tá istá ponuka ako v Novom behu; profil si ich predvolí
+ *  podľa svojho nástroja a TF (analytika profilu na cudzom trhu nedáva zmysel). */
+function fillAnalyticsPairs(pick = "") {
+  const sel = $("#an-pair");
   if (!sel) return;
-  const s = selectedSetting();
-  const trhy = s ? (s.markets || []) : [];
-  const povodne = sel.value;
-  sel.innerHTML = `<option value="">všetky trhy${trhy.length ? ` (${trhy.length})` : ""}</option>`
-    + trhy.map(m => {
-      const chyba = (m.missing || []).length;
-      return `<option value="${esc(m.key)}">${esc(pairShort(m.pair))} ${esc(m.timeframe)} · ${m.runs} ${slovom(m.runs, "beh", "behy", "behov")}`
-        + ` · ${m.positive} z ${m.done_ref} ref. okien nad poplatkom`
-        + (chyba ? ` · chýba ${chyba}` : "") + `</option>`;
-    }).join("");
-  sel.value = trhy.length === 1 ? trhy[0].key : (trhy.some(m => m.key === povodne) ? povodne : "");
-}
-
-/** Bunka s edge (break-even mínus poplatok): zelená nad nulou, červená pod. */
-function edgeCell(w) {
-  if (!w || w.edge === null || w.edge === undefined) return "<td>—</td>";
-  const znak = w.edge > 0 ? "+" : "";
-  return `<td class="${w.edge > 0 ? "pos" : "neg"}" title="${w.trades} obchodov · beh ${esc(w.run_id)}">${znak}${fmt(w.edge, 4)}</td>`;
-}
-
-/** Ponuka trhov pre prehľad nastavení — zjednotenie trhov všetkých nastavení. */
-function fillOverviewMarkets() {
-  const sel = $("#an-ov-market");
-  if (!sel) return;
-  const povodne = sel.value;
-  const trhy = new Map();
-  for (const s of state.anSettings || []) for (const m of s.markets || []) trhy.set(m.key, m);
-  const zoznam = [...trhy.values()].sort((a, b) => (a.pair + a.timeframe).localeCompare(b.pair + b.timeframe));
-  sel.innerHTML = zoznam.map(m => `<option value="${esc(m.key)}">${esc(pairShort(m.pair))} ${esc(m.timeframe)}</option>`).join("");
-  if (zoznam.some(m => m.key === povodne)) sel.value = povodne;
-  else if (selectedMarket()) sel.value = selectedMarket().key;
-  renderOverview();
-}
-
-/** Tabuľka nastavení na jednom trhu: riadok nastavenie, stĺpce referenčné okná (edge),
- *  klik na riadok ho vyberie. Bez trhu by sa miešali poplatky rôznych trhov. */
-function renderOverview() {
-  const box = $("#an-ov-table");
-  if (!box) return;
-  const trh = $("#an-ov-market")?.value;
-  const ref = state.anReferenceWindows || [];
-  const riadky = [];
-  for (const s of state.anSettings || []) {
-    const m = (s.markets || []).find(x => x.key === trh);
-    if (m) riadky.push({ s, m });
+  const keep = pick || sel.value || $("#pair")?.value || "";
+  sel.innerHTML = "";
+  for (const source of [...new Set(state.meta.pairs.map(p => p.source || "?"))].sort()) {
+    const g = document.createElement("optgroup"); g.label = source;
+    for (const p of state.meta.pairs.filter(x => (x.source || "?") === source)) {
+      const o = document.createElement("option"); o.value = p.pair; o.title = p.pair;
+      o.textContent = `${source} · ${p.kind || p.market || "futures"} · ${p.exchange_symbol || p.pair}`;
+      g.append(o);
+    }
+    sel.append(g);
   }
-  if (!trh || !riadky.length) { box.innerHTML = '<p class="an-note">na tomto trhu nie sú žiadne behy</p>'; return; }
-  riadky.sort((a, b) => (b.m.positive - a.m.positive) || (b.m.done_ref - a.m.done_ref) || (b.m.trades - a.m.trades));
-  const hlav = ref.map(w => `<th title="${esc(fmtWindow(w))}">${w.slice(2, 4)}/${w.slice(11, 13)}</th>`).join("");
-  const rows = riadky.map(({ s, m }) => `<tr class="an-ov-row" data-setting="${esc(s.key)}" data-market="${esc(m.key)}" title="klik vyberie toto nastavenie a trh">`
-    + `<td style="text-align:left">${esc(settingLabel(s, true))}</td>`
-    + `<td>${m.runs}</td><td>${m.trades}</td><td class="${m.positive === m.done_ref && m.done_ref ? "pos" : ""}">${m.positive} z ${m.done_ref}</td>`
-    + ref.map(w => edgeCell(m.windows[w])).join("") + "</tr>").join("");
-  box.innerHTML = `<table class="mx-table an-overview"><thead><tr><th style="text-align:left">nastavenie</th>`
-    + `<th>behov</th><th>obchodov</th><th>nad popl.</th>${hlav}</tr></thead><tbody>${rows}</tbody></table>`
-    + '<p class="an-note">v bunke break-even mínus poplatok trhu (% na stranu); kladné okná rozhodujú, nie súčet</p>';
-  for (const tr of box.querySelectorAll("tr.an-ov-row")) tr.onclick = () => {
-    $("#an-setting").value = tr.dataset.setting;
-    fillMarketSelect();
-    $("#an-market").value = tr.dataset.market;
-    updateFillButton();
-    loadAnalyticsHistory();
-    $("#an-status").textContent = "nastavenie a trh vybrané — stlač Spočítať";
+  sel.value = state.meta.pairs.some(p => p.pair === keep) ? keep : (state.meta.pairs[0]?.pair || "");
+  fillAnalyticsTf();
+}
+function fillAnalyticsTf(pick = "") {
+  const sel = $("#an-tf");
+  if (!sel) return;
+  const p = state.meta.pairs.find(x => x.pair === $("#an-pair")?.value);
+  const tfs = p ? (p.timeframes || []) : [];
+  const keep = pick || sel.value || $("#tf")?.value || "3m";
+  sel.innerHTML = tfs.map(tf => `<option value="${esc(tf)}">${esc(tf)}</option>`).join("");
+  sel.value = tfs.includes(keep) ? keep : (tfs.includes("3m") ? "3m" : (tfs[0] || ""));
+}
+
+/** Po výbere profilu: jeho pár a TF (z `_instrument` a `_timeframe`), potom stav okien. */
+function onAnalyticsProfileChange() {
+  const meta = strategyMeta(anStrategy()) || state.meta;
+  const info = (meta.profile_info || {})[$("#an-profile").value] || {};
+  if (info.pair && state.meta.pairs.some(p => p.pair === info.pair)) fillAnalyticsPairs(info.pair);
+  if (info.timeframe) fillAnalyticsTf(info.timeframe);
+  refreshAnalyticsPlan();
+}
+
+function analyticsPlanBody(dry) {
+  return {
+    strategy: anStrategy(), profile: $("#an-profile")?.value || "", pair: $("#an-pair")?.value || "",
+    timeframe: $("#an-tf")?.value || "3m", dry_run: dry, user: currentUser() || null,
   };
 }
 
-/** Tlačidlo na doplnenie okien má zmysel len pri jednom trhu, ktorému referenčné okná chýbajú. */
-function updateFillButton() {
-  const btn = $("#an-fill");
-  if (!btn) return;
-  const m = selectedMarket();
-  const chyba = m ? (m.missing || []).length : 0;
-  btn.disabled = !chyba;
-  btn.textContent = chyba ? `Doplniť ${chyba} ${slovom(chyba, "chýbajúce okno", "chýbajúce okná", "chýbajúcich okien")}`
-                          : "Doplniť chýbajúce okná";
+const PLAN_WORDS = {
+  done: "v histórii", queued: "vo fronte", running: "beží", missing: "dopočíta sa",
+  no_data: "bez dát", failed: "zlyhalo",
+};
+
+/** Riadok s piatimi oknami: čo je hotové, čo sa dopočíta. */
+function renderPlan(plan) {
+  const box = $("#an-plan");
+  if (!box) return;
+  if (!plan) { box.textContent = ""; return; }
+  box.innerHTML = (plan.windows || []).map(w =>
+    `<span class="an-win ${esc(w.status)}" title="${esc(w.run_id || "")}">${esc(fmtWindow(w.window).replace(/-\d\d-\d\d/g, ""))}: ${PLAN_WORDS[w.status] || esc(w.status)}`
+    + (w.status === "done" && w.trades !== undefined ? ` (${w.trades} obch.)` : "") + `</span>`).join("");
 }
 
-/** Zaradí behy pre referenčné okná, ktoré vybraný trh nastavenia nemá. Po dobehnutí
- *  treba analytiku spočítať znova - obchody pribudnú. */
-async function fillMissingWindows() {
-  const m = selectedMarket();
-  if (!m) return;
-  const btn = $("#an-fill");
-  btn.disabled = true;
-  $("#an-status").textContent = "zaraďujem…";
+/** Stav okien pre zvolený profil a trh - len zistí, nič nezaraďuje. Zúži aj históriu
+ *  analytík na túto konfiguráciu a trh. */
+async function refreshAnalyticsPlan() {
+  if (!$("#an-plan") || !$("#an-pair")?.value) return;
   try {
-    const out = await api("/api/analytics/fill-windows", {
-      method: "POST",
-      body: JSON.stringify({ run_id: m.sample, user: currentUser() }),
-    });
-    $("#an-status").textContent = `${out.note} (${(out.windows || []).map(fmtWindow).join(", ")})`;
-    pollQueue();
+    const plan = await api("/api/analytics/prepare", { method: "POST", body: JSON.stringify(analyticsPlanBody(true)) });
+    state.anPlan = plan;
+    renderPlan(plan);
   } catch (e) {
-    $("#an-status").textContent = e.message;
-    btn.disabled = false;
+    state.anPlan = null;
+    $("#an-plan").textContent = e.message;
   }
+  loadAnalyticsHistory();
+}
+
+/** Počká, kým dobehnú zaradené behy analytiky. Beh je hotový, keď je v sklade a nie je
+ *  živý (medzi frontou a skladom je krátke okno, keď nie je nikde - to je „ešte beží"). */
+async function waitForRuns(ids, onTick) {
+  let pending = [...ids];
+  const skoncene = {};
+  while (pending.length) {
+    await new Promise(r => setTimeout(r, 3000));
+    for (const id of [...pending]) {
+      try {
+        const d = await api(`/api/runs/${encodeURIComponent(id)}`);
+        if (!d.live && d.record && ["done", "failed"].includes(d.record.status)) {
+          skoncene[id] = d.record.status;
+          pending = pending.filter(x => x !== id);
+        }
+      } catch (e) { /* 404 = medzi frontou a skladom, alebo ešte nezačal */ }
+    }
+    onTick(pending.length);
+  }
+  return skoncene;
 }
 
 async function loadAnalytics() {
   const btn = $("#an-run");
   btn.disabled = true;
-  $("#an-status").textContent = "počítam…";
+  const status = $("#an-status");
+  status.textContent = "hľadám behy…";
   const params = new URLSearchParams({
     q: $("#an-query").value.trim(),
     strategy: anStrategy(),
@@ -2688,22 +2629,37 @@ async function loadAnalytics() {
     min_bucket: $("#an-minbucket").value || 8,
     limit_runs: $("#an-limit").value || 40,
   });
-  // Vybrané nastavenie: presne jeho behy (jeden trh, alebo všetky), bez ohľadu na
-  // dopyt - zliať rôzne nastavenia by znamenalo zliať rôzne stratégie.
-  const nast = selectedSetting();
-  const trh = selectedMarket();
-  const behy = trh ? trh.run_ids : (nast ? (nast.markets || []).flatMap(m => m.run_ids) : []);
-  if (behy.length) {
-    params.set("runs", behy.join(","));
-    params.set("limit_runs", String(Math.max(behy.length, Number($("#an-limit").value) || 40)));
-  }
   try {
+    if (!$("#an-query").value.trim()) {
+      // Profil na trhu: hotové behy z histórie sa použijú, chýbajúce okná sa dopočítajú
+      // a čaká sa na ne - tester klikne raz.
+      const plan = await api("/api/analytics/prepare", { method: "POST", body: JSON.stringify(analyticsPlanBody(false)) });
+      state.anPlan = plan;
+      renderPlan(plan);
+      if (plan.pending.length) {
+        pollQueue();
+        const celkom = plan.windows.filter(w => w.status !== "no_data").length;
+        const tick = n => { status.textContent = `dopočítavam ${n} ${slovom(n, "okno", "okná", "okien")}… (${celkom - n} z ${celkom} hotových)`; };
+        tick(plan.pending.length);
+        const vysledok = await waitForRuns(plan.pending, tick);
+        for (const w of plan.windows) if (vysledok[w.run_id]) w.status = vysledok[w.run_id];
+        renderPlan(plan);
+      }
+      const behy = plan.windows.filter(w => w.status === "done" && w.run_id).map(w => w.run_id);
+      if (!behy.length) throw new Error("žiadne okno nemá hotový beh (pozri frontu / log behu)");
+      params.set("runs", behy.join(","));
+      params.set("limit_runs", String(Math.max(behy.length, Number($("#an-limit").value) || 40)));
+      status.textContent = "počítam…";
+    } else {
+      status.textContent = "počítam…";
+    }
     const r = await api(`/api/analytics?${params}`);
+    state.anReferenceWindows = r.reference_windows || state.anReferenceWindows;
     renderAnalytics(r);
     // Meranie sa pise z tych istych behov, takze tlacidlo ma zmysel az teraz.
     state.analytics = r;
     $("#an-paper").disabled = false;
-    $("#an-status").textContent = "ukladám do histórie…";
+    status.textContent = "ukladám do histórie…";
     // Ukladá sa automaticky: analytika, ktorá zmizne s obnovením stránky, je na nič.
     // Tá istá vzorka je jeden záznam (server ho nájde podľa odtlačku čísel), takže
     // opakované Spočítať nič neduplikuje - a posudok, ak už je, sa ukáže hneď.
@@ -2714,11 +2670,13 @@ async function loadAnalytics() {
     await loadAnalyticsHistory(ulozene.id);
     showPosudok(await api(`/api/analytics/history/${encodeURIComponent(ulozene.id)}`));
     $("#an-save").disabled = false;
-    $("#an-status").textContent = ulozene.reused
+    const zlyhane = (state.anPlan?.windows || []).filter(w => w.status === "failed").length;
+    status.textContent = (ulozene.reused
       ? `v histórii už je (${ulozene.id})${ulozene.note ? " · " + ulozene.note : ""}`
-      : `uložené do histórie ako ${ulozene.id}`;
+      : `uložené do histórie ako ${ulozene.id}`)
+      + (zlyhane ? ` · ${zlyhane} ${slovom(zlyhane, "okno zlyhalo", "okná zlyhali", "okien zlyhalo")}` : "");
   } catch (e) {
-    $("#an-status").textContent = e.message;
+    status.textContent = e.message;
     $("#an-summary").innerHTML = "";
     $("#an-result").innerHTML = "";
     $("#an-paper").disabled = true;
@@ -2763,12 +2721,12 @@ async function loadAnalyticsHistory(vybrat = "") {
   try {
     // Vybraná konfigurácia zúži aj históriu: analytika patrí ku konfigurácii, nie len
     // k stratégii - záver o inom nastavení by tu len miatol.
-    const nast = $("#an-setting")?.value || "";
-    const trh = $("#an-market")?.value || "";
+    const nast = (!$("#an-query")?.value.trim() && state.anPlan?.config_key) || "";
+    const trh = (nast && state.anPlan?.market) || "";
     const r = await api(`/api/analytics/history?strategy=${encodeURIComponent(anStrategy())}`
       + (nast ? `&config_key=${encodeURIComponent(nast)}` : "")
       + (nast && trh ? `&market=${encodeURIComponent(trh)}` : ""));
-    sel.innerHTML = `<option value="">— nová analytika${nast ? (trh ? " (história tohto nastavenia a trhu)" : " (história tohto nastavenia)") : ""} —</option>`
+    sel.innerHTML = `<option value="">— nová analytika${nast ? " (história tohto profilu a trhu)" : ""} —</option>`
       + (r.items || []).map(x => {
         const be = x.break_even_pct === null || x.break_even_pct === undefined
           ? "" : ` · break-even ${fmt(x.break_even_pct, 4)} %`;
@@ -3518,7 +3476,11 @@ function showView(name) {
   if (name === "history") { closeDetail(); loadRuns(); }
   // Historia analytiky je per strategia, takze sa nacita az pri otvoreni karty - vtedy
   // uz je jasne, ktora strategia je zvolena.
-  if (name === "analytics") { fillAnalyticsStrategy($("#an-strategy")?.value || ""); loadAnalyticsHistory(); loadAnalyticsConfigs(); }
+  if (name === "analytics") {
+    fillAnalyticsStrategy($("#an-strategy")?.value || "");
+    fillAnalyticsProfile(); fillAnalyticsPairs();
+    refreshAnalyticsPlan();          // zavolá aj históriu
+  }
 }
 
 async function init() {
@@ -3555,15 +3517,10 @@ async function init() {
   for (const field of [$("#from"), $("#to"), $("#pair"), $("#profile")]) field.addEventListener("change", () => markQuickRange(null));
   initSweep();
   $("#an-run").onclick = loadAnalytics;
-  $("#an-fill").onclick = fillMissingWindows;
-  $("#an-setting").onchange = () => { fillMarketSelect(); updateFillButton(); loadAnalyticsHistory(); };
-  $("#an-setting-filter").oninput = () => {
-    const pred = $("#an-setting").value;
-    renderSettingOptions();
-    if ($("#an-setting").value !== pred) { fillMarketSelect(); updateFillButton(); loadAnalyticsHistory(); }
-  };
-  $("#an-market").onchange = () => { updateFillButton(); loadAnalyticsHistory(); };
-  $("#an-ov-market").onchange = renderOverview;
+  $("#an-profile").onchange = onAnalyticsProfileChange;
+  $("#an-pair").onchange = () => { fillAnalyticsTf(); refreshAnalyticsPlan(); };
+  $("#an-tf").onchange = refreshAnalyticsPlan;
+  $("#an-query").oninput = () => loadAnalyticsHistory();
   $("#an-paper").onclick = writePaper;
   $("#an-save").onclick = saveAnalytics;
   $("#posudok-save").onclick = savePosudok;
