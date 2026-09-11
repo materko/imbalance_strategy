@@ -23,6 +23,7 @@ Dnes sú v registry tri:
 | `ibs` | IBS Imbalance Breakout | 115 | ostrá stratégia, golden testy proti TradingView |
 | `structure` | Market Structure BOS / CHoCH | 18 | druhý archetyp (štruktúra, protitrendový `sweep`); [ANALYTIKA](../tradebot/strategies/structure/docs/ANALYTIKA.md) |
 | `demo_breakout` | Demo Donchian Breakout | 8 | ukážka, ktorá overuje rámec end-to-end; nie je to obchodné odporúčanie |
+| `divergence` | Divergence — divergencie indikátorov v smere supertrendu | 65 | port Freqtrade stratégie z r. 2022 (bez Pine); vyššie TF si skladá sama z barov grafu; [PORT](../tradebot/strategies/divergence/docs/PORT.md), [ANALYTIKA](../tradebot/strategies/divergence/docs/ANALYTIKA.md) |
 
 `demo_breakout` je zámerne malá a zámerne **úplná**: má všetko, čo tento návod vyžaduje,
 takže sa dá kopírovať riadok po riadku. Keď si vyberáš vzor, ber ju — IBS je port
@@ -52,7 +53,7 @@ tradebot/
                         StrategyConfig (báza configu + load_profile), Engine protokol + EngineOutput,
                         OrderIntent/StateEvent/MarketContext, TradePlan, DrawCommand + DrawKind registr
   strategies/
-    __init__.py         STRATEGIES = {"ibs": …, "structure": …, "demo_breakout": …}, get_spec(), spec_for_config()
+    __init__.py         STRATEGIES = {"ibs": …, "structure": …, "demo_breakout": …, "divergence": …}, get_spec(), spec_for_config()
     base.py             StrategySpec (popis stratégie), ChartLayer (vrstva grafu)
     hyperopt.py         StrategyHyperopt — čo o ladení vie stratégia (báza)
     <key>/              jedna stratégia (viď checklist nižšie) — vrátane jej configs/ a docs/

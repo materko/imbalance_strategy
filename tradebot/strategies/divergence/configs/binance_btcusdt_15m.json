@@ -1,0 +1,15 @@
+{
+  "_title": "Binance BTCUSDT.P 15m — posledný naladený config pôvodnej stratégie, páka 5",
+  "_strategy": "divergence",
+  "_instrument": "btcusdt_binance",
+  "_comment": [
+    "Vychodiskovy profil divergencnej strategie. Vsetko su defaulty configu, ktore kopiruju",
+    "posledny hyperopt pôvodnej Freqtrade strategie (config_div_btc_15m.json, 2022): pivot 5,",
+    "zdroj close, regularne aj skryte, max 10 pivotov / 200 barov, bez potvrdenia, long pri",
+    "1 divergencii (MACD, RSI, Stoch, OBV, Mom, VWMACD, CMF, MFI, CDV), short pri 2 (MACD, RSI).",
+    "Jedina odchylka je paka 5 (original mal strat_lvrg 2,5 pri pevnom stake): risk-based",
+    "pozicia 200 $ / 3 ATR je na BTC ~30 000 USDT nominalu a s pakou 2,5 by ju ucet 10 000",
+    "orezal (Freqtrade to hlasi v logu), cim by sa limit rizika ticho neuplatnil."
+  ],
+  "leverage": 5.0
+}
