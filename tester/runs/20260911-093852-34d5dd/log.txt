@@ -1,0 +1,8 @@
+$ emulator MultiCharts DAX 2m 20250904-20260413 (DAX_EUR-1m.feather)
+emulacia MultiCharts: 85525 barov 2m, 169619 1m, 57089 HTF
+  20000/85525 barov, 14 obchodov
+  40000/85525 barov, 28 obchodov
+  60000/85525 barov, 42 obchodov
+  80000/85525 barov, 56 obchodov
+hotovo: 57 obchodov, nerozhodnutelnych minut 0
+kresby: {'structure': 8298, 'swing': 10395, 'imb_box': 9352, 'liq_sweep': 1082, 'session': 275, 'sd_zone_pre': 1072, 'sd_zone_post': 1072, 'tp_box': 57, 'sl_box': 57, 'sr_level': 4, 'sr_golden': 8}
