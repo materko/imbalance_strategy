@@ -58,9 +58,11 @@ Bez obmedzení. Platia len konvencie repozitára:
   (`TradebotStrategyBase.ensure_timeframe`, len v backteste/hyperopte) — nič stiahnuté sa
   neprepíše a dopočítané do archívu nejde.
   Freqtrade beží len na TF, ktoré pozná jeho burza (2m a 4m sú preto len pre emulátor).
-  Surový export spracuje importér zdroja — dnes `tester.dukas_import`
-  (obal `./dukas-import.sh`, `.\dukas-import.ps1`): vyčistí, spraví feather v TF zdroja
-  a rozdelí po rokoch do archívu; nič iné. ASCII pre QuoteManager robí `tester.quotemanager`
+  Surový export spracuje importér zdroja — `tester.dukas_import` pre Dukascopy CFD
+  (obal `./dukas-import.sh`, `.\dukas-import.ps1`) a `tester.bento_import` pre Databento
+  CME futures (`./bento-import.sh`; kontrakty → front-month podľa objemu, bez
+  back-adjustmentu): vyčistí, spraví feather v TF zdroja a rozdelí po rokoch do archívu;
+  nič iné. ASCII pre QuoteManager robí `tester.quotemanager`
   zo skladu sviečok. Celá cesta dát: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md),
   podrobne [docs/DATA.md](docs/DATA.md).
 - Cesty v repozitári sú na jednom mieste v `tradebot/core/paths.py`; nikde inde sa nepíšu.

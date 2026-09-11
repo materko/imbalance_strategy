@@ -1,0 +1,27 @@
+{
+  "_comment": [
+    "Burzove futures z Databento (dataset GLBX.MDP3 = CME Globex) pre burzu MultiCharts",
+    "(webapp emulator aj MultiCharts studia). Jeden riadok = jeden kontinualny symbol;",
+    "nacita ich tradebot/core/types.py do INSTRUMENTS s venue=multicharts, source=databento",
+    "a has_real_volume=true (objem je burzovy, v kontraktoch).",
+    "Sviecky vyraba `python -m tester.bento_import <csv> --symbol MNQ` z Databento exportu",
+    "(schema ohlcv-1m, parent symbol MNQ.FUT): vyhodi kalendarne spready a z kontraktov",
+    "posklada front-month podla denneho objemu, BEZ back-adjustmentu.",
+    "",
+    "NAKLAD NA STRANU v tickoch: polovica spreadu (na MNQ je spread bezne 1 tick = 0,25",
+    "bodu) plus provizia brokera prepocitana na ticky (0,5-1 $ na stranu / 0,5 $ za tick).",
+    "Tick a hodnota bodu musia sediet s Price Scale a Big Point Value v QuoteManageri."
+  ],
+  "mnq_databento": {
+    "symbol": "MNQ/USD",
+    "source": "databento",
+    "tick_size": 0.25,
+    "point_value": 2.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "half_spread_ticks": 1.5,
+    "cost_note": "odhad: polovica spreadu 0,5 ticku + provizia ~0,5 $ na stranu = 1 tick, spolu 1,5 ticku (0,375 bodu); spread z ohlcv dat nevidno",
+    "note": "CME Micro E-mini Nasdaq-100, front-month z Databento GLBX.MDP3 (MNQ.FUT). Ten isty podklad ako Dukascopy NAS100, prahy v bodoch sedia 1:1; tick 0.25 a bod 2 $ su skutocne, nie CFD."
+  }
+}
