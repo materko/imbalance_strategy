@@ -2479,10 +2479,46 @@ function fmtWindow(w) {
 function settingLabel(s, kratko = false) {
   const meno = String(s.profile || "").split("/").pop().replace(/\.json$/, "");
   const rozdiely = Object.entries(s.variant || {}).map(([k, v]) => `${k}=${typeof v === "object" && v ? (v.value + "@" + v.unit) : v}`);
-  const popis = (s.title || meno) + (rozdiely.length ? ` (${rozdiely.join(", ")})` : "");
+  const titul = String(s.title || "");
+  // Dlhý `_title` (golden profily majú celú vetu) by v ponuke zatlačil to podstatné.
+  const popis = (titul.length > 60 ? titul.slice(0, 59) + "…" : titul || meno)
+    + (rozdiely.length ? ` (${rozdiely.join(", ")})` : "");
   if (kratko) return popis;
   const trh = `${(s.pairs || []).map(pairShort).join(", ")} ${(s.timeframes || []).join("/")}`.trim();
-  return [runIdStamp(s.first), trh, popis].filter(Boolean).join(" · ");
+  // Poznámka najstaršieho behu: pri ručne ladených behoch jediný text, čo hovorí, čo sa skúšalo.
+  const pozn = String(s.note || "").trim();
+  return [runIdStamp(s.first), trh, popis, pozn.length > 70 ? pozn.slice(0, 69) + "…" : pozn].filter(Boolean).join(" · ");
+}
+
+/** Ponuka nastavení podľa textového filtra (profil, popis, parametre, poznámka) - pri
+ *  stovkách ručne ladených behov sa inak nedá nájsť ten správny. */
+function renderSettingOptions() {
+  const sel = $("#an-setting");
+  if (!sel) return;
+  const povodne = sel.value;
+  const hladane = ($("#an-setting-filter")?.value || "").trim().toLowerCase();
+  // Skupiny podľa profilu (v poradí najnovšieho nastavenia v skupine): desiatky ručne
+  // ladených behov pod jedným profilom by inak pochovali ostatné.
+  const skupiny = new Map();
+  let vidno = 0;
+  for (const s of state.anSettings || []) {
+    const meno = String(s.profile || "").split("/").pop().replace(/\.json$/, "");
+    const text = settingLabel(s);
+    if (hladane && !`${meno} ${text}`.toLowerCase().includes(hladane)) continue;
+    vidno++;
+    if (!skupiny.has(meno)) skupiny.set(meno, []);
+    skupiny.get(meno).push({ s, text });
+  }
+  const celkom = (state.anSettings || []).length;
+  sel.innerHTML = `<option value="">— vybrať behy dopytom nižšie${hladane ? ` (${vidno} z ${celkom})` : ""} —</option>`
+    + [...skupiny].map(([meno, zoznam]) => `<optgroup label="${esc(meno)} · ${zoznam.length} ${slovom(zoznam.length, "nastavenie", "nastavenia", "nastavení")}">`
+      + zoznam.map(({ s, text }) => {
+        const okna = (s.timeranges || []).length;
+        const trhy = (s.markets || []).length;
+        return `<option value="${esc(s.key)}">${esc(text)} · ${s.runs} ${slovom(s.runs, "beh", "behy", "behov")}`
+          + ` · ${trhy} ${slovom(trhy, "trh", "trhy", "trhov")} · ${okna} ${slovom(okna, "okno", "okná", "okien")}</option>`;
+      }).join("") + "</optgroup>").join("");
+  if (povodne && [...skupiny.values()].some(z => z.some(({ s }) => s.key === povodne))) sel.value = povodne;
 }
 
 /** Stratégia karty Analytika - prvá úroveň výberu. Predvolene tá z hlavičky, ale dá sa
@@ -2531,23 +2567,9 @@ async function loadAnalyticsConfigs() {
   } catch (e) {
     state.anSettings = [];
   }
-  // Skupiny podľa profilu (v poradí najnovšieho nastavenia v skupine): stovky bodov
-  // mriežky pod „(Pine defaulty)" by inak pochovali pomenované profily.
-  const skupiny = new Map();
-  for (const s of state.anSettings) {
-    const meno = String(s.profile || "").split("/").pop().replace(/\.json$/, "");
-    if (!skupiny.has(meno)) skupiny.set(meno, []);
-    skupiny.get(meno).push(s);
-  }
-  sel.innerHTML = '<option value="">— vybrať behy dopytom nižšie —</option>'
-    + [...skupiny].map(([meno, zoznam]) => `<optgroup label="${esc(meno)} · ${zoznam.length} ${slovom(zoznam.length, "nastavenie", "nastavenia", "nastavení")}">`
-      + zoznam.map(s => {
-        const okna = (s.timeranges || []).length;
-        const trhy = (s.markets || []).length;
-        return `<option value="${esc(s.key)}">${esc(settingLabel(s))} · ${s.runs} ${slovom(s.runs, "beh", "behy", "behov")}`
-          + ` · ${trhy} ${slovom(trhy, "trh", "trhy", "trhov")} · ${okna} ${slovom(okna, "okno", "okná", "okien")}</option>`;
-      }).join("") + "</optgroup>").join("");
-  if (povodne && state.anSettings.some(s => s.key === povodne)) sel.value = povodne;
+  sel.innerHTML = `<option value="${esc(povodne)}"></option>`;
+  sel.value = povodne;                 // renderSettingOptions si vybrané nastavenie nechá
+  renderSettingOptions();
   fillMarketSelect();
   fillOverviewMarkets();
   updateFillButton();
@@ -3535,6 +3557,11 @@ async function init() {
   $("#an-run").onclick = loadAnalytics;
   $("#an-fill").onclick = fillMissingWindows;
   $("#an-setting").onchange = () => { fillMarketSelect(); updateFillButton(); loadAnalyticsHistory(); };
+  $("#an-setting-filter").oninput = () => {
+    const pred = $("#an-setting").value;
+    renderSettingOptions();
+    if ($("#an-setting").value !== pred) { fillMarketSelect(); updateFillButton(); loadAnalyticsHistory(); }
+  };
   $("#an-market").onchange = () => { updateFillButton(); loadAnalyticsHistory(); };
   $("#an-ov-market").onchange = renderOverview;
   $("#an-paper").onclick = writePaper;
