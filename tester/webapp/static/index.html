@@ -40,6 +40,8 @@
 </div>
 
 <main id="view-new" class="view">
+  <div class="workspace-heading"><div><span class="eyebrow">STRATEGY WORKSPACE</span><h1>Nový backtest</h1></div>
+    <p>1. Trh a obdobie <span>→</span> 2. Stratégia <span>→</span> 3. Výsledky</p></div>
   <section class="col settings">
     <div class="card run-card">
       <h2><span class="step-number">1</span> Priprav test</h2>
@@ -48,7 +50,7 @@
           <select id="strategy"></select>
         </label>
 
-        <label class="field span2">Východiskový profil
+        <label class="field span2">Začni z profilu
           <select id="profile"></select>
         </label>
         <div class="field span2 profile-actions">
@@ -62,7 +64,7 @@
         <div class="sep span2"></div>
 
         <div class="span2 pair-row">
-          <label class="field">Pár
+          <label class="field">Trh
             <select id="pair"></select>
           </label>
           <label class="field">TF grafu
@@ -80,6 +82,8 @@
         <div class="field span2 range-head">
           <span class="field-label">Testované obdobie</span>
           <span class="chips">
+            <button type="button" class="chip-btn" data-range="3m">3 mes.</button>
+            <button type="button" class="chip-btn" data-range="6m">6 mes.</button>
             <button type="button" class="chip-btn" data-range="1">1 rok</button>
             <button type="button" class="chip-btn" data-range="2">2 roky</button>
             <button type="button" class="chip-btn" data-range="max">celé dáta</button>
@@ -119,6 +123,7 @@
 
 
       <div class="run-bar">
+        <div class="run-caption">Pripravené? Výsledok nájdeš v histórii.</div>
         <button id="run" class="primary">▶ Spustiť backtest</button>
       </div>
       <div id="run-error" class="error" hidden></div>
