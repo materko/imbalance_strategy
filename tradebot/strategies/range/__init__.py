@@ -39,6 +39,7 @@ SPEC = StrategySpec(
     freqtrade_class="RangeStrategy",
     multicharts_class="RangeSignal",
     multicharts_template="Range_Signal.py",
+    fixed_size_field="legacyPineSizing",
     risk_field="riskDollar",
     informative_tfs=None,
     htf_feeder=None,

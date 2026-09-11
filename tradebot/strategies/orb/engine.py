@@ -136,13 +136,18 @@ class ORBEngine:
         sl_distance = abs(entry - stop)
         if sl_distance < self.inst.tick_size * 2:
             return None
+        # Rozšírenie portu: obchod s príliš tesným SL sa preskočí. Poplatok je percento
+        # z nominálu a zisk rastie s R, takže tesné stopy majú najhorší pomer edge k poplatku.
+        min_sl = self.cfg.minSlDistance.resolve(self.inst, price=entry, atr=atr)
+        if min_sl > 0 and sl_distance < min_sl:
+            return None
         take = self._target_level(st, direction, entry, sl_distance, atr)
         if (direction is Direction.LONG and take <= entry) or (
             direction is Direction.SHORT and take >= entry
         ):
             return None
 
-        qty = (self.inst.qty_for_risk(self.cfg.riskDollar, sl_distance)
+        qty = (self.cfg.position_qty(self.inst, self.cfg.riskDollar, sl_distance)
                if self.cfg.riskDollar > 0 else 1.0)
         if qty <= 0:
             qty = float(self.inst.min_qty or 1.0)

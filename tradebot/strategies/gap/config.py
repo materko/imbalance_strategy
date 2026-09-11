@@ -54,6 +54,7 @@ class TpMode(str, Enum):
 
 
 SIZE_FIELDS: dict[str, SizeUnit] = {
+    "minSlDistance": "pct",
     "minGapAtr": "atr",
     "maxGapAtr": "atr",
     "slAtrMult": "atr",
@@ -91,7 +92,8 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "leverage": (1, 125),
 }
 
-PORT_ONLY_FIELDS: frozenset[str] = frozenset({"tickDollarValue", "leverage"})
+PORT_ONLY_FIELDS: frozenset[str] = frozenset(
+    {"tickDollarValue", "leverage", "legacyPineSizing", "minSlDistance"})
 
 
 @dataclass
@@ -146,6 +148,13 @@ class GapConfig(StrategyConfig):
     showTarget: bool = True
     # ---- rozšírenia portu ------------------------------------------------- #
     tickDollarValue: float | None = None
+    #: Doslovný Pine vzorec veľkosti pozície vrátane `int()` + `max(1, …)`. Zapnúť LEN
+    #: na porovnanie s TradingView — pri qty < 1 sa riziko na obchod ticho neuplatní.
+    legacyPineSizing: bool = False
+    #: Minimálna vzdialenosť SL od vstupu, inak sa obchod preskočí. Poplatok je percento
+    #: z nominálu a zisk rastie s R, takže obchody s tesným SL majú najhorší pomer
+    #: edge k poplatku. 0 = vypnuté.
+    minSlDistance: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "pct"))
     leverage: float = 1.0
 
     # ------------------------------------------------------------------ #
@@ -158,7 +167,16 @@ class GapConfig(StrategyConfig):
     def trade_gap_down(self) -> bool:
         return self.gapDirection is not GapDirection.GAP_UP
 
+    def position_qty(self, inst, risk_amount: float, sl_distance: float) -> float:
+        """Veľkosť pozície — jediné miesto, kde sa rozhoduje medzi Pine a opraveným vzorcom."""
+        if self.legacyPineSizing:
+            return inst.qty_for_risk_pine(risk_amount, sl_distance, self.tickDollarValue or 0.0)
+        return inst.qty_for_risk(risk_amount, sl_distance)
+
     def _problems(self) -> Iterable[str]:
+        if self.legacyPineSizing and self.tickDollarValue is None:
+            yield "legacyPineSizing vyžaduje zadaný tickDollarValue "\
+                  "(Pine ho v tom vzorci používa)"
         if self.leverage < 1:
             yield f"leverage={self.leverage} musí byť >= 1"
         if self.maxGapAtr.value <= self.minGapAtr.value:

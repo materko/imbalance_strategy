@@ -143,6 +143,18 @@ PARAMS: dict[str, dict[str, Any]] = {
         tooltip="Koľko dolárov je pohyb o jeden tick na jeden kontrakt. CFD a futures "
                 "nástroje to potrebujú na výpočet veľkosti pozície z rizika.",
     ),
+    "legacyPineSizing": dict(
+        group=_PORT, title="Pine sizing (1 kontrakt/BTC, ako TradingView)",
+        tooltip="Doslovný Pine vzorec veľkosti pozície vrátane int() a max(1, …) — na BTC vždy "
+                "1 BTC bez ohľadu na riziko. Zapnúť LEN na porovnanie s TradingView; pri qty < 1 "
+                "sa limit rizika ticho neuplatní. Vyžaduje zadaný tickDollarValue.",
+    ),
+    "minSlDistance": dict(
+        group=_PORT, title="Min. vzdialenosť SL od vstupu",
+        tooltip="Obchod s tesnejším SL sa preskočí. Poplatok je percento z nominálu a zisk rastie "
+                "s R, takže tesné stopy majú najhorší pomer edge k poplatku. 0 = vypnuté. "
+                "Odporúčaná jednotka pct (napr. 0,20 % ceny).",
+    ),
     "leverage": dict(
         group=_PORT, title="Páka",
         tooltip="Páka vo Freqtrade futures. Nemení edge, len umožní otvoriť pozíciu z "

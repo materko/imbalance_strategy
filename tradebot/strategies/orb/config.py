@@ -70,6 +70,7 @@ class TpMode(str, Enum):
 
 
 SIZE_FIELDS: dict[str, SizeUnit] = {
+    "minSlDistance": "pct",
     "breakBufferAtr": "atr",
     "slAtrMult": "atr",
     "slBufferAtr": "atr",
@@ -118,7 +119,8 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "leverage": (1, 125),
 }
 
-PORT_ONLY_FIELDS: frozenset[str] = frozenset({"tickDollarValue", "leverage"})
+PORT_ONLY_FIELDS: frozenset[str] = frozenset(
+    {"tickDollarValue", "leverage", "legacyPineSizing", "minSlDistance"})
 
 
 @dataclass(frozen=True)
@@ -200,6 +202,13 @@ class ORBConfig(StrategyConfig):
     # ---- rozšírenia portu ------------------------------------------------- #
     #: Hodnota jedného ticku v dolároch — CFD/futures nástroje ju potrebujú na sizing.
     tickDollarValue: float | None = None
+    #: Doslovný Pine vzorec veľkosti pozície vrátane `int()` + `max(1, …)`. Zapnúť LEN
+    #: na porovnanie s TradingView — pri qty < 1 sa riziko na obchod ticho neuplatní.
+    legacyPineSizing: bool = False
+    #: Minimálna vzdialenosť SL od vstupu, inak sa obchod preskočí. Poplatok je percento
+    #: z nominálu a zisk rastie s R, takže obchody s tesným SL majú najhorší pomer
+    #: edge k poplatku. 0 = vypnuté.
+    minSlDistance: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "pct"))
     #: Páka vo Freqtrade futures — Pine ju nemá.
     leverage: float = 1.0
 
@@ -234,7 +243,16 @@ class ORBConfig(StrategyConfig):
             return (london,)
         return (ny, london)
 
+    def position_qty(self, inst, risk_amount: float, sl_distance: float) -> float:
+        """Veľkosť pozície — jediné miesto, kde sa rozhoduje medzi Pine a opraveným vzorcom."""
+        if self.legacyPineSizing:
+            return inst.qty_for_risk_pine(risk_amount, sl_distance, self.tickDollarValue or 0.0)
+        return inst.qty_for_risk(risk_amount, sl_distance)
+
     def _problems(self) -> Iterable[str]:
+        if self.legacyPineSizing and self.tickDollarValue is None:
+            yield "legacyPineSizing vyžaduje zadaný tickDollarValue "\
+                  "(Pine ho v tom vzorci používa)"
         if self.leverage < 1:
             yield f"leverage={self.leverage} musí byť >= 1"
         if self.maxRangePct <= self.minRangePct:
