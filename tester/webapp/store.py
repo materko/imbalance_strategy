@@ -19,6 +19,7 @@ from __future__ import annotations
 import gzip
 import hashlib
 import json
+import os
 import re
 import shutil
 from datetime import datetime, timezone
@@ -73,6 +74,30 @@ class RunStore:
         # RUNS_DIR sa čita az tu, aby sa dal v testoch a nastrojoch prepnut
         self.root = Path(root or RUNS_DIR)
         self.root.mkdir(parents=True, exist_ok=True)
+        # Načítané `run.json` podľa (mtime, veľkosť): pri tisíckach behov trvá čítanie
+        # všetkých súborov sekundy a robilo sa pri KAŽDOM dopyte (história, ponuky
+        # mriežok, nastavení…). Disk je stále pravda - čo sa zmenilo alebo pribudlo
+        # (aj cez git pull), sa prečíta nanovo, čo zmizlo, vypadne.
+        self._cache: dict[str, tuple[tuple[int, int], dict[str, Any]]] = {}
+
+    def _cached(self, run_id: str, path: Path) -> dict[str, Any] | None:
+        """Záznam behu z cache, alebo zo súboru, keď sa zmenil. `None` = niet/rozbitý."""
+        try:
+            st = path.stat()
+        except OSError:
+            self._cache.pop(run_id, None)
+            return None
+        podpis = (st.st_mtime_ns, st.st_size)
+        hit = self._cache.get(run_id)
+        if hit is not None and hit[0] == podpis:
+            return hit[1]
+        try:
+            rec = _with_strategy(_read_json(path))
+        except (OSError, json.JSONDecodeError):
+            self._cache.pop(run_id, None)
+            return None  # rozbitý súbor nemá zhodiť celý zoznam
+        self._cache[run_id] = (podpis, rec)
+        return rec
 
     # -- zápis -------------------------------------------------------------- #
 
@@ -118,8 +143,10 @@ class RunStore:
     # -- čítanie ------------------------------------------------------------ #
 
     def get(self, run_id: str) -> dict[str, Any] | None:
-        p = self.root / run_id / "run.json"
-        return _with_strategy(_read_json(p)) if p.exists() else None
+        # Plytká kópia: detail behu si do záznamu dopisuje polia (`overrides`, `has_chart`)
+        # a tie do cache nepatria.
+        rec = self._cached(run_id, self.root / run_id / "run.json")
+        return dict(rec) if rec is not None else None
 
     def trades(self, run_id: str) -> list[dict[str, Any]]:
         p = self.root / run_id / "trades.json"
@@ -142,11 +169,20 @@ class RunStore:
 
     def all(self) -> list[dict[str, Any]]:
         out = []
-        for p in self.root.glob("*/run.json"):
-            try:
-                out.append(_with_strategy(_read_json(p)))
-            except (OSError, json.JSONDecodeError):
-                continue  # rozbitý súbor nemá zhodiť celý zoznam
+        zive: set[str] = set()
+        try:
+            polozky = list(os.scandir(self.root))
+        except OSError:
+            polozky = []
+        for e in polozky:
+            if not e.is_dir():
+                continue
+            rec = self._cached(e.name, Path(e.path) / "run.json")
+            if rec is not None:
+                zive.add(e.name)
+                out.append(dict(rec))
+        for run_id in [k for k in self._cache if k not in zive]:
+            self._cache.pop(run_id, None)
         out.sort(key=lambda r: r.get("id", ""), reverse=True)
         return out
 

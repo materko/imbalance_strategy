@@ -33,7 +33,24 @@ def main() -> int:
         print("Vyrabam export pre QuoteManager ...", flush=True)
         quotemanager.ensure()
 
+    import threading
+
     import uvicorn
+
+    # Cache záznamov behov a ponuky párov sa naplní na pozadí už teraz, nie až pri prvom
+    # dopyte zo stránky: pri tisíckach behov trvá prvé čítanie sekundy a tester by ich
+    # čakal pri každom štarte. uvicorn ten istý modul (a store) použije znova.
+    from .app import app as _app
+    from .runner import available_pairs
+
+    def _zahrej() -> None:
+        try:
+            _app.state.store.all()
+            available_pairs()
+        except Exception:  # noqa: BLE001 - zahriatie je len úspora, nie podmienka behu
+            pass
+
+    threading.Thread(target=_zahrej, name="warm-cache", daemon=True).start()
 
     host = getenv("WEB_HOST", "127.0.0.1")
     port = int(getenv("WEB_PORT", "8765"))
