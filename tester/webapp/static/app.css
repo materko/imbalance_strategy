@@ -480,11 +480,12 @@ pre.cmd { background: var(--panel, #f6f7f8); border: 1px solid var(--line); bord
 .prop-presets label.inline { margin: 0; }
 .prop-variant { margin-top: 10px; }
 .prop-variant > summary { cursor: pointer; font-weight: 600; }
-#an-overview { margin: 4px 0 8px; }
-#an-overview > summary { cursor: pointer; font-weight: 600; }
-#an-overview .field { max-width: 360px; margin-top: 6px; }
-.an-overview tr.an-ov-row { cursor: pointer; }
-.an-overview tr.an-ov-row:hover td { background: var(--line); }
+.an-plan { display: flex; flex-wrap: wrap; gap: 6px 12px; min-height: 1.2em; }
+.an-plan .an-win { white-space: nowrap; }
+.an-plan .an-win.done { color: var(--pos, #2e7d32); }
+.an-plan .an-win.missing, .an-plan .an-win.queued, .an-plan .an-win.running { color: var(--warn, #b26a00); }
+.an-plan .an-win.no_data, .an-plan .an-win.failed { color: var(--muted, #888); }
+.an-advanced > summary { cursor: pointer; }
 
 /* Kompaktný pracovný panel a čitateľné vstupy. */
 .workspace-heading { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 0 2px 2px; }

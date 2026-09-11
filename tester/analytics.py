@@ -47,6 +47,7 @@ to, čo sa dá ladiť.
 from __future__ import annotations
 
 import json
+from functools import lru_cache
 
 import math
 from dataclasses import dataclass, field
@@ -298,13 +299,50 @@ def enrich(trades: list[dict[str, Any]], chart: dict[str, Any] | None,
     return trades
 
 
+@lru_cache(maxsize=None)
+def _pine_defaults(strategy: str) -> dict[str, Any]:
+    from tradebot.strategies import get_spec
+
+    try:
+        return get_spec(strategy).config_cls().to_dict()
+    except Exception:  # noqa: BLE001 - neznáma stratégia: bez defaultov, kľúč je len z parametrov
+        return {}
+
+
+def normalized_params(record: dict[str, Any]) -> dict[str, Any]:
+    """Parametre behu doplnené Pine defaultmi stratégie a bez `_` metadát.
+
+    Starší beh uložil len prepísané kľúče, novší celý config; beh bez kľúča a beh
+    s jeho defaultom sú ale tá istá konfigurácia - kľúč aj porovnanie idú cez toto.
+    """
+    from .webapp.store import strategy_of
+
+    params = {k: v for k, v in (record.get("params") or {}).items() if not str(k).startswith("_")}
+    return {k: _canon(v) for k, v in {**_pine_defaults(strategy_of(record)), **params}.items()}
+
+
+def _canon(value: Any) -> Any:
+    """`1.0` a `1` sú tá istá hodnota - profil ich dáva ako float, beh z JSON ako int
+    a odtlačok cez `json.dumps` by ich inak rozlíšil."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, dict):
+        return {k: _canon(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_canon(v) for v in value]
+    return value
+
+
 def config_key(record: dict[str, Any]) -> str:
-    """Odtlačok konfigurácie behu (parametre + stratégia) — identita obchodu pre dedupe."""
+    """Odtlačok konfigurácie behu (parametre doplnené defaultmi + stratégia) — identita
+    obchodu pre dedupe a kľúč, pod ktorým sa analytika viaže na konfiguráciu."""
     import hashlib
 
     from .webapp.store import strategy_of
 
-    blob = json.dumps({"s": strategy_of(record), "p": record.get("params") or {}},
+    blob = json.dumps({"s": strategy_of(record), "p": normalized_params(record)},
                       sort_keys=True, default=str)
     return hashlib.sha1(blob.encode("utf-8")).hexdigest()[:10]
 

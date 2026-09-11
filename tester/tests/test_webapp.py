@@ -1258,3 +1258,66 @@ def test_store_cache_vidi_novy_zmeneny_aj_zmazany_beh(tmp_path: Path):
     shutil.rmtree(tmp_path / "20260906-120000-bbbbbb")
     assert [r["id"] for r in store.all()] == ["20260905-120000-aaaaaa"]
     assert store.get("20260906-120000-bbbbbb") is None
+
+
+def test_analytics_prepare_pouzije_hotove_behy_a_zaradi_len_chybajuce_okna(tmp_path: Path, monkeypatch):
+    """Tester zadá profil, pár a TF: okno, ktoré má v histórii hotový beh s tými istými
+    parametrami (aj keď beh uložil len prepísané kľúče), sa použije; zvyšné sa zaradia.
+    `dry_run` nič nezaradí; body mriežky sa ako hotové neberú; beh vo fronte sa nezaradí
+    druhýkrát."""
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.hyperopt import REFERENCE_WINDOWS
+    from tester.webapp import app as app_mod
+    from tester.webapp.runner import BacktestRunner
+
+    monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.engines, "default_engine", lambda inst, tf="3m": "freqtrade")
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+    monkeypatch.setattr(app_mod, "available_pairs", lambda: [{"pair": "BTC/USDT:USDT", "from": "2019-01-01", "to": "2026-09-10"}])
+    store = RunStore(tmp_path)
+    # Pine defaulty, uložené len ako prázdne parametre (starší beh) - stále tá istá konfigurácia.
+    hotovy = _record("20260905-120000-aaaaaa", params={})
+    hotovy["params"] = {}
+    hotovy["settings"] = {**hotovy["settings"], "timeframe": "3m", "engine": "freqtrade", "profile": None}
+    store.save(hotovy)
+    # iné parametre v inom okne - nepatrí sem
+    iny = _record("20260906-120000-bbbbbb", params={"rrRatio": 5.0})
+    iny["settings"] = {**iny["settings"], "timeframe": "3m", "engine": "freqtrade", "timerange": "20240904-20250904"}
+    store.save(iny)
+    # bod mriežky s defaultmi v ďalšom okne - skúška parametra, nie hotový beh
+    bod = _record("20260907-120000-cccccc")
+    bod["settings"] = {**bod["settings"], "timeframe": "3m", "engine": "freqtrade", "timerange": "20231001-20241001",
+                       "sweep": {"id": "s1", "values": {}}}
+    store.save(bod)
+    runner = BacktestRunner(store, command_builder=lambda *a: ["python", "-c", "raise SystemExit(0)"])
+    monkeypatch.setattr(runner, "start", lambda: None)   # behy ostanú vo fronte, nič sa nespustí
+    c = TestClient(app_mod.create_app(store, runner))
+    body = {"strategy": "ibs", "profile": "", "pair": "BTC/USDT:USDT", "timeframe": "3m"}
+
+    dry = c.post("/api/analytics/prepare", json={**body, "dry_run": True}).json()
+    assert dry["ready"] == ["20260905-120000-aaaaaa"] and dry["queued"] == [] and dry["pending"] == []
+    assert dry["missing"] == [w for w in REFERENCE_WINDOWS if w != "20250904-20260904"]
+    assert dry["market"] == "BTC/USDT:USDT|3m" and dry["engine"] == "freqtrade"
+    stav = {w["window"]: w["status"] for w in dry["windows"]}
+    assert stav["20250904-20260904"] == "done" and stav["20231001-20241001"] == "missing"
+
+    # okno mimo dát páru sa nedá dopočítať (kontroluje sa pred zaradením)
+    monkeypatch.setattr(app_mod, "available_pairs", lambda: [{"pair": "BTC/USDT:USDT", "from": "2024-01-01", "to": "2026-09-10"}])
+    mimo = c.post("/api/analytics/prepare", json={**body, "dry_run": True}).json()
+    assert "20211001-20221001" in mimo["no_data"] and "20221001-20231001" in mimo["no_data"]
+    monkeypatch.setattr(app_mod, "available_pairs", lambda: [{"pair": "BTC/USDT:USDT", "from": "2019-01-01", "to": "2026-09-10"}])
+
+    out = c.post("/api/analytics/prepare", json=body).json()
+    assert out["ready"] == ["20260905-120000-aaaaaa"] and len(out["queued"]) == 4
+    assert set(out["pending"]) == set(out["queued"])
+    for job_id in out["queued"]:
+        j = runner.job(job_id)
+        assert j.settings["timerange"] in dry["missing"] and j.settings["checkup"]["analytics"] == "(Pine defaulty)"
+        assert j.settings["pair"] == "BTC/USDT:USDT" and j.params["rrRatio"] == IBSConfig().rrRatio
+    # druhé Spočítať to isté nezaradí znova: čakajúce behy sa vrátia ako pending
+    znova = c.post("/api/analytics/prepare", json=body).json()
+    assert znova["queued"] == [] and set(znova["pending"]) == set(out["queued"])
+
+    assert c.post("/api/analytics/prepare", json={**body, "profile": "neexistuje"}).status_code == 404

@@ -87,3 +87,20 @@ def test_bez_behov_sa_nic_netvrdi():
 
     assert c["severity"] == "ok"
     assert c["note"] == ""
+
+
+def test_config_key_doplni_pine_defaulty():
+    """Beh, ktorý uložil len prepísané kľúče, a beh s celým configom sú tá istá konfigurácia."""
+    from tradebot.strategies.ibs.config import IBSConfig
+    from tester.analytics import config_key, normalized_params
+
+    cely = {"settings": {"strategy": "ibs"}, "params": IBSConfig().to_dict()}
+    prazdny = {"settings": {"strategy": "ibs"}, "params": {}}
+    iny = {"settings": {"strategy": "ibs"}, "params": {"rrRatio": IBSConfig().rrRatio + 1}}
+    assert config_key(cely) == config_key(prazdny) != config_key(iny)
+    # 1 a 1.0 sú tá istá hodnota (profil dáva float, beh z JSON int)
+    ako_int = {"settings": {"strategy": "ibs"}, "params": {"slLookback": int(IBSConfig().slLookback)}}
+    ako_float = {"settings": {"strategy": "ibs"}, "params": {"slLookback": float(IBSConfig().slLookback)}}
+    assert config_key(ako_int) == config_key(ako_float) == config_key(cely)
+    assert normalized_params(prazdny)["rrRatio"] == IBSConfig().rrRatio
+    assert "_comment" not in normalized_params({"settings": {"strategy": "ibs"}, "params": {"_comment": "x"}})
