@@ -1,0 +1,402 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.cfd.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data --strategy IBSImbalanceStrategy --cache none --export trades --timerange 20250904-20260904 --pairs NAS100/USD --timeframe 4m --dry-run-wallet 33333.0 --fee 0.0 --timeframe-detail 1m --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\dukascopy\futures
+2026-09-11 12:14:54,582 - freqtrade - INFO - freqtrade 2026.8
+2026-09-11 12:14:55,221 - freqtrade.configuration.load_config - INFO - Using config: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.cfd.json ...
+2026-09-11 12:14:55,221 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-11 12:14:55,221 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-09-11 12:14:55,226 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-11 12:14:55,270 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSImbalanceStrategy from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.py'...
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.json
+2026-09-11 12:14:55,578 - tradebot.strategies.ibs.freqtrade - WARNING - IBS: spotový trh — tradeDirection Both sa zužuje na longy
+2026-09-11 12:14:56,279 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSImbalanceStrategy
+2026-09-11 12:15:05,665 - tradebot.strategies.ibs.freqtrade - INFO - IBS NAS100/USD: 131701 barov, 105421 HTF barov, 200 zon, 191 signalov (104 long / 87 short)
+2026-09-11 12:15:06,100 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 1008727.67 na 32999.67 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,149 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 166740.80 na 33007.67 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,202 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 191448.03 na 32958.26 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,215 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 1362173.63 na 32919.23 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,267 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 320818.81 na 32925.26 (10.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,276 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 643962.07 na 32925.26 (5.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,303 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 121413.74 na 32912.25 (27.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,368 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 221442.08 na 32912.25 (14.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,402 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 175927.96 na 32912.25 (18.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,459 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 126738.81 na 32944.45 (26.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,474 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 282791.58 na 32944.45 (11.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,493 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 103642.09 na 32975.52 (31.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,533 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 201616.35 na 32903.54 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,592 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 48521.86 na 32863.62 (67.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,639 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 76580.42 na 32863.62 (42.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,649 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 613957.58 na 32863.62 (5.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,661 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 153178.69 na 32877.72 (21.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,701 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 283322.23 na 32929.92 (11.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,777 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 125643.06 na 32960.36 (26.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,811 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 224439.27 na 32912.63 (14.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,819 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 100104.22 na 32912.63 (32.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,849 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 75157.88 na 32834.08 (43.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,867 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 150023.65 na 32834.08 (21.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,881 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 452481.28 na 32834.08 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,898 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 151864.57 na 32815.69 (21.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,918 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 1022648.44 na 32815.69 (3.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,931 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 359297.69 na 32815.69 (9.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:06,959 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 332060.85 na 32791.57 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,052 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 178637.04 na 32766.77 (18.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,062 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 380560.46 na 32766.77 (8.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,115 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 433923.73 na 32788.51 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,164 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 205910.38 na 32768.93 (15.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,173 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 537404.93 na 32768.93 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,185 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 382815.33 na 32752.97 (8.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,270 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 542959.14 na 32775.39 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,284 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 470367.90 na 32791.31 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,304 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 177018.67 na 32773.05 (18.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,351 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 328467.35 na 32818.52 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,368 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 757974.33 na 32818.52 (4.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,368 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 98747.18 na 32829.93 (33.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,422 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 74276.48 na 32745.70 (44.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,486 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 99246.43 na 32855.25 (33.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,499 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 49884.05 na 32781.97 (65.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,583 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 500625.06 na 32831.07 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,622 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 223819.09 na 32847.69 (14.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,638 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 99558.65 na 32847.69 (33.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,649 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 99969.10 na 32847.69 (32.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,682 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 223476.75 na 32923.27 (14.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,709 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 598801.06 na 32923.27 (5.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,725 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 219377.35 na 32908.85 (15.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,740 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 94831.31 na 32873.36 (34.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,752 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 120162.83 na 32798.90 (27.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,763 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 290769.84 na 32865.41 (11.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,822 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 448981.45 na 32865.41 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,848 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 305703.13 na 32883.82 (10.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,866 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 78075.63 na 32912.55 (42.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,883 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 183697.83 na 33000.89 (18.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,922 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 269655.44 na 33000.89 (12.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,972 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 138438.90 na 32966.74 (23.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:07,997 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 257684.09 na 32966.74 (12.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,016 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 145135.22 na 32931.67 (22.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,042 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 204432.12 na 32997.21 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,067 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 58578.94 na 33045.60 (56.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,183 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 261932.68 na 33059.56 (12.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,247 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 351492.94 na 33022.32 (9.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,256 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 87730.59 na 33022.32 (37.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,266 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 145878.12 na 32923.23 (22.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,316 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 209281.82 na 32982.05 (15.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,457 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 119586.47 na 32935.86 (27.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,488 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 304664.69 na 32935.86 (10.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,499 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 361431.80 na 32903.42 (9.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,565 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 572249.33 na 32930.38 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,566 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 60630.97 na 32912.99 (54.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,716 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 273765.77 na 33023.96 (12.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,750 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 417669.14 na 33060.12 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,817 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 473921.38 na 33083.75 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,832 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 148489.05 na 33063.08 (22.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,832 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 235580.44 na 33063.08 (14.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,883 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 235708.23 na 33020.25 (14.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,900 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 295347.61 na 33059.45 (11.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,915 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 205810.09 na 33059.45 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:08,982 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 260437.28 na 33011.55 (12.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:09,016 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 543080.74 na 33049.34 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:09,016 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 138978.71 na 33067.14 (23.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:09,035 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 84275.16 na 33067.14 (39.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:09,066 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 202912.64 na 33169.57 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:09,083 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 234843.36 na 33125.64 (14.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:09,132 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 386667.78 na 33165.21 (8.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:09,143 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 421876.45 na 33165.21 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:09,153 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 633960.31 na 33165.21 (5.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:09,184 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 352271.96 na 33181.30 (9.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:09,201 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 116455.90 na 33208.11 (28.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:09,282 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 204040.66 na 33281.20 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:09,299 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 177356.59 na 33325.86 (18.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:09,337 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 206448.66 na 33269.78 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-11 12:15:09,376 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 262086.98 na 33269.78 (12.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+Result for strategy IBSImbalanceStrategy
+│ IBSImbalanceStrategy │     68 │         0.01 │        236.446 │         0.71 │      1:06:00 │   37     0    31  54.4 │ 264.622 USD  0.79% │
+…
+2026-09-11 12:15:08,750 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 417669.14 na 33060.12 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:08,817 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 473921.38 na 33083.75 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:08,832 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 148489.05 na 33063.08 (22.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:08,832 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 235580.44 na 33063.08 (14.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:08,883 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 235708.23 na 33020.25 (14.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:08,900 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 295347.61 na 33059.45 (11.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:08,915 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 205810.09 na 33059.45 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:08,982 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 260437.28 na 33011.55 (12.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:09,016 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 543080.74 na 33049.34 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:09,016 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 138978.71 na 33067.14 (23.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:09,035 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 84275.16 na 33067.14 (39.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:09,066 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 202912.64 na 33169.57 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:09,083 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 234843.36 na 33125.64 (14.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:09,132 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 386667.78 na 33165.21 (8.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:09,143 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 421876.45 na 33165.21 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:09,153 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 633960.31 na 33165.21 (5.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:09,184 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 352271.96 na 33181.30 (9.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:09,201 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 116455.90 na 33208.11 (28.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:09,282 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 204040.66 na 33281.20 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:09,299 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 177356.59 na 33325.86 (18.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:09,337 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 206448.66 na 33269.78 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 12:15:09,376 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 262086.98 na 33269.78 (12.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 4/4           100% • 0:00:10 • 0:00:00
+backtest -------------------------------------------------------------------------------------------------------------------------------------------------------- 131400/131400 100% • 0:00:13 • 0:00:00
+2026-09-11 12:15:10,949 - freqtrade.misc - INFO - dumping json to 
+"C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\backtest_results\backtest-result-2026-09-11_10-15-10.meta.json"
+Result for strategy IBSImbalanceStrategy
+                                              BACKTESTING REPORT                                              
+┌────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│       Pair │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ NAS100/USD │     68 │         0.01 │        236.446 │         0.71 │      1:06:00 │   37     0    31  54.4 │
+│      TOTAL │     68 │         0.01 │        236.446 │         0.71 │      1:06:00 │   37     0    31  54.4 │
+└────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┌───────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│  Pair │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                   ENTER TAG STATS                                                    
+┌───────────────────┬─────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│         Enter Tag │ Entries │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────────┼─────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ ibs:1781793840000 │       1 │         0.37 │        112.097 │         0.34 │      5:04:00 │    1     0     0   100 │
+│ ibs:1770997920000 │       1 │         0.45 │        110.660 │         0.33 │      1:17:00 │    1     0     0   100 │
+│ ibs:1785512160000 │       1 │         0.37 │        103.463 │         0.31 │      0:44:00 │    1     0     0   100 │
+│ ibs:1776274080000 │       1 │         0.34 │         89.224 │         0.27 │      1:04:00 │    1     0     0   100 │
+│ ibs:1772729040000 │       1 │         0.31 │         76.344 │         0.23 │      0:16:00 │    1     0     0   100 │
+│ ibs:1787559360000 │       1 │         0.25 │         73.828 │         0.22 │      3:16:00 │    1     0     0   100 │
+│ ibs:1774363440000 │       1 │         0.28 │         67.179 │          0.2 │      0:23:00 │    1     0     0   100 │
+│ ibs:1778251440000 │       1 │         0.23 │         66.203 │          0.2 │      0:48:00 │    1     0     0   100 │
+│ ibs:1778860560000 │       1 │          0.2 │         59.411 │         0.18 │      0:25:00 │    1     0     0   100 │
+│ ibs:1764778560000 │       1 │         0.21 │         52.724 │         0.16 │      1:03:00 │    1     0     0   100 │
+│ ibs:1771609680000 │       1 │          0.2 │         49.603 │         0.15 │      3:00:00 │    1     0     0   100 │
+│ ibs:1778489520000 │       1 │         0.17 │         48.877 │         0.15 │      0:52:00 │    1     0     0   100 │
+│ ibs:1770023760000 │       1 │         0.18 │         45.931 │         0.14 │      0:02:00 │    1     0     0   100 │
+│ ibs:1787763360000 │       1 │         0.15 │         45.110 │         0.14 │      0:16:00 │    1     0     0   100 │
+│ ibs:1786008000000 │       1 │         0.14 │         39.978 │         0.12 │      0:32:00 │    1     0     0   100 │
+│ ibs:1783929600000 │       1 │         0.13 │         39.593 │         0.12 │      0:12:00 │    1     0     0   100 │
+│ ibs:1784710560000 │       1 │         0.13 │         38.176 │         0.11 │      0:07:00 │    1     0     0   100 │
+│ ibs:1782118800000 │       1 │         0.12 │         36.520 │         0.11 │      1:06:00 │    1     0     0   100 │
+│ ibs:1761068400000 │       1 │         0.13 │         32.533 │          0.1 │      2:08:00 │    1     0     0   100 │
+│ ibs:1761575280000 │       1 │         0.12 │         31.376 │         0.09 │      0:32:00 │    1     0     0   100 │
+│ ibs:1765189920000 │       1 │         0.12 │         30.751 │         0.09 │      2:44:00 │    1     0     0   100 │
+│ ibs:1776154320000 │       1 │         0.11 │         29.029 │         0.09 │      0:44:00 │    1     0     0   100 │
+│ ibs:1780650720000 │       1 │         0.09 │         27.232 │         0.08 │      0:34:00 │    1     0     0   100 │
+│ ibs:1787303760000 │       1 │         0.09 │         27.084 │         0.08 │      0:17:00 │    1     0     0   100 │
+│ ibs:1782378000000 │       1 │         0.08 │         23.872 │         0.07 │      1:08:00 │    1     0     0   100 │
+│ ibs:1768211520000 │       1 │         0.09 │         22.642 │         0.07 │      0:34:00 │    1     0     0   100 │
+│ ibs:1767173760000 │       1 │         0.09 │         21.958 │         0.07 │      1:54:00 │    1     0     0   100 │
+│ ibs:1776069840000 │       1 │         0.07 │         18.593 │         0.06 │      0:39:00 │    1     0     0   100 │
+│ ibs:1785144720000 │       1 │         0.06 │         17.979 │         0.05 │      0:11:00 │    1     0     0   100 │
+│ ibs:1772015760000 │       1 │         0.07 │         16.784 │         0.05 │      0:54:00 │    1     0     0   100 │
+│ ibs:1786959840000 │       1 │         0.05 │         16.249 │         0.05 │      0:41:00 │    1     0     0   100 │
+│ ibs:1769508240000 │       1 │         0.06 │         16.079 │         0.05 │      0:33:00 │    1     0     0   100 │
+│ ibs:1764754560000 │       1 │         0.06 │         14.244 │         0.04 │      0:25:00 │    1     0     0   100 │
+│ ibs:1778511120000 │       1 │         0.05 │         14.109 │         0.04 │      4:56:00 │    1     0     0   100 │
+│ ibs:1770893760000 │       1 │         0.05 │         11.523 │         0.03 │      0:03:00 │    1     0     0   100 │
+│ ibs:1756978080000 │       1 │         0.03 │          8.082 │         0.02 │      0:24:00 │    1     0     0   100 │
+│ ibs:1757580000000 │       1 │         0.03 │          6.091 │         0.02 │      0:33:00 │    1     0     0   100 │
+│ ibs:1758620160000 │       1 │        -0.05 │        -13.144 │        -0.04 │      0:50:00 │    0     0     1     0 │
+│ ibs:1773828720000 │       1 │        -0.06 │        -14.568 │        -0.04 │      0:39:00 │    0     0     1     0 │
+│ ibs:1767866160000 │       1 │        -0.06 │        -16.112 │        -0.05 │      0:09:00 │    0     0     1     0 │
+│ ibs:1781771760000 │       1 │        -0.06 │        -17.571 │        -0.05 │      0:13:00 │    0     0     1     0 │
+│ ibs:1769679360000 │       1 │        -0.07 │        -18.445 │        -0.06 │      0:09:00 │    0     0     1     0 │
+│ ibs:1766139120000 │       1 │        -0.07 │        -18.576 │        -0.06 │      0:47:00 │    0     0     1     0 │
+│ ibs:1767350640000 │       1 │        -0.08 │        -19.784 │        -0.06 │      1:14:00 │    0     0     1     0 │
+│ ibs:1783067760000 │       1 │        -0.07 │        -20.878 │        -0.06 │      0:09:00 │    0     0     1     0 │
+│ ibs:1766766000000 │       1 │        -0.09 │        -24.366 │        -0.07 │      0:49:00 │    0     0     1     0 │
+│ ibs:1767002160000 │       1 │         -0.1 │        -25.046 │        -0.08 │      3:39:00 │    0     0     1     0 │
+│ ibs:1780558080000 │       1 │        -0.11 │        -32.763 │         -0.1 │      0:26:00 │    0     0     1     0 │
+│ ibs:1777018320000 │       1 │        -0.13 │        -34.489 │         -0.1 │      1:06:00 │    0     0     1     0 │
+│ ibs:1778145360000 │       1 │        -0.12 │        -35.430 │        -0.11 │      0:45:00 │    0     0     1     0 │
+│ ibs:1773995520000 │       1 │        -0.15 │        -35.845 │        -0.11 │      0:09:00 │    0     0     1     0 │
+│ ibs:1788281520000 │       1 │        -0.12 │        -36.397 │        -0.11 │      0:29:00 │    0     0     1     0 │
+│ ibs:1778574480000 │       1 │        -0.13 │        -37.618 │        -0.11 │      2:32:00 │    0     0     1     0 │
+│ ibs:1757519280000 │       1 │        -0.16 │        -39.423 │        -0.12 │      0:27:00 │    0     0     1     0 │
+│ ibs:1762506480000 │       1 │        -0.16 │        -40.324 │        -0.12 │      0:19:00 │    0     0     1     0 │
+│ ibs:1783411920000 │       1 │        -0.15 │        -43.266 │        -0.13 │      1:16:00 │    0     0     1     0 │
+│ ibs:1785830640000 │       1 │        -0.15 │        -44.379 │        -0.13 │      0:26:00 │    0     0     1     0 │
+│ ibs:1779699840000 │       1 │        -0.16 │        -46.657 │        -0.14 │      5:25:00 │    0     0     1     0 │
+│ ibs:1765824720000 │       1 │        -0.19 │        -48.212 │        -0.14 │      1:56:00 │    0     0     1     0 │
+│ ibs:1784020080000 │       1 │        -0.16 │        -48.380 │        -0.15 │      1:58:00 │    0     0     1     0 │
+│ ibs:1757341680000 │       1 │        -0.21 │        -49.913 │        -0.15 │      2:01:00 │    0     0     1     0 │
+│ ibs:1787823840000 │       1 │        -0.19 │        -56.645 │        -0.17 │      1:42:00 │    0     0     1     0 │
+│ ibs:1761836880000 │       1 │        -0.28 │        -72.700 │        -0.22 │      0:29:00 │    0     0     1     0 │
+│ ibs:1771521600000 │       1 │         -0.3 │        -74.022 │        -0.22 │      0:24:00 │    0     0     1     0 │
+│ ibs:1774260480000 │       1 │        -0.32 │        -75.213 │        -0.23 │      0:16:00 │    0     0     1     0 │
+│ ibs:1765903920000 │       1 │        -0.32 │        -79.346 │        -0.24 │      1:01:00 │    0     0     1     0 │
+│ ibs:1770972240000 │       1 │        -0.34 │        -85.083 │        -0.26 │      2:24:00 │    0     0     1     0 │
+│ ibs:1778858880000 │       1 │        -0.34 │       -100.090 │         -0.3 │      0:18:00 │    0     0     1     0 │
+│             TOTAL │      68 │         0.01 │        236.446 │         0.71 │      1:06:00 │   37     0    31  54.4 │
+└───────────────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                              EXIT REASON STATS                                               
+┌─────────────┬───────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│ Exit Reason │ Exits │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├─────────────┼───────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│         roi │    33 │         0.15 │       1332.789 │          4.0 │      0:46:00 │   33     0     0   100 │
+│ session_end │     5 │         0.11 │        160.130 │         0.48 │      3:25:00 │    4     0     1  80.0 │
+│   stop_loss │    30 │        -0.16 │      -1256.473 │        -3.77 │      1:05:00 │    0     0    30     0 │
+│       TOTAL │    68 │         0.01 │        236.446 │         0.71 │      1:06:00 │   37     0    31  54.4 │
+└─────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                          MIXED TAG STATS                                                          
+┌───────────────────┬─────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│         Enter Tag │ Exit Reason │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────────┼─────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ ibs:1781793840000 │ session_end │      1 │         0.37 │        112.097 │         0.34 │      5:04:00 │    1     0     0   100 │
+│ ibs:1770997920000 │         roi │      1 │         0.45 │        110.660 │         0.33 │      1:17:00 │    1     0     0   100 │
+│ ibs:1785512160000 │         roi │      1 │         0.37 │        103.463 │         0.31 │      0:44:00 │    1     0     0   100 │
+│ ibs:1776274080000 │         roi │      1 │         0.34 │         89.224 │         0.27 │      1:04:00 │    1     0     0   100 │
+│ ibs:1772729040000 │         roi │      1 │         0.31 │         76.344 │         0.23 │      0:16:00 │    1     0     0   100 │
+│ ibs:1787559360000 │         roi │      1 │         0.25 │         73.828 │         0.22 │      3:16:00 │    1     0     0   100 │
+│ ibs:1774363440000 │         roi │      1 │         0.28 │         67.179 │          0.2 │      0:23:00 │    1     0     0   100 │
+│ ibs:1778251440000 │         roi │      1 │         0.23 │         66.203 │          0.2 │      0:48:00 │    1     0     0   100 │
+│ ibs:1778860560000 │         roi │      1 │          0.2 │         59.411 │         0.18 │      0:25:00 │    1     0     0   100 │
+│ ibs:1764778560000 │         roi │      1 │         0.21 │         52.724 │         0.16 │      1:03:00 │    1     0     0   100 │
+│ ibs:1771609680000 │ session_end │      1 │          0.2 │         49.603 │         0.15 │      3:00:00 │    1     0     0   100 │
+│ ibs:1778489520000 │         roi │      1 │         0.17 │         48.877 │         0.15 │      0:52:00 │    1     0     0   100 │
+│ ibs:1770023760000 │         roi │      1 │         0.18 │         45.931 │         0.14 │      0:02:00 │    1     0     0   100 │
+│ ibs:1787763360000 │         roi │      1 │         0.15 │         45.110 │         0.14 │      0:16:00 │    1     0     0   100 │
+│ ibs:1786008000000 │         roi │      1 │         0.14 │         39.978 │         0.12 │      0:32:00 │    1     0     0   100 │
+│ ibs:1783929600000 │         roi │      1 │         0.13 │         39.593 │         0.12 │      0:12:00 │    1     0     0   100 │
+│ ibs:1784710560000 │         roi │      1 │         0.13 │         38.176 │         0.11 │      0:07:00 │    1     0     0   100 │
+│ ibs:1782118800000 │         roi │      1 │         0.12 │         36.520 │         0.11 │      1:06:00 │    1     0     0   100 │
+│ ibs:1761068400000 │ session_end │      1 │         0.13 │         32.533 │          0.1 │      2:08:00 │    1     0     0   100 │
+│ ibs:1761575280000 │         roi │      1 │         0.12 │         31.376 │         0.09 │      0:32:00 │    1     0     0   100 │
+│ ibs:1765189920000 │         roi │      1 │         0.12 │         30.751 │         0.09 │      2:44:00 │    1     0     0   100 │
+│ ibs:1776154320000 │         roi │      1 │         0.11 │         29.029 │         0.09 │      0:44:00 │    1     0     0   100 │
+│ ibs:1780650720000 │         roi │      1 │         0.09 │         27.232 │         0.08 │      0:34:00 │    1     0     0   100 │
+│ ibs:1787303760000 │         roi │      1 │         0.09 │         27.084 │         0.08 │      0:17:00 │    1     0     0   100 │
+│ ibs:1782378000000 │         roi │      1 │         0.08 │         23.872 │         0.07 │      1:08:00 │    1     0     0   100 │
+│ ibs:1768211520000 │         roi │      1 │         0.09 │         22.642 │         0.07 │      0:34:00 │    1     0     0   100 │
+│ ibs:1767173760000 │         roi │      1 │         0.09 │         21.958 │         0.07 │      1:54:00 │    1     0     0   100 │
+│ ibs:1776069840000 │         roi │      1 │         0.07 │         18.593 │         0.06 │      0:39:00 │    1     0     0   100 │
+│ ibs:1785144720000 │         roi │      1 │         0.06 │         17.979 │         0.05 │      0:11:00 │    1     0     0   100 │
+│ ibs:1772015760000 │         roi │      1 │         0.07 │         16.784 │         0.05 │      0:54:00 │    1     0     0   100 │
+│ ibs:1786959840000 │         roi │      1 │         0.05 │         16.249 │         0.05 │      0:41:00 │    1     0     0   100 │
+│ ibs:1769508240000 │         roi │      1 │         0.06 │         16.079 │         0.05 │      0:33:00 │    1     0     0   100 │
+│ ibs:1764754560000 │         roi │      1 │         0.06 │         14.244 │         0.04 │      0:25:00 │    1     0     0   100 │
+│ ibs:1778511120000 │ session_end │      1 │         0.05 │         14.109 │         0.04 │      4:56:00 │    1     0     0   100 │
+│ ibs:1770893760000 │         roi │      1 │         0.05 │         11.523 │         0.03 │      0:03:00 │    1     0     0   100 │
+│ ibs:1756978080000 │         roi │      1 │         0.03 │          8.082 │         0.02 │      0:24:00 │    1     0     0   100 │
+│ ibs:1757580000000 │         roi │      1 │         0.03 │          6.091 │         0.02 │      0:33:00 │    1     0     0   100 │
+│ ibs:1758620160000 │   stop_loss │      1 │        -0.05 │        -13.144 │        -0.04 │      0:50:00 │    0     0     1     0 │
+│ ibs:1773828720000 │   stop_loss │      1 │        -0.06 │        -14.568 │        -0.04 │      0:39:00 │    0     0     1     0 │
+│ ibs:1767866160000 │   stop_loss │      1 │        -0.06 │        -16.112 │        -0.05 │      0:09:00 │    0     0     1     0 │
+│ ibs:1781771760000 │   stop_loss │      1 │        -0.06 │        -17.571 │        -0.05 │      0:13:00 │    0     0     1     0 │
+│ ibs:1769679360000 │   stop_loss │      1 │        -0.07 │        -18.445 │        -0.06 │      0:09:00 │    0     0     1     0 │
+│ ibs:1766139120000 │   stop_loss │      1 │        -0.07 │        -18.576 │        -0.06 │      0:47:00 │    0     0     1     0 │
+│ ibs:1767350640000 │   stop_loss │      1 │        -0.08 │        -19.784 │        -0.06 │      1:14:00 │    0     0     1     0 │
+│ ibs:1783067760000 │   stop_loss │      1 │        -0.07 │        -20.878 │        -0.06 │      0:09:00 │    0     0     1     0 │
+│ ibs:1766766000000 │   stop_loss │      1 │        -0.09 │        -24.366 │        -0.07 │      0:49:00 │    0     0     1     0 │
+│ ibs:1767002160000 │   stop_loss │      1 │         -0.1 │        -25.046 │        -0.08 │      3:39:00 │    0     0     1     0 │
+│ ibs:1780558080000 │   stop_loss │      1 │        -0.11 │        -32.763 │         -0.1 │      0:26:00 │    0     0     1     0 │
+│ ibs:1777018320000 │   stop_loss │      1 │        -0.13 │        -34.489 │         -0.1 │      1:06:00 │    0     0     1     0 │
+│ ibs:1778145360000 │   stop_loss │      1 │        -0.12 │        -35.430 │        -0.11 │      0:45:00 │    0     0     1     0 │
+│ ibs:1773995520000 │   stop_loss │      1 │        -0.15 │        -35.845 │        -0.11 │      0:09:00 │    0     0     1     0 │
+│ ibs:1788281520000 │   stop_loss │      1 │        -0.12 │        -36.397 │        -0.11 │      0:29:00 │    0     0     1     0 │
+│ ibs:1778574480000 │   stop_loss │      1 │        -0.13 │        -37.618 │        -0.11 │      2:32:00 │    0     0     1     0 │
+│ ibs:1757519280000 │   stop_loss │      1 │        -0.16 │        -39.423 │        -0.12 │      0:27:00 │    0     0     1     0 │
+│ ibs:1762506480000 │   stop_loss │      1 │        -0.16 │        -40.324 │        -0.12 │      0:19:00 │    0     0     1     0 │
+│ ibs:1783411920000 │   stop_loss │      1 │        -0.15 │        -43.266 │        -0.13 │      1:16:00 │    0     0     1     0 │
+│ ibs:1785830640000 │   stop_loss │      1 │        -0.15 │        -44.379 │        -0.13 │      0:26:00 │    0     0     1     0 │
+│ ibs:1779699840000 │   stop_loss │      1 │        -0.16 │        -46.657 │        -0.14 │      5:25:00 │    0     0     1     0 │
+│ ibs:1765824720000 │ session_end │      1 │        -0.19 │        -48.212 │        -0.14 │      1:56:00 │    0     0     1     0 │
+│ ibs:1784020080000 │   stop_loss │      1 │        -0.16 │        -48.380 │        -0.15 │      1:58:00 │    0     0     1     0 │
+│ ibs:1757341680000 │   stop_loss │      1 │        -0.21 │        -49.913 │        -0.15 │      2:01:00 │    0     0     1     0 │
+│ ibs:1787823840000 │   stop_loss │      1 │        -0.19 │        -56.645 │        -0.17 │      1:42:00 │    0     0     1     0 │
+│ ibs:1761836880000 │   stop_loss │      1 │        -0.28 │        -72.700 │        -0.22 │      0:29:00 │    0     0     1     0 │
+│ ibs:1771521600000 │   stop_loss │      1 │         -0.3 │        -74.022 │        -0.22 │      0:24:00 │    0     0     1     0 │
+│ ibs:1774260480000 │   stop_loss │      1 │        -0.32 │        -75.213 │        -0.23 │      0:16:00 │    0     0     1     0 │
+│ ibs:1765903920000 │   stop_loss │      1 │        -0.32 │        -79.346 │        -0.24 │      1:01:00 │    0     0     1     0 │
+│ ibs:1770972240000 │   stop_loss │      1 │        -0.34 │        -85.083 │        -0.26 │      2:24:00 │    0     0     1     0 │
+│ ibs:1778858880000 │   stop_loss │      1 │        -0.34 │       -100.090 │         -0.3 │      0:18:00 │    0     0     1     0 │
+│             TOTAL │             │     68 │         0.01 │        236.446 │         0.71 │      1:06:00 │   37     0    31  54.4 │
+└───────────────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2025-09-04 00:00:00                       │
+│ Backtesting to                         │ 2026-09-04 00:00:00                       │
+│ Trading Mode                           │ Spot                                      │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 68 / 0.19                                 │
+│ Starting balance                       │ 33333 USD                                 │
+│ Final balance                          │ 33569.446 USD                             │
+│ Absolute profit                        │ 236.446 USD                               │
+│ Total profit %                         │ 0.71%                                     │
+│ CAGR %                                 │ 0.71%                                     │
+│ Sharpe (closed trades)                 │ 0.25                                      │
+│ Sortino (closed trades)                │ 0.55                                      │
+│ Calmar (closed trades)                 │ 4.68                                      │
+│ SQN                                    │ 0.58                                      │
+│ Mean profit p-value                    │ 0.564                                     │
+│ Profit factor                          │ 1.18                                      │
+│ Expectancy (Ratio)                     │ 3.48 (0.08)                               │
+│ Avg. daily profit                      │ 0.648 USD                                 │
+│ Avg. stake amount                      │ 26950.921 USD                             │
+│ Market change                          │ 25.78%                                    │
+│ Total trade volume                     │ 3665561.692 USD                           │
+│                                        │                                           │
+│ Best Pair                              │ NAS100/USD 0.71%                          │
+│ Worst Pair                             │ NAS100/USD 0.71%                          │
+│ Best trade                             │ NAS100/USD 0.45%                          │
+│ Worst trade                            │ NAS100/USD -0.34%                         │
+│ Best day                               │ 103.463 USD                               │
+│ Worst day                              │ -79.346 USD                               │
+│ Days win/draw/lose                     │ 34 / 300 / 29                             │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:02 / 0d 05:04 / 0d 01:05            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:09 / 0d 05:25 / 0d 01:07            │
+│ Max Consecutive Wins / Loss            │ 5 / 5                                     │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 28 / 0                                    │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 33076.46 USD / 33662.488 USD              │
+│ Max % of account underwater            │ 0.79%                                     │
+│ Absolute drawdown                      │ 264.622 USD (0.79%)                       │
+│ Drawdown duration                      │ 162 days 01:16:00                         │
+│ Profit at drawdown start               │ 8.082 USD                                 │
+│ Profit at drawdown end                 │ -256.54 USD                               │
+│ Drawdown start                         │ 2025-09-04 09:56:00                       │
+│ Drawdown end                           │ 2026-02-13 11:12:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 33012.607 USD / 33662.488 USD             │
+│ Min/Max balance dates (wallet balance) │ 2026-02-13 16:24:00 / 2026-08-26 17:20:00 │
+│ Max % of account underwater (balance)  │ 1.07%                                     │
+│ Absolute drawdown (wallet balance)     │ 355.4 USD (1.07%)                         │
+│ Drawdown duration                      │ 158 days 01:40:00                         │
+│ Profit at drawdown start               │ 35.007 USD                                │
+│ Profit at drawdown end                 │ -320.393 USD                              │
+│ Drawdown start                         │ 2025-09-08 14:44:00                       │
+│ Drawdown end                           │ 2026-02-13 16:24:00                       │
+│ Sharpe (daily wallet balance)          │ 0.63                                      │
+│ Sortino (daily wallet balance)         │ 0.65                                      │
+│ Calmar (daily wallet balance)          │ 3.50                                      │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                              STRATEGY SUMMARY                                                               
+┌──────────────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┬────────────────────┐
+│             Strategy │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │           Drawdown │
+├──────────────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┼────────────────────┤
+│ IBSImbalanceStrategy │     68 │         0.01 │        236.446 │         0.71 │      1:06:00 │   37     0    31  54.4 │ 264.622 USD  0.79% │
+└──────────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴────────────────────┘

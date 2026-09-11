@@ -1,0 +1,201 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun hyperopt --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\binance --strategy IBSImbalanceStrategy --hyperopt-loss TradebotPlanLoss --spaces plan --analyze-per-epoch --epochs 3 --timerange 20250801-20250901 --pairs BTC/USDT:USDT --timeframe 3m --dry-run-wallet 10000.0 --timeframe-detail 1m --fee 0.0005
+2026-09-11 15:49:37,905 - freqtrade - INFO - freqtrade 2026.8
+2026-09-11 15:49:38,601 - freqtrade.configuration.load_config - INFO - Using config: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.json ...
+2026-09-11 15:49:38,605 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-11 15:49:38,605 - freqtrade.loggers - INFO - Logfile configured
+2026-09-11 15:49:38,605 - freqtrade.loggers - INFO - Verbosity set to 0
+2026-09-11 15:49:38,605 - freqtrade.configuration.configuration - INFO - Parameter -i/--timeframe detected ... Using timeframe: 3m ...
+2026-09-11 15:49:38,605 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2026-09-11 15:49:38,605 - freqtrade.configuration.configuration - INFO - Parameter --timeframe-detail detected, using 1m for intra-candle backtesting ...
+2026-09-11 15:49:38,605 - freqtrade.configuration.configuration - INFO - Parameter --dry-run-wallet detected, overriding dry_run_wallet to: 10000.0 ...
+2026-09-11 15:49:38,605 - freqtrade.configuration.configuration - INFO - Parameter --fee detected, setting fee to: 0.0005 ...
+2026-09-11 15:49:38,605 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20250801-20250901 ...
+2026-09-11 15:49:38,607 - freqtrade.configuration.configuration - INFO - Using user-data directory: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data 
+...
+2026-09-11 15:49:38,607 - freqtrade.configuration.configuration - INFO - Using data directory: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\binance ...
+2026-09-11 15:49:38,607 - freqtrade.configuration.configuration - INFO - Parameter --epochs detected ... Will run Hyperopt with for 3 epochs ...
+2026-09-11 15:49:38,607 - freqtrade.configuration.configuration - INFO - Parameter -s/--spaces detected: ['plan']
+2026-09-11 15:49:38,607 - freqtrade.configuration.configuration - INFO - Parameter --analyze-per-epoch detected.
+2026-09-11 15:49:38,607 - freqtrade.configuration.configuration - INFO - Parameter -j/--job-workers detected: -1
+2026-09-11 15:49:38,608 - freqtrade.configuration.configuration - INFO - Parameter --min-trades detected: 1
+2026-09-11 15:49:38,608 - freqtrade.configuration.configuration - INFO - Using Hyperopt loss class name: TradebotPlanLoss
+2026-09-11 15:49:38,608 - freqtrade.configuration.configuration - INFO - Using pairs ['BTC/USDT:USDT']
+2026-09-11 15:49:38,608 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20250801-20250901
+2026-09-11 15:49:38,608 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2026-09-11 15:49:38,609 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+team. It may work flawlessly (please report back) or have serious issues. Use it at your own discretion.
+2026-09-11 15:49:38,611 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-11 15:49:38,611 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Hyperopt mode
+2026-09-11 15:49:38,613 - freqtrade.optimize.hyperopt.hyperopt - INFO - Removing 
+`C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\hyperopt_results\hyperopt_tickerdata.pkl`.
+2026-09-11 15:49:38,616 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2026-09-11 15:49:38,616 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.77
+2026-09-11 15:49:38,616 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-11 15:49:38,617 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-11 15:49:38,619 - freqtrade.exchange.exchange - INFO - Using Exchange "Tester"
+2026-09-11 15:49:38,619 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange class 'Tester' ...
+2026-09-11 15:49:38,657 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_rrRatio -> priestor 'plan'
+2026-09-11 15:49:38,657 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_rrRatio -> priestor 'plan'
+2026-09-11 15:49:38,657 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSImbalanceStrategy from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.py'...
+2026-09-11 15:49:38,668 - freqtrade.strategy.hyper - INFO - Loading parameters from file 
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.json
+2026-09-11 15:49:38,677 - tradebot.adapters.freqtrade.base - WARNING - ibs config: engMinRangePoints, ewMinWavePoints, liqSweepMinWick, minImbSizePoints, pbMinRangePoints, srClusterPoints sú v 
+absolútnych cenových bodoch — tie hodnoty sú ladené na MNQ a na BTC/USDT:USDT nemusia dávať zmysel; zváž unit='atr'.
+2026-09-11 15:49:39,297 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 3m.
+2026-09-11 15:49:39,299 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USDT.
+2026-09-11 15:49:39,299 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2026-09-11 15:49:39,299 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'unfilledtimeout' with value from the configuration: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 
+'unit': 'minutes'}.
+2026-09-11 15:49:39,299 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2026-09-11 15:49:39,299 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 100.0}
+2026-09-11 15:49:39,299 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 3m
+2026-09-11 15:49:39,299 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.99
+2026-09-11 15:49:39,299 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2026-09-11 15:49:39,299 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2026-09-11 15:49:39,299 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2026-09-11 15:49:39,299 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: True
+2026-09-11 15:49:39,301 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2026-09-11 15:49:39,301 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2026-09-11 15:49:39,301 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2026-09-11 15:49:39,301 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USDT
+2026-09-11 15:49:39,301 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2026-09-11 15:49:39,301 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 300
+2026-09-11 15:49:39,301 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using unfilledtimeout: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 'unit': 'minutes'}
+2026-09-11 15:49:39,301 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2026-09-11 15:49:39,301 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2026-09-11 15:49:39,301 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2026-09-11 15:49:39,301 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2026-09-11 15:49:39,301 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2026-09-11 15:49:39,301 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2026-09-11 15:49:39,301 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2026-09-11 15:49:39,303 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2026-09-11 15:49:39,303 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2026-09-11 15:49:39,303 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-11 15:49:39,309 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\freqtrade\plugins\pairlist\StaticPairList.py'...
+2026-09-11 15:49:39,309 - freqtrade.optimize.backtesting - INFO - Using fee 0.0500% from config.
+2026-09-11 15:49:39,399 - freqtrade.strategy.hyper - INFO - Strategy Parameter: hp_rrRatio = 5.0
+2026-09-11 15:49:39,399 - freqtrade.resolvers.iresolver - INFO - Using resolved hyperoptloss TradebotPlanLoss from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\hyperopts\TradebotPlanLoss.py'...
+2026-09-11 15:49:39,500 - freqtrade.optimize.hyperopt.hyperopt_optimizer - INFO - manager queue <class 'multiprocessing.managers.AutoProxy[Queue]'>
+2026-09-11 15:49:39,502 - freqtrade.optimize.hyperopt.hyperopt - INFO - Using optimizer random state: 56297
+2026-09-11 15:49:39,533 - freqtrade.optimize.backtesting - INFO - Loading data from 2025-07-31 09:00:00 up to 2025-09-01 00:00:00 (31 days).
+2026-09-11 15:49:39,645 - freqtrade.optimize.hyperopt.hyperopt_optimizer - INFO - Dataload complete. Calculating indicators
+2026-09-11 15:49:39,660 - freqtrade.optimize.hyperopt.hyperopt - INFO - Found 24 CPU cores. Let's make them scream!
+2026-09-11 15:49:39,663 - freqtrade.optimize.hyperopt.hyperopt - INFO - Number of parallel jobs set as: -1
+2026-09-11 15:49:39,663 - freqtrade.optimize.hyperopt.hyperopt_optimizer - INFO - Using optuna sampler NSGAIIISampler.
+[I 2026-09-11 15:49:39,663] A new study created in memory with name: no-name-7c082286-4852-4688-b132-867627e5df71
+2026-09-11 15:49:39,665 - freqtrade.optimize.hyperopt.hyperopt - INFO - Effective number of parallel workers used: 24
+2026-09-11 15:49:39,682 - freqtrade.data.dataprovider - INFO - Loading data for BTC/USDT:USDT 5m from 2025-07-30 23:00:00 to 2025-09-01 00:00:00
+2026-09-11 15:49:40,359 - tradebot.strategies.ibs.freqtrade - INFO - IBS BTC/USDT:USDT: 15181 barov, 9229 HTF barov, 99 zon, 17 signalov (9 long / 8 short)
+2026-09-11 15:49:40,388 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 236497.09 na 9900.00 (4.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 15:49:40,426 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 246354.99 na 9875.84 (4.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 15:49:40,445 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 163376.77 na 9921.10 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 15:49:40,482 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 147464.01 na 9931.23 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 15:49:40,519 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 257456.63 na 9897.39 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 15:49:40,544 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 81047.60 na 9940.53 (12.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 15:49:40,636 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 123153.54 na 9889.59 (8.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 15:49:40,650 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 623763.36 na 9852.05 (1.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 15:49:40,654 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 139196.01 na 9836.99 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 15:49:40,697 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 183275.66 na 9879.85 (5.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 15:49:40,784 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 412486.97 na 9851.66 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 15:49:40,787 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 690423.28 na 9833.67 (1.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 15:49:40,794 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 118623.06 na 9833.67 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 15:49:40,800 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 343893.43 na 9833.67 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 15:49:40,818 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 187749.03 na 9863.43 (5.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-11 15:49:40,836 - tradebot.adapters.freqtrade.base - WARNING - ibs BTC/USDT:USDT: stake orezany z 105809.92 na 9835.53 (9.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+                                                                                           Hyperopt results                                                                                             
+                           ┌────────┬───────┬────────┬────────────────────────┬────────────┬──────────────────────────┬──────────────┬───────────┬─────────────────────────┐                            
+                           │ Best   │ Epoch │ Trades │  Win  Draw  Loss  Win% │ Avg profit │                   Profit │ Avg duration │ Objective │     Max Drawdown (Acct) │                            
+                           ├────────┼───────┼────────┼────────────────────────┼────────────┼──────────────────────────┼──────────────┼───────────┼─────────────────────────┤                            
+                           │ * Best │   1/3 │     14 │    5     0     9  35.7 │     -0.08% │ -107.067 USDT   (-1.07%) │      1:22:00 │  -0.01104 │ 148.005 USDT    (1.47%) │                            
+                           └────────┴───────┴────────┴────────────────────────┴────────────┴──────────────────────────┴──────────────┴───────────┴─────────────────────────┘                            
+Epochs ------------------------------------------------------                                                                                                               1/3  33% • 0:00:01 • -:--:--
+2026-09-11 15:49:41,674 - freqtrade - ERROR - Fatal exception!
+joblib.externals.loky.process_executor._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\externals\cloudpickle\cloudpickle.py", line 1313, in dump
+    return super().dump(obj)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\externals\cloudpickle\cloudpickle.py", line 1393, in reducer_override
+    return _class_reduce(obj)
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\externals\cloudpickle\cloudpickle.py", line 1080, in _class_reduce
+    return _dynamic_class_reduce(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\externals\cloudpickle\cloudpickle.py", line 1049, in _dynamic_class_reduce
+    if Enum is not None and issubclass(obj, Enum):
+                            ^^^^^^^^^^^^^^^^^^^^^
+RecursionError: maximum recursion depth exceeded while calling a Python object
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\externals\loky\backend\queues.py", line 159, in _feed
+    obj_ = dumps(obj, reducers=reducers)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\externals\loky\backend\reduction.py", line 214, in dumps
+    dump(obj, buf, reducers=reducers, protocol=protocol)
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\externals\loky\backend\reduction.py", line 207, in dump
+    _LokyPickler(file, reducers=reducers, protocol=protocol).dump(obj)
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\externals\cloudpickle\cloudpickle.py", line 1313, in dump
+    return super().dump(obj)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\externals\loky\cloudpickle_wrapper.py", line 15, in __reduce__
+    _pickled_object = dumps(self._obj)
+                      ^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\externals\cloudpickle\cloudpickle.py", line 1544, in dumps
+    cp.dump(obj)
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\externals\cloudpickle\cloudpickle.py", line 1316, in dump
+    raise pickle.PicklingError(msg) from e
+_pickle.PicklingError: Could not pickle object as excessively deep recursion required.
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\freqtrade\main.py", line 52, in main
+    return_code = args["func"](args)
+                  ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\freqtrade\commands\optimize_commands.py", line 111, in start_hyperopt
+    hyperopt.start()
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\freqtrade\optimize\hyperopt\hyperopt.py", line 264, in start
+    f_val = self.run_optimizer_parallel(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\freqtrade\optimize\hyperopt\hyperopt.py", line 139, in run_optimizer_parallel
+    return parallel(self.hyperopter.generate_optimizer_wrapped(v) for v in asked)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\parallel.py", line 2072, in __call__
+    return output if self.return_generator else list(output)
+                                                ^^^^^^^^^^^^
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\parallel.py", line 1682, in _get_outputs
+    yield from self._retrieve()
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\parallel.py", line 1784, in _retrieve
+    self._raise_error_fast()
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\parallel.py", line 1859, in _raise_error_fast
+    error_job.get_result(self.timeout)
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\parallel.py", line 758, in get_result
+    return self._return_or_raise()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\joblib\parallel.py", line 773, in _return_or_raise
+    raise self._result
+_pickle.PicklingError: Could not pickle the task to send it to the workers.
