@@ -1,0 +1,5 @@
+$ emulator MultiCharts XAU 15m 20231001-20241001 (XAU_USD-1m.feather)
+emulacia MultiCharts: 23653 barov 15m, 354613 1m, 0 HTF
+  20000/23653 barov, 391 obchodov
+hotovo: 468 obchodov, nerozhodnutelnych minut 0
+kresby: {'sd_supply': 650, 'sd_pattern': 1303, 'sd_entry': 468, 'sd_demand': 653}
