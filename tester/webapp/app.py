@@ -1221,7 +1221,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         return out
 
     @app.get("/api/analytics/configs")
-    def analytics_configs(strategy: str = "ibs", limit: int = Query(30, ge=1, le=200)):
+    def analytics_configs(strategy: str = "ibs", limit: int = Query(0, ge=0, le=5000)):
         """Nastavenia v histórii (profil + parametre) a pod nimi trhy s výsledkami po
         referenčných oknách — z hotových behov, nič sa nespúšťa.
 
@@ -1233,7 +1233,10 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
 
         if strategy not in STRATEGIES:
             raise HTTPException(404, f"neznáma stratégia {strategy!r}")
-        return {"settings": _settings_tree(strategy)[:limit],
+        # Bez `limit` všetky: ponuka je zoradená podľa dátumu, takže by strop odrezal
+        # práve staršie, pomenované profily a nechal len čerstvé body mriežky.
+        nastavenia = _settings_tree(strategy)
+        return {"settings": nastavenia[:limit] if limit else nastavenia,
                 "reference_windows": list(ho.REFERENCE_WINDOWS)}
 
     @app.post("/api/analytics/fill-windows")
