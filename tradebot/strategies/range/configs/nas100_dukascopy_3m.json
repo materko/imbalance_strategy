@@ -1,0 +1,22 @@
+{
+  "_title": "NAS100 Dukascopy 3m — range breakout, max 1 obchod za deň",
+  "_strategy": "range",
+  "_instrument": "nas100_dukascopy",
+  "_comment": [
+    "Vychodiskovy profil Range Breakout, uz s dvoma zmenami z ladenia v den vzniku (2026-09-11):",
+    "maxTradesPerDay=1 a maxWidthAtr=2.5. Default bez nich (neobmedzeny pocet obchodov, sirka 2,0)",
+    "dal na NAS100 777 obchodov za rok a -36 % — prvy break dna je ten vyznamny, zvysok je dojazd.",
+    "Range = 15 barov, hranice zo zaverov; vstup na zavreti za hranicou s bufferom 0,1 ATR;",
+    "SL na opacnu hranu rangu; ciel 2,5R s vyzadovanym druhym zaverom a polohou zavretia 70 %.",
+    "Nie je to obchodne odporucanie — je to vychodisko na dalsie ladenie."
+  ],
+  "tickDollarValue": 0.5,
+  "maxTradesPerDay": 1,
+  "maxWidthAtr": {
+    "value": 2.5,
+    "unit": "atr"
+  },
+  "rrRatio": 2.5,
+  "requireSecondClose": true,
+  "minClosePosPct": 70
+}
