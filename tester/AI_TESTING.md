@@ -286,6 +286,15 @@ Obe zliate čísla (3× a 5×) pôvodne vyzerali rovnako presvedčivo. Rozdiel m
 ukázalo až rozloženie na bunky — a to je dôvod, prečo sa zliate číslo overuje po oknách
 a trhoch, a prečo sa do jednej vzorky nemiešajú rôzne konfigurácie.
 
+Z toho plynie aj, **čo je v ponuke Nastavenie a čo nie**. Analytika je o jednom pevnom
+nastavení: aké obchody robí, kedy a v akom trhu zarába, či to nie je náhoda a či to
+drží po oknách a na iných trhoch. Behy z mriežky (sweep) a susedia z testu plató sú
+niečo iné — každý bod je iná stratégia na jednom okne a hovoria len o tom, kde má
+parameter ležať (a aj to len v rozsahu, ktorý si zadal). Preto v ponuke nie sú. Keď
+mriežka niečo nájde, ulož si ten bod ako profil (**Uložiť ako profil** v detaile behu),
+doplň mu referenčné okná a analytiku rob nad ním. Bunky matice (to isté nastavenie na
+inom trhu a TF), doplnené okná a overovacie behy hyperoptu v ponuke sú.
+
 Vlastnosti známe **až po obchode** (dôvod výstupu, dĺžka, kam cena zašla) sú zvlášť
 a označené. „Obchody, ktoré skončili na stope, majú zlý break-even" je pravda a zároveň
 bezcenná — pri vstupe to nikto nevie.

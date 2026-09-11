@@ -1195,3 +1195,31 @@ def test_doplnenie_okien_zaradi_len_chybajuce_referencne_okna(tmp_path: Path, mo
         assert j["settings"]["timerange"] in konfig["missing"]
         assert j["settings"]["checkup"]["fill"] == "20260905-120000-aaaaaa"
     assert c.post("/api/analytics/fill-windows", json={"run_id": "neexistuje"}).status_code == 404
+
+
+def test_analytics_configs_nevidia_body_mriezky_ani_plato(tmp_path: Path):
+    """Bod mriežky je iná stratégia na jednom okne, nie nastavenie, ktoré by niekto
+    zvolil - v ponuke nastavení Analytiky nie je; doplnené okno a bunka matice áno."""
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.webapp import app as app_mod
+
+    store = RunStore(tmp_path)
+    store.save(_record("20260905-120000-aaaaaa"))
+    bod = _record("20260906-120000-bbbbbb", params={"rrRatio": 5.0})
+    bod["settings"] = {**bod["settings"], "sweep": {"id": "s1", "values": {"rrRatio": 5.0}}}
+    store.save(bod)
+    sused = _record("20260906-130000-cccccc", params={"rrRatio": 4.5})
+    sused["settings"] = {**sused["settings"], "plateau": {"id": "p1", "param": "rrRatio"}}
+    store.save(sused)
+    doplnene = _record("20260907-120000-dddddd")
+    doplnene["settings"] = {**doplnene["settings"], "timerange": "20240904-20250904",
+                            "checkup": {"fill": "20260905-120000-aaaaaa", "strategy": "ibs"}}
+    store.save(doplnene)
+    c = TestClient(app_mod.create_app(store))
+
+    out = c.get("/api/analytics/configs?strategy=ibs").json()["settings"]
+
+    assert len(out) == 1 and out[0]["runs"] == 2
+    assert out[0]["markets"][0]["run_ids"] == ["20260905-120000-aaaaaa", "20260907-120000-dddddd"]

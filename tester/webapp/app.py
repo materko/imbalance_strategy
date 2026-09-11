@@ -1078,11 +1078,22 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             if strategy_of(rec) != strategy or rec.get("status") != "done" or obchodov <= 0:
                 continue
             s = rec.get("settings") or {}
+            # Body mriežky a susedia z testu plató nie sú nastavenie, ktoré by niekto
+            # zvolil - sú to skúšky, kde má parameter ležať, každý na jednom okne. Analytika
+            # je o jednom pevnom nastavení; tie sa v ponuke len pletú. Matica (to isté
+            # nastavenie na inom trhu), doplnené okná a overenie hyperoptu ostávajú.
+            if s.get("sweep") or s.get("plateau"):
+                continue
             kluc = _config_key(rec)
             g = skupiny.setdefault(kluc, {
                 "key": kluc, "profile": "", "run_ids": [], "pairs": set(),
-                "timeframes": set(), "timeranges": set(), "trades": 0, "latest": ""})
+                "timeframes": set(), "timeranges": set(), "trades": 0, "latest": "",
+                "first": rec["id"], "note": ""})
             g["profile"] = g["profile"] or s.get("profile") or ""
+            # Poznámka najstaršieho behu: pri ručne ladených behoch je to jediný text,
+            # ktorý hovorí, čo sa tým skúšalo.
+            if rec["id"] <= g["first"]:
+                g["first"], g["note"] = rec["id"], str(rec.get("note") or "")
             g["run_ids"].append(rec["id"])
             g["pairs"].add(s.get("pair") or "?")
             g["timeframes"].add(s.get("timeframe") or "?")
@@ -1147,14 +1158,15 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 "title": "" if tituly.get(meno, meno) == meno else tituly[meno],
                 "pairs": set(), "timeframes": set(), "timeranges": set(),
                 # `first` = najstarší beh: kedy nastavenie vzniklo, podľa toho sa volá aj radí.
-                "first": min(trh["run_ids"]), "latest": "",
+                "first": trh["first"], "note": trh["note"], "latest": "",
                 "markets": []})
             n["runs"] += trh["runs"]
             n["trades"] += trh["trades"]
             n["pairs"].add(pair)
             n["timeframes"].add(tf)
             n["timeranges"].update(trh["timeranges"])
-            n["first"] = min(n["first"], min(trh["run_ids"]))
+            if trh["first"] < n["first"]:
+                n["first"], n["note"] = trh["first"], trh["note"]
             n["latest"] = max(n["latest"], trh["latest"])
             # Kľúč trhu je `pár|TF` bez parametrov - nastavenie je už rodič, a prehľad
             # nastavení na trhu porovnáva práve cez tento kľúč naprieč nastaveniami.
