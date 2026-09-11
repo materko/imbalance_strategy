@@ -416,6 +416,7 @@ function fillSettings() {
     setStrategy(ss.value);
     const f = $("#filter-strategy");
     if (f && f.value) { f.value = ss.value; historyPage.offset = 0; }
+    fillAnalyticsStrategy(ss.value);
     loadAnalyticsHistory();
     loadAnalyticsConfigs();
     if ($("#ai-box")?.open) loadAiMeta();
@@ -2452,6 +2453,30 @@ function settingLabel(s, kratko = false) {
   return rozdiely.length ? `${profil} (${rozdiely.join(", ")})` : profil;
 }
 
+/** Stratégia karty Analytika - prvá úroveň výberu. Predvolene tá z hlavičky, ale dá sa
+ *  prepnúť nezávisle: analytika inej stratégie nemá meniť formulár Nového behu. */
+function anStrategy() {
+  return $("#an-strategy")?.value || state.strategy;
+}
+
+/** Naplní výber stratégie na Analytike; `key` = ktorú nastaviť (inak tá z hlavičky). */
+function fillAnalyticsStrategy(key = "") {
+  const sel = $("#an-strategy");
+  if (!sel) return;
+  if (!sel.options.length) {
+    for (const s of state.meta.strategies || []) {
+      const o = document.createElement("option"); o.value = s.key; o.textContent = s.title; sel.append(o);
+    }
+    sel.onchange = () => {
+      $("#an-summary").innerHTML = ""; $("#an-result").innerHTML = "";
+      state.analytics = null; showPosudok(null);
+      $("#an-paper").disabled = true; $("#an-save").disabled = true;
+      loadAnalyticsConfigs(); loadAnalyticsHistory();
+    };
+  }
+  sel.value = key || state.strategy;
+}
+
 /** Vybrané nastavenie (profil + parametre) a v ňom trh; `null` = nevybrané / všetky. */
 function selectedSetting() {
   return (state.anSettings || []).find(s => s.key === $("#an-setting")?.value) || null;
@@ -2468,7 +2493,7 @@ async function loadAnalyticsConfigs() {
   if (!sel) return;
   const povodne = sel.value;
   try {
-    const out = await api(`/api/analytics/configs?strategy=${encodeURIComponent(state.strategy)}`);
+    const out = await api(`/api/analytics/configs?strategy=${encodeURIComponent(anStrategy())}`);
     state.anSettings = out.settings || [];
     state.anReferenceWindows = out.reference_windows || [];
   } catch (e) {
@@ -2596,7 +2621,7 @@ async function loadAnalytics() {
   $("#an-status").textContent = "počítam…";
   const params = new URLSearchParams({
     q: $("#an-query").value.trim(),
-    strategy: state.strategy,
+    strategy: anStrategy(),
     quantiles: $("#an-quantiles").value,
     min_bucket: $("#an-minbucket").value || 8,
     limit_runs: $("#an-limit").value || 40,
@@ -2651,7 +2676,7 @@ async function writePaper() {
       method: "POST",
       body: JSON.stringify({
         runs: (r.runs || []).map(x => x.id),
-        strategy: r.strategy || state.strategy,
+        strategy: r.strategy || anStrategy(),
         limit: Number($("#an-limit").value) || 40,
       }),
     });
@@ -2678,7 +2703,7 @@ async function loadAnalyticsHistory(vybrat = "") {
     // k stratégii - záver o inom nastavení by tu len miatol.
     const nast = $("#an-setting")?.value || "";
     const trh = $("#an-market")?.value || "";
-    const r = await api(`/api/analytics/history?strategy=${encodeURIComponent(state.strategy)}`
+    const r = await api(`/api/analytics/history?strategy=${encodeURIComponent(anStrategy())}`
       + (nast ? `&config_key=${encodeURIComponent(nast)}` : "")
       + (nast && trh ? `&market=${encodeURIComponent(trh)}` : ""));
     sel.innerHTML = `<option value="">— nová analytika${nast ? (trh ? " (história tohto nastavenia a trhu)" : " (história tohto nastavenia)") : ""} —</option>`
@@ -3020,7 +3045,7 @@ async function runProp(p, runIds = null) {
       body: JSON.stringify({
         ...propBody(p),
         runs: behy,
-        strategy: (state.analytics || {}).strategy || state.strategy,
+        strategy: (state.analytics || {}).strategy || anStrategy(),
         limit: Math.max(behy.length, Number($("#an-limit")?.value) || 40),
       }),
     });
@@ -3431,7 +3456,7 @@ function showView(name) {
   if (name === "history") { closeDetail(); loadRuns(); }
   // Historia analytiky je per strategia, takze sa nacita az pri otvoreni karty - vtedy
   // uz je jasne, ktora strategia je zvolena.
-  if (name === "analytics") { loadAnalyticsHistory(); loadAnalyticsConfigs(); }
+  if (name === "analytics") { fillAnalyticsStrategy($("#an-strategy")?.value || ""); loadAnalyticsHistory(); loadAnalyticsConfigs(); }
 }
 
 async function init() {
