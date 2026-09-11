@@ -34,6 +34,7 @@ Všetko sa spúšťa **z koreňa repozitára**. `PY` = Python z `.venv`:
 | Python | `.venv/bin/python` | `.venv\Scripts\python.exe` |
 | Tester (webapp) | `./webapp.sh` | `.\webapp.ps1` alebo `webapp.cmd` |
 | Dukascopy import | `./dukas-import.sh` | `.\dukas-import.ps1` |
+| Databento import (CME futures) | `./bento-import.sh` | `.\bento-import.ps1` |
 | Setup (ak `.venv` chýba) | `deploy/freqtrade/scripts/setup.sh` | `deploy\freqtrade\scripts\setup.ps1` |
 
 ## Mapa repozitára
@@ -56,6 +57,7 @@ tester/                         TESTER - cim sa to skusa
   AI_TESTING.md                 ako sa testuje z prikazoveho riadku
   compare/                      scan_zones, scan_trades, mc_log_trades, mc_compare
   dukas_import.py               import surovych exportov: cistenie, 1m feather, archiv
+  bento_import.py               import Databento (CME futures): kontrakty -> front-month, archiv
   timeframes.py                 dopocet vyssich TF z 1m (tester/timeframes.json)
   quotemanager.py               ASCII export pre QuoteManager (MultiCharts)
   data_archive.py               rocny archiv sviecok

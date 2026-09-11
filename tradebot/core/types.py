@@ -494,6 +494,39 @@ def dukascopy_specs(path: Path | None = None) -> dict[str, InstrumentSpec]:
     return out
 
 
+#: Burzové futures z Databento (CME Globex) — front-month rada z `tester.bento_import`.
+DATABENTO_REGISTRY = Path(__file__).with_name("instruments_databento.json")
+
+
+def databento_specs(path: Path | None = None) -> dict[str, InstrumentSpec]:
+    """Načíta tabuľku Databento symbolov. Ako Dukascopy (burza MultiCharts, náklad
+    v tickoch), ale objem je burzový - `has_real_volume=True`."""
+    src = path or DATABENTO_REGISTRY
+    if not src.exists():
+        return {}
+    raw = json.loads(src.read_text(encoding="utf-8"))
+    out: dict[str, InstrumentSpec] = {}
+    for key, row in raw.items():
+        if key.startswith("_"):
+            continue
+        out[key] = InstrumentSpec(
+            symbol=row["symbol"],
+            venue="multicharts",
+            tick_size=float(row["tick_size"]),
+            point_value=float(row["point_value"]),
+            qty_step=float(row.get("qty_step", 1.0)),
+            min_qty=float(row.get("min_qty", 1.0)),
+            has_real_volume=True,
+            quote_currency=row.get("quote_currency", "USD"),
+            market=row.get("market", "futures"),
+            source=row.get("source", "databento"),
+            cost=float(row.get("half_spread_ticks", DEFAULT_HALF_SPREAD_TICKS)),
+            cost_unit="ticks",
+            cost_note=row.get("cost_note") or "odhad: polovica spreadu = 1 tick, nezmerané",
+        )
+    return out
+
+
 #: Syntetické trhy — premiešané bary skutočného trhu (`tester.synthetic`). Register je
 #: **recept**, nie dáta: zdroj, okno, blok a seed, z ktorých sa trh dá kedykoľvek
 #: vygenerovať znova bit po bite. Samotné sviečky sa nikam necommitujú.
@@ -533,6 +566,7 @@ def synthetic_specs(path: Path | None = None) -> dict[str, InstrumentSpec]:
 
 
 INSTRUMENTS.update(dukascopy_specs())
+INSTRUMENTS.update(databento_specs())
 INSTRUMENTS.update(synthetic_specs())
 
 #: Ponechané meno pre staršie importy — vzorový Dukascopy symbol.

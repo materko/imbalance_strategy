@@ -33,6 +33,7 @@ vidno, čo súbor obsahuje, bez otvárania.
 | `binance` | futures aj spot, oficiálne TF burzy | `deploy/freqtrade/scripts/download-data.sh` |
 | `coinbase` | BTC/USD spot, referenčný | to isté |
 | `dukascopy` | CFD (NAS100, forex, komodity) — 1m, UTC, bid strana | `./dukas-import.sh` (§B) |
+| `databento` | CME futures (MNQ) — 1m, UTC, burzový objem, front-month z kontraktov | `./bento-import.sh` (§B3) |
 
 Ten istý strom čítajú **oba enginy**: Freqtrade dostane koreň cez `--datadir data/<zdroj>`,
 emulátor MultiCharts si berie 1m súbor odtiaľ istadiaľ. Preto sa dá krypto prehrať
@@ -256,6 +257,50 @@ pákou (typ `futures`); líšia sa len inštrumentom (tick, hodnota bodu, mena) 
 Spread v dátach nie je (bid strana), počíta sa cez poplatok ako percento z nominálu.
 
 ---
+
+## B3. Databento: CME futures po kontraktoch → front-month
+
+Export z Databento (dataset `GLBX.MDP3` = CME Globex, schéma `ohlcv-1m`, rodičovský
+symbol `MNQ.FUT`) je **každý kontrakt zvlášť** (MNQM9, MNQU9, …) plus kalendárne spready
+(MNQM9-MNQU9). Čas je UTC, **začiatok** minúty, ceny v bodoch, objem v kontraktoch:
+
+```
+ts_event,rtype,publisher_id,instrument_id,open,high,low,close,volume,symbol
+2026-09-10T23:59:00.000000000Z,33,1,42004800,29066.00,29067.00,29062.25,29064.75,889,MNQU6
+```
+
+Bary sú len tam, kde sa obchodovalo — žiadna vypchávka. Vedľa CSV býva `condition.json`
+(dostupnosť po dňoch, `degraded` sa vypíše, nič sa s tým nerobí).
+
+```powershell
+.\bento-import.ps1 C:\bento\glbx-mdp3-20100606-20260910.ohlcv-1m.csv --symbol MNQ
+```
+```bash
+./bento-import.sh ~/bento/glbx-mdp3-20100606-20260910.ohlcv-1m.csv --symbol MNQ
+```
+
+Import (`tester.bento_import`) robí:
+
+1. **Vyhodí spready** (symbol s pomlčkou) — majú nulové aj záporné ceny, nie sú trh.
+2. **Front-month podľa denného objemu.** Každý UTC deň patrí kontraktu s najväčším
+   objemom; roll ide len dopredu. Na MNQ vychádza vždy v pondelok týždeň pred
+   expiráciou (marec, jún, september, december). Dni rollov sú v `<stem>-1m.rolls.json`
+   vedľa ročných súborov v archíve.
+3. **Bez back-adjustmentu.** Pri rolle je v rade skok (rozdiel kontraktov, desiatky bodov).
+   Stratégie sú intradenné a zavierajú na konci seansy, signály sa počítajú v rámci dňa;
+   pozíciu držanú cez deň rollu by skok zasiahol — deň rollu je v `rolls.json`.
+4. Čas baru ostáva časom otvorenia (UTC); objem je **burzový**, inštrument má
+   `has_real_volume=True` a objemový filter má na ňom zmysel (na Dukascopy nie).
+
+Zvyšok je rovnaký ako pri Dukascopy: ročné feathery do `data_archive/tester/databento/futures/`,
+merge, dopočet TF, ASCII pre QuoteManager. Symbol musí byť v
+`tradebot/core/instruments_databento.json` (tick, hodnota bodu, náklad v tickoch; MNQ:
+tick 0,25, bod 2 $, náklad 1,5 ticku = pol spreadu a provízia). V Testeri je to pár
+`MNQ/USD` (v ponuke `MNQ`) na „burze" MultiCharts, beh ide emulátorom. Prahy v bodoch
+z NAS100 profilov sedia 1:1 (ten istý podklad), ale tick a hodnota bodu sú iné — sizing
+v dolároch preto nie je ten istý.
+
+Prepínače: `--from` / `--to`, `--archive`, `--no-merge`.
 
 ## B2. ASCII pre QuoteManager (MultiCharts)
 

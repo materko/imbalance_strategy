@@ -67,7 +67,8 @@ flowchart LR
     qm --> MC["MultiCharts + QuoteManager"]
 ```
 
-* **Importér je jeden na zdroj** (dnes `tester.dukas_import`). Vždy: vyčistí surové dáta,
+* **Importér je jeden na zdroj** (`tester.dukas_import` pre Dukascopy CFD,
+  `tester.bento_import` pre Databento CME futures). Vždy: vyčistí surové dáta,
   spraví feather v tom timeframe, v akom zdroj je, rozdelí po rokoch, uloží do archívu.
 * **Burzové dáta** sa sťahujú priamo do skladu a do archívu idú cez `split`.
 * **`data/` sa nikdy necommituje.** Tester si ho pri prvom spustení vyrobí celý sám
