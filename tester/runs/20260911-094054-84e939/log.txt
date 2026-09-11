@@ -1,0 +1,7 @@
+$ emulator MultiCharts US500 3m 20250904-20260413 (US500_USD-1m.feather)
+emulacia MultiCharts: 67932 barov 3m, 203031 1m, 67932 HTF
+  20000/67932 barov, 62 obchodov
+  40000/67932 barov, 142 obchodov
+  60000/67932 barov, 246 obchodov
+hotovo: 293 obchodov, nerozhodnutelnych minut 1
+kresby: {'imb_box': 1066, 'swing': 8207, 'structure': 6548, 'session': 466, 'sd_zone_pre': 3125, 'sd_zone_post': 3125, 'tp_box': 293, 'sl_box': 293, 'liq_sweep': 276, 'skip': 6, 'sr_golden': 4, 'sr_level': 2}
