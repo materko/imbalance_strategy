@@ -382,7 +382,9 @@ def test_save_run_as_profile_writes_every_field(client, own_profiles):
     """Vlastný profil je úplný, nie diff — inak by ho posunula zmena Pine defaultu
     alebo profilu, z ktorého vznikol, a starý beh by sa nedal zopakovať."""
     c, store = client
-    store.save(_record("20260905-120000-aaaaaa", params={"rrRatio": 5.0}))
+    rec = _record("20260905-120000-aaaaaa", params={"rrRatio": 5.0})
+    rec["settings"]["timeframe"] = "3m"
+    store.save(rec)
     r = c.post("/api/profiles", json={"name": "moj_rr5", "from_run": "20260905-120000-aaaaaa",
                                       "note": "RR 5"})
     assert r.status_code == 200 and r.json()["user_profiles"] == ["moj_rr5"]
@@ -398,6 +400,13 @@ def test_save_run_as_profile_writes_every_field(client, own_profiles):
     assert p["params"]["rrRatio"] == 5.0 and p["instrument"] == "btcusdt_binance" and p["kind"] == "user"
     meta = c.get("/api/meta").json()
     assert "moj_rr5" in meta["profiles"] and meta["user_profiles"] == ["moj_rr5"]
+    # Profil vie, kedy vznikol, a stránka ho volá „dátum · pár TF · popis".
+    assert data["_created"][:4] == "2026" or data["_created"][:2] == "20"
+    info = meta["profile_info"]["moj_rr5"]
+    assert info["created"] == data["_created"] and info["pair"] == "BTC/USDT:USDT"
+    assert info["timeframe"] == "3m" and info["title"] == "RR 5"
+    # Profil repozitára dátum nemá - čas súboru z gitu o vzniku nič nehovorí.
+    assert meta["profile_info"]["golden_binance_btcusdt_3m"]["created"] == ""
 
 
 def test_profile_keeps_the_whole_setup_of_the_run(client, own_profiles):
@@ -1130,16 +1139,20 @@ def test_analytics_configs_zoskupi_behy_s_rovnakymi_parametrami(tmp_path: Path):
 
     out = c.get("/api/analytics/configs?strategy=ibs").json()["settings"]
 
-    assert [g["runs"] for g in out] == [2, 1]
-    assert out[0]["timeranges"] == ["20240904-20250904", "20250904-20260904"]
-    assert out[0]["profile"] == "btcusdt_3m_binance_ny" and out[0]["trades"] == 298
-    trh = out[0]["markets"][0]
+    # Nastavenia sa volajú dátumom vzniku (najstarší beh) a v tom poradí aj idú:
+    # rrRatio=5 vzniklo 7. 9., pôvodné 5. 9.
+    assert [g["runs"] for g in out] == [1, 2]
+    assert [g["first"] for g in out] == ["20260907-120000-cccccc", "20260905-120000-aaaaaa"]
+    povodne = out[1]
+    assert povodne["timeranges"] == ["20240904-20250904", "20250904-20260904"]
+    assert povodne["profile"] == "btcusdt_3m_binance_ny" and povodne["trades"] == 298
+    trh = povodne["markets"][0]
     assert trh["pair"] == "BTC/USDT:USDT" and trh["run_ids"] == ["20260905-120000-aaaaaa", "20260906-120000-bbbbbb"]
     # edge = break-even mínus poplatok behu: 0,141 - 0,05 > 0 v oboch oknách
     assert trh["positive"] == 2 and trh["done_ref"] == 2
     assert set(trh["windows"]) == {"20240904-20250904", "20250904-20260904"}
     # Ten istý profil, iné rrRatio: názov nesie parameter, v ktorom sa nastavenia líšia.
-    assert list(out[0]["variant"]) == ["rrRatio"] and out[1]["variant"]["rrRatio"] == 5.0
+    assert list(povodne["variant"]) == ["rrRatio"] and out[0]["variant"]["rrRatio"] == 5.0
 
 
 def test_doplnenie_okien_zaradi_len_chybajuce_referencne_okna(tmp_path: Path, monkeypatch):
