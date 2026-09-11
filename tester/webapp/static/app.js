@@ -133,19 +133,31 @@ function paramInput(meta) {
   i.oninput = () => onChange(i.value); wrap.append(i); return wrap;
 }
 
+function displayGroup(meta) {
+  if (state.paramMode !== "basic" || state.strategy !== "ibs") return meta.group;
+  const name = meta.name;
+  const session = /^sess([123])/.exec(name);
+  if (session) return `0${Number(session[1]) + 3} · Seansa ${session[1]}`;
+  if (["maxLossDollar", "legacyPineSizing", "leverage", "maxDailyWins", "tickDollarValue"].includes(name)) return "03 · Veľkosť pozície";
+  if (/^(rrRatio|sl|trail|enableTrailing|minSlDistance)/.test(name)) return "02 · Zisk a ochrana";
+  if (BASIC_PARAMS.has(name) || (meta.depends_on || []).some(n => BASIC_PARAMS.has(n))) return "01 · Vstupy a smer";
+  return "07 · Ďalšie nastavenia";
+}
+
 function groupList() {
   const groups = [];
-  for (const p of state.meta.params) if (!groups.includes(p.group)) groups.push(p.group);
-  return groups;
+  for (const p of state.meta.params) { const group = displayGroup(p); if (!groups.includes(group)) groups.push(group); }
+  return state.paramMode === "basic" && state.strategy === "ibs" ? groups.sort() : groups;
 }
 
 /** Skupina -> riadky; parametre s rovnakým Pine `inline` kľúčom idú do jedného riadku. */
 function groupRows(group) {
   const rows = [], byInline = {};
-  for (const meta of state.meta.params.filter(p => p.group === group)) {
+  for (const meta of state.meta.params.filter(p => displayGroup(p) === group)) {
     if (meta.inline) {
-      if (!byInline[meta.inline]) { byInline[meta.inline] = []; rows.push(byInline[meta.inline]); }
-      byInline[meta.inline].push(meta);
+      const inlineKey = `${meta.group}:${meta.inline}`;
+      if (!byInline[inlineKey]) { byInline[inlineKey] = []; rows.push(byInline[inlineKey]); }
+      byInline[inlineKey].push(meta);
     } else rows.push([meta]);
   }
   return rows;
@@ -303,7 +315,7 @@ function refreshChanged() {
       const c = !sameValue(m[name], state.params[name], state.base[name]);
       const ctl = row.querySelector(`.ctl[data-name="${name}"]`);
       if (ctl) ctl.classList.toggle("changed", c);
-      if (c) { changed = true; total++; perGroup[m[name].group] = (perGroup[m[name].group] || 0) + 1; }
+      if (c) { changed = true; total++; const group = displayGroup(m[name]); perGroup[group] = (perGroup[group] || 0) + 1; }
     }
     row.classList.toggle("changed", changed);
   }
@@ -337,7 +349,8 @@ function applyParamFilter() {
         for (const d of row.dataset.dependsOn.split(" ")) collapsed[d] = (collapsed[d] || 0) + 1;
       }
       if (hit && basic && state.strategy === "ibs") {
-        hit = row.dataset.names.split(" ").some(name => BASIC_PARAMS.has(name) || /^sess[123]/.test(name));
+        hit = row.dataset.names.split(" ").some(name => BASIC_PARAMS.has(name) || /^sess[123]/.test(name))
+          || (row.dataset.dependsOn || "").split(" ").some(name => BASIC_PARAMS.has(name));
       }
       row.hidden = !hit; if (hit) visible++;
     }
@@ -369,7 +382,7 @@ function setParamMode(mode) {
   $("#mode-hint").textContent = mode === "basic"
     ? "Najčastejšie nastavenia. Ostatné hodnoty zostávajú podľa zvoleného profilu. Hľadanie prechádza všetky parametre."
     : "Úplné nastavenia stratégie vrátane vizualizácie a pokročilých filtrov.";
-  applyParamFilter();
+  renderParams();
 }
 
 // --------------------------------------------------------------------------- //
@@ -759,11 +772,24 @@ function setQuickRange(years) {
   if (!o) return;
   const first = o.dataset.from, last = o.dataset.to;
   $("#to").value = last;
-  if (years === "max") { $("#from").value = first; return; }
+  if (years === "max") { $("#from").value = first; markQuickRange(years); return; }
   const d = new Date(last + "T00:00:00Z");
-  d.setUTCFullYear(d.getUTCFullYear() - Number(years));
+  if (years.endsWith("m")) {
+    const day = d.getUTCDate();
+    d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - parseInt(years, 10));
+    const lastDay = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+    d.setUTCDate(Math.min(day, lastDay));
+  } else d.setUTCFullYear(d.getUTCFullYear() - Number(years));
   const want = d.toISOString().slice(0, 10);
   $("#from").value = want < first ? first : want;
+  markQuickRange(years);
+}
+
+function markQuickRange(value) {
+  for (const button of $$(".chip-btn[data-range]")) {
+    button.classList.toggle("active", button.dataset.range === value);
+    button.setAttribute("aria-pressed", String(button.dataset.range === value));
+  }
 }
 
 function timerange() {
@@ -3439,6 +3465,7 @@ async function init() {
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#live-log").hidden) closeLiveLog(); });
   $("#load-params").onclick = loadDetailIntoForm;
   for (const b of $$(".chip-btn[data-range]")) b.onclick = () => setQuickRange(b.dataset.range);
+  for (const field of [$("#from"), $("#to"), $("#pair"), $("#profile")]) field.addEventListener("change", () => markQuickRange(null));
   initSweep();
   $("#an-run").onclick = loadAnalytics;
   $("#an-fill").onclick = fillMissingWindows;

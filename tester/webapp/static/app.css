@@ -485,3 +485,60 @@ pre.cmd { background: var(--panel, #f6f7f8); border: 1px solid var(--line); bord
 #an-overview .field { max-width: 360px; margin-top: 6px; }
 .an-overview tr.an-ov-row { cursor: pointer; }
 .an-overview tr.an-ov-row:hover td { background: var(--line); }
+
+/* Kompaktný pracovný panel a čitateľné vstupy. */
+.workspace-heading { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 0 2px 2px; }
+.workspace-heading h1 { font-size: 27px; line-height: 1.2; letter-spacing: -.9px; margin: 4px 0 0; }
+.eyebrow { font-size: 10px; letter-spacing: 1.7px; font-weight: 700; color: #66848d; }
+.workspace-heading p { color: #6d848d; font-size: 12px; margin: 0; }
+.workspace-heading p span { color: #9bb0b7; padding: 0 10px; }
+main.view { grid-template-columns: 370px minmax(0, 1fr); gap: 20px; }
+#view-history, #view-analytics { grid-template-columns: 1fr; }
+.run-card { border-top: 3px solid #18a393; }
+.run-card > h2 { margin-bottom: 18px; }
+.settings input, .settings select { min-height: 39px; }
+.settings input[type=checkbox] { min-height: 0; }
+.profile-actions button { border-color: transparent; color: #52717b; padding-left: 0; }
+.profile-actions button.danger { color: #a14a51; }
+.form-grid .sep { margin: 4px 0; }
+.chips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.chip-btn { white-space: nowrap; font-size: 11px; padding: 7px 3px; }
+.chip-btn.active { background: #dcf3ed; border-color: #64b8a6; color: #096b60; font-weight: 650; }
+.run-caption { font-size: 11px; text-align: center; color: #6e848d; padding: 7px 0; }
+.run-bar { padding-top: 6px; background: #fff; border-top: 1px solid #e8eef0; }
+.run-bar .primary { min-height: 46px; font-size: 14px; }
+.basic-mode .param-content { background: #f6f9fa; padding: 18px; }
+.basic-mode #param-groups { gap: 16px; }
+.basic-mode .pgroup { padding: 14px; border-color: #e3ebee; box-shadow: 0 2px 5px #102e3803; }
+.basic-mode .pgroup-title { text-transform: none; font-size: 13px; letter-spacing: -.15px; color: #264852; }
+.basic-mode .prow { background: transparent; min-height: 49px; }
+.basic-mode .prow:hover { background: #f6faf9; }
+.basic-mode .prow.changed { background: #fff9e9; }
+.basic-mode .plabel { font-size: 12px; line-height: 1.45; }
+.basic-mode .ctl input[type=number] { width: 84px; }
+.basic-mode .ctl input, .basic-mode .ctl select { min-height: 33px; border-radius: 8px; background: #f9fbfc; }
+.basic-mode .ctl input[type=checkbox] { min-height: 0; }
+.basic-mode .ctl input[type=time] { background: #f1f7f8; min-width: 106px; }
+.basic-mode .pctl .dep-hint { white-space: normal; max-width: 145px; line-height: 1.4; }
+.params-card { border: 1px solid #dbe7ea; }
+.mode-switch button.active { box-shadow: 0 2px 5px #12384410; }
+@media (max-width: 1150px) { main.view { grid-template-columns: 325px minmax(0, 1fr); } .workspace-heading p { display: none; } }
+@media (max-width: 1000px) { main.view { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .workspace-heading h1 { font-size: 24px; } .basic-mode .param-content { padding: 10px; } .basic-mode .pgroup { padding: 12px; } }
+/* Doplnkové nástroje zaberajú v zatvorenom stave jediný riadok. */
+.col.params { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.col.params > .params-card { grid-column: 1 / -1; }
+.col.params > .card { margin-bottom: 0; }
+.col.params > details[open] { grid-column: 1 / -1; }
+.col.params > details > summary { font-size: 12px; }
+.col.params > details:not([open]) > summary .muted { display: none; }
+@media (max-width: 640px) { .col.params { grid-template-columns: 1fr; gap: 8px; } }
+
+/* Pevné umiestnenie panelov Nového behu, nezávislé od automatického toku gridu. */
+#view-new { grid-template-areas: "heading heading" "settings parameters"; }
+#view-new > .workspace-heading { grid-area: heading; }
+#view-new > .settings { grid-area: settings; }
+#view-new > .params { grid-area: parameters; }
+@media (max-width: 1000px) {
+  #view-new { grid-template-areas: "heading" "settings" "parameters"; }
+}
