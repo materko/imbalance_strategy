@@ -48,6 +48,7 @@ SPEC = StrategySpec(
     htf_feeder=None,
     sl_kind="sl_box",
     tp_kind="tp_box",
+    fixed_size_field="legacyPineSizing",
     risk_field="riskDollar",
 )
 

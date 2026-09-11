@@ -50,6 +50,7 @@ SPEC = StrategySpec(
     freqtrade_class="ORBStrategy",
     multicharts_class="ORBSignal",
     multicharts_template="ORB_Signal.py",
+    fixed_size_field="legacyPineSizing",
     risk_field="riskDollar",
     informative_tfs=None,
     htf_feeder=None,

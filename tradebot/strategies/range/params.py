@@ -164,6 +164,18 @@ PARAMS: dict[str, dict[str, Any]] = {
     # ---- 🧩 Rozsirenia portu -------------------------------------------- #
     "tickDollarValue": dict(group=_G8, title="Hodnota ticku ($)",
                             tooltip="CFD a futures ju potrebuju na risk-based sizing."),
+    "legacyPineSizing": dict(
+        group=_G8, title="Pine sizing (1 kontrakt/BTC, ako TradingView)",
+        tooltip="Doslovny Pine vzorec velkosti pozicie vratane int() a max(1, ...) - na BTC vzdy "
+                "1 BTC bez ohladu na riziko. Zapnut LEN na porovnanie s TradingView; pri qty < 1 "
+                "sa limit rizika ticho neuplatni. Vyzaduje zadany tickDollarValue.",
+    ),
+    "minSlDistance": dict(
+        group=_G8, title="Min. vzdialenost SL od vstupu",
+        tooltip="Obchod s tesnejsim SL sa preskoci. Poplatok je percento z nominalu a zisk rastie "
+                "s R, takze tesne stopy maju najhorsi pomer edge k poplatku. 0 = vypnute. "
+                "Odporucana jednotka pct (napr. 0,20 % ceny).",
+    ),
     "leverage": dict(group=_G8, title="Paka",
                      tooltip="Paka vo Freqtrade futures. Nemeni edge, len umozni otvorit poziciu, "
                              "ktora by sa inak na ucet nezmestila."),
