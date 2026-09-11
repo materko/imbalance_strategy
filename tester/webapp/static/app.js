@@ -2418,55 +2418,143 @@ function fmtWindow(w) {
   return m ? `${m[1]}-${m[2]}-${m[3]} → ${m[4]}-${m[5]}-${m[6]}` : String(w || "?");
 }
 
-/** Konfigurácie v histórii (behy s tými istými parametrami) do ponuky Analytiky. */
+/** Názov nastavenia: profil (v prehľade len jeho meno) a parametre, v ktorých sa líši od
+ *  iných nastavení s tým istým profilom - inak by dva riadky vyzerali rovnako. */
+function settingLabel(s, kratko = false) {
+  const profil = kratko ? String(s.profile).split("/").pop().replace(/\.json$/, "") : s.profile;
+  const rozdiely = Object.entries(s.variant || {}).map(([k, v]) => `${k}=${typeof v === "object" && v ? (v.value + "@" + v.unit) : v}`);
+  return rozdiely.length ? `${profil} (${rozdiely.join(", ")})` : profil;
+}
+
+/** Vybrané nastavenie (profil + parametre) a v ňom trh; `null` = nevybrané / všetky. */
+function selectedSetting() {
+  return (state.anSettings || []).find(s => s.key === $("#an-setting")?.value) || null;
+}
+function selectedMarket() {
+  const s = selectedSetting();
+  const v = $("#an-market")?.value;
+  return s && v ? ((s.markets || []).find(m => m.key === v) || null) : null;
+}
+
+/** Nastavenia v histórii → trhy → výsledky po oknách; do dvoch ponúk a do prehľadu. */
 async function loadAnalyticsConfigs() {
-  const sel = $("#an-config");
+  const sel = $("#an-setting");
   if (!sel) return;
   const povodne = sel.value;
   try {
     const out = await api(`/api/analytics/configs?strategy=${encodeURIComponent(state.strategy)}`);
-    state.anConfigs = out.configs || [];
+    state.anSettings = out.settings || [];
     state.anReferenceWindows = out.reference_windows || [];
   } catch (e) {
-    state.anConfigs = [];
+    state.anSettings = [];
   }
   sel.innerHTML = '<option value="">— vybrať behy dopytom nižšie —</option>'
-    + state.anConfigs.map(c => {
-      const okna = c.timeranges || [];
-      const rozsah = okna.length ? ` (${fmtWindow(okna[0]).slice(0, 10)} → ${fmtWindow(okna[okna.length - 1]).slice(-10)})` : "";
-      const chyba = (c.missing || []).length;
-      return `<option value="${esc(c.key)}">${esc(c.profile)} · ${c.runs} ${slovom(c.runs, "beh", "behy", "behov")}`
-        + ` · ${okna.length} ${slovom(okna.length, "okno", "okná", "okien")}${rozsah}`
-        + (chyba ? ` · chýba ${chyba} ref.` : " · všetkých 5 ref. okien")
-        + ` · ${esc((c.pairs || []).join(", "))} ${esc((c.timeframes || []).join("/"))}</option>`;
+    + state.anSettings.map(s => {
+      const okna = (s.timeranges || []).length;
+      const trhy = (s.markets || []).length;
+      return `<option value="${esc(s.key)}">${esc(settingLabel(s))} · ${s.runs} ${slovom(s.runs, "beh", "behy", "behov")}`
+        + ` · ${trhy} ${slovom(trhy, "trh", "trhy", "trhov")} · ${okna} ${slovom(okna, "okno", "okná", "okien")}`
+        + ` · ${esc((s.timeframes || []).join("/"))}</option>`;
     }).join("");
-  if (povodne && state.anConfigs.some(c => c.key === povodne)) sel.value = povodne;
+  if (povodne && state.anSettings.some(s => s.key === povodne)) sel.value = povodne;
+  fillMarketSelect();
+  fillOverviewMarkets();
   updateFillButton();
 }
 
-/** Tlačidlo na doplnenie okien má zmysel len pri konfigurácii, ktorej referenčné okná chýbajú. */
+/** Trhy vybraného nastavenia. Jediný trh sa vyberie sám; inak „všetky trhy". */
+function fillMarketSelect() {
+  const sel = $("#an-market");
+  if (!sel) return;
+  const s = selectedSetting();
+  const trhy = s ? (s.markets || []) : [];
+  const povodne = sel.value;
+  sel.innerHTML = `<option value="">všetky trhy${trhy.length ? ` (${trhy.length})` : ""}</option>`
+    + trhy.map(m => {
+      const chyba = (m.missing || []).length;
+      return `<option value="${esc(m.key)}">${esc(m.pair)} ${esc(m.timeframe)} · ${m.runs} ${slovom(m.runs, "beh", "behy", "behov")}`
+        + ` · ${m.positive} z ${m.done_ref} ref. okien nad poplatkom`
+        + (chyba ? ` · chýba ${chyba}` : "") + `</option>`;
+    }).join("");
+  sel.value = trhy.length === 1 ? trhy[0].key : (trhy.some(m => m.key === povodne) ? povodne : "");
+}
+
+/** Bunka s edge (break-even mínus poplatok): zelená nad nulou, červená pod. */
+function edgeCell(w) {
+  if (!w || w.edge === null || w.edge === undefined) return "<td>—</td>";
+  const znak = w.edge > 0 ? "+" : "";
+  return `<td class="${w.edge > 0 ? "pos" : "neg"}" title="${w.trades} obchodov · beh ${esc(w.run_id)}">${znak}${fmt(w.edge, 4)}</td>`;
+}
+
+/** Ponuka trhov pre prehľad nastavení — zjednotenie trhov všetkých nastavení. */
+function fillOverviewMarkets() {
+  const sel = $("#an-ov-market");
+  if (!sel) return;
+  const povodne = sel.value;
+  const trhy = new Map();
+  for (const s of state.anSettings || []) for (const m of s.markets || []) trhy.set(m.key, m);
+  const zoznam = [...trhy.values()].sort((a, b) => (a.pair + a.timeframe).localeCompare(b.pair + b.timeframe));
+  sel.innerHTML = zoznam.map(m => `<option value="${esc(m.key)}">${esc(m.pair)} ${esc(m.timeframe)}</option>`).join("");
+  if (zoznam.some(m => m.key === povodne)) sel.value = povodne;
+  else if (selectedMarket()) sel.value = selectedMarket().key;
+  renderOverview();
+}
+
+/** Tabuľka nastavení na jednom trhu: riadok nastavenie, stĺpce referenčné okná (edge),
+ *  klik na riadok ho vyberie. Bez trhu by sa miešali poplatky rôznych trhov. */
+function renderOverview() {
+  const box = $("#an-ov-table");
+  if (!box) return;
+  const trh = $("#an-ov-market")?.value;
+  const ref = state.anReferenceWindows || [];
+  const riadky = [];
+  for (const s of state.anSettings || []) {
+    const m = (s.markets || []).find(x => x.key === trh);
+    if (m) riadky.push({ s, m });
+  }
+  if (!trh || !riadky.length) { box.innerHTML = '<p class="an-note">na tomto trhu nie sú žiadne behy</p>'; return; }
+  riadky.sort((a, b) => (b.m.positive - a.m.positive) || (b.m.done_ref - a.m.done_ref) || (b.m.trades - a.m.trades));
+  const hlav = ref.map(w => `<th title="${esc(fmtWindow(w))}">${w.slice(2, 4)}/${w.slice(11, 13)}</th>`).join("");
+  const rows = riadky.map(({ s, m }) => `<tr class="an-ov-row" data-setting="${esc(s.key)}" data-market="${esc(m.key)}" title="klik vyberie toto nastavenie a trh">`
+    + `<td style="text-align:left">${esc(settingLabel(s, true))}</td>`
+    + `<td>${m.runs}</td><td>${m.trades}</td><td class="${m.positive === m.done_ref && m.done_ref ? "pos" : ""}">${m.positive} z ${m.done_ref}</td>`
+    + ref.map(w => edgeCell(m.windows[w])).join("") + "</tr>").join("");
+  box.innerHTML = `<table class="mx-table an-overview"><thead><tr><th style="text-align:left">nastavenie</th>`
+    + `<th>behov</th><th>obchodov</th><th>nad popl.</th>${hlav}</tr></thead><tbody>${rows}</tbody></table>`
+    + '<p class="an-note">v bunke break-even mínus poplatok trhu (% na stranu); kladné okná rozhodujú, nie súčet</p>';
+  for (const tr of box.querySelectorAll("tr.an-ov-row")) tr.onclick = () => {
+    $("#an-setting").value = tr.dataset.setting;
+    fillMarketSelect();
+    $("#an-market").value = tr.dataset.market;
+    updateFillButton();
+    loadAnalyticsHistory();
+    $("#an-status").textContent = "nastavenie a trh vybrané — stlač Spočítať";
+  };
+}
+
+/** Tlačidlo na doplnenie okien má zmysel len pri jednom trhu, ktorému referenčné okná chýbajú. */
 function updateFillButton() {
   const btn = $("#an-fill");
   if (!btn) return;
-  const konfig = (state.anConfigs || []).find(c => c.key === $("#an-config")?.value);
-  const chyba = konfig ? (konfig.missing || []).length : 0;
+  const m = selectedMarket();
+  const chyba = m ? (m.missing || []).length : 0;
   btn.disabled = !chyba;
   btn.textContent = chyba ? `Doplniť ${chyba} ${slovom(chyba, "chýbajúce okno", "chýbajúce okná", "chýbajúcich okien")}`
                           : "Doplniť chýbajúce okná";
 }
 
-/** Zaradí behy pre referenčné okná, ktoré vybraná konfigurácia nemá. Po dobehnutí
+/** Zaradí behy pre referenčné okná, ktoré vybraný trh nastavenia nemá. Po dobehnutí
  *  treba analytiku spočítať znova - obchody pribudnú. */
 async function fillMissingWindows() {
-  const konfig = (state.anConfigs || []).find(c => c.key === $("#an-config")?.value);
-  if (!konfig) return;
+  const m = selectedMarket();
+  if (!m) return;
   const btn = $("#an-fill");
   btn.disabled = true;
   $("#an-status").textContent = "zaraďujem…";
   try {
     const out = await api("/api/analytics/fill-windows", {
       method: "POST",
-      body: JSON.stringify({ run_id: konfig.sample, user: currentUser() }),
+      body: JSON.stringify({ run_id: m.sample, user: currentUser() }),
     });
     $("#an-status").textContent = `${out.note} (${(out.windows || []).map(fmtWindow).join(", ")})`;
     pollQueue();
@@ -2487,12 +2575,14 @@ async function loadAnalytics() {
     min_bucket: $("#an-minbucket").value || 8,
     limit_runs: $("#an-limit").value || 40,
   });
-  // Vybraná konfigurácia: presne jej behy, bez ohľadu na dopyt - zliať rôzne
-  // konfigurácie by znamenalo zliať rôzne stratégie.
-  const konfig = (state.anConfigs || []).find(c => c.key === $("#an-config")?.value);
-  if (konfig) {
-    params.set("runs", konfig.run_ids.join(","));
-    params.set("limit_runs", String(Math.max(konfig.run_ids.length, Number($("#an-limit").value) || 40)));
+  // Vybrané nastavenie: presne jeho behy (jeden trh, alebo všetky), bez ohľadu na
+  // dopyt - zliať rôzne nastavenia by znamenalo zliať rôzne stratégie.
+  const nast = selectedSetting();
+  const trh = selectedMarket();
+  const behy = trh ? trh.run_ids : (nast ? (nast.markets || []).flatMap(m => m.run_ids) : []);
+  if (behy.length) {
+    params.set("runs", behy.join(","));
+    params.set("limit_runs", String(Math.max(behy.length, Number($("#an-limit").value) || 40)));
   }
   try {
     const r = await api(`/api/analytics?${params}`);
@@ -2560,16 +2650,20 @@ async function loadAnalyticsHistory(vybrat = "") {
   try {
     // Vybraná konfigurácia zúži aj históriu: analytika patrí ku konfigurácii, nie len
     // k stratégii - záver o inom nastavení by tu len miatol.
-    const konfig = $("#an-config")?.value || "";
+    const nast = $("#an-setting")?.value || "";
+    const trh = $("#an-market")?.value || "";
     const r = await api(`/api/analytics/history?strategy=${encodeURIComponent(state.strategy)}`
-      + (konfig ? `&config_key=${encodeURIComponent(konfig)}` : ""));
-    sel.innerHTML = `<option value="">— nová analytika${konfig ? " (história len tejto konfigurácie)" : ""} —</option>`
+      + (nast ? `&config_key=${encodeURIComponent(nast)}` : "")
+      + (nast && trh ? `&market=${encodeURIComponent(trh)}` : ""));
+    sel.innerHTML = `<option value="">— nová analytika${nast ? (trh ? " (história tohto nastavenia a trhu)" : " (história tohto nastavenia)") : ""} —</option>`
       + (r.items || []).map(x => {
         const be = x.break_even_pct === null || x.break_even_pct === undefined
           ? "" : ` · break-even ${fmt(x.break_even_pct, 4)} %`;
         const profil = x.profile ? ` · ${String(x.profile).split("/").pop().replace(/\.json$/, "")}` : "";
+        const trhX = x.market && x.market !== "mixed" ? ` · ${String(x.market).replace("|", " ")}`
+          : (x.market === "mixed" ? " · všetky trhy" : "");
         const okna = (x.timeranges || []).length;
-        const popis = `${anStamp(x.created)}${profil} · ${x.trades} obch. z ${x.runs} behov`
+        const popis = `${anStamp(x.created)}${profil}${trhX} · ${x.trades} obch. z ${x.runs} behov`
           + (okna ? ` / ${okna} ${slovom(okna, "okno", "okná", "okien")}` : "")
           + (x.config_key === "mixed" ? " · zmiešané konfigurácie" : "")
           + `${be}` + (x.note ? ` · ${x.note}` : "");
@@ -3207,6 +3301,21 @@ function renderAnalytics(r) {
       + esc((r.timeframes || []).join(", ")) + "). Dĺžka v baroch a limity v baroch znamenajú"
       + " na každom inú vec — charakter je bez dĺžky držania a test proti náhode sa nepočíta.</div>");
   }
+  // Po trhoch: to isté nastavenie na viacerých trhoch - drží myšlienka aj inde?
+  const trhy = r.by_market || [];
+  if (trhy.length > 1) {
+    const refW = r.reference_windows || state.anReferenceWindows || [];
+    const hlav = refW.map(w => `<th title="${esc(fmtWindow(w))}">${w.slice(2, 4)}/${w.slice(11, 13)}</th>`).join("");
+    const rows = trhy.map(t => `<tr><td style="text-align:left">${esc(t.pair)} ${esc(t.timeframe)}</td>`
+      + `<td>${t.trades}</td><td class="${t.positive === t.done_ref && t.done_ref ? "pos" : ""}">${t.positive} z ${t.done_ref}</td>`
+      + refW.map(w => edgeCell(t.windows[w])).join("") + "</tr>").join("");
+    const drzi = trhy.filter(t => t.done_ref && t.positive === t.done_ref).length;
+    zhrnutie.push(`<div class="ch-box"><b>Po trhoch</b> — to isté nastavenie, break-even mínus poplatok trhu`
+      + ` (% na stranu) v referenčných oknách. Nad poplatkom vo všetkých svojich oknách: <b>${drzi} z ${trhy.length}</b> trhov.`
+      + `<table class="mx-table"><thead><tr><th style="text-align:left">trh</th><th>obchodov</th><th>nad popl.</th>${hlav}</tr></thead>`
+      + `<tbody>${rows}</tbody></table>`
+      + '<p class="an-note">Skupiny obchodov, náhoda a charakter sú pri zliatych trhoch vynechané alebo bez páru — na plnú analytiku vyber jeden trh.</p></div>');
+  }
   if (r.duplicates) {
     zhrnutie.push(`<p class="an-note">${r.duplicates} obchodov bolo v dvoch behoch naraz`
       + " (prekrývajúce sa okná) — počítajú sa raz.</p>");
@@ -3333,7 +3442,9 @@ async function init() {
   initSweep();
   $("#an-run").onclick = loadAnalytics;
   $("#an-fill").onclick = fillMissingWindows;
-  $("#an-config").onchange = () => { updateFillButton(); loadAnalyticsHistory(); };
+  $("#an-setting").onchange = () => { fillMarketSelect(); updateFillButton(); loadAnalyticsHistory(); };
+  $("#an-market").onchange = () => { updateFillButton(); loadAnalyticsHistory(); };
+  $("#an-ov-market").onchange = renderOverview;
   $("#an-paper").onclick = writePaper;
   $("#an-save").onclick = saveAnalytics;
   $("#posudok-save").onclick = savePosudok;

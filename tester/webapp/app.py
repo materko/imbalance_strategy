@@ -1024,6 +1024,32 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             if vysledky:
                 report["nulltest"] = {"nulls": vysledky,
                                       "note": _null_note(vysledky)}
+
+        # Po trhoch: to isté nastavenie, riadok trh, stĺpce referenčné okná, v bunke
+        # break-even mínus poplatok TOHO trhu. Odpoveď na „drží myšlienka aj inde?"
+        # z hotových behov - to, čo matica, len bez spúšťania.
+        from .. import hyperopt as ho
+
+        po_trhoch: dict[str, dict[str, Any]] = {}
+        for rec in zaznamy:
+            s = rec.get("settings") or {}
+            kluc = f"{s.get('pair') or '?'}|{s.get('timeframe') or '?'}"
+            trh = po_trhoch.setdefault(kluc, {"key": kluc, "pair": s.get("pair"),
+                                              "timeframe": s.get("timeframe"), "windows": {},
+                                              "trades": 0})
+            okno = s.get("timerange")
+            v = rec.get("result") or {}
+            kandidat = {"run_id": rec["id"], "trades": int(v.get("trades") or 0),
+                        "edge": ho.edge_of(rec), "pnl_pct": v.get("pnl_pct")}
+            if okno and (okno not in trh["windows"] or kandidat["trades"] > trh["windows"][okno]["trades"]):
+                trh["windows"][okno] = kandidat
+            trh["trades"] += kandidat["trades"]
+        for trh in po_trhoch.values():
+            trh["positive"] = sum(1 for w in ho.REFERENCE_WINDOWS
+                                  if w in trh["windows"] and (trh["windows"][w]["edge"] or 0) > 0)
+            trh["done_ref"] = sum(1 for w in ho.REFERENCE_WINDOWS if w in trh["windows"])
+        report["by_market"] = sorted(po_trhoch.values(), key=lambda t: (-t["positive"], t["pair"] or ""))
+        report["reference_windows"] = list(ho.REFERENCE_WINDOWS)
         return report
 
     def _config_key(rec: dict[str, Any]) -> str:
@@ -1071,20 +1097,100 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         out.sort(key=lambda g: g["runs"], reverse=True)
         return out
 
+    def _windows_of(run_ids: list[str]) -> dict[str, dict[str, Any]]:
+        """`okno -> {run_id, trades, edge, pnl_pct}` — pri viacerých behoch v jednom okne
+        ten s najviac obchodmi (ako v `paper`), edge je break-even mínus poplatok behu."""
+        from .. import hyperopt as ho
+
+        out: dict[str, dict[str, Any]] = {}
+        for run_id in run_ids:
+            rec = store.get(run_id)
+            if not rec:
+                continue
+            okno = (rec.get("settings") or {}).get("timerange")
+            v = rec.get("result") or {}
+            if not okno:
+                continue
+            kandidat = {"run_id": run_id, "trades": int(v.get("trades") or 0),
+                        "edge": ho.edge_of(rec), "pnl_pct": v.get("pnl_pct")}
+            if okno not in out or kandidat["trades"] > out[okno]["trades"]:
+                out[okno] = kandidat
+        return out
+
+    def _settings_tree(strategy: str) -> list[dict[str, Any]]:
+        """Nastavenia (profil + parametre) → trhy (pár + TF) → výsledky po oknách.
+
+        Dve úrovne preto, že tá istá otázka má dva smery: „drží toto nastavenie aj na
+        iných trhoch?" (nastavenie → všetky trhy) a „ktoré nastavenie na tomto trhu
+        drží po oknách?" (trh → nastavenia). Jedna plochá ponuka nevie ani jedno.
+        """
+        from .. import hyperopt as ho
+
+        ref = list(ho.REFERENCE_WINDOWS)
+        nastavenia: dict[str, dict[str, Any]] = {}
+        for trh in _config_groups(strategy):
+            kluc_nast = trh["key"].split("|", 1)[0]
+            pair, tf = trh["pairs"][0], trh["timeframes"][0]
+            okna = _windows_of(trh["run_ids"])
+            kladne = sum(1 for w in ref if w in okna and (okna[w]["edge"] or 0) > 0)
+            n = nastavenia.setdefault(kluc_nast, {
+                "key": kluc_nast, "profile": trh["profile"], "runs": 0, "trades": 0,
+                "pairs": set(), "timeframes": set(), "timeranges": set(), "latest": "",
+                "markets": []})
+            n["runs"] += trh["runs"]
+            n["trades"] += trh["trades"]
+            n["pairs"].add(pair)
+            n["timeframes"].add(tf)
+            n["timeranges"].update(trh["timeranges"])
+            n["latest"] = max(n["latest"], trh["latest"])
+            # Kľúč trhu je `pár|TF` bez parametrov - nastavenie je už rodič, a prehľad
+            # nastavení na trhu porovnáva práve cez tento kľúč naprieč nastaveniami.
+            n["markets"].append({
+                "key": f"{pair}|{tf}", "pair": pair, "timeframe": tf, "run_ids": trh["run_ids"],
+                "sample": trh["sample"], "runs": trh["runs"], "trades": trh["trades"],
+                "timeranges": trh["timeranges"], "missing": trh["missing"],
+                "windows": okna, "positive": kladne,
+                "done_ref": sum(1 for w in ref if w in okna),
+            })
+        out = []
+        for n in nastavenia.values():
+            n["markets"].sort(key=lambda m: (-m["runs"], m["pair"], m["timeframe"]))
+            out.append({**n, "pairs": sorted(n["pairs"]), "timeframes": sorted(n["timeframes"]),
+                        "timeranges": sorted(n["timeranges"]), "variant": {}})
+        # Ten istý profil s inými `--set` hodnotami: názov by bol rovnaký, tak sa k nemu
+        # dopíšu parametre, v ktorých sa také nastavenia medzi sebou líšia.
+        podla_profilu: dict[str, list[dict[str, Any]]] = {}
+        for n in out:
+            podla_profilu.setdefault(n["profile"], []).append(n)
+        for skupina in podla_profilu.values():
+            if len(skupina) < 2:
+                continue
+            parametre = {n["key"]: ((store.get(n["markets"][0]["sample"]) or {}).get("params") or {})
+                         for n in skupina}
+            kluce = {k for p in parametre.values() for k in p}
+            rozne = [k for k in sorted(kluce)
+                     if len({json.dumps(p.get(k), sort_keys=True, default=str)
+                             for p in parametre.values()}) > 1]
+            for n in skupina:
+                n["variant"] = {k: parametre[n["key"]].get(k) for k in rozne[:4]}
+        out.sort(key=lambda n: n["latest"], reverse=True)
+        out.sort(key=lambda n: n["runs"], reverse=True)
+        return out
+
     @app.get("/api/analytics/configs")
     def analytics_configs(strategy: str = "ibs", limit: int = Query(30, ge=1, le=200)):
-        """Konfigurácie v histórii: skupiny behov s **tými istými parametrami** stratégie
-        na **tom istom trhu a TF**, s ich oknami a počtom obchodov.
+        """Nastavenia v histórii (profil + parametre) a pod nimi trhy s výsledkami po
+        referenčných oknách — z hotových behov, nič sa nespúšťa.
 
-        Analytika má zmysel len nad jednou konfiguráciou (zliať rôzne znamená zliať rôzne
-        stratégie), a textový dopyt to nestráži. Tu si tester vyberie konfiguráciu a dostane
-        presne jej behy — a hneď vidí, koľko okien pokrýva a koľko referenčných chýba.
+        Analytika má zmysel len nad jedným nastavením (zliať rôzne znamená zliať rôzne
+        stratégie), a textový dopyt to nestráži. Tu si tester vyberie nastavenie a trh
+        (alebo všetky trhy) a hneď vidí, koľko okien pokrýva a koľko referenčných chýba.
         """
         from .. import hyperopt as ho
 
         if strategy not in STRATEGIES:
             raise HTTPException(404, f"neznáma stratégia {strategy!r}")
-        return {"configs": _config_groups(strategy)[:limit],
+        return {"settings": _settings_tree(strategy)[:limit],
                 "reference_windows": list(ho.REFERENCE_WINDOWS)}
 
     @app.post("/api/analytics/fill-windows")
@@ -1126,12 +1232,17 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 "note": f"zaradených {len(ids)} behov; po dobehnutí spusti Spočítať znova"}
 
     def _config_of_runs(run_ids: list[str]) -> dict[str, Any]:
-        """Konfigurácia behov analytiky: kľúč (`mixed` pri viacerých), profil, okná, TF."""
+        """Konfigurácia behov analytiky: nastavenie (parametre; `mixed` pri viacerých),
+        trh (`pár|TF`; `mixed` pri viacerých), profil, okná, TF."""
+        from .. import analytics as an
+
         zaznamy = [z for z in (store.get(i) for i in run_ids) if z]
-        kluce = {_config_key(z) for z in zaznamy}
+        kluce = {an.config_key(z) for z in zaznamy}
+        trhy = {_config_key(z).split("|", 1)[1] for z in zaznamy}
         nast = [z.get("settings") or {} for z in zaznamy]
         return {
             "config_key": (kluce.pop() if len(kluce) == 1 else ("mixed" if kluce else "")),
+            "market": (trhy.pop() if len(trhy) == 1 else ("mixed" if trhy else "")),
             "profile": next((s.get("profile") for s in nast if s.get("profile")), "")
                        or ("(Pine defaulty)" if nast else ""),
             "timeranges": sorted({s["timerange"] for s in nast if s.get("timerange")}),
@@ -1140,7 +1251,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
 
     @app.get("/api/analytics/history")
     def analytics_history(strategy: str = "", limit: int = Query(50, ge=1, le=500),
-                          config_key: str = ""):
+                          config_key: str = "", market: str = ""):
         """Uložené analytiky — per stratégia (a voliteľne per konfigurácia), od najnovšej.
 
         Vlastnosti aj parametre sú pri každej stratégii iné, takže zliať ich do jedného
@@ -1150,9 +1261,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         if strategy and strategy not in STRATEGIES:
             raise HTTPException(404, f"neznáma stratégia {strategy!r}")
         for x in anstore.list(strategy, limit=500):
-            if "config_key" not in x:
+            if "market" not in x:
                 anstore.patch(x["id"], **_config_of_runs(x.get("run_ids") or []))
-        return {"items": anstore.list(strategy, limit=limit, config_key=config_key)}
+        return {"items": anstore.list(strategy, limit=limit, config_key=config_key, market=market)}
 
     @app.get("/api/analytics/history/{an_id}")
     def analytics_history_one(an_id: str):

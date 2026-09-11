@@ -1128,12 +1128,18 @@ def test_analytics_configs_zoskupi_behy_s_rovnakymi_parametrami(tmp_path: Path):
     store.save(_record("20260907-120000-cccccc", params={"rrRatio": 5.0}))
     c = TestClient(app_mod.create_app(store))
 
-    out = c.get("/api/analytics/configs?strategy=ibs").json()["configs"]
+    out = c.get("/api/analytics/configs?strategy=ibs").json()["settings"]
 
     assert [g["runs"] for g in out] == [2, 1]
     assert out[0]["timeranges"] == ["20240904-20250904", "20250904-20260904"]
-    assert out[0]["run_ids"] == ["20260905-120000-aaaaaa", "20260906-120000-bbbbbb"]
     assert out[0]["profile"] == "btcusdt_3m_binance_ny" and out[0]["trades"] == 298
+    trh = out[0]["markets"][0]
+    assert trh["pair"] == "BTC/USDT:USDT" and trh["run_ids"] == ["20260905-120000-aaaaaa", "20260906-120000-bbbbbb"]
+    # edge = break-even mínus poplatok behu: 0,141 - 0,05 > 0 v oboch oknách
+    assert trh["positive"] == 2 and trh["done_ref"] == 2
+    assert set(trh["windows"]) == {"20240904-20250904", "20250904-20260904"}
+    # Ten istý profil, iné rrRatio: názov nesie parameter, v ktorom sa nastavenia líšia.
+    assert list(out[0]["variant"]) == ["rrRatio"] and out[1]["variant"]["rrRatio"] == 5.0
 
 
 def test_doplnenie_okien_zaradi_len_chybajuce_referencne_okna(tmp_path: Path, monkeypatch):
@@ -1154,7 +1160,7 @@ def test_doplnenie_okien_zaradi_len_chybajuce_referencne_okna(tmp_path: Path, mo
     runner = BacktestRunner(store, command_builder=lambda *a: ["python", "-c", "raise SystemExit(0)"])
     c = TestClient(app_mod.create_app(store, runner))
 
-    konfig = c.get("/api/analytics/configs?strategy=ibs").json()["configs"][0]
+    konfig = c.get("/api/analytics/configs?strategy=ibs").json()["settings"][0]["markets"][0]
     assert konfig["missing"] == [w for w in REFERENCE_WINDOWS if w != "20250904-20260904"]
 
     out = c.post("/api/analytics/fill-windows", json={"run_id": konfig["sample"]}).json()

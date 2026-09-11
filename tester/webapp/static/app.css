@@ -480,3 +480,8 @@ pre.cmd { background: var(--panel, #f6f7f8); border: 1px solid var(--line); bord
 .prop-presets label.inline { margin: 0; }
 .prop-variant { margin-top: 10px; }
 .prop-variant > summary { cursor: pointer; font-weight: 600; }
+#an-overview { margin: 4px 0 8px; }
+#an-overview > summary { cursor: pointer; font-weight: 600; }
+#an-overview .field { max-width: 360px; margin-top: 6px; }
+.an-overview tr.an-ov-row { cursor: pointer; }
+.an-overview tr.an-ov-row:hover td { background: var(--line); }
