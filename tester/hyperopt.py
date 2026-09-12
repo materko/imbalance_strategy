@@ -169,6 +169,52 @@ def latest_results(after: float = 0.0) -> Path | None:
     return max(subory, key=lambda f: f.stat().st_mtime) if subory else None
 
 
+def blocked_by_other(log_lines: Iterable[str]) -> bool:
+    """Freqtrade odmietol beh, lebo už beží iný hyperopt.
+
+    Skončí pritom s kódom **0** a bez výsledkov, takže bez tejto kontroly by to vyzeralo
+    ako hotový hyperopt, v ktorom „žiadna epocha nesplnila mantinely".
+    """
+    return any("Another running instance of freqtrade Hyperopt" in r for r in log_lines)
+
+
+def count_epochs(path: Path | None) -> int:
+    """Koľko epoch už je v súbore výsledkov — Freqtrade zapisuje jednu epochu na riadok.
+
+    Počítajú sa riadky, nie JSON: pri dvesto epochách každých pár sekúnd by parsovanie
+    celého súboru stálo viac než samotný odhad.
+    """
+    if path is None or not path.exists():
+        return 0
+    try:
+        with path.open("rb") as f:
+            return sum(1 for riadok in f if riadok.strip())
+    except OSError:
+        return 0
+
+
+def eta(done: int, total: int, started: float, first_done_at: float | None,
+        first_done: int, now: float, last_done_at: float | None = None) -> dict[str, Any]:
+    """Priebeh a odhad zvyšného času.
+
+    Tempo sa meria **od prvej hotovej epochy**, nie od štartu: pred ňou Freqtrade načítava
+    dáta a pripravuje stratégiu, čo do tempa epoch nepatrí. A meria sa **k poslednej hotovej
+    dávke** (`last_done_at`), nie k „teraz": epochy prichádzajú po dávkach podľa počtu jadier,
+    a keby sa tempo počítalo do okamihu dopytu, odhad by počas čakania na ďalšiu dávku rástol.
+    Čas od poslednej dávky sa naopak od odhadu odpočíta, takže počas čakania klesá.
+    """
+    out: dict[str, Any] = {"done": int(done), "total": int(total),
+                           "elapsed_s": round(max(0.0, now - started)), "eta_s": None}
+    if first_done_at is None or done <= first_done or total <= 0:
+        return out
+    koniec = last_done_at if last_done_at is not None else now
+    tempo = max(0.0, koniec - first_done_at) / (done - first_done)     # sekúnd na epochu
+    zostava = max(0, total - done) * tempo - max(0.0, now - koniec)
+    out["eta_s"] = round(max(0.0, zostava))
+    out["s_per_epoch"] = round(tempo, 1)
+    return out
+
+
 def knowledge_note(strategy: str = "ibs") -> str:
     """Veta stratégie o tom, čo o jej ladení vieme (`hyperopt_cls.NOTE`)."""
     return knowledge(get_spec(strategy)).NOTE
@@ -427,6 +473,8 @@ def detail(record: dict[str, Any], epochs: Iterable[dict[str, Any]],
     epochs = list(epochs)
     return {
         "zero_trades": zero_trades_note(epochs, log_text, nast) if record.get("status") == "done" else "",
+        # Priebeh bežiaceho hyperoptu (runner ho počíta zo súboru výsledkov).
+        "progress": record.get("progress") if record.get("status") == "running" else None,
         "id": record.get("id"),
         "status": record.get("status"),
         "error": record.get("error"),
