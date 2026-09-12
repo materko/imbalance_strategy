@@ -285,6 +285,7 @@ class Job:
             "id": self.id, "status": self.status, "created": self.created, "started": self.started,
             "finished": self.finished, "error": self.error, "settings": self.settings,
             "note": self.note, "user": self.user, "log_tail": self.log_lines[-40:],
+            "progress": getattr(self, "progress", None),
         }
 
 
@@ -634,6 +635,27 @@ class BacktestRunner:
             text=True, encoding="utf-8", errors="replace", bufsize=1,
         )
         assert job.proc.stdout is not None
+        # Priebeh: epochy sa počítajú v súbore výsledkov (riadok = epocha), nie z logu -
+        # Freqtrade do rúry vypisuje len epochy, ktoré sú nové najlepšie.
+        spolu = int(zadanie.get("epochs") or ho.DEFAULT_EPOCHS)
+        job.progress = ho.eta(0, spolu, start, None, 0, time.time())
+
+        # Vo vlákne, nie v slučke nad výstupom: Freqtrade do rúry vypíše riadok len pri
+        # novej najlepšej epoche, takže neskôr v behu by sa odhad celé minúty nepohol.
+        def _sleduj() -> None:
+            prva_kedy, prva_pocet, posledna_kedy, predtym = None, 0, None, 0
+            while job.proc is not None and job.proc.poll() is None:
+                teraz = time.time()
+                hotovo = ho.count_epochs(ho.latest_results(start))
+                if hotovo and prva_kedy is None:
+                    prva_kedy, prva_pocet = teraz, hotovo
+                if hotovo != predtym:
+                    posledna_kedy, predtym = teraz, hotovo
+                job.progress = ho.eta(hotovo, spolu, start, prva_kedy, prva_pocet, teraz,
+                                      posledna_kedy)
+                time.sleep(5)
+
+        threading.Thread(target=_sleduj, daemon=True, name=f"eta-{job.id}").start()
         for line in job.proc.stdout:
             job.log_lines.append(line.rstrip("\n"))
             if len(job.log_lines) > 5000:
@@ -645,6 +667,12 @@ class BacktestRunner:
         if job.cancel_requested:
             job.status = "failed"
             job.error = "zrušené používateľom"
+            self._persist(job, None, duration)
+            return
+        if ho.blocked_by_other(job.log_lines):
+            job.status = "failed"
+            job.error = ("Freqtrade nepustí dva hyperopty naraz a iný práve beží (aj z iného "
+                         "okna alebo klonu). Tento nezačal — pusti ho znova, keď ten dobehne.")
             self._persist(job, None, duration)
             return
         if rc != 0:

@@ -1063,10 +1063,24 @@ async function pollHyper() {
   }
 }
 
+/** „beží · 37/200 epoch · ešte ~12 min". Odhad až keď sú aspoň dve dávky hotové —
+ *  pred prvou epochou Freqtrade len načítava dáta a tempo z nej by klamalo. */
+function hyperProgress(r) {
+  const p = r.progress;
+  const spolu = r.hyperopt.epochs;
+  if (!p || !p.done) {
+    const uz = p ? ` · ${fmtMinutes(Math.round((p.elapsed_s || 0) / 60))} od štartu` : "";
+    return `beží · pripravuje sa (${spolu} epoch)${uz}`;
+  }
+  const odhad = p.eta_s == null ? "odhad po ďalšej dávke"
+    : `ešte ~${fmtMinutes(Math.max(1, Math.round(p.eta_s / 60)))}`;
+  return `beží · ${p.done}/${p.total || spolu} epoch · ${odhad}`;
+}
+
 function renderHyper(r) {
   const casti = [];
   if (r.status === "queued") casti.push("čaká vo fronte");
-  else if (r.status === "running") casti.push(`beží · ${r.hyperopt.epochs} epoch`);
+  else if (r.status === "running") casti.push(hyperProgress(r));
   else if (r.status === "failed") casti.push("zlyhalo");
   else casti.push(`hotovo · ${r.hyperopt.epochs_done || 0} epoch`);
   casti.push(r.goal_note);

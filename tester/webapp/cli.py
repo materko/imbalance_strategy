@@ -1107,6 +1107,18 @@ def cmd_matrices(args: argparse.Namespace) -> int:
     return 0
 
 
+def _progress_text(progress: dict | None, status: str | None = "running") -> str:
+    """`37/200 epoch, este ~12 min` - alebo len stav, kym prva epocha nie je hotova."""
+    if status != "running" or not progress:
+        return str(status)
+    if not progress.get("done"):
+        return f"pripravuje sa ({progress.get('elapsed_s', 0) // 60} min od startu)"
+    text = f"{progress['done']}/{progress.get('total', '?')} epoch"
+    if progress.get("eta_s") is not None:
+        text += f", este ~{max(1, round(progress['eta_s'] / 60))} min"
+    return text
+
+
 def cmd_hyperopt(args: argparse.Namespace) -> int:
     """Hyperopt na tom istom zadaní ako sweep, plus overenie na ďalších oknách.
 
@@ -1203,7 +1215,7 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
                 if (det["status"] == "failed" or args.no_verify or not det.get("overrides")
                         or (overenia and all(v.get("status") in ("done", "failed") for v in overenia))):
                     break
-            print(f"  … {det.get('status')}", flush=True)
+            print(f"  … {_progress_text(det.get('progress'), det.get('status'))}", flush=True)
     else:
         from .runner import BacktestRunner
 
@@ -1214,10 +1226,15 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
             raise SystemExit(str(exc))
         run_id = job.id
         print(f"webapp nebezi, spustam priamo: {run_id}", flush=True)
+        naposledy = ""
         while job.status in ("queued", "running"):
             time.sleep(3)
-            if job.log_lines:
-                print(f"  … {job.log_lines[-1][:100]}", flush=True)
+            # Priebeh a odhad namiesto posledneho riadku logu - Freqtrade do rury pise len
+            # nove najlepsie epochy, takze log roztrhane skace a nic o case nepovie.
+            text = _progress_text(getattr(job, "progress", None), job.status)
+            if text != naposledy:
+                print(f"  … {text}", flush=True)
+                naposledy = text
         # Overovacie behy si runner zaradil sám - počká sa, kým fronta nedobehne.
         while any(j.get("status") in ("queued", "running") for j in runner.snapshot()):
             time.sleep(3)
