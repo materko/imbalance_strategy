@@ -158,6 +158,22 @@ class HubClient:
             "max_seconds": max_seconds,
         })
 
+    def events(self, limit: int = 100, job: str | None = None, agent: str | None = None,
+               event: str | None = None) -> list[dict[str, Any]]:
+        q = f"?limit={int(limit)}" + (f"&job={job}" if job else "") + (f"&agent={agent}" if agent else "") \
+            + (f"&event={event}" if event else "")
+        return self.http.get("/api/events" + q)
+
+    def tokens(self) -> list[dict[str, Any]]:
+        return self.http.get("/api/tokens")
+
+    def add_token(self, name: str) -> str:
+        return self.http.post(f"/api/tokens/{name}")["token"]
+
+    def remove_token(self, name: str) -> bool:
+        self.http.delete(f"/api/tokens/{name}")
+        return True
+
     def set_accept(self, name: str, value: bool) -> dict[str, Any]:
         """Zapnúť alebo vypnúť prijímanie výpočtov na agentovi (prevezme si to v heartbeate)."""
         return self.http.post(f"/api/agents/{name}/accept?value={'true' if value else 'false'}")

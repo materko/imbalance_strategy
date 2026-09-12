@@ -1,0 +1,33 @@
+# Hub distribuovaného počítania (docs/HUB.md) — bez Freqtradu, bez dát.
+#
+# Build context je KOREŇ repozitára:
+#   docker build -f docker/Dockerfile.hub -t tradebot-hub .
+#
+# Hub nič nepočíta: drží agentov, frontu, zipy výsledkov a log udalostí. Potrebuje
+# len FastAPI a `tester.hub` (+ `tradebot.core.paths`, kde sú cesty). Stav je vo
+# volume `/app/tester/hub_data` (compose ho mountuje), image je malý a arm64 ho utiahne.
+
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir "fastapi>=0.110" "uvicorn>=0.27"
+
+COPY pyproject.toml ./
+COPY tradebot/ ./tradebot/
+COPY tester/__init__.py ./tester/__init__.py
+COPY tester/hub/ ./tester/hub/
+# `tester.hub.transfer` berie tvar id behu zo store webapp — nič ťažké sa tým nenačíta.
+COPY tester/webapp/__init__.py tester/webapp/store.py ./tester/webapp/
+
+# Sanity check pri builde: hub sa dá naimportovať a má svoje cesty.
+RUN python -c "from tester.hub.server import create_hub_app; from tradebot.core.paths import HUB_DIR; print('hub ok', HUB_DIR)"
+
+EXPOSE 8790
+
+ENTRYPOINT ["python", "-m", "tester.hub"]
+CMD ["serve", "--host", "0.0.0.0", "--port", "8790"]

@@ -132,6 +132,37 @@ TRADEBOT_HUB_TOKEN=dlhy-nahodny-retazec PY -m tester.hub serve --host 0.0.0.0 --
 Na verejnej adrese je token povinný; každé volanie API ho nesie v hlavičke
 `Authorization: Bearer …`. Bez tokenu hub beží len na `127.0.0.1`.
 
+**Tokeny per agent.** Hlavný token (`TRADEBOT_HUB_TOKEN`) je správcovský a nepatrí na
+servery. Každý agent dostane vlastný token, ktorý ho zároveň **identifikuje**:
+
+```bash
+PY -m tester.hub token add srv-01          # vypíše token — raz; potom je v tokens.json
+PY -m tester.hub token list
+PY -m tester.hub token rm srv-01
+```
+
+Príkaz ide cez API s tokenom z `tester/agent.json` (musí to byť hlavný), alebo
+`--local` priamo nad `tester/hub_data/` na stroji hubu (v kontajneri `docker compose
+exec hub …`); bežiaci hub si zmenu súboru všimne sám. S vlastným tokenom sa agent hlási
+len pod svojím menom, zadáva len ako on, výsledky sťahuje len k svojim výpočtom a rušiť
+smie len to, čo zadal alebo počíta; parametre cudzieho behu neuvidí. Prepínanie
+`accept` z hubu a správa tokenov sú len pre správcu. Hub bez jediného tokenu (vývoj na
+localhoste) je otvorený.
+
+**Log udalostí.** Hub zapisuje každú udalosť do `tester/hub_data/events.jsonl` (riadok
+na udalosť, rotuje pri 20 MB): `agent_online`, `agent_offline`, `agent_bye`,
+`job_submitted`, `job_assigned`, `job_started`, `job_finished` (stav, agent, chyba,
+behy), `job_cancel` (kto), `job_requeued`, `job_timeout`, `accept_request`,
+`token_added`, `token_removed`.
+
+```bash
+PY -m tester.hub events                              # posledných 50
+PY -m tester.hub events --job 8fc63a805c18           # jeden výpočet od zadania po výsledok
+PY -m tester.hub events --agent srv-01 --event job_finished --limit 200
+```
+
+`GET /api/events?limit=&job=&agent=&event=` je to isté cez API (ktorýkoľvek platný token).
+
 **Agent** (každý klon, ktorý má počítať alebo posielať):
 
 ```bash
@@ -151,6 +182,40 @@ Agent beží dvoma spôsobmi:
 |---|---|---|
 | **webapp** | `./webapp.sh` (agent štartuje s ňou, keď `agent.json` existuje) | stroj, na ktorom niekto aj klikne |
 | **headless** | `PY -m tester.hub agent` | server bez prehliadača |
+
+## Docker
+
+Dva samostatné compose súbory, oba sa spúšťajú z koreňa repozitára (Docker tu pri písaní
+nebol k dispozícii — build nebol overený, súbory sú podľa `docker/docker-compose.yml`):
+
+**Hub** — malý image bez Freqtradu (`docker/Dockerfile.hub`), stav vo volume `hub_data`:
+
+```bash
+cp .env.example .env         # TRADEBOT_HUB_TOKEN=… (povinný), TRADEBOT_HUB_BIND, TRADEBOT_HUB_PORT
+docker compose -f docker/docker-compose.hub.yml up -d --build
+docker compose -f docker/docker-compose.hub.yml exec hub python -m tester.hub token add srv-01 --local
+docker compose -f docker/docker-compose.hub.yml exec hub python -m tester.hub events --local
+```
+
+Port sa predvolene viaže na `127.0.0.1` — pred hub patrí reverse proxy s TLS (Caddy,
+nginx). `TRADEBOT_HUB_BIND=0.0.0.0` ho dá priamo na sieť, ale potom ide token po HTTP.
+
+**Headless agent** — image `docker/Dockerfile.agent` stavia na image Freqtradu s jadrom
+(`docker compose -f docker/docker-compose.yml build freqtrade` najprv) a pridáva git:
+
+```bash
+# .env: TRADEBOT_HUB_URL, TRADEBOT_HUB_TOKEN (token TOHTO agenta), TRADEBOT_HUB_NAME, TRADEBOT_HUB_MAX_PARALLEL
+docker compose -f docker/docker-compose.agent.yml up -d --build
+docker compose -f docker/docker-compose.agent.yml logs -f
+```
+
+Kontajner mountuje z hostiteľa `tester/` (história, stav agenta), `data/` a
+`data_archive/` (sklad sviečok; chýbajúce si zloží pri štarte), `deploy/freqtrade/`,
+`tradebot/` (read-only) a `.git/` (read-only, len na verziu). **`git pull` sa v kontajneri
+nerobí** (`TRADEBOT_HUB_PULL=off`) — rob ho na hostiteľovi; agent zmenu kódu na disku
+spozná, dočíta, čo počíta, odhlási sa a skončí, a `restart: unless-stopped` ho zdvihne na
+novom kóde. Výpočet s commitom, ktorý hostiteľ ešte nepullol, zlyhá s chybou, ktorá to
+povie. Push/Pull histórie behov sa robí z hostiteľa.
 
 Webapp so zapnutým `accept` si nastaví toľko workerov, koľko má slotov — behy z hubu
 bežia vedľa seba (každý má vlastný adresár výsledkov Freqtradu), hyperopt sám.
@@ -220,6 +285,8 @@ Všetko pod `/api/`, s tokenom; `/api/health` bez neho.
 | `POST /api/agents/register` | agent | meno, jadrá, sloty, `accept`, `send` |
 | `POST /api/agents/{name}/heartbeat` | agent | stav výpočtov + lokálna záťaž → `assign`, `cancel`, `finished`, `set_accept` |
 | `POST /api/agents/{name}/accept?value=` | správca | zapnúť/vypnúť prijímanie na agentovi |
+| `GET /api/tokens`, `POST/DELETE /api/tokens/{name}` | správca | tokeny agentov |
+| `GET /api/events` | ktokoľvek | log udalostí (`limit`, `job`, `agent`, `event`) |
 | `GET /api/capacity?cores=1\|all` | zadávateľ | kto by zobral hneď, najskorší štart, fronta |
 | `POST /api/jobs` | zadávateľ | `kind`, `payload{params,settings,note,user}`, `cores`, `queue`, `max_wait_seconds`, `estimate_seconds` → 409 s odhadom, keď nikto |
 | `GET /api/jobs[/{id}]` | ktokoľvek | stav, postup, ETA, agent, zadávateľ |
@@ -242,3 +309,4 @@ z formulára), `POST /api/hub/accept` (prepínač prijímania) a
   je to silnejší signál než jedno hľadanie s viac epochami.
 - Nesynchronizuje dáta. Každý agent musí mať zložený sklad sviečok (`data_archive
   merge`); kód si pullne sám (viď „Verzia kódu"), ale len to, čo je v `main`.
+- Nerobí TLS ani používateľov — token per agent je identita, šifrovanie dá reverse proxy.

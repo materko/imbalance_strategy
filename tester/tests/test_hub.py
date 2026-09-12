@@ -915,6 +915,162 @@ def test_webapp_hub_form_endpoints(monkeypatch, tmp_path: Path):
 
 
 # --------------------------------------------------------------------------- #
+# tokeny per agent, identita v API, log udalostí
+# --------------------------------------------------------------------------- #
+
+
+def test_tokens_and_identity(tmp_path: Path):
+    from tester.hub.server import ADMIN
+
+    clock = Clock()
+    state = HubState(tmp_path / "hub", token="hlavny", clock=clock)
+    assert state.identity("hlavny") == ADMIN
+    assert state.identity("zle") is None and state.identity(None) is None
+    t = state.add_token("srv")
+    assert len(t) > 20 and state.identity(t) == "srv"
+    assert state.token_names()[0]["name"] == "srv" and state.token_names()[0]["token_hint"].endswith("…")
+    # súbor prežije reštart a bežiaci hub ho číta znova, keď sa zmení (`token add --local`)
+    znovu = HubState(tmp_path / "hub", token="hlavny", clock=clock)
+    assert znovu.identity(t) == "srv"
+    iny = HubState(tmp_path / "hub", token="hlavny", clock=clock)
+    t2 = iny.add_token("srv2")
+    assert znovu.identity(t2) == "srv2"
+    assert znovu.remove_token("srv2") and znovu.identity(t2) is None
+    assert not znovu.remove_token("srv2")
+    with pytest.raises(ValueError):
+        state.add_token(" ")
+    # hub bez jediného tokenu (vývoj na localhoste) je otvorený
+    assert HubState(tmp_path / "hub2", clock=clock).identity(None) == ADMIN
+
+
+def test_api_identity_scopes_agent_actions(tmp_path: Path):
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.hub.server import create_hub_app
+
+    state = HubState(tmp_path / "hub", token="hlavny", clock=Clock())
+    t_srv, t_lap = state.add_token("srv"), state.add_token("lap")
+    c = TestClient(create_hub_app(state))
+    H = lambda t: {"Authorization": f"Bearer {t}"}  # noqa: E731
+    reg = {"instance": "i1", "cores": 4, "slots": 4, "accept": True, "send": True}
+
+    assert c.get("/api/status", headers=H("zle")).status_code == 401
+    # agent sa smie zaregistrovať len pod svojím menom
+    assert c.post("/api/agents/register", json={**reg, "name": "iny"}, headers=H(t_srv)).status_code == 403
+    assert c.post("/api/agents/register", json={**reg, "name": "srv"}, headers=H(t_srv)).status_code == 200
+    assert c.post("/api/agents/register", json={**reg, "name": "lap", "accept": False}, headers=H(t_lap)).status_code == 200
+    assert c.post("/api/agents/srv/heartbeat", json={"jobs": []}, headers=H(t_lap)).status_code == 403
+    assert c.post("/api/agents/srv/heartbeat", json={"jobs": []}, headers=H(t_srv)).status_code == 200
+    # zadať smie len pod sebou; správca pod hocikým
+    telo = {"kind": "backtest", "payload": _payload(), "submitter": "srv"}
+    assert c.post("/api/jobs", json=telo, headers=H(t_lap)).status_code == 403
+    job = c.post("/api/jobs", json={**telo, "submitter": "lap"}, headers=H(t_lap)).json()
+    admin_job = c.post("/api/jobs", json={**telo, "submitter": "lap"}, headers=H("hlavny")).json()
+    assert job["agent"] == "srv" and admin_job["status"] in ("assigned", "queued")
+    # parametre behu vidí zadávateľ a počítajúci agent, nie tretí
+    t_x = state.add_token("x")
+    assert c.get(f"/api/jobs/{job['id']}?payload=true", headers=H(t_x)).status_code == 403
+    assert c.get(f"/api/jobs/{job['id']}?payload=true", headers=H(t_srv)).status_code == 200
+    assert c.get(f"/api/jobs/{job['id']}", headers=H(t_x)).status_code == 200
+    # výsledok odovzdá len počítajúci agent (meno sa berie z tokenu)
+    assert c.post(f"/api/jobs/{job['id']}/result?status=done&run_ids=a", content=b"zip",
+                  headers={**H(t_lap), "Content-Type": "application/zip"}).status_code == 403
+    r = c.post(f"/api/jobs/{job['id']}/result?status=done&run_ids=20260901-000001-aaaaaa", content=b"zip",
+               headers={**H(t_srv), "Content-Type": "application/zip"})
+    assert r.status_code == 200 and r.json()["agent_version"] is None
+    # stiahnuť a potvrdiť smie zadávateľ, nie počítajúci agent ani tretí
+    assert c.get(f"/api/jobs/{job['id']}/result", headers=H(t_srv)).status_code == 403
+    assert c.get(f"/api/jobs/{job['id']}/result", headers=H(t_lap)).content == b"zip"
+    assert c.post(f"/api/jobs/{job['id']}/ack", headers=H(t_x)).status_code == 403
+    assert c.post(f"/api/jobs/{job['id']}/ack", headers=H(t_lap)).status_code == 200
+    # rušiť smie zadávateľ alebo počítajúci agent; `by` je z tokenu
+    assert c.post(f"/api/jobs/{admin_job['id']}/cancel", headers=H(t_x)).status_code == 403
+    assert c.post(f"/api/jobs/{admin_job['id']}/cancel", headers=H(t_lap)).json()["cancelled_by"] == "lap"
+    # správcovské veci: accept, tokeny
+    assert c.post("/api/agents/srv/accept?value=false", headers=H(t_srv)).status_code == 403
+    assert c.post("/api/agents/srv/accept?value=false", headers=H("hlavny")).status_code == 200
+    assert c.get("/api/tokens", headers=H(t_srv)).status_code == 403
+    novy = c.post("/api/tokens/srv3", headers=H("hlavny")).json()["token"]
+    assert state.identity(novy) == "srv3"
+    assert c.delete("/api/tokens/srv3", headers=H("hlavny")).status_code == 200
+    assert c.delete("/api/tokens/srv3", headers=H("hlavny")).status_code == 404
+    assert {t["name"] for t in c.get("/api/tokens", headers=H("hlavny")).json()} == {"srv", "lap", "x"}
+
+
+def test_event_log(tmp_path: Path):
+    clock = Clock()
+    state = HubState(tmp_path / "hub", token="t", clock=clock)
+    _reg(state)
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap", version="abc")
+    state.heartbeat("srv", {"jobs": [{"id": job["id"], "status": "running"}]})
+    state.cancel(job["id"], by="lap")
+    state.result(job["id"], b"", status="failed", agent="srv")
+    state.request_accept("srv", False)
+    clock.t += state.agent_timeout + 1
+    state.capacity(1)
+    druhy = [e["event"] for e in reversed(state.events(limit=100))]
+    assert druhy == ["agent_online", "job_submitted", "job_assigned", "job_started", "job_cancel",
+                     "job_finished", "accept_request", "agent_offline"]
+    fin = state.events(event="job_finished")[0]
+    assert fin["job"] == job["id"] and fin["status"] == "cancelled" and fin["agent"] == "srv"
+    assert "lap" in fin["error"] and fin["submitter"] == "lap"
+    sub = state.events(event="job_submitted")[0]
+    assert sub["version"] == "abc" and sub["cores"] == 1 and sub["queue"] is False
+    # filtre: podľa výpočtu a podľa agenta (ako agent, zadávateľ alebo pôvodca)
+    assert {e["event"] for e in state.events(job=job["id"])} == {"job_submitted", "job_assigned", "job_started",
+                                                                  "job_cancel", "job_finished"}
+    assert "job_cancel" in {e["event"] for e in state.events(agent="lap")}
+    assert state.events(limit=2)[0]["event"] == "agent_offline" and len(state.events(limit=2)) == 2
+    # súbor prežije reštart hubu
+    riadky = (tmp_path / "hub" / "events.jsonl").read_text(encoding="utf-8").splitlines()
+    assert len(riadky) == 8 and json.loads(riadky[0])["event"] == "agent_online"
+    znovu = HubState(tmp_path / "hub", token="t", clock=clock)
+    assert len(znovu.events(limit=100)) == 8
+
+
+def test_gitcode_pull_can_be_disabled(monkeypatch):
+    from tester.hub import gitcode
+
+    monkeypatch.setenv("TRADEBOT_HUB_PULL", "off")
+    assert not gitcode.pull_enabled()
+    r = gitcode.pull()
+    assert r["ok"] is False and "hostite" in r["output"]
+    monkeypatch.setenv("TRADEBOT_HUB_PULL", "on")
+    assert gitcode.pull_enabled()
+
+
+def test_headless_agent_restarts_when_code_on_disk_changed(hub_api, tmp_path: Path, monkeypatch):
+    """Kontajner: pull sa robí na hostiteľovi; agent zmenu kódu spozná a reštartuje sa."""
+    from tester.hub import gitcode
+    from tester.hub.client import HubClient
+
+    c, state, _ = hub_api
+    http = FakeHttp(c, "tajne")
+    aktualna = {"v": "aaa111"}
+    monkeypatch.setattr(gitcode, "version", lambda: aktualna["v"])
+    monkeypatch.setattr(gitcode, "has_version", lambda commit: True)
+    monkeypatch.setattr(gitcode, "pull", lambda: {"ok": False, "output": "vypnuty"})
+    srv, runner, _ = _agent("srv", tmp_path, http)
+    srv.restart_on_pull = True
+    srv.tick()
+    client = HubClient(http, "lap")
+    job = client.submit("backtest", _payload(), version="aaa111")
+    srv.tick()
+    assert len(runner.jobs) == 1 and not srv.needs_restart
+    run_id = next(iter(runner.jobs))
+    aktualna["v"] = "bbb222"                      # na hostiteľovi prebehol git pull
+    job2 = client.submit("backtest", _payload(), version="bbb222")
+    srv.tick()
+    assert not srv.needs_restart and len(runner.jobs) == 1   # kým niečo počíta, nie
+    runner.finish(run_id)
+    srv.tick()
+    srv.tick()
+    assert srv.needs_restart and len(runner.jobs) == 1       # výpočet si vezme až nový proces
+    assert state.job(job2["id"])["status"] == "assigned"
+
+
+# --------------------------------------------------------------------------- #
 # runner: workery a exkluzivita
 # --------------------------------------------------------------------------- #
 

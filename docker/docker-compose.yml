@@ -10,6 +10,10 @@
 #
 # Vsetko okrem `freqtrade` je pod profilom, aby `docker compose up` samo o sebe
 # spustilo len bota a nie aj jednorazove ulohy.
+#
+# Distribuovane pocitanie ma vlastne subory (docs/HUB.md): docker-compose.hub.yml
+# (hub na verejnom stroji) a docker-compose.agent.yml (headless agent na serveri,
+# stavia na image `freqtrade` odtialto).
 
 name: tradebot
 

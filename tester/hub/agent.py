@@ -82,6 +82,9 @@ class HubAgent:
         self._config_mtime = self._config_stamp()
         self.clock = clock
         self.version = version or gitcode.version()
+        #: Commit pri štarte procesu — keď sa kód na disku zmení (pull na hostiteľovi,
+        #: kontajner), headless agent to spozná a reštartuje sa.
+        self.start_version = self.version
         #: Headless agent sa po pulle reštartuje (nový proces = nový kód); webapp nie.
         self.restart_on_pull = False
         self.needs_restart = False
@@ -181,6 +184,10 @@ class HubAgent:
         if value == self.cfg.accept:
             return
         self.cfg.accept = value
+        # V kontajneri prichádza `accept` z prostredia a to by pri ďalšom načítaní configu
+        # prebilo súbor — nech sa zhodujú.
+        if os.environ.get("TRADEBOT_HUB_ACCEPT") is not None:
+            os.environ["TRADEBOT_HUB_ACCEPT"] = "true" if value else "false"
         log.info("hub agent: prijimanie vypoctov %s", "zapnute" if value else "vypnute")
         if persist:
             try:
@@ -310,6 +317,15 @@ class HubAgent:
         """
         wanted = job.get("version")
         if gitcode.has_version(wanted):
+            if (self.restart_on_pull and self.version and self.start_version
+                    and self.version != self.start_version):
+                # Kód na disku je novší než tento proces (pull na hostiteľovi, kontajner):
+                # nič nové nebrať, dopočítať, čo beží, a reštartovať sa.
+                if self.state.computing:
+                    return False
+                log.info("hub agent: kod na disku je novsi (%s -> %s), restart", self.start_version, self.version)
+                self.needs_restart = True
+                return False
             return True
         if self.state.computing:
             log.info("hub agent: výpočet %s chce commit %s, čakám na dobehnutie %d behov",

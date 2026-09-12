@@ -1,0 +1,55 @@
+# Hub distribuovaného počítania (docs/HUB.md) — jeden stroj s verejnou adresou.
+#
+# Spúšťaj z koreňa repozitára:
+#   docker compose -f docker/docker-compose.hub.yml up -d --build
+#   docker compose -f docker/docker-compose.hub.yml exec hub python -m tester.hub token add srv-01 --local
+#   docker compose -f docker/docker-compose.hub.yml exec hub python -m tester.hub events --local
+#   docker compose -f docker/docker-compose.hub.yml logs -f
+#
+# Premenné (.env v koreni, viď .env.example):
+#   TRADEBOT_HUB_TOKEN   hlavný (správcovský) token — POVINNÝ; bez neho hub odmietne
+#                        štart na 0.0.0.0. Agenti dostanú vlastné tokeny (`token add`).
+#   TRADEBOT_HUB_BIND    na akú adresu hostiteľa sa port naviaže; default 127.0.0.1,
+#                        t. j. pred hub patrí reverse proxy s TLS (Caddy, nginx). Keď hub
+#                        má byť priamo na sieti, daj 0.0.0.0 — ale token je potom jediná
+#                        ochrana a ide po HTTP.
+#   TRADEBOT_HUB_PORT    port na hostiteľovi, default 8790.
+#
+# Stav (agenti, fronta, zipy výsledkov, tokeny, log udalostí) je vo volume `hub_data`
+# a prežije rebuild aj reštart.
+
+name: tradebot-hub
+
+services:
+  hub:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.hub
+    image: tradebot-hub:latest
+    container_name: tradebot-hub
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Europe/Bratislava}
+      TRADEBOT_HUB_TOKEN: ${TRADEBOT_HUB_TOKEN:?TRADEBOT_HUB_TOKEN chyba - hlavny token hubu (.env)}
+      TRADEBOT_HUB_HEARTBEAT: ${TRADEBOT_HUB_HEARTBEAT:-10}
+    env_file:
+      - path: ../.env
+        required: false
+    volumes:
+      # tradebot/core/paths.py: HUB_DIR = <repo>/tester/hub_data, v kontajneri je repo /app
+      - hub_data:/app/tester/hub_data
+    ports:
+      - "${TRADEBOT_HUB_BIND:-127.0.0.1}:${TRADEBOT_HUB_PORT:-8790}:8790"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8790/api/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+volumes:
+  hub_data:

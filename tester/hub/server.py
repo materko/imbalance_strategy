@@ -26,15 +26,26 @@ queued ──► assigned ──► running ──► done / failed
 Agent, ktorý sa prestane hlásiť (`agent_timeout`), je offline: čo mu bolo pridelené a
 ešte nebežalo, ide späť do fronty; čo bežalo, sa raz skúsi znova (ak výpočet frontu
 dovolil), inak zlyhá s chybou „agent sa odmlčal".
+
+Tokeny: hlavný token (`TRADEBOT_HUB_TOKEN`) je správcovský — smie všetko. Každý agent má
+vlastný token (`tokens.json`, `python -m tester.hub token add <meno>`), ktorý ho zároveň
+**identifikuje**: s ním sa hlási len pod svojím menom, zadáva výpočty len ako on a
+výsledky číta len k svojim. Hub bez jediného tokenu (vývoj na localhoste) je otvorený.
+
+Log udalostí (`events.jsonl`, riadok na udalosť): kto sa prihlásil a odhlásil, kto čo
+zadal, komu to hub pridelil, kedy beh začal a ako skončil, kto čo zrušil. Číta sa cez
+`GET /api/events` a `python -m tester.hub events`.
 """
 
 from __future__ import annotations
 
 import json
 import os
+import secrets
 import threading
 import time
 import uuid
+from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -56,6 +67,11 @@ DEFAULT_AGENT_TIMEOUT = 45.0
 KEEP_FINISHED = 300
 #: Koľkokrát sa výpočet skúsi znova, keď agent zmizne uprostred behu.
 MAX_ATTEMPTS = 2
+#: Koľko udalostí sa drží v pamäti na čítanie cez API; súbor rastie ďalej (rotuje sa).
+EVENTS_KEEP = 5000
+EVENTS_ROTATE_BYTES = 20 * 1024 * 1024
+#: Identita správcu (hlavný token, alebo hub bez tokenov).
+ADMIN = "*"
 
 
 class NoCapacity(Exception):
@@ -93,7 +109,14 @@ class HubState:
         self._lock = threading.RLock()
         self.root.mkdir(parents=True, exist_ok=True)
         (self.root / "results").mkdir(exist_ok=True)
+        #: meno agenta -> jeho token (`tokens.json`); číta sa znova, keď sa súbor zmení,
+        #: takže `token add --local` platí aj pre bežiaci hub.
+        self.tokens: dict[str, str] = {}
+        self._tokens_stamp: tuple[int, int] | None = None
+        self._events: deque[dict[str, Any]] = deque(maxlen=EVENTS_KEEP)
         self._load()
+        self._load_tokens()
+        self._load_events()
 
     # -- perzistencia ------------------------------------------------------- #
 
@@ -124,6 +147,139 @@ class HubState:
     def result_path(self, job_id: str) -> Path:
         return self.root / "results" / f"{job_id}.zip"
 
+    # -- tokeny ------------------------------------------------------------- #
+
+    @property
+    def tokens_file(self) -> Path:
+        return self.root / "tokens.json"
+
+    def _tokens_signature(self) -> tuple[int, int] | None:
+        try:
+            st = self.tokens_file.stat()
+        except OSError:
+            return None
+        return (st.st_mtime_ns, st.st_size)
+
+    def _load_tokens(self) -> None:
+        podpis = self._tokens_signature()
+        if podpis == self._tokens_stamp:
+            return
+        self._tokens_stamp = podpis
+        if podpis is None:
+            self.tokens = {}
+            return
+        try:
+            data = json.loads(self.tokens_file.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return
+        self.tokens = {str(k): str(v) for k, v in (data or {}).items() if v}
+
+    def _save_tokens(self) -> None:
+        tmp = self.tokens_file.with_suffix(".tmp")
+        with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
+            json.dump(self.tokens, fh, ensure_ascii=False, indent=1)
+        os.replace(tmp, self.tokens_file)
+        try:
+            os.chmod(self.tokens_file, 0o600)
+        except OSError:
+            pass
+        self._tokens_stamp = self._tokens_signature()
+
+    def identity(self, token: str | None) -> str | None:
+        """Kto volá: `ADMIN` (hlavný token, alebo hub bez tokenov), meno agenta, alebo
+        `None` = neplatný token."""
+        with self._lock:
+            self._load_tokens()
+            if not self.token and not self.tokens:
+                return ADMIN
+            if not token:
+                return None
+            if self.token and secrets.compare_digest(token, self.token):
+                return ADMIN
+            for name, t in self.tokens.items():
+                if secrets.compare_digest(token, t):
+                    return name
+            return None
+
+    def add_token(self, name: str, token: str | None = None, by: str = ADMIN) -> str:
+        """Vydá (alebo prepíše) token agenta. Vracia ho — inde sa už nedá prečítať celý."""
+        name = (name or "").strip()
+        if not name:
+            raise ValueError("agent musí mať meno")
+        with self._lock:
+            self._load_tokens()
+            token = token or secrets.token_urlsafe(24)
+            self.tokens[name] = token
+            self._save_tokens()
+            self.log("token_added", agent=name, by=by)
+            return token
+
+    def remove_token(self, name: str, by: str = ADMIN) -> bool:
+        with self._lock:
+            self._load_tokens()
+            if name not in self.tokens:
+                return False
+            del self.tokens[name]
+            self._save_tokens()
+            self.log("token_removed", agent=name, by=by)
+            return True
+
+    def token_names(self) -> list[dict[str, Any]]:
+        with self._lock:
+            self._load_tokens()
+            return [{"name": n, "token_hint": t[:4] + "…", "registered": n in self.agents}
+                    for n, t in sorted(self.tokens.items())]
+
+    # -- log udalostí ------------------------------------------------------- #
+
+    @property
+    def events_file(self) -> Path:
+        return self.root / "events.jsonl"
+
+    def _load_events(self) -> None:
+        if not self.events_file.exists():
+            return
+        try:
+            riadky = self.events_file.read_text(encoding="utf-8").splitlines()[-EVENTS_KEEP:]
+        except OSError:
+            return
+        for line in riadky:
+            try:
+                self._events.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+
+    def log(self, event: str, **fields: Any) -> None:
+        """Jedna udalosť do pamäte aj do `events.jsonl` (prázdne polia sa nepíšu)."""
+        zaznam = {"ts": _iso(self.clock()), "event": event,
+                  **{k: v for k, v in fields.items() if v is not None and v != ""}}
+        with self._lock:
+            self._events.append(zaznam)
+            try:
+                if self.events_file.exists() and self.events_file.stat().st_size > EVENTS_ROTATE_BYTES:
+                    os.replace(self.events_file, self.events_file.with_suffix(".1.jsonl"))
+                with open(self.events_file, "a", encoding="utf-8", newline="\n") as fh:
+                    fh.write(json.dumps(zaznam, ensure_ascii=False, default=str) + "\n")
+            except OSError:
+                pass
+
+    def events(self, limit: int = 100, job: str | None = None, agent: str | None = None,
+               event: str | None = None) -> list[dict[str, Any]]:
+        """Posledné udalosti, od najnovšej; filtre podľa výpočtu, agenta a druhu."""
+        with self._lock:
+            out = []
+            for e in reversed(self._events):
+                if job and e.get("job") != job:
+                    continue
+                if agent and agent not in (e.get("agent"), e.get("submitter"), e.get("by")):
+                    continue
+                if event and e.get("event") != event:
+                    continue
+                out.append(dict(e))
+                if len(out) >= max(1, int(limit)):
+                    break
+            return out
+
     # -- agenti ------------------------------------------------------------- #
 
     def register(self, name: str, *, instance: str, cores: int, slots: int, accept: bool,
@@ -145,6 +301,8 @@ class HubState:
                 "load": (stary or {}).get("load") or {},
             }
             self.agents[name] = agent
+            self.log("agent_online", agent=name, version=version, cores=int(cores), slots=int(slots),
+                     accept=bool(accept), how="register")
             self._dispatch()
             self._save()
             return self._agent_public(agent)
@@ -157,6 +315,8 @@ class HubState:
             if agent is None:
                 raise KeyError(name)
             now = self.clock()
+            if not agent.get("online"):
+                self.log("agent_online", agent=name, version=body.get("version"), how="heartbeat")
             agent["last_seen"] = now
             agent["online"] = True
             agent.pop("bye_at", None)
@@ -186,6 +346,7 @@ class HubState:
                 if job["status"] == "assigned":
                     job["status"] = "running"
                     job["started_at"] = job.get("started_at") or _iso(now)
+                    self.log("job_started", job=job["id"], agent=name, run_id=r.get("run_id"))
                 for k in ("progress", "eta_seconds", "elapsed_seconds", "run_id"):
                     if r.get(k) is not None:
                         job[k] = r[k]
@@ -209,6 +370,7 @@ class HubState:
             if agent is None:
                 raise KeyError(name)
             agent["accept_request"] = bool(value)
+            self.log("accept_request", agent=name, accept=bool(value))
             self._save()
             return self._agent_public(agent)
 
@@ -221,6 +383,7 @@ class HubState:
                 raise KeyError(name)
             agent["online"] = False
             agent["bye_at"] = self.clock()
+            self.log("agent_bye", agent=name)
             self._save()
             return self._agent_public(agent)
 
@@ -251,6 +414,7 @@ class HubState:
         for agent in self.agents.values():
             if agent.get("online") and now - float(agent.get("last_seen") or 0) > self.agent_timeout:
                 agent["online"] = False
+                self.log("agent_offline", agent=agent["name"])
                 for job in self._agent_jobs(agent["name"]):
                     self._lost(job, f"agent {agent['name']} sa odmlčal")
             elif agent.get("bye_at") and now - float(agent["bye_at"]) > self.agent_timeout:
@@ -270,6 +434,7 @@ class HubState:
             if now - zacal > float(limit) + 2 * self.agent_timeout:
                 job["cancelled_by"] = "strop casu"
                 job["status"] = "cancelling"
+                self.log("job_timeout", job=job["id"], agent=job.get("agent"), max_seconds=limit)
 
     def _lost(self, job: dict[str, Any], reason: str) -> None:
         if job["status"] == "cancelling":
@@ -280,6 +445,7 @@ class HubState:
             job.update({"status": "queued", "agent": None, "progress": None, "eta_seconds": None,
                         "elapsed_seconds": None, "missed": 0, "run_id": None})
             job.setdefault("notes", []).append(reason)
+            self.log("job_requeued", job=job["id"], reason=reason)
         else:
             self._finish(job, "failed", error=reason)
 
@@ -353,6 +519,8 @@ class HubState:
             }
             self.jobs[job["id"]] = job
             self.order.append(job["id"])
+            self.log("job_submitted", job=job["id"], kind=kind, submitter=submitter, cores=demand,
+                     queue=bool(queue), version=version, note=note[:120] if note else None)
             if volny is not None:
                 self._assign(job, volny)
             self._prune()
@@ -374,6 +542,7 @@ class HubState:
     def _assign(self, job: dict[str, Any], agent: dict[str, Any]) -> None:
         job.update({"status": "assigned", "agent": agent["name"], "assigned_at": _iso(self.clock()),
                     "attempts": int(job.get("attempts") or 0) + 1, "missed": 0})
+        self.log("job_assigned", job=job["id"], agent=agent["name"], attempt=job["attempts"])
 
     def _dispatch(self) -> None:
         """Fronta v poradí zadania: čo sa zmestí na niektorého agenta, sa pridelí."""
@@ -392,6 +561,8 @@ class HubState:
                     "eta_seconds": 0.0 if status == "done" else None})
         if run_ids:
             job["run_ids"] = list(run_ids)
+        self.log("job_finished", job=job["id"], status=status, agent=job.get("agent"),
+                 submitter=job.get("submitter"), error=error, run_ids=list(run_ids or []) or None)
 
     def cancel(self, job_id: str, by: str = "") -> dict[str, Any]:
         """Zrušenie: vo fronte hneď; pridelené alebo bežiace cez heartbeat počítajúceho agenta."""
@@ -402,6 +573,8 @@ class HubState:
             if job["status"] in P.FINAL_STATES:
                 return self._job_public(job)
             job["cancelled_by"] = by or "hub"
+            self.log("job_cancel", job=job["id"], by=job["cancelled_by"], was=job["status"],
+                     agent=job.get("agent"))
             if job["status"] == "queued":
                 self._finish(job, "cancelled", error=f"zrušené ({job['cancelled_by']})")
             elif job["status"] != "cancelling":
@@ -444,6 +617,7 @@ class HubState:
                 raise KeyError(job_id)
             job["collected"] = True
             self.result_path(job_id).unlink(missing_ok=True)
+            self.log("job_collected", job=job_id, submitter=job.get("submitter"))
             self._prune()
             self._save()
             return self._job_public(job)
@@ -550,29 +724,49 @@ class SubmitRequest(BaseModel):
 
 def create_hub_app(state: HubState | None = None) -> FastAPI:
     state = state or HubState()
-    app = FastAPI(title="TradeBot hub", version="0.1")
+    app = FastAPI(title="TradeBot hub", version="0.2")
     app.state.hub = state
 
-    def auth(request: Request) -> None:
-        if not state.token:
-            return
+    def auth(request: Request) -> str:
+        """Identita volajúceho podľa tokenu: `ADMIN`, alebo meno agenta."""
         hlavicka = request.headers.get("authorization") or ""
         token = hlavicka[7:] if hlavicka.lower().startswith("bearer ") else request.headers.get("x-hub-token", "")
-        if token != state.token:
-            raise HTTPException(401, "neplatný token hubu (TRADEBOT_HUB_TOKEN)")
+        who = state.identity(token or None)
+        if who is None:
+            raise HTTPException(401, "neplatný token hubu (TRADEBOT_HUB_TOKEN, alebo token agenta)")
+        return who
 
-    chranene = [Depends(auth)]
+    def own(who: str, name: str) -> None:
+        """Agent s vlastným tokenom koná len pod svojím menom; správca pod hocijakým."""
+        if who != ADMIN and who != name:
+            raise HTTPException(403, f"token patrí agentovi {who!r}, nie {name!r}")
+
+    def admin(who: str) -> None:
+        if who != ADMIN:
+            raise HTTPException(403, "len správca hubu (hlavný token)")
+
+    def _job_or_404(job_id: str, with_payload: bool = False) -> dict[str, Any]:
+        j = state.job(job_id, with_payload=with_payload)
+        if j is None:
+            raise HTTPException(404, "výpočet neexistuje")
+        return j
+
+    def party(who: str, j: dict[str, Any]) -> None:
+        """Zadávateľ alebo počítajúci agent (alebo správca)."""
+        if who != ADMIN and who not in (j.get("submitter"), j.get("agent")):
+            raise HTTPException(403, f"výpočet {j['id']} nepatrí agentovi {who!r}")
 
     @app.get("/api/health")
     def health():
         return {"ok": True, "hub": True, "online": state.overview()["online"]}
 
-    @app.get("/api/status", dependencies=chranene)
-    def status():
+    @app.get("/api/status")
+    def status(who: str = Depends(auth)):
         return state.overview()
 
-    @app.post("/api/agents/register", dependencies=chranene)
-    def register(req: RegisterRequest):
+    @app.post("/api/agents/register")
+    def register(req: RegisterRequest, who: str = Depends(auth)):
+        own(who, req.name)
         try:
             return state.register(req.name, instance=req.instance, cores=req.cores, slots=req.slots,
                                   accept=req.accept, send=req.send, version=req.version)
@@ -581,38 +775,42 @@ def create_hub_app(state: HubState | None = None) -> FastAPI:
         except ValueError as exc:
             raise HTTPException(422, str(exc))
 
-    @app.get("/api/agents", dependencies=chranene)
-    def agents():
+    @app.get("/api/agents")
+    def agents(who: str = Depends(auth)):
         return state.overview()["agents"]
 
-    @app.post("/api/agents/{name}/accept", dependencies=chranene)
-    def accept(name: str, value: bool = True):
+    @app.post("/api/agents/{name}/accept")
+    def accept(name: str, value: bool = True, who: str = Depends(auth)):
+        admin(who)
         try:
             return state.request_accept(name, value)
         except KeyError:
             raise HTTPException(404, f"agent {name!r} nie je zaregistrovaný")
 
-    @app.post("/api/agents/{name}/bye", dependencies=chranene)
-    def bye(name: str):
+    @app.post("/api/agents/{name}/bye")
+    def bye(name: str, who: str = Depends(auth)):
+        own(who, name)
         try:
             return state.bye(name)
         except KeyError:
             raise HTTPException(404, f"agent {name!r} nie je zaregistrovaný")
 
-    @app.post("/api/agents/{name}/heartbeat", dependencies=chranene)
-    def heartbeat(name: str, req: HeartbeatRequest):
+    @app.post("/api/agents/{name}/heartbeat")
+    def heartbeat(name: str, req: HeartbeatRequest, who: str = Depends(auth)):
+        own(who, name)
         try:
             return state.heartbeat(name, req.model_dump())
         except KeyError:
             raise HTTPException(404, f"agent {name!r} nie je zaregistrovaný — najprv /api/agents/register")
 
-    @app.get("/api/capacity", dependencies=chranene)
-    def capacity(cores: str = Query("1")):
+    @app.get("/api/capacity")
+    def capacity(cores: str = Query("1"), who: str = Depends(auth)):
         demand: int | str = P.ALL if cores == P.ALL else max(1, int(cores))
         return state.capacity(demand)
 
-    @app.post("/api/jobs", dependencies=chranene)
-    def submit(req: SubmitRequest):
+    @app.post("/api/jobs")
+    def submit(req: SubmitRequest, who: str = Depends(auth)):
+        own(who, req.submitter)
         try:
             return state.submit(kind=req.kind, payload=req.payload, submitter=req.submitter,
                                 cores=req.cores, queue=req.queue, max_wait_seconds=req.max_wait_seconds,
@@ -623,27 +821,31 @@ def create_hub_app(state: HubState | None = None) -> FastAPI:
         except ValueError as exc:
             raise HTTPException(422, str(exc))
 
-    @app.get("/api/jobs", dependencies=chranene)
-    def jobs(live: bool = False, submitter: str | None = None):
+    @app.get("/api/jobs")
+    def jobs(live: bool = False, submitter: str | None = None, who: str = Depends(auth)):
         return state.list_jobs(live_only=live, submitter=submitter)
 
-    @app.get("/api/jobs/{job_id}", dependencies=chranene)
-    def job(job_id: str, payload: bool = False):
-        j = state.job(job_id, with_payload=payload)
-        if j is None:
-            raise HTTPException(404, "výpočet neexistuje")
+    @app.get("/api/jobs/{job_id}")
+    def job(job_id: str, payload: bool = False, who: str = Depends(auth)):
+        j = _job_or_404(job_id, with_payload=payload)
+        if payload:
+            party(who, j)  # parametre behu vidí len ten, koho sa týkajú
         return j
 
-    @app.post("/api/jobs/{job_id}/cancel", dependencies=chranene)
-    def cancel(job_id: str, by: str = ""):
-        try:
-            return state.cancel(job_id, by=by)
-        except KeyError:
-            raise HTTPException(404, "výpočet neexistuje")
+    @app.post("/api/jobs/{job_id}/cancel")
+    def cancel(job_id: str, by: str = "", who: str = Depends(auth)):
+        j = _job_or_404(job_id)
+        party(who, j)
+        return state.cancel(job_id, by=(by or who) if who != ADMIN else (by or "hub"))
 
-    @app.post("/api/jobs/{job_id}/result", dependencies=chranene)
+    @app.post("/api/jobs/{job_id}/result")
     async def result(job_id: str, request: Request, status: str = "done", error: str | None = None,
-                     run_ids: str = "", agent: str | None = None, version: str | None = None):
+                     run_ids: str = "", agent: str | None = None, version: str | None = None,
+                     who: str = Depends(auth)):
+        if who != ADMIN:
+            if agent and agent != who:
+                raise HTTPException(403, f"token patrí agentovi {who!r}, nie {agent!r}")
+            agent = who
         data = await request.body()
         try:
             return state.result(job_id, data, status=status, error=error,
@@ -656,27 +858,57 @@ def create_hub_app(state: HubState | None = None) -> FastAPI:
         except ValueError as exc:
             raise HTTPException(422, str(exc))
 
-    @app.get("/api/jobs/{job_id}/result", dependencies=chranene)
-    def result_download(job_id: str):
-        j = state.job(job_id)
-        if j is None:
-            raise HTTPException(404, "výpočet neexistuje")
+    @app.get("/api/jobs/{job_id}/result")
+    def result_download(job_id: str, who: str = Depends(auth)):
+        j = _job_or_404(job_id)
+        if who != ADMIN and who != j.get("submitter"):
+            raise HTTPException(403, f"výsledok patrí zadávateľovi {j.get('submitter')!r}")
         p = state.result_path(job_id)
         if not p.exists():
             raise HTTPException(410, "výsledok už nie je na hube (vyzdvihnutý, alebo beh nemal výsledok)")
         return FileResponse(p, media_type="application/zip", filename=p.name)
 
-    @app.post("/api/jobs/{job_id}/ack", dependencies=chranene)
-    def ack(job_id: str):
-        try:
-            return state.ack(job_id)
-        except KeyError:
-            raise HTTPException(404, "výpočet neexistuje")
+    @app.post("/api/jobs/{job_id}/ack")
+    def ack(job_id: str, who: str = Depends(auth)):
+        j = _job_or_404(job_id)
+        if who != ADMIN and who != j.get("submitter"):
+            raise HTTPException(403, f"výsledok patrí zadávateľovi {j.get('submitter')!r}")
+        return state.ack(job_id)
 
-    @app.delete("/api/jobs/{job_id}", dependencies=chranene)
-    def delete(job_id: str):
+    @app.delete("/api/jobs/{job_id}")
+    def delete(job_id: str, who: str = Depends(auth)):
+        j = _job_or_404(job_id)
+        if who != ADMIN and who != j.get("submitter"):
+            raise HTTPException(403, f"výpočet patrí zadávateľovi {j.get('submitter')!r}")
         if not state.delete(job_id):
-            raise HTTPException(409, "výpočet neexistuje alebo ešte žije")
+            raise HTTPException(409, "výpočet ešte žije")
         return {"ok": True}
+
+    # -- tokeny a log udalostí ------------------------------------------------ #
+
+    @app.get("/api/tokens")
+    def tokens(who: str = Depends(auth)):
+        admin(who)
+        return state.token_names()
+
+    @app.post("/api/tokens/{name}")
+    def token_add(name: str, who: str = Depends(auth)):
+        admin(who)
+        try:
+            return {"name": name, "token": state.add_token(name)}
+        except ValueError as exc:
+            raise HTTPException(422, str(exc))
+
+    @app.delete("/api/tokens/{name}")
+    def token_remove(name: str, who: str = Depends(auth)):
+        admin(who)
+        if not state.remove_token(name):
+            raise HTTPException(404, f"agent {name!r} token nemá")
+        return {"ok": True}
+
+    @app.get("/api/events")
+    def events(limit: int = Query(100, ge=1, le=EVENTS_KEEP), job: str | None = None,
+               agent: str | None = None, event: str | None = None, who: str = Depends(auth)):
+        return state.events(limit=limit, job=job, agent=agent, event=event)
 
     return app

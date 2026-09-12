@@ -1,0 +1,59 @@
+# Headless agent hubu (docs/HUB.md) — server, ktorý počíta, čo mu hub pridelí.
+#
+# Spúšťaj z koreňa repozitára (najprv základný image Freqtradu, na ktorom agent stojí):
+#   docker compose -f docker/docker-compose.yml build freqtrade
+#   docker compose -f docker/docker-compose.agent.yml up -d --build
+#   docker compose -f docker/docker-compose.agent.yml logs -f
+#
+# Premenné (.env v koreni, viď .env.example):
+#   TRADEBOT_HUB_URL      adresa hubu, napr. https://hub.example.com
+#   TRADEBOT_HUB_TOKEN    token TOHTO agenta (na hube: `python -m tester.hub token add <meno>`)
+#   TRADEBOT_HUB_NAME     statické, jednoznačné meno agenta (default hostname kontajnera —
+#                         to nechceš, nastav ho)
+#   TRADEBOT_HUB_MAX_PARALLEL  strop behov naraz; bez neho podľa jadier
+#
+# Čo agent potrebuje z hostiteľa (mounty):
+#   tester/           história behov (výsledky sa odtiaľto balia pre hub), agent_state.json
+#   data/, data_archive/  sklad sviečok; chýbajúce si agent pri štarte zloží z archívu
+#   deploy/freqtrade/ configy búrz a user_data (výsledky Freqtradu, plány hyperoptu)
+#   tradebot/         jadro, read-only — zmena kódu bez rebuildu
+#   .git/             read-only, len na čítanie verzie (commit) — `git pull` rob na hostiteľovi;
+#                     agent zmenu kódu na disku spozná, dokončí, čo počíta, a reštartuje sa
+#
+# Git synchronizácia histórie (Push/Pull) v kontajneri nie je — rob ju z hostiteľa.
+
+name: tradebot-agent
+
+services:
+  agent:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.agent
+    image: tradebot-agent:latest
+    container_name: tradebot-agent
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Europe/Bratislava}
+      PYTHONPATH: /app
+      TRADEBOT_HUB_URL: ${TRADEBOT_HUB_URL:?TRADEBOT_HUB_URL chyba - adresa hubu (.env)}
+      TRADEBOT_HUB_TOKEN: ${TRADEBOT_HUB_TOKEN:?TRADEBOT_HUB_TOKEN chyba - token tohto agenta (.env)}
+      TRADEBOT_HUB_NAME: ${TRADEBOT_HUB_NAME:-}
+      TRADEBOT_HUB_ACCEPT: ${TRADEBOT_HUB_ACCEPT:-true}
+      TRADEBOT_HUB_SEND: ${TRADEBOT_HUB_SEND:-false}
+      TRADEBOT_HUB_MAX_PARALLEL: ${TRADEBOT_HUB_MAX_PARALLEL:-0}
+      TRADEBOT_HUB_PULL: "off"
+    env_file:
+      - path: ../.env
+        required: false
+    volumes:
+      - ../tester:/app/tester
+      - ../data:/app/data
+      - ../data_archive:/app/data_archive:ro
+      - ../deploy/freqtrade:/app/deploy/freqtrade
+      - ../tradebot:/app/tradebot:ro
+      - ../.git:/app/.git:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
