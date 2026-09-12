@@ -1119,6 +1119,21 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
     from .store import RunStore
 
     params, settings = _prepare(args)
+    # Rovnaká kontrola ako vo webapp: s peňaženkou menšou než jeden kontrakt má každá
+    # epocha nula obchodov a hyperopt beží zbytočne.
+    from .. import matrix as mx
+
+    male = mx.wallet_check([settings["pair"]], float(settings.get("wallet") or 0),
+                           timeframe=settings.get("timeframe") or "3m",
+                           timerange=settings["timerange"])
+    if male:
+        nominal = male[settings["pair"]]
+        cislo = lambda v: f"{v:,.0f}".replace(",", " ")  # noqa: E731
+        raise SystemExit(
+            f"penazenka {cislo(float(settings.get('wallet') or 0))} je na {settings['pair']} "
+            f"mala: jeden kontrakt ~{cislo(nominal)}, kazdy vstup by bol odmietnuty a vsetky "
+            f"epochy by mali nula obchodov. Pridaj --wallet {nominal * 2:.0f} "
+            f"(break-even od penazenky nezavisi).")
     if settings.get("engine") != engines.FREQTRADE:
         raise SystemExit("hyperopt bezi len na engine Freqtrade (emulator MultiCharts "
                          "optimalizator nema)")
@@ -1207,12 +1222,18 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
         while any(j.get("status") in ("queued", "running") for j in runner.snapshot()):
             time.sleep(3)
         rec = store.get(run_id) or {}
-        det = ho.detail(rec, store.extra(run_id, "epochs.json") or [], store.all())
+        det = ho.detail(rec, store.extra(run_id, "epochs.json") or [], store.all(),
+                        store.log(run_id) or "")
 
     if det.get("status") != "done":
         raise SystemExit(f"hyperopt skoncil: {det.get('error') or det.get('status')}")
     print()
     _print_hyperopt(det, plan)
+    if det.get("zero_trades"):
+        # Nula obchodov vo vsetkych epochach je iny problem nez "nesplnilo mantinely" -
+        # rady o --min-trades by tu posielali na nespravne miesto.
+        print(f"\n{det['zero_trades']}")
+        return 1
     if not det.get("overrides"):
         print("\nZIADNA epocha nesplnila mantinely (min. obchodov, strop na drawdown).")
         print("Zniz --min-trades, uvolni --max-dd, alebo daj sirsi rozsah.")
@@ -1276,7 +1297,8 @@ def cmd_hyperopts(args: argparse.Namespace) -> int:
             except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError):
                 det = None
         if det is None:
-            det = ho.detail(rec, store.extra(rec["id"], "epochs.json") or [], store.all())
+            det = ho.detail(rec, store.extra(rec["id"], "epochs.json") or [], store.all(),
+                            store.log(rec["id"]) or "")
         try:
             plan = ho.build_plan(zadanie["knobs"], strategy=strategy_of(rec),
                                  goal=zadanie.get("goal") or "break_even",
