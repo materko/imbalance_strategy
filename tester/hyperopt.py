@@ -379,8 +379,40 @@ def verification_rows(records: Iterable[dict[str, Any]], run_id: str) -> list[di
     return sorted(out, key=lambda r: (r.get("settings") or {}).get("timerange") or "")
 
 
+def zero_trades_note(epochs: Iterable[dict[str, Any]], log_text: str = "",
+                     settings: dict[str, Any] | None = None) -> str:
+    """Prečo mal hyperopt v každej epoche nula obchodov — alebo `""`, keď to tak nie je.
+
+    Tabuľka dvesto riadkov s nulami a skóre −100000 (Freqtrade `MAX_LOSS`: epocha má menej
+    obchodov, než je minimum) nepovie nič o príčine a optimalizátor v takom priestore
+    nemá čo hľadať. Príčiny sú dve a rozlíši ich log: engine signály **vôbec nedal**, alebo
+    ich dal a Freqtrade **každý vstup odmietol**.
+    """
+    from .webapp.runner import entry_signals
+
+    riadky = list(epochs)
+    if not riadky or any((e.get("trades") or 0) > 0 for e in riadky):
+        return ""
+    nast = settings or {}
+    zadanie = (f"{nast.get('pair') or '?'} {nast.get('timeframe') or ''}, peňaženka "
+               f"{nast.get('wallet') or '?'}, profil {nast.get('profile') or 'Pine defaulty'}")
+    signaly = entry_signals(log_text.splitlines()) if log_text else None
+    if signaly:
+        return (f"NULA OBCHODOV v každej epoche, hoci engine dal {signaly} signálov — Freqtrade "
+                f"každý vstup odmietol ({zadanie}). Najčastejšie je peňaženka malá na nominál "
+                f"páru (CFD, profil s legacyPineSizing) alebo chýba páka. Parametre tu nič "
+                f"nezmenia; najprv pusti obyčajný beh s tým istým zadaním a pozri jeho log.")
+    if signaly == 0:
+        return (f"NULA OBCHODOV v každej epoche a engine nedal ani jeden signál ({zadanie}). "
+                f"Rozsahy parametrov alebo profil na tomto páre setupy nevyrábajú — skontroluj, "
+                f"či profil sedí s párom (prahy v bodoch/tickoch) a či obyčajný beh obchoduje.")
+    return (f"NULA OBCHODOV v každej epoche ({zadanie}). Skóre −100000 je Freqtrade MAX_LOSS "
+            f"pre epochu pod minimom obchodov — optimalizátor v takom priestore nemá čo hľadať. "
+            f"Pusti najprv obyčajný beh s tým istým zadaním; ak má obchody, problém je v rozsahoch.")
+
+
 def detail(record: dict[str, Any], epochs: Iterable[dict[str, Any]],
-           verifications: Iterable[dict[str, Any]]) -> dict[str, Any]:
+           verifications: Iterable[dict[str, Any]], log_text: str = "") -> dict[str, Any]:
     """Detail hyperoptu — jeden tvar pre webapp endpoint aj CLI, aby sa nerozišli.
 
     `epochs` sú riadky `epochs.json` behu, `verifications` overovacie behy (hotové aj
@@ -392,7 +424,9 @@ def detail(record: dict[str, Any], epochs: Iterable[dict[str, Any]],
     nast = record.get("settings") or {}
     zadanie = nast.get("hyperopt") or {}
     overenia = verification_rows(verifications, record.get("id") or "")
+    epochs = list(epochs)
     return {
+        "zero_trades": zero_trades_note(epochs, log_text, nast) if record.get("status") == "done" else "",
         "id": record.get("id"),
         "status": record.get("status"),
         "error": record.get("error"),

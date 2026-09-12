@@ -1076,6 +1076,11 @@ function renderHyper(r) {
   const box = $("#sweep-result");
   if (r.status === "failed") { box.innerHTML = `<div class="error">${esc(r.error || "beh zlyhal")}</div>`; return; }
   const casti_html = [];
+  // Zadanie nech je vidiet vzdy - bez neho sa tabulka nul neda ani len zacat riesit.
+  const st = r.settings || {};
+  casti_html.push(`<p class="an-note">${esc(st.pair || "")} ${esc(st.timeframe || "")} · ${esc(st.timerange || "")}`
+    + ` · peňaženka ${esc(String(st.wallet ?? ""))} · profil ${esc(st.profile || "Pine defaulty")}</p>`);
+  if (r.zero_trades) casti_html.push(`<div class="warnbox">${esc(r.zero_trades)}</div>`);
 
   if ((r.epochs || []).length) {
     const head = [...r.params, "obch.", "PnL %", "WR %", "DD %", "skóre"];

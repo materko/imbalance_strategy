@@ -805,6 +805,21 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(422, str(exc))
 
         base = _run_settings(req)
+        # Dvesto epoch s peňaženkou, do ktorej sa nezmestí ani jeden kontrakt, je dvesto
+        # riadkov núl: engine dá signály a Freqtrade každý vstup odmietne. Break-even od
+        # peňaženky nezávisí, takže ju zvýšiť sa smie — a treba to povedať skôr, než to beží.
+        from .. import matrix as mx
+
+        male = mx.wallet_check([req.pair], float(req.wallet or 0), timeframe=req.timeframe,
+                               timerange=req.timerange)
+        if male:
+            nominal = male[req.pair]
+            cislo = lambda v: f"{v:,.0f}".replace(",", " ")  # noqa: E731
+            raise HTTPException(422, (
+                f"Peňaženka {cislo(req.wallet)} je na {req.pair} malá: jeden kontrakt má nominál "
+                f"~{cislo(nominal)}, takže Freqtrade odmietne každý vstup a všetky epochy by mali "
+                f"nula obchodov. Zvýš peňaženku aspoň na {cislo(nominal * 2)} — break-even od nej "
+                f"nezávisí."))
         settings = {**base, "hyperopt": {
             "knobs": dict(req.space), "goal": req.goal, "max_dd": req.max_dd,
             "min_trades": req.min_trades, "epochs": req.epochs, "seed": req.seed,
@@ -901,7 +916,12 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         # pridajú bežiace overovacie behy a okolie víťaza.
         epochs = store.extra(run_id, "epochs.json") or []
         overenia = list(store.all()) + list(runner.snapshot())
-        return {**ho.detail(rec, epochs, overenia), "plateau": _plateau_of(run_id, zadanie)}
+        try:
+            log_text = store.log(run_id) or ""
+        except OSError:
+            log_text = ""
+        return {**ho.detail(rec, epochs, overenia, log_text),
+                "plateau": _plateau_of(run_id, zadanie)}
 
     @app.get("/api/analytics")
     def analytics(q: str = "", runs: str = "", strategy: str = "ibs",
