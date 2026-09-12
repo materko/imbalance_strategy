@@ -36,6 +36,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
+from tradebot.core.paths import AGENT_CONFIG
+
+from . import config as agent_config
 from . import gitcode
 from . import protocol as P
 from .client import HubError, HubHttp
@@ -51,6 +54,11 @@ log = logging.getLogger(__name__)
 #: preklenie. Backtest nič nezaraďuje, ten ide hneď.
 SETTLE_TICKS = 2
 
+#: Strop na čas behu, keď ho zadávateľ neurčil: násobok odhadu, najmenej 10 minút.
+#: Zaseknutý Freqtrade by inak držal výpočet v `running` donekonečna.
+MAX_RUNTIME_FACTOR = 3.0
+MIN_MAX_SECONDS = 600.0
+
 
 def _parse_iso(text: str | None) -> float | None:
     if not text:
@@ -63,13 +71,15 @@ def _parse_iso(text: str | None) -> float | None:
 
 class HubAgent:
     def __init__(self, cfg: AgentConfig, runner: Any, store: Any, *, http: HubHttp | None = None,
-                 state_path: Path | None = None, clock: Callable[[], float] = time.time,
-                 version: str = "") -> None:
+                 state_path: Path | None = None, config_path: Path | None = None,
+                 clock: Callable[[], float] = time.time, version: str = "") -> None:
         self.cfg = cfg
         self.runner = runner
         self.store = store
         self.http = http or HubHttp(cfg.hub_url, cfg.token)
         self.state_path = state_path
+        self.config_path = Path(config_path or AGENT_CONFIG)
+        self._config_mtime = self._config_stamp()
         self.clock = clock
         self.version = version or gitcode.version()
         #: Headless agent sa po pulle reštartuje (nový proces = nový kód); webapp nie.
@@ -117,9 +127,12 @@ class HubAgent:
         self.ticks += 1
         if not self.registered:
             self._register()
+        self._reload_config()
         self.version = gitcode.version() or self.version
         self._upload_finished()
         odpoved = self.http.post(f"/api/agents/{self.cfg.name}/heartbeat", self._heartbeat_body())
+        if odpoved.get("set_accept") is not None:
+            self.set_accept(bool(odpoved["set_accept"]))
         for job in odpoved.get("assign") or []:
             self._accept(job)
         for job_id in odpoved.get("cancel") or []:
@@ -137,6 +150,44 @@ class HubAgent:
             "version": self.version,
         })
         self.registered = True
+
+    # -- prijímanie výpočtov za behu ---------------------------------------- #
+
+    def _config_stamp(self) -> float | None:
+        try:
+            return self.config_path.stat().st_mtime
+        except OSError:
+            return None
+
+    def _reload_config(self) -> None:
+        """Zmena `tester/agent.json` (napr. `tester.hub setup --no-accept`) platí od
+        najbližšieho heartbeatu — bez reštartu. Sloty a meno sa za behu nemenia."""
+        stamp = self._config_stamp()
+        if stamp == self._config_mtime:
+            return
+        self._config_mtime = stamp
+        novy = agent_config.load(self.config_path)
+        if novy is None or novy.name != self.cfg.name:
+            return
+        if novy.accept != self.cfg.accept or novy.send != self.cfg.send:
+            log.info("hub agent: config zmeneny - prijima=%s, posiela=%s", novy.accept, novy.send)
+        self.cfg.accept, self.cfg.send = novy.accept, novy.send
+        self.cfg.heartbeat_seconds = novy.heartbeat_seconds
+
+    def set_accept(self, value: bool, persist: bool = True) -> None:
+        """Zapnúť alebo vypnúť prijímanie — z webapp, z hubu (`set_accept` v heartbeate)
+        alebo z CLI. Zapíše sa do configu, aby to prežilo reštart."""
+        value = bool(value)
+        if value == self.cfg.accept:
+            return
+        self.cfg.accept = value
+        log.info("hub agent: prijimanie vypoctov %s", "zapnute" if value else "vypnute")
+        if persist:
+            try:
+                agent_config.save(self.cfg, self.config_path)
+                self._config_mtime = self._config_stamp()
+            except OSError as exc:
+                log.warning("hub agent: config sa nepodarilo zapisat: %s", exc)
 
     def bye(self) -> None:
         """Odhlásenie pred reštartom: hub meno uvoľní hneď a pridelené výpočty podrží."""
@@ -215,6 +266,14 @@ class HubAgent:
         if odhad is None:
             odhad = P.estimate_seconds(settings, self.store.all(), cores=self.cores)
             entry["estimate_seconds"] = odhad
+        limit = entry.get("max_seconds") or max(MAX_RUNTIME_FACTOR * float(odhad), MIN_MAX_SECONDS)
+        entry["max_seconds"] = limit
+        if status == "running" and uplynulo > limit and not entry.get("timed_out"):
+            # Zaseknutý beh: zabiť a nahlásiť ako zlyhaný — hub nesmie čakať donekonečna.
+            log.warning("hub agent: beh %s prekrocil strop %.0f min, zabijam", run_id, limit / 60)
+            entry["timed_out"] = True
+            save_state(self.state, self.state_path)
+            self._kill(run_id)
         epochs = (settings.get("hyperopt") or {}).get("epochs") if P.kind_of(settings) == P.KIND_HYPEROPT else None
         postup = P.progress_from_log(log_lines, epochs) if epochs else None
         if epochs and postup is None and started:
@@ -310,6 +369,7 @@ class HubAgent:
             self._fail(job_id, str(exc))
             return
         self.state.computing[job_id] = {"run_id": local.id, "kind": job.get("kind"),
+                                        "max_seconds": job.get("max_seconds"),
                                         "accepted": datetime.now(timezone.utc).isoformat(timespec="seconds")}
         save_state(self.state, self.state_path)
 
@@ -321,13 +381,15 @@ class HubAgent:
             return
         entry["cancel_requested"] = True
         save_state(self.state, self.state_path)
-        run_id = entry.get("run_id")
-        if run_id:
-            self.runner.cancel(run_id)
-            # aj overovacie behy víťaza, keby už boli vo fronte
-            for j in self.runner.snapshot():
-                if ((j.get("settings") or {}).get("hyperopt_run") or {}).get("id") == run_id:
-                    self.runner.cancel(j["id"])
+        if entry.get("run_id"):
+            self._kill(entry["run_id"])
+
+    def _kill(self, run_id: str) -> None:
+        """Zabije lokálny beh aj overovacie behy víťaza, keby už boli vo fronte."""
+        self.runner.cancel(run_id)
+        for j in self.runner.snapshot():
+            if ((j.get("settings") or {}).get("hyperopt_run") or {}).get("id") == run_id:
+                self.runner.cancel(j["id"])
 
     def _live_verifications(self, run_id: str) -> list[dict[str, Any]]:
         """Overovacie behy víťaza, ktoré ešte bežia alebo čakajú v lokálnom runneri."""
@@ -367,7 +429,11 @@ class HubAgent:
                 continue
             run_ids = [run_id] + self._verification_ids(run_id)
             data = pack_runs(self.store.root, run_ids)
-            if entry.get("cancel_requested") and status != "done":
+            if entry.get("timed_out") and status != "done":
+                stav = "failed"
+                chyba = (f"prekročil strop {float(entry.get('max_seconds') or 0) / 60:.0f} min "
+                         f"a agent {self.cfg.name} ho zabil")
+            elif entry.get("cancel_requested") and status != "done":
                 stav, chyba = "cancelled", ""  # kto a prečo dopíše hub (`cancelled_by`)
             else:
                 stav = status

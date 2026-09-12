@@ -48,7 +48,7 @@ __all__ = [
     "REFERENCE_WINDOWS", "DEFAULT_EPOCHS", "LOSS_CLASS", "RESULTS_DIR", "Epoch",
     "build_plan", "suggested", "plan_path", "latest_results", "command", "read_results",
     "best", "overrides", "table", "verdict", "knowledge_note", "warnings_for",
-    "edge_of", "epochs_from_dicts", "detail", "verification_rows",
+    "edge_of", "epochs_from_dicts", "detail", "verification_rows", "compare_seeds",
 ]
 
 #: Päť referenčných okien repozitára — na nich sa hodnotí každá zmena parametra.
@@ -370,6 +370,52 @@ def verdict(records: list[dict[str, Any]], tuned: str) -> str:
                 "parametre nepouzivaj.")
     return (f"NEJASNE: break-even je nad poplatkom v {k} z {n} okien mimo ladeneho. "
             "Pozri znamienko po rokoch, nie sucet; jedno dobre okno nestaci.")
+
+
+def compare_seeds(details: Iterable[dict[str, Any]]) -> str:
+    """Ten istý hyperopt s rôznym seedom: skončili optimalizátory na tom istom mieste?
+
+    Hyperopt sa medzi stroje deliť nedá, ale dá sa pustiť viackrát s iným `--random-state`
+    (na hube naraz). Keď rôzne seedy skončia na rovnakých hodnotách, je to silnejší
+    signál než jedno hľadanie s viac epochami; keď každý inde, priestor je plochý alebo
+    šum a presná hodnota nerozhoduje — čo je tiež odpoveď.
+    """
+    riadky = list(details)
+    if not riadky:
+        return "ziadne hyperopty na porovnanie"
+    lines = [f"{'seed':>6}  {'hyperopt':<24}{'epoch':>6}  {'vitaz':<40}{'break-even':>11}  verdikt"]
+    lines.append("-" * (len(lines[0]) + 4))
+    skupiny: dict[str, list[Any]] = {}
+    preziti = 0
+    for d in riadky:
+        z = d.get("hyperopt") or {}
+        seed = z.get("seed")
+        over = d.get("overrides") or {}
+        vitaz = ", ".join(f"{k}={_fmt(v['value'] if isinstance(v, dict) else v)}" for k, v in over.items()) or "-"
+        ladene = next((r for r in (d.get("verify") or []) if r.get("tuned")), None)
+        be = ((ladene or {}).get("result") or {}).get("break_even_pct")
+        verdikt = (d.get("verdict") or "").split(":")[0] or "-"
+        if verdikt.startswith("VITAZ"):
+            preziti += 1
+        lines.append(f"{str(seed if seed is not None else '-'):>6}  {str(d.get('id') or '-'):<24}"
+                     f"{str(z.get('epochs_done', '?')):>6}  {vitaz:<40}"
+                     f"{(f'{be:.4f} %' if be is not None else '-'):>11}  {verdikt}")
+        if over:
+            skupiny.setdefault(vitaz, []).append(seed)
+    lines.append("")
+    n = len(riadky)
+    if not skupiny:
+        lines.append("ZIADNY seed nedal pouzitelneho vitaza - mantinely su prisne, alebo priestor nema nic.")
+    elif len(skupiny) == 1:
+        lines.append(f"ROVNAKE: vsetkych {n} seedov skoncilo na tych istych hodnotach. Optimum nie je "
+                     "nahoda jedneho behu - to je najlepsi mozny vysledok viacerych seedov.")
+    else:
+        najv = max(skupiny.values(), key=len)
+        lines.append(f"ROZNE: {len(skupiny)} roznych vitazov z {n} seedov (najcastejsi {len(najv)}x). "
+                     "Optimalizator si v tom rozsahu nie je isty - bud je priestor plochy (presna "
+                     "hodnota nerozhoduje, over cez plateau), alebo je to sum. Viac epoch to nezachrani.")
+    lines.append(f"prezilo overenie na ostatnych oknach: {preziti} z {n}")
+    return "\n".join(lines)
 
 
 def verification_rows(records: Iterable[dict[str, Any]], run_id: str) -> list[dict[str, Any]]:

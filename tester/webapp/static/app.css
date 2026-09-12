@@ -544,3 +544,10 @@ main.view { grid-template-columns: 370px minmax(0, 1fr); gap: 20px; }
 @media (max-width: 1000px) {
   #view-new { grid-template-areas: "heading" "settings" "parameters"; }
 }
+
+/* Hub: distribuované počítanie (docs/HUB.md) */
+.hub-run { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; font-size: 12.5px; }
+.hub-run input[type=number] { width: 58px; }
+.hub-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+table.runs tbody tr.plain { cursor: default; }
+table.runs tbody tr.plain:hover { background: transparent; }

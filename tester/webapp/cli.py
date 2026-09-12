@@ -324,6 +324,7 @@ def _remote_submit(args: argparse.Namespace, params: dict, settings: dict, note:
     demand = cores if cores is not None else P.cores_for(settings, kind)
     odhad = P.estimate_seconds(settings, RunStore().all(), cores=os.cpu_count() or 1)
     max_wait = args.max_wait * 60 if getattr(args, "max_wait", None) else None
+    max_seconds = args.max_runtime * 60 if getattr(args, "max_runtime", None) else None
     if queue is None:
         queue = bool(getattr(args, "queue", False))
 
@@ -344,14 +345,14 @@ def _remote_submit(args: argparse.Namespace, params: dict, settings: dict, note:
     payload = {"params": params, "settings": settings, "note": note, "user": user or None}
     telo = {"kind": kind, "payload": payload, "cores": cores, "queue": bool(queue),
             "max_wait_seconds": max_wait, "estimate_seconds": odhad, "note": note,
-            "version": verzia or None}
+            "version": verzia or None, "max_seconds": max_seconds}
     try:
         if _webapp_hub_ready(args.url):
             job = api(args.url, "/api/hub/jobs", telo)
         else:
             job = client.submit(kind, payload, cores=cores, queue=bool(queue),
                                 max_wait_seconds=max_wait, estimate_seconds=odhad, note=note,
-                                version=verzia or None)
+                                version=verzia or None, max_seconds=max_seconds)
             stav = hub_config.load_state()
             stav.sent[job["id"]] = {"kind": kind, "note": note, "created": job.get("created"),
                                     "status": job.get("status"), "run_ids": [], "error": None}
@@ -1358,6 +1359,11 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
           flush=True)
 
     store = RunStore()
+    if args.seeds and args.seeds > 1:
+        if not args.remote:
+            raise SystemExit("--seeds ma zmysel na hube (--remote): seedy bezia naraz na roznych "
+                             "agentoch; lokalne pusti hyperopt viackrat s --seed")
+        return _hyperopt_seeds(args, params, settings, zadanie, plan, note)
     if args.remote:
         rec = _remote_execute(args, params, {**settings, "hyperopt": zadanie}, note)
         run_id = rec.get("id")
@@ -1422,6 +1428,45 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
     print(f"\ncele porovnanie: python -m tester.webapp.cli hyperopts {run_id}")
     print(f"okolie vitaza:   python -m tester.webapp.cli plateau {run_id}")
     return 0
+
+
+def _hyperopt_seeds(args: argparse.Namespace, params: dict, settings: dict, zadanie: dict,
+                    plan: Any, note: str) -> int:
+    """Ten istý hyperopt s N seedmi naraz na hube; na konci porovnanie víťazov.
+
+    Hyperopt sa medzi stroje deliť nedá (Optuna štúdia žije v procese Freqtradu), ale
+    viac seedov paralelne povie viac než jedno dlhé hľadanie: či optimum drží, alebo je
+    to tvar jedného behu.
+    """
+    from .. import hyperopt as ho
+    from .store import RunStore
+
+    zaklad = int(args.seed) if args.seed is not None else 1
+    seeds = [zaklad + i for i in range(int(args.seeds))]
+    body = [(params, {**settings, "hyperopt": {**zadanie, "seed": s}}, f"{note} [seed {s}]") for s in seeds]
+    print(f"seedy {', '.join(map(str, seeds))}: {len(seeds)} hyperoptov naraz", flush=True)
+    _remote_prefetch(args, body)
+
+    store = RunStore()
+    dets = []
+    for i, (p_, s_, n_) in enumerate(body, 1):
+        print(f"[{i}/{len(body)}] seed {seeds[i - 1]}", flush=True)
+        rec = _execute(args, p_, s_, n_, quiet=True)
+        if rec.get("status") != "done":
+            print(f"      {rec.get('status')}: {rec.get('error') or ''}", flush=True)
+            continue
+        det = ho.detail(rec, store.extra(rec["id"], "epochs.json") or [], store.all())
+        dets.append(det)
+        over = det.get("overrides") or {}
+        print(f"      {rec['id']}  vitaz: "
+              + (", ".join(f"{k}={sweep_mod._fmt(v)}" for k, v in over.items()) or "ziadny")
+              + (f"  — {det['verdict'].split(':')[0]}" if det.get("verdict") else ""), flush=True)
+
+    print(f"\n=== porovnanie seedov — {sweep_mod.describe(args.goal, args.max_dd, args.min_trades)} ===")
+    print(ho.compare_seeds(dets))
+    if dets:
+        print("\ndetail: python -m tester.webapp.cli hyperopts <id>;  okolie: cli plateau <id>")
+    return 0 if dets else 1
 
 
 def _print_hyperopt(det: dict, plan: Any) -> None:
@@ -1592,6 +1637,9 @@ def _remote_args(p: argparse.ArgumentParser) -> None:
                    help="s --queue: najviac toľko minút čakania podľa odhadu hubu, inak odmietnuť")
     p.add_argument("--cores", help="s --remote: koľko jadier výpočet žiada (číslo alebo all; "
                                    "default backtest 1, hyperopt a AI all)")
+    p.add_argument("--max-runtime", dest="max_runtime", type=float,
+                   help="s --remote: strop na čas behu v minútach; po ňom agent beh zabije "
+                        "(default trojnásobok odhadu, najmenej 10 min)")
 
 
 def _run_args(p: argparse.ArgumentParser, *, timerange: bool = True) -> None:
@@ -1815,6 +1863,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--epochs", type=int, default=200,
                    help="koľko konfigurácií vyskúšať (default 200; každá je celý backtest)")
     p.add_argument("--seed", type=int, help="`--random-state` optimalizátora, na zopakovateľný beh")
+    p.add_argument("--seeds", type=int,
+                   help="s --remote: ten istý hyperopt s toľkými seedmi naraz (od --seed alebo 1) "
+                        "a porovnanie víťazov — zhoda seedov je silnejší dôkaz než viac epoch")
     p.add_argument("--jobs", type=int, help="koľko epoch paralelne (default všetky jadrá)")
     p.add_argument("--no-verify", action="store_true",
                    help="nespúšťať víťaza na ďalších referenčných oknách (do záverov to nepatrí)")

@@ -14,6 +14,7 @@
     <button data-view="new" class="active">Nový beh</button>
     <button data-view="history">História</button>
     <button data-view="analytics">Analytika</button>
+    <button data-view="hub" id="tab-hub" hidden>Hub <span id="hub-tab-chip" class="chip"></span></button>
   </nav>
   <div class="git">
     <input id="who" class="who" type="text" maxlength="80" placeholder="meno testera" title="Meno testera – ukladá sa ku každému behu a ako autor commitu. Drží sa v tomto prehliadači.">
@@ -123,6 +124,13 @@
 
 
       <div class="run-bar">
+        <div id="hub-run-row" class="hub-run" hidden>
+          <label class="inline small" title="Beh spočíta voľný agent na hube; výsledok príde do tejto histórie, ako keby bežal tu. Platí aj pre hyperopt zo sekcie Hľadať parametre.">
+            <input type="checkbox" id="hub-run"> na hube</label>
+          <label class="inline small" title="Keď nikto nie je voľný, výpočet počká vo fronte hubu."><input type="checkbox" id="hub-queue" checked> čakať vo fronte</label>
+          <label class="inline small" title="Najviac toľko minút čakania podľa odhadu hubu, inak odmietne.">najviac <input id="hub-maxwait" type="number" min="0" step="5" placeholder="min"> min</label>
+          <span id="hub-run-info" class="muted small"></span>
+        </div>
         <div class="run-caption">Pripravené? Výsledok nájdeš v histórii.</div>
         <button id="run" class="primary">▶ Spustiť backtest</button>
       </div>
@@ -263,6 +271,38 @@
       </div>
     </div>
   </section>
+</main>
+
+<main id="view-hub" class="view single" hidden>
+  <div class="card">
+    <h2>Tento agent <span id="hub-agent-chip" class="chip"></span></h2>
+    <div id="hub-agent-none" class="muted">Hub nie je nastavený — <code>python -m tester.hub setup --name … --hub-url … --token …</code> a reštart webapp. Návod: docs/HUB.md.</div>
+    <div id="hub-agent" hidden>
+      <div class="hub-row">
+        <b id="hub-agent-name"></b> <span id="hub-agent-url" class="muted small"></span>
+        <span class="spacer"></span>
+        <label class="inline" title="Prijímať výpočty od hubu. Platí hneď a zapíše sa do tester/agent.json."><input type="checkbox" id="hub-accept"> prijímať výpočty</label>
+        <span id="hub-agent-send" class="chip"></span>
+        <span id="hub-agent-version" class="chip" title="commit kódu, na ktorom táto webapp stojí"></span>
+      </div>
+      <div id="hub-agent-warn" class="error" hidden></div>
+      <div id="hub-agent-info" class="muted small"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Agenti <span id="hub-agents-count" class="chip"></span></h2>
+    <div id="hub-error" class="error" hidden></div>
+    <div class="scroll"><table id="hub-agents" class="runs"><thead><tr>
+      <th>agent</th><th>stav</th><th>kód</th><th class="num">jadrá</th><th class="num">sloty</th><th class="num">obsadené</th>
+      <th>prijíma</th><th>voľný pre beh</th><th>voľný pre hyperopt</th></tr></thead><tbody></tbody></table></div>
+  </div>
+  <div class="card">
+    <h2>Výpočty <span id="hub-jobs-count" class="chip"></span>
+      <label class="inline small" style="margin-left:12px"><input type="checkbox" id="hub-jobs-all"> aj hotové</label></h2>
+    <div class="scroll"><table id="hub-jobs" class="runs"><thead><tr>
+      <th>výpočet</th><th>druh</th><th>stav</th><th>agent</th><th>zadal</th><th>kód</th>
+      <th class="num">postup</th><th>zostáva</th><th>čo</th><th></th></tr></thead><tbody></tbody></table></div>
+  </div>
 </main>
 
 <main id="view-analytics" class="view single" hidden>

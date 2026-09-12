@@ -320,6 +320,28 @@ class HubJobRequest(BaseModel):
     estimate_seconds: float | None = None
     note: str = ""
     version: str | None = None
+    max_seconds: float | None = None
+
+
+class HubOptions(BaseModel):
+    """Voľby hubu k zadaniu z formulára: fronta, strop čakania a strop na čas behu."""
+
+    queue: bool = True
+    max_wait_minutes: float | None = None
+    max_runtime_minutes: float | None = None
+    cores: int | str | None = None
+
+
+class HubRunRequest(RunRequest, HubOptions):
+    """Beh z formulára, ale na hube — to isté zadanie ako `/api/runs`."""
+
+
+class HubHyperoptRequest(HyperoptRequest, HubOptions):
+    """Hyperopt z formulára na hube — to isté zadanie ako `/api/hyperopts`."""
+
+
+class HubAcceptRequest(BaseModel):
+    accept: bool
 
 
 def create_app(store: RunStore | None = None, runner: BacktestRunner | None = None) -> FastAPI:
@@ -1932,17 +1954,17 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 out["error"] = f"{type(exc).__name__}: {exc}"
         return out
 
-    @app.post("/api/hub/jobs")
-    def hub_submit(req: HubJobRequest):
+    def _hub_send(kind: str, payload: dict[str, Any], *, cores, queue, max_wait_seconds,
+                  estimate_seconds, note, version, max_seconds) -> dict[str, Any]:
         from ..hub import gitcode
         from ..hub.client import HubError, NoCapacityError
 
         cfg, client = _hub_client()
         try:
-            job = client.submit(req.kind, req.payload, cores=req.cores, queue=req.queue,
-                                max_wait_seconds=req.max_wait_seconds,
-                                estimate_seconds=req.estimate_seconds, note=req.note,
-                                version=req.version or gitcode.version() or None)
+            job = client.submit(kind, payload, cores=cores, queue=queue,
+                                max_wait_seconds=max_wait_seconds, estimate_seconds=estimate_seconds,
+                                note=note, version=version or gitcode.version() or None,
+                                max_seconds=max_seconds)
         except NoCapacityError as exc:
             raise HTTPException(409, exc.detail)
         except HubError as exc:
@@ -1951,8 +1973,82 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(502, f"hub nedostupný: {exc}")
         agent = getattr(app.state, "hub_agent", None)
         if agent is not None:
-            agent.note_sent(job, req.note)
+            agent.note_sent(job, note)
         return job
+
+    @app.post("/api/hub/jobs")
+    def hub_submit(req: HubJobRequest):
+        """Hotový payload (CLI): pošle sa tak, ako prišiel."""
+        return _hub_send(req.kind, req.payload, cores=req.cores, queue=req.queue,
+                         max_wait_seconds=req.max_wait_seconds, estimate_seconds=req.estimate_seconds,
+                         note=req.note, version=req.version, max_seconds=req.max_seconds)
+
+    def _hub_form(req: HubOptions, kind: str, params: dict[str, Any], settings: dict[str, Any],
+                  note: str, user: str) -> dict[str, Any]:
+        """Zadanie z formulára: settings overené ako pri lokálnom behu, odhad z tejto histórie."""
+        from ..hub import protocol as P
+
+        payload = {"params": params, "settings": settings, "note": note, "user": user or None}
+        odhad = P.estimate_seconds(settings, store.all(), cores=os.cpu_count() or 1)
+        return _hub_send(kind, payload, cores=req.cores, queue=req.queue,
+                         max_wait_seconds=req.max_wait_minutes * 60 if req.max_wait_minutes else None,
+                         estimate_seconds=odhad, note=note, version=None,
+                         max_seconds=req.max_runtime_minutes * 60 if req.max_runtime_minutes else None)
+
+    @app.post("/api/hub/runs")
+    def hub_run(req: HubRunRequest):
+        """Beh z formulára na hub — rovnaká validácia ako `/api/runs`, len ho spočíta agent."""
+        settings = _run_settings(req)
+        try:
+            get_spec(req.strategy).config_cls.from_dict(
+                {k: v for k, v in req.params.items() if not k.startswith("_")})
+        except ConfigError as exc:
+            raise HTTPException(422, str(exc))
+        return _hub_form(req, "backtest", req.params, settings, req.note, _clean_user(req.user))
+
+    @app.post("/api/hub/hyperopts")
+    def hub_hyperopt(req: HubHyperoptRequest):
+        """Hyperopt z formulára na hub — rovnaké zadanie ako `/api/hyperopts`."""
+        from .. import hyperopt as ho
+
+        if not req.space:
+            raise HTTPException(422, "hyperopt potrebuje aspoň jeden parameter")
+        defaults = DEFAULTS.get(req.strategy) or DEFAULTS["ibs"]
+        for name in req.space:
+            if name not in defaults:
+                raise HTTPException(422, f"neznámy parameter {name!r}")
+        try:
+            ho.build_plan(req.space, strategy=req.strategy, goal=req.goal,
+                          max_dd=req.max_dd, min_trades=req.min_trades, note=req.note)
+        except ValueError as exc:
+            raise HTTPException(422, str(exc))
+        settings = {**_run_settings(req), "hyperopt": {
+            "knobs": dict(req.space), "goal": req.goal, "max_dd": req.max_dd,
+            "min_trades": req.min_trades, "epochs": req.epochs, "seed": req.seed,
+            "verify": req.verify,
+        }}
+        popis = ", ".join(f"{k}={v}" for k, v in req.space.items())
+        note = f"hyperopt {popis}" + (f" — {req.note}" if req.note else "")
+        return _hub_form(req, "hyperopt", req.params, settings, note, _clean_user(req.user))
+
+    @app.post("/api/hub/accept")
+    def hub_accept(req: HubAcceptRequest):
+        """Prepnúť prijímanie výpočtov na tejto webapp — bez reštartu, zapíše sa do configu."""
+        agent = getattr(app.state, "hub_agent", None)
+        if agent is None:
+            raise HTTPException(404, "táto webapp nebeží ako agent hubu (tester/agent.json + reštart)")
+        agent.set_accept(req.accept)
+        return agent.public()
+
+    @app.get("/api/hub/jobs")
+    def hub_jobs(live: bool = True):
+        from ..hub.client import HubError
+
+        _, client = _hub_client()
+        try:
+            return client.jobs(live=live)
+        except HubError as exc:
+            raise HTTPException(exc.status if exc.status in (404, 401) else 502, str(exc))
 
     @app.get("/api/hub/jobs/{job_id}")
     def hub_job(job_id: str):

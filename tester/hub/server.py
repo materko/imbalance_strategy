@@ -166,6 +166,11 @@ class HubState:
             agent["load"] = dict(body.get("load") or {})
             if body.get("instance"):
                 agent["instance"] = body["instance"]
+            # Prepnutie `accept` z hubu: agent dostane pokyn, kým nehlási to isté.
+            ziadane = agent.get("accept_request")
+            if ziadane is not None and bool(agent.get("accept")) == bool(ziadane):
+                agent.pop("accept_request", None)
+                ziadane = None
 
             hlasene = {j.get("id"): j for j in (body.get("jobs") or []) if j.get("id")}
             for job in self._agent_jobs(name):
@@ -193,7 +198,19 @@ class HubState:
                         and not j.get("collected")]
             self._save()
             return {"assign": assign, "cancel": cancel, "finished": finished,
+                    "set_accept": ziadane,
                     "heartbeat_seconds": self.heartbeat_seconds, "now": _iso(now)}
+
+    def request_accept(self, name: str, value: bool) -> dict[str, Any]:
+        """Správca hubu zapne alebo vypne prijímanie výpočtov na agentovi — agent si to
+        prevezme v najbližšom heartbeate a zapíše do svojho configu."""
+        with self._lock:
+            agent = self.agents.get(name)
+            if agent is None:
+                raise KeyError(name)
+            agent["accept_request"] = bool(value)
+            self._save()
+            return self._agent_public(agent)
 
     def bye(self, name: str) -> dict[str, Any]:
         """Agent sa odhlási (reštart po pulle): meno je hneď voľné, pridelené výpočty
@@ -220,6 +237,7 @@ class HubState:
             "accept": bool(agent.get("accept")), "send": bool(agent.get("send")),
             "online": bool(agent.get("online")), "last_seen": _iso(float(agent.get("last_seen") or 0)),
             "version": agent.get("version"), "needs_restart": bool(agent.get("needs_restart")),
+            "accept_request": agent.get("accept_request"),
             "load": agent.get("load") or {},
             "used": b["used"], "exclusive": b["exclusive"],
             "jobs": [{"id": j["id"], "kind": j["kind"], "status": j["status"],
@@ -239,6 +257,19 @@ class HubState:
                 agent.pop("bye_at", None)
                 for job in self._agent_jobs(agent["name"]):
                     self._lost(job, f"agent {agent['name']} sa po reštarte nevrátil")
+        # Strop na čas behu stráži agent (beh zabije sám); hub je poistka, keby agent
+        # bežal na starom kóde alebo strop nevymáhal — dá mu ešte dva intervaly navyše.
+        for job in self.jobs.values():
+            limit = job.get("max_seconds")
+            if job["status"] != "running" or not limit or not job.get("started_at"):
+                continue
+            try:
+                zacal = datetime.fromisoformat(job["started_at"]).timestamp()
+            except ValueError:
+                continue
+            if now - zacal > float(limit) + 2 * self.agent_timeout:
+                job["cancelled_by"] = "strop casu"
+                job["status"] = "cancelling"
 
     def _lost(self, job: dict[str, Any], reason: str) -> None:
         if job["status"] == "cancelling":
@@ -286,7 +317,7 @@ class HubState:
     def submit(self, *, kind: str, payload: dict[str, Any], submitter: str, cores: int | str | None = None,
                queue: bool = False, max_wait_seconds: float | None = None,
                estimate_seconds: float | None = None, note: str = "",
-               version: str | None = None) -> dict[str, Any]:
+               version: str | None = None, max_seconds: float | None = None) -> dict[str, Any]:
         if kind not in P.KINDS:
             raise ValueError(f"neznámy druh výpočtu {kind!r}; známe: {', '.join(P.KINDS)}")
         if not isinstance(payload, dict) or "params" not in payload or "settings" not in payload:
@@ -313,6 +344,7 @@ class HubState:
                 "queue": bool(queue), "max_wait_seconds": max_wait_seconds,
                 "estimate_seconds": estimate_seconds, "submitter": submitter, "note": note,
                 "version": version or None, "agent_version": None,
+                "max_seconds": float(max_seconds) if max_seconds else None,
                 "status": "queued", "created": _iso(now), "assigned_at": None, "started_at": None,
                 "finished_at": None, "agent": None, "progress": None, "eta_seconds": None,
                 "elapsed_seconds": None, "run_id": None, "run_ids": [], "error": None,
@@ -513,6 +545,7 @@ class SubmitRequest(BaseModel):
     estimate_seconds: float | None = None
     note: str = ""
     version: str | None = None
+    max_seconds: float | None = None
 
 
 def create_hub_app(state: HubState | None = None) -> FastAPI:
@@ -552,6 +585,13 @@ def create_hub_app(state: HubState | None = None) -> FastAPI:
     def agents():
         return state.overview()["agents"]
 
+    @app.post("/api/agents/{name}/accept", dependencies=chranene)
+    def accept(name: str, value: bool = True):
+        try:
+            return state.request_accept(name, value)
+        except KeyError:
+            raise HTTPException(404, f"agent {name!r} nie je zaregistrovaný")
+
     @app.post("/api/agents/{name}/bye", dependencies=chranene)
     def bye(name: str):
         try:
@@ -577,7 +617,7 @@ def create_hub_app(state: HubState | None = None) -> FastAPI:
             return state.submit(kind=req.kind, payload=req.payload, submitter=req.submitter,
                                 cores=req.cores, queue=req.queue, max_wait_seconds=req.max_wait_seconds,
                                 estimate_seconds=req.estimate_seconds, note=req.note,
-                                version=req.version)
+                                version=req.version, max_seconds=req.max_seconds)
         except NoCapacity as exc:
             raise HTTPException(409, exc.detail())
         except ValueError as exc:

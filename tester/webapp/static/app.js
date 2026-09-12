@@ -1020,6 +1020,11 @@ async function startHyperopt() {
       epochs: Number($("#hyper-epochs").value) || 200,
       verify: $("#hyper-verify").checked,
     };
+    if (hubChecked()) {
+      const job = await api("/api/hub/hyperopts", { method: "POST", body: JSON.stringify({ ...body, ...hubOptions() }) });
+      $("#sweep-status").textContent = `hyperopt na hube: ${job.id} · ${job.status}${job.agent ? " · " + job.agent : ""} — sleduj kartu Hub`;
+      return;
+    }
     const r = await api("/api/hyperopts", { method: "POST", body: JSON.stringify(body) });
     hyper.id = r.id;
     try { localStorage.setItem(hyperKey(), r.id); } catch (e) { /* súkromné okno */ }
@@ -1645,6 +1650,13 @@ function runBody() {
 async function submitRun() {
   const btn = $("#run"); btn.disabled = true; $("#run-error").hidden = true;
   try {
+    if (hubChecked()) {
+      // Beh ide na hub: spočíta ho voľný agent, výsledok si agent tejto webapp vyzdvihne
+      // sám a beh sa objaví v histórii ako každý iný.
+      const job = await api("/api/hub/runs", { method: "POST", body: JSON.stringify({ ...runBody(), ...hubOptions() }) });
+      $("#hub-run-info").textContent = `zadané na hub: ${job.id} · ${job.status}${job.agent ? " · " + job.agent : ""}`;
+      return;
+    }
     const job = await api("/api/runs", { method: "POST", body: JSON.stringify(runBody()) });
     // Vyzva sa pocita az z hotovych obchodov, takze si beh zapamatame a pockame naň.
     state.propAfterRun = ($("#nprop-after")?.checked && job?.id) ? job.id : null;
@@ -1705,6 +1717,113 @@ async function pollQueue() {
   await refreshLiveLog(jobs);
   clearTimeout(state.pollTimer);
   state.pollTimer = setTimeout(pollQueue, 2000);
+}
+
+// --------------------------------------------------------------------------- //
+// Hub: distribuované počítanie (docs/HUB.md)
+// --------------------------------------------------------------------------- //
+
+const hubChecked = () => !!$("#hub-run")?.checked;
+
+function hubOptions() {
+  const w = $("#hub-maxwait").value;
+  return { queue: $("#hub-queue").checked, max_wait_minutes: w === "" ? null : Number(w) };
+}
+
+function fmtEta(s) {
+  if (s === null || s === undefined) return "–";
+  if (s <= 0) return "hneď";
+  if (s < 90) return `${Math.round(s)} s`;
+  return `${Math.round(s / 60)} min`;
+}
+
+/** Pri štarte: keď je klon agentom hubu, ukáže sa karta Hub a prepínač „na hube" pri behu. */
+async function hubSetup() {
+  let h;
+  try { h = await api("/api/hub"); } catch (e) { return; }
+  if (!h.configured) return;
+  $("#tab-hub").hidden = false;
+  if (h.config && h.config.send) $("#hub-run-row").hidden = false;
+  $("#hub-accept").onchange = async () => {
+    try { await api("/api/hub/accept", { method: "POST", body: JSON.stringify({ accept: $("#hub-accept").checked }) }); }
+    catch (e) { $("#hub-error").textContent = e.message; $("#hub-error").hidden = false; }
+    loadHub();
+  };
+  $("#hub-jobs-all").onchange = loadHub;
+  renderHubAgent(h);
+}
+
+function renderHubAgent(h) {
+  const a = h.agent, cfg = h.config;
+  $("#hub-agent-none").hidden = !!cfg;
+  $("#hub-agent").hidden = !cfg;
+  if (!cfg) return;
+  $("#hub-agent-name").textContent = cfg.name;
+  $("#hub-agent-url").textContent = cfg.hub_url;
+  $("#hub-accept").checked = a ? a.accept : cfg.accept;
+  $("#hub-accept").disabled = !a;
+  $("#hub-agent-send").textContent = cfg.send ? "posiela" : "neposiela";
+  $("#hub-agent-send").className = `chip ${cfg.send ? "ok" : ""}`;
+  $("#hub-agent-version").textContent = a && a.version ? a.version : "";
+  const chip = $("#hub-agent-chip");
+  if (!a) { chip.textContent = "agent nebeží"; chip.className = "chip warn"; }
+  else if (a.last_error) { chip.textContent = "bez spojenia"; chip.className = "chip bad"; }
+  else { chip.textContent = a.registered ? "online" : "pripája sa"; chip.className = `chip ${a.registered ? "ok" : "warn"}`; }
+  const warn = $("#hub-agent-warn");
+  if (a && a.needs_restart) { warn.textContent = "Agent si stiahol nový kód (git pull) — reštartuj webapp, inak beží na starom."; warn.hidden = false; }
+  else if (a && a.last_error) { warn.textContent = a.last_error; warn.hidden = false; }
+  else warn.hidden = true;
+  const pocita = a ? Object.keys(a.computing || {}).length : 0;
+  const poslane = a ? Object.values(a.sent || {}).filter(s => !s.collected).length : 0;
+  $("#hub-agent-info").textContent = a
+    ? `${a.cores} jadier, ${a.slots} slotov · počíta ${pocita} · čaká na výsledok ${poslane}`
+    : "agent sa spúšťa spolu s webapp — reštartuj ju, keď si config pridal až teraz";
+}
+
+async function loadHub() {
+  clearTimeout(state.hubTimer); state.hubTimer = null;
+  let h;
+  try { h = await api("/api/hub"); $("#hub-error").hidden = true; }
+  catch (e) { $("#hub-error").textContent = e.message; $("#hub-error").hidden = false; return; }
+  renderHubAgent(h);
+  const hub = h.hub;
+  if (!hub) {
+    if (h.error) { $("#hub-error").textContent = `hub: ${h.error}`; $("#hub-error").hidden = false; }
+    $("#hub-agents tbody").innerHTML = ""; $("#hub-jobs tbody").innerHTML = "";
+  } else {
+    $("#hub-agents-count").textContent = `${hub.online} online`;
+    $("#hub-agents tbody").innerHTML = hub.agents.map(a => `<tr class="plain">
+      <td><b>${esc(a.name)}</b></td>
+      <td><span class="chip ${a.online ? "ok" : ""}">${a.online ? "online" : "offline"}</span>${a.needs_restart ? ' <span class="chip warn" title="po git pull čaká na reštart">reštart</span>' : ""}</td>
+      <td>${esc(a.version || "–")}</td><td class="num">${a.cores ?? "–"}</td><td class="num">${a.slots ?? "–"}</td><td class="num">${a.used ?? 0}</td>
+      <td>${a.accept ? "áno" : "nie"}${a.accept_request !== null && a.accept_request !== undefined ? ` → ${a.accept_request ? "áno" : "nie"}` : ""}</td>
+      <td>${fmtEta(a.eta_free_1)}</td><td>${fmtEta(a.eta_free_all)}</td></tr>`).join("");
+    let jobs = hub.jobs;
+    if ($("#hub-jobs-all").checked) {
+      try { jobs = await api("/api/hub/jobs?live=false"); } catch (e) { /* ostane živý zoznam */ }
+    }
+    $("#hub-jobs-count").textContent = `${hub.queued} vo fronte · ${hub.running} počíta`;
+    const zive = new Set(["queued", "assigned", "running", "cancelling"]);
+    $("#hub-jobs tbody").innerHTML = jobs.map(j => {
+      const s = j.summary || {};
+      const chip = j.status === "done" ? "ok" : (j.status === "failed" ? "bad" : (zive.has(j.status) ? "warn" : ""));
+      const postup = j.progress === null || j.progress === undefined ? "–" : `${Math.round(100 * j.progress)} %`;
+      const zostava = j.eta_seconds !== null && j.eta_seconds !== undefined ? fmtEta(j.eta_seconds)
+        : (j.estimate_seconds ? "~" + fmtEta(j.estimate_seconds) : "–");
+      return `<tr class="plain" title="${esc(j.note || "")}${j.error ? "\n" + esc(j.error) : ""}">
+        <td>${esc(j.id)}</td><td>${esc(j.kind)}</td><td><span class="chip ${chip}">${esc(j.status)}</span></td>
+        <td>${esc(j.agent || "–")}</td><td>${esc(j.submitter || "–")}</td><td>${esc(j.version || "–")}</td>
+        <td class="num">${postup}</td><td>${zive.has(j.status) ? zostava : "–"}</td>
+        <td>${esc(s.pair || "")} ${esc(s.timeframe || "")} ${esc(s.timerange || "")}</td>
+        <td>${zive.has(j.status) ? `<button class="ghost small" data-hub-cancel="${esc(j.id)}" title="zrušiť výpočet (hub to povie počítajúcemu aj zadávajúcemu agentovi)">✕</button>` : ""}</td></tr>`;
+    }).join("") || `<tr class="plain"><td colspan="10" class="muted">nič</td></tr>`;
+    for (const b of $$("[data-hub-cancel]")) b.onclick = async () => {
+      try { await api(`/api/hub/jobs/${b.dataset.hubCancel}/cancel`, { method: "POST" }); }
+      catch (e) { $("#hub-error").textContent = e.message; $("#hub-error").hidden = false; }
+      loadHub();
+    };
+  }
+  if (!$("#view-hub").hidden) state.hubTimer = setTimeout(loadHub, 10000);
 }
 
 /** Nový text logu bez straty pozície: ak bol scroll na konci, ostane na konci (sleduje beh),
@@ -3479,6 +3598,8 @@ function showView(name) {
   for (const b of $$(".tabs button")) b.classList.toggle("active", b.dataset.view === name);
   $("#view-new").hidden = name !== "new"; $("#view-history").hidden = name !== "history";
   $("#view-analytics").hidden = name !== "analytics";
+  $("#view-hub").hidden = name !== "hub";
+  if (name === "hub") loadHub(); else if (state.hubTimer) { clearTimeout(state.hubTimer); state.hubTimer = null; }
   // karta História je vždy celý zoznam — otvorený detail behu sa zavrie, nech neprekrýva tabuľku
   if (name === "history") { closeDetail(); loadRuns(); }
   // Historia analytiky je per strategia, takze sa nacita az pri otvoreni karty - vtedy
@@ -3501,6 +3622,7 @@ async function init() {
   await loadProfile(preferred);
   pollQueue();
   gitStatus();
+  hubSetup();
 
   $$(".tabs button").forEach(b => b.onclick = () => showView(b.dataset.view));
   $("#run").onclick = submitRun;
