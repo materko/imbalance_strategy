@@ -167,6 +167,16 @@ def cmd_jobs(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_accept(args: argparse.Namespace) -> int:
+    """Zapnúť/vypnúť prijímanie na agentovi cez hub (agent si to prevezme v heartbeate)."""
+    cfg = _cfg_or_die()
+    hodnota = args.value.lower() in ("on", "true", "1", "ano", "yes")
+    a = _client(cfg).set_accept(args.agent, hodnota)
+    print(f"{a['name']}: prijima teraz {'ano' if a['accept'] else 'nie'}, "
+          f"po heartbeate {'ano' if hodnota else 'nie'}")
+    return 0
+
+
 def cmd_cancel(args: argparse.Namespace) -> int:
     cfg = _cfg_or_die()
     j = _client(cfg).cancel(args.job_id)
@@ -215,6 +225,11 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--mine", action="store_true", help="len tie, ktoré zadal tento agent")
     p.add_argument("--limit", type=int, default=50)
     p.set_defaults(func=cmd_jobs)
+
+    p = sub.add_parser("accept", help="zapnúť/vypnúť prijímanie výpočtov na agentovi (bez reštartu)")
+    p.add_argument("agent", help="meno agenta")
+    p.add_argument("value", help="on | off")
+    p.set_defaults(func=cmd_accept)
 
     p = sub.add_parser("cancel", help="zrušiť výpočet (hub to povie počítajúcemu aj zadávajúcemu agentovi)")
     p.add_argument("job_id")

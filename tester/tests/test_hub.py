@@ -719,6 +719,201 @@ def test_headless_agent_restarts_after_pull(hub_api, tmp_path: Path, monkeypatch
     assert state.job(job["id"])["status"] == "running"
 
 
+def test_hub_accept_request_and_runtime_cap(hub):
+    state, clock = hub
+    _reg(state)
+    # prepnutie z hubu: pokyn ide v heartbeate, kým agent nehlási to isté
+    state.request_accept("srv", False)
+    assert state.heartbeat("srv", {"jobs": [], "accept": True})["set_accept"] is False
+    assert state.overview()["agents"][0]["accept_request"] is False
+    odp = state.heartbeat("srv", {"jobs": [], "accept": False})
+    assert odp["set_accept"] is None and "accept_request" not in state.agents["srv"]
+    assert not state.agents["srv"]["accept"]
+    with pytest.raises(KeyError):
+        state.request_accept("nikto", True)
+    # strop na čas: hub je poistka — o dva intervaly po strope výpočet zruší
+    state.request_accept("srv", True)
+    state.heartbeat("srv", {"jobs": [], "accept": True})
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap", max_seconds=100)
+    assert job["max_seconds"] == 100
+    state.heartbeat("srv", {"jobs": [{"id": job["id"], "status": "running"}]})
+    clock.t += 100 + state.agent_timeout          # ešte v tolerancii
+    state.heartbeat("srv", {"jobs": [{"id": job["id"], "status": "running"}]})
+    assert state.job(job["id"])["status"] == "running"
+    clock.t += state.agent_timeout + 1
+    odp = state.heartbeat("srv", {"jobs": [{"id": job["id"], "status": "running"}]})
+    assert state.job(job["id"])["status"] == "cancelling" and odp["cancel"] == [job["id"]]
+    state.result(job["id"], b"", status="failed", agent="srv")
+    assert "strop" in state.job(job["id"])["error"]
+
+
+def test_agent_accept_toggle_from_hub_config_and_api(hub_api, tmp_path: Path):
+    from tester.hub import config as hub_config
+
+    c, state, _ = hub_api
+    http = FakeHttp(c, "tajne")
+    cfg_path = tmp_path / "srv" / "agent.json"
+    hub_config.save(AgentConfig(name="srv", hub_url="http://hub", token="tajne", accept=True), cfg_path)
+    from tester.hub.agent import HubAgent
+
+    store = RunStore(tmp_path / "srv" / "runs")
+    srv = HubAgent(hub_config.load(cfg_path), FakeRunner(store), store, http=http,
+                   state_path=tmp_path / "srv" / "state.json", config_path=cfg_path)
+    srv.tick()
+    assert state.agents["srv"]["accept"] is True
+
+    # 1) prepnutie „z webapp": platí hneď, zapíše sa do configu, hub to vidí v heartbeate
+    srv.set_accept(False)
+    assert hub_config.load(cfg_path).accept is False
+    srv.tick()
+    assert state.agents["srv"]["accept"] is False
+
+    # 2) zmena súboru (tester.hub setup --accept): agent ju prevezme pri ticku
+    import os
+    import time
+
+    hub_config.save(AgentConfig(name="srv", hub_url="http://hub", token="tajne", accept=True), cfg_path)
+    os.utime(cfg_path, (time.time() + 5, time.time() + 5))   # nech je mtime iný aj na rýchlom disku
+    srv.tick()
+    assert srv.cfg.accept is True and state.agents["srv"]["accept"] is True
+
+    # 3) z hubu: `set_accept` v heartbeate, agent si to zapíše
+    state.request_accept("srv", False)
+    srv.tick()
+    assert srv.cfg.accept is False and hub_config.load(cfg_path).accept is False
+    srv.tick()
+    assert "accept_request" not in state.agents["srv"]
+
+
+def test_agent_kills_run_over_time_cap(hub_api, tmp_path: Path):
+    from datetime import datetime, timezone
+
+    from tester.hub.client import HubClient
+
+    c, state, _ = hub_api
+    http = FakeHttp(c, "tajne")
+    srv, runner, _ = _agent("srv", tmp_path, http)
+    srv.tick()
+    job = HubClient(http, "lap").submit("backtest", _payload(), max_seconds=120)
+    srv.tick()
+    run_id = next(iter(runner.jobs))
+    assert srv.state.computing[job["id"]]["max_seconds"] == 120
+    runner.start_run(run_id, started="2026-09-12T10:00:00+00:00")
+    srv.clock.t = datetime(2026, 9, 12, 10, 1, 0, tzinfo=timezone.utc).timestamp()   # 60 s: v limite
+    srv.tick()
+    assert runner.jobs[run_id].status == "running"
+    srv.clock.t = datetime(2026, 9, 12, 10, 3, 0, tzinfo=timezone.utc).timestamp()   # 180 s: nad limitom
+    srv.tick()
+    assert runner.jobs[run_id].cancel_requested and srv.state.computing[job["id"]]["timed_out"]
+    srv.tick()
+    j = state.job(job["id"])
+    assert j["status"] == "failed" and "strop 2 min" in j["error"]
+
+    # bez zadaného stropu platí trojnásobok odhadu, najmenej 10 minút
+    job2 = HubClient(http, "lap").submit("backtest", _payload())
+    srv.tick()
+    run2 = next(r for r in runner.jobs if r != run_id)
+    runner.start_run(run2, started="2026-09-12T10:00:00+00:00")
+    srv.tick()
+    assert srv.state.computing[job2["id"]]["max_seconds"] >= 600
+
+
+def test_compare_seeds():
+    from tester import hyperopt as ho
+
+    def det(seed, over, verdict, be=0.1):
+        return {"id": f"h{seed}", "hyperopt": {"seed": seed, "epochs_done": 50}, "overrides": over,
+                "verify": [{"tuned": True, "result": {"break_even_pct": be}}], "verdict": verdict}
+
+    rovnake = ho.compare_seeds([det(1, {"rrRatio": 4.0}, "VITAZ PREZIL: x"),
+                                det(2, {"rrRatio": 4.0}, "NEJASNE: y")])
+    assert "ROVNAKE" in rovnake and "prezilo overenie na ostatnych oknach: 1 z 2" in rovnake
+    rozne = ho.compare_seeds([det(1, {"rrRatio": 4.0}, ""), det(2, {"rrRatio": 5.0}, ""),
+                              det(3, {"rrRatio": 4.0}, "")])
+    assert "ROZNE: 2 roznych vitazov z 3 seedov (najcastejsi 2x)" in rozne
+    assert "ZIADNY seed" in ho.compare_seeds([det(1, {}, "")])
+    assert "ziadne" in ho.compare_seeds([])
+    # veľkostné pole vo víťazovi sa vypíše hodnotou
+    assert "minSl=0.3" in ho.compare_seeds([det(1, {"minSl": {"value": 0.3, "unit": "pct"}}, "")])
+
+
+def test_webapp_hub_form_endpoints(monkeypatch, tmp_path: Path):
+    """Beh a hyperopt z formulára idú na hub s tými istými `settings` ako lokálne."""
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tradebot.core import IBSConfig
+    from tester.hub import client as client_mod, config as hub_config
+    from tester.webapp import app as app_mod
+    from tester.webapp.app import create_app
+    from tester.webapp.runner import BacktestRunner
+
+    poslane = []
+
+    class FakeClient:
+        name = "lap"
+
+        def submit(self, kind, payload, **kw):
+            poslane.append((kind, payload, kw))
+            return {"id": f"j{len(poslane)}", "status": "queued", "agent": None, "created": "t"}
+
+        def jobs(self, live=True, mine=False):
+            return [{"id": "j1", "status": "queued" if live else "done"}]
+
+    class FakeAgent:
+        def __init__(self):
+            self.accept = True
+            self.noted = []
+
+        def note_sent(self, job, note):
+            self.noted.append((job["id"], note))
+
+        def set_accept(self, v):
+            self.accept = v
+
+        def public(self):
+            return {"name": "lap", "accept": self.accept}
+
+    monkeypatch.setattr(hub_config, "load", lambda path=None: AgentConfig(name="lap", hub_url="http://hub", token="t"))
+    monkeypatch.setattr(client_mod.HubClient, "from_config", classmethod(lambda cls, cfg: FakeClient()))
+    monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+
+    store = RunStore(tmp_path)
+    app = create_app(store, BacktestRunner(store, command_builder=lambda *a: ["python", "-c", ""]))
+    agent = FakeAgent()
+    app.state.hub_agent = agent
+    c = TestClient(app)
+
+    base = {"params": IBSConfig().to_dict(), "pair": "BTC/USDT:USDT", "timerange": "20260801-20260901",
+            "note": "z formulara", "user": "Jana"}
+    r = c.post("/api/hub/runs", json={**base, "queue": False, "max_wait_minutes": 15, "max_runtime_minutes": 30})
+    assert r.status_code == 200, r.text
+    kind, payload, kw = poslane[-1]
+    assert kind == "backtest" and payload["settings"]["pair"] == "BTC/USDT:USDT"
+    assert payload["settings"]["engine"] == "freqtrade" and payload["settings"]["fee"] is not None
+    assert payload["user"] == "Jana" and kw["queue"] is False
+    assert kw["max_wait_seconds"] == 900 and kw["max_seconds"] == 1800 and kw["estimate_seconds"] > 0
+    assert agent.noted == [("j1", "z formulara")]
+    # rovnaká validácia ako lokálne
+    assert c.post("/api/hub/runs", json={**base, "timerange": "zle"}).status_code == 422
+    assert c.post("/api/hub/runs", json={**base, "params": {**base["params"], "rrRatio": 99}}).status_code == 422
+
+    r = c.post("/api/hub/hyperopts", json={**base, "space": {"rrRatio": "2:6:1"}, "epochs": 20, "queue": True})
+    assert r.status_code == 200, r.text
+    kind, payload, kw = poslane[-1]
+    assert kind == "hyperopt" and payload["settings"]["hyperopt"]["knobs"] == {"rrRatio": "2:6:1"}
+    assert payload["settings"]["hyperopt"]["epochs"] == 20 and payload["note"].startswith("hyperopt rrRatio")
+    assert c.post("/api/hub/hyperopts", json={**base, "space": {"nieco": "1,2"}}).status_code == 422
+
+    # prepínač prijímania a zoznam výpočtov
+    assert c.post("/api/hub/accept", json={"accept": False}).json()["accept"] is False
+    assert agent.accept is False
+    assert c.get("/api/hub/jobs?live=false").json()[0]["status"] == "done"
+    app.state.hub_agent = None
+    assert c.post("/api/hub/accept", json={"accept": True}).status_code == 404
+
+
 # --------------------------------------------------------------------------- #
 # runner: workery a exkluzivita
 # --------------------------------------------------------------------------- #

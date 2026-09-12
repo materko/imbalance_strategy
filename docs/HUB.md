@@ -185,6 +185,32 @@ PY -m tester.webapp.cli sweep --remote --param rrRatio=2:6:1 --profile … --tim
 PY -m tester.webapp.cli checkup --remote --strategy ibs --profile …      # päť okien na piatich agentoch
 ```
 
+## Webapp
+
+Keď má klon `tester/agent.json`, webapp ukáže kartu **Hub**: stav tohto agenta (online,
+commit, prepínač **prijímať výpočty**, ktorý platí hneď a zapíše sa do configu), tabuľku
+agentov (kto je online, koľko má voľné, kedy sa uvoľní) a výpočty na hube s postupom,
+zvyškom a tlačidlom na zrušenie. Pri **Spustiť backtest** a pri hyperopte v „Hľadať
+parametre" je prepínač **na hube** (s frontou a stropom čakania) — zadanie je to isté ako
+lokálne, len ho spočíta voľný agent a výsledok sa objaví v histórii, keď si ho agent
+webapp vyzdvihne.
+
+## Prijímanie za behu, strop na čas, viac seedov
+
+- **Prijímanie** sa dá prepnúť bez reštartu: v karte Hub, zmenou `tester/agent.json`
+  (`python -m tester.hub setup --no-accept`, agent si súbor prečíta pri najbližšom
+  heartbeate) alebo z hubu: `python -m tester.hub accept srv-01 off` — hub to agentovi
+  povie v heartbeate a agent si to zapíše do configu.
+- **Strop na čas behu.** Zaseknutý Freqtrade by držal výpočet v `running` donekonečna.
+  Agent preto beh zabije po `--max-runtime MIN` (v CLI alebo cez API), inak po
+  trojnásobku odhadu, najmenej 10 minút; výpočet skončí ako `failed` s chybou, ktorá
+  strop uvedie. Hub je poistka: to isté vymáha o dva heartbeat intervaly neskôr.
+- **Viac seedov.** `cli hyperopt --remote --seeds 3` pustí ten istý hyperopt s tromi
+  seedmi (od `--seed` alebo 1) naraz na hube a na konci porovná víťazov: `ROVNAKE`, keď
+  všetky skončili na tých istých hodnotách (optimum nie je náhoda jedného behu), `ROZNE`,
+  keď nie (priestor je plochý alebo šum — presná hodnota nerozhoduje, over cez plateau).
+  Je to náhrada za delenie hyperoptu medzi stroje, ktoré Freqtrade nedovolí.
+
 ## API hubu
 
 Všetko pod `/api/`, s tokenom; `/api/health` bez neho.
@@ -192,7 +218,8 @@ Všetko pod `/api/`, s tokenom; `/api/health` bez neho.
 | volanie | kto | čo |
 |---|---|---|
 | `POST /api/agents/register` | agent | meno, jadrá, sloty, `accept`, `send` |
-| `POST /api/agents/{name}/heartbeat` | agent | stav výpočtov + lokálna záťaž → `assign`, `cancel`, `finished` |
+| `POST /api/agents/{name}/heartbeat` | agent | stav výpočtov + lokálna záťaž → `assign`, `cancel`, `finished`, `set_accept` |
+| `POST /api/agents/{name}/accept?value=` | správca | zapnúť/vypnúť prijímanie na agentovi |
 | `GET /api/capacity?cores=1\|all` | zadávateľ | kto by zobral hneď, najskorší štart, fronta |
 | `POST /api/jobs` | zadávateľ | `kind`, `payload{params,settings,note,user}`, `cores`, `queue`, `max_wait_seconds`, `estimate_seconds` → 409 s odhadom, keď nikto |
 | `GET /api/jobs[/{id}]` | ktokoľvek | stav, postup, ETA, agent, zadávateľ |
@@ -203,7 +230,9 @@ Všetko pod `/api/`, s tokenom; `/api/health` bez neho.
 | `GET /api/status`, `GET /api/agents` | ktokoľvek | prehľad |
 
 Webapp k tomu pridáva `GET /api/hub` (stav jej agenta a hubu), `POST /api/hub/jobs`
-(zadanie cez jej agenta) a `GET/POST /api/hub/jobs/{id}[/cancel]`.
+(hotový payload z CLI), `POST /api/hub/runs` a `POST /api/hub/hyperopts` (zadanie
+z formulára), `POST /api/hub/accept` (prepínač prijímania) a
+`GET/POST /api/hub/jobs[/{id}[/cancel]]`.
 
 ## Čo hub nerobí
 
@@ -213,4 +242,3 @@ Webapp k tomu pridáva `GET /api/hub` (stav jej agenta a hubu), `POST /api/hub/j
   je to silnejší signál než jedno hľadanie s viac epochami.
 - Nesynchronizuje dáta. Každý agent musí mať zložený sklad sviečok (`data_archive
   merge`); kód si pullne sám (viď „Verzia kódu"), ale len to, čo je v `main`.
-- Nemá UI vo webapp — stav je v `GET /api/hub` a v `python -m tester.hub status`.

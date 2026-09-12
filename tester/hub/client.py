@@ -143,7 +143,7 @@ class HubClient:
     def submit(self, kind: str, payload: dict[str, Any], *, cores: int | str | None = None,
                queue: bool = False, max_wait_seconds: float | None = None,
                estimate_seconds: float | None = None, note: str = "",
-               version: str | None = None) -> dict[str, Any]:
+               version: str | None = None, max_seconds: float | None = None) -> dict[str, Any]:
         """Pošle výpočet; `NoCapacityError`, keď nikto nie je voľný a fronta nebola povolená.
 
         `version` je commit kódu zadávateľa (`gitcode.version()`): agent ho pred behom
@@ -155,7 +155,12 @@ class HubClient:
             "kind": kind, "payload": payload, "submitter": self.name, "cores": cores,
             "queue": bool(queue), "max_wait_seconds": max_wait_seconds,
             "estimate_seconds": estimate_seconds, "note": note, "version": version,
+            "max_seconds": max_seconds,
         })
+
+    def set_accept(self, name: str, value: bool) -> dict[str, Any]:
+        """Zapnúť alebo vypnúť prijímanie výpočtov na agentovi (prevezme si to v heartbeate)."""
+        return self.http.post(f"/api/agents/{name}/accept?value={'true' if value else 'false'}")
 
     def cancel(self, job_id: str) -> dict[str, Any]:
         return self.http.post(f"/api/jobs/{job_id}/cancel?by={self.name}")
