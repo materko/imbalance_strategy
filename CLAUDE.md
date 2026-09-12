@@ -72,6 +72,11 @@ Bez obmedzení. Platia len konvencie repozitára:
 - Commity v štýle histórie: slovenská veta v imperatíve, čo a prečo.
 - Backtesty, ktoré majú byť v histórii webapp, spúšťaj cez `python -m tester.webapp.cli run`
   (holý Freqtrade CLI ich do `runs/` nezapíše) — inak je to jedno.
+- Viac strojov: jeden hub (`python -m tester.hub serve`, verejná adresa, token), agenti
+  s `tester/agent.json` (webapp alebo `python -m tester.hub agent`), zadanie `cli run
+  --remote [--queue --max-wait MIN]` — [docs/HUB.md](docs/HUB.md). Hub nepozná stratégie
+  menom, nesie `params` + `settings` behu; výsledok je adresár behu, ktorý sa vráti do
+  histórie zadávateľa.
 
 Podrobnosti: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) (prehľad a cesta dát),
 [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) (návrh),
@@ -80,7 +85,8 @@ Podrobnosti: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) (prehľad a cesta dát
 [docs/TYPY_STRATEGII.md](docs/TYPY_STRATEGII.md) (charakter stratégie a čo z neho vyplýva),
 [docs/ANALYTIKA.md](docs/ANALYTIKA.md) (základná analytika stratégie a posudok),
 [docs/DATA.md](docs/DATA.md) (dáta), [docs/WEBAPP.md](docs/WEBAPP.md)
-(Tester), [docs/RUNNING.md](docs/RUNNING.md) (rozcestník), [README.md](README.md).
+(Tester), [docs/HUB.md](docs/HUB.md) (distribuované počítanie),
+[docs/RUNNING.md](docs/RUNNING.md) (rozcestník), [README.md](README.md).
 
 ---
 

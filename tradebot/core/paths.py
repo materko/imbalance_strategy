@@ -44,6 +44,7 @@ __all__ = [
     "MULTICHARTS_DIR",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES", "ANALYTICS_DIR",
     "SWEEPS_DIR", "CHART_CACHE",
+    "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE",
     "DOCS_DIR", "MERANIA_DIR",
     "ARCHIVE_ROOTS",
 ]
@@ -99,6 +100,17 @@ SWEEPS_DIR = TESTER_DIR / "sweeps"
 #: Megabajty na beh a z uloženého configu sa dajú kedykoľvek prepočítať, takže do gitu
 #: nejdú — každý klon si ich počíta sám, až keď graf niekto otvorí.
 CHART_CACHE = RUNS_DIR / ".charts"
+
+# -- Distribuované počítanie (tester.hub) ----------------------------------- #
+
+#: Stav hubu: zoznam agentov, fronta výpočtov a odovzdané výsledky (`results/<id>.zip`).
+#: Gitignored — hub je jeden proces na verejnom stroji, jeho stav nikto nezdieľa.
+HUB_DIR = TESTER_DIR / "hub_data"
+#: Konfigurácia agenta v tomto klone: adresa hubu, token, či prijíma a či posiela
+#: výpočty. Každý klon má vlastnú, preto gitignored.
+AGENT_CONFIG = TESTER_DIR / "agent.json"
+#: Stav agenta: čo poslal na hub a ešte sa nevrátilo, čo preň počíta. Prežije reštart.
+AGENT_STATE = TESTER_DIR / "agent_state.json"
 
 # -- Dokumentácia ----------------------------------------------------------- #
 
