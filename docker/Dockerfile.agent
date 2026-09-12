@@ -1,0 +1,28 @@
+# Headless agent hubu (docs/HUB.md): Freqtrade + jadro + git na čítanie verzie kódu.
+#
+# Build context je KOREŇ repozitára:
+#   docker build -f docker/Dockerfile.agent -t tradebot-agent .
+#
+# Stavia na image Freqtradu s jadrom (Dockerfile.freqtrade) a pridáva git: agent hlási
+# hubu commit, na ktorom stojí (`git rev-parse` nad namountovaným `.git`, read-only),
+# a overuje, či má commit zadávateľa. Pull v kontajneri nerobí (TRADEBOT_HUB_PULL=off) —
+# kód je mount z hostiteľa, `git pull` sa robí tam; agent zmenu na disku spozná a
+# reštartuje sa (compose ho zdvihne znova).
+
+FROM tradebot-freqtrade:latest
+
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/* \
+    # .git patrí používateľovi hostiteľa; bez tohto git odmietne repo „cudzieho vlastníka"
+    && git config --system --add safe.directory /app
+USER ftuser
+
+ENV PYTHONPATH=/app \
+    TRADEBOT_HUB_PULL=off
+
+WORKDIR /app
+
+ENTRYPOINT ["python", "-m", "tester.hub"]
+CMD ["agent"]

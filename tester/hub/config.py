@@ -17,8 +17,8 @@ siete a podľa neho vie, komu poslať hotový výsledok. Dvaja agenti s jedným 
 na hub nedostanú (druhého odmietne, kým prvý žije).
 
 Premenné prostredia prebijú súbor (`TRADEBOT_HUB_URL`, `TRADEBOT_HUB_TOKEN`,
-`TRADEBOT_HUB_NAME`, `TRADEBOT_HUB_ACCEPT`, `TRADEBOT_HUB_SEND`) — pre Docker a servery,
-kde sa súbor nechce písať.
+`TRADEBOT_HUB_NAME`, `TRADEBOT_HUB_ACCEPT`, `TRADEBOT_HUB_SEND`, `TRADEBOT_HUB_MAX_PARALLEL`)
+— pre Docker a servery, kde sa súbor nechce písať.
 
 Stav agenta (`tester/agent_state.json`) je oddelený od konfigurácie: čo agent **poslal**
 a ešte sa mu nevrátilo, a čo práve **počíta** pre hub (hub job → lokálny beh). Po reštarte
@@ -91,7 +91,7 @@ def load(path: Path | None = None) -> AgentConfig | None:
         token=getenv("HUB_TOKEN") or str(data.get("token") or ""),
         accept=bool(data.get("accept", True)) if accept is None else accept,
         send=bool(data.get("send", True)) if send is None else send,
-        max_parallel=int(data.get("max_parallel") or 0),
+        max_parallel=int(getenv("HUB_MAX_PARALLEL") or data.get("max_parallel") or 0),
         heartbeat_seconds=int(data.get("heartbeat_seconds") or DEFAULT_HEARTBEAT),
     )
 

@@ -10,7 +10,7 @@ nemiešalo, čo platí pre ktorú:
 | **MultiCharts: študia, QuoteManager, emulátor** | [MULTICHARTS.md](MULTICHARTS.md) |
 | **dáta: odkiaľ sú, archív, Dukascopy import, nový symbol** | [DATA.md](DATA.md) |
 | **testovať z CLI (aj pre AI)** | [../tester/AI_TESTING.md](../tester/AI_TESTING.md) |
-| **počítať na viac strojoch** (hub, agenti, `run --remote`) | [HUB.md](HUB.md) |
+| **počítať na viac strojoch** (hub, agenti, `run --remote`, Docker pre hub a agenta) | [HUB.md](HUB.md) |
 | **pridať ďalšiu stratégiu** | [STRATEGIE.md](STRATEGIE.md) |
 | **zistiť, čo tá stratégia je** (analytika, posudok) | [ANALYTIKA.md](ANALYTIKA.md) |
 | **ako je to postavené a prečo** | [ARCHITECTURE_port.md](ARCHITECTURE_port.md) |

@@ -6,6 +6,12 @@
     python -m tester.hub status                                   # agenti, fronta, kapacita
     python -m tester.hub jobs [--all]                             # výpočty na hube
     python -m tester.hub cancel <job_id>                          # zrušiť výpočet
+    python -m tester.hub token add srv-01 [--local]               # token agenta (správca)
+    python -m tester.hub events [--job ID] [--agent MENO] [--local]  # log udalostí hubu
+
+`--local` pracuje priamo so stavom hubu na disku (`tester/hub_data`) — pre príkazy
+spúšťané na stroji hubu (v kontajneri cez `docker compose exec hub …`), kde nie je
+nastavený agent. Bez neho idú cez API s tokenom z `tester/agent.json`.
 
 Výpočty sa **posielajú** z webapp CLI: `python -m tester.webapp.cli run --remote …` a
 `… hyperopt --remote …` (s `--queue`, `--max-wait`).
@@ -34,7 +40,8 @@ def cmd_serve(args: argparse.Namespace) -> int:
         raise SystemExit("hub na verejnej adrese potrebuje token: --token alebo TRADEBOT_HUB_TOKEN")
     state = HubState(token=token or None, heartbeat_seconds=args.heartbeat)
     app = create_hub_app(state)
-    print(f"TradeBot hub: http://{args.host}:{args.port}  (stav v {state.root})", flush=True)
+    print(f"TradeBot hub: http://{args.host}:{args.port}  (stav v {state.root}, "
+          f"tokenov agentov {len(state.token_names())})", flush=True)
     uvicorn.run(app, host=args.host, port=args.port, log_level="info")
     return 0
 
@@ -177,6 +184,54 @@ def cmd_accept(args: argparse.Namespace) -> int:
     return 0
 
 
+def _local_state():
+    from .server import HubState
+
+    return HubState()
+
+
+def cmd_token(args: argparse.Namespace) -> int:
+    """Tokeny agentov: `add` vydá (vypíše ho raz — potom je v tokens.json len hash-like hint),
+    `rm` odoberie, `list` vypíše mená. Správcovská vec: cez API s hlavným tokenom, alebo
+    `--local` priamo na stroji hubu."""
+    if args.local:
+        st = _local_state()
+        if args.action == "add":
+            print(st.add_token(args.name, by="local"))
+        elif args.action == "rm":
+            print("odobrany" if st.remove_token(args.name, by="local") else f"{args.name}: token nema")
+        else:
+            for t in st.token_names():
+                print(f"{t['name']:<20}{t['token_hint']:<8}{'registrovany' if t['registered'] else ''}")
+        return 0
+    client = _client(_cfg_or_die())
+    if args.action == "add":
+        print(client.add_token(args.name))
+    elif args.action == "rm":
+        client.remove_token(args.name)
+        print("odobrany")
+    else:
+        for t in client.tokens():
+            print(f"{t['name']:<20}{t['token_hint']:<8}{'registrovany' if t['registered'] else ''}")
+    return 0
+
+
+def cmd_events(args: argparse.Namespace) -> int:
+    """Log udalostí hubu: kto sa prihlásil, kto čo zadal, komu to išlo, ako skončilo."""
+    if args.local:
+        udalosti = _local_state().events(limit=args.limit, job=args.job, agent=args.agent, event=args.event)
+    else:
+        udalosti = _client(_cfg_or_die()).events(limit=args.limit, job=args.job, agent=args.agent,
+                                                 event=args.event)
+    for e in reversed(udalosti):
+        zvysok = {k: v for k, v in e.items() if k not in ("ts", "event")}
+        print(f"{e.get('ts', ''):<26}{e.get('event', ''):<16}"
+              + "  ".join(f"{k}={v}" for k, v in zvysok.items()))
+    if not udalosti:
+        print("ziadne udalosti")
+    return 0
+
+
 def cmd_cancel(args: argparse.Namespace) -> int:
     cfg = _cfg_or_die()
     j = _client(cfg).cancel(args.job_id)
@@ -198,9 +253,24 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--host", default=getenv("HUB_HOST", "127.0.0.1"))
     p.add_argument("--port", type=int, default=int(getenv("HUB_PORT", str(DEFAULT_PORT))))
     p.add_argument("--token", help="zdieľaný token (inak TRADEBOT_HUB_TOKEN); na verejnej adrese povinný")
-    p.add_argument("--heartbeat", type=int, default=agent_config.DEFAULT_HEARTBEAT,
-                   help="interval heartbeatu agentov v sekundách (default 10)")
+    p.add_argument("--heartbeat", type=int,
+                   default=int(getenv("HUB_HEARTBEAT", str(agent_config.DEFAULT_HEARTBEAT))),
+                   help="interval heartbeatu agentov v sekundách (default 10, alebo TRADEBOT_HUB_HEARTBEAT)")
     p.set_defaults(func=cmd_serve)
+
+    p = sub.add_parser("token", help="tokeny agentov: add | rm | list (správca hubu)")
+    p.add_argument("action", choices=("add", "rm", "list"))
+    p.add_argument("name", nargs="?", help="meno agenta (pre add a rm)")
+    p.add_argument("--local", action="store_true", help="priamo v stave hubu na tomto stroji")
+    p.set_defaults(func=cmd_token)
+
+    p = sub.add_parser("events", help="log udalostí hubu")
+    p.add_argument("--limit", type=int, default=50)
+    p.add_argument("--job", help="len udalosti tohto výpočtu")
+    p.add_argument("--agent", help="len udalosti tohto agenta (ako agent, zadávateľ alebo pôvodca)")
+    p.add_argument("--event", help="len tento druh udalosti (job_finished, agent_offline, …)")
+    p.add_argument("--local", action="store_true", help="priamo zo stavu hubu na tomto stroji")
+    p.set_defaults(func=cmd_events)
 
     p = sub.add_parser("setup", help="zapíš tester/agent.json (meno, hub, token, čo prijíma a posiela)")
     p.add_argument("--name", help="statické, jednoznačné meno agenta (default hostname)")

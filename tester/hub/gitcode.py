@@ -52,10 +52,20 @@ def has_version(commit: str | None) -> bool:
     return r.returncode == 0
 
 
+def pull_enabled() -> bool:
+    """`TRADEBOT_HUB_PULL=off` (Docker agent): kód je mount z hostiteľa, pull sa robí tam."""
+    from tradebot.core.env import getenv
+
+    return (getenv("HUB_PULL") or "on").strip().lower() not in ("off", "0", "false", "no", "nie")
+
+
 def pull() -> dict[str, Any]:
     """Pull `origin main` s rebase a autostash — cez `gitsync`, nech je to jedna cesta."""
     from ..webapp import gitsync
 
+    if not pull_enabled():
+        return {"ok": False, "output": "git pull je na tomto agentovi vypnutý (TRADEBOT_HUB_PULL=off, "
+                                       "kontajner) — sprav `git pull` na hostiteľovi"}
     try:
         return gitsync.pull()
     except (OSError, subprocess.SubprocessError) as exc:
