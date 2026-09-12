@@ -861,6 +861,8 @@ def test_sweep_zaradi_kazdy_bod_ako_samostatny_beh(client, monkeypatch):
     monkeypatch.setattr(app_mod.engines, "available",
                         lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
     monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
+    # fronta stojí: falošný beh skončí za ~50 ms a prvý bod by z fronty stihol zmiznúť
+    monkeypatch.setattr(c.app.state.runner, "start", lambda: None)
 
     r = c.post("/api/sweeps", json=_sweep_body())
     assert r.status_code == 200, r.text

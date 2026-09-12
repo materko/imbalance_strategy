@@ -227,6 +227,9 @@ def _execute(args: argparse.Namespace, params: dict, settings: dict, note: str,
     """Spustí jeden beh (cez frontu webapp, alebo priamo) a vráti jeho záznam."""
     user = args.user or getenv("USER") or ""
 
+    if getattr(args, "remote", False):
+        return _remote_execute(args, params, settings, note, quiet)
+
     if server_alive(args.url):
         body = {"params": params, "note": note, "user": user or None, **settings}
         try:
@@ -263,6 +266,183 @@ def _execute(args: argparse.Namespace, params: dict, settings: dict, note: str,
     return store.get(job.id) or {"id": job.id, "status": job.status, "error": job.error,
                                  "settings": settings}
 
+
+def _webapp_hub_ready(url: str) -> bool:
+    """Beží webapp a má agenta hubu? Stará webapp bez `/api/hub` (404) znamená nie."""
+    if not server_alive(url):
+        return False
+    try:
+        return bool((api(url, "/api/hub") or {}).get("configured"))
+    except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError):
+        return False
+
+
+#: Dopredu zadané výpočty mriežky: odtlačok (params, settings, note) → id výpočtu na hube.
+#: `_remote_prefetch` ich zadá naraz, `_remote_execute` si potom každý len vyzdvihne.
+_REMOTE_BATCH: dict[str, str] = {}
+_REMOTE_WARNED: set[str] = set()
+
+
+def _batch_key(params: dict, settings: dict, note: str) -> str:
+    import hashlib
+
+    blob = json.dumps({"p": params, "s": settings, "n": note}, sort_keys=True, default=str)
+    return hashlib.sha1(blob.encode("utf-8")).hexdigest()
+
+
+def _remote_client(args: argparse.Namespace):
+    """(config agenta, klient hubu); SystemExit, keď agent nie je nastavený alebo nesmie posielať."""
+    from ..hub import config as hub_config
+    from ..hub.client import HubClient
+
+    cfg = hub_config.load()
+    if cfg is None:
+        raise SystemExit("agent nie je nastaveny: python -m tester.hub setup --name … --hub-url … --token …")
+    try:
+        return cfg, HubClient.from_config(cfg)
+    except PermissionError as exc:
+        raise SystemExit(str(exc))
+
+
+def _remote_submit(args: argparse.Namespace, params: dict, settings: dict, note: str,
+                   quiet: bool = False, *, queue: bool | None = None) -> dict:
+    """Zadá jeden výpočet na hub a vráti jeho záznam (stav `assigned` alebo `queued`).
+
+    Zadanie ide cez bežiacu webapp, keď je (jej agent si zapíše, čo poslal, a výsledok
+    vyzdvihne aj keď toto CLI medzitým skončí); inak priamo na hub.
+    """
+    from ..hub import config as hub_config, gitcode, protocol as P
+    from ..hub.client import NoCapacityError, fmt_eta
+    from .store import RunStore
+
+    cfg, client = _remote_client(args)
+    user = args.user or getenv("USER") or ""
+    kind = P.kind_of(settings)
+    cores: int | str | None = None
+    if getattr(args, "cores", None):
+        cores = P.ALL if args.cores == P.ALL else int(args.cores)
+    demand = cores if cores is not None else P.cores_for(settings, kind)
+    odhad = P.estimate_seconds(settings, RunStore().all(), cores=os.cpu_count() or 1)
+    max_wait = args.max_wait * 60 if getattr(args, "max_wait", None) else None
+    if queue is None:
+        queue = bool(getattr(args, "queue", False))
+
+    # Agent počíta na commite zadávateľa (pullne si ho, keď ho nemá) — necommitnuté zmeny
+    # kódu k nemu nedôjdu, takže by beh ticho počítal niečo iné, než vidí tester.
+    verzia = gitcode.version()
+    spinave = gitcode.dirty_code()
+    if spinave and "dirty" not in _REMOTE_WARNED:
+        _REMOTE_WARNED.add("dirty")
+        print(f"POZOR: necommitnute zmeny kodu ({', '.join(spinave[:3])}"
+              f"{', …' if len(spinave) > 3 else ''}) — agent pocita commit {verzia or '?'}, "
+              f"nie tvoj pracovny strom", file=sys.stderr)
+    if not quiet:
+        cap = client.capacity(demand)
+        print(f"hub {cfg.hub_url}: volni agenti {', '.join(cap['free']) or 'ziadni'}; "
+              f"najskorsi start {fmt_eta(cap['eta_start_seconds'])}; vo fronte {cap['queued']}; "
+              f"odhad behu {fmt_eta(odhad)}; kod {verzia or '?'}", flush=True)
+    payload = {"params": params, "settings": settings, "note": note, "user": user or None}
+    telo = {"kind": kind, "payload": payload, "cores": cores, "queue": bool(queue),
+            "max_wait_seconds": max_wait, "estimate_seconds": odhad, "note": note,
+            "version": verzia or None}
+    try:
+        if _webapp_hub_ready(args.url):
+            job = api(args.url, "/api/hub/jobs", telo)
+        else:
+            job = client.submit(kind, payload, cores=cores, queue=bool(queue),
+                                max_wait_seconds=max_wait, estimate_seconds=odhad, note=note,
+                                version=verzia or None)
+            stav = hub_config.load_state()
+            stav.sent[job["id"]] = {"kind": kind, "note": note, "created": job.get("created"),
+                                    "status": job.get("status"), "run_ids": [], "error": None}
+            hub_config.save_state(stav)
+    except NoCapacityError as exc:
+        raise SystemExit(f"hub odmietol vypocet: {exc.detail.get('message') if isinstance(exc.detail, dict) else exc.detail}\n"
+                         f"  najskorsi start: {fmt_eta(exc.eta_start)}; skus --queue (pripadne --max-wait MIN)")
+    except urllib.error.HTTPError as exc:
+        telo_chyby = exc.read().decode("utf-8", "replace")
+        raise SystemExit(f"webapp odmietla vypocet cez hub: {telo_chyby}")
+    return job
+
+
+def _remote_wait(args: argparse.Namespace, job_id: str, settings: dict, quiet: bool = False) -> dict:
+    """Počká na výpočet a vráti záznam behu z lokálnej histórie (po vyzdvihnutí zipu)."""
+    from ..hub import gitcode
+    from ..hub.client import fmt_eta
+    from .store import RunStore
+
+    _, client = _remote_client(args)
+    store = RunStore()
+    verzia = gitcode.version()
+
+    def tick(j: dict) -> None:
+        if quiet:
+            return
+        if j.get("status") in ("done", "failed") and j.get("agent_version") \
+                and j["agent_version"] != verzia:
+            print(f"  POZOR: agent {j.get('agent')} pocital na commite {j['agent_version']}, "
+                  f"zadany bol {verzia}", flush=True)
+        postup = f"{100 * j['progress']:.0f} %" if j.get("progress") is not None else "-"
+        if j.get("eta_seconds") is not None:
+            zostava = fmt_eta(j["eta_seconds"])
+        else:
+            zostava = "~" + fmt_eta(j.get("estimate_seconds")) if j.get("estimate_seconds") else "-"
+        print(f"  … {j['status']}  agent {j.get('agent') or '-'}  postup {postup}  "
+              f"zostava {zostava}", flush=True)
+
+    job = client.wait(job_id, on_tick=tick)
+    run_ids = client.collect(job["id"], store.root)
+    if job["status"] != "done":
+        return {"id": run_ids[0] if run_ids else job["id"], "status": job["status"],
+                "error": job.get("error") or f"vypocet skoncil ako {job['status']}", "settings": settings}
+    if not run_ids:
+        raise SystemExit(f"vypocet {job['id']} skoncil, ale bez behov v historii")
+    hlavny = job.get("run_id") if job.get("run_id") in run_ids else run_ids[0]
+    return store.get(hlavny) or {"id": hlavny, "status": "failed", "error": "beh sa nepodarilo precitat",
+                                 "settings": settings}
+
+
+def _remote_prefetch(args: argparse.Namespace, items: list[tuple[dict, dict, str]]) -> None:
+    """Mriežka na hub **naraz**: všetky body sa zadajú hneď (s frontou), počítajú sa
+    paralelne na toľkých agentoch, koľko je voľných, a slučka príkazu si ich už len
+    vyzdvihuje v poradí. Bez `--remote` nerobí nič a slučka beží lokálne ako doteraz."""
+    if not getattr(args, "remote", False) or len(items) < 2:
+        return
+    from ..hub.client import fmt_eta
+
+    cfg, client = _remote_client(args)
+    cap = client.capacity(1)
+    print(f"hub {cfg.hub_url}: {len(items)} vypoctov naraz; volni agenti "
+          f"{', '.join(cap['free']) or 'ziadni'} z {cap['online']} online; vo fronte {cap['queued']}; "
+          f"najskorsi start {fmt_eta(cap['eta_start_seconds'])}", flush=True)
+    ids = []
+    for params, settings, note in items:
+        job = _remote_submit(args, params, settings, note, quiet=True, queue=True)
+        _REMOTE_BATCH[_batch_key(params, settings, note)] = job["id"]
+        ids.append(job["id"])
+    print(f"  zadane: {', '.join(ids[:6])}{' …' if len(ids) > 6 else ''}")
+    print("  (po Ctrl+C vypocty na hube bezia dalej: python -m tester.hub jobs, cancel <id>)\n",
+          flush=True)
+
+
+def _remote_execute(args: argparse.Namespace, params: dict, settings: dict, note: str,
+                    quiet: bool = False) -> dict:
+    """Beh cez hub (`tester.hub`): kapacita → zadanie → čakanie → výsledok do tejto histórie.
+
+    Čakanie a vyzdvihnutie ide vždy priamo na hub — `collect` je idempotentné, takže je
+    jedno, či zip stiahne toto CLI alebo agent bežiacej webapp. Bod mriežky, ktorý už
+    zadal `_remote_prefetch`, sa znova nezadáva.
+    """
+    job_id = _REMOTE_BATCH.pop(_batch_key(params, settings, note), None)
+    if job_id is None:
+        job = _remote_submit(args, params, settings, note, quiet)
+        if not quiet:
+            print(f"zadane na hub: {job['id']}  stav {job['status']}"
+                  + (f", agent {job['agent']}" if job.get("agent") else ""), flush=True)
+        if getattr(args, "no_wait", False):
+            return {"id": job["id"], "status": "queued", "settings": settings}
+        job_id = job["id"]
+    return _remote_wait(args, job_id, settings, quiet)
 
 def cmd_run(args: argparse.Namespace) -> int:
     params, settings = _prepare(args)
@@ -376,16 +556,20 @@ def cmd_sweep(args: argparse.Namespace) -> int:
     print(f"sweep {sweep_id}: {len(points)} behov, kriterium: {zadanie}")
     print(f"  {', '.join(f'{k} = {v}' for k, v in space.items())}\n")
 
-    records = []
-    for i, point in enumerate(points, 1):
+    body = []
+    for point in points:
         popis = ", ".join(f"{k}={sweep_mod._fmt(v)}" for k, v in point.items())
-        print(f"[{i}/{len(points)}] {popis}", flush=True)
         run_settings = {**settings, "sweep": {"id": sweep_id, "values": point, "goal": args.goal,
                                               "max_dd": args.max_dd, "min_trades": args.min_trades,
                                               "per_year": True, "points": len(points)}}
-        rec = _execute(args, {**params, **point}, run_settings,
-                       note=f"sweep {sweep_id}: {popis}" + (f" — {args.note}" if args.note else ""),
-                       quiet=True)
+        body.append((popis, {**params, **point}, run_settings,
+                     f"sweep {sweep_id}: {popis}" + (f" — {args.note}" if args.note else "")))
+    _remote_prefetch(args, [b[1:] for b in body])
+
+    records = []
+    for i, (popis, bod_params, run_settings, note) in enumerate(body, 1):
+        print(f"[{i}/{len(points)}] {popis}", flush=True)
+        rec = _execute(args, bod_params, run_settings, note=note, quiet=True)
         rec.setdefault("settings", run_settings)
         records.append(rec)
         result = rec.get("result") or {}
@@ -505,17 +689,20 @@ def cmd_plateau(args: argparse.Namespace) -> int:
           f"{settings_zaklad.get('timerange')}")
     print(f"  vitaz: {', '.join(f'{k}={v}' for k, v in vitaz_params.items())}\n", flush=True)
 
-    zaznamy = []
-    for i, sused in enumerate(susedia, 1):
+    body = []
+    for sused in susedia:
         params = {**zaklad, sused.param: sused.value}
         settings = {**settings_zaklad,
                     "plateau": {"id": args.hyperopt_id, "param": sused.param,
                                 "value": sused.value, "step": sused.step}}
+        body.append((sused, params, settings, f"okolie {args.hyperopt_id}: {sused.param}={sused.value}"))
+    _remote_prefetch(args, [b[1:] for b in body])
+
+    zaznamy = []
+    for i, (sused, params, settings, note) in enumerate(body, 1):
         print(f"[{i}/{len(susedia)}] {sused.label} = {sused.value}", flush=True)
         try:
-            rec = _execute(args, params, settings,
-                           note=f"okolie {args.hyperopt_id}: {sused.param}={sused.value}",
-                           quiet=True)
+            rec = _execute(args, params, settings, note=note, quiet=True)
         except SystemExit as exc:
             print(f"      neslo spustit: {exc}", flush=True)
             continue
@@ -854,8 +1041,8 @@ def cmd_matrix(args: argparse.Namespace) -> int:
     print(f"  kriterium: {sweep_mod.describe(args.goal, args.max_dd, args.min_trades)}\n",
           flush=True)
 
-    zaznamy = []
-    for i, cell in enumerate(bunky, 1):
+    body = []
+    for cell in bunky:
         # Poplatok patrí TOMU trhu, nie referenčnému: `settings` ich má z páru profilu,
         # takže bez tohto by matica účtovala Binance taker 0,05 % aj CFD na kávu, kde je
         # náklad polovica spreadu. Na poradie buniek to nemá vplyv (break-even od poplatku
@@ -865,12 +1052,15 @@ def cmd_matrix(args: argparse.Namespace) -> int:
                "matrix": {"id": matrix_id, "pair": cell.pair, "timeframe": cell.timeframe,
                           "goal": args.goal, "relative": bool(args.relative),
                           "cells": len(bunky)}}
+        body.append((cell, params, beh, f"matica {matrix_id}: {cell.pair} {cell.timeframe}"
+                     + (f" — {args.note}" if args.note else "")))
+    _remote_prefetch(args, [b[1:] for b in body])
+
+    zaznamy = []
+    for i, (cell, params, beh, note) in enumerate(body, 1):
         print(f"[{i}/{len(bunky)}] {cell.pair} {cell.timeframe}", flush=True)
         try:
-            rec = _execute(args, params, beh,
-                           note=f"matica {matrix_id}: {cell.pair} {cell.timeframe}"
-                                + (f" — {args.note}" if args.note else ""),
-                           quiet=True)
+            rec = _execute(args, params, beh, note=note, quiet=True)
         except SystemExit as exc:
             print(f"      neslo spustit: {exc}", flush=True)
             continue
@@ -943,15 +1133,18 @@ def cmd_checkup(args: argparse.Namespace) -> int:
               f"{settings['timeframe']}, engine {settings['engine']}"
               + (f", profil {args.profile}" if args.profile else " (Pine defaulty)"))
         print(f"  okna: {', '.join(okna)}\n", flush=True)
-        zaznamy = []
-        for i, okno in enumerate(okna, 1):
+        body = []
+        for okno in okna:
             beh = {**settings, "timerange": okno,
                    "checkup": {"id": checkup_id, "strategy": args.strategy}}
+            body.append((okno, params, beh, f"checkup {checkup_id}: {okno}"
+                         + (f" — {args.note}" if args.note else "")))
+        _remote_prefetch(args, [b[1:] for b in body])
+
+        zaznamy = []
+        for i, (okno, params, beh, note) in enumerate(body, 1):
             print(f"[{i}/{len(okna)}] {okno}", flush=True)
-            rec = _execute(args, params, beh,
-                           note=f"checkup {checkup_id}: {okno}"
-                                + (f" — {args.note}" if args.note else ""),
-                           quiet=True)
+            rec = _execute(args, params, beh, note=note, quiet=True)
             rec.setdefault("settings", beh)
             zaznamy.append(rec)
             r = rec.get("result") or {}
@@ -1165,7 +1358,13 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
           flush=True)
 
     store = RunStore()
-    if server_alive(args.url):
+    if args.remote:
+        rec = _remote_execute(args, params, {**settings, "hyperopt": zadanie}, note)
+        run_id = rec.get("id")
+        if rec.get("status") != "done":
+            raise SystemExit(f"hyperopt skoncil: {rec.get('error') or rec.get('status')}")
+        det = ho.detail(rec, store.extra(run_id, "epochs.json") or [], store.all())
+    elif server_alive(args.url):
         telo = {"params": params, "space": space, "goal": args.goal, "max_dd": args.max_dd,
                 "min_trades": args.min_trades, "epochs": int(args.epochs), "seed": args.seed,
                 "verify": not args.no_verify, "note": args.note or "", "user": user or None,
@@ -1380,6 +1579,21 @@ def cmd_params(args: argparse.Namespace) -> int:
 _GOALS = ("break_even", "profit", "winrate", "drawdown")
 
 
+def _remote_args(p: argparse.ArgumentParser) -> None:
+    """Distribuované počítanie (tester.hub): beh ide na hub, spočíta ho voľný agent a
+    výsledok sa vráti do tejto histórie, ako keby bežal tu. Mriežky (sweep, checkup,
+    matrix, plateau) sa s `--remote` zadajú naraz a počítajú paralelne."""
+    p.add_argument("--remote", action="store_true",
+                   help="poslať výpočet na hub (tester/agent.json) namiesto lokálneho behu")
+    p.add_argument("--queue", action="store_true",
+                   help="s --remote: keď nikto nie je voľný, nechať čakať vo fronte hubu "
+                        "(mriežky čakajú vždy)")
+    p.add_argument("--max-wait", dest="max_wait", type=float,
+                   help="s --queue: najviac toľko minút čakania podľa odhadu hubu, inak odmietnuť")
+    p.add_argument("--cores", help="s --remote: koľko jadier výpočet žiada (číslo alebo all; "
+                                   "default backtest 1, hyperopt a AI all)")
+
+
 def _run_args(p: argparse.ArgumentParser, *, timerange: bool = True) -> None:
     """Argumenty spoločné pre `run` aj `sweep` — nech sa nemôžu rozísť.
 
@@ -1408,6 +1622,7 @@ def _run_args(p: argparse.ArgumentParser, *, timerange: bool = True) -> None:
     p.add_argument("--no-detail", action="store_true", help="bez 1m detailu fillov (rýchlejšie, hrubšie)")
     p.add_argument("--note", help="poznámka do histórie — napíš, čo beh testuje")
     p.add_argument("--user", help="meno testera (default TRADEBOT_USER)")
+    _remote_args(p)
     # AI vrstva (FreqAI) - filter nad portom. Bez `--ai` sa nic nemeni a parita s Pine
     # ostava; so zapnutou sa obchodov ubuda, takze je to rozsirenie mimo Pine.
     p.add_argument("--ai", action="store_true",
@@ -1479,6 +1694,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--note", default="", help="poznámka k susedným behom")
     p.add_argument("--user", help="meno testera (inak TRADEBOT_USER)")
     p.add_argument("--no-wait", action="store_true", help="nečakať na dobehnutie")
+    _remote_args(p)
     p.set_defaults(func=cmd_plateau)
 
     p = sub.add_parser("nulltest", help="je edge odlíšiteľný od náhody? (porovnanie s náhodným vstupom)")

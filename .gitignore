@@ -40,6 +40,11 @@ reports/
 tester/runs/.profiles/
 # Plany hyperopt priestoru: docasne, patria k behu a nesu ich jeho settings.
 tester/runs/.plans/
+# Distribuovane pocitanie: stav hubu (agenti, fronta, odovzdane zipy) a konfiguracia
+# agenta tohto klonu (adresa hubu, token) - oboje je per stroj, nie na zdielanie.
+tester/hub_data/
+tester/agent.json
+tester/agent_state.json
 .claude/
 
 # rola pre Claude Code v tomto klone (tester | developer) - kazdy klon ma vlastnu

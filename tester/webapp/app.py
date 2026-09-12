@@ -309,6 +309,19 @@ def _clean_user(name: str | None) -> str:
     return name[:80] if name else current_user()
 
 
+class HubJobRequest(BaseModel):
+    """Zadanie výpočtu na hub cez webapp (`/api/hub/jobs`) — tvar `tester.hub.client.submit`."""
+
+    kind: str
+    payload: dict[str, Any]
+    cores: int | str | None = None
+    queue: bool = False
+    max_wait_seconds: float | None = None
+    estimate_seconds: float | None = None
+    note: str = ""
+    version: str | None = None
+
+
 def create_app(store: RunStore | None = None, runner: BacktestRunner | None = None) -> FastAPI:
     store = store or RunStore()
     anstore = AnalyticsStore()
@@ -1884,6 +1897,82 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
     @app.get("/api/queue")
     def queue():
         return runner.snapshot()
+
+    # -- distribuované počítanie (tester.hub) --------------------------------- #
+    # Webapp je agent hubu, keď má klon tester/agent.json (agenta štartuje __main__).
+    # Zadanie ide cez webapp preto, aby si jej agent zapísal, čo poslal, a výsledok
+    # po dobehnutí vyzdvihol sám — aj keď CLI, ktoré ho zadalo, už nebeží.
+
+    def _hub_client():
+        from ..hub import config as hub_config
+        from ..hub.client import HubClient
+
+        cfg = hub_config.load()
+        if cfg is None:
+            raise HTTPException(404, "hub nie je nastavený (python -m tester.hub setup …)")
+        try:
+            return cfg, HubClient.from_config(cfg)
+        except PermissionError as exc:
+            raise HTTPException(403, str(exc))
+
+    @app.get("/api/hub")
+    def hub_status():
+        """Konfigurácia agenta, jeho stav a (keď smie posielať) prehľad hubu."""
+        from ..hub import config as hub_config
+        from ..hub.client import HubClient
+
+        cfg = hub_config.load()
+        agent = getattr(app.state, "hub_agent", None)
+        out: dict[str, Any] = {"configured": cfg is not None, "config": cfg.public() if cfg else None,
+                               "agent": agent.public() if agent else None, "hub": None, "error": None}
+        if cfg and cfg.send:
+            try:
+                out["hub"] = HubClient.from_config(cfg).status()
+            except Exception as exc:  # noqa: BLE001 - hub mimo nesmie zhodiť stav webapp
+                out["error"] = f"{type(exc).__name__}: {exc}"
+        return out
+
+    @app.post("/api/hub/jobs")
+    def hub_submit(req: HubJobRequest):
+        from ..hub import gitcode
+        from ..hub.client import HubError, NoCapacityError
+
+        cfg, client = _hub_client()
+        try:
+            job = client.submit(req.kind, req.payload, cores=req.cores, queue=req.queue,
+                                max_wait_seconds=req.max_wait_seconds,
+                                estimate_seconds=req.estimate_seconds, note=req.note,
+                                version=req.version or gitcode.version() or None)
+        except NoCapacityError as exc:
+            raise HTTPException(409, exc.detail)
+        except HubError as exc:
+            raise HTTPException(502, str(exc))
+        except (ValueError, OSError) as exc:
+            raise HTTPException(502, f"hub nedostupný: {exc}")
+        agent = getattr(app.state, "hub_agent", None)
+        if agent is not None:
+            agent.note_sent(job, req.note)
+        return job
+
+    @app.get("/api/hub/jobs/{job_id}")
+    def hub_job(job_id: str):
+        from ..hub.client import HubError
+
+        _, client = _hub_client()
+        try:
+            return client.job(job_id)
+        except HubError as exc:
+            raise HTTPException(exc.status if exc.status in (404, 401) else 502, str(exc))
+
+    @app.post("/api/hub/jobs/{job_id}/cancel")
+    def hub_cancel(job_id: str):
+        from ..hub.client import HubError
+
+        _, client = _hub_client()
+        try:
+            return client.cancel(job_id)
+        except HubError as exc:
+            raise HTTPException(exc.status if exc.status in (404, 401) else 502, str(exc))
 
     @app.post("/api/queue/{job_id}/cancel")
     def cancel(job_id: str):

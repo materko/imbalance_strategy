@@ -34,7 +34,8 @@ GREEN, RED, BLUE = "#089981", "#f23645", "#2962ff"
 
 def newest(directory: Path = RESULTS) -> Path:
     """Najnovší `.zip` — po behu backtestu je to ten, čo práve vznikol."""
-    zips = sorted(directory.glob("*.zip"), key=lambda p: p.stat().st_mtime)
+    # Behy z webapp majú zip vo vlastnom podadresári (`<run_id>/`), holý Freqtrade priamo tu.
+    zips = sorted([*directory.glob("*.zip"), *directory.glob("*/*.zip")], key=lambda p: p.stat().st_mtime)
     if not zips:
         raise SystemExit(f"V {directory} nie je ziadny vysledok backtestu.")
     return zips[-1]
@@ -322,7 +323,8 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     if args.list:
-        for p in sorted(RESULTS.glob("*.zip"), key=lambda p: p.stat().st_mtime, reverse=True):
+        for p in sorted([*RESULTS.glob("*.zip"), *RESULTS.glob("*/*.zip")],
+                        key=lambda p: p.stat().st_mtime, reverse=True):
             print(f"  {p.name}  {p.stat().st_size / 1e6:.1f} MB")
         return 0
 

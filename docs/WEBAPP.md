@@ -417,6 +417,10 @@ python -m tester.webapp.cli run --profile docs/profily_archiv/ibs/btcusdt_3m_bin
 python -m tester.webapp.cli list "rrRatio>=4 pnl>0"
 ```
 
+`run --remote` a `hyperopt --remote` pošlú výpočet na hub a spočíta ho voľný agent na inom
+stroji; beh sa vráti do tejto histórie, ako keby bežal tu. Webapp je zároveň agentom hubu,
+keď má klon `tester/agent.json` — [HUB.md](HUB.md).
+
 Kompletné pokyny pre Claude Code (spúšťanie, reštart, aktualizácia, Git) sú
 v [`CLAUDE.md`](../CLAUDE.md) v koreni repozitára — Claude Code ho načíta sám.
 Pokyny majú dva režimy podľa súboru `.ibs-role` v koreni klonu (gitignored):
@@ -429,8 +433,8 @@ inštalátor pre macOS zapisuje `tester` automaticky. Rola sa dá kedykoľvek pr
 
 * Nesťahuje dáta — páry a obdobia sú len tie, čo sú v archíve
   (`python -m tester.data_archive`, docs/DATA.md).
-* Nemá prihlásenie — je na lokálne spustenie (alebo za reverse proxy).
-* Nespúšťa hyperopt; na ten sú skripty v `deploy/freqtrade/scripts/`.
+* Nemá prihlásenie — je na lokálne spustenie (alebo za reverse proxy). Verejnú adresu má
+  len hub distribuovaného počítania, a ten je za tokenom ([HUB.md](HUB.md)).
 
 ## Kód
 

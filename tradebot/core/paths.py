@@ -41,6 +41,7 @@ __all__ = [
     "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS",
     "MULTICHARTS_DIR",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES", "ANALYTICS_DIR",
+    "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE",
     "DOCS_DIR", "MERANIA_DIR",
     "ARCHIVE_ROOTS",
 ]
@@ -87,6 +88,17 @@ TMP_PROFILES = RUNS_DIR / ".profiles"
 #: História analytiky. Vedľa behov, nie v nich: analytika nie je beh, je to pohľad na
 #: viac behov naraz — a rovnako ako behy sa zdieľa cez git (Push ju commituje).
 ANALYTICS_DIR = TESTER_DIR / "analytics"
+
+# -- Distribuované počítanie (tester.hub) ----------------------------------- #
+
+#: Stav hubu: zoznam agentov, fronta výpočtov a odovzdané výsledky (`results/<id>.zip`).
+#: Gitignored — hub je jeden proces na verejnom stroji, jeho stav nikto nezdieľa.
+HUB_DIR = TESTER_DIR / "hub_data"
+#: Konfigurácia agenta v tomto klone: adresa hubu, token, či prijíma a či posiela
+#: výpočty. Každý klon má vlastnú, preto gitignored.
+AGENT_CONFIG = TESTER_DIR / "agent.json"
+#: Stav agenta: čo poslal na hub a ešte sa nevrátilo, čo preň počíta. Prežije reštart.
+AGENT_STATE = TESTER_DIR / "agent_state.json"
 
 # -- Dokumentácia ----------------------------------------------------------- #
 

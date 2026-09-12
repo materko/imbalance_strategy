@@ -1,8 +1,11 @@
 """Fronta a spúšťanie Freqtrade backtestu v podprocese.
 
-Jeden beh naraz: Freqtrade s `--timeframe-detail 1m` vyťaží jedno jadro a dva
-paralelné behy by si len prekážali (a hlavne by sa nedalo povedať, ktorý zip
-v `backtest_results/` patrí ktorému). Ostatné behy čakajú vo fronte.
+Predvolene jeden beh naraz: Freqtrade s `--timeframe-detail 1m` vyťaží jedno jadro a na
+notebooku testera by si dva behy len prekážali. Server s viac jadrami (agent v
+`tester.hub`) si zapne `workers=N` — každý beh dostane vlastný adresár výsledkov
+(`backtest_results/<run_id>/`), takže sa zipy nepomiešajú. Hyperopt je **exkluzívny**:
+vyťaží všetky jadrá, preto sa nespustí, kým beží čokoľvek iné, a kým beží on, nezačne
+nič ďalšie (`Job.exclusive`).
 
 Parametre stratégie idú do Freqtradu cez dočasný JSON profil a premennú
 `TRADEBOT_PROFILE` — presne tak, ako to robí stratégia pri ručnom spúšťaní. Nastavenia
@@ -280,6 +283,11 @@ class Job:
     proc: subprocess.Popen | None = None
     cancel_requested: bool = False
 
+    @property
+    def exclusive(self) -> bool:
+        """Hyperopt vyťaží všetky jadrá — vedľa neho nemá bežať nič (`BacktestRunner.workers`)."""
+        return bool((self.settings.get("hyperopt") or {}).get("knobs"))
+
     def public(self) -> dict[str, Any]:
         return {
             "id": self.id, "status": self.status, "created": self.created, "started": self.started,
@@ -454,20 +462,40 @@ class BacktestRunner:
     """Fronta jedného pracovného vlákna. `submit()` vráti Job, výsledok skončí v store."""
 
     def __init__(self, store: RunStore, python: str | None = None,
-                 command_builder: Callable[[str, Path, dict[str, Any]], list[str]] = build_command) -> None:
+                 command_builder: Callable[[str, Path, dict[str, Any]], list[str]] = build_command,
+                 workers: int = 1) -> None:
         self.store = store
         self.python = python or sys.executable
         self.build_command = command_builder
+        #: Koľko behov naraz. 1 = správanie pre notebook testera; agent hubu si dá
+        #: toľko, koľko má jadier na rozdanie (`tester.hub.agent`).
+        self.workers = max(1, int(workers))
         self.jobs: dict[str, Job] = {}
         self.order: list[str] = []
         self._q: "queue.Queue[str]" = queue.Queue()
         self._lock = threading.Lock()
-        self._thread: threading.Thread | None = None
+        #: Stráži exkluzivitu: hyperopt čaká, kým dobehne všetko ostatné, a ostatné
+        #: čakajú, kým dobehne hyperopt. Worker s takým behom v ruke tu stojí.
+        self._slot = threading.Condition(self._lock)
+        self._threads: list[threading.Thread] = []
 
     def start(self) -> None:
-        if self._thread is None or not self._thread.is_alive():
-            self._thread = threading.Thread(target=self._loop, name="ibs-backtest-worker", daemon=True)
-            self._thread.start()
+        zive = [t for t in self._threads if t.is_alive()]
+        for i in range(len(zive), self.workers):
+            t = threading.Thread(target=self._loop, name=f"ibs-backtest-worker-{i}", daemon=True)
+            t.start()
+            zive.append(t)
+        self._threads = zive
+
+    # -- vyťaženie (pre agenta hubu) ---------------------------------------- #
+
+    def load(self) -> dict[str, Any]:
+        """Čo práve beží: počet behov, či medzi nimi je exkluzívny, koľko čaká."""
+        with self._lock:
+            bezia = [self.jobs[i] for i in self.order if self.jobs[i].status == "running"]
+            caka = sum(1 for i in self.order if self.jobs[i].status == "queued")
+        return {"running": len(bezia), "exclusive": any(j.exclusive for j in bezia),
+                "queued": caka, "workers": self.workers}
 
     def submit(self, params: dict[str, Any], settings: dict[str, Any], note: str = "", user: str = "") -> Job:
         # config sa validuje HNEĎ, aby tester dostal chybu do formulára a nie do logu behu
@@ -508,12 +536,26 @@ class BacktestRunner:
 
     # -- vnútro ------------------------------------------------------------ #
 
+    def _can_start(self, job: Job) -> bool:
+        """Volať so zamknutým `_lock`: exkluzívny beh chce prázdny stroj, ostatné len
+        stroj bez exkluzívneho behu."""
+        bezia = [self.jobs[i] for i in self.order if self.jobs[i].status == "running"]
+        if job.exclusive:
+            return not bezia
+        return not any(j.exclusive for j in bezia)
+
     def _loop(self) -> None:
         while True:
             job_id = self._q.get()
             job = self.jobs.get(job_id)
             if job is None or job.status != "queued":
                 continue
+            with self._slot:
+                while not self._can_start(job) and not job.cancel_requested:
+                    self._slot.wait(timeout=1.0)
+                if job.status != "queued":  # zrušené počas čakania na slot
+                    continue
+                job.status = "running"
             try:
                 self._run(job)
             except Exception:  # noqa: BLE001 - chyba behu nesmie zabiť worker
@@ -521,6 +563,9 @@ class BacktestRunner:
                 job.error = traceback.format_exc()[-2000:]
                 job.finished = datetime.now(timezone.utc).isoformat(timespec="seconds")
                 self._persist(job, None)
+            finally:
+                with self._slot:
+                    self._slot.notify_all()
 
     def _run(self, job: Job) -> None:
         job.status = "running"
@@ -541,12 +586,18 @@ class BacktestRunner:
             self._run_multicharts(job, instrument, profile, t0)
             return
         cmd = self.build_command(self.python, profile, job.settings)
+        # Vlastný adresár výsledkov: pri viacerých workeroch by sa inak nedalo povedať,
+        # ktorý zip v `backtest_results/` patrí ktorému behu.
+        results_dir = RESULTS_DIR / job.id
+        results_dir.mkdir(parents=True, exist_ok=True)
+        if cmd and cmd[0] == self.python:
+            cmd = cmd + ["--backtest-directory", str(results_dir)]
         job.log_lines.append("$ " + " ".join(cmd))
 
         chart_tmp = TMP_PROFILES / f"{job.id}.chart.json.gz"
         env = dict(os.environ, TRADEBOT_PROFILE=str(profile), TRADEBOT_DRAW_OUT=str(chart_tmp),
                    PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
-        before = {p.name for p in RESULTS_DIR.glob("*.zip")} if RESULTS_DIR.exists() else set()
+        before = {p.name for p in results_dir.glob("*.zip")}
 
         job.proc = subprocess.Popen(
             cmd, cwd=str(REPO), env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -560,6 +611,9 @@ class BacktestRunner:
         rc = job.proc.wait()
         job.finished = datetime.now(timezone.utc).isoformat(timespec="seconds")
         duration = round(time.time() - t0, 1)
+        # Beh bez zipu (chyba, zrušenie, falošný príkaz v testoch) nech nenechá prázdny adresár.
+        if not any(results_dir.iterdir()):
+            results_dir.rmdir()
 
         if job.cancel_requested:
             job.status = "failed"
@@ -575,7 +629,7 @@ class BacktestRunner:
             return
 
         new = sorted(
-            (p for p in RESULTS_DIR.glob("*.zip") if p.name not in before),
+            (p for p in results_dir.glob("*.zip") if p.name not in before),
             key=lambda p: p.stat().st_mtime,
         )
         if not new:
