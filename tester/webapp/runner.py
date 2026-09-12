@@ -289,6 +289,36 @@ class Job:
         }
 
 
+def kill_tree(pid: int) -> int:
+    """Zabije proces aj **všetky jeho deti**. Vráti, koľko procesov zabil.
+
+    `Popen.kill()` zabije len rodiča — `python -m tester.ftrun`. Hyperopt ale epochy počíta
+    v samostatných procesoch (joblib/loky, jeden na jadro) a tie na Windows po smrti rodiča
+    **bežia ďalej**: počítajú, držia `hyperopt.lock` (ďalší hyperopt potom odmietne štart)
+    a držia otvorenú rúru so stdout, takže čítanie výstupu neskončí a beh vo fronte ostane
+    „beží". Preto sa zabíja celý strom, deti ako prvé.
+    """
+    import psutil
+
+    try:
+        rodic = psutil.Process(pid)
+    except psutil.NoSuchProcess:
+        return 0
+    try:
+        deti = rodic.children(recursive=True)
+    except psutil.Error:
+        deti = []
+    zabite = 0
+    for proc in [*deti, rodic]:
+        try:
+            proc.kill()
+            zabite += 1
+        except psutil.Error:
+            pass
+    psutil.wait_procs([*deti, rodic], timeout=5)
+    return zabite
+
+
 #: `3m` → 3, `4h` → 240, `1w` → 10080. Prevod je v jadre, aby ho adaptéry aj nástroje
 #: mali rovnaký (a aby `4h` nepadalo tam, kde niekto parsoval len minúty).
 tf_minutes = timeframe_minutes
@@ -496,7 +526,7 @@ class BacktestRunner:
             self._persist(job, None)
             return True
         if job.proc is not None and job.proc.poll() is None:
-            job.proc.kill()
+            kill_tree(job.proc.pid)
             return True
         return False
 
