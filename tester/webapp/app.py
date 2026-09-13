@@ -461,8 +461,13 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         except (ConfigError, FileNotFoundError) as exc:
             raise HTTPException(404, str(exc))
         setup = user_profiles.settings_of(name, strategy)
+        # profily repozitára TF nemajú uložený, nesú ho v mene (`binance_btcusdt_5m`)
+        tf = setup.get("timeframe")
+        if not tf:
+            m = re.search(r"_(\d+[mhd])(?:\.json)?$", name)
+            tf = m.group(1) if m and m.group(1) in chart_data.TIMEFRAMES else None
         return {"name": name, "strategy": strategy, "params": params, "instrument": instrument,
-                "timeframe": setup.get("timeframe"), "settings": setup,
+                "timeframe": tf, "settings": setup,
                 "base": user_profiles.base_of(name, strategy),
                 "kind": "user" if user_profiles.is_user(name, strategy) else "builtin"}
 
