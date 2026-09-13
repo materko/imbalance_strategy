@@ -1,0 +1,402 @@
+$ /Users/peterpayerchin/Test/imbalance_strategy-main/.venv/bin/python -m tester.ftrun backtesting --config /Users/peterpayerchin/Test/imbalance_strategy-main/deploy/freqtrade/config.tester.cfd.json --userdir /Users/peterpayerchin/Test/imbalance_strategy-main/deploy/freqtrade/user_data --strategy IBSImbalanceStrategy --cache none --export trades --timerange 20250904-20260904 --pairs NAS100/USD --timeframe 3m --dry-run-wallet 10000.0 --fee 6e-05 --timeframe-detail 1m --datadir /Users/peterpayerchin/Test/imbalance_strategy-main/data/tester/dukascopy/futures
+2026-09-13 08:20:35,359 - freqtrade - INFO - freqtrade 2026.8
+2026-09-13 08:20:35,815 - freqtrade.configuration.load_config - INFO - Using config: /Users/peterpayerchin/Test/imbalance_strategy-main/deploy/freqtrade/config.tester.cfd.json ...
+2026-09-13 08:20:35,816 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-13 08:20:35,816 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-09-13 08:20:35,819 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-13 08:20:35,844 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSImbalanceStrategy from 
+'/Users/peterpayerchin/Test/imbalance_strategy-main/deploy/freqtrade/user_data/strategies/IBSImbalanceStrategy.py'...
+2026-09-13 08:20:35,844 - tradebot.adapters.freqtrade.base - WARNING - ibs config: tickDollarValue=0.5 nesedí s NAS100/USD (tick_size 0.01 × point_value 1.0 = 0.01). Bez legacyPineSizing sa pole 
+2026-09-13 08:20:35,844 - tradebot.adapters.freqtrade.base - WARNING - ibs config: engMinRangePoints, ewMinWavePoints, liqSweepMinWick, minImbSizePoints, pbMinRangePoints, srClusterPoints sú v 
+2026-09-13 08:20:36,003 - tradebot.strategies.ibs.freqtrade - WARNING - IBS: spotový trh — tradeDirection Both sa zužuje na longy
+2026-09-13 08:20:36,538 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSImbalanceStrategy
+2026-09-13 08:20:43,370 - tradebot.strategies.ibs.freqtrade - INFO - IBS NAS100/USD: 175501 barov, 175501 HTF barov, 200 zon, 124 signalov (64 long / 60 short)
+2026-09-13 08:20:43,592 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 339756.89 na 9900.00 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,592 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 339756.89 na 9900.00 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,592 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 339756.89 na 9900.00 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,611 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 536064.03 na 9900.00 (1.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,611 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 536064.03 na 9900.00 (1.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,611 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 536064.03 na 9900.00 (1.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,660 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 426636.25 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,660 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 426636.25 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,660 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 426636.25 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,662 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 251048.05 na 9900.00 (3.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,663 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 251048.05 na 9900.00 (3.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,663 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 251048.05 na 9900.00 (3.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,667 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 329647.50 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,667 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 329647.50 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,667 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 329647.50 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,707 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 227553.36 na 9900.00 (4.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,707 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 227553.36 na 9900.00 (4.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,708 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 227553.36 na 9900.00 (4.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,724 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 167936.92 na 9900.00 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,724 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 167936.92 na 9900.00 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,724 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 167936.92 na 9900.00 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,732 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 272712.61 na 9900.00 (3.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,732 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 272712.61 na 9900.00 (3.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,732 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 272712.61 na 9900.00 (3.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,746 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 281265.35 na 9900.00 (3.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,747 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 281265.35 na 9900.00 (3.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,747 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 281265.35 na 9900.00 (3.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,749 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 510526.38 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,749 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 510526.38 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,749 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 510526.38 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,761 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 846927.08 na 9900.00 (1.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,762 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 846927.08 na 9900.00 (1.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,762 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 846927.08 na 9900.00 (1.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,774 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 377496.77 na 9900.00 (2.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,774 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 377496.77 na 9900.00 (2.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,774 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 377496.77 na 9900.00 (2.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,781 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 300077.23 na 9900.00 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,781 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 300077.23 na 9900.00 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,781 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 300077.23 na 9900.00 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,781 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 300133.44 na 9900.00 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,782 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 300133.44 na 9900.00 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,782 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 300133.44 na 9900.00 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,783 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 500012.34 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,783 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 500012.34 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,783 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 500012.34 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,785 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 328870.20 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,785 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 328870.20 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,785 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 328870.20 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,795 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 998558.73 na 9900.00 (1.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,795 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 998558.73 na 9900.00 (1.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,795 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 998558.73 na 9900.00 (1.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,839 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 257382.93 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,839 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 257382.93 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,839 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 257382.93 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,852 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 251043.58 na 9900.00 (3.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,852 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 251043.58 na 9900.00 (3.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,852 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 251043.58 na 9900.00 (3.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,870 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 308581.30 na 9900.00 (3.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,870 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 308581.30 na 9900.00 (3.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,870 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 308581.30 na 9900.00 (3.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,882 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 172057.61 na 9900.00 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,882 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 172057.61 na 9900.00 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,882 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 172057.61 na 9900.00 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,898 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 222782.32 na 9900.00 (4.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,898 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 222782.32 na 9900.00 (4.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,899 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 222782.32 na 9900.00 (4.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,899 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 272581.49 na 9900.00 (3.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,899 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 272581.49 na 9900.00 (3.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,899 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 272581.49 na 9900.00 (3.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,911 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 372760.83 na 9900.00 (2.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,911 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 372760.83 na 9900.00 (2.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,911 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 372760.83 na 9900.00 (2.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,914 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 224316.17 na 9900.00 (4.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,914 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 224316.17 na 9900.00 (4.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,914 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 224316.17 na 9900.00 (4.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,934 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 323565.61 na 9900.00 (3.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,934 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 323565.61 na 9900.00 (3.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,934 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 323565.61 na 9900.00 (3.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,942 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 371856.15 na 9900.00 (2.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,942 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 371856.15 na 9900.00 (2.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,942 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 371856.15 na 9900.00 (2.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,948 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 243843.49 na 9900.00 (4.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,949 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 243843.49 na 9900.00 (4.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,949 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 243843.49 na 9900.00 (4.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,951 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 451916.03 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,951 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 451916.03 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,951 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 451916.03 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,993 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 232931.64 na 9900.00 (4.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,994 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 232931.64 na 9900.00 (4.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,994 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 232931.64 na 9900.00 (4.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,996 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 239773.13 na 9900.00 (4.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,996 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 239773.13 na 9900.00 (4.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:43,996 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 239773.13 na 9900.00 (4.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,006 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 266037.56 na 9900.00 (3.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,006 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 266037.56 na 9900.00 (3.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,007 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 266037.56 na 9900.00 (3.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,013 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 471941.61 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,013 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 471941.61 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,013 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 471941.61 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,039 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 374216.02 na 9900.00 (2.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,039 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 374216.02 na 9900.00 (2.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,039 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 374216.02 na 9900.00 (2.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,041 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 457083.44 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,042 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 457083.44 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,042 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 457083.44 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,054 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 541343.22 na 9900.00 (1.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,054 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 541343.22 na 9900.00 (1.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,054 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 541343.22 na 9900.00 (1.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,078 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 263200.30 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,078 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 263200.30 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,078 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 263200.30 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,085 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 443338.34 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,085 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 443338.34 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,085 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 443338.34 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,093 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 233244.62 na 9900.00 (4.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,093 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 233244.62 na 9900.00 (4.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,093 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 233244.62 na 9900.00 (4.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,093 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 262301.01 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,094 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 262301.01 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,094 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 262301.01 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,098 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 437789.01 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,098 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 437789.01 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,098 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 437789.01 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,100 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 262312.34 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,101 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 262312.34 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,101 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 262312.34 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,113 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 418256.54 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,113 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 418256.54 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,113 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 418256.54 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,123 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 454449.21 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,123 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 454449.21 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,123 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 454449.21 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,126 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 336294.75 na 9900.00 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,126 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 336294.75 na 9900.00 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,126 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 336294.75 na 9900.00 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,128 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 459406.92 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,128 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 459406.92 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,129 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 459406.92 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,139 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 414189.48 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,139 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 414189.48 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,139 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 414189.48 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,147 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 146942.27 na 9900.00 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,147 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 146942.27 na 9900.00 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,147 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 146942.27 na 9900.00 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,148 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 236050.47 na 9900.00 (4.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,148 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 236050.47 na 9900.00 (4.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,148 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 236050.47 na 9900.00 (4.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,158 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 300800.11 na 9900.00 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,158 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 300800.11 na 9900.00 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,158 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 300800.11 na 9900.00 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,160 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 242156.96 na 9900.00 (4.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,160 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 242156.96 na 9900.00 (4.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,161 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 242156.96 na 9900.00 (4.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,175 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 146715.38 na 9900.00 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,175 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 146715.38 na 9900.00 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,175 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 146715.38 na 9900.00 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,187 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 329591.02 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,187 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 329591.02 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,187 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 329591.02 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,201 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 260222.37 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,202 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 260222.37 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,202 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 260222.37 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,234 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 197657.52 na 9900.00 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,235 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 197657.52 na 9900.00 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,235 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 197657.52 na 9900.00 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,241 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 418462.65 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,241 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 418462.65 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,241 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 418462.65 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,247 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 336091.43 na 9900.00 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,247 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 336091.43 na 9900.00 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,247 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 336091.43 na 9900.00 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,250 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 196819.99 na 9900.00 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,250 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 196819.99 na 9900.00 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,250 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 196819.99 na 9900.00 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,264 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 324965.40 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,264 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 324965.40 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,265 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 324965.40 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,277 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 570971.72 na 9900.00 (1.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,277 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 570971.72 na 9900.00 (1.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,277 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 570971.72 na 9900.00 (1.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,305 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 472119.26 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,305 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 472119.26 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,305 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 472119.26 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,307 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 177587.72 na 9900.00 (5.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,308 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 177587.72 na 9900.00 (5.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,308 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 177587.72 na 9900.00 (5.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,314 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 792904.17 na 9900.00 (1.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,314 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 792904.17 na 9900.00 (1.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 08:20:44,314 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 792904.17 na 9900.00 (1.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+Result for strategy IBSImbalanceStrategy
+│ IBSImbalanceStrategy │      0 │         0.00 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │ 0 USD  0.00% │
+…
+2026-09-13 08:20:44,093 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 233244.62 na 9900.00 (4.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,093 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 233244.62 na 9900.00 (4.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,093 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 233244.62 na 9900.00 (4.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,093 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 262301.01 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,094 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 262301.01 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,094 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 262301.01 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,098 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 437789.01 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,098 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 437789.01 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,098 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 437789.01 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,100 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 262312.34 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,101 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 262312.34 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,101 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 262312.34 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,113 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 418256.54 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,113 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 418256.54 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,113 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 418256.54 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,123 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 454449.21 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,123 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 454449.21 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,123 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 454449.21 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,126 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 336294.75 na 9900.00 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,126 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 336294.75 na 9900.00 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,126 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 336294.75 na 9900.00 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,128 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 459406.92 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,128 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 459406.92 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,129 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 459406.92 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,139 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 414189.48 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,139 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 414189.48 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,139 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 414189.48 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,147 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 146942.27 na 9900.00 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,147 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 146942.27 na 9900.00 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,147 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 146942.27 na 9900.00 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,148 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 236050.47 na 9900.00 (4.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,148 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 236050.47 na 9900.00 (4.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,148 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 236050.47 na 9900.00 (4.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,158 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 300800.11 na 9900.00 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,158 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 300800.11 na 9900.00 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,158 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 300800.11 na 9900.00 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,160 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 242156.96 na 9900.00 (4.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,160 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 242156.96 na 9900.00 (4.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,161 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 242156.96 na 9900.00 (4.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,175 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 146715.38 na 9900.00 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,175 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 146715.38 na 9900.00 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,175 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 146715.38 na 9900.00 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,187 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 329591.02 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,187 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 329591.02 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,187 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 329591.02 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,201 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 260222.37 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,202 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 260222.37 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,202 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 260222.37 na 9900.00 (3.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,234 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 197657.52 na 9900.00 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,235 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 197657.52 na 9900.00 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,235 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 197657.52 na 9900.00 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,241 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 418462.65 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,241 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 418462.65 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,241 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 418462.65 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,247 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 336091.43 na 9900.00 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,247 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 336091.43 na 9900.00 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,247 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 336091.43 na 9900.00 (2.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,250 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 196819.99 na 9900.00 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,250 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 196819.99 na 9900.00 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,250 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 196819.99 na 9900.00 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,264 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 324965.40 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,264 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 324965.40 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,265 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 324965.40 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,277 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 570971.72 na 9900.00 (1.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,277 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 570971.72 na 9900.00 (1.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,277 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 570971.72 na 9900.00 (1.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,305 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 472119.26 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,305 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 472119.26 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,305 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 472119.26 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,307 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 177587.72 na 9900.00 (5.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,308 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 177587.72 na 9900.00 (5.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,308 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 177587.72 na 9900.00 (5.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,314 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 792904.17 na 9900.00 (1.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,314 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 792904.17 na 9900.00 (1.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-13 08:20:44,314 - tradebot.adapters.freqtrade.base - WARNING - ibs NAS100/USD: stake orezany z 792904.17 na 9900.00 (1.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4/4           100% • 0:00:07 • 0:00:00
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 175200/175200 100% • 0:00:08 • 0:00:00
+2026-09-13 08:20:44,446 - freqtrade.misc - INFO - dumping json to 
+"/Users/peterpayerchin/Test/imbalance_strategy-main/deploy/freqtrade/user_data/backtest_results/backtest-result-2026-09-13_06-20-44.meta.json"
+Result for strategy IBSImbalanceStrategy
+                                              BACKTESTING REPORT                                              
+┏━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃       Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ NAS100/USD │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+│      TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┏━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                               ENTER TAG STATS                                                
+┏━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Entries ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │       0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                              EXIT REASON STATS                                               
+┏━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Exit Reason ┃ Exits ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│       TOTAL │     0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                      MIXED TAG STATS                                                      
+┏━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Exit Reason ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │             │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+No trades made. Your starting balance was 10000 USD, and your stake was unlimited.
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                           STRATEGY SUMMARY                                                            
+┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃             Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃     Drawdown ┃
+┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ IBSImbalanceStrategy │      0 │         0.00 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │ 0 USD  0.00% │
+└──────────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────┘
+POZOR: engine dal 124 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh.
