@@ -10,6 +10,7 @@
     "Pre REALNE obchodovanie legacyPineSizing vypni - je to len pre golden test."
   ],
   "_instrument": "btcusd_coinbase",
+  "_timeframe": "3m",
   "enablePinBarEntry": true,
   "enableTrailing": true,
   "tradeDirection": "Long only",

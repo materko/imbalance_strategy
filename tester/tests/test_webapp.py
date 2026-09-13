@@ -431,8 +431,8 @@ def test_profile_keeps_the_whole_setup_of_the_run(client, own_profiles):
     got = c.get("/api/profiles/z_formulara").json()
     assert got["settings"] == {"timeframe": "15m", "timerange": "20240101-20240301",
                                "fee": 0, "wallet": 400000, "detail": False}
-    # profil repozitára nastavenia behu nemá — formulár si vtedy nechá, čo v ňom je
-    assert c.get("/api/profiles/golden_binance_btcusdt_3m").json()["settings"] == {}
+    # profil repozitára má len TF — obdobie, poplatok a peňaženku si formulár nechá, ako ich má
+    assert c.get("/api/profiles/golden_binance_btcusdt_3m").json()["settings"] == {"timeframe": "3m"}
 
 
 def test_profile_remembers_what_it_started_from(client, own_profiles):

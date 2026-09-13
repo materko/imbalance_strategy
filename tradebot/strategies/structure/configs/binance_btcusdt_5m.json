@@ -2,6 +2,7 @@
   "_title": "Binance BTCUSDT.P 5m — Pine defaulty štruktúry, páka 5",
   "_strategy": "structure",
   "_instrument": "btcusdt_binance",
+  "_timeframe": "5m",
   "_comment": [
     "Vychodiskovy profil strategie struktury. Vsetko su Pine defaulty z",
     "tradebot/strategies/structure/docs/sources/structure.pine (entryMode choch, exitMode rr,",
