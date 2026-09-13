@@ -706,10 +706,10 @@ async function loadProfile(name) {
   const pair = state.meta.pairs.find(p => p.instrument === inst);
   if (pair) { $("#pair").value = pair.pair; $("#pair").onchange(); }
   // limity *MaxBars sú v baroch, takže k profilu patrí aj TF, na ktorom bol ladený;
-  // profil bez TF znamená default stratégie (inak 3m), nie „nechaj, čo tam bolo"
+  // profil bez `_timeframe` (tie z repozitára) znamená 3m, nie „nechaj, čo tam bolo"
   fillEngines($("#pair").value, r.engine);
   fillExchanges($("#pair").value, r.exchange);
-  fillTimeframes($("#pair").value, r.timeframe || (strategySpec(state.strategy) || {}).default_timeframe || "3m");
+  fillTimeframes($("#pair").value, r.timeframe || "3m");
   applyProfileSettings(r.settings || {});
   $("#profile-base").textContent = r.base ? `vychádza z profilu ${r.base}` : "";
 }

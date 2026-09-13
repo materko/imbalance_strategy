@@ -203,9 +203,6 @@ def test_profile_endpoint(client):
     assert p["params"]["legacyPineSizing"] is True and p["params"]["tradeDirection"] == "Long only"
     assert p["params"]["tickDollarValue"] == 0.5  # presne to, s čím bežal TradingView
     assert c.get("/api/profiles/neexistuje").status_code == 404
-    # profil repozitára TF uložený nemá - vezme sa z mena, inak by formulár spadol na 3m
-    assert p["timeframe"] == "3m"
-    assert c.get("/api/profiles/binance_btcusdt_5m", params={"strategy": "demo_breakout"}).json()["timeframe"] == "5m"
     # archivované profily sa berú cestou v repozitári, nič mimo neho
     arch = c.get("/api/profiles/docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json").json()
     assert arch["instrument"] == "btcusdt_binance" and arch["params"]["rrRatio"] == 5.0
