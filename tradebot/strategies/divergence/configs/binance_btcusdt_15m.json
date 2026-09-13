@@ -2,6 +2,7 @@
   "_title": "Binance BTCUSDT.P 15m — posledný naladený config pôvodnej stratégie, páka 5",
   "_strategy": "divergence",
   "_instrument": "btcusdt_binance",
+  "_timeframe": "15m",
   "_comment": [
     "Vychodiskovy profil divergencnej strategie. Vsetko su defaulty configu, ktore kopiruju",
     "posledny hyperopt pôvodnej Freqtrade strategie (config_div_btc_15m.json, 2022): pivot 5,",

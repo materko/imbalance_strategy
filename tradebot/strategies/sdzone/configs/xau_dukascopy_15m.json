@@ -2,6 +2,7 @@
   "_title": "XAU Dukascopy 15m — SD zóny, vstup na odmietnutí zóny",
   "_strategy": "sdzone",
   "_instrument": "xau_dukascopy",
+  "_timeframe": "15m",
   "_comment": [
     "Vychodiskovy profil SD Zones, uz s vysledkom ladenia v den vzniku (2026-09-11).",
     "Baza max 3 sviecky s telom do 40 % rozsahu, impulz aspon 0,8 ATR a 55 % tela,",

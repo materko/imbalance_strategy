@@ -8,6 +8,7 @@
     "Zdroj hodnot: docs/tv_settings_2026-09-03.md (5 odchylok od Pine defaultov)."
   ],
   "_instrument": "mnq",
+  "_timeframe": "3m",
   "enablePinBarEntry": true,
   "enableTrailing": true,
   "tradeDirection": "Long only",

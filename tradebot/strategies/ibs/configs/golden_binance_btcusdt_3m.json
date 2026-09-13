@@ -12,6 +12,7 @@
     "a sizing opraveny. Tento profil sluzi vylucne na meranie parity."
   ],
   "_instrument": "btcusdt_binance",
+  "_timeframe": "3m",
   "enablePinBarEntry": true,
   "enableTrailing": true,
   "tradeDirection": "Long only",

@@ -2,6 +2,7 @@
   "_title": "NAS100 Dukascopy 3m — ORB na New York cash open, 15-minútový range",
   "_strategy": "orb",
   "_instrument": "nas100_dukascopy",
+  "_timeframe": "3m",
   "_comment": [
     "Vychodiskovy profil ORB pre NAS100. Vsetko su Pine defaulty z",
     "tradebot/strategies/orb/docs/sources/orb.pine, doplnene len o tickDollarValue,",
