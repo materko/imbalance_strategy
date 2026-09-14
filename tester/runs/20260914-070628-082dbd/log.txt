@@ -1,0 +1,33 @@
+$ emulator MultiCharts MNQ 3m 20211001-20260904 (MNQ_USD-1m.feather)
+emulacia MultiCharts: 581435 barov 3m, 1744299 1m, 581435 HTF
+  20000/581435 barov, 0 obchodov
+  40000/581435 barov, 1 obchodov
+  60000/581435 barov, 10 obchodov
+  80000/581435 barov, 18 obchodov
+  100000/581435 barov, 24 obchodov
+  120000/581435 barov, 28 obchodov
+  140000/581435 barov, 33 obchodov
+  160000/581435 barov, 38 obchodov
+  180000/581435 barov, 42 obchodov
+  200000/581435 barov, 43 obchodov
+  220000/581435 barov, 44 obchodov
+  240000/581435 barov, 48 obchodov
+  260000/581435 barov, 51 obchodov
+  280000/581435 barov, 51 obchodov
+  300000/581435 barov, 55 obchodov
+  320000/581435 barov, 57 obchodov
+  340000/581435 barov, 58 obchodov
+  360000/581435 barov, 60 obchodov
+  380000/581435 barov, 62 obchodov
+  400000/581435 barov, 65 obchodov
+  420000/581435 barov, 72 obchodov
+  440000/581435 barov, 75 obchodov
+  460000/581435 barov, 77 obchodov
+  480000/581435 barov, 77 obchodov
+  500000/581435 barov, 80 obchodov
+  520000/581435 barov, 84 obchodov
+  540000/581435 barov, 85 obchodov
+  560000/581435 barov, 86 obchodov
+  580000/581435 barov, 90 obchodov
+hotovo: 90 obchodov, nerozhodnutelnych minut 0
+kresby: {'imb_box': 46638, 'swing': 70339, 'structure': 54684, 'liq_sweep': 8926, 'session': 2543, 'sd_zone_pre': 21444, 'sd_zone_post': 21444, 'skip': 138, 'tp_box': 106, 'sl_box': 106, 'expired': 15, 'sr_level': 12, 'sr_golden': 4}
