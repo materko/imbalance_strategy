@@ -1666,7 +1666,8 @@ async function submitRun() {
   try {
     const job = await api("/api/runs", { method: "POST", body: JSON.stringify(runBody()) });
     // Vyzva sa pocita az z hotovych obchodov, takze si beh zapamatame a pockame naň.
-    state.propAfterRun = ($("#nprop-after")?.checked && job?.id) ? job.id : null;
+    // Len ked si ju tester sam otvoril - zatvorena vyzva sa nepocita ani neotvara.
+    state.propAfterRun = ($("#nprop-box")?.open && $("#nprop-after")?.checked && job?.id) ? job.id : null;
     await pollQueue();
   } catch (e) {
     $("#run-error").textContent = e.message; $("#run-error").hidden = false;
@@ -3172,7 +3173,6 @@ function renderProp(p, out) {
 /** Po dobehnutí behu z karty Nový beh: spočítať výzvu z jeho obchodov. */
 async function runPropForRun(runId) {
   if (!runId) return;
-  $("#nprop-box").open = true;
   await loadPropMeta("nprop");
   await runProp("nprop", [runId]);
 }
