@@ -1,0 +1,47 @@
+$ emulator MultiCharts MNQ 3m 20190505-20260904 (MNQ_USD-1m.feather)
+emulacia MultiCharts: 863502 barov 3m, 2586508 1m, 863502 HTF
+  20000/863502 barov, 7 obchodov
+  40000/863502 barov, 15 obchodov
+  60000/863502 barov, 18 obchodov
+  80000/863502 barov, 21 obchodov
+  100000/863502 barov, 36 obchodov
+  120000/863502 barov, 60 obchodov
+  140000/863502 barov, 78 obchodov
+  160000/863502 barov, 100 obchodov
+  180000/863502 barov, 123 obchodov
+  200000/863502 barov, 133 obchodov
+  220000/863502 barov, 163 obchodov
+  240000/863502 barov, 189 obchodov
+  260000/863502 barov, 201 obchodov
+  280000/863502 barov, 211 obchodov
+  300000/863502 barov, 224 obchodov
+  320000/863502 barov, 247 obchodov
+  340000/863502 barov, 282 obchodov
+  360000/863502 barov, 317 obchodov
+  380000/863502 barov, 345 obchodov
+  400000/863502 barov, 366 obchodov
+  420000/863502 barov, 394 obchodov
+  440000/863502 barov, 415 obchodov
+  460000/863502 barov, 444 obchodov
+  480000/863502 barov, 459 obchodov
+  500000/863502 barov, 475 obchodov
+  520000/863502 barov, 489 obchodov
+  540000/863502 barov, 502 obchodov
+  560000/863502 barov, 509 obchodov
+  580000/863502 barov, 520 obchodov
+  600000/863502 barov, 534 obchodov
+  620000/863502 barov, 553 obchodov
+  640000/863502 barov, 570 obchodov
+  660000/863502 barov, 586 obchodov
+  680000/863502 barov, 601 obchodov
+  700000/863502 barov, 635 obchodov
+  720000/863502 barov, 653 obchodov
+  740000/863502 barov, 663 obchodov
+  760000/863502 barov, 673 obchodov
+  780000/863502 barov, 694 obchodov
+  800000/863502 barov, 712 obchodov
+  820000/863502 barov, 737 obchodov
+  840000/863502 barov, 764 obchodov
+  860000/863502 barov, 783 obchodov
+hotovo: 787 obchodov, nerozhodnutelnych minut 0
+kresby: {'imb_box': 42086, 'structure': 81102, 'swing': 104869, 'session': 3851, 'sd_zone_pre': 36969, 'sd_zone_post': 36969, 'liq_sweep': 11770, 'skip': 1164, 'tp_box': 992, 'sl_box': 992, 'expired': 204, 'sr_level': 12, 'sr_golden': 4}
