@@ -160,7 +160,25 @@ Freqtrade configom (`config.binance.spot.json`, `trading_mode: spot`).
 skupinách, s rovnakými titulkami a tooltipmi ako v TradingView (parsujú sa priamo z Pine
 súboru stratégie, takže sa nemôžu rozísť), plus skupina „Rozšírenia portu" (polia, ktoré
 Pine nemá). Pri IBS je to `tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine` a rozšírenia `atrLen`,
-`legacyPineSizing`, `leverage`, `minSlDistance`; pri demo stratégii 9 polí.
+`legacyPineSizing`, `leverage`, `minSlDistance` a smer podľa indikátora (nižšie); pri demo stratégii 9 polí.
+
+**Smer obchodov podľa indikátorov (IBS).** „Smer obchodov" má okrem Both / Long only /
+Short only voľbu **Indicator**: vtedy sa ukážu checkboxy **Indikátor: Supertrend**
+a **Indikátor: ADX/DMI** — dá sa zvoliť jeden alebo oba a každý ukáže svoje nastavenia
+a vlastný TF výpočtu (skladá sa z barov grafu, takže musí byť násobkom TF grafu; používa
+sa vždy posledný uzavretý bar, nerepaintuje).
+- **Supertrend** (TradingView, KivancOzbilgic): ATR Period, Source, ATR Multiplier, Change
+  ATR, Buy/Sell signály, Highlighter. Stav hore / dole.
+- **ADX/DMI** (TradingView „Directional Movement Index"): DI Length, ADX Smoothing a prah
+  trendu — ADX pod prahom = do strany, inak smer podľa väčšieho z +DI / −DI.
+
+Pod nimi sú **pravidlá** pre kombinácie stavov — len tie, ktoré pre zaškrtnuté indikátory
+platia (len Supertrend 2, len ADX 3, oba 6). Každé je Both / Long only / Short only /
+No trade. Zóna proti pravidlu order nepoloží a SKIP štítok povie prečo, napr.
+„ST60 HORE + ADX60 STRANA: NEOBCHODOVAT"; kým sa indikátor nerozbehne, „… SA ROZBIEHA: CAKA".
+Na grafe behu sú vrstvy „Supertrend (smer)" a „ADX/DMI (smer)" (podfarbenie podľa stavu).
+Kód: `tradebot/strategies/ibs/ta/trend.py`, pravidlá `INDICATOR_RULES` v `config.py`,
+závislosti formulára `FEATURES` v `meta.py`. Na spote ostáva len „Long only".
 Pri IBS sa neponúkajú polia, ktoré v porte nerobia nič: `alert*` (v Pine notifikácie
 TradingView) a tabuľky kreslené na graf v TradingView — `showDashboard`, `showTradeLog`,
 `showDebugTable` s ich pozíciami a počtami riadkov; to isté ukazuje webapp vo vlastných
@@ -175,7 +193,8 @@ sa ukážu po podržaní myši na názve. Zmenené hodnoty oproti profilu sú ž
 ukazuje ich počet, ↺ vráti hodnotu profilu. Hľadanie prechádza všetky skupiny naraz
 (názov, popis, identifikátor); „len zmenené" ukáže iba odchýlky.
 
-Podnastavenia vypnutej feature sa neukazujú: keď je seansa vypnutá, nevidíš jej časy,
+Podnastavenia vypnutej feature sa neukazujú (`when` vo `FEATURES` určí hodnoty, pri ktorých
+je prepínač „zapnutý", `all` vyžaduje všetky prepínače — tak sa ukážu len pravidlá pre zaškrtnuté indikátory): keď je seansa vypnutá, nevidíš jej časy,
 keď je vypnutý trailing, nevidíš jeho R-násobky, S/R a likviditné parametre sa ukážu,
 až keď z nich obchoduješ alebo ich kreslíš. Prepínač so skrytými podnastaveniami má
 vedľa seba „▸ N nastavení skrytých". Hľadanie a „len zmenené" ukážu aj skryté polia.

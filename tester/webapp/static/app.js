@@ -98,7 +98,7 @@ function paramInput(meta) {
     const s = document.createElement("select");
     for (const o of meta.options) { const op = document.createElement("option"); op.value = o; op.textContent = o; s.append(op); }
     s.value = v ?? meta.default ?? meta.options[0];
-    s.onchange = () => onChange(s.value); wrap.append(s); return wrap;
+    s.onchange = () => { onChange(s.value); applyParamFilter(); }; wrap.append(s); return wrap;
   }
   if (meta.type === "size") {
     const cur = normSize(v, meta.base_unit);
@@ -160,6 +160,25 @@ function groupRows(group) {
       byInline[inlineKey].push(meta);
     } else rows.push([meta]);
   }
+  // Riadky s `depends_when` (smer podľa indikátorov) a všetko, čo od nich závisí, idú v pôvodnom
+  // poradí hneď pod prepínač, ktorý ich otvára — sú to rozšírenia portu a inak by boli o kus nižšie.
+  const block = [];
+  const inBlock = name => block.some(r => r.some(m => m.name === name));
+  for (let grew = true; grew;) {
+    grew = false;
+    for (const r of rows) {
+      if (block.includes(r)) continue;
+      if (r[0].depends_when || (r[0].depends_on || []).some(inBlock)) { block.push(r); grew = true; }
+    }
+  }
+  const anchorName = block.flatMap(r => r[0].depends_on || []).find(n => !inBlock(n));
+  const anchor = rows.find(r => r.some(m => m.name === anchorName));
+  if (block.length && anchor) {
+    const rest = rows.filter(r => !block.includes(r));
+    const ordered = rows.filter(r => block.includes(r));
+    rest.splice(rest.indexOf(anchor) + 1, 0, ...ordered);
+    return rest;
+  }
   return rows;
 }
 
@@ -186,15 +205,31 @@ function showMirror(show) {
   return lab;
 }
 
-/** Riadok má zmysel, keď je zapnutý aspoň jeden z jeho prepínačov — a ten sám je viditeľný. */
+/** Riadok má zmysel, keď je zapnutý aspoň jeden z jeho prepínačov (pri `depends_all` všetky)
+ *  — a ten sám je viditeľný. Prepínač s hodnotami (`depends_when`) je „zapnutý", keď má jednu z nich. */
 function dependencyMet(row, seen = new Set()) {
   const deps = (row.dataset.dependsOn || "").split(" ").filter(Boolean);
   if (!deps.length) return true;
-  return deps.some(name => {
-    if (!state.params[name] || seen.has(name)) return false;
+  const when = row.dataset.dependsWhen ? JSON.parse(row.dataset.dependsWhen) : {};
+  const check = name => {
+    const on = name in when ? when[name].includes(state.params[name]) : !!state.params[name];
+    if (!on || seen.has(name)) return false;
     const owner = $(`.prow[data-names~="${name}"]`);
     return !owner || dependencyMet(owner, new Set([...seen, name]));
-  });
+  };
+  return row.dataset.dependsAll ? deps.every(check) : deps.some(check);
+}
+
+/** Ukáže skrytý riadok prepnutie tohto checkboxu? Pravidlá pre inú kombináciu indikátorov
+ *  sa tak nepočítajú do „N nastavení skrytých" pri checkboxe, ktorý je už zapnutý.
+ *  Prepínač so zoznamom hodnôt sa počíta vždy. */
+function revealedBy(row, name) {
+  const value = state.params[name];
+  if (typeof value !== "boolean") return true;
+  state.params[name] = !value;
+  const shown = dependencyMet(row);
+  state.params[name] = value;
+  return shown;
 }
 
 function renderParams() {
@@ -222,6 +257,9 @@ function renderParams() {
       if (first.note) label.classList.add("noted");
       const deps = metas.map(m => m.depends_on).find(d => d && d.length);
       if (deps) row.dataset.dependsOn = deps.join(" ");
+      const when = metas.map(m => m.depends_when).find(Boolean);
+      if (when) row.dataset.dependsWhen = JSON.stringify(when);
+      if (metas.some(m => m.depends_all)) row.dataset.dependsAll = "1";
       const ctls = document.createElement("div"); ctls.className = "pctl";
       const sessionTime = /^sess[123](Zone|Trade)(Start|End)H$/.test(first.name)
         && metas.length === 2 && metas[1].name === first.name.slice(0, -1) + "M";
@@ -346,7 +384,9 @@ function applyParamFilter() {
       // Podnastavenia vypnutej feature sa neukazujú (hľadanie a „len zmenené" ich ukážu vždy).
       if (hit && browsing && !dependencyMet(row)) {
         hit = false;
-        for (const d of row.dataset.dependsOn.split(" ")) collapsed[d] = (collapsed[d] || 0) + 1;
+        for (const d of row.dataset.dependsOn.split(" ")) {
+          if (revealedBy(row, d)) collapsed[d] = (collapsed[d] || 0) + 1;
+        }
       }
       if (hit && basic && state.strategy === "ibs") {
         hit = row.dataset.names.split(" ").some(name => BASIC_PARAMS.has(name) || /^sess[123]/.test(name))
@@ -370,7 +410,7 @@ function applyParamFilter() {
 const BASIC_PARAMS = new Set(["tradeDirection", "rrRatio", "enableImbEntry", "enablePinBarEntry",
   "enableEngulfingEntry", "enableTrailing", "trailActivationR", "trailOffsetR", "maxLossDollar",
   "legacyPineSizing", "leverage", "minSlDistance", "slLookback", "slBufferTicks", "maxDailyWins",
-  "useStructureFilter", "zoneDetectionTF", "enableTrading", "closeAtSessionEnd", "weekdaysOnly"]);
+  "useStructureFilter", "indSupertrend", "indAdx", "zoneDetectionTF", "enableTrading", "closeAtSessionEnd", "weekdaysOnly"]);
 
 function setParamMode(mode) {
   state.paramMode = mode;

@@ -19,7 +19,9 @@ from tradebot.adapters.freqtrade.runner import EngineRunner
 from tradebot.core.candles import timeframe_minutes
 from tradebot.core import Bar, SessionClock
 from tradebot.core.risk import TrailingPlan, extreme_before_stop
-from tradebot.core.types import Direction, TradeDirection
+from tradebot.core.types import Direction
+
+from .config import TradeDirection
 
 logger = logging.getLogger(__name__)
 

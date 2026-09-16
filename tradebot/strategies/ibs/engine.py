@@ -26,6 +26,7 @@ from .ta.elliott import ElliottWaves
 from .ta.liquidity import LiquiditySweep
 from .ta.sr import SupportResistance
 from .ta.structure import MarketStructure
+from .ta.trend import DirectionGate
 from tradebot.core.types import Bar, Direction, InstrumentSpec
 from .zones import Zone, ZoneBook, ZoneSource, detect_sd_pattern
 
@@ -65,10 +66,14 @@ class IBSEngine:
         self.sr = SupportResistance(cfg, inst)
         self.liquidity = LiquiditySweep(cfg, inst)
         self.elliott = ElliottWaves(cfg, inst, chart_tf_minutes * 60_000)
+        #: `tradeDirection = Indicator` — smer podľa indikátora na vlastnom TF
+        self.direction_gate = DirectionGate(cfg, chart_tf_minutes)
+        self.machine.direction_gate = self.direction_gate
+        lookback = max(cfg.imbLookback, cfg.slLookback, cfg.volSmaLen, cfg.engSizeAvgLen) + 64
         #: Koľko barov treba, kým sú signály platné (Freqtrade `startup_candle_count`).
-        self.required_history = max(cfg.imbLookback, cfg.slLookback, cfg.volSmaLen, cfg.engSizeAvgLen) + 64
+        self.required_history = max(lookback, self.direction_gate.required_chart_bars)
         self.history = BarHistory(
-            maxlen=self.required_history,
+            maxlen=lookback,
             atr_len=cfg.atrLen,
         )
 
@@ -204,6 +209,7 @@ class IBSEngine:
             self._spawn_sweep_zones(sweeps, bar, out)
 
         self.elliott.on_bar(bar, self.history)
+        out.drawings.extend(self.direction_gate.on_bar(bar))
 
         if htf is not None and state.in_zone_window:
             pattern = detect_sd_pattern(htf, self.cfg, self.inst, atr=atr)

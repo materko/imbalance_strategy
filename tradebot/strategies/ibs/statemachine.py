@@ -22,6 +22,7 @@ splnené a v podmienkach sa už neobjavuje.
 from __future__ import annotations
 
 from enum import IntEnum
+from typing import TYPE_CHECKING
 
 from tradebot.core.orders import MarketContext, OrderAction, OrderIntent, StateEvent
 
@@ -43,6 +44,9 @@ from .ta.imbalance import find_imbalance
 from .ta.patterns import is_engulfing, is_pin_bar
 from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
 from .zones import Zone, ZoneBook, ZoneSource
+
+if TYPE_CHECKING:
+    from .ta.trend import DirectionGate
 
 __all__ = [
     "ZoneState",
@@ -74,6 +78,8 @@ class StateMachine:
         self.events: list[StateEvent] = []
         #: Pine `box.set_*` volania z tohto baru — engine ich pripojí k výstupu.
         self.drawings: list[DrawCommand] = []
+        #: `tradeDirection = Indicator` — nastaví engine; bez neho sa smer indikátorom neobmedzuje
+        self.direction_gate: DirectionGate | None = None
 
     # ------------------------------------------------------------------ #
 
@@ -550,8 +556,9 @@ class StateMachine:
     ) -> str | None:
         """Pine `canTrade` — poradie dôvodov je zachované, lebo sa zobrazuje v SKIP labeli.
 
-        Za Pine dôvodmi je jeden navyše, `minSlDistance` (rozšírenie portu, defaultne
-        vypnuté) — ide až posledný, aby sa poradie Pine labelov nezmenilo.
+        Za Pine dôvodmi sú dva navyše (rozšírenia portu, defaultne vypnuté): smer podľa
+        indikátora hneď pri `tradeDirection` a `minSlDistance` až posledný, aby sa poradie
+        Pine labelov nezmenilo.
         """
         cfg = self.cfg
         long = z.direction is Direction.LONG
@@ -584,6 +591,11 @@ class StateMachine:
 
         if not cfg.tradeDirection.allows(z.direction):
             return "SMER VYPNUTY"
+
+        if self.direction_gate is not None:
+            blocked = self.direction_gate.block_reason(z.direction)
+            if blocked is not None:
+                return blocked
 
         if plan is not None:
             min_sl = cfg.minSlDistance.resolve(self.inst, price=plan.entry, atr=atr)

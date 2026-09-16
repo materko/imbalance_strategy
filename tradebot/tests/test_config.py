@@ -18,11 +18,10 @@ from tradebot.core import (
     ConfigError,
     IBSConfig,
     SizeSpec,
-    TradeDirection,
     list_profiles,
     load_profile,
 )
-from tradebot.strategies.ibs.config import CONFIG_DIR, PORT_ONLY_FIELDS, SIZE_FIELDS
+from tradebot.strategies.ibs.config import CONFIG_DIR, PORT_ONLY_FIELDS, SIZE_FIELDS, TradeDirection
 
 
 # --------------------------------------------------------------------------- #

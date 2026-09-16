@@ -68,7 +68,23 @@ PARAM_NOTES: dict[str, str] = {
 #: je aspoň jeden z prepínačov zapnutý — formulár ich inak skryje. `show`: kresliaci
 #: prepínač tej istej feature; formulár ho zrkadlí hneď vedľa hlavného prepínača, keď
 #: sú v Pine v rôznych skupinách. Reťazenie funguje (volume filter je pod SD zónami).
+#: `when`: prepínač je „zapnutý" len pri uvedených hodnotách (zoznam, alebo bool False).
+#: `all`: musia platiť všetky prepínače, nie aspoň jeden.
+_RULES_BOTH = [f"ruleSt{st}Adx{adx}" for st in ("Up", "Down") for adx in ("Up", "Side", "Down")]
 FEATURES: list[dict[str, Any]] = [
+    {"switches": ["tradeDirection"], "when": {"tradeDirection": ["Indicator"]},
+     "params": ["indSupertrend", "indAdx"]},
+    {"switches": ["indSupertrend"],
+     "params": ["stTimeframe", "stAtrPeriod", "stSource", "stMultiplier", "stChangeAtr",
+                "stShowSignals", "stHighlighting"]},
+    {"switches": ["indAdx"],
+     "params": ["adxTimeframe", "adxDiLength", "adxSmoothing", "adxThreshold", "adxShowState"]},
+    {"switches": ["indSupertrend", "indAdx"], "all": True,
+     "when": {"indSupertrend": [True], "indAdx": [False]}, "params": ["ruleStUp", "ruleStDown"]},
+    {"switches": ["indSupertrend", "indAdx"], "all": True,
+     "when": {"indSupertrend": [False], "indAdx": [True]},
+     "params": ["ruleAdxUp", "ruleAdxDown", "ruleAdxSide"]},
+    {"switches": ["indSupertrend", "indAdx"], "all": True, "params": _RULES_BOTH},
     {"switches": ["enableImbEntry"], "show": "showImbalance",
      "params": ["state1MaxBars", "state2MaxBars", "state2ConfirmTicks", "state3MaxBars"]},
     {"switches": ["enablePinBarEntry"], "params": ["pbWickToBodyRatio", "pbBodyPositionPct", "pbMinRangePoints"]},
@@ -105,6 +121,8 @@ LAYERS: tuple[ChartLayer, ...] = (
     ChartLayer("sr", "S/R úrovne", ("sr_level", "sr_golden"), "#3b82f6"),
     ChartLayer("liq", "Likvidita", ("liq_sweep",), "#9333ea"),
     ChartLayer("elliott", "Elliott", ("elliott_wave", "elliott_proj"), "#0d9488"),
+    ChartLayer("supertrend", "Supertrend (smer)", ("st_line", "st_fill", "st_signal"), "#16a34a"),
+    ChartLayer("adx", "ADX/DMI (smer)", ("adx_state",), "#94a3b8"),
 )
 
 KIND_TITLES: dict[str, str] = {
@@ -113,6 +131,8 @@ KIND_TITLES: dict[str, str] = {
     "skip": "SKIP", "counter": "Počítadlo", "state34": "STATE 3/4", "expired": "Expirovaný order", "max_daily": "Denný limit",
     "swing": "Swing", "structure": "Štruktúra", "sr_level": "S/R úroveň", "sr_golden": "S/R golden", "liq_sweep": "Liquidity sweep",
     "elliott_wave": "Elliott vlna", "elliott_proj": "Elliott projekcia", "session": "Seansa",
+    "st_line": "Supertrend", "st_fill": "Supertrend výplň", "st_signal": "Supertrend Buy/Sell",
+    "adx_state": "ADX/DMI stav",
 }
 
 

@@ -51,14 +51,21 @@ def test_metadata_types_and_groups():
 
 def test_feature_dependencies_reference_real_bool_switches():
     """Tabuľka FEATURES je ručná — každé meno musí existovať, prepínače musia byť bool
-    a jedno pole nesmie visieť na dvoch featurách naraz (formulár by nevedel, čo poslúchať)."""
+    (alebo zoznam s `when` a skutočnými hodnotami) a jedno pole nesmie visieť na dvoch
+    featurách naraz (formulár by nevedel, čo poslúchať)."""
     from tester.webapp.param_meta import FEATURES
 
     by = {m["name"]: m for m in param_metadata()}
     seen: set[str] = set()
     for feat in FEATURES:
+        when = feat.get("when") or {}
         for sw in feat["switches"]:
-            assert by[sw]["type"] == "bool", sw
+            if sw in when and by[sw]["type"] == "bool":
+                assert all(isinstance(v, bool) for v in when[sw]), sw
+            elif sw in when:
+                assert set(when[sw]) <= set(by[sw]["options"]), sw
+            else:
+                assert by[sw]["type"] == "bool", sw
         if feat.get("show"):
             assert by[feat["show"]]["type"] == "bool"
         for name in feat["params"]:
@@ -69,6 +76,11 @@ def test_feature_dependencies_reference_real_bool_switches():
     assert by["srSwingLen"]["depends_on"] == ["enableSrTrading", "showSR"]
     assert by["enableSrTrading"]["show_param"] == "showSR"
     assert by["rrRatio"]["depends_on"] is None and by["rrRatio"]["show_param"] is None
+    assert by["indAdx"]["depends_when"] == {"tradeDirection": ["Indicator"]}
+    assert by["stAtrPeriod"]["depends_on"] == ["indSupertrend"]
+    assert by["ruleAdxSide"]["depends_all"] and by["ruleAdxSide"]["depends_when"] == {
+        "indSupertrend": [False], "indAdx": [True]}
+    assert by["ruleStUpAdxSide"]["depends_on"] == ["indSupertrend", "indAdx"]
 
 
 def test_metadata_groups_follow_pine_order():

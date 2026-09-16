@@ -73,6 +73,11 @@ class ParamMeta:
     note: str = ""
     #: prepínače, z ktorých aspoň jeden musí byť zapnutý, aby malo pole zmysel (viď FEATURES)
     depends_on: list[str] | None = None
+    #: prepínač so zoznamom hodnôt -> hodnoty, pri ktorých je „zapnutý" (FEATURES `when`);
+    #: prepínač, ktorý tu nie je, stačí mať pravdivý
+    depends_when: dict[str, list[Any]] | None = None
+    #: musia platiť všetky prepínače z `depends_on` (FEATURES `all`), nie aspoň jeden
+    depends_all: bool = False
     #: kresliaci prepínač feature, ktorú toto pole zapína (zrkadlí sa vedľa neho)
     show_param: str | None = None
     #: zmena tohto poľa rozbije paritu s Pine (sizing, STATE timeouty). Ladiť sa dá,
@@ -175,6 +180,9 @@ def param_metadata(spec: StrategySpec | str | None = None) -> list[dict[str, Any
     for feat in spec.features:
         for name in feat["params"]:
             by_name[name].depends_on = list(feat["switches"])
+            if feat.get("when"):
+                by_name[name].depends_when = {k: list(v) for k, v in feat["when"].items()}
+            by_name[name].depends_all = bool(feat.get("all"))
         if feat.get("show"):
             by_name[feat["switches"][0]].show_param = feat["show"]
 

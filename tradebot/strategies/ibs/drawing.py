@@ -29,10 +29,16 @@ SR_GOLDEN = DrawKind.register("sr_golden", "SR_GOLDEN")  # Pine 1114 / 1117
 LIQ_SWEEP = DrawKind.register("liq_sweep", "LIQ_SWEEP")  # Pine 1181-1231
 ELLIOTT_WAVE = DrawKind.register("elliott_wave", "ELLIOTT_WAVE")  # Pine 1346 / 1357
 ELLIOTT_PROJ = DrawKind.register("elliott_proj", "ELLIOTT_PROJ")  # Pine 1425 / 1468
+# -- smer podľa indikátora (rozšírenie portu, ta/trend.py) -------------
+ST_LINE = DrawKind.register("st_line", "ST_LINE")  # Supertrend čiara
+ST_FILL = DrawKind.register("st_fill", "ST_FILL")  # Supertrend „Highlighter"
+ST_SIGNAL = DrawKind.register("st_signal", "ST_SIGNAL")  # Supertrend Buy/Sell
+ADX_STATE = DrawKind.register("adx_state", "ADX_STATE")  # pozadie podľa stavu ADX/DMI
 
 #: Všetky druhy IBS (bez generických) — pre vrstvy grafu a testy.
 IBS_KINDS = (
     SD_ZONE_PRE, SD_ZONE_POST, IMB_BOX, PIN_BAR_BOX, ENGULFING_BOX,
     SKIP, COUNTER, STATE34, EXPIRED, MAX_DAILY, IMB_ZERO,
     SWING, STRUCTURE, SR_LEVEL, SR_GOLDEN, LIQ_SWEEP, ELLIOTT_WAVE, ELLIOTT_PROJ,
+    ST_LINE, ST_FILL, ST_SIGNAL, ADX_STATE,
 )

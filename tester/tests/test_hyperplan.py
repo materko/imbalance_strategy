@@ -38,7 +38,7 @@ def test_typ_a_rozsah_pochadzaju_z_configu_strategie():
     assert hp.knob_kind("rrRatio", IBS) == ("float", {"low": 0.5, "high": 10.0})
     assert hp.knob_kind("slLookback", IBS) == ("int", {"low": 1, "high": 100})
     kind, info = hp.knob_kind("tradeDirection", IBS)
-    assert kind == "enum" and info["choices"] == ["Both", "Long only", "Short only"]
+    assert kind == "enum" and info["choices"] == ["Both", "Long only", "Short only", "Indicator"]
     kind, info = hp.knob_kind("minSlDistance", IBS)
     assert kind == "size" and info["unit"] == "pct"
     assert hp.knob_kind("enableTrailing", IBS)[0] == "bool"

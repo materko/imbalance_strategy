@@ -20,23 +20,29 @@ from __future__ import annotations
 from pathlib import Path
 
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import ClassVar, Iterable
 
 from tradebot.core.config import ConfigError, StrategyConfig, list_profiles, load_profile
 
 from tradebot.core.types import (
+    Direction,
     InstrumentSpec,
     OrderType,
     PanelPos,
     SizeSpec,
     SizeUnit,
     SnapMode,
-    TradeDirection,
 )
 
 __all__ = [
     "IBSConfig",
     "ConfigError",
+    "TradeDirection",
+    "IndicatorAction",
+    "INDICATOR_RULES",
+    "PriceSource",
+    "timeframe_option_minutes",
     "SIZE_FIELDS",
     "PORT_ONLY_FIELDS",
     "CONSTRAINTS",
@@ -70,7 +76,16 @@ SIZE_FIELDS: dict[str, SizeUnit] = {
 }
 
 #: Polia, ktoré Pine nemá — rozšírenia portu. Test parity ich pozná menovite.
-PORT_ONLY_FIELDS: frozenset[str] = frozenset({"atrLen", "legacyPineSizing", "leverage", "minSlDistance"})
+PORT_ONLY_FIELDS: frozenset[str] = frozenset({
+    "atrLen", "legacyPineSizing", "leverage", "minSlDistance",
+    # smer obchodov podľa indikátorov (`tradeDirection = Indicator`) — ta/trend.py
+    "indSupertrend", "stTimeframe", "stAtrPeriod", "stSource", "stMultiplier", "stChangeAtr",
+    "stShowSignals", "stHighlighting",
+    "indAdx", "adxTimeframe", "adxDiLength", "adxSmoothing", "adxThreshold", "adxShowState",
+    "ruleStUp", "ruleStDown", "ruleAdxUp", "ruleAdxDown", "ruleAdxSide",
+    "ruleStUpAdxUp", "ruleStUpAdxSide", "ruleStUpAdxDown",
+    "ruleStDownAdxUp", "ruleStDownAdxSide", "ruleStDownAdxDown",
+})
 
 #: Rozsahy prevzaté z `minval=`/`maxval=` v Pine. Platia pre pôvodnú jednotku;
 #: ak je pole prepnuté na `atr`/`pct`, kontroluje sa len nezápornosť.
@@ -122,6 +137,11 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "maxLossDollar": (0, 100000),
     "tickDollarValue": (0.01, 1000),
     "maxDailyWins": (1, 20),
+    "stAtrPeriod": (1, 500),
+    "stMultiplier": (0.1, 50.0),
+    "adxDiLength": (1, 500),
+    "adxSmoothing": (1, 500),
+    "adxThreshold": (0.0, 100.0),
 }
 
 #: `zoneDetectionTF` — povolené hodnoty z Pine `options=[...]`.
@@ -130,10 +150,90 @@ DETECTION_TFS: tuple[str, ...] = (
 )
 
 
+#: Polia, ktorých hodnota je voľba z `DETECTION_TFS`.
+_TF_FIELDS = frozenset({"zoneDetectionTF", "stTimeframe", "adxTimeframe"})
+
+
+def timeframe_option_minutes(tf: str) -> int:
+    """Hodnota z `DETECTION_TFS` v minútach (`"D"` = 1440)."""
+    return 1440 if str(tf) == "D" else int(tf)
+
+
+class TradeDirection(str, Enum):
+    """Pine `tradeDirection` a navyše `Indicator` — smer určujú zvolené indikátory a pravidlá.
+
+    Jadro má vlastný `TradeDirection` bez `Indicator` (používajú ho iné stratégie), preto
+    IBS drží svoj; hodnoty prvých troch sú zhodné, profily sa teda nemenia.
+    """
+
+    BOTH = "Both"
+    LONG_ONLY = "Long only"
+    SHORT_ONLY = "Short only"
+    INDICATOR = "Indicator"
+
+    def allows(self, d: Direction) -> bool:
+        """Pevný smer; pri `INDICATOR` rozhoduje až brána indikátora (`DirectionGate`)."""
+        if self is TradeDirection.LONG_ONLY:
+            return d is Direction.LONG
+        if self is TradeDirection.SHORT_ONLY:
+            return d is Direction.SHORT
+        return True
+
+
+class IndicatorAction(str, Enum):
+    """Čo robiť pri danej kombinácii stavov indikátorov (`rule*` polia)."""
+
+    BOTH = "Both"
+    LONG_ONLY = "Long only"
+    SHORT_ONLY = "Short only"
+    NO_TRADE = "No trade"
+
+    def allows(self, d: Direction) -> bool:
+        if self is IndicatorAction.BOTH:
+            return True
+        if self is IndicatorAction.LONG_ONLY:
+            return d is Direction.LONG
+        if self is IndicatorAction.SHORT_ONLY:
+            return d is Direction.SHORT
+        return False
+
+
+#: Pravidlo pre kombináciu stavov: (Supertrend, ADX) -> pole configu. Stav je `up`/`down`
+#: (ADX aj `side` = do strany), `None` = indikátor nie je zaškrtnutý.
+INDICATOR_RULES: dict[tuple[str | None, str | None], str] = {
+    ("up", None): "ruleStUp",
+    ("down", None): "ruleStDown",
+    (None, "up"): "ruleAdxUp",
+    (None, "down"): "ruleAdxDown",
+    (None, "side"): "ruleAdxSide",
+    ("up", "up"): "ruleStUpAdxUp",
+    ("up", "side"): "ruleStUpAdxSide",
+    ("up", "down"): "ruleStUpAdxDown",
+    ("down", "up"): "ruleStDownAdxUp",
+    ("down", "side"): "ruleStDownAdxSide",
+    ("down", "down"): "ruleStDownAdxDown",
+}
+
+
+class PriceSource(str, Enum):
+    """Pine `input(hl2, "Source")` — zdroj ceny indikátora."""
+
+    OPEN = "open"
+    HIGH = "high"
+    LOW = "low"
+    CLOSE = "close"
+    HL2 = "hl2"
+    HLC3 = "hlc3"
+    OHLC4 = "ohlc4"
+    HLCC4 = "hlcc4"
+
+
 #: Polia, ktoré sa vždy držia ako enum, nie ako holý reťazec.
 ENUM_FIELDS: dict[str, type] = {
     "snapMode": SnapMode,
     "tradeDirection": TradeDirection,
+    "stSource": PriceSource,
+    **{name: IndicatorAction for name in INDICATOR_RULES.values()},
     "pbEngOrderType": OrderType,
     "dashPos": PanelPos,
     "debugPos": PanelPos,
@@ -290,6 +390,53 @@ class IBSConfig(StrategyConfig):
     maxDailyWins: int = 5
     tradeDirection: TradeDirection = TradeDirection.BOTH
 
+    # ---- 🧭 Smer podľa indikátorov (rozšírenie portu, `tradeDirection = Indicator`) ---- #
+    # Zaškrtnuté indikátory dajú stav (hore / dole / do strany) a pravidlo pre tú kombináciu
+    # povie, ktorý smer smie zóna obchodovať. Viď ta/trend.py.
+
+    #: Supertrend (TradingView, KivancOzbilgic)
+    indSupertrend: bool = True
+    #: TF, na ktorom sa Supertrend počíta (skladá sa z barov grafu — musí byť jeho násobkom).
+    stTimeframe: str = "60"
+    #: Supertrend „ATR Period"
+    stAtrPeriod: int = 10
+    #: Supertrend „Source"
+    stSource: PriceSource = PriceSource.HL2
+    #: Supertrend „ATR Multiplier"
+    stMultiplier: float = 3.0
+    #: Supertrend „Change ATR Calculation Method ?" — True = RMA (`atr()`), False = SMA z TR
+    stChangeAtr: bool = True
+    #: Supertrend „Show Buy/Sell Signals ?" — štítky Buy/Sell na grafe pri otočení trendu
+    stShowSignals: bool = True
+    #: Supertrend „Highlighter On/Off ?" — výplň medzi čiarou a cenou
+    stHighlighting: bool = True
+
+    #: ADX/DMI (TradingView „Directional Movement Index")
+    indAdx: bool = False
+    #: TF, na ktorom sa ADX/DMI počíta (násobok TF grafu)
+    adxTimeframe: str = "60"
+    #: DMI „DI Length"
+    adxDiLength: int = 14
+    #: DMI „ADX Smoothing"
+    adxSmoothing: int = 14
+    #: ADX pod touto hodnotou = trh do strany; inak smer podľa +DI / −DI
+    adxThreshold: float = 20.0
+    #: podfarbenie grafu behu podľa stavu ADX (hore / dole / do strany)
+    adxShowState: bool = True
+
+    # Pravidlá: čo robiť pri kombinácii stavov. Len Supertrend / len ADX / oba.
+    ruleStUp: IndicatorAction = IndicatorAction.LONG_ONLY
+    ruleStDown: IndicatorAction = IndicatorAction.SHORT_ONLY
+    ruleAdxUp: IndicatorAction = IndicatorAction.LONG_ONLY
+    ruleAdxDown: IndicatorAction = IndicatorAction.SHORT_ONLY
+    ruleAdxSide: IndicatorAction = IndicatorAction.NO_TRADE
+    ruleStUpAdxUp: IndicatorAction = IndicatorAction.LONG_ONLY
+    ruleStUpAdxSide: IndicatorAction = IndicatorAction.NO_TRADE
+    ruleStUpAdxDown: IndicatorAction = IndicatorAction.NO_TRADE
+    ruleStDownAdxUp: IndicatorAction = IndicatorAction.NO_TRADE
+    ruleStDownAdxSide: IndicatorAction = IndicatorAction.NO_TRADE
+    ruleStDownAdxDown: IndicatorAction = IndicatorAction.SHORT_ONLY
+
     #: Pine `tickDollarValue`. Engine ho používa len keď je `legacyPineSizing` zapnuté;
     #: inak sa počíta z `InstrumentSpec.point_value`. `check_instrument()` upozorní,
     #: ak nesedí s inštrumentom — presne tá chyba, ktorá na BTCUSD tíško vypla risk limit.
@@ -321,12 +468,25 @@ class IBSConfig(StrategyConfig):
     leverage: float = 1.0
 
 
+    def __setattr__(self, name: str, value: object) -> None:
+        """TF polia sú reťazce z `DETECTION_TFS`, ale `--set stTimeframe=60` pošle číslo."""
+        if name in _TF_FIELDS and isinstance(value, (int, float)) and not isinstance(value, bool):
+            value = str(int(value)) if float(value).is_integer() else str(value)
+        super().__setattr__(name, value)
+
     # ------------------------------------------------------------------ #
     # Validácia
     # ------------------------------------------------------------------ #
 
     def _problems(self) -> Iterable[str]:
         """Pravidlá IBS; rozsahy z `CONSTRAINTS` kontroluje báza."""
+        for name in ("stTimeframe", "adxTimeframe"):
+            if getattr(self, name) not in DETECTION_TFS:
+                yield f"{name}={getattr(self, name)!r} nie je v povolených hodnotách {DETECTION_TFS}"
+
+        if self.tradeDirection is TradeDirection.INDICATOR and not (self.indSupertrend or self.indAdx):
+            yield "tradeDirection=Indicator, ale nie je zaškrtnutý žiadny indikátor (indSupertrend, indAdx)"
+
         if self.zoneDetectionTF not in DETECTION_TFS:
             yield (
                 f"zoneDetectionTF={self.zoneDetectionTF!r} nie je v povolených "
