@@ -1,0 +1,5 @@
+$ emulator MultiCharts SYNTHMNQUSD 15m 20231001-20241001 (SYNTH-MNQ_USD-1m-futures.feather)
+emulacia MultiCharts: 23602 barov 15m, 354030 1m, 0 HTF
+  20000/23602 barov, 9 obchodov
+hotovo: 9 obchodov, nerozhodnutelnych minut 0
+kresby: {'dv_st_up': 11621, 'dv_line_bull': 10968, 'dv_bull': 4753, 'dv_st_down': 11967, 'dv_line_bear': 3360, 'dv_bear': 2688, 'dv_zone_bull': 237, 'dv_zone_bear': 231, 'dv_st_htf': 23378, 'dv_armed': 10, 'dv_entry': 9, 'sl_box': 9}

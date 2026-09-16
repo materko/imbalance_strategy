@@ -1,0 +1,697 @@
+{
+ "id": "20260911-215743-387f",
+ "created": "2026-09-11T21:57:43.487992+00:00",
+ "seq": 7,
+ "strategy": "divergence",
+ "config_key": "aae4a89732",
+ "market": "MNQ/USD|15m",
+ "profile": "binance_btcusdt_15m",
+ "timeranges": [
+  "20211001-20221001",
+  "20221001-20231001",
+  "20231001-20241001",
+  "20250904-20260904"
+ ],
+ "timeframes": [
+  "15m"
+ ],
+ "note": "",
+ "user": "materko",
+ "run_ids": [
+  "20260911-215505-2b7229",
+  "20260911-215505-29c1f8",
+  "20260911-215505-15ec97",
+  "20260911-215505-0d8779"
+ ],
+ "pairs": [
+  "MNQ/USD"
+ ],
+ "trades": 26,
+ "break_even_pct": 0.0113,
+ "winrate": 23.08,
+ "headline": "Najhorsia skupina je 'do 9 h' vlastnosti 'Hodina vstupu (UTC)': 8 obchodov (30.8 %), break-even -0.1815 % oproti 0.0113 % celku. Bez nej by break-even bol 0.1254 % (+0.1141). Ziadny parameter tuto vlastnost priamo neriadi, takze ak sa to potvrdi aj na inych oknach, je to kandidat na filter.",
+ "numbers": "7bafb1aa",
+ "posudok": "",
+ "posudok_stamp": "",
+ "posudok_at": "",
+ "posudok_user": "",
+ "report": {
+  "trades": 26,
+  "break_even_pct": 0.0113,
+  "winrate": 23.08,
+  "pnl_abs": 194.63,
+  "splits": [
+   {
+    "feature": "hour",
+    "title": "Hodina vstupu (UTC)",
+    "unit": "h",
+    "note": "Rozdelenie po hodinách ukáže, či edge nesie jedna seansa. Na IBS to tak bolo — celý edge bol v NY seanse.",
+    "param": null,
+    "best_impact": 0.1141,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "do 9 h",
+      "trades": 8,
+      "share_pct": 30.8,
+      "winrate": 0,
+      "break_even_pct": -0.1815,
+      "pnl_abs": -1464.43,
+      "without_pct": 0.1254,
+      "impact": 0.1141
+     },
+     {
+      "label": "9 h – 13 h",
+      "trades": 8,
+      "share_pct": 30.8,
+      "winrate": 25,
+      "break_even_pct": 0.3435,
+      "pnl_abs": 2036.63,
+      "without_pct": -0.1169,
+      "impact": -0.1282
+     }
+    ]
+   },
+   {
+    "feature": "month_of_year",
+    "title": "Kalendárny mesiac",
+    "unit": "",
+    "note": "Sezónnosť naprieč rokmi — nie „marec 2023“, ale „marec vôbec“. Pri piatich rokoch je to päť pozorovaní na mesiac, takže to skôr ukazuje smer na overenie než hotový záver.",
+    "param": null,
+    "best_impact": 0.073,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "06",
+      "trades": 8,
+      "share_pct": 30.8,
+      "winrate": 0,
+      "break_even_pct": -0.1984,
+      "pnl_abs": -1111.91,
+      "without_pct": 0.0843,
+      "impact": 0.073
+     },
+     {
+      "label": "10",
+      "trades": 8,
+      "share_pct": 30.8,
+      "winrate": 37.5,
+      "break_even_pct": 0.4981,
+      "pnl_abs": 2208.37,
+      "without_pct": -0.1165,
+      "impact": -0.1278
+     }
+    ]
+   },
+   {
+    "feature": "day_of_month",
+    "title": "Deň v mesiaci",
+    "unit": "",
+    "note": "Larryho Williamsa preslávilo hľadanie tendencií v kalendári — začiatok mesiaca býva iný než koniec (výplaty, rebalansovanie fondov). Je to zároveň klasická pasca na preoptimalizovanie: rozdiel medzi 3. a 17. dňom vyzerá presvedčivo, kým sa neoverí po oknách.",
+    "param": null,
+    "best_impact": 0.0635,
+    "at_entry": true,
+    "buckets": [
+     {
+      "label": "do 5",
+      "trades": 8,
+      "share_pct": 30.8,
+      "winrate": 25,
+      "break_even_pct": -0.1699,
+      "pnl_abs": -956.83,
+      "without_pct": 0.0748,
+      "impact": 0.0635
+     },
+     {
+      "label": "5 – 9",
+      "trades": 8,
+      "share_pct": 30.8,
+      "winrate": 37.5,
+      "break_even_pct": 0.2596,
+      "pnl_abs": 2328.12,
+      "without_pct": -0.17,
+      "impact": -0.1813
+     }
+    ]
+   }
+  ],
+  "descriptive": [],
+  "tunable": [],
+  "headline": "Najhorsia skupina je 'do 9 h' vlastnosti 'Hodina vstupu (UTC)': 8 obchodov (30.8 %), break-even -0.1815 % oproti 0.0113 % celku. Bez nej by break-even bol 0.1254 % (+0.1141). Ziadny parameter tuto vlastnost priamo neriadi, takze ak sa to potvrdi aj na inych oknach, je to kandidat na filter.",
+  "runs": [
+   {
+    "id": "20260911-215505-2b7229",
+    "pair": "MNQ/USD",
+    "timeframe": "15m",
+    "timerange": "20211001-20221001",
+    "trades": 5,
+    "profile": "binance_btcusdt_15m",
+    "note": "analytika: binance_btcusdt_15m · okno 20211001-20221001"
+   },
+   {
+    "id": "20260911-215505-29c1f8",
+    "pair": "MNQ/USD",
+    "timeframe": "15m",
+    "timerange": "20221001-20231001",
+    "trades": 6,
+    "profile": "binance_btcusdt_15m",
+    "note": "analytika: binance_btcusdt_15m · okno 20221001-20231001"
+   },
+   {
+    "id": "20260911-215505-15ec97",
+    "pair": "MNQ/USD",
+    "timeframe": "15m",
+    "timerange": "20231001-20241001",
+    "trades": 12,
+    "profile": "binance_btcusdt_15m",
+    "note": "analytika: binance_btcusdt_15m · okno 20231001-20241001"
+   },
+   {
+    "id": "20260911-215505-0d8779",
+    "pair": "MNQ/USD",
+    "timeframe": "15m",
+    "timerange": "20250904-20260904",
+    "trades": 3,
+    "profile": "binance_btcusdt_15m",
+    "note": "analytika: binance_btcusdt_15m · okno 20250904-20260904"
+   }
+  ],
+  "pairs": [
+   "MNQ/USD"
+  ],
+  "timeframes": [
+   "15m"
+  ],
+  "duplicates": 0,
+  "mixed_pairs": false,
+  "mixed_timeframes": false,
+  "config": {
+   "runs": 5,
+   "profiles": [
+    "binance_btcusdt_15m"
+   ],
+   "differing": {},
+   "mixed": false,
+   "severity": "ok",
+   "note": "všetky behy majú tú istú konfiguráciu: binance_btcusdt_15m"
+  },
+  "strategy": "divergence",
+  "character": {
+   "trades": 26,
+   "winrate": 23.08,
+   "payoff": 3.531,
+   "expectancy_pct": 0.4951,
+   "median_bars": 27.7,
+   "trades_per_day": 0.02,
+   "skew": 3.081,
+   "pre_entry_atr": -1.488,
+   "momentum_share": 7.7,
+   "heat_ratio": 1.712,
+   "exits": {
+    "stop_loss": 69.2,
+    "trailing_stop": 23.1,
+    "session_end": 7.7
+   },
+   "archetype": "reversion",
+   "confidence": "priemerná",
+   "evidence": [
+    "vstup proti poslednému pohybu (-1.49 ATR za 5 barov)",
+    "medián držania 27.7 barov grafu",
+    "winrate 23.08 %, payoff 3.531",
+    "0.02 obchodov za deň",
+    "šikmosť výnosov +3.081"
+   ],
+   "title": "Protitrendová (mean reversion)",
+   "signature": "Vstup proti poslednému pohybu, vysoký winrate, nízky payoff, krátke držanie.",
+   "normal": "Winrate nad 60 % a payoff pod 1 je pri tomto type v poriadku — zarába sa frekvenciou, nie veľkosťou.",
+   "watch": "Jedna strata môže zmazať mesiac. Stop je tu dôležitejší než vstup a `maxLossDollar` aj drawdown limit majú väčší význam než pri ostatných typoch.",
+   "tune": "Stop a filter režimu (v trende protitrendová stratégia dostáva rany). Ladiť RR nahor väčšinou len zníži winrate a nič nepridá."
+  },
+  "archetypes": [
+   {
+    "key": "breakout",
+    "title": "Prerazenie (breakout)",
+    "signature": "Vstup po pohybe v smere obchodu, nízky winrate, vysoký payoff, krátke držanie.",
+    "normal": "Dlhé série strát sú normálne — platí sa nimi za tie prerazenia, ktoré vyjdú. Winrate pod 40 % je pri tomto type v poriadku.",
+    "watch": "Falošné prerazenia v úzkom rozsahu. Filter na veľkosť pohybu a na to, či je trh vôbec v rozsahu, býva silnejšia páka než čokoľvek na výstupe.",
+    "tune": "Prahy vstupu (aká veľká musí byť sviečka/pohyb) a RR. Nie winrate — ten sa dá zvýšiť len skrátením TP, a tým sa stratégia pokazí."
+   },
+   {
+    "key": "trend",
+    "title": "Trendová (momentum)",
+    "signature": "Vstup v smere pohybu, dlhé držanie, nízky winrate, veľmi vysoký payoff — výsledok nesie málo obchodov.",
+    "normal": "Mesiace bez zisku a potom jeden obchod, ktorý vyrovná rok. Rovná krivka kapitálu sa od tohto typu čakať nedá.",
+    "watch": "Vyhodnotenie na krátkom okne. Keď výsledok nesie päť obchodov z dvesto, jedno okno nehovorí nič — a Monte Carlo interval bude široký.",
+    "tune": "Trailing a to, ako dlho sa obchod drží. Skrátenie TP tento typ zabije."
+   },
+   {
+    "key": "reversion",
+    "title": "Protitrendová (mean reversion)",
+    "signature": "Vstup proti poslednému pohybu, vysoký winrate, nízky payoff, krátke držanie.",
+    "normal": "Winrate nad 60 % a payoff pod 1 je pri tomto type v poriadku — zarába sa frekvenciou, nie veľkosťou.",
+    "watch": "Jedna strata môže zmazať mesiac. Stop je tu dôležitejší než vstup a `maxLossDollar` aj drawdown limit majú väčší význam než pri ostatných typoch.",
+    "tune": "Stop a filter režimu (v trende protitrendová stratégia dostáva rany). Ladiť RR nahor väčšinou len zníži winrate a nič nepridá."
+   },
+   {
+    "key": "scalp",
+    "title": "Scalping",
+    "signature": "Veľa obchodov, veľmi krátke držanie, payoff blízko 1, winrate blízko 50 %.",
+    "normal": "Edge na obchod je rádovo taký veľký ako poplatok. Break-even poplatok je tu jediné číslo, ktoré niečo znamená.",
+    "watch": "Poplatky a slippage rozhodujú o všetkom. Beh s `--fee 0` je pri tomto type úplne bezcenný.",
+    "tune": "Break-even poplatok, nie PnL. A počet obchodov — menej lepších je zvyčajne viac."
+   },
+   {
+    "key": "pattern",
+    "title": "Formácia / štruktúra",
+    "signature": "Vstup na konkrétnej konfigurácii, nie na pohybe — predchádzajúci pohyb nie je systematicky ani v smere, ani proti.",
+    "normal": "Zmes: časť obchodov sa chová ako prerazenie, časť ako návrat. Priemer preto o jednotlivom obchode nehovorí veľa.",
+    "watch": "Práve pri tomto type sa najviac oplatí rozdeliť obchody na skupiny (`tester.analytics`) — priemer skrýva dve rôzne populácie.",
+    "tune": "Podmienky vstupu (ktoré modely/formácie zapnuté) a potom až výstup."
+   },
+   {
+    "key": "swing",
+    "title": "Swingová",
+    "signature": "Málo obchodov, držanie v dňoch, payoff nad 1.",
+    "normal": "Desiatky obchodov za rok. Štatistika je nutne slabá a intervaly široké.",
+    "watch": "Málo obchodov = ľahké pretrénovanie. Hyperopt tu prefituje najrýchlejšie.",
+    "tune": "Skôr výber trhu a obdobia než jednotlivé prahy."
+   }
+  ],
+  "portfolio": {
+   "duplicates": [
+    {
+     "a": "20260911-215505-15ec97",
+     "b": "20260911-215505-7888f3",
+     "what": "MNQ/USD 20231001-20241001 x 20240904-20250904"
+    }
+   ],
+   "members": [
+    {
+     "id": "20260911-215505-2b7229",
+     "label": "MNQ/USD 15m 20211001-20221001",
+     "pair": "MNQ/USD",
+     "timeframe": "15m",
+     "timerange": "20211001-20221001",
+     "trades": 5,
+     "first": "",
+     "last": ""
+    },
+    {
+     "id": "20260911-215505-29c1f8",
+     "label": "MNQ/USD 15m 20221001-20231001",
+     "pair": "MNQ/USD",
+     "timeframe": "15m",
+     "timerange": "20221001-20231001",
+     "trades": 6,
+     "first": "",
+     "last": ""
+    },
+    {
+     "id": "20260911-215505-15ec97",
+     "label": "MNQ/USD 15m 20231001-20241001",
+     "pair": "MNQ/USD",
+     "timeframe": "15m",
+     "timerange": "20231001-20241001",
+     "trades": 12,
+     "first": "",
+     "last": ""
+    },
+    {
+     "id": "20260911-215505-7888f3",
+     "label": "MNQ/USD 15m 20240904-20250904",
+     "pair": "MNQ/USD",
+     "timeframe": "15m",
+     "timerange": "20240904-20250904",
+     "trades": 0,
+     "first": "",
+     "last": ""
+    },
+    {
+     "id": "20260911-215505-0d8779",
+     "label": "MNQ/USD 15m 20250904-20260904",
+     "pair": "MNQ/USD",
+     "timeframe": "15m",
+     "timerange": "20250904-20260904",
+     "trades": 3,
+     "first": "",
+     "last": ""
+    }
+   ],
+   "trades": 26,
+   "account": 10000,
+   "risks": [
+    {
+     "risk_pct": 0.25,
+     "return_pct": -4.46,
+     "max_drawdown_pct": 4.46,
+     "trades": 18,
+     "ruin": false,
+     "skipped": 8,
+     "cagr_pct": -1.01,
+     "final": 9554.34
+    },
+    {
+     "risk_pct": 0.5,
+     "return_pct": -8.73,
+     "max_drawdown_pct": 8.73,
+     "trades": 18,
+     "ruin": false,
+     "skipped": 8,
+     "cagr_pct": -2.01,
+     "final": 9127.48
+    },
+    {
+     "risk_pct": 1,
+     "return_pct": -16.73,
+     "max_drawdown_pct": 16.73,
+     "trades": 18,
+     "ruin": false,
+     "skipped": 8,
+     "cagr_pct": -3.98,
+     "final": 8327.21
+    },
+    {
+     "risk_pct": 2,
+     "return_pct": -30.79,
+     "max_drawdown_pct": 30.79,
+     "trades": 18,
+     "ruin": false,
+     "skipped": 8,
+     "cagr_pct": -7.85,
+     "final": 6921.21
+    },
+    {
+     "risk_pct": 3,
+     "return_pct": -42.58,
+     "max_drawdown_pct": 42.58,
+     "trades": 18,
+     "ruin": false,
+     "skipped": 8,
+     "cagr_pct": -11.59,
+     "final": 5741.58
+    }
+   ],
+   "by_year": [
+    {
+     "year": "2021",
+     "return_pct": -2.01,
+     "trades": 2,
+     "final": 9798.85
+    },
+    {
+     "year": "2022",
+     "return_pct": -2.01,
+     "trades": 2,
+     "final": 9602.18
+    },
+    {
+     "year": "2023",
+     "return_pct": -3.98,
+     "trades": 4,
+     "final": 9219.57
+    },
+    {
+     "year": "2024",
+     "return_pct": -7.83,
+     "trades": 8,
+     "final": 8497.28
+    },
+    {
+     "year": "2025",
+     "return_pct": -1.01,
+     "trades": 1,
+     "final": 8411.66
+    },
+    {
+     "year": "2026",
+     "return_pct": -1,
+     "trades": 1,
+     "final": 8327.21
+    }
+   ],
+   "correlations": {
+    "matrix": {
+     "MNQ/USD 15m 20211001-20221001": {
+      "MNQ/USD 15m 20211001-20221001": 1,
+      "MNQ/USD 15m 20221001-20231001": null,
+      "MNQ/USD 15m 20231001-20241001": null,
+      "MNQ/USD 15m 20250904-20260904": null
+     },
+     "MNQ/USD 15m 20221001-20231001": {
+      "MNQ/USD 15m 20211001-20221001": null,
+      "MNQ/USD 15m 20221001-20231001": 1,
+      "MNQ/USD 15m 20231001-20241001": null,
+      "MNQ/USD 15m 20250904-20260904": null
+     },
+     "MNQ/USD 15m 20231001-20241001": {
+      "MNQ/USD 15m 20211001-20221001": null,
+      "MNQ/USD 15m 20221001-20231001": null,
+      "MNQ/USD 15m 20231001-20241001": 1,
+      "MNQ/USD 15m 20250904-20260904": null
+     },
+     "MNQ/USD 15m 20250904-20260904": {
+      "MNQ/USD 15m 20211001-20221001": null,
+      "MNQ/USD 15m 20221001-20231001": null,
+      "MNQ/USD 15m 20231001-20241001": null,
+      "MNQ/USD 15m 20250904-20260904": 1
+     }
+    },
+    "pairs": [],
+    "mean": null,
+    "max": null,
+    "compared": 0,
+    "high": 0,
+    "high_share": null,
+    "min_months": 6,
+    "skipped": 6
+   },
+   "verdict": "TO NIE JE PORTFOLIO: 1 dvojic behov pokryva TEN ISTY trh v tom istom case (napr. MNQ/USD 20231001-20241001 x 20240904-20250904). Su to alternativy jednej veci, nie clenovia portfolia - to iste obdobie sa v sucte zapocitalo viackrat. Vyber behy z roznych trhov (matica trhov) alebo z roznych strategii."
+  },
+  "decay": {
+   "trades": 26,
+   "whole_break_even": 0.0113,
+   "lo": null,
+   "hi": null,
+   "median": null,
+   "sd": null,
+   "slope": null,
+   "verdict": "MALO DAT",
+   "note": "celkom 26 obchodov, v poslednom období 3 — na rozlíšenie úpadku od bežného rozptylu treba aspoň 60 a 12. Pridaj okná alebo trhy.",
+   "periods": [
+    {
+     "label": "2021-10 - 2022-11",
+     "start": "2021-10-06T02:30:00+00:00",
+     "end": "2022-11-20T19:30:00+00:00",
+     "trades": 7,
+     "break_even_pct": 0.3449,
+     "winrate": 42.86,
+     "per_month": 0.52,
+     "percentile": null
+    },
+    {
+     "label": "2022-11 - 2024-01",
+     "start": "2022-11-20T19:30:00+00:00",
+     "end": "2024-01-05T12:30:00+00:00",
+     "trades": 7,
+     "break_even_pct": 0.1039,
+     "winrate": 14.29,
+     "per_month": 0.52,
+     "percentile": null
+    },
+    {
+     "label": "2024-01 - 2025-02",
+     "start": "2024-01-05T12:30:00+00:00",
+     "end": "2025-02-19T05:30:00+00:00",
+     "trades": 9,
+     "break_even_pct": -0.1039,
+     "winrate": 11.11,
+     "per_month": 0.67,
+     "percentile": null
+    },
+    {
+     "label": "2025-02 - 2026-04",
+     "start": "2025-02-19T05:30:00+00:00",
+     "end": "2026-04-05T22:30:00+00:00",
+     "trades": 3,
+     "break_even_pct": -0.1281,
+     "winrate": 33.33,
+     "per_month": 0.22,
+     "percentile": null
+    }
+   ]
+  },
+  "synthetic": {
+   "profile": "binance_btcusdt_15m",
+   "rows": [
+    {
+     "timerange": "20211001-20221001",
+     "real": {
+      "run_id": "20260911-215505-2b7229",
+      "trades": 5,
+      "break_even_pct": 0.9624,
+      "signals": null,
+      "fill_pct": null
+     },
+     "synth": {
+      "run_id": "20260911-215507-b047f4",
+      "trades": 4,
+      "break_even_pct": -0.5454,
+      "signals": null,
+      "fill_pct": null
+     }
+    },
+    {
+     "timerange": "20221001-20231001",
+     "real": {
+      "run_id": "20260911-215505-29c1f8",
+      "trades": 6,
+      "break_even_pct": -0.3039,
+      "signals": null,
+      "fill_pct": null
+     },
+     "synth": {
+      "run_id": "20260911-215507-c78069",
+      "trades": 8,
+      "break_even_pct": 0.2043,
+      "signals": null,
+      "fill_pct": null
+     }
+    },
+    {
+     "timerange": "20231001-20241001",
+     "real": {
+      "run_id": "20260911-215505-15ec97",
+      "trades": 12,
+      "break_even_pct": -0.0374,
+      "signals": null,
+      "fill_pct": null
+     },
+     "synth": {
+      "run_id": "20260911-215507-55b611",
+      "trades": 9,
+      "break_even_pct": -0.0968,
+      "signals": null,
+      "fill_pct": null
+     }
+    },
+    {
+     "timerange": "20250904-20260904",
+     "real": {
+      "run_id": "20260911-215505-0d8779",
+      "trades": 3,
+      "break_even_pct": -0.2562,
+      "signals": null,
+      "fill_pct": null
+     },
+     "synth": {
+      "run_id": "20260911-215508-37e324",
+      "trades": 4,
+      "break_even_pct": -0.5936,
+      "signals": null,
+      "fill_pct": null
+     }
+    }
+   ],
+   "missing": [],
+   "pairs": [
+    "SYNTH-MNQ/USD"
+   ],
+   "command": "python -m tester.webapp.cli run --profile binance_btcusdt_15m --pair SYNTH-MNQ/USD --timerange <okno> --note \"synteticky trh\"",
+   "windows": 4,
+   "real_median": -0.1468,
+   "synth_median": -0.3211,
+   "real_positive": 1,
+   "synth_positive": 1,
+   "real_fill": null,
+   "synth_fill": null,
+   "severity": "pozor",
+   "verdict": "NEJASNE: na premiešanom trhu je break-even kladný v 1 z 4 okien (medián -0.3211 % oproti -0.1468 % na skutočnom). Nie je to dosť na obvinenie enginu ani na jeho očistenie — dobehni viac okien alebo viac obchodov."
+  },
+  "nulltest": {
+   "nulls": {
+    "anytime": {
+     "metric": "break_even_pct",
+     "observed": 0.0249,
+     "trades": 26,
+     "iterations": 600,
+     "null": "anytime",
+     "mean": 0.001591,
+     "sd": 0.046231,
+     "percentile": 71.33,
+     "sigma": 0.5,
+     "lo": -0.071032,
+     "hi": 0.077074,
+     "note": "",
+     "verdict": "Neodlisitelne od nahody (+0.5 sigma, percentil 71.3). Vyber vstupu k vysledku nepridava nic, co by sa nedalo dostat aj hodom mincou.",
+     "null_note": "vstupy kedykoľvek v okne"
+    },
+    "session": {
+     "metric": "break_even_pct",
+     "observed": 0.0249,
+     "trades": 26,
+     "iterations": 600,
+     "null": "session",
+     "mean": -0.001619,
+     "sd": 0.047811,
+     "percentile": 70.33,
+     "sigma": 0.55,
+     "lo": -0.08147,
+     "hi": 0.074053,
+     "note": "",
+     "verdict": "Neodlisitelne od nahody (+0.6 sigma, percentil 70.3). Vyber vstupu k vysledku nepridava nic, co by sa nedalo dostat aj hodom mincou.",
+     "null_note": "vstupy v tých istých hodinách, v akých obchoduje stratégia"
+    }
+   },
+   "note": "Obe náhody dávajú podobný výsledok, takže edge nie je len o výbere času — je v tom, na čom stratégia vstupuje."
+  },
+  "by_market": [
+   {
+    "key": "MNQ/USD|15m",
+    "pair": "MNQ/USD",
+    "timeframe": "15m",
+    "windows": {
+     "20211001-20221001": {
+      "run_id": "20260911-215505-2b7229",
+      "trades": 5,
+      "edge": 0.9597048243643878,
+      "pnl_pct": 13.419
+     },
+     "20221001-20231001": {
+      "run_id": "20260911-215505-29c1f8",
+      "trades": 6,
+      "edge": -0.30678722499181954,
+      "pnl_pct": -5.132
+     },
+     "20231001-20241001": {
+      "run_id": "20260911-215505-15ec97",
+      "trades": 12,
+      "edge": -0.03946678470303749,
+      "pnl_pct": -2.578
+     },
+     "20240904-20250904": {
+      "run_id": "20260911-215505-7888f3",
+      "trades": 0,
+      "edge": null,
+      "pnl_pct": 0
+     },
+     "20250904-20260904": {
+      "run_id": "20260911-215505-0d8779",
+      "trades": 3,
+      "edge": -0.2576587111800487,
+      "pnl_pct": -3.763
+     }
+    },
+    "trades": 26,
+    "positive": 1,
+    "done_ref": 5
+   }
+  ],
+  "reference_windows": [
+   "20211001-20221001",
+   "20221001-20231001",
+   "20231001-20241001",
+   "20240904-20250904",
+   "20250904-20260904"
+  ]
+ }
+}

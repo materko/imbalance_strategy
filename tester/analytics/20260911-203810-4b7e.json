@@ -1624,7 +1624,13 @@
       "signals": null,
       "fill_pct": null
      },
-     "synth": null
+     "synth": {
+      "run_id": "20260911-205345-c383e5",
+      "trades": 20,
+      "break_even_pct": 0.003,
+      "signals": null,
+      "fill_pct": null
+     }
     },
     {
      "timerange": "20221001-20231001",
@@ -1635,7 +1641,13 @@
       "signals": null,
       "fill_pct": null
      },
-     "synth": null
+     "synth": {
+      "run_id": "20260911-205345-6f260e",
+      "trades": 55,
+      "break_even_pct": -0.0457,
+      "signals": null,
+      "fill_pct": null
+     }
     },
     {
      "timerange": "20231001-20241001",
@@ -1646,7 +1658,13 @@
       "signals": null,
       "fill_pct": null
      },
-     "synth": null
+     "synth": {
+      "run_id": "20260911-205345-3dfad3",
+      "trades": 56,
+      "break_even_pct": 0.0356,
+      "signals": null,
+      "fill_pct": null
+     }
     },
     {
      "timerange": "20240904-20250904",
@@ -1657,7 +1675,13 @@
       "signals": null,
       "fill_pct": null
      },
-     "synth": null
+     "synth": {
+      "run_id": "20260911-205345-3e0f7a",
+      "trades": 75,
+      "break_even_pct": -0.0444,
+      "signals": null,
+      "fill_pct": null
+     }
     },
     {
      "timerange": "20250904-20260904",
@@ -1668,23 +1692,29 @@
       "signals": null,
       "fill_pct": null
      },
-     "synth": null
+     "synth": {
+      "run_id": "20260911-205346-33497f",
+      "trades": 72,
+      "break_even_pct": -0.0072,
+      "signals": null,
+      "fill_pct": null
+     }
     }
    ],
-   "missing": [
-    "20211001-20221001",
-    "20221001-20231001",
-    "20231001-20241001",
-    "20240904-20250904",
-    "20250904-20260904"
-   ],
+   "missing": [],
    "pairs": [
-    "SYNTH/USDT:USDT"
+    "SYNTH-MNQ/USD"
    ],
-   "command": "python -m tester.webapp.cli run --profile Na_propky --pair SYNTH/USDT:USDT --timerange <okno> --note \"synteticky trh\"",
-   "windows": 0,
-   "severity": "chyba dat",
-   "verdict": "na porovnanie treba aspoň 3 okná so behom na syntetickom trhu, sú 0. Dobehni ich: python -m tester.webapp.cli run --profile Na_propky --pair SYNTH/USDT:USDT --timerange <okno> --note \"synteticky trh\""
+   "command": "python -m tester.webapp.cli run --profile Na_propky --pair SYNTH-MNQ/USD --timerange <okno> --note \"synteticky trh\"",
+   "windows": 5,
+   "real_median": 0.0319,
+   "synth_median": -0.0072,
+   "real_positive": 5,
+   "synth_positive": 2,
+   "real_fill": null,
+   "synth_fill": null,
+   "severity": "ok",
+   "verdict": "ENGINE OK: na premiešanom trhu edge nie je — kladný v 2 z 5 okien, medián -0.0072 % oproti +0.0319 % na skutočnom trhu. To, čo stratégia nameria, teda nevyrába backtest sám od seba."
   },
   "nulltest": {
    "nulls": {

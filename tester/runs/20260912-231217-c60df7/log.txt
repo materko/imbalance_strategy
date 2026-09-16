@@ -1,0 +1,402 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.cfd.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data --strategy IBSImbalanceStrategy --cache none --export trades --timerange 20211001-20221001 --pairs MNQ/USD --timeframe 3m --dry-run-wallet 100000.0 --fee 0.0005 --timeframe-detail 1m --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\databento\futures
+2026-09-13 01:12:43,492 - freqtrade - INFO - freqtrade 2026.8
+2026-09-13 01:12:44,119 - freqtrade.configuration.load_config - INFO - Using config: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.cfd.json ...
+2026-09-13 01:12:44,119 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-13 01:12:44,119 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-09-13 01:12:44,128 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-13 01:12:44,188 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSImbalanceStrategy from 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.py'...
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\strategies\IBSImbalanceStrategy.json
+2026-09-13 01:12:44,196 - tradebot.adapters.freqtrade.base - WARNING - ibs config: legacyPineSizing na MNQ/USD: pri SL vzdialenosti nad 175 vyjde qty=1 a limit rizika sa neuplatní — presne to robil 
+2026-09-13 01:12:44,196 - tradebot.adapters.freqtrade.base - WARNING - ibs config: engMinRangePoints, ewMinWavePoints, liqSweepMinWick, minImbSizePoints, pbMinRangePoints, srClusterPoints sú v 
+2026-09-13 01:12:44,687 - tradebot.strategies.ibs.freqtrade - WARNING - IBS: unfilledtimeout.entry=30.0 min je kratší než state5MaxBars × timeframe = 75 min. Freqtrade zruší limitky skôr než engine; 
+2026-09-13 01:12:44,711 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, spot, 3m, data ends at 2022-09-30 20:57:00
+2026-09-13 01:12:44,775 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, spot, 1m, data ends at 2022-09-30 20:59:00
+2026-09-13 01:12:45,523 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSImbalanceStrategy
+2026-09-13 01:12:45,542 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, spot, 5m, data ends at 2022-09-30 20:55:00
+2026-09-13 01:12:57,946 - tradebot.strategies.ibs.freqtrade - INFO - IBS MNQ/USD: 175440 barov, 105384 HTF barov, 200 zon, 169 signalov (169 long / 0 short)
+2026-09-13 01:12:58,428 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, spot, 1m, data ends at 2022-09-30 20:59:00
+2026-09-13 01:12:58,894 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 103236.00 na 99200.99 (96.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:58,952 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 135681.75 na 98967.93 (72.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:58,969 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 180918.00 na 98983.76 (54.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:58,998 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 215481.00 na 98808.12 (45.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,038 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 169699.75 na 98787.94 (58.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,110 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 110043.50 na 98694.07 (89.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,332 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 614621.50 na 98086.45 (16.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,345 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 309928.00 na 98017.09 (31.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,365 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 163100.00 na 97973.63 (60.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,379 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 199539.00 na 97781.76 (49.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,499 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 161195.00 na 97760.94 (60.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,533 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 145730.25 na 97763.15 (67.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,549 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 243843.75 na 97852.79 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,566 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 131240.00 na 97690.92 (74.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,595 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 108696.00 na 97447.17 (89.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,610 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 143318.25 na 97447.17 (68.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,645 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1143117.50 na 97460.93 (8.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,645 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1143117.50 na 97367.73 (8.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,645 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1143117.50 na 97299.26 (8.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,667 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 346573.50 na 97206.06 (28.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,685 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 164025.00 na 97084.79 (59.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,779 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 186210.00 na 97031.33 (52.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,812 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 147622.50 na 96857.52 (65.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:12:59,957 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 176529.00 na 96823.81 (54.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:00,002 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 104529.25 na 96653.31 (92.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:00,074 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 142547.50 na 96419.27 (67.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:00,321 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 213340.00 na 95676.17 (44.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:00,350 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 199968.75 na 95581.27 (47.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:00,373 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 209287.50 na 95568.54 (45.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:00,433 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 263304.00 na 95600.98 (36.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:00,454 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 117638.00 na 95570.49 (81.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:00,477 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 117618.00 na 95601.89 (81.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:00,631 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 196826.50 na 95757.70 (48.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:00,663 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 181896.00 na 95350.79 (52.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:00,671 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 134581.50 na 95346.83 (70.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:00,915 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 382749.25 na 95118.32 (24.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:00,917 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 382749.25 na 94994.66 (24.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:00,918 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 382749.25 na 94907.41 (24.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:01,099 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 179921.00 na 94851.66 (52.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:01,123 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 115728.75 na 94845.72 (82.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:01,484 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 286437.50 na 94514.49 (33.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:01,488 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 334420.75 na 94477.18 (28.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:01,580 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 245264.25 na 94426.08 (38.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:01,684 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 126808.00 na 94495.29 (74.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:01,817 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 94446.00 na 93704.90 (99.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-13 01:13:01,835 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 123045.00 na 93704.90 (76.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:01,854 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 100660.00 na 93735.65 (93.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:01,876 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 147813.00 na 93509.92 (63.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:01,901 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 103552.00 na 93325.86 (90.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:01,957 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 271115.25 na 93371.22 (34.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:01,963 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 400946.25 na 93226.34 (23.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:01,987 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 278297.25 na 93285.36 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:02,047 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 277158.00 na 93140.83 (33.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:02,068 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 133982.50 na 92993.95 (69.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:02,095 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 486522.00 na 92813.44 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:02,114 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 228650.00 na 92704.96 (40.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:02,139 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 168298.00 na 92684.44 (55.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:02,295 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 182392.50 na 92403.37 (50.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:02,297 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 147447.00 na 92242.91 (62.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:02,350 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 120465.00 na 92054.56 (76.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:02,382 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 305400.00 na 92081.90 (30.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:02,497 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 115202.50 na 91625.65 (79.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:02,497 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 115202.50 na 91433.26 (79.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:02,570 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 249562.50 na 91300.62 (36.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-13 01:13:02,570 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 226560.00 na 91149.43 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+Result for strategy IBSImbalanceStrategy
+│ IBSImbalanceStrategy │    148 │        -0.06 │      -8346.846 │        -8.35 │      0:39:00 │   57     0    91  38.5 │ 8549.869 USD  8.53% │
+…
+│ ibs:1645178040000 │       1 │         0.01 │         10.424 │         0.01 │      0:30:00 │    1     0     0   100 │
+│ ibs:1641201120000 │       1 │          0.0 │          2.945 │          0.0 │      1:00:00 │    1     0     0   100 │
+│ ibs:1638872280000 │       1 │          0.0 │          2.233 │          0.0 │      0:29:00 │    1     0     0   100 │
+│ ibs:1649142720000 │       1 │         -0.0 │         -3.991 │         -0.0 │      0:12:00 │    0     0     1     0 │
+│ ibs:1653898680000 │       1 │        -0.01 │         -6.003 │        -0.01 │      1:07:00 │    0     0     1     0 │
+│ ibs:1647250020000 │       1 │        -0.01 │        -12.859 │        -0.01 │      0:01:00 │    0     0     1     0 │
+│ ibs:1634719500000 │       1 │        -0.02 │        -20.385 │        -0.02 │      0:42:00 │    0     0     1     0 │
+│ ibs:1660811580000 │       1 │        -0.03 │        -20.730 │        -0.02 │      0:08:00 │    0     0     1     0 │
+│ ibs:1656492120000 │       1 │        -0.03 │        -29.466 │        -0.03 │      0:02:00 │    0     0     1     0 │
+│ ibs:1648026900000 │       1 │        -0.04 │        -30.797 │        -0.03 │      0:04:00 │    0     0     1     0 │
+│ ibs:1659603960000 │       1 │        -0.04 │        -35.045 │        -0.04 │      0:03:00 │    0     0     1     0 │
+│ ibs:1655794980000 │       1 │        -0.04 │        -37.687 │        -0.04 │      0:07:00 │    0     0     1     0 │
+│ ibs:1662971220000 │       1 │        -0.04 │        -38.350 │        -0.04 │      0:01:00 │    0     0     1     0 │
+│ ibs:1637145720000 │       1 │        -0.04 │        -43.899 │        -0.04 │      0:46:00 │    0     0     1     0 │
+│ ibs:1647504720000 │       1 │        -0.06 │        -50.731 │        -0.05 │      0:03:00 │    0     0     1     0 │
+│ ibs:1659517200000 │       1 │        -0.06 │        -52.056 │        -0.05 │      0:01:00 │    0     0     1     0 │
+│ ibs:1637055720000 │       1 │        -0.07 │        -70.059 │        -0.07 │      0:11:00 │    0     0     1     0 │
+│ ibs:1636988400000 │       1 │        -0.24 │        -78.398 │        -0.08 │      0:07:00 │    0     0     1     0 │
+│ ibs:1663356960000 │       1 │         -0.2 │        -97.597 │         -0.1 │      0:09:00 │    0     0     1     0 │
+│ ibs:1636135380000 │       1 │         -0.2 │        -99.332 │         -0.1 │      1:42:00 │    0     0     1     0 │
+│ ibs:1661268060000 │       1 │         -0.4 │       -102.328 │         -0.1 │      4:24:00 │    0     0     1     0 │
+│ ibs:1643209200000 │       1 │        -0.74 │       -106.646 │        -0.11 │      0:41:00 │    0     0     1     0 │
+│ ibs:1660551480000 │       1 │        -0.14 │       -109.573 │        -0.11 │      0:04:00 │    0     0     1     0 │
+│ ibs:1655218080000 │       1 │        -1.02 │       -115.571 │        -0.12 │      4:21:00 │    0     0     1     0 │
+│ ibs:1649777400000 │       1 │        -0.85 │       -120.886 │        -0.12 │      0:52:00 │    0     0     1     0 │
+│ ibs:1640895840000 │       1 │        -0.15 │       -122.498 │        -0.12 │      0:01:00 │    0     0     1     0 │
+│ ibs:1655800020000 │       1 │        -0.15 │       -140.230 │        -0.14 │      0:06:00 │    0     0     1     0 │
+│ ibs:1651508280000 │       1 │        -0.56 │       -144.722 │        -0.14 │      0:33:00 │    0     0     1     0 │
+│ ibs:1659513420000 │       1 │        -0.16 │       -146.344 │        -0.15 │      0:06:00 │    0     0     1     0 │
+│ ibs:1646151120000 │       1 │        -0.52 │       -146.823 │        -0.15 │      0:15:00 │    0     0     1     0 │
+│ ibs:1654698060000 │       1 │        -0.58 │       -147.433 │        -0.15 │      2:02:00 │    0     0     1     0 │
+│ ibs:1646071200000 │       1 │        -0.52 │       -148.194 │        -0.15 │      1:01:00 │    0     0     1     0 │
+│ ibs:1660033800000 │       1 │        -0.16 │       -148.358 │        -0.15 │      0:16:00 │    0     0     1     0 │
+│ ibs:1646406180000 │       1 │        -0.54 │       -149.728 │        -0.15 │      0:05:00 │    0     0     1     0 │
+│ ibs:1643904720000 │       1 │        -0.52 │       -152.485 │        -0.15 │      0:14:00 │    0     0     1     0 │
+│ ibs:1664528040000 │       1 │        -0.17 │       -152.719 │        -0.15 │      0:03:00 │    0     0     1     0 │
+│ ibs:1657116000000 │       1 │        -0.67 │       -158.074 │        -0.16 │      1:30:00 │    0     0     1     0 │
+│ ibs:1664528580000 │       1 │        -0.17 │       -158.590 │        -0.16 │      0:01:00 │    0     0     1     0 │
+│ ibs:1641567780000 │       1 │        -0.51 │       -161.411 │        -0.16 │      0:14:00 │    0     0     1     0 │
+│ ibs:1662019020000 │       1 │        -0.19 │       -162.078 │        -0.16 │      0:02:00 │    0     0     1     0 │
+│ ibs:1639161900000 │       1 │        -0.17 │       -163.505 │        -0.16 │      0:02:00 │    0     0     1     0 │
+│ ibs:1638458640000 │       1 │        -0.52 │       -166.742 │        -0.17 │      0:08:00 │    0     0     1     0 │
+│ ibs:1648718280000 │       1 │        -0.18 │       -167.305 │        -0.17 │      0:40:00 │    0     0     1     0 │
+│ ibs:1646734140000 │       1 │        -0.18 │       -168.549 │        -0.17 │      0:03:00 │    0     0     1     0 │
+│ ibs:1643967720000 │       1 │         -0.2 │       -172.222 │        -0.17 │      0:06:00 │    0     0     1     0 │
+│ ibs:1656684720000 │       1 │         -0.3 │       -173.656 │        -0.17 │      0:02:00 │    0     0     1     0 │
+│ ibs:1642153860000 │       1 │        -0.19 │       -175.564 │        -0.18 │      0:09:00 │    0     0     1     0 │
+│ ibs:1634548680000 │       1 │         -0.2 │       -177.416 │        -0.18 │      0:50:00 │    0     0     1     0 │
+│ ibs:1646647560000 │       1 │        -0.44 │       -179.536 │        -0.18 │      1:07:00 │    0     0     1     0 │
+│ ibs:1634911200000 │       1 │         -0.2 │       -181.019 │        -0.18 │      0:09:00 │    0     0     1     0 │
+│ ibs:1655997120000 │       1 │        -0.52 │       -181.344 │        -0.18 │      0:21:00 │    0     0     1     0 │
+│ ibs:1661245560000 │       1 │         -0.2 │       -181.577 │        -0.18 │      0:07:00 │    0     0     1     0 │
+│ ibs:1660298040000 │       1 │        -0.23 │       -182.339 │        -0.18 │      0:06:00 │    0     0     1     0 │
+│ ibs:1658911680000 │       1 │        -0.22 │       -185.924 │        -0.19 │      0:31:00 │    0     0     1     0 │
+│ ibs:1662112620000 │       1 │        -0.22 │       -187.460 │        -0.19 │      0:09:00 │    0     0     1     0 │
+│ ibs:1644851340000 │       1 │        -0.66 │       -187.495 │        -0.19 │      0:26:00 │    0     0     1     0 │
+│ ibs:1637172180000 │       1 │         -0.2 │       -193.812 │        -0.19 │      0:05:00 │    0     0     1     0 │
+│ ibs:1649171340000 │       1 │        -0.22 │       -199.166 │         -0.2 │      0:04:00 │    0     0     1     0 │
+│ ibs:1657551960000 │       1 │        -0.42 │       -200.675 │         -0.2 │      0:43:00 │    0     0     1     0 │
+│ ibs:1659621600000 │       1 │        -0.38 │       -202.082 │         -0.2 │      0:13:00 │    0     0     1     0 │
+│ ibs:1664211240000 │       1 │        -0.59 │       -202.761 │         -0.2 │      0:28:00 │    0     0     1     0 │
+│ ibs:1652947920000 │       1 │        -0.35 │       -207.679 │        -0.21 │      0:19:00 │    0     0     1     0 │
+│ ibs:1651241700000 │       3 │        -0.17 │       -208.767 │        -0.21 │      0:00:00 │    0     0     3     0 │
+│ ibs:1663343280000 │       1 │        -0.35 │       -209.044 │        -0.21 │      0:32:00 │    0     0     1     0 │
+│ ibs:1662996060000 │       1 │        -0.33 │       -210.106 │        -0.21 │      0:32:00 │    0     0     1     0 │
+│ ibs:1662133500000 │       1 │        -0.43 │       -213.597 │        -0.21 │      0:27:00 │    0     0     1     0 │
+│ ibs:1648656000000 │       1 │        -0.36 │       -216.562 │        -0.22 │      2:14:00 │    0     0     1     0 │
+│ ibs:1657032660000 │       1 │        -0.24 │       -218.161 │        -0.22 │      0:06:00 │    0     0     1     0 │
+│ ibs:1644570360000 │       1 │         -0.3 │       -219.261 │        -0.22 │      0:31:00 │    0     0     1     0 │
+│ ibs:1658500740000 │       1 │        -0.26 │       -228.007 │        -0.23 │      0:06:00 │    0     0     1     0 │
+│ ibs:1636120800000 │       1 │        -0.35 │       -229.580 │        -0.23 │      2:54:00 │    0     0     1     0 │
+│ ibs:1645612740000 │       1 │        -0.33 │       -232.576 │        -0.23 │      0:06:00 │    0     0     1     0 │
+│ ibs:1633941000000 │       1 │        -0.27 │       -235.415 │        -0.24 │      2:00:00 │    0     0     1     0 │
+│ ibs:1657184400000 │       1 │        -0.33 │       -238.066 │        -0.24 │      0:48:00 │    0     0     1     0 │
+│ ibs:1654852500000 │       1 │        -0.33 │       -240.304 │        -0.24 │      1:06:00 │    0     0     1     0 │
+│ ibs:1648825560000 │       1 │        -0.27 │       -243.722 │        -0.24 │      0:04:00 │    0     0     1     0 │
+│ ibs:1639753560000 │       1 │        -0.31 │       -246.209 │        -0.25 │      0:03:00 │    0     0     1     0 │
+│ ibs:1653037920000 │       1 │         -0.3 │       -252.478 │        -0.25 │      0:27:00 │    0     0     1     0 │
+│ ibs:1640597040000 │       3 │        -0.11 │       -257.447 │        -0.26 │      0:01:00 │    0     0     3     0 │
+│ ibs:1654266600000 │       1 │        -0.29 │       -258.105 │        -0.26 │      0:03:00 │    0     0     1     0 │
+│ ibs:1664530200000 │       1 │        -0.29 │       -258.386 │        -0.26 │      0:05:00 │    0     0     1     0 │
+│ ibs:1635870240000 │       1 │        -0.27 │       -262.054 │        -0.26 │      1:48:00 │    0     0     1     0 │
+│ ibs:1652771160000 │       3 │        -0.11 │       -276.675 │        -0.28 │      0:04:00 │    0     0     3     0 │
+│ ibs:1664202420000 │       2 │        -0.23 │       -372.912 │        -0.37 │      0:00:00 │    0     0     2     0 │
+│ ibs:1645197480000 │       3 │        -0.18 │       -446.058 │        -0.45 │      0:00:00 │    0     0     3     0 │
+│             TOTAL │     148 │        -0.06 │      -8346.846 │        -8.35 │      0:39:00 │   57     0    91  38.5 │
+└───────────────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                  EXIT REASON STATS                                                  
+┌────────────────────┬───────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│        Exit Reason │ Exits │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├────────────────────┼───────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│                roi │    70 │         0.21 │       4499.463 │          4.5 │      0:48:00 │   56     0    14  80.0 │
+│ trailing_stop_loss │     2 │        -0.07 │       -114.359 │        -0.11 │      0:07:00 │    0     0     2     0 │
+│        session_end │     4 │        -0.17 │       -282.658 │        -0.28 │      1:52:00 │    1     0     3  25.0 │
+│          stop_loss │    72 │        -0.32 │     -12449.292 │       -12.45 │      0:28:00 │    0     0    72     0 │
+│              TOTAL │   148 │        -0.06 │      -8346.846 │        -8.35 │      0:39:00 │   57     0    91  38.5 │
+└────────────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                             MIXED TAG STATS                                                              
+┌───────────────────┬────────────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┐
+│         Enter Tag │        Exit Reason │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │
+├───────────────────┼────────────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┤
+│ ibs:1662127200000 │                roi │      1 │         0.86 │        210.797 │         0.21 │      0:27:00 │    1     0     0   100 │
+│ ibs:1656687960000 │                roi │      1 │         0.64 │        147.942 │         0.15 │      3:36:00 │    1     0     0   100 │
+│ ibs:1652282820000 │                roi │      1 │         0.59 │        144.311 │         0.14 │      0:08:00 │    1     0     0   100 │
+│ ibs:1652364000000 │                roi │      1 │         1.18 │        139.860 │         0.14 │      0:09:00 │    1     0     0   100 │
+│ ibs:1643383080000 │                roi │      1 │         0.98 │        137.912 │         0.14 │      0:49:00 │    1     0     0   100 │
+│ ibs:1653499980000 │                roi │      1 │         0.36 │        127.878 │         0.13 │      0:24:00 │    1     0     0   100 │
+│ ibs:1656663120000 │                roi │      1 │         0.27 │        125.097 │         0.13 │      0:24:00 │    1     0     0   100 │
+│ ibs:1664373600000 │                roi │      1 │         0.55 │        123.780 │         0.12 │      0:25:00 │    1     0     0   100 │
+│ ibs:1664215200000 │                roi │      1 │         0.27 │        123.576 │         0.12 │      0:46:00 │    1     0     0   100 │
+│ ibs:1654180920000 │                roi │      1 │         0.49 │        123.283 │         0.12 │      0:18:00 │    1     0     0   100 │
+│ ibs:1646077320000 │                roi │      1 │         0.29 │        122.768 │         0.12 │      0:35:00 │    1     0     0   100 │
+│ ibs:1648565100000 │                roi │      1 │         0.26 │        118.903 │         0.12 │      0:38:00 │    1     0     0   100 │
+│ ibs:1653379020000 │                roi │      1 │         0.25 │        118.732 │         0.12 │      2:18:00 │    1     0     0   100 │
+│ ibs:1648572300000 │                roi │      1 │         0.19 │        114.421 │         0.11 │      0:59:00 │    1     0     0   100 │
+│ ibs:1633421700000 │                roi │      1 │          0.2 │        113.881 │         0.11 │      5:13:00 │    1     0     0   100 │
+│ ibs:1644850800000 │                roi │      1 │          0.2 │        113.018 │         0.11 │      0:07:00 │    1     0     0   100 │
+│ ibs:1659538080000 │                roi │      1 │         0.43 │        111.672 │         0.11 │      0:47:00 │    1     0     0   100 │
+│ ibs:1646061660000 │                roi │      1 │          0.2 │        111.620 │         0.11 │      0:06:00 │    1     0     0   100 │
+│ ibs:1653557040000 │                roi │      1 │         0.19 │        111.607 │         0.11 │      0:38:00 │    1     0     0   100 │
+│ ibs:1653664320000 │                roi │      1 │         0.29 │        109.258 │         0.11 │      0:46:00 │    1     0     0   100 │
+│ ibs:1646041140000 │                roi │      1 │         0.26 │        108.694 │         0.11 │      2:42:00 │    1     0     0   100 │
+│ ibs:1646212140000 │                roi │      1 │         0.26 │        108.633 │         0.11 │      0:18:00 │    1     0     0   100 │
+│ ibs:1641482100000 │                roi │      1 │         0.66 │        104.472 │          0.1 │      0:31:00 │    1     0     0   100 │
+│ ibs:1654784100000 │                roi │      1 │         0.27 │        103.878 │          0.1 │      0:11:00 │    1     0     0   100 │
+│ ibs:1655478360000 │                roi │      1 │          0.9 │        101.212 │          0.1 │      1:59:00 │    1     0     0   100 │
+│ ibs:1656343260000 │                roi │      1 │         0.14 │         99.728 │          0.1 │      0:21:00 │    1     0     0   100 │
+│ ibs:1654761060000 │                roi │      1 │          0.2 │         98.466 │          0.1 │      0:54:00 │    1     0     0   100 │
+│ ibs:1648485720000 │                roi │      1 │         0.33 │         98.407 │          0.1 │      0:39:00 │    1     0     0   100 │
+│ ibs:1656084420000 │                roi │      1 │         0.16 │         97.420 │          0.1 │      1:32:00 │    1     0     0   100 │
+│ ibs:1650903840000 │                roi │      1 │         0.71 │         94.346 │         0.09 │      2:19:00 │    1     0     0   100 │
+│ ibs:1663682400000 │                roi │      1 │          0.2 │         94.243 │         0.09 │      0:48:00 │    1     0     0   100 │
+│ ibs:1659715380000 │                roi │      1 │         0.35 │         91.129 │         0.09 │      0:59:00 │    1     0     0   100 │
+│ ibs:1639153620000 │                roi │      1 │         0.28 │         90.545 │         0.09 │      0:16:00 │    1     0     0   100 │
+│ ibs:1645723620000 │                roi │      1 │         0.17 │         90.172 │         0.09 │      0:06:00 │    1     0     0   100 │
+│ ibs:1633338000000 │                roi │      1 │         0.15 │         89.142 │         0.09 │      3:45:00 │    1     0     0   100 │
+│ ibs:1635344640000 │                roi │      1 │         0.28 │         86.201 │         0.09 │      1:49:00 │    1     0     0   100 │
+│ ibs:1647854100000 │                roi │      1 │         0.15 │         83.501 │         0.08 │      1:48:00 │    1     0     0   100 │
+│ ibs:1638435060000 │                roi │      1 │         0.13 │         81.127 │         0.08 │      0:23:00 │    1     0     0   100 │
+│ ibs:1643213340000 │                roi │      1 │         0.52 │         75.290 │         0.08 │      1:24:00 │    1     0     0   100 │
+│ ibs:1656059760000 │                roi │      1 │         0.09 │         72.806 │         0.07 │      1:23:00 │    1     0     0   100 │
+│ ibs:1646842500000 │                roi │      1 │         0.08 │         72.688 │         0.07 │      0:02:00 │    1     0     0   100 │
+│ ibs:1637659080000 │                roi │      1 │         0.08 │         64.587 │         0.06 │      0:54:00 │    1     0     0   100 │
+│ ibs:1649318940000 │                roi │      1 │         0.07 │         64.207 │         0.06 │      0:40:00 │    1     0     0   100 │
+│ ibs:1644506640000 │                roi │      1 │         0.06 │         57.330 │         0.06 │      0:03:00 │    1     0     0   100 │
+│ ibs:1635442020000 │                roi │      1 │         0.06 │         55.602 │         0.06 │      0:53:00 │    1     0     0   100 │
+│ ibs:1659346560000 │                roi │      1 │         0.05 │         45.824 │         0.05 │      1:41:00 │    1     0     0   100 │
+│ ibs:1648459620000 │                roi │      1 │         0.05 │         42.221 │         0.04 │      0:33:00 │    1     0     0   100 │
+│ ibs:1648455300000 │                roi │      1 │         0.04 │         31.712 │         0.03 │      0:31:00 │    1     0     0   100 │
+│ ibs:1658307600000 │                roi │      1 │         0.04 │         31.060 │         0.03 │      0:50:00 │    1     0     0   100 │
+│ ibs:1662540300000 │                roi │      1 │         0.03 │         27.619 │         0.03 │      0:05:00 │    1     0     0   100 │
+│ ibs:1657132200000 │        session_end │      1 │         0.14 │         16.599 │         0.02 │      1:15:00 │    1     0     0   100 │
+│ ibs:1634313960000 │                roi │      1 │         0.02 │         15.992 │         0.02 │      0:29:00 │    1     0     0   100 │
+│ ibs:1640167200000 │                roi │      1 │         0.01 │         13.900 │         0.01 │      0:37:00 │    1     0     0   100 │
+│ ibs:1642752000000 │                roi │      1 │         0.01 │         11.876 │         0.01 │      0:02:00 │    1     0     0   100 │
+│ ibs:1645178040000 │                roi │      1 │         0.01 │         10.424 │         0.01 │      0:30:00 │    1     0     0   100 │
+│ ibs:1641201120000 │                roi │      1 │          0.0 │          2.945 │          0.0 │      1:00:00 │    1     0     0   100 │
+│ ibs:1638872280000 │                roi │      1 │          0.0 │          2.233 │          0.0 │      0:29:00 │    1     0     0   100 │
+│ ibs:1649142720000 │                roi │      1 │         -0.0 │         -3.991 │         -0.0 │      0:12:00 │    0     0     1     0 │
+│ ibs:1653898680000 │                roi │      1 │        -0.01 │         -6.003 │        -0.01 │      1:07:00 │    0     0     1     0 │
+│ ibs:1647250020000 │                roi │      1 │        -0.01 │        -12.859 │        -0.01 │      0:01:00 │    0     0     1     0 │
+│ ibs:1634719500000 │                roi │      1 │        -0.02 │        -20.385 │        -0.02 │      0:42:00 │    0     0     1     0 │
+│ ibs:1660811580000 │                roi │      1 │        -0.03 │        -20.730 │        -0.02 │      0:08:00 │    0     0     1     0 │
+│ ibs:1656492120000 │                roi │      1 │        -0.03 │        -29.466 │        -0.03 │      0:02:00 │    0     0     1     0 │
+│ ibs:1648026900000 │                roi │      1 │        -0.04 │        -30.797 │        -0.03 │      0:04:00 │    0     0     1     0 │
+│ ibs:1659603960000 │                roi │      1 │        -0.04 │        -35.045 │        -0.04 │      0:03:00 │    0     0     1     0 │
+│ ibs:1655794980000 │                roi │      1 │        -0.04 │        -37.687 │        -0.04 │      0:07:00 │    0     0     1     0 │
+│ ibs:1662971220000 │                roi │      1 │        -0.04 │        -38.350 │        -0.04 │      0:01:00 │    0     0     1     0 │
+│ ibs:1637145720000 │                roi │      1 │        -0.04 │        -43.899 │        -0.04 │      0:46:00 │    0     0     1     0 │
+│ ibs:1647504720000 │ trailing_stop_loss │      1 │        -0.06 │        -50.731 │        -0.05 │      0:03:00 │    0     0     1     0 │
+│ ibs:1659517200000 │                roi │      1 │        -0.06 │        -52.056 │        -0.05 │      0:01:00 │    0     0     1     0 │
+│ ibs:1652771160000 │ trailing_stop_loss │      1 │        -0.07 │        -63.627 │        -0.06 │      0:11:00 │    0     0     1     0 │
+│ ibs:1640597040000 │                roi │      1 │        -0.08 │        -69.157 │        -0.07 │      0:00:00 │    0     0     1     0 │
+│ ibs:1637055720000 │                roi │      1 │        -0.07 │        -70.059 │        -0.07 │      0:11:00 │    0     0     1     0 │
+│ ibs:1636988400000 │          stop_loss │      1 │        -0.24 │        -78.398 │        -0.08 │      0:07:00 │    0     0     1     0 │
+│ ibs:1663356960000 │        session_end │      1 │         -0.2 │        -97.597 │         -0.1 │      0:09:00 │    0     0     1     0 │
+│ ibs:1636135380000 │        session_end │      1 │         -0.2 │        -99.332 │         -0.1 │      1:42:00 │    0     0     1     0 │
+│ ibs:1661268060000 │        session_end │      1 │         -0.4 │       -102.328 │         -0.1 │      4:24:00 │    0     0     1     0 │
+│ ibs:1643209200000 │          stop_loss │      1 │        -0.74 │       -106.646 │        -0.11 │      0:41:00 │    0     0     1     0 │
+│ ibs:1660551480000 │          stop_loss │      1 │        -0.14 │       -109.573 │        -0.11 │      0:04:00 │    0     0     1     0 │
+│ ibs:1655218080000 │          stop_loss │      1 │        -1.02 │       -115.571 │        -0.12 │      4:21:00 │    0     0     1     0 │
+│ ibs:1649777400000 │          stop_loss │      1 │        -0.85 │       -120.886 │        -0.12 │      0:52:00 │    0     0     1     0 │
+│ ibs:1640895840000 │          stop_loss │      1 │        -0.15 │       -122.498 │        -0.12 │      0:01:00 │    0     0     1     0 │
+│ ibs:1655800020000 │          stop_loss │      1 │        -0.15 │       -140.230 │        -0.14 │      0:06:00 │    0     0     1     0 │
+│ ibs:1651508280000 │          stop_loss │      1 │        -0.56 │       -144.722 │        -0.14 │      0:33:00 │    0     0     1     0 │
+│ ibs:1659513420000 │          stop_loss │      1 │        -0.16 │       -146.344 │        -0.15 │      0:06:00 │    0     0     1     0 │
+│ ibs:1646151120000 │          stop_loss │      1 │        -0.52 │       -146.823 │        -0.15 │      0:15:00 │    0     0     1     0 │
+│ ibs:1654698060000 │          stop_loss │      1 │        -0.58 │       -147.433 │        -0.15 │      2:02:00 │    0     0     1     0 │
+│ ibs:1646071200000 │          stop_loss │      1 │        -0.52 │       -148.194 │        -0.15 │      1:01:00 │    0     0     1     0 │
+│ ibs:1660033800000 │          stop_loss │      1 │        -0.16 │       -148.358 │        -0.15 │      0:16:00 │    0     0     1     0 │
+│ ibs:1646406180000 │          stop_loss │      1 │        -0.54 │       -149.728 │        -0.15 │      0:05:00 │    0     0     1     0 │
+│ ibs:1643904720000 │          stop_loss │      1 │        -0.52 │       -152.485 │        -0.15 │      0:14:00 │    0     0     1     0 │
+│ ibs:1664528040000 │          stop_loss │      1 │        -0.17 │       -152.719 │        -0.15 │      0:03:00 │    0     0     1     0 │
+│ ibs:1657116000000 │          stop_loss │      1 │        -0.67 │       -158.074 │        -0.16 │      1:30:00 │    0     0     1     0 │
+│ ibs:1664528580000 │          stop_loss │      1 │        -0.17 │       -158.590 │        -0.16 │      0:01:00 │    0     0     1     0 │
+│ ibs:1641567780000 │          stop_loss │      1 │        -0.51 │       -161.411 │        -0.16 │      0:14:00 │    0     0     1     0 │
+│ ibs:1662019020000 │          stop_loss │      1 │        -0.19 │       -162.078 │        -0.16 │      0:02:00 │    0     0     1     0 │
+│ ibs:1639161900000 │          stop_loss │      1 │        -0.17 │       -163.505 │        -0.16 │      0:02:00 │    0     0     1     0 │
+│ ibs:1638458640000 │          stop_loss │      1 │        -0.52 │       -166.742 │        -0.17 │      0:08:00 │    0     0     1     0 │
+│ ibs:1648718280000 │          stop_loss │      1 │        -0.18 │       -167.305 │        -0.17 │      0:40:00 │    0     0     1     0 │
+│ ibs:1646734140000 │          stop_loss │      1 │        -0.18 │       -168.549 │        -0.17 │      0:03:00 │    0     0     1     0 │
+│ ibs:1643967720000 │          stop_loss │      1 │         -0.2 │       -172.222 │        -0.17 │      0:06:00 │    0     0     1     0 │
+│ ibs:1656684720000 │          stop_loss │      1 │         -0.3 │       -173.656 │        -0.17 │      0:02:00 │    0     0     1     0 │
+│ ibs:1642153860000 │          stop_loss │      1 │        -0.19 │       -175.564 │        -0.18 │      0:09:00 │    0     0     1     0 │
+│ ibs:1634548680000 │          stop_loss │      1 │         -0.2 │       -177.416 │        -0.18 │      0:50:00 │    0     0     1     0 │
+│ ibs:1646647560000 │          stop_loss │      1 │        -0.44 │       -179.536 │        -0.18 │      1:07:00 │    0     0     1     0 │
+│ ibs:1634911200000 │          stop_loss │      1 │         -0.2 │       -181.019 │        -0.18 │      0:09:00 │    0     0     1     0 │
+│ ibs:1655997120000 │          stop_loss │      1 │        -0.52 │       -181.344 │        -0.18 │      0:21:00 │    0     0     1     0 │
+│ ibs:1661245560000 │          stop_loss │      1 │         -0.2 │       -181.577 │        -0.18 │      0:07:00 │    0     0     1     0 │
+│ ibs:1660298040000 │          stop_loss │      1 │        -0.23 │       -182.339 │        -0.18 │      0:06:00 │    0     0     1     0 │
+│ ibs:1658911680000 │          stop_loss │      1 │        -0.22 │       -185.924 │        -0.19 │      0:31:00 │    0     0     1     0 │
+│ ibs:1662112620000 │          stop_loss │      1 │        -0.22 │       -187.460 │        -0.19 │      0:09:00 │    0     0     1     0 │
+│ ibs:1644851340000 │          stop_loss │      1 │        -0.66 │       -187.495 │        -0.19 │      0:26:00 │    0     0     1     0 │
+│ ibs:1640597040000 │          stop_loss │      2 │        -0.12 │       -188.290 │        -0.19 │      0:01:00 │    0     0     2     0 │
+│ ibs:1637172180000 │          stop_loss │      1 │         -0.2 │       -193.812 │        -0.19 │      0:05:00 │    0     0     1     0 │
+│ ibs:1649171340000 │          stop_loss │      1 │        -0.22 │       -199.166 │         -0.2 │      0:04:00 │    0     0     1     0 │
+│ ibs:1657551960000 │          stop_loss │      1 │        -0.42 │       -200.675 │         -0.2 │      0:43:00 │    0     0     1     0 │
+│ ibs:1659621600000 │          stop_loss │      1 │        -0.38 │       -202.082 │         -0.2 │      0:13:00 │    0     0     1     0 │
+│ ibs:1664211240000 │          stop_loss │      1 │        -0.59 │       -202.761 │         -0.2 │      0:28:00 │    0     0     1     0 │
+│ ibs:1652947920000 │          stop_loss │      1 │        -0.35 │       -207.679 │        -0.21 │      0:19:00 │    0     0     1     0 │
+│ ibs:1651241700000 │          stop_loss │      3 │        -0.17 │       -208.767 │        -0.21 │      0:00:00 │    0     0     3     0 │
+│ ibs:1663343280000 │          stop_loss │      1 │        -0.35 │       -209.044 │        -0.21 │      0:32:00 │    0     0     1     0 │
+│ ibs:1662996060000 │          stop_loss │      1 │        -0.33 │       -210.106 │        -0.21 │      0:32:00 │    0     0     1     0 │
+│ ibs:1652771160000 │          stop_loss │      2 │        -0.12 │       -213.048 │        -0.21 │      0:00:00 │    0     0     2     0 │
+│ ibs:1662133500000 │          stop_loss │      1 │        -0.43 │       -213.597 │        -0.21 │      0:27:00 │    0     0     1     0 │
+│ ibs:1648656000000 │          stop_loss │      1 │        -0.36 │       -216.562 │        -0.22 │      2:14:00 │    0     0     1     0 │
+│ ibs:1657032660000 │          stop_loss │      1 │        -0.24 │       -218.161 │        -0.22 │      0:06:00 │    0     0     1     0 │
+│ ibs:1644570360000 │          stop_loss │      1 │         -0.3 │       -219.261 │        -0.22 │      0:31:00 │    0     0     1     0 │
+│ ibs:1658500740000 │          stop_loss │      1 │        -0.26 │       -228.007 │        -0.23 │      0:06:00 │    0     0     1     0 │
+│ ibs:1636120800000 │          stop_loss │      1 │        -0.35 │       -229.580 │        -0.23 │      2:54:00 │    0     0     1     0 │
+│ ibs:1645612740000 │          stop_loss │      1 │        -0.33 │       -232.576 │        -0.23 │      0:06:00 │    0     0     1     0 │
+│ ibs:1633941000000 │          stop_loss │      1 │        -0.27 │       -235.415 │        -0.24 │      2:00:00 │    0     0     1     0 │
+│ ibs:1657184400000 │          stop_loss │      1 │        -0.33 │       -238.066 │        -0.24 │      0:48:00 │    0     0     1     0 │
+│ ibs:1654852500000 │          stop_loss │      1 │        -0.33 │       -240.304 │        -0.24 │      1:06:00 │    0     0     1     0 │
+│ ibs:1648825560000 │          stop_loss │      1 │        -0.27 │       -243.722 │        -0.24 │      0:04:00 │    0     0     1     0 │
+│ ibs:1639753560000 │          stop_loss │      1 │        -0.31 │       -246.209 │        -0.25 │      0:03:00 │    0     0     1     0 │
+│ ibs:1653037920000 │          stop_loss │      1 │         -0.3 │       -252.478 │        -0.25 │      0:27:00 │    0     0     1     0 │
+│ ibs:1654266600000 │          stop_loss │      1 │        -0.29 │       -258.105 │        -0.26 │      0:03:00 │    0     0     1     0 │
+│ ibs:1664530200000 │          stop_loss │      1 │        -0.29 │       -258.386 │        -0.26 │      0:05:00 │    0     0     1     0 │
+│ ibs:1635870240000 │          stop_loss │      1 │        -0.27 │       -262.054 │        -0.26 │      1:48:00 │    0     0     1     0 │
+│ ibs:1664202420000 │          stop_loss │      2 │        -0.23 │       -372.912 │        -0.37 │      0:00:00 │    0     0     2     0 │
+│ ibs:1645197480000 │          stop_loss │      3 │        -0.18 │       -446.058 │        -0.45 │      0:00:00 │    0     0     3     0 │
+│             TOTAL │                    │    148 │        -0.06 │      -8346.846 │        -8.35 │      0:39:00 │   57     0    91  38.5 │
+└───────────────────┴────────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2021-10-01 00:00:00                       │
+│ Backtesting to                         │ 2022-09-30 20:57:00                       │
+│ Trading Mode                           │ Spot                                      │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 148 / 0.41                                │
+│ Starting balance                       │ 100000 USD                                │
+│ Final balance                          │ 91653.154 USD                             │
+│ Absolute profit                        │ -8346.846 USD                             │
+│ Total profit %                         │ -8.35%                                    │
+│ CAGR %                                 │ -8.37%                                    │
+│ Sharpe (closed trades)                 │ -3.40                                     │
+│ Sortino (closed trades)                │ -6.31                                     │
+│ Calmar (closed trades)                 │ -5.13                                     │
+│ SQN                                    │ -5.30                                     │
+│ Mean profit p-value                    │ 4.11e-07                                  │
+│ Profit factor                          │ 0.37                                      │
+│ Expectancy (Ratio)                     │ -56.40 (-0.38)                            │
+│ Avg. daily profit                      │ -22.931 USD                               │
+│ Avg. stake amount                      │ 63657.49 USD                              │
+│ Market change                          │ -24.83%                                   │
+│ Total trade volume                     │ 18853113.846 USD                          │
+│                                        │                                           │
+│ Best Pair                              │ MNQ/USD -8.35%                            │
+│ Worst Pair                             │ MNQ/USD -8.35%                            │
+│ Best trade                             │ MNQ/USD 1.18%                             │
+│ Worst trade                            │ MNQ/USD -1.02%                            │
+│ Best day                               │ 233.324 USD                               │
+│ Worst day                              │ -569.695 USD                              │
+│ Days win/draw/lose                     │ 40 / 255 / 67                             │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:02 / 0d 05:13 / 0d 00:57            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:00 / 0d 04:24 / 0d 00:28            │
+│ Max Consecutive Wins / Loss            │ 5 / 8                                     │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 24 / 0                                    │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 91653.154 USD / 100203.023 USD            │
+│ Max % of account underwater            │ 8.53%                                     │
+│ Absolute drawdown                      │ 8549.869 USD (8.53%)                      │
+│ Drawdown duration                      │ 359 days 20:07:00                         │
+│ Profit at drawdown start               │ 203.023 USD                               │
+│ Profit at drawdown end                 │ -8346.846 USD                             │
+│ Drawdown start                         │ 2021-10-05 13:31:00                       │
+│ Drawdown end                           │ 2022-09-30 09:38:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 91653.154 USD / 100308.023 USD            │
+│ Min/Max balance dates (wallet balance) │ 2022-09-30 09:39:00 / 2021-10-11 09:09:00 │
+│ Max % of account underwater (balance)  │ 8.63%                                     │
+│ Absolute drawdown (wallet balance)     │ 8654.869 USD (8.63%)                      │
+│ Drawdown duration                      │ 354 days 00:30:00                         │
+│ Profit at drawdown start               │ 308.023 USD                               │
+│ Profit at drawdown end                 │ -8346.846 USD                             │
+│ Drawdown start                         │ 2021-10-11 09:09:00                       │
+│ Drawdown end                           │ 2022-09-30 09:39:00                       │
+│ Sharpe (daily wallet balance)          │ -4.66                                     │
+│ Sortino (daily wallet balance)         │ -4.22                                     │
+│ Calmar (daily wallet balance)          │ -5.08                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2021-10-01 00:00:00 -> 2022-09-30 20:57:00 | Max open trades : 1
+                                                               STRATEGY SUMMARY                                                               
+┌──────────────────────┬────────┬──────────────┬────────────────┬──────────────┬──────────────┬────────────────────────┬─────────────────────┐
+│             Strategy │ Trades │ Avg Profit % │ Tot Profit USD │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │            Drawdown │
+├──────────────────────┼────────┼──────────────┼────────────────┼──────────────┼──────────────┼────────────────────────┼─────────────────────┤
+│ IBSImbalanceStrategy │    148 │        -0.06 │      -8346.846 │        -8.35 │      0:39:00 │   57     0    91  38.5 │ 8549.869 USD  8.53% │
+└──────────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴─────────────────────┘

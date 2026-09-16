@@ -1,0 +1,5 @@
+$ emulator MultiCharts MNQ 15m 20240904-20250904 (MNQ_USD-1m.feather)
+emulacia MultiCharts: 23549 barov 15m, 353232 1m, 0 HTF
+  20000/23549 barov, 0 obchodov
+hotovo: 0 obchodov, nerozhodnutelnych minut 0
+kresby: {'dv_st_up': 11736, 'dv_line_bull': 11087, 'dv_bull': 4647, 'dv_line_bear': 3499, 'dv_bear': 2795, 'dv_zone_bull': 236, 'dv_zone_bear': 253, 'dv_st_down': 11799, 'dv_st_htf': 23317, 'dv_armed': 1}

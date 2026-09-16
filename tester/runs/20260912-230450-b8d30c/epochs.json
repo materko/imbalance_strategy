@@ -1,0 +1,3602 @@
+[
+  {
+    "epoch": 1,
+    "loss": -9.345794392523365,
+    "params": {
+      "hp_state1MaxBars": 9,
+      "hp_state2ConfirmTicks": 160.0,
+      "hp_state2MaxBars": 37,
+      "hp_state3MaxBars": 22,
+      "hp_state5MaxBars": 18
+    },
+    "trades": 107,
+    "pnl_pct": -8.6828,
+    "winrate": 9.3458,
+    "max_drawdown_pct": 8.6828,
+    "profit_factor": 0.0777,
+    "usable": true,
+    "is_best": true
+  },
+  {
+    "epoch": 2,
+    "loss": -14.705882352941178,
+    "params": {
+      "hp_state1MaxBars": 22,
+      "hp_state2ConfirmTicks": 70.0,
+      "hp_state2MaxBars": 3,
+      "hp_state3MaxBars": 22,
+      "hp_state5MaxBars": 45
+    },
+    "trades": 68,
+    "pnl_pct": -4.9028,
+    "winrate": 14.7059,
+    "max_drawdown_pct": 4.9028,
+    "profit_factor": 0.1123,
+    "usable": true,
+    "is_best": true
+  },
+  {
+    "epoch": 3,
+    "loss": -18.30985915492958,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 114.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 24
+    },
+    "trades": 71,
+    "pnl_pct": -4.6503,
+    "winrate": 18.3099,
+    "max_drawdown_pct": 4.6503,
+    "profit_factor": 0.1876,
+    "usable": true,
+    "is_best": true
+  },
+  {
+    "epoch": 4,
+    "loss": -11.11111111111111,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 25.0,
+      "hp_state2MaxBars": 1,
+      "hp_state3MaxBars": 35,
+      "hp_state5MaxBars": 50
+    },
+    "trades": 63,
+    "pnl_pct": -5.1315,
+    "winrate": 11.1111,
+    "max_drawdown_pct": 5.1315,
+    "profit_factor": 0.0932,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 5,
+    "loss": -8.75,
+    "params": {
+      "hp_state1MaxBars": 10,
+      "hp_state2ConfirmTicks": 126.0,
+      "hp_state2MaxBars": 8,
+      "hp_state3MaxBars": 29,
+      "hp_state5MaxBars": 12
+    },
+    "trades": 80,
+    "pnl_pct": -6.3664,
+    "winrate": 8.75,
+    "max_drawdown_pct": 6.3664,
+    "profit_factor": 0.0813,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 6,
+    "loss": -8.94308943089431,
+    "params": {
+      "hp_state1MaxBars": 23,
+      "hp_state2ConfirmTicks": 153.0,
+      "hp_state2MaxBars": 43,
+      "hp_state3MaxBars": 41,
+      "hp_state5MaxBars": 49
+    },
+    "trades": 123,
+    "pnl_pct": -9.5768,
+    "winrate": 8.9431,
+    "max_drawdown_pct": 9.5768,
+    "profit_factor": 0.0815,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 7,
+    "loss": -27.516778523489933,
+    "params": {
+      "hp_state1MaxBars": 50,
+      "hp_state2ConfirmTicks": 44.0,
+      "hp_state2MaxBars": 23,
+      "hp_state3MaxBars": 47,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 149,
+    "pnl_pct": -8.1414,
+    "winrate": 27.5168,
+    "max_drawdown_pct": 8.1414,
+    "profit_factor": 0.255,
+    "usable": true,
+    "is_best": true
+  },
+  {
+    "epoch": 8,
+    "loss": -8.860759493670885,
+    "params": {
+      "hp_state1MaxBars": 10,
+      "hp_state2ConfirmTicks": 197.0,
+      "hp_state2MaxBars": 25,
+      "hp_state3MaxBars": 10,
+      "hp_state5MaxBars": 44
+    },
+    "trades": 79,
+    "pnl_pct": -6.8505,
+    "winrate": 8.8608,
+    "max_drawdown_pct": 6.8505,
+    "profit_factor": 0.0667,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 9,
+    "loss": -8.849557522123893,
+    "params": {
+      "hp_state1MaxBars": 6,
+      "hp_state2ConfirmTicks": 170.0,
+      "hp_state2MaxBars": 33,
+      "hp_state3MaxBars": 29,
+      "hp_state5MaxBars": 23
+    },
+    "trades": 113,
+    "pnl_pct": -9.1632,
+    "winrate": 8.8496,
+    "max_drawdown_pct": 9.1632,
+    "profit_factor": 0.0722,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 10,
+    "loss": -8.108108108108109,
+    "params": {
+      "hp_state1MaxBars": 5,
+      "hp_state2ConfirmTicks": 170.0,
+      "hp_state2MaxBars": 41,
+      "hp_state3MaxBars": 37,
+      "hp_state5MaxBars": 6
+    },
+    "trades": 111,
+    "pnl_pct": -8.8532,
+    "winrate": 8.1081,
+    "max_drawdown_pct": 8.8532,
+    "profit_factor": 0.068,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 11,
+    "loss": -10.0,
+    "params": {
+      "hp_state1MaxBars": 5,
+      "hp_state2ConfirmTicks": 131.0,
+      "hp_state2MaxBars": 8,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 30
+    },
+    "trades": 60,
+    "pnl_pct": -4.8841,
+    "winrate": 10.0,
+    "max_drawdown_pct": 4.8841,
+    "profit_factor": 0.0835,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 12,
+    "loss": -29.166666666666668,
+    "params": {
+      "hp_state1MaxBars": 44,
+      "hp_state2ConfirmTicks": 23.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 42
+    },
+    "trades": 96,
+    "pnl_pct": -5.4809,
+    "winrate": 29.1667,
+    "max_drawdown_pct": 5.4809,
+    "profit_factor": 0.2559,
+    "usable": true,
+    "is_best": true
+  },
+  {
+    "epoch": 13,
+    "loss": 1001.0,
+    "params": {
+      "hp_state1MaxBars": 10,
+      "hp_state2ConfirmTicks": 131.0,
+      "hp_state2MaxBars": 39,
+      "hp_state3MaxBars": 1,
+      "hp_state5MaxBars": 42
+    },
+    "trades": 59,
+    "pnl_pct": -4.6322,
+    "winrate": 10.1695,
+    "max_drawdown_pct": 4.6322,
+    "profit_factor": 0.0822,
+    "usable": false,
+    "is_best": false
+  },
+  {
+    "epoch": 14,
+    "loss": -15.702479338842975,
+    "params": {
+      "hp_state1MaxBars": 7,
+      "hp_state2ConfirmTicks": 87.0,
+      "hp_state2MaxBars": 23,
+      "hp_state3MaxBars": 41,
+      "hp_state5MaxBars": 22
+    },
+    "trades": 121,
+    "pnl_pct": -7.9849,
+    "winrate": 15.7025,
+    "max_drawdown_pct": 7.9849,
+    "profit_factor": 0.1432,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 15,
+    "loss": -12.790697674418606,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 176.0,
+      "hp_state2MaxBars": 22,
+      "hp_state3MaxBars": 10,
+      "hp_state5MaxBars": 47
+    },
+    "trades": 86,
+    "pnl_pct": -6.7785,
+    "winrate": 12.7907,
+    "max_drawdown_pct": 6.7785,
+    "profit_factor": 0.1114,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 16,
+    "loss": -8.98876404494382,
+    "params": {
+      "hp_state1MaxBars": 33,
+      "hp_state2ConfirmTicks": 178.0,
+      "hp_state2MaxBars": 13,
+      "hp_state3MaxBars": 46,
+      "hp_state5MaxBars": 37
+    },
+    "trades": 89,
+    "pnl_pct": -7.0868,
+    "winrate": 8.9888,
+    "max_drawdown_pct": 7.0868,
+    "profit_factor": 0.0861,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 17,
+    "loss": -30.89430894308943,
+    "params": {
+      "hp_state1MaxBars": 14,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 19,
+      "hp_state5MaxBars": 13
+    },
+    "trades": 123,
+    "pnl_pct": -6.3835,
+    "winrate": 30.8943,
+    "max_drawdown_pct": 6.3835,
+    "profit_factor": 0.2978,
+    "usable": true,
+    "is_best": true
+  },
+  {
+    "epoch": 18,
+    "loss": 1006.0,
+    "params": {
+      "hp_state1MaxBars": 30,
+      "hp_state2ConfirmTicks": 127.0,
+      "hp_state2MaxBars": 2,
+      "hp_state3MaxBars": 19,
+      "hp_state5MaxBars": 22
+    },
+    "trades": 54,
+    "pnl_pct": -4.6364,
+    "winrate": 5.5556,
+    "max_drawdown_pct": 4.6364,
+    "profit_factor": 0.0277,
+    "usable": false,
+    "is_best": false
+  },
+  {
+    "epoch": 19,
+    "loss": -13.28125,
+    "params": {
+      "hp_state1MaxBars": 36,
+      "hp_state2ConfirmTicks": 109.0,
+      "hp_state2MaxBars": 38,
+      "hp_state3MaxBars": 47,
+      "hp_state5MaxBars": 14
+    },
+    "trades": 128,
+    "pnl_pct": -8.9996,
+    "winrate": 13.2812,
+    "max_drawdown_pct": 8.9996,
+    "profit_factor": 0.1281,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 20,
+    "loss": -36.36363636363637,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 30,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 154,
+    "pnl_pct": -7.8592,
+    "winrate": 36.3636,
+    "max_drawdown_pct": 7.8592,
+    "profit_factor": 0.3343,
+    "usable": true,
+    "is_best": true
+  },
+  {
+    "epoch": 21,
+    "loss": -8.13953488372093,
+    "params": {
+      "hp_state1MaxBars": 2,
+      "hp_state2ConfirmTicks": 185.0,
+      "hp_state2MaxBars": 22,
+      "hp_state3MaxBars": 18,
+      "hp_state5MaxBars": 6
+    },
+    "trades": 86,
+    "pnl_pct": -7.2389,
+    "winrate": 8.1395,
+    "max_drawdown_pct": 7.2389,
+    "profit_factor": 0.0662,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 22,
+    "loss": -8.035714285714286,
+    "params": {
+      "hp_state1MaxBars": 1,
+      "hp_state2ConfirmTicks": 181.0,
+      "hp_state2MaxBars": 37,
+      "hp_state3MaxBars": 33,
+      "hp_state5MaxBars": 37
+    },
+    "trades": 112,
+    "pnl_pct": -9.2764,
+    "winrate": 8.0357,
+    "max_drawdown_pct": 9.2764,
+    "profit_factor": 0.0691,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 23,
+    "loss": -9.25925925925926,
+    "params": {
+      "hp_state1MaxBars": 6,
+      "hp_state2ConfirmTicks": 149.0,
+      "hp_state2MaxBars": 50,
+      "hp_state3MaxBars": 21,
+      "hp_state5MaxBars": 7
+    },
+    "trades": 108,
+    "pnl_pct": -8.4332,
+    "winrate": 9.2593,
+    "max_drawdown_pct": 8.4332,
+    "profit_factor": 0.0806,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 24,
+    "loss": 1002.0,
+    "params": {
+      "hp_state1MaxBars": 25,
+      "hp_state2ConfirmTicks": 193.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 1
+    },
+    "trades": 58,
+    "pnl_pct": -4.7608,
+    "winrate": 8.6207,
+    "max_drawdown_pct": 4.7608,
+    "profit_factor": 0.0656,
+    "usable": false,
+    "is_best": false
+  },
+  {
+    "epoch": 25,
+    "loss": -21.25984251968504,
+    "params": {
+      "hp_state1MaxBars": 26,
+      "hp_state2ConfirmTicks": 66.0,
+      "hp_state2MaxBars": 25,
+      "hp_state3MaxBars": 20,
+      "hp_state5MaxBars": 19
+    },
+    "trades": 127,
+    "pnl_pct": -7.5838,
+    "winrate": 21.2598,
+    "max_drawdown_pct": 7.5838,
+    "profit_factor": 0.1975,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 26,
+    "loss": -8.130081300813007,
+    "params": {
+      "hp_state1MaxBars": 7,
+      "hp_state2ConfirmTicks": 154.0,
+      "hp_state2MaxBars": 45,
+      "hp_state3MaxBars": 43,
+      "hp_state5MaxBars": 19
+    },
+    "trades": 123,
+    "pnl_pct": -9.7877,
+    "winrate": 8.1301,
+    "max_drawdown_pct": 9.7877,
+    "profit_factor": 0.0696,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 27,
+    "loss": -7.317073170731707,
+    "params": {
+      "hp_state1MaxBars": 5,
+      "hp_state2ConfirmTicks": 198.0,
+      "hp_state2MaxBars": 15,
+      "hp_state3MaxBars": 32,
+      "hp_state5MaxBars": 30
+    },
+    "trades": 82,
+    "pnl_pct": -6.9015,
+    "winrate": 7.3171,
+    "max_drawdown_pct": 6.9015,
+    "profit_factor": 0.0577,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 28,
+    "loss": -24.418604651162788,
+    "params": {
+      "hp_state1MaxBars": 27,
+      "hp_state2ConfirmTicks": 65.0,
+      "hp_state2MaxBars": 37,
+      "hp_state3MaxBars": 2,
+      "hp_state5MaxBars": 30
+    },
+    "trades": 86,
+    "pnl_pct": -5.3552,
+    "winrate": 24.4186,
+    "max_drawdown_pct": 5.3552,
+    "profit_factor": 0.2086,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 29,
+    "loss": -21.774193548387096,
+    "params": {
+      "hp_state1MaxBars": 20,
+      "hp_state2ConfirmTicks": 67.0,
+      "hp_state2MaxBars": 32,
+      "hp_state3MaxBars": 17,
+      "hp_state5MaxBars": 24
+    },
+    "trades": 124,
+    "pnl_pct": -7.5694,
+    "winrate": 21.7742,
+    "max_drawdown_pct": 7.5694,
+    "profit_factor": 0.1978,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 30,
+    "loss": -7.0588235294117645,
+    "params": {
+      "hp_state1MaxBars": 39,
+      "hp_state2ConfirmTicks": 195.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 40,
+      "hp_state5MaxBars": 5
+    },
+    "trades": 85,
+    "pnl_pct": -7.1737,
+    "winrate": 7.0588,
+    "max_drawdown_pct": 7.1737,
+    "profit_factor": 0.0556,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 31,
+    "loss": -21.052631578947366,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 61.0,
+      "hp_state2MaxBars": 11,
+      "hp_state3MaxBars": 21,
+      "hp_state5MaxBars": 27
+    },
+    "trades": 95,
+    "pnl_pct": -5.7767,
+    "winrate": 21.0526,
+    "max_drawdown_pct": 5.7767,
+    "profit_factor": 0.2033,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 32,
+    "loss": 1003.0,
+    "params": {
+      "hp_state1MaxBars": 10,
+      "hp_state2ConfirmTicks": 144.0,
+      "hp_state2MaxBars": 32,
+      "hp_state3MaxBars": 1,
+      "hp_state5MaxBars": 30
+    },
+    "trades": 57,
+    "pnl_pct": -4.8134,
+    "winrate": 7.0175,
+    "max_drawdown_pct": 4.8134,
+    "profit_factor": 0.0463,
+    "usable": false,
+    "is_best": false
+  },
+  {
+    "epoch": 33,
+    "loss": -10.317460317460316,
+    "params": {
+      "hp_state1MaxBars": 50,
+      "hp_state2ConfirmTicks": 131.0,
+      "hp_state2MaxBars": 41,
+      "hp_state3MaxBars": 40,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 126,
+    "pnl_pct": -9.2859,
+    "winrate": 10.3175,
+    "max_drawdown_pct": 9.2859,
+    "profit_factor": 0.103,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 34,
+    "loss": -10.76923076923077,
+    "params": {
+      "hp_state1MaxBars": 29,
+      "hp_state2ConfirmTicks": 169.0,
+      "hp_state2MaxBars": 9,
+      "hp_state3MaxBars": 10,
+      "hp_state5MaxBars": 15
+    },
+    "trades": 65,
+    "pnl_pct": -5.2699,
+    "winrate": 10.7692,
+    "max_drawdown_pct": 5.2699,
+    "profit_factor": 0.0951,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 35,
+    "loss": -30.92105263157895,
+    "params": {
+      "hp_state1MaxBars": 39,
+      "hp_state2ConfirmTicks": 37.0,
+      "hp_state2MaxBars": 48,
+      "hp_state3MaxBars": 18,
+      "hp_state5MaxBars": 32
+    },
+    "trades": 152,
+    "pnl_pct": -8.0409,
+    "winrate": 30.9211,
+    "max_drawdown_pct": 8.0409,
+    "profit_factor": 0.293,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 36,
+    "loss": -13.253012048192772,
+    "params": {
+      "hp_state1MaxBars": 48,
+      "hp_state2ConfirmTicks": 79.0,
+      "hp_state2MaxBars": 6,
+      "hp_state3MaxBars": 48,
+      "hp_state5MaxBars": 37
+    },
+    "trades": 83,
+    "pnl_pct": -5.9666,
+    "winrate": 13.253,
+    "max_drawdown_pct": 5.9666,
+    "profit_factor": 0.1107,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 37,
+    "loss": -15.625,
+    "params": {
+      "hp_state1MaxBars": 3,
+      "hp_state2ConfirmTicks": 89.0,
+      "hp_state2MaxBars": 41,
+      "hp_state3MaxBars": 46,
+      "hp_state5MaxBars": 35
+    },
+    "trades": 128,
+    "pnl_pct": -8.4557,
+    "winrate": 15.625,
+    "max_drawdown_pct": 8.4557,
+    "profit_factor": 0.1458,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 38,
+    "loss": -5.1020408163265305,
+    "params": {
+      "hp_state1MaxBars": 31,
+      "hp_state2ConfirmTicks": 198.0,
+      "hp_state2MaxBars": 40,
+      "hp_state3MaxBars": 41,
+      "hp_state5MaxBars": 2
+    },
+    "trades": 98,
+    "pnl_pct": -8.4497,
+    "winrate": 5.102,
+    "max_drawdown_pct": 8.4497,
+    "profit_factor": 0.038,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 39,
+    "loss": -9.090909090909092,
+    "params": {
+      "hp_state1MaxBars": 25,
+      "hp_state2ConfirmTicks": 183.0,
+      "hp_state2MaxBars": 13,
+      "hp_state3MaxBars": 44,
+      "hp_state5MaxBars": 17
+    },
+    "trades": 88,
+    "pnl_pct": -7.0954,
+    "winrate": 9.0909,
+    "max_drawdown_pct": 7.0954,
+    "profit_factor": 0.0845,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 40,
+    "loss": -8.333333333333332,
+    "params": {
+      "hp_state1MaxBars": 36,
+      "hp_state2ConfirmTicks": 123.0,
+      "hp_state2MaxBars": 6,
+      "hp_state3MaxBars": 18,
+      "hp_state5MaxBars": 33
+    },
+    "trades": 72,
+    "pnl_pct": -5.798,
+    "winrate": 8.3333,
+    "max_drawdown_pct": 5.798,
+    "profit_factor": 0.0672,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 41,
+    "loss": -24.675324675324674,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 53.0,
+      "hp_state2MaxBars": 45,
+      "hp_state3MaxBars": 45,
+      "hp_state5MaxBars": 33
+    },
+    "trades": 154,
+    "pnl_pct": -9.08,
+    "winrate": 24.6753,
+    "max_drawdown_pct": 9.08,
+    "profit_factor": 0.2215,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 42,
+    "loss": -9.195402298850574,
+    "params": {
+      "hp_state1MaxBars": 42,
+      "hp_state2ConfirmTicks": 157.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 26,
+      "hp_state5MaxBars": 31
+    },
+    "trades": 87,
+    "pnl_pct": -6.7827,
+    "winrate": 9.1954,
+    "max_drawdown_pct": 6.7827,
+    "profit_factor": 0.0897,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 43,
+    "loss": -9.70873786407767,
+    "params": {
+      "hp_state1MaxBars": 8,
+      "hp_state2ConfirmTicks": 142.0,
+      "hp_state2MaxBars": 25,
+      "hp_state3MaxBars": 20,
+      "hp_state5MaxBars": 17
+    },
+    "trades": 103,
+    "pnl_pct": -8.0947,
+    "winrate": 9.7087,
+    "max_drawdown_pct": 8.0947,
+    "profit_factor": 0.0865,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 44,
+    "loss": -9.45945945945946,
+    "params": {
+      "hp_state1MaxBars": 33,
+      "hp_state2ConfirmTicks": 139.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 12,
+      "hp_state5MaxBars": 45
+    },
+    "trades": 74,
+    "pnl_pct": -5.9874,
+    "winrate": 9.4595,
+    "max_drawdown_pct": 5.9874,
+    "profit_factor": 0.0902,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 45,
+    "loss": -9.63855421686747,
+    "params": {
+      "hp_state1MaxBars": 12,
+      "hp_state2ConfirmTicks": 173.0,
+      "hp_state2MaxBars": 14,
+      "hp_state3MaxBars": 20,
+      "hp_state5MaxBars": 22
+    },
+    "trades": 83,
+    "pnl_pct": -6.6096,
+    "winrate": 9.6386,
+    "max_drawdown_pct": 6.6096,
+    "profit_factor": 0.0918,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 46,
+    "loss": -10.091743119266056,
+    "params": {
+      "hp_state1MaxBars": 15,
+      "hp_state2ConfirmTicks": 167.0,
+      "hp_state2MaxBars": 25,
+      "hp_state3MaxBars": 29,
+      "hp_state5MaxBars": 21
+    },
+    "trades": 109,
+    "pnl_pct": -8.6303,
+    "winrate": 10.0917,
+    "max_drawdown_pct": 8.6303,
+    "profit_factor": 0.0878,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 47,
+    "loss": -5.825242718446602,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 200.0,
+      "hp_state2MaxBars": 37,
+      "hp_state3MaxBars": 33,
+      "hp_state5MaxBars": 7
+    },
+    "trades": 103,
+    "pnl_pct": -8.7169,
+    "winrate": 5.8252,
+    "max_drawdown_pct": 8.7169,
+    "profit_factor": 0.0462,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 48,
+    "loss": -8.450704225352112,
+    "params": {
+      "hp_state1MaxBars": 24,
+      "hp_state2ConfirmTicks": 128.0,
+      "hp_state2MaxBars": 7,
+      "hp_state3MaxBars": 43,
+      "hp_state5MaxBars": 1
+    },
+    "trades": 71,
+    "pnl_pct": -5.6608,
+    "winrate": 8.4507,
+    "max_drawdown_pct": 5.6608,
+    "profit_factor": 0.074,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 49,
+    "loss": -7.352941176470589,
+    "params": {
+      "hp_state1MaxBars": 42,
+      "hp_state2ConfirmTicks": 137.0,
+      "hp_state2MaxBars": 5,
+      "hp_state3MaxBars": 28,
+      "hp_state5MaxBars": 48
+    },
+    "trades": 68,
+    "pnl_pct": -5.39,
+    "winrate": 7.3529,
+    "max_drawdown_pct": 5.39,
+    "profit_factor": 0.0613,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 50,
+    "loss": -13.20754716981132,
+    "params": {
+      "hp_state1MaxBars": 11,
+      "hp_state2ConfirmTicks": 114.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 29,
+      "hp_state5MaxBars": 24
+    },
+    "trades": 106,
+    "pnl_pct": -7.5227,
+    "winrate": 13.2075,
+    "max_drawdown_pct": 7.5227,
+    "profit_factor": 0.1274,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 51,
+    "loss": -30.46875,
+    "params": {
+      "hp_state1MaxBars": 31,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 50,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 128,
+    "pnl_pct": -6.6644,
+    "winrate": 30.4688,
+    "max_drawdown_pct": 6.6644,
+    "profit_factor": 0.2947,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 52,
+    "loss": -24.770642201834864,
+    "params": {
+      "hp_state1MaxBars": 7,
+      "hp_state2ConfirmTicks": 19.0,
+      "hp_state2MaxBars": 6,
+      "hp_state3MaxBars": 41,
+      "hp_state5MaxBars": 18
+    },
+    "trades": 109,
+    "pnl_pct": -6.5168,
+    "winrate": 24.7706,
+    "max_drawdown_pct": 6.5168,
+    "profit_factor": 0.219,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 53,
+    "loss": -8.870967741935484,
+    "params": {
+      "hp_state1MaxBars": 15,
+      "hp_state2ConfirmTicks": 179.0,
+      "hp_state2MaxBars": 48,
+      "hp_state3MaxBars": 32,
+      "hp_state5MaxBars": 32
+    },
+    "trades": 124,
+    "pnl_pct": -9.7202,
+    "winrate": 8.871,
+    "max_drawdown_pct": 9.7202,
+    "profit_factor": 0.0831,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 54,
+    "loss": -18.439716312056735,
+    "params": {
+      "hp_state1MaxBars": 48,
+      "hp_state2ConfirmTicks": 79.0,
+      "hp_state2MaxBars": 45,
+      "hp_state3MaxBars": 45,
+      "hp_state5MaxBars": 37
+    },
+    "trades": 141,
+    "pnl_pct": -8.6922,
+    "winrate": 18.4397,
+    "max_drawdown_pct": 8.6922,
+    "profit_factor": 0.1735,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 55,
+    "loss": -31.932773109243694,
+    "params": {
+      "hp_state1MaxBars": 20,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 17,
+      "hp_state5MaxBars": 24
+    },
+    "trades": 119,
+    "pnl_pct": -6.0908,
+    "winrate": 31.9328,
+    "max_drawdown_pct": 6.0908,
+    "profit_factor": 0.3077,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 56,
+    "loss": -25.301204819277107,
+    "params": {
+      "hp_state1MaxBars": 46,
+      "hp_state2ConfirmTicks": 67.0,
+      "hp_state2MaxBars": 32,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 24
+    },
+    "trades": 83,
+    "pnl_pct": -5.1209,
+    "winrate": 25.3012,
+    "max_drawdown_pct": 5.1209,
+    "profit_factor": 0.2046,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 57,
+    "loss": -32.69230769230769,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 32,
+      "hp_state3MaxBars": 16,
+      "hp_state5MaxBars": 7
+    },
+    "trades": 156,
+    "pnl_pct": -7.976,
+    "winrate": 32.6923,
+    "max_drawdown_pct": 7.976,
+    "profit_factor": 0.3223,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 58,
+    "loss": -14.942528735632186,
+    "params": {
+      "hp_state1MaxBars": 26,
+      "hp_state2ConfirmTicks": 66.0,
+      "hp_state2MaxBars": 6,
+      "hp_state3MaxBars": 35,
+      "hp_state5MaxBars": 50
+    },
+    "trades": 87,
+    "pnl_pct": -6.0795,
+    "winrate": 14.9425,
+    "max_drawdown_pct": 6.0795,
+    "profit_factor": 0.1341,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 59,
+    "loss": -28.30188679245283,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 25.0,
+      "hp_state2MaxBars": 30,
+      "hp_state3MaxBars": 35,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 159,
+    "pnl_pct": -8.8203,
+    "winrate": 28.3019,
+    "max_drawdown_pct": 8.8203,
+    "profit_factor": 0.2669,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 60,
+    "loss": -29.931972789115648,
+    "params": {
+      "hp_state1MaxBars": 8,
+      "hp_state2ConfirmTicks": 19.0,
+      "hp_state2MaxBars": 25,
+      "hp_state3MaxBars": 20,
+      "hp_state5MaxBars": 17
+    },
+    "trades": 147,
+    "pnl_pct": -8.1106,
+    "winrate": 29.932,
+    "max_drawdown_pct": 8.1106,
+    "profit_factor": 0.2743,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 61,
+    "loss": -19.310344827586206,
+    "params": {
+      "hp_state1MaxBars": 39,
+      "hp_state2ConfirmTicks": 66.0,
+      "hp_state2MaxBars": 48,
+      "hp_state3MaxBars": 31,
+      "hp_state5MaxBars": 32
+    },
+    "trades": 145,
+    "pnl_pct": -9.1433,
+    "winrate": 19.3103,
+    "max_drawdown_pct": 9.1433,
+    "profit_factor": 0.1741,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 62,
+    "loss": -36.486486486486484,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 21,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 148,
+    "pnl_pct": -7.4403,
+    "winrate": 36.4865,
+    "max_drawdown_pct": 7.4403,
+    "profit_factor": 0.3366,
+    "usable": true,
+    "is_best": true
+  },
+  {
+    "epoch": 63,
+    "loss": -11.009174311926607,
+    "params": {
+      "hp_state1MaxBars": 29,
+      "hp_state2ConfirmTicks": 169.0,
+      "hp_state2MaxBars": 48,
+      "hp_state3MaxBars": 18,
+      "hp_state5MaxBars": 15
+    },
+    "trades": 109,
+    "pnl_pct": -8.3869,
+    "winrate": 11.0092,
+    "max_drawdown_pct": 8.3869,
+    "profit_factor": 0.0992,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 64,
+    "loss": -19.402985074626866,
+    "params": {
+      "hp_state1MaxBars": 48,
+      "hp_state2ConfirmTicks": 79.0,
+      "hp_state2MaxBars": 25,
+      "hp_state3MaxBars": 48,
+      "hp_state5MaxBars": 38
+    },
+    "trades": 134,
+    "pnl_pct": -8.018,
+    "winrate": 19.403,
+    "max_drawdown_pct": 8.018,
+    "profit_factor": 0.1853,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 65,
+    "loss": -24.0,
+    "params": {
+      "hp_state1MaxBars": 8,
+      "hp_state2ConfirmTicks": 53.0,
+      "hp_state2MaxBars": 45,
+      "hp_state3MaxBars": 45,
+      "hp_state5MaxBars": 33
+    },
+    "trades": 150,
+    "pnl_pct": -9.0958,
+    "winrate": 24.0,
+    "max_drawdown_pct": 9.0958,
+    "profit_factor": 0.2079,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 66,
+    "loss": -11.76470588235294,
+    "params": {
+      "hp_state1MaxBars": 8,
+      "hp_state2ConfirmTicks": 133.0,
+      "hp_state2MaxBars": 25,
+      "hp_state3MaxBars": 20,
+      "hp_state5MaxBars": 17
+    },
+    "trades": 102,
+    "pnl_pct": -7.47,
+    "winrate": 11.7647,
+    "max_drawdown_pct": 7.47,
+    "profit_factor": 0.1126,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 67,
+    "loss": -10.76923076923077,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 131.0,
+      "hp_state2MaxBars": 45,
+      "hp_state3MaxBars": 45,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 130,
+    "pnl_pct": -9.4787,
+    "winrate": 10.7692,
+    "max_drawdown_pct": 9.4787,
+    "profit_factor": 0.1074,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 68,
+    "loss": -25.0,
+    "params": {
+      "hp_state1MaxBars": 26,
+      "hp_state2ConfirmTicks": 66.0,
+      "hp_state2MaxBars": 25,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 19
+    },
+    "trades": 92,
+    "pnl_pct": -5.4562,
+    "winrate": 25.0,
+    "max_drawdown_pct": 5.4562,
+    "profit_factor": 0.2207,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 69,
+    "loss": -30.92105263157895,
+    "params": {
+      "hp_state1MaxBars": 39,
+      "hp_state2ConfirmTicks": 37.0,
+      "hp_state2MaxBars": 48,
+      "hp_state3MaxBars": 18,
+      "hp_state5MaxBars": 30
+    },
+    "trades": 152,
+    "pnl_pct": -8.0409,
+    "winrate": 30.9211,
+    "max_drawdown_pct": 8.0409,
+    "profit_factor": 0.293,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 70,
+    "loss": -25.471698113207548,
+    "params": {
+      "hp_state1MaxBars": 50,
+      "hp_state2ConfirmTicks": 44.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 47,
+      "hp_state5MaxBars": 42
+    },
+    "trades": 106,
+    "pnl_pct": -6.0049,
+    "winrate": 25.4717,
+    "max_drawdown_pct": 6.0049,
+    "profit_factor": 0.2527,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 71,
+    "loss": -6.976744186046512,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 190.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 48,
+      "hp_state5MaxBars": 24
+    },
+    "trades": 86,
+    "pnl_pct": -7.3303,
+    "winrate": 6.9767,
+    "max_drawdown_pct": 7.3303,
+    "profit_factor": 0.0545,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 72,
+    "loss": -30.158730158730158,
+    "params": {
+      "hp_state1MaxBars": 14,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 24,
+      "hp_state5MaxBars": 13
+    },
+    "trades": 126,
+    "pnl_pct": -6.6172,
+    "winrate": 30.1587,
+    "max_drawdown_pct": 6.6172,
+    "profit_factor": 0.2903,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 73,
+    "loss": -11.11111111111111,
+    "params": {
+      "hp_state1MaxBars": 37,
+      "hp_state2ConfirmTicks": 117.0,
+      "hp_state2MaxBars": 11,
+      "hp_state3MaxBars": 41,
+      "hp_state5MaxBars": 47
+    },
+    "trades": 90,
+    "pnl_pct": -6.8076,
+    "winrate": 11.1111,
+    "max_drawdown_pct": 6.8076,
+    "profit_factor": 0.1073,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 74,
+    "loss": -13.095238095238097,
+    "params": {
+      "hp_state1MaxBars": 50,
+      "hp_state2ConfirmTicks": 166.0,
+      "hp_state2MaxBars": 30,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 84,
+    "pnl_pct": -6.535,
+    "winrate": 13.0952,
+    "max_drawdown_pct": 6.535,
+    "profit_factor": 0.1151,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 75,
+    "loss": -10.4,
+    "params": {
+      "hp_state1MaxBars": 12,
+      "hp_state2ConfirmTicks": 131.0,
+      "hp_state2MaxBars": 41,
+      "hp_state3MaxBars": 40,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 125,
+    "pnl_pct": -9.252,
+    "winrate": 10.4,
+    "max_drawdown_pct": 9.252,
+    "profit_factor": 0.1033,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 76,
+    "loss": -12.5,
+    "params": {
+      "hp_state1MaxBars": 29,
+      "hp_state2ConfirmTicks": 176.0,
+      "hp_state2MaxBars": 45,
+      "hp_state3MaxBars": 10,
+      "hp_state5MaxBars": 47
+    },
+    "trades": 96,
+    "pnl_pct": -7.5275,
+    "winrate": 12.5,
+    "max_drawdown_pct": 7.5275,
+    "profit_factor": 0.1093,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 77,
+    "loss": -27.358490566037734,
+    "params": {
+      "hp_state1MaxBars": 44,
+      "hp_state2ConfirmTicks": 44.0,
+      "hp_state2MaxBars": 11,
+      "hp_state3MaxBars": 21,
+      "hp_state5MaxBars": 27
+    },
+    "trades": 106,
+    "pnl_pct": -5.7035,
+    "winrate": 27.3585,
+    "max_drawdown_pct": 5.7035,
+    "profit_factor": 0.2745,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 78,
+    "loss": -30.973451327433626,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 25.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 50
+    },
+    "trades": 113,
+    "pnl_pct": -6.4717,
+    "winrate": 30.9735,
+    "max_drawdown_pct": 6.4717,
+    "profit_factor": 0.2698,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 79,
+    "loss": -10.852713178294573,
+    "params": {
+      "hp_state1MaxBars": 36,
+      "hp_state2ConfirmTicks": 122.0,
+      "hp_state2MaxBars": 41,
+      "hp_state3MaxBars": 41,
+      "hp_state5MaxBars": 35
+    },
+    "trades": 129,
+    "pnl_pct": -9.3928,
+    "winrate": 10.8527,
+    "max_drawdown_pct": 9.3928,
+    "profit_factor": 0.1075,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 80,
+    "loss": -18.181818181818183,
+    "params": {
+      "hp_state1MaxBars": 14,
+      "hp_state2ConfirmTicks": 67.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 19,
+      "hp_state5MaxBars": 24
+    },
+    "trades": 88,
+    "pnl_pct": -5.7387,
+    "winrate": 18.1818,
+    "max_drawdown_pct": 5.7387,
+    "profit_factor": 0.1758,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 81,
+    "loss": -9.45945945945946,
+    "params": {
+      "hp_state1MaxBars": 25,
+      "hp_state2ConfirmTicks": 139.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 12,
+      "hp_state5MaxBars": 45
+    },
+    "trades": 74,
+    "pnl_pct": -5.9874,
+    "winrate": 9.4595,
+    "max_drawdown_pct": 5.9874,
+    "profit_factor": 0.0902,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 82,
+    "loss": 1003.0,
+    "params": {
+      "hp_state1MaxBars": 15,
+      "hp_state2ConfirmTicks": 167.0,
+      "hp_state2MaxBars": 37,
+      "hp_state3MaxBars": 2,
+      "hp_state5MaxBars": 21
+    },
+    "trades": 57,
+    "pnl_pct": -4.754,
+    "winrate": 8.7719,
+    "max_drawdown_pct": 4.754,
+    "profit_factor": 0.0594,
+    "usable": false,
+    "is_best": false
+  },
+  {
+    "epoch": 83,
+    "loss": -21.052631578947366,
+    "params": {
+      "hp_state1MaxBars": 39,
+      "hp_state2ConfirmTicks": 67.0,
+      "hp_state2MaxBars": 39,
+      "hp_state3MaxBars": 18,
+      "hp_state5MaxBars": 32
+    },
+    "trades": 133,
+    "pnl_pct": -8.2067,
+    "winrate": 21.0526,
+    "max_drawdown_pct": 8.2067,
+    "profit_factor": 0.1909,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 84,
+    "loss": -9.67741935483871,
+    "params": {
+      "hp_state1MaxBars": 5,
+      "hp_state2ConfirmTicks": 169.0,
+      "hp_state2MaxBars": 9,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 11
+    },
+    "trades": 62,
+    "pnl_pct": -5.0308,
+    "winrate": 9.6774,
+    "max_drawdown_pct": 5.0308,
+    "profit_factor": 0.0797,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 85,
+    "loss": -36.666666666666664,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 22,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 150,
+    "pnl_pct": -7.5032,
+    "winrate": 36.6667,
+    "max_drawdown_pct": 7.5032,
+    "profit_factor": 0.3384,
+    "usable": true,
+    "is_best": true
+  },
+  {
+    "epoch": 86,
+    "loss": -25.609756097560975,
+    "params": {
+      "hp_state1MaxBars": 40,
+      "hp_state2ConfirmTicks": 66.0,
+      "hp_state2MaxBars": 25,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 19
+    },
+    "trades": 82,
+    "pnl_pct": -4.9459,
+    "winrate": 25.6098,
+    "max_drawdown_pct": 4.9459,
+    "profit_factor": 0.2103,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 87,
+    "loss": -21.052631578947366,
+    "params": {
+      "hp_state1MaxBars": 50,
+      "hp_state2ConfirmTicks": 61.0,
+      "hp_state2MaxBars": 11,
+      "hp_state3MaxBars": 21,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 95,
+    "pnl_pct": -5.7767,
+    "winrate": 21.0526,
+    "max_drawdown_pct": 5.7767,
+    "profit_factor": 0.2033,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 88,
+    "loss": -11.206896551724139,
+    "params": {
+      "hp_state1MaxBars": 26,
+      "hp_state2ConfirmTicks": 133.0,
+      "hp_state2MaxBars": 25,
+      "hp_state3MaxBars": 47,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 116,
+    "pnl_pct": -8.3914,
+    "winrate": 11.2069,
+    "max_drawdown_pct": 8.3914,
+    "profit_factor": 0.1127,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 89,
+    "loss": -31.932773109243694,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 16.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 15
+    },
+    "trades": 119,
+    "pnl_pct": -6.5807,
+    "winrate": 31.9328,
+    "max_drawdown_pct": 6.5807,
+    "profit_factor": 0.2826,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 90,
+    "loss": -22.62773722627737,
+    "params": {
+      "hp_state1MaxBars": 26,
+      "hp_state2ConfirmTicks": 61.0,
+      "hp_state2MaxBars": 41,
+      "hp_state3MaxBars": 20,
+      "hp_state5MaxBars": 19
+    },
+    "trades": 137,
+    "pnl_pct": -8.2426,
+    "winrate": 22.6277,
+    "max_drawdown_pct": 8.2426,
+    "profit_factor": 0.2069,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 91,
+    "loss": -22.22222222222222,
+    "params": {
+      "hp_state1MaxBars": 30,
+      "hp_state2ConfirmTicks": 61.0,
+      "hp_state2MaxBars": 11,
+      "hp_state3MaxBars": 17,
+      "hp_state5MaxBars": 27
+    },
+    "trades": 90,
+    "pnl_pct": -5.3989,
+    "winrate": 22.2222,
+    "max_drawdown_pct": 5.3989,
+    "profit_factor": 0.2145,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 92,
+    "loss": -31.967213114754102,
+    "params": {
+      "hp_state1MaxBars": 44,
+      "hp_state2ConfirmTicks": 23.0,
+      "hp_state2MaxBars": 23,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 42
+    },
+    "trades": 122,
+    "pnl_pct": -6.8321,
+    "winrate": 31.9672,
+    "max_drawdown_pct": 6.8321,
+    "profit_factor": 0.2706,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 93,
+    "loss": -10.576923076923077,
+    "params": {
+      "hp_state1MaxBars": 50,
+      "hp_state2ConfirmTicks": 170.0,
+      "hp_state2MaxBars": 22,
+      "hp_state3MaxBars": 38,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 104,
+    "pnl_pct": -8.1356,
+    "winrate": 10.5769,
+    "max_drawdown_pct": 8.1356,
+    "profit_factor": 0.0946,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 94,
+    "loss": -22.22222222222222,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 61.0,
+      "hp_state2MaxBars": 13,
+      "hp_state3MaxBars": 21,
+      "hp_state5MaxBars": 32
+    },
+    "trades": 99,
+    "pnl_pct": -6.0128,
+    "winrate": 22.2222,
+    "max_drawdown_pct": 6.0128,
+    "profit_factor": 0.2023,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 95,
+    "loss": -29.245283018867923,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 25.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 12,
+      "hp_state5MaxBars": 45
+    },
+    "trades": 106,
+    "pnl_pct": -5.8801,
+    "winrate": 29.2453,
+    "max_drawdown_pct": 5.8801,
+    "profit_factor": 0.2903,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 96,
+    "loss": -10.344827586206897,
+    "params": {
+      "hp_state1MaxBars": 6,
+      "hp_state2ConfirmTicks": 131.0,
+      "hp_state2MaxBars": 50,
+      "hp_state3MaxBars": 33,
+      "hp_state5MaxBars": 2
+    },
+    "trades": 116,
+    "pnl_pct": -8.6894,
+    "winrate": 10.3448,
+    "max_drawdown_pct": 8.6894,
+    "profit_factor": 0.0951,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 97,
+    "loss": -27.73109243697479,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 46.0,
+      "hp_state2MaxBars": 14,
+      "hp_state3MaxBars": 45,
+      "hp_state5MaxBars": 33
+    },
+    "trades": 119,
+    "pnl_pct": -6.4519,
+    "winrate": 27.7311,
+    "max_drawdown_pct": 6.4519,
+    "profit_factor": 0.2683,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 98,
+    "loss": -32.402234636871505,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 30,
+      "hp_state3MaxBars": 37,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 179,
+    "pnl_pct": -9.5222,
+    "winrate": 32.4022,
+    "max_drawdown_pct": 9.5222,
+    "profit_factor": 0.2987,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 99,
+    "loss": -31.48148148148148,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 15
+    },
+    "trades": 108,
+    "pnl_pct": -5.858,
+    "winrate": 31.4815,
+    "max_drawdown_pct": 5.858,
+    "profit_factor": 0.2794,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 100,
+    "loss": -32.35294117647059,
+    "params": {
+      "hp_state1MaxBars": 39,
+      "hp_state2ConfirmTicks": 23.0,
+      "hp_state2MaxBars": 13,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 8
+    },
+    "trades": 102,
+    "pnl_pct": -5.3942,
+    "winrate": 32.3529,
+    "max_drawdown_pct": 5.3942,
+    "profit_factor": 0.286,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 101,
+    "loss": -25.71428571428571,
+    "params": {
+      "hp_state1MaxBars": 44,
+      "hp_state2ConfirmTicks": 23.0,
+      "hp_state2MaxBars": 5,
+      "hp_state3MaxBars": 24,
+      "hp_state5MaxBars": 42
+    },
+    "trades": 105,
+    "pnl_pct": -6.335,
+    "winrate": 25.7143,
+    "max_drawdown_pct": 6.335,
+    "profit_factor": 0.2237,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 102,
+    "loss": -30.939226519337016,
+    "params": {
+      "hp_state1MaxBars": 19,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 48,
+      "hp_state3MaxBars": 30,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 181,
+    "pnl_pct": -10.1202,
+    "winrate": 30.9392,
+    "max_drawdown_pct": 10.1202,
+    "profit_factor": 0.2792,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 103,
+    "loss": -28.57142857142857,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 25.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 15
+    },
+    "trades": 98,
+    "pnl_pct": -5.7179,
+    "winrate": 28.5714,
+    "max_drawdown_pct": 5.7179,
+    "profit_factor": 0.2575,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 104,
+    "loss": -35.41666666666667,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 30,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 144,
+    "pnl_pct": -8.0701,
+    "winrate": 35.4167,
+    "max_drawdown_pct": 8.0701,
+    "profit_factor": 0.281,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 105,
+    "loss": -11.940298507462686,
+    "params": {
+      "hp_state1MaxBars": 14,
+      "hp_state2ConfirmTicks": 130.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 67,
+    "pnl_pct": -5.1989,
+    "winrate": 11.9403,
+    "max_drawdown_pct": 5.1989,
+    "profit_factor": 0.1153,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 106,
+    "loss": -34.4,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 40
+    },
+    "trades": 125,
+    "pnl_pct": -6.1454,
+    "winrate": 34.4,
+    "max_drawdown_pct": 6.1454,
+    "profit_factor": 0.3319,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 107,
+    "loss": -29.66101694915254,
+    "params": {
+      "hp_state1MaxBars": 44,
+      "hp_state2ConfirmTicks": 44.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 21,
+      "hp_state5MaxBars": 27
+    },
+    "trades": 118,
+    "pnl_pct": -6.0861,
+    "winrate": 29.661,
+    "max_drawdown_pct": 6.0861,
+    "profit_factor": 0.2858,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 108,
+    "loss": -9.523809523809524,
+    "params": {
+      "hp_state1MaxBars": 14,
+      "hp_state2ConfirmTicks": 134.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 24,
+      "hp_state5MaxBars": 13
+    },
+    "trades": 84,
+    "pnl_pct": -6.565,
+    "winrate": 9.5238,
+    "max_drawdown_pct": 6.565,
+    "profit_factor": 0.0935,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 109,
+    "loss": -18.666666666666668,
+    "params": {
+      "hp_state1MaxBars": 16,
+      "hp_state2ConfirmTicks": 88.0,
+      "hp_state2MaxBars": 48,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 23
+    },
+    "trades": 75,
+    "pnl_pct": -5.0062,
+    "winrate": 18.6667,
+    "max_drawdown_pct": 5.0062,
+    "profit_factor": 0.1556,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 110,
+    "loss": -36.17021276595745,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 22,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 141,
+    "pnl_pct": -7.605,
+    "winrate": 36.1702,
+    "max_drawdown_pct": 7.605,
+    "profit_factor": 0.2932,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 111,
+    "loss": -29.94011976047904,
+    "params": {
+      "hp_state1MaxBars": 14,
+      "hp_state2ConfirmTicks": 9.0,
+      "hp_state2MaxBars": 23,
+      "hp_state3MaxBars": 47,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 167,
+    "pnl_pct": -8.9331,
+    "winrate": 29.9401,
+    "max_drawdown_pct": 8.9331,
+    "profit_factor": 0.2886,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 112,
+    "loss": -21.96969696969697,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 53.0,
+      "hp_state2MaxBars": 45,
+      "hp_state3MaxBars": 45,
+      "hp_state5MaxBars": 2
+    },
+    "trades": 132,
+    "pnl_pct": -8.4132,
+    "winrate": 21.9697,
+    "max_drawdown_pct": 8.4132,
+    "profit_factor": 0.1948,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 113,
+    "loss": -32.70440251572327,
+    "params": {
+      "hp_state1MaxBars": 31,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 23,
+      "hp_state3MaxBars": 19,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 159,
+    "pnl_pct": -7.935,
+    "winrate": 32.7044,
+    "max_drawdown_pct": 7.935,
+    "profit_factor": 0.3218,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 114,
+    "loss": -29.75206611570248,
+    "params": {
+      "hp_state1MaxBars": 20,
+      "hp_state2ConfirmTicks": 15.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 19,
+      "hp_state5MaxBars": 41
+    },
+    "trades": 121,
+    "pnl_pct": -6.4924,
+    "winrate": 29.7521,
+    "max_drawdown_pct": 6.4924,
+    "profit_factor": 0.2858,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 115,
+    "loss": -8.235294117647058,
+    "params": {
+      "hp_state1MaxBars": 6,
+      "hp_state2ConfirmTicks": 169.0,
+      "hp_state2MaxBars": 11,
+      "hp_state3MaxBars": 44,
+      "hp_state5MaxBars": 27
+    },
+    "trades": 85,
+    "pnl_pct": -6.9412,
+    "winrate": 8.2353,
+    "max_drawdown_pct": 6.9412,
+    "profit_factor": 0.0734,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 116,
+    "loss": -29.629629629629626,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 23.0,
+      "hp_state2MaxBars": 23,
+      "hp_state3MaxBars": 16,
+      "hp_state5MaxBars": 7
+    },
+    "trades": 135,
+    "pnl_pct": -7.7041,
+    "winrate": 29.6296,
+    "max_drawdown_pct": 7.7041,
+    "profit_factor": 0.271,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 117,
+    "loss": -30.097087378640776,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 6,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 4
+    },
+    "trades": 103,
+    "pnl_pct": -5.9515,
+    "winrate": 30.0971,
+    "max_drawdown_pct": 5.9515,
+    "profit_factor": 0.2575,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 118,
+    "loss": -30.17241379310345,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 16.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 17,
+      "hp_state5MaxBars": 15
+    },
+    "trades": 116,
+    "pnl_pct": -6.2118,
+    "winrate": 30.1724,
+    "max_drawdown_pct": 6.2118,
+    "profit_factor": 0.2939,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 119,
+    "loss": -9.836065573770492,
+    "params": {
+      "hp_state1MaxBars": 44,
+      "hp_state2ConfirmTicks": 153.0,
+      "hp_state2MaxBars": 23,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 42
+    },
+    "trades": 61,
+    "pnl_pct": -5.1258,
+    "winrate": 9.8361,
+    "max_drawdown_pct": 5.1258,
+    "profit_factor": 0.0596,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 120,
+    "loss": -28.965517241379313,
+    "params": {
+      "hp_state1MaxBars": 31,
+      "hp_state2ConfirmTicks": 16.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 50,
+      "hp_state5MaxBars": 15
+    },
+    "trades": 145,
+    "pnl_pct": -7.996,
+    "winrate": 28.9655,
+    "max_drawdown_pct": 7.996,
+    "profit_factor": 0.2742,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 121,
+    "loss": -26.08695652173913,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 46.0,
+      "hp_state2MaxBars": 14,
+      "hp_state3MaxBars": 45,
+      "hp_state5MaxBars": 6
+    },
+    "trades": 115,
+    "pnl_pct": -6.5146,
+    "winrate": 26.087,
+    "max_drawdown_pct": 6.5146,
+    "profit_factor": 0.2478,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 122,
+    "loss": -23.61111111111111,
+    "params": {
+      "hp_state1MaxBars": 19,
+      "hp_state2ConfirmTicks": 54.0,
+      "hp_state2MaxBars": 25,
+      "hp_state3MaxBars": 35,
+      "hp_state5MaxBars": 21
+    },
+    "trades": 144,
+    "pnl_pct": -8.7153,
+    "winrate": 23.6111,
+    "max_drawdown_pct": 8.7153,
+    "profit_factor": 0.2036,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 123,
+    "loss": -29.86111111111111,
+    "params": {
+      "hp_state1MaxBars": 44,
+      "hp_state2ConfirmTicks": 44.0,
+      "hp_state2MaxBars": 32,
+      "hp_state3MaxBars": 21,
+      "hp_state5MaxBars": 27
+    },
+    "trades": 144,
+    "pnl_pct": -7.4274,
+    "winrate": 29.8611,
+    "max_drawdown_pct": 7.4274,
+    "profit_factor": 0.2845,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 124,
+    "loss": -9.523809523809524,
+    "params": {
+      "hp_state1MaxBars": 27,
+      "hp_state2ConfirmTicks": 180.0,
+      "hp_state2MaxBars": 23,
+      "hp_state3MaxBars": 47,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 105,
+    "pnl_pct": -8.3998,
+    "winrate": 9.5238,
+    "max_drawdown_pct": 8.3998,
+    "profit_factor": 0.0895,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 125,
+    "loss": -32.91925465838509,
+    "params": {
+      "hp_state1MaxBars": 31,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 25,
+      "hp_state3MaxBars": 20,
+      "hp_state5MaxBars": 45
+    },
+    "trades": 161,
+    "pnl_pct": -7.9554,
+    "winrate": 32.9193,
+    "max_drawdown_pct": 7.9554,
+    "profit_factor": 0.3275,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 126,
+    "loss": -28.865979381443296,
+    "params": {
+      "hp_state1MaxBars": 25,
+      "hp_state2ConfirmTicks": 44.0,
+      "hp_state2MaxBars": 11,
+      "hp_state3MaxBars": 12,
+      "hp_state5MaxBars": 30
+    },
+    "trades": 97,
+    "pnl_pct": -5.2384,
+    "winrate": 28.866,
+    "max_drawdown_pct": 5.2384,
+    "profit_factor": 0.2853,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 127,
+    "loss": -34.93150684931507,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 41,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 146,
+    "pnl_pct": -8.2975,
+    "winrate": 34.9315,
+    "max_drawdown_pct": 8.2975,
+    "profit_factor": 0.2754,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 128,
+    "loss": -36.666666666666664,
+    "params": {
+      "hp_state1MaxBars": 39,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 22,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 150,
+    "pnl_pct": -7.5032,
+    "winrate": 36.6667,
+    "max_drawdown_pct": 7.5032,
+    "profit_factor": 0.3384,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 129,
+    "loss": -25.471698113207548,
+    "params": {
+      "hp_state1MaxBars": 31,
+      "hp_state2ConfirmTicks": 44.0,
+      "hp_state2MaxBars": 10,
+      "hp_state3MaxBars": 47,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 106,
+    "pnl_pct": -6.0049,
+    "winrate": 25.4717,
+    "max_drawdown_pct": 6.0049,
+    "profit_factor": 0.2527,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 130,
+    "loss": -28.57142857142857,
+    "params": {
+      "hp_state1MaxBars": 50,
+      "hp_state2ConfirmTicks": 25.0,
+      "hp_state2MaxBars": 23,
+      "hp_state3MaxBars": 35,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 154,
+    "pnl_pct": -8.4242,
+    "winrate": 28.5714,
+    "max_drawdown_pct": 8.4242,
+    "profit_factor": 0.2691,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 131,
+    "loss": -32.91139240506329,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 30,
+      "hp_state3MaxBars": 16,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 158,
+    "pnl_pct": -7.9498,
+    "winrate": 32.9114,
+    "max_drawdown_pct": 7.9498,
+    "profit_factor": 0.3263,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 132,
+    "loss": -35.84905660377358,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 48,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 159,
+    "pnl_pct": -8.1707,
+    "winrate": 35.8491,
+    "max_drawdown_pct": 8.1707,
+    "profit_factor": 0.3339,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 133,
+    "loss": -35.172413793103445,
+    "params": {
+      "hp_state1MaxBars": 46,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 32,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 24
+    },
+    "trades": 145,
+    "pnl_pct": -8.2648,
+    "winrate": 35.1724,
+    "max_drawdown_pct": 8.2648,
+    "profit_factor": 0.2762,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 134,
+    "loss": -34.67741935483871,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 7
+    },
+    "trades": 124,
+    "pnl_pct": -5.9889,
+    "winrate": 34.6774,
+    "max_drawdown_pct": 5.9889,
+    "profit_factor": 0.3377,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 135,
+    "loss": -30.392156862745097,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 53.0,
+      "hp_state2MaxBars": 35,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 42
+    },
+    "trades": 102,
+    "pnl_pct": -5.6959,
+    "winrate": 30.3922,
+    "max_drawdown_pct": 5.6959,
+    "profit_factor": 0.2627,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 136,
+    "loss": -14.634146341463413,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 130.0,
+      "hp_state2MaxBars": 21,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 16
+    },
+    "trades": 82,
+    "pnl_pct": -5.7791,
+    "winrate": 14.6341,
+    "max_drawdown_pct": 5.7791,
+    "profit_factor": 0.142,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 137,
+    "loss": -36.486486486486484,
+    "params": {
+      "hp_state1MaxBars": 44,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 21,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 10
+    },
+    "trades": 148,
+    "pnl_pct": -7.4403,
+    "winrate": 36.4865,
+    "max_drawdown_pct": 7.4403,
+    "profit_factor": 0.3366,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 138,
+    "loss": -17.56756756756757,
+    "params": {
+      "hp_state1MaxBars": 44,
+      "hp_state2ConfirmTicks": 93.0,
+      "hp_state2MaxBars": 37,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 50
+    },
+    "trades": 74,
+    "pnl_pct": -5.1037,
+    "winrate": 17.5676,
+    "max_drawdown_pct": 5.1037,
+    "profit_factor": 0.1483,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 139,
+    "loss": -30.76923076923077,
+    "params": {
+      "hp_state1MaxBars": 44,
+      "hp_state2ConfirmTicks": 23.0,
+      "hp_state2MaxBars": 25,
+      "hp_state3MaxBars": 1,
+      "hp_state5MaxBars": 5
+    },
+    "trades": 117,
+    "pnl_pct": -6.854,
+    "winrate": 30.7692,
+    "max_drawdown_pct": 6.854,
+    "profit_factor": 0.2582,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 140,
+    "loss": -34.61538461538461,
+    "params": {
+      "hp_state1MaxBars": 15,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 48,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 30
+    },
+    "trades": 156,
+    "pnl_pct": -8.4572,
+    "winrate": 34.6154,
+    "max_drawdown_pct": 8.4572,
+    "profit_factor": 0.3106,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 141,
+    "loss": -32.402234636871505,
+    "params": {
+      "hp_state1MaxBars": 32,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 30,
+      "hp_state3MaxBars": 35,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 179,
+    "pnl_pct": -9.5222,
+    "winrate": 32.4022,
+    "max_drawdown_pct": 9.5222,
+    "profit_factor": 0.2987,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 142,
+    "loss": -32.17391304347826,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 25.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 115,
+    "pnl_pct": -6.1343,
+    "winrate": 32.1739,
+    "max_drawdown_pct": 6.1343,
+    "profit_factor": 0.3078,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 143,
+    "loss": -35.41666666666667,
+    "params": {
+      "hp_state1MaxBars": 19,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 21,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 7
+    },
+    "trades": 144,
+    "pnl_pct": -7.5079,
+    "winrate": 35.4167,
+    "max_drawdown_pct": 7.5079,
+    "profit_factor": 0.3251,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 144,
+    "loss": -30.357142857142854,
+    "params": {
+      "hp_state1MaxBars": 16,
+      "hp_state2ConfirmTicks": 25.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 50
+    },
+    "trades": 112,
+    "pnl_pct": -6.5494,
+    "winrate": 30.3571,
+    "max_drawdown_pct": 6.5494,
+    "profit_factor": 0.261,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 145,
+    "loss": -35.6687898089172,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 36,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 33
+    },
+    "trades": 157,
+    "pnl_pct": -8.1603,
+    "winrate": 35.6688,
+    "max_drawdown_pct": 8.1603,
+    "profit_factor": 0.326,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 146,
+    "loss": -35.13513513513514,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 48,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 148,
+    "pnl_pct": -8.3455,
+    "winrate": 35.1351,
+    "max_drawdown_pct": 8.3455,
+    "profit_factor": 0.2836,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 147,
+    "loss": -32.57142857142858,
+    "params": {
+      "hp_state1MaxBars": 29,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 22,
+      "hp_state3MaxBars": 35,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 175,
+    "pnl_pct": -9.1662,
+    "winrate": 32.5714,
+    "max_drawdown_pct": 9.1662,
+    "profit_factor": 0.301,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 148,
+    "loss": -36.075949367088604,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 48,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 7
+    },
+    "trades": 158,
+    "pnl_pct": -8.044,
+    "winrate": 36.0759,
+    "max_drawdown_pct": 8.044,
+    "profit_factor": 0.3394,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 149,
+    "loss": -31.46067415730337,
+    "params": {
+      "hp_state1MaxBars": 19,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 32,
+      "hp_state3MaxBars": 30,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 178,
+    "pnl_pct": -9.854,
+    "winrate": 31.4607,
+    "max_drawdown_pct": 9.854,
+    "profit_factor": 0.2846,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 150,
+    "loss": -34.02777777777778,
+    "params": {
+      "hp_state1MaxBars": 15,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 48,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 5
+    },
+    "trades": 144,
+    "pnl_pct": -8.4676,
+    "winrate": 34.0278,
+    "max_drawdown_pct": 8.4676,
+    "profit_factor": 0.265,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 151,
+    "loss": -14.893617021276595,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 126.0,
+      "hp_state2MaxBars": 48,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 24
+    },
+    "trades": 94,
+    "pnl_pct": -6.6109,
+    "winrate": 14.8936,
+    "max_drawdown_pct": 6.6109,
+    "profit_factor": 0.1471,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 152,
+    "loss": -11.428571428571429,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 162.0,
+      "hp_state2MaxBars": 13,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 70,
+    "pnl_pct": -5.477,
+    "winrate": 11.4286,
+    "max_drawdown_pct": 5.477,
+    "profit_factor": 0.1087,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 153,
+    "loss": -35.61643835616438,
+    "params": {
+      "hp_state1MaxBars": 20,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 21,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 146,
+    "pnl_pct": -7.5773,
+    "winrate": 35.6164,
+    "max_drawdown_pct": 7.5773,
+    "profit_factor": 0.3243,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 154,
+    "loss": -34.96932515337423,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 30,
+      "hp_state3MaxBars": 16,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 163,
+    "pnl_pct": -8.4854,
+    "winrate": 34.9693,
+    "max_drawdown_pct": 8.4854,
+    "profit_factor": 0.3227,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 155,
+    "loss": -35.810810810810814,
+    "params": {
+      "hp_state1MaxBars": 15,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 22,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 148,
+    "pnl_pct": -7.6402,
+    "winrate": 35.8108,
+    "max_drawdown_pct": 7.6402,
+    "profit_factor": 0.3263,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 156,
+    "loss": -32.70440251572327,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 32,
+      "hp_state3MaxBars": 16,
+      "hp_state5MaxBars": 35
+    },
+    "trades": 159,
+    "pnl_pct": -8.1445,
+    "winrate": 32.7044,
+    "max_drawdown_pct": 8.1445,
+    "profit_factor": 0.321,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 157,
+    "loss": -35.82089552238806,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 7
+    },
+    "trades": 134,
+    "pnl_pct": -6.9104,
+    "winrate": 35.8209,
+    "max_drawdown_pct": 6.9104,
+    "profit_factor": 0.3214,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 158,
+    "loss": -33.793103448275865,
+    "params": {
+      "hp_state1MaxBars": 15,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 48,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 145,
+    "pnl_pct": -8.5943,
+    "winrate": 33.7931,
+    "max_drawdown_pct": 8.5943,
+    "profit_factor": 0.2598,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 159,
+    "loss": -25.287356321839084,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 3,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 87,
+    "pnl_pct": -5.6038,
+    "winrate": 25.2874,
+    "max_drawdown_pct": 5.6038,
+    "profit_factor": 0.2022,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 160,
+    "loss": -34.93150684931507,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 44,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 146,
+    "pnl_pct": -8.2975,
+    "winrate": 34.9315,
+    "max_drawdown_pct": 8.2975,
+    "profit_factor": 0.2754,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 161,
+    "loss": -12.5,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 171.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 8
+    },
+    "trades": 72,
+    "pnl_pct": -5.2854,
+    "winrate": 12.5,
+    "max_drawdown_pct": 5.2854,
+    "profit_factor": 0.1255,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 162,
+    "loss": -32.666666666666664,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 41,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 150,
+    "pnl_pct": -8.1069,
+    "winrate": 32.6667,
+    "max_drawdown_pct": 8.1069,
+    "profit_factor": 0.2983,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 163,
+    "loss": -35.6687898089172,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 36,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 27
+    },
+    "trades": 157,
+    "pnl_pct": -8.1603,
+    "winrate": 35.6688,
+    "max_drawdown_pct": 8.1603,
+    "profit_factor": 0.326,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 164,
+    "loss": -10.576923076923077,
+    "params": {
+      "hp_state1MaxBars": 31,
+      "hp_state2ConfirmTicks": 177.0,
+      "hp_state2MaxBars": 23,
+      "hp_state3MaxBars": 25,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 104,
+    "pnl_pct": -8.1708,
+    "winrate": 10.5769,
+    "max_drawdown_pct": 8.1708,
+    "profit_factor": 0.0942,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 165,
+    "loss": -12.5,
+    "params": {
+      "hp_state1MaxBars": 27,
+      "hp_state2ConfirmTicks": 115.0,
+      "hp_state2MaxBars": 21,
+      "hp_state3MaxBars": 38,
+      "hp_state5MaxBars": 24
+    },
+    "trades": 112,
+    "pnl_pct": -8.0666,
+    "winrate": 12.5,
+    "max_drawdown_pct": 8.0666,
+    "profit_factor": 0.1198,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 166,
+    "loss": -34.4,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 36
+    },
+    "trades": 125,
+    "pnl_pct": -6.1454,
+    "winrate": 34.4,
+    "max_drawdown_pct": 6.1454,
+    "profit_factor": 0.3319,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 167,
+    "loss": -34.710743801652896,
+    "params": {
+      "hp_state1MaxBars": 31,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 13,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 121,
+    "pnl_pct": -5.5744,
+    "winrate": 34.7107,
+    "max_drawdown_pct": 5.5744,
+    "profit_factor": 0.3618,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 168,
+    "loss": -31.40495867768595,
+    "params": {
+      "hp_state1MaxBars": 39,
+      "hp_state2ConfirmTicks": 23.0,
+      "hp_state2MaxBars": 21,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 7
+    },
+    "trades": 121,
+    "pnl_pct": -6.6433,
+    "winrate": 31.405,
+    "max_drawdown_pct": 6.6433,
+    "profit_factor": 0.2915,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 169,
+    "loss": -30.76923076923077,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 45.0,
+      "hp_state2MaxBars": 23,
+      "hp_state3MaxBars": 16,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 130,
+    "pnl_pct": -6.7552,
+    "winrate": 30.7692,
+    "max_drawdown_pct": 6.7552,
+    "profit_factor": 0.287,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 170,
+    "loss": -23.75,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 2,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 80,
+    "pnl_pct": -5.0718,
+    "winrate": 23.75,
+    "max_drawdown_pct": 5.0718,
+    "profit_factor": 0.1984,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 171,
+    "loss": -16.50485436893204,
+    "params": {
+      "hp_state1MaxBars": 45,
+      "hp_state2ConfirmTicks": 87.0,
+      "hp_state2MaxBars": 21,
+      "hp_state3MaxBars": 16,
+      "hp_state5MaxBars": 34
+    },
+    "trades": 103,
+    "pnl_pct": -6.7876,
+    "winrate": 16.5049,
+    "max_drawdown_pct": 6.7876,
+    "profit_factor": 0.1596,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 172,
+    "loss": -32.06106870229007,
+    "params": {
+      "hp_state1MaxBars": 44,
+      "hp_state2ConfirmTicks": 23.0,
+      "hp_state2MaxBars": 23,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 42
+    },
+    "trades": 131,
+    "pnl_pct": -6.9702,
+    "winrate": 32.0611,
+    "max_drawdown_pct": 6.9702,
+    "profit_factor": 0.3002,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 173,
+    "loss": -34.93150684931507,
+    "params": {
+      "hp_state1MaxBars": 42,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 36,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 146,
+    "pnl_pct": -8.2975,
+    "winrate": 34.9315,
+    "max_drawdown_pct": 8.2975,
+    "profit_factor": 0.2754,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 174,
+    "loss": -32.57142857142858,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 22,
+      "hp_state3MaxBars": 37,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 175,
+    "pnl_pct": -9.1662,
+    "winrate": 32.5714,
+    "max_drawdown_pct": 9.1662,
+    "profit_factor": 0.301,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 175,
+    "loss": -36.134453781512605,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 13,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 119,
+    "pnl_pct": -6.2376,
+    "winrate": 36.1345,
+    "max_drawdown_pct": 6.2376,
+    "profit_factor": 0.3012,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 176,
+    "loss": -34.074074074074076,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 16,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 135,
+    "pnl_pct": -6.4088,
+    "winrate": 34.0741,
+    "max_drawdown_pct": 6.4088,
+    "profit_factor": 0.3505,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 177,
+    "loss": -32.402234636871505,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 30,
+      "hp_state3MaxBars": 37,
+      "hp_state5MaxBars": 22
+    },
+    "trades": 179,
+    "pnl_pct": -9.5222,
+    "winrate": 32.4022,
+    "max_drawdown_pct": 9.5222,
+    "profit_factor": 0.2987,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 178,
+    "loss": -15.384615384615385,
+    "params": {
+      "hp_state1MaxBars": 39,
+      "hp_state2ConfirmTicks": 80.0,
+      "hp_state2MaxBars": 9,
+      "hp_state3MaxBars": 23,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 91,
+    "pnl_pct": -6.1516,
+    "winrate": 15.3846,
+    "max_drawdown_pct": 6.1516,
+    "profit_factor": 0.1479,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 179,
+    "loss": -36.12903225806451,
+    "params": {
+      "hp_state1MaxBars": 33,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 34,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 7
+    },
+    "trades": 155,
+    "pnl_pct": -8.0009,
+    "winrate": 36.129,
+    "max_drawdown_pct": 8.0009,
+    "profit_factor": 0.3323,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 180,
+    "loss": -33.75,
+    "params": {
+      "hp_state1MaxBars": 19,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 21,
+      "hp_state3MaxBars": 20,
+      "hp_state5MaxBars": 28
+    },
+    "trades": 160,
+    "pnl_pct": -8.4717,
+    "winrate": 33.75,
+    "max_drawdown_pct": 8.4717,
+    "profit_factor": 0.3073,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 181,
+    "loss": -35.59322033898305,
+    "params": {
+      "hp_state1MaxBars": 15,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 13,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 30
+    },
+    "trades": 118,
+    "pnl_pct": -6.3153,
+    "winrate": 35.5932,
+    "max_drawdown_pct": 6.3153,
+    "profit_factor": 0.2925,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 182,
+    "loss": -33.77483443708609,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 30,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 42
+    },
+    "trades": 151,
+    "pnl_pct": -7.3925,
+    "winrate": 33.7748,
+    "max_drawdown_pct": 7.3925,
+    "profit_factor": 0.3385,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 183,
+    "loss": -12.307692307692308,
+    "params": {
+      "hp_state1MaxBars": 46,
+      "hp_state2ConfirmTicks": 131.0,
+      "hp_state2MaxBars": 23,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 24
+    },
+    "trades": 65,
+    "pnl_pct": -5.019,
+    "winrate": 12.3077,
+    "max_drawdown_pct": 5.019,
+    "profit_factor": 0.0916,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 184,
+    "loss": -33.57142857142857,
+    "params": {
+      "hp_state1MaxBars": 46,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 19,
+      "hp_state3MaxBars": 16,
+      "hp_state5MaxBars": 7
+    },
+    "trades": 140,
+    "pnl_pct": -6.7293,
+    "winrate": 33.5714,
+    "max_drawdown_pct": 6.7293,
+    "profit_factor": 0.3421,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 185,
+    "loss": -8.60215053763441,
+    "params": {
+      "hp_state1MaxBars": 31,
+      "hp_state2ConfirmTicks": 193.0,
+      "hp_state2MaxBars": 25,
+      "hp_state3MaxBars": 20,
+      "hp_state5MaxBars": 45
+    },
+    "trades": 93,
+    "pnl_pct": -7.7581,
+    "winrate": 8.6022,
+    "max_drawdown_pct": 7.7581,
+    "profit_factor": 0.0696,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 186,
+    "loss": -17.391304347826086,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 95.0,
+      "hp_state2MaxBars": 30,
+      "hp_state3MaxBars": 17,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 115,
+    "pnl_pct": -7.3141,
+    "winrate": 17.3913,
+    "max_drawdown_pct": 7.3141,
+    "profit_factor": 0.1728,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 187,
+    "loss": -36.3013698630137,
+    "params": {
+      "hp_state1MaxBars": 44,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 21,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 6
+    },
+    "trades": 146,
+    "pnl_pct": -7.3708,
+    "winrate": 36.3014,
+    "max_drawdown_pct": 7.3708,
+    "profit_factor": 0.3374,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 188,
+    "loss": -34.74576271186441,
+    "params": {
+      "hp_state1MaxBars": 28,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 16,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 24
+    },
+    "trades": 118,
+    "pnl_pct": -5.9478,
+    "winrate": 34.7458,
+    "max_drawdown_pct": 5.9478,
+    "profit_factor": 0.3104,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 189,
+    "loss": -9.322033898305085,
+    "params": {
+      "hp_state1MaxBars": 37,
+      "hp_state2ConfirmTicks": 146.0,
+      "hp_state2MaxBars": 36,
+      "hp_state3MaxBars": 27,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 118,
+    "pnl_pct": -9.2115,
+    "winrate": 9.322,
+    "max_drawdown_pct": 9.2115,
+    "profit_factor": 0.0876,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 190,
+    "loss": -35.172413793103445,
+    "params": {
+      "hp_state1MaxBars": 47,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 32,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 24
+    },
+    "trades": 145,
+    "pnl_pct": -8.2648,
+    "winrate": 35.1724,
+    "max_drawdown_pct": 8.2648,
+    "profit_factor": 0.2762,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 191,
+    "loss": -33.77483443708609,
+    "params": {
+      "hp_state1MaxBars": 43,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 30,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 151,
+    "pnl_pct": -7.3925,
+    "winrate": 33.7748,
+    "max_drawdown_pct": 7.3925,
+    "profit_factor": 0.3385,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 192,
+    "loss": -34.48275862068966,
+    "params": {
+      "hp_state1MaxBars": 13,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 12,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 116,
+    "pnl_pct": -6.4529,
+    "winrate": 34.4828,
+    "max_drawdown_pct": 6.4529,
+    "profit_factor": 0.277,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 193,
+    "loss": -34.67741935483871,
+    "params": {
+      "hp_state1MaxBars": 39,
+      "hp_state2ConfirmTicks": 11.0,
+      "hp_state2MaxBars": 14,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 124,
+    "pnl_pct": -5.7784,
+    "winrate": 34.6774,
+    "max_drawdown_pct": 5.7784,
+    "profit_factor": 0.3605,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 194,
+    "loss": -35.97122302158273,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 21,
+      "hp_state3MaxBars": 3,
+      "hp_state5MaxBars": 37
+    },
+    "trades": 139,
+    "pnl_pct": -7.5421,
+    "winrate": 35.9712,
+    "max_drawdown_pct": 7.5421,
+    "profit_factor": 0.2907,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 195,
+    "loss": -17.647058823529413,
+    "params": {
+      "hp_state1MaxBars": 15,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 1,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 68,
+    "pnl_pct": -5.0706,
+    "winrate": 17.6471,
+    "max_drawdown_pct": 5.0706,
+    "profit_factor": 0.1369,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 196,
+    "loss": -31.79190751445087,
+    "params": {
+      "hp_state1MaxBars": 15,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 22,
+      "hp_state3MaxBars": 38,
+      "hp_state5MaxBars": 25
+    },
+    "trades": 173,
+    "pnl_pct": -9.3032,
+    "winrate": 31.7919,
+    "max_drawdown_pct": 9.3032,
+    "profit_factor": 0.2906,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 197,
+    "loss": -36.496350364963504,
+    "params": {
+      "hp_state1MaxBars": 1,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 22,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 18
+    },
+    "trades": 137,
+    "pnl_pct": -6.526,
+    "winrate": 36.4964,
+    "max_drawdown_pct": 6.526,
+    "profit_factor": 0.3479,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 198,
+    "loss": -36.3013698630137,
+    "params": {
+      "hp_state1MaxBars": 49,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 21,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 7
+    },
+    "trades": 146,
+    "pnl_pct": -7.3708,
+    "winrate": 36.3014,
+    "max_drawdown_pct": 7.3708,
+    "profit_factor": 0.3374,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 199,
+    "loss": -35.82089552238806,
+    "params": {
+      "hp_state1MaxBars": 1,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 21,
+      "hp_state3MaxBars": 9,
+      "hp_state5MaxBars": 6
+    },
+    "trades": 134,
+    "pnl_pct": -6.5201,
+    "winrate": 35.8209,
+    "max_drawdown_pct": 6.5201,
+    "profit_factor": 0.3425,
+    "usable": true,
+    "is_best": false
+  },
+  {
+    "epoch": 200,
+    "loss": -35.86206896551724,
+    "params": {
+      "hp_state1MaxBars": 40,
+      "hp_state2ConfirmTicks": 0.0,
+      "hp_state2MaxBars": 22,
+      "hp_state3MaxBars": 6,
+      "hp_state5MaxBars": 7
+    },
+    "trades": 145,
+    "pnl_pct": -7.6976,
+    "winrate": 35.8621,
+    "max_drawdown_pct": 7.6976,
+    "profit_factor": 0.3131,
+    "usable": true,
+    "is_best": false
+  }
+]

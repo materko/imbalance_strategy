@@ -3,7 +3,7 @@
  "created": "2026-09-11T07:06:08.018572+00:00",
  "seq": 3,
  "strategy": "gap",
- "config_key": "b3f5b3e642",
+ "config_key": "4af97b3d9b",
  "market": "mixed",
  "profile": "tradebot/strategies/gap/configs/nas100_dukascopy_5m.json",
  "timeranges": [
