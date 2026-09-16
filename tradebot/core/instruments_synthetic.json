@@ -31,5 +31,17 @@
     "created": "2026-09-11T20:47:21+00:00",
     "note": "premiešané 1m bary NAS100/USD po blokoch 60",
     "like": "nas100_dukascopy"
+  },
+  "synth_mnq_usd": {
+    "symbol": "SYNTH-MNQ/USD",
+    "source_pair": "MNQ/USD",
+    "timerange": "20190505-20260911",
+    "block": 60,
+    "seed": 20260910,
+    "method": "block_shuffle",
+    "sha256": "a1b7c3a7dc673806f9b59c78d28df97ae0adb8f0e925ac4680edafba4672bbf4",
+    "created": "2026-09-12T10:08:32+00:00",
+    "note": "premiešané 1m bary MNQ/USD po blokoch 60",
+    "like": "mnq_databento"
   }
 }
