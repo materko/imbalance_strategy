@@ -23,6 +23,7 @@ from __future__ import annotations
 from collections import deque
 
 from tradebot.core.types import Bar
+from tradebot.core.warmup import decay_bars
 
 __all__ = [
     "Series", "HeikinAshi", "SMA", "EMA", "RMA", "RSI", "MACD", "Stoch", "CCI", "MOM",
@@ -78,6 +79,9 @@ class HeikinAshi:
         self._open, self._close = ha_open, ha_close
         return Bar(time=bar.time, open=ha_open, high=ha_high, low=ha_low, close=ha_close, volume=bar.volume)
 
+    #: `ha_open` je priemer predchádzajúceho `ha_open` a `ha_close` — dozvuk s alpha 1/2
+    warmup_bars = decay_bars(0.5)
+
 
 class SMA:
     __slots__ = ("n", "_q", "_sum")
@@ -97,6 +101,10 @@ class SMA:
     @property
     def value(self) -> float | None:
         return self._sum / self.n if len(self._q) == self.n else None
+
+    @property
+    def warmup_bars(self) -> int:
+        return self.n
 
 
 class _Smooth:
@@ -118,6 +126,11 @@ class _Smooth:
             return self.value
         self.value = self.value + self.alpha * (v - self.value)
         return self.value
+
+    @property
+    def warmup_bars(self) -> int:
+        """SMA štart + dozvuk štartovacej hodnoty — `tradebot.core.warmup`."""
+        return self.n + decay_bars(self.alpha)
 
 
 class EMA(_Smooth):
@@ -153,6 +166,10 @@ class RSI:
         self.value = 100.0 if dn == 0 else 100.0 - 100.0 / (1.0 + up / dn)
         return self.value
 
+    @property
+    def warmup_bars(self) -> int:
+        return 1 + self._up.warmup_bars  # prvý bar nemá zmenu
+
 
 class MACD:
     """(macd, signál, histogram) — alebo `(None, None, None)`, kým sa nerozbehne."""
@@ -172,6 +189,16 @@ class MACD:
         if sig is None:
             return macd, None, None
         return macd, sig, macd - sig
+
+    @property
+    def line_warmup_bars(self) -> int:
+        """MACD čiara: pomalšia z dvoch EMA."""
+        return max(self._fast.warmup_bars, self._slow.warmup_bars)
+
+    @property
+    def warmup_bars(self) -> int:
+        """Histogram: signálna EMA sa rozbieha až z hotovej MACD čiary."""
+        return self.line_warmup_bars + self._sig.warmup_bars
 
 
 class Stoch:
@@ -194,6 +221,10 @@ class Stoch:
         fast_k = 50.0 if hi == lo else 100.0 * (close - lo) / (hi - lo)
         return self._sma.push(fast_k)
 
+    @property
+    def warmup_bars(self) -> int:
+        return self.n + self._sma.warmup_bars - 1
+
 
 class CCI:
     __slots__ = ("n", "_tp")
@@ -211,6 +242,10 @@ class CCI:
         dev = sum(abs(x - mean) for x in self._tp) / self.n
         return 0.0 if dev == 0 else (tp - mean) / (0.015 * dev)
 
+    @property
+    def warmup_bars(self) -> int:
+        return self.n
+
 
 class MOM:
     __slots__ = ("n", "_q")
@@ -224,6 +259,10 @@ class MOM:
         if len(self._q) <= self.n:
             return None
         return close - self._q[0]
+
+    @property
+    def warmup_bars(self) -> int:
+        return self.n + 1
 
 
 class OBV:
@@ -242,6 +281,10 @@ class OBV:
         self._prev = close
         return self.value
 
+    #: Kumulatívny súčet: začiatok behu posunie všetky hodnoty o konštantu, a tá sa pri
+    #: porovnaní dvoch bodov (divergencia) odčíta — stačí jeden bar.
+    warmup_bars = 1
+
 
 class VWMACD:
     """Objemovo vážený MACD: VWMA(12) − VWMA(26) (pôvodný `vwmacd`)."""
@@ -257,6 +300,10 @@ class VWMACD:
         if pf is None or ps is None or not vf or not vs:
             return None
         return pf / vf - ps / vs
+
+    @property
+    def warmup_bars(self) -> int:
+        return max(self._pf.warmup_bars, self._ps.warmup_bars)
 
 
 class CMF:
@@ -275,6 +322,10 @@ class CMF:
         if mfv is None or not vol:
             return None
         return mfv / vol
+
+    @property
+    def warmup_bars(self) -> int:
+        return self._mfv.warmup_bars
 
 
 class MFI:
@@ -301,6 +352,10 @@ class MFI:
         if neg == 0:
             return 100.0
         return 100.0 - 100.0 / (1.0 + pos / neg)
+
+    @property
+    def warmup_bars(self) -> int:
+        return self.n + 1
 
 
 class CDV:
@@ -334,6 +389,10 @@ class CDV:
         else:
             self.value += delta
         return self.value
+
+    #: Nuluje sa o polnoci UTC, takže celý prvý deň behu je len posunutý o konštantu
+    #: (ako OBV) a od polnoci je presný. Dĺžku dňa v baroch CDV nepozná — jeden bar.
+    warmup_bars = 1
 
 
 class Supertrend:
@@ -380,6 +439,11 @@ class Supertrend:
         self.line = up if self.trend == 1 else dn
         return self.trend
 
+    @property
+    def warmup_bars(self) -> int:
+        """ATR (RMA) + jeden bar pre pásmo z predchádzajúceho baru."""
+        return self._atr.warmup_bars + 1
+
 
 class Pivots:
     """Pine `ta.pivothigh(src, prd, prd)` / `ta.pivotlow` — pivot sa potvrdí až `prd` barov
@@ -416,3 +480,7 @@ class Pivots:
         if all(self._l[i] > lv for i in range(n) if i != mid):
             pl = (self._idx - self.prd, lv, self._t[mid])
         return ph, pl
+
+    @property
+    def warmup_bars(self) -> int:
+        return 2 * self.prd + 1

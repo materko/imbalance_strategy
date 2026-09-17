@@ -113,7 +113,37 @@ def test_freqtrade_povazuje_pary_za_obchodovatelne():
     ex._api = ex._api_async = None
     ex.trading_mode = TradingMode.FUTURES
     assert ex.market_is_future(by_symbol["BTC/USDT:USDT"])
-    assert ex.market_is_spot(by_symbol["NAS100/USD"])
+    assert ex.market_is_future(by_symbol["NAS100/USD"])      # CFD = swap, shorty aj páka
+    assert ex.market_is_spot(by_symbol["BTC/USDT"])
+
+
+@pytest.mark.parametrize("key", ["mnq_databento", "eurusd_dukascopy", "nas100_dukascopy"])
+def test_hodnota_bodu_je_contract_size(key):
+    """Freqtrade počíta zisk, stake a poplatky z množstva v základnej mene = kusy ×
+    contractSize. Bez hodnoty bodu by lot EURUSD bol 1 EUR a MNQ polovičné."""
+    inst = INSTRUMENTS[key]
+    m = {x["symbol"]: x for x in ftexchange.markets()}[inst.symbol]
+    assert m["swap"] and m["linear"] and m["settle"] == inst.quote_currency
+    assert m["contractSize"] == inst.point_value
+    assert m["precision"]["amount"] == inst.qty_step        # krok v kontraktoch
+
+
+def test_sviecky_mimo_burzy_su_bez_pripony_futures(tmp_path):
+    from freqtrade.data.history.datahandlers.featherdatahandler import FeatherDataHandler
+    from freqtrade.enums import CandleType
+
+    name = FeatherDataHandler._pair_data_filename
+    assert name(tmp_path, "EURUSD/USD", "3m", CandleType.FUTURES) ==         tmp_path / "futures" / "EURUSD_USD-3m.feather"
+    assert name(tmp_path, "BTC/USDT:USDT", "3m", CandleType.FUTURES) ==         tmp_path / "futures" / "BTC_USDT_USDT-3m-futures.feather"
+    assert name(tmp_path, "EURUSD/USD", "1h", CandleType.MARK).name == "EURUSD_USD-1h-mark.feather"
+
+
+def test_hodnota_bodu_na_spotovej_burze_je_zablokovana():
+    """Spot contractSize nepozná — radšej jasná chyba pred behom než ×100 000 vo výsledku."""
+    inst = INSTRUMENTS["eurusd_dukascopy"]
+    preco = engines.freqtrade_blocker(inst, "3m", "dukascopy")
+    assert preco and "hodnota bodu" in preco
+    assert "hodnota bodu" not in (engines.freqtrade_blocker(inst, "3m", "tester") or "")
 
 
 def test_instrumenty_bez_kotovacej_meny_sa_nepridavaju():
@@ -131,7 +161,7 @@ def test_instrumenty_bez_kotovacej_meny_sa_nepridavaju():
 @pytest.mark.parametrize("name,mode,stake", [
     ("config.tester.json", "futures", "USDT"),
     ("config.tester.spot.json", "spot", "USDT"),
-    ("config.tester.cfd.json", "spot", "USD"),
+    ("config.tester.cfd.json", "futures", "USD"),
 ])
 def test_configy_bezia_na_burze_tester(name, mode, stake):
     cfg = json.loads((FREQTRADE_DIR / name).read_text(encoding="utf-8"))

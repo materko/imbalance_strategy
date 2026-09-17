@@ -47,6 +47,8 @@ from dataclasses import dataclass, field, replace
 from datetime import date
 from typing import Any, Sequence
 
+from tradebot.core.money import row_money, row_point_value
+
 from .portfolio import _dt, _sl_distance
 
 __all__ = [
@@ -198,13 +200,11 @@ def _pnl(t: dict[str, Any], zostatok: float, risk_pct: float) -> float | None:
     sl = _sl_distance(t)
     if not sl or sl <= 0:
         return None
-    mnozstvo = zostatok * risk_pct / 100.0 / sl
-    smer = -1.0 if t.get("is_short") else 1.0
-    zisk = (float(t["close_rate"]) - float(t["open_rate"])) * mnozstvo * smer
-    # Poplatky behu uz obchod zaplatil, tak sa prepocitaju na novu velkost.
-    objem = (float(t["open_rate"]) + float(t["close_rate"])) * mnozstvo
-    poplatok = (float(t.get("fee_open") or 0) + float(t.get("fee_close") or 0)) * objem / 2
-    return zisk - poplatok
+    # Kusy tak, aby strata na stope bola zadané riziko v mene účtu (bod stojí
+    # `point_value`); poplatky behu sa prepočítajú na novú veľkosť. Peniaze obchodu
+    # počíta jediná definícia (tradebot.core.money).
+    pv = row_point_value(t)
+    return row_money({**t, "amount": zostatok * risk_pct / 100.0 / (sl * pv)}, point_value=pv).net
 
 
 def max_concurrent(trades: Sequence[dict[str, Any]]) -> int:

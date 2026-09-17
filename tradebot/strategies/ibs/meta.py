@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import Any
 
 from ..base import ChartLayer
+from .config import PINE_DISPLAY_INPUTS
 
 #: Pine vstupy, ktoré sa VEDOME neportujú, aj s dôvodom.
 REMOVED_INPUTS: frozenset[str] = frozenset({
@@ -19,7 +20,7 @@ REMOVED_INPUTS: frozenset[str] = frozenset({
     # Podľa vlastného Pine tooltipu použiteľné LEN pre PickMyTrade - `strategy.exit`
     # v TradingView pre neho nemá ekvivalent, takže bez PMT nemá čo robiť.
     "trailFreqPct",
-})
+}) | PINE_DISPLAY_INPUTS  # alerty a tabuľky na graf TradingView — dôvod pri zozname v config.py
 
 #: Polia, kde sa vedome odchyľujeme od Pine defaultu, aj s dôvodom.
 INTENTIONAL_DEFAULT_DIFFS: frozenset[str] = frozenset({
@@ -35,23 +36,17 @@ INTENTIONAL_DEFAULT_DIFFS: frozenset[str] = frozenset({
 #: takže vo formulári len zavadzajú. V `IBSConfig` ostávajú, aby profil sedel s TV
 #: panelom, a do uloženého profilu sa zapíšu s Pine defaultom.
 #:
-#: `alert*` posielali notifikáciu TradingView — vo Freqtrade notifikácie rieši sám
-#: Freqtrade (Telegram) v live režime, v backteste nemajú význam.
+#: `state4MaxBars` je v Pine „Rezerva (aktuálne nepoužívané)" — nečíta ho Pine ani port.
+#: (Alerty a tabuľky na graf TradingView tu boli do 2026-09-17; odvtedy sú zrušené —
+#: `PINE_DISPLAY_INPUTS` v `config.py`.)
 #:
-#: `showDashboard`, `showTradeLog`, `showDebugTable` a ich pozície/počty riadkov kreslili
-#: tabuľky **na graf v TradingView**. Port ich nekreslí a ani nemá kam — históriu behov,
-#: zoznam obchodov aj dôvody výstupu ukazuje webapp vo vlastných tabuľkách. Kresliaci
-#: prepínač `showImbalance` medzi ne nepatrí: ten engine číta (`engine.py`) a rozhoduje,
-#: či sa do kresieb behu dostanú imbalance boxy.
+#: Že tu nie je nič, čo engine alebo adaptér naozaj číta (a naopak, že každé iné pole
+#: niečo číta), stráži `tradebot/tests/test_param_parity.py`.
 INERT_INPUTS: frozenset[str] = frozenset({
-    "alertOnState2", "alertOnState3", "alertOnState4",
-    "showDashboard", "dashPos", "dashboardRows",
-    "showTradeLog", "tradeLogRows",
-    "showDebugTable", "debugTableRows", "debugPos",
+    "state4MaxBars",
 })
 
 PARAM_NOTES: dict[str, str] = {
-    "state4MaxBars": "Pine tento parameter nikde nepoužíva.",
     "maxSdZones": ("Strop je Pine dedičstvo (limit boxov na grafe a pamäte), Freqtrade ho "
                    "nepotrebuje — port ho drží kvôli parite: nad limitom sa najstaršia zóna "
                    "zahodí a už nikdy nevystrelí. Pri bežnom zoneValidHours (6 h) sú to len "
@@ -141,5 +136,5 @@ KIND_TITLES: dict[str, str] = {
 #: dajú, ale výsledok sa už nedá porovnať s Pine; formulár aj sweep to povedia dopredu.
 PARITY_FIELDS: frozenset[str] = frozenset({
     "legacyPineSizing", "tickDollarValue", "maxLossDollar", "leverage",
-    "state1MaxBars", "state2MaxBars", "state3MaxBars", "state4MaxBars", "state5MaxBars",
+    "state1MaxBars", "state2MaxBars", "state3MaxBars", "state5MaxBars",
 })

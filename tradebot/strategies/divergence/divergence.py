@@ -86,6 +86,19 @@ class _Indicators:
         self._mfi = MFI(14)
         self._cdv = CDV()
 
+    @property
+    def warmup_bars(self) -> int:
+        """Najpomalší zo zapnutých indikátorov (vlastné `extra` sa berú ako okamžité)."""
+        need = {
+            "rsi": self._rsi.warmup_bars, "macd": self._macd.line_warmup_bars,
+            "macdh": self._macd.warmup_bars, "stoch": self._stoch.warmup_bars,
+            "cci": self._cci.warmup_bars, "mom": self._mom.warmup_bars,
+            "obv": self._obv.warmup_bars, "vwmacd": self._vwmacd.warmup_bars,
+            "cmf": self._cmf.warmup_bars, "mfi": self._mfi.warmup_bars,
+            "cdv": self._cdv.warmup_bars,
+        }
+        return max((need[k] for k in self.keys if k in need), default=1)
+
     def push(self, bar: Bar) -> dict[str, float | None]:
         out: dict[str, float | None] = {}
         k = self.keys
@@ -167,6 +180,12 @@ class DivergenceDetector:
         self.bar_index = -1
 
     # ------------------------------------------------------------------ #
+
+    @property
+    def warmup_bars(self) -> int:
+        """Pivot `maxBars` dozadu musí mať ustálenú hodnotu indikátora aj ľavú stranu
+        pivotu (`prd` barov) — inak by beh od nuly videl menej divergencií než dlhší."""
+        return self._ind.warmup_bars + self.max_bars + self.prd
 
     def on_bar(self, bar: Bar) -> DivHits:
         self.bar_index += 1

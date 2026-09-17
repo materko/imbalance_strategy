@@ -152,6 +152,11 @@ reálne čísla, je to pomer k počiatočnému kapitálu na účte, ktorý medzi
 pri pevnom riziku 300 $ na obchod: **2 373 obchodov, WR 27,2 %, RRR 3,40, očakávanie
 +0,20R, max pokles 19 895 $.**
 
+**Poznámka (2026-09-17): čísla v tomto dokumente sú bez merania odchodu.** Engine odvtedy
+vie odchod merať (`legOutMinAtr` ATR do `legOutMaxBars` barov, pravidlo v bode 6), ale default
+je `legOutMinAtr=0` = vypnuté, takže tabuľka opisuje default (overené: 472 obchodov v okne
+2025-26). Zapnutie `--set legOutMinAtr=1.5` je zmena stratégie — dopad je v bode 6.
+
 **1. Na čo sa to hodí a na čo nie**
 
 Na **zlato na 15m**. To nie je preferencia, to je meranie: na NAS100 aj US500 som otestoval
@@ -222,8 +227,30 @@ kandidáta do portfólia, nie ako hotovú vec.
 **6. Čo by som pridal**
 
 **Meranie toho, ako ďaleko cena od zóny odišla, ako signál sily — a použiť ho na veľkosť
-pozície, nie na filter.** Dnes `impulseMinMoveAtr` rozhoduje binárne: buď formácia platí,
-alebo nie. Ale zóna, od ktorej cena odišla o 4 ATR, hovorí o niečom inom než zóna s odchodom
+pozície, nie len na filter.** Odchod sa dnes meria ako binárny filter. Pole
+`impulseMinMoveAtr` formulár kedysi ponúkal, ale engine ho nečítal (zrušené pri audite
+parity 2026-09-17); nahradilo ho pravidlo podľa verejných supply/demand skriptov na
+TradingView:
+
+- **odchod = záver, nie knôt**, za hranou bázy (knôt po knôt, nezávisle od `zoneMode`)
+  aspoň o `legOutMinAtr` × ATR baru pred impulzom — tak meria „departure" Zone Forge [AFD]
+  (tradingview.com/script/XxJwfshw) a „displacement" Sattam Supply | Demand
+  (tradingview.com/script/V7qt246z)
+- **do `legOutMaxBars` barov** vrátane impulzu — odchod smie dobehnúť cez „follow-through"
+  sviečky (SurjeetKakkar Demand Supply Zone Indicator, tradingview.com/script/8hcn64yQ;
+  the_sailor_trader, tradingview.com/script/7VwwPrYu); pomalý odchod je podľa odds enhancera
+  „Strength" slabšia nerovnováha, preto sa nedobehnutý kandidát zahodí
+- **zóna vzniká na bare, ktorý odchod dokončil**, nie skôr (Zone Forge to píše výslovne);
+  záver späť za druhou hranou bázy kandidáta zruší a dotyk zóny počas odchodu ju pripraví
+  o čerstvosť
+- prvá sviečka odchodu ďalej musí prejsť `impulseMinBodyAtr` a `impulseMinBodyPct`
+  (výbušná sviečka s telom voči ATR a podielom tela — Svopex, FORTRESS)
+
+Dopad na zlate 15m (profil `xau_dukascopy_15m`, break-even % na stranu, `legOutMinAtr`
+0 → 1,5, okno 3 bary): 2021-22 +0,0021 → −0,0222, 2022-23 +0,0206 → +0,0265,
+2023-24 +0,0013 → +0,0022, 2024-25 +0,0067 → +0,0352, 2025-26 +0,0676 → +0,0774; obchodov
+o 55–60 % menej (2025-26: 472 → 204). Lepšie v 4 z 5 okien, 2021-22 sa preklopí do straty.
+Zóna, od ktorej cena odišla o 4 ATR, hovorí o niečom inom než zóna s odchodom
 2 ATR — a šikmosť +2,56 naznačuje, že tie výnimočné obchody niekde majú spoločný znak.
 Pridal by som pole `sizeByImpulse` (veľkosť pozície škálovaná silou impulzu v rozsahu napr.
 0,5× až 1,5×) a zmeral, či sa tým dá tá šikmosť využiť namiesto toho, aby bola rizikom.

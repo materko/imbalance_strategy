@@ -18,6 +18,12 @@ Vyšší TF sa skladá z barov grafu rovnakým pravidlom ako `tradebot/core/cand
 HTF bar sa použije na bare grafu, ktorý ho **uzatvára** (close baru = koniec periódy) —
 to je `request.security(..., lookahead_off)` na histórii v TradingView. Rozpracovaný HTF
 bar sa nepoužije nikdy, takže filter nerepaintuje.
+
+Predhistória je **vlastná**, nie v baroch grafu: Supertrend(10) potrebuje ~40 barov svojho
+TF, ADX 14/14 ~111 (`warmup_bars`). Adaptér ich dá indikátoru pred prvým barom grafu
+(`DirectionGate.add_warmup` → `tradebot.core.warmup.seed_engine`) z dát pred začiatkom behu,
+takže `startup_candle_count` stratégie kvôli nim nerastie. Kým indikátor nemá svoje bary
+(živý graf bez dostatočnej histórie, začiatok archívu), stav je „SA ROZBIEHA" a neobchoduje sa.
 """
 
 from __future__ import annotations
@@ -27,6 +33,7 @@ from typing import TYPE_CHECKING
 
 from tradebot.core.drawing import DrawBg, DrawBox, DrawCommand, DrawLabel, DrawLine, LabelStyle, with_alpha
 from tradebot.core.types import Bar, Direction
+from tradebot.core.warmup import Warmup, rma_bars, sma_bars
 
 from ..config import (
     INDICATOR_RULES,
@@ -105,6 +112,23 @@ class BoundaryAggregator:
             closed.append(self._close())
         return closed
 
+    @property
+    def started(self) -> bool:
+        """Už je rozpracovaný HTF bar (dostal bar grafu alebo `prime`)."""
+        return self._open_ts is not None
+
+    def prime(self, partial: Bar | None) -> None:
+        """Seeding: rozpracovaná perióda z barov pred behom (`tradebot.core.warmup.seed_engine`).
+
+        `partial` je HTF bar poskladaný cez `tradebot.core.candles` z barov od začiatku
+        periódy po prvý bar behu; ďalšie bary grafu ho doplnia, ako keby beh začal skôr.
+        """
+        if partial is None:
+            return
+        self._open_ts = partial.time // self.ms * self.ms
+        self._o, self._h, self._l = partial.open, partial.high, partial.low
+        self._c, self._v = partial.close, partial.volume
+
 
 class Supertrend:
     """TradingView „Supertrend" (Pine v4) bar po bare.
@@ -114,7 +138,7 @@ class Supertrend:
     """
 
     __slots__ = ("period", "mult", "source", "change_atr", "_rma", "_tr_window",
-                 "_prev_close", "up", "dn", "trend", "flipped", "ready")
+                 "_prev_close", "up", "dn", "trend", "flipped", "ready", "bars")
 
     def __init__(self, period: int = 10, multiplier: float = 3.0,
                  source: PriceSource = PriceSource.HL2, change_atr: bool = True) -> None:
@@ -131,10 +155,23 @@ class Supertrend:
         self.trend = 1
         self.flipped = False
         self.ready = False
+        #: koľko barov vlastného TF prešlo výpočtom (aj zo seedingu)
+        self.bars = 0
+
+    @property
+    def warmed(self) -> bool:
+        """Prvá hodnota je (`ready`) a ATR sa ustálil (`warmup_bars` barov vlastného TF)."""
+        return self.ready and self.bars >= self.warmup_bars
 
     @property
     def line(self) -> float | None:
         return self.up if self.trend == 1 else self.dn
+
+    @property
+    def warmup_bars(self) -> int:
+        """Bary vlastného TF, kým sa ATR ustáli, + jeden bar pre pásmo z predchádzajúceho baru."""
+        atr = rma_bars(self.period) if self.change_atr else sma_bars(self.period)
+        return atr + 1
 
     def _atr(self, bar: Bar) -> float | None:
         prev = self._prev_close
@@ -157,6 +194,7 @@ class Supertrend:
         return self._rma
 
     def push(self, bar: Bar) -> int:
+        self.bars += 1
         atr = self._atr(bar)
         prev_close, prev_up, prev_dn = self._prev_close, self.up, self.dn
         self._prev_close = bar.close
@@ -194,7 +232,7 @@ class DMI:
     """
 
     __slots__ = ("di_len", "smoothing", "_prev", "_tr", "_plus_dm", "_minus_dm", "_dx",
-                 "plus", "minus", "adx")
+                 "plus", "minus", "adx", "bars")
 
     def __init__(self, di_length: int = 14, adx_smoothing: int = 14) -> None:
         self.di_len = max(1, int(di_length))
@@ -207,12 +245,26 @@ class DMI:
         self.plus: float | None = None
         self.minus: float | None = None
         self.adx: float | None = None
+        #: koľko barov vlastného TF prešlo výpočtom (aj zo seedingu)
+        self.bars = 0
 
     @property
     def ready(self) -> bool:
         return self.adx is not None
 
+    @property
+    def warmed(self) -> bool:
+        """ADX existuje a reťaz RMA sa ustálila (`warmup_bars` barov vlastného TF)."""
+        return self.ready and self.bars >= self.warmup_bars
+
+    @property
+    def warmup_bars(self) -> int:
+        """Reťaz RMA: prvý bar nemá predchádzajúci, potom ±DI (RMA `diLen`) a z nich ADX
+        (RMA `adxSmoothing`) — ADX sa ustáli až po ustálení DI, preto súčet."""
+        return 1 + rma_bars(self.di_len) + rma_bars(self.smoothing)
+
     def push(self, bar: Bar) -> float | None:
+        self.bars += 1
         prev, self._prev = self._prev, bar
         if prev is None:
             return None
@@ -283,6 +335,7 @@ class _Source:
                 "indikátor sa skladá z barov grafu, takže musí byť"
             )
         self.tf = tf
+        self.minutes = minutes
         self.ratio = minutes // chart_tf_minutes
         self.agg = BoundaryAggregator(minutes, chart_tf_minutes)
 
@@ -304,19 +357,44 @@ class DirectionGate:
         self.dmi: DMI | None = None
         self._st_src: _Source | None = None
         self._dmi_src: _Source | None = None
-        #: koľko barov grafu treba, kým indikátory dávajú platný smer
-        self.required_chart_bars = 0
         if not self.enabled:
             return
         if cfg.indSupertrend:
             self._st_src = _Source("Supertrend", cfg.stTimeframe, self.chart_tf_minutes)
             self.st = Supertrend(cfg.stAtrPeriod, cfg.stMultiplier, cfg.stSource, cfg.stChangeAtr)
-            self.required_chart_bars = (int(cfg.stAtrPeriod) * 3 + 10) * self._st_src.ratio
         if cfg.indAdx:
             self._dmi_src = _Source("ADX/DMI", cfg.adxTimeframe, self.chart_tf_minutes)
             self.dmi = DMI(cfg.adxDiLength, cfg.adxSmoothing)
-            need = (int(cfg.adxDiLength) + int(cfg.adxSmoothing)) * 3 + 10
-            self.required_chart_bars = max(self.required_chart_bars, need * self._dmi_src.ratio)
+
+    def add_warmup(self, warmup: Warmup) -> Warmup:
+        """Zaškrtnuté indikátory s **vlastnou** predhistóriou — `warmup_bars` barov ich TF.
+
+        Predhistóriu grafu nezväčšujú: adaptér im tie bary dá pred prvým barom grafu cez
+        `tradebot.core.warmup.seed_engine`. Bez seedingu (živý graf MultiCharts, začiatok
+        dát) sa rozbehnú na grafe a kým nemajú svoje bary, brána hlási „SA ROZBIEHA".
+        """
+        if self.st is not None:
+            warmup.add_seeded(f"Supertrend {self.st.period}", self.st.warmup_bars,
+                              self._st_src.minutes, self._seed_st)
+        if self.dmi is not None:
+            warmup.add_seeded(f"ADX/DMI {self.dmi.di_len}/{self.dmi.smoothing}", self.dmi.warmup_bars,
+                              self._dmi_src.minutes, self._seed_dmi)
+        return warmup
+
+    def _seed_st(self, bars, partial: Bar | None) -> None:
+        self._seed(self.st, self._st_src, bars, partial)
+
+    def _seed_dmi(self, bars, partial: Bar | None) -> None:
+        self._seed(self.dmi, self._dmi_src, bars, partial)
+
+    @staticmethod
+    def _seed(indicator, src: _Source, bars, partial: Bar | None) -> None:
+        """Uzavreté HTF bary pred behom výpočtom, rozpracovaná perióda do agregátora."""
+        if indicator.bars or src.agg.started:
+            raise RuntimeError(f"{src.tf}: seeding indikátora smie ísť len pred prvým barom grafu")
+        for b in bars:
+            indicator.push(b)
+        src.agg.prime(partial)
 
     # ------------------------------------------------------------------ #
 
@@ -342,10 +420,12 @@ class DirectionGate:
         """(stav Supertrendu, stav ADX); `None` pre nezaškrtnutý; celé `None`, kým sa nerozbehnú."""
         st = dmi = None
         if self.st is not None:
-            if not self.st.ready:
+            if not self.st.warmed:
                 return None
             st = "up" if self.st.trend == 1 else "down"
         if self.dmi is not None:
+            if not self.dmi.warmed:
+                return None
             dmi = self.dmi.state(float(self.cfg.adxThreshold))
             if dmi is None:
                 return None

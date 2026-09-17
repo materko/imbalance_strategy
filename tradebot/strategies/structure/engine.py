@@ -51,6 +51,7 @@ from tradebot.core.drawing import (
 )
 from tradebot.core.engine import EngineOutput
 from tradebot.core.history import BarHistory
+from tradebot.core.warmup import Warmup
 from tradebot.core.orders import MarketContext, OrderAction, OrderIntent
 from tradebot.core.risk import TradePlan
 from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
@@ -89,7 +90,10 @@ class StructureEngine:
         self.chart_tf_minutes = chart_tf_minutes
         self.step_ms = chart_tf_minutes * 60_000
         #: swing potrebuje L + R + 1 barov, ATR svoju dĺžku
-        self.required_history = int(cfg.swingLeft) + int(cfg.swingRight) + 1 + int(cfg.atrLen) + 8
+        swing = int(cfg.swingLeft) + int(cfg.swingRight) + 1
+        self.warmup = Warmup(self.chart_tf_minutes).add(
+            f"swing {cfg.swingLeft}/{cfg.swingRight} + ATR {cfg.atrLen}", swing + int(cfg.atrLen) + 8)
+        self.required_history = self.warmup.chart_bars
         self.history = BarHistory(maxlen=self.required_history + 8, atr_len=int(cfg.atrLen))
         self._tz = ZoneInfo(cfg.sessionTZ.value) if cfg.useSession else None
 

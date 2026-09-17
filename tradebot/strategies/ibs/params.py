@@ -413,37 +413,6 @@ PARAMS: dict[str, dict[str, Any]] = {
                 "(IMB entry model) alebo pin bar/engulfing pattern (Pin Bar/Engulfing entry "
                 "model).",
     ),
-    "showDashboard": dict(group="🎨 Vizualizacia", title="Zobraz dashboard panel",
-        tooltip="Zapne/vypne cely dashboard panel (statistiky + volitelne tabulka obchodov) na "
-                "grafe.",
-    ),
-    "dashPos": dict(group="🎨 Vizualizacia", title="Pozicia panelu",
-        tooltip="V ktorom rohu grafu sa dashboard panel zobrazi.",
-    ),
-    "dashboardRows": dict(group="🎨 Vizualizacia", title="Pocet statistickych dlazdic (Obchody, Seria, ...)",
-        tooltip="Kolko statistickych dlazdic (Obchody, Seria, Pozicia, Best win streak, Worst SL "
-                "streak, Risk/obchod) sa v paneli zobrazi, v tomto poradi.",
-    ),
-    "showTradeLog": dict(group="🎨 Vizualizacia", title="Zobraz tabulku obchodov v paneli (Entry/SL/TP)",
-        tooltip="Zapne/vypne tabulku poslednych obchodov (Entry/SL/TP/status) priamo v dashboard "
-                "paneli, pod statistickymi dlazdicami.",
-    ),
-    "tradeLogRows": dict(group="🎨 Vizualizacia", title="Pocet riadkov v tabulke obchodov (max 20)",
-        tooltip="Max. pocet riadkov (poslednych obchodov) zobrazenych v tabulke obchodov, ak je "
-                "zapnuta vyssie.",
-    ),
-    "showDebugTable": dict(group="🎨 Vizualizacia", title="Zobraz pokročilý diagnostický panel",
-        tooltip="Zapne/vypne dodatocnu diagnosticku tabulku s informaciami o orderoch cakajucich "
-                "na vyplnenie - na ladenie/kontrolu vnutorneho stavu, nie na bezne pouzivanie.",
-    ),
-    "debugTableRows": dict(group="🎨 Vizualizacia", title="Počet riadkov v diagnostickom paneli",
-        tooltip="Pocet riadkov zobrazenych v diagnostickom paneli, ak je zapnuty vyssie (vratane "
-                "riadkov AKTUALNY/POSLEDNY obchod).",
-    ),
-    "debugPos": dict(group="🎨 Vizualizacia", title="Pozícia diagnostického panelu",
-        tooltip="V ktorom rohu grafu sa diagnosticky panel zobrazi (nezavisle od pozicie "
-                "dashboardu vyssie).",
-    ),
     "imbLookback": dict(group="📦 SD Zony", title="Max barov dozadu pre IMB",
         tooltip="Kolko barov spatne (od aktualneho baru) sa hlada imbalance/gap pri IMB entry "
                 "modeli (pri prvotnom aj opakovanom hladani gapu). Vyssia hodnota = najde aj "
@@ -492,20 +461,6 @@ PARAMS: dict[str, dict[str, Any]] = {
         tooltip="Po umiestneni orderu caka strategia max tolkoto barov na jeho vyplnenie (fill) - "
                 "ak sa nevyplni vcas, order sa zrusi a zona sa zneplatni. Plati pre vsetky tri "
                 "entry modely (IMB/Pin Bar/Engulfing) rovnako.",
-    ),
-    "alertOnState2": dict(
-        group="🔧 Pokročilé (časovanie vstupu, SL)", title="Alert: cena opustila zónu (skorý signál)",
-        tooltip="Posle alert ked cena exituje zo SD zony na strane imbalance (IMB model, skora "
-                "faza procesu, este pred potvrdenim).",
-    ),
-    "alertOnState3": dict(
-        group="🔧 Pokročilé (časovanie vstupu, SL)", title="Alert: cena sa vrátila na vstupnú úroveň",
-        tooltip="Posle alert ked sa cena vrati na otvorenie imbalance sviecky (IMB model, "
-                "potvrdenie tesne pred umiestnenim orderu).",
-    ),
-    "alertOnState4": dict(
-        group="🔧 Pokročilé (časovanie vstupu, SL)", title="Alert: order umiestnený (E/SL/TP)",
-        tooltip="Posle alert ked strategia umiestni order s cenami Entry/SL/TP",
     ),
     "rrRatio": dict(group="🎯 Obchodovanie", title="Risk:Reward pomer", step=0.5,
         tooltip="Pomer Take Profit ku Stop Lossu - TP vzdialenost = SL vzdialenost x tento pomer. "

@@ -18,6 +18,7 @@ from tradebot.core.drawing import Palette as PAL
 from tradebot.core.engine import EngineOutput
 from tradebot.core.history import BarHistory
 from tradebot.core.orders import MarketContext
+from tradebot.core.warmup import Warmup
 
 from .config import IBSConfig
 from .htf import HTFWindow
@@ -70,17 +71,32 @@ class IBSEngine:
         self.direction_gate = DirectionGate(cfg, chart_tf_minutes)
         self.machine.direction_gate = self.direction_gate
         lookback = max(cfg.imbLookback, cfg.slLookback, cfg.volSmaLen, cfg.engSizeAvgLen) + 64
-        #: Koľko barov treba, kým sú signály platné (Freqtrade `startup_candle_count`).
-        self.required_history = max(lookback, self.direction_gate.required_chart_bars)
         self.history = BarHistory(
             maxlen=lookback,
             atr_len=cfg.atrLen,
         )
+        #: Z čoho sa skladá predhistória — každá položka vo vlastnom TF (`tradebot.core.warmup`).
+        self.warmup = self._warmup(lookback)
+        #: Koľko barov treba, kým sú signály platné (Freqtrade `startup_candle_count`).
+        self.required_history = self.warmup.chart_bars
 
         #: Pine `inTradeWindow[1]` — na detekciu konca seansy.
         self._was_in_trade_window = False
 
     # ------------------------------------------------------------------ #
+
+    def _warmup(self, lookback: int) -> Warmup:
+        """Predhistória grafu = okno histórie (ako vždy); smerové indikátory na vlastnom TF.
+
+        Stavová logika (dni S/R úrovní, životnosť zón, likvidita) sa do predhistórie grafu
+        nepočíta. Supertrend a ADX na svojom TF predhistóriu grafu nezväčšujú: dostanú
+        vlastné bary pred behom (`tradebot.core.warmup.seed_engine`). Detekčný TF zón tiež
+        nepotrebuje bary grafu: Freqtrade načíta informatívny TF so `startup_candle_count`
+        sviečkami **toho** TF.
+        """
+        w = Warmup(self.chart_tf_minutes)
+        w.add("okno historie", lookback)
+        return self.direction_gate.add_warmup(w)
 
     def _spawn_sr_zones(self, touched: list[int], bar: Bar, out: EngineOutput) -> None:
         """Pine `f_maybeSpawnSrZone` (riadok 911).

@@ -9,8 +9,12 @@ Parametre stratégie idú do Freqtradu cez dočasný JSON profil a premennú
 behu (pár, obdobie, poplatok, peňaženka, 1m detail) idú cez CLI prepínače.
 
 Cez `TRADEBOT_DRAW_OUT` si beh vypýta od stratégie aj kresby enginu (zóny, TP/SL boxy,
-štítky…) — po dobehnutí sa presunú do adresára behu ako `chart.json.gz` a detail
-behu z nich kreslí graf páru.
+štítky…) — po dobehnutí idú do lokálnej cache grafov (`runs/.charts/`, nie do gitu) a detail
+behu z nich kreslí graf páru. Keď cache nie je (beh z gitu od iného testera), graf sa
+prepočíta z uloženého configu (`tester.webapp.replay`).
+
+Bod mriežky, bunka matice, overenie víťaza hyperoptu a sused víťaza (`batches.KINDS`)
+do histórie nejdú: uloží sa len riadok výsledku do `sweeps/` a kresby sa ani nežiadajú.
 """
 
 from __future__ import annotations
@@ -43,6 +47,7 @@ from tradebot.core.types import INSTRUMENTS, TradeDirection
 from .. import engines
 from tradebot.strategies import get_spec
 from . import profiles
+from .batches import batch_tag
 from .store import RunStore, make_run_id
 
 #: Kde ležia sviečky ktorého inštrumentu, rieši `tester.engines` — jedno miesto pre
@@ -374,22 +379,41 @@ def build_command(python: str, profile_path: Path, settings: dict[str, Any]) -> 
     # Vzdy explicitne: bez `--datadir` si Freqtrade vezme `<userdir>/data/<burza>`, kde od
     # presunu dat lezia uz len stare kopie. Beh by potom ticho pocital z inych suborov,
     # nez ma zvysok Testera (a novy timeframe by tam vobec nenasiel).
-    cmd += ["--datadir", str(engines.data_dir(inst))]
+    cmd += ["--datadir", str(engines.data_dir(inst, settings.get("exchange")))]
     if settings.get("ai"):
         model = (settings["ai"].get("model") or engines.AI_DEFAULTS["model"])
         cmd += ["--freqaimodel", model]
     return cmd
 
 
-def write_profile(run_id: str, params: dict[str, Any], instrument: str, strategy: str = "ibs") -> Path:
-    """Dočasný profil pre `TRADEBOT_PROFILE`. Validácia configu tu spadne skôr než Freqtrade."""
+def effective_params(params: dict[str, Any], strategy: str = "ibs") -> dict[str, Any]:
+    """Celý config behu: poslané hodnoty doplnené defaultmi stratégie, overené a v tvare
+    `config.to_dict()` — presne to, s čím beh pobeží.
+
+    Formulár posiela len polia, ktoré ukazuje (inertné Pine vstupy nie), CLI celý profil
+    a stránka otvorená pred zmenou kódu nemusí nové polia poznať vôbec. Beh preto
+    neukladá, čo prišlo, ale výsledok: o rok neskôr, keď sa posunie default alebo pribudne
+    pole, sa z `run.json` dá beh zopakovať a uložiť ako úplný profil. Zrušené polia
+    (`RETIRED_FIELDS`) config preskočí, neznáme odmietne (`ConfigError`).
+    """
+    cfg = get_spec(strategy).config_cls.from_dict({k: v for k, v in params.items() if not k.startswith("_")})
+    return cfg.to_dict()
+
+
+def write_profile(run_id: str, params: dict[str, Any], instrument: str, strategy: str = "ibs",
+                  directory: Path | None = None) -> Path:
+    """Dočasný profil pre `TRADEBOT_PROFILE`. Validácia configu tu spadne skôr než Freqtrade.
+
+    `directory` inde než v `TMP_PROFILES` — prepočet grafu nesmie prepísať profil behu,
+    ktorý práve beží pod tým istým id."""
     cfg = get_spec(strategy).config_cls.from_dict({k: v for k, v in params.items() if not k.startswith("_")})
     data = cfg.to_dict()
     data["_strategy"] = strategy
     data["_instrument"] = instrument
     data["_comment"] = [f"docasny profil behu {run_id} (webapp) - negeneruj rucne"]
-    TMP_PROFILES.mkdir(parents=True, exist_ok=True)
-    path = TMP_PROFILES / f"{run_id}.json"
+    kam = Path(directory) if directory is not None else TMP_PROFILES
+    kam.mkdir(parents=True, exist_ok=True)
+    path = kam / f"{run_id}.json"
     with open(path, "w", encoding="utf-8", newline="\n") as fh:
         json.dump(data, fh, ensure_ascii=False, indent=2)
     return path
@@ -407,46 +431,22 @@ _TRADE_COLS = (
 
 
 def result_from_zip(zip_path: Path) -> tuple[dict[str, Any], list[dict[str, Any]], dict[str, Any]]:
-    """(súhrn, obchody, série pre graf) z výsledkového zipu Freqtradu."""
+    """(súhrn, obchody, série pre graf) z výsledkového zipu Freqtradu.
+
+    Obchody sa normalizujú na záznam spoločný s emulátorom MultiCharts: `amount` sú kusy
+    enginu (kontrakty, loty), nie základná mena Freqtradu (`kusy × contractSize`),
+    a `point_value` je výslovne v zázname. Peňažná časť súhrnu (gross, objem, break-even,
+    PnL, drawdown) sa počíta z nich jedinou definíciou `tradebot.core.money` — rovnako
+    ako v emulátore, takže ten istý obchod dá v oboch enginoch tie isté peniaze.
+    """
     import pandas as pd
+
+    from tradebot.core.money import point_value_for_pair, row_money, summary_money
 
     from ..report import load
 
     stats, trades, change = load(zip_path)
     start = float(stats["starting_balance"])
-
-    gross = volume = 0.0
-    if not trades.empty:
-        d = trades["is_short"].map({True: -1.0, False: 1.0})
-        gross = float(((trades["close_rate"] - trades["open_rate"]) * trades["amount"] * d).sum())
-        volume = float(((trades["open_rate"] + trades["close_rate"]) * trades["amount"]).sum())
-
-    exits = {}
-    if not trades.empty:
-        for reason, g in trades.groupby("exit_reason"):
-            exits[str(reason)] = {"n": int(len(g)), "pnl_abs": round(float(g["profit_abs"].sum()), 2)}
-
-    summary = {
-        "trades": int(stats["total_trades"]),
-        "wins": int(stats["wins"]), "losses": int(stats["losses"]), "draws": int(stats.get("draws", 0)),
-        "winrate": round(100.0 * stats["wins"] / stats["total_trades"], 2) if stats["total_trades"] else 0.0,
-        "pnl_abs": round(float(stats["profit_total_abs"]), 2),
-        "pnl_pct": round(float(stats["profit_total"]) * 100.0, 3),
-        "profit_factor": round(float(stats.get("profit_factor") or 0.0), 3),
-        "max_drawdown_abs": round(float(stats.get("max_drawdown_abs", 0.0)), 2),
-        "max_drawdown_pct": round(float(stats.get("max_drawdown_account", 0.0)) * 100.0, 3),
-        "starting_balance": start,
-        "final_balance": round(float(stats.get("final_balance", start)), 2),
-        "stake_currency": stats.get("stake_currency", "USDT"),
-        "gross_abs": round(gross, 2),
-        "volume_abs": round(volume, 2),
-        "break_even_pct": round(gross / volume * 100.0, 4) if volume else None,
-        "market_change_pct": round(float(stats.get("market_change", 0.0)) * 100.0, 3),
-        "backtest_start": stats.get("backtest_start"),
-        "backtest_end": stats.get("backtest_end"),
-        "holding_avg": str(stats.get("holding_avg", "")),
-        "exits": exits,
-    }
 
     rows: list[dict[str, Any]] = []
     if not trades.empty:
@@ -459,7 +459,31 @@ def result_from_zip(zip_path: Path) -> tuple[dict[str, Any], list[dict[str, Any]
             for k, v in list(row.items()):
                 if hasattr(v, "item"):
                     row[k] = v.item()
+            # Freqtrade drží množstvo v základnej mene; burza Tester má contractSize =
+            # hodnota bodu, takže kusy enginu sú množstvo / hodnota bodu a peniaze
+            # (cena × množstvo) ostanú presne tie, ktoré Freqtrade spočítal.
+            pv = point_value_for_pair(r.get("pair")) or 1.0
+            row["amount"] = float(row.get("amount") or 0.0) / pv
+            row["point_value"] = pv
+            m = row_money(row)
+            row["gross_abs"] = round(m.gross, 4)
+            row["fees_abs"] = round(m.fees, 4)
             rows.append(row)
+
+    money = summary_money(rows, start)
+    summary = {
+        "trades": int(stats["total_trades"]),
+        "wins": int(stats["wins"]), "losses": int(stats["losses"]), "draws": int(stats.get("draws", 0)),
+        "winrate": round(100.0 * stats["wins"] / stats["total_trades"], 2) if stats["total_trades"] else 0.0,
+        **{k: money[k] for k in ("pnl_abs", "pnl_pct", "profit_factor", "max_drawdown_abs",
+                                 "max_drawdown_pct", "starting_balance", "final_balance",
+                                 "gross_abs", "volume_abs", "break_even_pct", "exits")},
+        "stake_currency": stats.get("stake_currency", "USDT"),
+        "market_change_pct": round(float(stats.get("market_change", 0.0)) * 100.0, 3),
+        "backtest_start": stats.get("backtest_start"),
+        "backtest_end": stats.get("backtest_end"),
+        "holding_avg": str(stats.get("holding_avg", "")),
+    }
 
     series: dict[str, Any] = {"equity": [], "market": []}
     if not trades.empty:
@@ -474,6 +498,61 @@ def result_from_zip(zip_path: Path) -> tuple[dict[str, Any], list[dict[str, Any]
         series["market"] = [[pd.Timestamp(ts).isoformat(), round(float(v) * 100.0, 4)] for ts, v in bh.items()]
 
     return summary, rows, series
+
+
+def timerange_ms(timerange: str) -> tuple[int | None, int | None]:
+    """`YYYYMMDD-YYYYMMDD` → (od, do) v ms UTC; prázdna strana je `None`."""
+    start_s, _, end_s = (timerange or "").partition("-")
+    def ms(text: str) -> int | None:
+        if not text:
+            return None
+        return int(datetime.strptime(text, "%Y%m%d").replace(tzinfo=timezone.utc).timestamp() * 1000)
+    return ms(start_s), ms(end_s)
+
+
+def run_multicharts(params: dict[str, Any], settings: dict[str, Any], profile: Path, *,
+                    log: Callable[[str], None], should_stop: Callable[[], bool] = lambda: False,
+                    chart_out: Path | None = None):
+    """Beh cez emulátor MultiCharts — jeden kód pre backtest aj prepočet grafu.
+
+    Vracia `(súhrn, obchody, séria, hlavička kresieb | None)`, alebo `None`, keď sa beh
+    zrušil. Kresby sa zapíšu len s `chart_out` (bod mriežky ich nepotrebuje).
+    """
+    from tradebot.adapters.multicharts.emulator import emulate, rows_from_trades, summarize, write_chart
+    from tradebot.core import DrawRegistry
+
+    inst = INSTRUMENTS[instrument_for_pair(settings["pair"])]
+    cfg, _ = load_profile(profile, engine=engines.MULTICHARTS)
+    tf = settings.get("timeframe") or "3m"
+    from_ms, to_ms = timerange_ms(settings["timerange"])
+    data_path = engines.one_minute_file(inst)
+    log(f"$ emulator MultiCharts {inst.exchange_symbol} {tf} {settings['timerange']} ({data_path.name})")
+    if not data_path.exists():
+        raise FileNotFoundError(
+            f"chýbajú 1m dáta {data_path} — stiahni ich (download-data.sh) alebo naimportuj "
+            f"(`python -m tester.dukas_import <csv> --symbol {inst.exchange_symbol}`)")
+
+    import pandas as pd
+
+    m1 = pd.read_feather(data_path)
+    registry = DrawRegistry()
+    fee = float(settings.get("fee") or 0.0)
+    result, mc_runner = emulate(
+        cfg, inst, m1, tf_minutes(tf), from_ms=from_ms, to_ms=to_ms,
+        log=log, should_stop=should_stop,
+        registry=registry, fee=fee,  # zisk obchodu pre maxDailyWins
+    )
+    if should_stop():
+        return None
+    wallet = float(settings.get("wallet") or 10000)
+    leverage = float(params.get("leverage") or 1.0)
+    rows = rows_from_trades(result.trades, inst, fee, leverage)
+    summary, series = summarize(rows, wallet, result, currency=inst.quote_currency)
+    header = None
+    if chart_out is not None:
+        header = write_chart(mc_runner, registry, result, settings["pair"], tf, chart_out)
+        log(f"kresby: {header.get('counts')}")
+    return summary, rows, series, header
 
 
 # --------------------------------------------------------------------------- #
@@ -501,11 +580,11 @@ class BacktestRunner:
             self._thread.start()
 
     def submit(self, params: dict[str, Any], settings: dict[str, Any], note: str = "", user: str = "") -> Job:
-        # config sa validuje HNEĎ, aby tester dostal chybu do formulára a nie do logu behu
-        get_spec(settings.get("strategy") or "ibs").config_cls.from_dict(
-            {k: v for k, v in params.items() if not k.startswith("_")}
-        )
+        # config sa validuje HNEĎ, aby tester dostal chybu do formulára a nie do logu behu,
+        # a beh si zapíše celý efektívny config — nie len to, čo poslal formulár
+        params = effective_params(params, settings.get("strategy") or "ibs")
         check_market_rules(settings["pair"], params)
+        settings = {**settings, "instrument": instrument_for_pair(settings["pair"])}
         job = Job(id=make_run_id(params, settings), params=params, settings=settings, note=note, user=user)
         with self._lock:
             self.jobs[job.id] = job
@@ -575,8 +654,12 @@ class BacktestRunner:
         job.log_lines.append("$ " + " ".join(cmd))
 
         chart_tmp = TMP_PROFILES / f"{job.id}.chart.json.gz"
-        env = dict(os.environ, TRADEBOT_PROFILE=str(profile), TRADEBOT_DRAW_OUT=str(chart_tmp),
+        env = dict(os.environ, TRADEBOT_PROFILE=str(profile),
                    PYTHONIOENCODING="utf-8", PYTHONUTF8="1")
+        env.pop("TRADEBOT_DRAW_OUT", None)
+        # Bod mriežky kresby nepotrebuje — do histórie nejde a export stojí čas aj disk.
+        if batch_tag(job.settings) is None:
+            env["TRADEBOT_DRAW_OUT"] = str(chart_tmp)
         before = {p.name for p in RESULTS_DIR.glob("*.zip")} if RESULTS_DIR.exists() else set()
 
         job.proc = subprocess.Popen(
@@ -646,7 +729,7 @@ class BacktestRunner:
         cmd = ho.command(
             self.python, plan=plan_file,
             config=engines.stake_config(inst, settings.get("exchange")),
-            userdir=USER_DIR, datadir=engines.data_dir(inst),
+            userdir=USER_DIR, datadir=engines.data_dir(inst, settings.get("exchange")),
             strategy_class=get_spec(settings.get("strategy") or "ibs").freqtrade_class,
             pair=settings["pair"], timerange=settings["timerange"],
             timeframe=settings.get("timeframe") or "3m",
@@ -756,49 +839,21 @@ class BacktestRunner:
         Ten istý `MCRunner` ako študia v MultiCharts, 1m sviečky z `data/multicharts/`,
         výsledok v tvare Freqtrade behu — história webapp ich nerozlišuje.
         """
-        from tradebot.adapters.multicharts.emulator import emulate, rows_from_trades, summarize, write_chart
-        from tradebot.core import DrawRegistry
-
-        settings = job.settings
-        inst = INSTRUMENTS[instrument]
-        cfg, _ = load_profile(profile, engine=engines.MULTICHARTS)
-        tf = settings.get("timeframe") or "3m"
-        chart_tf = tf_minutes(tf)
-        start_s, _, end_s = settings["timerange"].partition("-")
-        from_ms = int(datetime.strptime(start_s, "%Y%m%d").replace(tzinfo=timezone.utc).timestamp() * 1000) if start_s else None
-        to_ms = int(datetime.strptime(end_s, "%Y%m%d").replace(tzinfo=timezone.utc).timestamp() * 1000) if end_s else None
-        data_path = engines.one_minute_file(inst)
-        job.log_lines.append(f"$ emulator MultiCharts {inst.exchange_symbol} {tf} {settings['timerange']} ({data_path.name})")
-        if not data_path.exists():
-            raise FileNotFoundError(
-                f"chýbajú 1m dáta {data_path} — stiahni ich (download-data.sh) alebo naimportuj "
-                f"(`python -m tester.dukas_import <csv> --symbol {inst.exchange_symbol}`)")
-
-        import pandas as pd
-
-        m1 = pd.read_feather(data_path)
-        registry = DrawRegistry()
-        result, mc_runner = emulate(
-            cfg, inst, m1, chart_tf, from_ms=from_ms, to_ms=to_ms,
+        chart_tmp = TMP_PROFILES / f"{job.id}.chart.json.gz"
+        out = run_multicharts(
+            job.params, job.settings, profile,
             log=lambda s: job.log_lines.append(s), should_stop=lambda: job.cancel_requested,
-            registry=registry,
-        )
+            chart_out=chart_tmp if batch_tag(job.settings) is None else None)
         duration = round(time.time() - t0, 1)
         job.finished = datetime.now(timezone.utc).isoformat(timespec="seconds")
-        if job.cancel_requested:
+        if out is None or job.cancel_requested:
             job.status = "failed"
             job.error = "zrušené používateľom"
             self._persist(job, None, duration)
+            chart_tmp.unlink(missing_ok=True)
             return
-        fee = float(settings.get("fee") or 0.0)
-        wallet = float(settings.get("wallet") or 10000)
-        leverage = float(job.params.get("leverage") or 1.0)
-        rows = rows_from_trades(result.trades, inst, fee, leverage)
-        summary, series = summarize(rows, wallet, result, currency=inst.quote_currency)
+        summary, rows, series, _ = out
         summary["duration_s"] = duration
-        chart_tmp = TMP_PROFILES / f"{job.id}.chart.json.gz"
-        header = write_chart(mc_runner, registry, result, settings["pair"], tf, chart_tmp)
-        job.log_lines.append(f"kresby: {header.get('counts')}")
         job.status = "done"
         self._persist(job, (summary, rows, series), duration, chart_path=chart_tmp)
 
@@ -825,6 +880,27 @@ class BacktestRunner:
             record["series"] = series
         elif duration is not None:
             record["result"] = {"duration_s": duration}
+        tag = batch_tag(job.settings)
+        if tag is not None:
+            # Bod celku: len riadok výsledku do `sweeps/`, do histórie nič.
+            if chart_path is not None:
+                Path(chart_path).unlink(missing_ok=True)
+            record.pop("series", None)
+            extra = {}
+            if tag[0] == "hyperopt_run" and trades:
+                from .. import plateau as pl
+
+                # Test okolia víťaza meria susedov intervalom víťaza z Monte Carla — a na to
+                # treba obchody, ktoré bod neukladá. Interval sa preto spočíta teraz.
+                lo, hi = pl.winner_ci(record, trades)
+                if lo is not None:
+                    extra["break_even_ci"] = {"lo": lo, "hi": hi, "trades": len(trades),
+                                              "iterations": pl.MC_ITERATIONS, "seed": pl.MC_SEED}
+            if job.status == "failed" and job.log_lines:
+                # Log bodu sa neukladá; pri chybe aspoň jeho koniec, inak nie je z čoho zistiť prečo.
+                extra["log_tail"] = [line[-300:] for line in job.log_lines[-15:]]
+            self.store.batches.add_point(record, extra)
+            return
         log = "\n".join(_trim_log(job.log_lines))
         self.store.save(record, trades, log, chart_path=chart_path)
 

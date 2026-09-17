@@ -36,10 +36,16 @@ PARAMS: dict[str, dict[str, Any]] = {
     "impulseMinBodyPct": dict(group=_DET, title="Impulz: min. podiel tela (%)",
         tooltip="Aká časť rozsahu impulznej sviečky musí byť telo. Odfiltruje sviečky s dlhými "
                 "knôtmi, ktoré vyzerajú veľko, ale rozhodnutie v nich nie je."),
-    "impulseMinMoveAtr": dict(group=_DET, title="Impulz: min. odchod od zóny (ATR)",
-        tooltip="O koľko musí cena od zóny odísť, aby sa formácia počítala."),
-    "impulseMaxBars": dict(group=_DET, title="Impulz: do koľkých barov",
-        tooltip="Do koľkých barov od bázy musí cena ten odchod stihnúť."),
+    "legOutMinAtr": dict(group=_DET, title="Odchod: min. vzdialenosť za bázou (ATR)",
+        tooltip="Ako ďaleko za hranu bázy (knôt po knôt) musí cena ZAVRIEŤ, aby sa formácia "
+                "počítala — meria sa záver, nie knôt, v ATR baru pred impulzom. Zóna vznikne až "
+                "na bare, ktorý to dokáže. 0 = nemeria sa, zóna vzniká hneď na impulznej sviečke "
+                "(default). Metodike bližšie je 1,5 — v 4 z 5 referenčných okien lepší break-even, "
+                "ale 2021-22 stratový."),
+    "legOutMaxBars": dict(group=_DET, title="Odchod: do koľkých barov",
+        tooltip="Za koľko barov od impulzu (vrátane neho) musí odchod dobehnúť. 1 = jedna "
+                "výbušná sviečka; viac = pohyb smie pokračovať ďalšími sviečkami. Pomalý odchod "
+                "znamená slabšiu nerovnováhu, preto sa nedobehnutý kandidát zahodí."),
     # ---- zóna --------------------------------------------------------- #
     "zoneMode": dict(group=_ZON, title="Šírka zóny",
         tooltip="pfz = úzka zóna len z tiel bázy (Preferred Fresh Zone) — lepšia cena, ale cena "

@@ -13,6 +13,18 @@ povedala „tieto páry a tieto timeframy poznám". Tou je Tester: ccxt trieda b
 zoznam trhov poskladá z `INSTRUMENTS` (tick, krok množstva, limity sedia s inštrumentom,
 takže sizing je ten istý ako v MultiCharts) a zoznam timeframov z `tester/timeframes.json`.
 
+### Hodnota bodu = `contractSize`
+Trh, ktorý nie je spot (perpetuály, CFD, futures, forex), je tu **lineárny swap**
+s `contractSize = InstrumentSpec.point_value`. Freqtrade potom drží množstvo v základnej
+mene (`kontrakty × contractSize`), krok a minimum množstva v kontraktoch, a zisk, stake,
+poplatky, drawdown aj páku počíta v mene účtu — 1 lot EURUSD je 100 000 EUR nominálu,
+nie 1,1 USD. Spot trh hodnotu bodu nepozná (Freqtrade tam `contractSize` ignoruje), preto
+je Freqtrade beh na spote s hodnotou bodu ≠ 1 zablokovaný (`engines.freqtrade_blocker`).
+
+Sviečky trhov mimo burzy (Dukascopy, Databento) ležia v `futures/` **bez** prípony
+`-futures` (tak ich číta aj emulátor). `register()` preto Freqtradu povie, aby pre tieto
+páry príponu nepridával (`_offexchange_filenames`) — dáta sú jedny, nekopírujú sa.
+
 ### Čo to NEROBÍ
 Nesťahuje, neobchoduje, nemá ceny. Je to len **popis trhu** pre backtest, hyperopt a FreqAI;
 v dry-run ani live sa nesmie použiť a odmietne to (`validate_demo_trading`). Poplatky si
@@ -56,7 +68,10 @@ def _market(inst: InstrumentSpec) -> dict[str, Any]:
     """Trh v tvare, aký čaká ccxt a Freqtrade — čísla z `InstrumentSpec`."""
     base, _, rest = inst.symbol.partition("/")
     quote, _, settle = rest.partition(":")
-    swap = bool(settle)
+    # Nie-spot trh je lineárny swap vyrovnaný v kótovacej mene: perpetuál aj CFD/futures/
+    # forex. Len tak Freqtrade vie shortovať, páčiť a použiť `contractSize` (hodnotu bodu).
+    swap = bool(settle) or not inst.is_spot
+    settle = settle or (quote if swap else "")
     return {
         "id": inst.symbol.replace("/", "").replace(":", ""),
         "lowercaseId": None,
@@ -81,7 +96,7 @@ def _market(inst: InstrumentSpec) -> dict[str, Any]:
         "subType": "linear" if swap else None,
         "taker": TAKER,
         "maker": MAKER,
-        "contractSize": 1.0 if swap else None,
+        "contractSize": float(inst.point_value) if swap else None,
         "expiry": None,
         "expiryDatetime": None,
         "strike": None,
@@ -246,6 +261,43 @@ def register() -> None:
 
     # Freqtrade hľadá triedu podľa mena burzy s veľkým začiatočným písmenom
     setattr(ft_exchange, TITLE, _freqtrade_class())
+    _offexchange_filenames()
+
+
+def _offexchange_pairs() -> frozenset[str]:
+    """Páry, ktorých sviečky sú mimo konvencie Freqtradu (bez prípony `-futures`)."""
+    from .engines import _is_off_exchange
+
+    return frozenset(inst.symbol for inst in INSTRUMENTS.values() if _is_off_exchange(inst))
+
+
+def _offexchange_filenames() -> None:
+    """Futures sviečky Dukascopy/Databento páru čítaj bez prípony `-futures`.
+
+    Freqtrade v režime futures hľadá `<datadir>/futures/<PÁR>-<TF>-futures.feather`, naše
+    trhy mimo burzy ležia v `futures/<PÁR>-<TF>.feather` (jeden strom pre oba enginy,
+    `engines.freqtrade_file`). Mení sa len meno súboru pre sviečky typu `futures` týchto
+    párov; krypto, `mark` a `funding_rate` ostávajú, ako ich Freqtrade pozná.
+    """
+    from freqtrade.data.history.datahandlers.idatahandler import IDataHandler
+    from freqtrade.enums import CandleType
+
+    povodna = IDataHandler.__dict__["_pair_data_filename"]
+    if getattr(povodna, "_tradebot", False):
+        return
+    mimo = _offexchange_pairs()
+    fn = povodna.__func__
+
+    def _pair_data_filename(cls, datadir, pair, timeframe, candle_type, no_timeframe_modify=False):
+        path = fn(cls, datadir, pair, timeframe, candle_type, no_timeframe_modify)
+        if pair in mimo and CandleType.from_string(str(candle_type)) == CandleType.FUTURES:
+            suffix = f"-{CandleType.FUTURES}"
+            if path.stem.endswith(suffix):
+                path = path.with_name(path.stem[: -len(suffix)] + path.suffix)
+        return path
+
+    _pair_data_filename._tradebot = True  # type: ignore[attr-defined]
+    IDataHandler._pair_data_filename = classmethod(_pair_data_filename)
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -108,6 +108,14 @@ def test_removed_inputs_are_really_gone(strat):
     assert not_in_pine == [], f"removed_inputs odkazuje na neexistujúce Pine vstupy: {not_in_pine}"
 
 
+def test_retired_pine_inputs_are_declared_removed(strat):
+    """Zrušené pole, ktoré Pine má (`RETIRED_FIELDS`), je vedome neportovaný vstup —
+    musí byť menovite v `removed_inputs`, nie len ticho chýbať."""
+    spec, pine = strat
+    undeclared = sorted((set(spec.config_cls.RETIRED_FIELDS) & set(pine)) - spec.removed_inputs)
+    assert undeclared == [], f"{spec.key}: zrušené Pine vstupy mimo removed_inputs: {undeclared}"
+
+
 def test_config_adds_only_documented_extras(strat):
     """Polia navyše sú povolené len tie, ktoré stratégia deklaruje v PORT_ONLY_FIELDS
     (IBS: `legacyPineSizing`, `atrLen`, `leverage`, `minSlDistance` — viď ARCHITECTURE_port.md)."""

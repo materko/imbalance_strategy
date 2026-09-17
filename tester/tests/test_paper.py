@@ -57,6 +57,10 @@ class FakeStore:
     def chart(self, run_id):
         return None
 
+    def tagged(self, kind, batch_id=None):
+        return [r for r in self._records if ((r.get("settings") or {}).get(kind) or {}).get("id")
+                and batch_id in (None, r["settings"][kind]["id"])]
+
 
 # --------------------------------------------------------------------------- #
 # drobnosti, na ktorých stojí čitateľnosť

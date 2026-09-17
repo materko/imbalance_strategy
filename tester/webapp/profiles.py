@@ -126,10 +126,29 @@ def config_values(params: dict[str, Any], strategy: str = LEGACY_STRATEGY) -> di
     a beh by sa už nedal zopakovať. Preto sa zapíše celý config, aj keď je súbor dlhší.
 
     Čo formulár neposiela (polia skryté ako neúčinné) sa doplní z defaultov — aj tak by
-    ich config doplnil, ale v súbore majú byť vidno.
+    ich config doplnil, ale v súbore majú byť vidno. Hodnoty idú cez config (`from_dict`
+    → `to_dict`), takže sú v tom istom tvare ako v behu a zrušené polia starého behu
+    (`RETIRED_FIELDS`) do nového profilu neprejdú.
     """
-    defaults = get_spec(strategy).config_cls().to_dict()
-    return {k: params.get(k, v) for k, v in defaults.items()}
+    cfg = get_spec(strategy).config_cls.from_dict({k: v for k, v in params.items() if not k.startswith("_")})
+    return cfg.to_dict()
+
+
+def missing_fields(name: "str | Path", strategy: str = LEGACY_STRATEGY) -> list[str]:
+    """Polia configu, ktoré **vlastný** profil v súbore nemá — typicky profil uložený
+    predtým, než pole v stratégii pribudlo. Formulár aj beh ich doplnia dnešným defaultom;
+    webapp to povie, aby sa nezdalo, že profil tú hodnotu určuje.
+
+    Profily repozitára a archívu sú zámerne len odchýlky od defaultov, pri nich je
+    zoznam vždy prázdny.
+    """
+    if not isinstance(name, str):
+        return []
+    path = all_paths(strategy).get(name)
+    if path is None or path.parent != _dir():
+        return []
+    data = _data_of(name, strategy)
+    return sorted(set(get_spec(strategy).config_cls().to_dict()) - set(data))
 
 
 #: Nastavenia behu, ktoré k profilu patria — bez nich by profil povedal „ako", ale
@@ -171,12 +190,11 @@ def save(name: str, params: dict[str, Any], instrument: str, *,
     name = check_name(name)
     if instrument not in INSTRUMENTS:
         raise ProfileError(f"neznámy nástroj {instrument!r}; známe: {sorted(INSTRUMENTS)}")
-    spec = get_spec(strategy)
-    spec.config_cls.from_dict({k: v for k, v in params.items() if not k.startswith("_")})  # ConfigError
+    values = config_values(params, strategy)  # ConfigError skôr, než sa niečo zapíše
     path = path_for(name)
     if path.exists() and not overwrite:
         raise FileExistsError(f"profil {name} už existuje")
-    data: dict[str, Any] = {"_strategy": strategy, "_instrument": instrument, **config_values(params, strategy)}
+    data: dict[str, Any] = {"_strategy": strategy, "_instrument": instrument, **values}
     for key in reversed(SETTING_KEYS):
         value = (settings or {}).get(key)
         if value is not None:

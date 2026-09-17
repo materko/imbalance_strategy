@@ -1,4 +1,4 @@
-"""`IBSConfig` — 111 zo 115 vstupov Pine stratégie ako jeden dataclass.
+"""`IBSConfig` — 99 zo 115 vstupov Pine stratégie ako jeden dataclass.
 
 Názvy polí sú **zámerne zhodné s Pine identifikátormi** (camelCase), nie snake_case.
 Dôvod: pri hľadaní odchýlky sa to isté meno grepne v `tradebot/strategies/ibs/docs/sources/imbalance_strategy_FULL.pine`
@@ -11,8 +11,14 @@ Nastavenia z grafu, ktoré sa líšia od Pine defaultov, sú v `docs/tv_settings
 **PickMyTrade sa neportuje** (rozhodnutie z 2026-09-04). Vypadlo teda päť Pine vstupov:
 `pmtToken`, `pmtAccountId`, `pmtStratName`, `pmtMarketOrderType` a `trailFreqPct`
 (ten bol podľa vlastného Pine tooltipu použiteľný LEN pre PickMyTrade — `strategy.exit`
-v TradingView pre neho nemá ekvivalent). Zoznam je aj v `tester/tests/test_pine_parity.py`,
-aby test parity vedel, že chýbajú zámerne.
+v TradingView pre neho nemá ekvivalent).
+
+**Alerty a tabuľky na graf TradingView sa neportujú** (rozhodnutie z 2026-09-17): ďalších
+jedenásť vstupov v `PINE_DISPLAY_INPUTS` nižšie. Staré profily a behy ich nesú, preto sú
+aj v `RETIRED_FIELDS`.
+
+Oba zoznamy sú v `REMOVED_INPUTS` (`meta.py`), aby test parity
+(`tester/tests/test_pine_parity.py`) vedel, že chýbajú zámerne.
 """
 
 from __future__ import annotations
@@ -29,7 +35,6 @@ from tradebot.core.types import (
     Direction,
     InstrumentSpec,
     OrderType,
-    PanelPos,
     SizeSpec,
     SizeUnit,
     SnapMode,
@@ -45,6 +50,8 @@ __all__ = [
     "timeframe_option_minutes",
     "SIZE_FIELDS",
     "PORT_ONLY_FIELDS",
+    "PINE_DISPLAY_INPUTS",
+    "RETIRED_FIELDS",
     "CONSTRAINTS",
     "CONFIG_DIR",
     "load_profile",
@@ -87,6 +94,27 @@ PORT_ONLY_FIELDS: frozenset[str] = frozenset({
     "ruleStDownAdxUp", "ruleStDownAdxSide", "ruleStDownAdxDown",
 })
 
+#: Zrušené polia (staré profily a behy ich nesú). `directionIndicator` bol pokusný výber
+#: jedného indikátora pred `indSupertrend`/`indAdx`; všetky uložené behy majú "Supertrend"
+#: = dnešný default.
+#: Pine vstupy len pre TradingView — alerty (`alertOnState*`) a tabuľky kreslené na graf
+#: (dashboard, tabuľka obchodov, diagnostický panel). Port ich nečíta: notifikácie rieši
+#: Freqtrade sám a obchody aj dôvody výstupu ukazuje webapp. Do 2026-09-17 boli v configu
+#: kvôli parite panela (skryté vo formulári); Pine ich má ďalej, preto sú aj v
+#: `REMOVED_INPUTS` (`meta.py`) medzi vedome neportovanými vstupmi.
+PINE_DISPLAY_INPUTS: frozenset[str] = frozenset({
+    "alertOnState2", "alertOnState3", "alertOnState4",
+    "showDashboard", "dashPos", "dashboardRows",
+    "showTradeLog", "tradeLogRows",
+    "showDebugTable", "debugTableRows", "debugPos",
+})
+
+RETIRED_FIELDS: dict[str, str] = {
+    "directionIndicator": "nahradené indSupertrend/indAdx (hodnota Supertrend = default)",
+    **{name: "Pine vstup len pre alerty/dashboard/debug, port ho nečíta"
+       for name in sorted(PINE_DISPLAY_INPUTS)},
+}
+
 #: Rozsahy prevzaté z `minval=`/`maxval=` v Pine. Platia pre pôvodnú jednotku;
 #: ak je pole prepnuté na `atr`/`pct`, kontroluje sa len nezápornosť.
 CONSTRAINTS: dict[str, tuple[float, float]] = {
@@ -119,9 +147,6 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "ewSwingLen": (2, 100),
     "ewMinWavePoints": (1, 1000),
     "ewProjExtendBars": (5, 300),
-    "dashboardRows": (1, 6),
-    "tradeLogRows": (5, 20),
-    "debugTableRows": (1, 8),
     "imbLookback": (1, 50),
     "imbMaxDistTicks": (0, 500),
     "minImbSizePoints": (1, 30),
@@ -235,8 +260,6 @@ ENUM_FIELDS: dict[str, type] = {
     "stSource": PriceSource,
     **{name: IndicatorAction for name in INDICATOR_RULES.values()},
     "pbEngOrderType": OrderType,
-    "dashPos": PanelPos,
-    "debugPos": PanelPos,
 }
 
 
@@ -252,6 +275,7 @@ class IBSConfig(StrategyConfig):
     ENUM_FIELDS: ClassVar[dict[str, type]] = ENUM_FIELDS
     CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = CONSTRAINTS
     PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS
+    RETIRED_FIELDS: ClassVar[dict[str, str]] = RETIRED_FIELDS
 
     # ---- 🎯 Obchodovanie: entry modely ----------------------------------- #
     enableImbEntry: bool = True
@@ -359,14 +383,6 @@ class IBSConfig(StrategyConfig):
 
     # ---- 🎨 Vizualizácia -------------------------------------------------- #
     showImbalance: bool = True
-    showDashboard: bool = True
-    dashPos: PanelPos = PanelPos.TOP_RIGHT
-    dashboardRows: int = 6
-    showTradeLog: bool = False
-    tradeLogRows: int = 20
-    showDebugTable: bool = False
-    debugTableRows: int = 8
-    debugPos: PanelPos = PanelPos.BOTTOM_RIGHT
 
     # ---- 🔧 Pokročilé (časovanie vstupu, SL) ----------------------------- #
     imbLookback: int = 20
@@ -378,9 +394,6 @@ class IBSConfig(StrategyConfig):
     state3MaxBars: int = 1
     state4MaxBars: int = 10  # POZN: Pine ho nikde nepoužíva ("Rezerva")
     state5MaxBars: int = 10
-    alertOnState2: bool = False
-    alertOnState3: bool = False
-    alertOnState4: bool = False
 
     # ---- 💰 Veľkosť pozície a riziko ------------------------------------- #
     rrRatio: float = 1.0

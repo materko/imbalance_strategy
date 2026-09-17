@@ -40,11 +40,15 @@ reports/
 tester/runs/.profiles/
 # Plany hyperopt priestoru: docasne, patria k behu a nesu ich jeho settings.
 tester/runs/.plans/
-# Vysledky behov: jeden beh ma ~1 MB (chart.json.gz + trades.json) a hladanie ich
-# vyrobi tisice - repozitar uz narastol na 11 GB a push takej davky GitHub odmieta.
-# Behy sa daju kedykolvek prehrat z profilu, takze do gitu nepatria plosne.
-# Co je naozaj podstatne (vitazne nastavenia), sa prida vynimkou: `git add -f`.
-tester/runs/
+# Historia behov (tester/runs/) a vysledky mriezok, matic a overeni hyperoptu
+# (tester/sweeps/) SU v gite - zdiela sa nimi praca testerov (`cli push`). Do gitu z nich
+# nejdu len kresby grafu: mali ~1 MB na beh, historia ich mala tisice, repozitar narastol
+# na 11 GB a GitHub push odmietol. Beh nesie cely config, takze graf sa prepocita, az ked
+# ho niekto otvori (tester.webapp.replay), a ostane v lokalnej cache .charts/.
+# Body mriezok a matic sa do runs/ neukladaju vobec (len riadok vysledku v sweeps/).
+# Nic ine sa tu ignorovat nesmie: Push by to ticho vynechal - preto ho gitsync zastavi.
+tester/runs/*/chart.json.gz
+tester/runs/.charts/
 .claude/
 
 # rola pre Claude Code v tomto klone (tester | developer) - kazdy klon ma vlastnu

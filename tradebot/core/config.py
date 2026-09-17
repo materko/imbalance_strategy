@@ -14,6 +14,7 @@ alebo cestou k súboru (napr. archív v `docs/profily_archiv/<stratégia>/`).
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import fields
 from enum import Enum
 from pathlib import Path
@@ -30,6 +31,8 @@ __all__ = [
     "list_profiles",
     "profile_path",
 ]
+
+_log = logging.getLogger(__name__)
 
 #: Koreň profilov; každá stratégia má vlastný podpriečinok.
 
@@ -55,6 +58,10 @@ class StrategyConfig:
     CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {}
     #: Polia, ktoré Pine nemá (rozšírenia portu).
     PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = frozenset()
+    #: Polia, ktoré stratégia kedysi mala a zrušili sa (nič ich nečítalo) — meno -> dôvod.
+    #: Starý profil alebo beh ich smie niesť: `from_dict` ich s varovaním preskočí, namiesto
+    #: toho, aby celý profil odmietol ako neznámy kľúč. Nové pole tohto mena už nesmie vzniknúť.
+    RETIRED_FIELDS: ClassVar[dict[str, str]] = {}
 
     # ------------------------------------------------------------------ #
     # Dotypovanie a validácia
@@ -129,6 +136,13 @@ class StrategyConfig:
         # `_title`/`_comment` a nastavenia behu vo vlastných profiloch testera
         # (`_timeframe`, `_timerange`, `_fee`, `_wallet`, `_detail`, `_base`).
         unknown = {k for k in set(data) - known if not k.startswith("_")}
+        retired = sorted(unknown & set(cls.RETIRED_FIELDS))
+        if retired:
+            # Zrušené pole v starom profile/behu: nič ho nečítalo, takže jeho vynechanie
+            # výsledok nezmení — preklep v mene poľa však ostáva chybou (nižšie).
+            _log.warning("%s: zrušené polia sa ignorujú: %s", cls.__name__,
+                         "; ".join(f"{k} ({cls.RETIRED_FIELDS[k]})" for k in retired))
+            unknown -= set(retired)
         if unknown:
             raise ConfigError(f"neznáme kľúče v configu: {sorted(unknown)}")
         return cls(**{k: v for k, v in data.items() if k in known})

@@ -6,7 +6,9 @@ data/tester/<zdroj>/<trh>/          pracovná podoba tých istých — gitignore
 data/quotemanager/<zdroj>/          ASCII exporty na import do QuoteManagera — gitignored
 deploy/freqtrade/                 čo potrebuje Freqtrade: configy búrz, skripty, user_data
 deploy/multicharts/               čo potrebuje MultiCharts: šablóny štúdií, setup
-tester/runs/, tester/profiles/   história behov a configy testerov — v gite
+tester/runs/, tester/profiles/   história behov a configy testerov — v gite (bez kresieb)
+tester/sweeps/                    výsledky mriežok, matíc a overení hyperoptu — v gite
+tester/runs/.charts/              kresby behov pre graf, prepočítané na vyžiadanie — gitignored
 ```
 
 Dáta sa delia podľa toho, **kto ich konzumuje** — nie podľa engine. `tester/` je sklad
@@ -41,6 +43,7 @@ __all__ = [
     "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS",
     "MULTICHARTS_DIR",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES", "ANALYTICS_DIR",
+    "SWEEPS_DIR", "CHART_CACHE",
     "DOCS_DIR", "MERANIA_DIR",
     "ARCHIVE_ROOTS",
 ]
@@ -87,6 +90,15 @@ TMP_PROFILES = RUNS_DIR / ".profiles"
 #: História analytiky. Vedľa behov, nie v nich: analytika nie je beh, je to pohľad na
 #: viac behov naraz — a rovnako ako behy sa zdieľa cez git (Push ju commituje).
 ANALYTICS_DIR = TESTER_DIR / "analytics"
+#: Výsledky hromadných behov — mriežka (sweep), matica trhov, overenie víťaza hyperoptu
+#: a jeho okolie. Jeden súbor na celok s tabuľkou bodov (parametre + metriky); jednotlivé
+#: body do `runs/` nejdú, lebo ich sú tisíce. Bod sa dá kedykoľvek prehrať ako obyčajný
+#: beh. Zdieľa sa cez git ako história behov.
+SWEEPS_DIR = TESTER_DIR / "sweeps"
+#: Kresby enginu pre graf páru (`<run_id>.json.gz`) a výsledok kontroly prehrania.
+#: Megabajty na beh a z uloženého configu sa dajú kedykoľvek prepočítať, takže do gitu
+#: nejdú — každý klon si ich počíta sám, až keď graf niekto otvorí.
+CHART_CACHE = RUNS_DIR / ".charts"
 
 # -- Dokumentácia ----------------------------------------------------------- #
 

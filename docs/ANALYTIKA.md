@@ -46,6 +46,8 @@ Tri veci, ktoré batéria robí sama a bez ktorých by čísla klamali:
   a ten musí byť z obdobia, v ktorom stratégia naozaj obchodovala.
 - **Skupiny obchodov dostanú aj stav trhu pri vstupe** (`tester.regime`: trend/rozsah,
   volatilita, poloha v rozsahu, s trendom) — batéria pozná pár a TF, takže sa počítajú.
+  Len z barov **uzavretých** do času vstupu a volatilita voči mediánu ATR za predošlý
+  týždeň, nie celej série — inak by „filter pri vstupe" videl budúcnosť.
 
 Nič z toho nie je nové — nové je, že to je **jedna vec s jedným výstupom**. Poradie nie je
 náhodné: každý ďalší krok má zmysel len vtedy, keď predošlý nespadol. Charakter zo 40
@@ -66,6 +68,13 @@ zmeranými číslami (`checkup.verdicts()`), nie skóre a nie model — a každ�
 0,0656 % je nad poplatkom 0,05 %" je tvrdenie, s ktorým sa dá pracovať, kým „skóre 7,4"
 nie je. Jedno číslo by navyše muselo tvrdiť, že drawdown, počet obchodov a odlíšiteľnosť
 od náhody sa dajú spočítať na jednu hromadu.
+
+Všetky peniaze v dokumente (break-even, PnL, drawdown, Monte Carlo, portfólio) sú v mene
+účtu a s hodnotou bodu inštrumentu — jedna definícia pre oba enginy,
+[`tradebot/core/money.py`](../tradebot/core/money.py) (vzorce v
+[DATA.md](DATA.md#peniaze-obchodu-a-hodnota-bodu)). Break-even je hrubý zisk / obojstranný
+nominál, takže na MNQ, zlate či forexe vychádza v tých istých jednotkách ako na krypte
+a súhrn okien sa s celkom nerozíde. Staršie behy prepočíta `cli recompute`.
 
 Čo sa **nedalo zmerať, sa nehodnotí**. Chýbajúca hodnota nie je ani plus, ani mínus —
 dokument nemá tvrdiť viac, než sa vie.
@@ -111,10 +120,10 @@ a sviečky páru sú spoločné. Štyri veci ale vie len stratégia a deklaruje 
 
 | chcem v analytike | treba v `SPEC` | bez toho |
 |---|---|---|
-| vzdialenosť stopu a plánovaný RR obchodu | `sl_kind`, `tp_kind` (druhy kresieb, ktoré nesú SL a TP box) | tie dve vlastnosti sa jednoducho nepočítajú |
+| vzdialenosť stopu a plánovaný RR obchodu | `sl_kind`, `tp_kind` (druhy kresieb, ktoré nesú SL a TP box); pri MultiCharts sa stop berie zo záznamu obchodu (`initial_stop_loss_abs`) a kresba dodá už len TP | tie dve vlastnosti sa jednoducho nepočítajú (MC: len RR) |
 | prepočet výsledku na iný účet a odporúčanie rizika | `risk_field` (pole s dolárovým rizikom), `fixed_size_field` | Monte Carlo obchody len premieša |
 | odkaz „preladiť tento parameter" | `hyperopt_cls.FEATURE_PARAMS` | analytika povie, čo kazí výsledok, ale nie čím sa to dá zmeniť |
-| spárovanie obchodu s kresbou | `enter_tag` v tvare `<prefix><čas baru v ms>` a kresba s tým istým `x1_ms` | plán obchodu sa k obchodu nepriradí |
+| spárovanie obchodu s kresbou | Freqtrade: `enter_tag` v tvare `<prefix>:<čas baru v ms>` a kresba s tým istým `x1_ms`; MultiCharts (tag je ID objednávky): SL box pred vstupom so stopom obchodu | plán obchodu sa k obchodu nepriradí; číslo za dvojbodkou menšie než čas v ms (index baru) sa za čas nepovažuje |
 
 Stratégia, ktorá nedeklaruje nič, sa zmerať dá tiež — dostane menej riadkov, nie chybu.
 Ale ukážková `demo_breakout` deklaruje všetko práve preto, aby bolo z čoho kopírovať.

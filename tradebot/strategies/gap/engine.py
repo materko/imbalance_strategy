@@ -26,6 +26,7 @@ from zoneinfo import ZoneInfo
 from tradebot.core.drawing import DrawBox, DrawCommand, DrawLabel, DrawLine, LabelStyle
 from tradebot.core.engine import EngineOutput
 from tradebot.core.history import BarHistory
+from tradebot.core.warmup import Warmup
 from tradebot.core.orders import MarketContext, OrderAction, OrderIntent
 from tradebot.core.risk import TradePlan, TrailingPlan
 from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
@@ -77,7 +78,9 @@ class GapEngine:
         self.step_ms = self.chart_tf_minutes * 60_000
         self._tz = ZoneInfo(cfg.sessionTZ)
 
-        self.required_history = int(cfg.atrLen) + 16
+        #: predhistória grafu: ATR (stav seansy sa do nej nepočíta — `tradebot.core.warmup`)
+        self.warmup = Warmup(self.chart_tf_minutes).add(f"ATR {cfg.atrLen}", int(cfg.atrLen) + 16)
+        self.required_history = self.warmup.chart_bars
         self.history = BarHistory(maxlen=self.required_history + 16, atr_len=int(cfg.atrLen))
 
         self.day = _Day()

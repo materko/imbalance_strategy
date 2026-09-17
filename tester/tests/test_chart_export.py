@@ -1,7 +1,8 @@
 """Graf páru vo webapp: export kresieb z behu, ich serializácia a API nad nimi.
 
 Reťazec je: engine kreslí → `EngineRunner.registry` drží finálny stav →
-`export_chart` zapíše `chart.json.gz` → webapp ho presunie k behu → stránka si
+`export_chart` zapíše `chart.json.gz` → webapp ho presunie do cache grafov (nie do
+adresára behu, ten ide do gitu) → stránka si
 pýta okno sviečok (`/api/candles`) a okno kresieb (`/api/runs/<id>/chart`).
 """
 
@@ -195,11 +196,14 @@ def _write_chart(path: Path, objects: list[dict]) -> Path:
     return path
 
 
-def test_store_moves_chart_file_into_run_dir(tmp_path: Path):
+def test_store_moves_chart_file_into_cache_not_run_dir(tmp_path: Path):
+    """Kresby do adresára behu nejdú — ten je v gite a megabajt na beh ho nafúkol na 11 GB."""
     store = RunStore(tmp_path / "runs")
     tmp = _write_chart(tmp_path / "tmp.chart.json.gz", [{"t": "box", "k": "sd_zone_post", "x1": 0, "x2": 10}])
     d = store.save(_record("20260905-120000-aaaaaa"), trades=[], log="", chart_path=tmp)
-    assert (d / CHART_FILE).exists() and not tmp.exists()
+    assert not (d / CHART_FILE).exists() and not tmp.exists()
+    assert (store.chart_cache / "20260905-120000-aaaaaa.json.gz").exists()
+    assert store.chart_check("20260905-120000-aaaaaa")["source"] == "run"
     assert store.has_chart("20260905-120000-aaaaaa")
     assert store.chart("20260905-120000-aaaaaa")["counts"] == {"sd_zone_post": 1}
     # chýbajúci súbor (staršia stratégia) nie je chyba
@@ -236,7 +240,9 @@ def test_chart_endpoint_filters_by_window(client):
     r = c.get("/api/runs/20260905-120000-aaaaaa/chart", params={"from": 400, "to": 600}).json()
     assert [o["k"] for o in r["objects"]] == ["skip"] and r["meta"]["counts"] == {"sd_zone_post": 2}
     assert len(c.get("/api/runs/20260905-120000-aaaaaa/chart").json()["objects"]) == 2
-    assert c.get("/api/runs/20260905-120001-bbbbbb/chart").status_code == 404
+    # beh bez kresieb: 409 so stavom (stránka si vypýta prepočet), neznámy beh 404
+    bez = c.get("/api/runs/20260905-120001-bbbbbb/chart")
+    assert bez.status_code == 409 and bez.json()["chart"]["state"] == "missing"
     assert c.get("/api/runs/20260905-120002-cccccc/chart").status_code == 404
 
 

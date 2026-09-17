@@ -25,6 +25,7 @@ from zoneinfo import ZoneInfo
 from tradebot.core.drawing import DrawBox, DrawCommand, DrawLabel, DrawLine, LabelStyle
 from tradebot.core.engine import EngineOutput
 from tradebot.core.history import BarHistory
+from tradebot.core.warmup import Warmup
 from tradebot.core.orders import MarketContext, OrderAction, OrderIntent
 from tradebot.core.risk import TradePlan, TrailingPlan
 from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
@@ -84,7 +85,10 @@ class ORBEngine:
         #: v ktorej seanse vznikla otvorená pozícia — jej koniec ju aj zatvorí
         self._open_session: str | None = None
 
-        self.required_history = int(cfg.atrLen) + int(cfg.volSmaLen) + 16
+        #: predhistória grafu: ATR a SMA objemu (seansa sa do nej nepočíta — `tradebot.core.warmup`)
+        self.warmup = Warmup(self.chart_tf_minutes).add(
+            f"ATR {cfg.atrLen} + SMA objemu {cfg.volSmaLen}", int(cfg.atrLen) + int(cfg.volSmaLen) + 16)
+        self.required_history = self.warmup.chart_bars
         self.history = BarHistory(maxlen=self.required_history + 16, atr_len=int(cfg.atrLen))
         self._pending: tuple[str, int] | None = None
 

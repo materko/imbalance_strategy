@@ -12,8 +12,10 @@
         "Na stahovanie dat a na kontrolu parity sluzia nadalej configy skutocnych burz",
         "(config.binance.json, config.binance.spot.json, config.coinbase.json).",
         "",
-        "Tento config: CFD a forex z Dukascopy (kotovane v USD). Bezia ako spot, teda",
-        "bez paky - referenciou pre ne je aj tak emulator MultiCharts."
+        "Tento config: CFD, forex a futures mimo burzy (Dukascopy, Databento; mena podla",
+        "kotovania doplni engines.stake_config). Bezia ako linearne swapy s contractSize =",
+        "hodnota bodu instrumentu, takze PnL, stake, poplatky aj paka su v mene uctu a shorty",
+        "su povolene. Sviecky bez pripony -futures cita tester.ftexchange."
     ],
     "max_open_trades": 1,
     "stake_currency": "USD",
@@ -23,7 +25,8 @@
     "dry_run": true,
     "dry_run_wallet": 10000,
     "cancel_open_orders_on_exit": true,
-    "trading_mode": "spot",
+    "trading_mode": "futures",
+    "margin_mode": "isolated",
     "timeframe": "3m",
     "unfilledtimeout": {
         "entry": 30,

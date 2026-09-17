@@ -223,7 +223,11 @@ def test_defaults_validate_and_required_history():
     cfg = DivergenceConfig()
     assert cfg.long_indicators >= {"macd", "rsi", "stoch"} and cfg.short_indicators == {"macd", "rsi"}
     engine = DivergenceEngine(cfg, INST, 15)
-    assert engine.required_history >= (cfg.zoneMaxBars + cfg.zonePrd2) * (cfg.htf2Minutes // 15)
+    # predhistória grafu = divergencie; vyššie TF majú vlastnú (seed) v baroch svojho TF
+    assert engine.required_history == cfg.maxBars + cfg.prd + 40
+    seeds = {n.tf_minutes: n.bars for n in engine.warmup.seeds}
+    assert set(seeds) == {cfg.htfMinutes, cfg.htf2Minutes}
+    assert seeds[cfg.htf2Minutes] >= cfg.zoneMaxBars + cfg.zonePrd2
 
 
 def test_config_odmietne_prazdnu_sadu_indikatorov_a_zly_zamok():

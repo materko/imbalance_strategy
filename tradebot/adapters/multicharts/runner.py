@@ -21,6 +21,7 @@ na TradingView stálo najviac času (viď docs/GOLDEN_binance_2026-08-24.md).
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 from ...core import Bar, DrawCommand, InstrumentSpec, MarketContext
@@ -108,6 +109,13 @@ class MCRunner:
         #: `TotalTrades` z MultiCharts na predchádzajúcom bare — z jeho nárastu pri
         #: nulovej pozícii sa pozná obchod otvorený aj zavretý vnútri jedného baru.
         self._closed_trades: int | None = None
+        #: Pine `dailyWinsCount` / `lastDayKey`: výhry v aktuálnom dni UTC (číslo dňa od epochy)
+        self._win_day: int | None = None
+        self._wins_today = 0
+        #: minulý bar poslal `close_session` pri otvorenej pozícii -> prvý uzavretý obchod,
+        #: ktorý príde, je SESSION_END. Pine ho do výhier nepočíta: zóna ide na -1 v tom
+        #: istom bare a vetva `dailyWinsCount += 1` (stav 5) ju už neuvidí.
+        self._session_close_sent = False
 
     # ------------------------------------------------------------------ #
     # HTF
@@ -133,7 +141,8 @@ class MCRunner:
     # hlavný krok
     # ------------------------------------------------------------------ #
 
-    def on_bar(self, bar: Bar, *, position_size: float = 0.0, closed_trades: int | None = None) -> BarOutput:
+    def on_bar(self, bar: Bar, *, position_size: float = 0.0, closed_trades: int | None = None,
+               closed_trade_pnls: Sequence[float] | None = None) -> BarOutput:
         """Spracuje jeden uzavretý bar grafu.
 
         `position_size` je `self.MarketPosition` zo študie: > 0 long, < 0 short.
@@ -141,10 +150,15 @@ class MCRunner:
         zo študie: keď narastie a pozícia je stále nula, order sa vyplnil AJ zavrel
         vnútri baru (market vstup a TP v tom istom bare) — bez toho by sa vyplnený
         order posielal ďalej a v Pine by takýto obchod bol jediný.
+
+        `closed_trade_pnls` je realizovaný zisk (po poplatkoch) obchodov uzavretých od
+        minulého volania, v poradí uzavretia — z nich sa počíta Pine `dailyWinLimitReached`
+        (`maxDailyWins`). `None` = adaptér to nevie, limit sa neuplatní (pôvodné správanie).
         """
         if self.last_ts is not None and bar.time <= self.last_ts:
             return BarOutput()  # MultiCharts vie zavolať CalcBar na tom istom bare
         self.last_ts = bar.time
+        daily_limit = self._daily_win_limit(bar, closed_trade_pnls)
 
         round_trip_id: str | None = None
         if (
@@ -177,6 +191,7 @@ class MCRunner:
         ctx = MarketContext(
             in_trade_window=True,
             position_size=position_size,
+            daily_win_limit_reached=daily_limit,
             open_order_ids=open_ids,
         )
         htf = self.htf.window_for(bar.time) if self.htf is not None else None
@@ -208,7 +223,29 @@ class MCRunner:
             self._open_extreme = None
             result.entries = list(self._live.values())
 
+        self._session_close_sent = out.close_session and position_size != 0.0
         return result
+
+    def _daily_win_limit(self, bar: Bar, closed_trade_pnls: Sequence[float] | None) -> bool:
+        """Pine `dailyWinLimitReached` pre tento bar; potom pripočíta výhry z tohto baru.
+
+        Rovnaká definícia ako vo Freqtrade runneri a v Pine: deň = UTC deň času baru
+        (`todayKey`), výhra = uzavretý obchod so ziskom > 0 (`strategy.closedtrades.profit`),
+        započíta sa v bare, v ktorom sa uzavretie zistí. Limit sa vyhodnotí PRED
+        pripočítaním — výhra z tohto baru blokuje vstupy až od ďalšieho baru.
+        """
+        day = bar.time // 86_400_000
+        if day != self._win_day:
+            self._win_day = day
+            self._wins_today = 0
+        max_wins = getattr(self.cfg, "maxDailyWins", None)
+        limit = max_wins is not None and self._wins_today >= max_wins
+        if closed_trade_pnls is not None:
+            pnls = list(closed_trade_pnls)
+            if self._session_close_sent and pnls:
+                pnls = pnls[1:]  # SESSION_END sa v Pine do výhier nepočíta
+            self._wins_today += sum(1 for p in pnls if p > 0)
+        return limit
 
     def _trailed_stop(self, bar: Bar) -> float | None:
         """SL na tento bar — posunutý trailingom, ak už je aktivovaný.

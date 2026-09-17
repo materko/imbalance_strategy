@@ -13,7 +13,7 @@ pravidlo, akým `dukas_import` zahadzuje vypchávku Dukascopy exportu.
 
 from __future__ import annotations
 
-__all__ = ["AGG", "WEEK_MINUTES", "resample_ohlcv", "timeframe_minutes"]
+__all__ = ["AGG", "WEEK_MINUTES", "resample_ohlcv", "timeframe_minutes", "timeframe_name"]
 
 #: Jednotky, v ktorých sa timeframe zapisuje. Jedno miesto pre celý repozitár —
 #: adaptéry aj nástroje inak parsovali len `…m` a na `4h` padali.
@@ -27,6 +27,20 @@ def timeframe_minutes(timeframe: str) -> int:
     if unit is None or not tf[:-1].isdigit():
         raise ValueError(f"neznamy timeframe: {timeframe!r}")
     return int(tf[:-1]) * unit
+
+
+def timeframe_name(minutes: int) -> str:
+    """240 → `4h`, 1440 → `1d`, 90 → `90m` — zápis, akým TF pomenúva ccxt/Freqtrade.
+
+    Berie sa najväčšia jednotka, ktorá minúty delí bez zvyšku (opak `timeframe_minutes`).
+    """
+    minutes = int(minutes)
+    if minutes <= 0:
+        raise ValueError(f"timeframe musi mat kladny pocet minut: {minutes!r}")
+    for unit, size in sorted(_UNIT_MINUTES.items(), key=lambda kv: -kv[1]):
+        if minutes % size == 0:
+            return f"{minutes // size}{unit}"
+    raise AssertionError("nedosiahnutelne - minuta deli vsetko")
 
 
 #: Ako sa agregujú stĺpce sviečky pri skladaní vyššieho TF.

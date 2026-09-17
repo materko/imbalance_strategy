@@ -46,7 +46,10 @@ def test_datadir_dopocita_freqtradeov_podadresar(data):
     """`futures/` si Freqtrade pridáva sám, pri spote nie — preto rôzny `--datadir`."""
     assert engines.data_dir(BTC) == data / "data/tester/binance"
     assert engines.data_dir(BTC_SPOT) == data / "data/tester/binance/spot"
-    assert engines.data_dir(NAS) == data / "data/tester/dukascopy/futures"
+    # CFD na burze Tester bezi ako swap (contractSize = hodnota bodu) -> futures/ doplni
+    # Freqtrade; cez nosnu spotovu burzu ostava priamo market_dir
+    assert engines.data_dir(NAS) == data / "data/tester/dukascopy"
+    assert engines.data_dir(NAS, "dukascopy") == data / "data/tester/dukascopy/futures"
     # nech je datadir akykolvek, subor musi vyjst pod market_dir
     for inst in (BTC, BTC_SPOT, NAS):
         assert engines.freqtrade_file(inst, "3m").parent == engines.market_dir(inst)

@@ -28,26 +28,9 @@ REPO = Path(__file__).resolve().parents[2]
 #: Spätná kompatibilita — metadáta IBS bez argumentu.
 REMOVED_INPUTS = IBS_SPEC.removed_inputs
 FEATURES = IBS_SPEC.features
+#: Pine vstupy, ktoré v configu ostali kvôli parite panela, ale v porte nerobia nič
+#: (`tradebot/strategies/ibs/meta.py`) — formulár ich neponúka, profil a beh ich nesú.
 INERT_INPUTS = IBS_SPEC.inert_inputs
-
-#: Pine vstupy, ktoré v configu ostali kvôli parite panela, ale v porte nerobia nič,
-#: takže vo formulári len zavadzajú. V `IBSConfig` ostávajú, aby profil sedel s TV
-#: panelom, a do uloženého profilu sa zapíšu s Pine defaultom.
-#:
-#: `alert*` posielali notifikáciu TradingView — vo Freqtrade notifikácie rieši sám
-#: Freqtrade (Telegram) v live režime, v backteste nemajú význam.
-#:
-#: `showDashboard`, `showTradeLog`, `showDebugTable` a ich pozície/počty riadkov kreslili
-#: tabuľky **na graf v TradingView**. Port ich nekreslí a ani nemá kam — históriu behov,
-#: zoznam obchodov aj dôvody výstupu ukazuje webapp vo vlastných tabuľkách. Kresliaci
-#: prepínač `showImbalance` medzi ne nepatrí: ten engine číta (`engine.py`) a rozhoduje,
-#: či sa do kresieb behu dostanú imbalance boxy.
-INERT_INPUTS = {
-    "alertOnState2", "alertOnState3", "alertOnState4",
-    "showDashboard", "dashPos", "dashboardRows",
-    "showTradeLog", "tradeLogRows",
-    "showDebugTable", "debugTableRows", "debugPos",
-}
 
 PORT_GROUP = "🧩 Rozšírenia portu (nie sú v Pine)"
 OTHER_GROUP = "⚙️ Ostatné"
@@ -69,7 +52,7 @@ class ParamMeta:
     #: v profile znamená práve ju (`abs`/`ticks`/`atr`/`pct`)
     base_unit: str | None = None
     inline: str | None = None
-    #: pole, ktoré Pine skript sám nepoužíva (napr. state4MaxBars) alebo je len vizuálne
+    #: poznámka k poľu (`param_notes` stratégie), napr. že je len vizuálne
     note: str = ""
     #: prepínače, z ktorých aspoň jeden musí byť zapnutý, aby malo pole zmysel (viď FEATURES)
     depends_on: list[str] | None = None

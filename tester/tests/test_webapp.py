@@ -28,7 +28,7 @@ from tester.webapp.store import RunStore, make_run_id, parse_query
 def test_metadata_covers_every_config_field_except_removed():
     names = {m["name"] for m in param_metadata()}
     expected = {f.name for f in fields(IBSConfig) if f.name not in REMOVED_INPUTS | INERT_INPUTS}
-    # alert* polia v configu ostávajú (parita s TV panelom), len sa neponúkajú
+    # inertné polia (state4MaxBars, Pine „Rezerva") v configu ostávajú, len sa neponúkajú
     assert INERT_INPUTS < {f.name for f in fields(IBSConfig)}
     assert names == expected
 
@@ -1379,3 +1379,92 @@ def test_analytics_prepare_planuje_aj_synteticke_dvojca(tmp_path: Path, monkeypa
     monkeypatch.setattr(syn_mod, "twin_for", lambda pair, registry=None: None)
     bez = c.post("/api/analytics/prepare", json={**body, "dry_run": True}).json()["synthetic"]
     assert bez["pair"] is None and "Spočítať" in bez["note"]
+
+
+# --------------------------------------------------------------------------- #
+# Beh a profil nesú celý efektívny config
+# --------------------------------------------------------------------------- #
+
+
+def test_beh_zapise_cely_efektivny_config_nie_len_poslane_polia(client, monkeypatch):
+    """Formulár posiela len polia, ktoré ukazuje (inertné Pine vstupy nie), a stránka
+    otvorená pred pridaním poľa ho nepozná vôbec. Beh si aj tak musí zapísať každé pole
+    configu — inak profil z neho o mesiac nevie, s čím beh naozaj bežal (Supertrend)."""
+    import tester.webapp.app as app_mod
+
+    monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
+    c, _ = client
+    ciastocne = {k: v for k, v in IBSConfig().to_dict().items()
+                 if not k.startswith(("st", "adx", "rule", "ind")) and k not in INERT_INPUTS}
+    ciastocne["rrRatio"] = 4
+    r = c.post("/api/runs", json={"params": ciastocne, "pair": "BTC/USDT:USDT",
+                                  "timerange": "20260801-20260901"})
+    assert r.status_code == 200, r.text
+    job = c.app.state.runner.job(r.json()["id"])
+    assert set(job.params) == set(IBSConfig().to_dict())
+    assert job.params["rrRatio"] == 4.0 and job.params["indSupertrend"] is True
+    assert job.params["stTimeframe"] == IBSConfig().to_dict()["stTimeframe"]
+    assert job.params["state4MaxBars"] == 10  # inertné pole, formulár ho neposlal
+    assert job.settings["instrument"] == "btcusdt_binance"
+
+
+def test_runner_effective_params_zrusene_pole_preskoci_preklep_odmietne():
+    from tradebot.core.config import ConfigError
+    from tradebot.strategies.sdzone.config import SDZoneConfig
+    from tester.webapp.runner import effective_params
+
+    stary = {**SDZoneConfig().to_dict(), "impulseMinMoveAtr": 1.5, "impulseMaxBars": 3, "rrRatio": 2}
+    plne = effective_params(stary, "sdzone")
+    assert set(plne) == set(SDZoneConfig().to_dict()) and plne["rrRatio"] == 2.0
+    with pytest.raises(ConfigError, match="neznáme kľúče"):
+        effective_params({"rrRatoi": 2}, "sdzone")
+
+
+def test_starsi_beh_bez_poli_detail_to_povie_a_export_je_uplny(client):
+    c, store = client
+    rec = _record("20260905-120000-bbbbbb", params={"rrRatio": 5.0})
+    rec["params"] = {k: v for k, v in rec["params"].items() if not k.startswith(("st", "adx", "rule", "ind"))}
+    store.save(rec)
+    det = c.get("/api/runs/20260905-120000-bbbbbb").json()["record"]
+    assert "indSupertrend" in det["missing_params"] and "rrRatio" not in det["missing_params"]
+    prof = c.get("/api/runs/20260905-120000-bbbbbb/profile.json").json()
+    assert {k for k in prof if not k.startswith("_")} == set(IBSConfig().to_dict())
+    assert prof["rrRatio"] == 5.0 and prof["indSupertrend"] is True and prof["_strategy"] == "ibs"
+
+    uplny = _record("20260905-120000-cccccc")
+    store.save(uplny)
+    assert c.get("/api/runs/20260905-120000-cccccc").json()["record"]["missing_params"] == []
+
+
+def test_profil_zo_stareho_behu_so_zrusenym_polom(client, own_profiles):
+    """Beh SD Zones spred zrušenia `impulseMinMoveAtr` sa dá uložiť ako profil — pole
+    v ňom už nebude, všetky ostatné áno."""
+    from tradebot.strategies.sdzone.config import SDZoneConfig
+
+    c, store = client
+    rec = _record("20260905-120000-dddddd")
+    rec["settings"] = {**rec["settings"], "strategy": "sdzone", "pair": "BTC/USDT:USDT", "timeframe": "15m"}
+    rec["params"] = {**SDZoneConfig().to_dict(), "impulseMinMoveAtr": 1.5, "impulseMaxBars": 3, "rrRatio": 2.5}
+    store.save(rec)
+    r = c.post("/api/profiles", json={"name": "sd_stary", "from_run": "20260905-120000-dddddd"})
+    assert r.status_code == 200, r.text
+    data = json.loads((own_profiles / "sd_stary.json").read_text(encoding="utf-8"))
+    assert {k for k in data if not k.startswith("_")} == set(SDZoneConfig().to_dict())
+    assert data["rrRatio"] == 2.5 and "impulseMinMoveAtr" not in data
+    got = c.get("/api/profiles/sd_stary", params={"strategy": "sdzone"}).json()
+    assert got["params"]["rrRatio"] == 2.5 and got["missing"] == []
+
+
+def test_vlastny_profil_bez_novych_poli_hlasi_co_chyba(client, own_profiles):
+    """Profil uložený pred pridaním Supertrendu ho nemá — formulár to musí povedať,
+    nie ticho doplniť default, akoby ho profil určoval."""
+    c, _ = client
+    own_profiles.mkdir(parents=True, exist_ok=True)
+    stary = {k: v for k, v in IBSConfig().to_dict().items() if not k.startswith(("st", "adx", "rule", "ind"))}
+    (own_profiles / "stary_pred_st.json").write_text(
+        json.dumps({"_strategy": "ibs", "_instrument": "btcusdt_binance", **stary}), encoding="utf-8")
+    got = c.get("/api/profiles/stary_pred_st").json()
+    assert "indSupertrend" in got["missing"] and "stTimeframe" in got["missing"]
+    assert got["params"]["indSupertrend"] is True  # beh dostane default
+    # profily repozitára sú zámerne len odchýlky - tam „chýba" nič
+    assert c.get("/api/profiles/golden_binance_btcusdt_3m").json()["missing"] == []

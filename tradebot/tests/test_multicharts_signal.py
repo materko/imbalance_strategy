@@ -336,6 +336,42 @@ def test_data2_krmi_uzavrety_5m_bar_s_casom_otvorenia(fake_dotnet, monkeypatch):
     assert len(fed) == 1 and fed[0].time == T0 and fed[0].close == 1.0  # offset [1] = uzavretý bar
 
 
+def test_data2_pri_grafe_vacsom_nez_htf_posle_vsetky_nove_uzavrete_bary_raz(fake_dotnet, monkeypatch):
+    """10m graf / 5m Data2: medzi dvoma CalcBar sa uzavrú dva 5m bary — oba, od najstaršieho."""
+    d2_bars = [closed(T0 + i * 5 * MIN, 5, c=float(i)) for i in range(4)]
+    d2 = FakeBars(5, d2_bars[:2])
+    chart = FakeBars(10, [closed(T0, 10)])
+    ctx = FakeCtx(chart, data2=d2)
+    s = make_signal(monkeypatch, ctx)
+    fed = []
+    monkeypatch.setattr(s.runner, "feed_htf", lambda bar: fed.append(bar.time))
+    monkeypatch.setattr(s.runner, "on_bar", lambda bar, position_size=0.0, **kw: BarOutput())
+    s.CalcBar()
+    assert fed == [T0]                         # [1]; [0] (práve uzavretý) nie
+    d2.set(d2_bars)
+    chart.set([closed(T0, 10), closed(T0 + 10 * MIN, 10)])
+    s.CalcBar()
+    assert fed == [T0, T0 + 5 * MIN, T0 + 10 * MIN]  # [2] a [1], bez opakovania T0
+    s.CalcBar()                                 # ten istý bar znova -> nič nové
+    assert fed == [T0, T0 + 5 * MIN, T0 + 10 * MIN] and s._stats["htf"] == 3
+
+
+def test_uzavrete_obchody_idu_do_runnera_so_ziskom(fake_dotnet, monkeypatch):
+    ctx = FakeCtx(FakeBars(3, [closed(T0, 3)]))
+    ctx.TotalTrades = 0
+    ctx.StrategyInfo.ClosedEquity = 0.0
+    s = make_signal(monkeypatch, ctx)
+    got = []
+    monkeypatch.setattr(s.runner, "on_bar", lambda bar, position_size=0.0, **kw: got.append(kw) or BarOutput())
+    s.CalcBar()
+    ctx.TotalTrades, ctx.StrategyInfo.ClosedEquity = 1, -4.0
+    s.CalcBar()
+    ctx.TotalTrades, ctx.StrategyInfo.ClosedEquity = 3, 6.0   # dva obchody v jednom bare: súčet +10
+    s.CalcBar()
+    assert [k["closed_trade_pnls"] for k in got] == [[], [-4.0], [0.0, 10.0]]
+    assert [k["closed_trades"] for k in got] == [0, 1, 3]
+
+
 def test_vstupy_idu_cez_pool_s_menom_pri_send_a_slot_drzi_kym_order_zije(fake_dotnet, monkeypatch):
     ctx = FakeCtx(FakeBars(3, [closed(T0, 3)]))
     s = make_signal(monkeypatch, ctx)

@@ -48,6 +48,7 @@ from typing import ClassVar
 from tradebot.core.env import getenv
 
 from ...core import Bar, load_profile
+from ...core.candles import timeframe_minutes
 from ...strategies import get_spec
 from .drawing import MCDrawSink
 from .runner import MCRunner
@@ -278,6 +279,8 @@ class TradebotSignal:
         self._warned: set[str] = set()
         self._log_path = Path(os.environ.get("TRADEBOT_MC_LOG") or DEFAULT_LOG)
         self._csv_feed = None
+        #: čas otvorenia posledného HTF baru z Data2, ktorý dostal runner
+        self._htf_last_ms: int | None = None
         self._last_position = 0.0
         #: na [trade] riadky: posledný TotalTrades, ClosedEquity, posledný poslaný vstup
         self._last_closed_trades: int | None = None
@@ -349,6 +352,7 @@ class TradebotSignal:
         self._slots.clear()
         self._stats = dict.fromkeys(self._stats, 0)
         self._last_position = 0.0
+        self._htf_last_ms = None
         self._last_closed_trades = None
         self._last_closed_equity = 0.0
         self._last_entry = None
@@ -357,6 +361,15 @@ class TradebotSignal:
         self._fpu_last_cw = None
         self._out(f"{spec.key}: profil {profile}, {inst.symbol}, graf {self.chart_tf}m, "
                   f"informativne TF {self._informative_tfs or '-'}, log {self._log_path}")
+        # Indikátory na vlastnom TF sa tu neseedujú: MultiCharts volá CalcBar na všetkých
+        # historických baroch grafu, takže sa rozbehnú na histórii, ktorú graf načíta.
+        # Kým nemajú svoje bary, brána hlási „SA ROZBIEHA" a neobchoduje sa.
+        warmup = getattr(self.runner.engine, "warmup", None)
+        if warmup is not None and warmup.seeds:
+            need = "; ".join(f"{n.name} @{n.tf_minutes}m: {n.bars} barov (~{n.bars * n.tf_minutes / 60:.0f} h obchodovania)"
+                             for n in warmup.seeds)
+            self._out(f"{spec.key}: indikatory s vlastnou predhistoriou sa rozbehnu na historii grafu - "
+                      f"{need}; nacitaj aspon tolko dat pred obdobim, ktore ta zaujima")
 
         self._csv_feed = None
         if self._informative_tfs and self._data2() is None:
@@ -364,7 +377,7 @@ class TradebotSignal:
             if csv_path and Path(csv_path).exists():
                 from .htf_csv import CsvHtfFeed
 
-                htf_minutes = int(str(self._informative_tfs[0]).rstrip("m"))
+                htf_minutes = timeframe_minutes(self._informative_tfs[0])
                 self._csv_feed = CsvHtfFeed(csv_path, htf_minutes)
                 self._out(f"{spec.key}: Data2 nie je dostupna, informativny TF sa sklada z CSV - {self._csv_feed.describe()}")
             else:
@@ -436,8 +449,9 @@ class TradebotSignal:
         if busy:
             self._trace("krok: runner.on_bar")
         closed_trades = self._closed_trades_count()
-        self._record_closed_trades(closed_trades, position)
-        out = self.runner.on_bar(bar, position_size=position, closed_trades=closed_trades)
+        closed_pnls = self._record_closed_trades(closed_trades, position)
+        out = self.runner.on_bar(bar, position_size=position, closed_trades=closed_trades,
+                                 closed_trade_pnls=closed_pnls)
         self._stats["bars"] += 1
         self._stats["drawings"] += len(out.drawings)
         self._stats["entries"] += len(out.entries)
@@ -467,18 +481,25 @@ class TradebotSignal:
     def OnBrokerStategyOrderFilled(self, is_buy, lots, price):
         self._trace(f"broker fill is_buy={is_buy} lots={lots} price={price}")
 
-    def _record_closed_trades(self, closed_trades: int | None, position: float) -> None:
+    def _record_closed_trades(self, closed_trades: int | None, position: float) -> list[float] | None:
         """Každý nárast `TotalTrades` = uzavretý obchod → riadok `[trade] …` do logu.
 
         Formát číta `tester.compare.mc_log_trades`. `intrabar=1` = obchod sa otvoril aj
         zavrel v jednom bare (pozícia na close nula), vstupná cena je vtedy z plánu jadra.
+
+        Vracia realizovaný zisk obchodov uzavretých od minulého baru (pre `maxDailyWins`
+        v runneri), alebo None, ak študia `TotalTrades` nedá. Zisk je prírastok
+        `ClosedEquity` (po komisiách, ako Pine `strategy.closedtrades.profit`). Keď sa
+        v jednom bare uzavrie viac obchodov, MultiCharts dá len súčet — celý pripadne
+        poslednému, ostatné majú 0 (rovnako ako v `[trade]` riadkoch).
         """
         if closed_trades is None:
-            return
+            return None
+        pnls: list[float] = []
         if self._last_closed_trades is None:
             self._last_closed_trades = closed_trades
             self._last_closed_equity = self._closed_equity()
-            return
+            return pnls
         if position != 0.0 and self._open_entry is None and self._last_entry is not None:
             oid, lots, entry = self._last_entry
             try:
@@ -494,12 +515,14 @@ class TradebotSignal:
             bar_txt = self._bar_iso()
             for k in range(self._last_closed_trades + 1, closed_trades + 1):
                 share = pnl if k == closed_trades else 0.0
+                pnls.append(share)
                 self._trace(f"[trade] n={k} bar={bar_txt} order={src[0]} lots={src[1]:g} entry={src[2]:.3f} "
                             f"pnl={share:.2f} intrabar={int(intrabar)}")
             self._last_closed_equity = equity
             self._last_closed_trades = closed_trades
         if position == 0.0:
             self._open_entry = None
+        return pnls
 
     def _closed_equity(self) -> float:
         try:
@@ -613,10 +636,12 @@ class TradebotSignal:
         return d2
 
     def _feed_htf(self):
-        """Data2 = informatívny TF stratégie. Berie sa až **uzavretý** bar, teda offset [1].
+        """Data2 = informatívny TF stratégie. Berú sa len **uzavreté** bary, od offsetu [1].
 
-        Bez Data2 sa kŕmi z CSV (`HTF_CSV`) všetkými barmi zavretými do zatvorenia
-        aktuálneho baru grafu.
+        Keď je graf väčší než Data2 (10m graf / 5m detekcia), medzi dvoma `CalcBar` sa
+        uzavrie viac HTF barov — pošlú sa všetky ešte nepodané, od najstaršieho, inak by
+        okno zóny nikdy nebolo celé. Bez Data2 sa kŕmi z CSV (`HTF_CSV`) všetkými barmi
+        zavretými do zatvorenia aktuálneho baru grafu.
         """
         if self._csv_feed is not None:
             close_ms = dotnet_ms(self.ctx.Bars.Time[0])
@@ -625,8 +650,15 @@ class TradebotSignal:
         d2 = self._data2()
         if d2 is None or int(d2.CurrentBar) < 2:
             return
-        self.runner.feed_htf(self._bar(d2, resolution_minutes(d2.Info), offset=1))
-        self._stats["htf"] += 1
+        htf_tf = resolution_minutes(d2.Info)
+        depth = min(int(d2.CurrentBar) - 1, -(-self.chart_tf // htf_tf) + 1)
+        for offset in range(depth, 0, -1):
+            hb = self._bar(d2, htf_tf, offset=offset)
+            if self._htf_last_ms is not None and hb.time <= self._htf_last_ms:
+                continue
+            self.runner.feed_htf(hb)
+            self._htf_last_ms = hb.time
+            self._stats["htf"] += 1
 
     # ------------------------------------------------------------------ #
     # ordre

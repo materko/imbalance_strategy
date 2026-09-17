@@ -1,9 +1,16 @@
-"""Git synchronizácia dát testera — len `runs/` a `profiles/`, nič iné.
+"""Git synchronizácia dát testera — `runs/`, `sweeps/`, `profiles/` a `analytics/`, nič iné.
 
-Tester klikne „Push": zmeny v histórii behov a vo vlastných profiloch sa commitnú,
-spraví sa `pull --rebase` a `push`. Kód ani iné súbory sa nedotýkajú, takže si tester
-nemôže omylom commitnúť rozpracovanú zmenu stratégie. Konflikt prakticky nevzniká
-(každý beh je nový adresár), ale keby predsa, výstup gitu sa zobrazí celý.
+Tester klikne „Push": zmeny v histórii behov, vo výsledkoch mriežok a matíc, vo vlastných
+profiloch a v uložených analytikách sa commitnú, spraví sa `pull --rebase` a `push`. Kód ani
+iné súbory sa nedotýkajú, takže si tester nemôže omylom commitnúť rozpracovanú zmenu
+stratégie. Konflikt prakticky nevzniká (každý beh aj každá mriežka je nový súbor), ale keby
+predsa, výstup gitu sa zobrazí celý.
+
+Do gitu z histórie nejdú len kresby grafu (`chart.json.gz`, cache `runs/.charts/`) a dočasné
+súbory rozbehnutých behov — to určuje `.gitignore` a nič iné. Keď git ignoruje v týchto
+adresároch ešte niečo ďalšie (pravidlo v `.gitignore` je prísnejšie, než má byť), Push sa
+**zastaví a povie to**: kedysi `tester/runs/` v `.gitignore` spôsobil, že Push behy ticho
+vynechal a tester si myslel, že ich zdieľa.
 
 Cieľom je vždy **`main`** (alebo to, čo je v `TRADEBOT_GIT_BRANCH`), nie vetva, na ktorej
 klon práve stojí: keď webapp bežala z vývojárskeho worktree, história skončila na
@@ -20,7 +27,7 @@ from pathlib import Path
 from typing import Any
 
 from tradebot.core.env import getenv
-from tradebot.core.paths import ANALYTICS_DIR, REPO
+from tradebot.core.paths import ANALYTICS_DIR, REPO, SWEEPS_DIR
 from .profiles import PROFILES_DIR
 from .store import RUNS_DIR
 
@@ -63,8 +70,34 @@ def _auth_failed(output: str) -> bool:
 
 def _paths() -> list[str]:
     """Adresáre, ktoré Push commituje — prázdny (neexistujúci) sa vynechá, git by naň nadával."""
-    dirs = [Path(RUNS_DIR), Path(PROFILES_DIR), Path(ANALYTICS_DIR)]
+    dirs = [Path(RUNS_DIR), Path(SWEEPS_DIR), Path(PROFILES_DIR), Path(ANALYTICS_DIR)]
     return [d.relative_to(REPO).as_posix() for d in dirs if d.exists()]
+
+
+#: Čo smie git v adresároch histórie ignorovať: kresby grafu (lokálna cache, prepočítajú sa)
+#: a dočasné súbory rozbehnutých behov. Všetko ostatné ignorované je chyba `.gitignore`.
+ALLOWED_IGNORED = ("/chart.json.gz", "/.charts/", "/.profiles/", "/.plans/", "/.sweeps/",
+                   "/__pycache__/", ".tmp")
+
+
+def ignored_history(paths: list[str] | None = None) -> list[str]:
+    """Súbory histórie, ktoré git ignoruje, hoci by mali ísť do gitu."""
+    paths = _paths() if paths is None else paths
+    if not paths:
+        return []
+    r = _git("ls-files", "--others", "--ignored", "--exclude-standard", "--", *paths)
+    if r.returncode != 0:
+        return []
+    return [f for f in r.stdout.splitlines()
+            if f.strip() and not any(a in "/" + f.replace("\\", "/") for a in ALLOWED_IGNORED)]
+
+
+def _ignored_note(files: list[str]) -> str:
+    ukazka = "\n  ".join(files[:10]) + ("\n  …" if len(files) > 10 else "")
+    return (f"Push zrušený: git ignoruje {len(files)} súborov histórie, ktoré majú ísť na GitHub "
+            f"(behy, mriežky, profily alebo analytiky). Bez opravy by ich Push ticho vynechal:\n  "
+            f"{ukazka}\nNájdi pravidlo príkazom `git check-ignore -v <súbor>` a oprav `.gitignore` "
+            "(ignorovať sa smú len kresby grafu `chart.json.gz` a cache `tester/runs/.charts/`).")
 
 
 def branch() -> str:
@@ -112,6 +145,7 @@ def status() -> dict[str, Any]:
     return {
         "branch": branch(),
         "target": br,
+        "ignored": ignored_history(paths),
         "uncommitted": len(changed),
         "changed": changed[:50],
         "ahead": ahead,
@@ -133,17 +167,41 @@ def _out(*procs: subprocess.CompletedProcess) -> str:
     return "\n".join(parts)
 
 
+def _plural(n: int, one: str, few: str, many: str) -> str:
+    return f"{n} {one if n == 1 else few if n < 5 else many}"
+
+
 def _message(changed: list[str]) -> str:
-    """Zhrnutie do commit správy: koľko behov a koľko profilov sa mení."""
-    rel_profiles = Path(PROFILES_DIR).relative_to(REPO).as_posix()
-    profiles = sum(1 for line in changed if rel_profiles in line.replace("\\", "/"))
-    runs = len(changed) - profiles
+    """Zhrnutie do commit správy: koľko behov, mriežok, profilov a analytík sa pridáva."""
+    rel = {name: Path(d).relative_to(REPO).as_posix() + "/" for name, d in (
+        ("runs", RUNS_DIR), ("sweeps", SWEEPS_DIR), ("profiles", PROFILES_DIR),
+        ("analytics", ANALYTICS_DIR))}
+    runs: set[str] = set()
+    counts = {"sweeps": 0, "profiles": 0, "analytics": 0}
+    deleted = 0
+    for line in changed:
+        code, path = line[:2], line[3:].strip().strip('"').replace("\\", "/")
+        if "D" in code:
+            deleted += 1
+            continue
+        if path.startswith(rel["runs"]):
+            runs.add(path[len(rel["runs"]):].split("/")[0])
+        for name in counts:
+            if path.startswith(rel[name]):
+                counts[name] += 1
     parts = []
     if runs:
-        parts.append(f"{runs} {'beh' if runs == 1 else 'behy' if runs < 5 else 'behov'} backtestu")
-    if profiles:
-        parts.append(f"{profiles} {'profil' if profiles == 1 else 'profily' if profiles < 5 else 'profilov'}")
-    return "Pridaj " + " a ".join(parts) + " z webapp"
+        parts.append(_plural(len(runs), "beh", "behy", "behov") + " backtestu")
+    if counts["sweeps"]:
+        parts.append(_plural(counts["sweeps"], "výsledok", "výsledky", "výsledkov") + " hľadania")
+    if counts["profiles"]:
+        parts.append(_plural(counts["profiles"], "profil", "profily", "profilov"))
+    if counts["analytics"]:
+        parts.append(_plural(counts["analytics"], "analytiku", "analytiky", "analytík"))
+    text = ("Pridaj " + " a ".join(parts) + " z webapp") if parts else "Uprac históriu behov z webapp"
+    if deleted:
+        text += f" (odstránených súborov: {deleted})"
+    return text
 
 
 def pull() -> dict[str, Any]:
@@ -159,9 +217,15 @@ def push(message: str | None = None, author: str | None = None) -> dict[str, Any
     br = target()
     steps: list[subprocess.CompletedProcess] = []
     paths = _paths()
+    ignorovane = ignored_history(paths)
+    if ignorovane:
+        return {"ok": False, "output": _ignored_note(ignorovane), **status()}
     changed = _git("status", "--porcelain", "--", *paths).stdout.splitlines() if paths else []
     if changed:
-        steps.append(_git("add", "--", *paths))
+        a = _git("add", "-A", "--", *paths)
+        steps.append(a)
+        if a.returncode != 0:
+            return {"ok": False, "output": _out(*steps), **status()}
         msg = message or _message(changed)
         args = ["commit", "-m", msg, "--", *paths]
         if author:
@@ -170,6 +234,12 @@ def push(message: str | None = None, author: str | None = None) -> dict[str, Any
         steps.append(c)
         if c.returncode != 0:
             return {"ok": False, "output": _out(*steps), **status()}
+        # Čo ostalo necommitnuté, by Push ticho nechal doma — to sa hlási, nie prehltne.
+        ostalo = _git("status", "--porcelain", "--", *paths).stdout.splitlines()
+        if ostalo:
+            note = (f"Push zrušený: po commite ostalo necommitnutých {len(ostalo)} zmien v histórii:\n  "
+                    + "\n  ".join(ostalo[:10]))
+            return {"ok": False, "output": _out(*steps) + chr(10) + note, **status()}
     p = _git("pull", "--rebase", "--autostash", "origin", br)
     steps.append(p)
     if p.returncode != 0:

@@ -25,8 +25,21 @@ PY -m tester.webapp.cli run --exchange binance …   # ta ista strategia cez sku
 ```
 
 Configy: `config.tester.json` (perpetuály v USDT — páka a shorty), `config.tester.spot.json`
-(spot v USDT) a `config.tester.cfd.json` (CFD kótované v USD). Vyberá ich
+(spot v USDT) a `config.tester.cfd.json` (CFD, forex a futures mimo burzy — tiež futures
+režim s pákou a shortmi; menu doplní `engines.stake_config` podľa kótovania). Vyberá ich
 [`tester/engines.py`](../tester/engines.py) podľa trhu.
+
+**Hodnota bodu je `contractSize`.** Každý nie-spot trh je na burze Tester lineárny swap
+s `contractSize = InstrumentSpec.point_value` (MNQ 2, zlato 100, forex 100 000). Freqtrade
+potom drží množstvo v základnej mene (`kusy × contractSize`), krok a minimum množstva
+v kontraktoch a zisk, stake, poplatky, drawdown aj margin počíta v mene účtu.
+`custom_stake_amount` pýta `qty × cena × hodnota bodu / páka`, `result_from_zip` uloží
+kusy enginu a `point_value` — definícia peňazí je jedna s emulátorom
+([DATA.md — Peniaze obchodu](DATA.md#peniaze-obchodu-a-hodnota-bodu)). Beh s hodnotou bodu ≠ 1
+na spote alebo na skutočnej burze (vrátane nosnej `dukascopy`) `engines.freqtrade_blocker`
+odmietne pred štartom: tam `contractSize` nie je a výsledok by bol ×hodnota bodu mimo.
+Pozor pri porovnaní s emulátorom: Freqtrade margin stráži, takže pri malej peňaženke
+a veľkom nominále (1 lot EURUSD ≈ 110 000 USD) pozíciu oreže, emulátor nie.
 
 **Čo burza nemá:** poplatky (zadáva ich beh cez `--fee`), funding (nula), likvidáciu ani
 leverage tiery. V dry-run a live sa nesmie použiť — je to popis trhu pre backtest, hyperopt
@@ -250,6 +263,44 @@ docker compose -f docker/docker-compose.yml up -d --build freqtrade
 > YAML aj anchors sú overené, že sa správne parsujú a mergujú, ale prvý
 > `docker compose build` prosím spusti ty — ak niečo spadne, pošli mi výstup.
 
+### Predhistória v dry-run a live
+
+Backtest berie predhistóriu z disku; bot ju musí dostať od burzy. Robí to ten istý kód
+(`TradebotStrategyBase._seed_runner` → `tradebot.core.warmup.seed_engine`), líši sa len zdroj
+sviečok ([STRATEGIE.md §3](STRATEGIE.md#3-engine--celá-logika)):
+
+1. **Predhistória grafu.** `startup_candle_count` (min. 300) prevezme Freqtrade od stratégie
+   a pri štarte aj po reštarte stiahne aspoň `startup_candle_count + 1` sviečok TF behu —
+   keď je limit burzy (`ohlcv_candle_limit`, Binance 499, OKX 100) menší, urobí viac volaní
+   (najviac 5, inak odmietne štart). Runner je inkrementálny: prvé `populate_indicators`
+   prejde celý DataFrame, ďalšie len nové sviečky (`process_only_new_candles`). Vstup smie ísť
+   až z baru, pred ktorým runner spracoval `startup_candle_count` barov — skoršie signály
+   adaptér v dry/live vynuluje (backtest ich oreže Freqtrade sám). Freqtrade aj tak vstupuje
+   len z poslednej sviečky; poistka platí pre krátky DataFrame (nový pár) a prestavaný runner.
+2. **Indikátory na vlastnom TF** (IBS Supertrend/ADX, vyššie TF divergencie). Ich TF
+   (`1h`, `4h`, `1d` …) stratégia pridá do `informative_pairs()`, takže ich Freqtrade sťahuje
+   a obnovuje spolu s TF behu (toľko sviečok, koľko TF behu). Pri prvom `populate_indicators`
+   runner začne na prvom riadku zarovnanom na periódy všetkých TF indikátorov, za ktorým
+   ostane celá predhistória grafu — rozpracovaná perióda je vtedy prázdna a seeding vezme
+   len uzavreté bary TF indikátora **pred** prvým barom runnera (bez pohľadu dopredu). Ďalej
+   sa indikátor skladá z barov grafu presne ako v backteste; informatívne sviečky sa po
+   seedingu nečítajú.
+3. **Náhradná cesta.** TF, ktorý burza nepozná (3h, 45m …), sa do `informative_pairs` nedáva.
+   Keď DataProvider nedá `warmup_bars` uzavretých barov (TF mimo burzy, málo sviečok pre
+   limit), alebo sa štart zarovnať nedá (DataFrame len o málo dlhší než predhistória),
+   adaptér raz pri štarte runnera stiahne **sviečky TF behu** pred prvým barom cez
+   `Exchange.get_historic_ohlcv` (stránkuje po limite burzy sám) a na TF indikátora ich
+   poskladá `tradebot.core.candles` — ako backtest z disku. Burza bez histórie (Kraken) alebo
+   výpadok: indikátor sa rozbehne na grafe a kým nemá svoje bary, brána hlási „SA ROZBIEHA".
+4. **Reštart a výpadok.** Nová inštancia (reštart botu) postaví runner nanovo z DataFrame
+   od burzy; keď DataFrame nenadväzuje na posledný spracovaný bar („Time jump detected",
+   uspatý stroj), runner sa zahodí a postaví rovnako. Stav indikátora je potom ten, aký by
+   mal backtest s rovnakým prvým barom.
+
+Log pri štarte povie, odkiaľ sa seedovalo, napr. `indikatory seedovane pred behom
+(Supertrend 10 40, ADX/DMI 14/14 111) (Supertrend 10: 320 x 1h od burzy, …)`. Overené testom
+`tradebot/tests/test_freqtrade_live_warmup.py` (falošný DataProvider, bez siete).
+
 ---
 
 ## E. Konfiguračné profily
@@ -342,8 +393,11 @@ a všetky rieši `config.dukascopy.json` plus adaptér:
 | pár `NAS100/USD` na nej neexistuje | `StaticPairList` by ho vyhodil | `"allow_inactive": true` v pairliste |
 | chýba market info páru | pri vstupe do obchodu si Freqtrade pýta `exchange.markets[pair]` a bez neho padne na `Can't get market information for symbol …` | `TradebotStrategyBase.bot_start` ho doplní z `InstrumentSpec` (tick, krok množstva, min) — sú to presnejšie čísla, než keby sme ich požičali od cudzieho páru. Robí sa to len pre inštrument mimo burzy a len pre pár, ktorý na nosnej burze naozaj nie je. |
 
-`trading_mode` je **spot**: futures režim by chcel `funding_rate` a `mark` sviečky, ktoré CFD
-nemá, a IBS je aj tak long only. Peňaženka je zámerne 1 000 000 — profil má `legacyPineSizing`
+Tento starší postup cez nosnú burzu má `trading_mode` **spot** — bez shortov, páky
+a hodnoty bodu (symbol s hodnotou bodu ≠ 1 sa tadiaľto spustiť nedá). Predvolene preto
+Dukascopy symboly bežia cez burzu **Tester** ako swap s `contractSize` = hodnota bodu
+(`config.tester.cfd.json`): chýbajúce `funding_rate` a `mark` sviečky Freqtrade nahradí
+prázdnymi (funding 0) a sviečky bez prípony `-futures` mu sprístupní `tester.ftexchange`. Peňaženka je zámerne 1 000 000 — profil má `legacyPineSizing`
 (qty v jednotkách po 1 USD/bod), takže pri 10 000 by Freqtrade stake orezal a PnL by
 neznamenalo nič. **Poplatok zadaj vždy sám** (`--fee`): z nosnej burzy sa nemá odkiaľ vziať
 a syntetický market má nulu.

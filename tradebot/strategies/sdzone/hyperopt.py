@@ -19,6 +19,7 @@ class SDZoneHyperopt(StrategyHyperopt):
 
     SUGGESTED: ClassVar[dict[str, Suggestion]] = {
         "impulseMinBodyAtr": {"low": 0.4, "high": 2.0, "step": 0.2, "unit": "atr"},
+        "legOutMinAtr": {"low": 0.0, "high": 3.0, "step": 0.5, "unit": "atr"},
         "zoneMode": {"choices": ["pfz", "wfz"]},
         "rrRatio": {"low": 1.5, "high": 5.0, "step": 0.5},
         "entryDepthPct": {"low": 0, "high": 100},
@@ -45,6 +46,8 @@ class SDZoneHyperopt(StrategyHyperopt):
     WARN: ClassVar[dict[str, str]] = {
         "baseMaxBodyPct": "prah citlivosti, nie štruktúra obchodu — prefituje sa ľahko",
         "impulseMinBodyPct": "to isté; ladí sa spolu s impulseMinBodyAtr a jedno maskuje druhé",
+        "legOutMaxBars": "okno odchodu; ladí sa spolu s legOutMinAtr — dlhšie okno a vyšší prah "
+                         "dajú podobné zóny",
         "maxZones": "technický strop, nie signál",
         "maxTradesPerDay": "strop, nie signál — ladením sa z neho stane skrytý filter dní",
         "requireFresh": "vypnutie zmení myšlienku stratégie, nie jej nastavenie; meraj to zvlášť",

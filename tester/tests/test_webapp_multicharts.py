@@ -75,7 +75,7 @@ def test_beh_na_burze_multicharts_ide_cez_emulator_a_ulozi_sa(mc_data, tmp_path:
     monkeypatch.setattr(runner_mod, "TMP_PROFILES", tmp_path / "profiles")
     calls = {}
 
-    def fake_emulate(cfg, inst, m1_df, chart_tf, *, from_ms=None, to_ms=None, log=None, should_stop=None, registry=None, spec=None):
+    def fake_emulate(cfg, inst, m1_df, chart_tf, *, from_ms=None, to_ms=None, log=None, should_stop=None, registry=None, spec=None, fee=0.0):
         calls.update(inst=inst.symbol, chart_tf=chart_tf, from_ms=from_ms, to_ms=to_ms, rows=len(m1_df))
         log("emulacia: test")
         t = EmuTrade("LONG_1", Direction.LONG, qty=2.0, entry=100.0, open_ms=T0 + 3 * MIN, stop_initial=99.0,

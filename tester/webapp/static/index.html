@@ -3,9 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>TradeBot Backtester</title>
 <link rel="stylesheet" href="/static/app.css">
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+<script>
+/* Téma sa nastaví ešte pred vykreslením stránky, aby nebliklo svetlé pozadie. */
+(function () {
+  try {
+    var pref = localStorage.getItem("tradebot.theme") || "auto";
+    var dark = pref === "dark" || (pref === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+  } catch (_) { /* ignoruj, zostane svetlá */ }
+})();
+</script>
 </head>
 <body>
 <header class="top">
@@ -21,6 +32,11 @@
     <span id="git-status" class="muted"></span>
     <button id="git-pull" class="ghost" title="git pull --rebase (stiahne behy ostatných)">⬇ Pull</button>
     <button id="git-push" class="ghost" title="commitne runs/ a pushne (len adresár s behmi)">⬆ Push</button>
+    <div class="theme-switch" id="theme-switch" role="group" title="Farebná téma">
+      <button type="button" data-theme="light">Svetlá</button>
+      <button type="button" data-theme="dark">Tmavá</button>
+      <button type="button" data-theme="auto">Podľa systému</button>
+    </div>
   </div>
 </header>
 

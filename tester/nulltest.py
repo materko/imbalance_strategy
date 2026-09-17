@@ -170,10 +170,13 @@ def plan_from_trades(trades: Sequence[dict[str, Any]], minutes: int) -> dict[str
             # Plán bez TP (výstup na štruktúru, trailing): náhoda nemá kde brať zisk
             # skôr než na stope alebo na čase. RR 1 by jej dala cieľ, ktorý stratégia
             # nemá, a referenčný bod by sa posunul. Bez plánu vôbec (stop len zo
-            # skutočného výstupu) ostáva neutrálna jednotka.
+            # skutočného výstupu) ostáva neutrálna jednotka — a tak isto, keď je stop
+            # len zo záznamu obchodu (`_plan_src == "record"`): tam TP nie je chýbajúci,
+            # ale neznámy (MultiCharts riadok ho nenesie).
             rr_plan = t.get("_rr_planned")
-            rr.append(float(rr_plan) if rr_plan
-                      else (math.inf if t.get("_sl_pct") is not None else 1.0))
+            bez_tp = (t.get("_sl_pct") is not None
+                      and "chart" in str(t.get("_plan_src") or "chart"))
+            rr.append(float(rr_plan) if rr_plan else (math.inf if bez_tp else 1.0))
     return {
         "count": len(trades),
         "sl_frac": np.array(sl or [0.005]),

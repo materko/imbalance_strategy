@@ -42,9 +42,10 @@ Dve zjednodušenia, ktoré treba poznať:
 - **Súbežné pozície sa nekrátia.** Keď majú dvaja členovia otvorené naraz, obaja sú
   sizovaní z vtedajšieho zostatku a margin sa nekontroluje. Skutočný účet by mohol naraziť
   na limit; toto je horná hranica toho, čo by šlo.
-- **Vzdialenosť stopu musí byť známa.** Berie sa z plánu obchodu (kresby SL/TP), inak zo
-  skutočného stopu. Obchod, pri ktorom sa nedá určiť, do prepočtu nevstúpi — a výpis
-  povie, koľko ich bolo.
+- **Vzdialenosť stopu musí byť známa.** Berie sa z plánu obchodu (`_sl_pct` z
+  `analytics.enrich`: záznam obchodu pri MultiCharts, kresby SL/TP pri Freqtrade), inak
+  zo stopu v zázname a nakoniec zo skutočného stratového výstupu. Obchod, pri ktorom sa
+  nedá určiť, do prepočtu nevstúpi — a výpis povie, koľko ich bolo.
 """
 
 from __future__ import annotations
@@ -52,6 +53,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Sequence
+
+from tradebot.core.money import row_money, row_point_value
 
 __all__ = [
     "RISKS", "DEFAULT_ACCOUNT", "Member", "members", "equity_curve", "risk_table",
@@ -106,6 +109,13 @@ def _sl_distance(t: dict[str, Any]) -> float | None:
     podiel = t.get("_sl_pct")
     if podiel:
         return float(podiel) / 100.0 * open_rate
+    # Neobohatený obchod: plán zo záznamu (MultiCharts nesie stop pri vstupe). Bez toho
+    # by sa ďalej dal odhadnúť len zo stratového výstupu a obchody na TP by vypadli.
+    from .analytics import plan_from_record
+
+    stop, _ciel = plan_from_record(t)
+    if stop is not None:
+        return abs(open_rate - stop) or None
     if t.get("exit_reason") == "stop_loss":
         vzdialenost = abs(float(t.get("close_rate") or 0) - open_rate)
         return vzdialenost or None
@@ -183,13 +193,11 @@ def equity_curve(trades: Sequence[dict[str, Any]], *, risk_pct: float,
             preskocene += 1
             continue
         riziko = zostatok * risk_pct / 100.0
-        mnozstvo = riziko / sl
-        smer = -1.0 if t.get("is_short") else 1.0
-        zisk = (float(t["close_rate"]) - float(t["open_rate"])) * mnozstvo * smer
-        # Poplatky behu: obchod ich uz zaplatil, tak sa prepocitaju na novu velkost.
-        objem = (float(t["open_rate"]) + float(t["close_rate"])) * mnozstvo
-        poplatok = float(t.get("fee_open") or 0) * objem / 2 + float(t.get("fee_close") or 0) * objem / 2
-        zostatok += zisk - poplatok
+        # Kusy tak, aby strata na stope bola `riziko` v mene účtu: vzdialenosť stopu je
+        # v cene, jeden bod stojí `point_value`. Poplatky behu sa prepočítajú na novú
+        # veľkosť. Peniaze obchodu počíta jediná definícia (tradebot.core.money).
+        pv = row_point_value(t)
+        zostatok += row_money({**t, "amount": riziko / (sl * pv)}, point_value=pv).net
         if zostatok <= 0:
             zostatok = 0.0
             ruina = True

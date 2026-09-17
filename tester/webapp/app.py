@@ -41,6 +41,8 @@ from .runner import (
     list_profiles, profile_info, profile_instruments, profile_titles, tf_minutes,
 )
 from .anstore import AnalyticsStore, fingerprint as an_fingerprint, summary as an_summary
+from .batches import strip_tag
+from .replay import ChartReplayer
 from .store import RunStore, strategy_of, summarize_for_list
 
 STATIC = Path(__file__).resolve().parent / "static"
@@ -240,6 +242,12 @@ class MatrixRequest(RunRequest):
     relative: bool = Field(True, description="prepočítať prahy z absolútnych bodov na atr")
 
 
+class ReplayRequest(BaseModel):
+    """Prehratie bodu mriežky ako obyčajného behu."""
+
+    user: str | None = Field(None, max_length=80)
+
+
 class GitPushRequest(BaseModel):
     author: str | None = Field(None, max_length=80)
     message: str | None = Field(None, max_length=200)
@@ -309,13 +317,17 @@ def _clean_user(name: str | None) -> str:
     return name[:80] if name else current_user()
 
 
-def create_app(store: RunStore | None = None, runner: BacktestRunner | None = None) -> FastAPI:
+def create_app(store: RunStore | None = None, runner: BacktestRunner | None = None,
+               replayer: ChartReplayer | None = None) -> FastAPI:
     store = store or RunStore()
     anstore = AnalyticsStore()
     runner = runner or BacktestRunner(store)
+    #: Prepočet grafov má vlastné vlákno — graf otvorený počas mriežky nečaká na frontu.
+    replayer = replayer or ChartReplayer(store)
     app = FastAPI(title="TradeBot backtest webapp", version="0.2")
     app.state.store = store
     app.state.runner = runner
+    app.state.replayer = replayer
     #: Pine defaulty každej stratégie — proti nim sa počítajú odchýlky behu.
     DEFAULTS = {key: spec.config_cls().to_dict() for key, spec in STRATEGIES.items()}
     #: Metadáta formulára stratégie. Parametre a defaulty sú kód (nemenia sa za behu),
@@ -462,6 +474,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(404, str(exc))
         setup = user_profiles.settings_of(name, strategy)
         return {"name": name, "strategy": strategy, "params": params, "instrument": instrument,
+                "missing": user_profiles.missing_fields(target, strategy),
                 "timeframe": setup.get("timeframe"), "settings": setup,
                 "base": user_profiles.base_of(name, strategy),
                 "kind": "user" if user_profiles.is_user(name, strategy) else "builtin"}
@@ -675,9 +688,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
     def sweeps_list(limit: int = 50, strategy: str | None = None):
         """Mriežky z histórie, od najnovšej; `strategy` obmedzí na jednu stratégiu.
 
-        Nikde sa neukladajú zvlášť — značka `settings.sweep` je v každom behu, takže
-        zoznam je len preskupená história. Vďaka tomu prežije reštart aj `git pull`
-        cudzích behov a nedá sa rozísť s tým, čo je naozaj odbehnuté.
+        Body sú v `sweeps/sweep-<id>.json` (do histórie behov nejdú), staré mriežky ešte
+        v histórii; `store.tagged` spojí oboje a fronta pridá body, ktoré len bežia.
+        Súbory sú v gite, takže zoznam prežije reštart aj `git pull` cudzích mriežok.
 
         Filter podľa stratégie nie je pohodlie: parametre sú v každej stratégii iné,
         takže mriežka cez `rrRatio` nemá v ponuke pre Donchian breakout čo robiť.
@@ -687,7 +700,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         from .. import sweep as sweep_mod
 
         skupiny: dict[str, dict[str, Any]] = {}
-        for rec in list(store.all()) + list(runner.snapshot()):
+        for rec in list(store.tagged("sweep")) + list(runner.snapshot()):
             tag = (rec.get("settings") or {}).get("sweep") or {}
             sweep_id = tag.get("id")
             if not sweep_id or (strategy is not None and strategy_of(rec) != strategy):
@@ -718,9 +731,9 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         """Stav a poradie mriežky — vidno ju od zaradenia, nie až od prvého výsledku."""
         from .. import sweep as sweep_mod
 
-        records = [r for r in store.all()
-                   if (r.get("settings", {}).get("sweep") or {}).get("id") == sweep_id]
         fronta = runner.snapshot()
+        zive = {j["id"] for j in fronta}
+        records = [r for r in store.tagged("sweep", sweep_id) if r["id"] not in zive]
         live = [j for j in fronta
                 if (j.get("settings", {}).get("sweep") or {}).get("id") == sweep_id]
         if not records and not live:
@@ -759,6 +772,8 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
                 "status": r.get("status"),
                 "ok": r["sweep_ok"],
                 "why": r["sweep_why"],
+                # bod bez behu v histórii sa otvára prehraním (`/api/points/<id>/replay`)
+                "in_history": "batch" not in r,
                 "result": {k: (r.get("result") or {}).get(k) for k in prazdny},
             } for r in ranked] + [{
                 "id": j["id"],
@@ -871,29 +886,23 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
 
     def _plateau_of(run_id: str, zadanie: dict[str, Any]) -> dict[str, Any] | None:
         """Vyhodnotenie okolia víťaza, keď už nejakí susedia bežali."""
-        from .. import montecarlo as mc, plateau as pl
+        from .. import plateau as pl
 
-        susedia = [r for r in store.all()
-                   if ((r.get("settings", {}).get("plateau") or {}).get("id")) == run_id]
         bezia = [j for j in runner.snapshot()
                  if ((j.get("settings", {}).get("plateau") or {}).get("id")) == run_id]
+        zive = {j["id"] for j in bezia}
+        susedia = [r for r in store.tagged("plateau", run_id) if r["id"] not in zive]
         if not susedia and not bezia:
             return None
-        ladene = [r for r in store.all()
-                  if ((r.get("settings", {}).get("hyperopt_run") or {}).get("id")) == run_id
-                  and (r["settings"].get("hyperopt_run") or {}).get("tuned")]
+        ladene = [r for r in store.tagged("hyperopt_run", run_id)
+                  if (r["settings"].get("hyperopt_run") or {}).get("tuned")]
         if not ladene:
             return {"pending": len(bezia), "rows": [], "verdict": ""}
         vitaz = ladene[0]
 
         # Interval vitaza z Monte Carla je meradlo, ktorym sa rozhoduje, ci sused "drzi".
-        interval = (None, None)
-        obchody = store.trades(vitaz["id"])
-        if len(obchody) >= mc.MIN_TRADES:
-            vysledok = mc.analyze(obchody, fee_pct=(vitaz["settings"].get("fee") or 0) * 100,
-                                  iterations=1500)
-            be = vysledok["break_even"]
-            interval = (be["lo"], be["hi"])
+        # Starý beh v histórii má obchody; bod v `sweeps/` nesie interval z uloženia.
+        interval = pl.winner_ci(vitaz, store.trades(vitaz["id"]) if "batch" not in vitaz else None)
         hodnotenie = pl.assess(vitaz, susedia, interval)
         return {**hodnotenie.to_dict(), "pending": len(bezia), "note": _plateau_note()}
 
@@ -915,7 +924,10 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         # Jeden tvar detailu pre webapp aj CLI (`tester.hyperopt.detail`); tu sa len
         # pridajú bežiace overovacie behy a okolie víťaza.
         epochs = store.extra(run_id, "epochs.json") or []
-        overenia = list(store.all()) + list(runner.snapshot())
+        fronta = [j for j in runner.snapshot()
+                  if ((j.get("settings") or {}).get("hyperopt_run") or {}).get("id") == run_id]
+        zive = {j["id"] for j in fronta}
+        overenia = [r for r in store.tagged("hyperopt_run", run_id) if r["id"] not in zive] + fronta
         try:
             log_text = store.log(run_id) or ""
         except OSError:
@@ -1736,9 +1748,8 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         if not vitaz_params:
             raise HTTPException(422, "hyperopt nemá víťaza (žiadna epocha nesplnila mantinely)")
 
-        ladene = [r for r in store.all()
-                  if ((r.get("settings", {}).get("hyperopt_run") or {}).get("id")) == run_id
-                  and (r["settings"].get("hyperopt_run") or {}).get("tuned")]
+        ladene = [r for r in store.tagged("hyperopt_run", run_id)
+                  if (r["settings"].get("hyperopt_run") or {}).get("tuned")]
         if not ladene:
             raise HTTPException(422, "beh víťaza na ladenom okne v histórii nie je "
                                      "(hyperopt bežal bez overenia?)")
@@ -1748,7 +1759,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         if not susedia:
             raise HTTPException(422, "víťaz nemá v rozsahu plánu žiadnych susedov")
 
-        base = {k: v for k, v in vitaz["settings"].items() if k != "hyperopt_run"}
+        base = strip_tag(vitaz["settings"])
         ids, preskocene = [], {}
         for sused in susedia:
             params = {**(vitaz.get("params") or {}), sused.param: sused.value}
@@ -1839,7 +1850,7 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         if strategy is not None and strategy not in STRATEGIES:
             raise HTTPException(404, f"neznáma stratégia {strategy!r}")
         skupiny: dict[str, dict[str, Any]] = {}
-        for rec in list(store.all()) + list(runner.snapshot()):
+        for rec in list(store.tagged("matrix")) + list(runner.snapshot()):
             tag = (rec.get("settings") or {}).get("matrix") or {}
             if not tag.get("id"):
                 continue
@@ -1869,10 +1880,10 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         """Tabuľka `trh × timeframe` a verdikt — aj kým sa dopočítava."""
         from .. import matrix as mx
 
-        zaznamy = [r for r in store.all()
-                   if ((r.get("settings", {}).get("matrix") or {}).get("id")) == matrix_id]
         live = [j for j in runner.snapshot()
                 if ((j.get("settings", {}).get("matrix") or {}).get("id")) == matrix_id]
+        zive = {j["id"] for j in live}
+        zaznamy = [r for r in store.tagged("matrix", matrix_id) if r["id"] not in zive]
         if not zaznamy and not live:
             raise HTTPException(404, "taká matica v histórii nie je")
 
@@ -1924,10 +1935,35 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             raise HTTPException(404, "z tejto mriežky už nič nebeží ani nečaká")
         return {"cancelled": sum(1 for i in ids if runner.cancel(i))}
 
+    @app.post("/api/points/{run_id}/replay")
+    def point_replay(run_id: str, req: ReplayRequest | None = None):
+        """Bod mriežky / bunku matice / overenie prehrá ako obyčajný beh — ten do histórie ide.
+
+        Bod nesie celý config, takže beh je ten istý; dostane nové id a poznámku, odkiaľ je.
+        """
+        rec = store.find(run_id)
+        if rec is None:
+            raise HTTPException(404, "taký bod ani beh nie je")
+        batch = rec.get("batch") or {}
+        settings = strip_tag(dict(rec.get("settings") or {}))
+        povod = f"{batch.get('kind')} {batch.get('id')}" if batch else f"beh {run_id}"
+        note = f"prehratý bod ({povod}): {rec.get('note') or ''}".strip()
+        try:
+            job = runner.submit(rec.get("params") or {}, settings, note=note[:500],
+                                user=_clean_user(req.user if req else None))
+        except (ConfigError, ValueError, KeyError) as exc:
+            raise HTTPException(422, f"bod sa prehrať nedá: {exc}")
+        return {**job.public(), "source": run_id}
+
     @app.get("/api/runs/{run_id}")
     def run(run_id: str):
         rec = store.get(run_id)
         if rec is None:
+            # Bod celku (mriežka, matica, overenie) — v histórii nie je, ale CLI naň čaká
+            # rovnako ako na beh, tak dostane jeho výsledok.
+            bod = store.batches.find(run_id)
+            if bod is not None:
+                return {"record": bod, "trades": [], "live": False, "batch": bod["batch"]}
             job = runner.job(run_id)
             if job is None:
                 raise HTTPException(404, "beh neexistuje")
@@ -1935,20 +1971,55 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         defaults = defaults_of(rec)
         rec["overrides"] = {k: v for k, v in rec.get("params", {}).items()
                             if not k.startswith("_") and defaults.get(k) != v}
-        rec["has_chart"] = store.has_chart(run_id)
+        # Starší beh (spred úplného záznamu configu, alebo spred pridania poľa) tieto
+        # polia nemá — profil z neho ich doplní dnešnými defaultmi a detail to povie.
+        rec["missing_params"] = sorted(set(defaults) - set(rec.get("params") or {}))
+        rec["chart"] = _chart_state(rec)
+        rec["has_chart"] = rec["chart"]["state"] == "ready"
         return {"record": rec, "trades": store.trades(run_id), "live": False}
+
+    def _chart_state(rec: dict[str, Any]) -> dict[str, Any]:
+        """Stav grafu behu: hotový (lokálne), počíta sa, zlyhal, chýba — alebo sa nedá."""
+        if rec.get("status") != "done" or ((rec.get("settings") or {}).get("hyperopt") or {}).get("knobs"):
+            return {"state": "unavailable"}
+        return replayer.status(rec["id"])
 
     @app.get("/api/runs/{run_id}/chart")
     def run_chart(run_id: str, start: int | None = Query(None, alias="from"),
                   end: int | None = Query(None, alias="to")):
-        """Kresby enginu z behu, orezané na okno `from`–`to` (ms epoch)."""
-        data = store.chart(run_id)
+        """Kresby enginu z behu, orezané na okno `from`–`to` (ms epoch).
+
+        Kresby nie sú v gite: keď lokálne nie sú, odpoveď je 409 so stavom a stránka si
+        vypýta prepočet (`POST .../chart`)."""
+        rec = store.get(run_id)
+        if rec is None:
+            raise HTTPException(404, "beh neexistuje")
+        data = store.drawings(run_id)
         if data is None:
-            if store.get(run_id) is None:
-                raise HTTPException(404, "beh neexistuje")
-            raise HTTPException(404, "beh nemá uložené kresby (spustený staršou verziou)")
+            return JSONResponse({"detail": "graf sa ešte nepočítal", "chart": _chart_state(rec)},
+                                status_code=409)
         objects = data["objects"] if start is None or end is None else chart_data.window(data, start, end)
-        return {"meta": chart_data.summary(data), "objects": objects}
+        stav = _chart_state(rec)
+        return {"meta": chart_data.summary(data), "objects": objects,
+                "warning": stav.get("warning"), "source": stav.get("source")}
+
+    @app.post("/api/runs/{run_id}/chart")
+    def run_chart_replay(run_id: str):
+        """Zaradí prepočet kresieb z uloženého configu (na pozadí) a vráti stav."""
+        rec = store.get(run_id)
+        if rec is None:
+            raise HTTPException(404, "beh neexistuje")
+        stav = _chart_state(rec)
+        if stav["state"] == "unavailable":
+            raise HTTPException(422, "tento beh graf nemá (nedobehol alebo je to hyperopt)")
+        return replayer.request(run_id)
+
+    @app.get("/api/runs/{run_id}/chart/status")
+    def run_chart_status(run_id: str):
+        rec = store.get(run_id)
+        if rec is None:
+            raise HTTPException(404, "beh neexistuje")
+        return _chart_state(rec)
 
     @app.get("/api/candles")
     def candles(pair: str, tf: str = "3m", start: int = Query(..., alias="from"),
@@ -2006,11 +2077,20 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
         rec = store.get(run_id)
         if rec is None:
             raise HTTPException(404, "beh neexistuje")
-        params = dict(rec["params"])
-        params["_comment"] = [f"profil z behu {run_id} ({rec.get('settings', {}).get('pair')}, "
-                              f"{rec.get('settings', {}).get('timerange')}) - export z webapp"]
-        params["_strategy"] = strategy_of(rec)
-        params["_instrument"] = instrument_for_pair(rec["settings"]["pair"])
+        strategy = strategy_of(rec)
+        try:
+            # celý config, nie len to, čo beh zapísal — starší beh doplnia defaulty
+            config = get_spec(strategy).config_cls.from_dict(
+                {k: v for k, v in (rec.get("params") or {}).items() if not k.startswith("_")}).to_dict()
+        except ConfigError as exc:
+            raise HTTPException(422, f"parametre behu už config neprijme: {exc}")
+        params = {
+            "_comment": [f"profil z behu {run_id} ({rec.get('settings', {}).get('pair')}, "
+                         f"{rec.get('settings', {}).get('timerange')}) - export z webapp"],
+            "_strategy": strategy,
+            "_instrument": instrument_for_pair(rec["settings"]["pair"]),
+            **config,
+        }
         return JSONResponse(params, headers={"Content-Disposition": f'attachment; filename="{run_id}.json"'})
 
     @app.delete("/api/runs/{run_id}")

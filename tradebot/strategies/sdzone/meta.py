@@ -15,6 +15,9 @@ PARAM_NOTES: dict[str, str] = {
                     "obchodovanie úrovní — dá viac obchodov, ale je to už iná myšlienka.",
     "impulseMinBodyAtr": "Hlavná páka na kvalitu zóny. Slabý odchod znamená, že tam objednávky "
                          "neboli a zóna je len čiara na grafe.",
+    "legOutMinAtr": "Odchod meraný ako na TradingView (Zone Forge, Sattam): záver, nie knôt, za "
+                    "hranou bázy o násobok ATR baru pred impulzom. Zóna vzniká až na bare, ktorý "
+                    "to dokončí — dovtedy sa z nej obchodovať nedá. 0 = správanie pred 2026-09-17.",
     "zoneMode": "pfz dáva lepšiu cenu a tesnejší stop, ale cenu častejšie minie; wfz sa vyplní "
                 "skoro vždy, zato s horším pomerom rizika. Ktoré je lepšie, povie meranie.",
     "rrRatio": "Stop ide za celú zónu, takže je široký. Pri RR pod 2 sa to obvykle nezaplatí.",

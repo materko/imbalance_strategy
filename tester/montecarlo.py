@@ -80,21 +80,21 @@ def per_trade(trades: list[dict[str, Any]]):
     """(hrubý zisk, obchodovaný objem) na obchod, v mene účtu.
 
     Hrubý zisk je z cien, nie z `profit_abs`, takže v ňom nie sú poplatky behu.
-    Objem je vstup + výstup, teda základ, z ktorého sa poplatok počíta — rovnaká
-    definícia ako v `tester.fees` a v súhrne behu.
+    Objem je vstup + výstup, teda základ, z ktorého sa poplatok počíta. Oboje s hodnotou
+    bodu záznamu (`point_value`) — definícia je jedna, `tradebot.core.money`, tá istá
+    ako v súhrne behu a v analytike. Bez nej by na MNQ (2 $ za bod) alebo forexe
+    (100 000) vyšiel break-even správne, ale doláre, drawdown a škálovanie rizika nie.
     """
     import numpy as np
+
+    from tradebot.core.money import row_money
 
     if not trades:
         raise ValueError("beh nemá obchody — nie je čo premiešavať")
 
-    direction = np.array([-1.0 if t.get("is_short") else 1.0 for t in trades])
-    open_rate = np.array([float(t["open_rate"]) for t in trades])
-    close_rate = np.array([float(t["close_rate"]) for t in trades])
-    amount = np.array([float(t["amount"]) for t in trades])
-
-    gross = (close_rate - open_rate) * amount * direction
-    volume = (open_rate + close_rate) * amount
+    money = [row_money(t, fee=0.0) for t in trades]
+    gross = np.array([m.gross for m in money])
+    volume = np.array([m.volume for m in money])
     return gross, volume
 
 

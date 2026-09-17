@@ -4,8 +4,9 @@ Lokálna stránka nad backtestom: tester si nastaví parametre stratégie,
 vyberie pár a obdobie, spustí beh a po dobehnutí vidí to isté, čo Strategy Tester
 v TradingView — štyri karty (Total PnL, Max drawdown, Profitable trades, Profit
 factor), graf výnosnosti (kumulatívny PnL, buy and hold, stĺpce za obchod) a zoznam
-obchodov. Každý beh sa uloží do gitu, takže história sa dá pushovať a pullovať
-medzi testermi a hľadať v nej podľa parametrov.
+obchodov. Každý beh sa uloží do gitu (výsledok, obchody a celý config — kresby grafu nie,
+tie sa prepočítajú, keď graf otvoríš), takže história sa dá pushovať a pullovať medzi
+testermi a hľadať v nej podľa parametrov.
 
 **Engine si vyberáš** — `Freqtrade` (backtest Freqtradu) alebo `MultiCharts (emulátor)`
 (ten istý runner, ktorý beží v štúdii, s brokerom podľa MultiCharts). Ponuka ukazuje len tie,
@@ -179,12 +180,13 @@ No trade. Zóna proti pravidlu order nepoloží a SKIP štítok povie prečo, na
 Na grafe behu sú vrstvy „Supertrend (smer)" a „ADX/DMI (smer)" (podfarbenie podľa stavu).
 Kód: `tradebot/strategies/ibs/ta/trend.py`, pravidlá `INDICATOR_RULES` v `config.py`,
 závislosti formulára `FEATURES` v `meta.py`. Na spote ostáva len „Long only".
-Pri IBS sa neponúkajú polia, ktoré v porte nerobia nič: `alert*` (v Pine notifikácie
+Pri IBS nie sú Pine vstupy, ktoré v porte nerobia nič: `alertOnState*` (v Pine notifikácie
 TradingView) a tabuľky kreslené na graf v TradingView — `showDashboard`, `showTradeLog`,
 `showDebugTable` s ich pozíciami a počtami riadkov; to isté ukazuje webapp vo vlastných
-tabuľkách. V `IBSConfig` ostávajú, aby profil sedel s TV panelom, a do uloženého profilu
-sa zapíšu s Pine defaultom. Kresliaci prepínač `showImbalance` ponuka má — ten rozhoduje,
-či sa do kresieb behu dostanú imbalance boxy.
+tabuľkách. Od 2026-09-17 nie sú ani v `IBSConfig` (`PINE_DISPLAY_INPUTS`), starý profil
+či beh s nimi sa načíta s varovaním (`RETIRED_FIELDS`). Skrytý ostal len `state4MaxBars`
+(Pine „Rezerva"). Kresliaci prepínač `showImbalance` ponuka má — ten rozhoduje, či sa do
+kresieb behu dostanú imbalance boxy.
 Panel vyzerá ako nastavenia v TradingView: vľavo zoznam skupín, vpravo všetky skupiny
 pod sebou v jednom dlhom zozname, ktorý skroluje vo vlastnom okne (stránka stojí) —
 klik na skupinu vľavo naň naskroluje a zvýraznenie sleduje, kde práve si. Jeden parameter na riadok; polia, ktoré Pine kreslí vedľa seba (hodina a minúta seansy,
@@ -222,9 +224,13 @@ seáns, sizing), chyba sa ukáže vo formulári a nič sa nespustí.
 ### Hľadať parameter (sweep)
 
 Rozbaľovacia sekcia pod formulárom. Vyberieš parameter a hodnoty — rozsah `od:do:krok`
-alebo zoznam `a,b,c` — a appka pustí mriežku behov: **každý bod je obyčajný backtest**,
-ide do tej istej fronty a do histórie, takže sa dá otvoriť, porovnať aj prehnať Monte
-Carlom. Parametrov môže byť viac — vznikne kartézsky súčin.
+alebo zoznam `a,b,c` — a appka pustí mriežku behov: **každý bod je obyčajný backtest**
+v tej istej fronte, ale **do histórie behov nejde** — uloží sa len jeho riadok výsledku
+(hodnoty, obchodov, PnL, WR, drawdown, break-even) s celým configom do
+`tester/sweeps/sweep-<id>.json`. Mriežky kedysi vyrobili tisíce behov s megabajtovými
+kresbami a repozitár narástol na 11 GB. Klik na riadok ponúkne **prehrať bod ako obyčajný
+beh** — ten už do histórie pribudne aj s obchodmi a grafom (z CLI `cli replay <id>`).
+Parametrov môže byť viac — vznikne kartézsky súčin.
 
 Cena mriežky je **čas, nie počet riadkov**: behy idú za sebou a rok s 1m detailom je asi
 30 sekúnd, takže tlačidlo hovorí aj odhad („20 behov ≈ 10 min"). **Strop na veľkosť nie
@@ -240,10 +246,10 @@ mriežku appka druhý raz nezaradí; keby sa nič nedialo, je to fronta, nie str
 mriežka** hore v sekcii vypíše mriežky **zvolenej stratégie** od najnovšej (dátum,
 parametre, pár, koľko z nich dobehlo) a výber otvorí presne tú tabuľku aj s poradím.
 Prepnutie stratégie prehodí celú sekciu: iné parametre v ponuke, iná história, iná
-naposledy otvorená mriežka — `rrRatio` nemá pri Donchian breakoute čo robiť. V detaile behu, ktorý z mriežky pochádza, je tlačidlo **↩ mriežka …** späť na
-celok. Nikde sa neukladajú zvlášť — značka je v každom behu, takže zoznam je len preskupená
-história: prežije reštart appky aj `git pull` cudzích behov a nemá sa ako rozísť s tým, čo
-je naozaj odbehnuté. Rozbehnutá mriežka je v ponuke tiež, takže sweep pustený cez noc sa
+naposledy otvorená mriežka — `rrRatio` nemá pri Donchian breakoute čo robiť. Mriežka je
+jeden súbor v `tester/sweeps/` a Push ho zdieľa ako históriu behov, takže prežije reštart
+appky aj `git pull` cudzích mriežok. Staré mriežky, ktorých body ešte ležia v `runs/`
+(pred `cli prune`), sa v ponuke ukážu rovnako. Rozbehnutá mriežka je v ponuke tiež, takže sweep pustený cez noc sa
 ráno otvorí tam, kde je (naposledy otvorenú si stránka pamätá aj sama).
 
 **Vybrať podľa** hovorí, čo je lepšie — bez toho sa „optimálne" nedá určiť: najvyšší
@@ -253,7 +259,8 @@ a **min. obchodov**; body, ktoré ich porušia, ostanú v tabuľke pod čiarou a
 nech je vidno, že optimum tam je, len je mimo dohodnutých hraníc.
 
 Výsledok sa dopĺňa priebežne, ako behy dobiehajú — tabuľka je zoradená podľa kritéria,
-najlepší riadok je zvýraznený a klik na riadok otvorí detail toho behu. Parametre, ktoré
+najlepší riadok je zvýraznený a klik na riadok ponúkne prehrať bod ako beh (starý bod,
+ktorý v histórii ešte je, sa otvorí rovno). Parametre, ktoré
 rozbijú paritu s TradingView (sizing, STATE timeouty), sú v ponuke označené ⚠ a sekcia na
 ne upozorní; zakázané nie sú.
 
@@ -348,23 +355,51 @@ rovnako ako denné limity strát. To isté z CLI: `python -m tester.montecarlo <
 ## Kde história žije a ako sa zdieľa
 
 ```
-tester/runs/<YYYYMMDD-HHMMSS-odtlačok>/
-    run.json        parametre, nastavenia (vrátane settings.strategy), výsledok (súhrn), séria pre graf
+tester/runs/<YYYYMMDD-HHMMSS-odtlačok>/      v gite
+    run.json        celý config behu, nastavenia (vrátane settings.strategy a settings.instrument), výsledok (súhrn), séria pre graf
     trades.json     obchody
+    plan.json       plánovaný SL/TP obchodov (výťah z kresieb pre analytiku)
     log.txt         skrátený log
-    chart.json.gz   kresby enginu pre graf páru (zóny, boxy, štítky…)
+tester/runs/.charts/<id>.json.gz               kresby enginu pre graf páru — lokálna cache, nie v gite
+tester/sweeps/<druh>-<id>.json                 v gite: body mriežky (sweep), matice (matrix),
+                                               overenia víťaza hyperoptu (hyperopt_run), okolia (plateau)
 ```
 
-Všetko okrem kresieb je čitateľný JSON, jeden adresár na beh, takže sa to mergeuje bez
-konfliktov. Kresby sú gzip: ročný beh má ~90 000 objektov (12 MB v JSON, 1,5 MB
-zbalené) a súbor sa po zápise už nemení, takže diff netreba. Sviečky sa k behu
-neukladajú — čítajú sa z pracovných `data/` platformy (v gite ako `data_archive/tester/`), takže graf
-funguje aj pre beh stiahnutý od iného testera. Behy z čias pred týmto súborom ukážu
-sviečky a obchody bez kresieb.
+**Kresby grafu v gite nie sú.** Ročný beh má ~90 000 objektov (1–1,5 MB zbalené) a história
+ich mala tisíce. Beh nesie celý config, takže sa kresby dajú kedykoľvek vyrobiť znova:
+keď v detaile behu graf lokálne nie je, stránka ho dá **prepočítať na pozadí** (pod grafom
+„Počíta sa graf…", sviečky a obchody sú vidieť hneď) a výsledok ostane v `runs/.charts/`.
+Prepočet ide mimo fronty backtestov a nič nezapisuje do `backtest_results/`:
+
+- beh emulátora MultiCharts sa prehrá celý a obchody sa porovnajú s `trades.json`;
+- pri Freqtrade stačí načítať dáta a spočítať indikátory presne ako backtest (kresby kreslí
+  engine nad sviečkami TF grafu, simulácia obchodov a 1m detail do nich nezasahujú); za
+  každým obchodom musí byť v prepočte signál z jeho `enter_tag`.
+
+Keď kontrola nesedí (starší beh bez úplného configu, zmenený kód stratégie alebo dáta),
+graf sa ukáže aj tak, **s varovaním pod ním**. Čerstvý beh si svoje kresby odloží do cache
+hneď; beh so starým `chart.json.gz` v adresári ho používa ďalej. Z CLI:
+`cli chart <id>` (prepočet do cache), `cli prune` (plán odpratania, `--apply` vykoná).
+
+`params` v `run.json` je **celý efektívny config** — profil + zmeny z formulára alebo
+`--set` + defaulty stratégie, overené configom, každé pole (aj Pine vstupy, ktoré
+formulár neukazuje). Nezáleží, čo poslal prehliadač alebo CLI: beh sa dá zopakovať aj
+po tom, čo sa posunie default alebo pribudne pole. Behy spred 2026-09-17 majú zapísané
+len to, čo poslal formulár; detail behu vtedy vypíše, ktoré polia chýbajú, a profil
+uložený z takého behu (aj „Stiahnuť profil") ich doplní dnešnými defaultmi.
+
+Všetko v gite je čitateľný JSON, jeden adresár na beh a jeden súbor na mriežku, takže sa to
+mergeuje bez konfliktov. Sviečky sa k behu neukladajú — čítajú sa z pracovných `data/`
+platformy (v gite ako `data_archive/tester/`), takže graf funguje aj pre beh stiahnutý od
+iného testera.
+
+`log.txt` ostáva v gite: je skrátený na ~400 riadkov (priemer ~12 kB, v gite zbalený na
+zlomok), nesie príkaz behu a varovania a čítajú ho diagnostiky (nula obchodov v hyperopte,
+syntetické dvojča). Body mriežok log nemajú — pri chybe nesú posledných 15 riadkov.
 
 Ako kresby vznikajú: stratégia dostane cez `TRADEBOT_DRAW_OUT` cestu, kam má po backteste
-vysypať finálny stav `DrawRegistry` (rovnaký mechanizmus ako `tester.plot`);
-webapp súbor po dobehnutí presunie do adresára behu.
+vysypať finálny stav `DrawRegistry` (rovnaký mechanizmus ako `tester.plot`); webapp z nich
+vyberie `plan.json` a súbor presunie do cache grafov. Bod mriežky kresby nežiada vôbec.
 
 Vlastné profily žijú vedľa histórie:
 
@@ -376,6 +411,12 @@ Na rozdiel od profilov repozitára (tie držia len odchýlky od Pine defaultov) 
 vlastný profil **úplný — zapíše sa každé pole configu**. Nezávisí tak na tom, čo je
 práve default ani na profile, z ktorého vznikol: keď sa hocičo z toho neskôr zmení,
 starý profil ostane presne taký, aký bol, a beh sa dá zopakovať.
+
+Pole, ktoré do stratégie pribudlo **po** uložení profilu (napr. Supertrend a ADX v IBS
+od 2026-09-16), v starom profile nie je — formulár aj beh ho doplnia defaultom a pod
+ponukou profilu je vidieť „profil nemá N polí … beh použije default". Uložením profilu
+znova sa doplnia. Pole, ktoré sa zo stratégie zrušilo (`RETIRED_FIELDS` v configu,
+napr. SD Zones `impulseMinMoveAtr`), sa zo starého profilu s varovaním preskočí.
 
 K tomu metadáta s podtržníkom: `_instrument` (z neho sa nastaví pár), `_title` a
 `_comment` (popis a z ktorého behu profil vznikol), `_created` (kedy profil vznikol)
@@ -395,13 +436,16 @@ Meno súboru má 2–48 znakov: písmená bez diakritiky, číslice, `.`, `-`, `
 meno profilu repozitára sa použiť nedá, aby sa nedal prekryť.
 
 Tlačidlá **Pull** a **Push** sú v hlavičke; výstup gitu sa zobrazí celý. Push commitne
-**len** `runs/` a `profiles/` a pushne ich do **`main`** — nie na vetvu, na ktorej klon
+**len** `runs/`, `sweeps/`, `profiles/` a `analytics/` a pushne ich do **`main`** — nie na vetvu, na ktorej klon
 práve stojí (inak história skončí na vývojárskej vetve a nikto ju neuvidí). Iný cieľ sa
 dá nastaviť cez `TRADEBOT_GIT_BRANCH`. Keď sa vetva klonu a cieľ líšia, hlavička to ukáže
 ako `vetva → main`.
 
-Ak by mala vetva klonu oproti `main` commity mimo `runs/` a `profiles/`, Push sa
+Ak by mala vetva klonu oproti `main` commity mimo týchto adresárov, Push sa
 zastaví a povie to: kód z testerského klonu do `main` nepatrí, ten ide pull requestom.
+Rovnako sa zastaví, keď git v týchto adresároch **ignoruje** niečo iné než kresby grafu
+(`chart.json.gz`, `runs/.charts/`) a dočasné súbory — kedysi `tester/runs/` v `.gitignore`
+spôsobil, že Push behy ticho vynechával.
 Autor commitu je meno testera z hlavičky.
 
 **Prihlásenie do GitHubu.** Webapp beží bez terminálu, takže sa git nemá koho spýtať na
@@ -427,7 +471,9 @@ nepotrebuje, všetko podstatné je v `run.json`.
 `python -m tester.webapp.cli` robí to isté, čo stránka, z terminálu — pre Claude Code
 testera a pre skripty. `run` ide cez API bežiacej webapp (beh vidno vo fronte), a keď
 webapp nebeží, spustí backtest priamo do toho istého `runs/`. `list`/`show` čítajú
-históriu, `pull`/`push` synchronizujú `runs/` a `profiles/`, `status` povie, či webapp beží,
+históriu, `pull`/`push` synchronizujú `runs/`, `sweeps/`, `profiles/` a `analytics/`,
+`replay <id>` prehrá bod mriežky/matice ako beh, `chart <id>` prepočíta graf do cache,
+`prune` odprace históriu (bez `--apply` len plán), `status` povie, či webapp beží,
 `params` vypíše parametre s rozsahmi. `run` aj `params` majú `--strategy <kľúč>` (default `ibs`).
 
 ```bash

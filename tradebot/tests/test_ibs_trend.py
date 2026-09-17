@@ -7,6 +7,7 @@ import random
 
 import pytest
 
+from tradebot.core.warmup import Warmup
 from tradebot.core import MNQ, Bar, BarHistory, Direction, IBSConfig, MarketContext, StateMachine, ZoneBook, ZoneState
 from tradebot.strategies.ibs import IBSEngine
 from tradebot.strategies.ibs.config import INDICATOR_RULES, IndicatorAction, PriceSource, TradeDirection
@@ -160,7 +161,7 @@ RISING = [Bar(T0 + i * MIN3, 100 + i, 101 + i, 99 + i, 100.8 + i, 1.0) for i in 
 
 def test_gate_is_off_unless_trade_direction_is_indicator():
     gate = DirectionGate(IBSConfig(stTimeframe="5"), chart_tf_minutes=3)  # 5 nie je násobok 3, no nevadí
-    assert not gate.enabled and gate.required_chart_bars == 0
+    assert not gate.enabled and gate.add_warmup(Warmup(3)).needs == []
     assert gate.allowed(Direction.SHORT) and gate.on_bar(bars(1)[0]) == []
 
 
@@ -255,11 +256,13 @@ def test_statemachine_skips_zone_against_indicator():
     assert any("SUPERTREND 60 PROTI" in e.reason for e in sm.events)
 
 
-def test_engine_draws_supertrend_and_needs_longer_history():
+def test_engine_draws_supertrend_and_seeds_instead_of_longer_history():
     plain = IBSEngine(IBSConfig(), MNQ, 3)
     cfg = _gate_cfg(stAtrPeriod=10)
     engine = IBSEngine(cfg, MNQ, 3)
-    assert engine.required_history > plain.required_history
+    # Supertrend na vlastnom TF predhistóriu grafu nezväčšuje — má vlastnú (seed)
+    assert engine.required_history == plain.required_history
+    assert [(n.tf_minutes, n.bars) for n in engine.warmup.seeds] == [(15, engine.direction_gate.st.warmup_bars)]
     kinds: list[str] = []
     for b in bars(400):
         kinds.extend(d.kind.value for d in engine.on_bar(b).drawings if d.kind.value.startswith("st_"))

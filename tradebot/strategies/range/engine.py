@@ -26,6 +26,7 @@ from zoneinfo import ZoneInfo
 from tradebot.core.drawing import DrawBox, DrawCommand, DrawLabel, DrawLine, LabelStyle
 from tradebot.core.engine import EngineOutput
 from tradebot.core.history import BarHistory
+from tradebot.core.warmup import Warmup
 from tradebot.core.orders import MarketContext, OrderAction, OrderIntent
 from tradebot.core.risk import TradePlan, TrailingPlan
 from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
@@ -74,7 +75,10 @@ class RangeEngine:
         self.chart_tf_minutes = max(1, int(chart_tf_minutes))
         self.step_ms = self.chart_tf_minutes * 60_000
 
-        self.required_history = int(cfg.atrLen) + int(cfg.lookbackBars) + 8
+        #: predhistória grafu: ATR a okno hľadania range (denný limit sa do nej nepočíta)
+        self.warmup = Warmup(self.chart_tf_minutes).add(
+            f"ATR {cfg.atrLen} + okno {cfg.lookbackBars}", int(cfg.atrLen) + int(cfg.lookbackBars) + 8)
+        self.required_history = self.warmup.chart_bars
         self.history = BarHistory(maxlen=self.required_history + 16, atr_len=int(cfg.atrLen))
 
         self._zone = ZoneInfo(cfg.tradeTZ)

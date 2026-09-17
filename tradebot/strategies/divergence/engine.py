@@ -45,6 +45,7 @@ from tradebot.core.history import BarHistory
 from tradebot.core.orders import MarketContext, OrderAction, OrderIntent
 from tradebot.core.risk import TradePlan
 from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
+from tradebot.core.warmup import Warmup
 
 from .config import DivSource, DivergenceConfig, EntryMode, SearchDiv
 from .divergence import INDICATOR_TITLES, INDICATORS, DivHits, DivergenceDetector
@@ -102,6 +103,11 @@ class HtfState:
         closed = self.agg.push(bar)
         if closed is None:
             return None
+        self._process(closed)
+        return closed
+
+    def _process(self, closed: Bar) -> None:
+        """Uzavretý HTF bar: Heikin Ashi → supertrend a zónový detektor."""
         self.bars += 1
         ha = self.ha.push(closed)
         self.st.push(ha)
@@ -110,7 +116,27 @@ class HtfState:
             self.window.append((hits.buy_count, hits.sell_count))
             self.bull = sum(b for b, _ in self.window)
             self.bear = sum(s for _, s in self.window)
-        return closed
+
+    @property
+    def warmup_bars(self) -> int:
+        """Supertrend a zónový detektor v baroch **tohto** TF (Heikin Ashi pred oboma)."""
+        need = self.ha.warmup_bars + self.st.warmup_bars
+        if self.det is not None:
+            need = max(need, self.ha.warmup_bars + self.det.warmup_bars + self.window.maxlen)
+        return need
+
+    def add_warmup(self, warmup: Warmup, name: str) -> Warmup:
+        """Vlastná predhistória tohto TF — predhistóriu grafu nezväčšuje (`seed_engine`)."""
+        return warmup.add_seeded(f"{name} supertrend + zony", self.warmup_bars, self.agg.minutes,
+                                 self.seed)
+
+    def seed(self, bars, partial: Bar | None) -> None:
+        """Uzavreté HTF bary pred behom výpočtom, rozpracovaná perióda do agregátora."""
+        if self.bars or self.agg.started:
+            raise RuntimeError(f"{self.agg.minutes}m: seeding smie ísť len pred prvým barom grafu")
+        for b in bars:
+            self._process(b)
+        self.agg.prime(partial)
 
     @property
     def trend(self) -> int | None:
@@ -166,13 +192,13 @@ class DivergenceEngine:
         self.htf2 = HtfState(cfg.htf2Minutes, cfg.stLen, cfg.stMultHtf, zone_det(cfg.zonePrd2), cfg.zoneWindow2)
 
         #: koľko barov grafu treba, kým sú signály platné: divergencie potrebujú pivoty do
-        #: `maxBars` dozadu, druhý vyšší TF supertrend a jeho zóny svoje bary × pomer TF
-        ratio2 = int(cfg.htf2Minutes) // self.chart_tf_minutes
-        chart_need = int(cfg.maxBars) + int(cfg.prd) + 40
-        htf_need = (int(cfg.stLen) + 40) * ratio2
-        if cfg.zoneFilter:
-            htf_need = max(htf_need, (int(cfg.zoneMaxBars) + int(cfg.zonePrd2) + 10) * ratio2)
-        self.required_history = max(chart_need, htf_need)
+        #: `maxBars` dozadu. Supertrend a zóny oboch vyšších TF majú vlastnú predhistóriu
+        #: vo svojich baroch (`HtfState.seed`), predhistóriu grafu nezväčšujú.
+        self.warmup = Warmup(self.chart_tf_minutes).add(
+            f"divergencie {cfg.maxBars}/{cfg.prd}", int(cfg.maxBars) + int(cfg.prd) + 40)
+        self.htf1.add_warmup(self.warmup, f"HTF {int(cfg.htfMinutes)}m")
+        self.htf2.add_warmup(self.warmup, f"HTF {int(cfg.htf2Minutes)}m")
+        self.required_history = self.warmup.chart_bars
 
         #: vyzbrojený vstup: (smer, referenčná cena = close predchádzajúceho baru, čas baru signálu)
         self._armed: tuple[Direction, float, int] | None = None

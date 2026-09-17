@@ -42,7 +42,9 @@ emulátorom a Dukascopy cez Freqtrade — dáta v tom nebránia
 
 Podadresár `futures/` a príponu `-futures` v mene si Freqtrade drží natvrdo, pre spot
 nepridáva nič — preto mu `--datadir` podávame rôzne podľa trhu (pri futures o úroveň
-vyššie, pri spote priamo na `spot/`). Na disku je tým rozloženie súmerné. Cesty počíta
+vyššie, pri spote priamo na `spot/`). Na disku je tým rozloženie súmerné. Trhy mimo burzy
+(Dukascopy, Databento) ležia v `futures/` **bez** prípony `-futures`; Freqtrade ich na burze
+Tester číta ako futures a príponu mu pre tieto páry vypne `tester.ftexchange`. Cesty počíta
 jedno miesto —
 [`tester/engines.py`](../tester/engines.py); korene sú v
 [`tradebot/core/paths.py`](../tradebot/core/paths.py).
@@ -255,6 +257,39 @@ PY -m tester.webapp.cli run --profile docs/profily_archiv/ibs/nas100_dukas_3m.js
 Forex a futures z Dukascopy sa na tejto burze nelíšia: všetko sú CFD s longmi, shortmi aj
 pákou (typ `futures`); líšia sa len inštrumentom (tick, hodnota bodu, mena) a profilom.
 Spread v dátach nie je (bid strana), počíta sa cez poplatok ako percento z nominálu.
+
+Cez Freqtrade (burza **Tester**) idú tie isté symboly tiež — ako lineárny swap
+s `contractSize` = hodnota bodu, takže aj tam sú shorty, páka a peniaze v mene účtu
+([FREQTRADE.md §G](FREQTRADE.md)). Referenciou pre MultiCharts ostáva emulátor.
+
+### Peniaze obchodu a hodnota bodu
+
+Hodnota bodu (`point_value`, v QuoteManageri Big Point Value) je mena účtu za pohyb ceny
+o 1,0 na jeden kus: MNQ 2, zlato 100, WTI 1000, NGAS 10 000, kakao 10, káva 375, forex lot
+100 000, krypto a NAS100 CFD 1. Všetky peniaze obchodu ju nesú, a to **na jednom mieste**,
+[`tradebot/core/money.py`](../tradebot/core/money.py) — emulátor, normalizácia Freqtrade
+výsledku, súhrn behu, Monte Carlo, analytika, portfólio aj prop:
+
+| veličina | vzorec |
+|---|---|
+| nominál vstupu / výstupu | `open_rate × amount × pv`, `close_rate × amount × pv` |
+| objem | nominál vstupu + nominál výstupu |
+| hrubý zisk | `(close_rate − open_rate) × smer × amount × pv` |
+| poplatky | nominál vstupu × `fee_open` + nominál výstupu × `fee_close` |
+| čistý zisk (`profit_abs`) | hrubý zisk − poplatky (+ funding, na burze Tester 0) |
+| break-even poplatok | hrubý zisk / objem × 100 (% na stranu) |
+| max drawdown | od vrcholu kumulatívneho PnL (začína na 0); % voči zostatku na tom vrchole — ako Freqtrade `max_drawdown_account` |
+
+V `trades.json` je `amount` **počet kusov enginu** (kontrakty, loty, mince) a `point_value`
+je v každom zázname výslovne. Freqtrade si interne drží množstvo v základnej mene
+(`kusy × contractSize`); `result_from_zip` ho pri uložení vydelí späť, takže ten istý obchod
+má v oboch enginoch ten istý záznam aj tie isté peniaze. Náklad v tickoch
+(`InstrumentSpec.cost_pct`) je percento z ceny a v peniazoch vyjde `ticky × tick × pv × kusy`.
+
+Behy spred tejto definície (audit A1, 2026-09-17) `point_value` v zázname nemajú — to
+neznamená 1: čítanie histórie ju doplní z inštrumentu páru. Uložené súhrny prepočíta
+`PY -m tester.webapp.cli recompute` (bez `--write` len vypíše, čo by sa zmenilo; staré
+Freqtrade CFD behy označí na zopakovanie, lebo spot zahodil shorty).
 
 ---
 

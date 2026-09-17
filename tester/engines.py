@@ -59,14 +59,18 @@ def market_dir(inst: InstrumentSpec) -> Path:
     return TESTER_DATA / inst.data_source / inst.market
 
 
-def data_dir(inst: InstrumentSpec) -> Path:
+def data_dir(inst: InstrumentSpec, exchange: str | None = None) -> Path:
     """Čo podať Freqtradu ako `--datadir`.
 
-    Pri futures na burze je to o úroveň vyššie než `market_dir` — `futures/` si Freqtrade
-    doplní sám. Pri spote (a pri CFD, ktoré bežia cez spotový config) je to priamo
-    `market_dir`, lebo tam nič nedopĺňa.
+    Pri futures je to o úroveň vyššie než `market_dir` — `futures/` si Freqtrade doplní
+    sám. Tak bežia aj CFD/futures mimo burzy na fiktívnej burze Tester (swap s
+    `contractSize` = hodnota bodu; prípona `-futures` sa im nepridáva, viď
+    `ftexchange._offexchange_filenames`). Pri spote a pri CFD cez nosnú spotovú burzu
+    (`dukascopy`) je to priamo `market_dir`, lebo tam nič nedopĺňa.
     """
-    if _is_off_exchange(inst) or inst.is_spot:
+    if inst.is_spot:
+        return market_dir(inst)
+    if _is_off_exchange(inst) and (exchange or DEFAULT_EXCHANGE) != TESTER_EXCHANGE:
         return market_dir(inst)
     return TESTER_DATA / inst.data_source
 
@@ -207,6 +211,11 @@ def freqtrade_blocker(inst: InstrumentSpec, timeframe: str,
     if not freqtrade_file(inst, timeframe).exists() and not one_minute_file(inst).exists():
         return f"chýba súbor pre {timeframe} a nie sú ani 1m sviečky, z ktorých ho poskladať"
     want = exchange or DEFAULT_EXCHANGE
+    if float(inst.point_value) != 1.0 and (want != TESTER_EXCHANGE or inst.is_spot):
+        # Spot (aj nosná spotová burza pre CFD) hodnotu bodu nepozná: Freqtrade by zisk,
+        # stake aj poplatky počítal z ceny × kusy a výsledok by bol ×hodnota bodu mimo.
+        return (f"hodnota bodu {inst.point_value:g} sa dá vo Freqtrade počítať len na burze "
+                f"{EXCHANGE_TITLES[TESTER_EXCHANGE]} (swap s contractSize); zvoľ ju alebo emulátor")
     if want not in exchanges_for(inst):
         known = ", ".join(EXCHANGE_TITLES.get(e, e) for e in exchanges_for(inst)) or "žiadna"
         return f"burza {EXCHANGE_TITLES.get(want, want)} tento pár nemá; dostupné: {known}"

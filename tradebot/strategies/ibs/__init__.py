@@ -51,7 +51,8 @@ SPEC = StrategySpec(
     freqtrade_class="IBSImbalanceStrategy",
     multicharts_class="IBSSignal",
     multicharts_template="IBS_Signal.py",
-    informative_tfs=lambda cfg: [f"{int(cfg.zoneDetectionTF)}m"],
+    # "D" ako "1d" — Freqtrade pozná denný TF len pod týmto menom; ostatné ostávajú v minútach
+    informative_tfs=lambda cfg: ["1d" if str(cfg.zoneDetectionTF) == "D" else f"{int(cfg.zoneDetectionTF)}m"],
     htf_feeder=HTFFeeder,
     sl_kind="sl_box",
     tp_kind="tp_box",

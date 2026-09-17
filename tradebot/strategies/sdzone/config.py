@@ -76,7 +76,7 @@ SIZE_FIELDS: dict[str, SizeUnit] = {
     "minSlDistance": "pct",
     "baseMaxWidthAtr": "atr",
     "impulseMinBodyAtr": "atr",
-    "impulseMinMoveAtr": "atr",
+    "legOutMinAtr": "atr",
     "slBufferAtr": "atr",
     "slAtrMult": "atr",
     "tpAtrMult": "atr",
@@ -97,8 +97,8 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "baseMaxWidthAtr": (0.1, 5.0),
     "impulseMinBodyAtr": (0.1, 5.0),
     "impulseMinBodyPct": (10, 100),
-    "impulseMinMoveAtr": (0.2, 10.0),
-    "impulseMaxBars": (1, 10),
+    "legOutMinAtr": (0.0, 10.0),
+    "legOutMaxBars": (1, 10),
     "entryDepthPct": (0, 100),
     "maxZoneAgeBars": (5, 2000),
     "maxZones": (1, 200),
@@ -124,6 +124,17 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
 PORT_ONLY_FIELDS: frozenset[str] = frozenset(
     {"tickDollarValue", "leverage", "legacyPineSizing", "minSlDistance"})
 
+#: Polia, ktoré formulár ponúkal, ale engine ich nikdy nečítal (audit parity 2026-09-17).
+#: Staré profily a behy ich nesú s defaultom — načítanie ich s varovaním preskočí.
+#: Pravidlo odchodu je odvtedy naozaj v engine, ale pod novými menami `legOutMinAtr`
+#: a `legOutMaxBars`: staré behy s `impulseMinMoveAtr=1.5` boli spočítané BEZ odchodu,
+#: a keby sa pole oživilo pod tým istým menom, ich parametre by klamali.
+RETIRED_FIELDS: dict[str, str] = {
+    "impulseMinMoveAtr": "engine ho nečítal (beh bol bez merania odchodu = legOutMinAtr 0); "
+                         "nahradené legOutMinAtr",
+    "impulseMaxBars": "engine ho nečítal okrem dĺžky predhistórie; nahradené legOutMaxBars",
+}
+
 
 @dataclass
 class SDZoneConfig(StrategyConfig):
@@ -133,6 +144,7 @@ class SDZoneConfig(StrategyConfig):
     ENUM_FIELDS: ClassVar[dict[str, type]] = ENUM_FIELDS
     CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = CONSTRAINTS
     PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS
+    RETIRED_FIELDS: ClassVar[dict[str, str]] = RETIRED_FIELDS
 
     # ---- 🔍 Detekcia zóny ------------------------------------------------- #
     baseMaxBars: int = 3
@@ -140,8 +152,10 @@ class SDZoneConfig(StrategyConfig):
     baseMaxWidthAtr: SizeSpec = field(default_factory=lambda: SizeSpec(1.2, "atr"))
     impulseMinBodyAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.8, "atr"))
     impulseMinBodyPct: int = 55
-    impulseMinMoveAtr: SizeSpec = field(default_factory=lambda: SizeSpec(1.5, "atr"))
-    impulseMaxBars: int = 3
+    #: Odchod (leg-out): záver za hranou bázy aspoň o toľko, do `legOutMaxBars` barov od impulzu.
+    #: 0 = nemeria sa (zóna vzniká hneď na impulze, správanie pred 2026-09-17).
+    legOutMinAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "atr"))  # 0 = vypnuté (rozhodnutie 2026-09-17)
+    legOutMaxBars: int = 3
     # ---- 📐 Zóna ---------------------------------------------------------- #
     zoneMode: ZoneMode = ZoneMode.WFZ
     patterns: PatternSet = PatternSet.ALL

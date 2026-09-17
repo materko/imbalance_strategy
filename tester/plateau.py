@@ -33,8 +33,14 @@ from typing import Any, Sequence
 from . import sweep as sweep_mod
 
 __all__ = [
-    "STEPS", "Neighbour", "neighbours", "assess", "table",
+    "STEPS", "Neighbour", "neighbours", "assess", "table", "winner_ci",
+    "MC_ITERATIONS", "MC_SEED",
 ]
+
+#: Monte Carlo pre interval víťaza, keď sa počíta pri uložení overovacieho behu (bod
+#: `hyperopt_run` obchody neukladá) — rovnaké čísla ako default `cli plateau`.
+MC_ITERATIONS = 2000
+MC_SEED = 12345
 
 #: O koľko krokov od víťaza sa skúša. Dva kroky stačia: keby optimum držalo len na
 #: jednom kroku, je to špička už pri prvom susedovi.
@@ -128,6 +134,25 @@ class Assessment:
 
     def to_dict(self) -> dict[str, Any]:
         return dict(self.__dict__)
+
+
+def winner_ci(winner: dict[str, Any], trades: Sequence[dict[str, Any]] | None,
+              iterations: int = MC_ITERATIONS, seed: int = MC_SEED) -> tuple[float | None, float | None]:
+    """Interval spoľahlivosti break-even víťaza.
+
+    S obchodmi (beh v histórii) sa spočíta z nich; bod overenia v `sweeps/` obchody nemá,
+    ale nesie interval spočítaný pri uložení (`break_even_ci`). Pod `MIN_TRADES` nič.
+    """
+    from . import montecarlo as mc
+
+    if trades:
+        if len(trades) < mc.MIN_TRADES:
+            return None, None
+        fee = float(((winner.get("settings") or {}).get("fee")) or 0.0) * 100.0
+        be = mc.analyze(list(trades), fee_pct=fee, iterations=iterations, seed=seed)["break_even"]
+        return be["lo"], be["hi"]
+    ci = winner.get("break_even_ci") or {}
+    return ci.get("lo"), ci.get("hi")
 
 
 def _be(rec: dict[str, Any]) -> float | None:

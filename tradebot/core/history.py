@@ -13,6 +13,7 @@ from __future__ import annotations
 from collections import deque
 
 from .types import Bar
+from .warmup import rma_bars
 
 __all__ = ["BarHistory"]
 
@@ -60,6 +61,11 @@ class BarHistory:
         return self.bar_index - offset
 
     # -- ATR ---------------------------------------------------------------- #
+
+    @property
+    def atr_warmup_bars(self) -> int:
+        """Koľko barov treba, kým sa ATR ustáli — `tradebot.core.warmup.rma_bars`."""
+        return rma_bars(self._atr_len)
 
     @property
     def atr(self) -> float:

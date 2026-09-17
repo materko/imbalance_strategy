@@ -54,7 +54,7 @@ def scripted(monkeypatch, outputs: dict[int, BarOutput]):
 
     seen = []
 
-    def on_bar(self, bar, *, position_size=0.0, closed_trades=None):
+    def on_bar(self, bar, *, position_size=0.0, closed_trades=None, closed_trade_pnls=None):
         seen.append((bar.time, position_size, closed_trades))
         self.last_ts = bar.time
         return outputs.get(len(seen) - 1, BarOutput())
@@ -184,3 +184,152 @@ def test_cely_engine_bezi_nad_1m_datami_bez_skriptovania():
     cfg_, inst = IBSConfig(), INSTRUMENTS["nas100_dukascopy"]
     result, _ = emulate(cfg_, inst, m1_frame(rows), 3)
     assert result.bars == 480 and result.first_ms == T0
+
+
+# --------------------------------------------------------------------------- #
+# HTF okno: emulátor kŕmi feeder pred `on_bar`, ako študia (audit A2)
+# --------------------------------------------------------------------------- #
+
+
+class _SpyEngine:
+    """Engine, ktorý nič neobchoduje, len si zapíše okná a kontext."""
+
+    def __init__(self, *args):
+        self.windows: list[tuple[int, int, float]] = []
+        self.contexts = []
+
+    def on_bar(self, bar, htf=None, ctx=None):
+        from tradebot.core.engine import EngineOutput
+
+        self.contexts.append((bar.time, ctx))
+        if htf is not None:
+            self.windows.append((bar.time, tuple(b.time for b in htf.bars), htf.vol_sma))
+        return EngineOutput()
+
+
+def _spy_spec(engine=_SpyEngine):
+    from dataclasses import replace
+
+    from tradebot.strategies import get_spec
+
+    return replace(get_spec("ibs"), engine_factory=engine)
+
+
+def _varied(minutes: int, start: int = 0):
+    """1m rady s meniacim sa objemom — nech sa porovná aj SMA objemu okna."""
+    df = m1_frame([(m, 100.0 + m % 7, 101.0 + m % 7, 99.0 + m % 7, 100.0 + m % 5) for m in range(start, start + minutes)])
+    df["volume"] = [1.0 + (m * 37) % 11 for m in range(len(df))]
+    return df
+
+
+@pytest.mark.parametrize("chart_tf,detection_tf", [(3, "5"), (5, "5"), (5, "3"), (10, "5"), (15, "5")])
+def test_htf_okna_emulatora_sedia_s_feederom_s_celymi_datami(chart_tf, detection_tf):
+    from tradebot.strategies.ibs.htf import HTFFeeder
+
+    cfg_ = IBSConfig(zoneDetectionTF=detection_tf, volSmaLen=3)
+    data = _varied(240)
+    _, runner = emulate(cfg_, MNQ, data, chart_tf, spec=_spy_spec())
+
+    full = HTFFeeder(cfg_, chart_tf)
+    for b in bars_from_frame(data, int(detection_tf)):
+        full.feed(b)
+    reference = []
+    for b in bars_from_frame(data, chart_tf):
+        w = full.window_for(b.time)
+        if w is not None:
+            reference.append((b.time, tuple(x.time for x in w.bars), w.vol_sma))
+
+    assert len(reference) > 0
+    assert runner.engine.windows == reference
+
+
+def test_htf_okno_3m_graf_5m_detekcia_drzi_golden_casovanie():
+    """Na 3m/5m je najnovší bar okna (Pine [1]) dva 5m bary pred zatvorením 3m baru."""
+    cfg_ = IBSConfig(zoneDetectionTF="5", volSmaLen=3)
+    _, runner = emulate(cfg_, MNQ, _varied(120), 3, spec=_spy_spec())
+    for ts, opens, _sma in runner.engine.windows:
+        close = ts + 3 * MIN
+        assert opens[0] == close // (5 * MIN) * (5 * MIN) - 10 * MIN
+        assert opens[0] + 5 * MIN <= close - 5 * MIN  # uzavretý o celý HTF bar skôr — žiadny lookahead
+
+
+def test_denny_detekcny_tf_d_nespadne_a_da_okna():
+    from tradebot.strategies import get_spec
+
+    cfg_ = IBSConfig(zoneDetectionTF="D", volSmaLen=2)
+    assert get_spec("ibs").informative_tfs(cfg_) == ["1d"]
+    data = m1_frame(flat(range(0, 6 * 1440, 10)))  # 6 dní, sviečka každých 10 minút
+    _, runner = emulate(cfg_, MNQ, data, 60, spec=_spy_spec())
+    assert runner.htf_ms == 86_400_000
+    days = [opens for _ts, opens, _sma in runner.engine.windows]
+    assert days and all(o % 86_400_000 == 0 for opens in days for o in opens)
+
+
+# --------------------------------------------------------------------------- #
+# maxDailyWins cez emulátor (audit A5)
+# --------------------------------------------------------------------------- #
+
+
+class _EveryBarLong:
+    """Market long na každom bare bez pozície, kým kontext nepovie „denný limit"."""
+
+    tp = 0.5
+    sl = 100.0
+
+    def __init__(self, *args):
+        self.limits: list[tuple[int, bool]] = []
+
+    def on_bar(self, bar, htf=None, ctx=None):
+        from tradebot.core.engine import EngineOutput
+        from tradebot.core.orders import OrderAction, OrderIntent
+        from tradebot.core.types import OrderType
+
+        self.limits.append((bar.time, ctx.daily_win_limit_reached))
+        if ctx.position_size != 0.0 or ctx.daily_win_limit_reached:
+            return EngineOutput(orders=[OrderIntent(OrderAction.CANCEL, "L", 1)])
+        p = TradePlan(direction=Direction.LONG, entry=bar.close, stop_loss=bar.close - self.sl,
+                      take_profit=bar.close + self.tp, qty=1.0, sl_distance=self.sl)
+        return EngineOutput(orders=[OrderIntent(OrderAction.ENTRY, "L", 1, Direction.LONG, p, OrderType.MARKET)])
+
+
+def _day(ms: int) -> int:
+    return ms // 86_400_000
+
+
+def test_max_daily_wins_zastavi_vstupy_do_konca_dna_a_na_druhy_den_pusti():
+    # rastúca cena od 22:00 do 02:00 -> každý market long trafí TP v prvej minúte
+    rows = [(m, 100.0 + m, 101.0 + m, 100.0 + m, 101.0 + m) for m in range(-120, 120)]
+    cfg_ = IBSConfig(maxDailyWins=2)
+    result, runner = emulate(cfg_, MNQ, m1_frame(rows), 3, spec=_spy_spec(_EveryBarLong))
+    per_day: dict[int, int] = {}
+    for t in result.trades:
+        assert t.reason == "take_profit"
+        per_day[_day(t.open_ms)] = per_day.get(_day(t.open_ms), 0) + 1
+    d0, d1 = _day(T0 - MIN), _day(T0)
+    # Pine: výhra z baru blokuje až od ďalšieho baru, takže limit 2 pustí ešte jeden rozbehnutý vstup
+    assert per_day[d0] == 3 and per_day[d1] == 3
+    limits = runner.engine.limits
+    assert any(flag for ts, flag in limits if _day(ts) == d0)
+    first_new_day = next(flag for ts, flag in limits if _day(ts) == d1)
+    assert first_new_day is False
+
+    unlimited, _ = emulate(IBSConfig(maxDailyWins=20), MNQ, m1_frame(rows), 3, spec=_spy_spec(_EveryBarLong))
+    assert len(unlimited.trades) > len(result.trades)
+
+
+def test_max_daily_wins_straty_ani_vyhra_zjedena_poplatkom_sa_nepocitaju():
+    class Losing(_EveryBarLong):
+        tp = 100.0
+        sl = 0.5
+
+    falling = [(m, 300.0 - m, 300.0 - m, 299.0 - m, 299.0 - m) for m in range(0, 120)]
+    result, runner = emulate(IBSConfig(maxDailyWins=1), MNQ, m1_frame(falling), 3, spec=_spy_spec(Losing))
+    assert len(result.trades) > 5 and all(t.reason == "stop_loss" for t in result.trades)
+    assert not any(flag for _ts, flag in runner.engine.limits)
+
+    class TinyWin(_EveryBarLong):
+        tp = 0.01  # hrubý zisk 0.01 bodu, poplatok ~100 * 2 * 0.001 -> po poplatku strata
+
+    rising = [(m, 100.0 + m, 101.0 + m, 100.0 + m, 101.0 + m) for m in range(0, 60)]
+    result, runner = emulate(IBSConfig(maxDailyWins=1), MNQ, m1_frame(rising), 3, spec=_spy_spec(TinyWin), fee=0.001)
+    assert len(result.trades) > 5 and not any(flag for _ts, flag in runner.engine.limits)

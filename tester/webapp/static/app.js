@@ -6,6 +6,43 @@ const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const GREEN = "#089981", RED = "#f23645", BLUE = "#2962ff";
 const UNITS = ["abs", "ticks", "atr", "pct"];
 
+// --------------------------------------------------------------------------- //
+// Téma (svetlá/tmavá/podľa systému). Atribút data-theme sa nastavuje aj inline
+// skriptom v <head> (aby nebliklo svetlé pozadie pred načítaním app.js) — tu sa
+// len drží v zhode s výberom v hlavičke a prekresľuje grafy, ktoré majú vlastné
+// farby napevno v JS (Plotly layout, farby kresieb stratégie z backendu).
+// --------------------------------------------------------------------------- //
+const THEME_KEY = "tradebot.theme";
+const systemDark = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+function loadThemePref() {
+  try { return localStorage.getItem(THEME_KEY) || "auto"; } catch (_) { return "auto"; }
+}
+function saveThemePref(v) {
+  try { localStorage.setItem(THEME_KEY, v); } catch (_) { /* ignoruj, len sa nezapamätá */ }
+}
+function isDarkTheme() { return document.documentElement.getAttribute("data-theme") === "dark"; }
+
+function applyTheme(pref) {
+  const dark = pref === "dark" || (pref === "auto" && !!(systemDark && systemDark.matches));
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+  for (const b of $$("#theme-switch button")) b.classList.toggle("active", b.dataset.theme === pref);
+  redrawThemedCharts();
+}
+
+function setTheme(pref) { saveThemePref(pref); applyTheme(pref); }
+
+let lastEquityChart = null;  // { series, res } z posledného drawChart() — na prekreslenie pri zmene témy
+
+/** Grafy majú farby (mriežka, šablóna, kresby stratégie) napevno v layoute pri
+ *  vykreslení — pri prepnutí témy treba znova zavolať to, čo ich naposledy nakreslilo. */
+function redrawThemedCharts() {
+  if (pc.last) renderPairChart(pc.last.candles, pc.last.objects);
+  if (lastEquityChart) drawChart(lastEquityChart.series, lastEquityChart.res);
+  if (mc.lastBe) drawBeChart(mc.lastBe, mc.lastFeePct);
+  if (mc.lastDd) drawDdChart(mc.lastDd);
+}
+
 const state = {
   meta: null,          // /api/meta; params/defaults/profiles… sú vždy aktívnej stratégie (viď setStrategy)
   strategy: "ibs",     // kľúč aktívnej stratégie vo formulári
@@ -63,7 +100,9 @@ function sameValue(meta, a, b) {
 function setParams(values, asBase) {
   const m = metaByName();
   const out = {};
-  for (const name of Object.keys(m)) {
+  // Všetky polia configu, nie len tie vo formulári: inertné Pine vstupy formulár neukazuje,
+  // ale hodnota z profilu má s behom odísť celá (beh si ukladá úplný config).
+  for (const name of new Set([...Object.keys(m), ...Object.keys(state.meta.defaults || {})])) {
     if (name in values) out[name] = values[name];
     else out[name] = state.meta.defaults[name];
   }
@@ -751,7 +790,10 @@ async function loadProfile(name) {
   fillExchanges($("#pair").value, r.exchange);
   fillTimeframes($("#pair").value, r.timeframe || "3m");
   applyProfileSettings(r.settings || {});
-  $("#profile-base").textContent = r.base ? `vychádza z profilu ${r.base}` : "";
+  const chyba = (r.missing || []).length
+    ? `profil nemá ${r.missing.length} ${r.missing.length === 1 ? "pole" : "polí"} (uložený pred ich pridaním) — beh použije default: ${r.missing.slice(0, 8).join(", ")}${r.missing.length > 8 ? "…" : ""}`
+    : "";
+  $("#profile-base").textContent = [r.base ? `vychádza z profilu ${r.base}` : "", chyba].filter(Boolean).join(" · ");
 }
 
 function currentPair() {
@@ -1178,7 +1220,7 @@ function renderHyper(r) {
   casti_html.push(plateauHtml(r));
   box.innerHTML = casti_html.join("");
   for (const tr of $$("#sweep-result tr[data-run]")) {
-    tr.onclick = () => { showView("history"); openRun(tr.dataset.run); };
+    tr.onclick = () => openPoint(tr.dataset.run);
   }
   const tlacidlo = $("#plateau-run");
   if (tlacidlo) tlacidlo.onclick = () => startPlateau(r.id);
@@ -1310,7 +1352,31 @@ function renderSweep(r) {
   $("#sweep-result").innerHTML = `<table><thead><tr>${head.map(h => `<th>${esc(h)}</th>`).join("")}`
     + `</tr></thead><tbody>${rows}</tbody></table>`;
   for (const tr of $$("#sweep-result tr[data-run]")) {
-    tr.onclick = () => { showView("history"); openRun(tr.dataset.run); };
+    tr.onclick = () => openPoint(tr.dataset.run);
+  }
+}
+
+/**
+ * Bod mriežky, bunka matice, overenie alebo sused víťaza. Do histórie sa neukladajú —
+ * v `tester/sweeps/` je len ich výsledok s celým configom. Starý bod, ktorý v histórii
+ * ešte je, sa otvorí; ostatné sa po potvrdení prehrajú ako obyčajný beh (s obchodmi
+ * a grafom), ktorý už do histórie pribudne.
+ */
+async function openPoint(id) {
+  let det = null;
+  try { det = await api(`/api/runs/${id}`); } catch (e) { det = null; }
+  if (det && !det.batch) { showView("history"); openRun(id); return; }
+  const r = (det && det.record && det.record.result) || {};
+  const popis = det ? ` (obchodov ${r.trades ?? "—"}, break-even ${fmt(r.break_even_pct, 4)})` : "";
+  if (!confirm(`Bod${popis} nie je v histórii — z mriežky sa ukladá len jeho výsledok. `
+    + "Prehrať ho ako obyčajný beh? Pribudne do fronty a potom do histórie s obchodmi a grafom.")) return;
+  try {
+    const job = await api(`/api/points/${id}/replay`, { method: "POST", body: JSON.stringify({ user: currentUser() || null }) });
+    pollQueue();
+    showView("history");
+    openRun(job.id);
+  } catch (e) {
+    alert(`Bod sa prehrať nedá: ${e.message}`);
   }
 }
 
@@ -1583,7 +1649,7 @@ function renderMatrix(r) {
   }
   $("#sweep-result").innerHTML = casti.join("");
   for (const td of $$("#sweep-result td[data-run]")) {
-    td.onclick = () => { showView("history"); openRun(td.dataset.run); };
+    td.onclick = () => openPoint(td.dataset.run);
   }
 }
 
@@ -1923,7 +1989,12 @@ async function openRun(id) {
     spat.onclick = () => { showView("new"); openSweep(znacka); };
   }
   $("#download-profile").href = `/api/runs/${id}/profile.json`;
-  $("#save-profile-msg").textContent = ""; $("#save-profile-msg").classList.remove("err");
+  $("#save-profile-msg").classList.remove("err");
+  // Starší beh nezapísal celý config — profil z neho doplní chýbajúce polia dnešnými defaultmi.
+  const chyba = rec.missing_params || [];
+  $("#save-profile-msg").textContent = chyba.length
+    ? `beh nemá zapísaných ${chyba.length} polí configu (starší beh) — uložený profil ich doplní dnešnými defaultmi: ${chyba.slice(0, 8).join(", ")}${chyba.length > 8 ? "…" : ""}`
+    : "";
   $("#detail-error").hidden = !rec.error; $("#detail-error").textContent = rec.error || "";
   // beh, ktory mal signaly ale ziadny obchod, nie je platny vysledok - musi to povedat
   const warn = (rec.result || {}).warning;
@@ -1981,7 +2052,7 @@ function card(k, v, s) { return `<div class="kcard"><div class="k">${k}</div><di
 // Až po rozbalení sekcie: pri behu s tisíckami obchodov to trvá jednotky sekúnd.
 // --------------------------------------------------------------------------- //
 
-const mc = { key: null, busy: false };
+const mc = { key: null, busy: false, lastBe: null, lastDd: null, lastFeePct: null };
 
 const mcInputs = () => ["#mc-fee", "#mc-account", "#mc-risk", "#mc-block", "#mc-iter"].map(s => $(s).value);
 function mcKey() { return [state.detailId, ...mcInputs()].join("|"); }
@@ -2031,6 +2102,7 @@ function renderMonteCarlo(r) {
   const cur = ((state.detailRecord || {}).result || {}).stake_currency || "USDT";
   const be = r.break_even, net = r.net, acc = r.account;
   const dd = acc.drawdown_pct, st = acc.losing_streak, wt = acc.wait_for_high, fin = acc.final_pct;
+  mc.lastBe = be; mc.lastDd = dd; mc.lastFeePct = r.fee_pct;
   $("#mc-cards").innerHTML = [
     card("Break-even poplatok", `${fmt(be.median, 4)} %`, `nameraný ${fmt(be.observed, 4)} %`),
     card(`${fmt(r.ci, 0)} % interval`, `${fmt(be.lo, 4)} – ${fmt(be.hi, 4)}`, "% na stranu"),
@@ -2079,9 +2151,14 @@ const vline = (x, color, dash) => ({ type: "line", x0: x, x1: x, yref: "paper", 
 const vlabel = (x, text, color) => ({ x, y: 1, yref: "paper", text, showarrow: false, yanchor: "bottom",
   font: { size: 11, color } });
 
+/** Šablóna Plotly grafu podľa aktuálnej témy — pozadie je vždy priehľadné (karta pod
+ *  grafom je už tokenizovaná v CSS), len mriežka/písmo/hover potrebujú tmavý variant. */
+function plotlyTemplate() { return isDarkTheme() ? "plotly_dark" : "plotly_white"; }
+function chartGridColor() { return isDarkTheme() ? "#30454d" : "#f0f1f3"; }
+
 function histLayout(title, suffix, extra) {
   return Object.assign({
-    height: 280, margin: { l: 48, r: 16, t: 18, b: 40 }, template: "plotly_white", bargap: 0.02,
+    height: 280, margin: { l: 48, r: 16, t: 18, b: 40 }, template: plotlyTemplate(), bargap: 0.02,
     showlegend: false,
     xaxis: { title, ticksuffix: suffix },
     yaxis: { title: "vzoriek", showgrid: true },
@@ -2117,6 +2194,7 @@ function drawDdChart(dd) {
 
 /** Krivka ako v Strategy Testeri: stĺpce za obchod (vlastná skrytá os), kumulatívny PnL, buy and hold. */
 function drawChart(series, res) {
+  lastEquityChart = { series, res };
   const eq = series.equity || [], mk = series.market || [];
   if (!eq.length) { $("#chart").innerHTML = `<div class="muted">Bez obchodov, nie je čo kresliť.</div>`; return; }
   const x = eq.map(e => e[0]), bar = eq.map(e => e[1]), cum = eq.map(e => e[2]);
@@ -2139,7 +2217,7 @@ function drawChart(series, res) {
   const pad = (hi - lo) * 0.06 || 1; lo -= pad; hi += pad;
   const scale = (hi - lo) / Math.max(Math.max(...bar.map(Math.abs)) * 6, 1e-9);
   Plotly.newPlot("chart", traces, {
-    height: 460, margin: { l: 10, r: 56, t: 10, b: 30 }, template: "plotly_white", hovermode: "x unified",
+    height: 460, margin: { l: 10, r: 56, t: 10, b: 30 }, template: plotlyTemplate(), hovermode: "x unified",
     legend: { orientation: "h", yanchor: "bottom", y: 1.0, x: 0 }, bargap: 0.2,
     yaxis: { ticksuffix: " %", range: [lo, hi], side: "right" },
     yaxis2: { overlaying: "y", range: [lo / scale, hi / scale], showgrid: false, showticklabels: false },
@@ -2229,12 +2307,64 @@ function initPairChart(rec, trades) {
   $("#pc-first-trade").disabled = !pc.trades.length;
   $("#pc-goto").onchange = () => { const v = $("#pc-goto").value; if (v) { const t0 = Date.parse(v + ":00Z"); setWindow(t0, t0 + spanMs()); } };
 
-  $("#pc-note").textContent = rec.has_chart ? "" :
-    "Tento beh nemá uložené kresby enginu (spustený staršou verziou) — graf ukáže sviečky a obchody bez zón a štítkov.";
+  chartNote(rec.chart);
   renderLayerToggles();
+  if (rec.chart && ["missing", "queued", "running"].includes(rec.chart.state)) ensureChart(rec, rec.chart.state === "missing");
 
   if (pc.trades.length) jumpToTrade(pc.trades[0]);
   else setWindow(pc.runFrom, pc.runFrom + 86400e3);
+}
+
+/**
+ * Poznámka pod grafom podľa stavu kresieb. Kresby nie sú v gite — beh ich má len lokálne
+ * (čerstvý beh, prepočítaný graf) a inak sa prepočítajú z uloženého configu na pozadí.
+ */
+function chartNote(ch) {
+  const el = $("#pc-note");
+  el.classList.remove("warn");
+  const st = (ch && ch.state) || "missing";
+  if (st === "ready") {
+    el.textContent = ch.warning || "";
+    el.classList.toggle("warn", !!ch.warning);
+  } else if (st === "unavailable") {
+    el.textContent = "Tento beh graf nemá (nedobehol) — ukazujú sa len sviečky.";
+  } else if (st === "failed") {
+    el.innerHTML = `Graf sa nepodarilo prepočítať: ${esc(ch.error || "neznáma chyba")} `
+      + `<button class="ghost small" type="button" id="pc-retry">skúsiť znova</button>`;
+    const b = $("#pc-retry");
+    if (b) b.onclick = () => ensureChart(pc.rec, true);
+  } else {
+    const riadok = ((ch && ch.log_tail) || []).slice(-1)[0] || "";
+    el.textContent = `Počíta sa graf z uloženého configu behu (kresby nie sú v gite)… `
+      + (st === "queued" ? "čaká" : "beží") + (riadok ? ` · ${riadok.slice(0, 120)}` : "")
+      + " — sviečky a obchody sú vidieť hneď, zóny a štítky pribudnú.";
+  }
+}
+
+/** Vypýta prepočet kresieb (ak treba) a sleduje ho; po dobehnutí prekreslí graf. */
+async function ensureChart(rec, request) {
+  const id = rec.id;
+  let ch;
+  try {
+    ch = request ? await api(`/api/runs/${id}/chart`, { method: "POST" })
+      : await api(`/api/runs/${id}/chart/status`);
+  } catch (e) {
+    ch = { state: "failed", error: e.message };
+  }
+  if (pc.rec !== rec) return;          // medzitým sa otvoril iný beh
+  rec.chart = ch;
+  chartNote(ch);
+  if (ch.state === "ready") {
+    rec.has_chart = true;
+    pc.meta = null;
+    renderLayerToggles();
+    loadPairChart();
+    return;
+  }
+  if (ch.state === "queued" || ch.state === "running") {
+    clearTimeout(pc.replayTimer);
+    pc.replayTimer = setTimeout(() => ensureChart(rec, false), 2500);
+  }
 }
 
 function spanMs() { return Math.max(pc.to - pc.from, 15 * 60e3) || 86400e3; }
@@ -2312,6 +2442,40 @@ function describe(o) {
   return `${head}<br>${utc(o.x1).slice(0, 16)} → ${utc(o.x2).slice(0, 16)}${y}`;
 }
 
+/**
+ * Farby kresieb (zóny, štruktúra…) prichádzajú z backendu ako hex/rgba a ich VÝZNAM
+ * (LONG/SHORT/silná zóna/…) sa nesmie zmeniť — len na tmavom pozadí by tmavší odtieň
+ * (napr. štruktúrna "slate") zanikol a nízkoalfa výplň by nebola vidieť. `chartColor()`
+ * preto na tmavej téme len zosvetlí, čo by v nej zaniklo, a zvýrazní priehľadné výplne;
+ * na svetlej téme vracia farbu bez zmeny.
+ */
+function parseAnyColor(c) {
+  if (typeof c !== "string") return null;
+  let m = /^#([0-9a-fA-F]{6})([0-9a-fA-F]{2})?$/.exec(c.trim());
+  if (m) {
+    const n = parseInt(m[1], 16);
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255, a: m[2] ? parseInt(m[2], 16) / 255 : 1 };
+  }
+  m = /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*([\d.]+)\s*)?\)$/.exec(c.trim());
+  if (m) return { r: +m[1], g: +m[2], b: +m[3], a: m[4] !== undefined ? +m[4] : 1 };
+  return null;
+}
+const colorLuminance = ({ r, g, b }) => (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+function chartColor(c) {
+  if (!c || !isDarkTheme()) return c;
+  const p = parseAnyColor(c);
+  if (!p) return c;
+  let { r, g, b, a } = p;
+  const lum = colorLuminance(p);
+  if (lum < 0.42) {
+    const t = Math.min(1, (0.42 - lum) / 0.42) * 0.72;  // ako veľmi zosvetliť tmavý odtieň
+    r += (255 - r) * t; g += (255 - g) * t; b += (255 - b) * t;
+  }
+  if (a < 0.35) a = Math.min(0.6, a * 1.8);  // priehľadná výplň potrebuje na tmavom viac alfy
+  return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`;
+}
+
 function objectTraces(objects) {
   const groups = new Map(), shapes = [];
   const group = (key, init) => { let g = groups.get(key); if (!g) { g = init(); groups.set(key, g); } return g; };
@@ -2322,18 +2486,18 @@ function objectTraces(objects) {
     const name = (pc.L.layers.find(l => l.id === layer) || {}).title || o.k;
     const desc = describe(o);
     if (o.t === "bg") {
-      shapes.push({ type: "rect", xref: "x", yref: "paper", layer: "below", x0: utc(o.x1), x1: utc(o.x2), y0: 0, y1: 1, fillcolor: o.c, line: { width: 0 } });
+      shapes.push({ type: "rect", xref: "x", yref: "paper", layer: "below", x0: utc(o.x1), x1: utc(o.x2), y0: 0, y1: 1, fillcolor: chartColor(o.c), line: { width: 0 } });
     } else if (o.t === "box") {
-      const fill = o.fc || "rgba(0,0,0,0)", dash = DASH[o.bs] || "solid", w = o.bw ?? 1;
-      const g = group(`box|${fill}|${o.bc}|${dash}|${w}`, () => ({ type: "scatter", mode: "lines", fill: "toself", fillcolor: fill,
-        line: { color: o.bc, width: w, dash }, x: [], y: [], text: [], hoverinfo: "text", hoveron: "points", showlegend: false, name }));
+      const fill = chartColor(o.fc) || "rgba(0,0,0,0)", bc = chartColor(o.bc), dash = DASH[o.bs] || "solid", w = o.bw ?? 1;
+      const g = group(`box|${fill}|${bc}|${dash}|${w}`, () => ({ type: "scatter", mode: "lines", fill: "toself", fillcolor: fill,
+        line: { color: bc, width: w, dash }, x: [], y: [], text: [], hoverinfo: "text", hoveron: "points", showlegend: false, name }));
       const x2 = o.er ? Math.max(o.x2, pc.to) : o.x2;
       g.x.push(utc(o.x1), utc(x2), utc(x2), utc(o.x1), utc(o.x1), null);
       g.y.push(o.y1, o.y1, o.y2, o.y2, o.y1, null);
       g.text.push(desc, desc, desc, desc, desc, "");
     } else if (o.t === "line") {
-      const dash = DASH[o.s] || "solid", w = o.w ?? 1;
-      const g = group(`line|${o.c}|${dash}|${w}`, () => ({ type: "scatter", mode: "lines", line: { color: o.c, width: w, dash },
+      const c = chartColor(o.c), dash = DASH[o.s] || "solid", w = o.w ?? 1;
+      const g = group(`line|${c}|${dash}|${w}`, () => ({ type: "scatter", mode: "lines", line: { color: c, width: w, dash },
         x: [], y: [], text: [], hoverinfo: "text", showlegend: false, name }));
       g.x.push(utc(o.x1), utc(o.x2), null); g.y.push(o.y1, o.y2, null); g.text.push(desc, desc, "");
     } else if (o.t === "label") {
@@ -2347,8 +2511,8 @@ function objectTraces(objects) {
         return t;
       });
       g.x.push(utc(o.x)); g.y.push(o.y); g.text.push(esc(o.tx || "").replace(/\n/g, "<br>"));
-      g.textfont.color.push(bubble ? o.bg : o.c); g.hovertext.push(desc);
-      if (bubble) g.marker.color.push(o.bg);
+      g.textfont.color.push(chartColor(bubble ? o.bg : o.c)); g.hovertext.push(desc);
+      if (bubble) g.marker.color.push(chartColor(o.bg));
     }
   }
   return { traces: [...groups.values()], shapes };
@@ -2371,7 +2535,7 @@ function candleTraces(candles, objects) {
       if (layer && !pc.layers[layer]) continue;
       let lo = 0, hi = t.length - 1, idx = -1;
       while (lo <= hi) { const m = (lo + hi) >> 1; if (t[m] <= o.x1) { idx = m; lo = m + 1; } else hi = m - 1; }
-      if (idx >= 0 && (idx + 1 >= t.length || o.x1 < t[idx + 1])) marks.set(idx, o.bc);
+      if (idx >= 0 && (idx + 1 >= t.length || o.x1 < t[idx + 1])) marks.set(idx, chartColor(o.bc));
     }
   }
   const base = (name, inc, dec, fill) => ({ type: "candlestick", x: [], open: [], high: [], low: [], close: [], name, showlegend: false, whiskerwidth: 0.3,
@@ -2421,11 +2585,12 @@ function renderPairChart(candles, objects) {
   let lo = Math.min(...candles.l), hi = Math.max(...candles.h);
   if (!Number.isFinite(lo)) { lo = 0; hi = 1; }
   const pad = (hi - lo) * 0.05 || 1;
+  const grid = chartGridColor();
   Plotly.react(el, [...traces, ...candleTraces(candles, objects), ...tradeTraces()], {
-    height: 640, margin: { l: 10, r: 70, t: 8, b: 36 }, template: "plotly_white", dragmode: "pan", hovermode: "closest",
+    height: 640, margin: { l: 10, r: 70, t: 8, b: 36 }, template: plotlyTemplate(), dragmode: "pan", hovermode: "closest",
     showlegend: false, shapes,
-    xaxis: { type: "date", range: [utc(pc.from), utc(pc.to)], rangeslider: { visible: false }, showgrid: true, gridcolor: "#f0f1f3" },
-    yaxis: { side: "right", range: [lo - pad, hi + pad], showgrid: true, gridcolor: "#f0f1f3", fixedrange: false },
+    xaxis: { type: "date", range: [utc(pc.from), utc(pc.to)], rangeslider: { visible: false }, showgrid: true, gridcolor: grid },
+    yaxis: { side: "right", range: [lo - pad, hi + pad], showgrid: true, gridcolor: grid, fixedrange: false },
     paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
   }, { displaylogo: false, responsive: true, scrollZoom: true, modeBarButtonsToRemove: ["select2d", "lasso2d", "autoScale2d", "toggleSpikelines"] });
   pc.quietUntil = Date.now() + 400;
@@ -3550,6 +3715,13 @@ function showView(name) {
 }
 
 async function init() {
+  // Téma: atribút už nastavil inline skript v <head> (proti bliknutiu); tu len
+  // označíme aktívne tlačidlo a napojíme prepínanie/systémovú zmenu.
+  const themePref = loadThemePref();
+  applyTheme(themePref);
+  for (const b of $$("#theme-switch button")) b.onclick = () => setTheme(b.dataset.theme);
+  if (systemDark) systemDark.addEventListener("change", () => { if (loadThemePref() === "auto") applyTheme("auto"); });
+
   state.meta = await api("/api/meta");
   Object.assign(state.meta, strategyMeta(state.strategy) || {});
   fillSettings();

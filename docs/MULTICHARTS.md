@@ -188,6 +188,15 @@ limitka pri dotyku, SL/TP po 1m sviečkach, koniec seansy na close baru). Výsle
 rovnaký tvar ako Freqtrade beh, história ich nerozlišuje; v `result.engine` je
 `multicharts-emulator`. Dáta pripraví [DATA.md §B](DATA.md).
 
+**Predhistória.** Emulátor začína engine na `from_ms` bez predhistórie grafu (ako doteraz).
+Indikátory na vlastnom vyššom TF (IBS Supertrend/ADX pri `tradeDirection = Indicator`,
+vyššie TF divergencie) však pred prvým barom dostanú svoje bary z 1m dát pred `from_ms`
+(`tradebot.core.warmup.seed_engine`) — rovnako ako vo Freqtrade, takže stav na prvom bare
+je na oboch enginoch ten istý. **Živá študia** neseeduje: indikátor sa rozbehne na histórii,
+ktorú graf načíta (Supertrend(10) 60m = 40 hodinových barov, ADX 14/14 = 111), a dovtedy
+brána hlási „SA ROZBIEHA" a neobchoduje; koľko treba, vypíše `StartCalc` do logu.
+Podrobne [STRATEGIE.md §3](STRATEGIE.md).
+
 **Offline simulátor a párovanie so študiou.** Zoznam obchodov z posledného behu študie
 sa dá vytiahnuť z jej logu (`%LOCALAPPDATA%\tradebot\multicharts.log`, premenná
 `TRADEBOT_MC_LOG`; `[trace]` riadky = každý `Send` a zmena pozície, `[trade]` = uzavretý

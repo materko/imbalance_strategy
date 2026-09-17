@@ -4,14 +4,25 @@ Priebeh:
 
   1. **báza** — 1 až ``baseMaxBars`` sviečok s malými telami (``baseMaxBodyPct``),
      ktorých celý rozsah je užší než ``baseMaxWidthAtr``
-  2. **impulz** — sviečka hneď za bázou s telom aspoň ``impulseMinBodyAtr`` a podielom tela
-     aspoň ``impulseMinBodyPct``; do ``impulseMaxBars`` barov musí cena od zóny odísť
-     aspoň o ``impulseMinMoveAtr``
-  3. **formácia** sa klasifikuje podľa smeru príchodu a odchodu: Rally-Base-Rally,
+  2. **impulz** — prvá sviečka odchodu (leg-out) hneď za bázou s telom aspoň
+     ``impulseMinBodyAtr`` a podielom tela aspoň ``impulseMinBodyPct``
+  3. **odchod** — do ``legOutMaxBars`` barov (počítajúc impulz) musí niektorý bar **zavrieť**
+     za hranou bázy v smere odchodu aspoň o ``legOutMinAtr`` (ATR z baru pred impulzom).
+     Odchod môže byť rozložený do viacerých sviečok; keď sa nestihne, alebo cena medzitým
+     zavrie späť za druhou hranou bázy, kandidát zanikne. ``legOutMinAtr = 0`` krok vypne
+     (zóna vzniká hneď na impulze, ako pred 2026-09-17).
+  4. **formácia** sa klasifikuje podľa smeru príchodu a odchodu: Rally-Base-Rally,
      Drop-Base-Drop (pokračovacie), Drop-Base-Rally, Rally-Base-Drop (obratové)
-  4. **zóna** sa zapamätá; ``pfz`` je úzka (telo bázy), ``wfz`` široká (knôt po knôt)
-  5. **návrat** — pri prvom návrate do čerstvej zóny sa vstupuje; zóna sa tým minie
-  6. **SL** za vzdialenejšiu hranu zóny, **TP** podľa ``tpMode``
+  5. **zóna** vzniká na bare, ktorý odchod dokončil (nie skôr — žiadny pohľad dopredu),
+     obchodovateľná je od nasledujúceho baru; ``pfz`` je úzka (telo bázy), ``wfz`` široká
+     (knôt po knôt). Keď sa cena počas odchodu vrátila k zóne, zóna už nie je čerstvá.
+  6. **návrat** — pri prvom návrate do čerstvej zóny sa vstupuje; zóna sa tým minie
+  7. **SL** za vzdialenejšiu hranu zóny, **TP** podľa ``tpMode``
+
+Pravidlo odchodu je podľa verejných supply/demand skriptov na TradingView: odchod = **záver**
+za bázou o násobok ATR (nie knôt), zóna sa kreslí až na bare, ktorý odchod uzavrel, a pohyb
+smie dobehnúť cez niekoľko „follow-through" sviečok. Zdroje a zdôvodnenie sú
+v ``docs/ANALYTIKA.md`` stratégie.
 
 Engine je čistý: žiadne I/O, žiadny globálny stav, všetko je v ``self``.
 """
@@ -25,6 +36,7 @@ from zoneinfo import ZoneInfo
 from tradebot.core.drawing import DrawBox, DrawCommand, DrawLabel, LabelStyle
 from tradebot.core.engine import EngineOutput
 from tradebot.core.history import BarHistory
+from tradebot.core.warmup import Warmup
 from tradebot.core.orders import MarketContext, OrderAction, OrderIntent
 from tradebot.core.risk import TradePlan, TrailingPlan
 from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
@@ -69,6 +81,16 @@ class _Zone:
         return self.top - self.bottom
 
 
+@dataclass
+class _Candidate:
+    """Báza s impulzom, ktorej odchod ešte nie je dokončený — zatiaľ nie je zónou."""
+
+    zone: _Zone                   # born_bar sa doplní na bare, ktorý odchod dokončí
+    start_bar: int                # index impulznej sviečky (prvý bar odchodu)
+    target: float                 # záver, ktorý treba prekonať (hrana bázy ± legOutMinAtr)
+    base_high: float              # knôt po knôt — z nich sa meria odchod aj návrat
+    base_low: float
+
 class SDZoneEngine:
     """Bar-by-bar engine. Volaj ``on_bar`` presne raz na každý uzavretý bar grafu."""
 
@@ -78,10 +100,13 @@ class SDZoneEngine:
         self.chart_tf_minutes = max(1, int(chart_tf_minutes))
         self.step_ms = self.chart_tf_minutes * 60_000
 
-        # história musí pokryť ATR, trendový priemer aj bázu s impulzom
-        self.required_history = max(int(cfg.atrLen), int(cfg.trendMaLen) if cfg.useTrendFilter else 0) \
-            + int(cfg.baseMaxBars) + int(cfg.impulseMaxBars) + 8
-        self.history = BarHistory(maxlen=self.required_history + 32, atr_len=int(cfg.atrLen))
+        # okno histórie musí pokryť ATR, trendový priemer aj bázu s odchodom
+        window = max(int(cfg.atrLen), int(cfg.trendMaLen) if cfg.useTrendFilter else 0) \
+            + int(cfg.baseMaxBars) + int(cfg.legOutMaxBars) + 8
+        self.history = BarHistory(maxlen=window + 32, atr_len=int(cfg.atrLen))
+        #: predhistória grafu = to okno (životnosť zón a denný limit sa do nej nepočítajú)
+        self.warmup = Warmup(self.chart_tf_minutes).add("ATR/SMA trendu + baza + odchod", window)
+        self.required_history = self.warmup.chart_bars
 
         self._zone = ZoneInfo(cfg.tradeTZ)
         self._zones: list[_Zone] = []
@@ -90,8 +115,8 @@ class SDZoneEngine:
         self._day: tuple[int, int, int] | None = None
         self._trades_today = 0
         self._in_window_prev = False
-        #: bar, od ktorého sa čaká na dokončenie impulzu (kandidát na zónu)
-        self._cand: tuple[int, float, float, bool, int] | None = None
+        #: bázy s impulzom, ktoré čakajú na dokončenie odchodu (ešte nie sú zónou)
+        self._candidates: list[_Candidate] = []
 
     # ------------------------------------------------------------------ #
     # pomocné
@@ -129,8 +154,14 @@ class SDZoneEngine:
     # detekcia zóny
     # ------------------------------------------------------------------ #
 
-    def _detect(self, idx: int, atr: float) -> _Zone | None:
-        """Hľadá bázu + impulz končiaci na poslednom uzavretom bare."""
+    def _detect(self, idx: int, atr: float, atr_prev: float) -> _Candidate | None:
+        """Hľadá bázu + impulz končiaci na poslednom uzavretom bare.
+
+        Vráti kandidáta, nie zónu: zónou sa stane až v `_advance`, keď cena od bázy naozaj
+        odíde. `atr_prev` je ATR baru pred impulzom — cieľ odchodu sa z neho počíta preto,
+        aby veľký rozsah samotného impulzu nezdvihol latku, ktorú má prekonať
+        (tak to robí aj Zone Forge [AFD] na TradingView).
+        """
         cfg = self.cfg
         if atr <= 0:
             return None
@@ -168,6 +199,7 @@ class SDZoneEngine:
             if direction is Direction.SHORT and not cfg.allow_short:
                 continue
 
+            base_high, base_low = top, bot
             if cfg.zoneMode is ZoneMode.PFZ:
                 # úzka zóna: len telá sviečok bázy
                 top = max(max(b.open, b.close) for b in baza)
@@ -177,9 +209,47 @@ class SDZoneEngine:
 
             pat = ("RBR" if (prichod_hore and hore) else "DBR" if hore else
                    "DBD" if not prichod_hore else "RBD")
-            return _Zone(direction=direction, top=top, bottom=bot, born_bar=idx,
+            zona = _Zone(direction=direction, top=top, bottom=bot, born_bar=idx,
                          born_ms=baza[-1].time, pattern=pat, continuation=continuation)
+            # odchod sa meria od hrany bázy knôt po knôt, nezávisle od zoneMode — šírka
+            # kreslenej zóny nesmie meniť, ktoré zóny vôbec vzniknú
+            odchod = cfg.legOutMinAtr.resolve(self.inst, price=impulz.close,
+                                              atr=atr_prev if atr_prev > 0 else atr)
+            target = base_high + odchod if hore else base_low - odchod
+            return _Candidate(zone=zona, start_bar=idx, target=target,
+                              base_high=base_high, base_low=base_low)
         return None
+
+    def _advance(self, bar: Bar, idx: int) -> list[_Zone]:
+        """Posunie čakajúcich kandidátov o bar; vráti zóny, ktorých odchod sa práve dokončil.
+
+        Pravidlá (pre demand, supply zrkadlovo):
+          * odchod je dokončený, keď bar **zavrie** nad ``target`` — knôt nestačí
+          * musí sa to stať do ``legOutMaxBars`` barov vrátane impulzu, inak kandidát zanikne
+          * záver pod spodnou hranou bázy kandidáta zruší (formácia sa nepotvrdila)
+          * keď sa cena po impulze dotkla zóny skôr, než odchod dobehol, zóna vznikne,
+            ale nie je čerstvá — prvý návrat už prebehol
+        """
+        cfg = self.cfg
+        max_bars = max(1, int(cfg.legOutMaxBars))
+        hotove: list[_Zone] = []
+        cakaju: list[_Candidate] = []
+        for c in self._candidates:
+            z = c.zone
+            long = z.direction is Direction.LONG
+            if idx > c.start_bar and (bar.low <= z.top if long else bar.high >= z.bottom):
+                z.fresh = False
+            if (bar.close >= c.target) if long else (bar.close <= c.target):
+                z.born_bar = idx
+                hotove.append(z)
+                continue
+            if (bar.close < c.base_low) if long else (bar.close > c.base_high):
+                continue
+            if idx - c.start_bar + 1 >= max_bars:
+                continue
+            cakaju.append(c)
+        self._candidates = cakaju
+        return hotove
 
     # ------------------------------------------------------------------ #
     # plán obchodu
@@ -246,6 +316,7 @@ class SDZoneEngine:
         out = EngineOutput()
         cfg = self.cfg
 
+        atr_prev = self.history.atr
         self.history.append(bar)
         atr = self.history.atr
         idx = self.history.bar_index
@@ -280,10 +351,19 @@ class SDZoneEngine:
                                               reason=f"drží sa dlhšie než {cfg.maxHoldBars} barov"))
             self._entry_bar = -1
 
-        # ---- 1.-4. vznik novej zóny --------------------------------------- #
-        nova = self._detect(idx, atr)
-        if nova is not None and not any(
-                z.born_ms == nova.born_ms and z.direction is nova.direction for z in self._zones):
+        # ---- 1.-5. vznik novej zóny --------------------------------------- #
+        kand = self._detect(idx, atr, atr_prev)
+        nove: list[_Zone] = []
+        if kand is not None and not any(
+                z.born_ms == kand.zone.born_ms and z.direction is kand.zone.direction
+                for z in [*self._zones, *(c.zone for c in self._candidates)]):
+            if cfg.legOutMinAtr.value > 0:
+                self._candidates.append(kand)
+            else:
+                nove.append(kand.zone)       # odchod sa nemeria — zóna hneď na impulze
+        if self._candidates:
+            nove.extend(self._advance(bar, idx))
+        for nova in nove:
             self._zones.append(nova)
             if len(self._zones) > cfg.maxZones:
                 self._zones = self._zones[-int(cfg.maxZones):]
@@ -302,7 +382,8 @@ class SDZoneEngine:
                     SD_PATTERN, bar.time, bar.low if long else bar.high, nova.pattern,
                     "#ffffff", style=LabelStyle.NONE, above=not long,
                     bg_color=_LONG_COLOR if long else _SHORT_COLOR,
-                    obj_id=f"sdp.{bar.time}"))
+                    # na jednom bare môže dobehnúť odchod viacerých zón
+                    obj_id=f"sdp.{bar.time}.{nova.born_ms}"))
 
         # ---- starnutie a zneplatnenie zón --------------------------------- #
         ziju: list[_Zone] = []

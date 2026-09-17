@@ -165,7 +165,10 @@ referenciu**.
 ## 7. Sweep: hľadanie parametra bez písania kódu
 
 Mriežka behov cez hodnoty jedného či viacerých parametrov. Každý bod je **obyčajný
-backtest** — uloží sa do histórie, dá sa otvoriť, porovnať aj prehnať Monte Carlom.
+backtest**, ale do histórie behov **nejde** — uloží sa len riadok výsledku s celým configom
+do `tester/sweeps/sweep-<id>.json` (v gite, Push ho zdieľa). Bod, ktorý chceš otvoriť,
+porovnať, vidieť v grafe alebo prehnať Monte Carlom, prehráš ako beh:
+`PY -m tester.webapp.cli replay <id bodu>` (vo webapp klik na riadok).
 
 ```bash
 PY -m tester.webapp.cli sweep --param rrRatio=2:6:1    --profile docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json    --timerange 20250904-20260904 --goal break_even --min-trades 20
@@ -180,7 +183,7 @@ na serveri. Cena je čas: každý bod je celý backtest, rok je asi 30 sekúnd, 
 na piatich referenčných oknách je hodina a pol. Vo webapp sa celá mriežka dá zrušiť jedným
 tlačidlom, z CLI Ctrl+C.
 
-K hotovej mriežke sa dá kedykoľvek vrátiť — je v histórii ako každý beh:
+K hotovej mriežke sa dá kedykoľvek vrátiť — súbor v `tester/sweeps/` je v gite:
 
 ```bash
 PY -m tester.webapp.cli sweeps                    # zoznam mriežok, od najnovšej
@@ -204,7 +207,8 @@ K tomu mantinely `--max-dd` (strop na drawdown v %) a `--min-trades`. Body, ktor
 porušia, sa nezahodia — ukážu sa pod čiarou s dôvodom, nech je vidno, že optimum tam je,
 len je mimo dohodnutých hraníc.
 
-Výsledok je tabuľka zoradená podľa kritéria a id najlepšieho behu. **Než z neho spravíš
+Výsledok je tabuľka zoradená podľa kritéria a id najlepšieho bodu (`cli replay <id>` ho
+prehrá ako beh do histórie). **Než z neho spravíš
 profil, prežeň ho ostatnými referenčnými oknami** (§4) — mriežka vie len to okno, na ktorom
 bežala.
 
@@ -235,7 +239,9 @@ vedľa seba (ladené okno označené) s jednou vetou na záver: `VITAZ PREZIL` /
 `PRETRENOVANE`. Nie je to doplnok — hyperopt nájde optimum práve toho okna, ktoré videl,
 a už sa raz stalo, že víťaz mal na ladenom roku +34,8 % a stratu vo všetkých štyroch
 ostatných ([docs/merania/HYPEROPT_btcusdt_2026-09-04.md](../docs/merania/HYPEROPT_btcusdt_2026-09-04.md)).
-Overovacie behy sú obyčajné behy v histórii, dajú sa otvoriť aj prehnať Monte Carlom.
+Overovacie behy víťaza sa do histórie neukladajú — ich riadky (a interval víťaza z Monte
+Carla pre test okolia) sú v `tester/sweeps/hyperopt_run-<id hyperoptu>.json`; ktorékoľvek
+okno sa dá prehrať ako beh (`cli replay <id>`).
 
 Na jeden–dva parametre je čitateľnejší **sweep** (§7). Hyperopt sa oplatí od troch.
 
@@ -477,12 +483,13 @@ výpis to povie sám.
 
 Že stratégia funguje na BTC, hovorí o BTC. Že tá istá myšlienka funguje na indexe, na
 komodite **aj** na krypte, hovorí o myšlienke. Matica je sweep, v ktorom sa nemení
-parameter, ale **trh a timeframe**; každá bunka je obyčajný beh a ostane v histórii.
+parameter, ale **trh a timeframe**; každá bunka je obyčajný beh, ale v histórii ostane
+len jej výsledok v `tester/sweeps/matrix-<id>.json` (bunku prehrá `cli replay <id>`).
 
 ```bash
 PY -m tester.webapp.cli matrix --profile <profil> --pairs all --timeframes 3m \
    --timerange 20250904-20260904 --wallet 40000000
-PY -m tester.webapp.cli matrices              # matice z histórie
+PY -m tester.webapp.cli matrices              # matice z tester/sweeps/ (aj staré z histórie)
 ```
 
 Dve veci, bez ktorých je tabuľka na nič, a modul ich robí sám:

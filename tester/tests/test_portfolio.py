@@ -116,6 +116,23 @@ def test_obchod_bez_vzdialenosti_stopu_do_prepoctu_nevstupi():
     assert pf.equity_curve([zo_stopu], risk_pct=1.0)["skipped"] == 0
 
 
+def test_obchod_multicharts_na_tp_ma_stop_zo_zaznamu():
+    """Audit A10: neobohatený MC obchod, ktorý skončil na TP, nesmie z prepočtu vypadnúť —
+    stop pri vstupe je v jeho riadku (`initial_stop_loss_abs`)."""
+    mc = trade(open_rate=100.0, close_rate=103.0, exit_reason="take_profit")
+    mc.pop("_sl_pct")
+    mc.update({"initial_stop_loss_abs": 98.0, "order_type": "market", "enter_tag": "LONG_3"})
+    assert pf._sl_distance(mc) == pytest.approx(2.0)
+    v = pf.equity_curve([mc], risk_pct=1.0)
+    assert v["skipped"] == 0
+    assert v["final"] - pf.DEFAULT_ACCOUNT == pytest.approx(150.0)   # 1 % = 100, zisk 1,5 R
+
+    # Freqtrade riadok má v tom istom poli statický stoploss, nie plán — ten sa neberie.
+    ft = {k: v for k, v in mc.items() if k != "order_type"}
+    ft["initial_stop_loss_abs"] = 1.0
+    assert pf._sl_distance(ft) is None
+
+
 def test_ruina_zastavi_beh():
     straty = [trade(open_rate=100.0, close_rate=50.0, sl_pct=1.0) for _ in range(5)]
     v = pf.equity_curve(straty, risk_pct=5.0)

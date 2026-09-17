@@ -2,7 +2,8 @@
 
 Generická časť (engine cez DataFrame, `tb_*` stĺpce, SL/TP/veľkosť z plánu, export
 kresieb) je v `tradebot.adapters.freqtrade.base`. Tu je: HTF sviečky detekčného TF,
-hyperopt priestor, trailing, zavretie na konci seansy a timeout limitky.
+hyperopt priestor, zavretie na konci seansy a timeout limitky. Trailing je generický
+(`TradebotStrategyBase._trailing_stop` z `TradePlan.trailing`).
 Freqtrade resolver berie len triedu, ktorej `__module__` == názov súboru, preto
 existuje shim `deploy/freqtrade/user_data/strategies/IBSImbalanceStrategy.py`.
 """
@@ -18,8 +19,6 @@ from tradebot.adapters.freqtrade.base import TradebotStrategyBase, _bar, _ts_ms
 from tradebot.adapters.freqtrade.runner import EngineRunner
 from tradebot.core.candles import timeframe_minutes
 from tradebot.core import Bar, SessionClock
-from tradebot.core.risk import TrailingPlan, extreme_before_stop
-from tradebot.core.types import Direction
 
 from .config import TradeDirection
 
@@ -79,7 +78,7 @@ class IBSImbalanceStrategy(TradebotStrategyBase):
 
     def _entry_timeout_minutes(self) -> int:
         """Ako dlho smie limitka čakať — Pine `state5MaxBars` prevedené na minúty."""
-        return int(self.ibs_cfg.state5MaxBars) * timeframe_minutes(self.timeframe)
+        return int(self.ibs_cfg.state5MaxBars) * timeframe_minutes(self.run_timeframe)
 
     def _check_unfilled_timeout(self) -> None:
         """`unfilledtimeout.entry` vo Freqtrade configu nesmie byť kratší než engine.
@@ -149,53 +148,8 @@ class IBSImbalanceStrategy(TradebotStrategyBase):
             )
 
     # ------------------------------------------------------------------ #
-    # Trailing, koniec seansy, timeout limitky
+    # Koniec seansy, timeout limitky
     # ------------------------------------------------------------------ #
-
-    def _trailing_stop(self, pair: str, trade, base_stop: float) -> float:
-        """`base_stop` posunutý trailingom, ak je zapnutý a už sa aktivoval."""
-        if not self.ibs_cfg.enableTrailing:
-            return base_stop
-        row = self._trade_signal(pair, trade)
-        if row is None or row.entry != row.entry:
-            return base_stop
-        trail = TrailingPlan.build(self.ibs_cfg, self.ibs_inst, abs(row.entry - base_stop))
-        if trail is None:
-            return base_stop
-
-        long = not trade.is_short
-        direction = Direction.LONG if long else Direction.SHORT
-        key = (pair, trade.open_date_utc)
-        prev = self._extremes.get(key, row.entry)
-
-        bar_open, high, low = getattr(self, "_candle", (None, None, None))
-        if high is None or low is None:
-            # Dry-run a live: sviečku nemáme, ostáva bežiaci extrém od Freqtrade.
-            extreme = trade.min_rate if trade.is_short else trade.max_rate
-            return trail.stop_price(direction, row.entry, base_stop, extreme or row.entry)
-
-        best = high if long else low
-        after = max(prev, best) if long else min(prev, best)
-        self._extremes[key] = after
-        before_stop = trail.stop_price(direction, row.entry, base_stop, prev)
-        after_stop = trail.stop_price(direction, row.entry, base_stop, after)
-
-        if extreme_before_stop(bar_open, high, low, long=long):
-            # Cena šla najprv priaznivo — trailing sa posunul a Freqtrade ho hneď
-            # otestuje proti low (resp. high), presne ako chceme.
-            return after_stop
-
-        # Nepriaznivý extrém prvý: platí ešte starý stop. Freqtrade však vie otestovať
-        # len jednu hodnotu proti low, takže sa tu rozhodne za neho — spiatočná noha
-        # baru sa testuje proti `close`, a keď neprejde, vráti sa starý stop, ktorý
-        # low (už overené) netrafí.
-        if (low <= before_stop) if long else (high >= before_stop):
-            return before_stop
-        close = self._detail_close(pair, self._candle_time)
-        if close is None:
-            return after_stop
-        crossed = close <= after_stop if long else close >= after_stop
-        return after_stop if crossed else before_stop
 
     def custom_exit(
         self, pair: str, trade, current_time: datetime, current_rate: float,

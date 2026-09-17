@@ -1,6 +1,6 @@
 """Stav trhu pri vstupe — vlastnosti, podľa ktorých sa **dá** filtrovať.
 
-Rozdiel oproti vlastnostiam obchodu je v tom, že tieto sa počítajú z barov PRED vstupom,
+Rozdiel oproti vlastnostiam obchodu je v tom, že tieto sa počítajú z barov UZAVRETÝCH PRED vstupom,
 takže v okamihu rozhodnutia sú známe. Testy strážia, že sa naozaj počítajú z minulosti
 (nie z barov po vstupe) a že každá miera meria to, čo tvrdí — na trhoch, ktorých tvar
 poznáme dopredu.
@@ -126,6 +126,81 @@ def test_pocita_sa_LEN_z_barov_pred_vstupom(monkeypatch):
     t = anotuj(close, [obchod(149)], monkeypatch)
     assert t[0]["_regime_align"] == "s trendom"
     assert t[0]["_regime_pos"] > 0.9
+
+
+class Sviecky:
+    """Plné OHLC (nie odvodené z close) — aby sa dala zmeniť jedna konkrétna sviečka."""
+
+    def __init__(self, high, low, close):
+        self.cols = {"high": np.asarray(high, float), "low": np.asarray(low, float),
+                     "close": np.asarray(close, float)}
+        self.ts = np.arange(len(close), dtype=np.int64) * 180_000
+
+    def __call__(self, pair, timeframe):
+        c = self.cols
+        return self.ts, {**c, "open": c["close"], "volume": np.ones_like(c["close"])}
+
+
+def _nahodny_trh(n=400, seed=7):
+    rng = np.random.default_rng(seed)
+    close = 1000.0 + np.cumsum(rng.normal(0, 2.0, n))
+    rozpatie = np.abs(rng.normal(0, 1.5, n)) + 0.2
+    return close + rozpatie, close - rozpatie, close
+
+
+def _rezim(high, low, close, trades, monkeypatch):
+    monkeypatch.setattr("tester.webapp.chart.series", Sviecky(high, low, close))
+    return [{k: t.get(k) for k in rg.KEYS} for t in rg.annotate(trades, "X/USD", "3m")]
+
+
+def test_vstupna_ani_buduca_sviecka_nezmeni_rezim(monkeypatch):
+    """Prefixový test (audit A9): príznak pri vstupe smie závisieť len od uzavretých barov.
+
+    Obchod vstúpil na otvorení baru 300. Jeho sviečka (v tej chvíli ešte neuzavretá)
+    aj všetko po nej sa prepíše na extrém opačným smerom — stav trhu musí ostať ten istý.
+    Prvá verzia tu z „s trendom" urobila „proti trendu".
+    """
+    high, low, close = _nahodny_trh()
+    vstup = 300
+    obchody = [obchod(vstup), obchod(vstup, short=True)]
+    povodne = _rezim(high, low, close, [dict(t) for t in obchody], monkeypatch)
+    assert all(all(v is not None for v in r.values()) for r in povodne)
+
+    for od in (vstup, vstup + 1, vstup + 50):
+        h, l, c = high.copy(), low.copy(), close.copy()
+        c[od:] = c[od:] * 0.5 if c[vstup - 1] > c[vstup - 51] else c[od:] * 2.0
+        h[od:], l[od:] = c[od:] * 1.3, c[od:] * 0.7
+        assert _rezim(h, l, c, [dict(t) for t in obchody], monkeypatch) == povodne, od
+
+
+def test_bar_signalu_pred_vstupom_sa_pocita(monkeypatch):
+    """Opačná strana prefixového testu: posledný uzavretý bar (signál) do režimu patrí —
+    inak by predošlý test prešiel aj pri príznaku, ktorý nevidí nič."""
+    high, low, close = _nahodny_trh()
+    vstup = 300
+    povodne = _rezim(high, low, close, [obchod(vstup)], monkeypatch)
+    h, l, c = high.copy(), low.copy(), close.copy()
+    c[vstup - 1] = c[vstup - 1] + 500.0
+    h[vstup - 1] = c[vstup - 1] + 1.0
+    assert _rezim(h, l, c, [obchod(vstup)], monkeypatch) != povodne
+
+
+def test_typicka_volatilita_nevidi_buducnost(monkeypatch):
+    """Normál volatility je rolling medián minulosti: rozkolísaný koniec série nesmie
+    zmeniť `_regime_vol` obchodu, ktorý bol dávno pred ním."""
+    high, low, close = _nahodny_trh(n=600)
+    povodne = _rezim(high, low, close, [obchod(200)], monkeypatch)
+    h, l = high.copy(), low.copy()
+    h[400:] += 50.0
+    l[400:] -= 50.0
+    assert _rezim(h, l, close, [obchod(200)], monkeypatch) == povodne
+
+
+def test_okno_volatility_je_rovnake_ako_v_ai_vrstve():
+    ai = pytest.importorskip("tradebot.adapters.freqtrade.ai")
+    assert rg.VOL_DAYS == ai.VOL_DAYS
+    for tf in ("1m", "3m", "15m", "1h"):
+        assert rg.vol_bars(tf) == ai.vol_window(tf)
 
 
 def test_obchod_prilis_skoro_nema_kontext(monkeypatch):

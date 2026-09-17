@@ -158,15 +158,122 @@ def test_zmena_je_break_even_zvysku_minus_celok():
 
 def test_vzdialenost_stopu_sa_berie_z_kresieb_strategie():
     """`trades.json` má len to, čo Freqtrade urobil; plán obchodu je v kresbách."""
-    obchody = [trade(tag="ibs:1000")]
+    obchody = [trade(tag=f"ibs:{SIGNAL_MS}")]
     chart = {"objects": [
-        {"k": "sl_box", "x1": 1000, "y1": 100.0, "y2": 99.0},
-        {"k": "tp_box", "x1": 1000, "y1": 100.0, "y2": 103.0},
+        {"k": "sl_box", "x1": SIGNAL_MS, "y1": 100.0, "y2": 99.0},
+        {"k": "tp_box", "x1": SIGNAL_MS, "y1": 100.0, "y2": 103.0},
     ]}
     an.enrich(obchody, chart, "ibs")
 
     assert obchody[0]["_sl_pct"] == pytest.approx(1.0)      # 1 bod na cene 100
     assert obchody[0]["_rr_planned"] == pytest.approx(3.0)  # TP 3 body, SL 1 bod
+    assert obchody[0]["_plan_src"] == "chart"
+
+
+#: Čas baru signálu (2025-09-04 13:30 UTC) — `enter_tag` z Freqtrade ho nesie za dvojbodkou.
+SIGNAL_MS = 1_756_992_600_000
+
+
+def mc_trade(*, tag="LONG_25", open_rate=100.25, stop=99.0, short=False,
+             exit_reason="take_profit", close_rate=103.0):
+    """Obchod v tvare, aký píše emulátor MultiCharts (`rows_from_trades`): tag je ID
+    objednávky, stop pri vstupe je v `initial_stop_loss_abs` a riadok má `order_type`."""
+    t = trade(open_rate=open_rate, close_rate=close_rate, short=short, hour=13,
+              exit_reason=exit_reason, tag=tag)
+    t["open_date"] = "2025-09-04T13:33:00+00:00"
+    t.update({"initial_stop_loss_abs": stop, "stop_loss_abs": stop, "order_type": "market",
+              "gross_abs": 0.0, "fees_abs": 0.0})
+    return t
+
+
+def test_multicharts_plan_sa_berie_zo_zaznamu_obchodu_aj_bez_kresieb():
+    """Audit A10: MC tag je ID objednávky, nie čas — plán sa predtým nespároval vôbec
+    a portfólio potom vyhodilo každý obchod, ktorý neskončil na stope."""
+    obchody = [mc_trade(), mc_trade(tag="SHORT_7", short=True, open_rate=100.0, stop=102.0,
+                                    close_rate=97.0)]
+    an.enrich(obchody, None, "ibs")
+
+    assert obchody[0]["_sl_pct"] == pytest.approx(1.2469, abs=1e-4)   # 1,25 bodu z vyplnenia
+    assert obchody[1]["_sl_pct"] == pytest.approx(2.0)
+    assert all(t["_plan_src"] == "record" for t in obchody)
+    assert all("_rr_planned" not in t for t in obchody)                # TP riadok nemá
+
+
+def test_multicharts_tp_sa_doplni_z_boxu_so_zhodnym_stopom():
+    """Box plánu sa k MC obchodu priradí cez úroveň stopu (čas signálu v tagu nie je):
+    posledný box pred vyplnením s tým istým stopom. Box po vstupe ani s iným stopom nie."""
+    obchod = mc_trade(stop=99.0)
+    open_ms = SIGNAL_MS + 180_000
+    chart = {"objects": [
+        {"k": "sl_box", "x1": SIGNAL_MS - 900_000, "y1": 100.0, "y2": 99.0},   # starší plán
+        {"k": "tp_box", "x1": SIGNAL_MS - 900_000, "y1": 102.0, "y2": 100.0},
+        {"k": "sl_box", "x1": SIGNAL_MS - 180_000, "y1": 100.5, "y2": 98.0},   # iný stop
+        {"k": "tp_box", "x1": SIGNAL_MS - 180_000, "y1": 110.0, "y2": 100.5},
+        {"k": "sl_box", "x1": SIGNAL_MS, "y1": 100.0, "y2": 99.0},             # ten pravý
+        {"k": "tp_box", "x1": SIGNAL_MS, "y1": 104.0, "y2": 100.0},
+        {"k": "sl_box", "x1": open_ms + 180_000, "y1": 100.0, "y2": 99.0},     # až po vstupe
+        {"k": "tp_box", "x1": open_ms + 180_000, "y1": 109.0, "y2": 100.0},
+    ]}
+    an.enrich([obchod], chart, "ibs")
+
+    assert obchod["_rr_planned"] == pytest.approx(4.0)
+    assert obchod["_sl_pct"] == pytest.approx(1.2469, abs=1e-4)   # riziko zo záznamu, nie z boxu
+    assert obchod["_plan_src"] == "record+chart"
+
+    # Short: box je hore stop, dole vstup — stop je jeho horná hrana.
+    short = mc_trade(tag="SHORT_34", short=True, open_rate=100.0, stop=101.0, close_rate=98.0)
+    chart = {"objects": [
+        {"k": "sl_box", "x1": SIGNAL_MS, "y1": 101.0, "y2": 100.0},
+        {"k": "tp_box", "x1": SIGNAL_MS, "y1": 100.0, "y2": 98.0},
+    ]}
+    an.enrich([short], chart, "ibs")
+    assert short["_rr_planned"] == pytest.approx(2.0)
+    assert short["_plan_src"] == "record+chart"
+
+
+def test_index_baru_v_tagu_nie_su_milisekundy():
+    """`gap:1000` z MultiCharts je index baru; kresba s `x1 == 1000` s ním nesúvisí."""
+    assert an.signal_time_ms("gap:1000") is None
+    assert an.signal_time_ms("orb:london:29") is None
+    assert an.signal_time_ms("LONG_25") is None
+    assert an.signal_time_ms(f"ibs:{SIGNAL_MS}") == SIGNAL_MS
+
+    obchod = trade(tag="gap:1000")
+    an.enrich([obchod], {"objects": [{"k": "sl_box", "x1": 1000, "y1": 100.0, "y2": 50.0}]}, "ibs")
+    assert "_sl_pct" not in obchod
+
+
+def test_freqtrade_initial_stop_loss_nie_je_plan():
+    """Freqtrade do `initial_stop_loss_abs` píše statický `stoploss` stratégie (pri IBS
+    -0,99 → 1 % z ceny). Ako plán by dal stokrát väčšie riziko, než obchod mal."""
+    obchod = {**trade(tag=f"ibs:{SIGNAL_MS}", open_rate=110113.2), "initial_stop_loss_abs": 1101.2,
+              "stop_loss_abs": 109799.8}
+    assert an.plan_from_record(obchod) == (None, None)
+    an.enrich([obchod], None, "ibs")
+    assert "_sl_pct" not in obchod
+
+    chart = {"objects": [{"k": "sl_box", "x1": SIGNAL_MS, "y1": 110113.2, "y2": 109799.8}]}
+    an.enrich([obchod], chart, "ibs")
+    assert obchod["_sl_pct"] == pytest.approx(0.2846, abs=1e-4)
+    assert obchod["_plan_src"] == "chart"
+
+
+def test_engine_behu_prebije_tvar_riadku_a_stop_na_zlej_strane_nie_je_plan():
+    riadok = mc_trade()
+    assert an.plan_from_record(riadok)[0] == pytest.approx(99.0)
+    assert an.plan_from_record(riadok, engine="freqtrade") == (None, None)
+    bez_order_type = {k: v for k, v in riadok.items() if k != "order_type"}
+    assert an.plan_from_record(bez_order_type, engine="multicharts")[0] == pytest.approx(99.0)
+    # long so stopom nad vyplnením (vyplnenie za stopom) — to nie je plán
+    assert an.plan_from_record(mc_trade(stop=101.0)) == (None, None)
+
+
+def test_loader_posle_engine_behu_do_obohatenia():
+    zaznamy = [{"id": "mc", "settings": {"strategy": "ibs", "pair": "X", "timeframe": "3m",
+                                          "engine": "multicharts"}, "params": {}}]
+    riadok = {k: v for k, v in mc_trade().items() if k != "order_type"}
+    nacitane = an.trades_of(zaznamy, lambda i: [dict(riadok)], lambda i: None, with_market=False)
+    assert nacitane.trades[0]["_sl_pct"] == pytest.approx(1.2469, abs=1e-4)
 
 
 def test_bez_kresieb_vlastnosti_planu_jednoducho_nie_su(monkeypatch):

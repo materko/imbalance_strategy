@@ -7,6 +7,9 @@
     python -m tester.webapp.cli show 20260905-160921-0310ba
     python -m tester.webapp.cli status          # beží webapp? čo je vo fronte? stav gitu
     python -m tester.webapp.cli pull | push     # história behov z/na GitHub
+    python -m tester.webapp.cli replay <id>     # bod mriežky/matice ako obyčajný beh
+    python -m tester.webapp.cli chart <id>      # prepočítaj kresby behu do cache grafov
+    python -m tester.webapp.cli prune           # čo odpratať z histórie (bez --apply nič nemaže)
 
 `run` ide cez REST API bežiacej webapp (ak beží — beh sa objaví vo fronte aj
 testerovi v prehliadači); keď webapp nebeží, spustí backtest priamo a uloží ho
@@ -260,8 +263,9 @@ def _execute(args: argparse.Namespace, params: dict, settings: dict, note: str,
         time.sleep(2)
         if not quiet and job.log_lines:
             print(f"  … {job.log_lines[-1][:100]}", flush=True)
-    return store.get(job.id) or {"id": job.id, "status": job.status, "error": job.error,
-                                 "settings": settings}
+    # bod mriežky/matice nie je v histórii, ale v `sweeps/` — `find` nájde oboje
+    return store.find(job.id) or {"id": job.id, "status": job.status, "error": job.error,
+                                  "settings": settings}
 
 
 def cmd_run(args: argparse.Namespace) -> int:
@@ -276,13 +280,14 @@ def cmd_run(args: argparse.Namespace) -> int:
 def cmd_sweeps(args: argparse.Namespace) -> int:
     """Zoznam mriežok z histórie, alebo tabuľka jednej z nich.
 
-    Mriežky sa nikde neukladajú zvlášť — značka je v každom behu, takže zoznam je len
-    preskupená história. Aj mriežka spustená vo webapp sa dá otvoriť tu a naopak.
+    Body mriežky sú v `tester/sweeps/sweep-<id>.json` (staršie mriežky ešte ako behy
+    v histórii — `tagged` spojí oboje). Aj mriežka spustená vo webapp sa dá otvoriť tu
+    a naopak; bod sa prehrá ako obyčajný beh príkazom `replay <id>`.
     """
     from .. import sweep as sweep_mod
     from .store import RunStore
 
-    zaznamy = RunStore().all()
+    zaznamy = RunStore().tagged("sweep")
     skupiny: dict[str, list[dict]] = {}
     for rec in zaznamy:
         tag = (rec.get("settings") or {}).get("sweep") or {}
@@ -313,6 +318,9 @@ def cmd_sweeps(args: argparse.Namespace) -> int:
         print(f"{nastavenia.get('pair')} {nastavenia.get('timeframe')} "
               f"{nastavenia.get('timerange')}, behov {len(rows)}\n")
         print(sweep_mod.table(ranked, list(tag.get("values") or {}), tag.get("goal")))
+        if ranked and ranked[0].get("sweep_ok"):
+            print(f"\nnajlepsi bod: {ranked[0]['id']}  (ako beh do historie: "
+                  f"python -m tester.webapp.cli replay {ranked[0]['id']})")
         return 0
 
     print(f"{'mriezka':<24} {'behov':>6}  parametre / par / obdobie")
@@ -399,8 +407,10 @@ def cmd_sweep(args: argparse.Namespace) -> int:
     best = ranked[0] if ranked and ranked[0].get("sweep_ok") else None
     if best:
         values = best["settings"]["sweep"]["values"]
-        print("\nnajlepsi beh: " + best["id"])
+        print("\nnajlepsi bod: " + best["id"])
         print("  " + ", ".join(f"{k}={sweep_mod._fmt(v)}" for k, v in values.items()))
+        print("  body mriezky sa do historie neukladaju (len vysledok v tester/sweeps/); ako "
+              f"beh s grafom: python -m tester.webapp.cli replay {best['id']}")
         print("  over ho na dalsich referencnych oknach, nez z neho spravis profil "
               "(jedno okno o strategii nic nepovie)")
     else:
@@ -462,6 +472,7 @@ def cmd_portfolio(args: argparse.Namespace) -> int:
 def cmd_plateau(args: argparse.Namespace) -> int:
     """Okolie víťaza hyperoptu: susedné hodnoty ako test robustnosti."""
     from .. import montecarlo as mc, plateau as pl
+    from .batches import strip_tag
     from .store import RunStore
 
     store = RunStore()
@@ -476,23 +487,20 @@ def cmd_plateau(args: argparse.Namespace) -> int:
         raise SystemExit("hyperopt nema vitaza (ziadna epocha nesplnila mantinely)")
 
     # Vitaz uz raz bezal ako obycajny beh na ladenom okne - z neho su obchody aj interval.
-    overenia = [r for r in store.all()
-                if ((r.get("settings", {}).get("hyperopt_run") or {}).get("id")) == args.hyperopt_id]
+    overenia = store.tagged("hyperopt_run", args.hyperopt_id)
     ladene = [r for r in overenia if (r["settings"].get("hyperopt_run") or {}).get("tuned")]
     if not ladene:
         raise SystemExit("beh vitaza na ladenom okne v historii nie je (spustil sa hyperopt "
                          "s --no-verify?)")
     vitaz = ladene[0]
 
-    interval = (None, None)
-    obchody = store.trades(vitaz["id"])
-    if len(obchody) >= mc.MIN_TRADES:
-        vysledok = mc.analyze(obchody, fee_pct=(vitaz["settings"].get("fee") or 0) * 100,
-                              iterations=args.iterations, seed=args.seed)
-        be = vysledok["break_even"]
-        interval = (be["lo"], be["hi"])
-    else:
-        print(f"POZOR: vitaz ma len {len(obchody)} obchodov, interval spolahlivosti sa "
+    # Starý overovací beh v histórii má obchody; bod v `sweeps/` nesie interval spočítaný
+    # pri uložení (pl.MC_ITERATIONS, pl.MC_SEED) a --iterations/--seed sa naň nevzťahujú.
+    obchody = store.trades(vitaz["id"]) if "batch" not in vitaz else []
+    interval = pl.winner_ci(vitaz, obchody or None, iterations=args.iterations, seed=args.seed)
+    if interval[0] is None:
+        pocet = len(obchody) or int((vitaz.get("result") or {}).get("trades") or 0)
+        print(f"POZOR: vitaz ma len {pocet} obchodov, interval spolahlivosti sa "
               f"nepocita (treba aspon {mc.MIN_TRADES}).", file=sys.stderr)
 
     susedia = pl.neighbours(zadanie["knobs"], vitaz_params)
@@ -500,7 +508,7 @@ def cmd_plateau(args: argparse.Namespace) -> int:
         raise SystemExit("vitaz nema ziadnych susedov v rozsahu planu")
 
     zaklad = {k: v for k, v in (vitaz.get("params") or {}).items()}
-    settings_zaklad = {k: v for k, v in vitaz["settings"].items() if k != "hyperopt_run"}
+    settings_zaklad = strip_tag(vitaz["settings"])
     print(f"okolie vitaza {args.hyperopt_id}: {len(susedia)} susedov, okno "
           f"{settings_zaklad.get('timerange')}")
     print(f"  vitaz: {', '.join(f'{k}={v}' for k, v in vitaz_params.items())}\n", flush=True)
@@ -1075,7 +1083,7 @@ def cmd_matrices(args: argparse.Namespace) -> int:
     from .store import RunStore
 
     skupiny: dict[str, list[dict]] = {}
-    for rec in RunStore().all():
+    for rec in RunStore().tagged("matrix"):
         tag = (rec.get("settings") or {}).get("matrix") or {}
         if not tag.get("id"):
             continue
@@ -1239,8 +1247,8 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
         while any(j.get("status") in ("queued", "running") for j in runner.snapshot()):
             time.sleep(3)
         rec = store.get(run_id) or {}
-        det = ho.detail(rec, store.extra(run_id, "epochs.json") or [], store.all(),
-                        store.log(run_id) or "")
+        det = ho.detail(rec, store.extra(run_id, "epochs.json") or [],
+                        store.tagged("hyperopt_run", run_id), store.log(run_id) or "")
 
     if det.get("status") != "done":
         raise SystemExit(f"hyperopt skoncil: {det.get('error') or det.get('status')}")
@@ -1314,8 +1322,8 @@ def cmd_hyperopts(args: argparse.Namespace) -> int:
             except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError):
                 det = None
         if det is None:
-            det = ho.detail(rec, store.extra(rec["id"], "epochs.json") or [], store.all(),
-                            store.log(rec["id"]) or "")
+            det = ho.detail(rec, store.extra(rec["id"], "epochs.json") or [],
+                            store.tagged("hyperopt_run", rec["id"]), store.log(rec["id"]) or "")
         try:
             plan = ho.build_plan(zadanie["knobs"], strategy=strategy_of(rec),
                                  goal=zadanie.get("goal") or "break_even",
@@ -1338,6 +1346,78 @@ def cmd_hyperopts(args: argparse.Namespace) -> int:
         print(f"{rec['id']:<24}{strategy_of(rec):<12}{str(z.get('epochs_done', '?')):>7}  "
               f"{rec['settings'].get('timerange')} | {', '.join(z['knobs'])}")
     print("\ndetail: python -m tester.webapp.cli hyperopts <hyperopt>")
+    return 0
+
+
+def cmd_replay(args: argparse.Namespace) -> int:
+    """Bod mriežky, bunku matice alebo overenie prehrá ako obyčajný beh do histórie.
+
+    Bod nesie celý efektívny config, takže beh je ten istý — len dostane obchody, log
+    a graf. Funguje aj na beh z histórie (zopakovanie s dnešným kódom a dátami).
+    """
+    from .batches import strip_tag
+    from .store import RunStore
+
+    rec = RunStore().find(args.run_id)
+    if rec is None and server_alive(args.url):
+        try:
+            rec = (api(args.url, f"/api/runs/{args.run_id}") or {}).get("record")
+        except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError):
+            rec = None
+    if rec is None or not rec.get("params"):
+        raise SystemExit(f"bod ani beh {args.run_id} sa nenasiel (zoznam bodov: `cli sweeps <mriezka>`)")
+    batch = rec.get("batch") or {}
+    povod = f"{batch.get('kind')} {batch.get('id')}" if batch else f"beh {args.run_id}"
+    settings = strip_tag(dict(rec.get("settings") or {}))
+    settings.pop("instrument", None)  # runner ho doplní z páru
+    note = args.note or f"prehratý bod ({povod}): {rec.get('note') or ''}".strip()
+    print(f"prehravam {povod}: {settings.get('pair')} {settings.get('timeframe')} "
+          f"{settings.get('timerange')} [{settings.get('engine') or 'freqtrade'}]")
+    novy = _execute(args, rec["params"], settings, note)
+    if novy.get("status") == "queued":
+        return 0
+    print(fmt_summary(novy))
+    be_bod = (rec.get("result") or {}).get("break_even_pct")
+    be_beh = (novy.get("result") or {}).get("break_even_pct")
+    if be_bod is not None and be_beh is not None and abs(float(be_bod) - float(be_beh)) > 1e-9:
+        print(f"POZOR: break-even bodu bol {be_bod}, prehraty beh ma {be_beh} - zmenil sa kod "
+              "alebo data od casu mriezky", file=sys.stderr)
+    return 0 if novy.get("status") == "done" else 1
+
+
+def cmd_chart(args: argparse.Namespace) -> int:
+    """Prepočíta kresby behu do lokálnej cache grafov (to isté, čo webapp pri otvorení grafu)."""
+    from . import replay
+    from .store import RunStore
+
+    store = RunStore()
+    if store.has_chart(args.run_id) and not args.force:
+        check = store.chart_check(args.run_id) or {}
+        print(f"graf behu {args.run_id} uz je ({check.get('source') or 'legacy'})"
+              + (f"\nPOZOR: {check['warning']}" if check.get("warning") else ""))
+        return 0
+    try:
+        check = replay.compute(store, args.run_id, log=lambda t: print(t, flush=True))
+    except (LookupError, ValueError) as exc:
+        raise SystemExit(str(exc))
+    return 0 if check.get("match") else 1
+
+
+def cmd_prune(args: argparse.Namespace) -> int:
+    """Odpratanie histórie do tvaru, ktorý patrí do gitu. Bez `--apply` len vypíše plán."""
+    from . import prune
+    from .store import RunStore
+
+    store = RunStore()
+    plan = prune.plan(store)
+    print(prune.report(plan))
+    if not args.apply:
+        print("\nnic sa nezmenilo (suchy beh); vykonat: python -m tester.webapp.cli prune --apply"
+              + (" --keep-charts" if args.keep_charts else ""))
+        return 0
+    vysledok = prune.apply(store, plan, keep_charts=args.keep_charts,
+                           log=lambda t: print(t, flush=True))
+    print(f"\nhotovo: {json.dumps(vysledok, ensure_ascii=False)}")
     return 0
 
 
@@ -1371,6 +1451,14 @@ def cmd_show(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_recompute(args: argparse.Namespace) -> int:
+    """Prepočet súhrnov z `trades.json` a hodnoty bodu (`tester.recompute`)."""
+    from .. import recompute
+
+    argv = ["--examples", str(args.examples)] + (["--pair", args.pair] if args.pair else [])
+    return recompute.main(argv + (["--write"] if args.write else []))
+
+
 def cmd_status(args: argparse.Namespace) -> int:
     from . import gitsync
 
@@ -1381,8 +1469,11 @@ def cmd_status(args: argparse.Namespace) -> int:
         print(f"fronta: {len(q)} " + ", ".join(f"{j['id']} {j['status']}" for j in q))
     st = gitsync.status()
     print(f"git: vetva {st['branch']} → {st.get('target', 'main')}, "
-          f"necommitnuté behy a profily {st['uncommitted']}, "
+          f"necommitnuté behy, mriežky a profily {st['uncommitted']}, "
           f"ahead {st['ahead']}, behind {st['behind']}")
+    if st.get("ignored"):
+        print(f"POZOR: git ignoruje {len(st['ignored'])} súborov histórie, Push ich neodošle "
+              f"a zastaví sa: {', '.join(st['ignored'][:3])}")
     return 0
 
 
@@ -1666,15 +1757,42 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--json", action="store_true", help="vypíš celý záznam")
     p.set_defaults(func=cmd_show)
 
+    p = sub.add_parser("recompute", help="prepočet peňazí uložených behov s hodnotou bodu "
+                                         "(default len výpis, --write zapíše)")
+    p.add_argument("--pair", help="len behy na tomto páre (napr. MNQ/USD)")
+    p.add_argument("--examples", type=int, default=1, help="príkladov pred/po na pár a engine")
+    p.add_argument("--write", action="store_true", help="naozaj prepísať run.json a trades.json")
+    p.set_defaults(func=cmd_recompute)
+
     p = sub.add_parser("status", help="beží webapp, čo je vo fronte, stav gitu")
     p.set_defaults(func=cmd_status)
 
     p = sub.add_parser("pull", help="stiahni históriu behov z GitHubu (git pull --rebase)")
     p.set_defaults(func=cmd_pull)
 
-    p = sub.add_parser("push", help="commitni LEN runs/, profiles/ a analytics/ a pushni")
+    p = sub.add_parser("push", help="commitni LEN runs/, sweeps/, profiles/ a analytics/ a pushni")
     p.add_argument("--user", help="autor commitu (default TRADEBOT_USER)")
     p.set_defaults(func=cmd_push)
+
+    p = sub.add_parser("replay", help="bod mriežky/matice/overenia (alebo beh) prehraj ako obyčajný beh do histórie")
+    p.add_argument("run_id", help="id bodu z `sweeps <mriezka>`, `matrices <matica>`, `hyperopts <id>`")
+    p.add_argument("--note", help="poznámka (default: odkiaľ bod je)")
+    p.add_argument("--user", help="meno testera (default TRADEBOT_USER)")
+    p.add_argument("--no-wait", action="store_true", help="len zaradiť do fronty webapp, nečakať")
+    p.set_defaults(func=cmd_replay)
+
+    p = sub.add_parser("chart", help="prepočítaj kresby behu do lokálnej cache grafov")
+    p.add_argument("run_id")
+    p.add_argument("--force", action="store_true", help="prepočítať, aj keď graf už je")
+    p.set_defaults(func=cmd_chart)
+
+    p = sub.add_parser("prune", help="odprac históriu pre git: kresby a body mriežok (bez --apply len plán)")
+    p.add_argument("--apply", action="store_true",
+                   help="naozaj vykonať: body prevedie do tester/sweeps/, z kresieb vyberie plan.json "
+                        "a kresby aj adresáre bodov zmaže")
+    p.add_argument("--keep-charts", action="store_true",
+                   help="kresby nemazať, ale presunúť do lokálnej cache grafov (ostanú na disku, nie v gite)")
+    p.set_defaults(func=cmd_prune)
 
     p = sub.add_parser("params", help="zoznam parametrov (názov, skupina, titulok, typ, rozsah)")
     p.add_argument("filter", nargs="?")

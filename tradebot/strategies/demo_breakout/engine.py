@@ -11,6 +11,7 @@ from __future__ import annotations
 from tradebot.core.drawing import DrawBox, DrawCommand, DrawKind, DrawLabel, DrawLine, LabelStyle
 from tradebot.core.engine import EngineOutput
 from tradebot.core.history import BarHistory
+from tradebot.core.warmup import Warmup
 from tradebot.core.orders import MarketContext, OrderAction, OrderIntent
 from tradebot.core.risk import TradePlan
 from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
@@ -38,7 +39,9 @@ class DemoBreakoutEngine:
         self.chart_tf_minutes = chart_tf_minutes
         self.step_ms = chart_tf_minutes * 60_000
         #: kanál potrebuje `channelLen` uzavretých barov pred aktuálnym, ATR svoju dĺžku
-        self.required_history = int(cfg.channelLen) + int(cfg.atrLen) + 8
+        self.warmup = Warmup(chart_tf_minutes).add(
+            f"kanal {cfg.channelLen} + ATR {cfg.atrLen}", int(cfg.channelLen) + int(cfg.atrLen) + 8)
+        self.required_history = self.warmup.chart_bars
         self.history = BarHistory(maxlen=self.required_history + 8, atr_len=int(cfg.atrLen))
         #: hrany kanála z barov PRED aktuálnym (Pine `ta.highest(high[1], n)`)
         self._upper: float | None = None

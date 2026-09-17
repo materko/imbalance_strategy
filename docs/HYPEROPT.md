@@ -12,7 +12,7 @@ má s hodnotami stať.
 | `2:8:0.5` | 13 hodnôt | spojito medzi 2 a 8, po desatinách |
 | `3,5,8` | 3 hodnoty | 3 možnosti (aj tu) |
 | `--min-trades 60` | 60 za rok, prepočítané na okno | to isté |
-| v histórii | každý bod ako beh | víťaz na 5 oknách, epochy v `.fthypt` |
+| v gite | tabuľka bodov v `tester/sweeps/` | záznam hyperoptu s epochami v `runs/`, víťaz na 5 oknách v `tester/sweeps/` |
 | kedy | 1–2 parametre, chcem vidieť tvar | 3 a viac parametrov |
 
 ```bash
@@ -50,8 +50,11 @@ poplatkom** behu, nie nad nulou (0,01 % pri poplatku 0,05 % je strata). `PRETREN
 netreba ani ukladať. Preskočiť sa to dá (`--no-verify`), ale do záverov taký výsledok
 nepatrí.
 
-Overovacie behy sú obyčajné behy v histórii so značkou `hyperopt`, takže sa dajú otvoriť,
-porovnať aj prehnať Monte Carlom — rovnako ako body sweepu.
+Overovacie behy sa do histórie behov neukladajú, rovnako ako body sweepu: ich riadky
+(okno, obchody, PnL, break-even, celý config) sú v `tester/sweeps/hyperopt_run-<id>.json`
+a ladené okno nesie aj interval víťaza z Monte Carla, ktorý potrebuje test okolia. Okno,
+ktoré chceš otvoriť, vidieť v grafe alebo prehnať Monte Carlom, prehráš ako obyčajný beh
+(`cli replay <id>`, vo webapp klik na riadok).
 
 ## Okolie víťaza: plató, alebo osamelá špička?
 
@@ -69,8 +72,8 @@ PY -m tester.webapp.cli plateau 20260909-223204-60faae
 
 To isté je v detaile hyperoptu vo webapp tlačidlom **Preveriť okolie víťaza**. Susedia sa
 berú o krok a o dva kroky hore aj dole, **vždy len na jednom parametri naraz** — keby sa
-hýbali všetky, nevedelo by sa, ktorý z nich výsledok drží. Každý sused je obyčajný beh
-v histórii.
+hýbali všetky, nevedelo by sa, ktorý z nich výsledok drží. Každý sused je obyčajný beh,
+v gite ostane jeho riadok v `tester/sweeps/plateau-<id hyperoptu>.json`.
 
 **Ako sa rozhoduje, či sused „drží".** Nie percentom — to by bola vymyslená hranica.
 Meradlom je **vlastný interval spoľahlivosti víťaza** z Monte Carla: keď sused padne

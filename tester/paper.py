@@ -279,13 +279,13 @@ def _analytika(report: dict[str, Any], mixed_pairs: bool) -> Section:
 def _matica(store) -> Section:
     """Drží tá myšlienka aj mimo trhu, na ktorom sa ladila?
 
-    Matica sa nespúšťa — hľadá sa tá, ktorá už v histórii je. Behy sú označené značkou
-    `settings.matrix.id`, takže ich stačí pozbierať.
+    Matica sa nespúšťa — hľadá sa tá, ktorá už je: bunky v `tester/sweeps/matrix-<id>.json`
+    (staršie ako behy v histórii so značkou `settings.matrix.id`), `store.tagged` dá oboje.
     """
     from . import matrix as mx
 
     skupiny: dict[str, list[dict[str, Any]]] = {}
-    for rec in store.all():
+    for rec in store.tagged("matrix"):
         znacka = (rec.get("settings") or {}).get("matrix") or {}
         if znacka.get("id") and rec.get("status") == "done":
             skupiny.setdefault(znacka["id"], []).append(rec)

@@ -409,3 +409,70 @@ def test_multicharts_a_freqtrade_daju_rovnake_zony():
     mc_zones = [(z.uid, z.top, z.bot, z.detected_ms) for z in mc.engine.book.zones]
     assert ft_zones == mc_zones
     assert len(mc_zones) > 0
+
+
+# --------------------------------------------------------------------------- #
+# maxDailyWins (audit A5) — rovnaká definícia ako Freqtrade runner a Pine
+# --------------------------------------------------------------------------- #
+
+DAY = 86_400_000
+
+
+class _CtxSpy:
+    def __init__(self, *args):
+        self.limits: list[bool] = []
+        self.close_session = False
+
+    def on_bar(self, bar, htf=None, ctx=None):
+        from tradebot.core.engine import EngineOutput
+
+        self.limits.append(ctx.daily_win_limit_reached)
+        return EngineOutput(close_session=self.close_session)
+
+
+def _spy_runner(max_wins: int) -> MCRunner:
+    from dataclasses import replace
+
+    from tradebot.strategies import get_spec
+
+    return MCRunner(IBSConfig(maxDailyWins=max_wins), MNQ, 3, spec=replace(get_spec("ibs"), engine_factory=_CtxSpy))
+
+
+def test_max_daily_wins_po_n_vyhrach_blokuje_az_od_dalsieho_baru_a_novy_den_pusti():
+    r = _spy_runner(2)
+    day0 = T0 - T0 % DAY + 10 * 3600_000  # 10:00 UTC
+    r.on_bar(bar(day0), closed_trade_pnls=[])
+    r.on_bar(bar(day0 + MIN3), closed_trade_pnls=[12.0])
+    r.on_bar(bar(day0 + 2 * MIN3), closed_trade_pnls=[5.0])   # 2. výhra: limit sa vyhodnotil ešte pred ňou
+    r.on_bar(bar(day0 + 3 * MIN3), closed_trade_pnls=[])
+    r.on_bar(bar(day0 + 4 * MIN3), closed_trade_pnls=[])
+    assert r.engine.limits == [False, False, False, True, True]
+    r.on_bar(bar(day0 - 10 * 3600_000 + DAY), closed_trade_pnls=[])  # 00:00 UTC ďalšieho dňa
+    assert r.engine.limits[-1] is False
+
+
+def test_max_daily_wins_straty_a_nula_sa_nepocitaju_a_bez_pnl_limit_neplati():
+    r = _spy_runner(1)
+    for i, pnls in enumerate([[-3.0], [0.0], [-1.0, -2.0], []]):
+        r.on_bar(bar(T0 + i * MIN3), closed_trade_pnls=pnls)
+    assert not any(r.engine.limits)
+    r.on_bar(bar(T0 + 4 * MIN3), closed_trade_pnls=[0.0, 7.0])  # dva obchody v jednom bare, druhý výhra
+    r.on_bar(bar(T0 + 5 * MIN3), closed_trade_pnls=[])
+    assert r.engine.limits[-1] is True
+
+    old = _spy_runner(1)  # starý volajúci, ktorý zisky neposiela -> pôvodné správanie
+    old.on_bar(bar(T0), closed_trades=0)
+    old.on_bar(bar(T0 + MIN3), closed_trades=1)
+    old.on_bar(bar(T0 + 2 * MIN3), closed_trades=1)
+    assert not any(old.engine.limits)
+
+
+def test_max_daily_wins_session_end_sa_do_vyhier_nepocita():
+    r = _spy_runner(1)
+    r.engine.close_session = True
+    r.on_bar(bar(T0), position_size=1.0, closed_trade_pnls=[])      # koniec seansy pri otvorenej pozícii
+    r.engine.close_session = False
+    r.on_bar(bar(T0 + MIN3), closed_trade_pnls=[50.0])              # zavretie SESSION_END so ziskom
+    r.on_bar(bar(T0 + 2 * MIN3), closed_trade_pnls=[20.0])          # riadna výhra (TP)
+    r.on_bar(bar(T0 + 3 * MIN3), closed_trade_pnls=[])
+    assert r.engine.limits == [False, False, False, True]

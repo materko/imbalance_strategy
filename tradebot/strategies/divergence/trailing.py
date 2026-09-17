@@ -47,6 +47,10 @@ class TwoStageTrailing(TrailingPlan):
             stop = min(stop, extreme + self.offset_price_distance)
         return stop
 
+    def scaled(self, factor: float) -> "TwoStageTrailing":
+        """Percentá z ceny vstupu na vzdialenosti stopu nezávisia — posunutý stop nič nemení."""
+        return self
+
     @classmethod
     def from_config(cls, cfg, inst: InstrumentSpec, entry: float) -> "TwoStageTrailing | None":
         """Percentá z configu → cenové vzdialenosti pre konkrétny vstup."""

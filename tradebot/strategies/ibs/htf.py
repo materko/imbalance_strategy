@@ -73,7 +73,9 @@ class HTFFeeder:
     """
 
     def __init__(self, cfg: "IBSConfig", chart_tf_minutes: int, *, keep: int | None = None) -> None:
-        self.htf_ms = int(cfg.zoneDetectionTF) * 60_000
+        from .config import timeframe_option_minutes
+
+        self.htf_ms = timeframe_option_minutes(cfg.zoneDetectionTF) * 60_000  # Pine dovoľuje aj "D"
         self.step_ms = chart_tf_minutes * 60_000
         self.vol_sma_len = int(cfg.volSmaLen)
         #: otvárací čas HTF baru -> bar; SMA objemu za `volSmaLen` barov vrátane toho baru

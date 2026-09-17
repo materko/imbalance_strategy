@@ -203,6 +203,11 @@ def test_plan_bez_tp_nema_ciel_pre_nahodu():
     p = nt.plan_from_trades(bez_planu, 3)
     assert (p["rr"] == 1.0).all()                   # bez plánu ostáva neutrálna jednotka
 
+    # Stop len zo záznamu obchodu (MultiCharts): TP nie je chýbajúci, ale neznámy.
+    zo_zaznamu = [{**trade(), "_rr_planned": None, "_plan_src": "record"} for _ in range(5)]
+    p = nt.plan_from_trades(zo_zaznamu, 3)
+    assert (p["rr"] == 1.0).all()
+
 
 def test_nahoda_bez_tp_konci_na_stope_alebo_na_case():
     candles = rovny_trh()

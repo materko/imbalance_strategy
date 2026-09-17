@@ -53,3 +53,16 @@ class TFAggregator:
             self._c = bar.close
             self._v += bar.volume
         return closed
+
+    @property
+    def started(self) -> bool:
+        """Už je rozpracovaný HTF bar (dostal bar grafu alebo `prime`)."""
+        return self._open_ts is not None
+
+    def prime(self, partial: Bar | None) -> None:
+        """Seeding: rozpracovaná perióda z barov pred behom (`tradebot.core.warmup.seed_engine`)."""
+        if partial is None:
+            return
+        self._open_ts = partial.time // self.ms * self.ms
+        self._o, self._h, self._l = partial.open, partial.high, partial.low
+        self._c, self._v = partial.close, partial.volume

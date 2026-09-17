@@ -14,6 +14,11 @@ a broker MultiCharts sa emuluje podľa toho, ako sa naozaj správa:
 * koniec seansy zavrie pozíciu na **close aktuálneho baru** (`MarketThisBar`);
 * trailing stop prepočíta runner na close každého baru (ako v študii).
 
+Predhistória grafu sa neemuluje (engine začína na `from_ms`, ako doteraz). Indikátory
+s vlastnou predhistóriou na svojom TF (IBS Supertrend/ADX, vyššie TF divergencie) sa však
+pred prvým barom seedujú z 1m dát **pred** `from_ms` (`tradebot.core.warmup.seed_engine`) —
+rovnako ako vo Freqtrade adaptéri, takže oba enginy majú na prvom bare ten istý stav.
+
 Poplatok je percento z nominálu na stranu (nominál = cena × množstvo × hodnota bodu),
 `wallet` je len základ pre percentá — sizing robí stratégia (`maxLossDollar`, prípadne
 `legacyPineSizing`). Výsledok má rovnaký tvar ako Freqtrade beh (`result_from_zip`),
@@ -33,11 +38,14 @@ from typing import Any, Callable
 from ...core import Bar, DrawRegistry, InstrumentSpec
 from ...core.config import StrategyConfig
 from ...core.drawing import objects_to_dicts
+from ...core.money import summary_money, trade_money
 from ...core.types import Direction
-from ...core.candles import resample_ohlcv
+from ...core.candles import resample_ohlcv, timeframe_minutes
+from ...core.warmup import seed_engine
 from .runner import LiveOrder, MCRunner
 
-__all__ = ["EmuTrade", "EmulationResult", "emulate", "bars_from_frame", "rows_from_trades", "summarize", "write_chart"]
+__all__ = ["EmuTrade", "EmulationResult", "emulate", "bars_from_frame", "rows_from_trades", "summarize",
+           "equity_series", "write_chart"]
 
 MIN_MS = 60_000
 
@@ -106,6 +114,21 @@ def bars_from_frame(m1, minutes: int, from_ms: int | None = None, to_ms: int | N
             for i in range(len(ts))]
 
 
+def _seed_before(runner: MCRunner, m1, first_ms: int, log: Callable[[str], None]) -> None:
+    """Indikátory s vlastnou predhistóriou z 1m dát pred prvým barom grafu (bez pohľadu dopredu)."""
+    warmup = getattr(runner.engine, "warmup", None)
+    if warmup is None or not warmup.seeds:
+        return
+    import pandas as pd
+
+    lo = pd.Timestamp(first_ms - warmup.seed_span_ms, unit="ms", tz="UTC")
+    hi = pd.Timestamp(first_ms, unit="ms", tz="UTC")
+    before = m1[(m1["date"] >= lo) & (m1["date"] < hi)]
+    got = seed_engine(runner.engine, before, first_ms)
+    parts = [f"{n.name} @{n.tf_minutes}m {got.get(n.name, 0)}/{n.bars}" for n in warmup.seeds]
+    log("predhistoria indikatorov z dat pred behom: " + ", ".join(parts))
+
+
 # --------------------------------------------------------------------------- #
 # broker
 # --------------------------------------------------------------------------- #
@@ -123,6 +146,14 @@ def _entry_fill(sub: Bar, live: LiveOrder, first_minute: bool) -> float | None:
     if sub.open >= price:
         return sub.open
     return price if sub.high >= price else None
+
+
+def _net_pnl(trade: EmuTrade, inst: InstrumentSpec, fee: float) -> float:
+    """Zisk uzavretého obchodu po poplatku — to isté číslo ako `profit_abs` v `rows_from_trades`."""
+    if trade.exit is None:
+        return 0.0
+    return trade_money(trade.entry, trade.exit, trade.qty, is_short=not trade.is_long,
+                       point_value=inst.point_value, fee_open=fee).net
 
 
 def _exit_fill(sub: Bar, trade: EmuTrade, stop: float, tp: float) -> tuple[float, str, bool] | None:
@@ -157,10 +188,13 @@ def emulate(
     should_stop: Callable[[], bool] | None = None,
     registry: DrawRegistry | None = None,
     spec=None,
+    fee: float = 0.0,
 ) -> tuple[EmulationResult, MCRunner]:
     """Prehrá stratégiu cez `MCRunner` s emulovaným brokerom MultiCharts.
 
     `m1` je 1m DataFrame (`date` UTC, OHLCV). Vracia výsledok a runner (kvôli kresbám).
+    `fee` je poplatok na stranu ako v `rows_from_trades`; tu slúži len na zisk uzavretého
+    obchodu pre denný limit výhier (Pine `strategy.closedtrades.profit` je po poplatku).
     """
     out_log = log or (lambda _s: None)
     chart = bars_from_frame(m1, chart_tf, from_ms, to_ms)
@@ -171,11 +205,13 @@ def emulate(
         by_bar.setdefault(b.time // step * step, []).append(b)
 
     runner = MCRunner(cfg, inst, chart_tf, spec=spec)
+    if chart:
+        _seed_before(runner, m1, chart[0].time, out_log)
     htf_bars: list[Bar] = []
     htf_closes: list[int] = []
     htf_pos = 0
     if runner.htf is not None and runner.spec.informative_tfs:
-        htf_minutes = int(str(runner.spec.informative_tfs(cfg)[0]).rstrip("m"))
+        htf_minutes = timeframe_minutes(runner.spec.informative_tfs(cfg)[0])
         htf_bars = bars_from_frame(m1, htf_minutes, from_ms, to_ms)
         htf_closes = [b.time + htf_minutes * MIN_MS for b in htf_bars]
     registry = registry if registry is not None else DrawRegistry()
@@ -184,6 +220,8 @@ def emulate(
     open_trade: EmuTrade | None = None
     active_stop = active_tp = 0.0
     pending_entries: list[LiveOrder] = []
+    #: koľko uzavretých obchodov už runner dostal (`closed_trade_pnls` = len nové)
+    reported = 0
     ambiguous = 0
     first_close = last_close = None
     daily: dict[int, float] = {}
@@ -230,13 +268,20 @@ def emulate(
             open_trade = None
 
         # -- stratégia na close baru ---------------------------------------------
-        position = open_trade.qty * open_trade.sign if open_trade is not None else 0.0
-        out = runner.on_bar(bar, position_size=position, closed_trades=len(trades))
+        # HTF bary uzavreté najneskôr v čase uzavretia tohto baru idú do feedera PRED
+        # `on_bar` — tak ako v študii (`signal._feed_htf` pred `runner.on_bar`). Pine
+        # offset [1] stráži feeder (`htf_window_opens`), nie poradie kŕmenia: pri grafe
+        # väčšom než detekčný TF (10m/5m) okno potrebuje bar, ktorý sa uzavrel práve
+        # počas tohto baru, a kŕmenie až po `on_bar` dávalo 0 okien.
         if htf_bars:
             end = bisect_right(htf_closes, bar.time + step)
             for hb in htf_bars[htf_pos:end]:
                 runner.feed_htf(hb)
             htf_pos = max(htf_pos, end)
+        position = open_trade.qty * open_trade.sign if open_trade is not None else 0.0
+        out = runner.on_bar(bar, position_size=position, closed_trades=len(trades),
+                            closed_trade_pnls=[_net_pnl(t, inst, fee) for t in trades[reported:]])
+        reported = len(trades)
         registry.extend(out.drawings)
 
         if out.close_session and open_trade is not None:
@@ -286,73 +331,56 @@ def rows_from_trades(trades: list[EmuTrade], inst: InstrumentSpec, fee: float, l
     for t in trades:
         if t.exit is None or t.close_ms is None:
             continue
-        notional_open = t.entry * t.qty * inst.point_value
-        notional_close = t.exit * t.qty * inst.point_value
-        fee_open = notional_open * fee
-        fee_close = notional_close * fee
-        gross = t.points * t.qty * inst.point_value
-        profit = gross - fee_open - fee_close
-        stake = notional_open / lev
+        # peniaze obchodu: jedna definícia pre oba enginy (tradebot.core.money)
+        m = trade_money(t.entry, t.exit, t.qty, is_short=not t.is_long,
+                        point_value=inst.point_value, fee_open=fee)
+        profit = m.net
+        stake = m.notional_open / lev
         rows.append({
             "open_date": _iso(t.open_ms), "close_date": _iso(t.close_ms),
-            "open_rate": round(t.entry, 6), "close_rate": round(t.exit, 6),
-            "amount": t.qty, "stake_amount": round(stake, 4), "leverage": lev,
+            # 10 miest, nie 6: stop mimo mriežky ticku × lot 100 000 by inak stratil doláre
+            "open_rate": round(t.entry, 10), "close_rate": round(t.exit, 10),
+            "amount": t.qty, "point_value": float(inst.point_value),
+            "stake_amount": round(stake, 4), "leverage": lev,
             "profit_abs": round(profit, 4), "profit_ratio": round(profit / stake, 6) if stake else 0.0,
             "exit_reason": t.reason, "enter_tag": t.order_id, "is_short": not t.is_long,
             "fee_open": fee, "fee_close": fee, "funding_fees": 0.0,
             "trade_duration": int((t.close_ms - t.open_ms) / MIN_MS),
             "initial_stop_loss_abs": t.stop_initial, "stop_loss_abs": t.stop_last,
+            "initial_take_profit_abs": t.take_profit,
             "max_rate": t.max_price, "min_rate": t.min_price,
-            "gross_abs": round(gross, 4), "fees_abs": round(fee_open + fee_close, 4),
+            "gross_abs": round(m.gross, 4), "fees_abs": round(m.fees, 4),
             "order_type": "market" if t.market else "limit",
         })
     return rows
 
 
+def equity_series(rows: list[dict[str, Any]], wallet: float) -> list[list[Any]]:
+    """Krivka `[čas, zisk obchodu %, kumulatívne %]` z uložených obchodov (percentá z peňaženky)."""
+    out = []
+    cum = 0.0
+    for r in rows:
+        p = float(r.get("profit_abs") or 0.0)
+        cum += p
+        out.append([r["close_date"], round(p / wallet * 100.0, 4), round(cum / wallet * 100.0, 4)])
+    return out
+
+
 def summarize(rows: list[dict[str, Any]], wallet: float, result: EmulationResult,
               currency: str = "USD") -> tuple[dict[str, Any], dict[str, Any]]:
     """(súhrn, série) s rovnakými kľúčmi ako `webapp.runner.result_from_zip`."""
-    profits = [r["profit_abs"] for r in rows]
-    wins = sum(1 for p in profits if p > 0)
-    losses = sum(1 for p in profits if p < 0)
-    draws = len(rows) - wins - losses
-    pnl = sum(profits)
-    gross = sum(r["gross_abs"] for r in rows)
-    volume = sum((r["open_rate"] + r["close_rate"]) * r["amount"] for r in rows)
-    gp = sum(p for p in profits if p > 0)
-    gl = -sum(p for p in profits if p < 0)
-
-    equity = []
-    cum = 0.0
-    peak = 0.0
-    max_dd = 0.0
-    for r in rows:
-        cum += r["profit_abs"]
-        peak = max(peak, cum)
-        max_dd = max(max_dd, peak - cum)
-        equity.append([r["close_date"], round(r["profit_abs"] / wallet * 100.0, 4), round(cum / wallet * 100.0, 4)])
-    exits: dict[str, dict[str, Any]] = {}
-    for r in rows:
-        e = exits.setdefault(r["exit_reason"], {"n": 0, "pnl_abs": 0.0})
-        e["n"] += 1
-        e["pnl_abs"] = round(e["pnl_abs"] + r["profit_abs"], 2)
+    money = summary_money(rows, wallet)  # gross, objem, break-even, drawdown: tradebot.core.money
+    equity = equity_series(rows, wallet)
     durations = [r["trade_duration"] for r in rows]
     avg_min = sum(durations) / len(durations) if durations else 0.0
     market_change = ((result.last_close / result.first_close - 1.0) * 100.0) if result.first_close and result.last_close else 0.0
 
     summary = {
-        "trades": len(rows), "wins": wins, "losses": losses, "draws": draws,
-        "winrate": round(100.0 * wins / len(rows), 2) if rows else 0.0,
-        "pnl_abs": round(pnl, 2), "pnl_pct": round(pnl / wallet * 100.0, 3),
-        "profit_factor": round(gp / gl, 3) if gl else (round(gp, 3) if gp else 0.0),
-        "max_drawdown_abs": round(max_dd, 2), "max_drawdown_pct": round(max_dd / wallet * 100.0, 3),
-        "starting_balance": wallet, "final_balance": round(wallet + pnl, 2), "stake_currency": currency,
-        "gross_abs": round(gross, 2), "volume_abs": round(volume, 2),
-        "break_even_pct": round(gross / volume * 100.0, 4) if volume else None,
+        **money, "stake_currency": currency,
         "market_change_pct": round(market_change, 3),
         "backtest_start": _iso(result.first_ms), "backtest_end": _iso(result.last_ms),
         "holding_avg": f"{int(avg_min // 60)}:{int(avg_min % 60):02d}:00" if rows else "",
-        "exits": exits, "bars": result.bars, "ambiguous_minutes": result.ambiguous,
+        "bars": result.bars, "ambiguous_minutes": result.ambiguous,
         "engine": "multicharts-emulator",
     }
     series = {

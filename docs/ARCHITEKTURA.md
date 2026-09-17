@@ -96,7 +96,7 @@ sequenceDiagram
         Note over E: fill model podľa MultiCharts
     end
     E-->>R: obchody + kresby
-    R->>S: run.json, trades.json, chart.json.gz, log.txt
+    R->>S: run.json, trades.json, plan.json, log.txt (kresby do cache .charts/, body mriežok do sweeps/)
     S-->>U: súhrn, graf výnosnosti, graf páru, Monte Carlo
 ```
 

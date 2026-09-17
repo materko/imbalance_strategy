@@ -30,6 +30,8 @@ from pathlib import Path
 from ...core import Bar, DrawRegistry, InstrumentSpec, MarketContext, OrderAction, OrderIntent
 from ...core.config import StrategyConfig
 from ...core.drawing import objects_to_dicts
+from ...core.money import trade_money
+from ...core.risk import TrailingPlan, extreme_before_stop
 from ...core.types import Direction
 from ...strategies import StrategySpec, spec_for_config
 
@@ -69,6 +71,10 @@ class SignalRow:
     in_trade_window: bool = False
     #: Na tomto bare Pine zatvara vsetko otvorene - koniec poslednej seansy dna.
     close_session: bool = False
+    #: Trailing z plánu obchodu (`TradePlan.trailing`), alebo `None`. Do DataFrame nejde
+    #: (nie je v `COLUMN_ATTRS`) — číta ho `custom_stoploss` cez `signal_at`, rovnako
+    #: ako MultiCharts runner berie `plan.trailing`.
+    trailing: TrailingPlan | None = None
 
 
 def _utc_day(ts_ms: int) -> str:
@@ -77,11 +83,13 @@ def _utc_day(ts_ms: int) -> str:
 
 
 class _PendingOrder:
-    __slots__ = ("intent", "filled")
+    __slots__ = ("intent", "filled", "extreme")
 
     def __init__(self, intent: OrderIntent) -> None:
         self.intent = intent
         self.filled = False
+        #: najlepšia cena od vyplnenia (vstup trailingu); `None` = ešte žiadny bar po vyplnení
+        self.extreme: float | None = None
 
 
 class EngineRunner:
@@ -92,11 +100,13 @@ class EngineRunner:
     """
 
     def __init__(self, cfg: StrategyConfig, inst: InstrumentSpec, chart_tf_minutes: int,
-                 spec: StrategySpec | None = None) -> None:
+                 spec: StrategySpec | None = None, fee: float = 0.0) -> None:
         self.spec = spec or spec_for_config(cfg)
         self.cfg = cfg
         self.inst = inst
         self.chart_tf_minutes = chart_tf_minutes
+        #: poplatok na stranu (Freqtrade `--fee`) — len na to, či bol obchod výhra (`maxDailyWins`)
+        self.fee = float(fee or 0.0)
         assert self.spec.engine_factory is not None, f"{self.spec.key}: chýba engine_factory"
         self.engine = self.spec.engine_factory(cfg, inst, chart_tf_minutes)
 
@@ -110,6 +120,14 @@ class EngineRunner:
         #: čas posledného spracovaného baru — kvôli inkrementálnemu behu
         self.last_ts: int | None = None
         self.first_ts: int | None = None
+        #: Predhistória grafu v baroch (Freqtrade `startup_candle_count`): kým runner nespracoval
+        #: toľko barov, signály nie sú platné. Backtest ich Freqtrade oreže sám, dry/live ich
+        #: adaptér vynuluje (`ready_at`). 0 = platné od prvého baru.
+        self.min_history = 0
+        #: koľko barov runner spracoval
+        self.processed = 0
+        #: čas prvého baru, pred ktorým runner spracoval `min_history` barov
+        self.ready_ts: int | None = None
         self.last_bar: Bar | None = None
         #: Finálny stav všetkého, čo engine nakreslil (Pine `box.set_*` prehraté).
         #: Webapp si to po behu uloží ku výsledku — viď `export_chart`.
@@ -138,6 +156,39 @@ class EngineRunner:
     def wins_today(self, ts_ms: int) -> int:
         return self._daily_wins.get(_utc_day(ts_ms), 0)
 
+    @staticmethod
+    def _stop_on_bar(order: _PendingOrder, bar: Bar) -> tuple[float, bool]:
+        """(stop, zasiahnutý?) pre vyplnený order na tomto bare — s trailingom z plánu.
+
+        Rovnaké pravidlo ako `TradebotStrategyBase._trailing_stop`, len na bare grafu:
+        priaznivý extrém prvý → posunutý stop proti low (high); nepriaznivý prvý → starý
+        stop proti low, a keď vydrží, posunutý stop proti `close` (spiatočná noha baru).
+        """
+        plan = order.intent.plan
+        long = plan.direction is Direction.LONG
+        if plan.trailing is None:
+            stop = plan.stop_loss
+            return stop, (bar.low <= stop if long else bar.high >= stop)
+
+        prev = order.extreme if order.extreme is not None else plan.entry
+        best = bar.high if long else bar.low
+        after = max(prev, best) if long else min(prev, best)
+        order.extreme = after
+        before_stop = plan.trailing.stop_price(plan.direction, plan.entry, plan.stop_loss, prev)
+        after_stop = plan.trailing.stop_price(plan.direction, plan.entry, plan.stop_loss, after)
+        if extreme_before_stop(bar.open, bar.high, bar.low, long=long):
+            return after_stop, (bar.low <= after_stop if long else bar.high >= after_stop)
+        if (bar.low <= before_stop) if long else (bar.high >= before_stop):
+            return before_stop, True
+        return after_stop, (bar.close <= after_stop if long else bar.close >= after_stop)
+
+    def _net_pnl(self, plan, exit_price: float) -> float:
+        """Zisk uzavretého obchodu po poplatku — ako `strategy.closedtrades.profit`
+        (a `_net_pnl` emulátora MultiCharts)."""
+        qty = plan.qty if plan.qty == plan.qty and plan.qty > 0 else 1.0
+        return trade_money(plan.entry, exit_price, qty, is_short=plan.direction is not Direction.LONG,
+                           point_value=self.inst.point_value, fee_open=self.fee).net
+
     def _simulate_fills(self, bar: Bar) -> None:
         """Zámerne najjednoduchší model — viď poznámku v hlavičke modulu."""
         for order_id, order in list(self._orders.items()):
@@ -150,7 +201,7 @@ class EngineRunner:
                 continue
 
             long = plan.direction is Direction.LONG
-            hit_sl = bar.low <= plan.stop_loss if long else bar.high >= plan.stop_loss
+            stop, hit_sl = self._stop_on_bar(order, bar)
             hit_tp = bar.high >= plan.take_profit if long else bar.low <= plan.take_profit
             if not (hit_sl or hit_tp):
                 continue
@@ -161,10 +212,17 @@ class EngineRunner:
             # („OPACNA POZICIA") a na konci seansy vyrobí CLOSE bez obchodu.
             del self._orders[order_id]
 
-            # Pine počíta výhry podľa `strategy.closedtrades.profit`. Bar, ktorý
-            # pretne SL aj TP, je bez 1m detailu nerozhodnuteľný — berie sa
-            # konzervatívne ako strata, rovnako ako v `tester.compare.scan_trades`.
-            if hit_tp and not hit_sl:
+            # Pine `dailyWinsCount`: výhra = uzavretý obchod so ziskom > 0 po poplatku
+            # (`strategy.closedtrades.profit`), teda aj trailing stop nad vstupom — rovnaká
+            # definícia ako `MCRunner._daily_win_limit`. Bar, ktorý pretne stop aj TP, je bez
+            # 1m detailu nerozhodnuteľný — berie sa konzervatívne stop, rovnako ako
+            # v `tester.compare.scan_trades` a v emulátore MultiCharts. Obchod zavretý koncom
+            # seansy (CLOSE intent) sem nepríde a nepočíta sa, ako v Pine.
+            if hit_sl:
+                exit_price = min(stop, bar.open) if long else max(stop, bar.open)
+            else:
+                exit_price = max(plan.take_profit, bar.open) if long else min(plan.take_profit, bar.open)
+            if self._net_pnl(plan, exit_price) > 0:
                 day = _utc_day(bar.time)
                 self._daily_wins[day] = self._daily_wins.get(day, 0) + 1
 
@@ -197,6 +255,9 @@ class EngineRunner:
         self.registry.extend(out.drawings)
         if self.first_ts is None:
             self.first_ts = bar.time
+        if self.ready_ts is None and self.processed >= self.min_history:
+            self.ready_ts = bar.time
+        self.processed += 1
         self.last_ts = bar.time
         self.last_bar = bar
 
@@ -217,12 +278,17 @@ class EngineRunner:
             row.stop_loss = plan.stop_loss
             row.take_profit = plan.take_profit
             row.qty = plan.qty
+            row.trailing = plan.trailing
             row.source_id = float(intent.source_id)
 
         self.rows[bar.time] = row
         if row.enter_long or row.enter_short:
             self.signal_ts.append(bar.time)
         return row
+
+    def ready_at(self, ts_ms: int) -> bool:
+        """Bar `ts_ms` má za sebou `min_history` barov predhistórie — signál z neho smie obchodovať."""
+        return self.ready_ts is not None and ts_ms >= self.ready_ts
 
     def signal_at(self, ts_ms: int) -> SignalRow | None:
         """Vstupný signál presne na bare `ts_ms`, alebo `None`.

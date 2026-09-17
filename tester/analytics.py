@@ -30,14 +30,17 @@ To je odpoveď na otázku, či sa filter (a teda aj model, ktorý by ho robil) o
 Okrem vlastností obchodu (hodina, smer, vzdialenosť stopu) sa delí aj podľa toho, **v akom
 stave bol trh**, keď obchod vznikol: či bol v trende alebo v rozsahu, aká bola volatilita
 voči normálu, kde v rozsahu sa vstupovalo a či išiel obchod s trendom alebo proti nemu
-(`tester.regime`). Všetko sa počíta z barov **pred** vstupom, takže sa podľa toho filtrovať
-dá — a práve tam býva zvyšný edge, keď ho v samotnom patterne už niet.
+(`tester.regime`). Všetko sa počíta z barov **uzavretých pred** vstupom (bar, v ktorom
+vstup nastal, nie), takže sa podľa toho filtrovať dá — a práve tam býva zvyšný edge, keď ho v samotnom patterne už niet.
 
 ### Čo je generické a čo vie len stratégia
 Vlastnosti odvodené z obchodu sú generické: `trades.json` má rovnaké polia pre každú
-stratégiu, lebo ho píše Freqtrade. Presnú vzdialenosť stopu a plánovaný RR pozná len
-stratégia (vo svojich kresbách), preto ich `StrategySpec` pomenuje (`sl_kind`, `tp_kind`)
-a bez toho sa tie dve vlastnosti jednoducho nepočítajú.
+stratégiu (Freqtrade ho píše sám, emulátor MultiCharts v tom istom tvare). Plán obchodu
+(SL a TP úroveň) sa berie **najprv zo záznamu obchodu**, kde ho engine naozaj drží — dnes
+emulátor MultiCharts (`initial_stop_loss_abs`). Freqtrade v tom poli nesie len statický
+`stoploss` stratégie (napr. 1 % z ceny pri `-0.99`), nie plán, preto sa preň plán berie
+z kresieb stratégie; tie `StrategySpec` pomenuje (`sl_kind`, `tp_kind`) a spájajú sa časom
+baru signálu v `enter_tag`. Viď `plan_from_record` a `enrich`.
 
 Ktorý **parameter** danú vlastnosť riadi, je tiež vedomosť stratégie
 (`hyperopt_cls.FEATURE_PARAMS`) — vďaka tomu analytika nekončí zistením, ale odkazom na
@@ -55,6 +58,7 @@ from datetime import datetime
 from typing import Any, Callable, Iterable, Sequence
 
 from tradebot.adapters.freqtrade.hyperplan import knowledge
+from tradebot.core.money import fill_point_value
 from tradebot.strategies import get_spec
 
 __all__ = [
@@ -78,18 +82,14 @@ DAYS = ("pondelok", "utorok", "streda", "štvrtok", "piatok", "sobota", "nedeľa
 
 
 def gross_and_volume(trades: Sequence[dict[str, Any]]) -> tuple[float, float]:
-    """Hrubý zisk z cien a obchodovaný objem — základ break-even poplatku.
+    """Hrubý zisk z cien a obchodovaný objem v mene účtu — základ break-even poplatku.
 
     Z cien, nie z `profit_abs`: skóre tak nezávisí od toho, s akým `--fee` beh bežal.
+    S hodnotou bodu záznamu — jediná definícia je `tradebot.core.money`.
     """
-    gross = volume = 0.0
-    for t in trades:
-        amount = float(t.get("amount") or 0.0)
-        open_rate, close_rate = float(t.get("open_rate") or 0.0), float(t.get("close_rate") or 0.0)
-        smer = -1.0 if t.get("is_short") else 1.0
-        gross += (close_rate - open_rate) * amount * smer
-        volume += (open_rate + close_rate) * amount
-    return gross, volume
+    from tradebot.core.money import gross_and_volume as _gv
+
+    return _gv(trades)
 
 
 def break_even_pct(trades: Sequence[dict[str, Any]]) -> float | None:
@@ -217,8 +217,8 @@ FEATURES: tuple[Feature, ...] = (
                  "jednej úrovne. Prerazenie v rozsahu je falošné častejšie než v trende — "
                  "a toto je číslo, ktorým sa to dá odfiltrovať."),
     Feature("regime_vol", "Volatilita voči normálu", lambda t: t.get("_regime_vol"),
-            note="ATR pri vstupe delené typickým ATR trhu. 1,0 je bežný deň, 2,0 dvojnásobne "
-                 "rozkolísaný. Náhrada za „pozri sa na VIX“, ktorá funguje na každom trhu."),
+            note="ATR pri vstupe delené mediánom ATR za predošlý týždeň. 1,0 je bežný stav, "
+                 "2,0 dvojnásobne rozkolísaný. Náhrada za „pozri sa na VIX“, ktorá funguje na každom trhu."),
     Feature("regime_pos", "Kde v rozsahu, v smere obchodu", lambda t: t.get("_regime_pos"),
             note="1 = cena už došla na koniec rozsahu v smere obchodu (long na vrchu, short "
                  "na spodku), 0 = na opačnom konci. V smere obchodu preto, že surová poloha "
@@ -246,13 +246,111 @@ def features_for(strategy: str = "ibs") -> tuple[Feature, ...]:
     return FEATURES + tuple(extra)
 
 
-def enrich(trades: list[dict[str, Any]], chart: dict[str, Any] | None,
-           strategy: str = "ibs", *, pair: str = "", timeframe: str = "") -> list[dict[str, Any]]:
-    """Doplní obchodom vzdialenosť stopu a plánovaný RR z kresieb stratégie.
+#: Najmenší čas v ms, ktorý sa v `enter_tag` berie ako čas baru signálu (rok 1973).
+#: Menšie číslo za dvojbodkou je index baru alebo poradie objednávky — MultiCharts píše
+#: `gap:1234`, `orb:london:29` — a to sa s časom kresby spárovať nesmie.
+MIN_SIGNAL_MS = 100_000_000_000
 
-    Kresby sú jediné miesto, kde je plán obchodu (SL a TP úroveň) uložený tak, ako ho
-    engine vypočítal — v `trades.json` je len to, čo Freqtrade nakoniec urobil. Spája sa
-    to časom baru signálu: `enter_tag` je `<prefix><čas v ms>` a kresba ho má v `x1`.
+#: Polia záznamu obchodu s plánom obchodu, pri enginoch, ktoré ho tam píšu ako plán.
+#: `initial_take_profit_abs` emulátor zatiaľ nepíše; keď ho začne, RR sa doplní bez kresieb.
+RECORD_SL, RECORD_TP = "initial_stop_loss_abs", "initial_take_profit_abs"
+
+
+def signal_time_ms(tag: Any) -> int | None:
+    """Čas baru signálu z `enter_tag` (`<prefix>:<čas v ms>`), alebo `None`.
+
+    `None` aj vtedy, keď je za poslednou dvojbodkou číslo, ktoré nie je čas — index baru
+    z MultiCharts by sa inak tváril ako milisekundy.
+    """
+    cas = str(tag or "").rsplit(":", 1)[-1]
+    if not cas.isdigit():
+        return None
+    hodnota = int(cas)
+    return hodnota if hodnota >= MIN_SIGNAL_MS else None
+
+
+def engine_of(trade: dict[str, Any], engine: str = "") -> str:
+    """Engine, ktorý obchod vyrobil. Bez udania podľa tvaru riadku: `order_type` píše len
+    emulátor MultiCharts, Freqtrade riadky ho nemajú (`webapp.runner._TRADE_COLS`)."""
+    if engine:
+        return str(engine)
+    return "multicharts" if "order_type" in trade else "freqtrade"
+
+
+def _on_side(level: Any, open_rate: float, above: bool) -> float | None:
+    """Kladná úroveň nad (`above`) alebo pod vstupom, inak `None`."""
+    try:
+        cena = float(level)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(cena) or cena <= 0 or not open_rate:
+        return None
+    return cena if (cena > open_rate if above else cena < open_rate) else None
+
+
+def plan_from_record(trade: dict[str, Any], engine: str = "") -> tuple[float | None, float | None]:
+    """`(SL, TP)` plánované pri vstupe, ak ich záznam obchodu drží ako plán, inak `None`.
+
+    MultiCharts (emulátor) píše do `initial_stop_loss_abs` stop objednávky pri vstupe.
+    Freqtrade tam má statický `stoploss` stratégie, ktorý s plánom nesúvisí (pri IBS
+    1 % z ceny), takže pre Freqtrade sa zo záznamu neberie nič. Stop na ziskovej strane
+    vstupu (vyplnenie za stopom) sa za plán nepovažuje.
+    """
+    if engine_of(trade, engine) != "multicharts":
+        return None, None
+    open_rate = float(trade.get("open_rate") or 0.0)
+    short = bool(trade.get("is_short"))
+    sl = _on_side(trade.get(RECORD_SL), open_rate, above=short)
+    tp = _on_side(trade.get(RECORD_TP), open_rate, above=not short) if sl is not None else None
+    return sl, tp
+
+
+def _boxes(chart: dict[str, Any] | None, kind: str) -> dict[int, tuple[float, float]]:
+    """`x1 -> (y1, y2)` kresieb daného druhu. Box je od vstupu po stop (TP box od vstupu po
+    cieľ), ale poradie `y1`/`y2` závisí od smeru — hore je vyššia cena."""
+    out: dict[int, tuple[float, float]] = {}
+    if not chart or not kind:
+        return out
+    for o in chart.get("objects") or ():
+        if o.get("k") == kind and o.get("x1") is not None:
+            out[int(o["x1"])] = (float(o.get("y1", 0)), float(o.get("y2", 0)))
+    return out
+
+
+def _box_by_stop(sl_boxes: dict[int, tuple[float, float]], open_ms: int | None,
+                 stop: float, short: bool) -> int | None:
+    """`x1` najneskoršieho SL boxu pred vstupom so stopom na úrovni `stop`.
+
+    Obchod z MultiCharts nenesie čas signálu (tag je ID objednávky), ale nesie stop — a box
+    plánu s tým istým stopom, nakreslený pred vyplnením, je ten istý plán.
+    """
+    if open_ms is None:
+        return None
+    tolerancia = abs(stop) * 1e-9 + 1e-9
+    # Stop je horná hrana boxu pri shorte, dolná pri longu.
+    kandidati = [x for x, (y1, y2) in sl_boxes.items()
+                 if x <= open_ms and abs((max if short else min)(y1, y2) - stop) <= tolerancia]
+    return max(kandidati) if kandidati else None
+
+
+def enrich(trades: list[dict[str, Any]], chart: dict[str, Any] | None,
+           strategy: str = "ibs", *, pair: str = "", timeframe: str = "",
+           engine: str = "") -> list[dict[str, Any]]:
+    """Doplní obchodom vzdialenosť stopu (`_sl_pct`) a plánovaný RR (`_rr_planned`).
+
+    Poradie zdrojov plánu:
+
+    1. **záznam obchodu** (`plan_from_record`) — MultiCharts má stop pri vstupe priamo
+       v riadku. `_sl_pct` je vtedy `|open_rate - stop|`, teda riziko skutočne
+       vyplnenej pozície; na nej stojí sizing v portfóliu a prop simulácii.
+    2. **kresby stratégie** (`sl_kind`, `tp_kind`) — Freqtrade riadok plán nenesie.
+       Spája sa časom baru signálu: `enter_tag` je `<prefix>:<čas v ms>` a box ho má
+       v `x1`. Obchod MultiCharts (tag je ID objednávky) sa s boxom spáruje cez úroveň
+       stopu — kvôli TP, ktorý jeho riadok zatiaľ nemá.
+
+    `_plan_src` hovorí, odkiaľ plán je (`record`, `chart`, `record+chart`): pri `record`
+    bez `_rr_planned` je TP **neznámy**, nie chýbajúci (`tester.nulltest` to rozlišuje).
+    Prázdny `engine` = určí sa z tvaru riadku (`engine_of`).
     """
     # Stav trhu pri vstupe potrebuje sviečky páru, nie kresby — doplní sa nezávisle
     # od plánu obchodu, takže funguje aj pre behy bez uložených kresieb.
@@ -268,34 +366,46 @@ def enrich(trades: list[dict[str, Any]], chart: dict[str, Any] | None,
 
     spec = get_spec(strategy)
     sl_kind, tp_kind = getattr(spec, "sl_kind", ""), getattr(spec, "tp_kind", "")
-    if not chart or not sl_kind:
-        return trades
-
-    sl_by_time: dict[int, tuple[float, float]] = {}
-    tp_by_time: dict[int, tuple[float, float]] = {}
-    for o in chart.get("objects") or ():
-        kind = o.get("k")
-        if kind == sl_kind and o.get("x1") is not None:
-            sl_by_time[int(o["x1"])] = (float(o.get("y1", 0)), float(o.get("y2", 0)))
-        elif kind == tp_kind and o.get("x1") is not None:
-            tp_by_time[int(o["x1"])] = (float(o.get("y1", 0)), float(o.get("y2", 0)))
+    sl_boxes = _boxes(chart, sl_kind)
+    tp_boxes = _boxes(chart, tp_kind) if sl_boxes else {}
 
     for t in trades:
-        tag = str(t.get("enter_tag") or "")
-        cas = tag.rsplit(":", 1)[-1]
-        if not cas.isdigit():
-            continue
-        sl = sl_by_time.get(int(cas))
-        if not sl:
-            continue
         open_rate = float(t.get("open_rate") or 0.0)
         if not open_rate:
             continue
-        sl_dist = abs(sl[0] - sl[1])
-        t["_sl_pct"] = round(sl_dist / open_rate * 100.0, 4)
-        tp = tp_by_time.get(int(cas))
-        if tp and sl_dist > 0:
-            t["_rr_planned"] = round(abs(tp[0] - tp[1]) / sl_dist, 2)
+        # Už obohatený obchod a žiadne kresby: nič nové sa nedozvieme (idempotencia voči
+        # `analyze` nad obchodmi z `trades_of`, ktorý kresby už použil).
+        if "_sl_pct" in t and not sl_boxes:
+            continue
+        stop, ciel = plan_from_record(t, engine)
+
+        box_x = signal_time_ms(t.get("enter_tag")) if sl_boxes else None
+        if box_x is not None and box_x not in sl_boxes:
+            box_x = None
+        if box_x is None and stop is not None and sl_boxes:
+            otvorenie = _dt(t.get("open_date"))
+            box_x = _box_by_stop(sl_boxes, int(otvorenie.timestamp() * 1000) if otvorenie else None,
+                                 stop, bool(t.get("is_short")))
+
+        src: list[str] = []
+        rr: float | None = None
+        if stop is not None:
+            t["_sl_pct"] = round(abs(open_rate - stop) / open_rate * 100.0, 4)
+            src.append("record")
+            if ciel is not None:
+                rr = abs(ciel - open_rate) / abs(open_rate - stop)
+        if box_x is not None:
+            sl_dist = abs(sl_boxes[box_x][0] - sl_boxes[box_x][1])
+            if stop is None:
+                t["_sl_pct"] = round(sl_dist / open_rate * 100.0, 4)
+            src.append("chart")
+            tp = tp_boxes.get(box_x)
+            if rr is None and tp and sl_dist > 0:
+                rr = abs(tp[0] - tp[1]) / sl_dist
+        if rr is not None:
+            t["_rr_planned"] = round(rr, 2)
+        if src:
+            t["_plan_src"] = "+".join(src)
     return trades
 
 
@@ -398,10 +508,13 @@ def trades_of(records: Sequence[dict[str, Any]], trades_fn: Callable[[str], Any]
         if not t:
             continue
         nast = rec.get("settings") or {}
+        # starší záznam bez hodnoty bodu (cudzí klon cez API) -> z inštrumentu páru
+        fill_point_value(t, nast.get("pair"))
         strat = strategy or nast.get("strategy") or "ibs"
         obohatene = enrich([dict(x) for x in t], chart_fn(run_id), strat,
                            pair=(nast.get("pair") or "") if with_market else "",
-                           timeframe=nast.get("timeframe") or "")
+                           timeframe=nast.get("timeframe") or "",
+                           engine=nast.get("engine") or "")
         cfg = config_key(rec)
         for x in obohatene:
             x["_cfg"] = cfg

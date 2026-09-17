@@ -83,6 +83,25 @@ class TrailingPlan:
             return base_stop
         return min(base_stop, extreme + self.offset_price_distance)
 
+    def scaled(self, factor: float) -> "TrailingPlan":
+        """Ten istý trailing pre stop `factor`-krát ďalej od vstupu.
+
+        Aktivácia aj odstup sú násobky rizika (`trailActivationR`, `trailOffsetR`), takže
+        keď sa stop posunie (AI vrstva vo Freqtrade), posunú sa s ním. Trailing v percentách
+        ceny (`TwoStageTrailing`) na stope nezávisí a vráti sám seba.
+        """
+        if factor == 1.0:
+            return self
+        from dataclasses import replace
+
+        return replace(
+            self,
+            activation_price_distance=self.activation_price_distance * factor,
+            offset_price_distance=self.offset_price_distance * factor,
+            activation_ticks=self.activation_ticks * factor,
+            offset_ticks=self.offset_ticks * factor,
+        )
+
     @classmethod
     def build(cls, cfg: IBSConfig, inst: InstrumentSpec, sl_distance: float) -> "TrailingPlan | None":
         if not cfg.enableTrailing or sl_distance <= 0 or inst.tick_size <= 0:
