@@ -22,7 +22,8 @@
     "min_rate": 21425.066614612737,
     "gross_abs": -154.8244,
     "fees_abs": 1.538,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 2.0
   },
   {
     "open_date": "2024-02-13T04:15:00+00:00",
@@ -47,7 +48,8 @@
     "min_rate": 19835.010699386534,
     "gross_abs": -197.5297,
     "fees_abs": 1.4104,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 2.0
   },
   {
     "open_date": "2024-02-13T15:00:00+00:00",
@@ -72,7 +74,8 @@
     "min_rate": 19646.111868178494,
     "gross_abs": -253.7958,
     "fees_abs": 1.3974,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 2.0
   },
   {
     "open_date": "2024-02-27T10:00:00+00:00",
@@ -97,7 +100,8 @@
     "min_rate": 18797.69597555367,
     "gross_abs": -295.8423,
     "fees_abs": 1.3379,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 2.0
   },
   {
     "open_date": "2024-02-28T10:30:00+00:00",
@@ -122,7 +126,8 @@
     "min_rate": 18600.356420284574,
     "gross_abs": -302.0234,
     "fees_abs": 1.3277,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 2.0
   },
   {
     "open_date": "2024-02-28T11:15:00+00:00",
@@ -147,7 +152,8 @@
     "min_rate": 18527.703655599846,
     "gross_abs": -351.7027,
     "fees_abs": 1.32,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 2.0
   },
   {
     "open_date": "2024-06-11T01:15:00+00:00",
@@ -172,7 +178,8 @@
     "min_rate": 23909.30908855878,
     "gross_abs": -285.4102,
     "fees_abs": 1.7001,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 2.0
   },
   {
     "open_date": "2024-06-11T06:00:00+00:00",
@@ -197,7 +204,8 @@
     "min_rate": 23753.186755648458,
     "gross_abs": -281.2873,
     "fees_abs": 1.6896,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 2.0
   },
   {
     "open_date": "2024-06-11T16:30:00+00:00",
@@ -222,6 +230,7 @@
     "min_rate": 23932.201055623555,
     "gross_abs": 1754.9595,
     "fees_abs": 1.7306,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 2.0
   }
 ]

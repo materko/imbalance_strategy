@@ -78,13 +78,13 @@
     "pnl_pct": 1001.985,
     "profit_factor": 1.119,
     "max_drawdown_abs": 69461.0,
-    "max_drawdown_pct": 694.61,
+    "max_drawdown_pct": 116.281,
     "starting_balance": 10000.0,
     "final_balance": 110198.5,
     "stake_currency": "USD",
     "gross_abs": 100198.5,
-    "volume_abs": 14693424.26,
-    "break_even_pct": 0.6819,
+    "volume_abs": 1469342426.1,
+    "break_even_pct": 0.0068,
     "market_change_pct": 155.72,
     "backtest_start": "2021-10-01T00:00:00+00:00",
     "backtest_end": "2026-09-03T23:45:00+00:00",
@@ -10107,7 +10107,7 @@
       ],
       [
         "2025-04-27T22:00:00+00:00",
-        -0.0,
+        0.0,
         153.654
       ],
       [

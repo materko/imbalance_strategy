@@ -156,7 +156,7 @@
     "final_balance": 12115.85,
     "stake_currency": "USD",
     "gross_abs": 2115.85,
-    "volume_abs": 20581184.93,
+    "volume_abs": 41162369.85,
     "break_even_pct": 0.0103,
     "market_change_pct": 25.809,
     "backtest_start": "2025-09-04T00:00:00+00:00",
@@ -280,7 +280,7 @@
       ],
       [
         "2026-01-13T17:21:00+00:00",
-        -0.0,
+        0.0,
         3.943
       ],
       [

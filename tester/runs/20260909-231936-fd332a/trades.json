@@ -5,10 +5,10 @@
     "open_rate": 6195.099,
     "close_rate": 6139.579,
     "amount": 1.0,
-    "stake_amount": 6195.099,
+    "stake_amount": 61950.99,
     "leverage": 1.0,
-    "profit_abs": -61.687339,
-    "profit_ratio": -0.009952465770866241,
+    "profit_abs": -616.8734,
+    "profit_ratio": -0.009957,
     "exit_reason": "stop_loss",
     "enter_tag": "ibs:1759849020000",
     "is_short": false,
@@ -19,7 +19,10 @@
     "initial_stop_loss_abs": 61.951,
     "stop_loss_abs": 6139.579,
     "max_rate": 6233.719,
-    "min_rate": 6127.599
+    "min_rate": 6127.599,
+    "point_value": 10.0,
+    "gross_abs": -555.2,
+    "fees_abs": 61.6734
   },
   {
     "open_date": "2025-10-07T17:24:00+00:00",
@@ -27,10 +30,10 @@
     "open_rate": 6152.188,
     "close_rate": 6131.064,
     "amount": 1.0,
-    "stake_amount": 6152.188,
+    "stake_amount": 61521.88,
     "leverage": 1.0,
-    "profit_abs": -27.265626,
-    "profit_ratio": -0.004429643567459252,
+    "profit_abs": -272.6563,
+    "profit_ratio": -0.004432,
     "exit_reason": "session_end",
     "enter_tag": "ibs:1759857660000",
     "is_short": false,
@@ -41,7 +44,10 @@
     "initial_stop_loss_abs": 61.522,
     "stop_loss_abs": 6112.579,
     "max_rate": 6154.095,
-    "min_rate": 6129.599
+    "min_rate": 6129.599,
+    "point_value": 10.0,
+    "gross_abs": -211.24,
+    "fees_abs": 61.4163
   },
   {
     "open_date": "2025-10-10T15:00:00+00:00",
@@ -49,10 +55,10 @@
     "open_rate": 6116.719,
     "close_rate": 6186.188,
     "amount": 1.0,
-    "stake_amount": 6116.719,
+    "stake_amount": 61167.19,
     "leverage": 1.0,
-    "profit_abs": 63.3175465,
-    "profit_ratio": 0.01034638072277407,
+    "profit_abs": 633.1755,
+    "profit_ratio": 0.010352,
     "exit_reason": "session_end",
     "enter_tag": "ibs:1760108220000",
     "is_short": false,
@@ -63,7 +69,10 @@
     "initial_stop_loss_abs": 61.168,
     "stop_loss_abs": 5998.668,
     "max_rate": 6234.599,
-    "min_rate": 6048.599
+    "min_rate": 6048.599,
+    "point_value": 10.0,
+    "gross_abs": 694.69,
+    "fees_abs": 61.5145
   },
   {
     "open_date": "2025-10-14T15:42:00+00:00",
@@ -71,10 +80,10 @@
     "open_rate": 5499.064,
     "close_rate": 5469.137,
     "amount": 1.0,
-    "stake_amount": 5499.064,
+    "stake_amount": 54990.64,
     "leverage": 1.0,
-    "profit_abs": -35.4111005,
-    "profit_ratio": -0.006436259661298896,
+    "profit_abs": -354.111,
+    "profit_ratio": -0.006439,
     "exit_reason": "stop_loss",
     "enter_tag": "ibs:1760456340000",
     "is_short": false,
@@ -85,7 +94,10 @@
     "initial_stop_loss_abs": 54.991,
     "stop_loss_abs": 5469.137,
     "max_rate": 5500.688,
-    "min_rate": 5464.099
+    "min_rate": 5464.099,
+    "point_value": 10.0,
+    "gross_abs": -299.27,
+    "fees_abs": 54.841
   },
   {
     "open_date": "2025-11-10T16:06:00+00:00",
@@ -93,10 +105,10 @@
     "open_rate": 6274.188,
     "close_rate": 6201.575,
     "amount": 1.0,
-    "stake_amount": 6274.188,
+    "stake_amount": 62741.88,
     "leverage": 1.0,
-    "profit_abs": -78.8508815,
-    "profit_ratio": -0.01256122318332172,
+    "profit_abs": -788.5088,
+    "profit_ratio": -0.012568,
     "exit_reason": "stop_loss",
     "enter_tag": "ibs:1762790580000",
     "is_short": false,
@@ -107,7 +119,10 @@
     "initial_stop_loss_abs": 62.742,
     "stop_loss_abs": 6201.575,
     "max_rate": 6295.599,
-    "min_rate": 6200.688
+    "min_rate": 6200.688,
+    "point_value": 10.0,
+    "gross_abs": -726.13,
+    "fees_abs": 62.3788
   },
   {
     "open_date": "2026-01-23T15:03:00+00:00",
@@ -115,10 +130,10 @@
     "open_rate": 3144.095,
     "close_rate": 3133.637,
     "amount": 1.0,
-    "stake_amount": 3144.095,
+    "stake_amount": 31440.95,
     "leverage": 1.0,
-    "profit_abs": -13.596866,
-    "profit_ratio": -0.004322411048176897,
+    "profit_abs": -135.9687,
+    "profit_ratio": -0.004325,
     "exit_reason": "stop_loss",
     "enter_tag": "ibs:1769180400000",
     "is_short": false,
@@ -129,7 +144,10 @@
     "initial_stop_loss_abs": 31.441,
     "stop_loss_abs": 3133.637,
     "max_rate": 3144.095,
-    "min_rate": 3133.064
+    "min_rate": 3133.064,
+    "point_value": 10.0,
+    "gross_abs": -104.58,
+    "fees_abs": 31.3887
   },
   {
     "open_date": "2026-02-19T16:42:00+00:00",
@@ -137,10 +155,10 @@
     "open_rate": 3328.095,
     "close_rate": 3311.579,
     "amount": 1.0,
-    "stake_amount": 3328.095,
+    "stake_amount": 33280.95,
     "leverage": 1.0,
-    "profit_abs": -19.835837,
-    "profit_ratio": -0.0059571388551051,
+    "profit_abs": -198.3584,
+    "profit_ratio": -0.00596,
     "exit_reason": "stop_loss",
     "enter_tag": "ibs:1771519140000",
     "is_short": false,
@@ -151,7 +169,10 @@
     "initial_stop_loss_abs": 33.281,
     "stop_loss_abs": 3311.579,
     "max_rate": 3332.126,
-    "min_rate": 3307.188
+    "min_rate": 3307.188,
+    "point_value": 10.0,
+    "gross_abs": -165.16,
+    "fees_abs": 33.1984
   },
   {
     "open_date": "2026-04-01T15:33:00+00:00",
@@ -159,10 +180,10 @@
     "open_rate": 3574.599,
     "close_rate": 3592.533,
     "amount": 1.0,
-    "stake_amount": 3574.599,
+    "stake_amount": 35745.99,
     "leverage": 1.0,
-    "profit_abs": 14.350434,
-    "profit_ratio": 0.0040125514411030695,
+    "profit_abs": 143.5043,
+    "profit_ratio": 0.004015,
     "exit_reason": "session_end",
     "enter_tag": "ibs:1775057400000",
     "is_short": false,
@@ -173,7 +194,10 @@
     "initial_stop_loss_abs": 35.746,
     "stop_loss_abs": 3544.544,
     "max_rate": 3595.188,
-    "min_rate": 3565.533
+    "min_rate": 3565.533,
+    "point_value": 10.0,
+    "gross_abs": 179.34,
+    "fees_abs": 35.8357
   },
   {
     "open_date": "2026-04-06T14:06:00+00:00",
@@ -181,10 +205,10 @@
     "open_rate": 4114.719,
     "close_rate": 4099.075,
     "amount": 1.0,
-    "stake_amount": 4114.719,
+    "stake_amount": 41147.19,
     "leverage": 1.0,
-    "profit_abs": -19.750897,
-    "profit_ratio": -0.004797660906311372,
+    "profit_abs": -197.509,
+    "profit_ratio": -0.0048,
     "exit_reason": "stop_loss",
     "enter_tag": "ibs:1775484180000",
     "is_short": false,
@@ -195,6 +219,9 @@
     "initial_stop_loss_abs": 41.148,
     "stop_loss_abs": 4099.075,
     "max_rate": 4126.219,
-    "min_rate": 4095.095
+    "min_rate": 4095.095,
+    "point_value": 10.0,
+    "gross_abs": -156.44,
+    "fees_abs": 41.069
   }
 ]

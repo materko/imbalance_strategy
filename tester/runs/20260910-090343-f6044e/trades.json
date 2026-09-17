@@ -22,7 +22,8 @@
     "min_rate": 199.673,
     "gross_abs": -17900.0,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100000.0
   },
   {
     "open_date": "2026-02-13T15:00:00+00:00",
@@ -47,7 +48,8 @@
     "min_rate": 198.963,
     "gross_abs": -12000.0,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100000.0
   },
   {
     "open_date": "2026-04-30T14:00:00+00:00",
@@ -72,7 +74,8 @@
     "min_rate": 200.042,
     "gross_abs": 38600.0,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100000.0
   },
   {
     "open_date": "2026-06-16T14:15:00+00:00",
@@ -97,7 +100,8 @@
     "min_rate": 201.926,
     "gross_abs": 15100.0,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100000.0
   },
   {
     "open_date": "2026-08-19T14:00:00+00:00",
@@ -122,6 +126,7 @@
     "min_rate": 197.362,
     "gross_abs": 31500.0,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100000.0
   }
 ]

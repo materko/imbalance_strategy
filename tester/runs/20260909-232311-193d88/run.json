@@ -142,16 +142,16 @@
     "losses": 1,
     "draws": 0,
     "winrate": 0.0,
-    "pnl_abs": -4.65,
-    "pnl_pct": -0.047,
+    "pnl_abs": -1745.29,
+    "pnl_pct": -17.453,
     "profit_factor": 0.0,
-    "max_drawdown_abs": 4.65,
-    "max_drawdown_pct": 0.047,
+    "max_drawdown_abs": 1745.29,
+    "max_drawdown_pct": 17.453,
     "starting_balance": 10000.0,
-    "final_balance": 9995.35,
+    "final_balance": 8254.71,
     "stake_currency": "USD",
-    "gross_abs": -4.22,
-    "volume_abs": 860.2,
+    "gross_abs": -1584.0,
+    "volume_abs": 322574.25,
     "break_even_pct": -0.491,
     "market_change_pct": -27.737,
     "backtest_start": "2025-09-04 00:00:00",
@@ -160,7 +160,7 @@
     "exits": {
       "stop_loss": {
         "n": 1,
-        "pnl_abs": -4.65
+        "pnl_abs": -1745.29
       }
     },
     "duration_s": 10.2,
@@ -170,8 +170,8 @@
     "equity": [
       [
         "2025-09-23T14:35:00+00:00",
-        -0.0465,
-        -0.0465
+        -17.4529,
+        -17.4529
       ]
     ],
     "market": [

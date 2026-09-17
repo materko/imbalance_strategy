@@ -173,12 +173,12 @@
     "pnl_pct": 93.36,
     "profit_factor": 1.105,
     "max_drawdown_abs": 11092.5,
-    "max_drawdown_pct": 110.925,
+    "max_drawdown_pct": 53.103,
     "starting_balance": 10000.0,
     "final_balance": 19336.0,
     "stake_currency": "USD",
     "gross_abs": 9336.0,
-    "volume_abs": 153218429.25,
+    "volume_abs": 306436858.5,
     "break_even_pct": 0.0061,
     "market_change_pct": 28.289,
     "backtest_start": "2022-09-04T22:00:00+00:00",
@@ -1143,7 +1143,7 @@
       ],
       [
         "2023-03-12T22:00:00+00:00",
-        -0.0,
+        0.0,
         13.065
       ],
       [

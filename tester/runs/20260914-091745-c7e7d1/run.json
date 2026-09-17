@@ -142,7 +142,7 @@
     "final_balance": -14533.9,
     "stake_currency": "USD",
     "gross_abs": 3771.5,
-    "volume_abs": 28305402.75,
+    "volume_abs": 56610805.5,
     "break_even_pct": 0.0133,
     "market_change_pct": 25.809,
     "backtest_start": "2025-09-04T00:00:00+00:00",

@@ -22,7 +22,8 @@
     "min_rate": 15820.25,
     "gross_abs": 942.5,
     "fees_abs": 0.0,
-    "order_type": "limit"
+    "order_type": "limit",
+    "point_value": 2.0
   },
   {
     "open_date": "2022-01-14T19:45:00+00:00",
@@ -47,7 +48,8 @@
     "min_rate": 15496.25,
     "gross_abs": -930.0,
     "fees_abs": 0.0,
-    "order_type": "limit"
+    "order_type": "limit",
+    "point_value": 2.0
   },
   {
     "open_date": "2022-03-17T16:11:00+00:00",
@@ -72,7 +74,8 @@
     "min_rate": 13912.0,
     "gross_abs": 912.0,
     "fees_abs": 0.0,
-    "order_type": "limit"
+    "order_type": "limit",
+    "point_value": 2.0
   },
   {
     "open_date": "2022-09-22T16:12:00+00:00",
@@ -97,7 +100,8 @@
     "min_rate": 11540.25,
     "gross_abs": -948.0,
     "fees_abs": 0.0,
-    "order_type": "limit"
+    "order_type": "limit",
+    "point_value": 2.0
   },
   {
     "open_date": "2022-09-30T16:52:00+00:00",
@@ -122,7 +126,8 @@
     "min_rate": 11190.5,
     "gross_abs": -929.5,
     "fees_abs": 0.0,
-    "order_type": "limit"
+    "order_type": "limit",
+    "point_value": 2.0
   },
   {
     "open_date": "2023-03-20T16:36:00+00:00",
@@ -147,7 +152,8 @@
     "min_rate": 12594.25,
     "gross_abs": 978.0,
     "fees_abs": 0.0,
-    "order_type": "limit"
+    "order_type": "limit",
+    "point_value": 2.0
   },
   {
     "open_date": "2024-08-27T16:55:00+00:00",
@@ -172,7 +178,8 @@
     "min_rate": 19617.0,
     "gross_abs": 995.5,
     "fees_abs": 0.0,
-    "order_type": "limit"
+    "order_type": "limit",
+    "point_value": 2.0
   },
   {
     "open_date": "2026-01-21T18:33:00+00:00",
@@ -197,7 +204,8 @@
     "min_rate": 25203.5,
     "gross_abs": 957.5,
     "fees_abs": 0.0,
-    "order_type": "limit"
+    "order_type": "limit",
+    "point_value": 2.0
   },
   {
     "open_date": "2026-03-12T16:10:00+00:00",
@@ -222,7 +230,8 @@
     "min_rate": 24593.75,
     "gross_abs": -995.0,
     "fees_abs": 0.0,
-    "order_type": "limit"
+    "order_type": "limit",
+    "point_value": 2.0
   },
   {
     "open_date": "2026-03-16T16:42:00+00:00",
@@ -247,7 +256,8 @@
     "min_rate": 24879.5,
     "gross_abs": 945.0,
     "fees_abs": 0.0,
-    "order_type": "limit"
+    "order_type": "limit",
+    "point_value": 2.0
   },
   {
     "open_date": "2026-06-12T16:12:00+00:00",
@@ -272,6 +282,7 @@
     "min_rate": 29522.5,
     "gross_abs": 972.0,
     "fees_abs": 0.0,
-    "order_type": "limit"
+    "order_type": "limit",
+    "point_value": 2.0
   }
 ]

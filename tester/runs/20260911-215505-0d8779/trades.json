@@ -22,7 +22,8 @@
     "min_rate": 24520.0,
     "gross_abs": -191.0,
     "fees_abs": 1.4431,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 2.0
   },
   {
     "open_date": "2026-04-02T02:45:00+00:00",
@@ -47,7 +48,8 @@
     "min_rate": 23683.0,
     "gross_abs": -349.5,
     "fees_abs": 1.3877,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 2.0
   },
   {
     "open_date": "2026-04-05T22:30:00+00:00",
@@ -72,6 +74,7 @@
     "min_rate": 24034.0,
     "gross_abs": 168.4357,
     "fees_abs": 1.4065,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 2.0
   }
 ]

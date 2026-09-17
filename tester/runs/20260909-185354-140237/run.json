@@ -145,7 +145,7 @@
     "pnl_pct": 15.968,
     "profit_factor": 1.534,
     "max_drawdown_abs": 552.0,
-    "max_drawdown_pct": 5.52,
+    "max_drawdown_pct": 5.0,
     "starting_balance": 10000.0,
     "final_balance": 11596.84,
     "stake_currency": "USD",

@@ -22,7 +22,8 @@
     "min_rate": 3539.588,
     "gross_abs": 1067.2,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-04T23:30:00+00:00",
@@ -47,7 +48,8 @@
     "min_rate": 3542.555,
     "gross_abs": -421.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-05T11:45:00+00:00",
@@ -72,7 +74,8 @@
     "min_rate": 3547.735,
     "gross_abs": -477.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-08T11:00:00+00:00",
@@ -97,7 +100,8 @@
     "min_rate": 3612.398,
     "gross_abs": 495.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-09T14:15:00+00:00",
@@ -122,7 +126,8 @@
     "min_rate": 3640.495,
     "gross_abs": -970.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-09T23:15:00+00:00",
@@ -147,7 +152,8 @@
     "min_rate": 3633.755,
     "gross_abs": 420.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-10T12:45:00+00:00",
@@ -172,7 +178,8 @@
     "min_rate": 3643.135,
     "gross_abs": -739.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-11T03:30:00+00:00",
@@ -197,7 +204,8 @@
     "min_rate": 3624.795,
     "gross_abs": 659.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-11T12:30:00+00:00",
@@ -222,7 +230,8 @@
     "min_rate": 3611.465,
     "gross_abs": -913.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-12T08:15:00+00:00",
@@ -247,7 +256,8 @@
     "min_rate": 3637.375,
     "gross_abs": -1062.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-15T09:15:00+00:00",
@@ -272,7 +282,8 @@
     "min_rate": 3639.258,
     "gross_abs": -464.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-16T06:45:00+00:00",
@@ -297,7 +308,8 @@
     "min_rate": 3685.935,
     "gross_abs": 935.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-17T06:30:00+00:00",
@@ -322,7 +334,8 @@
     "min_rate": 3670.265,
     "gross_abs": 484.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-17T07:00:00+00:00",
@@ -347,7 +360,8 @@
     "min_rate": 3669.355,
     "gross_abs": 507.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-17T11:15:00+00:00",
@@ -372,7 +386,8 @@
     "min_rate": 3662.275,
     "gross_abs": -524.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-19T06:30:00+00:00",
@@ -397,7 +412,8 @@
     "min_rate": 3643.285,
     "gross_abs": -637.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-19T14:30:00+00:00",
@@ -422,7 +438,8 @@
     "min_rate": 3662.338,
     "gross_abs": 1162.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-22T06:30:00+00:00",
@@ -447,7 +464,8 @@
     "min_rate": 3704.785,
     "gross_abs": 1111.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-22T08:30:00+00:00",
@@ -472,7 +490,8 @@
     "min_rate": 3717.445,
     "gross_abs": 675.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-22T10:00:00+00:00",
@@ -497,7 +516,8 @@
     "min_rate": 3716.365,
     "gross_abs": -529.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-24T01:15:00+00:00",
@@ -522,7 +542,8 @@
     "min_rate": 3754.825,
     "gross_abs": 811.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-25T06:45:00+00:00",
@@ -547,7 +568,8 @@
     "min_rate": 3739.669,
     "gross_abs": 813.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-25T09:00:00+00:00",
@@ -572,7 +594,8 @@
     "min_rate": 3747.055,
     "gross_abs": -843.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-25T11:15:00+00:00",
@@ -597,7 +620,8 @@
     "min_rate": 3727.348,
     "gross_abs": 1532.9,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-26T13:30:00+00:00",
@@ -622,7 +646,8 @@
     "min_rate": 3751.905,
     "gross_abs": 857.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-29T07:45:00+00:00",
@@ -647,7 +672,8 @@
     "min_rate": 3804.688,
     "gross_abs": 1167.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-30T07:30:00+00:00",
@@ -672,7 +698,8 @@
     "min_rate": 3845.095,
     "gross_abs": -759.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-30T08:00:00+00:00",
@@ -697,7 +724,8 @@
     "min_rate": 3829.958,
     "gross_abs": 1358.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-09-30T12:30:00+00:00",
@@ -722,7 +750,8 @@
     "min_rate": 3808.745,
     "gross_abs": -1046.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-01T12:45:00+00:00",
@@ -747,7 +776,8 @@
     "min_rate": 3865.198,
     "gross_abs": -883.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-01T20:00:00+00:00",
@@ -772,7 +802,8 @@
     "min_rate": 3861.495,
     "gross_abs": 590.8,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-01T22:15:00+00:00",
@@ -797,7 +828,8 @@
     "min_rate": 3852.635,
     "gross_abs": 970.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-03T04:30:00+00:00",
@@ -822,7 +854,8 @@
     "min_rate": 3842.925,
     "gross_abs": -784.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-03T08:30:00+00:00",
@@ -847,7 +880,8 @@
     "min_rate": 3854.548,
     "gross_abs": -720.8,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-03T12:00:00+00:00",
@@ -872,7 +906,8 @@
     "min_rate": 3860.335,
     "gross_abs": 530.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-06T06:30:00+00:00",
@@ -897,7 +932,8 @@
     "min_rate": 3924.795,
     "gross_abs": 1046.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-06T08:45:00+00:00",
@@ -922,7 +958,8 @@
     "min_rate": 3926.445,
     "gross_abs": -1118.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-06T12:45:00+00:00",
@@ -947,7 +984,8 @@
     "min_rate": 3927.025,
     "gross_abs": 871.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-07T05:15:00+00:00",
@@ -972,7 +1010,8 @@
     "min_rate": 3954.285,
     "gross_abs": -997.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-07T07:00:00+00:00",
@@ -997,7 +1036,8 @@
     "min_rate": 3940.685,
     "gross_abs": 1319.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-07T15:15:00+00:00",
@@ -1022,7 +1062,8 @@
     "min_rate": 3973.335,
     "gross_abs": -1129.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-08T07:30:00+00:00",
@@ -1047,7 +1088,8 @@
     "min_rate": 4030.525,
     "gross_abs": 821.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-08T17:30:00+00:00",
@@ -1072,7 +1114,8 @@
     "min_rate": 4038.355,
     "gross_abs": -856.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-09T03:45:00+00:00",
@@ -1097,7 +1140,8 @@
     "min_rate": 4025.155,
     "gross_abs": -1070.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-09T13:00:00+00:00",
@@ -1122,7 +1166,8 @@
     "min_rate": 4034.785,
     "gross_abs": -1771.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-09T15:45:00+00:00",
@@ -1147,7 +1192,8 @@
     "min_rate": 3982.595,
     "gross_abs": 2209.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-10T09:30:00+00:00",
@@ -1172,7 +1218,8 @@
     "min_rate": 3994.215,
     "gross_abs": 909.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-10T20:30:00+00:00",
@@ -1197,7 +1244,8 @@
     "min_rate": 4000.535,
     "gross_abs": 1348.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-13T13:00:00+00:00",
@@ -1222,7 +1270,8 @@
     "min_rate": 4078.035,
     "gross_abs": 846.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-14T14:00:00+00:00",
@@ -1247,7 +1296,8 @@
     "min_rate": 4120.915,
     "gross_abs": -1435.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-14T15:30:00+00:00",
@@ -1272,7 +1322,8 @@
     "min_rate": 4127.555,
     "gross_abs": 1526.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-15T09:30:00+00:00",
@@ -1297,7 +1348,8 @@
     "min_rate": 4188.325,
     "gross_abs": 1556.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-15T14:45:00+00:00",
@@ -1322,7 +1374,8 @@
     "min_rate": 4180.535,
     "gross_abs": -1468.8,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-15T17:30:00+00:00",
@@ -1347,7 +1400,8 @@
     "min_rate": 4186.125,
     "gross_abs": -1470.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-17T05:45:00+00:00",
@@ -1372,7 +1426,8 @@
     "min_rate": 4308.235,
     "gross_abs": -2804.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-17T13:00:00+00:00",
@@ -1397,7 +1452,8 @@
     "min_rate": 4289.235,
     "gross_abs": 2348.9,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-17T17:45:00+00:00",
@@ -1422,7 +1478,8 @@
     "min_rate": 4212.385,
     "gross_abs": -2920.2,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-20T20:30:00+00:00",
@@ -1447,7 +1504,8 @@
     "min_rate": 4346.435,
     "gross_abs": 1259.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-21T06:15:00+00:00",
@@ -1472,7 +1530,8 @@
     "min_rate": 4321.865,
     "gross_abs": -917.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-21T10:00:00+00:00",
@@ -1497,7 +1556,8 @@
     "min_rate": 4249.185,
     "gross_abs": 1360.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-22T23:30:00+00:00",
@@ -1522,7 +1582,8 @@
     "min_rate": 4065.405,
     "gross_abs": 2107.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-24T13:00:00+00:00",
@@ -1547,7 +1608,8 @@
     "min_rate": 4078.718,
     "gross_abs": -1242.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-24T19:00:00+00:00",
@@ -1572,7 +1634,8 @@
     "min_rate": 4064.051,
     "gross_abs": -4607.4,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-27T12:00:00+00:00",
@@ -1597,7 +1660,8 @@
     "min_rate": 4022.175,
     "gross_abs": -1206.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-27T20:45:00+00:00",
@@ -1622,7 +1686,8 @@
     "min_rate": 3972.445,
     "gross_abs": -2074.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-28T08:00:00+00:00",
@@ -1647,7 +1712,8 @@
     "min_rate": 3912.075,
     "gross_abs": 1969.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-28T11:00:00+00:00",
@@ -1672,7 +1738,8 @@
     "min_rate": 3911.835,
     "gross_abs": 1365.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-28T14:45:00+00:00",
@@ -1697,7 +1764,8 @@
     "min_rate": 3942.305,
     "gross_abs": 1478.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-29T19:15:00+00:00",
@@ -1722,7 +1790,8 @@
     "min_rate": 3945.835,
     "gross_abs": 2340.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-30T01:00:00+00:00",
@@ -1747,7 +1816,8 @@
     "min_rate": 3931.235,
     "gross_abs": 1836.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-30T08:30:00+00:00",
@@ -1772,7 +1842,8 @@
     "min_rate": 3968.115,
     "gross_abs": 2038.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-10-31T03:15:00+00:00",
@@ -1797,7 +1868,8 @@
     "min_rate": 3988.765,
     "gross_abs": -2710.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-03T16:00:00+00:00",
@@ -1822,7 +1894,8 @@
     "min_rate": 3980.625,
     "gross_abs": 2505.9,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-04T01:15:00+00:00",
@@ -1847,7 +1920,8 @@
     "min_rate": 3975.435,
     "gross_abs": 1192.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-04T02:45:00+00:00",
@@ -1872,7 +1946,8 @@
     "min_rate": 3975.505,
     "gross_abs": -1003.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-04T06:00:00+00:00",
@@ -1897,7 +1972,8 @@
     "min_rate": 3966.395,
     "gross_abs": -1615.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-04T10:15:00+00:00",
@@ -1922,7 +1998,8 @@
     "min_rate": 3979.175,
     "gross_abs": -1446.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-05T01:45:00+00:00",
@@ -1947,7 +2024,8 @@
     "min_rate": 3934.255,
     "gross_abs": -1187.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-06T12:30:00+00:00",
@@ -1972,7 +2050,8 @@
     "min_rate": 4002.615,
     "gross_abs": -603.8,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-07T16:15:00+00:00",
@@ -1997,7 +2076,8 @@
     "min_rate": 3995.315,
     "gross_abs": -1022.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-10T05:30:00+00:00",
@@ -2022,7 +2102,8 @@
     "min_rate": 4054.615,
     "gross_abs": 959.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-11T05:15:00+00:00",
@@ -2047,7 +2128,8 @@
     "min_rate": 4130.985,
     "gross_abs": -798.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-12T06:45:00+00:00",
@@ -2072,7 +2154,8 @@
     "min_rate": 4112.758,
     "gross_abs": -675.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-12T10:45:00+00:00",
@@ -2097,7 +2180,8 @@
     "min_rate": 4122.495,
     "gross_abs": 1550.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-13T05:45:00+00:00",
@@ -2122,7 +2206,8 @@
     "min_rate": 4203.065,
     "gross_abs": 1493.2,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-14T08:45:00+00:00",
@@ -2147,7 +2232,8 @@
     "min_rate": 4167.855,
     "gross_abs": 1338.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-14T17:00:00+00:00",
@@ -2172,7 +2258,8 @@
     "min_rate": 4083.648,
     "gross_abs": 1936.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-17T16:45:00+00:00",
@@ -2197,7 +2284,8 @@
     "min_rate": 4064.965,
     "gross_abs": -1183.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-17T23:15:00+00:00",
@@ -2222,7 +2310,8 @@
     "min_rate": 4030.735,
     "gross_abs": 1826.8,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-18T14:45:00+00:00",
@@ -2247,7 +2336,8 @@
     "min_rate": 4057.955,
     "gross_abs": -1442.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-19T04:15:00+00:00",
@@ -2272,7 +2362,8 @@
     "min_rate": 4068.105,
     "gross_abs": -903.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-19T09:30:00+00:00",
@@ -2297,7 +2388,8 @@
     "min_rate": 4087.685,
     "gross_abs": 1337.0,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-20T04:00:00+00:00",
@@ -2322,7 +2414,8 @@
     "min_rate": 4061.035,
     "gross_abs": 959.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-20T23:30:00+00:00",
@@ -2347,7 +2440,8 @@
     "min_rate": 4079.348,
     "gross_abs": 691.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-21T12:30:00+00:00",
@@ -2372,7 +2466,8 @@
     "min_rate": 4043.585,
     "gross_abs": -1306.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-24T09:30:00+00:00",
@@ -2397,7 +2492,8 @@
     "min_rate": 4062.885,
     "gross_abs": 1137.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-24T23:00:00+00:00",
@@ -2422,7 +2518,8 @@
     "min_rate": 4124.765,
     "gross_abs": -493.8,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-25T03:30:00+00:00",
@@ -2447,7 +2544,8 @@
     "min_rate": 4129.785,
     "gross_abs": -1471.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-26T06:30:00+00:00",
@@ -2472,7 +2570,8 @@
     "min_rate": 4146.435,
     "gross_abs": 1264.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-26T12:30:00+00:00",
@@ -2497,7 +2596,8 @@
     "min_rate": 4148.862,
     "gross_abs": -878.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-11-27T03:30:00+00:00",
@@ -2522,7 +2622,8 @@
     "min_rate": 4142.425,
     "gross_abs": -841.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-01T11:15:00+00:00",
@@ -2547,7 +2648,8 @@
     "min_rate": 4243.975,
     "gross_abs": 1011.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-01T15:15:00+00:00",
@@ -2572,7 +2674,8 @@
     "min_rate": 4209.975,
     "gross_abs": 2102.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-02T03:00:00+00:00",
@@ -2597,7 +2700,8 @@
     "min_rate": 4209.975,
     "gross_abs": 1044.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-02T12:30:00+00:00",
@@ -2622,7 +2726,8 @@
     "min_rate": 4201.915,
     "gross_abs": -1085.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-03T17:30:00+00:00",
@@ -2647,7 +2752,8 @@
     "min_rate": 4187.125,
     "gross_abs": 1925.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-08T15:00:00+00:00",
@@ -2672,7 +2778,8 @@
     "min_rate": 4178.425,
     "gross_abs": 1741.8,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-09T07:45:00+00:00",
@@ -2697,7 +2804,8 @@
     "min_rate": 4178.935,
     "gross_abs": -766.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-09T15:15:00+00:00",
@@ -2722,7 +2830,8 @@
     "min_rate": 4194.735,
     "gross_abs": 805.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-10T08:30:00+00:00",
@@ -2747,7 +2856,8 @@
     "min_rate": 4197.285,
     "gross_abs": 570.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-10T12:30:00+00:00",
@@ -2772,7 +2882,8 @@
     "min_rate": 4188.645,
     "gross_abs": -1019.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-10T19:15:00+00:00",
@@ -2797,7 +2908,8 @@
     "min_rate": 4181.565,
     "gross_abs": -2412.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-11T09:30:00+00:00",
@@ -2822,7 +2934,8 @@
     "min_rate": 4213.575,
     "gross_abs": -647.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-12T15:45:00+00:00",
@@ -2847,7 +2960,8 @@
     "min_rate": 4283.125,
     "gross_abs": -2984.9,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-15T14:00:00+00:00",
@@ -2872,7 +2986,8 @@
     "min_rate": 4312.195,
     "gross_abs": 1822.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-16T17:00:00+00:00",
@@ -2897,7 +3012,8 @@
     "min_rate": 4298.015,
     "gross_abs": 1253.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-16T19:45:00+00:00",
@@ -2922,7 +3038,8 @@
     "min_rate": 4300.535,
     "gross_abs": 1407.2,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-17T02:15:00+00:00",
@@ -2947,7 +3064,8 @@
     "min_rate": 4311.105,
     "gross_abs": -881.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-17T08:15:00+00:00",
@@ -2972,7 +3090,8 @@
     "min_rate": 4306.305,
     "gross_abs": -1396.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-17T13:15:00+00:00",
@@ -2997,7 +3116,8 @@
     "min_rate": 4322.755,
     "gross_abs": 1028.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-17T15:45:00+00:00",
@@ -3022,7 +3142,8 @@
     "min_rate": 4319.985,
     "gross_abs": 1198.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-18T13:00:00+00:00",
@@ -3047,7 +3168,8 @@
     "min_rate": 4314.435,
     "gross_abs": -717.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-19T02:45:00+00:00",
@@ -3072,7 +3194,8 @@
     "min_rate": 4312.485,
     "gross_abs": -1371.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-19T10:00:00+00:00",
@@ -3097,7 +3220,8 @@
     "min_rate": 4322.235,
     "gross_abs": -650.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-19T15:00:00+00:00",
@@ -3122,7 +3246,8 @@
     "min_rate": 4331.715,
     "gross_abs": 872.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-19T16:30:00+00:00",
@@ -3147,7 +3272,8 @@
     "min_rate": 4336.275,
     "gross_abs": 1235.2,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-22T15:30:00+00:00",
@@ -3172,7 +3298,8 @@
     "min_rate": 4416.375,
     "gross_abs": 1327.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-23T03:00:00+00:00",
@@ -3197,7 +3324,8 @@
     "min_rate": 4478.645,
     "gross_abs": -1436.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-23T13:00:00+00:00",
@@ -3222,7 +3350,8 @@
     "min_rate": 4485.875,
     "gross_abs": 498.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-23T13:45:00+00:00",
@@ -3247,7 +3376,8 @@
     "min_rate": 4476.565,
     "gross_abs": -830.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-25T23:45:00+00:00",
@@ -3272,7 +3402,8 @@
     "min_rate": 4491.495,
     "gross_abs": 1582.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-26T01:30:00+00:00",
@@ -3297,7 +3428,8 @@
     "min_rate": 4499.738,
     "gross_abs": -889.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-26T02:00:00+00:00",
@@ -3322,7 +3454,8 @@
     "min_rate": 4491.535,
     "gross_abs": 1575.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-26T19:45:00+00:00",
@@ -3347,7 +3480,8 @@
     "min_rate": 4519.625,
     "gross_abs": 1374.3,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-29T05:30:00+00:00",
@@ -3372,7 +3506,8 @@
     "min_rate": 4496.185,
     "gross_abs": 1692.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2025-12-30T06:30:00+00:00",
@@ -3397,7 +3532,8 @@
     "min_rate": 4358.715,
     "gross_abs": 1038.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-02T09:15:00+00:00",
@@ -3422,7 +3558,8 @@
     "min_rate": 4382.858,
     "gross_abs": 1106.2,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-06T06:30:00+00:00",
@@ -3447,7 +3584,8 @@
     "min_rate": 4456.695,
     "gross_abs": 1171.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-06T10:15:00+00:00",
@@ -3472,7 +3610,8 @@
     "min_rate": 4448.098,
     "gross_abs": -1044.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-08T06:15:00+00:00",
@@ -3497,7 +3636,8 @@
     "min_rate": 4418.245,
     "gross_abs": -1115.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-08T14:15:00+00:00",
@@ -3522,7 +3662,8 @@
     "min_rate": 4419.085,
     "gross_abs": -1500.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-09T01:15:00+00:00",
@@ -3547,7 +3688,8 @@
     "min_rate": 4452.585,
     "gross_abs": 1169.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-09T07:15:00+00:00",
@@ -3572,7 +3714,8 @@
     "min_rate": 4463.905,
     "gross_abs": 745.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-09T19:15:00+00:00",
@@ -3597,7 +3740,8 @@
     "min_rate": 4495.615,
     "gross_abs": 1030.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-12T05:45:00+00:00",
@@ -3622,7 +3766,8 @@
     "min_rate": 4569.455,
     "gross_abs": 2265.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-12T13:15:00+00:00",
@@ -3647,7 +3792,8 @@
     "min_rate": 4577.335,
     "gross_abs": -2753.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-12T23:15:00+00:00",
@@ -3672,7 +3818,8 @@
     "min_rate": 4573.325,
     "gross_abs": -2915.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-13T15:30:00+00:00",
@@ -3697,7 +3844,8 @@
     "min_rate": 4593.535,
     "gross_abs": -1280.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-14T06:15:00+00:00",
@@ -3722,7 +3870,8 @@
     "min_rate": 4608.385,
     "gross_abs": -2262.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-15T04:00:00+00:00",
@@ -3747,7 +3896,8 @@
     "min_rate": 4580.815,
     "gross_abs": -1861.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-15T12:00:00+00:00",
@@ -3772,7 +3922,8 @@
     "min_rate": 4606.625,
     "gross_abs": -1183.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-15T15:15:00+00:00",
@@ -3797,7 +3948,8 @@
     "min_rate": 4598.098,
     "gross_abs": -1439.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-16T01:45:00+00:00",
@@ -3822,7 +3974,8 @@
     "min_rate": 4596.545,
     "gross_abs": 795.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-16T17:45:00+00:00",
@@ -3847,7 +4000,8 @@
     "min_rate": 4578.415,
     "gross_abs": -4536.7,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-21T14:00:00+00:00",
@@ -3872,7 +4026,8 @@
     "min_rate": 4851.555,
     "gross_abs": -2059.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-21T17:45:00+00:00",
@@ -3897,7 +4052,8 @@
     "min_rate": 4808.415,
     "gross_abs": -3291.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-22T21:15:00+00:00",
@@ -3922,7 +4078,8 @@
     "min_rate": 4920.485,
     "gross_abs": 2009.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-23T01:15:00+00:00",
@@ -3947,7 +4104,8 @@
     "min_rate": 4921.498,
     "gross_abs": -2257.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-23T11:45:00+00:00",
@@ -3972,7 +4130,8 @@
     "min_rate": 4918.205,
     "gross_abs": -1028.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-23T13:00:00+00:00",
@@ -3997,7 +4156,8 @@
     "min_rate": 4923.305,
     "gross_abs": 1460.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-23T18:00:00+00:00",
@@ -4022,7 +4182,8 @@
     "min_rate": 4965.045,
     "gross_abs": 1798.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-26T06:15:00+00:00",
@@ -4047,7 +4208,8 @@
     "min_rate": 5065.175,
     "gross_abs": 2098.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-26T17:30:00+00:00",
@@ -4072,7 +4234,8 @@
     "min_rate": 5057.425,
     "gross_abs": -2769.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-27T10:15:00+00:00",
@@ -4097,7 +4260,8 @@
     "min_rate": 5081.835,
     "gross_abs": -1380.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-27T13:15:00+00:00",
@@ -4122,7 +4286,8 @@
     "min_rate": 5069.435,
     "gross_abs": -1948.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-27T15:00:00+00:00",
@@ -4147,7 +4312,8 @@
     "min_rate": 5047.485,
     "gross_abs": -3415.2,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-28T15:00:00+00:00",
@@ -4172,7 +4338,8 @@
     "min_rate": 5235.238,
     "gross_abs": -3153.9,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-28T17:15:00+00:00",
@@ -4197,7 +4364,8 @@
     "min_rate": 5282.935,
     "gross_abs": 2527.2,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-29T13:45:00+00:00",
@@ -4222,7 +4390,8 @@
     "min_rate": 5506.045,
     "gross_abs": -2261.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-30T10:00:00+00:00",
@@ -4247,7 +4416,8 @@
     "min_rate": 4999.378,
     "gross_abs": -7335.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-30T14:15:00+00:00",
@@ -4272,7 +4442,8 @@
     "min_rate": 4987.938,
     "gross_abs": 6154.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-01-30T15:30:00+00:00",
@@ -4297,7 +4468,8 @@
     "min_rate": 4959.485,
     "gross_abs": 8273.8,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-02T08:30:00+00:00",
@@ -4322,7 +4494,8 @@
     "min_rate": 4602.255,
     "gross_abs": -8613.2,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-03T03:00:00+00:00",
@@ -4347,7 +4520,8 @@
     "min_rate": 4751.165,
     "gross_abs": 7865.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-04T00:00:00+00:00",
@@ -4372,7 +4546,8 @@
     "min_rate": 4945.725,
     "gross_abs": 3597.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-04T01:15:00+00:00",
@@ -4397,7 +4572,8 @@
     "min_rate": 4950.575,
     "gross_abs": -9210.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-05T12:45:00+00:00",
@@ -4422,7 +4598,8 @@
     "min_rate": 4800.385,
     "gross_abs": 4671.8,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-06T10:15:00+00:00",
@@ -4447,7 +4624,8 @@
     "min_rate": 4851.555,
     "gross_abs": 4252.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-06T14:00:00+00:00",
@@ -4472,7 +4650,8 @@
     "min_rate": 4894.135,
     "gross_abs": -3022.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-09T06:30:00+00:00",
@@ -4497,7 +4676,8 @@
     "min_rate": 4994.955,
     "gross_abs": -1910.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-09T10:45:00+00:00",
@@ -4522,7 +4702,8 @@
     "min_rate": 4982.545,
     "gross_abs": -3185.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-09T15:30:00+00:00",
@@ -4547,7 +4728,8 @@
     "min_rate": 5033.105,
     "gross_abs": 2808.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-10T09:00:00+00:00",
@@ -4572,7 +4754,8 @@
     "min_rate": 5040.315,
     "gross_abs": 1697.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-11T00:30:00+00:00",
@@ -4597,7 +4780,8 @@
     "min_rate": 5030.125,
     "gross_abs": 2265.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-11T06:00:00+00:00",
@@ -4622,7 +4806,8 @@
     "min_rate": 5045.365,
     "gross_abs": 2332.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-11T13:00:00+00:00",
@@ -4647,7 +4832,8 @@
     "min_rate": 5018.0,
     "gross_abs": -1955.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-12T16:00:00+00:00",
@@ -4672,7 +4858,8 @@
     "min_rate": 5032.938,
     "gross_abs": 2693.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-12T20:00:00+00:00",
@@ -4697,7 +4884,8 @@
     "min_rate": 4886.258,
     "gross_abs": 5630.7,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-16T16:00:00+00:00",
@@ -4722,7 +4910,8 @@
     "min_rate": 4972.875,
     "gross_abs": -1214.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-17T02:30:00+00:00",
@@ -4747,7 +4936,8 @@
     "min_rate": 4946.245,
     "gross_abs": 1692.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-17T16:15:00+00:00",
@@ -4772,7 +4962,8 @@
     "min_rate": 4849.645,
     "gross_abs": 2691.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-17T19:00:00+00:00",
@@ -4797,7 +4988,8 @@
     "min_rate": 4864.478,
     "gross_abs": 2955.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-18T01:30:00+00:00",
@@ -4822,7 +5014,8 @@
     "min_rate": 4882.745,
     "gross_abs": 1905.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-18T07:30:00+00:00",
@@ -4847,7 +5040,8 @@
     "min_rate": 4923.635,
     "gross_abs": -1508.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-18T13:00:00+00:00",
@@ -4872,7 +5066,8 @@
     "min_rate": 4942.765,
     "gross_abs": 2444.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-18T21:00:00+00:00",
@@ -4897,7 +5092,8 @@
     "min_rate": 4971.648,
     "gross_abs": -1285.7,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-19T18:45:00+00:00",
@@ -4922,7 +5118,8 @@
     "min_rate": 4975.575,
     "gross_abs": -1654.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-20T01:30:00+00:00",
@@ -4947,7 +5144,8 @@
     "min_rate": 4981.315,
     "gross_abs": -1577.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-20T08:15:00+00:00",
@@ -4972,7 +5170,8 @@
     "min_rate": 5011.045,
     "gross_abs": 1742.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-20T11:00:00+00:00",
@@ -4997,7 +5196,8 @@
     "min_rate": 5020.095,
     "gross_abs": -1418.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-23T08:45:00+00:00",
@@ -5022,7 +5222,8 @@
     "min_rate": 5127.445,
     "gross_abs": -1476.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-23T13:15:00+00:00",
@@ -5047,7 +5248,8 @@
     "min_rate": 5141.225,
     "gross_abs": -1230.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-24T08:15:00+00:00",
@@ -5072,7 +5274,8 @@
     "min_rate": 5151.598,
     "gross_abs": 1711.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-25T02:30:00+00:00",
@@ -5097,7 +5300,8 @@
     "min_rate": 5166.205,
     "gross_abs": -1900.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-25T19:15:00+00:00",
@@ -5122,7 +5326,8 @@
     "min_rate": 5183.185,
     "gross_abs": -2321.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-25T23:15:00+00:00",
@@ -5147,7 +5352,8 @@
     "min_rate": 5154.835,
     "gross_abs": -2586.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-26T14:00:00+00:00",
@@ -5172,7 +5378,8 @@
     "min_rate": 5141.215,
     "gross_abs": 1576.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-26T20:45:00+00:00",
@@ -5197,7 +5404,8 @@
     "min_rate": 5179.825,
     "gross_abs": -1819.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-27T02:45:00+00:00",
@@ -5222,7 +5430,8 @@
     "min_rate": 5173.185,
     "gross_abs": 980.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-02-27T15:30:00+00:00",
@@ -5247,7 +5456,8 @@
     "min_rate": 5226.825,
     "gross_abs": 1940.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-03T10:15:00+00:00",
@@ -5272,7 +5482,8 @@
     "min_rate": 5197.498,
     "gross_abs": 3774.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-04T10:45:00+00:00",
@@ -5297,7 +5508,8 @@
     "min_rate": 5181.345,
     "gross_abs": 1448.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-04T14:15:00+00:00",
@@ -5322,7 +5534,8 @@
     "min_rate": 5121.615,
     "gross_abs": 3509.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-04T18:45:00+00:00",
@@ -5347,7 +5560,8 @@
     "min_rate": 5122.998,
     "gross_abs": -2802.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-09T13:45:00+00:00",
@@ -5372,7 +5586,8 @@
     "min_rate": 5060.139,
     "gross_abs": -4122.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-09T19:45:00+00:00",
@@ -5397,7 +5612,8 @@
     "min_rate": 5117.065,
     "gross_abs": 2112.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-10T14:15:00+00:00",
@@ -5422,7 +5638,8 @@
     "min_rate": 5194.095,
     "gross_abs": 1892.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-10T20:15:00+00:00",
@@ -5447,7 +5664,8 @@
     "min_rate": 5182.578,
     "gross_abs": 1395.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-11T09:00:00+00:00",
@@ -5472,7 +5690,8 @@
     "min_rate": 5172.778,
     "gross_abs": 1390.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-11T12:45:00+00:00",
@@ -5497,7 +5716,8 @@
     "min_rate": 5160.025,
     "gross_abs": 1829.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-11T17:15:00+00:00",
@@ -5522,7 +5742,8 @@
     "min_rate": 5154.165,
     "gross_abs": 2113.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-12T12:30:00+00:00",
@@ -5547,7 +5768,8 @@
     "min_rate": 5168.335,
     "gross_abs": 831.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-12T17:15:00+00:00",
@@ -5572,7 +5794,8 @@
     "min_rate": 5100.985,
     "gross_abs": 2020.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-12T22:15:00+00:00",
@@ -5597,7 +5820,8 @@
     "min_rate": 5080.685,
     "gross_abs": -1258.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-13T13:45:00+00:00",
@@ -5622,7 +5846,8 @@
     "min_rate": 5087.555,
     "gross_abs": -2341.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-13T16:00:00+00:00",
@@ -5647,7 +5872,8 @@
     "min_rate": 4981.745,
     "gross_abs": 4119.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-16T05:00:00+00:00",
@@ -5672,7 +5898,8 @@
     "min_rate": 5002.915,
     "gross_abs": -2145.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-17T09:30:00+00:00",
@@ -5697,7 +5924,8 @@
     "min_rate": 5003.248,
     "gross_abs": 1071.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-17T15:00:00+00:00",
@@ -5722,7 +5950,8 @@
     "min_rate": 4990.218,
     "gross_abs": 1596.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-17T17:15:00+00:00",
@@ -5747,7 +5976,8 @@
     "min_rate": 4983.525,
     "gross_abs": 1754.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-18T06:00:00+00:00",
@@ -5772,7 +6002,8 @@
     "min_rate": 4995.978,
     "gross_abs": -1148.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-18T15:00:00+00:00",
@@ -5797,7 +6028,8 @@
     "min_rate": 4838.295,
     "gross_abs": 3094.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-19T09:00:00+00:00",
@@ -5822,7 +6054,8 @@
     "min_rate": 4670.665,
     "gross_abs": 3383.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-19T10:45:00+00:00",
@@ -5847,7 +6080,8 @@
     "min_rate": 4637.455,
     "gross_abs": 4330.8,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-19T14:45:00+00:00",
@@ -5872,7 +6106,8 @@
     "min_rate": 4566.025,
     "gross_abs": -4771.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-20T12:30:00+00:00",
@@ -5897,7 +6132,8 @@
     "min_rate": 4644.318,
     "gross_abs": 2734.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-24T08:45:00+00:00",
@@ -5922,7 +6158,8 @@
     "min_rate": 4395.625,
     "gross_abs": 3353.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-24T13:45:00+00:00",
@@ -5947,7 +6184,8 @@
     "min_rate": 4350.838,
     "gross_abs": -4090.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-24T18:00:00+00:00",
@@ -5972,7 +6210,8 @@
     "min_rate": 4383.545,
     "gross_abs": -2389.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-25T13:45:00+00:00",
@@ -5997,7 +6236,8 @@
     "min_rate": 4532.975,
     "gross_abs": 2784.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-25T15:45:00+00:00",
@@ -6022,7 +6262,8 @@
     "min_rate": 4528.575,
     "gross_abs": 2766.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-26T10:45:00+00:00",
@@ -6047,7 +6288,8 @@
     "min_rate": 4416.335,
     "gross_abs": -3614.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-26T23:15:00+00:00",
@@ -6072,7 +6314,8 @@
     "min_rate": 4375.235,
     "gross_abs": -3473.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-27T07:45:00+00:00",
@@ -6097,7 +6340,8 @@
     "min_rate": 4435.965,
     "gross_abs": -1183.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-27T12:00:00+00:00",
@@ -6122,7 +6366,8 @@
     "min_rate": 4412.295,
     "gross_abs": -1642.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-30T04:15:00+00:00",
@@ -6147,7 +6392,8 @@
     "min_rate": 4485.885,
     "gross_abs": -3099.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-30T12:15:00+00:00",
@@ -6172,7 +6418,8 @@
     "min_rate": 4529.265,
     "gross_abs": -2572.8,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-30T15:45:00+00:00",
@@ -6197,7 +6444,8 @@
     "min_rate": 4511.178,
     "gross_abs": -3967.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-03-31T05:30:00+00:00",
@@ -6222,7 +6470,8 @@
     "min_rate": 4529.115,
     "gross_abs": 3386.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-01T06:15:00+00:00",
@@ -6247,7 +6496,8 @@
     "min_rate": 4692.235,
     "gross_abs": 2134.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-01T08:00:00+00:00",
@@ -6272,7 +6522,8 @@
     "min_rate": 4709.995,
     "gross_abs": 1565.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-02T00:00:00+00:00",
@@ -6297,7 +6548,8 @@
     "min_rate": 4747.108,
     "gross_abs": -1723.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-06T19:00:00+00:00",
@@ -6322,7 +6574,8 @@
     "min_rate": 4645.435,
     "gross_abs": 992.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-07T14:00:00+00:00",
@@ -6347,7 +6600,8 @@
     "min_rate": 4607.335,
     "gross_abs": 2369.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-07T15:00:00+00:00",
@@ -6372,7 +6626,8 @@
     "min_rate": 4624.735,
     "gross_abs": -2694.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-08T11:00:00+00:00",
@@ -6397,7 +6652,8 @@
     "min_rate": 4750.665,
     "gross_abs": 2826.8,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-09T06:45:00+00:00",
@@ -6422,7 +6678,8 @@
     "min_rate": 4703.185,
     "gross_abs": -1660.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-09T15:00:00+00:00",
@@ -6447,7 +6704,8 @@
     "min_rate": 4760.948,
     "gross_abs": 2125.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-13T15:30:00+00:00",
@@ -6472,7 +6730,8 @@
     "min_rate": 4702.065,
     "gross_abs": -2322.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-13T19:00:00+00:00",
@@ -6497,7 +6756,8 @@
     "min_rate": 4730.345,
     "gross_abs": 1641.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-14T04:45:00+00:00",
@@ -6522,7 +6782,8 @@
     "min_rate": 4762.978,
     "gross_abs": -1004.8,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-14T06:30:00+00:00",
@@ -6547,7 +6808,8 @@
     "min_rate": 4763.985,
     "gross_abs": 1069.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-14T07:30:00+00:00",
@@ -6572,7 +6834,8 @@
     "min_rate": 4771.645,
     "gross_abs": 1220.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-15T06:00:00+00:00",
@@ -6597,7 +6860,8 @@
     "min_rate": 4803.715,
     "gross_abs": 1363.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-15T13:45:00+00:00",
@@ -6622,7 +6886,8 @@
     "min_rate": 4804.925,
     "gross_abs": -1483.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-15T18:15:00+00:00",
@@ -6647,7 +6912,8 @@
     "min_rate": 4787.135,
     "gross_abs": -1460.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-17T07:45:00+00:00",
@@ -6672,7 +6938,8 @@
     "min_rate": 4778.598,
     "gross_abs": -1680.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-20T08:15:00+00:00",
@@ -6697,7 +6964,8 @@
     "min_rate": 4783.235,
     "gross_abs": -1251.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-20T14:15:00+00:00",
@@ -6722,7 +6990,8 @@
     "min_rate": 4792.045,
     "gross_abs": -1999.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-20T19:30:00+00:00",
@@ -6747,7 +7016,8 @@
     "min_rate": 4810.055,
     "gross_abs": 851.2,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-21T09:30:00+00:00",
@@ -6772,7 +7042,8 @@
     "min_rate": 4775.195,
     "gross_abs": -1294.2,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-22T12:15:00+00:00",
@@ -6797,7 +7068,8 @@
     "min_rate": 4739.965,
     "gross_abs": 1055.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-22T16:00:00+00:00",
@@ -6822,7 +7094,8 @@
     "min_rate": 4723.685,
     "gross_abs": -1525.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-22T19:00:00+00:00",
@@ -6847,7 +7120,8 @@
     "min_rate": 4729.995,
     "gross_abs": 1132.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-24T08:45:00+00:00",
@@ -6872,7 +7146,8 @@
     "min_rate": 4687.575,
     "gross_abs": 841.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-24T15:45:00+00:00",
@@ -6897,7 +7172,8 @@
     "min_rate": 4692.365,
     "gross_abs": -3038.7,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-27T11:45:00+00:00",
@@ -6922,7 +7198,8 @@
     "min_rate": 4691.895,
     "gross_abs": 1011.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-28T12:30:00+00:00",
@@ -6947,7 +7224,8 @@
     "min_rate": 4557.085,
     "gross_abs": -2820.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-29T04:45:00+00:00",
@@ -6972,7 +7250,8 @@
     "min_rate": 4588.705,
     "gross_abs": -1219.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-29T06:15:00+00:00",
@@ -6997,7 +7276,8 @@
     "min_rate": 4569.415,
     "gross_abs": 1660.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-29T13:15:00+00:00",
@@ -7022,7 +7302,8 @@
     "min_rate": 4534.805,
     "gross_abs": 1259.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-30T11:45:00+00:00",
@@ -7047,7 +7328,8 @@
     "min_rate": 4624.115,
     "gross_abs": 921.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-30T13:15:00+00:00",
@@ -7072,7 +7354,8 @@
     "min_rate": 4620.645,
     "gross_abs": -1987.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-04-30T16:30:00+00:00",
@@ -7097,7 +7380,8 @@
     "min_rate": 4605.158,
     "gross_abs": 1753.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-01T10:15:00+00:00",
@@ -7122,7 +7406,8 @@
     "min_rate": 4566.385,
     "gross_abs": -845.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-04T09:30:00+00:00",
@@ -7147,7 +7432,8 @@
     "min_rate": 4570.255,
     "gross_abs": 919.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-04T17:30:00+00:00",
@@ -7172,7 +7458,8 @@
     "min_rate": 4509.655,
     "gross_abs": -2295.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-05T09:15:00+00:00",
@@ -7197,7 +7484,8 @@
     "min_rate": 4544.798,
     "gross_abs": -1213.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-05T14:30:00+00:00",
@@ -7222,7 +7510,8 @@
     "min_rate": 4557.125,
     "gross_abs": -2556.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-06T00:30:00+00:00",
@@ -7247,7 +7536,8 @@
     "min_rate": 4601.815,
     "gross_abs": 2567.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-06T12:30:00+00:00",
@@ -7272,7 +7562,8 @@
     "min_rate": 4668.645,
     "gross_abs": 1555.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-07T00:15:00+00:00",
@@ -7297,7 +7588,8 @@
     "min_rate": 4686.035,
     "gross_abs": -1163.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-08T02:30:00+00:00",
@@ -7322,7 +7614,8 @@
     "min_rate": 4696.735,
     "gross_abs": -1957.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-11T10:30:00+00:00",
@@ -7347,7 +7640,8 @@
     "min_rate": 4660.165,
     "gross_abs": -905.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-12T00:15:00+00:00",
@@ -7372,7 +7666,8 @@
     "min_rate": 4748.225,
     "gross_abs": -1799.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-12T13:00:00+00:00",
@@ -7397,7 +7692,8 @@
     "min_rate": 4687.275,
     "gross_abs": 1706.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-12T13:45:00+00:00",
@@ -7422,7 +7718,8 @@
     "min_rate": 4678.185,
     "gross_abs": 1592.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-14T00:00:00+00:00",
@@ -7447,7 +7744,8 @@
     "min_rate": 4689.225,
     "gross_abs": 937.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-15T07:45:00+00:00",
@@ -7472,7 +7770,8 @@
     "min_rate": 4552.835,
     "gross_abs": 2122.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-15T19:30:00+00:00",
@@ -7497,7 +7796,8 @@
     "min_rate": 4533.705,
     "gross_abs": 1606.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-18T14:30:00+00:00",
@@ -7522,7 +7822,8 @@
     "min_rate": 4538.435,
     "gross_abs": -2049.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-19T03:30:00+00:00",
@@ -7547,7 +7848,8 @@
     "min_rate": 4532.075,
     "gross_abs": 1374.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-20T05:45:00+00:00",
@@ -7572,7 +7874,8 @@
     "min_rate": 4461.185,
     "gross_abs": -1797.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-21T06:30:00+00:00",
@@ -7597,7 +7900,8 @@
     "min_rate": 4523.895,
     "gross_abs": 875.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-21T13:00:00+00:00",
@@ -7622,7 +7926,8 @@
     "min_rate": 4488.335,
     "gross_abs": -1818.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-22T13:15:00+00:00",
@@ -7647,7 +7952,8 @@
     "min_rate": 4510.595,
     "gross_abs": -1585.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-25T22:45:00+00:00",
@@ -7672,7 +7978,8 @@
     "min_rate": 4564.035,
     "gross_abs": -784.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-27T12:15:00+00:00",
@@ -7697,7 +8004,8 @@
     "min_rate": 4427.345,
     "gross_abs": -1704.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-28T08:00:00+00:00",
@@ -7722,7 +8030,8 @@
     "min_rate": 4385.615,
     "gross_abs": -1129.2,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-29T02:45:00+00:00",
@@ -7747,7 +8056,8 @@
     "min_rate": 4494.535,
     "gross_abs": 1430.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-29T07:45:00+00:00",
@@ -7772,7 +8082,8 @@
     "min_rate": 4509.675,
     "gross_abs": 1639.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-05-29T11:15:00+00:00",
@@ -7797,7 +8108,8 @@
     "min_rate": 4521.708,
     "gross_abs": -912.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-01T06:45:00+00:00",
@@ -7822,7 +8134,8 @@
     "min_rate": 4481.685,
     "gross_abs": 1942.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-02T09:45:00+00:00",
@@ -7847,7 +8160,8 @@
     "min_rate": 4513.955,
     "gross_abs": -1093.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-02T18:00:00+00:00",
@@ -7872,7 +8186,8 @@
     "min_rate": 4473.225,
     "gross_abs": 1065.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-03T09:30:00+00:00",
@@ -7897,7 +8212,8 @@
     "min_rate": 4438.735,
     "gross_abs": -2227.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-03T14:15:00+00:00",
@@ -7922,7 +8238,8 @@
     "min_rate": 4436.495,
     "gross_abs": 1643.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-04T04:15:00+00:00",
@@ -7947,7 +8264,8 @@
     "min_rate": 4458.415,
     "gross_abs": 1580.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-04T12:15:00+00:00",
@@ -7972,7 +8290,8 @@
     "min_rate": 4490.915,
     "gross_abs": 1483.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-05T01:00:00+00:00",
@@ -7997,7 +8316,8 @@
     "min_rate": 4452.605,
     "gross_abs": -906.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-05T05:00:00+00:00",
@@ -8022,7 +8342,8 @@
     "min_rate": 4431.935,
     "gross_abs": 1250.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-05T15:30:00+00:00",
@@ -8047,7 +8368,8 @@
     "min_rate": 4327.035,
     "gross_abs": 2313.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-08T05:00:00+00:00",
@@ -8072,7 +8394,8 @@
     "min_rate": 4286.315,
     "gross_abs": 1229.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-09T01:15:00+00:00",
@@ -8097,7 +8420,8 @@
     "min_rate": 4322.135,
     "gross_abs": -672.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-09T09:15:00+00:00",
@@ -8122,7 +8446,8 @@
     "min_rate": 4323.865,
     "gross_abs": -1102.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-09T11:15:00+00:00",
@@ -8147,7 +8472,8 @@
     "min_rate": 4324.985,
     "gross_abs": -1044.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-09T14:00:00+00:00",
@@ -8172,7 +8498,8 @@
     "min_rate": 4305.395,
     "gross_abs": 1956.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-10T12:00:00+00:00",
@@ -8197,7 +8524,8 @@
     "min_rate": 4130.345,
     "gross_abs": -2786.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-10T22:45:00+00:00",
@@ -8222,7 +8550,8 @@
     "min_rate": 4047.435,
     "gross_abs": 1415.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-11T06:15:00+00:00",
@@ -8247,7 +8576,8 @@
     "min_rate": 4081.505,
     "gross_abs": 1626.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-12T01:45:00+00:00",
@@ -8272,7 +8602,8 @@
     "min_rate": 4179.115,
     "gross_abs": 2398.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-15T12:00:00+00:00",
@@ -8297,7 +8628,8 @@
     "min_rate": 4324.835,
     "gross_abs": -1000.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-17T01:45:00+00:00",
@@ -8322,7 +8654,8 @@
     "min_rate": 4329.565,
     "gross_abs": -916.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-17T06:00:00+00:00",
@@ -8347,7 +8680,8 @@
     "min_rate": 4316.965,
     "gross_abs": 931.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-17T13:15:00+00:00",
@@ -8372,7 +8706,8 @@
     "min_rate": 4330.775,
     "gross_abs": 1191.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-18T01:30:00+00:00",
@@ -8397,7 +8732,8 @@
     "min_rate": 4302.005,
     "gross_abs": -1558.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-19T06:00:00+00:00",
@@ -8422,7 +8758,8 @@
     "min_rate": 4132.635,
     "gross_abs": -1304.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-23T05:15:00+00:00",
@@ -8447,7 +8784,8 @@
     "min_rate": 4112.855,
     "gross_abs": 1406.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-23T09:30:00+00:00",
@@ -8472,7 +8810,8 @@
     "min_rate": 4111.878,
     "gross_abs": -1364.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-23T12:30:00+00:00",
@@ -8497,7 +8836,8 @@
     "min_rate": 4105.138,
     "gross_abs": -1394.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-24T11:15:00+00:00",
@@ -8522,7 +8862,8 @@
     "min_rate": 4007.935,
     "gross_abs": 2417.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-24T22:15:00+00:00",
@@ -8547,7 +8888,8 @@
     "min_rate": 3990.228,
     "gross_abs": -1335.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-25T17:30:00+00:00",
@@ -8572,7 +8914,8 @@
     "min_rate": 4017.125,
     "gross_abs": -1457.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-29T04:45:00+00:00",
@@ -8597,7 +8940,8 @@
     "min_rate": 4034.335,
     "gross_abs": 2031.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-29T12:00:00+00:00",
@@ -8622,7 +8966,8 @@
     "min_rate": 4022.375,
     "gross_abs": 1435.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-29T19:45:00+00:00",
@@ -8647,7 +8992,8 @@
     "min_rate": 4011.465,
     "gross_abs": 583.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-30T06:30:00+00:00",
@@ -8672,7 +9018,8 @@
     "min_rate": 4008.385,
     "gross_abs": 4046.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-06-30T20:30:00+00:00",
@@ -8697,7 +9044,8 @@
     "min_rate": 4000.045,
     "gross_abs": 1220.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-01T07:15:00+00:00",
@@ -8722,7 +9070,8 @@
     "min_rate": 3959.905,
     "gross_abs": -1985.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-02T05:45:00+00:00",
@@ -8747,7 +9096,8 @@
     "min_rate": 4059.725,
     "gross_abs": 1001.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-02T19:30:00+00:00",
@@ -8772,7 +9122,8 @@
     "min_rate": 4110.645,
     "gross_abs": 1002.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-03T00:30:00+00:00",
@@ -8797,7 +9148,8 @@
     "min_rate": 4132.835,
     "gross_abs": 1533.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-03T08:30:00+00:00",
@@ -8822,7 +9174,8 @@
     "min_rate": 4172.125,
     "gross_abs": -1053.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-03T11:00:00+00:00",
@@ -8847,7 +9200,8 @@
     "min_rate": 4166.065,
     "gross_abs": -1052.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-03T13:30:00+00:00",
@@ -8872,7 +9226,8 @@
     "min_rate": 4163.345,
     "gross_abs": 791.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-06T05:45:00+00:00",
@@ -8897,7 +9252,8 @@
     "min_rate": 4144.535,
     "gross_abs": 963.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-06T15:45:00+00:00",
@@ -8922,7 +9278,8 @@
     "min_rate": 4140.035,
     "gross_abs": -1150.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-07T00:45:00+00:00",
@@ -8947,7 +9304,8 @@
     "min_rate": 4131.785,
     "gross_abs": 1743.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-07T10:15:00+00:00",
@@ -8972,7 +9330,8 @@
     "min_rate": 4131.665,
     "gross_abs": -850.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-08T00:00:00+00:00",
@@ -8997,7 +9356,8 @@
     "min_rate": 4096.545,
     "gross_abs": -1047.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-08T17:15:00+00:00",
@@ -9022,7 +9382,8 @@
     "min_rate": 4063.065,
     "gross_abs": -1810.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-09T00:30:00+00:00",
@@ -9047,7 +9408,8 @@
     "min_rate": 4066.215,
     "gross_abs": -865.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-09T05:15:00+00:00",
@@ -9072,7 +9434,8 @@
     "min_rate": 4064.445,
     "gross_abs": 1965.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-10T08:15:00+00:00",
@@ -9097,7 +9460,8 @@
     "min_rate": 4096.975,
     "gross_abs": 971.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-10T11:30:00+00:00",
@@ -9122,7 +9486,8 @@
     "min_rate": 4095.875,
     "gross_abs": -1223.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-13T08:30:00+00:00",
@@ -9147,7 +9512,8 @@
     "min_rate": 4052.585,
     "gross_abs": 1971.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-14T01:30:00+00:00",
@@ -9172,7 +9538,8 @@
     "min_rate": 3992.485,
     "gross_abs": -1198.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-14T06:45:00+00:00",
@@ -9197,7 +9564,8 @@
     "min_rate": 4016.685,
     "gross_abs": -741.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-15T15:30:00+00:00",
@@ -9222,7 +9590,8 @@
     "min_rate": 4032.505,
     "gross_abs": -1618.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-17T06:00:00+00:00",
@@ -9247,7 +9616,8 @@
     "min_rate": 3984.625,
     "gross_abs": 1196.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-17T08:15:00+00:00",
@@ -9272,7 +9642,8 @@
     "min_rate": 3977.435,
     "gross_abs": -1384.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-17T13:45:00+00:00",
@@ -9297,7 +9668,8 @@
     "min_rate": 3980.985,
     "gross_abs": -1694.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-20T05:45:00+00:00",
@@ -9322,7 +9694,8 @@
     "min_rate": 4001.815,
     "gross_abs": 807.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-21T04:00:00+00:00",
@@ -9347,7 +9720,8 @@
     "min_rate": 4043.365,
     "gross_abs": 1179.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-21T11:15:00+00:00",
@@ -9372,7 +9746,8 @@
     "min_rate": 4044.425,
     "gross_abs": -1274.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-21T23:15:00+00:00",
@@ -9397,7 +9772,8 @@
     "min_rate": 4076.325,
     "gross_abs": 622.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-23T15:15:00+00:00",
@@ -9422,7 +9798,8 @@
     "min_rate": 4027.995,
     "gross_abs": 1863.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-24T17:00:00+00:00",
@@ -9447,7 +9824,8 @@
     "min_rate": 4055.385,
     "gross_abs": -1092.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-27T14:00:00+00:00",
@@ -9472,7 +9850,8 @@
     "min_rate": 4065.065,
     "gross_abs": -1702.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-28T05:00:00+00:00",
@@ -9497,7 +9876,8 @@
     "min_rate": 4034.415,
     "gross_abs": -1104.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-28T08:15:00+00:00",
@@ -9522,7 +9902,8 @@
     "min_rate": 4019.935,
     "gross_abs": 1736.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-28T15:30:00+00:00",
@@ -9547,7 +9928,8 @@
     "min_rate": 4032.345,
     "gross_abs": -1097.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-29T10:15:00+00:00",
@@ -9572,7 +9954,8 @@
     "min_rate": 4024.695,
     "gross_abs": -631.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-29T13:30:00+00:00",
@@ -9597,7 +9980,8 @@
     "min_rate": 4002.275,
     "gross_abs": 1125.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-30T01:00:00+00:00",
@@ -9622,7 +10006,8 @@
     "min_rate": 4070.005,
     "gross_abs": 1232.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-30T06:00:00+00:00",
@@ -9647,7 +10032,8 @@
     "min_rate": 4029.135,
     "gross_abs": -1651.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-31T02:00:00+00:00",
@@ -9672,7 +10058,8 @@
     "min_rate": 4070.965,
     "gross_abs": 1267.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-07-31T12:00:00+00:00",
@@ -9697,7 +10084,8 @@
     "min_rate": 4044.035,
     "gross_abs": 968.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-04T03:45:00+00:00",
@@ -9722,7 +10110,8 @@
     "min_rate": 4050.825,
     "gross_abs": 765.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-05T13:30:00+00:00",
@@ -9747,7 +10136,8 @@
     "min_rate": 4189.275,
     "gross_abs": 1717.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-05T18:45:00+00:00",
@@ -9772,7 +10162,8 @@
     "min_rate": 4243.675,
     "gross_abs": -1532.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-07T03:00:00+00:00",
@@ -9797,7 +10188,8 @@
     "min_rate": 4249.275,
     "gross_abs": 1370.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-07T07:00:00+00:00",
@@ -9822,7 +10214,8 @@
     "min_rate": 4282.735,
     "gross_abs": 1683.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-07T10:30:00+00:00",
@@ -9847,7 +10240,8 @@
     "min_rate": 4312.945,
     "gross_abs": 1314.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-07T15:45:00+00:00",
@@ -9872,7 +10266,8 @@
     "min_rate": 4334.445,
     "gross_abs": -1336.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-10T17:00:00+00:00",
@@ -9897,7 +10292,8 @@
     "min_rate": 4351.385,
     "gross_abs": 1579.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-11T09:00:00+00:00",
@@ -9922,7 +10318,8 @@
     "min_rate": 4367.395,
     "gross_abs": -1590.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-11T15:15:00+00:00",
@@ -9947,7 +10344,8 @@
     "min_rate": 4376.375,
     "gross_abs": -1384.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-11T19:45:00+00:00",
@@ -9972,7 +10370,8 @@
     "min_rate": 4365.425,
     "gross_abs": -754.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-12T14:45:00+00:00",
@@ -9997,7 +10396,8 @@
     "min_rate": 4401.875,
     "gross_abs": -2058.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-12T19:00:00+00:00",
@@ -10022,7 +10422,8 @@
     "min_rate": 4398.065,
     "gross_abs": -1662.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-13T11:45:00+00:00",
@@ -10047,7 +10448,8 @@
     "min_rate": 4382.715,
     "gross_abs": -1234.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-13T12:45:00+00:00",
@@ -10072,7 +10474,8 @@
     "min_rate": 4372.105,
     "gross_abs": 1753.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-13T22:15:00+00:00",
@@ -10097,7 +10500,8 @@
     "min_rate": 4352.385,
     "gross_abs": -837.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-17T10:45:00+00:00",
@@ -10122,7 +10526,8 @@
     "min_rate": 4381.905,
     "gross_abs": -772.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-18T03:00:00+00:00",
@@ -10147,7 +10552,8 @@
     "min_rate": 4391.165,
     "gross_abs": 777.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-19T07:45:00+00:00",
@@ -10172,7 +10578,8 @@
     "min_rate": 4350.985,
     "gross_abs": 944.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-19T11:30:00+00:00",
@@ -10197,7 +10604,8 @@
     "min_rate": 4363.065,
     "gross_abs": -683.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-20T13:15:00+00:00",
@@ -10222,7 +10630,8 @@
     "min_rate": 4469.135,
     "gross_abs": -1983.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-20T23:30:00+00:00",
@@ -10247,7 +10656,8 @@
     "min_rate": 4516.395,
     "gross_abs": -999.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-21T10:30:00+00:00",
@@ -10272,7 +10682,8 @@
     "min_rate": 4585.435,
     "gross_abs": 1484.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-21T11:45:00+00:00",
@@ -10297,7 +10708,8 @@
     "min_rate": 4583.965,
     "gross_abs": -1284.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-21T12:45:00+00:00",
@@ -10322,7 +10734,8 @@
     "min_rate": 4572.985,
     "gross_abs": 1805.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-25T00:00:00+00:00",
@@ -10347,7 +10760,8 @@
     "min_rate": 4674.925,
     "gross_abs": 1299.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-25T08:30:00+00:00",
@@ -10372,7 +10786,8 @@
     "min_rate": 4608.495,
     "gross_abs": 2347.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-27T07:15:00+00:00",
@@ -10397,7 +10812,8 @@
     "min_rate": 4593.285,
     "gross_abs": 1001.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-27T12:15:00+00:00",
@@ -10422,7 +10838,8 @@
     "min_rate": 4582.975,
     "gross_abs": 877.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-27T13:30:00+00:00",
@@ -10447,7 +10864,8 @@
     "min_rate": 4575.295,
     "gross_abs": 1317.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-31T04:30:00+00:00",
@@ -10472,7 +10890,8 @@
     "min_rate": 4412.615,
     "gross_abs": -1606.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-31T16:45:00+00:00",
@@ -10497,7 +10916,8 @@
     "min_rate": 4426.135,
     "gross_abs": -1552.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-08-31T22:00:00+00:00",
@@ -10522,7 +10942,8 @@
     "min_rate": 4441.355,
     "gross_abs": 888.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-09-02T09:15:00+00:00",
@@ -10547,7 +10968,8 @@
     "min_rate": 4301.395,
     "gross_abs": -1582.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-09-02T13:30:00+00:00",
@@ -10572,7 +10994,8 @@
     "min_rate": 4356.745,
     "gross_abs": 3100.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-09-02T23:45:00+00:00",
@@ -10597,7 +11020,8 @@
     "min_rate": 4382.145,
     "gross_abs": 843.5,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   },
   {
     "open_date": "2026-09-03T18:30:00+00:00",
@@ -10622,6 +11046,7 @@
     "min_rate": 4470.175,
     "gross_abs": 15.0,
     "fees_abs": 0.0,
-    "order_type": "market"
+    "order_type": "market",
+    "point_value": 100.0
   }
 ]
