@@ -658,3 +658,6 @@ main.view { grid-template-columns: 370px minmax(0, 1fr); gap: 20px; }
 .hub-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
 table.runs tbody tr.plain { cursor: default; }
 table.runs tbody tr.plain:hover { background: transparent; }
+.hub-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 16px; margin: 10px 0; align-items: end; }
+.hub-form .field input { width: 100%; }
+details#hub-settings > summary { cursor: pointer; font-weight: 600; }

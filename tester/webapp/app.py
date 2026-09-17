@@ -352,6 +352,17 @@ class HubAcceptRequest(BaseModel):
     accept: bool
 
 
+class HubConfigRequest(BaseModel):
+    """Nastavenie agenta z karty Hub — to isté, čo `python -m tester.hub setup`."""
+
+    name: str = Field(..., min_length=1, max_length=60)
+    hub_url: str = Field(..., min_length=1)
+    token: str = Field("", description="prázdne = nechať doterajší")
+    accept: bool = True
+    send: bool = True
+    max_parallel: int = Field(0, ge=0, le=256, description="0 = podľa jadier")
+
+
 def create_app(store: RunStore | None = None, runner: BacktestRunner | None = None,
                replayer: ChartReplayer | None = None) -> FastAPI:
     store = store or RunStore()
@@ -1967,6 +1978,58 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
             return cfg, HubClient.from_config(cfg)
         except PermissionError as exc:
             raise HTTPException(403, str(exc))
+
+    def start_hub_agent(cfg) -> Any:
+        """(Re)štart agenta hubu v tomto procese — pri štarte webapp aj po uložení nastavení."""
+        from ..hub.agent import HubAgent
+
+        stary = getattr(app.state, "hub_agent", None)
+        if stary is not None:
+            stary.stop()
+            try:
+                stary.bye()
+            except Exception:  # noqa: BLE001 - starý hub nemusí byť dostupný
+                pass
+        agent = HubAgent(cfg, runner, store)
+        if cfg.accept:
+            runner.workers = agent.slots
+        agent.start()
+        app.state.hub_agent = agent
+        return agent
+
+    app.state.start_hub_agent = start_hub_agent
+
+    @app.post("/api/hub/config")
+    def hub_config_save(req: HubConfigRequest):
+        """Uloží `tester/agent.json` a agenta hneď (re)štartuje — bez reštartu webapp."""
+        from ..hub import config as hub_config
+
+        url = req.hub_url.strip().rstrip("/")
+        if not url.startswith(("http://", "https://")):
+            raise HTTPException(422, "adresa hubu musí začínať http:// alebo https://")
+        stary = hub_config.load()
+        token = req.token.strip() or (stary.token if stary else "")
+        cfg = hub_config.AgentConfig(name=req.name.strip(), hub_url=url, token=token,
+                                     accept=req.accept, send=req.send, max_parallel=req.max_parallel)
+        hub_config.save(cfg)
+        start_hub_agent(hub_config.load() or cfg)
+        return hub_status()
+
+    @app.delete("/api/hub/config")
+    def hub_config_delete():
+        """Odpojiť: agent sa odhlási a config sa zmaže."""
+        from ..hub import config as hub_config
+
+        agent = getattr(app.state, "hub_agent", None)
+        if agent is not None:
+            agent.stop()
+            try:
+                agent.bye()
+            except Exception:  # noqa: BLE001
+                pass
+            app.state.hub_agent = None
+        hub_config.AGENT_CONFIG.unlink(missing_ok=True)
+        return hub_status()
 
     @app.get("/api/hub")
     def hub_status():

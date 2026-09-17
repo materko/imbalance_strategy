@@ -1175,3 +1175,66 @@ def test_cli_prefetch_submits_grid_at_once(monkeypatch, tmp_path: Path):
     args.remote = False
     cli._remote_prefetch(args, body)
     assert len(calls["submit"]) == 4
+
+
+def test_webapp_hub_config_saves_and_starts_agent(monkeypatch, tmp_path: Path):
+    """Nastavenie z karty Hub zapíše agent.json a agenta (re)štartuje bez reštartu webapp."""
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.hub import agent as agent_mod, config as hub_config
+    from tester.webapp.app import create_app
+    from tester.webapp.runner import BacktestRunner
+
+    started = []
+
+    class FakeAgent:
+        def __init__(self, cfg, runner, store, **kw):
+            self.cfg, self.slots, self.stopped, self.byed = cfg, 3, False, False
+            started.append(self)
+
+        def start(self):
+            pass
+
+        def stop(self):
+            self.stopped = True
+
+        def bye(self):
+            self.byed = True
+
+        def public(self):
+            return {"name": self.cfg.name, "accept": self.cfg.accept, "registered": False, "last_error": None,
+                    "computing": {}, "sent": {}, "version": "", "needs_restart": False}
+
+    monkeypatch.setattr(agent_mod, "HubAgent", FakeAgent)
+    monkeypatch.setattr(hub_config, "AGENT_CONFIG", tmp_path / "agent.json")
+    monkeypatch.delenv("TRADEBOT_HUB_URL", raising=False)
+    monkeypatch.delenv("TRADEBOT_HUB_TOKEN", raising=False)
+    store = RunStore(tmp_path / "runs")
+    runner = BacktestRunner(store, command_builder=lambda *a: ["python", "-c", ""])
+    app = create_app(store, runner)
+    c = TestClient(app)
+
+    assert c.get("/api/hub").json()["configured"] is False
+    assert c.post("/api/hub/config", json={"name": "nb", "hub_url": "hub:8790"}).status_code == 422
+    r = c.post("/api/hub/config", json={"name": " nb ", "hub_url": "http://hub:8790/", "token": "t1",
+                                        "accept": True, "send": False, "max_parallel": 3})
+    assert r.status_code == 200, r.text
+    h = r.json()
+    assert h["configured"] and h["config"]["name"] == "nb" and h["config"]["hub_url"] == "http://hub:8790"
+    assert h["config"]["send"] is False and h["config"]["token"] is True
+    assert hub_config.load(tmp_path / "agent.json").token == "t1"
+    assert len(started) == 1 and app.state.hub_agent is started[0] and runner.workers == 3
+
+    # prázdny token = nechať doterajší; starý agent sa zastaví a odhlási
+    r = c.post("/api/hub/config", json={"name": "nb", "hub_url": "http://hub:8790", "token": "",
+                                        "accept": False, "send": True, "max_parallel": 0})
+    assert r.status_code == 200
+    assert hub_config.load(tmp_path / "agent.json").token == "t1"
+    assert started[0].stopped and started[0].byed and app.state.hub_agent is started[1]
+    assert c.get("/api/hub").json()["config"]["send"] is True
+
+    # odpojiť: config preč, agent preč
+    r = c.delete("/api/hub/config")
+    assert r.status_code == 200 and r.json()["configured"] is False
+    assert not (tmp_path / "agent.json").exists() and app.state.hub_agent is None and started[1].byed

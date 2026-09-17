@@ -252,7 +252,10 @@ PY -m tester.webapp.cli checkup --remote --strategy ibs --profile …      # pä
 
 ## Webapp
 
-Keď má klon `tester/agent.json`, webapp ukáže kartu **Hub**: stav tohto agenta (online,
+Karta **Hub** má hore **Nastavenie**: meno agenta, adresa hubu, token, koľko behov naraz,
+prijímať a posielať. **Uložiť a pripojiť** zapíše `tester/agent.json` a agenta hneď
+spustí — bez reštartu webapp (to isté ako `python -m tester.hub setup`). **Odpojiť**
+agenta odhlási a nastavenie zmaže. Pod tým je stav tohto agenta (online,
 commit, prepínač **prijímať výpočty**, ktorý platí hneď a zapíše sa do configu), tabuľku
 agentov (kto je online, koľko má voľné, kedy sa uvoľní) a výpočty na hube s postupom,
 zvyškom a tlačidlom na zrušenie. Pri **Spustiť backtest** a pri hyperopte v „Hľadať

@@ -59,15 +59,11 @@ def main() -> int:
 
     hub_cfg = hub_config.load()
     if hub_cfg is not None:
-        from ..hub.agent import HubAgent
-
-        hub_agent = HubAgent(hub_cfg, _app.state.runner, _app.state.store)
-        if hub_cfg.accept:
-            _app.state.runner.workers = hub_agent.slots
-        hub_agent.start()
-        _app.state.hub_agent = hub_agent
+        hub_agent = _app.state.start_hub_agent(hub_cfg)
         print(f"Hub agent {hub_cfg.name!r} -> {hub_cfg.hub_url}: prijima={hub_cfg.accept}, "
               f"posiela={hub_cfg.send}, slotov {hub_agent.slots}", flush=True)
+    else:
+        print("Hub: nenastaveny - karta Hub vo webapp (alebo python -m tester.hub setup)", flush=True)
 
     host = getenv("WEB_HOST", "127.0.0.1")
     port = int(getenv("WEB_PORT", "8765"))

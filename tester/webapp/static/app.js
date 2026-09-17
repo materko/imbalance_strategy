@@ -1867,16 +1867,62 @@ function fmtEta(s) {
 async function hubSetup() {
   let h;
   try { h = await api("/api/hub"); } catch (e) { return; }
-  if (!h.configured) return;
-  $("#tab-hub").hidden = false;
-  if (h.config && h.config.send) $("#hub-run-row").hidden = false;
   $("#hub-accept").onchange = async () => {
     try { await api("/api/hub/accept", { method: "POST", body: JSON.stringify({ accept: $("#hub-accept").checked }) }); }
     catch (e) { $("#hub-error").textContent = e.message; $("#hub-error").hidden = false; }
     loadHub();
   };
   $("#hub-jobs-all").onchange = loadHub;
+  $("#hub-cfg-save").onclick = saveHubConfig;
+  $("#hub-cfg-remove").onclick = removeHubConfig;
+  applyHubConfig(h);
   renderHubAgent(h);
+}
+
+/** Nastavenie z /api/hub do formulára a prepínač „na hube" podľa `send`. */
+function applyHubConfig(h) {
+  const cfg = h.config;
+  $("#hub-run-row").hidden = !(cfg && cfg.send);
+  $("#hub-tab-chip").textContent = cfg ? "" : "nastaviť";
+  $("#hub-settings").open = !cfg;
+  $("#hub-settings-hint").textContent = cfg ? `${cfg.name} → ${cfg.hub_url}` : "hub nie je nastavený";
+  $("#hub-cfg-remove").hidden = !cfg;
+  if (!cfg) return;
+  $("#hub-cfg-name").value = cfg.name || "";
+  $("#hub-cfg-url").value = cfg.hub_url || "";
+  $("#hub-cfg-token").placeholder = cfg.token ? "uložený — nechať prázdne = doterajší" : "token agenta z hubu";
+  $("#hub-cfg-parallel").value = cfg.max_parallel || "";
+  $("#hub-cfg-accept").checked = !!cfg.accept;
+  $("#hub-cfg-send").checked = !!cfg.send;
+}
+
+async function saveHubConfig() {
+  const btn = $("#hub-cfg-save"); btn.disabled = true;
+  $("#hub-cfg-error").hidden = true; $("#hub-cfg-status").textContent = "ukladám a pripájam…";
+  try {
+    const h = await api("/api/hub/config", { method: "POST", body: JSON.stringify({
+      name: $("#hub-cfg-name").value.trim(), hub_url: $("#hub-cfg-url").value.trim(),
+      token: $("#hub-cfg-token").value, accept: $("#hub-cfg-accept").checked, send: $("#hub-cfg-send").checked,
+      max_parallel: Number($("#hub-cfg-parallel").value) || 0,
+    }) });
+    $("#hub-cfg-token").value = "";
+    applyHubConfig(h); renderHubAgent(h);
+    $("#hub-cfg-status").textContent = "uložené; agent sa hlási hubu (stav nižšie sa obnoví o pár sekúnd)";
+    setTimeout(loadHub, 3000);
+  } catch (e) {
+    $("#hub-cfg-error").textContent = e.message; $("#hub-cfg-error").hidden = false;
+    $("#hub-cfg-status").textContent = "";
+  } finally { btn.disabled = false; }
+}
+
+async function removeHubConfig() {
+  if (!confirm("Odpojiť tento klon od hubu a zmazať nastavenie?")) return;
+  try {
+    const h = await api("/api/hub/config", { method: "DELETE" });
+    applyHubConfig(h); renderHubAgent(h);
+    $("#hub-cfg-status").textContent = "odpojené";
+    $("#hub-agents tbody").innerHTML = ""; $("#hub-jobs tbody").innerHTML = "";
+  } catch (e) { $("#hub-cfg-error").textContent = e.message; $("#hub-cfg-error").hidden = false; }
 }
 
 function renderHubAgent(h) {
@@ -1912,6 +1958,7 @@ async function loadHub() {
   try { h = await api("/api/hub"); $("#hub-error").hidden = true; }
   catch (e) { $("#hub-error").textContent = e.message; $("#hub-error").hidden = false; return; }
   renderHubAgent(h);
+  if (!h.configured) { $("#hub-agents tbody").innerHTML = ""; $("#hub-jobs tbody").innerHTML = ""; return; }
   const hub = h.hub;
   if (!hub) {
     if (h.error) { $("#hub-error").textContent = `hub: ${h.error}`; $("#hub-error").hidden = false; }
