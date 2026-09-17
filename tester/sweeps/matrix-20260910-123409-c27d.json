@@ -1,0 +1,1195 @@
+{
+ "version": 1,
+ "kind": "matrix",
+ "id": "20260910-123409-c27d",
+ "strategy": "structure",
+ "created": "2026-09-10T12:34:11+00:00",
+ "user": "",
+ "base": {
+  "params": {
+   "swingLeft": 5,
+   "swingRight": 5,
+   "minSwingSize": 0.0,
+   "atrLen": 14,
+   "entryMode": "choch",
+   "tradeDirection": "Both",
+   "exitMode": "rr",
+   "rrRatio": 2.0,
+   "slMode": "swing",
+   "slBuffer": 0.1,
+   "slAtrMult": 1.5,
+   "maxBars": 0,
+   "riskDollar": 100.0,
+   "useSession": false,
+   "sessionTZ": "UTC",
+   "sessionStartH": 8,
+   "sessionEndH": 16,
+   "showStructure": true,
+   "leverage": 5.0
+  },
+  "settings": {
+   "strategy": "structure",
+   "pair": "BTC/USDT:USDT",
+   "engine": "freqtrade",
+   "timeframe": "3m",
+   "exchange": "tester",
+   "timerange": "20240904-20250904",
+   "fee": 0.0005,
+   "fee_note": "Binance USDⓈ-M taker, VIP 0",
+   "wallet": 10000,
+   "timeframe_detail": "1m",
+   "profile": "binance_btcusdt_5m"
+  }
+ },
+ "points": [
+  {
+   "run": "20260910-123411-51e66d",
+   "status": "done",
+   "created": "2026-09-10T12:34:11+00:00",
+   "started": "2026-09-10T12:34:11+00:00",
+   "finished": "2026-09-10T12:37:09+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: BTC/USDT:USDT 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "BTC/USDT:USDT",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 1088,
+    "wins": 352,
+    "losses": 736,
+    "draws": 0,
+    "winrate": 32.35,
+    "pnl_abs": -9913.54,
+    "pnl_pct": -99.135,
+    "profit_factor": 0.811,
+    "max_drawdown_abs": 10259.18,
+    "max_drawdown_pct": 99.334,
+    "starting_balance": 10000.0,
+    "final_balance": 86.46,
+    "stake_currency": "USDT",
+    "gross_abs": 1860.0,
+    "volume_abs": 23546730.84,
+    "break_even_pct": 0.0079,
+    "market_change_pct": 93.985,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "6:14:00",
+    "exits": {
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 2.74
+     },
+     "roi": {
+      "n": 351,
+      "pnl_abs": 42631.09
+     },
+     "stop_loss": {
+      "n": 578,
+      "pnl_abs": -41770.37
+     },
+     "trailing_stop_loss": {
+      "n": 158,
+      "pnl_abs": -10777.0
+     }
+    },
+    "duration_s": 178.1,
+    "zip": "backtest-result-2026-09-10_12-37-07.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-123713-e75773",
+   "status": "done",
+   "created": "2026-09-10T12:37:13+00:00",
+   "started": "2026-09-10T12:37:13+00:00",
+   "finished": "2026-09-10T12:39:42+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: ETH/USDT:USDT 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "ETH/USDT:USDT",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "ETH/USDT:USDT"
+   },
+   "result": {
+    "trades": 1026,
+    "wins": 327,
+    "losses": 699,
+    "draws": 0,
+    "winrate": 31.87,
+    "pnl_abs": -9972.66,
+    "pnl_pct": -99.727,
+    "profit_factor": 0.807,
+    "max_drawdown_abs": 10230.85,
+    "max_drawdown_pct": 99.733,
+    "starting_balance": 10000.0,
+    "final_balance": 27.34,
+    "stake_currency": "USDT",
+    "gross_abs": -1792.81,
+    "volume_abs": 16366912.06,
+    "break_even_pct": -0.011,
+    "market_change_pct": 83.119,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "6:39:00",
+    "exits": {
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -0.95
+     },
+     "roi": {
+      "n": 327,
+      "pnl_abs": 41762.12
+     },
+     "stop_loss": {
+      "n": 456,
+      "pnl_abs": -34337.36
+     },
+     "trailing_stop_loss": {
+      "n": 242,
+      "pnl_abs": -17396.47
+     }
+    },
+    "duration_s": 148.8,
+    "zip": "backtest-result-2026-09-10_12-39-40.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-123945-44b294",
+   "status": "done",
+   "created": "2026-09-10T12:39:45+00:00",
+   "started": "2026-09-10T12:39:45+00:00",
+   "finished": "2026-09-10T12:39:52+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: NAS100/USD 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "NAS100/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "NAS100/USD"
+   },
+   "result": {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": 0.0,
+    "pnl_pct": 0.0,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 10000.0,
+    "final_balance": 10000.0,
+    "stake_currency": "USD",
+    "gross_abs": 0.0,
+    "volume_abs": 0.0,
+    "break_even_pct": null,
+    "market_change_pct": 23.726,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "0:00:00",
+    "exits": {},
+    "duration_s": 7.0,
+    "zip": "backtest-result-2026-09-10_12-39-51.zip",
+    "warning": "engine dal 753 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh."
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-123955-25a1aa",
+   "status": "done",
+   "created": "2026-09-10T12:39:55+00:00",
+   "started": "2026-09-10T12:39:55+00:00",
+   "finished": "2026-09-10T12:41:03+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: COCOA/USD 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "COCOA/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "COCOA/USD"
+   },
+   "result": {
+    "trades": 155,
+    "wins": 57,
+    "losses": 98,
+    "draws": 0,
+    "winrate": 36.77,
+    "pnl_abs": 690.72,
+    "pnl_pct": 6.907,
+    "profit_factor": 1.057,
+    "max_drawdown_abs": 2568.68,
+    "max_drawdown_pct": 20.671,
+    "starting_balance": 10000.0,
+    "final_balance": 10690.72,
+    "stake_currency": "USD",
+    "gross_abs": 1992.8,
+    "volume_abs": 2604162.62,
+    "break_even_pct": 0.0765,
+    "market_change_pct": -14.012,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-03 17:27:00",
+    "holding_avg": "21:34:00",
+    "exits": {
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -60.72
+     },
+     "roi": {
+      "n": 57,
+      "pnl_abs": 12704.4
+     },
+     "stop_loss": {
+      "n": 94,
+      "pnl_abs": -11207.33
+     },
+     "trailing_stop_loss": {
+      "n": 3,
+      "pnl_abs": -745.63
+     }
+    },
+    "duration_s": 67.8,
+    "zip": "backtest-result-2026-09-10_12-41-02.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-124105-16ef66",
+   "status": "done",
+   "created": "2026-09-10T12:41:05+00:00",
+   "started": "2026-09-10T12:41:05+00:00",
+   "finished": "2026-09-10T12:42:26+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: AUDUSD/USD 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "AUDUSD/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "AUDUSD/USD"
+   },
+   "result": {
+    "trades": 450,
+    "wins": 133,
+    "losses": 317,
+    "draws": 0,
+    "winrate": 29.56,
+    "pnl_abs": -0.4,
+    "pnl_pct": -0.004,
+    "profit_factor": 0.383,
+    "max_drawdown_abs": 0.4,
+    "max_drawdown_pct": 0.004,
+    "starting_balance": 10000.0,
+    "final_balance": 9999.6,
+    "stake_currency": "USD",
+    "gross_abs": -0.03,
+    "volume_abs": 739.02,
+    "break_even_pct": -0.0037,
+    "market_change_pct": -2.477,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "8:13:00",
+    "exits": {
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 0.0
+     },
+     "roi": {
+      "n": 136,
+      "pnl_abs": 0.24
+     },
+     "stop_loss": {
+      "n": 313,
+      "pnl_abs": -0.64
+     }
+    },
+    "duration_s": 80.9,
+    "zip": "backtest-result-2026-09-10_12-42-25.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-124229-c95212",
+   "status": "done",
+   "created": "2026-09-10T12:42:29+00:00",
+   "started": "2026-09-10T12:42:29+00:00",
+   "finished": "2026-09-10T12:43:41+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: EURUSD/USD 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "EURUSD/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "EURUSD/USD"
+   },
+   "result": {
+    "trades": 346,
+    "wins": 107,
+    "losses": 239,
+    "draws": 0,
+    "winrate": 30.92,
+    "pnl_abs": -0.39,
+    "pnl_pct": -0.004,
+    "profit_factor": 0.409,
+    "max_drawdown_abs": 0.39,
+    "max_drawdown_pct": 0.004,
+    "starting_balance": 10000.0,
+    "final_balance": 9999.61,
+    "stake_currency": "USD",
+    "gross_abs": 0.04,
+    "volume_abs": 854.57,
+    "break_even_pct": 0.0045,
+    "market_change_pct": 5.54,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "9:28:00",
+    "exits": {
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 0.0
+     },
+     "roi": {
+      "n": 115,
+      "pnl_abs": 0.26
+     },
+     "stop_loss": {
+      "n": 230,
+      "pnl_abs": -0.65
+     }
+    },
+    "duration_s": 72.1,
+    "zip": "backtest-result-2026-09-10_12-43-40.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-124345-00ff65",
+   "status": "done",
+   "created": "2026-09-10T12:43:45+00:00",
+   "started": "2026-09-10T12:43:45+00:00",
+   "finished": "2026-09-10T12:45:01+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: GBPUSD/USD 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "GBPUSD/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "GBPUSD/USD"
+   },
+   "result": {
+    "trades": 393,
+    "wins": 117,
+    "losses": 276,
+    "draws": 0,
+    "winrate": 29.77,
+    "pnl_abs": -0.56,
+    "pnl_pct": -0.006,
+    "profit_factor": 0.354,
+    "max_drawdown_abs": 0.57,
+    "max_drawdown_pct": 0.006,
+    "starting_balance": 10000.0,
+    "final_balance": 9999.44,
+    "stake_currency": "USD",
+    "gross_abs": -0.01,
+    "volume_abs": 1106.7,
+    "break_even_pct": -0.0007,
+    "market_change_pct": 2.491,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "9:22:00",
+    "exits": {
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 0.0
+     },
+     "roi": {
+      "n": 126,
+      "pnl_abs": 0.29
+     },
+     "stop_loss": {
+      "n": 266,
+      "pnl_abs": -0.86
+     }
+    },
+    "duration_s": 76.0,
+    "zip": "backtest-result-2026-09-10_12-45-00.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-124505-27f529",
+   "status": "done",
+   "created": "2026-09-10T12:45:05+00:00",
+   "started": "2026-09-10T12:45:05+00:00",
+   "finished": "2026-09-10T12:46:16+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: USDCAD/CAD 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "USDCAD/CAD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "USDCAD/CAD"
+   },
+   "result": {
+    "trades": 391,
+    "wins": 110,
+    "losses": 281,
+    "draws": 0,
+    "winrate": 28.13,
+    "pnl_abs": -0.57,
+    "pnl_pct": -0.006,
+    "profit_factor": 0.278,
+    "max_drawdown_abs": 0.57,
+    "max_drawdown_pct": 0.006,
+    "starting_balance": 10000.0,
+    "final_balance": 9999.43,
+    "stake_currency": "CAD",
+    "gross_abs": 0.04,
+    "volume_abs": 1226.2,
+    "break_even_pct": 0.0034,
+    "market_change_pct": 1.837,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "8:09:00",
+    "exits": {
+     "roi": {
+      "n": 132,
+      "pnl_abs": 0.21
+     },
+     "stop_loss": {
+      "n": 259,
+      "pnl_abs": -0.78
+     }
+    },
+    "duration_s": 71.1,
+    "zip": "backtest-result-2026-09-10_12-46-15.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-124619-4d33b4",
+   "status": "done",
+   "created": "2026-09-10T12:46:19+00:00",
+   "started": "2026-09-10T12:46:19+00:00",
+   "finished": "2026-09-10T12:47:50+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: USDJPY/JPY 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "USDJPY/JPY",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "USDJPY/JPY"
+   },
+   "result": {
+    "trades": 432,
+    "wins": 139,
+    "losses": 293,
+    "draws": 0,
+    "winrate": 32.18,
+    "pnl_abs": -59.04,
+    "pnl_pct": -0.59,
+    "profit_factor": 0.527,
+    "max_drawdown_abs": 59.04,
+    "max_drawdown_pct": 0.59,
+    "starting_balance": 10000.0,
+    "final_balance": 9940.96,
+    "stake_currency": "JPY",
+    "gross_abs": 5.31,
+    "volume_abs": 128700.75,
+    "break_even_pct": 0.0041,
+    "market_change_pct": 1.712,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "9:20:00",
+    "exits": {
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -0.22
+     },
+     "roi": {
+      "n": 140,
+      "pnl_abs": 65.71
+     },
+     "stop_loss": {
+      "n": 291,
+      "pnl_abs": -124.54
+     }
+    },
+    "duration_s": 90.7,
+    "zip": "backtest-result-2026-09-10_12-47-49.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-124753-257afe",
+   "status": "done",
+   "created": "2026-09-10T12:47:53+00:00",
+   "started": "2026-09-10T12:47:53+00:00",
+   "finished": "2026-09-10T12:49:29+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: GBPJPY/JPY 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "GBPJPY/JPY",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "GBPJPY/JPY"
+   },
+   "result": {
+    "trades": 462,
+    "wins": 148,
+    "losses": 314,
+    "draws": 0,
+    "winrate": 32.03,
+    "pnl_abs": -91.81,
+    "pnl_pct": -0.918,
+    "profit_factor": 0.464,
+    "max_drawdown_abs": 92.16,
+    "max_drawdown_pct": 0.922,
+    "starting_balance": 10000.0,
+    "final_balance": 9908.19,
+    "stake_currency": "JPY",
+    "gross_abs": -2.32,
+    "volume_abs": 178989.95,
+    "break_even_pct": -0.0013,
+    "market_change_pct": 4.247,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "9:01:00",
+    "exits": {
+     "roi": {
+      "n": 154,
+      "pnl_abs": 79.07
+     },
+     "stop_loss": {
+      "n": 308,
+      "pnl_abs": -170.88
+     }
+    },
+    "duration_s": 96.0,
+    "zip": "backtest-result-2026-09-10_12-49-28.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-124933-39423e",
+   "status": "done",
+   "created": "2026-09-10T12:49:33+00:00",
+   "started": "2026-09-10T12:49:33+00:00",
+   "finished": "2026-09-10T12:51:18+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: CHFJPY/JPY 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "CHFJPY/JPY",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "CHFJPY/JPY"
+   },
+   "result": {
+    "trades": 366,
+    "wins": 99,
+    "losses": 267,
+    "draws": 0,
+    "winrate": 27.05,
+    "pnl_abs": -84.31,
+    "pnl_pct": -0.843,
+    "profit_factor": 0.376,
+    "max_drawdown_abs": 85.05,
+    "max_drawdown_pct": 0.85,
+    "starting_balance": 10000.0,
+    "final_balance": 9915.69,
+    "stake_currency": "JPY",
+    "gross_abs": -20.5,
+    "volume_abs": 127608.9,
+    "break_even_pct": -0.0161,
+    "market_change_pct": 7.534,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "12:18:00",
+    "exits": {
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 0.36
+     },
+     "roi": {
+      "n": 98,
+      "pnl_abs": 50.5
+     },
+     "stop_loss": {
+      "n": 267,
+      "pnl_abs": -135.17
+     }
+    },
+    "duration_s": 104.2,
+    "zip": "backtest-result-2026-09-10_12-51-16.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-125122-2da27b",
+   "status": "done",
+   "created": "2026-09-10T12:51:22+00:00",
+   "started": "2026-09-10T12:51:22+00:00",
+   "finished": "2026-09-10T12:53:07+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: US500/USD 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "US500/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "US500/USD"
+   },
+   "result": {
+    "trades": 361,
+    "wins": 123,
+    "losses": 238,
+    "draws": 0,
+    "winrate": 34.07,
+    "pnl_abs": -1123.39,
+    "pnl_pct": -11.234,
+    "profit_factor": 0.77,
+    "max_drawdown_abs": 1396.81,
+    "max_drawdown_pct": 13.893,
+    "starting_balance": 10000.0,
+    "final_balance": 8876.61,
+    "stake_currency": "USD",
+    "gross_abs": 1033.36,
+    "volume_abs": 4313484.39,
+    "break_even_pct": 0.024,
+    "market_change_pct": 16.761,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "13:10:00",
+    "exits": {
+     "roi": {
+      "n": 128,
+      "pnl_abs": 3755.0
+     },
+     "stop_loss": {
+      "n": 233,
+      "pnl_abs": -4878.39
+     }
+    },
+    "duration_s": 105.3,
+    "zip": "backtest-result-2026-09-10_12-53-06.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-125310-299584",
+   "status": "done",
+   "created": "2026-09-10T12:53:10+00:00",
+   "started": "2026-09-10T12:53:10+00:00",
+   "finished": "2026-09-10T12:53:17+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: DJ30/USD 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "DJ30/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "DJ30/USD"
+   },
+   "result": {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": 0.0,
+    "pnl_pct": 0.0,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 10000.0,
+    "final_balance": 10000.0,
+    "stake_currency": "USD",
+    "gross_abs": 0.0,
+    "volume_abs": 0.0,
+    "break_even_pct": null,
+    "market_change_pct": 10.391,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "0:00:00",
+    "exits": {},
+    "duration_s": 7.6,
+    "zip": "backtest-result-2026-09-10_12-53-16.zip",
+    "warning": "engine dal 689 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh."
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-125320-2be0bc",
+   "status": "done",
+   "created": "2026-09-10T12:53:20+00:00",
+   "started": "2026-09-10T12:53:20+00:00",
+   "finished": "2026-09-10T12:53:26+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: DAX/EUR 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "DAX/EUR",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "DAX/EUR"
+   },
+   "result": {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": 0.0,
+    "pnl_pct": 0.0,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 10000.0,
+    "final_balance": 10000.0,
+    "stake_currency": "EUR",
+    "gross_abs": 0.0,
+    "volume_abs": 0.0,
+    "break_even_pct": null,
+    "market_change_pct": 28.415,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-03 19:57:00",
+    "holding_avg": "0:00:00",
+    "exits": {},
+    "duration_s": 6.4,
+    "zip": "backtest-result-2026-09-10_12-53-25.zip",
+    "warning": "engine dal 649 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh."
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-125330-6b8aae",
+   "status": "done",
+   "created": "2026-09-10T12:53:30+00:00",
+   "started": "2026-09-10T12:53:30+00:00",
+   "finished": "2026-09-10T12:53:36+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: JP225/JPY 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "JP225/JPY",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "JP225/JPY"
+   },
+   "result": {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": 0.0,
+    "pnl_pct": 0.0,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 10000.0,
+    "final_balance": 10000.0,
+    "stake_currency": "JPY",
+    "gross_abs": 0.0,
+    "volume_abs": 0.0,
+    "break_even_pct": null,
+    "market_change_pct": 12.649,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "0:00:00",
+    "exits": {},
+    "duration_s": 6.7,
+    "zip": "backtest-result-2026-09-10_12-53-36.zip",
+    "warning": "engine dal 774 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh."
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-125340-6f368f",
+   "status": "done",
+   "created": "2026-09-10T12:53:40+00:00",
+   "started": "2026-09-10T12:53:40+00:00",
+   "finished": "2026-09-10T12:53:47+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: BTC/USD 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "BTC/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "BTC/USD"
+   },
+   "result": {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": 0.0,
+    "pnl_pct": 0.0,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 10000.0,
+    "final_balance": 10000.0,
+    "stake_currency": "USD",
+    "gross_abs": 0.0,
+    "volume_abs": 0.0,
+    "break_even_pct": null,
+    "market_change_pct": 94.252,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "0:00:00",
+    "exits": {},
+    "duration_s": 7.2,
+    "zip": "backtest-result-2026-09-10_12-53-46.zip",
+    "warning": "engine dal 1233 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh."
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-125350-fdbb85",
+   "status": "done",
+   "created": "2026-09-10T12:53:50+00:00",
+   "started": "2026-09-10T12:53:50+00:00",
+   "finished": "2026-09-10T12:55:07+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: ETH/USD 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "ETH/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "ETH/USD"
+   },
+   "result": {
+    "trades": 525,
+    "wins": 189,
+    "losses": 336,
+    "draws": 0,
+    "winrate": 36.0,
+    "pnl_abs": -1187.52,
+    "pnl_pct": -11.875,
+    "profit_factor": 0.95,
+    "max_drawdown_abs": 2501.19,
+    "max_drawdown_pct": 23.237,
+    "starting_balance": 10000.0,
+    "final_balance": 8812.48,
+    "stake_currency": "USD",
+    "gross_abs": 2489.6,
+    "volume_abs": 7354235.0,
+    "break_even_pct": 0.0339,
+    "market_change_pct": 83.402,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "7:11:00",
+    "exits": {
+     "roi": {
+      "n": 189,
+      "pnl_abs": 22408.24
+     },
+     "stop_loss": {
+      "n": 336,
+      "pnl_abs": -23595.76
+     }
+    },
+    "duration_s": 77.5,
+    "zip": "backtest-result-2026-09-10_12-55-06.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-125510-c2453d",
+   "status": "done",
+   "created": "2026-09-10T12:55:10+00:00",
+   "started": "2026-09-10T12:55:10+00:00",
+   "finished": "2026-09-10T12:56:22+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: XAU/USD 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "XAU/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "XAU/USD"
+   },
+   "result": {
+    "trades": 409,
+    "wins": 143,
+    "losses": 266,
+    "draws": 0,
+    "winrate": 34.96,
+    "pnl_abs": -703.17,
+    "pnl_pct": -7.032,
+    "profit_factor": 0.765,
+    "max_drawdown_abs": 803.7,
+    "max_drawdown_pct": 8.029,
+    "starting_balance": 10000.0,
+    "final_balance": 9296.83,
+    "stake_currency": "USD",
+    "gross_abs": 530.62,
+    "volume_abs": 2467590.32,
+    "break_even_pct": 0.0215,
+    "market_change_pct": 42.669,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "8:39:00",
+    "exits": {
+     "roi": {
+      "n": 144,
+      "pnl_abs": 2284.12
+     },
+     "stop_loss": {
+      "n": 265,
+      "pnl_abs": -2987.29
+     }
+    },
+    "duration_s": 72.7,
+    "zip": "backtest-result-2026-09-10_12-56-21.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-125626-1801a7",
+   "status": "done",
+   "created": "2026-09-10T12:56:26+00:00",
+   "started": "2026-09-10T12:56:26+00:00",
+   "finished": "2026-09-10T12:57:41+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: WTI/USD 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "WTI/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "WTI/USD"
+   },
+   "result": {
+    "trades": 323,
+    "wins": 105,
+    "losses": 218,
+    "draws": 0,
+    "winrate": 32.51,
+    "pnl_abs": -29.33,
+    "pnl_pct": -0.293,
+    "profit_factor": 0.711,
+    "max_drawdown_abs": 30.41,
+    "max_drawdown_pct": 0.304,
+    "starting_balance": 10000.0,
+    "final_balance": 9970.67,
+    "stake_currency": "USD",
+    "gross_abs": -7.41,
+    "volume_abs": 43838.83,
+    "break_even_pct": -0.0169,
+    "market_change_pct": -17.796,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-03 20:57:00",
+    "holding_avg": "11:49:00",
+    "exits": {
+     "roi": {
+      "n": 105,
+      "pnl_abs": 72.0
+     },
+     "stop_loss": {
+      "n": 217,
+      "pnl_abs": -100.76
+     },
+     "trailing_stop_loss": {
+      "n": 1,
+      "pnl_abs": -0.58
+     }
+    },
+    "duration_s": 74.7,
+    "zip": "backtest-result-2026-09-10_12-57-39.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-125744-fc3fbc",
+   "status": "done",
+   "created": "2026-09-10T12:57:44+00:00",
+   "started": "2026-09-10T12:57:44+00:00",
+   "finished": "2026-09-10T12:58:51+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: NGAS/USD 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "NGAS/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "NGAS/USD"
+   },
+   "result": {
+    "trades": 265,
+    "wins": 97,
+    "losses": 168,
+    "draws": 0,
+    "winrate": 36.6,
+    "pnl_abs": -4.49,
+    "pnl_pct": -0.045,
+    "profit_factor": 0.934,
+    "max_drawdown_abs": 11.56,
+    "max_drawdown_pct": 0.116,
+    "starting_balance": 10000.0,
+    "final_balance": 9995.51,
+    "stake_currency": "USD",
+    "gross_abs": 4.34,
+    "volume_abs": 17649.97,
+    "break_even_pct": 0.0246,
+    "market_change_pct": 12.561,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-03 20:57:00",
+    "holding_avg": "12:41:00",
+    "exits": {
+     "roi": {
+      "n": 97,
+      "pnl_abs": 63.77
+     },
+     "stop_loss": {
+      "n": 168,
+      "pnl_abs": -68.26
+     }
+    },
+    "duration_s": 67.1,
+    "zip": "backtest-result-2026-09-10_12-58-50.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-125854-d709e9",
+   "status": "done",
+   "created": "2026-09-10T12:58:54+00:00",
+   "started": "2026-09-10T12:58:54+00:00",
+   "finished": "2026-09-10T13:00:46+00:00",
+   "user": "",
+   "note": "matica 20260910-123409-c27d: COFFEE/USD 3m — struktura: matica trhov",
+   "tag": {
+    "pair": "COFFEE/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "COFFEE/USD"
+   },
+   "result": {
+    "trades": 119,
+    "wins": 49,
+    "losses": 70,
+    "draws": 0,
+    "winrate": 41.18,
+    "pnl_abs": 39.03,
+    "pnl_pct": 0.39,
+    "profit_factor": 1.136,
+    "max_drawdown_abs": 113.04,
+    "max_drawdown_pct": 1.12,
+    "starting_balance": 10000.0,
+    "final_balance": 10039.03,
+    "stake_currency": "USD",
+    "gross_abs": 75.8,
+    "volume_abs": 73541.9,
+    "break_even_pct": 0.1031,
+    "market_change_pct": 52.79,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-03 17:27:00",
+    "holding_avg": "2 days, 3:35:00",
+    "exits": {
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 0.36
+     },
+     "roi": {
+      "n": 48,
+      "pnl_abs": 325.44
+     },
+     "stop_loss": {
+      "n": 69,
+      "pnl_abs": -283.84
+     },
+     "trailing_stop_loss": {
+      "n": 1,
+      "pnl_abs": -2.93
+     }
+    },
+    "duration_s": 112.2,
+    "zip": "backtest-result-2026-09-10_13-00-45.zip"
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-09-10T13:00:46+00:00"
+}

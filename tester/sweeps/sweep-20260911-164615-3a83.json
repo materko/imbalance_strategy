@@ -1,0 +1,1380 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20260911-164615-3a83",
+ "strategy": "ibs",
+ "created": "2026-09-11T16:46:15+00:00",
+ "user": "materko",
+ "base": {
+  "params": {
+   "enableImbEntry": true,
+   "enablePinBarEntry": false,
+   "enableEngulfingEntry": false,
+   "pbWickToBodyRatio": 4,
+   "pbBodyPositionPct": 20,
+   "pbMinRangePoints": 2,
+   "engMinRangePoints": 2,
+   "engSizeAvgLen": 10,
+   "engSizeMultiplier": 2,
+   "engTouchWindowBars": 3,
+   "pbEngOrderType": "Market",
+   "enableTrailing": false,
+   "trailActivationR": 1,
+   "trailOffsetR": 0.5,
+   "enableZoneDetection": true,
+   "enableSrTrading": false,
+   "enableLqTrading": false,
+   "rrRatio": 1,
+   "tradeDirection": "Both",
+   "weekdaysOnly": true,
+   "enableTrading": true,
+   "closeAtSessionEnd": true,
+   "enableGapDetection": true,
+   "zoneDetectionTF": "5",
+   "zoneValidHours": 6,
+   "maxSdZones": 200,
+   "snapMode": "Floor",
+   "invalidateOnFill": true,
+   "useVolumeFilter": false,
+   "volumeFilterBlockTrading": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "imbLookback": 20,
+   "imbMaxDistTicks": 100,
+   "minImbSizePoints": 2.5,
+   "sess1On": false,
+   "sess1TZ": "Europe/Prague",
+   "sess1ZoneStartH": 1,
+   "sess1ZoneStartM": 0,
+   "sess1ZoneEndH": 9,
+   "sess1ZoneEndM": 0,
+   "sess1TradeStartH": 2,
+   "sess1TradeStartM": 0,
+   "sess1TradeEndH": 5,
+   "sess1TradeEndM": 0,
+   "sess2On": true,
+   "sess2TZ": "America/New_York",
+   "sess2ZoneStartH": 10,
+   "sess2ZoneStartM": 0,
+   "sess2ZoneEndH": 11,
+   "sess2ZoneEndM": 0,
+   "sess2TradeStartH": 10,
+   "sess2TradeStartM": 0,
+   "sess2TradeEndH": 15,
+   "sess2TradeEndM": 45,
+   "sess3On": true,
+   "sess3TZ": "Europe/London",
+   "sess3ZoneStartH": 8,
+   "sess3ZoneStartM": 0,
+   "sess3ZoneEndH": 10,
+   "sess3ZoneEndM": 0,
+   "sess3TradeStartH": 8,
+   "sess3TradeStartM": 0,
+   "sess3TradeEndH": 11,
+   "sess3TradeEndM": 0,
+   "showMarketStructure": true,
+   "structureSwingLen": 5,
+   "useStructureFilter": false,
+   "showSR": true,
+   "srSwingLen": 10,
+   "srClusterPoints": 15,
+   "srMinTouches": 2,
+   "srMaxLevels": 10,
+   "srLookbackDays": 5,
+   "srZoneSaturationPct": 30,
+   "showLiqSweep": true,
+   "liqSweepLen": 10,
+   "liqSweepMinWick": 5,
+   "liqSweepConfirmBars": 2,
+   "liqStrengthLen": 50,
+   "showElliott": true,
+   "ewSwingLen": 8,
+   "ewMinWavePoints": 20,
+   "ewShowLabels": true,
+   "ewShowProjection": true,
+   "ewProjExtendBars": 40,
+   "ewLineColor": "#334155",
+   "showImbalance": true,
+   "state1MaxBars": 37,
+   "state2MaxBars": 15,
+   "state2ConfirmTicks": 1,
+   "state3MaxBars": 1,
+   "state4MaxBars": 10,
+   "state5MaxBars": 10,
+   "slLookback": 10,
+   "slBufferTicks": 2,
+   "maxLossDollar": 350,
+   "maxDailyWins": 5,
+   "tickDollarValue": 0.5,
+   "legacyPineSizing": true,
+   "atrLen": 14,
+   "minSlDistance": 0,
+   "leverage": 1
+  },
+  "settings": {
+   "strategy": "ibs",
+   "exchange": "tester",
+   "pair": "BTC/USDT:USDT",
+   "engine": "freqtrade",
+   "timeframe": "3m",
+   "timerange": "20250904-20260904",
+   "fee": 0.0005,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 10000.0,
+   "timeframe_detail": "1m",
+   "profile": null
+  }
+ },
+ "points": [
+  {
+   "run": "20260911-164615-0689d6",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=37",
+   "tag": {
+    "values": {
+     "state1MaxBars": 37
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {},
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-069b3c",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=9",
+   "tag": {
+    "values": {
+     "state1MaxBars": 9
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 9
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-07697b",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=34",
+   "tag": {
+    "values": {
+     "state1MaxBars": 34
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 34
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-128e22",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=14",
+   "tag": {
+    "values": {
+     "state1MaxBars": 14
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 14
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-135fea",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=25",
+   "tag": {
+    "values": {
+     "state1MaxBars": 25
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 25
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-194b14",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=15",
+   "tag": {
+    "values": {
+     "state1MaxBars": 15
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 15
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-1a547d",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=47",
+   "tag": {
+    "values": {
+     "state1MaxBars": 47
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 47
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-203523",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=46",
+   "tag": {
+    "values": {
+     "state1MaxBars": 46
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 46
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-217a23",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=17",
+   "tag": {
+    "values": {
+     "state1MaxBars": 17
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 17
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-26c3d1",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=27",
+   "tag": {
+    "values": {
+     "state1MaxBars": 27
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 27
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-26f865",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=1",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 1
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-2f533e",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=3",
+   "tag": {
+    "values": {
+     "state1MaxBars": 3
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 3
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-333455",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=49",
+   "tag": {
+    "values": {
+     "state1MaxBars": 49
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 49
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-38224a",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=5",
+   "tag": {
+    "values": {
+     "state1MaxBars": 5
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 5
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-409cd8",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=19",
+   "tag": {
+    "values": {
+     "state1MaxBars": 19
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 19
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-420ec4",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=24",
+   "tag": {
+    "values": {
+     "state1MaxBars": 24
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 24
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-4313d8",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=6",
+   "tag": {
+    "values": {
+     "state1MaxBars": 6
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 6
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-503742",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=45",
+   "tag": {
+    "values": {
+     "state1MaxBars": 45
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 45
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-516e0a",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=10",
+   "tag": {
+    "values": {
+     "state1MaxBars": 10
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 10
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-51c450",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=40",
+   "tag": {
+    "values": {
+     "state1MaxBars": 40
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 40
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-598991",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=42",
+   "tag": {
+    "values": {
+     "state1MaxBars": 42
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 42
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-5ae676",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=43",
+   "tag": {
+    "values": {
+     "state1MaxBars": 43
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 43
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-75bad7",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=4",
+   "tag": {
+    "values": {
+     "state1MaxBars": 4
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 4
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-81a325",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=2",
+   "tag": {
+    "values": {
+     "state1MaxBars": 2
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 2
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-868bd7",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=26",
+   "tag": {
+    "values": {
+     "state1MaxBars": 26
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 26
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-89de90",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=20",
+   "tag": {
+    "values": {
+     "state1MaxBars": 20
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 20
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-97fa45",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=12",
+   "tag": {
+    "values": {
+     "state1MaxBars": 12
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 12
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-9ad962",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=8",
+   "tag": {
+    "values": {
+     "state1MaxBars": 8
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 8
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-9b4e9f",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=23",
+   "tag": {
+    "values": {
+     "state1MaxBars": 23
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 23
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-a33ef3",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=31",
+   "tag": {
+    "values": {
+     "state1MaxBars": 31
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 31
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-a599cf",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=30",
+   "tag": {
+    "values": {
+     "state1MaxBars": 30
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 30
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-aa4723",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=11",
+   "tag": {
+    "values": {
+     "state1MaxBars": 11
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 11
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-b3cf9b",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=41",
+   "tag": {
+    "values": {
+     "state1MaxBars": 41
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 41
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-b9638b",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=22",
+   "tag": {
+    "values": {
+     "state1MaxBars": 22
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 22
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-c28f05",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=39",
+   "tag": {
+    "values": {
+     "state1MaxBars": 39
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 39
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-c7d1fa",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=21",
+   "tag": {
+    "values": {
+     "state1MaxBars": 21
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 21
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-cb3878",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=7",
+   "tag": {
+    "values": {
+     "state1MaxBars": 7
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 7
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-d008b3",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=16",
+   "tag": {
+    "values": {
+     "state1MaxBars": 16
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 16
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-d15aec",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=36",
+   "tag": {
+    "values": {
+     "state1MaxBars": 36
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 36
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-d8ec28",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=38",
+   "tag": {
+    "values": {
+     "state1MaxBars": 38
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 38
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-de74a7",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=50",
+   "tag": {
+    "values": {
+     "state1MaxBars": 50
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 50
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-df5e32",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=35",
+   "tag": {
+    "values": {
+     "state1MaxBars": 35
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 35
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-ea0d55",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=28",
+   "tag": {
+    "values": {
+     "state1MaxBars": 28
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 28
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-ee0d15",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=33",
+   "tag": {
+    "values": {
+     "state1MaxBars": 33
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 33
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-ef7c76",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=18",
+   "tag": {
+    "values": {
+     "state1MaxBars": 18
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 18
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-efe849",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=13",
+   "tag": {
+    "values": {
+     "state1MaxBars": 13
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 13
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-f037cc",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=44",
+   "tag": {
+    "values": {
+     "state1MaxBars": 44
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 44
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-f14a36",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=29",
+   "tag": {
+    "values": {
+     "state1MaxBars": 29
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 29
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-fa000b",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=48",
+   "tag": {
+    "values": {
+     "state1MaxBars": 48
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 48
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164615-fa3ef9",
+   "status": "failed",
+   "created": "2026-09-11T16:46:15+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:47:18+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164615-3a83: state1MaxBars=32",
+   "tag": {
+    "values": {
+     "state1MaxBars": 32
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 50,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 32
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  }
+ ],
+ "updated": "2026-09-11T16:47:18+00:00"
+}

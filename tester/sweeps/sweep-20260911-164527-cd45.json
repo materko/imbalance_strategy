@@ -1,0 +1,923 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20260911-164527-cd45",
+ "strategy": "ibs",
+ "created": "2026-09-11T16:45:27+00:00",
+ "user": "materko",
+ "base": {
+  "params": {
+   "enableImbEntry": true,
+   "enablePinBarEntry": false,
+   "enableEngulfingEntry": false,
+   "pbWickToBodyRatio": 4,
+   "pbBodyPositionPct": 20,
+   "pbMinRangePoints": 2,
+   "engMinRangePoints": 2,
+   "engSizeAvgLen": 10,
+   "engSizeMultiplier": 2,
+   "engTouchWindowBars": 3,
+   "pbEngOrderType": "Market",
+   "enableTrailing": false,
+   "trailActivationR": 1,
+   "trailOffsetR": 0.5,
+   "enableZoneDetection": true,
+   "enableSrTrading": false,
+   "enableLqTrading": false,
+   "rrRatio": 4.5,
+   "tradeDirection": "Both",
+   "weekdaysOnly": true,
+   "enableTrading": true,
+   "closeAtSessionEnd": true,
+   "enableGapDetection": true,
+   "zoneDetectionTF": "5",
+   "zoneValidHours": 6,
+   "maxSdZones": 200,
+   "snapMode": "Floor",
+   "invalidateOnFill": true,
+   "useVolumeFilter": false,
+   "volumeFilterBlockTrading": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "imbLookback": 20,
+   "imbMaxDistTicks": 100,
+   "minImbSizePoints": 2.5,
+   "sess1On": false,
+   "sess1TZ": "Europe/Prague",
+   "sess1ZoneStartH": 1,
+   "sess1ZoneStartM": 0,
+   "sess1ZoneEndH": 9,
+   "sess1ZoneEndM": 0,
+   "sess1TradeStartH": 2,
+   "sess1TradeStartM": 0,
+   "sess1TradeEndH": 5,
+   "sess1TradeEndM": 0,
+   "sess2On": true,
+   "sess2TZ": "America/New_York",
+   "sess2ZoneStartH": 10,
+   "sess2ZoneStartM": 0,
+   "sess2ZoneEndH": 11,
+   "sess2ZoneEndM": 0,
+   "sess2TradeStartH": 10,
+   "sess2TradeStartM": 0,
+   "sess2TradeEndH": 15,
+   "sess2TradeEndM": 45,
+   "sess3On": true,
+   "sess3TZ": "Europe/London",
+   "sess3ZoneStartH": 8,
+   "sess3ZoneStartM": 0,
+   "sess3ZoneEndH": 10,
+   "sess3ZoneEndM": 0,
+   "sess3TradeStartH": 8,
+   "sess3TradeStartM": 0,
+   "sess3TradeEndH": 11,
+   "sess3TradeEndM": 0,
+   "showMarketStructure": true,
+   "structureSwingLen": 5,
+   "useStructureFilter": false,
+   "showSR": true,
+   "srSwingLen": 10,
+   "srClusterPoints": 15,
+   "srMinTouches": 2,
+   "srMaxLevels": 10,
+   "srLookbackDays": 5,
+   "srZoneSaturationPct": 30,
+   "showLiqSweep": true,
+   "liqSweepLen": 10,
+   "liqSweepMinWick": 5,
+   "liqSweepConfirmBars": 2,
+   "liqStrengthLen": 50,
+   "showElliott": true,
+   "ewSwingLen": 8,
+   "ewMinWavePoints": 20,
+   "ewShowLabels": true,
+   "ewShowProjection": true,
+   "ewProjExtendBars": 40,
+   "ewLineColor": "#334155",
+   "showImbalance": true,
+   "state1MaxBars": 1,
+   "state2MaxBars": 15,
+   "state2ConfirmTicks": 1,
+   "state3MaxBars": 1,
+   "state4MaxBars": 10,
+   "state5MaxBars": 10,
+   "slLookback": 10,
+   "slBufferTicks": 2,
+   "maxLossDollar": 350,
+   "maxDailyWins": 5,
+   "tickDollarValue": 0.5,
+   "legacyPineSizing": true,
+   "atrLen": 14,
+   "minSlDistance": 0,
+   "leverage": 1
+  },
+  "settings": {
+   "strategy": "ibs",
+   "exchange": "tester",
+   "pair": "BTC/USDT:USDT",
+   "engine": "freqtrade",
+   "timeframe": "3m",
+   "timerange": "20250904-20260904",
+   "fee": 0.0005,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 10000.0,
+   "timeframe_detail": "1m",
+   "profile": null
+  }
+ },
+ "points": [
+  {
+   "run": "20260911-164527-00c3ec",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:49+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=4.5, state1MaxBars=1",
+   "tag": {
+    "values": {
+     "rrRatio": 4.5,
+     "state1MaxBars": 1
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {},
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-09230c",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": "2026-09-11T16:50:00+00:00",
+   "finished": "2026-09-11T16:50:02+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=8.5, state1MaxBars=31",
+   "tag": {
+    "values": {
+     "rrRatio": 8.5,
+     "state1MaxBars": 31
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 8.5,
+    "state1MaxBars": 31
+   },
+   "settings": {},
+   "result": {
+    "duration_s": 1.9
+   },
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-188e2e",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:49+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=2.5, state1MaxBars=21",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "state1MaxBars": 21
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 2.5,
+    "state1MaxBars": 21
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-1cf556",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:49+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=2.5, state1MaxBars=41",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "state1MaxBars": 41
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 2.5,
+    "state1MaxBars": 41
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-27a06a",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:48+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=4.5, state1MaxBars=21",
+   "tag": {
+    "values": {
+     "rrRatio": 4.5,
+     "state1MaxBars": 21
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 21
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-30359f",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:50+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=0.5, state1MaxBars=41",
+   "tag": {
+    "values": {
+     "rrRatio": 0.5,
+     "state1MaxBars": 41
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 0.5,
+    "state1MaxBars": 41
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-5c133d",
+   "status": "done",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": "2026-09-11T16:48:19+00:00",
+   "finished": "2026-09-11T16:49:45+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=0.5, state1MaxBars=21",
+   "tag": {
+    "values": {
+     "rrRatio": 0.5,
+     "state1MaxBars": 21
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 0.5,
+    "state1MaxBars": 21
+   },
+   "settings": {},
+   "result": {
+    "trades": 191,
+    "wins": 75,
+    "losses": 116,
+    "draws": 0,
+    "winrate": 39.27,
+    "pnl_abs": -1499.28,
+    "pnl_pct": -14.993,
+    "profit_factor": 0.359,
+    "max_drawdown_abs": 1499.28,
+    "max_drawdown_pct": 14.993,
+    "starting_balance": 10000.0,
+    "final_balance": 8500.72,
+    "stake_currency": "USDT",
+    "gross_abs": 244.66,
+    "volume_abs": 3487303.21,
+    "break_even_pct": 0.007,
+    "market_change_pct": -27.327,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "0:23:00",
+    "exits": {
+     "roi": {
+      "n": 124,
+      "pnl_abs": 702.26
+     },
+     "session_end": {
+      "n": 1,
+      "pnl_abs": -17.25
+     },
+     "stop_loss": {
+      "n": 49,
+      "pnl_abs": -1616.26
+     },
+     "trailing_stop_loss": {
+      "n": 17,
+      "pnl_abs": -568.03
+     }
+    },
+    "duration_s": 85.9,
+    "zip": "backtest-result-2026-09-11_16-49-41.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-164527-6ed6de",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:43+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=8.5, state1MaxBars=41",
+   "tag": {
+    "values": {
+     "rrRatio": 8.5,
+     "state1MaxBars": 41
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 8.5,
+    "state1MaxBars": 41
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-714b1e",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:54+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=8.5, state1MaxBars=1",
+   "tag": {
+    "values": {
+     "rrRatio": 8.5,
+     "state1MaxBars": 1
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-7a8a16",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": "2026-09-11T16:49:45+00:00",
+   "finished": "2026-09-11T16:50:00+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=0.5, state1MaxBars=31",
+   "tag": {
+    "values": {
+     "rrRatio": 0.5,
+     "state1MaxBars": 31
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 0.5,
+    "state1MaxBars": 31
+   },
+   "settings": {},
+   "result": {
+    "duration_s": 14.6
+   },
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-87f124",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:56+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=8.5, state1MaxBars=21",
+   "tag": {
+    "values": {
+     "rrRatio": 8.5,
+     "state1MaxBars": 21
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 8.5,
+    "state1MaxBars": 21
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-92fdd4",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:49+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=2.5, state1MaxBars=11",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "state1MaxBars": 11
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 2.5,
+    "state1MaxBars": 11
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-93eb82",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:52+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=6.5, state1MaxBars=41",
+   "tag": {
+    "values": {
+     "rrRatio": 6.5,
+     "state1MaxBars": 41
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 6.5,
+    "state1MaxBars": 41
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-9985a3",
+   "status": "done",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": "2026-09-11T16:45:27+00:00",
+   "finished": "2026-09-11T16:46:51+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=0.5, state1MaxBars=1",
+   "tag": {
+    "values": {
+     "rrRatio": 0.5,
+     "state1MaxBars": 1
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 146,
+    "wins": 55,
+    "losses": 91,
+    "draws": 0,
+    "winrate": 37.67,
+    "pnl_abs": -1277.23,
+    "pnl_pct": -12.772,
+    "profit_factor": 0.301,
+    "max_drawdown_abs": 1278.05,
+    "max_drawdown_pct": 12.78,
+    "starting_balance": 10000.0,
+    "final_balance": 8722.77,
+    "stake_currency": "USDT",
+    "gross_abs": 71.17,
+    "volume_abs": 2698045.64,
+    "break_even_pct": 0.0026,
+    "market_change_pct": -27.327,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "0:21:00",
+    "exits": {
+     "roi": {
+      "n": 93,
+      "pnl_abs": 439.44
+     },
+     "session_end": {
+      "n": 1,
+      "pnl_abs": -17.4
+     },
+     "stop_loss": {
+      "n": 38,
+      "pnl_abs": -1223.62
+     },
+     "trailing_stop_loss": {
+      "n": 14,
+      "pnl_abs": -475.64
+     }
+    },
+    "duration_s": 84.3,
+    "zip": "backtest-result-2026-09-11_16-46-48.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-164527-9f0a65",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:47+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=4.5, state1MaxBars=41",
+   "tag": {
+    "values": {
+     "rrRatio": 4.5,
+     "state1MaxBars": 41
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 41
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-a8be0c",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:46+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=6.5, state1MaxBars=11",
+   "tag": {
+    "values": {
+     "rrRatio": 6.5,
+     "state1MaxBars": 11
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 6.5,
+    "state1MaxBars": 11
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-a8f4e0",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:54+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=8.5, state1MaxBars=11",
+   "tag": {
+    "values": {
+     "rrRatio": 8.5,
+     "state1MaxBars": 11
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 8.5,
+    "state1MaxBars": 11
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-a9386f",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:48+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=4.5, state1MaxBars=11",
+   "tag": {
+    "values": {
+     "rrRatio": 4.5,
+     "state1MaxBars": 11
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 11
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-aeba99",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:50+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=2.5, state1MaxBars=1",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "state1MaxBars": 1
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-c8e6b8",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:47+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=6.5, state1MaxBars=1",
+   "tag": {
+    "values": {
+     "rrRatio": 6.5,
+     "state1MaxBars": 1
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-ca8cc6",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:47+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=4.5, state1MaxBars=31",
+   "tag": {
+    "values": {
+     "rrRatio": 4.5,
+     "state1MaxBars": 31
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "state1MaxBars": 31
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-d2ea3d",
+   "status": "done",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": "2026-09-11T16:46:52+00:00",
+   "finished": "2026-09-11T16:48:19+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=0.5, state1MaxBars=11",
+   "tag": {
+    "values": {
+     "rrRatio": 0.5,
+     "state1MaxBars": 11
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 0.5,
+    "state1MaxBars": 11
+   },
+   "settings": {},
+   "result": {
+    "trades": 190,
+    "wins": 75,
+    "losses": 115,
+    "draws": 0,
+    "winrate": 39.47,
+    "pnl_abs": -1441.24,
+    "pnl_pct": -14.412,
+    "profit_factor": 0.357,
+    "max_drawdown_abs": 1441.24,
+    "max_drawdown_pct": 14.412,
+    "starting_balance": 10000.0,
+    "final_balance": 8558.76,
+    "stake_currency": "USDT",
+    "gross_abs": 303.86,
+    "volume_abs": 3492149.99,
+    "break_even_pct": 0.0087,
+    "market_change_pct": -27.327,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "0:22:00",
+    "exits": {
+     "roi": {
+      "n": 125,
+      "pnl_abs": 664.17
+     },
+     "session_end": {
+      "n": 1,
+      "pnl_abs": -17.25
+     },
+     "stop_loss": {
+      "n": 47,
+      "pnl_abs": -1516.17
+     },
+     "trailing_stop_loss": {
+      "n": 17,
+      "pnl_abs": -572.0
+     }
+    },
+    "duration_s": 87.6,
+    "zip": "backtest-result-2026-09-11_16-48-16.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-164527-d9aaed",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:45+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=6.5, state1MaxBars=31",
+   "tag": {
+    "values": {
+     "rrRatio": 6.5,
+     "state1MaxBars": 31
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 6.5,
+    "state1MaxBars": 31
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-dee569",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:46+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=6.5, state1MaxBars=21",
+   "tag": {
+    "values": {
+     "rrRatio": 6.5,
+     "state1MaxBars": 21
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 6.5,
+    "state1MaxBars": 21
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164527-faf10f",
+   "status": "failed",
+   "created": "2026-09-11T16:45:27+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:49:49+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164527-cd45: rrRatio=2.5, state1MaxBars=31",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5,
+     "state1MaxBars": 31
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 25,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 2.5,
+    "state1MaxBars": 31
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  }
+ ],
+ "updated": "2026-09-11T16:50:02+00:00"
+}

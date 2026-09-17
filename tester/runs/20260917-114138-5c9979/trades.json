@@ -1,0 +1,24 @@
+[
+  {
+    "open_date": "2026-09-01T14:26:00+00:00",
+    "close_date": "2026-09-01T15:02:00+00:00",
+    "open_rate": 78234.6,
+    "close_rate": 77860.3,
+    "amount": 0.267,
+    "stake_amount": 2088.86382,
+    "leverage": 10.0,
+    "profit_abs": -120.77676915,
+    "profit_ratio": -0.057790464743904535,
+    "exit_reason": "stop_loss",
+    "enter_tag": "ibs:1788272640000",
+    "is_short": false,
+    "fee_open": 0.0005,
+    "fee_close": 0.0005,
+    "funding_fees": 0.0,
+    "trade_duration": 36,
+    "initial_stop_loss_abs": 70489.4,
+    "stop_loss_abs": 77860.3,
+    "max_rate": 78393.9,
+    "min_rate": 77850.1
+  }
+]

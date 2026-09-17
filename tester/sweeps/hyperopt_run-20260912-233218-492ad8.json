@@ -1,0 +1,554 @@
+{
+ "version": 1,
+ "kind": "hyperopt_run",
+ "id": "20260912-233218-492ad8",
+ "strategy": "ibs",
+ "created": "2026-09-12T23:40:18+00:00",
+ "user": "materko",
+ "base": {
+  "params": {
+   "enableImbEntry": true,
+   "enablePinBarEntry": true,
+   "enableEngulfingEntry": false,
+   "pbWickToBodyRatio": 4,
+   "pbBodyPositionPct": 20,
+   "pbMinRangePoints": 2,
+   "engMinRangePoints": 2,
+   "engSizeAvgLen": 10,
+   "engSizeMultiplier": 2,
+   "engTouchWindowBars": 3,
+   "pbEngOrderType": "Market",
+   "enableTrailing": true,
+   "trailActivationR": 1,
+   "trailOffsetR": 0.5,
+   "enableZoneDetection": true,
+   "enableSrTrading": false,
+   "enableLqTrading": false,
+   "rrRatio": 1,
+   "tradeDirection": "Long only",
+   "weekdaysOnly": true,
+   "enableTrading": true,
+   "closeAtSessionEnd": true,
+   "enableGapDetection": true,
+   "zoneDetectionTF": "5",
+   "zoneValidHours": 6,
+   "maxSdZones": 200,
+   "snapMode": "Floor",
+   "invalidateOnFill": true,
+   "useVolumeFilter": false,
+   "volumeFilterBlockTrading": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "imbLookback": 20,
+   "imbMaxDistTicks": 100,
+   "minImbSizePoints": 2.5,
+   "sess1On": false,
+   "sess1TZ": "Europe/Prague",
+   "sess1ZoneStartH": 1,
+   "sess1ZoneStartM": 0,
+   "sess1ZoneEndH": 9,
+   "sess1ZoneEndM": 0,
+   "sess1TradeStartH": 2,
+   "sess1TradeStartM": 0,
+   "sess1TradeEndH": 5,
+   "sess1TradeEndM": 0,
+   "sess2On": true,
+   "sess2TZ": "America/New_York",
+   "sess2ZoneStartH": 8,
+   "sess2ZoneStartM": 0,
+   "sess2ZoneEndH": 11,
+   "sess2ZoneEndM": 0,
+   "sess2TradeStartH": 10,
+   "sess2TradeStartM": 0,
+   "sess2TradeEndH": 15,
+   "sess2TradeEndM": 45,
+   "sess3On": true,
+   "sess3TZ": "Europe/London",
+   "sess3ZoneStartH": 8,
+   "sess3ZoneStartM": 0,
+   "sess3ZoneEndH": 10,
+   "sess3ZoneEndM": 0,
+   "sess3TradeStartH": 8,
+   "sess3TradeStartM": 0,
+   "sess3TradeEndH": 11,
+   "sess3TradeEndM": 0,
+   "showMarketStructure": true,
+   "structureSwingLen": 5,
+   "useStructureFilter": false,
+   "showSR": true,
+   "srSwingLen": 10,
+   "srClusterPoints": 15,
+   "srMinTouches": 2,
+   "srMaxLevels": 10,
+   "srLookbackDays": 5,
+   "srZoneSaturationPct": 30,
+   "showLiqSweep": true,
+   "liqSweepLen": 10,
+   "liqSweepMinWick": 5,
+   "liqSweepConfirmBars": 2,
+   "liqStrengthLen": 50,
+   "showElliott": false,
+   "ewSwingLen": 8,
+   "ewMinWavePoints": 20,
+   "ewShowLabels": true,
+   "ewShowProjection": true,
+   "ewProjExtendBars": 40,
+   "ewLineColor": "#334155",
+   "showImbalance": true,
+   "state1MaxBars": 22,
+   "state2MaxBars": 10,
+   "state2ConfirmTicks": 1,
+   "state3MaxBars": 7,
+   "state4MaxBars": 10,
+   "state5MaxBars": 10,
+   "slLookback": 10,
+   "slBufferTicks": 2,
+   "maxLossDollar": 350,
+   "maxDailyWins": 5,
+   "tickDollarValue": 0.5,
+   "legacyPineSizing": true,
+   "atrLen": 14,
+   "minSlDistance": 0,
+   "leverage": 1
+  },
+  "settings": {
+   "strategy": "ibs",
+   "exchange": "tester",
+   "pair": "MNQ/USD",
+   "engine": "freqtrade",
+   "timeframe": "3m",
+   "timerange": "20221001-20231001",
+   "fee": 0.0,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 100000.0,
+   "timeframe_detail": "1m",
+   "profile": "multicharts_mnq_3m"
+  }
+ },
+ "points": [
+  {
+   "run": "20260912-234018-322283",
+   "status": "done",
+   "created": "2026-09-12T23:40:18+00:00",
+   "started": "2026-09-12T23:41:05+00:00",
+   "finished": "2026-09-12T23:41:27+00:00",
+   "user": "materko",
+   "note": "hyperopt 20260912-233218-492ad8: state1MaxBars=22, state2MaxBars=10, state3MaxBars=7 — hyperopt state1MaxBars=1:50:10, state2MaxBars=1:50:10, state3MaxBars=1:50:10",
+   "tag": {
+    "values": {
+     "state1MaxBars": 22,
+     "state2MaxBars": 10,
+     "state3MaxBars": 7
+    },
+    "tuned": false,
+    "goal": "winrate"
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 120,
+    "wins": 57,
+    "losses": 63,
+    "draws": 0,
+    "winrate": 47.5,
+    "pnl_abs": -1535.97,
+    "pnl_pct": -1.536,
+    "profit_factor": 0.789,
+    "max_drawdown_abs": 1910.0,
+    "max_drawdown_pct": 1.905,
+    "starting_balance": 100000.0,
+    "final_balance": 98464.03,
+    "stake_currency": "USD",
+    "gross_abs": -1535.97,
+    "volume_abs": 17987698.53,
+    "break_even_pct": -0.0085,
+    "market_change_pct": 34.69,
+    "backtest_start": "2022-10-01 00:00:00",
+    "backtest_end": "2023-09-29 20:57:00",
+    "holding_avg": "0:23:00",
+    "exits": {
+     "roi": {
+      "n": 55,
+      "pnl_abs": 5717.0
+     },
+     "stop_loss": {
+      "n": 63,
+      "pnl_abs": -7285.25
+     },
+     "trailing_stop_loss": {
+      "n": 2,
+      "pnl_abs": 32.28
+     }
+    },
+    "duration_s": 22.4,
+    "zip": "backtest-result-2026-09-12_23-41-26.zip"
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.018523491552427527,
+    "hi": 0.00038635819151886923,
+    "trades": 120,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20260912-234018-4fbc32",
+   "status": "done",
+   "created": "2026-09-12T23:40:18+00:00",
+   "started": "2026-09-12T23:40:18+00:00",
+   "finished": "2026-09-12T23:40:42+00:00",
+   "user": "materko",
+   "note": "hyperopt 20260912-233218-492ad8: state1MaxBars=22, state2MaxBars=10, state3MaxBars=7 — hyperopt state1MaxBars=1:50:10, state2MaxBars=1:50:10, state3MaxBars=1:50:10",
+   "tag": {
+    "values": {
+     "state1MaxBars": 22,
+     "state2MaxBars": 10,
+     "state3MaxBars": 7
+    },
+    "tuned": true,
+    "goal": "winrate"
+   },
+   "params": {},
+   "settings": {
+    "timerange": "20250910-20260910"
+   },
+   "result": {
+    "trades": 116,
+    "wins": 68,
+    "losses": 48,
+    "draws": 0,
+    "winrate": 58.62,
+    "pnl_abs": 2203.5,
+    "pnl_pct": 2.204,
+    "profit_factor": 1.508,
+    "max_drawdown_abs": 939.25,
+    "max_drawdown_pct": 0.937,
+    "starting_balance": 100000.0,
+    "final_balance": 102203.5,
+    "stake_currency": "USD",
+    "gross_abs": 2203.5,
+    "volume_abs": 16855971.5,
+    "break_even_pct": 0.0131,
+    "market_change_pct": 23.35,
+    "backtest_start": "2025-09-10 00:00:00",
+    "backtest_end": "2026-09-10 00:00:00",
+    "holding_avg": "0:39:00",
+    "exits": {
+     "roi": {
+      "n": 63,
+      "pnl_abs": 6413.75
+     },
+     "session_end": {
+      "n": 4,
+      "pnl_abs": 42.0
+     },
+     "stop_loss": {
+      "n": 47,
+      "pnl_abs": -4266.5
+     },
+     "trailing_stop_loss": {
+      "n": 2,
+      "pnl_abs": 14.25
+     }
+    },
+    "duration_s": 23.5,
+    "zip": "backtest-result-2026-09-12_23-40-40.zip"
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": 0.0014007050596828924,
+    "hi": 0.02497764984441789,
+    "trades": 116,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20260912-234018-5a5086",
+   "status": "done",
+   "created": "2026-09-12T23:40:18+00:00",
+   "started": "2026-09-12T23:42:12+00:00",
+   "finished": "2026-09-12T23:42:35+00:00",
+   "user": "materko",
+   "note": "hyperopt 20260912-233218-492ad8: state1MaxBars=22, state2MaxBars=10, state3MaxBars=7 — hyperopt state1MaxBars=1:50:10, state2MaxBars=1:50:10, state3MaxBars=1:50:10",
+   "tag": {
+    "values": {
+     "state1MaxBars": 22,
+     "state2MaxBars": 10,
+     "state3MaxBars": 7
+    },
+    "tuned": false,
+    "goal": "winrate"
+   },
+   "params": {},
+   "settings": {
+    "timerange": "20250904-20260904"
+   },
+   "result": {
+    "trades": 117,
+    "wins": 69,
+    "losses": 48,
+    "draws": 0,
+    "winrate": 58.97,
+    "pnl_abs": 2378.25,
+    "pnl_pct": 2.378,
+    "profit_factor": 1.545,
+    "max_drawdown_abs": 939.25,
+    "max_drawdown_pct": 0.936,
+    "starting_balance": 100000.0,
+    "final_balance": 102378.25,
+    "stake_currency": "USD",
+    "gross_abs": 2378.25,
+    "volume_abs": 17154783.25,
+    "break_even_pct": 0.0139,
+    "market_change_pct": 25.8,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "0:39:00",
+    "exits": {
+     "roi": {
+      "n": 65,
+      "pnl_abs": 6625.0
+     },
+     "session_end": {
+      "n": 3,
+      "pnl_abs": 36.0
+     },
+     "stop_loss": {
+      "n": 47,
+      "pnl_abs": -4297.0
+     },
+     "trailing_stop_loss": {
+      "n": 2,
+      "pnl_abs": 14.25
+     }
+    },
+    "duration_s": 23.0,
+    "zip": "backtest-result-2026-09-12_23-42-34.zip"
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": 0.00208665505638247,
+    "hi": 0.025213471094204264,
+    "trades": 117,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20260912-234018-852be2",
+   "status": "done",
+   "created": "2026-09-12T23:40:18+00:00",
+   "started": "2026-09-12T23:41:27+00:00",
+   "finished": "2026-09-12T23:41:49+00:00",
+   "user": "materko",
+   "note": "hyperopt 20260912-233218-492ad8: state1MaxBars=22, state2MaxBars=10, state3MaxBars=7 — hyperopt state1MaxBars=1:50:10, state2MaxBars=1:50:10, state3MaxBars=1:50:10",
+   "tag": {
+    "values": {
+     "state1MaxBars": 22,
+     "state2MaxBars": 10,
+     "state3MaxBars": 7
+    },
+    "tuned": false,
+    "goal": "winrate"
+   },
+   "params": {},
+   "settings": {
+    "timerange": "20231001-20241001"
+   },
+   "result": {
+    "trades": 132,
+    "wins": 67,
+    "losses": 65,
+    "draws": 0,
+    "winrate": 50.76,
+    "pnl_abs": 1107.65,
+    "pnl_pct": 1.108,
+    "profit_factor": 1.217,
+    "max_drawdown_abs": 707.0,
+    "max_drawdown_pct": 0.702,
+    "starting_balance": 100000.0,
+    "final_balance": 101107.65,
+    "stake_currency": "USD",
+    "gross_abs": 1107.65,
+    "volume_abs": 21449043.65,
+    "break_even_pct": 0.0052,
+    "market_change_pct": 36.351,
+    "backtest_start": "2023-10-02 13:00:00",
+    "backtest_end": "2024-10-01 00:00:00",
+    "holding_avg": "0:28:00",
+    "exits": {
+     "roi": {
+      "n": 65,
+      "pnl_abs": 6174.75
+     },
+     "stop_loss": {
+      "n": 64,
+      "pnl_abs": -5088.75
+     },
+     "trailing_stop_loss": {
+      "n": 3,
+      "pnl_abs": 21.65
+     }
+    },
+    "duration_s": 21.7,
+    "zip": "backtest-result-2026-09-12_23-41-47.zip"
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.0024518007559129777,
+    "hi": 0.01267866795550749,
+    "trades": 132,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20260912-234018-92c744",
+   "status": "done",
+   "created": "2026-09-12T23:40:18+00:00",
+   "started": "2026-09-12T23:41:49+00:00",
+   "finished": "2026-09-12T23:42:12+00:00",
+   "user": "materko",
+   "note": "hyperopt 20260912-233218-492ad8: state1MaxBars=22, state2MaxBars=10, state3MaxBars=7 — hyperopt state1MaxBars=1:50:10, state2MaxBars=1:50:10, state3MaxBars=1:50:10",
+   "tag": {
+    "values": {
+     "state1MaxBars": 22,
+     "state2MaxBars": 10,
+     "state3MaxBars": 7
+    },
+    "tuned": false,
+    "goal": "winrate"
+   },
+   "params": {},
+   "settings": {
+    "timerange": "20240904-20250904"
+   },
+   "result": {
+    "trades": 155,
+    "wins": 80,
+    "losses": 74,
+    "draws": 1,
+    "winrate": 51.61,
+    "pnl_abs": 1329.0,
+    "pnl_pct": 1.329,
+    "profit_factor": 1.217,
+    "max_drawdown_abs": 1187.0,
+    "max_drawdown_pct": 1.167,
+    "starting_balance": 100000.0,
+    "final_balance": 101329.0,
+    "stake_currency": "USD",
+    "gross_abs": 1329.0,
+    "volume_abs": 23545308.5,
+    "break_even_pct": 0.0056,
+    "market_change_pct": 23.634,
+    "backtest_start": "2024-09-04 00:00:00",
+    "backtest_end": "2025-09-04 00:00:00",
+    "holding_avg": "0:30:00",
+    "exits": {
+     "roi": {
+      "n": 77,
+      "pnl_abs": 7245.25
+     },
+     "session_end": {
+      "n": 3,
+      "pnl_abs": 126.25
+     },
+     "stop_loss": {
+      "n": 73,
+      "pnl_abs": -6088.5
+     },
+     "trailing_stop_loss": {
+      "n": 2,
+      "pnl_abs": 46.0
+     }
+    },
+    "duration_s": 23.2,
+    "zip": "backtest-result-2026-09-12_23-42-11.zip"
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.0019988146980771224,
+    "hi": 0.013155266978896131,
+    "trades": 155,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  },
+  {
+   "run": "20260912-234018-c70fba",
+   "status": "done",
+   "created": "2026-09-12T23:40:18+00:00",
+   "started": "2026-09-12T23:40:42+00:00",
+   "finished": "2026-09-12T23:41:05+00:00",
+   "user": "materko",
+   "note": "hyperopt 20260912-233218-492ad8: state1MaxBars=22, state2MaxBars=10, state3MaxBars=7 — hyperopt state1MaxBars=1:50:10, state2MaxBars=1:50:10, state3MaxBars=1:50:10",
+   "tag": {
+    "values": {
+     "state1MaxBars": 22,
+     "state2MaxBars": 10,
+     "state3MaxBars": 7
+    },
+    "tuned": false,
+    "goal": "winrate"
+   },
+   "params": {},
+   "settings": {
+    "timerange": "20211001-20221001"
+   },
+   "result": {
+    "trades": 118,
+    "wins": 57,
+    "losses": 61,
+    "draws": 0,
+    "winrate": 48.31,
+    "pnl_abs": 50.5,
+    "pnl_pct": 0.051,
+    "profit_factor": 1.008,
+    "max_drawdown_abs": 1084.75,
+    "max_drawdown_pct": 1.073,
+    "starting_balance": 100000.0,
+    "final_balance": 100050.5,
+    "stake_currency": "USD",
+    "gross_abs": 50.5,
+    "volume_abs": 16670460.0,
+    "break_even_pct": 0.0003,
+    "market_change_pct": -24.827,
+    "backtest_start": "2021-10-01 00:00:00",
+    "backtest_end": "2022-09-30 20:57:00",
+    "holding_avg": "0:34:00",
+    "exits": {
+     "roi": {
+      "n": 54,
+      "pnl_abs": 6602.0
+     },
+     "session_end": {
+      "n": 3,
+      "pnl_abs": -98.0
+     },
+     "stop_loss": {
+      "n": 59,
+      "pnl_abs": -6518.0
+     },
+     "trailing_stop_loss": {
+      "n": 2,
+      "pnl_abs": 64.5
+     }
+    },
+    "duration_s": 22.9,
+    "zip": "backtest-result-2026-09-12_23-41-03.zip"
+   },
+   "error": null,
+   "break_even_ci": {
+    "lo": -0.009148623020205653,
+    "hi": 0.010468650894870942,
+    "trades": 118,
+    "iterations": 2000,
+    "seed": 12345
+   }
+  }
+ ],
+ "updated": "2026-09-12T23:42:35+00:00"
+}

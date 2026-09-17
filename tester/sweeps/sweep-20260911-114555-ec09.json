@@ -1,0 +1,8102 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20260911-114555-ec09",
+ "strategy": "orb",
+ "created": "2026-09-11T11:45:55+00:00",
+ "user": "IBS",
+ "base": {
+  "params": {
+   "sessionMode": "both",
+   "nyStartH": 9,
+   "nyStartM": 0,
+   "nyRangeMinutes": "60",
+   "nyEndH": 15,
+   "nyEndM": 55,
+   "lonStartH": 8,
+   "lonStartM": 0,
+   "lonRangeMinutes": "60",
+   "lonEndH": 16,
+   "lonEndM": 30,
+   "tradeDirection": "Both",
+   "entryMode": "close",
+   "breakBufferAtr": 0.05,
+   "retestMaxBars": 10,
+   "entryWindowMinutes": 90,
+   "maxTradesPerDay": 1,
+   "minRangePct": 0.15,
+   "maxRangePct": 0.8,
+   "useVolumeFilter": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "minClosePosPct": 80,
+   "weekdaysOnly": true,
+   "slMode": "range_pct",
+   "slRangePct": 95,
+   "atrLen": 14,
+   "slAtrMult": 1,
+   "slBufferAtr": 0.1,
+   "tpMode": "rr",
+   "rrRatio": 0.5,
+   "measuredMult": 1,
+   "tpAtrMult": 2,
+   "enableTrailing": false,
+   "trailActivationR": 2,
+   "trailOffsetR": 1,
+   "closeAtSessionEnd": false,
+   "riskDollar": 100,
+   "showRange": true,
+   "showLevels": true,
+   "tickDollarValue": 0.5,
+   "leverage": 1
+  },
+  "settings": {
+   "strategy": "orb",
+   "exchange": null,
+   "pair": "XAU/USD",
+   "engine": "multicharts",
+   "timeframe": "15m",
+   "timerange": "20160101-20260904",
+   "fee": 0.0,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 10000.0,
+   "timeframe_detail": null,
+   "profile": "ORB_1_XAU_mcp80"
+  }
+ },
+ "points": [
+  {
+   "run": "20260911-114555-02f572",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:47:10+00:00",
+   "finished": "2026-09-11T11:47:15+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=95, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 95,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 1389,
+    "wins": 944,
+    "losses": 445,
+    "draws": 0,
+    "winrate": 67.96,
+    "pnl_abs": 54519.0,
+    "pnl_pct": 545.19,
+    "profit_factor": 1.118,
+    "max_drawdown_abs": 31631.1,
+    "max_drawdown_pct": 316.311,
+    "starting_balance": 10000.0,
+    "final_balance": 64519.0,
+    "stake_currency": "USD",
+    "gross_abs": 54519.0,
+    "volume_abs": 5848880.68,
+    "break_even_pct": 0.9321,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "7:34:00",
+    "exits": {
+     "take_profit": {
+      "n": 944,
+      "pnl_abs": 517458.4
+     },
+     "stop_loss": {
+      "n": 445,
+      "pnl_abs": -462939.4
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-073a7d",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:53:31+00:00",
+   "finished": "2026-09-11T11:53:36+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=95, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 95,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36
+   },
+   "settings": {},
+   "result": {
+    "trades": 1059,
+    "wins": 718,
+    "losses": 341,
+    "draws": 0,
+    "winrate": 67.8,
+    "pnl_abs": 32716.8,
+    "pnl_pct": 327.168,
+    "profit_factor": 1.097,
+    "max_drawdown_abs": 27211.2,
+    "max_drawdown_pct": 272.112,
+    "starting_balance": 10000.0,
+    "final_balance": 42716.8,
+    "stake_currency": "USD",
+    "gross_abs": 32716.8,
+    "volume_abs": 4538981.1,
+    "break_even_pct": 0.7208,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "7:21:00",
+    "exits": {
+     "take_profit": {
+      "n": 718,
+      "pnl_abs": 369221.3
+     },
+     "stop_loss": {
+      "n": 341,
+      "pnl_abs": -336504.5
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 2,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-085a79",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:53:16+00:00",
+   "finished": "2026-09-11T11:53:21+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=65, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 65,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 65,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 857,
+    "wins": 165,
+    "losses": 692,
+    "draws": 0,
+    "winrate": 19.25,
+    "pnl_abs": 21701.7,
+    "pnl_pct": 217.017,
+    "profit_factor": 1.039,
+    "max_drawdown_abs": 39630.8,
+    "max_drawdown_pct": 396.308,
+    "starting_balance": 10000.0,
+    "final_balance": 31701.7,
+    "stake_currency": "USD",
+    "gross_abs": 21701.7,
+    "volume_abs": 3703752.74,
+    "break_even_pct": 0.5859,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "32:26:00",
+    "exits": {
+     "stop_loss": {
+      "n": 691,
+      "pnl_abs": -554160.2
+     },
+     "take_profit": {
+      "n": 165,
+      "pnl_abs": 576395.9
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -534.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-099fd1",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:49:05+00:00",
+   "finished": "2026-09-11T11:49:10+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=65, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 65,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 65,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 735,
+    "wins": 108,
+    "losses": 627,
+    "draws": 0,
+    "winrate": 14.69,
+    "pnl_abs": 122342.3,
+    "pnl_pct": 1223.423,
+    "profit_factor": 1.232,
+    "max_drawdown_abs": 34844.1,
+    "max_drawdown_pct": 348.441,
+    "starting_balance": 10000.0,
+    "final_balance": 132342.3,
+    "stake_currency": "USD",
+    "gross_abs": 122342.3,
+    "volume_abs": 3222273.04,
+    "break_even_pct": 3.7968,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "54:45:00",
+    "exits": {
+     "stop_loss": {
+      "n": 627,
+      "pnl_abs": -526277.0
+     },
+     "take_profit": {
+      "n": 108,
+      "pnl_abs": 648619.3
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.3
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-09d658",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:49:57+00:00",
+   "finished": "2026-09-11T11:50:02+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=125, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 125,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 125,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 461,
+    "wins": 74,
+    "losses": 387,
+    "draws": 0,
+    "winrate": 16.05,
+    "pnl_abs": 201168.6,
+    "pnl_pct": 2011.686,
+    "profit_factor": 1.396,
+    "max_drawdown_abs": 54893.6,
+    "max_drawdown_pct": 548.936,
+    "starting_balance": 10000.0,
+    "final_balance": 211168.6,
+    "stake_currency": "USD",
+    "gross_abs": 201168.6,
+    "volume_abs": 1981887.15,
+    "break_even_pct": 10.1504,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "132:04:00",
+    "exits": {
+     "stop_loss": {
+      "n": 387,
+      "pnl_abs": -508294.7
+     },
+     "take_profit": {
+      "n": 73,
+      "pnl_abs": 705293.3
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.5
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-0a302d",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:52:50+00:00",
+   "finished": "2026-09-11T11:52:55+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=35, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 35,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 35,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 981,
+    "wins": 181,
+    "losses": 800,
+    "draws": 0,
+    "winrate": 18.45,
+    "pnl_abs": 6096.4,
+    "pnl_pct": 60.964,
+    "profit_factor": 1.014,
+    "max_drawdown_abs": 44000.4,
+    "max_drawdown_pct": 440.004,
+    "starting_balance": 10000.0,
+    "final_balance": 16096.4,
+    "stake_currency": "USD",
+    "gross_abs": 6096.4,
+    "volume_abs": 4209192.51,
+    "break_even_pct": 0.1448,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "14:56:00",
+    "exits": {
+     "stop_loss": {
+      "n": 800,
+      "pnl_abs": -439513.1
+     },
+     "take_profit": {
+      "n": 181,
+      "pnl_abs": 445609.5
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-0af034",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:55:18+00:00",
+   "finished": "2026-09-11T11:55:23+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=65, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 65,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 65,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 979,
+    "wins": 298,
+    "losses": 681,
+    "draws": 0,
+    "winrate": 30.44,
+    "pnl_abs": 21722.6,
+    "pnl_pct": 217.226,
+    "profit_factor": 1.04,
+    "max_drawdown_abs": 61136.4,
+    "max_drawdown_pct": 611.364,
+    "starting_balance": 10000.0,
+    "final_balance": 31722.6,
+    "stake_currency": "USD",
+    "gross_abs": 21722.6,
+    "volume_abs": 4214223.22,
+    "break_even_pct": 0.5155,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "22:02:00",
+    "exits": {
+     "stop_loss": {
+      "n": 680,
+      "pnl_abs": -536654.0
+     },
+     "take_profit": {
+      "n": 298,
+      "pnl_abs": 560760.6
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -2384.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-0f1a12",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:50:52+00:00",
+   "finished": "2026-09-11T11:50:57+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=35, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 35,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 35,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 795,
+    "wins": 100,
+    "losses": 695,
+    "draws": 0,
+    "winrate": 12.58,
+    "pnl_abs": 159784.6,
+    "pnl_pct": 1597.846,
+    "profit_factor": 1.413,
+    "max_drawdown_abs": 40844.8,
+    "max_drawdown_pct": 408.448,
+    "starting_balance": 10000.0,
+    "final_balance": 169784.6,
+    "stake_currency": "USD",
+    "gross_abs": 159784.6,
+    "volume_abs": 3405319.48,
+    "break_even_pct": 4.6922,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "39:04:00",
+    "exits": {
+     "stop_loss": {
+      "n": 695,
+      "pnl_abs": -387145.0
+     },
+     "take_profit": {
+      "n": 100,
+      "pnl_abs": 546929.6
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-0fe336",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:48:55+00:00",
+   "finished": "2026-09-11T11:49:00+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=65, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 65,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 65,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 976,
+    "wins": 296,
+    "losses": 680,
+    "draws": 0,
+    "winrate": 30.33,
+    "pnl_abs": 41392.2,
+    "pnl_pct": 413.922,
+    "profit_factor": 1.075,
+    "max_drawdown_abs": 50430.5,
+    "max_drawdown_pct": 504.305,
+    "starting_balance": 10000.0,
+    "final_balance": 51392.2,
+    "stake_currency": "USD",
+    "gross_abs": 41392.2,
+    "volume_abs": 4181114.76,
+    "break_even_pct": 0.99,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "24:00:00",
+    "exits": {
+     "stop_loss": {
+      "n": 680,
+      "pnl_abs": -552506.8
+     },
+     "take_profit": {
+      "n": 296,
+      "pnl_abs": 593899.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-1358c3",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:51:02+00:00",
+   "finished": "2026-09-11T11:51:07+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=65, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 65,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 65,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 940,
+    "wins": 274,
+    "losses": 666,
+    "draws": 0,
+    "winrate": 29.15,
+    "pnl_abs": 31980.6,
+    "pnl_pct": 319.806,
+    "profit_factor": 1.06,
+    "max_drawdown_abs": 39798.7,
+    "max_drawdown_pct": 397.987,
+    "starting_balance": 10000.0,
+    "final_balance": 41980.6,
+    "stake_currency": "USD",
+    "gross_abs": 31980.6,
+    "volume_abs": 4028855.02,
+    "break_even_pct": 0.7938,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "23:20:00",
+    "exits": {
+     "stop_loss": {
+      "n": 665,
+      "pnl_abs": -528766.8
+     },
+     "take_profit": {
+      "n": 274,
+      "pnl_abs": 561281.4
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -534.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-141b38",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:48:01+00:00",
+   "finished": "2026-09-11T11:48:05+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=5, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 5,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1132,
+    "wins": 734,
+    "losses": 398,
+    "draws": 0,
+    "winrate": 64.84,
+    "pnl_abs": -1700.4,
+    "pnl_pct": -17.004,
+    "profit_factor": 0.986,
+    "max_drawdown_abs": 12444.7,
+    "max_drawdown_pct": 124.447,
+    "starting_balance": 10000.0,
+    "final_balance": 8299.6,
+    "stake_currency": "USD",
+    "gross_abs": -1700.4,
+    "volume_abs": 4946104.54,
+    "break_even_pct": -0.0344,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "0:31:00",
+    "exits": {
+     "take_profit": {
+      "n": 734,
+      "pnl_abs": 124245.5
+     },
+     "stop_loss": {
+      "n": 398,
+      "pnl_abs": -125945.9
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.6
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-165c1e",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:48:10+00:00",
+   "finished": "2026-09-11T11:48:15+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=5, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 5,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 5,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1081,
+    "wins": 190,
+    "losses": 891,
+    "draws": 0,
+    "winrate": 17.58,
+    "pnl_abs": -33559.6,
+    "pnl_pct": -335.596,
+    "profit_factor": 0.889,
+    "max_drawdown_abs": 44626.2,
+    "max_drawdown_pct": 446.262,
+    "starting_balance": 10000.0,
+    "final_balance": -23559.6,
+    "stake_currency": "USD",
+    "gross_abs": -33559.6,
+    "volume_abs": 4741912.58,
+    "break_even_pct": -0.7077,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "7:01:00",
+    "exits": {
+     "stop_loss": {
+      "n": 891,
+      "pnl_abs": -301142.7
+     },
+     "take_profit": {
+      "n": 190,
+      "pnl_abs": 267583.1
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-16d9ee",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:54:12+00:00",
+   "finished": "2026-09-11T11:54:18+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=125, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 125,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 125,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 555,
+    "wins": 82,
+    "losses": 473,
+    "draws": 0,
+    "winrate": 14.77,
+    "pnl_abs": 94587.9,
+    "pnl_pct": 945.879,
+    "profit_factor": 1.16,
+    "max_drawdown_abs": 104115.7,
+    "max_drawdown_pct": 1041.157,
+    "starting_balance": 10000.0,
+    "final_balance": 104587.9,
+    "stake_currency": "USD",
+    "gross_abs": 94587.9,
+    "volume_abs": 2392167.7,
+    "break_even_pct": 3.9541,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "91:24:00",
+    "exits": {
+     "stop_loss": {
+      "n": 473,
+      "pnl_abs": -592106.9
+     },
+     "take_profit": {
+      "n": 81,
+      "pnl_abs": 682524.8
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-18106e",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:47:25+00:00",
+   "finished": "2026-09-11T11:47:30+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=95, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 95,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 617,
+    "wins": 87,
+    "losses": 530,
+    "draws": 0,
+    "winrate": 14.1,
+    "pnl_abs": 164602.4,
+    "pnl_pct": 1646.024,
+    "profit_factor": 1.284,
+    "max_drawdown_abs": 43118.6,
+    "max_drawdown_pct": 431.186,
+    "starting_balance": 10000.0,
+    "final_balance": 174602.4,
+    "stake_currency": "USD",
+    "gross_abs": 164602.4,
+    "volume_abs": 2643993.81,
+    "break_even_pct": 6.2255,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "95:28:00",
+    "exits": {
+     "stop_loss": {
+      "n": 530,
+      "pnl_abs": -580530.8
+     },
+     "take_profit": {
+      "n": 86,
+      "pnl_abs": 738539.2
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 6594.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-188dde",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:47:55+00:00",
+   "finished": "2026-09-11T11:48:01+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=125, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 125,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 125,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 380,
+    "wins": 65,
+    "losses": 315,
+    "draws": 0,
+    "winrate": 17.11,
+    "pnl_abs": 396336.3,
+    "pnl_pct": 3963.363,
+    "profit_factor": 1.939,
+    "max_drawdown_abs": 77974.9,
+    "max_drawdown_pct": 779.749,
+    "starting_balance": 10000.0,
+    "final_balance": 406336.3,
+    "stake_currency": "USD",
+    "gross_abs": 396336.3,
+    "volume_abs": 1586417.92,
+    "break_even_pct": 24.9831,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "194:42:00",
+    "exits": {
+     "take_profit": {
+      "n": 64,
+      "pnl_abs": 814389.6
+     },
+     "stop_loss": {
+      "n": 315,
+      "pnl_abs": -422223.3
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.4
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-1b7f75",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:53:10+00:00",
+   "finished": "2026-09-11T11:53:16+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=65, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 65,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 65,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 947,
+    "wins": 277,
+    "losses": 670,
+    "draws": 0,
+    "winrate": 29.25,
+    "pnl_abs": -15319.8,
+    "pnl_pct": -153.198,
+    "profit_factor": 0.972,
+    "max_drawdown_abs": 70241.2,
+    "max_drawdown_pct": 702.412,
+    "starting_balance": 10000.0,
+    "final_balance": -5319.8,
+    "stake_currency": "USD",
+    "gross_abs": -15319.8,
+    "volume_abs": 4063507.33,
+    "break_even_pct": -0.377,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "22:22:00",
+    "exits": {
+     "stop_loss": {
+      "n": 669,
+      "pnl_abs": -537170.4
+     },
+     "take_profit": {
+      "n": 277,
+      "pnl_abs": 522384.6
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -534.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-1c7233",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:52:05+00:00",
+   "finished": "2026-09-11T11:52:10+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=125, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 125,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 125,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 477,
+    "wins": 77,
+    "losses": 400,
+    "draws": 0,
+    "winrate": 16.14,
+    "pnl_abs": 259458.0,
+    "pnl_pct": 2594.58,
+    "profit_factor": 1.514,
+    "max_drawdown_abs": 61595.7,
+    "max_drawdown_pct": 615.957,
+    "starting_balance": 10000.0,
+    "final_balance": 269458.0,
+    "stake_currency": "USD",
+    "gross_abs": 259458.0,
+    "volume_abs": 2047426.77,
+    "break_even_pct": 12.6724,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "122:18:00",
+    "exits": {
+     "stop_loss": {
+      "n": 400,
+      "pnl_abs": -504524.2
+     },
+     "take_profit": {
+      "n": 76,
+      "pnl_abs": 759812.2
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.3
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-1d44fa",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:50:02+00:00",
+   "finished": "2026-09-11T11:50:07+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=125, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 125,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 125,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 399,
+    "wins": 59,
+    "losses": 340,
+    "draws": 0,
+    "winrate": 14.79,
+    "pnl_abs": 339824.1,
+    "pnl_pct": 3398.241,
+    "profit_factor": 1.778,
+    "max_drawdown_abs": 51010.6,
+    "max_drawdown_pct": 510.106,
+    "starting_balance": 10000.0,
+    "final_balance": 349824.1,
+    "stake_currency": "USD",
+    "gross_abs": 339824.1,
+    "volume_abs": 1703284.8,
+    "break_even_pct": 19.9511,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "165:16:00",
+    "exits": {
+     "stop_loss": {
+      "n": 340,
+      "pnl_abs": -436924.7
+     },
+     "take_profit": {
+      "n": 58,
+      "pnl_abs": 772578.8
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.4
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-1dc34f",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:51:54+00:00",
+   "finished": "2026-09-11T11:52:00+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=125, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 125,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 125,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 778,
+    "wins": 233,
+    "losses": 545,
+    "draws": 0,
+    "winrate": 29.95,
+    "pnl_abs": 186466.4,
+    "pnl_pct": 1864.664,
+    "profit_factor": 1.283,
+    "max_drawdown_abs": 43027.3,
+    "max_drawdown_pct": 430.273,
+    "starting_balance": 10000.0,
+    "final_balance": 196466.4,
+    "stake_currency": "USD",
+    "gross_abs": 186466.4,
+    "volume_abs": 3336245.55,
+    "break_even_pct": 5.5891,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "45:10:00",
+    "exits": {
+     "take_profit": {
+      "n": 233,
+      "pnl_abs": 845714.4
+     },
+     "stop_loss": {
+      "n": 545,
+      "pnl_abs": -659248.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-1eb421",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:49:21+00:00",
+   "finished": "2026-09-11T11:49:25+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=95, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 95,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 865,
+    "wins": 254,
+    "losses": 611,
+    "draws": 0,
+    "winrate": 29.36,
+    "pnl_abs": 49556.8,
+    "pnl_pct": 495.568,
+    "profit_factor": 1.077,
+    "max_drawdown_abs": 33092.7,
+    "max_drawdown_pct": 330.927,
+    "starting_balance": 10000.0,
+    "final_balance": 59556.8,
+    "stake_currency": "USD",
+    "gross_abs": 49556.8,
+    "volume_abs": 3726570.48,
+    "break_even_pct": 1.3298,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "37:09:00",
+    "exits": {
+     "take_profit": {
+      "n": 254,
+      "pnl_abs": 692829.9
+     },
+     "stop_loss": {
+      "n": 611,
+      "pnl_abs": -643273.1
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-1fc851",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:46:54+00:00",
+   "finished": "2026-09-11T11:46:59+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=65, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 65,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 65,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 914,
+    "wins": 185,
+    "losses": 729,
+    "draws": 0,
+    "winrate": 20.24,
+    "pnl_abs": 179007.9,
+    "pnl_pct": 1790.079,
+    "profit_factor": 1.281,
+    "max_drawdown_abs": 42793.5,
+    "max_drawdown_pct": 427.935,
+    "starting_balance": 10000.0,
+    "final_balance": 189007.9,
+    "stake_currency": "USD",
+    "gross_abs": 179007.9,
+    "volume_abs": 3973860.06,
+    "break_even_pct": 4.5046,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "47:46:00",
+    "exits": {
+     "stop_loss": {
+      "n": 729,
+      "pnl_abs": -636911.6
+     },
+     "take_profit": {
+      "n": 184,
+      "pnl_abs": 809325.5
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 6594.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-20ca93",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:54:23+00:00",
+   "finished": "2026-09-11T11:54:28+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=5, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 5,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1111,
+    "wins": 723,
+    "losses": 388,
+    "draws": 0,
+    "winrate": 65.08,
+    "pnl_abs": -2706.3,
+    "pnl_pct": -27.063,
+    "profit_factor": 0.977,
+    "max_drawdown_abs": 8239.7,
+    "max_drawdown_pct": 82.397,
+    "starting_balance": 10000.0,
+    "final_balance": 7293.7,
+    "stake_currency": "USD",
+    "gross_abs": -2706.3,
+    "volume_abs": 4905266.24,
+    "break_even_pct": -0.0552,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "0:35:00",
+    "exits": {
+     "take_profit": {
+      "n": 723,
+      "pnl_abs": 116226.8
+     },
+     "stop_loss": {
+      "n": 388,
+      "pnl_abs": -118933.1
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 2,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-213c35",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:53:26+00:00",
+   "finished": "2026-09-11T11:53:31+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=65, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 65,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 65,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 699,
+    "wins": 86,
+    "losses": 613,
+    "draws": 0,
+    "winrate": 12.3,
+    "pnl_abs": 96402.0,
+    "pnl_pct": 964.02,
+    "profit_factor": 1.195,
+    "max_drawdown_abs": 63068.6,
+    "max_drawdown_pct": 630.686,
+    "starting_balance": 10000.0,
+    "final_balance": 106402.0,
+    "stake_currency": "USD",
+    "gross_abs": 96402.0,
+    "volume_abs": 3031335.41,
+    "break_even_pct": 3.1802,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "55:28:00",
+    "exits": {
+     "stop_loss": {
+      "n": 612,
+      "pnl_abs": -494226.5
+     },
+     "take_profit": {
+      "n": 86,
+      "pnl_abs": 591162.5
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -534.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-22a220",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:46:44+00:00",
+   "finished": "2026-09-11T11:46:49+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=65, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 65,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 65
+   },
+   "settings": {},
+   "result": {
+    "trades": 1415,
+    "wins": 970,
+    "losses": 445,
+    "draws": 0,
+    "winrate": 68.55,
+    "pnl_abs": 60316.4,
+    "pnl_pct": 603.164,
+    "profit_factor": 1.17,
+    "max_drawdown_abs": 17220.2,
+    "max_drawdown_pct": 172.202,
+    "starting_balance": 10000.0,
+    "final_balance": 70316.4,
+    "stake_currency": "USD",
+    "gross_abs": 60316.4,
+    "volume_abs": 5957058.95,
+    "break_even_pct": 1.0125,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "4:25:00",
+    "exits": {
+     "stop_loss": {
+      "n": 445,
+      "pnl_abs": -355083.1
+     },
+     "take_profit": {
+      "n": 970,
+      "pnl_abs": 415399.5
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-26e78e",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:47:35+00:00",
+   "finished": "2026-09-11T11:47:40+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=125, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 125,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 125
+   },
+   "settings": {},
+   "result": {
+    "trades": 1348,
+    "wins": 915,
+    "losses": 433,
+    "draws": 0,
+    "winrate": 67.88,
+    "pnl_abs": 43946.2,
+    "pnl_pct": 439.462,
+    "profit_factor": 1.078,
+    "max_drawdown_abs": 33909.5,
+    "max_drawdown_pct": 339.095,
+    "starting_balance": 10000.0,
+    "final_balance": 53946.2,
+    "stake_currency": "USD",
+    "gross_abs": 43946.2,
+    "volume_abs": 5661476.17,
+    "break_even_pct": 0.7762,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "11:15:00",
+    "exits": {
+     "take_profit": {
+      "n": 915,
+      "pnl_abs": 605128.2
+     },
+     "stop_loss": {
+      "n": 433,
+      "pnl_abs": -561182.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-27aec5",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:56:05+00:00",
+   "finished": "2026-09-11T11:56:10+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=125, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 125,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 125
+   },
+   "settings": {},
+   "result": {
+    "trades": 1068,
+    "wins": 724,
+    "losses": 344,
+    "draws": 0,
+    "winrate": 67.79,
+    "pnl_abs": 24088.9,
+    "pnl_pct": 240.889,
+    "profit_factor": 1.057,
+    "max_drawdown_abs": 37470.2,
+    "max_drawdown_pct": 374.702,
+    "starting_balance": 10000.0,
+    "final_balance": 34088.9,
+    "stake_currency": "USD",
+    "gross_abs": 24088.9,
+    "volume_abs": 4611308.15,
+    "break_even_pct": 0.5224,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "10:41:00",
+    "exits": {
+     "stop_loss": {
+      "n": 343,
+      "pnl_abs": -419005.1
+     },
+     "take_profit": {
+      "n": 724,
+      "pnl_abs": 445478.0
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -2384.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-280864",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:54:43+00:00",
+   "finished": "2026-09-11T11:54:48+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=5, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 5,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 5,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1000,
+    "wins": 95,
+    "losses": 905,
+    "draws": 0,
+    "winrate": 9.5,
+    "pnl_abs": -66896.1,
+    "pnl_pct": -668.961,
+    "profit_factor": 0.775,
+    "max_drawdown_abs": 93599.1,
+    "max_drawdown_pct": 935.991,
+    "starting_balance": 10000.0,
+    "final_balance": -56896.1,
+    "stake_currency": "USD",
+    "gross_abs": -66896.1,
+    "volume_abs": 4443417.59,
+    "break_even_pct": -1.5055,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "15:12:00",
+    "exits": {
+     "stop_loss": {
+      "n": 905,
+      "pnl_abs": -297275.5
+     },
+     "take_profit": {
+      "n": 95,
+      "pnl_abs": 230379.4
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-2bc89a",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:47:45+00:00",
+   "finished": "2026-09-11T11:47:50+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=125, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 125,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 125,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 603,
+    "wins": 117,
+    "losses": 486,
+    "draws": 0,
+    "winrate": 19.4,
+    "pnl_abs": 178027.2,
+    "pnl_pct": 1780.272,
+    "profit_factor": 1.276,
+    "max_drawdown_abs": 48437.2,
+    "max_drawdown_pct": 484.372,
+    "starting_balance": 10000.0,
+    "final_balance": 188027.2,
+    "stake_currency": "USD",
+    "gross_abs": 178027.2,
+    "volume_abs": 2570815.13,
+    "break_even_pct": 6.9249,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "100:54:00",
+    "exits": {
+     "take_profit": {
+      "n": 116,
+      "pnl_abs": 817490.2
+     },
+     "stop_loss": {
+      "n": 486,
+      "pnl_abs": -646057.0
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 6594.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.3
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-2c14ed",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:49:41+00:00",
+   "finished": "2026-09-11T11:49:46+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=125, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 125,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 125
+   },
+   "settings": {},
+   "result": {
+    "trades": 1087,
+    "wins": 741,
+    "losses": 346,
+    "draws": 0,
+    "winrate": 68.17,
+    "pnl_abs": 25422.2,
+    "pnl_pct": 254.222,
+    "profit_factor": 1.057,
+    "max_drawdown_abs": 32382.7,
+    "max_drawdown_pct": 323.827,
+    "starting_balance": 10000.0,
+    "final_balance": 35422.2,
+    "stake_currency": "USD",
+    "gross_abs": 25422.2,
+    "volume_abs": 4621691.25,
+    "break_even_pct": 0.5501,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "10:17:00",
+    "exits": {
+     "take_profit": {
+      "n": 741,
+      "pnl_abs": 467639.2
+     },
+     "stop_loss": {
+      "n": 346,
+      "pnl_abs": -442217.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-2da7f5",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:55:54+00:00",
+   "finished": "2026-09-11T11:56:00+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=95, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 95,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 633,
+    "wins": 96,
+    "losses": 537,
+    "draws": 0,
+    "winrate": 15.17,
+    "pnl_abs": 84333.0,
+    "pnl_pct": 843.33,
+    "profit_factor": 1.151,
+    "max_drawdown_abs": 42723.0,
+    "max_drawdown_pct": 427.23,
+    "starting_balance": 10000.0,
+    "final_balance": 94333.0,
+    "stake_currency": "USD",
+    "gross_abs": 84333.0,
+    "volume_abs": 2780935.45,
+    "break_even_pct": 3.0325,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "75:25:00",
+    "exits": {
+     "stop_loss": {
+      "n": 537,
+      "pnl_abs": -557766.3
+     },
+     "take_profit": {
+      "n": 95,
+      "pnl_abs": 637929.3
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.3
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-2ec808",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:46:19+00:00",
+   "finished": "2026-09-11T11:46:24+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=35, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 35,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 35
+   },
+   "settings": {},
+   "result": {
+    "trades": 1432,
+    "wins": 958,
+    "losses": 474,
+    "draws": 0,
+    "winrate": 66.9,
+    "pnl_abs": 11954.1,
+    "pnl_pct": 119.541,
+    "profit_factor": 1.043,
+    "max_drawdown_abs": 20654.0,
+    "max_drawdown_pct": 206.54,
+    "starting_balance": 10000.0,
+    "final_balance": 21954.1,
+    "stake_currency": "USD",
+    "gross_abs": 11954.1,
+    "volume_abs": 6026083.87,
+    "break_even_pct": 0.1984,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "2:09:00",
+    "exits": {
+     "stop_loss": {
+      "n": 474,
+      "pnl_abs": -279065.1
+     },
+     "take_profit": {
+      "n": 958,
+      "pnl_abs": 291019.2
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.6
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-2f1781",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:46:14+00:00",
+   "finished": "2026-09-11T11:46:19+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=5, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 5,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 5,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1122,
+    "wins": 128,
+    "losses": 994,
+    "draws": 0,
+    "winrate": 11.41,
+    "pnl_abs": 80847.3,
+    "pnl_pct": 808.473,
+    "profit_factor": 1.219,
+    "max_drawdown_abs": 29557.8,
+    "max_drawdown_pct": 295.578,
+    "starting_balance": 10000.0,
+    "final_balance": 90847.3,
+    "stake_currency": "USD",
+    "gross_abs": 80847.3,
+    "volume_abs": 4912083.08,
+    "break_even_pct": 1.6459,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "24:48:00",
+    "exits": {
+     "stop_loss": {
+      "n": 994,
+      "pnl_abs": -368785.0
+     },
+     "take_profit": {
+      "n": 127,
+      "pnl_abs": 443038.3
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 6594.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-33b699",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:46:00+00:00",
+   "finished": "2026-09-11T11:46:04+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=5, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 5,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 5,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1373,
+    "wins": 382,
+    "losses": 991,
+    "draws": 0,
+    "winrate": 27.82,
+    "pnl_abs": 12087.8,
+    "pnl_pct": 120.878,
+    "profit_factor": 1.033,
+    "max_drawdown_abs": 40675.9,
+    "max_drawdown_pct": 406.759,
+    "starting_balance": 10000.0,
+    "final_balance": 22087.8,
+    "stake_currency": "USD",
+    "gross_abs": 12087.8,
+    "volume_abs": 5920979.3,
+    "break_even_pct": 0.2042,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "6:11:00",
+    "exits": {
+     "stop_loss": {
+      "n": 991,
+      "pnl_abs": -363834.2
+     },
+     "take_profit": {
+      "n": 382,
+      "pnl_abs": 375922.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-33d5ad",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:51:28+00:00",
+   "finished": "2026-09-11T11:51:33+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=95, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 95,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 843,
+    "wins": 243,
+    "losses": 600,
+    "draws": 0,
+    "winrate": 28.83,
+    "pnl_abs": 106662.2,
+    "pnl_pct": 1066.622,
+    "profit_factor": 1.178,
+    "max_drawdown_abs": 52631.7,
+    "max_drawdown_pct": 526.317,
+    "starting_balance": 10000.0,
+    "final_balance": 116662.2,
+    "stake_currency": "USD",
+    "gross_abs": 106662.2,
+    "volume_abs": 3626743.61,
+    "break_even_pct": 2.941,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "35:19:00",
+    "exits": {
+     "take_profit": {
+      "n": 243,
+      "pnl_abs": 705001.1
+     },
+     "stop_loss": {
+      "n": 599,
+      "pnl_abs": -597804.9
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -534.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-355b4d",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:54:38+00:00",
+   "finished": "2026-09-11T11:54:43+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=5, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 5,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 5,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1053,
+    "wins": 126,
+    "losses": 927,
+    "draws": 0,
+    "winrate": 11.97,
+    "pnl_abs": -74013.6,
+    "pnl_pct": -740.136,
+    "profit_factor": 0.756,
+    "max_drawdown_abs": 93422.1,
+    "max_drawdown_pct": 934.221,
+    "starting_balance": 10000.0,
+    "final_balance": -64013.6,
+    "stake_currency": "USD",
+    "gross_abs": -74013.6,
+    "volume_abs": 4658456.43,
+    "break_even_pct": -1.5888,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "11:12:00",
+    "exits": {
+     "stop_loss": {
+      "n": 927,
+      "pnl_abs": -303160.9
+     },
+     "take_profit": {
+      "n": 126,
+      "pnl_abs": 229147.3
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-377b96",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:53:41+00:00",
+   "finished": "2026-09-11T11:53:46+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=95, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 95,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 727,
+    "wins": 145,
+    "losses": 582,
+    "draws": 0,
+    "winrate": 19.94,
+    "pnl_abs": 31948.0,
+    "pnl_pct": 319.48,
+    "profit_factor": 1.052,
+    "max_drawdown_abs": 58629.1,
+    "max_drawdown_pct": 586.291,
+    "starting_balance": 10000.0,
+    "final_balance": 41948.0,
+    "stake_currency": "USD",
+    "gross_abs": 31948.0,
+    "volume_abs": 3179205.95,
+    "break_even_pct": 1.0049,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "53:44:00",
+    "exits": {
+     "stop_loss": {
+      "n": 582,
+      "pnl_abs": -618944.0
+     },
+     "take_profit": {
+      "n": 144,
+      "pnl_abs": 646722.0
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-399aac",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:49:00+00:00",
+   "finished": "2026-09-11T11:49:05+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=65, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 65,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 65,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 852,
+    "wins": 161,
+    "losses": 691,
+    "draws": 0,
+    "winrate": 18.9,
+    "pnl_abs": 58727.9,
+    "pnl_pct": 587.279,
+    "profit_factor": 1.103,
+    "max_drawdown_abs": 44565.7,
+    "max_drawdown_pct": 445.657,
+    "starting_balance": 10000.0,
+    "final_balance": 68727.9,
+    "stake_currency": "USD",
+    "gross_abs": 58727.9,
+    "volume_abs": 3689178.63,
+    "break_even_pct": 1.5919,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "36:21:00",
+    "exits": {
+     "stop_loss": {
+      "n": 691,
+      "pnl_abs": -567930.3
+     },
+     "take_profit": {
+      "n": 161,
+      "pnl_abs": 626658.2
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-3b2a1d",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:56:56+00:00",
+   "finished": "2026-09-11T11:57:34+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=125, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 125,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 125,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 534,
+    "wins": 83,
+    "losses": 451,
+    "draws": 0,
+    "winrate": 15.54,
+    "pnl_abs": 154398.4,
+    "pnl_pct": 1543.984,
+    "profit_factor": 1.269,
+    "max_drawdown_abs": 65697.9,
+    "max_drawdown_pct": 656.979,
+    "starting_balance": 10000.0,
+    "final_balance": 164398.4,
+    "stake_currency": "USD",
+    "gross_abs": 154398.4,
+    "volume_abs": 2301734.79,
+    "break_even_pct": 6.7079,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "101:59:00",
+    "exits": {
+     "stop_loss": {
+      "n": 451,
+      "pnl_abs": -573660.2
+     },
+     "take_profit": {
+      "n": 82,
+      "pnl_abs": 723888.6
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 37.3
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-3cbdaa",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:51:49+00:00",
+   "finished": "2026-09-11T11:51:54+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=125, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 125,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 125
+   },
+   "settings": {},
+   "result": {
+    "trades": 1039,
+    "wins": 707,
+    "losses": 332,
+    "draws": 0,
+    "winrate": 68.05,
+    "pnl_abs": 58662.6,
+    "pnl_pct": 586.626,
+    "profit_factor": 1.149,
+    "max_drawdown_abs": 22159.0,
+    "max_drawdown_pct": 221.59,
+    "starting_balance": 10000.0,
+    "final_balance": 68662.6,
+    "stake_currency": "USD",
+    "gross_abs": 58662.6,
+    "volume_abs": 4413075.44,
+    "break_even_pct": 1.3293,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "9:56:00",
+    "exits": {
+     "take_profit": {
+      "n": 707,
+      "pnl_abs": 451590.3
+     },
+     "stop_loss": {
+      "n": 332,
+      "pnl_abs": -392927.7
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-3d8a46",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:48:25+00:00",
+   "finished": "2026-09-11T11:48:30+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=35, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 35,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 35
+   },
+   "settings": {},
+   "result": {
+    "trades": 1131,
+    "wins": 744,
+    "losses": 387,
+    "draws": 0,
+    "winrate": 65.78,
+    "pnl_abs": -10532.5,
+    "pnl_pct": -105.325,
+    "profit_factor": 0.952,
+    "max_drawdown_abs": 22086.9,
+    "max_drawdown_pct": 220.869,
+    "starting_balance": 10000.0,
+    "final_balance": -532.5,
+    "stake_currency": "USD",
+    "gross_abs": -10532.5,
+    "volume_abs": 4800175.45,
+    "break_even_pct": -0.2194,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "1:45:00",
+    "exits": {
+     "stop_loss": {
+      "n": 387,
+      "pnl_abs": -218238.5
+     },
+     "take_profit": {
+      "n": 744,
+      "pnl_abs": 207706.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-4238fc",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:54:58+00:00",
+   "finished": "2026-09-11T11:55:03+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=35, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 35,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 35,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 997,
+    "wins": 185,
+    "losses": 812,
+    "draws": 0,
+    "winrate": 18.56,
+    "pnl_abs": 12446.8,
+    "pnl_pct": 124.468,
+    "profit_factor": 1.028,
+    "max_drawdown_abs": 49166.7,
+    "max_drawdown_pct": 491.667,
+    "starting_balance": 10000.0,
+    "final_balance": 22446.8,
+    "stake_currency": "USD",
+    "gross_abs": 12446.8,
+    "volume_abs": 4314026.84,
+    "break_even_pct": 0.2885,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "18:25:00",
+    "exits": {
+     "stop_loss": {
+      "n": 812,
+      "pnl_abs": -447328.1
+     },
+     "take_profit": {
+      "n": 185,
+      "pnl_abs": 459774.9
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-433bb7",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:55:49+00:00",
+   "finished": "2026-09-11T11:55:54+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=95, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 95,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 733,
+    "wins": 159,
+    "losses": 574,
+    "draws": 0,
+    "winrate": 21.69,
+    "pnl_abs": 114600.2,
+    "pnl_pct": 1146.002,
+    "profit_factor": 1.192,
+    "max_drawdown_abs": 54691.7,
+    "max_drawdown_pct": 546.917,
+    "starting_balance": 10000.0,
+    "final_balance": 124600.2,
+    "stake_currency": "USD",
+    "gross_abs": 114600.2,
+    "volume_abs": 3201925.55,
+    "break_even_pct": 3.5791,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "55:13:00",
+    "exits": {
+     "stop_loss": {
+      "n": 574,
+      "pnl_abs": -597256.3
+     },
+     "take_profit": {
+      "n": 158,
+      "pnl_abs": 707686.5
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.3
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-43b29f",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:51:23+00:00",
+   "finished": "2026-09-11T11:51:28+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=95, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 95,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24
+   },
+   "settings": {},
+   "result": {
+    "trades": 1054,
+    "wins": 714,
+    "losses": 340,
+    "draws": 0,
+    "winrate": 67.74,
+    "pnl_abs": 46504.7,
+    "pnl_pct": 465.047,
+    "profit_factor": 1.143,
+    "max_drawdown_abs": 21677.8,
+    "max_drawdown_pct": 216.778,
+    "starting_balance": 10000.0,
+    "final_balance": 56504.7,
+    "stake_currency": "USD",
+    "gross_abs": 46504.7,
+    "volume_abs": 4482472.11,
+    "break_even_pct": 1.0375,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "7:07:00",
+    "exits": {
+     "take_profit": {
+      "n": 714,
+      "pnl_abs": 372601.0
+     },
+     "stop_loss": {
+      "n": 340,
+      "pnl_abs": -326096.3
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-47e7cd",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:54:18+00:00",
+   "finished": "2026-09-11T11:54:23+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=125, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 125,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 125,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 483,
+    "wins": 60,
+    "losses": 423,
+    "draws": 0,
+    "winrate": 12.42,
+    "pnl_abs": 188423.0,
+    "pnl_pct": 1884.23,
+    "profit_factor": 1.356,
+    "max_drawdown_abs": 96580.7,
+    "max_drawdown_pct": 965.807,
+    "starting_balance": 10000.0,
+    "final_balance": 198423.0,
+    "stake_currency": "USD",
+    "gross_abs": 188423.0,
+    "volume_abs": 2088627.66,
+    "break_even_pct": 9.0214,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "118:41:00",
+    "exits": {
+     "stop_loss": {
+      "n": 423,
+      "pnl_abs": -529712.1
+     },
+     "take_profit": {
+      "n": 59,
+      "pnl_abs": 713965.1
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.4
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-4a79f7",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:54:33+00:00",
+   "finished": "2026-09-11T11:54:38+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=5, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 5,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 5,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1075,
+    "wins": 180,
+    "losses": 895,
+    "draws": 0,
+    "winrate": 16.74,
+    "pnl_abs": -70982.5,
+    "pnl_pct": -709.825,
+    "profit_factor": 0.758,
+    "max_drawdown_abs": 77439.1,
+    "max_drawdown_pct": 774.391,
+    "starting_balance": 10000.0,
+    "final_balance": -60982.5,
+    "stake_currency": "USD",
+    "gross_abs": -70982.5,
+    "volume_abs": 4750101.66,
+    "break_even_pct": -1.4943,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "9:16:00",
+    "exits": {
+     "stop_loss": {
+      "n": 895,
+      "pnl_abs": -293125.3
+     },
+     "take_profit": {
+      "n": 180,
+      "pnl_abs": 222142.8
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-4d30e5",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:52:16+00:00",
+   "finished": "2026-09-11T11:52:20+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=5, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 5,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1085,
+    "wins": 690,
+    "losses": 395,
+    "draws": 0,
+    "winrate": 63.59,
+    "pnl_abs": -1412.3,
+    "pnl_pct": -14.123,
+    "profit_factor": 0.988,
+    "max_drawdown_abs": 11851.9,
+    "max_drawdown_pct": 118.519,
+    "starting_balance": 10000.0,
+    "final_balance": 8587.7,
+    "stake_currency": "USD",
+    "gross_abs": -1412.3,
+    "volume_abs": 4769240.73,
+    "break_even_pct": -0.0296,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "0:29:00",
+    "exits": {
+     "take_profit": {
+      "n": 690,
+      "pnl_abs": 114614.2
+     },
+     "stop_loss": {
+      "n": 395,
+      "pnl_abs": -116026.5
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 2,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-4fe1b4",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:50:17+00:00",
+   "finished": "2026-09-11T11:50:22+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=5, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 5,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 5,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1035,
+    "wins": 166,
+    "losses": 869,
+    "draws": 0,
+    "winrate": 16.04,
+    "pnl_abs": -14945.2,
+    "pnl_pct": -149.452,
+    "profit_factor": 0.945,
+    "max_drawdown_abs": 43641.4,
+    "max_drawdown_pct": 436.414,
+    "starting_balance": 10000.0,
+    "final_balance": -4945.2,
+    "stake_currency": "USD",
+    "gross_abs": -14945.2,
+    "volume_abs": 4528188.64,
+    "break_even_pct": -0.33,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "6:42:00",
+    "exits": {
+     "stop_loss": {
+      "n": 869,
+      "pnl_abs": -272953.8
+     },
+     "take_profit": {
+      "n": 166,
+      "pnl_abs": 258008.6
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-500dec",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:51:44+00:00",
+   "finished": "2026-09-11T11:51:49+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=95, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 95,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 483,
+    "wins": 65,
+    "losses": 418,
+    "draws": 0,
+    "winrate": 13.46,
+    "pnl_abs": 234780.9,
+    "pnl_pct": 2347.809,
+    "profit_factor": 1.554,
+    "max_drawdown_abs": 57836.1,
+    "max_drawdown_pct": 578.361,
+    "starting_balance": 10000.0,
+    "final_balance": 244780.9,
+    "stake_currency": "USD",
+    "gross_abs": 234780.9,
+    "volume_abs": 2058586.56,
+    "break_even_pct": 11.405,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "116:59:00",
+    "exits": {
+     "stop_loss": {
+      "n": 418,
+      "pnl_abs": -423927.3
+     },
+     "take_profit": {
+      "n": 64,
+      "pnl_abs": 654538.2
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.3
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-51a02c",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:53:05+00:00",
+   "finished": "2026-09-11T11:53:10+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=65, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 65,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 65
+   },
+   "settings": {},
+   "result": {
+    "trades": 1078,
+    "wins": 727,
+    "losses": 351,
+    "draws": 0,
+    "winrate": 67.44,
+    "pnl_abs": 14271.4,
+    "pnl_pct": 142.714,
+    "profit_factor": 1.052,
+    "max_drawdown_abs": 27250.5,
+    "max_drawdown_pct": 272.505,
+    "starting_balance": 10000.0,
+    "final_balance": 24271.4,
+    "stake_currency": "USD",
+    "gross_abs": 14271.4,
+    "volume_abs": 4618123.4,
+    "break_even_pct": 0.309,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "4:13:00",
+    "exits": {
+     "stop_loss": {
+      "n": 351,
+      "pnl_abs": -271946.5
+     },
+     "take_profit": {
+      "n": 727,
+      "pnl_abs": 286217.9
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-528ab5",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:52:30+00:00",
+   "finished": "2026-09-11T11:52:35+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=5, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 5,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 5,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1031,
+    "wins": 133,
+    "losses": 898,
+    "draws": 0,
+    "winrate": 12.9,
+    "pnl_abs": -38432.0,
+    "pnl_pct": -384.32,
+    "profit_factor": 0.867,
+    "max_drawdown_abs": 55865.1,
+    "max_drawdown_pct": 558.651,
+    "starting_balance": 10000.0,
+    "final_balance": -28432.0,
+    "stake_currency": "USD",
+    "gross_abs": -38432.0,
+    "volume_abs": 4532978.58,
+    "break_even_pct": -0.8478,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "7:57:00",
+    "exits": {
+     "stop_loss": {
+      "n": 898,
+      "pnl_abs": -289604.0
+     },
+     "take_profit": {
+      "n": 133,
+      "pnl_abs": 251172.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-5b0533",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:49:51+00:00",
+   "finished": "2026-09-11T11:49:56+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=125, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 125,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 125,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 589,
+    "wins": 127,
+    "losses": 462,
+    "draws": 0,
+    "winrate": 21.56,
+    "pnl_abs": 196447.2,
+    "pnl_pct": 1964.472,
+    "profit_factor": 1.322,
+    "max_drawdown_abs": 52510.1,
+    "max_drawdown_pct": 525.101,
+    "starting_balance": 10000.0,
+    "final_balance": 206447.2,
+    "stake_currency": "USD",
+    "gross_abs": 196447.2,
+    "volume_abs": 2559757.99,
+    "break_even_pct": 7.6744,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "88:05:00",
+    "exits": {
+     "stop_loss": {
+      "n": 462,
+      "pnl_abs": -611010.6
+     },
+     "take_profit": {
+      "n": 126,
+      "pnl_abs": 803287.8
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.3
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-5ec542",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:49:46+00:00",
+   "finished": "2026-09-11T11:49:51+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=125, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 125,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 125,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 780,
+    "wins": 238,
+    "losses": 542,
+    "draws": 0,
+    "winrate": 30.51,
+    "pnl_abs": 164566.7,
+    "pnl_pct": 1645.667,
+    "profit_factor": 1.239,
+    "max_drawdown_abs": 33037.9,
+    "max_drawdown_pct": 330.379,
+    "starting_balance": 10000.0,
+    "final_balance": 174566.7,
+    "stake_currency": "USD",
+    "gross_abs": 164566.7,
+    "volume_abs": 3375185.24,
+    "break_even_pct": 4.8758,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "48:32:00",
+    "exits": {
+     "take_profit": {
+      "n": 238,
+      "pnl_abs": 852237.1
+     },
+     "stop_loss": {
+      "n": 542,
+      "pnl_abs": -687670.4
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-5fde16",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:48:20+00:00",
+   "finished": "2026-09-11T11:48:25+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=5, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 5,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 5,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 995,
+    "wins": 109,
+    "losses": 886,
+    "draws": 0,
+    "winrate": 10.95,
+    "pnl_abs": 5552.6,
+    "pnl_pct": 55.526,
+    "profit_factor": 1.019,
+    "max_drawdown_abs": 32623.2,
+    "max_drawdown_pct": 326.232,
+    "starting_balance": 10000.0,
+    "final_balance": 15552.6,
+    "stake_currency": "USD",
+    "gross_abs": 5552.6,
+    "volume_abs": 4386974.57,
+    "break_even_pct": 0.1266,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "14:01:00",
+    "exits": {
+     "stop_loss": {
+      "n": 886,
+      "pnl_abs": -300091.0
+     },
+     "take_profit": {
+      "n": 109,
+      "pnl_abs": 305643.6
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-60d729",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:53:36+00:00",
+   "finished": "2026-09-11T11:53:41+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=95, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 95,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 864,
+    "wins": 253,
+    "losses": 611,
+    "draws": 0,
+    "winrate": 29.28,
+    "pnl_abs": 17498.5,
+    "pnl_pct": 174.985,
+    "profit_factor": 1.028,
+    "max_drawdown_abs": 38731.2,
+    "max_drawdown_pct": 387.312,
+    "starting_balance": 10000.0,
+    "final_balance": 27498.5,
+    "stake_currency": "USD",
+    "gross_abs": 17498.5,
+    "volume_abs": 3729793.82,
+    "break_even_pct": 0.4692,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "32:35:00",
+    "exits": {
+     "take_profit": {
+      "n": 253,
+      "pnl_abs": 646916.2
+     },
+     "stop_loss": {
+      "n": 610,
+      "pnl_abs": -628883.7
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -534.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-61a417",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:55:23+00:00",
+   "finished": "2026-09-11T11:55:28+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=65, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 65,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 65,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 880,
+    "wins": 170,
+    "losses": 710,
+    "draws": 0,
+    "winrate": 19.32,
+    "pnl_abs": 31953.4,
+    "pnl_pct": 319.534,
+    "profit_factor": 1.057,
+    "max_drawdown_abs": 51742.7,
+    "max_drawdown_pct": 517.427,
+    "starting_balance": 10000.0,
+    "final_balance": 41953.4,
+    "stake_currency": "USD",
+    "gross_abs": 31953.4,
+    "volume_abs": 3796007.39,
+    "break_even_pct": 0.8418,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "31:41:00",
+    "exits": {
+     "stop_loss": {
+      "n": 709,
+      "pnl_abs": -556394.8
+     },
+     "take_profit": {
+      "n": 170,
+      "pnl_abs": 590732.2
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -2384.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-62a040",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:57:35+00:00",
+   "finished": "2026-09-11T11:58:15+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=125, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 125,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 125,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 458,
+    "wins": 65,
+    "losses": 393,
+    "draws": 0,
+    "winrate": 14.19,
+    "pnl_abs": 272780.6,
+    "pnl_pct": 2727.806,
+    "profit_factor": 1.542,
+    "max_drawdown_abs": 58278.4,
+    "max_drawdown_pct": 582.784,
+    "starting_balance": 10000.0,
+    "final_balance": 282780.6,
+    "stake_currency": "USD",
+    "gross_abs": 272780.6,
+    "volume_abs": 1954954.25,
+    "break_even_pct": 13.9533,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "134:24:00",
+    "exits": {
+     "stop_loss": {
+      "n": 393,
+      "pnl_abs": -503067.7
+     },
+     "take_profit": {
+      "n": 64,
+      "pnl_abs": 771678.3
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 40.4
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-67a7e7",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:48:15+00:00",
+   "finished": "2026-09-11T11:48:20+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=5, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 5,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 5,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1049,
+    "wins": 146,
+    "losses": 903,
+    "draws": 0,
+    "winrate": 13.92,
+    "pnl_abs": 1782.8,
+    "pnl_pct": 17.828,
+    "profit_factor": 1.006,
+    "max_drawdown_abs": 43544.5,
+    "max_drawdown_pct": 435.445,
+    "starting_balance": 10000.0,
+    "final_balance": 11782.8,
+    "stake_currency": "USD",
+    "gross_abs": 1782.8,
+    "volume_abs": 4613489.76,
+    "break_even_pct": 0.0386,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "9:10:00",
+    "exits": {
+     "stop_loss": {
+      "n": 903,
+      "pnl_abs": -305385.3
+     },
+     "take_profit": {
+      "n": 146,
+      "pnl_abs": 307168.1
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-6ba2b5",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:52:26+00:00",
+   "finished": "2026-09-11T11:52:30+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=5, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 5,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 5,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1055,
+    "wins": 175,
+    "losses": 880,
+    "draws": 0,
+    "winrate": 16.59,
+    "pnl_abs": -61373.7,
+    "pnl_pct": -613.737,
+    "profit_factor": 0.784,
+    "max_drawdown_abs": 70171.8,
+    "max_drawdown_pct": 701.718,
+    "starting_balance": 10000.0,
+    "final_balance": -51373.7,
+    "stake_currency": "USD",
+    "gross_abs": -61373.7,
+    "volume_abs": 4637492.58,
+    "break_even_pct": -1.3234,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "5:53:00",
+    "exits": {
+     "stop_loss": {
+      "n": 880,
+      "pnl_abs": -283997.0
+     },
+     "take_profit": {
+      "n": 175,
+      "pnl_abs": 222623.3
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-6d07a0",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:46:09+00:00",
+   "finished": "2026-09-11T11:46:14+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=5, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 5,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 5,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1194,
+    "wins": 164,
+    "losses": 1030,
+    "draws": 0,
+    "winrate": 13.74,
+    "pnl_abs": 33240.5,
+    "pnl_pct": 332.405,
+    "profit_factor": 1.086,
+    "max_drawdown_abs": 40220.6,
+    "max_drawdown_pct": 402.206,
+    "starting_balance": 10000.0,
+    "final_balance": 43240.5,
+    "stake_currency": "USD",
+    "gross_abs": 33240.5,
+    "volume_abs": 5212980.64,
+    "break_even_pct": 0.6376,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "16:08:00",
+    "exits": {
+     "stop_loss": {
+      "n": 1030,
+      "pnl_abs": -384415.0
+     },
+     "take_profit": {
+      "n": 163,
+      "pnl_abs": 411061.5
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 6594.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-70485f",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:46:34+00:00",
+   "finished": "2026-09-11T11:46:39+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=35, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 35,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 35,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1006,
+    "wins": 148,
+    "losses": 858,
+    "draws": 0,
+    "winrate": 14.71,
+    "pnl_abs": 174394.1,
+    "pnl_pct": 1743.941,
+    "profit_factor": 1.328,
+    "max_drawdown_abs": 25224.2,
+    "max_drawdown_pct": 252.242,
+    "starting_balance": 10000.0,
+    "final_balance": 184394.1,
+    "stake_currency": "USD",
+    "gross_abs": 174394.1,
+    "volume_abs": 4328631.69,
+    "break_even_pct": 4.0289,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "36:59:00",
+    "exits": {
+     "stop_loss": {
+      "n": 858,
+      "pnl_abs": -532024.3
+     },
+     "take_profit": {
+      "n": 147,
+      "pnl_abs": 699824.4
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 6594.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-744eeb",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:49:31+00:00",
+   "finished": "2026-09-11T11:49:36+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=95, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 95,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 584,
+    "wins": 88,
+    "losses": 496,
+    "draws": 0,
+    "winrate": 15.07,
+    "pnl_abs": 113839.9,
+    "pnl_pct": 1138.399,
+    "profit_factor": 1.22,
+    "max_drawdown_abs": 56726.6,
+    "max_drawdown_pct": 567.266,
+    "starting_balance": 10000.0,
+    "final_balance": 123839.9,
+    "stake_currency": "USD",
+    "gross_abs": 113839.9,
+    "volume_abs": 2492345.09,
+    "break_even_pct": 4.5676,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "87:27:00",
+    "exits": {
+     "stop_loss": {
+      "n": 496,
+      "pnl_abs": -518377.8
+     },
+     "take_profit": {
+      "n": 87,
+      "pnl_abs": 628047.7
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-7497c5",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:50:37+00:00",
+   "finished": "2026-09-11T11:50:42+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=35, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 35,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 35,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1023,
+    "wins": 298,
+    "losses": 725,
+    "draws": 0,
+    "winrate": 29.13,
+    "pnl_abs": 25163.4,
+    "pnl_pct": 251.634,
+    "profit_factor": 1.064,
+    "max_drawdown_abs": 51007.8,
+    "max_drawdown_pct": 510.078,
+    "starting_balance": 10000.0,
+    "final_balance": 35163.4,
+    "stake_currency": "USD",
+    "gross_abs": 25163.4,
+    "volume_abs": 4348941.29,
+    "break_even_pct": 0.5786,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "9:35:00",
+    "exits": {
+     "stop_loss": {
+      "n": 725,
+      "pnl_abs": -396143.9
+     },
+     "take_profit": {
+      "n": 298,
+      "pnl_abs": 421307.3
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-757726",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:49:10+00:00",
+   "finished": "2026-09-11T11:49:15+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=65, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 65,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 65,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 670,
+    "wins": 76,
+    "losses": 594,
+    "draws": 0,
+    "winrate": 11.34,
+    "pnl_abs": 82267.0,
+    "pnl_pct": 822.67,
+    "profit_factor": 1.168,
+    "max_drawdown_abs": 51153.5,
+    "max_drawdown_pct": 511.535,
+    "starting_balance": 10000.0,
+    "final_balance": 92267.0,
+    "stake_currency": "USD",
+    "gross_abs": 82267.0,
+    "volume_abs": 2897309.78,
+    "break_even_pct": 2.8394,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "66:07:00",
+    "exits": {
+     "stop_loss": {
+      "n": 594,
+      "pnl_abs": -490715.6
+     },
+     "take_profit": {
+      "n": 76,
+      "pnl_abs": 572982.6
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-75e11b",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:55:03+00:00",
+   "finished": "2026-09-11T11:55:08+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=35, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 35,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 35,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 945,
+    "wins": 131,
+    "losses": 814,
+    "draws": 0,
+    "winrate": 13.86,
+    "pnl_abs": 38253.6,
+    "pnl_pct": 382.536,
+    "profit_factor": 1.086,
+    "max_drawdown_abs": 37377.8,
+    "max_drawdown_pct": 373.778,
+    "starting_balance": 10000.0,
+    "final_balance": 48253.6,
+    "stake_currency": "USD",
+    "gross_abs": 38253.6,
+    "volume_abs": 4075689.37,
+    "break_even_pct": 0.9386,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "23:23:00",
+    "exits": {
+     "stop_loss": {
+      "n": 814,
+      "pnl_abs": -445903.0
+     },
+     "take_profit": {
+      "n": 131,
+      "pnl_abs": 484156.6
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-77daa3",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:50:22+00:00",
+   "finished": "2026-09-11T11:50:27+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=5, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 5,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 5,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1001,
+    "wins": 130,
+    "losses": 871,
+    "draws": 0,
+    "winrate": 12.99,
+    "pnl_abs": 30557.3,
+    "pnl_pct": 305.573,
+    "profit_factor": 1.111,
+    "max_drawdown_abs": 27348.9,
+    "max_drawdown_pct": 273.489,
+    "starting_balance": 10000.0,
+    "final_balance": 40557.3,
+    "stake_currency": "USD",
+    "gross_abs": 30557.3,
+    "volume_abs": 4390602.61,
+    "break_even_pct": 0.696,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "9:21:00",
+    "exits": {
+     "stop_loss": {
+      "n": 871,
+      "pnl_abs": -274112.3
+     },
+     "take_profit": {
+      "n": 130,
+      "pnl_abs": 304669.6
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-7b53e2",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:53:46+00:00",
+   "finished": "2026-09-11T11:53:51+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=95, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 95,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 625,
+    "wins": 90,
+    "losses": 535,
+    "draws": 0,
+    "winrate": 14.4,
+    "pnl_abs": 29152.5,
+    "pnl_pct": 291.525,
+    "profit_factor": 1.052,
+    "max_drawdown_abs": 109811.1,
+    "max_drawdown_pct": 1098.111,
+    "starting_balance": 10000.0,
+    "final_balance": 39152.5,
+    "stake_currency": "USD",
+    "gross_abs": 29152.5,
+    "volume_abs": 2715908.69,
+    "break_even_pct": 1.0734,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "72:44:00",
+    "exits": {
+     "stop_loss": {
+      "n": 535,
+      "pnl_abs": -564611.9
+     },
+     "take_profit": {
+      "n": 89,
+      "pnl_abs": 589594.4
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-7b7fb1",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:46:59+00:00",
+   "finished": "2026-09-11T11:47:05+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=65, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 65,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 65,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 753,
+    "wins": 109,
+    "losses": 644,
+    "draws": 0,
+    "winrate": 14.48,
+    "pnl_abs": 167835.5,
+    "pnl_pct": 1678.355,
+    "profit_factor": 1.293,
+    "max_drawdown_abs": 48072.6,
+    "max_drawdown_pct": 480.726,
+    "starting_balance": 10000.0,
+    "final_balance": 177835.5,
+    "stake_currency": "USD",
+    "gross_abs": 167835.5,
+    "volume_abs": 3308163.54,
+    "break_even_pct": 5.0734,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "68:46:00",
+    "exits": {
+     "stop_loss": {
+      "n": 644,
+      "pnl_abs": -572782.3
+     },
+     "take_profit": {
+      "n": 108,
+      "pnl_abs": 734023.8
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 6594.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.6
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-7e2548",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:52:35+00:00",
+   "finished": "2026-09-11T11:52:40+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=5, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 5,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 5,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 988,
+    "wins": 96,
+    "losses": 892,
+    "draws": 0,
+    "winrate": 9.72,
+    "pnl_abs": -36501.7,
+    "pnl_pct": -365.017,
+    "profit_factor": 0.873,
+    "max_drawdown_abs": 50208.1,
+    "max_drawdown_pct": 502.081,
+    "starting_balance": 10000.0,
+    "final_balance": -26501.7,
+    "stake_currency": "USD",
+    "gross_abs": -36501.7,
+    "volume_abs": 4358979.3,
+    "break_even_pct": -0.8374,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "11:43:00",
+    "exits": {
+     "stop_loss": {
+      "n": 892,
+      "pnl_abs": -288389.3
+     },
+     "take_profit": {
+      "n": 96,
+      "pnl_abs": 251887.6
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-7e32cf",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:46:29+00:00",
+   "finished": "2026-09-11T11:46:34+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=35, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 35,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 35,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1123,
+    "wins": 212,
+    "losses": 911,
+    "draws": 0,
+    "winrate": 18.88,
+    "pnl_abs": 72521.6,
+    "pnl_pct": 725.216,
+    "profit_factor": 1.129,
+    "max_drawdown_abs": 45400.2,
+    "max_drawdown_pct": 454.002,
+    "starting_balance": 10000.0,
+    "final_balance": 82521.6,
+    "stake_currency": "USD",
+    "gross_abs": 72521.6,
+    "volume_abs": 4813160.84,
+    "break_even_pct": 1.5067,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "24:17:00",
+    "exits": {
+     "stop_loss": {
+      "n": 911,
+      "pnl_abs": -563062.1
+     },
+     "take_profit": {
+      "n": 211,
+      "pnl_abs": 628989.7
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 6594.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-80765f",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:50:42+00:00",
+   "finished": "2026-09-11T11:50:47+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=35, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 35,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 35,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 941,
+    "wins": 184,
+    "losses": 757,
+    "draws": 0,
+    "winrate": 19.55,
+    "pnl_abs": 101357.3,
+    "pnl_pct": 1013.573,
+    "profit_factor": 1.247,
+    "max_drawdown_abs": 27433.9,
+    "max_drawdown_pct": 274.339,
+    "starting_balance": 10000.0,
+    "final_balance": 111357.3,
+    "stake_currency": "USD",
+    "gross_abs": 101357.3,
+    "volume_abs": 4018066.9,
+    "break_even_pct": 2.5225,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "17:04:00",
+    "exits": {
+     "stop_loss": {
+      "n": 757,
+      "pnl_abs": -410229.1
+     },
+     "take_profit": {
+      "n": 184,
+      "pnl_abs": 511586.4
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-8935f1",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:52:40+00:00",
+   "finished": "2026-09-11T11:52:45+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=35, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 35,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 35
+   },
+   "settings": {},
+   "result": {
+    "trades": 1084,
+    "wins": 713,
+    "losses": 371,
+    "draws": 0,
+    "winrate": 65.77,
+    "pnl_abs": 6761.4,
+    "pnl_pct": 67.614,
+    "profit_factor": 1.035,
+    "max_drawdown_abs": 15060.6,
+    "max_drawdown_pct": 150.606,
+    "starting_balance": 10000.0,
+    "final_balance": 16761.4,
+    "stake_currency": "USD",
+    "gross_abs": 6761.4,
+    "volume_abs": 4639343.15,
+    "break_even_pct": 0.1457,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "1:52:00",
+    "exits": {
+     "stop_loss": {
+      "n": 371,
+      "pnl_abs": -194283.3
+     },
+     "take_profit": {
+      "n": 713,
+      "pnl_abs": 201044.7
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-8a7417",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:54:48+00:00",
+   "finished": "2026-09-11T11:54:53+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=35, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 35,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 35
+   },
+   "settings": {},
+   "result": {
+    "trades": 1111,
+    "wins": 743,
+    "losses": 368,
+    "draws": 0,
+    "winrate": 66.88,
+    "pnl_abs": 3432.7,
+    "pnl_pct": 34.327,
+    "profit_factor": 1.017,
+    "max_drawdown_abs": 16642.7,
+    "max_drawdown_pct": 166.427,
+    "starting_balance": 10000.0,
+    "final_balance": 13432.7,
+    "stake_currency": "USD",
+    "gross_abs": 3432.7,
+    "volume_abs": 4782705.98,
+    "break_even_pct": 0.0718,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "1:50:00",
+    "exits": {
+     "take_profit": {
+      "n": 743,
+      "pnl_abs": 201314.0
+     },
+     "stop_loss": {
+      "n": 368,
+      "pnl_abs": -197881.3
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-8aa608",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:52:55+00:00",
+   "finished": "2026-09-11T11:53:00+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=35, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 35,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 35,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 928,
+    "wins": 130,
+    "losses": 798,
+    "draws": 0,
+    "winrate": 14.01,
+    "pnl_abs": 37620.9,
+    "pnl_pct": 376.209,
+    "profit_factor": 1.085,
+    "max_drawdown_abs": 31971.0,
+    "max_drawdown_pct": 319.71,
+    "starting_balance": 10000.0,
+    "final_balance": 47620.9,
+    "stake_currency": "USD",
+    "gross_abs": 37620.9,
+    "volume_abs": 3994694.71,
+    "break_even_pct": 0.9418,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "20:01:00",
+    "exits": {
+     "stop_loss": {
+      "n": 798,
+      "pnl_abs": -440862.2
+     },
+     "take_profit": {
+      "n": 130,
+      "pnl_abs": 478483.1
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-8dba38",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:51:39+00:00",
+   "finished": "2026-09-11T11:51:44+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=95, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 95,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 552,
+    "wins": 92,
+    "losses": 460,
+    "draws": 0,
+    "winrate": 16.67,
+    "pnl_abs": 261586.5,
+    "pnl_pct": 2615.865,
+    "profit_factor": 1.548,
+    "max_drawdown_abs": 52318.1,
+    "max_drawdown_pct": 523.181,
+    "starting_balance": 10000.0,
+    "final_balance": 271586.5,
+    "stake_currency": "USD",
+    "gross_abs": 261586.5,
+    "volume_abs": 2374462.04,
+    "break_even_pct": 11.0167,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "94:17:00",
+    "exits": {
+     "stop_loss": {
+      "n": 460,
+      "pnl_abs": -477485.0
+     },
+     "take_profit": {
+      "n": 91,
+      "pnl_abs": 734901.5
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.4
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-95925e",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:55:08+00:00",
+   "finished": "2026-09-11T11:55:13+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=35, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 35,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 35,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 873,
+    "wins": 101,
+    "losses": 772,
+    "draws": 0,
+    "winrate": 11.57,
+    "pnl_abs": 59249.5,
+    "pnl_pct": 592.495,
+    "profit_factor": 1.137,
+    "max_drawdown_abs": 37792.2,
+    "max_drawdown_pct": 377.922,
+    "starting_balance": 10000.0,
+    "final_balance": 69249.5,
+    "stake_currency": "USD",
+    "gross_abs": 59249.5,
+    "volume_abs": 3799826.15,
+    "break_even_pct": 1.5593,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "30:49:00",
+    "exits": {
+     "stop_loss": {
+      "n": 772,
+      "pnl_abs": -432955.6
+     },
+     "take_profit": {
+      "n": 101,
+      "pnl_abs": 492205.1
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-96f295",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:55:34+00:00",
+   "finished": "2026-09-11T11:55:39+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=65, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 65,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 65,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 721,
+    "wins": 84,
+    "losses": 637,
+    "draws": 0,
+    "winrate": 11.65,
+    "pnl_abs": 43909.4,
+    "pnl_pct": 439.094,
+    "profit_factor": 1.086,
+    "max_drawdown_abs": 80661.6,
+    "max_drawdown_pct": 806.616,
+    "starting_balance": 10000.0,
+    "final_balance": 53909.4,
+    "stake_currency": "USD",
+    "gross_abs": 43909.4,
+    "volume_abs": 3148332.13,
+    "break_even_pct": 1.3947,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "54:12:00",
+    "exits": {
+     "stop_loss": {
+      "n": 636,
+      "pnl_abs": -509314.2
+     },
+     "take_profit": {
+      "n": 84,
+      "pnl_abs": 555607.6
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -2384.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-9b3969",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:48:06+00:00",
+   "finished": "2026-09-11T11:48:10+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=5, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 5,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 5,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1112,
+    "wins": 307,
+    "losses": 805,
+    "draws": 0,
+    "winrate": 27.61,
+    "pnl_abs": -35300.6,
+    "pnl_pct": -353.006,
+    "profit_factor": 0.871,
+    "max_drawdown_abs": 49946.8,
+    "max_drawdown_pct": 499.468,
+    "starting_balance": 10000.0,
+    "final_balance": -25300.6,
+    "stake_currency": "USD",
+    "gross_abs": -35300.6,
+    "volume_abs": 4867206.46,
+    "break_even_pct": -0.7253,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "3:58:00",
+    "exits": {
+     "stop_loss": {
+      "n": 805,
+      "pnl_abs": -274593.0
+     },
+     "take_profit": {
+      "n": 307,
+      "pnl_abs": 239292.4
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-9f4700",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:50:27+00:00",
+   "finished": "2026-09-11T11:50:32+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=5, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 5,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 5,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 952,
+    "wins": 98,
+    "losses": 854,
+    "draws": 0,
+    "winrate": 10.29,
+    "pnl_abs": 19950.3,
+    "pnl_pct": 199.503,
+    "profit_factor": 1.073,
+    "max_drawdown_abs": 31844.6,
+    "max_drawdown_pct": 318.446,
+    "starting_balance": 10000.0,
+    "final_balance": 29950.3,
+    "stake_currency": "USD",
+    "gross_abs": 19950.3,
+    "volume_abs": 4172513.41,
+    "break_even_pct": 0.4781,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "13:54:00",
+    "exits": {
+     "stop_loss": {
+      "n": 854,
+      "pnl_abs": -273766.4
+     },
+     "take_profit": {
+      "n": 98,
+      "pnl_abs": 293716.7
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-9fed79",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:50:08+00:00",
+   "finished": "2026-09-11T11:50:12+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=5, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 5,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1082,
+    "wins": 697,
+    "losses": 385,
+    "draws": 0,
+    "winrate": 64.42,
+    "pnl_abs": -4209.5,
+    "pnl_pct": -42.095,
+    "profit_factor": 0.964,
+    "max_drawdown_abs": 15678.8,
+    "max_drawdown_pct": 156.788,
+    "starting_balance": 10000.0,
+    "final_balance": 5790.5,
+    "stake_currency": "USD",
+    "gross_abs": -4209.5,
+    "volume_abs": 4741382.27,
+    "break_even_pct": -0.0888,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "0:26:00",
+    "exits": {
+     "take_profit": {
+      "n": 697,
+      "pnl_abs": 113785.1
+     },
+     "stop_loss": {
+      "n": 385,
+      "pnl_abs": -117994.6
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.6
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-a1e75b",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:52:21+00:00",
+   "finished": "2026-09-11T11:52:25+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=5, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 5,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 5,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1076,
+    "wins": 283,
+    "losses": 793,
+    "draws": 0,
+    "winrate": 26.3,
+    "pnl_abs": -46319.6,
+    "pnl_pct": -463.196,
+    "profit_factor": 0.819,
+    "max_drawdown_abs": 63791.4,
+    "max_drawdown_pct": 637.914,
+    "starting_balance": 10000.0,
+    "final_balance": -36319.6,
+    "stake_currency": "USD",
+    "gross_abs": -46319.6,
+    "volume_abs": 4721939.27,
+    "break_even_pct": -0.9809,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "2:58:00",
+    "exits": {
+     "stop_loss": {
+      "n": 793,
+      "pnl_abs": -256599.6
+     },
+     "take_profit": {
+      "n": 283,
+      "pnl_abs": 210280.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-a2ca28",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:55:39+00:00",
+   "finished": "2026-09-11T11:55:44+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=95, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 95,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48
+   },
+   "settings": {},
+   "result": {
+    "trades": 1088,
+    "wins": 732,
+    "losses": 356,
+    "draws": 0,
+    "winrate": 67.28,
+    "pnl_abs": 11129.8,
+    "pnl_pct": 111.298,
+    "profit_factor": 1.031,
+    "max_drawdown_abs": 41585.3,
+    "max_drawdown_pct": 415.853,
+    "starting_balance": 10000.0,
+    "final_balance": 21129.8,
+    "stake_currency": "USD",
+    "gross_abs": 11129.8,
+    "volume_abs": 4700340.75,
+    "break_even_pct": 0.2368,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "7:42:00",
+    "exits": {
+     "stop_loss": {
+      "n": 355,
+      "pnl_abs": -351651.5
+     },
+     "take_profit": {
+      "n": 732,
+      "pnl_abs": 365165.3
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -2384.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-a693b9",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:54:07+00:00",
+   "finished": "2026-09-11T11:54:12+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=125, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 125,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 125,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 653,
+    "wins": 122,
+    "losses": 531,
+    "draws": 0,
+    "winrate": 18.68,
+    "pnl_abs": 12336.9,
+    "pnl_pct": 123.369,
+    "profit_factor": 1.018,
+    "max_drawdown_abs": 79123.5,
+    "max_drawdown_pct": 791.235,
+    "starting_balance": 10000.0,
+    "final_balance": 22336.9,
+    "stake_currency": "USD",
+    "gross_abs": 12336.9,
+    "volume_abs": 2823294.9,
+    "break_even_pct": 0.437,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "63:53:00",
+    "exits": {
+     "stop_loss": {
+      "n": 531,
+      "pnl_abs": -671764.0
+     },
+     "take_profit": {
+      "n": 121,
+      "pnl_abs": 679930.9
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-a6fac4",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:52:00+00:00",
+   "finished": "2026-09-11T11:52:05+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=125, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 125,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 125,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 592,
+    "wins": 121,
+    "losses": 471,
+    "draws": 0,
+    "winrate": 20.44,
+    "pnl_abs": 239634.5,
+    "pnl_pct": 2396.345,
+    "profit_factor": 1.407,
+    "max_drawdown_abs": 56319.2,
+    "max_drawdown_pct": 563.192,
+    "starting_balance": 10000.0,
+    "final_balance": 249634.5,
+    "stake_currency": "USD",
+    "gross_abs": 239634.5,
+    "volume_abs": 2554581.9,
+    "break_even_pct": 9.3806,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "83:27:00",
+    "exits": {
+     "stop_loss": {
+      "n": 471,
+      "pnl_abs": -588219.8
+     },
+     "take_profit": {
+      "n": 120,
+      "pnl_abs": 823684.3
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-a73a88",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:52:45+00:00",
+   "finished": "2026-09-11T11:52:50+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=35, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 35,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 35,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1046,
+    "wins": 303,
+    "losses": 743,
+    "draws": 0,
+    "winrate": 28.97,
+    "pnl_abs": -16678.9,
+    "pnl_pct": -166.789,
+    "profit_factor": 0.959,
+    "max_drawdown_abs": 64894.2,
+    "max_drawdown_pct": 648.942,
+    "starting_balance": 10000.0,
+    "final_balance": -6678.9,
+    "stake_currency": "USD",
+    "gross_abs": -16678.9,
+    "volume_abs": 4472597.67,
+    "break_even_pct": -0.3729,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "8:51:00",
+    "exits": {
+     "stop_loss": {
+      "n": 743,
+      "pnl_abs": -411181.3
+     },
+     "take_profit": {
+      "n": 303,
+      "pnl_abs": 394502.4
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-a940fa",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:49:16+00:00",
+   "finished": "2026-09-11T11:49:21+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=95, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 95,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12
+   },
+   "settings": {},
+   "result": {
+    "trades": 1108,
+    "wins": 759,
+    "losses": 349,
+    "draws": 0,
+    "winrate": 68.5,
+    "pnl_abs": 35403.9,
+    "pnl_pct": 354.039,
+    "profit_factor": 1.099,
+    "max_drawdown_abs": 20425.1,
+    "max_drawdown_pct": 204.251,
+    "starting_balance": 10000.0,
+    "final_balance": 45403.9,
+    "stake_currency": "USD",
+    "gross_abs": 35403.9,
+    "volume_abs": 4706650.76,
+    "break_even_pct": 0.7522,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "7:05:00",
+    "exits": {
+     "take_profit": {
+      "n": 759,
+      "pnl_abs": 391811.5
+     },
+     "stop_loss": {
+      "n": 349,
+      "pnl_abs": -356407.6
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-aab655",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:56:10+00:00",
+   "finished": "2026-09-11T11:56:20+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=125, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 125,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 125,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 794,
+    "wins": 245,
+    "losses": 549,
+    "draws": 0,
+    "winrate": 30.86,
+    "pnl_abs": 142486.2,
+    "pnl_pct": 1424.862,
+    "profit_factor": 1.213,
+    "max_drawdown_abs": 49053.0,
+    "max_drawdown_pct": 490.53,
+    "starting_balance": 10000.0,
+    "final_balance": 152486.2,
+    "stake_currency": "USD",
+    "gross_abs": 142486.2,
+    "volume_abs": 3444691.46,
+    "break_even_pct": 4.1364,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "45:55:00",
+    "exits": {
+     "stop_loss": {
+      "n": 548,
+      "pnl_abs": -667350.0
+     },
+     "take_profit": {
+      "n": 245,
+      "pnl_abs": 812220.2
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -2384.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 9.5
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-ae87b7",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:51:13+00:00",
+   "finished": "2026-09-11T11:51:18+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=65, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 65,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 65,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 714,
+    "wins": 107,
+    "losses": 607,
+    "draws": 0,
+    "winrate": 14.99,
+    "pnl_abs": 165926.3,
+    "pnl_pct": 1659.263,
+    "profit_factor": 1.343,
+    "max_drawdown_abs": 52458.8,
+    "max_drawdown_pct": 524.588,
+    "starting_balance": 10000.0,
+    "final_balance": 175926.3,
+    "stake_currency": "USD",
+    "gross_abs": 165926.3,
+    "volume_abs": 3077586.1,
+    "break_even_pct": 5.3914,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "52:46:00",
+    "exits": {
+     "stop_loss": {
+      "n": 606,
+      "pnl_abs": -483561.3
+     },
+     "take_profit": {
+      "n": 107,
+      "pnl_abs": 650021.6
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -534.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-b36d7a",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:51:18+00:00",
+   "finished": "2026-09-11T11:51:23+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=65, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 65,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 65,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 664,
+    "wins": 87,
+    "losses": 577,
+    "draws": 0,
+    "winrate": 13.1,
+    "pnl_abs": 253451.7,
+    "pnl_pct": 2534.517,
+    "profit_factor": 1.556,
+    "max_drawdown_abs": 49129.6,
+    "max_drawdown_pct": 491.296,
+    "starting_balance": 10000.0,
+    "final_balance": 263451.7,
+    "stake_currency": "USD",
+    "gross_abs": 253451.7,
+    "volume_abs": 2828358.75,
+    "break_even_pct": 8.9611,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "63:46:00",
+    "exits": {
+     "stop_loss": {
+      "n": 576,
+      "pnl_abs": -455136.8
+     },
+     "take_profit": {
+      "n": 87,
+      "pnl_abs": 709122.5
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -534.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.3
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-b39dae",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:48:40+00:00",
+   "finished": "2026-09-11T11:48:45+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=35, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 35,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 35,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 899,
+    "wins": 123,
+    "losses": 776,
+    "draws": 0,
+    "winrate": 13.68,
+    "pnl_abs": 92873.3,
+    "pnl_pct": 928.733,
+    "profit_factor": 1.21,
+    "max_drawdown_abs": 33193.4,
+    "max_drawdown_pct": 331.934,
+    "starting_balance": 10000.0,
+    "final_balance": 102873.3,
+    "stake_currency": "USD",
+    "gross_abs": 92873.3,
+    "volume_abs": 3856087.66,
+    "break_even_pct": 2.4085,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "25:59:00",
+    "exits": {
+     "stop_loss": {
+      "n": 776,
+      "pnl_abs": -442264.0
+     },
+     "take_profit": {
+      "n": 123,
+      "pnl_abs": 535137.3
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-b3e667",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:54:02+00:00",
+   "finished": "2026-09-11T11:54:07+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=125, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 125,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 125,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 780,
+    "wins": 235,
+    "losses": 545,
+    "draws": 0,
+    "winrate": 30.13,
+    "pnl_abs": 109962.8,
+    "pnl_pct": 1099.628,
+    "profit_factor": 1.165,
+    "max_drawdown_abs": 50273.0,
+    "max_drawdown_pct": 502.73,
+    "starting_balance": 10000.0,
+    "final_balance": 119962.8,
+    "stake_currency": "USD",
+    "gross_abs": 109962.8,
+    "volume_abs": 3351452.4,
+    "break_even_pct": 3.281,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "45:29:00",
+    "exits": {
+     "take_profit": {
+      "n": 235,
+      "pnl_abs": 776560.4
+     },
+     "stop_loss": {
+      "n": 544,
+      "pnl_abs": -664213.6
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -2384.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.4
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-b63306",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:56:00+00:00",
+   "finished": "2026-09-11T11:56:05+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=95, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 95,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 566,
+    "wins": 71,
+    "losses": 495,
+    "draws": 0,
+    "winrate": 12.54,
+    "pnl_abs": 100523.4,
+    "pnl_pct": 1005.234,
+    "profit_factor": 1.192,
+    "max_drawdown_abs": 47887.4,
+    "max_drawdown_pct": 478.874,
+    "starting_balance": 10000.0,
+    "final_balance": 110523.4,
+    "stake_currency": "USD",
+    "gross_abs": 100523.4,
+    "volume_abs": 2470585.75,
+    "break_even_pct": 4.0688,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "92:49:00",
+    "exits": {
+     "stop_loss": {
+      "n": 495,
+      "pnl_abs": -523138.2
+     },
+     "take_profit": {
+      "n": 70,
+      "pnl_abs": 619491.6
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-b8121a",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:50:47+00:00",
+   "finished": "2026-09-11T11:50:52+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=35, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 35,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 35,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 877,
+    "wins": 132,
+    "losses": 745,
+    "draws": 0,
+    "winrate": 15.05,
+    "pnl_abs": 133937.2,
+    "pnl_pct": 1339.372,
+    "profit_factor": 1.329,
+    "max_drawdown_abs": 34520.9,
+    "max_drawdown_pct": 345.209,
+    "starting_balance": 10000.0,
+    "final_balance": 143937.2,
+    "stake_currency": "USD",
+    "gross_abs": 133937.2,
+    "volume_abs": 3734183.9,
+    "break_even_pct": 3.5868,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "22:56:00",
+    "exits": {
+     "stop_loss": {
+      "n": 745,
+      "pnl_abs": -407687.7
+     },
+     "take_profit": {
+      "n": 132,
+      "pnl_abs": 541624.9
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-b8d75e",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:50:57+00:00",
+   "finished": "2026-09-11T11:51:02+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=65, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 65,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 65
+   },
+   "settings": {},
+   "result": {
+    "trades": 1074,
+    "wins": 720,
+    "losses": 354,
+    "draws": 0,
+    "winrate": 67.04,
+    "pnl_abs": 27187.6,
+    "pnl_pct": 271.876,
+    "profit_factor": 1.103,
+    "max_drawdown_abs": 20718.1,
+    "max_drawdown_pct": 207.181,
+    "starting_balance": 10000.0,
+    "final_balance": 37187.6,
+    "stake_currency": "USD",
+    "gross_abs": 27187.6,
+    "volume_abs": 4572991.9,
+    "break_even_pct": 0.5945,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "4:28:00",
+    "exits": {
+     "stop_loss": {
+      "n": 354,
+      "pnl_abs": -262896.4
+     },
+     "take_profit": {
+      "n": 720,
+      "pnl_abs": 290084.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-bb205a",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:53:21+00:00",
+   "finished": "2026-09-11T11:53:26+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=65, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 65,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 65,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 768,
+    "wins": 107,
+    "losses": 661,
+    "draws": 0,
+    "winrate": 13.93,
+    "pnl_abs": 11176.8,
+    "pnl_pct": 111.768,
+    "profit_factor": 1.021,
+    "max_drawdown_abs": 66249.8,
+    "max_drawdown_pct": 662.498,
+    "starting_balance": 10000.0,
+    "final_balance": 21176.8,
+    "stake_currency": "USD",
+    "gross_abs": 11176.8,
+    "volume_abs": 3360911.04,
+    "break_even_pct": 0.3326,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "45:43:00",
+    "exits": {
+     "stop_loss": {
+      "n": 660,
+      "pnl_abs": -544198.6
+     },
+     "take_profit": {
+      "n": 107,
+      "pnl_abs": 555909.4
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -534.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-bb2159",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:53:00+00:00",
+   "finished": "2026-09-11T11:53:05+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=35, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 35,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 35,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 869,
+    "wins": 97,
+    "losses": 772,
+    "draws": 0,
+    "winrate": 11.16,
+    "pnl_abs": 3029.7,
+    "pnl_pct": 30.297,
+    "profit_factor": 1.007,
+    "max_drawdown_abs": 58704.9,
+    "max_drawdown_pct": 587.049,
+    "starting_balance": 10000.0,
+    "final_balance": 13029.7,
+    "stake_currency": "USD",
+    "gross_abs": 3029.7,
+    "volume_abs": 3751469.0,
+    "break_even_pct": 0.0808,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "27:01:00",
+    "exits": {
+     "stop_loss": {
+      "n": 772,
+      "pnl_abs": -434698.9
+     },
+     "take_profit": {
+      "n": 97,
+      "pnl_abs": 437728.6
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-bef7e3",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:45:55+00:00",
+   "finished": "2026-09-11T11:45:59+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=5, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 5,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1438,
+    "wins": 938,
+    "losses": 500,
+    "draws": 0,
+    "winrate": 65.23,
+    "pnl_abs": -852.1,
+    "pnl_pct": -8.521,
+    "profit_factor": 0.995,
+    "max_drawdown_abs": 16361.5,
+    "max_drawdown_pct": 163.615,
+    "starting_balance": 10000.0,
+    "final_balance": 9147.9,
+    "stake_currency": "USD",
+    "gross_abs": -852.1,
+    "volume_abs": 6176862.34,
+    "break_even_pct": -0.0138,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "0:40:00",
+    "exits": {
+     "stop_loss": {
+      "n": 500,
+      "pnl_abs": -177227.4
+     },
+     "take_profit": {
+      "n": 938,
+      "pnl_abs": 176375.3
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 2,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-bfa89a",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:47:20+00:00",
+   "finished": "2026-09-11T11:47:25+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=95, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 95,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 769,
+    "wins": 152,
+    "losses": 617,
+    "draws": 0,
+    "winrate": 19.77,
+    "pnl_abs": 177757.1,
+    "pnl_pct": 1777.571,
+    "profit_factor": 1.26,
+    "max_drawdown_abs": 30249.0,
+    "max_drawdown_pct": 302.49,
+    "starting_balance": 10000.0,
+    "final_balance": 187757.1,
+    "stake_currency": "USD",
+    "gross_abs": 177757.1,
+    "volume_abs": 3328608.61,
+    "break_even_pct": 5.3403,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "68:40:00",
+    "exits": {
+     "stop_loss": {
+      "n": 617,
+      "pnl_abs": -683362.2
+     },
+     "take_profit": {
+      "n": 151,
+      "pnl_abs": 854525.3
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 6594.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-c0b65d",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:46:39+00:00",
+   "finished": "2026-09-11T11:46:44+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=35, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 35,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 35,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 887,
+    "wins": 109,
+    "losses": 778,
+    "draws": 0,
+    "winrate": 12.29,
+    "pnl_abs": 203426.7,
+    "pnl_pct": 2034.267,
+    "profit_factor": 1.42,
+    "max_drawdown_abs": 26340.6,
+    "max_drawdown_pct": 263.406,
+    "starting_balance": 10000.0,
+    "final_balance": 213426.7,
+    "stake_currency": "USD",
+    "gross_abs": 203426.7,
+    "volume_abs": 3818707.02,
+    "break_even_pct": 5.3271,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "48:46:00",
+    "exits": {
+     "stop_loss": {
+      "n": 778,
+      "pnl_abs": -484016.6
+     },
+     "take_profit": {
+      "n": 108,
+      "pnl_abs": 680849.3
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 6594.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-c5b822",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:49:36+00:00",
+   "finished": "2026-09-11T11:49:41+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=95, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 95,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 535,
+    "wins": 63,
+    "losses": 472,
+    "draws": 0,
+    "winrate": 11.78,
+    "pnl_abs": 136973.4,
+    "pnl_pct": 1369.734,
+    "profit_factor": 1.284,
+    "max_drawdown_abs": 56726.6,
+    "max_drawdown_pct": 567.266,
+    "starting_balance": 10000.0,
+    "final_balance": 146973.4,
+    "stake_currency": "USD",
+    "gross_abs": 136973.4,
+    "volume_abs": 2257154.9,
+    "break_even_pct": 6.0684,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "103:18:00",
+    "exits": {
+     "stop_loss": {
+      "n": 472,
+      "pnl_abs": -482940.2
+     },
+     "take_profit": {
+      "n": 62,
+      "pnl_abs": 615743.6
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-c6f2f0",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:47:50+00:00",
+   "finished": "2026-09-11T11:47:55+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=125, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 125,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 125,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 504,
+    "wins": 75,
+    "losses": 429,
+    "draws": 0,
+    "winrate": 14.88,
+    "pnl_abs": 206524.9,
+    "pnl_pct": 2065.249,
+    "profit_factor": 1.374,
+    "max_drawdown_abs": 55086.3,
+    "max_drawdown_pct": 550.863,
+    "starting_balance": 10000.0,
+    "final_balance": 216524.9,
+    "stake_currency": "USD",
+    "gross_abs": 206524.9,
+    "volume_abs": 2084485.63,
+    "break_even_pct": 9.9077,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "131:52:00",
+    "exits": {
+     "take_profit": {
+      "n": 74,
+      "pnl_abs": 752462.0
+     },
+     "stop_loss": {
+      "n": 429,
+      "pnl_abs": -552531.1
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 6594.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-c7516d",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:48:45+00:00",
+   "finished": "2026-09-11T11:48:50+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=35, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 35,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 35,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 824,
+    "wins": 97,
+    "losses": 727,
+    "draws": 0,
+    "winrate": 11.77,
+    "pnl_abs": 131676.9,
+    "pnl_pct": 1316.769,
+    "profit_factor": 1.311,
+    "max_drawdown_abs": 33704.4,
+    "max_drawdown_pct": 337.044,
+    "starting_balance": 10000.0,
+    "final_balance": 141676.9,
+    "stake_currency": "USD",
+    "gross_abs": 131676.9,
+    "volume_abs": 3554103.24,
+    "break_even_pct": 3.7049,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "40:10:00",
+    "exits": {
+     "stop_loss": {
+      "n": 727,
+      "pnl_abs": -423844.7
+     },
+     "take_profit": {
+      "n": 97,
+      "pnl_abs": 555521.6
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-ca0300",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:50:12+00:00",
+   "finished": "2026-09-11T11:50:17+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=5, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 5,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 5,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1059,
+    "wins": 279,
+    "losses": 780,
+    "draws": 0,
+    "winrate": 26.35,
+    "pnl_abs": 611.5,
+    "pnl_pct": 6.115,
+    "profit_factor": 1.003,
+    "max_drawdown_abs": 43763.3,
+    "max_drawdown_pct": 437.633,
+    "starting_balance": 10000.0,
+    "final_balance": 10611.5,
+    "stake_currency": "USD",
+    "gross_abs": 611.5,
+    "volume_abs": 4634604.53,
+    "break_even_pct": 0.0132,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "3:22:00",
+    "exits": {
+     "stop_loss": {
+      "n": 780,
+      "pnl_abs": -242179.5
+     },
+     "take_profit": {
+      "n": 279,
+      "pnl_abs": 242791.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-cb2248",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:54:53+00:00",
+   "finished": "2026-09-11T11:54:58+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=35, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 35,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 35,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1073,
+    "wins": 301,
+    "losses": 772,
+    "draws": 0,
+    "winrate": 28.05,
+    "pnl_abs": -20277.5,
+    "pnl_pct": -202.775,
+    "profit_factor": 0.952,
+    "max_drawdown_abs": 63969.4,
+    "max_drawdown_pct": 639.694,
+    "starting_balance": 10000.0,
+    "final_balance": -10277.5,
+    "stake_currency": "USD",
+    "gross_abs": -20277.5,
+    "volume_abs": 4602367.63,
+    "break_even_pct": -0.4406,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "8:30:00",
+    "exits": {
+     "stop_loss": {
+      "n": 772,
+      "pnl_abs": -419250.2
+     },
+     "take_profit": {
+      "n": 301,
+      "pnl_abs": 398972.7
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-cbf290",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:54:28+00:00",
+   "finished": "2026-09-11T11:54:33+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=5, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 5,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 5,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1102,
+    "wins": 292,
+    "losses": 810,
+    "draws": 0,
+    "winrate": 26.5,
+    "pnl_abs": -58193.9,
+    "pnl_pct": -581.939,
+    "profit_factor": 0.781,
+    "max_drawdown_abs": 63775.8,
+    "max_drawdown_pct": 637.758,
+    "starting_balance": 10000.0,
+    "final_balance": -48193.9,
+    "stake_currency": "USD",
+    "gross_abs": -58193.9,
+    "volume_abs": 4865116.63,
+    "break_even_pct": -1.1961,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "3:00:00",
+    "exits": {
+     "stop_loss": {
+      "n": 810,
+      "pnl_abs": -266012.2
+     },
+     "take_profit": {
+      "n": 292,
+      "pnl_abs": 207818.3
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-cc3aa4",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:47:05+00:00",
+   "finished": "2026-09-11T11:47:10+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=65, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 65,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 65,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 668,
+    "wins": 78,
+    "losses": 590,
+    "draws": 0,
+    "winrate": 11.68,
+    "pnl_abs": 185555.9,
+    "pnl_pct": 1855.559,
+    "profit_factor": 1.357,
+    "max_drawdown_abs": 51765.6,
+    "max_drawdown_pct": 517.656,
+    "starting_balance": 10000.0,
+    "final_balance": 195555.9,
+    "stake_currency": "USD",
+    "gross_abs": 185555.9,
+    "volume_abs": 2893177.65,
+    "break_even_pct": 6.4136,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "83:09:00",
+    "exits": {
+     "stop_loss": {
+      "n": 590,
+      "pnl_abs": -520475.5
+     },
+     "take_profit": {
+      "n": 77,
+      "pnl_abs": 699437.4
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 6594.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-ccdeb0",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:49:26+00:00",
+   "finished": "2026-09-11T11:49:31+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=95, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 95,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 732,
+    "wins": 146,
+    "losses": 586,
+    "draws": 0,
+    "winrate": 19.95,
+    "pnl_abs": 116538.6,
+    "pnl_pct": 1165.386,
+    "profit_factor": 1.189,
+    "max_drawdown_abs": 50590.7,
+    "max_drawdown_pct": 505.907,
+    "starting_balance": 10000.0,
+    "final_balance": 126538.6,
+    "stake_currency": "USD",
+    "gross_abs": 116538.6,
+    "volume_abs": 3164557.19,
+    "break_even_pct": 3.6826,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "56:09:00",
+    "exits": {
+     "stop_loss": {
+      "n": 586,
+      "pnl_abs": -616939.8
+     },
+     "take_profit": {
+      "n": 145,
+      "pnl_abs": 729308.4
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-cec72f",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:52:10+00:00",
+   "finished": "2026-09-11T11:52:16+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=125, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 125,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 125,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 417,
+    "wins": 61,
+    "losses": 356,
+    "draws": 0,
+    "winrate": 14.63,
+    "pnl_abs": 366187.5,
+    "pnl_pct": 3661.875,
+    "profit_factor": 1.826,
+    "max_drawdown_abs": 58365.0,
+    "max_drawdown_pct": 583.65,
+    "starting_balance": 10000.0,
+    "final_balance": 376187.5,
+    "stake_currency": "USD",
+    "gross_abs": 366187.5,
+    "volume_abs": 1784921.71,
+    "break_even_pct": 20.5156,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "153:04:00",
+    "exits": {
+     "stop_loss": {
+      "n": 356,
+      "pnl_abs": -443148.1
+     },
+     "take_profit": {
+      "n": 60,
+      "pnl_abs": 805165.6
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.3
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-cf9f22",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:55:44+00:00",
+   "finished": "2026-09-11T11:55:49+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=95, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 95,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 881,
+    "wins": 271,
+    "losses": 610,
+    "draws": 0,
+    "winrate": 30.76,
+    "pnl_abs": 72582.4,
+    "pnl_pct": 725.824,
+    "profit_factor": 1.116,
+    "max_drawdown_abs": 51269.3,
+    "max_drawdown_pct": 512.693,
+    "starting_balance": 10000.0,
+    "final_balance": 82582.4,
+    "stake_currency": "USD",
+    "gross_abs": 72582.4,
+    "volume_abs": 3835802.73,
+    "break_even_pct": 1.8922,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "32:59:00",
+    "exits": {
+     "stop_loss": {
+      "n": 609,
+      "pnl_abs": -621038.8
+     },
+     "take_profit": {
+      "n": 271,
+      "pnl_abs": 696005.2
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -2384.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-d42333",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:51:07+00:00",
+   "finished": "2026-09-11T11:51:13+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=65, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 65,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 65,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 837,
+    "wins": 165,
+    "losses": 672,
+    "draws": 0,
+    "winrate": 19.71,
+    "pnl_abs": 119936.7,
+    "pnl_pct": 1199.367,
+    "profit_factor": 1.227,
+    "max_drawdown_abs": 45957.9,
+    "max_drawdown_pct": 459.579,
+    "starting_balance": 10000.0,
+    "final_balance": 129936.7,
+    "stake_currency": "USD",
+    "gross_abs": 119936.7,
+    "volume_abs": 3586483.55,
+    "break_even_pct": 3.3441,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "34:27:00",
+    "exits": {
+     "stop_loss": {
+      "n": 671,
+      "pnl_abs": -528628.4
+     },
+     "take_profit": {
+      "n": 165,
+      "pnl_abs": 649099.1
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -534.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-dfc1d4",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:47:40+00:00",
+   "finished": "2026-09-11T11:47:45+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=125, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 125,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 125,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 841,
+    "wins": 255,
+    "losses": 586,
+    "draws": 0,
+    "winrate": 30.32,
+    "pnl_abs": 197217.1,
+    "pnl_pct": 1972.171,
+    "profit_factor": 1.25,
+    "max_drawdown_abs": 30229.8,
+    "max_drawdown_pct": 302.298,
+    "starting_balance": 10000.0,
+    "final_balance": 207217.1,
+    "stake_currency": "USD",
+    "gross_abs": 197217.1,
+    "volume_abs": 3624364.66,
+    "break_even_pct": 5.4414,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "55:41:00",
+    "exits": {
+     "take_profit": {
+      "n": 255,
+      "pnl_abs": 987220.9
+     },
+     "stop_loss": {
+      "n": 586,
+      "pnl_abs": -790003.8
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-e0a82d",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:46:49+00:00",
+   "finished": "2026-09-11T11:46:54+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=65, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 65,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 65,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1132,
+    "wins": 340,
+    "losses": 792,
+    "draws": 0,
+    "winrate": 30.04,
+    "pnl_abs": 101822.8,
+    "pnl_pct": 1018.228,
+    "profit_factor": 1.151,
+    "max_drawdown_abs": 47634.0,
+    "max_drawdown_pct": 476.34,
+    "starting_balance": 10000.0,
+    "final_balance": 111822.8,
+    "stake_currency": "USD",
+    "gross_abs": 101822.8,
+    "volume_abs": 4827098.92,
+    "break_even_pct": 2.1094,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "28:59:00",
+    "exits": {
+     "stop_loss": {
+      "n": 792,
+      "pnl_abs": -673024.1
+     },
+     "take_profit": {
+      "n": 340,
+      "pnl_abs": 774846.9
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-e3862c",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:48:35+00:00",
+   "finished": "2026-09-11T11:48:40+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=35, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 35,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 35,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 979,
+    "wins": 195,
+    "losses": 784,
+    "draws": 0,
+    "winrate": 19.92,
+    "pnl_abs": 79513.6,
+    "pnl_pct": 795.136,
+    "profit_factor": 1.179,
+    "max_drawdown_abs": 44005.6,
+    "max_drawdown_pct": 440.056,
+    "starting_balance": 10000.0,
+    "final_balance": 89513.6,
+    "stake_currency": "USD",
+    "gross_abs": 79513.6,
+    "volume_abs": 4180841.81,
+    "break_even_pct": 1.9019,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "18:06:00",
+    "exits": {
+     "stop_loss": {
+      "n": 784,
+      "pnl_abs": -445326.1
+     },
+     "take_profit": {
+      "n": 195,
+      "pnl_abs": 524839.7
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-e9fe3d",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:55:13+00:00",
+   "finished": "2026-09-11T11:55:18+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=65, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 65,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 65
+   },
+   "settings": {},
+   "result": {
+    "trades": 1104,
+    "wins": 744,
+    "losses": 360,
+    "draws": 0,
+    "winrate": 67.39,
+    "pnl_abs": 10404.2,
+    "pnl_pct": 104.042,
+    "profit_factor": 1.038,
+    "max_drawdown_abs": 23084.0,
+    "max_drawdown_pct": 230.84,
+    "starting_balance": 10000.0,
+    "final_balance": 20404.2,
+    "stake_currency": "USD",
+    "gross_abs": 10404.2,
+    "volume_abs": 4757024.38,
+    "break_even_pct": 0.2187,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "4:17:00",
+    "exits": {
+     "take_profit": {
+      "n": 744,
+      "pnl_abs": 286569.4
+     },
+     "stop_loss": {
+      "n": 359,
+      "pnl_abs": -273781.2
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -2384.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-ea3b76",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:53:57+00:00",
+   "finished": "2026-09-11T11:54:02+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=125, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 125,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "slRangePct": 125
+   },
+   "settings": {},
+   "result": {
+    "trades": 1039,
+    "wins": 718,
+    "losses": 321,
+    "draws": 0,
+    "winrate": 69.1,
+    "pnl_abs": 57685.9,
+    "pnl_pct": 576.859,
+    "profit_factor": 1.148,
+    "max_drawdown_abs": 24182.6,
+    "max_drawdown_pct": 241.826,
+    "starting_balance": 10000.0,
+    "final_balance": 67685.9,
+    "stake_currency": "USD",
+    "gross_abs": 57685.9,
+    "volume_abs": 4445184.53,
+    "break_even_pct": 1.2977,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "10:29:00",
+    "exits": {
+     "take_profit": {
+      "n": 718,
+      "pnl_abs": 448667.7
+     },
+     "stop_loss": {
+      "n": 321,
+      "pnl_abs": -390981.8
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-eac79d",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:50:32+00:00",
+   "finished": "2026-09-11T11:50:37+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=35, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 35,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "slRangePct": 35
+   },
+   "settings": {},
+   "result": {
+    "trades": 1081,
+    "wins": 716,
+    "losses": 365,
+    "draws": 0,
+    "winrate": 66.23,
+    "pnl_abs": 15973.9,
+    "pnl_pct": 159.739,
+    "profit_factor": 1.085,
+    "max_drawdown_abs": 26739.8,
+    "max_drawdown_pct": 267.398,
+    "starting_balance": 10000.0,
+    "final_balance": 25973.9,
+    "stake_currency": "USD",
+    "gross_abs": 15973.9,
+    "volume_abs": 4596764.82,
+    "break_even_pct": 0.3475,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "1:38:00",
+    "exits": {
+     "stop_loss": {
+      "n": 365,
+      "pnl_abs": -188374.4
+     },
+     "take_profit": {
+      "n": 716,
+      "pnl_abs": 204348.3
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-eba833",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:55:28+00:00",
+   "finished": "2026-09-11T11:55:34+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=65, rrRatio=6.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 65,
+     "rrRatio": 6.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 65,
+    "rrRatio": 6.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 776,
+    "wins": 110,
+    "losses": 666,
+    "draws": 0,
+    "winrate": 14.18,
+    "pnl_abs": 32870.5,
+    "pnl_pct": 328.705,
+    "profit_factor": 1.062,
+    "max_drawdown_abs": 74743.7,
+    "max_drawdown_pct": 747.437,
+    "starting_balance": 10000.0,
+    "final_balance": 42870.5,
+    "stake_currency": "USD",
+    "gross_abs": 32870.5,
+    "volume_abs": 3391770.08,
+    "break_even_pct": 0.9691,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "45:18:00",
+    "exits": {
+     "stop_loss": {
+      "n": 665,
+      "pnl_abs": -531906.3
+     },
+     "take_profit": {
+      "n": 110,
+      "pnl_abs": 567160.8
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": -2384.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.3
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-ed2fc6",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:46:24+00:00",
+   "finished": "2026-09-11T11:46:29+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=35, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 35,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 35,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1291,
+    "wins": 372,
+    "losses": 919,
+    "draws": 0,
+    "winrate": 28.81,
+    "pnl_abs": 45743.9,
+    "pnl_pct": 457.439,
+    "profit_factor": 1.082,
+    "max_drawdown_abs": 46929.2,
+    "max_drawdown_pct": 469.292,
+    "starting_balance": 10000.0,
+    "final_balance": 55743.9,
+    "stake_currency": "USD",
+    "gross_abs": 45743.9,
+    "volume_abs": 5461039.29,
+    "break_even_pct": 0.8376,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "13:30:00",
+    "exits": {
+     "stop_loss": {
+      "n": 919,
+      "pnl_abs": -555929.6
+     },
+     "take_profit": {
+      "n": 372,
+      "pnl_abs": 601673.5
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-ee94ae",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:51:33+00:00",
+   "finished": "2026-09-11T11:51:39+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=24, slRangePct=95, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 24,
+     "slRangePct": 95,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 24,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 689,
+    "wins": 146,
+    "losses": 543,
+    "draws": 0,
+    "winrate": 21.19,
+    "pnl_abs": 190944.3,
+    "pnl_pct": 1909.443,
+    "profit_factor": 1.342,
+    "max_drawdown_abs": 56434.3,
+    "max_drawdown_pct": 564.343,
+    "starting_balance": 10000.0,
+    "final_balance": 200944.3,
+    "stake_currency": "USD",
+    "gross_abs": 190944.3,
+    "volume_abs": 2975077.22,
+    "break_even_pct": 6.4181,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "58:41:00",
+    "exits": {
+     "stop_loss": {
+      "n": 543,
+      "pnl_abs": -558874.6
+     },
+     "take_profit": {
+      "n": 145,
+      "pnl_abs": 745648.9
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.3
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-f22ff7",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:48:50+00:00",
+   "finished": "2026-09-11T11:48:55+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=65, rrRatio=0.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 65,
+     "rrRatio": 0.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 65
+   },
+   "settings": {},
+   "result": {
+    "trades": 1121,
+    "wins": 754,
+    "losses": 367,
+    "draws": 0,
+    "winrate": 67.26,
+    "pnl_abs": 7798.5,
+    "pnl_pct": 77.985,
+    "profit_factor": 1.027,
+    "max_drawdown_abs": 21690.2,
+    "max_drawdown_pct": 216.902,
+    "starting_balance": 10000.0,
+    "final_balance": 17798.5,
+    "stake_currency": "USD",
+    "gross_abs": 7798.5,
+    "volume_abs": 4759516.41,
+    "break_even_pct": 0.1639,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "4:05:00",
+    "exits": {
+     "stop_loss": {
+      "n": 367,
+      "pnl_abs": -291120.6
+     },
+     "take_profit": {
+      "n": 754,
+      "pnl_abs": 298919.1
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-f61acf",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:48:30+00:00",
+   "finished": "2026-09-11T11:48:35+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=12, slRangePct=35, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 12,
+     "slRangePct": 35,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 12,
+    "slRangePct": 35,
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1070,
+    "wins": 318,
+    "losses": 752,
+    "draws": 0,
+    "winrate": 29.72,
+    "pnl_abs": 27200.9,
+    "pnl_pct": 272.009,
+    "profit_factor": 1.064,
+    "max_drawdown_abs": 59274.9,
+    "max_drawdown_pct": 592.749,
+    "starting_balance": 10000.0,
+    "final_balance": 37200.9,
+    "stake_currency": "USD",
+    "gross_abs": 27200.9,
+    "volume_abs": 4548774.16,
+    "break_even_pct": 0.598,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "9:52:00",
+    "exits": {
+     "stop_loss": {
+      "n": 752,
+      "pnl_abs": -426575.9
+     },
+     "take_profit": {
+      "n": 318,
+      "pnl_abs": 453776.8
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-f8d1ea",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:46:04+00:00",
+   "finished": "2026-09-11T11:46:09+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=5, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 5,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "slRangePct": 5,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 1281,
+    "wins": 221,
+    "losses": 1060,
+    "draws": 0,
+    "winrate": 17.25,
+    "pnl_abs": 23305.6,
+    "pnl_pct": 233.056,
+    "profit_factor": 1.06,
+    "max_drawdown_abs": 40950.7,
+    "max_drawdown_pct": 409.507,
+    "starting_balance": 10000.0,
+    "final_balance": 33305.6,
+    "stake_currency": "USD",
+    "gross_abs": 23305.6,
+    "volume_abs": 5564620.2,
+    "break_even_pct": 0.4188,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "11:30:00",
+    "exits": {
+     "stop_loss": {
+      "n": 1060,
+      "pnl_abs": -386487.5
+     },
+     "take_profit": {
+      "n": 221,
+      "pnl_abs": 409793.1
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-fb0db4",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:53:51+00:00",
+   "finished": "2026-09-11T11:53:57+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=36, slRangePct=95, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 36,
+     "slRangePct": 95,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 36,
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 582,
+    "wins": 74,
+    "losses": 508,
+    "draws": 0,
+    "winrate": 12.71,
+    "pnl_abs": 85045.4,
+    "pnl_pct": 850.454,
+    "profit_factor": 1.161,
+    "max_drawdown_abs": 104137.1,
+    "max_drawdown_pct": 1041.371,
+    "starting_balance": 10000.0,
+    "final_balance": 95045.4,
+    "stake_currency": "USD",
+    "gross_abs": 85045.4,
+    "volume_abs": 2498488.89,
+    "break_even_pct": 3.4039,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "83:43:00",
+    "exits": {
+     "stop_loss": {
+      "n": 508,
+      "pnl_abs": -528915.1
+     },
+     "take_profit": {
+      "n": 73,
+      "pnl_abs": 609790.5
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-fc2172",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:47:30+00:00",
+   "finished": "2026-09-11T11:47:35+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=95, rrRatio=8.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 95,
+     "rrRatio": 8.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 518,
+    "wins": 66,
+    "losses": 452,
+    "draws": 0,
+    "winrate": 12.74,
+    "pnl_abs": 263774.0,
+    "pnl_pct": 2637.74,
+    "profit_factor": 1.546,
+    "max_drawdown_abs": 46127.8,
+    "max_drawdown_pct": 461.278,
+    "starting_balance": 10000.0,
+    "final_balance": 273774.0,
+    "stake_currency": "USD",
+    "gross_abs": 263774.0,
+    "volume_abs": 2165685.23,
+    "break_even_pct": 12.1797,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "125:29:00",
+    "exits": {
+     "stop_loss": {
+      "n": 452,
+      "pnl_abs": -483049.7
+     },
+     "take_profit": {
+      "n": 65,
+      "pnl_abs": 740229.7
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 6594.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 5.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-fda0a3",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:47:15+00:00",
+   "finished": "2026-09-11T11:47:20+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=0, slRangePct=95, rrRatio=2.5",
+   "tag": {
+    "values": {
+     "nyStartM": 0,
+     "slRangePct": 95,
+     "rrRatio": 2.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 983,
+    "wins": 283,
+    "losses": 700,
+    "draws": 0,
+    "winrate": 28.79,
+    "pnl_abs": 118077.3,
+    "pnl_pct": 1180.773,
+    "profit_factor": 1.155,
+    "max_drawdown_abs": 48419.4,
+    "max_drawdown_pct": 484.194,
+    "starting_balance": 10000.0,
+    "final_balance": 128077.3,
+    "stake_currency": "USD",
+    "gross_abs": 118077.3,
+    "volume_abs": 4233924.16,
+    "break_even_pct": 2.7888,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "42:57:00",
+    "exits": {
+     "stop_loss": {
+      "n": 700,
+      "pnl_abs": -763265.6
+     },
+     "take_profit": {
+      "n": 283,
+      "pnl_abs": 881342.9
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 4.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-114555-ffd370",
+   "status": "done",
+   "created": "2026-09-11T11:45:55+00:00",
+   "started": "2026-09-11T11:56:21+00:00",
+   "finished": "2026-09-11T11:56:55+00:00",
+   "user": "IBS",
+   "note": "sweep 20260911-114555-ec09: nyStartM=48, slRangePct=125, rrRatio=4.5",
+   "tag": {
+    "values": {
+     "nyStartM": 48,
+     "slRangePct": 125,
+     "rrRatio": 4.5
+    },
+    "goal": "drawdown",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true
+   },
+   "params": {
+    "nyStartM": 48,
+    "slRangePct": 125,
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 648,
+    "wins": 125,
+    "losses": 523,
+    "draws": 0,
+    "winrate": 19.29,
+    "pnl_abs": 67893.3,
+    "pnl_pct": 678.933,
+    "profit_factor": 1.104,
+    "max_drawdown_abs": 54045.7,
+    "max_drawdown_pct": 540.457,
+    "starting_balance": 10000.0,
+    "final_balance": 77893.3,
+    "stake_currency": "USD",
+    "gross_abs": 67893.3,
+    "volume_abs": 2795127.4,
+    "break_even_pct": 2.429,
+    "market_change_pct": 322.272,
+    "backtest_start": "2016-01-01T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:45:00+00:00",
+    "holding_avg": "68:51:00",
+    "exits": {
+     "stop_loss": {
+      "n": 523,
+      "pnl_abs": -654457.1
+     },
+     "take_profit": {
+      "n": 124,
+      "pnl_abs": 718180.4
+     },
+     "force_exit": {
+      "n": 1,
+      "pnl_abs": 4170.0
+     }
+    },
+    "bars": 242013,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 34.9
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-09-11T11:58:15+00:00"
+}

@@ -1,0 +1,734 @@
+{
+ "version": 1,
+ "kind": "matrix",
+ "id": "20260910-080338-b6fd",
+ "strategy": "ibs",
+ "created": "2026-09-10T08:03:40+00:00",
+ "user": "",
+ "base": {
+  "params": {
+   "enableImbEntry": true,
+   "enablePinBarEntry": true,
+   "enableEngulfingEntry": true,
+   "pbWickToBodyRatio": 4.0,
+   "pbBodyPositionPct": 20.0,
+   "pbMinRangePoints": {
+    "value": 0.02302,
+    "unit": "atr"
+   },
+   "engMinRangePoints": {
+    "value": 0.02302,
+    "unit": "atr"
+   },
+   "engSizeAvgLen": 10,
+   "engSizeMultiplier": 2.0,
+   "engTouchWindowBars": 3,
+   "pbEngOrderType": "Market",
+   "enableTrailing": false,
+   "trailActivationR": 1.0,
+   "trailOffsetR": 0.5,
+   "weekdaysOnly": true,
+   "enableTrading": true,
+   "enableZoneDetection": true,
+   "enableGapDetection": true,
+   "enableSrTrading": true,
+   "enableLqTrading": true,
+   "closeAtSessionEnd": true,
+   "sess1On": false,
+   "sess1TZ": "Europe/Prague",
+   "sess1ZoneStartH": 1,
+   "sess1ZoneStartM": 0,
+   "sess1ZoneEndH": 9,
+   "sess1ZoneEndM": 0,
+   "sess1TradeStartH": 2,
+   "sess1TradeStartM": 0,
+   "sess1TradeEndH": 5,
+   "sess1TradeEndM": 0,
+   "sess2On": true,
+   "sess2TZ": "America/New_York",
+   "sess2ZoneStartH": 8,
+   "sess2ZoneStartM": 0,
+   "sess2ZoneEndH": 11,
+   "sess2ZoneEndM": 0,
+   "sess2TradeStartH": 10,
+   "sess2TradeStartM": 0,
+   "sess2TradeEndH": 15,
+   "sess2TradeEndM": 45,
+   "sess3On": false,
+   "sess3TZ": "Europe/London",
+   "sess3ZoneStartH": 8,
+   "sess3ZoneStartM": 0,
+   "sess3ZoneEndH": 10,
+   "sess3ZoneEndM": 0,
+   "sess3TradeStartH": 8,
+   "sess3TradeStartM": 0,
+   "sess3TradeEndH": 11,
+   "sess3TradeEndM": 0,
+   "zoneDetectionTF": "5",
+   "zoneValidHours": 6,
+   "maxSdZones": 200,
+   "snapMode": "Floor",
+   "invalidateOnFill": true,
+   "useVolumeFilter": false,
+   "volumeFilterBlockTrading": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "showMarketStructure": true,
+   "structureSwingLen": 5,
+   "useStructureFilter": true,
+   "showSR": true,
+   "srSwingLen": 10,
+   "srClusterPoints": {
+    "value": 0.172653,
+    "unit": "atr"
+   },
+   "srMinTouches": 2,
+   "srMaxLevels": 10,
+   "srLookbackDays": 5,
+   "srZoneSaturationPct": 30,
+   "showLiqSweep": true,
+   "liqSweepLen": 10,
+   "liqSweepMinWick": {
+    "value": 0.057551,
+    "unit": "atr"
+   },
+   "liqSweepConfirmBars": 2,
+   "liqStrengthLen": 50,
+   "showElliott": false,
+   "ewSwingLen": 8,
+   "ewMinWavePoints": {
+    "value": 0.230204,
+    "unit": "atr"
+   },
+   "ewShowLabels": true,
+   "ewShowProjection": true,
+   "ewProjExtendBars": 40,
+   "ewLineColor": "#334155",
+   "showImbalance": true,
+   "showDashboard": true,
+   "dashPos": "Top Right",
+   "dashboardRows": 6,
+   "showTradeLog": false,
+   "tradeLogRows": 20,
+   "showDebugTable": false,
+   "debugTableRows": 8,
+   "debugPos": "Bottom Right",
+   "imbLookback": 20,
+   "imbMaxDistTicks": {
+    "value": 0.115102,
+    "unit": "atr"
+   },
+   "minImbSizePoints": {
+    "value": 0.028775,
+    "unit": "atr"
+   },
+   "state1MaxBars": 10,
+   "state2MaxBars": 15,
+   "state2ConfirmTicks": {
+    "value": 0.001151,
+    "unit": "atr"
+   },
+   "state3MaxBars": 1,
+   "state4MaxBars": 10,
+   "state5MaxBars": 10,
+   "alertOnState2": false,
+   "alertOnState3": false,
+   "alertOnState4": false,
+   "rrRatio": 5.0,
+   "slLookback": 20,
+   "slBufferTicks": {
+    "value": 0.002302,
+    "unit": "atr"
+   },
+   "maxLossDollar": 100.0,
+   "maxDailyWins": 5,
+   "tradeDirection": "Long only",
+   "tickDollarValue": null,
+   "legacyPineSizing": false,
+   "atrLen": 14,
+   "minSlDistance": 0.2,
+   "leverage": 10.0
+  },
+  "settings": {
+   "strategy": "ibs",
+   "pair": "DJ30/USD",
+   "engine": "freqtrade",
+   "timeframe": "3m",
+   "exchange": "tester",
+   "timerange": "20250904-20260904",
+   "fee": 0.0005,
+   "wallet": 40000000.0,
+   "timeframe_detail": "1m",
+   "profile": "docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json"
+  }
+ },
+ "points": [
+  {
+   "run": "20260910-080340-57abc8",
+   "status": "done",
+   "created": "2026-09-10T08:03:40+00:00",
+   "started": "2026-09-10T08:03:40+00:00",
+   "finished": "2026-09-10T08:03:57+00:00",
+   "user": "",
+   "note": "matica 20260910-080338-b6fd: DJ30/USD 3m — overenie rezimu: konfiguracia A, okno 20250904-20260904",
+   "tag": {
+    "pair": "DJ30/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 12,
+    "wins": 7,
+    "losses": 5,
+    "draws": 0,
+    "winrate": 58.33,
+    "pnl_abs": 1160.24,
+    "pnl_pct": 0.003,
+    "profit_factor": 2.632,
+    "max_drawdown_abs": 347.86,
+    "max_drawdown_pct": 0.001,
+    "starting_balance": 40000000.0,
+    "final_balance": 40001160.24,
+    "stake_currency": "USD",
+    "gross_abs": 1751.27,
+    "volume_abs": 1182063.57,
+    "break_even_pct": 0.1482,
+    "market_change_pct": 18.812,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "3:46:00",
+    "exits": {
+     "roi": {
+      "n": 1,
+      "pnl_abs": 578.15
+     },
+     "session_end": {
+      "n": 8,
+      "pnl_abs": 1169.87
+     },
+     "stop_loss": {
+      "n": 3,
+      "pnl_abs": -587.78
+     }
+    },
+    "duration_s": 17.1,
+    "zip": "backtest-result-2026-09-10_08-03-56.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-080400-4d8a29",
+   "status": "done",
+   "created": "2026-09-10T08:04:00+00:00",
+   "started": "2026-09-10T08:04:00+00:00",
+   "finished": "2026-09-10T08:04:19+00:00",
+   "user": "",
+   "note": "matica 20260910-080338-b6fd: BTC/USD 3m — overenie rezimu: konfiguracia A, okno 20250904-20260904",
+   "tag": {
+    "pair": "BTC/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "BTC/USD"
+   },
+   "result": {
+    "trades": 23,
+    "wins": 11,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 47.83,
+    "pnl_abs": 3679.22,
+    "pnl_pct": 0.009,
+    "profit_factor": 1.714,
+    "max_drawdown_abs": 2835.49,
+    "max_drawdown_pct": 0.007,
+    "starting_balance": 40000000.0,
+    "final_balance": 40003679.22,
+    "stake_currency": "USD",
+    "gross_abs": 5638.7,
+    "volume_abs": 3918963.1,
+    "break_even_pct": 0.1439,
+    "market_change_pct": -27.363,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "2:34:00",
+    "exits": {
+     "roi": {
+      "n": 3,
+      "pnl_abs": 3879.54
+     },
+     "session_end": {
+      "n": 9,
+      "pnl_abs": 4883.04
+     },
+     "stop_loss": {
+      "n": 11,
+      "pnl_abs": -5083.36
+     }
+    },
+    "duration_s": 19.6,
+    "zip": "backtest-result-2026-09-10_08-04-18.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-080422-9d9b16",
+   "status": "done",
+   "created": "2026-09-10T08:04:22+00:00",
+   "started": "2026-09-10T08:04:22+00:00",
+   "finished": "2026-09-10T08:04:40+00:00",
+   "user": "",
+   "note": "matica 20260910-080338-b6fd: BTC/USDT:USDT 3m — overenie rezimu: konfiguracia A, okno 20250904-20260904",
+   "tag": {
+    "pair": "BTC/USDT:USDT",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "BTC/USDT:USDT"
+   },
+   "result": {
+    "trades": 21,
+    "wins": 9,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 42.86,
+    "pnl_abs": 19.77,
+    "pnl_pct": 0.0,
+    "profit_factor": 1.013,
+    "max_drawdown_abs": 608.07,
+    "max_drawdown_pct": 0.002,
+    "starting_balance": 40000000.0,
+    "final_balance": 40000019.77,
+    "stake_currency": "USDT",
+    "gross_abs": 582.5,
+    "volume_abs": 1105554.31,
+    "break_even_pct": 0.0527,
+    "market_change_pct": -27.327,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "2:11:00",
+    "exits": {
+     "roi": {
+      "n": 1,
+      "pnl_abs": 471.78
+     },
+     "session_end": {
+      "n": 8,
+      "pnl_abs": 1086.51
+     },
+     "stop_loss": {
+      "n": 12,
+      "pnl_abs": -1538.52
+     }
+    },
+    "duration_s": 18.6,
+    "zip": "backtest-result-2026-09-10_08-04-39.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-080444-fd499e",
+   "status": "done",
+   "created": "2026-09-10T08:04:44+00:00",
+   "started": "2026-09-10T08:04:44+00:00",
+   "finished": "2026-09-10T08:05:06+00:00",
+   "user": "",
+   "note": "matica 20260910-080338-b6fd: ETH/USDT:USDT 3m — overenie rezimu: konfiguracia A, okno 20250904-20260904",
+   "tag": {
+    "pair": "ETH/USDT:USDT",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "ETH/USDT:USDT"
+   },
+   "result": {
+    "trades": 28,
+    "wins": 10,
+    "losses": 18,
+    "draws": 0,
+    "winrate": 35.71,
+    "pnl_abs": 378.53,
+    "pnl_pct": 0.001,
+    "profit_factor": 1.17,
+    "max_drawdown_abs": 866.46,
+    "max_drawdown_pct": 0.002,
+    "starting_balance": 40000000.0,
+    "final_balance": 40000378.53,
+    "stake_currency": "USDT",
+    "gross_abs": 1016.15,
+    "volume_abs": 1249171.22,
+    "break_even_pct": 0.0813,
+    "market_change_pct": -43.705,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "2:30:00",
+    "exits": {
+     "roi": {
+      "n": 3,
+      "pnl_abs": 1416.38
+     },
+     "session_end": {
+      "n": 7,
+      "pnl_abs": 1193.13
+     },
+     "stop_loss": {
+      "n": 18,
+      "pnl_abs": -2230.98
+     }
+    },
+    "duration_s": 22.5,
+    "zip": "backtest-result-2026-09-10_08-05-05.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-080510-a05ed4",
+   "status": "done",
+   "created": "2026-09-10T08:05:10+00:00",
+   "started": "2026-09-10T08:05:10+00:00",
+   "finished": "2026-09-10T08:05:30+00:00",
+   "user": "",
+   "note": "matica 20260910-080338-b6fd: JP225/JPY 3m — overenie rezimu: konfiguracia A, okno 20250904-20260904",
+   "tag": {
+    "pair": "JP225/JPY",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "JP225/JPY"
+   },
+   "result": {
+    "trades": 13,
+    "wins": 6,
+    "losses": 7,
+    "draws": 0,
+    "winrate": 46.15,
+    "pnl_abs": -10.77,
+    "pnl_pct": -0.0,
+    "profit_factor": 0.992,
+    "max_drawdown_abs": 1300.86,
+    "max_drawdown_pct": 0.003,
+    "starting_balance": 40000000.0,
+    "final_balance": 39999989.23,
+    "stake_currency": "JPY",
+    "gross_abs": 705.79,
+    "volume_abs": 1433124.45,
+    "break_even_pct": 0.0492,
+    "market_change_pct": 52.886,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "3:20:00",
+    "exits": {
+     "session_end": {
+      "n": 8,
+      "pnl_abs": 1211.0
+     },
+     "stop_loss": {
+      "n": 5,
+      "pnl_abs": -1221.77
+     }
+    },
+    "duration_s": 20.7,
+    "zip": "backtest-result-2026-09-10_08-05-29.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-080534-037f27",
+   "status": "done",
+   "created": "2026-09-10T08:05:34+00:00",
+   "started": "2026-09-10T08:05:34+00:00",
+   "finished": "2026-09-10T08:05:46+00:00",
+   "user": "",
+   "note": "matica 20260910-080338-b6fd: WTI/USD 3m — overenie rezimu: konfiguracia A, okno 20250904-20260904",
+   "tag": {
+    "pair": "WTI/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "WTI/USD"
+   },
+   "result": {
+    "trades": 10,
+    "wins": 2,
+    "losses": 8,
+    "draws": 0,
+    "winrate": 20.0,
+    "pnl_abs": -2.37,
+    "pnl_pct": -0.0,
+    "profit_factor": 0.631,
+    "max_drawdown_abs": 4.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 40000000.0,
+    "final_balance": 39999997.63,
+    "stake_currency": "USD",
+    "gross_abs": -1.5,
+    "volume_abs": 1747.79,
+    "break_even_pct": -0.0856,
+    "market_change_pct": 66.491,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-04-13 23:57:00",
+    "holding_avg": "1:42:00",
+    "exits": {
+     "roi": {
+      "n": 1,
+      "pnl_abs": 1.31
+     },
+     "session_end": {
+      "n": 2,
+      "pnl_abs": -0.37
+     },
+     "stop_loss": {
+      "n": 7,
+      "pnl_abs": -3.31
+     }
+    },
+    "duration_s": 12.0,
+    "zip": "backtest-result-2026-09-10_08-05-45.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-080548-244072",
+   "status": "done",
+   "created": "2026-09-10T08:05:48+00:00",
+   "started": "2026-09-10T08:05:48+00:00",
+   "finished": "2026-09-10T08:06:11+00:00",
+   "user": "",
+   "note": "matica 20260910-080338-b6fd: ETH/USD 3m — overenie rezimu: konfiguracia A, okno 20250904-20260904",
+   "tag": {
+    "pair": "ETH/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "ETH/USD"
+   },
+   "result": {
+    "trades": 29,
+    "wins": 8,
+    "losses": 21,
+    "draws": 0,
+    "winrate": 27.59,
+    "pnl_abs": -237.72,
+    "pnl_pct": -0.001,
+    "profit_factor": 0.893,
+    "max_drawdown_abs": 1097.11,
+    "max_drawdown_pct": 0.003,
+    "starting_balance": 40000000.0,
+    "final_balance": 39999762.28,
+    "stake_currency": "USD",
+    "gross_abs": 397.5,
+    "volume_abs": 1270449.5,
+    "break_even_pct": 0.0313,
+    "market_change_pct": -43.75,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "2:19:00",
+    "exits": {
+     "roi": {
+      "n": 2,
+      "pnl_abs": 919.92
+     },
+     "session_end": {
+      "n": 9,
+      "pnl_abs": 999.97
+     },
+     "stop_loss": {
+      "n": 18,
+      "pnl_abs": -2157.62
+     }
+    },
+    "duration_s": 22.7,
+    "zip": "backtest-result-2026-09-10_08-06-09.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-080614-bba62a",
+   "status": "done",
+   "created": "2026-09-10T08:06:14+00:00",
+   "started": "2026-09-10T08:06:14+00:00",
+   "finished": "2026-09-10T08:06:31+00:00",
+   "user": "",
+   "note": "matica 20260910-080338-b6fd: NAS100/USD 3m — overenie rezimu: konfiguracia A, okno 20250904-20260904",
+   "tag": {
+    "pair": "NAS100/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "NAS100/USD"
+   },
+   "result": {
+    "trades": 12,
+    "wins": 5,
+    "losses": 7,
+    "draws": 0,
+    "winrate": 41.67,
+    "pnl_abs": -207.76,
+    "pnl_pct": -0.001,
+    "profit_factor": 0.584,
+    "max_drawdown_abs": 398.5,
+    "max_drawdown_pct": 0.001,
+    "starting_balance": 40000000.0,
+    "final_balance": 39999792.24,
+    "stake_currency": "USD",
+    "gross_abs": 109.8,
+    "volume_abs": 635113.17,
+    "break_even_pct": 0.0173,
+    "market_change_pct": 25.843,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "3:31:00",
+    "exits": {
+     "session_end": {
+      "n": 8,
+      "pnl_abs": 186.52
+     },
+     "stop_loss": {
+      "n": 4,
+      "pnl_abs": -394.28
+     }
+    },
+    "duration_s": 17.1,
+    "zip": "backtest-result-2026-09-10_08-06-30.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-080634-cccaec",
+   "status": "done",
+   "created": "2026-09-10T08:06:34+00:00",
+   "started": "2026-09-10T08:06:34+00:00",
+   "finished": "2026-09-10T08:06:45+00:00",
+   "user": "",
+   "note": "matica 20260910-080338-b6fd: NGAS/USD 3m — overenie rezimu: konfiguracia A, okno 20250904-20260904",
+   "tag": {
+    "pair": "NGAS/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "NGAS/USD"
+   },
+   "result": {
+    "trades": 12,
+    "wins": 3,
+    "losses": 9,
+    "draws": 0,
+    "winrate": 25.0,
+    "pnl_abs": -0.38,
+    "pnl_pct": -0.0,
+    "profit_factor": 0.842,
+    "max_drawdown_abs": 1.33,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 40000000.0,
+    "final_balance": 39999999.62,
+    "stake_currency": "USD",
+    "gross_abs": 0.05,
+    "volume_abs": 856.23,
+    "break_even_pct": 0.0056,
+    "market_change_pct": -14.011,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-04-13 23:57:00",
+    "holding_avg": "2:42:00",
+    "exits": {
+     "roi": {
+      "n": 2,
+      "pnl_abs": 1.46
+     },
+     "session_end": {
+      "n": 4,
+      "pnl_abs": -0.1
+     },
+     "stop_loss": {
+      "n": 6,
+      "pnl_abs": -1.74
+     }
+    },
+    "duration_s": 11.4,
+    "zip": "backtest-result-2026-09-10_08-06-44.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-080648-df3937",
+   "status": "done",
+   "created": "2026-09-10T08:06:48+00:00",
+   "started": "2026-09-10T08:06:48+00:00",
+   "finished": "2026-09-10T08:07:09+00:00",
+   "user": "",
+   "note": "matica 20260910-080338-b6fd: XAU/USD 3m — overenie rezimu: konfiguracia A, okno 20250904-20260904",
+   "tag": {
+    "pair": "XAU/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "XAU/USD"
+   },
+   "result": {
+    "trades": 17,
+    "wins": 5,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 29.41,
+    "pnl_abs": -197.89,
+    "pnl_pct": -0.0,
+    "profit_factor": 0.259,
+    "max_drawdown_abs": 204.44,
+    "max_drawdown_pct": 0.001,
+    "starting_balance": 40000000.0,
+    "final_balance": 39999802.11,
+    "stake_currency": "USD",
+    "gross_abs": -123.02,
+    "volume_abs": 149735.17,
+    "break_even_pct": -0.0822,
+    "market_change_pct": 25.879,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "2:28:00",
+    "exits": {
+     "session_end": {
+      "n": 7,
+      "pnl_abs": 51.56
+     },
+     "stop_loss": {
+      "n": 10,
+      "pnl_abs": -249.45
+     }
+    },
+    "duration_s": 20.5,
+    "zip": "backtest-result-2026-09-10_08-07-08.zip"
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-09-10T08:07:09+00:00"
+}

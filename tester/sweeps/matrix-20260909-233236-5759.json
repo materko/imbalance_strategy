@@ -1,0 +1,1283 @@
+{
+ "version": 1,
+ "kind": "matrix",
+ "id": "20260909-233236-5759",
+ "strategy": "ibs",
+ "created": "2026-09-09T23:32:38+00:00",
+ "user": "",
+ "base": {
+  "params": {
+   "enableImbEntry": true,
+   "enablePinBarEntry": true,
+   "enableEngulfingEntry": true,
+   "pbWickToBodyRatio": 4.0,
+   "pbBodyPositionPct": 20.0,
+   "pbMinRangePoints": {
+    "value": 0.02302,
+    "unit": "atr"
+   },
+   "engMinRangePoints": {
+    "value": 0.02302,
+    "unit": "atr"
+   },
+   "engSizeAvgLen": 10,
+   "engSizeMultiplier": 2.0,
+   "engTouchWindowBars": 3,
+   "pbEngOrderType": "Market",
+   "enableTrailing": false,
+   "trailActivationR": 1.0,
+   "trailOffsetR": 0.5,
+   "weekdaysOnly": true,
+   "enableTrading": true,
+   "enableZoneDetection": true,
+   "enableGapDetection": true,
+   "enableSrTrading": true,
+   "enableLqTrading": true,
+   "closeAtSessionEnd": true,
+   "sess1On": false,
+   "sess1TZ": "Europe/Prague",
+   "sess1ZoneStartH": 1,
+   "sess1ZoneStartM": 0,
+   "sess1ZoneEndH": 9,
+   "sess1ZoneEndM": 0,
+   "sess1TradeStartH": 2,
+   "sess1TradeStartM": 0,
+   "sess1TradeEndH": 5,
+   "sess1TradeEndM": 0,
+   "sess2On": true,
+   "sess2TZ": "America/New_York",
+   "sess2ZoneStartH": 8,
+   "sess2ZoneStartM": 0,
+   "sess2ZoneEndH": 11,
+   "sess2ZoneEndM": 0,
+   "sess2TradeStartH": 10,
+   "sess2TradeStartM": 0,
+   "sess2TradeEndH": 15,
+   "sess2TradeEndM": 45,
+   "sess3On": false,
+   "sess3TZ": "Europe/London",
+   "sess3ZoneStartH": 8,
+   "sess3ZoneStartM": 0,
+   "sess3ZoneEndH": 10,
+   "sess3ZoneEndM": 0,
+   "sess3TradeStartH": 8,
+   "sess3TradeStartM": 0,
+   "sess3TradeEndH": 11,
+   "sess3TradeEndM": 0,
+   "zoneDetectionTF": "5",
+   "zoneValidHours": 6,
+   "maxSdZones": 200,
+   "snapMode": "Floor",
+   "invalidateOnFill": true,
+   "useVolumeFilter": false,
+   "volumeFilterBlockTrading": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "showMarketStructure": true,
+   "structureSwingLen": 5,
+   "useStructureFilter": true,
+   "showSR": true,
+   "srSwingLen": 10,
+   "srClusterPoints": {
+    "value": 0.172653,
+    "unit": "atr"
+   },
+   "srMinTouches": 2,
+   "srMaxLevels": 10,
+   "srLookbackDays": 5,
+   "srZoneSaturationPct": 30,
+   "showLiqSweep": true,
+   "liqSweepLen": 10,
+   "liqSweepMinWick": {
+    "value": 0.057551,
+    "unit": "atr"
+   },
+   "liqSweepConfirmBars": 2,
+   "liqStrengthLen": 50,
+   "showElliott": false,
+   "ewSwingLen": 8,
+   "ewMinWavePoints": {
+    "value": 0.230204,
+    "unit": "atr"
+   },
+   "ewShowLabels": true,
+   "ewShowProjection": true,
+   "ewProjExtendBars": 40,
+   "ewLineColor": "#334155",
+   "showImbalance": true,
+   "showDashboard": true,
+   "dashPos": "Top Right",
+   "dashboardRows": 6,
+   "showTradeLog": false,
+   "tradeLogRows": 20,
+   "showDebugTable": false,
+   "debugTableRows": 8,
+   "debugPos": "Bottom Right",
+   "imbLookback": 20,
+   "imbMaxDistTicks": 100.0,
+   "minImbSizePoints": {
+    "value": 0.028775,
+    "unit": "atr"
+   },
+   "state1MaxBars": 10,
+   "state2MaxBars": 15,
+   "state2ConfirmTicks": 1.0,
+   "state3MaxBars": 1,
+   "state4MaxBars": 10,
+   "state5MaxBars": 10,
+   "alertOnState2": false,
+   "alertOnState3": false,
+   "alertOnState4": false,
+   "rrRatio": 5.0,
+   "slLookback": 20,
+   "slBufferTicks": 2.0,
+   "maxLossDollar": 100.0,
+   "maxDailyWins": 5,
+   "tradeDirection": "Long only",
+   "tickDollarValue": null,
+   "legacyPineSizing": false,
+   "atrLen": 14,
+   "minSlDistance": 0.2,
+   "leverage": 10.0
+  },
+  "settings": {
+   "strategy": "ibs",
+   "pair": "BTC/USDT:USDT",
+   "engine": "freqtrade",
+   "timeframe": "3m",
+   "exchange": "tester",
+   "timerange": "20250904-20260904",
+   "fee": 0.0005,
+   "wallet": 40000000.0,
+   "timeframe_detail": "1m",
+   "profile": "docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json"
+  }
+ },
+ "points": [
+  {
+   "run": "20260909-233238-9b81b6",
+   "status": "done",
+   "created": "2026-09-09T23:32:38+00:00",
+   "started": "2026-09-09T23:32:38+00:00",
+   "finished": "2026-09-09T23:33:01+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: BTC/USDT:USDT 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "BTC/USDT:USDT",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 21,
+    "wins": 10,
+    "losses": 11,
+    "draws": 0,
+    "winrate": 47.62,
+    "pnl_abs": 619.46,
+    "pnl_pct": 0.002,
+    "profit_factor": 1.441,
+    "max_drawdown_abs": 608.85,
+    "max_drawdown_pct": 0.002,
+    "starting_balance": 40000000.0,
+    "final_balance": 40000619.46,
+    "stake_currency": "USDT",
+    "gross_abs": 1180.29,
+    "volume_abs": 1101760.81,
+    "break_even_pct": 0.1071,
+    "market_change_pct": -27.327,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "2:11:00",
+    "exits": {
+     "roi": {
+      "n": 2,
+      "pnl_abs": 938.11
+     },
+     "session_end": {
+      "n": 8,
+      "pnl_abs": 1086.51
+     },
+     "stop_loss": {
+      "n": 11,
+      "pnl_abs": -1405.16
+     }
+    },
+    "duration_s": 22.8,
+    "zip": "backtest-result-2026-09-09_23-32-59.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233304-c95102",
+   "status": "done",
+   "created": "2026-09-09T23:33:04+00:00",
+   "started": "2026-09-09T23:33:04+00:00",
+   "finished": "2026-09-09T23:33:28+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: ETH/USDT:USDT 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "ETH/USDT:USDT",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "ETH/USDT:USDT"
+   },
+   "result": {
+    "trades": 28,
+    "wins": 10,
+    "losses": 18,
+    "draws": 0,
+    "winrate": 35.71,
+    "pnl_abs": 378.26,
+    "pnl_pct": 0.001,
+    "profit_factor": 1.17,
+    "max_drawdown_abs": 866.54,
+    "max_drawdown_pct": 0.002,
+    "starting_balance": 40000000.0,
+    "final_balance": 40000378.26,
+    "stake_currency": "USDT",
+    "gross_abs": 1015.37,
+    "volume_abs": 1248160.18,
+    "break_even_pct": 0.0813,
+    "market_change_pct": -43.705,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "2:30:00",
+    "exits": {
+     "roi": {
+      "n": 3,
+      "pnl_abs": 1416.44
+     },
+     "session_end": {
+      "n": 7,
+      "pnl_abs": 1193.0
+     },
+     "stop_loss": {
+      "n": 17,
+      "pnl_abs": -2114.98
+     },
+     "trailing_stop_loss": {
+      "n": 1,
+      "pnl_abs": -116.2
+     }
+    },
+    "duration_s": 23.9,
+    "zip": "backtest-result-2026-09-09_23-33-27.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233330-212054",
+   "status": "done",
+   "created": "2026-09-09T23:33:30+00:00",
+   "started": "2026-09-09T23:33:30+00:00",
+   "finished": "2026-09-09T23:33:50+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: NAS100/USD 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "NAS100/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "NAS100/USD"
+   },
+   "result": {
+    "trades": 10,
+    "wins": 4,
+    "losses": 6,
+    "draws": 0,
+    "winrate": 40.0,
+    "pnl_abs": -111.72,
+    "pnl_pct": -0.0,
+    "profit_factor": 0.693,
+    "max_drawdown_abs": 302.46,
+    "max_drawdown_pct": 0.001,
+    "starting_balance": 40000000.0,
+    "final_balance": 39999888.28,
+    "stake_currency": "USD",
+    "gross_abs": 150.85,
+    "volume_abs": 525146.19,
+    "break_even_pct": 0.0287,
+    "market_change_pct": 25.843,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "3:43:00",
+    "exits": {
+     "session_end": {
+      "n": 7,
+      "pnl_abs": 146.67
+     },
+     "stop_loss": {
+      "n": 3,
+      "pnl_abs": -258.39
+     }
+    },
+    "duration_s": 20.3,
+    "zip": "backtest-result-2026-09-09_23-33-49.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233354-f9ec77",
+   "status": "done",
+   "created": "2026-09-09T23:33:54+00:00",
+   "started": "2026-09-09T23:33:54+00:00",
+   "finished": "2026-09-09T23:34:06+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: COCOA/USD 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "COCOA/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "COCOA/USD"
+   },
+   "result": {
+    "trades": 9,
+    "wins": 4,
+    "losses": 5,
+    "draws": 0,
+    "winrate": 44.44,
+    "pnl_abs": 8.49,
+    "pnl_pct": 0.0,
+    "profit_factor": 1.053,
+    "max_drawdown_abs": 96.76,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 40000000.0,
+    "final_balance": 40000008.49,
+    "stake_currency": "USD",
+    "gross_abs": 50.41,
+    "volume_abs": 83837.3,
+    "break_even_pct": 0.0601,
+    "market_change_pct": -28.389,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-04-13 17:27:00",
+    "holding_avg": "2:02:00",
+    "exits": {
+     "roi": {
+      "n": 1,
+      "pnl_abs": 69.2
+     },
+     "session_end": {
+      "n": 4,
+      "pnl_abs": 71.33
+     },
+     "stop_loss": {
+      "n": 4,
+      "pnl_abs": -132.03
+     }
+    },
+    "duration_s": 11.7,
+    "zip": "backtest-result-2026-09-09_23-34-05.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233408-5f147c",
+   "status": "done",
+   "created": "2026-09-09T23:34:08+00:00",
+   "started": "2026-09-09T23:34:08+00:00",
+   "finished": "2026-09-09T23:34:28+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: AUDUSD/USD 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "AUDUSD/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "AUDUSD/USD"
+   },
+   "result": {
+    "trades": 5,
+    "wins": 2,
+    "losses": 3,
+    "draws": 0,
+    "winrate": 40.0,
+    "pnl_abs": -0.0,
+    "pnl_pct": -0.0,
+    "profit_factor": 0.24,
+    "max_drawdown_abs": 0.01,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 40000000.0,
+    "final_balance": 40000000.0,
+    "stake_currency": "USD",
+    "gross_abs": -0.0,
+    "volume_abs": 6.87,
+    "break_even_pct": -0.0202,
+    "market_change_pct": 9.98,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "3:35:00",
+    "exits": {
+     "session_end": {
+      "n": 3,
+      "pnl_abs": 0.0
+     },
+     "stop_loss": {
+      "n": 2,
+      "pnl_abs": -0.01
+     }
+    },
+    "duration_s": 20.2,
+    "zip": "backtest-result-2026-09-09_23-34-27.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233432-40d375",
+   "status": "done",
+   "created": "2026-09-09T23:34:32+00:00",
+   "started": "2026-09-09T23:34:32+00:00",
+   "finished": "2026-09-09T23:34:53+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: EURUSD/USD 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "EURUSD/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "EURUSD/USD"
+   },
+   "result": {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": 0.0,
+    "pnl_pct": 0.0,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 40000000.0,
+    "final_balance": 40000000.0,
+    "stake_currency": "USD",
+    "gross_abs": 0.0,
+    "volume_abs": 0.0,
+    "break_even_pct": null,
+    "market_change_pct": -0.271,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "0:00:00",
+    "exits": {},
+    "duration_s": 20.5,
+    "zip": "backtest-result-2026-09-09_23-34-51.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233456-7068a2",
+   "status": "done",
+   "created": "2026-09-09T23:34:56+00:00",
+   "started": "2026-09-09T23:34:56+00:00",
+   "finished": "2026-09-09T23:35:15+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: GBPUSD/USD 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "GBPUSD/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "GBPUSD/USD"
+   },
+   "result": {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": 0.0,
+    "pnl_pct": 0.0,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 40000000.0,
+    "final_balance": 40000000.0,
+    "stake_currency": "USD",
+    "gross_abs": 0.0,
+    "volume_abs": 0.0,
+    "break_even_pct": null,
+    "market_change_pct": 0.661,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "0:00:00",
+    "exits": {},
+    "duration_s": 19.2,
+    "zip": "backtest-result-2026-09-09_23-35-14.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233518-885321",
+   "status": "done",
+   "created": "2026-09-09T23:35:18+00:00",
+   "started": "2026-09-09T23:35:18+00:00",
+   "finished": "2026-09-09T23:35:37+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: USDCAD/CAD 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "USDCAD/CAD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "USDCAD/CAD"
+   },
+   "result": {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": 0.0,
+    "pnl_pct": 0.0,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 40000000.0,
+    "final_balance": 40000000.0,
+    "stake_currency": "CAD",
+    "gross_abs": 0.0,
+    "volume_abs": 0.0,
+    "break_even_pct": null,
+    "market_change_pct": 0.423,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-08-31 23:57:00",
+    "holding_avg": "0:00:00",
+    "exits": {},
+    "duration_s": 18.5,
+    "zip": "backtest-result-2026-09-09_23-35-36.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233540-01ad82",
+   "status": "done",
+   "created": "2026-09-09T23:35:40+00:00",
+   "started": "2026-09-09T23:35:40+00:00",
+   "finished": "2026-09-09T23:36:01+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: USDJPY/JPY 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "USDJPY/JPY",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "USDJPY/JPY"
+   },
+   "result": {
+    "trades": 1,
+    "wins": 1,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 100.0,
+    "pnl_abs": 0.47,
+    "pnl_pct": 0.0,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 40000000.0,
+    "final_balance": 40000000.47,
+    "stake_currency": "JPY",
+    "gross_abs": 0.62,
+    "volume_abs": 294.29,
+    "break_even_pct": 0.2093,
+    "market_change_pct": 5.139,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "5:45:00",
+    "exits": {
+     "session_end": {
+      "n": 1,
+      "pnl_abs": 0.47
+     }
+    },
+    "duration_s": 21.0,
+    "zip": "backtest-result-2026-09-09_23-36-00.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233604-0866fc",
+   "status": "done",
+   "created": "2026-09-09T23:36:04+00:00",
+   "started": "2026-09-09T23:36:04+00:00",
+   "finished": "2026-09-09T23:36:23+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: GBPJPY/JPY 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "GBPJPY/JPY",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "GBPJPY/JPY"
+   },
+   "result": {
+    "trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": -0.52,
+    "pnl_pct": -0.0,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.52,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 40000000.0,
+    "final_balance": 39999999.48,
+    "stake_currency": "JPY",
+    "gross_abs": -0.31,
+    "volume_abs": 426.79,
+    "break_even_pct": -0.0722,
+    "market_change_pct": 5.835,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "5:00:00",
+    "exits": {
+     "session_end": {
+      "n": 1,
+      "pnl_abs": -0.52
+     }
+    },
+    "duration_s": 18.9,
+    "zip": "backtest-result-2026-09-09_23-36-22.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233626-1633b5",
+   "status": "done",
+   "created": "2026-09-09T23:36:26+00:00",
+   "started": "2026-09-09T23:36:26+00:00",
+   "finished": "2026-09-09T23:36:45+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: CHFJPY/JPY 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "CHFJPY/JPY",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "CHFJPY/JPY"
+   },
+   "result": {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": 0.0,
+    "pnl_pct": 0.0,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 40000000.0,
+    "final_balance": 40000000.0,
+    "stake_currency": "JPY",
+    "gross_abs": 0.0,
+    "volume_abs": 0.0,
+    "break_even_pct": null,
+    "market_change_pct": 4.681,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "0:00:00",
+    "exits": {},
+    "duration_s": 18.7,
+    "zip": "backtest-result-2026-09-09_23-36-44.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233648-cd59d6",
+   "status": "done",
+   "created": "2026-09-09T23:36:48+00:00",
+   "started": "2026-09-09T23:36:48+00:00",
+   "finished": "2026-09-09T23:37:07+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: US500/USD 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "US500/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "US500/USD"
+   },
+   "result": {
+    "trades": 6,
+    "wins": 2,
+    "losses": 4,
+    "draws": 0,
+    "winrate": 33.33,
+    "pnl_abs": -167.42,
+    "pnl_pct": -0.0,
+    "profit_factor": 0.566,
+    "max_drawdown_abs": 217.93,
+    "max_drawdown_pct": 0.001,
+    "starting_balance": 40000000.0,
+    "final_balance": 39999832.58,
+    "stake_currency": "USD",
+    "gross_abs": 6.25,
+    "volume_abs": 347351.94,
+    "break_even_pct": 0.0018,
+    "market_change_pct": 19.3,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-08-31 23:57:00",
+    "holding_avg": "3:17:00",
+    "exits": {
+     "session_end": {
+      "n": 3,
+      "pnl_abs": 178.11
+     },
+     "stop_loss": {
+      "n": 3,
+      "pnl_abs": -345.53
+     }
+    },
+    "duration_s": 18.9,
+    "zip": "backtest-result-2026-09-09_23-37-06.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233710-31267f",
+   "status": "done",
+   "created": "2026-09-09T23:37:10+00:00",
+   "started": "2026-09-09T23:37:10+00:00",
+   "finished": "2026-09-09T23:37:30+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: DJ30/USD 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "DJ30/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "DJ30/USD"
+   },
+   "result": {
+    "trades": 12,
+    "wins": 7,
+    "losses": 5,
+    "draws": 0,
+    "winrate": 58.33,
+    "pnl_abs": 1159.81,
+    "pnl_pct": 0.003,
+    "profit_factor": 2.632,
+    "max_drawdown_abs": 347.79,
+    "max_drawdown_pct": 0.001,
+    "starting_balance": 40000000.0,
+    "final_balance": 40001159.81,
+    "stake_currency": "USD",
+    "gross_abs": 1750.84,
+    "volume_abs": 1182063.14,
+    "break_even_pct": 0.1481,
+    "market_change_pct": 18.812,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "3:46:00",
+    "exits": {
+     "roi": {
+      "n": 1,
+      "pnl_abs": 577.44
+     },
+     "session_end": {
+      "n": 8,
+      "pnl_abs": 1169.87
+     },
+     "stop_loss": {
+      "n": 3,
+      "pnl_abs": -587.5
+     }
+    },
+    "duration_s": 19.7,
+    "zip": "backtest-result-2026-09-09_23-37-29.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233732-3a21e2",
+   "status": "done",
+   "created": "2026-09-09T23:37:32+00:00",
+   "started": "2026-09-09T23:37:32+00:00",
+   "finished": "2026-09-09T23:37:44+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: DAX/EUR 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "DAX/EUR",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "DAX/EUR"
+   },
+   "result": {
+    "trades": 2,
+    "wins": 1,
+    "losses": 1,
+    "draws": 0,
+    "winrate": 50.0,
+    "pnl_abs": 37.29,
+    "pnl_pct": 0.0,
+    "profit_factor": 1.439,
+    "max_drawdown_abs": 84.9,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 40000000.0,
+    "final_balance": 40000037.29,
+    "stake_currency": "EUR",
+    "gross_abs": 84.34,
+    "volume_abs": 94094.73,
+    "break_even_pct": 0.0896,
+    "market_change_pct": -0.459,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-04-13 23:57:00",
+    "holding_avg": "2:30:00",
+    "exits": {
+     "session_end": {
+      "n": 1,
+      "pnl_abs": 122.19
+     },
+     "stop_loss": {
+      "n": 1,
+      "pnl_abs": -84.9
+     }
+    },
+    "duration_s": 12.0,
+    "zip": "backtest-result-2026-09-09_23-37-44.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233747-7b7e19",
+   "status": "done",
+   "created": "2026-09-09T23:37:47+00:00",
+   "started": "2026-09-09T23:37:47+00:00",
+   "finished": "2026-09-09T23:38:07+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: JP225/JPY 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "JP225/JPY",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "JP225/JPY"
+   },
+   "result": {
+    "trades": 12,
+    "wins": 6,
+    "losses": 6,
+    "draws": 0,
+    "winrate": 50.0,
+    "pnl_abs": 189.49,
+    "pnl_pct": 0.0,
+    "profit_factor": 1.164,
+    "max_drawdown_abs": 1100.59,
+    "max_drawdown_pct": 0.003,
+    "starting_balance": 40000000.0,
+    "final_balance": 40000189.49,
+    "stake_currency": "JPY",
+    "gross_abs": 853.65,
+    "volume_abs": 1328305.68,
+    "break_even_pct": 0.0643,
+    "market_change_pct": 52.886,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "3:31:00",
+    "exits": {
+     "session_end": {
+      "n": 8,
+      "pnl_abs": 1211.0
+     },
+     "stop_loss": {
+      "n": 4,
+      "pnl_abs": -1021.51
+     }
+    },
+    "duration_s": 20.7,
+    "zip": "backtest-result-2026-09-09_23-38-06.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233811-0e9e59",
+   "status": "done",
+   "created": "2026-09-09T23:38:11+00:00",
+   "started": "2026-09-09T23:38:11+00:00",
+   "finished": "2026-09-09T23:38:31+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: BTC/USD 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "BTC/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "BTC/USD"
+   },
+   "result": {
+    "trades": 22,
+    "wins": 10,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 45.45,
+    "pnl_abs": 2703.34,
+    "pnl_pct": 0.007,
+    "profit_factor": 1.548,
+    "max_drawdown_abs": 3573.87,
+    "max_drawdown_pct": 0.009,
+    "starting_balance": 40000000.0,
+    "final_balance": 40002703.34,
+    "stake_currency": "USD",
+    "gross_abs": 4590.4,
+    "volume_abs": 3774123.4,
+    "break_even_pct": 0.1216,
+    "market_change_pct": -27.363,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "2:26:00",
+    "exits": {
+     "roi": {
+      "n": 3,
+      "pnl_abs": 3873.14
+     },
+     "session_end": {
+      "n": 8,
+      "pnl_abs": 3696.06
+     },
+     "stop_loss": {
+      "n": 11,
+      "pnl_abs": -4865.86
+     }
+    },
+    "duration_s": 20.9,
+    "zip": "backtest-result-2026-09-09_23-38-30.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233835-845626",
+   "status": "done",
+   "created": "2026-09-09T23:38:35+00:00",
+   "started": "2026-09-09T23:38:35+00:00",
+   "finished": "2026-09-09T23:38:59+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: ETH/USD 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "ETH/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "ETH/USD"
+   },
+   "result": {
+    "trades": 29,
+    "wins": 8,
+    "losses": 21,
+    "draws": 0,
+    "winrate": 27.59,
+    "pnl_abs": -236.63,
+    "pnl_pct": -0.001,
+    "profit_factor": 0.893,
+    "max_drawdown_abs": 1095.31,
+    "max_drawdown_pct": 0.003,
+    "starting_balance": 40000000.0,
+    "final_balance": 39999763.37,
+    "stake_currency": "USD",
+    "gross_abs": 398.6,
+    "volume_abs": 1270450.6,
+    "break_even_pct": 0.0314,
+    "market_change_pct": -43.75,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "2:19:00",
+    "exits": {
+     "roi": {
+      "n": 2,
+      "pnl_abs": 921.02
+     },
+     "session_end": {
+      "n": 9,
+      "pnl_abs": 999.97
+     },
+     "stop_loss": {
+      "n": 18,
+      "pnl_abs": -2157.62
+     }
+    },
+    "duration_s": 24.8,
+    "zip": "backtest-result-2026-09-09_23-38-58.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233903-c6464f",
+   "status": "done",
+   "created": "2026-09-09T23:39:03+00:00",
+   "started": "2026-09-09T23:39:03+00:00",
+   "finished": "2026-09-09T23:39:26+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: XAU/USD 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "XAU/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "XAU/USD"
+   },
+   "result": {
+    "trades": 17,
+    "wins": 4,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 23.53,
+    "pnl_abs": -231.84,
+    "pnl_pct": -0.001,
+    "profit_factor": 0.181,
+    "max_drawdown_abs": 238.4,
+    "max_drawdown_pct": 0.001,
+    "starting_balance": 40000000.0,
+    "final_balance": 39999768.16,
+    "stake_currency": "USD",
+    "gross_abs": -156.59,
+    "volume_abs": 150505.1,
+    "break_even_pct": -0.104,
+    "market_change_pct": 25.879,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "2:21:00",
+    "exits": {
+     "session_end": {
+      "n": 6,
+      "pnl_abs": 33.61
+     },
+     "stop_loss": {
+      "n": 11,
+      "pnl_abs": -265.46
+     }
+    },
+    "duration_s": 23.2,
+    "zip": "backtest-result-2026-09-09_23-39-25.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233929-8cb2f8",
+   "status": "done",
+   "created": "2026-09-09T23:39:29+00:00",
+   "started": "2026-09-09T23:39:29+00:00",
+   "finished": "2026-09-09T23:39:41+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: WTI/USD 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "WTI/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "WTI/USD"
+   },
+   "result": {
+    "trades": 15,
+    "wins": 5,
+    "losses": 10,
+    "draws": 0,
+    "winrate": 33.33,
+    "pnl_abs": 0.19,
+    "pnl_pct": 0.0,
+    "profit_factor": 1.041,
+    "max_drawdown_abs": 2.53,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 40000000.0,
+    "final_balance": 40000000.19,
+    "stake_currency": "USD",
+    "gross_abs": 1.37,
+    "volume_abs": 2348.77,
+    "break_even_pct": 0.0582,
+    "market_change_pct": 66.491,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-04-13 23:57:00",
+    "holding_avg": "2:01:00",
+    "exits": {
+     "roi": {
+      "n": 1,
+      "pnl_abs": 1.41
+     },
+     "session_end": {
+      "n": 4,
+      "pnl_abs": 3.51
+     },
+     "stop_loss": {
+      "n": 10,
+      "pnl_abs": -4.73
+     }
+    },
+    "duration_s": 12.5,
+    "zip": "backtest-result-2026-09-09_23-39-40.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233945-309141",
+   "status": "done",
+   "created": "2026-09-09T23:39:45+00:00",
+   "started": "2026-09-09T23:39:45+00:00",
+   "finished": "2026-09-09T23:39:58+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: NGAS/USD 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "NGAS/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "NGAS/USD"
+   },
+   "result": {
+    "trades": 13,
+    "wins": 3,
+    "losses": 10,
+    "draws": 0,
+    "winrate": 23.08,
+    "pnl_abs": -1.06,
+    "pnl_pct": -0.0,
+    "profit_factor": 0.656,
+    "max_drawdown_abs": 2.25,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 40000000.0,
+    "final_balance": 39999998.94,
+    "stake_currency": "USD",
+    "gross_abs": -0.58,
+    "volume_abs": 946.19,
+    "break_even_pct": -0.0618,
+    "market_change_pct": -14.011,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-04-13 23:57:00",
+    "holding_avg": "2:56:00",
+    "exits": {
+     "roi": {
+      "n": 1,
+      "pnl_abs": 1.01
+     },
+     "session_end": {
+      "n": 5,
+      "pnl_abs": 0.35
+     },
+     "stop_loss": {
+      "n": 7,
+      "pnl_abs": -2.41
+     }
+    },
+    "duration_s": 13.2,
+    "zip": "backtest-result-2026-09-09_23-39-57.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-234001-dec62b",
+   "status": "done",
+   "created": "2026-09-09T23:40:01+00:00",
+   "started": "2026-09-09T23:40:01+00:00",
+   "finished": "2026-09-09T23:40:12+00:00",
+   "user": "",
+   "note": "matica 20260909-233236-5759: COFFEE/USD 3m — matica trhov: prahy v atr, penazenka na jeden kontrakt",
+   "tag": {
+    "pair": "COFFEE/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "COFFEE/USD"
+   },
+   "result": {
+    "trades": 6,
+    "wins": 1,
+    "losses": 5,
+    "draws": 0,
+    "winrate": 16.67,
+    "pnl_abs": -6.08,
+    "pnl_pct": -0.0,
+    "profit_factor": 0.309,
+    "max_drawdown_abs": 6.08,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 40000000.0,
+    "final_balance": 39999993.92,
+    "stake_currency": "USD",
+    "gross_abs": -3.99,
+    "volume_abs": 4184.11,
+    "break_even_pct": -0.0954,
+    "market_change_pct": -27.737,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-04-13 17:27:00",
+    "holding_avg": "1:26:00",
+    "exits": {
+     "session_end": {
+      "n": 2,
+      "pnl_abs": 2.16
+     },
+     "stop_loss": {
+      "n": 4,
+      "pnl_abs": -8.25
+     }
+    },
+    "duration_s": 11.2,
+    "zip": "backtest-result-2026-09-09_23-40-11.zip"
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-09-09T23:40:12+00:00"
+}

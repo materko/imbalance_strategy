@@ -1,0 +1,620 @@
+{
+ "version": 1,
+ "kind": "matrix",
+ "id": "20260909-232814-11eb",
+ "strategy": "ibs",
+ "created": "2026-09-09T23:28:16+00:00",
+ "user": "",
+ "base": {
+  "params": {
+   "enableImbEntry": true,
+   "enablePinBarEntry": true,
+   "enableEngulfingEntry": true,
+   "pbWickToBodyRatio": 4.0,
+   "pbBodyPositionPct": 20.0,
+   "pbMinRangePoints": {
+    "value": 0.02302,
+    "unit": "atr"
+   },
+   "engMinRangePoints": {
+    "value": 0.02302,
+    "unit": "atr"
+   },
+   "engSizeAvgLen": 10,
+   "engSizeMultiplier": 2.0,
+   "engTouchWindowBars": 3,
+   "pbEngOrderType": "Market",
+   "enableTrailing": false,
+   "trailActivationR": 1.0,
+   "trailOffsetR": 0.5,
+   "weekdaysOnly": true,
+   "enableTrading": true,
+   "enableZoneDetection": true,
+   "enableGapDetection": true,
+   "enableSrTrading": true,
+   "enableLqTrading": true,
+   "closeAtSessionEnd": true,
+   "sess1On": false,
+   "sess1TZ": "Europe/Prague",
+   "sess1ZoneStartH": 1,
+   "sess1ZoneStartM": 0,
+   "sess1ZoneEndH": 9,
+   "sess1ZoneEndM": 0,
+   "sess1TradeStartH": 2,
+   "sess1TradeStartM": 0,
+   "sess1TradeEndH": 5,
+   "sess1TradeEndM": 0,
+   "sess2On": true,
+   "sess2TZ": "America/New_York",
+   "sess2ZoneStartH": 8,
+   "sess2ZoneStartM": 0,
+   "sess2ZoneEndH": 11,
+   "sess2ZoneEndM": 0,
+   "sess2TradeStartH": 10,
+   "sess2TradeStartM": 0,
+   "sess2TradeEndH": 15,
+   "sess2TradeEndM": 45,
+   "sess3On": false,
+   "sess3TZ": "Europe/London",
+   "sess3ZoneStartH": 8,
+   "sess3ZoneStartM": 0,
+   "sess3ZoneEndH": 10,
+   "sess3ZoneEndM": 0,
+   "sess3TradeStartH": 8,
+   "sess3TradeStartM": 0,
+   "sess3TradeEndH": 11,
+   "sess3TradeEndM": 0,
+   "zoneDetectionTF": "5",
+   "zoneValidHours": 6,
+   "maxSdZones": 200,
+   "snapMode": "Floor",
+   "invalidateOnFill": true,
+   "useVolumeFilter": false,
+   "volumeFilterBlockTrading": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "showMarketStructure": true,
+   "structureSwingLen": 5,
+   "useStructureFilter": true,
+   "showSR": true,
+   "srSwingLen": 10,
+   "srClusterPoints": {
+    "value": 0.172653,
+    "unit": "atr"
+   },
+   "srMinTouches": 2,
+   "srMaxLevels": 10,
+   "srLookbackDays": 5,
+   "srZoneSaturationPct": 30,
+   "showLiqSweep": true,
+   "liqSweepLen": 10,
+   "liqSweepMinWick": {
+    "value": 0.057551,
+    "unit": "atr"
+   },
+   "liqSweepConfirmBars": 2,
+   "liqStrengthLen": 50,
+   "showElliott": false,
+   "ewSwingLen": 8,
+   "ewMinWavePoints": {
+    "value": 0.230204,
+    "unit": "atr"
+   },
+   "ewShowLabels": true,
+   "ewShowProjection": true,
+   "ewProjExtendBars": 40,
+   "ewLineColor": "#334155",
+   "showImbalance": true,
+   "showDashboard": true,
+   "dashPos": "Top Right",
+   "dashboardRows": 6,
+   "showTradeLog": false,
+   "tradeLogRows": 20,
+   "showDebugTable": false,
+   "debugTableRows": 8,
+   "debugPos": "Bottom Right",
+   "imbLookback": 20,
+   "imbMaxDistTicks": 100.0,
+   "minImbSizePoints": {
+    "value": 0.028775,
+    "unit": "atr"
+   },
+   "state1MaxBars": 10,
+   "state2MaxBars": 15,
+   "state2ConfirmTicks": 1.0,
+   "state3MaxBars": 1,
+   "state4MaxBars": 10,
+   "state5MaxBars": 10,
+   "alertOnState2": false,
+   "alertOnState3": false,
+   "alertOnState4": false,
+   "rrRatio": 5.0,
+   "slLookback": 20,
+   "slBufferTicks": 2.0,
+   "maxLossDollar": 100.0,
+   "maxDailyWins": 5,
+   "tradeDirection": "Long only",
+   "tickDollarValue": null,
+   "legacyPineSizing": false,
+   "atrLen": 14,
+   "minSlDistance": 0.2,
+   "leverage": 10.0
+  },
+  "settings": {
+   "strategy": "ibs",
+   "pair": "BTC/USDT:USDT",
+   "engine": "freqtrade",
+   "timeframe": "3m",
+   "exchange": "tester",
+   "timerange": "20250904-20260904",
+   "fee": 0.0005,
+   "wallet": 10000,
+   "timeframe_detail": "1m",
+   "profile": "docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json"
+  }
+ },
+ "points": [
+  {
+   "run": "20260909-232816-a4a3e5",
+   "status": "done",
+   "created": "2026-09-09T23:28:16+00:00",
+   "started": "2026-09-09T23:28:16+00:00",
+   "finished": "2026-09-09T23:28:34+00:00",
+   "user": "",
+   "note": "matica 20260909-232814-11eb: BTC/USDT:USDT 3m — matica trhov, prahy prepocitane na atr",
+   "tag": {
+    "pair": "BTC/USDT:USDT",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 21,
+    "wins": 10,
+    "losses": 11,
+    "draws": 0,
+    "winrate": 47.62,
+    "pnl_abs": 619.46,
+    "pnl_pct": 6.195,
+    "profit_factor": 1.441,
+    "max_drawdown_abs": 608.85,
+    "max_drawdown_pct": 5.533,
+    "starting_balance": 10000.0,
+    "final_balance": 10619.46,
+    "stake_currency": "USDT",
+    "gross_abs": 1180.29,
+    "volume_abs": 1101760.81,
+    "break_even_pct": 0.1071,
+    "market_change_pct": -27.327,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "2:11:00",
+    "exits": {
+     "roi": {
+      "n": 2,
+      "pnl_abs": 938.11
+     },
+     "session_end": {
+      "n": 8,
+      "pnl_abs": 1086.51
+     },
+     "stop_loss": {
+      "n": 11,
+      "pnl_abs": -1405.16
+     }
+    },
+    "duration_s": 18.3,
+    "zip": "backtest-result-2026-09-09_23-28-33.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-232838-bafd68",
+   "status": "done",
+   "created": "2026-09-09T23:28:38+00:00",
+   "started": "2026-09-09T23:28:38+00:00",
+   "finished": "2026-09-09T23:28:56+00:00",
+   "user": "",
+   "note": "matica 20260909-232814-11eb: ETH/USDT:USDT 3m — matica trhov, prahy prepocitane na atr",
+   "tag": {
+    "pair": "ETH/USDT:USDT",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "ETH/USDT:USDT"
+   },
+   "result": {
+    "trades": 28,
+    "wins": 10,
+    "losses": 18,
+    "draws": 0,
+    "winrate": 35.71,
+    "pnl_abs": 378.26,
+    "pnl_pct": 3.783,
+    "profit_factor": 1.17,
+    "max_drawdown_abs": 866.54,
+    "max_drawdown_pct": 7.706,
+    "starting_balance": 10000.0,
+    "final_balance": 10378.26,
+    "stake_currency": "USDT",
+    "gross_abs": 1015.37,
+    "volume_abs": 1248160.18,
+    "break_even_pct": 0.0813,
+    "market_change_pct": -43.705,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "2:30:00",
+    "exits": {
+     "roi": {
+      "n": 3,
+      "pnl_abs": 1416.44
+     },
+     "session_end": {
+      "n": 7,
+      "pnl_abs": 1193.0
+     },
+     "stop_loss": {
+      "n": 17,
+      "pnl_abs": -2114.98
+     },
+     "trailing_stop_loss": {
+      "n": 1,
+      "pnl_abs": -116.2
+     }
+    },
+    "duration_s": 18.7,
+    "zip": "backtest-result-2026-09-09_23-28-55.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-232900-ad527c",
+   "status": "done",
+   "created": "2026-09-09T23:29:00+00:00",
+   "started": "2026-09-09T23:29:00+00:00",
+   "finished": "2026-09-09T23:29:15+00:00",
+   "user": "",
+   "note": "matica 20260909-232814-11eb: NAS100/USD 3m — matica trhov, prahy prepocitane na atr",
+   "tag": {
+    "pair": "NAS100/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "NAS100/USD"
+   },
+   "result": {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": 0.0,
+    "pnl_pct": 0.0,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 10000.0,
+    "final_balance": 10000.0,
+    "stake_currency": "USD",
+    "gross_abs": 0.0,
+    "volume_abs": 0.0,
+    "break_even_pct": null,
+    "market_change_pct": 25.843,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "0:00:00",
+    "exits": {},
+    "duration_s": 15.7,
+    "zip": "backtest-result-2026-09-09_23-29-14.zip",
+    "warning": "engine dal 13 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh."
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-232918-be15d1",
+   "status": "done",
+   "created": "2026-09-09T23:29:18+00:00",
+   "started": "2026-09-09T23:29:18+00:00",
+   "finished": "2026-09-09T23:29:28+00:00",
+   "user": "",
+   "note": "matica 20260909-232814-11eb: COCOA/USD 3m — matica trhov, prahy prepocitane na atr",
+   "tag": {
+    "pair": "COCOA/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "COCOA/USD"
+   },
+   "result": {
+    "trades": 9,
+    "wins": 4,
+    "losses": 5,
+    "draws": 0,
+    "winrate": 44.44,
+    "pnl_abs": 8.49,
+    "pnl_pct": 0.085,
+    "profit_factor": 1.053,
+    "max_drawdown_abs": 96.76,
+    "max_drawdown_pct": 0.958,
+    "starting_balance": 10000.0,
+    "final_balance": 10008.49,
+    "stake_currency": "USD",
+    "gross_abs": 50.41,
+    "volume_abs": 83837.3,
+    "break_even_pct": 0.0601,
+    "market_change_pct": -28.389,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-04-13 17:27:00",
+    "holding_avg": "2:02:00",
+    "exits": {
+     "roi": {
+      "n": 1,
+      "pnl_abs": 69.2
+     },
+     "session_end": {
+      "n": 4,
+      "pnl_abs": 71.33
+     },
+     "stop_loss": {
+      "n": 4,
+      "pnl_abs": -132.03
+     }
+    },
+    "duration_s": 9.9,
+    "zip": "backtest-result-2026-09-09_23-29-27.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-232930-072214",
+   "status": "done",
+   "created": "2026-09-09T23:29:30+00:00",
+   "started": "2026-09-09T23:29:30+00:00",
+   "finished": "2026-09-09T23:29:47+00:00",
+   "user": "",
+   "note": "matica 20260909-232814-11eb: AUDUSD/USD 3m — matica trhov, prahy prepocitane na atr",
+   "tag": {
+    "pair": "AUDUSD/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "AUDUSD/USD"
+   },
+   "result": {
+    "trades": 5,
+    "wins": 2,
+    "losses": 3,
+    "draws": 0,
+    "winrate": 40.0,
+    "pnl_abs": -0.0,
+    "pnl_pct": -0.0,
+    "profit_factor": 0.24,
+    "max_drawdown_abs": 0.01,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 10000.0,
+    "final_balance": 10000.0,
+    "stake_currency": "USD",
+    "gross_abs": -0.0,
+    "volume_abs": 6.87,
+    "break_even_pct": -0.0202,
+    "market_change_pct": 9.98,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "3:35:00",
+    "exits": {
+     "session_end": {
+      "n": 3,
+      "pnl_abs": 0.0
+     },
+     "stop_loss": {
+      "n": 2,
+      "pnl_abs": -0.01
+     }
+    },
+    "duration_s": 16.8,
+    "zip": "backtest-result-2026-09-09_23-29-46.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-232950-d987a9",
+   "status": "done",
+   "created": "2026-09-09T23:29:50+00:00",
+   "started": "2026-09-09T23:29:50+00:00",
+   "finished": "2026-09-09T23:30:06+00:00",
+   "user": "",
+   "note": "matica 20260909-232814-11eb: EURUSD/USD 3m — matica trhov, prahy prepocitane na atr",
+   "tag": {
+    "pair": "EURUSD/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "EURUSD/USD"
+   },
+   "result": {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": 0.0,
+    "pnl_pct": 0.0,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 10000.0,
+    "final_balance": 10000.0,
+    "stake_currency": "USD",
+    "gross_abs": 0.0,
+    "volume_abs": 0.0,
+    "break_even_pct": null,
+    "market_change_pct": -0.271,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "0:00:00",
+    "exits": {},
+    "duration_s": 16.6,
+    "zip": "backtest-result-2026-09-09_23-30-05.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233010-11a779",
+   "status": "done",
+   "created": "2026-09-09T23:30:10+00:00",
+   "started": "2026-09-09T23:30:10+00:00",
+   "finished": "2026-09-09T23:30:26+00:00",
+   "user": "",
+   "note": "matica 20260909-232814-11eb: GBPUSD/USD 3m — matica trhov, prahy prepocitane na atr",
+   "tag": {
+    "pair": "GBPUSD/USD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "GBPUSD/USD"
+   },
+   "result": {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": 0.0,
+    "pnl_pct": 0.0,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 10000.0,
+    "final_balance": 10000.0,
+    "stake_currency": "USD",
+    "gross_abs": 0.0,
+    "volume_abs": 0.0,
+    "break_even_pct": null,
+    "market_change_pct": 0.661,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "0:00:00",
+    "exits": {},
+    "duration_s": 16.3,
+    "zip": "backtest-result-2026-09-09_23-30-25.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233030-e4ea99",
+   "status": "done",
+   "created": "2026-09-09T23:30:30+00:00",
+   "started": "2026-09-09T23:30:30+00:00",
+   "finished": "2026-09-09T23:30:46+00:00",
+   "user": "",
+   "note": "matica 20260909-232814-11eb: USDCAD/CAD 3m — matica trhov, prahy prepocitane na atr",
+   "tag": {
+    "pair": "USDCAD/CAD",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "USDCAD/CAD"
+   },
+   "result": {
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": 0.0,
+    "pnl_pct": 0.0,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 10000.0,
+    "final_balance": 10000.0,
+    "stake_currency": "CAD",
+    "gross_abs": 0.0,
+    "volume_abs": 0.0,
+    "break_even_pct": null,
+    "market_change_pct": 0.423,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-08-31 23:57:00",
+    "holding_avg": "0:00:00",
+    "exits": {},
+    "duration_s": 16.1,
+    "zip": "backtest-result-2026-09-09_23-30-45.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-233050-536040",
+   "status": "done",
+   "created": "2026-09-09T23:30:50+00:00",
+   "started": "2026-09-09T23:30:50+00:00",
+   "finished": "2026-09-09T23:31:07+00:00",
+   "user": "",
+   "note": "matica 20260909-232814-11eb: USDJPY/JPY 3m — matica trhov, prahy prepocitane na atr",
+   "tag": {
+    "pair": "USDJPY/JPY",
+    "timeframe": "3m",
+    "goal": "break_even",
+    "relative": true
+   },
+   "params": {},
+   "settings": {
+    "pair": "USDJPY/JPY"
+   },
+   "result": {
+    "trades": 1,
+    "wins": 1,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 100.0,
+    "pnl_abs": 0.47,
+    "pnl_pct": 0.005,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 10000.0,
+    "final_balance": 10000.47,
+    "stake_currency": "JPY",
+    "gross_abs": 0.62,
+    "volume_abs": 294.29,
+    "break_even_pct": 0.2093,
+    "market_change_pct": 5.139,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "5:45:00",
+    "exits": {
+     "session_end": {
+      "n": 1,
+      "pnl_abs": 0.47
+     }
+    },
+    "duration_s": 17.2,
+    "zip": "backtest-result-2026-09-09_23-31-06.zip"
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-09-09T23:31:07+00:00"
+}

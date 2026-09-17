@@ -1,0 +1,347 @@
+{
+  "id": "20260917-114138-5c9979",
+  "status": "done",
+  "created": "2026-09-17T11:41:38+00:00",
+  "started": "2026-09-17T11:41:38+00:00",
+  "finished": "2026-09-17T11:41:46+00:00",
+  "user": "",
+  "note": "A6/A8 overenie: IBS 2m, Supertrend 60m, trailing",
+  "settings": {
+    "strategy": "ibs",
+    "pair": "BTC/USDT:USDT",
+    "engine": "freqtrade",
+    "timeframe": "2m",
+    "exchange": "tester",
+    "timerange": "20260801-20260905",
+    "fee": 0.0005,
+    "fee_note": "Binance USDⓈ-M taker, VIP 0",
+    "ai": null,
+    "wallet": 10000,
+    "timeframe_detail": "1m",
+    "profile": "docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json",
+    "instrument": "btcusdt_binance"
+  },
+  "params": {
+    "enableImbEntry": true,
+    "enablePinBarEntry": true,
+    "enableEngulfingEntry": true,
+    "pbWickToBodyRatio": 4.0,
+    "pbBodyPositionPct": 20.0,
+    "pbMinRangePoints": 2.0,
+    "engMinRangePoints": 2.0,
+    "engSizeAvgLen": 10,
+    "engSizeMultiplier": 2.0,
+    "engTouchWindowBars": 3,
+    "pbEngOrderType": "Market",
+    "enableTrailing": true,
+    "trailActivationR": 1.0,
+    "trailOffsetR": 0.5,
+    "weekdaysOnly": true,
+    "enableTrading": true,
+    "enableZoneDetection": true,
+    "enableGapDetection": true,
+    "enableSrTrading": true,
+    "enableLqTrading": true,
+    "closeAtSessionEnd": true,
+    "sess1On": false,
+    "sess1TZ": "Europe/Prague",
+    "sess1ZoneStartH": 1,
+    "sess1ZoneStartM": 0,
+    "sess1ZoneEndH": 9,
+    "sess1ZoneEndM": 0,
+    "sess1TradeStartH": 2,
+    "sess1TradeStartM": 0,
+    "sess1TradeEndH": 5,
+    "sess1TradeEndM": 0,
+    "sess2On": true,
+    "sess2TZ": "America/New_York",
+    "sess2ZoneStartH": 8,
+    "sess2ZoneStartM": 0,
+    "sess2ZoneEndH": 11,
+    "sess2ZoneEndM": 0,
+    "sess2TradeStartH": 10,
+    "sess2TradeStartM": 0,
+    "sess2TradeEndH": 15,
+    "sess2TradeEndM": 45,
+    "sess3On": false,
+    "sess3TZ": "Europe/London",
+    "sess3ZoneStartH": 8,
+    "sess3ZoneStartM": 0,
+    "sess3ZoneEndH": 10,
+    "sess3ZoneEndM": 0,
+    "sess3TradeStartH": 8,
+    "sess3TradeStartM": 0,
+    "sess3TradeEndH": 11,
+    "sess3TradeEndM": 0,
+    "zoneDetectionTF": "5",
+    "zoneValidHours": 6,
+    "maxSdZones": 200,
+    "snapMode": "Floor",
+    "invalidateOnFill": true,
+    "useVolumeFilter": false,
+    "volumeFilterBlockTrading": false,
+    "volSmaLen": 20,
+    "volMultiplier": 1.5,
+    "showMarketStructure": true,
+    "structureSwingLen": 5,
+    "useStructureFilter": true,
+    "showSR": true,
+    "srSwingLen": 10,
+    "srClusterPoints": 15.0,
+    "srMinTouches": 2,
+    "srMaxLevels": 10,
+    "srLookbackDays": 5,
+    "srZoneSaturationPct": 30,
+    "showLiqSweep": true,
+    "liqSweepLen": 10,
+    "liqSweepMinWick": 5.0,
+    "liqSweepConfirmBars": 2,
+    "liqStrengthLen": 50,
+    "showElliott": false,
+    "ewSwingLen": 8,
+    "ewMinWavePoints": 20.0,
+    "ewShowLabels": true,
+    "ewShowProjection": true,
+    "ewProjExtendBars": 40,
+    "ewLineColor": "#334155",
+    "showImbalance": true,
+    "showDashboard": true,
+    "dashPos": "Top Right",
+    "dashboardRows": 6,
+    "showTradeLog": false,
+    "tradeLogRows": 20,
+    "showDebugTable": false,
+    "debugTableRows": 8,
+    "debugPos": "Bottom Right",
+    "imbLookback": 20,
+    "imbMaxDistTicks": 100.0,
+    "minImbSizePoints": 2.5,
+    "state1MaxBars": 10,
+    "state2MaxBars": 15,
+    "state2ConfirmTicks": 1.0,
+    "state3MaxBars": 1,
+    "state4MaxBars": 10,
+    "state5MaxBars": 10,
+    "alertOnState2": false,
+    "alertOnState3": false,
+    "alertOnState4": false,
+    "rrRatio": 2.5,
+    "slLookback": 20,
+    "slBufferTicks": 2.0,
+    "maxLossDollar": 100.0,
+    "maxDailyWins": 5,
+    "tradeDirection": "Indicator",
+    "indSupertrend": true,
+    "stTimeframe": "60",
+    "stAtrPeriod": 10,
+    "stSource": "hl2",
+    "stMultiplier": 3.0,
+    "stChangeAtr": true,
+    "stShowSignals": true,
+    "stHighlighting": true,
+    "indAdx": false,
+    "adxTimeframe": "60",
+    "adxDiLength": 14,
+    "adxSmoothing": 14,
+    "adxThreshold": 20.0,
+    "adxShowState": true,
+    "ruleStUp": "Long only",
+    "ruleStDown": "Short only",
+    "ruleAdxUp": "Long only",
+    "ruleAdxDown": "Short only",
+    "ruleAdxSide": "No trade",
+    "ruleStUpAdxUp": "Long only",
+    "ruleStUpAdxSide": "No trade",
+    "ruleStUpAdxDown": "No trade",
+    "ruleStDownAdxUp": "No trade",
+    "ruleStDownAdxSide": "No trade",
+    "ruleStDownAdxDown": "Short only",
+    "tickDollarValue": null,
+    "legacyPineSizing": false,
+    "atrLen": 14,
+    "minSlDistance": 0.2,
+    "leverage": 10.0
+  },
+  "error": null,
+  "result": {
+    "trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": -120.78,
+    "pnl_pct": -1.208,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 120.78,
+    "max_drawdown_pct": 1.208,
+    "starting_balance": 10000.0,
+    "final_balance": 9879.22,
+    "stake_currency": "USDT",
+    "gross_abs": -99.94,
+    "volume_abs": 41677.34,
+    "break_even_pct": -0.2398,
+    "market_change_pct": 28.835,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-04 06:12:00",
+    "holding_avg": "0:36:00",
+    "exits": {
+      "stop_loss": {
+        "n": 1,
+        "pnl_abs": -120.78
+      }
+    },
+    "duration_s": 8.3,
+    "zip": "backtest-result-2026-09-17_11-41-45.zip"
+  },
+  "series": {
+    "equity": [
+      [
+        "2026-09-01T15:02:00+00:00",
+        -1.2078,
+        -1.2078
+      ]
+    ],
+    "market": [
+      [
+        "2026-08-01T00:00:00+00:00",
+        -0.1713
+      ],
+      [
+        "2026-08-02T00:00:00+00:00",
+        1.0372
+      ],
+      [
+        "2026-08-03T00:00:00+00:00",
+        0.9671
+      ],
+      [
+        "2026-08-04T00:00:00+00:00",
+        1.8856
+      ],
+      [
+        "2026-08-05T00:00:00+00:00",
+        2.7653
+      ],
+      [
+        "2026-08-06T00:00:00+00:00",
+        2.2546
+      ],
+      [
+        "2026-08-07T00:00:00+00:00",
+        3.1698
+      ],
+      [
+        "2026-08-08T00:00:00+00:00",
+        3.2372
+      ],
+      [
+        "2026-08-09T00:00:00+00:00",
+        3.1456
+      ],
+      [
+        "2026-08-10T00:00:00+00:00",
+        1.7131
+      ],
+      [
+        "2026-08-11T00:00:00+00:00",
+        1.1432
+      ],
+      [
+        "2026-08-12T00:00:00+00:00",
+        0.9668
+      ],
+      [
+        "2026-08-13T00:00:00+00:00",
+        0.9794
+      ],
+      [
+        "2026-08-14T00:00:00+00:00",
+        0.2876
+      ],
+      [
+        "2026-08-15T00:00:00+00:00",
+        0.3503
+      ],
+      [
+        "2026-08-16T00:00:00+00:00",
+        0.0697
+      ],
+      [
+        "2026-08-17T00:00:00+00:00",
+        2.6354
+      ],
+      [
+        "2026-08-18T00:00:00+00:00",
+        2.9356
+      ],
+      [
+        "2026-08-19T00:00:00+00:00",
+        10.0079
+      ],
+      [
+        "2026-08-20T00:00:00+00:00",
+        15.2398
+      ],
+      [
+        "2026-08-21T00:00:00+00:00",
+        22.3491
+      ],
+      [
+        "2026-08-22T00:00:00+00:00",
+        20.8031
+      ],
+      [
+        "2026-08-23T00:00:00+00:00",
+        21.6426
+      ],
+      [
+        "2026-08-24T00:00:00+00:00",
+        23.2546
+      ],
+      [
+        "2026-08-25T00:00:00+00:00",
+        22.7299
+      ],
+      [
+        "2026-08-26T00:00:00+00:00",
+        23.3629
+      ],
+      [
+        "2026-08-27T00:00:00+00:00",
+        24.9194
+      ],
+      [
+        "2026-08-28T00:00:00+00:00",
+        21.902
+      ],
+      [
+        "2026-08-29T00:00:00+00:00",
+        22.4126
+      ],
+      [
+        "2026-08-30T00:00:00+00:00",
+        21.6983
+      ],
+      [
+        "2026-08-31T00:00:00+00:00",
+        22.8913
+      ],
+      [
+        "2026-09-01T00:00:00+00:00",
+        21.4362
+      ],
+      [
+        "2026-09-02T00:00:00+00:00",
+        21.3245
+      ],
+      [
+        "2026-09-03T00:00:00+00:00",
+        26.3121
+      ],
+      [
+        "2026-09-04T00:00:00+00:00",
+        26.0697
+      ]
+    ]
+  }
+}

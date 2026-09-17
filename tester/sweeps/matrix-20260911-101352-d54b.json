@@ -1,0 +1,393 @@
+{
+ "version": 1,
+ "kind": "matrix",
+ "id": "20260911-101352-d54b",
+ "strategy": "ibs",
+ "created": "2026-09-11T10:13:52+00:00",
+ "user": "materko",
+ "base": {
+  "params": {
+   "enableImbEntry": true,
+   "enablePinBarEntry": false,
+   "enableEngulfingEntry": false,
+   "pbWickToBodyRatio": 4,
+   "pbBodyPositionPct": 20,
+   "pbMinRangePoints": {
+    "value": 0.02302,
+    "unit": "atr"
+   },
+   "engMinRangePoints": {
+    "value": 0.02302,
+    "unit": "atr"
+   },
+   "engSizeAvgLen": 10,
+   "engSizeMultiplier": 2,
+   "engTouchWindowBars": 3,
+   "pbEngOrderType": "Market",
+   "enableTrailing": false,
+   "trailActivationR": 1,
+   "trailOffsetR": 0.5,
+   "enableZoneDetection": true,
+   "enableSrTrading": false,
+   "enableLqTrading": false,
+   "rrRatio": 1,
+   "tradeDirection": "Both",
+   "weekdaysOnly": true,
+   "enableTrading": true,
+   "closeAtSessionEnd": true,
+   "enableGapDetection": true,
+   "zoneDetectionTF": "5",
+   "zoneValidHours": 6,
+   "maxSdZones": 200,
+   "snapMode": "Floor",
+   "invalidateOnFill": true,
+   "useVolumeFilter": false,
+   "volumeFilterBlockTrading": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "imbLookback": 20,
+   "imbMaxDistTicks": {
+    "value": 0.115102,
+    "unit": "atr"
+   },
+   "minImbSizePoints": {
+    "value": 0.028775,
+    "unit": "atr"
+   },
+   "sess1On": false,
+   "sess1TZ": "Europe/Prague",
+   "sess1ZoneStartH": 1,
+   "sess1ZoneStartM": 0,
+   "sess1ZoneEndH": 9,
+   "sess1ZoneEndM": 0,
+   "sess1TradeStartH": 2,
+   "sess1TradeStartM": 0,
+   "sess1TradeEndH": 5,
+   "sess1TradeEndM": 0,
+   "sess2On": true,
+   "sess2TZ": "America/New_York",
+   "sess2ZoneStartH": 10,
+   "sess2ZoneStartM": 0,
+   "sess2ZoneEndH": 11,
+   "sess2ZoneEndM": 0,
+   "sess2TradeStartH": 10,
+   "sess2TradeStartM": 0,
+   "sess2TradeEndH": 15,
+   "sess2TradeEndM": 45,
+   "sess3On": true,
+   "sess3TZ": "Europe/London",
+   "sess3ZoneStartH": 8,
+   "sess3ZoneStartM": 0,
+   "sess3ZoneEndH": 10,
+   "sess3ZoneEndM": 0,
+   "sess3TradeStartH": 8,
+   "sess3TradeStartM": 0,
+   "sess3TradeEndH": 11,
+   "sess3TradeEndM": 0,
+   "showMarketStructure": true,
+   "structureSwingLen": 5,
+   "useStructureFilter": false,
+   "showSR": true,
+   "srSwingLen": 10,
+   "srClusterPoints": {
+    "value": 0.172653,
+    "unit": "atr"
+   },
+   "srMinTouches": 2,
+   "srMaxLevels": 10,
+   "srLookbackDays": 5,
+   "srZoneSaturationPct": 30,
+   "showLiqSweep": true,
+   "liqSweepLen": 10,
+   "liqSweepMinWick": {
+    "value": 0.057551,
+    "unit": "atr"
+   },
+   "liqSweepConfirmBars": 2,
+   "liqStrengthLen": 50,
+   "showElliott": true,
+   "ewSwingLen": 8,
+   "ewMinWavePoints": {
+    "value": 0.230204,
+    "unit": "atr"
+   },
+   "ewShowLabels": true,
+   "ewShowProjection": true,
+   "ewProjExtendBars": 40,
+   "ewLineColor": "#334155",
+   "showImbalance": true,
+   "state1MaxBars": 10,
+   "state2MaxBars": 15,
+   "state2ConfirmTicks": {
+    "value": 0.001151,
+    "unit": "atr"
+   },
+   "state3MaxBars": 1,
+   "state4MaxBars": 10,
+   "state5MaxBars": 10,
+   "slLookback": 10,
+   "slBufferTicks": {
+    "value": 0.002302,
+    "unit": "atr"
+   },
+   "maxLossDollar": 350,
+   "maxDailyWins": 5,
+   "tickDollarValue": null,
+   "legacyPineSizing": false,
+   "atrLen": 14,
+   "minSlDistance": 0,
+   "leverage": 1
+  },
+  "settings": {
+   "strategy": "ibs",
+   "exchange": "tester",
+   "pair": "NAS100/USD",
+   "engine": "freqtrade",
+   "timeframe": "4m",
+   "timerange": "20250904-20260904",
+   "fee": 0.0,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 33333.0,
+   "timeframe_detail": "1m",
+   "profile": null
+  }
+ },
+ "points": [
+  {
+   "run": "20260911-101352-62af25",
+   "status": "done",
+   "created": "2026-09-11T10:13:52+00:00",
+   "started": "2026-09-11T10:14:53+00:00",
+   "finished": "2026-09-11T10:15:12+00:00",
+   "user": "materko",
+   "note": "matica 20260911-101352-d54b: NAS100/USD 4m",
+   "tag": {
+    "pair": "NAS100/USD",
+    "timeframe": "4m",
+    "goal": "winrate",
+    "relative": true,
+    "min_trades": 10
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 68,
+    "wins": 37,
+    "losses": 31,
+    "draws": 0,
+    "winrate": 54.41,
+    "pnl_abs": 236.45,
+    "pnl_pct": 0.709,
+    "profit_factor": 1.181,
+    "max_drawdown_abs": 264.62,
+    "max_drawdown_pct": 0.794,
+    "starting_balance": 33333.0,
+    "final_balance": 33569.45,
+    "stake_currency": "USD",
+    "gross_abs": 236.45,
+    "volume_abs": 3665561.69,
+    "break_even_pct": 0.0065,
+    "market_change_pct": 25.783,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "1:06:00",
+    "exits": {
+     "roi": {
+      "n": 33,
+      "pnl_abs": 1332.79
+     },
+     "session_end": {
+      "n": 5,
+      "pnl_abs": 160.13
+     },
+     "stop_loss": {
+      "n": 30,
+      "pnl_abs": -1256.47
+     }
+    },
+    "duration_s": 18.6,
+    "zip": "backtest-result-2026-09-11_10-15-10.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-101352-7314d9",
+   "status": "done",
+   "created": "2026-09-11T10:13:52+00:00",
+   "started": "2026-09-11T10:14:30+00:00",
+   "finished": "2026-09-11T10:14:53+00:00",
+   "user": "materko",
+   "note": "matica 20260911-101352-d54b: NAS100/USD 3m",
+   "tag": {
+    "pair": "NAS100/USD",
+    "timeframe": "3m",
+    "goal": "winrate",
+    "relative": true,
+    "min_trades": 10
+   },
+   "params": {},
+   "settings": {
+    "timeframe": "3m"
+   },
+   "result": {
+    "trades": 76,
+    "wins": 44,
+    "losses": 32,
+    "draws": 0,
+    "winrate": 57.89,
+    "pnl_abs": 582.64,
+    "pnl_pct": 1.748,
+    "profit_factor": 1.456,
+    "max_drawdown_abs": 281.25,
+    "max_drawdown_pct": 0.841,
+    "starting_balance": 33333.0,
+    "final_balance": 33915.64,
+    "stake_currency": "USD",
+    "gross_abs": 582.64,
+    "volume_abs": 4110552.55,
+    "break_even_pct": 0.0142,
+    "market_change_pct": 25.843,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "0:49:00",
+    "exits": {
+     "roi": {
+      "n": 44,
+      "pnl_abs": 1860.06
+     },
+     "session_end": {
+      "n": 1,
+      "pnl_abs": -59.33
+     },
+     "stop_loss": {
+      "n": 31,
+      "pnl_abs": -1218.09
+     }
+    },
+    "duration_s": 23.1,
+    "zip": "backtest-result-2026-09-11_10-14-52.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-101352-737fd5",
+   "status": "done",
+   "created": "2026-09-11T10:13:52+00:00",
+   "started": "2026-09-11T10:15:12+00:00",
+   "finished": "2026-09-11T10:15:29+00:00",
+   "user": "materko",
+   "note": "matica 20260911-101352-d54b: NAS100/USD 5m",
+   "tag": {
+    "pair": "NAS100/USD",
+    "timeframe": "5m",
+    "goal": "winrate",
+    "relative": true,
+    "min_trades": 10
+   },
+   "params": {},
+   "settings": {
+    "timeframe": "5m"
+   },
+   "result": {
+    "trades": 69,
+    "wins": 39,
+    "losses": 30,
+    "draws": 0,
+    "winrate": 56.52,
+    "pnl_abs": 296.53,
+    "pnl_pct": 0.89,
+    "profit_factor": 1.182,
+    "max_drawdown_abs": 620.64,
+    "max_drawdown_pct": 1.858,
+    "starting_balance": 33333.0,
+    "final_balance": 33629.53,
+    "stake_currency": "USD",
+    "gross_abs": 296.53,
+    "volume_abs": 3665074.94,
+    "break_even_pct": 0.0081,
+    "market_change_pct": 25.797,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "1:18:00",
+    "exits": {
+     "roi": {
+      "n": 35,
+      "pnl_abs": 1687.92
+     },
+     "session_end": {
+      "n": 8,
+      "pnl_abs": 176.2
+     },
+     "stop_loss": {
+      "n": 26,
+      "pnl_abs": -1567.59
+     }
+    },
+    "duration_s": 16.9,
+    "zip": "backtest-result-2026-09-11_10-15-28.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-101352-b6f0b9",
+   "status": "done",
+   "created": "2026-09-11T10:13:52+00:00",
+   "started": "2026-09-11T10:13:52+00:00",
+   "finished": "2026-09-11T10:14:30+00:00",
+   "user": "materko",
+   "note": "matica 20260911-101352-d54b: NAS100/USD 2m",
+   "tag": {
+    "pair": "NAS100/USD",
+    "timeframe": "2m",
+    "goal": "winrate",
+    "relative": true,
+    "min_trades": 10
+   },
+   "params": {},
+   "settings": {
+    "timeframe": "2m"
+   },
+   "result": {
+    "trades": 122,
+    "wins": 58,
+    "losses": 64,
+    "draws": 0,
+    "winrate": 47.54,
+    "pnl_abs": -270.57,
+    "pnl_pct": -0.812,
+    "profit_factor": 0.881,
+    "max_drawdown_abs": 412.03,
+    "max_drawdown_pct": 1.234,
+    "starting_balance": 33333.0,
+    "final_balance": 33062.43,
+    "stake_currency": "USD",
+    "gross_abs": -270.57,
+    "volume_abs": 6576741.53,
+    "break_even_pct": -0.0041,
+    "market_change_pct": 25.893,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "0:40:00",
+    "exits": {
+     "roi": {
+      "n": 56,
+      "pnl_abs": 1986.88
+     },
+     "session_end": {
+      "n": 4,
+      "pnl_abs": -85.64
+     },
+     "stop_loss": {
+      "n": 62,
+      "pnl_abs": -2171.81
+     }
+    },
+    "duration_s": 37.6,
+    "zip": "backtest-result-2026-09-11_10-14-28.zip"
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-09-11T10:15:29+00:00"
+}

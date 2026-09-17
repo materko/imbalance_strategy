@@ -1,0 +1,31 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.cfd.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data --strategy IBSImbalanceStrategy --cache none --export trades --timerange 20250904-20260904 --pairs MNQ/USD --timeframe 3m --dry-run-wallet 10000.0 --fee 0.0 --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\databento\futures
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tester\ftrun.py", line 34, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tester\ftrun.py", line 26, in main
+    from .ftexchange import register
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tester\ftexchange.py", line 31, in <module>
+    from tradebot.core.types import INSTRUMENTS, InstrumentSpec
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tradebot\core\__init__.py", line 13, in <module>
+    from .config import ConfigError, StrategyConfig, list_profiles, load_profile, profile_dir
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tradebot\core\config.py", line 22, in <module>
+    from .types import INSTRUMENTS, InstrumentSpec, SizeSpec, SizeUnit
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tradebot\core\types.py", line 570, in <module>
+    INSTRUMENTS.update(synthetic_specs())
+                       ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\tradebot\core\types.py", line 541, in synthetic_specs
+    raw = json.loads(src.read_text(encoding="utf-8"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Lenovo\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 354, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 42 column 1 (char 1618)

@@ -1,0 +1,1838 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20260914-084414-54c1",
+ "strategy": "ibs",
+ "created": "2026-09-14T08:44:14+00:00",
+ "user": "IBS",
+ "base": {
+  "params": {
+   "enableImbEntry": true,
+   "enablePinBarEntry": true,
+   "enableEngulfingEntry": false,
+   "pbWickToBodyRatio": 4,
+   "pbBodyPositionPct": 20,
+   "pbMinRangePoints": 2,
+   "engMinRangePoints": 2,
+   "engSizeAvgLen": 10,
+   "engSizeMultiplier": 2,
+   "engTouchWindowBars": 3,
+   "pbEngOrderType": "Market",
+   "enableTrailing": false,
+   "trailActivationR": 1,
+   "trailOffsetR": 0.5,
+   "enableZoneDetection": true,
+   "enableSrTrading": true,
+   "enableLqTrading": true,
+   "rrRatio": 0.87,
+   "tradeDirection": "Both",
+   "weekdaysOnly": true,
+   "enableTrading": true,
+   "closeAtSessionEnd": false,
+   "enableGapDetection": true,
+   "zoneDetectionTF": "3",
+   "zoneValidHours": 6,
+   "maxSdZones": 200,
+   "snapMode": "Floor",
+   "invalidateOnFill": true,
+   "useVolumeFilter": false,
+   "volumeFilterBlockTrading": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "imbLookback": 30,
+   "imbMaxDistTicks": 100,
+   "minImbSizePoints": 4,
+   "sess1On": false,
+   "sess1TZ": "Europe/Prague",
+   "sess1ZoneStartH": 1,
+   "sess1ZoneStartM": 0,
+   "sess1ZoneEndH": 9,
+   "sess1ZoneEndM": 0,
+   "sess1TradeStartH": 2,
+   "sess1TradeStartM": 0,
+   "sess1TradeEndH": 5,
+   "sess1TradeEndM": 0,
+   "sess2On": true,
+   "sess2TZ": "America/New_York",
+   "sess2ZoneStartH": 5,
+   "sess2ZoneStartM": 0,
+   "sess2ZoneEndH": 11,
+   "sess2ZoneEndM": 0,
+   "sess2TradeStartH": 10,
+   "sess2TradeStartM": 0,
+   "sess2TradeEndH": 15,
+   "sess2TradeEndM": 45,
+   "sess3On": false,
+   "sess3TZ": "Europe/London",
+   "sess3ZoneStartH": 8,
+   "sess3ZoneStartM": 0,
+   "sess3ZoneEndH": 11,
+   "sess3ZoneEndM": 0,
+   "sess3TradeStartH": 8,
+   "sess3TradeStartM": 0,
+   "sess3TradeEndH": 12,
+   "sess3TradeEndM": 0,
+   "showMarketStructure": true,
+   "structureSwingLen": 5,
+   "useStructureFilter": false,
+   "showSR": true,
+   "srSwingLen": 10,
+   "srClusterPoints": 15,
+   "srMinTouches": 2,
+   "srMaxLevels": 10,
+   "srLookbackDays": 5,
+   "srZoneSaturationPct": 30,
+   "showLiqSweep": true,
+   "liqSweepLen": 10,
+   "liqSweepMinWick": 5,
+   "liqSweepConfirmBars": 2,
+   "liqStrengthLen": 50,
+   "showElliott": false,
+   "ewSwingLen": 8,
+   "ewMinWavePoints": 20,
+   "ewShowLabels": true,
+   "ewShowProjection": true,
+   "ewProjExtendBars": 40,
+   "ewLineColor": "#334155",
+   "showImbalance": true,
+   "state1MaxBars": 1,
+   "state2MaxBars": 1,
+   "state2ConfirmTicks": 0,
+   "state3MaxBars": 1,
+   "state4MaxBars": 11,
+   "state5MaxBars": 5,
+   "slLookback": 81,
+   "slBufferTicks": 6,
+   "maxLossDollar": 1000,
+   "maxDailyWins": 5,
+   "tickDollarValue": 0.5,
+   "legacyPineSizing": false,
+   "atrLen": 14,
+   "minSlDistance": 0.18,
+   "leverage": 1
+  },
+  "settings": {
+   "strategy": "ibs",
+   "exchange": null,
+   "pair": "MNQ/USD",
+   "engine": "multicharts",
+   "timeframe": "3m",
+   "timerange": "20250904-20260904",
+   "fee": 0.0,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 10000.0,
+   "timeframe_detail": null,
+   "profile": "PETO_FTMO"
+  }
+ },
+ "points": [
+  {
+   "run": "20260914-084414-067527",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:45:19+00:00",
+   "finished": "2026-09-14T08:45:26+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=11, slLookback=81",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 11,
+     "slLookback": 81
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 33,
+    "wins": 20,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 60.61,
+    "pnl_abs": 3272.3,
+    "pnl_pct": 32.723,
+    "profit_factor": 1.28,
+    "max_drawdown_abs": 2163.08,
+    "max_drawdown_pct": 21.631,
+    "starting_balance": 10000.0,
+    "final_balance": 13272.31,
+    "stake_currency": "USD",
+    "gross_abs": 3272.3,
+    "volume_abs": 9378193.42,
+    "break_even_pct": 0.0349,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:59:00",
+    "exits": {
+     "stop_loss": {
+      "n": 13,
+      "pnl_abs": -11679.0
+     },
+     "take_profit": {
+      "n": 20,
+      "pnl_abs": 14951.3
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 6.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-11f452",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:44:57+00:00",
+   "finished": "2026-09-14T08:45:04+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=11, slLookback=21",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 11,
+     "slLookback": 21
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "slLookback": 21
+   },
+   "settings": {},
+   "result": {
+    "trades": 29,
+    "wins": 19,
+    "losses": 10,
+    "draws": 0,
+    "winrate": 65.52,
+    "pnl_abs": 6195.41,
+    "pnl_pct": 61.954,
+    "profit_factor": 1.712,
+    "max_drawdown_abs": 2135.6,
+    "max_drawdown_pct": 21.356,
+    "starting_balance": 10000.0,
+    "final_balance": 16195.41,
+    "stake_currency": "USD",
+    "gross_abs": 6195.41,
+    "volume_abs": 9341549.36,
+    "break_even_pct": 0.0663,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:51:00",
+    "exits": {
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 14900.42
+     },
+     "stop_loss": {
+      "n": 10,
+      "pnl_abs": -8705.0
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 6.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-1c2a14",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:46:09+00:00",
+   "finished": "2026-09-14T08:46:16+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=31, slLookback=21",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 31,
+     "slLookback": 21
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 31,
+    "slLookback": 21
+   },
+   "settings": {},
+   "result": {
+    "trades": 29,
+    "wins": 19,
+    "losses": 10,
+    "draws": 0,
+    "winrate": 65.52,
+    "pnl_abs": 6195.41,
+    "pnl_pct": 61.954,
+    "profit_factor": 1.712,
+    "max_drawdown_abs": 2135.6,
+    "max_drawdown_pct": 21.356,
+    "starting_balance": 10000.0,
+    "final_balance": 16195.41,
+    "stake_currency": "USD",
+    "gross_abs": 6195.41,
+    "volume_abs": 9341549.36,
+    "break_even_pct": 0.0663,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:51:00",
+    "exits": {
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 14900.42
+     },
+     "stop_loss": {
+      "n": 10,
+      "pnl_abs": -8705.0
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-262ff7",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:44:28+00:00",
+   "finished": "2026-09-14T08:44:35+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=1, slLookback=41",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 1,
+     "slLookback": 41
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 1,
+    "slLookback": 41
+   },
+   "settings": {},
+   "result": {
+    "trades": 30,
+    "wins": 19,
+    "losses": 11,
+    "draws": 0,
+    "winrate": 63.33,
+    "pnl_abs": 4713.14,
+    "pnl_pct": 47.131,
+    "profit_factor": 1.476,
+    "max_drawdown_abs": 2162.61,
+    "max_drawdown_pct": 21.626,
+    "starting_balance": 10000.0,
+    "final_balance": 14713.14,
+    "stake_currency": "USD",
+    "gross_abs": 4713.14,
+    "volume_abs": 9197294.84,
+    "break_even_pct": 0.0512,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:30:00",
+    "exits": {
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 14621.13
+     },
+     "stop_loss": {
+      "n": 11,
+      "pnl_abs": -9908.0
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-276e8e",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:47:15+00:00",
+   "finished": "2026-09-14T08:47:23+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=11, state4MaxBars=1, slLookback=1",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 11,
+     "state4MaxBars": 1,
+     "slLookback": 1
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state3MaxBars": 11,
+    "state4MaxBars": 1,
+    "slLookback": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 26,
+    "wins": 17,
+    "losses": 9,
+    "draws": 0,
+    "winrate": 65.38,
+    "pnl_abs": 7951.78,
+    "pnl_pct": 79.518,
+    "profit_factor": 2.222,
+    "max_drawdown_abs": 1953.0,
+    "max_drawdown_pct": 19.53,
+    "starting_balance": 10000.0,
+    "final_balance": 17951.78,
+    "stake_currency": "USD",
+    "gross_abs": 7951.78,
+    "volume_abs": 10653993.14,
+    "break_even_pct": 0.0746,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:07:00",
+    "exits": {
+     "take_profit": {
+      "n": 17,
+      "pnl_abs": 14458.77
+     },
+     "stop_loss": {
+      "n": 9,
+      "pnl_abs": -6507.0
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 8.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-27798f",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:45:11+00:00",
+   "finished": "2026-09-14T08:45:18+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=11, slLookback=61",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 11,
+     "slLookback": 61
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "slLookback": 61
+   },
+   "settings": {},
+   "result": {
+    "trades": 32,
+    "wins": 19,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 59.38,
+    "pnl_abs": 2903.81,
+    "pnl_pct": 29.038,
+    "profit_factor": 1.249,
+    "max_drawdown_abs": 2162.61,
+    "max_drawdown_pct": 21.626,
+    "starting_balance": 10000.0,
+    "final_balance": 12903.81,
+    "stake_currency": "USD",
+    "gross_abs": 2903.81,
+    "volume_abs": 9159720.74,
+    "break_even_pct": 0.0317,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:56:00",
+    "exits": {
+     "stop_loss": {
+      "n": 13,
+      "pnl_abs": -11666.0
+     },
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 14569.82
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-3336ed",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:44:35+00:00",
+   "finished": "2026-09-14T08:44:42+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=1, slLookback=61",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 1,
+     "slLookback": 61
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 1,
+    "slLookback": 61
+   },
+   "settings": {},
+   "result": {
+    "trades": 32,
+    "wins": 19,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 59.38,
+    "pnl_abs": 2903.81,
+    "pnl_pct": 29.038,
+    "profit_factor": 1.249,
+    "max_drawdown_abs": 2162.61,
+    "max_drawdown_pct": 21.626,
+    "starting_balance": 10000.0,
+    "final_balance": 12903.81,
+    "stake_currency": "USD",
+    "gross_abs": 2903.81,
+    "volume_abs": 9159720.74,
+    "break_even_pct": 0.0317,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:56:00",
+    "exits": {
+     "stop_loss": {
+      "n": 13,
+      "pnl_abs": -11666.0
+     },
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 14569.82
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 6.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-54a68c",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:46:39+00:00",
+   "finished": "2026-09-14T08:46:45+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=41, slLookback=1",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 41,
+     "slLookback": 1
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 41,
+    "slLookback": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 22,
+    "wins": 16,
+    "losses": 6,
+    "draws": 0,
+    "winrate": 72.73,
+    "pnl_abs": 7484.13,
+    "pnl_pct": 74.841,
+    "profit_factor": 2.337,
+    "max_drawdown_abs": 1953.0,
+    "max_drawdown_pct": 19.53,
+    "starting_balance": 10000.0,
+    "final_balance": 17484.13,
+    "stake_currency": "USD",
+    "gross_abs": 7484.13,
+    "volume_abs": 9433771.81,
+    "break_even_pct": 0.0793,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:07:00",
+    "exits": {
+     "take_profit": {
+      "n": 16,
+      "pnl_abs": 13083.62
+     },
+     "stop_loss": {
+      "n": 6,
+      "pnl_abs": -5599.5
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 6.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-61c37e",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:45:55+00:00",
+   "finished": "2026-09-14T08:46:02+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=21, slLookback=81",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 21,
+     "slLookback": 81
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 21
+   },
+   "settings": {},
+   "result": {
+    "trades": 33,
+    "wins": 20,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 60.61,
+    "pnl_abs": 3272.3,
+    "pnl_pct": 32.723,
+    "profit_factor": 1.28,
+    "max_drawdown_abs": 2163.08,
+    "max_drawdown_pct": 21.631,
+    "starting_balance": 10000.0,
+    "final_balance": 13272.31,
+    "stake_currency": "USD",
+    "gross_abs": 3272.3,
+    "volume_abs": 9378193.42,
+    "break_even_pct": 0.0349,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:59:00",
+    "exits": {
+     "stop_loss": {
+      "n": 13,
+      "pnl_abs": -11679.0
+     },
+     "take_profit": {
+      "n": 20,
+      "pnl_abs": 14951.3
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-683ff8",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:46:02+00:00",
+   "finished": "2026-09-14T08:46:09+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=31, slLookback=1",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 31,
+     "slLookback": 1
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 31,
+    "slLookback": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 22,
+    "wins": 16,
+    "losses": 6,
+    "draws": 0,
+    "winrate": 72.73,
+    "pnl_abs": 7484.13,
+    "pnl_pct": 74.841,
+    "profit_factor": 2.337,
+    "max_drawdown_abs": 1953.0,
+    "max_drawdown_pct": 19.53,
+    "starting_balance": 10000.0,
+    "final_balance": 17484.13,
+    "stake_currency": "USD",
+    "gross_abs": 7484.13,
+    "volume_abs": 9433771.81,
+    "break_even_pct": 0.0793,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:07:00",
+    "exits": {
+     "take_profit": {
+      "n": 16,
+      "pnl_abs": 13083.62
+     },
+     "stop_loss": {
+      "n": 6,
+      "pnl_abs": -5599.5
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 6.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-731eb0",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:46:24+00:00",
+   "finished": "2026-09-14T08:46:31+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=31, slLookback=61",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 31,
+     "slLookback": 61
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 31,
+    "slLookback": 61
+   },
+   "settings": {},
+   "result": {
+    "trades": 32,
+    "wins": 19,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 59.38,
+    "pnl_abs": 2903.81,
+    "pnl_pct": 29.038,
+    "profit_factor": 1.249,
+    "max_drawdown_abs": 2162.61,
+    "max_drawdown_pct": 21.626,
+    "starting_balance": 10000.0,
+    "final_balance": 12903.81,
+    "stake_currency": "USD",
+    "gross_abs": 2903.81,
+    "volume_abs": 9159720.74,
+    "break_even_pct": 0.0317,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:56:00",
+    "exits": {
+     "stop_loss": {
+      "n": 13,
+      "pnl_abs": -11666.0
+     },
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 14569.82
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-75369c",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:45:41+00:00",
+   "finished": "2026-09-14T08:45:47+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=21, slLookback=41",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 21,
+     "slLookback": 41
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 21,
+    "slLookback": 41
+   },
+   "settings": {},
+   "result": {
+    "trades": 30,
+    "wins": 19,
+    "losses": 11,
+    "draws": 0,
+    "winrate": 63.33,
+    "pnl_abs": 4713.14,
+    "pnl_pct": 47.131,
+    "profit_factor": 1.476,
+    "max_drawdown_abs": 2162.61,
+    "max_drawdown_pct": 21.626,
+    "starting_balance": 10000.0,
+    "final_balance": 14713.14,
+    "stake_currency": "USD",
+    "gross_abs": 4713.14,
+    "volume_abs": 9197294.84,
+    "break_even_pct": 0.0512,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:30:00",
+    "exits": {
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 14621.13
+     },
+     "stop_loss": {
+      "n": 11,
+      "pnl_abs": -9908.0
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 6.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-7b6d25",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:46:46+00:00",
+   "finished": "2026-09-14T08:46:53+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=41, slLookback=21",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 41,
+     "slLookback": 21
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 41,
+    "slLookback": 21
+   },
+   "settings": {},
+   "result": {
+    "trades": 29,
+    "wins": 19,
+    "losses": 10,
+    "draws": 0,
+    "winrate": 65.52,
+    "pnl_abs": 6195.41,
+    "pnl_pct": 61.954,
+    "profit_factor": 1.712,
+    "max_drawdown_abs": 2135.6,
+    "max_drawdown_pct": 21.356,
+    "starting_balance": 10000.0,
+    "final_balance": 16195.41,
+    "stake_currency": "USD",
+    "gross_abs": 6195.41,
+    "volume_abs": 9341549.36,
+    "break_even_pct": 0.0663,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:51:00",
+    "exits": {
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 14900.42
+     },
+     "stop_loss": {
+      "n": 10,
+      "pnl_abs": -8705.0
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.4
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-7ca529",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:44:50+00:00",
+   "finished": "2026-09-14T08:44:57+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=11, slLookback=1",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 11,
+     "slLookback": 1
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "slLookback": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 22,
+    "wins": 16,
+    "losses": 6,
+    "draws": 0,
+    "winrate": 72.73,
+    "pnl_abs": 7484.13,
+    "pnl_pct": 74.841,
+    "profit_factor": 2.337,
+    "max_drawdown_abs": 1953.0,
+    "max_drawdown_pct": 19.53,
+    "starting_balance": 10000.0,
+    "final_balance": 17484.13,
+    "stake_currency": "USD",
+    "gross_abs": 7484.13,
+    "volume_abs": 9433771.81,
+    "break_even_pct": 0.0793,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:07:00",
+    "exits": {
+     "take_profit": {
+      "n": 16,
+      "pnl_abs": 13083.62
+     },
+     "stop_loss": {
+      "n": 6,
+      "pnl_abs": -5599.5
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-7f0b39",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:45:48+00:00",
+   "finished": "2026-09-14T08:45:55+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=21, slLookback=61",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 21,
+     "slLookback": 61
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 21,
+    "slLookback": 61
+   },
+   "settings": {},
+   "result": {
+    "trades": 32,
+    "wins": 19,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 59.38,
+    "pnl_abs": 2903.81,
+    "pnl_pct": 29.038,
+    "profit_factor": 1.249,
+    "max_drawdown_abs": 2162.61,
+    "max_drawdown_pct": 21.626,
+    "starting_balance": 10000.0,
+    "final_balance": 12903.81,
+    "stake_currency": "USD",
+    "gross_abs": 2903.81,
+    "volume_abs": 9159720.74,
+    "break_even_pct": 0.0317,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:56:00",
+    "exits": {
+     "stop_loss": {
+      "n": 13,
+      "pnl_abs": -11666.0
+     },
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 14569.82
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-88d410",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:44:14+00:00",
+   "finished": "2026-09-14T08:44:21+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=1, slLookback=1",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 1,
+     "slLookback": 1
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 1,
+    "slLookback": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 22,
+    "wins": 16,
+    "losses": 6,
+    "draws": 0,
+    "winrate": 72.73,
+    "pnl_abs": 7484.13,
+    "pnl_pct": 74.841,
+    "profit_factor": 2.337,
+    "max_drawdown_abs": 1953.0,
+    "max_drawdown_pct": 19.53,
+    "starting_balance": 10000.0,
+    "final_balance": 17484.13,
+    "stake_currency": "USD",
+    "gross_abs": 7484.13,
+    "volume_abs": 9433771.81,
+    "break_even_pct": 0.0793,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:07:00",
+    "exits": {
+     "take_profit": {
+      "n": 16,
+      "pnl_abs": 13083.62
+     },
+     "stop_loss": {
+      "n": 6,
+      "pnl_abs": -5599.5
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-95a4e6",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:44:21+00:00",
+   "finished": "2026-09-14T08:44:28+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=1, slLookback=21",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 1,
+     "slLookback": 21
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 1,
+    "slLookback": 21
+   },
+   "settings": {},
+   "result": {
+    "trades": 29,
+    "wins": 19,
+    "losses": 10,
+    "draws": 0,
+    "winrate": 65.52,
+    "pnl_abs": 6195.41,
+    "pnl_pct": 61.954,
+    "profit_factor": 1.712,
+    "max_drawdown_abs": 2135.6,
+    "max_drawdown_pct": 21.356,
+    "starting_balance": 10000.0,
+    "final_balance": 16195.41,
+    "stake_currency": "USD",
+    "gross_abs": 6195.41,
+    "volume_abs": 9341549.36,
+    "break_even_pct": 0.0663,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:51:00",
+    "exits": {
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 14900.42
+     },
+     "stop_loss": {
+      "n": 10,
+      "pnl_abs": -8705.0
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 6.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-9b3fa2",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:45:26+00:00",
+   "finished": "2026-09-14T08:45:33+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=21, slLookback=1",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 21,
+     "slLookback": 1
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 21,
+    "slLookback": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 22,
+    "wins": 16,
+    "losses": 6,
+    "draws": 0,
+    "winrate": 72.73,
+    "pnl_abs": 7484.13,
+    "pnl_pct": 74.841,
+    "profit_factor": 2.337,
+    "max_drawdown_abs": 1953.0,
+    "max_drawdown_pct": 19.53,
+    "starting_balance": 10000.0,
+    "final_balance": 17484.13,
+    "stake_currency": "USD",
+    "gross_abs": 7484.13,
+    "volume_abs": 9433771.81,
+    "break_even_pct": 0.0793,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:07:00",
+    "exits": {
+     "take_profit": {
+      "n": 16,
+      "pnl_abs": 13083.62
+     },
+     "stop_loss": {
+      "n": 6,
+      "pnl_abs": -5599.5
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.4
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-ab5b2c",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:44:43+00:00",
+   "finished": "2026-09-14T08:44:50+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=1, slLookback=81",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 1,
+     "slLookback": 81
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 1
+   },
+   "settings": {},
+   "result": {
+    "trades": 33,
+    "wins": 20,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 60.61,
+    "pnl_abs": 3272.3,
+    "pnl_pct": 32.723,
+    "profit_factor": 1.28,
+    "max_drawdown_abs": 2163.08,
+    "max_drawdown_pct": 21.631,
+    "starting_balance": 10000.0,
+    "final_balance": 13272.31,
+    "stake_currency": "USD",
+    "gross_abs": 3272.3,
+    "volume_abs": 9378193.42,
+    "break_even_pct": 0.0349,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:59:00",
+    "exits": {
+     "stop_loss": {
+      "n": 13,
+      "pnl_abs": -11679.0
+     },
+     "take_profit": {
+      "n": 20,
+      "pnl_abs": 14951.3
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-afa7fc",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:47:00+00:00",
+   "finished": "2026-09-14T08:47:08+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=41, slLookback=61",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 41,
+     "slLookback": 61
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 41,
+    "slLookback": 61
+   },
+   "settings": {},
+   "result": {
+    "trades": 32,
+    "wins": 19,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 59.38,
+    "pnl_abs": 2903.81,
+    "pnl_pct": 29.038,
+    "profit_factor": 1.249,
+    "max_drawdown_abs": 2162.61,
+    "max_drawdown_pct": 21.626,
+    "starting_balance": 10000.0,
+    "final_balance": 12903.81,
+    "stake_currency": "USD",
+    "gross_abs": 2903.81,
+    "volume_abs": 9159720.74,
+    "break_even_pct": 0.0317,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:56:00",
+    "exits": {
+     "stop_loss": {
+      "n": 13,
+      "pnl_abs": -11666.0
+     },
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 14569.82
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.4
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-b51688",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:45:04+00:00",
+   "finished": "2026-09-14T08:45:11+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=11, slLookback=41",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 11,
+     "slLookback": 41
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "slLookback": 41
+   },
+   "settings": {},
+   "result": {
+    "trades": 30,
+    "wins": 19,
+    "losses": 11,
+    "draws": 0,
+    "winrate": 63.33,
+    "pnl_abs": 4713.14,
+    "pnl_pct": 47.131,
+    "profit_factor": 1.476,
+    "max_drawdown_abs": 2162.61,
+    "max_drawdown_pct": 21.626,
+    "starting_balance": 10000.0,
+    "final_balance": 14713.14,
+    "stake_currency": "USD",
+    "gross_abs": 4713.14,
+    "volume_abs": 9197294.84,
+    "break_even_pct": 0.0512,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:30:00",
+    "exits": {
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 14621.13
+     },
+     "stop_loss": {
+      "n": 11,
+      "pnl_abs": -9908.0
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-e120bf",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:45:33+00:00",
+   "finished": "2026-09-14T08:45:40+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=21, slLookback=21",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 21,
+     "slLookback": 21
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 21,
+    "slLookback": 21
+   },
+   "settings": {},
+   "result": {
+    "trades": 29,
+    "wins": 19,
+    "losses": 10,
+    "draws": 0,
+    "winrate": 65.52,
+    "pnl_abs": 6195.41,
+    "pnl_pct": 61.954,
+    "profit_factor": 1.712,
+    "max_drawdown_abs": 2135.6,
+    "max_drawdown_pct": 21.356,
+    "starting_balance": 10000.0,
+    "final_balance": 16195.41,
+    "stake_currency": "USD",
+    "gross_abs": 6195.41,
+    "volume_abs": 9341549.36,
+    "break_even_pct": 0.0663,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:51:00",
+    "exits": {
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 14900.42
+     },
+     "stop_loss": {
+      "n": 10,
+      "pnl_abs": -8705.0
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-e2dc43",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:47:08+00:00",
+   "finished": "2026-09-14T08:47:15+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=41, slLookback=81",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 41,
+     "slLookback": 81
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 41
+   },
+   "settings": {},
+   "result": {
+    "trades": 33,
+    "wins": 20,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 60.61,
+    "pnl_abs": 3272.3,
+    "pnl_pct": 32.723,
+    "profit_factor": 1.28,
+    "max_drawdown_abs": 2163.08,
+    "max_drawdown_pct": 21.631,
+    "starting_balance": 10000.0,
+    "final_balance": 13272.31,
+    "stake_currency": "USD",
+    "gross_abs": 3272.3,
+    "volume_abs": 9378193.42,
+    "break_even_pct": 0.0349,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:59:00",
+    "exits": {
+     "stop_loss": {
+      "n": 13,
+      "pnl_abs": -11679.0
+     },
+     "take_profit": {
+      "n": 20,
+      "pnl_abs": 14951.3
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-f2e900",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:46:17+00:00",
+   "finished": "2026-09-14T08:46:24+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=31, slLookback=41",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 31,
+     "slLookback": 41
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 31,
+    "slLookback": 41
+   },
+   "settings": {},
+   "result": {
+    "trades": 30,
+    "wins": 19,
+    "losses": 11,
+    "draws": 0,
+    "winrate": 63.33,
+    "pnl_abs": 4713.14,
+    "pnl_pct": 47.131,
+    "profit_factor": 1.476,
+    "max_drawdown_abs": 2162.61,
+    "max_drawdown_pct": 21.626,
+    "starting_balance": 10000.0,
+    "final_balance": 14713.14,
+    "stake_currency": "USD",
+    "gross_abs": 4713.14,
+    "volume_abs": 9197294.84,
+    "break_even_pct": 0.0512,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:30:00",
+    "exits": {
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 14621.13
+     },
+     "stop_loss": {
+      "n": 11,
+      "pnl_abs": -9908.0
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-fa177e",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:46:53+00:00",
+   "finished": "2026-09-14T08:47:00+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=41, slLookback=41",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 41,
+     "slLookback": 41
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 41,
+    "slLookback": 41
+   },
+   "settings": {},
+   "result": {
+    "trades": 30,
+    "wins": 19,
+    "losses": 11,
+    "draws": 0,
+    "winrate": 63.33,
+    "pnl_abs": 4713.14,
+    "pnl_pct": 47.131,
+    "profit_factor": 1.476,
+    "max_drawdown_abs": 2162.61,
+    "max_drawdown_pct": 21.626,
+    "starting_balance": 10000.0,
+    "final_balance": 14713.14,
+    "stake_currency": "USD",
+    "gross_abs": 4713.14,
+    "volume_abs": 9197294.84,
+    "break_even_pct": 0.0512,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:30:00",
+    "exits": {
+     "take_profit": {
+      "n": 19,
+      "pnl_abs": 14621.13
+     },
+     "stop_loss": {
+      "n": 11,
+      "pnl_abs": -9908.0
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 6.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260914-084414-fe602a",
+   "status": "done",
+   "created": "2026-09-14T08:44:14+00:00",
+   "started": "2026-09-14T08:46:31+00:00",
+   "finished": "2026-09-14T08:46:38+00:00",
+   "user": "IBS",
+   "note": "sweep 20260914-084414-54c1: state1MaxBars=1, state2MaxBars=1, state2ConfirmTicks=0, state3MaxBars=1, state4MaxBars=31, slLookback=81",
+   "tag": {
+    "values": {
+     "state1MaxBars": 1,
+     "state2MaxBars": 1,
+     "state2ConfirmTicks": 0,
+     "state3MaxBars": 1,
+     "state4MaxBars": 31,
+     "slLookback": 81
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 200,
+    "points": 18750,
+    "per_year": true
+   },
+   "params": {
+    "state4MaxBars": 31
+   },
+   "settings": {},
+   "result": {
+    "trades": 33,
+    "wins": 20,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 60.61,
+    "pnl_abs": 3272.3,
+    "pnl_pct": 32.723,
+    "profit_factor": 1.28,
+    "max_drawdown_abs": 2163.08,
+    "max_drawdown_pct": 21.631,
+    "starting_balance": 10000.0,
+    "final_balance": 13272.31,
+    "stake_currency": "USD",
+    "gross_abs": 3272.3,
+    "volume_abs": 9378193.42,
+    "break_even_pct": 0.0349,
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "3:59:00",
+    "exits": {
+     "stop_loss": {
+      "n": 13,
+      "pnl_abs": -11679.0
+     },
+     "take_profit": {
+      "n": 20,
+      "pnl_abs": 14951.3
+     }
+    },
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 7.3
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-09-14T08:47:23+00:00"
+}

@@ -1,0 +1,402 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun backtesting --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data --strategy RangeStrategy --cache none --export trades --timerange 20260601-20260905 --pairs BTC/USDT:USDT --timeframe 3m --dry-run-wallet 10000 --fee 0.0005 --timeframe-detail 1m --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\binance
+2026-09-17 13:41:53,322 - freqtrade - INFO - freqtrade 2026.8
+2026-09-17 13:41:54,403 - freqtrade.configuration.load_config - INFO - Using config: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.json ...
+2026-09-17 13:41:54,406 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-17 13:41:54,406 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-09-17 13:41:54,415 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-17 13:41:55,148 - freqtrade.data.history.datahandlers.idatahandler - WARNING - BTC/USDT:USDT, futures, 3m, data ends at 2026-09-04 06:03:00
+2026-09-17 13:41:55,215 - freqtrade.data.history.datahandlers.idatahandler - WARNING - BTC/USDT:USDT, futures, 1m, data ends at 2026-09-04 06:12:00
+2026-09-17 13:41:56,132 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 42405.37 na 9900.00 (23.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,189 - freqtrade.data.history.datahandlers.idatahandler - WARNING - BTC/USDT:USDT, futures, 1m, data ends at 2026-09-04 06:12:00
+2026-09-17 13:41:56,342 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 49897.93 na 9924.67 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,353 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 40573.05 na 9924.81 (24.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,374 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 25453.08 na 9930.22 (39.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,386 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 36444.39 na 9882.00 (27.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,388 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 25027.24 na 9912.31 (39.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,416 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 13467.79 na 9934.12 (73.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,445 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 24798.01 na 9851.75 (39.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,456 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 31991.92 na 9802.80 (30.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,475 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 14751.67 na 9812.53 (66.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,485 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 16437.72 na 9737.60 (59.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,501 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 18413.78 na 9775.55 (53.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,513 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 19673.33 na 9811.66 (49.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,527 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 14281.47 na 9830.19 (68.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,539 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 16418.90 na 9752.82 (59.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,562 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 20133.41 na 9830.95 (48.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,593 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 26444.27 na 9857.03 (37.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,599 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 25724.77 na 9810.68 (38.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,630 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 32876.83 na 9763.42 (29.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,645 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 28908.72 na 9797.70 (33.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,666 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 21878.91 na 9815.18 (44.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,786 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 23965.41 na 9871.86 (41.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,876 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 22747.76 na 9821.39 (43.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,888 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 16350.92 na 9875.43 (60.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:56,913 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 10832.97 na 9900.06 (91.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,129 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 20814.51 na 9941.59 (47.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,137 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 20377.37 na 9884.71 (48.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,198 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 38135.73 na 9908.38 (26.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,209 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 32644.47 na 9872.89 (30.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,224 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 34754.41 na 9907.65 (28.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,249 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 54543.70 na 9939.95 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,255 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 45733.72 na 9940.48 (21.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,267 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 36347.05 na 9909.24 (27.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,282 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 47428.04 na 9939.73 (21.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,293 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 46563.71 na 9948.36 (21.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,305 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 34059.51 na 9957.59 (29.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,331 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 51040.42 na 9919.05 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,363 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 30570.89 na 9923.52 (32.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,390 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 28586.68 na 9936.96 (34.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,442 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 36817.25 na 9955.04 (27.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,504 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 39743.44 na 9985.17 (25.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,531 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 37527.62 na 9998.91 (26.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,548 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 17352.19 na 10006.54 (57.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,771 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 50711.59 na 10026.88 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,824 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 31736.08 na 10046.21 (31.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,864 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 39765.92 na 10005.16 (25.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,890 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 45419.97 na 10018.01 (22.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,898 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 41336.05 na 9986.28 (24.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,933 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 32785.05 na 9952.68 (30.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,965 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 18811.46 na 9987.80 (53.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:57,980 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 25973.88 na 10056.48 (38.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,017 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 50205.44 na 10008.23 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,058 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 37334.52 na 10008.51 (26.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,136 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 42090.16 na 9972.21 (23.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,178 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 33103.38 na 9978.35 (30.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,214 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 26356.28 na 10012.99 (38.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,400 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 17014.81 na 9965.76 (58.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,428 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 22271.79 na 9898.10 (44.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,431 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 19318.14 na 9844.55 (51.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,481 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 25203.40 na 9910.35 (39.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,501 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 33100.98 na 9923.00 (30.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,516 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 42306.88 na 9957.53 (23.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,524 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 36562.36 na 9923.80 (27.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,540 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 42415.17 na 9934.96 (23.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,554 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 38481.54 na 9959.86 (25.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,596 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 36824.63 na 9924.56 (27.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,602 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 12762.38 na 9938.86 (77.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,672 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 31638.76 na 9852.10 (31.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,687 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 25203.58 na 9811.59 (38.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,821 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 45235.51 na 9728.46 (21.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,834 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 31262.22 na 9731.58 (31.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,841 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 47730.33 na 9739.85 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,846 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 53944.32 na 9710.14 (18.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,872 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 33505.84 na 9727.22 (29.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,921 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 40203.12 na 9688.03 (24.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,933 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 50526.00 na 9654.63 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:58,957 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 46840.59 na 9657.10 (20.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:59,357 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 22686.90 na 9553.22 (42.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:59,420 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 39544.47 na 9502.15 (24.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:59,441 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 19828.56 na 9469.04 (47.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:59,570 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 53602.99 na 9505.53 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:59,582 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 22927.91 na 9478.60 (41.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:59,619 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 20335.05 na 9428.42 (46.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:59,678 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 43774.15 na 9487.77 (21.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:59,772 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 24028.37 na 9510.42 (39.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:59,779 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 25266.25 na 9461.99 (37.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:59,895 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 38008.39 na 9507.13 (25.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:41:59,991 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 24306.10 na 9534.65 (39.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:00,720 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 25881.50 na 9538.17 (36.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:00,941 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 59159.11 na 9560.59 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:00,948 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 60923.70 na 9535.20 (15.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:00,982 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 52254.55 na 9510.67 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,012 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 57086.13 na 9483.43 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,031 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 38411.54 na 9486.66 (24.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,065 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 58624.54 na 9498.96 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,088 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 62415.40 na 9473.69 (15.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,099 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 98065.75 na 9449.42 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,124 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 35289.88 na 9454.36 (26.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,137 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 47720.40 na 9459.75 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,147 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 50493.04 na 9430.92 (18.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,186 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 38439.05 na 9435.62 (24.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,224 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 24875.50 na 9462.54 (38.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,275 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 18734.13 na 9415.87 (50.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,352 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 33574.66 na 9356.90 (27.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,445 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 43551.55 na 9388.81 (21.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,459 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 42214.61 na 9411.44 (22.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,510 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 44387.50 na 9380.12 (21.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,528 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 52120.09 na 9402.11 (18.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,540 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 22397.30 na 9403.63 (42.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,607 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 46323.15 na 9456.05 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,631 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 50228.38 na 9426.71 (18.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,653 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 60096.84 na 9429.51 (15.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,677 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 19023.72 na 9404.77 (49.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,814 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 60951.43 na 9428.75 (15.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,824 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 32965.80 na 9404.15 (28.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,855 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 43724.13 na 9437.00 (21.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,874 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 55619.16 na 9459.56 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,883 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 46407.67 na 9475.35 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,914 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 36145.21 na 9445.87 (26.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,973 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 39833.12 na 9475.21 (23.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:01,998 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 22739.56 na 9442.35 (41.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,022 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 46674.59 na 9392.17 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,038 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 47374.50 na 9398.02 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,069 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 63960.09 na 9418.03 (14.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,112 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 29240.54 na 9393.23 (32.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,175 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 32713.59 na 9403.27 (28.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,219 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 85131.56 na 9436.46 (11.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,253 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 33341.90 na 9416.18 (28.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,403 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 44182.05 na 9379.04 (21.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,465 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 64239.94 na 9401.15 (14.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,507 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 17345.41 na 9377.45 (54.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,692 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 22598.27 na 9448.77 (41.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,759 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 37274.16 na 9398.39 (25.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,782 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 52484.70 na 9364.40 (17.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,803 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 57871.20 na 9381.51 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,837 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 96828.99 na 9396.29 (9.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,854 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 18145.11 na 9377.51 (51.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,927 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 63753.56 na 9317.29 (14.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,966 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 75665.04 na 9315.98 (12.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:02,996 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 53043.66 na 9294.60 (17.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,023 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 104211.22 na 9311.30 (8.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,027 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 73387.56 na 9307.63 (12.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,045 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 56665.24 na 9317.18 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,071 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 74277.41 na 9316.78 (12.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,093 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 28625.43 na 9318.08 (32.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,114 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 74794.97 na 9276.95 (12.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,128 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 98244.62 na 9277.29 (9.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,140 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 30476.43 na 9258.86 (30.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,176 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 55210.85 na 9266.37 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,201 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 77739.84 na 9240.68 (11.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,231 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 37783.84 na 9249.16 (24.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,246 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 66643.80 na 9252.75 (13.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,275 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 83342.52 na 9229.90 (11.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,284 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 49917.41 na 9237.16 (18.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,313 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 26532.00 na 9242.88 (34.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,349 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 82870.03 na 9285.30 (11.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,375 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 137101.26 na 9292.72 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,388 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 31814.90 na 9277.54 (29.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,466 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 65011.35 na 9311.54 (14.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,491 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 36801.33 na 9313.55 (25.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,529 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 39356.42 na 9279.47 (23.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,620 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 146003.93 na 9289.74 (6.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,624 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 46209.91 na 9289.98 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,633 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 57139.83 na 9261.06 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,651 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 72925.93 na 9235.94 (12.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,655 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 113636.75 na 9214.41 (8.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,677 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 35860.94 na 9217.31 (25.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,684 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 10945.04 na 9246.18 (84.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,705 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 22602.50 na 9154.15 (40.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,769 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 32434.27 na 9205.02 (28.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,818 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 12188.65 na 9212.85 (75.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,943 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 18699.77 na 9129.64 (48.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:03,966 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 15995.11 na 9072.89 (56.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,004 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 21482.92 na 9147.55 (42.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,008 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 13370.51 na 9096.69 (68.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,035 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 16559.90 na 9125.34 (55.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,126 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 14698.71 na 9062.12 (61.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,133 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 18858.03 na 8992.43 (47.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,431 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 17526.33 na 9053.22 (51.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,525 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 44294.57 na 8993.62 (20.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,536 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 23243.93 na 8964.70 (38.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,548 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 28361.00 na 9012.70 (31.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,590 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 27210.43 na 8972.44 (33.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,703 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 24230.58 na 8981.56 (37.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,707 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 24230.58 na 8936.17 (36.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,709 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 24230.58 na 8918.90 (36.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,717 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 59275.57 na 8902.35 (15.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,737 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 82365.12 na 8878.89 (10.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,753 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 19211.33 na 8886.05 (46.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:04,769 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 23344.48 na 8901.71 (38.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,001 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 51424.47 na 8929.47 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,015 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 18366.79 na 8934.63 (48.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,049 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 42226.75 na 8997.42 (21.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,063 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 30927.44 na 9019.95 (29.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,153 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 34714.77 na 9035.68 (26.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,171 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 14953.97 na 9042.65 (60.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,349 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 32296.80 na 8973.67 (27.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,373 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 40922.46 na 8937.36 (21.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,409 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 31800.92 na 8907.03 (28.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,474 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 44821.07 na 8925.42 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,515 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 49768.10 na 8896.91 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,536 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 34533.47 na 8899.08 (25.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,587 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 56946.01 na 8928.31 (15.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,607 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 39818.85 na 8942.64 (22.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,699 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 50900.85 na 8954.51 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-17 13:42:05,711 - tradebot.adapters.freqtrade.base - WARNING - range BTC/USDT:USDT: stake orezany z 51867.73 na 8971.63 (17.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+…
+│ range:1784261520000 │ trailing_stop_loss │      1 │         0.06 │           5.443 │         0.05 │      0:09:00 │    1     0     0   100 │
+│ range:1787920020000 │ trailing_stop_loss │      1 │         0.06 │           5.217 │         0.05 │      0:14:00 │    1     0     0   100 │
+│ range:1784182140000 │                roi │      1 │         0.05 │           4.987 │         0.05 │      0:23:00 │    1     0     0   100 │
+│ range:1784280960000 │ trailing_stop_loss │      1 │         0.05 │           4.752 │         0.05 │      0:30:00 │    1     0     0   100 │
+│ range:1781669340000 │ trailing_stop_loss │      1 │         0.05 │           4.514 │         0.05 │      0:38:00 │    1     0     0   100 │
+│ range:1786458060000 │ trailing_stop_loss │      1 │         0.04 │           3.629 │         0.04 │      0:19:00 │    1     0     0   100 │
+│ range:1784091420000 │ trailing_stop_loss │      1 │         0.03 │           3.259 │         0.03 │      0:17:00 │    1     0     0   100 │
+│ range:1782979380000 │ trailing_stop_loss │      1 │         0.03 │           3.144 │         0.03 │      0:24:00 │    1     0     0   100 │
+│ range:1787049000000 │                roi │      1 │         0.03 │           2.930 │         0.03 │      0:30:00 │    1     0     0   100 │
+│ range:1784793960000 │ trailing_stop_loss │      1 │         0.03 │           2.827 │         0.03 │      0:24:00 │    1     0     0   100 │
+│ range:1783318680000 │ trailing_stop_loss │      1 │         0.03 │           2.500 │         0.02 │      0:44:00 │    1     0     0   100 │
+│ range:1788334920000 │ trailing_stop_loss │      1 │         0.02 │           2.191 │         0.02 │      0:19:00 │    1     0     0   100 │
+│ range:1786708980000 │ trailing_stop_loss │      1 │         0.02 │           2.031 │         0.02 │      0:42:00 │    1     0     0   100 │
+│ range:1784705400000 │ trailing_stop_loss │      1 │         0.02 │           1.538 │         0.02 │      0:11:00 │    1     0     0   100 │
+│ range:1783329480000 │ trailing_stop_loss │      1 │         0.01 │           1.399 │         0.01 │      0:10:00 │    1     0     0   100 │
+│ range:1786098600000 │ trailing_stop_loss │      1 │         0.01 │           1.314 │         0.01 │      0:46:00 │    1     0     0   100 │
+│ range:1781500680000 │ trailing_stop_loss │      1 │         0.01 │           0.536 │         0.01 │      0:04:00 │    1     0     0   100 │
+│ range:1786340340000 │ trailing_stop_loss │      1 │          0.0 │           0.345 │          0.0 │      0:19:00 │    1     0     0   100 │
+│ range:1782283320000 │ trailing_stop_loss │      1 │          0.0 │           0.282 │          0.0 │      0:48:00 │    1     0     0   100 │
+│ range:1786962240000 │                roi │      1 │          0.0 │           0.241 │          0.0 │      0:02:00 │    1     0     0   100 │
+│ range:1780304040000 │ trailing_stop_loss │      1 │          0.0 │           0.139 │          0.0 │      0:19:00 │    1     0     0   100 │
+│ range:1786075380000 │ trailing_stop_loss │      1 │         -0.0 │          -0.408 │         -0.0 │      0:49:00 │    0     0     1     0 │
+│ range:1785910860000 │ trailing_stop_loss │      1 │        -0.01 │          -1.331 │        -0.01 │      0:44:00 │    0     0     1     0 │
+│ range:1786000140000 │ trailing_stop_loss │      1 │        -0.04 │          -3.713 │        -0.04 │      0:03:00 │    0     0     1     0 │
+│ range:1788499980000 │         force_exit │      1 │        -0.08 │          -7.283 │        -0.07 │      0:27:00 │    0     0     1     0 │
+│ range:1786607100000 │ trailing_stop_loss │      1 │        -0.17 │         -15.333 │        -0.15 │      0:14:00 │    0     0     1     0 │
+│ range:1786359600000 │          stop_loss │      1 │         -0.2 │         -18.618 │        -0.19 │      0:17:00 │    0     0     1     0 │
+│ range:1785837060000 │          stop_loss │      1 │         -0.2 │         -18.970 │        -0.19 │      0:10:00 │    0     0     1     0 │
+│ range:1785407760000 │          stop_loss │      1 │        -0.22 │         -20.481 │         -0.2 │      0:38:00 │    0     0     1     0 │
+│ range:1785922380000 │          stop_loss │      1 │        -0.23 │         -21.596 │        -0.22 │      0:34:00 │    0     0     1     0 │
+│ range:1787033160000 │          stop_loss │      1 │        -0.24 │         -21.748 │        -0.22 │      0:02:00 │    0     0     1     0 │
+│ range:1786509000000 │ trailing_stop_loss │      1 │        -0.25 │         -23.078 │        -0.23 │      0:49:00 │    0     0     1     0 │
+│ range:1787803740000 │          stop_loss │      1 │        -0.27 │         -23.706 │        -0.24 │      0:22:00 │    0     0     1     0 │
+│ range:1785502440000 │          stop_loss │      1 │        -0.26 │         -23.943 │        -0.24 │      0:34:00 │    0     0     1     0 │
+│ range:1784175480000 │ trailing_stop_loss │      1 │        -0.26 │         -24.513 │        -0.25 │      0:10:00 │    0     0     1     0 │
+│ range:1784014920000 │          stop_loss │      1 │        -0.26 │         -24.779 │        -0.25 │      0:43:00 │    0     0     1     0 │
+│ range:1784893320000 │ trailing_stop_loss │      1 │        -0.26 │         -24.848 │        -0.25 │      0:09:00 │    0     0     1     0 │
+│ range:1784800620000 │          stop_loss │      1 │        -0.27 │         -24.991 │        -0.25 │      0:26:00 │    0     0     1     0 │
+│ range:1785309480000 │          stop_loss │      1 │        -0.27 │         -25.051 │        -0.25 │      0:50:00 │    0     0     1     0 │
+│ range:1787025600000 │          stop_loss │      1 │        -0.28 │         -25.375 │        -0.25 │      0:31:00 │    0     0     1     0 │
+│ range:1784113560000 │          stop_loss │      1 │        -0.27 │         -25.528 │        -0.26 │      0:15:00 │    0     0     1     0 │
+│ range:1784010780000 │          stop_loss │      1 │        -0.27 │         -25.640 │        -0.26 │      0:04:00 │    0     0     1     0 │
+│ range:1786420800000 │          stop_loss │      1 │        -0.28 │         -25.944 │        -0.26 │      0:51:00 │    0     0     1     0 │
+│ range:1783508940000 │          stop_loss │      1 │        -0.29 │         -27.203 │        -0.27 │      0:23:00 │    0     0     1     0 │
+│ range:1784021580000 │ trailing_stop_loss │      1 │        -0.29 │         -27.518 │        -0.28 │      0:31:00 │    0     0     1     0 │
+│ range:1788329520000 │ trailing_stop_loss │      1 │        -0.32 │         -28.800 │        -0.29 │      0:58:00 │    0     0     1     0 │
+│ range:1784272680000 │ trailing_stop_loss │      1 │        -0.31 │         -29.123 │        -0.29 │      0:09:00 │    0     0     1     0 │
+│ range:1787638860000 │          stop_loss │      1 │        -0.33 │         -29.208 │        -0.29 │      0:08:00 │    0     0     1     0 │
+│ range:1786967100000 │          stop_loss │      1 │        -0.32 │         -29.213 │        -0.29 │      0:08:00 │    0     0     1     0 │
+│ range:1784780640000 │          stop_loss │      1 │        -0.32 │         -29.635 │         -0.3 │      0:29:00 │    0     0     1     0 │
+│ range:1785142800000 │          stop_loss │      1 │        -0.32 │         -29.777 │         -0.3 │      0:30:00 │    0     0     1     0 │
+│ range:1783051200000 │          stop_loss │      1 │        -0.31 │         -30.014 │         -0.3 │      0:07:00 │    0     0     1     0 │
+│ range:1788262560000 │          stop_loss │      1 │        -0.34 │         -30.632 │        -0.31 │      0:41:00 │    0     0     1     0 │
+│ range:1781511480000 │          stop_loss │      1 │        -0.32 │         -31.557 │        -0.32 │      0:22:00 │    0     0     1     0 │
+│ range:1784624400000 │          stop_loss │      1 │        -0.34 │         -31.644 │        -0.32 │      1:07:00 │    0     0     1     0 │
+│ range:1782108180000 │          stop_loss │      1 │        -0.32 │         -32.046 │        -0.32 │      0:03:00 │    0     0     1     0 │
+│ range:1785242700000 │          stop_loss │      1 │        -0.35 │         -33.190 │        -0.33 │      0:35:00 │    0     0     1     0 │
+│ range:1783455660000 │          stop_loss │      1 │        -0.35 │         -33.444 │        -0.33 │      0:41:00 │    0     0     1     0 │
+│ range:1783311120000 │          stop_loss │      1 │        -0.35 │         -33.742 │        -0.34 │      0:13:00 │    0     0     1     0 │
+│ range:1782120240000 │ trailing_stop_loss │      1 │        -0.34 │         -33.939 │        -0.34 │      0:40:00 │    0     0     1     0 │
+│ range:1782719460000 │          stop_loss │      1 │        -0.34 │         -34.071 │        -0.34 │      0:13:00 │    0     0     1     0 │
+│ range:1785780720000 │          stop_loss │      1 │        -0.37 │         -34.332 │        -0.34 │      0:31:00 │    0     0     1     0 │
+│ range:1786715640000 │ trailing_stop_loss │      1 │        -0.37 │         -34.421 │        -0.34 │      0:40:00 │    0     0     1     0 │
+│ range:1782812880000 │          stop_loss │      1 │        -0.36 │         -35.656 │        -0.36 │      1:33:00 │    0     0     1     0 │
+│ range:1781236800000 │          stop_loss │      1 │        -0.36 │         -35.855 │        -0.36 │      0:13:00 │    0     0     1     0 │
+│ range:1782289800000 │          stop_loss │      1 │        -0.37 │         -36.660 │        -0.37 │      1:29:00 │    0     0     1     0 │
+│ range:1788255720000 │          stop_loss │      1 │        -0.41 │         -36.684 │        -0.37 │      0:33:00 │    0     0     1     0 │
+│ range:1785470400000 │          stop_loss │      1 │         -0.4 │         -37.518 │        -0.38 │      2:59:00 │    0     0     1     0 │
+│ range:1781609040000 │ trailing_stop_loss │      1 │        -0.39 │         -38.932 │        -0.39 │      0:48:00 │    0     0     1     0 │
+│ range:1783063980000 │          stop_loss │      1 │        -0.41 │         -39.580 │         -0.4 │      1:16:00 │    0     0     1     0 │
+│ range:1787716980000 │          stop_loss │      1 │        -0.45 │         -40.671 │        -0.41 │      0:56:00 │    0     0     1     0 │
+│ range:1782894420000 │          stop_loss │      1 │        -0.42 │         -40.922 │        -0.41 │      0:24:00 │    0     0     1     0 │
+│ range:1781871300000 │ trailing_stop_loss │      1 │        -0.42 │         -41.467 │        -0.41 │      0:33:00 │    0     0     1     0 │
+│ range:1786104540000 │          stop_loss │      1 │        -0.45 │         -41.548 │        -0.42 │      0:19:00 │    0     0     1     0 │
+│ range:1780902180000 │ trailing_stop_loss │      1 │        -0.48 │         -46.821 │        -0.47 │      0:06:00 │    0     0     1     0 │
+│ range:1784529180000 │ trailing_stop_loss │      1 │         -0.5 │         -47.139 │        -0.47 │      1:09:00 │    0     0     1     0 │
+│ range:1782367740000 │          stop_loss │      1 │        -0.48 │         -47.708 │        -0.48 │      4:25:00 │    0     0     1     0 │
+│ range:1780906500000 │ trailing_stop_loss │      1 │        -0.49 │         -47.736 │        -0.48 │      0:56:00 │    0     0     1     0 │
+│ range:1780373340000 │          stop_loss │      1 │        -0.49 │         -48.712 │        -0.49 │      0:17:00 │    0     0     1     0 │
+│ range:1782199080000 │          stop_loss │      1 │        -0.49 │         -48.743 │        -0.49 │      0:39:00 │    0     0     1     0 │
+│ range:1783600560000 │          stop_loss │      1 │        -0.51 │         -48.920 │        -0.49 │      0:03:00 │    0     0     1     0 │
+│ range:1783696860000 │          stop_loss │      1 │        -0.52 │         -49.401 │        -0.49 │      1:13:00 │    0     0     1     0 │
+│ range:1780468380000 │          stop_loss │      1 │         -0.5 │         -49.443 │        -0.49 │      0:14:00 │    0     0     1     0 │
+│ range:1783510920000 │          stop_loss │      1 │        -0.53 │         -50.687 │        -0.51 │      1:11:00 │    0     0     1     0 │
+│ range:1785257460000 │          stop_loss │      1 │        -0.54 │         -50.688 │        -0.51 │      0:17:00 │    0     0     1     0 │
+│ range:1785772440000 │          stop_loss │      1 │        -0.54 │         -50.886 │        -0.51 │      1:27:00 │    0     0     1     0 │
+│ range:1781065800000 │ trailing_stop_loss │      1 │        -0.52 │         -50.976 │        -0.51 │      2:37:00 │    0     0     1     0 │
+│ range:1787293260000 │ trailing_stop_loss │      1 │        -0.57 │         -51.375 │        -0.51 │      0:03:00 │    0     0     1     0 │
+│ range:1783443960000 │          stop_loss │      1 │        -0.54 │         -51.591 │        -0.52 │      1:41:00 │    0     0     1     0 │
+│ range:1782451260000 │          stop_loss │      1 │        -0.55 │         -54.094 │        -0.54 │      0:06:00 │    0     0     1     0 │
+│ range:1787230440000 │          stop_loss │      1 │        -0.63 │         -57.321 │        -0.57 │      0:34:00 │    0     0     1     0 │
+│ range:1781184600000 │          stop_loss │      1 │        -0.58 │         -57.456 │        -0.57 │      0:12:00 │    0     0     1     0 │
+│ range:1784536560000 │          stop_loss │      1 │        -0.63 │         -59.566 │         -0.6 │      1:41:00 │    0     0     1     0 │
+│ range:1787630580000 │          stop_loss │      1 │        -0.67 │         -60.203 │         -0.6 │      2:12:00 │    0     0     1     0 │
+│ range:1785902400000 │          stop_loss │      1 │        -0.65 │         -60.823 │        -0.61 │      1:23:00 │    0     0     1     0 │
+│ range:1787544360000 │ trailing_stop_loss │      1 │         -0.7 │         -63.856 │        -0.64 │      2:39:00 │    0     0     1     0 │
+│ range:1782390780000 │          stop_loss │      1 │        -0.69 │         -68.339 │        -0.68 │      0:55:00 │    0     0     1     0 │
+│ range:1788235200000 │          stop_loss │      1 │        -0.78 │         -69.677 │         -0.7 │      4:15:00 │    0     0     1     0 │
+│ range:1787585040000 │          stop_loss │      1 │        -0.78 │         -70.389 │         -0.7 │      0:16:00 │    0     0     1     0 │
+│ range:1780546860000 │          stop_loss │      1 │        -0.77 │         -75.694 │        -0.76 │      0:10:00 │    0     0     1     0 │
+│ range:1780649460000 │ trailing_stop_loss │      1 │         -0.8 │         -78.152 │        -0.78 │      0:19:00 │    0     0     1     0 │
+│ range:1787747220000 │          stop_loss │      3 │         -0.3 │         -80.008 │         -0.8 │      0:00:00 │    0     0     3     0 │
+│ range:1780459560000 │ trailing_stop_loss │      1 │        -0.84 │         -83.200 │        -0.83 │      0:54:00 │    0     0     1     0 │
+│ range:1787220720000 │          stop_loss │      1 │        -0.92 │         -84.052 │        -0.84 │      1:54:00 │    0     0     1     0 │
+│ range:1782878580000 │          stop_loss │      1 │        -0.88 │         -87.638 │        -0.88 │      2:28:00 │    0     0     1     0 │
+│ range:1787156640000 │          stop_loss │      1 │        -1.01 │         -92.959 │        -0.93 │      0:41:00 │    0     0     1     0 │
+│ range:1783396800000 │ trailing_stop_loss │      1 │        -1.47 │        -106.329 │        -1.06 │     11:42:00 │    0     0     1     0 │
+│ range:1782964800000 │          stop_loss │      1 │        -1.21 │        -108.920 │        -1.09 │      2:45:00 │    0     0     1     0 │
+│               TOTAL │                    │    209 │        -0.05 │        -945.031 │        -9.45 │      1:05:00 │  120     0    89  57.4 │
+└─────────────────────┴────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┌────────────────────────────────────────┬───────────────────────────────────────────┐
+│ Metric                                 │ Value                                     │
+├────────────────────────────────────────┼───────────────────────────────────────────┤
+│ Backtesting from                       │ 2026-06-01 00:00:00                       │
+│ Backtesting to                         │ 2026-09-04 06:03:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 209 / 2.2                                 │
+│ Starting balance                       │ 10000 USDT                                │
+│ Final balance                          │ 9054.969 USDT                             │
+│ Absolute profit                        │ -945.031 USDT                             │
+│ Total profit %                         │ -9.45%                                    │
+│ CAGR %                                 │ -31.71%                                   │
+│ Sharpe (closed trades)                 │ -5.14                                     │
+│ Sortino (closed trades)                │ -8.87                                     │
+│ Calmar (closed trades)                 │ -16.23                                    │
+│ SQN                                    │ -1.76                                     │
+│ Mean profit p-value                    │ 0.07934                                   │
+│ Profit factor                          │ 0.74                                      │
+│ Expectancy (Ratio)                     │ -4.52 (-0.11)                             │
+│ Avg. daily profit                      │ -9.948 USDT                               │
+│ Avg. stake amount                      │ 9447.422 USDT                             │
+│ Market change                          │ 9.71%                                     │
+│ Total trade volume                     │ 3950900.724 USDT                          │
+│                                        │                                           │
+│ Long / Short trades                    │ 109 / 100                                 │
+│ Long / Short profit %                  │ -5.67% / -3.78%                           │
+│ Long / Short profit USDT               │ -567.217 / -377.814                       │
+│                                        │                                           │
+│ Best Pair                              │ BTC/USDT:USDT -9.45%                      │
+│ Worst Pair                             │ BTC/USDT:USDT -9.45%                      │
+│ Best trade                             │ BTC/USDT:USDT 0.83%                       │
+│ Worst trade                            │ BTC/USDT:USDT -1.47%                      │
+│ Best day                               │ 109.535 USDT                              │
+│ Worst day                              │ -191.364 USDT                             │
+│ Days win/draw/lose                     │ 32 / 26 / 38                              │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:01 / 0d 15:45 / 0d 01:13            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:00 / 0d 11:42 / 0d 00:55            │
+│ Max Consecutive Wins / Loss            │ 8 / 4                                     │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 0 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 8968.571 USDT / 10158.064 USDT            │
+│ Max % of account underwater            │ 11.71%                                    │
+│ Absolute drawdown                      │ 1189.493 USDT (11.71%)                    │
+│ Drawdown duration                      │ 64 days 22:13:00                          │
+│ Profit at drawdown start               │ 158.064 USDT                              │
+│ Profit at drawdown end                 │ -1031.429 USDT                            │
+│ Drawdown start                         │ 2026-06-23 06:21:00                       │
+│ Drawdown end                           │ 2026-08-27 04:34:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 8968.571 USDT / 10158.064 USDT            │
+│ Min/Max balance dates (wallet balance) │ 2026-08-27 04:36:00 / 2026-06-23 06:24:00 │
+│ Max % of account underwater (balance)  │ 11.71%                                    │
+│ Absolute drawdown (wallet balance)     │ 1189.493 USDT (11.71%)                    │
+│ Drawdown duration                      │ 64 days 22:12:00                          │
+│ Profit at drawdown start               │ 158.064 USDT                              │
+│ Profit at drawdown end                 │ -1031.429 USDT                            │
+│ Drawdown start                         │ 2026-06-23 06:24:00                       │
+│ Drawdown end                           │ 2026-08-27 04:36:00                       │
+│ Sharpe (daily wallet balance)          │ -3.88                                     │
+│ Sortino (daily wallet balance)         │ -4.08                                     │
+│ Calmar (daily wallet balance)          │ -16.10                                    │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2026-06-01 00:00:00 -> 2026-09-04 06:03:00 | Max open trades : 1
+                                                             STRATEGY SUMMARY                                                             
+┌───────────────┬────────┬──────────────┬─────────────────┬──────────────┬──────────────┬────────────────────────┬───────────────────────┐
+│      Strategy │ Trades │ Avg Profit % │ Tot Profit USDT │ Tot Profit % │ Avg Duration │  Win  Draw  Loss  Win% │              Drawdown │
+├───────────────┼────────┼──────────────┼─────────────────┼──────────────┼──────────────┼────────────────────────┼───────────────────────┤
+│ RangeStrategy │    209 │        -0.05 │        -945.031 │        -9.45 │      1:05:00 │  120     0    89  57.4 │ 1189.493 USDT  11.71% │
+└───────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┴───────────────────────┘

@@ -1,0 +1,339 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20260911-164038-b8b8",
+ "strategy": "ibs",
+ "created": "2026-09-11T16:40:38+00:00",
+ "user": "materko",
+ "base": {
+  "params": {
+   "enableImbEntry": true,
+   "enablePinBarEntry": false,
+   "enableEngulfingEntry": false,
+   "pbWickToBodyRatio": 4,
+   "pbBodyPositionPct": 20,
+   "pbMinRangePoints": 2,
+   "engMinRangePoints": 2,
+   "engSizeAvgLen": 10,
+   "engSizeMultiplier": 2,
+   "engTouchWindowBars": 3,
+   "pbEngOrderType": "Market",
+   "enableTrailing": false,
+   "trailActivationR": 1,
+   "trailOffsetR": 0.5,
+   "enableZoneDetection": true,
+   "enableSrTrading": false,
+   "enableLqTrading": false,
+   "rrRatio": 6.5,
+   "tradeDirection": "Both",
+   "weekdaysOnly": true,
+   "enableTrading": true,
+   "closeAtSessionEnd": true,
+   "enableGapDetection": true,
+   "zoneDetectionTF": "5",
+   "zoneValidHours": 6,
+   "maxSdZones": 200,
+   "snapMode": "Floor",
+   "invalidateOnFill": true,
+   "useVolumeFilter": false,
+   "volumeFilterBlockTrading": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "imbLookback": 20,
+   "imbMaxDistTicks": 100,
+   "minImbSizePoints": 2.5,
+   "sess1On": false,
+   "sess1TZ": "Europe/Prague",
+   "sess1ZoneStartH": 1,
+   "sess1ZoneStartM": 0,
+   "sess1ZoneEndH": 9,
+   "sess1ZoneEndM": 0,
+   "sess1TradeStartH": 2,
+   "sess1TradeStartM": 0,
+   "sess1TradeEndH": 5,
+   "sess1TradeEndM": 0,
+   "sess2On": true,
+   "sess2TZ": "America/New_York",
+   "sess2ZoneStartH": 10,
+   "sess2ZoneStartM": 0,
+   "sess2ZoneEndH": 11,
+   "sess2ZoneEndM": 0,
+   "sess2TradeStartH": 10,
+   "sess2TradeStartM": 0,
+   "sess2TradeEndH": 15,
+   "sess2TradeEndM": 45,
+   "sess3On": true,
+   "sess3TZ": "Europe/London",
+   "sess3ZoneStartH": 8,
+   "sess3ZoneStartM": 0,
+   "sess3ZoneEndH": 10,
+   "sess3ZoneEndM": 0,
+   "sess3TradeStartH": 8,
+   "sess3TradeStartM": 0,
+   "sess3TradeEndH": 11,
+   "sess3TradeEndM": 0,
+   "showMarketStructure": true,
+   "structureSwingLen": 5,
+   "useStructureFilter": false,
+   "showSR": true,
+   "srSwingLen": 10,
+   "srClusterPoints": 15,
+   "srMinTouches": 2,
+   "srMaxLevels": 10,
+   "srLookbackDays": 5,
+   "srZoneSaturationPct": 30,
+   "showLiqSweep": true,
+   "liqSweepLen": 10,
+   "liqSweepMinWick": 5,
+   "liqSweepConfirmBars": 2,
+   "liqStrengthLen": 50,
+   "showElliott": true,
+   "ewSwingLen": 8,
+   "ewMinWavePoints": 20,
+   "ewShowLabels": true,
+   "ewShowProjection": true,
+   "ewProjExtendBars": 40,
+   "ewLineColor": "#334155",
+   "showImbalance": true,
+   "state1MaxBars": 10,
+   "state2MaxBars": 15,
+   "state2ConfirmTicks": 1,
+   "state3MaxBars": 1,
+   "state4MaxBars": 10,
+   "state5MaxBars": 10,
+   "slLookback": 10,
+   "slBufferTicks": 2,
+   "maxLossDollar": 350,
+   "maxDailyWins": 5,
+   "tickDollarValue": 0.5,
+   "legacyPineSizing": true,
+   "atrLen": 14,
+   "minSlDistance": 0,
+   "leverage": 1
+  },
+  "settings": {
+   "strategy": "ibs",
+   "exchange": "tester",
+   "pair": "BTC/USDT:USDT",
+   "engine": "freqtrade",
+   "timeframe": "3m",
+   "timerange": "20250904-20260904",
+   "fee": 0.0005,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 10000.0,
+   "timeframe_detail": "1m",
+   "profile": null
+  }
+ },
+ "points": [
+  {
+   "run": "20260911-164038-358777",
+   "status": "failed",
+   "created": "2026-09-11T16:40:38+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:45:22+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164038-b8b8: rrRatio=6.5",
+   "tag": {
+    "values": {
+     "rrRatio": 6.5
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 5,
+    "per_year": true
+   },
+   "params": {},
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164038-40fd49",
+   "status": "failed",
+   "created": "2026-09-11T16:40:38+00:00",
+   "started": "2026-09-11T16:43:48+00:00",
+   "finished": "2026-09-11T16:45:22+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164038-b8b8: rrRatio=4.5",
+   "tag": {
+    "values": {
+     "rrRatio": 4.5
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 5,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 4.5
+   },
+   "settings": {},
+   "result": {
+    "duration_s": 94.3
+   },
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164038-919450",
+   "status": "done",
+   "created": "2026-09-11T16:40:38+00:00",
+   "started": "2026-09-11T16:40:38+00:00",
+   "finished": "2026-09-11T16:42:07+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164038-b8b8: rrRatio=0.5",
+   "tag": {
+    "values": {
+     "rrRatio": 0.5
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 5,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 0.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 189,
+    "wins": 75,
+    "losses": 114,
+    "draws": 0,
+    "winrate": 39.68,
+    "pnl_abs": -1441.09,
+    "pnl_pct": -14.411,
+    "profit_factor": 0.357,
+    "max_drawdown_abs": 1441.09,
+    "max_drawdown_pct": 14.411,
+    "starting_balance": 10000.0,
+    "final_balance": 8558.91,
+    "stake_currency": "USDT",
+    "gross_abs": 294.26,
+    "volume_abs": 3472653.8,
+    "break_even_pct": 0.0085,
+    "market_change_pct": -27.327,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "0:22:00",
+    "exits": {
+     "roi": {
+      "n": 124,
+      "pnl_abs": 664.32
+     },
+     "session_end": {
+      "n": 1,
+      "pnl_abs": -17.25
+     },
+     "stop_loss": {
+      "n": 47,
+      "pnl_abs": -1516.17
+     },
+     "trailing_stop_loss": {
+      "n": 17,
+      "pnl_abs": -572.0
+     }
+    },
+    "duration_s": 89.4,
+    "zip": "backtest-result-2026-09-11_16-42-03.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260911-164038-c44415",
+   "status": "failed",
+   "created": "2026-09-11T16:40:38+00:00",
+   "started": null,
+   "finished": "2026-09-11T16:45:22+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164038-b8b8: rrRatio=8.5",
+   "tag": {
+    "values": {
+     "rrRatio": 8.5
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 5,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 8.5
+   },
+   "settings": {},
+   "result": null,
+   "error": "zrušené používateľom"
+  },
+  {
+   "run": "20260911-164038-c46a51",
+   "status": "done",
+   "created": "2026-09-11T16:40:38+00:00",
+   "started": "2026-09-11T16:42:07+00:00",
+   "finished": "2026-09-11T16:43:48+00:00",
+   "user": "materko",
+   "note": "sweep 20260911-164038-b8b8: rrRatio=2.5",
+   "tag": {
+    "values": {
+     "rrRatio": 2.5
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "points": 5,
+    "per_year": true
+   },
+   "params": {
+    "rrRatio": 2.5
+   },
+   "settings": {},
+   "result": {
+    "trades": 182,
+    "wins": 61,
+    "losses": 121,
+    "draws": 0,
+    "winrate": 33.52,
+    "pnl_abs": -912.56,
+    "pnl_pct": -9.126,
+    "profit_factor": 0.772,
+    "max_drawdown_abs": 1035.46,
+    "max_drawdown_pct": 10.229,
+    "starting_balance": 10000.0,
+    "final_balance": 9087.44,
+    "stake_currency": "USDT",
+    "gross_abs": 799.37,
+    "volume_abs": 3417486.1,
+    "break_even_pct": 0.0234,
+    "market_change_pct": -27.327,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "1:19:00",
+    "exits": {
+     "roi": {
+      "n": 46,
+      "pnl_abs": 2406.36
+     },
+     "session_end": {
+      "n": 23,
+      "pnl_abs": 538.89
+     },
+     "stop_loss": {
+      "n": 77,
+      "pnl_abs": -2582.57
+     },
+     "trailing_stop_loss": {
+      "n": 36,
+      "pnl_abs": -1275.25
+     }
+    },
+    "duration_s": 100.4,
+    "zip": "backtest-result-2026-09-11_16-43-44.zip"
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-09-11T16:45:22+00:00"
+}

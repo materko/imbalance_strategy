@@ -1,0 +1,304 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20260909-191131",
+ "strategy": "ibs",
+ "created": "2026-09-09T19:11:31+00:00",
+ "user": "materko",
+ "base": {
+  "params": {
+   "enableImbEntry": true,
+   "enablePinBarEntry": false,
+   "enableEngulfingEntry": false,
+   "pbWickToBodyRatio": 4,
+   "pbBodyPositionPct": 20,
+   "pbMinRangePoints": 2,
+   "engMinRangePoints": 2,
+   "engSizeAvgLen": 10,
+   "engSizeMultiplier": 2,
+   "engTouchWindowBars": 3,
+   "pbEngOrderType": "Market",
+   "enableTrailing": false,
+   "trailActivationR": 1,
+   "trailOffsetR": 0.5,
+   "enableZoneDetection": true,
+   "enableSrTrading": false,
+   "enableLqTrading": false,
+   "rrRatio": 2,
+   "tradeDirection": "Both",
+   "weekdaysOnly": true,
+   "enableTrading": true,
+   "closeAtSessionEnd": true,
+   "enableGapDetection": true,
+   "zoneDetectionTF": "5",
+   "zoneValidHours": 6,
+   "maxSdZones": 200,
+   "snapMode": "Floor",
+   "invalidateOnFill": true,
+   "useVolumeFilter": false,
+   "volumeFilterBlockTrading": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "imbLookback": 20,
+   "imbMaxDistTicks": 100,
+   "minImbSizePoints": 2.5,
+   "sess1On": false,
+   "sess1TZ": "Europe/Prague",
+   "sess1ZoneStartH": 1,
+   "sess1ZoneStartM": 0,
+   "sess1ZoneEndH": 9,
+   "sess1ZoneEndM": 0,
+   "sess1TradeStartH": 2,
+   "sess1TradeStartM": 0,
+   "sess1TradeEndH": 5,
+   "sess1TradeEndM": 0,
+   "sess2On": true,
+   "sess2TZ": "America/New_York",
+   "sess2ZoneStartH": 10,
+   "sess2ZoneStartM": 0,
+   "sess2ZoneEndH": 11,
+   "sess2ZoneEndM": 0,
+   "sess2TradeStartH": 10,
+   "sess2TradeStartM": 0,
+   "sess2TradeEndH": 15,
+   "sess2TradeEndM": 45,
+   "sess3On": true,
+   "sess3TZ": "Europe/London",
+   "sess3ZoneStartH": 8,
+   "sess3ZoneStartM": 0,
+   "sess3ZoneEndH": 10,
+   "sess3ZoneEndM": 0,
+   "sess3TradeStartH": 8,
+   "sess3TradeStartM": 0,
+   "sess3TradeEndH": 11,
+   "sess3TradeEndM": 0,
+   "showMarketStructure": true,
+   "structureSwingLen": 5,
+   "useStructureFilter": false,
+   "showSR": true,
+   "srSwingLen": 10,
+   "srClusterPoints": 15,
+   "srMinTouches": 2,
+   "srMaxLevels": 10,
+   "srLookbackDays": 5,
+   "srZoneSaturationPct": 30,
+   "showLiqSweep": true,
+   "liqSweepLen": 10,
+   "liqSweepMinWick": 5,
+   "liqSweepConfirmBars": 2,
+   "liqStrengthLen": 50,
+   "showElliott": true,
+   "ewSwingLen": 8,
+   "ewMinWavePoints": 20,
+   "ewShowLabels": true,
+   "ewShowProjection": true,
+   "ewProjExtendBars": 40,
+   "ewLineColor": "#334155",
+   "showImbalance": true,
+   "state1MaxBars": 10,
+   "state2MaxBars": 15,
+   "state2ConfirmTicks": 1,
+   "state3MaxBars": 1,
+   "state4MaxBars": 10,
+   "state5MaxBars": 10,
+   "slLookback": 10,
+   "slBufferTicks": 2,
+   "maxLossDollar": 350,
+   "maxDailyWins": 5,
+   "tickDollarValue": null,
+   "legacyPineSizing": false,
+   "atrLen": 14,
+   "minSlDistance": 0,
+   "leverage": 1
+  },
+  "settings": {
+   "strategy": "ibs",
+   "exchange": "tester",
+   "pair": "BTC/USDT:USDT",
+   "engine": "freqtrade",
+   "timeframe": "3m",
+   "timerange": "20260801-20260904",
+   "fee": 0.0005,
+   "wallet": 10000.0,
+   "timeframe_detail": "1m",
+   "profile": null
+  }
+ },
+ "points": [
+  {
+   "run": "20260909-191131-112313",
+   "status": "done",
+   "created": "2026-09-09T19:11:31+00:00",
+   "started": "2026-09-09T19:11:31+00:00",
+   "finished": "2026-09-09T19:11:36+00:00",
+   "user": "materko",
+   "note": "sweep 20260909-191131: rrRatio=2",
+   "tag": {
+    "values": {
+     "rrRatio": 2
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": 1
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 13,
+    "wins": 4,
+    "losses": 9,
+    "draws": 0,
+    "winrate": 30.77,
+    "pnl_abs": -173.19,
+    "pnl_pct": -1.732,
+    "profit_factor": 0.408,
+    "max_drawdown_abs": 235.34,
+    "max_drawdown_pct": 2.339,
+    "starting_balance": 10000.0,
+    "final_balance": 9826.81,
+    "stake_currency": "USDT",
+    "gross_abs": -45.83,
+    "volume_abs": 255949.81,
+    "break_even_pct": -0.0179,
+    "market_change_pct": 28.92,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "0:49:00",
+    "exits": {
+     "roi": {
+      "n": 5,
+      "pnl_abs": 119.32
+     },
+     "stop_loss": {
+      "n": 8,
+      "pnl_abs": -292.5
+     }
+    },
+    "duration_s": 4.8,
+    "zip": "backtest-result-2026-09-09_19-11-36.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-191131-4230d5",
+   "status": "done",
+   "created": "2026-09-09T19:11:31+00:00",
+   "started": "2026-09-09T19:11:41+00:00",
+   "finished": "2026-09-09T19:11:46+00:00",
+   "user": "materko",
+   "note": "sweep 20260909-191131: rrRatio=4",
+   "tag": {
+    "values": {
+     "rrRatio": 4
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": 1
+   },
+   "params": {
+    "rrRatio": 4
+   },
+   "settings": {},
+   "result": {
+    "trades": 13,
+    "wins": 2,
+    "losses": 11,
+    "draws": 0,
+    "winrate": 15.38,
+    "pnl_abs": -204.38,
+    "pnl_pct": -2.044,
+    "profit_factor": 0.374,
+    "max_drawdown_abs": 241.57,
+    "max_drawdown_pct": 2.413,
+    "starting_balance": 10000.0,
+    "final_balance": 9795.62,
+    "stake_currency": "USDT",
+    "gross_abs": -77.69,
+    "volume_abs": 254616.26,
+    "break_even_pct": -0.0305,
+    "market_change_pct": 28.92,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "1:26:00",
+    "exits": {
+     "roi": {
+      "n": 2,
+      "pnl_abs": 122.0
+     },
+     "session_end": {
+      "n": 1,
+      "pnl_abs": -3.58
+     },
+     "stop_loss": {
+      "n": 10,
+      "pnl_abs": -322.8
+     }
+    },
+    "duration_s": 4.8,
+    "zip": "backtest-result-2026-09-09_19-11-45.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260909-191131-45ae36",
+   "status": "done",
+   "created": "2026-09-09T19:11:31+00:00",
+   "started": "2026-09-09T19:11:36+00:00",
+   "finished": "2026-09-09T19:11:41+00:00",
+   "user": "materko",
+   "note": "sweep 20260909-191131: rrRatio=3",
+   "tag": {
+    "values": {
+     "rrRatio": 3
+    },
+    "goal": "break_even",
+    "max_dd": null,
+    "min_trades": 1
+   },
+   "params": {
+    "rrRatio": 3
+   },
+   "settings": {},
+   "result": {
+    "trades": 13,
+    "wins": 4,
+    "losses": 9,
+    "draws": 0,
+    "winrate": 30.77,
+    "pnl_abs": -191.07,
+    "pnl_pct": -1.911,
+    "profit_factor": 0.352,
+    "max_drawdown_abs": 212.46,
+    "max_drawdown_pct": 2.121,
+    "starting_balance": 10000.0,
+    "final_balance": 9808.93,
+    "stake_currency": "USDT",
+    "gross_abs": -64.18,
+    "volume_abs": 255014.51,
+    "break_even_pct": -0.0252,
+    "market_change_pct": 28.92,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "1:15:00",
+    "exits": {
+     "roi": {
+      "n": 4,
+      "pnl_abs": 104.02
+     },
+     "session_end": {
+      "n": 1,
+      "pnl_abs": -3.6
+     },
+     "stop_loss": {
+      "n": 8,
+      "pnl_abs": -291.48
+     }
+    },
+    "duration_s": 4.8,
+    "zip": "backtest-result-2026-09-09_19-11-41.zip"
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-09-09T19:11:46+00:00"
+}

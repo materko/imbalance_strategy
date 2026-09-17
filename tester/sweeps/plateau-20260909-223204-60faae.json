@@ -1,0 +1,395 @@
+{
+ "version": 1,
+ "kind": "plateau",
+ "id": "20260909-223204-60faae",
+ "strategy": "ibs",
+ "created": "2026-09-10T07:07:26+00:00",
+ "user": "",
+ "base": {
+  "params": {
+   "rrRatio": 3.7,
+   "slLookback": 40
+  },
+  "settings": {
+   "strategy": "ibs",
+   "exchange": "tester",
+   "pair": "BTC/USDT:USDT",
+   "engine": "freqtrade",
+   "timeframe": "3m",
+   "timerange": "20250904-20260904",
+   "fee": 0.0005,
+   "wallet": 10000.0,
+   "timeframe_detail": "1m",
+   "profile": null
+  }
+ },
+ "points": [
+  {
+   "run": "20260910-070726-4d4e9c",
+   "status": "done",
+   "created": "2026-09-10T07:07:26+00:00",
+   "started": "2026-09-10T07:07:26+00:00",
+   "finished": "2026-09-10T07:08:00+00:00",
+   "user": "",
+   "note": "okolie 20260909-223204-60faae: rrRatio=3.7",
+   "tag": {
+    "param": "rrRatio",
+    "value": 3.7,
+    "step": -2
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 168,
+    "wins": 58,
+    "losses": 110,
+    "draws": 0,
+    "winrate": 34.52,
+    "pnl_abs": 155.59,
+    "pnl_pct": 1.556,
+    "profit_factor": 1.027,
+    "max_drawdown_abs": 690.73,
+    "max_drawdown_pct": 6.614,
+    "starting_balance": 10000.0,
+    "final_balance": 10155.59,
+    "stake_currency": "USDT",
+    "gross_abs": 1858.42,
+    "volume_abs": 3401975.47,
+    "break_even_pct": 0.0546,
+    "market_change_pct": -27.327,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "3:00:00",
+    "exits": {
+     "roi": {
+      "n": 23,
+      "pnl_abs": 2473.79
+     },
+     "session_end": {
+      "n": 52,
+      "pnl_abs": 2729.43
+     },
+     "stop_loss": {
+      "n": 61,
+      "pnl_abs": -3159.3
+     },
+     "trailing_stop_loss": {
+      "n": 32,
+      "pnl_abs": -1888.33
+     }
+    },
+    "duration_s": 34.1,
+    "zip": "backtest-result-2026-09-10_07-07-59.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-070804-a3e4ac",
+   "status": "done",
+   "created": "2026-09-10T07:08:04+00:00",
+   "started": "2026-09-10T07:08:04+00:00",
+   "finished": "2026-09-10T07:08:37+00:00",
+   "user": "",
+   "note": "okolie 20260909-223204-60faae: rrRatio=4.2",
+   "tag": {
+    "param": "rrRatio",
+    "value": 4.2,
+    "step": -1
+   },
+   "params": {
+    "rrRatio": 4.2
+   },
+   "settings": {},
+   "result": {
+    "trades": 168,
+    "wins": 58,
+    "losses": 110,
+    "draws": 0,
+    "winrate": 34.52,
+    "pnl_abs": 231.54,
+    "pnl_pct": 2.315,
+    "profit_factor": 1.041,
+    "max_drawdown_abs": 773.34,
+    "max_drawdown_pct": 7.419,
+    "starting_balance": 10000.0,
+    "final_balance": 10231.54,
+    "stake_currency": "USDT",
+    "gross_abs": 1928.2,
+    "volume_abs": 3387455.57,
+    "break_even_pct": 0.0569,
+    "market_change_pct": -27.327,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "3:07:00",
+    "exits": {
+     "roi": {
+      "n": 20,
+      "pnl_abs": 2173.36
+     },
+     "session_end": {
+      "n": 55,
+      "pnl_abs": 3085.48
+     },
+     "stop_loss": {
+      "n": 61,
+      "pnl_abs": -3145.51
+     },
+     "trailing_stop_loss": {
+      "n": 32,
+      "pnl_abs": -1881.79
+     }
+    },
+    "duration_s": 32.7,
+    "zip": "backtest-result-2026-09-10_07-08-35.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-070840-5cd719",
+   "status": "done",
+   "created": "2026-09-10T07:08:40+00:00",
+   "started": "2026-09-10T07:08:40+00:00",
+   "finished": "2026-09-10T07:09:14+00:00",
+   "user": "",
+   "note": "okolie 20260909-223204-60faae: rrRatio=5.2",
+   "tag": {
+    "param": "rrRatio",
+    "value": 5.2,
+    "step": 1
+   },
+   "params": {
+    "rrRatio": 5.2
+   },
+   "settings": {},
+   "result": {
+    "trades": 166,
+    "wins": 58,
+    "losses": 108,
+    "draws": 0,
+    "winrate": 34.94,
+    "pnl_abs": 439.43,
+    "pnl_pct": 4.394,
+    "profit_factor": 1.077,
+    "max_drawdown_abs": 734.33,
+    "max_drawdown_pct": 6.982,
+    "starting_balance": 10000.0,
+    "final_balance": 10439.43,
+    "stake_currency": "USDT",
+    "gross_abs": 2135.59,
+    "volume_abs": 3385896.7,
+    "break_even_pct": 0.0631,
+    "market_change_pct": -27.327,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "3:18:00",
+    "exits": {
+     "roi": {
+      "n": 13,
+      "pnl_abs": 1394.18
+     },
+     "session_end": {
+      "n": 61,
+      "pnl_abs": 4088.09
+     },
+     "stop_loss": {
+      "n": 60,
+      "pnl_abs": -3138.74
+     },
+     "trailing_stop_loss": {
+      "n": 32,
+      "pnl_abs": -1904.1
+     }
+    },
+    "duration_s": 34.2,
+    "zip": "backtest-result-2026-09-10_07-09-13.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-070918-110d7d",
+   "status": "done",
+   "created": "2026-09-10T07:09:18+00:00",
+   "started": "2026-09-10T07:09:18+00:00",
+   "finished": "2026-09-10T07:09:53+00:00",
+   "user": "",
+   "note": "okolie 20260909-223204-60faae: rrRatio=5.7",
+   "tag": {
+    "param": "rrRatio",
+    "value": 5.7,
+    "step": 2
+   },
+   "params": {
+    "rrRatio": 5.7
+   },
+   "settings": {},
+   "result": {
+    "trades": 166,
+    "wins": 57,
+    "losses": 109,
+    "draws": 0,
+    "winrate": 34.34,
+    "pnl_abs": 338.32,
+    "pnl_pct": 3.383,
+    "profit_factor": 1.059,
+    "max_drawdown_abs": 715.91,
+    "max_drawdown_pct": 6.797,
+    "starting_balance": 10000.0,
+    "final_balance": 10338.32,
+    "stake_currency": "USDT",
+    "gross_abs": 2032.65,
+    "volume_abs": 3382323.2,
+    "break_even_pct": 0.0601,
+    "market_change_pct": -27.327,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "3:20:00",
+    "exits": {
+     "roi": {
+      "n": 12,
+      "pnl_abs": 1332.56
+     },
+     "session_end": {
+      "n": 61,
+      "pnl_abs": 4091.92
+     },
+     "stop_loss": {
+      "n": 60,
+      "pnl_abs": -3135.31
+     },
+     "trailing_stop_loss": {
+      "n": 33,
+      "pnl_abs": -1950.85
+     }
+    },
+    "duration_s": 35.2,
+    "zip": "backtest-result-2026-09-10_07-09-52.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-070956-c34502",
+   "status": "done",
+   "created": "2026-09-10T07:09:56+00:00",
+   "started": "2026-09-10T07:09:56+00:00",
+   "finished": "2026-09-10T07:10:31+00:00",
+   "user": "",
+   "note": "okolie 20260909-223204-60faae: slLookback=38",
+   "tag": {
+    "param": "slLookback",
+    "value": 38,
+    "step": -2
+   },
+   "params": {
+    "rrRatio": 4.7,
+    "slLookback": 38
+   },
+   "settings": {},
+   "result": {
+    "trades": 167,
+    "wins": 58,
+    "losses": 109,
+    "draws": 0,
+    "winrate": 34.73,
+    "pnl_abs": 615.65,
+    "pnl_pct": 6.156,
+    "profit_factor": 1.11,
+    "max_drawdown_abs": 690.96,
+    "max_drawdown_pct": 6.6,
+    "starting_balance": 10000.0,
+    "final_balance": 10615.65,
+    "stake_currency": "USDT",
+    "gross_abs": 2332.42,
+    "volume_abs": 3427967.97,
+    "break_even_pct": 0.068,
+    "market_change_pct": -27.327,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "3:09:00",
+    "exits": {
+     "roi": {
+      "n": 18,
+      "pnl_abs": 2184.43
+     },
+     "session_end": {
+      "n": 56,
+      "pnl_abs": 3497.33
+     },
+     "stop_loss": {
+      "n": 62,
+      "pnl_abs": -3365.91
+     },
+     "trailing_stop_loss": {
+      "n": 31,
+      "pnl_abs": -1700.2
+     }
+    },
+    "duration_s": 34.6,
+    "zip": "backtest-result-2026-09-10_07-10-29.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20260910-071034-3aae01",
+   "status": "done",
+   "created": "2026-09-10T07:10:34+00:00",
+   "started": "2026-09-10T07:10:34+00:00",
+   "finished": "2026-09-10T07:11:08+00:00",
+   "user": "",
+   "note": "okolie 20260909-223204-60faae: slLookback=39",
+   "tag": {
+    "param": "slLookback",
+    "value": 39,
+    "step": -1
+   },
+   "params": {
+    "rrRatio": 4.7,
+    "slLookback": 39
+   },
+   "settings": {},
+   "result": {
+    "trades": 167,
+    "wins": 58,
+    "losses": 109,
+    "draws": 0,
+    "winrate": 34.73,
+    "pnl_abs": 631.67,
+    "pnl_pct": 6.317,
+    "profit_factor": 1.112,
+    "max_drawdown_abs": 718.24,
+    "max_drawdown_pct": 6.838,
+    "starting_balance": 10000.0,
+    "final_balance": 10631.67,
+    "stake_currency": "USDT",
+    "gross_abs": 2351.63,
+    "volume_abs": 3434325.97,
+    "break_even_pct": 0.0685,
+    "market_change_pct": -27.327,
+    "backtest_start": "2025-09-04 00:00:00",
+    "backtest_end": "2026-09-04 00:00:00",
+    "holding_avg": "3:10:00",
+    "exits": {
+     "roi": {
+      "n": 18,
+      "pnl_abs": 2238.27
+     },
+     "session_end": {
+      "n": 57,
+      "pnl_abs": 3379.01
+     },
+     "stop_loss": {
+      "n": 61,
+      "pnl_abs": -3271.62
+     },
+     "trailing_stop_loss": {
+      "n": 31,
+      "pnl_abs": -1714.0
+     }
+    },
+    "duration_s": 33.8,
+    "zip": "backtest-result-2026-09-10_07-11-07.zip"
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-09-10T07:11:08+00:00"
+}
