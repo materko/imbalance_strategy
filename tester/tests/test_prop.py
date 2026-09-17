@@ -323,17 +323,17 @@ def test_porovnanie_predloh_ma_riadok_pre_kazdu():
 
 
 def test_endpoint_prijme_zoznam_predloh(klient):
-    r = klient.post("/api/prop", json={"rules": ["ftmo2", "neexistuje"], "q": "note~nic"})
+    r = klient.post("/api/prop", json={"rules": ["ftmo2", "neexistuje"], "q": "note~__ziadny_taky_beh__"})
 
     assert r.status_code == 422
     assert "neexistuje" in r.json()["detail"]
 
 
 def test_endpoint_prepisy_bez_custom_odmietne_a_s_custom_prijme(klient):
-    r = klient.post("/api/prop", json={"rules": ["ftmo2"], "cost": 100.0, "q": "note~nic"})
+    r = klient.post("/api/prop", json={"rules": ["ftmo2"], "cost": 100.0, "q": "note~__ziadny_taky_beh__"})
     assert r.status_code == 422 and "custom" in r.json()["detail"]
 
-    r = klient.post("/api/prop", json={"rules": ["ftmo2", "custom"], "cost": 100.0, "q": "note~nic"})
+    r = klient.post("/api/prop", json={"rules": ["ftmo2", "custom"], "cost": 100.0, "q": "note~__ziadny_taky_beh__"})
     assert r.status_code == 404                      # prešlo validáciou, len behy nie sú
 
 
