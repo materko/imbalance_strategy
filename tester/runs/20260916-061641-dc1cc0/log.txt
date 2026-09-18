@@ -1,0 +1,729 @@
+$ /Users/martin/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/IBS/deploy/freqtrade/config.tester.cfd.json --userdir /Users/martin/IBS/deploy/freqtrade/user_data --strategy IBSImbalanceStrategy --cache none --export trades --timerange 20221001-20231001 --pairs MNQ/USD --timeframe 3m --dry-run-wallet 59522.0 --fee 0.0 --timeframe-detail 1m --datadir /Users/martin/IBS/data/tester/databento/futures
+2026-09-16 08:18:20,789 - freqtrade - INFO - freqtrade 2026.8
+2026-09-16 08:18:21,742 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/IBS/deploy/freqtrade/config.tester.cfd.json ...
+2026-09-16 08:18:21,745 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-16 08:18:21,745 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-09-16 08:18:21,747 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/IBS/deploy/freqtrade/user_data ...
+2026-09-16 08:18:21,747 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/IBS/data/tester/databento/futures ...
+2026-09-16 08:18:21,754 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-16 08:18:21,818 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSImbalanceStrategy from '/Users/martin/IBS/deploy/freqtrade/user_data/strategies/IBSImbalanceStrategy.py'...
+2026-09-16 08:18:21,818 - freqtrade.strategy.hyper - INFO - Loading parameters from file /Users/martin/IBS/deploy/freqtrade/user_data/strategies/IBSImbalanceStrategy.json
+2026-09-16 08:18:21,819 - tradebot.adapters.freqtrade.base - WARNING - ibs config: engMinRangePoints, ewMinWavePoints, liqSweepMinWick, minImbSizePoints, pbMinRangePoints, srClusterPoints sú v 
+2026-09-16 08:18:22,167 - tradebot.strategies.ibs.freqtrade - WARNING - IBS: spotový trh — tradeDirection Both sa zužuje na longy
+'/Users/martin/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-09-16 08:18:22,187 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, spot, 3m, data ends at 2023-09-29 20:57:00
+2026-09-16 08:18:22,241 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, spot, 1m, data starts at 2022-10-02 22:00:00
+2026-09-16 08:18:22,241 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, spot, 1m, data ends at 2023-09-29 20:59:00
+2026-09-16 08:18:22,965 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSImbalanceStrategy
+2026-09-16 08:18:22,975 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, spot, 3m, data ends at 2023-09-29 20:57:00
+2026-09-16 08:18:38,102 - tradebot.strategies.ibs.freqtrade - INFO - IBS MNQ/USD: 174960 barov, 174960 HTF barov, 200 zon, 924 signalov (490 long / 434 short)
+2026-09-16 08:18:38,387 - tradebot.adapters.freqtrade.base - INFO - ibs MNQ/USD: kresby ulozene do /Users/martin/IBS/tester/runs/.profiles/20260916-061641-dc1cc0.chart.json.gz (74858 objektov)
+2026-09-16 08:18:38,559 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1199073.75 na 58926.78 (4.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,570 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1199073.75 na 58938.51 (4.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,572 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 279822.00 na 58915.00 (21.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,583 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 482118.00 na 58965.74 (12.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,586 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 348432.25 na 58994.79 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,587 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 348432.25 na 59033.80 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,590 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 458790.00 na 59072.81 (12.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,600 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 994410.00 na 59102.50 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,605 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 398439.00 na 59116.12 (14.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,608 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 295913.25 na 59048.06 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,609 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 295913.25 na 59093.20 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,615 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 174764.00 na 59093.20 (33.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,618 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 307678.00 na 58944.70 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,619 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 307678.00 na 58988.61 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,623 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 98239.50 na 58900.74 (60.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,660 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 283945.50 na 59026.97 (20.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,662 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 99868.50 na 59072.76 (59.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,666 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 523885.50 na 59207.00 (11.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,669 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 196524.00 na 59155.02 (30.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,680 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 823726.00 na 59221.85 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,683 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 277556.25 na 59189.67 (21.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,686 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 578331.00 na 59094.39 (10.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,690 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 78359.75 na 59047.36 (75.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,695 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 314370.00 na 59208.83 (18.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,699 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 78202.25 na 59252.79 (75.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,701 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 100885.50 na 59414.26 (58.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,706 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 467250.00 na 59156.86 (12.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,707 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 467250.00 na 59098.69 (12.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,708 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 467250.00 na 59044.24 (12.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,711 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 243677.50 na 58986.08 (24.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,713 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 155921.50 na 58986.08 (37.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,714 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 155921.50 na 59071.47 (37.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,740 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 110902.50 na 58431.43 (52.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,744 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 914411.00 na 58553.35 (6.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,747 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 67512.00 na 58568.20 (86.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,770 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1204402.50 na 58747.64 (4.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,771 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1204402.50 na 58759.37 (4.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,774 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 92946.00 na 58759.37 (63.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,779 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 689520.00 na 58907.28 (8.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,782 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 666681.00 na 58927.72 (8.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,783 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 666681.00 na 58948.76 (8.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,783 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 666681.00 na 58906.68 (8.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,787 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 125873.00 na 58874.51 (46.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,790 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 372471.00 na 58662.90 (15.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,793 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 607540.50 na 58588.65 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,794 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 607540.50 na 58611.51 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,799 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 138924.00 na 58634.38 (42.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,813 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 959625.25 na 58733.38 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,814 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 959625.25 na 58703.68 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,814 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 959625.25 na 58688.83 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,818 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 103214.25 na 58669.03 (56.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,896 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 204228.00 na 58797.73 (28.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,903 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 750601.50 na 58866.44 (7.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,911 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 987952.50 na 58829.31 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,914 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 507940.75 na 58802.09 (11.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,915 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 507940.75 na 58828.08 (11.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,918 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 593573.75 na 58828.08 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,919 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 593573.75 na 58850.35 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,919 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 593573.75 na 58819.41 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,922 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 688704.00 na 58788.48 (8.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,925 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 218585.00 na 58807.68 (26.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,927 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 378227.50 na 58869.56 (15.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,936 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1141140.00 na 58904.21 (5.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,940 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 989145.00 na 58915.94 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,943 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 414252.00 na 58888.71 (14.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,944 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 414252.00 na 58922.13 (14.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,946 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 789963.75 na 58855.30 (7.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,949 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 688882.00 na 58820.65 (8.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,952 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 440720.00 na 58781.05 (13.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,952 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 440720.00 na 58719.18 (13.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,953 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 440720.00 na 58703.09 (13.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,957 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 652530.00 na 58731.55 (9.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,958 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 652530.00 na 58751.95 (9.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,963 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 599183.00 na 58772.34 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,964 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 599183.00 na 58795.85 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,969 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 69957.00 na 58795.85 (84.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,972 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 130160.25 na 58973.41 (45.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:38,984 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 706365.00 na 59061.52 (8.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,987 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 70804.50 na 59081.96 (83.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,996 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 983176.50 na 59260.81 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:38,998 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 983114.25 na 59275.66 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,002 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 95376.00 na 59245.96 (62.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,011 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 548090.00 na 59361.79 (10.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,014 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 365459.00 na 59383.05 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,044 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 971909.25 na 59624.02 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,048 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 642455.00 na 59641.34 (9.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,048 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 642455.00 na 59663.62 (9.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,049 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 642455.00 na 59685.89 (9.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,051 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 500745.75 na 59708.17 (11.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,052 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 500745.75 na 59736.63 (11.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,063 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 245117.25 na 59736.63 (24.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,065 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 487179.00 na 59619.07 (12.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,070 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 446481.00 na 59648.17 (13.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,071 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 446481.00 na 59680.35 (13.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,073 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 751408.00 na 59712.52 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,079 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 282366.00 na 59731.73 (21.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,080 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 593775.00 na 59782.47 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,088 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1238291.25 na 59807.22 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,089 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1238291.25 na 59783.70 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,098 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1111476.25 na 59760.19 (5.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,105 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 517657.50 na 59734.20 (11.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,106 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 517657.50 na 59761.43 (11.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,111 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 127187.50 na 59761.43 (47.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,133 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 69606.00 na 59544.87 (85.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,137 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 555542.00 na 59721.83 (10.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,140 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 373433.75 na 59743.09 (16.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,140 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 373433.75 na 59679.73 (16.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,141 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 373433.75 na 59677.75 (16.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,143 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 120312.50 na 59693.59 (49.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,146 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 662241.25 na 59693.59 (9.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,147 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 662241.25 na 59711.41 (9.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,147 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 662241.25 na 59678.74 (9.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,149 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 578976.00 na 59696.56 (10.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,165 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 588225.00 na 59716.88 (10.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,168 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 212692.50 na 59741.63 (28.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,177 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 139545.00 na 59607.98 (42.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,194 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 184508.00 na 59411.22 (32.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,199 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 299370.50 na 59484.87 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,200 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 299370.50 na 59531.30 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,203 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 137982.00 na 59604.32 (43.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,222 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 989774.00 na 59704.55 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,226 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 561396.00 na 59676.09 (10.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,232 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 374040.00 na 59625.35 (15.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,233 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 596190.00 na 59663.72 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,242 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 793645.00 na 59615.45 (7.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,249 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 339372.50 na 59579.57 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,250 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 339372.50 na 59621.64 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,252 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 468320.00 na 59663.72 (12.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,253 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 726144.00 na 59694.06 (8.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,257 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 214227.00 na 59713.86 (27.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,259 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 298818.75 na 59577.73 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,262 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 83609.75 na 59615.83 (71.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,266 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 59890.00 na 59744.53 (99.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,564 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 165739.00 na 59940.04 (36.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,569 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 413550.00 na 59768.02 (14.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,573 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 148203.25 na 59699.96 (40.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,588 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 570702.75 na 59699.96 (10.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,593 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 67536.00 na 59651.70 (88.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,597 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 944000.50 na 59837.32 (6.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,601 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 99501.75 na 59810.10 (60.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,806 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 88120.00 na 59948.70 (68.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,813 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 562912.50 na 60086.65 (10.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,814 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 562912.50 na 60038.39 (10.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,815 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 562912.50 na 60001.27 (10.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,829 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 545937.50 na 59972.80 (11.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,830 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 545937.50 na 59997.55 (11.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,836 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 805712.00 na 59997.55 (7.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,838 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 639609.50 na 60014.24 (9.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,841 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 706288.00 na 60035.27 (8.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,844 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 677257.00 na 59996.91 (8.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,848 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 219110.00 na 59957.31 (27.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,865 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 888880.00 na 59833.56 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,865 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 888880.00 na 59849.00 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,869 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 425343.75 na 59849.00 (14.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,870 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 425343.75 na 59880.59 (14.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,880 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 110227.50 na 59912.17 (54.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,883 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 120466.50 na 59912.17 (49.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,887 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 217840.00 na 59912.17 (27.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,893 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 75815.25 na 59972.80 (79.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,953 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 314608.00 na 60348.36 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,958 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 181152.00 na 60392.27 (33.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:39,963 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 985581.50 na 60392.27 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:39,964 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 985581.50 na 60406.52 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,396 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 626278.50 na 60614.18 (9.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,398 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1159425.00 na 60637.04 (5.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,399 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1159425.00 na 60649.42 (5.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,412 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 148034.25 na 60624.67 (41.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,415 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 352772.25 na 60719.36 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,417 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 748819.50 na 60641.40 (8.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,418 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 748819.50 na 60604.28 (8.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,419 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 748819.50 na 60600.56 (8.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,420 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 580826.25 na 60589.43 (10.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,424 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 265713.25 na 60613.53 (22.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,427 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 184596.00 na 60507.11 (32.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,440 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 882875.50 na 60507.11 (6.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,443 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 142920.00 na 60474.93 (42.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,448 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1171150.00 na 60573.93 (5.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,449 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1171150.00 na 60586.31 (5.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,449 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1171150.00 na 60561.56 (5.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,455 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 84110.25 na 60561.56 (72.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,465 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 226655.75 na 60221.24 (26.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,468 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 418197.50 na 60283.71 (14.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,469 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 418197.50 na 60319.01 (14.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,475 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 120872.50 na 60319.01 (49.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,481 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 625515.00 na 60409.10 (9.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,501 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 157462.50 na 60428.38 (38.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,503 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 337204.00 na 60500.65 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,505 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 252687.75 na 60415.26 (23.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,506 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 252687.75 na 60471.60 (23.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,511 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 203961.75 na 60471.60 (29.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,512 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 203961.75 na 60542.13 (29.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,514 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1039009.00 na 60612.67 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,519 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 84974.75 na 60584.21 (71.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,523 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 827359.50 na 60719.36 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,529 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 192783.75 na 60689.66 (31.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,532 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 416204.25 na 60564.92 (14.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,542 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 437823.75 na 60594.15 (13.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,542 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 437823.75 na 60621.87 (13.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,546 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 690071.25 na 60621.87 (8.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,546 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 690071.25 na 60586.23 (8.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,547 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 690071.25 na 60580.29 (8.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,551 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 100910.00 na 60577.32 (60.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,552 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 100910.00 na 60338.73 (59.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,553 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 100910.00 na 60160.53 (59.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,554 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 362913.25 na 60279.84 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,555 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 362913.25 na 60313.03 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,560 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 407704.00 na 60313.03 (14.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,562 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 100812.00 na 60252.64 (59.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,570 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 427133.50 na 60020.98 (14.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,574 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 240772.75 na 60051.67 (24.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,575 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 240772.75 na 60102.16 (25.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,576 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 303486.00 na 60152.65 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,579 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 200840.00 na 60072.46 (29.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,581 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 475152.00 na 59955.64 (12.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,582 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 475152.00 na 59981.38 (12.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,583 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 475152.00 na 60007.12 (12.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,587 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 197772.00 na 60032.86 (30.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,588 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 197772.00 na 60093.76 (30.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,591 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 490630.00 na 59971.99 (12.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,592 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 528975.25 na 59996.27 (11.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,602 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 615500.00 na 59950.73 (9.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,604 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 360549.75 na 59970.53 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,606 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 450504.00 na 60003.67 (13.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,607 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 450504.00 na 60030.88 (13.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,618 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 353087.00 na 59553.70 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,621 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 151110.00 na 59587.87 (39.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,625 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 352779.00 na 59667.07 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,626 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 100680.00 na 59596.78 (59.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,632 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 531037.50 na 59596.78 (11.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,633 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 531037.50 na 59620.07 (11.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,634 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 531037.50 na 59643.35 (11.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,639 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 135489.75 na 59666.64 (44.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,660 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 839953.00 na 59499.33 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,661 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 839953.00 na 59513.70 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,665 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 244890.00 na 59484.99 (24.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,670 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 230655.25 na 59532.99 (25.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,671 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 230655.25 na 59583.48 (25.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,675 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 339521.00 na 59633.97 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,676 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 339521.00 na 59564.67 (17.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,680 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 412037.50 na 59580.51 (14.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,682 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 451862.50 na 59609.22 (13.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,685 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 168210.00 na 59635.47 (35.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,689 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 598200.00 na 59703.27 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,690 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 598200.00 na 59723.07 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,701 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 386784.00 na 59742.87 (15.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,703 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 339136.00 na 59773.04 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,708 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 120880.00 na 59773.04 (49.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,718 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 327827.25 na 59865.63 (18.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,719 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 729615.00 na 59902.26 (8.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,720 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 729615.00 na 59918.61 (8.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,727 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 261101.50 na 59885.94 (22.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,728 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 786043.50 na 59940.39 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,729 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 786043.50 na 59903.27 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,730 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 786043.50 na 59884.70 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,731 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 579168.00 na 59856.24 (10.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,735 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 73138.50 na 59876.56 (81.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,738 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 637936.00 na 59876.56 (9.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,740 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 676417.50 na 59895.37 (8.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,750 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 420639.50 na 59913.19 (14.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,751 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 420639.50 na 59941.90 (14.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,752 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 486593.25 na 59884.48 (12.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,760 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 146118.00 na 59909.70 (41.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,763 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 353430.25 na 59756.25 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,768 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 61605.00 na 59789.91 (97.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,770 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 406296.00 na 59789.91 (14.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,774 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 739629.00 na 59731.50 (8.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,774 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 739629.00 na 59751.30 (8.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,777 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 156136.50 na 59771.10 (38.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,778 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 119677.50 na 59623.59 (49.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,794 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 253716.75 na 59440.44 (23.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,795 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 253716.75 na 59486.50 (23.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,797 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 255218.25 na 59486.50 (23.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,799 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 133303.50 na 59531.52 (44.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,804 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 716010.00 na 59620.62 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,805 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 716010.00 na 59586.96 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,806 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 716010.00 na 59570.13 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,807 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 616125.00 na 59560.23 (9.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,808 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 98538.00 na 59520.63 (60.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,812 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 159009.50 na 59631.04 (37.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,813 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 159009.50 na 59705.80 (37.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,815 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 110128.50 na 59780.57 (54.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,818 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 272112.50 na 59780.57 (22.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,819 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 272112.50 na 59824.60 (22.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,820 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 272112.50 na 59868.64 (22.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,824 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 63111.25 na 59912.67 (94.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,831 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 113989.50 na 60092.34 (52.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,858 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 559196.00 na 60199.26 (10.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,862 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 101006.00 na 60154.71 (59.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,869 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 442592.50 na 60267.05 (13.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,880 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 531888.00 na 60210.62 (11.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,880 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 531888.00 na 60233.87 (11.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,883 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 151257.00 na 60233.87 (39.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,888 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 266049.00 na 60311.56 (22.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,896 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 518670.50 na 60219.49 (11.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,901 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 255760.00 na 60173.95 (23.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,904 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 360556.00 na 60222.46 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,963 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 64835.00 na 60153.16 (92.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:40,966 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1149480.00 na 60330.89 (5.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,972 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 588144.50 na 60341.78 (10.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:40,975 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 76845.00 na 60363.08 (78.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,004 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 910539.50 na 60079.94 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,006 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 615120.00 na 60052.22 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,010 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1059910.00 na 60011.63 (5.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,012 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 901735.50 na 60023.51 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,013 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 962464.00 na 59995.79 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,016 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 948328.50 na 60008.66 (6.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,021 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 450861.25 na 59981.93 (13.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,026 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 235287.00 na 60010.17 (25.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,028 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 130765.00 na 59903.25 (45.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,038 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 968623.00 na 59998.76 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,040 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 522220.00 na 60012.11 (11.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,045 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 106306.00 na 60036.34 (56.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,054 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 145659.25 na 60036.34 (41.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,061 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 725518.75 na 60123.46 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,062 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 764396.50 na 60141.28 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,063 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 618990.00 na 60107.62 (9.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,068 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 93061.50 na 60066.04 (64.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,083 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 262915.00 na 59810.62 (22.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,099 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 892483.00 na 59859.65 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,101 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 538576.00 na 59874.02 (11.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,111 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 545086.50 na 59897.78 (11.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,119 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 493487.00 na 59924.04 (12.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,124 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 286605.00 na 59949.78 (20.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,126 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1090972.75 na 59992.82 (5.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,127 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1090972.75 na 60004.70 (5.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,132 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 812324.00 na 60016.58 (7.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,132 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 812324.00 na 60032.42 (7.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,142 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1133824.00 na 60032.42 (5.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,145 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 891854.00 na 60009.65 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,146 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 891854.00 na 59980.94 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,150 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 355590.00 na 59998.25 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,157 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 382270.75 na 60034.88 (15.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,164 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 275136.75 na 60068.06 (21.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,168 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1240818.75 na 60114.59 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,169 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1240818.75 na 60125.01 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,170 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1240818.75 na 60104.22 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,171 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 131405.00 na 60114.63 (45.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,178 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 785325.00 na 59924.55 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,182 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 104328.00 na 59891.88 (57.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,184 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 510929.25 na 60007.20 (11.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,185 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 510929.25 na 60032.42 (11.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,197 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 928804.25 na 60032.42 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,203 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 976258.00 na 60004.70 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,205 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 359296.00 na 59978.96 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,214 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 206816.00 na 60013.61 (29.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,222 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 130287.50 na 60072.50 (46.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,232 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 542983.50 na 60162.59 (11.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,235 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1135608.50 na 60115.07 (5.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,238 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 542276.25 na 60126.43 (11.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,239 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 675597.00 na 60150.19 (8.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,240 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 411470.75 na 60169.52 (14.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,251 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 557361.00 na 60201.20 (10.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,254 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 585816.00 na 60224.44 (10.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,260 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 464721.25 na 60179.89 (12.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,262 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 328456.25 na 60124.45 (18.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,264 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 724611.25 na 60046.24 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,266 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 844048.00 na 60064.06 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,267 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 844048.00 na 60033.37 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,270 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 435682.50 na 60039.31 (13.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,271 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 766441.00 na 60069.01 (7.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,272 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 766441.00 na 60085.84 (7.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,276 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 198495.00 na 60102.67 (30.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,277 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 198495.00 na 59972.98 (30.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,278 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 105868.00 na 59852.20 (56.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,285 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 867190.50 na 59969.02 (6.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,286 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 867190.50 na 59939.32 (6.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,286 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 867190.50 na 59909.62 (6.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,299 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 159957.00 na 59909.62 (37.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,302 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1200937.50 na 59909.62 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,305 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 292512.00 na 59920.51 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,313 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 517783.50 na 59831.41 (11.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,317 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 80367.00 na 59856.64 (74.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,320 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 801330.00 na 59856.64 (7.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,327 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 830707.00 na 59823.97 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,328 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 830707.00 na 59839.81 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,330 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 613916.00 na 59855.65 (9.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,343 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 920091.00 na 59876.91 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,344 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 920091.00 na 59891.29 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,348 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 298089.00 na 59905.66 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,349 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 298089.00 na 59949.70 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,351 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 559598.75 na 59864.56 (10.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,359 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 525701.50 na 59817.04 (11.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,361 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 940593.00 na 59842.78 (6.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,371 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 582067.50 na 59814.07 (10.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,372 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 582067.50 na 59837.35 (10.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,374 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 473195.00 na 59837.35 (12.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,376 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 917070.00 na 59779.93 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,380 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 720772.00 na 59794.78 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,382 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 758725.00 na 59757.16 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,386 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 285589.50 na 59774.98 (20.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,399 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 767621.25 na 59821.00 (7.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,401 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 532247.00 na 59838.82 (11.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,405 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 140237.50 na 59787.34 (42.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,414 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 657604.50 na 59877.43 (9.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,424 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 820472.25 na 59834.86 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,425 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 820472.25 na 59852.16 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,431 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 592614.00 na 59852.16 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,431 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 592614.00 na 59875.92 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,432 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 592614.00 na 59828.40 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,433 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 678492.00 na 59821.47 (8.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,437 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 328313.50 na 59842.26 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,440 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 573650.00 na 59884.83 (10.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,443 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1014572.25 na 59909.11 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,451 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 114472.00 na 59881.39 (52.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,456 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 899573.50 na 59881.39 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,460 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 116238.00 na 59897.23 (51.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,467 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 903851.50 na 60015.55 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,477 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 292280.00 na 59983.87 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,482 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 585910.00 na 60031.39 (10.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,486 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1034967.00 na 60056.14 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,487 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1034967.00 na 60070.00 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,490 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 728100.00 na 60070.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,492 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 539265.75 na 60089.80 (11.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,496 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 258619.50 na 60116.53 (23.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,501 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 724625.00 na 60006.64 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,506 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 262507.50 na 60026.44 (22.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,507 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 131503.50 na 60080.42 (45.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,512 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 612150.00 na 59875.49 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,525 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 89847.00 na 59828.96 (66.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,578 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 784004.00 na 59951.47 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,579 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 784004.00 na 59923.25 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,580 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 784004.00 na 59898.01 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,584 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 136514.25 na 59883.16 (43.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,588 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 287816.75 na 59964.09 (20.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,592 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 469030.00 na 60002.32 (12.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,594 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 764400.00 na 60025.72 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,595 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 198906.50 na 60040.57 (30.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,610 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 724364.00 na 59931.42 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,612 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 616390.00 na 59947.01 (9.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,615 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 660727.25 na 59909.89 (9.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,631 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 944306.50 na 59875.73 (6.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,635 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 822406.50 na 59875.73 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,636 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 822406.50 na 59848.26 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,637 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 122082.00 na 59851.23 (49.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,642 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 594818.25 na 59934.75 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,651 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 120514.00 na 59953.67 (49.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,676 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 785278.00 na 60045.35 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,681 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 749337.50 na 60017.14 (8.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,682 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1029707.00 na 60036.94 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,683 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1029707.00 na 60047.72 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,685 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 864732.75 na 60058.50 (6.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,689 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 998844.00 na 60032.51 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,699 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 180837.00 na 60010.24 (33.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,703 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 465147.25 na 59889.95 (12.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,705 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 596460.00 na 59913.32 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,712 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 121266.00 na 59864.81 (49.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,715 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 181674.00 na 59864.81 (33.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,716 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 181674.00 na 59923.12 (33.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,719 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 407018.25 na 59923.12 (14.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,720 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 407018.25 na 59950.23 (14.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,723 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1115864.50 na 59977.35 (5.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,726 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 411918.75 na 59957.30 (14.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,727 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 411918.75 na 59984.03 (14.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,728 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 411918.75 na 60010.76 (14.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,729 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 582540.00 na 60037.49 (10.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,730 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 721473.50 na 60056.80 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,731 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 721473.50 na 60072.39 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,733 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 844497.50 na 60041.20 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,744 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 829183.50 na 60054.57 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,745 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 829183.50 na 60027.10 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,746 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 829183.50 na 59999.62 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,747 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 307335.00 na 60013.37 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,749 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 445904.00 na 59940.61 (13.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,759 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 876246.75 na 59965.47 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,761 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 706721.00 na 59939.48 (8.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,768 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 577448.00 na 59955.46 (10.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,769 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 577448.00 na 59916.85 (10.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,784 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 409110.75 na 59936.15 (14.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,792 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 607160.00 na 59963.63 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,796 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 786343.50 na 59926.50 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,797 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 786343.50 na 59941.00 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,799 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 339999.00 na 59955.49 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,807 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 189729.00 na 59988.55 (31.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,819 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 598956.00 na 60049.43 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,820 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 598956.00 na 60010.82 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,821 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 598956.00 na 59997.46 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,825 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 553525.00 na 59979.64 (10.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,825 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 553525.00 na 59937.31 (10.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,827 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 444780.00 na 59942.51 (13.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,828 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 444780.00 na 59968.50 (13.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,833 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 913710.00 na 59968.50 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,834 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 913710.00 na 59981.51 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,836 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 383220.00 na 59994.51 (15.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,842 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 635020.00 na 60024.57 (9.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,847 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 155975.00 na 59987.45 (38.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,852 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 718347.50 na 60059.08 (8.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,854 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 718347.50 na 60075.03 (8.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,865 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 497520.00 na 60075.03 (12.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,866 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 497520.00 na 60029.74 (12.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,867 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 497520.00 na 60026.77 (12.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,868 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 342336.50 na 60021.57 (17.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,878 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 297910.50 na 59956.97 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,883 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 202419.75 na 59956.97 (29.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,886 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 420963.75 na 60012.66 (14.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,892 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 267660.75 na 60040.13 (22.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,895 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 906000.75 na 60040.13 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,896 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 906000.75 na 60014.15 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,910 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 238361.25 na 60028.25 (25.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,911 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 650998.00 na 59933.96 (9.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,913 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 903150.75 na 59898.32 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,914 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 903150.75 na 59911.33 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,916 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 822926.00 na 59924.33 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,917 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 822926.00 na 59938.44 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,918 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 728329.50 na 59952.55 (8.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,924 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 394606.25 na 59921.36 (15.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,926 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 678991.50 na 59949.96 (8.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,927 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1201750.00 na 59916.55 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,928 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1201750.00 na 59926.20 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,931 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 902466.75 na 59935.86 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,936 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 619440.00 na 59948.87 (9.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,938 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 852060.00 na 59912.48 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,938 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 852060.00 na 59925.85 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,939 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 852060.00 na 59939.21 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,943 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 215470.50 na 59952.58 (27.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,944 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 215470.50 na 59853.08 (27.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,945 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 215470.50 na 59784.77 (27.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,951 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 571853.50 na 59836.01 (10.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,952 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 494872.00 na 59855.70 (12.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,956 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 838606.50 na 59878.36 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,972 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1090950.50 na 59892.11 (5.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,974 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 199329.00 na 59902.50 (30.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,980 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 273744.00 na 59902.50 (21.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,981 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 777775.50 na 59943.34 (7.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,982 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 777775.50 na 59957.81 (7.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,985 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 764850.00 na 59957.81 (7.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,992 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 669977.00 na 59928.11 (8.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:41,997 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 558385.50 na 59894.69 (10.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,998 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 558385.50 na 59854.60 (10.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:41,999 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 558385.50 na 59824.90 (10.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,000 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 421708.00 na 59833.07 (14.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,012 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 730668.00 na 59781.83 (8.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,013 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 425915.00 na 59751.39 (14.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,022 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 818208.00 na 59699.42 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,023 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 818208.00 na 59713.14 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,028 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 770087.25 na 59726.86 (7.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,035 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 175944.00 na 59697.90 (33.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,040 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 601818.50 na 59775.60 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,050 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 416836.00 na 59799.36 (14.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,051 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 416836.00 na 59731.05 (14.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,080 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1016328.00 na 59759.76 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,081 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1016328.00 na 59770.54 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,084 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 704565.25 na 59770.54 (8.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,085 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 704565.25 na 59786.13 (8.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,086 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 930062.00 na 59801.72 (6.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,087 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 930062.00 na 59813.60 (6.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,097 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 299690.00 na 59793.55 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,107 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 164529.75 na 59829.19 (36.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,108 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 164529.75 na 59916.83 (36.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,110 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 103860.75 na 59741.60 (57.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,113 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 599570.00 na 59869.31 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,114 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 599570.00 na 59887.52 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,124 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 241064.00 na 59905.72 (24.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,125 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 465062.00 na 59952.14 (12.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,127 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 690425.50 na 59905.37 (8.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,131 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 799604.00 na 59921.31 (7.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,132 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 799604.00 na 59935.42 (7.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,135 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 677435.00 na 59949.53 (8.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,137 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 770050.00 na 59966.25 (7.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,141 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 338992.50 na 59981.10 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,141 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 338992.50 na 60014.13 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,143 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 386312.50 na 60047.15 (15.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,144 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 386312.50 na 60076.50 (15.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,147 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 620550.00 na 60076.50 (9.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,151 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 170871.25 na 60039.37 (35.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,155 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 452110.00 na 60106.20 (13.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,160 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 139988.25 na 60055.71 (42.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,175 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 186297.00 na 60130.31 (32.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,187 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 227962.50 na 60189.71 (26.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,190 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 136894.50 na 60239.10 (44.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,195 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 122616.00 na 60239.10 (49.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,198 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 353234.00 na 60323.01 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,199 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 353234.00 na 60354.55 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,201 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 414848.25 na 60354.55 (14.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,211 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 794006.25 na 60300.35 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,218 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1065951.00 na 60314.84 (5.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,224 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 451711.25 na 60325.62 (13.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,226 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 731801.75 na 60275.13 (8.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,231 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 93163.50 na 60290.72 (64.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:42,237 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 421470.00 na 60399.51 (14.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,239 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1003408.00 na 60344.57 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,244 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 307860.00 na 60356.09 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,986 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1044191.00 na 60392.86 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,987 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1044191.00 na 60371.33 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,988 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1044191.00 na 60382.11 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,991 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 385156.25 na 60382.11 (15.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,992 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 1050872.00 na 60324.94 (5.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:42,998 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 610830.00 na 60303.40 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:43,002 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 353544.50 na 60321.97 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:43,011 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 922005.00 na 60353.89 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:43,012 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 922005.00 na 60366.16 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:43,018 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 899340.00 na 60366.16 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:43,019 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 899340.00 na 60382.48 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:43,023 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 447840.00 na 60398.79 (13.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:43,025 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 193976.25 na 60430.99 (31.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:43,035 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 701757.00 na 60502.27 (8.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:43,038 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 282900.50 na 60461.68 (21.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:43,041 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 164199.75 na 60461.68 (36.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:43,048 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 575961.75 na 60544.84 (10.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:43,057 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 249747.00 na 60570.10 (24.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:43,062 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 779792.00 na 60454.27 (7.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni
+2026-09-16 08:18:43,063 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 329824.00 na 60473.08 (18.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:43,064 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 582942.75 na 60386.95 (10.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:43,065 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 582942.75 na 60412.22 (10.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:43,067 - tradebot.adapters.freqtrade.base - WARNING - ibs MNQ/USD: stake orezany z 490594.50 na 60361.73 (12.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-16 08:18:47,476 - freqtrade.misc - INFO - dumping json to "/Users/martin/IBS/deploy/freqtrade/user_data/backtest_results/backtest-result-2026-09-16_06-18-47.meta.json"
+Result for strategy IBSImbalanceStrategy
+│ IBSImbalanceStrategy │    557 │         0.01 │       1390.440 │         2.34 │      0:20:00 │  348     1   208  62.5 │ 1291.84 USD  2.11% │
+…
+│ ibs:1675442340000 │          stop_loss │      1 │        -0.25 │       -126.000 │        -0.21 │         0:07:00 │    0     0     1     0 │
+│ ibs:1670335200000 │          stop_loss │      1 │        -0.23 │       -135.000 │        -0.23 │         0:27:00 │    0     0     1     0 │
+│ ibs:1670953320000 │          stop_loss │      1 │        -0.23 │       -137.500 │        -0.23 │         0:04:00 │    0     0     1     0 │
+│ ibs:1678458600000 │          stop_loss │      1 │        -0.31 │       -149.000 │        -0.25 │         0:01:00 │    0     0     1     0 │
+│ ibs:1665495000000 │          stop_loss │      1 │        -0.27 │       -150.000 │        -0.25 │         0:02:00 │    0     0     1     0 │
+│ ibs:1678288140000 │          stop_loss │      1 │        -0.32 │       -155.000 │        -0.26 │         0:09:00 │    0     0     1     0 │
+│ ibs:1676653380000 │          stop_loss │      1 │        -0.34 │       -169.000 │        -0.28 │         0:46:00 │    0     0     1     0 │
+│ ibs:1691069400000 │          stop_loss │      2 │        -0.18 │       -169.500 │        -0.28 │         0:00:00 │    0     0     2     0 │
+│ ibs:1666208520000 │          stop_loss │      3 │         -0.1 │       -172.500 │        -0.29 │         0:00:00 │    0     0     3     0 │
+│ ibs:1666272600000 │          stop_loss │      1 │        -0.31 │       -172.500 │        -0.29 │         0:02:00 │    0     0     1     0 │
+│ ibs:1671049800000 │          stop_loss │      1 │        -0.29 │       -173.750 │        -0.29 │         0:01:00 │    0     0     1     0 │
+│ ibs:1692972000000 │          stop_loss │      1 │         -0.3 │       -177.000 │         -0.3 │         0:02:00 │    0     0     1     0 │
+│ ibs:1678469400000 │          stop_loss │      1 │        -0.39 │       -185.000 │        -0.31 │         0:21:00 │    0     0     1     0 │
+│ ibs:1682002080000 │          stop_loss │      1 │        -0.37 │       -192.000 │        -0.32 │         0:17:00 │    0     0     1     0 │
+│ ibs:1670342940000 │          stop_loss │      1 │        -0.34 │       -198.750 │        -0.33 │         1:04:00 │    0     0     1     0 │
+│ ibs:1686323160000 │          stop_loss │      1 │        -0.35 │       -207.000 │        -0.35 │         0:17:00 │    0     0     1     0 │
+│ ibs:1666877400000 │          stop_loss │      1 │        -0.37 │       -213.750 │        -0.36 │         0:03:00 │    0     0     1     0 │
+│ ibs:1669818780000 │          stop_loss │      1 │        -0.38 │       -218.750 │        -0.37 │         1:28:00 │    0     0     1     0 │
+│ ibs:1675879560000 │          stop_loss │      1 │        -0.46 │       -234.000 │        -0.39 │         0:30:00 │    0     0     1     0 │
+│ ibs:1683136800000 │          stop_loss │      2 │        -0.24 │       -253.000 │        -0.43 │         0:00:00 │    0     0     2     0 │
+│ ibs:1680618780000 │          stop_loss │      1 │        -0.49 │       -258.000 │        -0.43 │         0:33:00 │    0     0     1     0 │
+│ ibs:1666194660000 │          stop_loss │      1 │        -0.46 │       -260.000 │        -0.44 │         0:17:00 │    0     0     1     0 │
+│ ibs:1679666040000 │          stop_loss │      1 │        -0.56 │       -286.000 │        -0.48 │         1:14:00 │    0     0     1     0 │
+│ ibs:1674746100000 │          stop_loss │      1 │        -0.57 │       -343.750 │        -0.58 │         0:36:00 │    0     0     1     0 │
+│ ibs:1675791540000 │          stop_loss │      2 │        -0.42 │       -421.000 │        -0.71 │         0:00:00 │    0     0     2     0 │
+│ ibs:1676391660000 │          stop_loss │      1 │        -0.85 │       -427.000 │        -0.72 │         0:18:00 │    0     0     1     0 │
+│ ibs:1666277820000 │          stop_loss │      1 │        -1.05 │       -474.000 │         -0.8 │         1:21:00 │    0     0     1     0 │
+│             TOTAL │                    │    557 │         0.01 │       1390.440 │         2.34 │         0:20:00 │  348     1   208  62.5 │
+└───────────────────┴────────────────────┴────────┴──────────────┴────────────────┴──────────────┴─────────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Metric                                 ┃ Value                                     ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Backtesting from                       │ 2022-10-01 00:00:00                       │
+│ Backtesting to                         │ 2023-09-29 20:57:00                       │
+│ Trading Mode                           │ Spot                                      │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 557 / 1.53                                │
+│ Starting balance                       │ 59522 USD                                 │
+│ Final balance                          │ 60912.44 USD                              │
+│ Absolute profit                        │ 1390.44 USD                               │
+│ Total profit %                         │ 2.34%                                     │
+│ CAGR %                                 │ 2.35%                                     │
+│ Sharpe (closed trades)                 │ 0.97                                      │
+│ Sortino (closed trades)                │ 1.07                                      │
+│ Calmar (closed trades)                 │ 5.84                                      │
+│ SQN                                    │ 0.78                                      │
+│ Mean profit p-value                    │ 0.4351                                    │
+│ Profit factor                          │ 1.10                                      │
+│ Expectancy (Ratio)                     │ 2.50 (0.04)                               │
+│ Avg. daily profit                      │ 3.83 USD                                  │
+│ Avg. stake amount                      │ 52021.981 USD                             │
+│ Market change                          │ 34.69%                                    │
+│ Total trade volume                     │ 57953876.94 USD                           │
+│                                        │                                           │
+│ Best Pair                              │ MNQ/USD 2.34%                             │
+│ Worst Pair                             │ MNQ/USD 2.34%                             │
+│ Best trade                             │ MNQ/USD 0.84%                             │
+│ Worst trade                            │ MNQ/USD -1.05%                            │
+│ Best day                               │ 284.48 USD                                │
+│ Worst day                              │ -437.1 USD                                │
+│ Days win/draw/lose                     │ 125 / 145 / 91                            │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:00 / 2d 02:40 / 0d 00:27            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:00 / 0d 04:04 / 0d 00:07            │
+│ Max Consecutive Wins / Loss            │ 12 / 5                                    │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 52 / 0                                    │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 59021.65 USD / 61332.69 USD               │
+│ Max % of account underwater            │ 2.11%                                     │
+│ Absolute drawdown                      │ 1291.84 USD (2.11%)                       │
+│ Drawdown duration                      │ 50 days 02:48:00                          │
+│ Profit at drawdown start               │ 1810.69 USD                               │
+│ Profit at drawdown end                 │ 518.85 USD                                │
+│ Drawdown start                         │ 2023-01-19 15:06:00                       │
+│ Drawdown end                           │ 2023-03-10 17:54:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 59021.65 USD / 61332.69 USD               │
+│ Min/Max balance dates (wallet balance) │ 2022-10-20 16:24:00 / 2023-01-19 15:09:00 │
+│ Max % of account underwater (balance)  │ 2.11%                                     │
+│ Absolute drawdown (wallet balance)     │ 1291.84 USD (2.11%)                       │
+│ Drawdown duration                      │ 50 days 02:48:00                          │
+│ Profit at drawdown start               │ 1810.69 USD                               │
+│ Profit at drawdown end                 │ 518.85 USD                                │
+│ Drawdown start                         │ 2023-01-19 15:09:00                       │
+│ Drawdown end                           │ 2023-03-10 17:57:00                       │
+│ Sharpe (daily wallet balance)          │ 0.86                                      │
+│ Sortino (daily wallet balance)         │ 0.82                                      │
+│ Calmar (daily wallet balance)          │ 5.84                                      │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2022-10-01 00:00:00 -> 2023-09-29 20:57:00 | Max open trades : 1
+                                                              STRATEGY SUMMARY                                                               
+┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┓
+┃             Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃           Drawdown ┃
+┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━┩
+│ IBSImbalanceStrategy │    557 │         0.01 │       1390.440 │         2.34 │      0:20:00 │  348     1   208  62.5 │ 1291.84 USD  2.11% │
+└──────────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴────────────────────┘
