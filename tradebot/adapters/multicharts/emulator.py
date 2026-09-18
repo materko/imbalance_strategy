@@ -135,10 +135,30 @@ def _seed_before(runner: MCRunner, m1, first_ms: int, log: Callable[[str], None]
 
 
 def _entry_fill(sub: Bar, live: LiveOrder, first_minute: bool) -> float | None:
-    """Cena vyplnenia vstupu v 1m sviečke, alebo None."""
+    """Cena vyplnenia vstupu v 1m sviečke, alebo None.
+
+    Tri druhy vstupu:
+
+    - **market** — plní sa na otvorení prvej minúty po signáli,
+    - **limit** — čaká na *návrat* ceny k úrovni (long zospodu, short zhora),
+    - **stop** — čaká na *prienik* úrovne (long nad ňu, short pod ňu). Je to zrkadlo
+      limitky; pri ORB je to prirodzený vstup, lebo prerazenie hranice rangu je práve
+      ten moment, na ktorý sa čaká.
+
+    V oboch čakajúcich druhoch platí to isté pravidlo o medzere: keď je otvorenie minúty
+    už za úrovňou, plní sa na otvorení (horšia cena, ale reálna), inak presne na úrovni.
+    """
     price = float(live.plan.entry)
     if live.market:
         return sub.open if first_minute else None
+    if live.stop:
+        if live.is_long:
+            if sub.open >= price:      # medzera cez úroveň — plní sa na otvorení
+                return sub.open
+            return price if sub.high >= price else None
+        if sub.open <= price:
+            return sub.open
+        return price if sub.low <= price else None
     if live.is_long:
         if sub.open <= price:
             return sub.open
