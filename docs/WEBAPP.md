@@ -512,7 +512,10 @@ z feather súborov po oknách, orezanie kresieb na okno), `gitsync.py`,
 `app.py` (FastAPI: `create_app` poskladá routery), `api/` (REST API po oblastiach — `runs`, `sweeps`,
 `hyperopt`, `analytics*`, `matrix`, `hub`, `chart`, `profiles`, `meta`, `git`, `prop_paper`; každý modul má
 `build(ctx)` a zdieľaný stav dostane cez `api/context.py::AppContext`; modely požiadaviek sú v `api/models.py`,
-overenie zadania behu v `api/settings.py`), `static/` (stránka bez frameworku, Plotly z CDN).
+overenie zadania behu v `api/settings.py`), `static/` (stránka bez frameworku, Plotly z CDN; skripty v `static/js/` sú klasické, nie
+moduly — zdieľajú globálny priestor a poradie načítania v `index.html` je poradie závislostí:
+`core.js` prvý, `main.js` s `init()` posledný; `test_webapp_js.py` stráži, že je každý načítaný
+a žiadne globálne meno nie je v dvoch súboroch).
 Export kresieb: `tradebot/adapters/freqtrade/runner.py::export_chart`, serializácia
 `tradebot/core/drawing.py::objects_to_dicts`.
 Monte Carlo v detaile počíta `tester/montecarlo.py` (čistý výpočet nad obchodmi, bez znalosti

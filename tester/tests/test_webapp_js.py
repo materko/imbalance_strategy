@@ -12,7 +12,7 @@ import re
 
 from tradebot.core.paths import TESTER_DIR
 
-APP_JS = TESTER_DIR / "webapp" / "static" / "app.js"
+JS_DIR = TESTER_DIR / "webapp" / "static" / "js"
 INDEX_HTML = TESTER_DIR / "webapp" / "static" / "index.html"
 
 #: Mená, ktoré poskytuje prehliadač alebo sú metódami — tie sa v súbore nedefinujú.
@@ -27,8 +27,34 @@ BUILTIN = {
 }
 
 
+def _scripts() -> list[str]:
+    """Skripty stránky v poradí, v akom ich načíta `index.html`."""
+    return re.findall(r'<script src="/static/js/([^"]+\.js)"', INDEX_HTML.read_text(encoding="utf-8"))
+
+
 def _source() -> str:
-    return APP_JS.read_text(encoding="utf-8")
+    return "\n".join((JS_DIR / name).read_text(encoding="utf-8") for name in _scripts())
+
+
+def test_index_nacita_kazdy_skript_prave_raz():
+    """Skript, ktorý v `index.html` chýba, sa nenačíta — a jeho funkcie ticho chýbajú."""
+    nacitane = _scripts()
+    assert sorted(nacitane) == sorted(p.name for p in JS_DIR.glob("*.js"))
+    assert len(nacitane) == len(set(nacitane))
+    assert nacitane[0] == "core.js" and nacitane[-1] == "main.js"
+
+
+def test_ziadne_globalne_meno_nie_je_v_dvoch_skriptoch():
+    """Klasické skripty zdieľajú globálny priestor: `const x` v dvoch súboroch zhodí načítanie
+    druhého (SyntaxError) a `function x` v dvoch potichu prepíše prvú verziu."""
+    kde: dict[str, list[str]] = {}
+    for name in _scripts():
+        text = (JS_DIR / name).read_text(encoding="utf-8")
+        for meno in re.findall(r"^(?:(?:async\s+)?function\s+|(?:const|let|var|class)\s+)([A-Za-z0-9_$]+)",
+                               text, re.M):
+            kde.setdefault(meno, []).append(name)
+    dvojite = {m: s for m, s in kde.items() if len(s) > 1}
+    assert not dvojite, f"definované vo viacerých skriptoch: {dvojite}"
 
 
 def _defined(text: str) -> set[str]:

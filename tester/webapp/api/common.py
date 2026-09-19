@@ -42,9 +42,9 @@ def montecarlo_cached(run_id: str, trades: list[dict[str, Any]], opts: dict[str,
 def asset_version() -> str:
     """Odtlačok skriptu a štýlov — mení sa s každou zmenou súboru, inak je stály."""
     stamp = 0.0
-    for name in ("app.js", "app.css"):
+    for path in (STATIC / "app.css", *(STATIC / "js").glob("*.js")):
         try:
-            stamp = max(stamp, (STATIC / name).stat().st_mtime)
+            stamp = max(stamp, path.stat().st_mtime)
         except OSError:
             continue
     return format(int(stamp), "x")

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
@@ -29,7 +31,7 @@ def build(ctx: AppContext) -> APIRouter:
         html = (STATIC / "index.html").read_text(encoding="utf-8")
         v = asset_version()
         html = html.replace('href="/static/app.css"', f'href="/static/app.css?v={v}"')
-        html = html.replace('src="/static/app.js"', f'src="/static/app.js?v={v}"')
+        html = re.sub(r'src="(/static/js/[^"?]+\.js)"', lambda m: f'src="{m.group(1)}?v={v}"', html)
         return HTMLResponse(html, headers={"Cache-Control": "no-cache, must-revalidate"})
 
     @router.get("/api/meta")

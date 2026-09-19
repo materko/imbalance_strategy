@@ -812,7 +812,7 @@ def test_ponuka_parov_nesie_zdroj_trh_aj_druh(client, monkeypatch):
 def test_staticke_subory_sa_necachuju(client):
     """Po aktualizácii nesmie prehliadač podať starú stránku — tester by nové pole nevidel."""
     c, _ = client
-    r = c.get("/static/app.js")
+    r = c.get("/static/js/core.js")
     assert r.status_code == 200
     assert "no-cache" in r.headers.get("cache-control", "")
 
@@ -848,7 +848,8 @@ def test_odkazy_na_skript_a_styly_maju_verziu(client):
     c, _ = client
     html = c.get("/").text
     assert re.search(r'href="/static/app\.css\?v=[0-9a-f]+"', html)
-    assert re.search(r'src="/static/app\.js\?v=[0-9a-f]+"', html)
+    skripty = re.findall(r'<script src="/static/js/([^"]+)"', html)
+    assert skripty and all(re.fullmatch(r"[a-z_]+\.js\?v=[0-9a-f]+", s) for s in skripty), skripty
     # verzia sa mení len so súborom, nie s každým načítaním
     assert c.get("/").text == html
 
