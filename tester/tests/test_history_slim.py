@@ -197,8 +197,8 @@ def test_cli_replay_spusti_bod_ako_beh(tmp_path: Path, monkeypatch, capsys):
         videne.update(params=params, settings=settings, note=note)
         return {**rec, "id": "20260905-130000-111111", "settings": settings}
 
-    monkeypatch.setattr(cli, "_execute", fake_execute)
-    monkeypatch.setattr(cli, "server_alive", lambda url: False)
+    monkeypatch.setattr("tester.webapp.cli.history._execute", fake_execute)
+    monkeypatch.setattr("tester.webapp.cli.history.server_alive", lambda url: False)
     assert cli.main(["replay", "20260905-120000-eeeeee"]) == 0
     assert "matrix" not in videne["settings"] and "instrument" not in videne["settings"]
     assert "matrix m1" in videne["note"]

@@ -1146,7 +1146,7 @@ def test_cli_prefetch_submits_grid_at_once(monkeypatch, tmp_path: Path):
     monkeypatch.setattr(hub_config, "load_state", lambda path=None: hub_config.AgentState())
     monkeypatch.setattr(hub_config, "save_state", lambda state, path=None: None)
     monkeypatch.setattr(client_mod.HubClient, "from_config", classmethod(lambda cls, cfg: FakeClient()))
-    monkeypatch.setattr(cli, "_webapp_hub_ready", lambda url: False)
+    monkeypatch.setattr("tester.webapp.cli.remote._webapp_hub_ready", lambda url: False)
     monkeypatch.setattr(gitcode, "version", lambda: "abc123")
     monkeypatch.setattr(gitcode, "dirty_code", lambda: [])
     cli._REMOTE_BATCH.clear()
