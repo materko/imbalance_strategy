@@ -49,7 +49,7 @@ if ($LASTEXITCODE -ne 0) { throw "instalacia freqtrade zlyhala" }
 
 Write-Host "Instalujem lokalny balik tradebot (editovatelne)..."
 & $py -m pip uninstall -y ibs *> $null   # stary nazov balika (pred premenovanim na tradebot)
-& $py -m pip install -e "$repo[dev]"
+& $py -m pip install -e "$repo[dev,csharp]"   # csharp = pythonnet, most do C# jadra strategii
 if ($LASTEXITCODE -ne 0) { throw "instalacia tradebot zlyhala" }
 
 Write-Host ""

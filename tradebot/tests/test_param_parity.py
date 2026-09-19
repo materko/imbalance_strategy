@@ -118,9 +118,33 @@ def _shared_refs() -> _Refs:
     return refs
 
 
+_CS_NOISE = re.compile(r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"', re.S)
+_CS_CFG_READ = re.compile(r"\b_?[cC]fg\.(\w+)")
+_CS_WORD = re.compile(r"\b[A-Za-z_]\w*\b")
+
+
+def _csharp_reads(csharp_dir: Path) -> set[str]:
+    """Polia configu, ktoré číta C# jadro stratégie: `cfg.pole` / `Cfg.pole` / `_cfg.pole` kdekoľvek
+    a v triede configu (`*Config.cs`) meno použité aj mimo svojej deklarácie. Komentáre a reťazce
+    sa nepočítajú — tabuľka jednotiek je deklarácia, nie čítanie."""
+    reads: set[str] = set()
+    for path in sorted(csharp_dir.rglob("*.cs")):
+        code = _CS_NOISE.sub(" ", path.read_text(encoding="utf-8"))
+        reads.update(_CS_CFG_READ.findall(code))
+        if path.name.endswith("Config.cs"):
+            seen: dict[str, int] = {}
+            for word in _CS_WORD.findall(code):
+                seen[word] = seen.get(word, 0) + 1
+            reads.update(w for w, n in seen.items() if n >= 2)
+    return reads
+
+
 def _strategy_refs(key: str) -> _Refs:
     refs = _Refs()
     pkg = REPO / "tradebot" / "strategies" / key
+    csharp_dir = STRATEGIES[key].csharp_dir
+    if csharp_dir is not None:  # jadro v C#: polia číta ono, Python balík je len popis
+        refs.attrs |= _csharp_reads(csharp_dir)
     for path in sorted(pkg.rglob("*.py")):
         if path.parent == pkg and path.name in DECLARATIVE:
             continue

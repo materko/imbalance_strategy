@@ -5,7 +5,7 @@
 #
 # Čo spraví (a na čo sa spýta):
 #   1. overí Xcode Command Line Tools (git) a Homebrew - ak chýbajú, ponúkne inštaláciu
-#   2. cez Homebrew doinštaluje python@3.12 a ta-lib (Freqtrade ich potrebuje)
+#   2. cez Homebrew doinštaluje python@3.12, ta-lib (Freqtrade ich potrebuje) a mono (C# jadro stratégií)
 #   3. spýta sa, KAM repozitár klonovať a ako sa má priečinok volať
 #   4. spýta sa na meno testera (ukladá sa ku každému behu vo webapp)
 #   5. naklonuje repozitár (alebo aktualizuje existujúci), postaví .venv, zloží dáta
@@ -93,7 +93,8 @@ main() {
     # 3. Python 3.12 + TA-Lib
     # ---------------------------------------------------------------------------- #
     bold "Balíky cez Homebrew"
-    for f in "$PY_FORMULA" ta-lib; do
+    # mono: prekladá a spúšťa C# jadro stratégií (IBSNinja) - na macOS nie je .NET Framework
+    for f in "$PY_FORMULA" ta-lib mono; do
         if brew list --versions "$f" 2>/dev/null | grep -q .; then
             ok "$f už je nainštalovaný"
         else

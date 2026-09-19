@@ -16,6 +16,9 @@ dev = ["pytest>=8"]
 plot = ["plotly>=5", "pandas"]
 # Webapp pre testerov (tester.webapp) - fastapi aj uvicorn su uz zavislosti Freqtradu.
 web = ["fastapi", "uvicorn", "pandas", "pyarrow"]
+# Most do C# jadra strategii (tradebot.adapters.csharp) v procese. Bez neho most spusta
+# TradeBot.Host.exe ako samostatny proces (pomalsie, ale bez zavislosti); na macOS/Linuxe treba Mono.
+csharp = ["pythonnet>=3.0"]
 
 # Instaluje sa LEN produkt. Balik `tester` je naradie tohto repozitara, spusta sa
 # z jeho korena (`python -m tester.webapp`) a zamerne sa nedostane do globalneho

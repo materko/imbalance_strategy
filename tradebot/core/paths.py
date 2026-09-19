@@ -6,6 +6,8 @@ data/tester/<zdroj>/<trh>/          pracovná podoba tých istých — gitignore
 data/quotemanager/<zdroj>/          ASCII exporty na import do QuoteManagera — gitignored
 deploy/freqtrade/                 čo potrebuje Freqtrade: configy búrz, skripty, user_data
 deploy/multicharts/               čo potrebuje MultiCharts: šablóny štúdií, setup
+deploy/ninjatrader/               čo potrebuje NinjaTrader 8: šablóny stratégií, inštalácia
+csharp/                           jadro a stratégie v C# (NinjaTrader natívne, Freqtrade cez most)
 tester/runs/, tester/profiles/   história behov a configy testerov — v gite (bez kresieb)
 tester/sweeps/                    výsledky mriežok, matíc a overení hyperoptu — v gite
 tester/runs/.charts/              kresby behov pre graf, prepočítané na vyžiadanie — gitignored
@@ -39,9 +41,10 @@ from pathlib import Path
 __all__ = [
     "REPO",
     "DATA", "DATA_ARCHIVE", "TESTER_ARCHIVE", "TESTER_DATA", "DERIVED_MANIFEST",
-    "QUOTEMANAGER_DATA",
+    "QUOTEMANAGER_DATA", "NINJATRADER_DATA",
     "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS",
-    "MULTICHARTS_DIR",
+    "MULTICHARTS_DIR", "NINJATRADER_DIR",
+    "CSHARP_DIR", "CSHARP_BIN", "CSHARP_DLL", "CSHARP_HOST",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES", "ANALYTICS_DIR",
     "SWEEPS_DIR", "CHART_CACHE",
     "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE",
@@ -63,6 +66,8 @@ TESTER_DATA = DATA / "tester"
 DERIVED_MANIFEST = TESTER_DATA / ".derived.json"
 #: ASCII exporty pre QuoteManager, `data/quotemanager/<zdroj>/…` — výstup zo skladu.
 QUOTEMANAGER_DATA = DATA / "quotemanager"
+#: Textové súbory na import histórie do NinjaTradera (`tester.ninjatrader export`) — výstup zo skladu.
+NINJATRADER_DATA = DATA / "ninjatrader"
 #: To isté po rokoch a v gite. **Zrkadlí `data/` cestu za cestou**, takže `split`/`merge`
 #: je obyčajné kopírovanie koreň na koreň a nikde sa cesty neprekladajú. Uzavretý rok sa
 #: už nezmení, takže jeho blob v histórii existuje raz; celý súbor by pribudol pri každom
@@ -80,6 +85,18 @@ FREQTRADE_USER_DIR = FREQTRADE_DIR / "user_data"
 BACKTEST_RESULTS = FREQTRADE_USER_DIR / "backtest_results"
 
 MULTICHARTS_DIR = DEPLOY_DIR / "multicharts"
+#: Čo potrebuje NinjaTrader 8: šablóny stratégií (NinjaScript) a inštalácia do `bin/Custom`.
+NINJATRADER_DIR = DEPLOY_DIR / "ninjatrader"
+
+# -- C# jadro ---------------------------------------------------------------- #
+
+#: Jadro a stratégie v C# (`TradeBot.Core`, `TradeBot.Strategies`) — beží v NinjaTraderi
+#: natívne a pod Freqtrade cez most `tradebot/adapters/csharp`.
+CSHARP_DIR = REPO / "csharp"
+#: Preložené assembly — gitignored, most si ich zostaví sám (`tradebot.adapters.csharp.build`).
+CSHARP_BIN = CSHARP_DIR / "bin"
+CSHARP_DLL = CSHARP_BIN / "TradeBot.dll"
+CSHARP_HOST = CSHARP_BIN / "TradeBot.Host.exe"
 
 # -- Tester (webapp) -------------------------------------------------------- #
 

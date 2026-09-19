@@ -51,7 +51,7 @@ echo "Instalujem freqtrade (chvilu to trva)..."
 
 echo "Instalujem lokalny balik tradebot (editovatelne)..."
 "$PY" -m pip uninstall -y ibs >/dev/null 2>&1 || true   # stary nazov balika (pred premenovanim na tradebot)
-"$PY" -m pip install -e "$REPO[dev]"
+"$PY" -m pip install -e "$REPO[dev,csharp]"   # csharp = pythonnet, most do C# jadra strategii
 
 echo ""
 "$PY" -m freqtrade --version
