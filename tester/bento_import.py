@@ -90,17 +90,24 @@ class ImportStats:
         return "\n".join(lines)
 
 
-def contract_order(symbol: str) -> tuple[int, int] | None:
+def contract_order(symbol: str, ref_year: int | None = None) -> tuple[int, int] | None:
     """`MNQU6` → (2026, 9): poradie kontraktu v čase; `None` = nie je riadny kontrakt.
 
-    Jednociferný rok Databento píše ako posledná číslica dekády; dekáda sa berie tá,
-    v ktorej MNQ existuje (2019+): 9 → 2019, 0–8 → 2020–2028. Dvojciferný rok je celý.
+    Jednociferný rok Databento píše ako poslednú číslicu roku. S `ref_year` (rok baru)
+    je to najbližší rok ≥ `ref_year` s tou číslicou — kontrakt sa po expirácii
+    neobchoduje, takže na 16 rokoch zlata je MGCZ0 v 2010 rok 2010 a v 2019 rok 2020.
+    Bez neho dekáda MNQ (2019+): 9 → 2019, 0–8 → 2020–2028. Dvojciferný rok je celý.
     """
     m = CONTRACT_RE.match(symbol)
     if not m:
         return None
     rok = m.group(3)
-    year = 2000 + int(rok) if len(rok) == 2 else (2019 if rok == "9" else 2020 + int(rok))
+    if len(rok) == 2:
+        year = 2000 + int(rok)
+    elif ref_year is not None:
+        year = ref_year + (int(rok) - ref_year) % 10
+    else:
+        year = 2019 if rok == "9" else 2020 + int(rok)
     return year, MONTH_CODES.index(m.group(2)) + 1
 
 
@@ -143,7 +150,7 @@ def front_month(df, stats: ImportStats | None = None):
         return df.drop(columns=["symbol"])
     den = df["date"].dt.floor("D")
     denne = df.assign(_den=den).groupby(["_den", "symbol"], observed=True)["volume"].sum().reset_index()
-    denne["_poradie"] = denne["symbol"].map(contract_order)
+    denne["_poradie"] = [contract_order(str(s), d.year) for s, d in zip(denne["symbol"], denne["_den"])]
     vyber: dict[pd.Timestamp, str] = {}
     aktualny: tuple[int, int] | None = None
     for d, skupina in denne.groupby("_den", sort=True):

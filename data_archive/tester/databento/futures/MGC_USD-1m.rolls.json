@@ -1,0 +1,338 @@
+[
+ {
+  "date": "2010-10-03",
+  "contract": "MGCZ0"
+ },
+ {
+  "date": "2010-11-26",
+  "contract": "MGCG1"
+ },
+ {
+  "date": "2011-01-09",
+  "contract": "MGCJ1"
+ },
+ {
+  "date": "2011-01-10",
+  "contract": "MGCM1"
+ },
+ {
+  "date": "2011-01-17",
+  "contract": "MGCG1"
+ },
+ {
+  "date": "2011-01-26",
+  "contract": "MGCJ1"
+ },
+ {
+  "date": "2011-03-29",
+  "contract": "MGCM1"
+ },
+ {
+  "date": "2011-05-27",
+  "contract": "MGCQ1"
+ },
+ {
+  "date": "2011-07-28",
+  "contract": "MGCZ1"
+ },
+ {
+  "date": "2011-11-29",
+  "contract": "MGCG2"
+ },
+ {
+  "date": "2012-01-27",
+  "contract": "MGCJ2"
+ },
+ {
+  "date": "2012-03-28",
+  "contract": "MGCM2"
+ },
+ {
+  "date": "2012-05-29",
+  "contract": "MGCQ2"
+ },
+ {
+  "date": "2012-07-30",
+  "contract": "MGCZ2"
+ },
+ {
+  "date": "2012-11-28",
+  "contract": "MGCG3"
+ },
+ {
+  "date": "2013-01-30",
+  "contract": "MGCJ3"
+ },
+ {
+  "date": "2013-03-27",
+  "contract": "MGCM3"
+ },
+ {
+  "date": "2013-05-29",
+  "contract": "MGCQ3"
+ },
+ {
+  "date": "2013-07-30",
+  "contract": "MGCZ3"
+ },
+ {
+  "date": "2013-11-27",
+  "contract": "MGCG4"
+ },
+ {
+  "date": "2014-01-29",
+  "contract": "MGCJ4"
+ },
+ {
+  "date": "2014-03-27",
+  "contract": "MGCM4"
+ },
+ {
+  "date": "2014-05-28",
+  "contract": "MGCQ4"
+ },
+ {
+  "date": "2014-07-30",
+  "contract": "MGCZ4"
+ },
+ {
+  "date": "2014-11-25",
+  "contract": "MGCG5"
+ },
+ {
+  "date": "2015-01-29",
+  "contract": "MGCJ5"
+ },
+ {
+  "date": "2015-03-30",
+  "contract": "MGCM5"
+ },
+ {
+  "date": "2015-05-28",
+  "contract": "MGCQ5"
+ },
+ {
+  "date": "2015-07-30",
+  "contract": "MGCZ5"
+ },
+ {
+  "date": "2015-11-26",
+  "contract": "MGCG6"
+ },
+ {
+  "date": "2016-01-28",
+  "contract": "MGCJ6"
+ },
+ {
+  "date": "2016-03-29",
+  "contract": "MGCM6"
+ },
+ {
+  "date": "2016-05-27",
+  "contract": "MGCQ6"
+ },
+ {
+  "date": "2016-07-28",
+  "contract": "MGCZ6"
+ },
+ {
+  "date": "2016-11-28",
+  "contract": "MGCG7"
+ },
+ {
+  "date": "2017-01-29",
+  "contract": "MGCJ7"
+ },
+ {
+  "date": "2017-03-30",
+  "contract": "MGCM7"
+ },
+ {
+  "date": "2017-05-28",
+  "contract": "MGCQ7"
+ },
+ {
+  "date": "2017-07-28",
+  "contract": "MGCZ7"
+ },
+ {
+  "date": "2017-11-29",
+  "contract": "MGCG8"
+ },
+ {
+  "date": "2018-01-30",
+  "contract": "MGCJ8"
+ },
+ {
+  "date": "2018-03-28",
+  "contract": "MGCM8"
+ },
+ {
+  "date": "2018-05-30",
+  "contract": "MGCQ8"
+ },
+ {
+  "date": "2018-07-29",
+  "contract": "MGCZ8"
+ },
+ {
+  "date": "2018-11-29",
+  "contract": "MGCG9"
+ },
+ {
+  "date": "2019-01-30",
+  "contract": "MGCJ9"
+ },
+ {
+  "date": "2019-03-28",
+  "contract": "MGCM9"
+ },
+ {
+  "date": "2019-05-30",
+  "contract": "MGCQ9"
+ },
+ {
+  "date": "2019-07-30",
+  "contract": "MGCZ9"
+ },
+ {
+  "date": "2019-11-27",
+  "contract": "MGCG0"
+ },
+ {
+  "date": "2020-01-30",
+  "contract": "MGCJ0"
+ },
+ {
+  "date": "2020-03-29",
+  "contract": "MGCM0"
+ },
+ {
+  "date": "2020-05-28",
+  "contract": "MGCQ0"
+ },
+ {
+  "date": "2020-07-30",
+  "contract": "MGCZ0"
+ },
+ {
+  "date": "2020-11-26",
+  "contract": "MGCG1"
+ },
+ {
+  "date": "2021-01-28",
+  "contract": "MGCJ1"
+ },
+ {
+  "date": "2021-03-30",
+  "contract": "MGCM1"
+ },
+ {
+  "date": "2021-05-27",
+  "contract": "MGCQ1"
+ },
+ {
+  "date": "2021-07-29",
+  "contract": "MGCZ1"
+ },
+ {
+  "date": "2021-11-28",
+  "contract": "MGCG2"
+ },
+ {
+  "date": "2022-01-28",
+  "contract": "MGCJ2"
+ },
+ {
+  "date": "2022-03-30",
+  "contract": "MGCM2"
+ },
+ {
+  "date": "2022-05-27",
+  "contract": "MGCQ2"
+ },
+ {
+  "date": "2022-07-28",
+  "contract": "MGCZ2"
+ },
+ {
+  "date": "2022-11-29",
+  "contract": "MGCG3"
+ },
+ {
+  "date": "2023-01-29",
+  "contract": "MGCJ3"
+ },
+ {
+  "date": "2023-03-30",
+  "contract": "MGCM3"
+ },
+ {
+  "date": "2023-05-28",
+  "contract": "MGCQ3"
+ },
+ {
+  "date": "2023-07-28",
+  "contract": "MGCZ3"
+ },
+ {
+  "date": "2023-11-28",
+  "contract": "MGCG4"
+ },
+ {
+  "date": "2024-01-29",
+  "contract": "MGCJ4"
+ },
+ {
+  "date": "2024-03-27",
+  "contract": "MGCM4"
+ },
+ {
+  "date": "2024-05-30",
+  "contract": "MGCQ4"
+ },
+ {
+  "date": "2024-07-30",
+  "contract": "MGCZ4"
+ },
+ {
+  "date": "2024-11-27",
+  "contract": "MGCG5"
+ },
+ {
+  "date": "2025-01-30",
+  "contract": "MGCJ5"
+ },
+ {
+  "date": "2025-03-28",
+  "contract": "MGCM5"
+ },
+ {
+  "date": "2025-05-28",
+  "contract": "MGCQ5"
+ },
+ {
+  "date": "2025-07-29",
+  "contract": "MGCZ5"
+ },
+ {
+  "date": "2025-11-25",
+  "contract": "MGCG6"
+ },
+ {
+  "date": "2026-01-28",
+  "contract": "MGCJ6"
+ },
+ {
+  "date": "2026-03-27",
+  "contract": "MGCM6"
+ },
+ {
+  "date": "2026-05-27",
+  "contract": "MGCQ6"
+ },
+ {
+  "date": "2026-07-29",
+  "contract": "MGCZ6"
+ }
+]

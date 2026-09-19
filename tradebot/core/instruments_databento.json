@@ -23,5 +23,17 @@
     "half_spread_ticks": 1.5,
     "cost_note": "odhad: polovica spreadu 0,5 ticku + provizia ~0,5 $ na stranu = 1 tick, spolu 1,5 ticku (0,375 bodu); spread z ohlcv dat nevidno",
     "note": "CME Micro E-mini Nasdaq-100, front-month z Databento GLBX.MDP3 (MNQ.FUT). Ten isty podklad ako Dukascopy NAS100, prahy v bodoch sedia 1:1; tick 0.25 a bod 2 $ su skutocne, nie CFD."
+  },
+  "mgc_databento": {
+    "symbol": "MGC/USD",
+    "source": "databento",
+    "tick_size": 0.1,
+    "point_value": 10.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "half_spread_ticks": 1.5,
+    "cost_note": "odhad ako MNQ: polovica spreadu 0,5 ticku + provizia ~0,5-1 $ na stranu (tick = 1 $) = 1 tick, spolu 1,5 ticku (0,15 bodu); spread z ohlcv dat nevidno",
+    "note": "CME/COMEX Micro Gold (10 oz), front-month z Databento GLBX.MDP3 (MGC.FUT). Cena v USD/oz, tick 0.10 = 1 $, bod 10 $. Do ~2018 riedka likvidita (malo barov), plny obchod od 2019."
   }
 }

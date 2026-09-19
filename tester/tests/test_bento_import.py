@@ -40,6 +40,10 @@ def test_poradie_kontraktov_je_rok_a_mesiac():
     assert contract_order("MNQH26") == (2026, 3)
     assert contract_order("MNQM9-MNQU9") is None      # spread nie je kontrakt
     assert contract_order("MNQU6") < contract_order("MNQZ6") < contract_order("MNQH7")
+    # dekáda z roku baru (zlato od 2010): MGCZ0 je v 2010 rok 2010, v 2019 rok 2020
+    assert contract_order("MGCZ0", 2010) == (2010, 12)
+    assert contract_order("MGCG0", 2019) == (2020, 2)
+    assert contract_order("MGCZ9", 2019) == (2019, 12)
 
 
 def test_mnq_je_v_registri_databento_ako_multicharts_trh_s_burzovym_objemom():
