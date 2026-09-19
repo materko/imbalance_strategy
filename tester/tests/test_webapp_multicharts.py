@@ -35,8 +35,8 @@ def mc_data(tmp_path: Path, monkeypatch) -> Path:
     # cesty k svieckam pocita jedno miesto - tester.engines
     monkeypatch.setattr(engines, "TESTER_DATA", data)
     # burzove adresare nech su prazdne, aby test videl len Dukascopy par
-    monkeypatch.setattr(runner_mod, "BINANCE_FUTURES", data / "binance" / "futures")
-    monkeypatch.setattr(runner_mod, "BINANCE_SPOT", data / "binance")
+    monkeypatch.setattr("tester.webapp.market.BINANCE_FUTURES", data / "binance" / "futures")
+    monkeypatch.setattr("tester.webapp.market.BINANCE_SPOT", data / "binance")
     chart_mod._frame.cache_clear()
     return path
 
@@ -72,7 +72,8 @@ def test_beh_na_burze_multicharts_ide_cez_emulator_a_ulozi_sa(mc_data, tmp_path:
     from tradebot.core.types import Direction
     from tester.webapp.store import RunStore
 
-    monkeypatch.setattr(runner_mod, "TMP_PROFILES", tmp_path / "profiles")
+    monkeypatch.setattr("tester.webapp.command.TMP_PROFILES", tmp_path / "profiles")
+    monkeypatch.setattr("tester.webapp.runner.TMP_PROFILES", tmp_path / "profiles")
     calls = {}
 
     def fake_emulate(cfg, inst, m1_df, chart_tf, *, from_ms=None, to_ms=None, log=None, should_stop=None, registry=None, spec=None, fee=0.0):

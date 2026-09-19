@@ -505,7 +505,9 @@ inštalátor pre macOS zapisuje `tester` automaticky. Rola sa dá kedykoľvek pr
 
 `tester/webapp/`: `param_meta.py` (popisy parametrov z `tradebot/strategies/<key>/params.py`, `param_metadata(spec)`),
 `store.py` (behy a vyhľadávanie),
-`runner.py` (fronta, Freqtrade podproces alebo emulátor MultiCharts, spracovanie zipu), `chart.py` (sviečky
+`runner.py` (fronta a pracovné vlákna; hyperopt ako druh behu v `hyperopt_job.py`), `market.py`
+(inštrument páru, pravidlá trhu, ponuka párov), `command.py` (príkaz Freqtradu, dočasný profil),
+`results.py` (spracovanie zipu, emulátor MultiCharts), `repo_profiles.py` (profily z repozitára), `chart.py` (sviečky
 z feather súborov po oknách, orezanie kresieb na okno), `gitsync.py`,
 `app.py` (FastAPI: `create_app` poskladá routery), `api/` (REST API po oblastiach — `runs`, `sweeps`,
 `hyperopt`, `analytics*`, `matrix`, `hub`, `chart`, `profiles`, `meta`, `git`, `prop_paper`; každý modul má
