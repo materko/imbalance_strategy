@@ -303,7 +303,7 @@ def test_submit_uses_tester_name_from_request(client, monkeypatch):
     """Meno z hlavičky stránky ide k behu; bez neho sa použije predvolené."""
     import tester.webapp.app as app_mod
 
-    monkeypatch.setattr(app_mod, "current_user", lambda: "predvolene")
+    monkeypatch.setattr("tester.webapp.api.common.current_user", lambda: "predvolene")
     # test je o mene testera, nie o tom, pre ktory engine su na disku data
     monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
     c, _ = client
@@ -1289,7 +1289,7 @@ def test_analytics_prepare_pouzije_hotove_behy_a_zaradi_len_chybajuce_okna(tmp_p
     monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
     monkeypatch.setattr(app_mod.engines, "default_engine", lambda inst, tf="3m": "freqtrade")
     monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
-    monkeypatch.setattr(app_mod, "available_pairs", lambda: [{"pair": "BTC/USDT:USDT", "from": "2019-01-01", "to": "2026-09-10"}])
+    monkeypatch.setattr("tester.webapp.api.analytics_prepare.available_pairs", lambda: [{"pair": "BTC/USDT:USDT", "from": "2019-01-01", "to": "2026-09-10"}])
     store = RunStore(tmp_path)
     # Pine defaulty, uložené len ako prázdne parametre (starší beh) - stále tá istá konfigurácia.
     hotovy = _record("20260905-120000-aaaaaa", params={})
@@ -1318,10 +1318,10 @@ def test_analytics_prepare_pouzije_hotove_behy_a_zaradi_len_chybajuce_okna(tmp_p
     assert stav["20250904-20260904"] == "done" and stav["20231001-20241001"] == "missing"
 
     # okno mimo dát páru sa nedá dopočítať (kontroluje sa pred zaradením)
-    monkeypatch.setattr(app_mod, "available_pairs", lambda: [{"pair": "BTC/USDT:USDT", "from": "2024-01-01", "to": "2026-09-10"}])
+    monkeypatch.setattr("tester.webapp.api.analytics_prepare.available_pairs", lambda: [{"pair": "BTC/USDT:USDT", "from": "2024-01-01", "to": "2026-09-10"}])
     mimo = c.post("/api/analytics/prepare", json={**body, "dry_run": True}).json()
     assert "20211001-20221001" in mimo["no_data"] and "20221001-20231001" in mimo["no_data"]
-    monkeypatch.setattr(app_mod, "available_pairs", lambda: [{"pair": "BTC/USDT:USDT", "from": "2019-01-01", "to": "2026-09-10"}])
+    monkeypatch.setattr("tester.webapp.api.analytics_prepare.available_pairs", lambda: [{"pair": "BTC/USDT:USDT", "from": "2019-01-01", "to": "2026-09-10"}])
 
     out = c.post("/api/analytics/prepare", json=body).json()
     assert out["ready"] == ["20260905-120000-aaaaaa"] and len(out["queued"]) == 4
@@ -1351,7 +1351,7 @@ def test_analytics_prepare_planuje_aj_synteticke_dvojca(tmp_path: Path, monkeypa
     monkeypatch.setattr(app_mod.engines, "available", lambda inst, tf="3m", exchange=None: ["freqtrade", "multicharts"])
     monkeypatch.setattr(app_mod.engines, "default_engine", lambda inst, tf="3m": "freqtrade")
     monkeypatch.setattr(app_mod.chart_data, "available_timeframes", lambda pair: ["3m"])
-    monkeypatch.setattr(app_mod, "available_pairs", lambda: [{"pair": "BTC/USDT:USDT", "from": "2019-01-01", "to": "2026-09-10"}])
+    monkeypatch.setattr("tester.webapp.api.analytics_prepare.available_pairs", lambda: [{"pair": "BTC/USDT:USDT", "from": "2019-01-01", "to": "2026-09-10"}])
     store = RunStore(tmp_path)
     synt = _record("20260905-120000-aaaaaa")
     synt["settings"] = {**synt["settings"], "pair": "SYNTH/USDT:USDT", "timeframe": "3m", "engine": "freqtrade"}

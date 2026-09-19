@@ -507,11 +507,14 @@ inštalátor pre macOS zapisuje `tester` automaticky. Rola sa dá kedykoľvek pr
 `store.py` (behy a vyhľadávanie),
 `runner.py` (fronta, Freqtrade podproces alebo emulátor MultiCharts, spracovanie zipu), `chart.py` (sviečky
 z feather súborov po oknách, orezanie kresieb na okno), `gitsync.py`,
-`app.py` (FastAPI), `static/` (stránka bez frameworku, Plotly z CDN).
+`app.py` (FastAPI: `create_app` poskladá routery), `api/` (REST API po oblastiach — `runs`, `sweeps`,
+`hyperopt`, `analytics*`, `matrix`, `hub`, `chart`, `profiles`, `meta`, `git`, `prop_paper`; každý modul má
+`build(ctx)` a zdieľaný stav dostane cez `api/context.py::AppContext`; modely požiadaviek sú v `api/models.py`,
+overenie zadania behu v `api/settings.py`), `static/` (stránka bez frameworku, Plotly z CDN).
 Export kresieb: `tradebot/adapters/freqtrade/runner.py::export_chart`, serializácia
 `tradebot/core/drawing.py::objects_to_dicts`.
 Monte Carlo v detaile počíta `tester/montecarlo.py` (čistý výpočet nad obchodmi, bez znalosti
-webapp); `app.py` ho len obalí endpointom `/api/runs/<id>/montecarlo` s pamäťou na posledné
+webapp); `api/chart.py` ho len obalí endpointom `/api/runs/<id>/montecarlo` s pamäťou na posledné
 výsledky.
 Testy: `tester/tests/test_webapp.py`, `tester/tests/test_chart_export.py`,
 `tester/tests/test_webapp_multicharts.py`, `tester/tests/test_montecarlo.py`.
