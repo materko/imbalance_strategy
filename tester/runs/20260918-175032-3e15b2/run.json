@@ -1,0 +1,292 @@
+{
+  "id": "20260918-175032-3e15b2",
+  "status": "done",
+  "created": "2026-09-18T17:50:32+00:00",
+  "started": "2026-09-18T17:50:32+00:00",
+  "finished": "2026-09-18T17:50:32+00:00",
+  "user": "IBS",
+  "note": "nahodny mesiac 2020-05",
+  "settings": {
+    "strategy": "orb",
+    "exchange": null,
+    "sweep": null,
+    "pair": "XAU/USD",
+    "engine": "multicharts",
+    "timeframe": "30m",
+    "timerange": "20200501-20200601",
+    "fee": 0.0,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 10000.0,
+    "timeframe_detail": null,
+    "profile": null,
+    "instrument": "xau_dukascopy"
+  },
+  "params": {
+    "sessionMode": "both",
+    "nyStartH": 9,
+    "nyStartM": 30,
+    "nyRangeMinutes": "15",
+    "nyEndH": 17,
+    "nyEndM": 55,
+    "lonStartH": 8,
+    "lonStartM": 0,
+    "lonRangeMinutes": "15",
+    "lonEndH": 16,
+    "lonEndM": 30,
+    "tradeDirection": "Both",
+    "entryMode": "close",
+    "breakBufferAtr": 0.1,
+    "retestMaxBars": 10,
+    "entryWindowMinutes": 60,
+    "maxTradesPerDay": 2,
+    "minRangePct": 0.2,
+    "maxRangePct": 1.5,
+    "useVolumeFilter": false,
+    "volSmaLen": 20,
+    "volMultiplier": 1.5,
+    "minClosePosPct": 0,
+    "weekdaysOnly": true,
+    "slMode": "opposite",
+    "slRangePct": 50.0,
+    "atrLen": 7,
+    "slAtrMult": 1.0,
+    "slBufferAtr": 0.0,
+    "tpMode": "rr",
+    "rrRatio": 3.0,
+    "measuredMult": 1.0,
+    "tpAtrMult": 2.0,
+    "enableTrailing": false,
+    "trailActivationR": 1.0,
+    "trailOffsetR": 0.5,
+    "closeAtSessionEnd": true,
+    "riskDollar": 100.0,
+    "showRange": true,
+    "showLevels": true,
+    "tickDollarValue": null,
+    "legacyPineSizing": false,
+    "minSlDistance": 0.2,
+    "leverage": 1.0
+  },
+  "error": null,
+  "result": {
+    "trades": 14,
+    "wins": 8,
+    "losses": 6,
+    "draws": 0,
+    "winrate": 57.14,
+    "pnl_abs": 1581.2,
+    "pnl_pct": 15.812,
+    "profit_factor": 1.618,
+    "max_drawdown_abs": 997.2,
+    "max_drawdown_pct": 8.814,
+    "starting_balance": 10000.0,
+    "final_balance": 11581.2,
+    "gross_abs": 1581.2,
+    "volume_abs": 4797876.0,
+    "break_even_pct": 0.033,
+    "exits": {
+      "stop_loss": {
+        "n": 4,
+        "pnl_abs": -1970.4
+      },
+      "session_end": {
+        "n": 9,
+        "pnl_abs": 2163.4
+      },
+      "take_profit": {
+        "n": 1,
+        "pnl_abs": 1388.2
+      }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 3.314,
+    "backtest_start": "2020-05-01T00:00:00+00:00",
+    "backtest_end": "2020-05-31T23:30:00+00:00",
+    "holding_avg": "6:04:00",
+    "bars": 958,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.2
+  },
+  "series": {
+    "equity": [
+      [
+        "2020-05-01T10:27:00+00:00",
+        -5.922,
+        -5.922
+      ],
+      [
+        "2020-05-04T22:00:00+00:00",
+        0.037,
+        -5.885
+      ],
+      [
+        "2020-05-06T22:00:00+00:00",
+        2.72,
+        -3.165
+      ],
+      [
+        "2020-05-07T15:41:00+00:00",
+        13.882,
+        10.717
+      ],
+      [
+        "2020-05-11T22:00:00+00:00",
+        2.423,
+        13.14
+      ],
+      [
+        "2020-05-12T12:35:00+00:00",
+        -4.805,
+        8.335
+      ],
+      [
+        "2020-05-13T22:00:00+00:00",
+        3.81,
+        12.145
+      ],
+      [
+        "2020-05-14T12:50:00+00:00",
+        -4.182,
+        7.963
+      ],
+      [
+        "2020-05-18T09:30:00+00:00",
+        -4.795,
+        3.168
+      ],
+      [
+        "2020-05-19T15:30:00+00:00",
+        6.53,
+        9.698
+      ],
+      [
+        "2020-05-21T22:00:00+00:00",
+        -0.053,
+        9.645
+      ],
+      [
+        "2020-05-25T22:00:00+00:00",
+        -5.813,
+        3.832
+      ],
+      [
+        "2020-05-26T22:00:00+00:00",
+        0.907,
+        4.739
+      ],
+      [
+        "2020-05-29T15:30:00+00:00",
+        11.073,
+        15.812
+      ]
+    ],
+    "market": [
+      [
+        "2020-05-01T00:00:00+00:00",
+        0.8854
+      ],
+      [
+        "2020-05-03T00:00:00+00:00",
+        0.9167
+      ],
+      [
+        "2020-05-04T00:00:00+00:00",
+        1.1644
+      ],
+      [
+        "2020-05-05T00:00:00+00:00",
+        1.1693
+      ],
+      [
+        "2020-05-06T00:00:00+00:00",
+        0.3413
+      ],
+      [
+        "2020-05-07T00:00:00+00:00",
+        1.794
+      ],
+      [
+        "2020-05-08T00:00:00+00:00",
+        1.0392
+      ],
+      [
+        "2020-05-10T00:00:00+00:00",
+        1.3241
+      ],
+      [
+        "2020-05-11T00:00:00+00:00",
+        0.8235
+      ],
+      [
+        "2020-05-12T00:00:00+00:00",
+        1.102
+      ],
+      [
+        "2020-05-13T00:00:00+00:00",
+        2.0387
+      ],
+      [
+        "2020-05-14T00:00:00+00:00",
+        2.8968
+      ],
+      [
+        "2020-05-15T00:00:00+00:00",
+        3.4277
+      ],
+      [
+        "2020-05-17T00:00:00+00:00",
+        4.4046
+      ],
+      [
+        "2020-05-18T00:00:00+00:00",
+        3.0131
+      ],
+      [
+        "2020-05-19T00:00:00+00:00",
+        3.6873
+      ],
+      [
+        "2020-05-20T00:00:00+00:00",
+        3.772
+      ],
+      [
+        "2020-05-21T00:00:00+00:00",
+        2.4918
+      ],
+      [
+        "2020-05-22T00:00:00+00:00",
+        2.9538
+      ],
+      [
+        "2020-05-24T00:00:00+00:00",
+        2.7674
+      ],
+      [
+        "2020-05-25T00:00:00+00:00",
+        2.5393
+      ],
+      [
+        "2020-05-26T00:00:00+00:00",
+        1.7151
+      ],
+      [
+        "2020-05-27T00:00:00+00:00",
+        1.6052
+      ],
+      [
+        "2020-05-28T00:00:00+00:00",
+        2.2458
+      ],
+      [
+        "2020-05-29T00:00:00+00:00",
+        2.6597
+      ],
+      [
+        "2020-05-31T00:00:00+00:00",
+        3.3135
+      ]
+    ]
+  }
+}

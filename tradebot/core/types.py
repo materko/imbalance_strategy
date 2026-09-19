@@ -110,6 +110,9 @@ class SnapMode(str, Enum):
 class OrderType(str, Enum):
     LIMIT = "Limit"
     MARKET = "Market"
+    #: Stop vstup — plní sa, keď cena prerazí úroveň (long nad ňou, short pod ňou).
+    #: Je to zrkadlo limitky: tá čaká na návrat ceny, stop na jej prienik.
+    STOP = "Stop"
 
 
 class PanelPos(str, Enum):

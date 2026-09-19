@@ -3,15 +3,11 @@
  "created": "2026-09-11T20:18:32.955890+00:00",
  "seq": 4,
  "strategy": "ibs",
- "config_key": "49a15217e2",
- "market": "mixed",
- "profile": "docs/profily_archiv/ibs/btcusdt_3m_binance_ny_sl_risk1.json",
- "timeranges": [
-  "20231001-20241001"
- ],
- "timeframes": [
-  "3m"
- ],
+ "config_key": "",
+ "market": "",
+ "profile": "",
+ "timeranges": [],
+ "timeframes": [],
  "note": "",
  "user": "materko",
  "run_ids": [

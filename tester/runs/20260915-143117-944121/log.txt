@@ -1,0 +1,12 @@
+$ emulator MultiCharts MNQ 2m 20250904-20260904 (MNQ_USD-1m.feather)
+emulacia MultiCharts: 177212 barov 2m, 354420 1m, 118140 HTF
+  20000/177212 barov, 13 obchodov
+  40000/177212 barov, 32 obchodov
+  60000/177212 barov, 46 obchodov
+  80000/177212 barov, 72 obchodov
+  100000/177212 barov, 101 obchodov
+  120000/177212 barov, 123 obchodov
+  140000/177212 barov, 150 obchodov
+  160000/177212 barov, 168 obchodov
+hotovo: 188 obchodov, nerozhodnutelnych minut 3
+kresby: {'imb_box': 8494, 'swing': 21406, 'structure': 16628, 'liq_sweep': 3062, 'session': 259, 'sd_zone_pre': 1034, 'sd_zone_post': 1034, 'tp_box': 211, 'sl_box': 211, 'expired': 23, 'skip': 16, 'sr_level': 12, 'sr_golden': 4}

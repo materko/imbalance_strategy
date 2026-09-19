@@ -1,0 +1,163 @@
+{
+  "id": "20260918-175038-5006cf",
+  "status": "done",
+  "created": "2026-09-18T17:50:38+00:00",
+  "started": "2026-09-18T17:50:38+00:00",
+  "finished": "2026-09-18T17:50:38+00:00",
+  "user": "IBS",
+  "note": "nahodny mesiac 2018-07",
+  "settings": {
+    "strategy": "orb",
+    "exchange": null,
+    "sweep": null,
+    "pair": "XAU/USD",
+    "engine": "multicharts",
+    "timeframe": "30m",
+    "timerange": "20180701-20180801",
+    "fee": 0.0,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 10000.0,
+    "timeframe_detail": null,
+    "profile": null,
+    "instrument": "xau_dukascopy"
+  },
+  "params": {
+    "sessionMode": "both",
+    "nyStartH": 9,
+    "nyStartM": 30,
+    "nyRangeMinutes": "15",
+    "nyEndH": 17,
+    "nyEndM": 55,
+    "lonStartH": 8,
+    "lonStartM": 0,
+    "lonRangeMinutes": "15",
+    "lonEndH": 16,
+    "lonEndM": 30,
+    "tradeDirection": "Both",
+    "entryMode": "close",
+    "breakBufferAtr": 0.1,
+    "retestMaxBars": 10,
+    "entryWindowMinutes": 60,
+    "maxTradesPerDay": 2,
+    "minRangePct": 0.2,
+    "maxRangePct": 1.5,
+    "useVolumeFilter": false,
+    "volSmaLen": 20,
+    "volMultiplier": 1.5,
+    "minClosePosPct": 0,
+    "weekdaysOnly": true,
+    "slMode": "opposite",
+    "slRangePct": 50.0,
+    "atrLen": 7,
+    "slAtrMult": 1.0,
+    "slBufferAtr": 0.0,
+    "tpMode": "rr",
+    "rrRatio": 3.0,
+    "measuredMult": 1.0,
+    "tpAtrMult": 2.0,
+    "enableTrailing": false,
+    "trailActivationR": 1.0,
+    "trailOffsetR": 0.5,
+    "closeAtSessionEnd": true,
+    "riskDollar": 100.0,
+    "showRange": true,
+    "showLevels": true,
+    "tickDollarValue": null,
+    "legacyPineSizing": false,
+    "minSlDistance": 0.2,
+    "leverage": 1.0
+  },
+  "error": null,
+  "result": {
+    "trades": 1,
+    "wins": 0,
+    "losses": 1,
+    "draws": 0,
+    "winrate": 0.0,
+    "pnl_abs": -21.9,
+    "pnl_pct": -0.219,
+    "profit_factor": 0.0,
+    "max_drawdown_abs": 21.9,
+    "max_drawdown_pct": 0.219,
+    "starting_balance": 10000.0,
+    "final_balance": 9978.1,
+    "gross_abs": -21.9,
+    "volume_abs": 250731.7,
+    "break_even_pct": -0.0087,
+    "exits": {
+      "session_end": {
+        "n": 1,
+        "pnl_abs": -21.9
+      }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -0.949,
+    "backtest_start": "2018-07-01T22:00:00+00:00",
+    "backtest_end": "2018-07-13T20:30:00+00:00",
+    "holding_avg": "7:30:00",
+    "bars": 452,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.2
+  },
+  "series": {
+    "equity": [
+      [
+        "2018-07-03T22:00:00+00:00",
+        -0.219,
+        -0.219
+      ]
+    ],
+    "market": [
+      [
+        "2018-07-01T00:00:00+00:00",
+        -0.0024
+      ],
+      [
+        "2018-07-02T00:00:00+00:00",
+        -0.8953
+      ],
+      [
+        "2018-07-03T00:00:00+00:00",
+        0.1316
+      ],
+      [
+        "2018-07-04T00:00:00+00:00",
+        0.2856
+      ],
+      [
+        "2018-07-05T00:00:00+00:00",
+        0.3161
+      ],
+      [
+        "2018-07-06T00:00:00+00:00",
+        0.1148
+      ],
+      [
+        "2018-07-08T00:00:00+00:00",
+        0.2425
+      ],
+      [
+        "2018-07-09T00:00:00+00:00",
+        0.4005
+      ],
+      [
+        "2018-07-10T00:00:00+00:00",
+        0.2058
+      ],
+      [
+        "2018-07-11T00:00:00+00:00",
+        -0.8506
+      ],
+      [
+        "2018-07-12T00:00:00+00:00",
+        -0.5921
+      ],
+      [
+        "2018-07-13T00:00:00+00:00",
+        -0.9487
+      ]
+    ]
+  }
+}

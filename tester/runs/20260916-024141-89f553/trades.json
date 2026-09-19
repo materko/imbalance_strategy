@@ -1,0 +1,27 @@
+[
+  {
+    "open_date": "2025-10-29T18:06:00+00:00",
+    "close_date": "2025-10-29T18:35:00+00:00",
+    "open_rate": 26237.0,
+    "close_rate": 26184.0,
+    "amount": 9.0,
+    "stake_amount": 472266.0,
+    "leverage": 1.0,
+    "profit_abs": 954.0,
+    "profit_ratio": 0.00202,
+    "exit_reason": "take_profit",
+    "enter_tag": "SHORT_154",
+    "is_short": true,
+    "fee_open": 0.0,
+    "fee_close": 0.0,
+    "funding_fees": 0.0,
+    "trade_duration": 29,
+    "initial_stop_loss_abs": 26290.0,
+    "stop_loss_abs": 26290.0,
+    "max_rate": 26283.25,
+    "min_rate": 26150.5,
+    "gross_abs": 954.0,
+    "fees_abs": 0.0,
+    "order_type": "limit"
+  }
+]

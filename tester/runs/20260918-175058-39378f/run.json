@@ -1,0 +1,239 @@
+{
+  "id": "20260918-175058-39378f",
+  "status": "done",
+  "created": "2026-09-18T17:50:58+00:00",
+  "started": "2026-09-18T17:50:58+00:00",
+  "finished": "2026-09-18T17:50:58+00:00",
+  "user": "IBS",
+  "note": "nahodny mesiac 2017-07",
+  "settings": {
+    "strategy": "orb",
+    "exchange": null,
+    "sweep": null,
+    "pair": "XAU/USD",
+    "engine": "multicharts",
+    "timeframe": "30m",
+    "timerange": "20170701-20170801",
+    "fee": 0.0,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 10000.0,
+    "timeframe_detail": null,
+    "profile": null,
+    "instrument": "xau_dukascopy"
+  },
+  "params": {
+    "sessionMode": "both",
+    "nyStartH": 9,
+    "nyStartM": 30,
+    "nyRangeMinutes": "15",
+    "nyEndH": 17,
+    "nyEndM": 55,
+    "lonStartH": 8,
+    "lonStartM": 0,
+    "lonRangeMinutes": "15",
+    "lonEndH": 16,
+    "lonEndM": 30,
+    "tradeDirection": "Both",
+    "entryMode": "close",
+    "breakBufferAtr": 0.1,
+    "retestMaxBars": 10,
+    "entryWindowMinutes": 60,
+    "maxTradesPerDay": 2,
+    "minRangePct": 0.2,
+    "maxRangePct": 1.5,
+    "useVolumeFilter": false,
+    "volSmaLen": 20,
+    "volMultiplier": 1.5,
+    "minClosePosPct": 0,
+    "weekdaysOnly": true,
+    "slMode": "opposite",
+    "slRangePct": 50.0,
+    "atrLen": 7,
+    "slAtrMult": 1.0,
+    "slBufferAtr": 0.0,
+    "tpMode": "rr",
+    "rrRatio": 3.0,
+    "measuredMult": 1.0,
+    "tpAtrMult": 2.0,
+    "enableTrailing": false,
+    "trailActivationR": 1.0,
+    "trailOffsetR": 0.5,
+    "closeAtSessionEnd": true,
+    "riskDollar": 100.0,
+    "showRange": true,
+    "showLevels": true,
+    "tickDollarValue": null,
+    "legacyPineSizing": false,
+    "minSlDistance": 0.2,
+    "leverage": 1.0
+  },
+  "error": null,
+  "result": {
+    "trades": 5,
+    "wins": 3,
+    "losses": 2,
+    "draws": 0,
+    "winrate": 60.0,
+    "pnl_abs": 416.9,
+    "pnl_pct": 4.169,
+    "profit_factor": 2.311,
+    "max_drawdown_abs": 318.1,
+    "max_drawdown_pct": 2.982,
+    "starting_balance": 10000.0,
+    "final_balance": 10416.9,
+    "gross_abs": 416.9,
+    "volume_abs": 1231259.1,
+    "break_even_pct": 0.0339,
+    "exits": {
+      "session_end": {
+        "n": 5,
+        "pnl_abs": 416.9
+      }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 2.029,
+    "backtest_start": "2017-07-02T22:00:00+00:00",
+    "backtest_end": "2017-07-31T23:30:00+00:00",
+    "holding_avg": "21:30:00",
+    "bars": 963,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.2
+  },
+  "series": {
+    "equity": [
+      [
+        "2017-07-03T22:00:00+00:00",
+        0.46,
+        0.46
+      ],
+      [
+        "2017-07-05T22:00:00+00:00",
+        6.199,
+        6.659
+      ],
+      [
+        "2017-07-10T22:00:00+00:00",
+        -1.771,
+        4.888
+      ],
+      [
+        "2017-07-20T22:00:00+00:00",
+        -1.41,
+        3.478
+      ],
+      [
+        "2017-07-25T22:00:00+00:00",
+        0.691,
+        4.169
+      ]
+    ],
+    "market": [
+      [
+        "2017-07-02T00:00:00+00:00",
+        -0.0398
+      ],
+      [
+        "2017-07-03T00:00:00+00:00",
+        -1.5214
+      ],
+      [
+        "2017-07-04T00:00:00+00:00",
+        -1.2583
+      ],
+      [
+        "2017-07-05T00:00:00+00:00",
+        -1.2673
+      ],
+      [
+        "2017-07-06T00:00:00+00:00",
+        -1.5705
+      ],
+      [
+        "2017-07-07T00:00:00+00:00",
+        -2.4166
+      ],
+      [
+        "2017-07-09T00:00:00+00:00",
+        -2.3296
+      ],
+      [
+        "2017-07-10T00:00:00+00:00",
+        -2.3042
+      ],
+      [
+        "2017-07-11T00:00:00+00:00",
+        -1.9653
+      ],
+      [
+        "2017-07-12T00:00:00+00:00",
+        -1.8703
+      ],
+      [
+        "2017-07-13T00:00:00+00:00",
+        -1.9877
+      ],
+      [
+        "2017-07-14T00:00:00+00:00",
+        -1.1085
+      ],
+      [
+        "2017-07-16T00:00:00+00:00",
+        -0.9258
+      ],
+      [
+        "2017-07-17T00:00:00+00:00",
+        -0.7583
+      ],
+      [
+        "2017-07-18T00:00:00+00:00",
+        0.0314
+      ],
+      [
+        "2017-07-19T00:00:00+00:00",
+        -0.0784
+      ],
+      [
+        "2017-07-20T00:00:00+00:00",
+        0.1302
+      ],
+      [
+        "2017-07-21T00:00:00+00:00",
+        0.9973
+      ],
+      [
+        "2017-07-23T00:00:00+00:00",
+        1.1171
+      ],
+      [
+        "2017-07-24T00:00:00+00:00",
+        0.9136
+      ],
+      [
+        "2017-07-25T00:00:00+00:00",
+        0.3588
+      ],
+      [
+        "2017-07-26T00:00:00+00:00",
+        1.4446
+      ],
+      [
+        "2017-07-27T00:00:00+00:00",
+        1.4301
+      ],
+      [
+        "2017-07-28T00:00:00+00:00",
+        2.1356
+      ],
+      [
+        "2017-07-30T00:00:00+00:00",
+        2.2488
+      ],
+      [
+        "2017-07-31T00:00:00+00:00",
+        2.0293
+      ]
+    ]
+  }
+}

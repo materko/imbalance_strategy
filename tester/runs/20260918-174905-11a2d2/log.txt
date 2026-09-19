@@ -1,0 +1,4 @@
+$ emulator MultiCharts MNQ 15m 20220301-20220401 (MNQ_USD-1m.feather)
+emulacia MultiCharts: 2120 barov 15m, 31800 1m, 0 HTF
+hotovo: 30 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb_box': 46, 'orb_high': 46, 'orb_low': 46, 'orb_entry': 30}

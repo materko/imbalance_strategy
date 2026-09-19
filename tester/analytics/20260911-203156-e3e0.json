@@ -3,7 +3,7 @@
  "created": "2026-09-11T20:31:56.814825+00:00",
  "seq": 5,
  "strategy": "ibs",
- "config_key": "5267e5aca8",
+ "config_key": "mixed",
  "market": "NAS100/USD|3m",
  "profile": "FINAL_winrate54_RRR1.3",
  "timeranges": [

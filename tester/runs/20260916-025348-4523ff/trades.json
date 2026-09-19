@@ -1,0 +1,27 @@
+[
+  {
+    "open_date": "2025-12-16T13:30:00+00:00",
+    "close_date": "2025-12-16T13:30:00+00:00",
+    "open_rate": 25298.75,
+    "close_rate": 25324.25,
+    "amount": 9.0,
+    "stake_amount": 455377.5,
+    "leverage": 1.0,
+    "profit_abs": -459.0,
+    "profit_ratio": -0.001008,
+    "exit_reason": "stop_loss",
+    "enter_tag": "SHORT_409",
+    "is_short": true,
+    "fee_open": 0.0,
+    "fee_close": 0.0,
+    "funding_fees": 0.0,
+    "trade_duration": 0,
+    "initial_stop_loss_abs": 25324.25,
+    "stop_loss_abs": 25324.25,
+    "max_rate": 25355.5,
+    "min_rate": 25292.0,
+    "gross_abs": -459.0,
+    "fees_abs": 0.0,
+    "order_type": "limit"
+  }
+]

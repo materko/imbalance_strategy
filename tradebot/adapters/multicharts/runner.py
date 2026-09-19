@@ -45,6 +45,9 @@ class LiveOrder:
     plan: TradePlan
     #: True = poslať ako market (Pin Bar / Engulfing s `pbEngOrderType=Market`)
     market: bool = False
+    #: True = stop vstup: plní sa až pri prerazení `plan.entry`, nie pri návrate k nej.
+    #: `market` a `stop` sa navzájom vylučujú; keď je oboje False, je to limitka.
+    stop: bool = False
 
     @property
     def is_long(self) -> bool:
@@ -280,6 +283,7 @@ class MCRunner:
             direction=intent.direction,
             plan=intent.plan,
             market=intent.order_type is OrderType.MARKET,
+            stop=intent.order_type is OrderType.STOP,
         )
 
     def _adopt_open_plan(self) -> tuple[TradePlan | None, str | None]:

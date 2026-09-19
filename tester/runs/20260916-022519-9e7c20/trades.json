@@ -1,0 +1,27 @@
+[
+  {
+    "open_date": "2026-06-01T13:00:00+00:00",
+    "close_date": "2026-06-01T13:11:00+00:00",
+    "open_rate": 30450.5,
+    "close_rate": 30404.5,
+    "amount": 10.0,
+    "stake_amount": 609010.0,
+    "leverage": 1.0,
+    "profit_abs": 920.0,
+    "profit_ratio": 0.001511,
+    "exit_reason": "take_profit",
+    "enter_tag": "SHORT_787",
+    "is_short": true,
+    "fee_open": 0.0,
+    "fee_close": 0.0,
+    "funding_fees": 0.0,
+    "trade_duration": 11,
+    "initial_stop_loss_abs": 30496.5,
+    "stop_loss_abs": 30496.5,
+    "max_rate": 30456.25,
+    "min_rate": 30357.0,
+    "gross_abs": 920.0,
+    "fees_abs": 0.0,
+    "order_type": "limit"
+  }
+]

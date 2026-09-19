@@ -1,0 +1,4 @@
+$ emulator MultiCharts XAU 30m 20260501-20260601 (XAU_USD-1m.feather)
+emulacia MultiCharts: 961 barov 30m, 28827 1m, 0 HTF
+hotovo: 20 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb_box': 42, 'orb_high': 42, 'orb_low': 42, 'orb_entry': 20}

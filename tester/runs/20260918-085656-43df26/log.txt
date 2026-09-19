@@ -1,0 +1,402 @@
+$ /Users/martin/document/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json --userdir /Users/martin/document/IBS/deploy/freqtrade/user_data --strategy BreakoutStrategy --cache none --export trades --timerange 20260504-20260904 --pairs MNQ/USD --timeframe 3m --dry-run-wallet 10000.0 --fee 0.0005 --timeframe-detail 1m --datadir /Users/martin/document/IBS/data/tester/databento --backtest-directory /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260918-085656-43df26
+2026-09-18 10:56:57,151 - freqtrade - INFO - freqtrade 2026.8
+2026-09-18 10:56:57,677 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json ...
+2026-09-18 10:56:57,678 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-18 10:56:57,678 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-09-18 10:56:57,679 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/document/IBS/deploy/freqtrade/user_data ...
+2026-09-18 10:56:57,679 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/document/IBS/data/tester/databento ...
+2026-09-18 10:56:57,680 - freqtrade.configuration.configuration - INFO - Using /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260918-085656-43df26 as backtest directory ...
+2026-09-18 10:56:57,681 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-18 10:56:57,723 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy BreakoutStrategy from '/Users/martin/document/IBS/deploy/freqtrade/user_data/strategies/BreakoutStrategy.py'...
+'/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-09-18 10:56:57,915 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, futures, 3m, data starts at 2026-05-03 22:00:00
+2026-09-18 10:56:57,954 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, funding_rate, 1h found. Use `freqtrade download-data` to download the data
+2026-09-18 10:56:57,954 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, mark, 1h found. Use `freqtrade download-data` to download the data
+2026-09-18 10:56:58,101 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, futures, 5m, data starts at 2026-05-03 22:00:00
+2026-09-18 10:56:58,373 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: kresby ulozene do /Users/martin/document/IBS/tester/runs/.profiles/20260918-085656-43df26.chart.json.gz (329 
+2026-09-18 10:56:58,405 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 55762.50 na 9900.00 (17.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,406 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 55762.50 na 9900.00 (17.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,406 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 55762.50 na 9900.00 (17.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,408 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 56072.00 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,408 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 56072.00 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,408 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 56072.00 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,411 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 56900.50 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,411 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 56900.50 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,411 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 56900.50 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,413 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57594.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,413 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57594.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,414 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57594.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,416 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57995.00 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,416 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57995.00 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,416 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57995.00 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,424 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58466.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,425 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58466.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,425 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58466.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,427 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58610.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,427 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58610.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,427 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58610.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,430 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59182.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,430 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59182.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,430 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59182.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,432 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58603.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,432 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58603.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,432 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58603.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,441 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58101.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,441 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58101.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,441 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58101.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,443 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58345.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,443 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58345.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,443 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58345.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,446 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58553.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,446 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58553.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,446 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58553.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,448 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59369.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,448 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59369.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,449 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59369.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,455 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 119855.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,455 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 119855.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,455 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 119855.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,458 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59950.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,458 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59950.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,458 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59950.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,462 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60322.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,462 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60322.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,462 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60322.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,465 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60868.00 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,465 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60868.00 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,465 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60868.00 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,471 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60896.50 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,471 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60896.50 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,471 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60896.50 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,474 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61150.50 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,474 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61150.50 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,474 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61150.50 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,478 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60713.50 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,479 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60713.50 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,479 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60713.50 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,487 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59266.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,487 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59266.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,487 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59266.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,489 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59533.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,490 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59533.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,490 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59533.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,492 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58001.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,492 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58001.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,492 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58001.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,495 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57777.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,495 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57777.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,495 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57777.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,497 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59102.50 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,497 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59102.50 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,497 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59102.50 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,504 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61439.50 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,504 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61439.50 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,504 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61439.50 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,506 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61659.00 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,506 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61659.00 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,506 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61659.00 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,509 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61056.50 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,509 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61056.50 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,509 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61056.50 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,511 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61257.00 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,511 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61257.00 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,511 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61257.00 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,514 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61371.00 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,514 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61371.00 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,514 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61371.00 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,520 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61832.50 na 9900.00 (16.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,520 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61832.50 na 9900.00 (16.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,520 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 61832.50 na 9900.00 (16.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,523 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59646.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,523 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59646.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,523 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59646.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,525 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59725.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,526 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59725.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,526 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59725.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,530 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58827.50 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,530 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58827.50 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,530 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58827.50 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,536 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59570.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,536 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59570.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,537 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59570.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,539 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60424.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,539 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60424.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,539 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60424.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,541 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60565.00 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,541 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60565.00 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,542 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60565.00 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,544 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60332.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,544 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60332.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,544 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60332.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,552 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59961.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,553 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59961.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,553 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59961.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,557 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58731.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,557 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58731.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,557 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58731.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,559 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59696.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,560 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59696.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,560 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59696.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,562 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59864.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,562 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59864.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,562 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59864.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,577 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57524.50 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,577 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57524.50 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,577 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57524.50 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,583 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58303.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,583 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58303.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,583 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58303.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,588 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58358.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,588 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58358.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,588 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58358.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,590 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57588.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,590 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57588.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,591 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57588.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,605 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 55954.00 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,605 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 55954.00 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,605 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 55954.00 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,613 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57004.00 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,614 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57004.00 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,614 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57004.00 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,616 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58855.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,616 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58855.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,616 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58855.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,619 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60032.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,619 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60032.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,619 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60032.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,621 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58801.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,621 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58801.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,621 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58801.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,630 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59700.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,631 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59700.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,631 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59700.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,637 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60055.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,637 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60055.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,637 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60055.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,648 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59520.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,648 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59520.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,648 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59520.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,652 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58874.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,653 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58874.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,653 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58874.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,663 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58756.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,663 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58756.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,663 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58756.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,666 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58582.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,666 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58582.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,666 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58582.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,668 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59195.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,669 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59195.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,669 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59195.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,671 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59296.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,671 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59296.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,671 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59296.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,679 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58250.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,680 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58250.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,680 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58250.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,682 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58215.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,682 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58215.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,682 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58215.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,684 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58707.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,685 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58707.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-18 10:56:58,685 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58707.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+"/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260918-085656-43df26/backtest-result-2026-09-18_08-56-58.meta.json"
+…
+neuplatni cely.
+2026-09-18 10:56:58,544 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60332.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,544 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60332.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,544 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60332.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,552 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59961.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,553 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59961.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,553 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59961.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,557 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58731.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,557 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58731.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,557 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58731.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,559 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59696.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,560 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59696.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,560 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59696.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,562 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59864.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,562 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59864.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,562 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59864.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,577 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57524.50 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,577 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57524.50 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,577 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57524.50 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,583 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58303.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,583 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58303.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,583 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58303.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,588 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58358.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,588 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58358.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,588 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58358.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,590 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57588.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,590 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57588.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,591 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57588.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,605 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 55954.00 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,605 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 55954.00 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,605 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 55954.00 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,613 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57004.00 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,614 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57004.00 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,614 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 57004.00 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,616 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58855.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,616 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58855.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,616 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58855.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,619 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60032.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,619 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60032.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,619 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60032.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,621 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58801.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,621 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58801.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,621 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58801.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,630 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59700.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,631 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59700.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,631 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59700.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,637 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60055.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,637 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60055.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,637 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 60055.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,648 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59520.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,648 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59520.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,648 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59520.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,652 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58874.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,653 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58874.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,653 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58874.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,663 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58756.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,663 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58756.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,663 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58756.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,666 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58582.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,666 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58582.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,666 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58582.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,668 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59195.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,669 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59195.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,669 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59195.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,671 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59296.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,671 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59296.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,671 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 59296.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,679 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58250.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,680 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58250.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,680 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58250.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,682 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58215.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,682 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58215.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,682 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58215.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,684 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58707.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,685 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58707.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-18 10:56:58,685 - tradebot.adapters.freqtrade.base - WARNING - breakout MNQ/USD: stake orezany z 58707.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4/4         100% • 0:00:00 • 0:00:00
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 58780/58780 100% • 0:00:00 • 0:00:00
+2026-09-18 10:56:58,739 - freqtrade.misc - INFO - dumping json to 
+"/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260918-085656-43df26/backtest-result-2026-09-18_08-56-58.meta.json"
+Result for strategy BreakoutStrategy
+                                            BACKTESTING REPORT                                             
+┏━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃    Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ MNQ/USD │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+│   TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┏━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                               ENTER TAG STATS                                                
+┏━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Entries ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │       0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                              EXIT REASON STATS                                               
+┏━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Exit Reason ┃ Exits ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│       TOTAL │     0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                      MIXED TAG STATS                                                      
+┏━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Exit Reason ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │             │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+No trades made. Your starting balance was 10000 USD, and your stake was unlimited.
+
+Backtested 2026-05-04 13:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                         STRATEGY SUMMARY                                                          
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃         Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃     Drawdown ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ BreakoutStrategy │      0 │         0.00 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │ 0 USD  0.00% │
+└──────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────┘
+POZOR: engine dal 62 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh.

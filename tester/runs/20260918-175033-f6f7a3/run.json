@@ -1,0 +1,283 @@
+{
+  "id": "20260918-175033-f6f7a3",
+  "status": "done",
+  "created": "2026-09-18T17:50:33+00:00",
+  "started": "2026-09-18T17:50:33+00:00",
+  "finished": "2026-09-18T17:50:33+00:00",
+  "user": "IBS",
+  "note": "nahodny mesiac 2023-07",
+  "settings": {
+    "strategy": "orb",
+    "exchange": null,
+    "sweep": null,
+    "pair": "XAU/USD",
+    "engine": "multicharts",
+    "timeframe": "30m",
+    "timerange": "20230701-20230801",
+    "fee": 0.0,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 10000.0,
+    "timeframe_detail": null,
+    "profile": null,
+    "instrument": "xau_dukascopy"
+  },
+  "params": {
+    "sessionMode": "both",
+    "nyStartH": 9,
+    "nyStartM": 30,
+    "nyRangeMinutes": "15",
+    "nyEndH": 17,
+    "nyEndM": 55,
+    "lonStartH": 8,
+    "lonStartM": 0,
+    "lonRangeMinutes": "15",
+    "lonEndH": 16,
+    "lonEndM": 30,
+    "tradeDirection": "Both",
+    "entryMode": "close",
+    "breakBufferAtr": 0.1,
+    "retestMaxBars": 10,
+    "entryWindowMinutes": 60,
+    "maxTradesPerDay": 2,
+    "minRangePct": 0.2,
+    "maxRangePct": 1.5,
+    "useVolumeFilter": false,
+    "volSmaLen": 20,
+    "volMultiplier": 1.5,
+    "minClosePosPct": 0,
+    "weekdaysOnly": true,
+    "slMode": "opposite",
+    "slRangePct": 50.0,
+    "atrLen": 7,
+    "slAtrMult": 1.0,
+    "slBufferAtr": 0.0,
+    "tpMode": "rr",
+    "rrRatio": 3.0,
+    "measuredMult": 1.0,
+    "tpAtrMult": 2.0,
+    "enableTrailing": false,
+    "trailActivationR": 1.0,
+    "trailOffsetR": 0.5,
+    "closeAtSessionEnd": true,
+    "riskDollar": 100.0,
+    "showRange": true,
+    "showLevels": true,
+    "tickDollarValue": null,
+    "legacyPineSizing": false,
+    "minSlDistance": 0.2,
+    "leverage": 1.0
+  },
+  "error": null,
+  "result": {
+    "trades": 13,
+    "wins": 4,
+    "losses": 9,
+    "draws": 0,
+    "winrate": 30.77,
+    "pnl_abs": -4513.6,
+    "pnl_pct": -45.136,
+    "profit_factor": 0.209,
+    "max_drawdown_abs": 4817.4,
+    "max_drawdown_pct": 48.174,
+    "starting_balance": 10000.0,
+    "final_balance": 5486.4,
+    "gross_abs": -4513.6,
+    "volume_abs": 5071734.2,
+    "break_even_pct": -0.089,
+    "exits": {
+      "stop_loss": {
+        "n": 6,
+        "pnl_abs": -4434.9
+      },
+      "session_end": {
+        "n": 7,
+        "pnl_abs": -78.7
+      }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 2.364,
+    "backtest_start": "2023-07-02T22:00:00+00:00",
+    "backtest_end": "2023-07-31T23:30:00+00:00",
+    "holding_avg": "14:31:00",
+    "bars": 965,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.2
+  },
+  "series": {
+    "equity": [
+      [
+        "2023-07-03T17:00:00+00:00",
+        -8.378,
+        -8.378
+      ],
+      [
+        "2023-07-06T22:00:00+00:00",
+        -6.13,
+        -14.508
+      ],
+      [
+        "2023-07-10T05:01:00+00:00",
+        -12.755,
+        -27.263
+      ],
+      [
+        "2023-07-11T16:05:00+00:00",
+        -5.548,
+        -32.811
+      ],
+      [
+        "2023-07-14T15:01:00+00:00",
+        -6.165,
+        -38.976
+      ],
+      [
+        "2023-07-17T12:46:00+00:00",
+        -5.608,
+        -44.584
+      ],
+      [
+        "2023-07-17T22:00:00+00:00",
+        2.96,
+        -41.624
+      ],
+      [
+        "2023-07-18T22:00:00+00:00",
+        -2.5,
+        -44.124
+      ],
+      [
+        "2023-07-19T22:00:00+00:00",
+        -4.05,
+        -48.174
+      ],
+      [
+        "2023-07-20T22:00:00+00:00",
+        1.533,
+        -46.641
+      ],
+      [
+        "2023-07-24T22:00:00+00:00",
+        3.59,
+        -43.051
+      ],
+      [
+        "2023-07-25T22:00:00+00:00",
+        3.81,
+        -39.241
+      ],
+      [
+        "2023-07-31T08:50:00+00:00",
+        -5.895,
+        -45.136
+      ]
+    ],
+    "market": [
+      [
+        "2023-07-02T00:00:00+00:00",
+        -0.0188
+      ],
+      [
+        "2023-07-03T00:00:00+00:00",
+        0.1402
+      ],
+      [
+        "2023-07-04T00:00:00+00:00",
+        0.4055
+      ],
+      [
+        "2023-07-05T00:00:00+00:00",
+        -0.0886
+      ],
+      [
+        "2023-07-06T00:00:00+00:00",
+        -0.3633
+      ],
+      [
+        "2023-07-07T00:00:00+00:00",
+        0.2801
+      ],
+      [
+        "2023-07-09T00:00:00+00:00",
+        0.3289
+      ],
+      [
+        "2023-07-10T00:00:00+00:00",
+        0.3268
+      ],
+      [
+        "2023-07-11T00:00:00+00:00",
+        0.7699
+      ],
+      [
+        "2023-07-12T00:00:00+00:00",
+        2.0443
+      ],
+      [
+        "2023-07-13T00:00:00+00:00",
+        2.1602
+      ],
+      [
+        "2023-07-14T00:00:00+00:00",
+        1.8913
+      ],
+      [
+        "2023-07-16T00:00:00+00:00",
+        1.814
+      ],
+      [
+        "2023-07-17T00:00:00+00:00",
+        1.9229
+      ],
+      [
+        "2023-07-18T00:00:00+00:00",
+        3.0717
+      ],
+      [
+        "2023-07-19T00:00:00+00:00",
+        3.0874
+      ],
+      [
+        "2023-07-20T00:00:00+00:00",
+        2.7965
+      ],
+      [
+        "2023-07-21T00:00:00+00:00",
+        2.2394
+      ],
+      [
+        "2023-07-23T00:00:00+00:00",
+        2.2186
+      ],
+      [
+        "2023-07-24T00:00:00+00:00",
+        1.8702
+      ],
+      [
+        "2023-07-25T00:00:00+00:00",
+        2.4379
+      ],
+      [
+        "2023-07-26T00:00:00+00:00",
+        2.7845
+      ],
+      [
+        "2023-07-27T00:00:00+00:00",
+        1.5075
+      ],
+      [
+        "2023-07-28T00:00:00+00:00",
+        2.085
+      ],
+      [
+        "2023-07-30T00:00:00+00:00",
+        2.0542
+      ],
+      [
+        "2023-07-31T00:00:00+00:00",
+        2.3639
+      ]
+    ]
+  }
+}

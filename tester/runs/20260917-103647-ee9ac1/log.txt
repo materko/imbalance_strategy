@@ -1,0 +1,47 @@
+$ emulator MultiCharts MNQ 3m 20190505-20260910 (MNQ_USD-1m.feather)
+emulacia MultiCharts: 865262 barov 3m, 2591788 1m, 865262 HTF
+  20000/865262 barov, 39 obchodov
+  40000/865262 barov, 77 obchodov
+  60000/865262 barov, 105 obchodov
+  80000/865262 barov, 112 obchodov
+  100000/865262 barov, 159 obchodov
+  120000/865262 barov, 258 obchodov
+  140000/865262 barov, 307 obchodov
+  160000/865262 barov, 372 obchodov
+  180000/865262 barov, 445 obchodov
+  200000/865262 barov, 473 obchodov
+  220000/865262 barov, 520 obchodov
+  240000/865262 barov, 567 obchodov
+  260000/865262 barov, 583 obchodov
+  280000/865262 barov, 605 obchodov
+  300000/865262 barov, 636 obchodov
+  320000/865262 barov, 694 obchodov
+  340000/865262 barov, 781 obchodov
+  360000/865262 barov, 869 obchodov
+  380000/865262 barov, 954 obchodov
+  400000/865262 barov, 1028 obchodov
+  420000/865262 barov, 1102 obchodov
+  440000/865262 barov, 1168 obchodov
+  460000/865262 barov, 1229 obchodov
+  480000/865262 barov, 1261 obchodov
+  500000/865262 barov, 1297 obchodov
+  520000/865262 barov, 1326 obchodov
+  540000/865262 barov, 1369 obchodov
+  560000/865262 barov, 1391 obchodov
+  580000/865262 barov, 1425 obchodov
+  600000/865262 barov, 1466 obchodov
+  620000/865262 barov, 1513 obchodov
+  640000/865262 barov, 1558 obchodov
+  660000/865262 barov, 1585 obchodov
+  680000/865262 barov, 1641 obchodov
+  700000/865262 barov, 1727 obchodov
+  720000/865262 barov, 1792 obchodov
+  740000/865262 barov, 1809 obchodov
+  760000/865262 barov, 1838 obchodov
+  780000/865262 barov, 1893 obchodov
+  800000/865262 barov, 1937 obchodov
+  820000/865262 barov, 1996 obchodov
+  840000/865262 barov, 2059 obchodov
+  860000/865262 barov, 2118 obchodov
+hotovo: 2125 obchodov, nerozhodnutelnych minut 9
+kresby: {'imb_box': 25393, 'structure': 81254, 'swing': 105075, 'session': 10652, 'sd_zone_pre': 96244, 'sd_zone_post': 96244, 'skip': 3924, 'tp_box': 2397, 'sl_box': 2397, 'expired': 272, 'liq_sweep': 5742, 'sr_level': 8, 'sr_golden': 6}
