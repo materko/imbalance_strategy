@@ -17,73 +17,36 @@ from __future__ import annotations
 
 import json
 import logging
-import math
-from datetime import datetime
-from pathlib import Path
 from typing import ClassVar
 
 from pandas import DataFrame, Series
 
-from freqtrade.strategy import IStrategy, stoploss_from_absolute
+from freqtrade.strategy import IStrategy
 
 from tradebot.core import Bar, load_profile
-from tradebot.core.candles import resample_ohlcv, timeframe_minutes, timeframe_name
-from tradebot.core.derived import remember
+from tradebot.core.candles import timeframe_minutes
 from tradebot.core.env import getenv
-from tradebot.core.money import point_value_for_pair
 from tradebot.core.risk import extreme_before_stop
 from tradebot.core.types import Direction
-from tradebot.core.warmup import WarmupNeed, seed_engine
 from tradebot.strategies import StrategySpec, get_spec
 
 from . import hyperplan
 from .ai import AIMixin, settings_of as ai_settings
+from .callbacks import CallbacksMixin
+from .frames import _ts_ms
+from .live import LiveMixin
 from .runner import COLUMN_ATTRS, EngineRunner, SignalRow, export_chart
+from .timeframes import TimeframesMixin
 
 logger = logging.getLogger(__name__)
 
 __all__ = ["TradebotStrategyBase", "_ts_ms", "_bar"]
 
 
-#: Freqtrade si z nášho stake spätne dopočíta množstvo ako ``stake / cena * páka``
-#: a výsledok **oreže** na krok kontraktu. Delenie a násobenie tou istou cenou ale
-#: v plávajúcej rádovej čiarke presné nie je: 1 BTC pri 79 419,5 sa vráti ako
-#: 0,9999999999999999 a z toho je po orezaní 0,999 — teda o krok menšia pozícia, než
-#: plán žiada. Na piatich obchodoch golden testu to robilo rozdiel 0,26 USD oproti
-#: TradingView. Zlomok promile navyše chybu prekryje a na veľkosť pozície vplyv nemá:
-#: krok kontraktu je o desať rádov väčší.
-_STAKE_EPS = 1e-12
-
-
 def _decimals(step: float) -> int:
     """0.01 -> 2, 1.0 -> 0 — presnosť ako počet desatinných miest (ccxt DECIMAL_PLACES)."""
     text = f"{step:.10f}".rstrip("0")
     return len(text.partition(".")[2])
-
-
-def _ts_ms(series) -> list[int]:
-    """Stĺpec `date` → ms epoch.
-
-    Freqtrade drží `date` ako **datetime64[ms]**, takže `.astype("int64")` vráti
-    milisekundy — zatiaľ čo `Timestamp.value` vracia nanosekundy vždy. Tie dve cesty
-    sa líšia o 10^6 a keď sa zmiešajú, kľúče sa nikdy netrafia a stratégia ticho
-    nevygeneruje ani jeden signál. Preto sa prevod robí na jednom mieste.
-    """
-    return (series.astype("datetime64[ns, UTC]").astype("int64") // 1_000_000).tolist()
-
-
-def _between(frame, since_ms: int, until_ms: int):
-    """Riadky `frame` s `date` v `[since_ms, until_ms)` (OHLCV stĺpce), alebo None."""
-    if frame is None or len(frame) == 0:
-        return None
-    import pandas as pd
-
-    dates = pd.to_datetime(frame["date"], utc=True)
-    lo = pd.Timestamp(int(since_ms), unit="ms", tz="UTC")
-    hi = pd.Timestamp(int(until_ms), unit="ms", tz="UTC")
-    part = frame.loc[((dates >= lo) & (dates < hi)).to_numpy(),
-                     ["date", "open", "high", "low", "close", "volume"]].reset_index(drop=True)
-    return part if len(part) else None
 
 
 def _bar(row, ts: int) -> Bar:
@@ -97,7 +60,7 @@ def _bar(row, ts: int) -> Bar:
     )
 
 
-class TradebotStrategyBase(AIMixin, IStrategy):
+class TradebotStrategyBase(CallbacksMixin, LiveMixin, TimeframesMixin, AIMixin, IStrategy):
     """Spoločné správanie pre všetky stratégie TradeBotu vo Freqtrade."""
 
     #: kľúč v `tradebot.strategies.STRATEGIES`
@@ -259,93 +222,6 @@ class TradebotStrategyBase(AIMixin, IStrategy):
     # Háky pre stratégiu
     # ------------------------------------------------------------------ #
 
-    # ------------------------------------------------------------------ #
-    # Chýbajúci timeframe si stratégia dopočíta z 1m
-    # ------------------------------------------------------------------ #
-
-    def ensure_timeframe(self, pair: str, timeframe: str) -> bool:
-        """Postará sa, aby pre `pair` a `timeframe` boli sviečky na disku. Vráti, či sú.
-
-        Freqtrade si vyšší TF **nedopočíta**: pre základný TF behu skončí na „No history …
-        found", informatívny TF ticho vráti prázdny DataFrame (a stratégia potom nevytvorí
-        ani jednu zónu). Chýbajúci TF sa preto poskladá z 1m — z toho istého zdroja a tým
-        istým pravidlom (`tradebot.core.candles.resample_ohlcv`), aké používa graf webapp
-        aj emulátor MultiCharts, takže bary sú všade rovnaké.
-
-        Číta aj zapisuje **cez dátový handler Freqtradu**, takže pomenovanie súboru,
-        formát aj `futures/` podadresár sú jeho (nič sa tu o cestách nehádže).
-
-        Volá sa v `__init__`, teda **pred** tým, než si Freqtrade načíta dáta backtestu
-        (`Backtesting.start` → `load_bt_data`), a ešte raz lenivo pri informatívnom TF.
-        """
-        if not self._may_derive():
-            return True
-        source_tf = "1m"
-        try:
-            from freqtrade.data.history import get_datahandler
-
-            handler = get_datahandler(
-                Path(self.config["datadir"]), self.config.get("dataformat_ohlcv", "feather")
-            )
-            candle_type = self.config.get("candle_type_def", "")
-            have = handler.ohlcv_load(pair, timeframe, candle_type=candle_type, warn_no_data=False)
-            if not have.empty:
-                return True
-            if timeframe == source_tf:
-                return False
-            minutes = timeframe_minutes(timeframe)
-            base = handler.ohlcv_load(pair, source_tf, candle_type=candle_type, warn_no_data=False)
-            if base.empty:
-                logger.warning(
-                    "%s %s: chyba %s aj %s - dopocitat sa nema z coho", self.spec.key, pair,
-                    timeframe, source_tf,
-                )
-                return False
-            out = resample_ohlcv(base[["date", "open", "high", "low", "close", "volume"]], minutes)
-            handler.ohlcv_store(pair, timeframe, data=out, candle_type=candle_type)
-            path = handler._pair_data_filename(
-                Path(self.config["datadir"]), pair, timeframe, candle_type
-            )
-            remember([path])
-            logger.warning(
-                "%s %s: %s sviecky na disku neboli, poskladal som ich z %s (%d barov, %s). "
-                "Su odvodene - do archivu nejdu.",
-                self.spec.key, pair, timeframe, source_tf, len(out), path.name,
-            )
-            return True
-        except Exception as exc:  # noqa: BLE001  (dopocet je pomoc, nie podmienka behu)
-            logger.warning("%s %s: %s sa dopocitat nepodarilo (%s)", self.spec.key, pair,
-                           timeframe, exc)
-            return False
-
-    def _may_derive(self) -> bool:
-        """Dopočítavať sa smie len tam, kde sa počíta z histórie.
-
-        V dry/live behu prichádzajú sviečky z burzy a vymyslený bar by bol chyba, nie pomoc.
-        """
-        from freqtrade.enums import RunMode
-
-        return self.config.get("runmode") in (
-            RunMode.BACKTEST, RunMode.HYPEROPT, RunMode.PLOT, RunMode.UTIL_NO_EXCHANGE,
-            RunMode.UTIL_EXCHANGE, RunMode.OTHER,
-        )
-
-    def informative_frame(self, pair: str, timeframe: str) -> DataFrame:
-        """Sviečky informatívneho TF; keď súbor nie je, dopočítajú sa z 1m."""
-        if self.dp is None:
-            return DataFrame()
-        frame = self.dp.get_pair_dataframe(
-            pair=pair, timeframe=timeframe, candle_type=self.config.get("candle_type_def", ""),
-        )
-        if frame is not None and not frame.empty:
-            return frame
-        if not self.ensure_timeframe(pair, timeframe):
-            return DataFrame()
-        frame = self.dp.get_pair_dataframe(
-            pair=pair, timeframe=timeframe, candle_type=self.config.get("candle_type_def", ""),
-        )
-        return frame if frame is not None else DataFrame()
-
     def _after_profile(self) -> None:
         """Volá sa po načítaní profilu (IBS: hodiny seáns, kontrola unfilledtimeout)."""
 
@@ -438,42 +314,6 @@ class TradebotStrategyBase(AIMixin, IStrategy):
 
         return self.config.get("runmode") is RunMode.HYPEROPT
 
-    @property
-    def live_mode(self) -> bool:
-        """Dry-run alebo live: sviečky prichádzajú od burzy cez DataProvider, nie z disku."""
-        from freqtrade.enums import RunMode
-
-        return self.config.get("runmode") in (RunMode.DRY_RUN, RunMode.LIVE)
-
-    def informative_pairs(self):
-        """Informatívne TF stratégie (IBS: detekčný TF zón) + TF indikátorov s vlastnou predhistóriou.
-
-        Tie druhé Freqtrade v dry/live stiahne a obnovuje spolu s TF behu (koľko sviečok,
-        určuje limit burzy a `startup_candle_count`), takže pri prvom `populate_indicators`
-        sú ich uzavreté bary poruke na seeding (`_live_seed_source`). TF, ktorý burza
-        nepozná (3h, 45m), sa nežiada — Freqtrade by každý cyklus hlásil „Cannot download"
-        — a seeding ho poskladá zo sviečok TF behu.
-        """
-        pairs = self.dp.current_whitelist() if self.dp else []
-        tfs = list(self._informative_tfs)
-        for minutes in self._seed_tfs:
-            tf = timeframe_name(minutes)
-            if tf not in tfs and self._exchange_has_tf(tf):
-                tfs.append(tf)
-        return [(p, tf) for p in pairs for tf in tfs]
-
-    def _ft_exchange(self):
-        """Burza Freqtradu za DataProviderom, alebo None (testy, nástroje bez burzy)."""
-        return getattr(self.dp, "_exchange", None) if self.dp is not None else None
-
-    def _exchange_has_tf(self, tf: str) -> bool:
-        exchange = self._ft_exchange()
-        if exchange is None:
-            return False
-        try:
-            return tf in (exchange.timeframes or [])
-        except Exception:  # noqa: BLE001  (burza bez zoznamu TF - radšej poskladať z TF behu)
-            return False
 
     def _config_fingerprint(self) -> str:
         """Odtlačok parametrov, ktoré menia výsledok.
@@ -498,19 +338,6 @@ class TradebotStrategyBase(AIMixin, IStrategy):
             self._runners[pair] = runner
         return runner
 
-    def _live_gap(self, runner: EngineRunner, pair: str, ts_index: list[int]) -> bool:
-        """Dry/live: DataFrame už nenadväzuje na posledný spracovaný bar (výpadok spojenia,
-        uspatý stroj, „Time jump detected" vo Freqtrade). Inkrementálny runner by dieru
-        preskočil, preto sa postaví nanovo — s predhistóriou a seedingom ako po reštarte."""
-        if runner.last_ts is None or not ts_index:
-            return False
-        step = timeframe_minutes(self.run_timeframe) * 60_000
-        if ts_index[0] <= runner.last_ts + step:
-            return False
-        logger.warning("%s %s: sviecky od burzy nenadvazuju na posledny spracovany bar (diera %d min) "
-                       "- runner sa stavia nanovo s predhistoriou", self.spec.key, pair,
-                       (ts_index[0] - runner.last_ts - step) // 60_000)
-        return True
 
     # ------------------------------------------------------------------ #
 
@@ -551,160 +378,6 @@ class TradebotStrategyBase(AIMixin, IStrategy):
         self._export_chart(pair, runner)
         return dataframe
 
-    def _seed_runner(self, runner: EngineRunner, pair: str, ts_index: list[int]) -> int:
-        """Indikátory s vlastnou predhistóriou (Supertrend/ADX na svojom TF) pred prvým barom.
-
-        Vracia index riadku DataFrame, od ktorého runner beží (riadky pred ním sú len zdroj
-        predhistórie a signál nedostanú). Seeding je jeden (`seed_engine`), líši sa len zdroj:
-
-        * **backtest a hyperopt** — sviečky TF behu **pred** prvým riadkom DataFrame (ten už
-          obsahuje `startup_candle_count`) z disku cez dátový handler Freqtradu, bez vypchávky;
-          runner beží od riadku 0.
-        * **dry-run a live** — DataFrame od burzy má aspoň `startup_candle_count + 1` sviečok
-          (Freqtrade ich stiahne pri štarte aj po reštarte, viac volaní, keď je limit burzy
-          menší). Runner začne na prvom riadku zarovnanom na periódy TF indikátorov, ak za ním
-          ostane celá predhistória (`_live_start`) — rozpracovaná perióda je potom prázdna a
-          netreba nič sťahovať. Uzavreté bary TF indikátora dá DataProvider
-          (`informative_pairs`); čo nedá (TF, ktorý burza nepozná, alebo pre limit burzy
-          málo sviečok) a rozpracovanú periódu pri nezarovnanom štarte stiahne
-          `_seed_download` ako sviečky TF behu z burzy. Nič od prvého baru ďalej sa nepoužije.
-        """
-        warmup = getattr(runner.engine, "warmup", None)
-        if warmup is None or not warmup.seeds:
-            return 0
-        used: dict[str, str] = {}
-        if self.live_mode:
-            start = self._live_start(ts_index, warmup.seeds)
-            source = self._live_seed_source(pair, ts_index[start], used)
-        else:
-            start = 0
-            source = None
-            if self._may_derive():
-                key = (pair, ts_index[0], warmup.seed_span_ms, self.run_timeframe)
-                if key not in self._seed_frames:
-                    self._seed_frames[key] = self._load_before(pair, ts_index[0], warmup.seed_span_ms)
-                source = self._seed_frames[key]
-        try:
-            got = seed_engine(runner.engine, source, ts_index[start])
-        finally:
-            self._seed_downloads.clear()
-        if start:
-            logger.info("%s %s: beh zacina %d. sviecku DataFrame od burzy (zarovnane na periody "
-                        "indikatorov, za nou %d sviecok)", self.spec.key, pair, start,
-                        len(ts_index) - start)
-        short = [f"{n.name} @{n.tf_minutes}m {got.get(n.name, 0)}/{n.bars}"
-                 for n in warmup.seeds if got.get(n.name, 0) < n.bars]
-        where = f" ({', '.join(f'{k}: {v}' for k, v in used.items())})" if used else ""
-        if short:
-            logger.warning("%s %s: predhistoria indikatorov pred behom neuplna (%s)%s - rozbehnu sa "
-                           "na grafe, dovtedy neobchoduju", self.spec.key, pair, ", ".join(short), where)
-        else:
-            logger.info("%s %s: indikatory seedovane pred behom (%s)%s", self.spec.key, pair,
-                        ", ".join(f"{k} {v}" for k, v in got.items()), where)
-        return start
-
-    def _live_start(self, ts_index: list[int], seeds: list[WarmupNeed]) -> int:
-        """Prvý riadok zarovnaný na periódy všetkých TF indikátorov, za ktorým ostane
-        `startup_candle_count` sviečok predhistórie + posledná; inak 0 (začiatok DataFrame)."""
-        align = 1
-        for need in seeds:
-            align = math.lcm(align, int(need.tf_minutes))
-        align_ms = align * 60_000
-        last = len(ts_index) - (int(self.startup_candle_count or 0) + 1)
-        for k in range(0, last + 1):
-            if ts_index[k] % align_ms == 0:
-                return k
-        return 0
-
-    def _live_seed_source(self, pair: str, first_ms: int, used: dict[str, str]):
-        """`need -> DataFrame` pre `seed_engine` v dry/live: uzavreté bary + rozpracovaná perióda.
-
-        Uzavreté periódy (pred periódou `first_ms`) prednostne ako sviečky TF indikátora od
-        DataProvidera; ak ich burza nemá alebo ich je menej než `warmup_bars`, sviečky TF behu
-        z burzy. Rozpracovaná perióda `[perióda, first_ms)` je vždy v TF behu. Bary sa na TF
-        indikátora skladajú v `seed_engine` cez `tradebot.core.candles` ako v backteste.
-        """
-        import pandas as pd
-
-        run_tf = self.run_timeframe
-
-        def source(need: WarmupNeed):
-            ms = int(need.tf_minutes) * 60_000
-            period = first_ms // ms * ms
-            since = period - need.span_ms
-            closed = self._exchange_closed(pair, need, since, period)
-            if closed is not None:
-                used[need.name] = f"{len(closed)} x {timeframe_name(need.tf_minutes)} od burzy"
-            else:
-                closed = self._seed_download(pair, since, period)
-                used[need.name] = f"{0 if closed is None else len(closed)} x {run_tf} z historie burzy"
-            partial = self._seed_download(pair, period, first_ms) if period < first_ms else None
-            parts = [f for f in (closed, partial) if f is not None and len(f)]
-            return pd.concat(parts, ignore_index=True) if parts else None
-
-        return source
-
-    def _exchange_closed(self, pair: str, need: WarmupNeed, since_ms: int, until_ms: int) -> DataFrame | None:
-        """Uzavreté bary TF indikátora v `[since_ms, until_ms)` od DataProvidera, ak ich je dosť."""
-        tf = timeframe_name(need.tf_minutes)
-        if self.dp is None or not self._exchange_has_tf(tf):
-            return None
-        try:
-            frame = self.dp.get_pair_dataframe(pair=pair, timeframe=tf,
-                                               candle_type=self.config.get("candle_type_def", ""))
-        except Exception as exc:  # noqa: BLE001 (náhradná cesta sú sviečky TF behu)
-            logger.warning("%s %s: %s od burzy nie su (%s)", self.spec.key, pair, tf, exc)
-            return None
-        part = _between(frame, since_ms, until_ms)
-        if part is None or len(part) < need.bars:
-            return None
-        return part
-
-    def _seed_download(self, pair: str, since_ms: int, until_ms: int) -> DataFrame | None:
-        """Sviečky TF behu v `[since_ms, until_ms)` stiahnuté z burzy (len pri štarte runnera).
-
-        `Exchange.get_historic_ohlcv` stránkuje po limite burzy sám. Burza bez histórie
-        (Kraken) alebo výpadok vráti None — indikátor sa potom rozbehne na grafe.
-        """
-        key = (pair, since_ms, until_ms)
-        if key in self._seed_downloads:
-            return self._seed_downloads[key]
-        frame = None
-        exchange = self._ft_exchange()
-        if exchange is not None and until_ms > since_ms:
-            try:
-                from freqtrade.enums import CandleType
-
-                raw = exchange.get_historic_ohlcv(
-                    pair=pair, timeframe=self.run_timeframe, since_ms=int(since_ms),
-                    candle_type=self.config.get("candle_type_def") or CandleType.SPOT,
-                    until_ms=int(until_ms),
-                )
-                frame = _between(raw, since_ms, until_ms)
-            except Exception as exc:  # noqa: BLE001 (seeding je pomoc; bez neho sa indikátor rozbehne sám)
-                logger.warning("%s %s: historia %s z burzy sa nestiahla (%s)", self.spec.key, pair,
-                               self.run_timeframe, exc)
-        self._seed_downloads[key] = frame
-        return frame
-
-    def _load_before(self, pair: str, first_ms: int, span_ms: int) -> DataFrame | None:
-        """Sviečky TF behu v `[first_ms - span_ms, first_ms)` z disku, alebo None."""
-        try:
-            from freqtrade.configuration import TimeRange
-            from freqtrade.data.history import get_datahandler
-
-            handler = get_datahandler(
-                Path(self.config["datadir"]), self.config.get("dataformat_ohlcv", "feather")
-            )
-            start_s = (first_ms - span_ms) // 1000
-            timerange = TimeRange("date", "date", start_s, max(start_s, first_ms // 1000 - 1))
-            frame = handler.ohlcv_load(pair, self.run_timeframe,
-                                       candle_type=self.config.get("candle_type_def", ""),
-                                       timerange=timerange, fill_missing=False, warn_no_data=False)
-            return frame if frame is not None and not frame.empty else None
-        except Exception as exc:  # noqa: BLE001 (seeding je pomoc; bez neho sa indikátor rozbehne sám)
-            logger.warning("%s %s: sviecky pred behom sa nenacitali (%s)", self.spec.key, pair, exc)
-            return None
 
     def _ai_step(self, dataframe: DataFrame, metadata: dict, pair: str) -> DataFrame:
         """Model nad hotovými signálmi. Bez zapnutej AI vrstvy nerobí nič."""
@@ -768,253 +441,3 @@ class TradebotStrategyBase(AIMixin, IStrategy):
         # Výstupy rieši custom_roi (TP) a custom_stoploss (SL) per obchod.
         return dataframe
 
-    # ------------------------------------------------------------------ #
-    # SL / TP / veľkosť - všetko per obchod, z plánu, ktorý spočítal engine
-    # ------------------------------------------------------------------ #
-
-    @classmethod
-    def _tag_ts(cls, tag) -> int | None:
-        """``<prefix><ms>`` → ms, inak `None` (force entry, starý obchod bez tagu)."""
-        prefix = cls.ENTRY_TAG_PREFIX
-        if not isinstance(tag, str) or not tag.startswith(prefix):
-            return None
-        try:
-            return int(tag[len(prefix):])
-        except ValueError:
-            return None
-
-    def _signal(self, pair: str, when, tag=None) -> SignalRow | None:
-        """Signál, z ktorého tento obchod vznikol.
-
-        Primárne podľa `enter_tag` (presný bar), až potom podľa času — viď
-        `EngineRunner.signal_at_or_before`, prečo samotný čas nestačí.
-        """
-        runner = self._runners.get(pair)
-        if runner is None:
-            return None
-        ts = self._tag_ts(tag)
-        if ts is not None:
-            row = runner.signal_at(ts)
-            if row is not None:
-                return row
-        if when is None:
-            return None
-        return runner.signal_at_or_before(int(when.timestamp() * 1000))
-
-    def _trade_signal(self, pair: str, trade) -> SignalRow | None:
-        return self._signal(pair, trade.open_date_utc, getattr(trade, "enter_tag", None))
-
-    def _levels(self, pair: str, trade) -> tuple[float, float] | None:
-        """(SL, TP) zo signálu, na ktorom obchod vznikol — po prípadnej úprave modelom.
-
-        Je to jediné miesto, kde sa plán mení, takže stop aj take profit vidia tú istú
-        úpravu. Škáluje sa **vzdialenosť od vstupu**, nie cena: násobok 1,2 znamená
-        „o pätinu ďalej", nie „o pätinu vyššie".
-        """
-        row = self._trade_signal(pair, trade)
-        if row is None or row.stop_loss != row.stop_loss:  # NaN check
-            return None
-        stop_loss, take_profit = row.stop_loss, row.take_profit
-        ts = self._tag_ts(getattr(trade, "enter_tag", None)) or 0
-        vstup = row.entry if row.entry == row.entry and row.entry > 0 else trade.open_rate
-        for kluc, uroven in (("sl", "stop_loss"), ("tp", "take_profit")):
-            nasobok = self.ai_scale(pair, ts, kluc)
-            hodnota = stop_loss if uroven == "stop_loss" else take_profit
-            if nasobok == 1.0 or hodnota != hodnota:
-                continue
-            posunuta = vstup + (hodnota - vstup) * nasobok
-            if uroven == "stop_loss":
-                stop_loss = posunuta
-            else:
-                take_profit = posunuta
-        return stop_loss, take_profit
-
-    def ft_stoploss_adjust(
-        self, current_rate, trade, current_time, current_profit, force_stoploss,
-        low=None, high=None, *args, **kwargs
-    ):
-        """Zachytí OHLC práve spracúvanej sviečky — `custom_stoploss` ju inak nevidí.
-
-        Bez nej sa nedá povedať, či cena v sviečke šla najprv hore alebo dole, a pri
-        trailingu na tom závisí, či obchod v tej sviečke skončí (viď `extreme_before_stop`).
-        `trade.max_rate` nestačí: Freqtrade doň zahrnie high tejto sviečky ešte pred
-        volaním, takže z neho poradie už nevyčítaš.
-        """
-        self._candle = (current_rate, high, low)
-        self._candle_time = current_time
-        return super().ft_stoploss_adjust(
-            current_rate, trade, current_time, current_profit, force_stoploss,
-            low, high, *args, **kwargs
-        )
-
-    def _detail_close(self, pair: str, when) -> float | None:
-        """Zatváracia cena sviečky, ktorú Freqtrade práve testuje.
-
-        `custom_stoploss` dostane open, high aj low, ale nie close — a bez neho sa
-        nedá dopočítať spiatočná noha baru (viď IBS `_trailing_stop`). Sviečky sa preto
-        načítajú raz na pár a držia sa v dicte podľa času.
-        """
-        if when is None or self.dp is None:
-            return None
-        closes = self._closes.get(pair)
-        if closes is None:
-            tf = self.config.get("timeframe_detail") or self.timeframe
-            try:
-                df = self.dp.historic_ohlcv(pair, tf)
-            except Exception:  # pragma: no cover - chýbajúce dáta, nie chyba logiky
-                df = None
-            closes = {} if df is None or df.empty else dict(
-                zip(_ts_ms(df["date"]), df["close"].astype(float))
-            )
-            self._closes[pair] = closes
-        return closes.get(int(when.timestamp() * 1000))
-
-    def custom_entry_price(
-        self, pair: str, trade, current_time, proposed_rate: float, entry_tag, side: str, **kwargs
-    ) -> float:
-        """Limitka presne na cene plánu — Pine `strategy.entry(limit=entryPrice)`."""
-        row = self._signal(pair, current_time, entry_tag)
-        if row is None or row.entry != row.entry:
-            return proposed_rate
-        return row.entry
-
-    def custom_stake_amount(
-        self, pair: str, current_time, current_rate: float, proposed_stake: float,
-        min_stake, max_stake: float, leverage: float, entry_tag, side: str, **kwargs
-    ) -> float:
-        """Veľkosť z plánu enginu (`qty` kontraktov).
-
-        Freqtrade pracuje so **stake v quote mene**, nie s počtom kontraktov, takže
-        sa qty prepočíta cez cenu (tú z plánu, rovnakú ako dá `custom_entry_price`),
-        hodnotu bodu a páku. Späť si množstvo dopočíta ako ``stake / cena * páka`` v základnej
-        mene, vydelí `contractSize` (burza Tester ho má rovný hodnote bodu, viď
-        `tester.ftexchange`) a výsledok **oreže** na krok kontraktu — preto ten zlomok
-        promile navyše, viď `_STAKE_EPS`. Bez hodnoty bodu by 1 lot EURUSD stál 1,1 USD.
-        """
-        row = self._signal(pair, current_time, entry_tag)
-        if row is None or row.qty != row.qty or current_rate <= 0:
-            return proposed_stake
-
-        rate = row.entry if row.entry == row.entry and row.entry > 0 else current_rate
-        # Časť 2: čím si je model istejší, tým väčšia pozícia. Mantinely sú zo zadania
-        # behu, takže model nemôže poslať veľkosť ani do neba, ani na nulu.
-        ts = self._tag_ts(entry_tag) or 0
-        # Vzdialenejší stop znamená pri tej istej veľkosti väčšiu stratu, tak sa množstvo
-        # dopočíta späť: riziko na obchod ostane to, čo bolo zadané, a mení sa len to,
-        # kde stop leží. Kto chce meniť aj riziko, má na to `size`.
-        nasobok = self.ai_scale(pair, ts, "size") / max(self.ai_scale(pair, ts, "sl"), 1e-9)
-        # hodnota bodu páru behu (register inštrumentov), inak inštrumentu profilu
-        pv = point_value_for_pair(pair) or float(getattr(getattr(self, "tb_inst", None), "point_value", 1.0) or 1.0)
-        wanted = row.qty * nasobok * rate * pv / max(leverage, 1.0) * (1.0 + _STAKE_EPS)
-        stake = wanted
-        if min_stake is not None:
-            stake = max(stake, min_stake)
-        stake = min(stake, max_stake)
-
-        if stake < wanted * 0.999:
-            # Dolezite: ked peňaženka nestaci, riziko na obchod je v skutocnosti MENSIE
-            # nez planovane - a bez tohto hlasenia by to bolo ticho. Riesenie je
-            # vacsi dry_run_wallet, paka, alebo nizsi limit rizika.
-            logger.warning(
-                "%s %s: stake orezany z %.2f na %.2f (%.1f%% z chceneho). "
-                "Limit rizika na obchod sa pri tomto SL a zostatku neuplatni cely.",
-                self.spec.key, pair, wanted, stake, stake / wanted * 100,
-            )
-        return stake
-
-    def custom_stoploss(
-        self, pair: str, trade, current_time: datetime, current_rate: float,
-        current_profit: float, after_fill: bool, **kwargs
-    ) -> float | None:
-        """Absolútny SL z plánu, posunutý trailingom stratégie. Prepočet na relatívnu hodnotu rieši
-        `stoploss_from_absolute`, aby sa nemuselo ručne riešiť znamienko pre shorty ani páka.
-
-        `trade.max_rate`/`min_rate` aktualizuje Freqtrade v `should_exit()` **pred** týmto
-        volaním, takže extrém už zahŕňa aktuálnu sviečku — rovnako ako offline simulácia
-        v `tester.compare.scan_trades`. S `--timeframe-detail 1m` je teda trailing po minútach.
-        """
-        levels = self._levels(pair, trade)
-        if levels is None or current_rate <= 0:
-            return None
-        stop_price, _ = levels
-        stop_price = self._trailing_stop(pair, trade, stop_price)
-        return stoploss_from_absolute(
-            stop_rate=stop_price,
-            current_rate=current_rate,
-            is_short=trade.is_short,
-            leverage=trade.leverage or 1.0,
-        )
-
-    def custom_roi(
-        self, pair: str, trade, current_time: datetime, trade_duration: int,
-        entry_tag: str | None, side: str, **kwargs
-    ) -> float | None:
-        """TP z plánu ako odpočívajúci limit.
-
-        Prečo ROI a nie `custom_exit`: exit-signál sa v backteste vyhodnocuje aj plní
-        **otváracou cenou sviečky** (`row[OPEN_IDX]`), takže knôt cez TP neurobí nič
-        a keď sa napokon spustí, cena je už za TP. Na golden dátach to výstupy posúvalo
-        o jednu až tri sviečky neskôr a o 7-11 bodov vyššie, než ukázal TradingView.
-
-        ROI sa naopak vyhodnocuje proti `high` (pre long) danej sviečky a plní sa cenou
-        z `calc_close_rate_for_roi()` orezanou do rozsahu sviečky — teda intrabar
-        a presne na TP, rovnako ako Pine `strategy.exit(limit=...)`.
-
-        `calc_profit_ratio()` je presná inverzia `calc_close_rate_for_roi()`, takže
-        poplatky ani páku netreba riešiť ručne.
-        """
-        levels = self._levels(pair, trade)
-        if levels is None:
-            return None
-        _, take_profit = levels
-        if take_profit != take_profit:  # NaN
-            return None
-        return trade.calc_profit_ratio(take_profit)
-
-    def custom_exit(
-        self, pair: str, trade, current_time: datetime, current_rate: float,
-        current_profit: float, **kwargs
-    ) -> str | None:
-        """Engine povedal „zavri" (`close_session` na predchádzajúcom uzavretom bare) → trhový výstup.
-
-        Číta sa PREDCHÁDZAJÚCI bar grafu: engine ho vyhodnotil na jeho zatvorení, čo je
-        otvorenie sviečky, ktorú Freqtrade práve spracúva. Stratégia s vlastnou logikou
-        výstupu (IBS: hodiny seáns) túto metódu prepíše.
-        """
-        runner = self._runners.get(pair)
-        if runner is None:
-            return None
-        from freqtrade.exchange import timeframe_to_msecs
-
-        tf_ms = timeframe_to_msecs(self.timeframe)
-        now_ms = int(current_time.timestamp() * 1000)
-        row = runner.rows.get(now_ms // tf_ms * tf_ms - tf_ms)
-        return "signal_close" if row is not None and row.close_session else None
-
-    def confirm_trade_entry(
-        self, pair: str, order_type: str, amount: float, rate: float, time_in_force: str,
-        current_time: datetime, entry_tag, side: str, **kwargs
-    ) -> bool:
-        """Posledná poistka: mimo trade okna sa nevstupuje ani keď signál dobehol neskôr."""
-        row = self._signal(pair, current_time, entry_tag)
-        return True if row is None else row.in_trade_window
-
-    def confirm_trade_exit(
-        self, pair: str, trade, order_type: str, amount: float, rate: float,
-        time_in_force: str, exit_reason: str, current_time: datetime, **kwargs
-    ) -> bool:
-        """Výstup nikdy neblokuje — len upratie stav trailingu, aby v dlhom live
-        behu `_extremes` nerástol s každým obchodom."""
-        self._extremes.pop((pair, trade.open_date_utc), None)
-        return True
-
-    def leverage(
-        self, pair: str, current_time: datetime, current_rate: float,
-        proposed_leverage: float, max_leverage: float, entry_tag, side: str, **kwargs
-    ) -> float:
-        """Páka z profilu (pole `leverage`, ak ho stratégia má), orezaná tým, čo burza dovolí.
-
-        Pri páke 1 sa risk-based sizing na BTC nezmestí do peňaženky a limit rizika
-        sa ticho neuplatní — viď `IBSConfig.leverage`.
-        """
-        return min(float(getattr(self.tb_cfg, "leverage", 1.0)), max_leverage)
