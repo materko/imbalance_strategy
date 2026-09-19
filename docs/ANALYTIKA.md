@@ -32,7 +32,7 @@ Bez zápisu (len výpis do konzoly) `--no-write`, z hotových behov namiesto nov
 |---|---|---|
 | **päť referenčných okien** | drží znamienko po rokoch, alebo celý súčet nesie jeden rok? | `cli run` |
 | **charakter** | prerazenie, trend, protitrend, scalp, formácia, swing — a teda čo je normálne | [`tester/character.py`](../tester/character.py), [TYPY_STRATEGII.md](TYPY_STRATEGII.md) |
-| **skupiny obchodov** | ktorá časť obchodov výsledok kazí a či sa to dá odfiltrovať | [`tester/analytics.py`](../tester/analytics.py) |
+| **skupiny obchodov** | ktorá časť obchodov výsledok kazí a či sa to dá odfiltrovať | [`tester/trade_splits.py`](../tester/trade_splits.py) (vlastnosti v [`trade_features.py`](../tester/trade_features.py)) |
 | **test proti náhode** | je ten edge odlíšiteľný od hodu mincou — a nie je celý len v tom, *kedy* obchoduje? | [`tester/nulltest.py`](../tester/nulltest.py) |
 | **slabne edge?** | drží to aj dnes, alebo sa zarobilo v prvých rokoch a odvtedy stratégia stojí? | [`tester/decay.py`](../tester/decay.py) |
 | **Monte Carlo** | aký široký je interval okolo nameraného čísla a čo to robí s účtom | [`tester/montecarlo.py`](../tester/montecarlo.py) |
