@@ -8,6 +8,7 @@ nemiešalo, čo platí pre ktorú:
 | **spúšťať backtesty a pozerať históriu** (aj na Dukascopy symboloch) | [WEBAPP.md](WEBAPP.md) — Tester, webová aplikácia |
 | **krypto: prostredie, backtest, hyperopt, Docker, server** | [FREQTRADE.md](FREQTRADE.md) |
 | **MultiCharts: študia, QuoteManager, emulátor** | [MULTICHARTS.md](MULTICHARTS.md) |
+| **NinjaTrader 8, C# jadro, stratégia IBSNinja** | [NINJATRADER.md](NINJATRADER.md) |
 | **dáta: odkiaľ sú, archív, Dukascopy import, nový symbol** | [DATA.md](DATA.md) |
 | **testovať z CLI (aj pre AI)** | [../tester/AI_TESTING.md](../tester/AI_TESTING.md) |
 | **počítať na viac strojoch** (hub, agenti, `run --remote`, Docker pre hub a agenta) | [HUB.md](HUB.md) |
@@ -47,6 +48,9 @@ tradebot/                       PRODUKT - to, co obchoduje
                                 engine, config, meta, configs/ (profily), docs/sources/ (Pine)
   adapters/freqtrade/           genericka IStrategy + EngineRunner
   adapters/multicharts/         TradebotSignal, MCRunner, emulator, kreslenie
+  adapters/csharp/              most do C# jadra (pythonnet | TradeBot.Host.exe), preklad csharp/
+  adapters/ninjatrader/         NinjaScript adapter (C#) + instalacia do NinjaTradera
+csharp/                      jadro a strategie v C# (TradeBot.Core, TradeBot.Strategies/IbsNinja)
   configs/<key>/                referencne profily
   tests/                        testy produktu
 deploy/freqtrade/            configy burz, skripty, user_data/ (data, vysledky, shim)

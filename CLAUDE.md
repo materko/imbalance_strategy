@@ -3,7 +3,8 @@
 Repozitár je TradeBot — rámec pre porty TradingView stratégií do Pythonu (generické jadro
 `tradebot/core`, registry stratégií `tradebot/strategies` — dnes „IBS Imbalance Breakout",
 „Market Structure BOS / CHoCH" a ukážková „Demo Donchian Breakout" —, Freqtrade
-a MultiCharts adaptéry) plus webová aplikácia
+a MultiCharts adaptéry; „IBSNinja" je IBS s jadrom v C# (`csharp/`) pre NinjaTrader 8, pod Freqtrade
+beží cez most `tradebot/adapters/csharp`) plus webová aplikácia
 pre testerov (`tester/webapp`). Ako pridať stratégiu: [docs/STRATEGIE.md](docs/STRATEGIE.md).
 Pracujú v ňom dva druhy ľudí a pre každého platí iné:
 
@@ -65,6 +66,12 @@ Bez obmedzení. Platia len konvencie repozitára:
   nič iné. ASCII pre QuoteManager robí `tester.quotemanager`
   zo skladu sviečok. Celá cesta dát: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md),
   podrobne [docs/DATA.md](docs/DATA.md).
+- Stratégia s jadrom v C# (`csharp/TradeBot.Strategies/<Meno>`, dnes `ibsninja`): C# 5 bez NuGet
+  (prekladá ho `csc.exe` z .NET Frameworku, Mono aj NinjaTrader), jadro ani adaptér NinjaTrader
+  nepoznajú stratégiu menom (`[TradeBotEngine("kľúč")]`), a zmena logiky musí prejsť paritou
+  bar po bare proti Python predlohe (`python -m tester.compare.csharp_parity`,
+  `tester/tests/test_csharp_parity.py`). Zmena v `ibs` = tá istá zmena v `csharp/…/IbsNinja`.
+  [docs/NINJATRADER.md](docs/NINJATRADER.md).
 - Cesty v repozitári sú na jednom mieste v `tradebot/core/paths.py`; nikde inde sa nepíšu.
 - Vyšší TF sa z 1m skladá výhradne cez `tradebot/core/candles.py` (webapp graf, simulátor,
   emulátor, súbory pre Freqtrade) — keby sa pravidlo rozišlo, porovnanie platforiem prestane
@@ -81,7 +88,7 @@ Bez obmedzení. Platia len konvencie repozitára:
 Podrobnosti: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) (prehľad a cesta dát),
 [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) (návrh),
 [docs/FREQTRADE.md](docs/FREQTRADE.md) (krypto vetva), [docs/MULTICHARTS.md](docs/MULTICHARTS.md)
-(MultiCharts vetva), [docs/HYPEROPT.md](docs/HYPEROPT.md) (hľadanie parametrov, FreqAI),
+(MultiCharts vetva), [docs/NINJATRADER.md](docs/NINJATRADER.md) (C# jadro a NinjaTrader), [docs/HYPEROPT.md](docs/HYPEROPT.md) (hľadanie parametrov, FreqAI),
 [docs/TYPY_STRATEGII.md](docs/TYPY_STRATEGII.md) (charakter stratégie a čo z neho vyplýva),
 [docs/ANALYTIKA.md](docs/ANALYTIKA.md) (základná analytika stratégie a posudok),
 [docs/DATA.md](docs/DATA.md) (dáta), [docs/WEBAPP.md](docs/WEBAPP.md)

@@ -87,6 +87,7 @@ Podrobne: [docs/DATA.md](docs/DATA.md), prehľad celej cesty dát:
 | spúšťať backtesty, pozerať a zdieľať históriu | [docs/WEBAPP.md](docs/WEBAPP.md) |
 | krypto: prostredie, backtest, hyperopt, Docker, server | [docs/FREQTRADE.md](docs/FREQTRADE.md) |
 | MultiCharts: študia, QuoteManager, emulátor | [docs/MULTICHARTS.md](docs/MULTICHARTS.md) |
+| NinjaTrader 8 a stratégie s jadrom v C# (IBSNinja) | [docs/NINJATRADER.md](docs/NINJATRADER.md) |
 | dáta: archív, Dukascopy import, nový symbol | [docs/DATA.md](docs/DATA.md) |
 | pridať ďalšiu stratégiu | [docs/STRATEGIE.md](docs/STRATEGIE.md) |
 | čo tá stratégia je: v čom je dobrá, kde má chyby | [docs/ANALYTIKA.md](docs/ANALYTIKA.md) |
@@ -107,6 +108,9 @@ Podrobne: [docs/DATA.md](docs/DATA.md), prehľad celej cesty dát:
 | [`tradebot/strategies/`](tradebot/strategies) | Registry `STRATEGIES` a jedna stratégia = jeden **sebestačný** balík: engine, config, `params.py` (popisy parametrov pre formulár), meta, `configs/` (profily) a voliteľný `docs/sources/` (Pine zdroj): `ibs/` (config, engine, stavový automat zón, `ta/`, HTF feeder, Freqtrade a MultiCharts podtriedy, meta pre webapp), `structure/`, `demo_breakout/`, `divergence/` (vlastné inkrementálne indikátory `ta.py`, detektor divergencií, skladanie HTF z barov grafu). Postup: [docs/STRATEGIE.md](docs/STRATEGIE.md). |
 | [`tradebot/adapters/freqtrade/`](tradebot/adapters/freqtrade) | Generická Freqtrade stratégia `TradebotStrategyBase` + `EngineRunner` (engine nad DataFrame, fill model) + export kresieb. |
 | [`tradebot/adapters/multicharts/`](tradebot/adapters/multicharts) | Generická študia `TradebotSignal`, `MCRunner`, kreslenie (len Windows) a **emulátor** MultiCharts (beží všade). |
+| [`csharp/`](csharp) | Jadro (`TradeBot.Core`) a stratégie (`TradeBot.Strategies`, dnes `IbsNinja` = prepis IBS) v **C#** — C# 5 bez závislostí, preloží ho `csc.exe` z .NET Frameworku, Mono aj NinjaTrader. [docs/NINJATRADER.md](docs/NINJATRADER.md). |
+| [`tradebot/adapters/csharp/`](tradebot/adapters/csharp) | Most: C# engine sa zvyšku TradeBota javí ako Python engine (pythonnet alebo `TradeBot.Host.exe`), takže stratégia s C# jadrom beží pod Freqtrade, v emulátore aj vo webapp bez zmeny. |
+| [`tradebot/adapters/ninjatrader/`](tradebot/adapters/ninjatrader) | Adaptér NinjaTrader 8 — generická NinjaScript stratégia `TradeBotStrategy` (C#) + inštalácia a kontrola prekladu. Spustí len stratégie s C# jadrom. |
 
 | [`tradebot/tests/`](tradebot/tests) | Testy produktu: jadro, stratégie, oba adaptéry. |
 | [`deploy/freqtrade/`](deploy/freqtrade) | Configy búrz (`config.binance.json`, `config.coinbase.json`, `config.dukascopy.json`), skripty (setup, download, backtest, hyperopt), `user_data/` (shim na stratégiu, hyperopt loss, `data_archive/tester/<zdroj>/` so sviečkami). |

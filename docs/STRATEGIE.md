@@ -21,6 +21,7 @@ Dnes sú v registry tri:
 | kľúč | názov | parametrov | na čo |
 |---|---|---|---|
 | `ibs` | IBS Imbalance Breakout | 115 | ostrá stratégia, golden testy proti TradingView |
+| `ibsninja` | IBSNinja Imbalance Breakout (C# jadro) | 115 | prepis `ibs` do C# — natívne v NinjaTraderi, pod Freqtrade cez most; signály zhodné s `ibs` bar po bare ([NINJATRADER.md](NINJATRADER.md)) |
 | `structure` | Market Structure BOS / CHoCH | 18 | druhý archetyp (štruktúra, protitrendový `sweep`); [ANALYTIKA](../tradebot/strategies/structure/docs/ANALYTIKA.md) |
 | `demo_breakout` | Demo Donchian Breakout | 8 | ukážka, ktorá overuje rámec end-to-end; nie je to obchodné odporúčanie |
 | `divergence` | Divergence — divergencie indikátorov v smere supertrendu | 65 | port Freqtrade stratégie z r. 2022 (bez Pine); vyššie TF si skladá sama z barov grafu; [PORT](../tradebot/strategies/divergence/docs/PORT.md), [ANALYTIKA](../tradebot/strategies/divergence/docs/ANALYTIKA.md) |
@@ -59,6 +60,8 @@ tradebot/
     <key>/              jedna stratégia (viď checklist nižšie) — vrátane jej configs/ a docs/
   adapters/freqtrade/   TradebotStrategyBase (generická IStrategy), EngineRunner, export_chart
   adapters/multicharts/ TradebotSignal (generická študia), MCRunner, MCDrawSink, emulátor
+  adapters/csharp/      most do C# jadra: CSharpEngine, csharp_engine_factory, preklad csharp/
+  adapters/ninjatrader/ TradeBotStrategy.cs (generická NinjaScript stratégia) + inštalácia
   webapp/               tester: výber stratégie, formulár z popisov stratégie, história, graf s vrstvami
 deploy/freqtrade/user_data/strategies/<FreqtradeTrieda>.py   shim (Freqtrade resolver)
 deploy/multicharts/<Nazov>_Signal.py                          šablóna študie
@@ -328,6 +331,22 @@ kam sa stratégia hodí a kam nie, či má potenciál, čo treba dorobiť, čo o
 či je vôbec použiteľná, a čo by sa dalo pridať. Píše ho AI (v Claude Code) do dokumentu
 medzi značky `POSUDOK`; `cli checkup` ho pri prepočte prenesie a keď sa čísla medzitým
 zmenili, označí ho za starý. Dokument bez posudku je tabuľka čísel, nie odpoveď.
+
+## Stratégia s jadrom v C# (NinjaTrader)
+
+NinjaTrader 8 Python engine nespustí — stratégia, ktorá má ísť aj tam, má `engine.py` nahradený
+triedou v C# (`csharp/TradeBot.Strategies/<Meno>/`, atribút `[TradeBotEngine("kľúč")]`). V Python
+balíku ostáva všetko ostatné (config, `params.py`, meta, profily, adaptérové triedy) a `SPEC` povie:
+
+```python
+engine_factory=csharp_engine_factory("kľúč"),          # tradebot.adapters.csharp
+csharp_dir=CSHARP_DIR / "TradeBot.Strategies" / "Meno",
+```
+
+Zvyšok rámca (Freqtrade, emulátor MultiCharts, webapp, analytika, hyperopt) sa nemení — engine je pre
+neho stále `on_bar() -> EngineOutput`. Testy parity parametrov čítajú pri takej stratégii C# zdrojáky
+(`cfg.pole`) a `test_csharp_core.py` stráži, že C# config má každé pole s rovnakým defaultom.
+Vzor je `ibsninja`; celé pravidlá, most a NinjaTrader adaptér: [NINJATRADER.md](NINJATRADER.md).
 
 ## Informatívny timeframe
 

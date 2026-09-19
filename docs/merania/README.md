@@ -23,6 +23,7 @@ Chronologicky:
 | [OPTIMALIZACIA_2026-09-05](OPTIMALIZACIA_2026-09-05.md) | filter tesného SL, regime filtre, časový stop, ETH, ATR vs %, risk sizing |
 | [NAS100_dukas_simulator_2026-09-06](NAS100_dukas_simulator_2026-09-06.md) | NAS100 z Dukascopy: simulátor, MultiCharts a emulátor vedľa seba |
 | [PARITA_pnl_tradingview_2026-09-08](PARITA_pnl_tradingview_2026-09-08.md) | celkový zisk a % sedia s TradingView, keď kapitál aj páka sedia |
+| [PARITA_ibsninja_2026-09-20](PARITA_ibsninja_2026-09-20.md) | IBSNinja (C# jadro) dáva to isté čo IBS: 0 rozdielov bar po bare na 5 oknách, 149 obchodov zhodných obchod po obchode |
 | [BURZA_tester_vs_binance_2026-09-09](BURZA_tester_vs_binance_2026-09-09.md) | fiktívna burza dá obchod po obchode to isté, čo Binance |
 
 Súhrn, kam sa merania dopracovali, je v [README repozitára](../../README.md) v sekcii
