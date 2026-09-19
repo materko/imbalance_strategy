@@ -284,7 +284,7 @@ def test_bez_kresieb_vlastnosti_planu_jednoducho_nie_su(monkeypatch):
     # Stratégia, ktorá nepovie, ktorá kresba nesie SL, tú vlastnosť jednoducho nemá.
     # Obe stratégie v registry to dnes hovoria (a majú), tak sa taký spec vyrobí tu.
     holy = replace(get_spec("demo_breakout"), sl_kind="", tp_kind="")
-    monkeypatch.setattr(an, "get_spec", lambda key: holy)
+    monkeypatch.setattr("tester.trade_features.get_spec", lambda key: holy)
     kluce = {f.key for f in an.features_for("demo_breakout")}
     assert "sl_pct" not in kluce and "rr_planned" not in kluce
 
