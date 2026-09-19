@@ -1,0 +1,4 @@
+$ emulator MultiCharts XAU 30m 20181001-20181101 (XAU_USD-1m.feather)
+emulacia MultiCharts: 0 barov 30m, 0 1m, 0 HTF
+hotovo: 0 obchodov, nerozhodnutelnych minut 0
+kresby: {}

@@ -1,0 +1,268 @@
+{
+  "id": "20260918-174957-03c0f9",
+  "status": "done",
+  "created": "2026-09-18T17:49:57+00:00",
+  "started": "2026-09-18T17:49:57+00:00",
+  "finished": "2026-09-18T17:49:57+00:00",
+  "user": "IBS",
+  "note": "nahodny mesiac 2018-04",
+  "settings": {
+    "strategy": "orb",
+    "exchange": null,
+    "sweep": null,
+    "pair": "XAU/USD",
+    "engine": "multicharts",
+    "timeframe": "30m",
+    "timerange": "20180401-20180501",
+    "fee": 0.0,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 10000.0,
+    "timeframe_detail": null,
+    "profile": null,
+    "instrument": "xau_dukascopy"
+  },
+  "params": {
+    "sessionMode": "both",
+    "nyStartH": 9,
+    "nyStartM": 30,
+    "nyRangeMinutes": "15",
+    "nyEndH": 17,
+    "nyEndM": 55,
+    "lonStartH": 8,
+    "lonStartM": 0,
+    "lonRangeMinutes": "15",
+    "lonEndH": 16,
+    "lonEndM": 30,
+    "tradeDirection": "Both",
+    "entryMode": "close",
+    "breakBufferAtr": 0.1,
+    "retestMaxBars": 10,
+    "entryWindowMinutes": 60,
+    "maxTradesPerDay": 2,
+    "minRangePct": 0.2,
+    "maxRangePct": 1.5,
+    "useVolumeFilter": false,
+    "volSmaLen": 20,
+    "volMultiplier": 1.5,
+    "minClosePosPct": 0,
+    "weekdaysOnly": true,
+    "slMode": "opposite",
+    "slRangePct": 50.0,
+    "atrLen": 7,
+    "slAtrMult": 1.0,
+    "slBufferAtr": 0.0,
+    "tpMode": "rr",
+    "rrRatio": 3.0,
+    "measuredMult": 1.0,
+    "tpAtrMult": 2.0,
+    "enableTrailing": false,
+    "trailActivationR": 1.0,
+    "trailOffsetR": 0.5,
+    "closeAtSessionEnd": true,
+    "riskDollar": 100.0,
+    "showRange": true,
+    "showLevels": true,
+    "tickDollarValue": null,
+    "legacyPineSizing": false,
+    "minSlDistance": 0.2,
+    "leverage": 1.0
+  },
+  "error": null,
+  "result": {
+    "trades": 10,
+    "wins": 7,
+    "losses": 3,
+    "draws": 0,
+    "winrate": 70.0,
+    "pnl_abs": 1071.6,
+    "pnl_pct": 10.716,
+    "profit_factor": 1.836,
+    "max_drawdown_abs": 834.2,
+    "max_drawdown_pct": 7.866,
+    "starting_balance": 10000.0,
+    "final_balance": 11071.6,
+    "gross_abs": 1071.6,
+    "volume_abs": 2677935.4,
+    "break_even_pct": 0.04,
+    "exits": {
+      "session_end": {
+        "n": 8,
+        "pnl_abs": 2202.0
+      },
+      "stop_loss": {
+        "n": 2,
+        "pnl_abs": -1130.4
+      }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -0.78,
+    "backtest_start": "2018-04-01T22:00:00+00:00",
+    "backtest_end": "2018-04-30T23:30:00+00:00",
+    "holding_avg": "13:39:00",
+    "bars": 970,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.2
+  },
+  "series": {
+    "equity": [
+      [
+        "2018-04-02T22:00:00+00:00",
+        3.327,
+        3.327
+      ],
+      [
+        "2018-04-04T22:00:00+00:00",
+        1.387,
+        4.714
+      ],
+      [
+        "2018-04-10T15:30:00+00:00",
+        1.339,
+        6.053
+      ],
+      [
+        "2018-04-11T18:07:00+00:00",
+        -8.342,
+        -2.289
+      ],
+      [
+        "2018-04-12T22:00:00+00:00",
+        1.91,
+        -0.379
+      ],
+      [
+        "2018-04-16T22:00:00+00:00",
+        2.277,
+        1.898
+      ],
+      [
+        "2018-04-17T15:30:00+00:00",
+        -1.52,
+        0.378
+      ],
+      [
+        "2018-04-18T15:30:00+00:00",
+        4.79,
+        5.168
+      ],
+      [
+        "2018-04-23T15:30:00+00:00",
+        8.51,
+        13.678
+      ],
+      [
+        "2018-04-25T17:31:00+00:00",
+        -2.962,
+        10.716
+      ]
+    ],
+    "market": [
+      [
+        "2018-04-01T00:00:00+00:00",
+        0.0903
+      ],
+      [
+        "2018-04-02T00:00:00+00:00",
+        1.2193
+      ],
+      [
+        "2018-04-03T00:00:00+00:00",
+        0.586
+      ],
+      [
+        "2018-04-04T00:00:00+00:00",
+        0.6067
+      ],
+      [
+        "2018-04-05T00:00:00+00:00",
+        0.414
+      ],
+      [
+        "2018-04-06T00:00:00+00:00",
+        0.5727
+      ],
+      [
+        "2018-04-08T00:00:00+00:00",
+        0.5334
+      ],
+      [
+        "2018-04-09T00:00:00+00:00",
+        0.8323
+      ],
+      [
+        "2018-04-10T00:00:00+00:00",
+        1.2349
+      ],
+      [
+        "2018-04-11T00:00:00+00:00",
+        2.0746
+      ],
+      [
+        "2018-04-12T00:00:00+00:00",
+        0.9308
+      ],
+      [
+        "2018-04-13T00:00:00+00:00",
+        1.4969
+      ],
+      [
+        "2018-04-15T00:00:00+00:00",
+        1.3883
+      ],
+      [
+        "2018-04-16T00:00:00+00:00",
+        1.7102
+      ],
+      [
+        "2018-04-17T00:00:00+00:00",
+        1.5708
+      ],
+      [
+        "2018-04-18T00:00:00+00:00",
+        1.8968
+      ],
+      [
+        "2018-04-19T00:00:00+00:00",
+        1.4313
+      ],
+      [
+        "2018-04-20T00:00:00+00:00",
+        0.7349
+      ],
+      [
+        "2018-04-22T00:00:00+00:00",
+        0.5649
+      ],
+      [
+        "2018-04-23T00:00:00+00:00",
+        -0.0681
+      ],
+      [
+        "2018-04-24T00:00:00+00:00",
+        0.4691
+      ],
+      [
+        "2018-04-25T00:00:00+00:00",
+        -0.2091
+      ],
+      [
+        "2018-04-26T00:00:00+00:00",
+        -0.5638
+      ],
+      [
+        "2018-04-27T00:00:00+00:00",
+        -0.1647
+      ],
+      [
+        "2018-04-29T00:00:00+00:00",
+        -0.1576
+      ],
+      [
+        "2018-04-30T00:00:00+00:00",
+        -0.7795
+      ]
+    ]
+  }
+}

@@ -1,0 +1,250 @@
+{
+  "id": "20260918-175030-ce9907",
+  "status": "done",
+  "created": "2026-09-18T17:50:30+00:00",
+  "started": "2026-09-18T17:50:30+00:00",
+  "finished": "2026-09-18T17:50:30+00:00",
+  "user": "IBS",
+  "note": "nahodny mesiac 2019-02",
+  "settings": {
+    "strategy": "orb",
+    "exchange": null,
+    "sweep": null,
+    "pair": "XAU/USD",
+    "engine": "multicharts",
+    "timeframe": "30m",
+    "timerange": "20190201-20190301",
+    "fee": 0.0,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 10000.0,
+    "timeframe_detail": null,
+    "profile": null,
+    "instrument": "xau_dukascopy"
+  },
+  "params": {
+    "sessionMode": "both",
+    "nyStartH": 9,
+    "nyStartM": 30,
+    "nyRangeMinutes": "15",
+    "nyEndH": 17,
+    "nyEndM": 55,
+    "lonStartH": 8,
+    "lonStartM": 0,
+    "lonRangeMinutes": "15",
+    "lonEndH": 16,
+    "lonEndM": 30,
+    "tradeDirection": "Both",
+    "entryMode": "close",
+    "breakBufferAtr": 0.1,
+    "retestMaxBars": 10,
+    "entryWindowMinutes": 60,
+    "maxTradesPerDay": 2,
+    "minRangePct": 0.2,
+    "maxRangePct": 1.5,
+    "useVolumeFilter": false,
+    "volSmaLen": 20,
+    "volMultiplier": 1.5,
+    "minClosePosPct": 0,
+    "weekdaysOnly": true,
+    "slMode": "opposite",
+    "slRangePct": 50.0,
+    "atrLen": 7,
+    "slAtrMult": 1.0,
+    "slBufferAtr": 0.0,
+    "tpMode": "rr",
+    "rrRatio": 3.0,
+    "measuredMult": 1.0,
+    "tpAtrMult": 2.0,
+    "enableTrailing": false,
+    "trailActivationR": 1.0,
+    "trailOffsetR": 0.5,
+    "closeAtSessionEnd": true,
+    "riskDollar": 100.0,
+    "showRange": true,
+    "showLevels": true,
+    "tickDollarValue": null,
+    "legacyPineSizing": false,
+    "minSlDistance": 0.2,
+    "leverage": 1.0
+  },
+  "error": null,
+  "result": {
+    "trades": 8,
+    "wins": 2,
+    "losses": 6,
+    "draws": 0,
+    "winrate": 25.0,
+    "pnl_abs": -232.2,
+    "pnl_pct": -2.322,
+    "profit_factor": 0.851,
+    "max_drawdown_abs": 1541.5,
+    "max_drawdown_pct": 15.415,
+    "starting_balance": 10000.0,
+    "final_balance": 9767.8,
+    "gross_abs": -232.2,
+    "volume_abs": 2107459.6,
+    "break_even_pct": -0.011,
+    "exits": {
+      "stop_loss": {
+        "n": 3,
+        "pnl_abs": -1291.2
+      },
+      "session_end": {
+        "n": 5,
+        "pnl_abs": 1059.0
+      }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -0.508,
+    "backtest_start": "2019-02-01T00:00:00+00:00",
+    "backtest_end": "2019-02-28T23:30:00+00:00",
+    "holding_avg": "6:05:00",
+    "bars": 912,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.2
+  },
+  "series": {
+    "equity": [
+      [
+        "2019-02-04T15:23:00+00:00",
+        -3.032,
+        -3.032
+      ],
+      [
+        "2019-02-04T23:00:00+00:00",
+        -2.26,
+        -5.292
+      ],
+      [
+        "2019-02-11T23:00:00+00:00",
+        -0.243,
+        -5.535
+      ],
+      [
+        "2019-02-13T19:00:00+00:00",
+        -5.895,
+        -11.43
+      ],
+      [
+        "2019-02-14T17:49:00+00:00",
+        -3.985,
+        -15.415
+      ],
+      [
+        "2019-02-19T16:30:00+00:00",
+        8.077,
+        -7.338
+      ],
+      [
+        "2019-02-21T16:30:00+00:00",
+        5.153,
+        -2.185
+      ],
+      [
+        "2019-02-28T23:00:00+00:00",
+        -0.137,
+        -2.322
+      ]
+    ],
+    "market": [
+      [
+        "2019-02-01T00:00:00+00:00",
+        -0.271
+      ],
+      [
+        "2019-02-03T00:00:00+00:00",
+        -0.2839
+      ],
+      [
+        "2019-02-04T00:00:00+00:00",
+        -0.694
+      ],
+      [
+        "2019-02-05T00:00:00+00:00",
+        -0.4502
+      ],
+      [
+        "2019-02-06T00:00:00+00:00",
+        -1.0811
+      ],
+      [
+        "2019-02-07T00:00:00+00:00",
+        -0.7934
+      ],
+      [
+        "2019-02-08T00:00:00+00:00",
+        -0.5224
+      ],
+      [
+        "2019-02-10T00:00:00+00:00",
+        -0.5487
+      ],
+      [
+        "2019-02-11T00:00:00+00:00",
+        -0.9956
+      ],
+      [
+        "2019-02-12T00:00:00+00:00",
+        -0.8055
+      ],
+      [
+        "2019-02-13T00:00:00+00:00",
+        -1.0069
+      ],
+      [
+        "2019-02-14T00:00:00+00:00",
+        -0.6791
+      ],
+      [
+        "2019-02-15T00:00:00+00:00",
+        0.0144
+      ],
+      [
+        "2019-02-17T00:00:00+00:00",
+        0.0161
+      ],
+      [
+        "2019-02-18T00:00:00+00:00",
+        0.4181
+      ],
+      [
+        "2019-02-19T00:00:00+00:00",
+        1.4114
+      ],
+      [
+        "2019-02-20T00:00:00+00:00",
+        1.4922
+      ],
+      [
+        "2019-02-21T00:00:00+00:00",
+        0.374
+      ],
+      [
+        "2019-02-22T00:00:00+00:00",
+        0.533
+      ],
+      [
+        "2019-02-24T00:00:00+00:00",
+        0.5163
+      ],
+      [
+        "2019-02-25T00:00:00+00:00",
+        0.5004
+      ],
+      [
+        "2019-02-26T00:00:00+00:00",
+        0.6314
+      ],
+      [
+        "2019-02-27T00:00:00+00:00",
+        0.0182
+      ],
+      [
+        "2019-02-28T00:00:00+00:00",
+        -0.5078
+      ]
+    ]
+  }
+}

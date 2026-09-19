@@ -1,0 +1,263 @@
+{
+  "id": "20260918-175042-541576",
+  "status": "done",
+  "created": "2026-09-18T17:50:42+00:00",
+  "started": "2026-09-18T17:50:42+00:00",
+  "finished": "2026-09-18T17:50:43+00:00",
+  "user": "IBS",
+  "note": "nahodny mesiac 2024-06",
+  "settings": {
+    "strategy": "orb",
+    "exchange": null,
+    "sweep": null,
+    "pair": "XAU/USD",
+    "engine": "multicharts",
+    "timeframe": "30m",
+    "timerange": "20240601-20240701",
+    "fee": 0.0,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 10000.0,
+    "timeframe_detail": null,
+    "profile": null,
+    "instrument": "xau_dukascopy"
+  },
+  "params": {
+    "sessionMode": "both",
+    "nyStartH": 9,
+    "nyStartM": 30,
+    "nyRangeMinutes": "15",
+    "nyEndH": 17,
+    "nyEndM": 55,
+    "lonStartH": 8,
+    "lonStartM": 0,
+    "lonRangeMinutes": "15",
+    "lonEndH": 16,
+    "lonEndM": 30,
+    "tradeDirection": "Both",
+    "entryMode": "close",
+    "breakBufferAtr": 0.1,
+    "retestMaxBars": 10,
+    "entryWindowMinutes": 60,
+    "maxTradesPerDay": 2,
+    "minRangePct": 0.2,
+    "maxRangePct": 1.5,
+    "useVolumeFilter": false,
+    "volSmaLen": 20,
+    "volMultiplier": 1.5,
+    "minClosePosPct": 0,
+    "weekdaysOnly": true,
+    "slMode": "opposite",
+    "slRangePct": 50.0,
+    "atrLen": 7,
+    "slAtrMult": 1.0,
+    "slBufferAtr": 0.0,
+    "tpMode": "rr",
+    "rrRatio": 3.0,
+    "measuredMult": 1.0,
+    "tpAtrMult": 2.0,
+    "enableTrailing": false,
+    "trailActivationR": 1.0,
+    "trailOffsetR": 0.5,
+    "closeAtSessionEnd": true,
+    "riskDollar": 100.0,
+    "showRange": true,
+    "showLevels": true,
+    "tickDollarValue": null,
+    "legacyPineSizing": false,
+    "minSlDistance": 0.2,
+    "leverage": 1.0
+  },
+  "error": null,
+  "result": {
+    "trades": 9,
+    "wins": 5,
+    "losses": 4,
+    "draws": 0,
+    "winrate": 55.56,
+    "pnl_abs": 6640.1,
+    "pnl_pct": 66.401,
+    "profit_factor": 4.356,
+    "max_drawdown_abs": 1266.1,
+    "max_drawdown_pct": 7.071,
+    "starting_balance": 10000.0,
+    "final_balance": 16640.1,
+    "gross_abs": 6640.1,
+    "volume_abs": 4210986.3,
+    "break_even_pct": 0.1577,
+    "exits": {
+      "session_end": {
+        "n": 7,
+        "pnl_abs": 5594.4
+      },
+      "take_profit": {
+        "n": 1,
+        "pnl_abs": 1733.5
+      },
+      "stop_loss": {
+        "n": 1,
+        "pnl_abs": -687.8
+      }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 0.068,
+    "backtest_start": "2024-06-02T22:00:00+00:00",
+    "backtest_end": "2024-06-30T23:30:00+00:00",
+    "holding_avg": "13:40:00",
+    "bars": 919,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.1
+  },
+  "series": {
+    "equity": [
+      [
+        "2024-06-03T22:00:00+00:00",
+        10.987,
+        10.987
+      ],
+      [
+        "2024-06-04T22:00:00+00:00",
+        -7.123,
+        3.864
+      ],
+      [
+        "2024-06-05T22:00:00+00:00",
+        6.457,
+        10.321
+      ],
+      [
+        "2024-06-07T08:07:00+00:00",
+        17.335,
+        27.656
+      ],
+      [
+        "2024-06-07T15:30:00+00:00",
+        47.456,
+        75.112
+      ],
+      [
+        "2024-06-20T22:00:00+00:00",
+        3.95,
+        79.062
+      ],
+      [
+        "2024-06-24T22:00:00+00:00",
+        -3.34,
+        75.722
+      ],
+      [
+        "2024-06-25T15:25:00+00:00",
+        -6.878,
+        68.844
+      ],
+      [
+        "2024-06-27T22:00:00+00:00",
+        -2.443,
+        66.401
+      ]
+    ],
+    "market": [
+      [
+        "2024-06-02T00:00:00+00:00",
+        0.1077
+      ],
+      [
+        "2024-06-03T00:00:00+00:00",
+        1.1726
+      ],
+      [
+        "2024-06-04T00:00:00+00:00",
+        0.2334
+      ],
+      [
+        "2024-06-05T00:00:00+00:00",
+        1.364
+      ],
+      [
+        "2024-06-06T00:00:00+00:00",
+        2.3017
+      ],
+      [
+        "2024-06-07T00:00:00+00:00",
+        -1.284
+      ],
+      [
+        "2024-06-09T00:00:00+00:00",
+        -1.0725
+      ],
+      [
+        "2024-06-10T00:00:00+00:00",
+        -0.5788
+      ],
+      [
+        "2024-06-11T00:00:00+00:00",
+        -0.3545
+      ],
+      [
+        "2024-06-12T00:00:00+00:00",
+        -0.1204
+      ],
+      [
+        "2024-06-13T00:00:00+00:00",
+        -0.9055
+      ],
+      [
+        "2024-06-14T00:00:00+00:00",
+        0.3848
+      ],
+      [
+        "2024-06-16T00:00:00+00:00",
+        0.2369
+      ],
+      [
+        "2024-06-17T00:00:00+00:00",
+        -0.1162
+      ],
+      [
+        "2024-06-18T00:00:00+00:00",
+        0.2131
+      ],
+      [
+        "2024-06-19T00:00:00+00:00",
+        0.2591
+      ],
+      [
+        "2024-06-20T00:00:00+00:00",
+        1.6128
+      ],
+      [
+        "2024-06-21T00:00:00+00:00",
+        -0.0641
+      ],
+      [
+        "2024-06-23T00:00:00+00:00",
+        -0.1791
+      ],
+      [
+        "2024-06-24T00:00:00+00:00",
+        0.3233
+      ],
+      [
+        "2024-06-25T00:00:00+00:00",
+        -0.1441
+      ],
+      [
+        "2024-06-26T00:00:00+00:00",
+        -1.0755
+      ],
+      [
+        "2024-06-27T00:00:00+00:00",
+        0.1869
+      ],
+      [
+        "2024-06-28T00:00:00+00:00",
+        0.1304
+      ],
+      [
+        "2024-06-30T00:00:00+00:00",
+        0.068
+      ]
+    ]
+  }
+}

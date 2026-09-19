@@ -1,0 +1,277 @@
+{
+  "id": "20260918-175056-fd961b",
+  "status": "done",
+  "created": "2026-09-18T17:50:56+00:00",
+  "started": "2026-09-18T17:50:56+00:00",
+  "finished": "2026-09-18T17:50:56+00:00",
+  "user": "IBS",
+  "note": "nahodny mesiac 2016-04",
+  "settings": {
+    "strategy": "orb",
+    "exchange": null,
+    "sweep": null,
+    "pair": "XAU/USD",
+    "engine": "multicharts",
+    "timeframe": "30m",
+    "timerange": "20160401-20160501",
+    "fee": 0.0,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 10000.0,
+    "timeframe_detail": null,
+    "profile": null,
+    "instrument": "xau_dukascopy"
+  },
+  "params": {
+    "sessionMode": "both",
+    "nyStartH": 9,
+    "nyStartM": 30,
+    "nyRangeMinutes": "15",
+    "nyEndH": 17,
+    "nyEndM": 55,
+    "lonStartH": 8,
+    "lonStartM": 0,
+    "lonRangeMinutes": "15",
+    "lonEndH": 16,
+    "lonEndM": 30,
+    "tradeDirection": "Both",
+    "entryMode": "close",
+    "breakBufferAtr": 0.1,
+    "retestMaxBars": 10,
+    "entryWindowMinutes": 60,
+    "maxTradesPerDay": 2,
+    "minRangePct": 0.2,
+    "maxRangePct": 1.5,
+    "useVolumeFilter": false,
+    "volSmaLen": 20,
+    "volMultiplier": 1.5,
+    "minClosePosPct": 0,
+    "weekdaysOnly": true,
+    "slMode": "opposite",
+    "slRangePct": 50.0,
+    "atrLen": 7,
+    "slAtrMult": 1.0,
+    "slBufferAtr": 0.0,
+    "tpMode": "rr",
+    "rrRatio": 3.0,
+    "measuredMult": 1.0,
+    "tpAtrMult": 2.0,
+    "enableTrailing": false,
+    "trailActivationR": 1.0,
+    "trailOffsetR": 0.5,
+    "closeAtSessionEnd": true,
+    "riskDollar": 100.0,
+    "showRange": true,
+    "showLevels": true,
+    "tickDollarValue": null,
+    "legacyPineSizing": false,
+    "minSlDistance": 0.2,
+    "leverage": 1.0
+  },
+  "error": null,
+  "result": {
+    "trades": 11,
+    "wins": 4,
+    "losses": 7,
+    "draws": 0,
+    "winrate": 36.36,
+    "pnl_abs": -867.6,
+    "pnl_pct": -8.676,
+    "profit_factor": 0.738,
+    "max_drawdown_abs": 2248.3,
+    "max_drawdown_pct": 22.483,
+    "starting_balance": 10000.0,
+    "final_balance": 9132.4,
+    "gross_abs": -867.6,
+    "volume_abs": 2744430.4,
+    "break_even_pct": -0.0316,
+    "exits": {
+      "stop_loss": {
+        "n": 5,
+        "pnl_abs": -2706.3
+      },
+      "session_end": {
+        "n": 3,
+        "pnl_abs": -520.4
+      },
+      "take_profit": {
+        "n": 2,
+        "pnl_abs": 2133.2
+      },
+      "force_exit": {
+        "n": 1,
+        "pnl_abs": 225.9
+      }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 4.801,
+    "backtest_start": "2016-04-01T00:00:00+00:00",
+    "backtest_end": "2016-04-29T20:30:00+00:00",
+    "holding_avg": "11:00:00",
+    "bars": 962,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.2
+  },
+  "series": {
+    "equity": [
+      [
+        "2016-04-01T17:10:00+00:00",
+        -5.832,
+        -5.832
+      ],
+      [
+        "2016-04-05T22:00:00+00:00",
+        -2.321,
+        -8.153
+      ],
+      [
+        "2016-04-11T13:48:00+00:00",
+        -4.869,
+        -13.022
+      ],
+      [
+        "2016-04-11T22:00:00+00:00",
+        0.889,
+        -12.133
+      ],
+      [
+        "2016-04-12T10:24:00+00:00",
+        -3.839,
+        -15.972
+      ],
+      [
+        "2016-04-14T13:49:00+00:00",
+        -6.511,
+        -22.483
+      ],
+      [
+        "2016-04-18T12:40:00+00:00",
+        11.131,
+        -11.352
+      ],
+      [
+        "2016-04-25T22:00:00+00:00",
+        -3.772,
+        -15.124
+      ],
+      [
+        "2016-04-27T18:01:00+00:00",
+        -6.012,
+        -21.136
+      ],
+      [
+        "2016-04-28T18:46:00+00:00",
+        10.201,
+        -10.935
+      ],
+      [
+        "2016-04-29T20:30:00+00:00",
+        2.259,
+        -8.676
+      ]
+    ],
+    "market": [
+      [
+        "2016-04-01T00:00:00+00:00",
+        -0.932
+      ],
+      [
+        "2016-04-03T00:00:00+00:00",
+        -1.0188
+      ],
+      [
+        "2016-04-04T00:00:00+00:00",
+        -1.4439
+      ],
+      [
+        "2016-04-05T00:00:00+00:00",
+        -0.172
+      ],
+      [
+        "2016-04-06T00:00:00+00:00",
+        -0.6318
+      ],
+      [
+        "2016-04-07T00:00:00+00:00",
+        0.4582
+      ],
+      [
+        "2016-04-08T00:00:00+00:00",
+        0.4963
+      ],
+      [
+        "2016-04-10T00:00:00+00:00",
+        0.9475
+      ],
+      [
+        "2016-04-11T00:00:00+00:00",
+        1.9668
+      ],
+      [
+        "2016-04-12T00:00:00+00:00",
+        1.7187
+      ],
+      [
+        "2016-04-13T00:00:00+00:00",
+        0.6504
+      ],
+      [
+        "2016-04-14T00:00:00+00:00",
+        -0.2937
+      ],
+      [
+        "2016-04-15T00:00:00+00:00",
+        0.0371
+      ],
+      [
+        "2016-04-17T00:00:00+00:00",
+        0.3365
+      ],
+      [
+        "2016-04-18T00:00:00+00:00",
+        -0.2937
+      ],
+      [
+        "2016-04-19T00:00:00+00:00",
+        1.352
+      ],
+      [
+        "2016-04-20T00:00:00+00:00",
+        0.9983
+      ],
+      [
+        "2016-04-21T00:00:00+00:00",
+        1.3163
+      ],
+      [
+        "2016-04-22T00:00:00+00:00",
+        -0.0861
+      ],
+      [
+        "2016-04-24T00:00:00+00:00",
+        -0.0228
+      ],
+      [
+        "2016-04-25T00:00:00+00:00",
+        0.4089
+      ],
+      [
+        "2016-04-26T00:00:00+00:00",
+        0.7924
+      ],
+      [
+        "2016-04-27T00:00:00+00:00",
+        1.0154
+      ],
+      [
+        "2016-04-28T00:00:00+00:00",
+        2.6417
+      ],
+      [
+        "2016-04-29T00:00:00+00:00",
+        4.8014
+      ]
+    ]
+  }
+}

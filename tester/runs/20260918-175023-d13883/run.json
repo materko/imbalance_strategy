@@ -1,0 +1,226 @@
+{
+  "id": "20260918-175023-d13883",
+  "status": "done",
+  "created": "2026-09-18T17:50:23+00:00",
+  "started": "2026-09-18T17:50:23+00:00",
+  "finished": "2026-09-18T17:50:23+00:00",
+  "user": "IBS",
+  "note": "nahodny mesiac 2017-04",
+  "settings": {
+    "strategy": "orb",
+    "exchange": null,
+    "sweep": null,
+    "pair": "XAU/USD",
+    "engine": "multicharts",
+    "timeframe": "30m",
+    "timerange": "20170401-20170501",
+    "fee": 0.0,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 10000.0,
+    "timeframe_detail": null,
+    "profile": null,
+    "instrument": "xau_dukascopy"
+  },
+  "params": {
+    "sessionMode": "both",
+    "nyStartH": 9,
+    "nyStartM": 30,
+    "nyRangeMinutes": "15",
+    "nyEndH": 17,
+    "nyEndM": 55,
+    "lonStartH": 8,
+    "lonStartM": 0,
+    "lonRangeMinutes": "15",
+    "lonEndH": 16,
+    "lonEndM": 30,
+    "tradeDirection": "Both",
+    "entryMode": "close",
+    "breakBufferAtr": 0.1,
+    "retestMaxBars": 10,
+    "entryWindowMinutes": 60,
+    "maxTradesPerDay": 2,
+    "minRangePct": 0.2,
+    "maxRangePct": 1.5,
+    "useVolumeFilter": false,
+    "volSmaLen": 20,
+    "volMultiplier": 1.5,
+    "minClosePosPct": 0,
+    "weekdaysOnly": true,
+    "slMode": "opposite",
+    "slRangePct": 50.0,
+    "atrLen": 7,
+    "slAtrMult": 1.0,
+    "slBufferAtr": 0.0,
+    "tpMode": "rr",
+    "rrRatio": 3.0,
+    "measuredMult": 1.0,
+    "tpAtrMult": 2.0,
+    "enableTrailing": false,
+    "trailActivationR": 1.0,
+    "trailOffsetR": 0.5,
+    "closeAtSessionEnd": true,
+    "riskDollar": 100.0,
+    "showRange": true,
+    "showLevels": true,
+    "tickDollarValue": null,
+    "legacyPineSizing": false,
+    "minSlDistance": 0.2,
+    "leverage": 1.0
+  },
+  "error": null,
+  "result": {
+    "trades": 4,
+    "wins": 4,
+    "losses": 0,
+    "draws": 0,
+    "winrate": 100.0,
+    "pnl_abs": 1455.7,
+    "pnl_pct": 14.557,
+    "profit_factor": 1455.7,
+    "max_drawdown_abs": 0.0,
+    "max_drawdown_pct": 0.0,
+    "starting_balance": 10000.0,
+    "final_balance": 11455.7,
+    "gross_abs": 1455.7,
+    "volume_abs": 1017744.1,
+    "break_even_pct": 0.143,
+    "exits": {
+      "session_end": {
+        "n": 4,
+        "pnl_abs": 1455.7
+      }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 1.69,
+    "backtest_start": "2017-04-02T22:00:00+00:00",
+    "backtest_end": "2017-04-30T23:30:00+00:00",
+    "holding_avg": "7:07:00",
+    "bars": 879,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.2
+  },
+  "series": {
+    "equity": [
+      [
+        "2017-04-05T22:00:00+00:00",
+        8.357,
+        8.357
+      ],
+      [
+        "2017-04-11T22:00:00+00:00",
+        1.736,
+        10.093
+      ],
+      [
+        "2017-04-18T22:00:00+00:00",
+        1.2,
+        11.293
+      ],
+      [
+        "2017-04-24T22:00:00+00:00",
+        3.264,
+        14.557
+      ]
+    ],
+    "market": [
+      [
+        "2017-04-02T00:00:00+00:00",
+        -0.0691
+      ],
+      [
+        "2017-04-03T00:00:00+00:00",
+        0.5141
+      ],
+      [
+        "2017-04-04T00:00:00+00:00",
+        0.518
+      ],
+      [
+        "2017-04-05T00:00:00+00:00",
+        0.7315
+      ],
+      [
+        "2017-04-06T00:00:00+00:00",
+        0.1953
+      ],
+      [
+        "2017-04-07T00:00:00+00:00",
+        0.3737
+      ],
+      [
+        "2017-04-09T00:00:00+00:00",
+        0.4756
+      ],
+      [
+        "2017-04-10T00:00:00+00:00",
+        0.546
+      ],
+      [
+        "2017-04-11T00:00:00+00:00",
+        2.1605
+      ],
+      [
+        "2017-04-12T00:00:00+00:00",
+        3.05
+      ],
+      [
+        "2017-04-13T00:00:00+00:00",
+        2.9867
+      ],
+      [
+        "2017-04-16T00:00:00+00:00",
+        3.6427
+      ],
+      [
+        "2017-04-17T00:00:00+00:00",
+        2.7125
+      ],
+      [
+        "2017-04-18T00:00:00+00:00",
+        3.2071
+      ],
+      [
+        "2017-04-19T00:00:00+00:00",
+        2.4419
+      ],
+      [
+        "2017-04-20T00:00:00+00:00",
+        2.5483
+      ],
+      [
+        "2017-04-21T00:00:00+00:00",
+        2.8285
+      ],
+      [
+        "2017-04-23T00:00:00+00:00",
+        2.0087
+      ],
+      [
+        "2017-04-24T00:00:00+00:00",
+        2.2705
+      ],
+      [
+        "2017-04-25T00:00:00+00:00",
+        1.1608
+      ],
+      [
+        "2017-04-26T00:00:00+00:00",
+        1.4707
+      ],
+      [
+        "2017-04-27T00:00:00+00:00",
+        1.1918
+      ],
+      [
+        "2017-04-28T00:00:00+00:00",
+        1.4153
+      ],
+      [
+        "2017-04-30T00:00:00+00:00",
+        1.69
+      ]
+    ]
+  }
+}
