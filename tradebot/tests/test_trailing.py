@@ -176,8 +176,8 @@ def test_fill_simulator_neplni_druhy_vstup_kym_pozicia_bezi():
     sim.step(Bar(time=60_000, open=100, high=102, low=99, close=101, volume=1))
     assert sim.trades["LONG_1"].outcome == "FILLED" and sim.trades["LONG_2"].outcome == "PENDING"
     assert sim.position_size == 1.0
-    # SL pretne -> pozicia zavreta; az potom sa moze vyplnit druhy order
+    # SL pretne -> pozicia zavreta; az potom sa moze vyplnit druhy order. Limitka 100.5 je nad trhom,
+    # teda vyplnitelna hned (`entry_fills`: za svoju cenu alebo lepsiu) - caka len na uvolnenie pozicie.
     sim.step(Bar(time=120_000, open=100, high=100.2, low=94, close=95, volume=1))
-    assert sim.trades["LONG_1"].outcome == "LOSS" and sim.trades["LONG_2"].outcome == "PENDING"
-    sim.step(Bar(time=180_000, open=100, high=101, low=99, close=100.5, volume=1))
-    assert sim.trades["LONG_2"].outcome == "FILLED"
+    assert sim.trades["LONG_1"].outcome == "LOSS" and sim.trades["LONG_2"].outcome == "FILLED"
+    assert sim.trades["LONG_2"].filled_ms == 120_000

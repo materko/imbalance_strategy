@@ -11,7 +11,8 @@ a v backteste zbytočné, takže si pamätá, po ktorý bar už dobehol.
 ### Fill model
 Engine potrebuje vedieť, či order už beží (`oppositeOpen`, OCO, STATE 5), ale
 v čase výpočtu indikátorov ešte reálne fily neexistujú. Runner preto drží vlastný
-jednoduchý model vyplnenia — limitka sa vyplní, keď ju bar pretne. Slúži **len na
+jednoduchý model vyplnenia — limitka sa vyplní, keď sa obchoduje za jej cenu alebo lepšiu,
+market vstup na prvom bare po zadaní (`tradebot.core.orders.entry_fills`). Slúži **len na
 to, aby stavový automat videl konzistentný svet**; skutočné vyplnenie rieši
 Freqtrade s `--timeframe-detail 1m`. Malá odchýlka medzi tým, čo predpokladal
 engine, a tým, čo Freqtrade skutočne vykonal, je očakávaná a je popísaná
@@ -28,6 +29,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from ...core import Bar, DrawRegistry, InstrumentSpec, MarketContext, OrderAction, OrderIntent
+from ...core.orders import entry_fills
 from ...core.config import StrategyConfig
 from ...core.drawing import objects_to_dicts
 from ...core.money import trade_money
@@ -196,7 +198,10 @@ class EngineRunner:
             if plan is None:
                 continue
             if not order.filled:
-                if bar.low <= plan.entry <= bar.high:
+                # Market vstup (IBS: Pin Bar / Engulfing) na dotyk nečaká. Do 2026-09-20 sa tu každý
+                # vstup bral ako limitka „vnútri baru": market order, ktorému cena hneď ušla, ostal
+                # v modeli nevyplnený, hoci ho platforma vyplnila (NinjaTrader, MNQ 2026-09-03 LONG_944).
+                if entry_fills(order.intent.order_type, plan.direction, plan.entry, bar.low, bar.high):
                     order.filled = True
                 continue
 

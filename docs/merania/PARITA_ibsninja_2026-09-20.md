@@ -110,6 +110,17 @@ Rozbor po jednom (export adaptéra proti referencii, každý order a každá uda
     dotyk a bar 09:45 mal high 29 177,00 < 29 177,25, takže ho nevyplnil vôbec. Tu má pravdu
     NinjaTrader — je to slabina referenčného modelu Testera (market vstup sa má vyplniť vždy), nie adaptéra.
 
+**Oprava modelu (ten istý deň).** Pravidlo vyplnenia čakajúceho vstupu je teraz jedno a na jednom
+mieste — `tradebot.core.orders.entry_fills`: market vždy, limitka za svoju cenu **alebo lepšiu** (aj keď
+ju bar celý preskočí), stop zrkadlovo. Používa ho `EngineRunner` (model pre stavový automat vo
+Freqtrade adaptéri) aj `FillSimulator` v `tester.compare.scan_trades` (golden testy). Po oprave sedí
+referencia s NinjaTraderom na **315 z 315 orderov a 78 : 78 vyplnení**; ostáva len `LONG_482`, teda
+dotyk proti prechodu limitky — nastavenie NinjaTradera, nie chyba. Čo sa tým zmenilo inde: **nič** —
+golden testy proti TradingView prechádzajú a päť referenčných Freqtrade behov IBS
+(`btcusdt_3m_binance_ny_sl`) vyšlo obchod po obchode rovnako ako pred opravou
+(`20260919-2333…2335`, 149 obchodov). Prípad, ktorý oprava rieši, je vzácny: market vstup, ktorému
+cena hneď po signáli ujde.
+
 Na čo sa cestou prišlo (všetko je v `docs/NINJATRADER.md`): *Order fill resolution = High* NinjaTrader
 pri stratégii s viac sériami nepovolí → adaptér si pridáva 1m sériu a ordery posiela na ňu; s
 *Merge policy = Merge back adjusted* číta NinjaTrader pre staršie dátumy iné kontrakty, než sú

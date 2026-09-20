@@ -42,7 +42,8 @@ from tradebot.core import (
     load_profile,
 )
 from tradebot.core.risk import TradePlan, extreme_before_stop
-from tradebot.core.types import Direction
+from tradebot.core.orders import entry_fills
+from tradebot.core.types import Direction, OrderType
 from .scan_zones import _PAIRS, _load, _to_bar
 
 
@@ -58,6 +59,8 @@ class SimTrade:
     direction: Direction
     plan: TradePlan
     placed_ms: int
+    #: Limit / Market / Stop — market vstup sa plní hneď, nečaká na dotyk ceny.
+    order_type: OrderType = OrderType.LIMIT
     filled_ms: int | None = None
     closed_ms: int | None = None
     outcome: str = "PENDING"  # PENDING | FILLED | WIN | LOSS | EXPIRED | CANCELLED
@@ -98,6 +101,7 @@ class FillSimulator:
                     direction=intent.plan.direction,
                     plan=intent.plan,
                     placed_ms=bar.time,
+                    order_type=intent.order_type,
                 )
             elif intent.action is OrderAction.CANCEL:
                 t = self.trades.get(intent.order_id)
@@ -128,7 +132,7 @@ class FillSimulator:
             if t.outcome == "PENDING":
                 # Pine `pyramiding=0` a MultiCharts (jedna pozicia): kym pozicia bezi, dalsi
                 # vstup sa neplni - caka, kym engine order nezrusi alebo pozicia neskonci.
-                if self.position_size == 0.0 and bar.low <= t.plan.entry <= bar.high:
+                if self.position_size == 0.0 and entry_fills(t.order_type, t.direction, t.plan.entry, bar.low, bar.high):
                     t.outcome = "FILLED"
                     t.filled_ms = bar.time
                     t.extreme = t.plan.entry

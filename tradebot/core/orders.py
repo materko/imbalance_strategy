@@ -13,7 +13,7 @@ from enum import Enum
 from .risk import TradePlan
 from .types import Direction, OrderType
 
-__all__ = ["OrderAction", "OrderIntent", "StateEvent", "MarketContext"]
+__all__ = ["OrderAction", "OrderIntent", "StateEvent", "MarketContext", "entry_fills"]
 
 
 class OrderAction(str, Enum):
@@ -40,6 +40,24 @@ class OrderIntent:
     def zone_uid(self) -> int:
         """IBS názov toho istého poľa."""
         return self.source_id
+
+
+def entry_fills(order_type: OrderType, direction: Direction, entry: float, low: float, high: float) -> bool:
+    """Vyplní sa čakajúci vstup na bare s týmto `low`/`high`? Jedno pravidlo pre všetky modely vyplnenia.
+
+    - **Market** sa vyplní vždy — na prvom bare po zadaní, nech je cena kdekoľvek.
+    - **Limit** sa vyplní, keď sa obchoduje za jeho cenu **alebo lepšiu**: long pri `low <= entry`,
+      short pri `high >= entry`. Bar, ktorý limitku celý preskočí (gap), ju vyplní tiež — tak to robí
+      broker, TradingView, NinjaTrader aj Freqtrade pri zadaní. Podmienka „cena leží vnútri baru"
+      by taký order nechala visieť navždy.
+    - **Stop** zrkadlovo: long pri `high >= entry`, short pri `low <= entry`.
+    """
+    long = direction is Direction.LONG
+    if order_type is OrderType.MARKET:
+        return True
+    if order_type is OrderType.STOP:
+        return high >= entry if long else low <= entry
+    return low <= entry if long else high >= entry
 
 
 @dataclass(frozen=True, slots=True)
