@@ -227,7 +227,7 @@ nemeň ich, keď ide len o tento server. Nastavenia sa dajú zmeniť bez dotyku 
 
 - `.env` v koreni (gitignored) — tokeny, adresa hubu, bind, port, `TRADEBOT_HUB_NAME`,
   `TRADEBOT_HUB_MAX_PARALLEL`;
-- **override súbor** `docker/*.local.yml` (gitignored) na čokoľvek ostatné — iné mounty,
+- **override súbor** `docker/*.local.yml` alebo `docker/*.override.yml` (oba gitignored) na čokoľvek ostatné — iné mounty,
   limity CPU a pamäte, sieť, vlastný `command`. Compose ho zlúči nad základný:
 
 ```bash

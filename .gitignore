@@ -69,7 +69,9 @@ csharp/bin/
 # kedykolvek vygenerovat znova (`python -m tester.synthetic build`).
 data/tester/synthetic/
 
-# Vlastne upravy dockeru na tomto stroji: compose override (`-f zakladny -f local`)
-# a vlastny Dockerfile. Subory v docker/ bez `.local` su spolocne a verzovane.
+# Vlastne upravy dockeru na tomto stroji: compose override (`-f zakladny -f moj`)
+# a vlastny Dockerfile. Subory v docker/ bez `.local` a `.override` su spolocne
+# a verzovane.
 docker/*.local.yml
+docker/*.override.yml
 docker/Dockerfile.*.local
