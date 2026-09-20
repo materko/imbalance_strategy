@@ -1,0 +1,9 @@
+$ emulator MultiCharts SYNTHMNQUSD 3m 20211001-20221001 (SYNTH-MNQ_USD-1m-futures.feather)
+emulacia MultiCharts: 118465 barov 3m, 355395 1m, 118465 HTF
+  20000/118465 barov, 24 obchodov
+  40000/118465 barov, 34 obchodov
+  60000/118465 barov, 47 obchodov
+  80000/118465 barov, 66 obchodov
+  100000/118465 barov, 88 obchodov
+hotovo: 112 obchodov, nerozhodnutelnych minut 1
+kresby: {'session': 1021, 'sd_zone_pre': 13504, 'sd_zone_post': 13504, 'swing': 14237, 'structure': 11194, 'imb_box': 2403, 'liq_sweep': 730, 'skip': 300, 'tp_box': 127, 'sl_box': 127, 'expired': 15, 'sr_golden': 8, 'sr_level': 2}
