@@ -1,0 +1,402 @@
+$ /Users/martin/document/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json --userdir /Users/martin/document/IBS/deploy/freqtrade/user_data --strategy ORBStrategy --cache none --export trades --timerange 20250904-20260904 --pairs XAU/USD --timeframe 30m --dry-run-wallet 10000.0 --fee 0.0 --datadir /Users/martin/document/IBS/data/tester/dukascopy --backtest-directory /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260918-172543-265c7d
+2026-09-18 19:25:44,897 - freqtrade - INFO - freqtrade 2026.8
+2026-09-18 19:25:45,921 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json ...
+2026-09-18 19:25:45,923 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-18 19:25:45,923 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-09-18 19:25:45,924 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/document/IBS/deploy/freqtrade/user_data ...
+2026-09-18 19:25:45,924 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/document/IBS/data/tester/dukascopy ...
+2026-09-18 19:25:45,924 - freqtrade.configuration.configuration - INFO - Using /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260918-172543-265c7d as backtest directory ...
+2026-09-18 19:25:45,926 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-18 19:25:45,968 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy ORBStrategy from '/Users/martin/document/IBS/deploy/freqtrade/user_data/strategies/ORBStrategy.py'...
+'/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-09-18 19:25:46,143 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for XAU/USD, funding_rate, 1h found. Use `freqtrade download-data` to download the data
+2026-09-18 19:25:46,143 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for XAU/USD, mark, 1h found. Use `freqtrade download-data` to download the data
+2026-09-18 19:25:46,271 - tradebot.adapters.freqtrade.base - INFO - orb XAU/USD: kresby ulozene do /Users/martin/document/IBS/tester/runs/.profiles/20260918-172543-265c7d.chart.json.gz (1821 objektov)
+2026-09-18 19:25:46,285 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 354092.00 na 9900.00 (2.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,286 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 361234.00 na 9900.00 (2.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,286 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 365304.00 na 9900.00 (2.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,287 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 363480.00 na 9900.00 (2.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,288 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 365878.00 na 9900.00 (2.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,289 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 366680.00 na 9900.00 (2.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,289 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 377078.00 na 9900.00 (2.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,290 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 375258.00 na 9900.00 (2.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,290 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 377754.00 na 9900.00 (2.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,291 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 384364.00 na 9900.00 (2.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,291 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 384384.00 na 9900.00 (2.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,291 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 387900.00 na 9900.00 (2.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,292 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 386378.00 na 9900.00 (2.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,293 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 395478.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,293 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 398540.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,293 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 404442.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,293 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 403654.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,294 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 400674.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,294 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 397170.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,295 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 409708.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,295 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 414395.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,295 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 413280.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,295 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 420559.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,296 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 426264.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,296 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 424039.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,296 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 432608.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,297 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 429800.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,297 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 413654.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,297 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 410192.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,297 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 409390.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,298 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 407395.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,298 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 412352.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,299 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 404304.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,299 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 389695.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,299 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 394965.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,299 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 401670.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,300 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 397624.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,300 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 401020.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,301 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 400688.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,301 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 396494.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,301 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 398644.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,302 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 408892.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,302 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 414368.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,303 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 410130.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,303 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 413115.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,303 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 416996.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,303 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 409340.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,304 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 407720.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,304 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 403650.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,305 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 409098.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,305 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 409652.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,305 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 407003.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,305 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 405630.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,306 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 408774.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,307 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 415640.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,308 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 419438.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,308 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 418790.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,308 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 424852.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,309 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 419176.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,309 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 421229.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,310 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 425578.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,310 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 430031.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,311 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 431396.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,311 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 431962.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,311 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 432208.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,312 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 434764.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,312 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 443155.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,313 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 445823.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,313 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 454624.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,314 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 446060.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,314 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 431924.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,314 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 430719.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,315 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 433634.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,316 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 443226.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,316 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 444435.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,316 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 444735.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,317 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 450502.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,317 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 459669.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,317 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 461935.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,318 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 460840.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,318 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 463725.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,318 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 461620.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,319 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 456485.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,319 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 472920.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,320 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 487552.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,320 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 483080.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,320 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 485380.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,320 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 496030.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,321 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 508319.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,321 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 509077.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,322 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 527548.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,322 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 550964.00 na 9900.00 (1.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,322 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 518880.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,322 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 511646.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,323 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 489075.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,323 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 493511.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,324 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 505648.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,324 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 495752.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,324 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 487318.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,324 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 495527.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,325 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 505868.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,325 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 505181.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,326 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 496462.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,326 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 498014.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,327 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 500466.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,327 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 501573.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,328 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 502865.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,328 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 502522.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,328 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 514890.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,329 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 515010.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,329 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 518539.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,329 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 523922.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,330 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 539386.00 na 9900.00 (1.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,330 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 529544.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,331 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 516515.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,331 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 508622.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,331 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 516130.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,332 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 512500.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,332 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 518660.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,332 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 519390.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,333 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 514268.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,333 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 508715.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,333 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 504131.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,334 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 501464.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,334 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 501734.00 na 9900.00 (2.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,335 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 469360.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,335 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 455824.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,335 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 430362.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,336 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 440873.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,336 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 446469.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,337 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 442380.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,337 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 445481.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,337 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 457198.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,338 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 461868.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,338 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 476050.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,338 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 464248.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,338 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 466485.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,339 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 468448.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,339 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 467797.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,340 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 473584.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,340 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 479040.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,341 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 471510.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,341 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 480891.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,342 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 481110.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,342 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 478946.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,343 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 480490.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,343 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 473892.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,343 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 476024.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,343 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 471904.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,344 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 469428.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,344 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 467800.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,345 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 456765.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,345 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 459830.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,345 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 457788.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,346 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 464434.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,346 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 457884.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,347 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 468150.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,347 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 476258.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,347 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 471777.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,348 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 472490.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,348 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 470294.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,348 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 467273.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,349 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 455818.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,350 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 456148.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,350 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 455698.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,351 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 450666.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,351 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 453542.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,351 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 449884.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,352 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 453810.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,352 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 444530.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,353 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 446057.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,353 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 456400.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,354 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 449574.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,354 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 449546.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,355 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 445316.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,355 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 448602.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,357 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 436088.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,357 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 428810.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,357 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 431988.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,358 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 431804.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,358 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 418588.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,358 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 412476.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,359 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 419430.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,359 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 432319.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,360 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 431938.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,360 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 436008.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,360 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 428848.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,361 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 417565.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,362 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 409846.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,362 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 399360.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,362 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 408416.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,363 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 402461.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,363 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 405372.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,364 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 397576.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,364 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 418310.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,365 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 416430.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,365 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 415400.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,365 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 408844.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,366 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 411454.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,367 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 406468.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,367 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 401656.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,368 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 406332.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,369 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 409532.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,369 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 405236.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,370 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 408860.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,370 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 406424.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,371 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 404900.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,372 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 423676.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,373 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 434524.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,373 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 436900.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,373 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 436750.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,374 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 438116.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,374 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 441798.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,375 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 436630.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,375 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 436090.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,375 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 448572.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,375 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 449140.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,376 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 451573.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,376 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 457923.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,377 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 462940.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,377 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 463004.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,377 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 463544.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,377 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 460266.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,378 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 455172.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,379 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 441982.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,379 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 438726.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+2026-09-18 19:25:46,380 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 443812.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+"/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260918-172543-265c7d/backtest-result-2026-09-18_17-25-46.meta.json"
+…
+2026-09-18 19:25:46,353 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 456400.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,354 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 449574.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,354 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 449546.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,355 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 445316.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,355 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 448602.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,357 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 436088.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,357 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 428810.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,357 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 431988.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,358 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 431804.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,358 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 418588.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,358 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 412476.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,359 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 419430.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,359 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 432319.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,360 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 431938.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,360 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 436008.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,360 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 428848.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,361 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 417565.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,362 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 409846.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,362 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 399360.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,362 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 408416.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,363 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 402461.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,363 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 405372.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,364 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 397576.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,364 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 418310.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,365 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 416430.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,365 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 415400.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,365 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 408844.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,366 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 411454.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,367 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 406468.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,367 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 401656.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,368 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 406332.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,369 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 409532.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,369 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 405236.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,370 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 408860.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,370 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 406424.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,371 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 404900.00 na 9900.00 (2.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,372 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 423676.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,373 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 434524.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,373 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 436900.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,373 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 436750.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,374 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 438116.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,374 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 441798.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,375 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 436630.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,375 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 436090.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,375 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 448572.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,375 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 449140.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,376 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 451573.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,376 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 457923.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,377 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 462940.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,377 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 463004.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,377 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 463544.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,377 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 460266.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,378 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 455172.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,379 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 441982.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,379 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 438726.00 na 9900.00 (2.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+2026-09-18 19:25:46,380 - tradebot.adapters.freqtrade.base - WARNING - orb XAU/USD: stake orezany z 443812.00 na 9900.00 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku neuplatni 
+cely.
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4/4         100% • 0:00:00 • 0:00:00
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 17520/17520 100% • 0:00:00 • 0:00:00
+2026-09-18 19:25:46,408 - freqtrade.misc - INFO - dumping json to 
+"/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260918-172543-265c7d/backtest-result-2026-09-18_17-25-46.meta.json"
+Result for strategy ORBStrategy
+                                            BACKTESTING REPORT                                             
+┏━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃    Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ XAU/USD │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+│   TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┏━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                               ENTER TAG STATS                                                
+┏━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Entries ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │       0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                              EXIT REASON STATS                                               
+┏━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Exit Reason ┃ Exits ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│       TOTAL │     0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                      MIXED TAG STATS                                                      
+┏━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Exit Reason ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │             │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+No trades made. Your starting balance was 10000 USD, and your stake was unlimited.
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                       STRATEGY SUMMARY                                                       
+┏━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃    Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃     Drawdown ┃
+┡━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ ORBStrategy │      0 │         0.00 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │ 0 USD  0.00% │
+└─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────┘
+POZOR: engine dal 231 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh.
