@@ -308,6 +308,60 @@ def test_exclusive_and_parallel_slots(hub):
     assert j["agent"] == "srv2"
 
 
+def test_forget_agent(hub):
+    """Premenovaný agent visí na hube ako offline — dá sa vyhodiť aj s tokenom."""
+    state, clock = hub
+    _reg(state, name="stare-meno")
+    state.add_token("stare-meno")
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap", queue=True)
+    state.heartbeat("stare-meno", {"jobs": [{"id": job["id"], "status": "running"}]})
+
+    # online agenta nie (o chvíľu by sa prihlásil späť)
+    with pytest.raises(ValueError, match="online"):
+        state.forget("stare-meno")
+    with pytest.raises(KeyError):
+        state.forget("take-tam-nie-je")
+
+    clock.t += state.agent_timeout + 1                 # odmlčal sa: beh ide späť do fronty
+    r = state.forget("stare-meno", with_token=True, by="hub")
+    assert r["jobs"] == [] and r["token"] and r["token_removed"]
+    assert "stare-meno" not in state.agents and "stare-meno" not in state.tokens
+    assert state.overview()["agents"] == [] and state.job(job["id"])["status"] == "queued"
+    assert [e["event"] for e in state.events(limit=2)] == ["token_removed", "agent_removed"]
+    # a po reštarte hubu je preč aj zo súboru
+    assert "stare-meno" not in HubState(state.root, clock=clock).agents
+
+    # bežiaci sa dá vyhodiť len nasilu; jeho výpočet bez fronty zlyhá
+    _reg(state, name="nove-meno")
+    b = state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    state.heartbeat("nove-meno", {"jobs": [{"id": b["id"], "status": "running"}]})
+    r = state.forget("nove-meno", force=True)
+    assert set(r["jobs"]) == {job["id"], b["id"]} and not r["token"]
+    assert state.job(b["id"])["status"] == "failed" and "odstránený" in state.job(b["id"])["error"]
+    assert state.job(job["id"])["status"] == "queued"   # ten s frontou počká na iného agenta
+
+
+def test_forget_agent_api_is_for_admin_only(tmp_path: Path):
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.hub.server import create_hub_app
+
+    state = HubState(tmp_path / "hub", token="hlavny", clock=Clock())
+    t_srv = state.add_token("srv")
+    c = TestClient(create_hub_app(state))
+    H = lambda t: {"Authorization": f"Bearer {t}"}  # noqa: E731
+    c.post("/api/agents/register", headers=H(t_srv),
+           json={"name": "srv", "instance": "i1", "cores": 4, "slots": 4, "accept": True, "send": True})
+
+    assert c.delete("/api/agents/srv", headers=H(t_srv)).status_code == 403
+    assert c.delete("/api/agents/niekto", headers=H("hlavny")).status_code == 404
+    assert c.delete("/api/agents/srv", headers=H("hlavny")).status_code == 409   # je online
+    r = c.delete("/api/agents/srv?force=true&token=true", headers=H("hlavny"))
+    assert r.status_code == 200 and r.json()["token_removed"]
+    assert "srv" not in state.agents and state.identity(t_srv) is None
+
+
 def test_state_survives_restart(tmp_path: Path):
     clock = Clock()
     state = HubState(tmp_path / "hub", clock=clock)
@@ -329,12 +383,19 @@ def test_state_survives_restart(tmp_path: Path):
 
 
 class FakeHttp:
-    """`HubHttp` nad TestClientom — agent a klient nepoznajú rozdiel."""
+    """`HubHttp` nad TestClientom — agent a klient nepoznajú rozdiel.
+
+    `down = True` simuluje výpadok hubu: každé volanie skončí ako spadnuté spojenie."""
 
     def __init__(self, client, token: str) -> None:
         self.c = client
         self.h = {"Authorization": f"Bearer {token}"}
         self.timeout = 30
+        self.down = False
+
+    def _live(self):
+        if self.down:
+            raise OSError("hub je mimo")
 
     def _raise(self, r):
         from tester.hub.client import HubError, NoCapacityError
@@ -344,15 +405,19 @@ class FakeHttp:
             raise (NoCapacityError if r.status_code == 409 else HubError)(r.status_code, detail)
 
     def get(self, path):
+        self._live()
         r = self.c.get(path, headers=self.h); self._raise(r); return r.json()
 
     def get_bytes(self, path):
+        self._live()
         r = self.c.get(path, headers=self.h); self._raise(r); return r.content
 
     def post(self, path, body=None):
+        self._live()
         r = self.c.post(path, json=body or {}, headers=self.h); self._raise(r); return r.json()
 
     def post_bytes(self, path, data):
+        self._live()
         r = self.c.post(path, content=data, headers={**self.h, "Content-Type": "application/zip"})
         self._raise(r); return r.json()
 
@@ -816,6 +881,175 @@ def test_agent_kills_run_over_time_cap(hub_api, tmp_path: Path):
     runner.start_run(run2, started="2026-09-12T10:00:00+00:00")
     srv.tick()
     assert srv.state.computing[job2["id"]]["max_seconds"] >= 600
+
+
+def test_agent_computes_through_hub_outage_and_delivers_after(hub_api, tmp_path: Path):
+    """Hub spadne uprostred behu: agent dopočíta sám a výsledok odovzdá, keď hub vstane."""
+    from tester.hub.client import HubClient
+
+    c, state, _ = hub_api
+    http = FakeHttp(c, "tajne")
+    srv, runner, _ = _agent("srv", tmp_path, http)
+    lap, _, lap_store = _agent("lap", tmp_path, http, accept=False)
+    srv.tick(); lap.tick()
+    job = HubClient(http, "lap").submit("backtest", _payload(), estimate_seconds=30)
+    lap.note_sent(job, "test")
+    srv.tick()
+    run_id = next(iter(runner.jobs))
+    runner.start_run(run_id)
+
+    # hub mimo: tick zlyhá, ale beh beží ďalej a agent si výpočet drží
+    http.down = True
+    with pytest.raises(OSError):
+        srv.tick()
+    assert srv.state.computing[job["id"]]["run_id"] == run_id
+    runner.finish(run_id, "done")
+    for _ in range(3):                       # pokusy o odovzdanie počas výpadku
+        with pytest.raises(OSError):
+            srv.tick()
+    entry = srv.state.computing[job["id"]]
+    assert entry["deliver_fails"] == 3 and "hub je mimo" in entry["deliver_error"]
+    assert load_state(tmp_path / "srv" / "state.json").computing[job["id"]]["deliver_fails"] == 3
+
+    # hub je späť: výsledok odíde hneď v prvom ticku a zadávateľ ho dostane
+    http.down = False
+    srv.tick()
+    j = state.job(job["id"])
+    assert j["status"] == "done" and j["has_result"] and j["run_ids"] == [run_id]
+    assert job["id"] not in srv.state.computing
+    lap.tick()
+    assert lap_store.get(run_id)["status"] == "done"
+
+
+def test_hub_takes_back_job_from_agent_that_returned(hub_api, tmp_path: Path):
+    """Agent sa odmlčal (výpadok siete) a pritom počítal ďalej — hub mu výpočet vráti."""
+    from tester.hub.client import HubClient
+
+    c, state, clock = hub_api
+    http = FakeHttp(c, "tajne")
+    srv, runner, _ = _agent("srv", tmp_path, http)
+    srv.tick()
+    job = HubClient(http, "lap").submit("backtest", _payload(), queue=True)
+    srv.tick()
+    run_id = next(iter(runner.jobs))
+    runner.start_run(run_id)
+    srv.tick()
+    assert state.job(job["id"])["status"] == "running"
+
+    http.down = True                                  # agent nevidí hub
+    clock.t += state.agent_timeout + 1
+    state.capacity(1)                                 # sweep: agent je offline, beh späť do fronty
+    assert state.job(job["id"])["status"] == "queued" and state.job(job["id"])["agent"] is None
+
+    http.down = False
+    srv.tick()                                        # hlási beh, ktorý stále počíta
+    j = state.job(job["id"])
+    assert j["status"] == "running" and j["agent"] == "srv" and j["run_id"] == run_id
+    assert len(runner.jobs) == 1                      # nepočíta sa druhýkrát
+    runner.finish(run_id, "done")
+    srv.tick()
+    assert state.job(job["id"])["status"] == "done"
+
+
+def test_late_result_revives_job_hub_gave_up_on(hub_api, tmp_path: Path):
+    """Výpočet bez fronty hub po odmlčaní odpíše — hotový výsledok ho oživí."""
+    from tester.hub.client import HubClient
+
+    c, state, clock = hub_api
+    http = FakeHttp(c, "tajne")
+    srv, runner, _ = _agent("srv", tmp_path, http)
+    lap, _, lap_store = _agent("lap", tmp_path, http, accept=False)
+    srv.tick(); lap.tick()
+    job = HubClient(http, "lap").submit("backtest", _payload())
+    lap.note_sent(job, "test")
+    srv.tick()
+    run_id = next(iter(runner.jobs))
+    runner.start_run(run_id)
+    srv.tick()
+
+    http.down = True
+    clock.t += state.agent_timeout + 1
+    state.capacity(1)
+    assert state.job(job["id"])["status"] == "failed" and "odml" in state.job(job["id"])["error"]
+    runner.finish(run_id, "done")                     # agent o tom nevie a dopočítal
+
+    http.down = False
+    srv.tick()
+    j = state.job(job["id"])
+    assert j["status"] == "done" and j["has_result"] and j["late"] and not j["collected"]
+    assert j["error"] is None and j["run_ids"] == [run_id]
+    lap.tick()                                        # zadávateľ si ho aj tak vyzdvihne
+    assert lap_store.get(run_id)["status"] == "done"
+    assert lap.state.sent[job["id"]]["status"] == "done"
+
+
+def test_second_agent_wins_and_late_one_is_told_to_stop(hub_api, tmp_path: Path):
+    """Keď stratený výpočet medzitým dopočíta iný agent, platí prvý hotový."""
+    from tester.hub.client import HubClient
+
+    c, state, clock = hub_api
+    http = FakeHttp(c, "tajne")
+    srv, runner, srv_store = _agent("srv", tmp_path, http)
+    srv.tick()
+    job = HubClient(http, "lap").submit("backtest", _payload(), queue=True)
+    srv.tick()
+    run_id = next(iter(runner.jobs))
+    runner.start_run(run_id)
+    srv.tick()
+
+    http.down = True
+    clock.t += state.agent_timeout + 1
+    _reg(state, name="srv2", instance="i2")           # druhý agent beh prevezme a dopočíta
+    state.heartbeat("srv2", {"jobs": [{"id": job["id"], "status": "running"}]})
+    assert state.job(job["id"])["agent"] == "srv2"
+    state.result(job["id"], b"zip", status="done", agent="srv2", run_ids=["iny-beh"])
+
+    http.down = False
+    runner.finish(run_id, "done")
+    srv.tick()                                        # neskorý výsledok sa zahodí, prvý platí
+    j = state.job(job["id"])
+    assert j["status"] == "done" and j["agent"] == "srv2" and j["run_ids"] == ["iny-beh"]
+    assert job["id"] not in srv.state.computing and not srv.state.undelivered
+
+
+def test_result_for_unknown_job_is_parked_not_lost(hub_api, tmp_path: Path):
+    """Hub prišiel o stav: výsledok nemá kam ísť — agent ho neodhodí potichu."""
+    from tester.hub.agent import DELIVER_404_TRIES
+    from tester.hub.client import HubClient
+
+    c, state, _ = hub_api
+    http = FakeHttp(c, "tajne")
+    srv, runner, srv_store = _agent("srv", tmp_path, http)
+    srv.tick()
+    job = HubClient(http, "lap").submit("backtest", _payload())
+    srv.tick()
+    run_id = next(iter(runner.jobs))
+    runner.start_run(run_id)
+    runner.finish(run_id, "done")
+    state.jobs.clear(); state.order.clear()           # hub zabudol všetko
+
+    for i in range(DELIVER_404_TRIES - 1):            # 404 sa najprv skúša znova
+        srv.tick()
+        assert job["id"] in srv.state.computing, i
+    srv.tick()
+    assert job["id"] not in srv.state.computing
+    odlozene = srv.state.undelivered[job["id"]]
+    assert odlozene["run_ids"] == [run_id] and odlozene["status"] == "done"
+    assert "404" in odlozene["reason"]
+    assert load_state(tmp_path / "srv" / "state.json").undelivered[job["id"]]["run_ids"] == [run_id]
+    assert srv_store.get(run_id)["status"] == "done"   # beh ostáva v histórii agenta
+    assert srv.public()["undelivered"] and srv.registered   # a agent žije ďalej
+
+
+def test_agent_reregisters_when_hub_forgot_it(hub_api, tmp_path: Path):
+    """Hub po strate stavu agenta nepozná — heartbeat 404 ho prihlási znova."""
+    c, state, _ = hub_api
+    http = FakeHttp(c, "tajne")
+    srv, _, _ = _agent("srv", tmp_path, http)
+    srv.tick()
+    state.agents.clear()
+    srv.tick()
+    assert "srv" in state.agents and srv.registered
 
 
 def test_compare_seeds():

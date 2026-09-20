@@ -28,6 +28,13 @@ from .transfer import unpack_runs
 __all__ = ["HubError", "NoCapacityError", "HubHttp", "HubClient", "fmt_eta"]
 
 
+def _name(text: str) -> str:
+    """Meno agenta do cesty URL — mená môžu mať medzeru („MACMINI MARTIN")."""
+    from urllib.parse import quote
+
+    return quote(text, safe="")
+
+
 def fmt_eta(seconds: float | None) -> str:
     """`None` = nikdy, 0 = hneď, inak sekundy alebo minúty — pre konzolu aj pre webapp."""
     if seconds is None:
@@ -174,9 +181,14 @@ class HubClient:
         self.http.delete(f"/api/tokens/{name}")
         return True
 
+    def forget_agent(self, name: str, force: bool = False, with_token: bool = False) -> dict[str, Any]:
+        """Vyhodiť agenta z hubu (premenovaný stroj, zrušený agent) — len správca."""
+        return self.http.delete(f"/api/agents/{_name(name)}?force={'true' if force else 'false'}"
+                                f"&token={'true' if with_token else 'false'}")
+
     def set_accept(self, name: str, value: bool) -> dict[str, Any]:
         """Zapnúť alebo vypnúť prijímanie výpočtov na agentovi (prevezme si to v heartbeate)."""
-        return self.http.post(f"/api/agents/{name}/accept?value={'true' if value else 'false'}")
+        return self.http.post(f"/api/agents/{_name(name)}/accept?value={'true' if value else 'false'}")
 
     def cancel(self, job_id: str) -> dict[str, Any]:
         return self.http.post(f"/api/jobs/{job_id}/cancel?by={self.name}")

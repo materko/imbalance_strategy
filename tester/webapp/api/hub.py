@@ -198,6 +198,18 @@ def build(ctx: AppContext) -> APIRouter:
         agent.set_accept(req.accept)
         return agent.public()
 
+    @router.delete("/api/hub/agents/{name}")
+    def hub_forget_agent(name: str, force: bool = False, token: bool = False):
+        """Vyhodiť agenta z hubu — premenovaný stroj, ktorý tam visí ako offline.
+        Hub to dovolí len správcovskému tokenu."""
+        from ...hub.client import HubError
+
+        _, client = _hub_client()
+        try:
+            return client.forget_agent(name, force=force, with_token=token)
+        except HubError as exc:
+            raise HTTPException(exc.status if exc.status in (401, 403, 404, 409) else 502, str(exc))
+
     @router.get("/api/hub/jobs")
     def hub_jobs(live: bool = True):
         from ...hub.client import HubError

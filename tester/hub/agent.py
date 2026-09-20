@@ -17,6 +17,15 @@ Jeden `tick()`:
 po reštarte procesu bežiace behy ďalej hlási (runner ich už nemá, ale história áno) a
 čakajúce výsledky si vyzdvihne.
 
+**Výpadok hubu.** Výpočet, ktorý už agent prijal, dopočíta sám — lokálny runner o hube
+nevie a nepotrebuje ho (platí aj pre webapp agenta). Hub je potrebný len na odovzdanie:
+kým sa výsledok neodovzdá, záznam ostáva v `computing` a agent to skúša pri každom ticku,
+aj po reštarte. Keď hub vstane, výsledok odíde hneď v prvom ticku — ešte pred registráciou
+a heartbeatom. Zlyhanie jedného odovzdania neprerušuje tick: ostatné výpočty aj heartbeat
+idú ďalej. Keď hub medzitým výpočet pridelil inému agentovi (agent sa mu odmlčal), neskorý
+výsledok aj tak prijme (`state.result`) a zadávateľovi ho vráti; keď ho hub nepozná vôbec
+(stratený `state.json`), ide záznam do `undelivered` a behy ostávajú v histórii agenta.
+
 **Verzia kódu.** Výpočet nesie commit zadávateľa (`job.version`). Agent ho pred prijatím
 overí (`gitcode.has_version`); keď ho nemá, počká, kým dobehne, čo práve počíta, spraví
 `git pull` (origin main) a overí znova. Keď commit nie je ani po pulle (zadávateľ ho
@@ -58,6 +67,10 @@ SETTLE_TICKS = 2
 #: Zaseknutý Freqtrade by inak držal výpočet v `running` donekonečna.
 MAX_RUNTIME_FACTOR = 3.0
 MIN_MAX_SECONDS = 600.0
+
+#: Koľkokrát sa výsledok skúsi odovzdať hubu, ktorý výpočet nepozná (404), než sa odloží
+#: do `undelivered`. Hub po reštarte môže mať stav ešte nenačítaný — pár tickov mu dáme.
+DELIVER_404_TRIES = 5
 
 
 def _parse_iso(text: str | None) -> float | None:
@@ -128,12 +141,15 @@ class HubAgent:
 
     def tick(self) -> dict[str, Any]:
         self.ticks += 1
-        if not self.registered:
-            self._register()
         self._reload_config()
         self.version = gitcode.version() or self.version
+        # Odovzdanie ide ešte pred registráciou: keď hub padol a vstal, výsledok spočítaný
+        # počas výpadku odíde hneď — a odíde aj vtedy, keď sa registrácia zasekne
+        # (meno obsadené starou inštanciou). Zlyhanie jedného výpočtu nezhodí zvyšok ticku.
         self._upload_finished()
-        odpoved = self.http.post(f"/api/agents/{self.cfg.name}/heartbeat", self._heartbeat_body())
+        if not self.registered:
+            self._register()
+        odpoved = self._heartbeat()
         if odpoved.get("set_accept") is not None:
             self.set_accept(bool(odpoved["set_accept"]))
         for job in odpoved.get("assign") or []:
@@ -145,6 +161,19 @@ class HubAgent:
         self.last_ok = self.clock()
         self.last_error = None
         return odpoved
+
+    def _heartbeat(self) -> dict[str, Any]:
+        """Heartbeat; keď hub agenta nepozná (nový hub, stratený `state.json`), prihlási sa
+        znova a skúsi to ešte raz — inak by agent mlčal donekonečna."""
+        try:
+            return self.http.post(f"/api/agents/{self.cfg.name}/heartbeat", self._heartbeat_body())
+        except HubError as exc:
+            if exc.status != 404:
+                raise
+            log.info("hub agent: hub ma nepozna, prihlasujem sa znova")
+            self.registered = False
+            self._register()
+            return self.http.post(f"/api/agents/{self.cfg.name}/heartbeat", self._heartbeat_body())
 
     def _register(self) -> None:
         self.http.post("/api/agents/register", {
@@ -431,6 +460,12 @@ class HubAgent:
         return True, status
 
     def _upload_finished(self) -> None:
+        """Hotové výpočty hubu odovzdať — a keď hub nie je, nechať si ich na neskôr.
+
+        Kým odovzdanie neprejde, záznam ostáva v `computing` a skúsi sa pri každom ďalšom
+        ticku (aj o hodinu, aj po reštarte agenta). Zahodí sa až vtedy, keď ho hub odmietne
+        natrvalo — vtedy ide do `undelivered` a behy ostanú aspoň v histórii tohto klonu.
+        """
         for job_id, entry in list(self.state.computing.items()):
             run_id = entry.get("run_id")
             if not run_id:
@@ -444,7 +479,11 @@ class HubAgent:
             if entry.get("kind") == P.KIND_HYPEROPT and n < SETTLE_TICKS:
                 continue
             run_ids = [run_id] + self._verification_ids(run_id)
-            data = pack_runs(self.store.root, run_ids)
+            try:
+                data = pack_runs(self.store.root, run_ids)
+            except OSError as exc:  # zamknutý súbor, plný disk — skúsi sa o tick znova
+                self._deliver_failed(job_id, entry, f"zabalenie behu zlyhalo: {exc}")
+                continue
             if entry.get("timed_out") and status != "done":
                 stav = "failed"
                 chyba = (f"prekročil strop {float(entry.get('max_seconds') or 0) / 60:.0f} min "
@@ -461,11 +500,47 @@ class HubAgent:
             try:
                 self.http.post_bytes(f"/api/jobs/{job_id}/result{q}", data)
             except HubError as exc:
-                if exc.status != 404:
-                    raise
+                if exc.status == 404:
+                    # Hub môže byť po reštarte ešte bez stavu — pár tickov to skúsime znova.
+                    entry["notfound"] = int(entry.get("notfound") or 0) + 1
+                    if entry["notfound"] < DELIVER_404_TRIES:
+                        self._deliver_failed(job_id, entry, f"hub 404: {exc.detail}")
+                        continue
+                if exc.status in (400, 403, 404, 410, 422):
+                    self._park(job_id, entry, run_ids, stav, f"hub {exc.status}: {exc.detail}")
+                    continue
+                self._deliver_failed(job_id, entry, str(exc))  # 401, 5xx — chyba sa dá opraviť
+                continue
+            except (OSError, ValueError) as exc:  # hub mimo, sieť, rozsypaná odpoveď
+                self._deliver_failed(job_id, entry, f"{type(exc).__name__}: {exc}")
+                continue
             self.state.computing.pop(job_id, None)
             self._final_ticks.pop(job_id, None)
             save_state(self.state, self.state_path)
+
+    def _deliver_failed(self, job_id: str, entry: dict[str, Any], reason: str) -> None:
+        """Odovzdanie neprešlo (hub mimo) — necháme si ho a skúsime to o tick znova."""
+        entry["deliver_fails"] = int(entry.get("deliver_fails") or 0) + 1
+        entry["deliver_error"] = reason[:300]
+        if entry["deliver_fails"] in (1, 10) or entry["deliver_fails"] % 60 == 0:
+            log.warning("hub agent: vysledok %s sa nedari odovzdat (%dx): %s — necham si ho",
+                        job_id, entry["deliver_fails"], reason)
+        save_state(self.state, self.state_path)
+
+    def _park(self, job_id: str, entry: dict[str, Any], run_ids: list[str], status: str,
+              reason: str) -> None:
+        """Hub výsledok odmietol natrvalo (nepozná ho, alebo ho medzitým dal inému).
+        Beh je v histórii tohto klonu — zapíšeme, čo sa nedoručilo, nech sa to dá nájsť."""
+        log.warning("hub agent: vypocet %s uz hub neprijal (%s) — behy %s ostavaju v historii "
+                    "tohto klonu", job_id, reason, ", ".join(run_ids))
+        self.state.undelivered[job_id] = {
+            "run_ids": run_ids, "status": status, "reason": reason[:300],
+            "kind": entry.get("kind"),
+            "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        }
+        self.state.computing.pop(job_id, None)
+        self._final_ticks.pop(job_id, None)
+        save_state(self.state, self.state_path)
 
     # -- výsledky toho, čo sme poslali -------------------------------------- #
 
@@ -511,6 +586,9 @@ class HubAgent:
             if self.last_ok else None,
             "computing": {k: dict(v) for k, v in self.state.computing.items()},
             "sent": {k: dict(v) for k, v in self.state.sent.items()},
+            "undelivered": {k: dict(v) for k, v in self.state.undelivered.items()},
+            # Spočítané a čakajúce na hub (výpadok) — beh je hotový, len sa ešte neodovzdal.
+            "pending_upload": sum(1 for v in self.state.computing.values() if v.get("deliver_fails")),
         }
 
 

@@ -21,8 +21,9 @@ Premenné prostredia prebijú súbor (`TRADEBOT_HUB_URL`, `TRADEBOT_HUB_TOKEN`,
 — pre Docker a servery, kde sa súbor nechce písať.
 
 Stav agenta (`tester/agent_state.json`) je oddelený od konfigurácie: čo agent **poslal**
-a ešte sa mu nevrátilo, a čo práve **počíta** pre hub (hub job → lokálny beh). Po reštarte
-agent v oboch pokračuje: čakajúce výsledky si vyzdvihne, bežiace behy ďalej hlási.
+a ešte sa mu nevrátilo, čo práve **počíta** pre hub (hub job → lokálny beh) a čo spočítal,
+ale **nemal komu odovzdať**. Po reštarte agent v oboch pokračuje: čakajúce výsledky si
+vyzdvihne, bežiace behy ďalej hlási.
 """
 
 from __future__ import annotations
@@ -112,19 +113,24 @@ def save(cfg: AgentConfig, path: Path | None = None) -> Path:
 
 @dataclass
 class AgentState:
-    """Čo agent poslal a čo počíta — prežije reštart procesu.
+    """Čo agent poslal, čo počíta a čo nemal komu odovzdať — prežije reštart procesu.
 
     `sent[job_id]`  = {"kind", "note", "created", "status", "run_ids", "error"} — výpočty,
                       ktoré tento agent zadal; `status` sa dopĺňa, keď sa vrátia.
     `computing[job_id]` = {"run_id", "kind", "epochs"} — výpočty od hubu, ktoré bežia
-                      v lokálnom runneri pod `run_id`.
+                      v lokálnom runneri pod `run_id`. Kým sa výsledok neodovzdá, záznam
+                      tu ostáva — aj cez výpadok hubu a reštart agenta.
+    `undelivered[job_id]` = {"run_ids", "status", "reason", "at"} — spočítané, ale hub ich
+                      už neprijal (nepozná ich, alebo ich medzitým dal inému). Behy sú
+                      v histórii tohto klonu, len sa nevrátili zadávateľovi.
     """
 
     sent: dict[str, dict[str, Any]] = field(default_factory=dict)
     computing: dict[str, dict[str, Any]] = field(default_factory=dict)
+    undelivered: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        return {"sent": self.sent, "computing": self.computing}
+        return {"sent": self.sent, "computing": self.computing, "undelivered": self.undelivered}
 
 
 def load_state(path: Path | None = None) -> AgentState:
@@ -135,7 +141,8 @@ def load_state(path: Path | None = None) -> AgentState:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return AgentState()
-    return AgentState(sent=dict(data.get("sent") or {}), computing=dict(data.get("computing") or {}))
+    return AgentState(sent=dict(data.get("sent") or {}), computing=dict(data.get("computing") or {}),
+                      undelivered=dict(data.get("undelivered") or {}))
 
 
 def save_state(state: AgentState, path: Path | None = None) -> Path:

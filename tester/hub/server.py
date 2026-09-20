@@ -27,6 +27,13 @@ Agent, ktorý sa prestane hlásiť (`agent_timeout`), je offline: čo mu bolo pr
 ešte nebežalo, ide späť do fronty; čo bežalo, sa raz skúsi znova (ak výpočet frontu
 dovolil), inak zlyhá s chybou „agent sa odmlčal".
 
+**Agent medzitým počíta ďalej** — hub potrebuje len na odovzdanie. Keď sa vráti, hub mu
+výpočet vráti (`_readopt`, ak naň ešte nikto iný nesadol) a **neskorý výsledok prijme aj
+vtedy, keď ho už odpísal**: hotový beh prepíše „agent sa odmlčal" a zadávateľ ho dostane
+v svojom heartbeate. Keď to medzitým dopočítal niekto iný, platí prvý hotový a druhý sa
+zahodí; agentovi, ktorý hlási už zbytočný výpočet, hub pošle `cancel`. To isté platí, keď
+spadne hub: agenti dopočítajú, čo majú, a odovzdajú to po jeho návrate (stav je na disku).
+
 Tokeny: hlavný token (`TRADEBOT_HUB_TOKEN`) je správcovský — smie všetko. Každý agent má
 vlastný token (`tokens.json`, `python -m tester.hub token add <meno>`), ktorý ho zároveň
 **identifikuje**: s ním sa hlási len pod svojím menom, zadáva výpočty len ako on a
@@ -162,6 +169,17 @@ def create_hub_app(state: HubState | None = None) -> FastAPI:
             return state.request_accept(name, value)
         except KeyError:
             raise HTTPException(404, f"agent {name!r} nie je zaregistrovaný")
+
+    @app.delete("/api/agents/{name}")
+    def forget_agent(name: str, force: bool = False, token: bool = False, who: str = Depends(auth)):
+        """Vyhodiť agenta zo zoznamu (premenovaný stroj, zrušený agent) — správca hubu."""
+        admin(who)
+        try:
+            return state.forget(name, force=force, with_token=token, by="hub")
+        except KeyError:
+            raise HTTPException(404, f"agent {name!r} nie je zaregistrovaný")
+        except ValueError as exc:
+            raise HTTPException(409, str(exc))
 
     @app.post("/api/agents/{name}/bye")
     def bye(name: str, who: str = Depends(auth)):

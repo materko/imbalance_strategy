@@ -30,11 +30,16 @@ na minúty jedno. Hub sám nič nepočíta a nič nevie o stratégiách — nesi
 - **Meno agenta je statické a jednoznačné** (`--name` pri setupe). Podľa neho hub pozná
   agenta cez reštarty a výpadky siete a podľa neho vie, **komu vrátiť výsledok** — výpočet
   nesie meno zadávateľa. Druhý agent s tým istým menom je odmietnutý, kým prvý žije.
+- **Premenovaný agent** ostane na hube pod starým menom ako offline (hub nevie, že je to
+  ten istý stroj). Vyhodí sa ✕ v tabuľke agentov na karte **Hub**, alebo
+  `python -m tester.hub forget <staré-meno> --with-token` (`--local` na stroji hubu,
+  `--force`, keď ešte beží). Čo agent počítal, ide späť do fronty alebo zlyhá ako pri
+  odmlčaní; token mu ostáva, pokiaľ sa nepýta aj oň.
 - **Hub má stav na disku** (`tester/hub_data/state.json`, zipy v `results/`). Po páde
   s výpočtami vo fronte sú po štarte stále tam; agenti sú offline, kým sa neohlásia.
 - **Agent má stav na disku** (`tester/agent_state.json`): čo **poslal** a ešte sa
-  nevrátilo, a čo **počíta** pre hub (hub výpočet → lokálny beh). Po reštarte v oboch
-  pokračuje.
+  nevrátilo, čo **počíta** pre hub (hub výpočet → lokálny beh) a čo spočítal, ale nemal
+  komu odovzdať (`undelivered`). Po reštarte vo všetkom pokračuje.
 - **Výsledok je adresár behu.** Počítajúci agent beh spočíta do vlastnej histórie
   (`tester/runs/`), po dobehnutí adresár zabalí (u hyperoptu aj päť overovacích behov
   víťaza) a odovzdá hubu. Zadávateľ ho dostane vo svojom heartbeate, rozbalí do svojej
@@ -119,7 +124,39 @@ vo fronte sa zruší hneď.
 Agent, ktorý sa prestane hlásiť (45 s), je offline: čo mu bolo pridelené a ešte
 nebežalo, ide späť do fronty; čo bežalo, sa raz skúsi znova, ak výpočet frontu dovolil,
 inak zlyhá s chybou „agent sa odmlčal". Beh, ktorý agent tri heartbeaty po sebe
-nenahlási (reštart bez stavu), zlyhá tiež.
+nenahlási (reštart bez stavu), zlyhá tiež. To je ale len pohľad hubu — agent medzitým
+počíta ďalej, viď nižšie.
+
+## Keď hub spadne
+
+**Výpočet, ktorý už agent prijal, dopočíta aj bez hubu.** Lokálny runner o hube nevie:
+beh ide do `tester/runs/` toho agenta rovnako, ako keby si ho tam pustil sám. Platí to aj
+pre agenta, ktorým je **webapp** — hub je pre ňu len ďalší zadávateľ. Hub treba až na
+odovzdanie výsledku.
+
+Čo sa stane s výsledkom:
+
+1. Kým sa výsledok neodovzdá, **záznam ostáva v `computing`** a agent to skúša pri každom
+   ticku (~10 s), donekonečna, aj po reštarte agenta. Vo webapp to na karte **Hub** vidno
+   ako „spočítané, čaká na hub N", v headless agentovi ako `caka na hub N`.
+2. Keď hub vstane, výsledok odíde **hneď v prvom ticku** — ešte pred registráciou a
+   heartbeatom (aby ho neblokovalo ani obsadené meno). Zlyhanie jedného odovzdania
+   nepreruší tick: ostatné výpočty aj heartbeat idú ďalej.
+3. Keď hub medzitým výpočet **odpísal** („agent sa odmlčal") alebo ho dal inému agentovi,
+   hotový výsledok aj tak prijme: prepíše ním zlyhanie a zadávateľ ho dostane v svojom
+   heartbeate (`late: true` na výpočte, udalosť `job_late_result`). Platí **prvý hotový** —
+   keď to medzitým dopočítal niekto iný, neskorý výsledok sa zahodí a agentovi hub povie,
+   nech beh zastaví.
+4. Keď sa agent vráti skôr, než výpočet niekto prevezme, hub mu ho **vráti** (udalosť
+   `job_readopted`) — nepočíta sa dvakrát.
+5. Jediný prípad, keď výsledok naozaj nemá kam ísť, je hub, ktorý o výpočte nevie vôbec
+   (stratený `state.json`). Po piatich pokusoch ide záznam do `undelivered` v
+   `tester/agent_state.json` (webapp to hlási ako „neodovzdané N") — **behy ostávajú
+   v histórii agenta**, len sa nevrátili zadávateľovi; dajú sa poslať cez GitHub ako
+   ktorýkoľvek iný beh.
+
+Naopak, **hub bez agentov** nepotrebuje nič: má stav na disku, takže po reštarte sú
+výpočty vo fronte stále tam a agenti sa prihlásia sami.
 
 ## Nastavenie
 
@@ -323,6 +360,7 @@ Všetko pod `/api/`, s tokenom; `/api/health` bez neho.
 | `POST /api/agents/register` | agent | meno, jadrá, sloty, `accept`, `send` |
 | `POST /api/agents/{name}/heartbeat` | agent | stav výpočtov + lokálna záťaž → `assign`, `cancel`, `finished`, `set_accept` |
 | `POST /api/agents/{name}/accept?value=` | správca | zapnúť/vypnúť prijímanie na agentovi |
+| `DELETE /api/agents/{name}?force=&token=` | správca | vyhodiť agenta zo zoznamu (premenovaný stroj) |
 | `GET /api/tokens`, `POST/DELETE /api/tokens/{name}` | správca | tokeny agentov |
 | `GET /api/events` | ktokoľvek | log udalostí (`limit`, `job`, `agent`, `event`) |
 | `GET /api/capacity?cores=1\|all` | zadávateľ | kto by zobral hneď, najskorší štart, fronta |
@@ -337,7 +375,7 @@ Všetko pod `/api/`, s tokenom; `/api/health` bez neho.
 Webapp k tomu pridáva `GET /api/hub` (stav jej agenta a hubu), `POST /api/hub/jobs`
 (hotový payload z CLI), `POST /api/hub/runs` a `POST /api/hub/hyperopts` (zadanie
 z formulára), `POST /api/hub/accept` (prepínač prijímania) a
-`GET/POST /api/hub/jobs[/{id}[/cancel]]`.
+`GET/POST /api/hub/jobs[/{id}[/cancel]]` a `DELETE /api/hub/agents/{name}` (vyhodenie agenta).
 
 ## Čo hub nerobí
 

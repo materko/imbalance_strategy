@@ -152,12 +152,27 @@ function renderHubAgent(h) {
   else { chip.textContent = a.registered ? "online" : "pripája sa"; chip.className = `chip ${a.registered ? "ok" : "warn"}`; }
   const warn = $("#hub-agent-warn");
   if (a && a.needs_restart) { warn.textContent = "Agent si stiahol nový kód (git pull) — reštartuj webapp, inak beží na starom."; warn.hidden = false; }
-  else if (a && a.last_error) { warn.textContent = a.last_error; warn.hidden = false; }
+  else if (a && a.last_error) {
+    const drzi = Object.values(a.computing || {}).filter(c => c.deliver_fails).length;
+    warn.textContent = a.last_error + (drzi
+      ? ` — ${drzi} spočítaných výsledkov si agent drží a odovzdá ich, keď sa hub vráti`
+      : " — čo už počíta, dopočíta aj bez hubu");
+    warn.hidden = false;
+  }
+  else if (a && Object.keys(a.undelivered || {}).length) {
+    warn.textContent = `Hub neprijal ${Object.keys(a.undelivered).length} spočítaných výpočtov `
+      + "(nepozná ich, alebo ich medzitým dal inému) — behy sú v histórii tohto klonu.";
+    warn.hidden = false;
+  }
   else warn.hidden = true;
   const pocita = a ? Object.keys(a.computing || {}).length : 0;
   const poslane = a ? Object.values(a.sent || {}).filter(s => !s.collected).length : 0;
+  const caka = a ? (a.pending_upload || 0) : 0;
+  const neodovzdane = a ? Object.keys(a.undelivered || {}).length : 0;
   $("#hub-agent-info").textContent = a
     ? `${a.cores} jadier, ${a.slots} slotov · počíta ${pocita} · čaká na výsledok ${poslane}`
+      + (caka ? ` · spočítané, čaká na hub ${caka}` : "")
+      + (neodovzdane ? ` · neodovzdané ${neodovzdane}` : "")
     : "agent sa spúšťa spolu s webapp — reštartuj ju, keď si config pridal až teraz";
 }
 
@@ -179,7 +194,22 @@ async function loadHub() {
       <td><span class="chip ${a.online ? "ok" : ""}">${a.online ? "online" : "offline"}</span>${a.needs_restart ? ' <span class="chip warn" title="po git pull čaká na reštart">reštart</span>' : ""}</td>
       <td>${esc(a.version || "–")}</td><td class="num">${a.cores ?? "–"}</td><td class="num">${a.slots ?? "–"}</td><td class="num">${a.used ?? 0}</td>
       <td>${a.accept ? "áno" : "nie"}${a.accept_request !== null && a.accept_request !== undefined ? ` → ${a.accept_request ? "áno" : "nie"}` : ""}</td>
-      <td>${fmtEta(a.eta_free_1)}</td><td>${fmtEta(a.eta_free_all)}</td></tr>`).join("");
+      <td>${fmtEta(a.eta_free_1)}</td><td>${fmtEta(a.eta_free_all)}</td>
+      <td>${a.online ? "" : `<button class="ghost small" data-hub-forget="${esc(a.name)}" title="vyhodiť agenta z hubu (premenovaný stroj, zrušený agent)">✕</button>`}</td></tr>`).join("");
+    for (const b of $$("[data-hub-forget]")) b.onclick = async () => {
+      const meno = b.dataset.hubForget;
+      if (!confirm(`Vyhodiť agenta „${meno}" z hubu?
+
+Čo ešte počítal, sa vráti do fronty alebo `
+                   + "zlyhá. Keď ten stroj ešte beží pod týmto menom, prihlási sa späť.")) return;
+      const token = confirm(`Odobrať mu aj token?
+
+OK = áno (premenovaný stroj ho pod starým menom `
+                            + "už nepotrebuje), Zrušiť = token nechať.");
+      try { await api(`/api/hub/agents/${encodeURIComponent(meno)}?token=${token}`, { method: "DELETE" }); }
+      catch (e) { $("#hub-error").textContent = e.message; $("#hub-error").hidden = false; }
+      loadHub();
+    };
     let jobs = hub.jobs;
     if ($("#hub-jobs-all").checked) {
       try { jobs = await api("/api/hub/jobs?live=false"); } catch (e) { /* ostane živý zoznam */ }

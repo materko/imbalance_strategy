@@ -6,6 +6,7 @@
     python -m tester.hub status                                   # agenti, fronta, kapacita
     python -m tester.hub jobs [--all]                             # výpočty na hube
     python -m tester.hub cancel <job_id>                          # zrušiť výpočet
+    python -m tester.hub forget <meno> [--with-token]             # vyhodiť agenta z hubu
     python -m tester.hub token add srv-01 [--local]               # token agenta (správca)
     python -m tester.hub events [--job ID] [--agent MENO] [--local]  # log udalostí hubu
 
@@ -119,9 +120,12 @@ def cmd_agent(args: argparse.Namespace) -> int:
                 agent.bye()
                 os.execv(sys.executable, [sys.executable, "-m", "tester.hub", "agent"])
             st = agent.public()
+            caka = (f"  caka na hub {st['pending_upload']}" if st.get("pending_upload") else "")
+            nedorucene = (f"  NEODOVZDANE {len(st['undelivered'])}" if st.get("undelivered") else "")
             print(f"  … {'ok' if st['registered'] else 'bez spojenia'}"
                   f"{' (' + st['last_error'] + ')' if st['last_error'] else ''}"
-                  f"  pocita {len(st['computing'])}  kod {st['version'] or '?'}", flush=True)
+                  f"  pocita {len(st['computing'])}{caka}{nedorucene}"
+                  f"  kod {st['version'] or '?'}", flush=True)
     except KeyboardInterrupt:
         agent.stop()
         return 0
@@ -221,6 +225,31 @@ def cmd_token(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_forget(args: argparse.Namespace) -> int:
+    """Vyhodiť agenta z hubu: premenovaný stroj, zrušený agent, preklep v mene."""
+    if args.local:
+        st = _local_state()
+        try:
+            r = st.forget(args.agent, force=args.force, with_token=args.with_token, by="local")
+        except KeyError:
+            raise SystemExit(f"agent {args.agent!r} na hube nie je")
+        except ValueError as exc:
+            raise SystemExit(str(exc))
+    else:
+        from .client import HubError
+
+        try:
+            r = _client(_cfg_or_die()).forget_agent(args.agent, force=args.force,
+                                                    with_token=args.with_token)
+        except HubError as exc:
+            raise SystemExit(str(exc))
+    print(f"{r['name']}: odstraneny z hubu"
+          + (f", vypocty spat do fronty alebo zlyhali: {', '.join(r['jobs'])}" if r["jobs"] else "")
+          + (", token odobrany" if r.get("token_removed")
+             else (f" (token mu ostal: python -m tester.hub token rm {r['name']})" if r.get("token") else "")))
+    return 0
+
+
 def cmd_events(args: argparse.Namespace) -> int:
     """Log udalostí hubu: kto sa prihlásil, kto čo zadal, komu to išlo, ako skončilo."""
     if args.local:
@@ -300,6 +329,14 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--mine", action="store_true", help="len tie, ktoré zadal tento agent")
     p.add_argument("--limit", type=int, default=50)
     p.set_defaults(func=cmd_jobs)
+
+    p = sub.add_parser("forget", help="vyhodiť agenta z hubu (premenovaný stroj, zrušený agent)")
+    p.add_argument("agent", help="meno agenta, ako ho hub ukazuje")
+    p.add_argument("--force", action="store_true", help="aj keď je online (prihlási sa späť, kým beží)")
+    p.add_argument("--with-token", dest="with_token", action="store_true",
+                   help="odobrať mu aj token (pri premenovaní ho starý názov už nepotrebuje)")
+    p.add_argument("--local", action="store_true", help="priamo v stave hubu na tomto stroji")
+    p.set_defaults(func=cmd_forget)
 
     p = sub.add_parser("accept", help="zapnúť/vypnúť prijímanie výpočtov na agentovi (bez reštartu)")
     p.add_argument("agent", help="meno agenta")

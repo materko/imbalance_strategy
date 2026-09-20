@@ -16,7 +16,7 @@ from tradebot.core.paths import HUB_DIR
 
 from . import protocol as P
 from .events import EVENTS_KEEP, EventsMixin, _iso
-from .tokens import TokensMixin
+from .tokens import ADMIN, TokensMixin
 
 
 #: Po koľkých sekundách bez heartbeatu je agent offline (heartbeat je ~10 s).
@@ -149,6 +149,7 @@ class HubState(TokensMixin, EventsMixin):
                 ziadane = None
 
             hlasene = {j.get("id"): j for j in (body.get("jobs") or []) if j.get("id")}
+            self._readopt(name, hlasene, now)
             for job in self._agent_jobs(name):
                 r = hlasene.get(job["id"])
                 if r is None:
@@ -170,6 +171,7 @@ class HubState(TokensMixin, EventsMixin):
             self._dispatch()
             assign = [dict(j) for j in self._agent_jobs(name) if j["status"] == "assigned"]
             cancel = [j["id"] for j in self._agent_jobs(name) if j["status"] == "cancelling"]
+            cancel += [i for i in hlasene if i not in cancel and self._pointless(self.jobs.get(i))]
             finished = [self._job_public(j) for j in self.jobs.values()
                         if j.get("submitter") == name and j["status"] in P.FINAL_STATES
                         and not j.get("collected")]
@@ -202,6 +204,59 @@ class HubState(TokensMixin, EventsMixin):
             self.log("agent_bye", agent=name)
             self._save()
             return self._agent_public(agent)
+
+    def forget(self, name: str, *, force: bool = False, with_token: bool = False,
+               by: str = "") -> dict[str, Any]:
+        """Vyhodiť agenta zo zoznamu — premenovaný stroj, zrušený agent, preklep v mene.
+
+        Online agenta nie (o desať sekúnd by sa prihlásil späť) — iba s `force`. Čo ešte
+        počítal, ide späť do fronty alebo zlyhá ako pri odmlčaní; jeho token ostáva, pokiaľ
+        sa nepýta aj oň (`with_token`).
+        """
+        with self._lock:
+            self._sweep()
+            agent = self.agents.get(name)
+            if agent is None:
+                raise KeyError(name)
+            if agent.get("online") and not force:
+                raise ValueError(f"agent {name!r} je online — vypni ho (alebo to vynúť, "
+                                 f"kým beží, prihlási sa späť)")
+            zive = self._agent_jobs(name)
+            dotknute = [j["id"] for j in zive]
+            for job in zive:
+                self._lost(job, f"agent {name} bol odstránený z hubu")
+            self.agents.pop(name, None)
+            self.log("agent_removed", agent=name, by=by or None, jobs=dotknute or None)
+            self._load_tokens()
+            mal_token = name in self.tokens
+            if with_token and mal_token:
+                self.remove_token(name, by=by or ADMIN)
+            self._dispatch()
+            self._save()
+            return {"name": name, "jobs": dotknute, "token": mal_token,
+                    "token_removed": bool(with_token and mal_token)}
+
+    def _readopt(self, name: str, hlasene: dict[str, Any], now: float) -> None:
+        """Agent sa vrátil a stále počíta, čo mu hub medzitým vzal (odmlčal sa) — vrátime
+        mu to. Bez toho by sa to počítalo dvakrát alebo by jeho výsledok nemal kam prísť."""
+        for job_id, r in hlasene.items():
+            job = self.jobs.get(job_id)
+            if job is None or job.get("agent") == name or name not in (job.get("lost_agents") or []):
+                continue
+            if job["status"] != "queued":
+                continue  # už ho počíta niekto iný — nech dobehnú obaja, platí prvý hotový
+            job.update({"status": "running", "agent": name, "missed": 0,
+                        "run_id": r.get("run_id") or job.get("run_id"),
+                        "started_at": job.get("started_at") or _iso(now)})
+            self.log("job_readopted", job=job_id, agent=name)
+
+    def _pointless(self, job: dict[str, Any] | None) -> bool:
+        """Výpočet, ktorý agent hlási, ale počítať ho už nemá zmysel: hub má jeho výsledok
+        od niekoho iného, alebo ho niekto zrušil. Stratený výpočet bez výsledku sa nezastavuje
+        — práve ten sa oplatí dopočítať a odovzdať neskoro."""
+        if job is None or job["status"] not in P.FINAL_STATES:
+            return False
+        return bool(job.get("has_result")) or job["status"] == "cancelled"
 
     def _agent_jobs(self, name: str) -> list[dict[str, Any]]:
         return [self.jobs[i] for i in self.order
@@ -253,6 +308,11 @@ class HubState(TokensMixin, EventsMixin):
                 self.log("job_timeout", job=job["id"], agent=job.get("agent"), max_seconds=limit)
 
     def _lost(self, job: dict[str, Any], reason: str) -> None:
+        """Agent, ktorý to počítal, sa odmlčal. Výpočet ide späť do fronty alebo zlyhá —
+        ale kto ho počítal, si pamätáme: on medzitým počíta ďalej (hub nepotrebuje) a keď
+        sa vráti, výsledok od neho prijmeme (`result`), hoci ho už vlastní niekto iný."""
+        if job.get("agent") and job["agent"] not in job.setdefault("lost_agents", []):
+            job["lost_agents"].append(job["agent"])
         if job["status"] == "cancelling":
             self._finish(job, "cancelled", error=reason)
             return
@@ -264,6 +324,7 @@ class HubState(TokensMixin, EventsMixin):
             self.log("job_requeued", job=job["id"], reason=reason)
         else:
             self._finish(job, "failed", error=reason)
+            job["lost"] = True  # nepočítal sa dokonca — neskorý výsledok ho ešte oživí
 
     # -- výpočty ------------------------------------------------------------ #
 
@@ -401,17 +462,38 @@ class HubState(TokensMixin, EventsMixin):
     def result(self, job_id: str, data: bytes, *, status: str, error: str | None = None,
                run_ids: list[str] | None = None, agent: str | None = None,
                version: str | None = None) -> dict[str, Any]:
-        """Agent odovzdal výsledok (zip histórie, alebo prázdno pri chybe)."""
+        """Agent odovzdal výsledok (zip histórie, alebo prázdno pri chybe).
+
+        Prijíma aj **neskorý** výsledok od agenta, ktorý sa hubu odmlčal a dopočítal to sám
+        (výpadok hubu alebo siete): hotový výpočet prepíše „agent sa odmlčal" a zadávateľ
+        ho dostane v svojom heartbeate. Čo už má skutočný výsledok, sa neprepisuje — platí
+        prvý hotový, druhý sa zahodí.
+        """
         if status not in P.FINAL_STATES:
             raise ValueError(f"stav výsledku musí byť jeden z {P.FINAL_STATES}")
         with self._lock:
             job = self.jobs.get(job_id)
             if job is None:
                 raise KeyError(job_id)
-            if agent and job.get("agent") not in (None, agent):
+            cudzi = bool(agent) and job.get("agent") not in (None, agent)
+            if cudzi and agent not in (job.get("lost_agents") or []):
                 raise PermissionError(f"výpočet {job_id} počíta {job['agent']}, nie {agent}")
             if job["status"] in P.FINAL_STATES:
-                return self._job_public(job)
+                # Hotový výsledok oživí aj výpočet, ktorý už hub odpísal (agent sa odmlčal,
+                # alebo ho inde zlyhal) — pokiaľ naň nemá skutočný výsledok a nebol zrušený.
+                if not (status == "done" and data and not job.get("has_result")
+                        and job["status"] != "cancelled"):
+                    return self._job_public(job)
+                job.update({"agent": agent or job.get("agent"), "collected": False, "late": True})
+                self.log("job_late_result", job=job_id, agent=agent, was=job["status"])
+            elif cudzi:
+                # Beží u niekoho iného (hub ho po výpadku pridelil znova): hotový výsledok
+                # vezmeme a prvý vyhráva, chybu nie — druhý agent ešte môže uspieť.
+                if status != "done" or not data:
+                    return self._job_public(job)
+                job["agent"] = agent
+                job["late"] = True
+                self.log("job_late_result", job=job_id, agent=agent, was=job["status"])
             ma_zip = bool(data)
             if ma_zip:
                 self.result_path(job_id).write_bytes(data)
