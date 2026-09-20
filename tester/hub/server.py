@@ -88,6 +88,8 @@ class HeartbeatRequest(BaseModel):
     slots: int | None = None
     version: str | None = None
     needs_restart: bool | None = None
+    #: Agent práve ťahá kód (`git pull` + dáta) — nič nové mu neposielaj.
+    updating: bool | None = None
     load: dict[str, Any] = Field(default_factory=dict)
     jobs: list[dict[str, Any]] = Field(default_factory=list)
 

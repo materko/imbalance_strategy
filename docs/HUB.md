@@ -127,6 +127,14 @@ inak zlyhá s chybou „agent sa odmlčal". Beh, ktorý agent tri heartbeaty po 
 nenahlási (reštart bez stavu), zlyhá tiež. To je ale len pohľad hubu — agent medzitým
 počíta ďalej, viď nižšie.
 
+**Agent preto beží na dvoch vláknach.** Heartbeat musí odísť každých 10 sekúnd, ale zip
+s výsledkom, jeho stiahnutie a hlavne `git pull` s poskladaním dát po ňom trvajú aj
+minúty. Keby boli v jednom vlákne, hub by agenta uprostred tej práce vyhlásil za mŕtveho
+a jeho výpočty rozdal ďalej — a keďže pull sa púšťa až vtedy, keď agentovi dobehnú behy,
+vyzeralo by to, že agent ide offline zakaždým, keď niečo dopočíta. Pomalú prácu robí
+`HubAgent.work()` vo vlastnom vlákne; kým sa ťahá kód, agent hlási `updating` a hub mu
+dovtedy nič nové nepridelí (v tabuľke agentov je z toho chip „ťahá kód").
+
 ## Keď hub spadne
 
 **Výpočet, ktorý už agent prijal, dopočíta aj bez hubu.** Lokálny runner o hube nevie:

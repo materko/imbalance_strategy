@@ -814,9 +814,12 @@ def test_agent_pulls_missing_version_when_idle(hub_api, tmp_path: Path, monkeypa
     runner.finish(run_id)
     srv.tick()
     assert state.job(j1["id"])["status"] == "done" and state.job(j1["id"])["agent_version"] == "aaa111"
-    srv.tick()
-    assert pulls == [1] and len(runner.jobs) == 2
+    srv.tick()   # pull robí pomalé vlákno, v tomto ticku sa výpočet ešte nevezme
+    assert pulls == [1] and len(runner.jobs) == 1
     assert srv.version == "bbb222" and srv.code_changed and not srv.needs_restart
+    assert srv.updating is None
+    srv.tick()
+    assert len(runner.jobs) == 2
     srv.tick()  # novú verziu hub vidí v ďalšom heartbeate
     assert state.agents["srv"]["version"] == "bbb222"
 
@@ -830,6 +833,50 @@ def test_agent_pulls_missing_version_when_idle(hub_api, tmp_path: Path, monkeypa
     j = state.job(j3["id"])
     assert j["status"] == "failed" and "ccc333" in j["error"] and "git pull" in j["error"]
     assert pulls == [1, 1]
+
+
+def test_slow_work_does_not_block_heartbeat(hub_api, tmp_path: Path, monkeypatch):
+    """Pull ani odovzdanie výsledku nesmú zdržať heartbeat — inak hub agenta odpíše.
+
+    `git pull` s poskladaním dát trvá aj minúty a `agent_timeout` je 45 s; preto je pomalá
+    práca vo vlastnom vlákne a tick ju len zadá.
+    """
+    from tester.hub.client import HubClient
+
+    c, state, clock = hub_api
+    http = FakeHttp(c, "tajne")
+    have, pulls = {"aaa111"}, []
+    _fake_git(monkeypatch, have, pulls)
+    srv, runner, _ = _agent("srv", tmp_path, http)
+    srv._has_worker = lambda: True          # ako keď agent beží na vláknach
+    srv.tick()
+
+    # 1) výpočet chce commit, ktorý agent nemá: tick oň požiada a ide ďalej
+    job = HubClient(http, "lap").submit("backtest", _payload(), version="bbb222")
+    srv.tick()
+    assert pulls == [] and srv.updating == "bbb222" and not runner.jobs
+    srv.tick()                              # heartbeat to hubu povie v ďalšom kole
+    assert state.agents["srv"]["updating"] and state.agents["srv"]["online"]
+    # kým sa ťahá kód, hub mu nič nové nedá (kód sa mení pod rukami)
+    with pytest.raises(NoCapacity):
+        state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    assert pulls == [] and srv.updating == "bbb222"   # tick pull naozaj nerobí
+
+    # 2) pomalé vlákno ho spraví a agent zas berie
+    srv.work()
+    assert pulls == [1] and srv.updating is None and srv.version == "bbb222"
+    srv.tick()
+    assert not state.agents["srv"]["updating"]
+    srv.tick()
+    assert len(runner.jobs) == 1
+
+    # 3) to isté pre odovzdanie: tick výsledok neposiela, robí to work()
+    run_id = next(iter(runner.jobs))
+    runner.finish(run_id, "done")
+    srv.tick()
+    assert state.job(job["id"])["status"] == "running"
+    srv.work()
+    assert state.job(job["id"])["status"] == "done"
 
 
 def test_headless_agent_restarts_after_pull(hub_api, tmp_path: Path, monkeypatch):
@@ -942,10 +989,10 @@ def test_agent_kills_run_over_time_cap(hub_api, tmp_path: Path):
     assert runner.jobs[run_id].status == "running"
     srv.clock.t = datetime(2026, 9, 12, 10, 3, 0, tzinfo=timezone.utc).timestamp()   # 180 s: nad limitom
     srv.tick()
-    assert runner.jobs[run_id].cancel_requested and srv.state.computing[job["id"]]["timed_out"]
-    srv.tick()
+    assert runner.jobs[run_id].cancel_requested      # zabil ho a rovno odovzdal
     j = state.job(job["id"])
     assert j["status"] == "failed" and "strop 2 min" in j["error"]
+    assert job["id"] not in srv.state.computing
 
     # bez zadaného stropu platí trojnásobok odhadu, najmenej 10 minút
     job2 = HubClient(http, "lap").submit("backtest", _payload())

@@ -146,10 +146,11 @@ def cmd_agent(args: argparse.Namespace) -> int:
                 os.execv(sys.executable, [sys.executable, "-m", "tester.hub", "agent"])
             st = agent.public()
             caka = (f"  caka na hub {st['pending_upload']}" if st.get("pending_upload") else "")
+            tahanie = f"  tiahnem kod {st['updating']}" if st.get("updating") else ""
             nedorucene = (f"  NEODOVZDANE {len(st['undelivered'])}" if st.get("undelivered") else "")
             print(f"  … {'ok' if st['registered'] else 'bez spojenia'}"
                   f"{' (' + st['last_error'] + ')' if st['last_error'] else ''}"
-                  f"  pocita {len(st['computing'])}{caka}{nedorucene}"
+                  f"  pocita {len(st['computing'])}{caka}{nedorucene}{tahanie}"
                   f"  kod {st['version'] or '?'}", flush=True)
     except KeyboardInterrupt:
         agent.stop()
@@ -168,9 +169,10 @@ def cmd_status(args: argparse.Namespace) -> int:
     st = client.status()
     print(f"hub {cfg.hub_url}: agentov online {st['online']}, vo fronte {st['queued']}, "
           f"pocita sa {st['running']}")
-    print(f"\n{'agent':<18}{'stav':<9}{'kod':<9}{'jadra':>6}{'sloty':>6}{'obsad.':>7}  prijima  posiela  volny(1)  volny(all)")
+    print(f"\n{'agent':<18}{'stav':<12}{'kod':<9}{'jadra':>6}{'sloty':>6}{'obsad.':>7}  prijima  posiela  volny(1)  volny(all)")
     for a in st["agents"]:
-        print(f"{a['name']:<18}{'online' if a['online'] else 'offline':<9}{str(a.get('version') or '-'):<9}"
+        stav = "tiahne kod" if a.get("updating") else ("online" if a["online"] else "offline")
+        print(f"{a['name']:<18}{stav:<12}{str(a.get('version') or '-'):<9}"
               f"{a['cores']:>6}{a['slots']:>6}"
               f"{a['used']:>7}  {'ano' if a['accept'] else 'nie':<8} {'ano' if a['send'] else 'nie':<8} "
               f"{_fmt_eta(a['eta_free_1']):>8}  {_fmt_eta(a['eta_free_all']):>10}")

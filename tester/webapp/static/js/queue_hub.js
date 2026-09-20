@@ -149,6 +149,7 @@ function renderHubAgent(h) {
   const chip = $("#hub-agent-chip");
   if (!a) { chip.textContent = "agent nebeží"; chip.className = "chip warn"; }
   else if (a.last_error) { chip.textContent = "bez spojenia"; chip.className = "chip bad"; }
+  else if (a.updating) { chip.textContent = "ťahá kód"; chip.className = "chip warn"; }
   else { chip.textContent = a.registered ? "online" : "pripája sa"; chip.className = `chip ${a.registered ? "ok" : "warn"}`; }
   const warn = $("#hub-agent-warn");
   if (a && a.needs_restart) { warn.textContent = "Agent si stiahol nový kód (git pull) — reštartuj webapp, inak beží na starom."; warn.hidden = false; }
@@ -200,7 +201,7 @@ async function loadHub() {
     $("#hub-agents-count").textContent = `${hub.online} online`;
     $("#hub-agents tbody").innerHTML = hub.agents.map(a => `<tr class="plain">
       <td><b>${esc(a.name)}</b></td>
-      <td><span class="chip ${a.online ? "ok" : ""}">${a.online ? "online" : "offline"}</span>${a.needs_restart ? ' <span class="chip warn" title="po git pull čaká na reštart">reštart</span>' : ""}</td>
+      <td><span class="chip ${a.online ? "ok" : ""}">${a.online ? "online" : "offline"}</span>${a.needs_restart ? ' <span class="chip warn" title="po git pull čaká na reštart">reštart</span>' : ""}${a.updating ? ' <span class="chip warn" title="agent ťahá kód (git pull) — dovtedy nič nové nedostane">ťahá kód</span>' : ""}</td>
       <td>${esc(a.version || "–")}</td><td class="num">${a.cores ?? "–"}</td><td class="num">${a.slots ?? "–"}</td><td class="num">${a.used ?? 0}</td>
       <td>${a.accept ? "áno" : "nie"}${a.accept_request !== null && a.accept_request !== undefined ? ` → ${a.accept_request ? "áno" : "nie"}` : ""}</td>
       <td>${fmtEta(a.eta_free_1)}</td><td>${fmtEta(a.eta_free_all)}</td>

@@ -1,17 +1,28 @@
 """Agent: hlási sa hubu, počíta, čo mu pridelí, a vyzdvihuje výsledky toho, čo sám poslal.
 
     agent = HubAgent(cfg, runner, store)   # runner = BacktestRunner webapp alebo vlastný
-    agent.start()                          # vlákno: každých `heartbeat_seconds` jeden `tick()`
+    agent.start()                          # dve vlákna: heartbeat (`tick`) a pomalá práca (`work`)
+
+**Dve vlákna, nie jedno.** Heartbeat musí odísť každých `heartbeat_seconds`, inak hub po
+45 sekundách vyhlási agenta za mŕtveho a jeho výpočty dá inému. Zip s výsledkom, sťahovanie
+výsledku a hlavne `git pull` s poskladaním dát po ňom trvajú aj minúty — preto ich robí
+druhé vlákno (`work()`) a tick len povie, že je čo robiť. Bez vlákien (testy, `tick()`
+naholo) sa pomalá práca spraví na konci ticku.
 
 Jeden `tick()`:
 
-1. **odovzdá** hotové výpočty — zabalí adresáre behov (u hyperoptu aj overovacie behy
-   víťaza) a pošle ich hubu; kým sa upload nepodarí, skúša to pri každom ticku,
-2. **heartbeat** — čo počíta, ako ďaleko to je a koľko asi ostáva (`protocol`), plus
+1. **heartbeat** — čo počíta, ako ďaleko to je a koľko asi ostáva (`protocol`), plus
    lokálna záťaž bez výpočtov hubu (aby ich hub nepočítal dvakrát),
-3. z odpovede **vezme** pridelené výpočty do lokálneho runnera, **zruší** tie, ktoré hub
-   ruší, a **vyzdvihne** výsledky výpočtov, ktoré tento agent sám zadal (zip do vlastnej
-   histórie, `ack` hubu).
+2. z odpovede **vezme** pridelené výpočty do lokálneho runnera a **zruší** tie, ktoré hub
+   ruší — oboje je rýchle (runner beh len zaradí do fronty).
+
+Jedno kolo `work()`:
+
+1. **odovzdá** hotové výpočty — zabalí adresáre behov (u hyperoptu aj overovacie behy
+   víťaza) a pošle ich hubu; kým sa upload nepodarí, skúša to znova,
+2. **pullne** kód, keď naň čaká pridelený výpočet (viď nižšie),
+3. **vyzdvihne** výsledky výpočtov, ktoré tento agent sám zadal (zip do vlastnej histórie,
+   `ack` hubu).
 
 Čo agent počíta a čo poslal, si drží v `tester/agent_state.json` (`config.AgentState`):
 po reštarte procesu bežiace behy ďalej hlási (runner ich už nemá, ale história áno) a
@@ -19,17 +30,17 @@ po reštarte procesu bežiace behy ďalej hlási (runner ich už nemá, ale hist
 
 **Výpadok hubu.** Výpočet, ktorý už agent prijal, dopočíta sám — lokálny runner o hube
 nevie a nepotrebuje ho (platí aj pre webapp agenta). Hub je potrebný len na odovzdanie:
-kým sa výsledok neodovzdá, záznam ostáva v `computing` a agent to skúša pri každom ticku,
-aj po reštarte. Keď hub vstane, výsledok odíde hneď v prvom ticku — ešte pred registráciou
-a heartbeatom. Zlyhanie jedného odovzdania neprerušuje tick: ostatné výpočty aj heartbeat
-idú ďalej. Keď hub medzitým výpočet pridelil inému agentovi (agent sa mu odmlčal), neskorý
+kým sa výsledok neodovzdá, záznam ostáva v `computing` a agent to skúša znova v každom
+kole `work()`, aj po reštarte. Keď hub vstane, výsledok odíde v prvom kole — na registrácii
+ani heartbeate to nezávisí. Zlyhanie jedného odovzdania neprerušuje ostatné. Keď hub medzitým výpočet pridelil inému agentovi (agent sa mu odmlčal), neskorý
 výsledok aj tak prijme (`state.result`) a zadávateľovi ho vráti; keď ho hub nepozná vôbec
 (stratený `state.json`), ide záznam do `undelivered` a behy ostávajú v histórii agenta.
 
 **Verzia kódu.** Výpočet nesie commit zadávateľa (`job.version`). Agent ho pred prijatím
-overí (`gitcode.has_version`); keď ho nemá, počká, kým dobehne, čo práve počíta, spraví
-`git pull` (origin main) a overí znova. Keď commit nie je ani po pulle (zadávateľ ho
-nepushol), výpočet zlyhá s jasnou chybou. Po pulle je kód v bežiacom procese starý:
+overí (`gitcode.has_version`); keď ho nemá, počká, kým dobehne, čo práve počíta, a zadá
+pomalému vláknu `git pull` (origin main). Kým sa ťahá, hlási `updating` a nové výpočty
+neberie — hub mu ich dovtedy neposiela a kód sa nemení pod rozbehnutým behom. Keď commit
+nie je ani po pulle (zadávateľ ho nepushol), výpočet zlyhá s jasnou chybou. Po pulle je kód v bežiacom procese starý:
 headless agent sa reštartuje sám (`restart_on_pull`), webapp to hlási v `needs_restart`
 a v `/api/hub` — Freqtrade beží v podprocese, takže samotný beh už ide na novom kóde.
 """
@@ -67,6 +78,9 @@ SETTLE_TICKS = 2
 #: Zaseknutý Freqtrade by inak držal výpočet v `running` donekonečna.
 MAX_RUNTIME_FACTOR = 3.0
 MIN_MAX_SECONDS = 600.0
+
+#: Ako často sa pomalé vlákno pozrie, či je preň práca (aj bez pokynu z ticku).
+WORK_POLL_SECONDS = 2.0
 
 #: Koľkokrát sa výsledok skúsi odovzdať hubu, ktorý výpočet nepozná (404), než sa odloží
 #: do `undelivered`. Hub po reštarte môže mať stav ešte nenačítaný — pár tickov mu dáme.
@@ -113,19 +127,35 @@ class HubAgent:
         self.ticks = 0
         #: Koľko tickov je lokálny beh výpočtu už v konečnom stave (odovzdá sa po SETTLE_TICKS).
         self._final_ticks: dict[str, int] = {}
+        #: Commit, ktorý sa práve ťahá (`git pull`). Kým sa ťahá, agent neberie nové výpočty
+        #: a hub to vie z heartbeatu — kód pod bežiacim behom sa nemá meniť.
+        self.updating: str | None = None
+        #: Výpočet, kvôli ktorému sa ťahá; keď commit nepríde, zlyhá s jasnou chybou.
+        self._pull_for: tuple[str, str] | None = None
+        #: Hotové výpočty zadávateľa, ktoré treba stiahnuť (zip) — robí to pomalé vlákno.
+        self._collect_queue: list[dict[str, Any]] = []
+        self._collecting: set[str] = set()
+        self._state_lock = threading.RLock()
         self._stop = threading.Event()
+        self._work = threading.Event()
         self._thread: threading.Thread | None = None
+        self._worker: threading.Thread | None = None
 
     # -- vlákno ------------------------------------------------------------- #
 
     def start(self) -> None:
+        self._stop.clear()
         if self._thread is None or not self._thread.is_alive():
-            self._stop.clear()
             self._thread = threading.Thread(target=self._loop, name="hub-agent", daemon=True)
             self._thread.start()
+        if self._worker is None or not self._worker.is_alive():
+            self._worker = threading.Thread(target=self._work_loop, name="hub-agent-work",
+                                            daemon=True)
+            self._worker.start()
 
     def stop(self) -> None:
         self._stop.set()
+        self._work.set()
 
     def _loop(self) -> None:
         while not self._stop.is_set():
@@ -137,30 +167,58 @@ class HubAgent:
                 log.warning("hub agent: %s", self.last_error)
             self._stop.wait(self.cfg.heartbeat_seconds)
 
+    def _has_worker(self) -> bool:
+        return self._worker is not None and self._worker.is_alive()
+
+    def _work_loop(self) -> None:
+        while not self._stop.is_set():
+            if not self._work.wait(WORK_POLL_SECONDS):
+                continue
+            self._work.clear()
+            if self._stop.is_set():
+                return
+            self.work()
+
+    def work(self) -> None:
+        """Jedno kolo pomalej práce. Beží **mimo heartbeatu** — zip s výsledkom, sťahovanie
+        výsledku a hlavne `git pull` s dopočítaním dát trvajú aj minúty a hub by medzitým
+        agenta vyhlásil za mŕtveho (`agent_timeout` je 45 s) a jeho výpočty dal inému."""
+        for krok in (self._upload_finished, self._do_pull, self._drain_collects):
+            try:
+                krok()
+            except Exception as exc:  # noqa: BLE001 - jeden krok nesmie zhodiť vlákno
+                log.warning("hub agent: %s zlyhalo: %s: %s", krok.__name__, type(exc).__name__, exc)
+
     # -- jeden krok --------------------------------------------------------- #
 
     def tick(self) -> dict[str, Any]:
         self.ticks += 1
         self._reload_config()
         self.version = gitcode.version() or self.version
-        # Odovzdanie ide ešte pred registráciou: keď hub padol a vstal, výsledok spočítaný
-        # počas výpadku odíde hneď — a odíde aj vtedy, keď sa registrácia zasekne
-        # (meno obsadené starou inštanciou). Zlyhanie jedného výpočtu nezhodí zvyšok ticku.
-        self._upload_finished()
-        if not self.registered:
-            self._register()
-        odpoved = self._heartbeat()
-        if odpoved.get("set_accept") is not None:
-            self.set_accept(bool(odpoved["set_accept"]))
-        for job in odpoved.get("assign") or []:
-            self._accept(job)
-        for job_id in odpoved.get("cancel") or []:
-            self._cancel(job_id)
-        for job in odpoved.get("finished") or []:
-            self._collect(job)
-        self.last_ok = self.clock()
-        self.last_error = None
-        return odpoved
+        # Pomalé veci (odovzdanie výsledku, jeho stiahnutie, pull) robí druhé vlákno —
+        # tu sa len povie, že je čo robiť. Keď agent nebeží na vláknach (testy, jeden krok),
+        # sa spraví hneď, ale až po heartbeate.
+        self._work.set()
+        try:
+            if not self.registered:
+                self._register()
+            odpoved = self._heartbeat()
+            if odpoved.get("set_accept") is not None:
+                self.set_accept(bool(odpoved["set_accept"]))
+            for job in odpoved.get("assign") or []:
+                self._accept(job)
+            for job_id in odpoved.get("cancel") or []:
+                self._cancel(job_id)
+            for job in odpoved.get("finished") or []:
+                self._queue_collect(job)
+            self.last_ok = self.clock()
+            self.last_error = None
+            return odpoved
+        finally:
+            # Bez vlákien (testy, `tick()` naholo) sa pomalá práca spraví tu — aj keď hub
+            # nedvíha a heartbeat spadol: odovzdanie výsledku na ňom nezávisí.
+            if not self._has_worker():
+                self.work()
 
     def _heartbeat(self) -> dict[str, Any]:
         """Heartbeat; keď hub agenta nepozná (nový hub, stratený `state.json`), prihlási sa
@@ -232,6 +290,11 @@ class HubAgent:
         except (HubError, OSError, ValueError):
             pass
         self.registered = False
+
+    def _save(self) -> None:
+        """Stav na disk — pod zámkom, lebo doň píše heartbeat aj pomalé vlákno."""
+        with self._state_lock:
+            save_state(self.state, self.state_path)
 
     # -- heartbeat ---------------------------------------------------------- #
 
@@ -308,7 +371,7 @@ class HubAgent:
             # Zaseknutý beh: zabiť a nahlásiť ako zlyhaný — hub nesmie čakať donekonečna.
             log.warning("hub agent: beh %s prekrocil strop %.0f min, zabijam", run_id, limit / 60)
             entry["timed_out"] = True
-            save_state(self.state, self.state_path)
+            self._save()
             self._kill(run_id)
         epochs = (settings.get("hyperopt") or {}).get("epochs") if P.kind_of(settings) == P.KIND_HYPEROPT else None
         postup = P.progress_from_log(log_lines, epochs) if epochs else None
@@ -330,7 +393,8 @@ class HubAgent:
                 jobs.append(r)
         return {"instance": self.instance, "accept": self.cfg.accept, "send": self.cfg.send,
                 "cores": self.cores, "slots": self.slots, "version": self.version,
-                "needs_restart": self.needs_restart, "load": self._local_load(), "jobs": jobs}
+                "needs_restart": self.needs_restart, "updating": bool(self.updating),
+                "load": self._local_load(), "jobs": jobs}
 
     # -- výpočty od hubu ---------------------------------------------------- #
 
@@ -360,22 +424,40 @@ class HubAgent:
             log.info("hub agent: výpočet %s chce commit %s, čakám na dobehnutie %d behov",
                      job["id"], wanted, len(self.state.computing))
             return False
-        if self.needs_restart:
-            return False  # pull už bol, čaká sa na reštart
-        r = gitcode.pull()
-        self.version = gitcode.version() or self.version
-        if not gitcode.has_version(wanted):
-            vystup = (r.get("output") or "").strip()[-300:]
-            self._fail(job["id"], f"agent {self.cfg.name} nemá commit {wanted} ani po git pull "
-                                  f"(HEAD {self.version}) — zadávateľ ho musí pushnúť do main. {vystup}")
-            return False
-        self.code_changed = True
-        self._sync_data()
-        if self.restart_on_pull:
-            self.needs_restart = True  # nový proces si výpočet vezme s novým kódom
-            return False
-        log.warning("hub agent: po git pull beží tento proces na starom kóde — reštartuj webapp")
-        return True
+        if self.needs_restart or self.updating:
+            return False  # pull beží, alebo už bol a čaká sa na reštart
+        # Pull (a dopočítanie dát po ňom) trvá aj minúty — v tomto vlákne by sa medzitým
+        # neposlal heartbeat a hub by agenta odpísal. Zadá sa pomalému vláknu a hub výpočet
+        # pošle znova; kým sa ťahá, agent nič neberie a hlási to v heartbeate.
+        self.updating = wanted
+        self._pull_for = (job["id"], wanted or "")
+        self._work.set()
+        log.info("hub agent: výpočet %s chce commit %s, ťahám kód", job["id"], wanted)
+        return False
+
+    def _do_pull(self) -> None:
+        """`git pull` a poskladanie dát po ňom — pomalé vlákno, nie heartbeat."""
+        if self._pull_for is None:
+            return
+        job_id, wanted = self._pull_for
+        try:
+            r = gitcode.pull()
+            self.version = gitcode.version() or self.version
+            if not gitcode.has_version(wanted):
+                vystup = (r.get("output") or "").strip()[-300:]
+                self._fail(job_id, f"agent {self.cfg.name} nemá commit {wanted} ani po git pull "
+                                   f"(HEAD {self.version}) — zadávateľ ho musí pushnúť do main. {vystup}")
+                return
+            self.code_changed = True
+            self._sync_data()
+            if self.restart_on_pull:
+                self.needs_restart = True  # nový proces si výpočet vezme s novým kódom
+            else:
+                log.warning("hub agent: po git pull beží tento proces na starom kóde — "
+                            "reštartuj webapp")
+        finally:
+            self._pull_for = None
+            self.updating = None
 
     def _sync_data(self) -> None:
         """Po pulle: čo pribudlo v `data_archive/`, zložiť do skladu, a dopočítať timeframy.
@@ -398,6 +480,8 @@ class HubAgent:
         job_id = job["id"]
         if job_id in self.state.computing:
             return  # hub ho posiela, kým ho nenahlásime ako bežiaci — už ho máme
+        if self.updating:
+            return  # kód sa práve prepisuje pod rukami; hub ho pošle znova
         if not self._ensure_version(job):
             return
         payload = job.get("payload") or {}
@@ -416,7 +500,7 @@ class HubAgent:
         self.state.computing[job_id] = {"run_id": local.id, "kind": job.get("kind"),
                                         "max_seconds": job.get("max_seconds"),
                                         "accepted": datetime.now(timezone.utc).isoformat(timespec="seconds")}
-        save_state(self.state, self.state_path)
+        self._save()
 
     def _cancel(self, job_id: str) -> None:
         entry = self.state.computing.get(job_id)
@@ -425,7 +509,7 @@ class HubAgent:
             self.http.post_bytes(f"/api/jobs/{job_id}/result?status=cancelled&agent={self.cfg.name}", b"")
             return
         entry["cancel_requested"] = True
-        save_state(self.state, self.state_path)
+        self._save()
         if entry.get("run_id"):
             self._kill(entry["run_id"])
 
@@ -516,7 +600,7 @@ class HubAgent:
                 continue
             self.state.computing.pop(job_id, None)
             self._final_ticks.pop(job_id, None)
-            save_state(self.state, self.state_path)
+            self._save()
 
     def _deliver_failed(self, job_id: str, entry: dict[str, Any], reason: str) -> None:
         """Odovzdanie neprešlo (hub mimo) — necháme si ho a skúsime to o tick znova."""
@@ -525,7 +609,7 @@ class HubAgent:
         if entry["deliver_fails"] in (1, 10) or entry["deliver_fails"] % 60 == 0:
             log.warning("hub agent: vysledok %s sa nedari odovzdat (%dx): %s — necham si ho",
                         job_id, entry["deliver_fails"], reason)
-        save_state(self.state, self.state_path)
+        self._save()
 
     def _park(self, job_id: str, entry: dict[str, Any], run_ids: list[str], status: str,
               reason: str) -> None:
@@ -540,7 +624,7 @@ class HubAgent:
         }
         self.state.computing.pop(job_id, None)
         self._final_ticks.pop(job_id, None)
-        save_state(self.state, self.state_path)
+        self._save()
 
     # -- výsledky toho, čo sme poslali -------------------------------------- #
 
@@ -550,7 +634,30 @@ class HubAgent:
             "kind": job.get("kind"), "note": note, "created": job.get("created"),
             "status": job.get("status"), "run_ids": [], "error": None,
         }
-        save_state(self.state, self.state_path)
+        self._save()
+
+    def _queue_collect(self, job: dict[str, Any]) -> None:
+        """Hotový výpočet zadávateľa: zip sťahuje pomalé vlákno, nie heartbeat."""
+        with self._state_lock:
+            if job["id"] in self._collecting:
+                return
+            self._collecting.add(job["id"])
+            self._collect_queue.append(job)
+        self._work.set()
+
+    def _drain_collects(self) -> None:
+        while True:
+            with self._state_lock:
+                if not self._collect_queue:
+                    return
+                job = self._collect_queue.pop(0)
+            try:
+                self._collect(job)
+            except (HubError, OSError, ValueError) as exc:
+                log.warning("hub agent: vysledok %s sa nepodarilo vyzdvihnut: %s", job["id"], exc)
+            finally:
+                with self._state_lock:
+                    self._collecting.discard(job["id"])
 
     def _collect(self, job: dict[str, Any]) -> None:
         job_id = job["id"]
@@ -570,7 +677,7 @@ class HubAgent:
                        "run_ids": run_ids or list(job.get("run_ids") or []),
                        "agent": job.get("agent"),
                        "collected": datetime.now(timezone.utc).isoformat(timespec="seconds")})
-        save_state(self.state, self.state_path)
+        self._save()
         self.http.post(f"/api/jobs/{job_id}/ack")
 
     # -- stav pre API ------------------------------------------------------- #
@@ -580,7 +687,7 @@ class HubAgent:
             "name": self.cfg.name, "hub_url": self.cfg.hub_url, "accept": self.cfg.accept,
             "send": self.cfg.send, "cores": self.cores, "slots": self.slots,
             "version": self.version, "needs_restart": self.needs_restart,
-            "code_changed": self.code_changed,
+            "code_changed": self.code_changed, "updating": self.updating,
             "registered": self.registered, "last_error": self.last_error,
             "last_ok": datetime.fromtimestamp(self.last_ok, tz=timezone.utc).isoformat(timespec="seconds")
             if self.last_ok else None,

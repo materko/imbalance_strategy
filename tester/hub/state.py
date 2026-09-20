@@ -136,7 +136,7 @@ class HubState(TokensMixin, EventsMixin):
             agent["last_seen"] = now
             agent["online"] = True
             agent.pop("bye_at", None)
-            for k in ("accept", "send", "cores", "slots", "version", "needs_restart"):
+            for k in ("accept", "send", "cores", "slots", "version", "needs_restart", "updating"):
                 if k in body and body[k] is not None:
                     agent[k] = body[k]
             agent["load"] = dict(body.get("load") or {})
@@ -271,6 +271,7 @@ class HubState(TokensMixin, EventsMixin):
             "accept": bool(agent.get("accept")), "send": bool(agent.get("send")),
             "online": bool(agent.get("online")), "last_seen": _iso(float(agent.get("last_seen") or 0)),
             "version": agent.get("version"), "needs_restart": bool(agent.get("needs_restart")),
+            "updating": bool(agent.get("updating")),
             "accept_request": agent.get("accept_request"),
             "load": agent.get("load") or {},
             "used": b["used"], "exclusive": b["exclusive"],
@@ -329,7 +330,10 @@ class HubState(TokensMixin, EventsMixin):
     # -- výpočty ------------------------------------------------------------ #
 
     def _online_accepting(self) -> list[dict[str, Any]]:
-        return [a for a in self.agents.values() if a.get("online") and a.get("accept")]
+        # Agent, ktorý práve ťahá kód (`git pull` + dáta), nič nevezme — kód sa mu mení
+        # pod rukami a trvá to aj minúty. Hlási to v heartbeate.
+        return [a for a in self.agents.values()
+                if a.get("online") and a.get("accept") and not a.get("updating")]
 
     def capacity(self, demand: int | str = 1) -> dict[str, Any]:
         """Kto by výpočet s takou požiadavkou zobral hneď a kedy najskôr inak."""
