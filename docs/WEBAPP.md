@@ -304,7 +304,8 @@ ktorýkoľvek parameter configu (SizeSpec sa porovnáva cez hodnotu) alebo skrat
 výsledku: `pnl` (%), `pnl_abs`, `trades`, `pf`, `wr`, `dd`, `be` (break-even),
 `pair`, `strategy` (alebo `strat`), `timerange`, `fee`, `wallet`, `profile`, `note`, `user`,
 `status`. Slovo bez
-operátora sa hľadá v poznámke, páre, profile a id.
+operátora sa hľadá v poznámke, páre, profile a id. Stránkuje sa po 50 riadkoch a číta sa
+naozaj len tá stránka (viď **Index histórie** nižšie).
 
 ### Detail behu
 
@@ -372,9 +373,47 @@ tester/runs/<YYYYMMDD-HHMMSS-odtlačok>/      v gite
     plan.json       plánovaný SL/TP obchodov (výťah z kresieb pre analytiku)
     log.txt         skrátený log
 tester/runs/.charts/<id>.json.gz               kresby enginu pre graf páru — lokálna cache, nie v gite
+tester/runs/.index/runs.sqlite3                index histórie — odvodený, nie v gite
 tester/sweeps/<druh>-<id>.json                 v gite: body mriežky (sweep), matice (matrix),
                                                overenia víťaza hyperoptu (hyperopt_run), okolia (plateau)
+tester/archive/runs-NNNN.jsonl.gz              v gite: behy odložené z histórie (`cli archive`)
+tester/archive/index.json                      ktorý odložený beh je v ktorom súbore
 ```
+
+### Index histórie
+
+Zoznam behov a hľadanie idú cez **odvodený sqlite index** (`tester/runs/.index/`,
+gitignored). Bez neho sa pri každom dopyte parsovali všetky `run.json`: pri 37 852 behoch
+30 s procesora na prvé načítanie, 24 GB v pamäti a sekundové zamrznutia na zbere odpadkov —
+kvôli päťdesiatim riadkom na stránke. S ním je stránka histórie otázka **desatín sekundy**
+a po reštarte webapp sa index nestavia znova.
+
+Pravda je stále na disku. Index drží `(čas, veľkosť)` každého `run.json`, pri každom dopyte
+porovná zoznam adresárov a raz za pol minúty aj časy súborov, takže čo pribudlo, zmizlo
+alebo sa prepísalo (aj cez `git pull`), sa načíta nanovo. Zmazať sa dá kedykoľvek —
+postaví sa sám. Ručne: `cli reindex` (dorovnať), `cli reindex --rebuild` (odznova).
+
+Hľadanie nad parametrami stratégie (`rrRatio>=5`) index nevie preložiť do SQL, tak dofiltruje
+Python — nad tým, čo prešlo indexom. Odpoveď je v oboch prípadoch tá istá; drží to test
+`tester/tests/test_run_index.py`, ktorý dopyt po dopyte porovnáva index s prehľadaním súborov.
+
+### Archív starých behov
+
+Beh je adresár so štyrmi súbormi a `trades.json` v ňom má ~250 kB. Pri desaťtisícoch behov
+je pracovný strom 11 GB a 132 000 súborov — `git status` sa vlečie a klon testera trvá večnosť.
+`cli archive` ich zabalí do gzipovaného JSONL (~9× menej) a adresáre zmaže:
+
+```
+cli archive --empty-note                       # plán: čo by sa odložilo (nič nemaže)
+cli archive --before 20260919 --apply          # vykonať
+cli archive "strategy=orb pnl<0" --apply       # výber tým istým dopytom ako hľadanie
+cli archive --restore 20260917-134920-1909fd   # vrátiť beh späť do histórie
+```
+
+Archivovanie je **vratné**: v archíve leží celý beh (config, výsledok, equity krivka, obchody,
+log) a `--restore` z neho vyrobí presne ten istý adresár. Maže sa až po tom, ako sa zapísané
+podarí prečítať späť. Archív ide do gitu ako história a **Push ho commituje**. Čo archív
+nespraví: nezmenší `.git` — staré objekty v histórii gitu ostávajú, zmenší sa pracovný strom.
 
 **Kresby grafu v gite nie sú.** Ročný beh má ~90 000 objektov (1–1,5 MB zbalené) a história
 ich mala tisíce. Beh nesie celý config, takže sa kresby dajú kedykoľvek vyrobiť znova:

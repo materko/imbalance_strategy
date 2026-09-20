@@ -171,6 +171,7 @@ def scan(root: Path | None = None, *, pair: str | None = None,
 
     root = Path(root) if root is not None else RUNS_DIR
     out = []
+    zapisane: list[str] = []
     for d, rec in _runs(root):
         if pair and (rec.get("settings") or {}).get("pair") != pair:
             continue
@@ -189,6 +190,16 @@ def scan(root: Path | None = None, *, pair: str | None = None,
             _write_json(d / "run.json", rec)
             if r.trades_changed:
                 _write_json(tp, r.trades)
+            zapisane.append(d.name)
+    if zapisane:
+        # Index behov (`tester.webapp.index`) sa na prepísané `run.json` sám pýta až raz
+        # za čas — po hromadnom prepočte nech ich prečíta hneď.
+        from .webapp.index import RunIndex
+
+        index = RunIndex(root)
+        for run_id in zapisane:
+            index.forget(run_id)
+        index.close()
     return out
 
 

@@ -21,8 +21,14 @@ Body mriežok, matíc a overení hyperoptu sem nejdú vôbec — tie sú v `swee
 
 Prečo súbory a nie databáza: história má ísť do gitu, aby sa dala pushovať a pullovať
 medzi testermi. JSON per beh sa mergeuje bez konfliktov (každý beh je nový adresár),
-diff je čitateľný a nič sa nestratí. Pri stovkách behov je prehľadanie všetkých
-`run.json` otázka desiatok milisekúnd, index netreba.
+diff je čitateľný a nič sa nestratí.
+
+Pri stovkách behov stačilo prehľadať všetky `run.json`, pri desaťtisícoch už nie (30 s
+procesora a 24 GB v pamäti na jeden zoznam). Zoznam a hľadanie preto idú cez odvodený
+index (`tester.webapp.index`, sqlite v `runs/.index/`, gitignored): drží záznamy bez
+`series`, vracia priamo stránku histórie a po reštarte webapp sa nestavia znova. Disk
+ostáva pravda — index sa s ním pri každom dopyte zosúladí a dá sa kedykoľvek zahodiť.
+`get()` (detail behu) číta súbor, takže `series` a všetko ostatné je v ňom celé.
 
 `run_id` = čas + odtlačok parametrov, takže dvaja testeri s rovnakým nastavením
 v rovnakej sekunde nekolidujú a z názvu adresára vidno, kedy beh vznikol.
@@ -36,6 +42,8 @@ import json
 import os
 import re
 import shutil
+import sqlite3
+from collections import OrderedDict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
@@ -49,6 +57,9 @@ _ID_RE = re.compile(r"^[0-9]{8}-[0-9]{6}-[0-9a-f]{6}$")
 CHART_FILE = "chart.json.gz"
 #: Plánovaný SL/TP obchodov behu — výťah z kresieb pre analytiku (`plan_objects`).
 PLAN_FILE = "plan.json"
+#: Koľko celých `run.json` (aj so `series`) si sklad drží v pamäti. Detail behu ich číta
+#: po jednom, takže stačí malá zásoba; hromadné čítanie robí index.
+CACHE_RUNS = 256
 
 
 def make_run_id(params: dict[str, Any], settings: dict[str, Any], when: datetime | None = None) -> str:
@@ -165,11 +176,15 @@ class RunStore:
 
             batches = BatchStore(Path(SWEEPS_DIR) if default else self.root / ".sweeps")
         self.batches = batches
-        # Načítané `run.json` podľa (mtime, veľkosť): pri tisíckach behov trvá čítanie
-        # všetkých súborov sekundy a robilo sa pri KAŽDOM dopyte (história, ponuky
-        # mriežok, nastavení…). Disk je stále pravda - čo sa zmenilo alebo pribudlo
-        # (aj cez git pull), sa prečíta nanovo, čo zmizlo, vypadne.
-        self._cache: dict[str, tuple[tuple[int, int], dict[str, Any]]] = {}
+        # Zoznam a hľadanie idú cez index (`tester.webapp.index`); keď sa nepodarí,
+        # `ok` spadne na False a všetko sa vráti k čítaniu súborov.
+        from .index import RunIndex
+
+        self.index = RunIndex(self.root)
+        # Posledné čítané `run.json` podľa (mtime, veľkosť) — pre detail behu a obchody.
+        # Ohraničené: celá história v pamäti mala 24 GB a každý zber odpadkov nad ňou
+        # sekundy. Hromadné čítanie patrí indexu, nie tejto cache.
+        self._cache: OrderedDict[str, tuple[tuple[int, int], dict[str, Any]]] = OrderedDict()
 
     def _cached(self, run_id: str, path: Path) -> dict[str, Any] | None:
         """Záznam behu z cache, alebo zo súboru, keď sa zmenil. `None` = niet/rozbitý."""
@@ -181,6 +196,7 @@ class RunStore:
         podpis = (st.st_mtime_ns, st.st_size)
         hit = self._cache.get(run_id)
         if hit is not None and hit[0] == podpis:
+            self._cache.move_to_end(run_id)
             return hit[1]
         try:
             rec = _with_strategy(_read_json(path))
@@ -188,6 +204,8 @@ class RunStore:
             self._cache.pop(run_id, None)
             return None  # rozbitý súbor nemá zhodiť celý zoznam
         self._cache[run_id] = (podpis, rec)
+        while len(self._cache) > CACHE_RUNS:
+            self._cache.popitem(last=False)
         return rec
 
     # -- zápis -------------------------------------------------------------- #
@@ -213,6 +231,7 @@ class RunStore:
                                                        strategy_of(record), nastavenia.get("engine") or ""))
             self.put_chart(run_id, chart_path, {"source": "run", "match": True,
                                                 "created": record.get("finished")})
+        self.index.put(run_id)
         return d
 
     def put_chart(self, run_id: str, chart_path: Path | str, check: dict[str, Any]) -> Path:
@@ -245,6 +264,8 @@ class RunStore:
         shutil.rmtree(d)
         for p in (self.chart_cache / f"{run_id}.json.gz", self.chart_cache / f"{run_id}.check.json"):
             p.unlink(missing_ok=True)
+        self._cache.pop(run_id, None)
+        self.index.forget(run_id)
         return True
 
     # -- čítanie ------------------------------------------------------------ #
@@ -335,8 +356,18 @@ class RunStore:
         return self.get(run_id) or self.batches.find(run_id)
 
     def all(self) -> list[dict[str, Any]]:
+        """Všetky behy od najnovšieho, **bez `series`** (equity krivka je väčšina bajtov
+        a mimo detailu behu ju nikto nečíta — ten ju má z `get()`)."""
+        if self.index.sync():
+            try:
+                return self.index.records()
+            except sqlite3.Error:
+                pass
+        return self._scan()
+
+    def _scan(self) -> list[dict[str, Any]]:
+        """Čítanie histórie zo súborov — záloha, keď index nefunguje."""
         out = []
-        zive: set[str] = set()
         try:
             polozky = list(os.scandir(self.root))
         except OSError:
@@ -346,16 +377,38 @@ class RunStore:
                 continue
             rec = self._cached(e.name, Path(e.path) / "run.json")
             if rec is not None:
-                zive.add(e.name)
-                out.append(dict(rec))
-        for run_id in [k for k in self._cache if k not in zive]:
-            self._cache.pop(run_id, None)
+                out.append({k: v for k, v in rec.items() if k != "series"})
         out.sort(key=lambda r: r.get("id", ""), reverse=True)
         return out
 
     def search(self, query: str) -> list[dict[str, Any]]:
         conds = parse_query(query)
-        return [r for r in self.all() if all(_match(r, c) for c in conds)]
+        if self.index.sync():
+            try:
+                sql, hodnoty, zvysok = self.index.where(conds)
+                recs = self.index.records(sql, hodnoty)
+                return [r for r in recs if all(_match(r, c) for c in zvysok)] if zvysok else recs
+            except sqlite3.Error:
+                pass
+        return [r for r in self._scan() if all(_match(r, c) for c in conds)]
+
+    def page(self, query: str, offset: int = 0, limit: int = 50) -> tuple[int, list[dict[str, Any]]]:
+        """`(koľko ich je, jedna stránka)` — zoznam histórie. Keď index vie celý dopyt,
+        prečíta sa presne `limit` behov, nie celá história."""
+        conds = parse_query(query or "")
+        if self.index.sync():
+            try:
+                sql, hodnoty, zvysok = self.index.where(conds)
+                if not zvysok:
+                    return self.index.count(sql, hodnoty), self.index.page(sql, hodnoty, offset, limit)
+                # Podmienka nad parametrami stratégie — dofiltruje Python, ale už len to,
+                # čo prešlo indexom.
+                recs = [r for r in self.index.records(sql, hodnoty) if all(_match(r, c) for c in zvysok)]
+                return len(recs), recs[offset:offset + limit]
+            except sqlite3.Error:
+                pass
+        recs = [r for r in self._scan() if all(_match(r, c) for c in conds)]
+        return len(recs), recs[offset:offset + limit]
 
 
 # --------------------------------------------------------------------------- #

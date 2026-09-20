@@ -338,7 +338,8 @@ def test_push_berie_sweeps_a_zastavi_sa_na_ignorovanej_historii(monkeypatch):
         return type("P", (), {"args": ("git", *args), "stdout": out, "stderr": "", "returncode": 0})()
 
     monkeypatch.setattr(gitsync, "_git", fake_git)
-    monkeypatch.setattr(gitsync, "_paths", lambda: ["tester/runs", "tester/sweeps", "tester/profiles"])
+    monkeypatch.setattr(gitsync, "_paths",
+                        lambda: ["tester/runs", "tester/sweeps", "tester/profiles", "tester/archive"])
     assert gitsync.ignored_history() == ["tester/runs/b/run.json", "tester/sweeps/sweep-x.json"]
     r = gitsync.push()
     assert r["ok"] is False and "Push zrušený" in r["output"] and "tester/runs/b/run.json" in r["output"]
@@ -352,14 +353,15 @@ def test_push_berie_sweeps_a_zastavi_sa_na_ignorovanej_historii(monkeypatch):
 def test_push_adresare_zahrnaju_sweeps(tmp_path: Path, monkeypatch):
     from tester.webapp import gitsync
 
-    for name in ("runs", "sweeps", "profiles", "analytics"):
+    for name in ("runs", "sweeps", "profiles", "analytics", "archive"):
         (tmp_path / name).mkdir()
     monkeypatch.setattr(gitsync, "REPO", tmp_path)
     monkeypatch.setattr(gitsync, "RUNS_DIR", tmp_path / "runs")
     monkeypatch.setattr(gitsync, "SWEEPS_DIR", tmp_path / "sweeps")
     monkeypatch.setattr(gitsync, "PROFILES_DIR", tmp_path / "profiles")
     monkeypatch.setattr(gitsync, "ANALYTICS_DIR", tmp_path / "analytics")
-    assert gitsync._paths() == ["runs", "sweeps", "profiles", "analytics"]
+    monkeypatch.setattr(gitsync, "ARCHIVE_DIR", tmp_path / "archive")
+    assert gitsync._paths() == ["runs", "sweeps", "profiles", "analytics", "archive"]
 
 
 # --------------------------------------------------------------------------- #

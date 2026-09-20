@@ -7,8 +7,8 @@ import argparse
 from .analysis import cmd_analytics, cmd_decay, cmd_nulltest, cmd_paper, cmd_prop
 from .common import DEFAULT_URL
 from .history import (
-    cmd_chart, cmd_list, cmd_params, cmd_prune, cmd_pull, cmd_push, cmd_recompute, cmd_replay,
-    cmd_show, cmd_status,
+    cmd_archive, cmd_chart, cmd_list, cmd_params, cmd_prune, cmd_pull, cmd_push, cmd_recompute, cmd_reindex,
+    cmd_replay, cmd_show, cmd_status,
 )
 from .hyperopt import cmd_hyperopt, cmd_hyperopts
 from .matrix import cmd_checkup, cmd_matrices, cmd_matrix
@@ -319,6 +319,21 @@ def build_parser(description: str) -> argparse.ArgumentParser:
     p.add_argument("--keep-charts", action="store_true",
                    help="kresby nemazať, ale presunúť do lokálnej cache grafov (ostanú na disku, nie v gite)")
     p.set_defaults(func=cmd_prune)
+
+    p = sub.add_parser("archive", help="odlož staré behy z histórie do gzip archívu "
+                                       "(bez --apply len plán)")
+    p.add_argument("query", nargs="*", help="výber behov rovnakým dopytom ako hľadanie "
+                                            "(napr. 'strategy=orb pnl<0')")
+    p.add_argument("--before", metavar="YYYYMMDD", help="len behy staršie ako tento deň")
+    p.add_argument("--empty-note", action="store_true", help="len behy bez poznámky")
+    p.add_argument("--apply", action="store_true",
+                   help="naozaj vykonať: zapísať do tester/archive/ a po overení zmazať adresáre")
+    p.add_argument("--restore", metavar="RUN_ID", help="vrátiť jeden beh z archívu do histórie")
+    p.set_defaults(func=cmd_archive)
+
+    p = sub.add_parser("reindex", help="dorovnaj index histórie (zoznam behov ho číta)")
+    p.add_argument("--rebuild", action="store_true", help="zahodiť a postaviť odznova")
+    p.set_defaults(func=cmd_reindex)
 
     p = sub.add_parser("params", help="zoznam parametrov (názov, skupina, titulok, typ, rozsah)")
     p.add_argument("filter", nargs="?")

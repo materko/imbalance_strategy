@@ -10,6 +10,8 @@
     python -m tester.webapp.cli replay <id>     # bod mriežky/matice ako obyčajný beh
     python -m tester.webapp.cli chart <id>      # prepočítaj kresby behu do cache grafov
     python -m tester.webapp.cli prune           # čo odpratať z histórie (bez --apply nič nemaže)
+    python -m tester.webapp.cli archive         # odlož staré behy do gzip archívu (bez --apply nič nemaže)
+    python -m tester.webapp.cli reindex         # dorovnaj index histórie (--rebuild = odznova)
 
 `run` ide cez REST API bežiacej webapp (ak beží — beh sa objaví vo fronte aj
 testerovi v prehliadači); keď webapp nebeží, spustí backtest priamo a uloží ho

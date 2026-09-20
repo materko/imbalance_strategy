@@ -1,7 +1,8 @@
-"""Git synchronizácia dát testera — `runs/`, `sweeps/`, `profiles/` a `analytics/`, nič iné.
+"""Git synchronizácia dát testera — `runs/`, `sweeps/`, `profiles/`, `analytics/`
+a `archive/`, nič iné.
 
 Tester klikne „Push": zmeny v histórii behov, vo výsledkoch mriežok a matíc, vo vlastných
-profiloch a v uložených analytikách sa commitnú, spraví sa `pull --rebase` a `push`. Kód ani
+profiloch, v uložených analytikách a v archíve behov (`cli archive`) sa commitnú, spraví sa `pull --rebase` a `push`. Kód ani
 iné súbory sa nedotýkajú, takže si tester nemôže omylom commitnúť rozpracovanú zmenu
 stratégie. Konflikt prakticky nevzniká (každý beh aj každá mriežka je nový súbor), ale keby
 predsa, výstup gitu sa zobrazí celý.
@@ -27,7 +28,7 @@ from pathlib import Path
 from typing import Any
 
 from tradebot.core.env import getenv
-from tradebot.core.paths import ANALYTICS_DIR, REPO, SWEEPS_DIR
+from tradebot.core.paths import ANALYTICS_DIR, ARCHIVE_DIR, REPO, SWEEPS_DIR
 from .profiles import PROFILES_DIR
 from .store import RUNS_DIR
 
@@ -70,14 +71,15 @@ def _auth_failed(output: str) -> bool:
 
 def _paths() -> list[str]:
     """Adresáre, ktoré Push commituje — prázdny (neexistujúci) sa vynechá, git by naň nadával."""
-    dirs = [Path(RUNS_DIR), Path(SWEEPS_DIR), Path(PROFILES_DIR), Path(ANALYTICS_DIR)]
+    dirs = [Path(RUNS_DIR), Path(SWEEPS_DIR), Path(PROFILES_DIR), Path(ANALYTICS_DIR),
+            Path(ARCHIVE_DIR)]
     return [d.relative_to(REPO).as_posix() for d in dirs if d.exists()]
 
 
 #: Čo smie git v adresároch histórie ignorovať: kresby grafu (lokálna cache, prepočítajú sa)
 #: a dočasné súbory rozbehnutých behov. Všetko ostatné ignorované je chyba `.gitignore`.
 ALLOWED_IGNORED = ("/chart.json.gz", "/.charts/", "/.profiles/", "/.plans/", "/.sweeps/",
-                   "/__pycache__/", ".tmp")
+                   "/.index/", "/__pycache__/", ".tmp")
 
 
 def ignored_history(paths: list[str] | None = None) -> list[str]:
@@ -175,9 +177,9 @@ def _message(changed: list[str]) -> str:
     """Zhrnutie do commit správy: koľko behov, mriežok, profilov a analytík sa pridáva."""
     rel = {name: Path(d).relative_to(REPO).as_posix() + "/" for name, d in (
         ("runs", RUNS_DIR), ("sweeps", SWEEPS_DIR), ("profiles", PROFILES_DIR),
-        ("analytics", ANALYTICS_DIR))}
+        ("analytics", ANALYTICS_DIR), ("archive", ARCHIVE_DIR))}
     runs: set[str] = set()
-    counts = {"sweeps": 0, "profiles": 0, "analytics": 0}
+    counts = {"sweeps": 0, "profiles": 0, "analytics": 0, "archive": 0}
     deleted = 0
     for line in changed:
         code, path = line[:2], line[3:].strip().strip('"').replace("\\", "/")
@@ -198,6 +200,8 @@ def _message(changed: list[str]) -> str:
         parts.append(_plural(counts["profiles"], "profil", "profily", "profilov"))
     if counts["analytics"]:
         parts.append(_plural(counts["analytics"], "analytiku", "analytiky", "analytík"))
+    if counts["archive"]:
+        parts.append(_plural(counts["archive"], "súbor", "súbory", "súborov") + " archívu behov")
     text = ("Pridaj " + " a ".join(parts) + " z webapp") if parts else "Uprac históriu behov z webapp"
     if deleted:
         text += f" (odstránených súborov: {deleted})"

@@ -46,7 +46,7 @@ __all__ = [
     "MULTICHARTS_DIR", "NINJATRADER_DIR",
     "CSHARP_DIR", "CSHARP_BIN", "CSHARP_DLL", "CSHARP_HOST",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES", "ANALYTICS_DIR",
-    "SWEEPS_DIR", "CHART_CACHE",
+    "SWEEPS_DIR", "CHART_CACHE", "ARCHIVE_DIR",
     "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE",
     "DOCS_DIR", "MERANIA_DIR",
     "ARCHIVE_ROOTS",
@@ -113,6 +113,11 @@ ANALYTICS_DIR = TESTER_DIR / "analytics"
 #: body do `runs/` nejdú, lebo ich sú tisíce. Bod sa dá kedykoľvek prehrať ako obyčajný
 #: beh. Zdieľa sa cez git ako história behov.
 SWEEPS_DIR = TESTER_DIR / "sweeps"
+#: Archív behov — beh, ktorý sa z histórie odložil (`cli archive`), leží celý (config,
+#: výsledok, obchody, log) v gzipovanom JSONL. Tisíce adresárov v `runs/` tým padnú na
+#: pár súborov, ale nič sa nestratí: `cli archive --restore` beh vráti presne späť.
+#: Ide do gitu ako história behov.
+ARCHIVE_DIR = TESTER_DIR / "archive"
 #: Kresby enginu pre graf páru (`<run_id>.json.gz`) a výsledok kontroly prehrania.
 #: Megabajty na beh a z uloženého configu sa dajú kedykoľvek prepočítať, takže do gitu
 #: nejdú — každý klon si ich počíta sám, až keď graf niekto otvorí.

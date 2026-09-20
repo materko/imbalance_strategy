@@ -29,8 +29,9 @@ def build(ctx: AppContext) -> APIRouter:
 
     @router.get("/api/runs")
     def runs(q: str = "", limit: int = Query(500, ge=1, le=5000), offset: int = Query(0, ge=0)):
-        recs = store.search(q) if q.strip() else store.all()
-        vybrane = recs[offset:offset + limit]
+        # Stránku vyreže index (`store.page`), nie Python nad celou históriou: pri
+        # desaťtisícoch behov je rozdiel medzi desiatkami milisekúnd a desiatkami sekúnd.
+        total, vybrane = store.page(q, offset, limit)
         rows = [summarize_for_list(r, defaults_of(r)) for r in vybrane]
         # Beh spred sérií ich v `run.json` nemá; na stránke histórie sa dopočítajú
         # z obchodov (natrvalo ich dopíše `cli recompute --write`).
@@ -41,7 +42,7 @@ def build(ctx: AppContext) -> APIRouter:
                 vysledok = row["result"]
                 if vysledok.get("trades") and not vysledok.get("streaks"):
                     vysledok["streaks"] = streaks(store.trades(rec["id"]))
-        return {"total": len(recs), "runs": rows}
+        return {"total": total, "runs": rows}
 
     @router.post("/api/runs")
     def submit(req: RunRequest):
@@ -73,6 +74,11 @@ def build(ctx: AppContext) -> APIRouter:
                 return {"record": bod, "trades": [], "live": False, "batch": bod["batch"]}
             job = runner.job(run_id)
             if job is None:
+                from .. import archive
+
+                if run_id in archive.archived():
+                    raise HTTPException(404, f"beh je v archíve — vrátiť ho do histórie: "
+                                             f"python -m tester.webapp.cli archive --restore {run_id}")
                 raise HTTPException(404, "beh neexistuje")
             return {"record": job.public(), "trades": [], "live": True}
         defaults = defaults_of(rec)

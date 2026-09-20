@@ -72,6 +72,11 @@ Bez obmedzení. Platia len konvencie repozitára:
   bar po bare proti Python predlohe (`python -m tester.compare.csharp_parity`,
   `tester/tests/test_csharp_parity.py`). Zmena v `ibs` = tá istá zmena v `csharp/…/IbsNinja`.
   [docs/NINJATRADER.md](docs/NINJATRADER.md).
+- Zoznam a hľadanie v histórii idú cez odvodený sqlite index (`tester/webapp/index.py`,
+  `runs/.index/`, gitignored) — nikdy nie cez parsovanie všetkých `run.json`. Index musí
+  odpovedať presne to isté, čo prehľadanie súborov (`tester/tests/test_run_index.py`).
+  Staré behy sa z histórie odkladajú do `tester/archive/` (`cli archive`, vratné cez
+  `--restore`); hromadné mazanie behov bez archívu je zakázané.
 - Cesty v repozitári sú na jednom mieste v `tradebot/core/paths.py`; nikde inde sa nepíšu.
 - Vyšší TF sa z 1m skladá výhradne cez `tradebot/core/candles.py` (webapp graf, simulátor,
   emulátor, súbory pre Freqtrade) — keby sa pravidlo rozišlo, porovnanie platforiem prestane

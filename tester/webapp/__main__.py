@@ -37,15 +37,16 @@ def main() -> int:
 
     import uvicorn
 
-    # Cache záznamov behov a ponuky párov sa naplní na pozadí už teraz, nie až pri prvom
-    # dopyte zo stránky: pri tisíckach behov trvá prvé čítanie sekundy a tester by ich
-    # čakal pri každom štarte. uvicorn ten istý modul (a store) použije znova.
+    # Index behov a ponuka párov sa dorovnajú na pozadí už teraz, nie až pri prvom dopyte
+    # zo stránky. Po prvom štarte je index hotový, takže je to lacné; prvý raz (alebo po
+    # zmazaní indexu) sa tu prečíta celá história. uvicorn ten istý modul (a store) použije
+    # znova.
     from .app import app as _app
     from .runner import available_pairs
 
     def _zahrej() -> None:
         try:
-            _app.state.store.all()
+            _app.state.store.index.sync(force=True)
             available_pairs()
         except Exception:  # noqa: BLE001 - zahriatie je len úspora, nie podmienka behu
             pass

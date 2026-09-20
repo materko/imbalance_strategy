@@ -89,6 +89,58 @@ def cmd_prune(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_archive(args: argparse.Namespace) -> int:
+    """Odloženie behov z histórie do gzipovaného archívu. Bez `--apply` len vypíše plán."""
+    from .. import archive
+    from ..store import RunStore
+
+    store = RunStore()
+    if args.restore:
+        d = archive.restore(store, args.restore)
+        if d is None:
+            print(f"beh {args.restore} v archíve nie je")
+            return 1
+        archive.forget(args.restore)
+        print(f"beh {args.restore} je späť v histórii: {d}")
+        return 0
+
+    recs = store.search(" ".join(args.query)) if args.query else store.all()
+    if args.before:
+        recs = [r for r in recs if r["id"][:8] < args.before]
+    if args.empty_note:
+        recs = [r for r in recs if not (r.get("note") or "").strip()]
+    plan = archive.plan(store, recs)
+    print(archive.report(plan))
+    if not args.apply:
+        print("\nnic sa nezmenilo (suchy beh); vykonat: rovnaky prikaz s --apply")
+        return 0
+    if not plan.ids:
+        return 0
+    vysledok = archive.apply(store, plan, log=lambda t: print(t, flush=True))
+    print(f"\nhotovo: {json.dumps(vysledok, ensure_ascii=False)}")
+    return 0 if not vysledok["failed"] else 1
+
+
+def cmd_reindex(args: argparse.Namespace) -> int:
+    """Postav index histórie odznova (`tester.webapp.index`) — zoznam behov ho používa."""
+    import time
+
+    from ..store import RunStore
+
+    store = RunStore()
+    if args.rebuild:
+        store.index.close()
+        for p in store.index.path.parent.glob("runs.sqlite3*"):
+            p.unlink(missing_ok=True)
+    t = time.time()
+    if not store.index.sync(force=True):
+        print("index sa nepodarilo otvoriť — webapp bude čítať súbory (pomaly)")
+        return 1
+    print(f"index hotový za {time.time() - t:.1f} s: {store.index.count('1', [])} behov, "
+          f"{store.index.path.stat().st_size / 1e6:,.0f} MB".replace(",", " "))
+    return 0
+
+
 def cmd_list(args: argparse.Namespace) -> int:
     from ..store import RunStore
 
