@@ -197,10 +197,15 @@ nebol k dispozícii — build nebol overený, súbory sú podľa `docker/docker-
 
 ```bash
 cp .env.example .env         # TRADEBOT_HUB_TOKEN=… (povinný), TRADEBOT_HUB_BIND, TRADEBOT_HUB_PORT
-docker compose -f docker/docker-compose.hub.yml up -d --build
-docker compose -f docker/docker-compose.hub.yml exec hub python -m tester.hub token add srv-01 --local
-docker compose -f docker/docker-compose.hub.yml exec hub python -m tester.hub events --local
+docker compose --env-file .env -f docker/docker-compose.hub.yml up -d --build
+docker compose --env-file .env -f docker/docker-compose.hub.yml exec hub python -m tester.hub token add srv-01 --local
+docker compose --env-file .env -f docker/docker-compose.hub.yml exec hub python -m tester.hub events --local
 ```
+
+**`--env-file .env` a koreň repozitára nie sú ozdoba.** Compose číta `.env` pre `${…}`
+z adresára compose súboru (teda z `docker/`), nie z koreňa; `env_file` v službe len
+podáva premenné dovnútra kontajnera. Bez toho prepínača — alebo s prázdnym tokenom —
+skončíš na `required variable TRADEBOT_HUB_TOKEN is missing a value`.
 
 Port sa predvolene viaže na `127.0.0.1` — pred hub patrí reverse proxy s TLS (Caddy,
 nginx). `TRADEBOT_HUB_BIND=0.0.0.0` ho dá priamo na sieť, ale potom ide token po HTTP.
@@ -210,8 +215,8 @@ nginx). `TRADEBOT_HUB_BIND=0.0.0.0` ho dá priamo na sieť, ale potom ide token 
 
 ```bash
 # .env: TRADEBOT_HUB_URL, TRADEBOT_HUB_TOKEN (token TOHTO agenta), TRADEBOT_HUB_NAME, TRADEBOT_HUB_MAX_PARALLEL
-docker compose -f docker/docker-compose.agent.yml up -d --build
-docker compose -f docker/docker-compose.agent.yml logs -f
+docker compose --env-file .env -f docker/docker-compose.agent.yml up -d --build
+docker compose --env-file .env -f docker/docker-compose.agent.yml logs -f
 ```
 
 Kontajner mountuje z hostiteľa `tester/` (história, stav agenta), `data/` a

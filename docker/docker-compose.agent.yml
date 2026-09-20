@@ -1,9 +1,11 @@
 # Headless agent hubu (docs/HUB.md) — server, ktorý počíta, čo mu hub pridelí.
 #
-# Spúšťaj z koreňa repozitára (najprv základný image Freqtradu, na ktorom agent stojí):
-#   docker compose -f docker/docker-compose.yml build freqtrade
-#   docker compose -f docker/docker-compose.agent.yml up -d --build
-#   docker compose -f docker/docker-compose.agent.yml logs -f
+# Spúšťaj z koreňa repozitára a vždy s `--env-file .env` — compose berie premenné pre
+# ${...} z adresára compose súboru, teda z docker/, nie z koreňa (riadok `env_file`
+# nižšie len podáva premenné dovnútra kontajnera, na interpoláciu nemá vplyv):
+#   docker compose -f docker/docker-compose.yml build freqtrade     # základný image Freqtradu
+#   docker compose --env-file .env -f docker/docker-compose.agent.yml up -d --build
+#   docker compose --env-file .env -f docker/docker-compose.agent.yml logs -f
 #
 # Premenné (.env v koreni, viď .env.example):
 #   TRADEBOT_HUB_URL      adresa hubu, napr. https://hub.example.com
