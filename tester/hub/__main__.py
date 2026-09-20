@@ -307,7 +307,8 @@ def cmd_sparse(args: argparse.Namespace) -> int:
     if not history:
         print("POZOR: tester/runs a archiv behov zmiznu z pracovneho stromu (v gite ostavaju;\n"
               "       spat sa daju `python -m tester.hub sparse --off`). Na stroji, ktory je aj\n"
-              "       tester, to nerob.")
+              "       tester, to nerob. Index historie potom prepis:\n"
+              "       python -m tester.webapp.cli reindex")
     r = sparse.apply(rules)
     for pravidlo in rules:
         print(f"  {pravidlo}")
