@@ -257,11 +257,43 @@ skončíš na `required variable TRADEBOT_HUB_TOKEN is missing a value`.
 Port sa predvolene viaže na `127.0.0.1` — pred hub patrí reverse proxy s TLS (Caddy,
 nginx). `TRADEBOT_HUB_BIND=0.0.0.0` ho dá priamo na sieť, ale potom ide token po HTTP.
 
+### Chudý klon: čo agent z repozitára vôbec ťahá
+
+Repozitár nesie aj dáta: `data_archive/` (~2 GB sviečok po rokoch) a `tester/runs/`
+(história behov, dnes cez 6 GB). Tester ich chce, ale **stroj, ktorý len počíta, z nich
+potrebuje nanajvýš archív toho, na čom počíta** — a každý `git pull` mu ich aj tak ťahá.
+
+```bash
+python -m tester.hub sparse                     # čo je nastavené
+python -m tester.hub sparse --no-history        # bez cudzej histórie behov (6 GB)
+python -m tester.hub sparse --data binance      # archív len z binance (namiesto 2 GB)
+python -m tester.hub sparse --no-data           # bez archívu (sklad `data/` ostáva)
+python -m tester.hub sparse --off               # späť celý strom
+```
+
+Nastavia sa tým dve veci gitu naraz: **sparse-checkout** (čo má byť v pracovnom strome)
+a **partial clone** (`remote.origin.partialclonefilter=blob:none` — obsah súborov mimo
+výberu sa ani nesťahuje; keby ho niečo predsa chcelo, git si ho dotiahne sám). Samotný
+sparse-checkout by všetko stiahol a len nezapísal na disk.
+
+Dve veci, ktoré treba vedieť:
+
+- **Čo už v klone je, sa z `.git` nezmaže** — chudé je až to, čo pribudne.
+- Vyradené súbory **zmiznú z pracovného stromu**: s `--no-history` prestane byť
+  `tester/runs/` v histórii webapp a nedá sa z neho pushovať. Na stroji, ktorý je zároveň
+  testerov, to preto nerob — tam má zmysel nanajvýš `--data <zdroj>`.
+
+Sklad sviečok (`data/`, gitignored) ostáva nedotknutý, takže agent, ktorý má dáta už
+zložené, počíta ďalej aj s `--no-data`. Nové trhy mu ale nepribudnú — keď dostane výpočet
+na páre, ktorý nemá, beh zlyhá s chybou o chýbajúcich dátach.
+
 ### Hub sa aktualizuje sám
 
 Kód hubu **nie je z image**, ale z plytkého klonu vo volume `hub_code`, ktorý pri prvom
 štarte vyrobí `docker/hub-entrypoint.sh` (`git init` + `fetch --depth 1` + `reset`;
-repozitár je verejný, takže bez tokenu). Bežiaci hub si ho potom drží aktuálny sám
+repozitár je verejný, takže bez tokenu). Hub nepočíta, takže ten klon je rovno chudý
+(`--filter=blob:none` + sparse-checkout, pravidlá sú `sparse.HUB_RULES`): bez sviečok,
+bez histórie behov, bez C# jadra — pár megabajtov namiesto deviatich gigabajtov. Bežiaci hub si ho potom drží aktuálny sám
 (`tester/hub/update.py`):
 
 1. každých `TRADEBOT_HUB_UPDATE` minút (default 5) `git fetch` + `reset --hard` na

@@ -55,7 +55,10 @@ def fast_forward(branch: str = "main") -> dict[str, Any]:
     neprešiel: nový commit nemá v tomto klone spoločného predka.
     """
     try:
-        f = subprocess.run(["git", "fetch", "--depth", "1", "origin", branch], cwd=str(REPO),
+        # `--filter=blob:none`: keď je klon chudý (sparse-checkout, viď `hub-entrypoint.sh`),
+        # nech aj aktualizácia ťahá len to, čo je vo výbere — nie 2 GB sviečok.
+        f = subprocess.run(["git", "fetch", "--depth", "1", "--filter=blob:none", "origin", branch],
+                           cwd=str(REPO),
                            capture_output=True, text=True, encoding="utf-8", errors="replace",
                            timeout=180)
         if f.returncode != 0:

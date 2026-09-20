@@ -7,6 +7,7 @@
     python -m tester.hub jobs [--all]                             # výpočty na hube
     python -m tester.hub cancel <job_id>                          # zrušiť výpočet
     python -m tester.hub forget <meno> [--with-token]             # vyhodiť agenta z hubu
+    python -m tester.hub sparse --no-history [--data binance]     # chudý klon (netiahne dáta)
     python -m tester.hub token add srv-01 [--local]               # token agenta (správca)
     python -m tester.hub events [--job ID] [--agent MENO] [--local]  # log udalostí hubu
 
@@ -277,6 +278,44 @@ def cmd_forget(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_sparse(args: argparse.Namespace) -> int:
+    """Chudý klon: čo sa má z repozitára ťahať a čo nie (archív, cudzia história behov)."""
+    from . import sparse
+
+    if args.off:
+        r = sparse.off()
+        print("sparse-checkout vypnuty - dalsi pull dotiahne cely strom"
+              if r["ok"] else f"nepodarilo sa: {r['output']}")
+        return 0 if r["ok"] else 1
+    if args.data is None and args.no_data is False and args.history is None:
+        st = sparse.show()
+        if not st["on"]:
+            print("klon je plny (bez sparse-checkoutu). Skus:\n"
+                  "  python -m tester.hub sparse --no-history         # bez cudzich behov\n"
+                  "  python -m tester.hub sparse --data binance       # archiv len z binance\n"
+                  "  python -m tester.hub sparse --no-data            # bez archivu")
+            return 0
+        print(f"sparse-checkout je zapnuty, obsah mimo neho sa "
+              f"{'NEstahuje (' + st['filter'] + ')' if st['filter'] else 'stahuje'}:")
+        for pravidlo in st["rules"]:
+            print(f"  {pravidlo}")
+        return 0
+    data = None if args.data is None and not args.no_data else [
+        z for z in (args.data or "").split(",") if z.strip()]
+    history = True if args.history is None else args.history
+    rules = sparse.build_rules(data, history=history)
+    if not history:
+        print("POZOR: tester/runs a archiv behov zmiznu z pracovneho stromu (v gite ostavaju;\n"
+              "       spat sa daju `python -m tester.hub sparse --off`). Na stroji, ktory je aj\n"
+              "       tester, to nerob.")
+    r = sparse.apply(rules)
+    for pravidlo in rules:
+        print(f"  {pravidlo}")
+    print("hotovo - dalsi pull uz vyradene subory nestahuje" if r["ok"]
+          else f"nepodarilo sa: {r['output']}")
+    return 0 if r["ok"] else 1
+
+
 def cmd_events(args: argparse.Namespace) -> int:
     """Log udalostí hubu: kto sa prihlásil, kto čo zadal, komu to išlo, ako skončilo."""
     if args.local:
@@ -363,6 +402,18 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--mine", action="store_true", help="len tie, ktoré zadal tento agent")
     p.add_argument("--limit", type=int, default=50)
     p.set_defaults(func=cmd_jobs)
+
+    p = sub.add_parser("sparse", help="chudý klon: neťahať archív a cudziu históriu behov")
+    p.add_argument("--data", help="ktoré zdroje archívu ťahať (binance,dukascopy,…); "
+                                  "bez prepínača sa nemení")
+    p.add_argument("--no-data", dest="no_data", action="store_true",
+                   help="neťahať `data_archive` vôbec (sklad `data/` na disku ostáva)")
+    p.add_argument("--history", dest="history", action="store_true", default=None,
+                   help="ťahať aj cudziu históriu behov (default, keď sa nepovie inak)")
+    p.add_argument("--no-history", dest="history", action="store_false",
+                   help="neťahať tester/runs, archive, analytics, sweeps ani projekty")
+    p.add_argument("--off", action="store_true", help="späť celý strom")
+    p.set_defaults(func=cmd_sparse)
 
     p = sub.add_parser("forget", help="vyhodiť agenta z hubu (premenovaný stroj, zrušený agent)")
     p.add_argument("agent", help="meno agenta, ako ho hub ukazuje")

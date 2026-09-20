@@ -317,6 +317,71 @@ def _updater(state, clock, verzie, **kw):
     return u, koniec
 
 
+def test_sparse_rules_pick_code_and_drop_ballast(tmp_path: Path):
+    """Chudý klon: kód a zvolený archív ostanú, cudzia história behov a zvyšok archívu nie."""
+    import shutil
+    import subprocess
+
+    from tester.hub import sparse
+
+    if not shutil.which("git"):
+        pytest.skip("bez gitu")
+    repo = tmp_path / "klon"
+    subory = ["tradebot/core/paths.py", "tester/hub/agent.py", "tester/profiles/moj.json",
+              "docs/HUB.md", "data_archive/tester/binance/futures/BTC-1m-2025.feather",
+              "data_archive/tester/dukascopy/futures/NAS100-1m-2025.feather",
+              "tester/runs/20260920-1/run.json", "tester/analytics/a.json", "projekty/ORB/stav.md"]
+    for rel in subory:
+        f = repo / rel
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text("x", encoding="utf-8")
+    g = lambda *a: subprocess.run(["git", *a], cwd=repo, capture_output=True, text=True)  # noqa: E731
+    g("init", "-q", "-b", "main")
+    g("add", "-A")
+    g("-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "x")
+
+    r = sparse.apply(sparse.build_rules(["binance"], history=False), filter_blobs=False,
+                     repo=str(repo))
+    assert r["ok"], r["output"]
+    zostalo = {rel for rel in subory if (repo / rel).exists()}
+    assert zostalo == {"tradebot/core/paths.py", "tester/hub/agent.py", "tester/profiles/moj.json",
+                       "docs/HUB.md", "data_archive/tester/binance/futures/BTC-1m-2025.feather"}
+    assert sparse.show(repo=str(repo))["on"]
+
+    # celý archív, ale bez cudzích behov
+    sparse.apply(sparse.build_rules(None, history=False), filter_blobs=False, repo=str(repo))
+    assert (repo / "data_archive/tester/dukascopy/futures/NAS100-1m-2025.feather").exists()
+    assert not (repo / "tester/runs/20260920-1/run.json").exists()
+
+    # a späť celý strom
+    assert sparse.off(repo=str(repo))["ok"]
+    assert (repo / "tester/runs/20260920-1/run.json").exists()
+    assert not sparse.show(repo=str(repo))["on"]
+
+
+def test_hub_entrypoint_uses_the_same_rules():
+    """Pravidlá pre hub sú v `sparse.HUB_RULES` aj v entrypointe — nech sa nerozídu."""
+    from tradebot.core.paths import REPO
+
+    from tester.hub import sparse
+
+    text = (REPO / "docker" / "hub-entrypoint.sh").read_text(encoding="utf-8")
+    zo_skriptu = text.split("--stdin <<'PRAVIDLA'")[1].split("PRAVIDLA")[0].strip().splitlines()
+    assert [r.strip() for r in zo_skriptu] == list(sparse.HUB_RULES)
+
+
+def test_sparse_build_rules():
+    from tester.hub import sparse
+
+    assert sparse.build_rules() == ["/*"]                       # nič sa nevyradí
+    assert sparse.build_rules([]) == ["/*", "!/data_archive/**"]
+    assert sparse.build_rules(["binance", " dukascopy "]) == [
+        "/*", "!/data_archive/**", "/data_archive/tester/binance/**",
+        "/data_archive/tester/dukascopy/**"]
+    bez = sparse.build_rules(None, history=False)
+    assert bez[0] == "/*" and "!/tester/runs/**" in bez and "!/projekty/**" in bez
+
+
 def test_updater_restarts_hub_only_when_nothing_is_computing(hub):
     """Samoaktualizácia: nový kód počká, kým dobehnú výpočty, a až potom proces skončí."""
     state, clock = hub
