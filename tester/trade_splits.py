@@ -11,7 +11,7 @@ from tradebot.adapters.freqtrade.hyperplan import knowledge
 from tradebot.strategies import get_spec
 
 from .trade_features import Feature, enrich, features_for
-from .trade_metrics import _winrate, break_even_pct
+from .trade_metrics import _winrate, break_even_pct, streaks_with_trades
 
 
 #: Menej než toľko obchodov v skupine a číslo je šum, nie zistenie.
@@ -190,6 +190,9 @@ def analyze(trades: Sequence[dict[str, Any]], *, strategy: str = "ibs",
         "splits": [s.to_dict() for s in vopred],
         "descriptive": [s.to_dict() for s in potom],
         "tunable": sorted({s.param for s in splits if s.param}),
+        # Koľko ziskov a koľko strát prišlo za sebou: priemerný winrate to zamlčí,
+        # a pritom je to to, čo účet (a tester) musí vydržať.
+        "streaks": streaks_with_trades(obchody),
         "headline": _headline(najlepsi, break_even_pct(obchody)),
     }
 

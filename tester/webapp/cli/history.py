@@ -100,11 +100,35 @@ def cmd_list(args: argparse.Namespace) -> int:
     return 0
 
 
+def _print_streaks(rec: dict, trades: list[dict], currency: str) -> None:
+    """Najdlhšia séria ziskov a strát behu aj s obchodmi, z ktorých je zložená.
+
+    Starší beh série v súhrne nemá — dopočítajú sa z obchodov (`tradebot.core.money`),
+    rovnako ako ich dopočíta detail behu vo webapp.
+    """
+    from tradebot.core.money import streaks as _streaks
+
+    serie = (rec.get("result") or {}).get("streaks") or (_streaks(trades) if trades else {})
+    for kind, nazov in (("win", "najdlhšia séria ziskov"), ("loss", "najdlhšia séria strát")):
+        s = (serie or {}).get(kind)
+        if not s or not s.get("n"):
+            print(f"{nazov}: —")
+            continue
+        viac = f", rovnako dlhých sérií {s['count']}" if s.get("count", 1) > 1 else ""
+        print(f"{nazov}: {s['n']} obchodov  {str(s.get('start') or '')[:16]} -> "
+              f"{str(s.get('end') or '')[:16]}  spolu {s['pnl_abs']:+.2f} {currency}{viac}")
+        for i, t in enumerate(trades[s["from_i"]: s["to_i"] + 1], start=s["from_i"] + 1):
+            print(f"    {i:>5}. {str(t.get('open_date') or '')[:16]} -> {str(t.get('close_date') or '')[:16]}  "
+                  f"{float(t.get('profit_abs') or 0.0):+10.2f} {currency}  "
+                  f"{float(t.get('profit_ratio') or 0.0) * 100:+7.2f} %  {t.get('exit_reason') or ''}")
+
+
 def cmd_show(args: argparse.Namespace) -> int:
     from tradebot.strategies import get_spec
     from ..store import RunStore, diff_from_defaults, strategy_of
 
-    rec = RunStore().get(args.run_id)
+    store = RunStore()
+    rec = store.get(args.run_id)
     if rec is None:
         raise SystemExit(f"beh {args.run_id} neexistuje")
     print(fmt_summary(rec))
@@ -114,6 +138,7 @@ def cmd_show(args: argparse.Namespace) -> int:
     r = rec.get("result") or {}
     if r.get("exits"):
         print("výstupy:", json.dumps(r["exits"], ensure_ascii=False))
+    _print_streaks(rec, store.trades(args.run_id), r.get("stake_currency") or "USDT")
     if args.json:
         print(json.dumps(rec, ensure_ascii=False, indent=2, default=str))
     return 0

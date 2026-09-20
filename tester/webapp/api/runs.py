@@ -23,10 +23,25 @@ def build(ctx: AppContext) -> APIRouter:
     defaults_of = ctx.defaults_of
     chart_state = ctx.chart_state
 
+    #: Nad toľko riadkov sa série starých behov nedopočítavajú — je to čítanie
+    #: `trades.json` behu po behu (~5 ms na beh) a stránka histórie má 50 riadkov.
+    STREAK_FILL_LIMIT = 200
+
     @router.get("/api/runs")
     def runs(q: str = "", limit: int = Query(500, ge=1, le=5000), offset: int = Query(0, ge=0)):
         recs = store.search(q) if q.strip() else store.all()
-        return {"total": len(recs), "runs": [summarize_for_list(r, defaults_of(r)) for r in recs[offset:offset + limit]]}
+        vybrane = recs[offset:offset + limit]
+        rows = [summarize_for_list(r, defaults_of(r)) for r in vybrane]
+        # Beh spred sérií ich v `run.json` nemá; na stránke histórie sa dopočítajú
+        # z obchodov (natrvalo ich dopíše `cli recompute --write`).
+        if len(rows) <= STREAK_FILL_LIMIT:
+            from tradebot.core.money import streaks
+
+            for row, rec in zip(rows, vybrane):
+                vysledok = row["result"]
+                if vysledok.get("trades") and not vysledok.get("streaks"):
+                    vysledok["streaks"] = streaks(store.trades(rec["id"]))
+        return {"total": len(recs), "runs": rows}
 
     @router.post("/api/runs")
     def submit(req: RunRequest):
@@ -68,7 +83,15 @@ def build(ctx: AppContext) -> APIRouter:
         rec["missing_params"] = sorted(set(defaults) - set(rec.get("params") or {}))
         rec["chart"] = chart_state(rec)
         rec["has_chart"] = rec["chart"]["state"] == "ready"
-        return {"record": rec, "trades": store.trades(run_id), "live": False}
+        trades = store.trades(run_id)
+        # Beh spred sérií ich v súhrne nemá — dopočítajú sa z obchodov tým istým vzorcom
+        # ako pri novom behu (do `run.json` ich zapíše až `cli recompute`).
+        if trades and not (rec.get("result") or {}).get("streaks"):
+            from tradebot.core.money import streaks
+
+            # kópia: `store.get` vracia plytkú kópiu, do cache tento dopočet nepatrí
+            rec["result"] = {**(rec.get("result") or {}), "streaks": streaks(trades)}
+        return {"record": rec, "trades": trades, "live": False}
 
     @router.get("/api/runs/{run_id}/log", response_class=PlainTextResponse)
     def run_log(run_id: str):

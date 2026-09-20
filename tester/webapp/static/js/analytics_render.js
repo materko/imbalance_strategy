@@ -46,6 +46,32 @@ function decayHtml(d) {
     </div>`;
 }
 
+/** Najdlhšie série: koľko ziskov a koľko strát prišlo za sebou — a ktoré obchody to boli. */
+function streaksHtml(st) {
+  if (!st || (!st.win && !st.loss)) return "";
+  const jedna = (v, nazov) => {
+    if (!v) return `<div><h4>${nazov}</h4><div class="muted">žiadne</div></div>`;
+    const viac = v.count > 1 ? ` · rovnako dlhých sérií: ${v.count}` : "";
+    const riadky = (v.trades || []).map((t, i) => `<tr><td>${i + 1}</td>`
+      + `<td>${esc(String(t.open_date || "").replace("T", " ").slice(0, 16))}</td>`
+      + `<td>${esc(String(t.close_date || "").replace("T", " ").slice(0, 16))}</td>`
+      + `<td class="${t.profit_abs < 0 ? "neg" : "pos"}">${fmt(t.profit_abs, 2)}</td>`
+      + `<td>${esc(t.exit_reason || "")}</td></tr>`).join("");
+    return `<div><h4>${nazov}: ${v.n}</h4>
+      <div class="an-note">${esc(String(v.start || "").replace("T", " ").slice(0, 16))} → ${esc(String(v.end || "").replace("T", " ").slice(0, 16))}
+        · spolu <b class="${v.pnl_abs < 0 ? "neg" : "pos"}">${fmt(v.pnl_abs, 2)}</b>${viac}</div>
+      <table class="mx-table"><thead><tr><th>#</th><th>vstup</th><th>výstup</th><th>PnL</th>
+        <th>dôvod</th></tr></thead><tbody>${riadky}</tbody></table></div>`;
+  };
+  return `<div class="ch-box">
+      <div class="ch-head"><h3>Najdlhšie série</h3></div>
+      <p class="an-note">Koľko ziskov a koľko strát prišlo <b>za sebou</b> — to, čo priemerný
+        winrate zamlčí. Obchody sú v poradí zatvorenia cez všetky vybrané behy; nulový obchod
+        sériu preruší. Ako často taká séria vyjde náhodou, hovorí Monte Carlo v detaile behu.</p>
+      <div class="cols">${jedna(st.win, "Zisky za sebou")}${jedna(st.loss, "Straty za sebou")}</div>
+    </div>`;
+}
+
 /** Portfólio: koľko sa dá zarobiť a za aký drawdown. */
 function portfolioHtml(p) {
   if (!p || !p.risks) return "";
@@ -241,6 +267,7 @@ function renderAnalytics(r) {
     zhrnutie.push(`<p class="an-note">${r.duplicates} obchodov bolo v dvoch behoch naraz`
       + " (prekrývajúce sa okná) — počítajú sa raz.</p>");
   }
+  zhrnutie.push(streaksHtml(r.streaks));
   zhrnutie.push(portfolioHtml(r.portfolio));
   zhrnutie.push(decayHtml(r.decay));
   zhrnutie.push(nullHtml(r.nulltest));

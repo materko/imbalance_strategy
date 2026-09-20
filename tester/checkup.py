@@ -90,6 +90,8 @@ def window_rows(records: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
             "max_dd_pct": result.get("max_drawdown_pct"),
             "winrate": result.get("winrate"),
             "profit_factor": result.get("profit_factor"),
+            # koľko ziskov a koľko strát prišlo v tom okne za sebou (starší beh to nemá)
+            "streaks": result.get("streaks") or {},
             "warning": result.get("warning"),
             "error": rec.get("error"),
         })
@@ -412,20 +414,30 @@ def _num(value: Any, digits: int = 2, plus: bool = False) -> str:
     return str(value)
 
 
+def _streak_cell(streaks: dict[str, Any] | None) -> str:
+    """`+4/-7` — najdlhšia séria ziskov a strát okna; `-` keď ich beh nemá."""
+    s = streaks or {}
+    win, loss = s.get("win"), s.get("loss")
+    if not win and not loss:
+        return "-"
+    return f"+{(win or {}).get('n', 0)}/-{(loss or {}).get('n', 0)}"
+
+
 def _windows_table(rows: Sequence[dict[str, Any]]) -> list[list[str]]:
     """Riadky tabuľky okien ako zoznam buniek — spoločné pre konzolu aj markdown."""
     out = []
     for r in rows:
         if r["status"] != "done":
-            out.append([r["timerange"], r["status"], "-", "-", "-", "-", r["run_id"]])
+            out.append([r["timerange"], r["status"], "-", "-", "-", "-", "-", r["run_id"]])
             continue
         out.append([r["timerange"], str(r["trades"] if r["trades"] is not None else "-"),
                     _num(r["pnl_pct"], 2, plus=True), _num(r["break_even_pct"], 4),
-                    _num(r["max_dd_pct"], 1), _num(r["winrate"], 1), r["run_id"]])
+                    _num(r["max_dd_pct"], 1), _num(r["winrate"], 1),
+                    _streak_cell(r.get("streaks")), r["run_id"]])
     return out
 
 
-_HEAD = ("okno", "obchodov", "PnL %", "break-even %", "max DD %", "WR %", "beh")
+_HEAD = ("okno", "obchodov", "PnL %", "break-even %", "max DD %", "WR %", "séria +/-", "beh")
 
 #: Koľko skupín jednej vlastnosti sa vojde do dokumentu, kým prestane byť čitateľný.
 #: Skupiny sú zoradené od najhoršej, takže zaujímavé sú okraje — stred sa dá vynechať
@@ -450,13 +462,18 @@ def table(report: dict[str, Any]) -> str:
              + (f" ({report['fee_note']})" if report.get("fee_note") else "")
              + (f", profil {report['profile']}" if report.get("profile") else "")]
     lines.append("")
-    lines.append(f"{_HEAD[0]:<22}{_HEAD[1]:>9}{_HEAD[2]:>9}{_HEAD[3]:>14}{_HEAD[4]:>10}{_HEAD[5]:>7}")
+    lines.append(f"{_HEAD[0]:<22}{_HEAD[1]:>9}{_HEAD[2]:>9}{_HEAD[3]:>14}{_HEAD[4]:>10}"
+                 f"{_HEAD[5]:>7}{'seria':>11}")
     for cells in _windows_table(report["windows"]):
         lines.append(f"{cells[0]:<22}{cells[1]:>9}{cells[2]:>9}{cells[3]:>14}"
-                     f"{cells[4]:>10}{cells[5]:>7}")
+                     f"{cells[4]:>10}{cells[5]:>7}{cells[6]:>11}")
     lines.append("")
     lines.append(f"ziskova v {report['years_positive']} z {report['years_done']} okien, "
                  f"obchodov spolu {report['trades']}, break-even {_num(report.get('break_even_pct'), 4)} %")
+    ser = ((report.get("analytics") or {}).get("streaks")) or {}
+    if ser.get("win") or ser.get("loss"):
+        lines.append(f"najdlhsia seria: {(ser.get('win') or {}).get('n', 0)} ziskov, "
+                     f"{(ser.get('loss') or {}).get('n', 0)} strat za sebou")
     dec = report.get("decay") or {}
     if dec.get("verdict"):
         lines.append(f"slabne edge? {dec['verdict']}")
@@ -582,6 +599,29 @@ def markdown(report: dict[str, Any], *, command: str = "", generated: datetime |
         znacka = dec.get("verdict", "?")
         poznamka = (dec.get("note") or "").removeprefix(znacka + ":").strip()
         out += ["", f"**{znacka}** — {poznamka}"]
+
+    ser = (an_report.get("streaks") or {}) if an_report else {}
+    if ser.get("win") or ser.get("loss"):
+        out += ["", "## Najdlhšie série", "",
+                "Koľko ziskov a koľko strát prišlo **za sebou** — to, čo priemerný winrate "
+                "zamlčí a čo musí vydržať účet aj ten, kto stratégiu obchoduje. Obchody idú "
+                "v poradí zatvorenia cez všetky okná; nulový obchod sériu preruší."]
+        for kluc, nazov in (("win", "Zisky za sebou"), ("loss", "Straty za sebou")):
+            v = ser.get(kluc)
+            if not v:
+                out += ["", f"**{nazov}:** žiadne."]
+                continue
+            viac = f", rovnako dlhých sérií {v['count']}" if v.get("count", 1) > 1 else ""
+            out += ["", f"**{nazov}: {v['n']}** — {str(v.get('start') or '')[:16]} až "
+                        f"{str(v.get('end') or '')[:16]}, spolu {_num(v.get('pnl_abs'), 2, plus=True)}"
+                        f"{viac}.", "",
+                    "| # | vstup | výstup | PnL | % | dôvod |", "|---|---|---|---|---|---|"]
+            for i, t in enumerate(v.get("trades") or (), 1):
+                out.append(f"| {i} | {str(t.get('open_date') or '')[:16]} | "
+                           f"{str(t.get('close_date') or '')[:16]} | "
+                           f"{_num(t.get('profit_abs'), 2, plus=True)} | "
+                           f"{_num((t.get('profit_ratio') or 0) * 100, 2, plus=True)} | "
+                           f"`{t.get('exit_reason') or ''}` |")
 
     if mcr:
         be, acc = mcr["break_even"], mcr["account"]

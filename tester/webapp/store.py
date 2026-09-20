@@ -498,7 +498,7 @@ def summarize_for_list(record: dict[str, Any], defaults: dict[str, Any]) -> dict
         "overrides": diff_from_defaults(record.get("params") or {}, defaults),
         "result": {k: r.get(k) for k in (
             "trades", "wins", "losses", "winrate", "pnl_abs", "pnl_pct", "profit_factor",
-            "max_drawdown_pct", "break_even_pct", "duration_s",
+            "max_drawdown_pct", "break_even_pct", "duration_s", "streaks",
         )},
         "error": record.get("error"),
     }

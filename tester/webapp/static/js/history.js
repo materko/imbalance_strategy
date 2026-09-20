@@ -86,6 +86,7 @@ async function loadRuns() {
       <td class="num">${signed(res.pnl_pct, 2, " %")}</td><td class="num">${fmt(res.profit_factor, 3)}</td>
       <td class="num">${fmt(res.winrate, 1)}</td><td class="num">${fmt(res.max_drawdown_pct, 2)}</td>
       <td class="num">${res.break_even_pct != null ? fmt(res.break_even_pct, 4) : "—"}</td>
+      <td class="num" title="najdlhšia séria ziskov / strát za sebou">${streakHeadline(res.streaks)}</td>
       <td class="ov">${ov || '<span class="muted">Pine defaulty</span>'}</td><td>${esc(run.note || "")}</td>`;
     tr.tabIndex = 0;
     tr.onclick = () => openRun(run.id);
@@ -93,7 +94,7 @@ async function loadRuns() {
     fragment.append(tr);
   }
   tb.replaceChildren(fragment);
-  if (!r.runs.length) tb.innerHTML = '<tr><td colspan="12" class="empty muted">Žiadne behy nezodpovedajú hľadaniu.</td></tr>';
+  if (!r.runs.length) tb.innerHTML = '<tr><td colspan="13" class="empty muted">Žiadne behy nezodpovedajú hľadaniu.</td></tr>';
   tb.closest(".scroll").scrollTop = 0;
   } catch (e) {
     if (seq !== historyPage.seq || e.name === "AbortError") return;
@@ -147,6 +148,7 @@ async function openRun(id) {
     card("Profit factor", fmt(res.profit_factor, 3), ""),
     card("Break-even poplatok", res.break_even_pct != null ? `${fmt(res.break_even_pct, 4)} %` : "—", "na stranu; Binance taker 0,05 %"),
     card("Buy & hold", signed(res.market_change_pct, 2, " %"), `${res.duration_s ?? "?"} s výpočtu`),
+    card("Najdlhšia séria", streakHeadline(res.streaks), "výhry / straty za sebou"),
   ].join("");
 
   drawChart(rec.series || { equity: [], market: [] }, res);
@@ -161,6 +163,12 @@ async function openRun(id) {
     : `<div class="muted">—</div>`;
 
   const trades = r.trades || [];
+  $("#detail-streaks").innerHTML = rec.status !== "done" ? "" : [
+    streakTable("win", res.streaks, trades, cur),
+    streakTable("loss", res.streaks, trades, cur),
+  ].join("");
+  for (const tr of $$("#detail-streaks tr[data-trade]")) tr.onclick = () => jumpToTrade(trades[Number(tr.dataset.trade)]);
+
   $("#trade-count").textContent = trades.length;
   const cols = ["open_date", "close_date", "open_rate", "close_rate", "amount", "profit_abs", "profit_ratio", "exit_reason", "enter_tag"];
   $("#trades thead").innerHTML = `<tr>${cols.map(c => `<th>${c}</th>`).join("")}</tr>`;
@@ -182,3 +190,38 @@ async function openRun(id) {
 }
 
 function card(k, v, s) { return `<div class="kcard"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`; }
+
+/** `+5 / −3` — najdlhšia séria ziskov a najdlhšia séria strát za sebou. */
+function streakHeadline(streaks) {
+  const w = (streaks || {}).win, l = (streaks || {}).loss;
+  if (!w && !l) return "—";
+  return `<span class="pos">+${w ? w.n : 0}</span> / <span class="neg">−${l ? l.n : 0}</span>`;
+}
+
+/**
+ * Jedna séria: kedy bola, za koľko — a obchody, z ktorých je zložená.
+ * Séria nesie indexy do obchodov behu, riadky sa berú z nich (súhrn ich neopakuje).
+ */
+function streakTable(kind, streaks, trades, cur) {
+  const s = (streaks || {})[kind];
+  const nazov = kind === "win" ? "Zisky za sebou" : "Straty za sebou";
+  if (!s || !s.n) return `<div><h4>${nazov}</h4><div class="muted">—</div></div>`;
+  const kedy = `${String(s.start || "").replace("T", " ").slice(0, 16)} → ${String(s.end || "").replace("T", " ").slice(0, 16)}`;
+  const viac = s.count > 1 ? ` · rovnako dlhých sérií: ${s.count}` : "";
+  const riadky = trades.slice(s.from_i, s.to_i + 1).map((t, i) => `
+    <tr data-trade="${s.from_i + i}" title="ukázať na grafe">
+      <td class="num">${s.from_i + i + 1}</td>
+      <td>${esc(String(t.open_date || "").replace("T", " ").slice(0, 16))}</td>
+      <td>${esc(String(t.close_date || "").replace("T", " ").slice(0, 16))}</td>
+      <td class="num">${signed(t.profit_abs)}</td>
+      <td class="num">${signed(t.profit_ratio * 100, 2, " %")}</td>
+      <td>${esc(t.exit_reason ?? "")}</td>
+    </tr>`).join("");
+  return `<div>
+    <h4>${nazov}: ${s.n}</h4>
+    <div class="muted small">${esc(kedy)} · spolu ${signed(s.pnl_abs, 2, " " + cur)}${viac}</div>
+    <table class="runs"><thead><tr><th class="num">#</th><th>vstup</th><th>výstup</th>
+      <th class="num">PnL ${cur}</th><th class="num">%</th><th>dôvod</th></tr></thead>
+      <tbody>${riadky}</tbody></table>
+  </div>`;
+}

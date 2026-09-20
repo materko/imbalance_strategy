@@ -460,6 +460,7 @@
         <thead><tr>
           <th>Beh</th><th>Stratégia</th><th>Pár</th><th>Obdobie</th><th class="num">Obch.</th><th class="num">PnL %</th>
           <th class="num">PF</th><th class="num">WR %</th><th class="num">DD %</th><th class="num">Break-even %</th>
+          <th class="num" title="Najdlhšia séria ziskov / strát za sebou">Séria +/−</th>
           <th>Odchýlky od Pine</th><th>Poznámka</th>
         </tr></thead>
         <tbody></tbody>
@@ -515,6 +516,8 @@
       <div><h3>Odchýlky od Pine defaultov</h3><div id="detail-overrides"></div></div>
       <div><h3>Dôvody výstupu</h3><div id="detail-exits"></div></div>
     </div>
+    <h3>Najdlhšie série <span class="muted small">— koľko ziskov a koľko strát prišlo za sebou</span></h3>
+    <div id="detail-streaks" class="cols"></div>
     <details id="mc-box"><summary>Monte Carlo <span class="muted small">— aký široký je interval okolo nameraných čísel</span></summary>
       <div class="pc-toolbar">
         <label class="inline small">poplatok <input type="number" id="mc-fee" step="0.005" min="0" max="1"> % na stranu</label>

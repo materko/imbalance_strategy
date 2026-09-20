@@ -8,6 +8,17 @@ obchodov. Každý beh sa uloží do gitu (výsledok, obchody a celý config — 
 tie sa prepočítajú, keď graf otvoríš), takže história sa dá pushovať a pullovať medzi
 testermi a hľadať v nej podľa parametrov.
 
+**Najdlhšie série** sú v detaile behu pod dôvodmi výstupu: koľko ziskov a koľko strát
+prišlo za sebou, kedy to bolo, koľko na tom účet celkovo zarobil či stratil — a pod tým
+obchody, z ktorých je séria zložená (klik na riadok ich ukáže na grafe). Priemerný winrate
+zamlčí, že sedem strát za sebou naozaj prišlo; toto nie. Série počíta tá istá definícia
+peňazí ako zvyšok súhrnu (`tradebot.core.money`), takže sedia v oboch enginoch; starší beh
+ich v `run.json` nemá a detail si ich dopočíta z obchodov (natrvalo ich dopíše
+`python -m tester.webapp.cli recompute --write`). Z príkazového riadka to isté vypíše
+`python -m tester.webapp.cli show <beh>`. V prehľadovej tabuľke histórie je z toho stĺpec
+`Séria +/−` a na karte **Analytika** (aj v `ANALYTIKA.md`) je tá istá dvojica nad obchodmi
+zo všetkých vybraných behov.
+
 **Engine si vyberáš** — `Freqtrade` (backtest Freqtradu) alebo `MultiCharts (emulátor)`
 (ten istý runner, ktorý beží v štúdii, s brokerom podľa MultiCharts). Ponuka ukazuje len tie,
 pre ktoré sú na disku dáta: Freqtrade potrebuje súbor pre zvolený timeframe, emulátor jediný

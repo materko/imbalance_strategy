@@ -39,7 +39,7 @@ __all__ = ["Recomputed", "recompute_run", "scan", "main", "SUMMARY_KEYS"]
 #: Kľúče súhrnu, ktoré sú čisto z peňazí obchodov a prepočet ich smie prepísať.
 SUMMARY_KEYS = ("wins", "losses", "draws", "winrate", "pnl_abs", "pnl_pct", "profit_factor",
                 "max_drawdown_abs", "max_drawdown_pct", "final_balance", "gross_abs",
-                "volume_abs", "break_even_pct", "exits")
+                "volume_abs", "break_even_pct", "exits", "streaks")
 
 #: Kľúče, ktoré sa ukazujú ako príklad pred/po.
 SHOWN = ("break_even_pct", "pnl_abs", "max_drawdown_abs", "max_drawdown_pct", "volume_abs")

@@ -1,4 +1,4 @@
-"""Základné čísla nad obchodmi: hrubý zisk, objem, break-even poplatok, winrate.
+"""Základné čísla nad obchodmi: hrubý zisk, objem, break-even poplatok, winrate, série.
 """
 
 from __future__ import annotations
@@ -27,3 +27,26 @@ def _winrate(trades: Sequence[dict[str, Any]]) -> float | None:
     if not trades:
         return None
     return round(sum(1 for t in trades if float(t.get("profit_abs") or 0) > 0) / len(trades) * 100, 2)
+
+
+#: Čo z obchodu ide do výpisu série — toľko, aby sa dal prečítať bez `trades.json`.
+STREAK_COLS = ("open_date", "close_date", "profit_abs", "profit_ratio", "exit_reason")
+
+
+def streaks_with_trades(trades: Sequence[dict[str, Any]]) -> dict[str, Any]:
+    """Najdlhšia séria ziskov a strát (`tradebot.core.money`) aj s obchodmi, z ktorých je.
+
+    Analytika zlieva obchody z viacerých behov, takže index do „obchodov behu" tu nič
+    neznamená — séria si preto nesie svoje obchody. Poradie je poradie zatvorenia:
+    séria cez dve prekrývajúce sa okná by inak bola sériou v poradí načítania behov.
+    """
+    from tradebot.core.money import streaks
+
+    rows = sorted(trades, key=lambda t: str(t.get("close_date") or ""))
+    out = streaks(rows)
+    for s in out.values():
+        if s is None:
+            continue
+        od, do = s.pop("from_i"), s.pop("to_i")
+        s["trades"] = [{k: t.get(k) for k in STREAK_COLS} for t in rows[od:do + 1]]
+    return out

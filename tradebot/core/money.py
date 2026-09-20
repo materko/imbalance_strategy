@@ -34,7 +34,8 @@ from typing import Any, Iterable, Sequence
 
 __all__ = [
     "TradeMoney", "trade_money", "row_money", "row_point_value", "point_value_for_pair",
-    "fill_point_value", "gross_and_volume", "break_even_pct", "max_drawdown", "summary_money",
+    "fill_point_value", "gross_and_volume", "break_even_pct", "max_drawdown", "streaks",
+    "summary_money",
 ]
 
 
@@ -172,6 +173,54 @@ def max_drawdown(profits: Sequence[float], wallet: float) -> tuple[float, float]
     return dd_abs, dd_pct
 
 
+def streaks(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
+    """Najdlhšia séria ziskov a najdlhšia séria strát za sebou — kedy bola a za koľko.
+
+    Obchody idú v poradí zatvorenia (tak, ako sú v `trades.json` behu). Nulový obchod
+    (`profit_abs == 0`) nepatrí do žiadnej série a obe preruší. Pri viacerých rovnako
+    dlhých sériách sa vypíše prvá a `count` povie, koľko ich bolo.
+
+    Séria je `from_i`..`to_i` — indexy do obchodov behu, nie ich kópia: obchody série
+    (a ich zisky) sa vypíšu z `trades.json`, takže sa nemôžu rozísť so súhrnom.
+    """
+    best: dict[str, dict[str, Any]] = {}
+    counts = {"win": 0, "loss": 0}
+    i, n = 0, len(rows)
+    while i < n:
+        p = float(rows[i].get("profit_abs") or 0.0)
+        if p == 0.0:
+            i += 1
+            continue
+        kind = "win" if p > 0 else "loss"
+        total = 0.0
+        j = i
+        while j < n:
+            q = float(rows[j].get("profit_abs") or 0.0)
+            if q == 0.0 or (q > 0) != (p > 0):
+                break
+            total += q
+            j += 1
+        dlzka = j - i
+        doteraz = best.get(kind)
+        if doteraz is None or dlzka > doteraz["n"]:
+            best[kind] = {
+                "n": dlzka, "from_i": i, "to_i": j - 1,
+                "start": rows[i].get("open_date"), "end": rows[j - 1].get("close_date"),
+                "pnl_abs": round(total, 2),
+            }
+            counts[kind] = 1
+        elif dlzka == doteraz["n"]:
+            counts[kind] += 1
+        i = j
+    out: dict[str, Any] = {}
+    for kind in ("win", "loss"):
+        b = best.get(kind)
+        if b is not None:
+            b["count"] = counts[kind]
+        out[kind] = b
+    return out
+
+
 def summary_money(rows: Sequence[dict[str, Any]], wallet: float) -> dict[str, Any]:
     """Peňažná časť súhrnu behu z uložených obchodov (zoradených podľa zatvorenia).
 
@@ -203,5 +252,5 @@ def summary_money(rows: Sequence[dict[str, Any]], wallet: float) -> dict[str, An
         "starting_balance": wallet, "final_balance": round(wallet + pnl, 2),
         "gross_abs": round(gross, 2), "volume_abs": round(volume, 2),
         "break_even_pct": break_even_pct(gross, volume),
-        "exits": exits,
+        "exits": exits, "streaks": streaks(rows),
     }

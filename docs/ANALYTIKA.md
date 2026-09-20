@@ -35,6 +35,7 @@ Bez zápisu (len výpis do konzoly) `--no-write`, z hotových behov namiesto nov
 | **skupiny obchodov** | ktorá časť obchodov výsledok kazí a či sa to dá odfiltrovať | [`tester/trade_splits.py`](../tester/trade_splits.py) (vlastnosti v [`trade_features.py`](../tester/trade_features.py)) |
 | **test proti náhode** | je ten edge odlíšiteľný od hodu mincou — a nie je celý len v tom, *kedy* obchoduje? | [`tester/nulltest.py`](../tester/nulltest.py) |
 | **slabne edge?** | drží to aj dnes, alebo sa zarobilo v prvých rokoch a odvtedy stratégia stojí? | [`tester/decay.py`](../tester/decay.py) |
+| **najdlhšie série** | koľko ziskov a koľko strát prišlo za sebou, kedy a za koľko | [`tester/trade_metrics.py`](../tester/trade_metrics.py) nad [`tradebot/core/money.py`](../tradebot/core/money.py) |
 | **Monte Carlo** | aký široký je interval okolo nameraného čísla a čo to robí s účtom | [`tester/montecarlo.py`](../tester/montecarlo.py) |
 
 Tri veci, ktoré batéria robí sama a bez ktorých by čísla klamali:
@@ -75,6 +76,14 @@ Všetky peniaze v dokumente (break-even, PnL, drawdown, Monte Carlo, portfólio)
 [DATA.md](DATA.md#peniaze-obchodu-a-hodnota-bodu)). Break-even je hrubý zisk / obojstranný
 nominál, takže na MNQ, zlate či forexe vychádza v tých istých jednotkách ako na krypte
 a súhrn okien sa s celkom nerozíde. Staršie behy prepočíta `cli recompute`.
+
+**Najdlhšie série** sú v dokumente vypísané aj po obchodoch (kedy séria začala, kedy
+skončila, čo priniesla a z ktorých obchodov je), a v tabuľke okien je stĺpec `séria +/-`.
+Priemerný winrate 70 % nepovie, že sedem strát za sebou naozaj prišlo — a práve to
+rozhoduje, či sa stratégia dá obchodovať. Namerané série patria k intervalu z Monte Carla
+nižšie (`najdlhšia séria strát: medián, 95. percentil`): ten hovorí, ako často taká séria
+vyjde tej istej stratégii sama od seba. To isté číslo je pri každom behu v Testeri
+(karta **Najdlhšia séria** a stĺpec `Séria +/−` v histórii).
 
 Čo sa **nedalo zmerať, sa nehodnotí**. Chýbajúca hodnota nie je ani plus, ani mínus —
 dokument nemá tvrdiť viac, než sa vie.

@@ -63,13 +63,15 @@ def fmt_summary(rec: dict[str, Any]) -> str:
         return f"{rec.get('id')}  {rec.get('status')}  {s.get('pair')} {s.get('timerange')}  {rec.get('error') or ''}"
     be = r.get("break_even_pct")
     engine = s.get("engine")
+    ser = r.get("streaks") or {}
+    seria = f"  séria +{(ser.get('win') or {}).get('n', 0)}/-{(ser.get('loss') or {}).get('n', 0)}" if ser else ""
     tail = "\n  POZOR: " + r["warning"] if r.get("warning") else ""
     return (
         f"{rec.get('id')}  {s.get('pair')} {s.get('timerange')}"
         f"{' [' + engine + ']' if engine else ''}  "
         f"obchodov {r.get('trades')}  PnL {r.get('pnl_pct'):+.2f} % ({r.get('pnl_abs'):+.0f} {r.get('stake_currency', 'USDT')})  "
         f"PF {r.get('profit_factor')}  WR {r.get('winrate')} %  maxDD {r.get('max_drawdown_pct')} %  "
-        f"break-even {be if be is None else f'{be:.4f} %'}{tail}"
+        f"break-even {be if be is None else f'{be:.4f} %'}{seria}{tail}"
     )
 
 
