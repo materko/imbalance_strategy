@@ -1,0 +1,17 @@
+{
+  "_title": "NAS100 Dukascopy 1m — to isté prerazenie, ale limitkou na retest, 1:2",
+  "_strategy": "breakout",
+  "_instrument": "nas100_dukascopy",
+  "_timeframe": "1m",
+  "_comment": [
+    "Druha polovica dvojice na porovnanie typu prikazu: ten isty signal (zavreta sviecka",
+    "za hranicou prvej 5m sviecky), ale vstup limitkou spat na prerazenu hranicu.",
+    "Lepsia cena a kratsi stop, ale cast prerazeni sa nevrati a den skonci bez obchodu -",
+    "rozdiel v pocte obchodov proti market profilu je presne cena za lepsi vstup.",
+    "Beh na 1m grafe je tu v poriadku: vsetky limity stratégie su v minutach, nie v baroch."
+  ],
+  "tickDollarValue": 0.5,
+  "orderType": "limit",
+  "limitValidMinutes": 15,
+  "rrRatio": 2.0
+}

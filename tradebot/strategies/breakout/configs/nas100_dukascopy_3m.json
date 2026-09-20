@@ -1,0 +1,16 @@
+{
+  "_title": "NAS100 Dukascopy 3m — prerazenie prvej 5m sviečky NY openu, 1:1",
+  "_strategy": "breakout",
+  "_instrument": "nas100_dukascopy",
+  "_timeframe": "3m",
+  "_comment": [
+    "Vychodiskovy profil zo zadania: otvaracia sviecka = prvych 5 minut od 9:30 New York,",
+    "vstup market na zavreti sviecky za jej high/low, stop presne na opacnu hranu tej",
+    "istej sviecky, ciel 1:1, pozicia sa zatvara 15:55 NY.",
+    "Otvaracia sviecka ide z informativneho TF 5m, takze je rovnaka na 1m, 2m aj 3m grafe.",
+    "tickDollarValue je jedine, co sa tu odchyluje od defaultov - NAS100 ho potrebuje na",
+    "vypocet velkosti pozicie z rizika.",
+    "Nie je to obchodne odporucanie, je to referencny bod."
+  ],
+  "tickDollarValue": 0.5
+}

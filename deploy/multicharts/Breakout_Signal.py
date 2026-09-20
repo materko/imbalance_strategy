@@ -1,0 +1,91 @@
+# Šablóna MultiCharts študie pre Breakout — skopíruj obsah do PowerLanguage .NET Editora.
+#
+#   File → New → Signal, jazyk Python, názov študie Breakout (= trieda nižšie), potom sem
+#   vlož tento súbor a skompiluj (F7). Po setup.ps1 treba MultiCharts reštartovať.
+#
+# Celá logika je v balíku `tradebot` (nainštaluje ho deploy/multicharts/scripts/setup.ps1),
+# takže sa dá testovať bez MultiCharts a je zdieľaná s Freqtrade vetvou. Trieda nižšie
+# je v tvare, aký MultiCharts x Python vyžaduje: bez rodiča, metódy Create/CalcBar priamo
+# v triede, len delegujú na balík.
+#
+# NA GRAFE MUSIA BYŤ DVE DÁTOVÉ SÉRIE:
+#   Data1 = graf, na ktorom sa vstupuje (1m, 2m alebo 3m)
+#   Data2 = TF otváracej sviečky (`openingMinutes` z profilu, štandardne 5m)
+# Data2 tu nie je pohodlie: 5 sa dvomi ani tromi nedelí, takže z barov 3m grafu by vyšla
+# otváracia sviečka 9:30–9:36 namiesto 9:30–9:35. Bez Data2 nevznikne ani jedna hranica
+# a študia to napíše do Output okna.
+# Graf: Time Zone Exchange, burza symbolu v pásme GMT (adaptér berie čas baru ako UTC).
+#
+# Profil sa prepína premennou prostredia TRADEBOT_PROFILE (predvolene "nas100_dukascopy_3m"
+# z tradebot/strategies/breakout/configs), alebo natvrdo nižšie cez PROFILE (názov alebo
+# cesta k JSON). Ordery študie: vstupy tb_long_<n>/tb_short_<n>, výstupy tb_sl, tb_tp
+# a tb_session_end.
+
+import clr
+clr.AddReference("System")
+clr.AddReference("System.Drawing")
+clr.AddReference("PLTypes")
+clr.AddReference("PLStudiesProxy")
+clr.AddReference("PLStudiesProxyPython")
+clr.AddReference("PLBuiltInFunctions")
+clr.AddReference("PLTradeManager")
+clr.AddReference("ATCenterProxy.interop")
+clr.AddReference("PLDataLoader")
+
+from System import *
+from System.Drawing import *
+from PowerLanguage import *
+
+
+class Breakout:
+    # None = profil z prostredia (TRADEBOT_PROFILE) alebo default stratégie
+    PROFILE = None
+    # PROFILE = "nas100_dukascopy_3m"           # market vstup, 1:1
+    # PROFILE = "nas100_dukascopy_1m_limit"     # limitka na retest, 1:2
+    # Záloha za Data2 (beta odmieta BarsOfData(2)): 1m Dukascopy CSV, z ktorého sa 5m poskladá.
+    HTF_CSV = None
+    # HTF_CSV = r"C:/dukas/NAS100_M1_10Y.csv"
+    # Diagnostika: True vypne kreslenie (oddelí pády MultiCharts v kreslení od orderov).
+    NO_DRAW = False
+
+    # Balík tradebot sa importuje až tu, nie na úrovni modulu: MultiCharts zdroják
+    # overuje aj v procesoch, kde balík nemusí byť viditeľný. Študia je obyčajná
+    # trieda bez rodiča ako v šablóne bety; všetko deleguje na BreakoutSignal.
+    def _sig(self):
+        s = getattr(self, "_tb", None)
+        if s is None:
+            from tradebot.strategies.breakout.multicharts import BreakoutSignal
+
+            s = BreakoutSignal()
+            s.PROFILE = self.PROFILE
+            s.HTF_CSV = self.HTF_CSV
+            s.NO_DRAW = self.NO_DRAW
+            self._tb = s
+        return s
+
+    def GetInputs(self):
+        return self._sig().GetInputs()
+
+    def GetInputValue(self, name):
+        return self._sig().GetInputValue(name)
+
+    def SetInputValue(self, name, value):
+        self._sig().SetInputValue(name, value)
+
+    def Create(self, ctx):
+        self._sig().Create(ctx)
+
+    def StartCalc(self):
+        self._sig().StartCalc()
+
+    def CalcBar(self):
+        self._sig().CalcBar()
+
+    def StopCalc(self):
+        self._sig().StopCalc()
+
+    def Destroy(self):
+        self._sig().Destroy()
+
+    def OnOrderRejected(self, action, category, lots, price, price2):
+        self._sig().OnOrderRejected(action, category, lots, price, price2)

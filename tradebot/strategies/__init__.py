@@ -7,6 +7,7 @@ Registry je obyčajný dict s explicitnými importmi — bez entry-pointov a má
 from __future__ import annotations
 
 from .base import StrategySpec
+from .breakout import SPEC as BREAKOUT_SPEC
 from .demo_breakout import SPEC as DEMO_SPEC
 from .divergence import SPEC as DIVERGENCE_SPEC
 from .gap import SPEC as GAP_SPEC
@@ -26,6 +27,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     GAP_SPEC.key: GAP_SPEC,
     RANGE_SPEC.key: RANGE_SPEC,
     SDZONE_SPEC.key: SDZONE_SPEC,
+    BREAKOUT_SPEC.key: BREAKOUT_SPEC,
     DIVERGENCE_SPEC.key: DIVERGENCE_SPEC,
 }
 

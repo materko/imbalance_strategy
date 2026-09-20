@@ -16,7 +16,7 @@ poradí, čo si smie stratégia určiť sama a kedy je hotová.
    ([nižšie](#analytika-a-posudok-bez-nich-to-nie-je-hotové)). Kód, ktorý beží, ešte nie
    je odpoveď na otázku, či to k niečomu je.
 
-Dnes sú v registry tri:
+Čo je dnes v registry (`python -m tester.webapp.cli params --strategy <kľúč>` vypíše parametre):
 
 | kľúč | názov | parametrov | na čo |
 |---|---|---|---|
@@ -25,6 +25,11 @@ Dnes sú v registry tri:
 | `structure` | Market Structure BOS / CHoCH | 18 | druhý archetyp (štruktúra, protitrendový `sweep`); [ANALYTIKA](../tradebot/strategies/structure/docs/ANALYTIKA.md) |
 | `demo_breakout` | Demo Donchian Breakout | 8 | ukážka, ktorá overuje rámec end-to-end; nie je to obchodné odporúčanie |
 | `divergence` | Divergence — divergencie indikátorov v smere supertrendu | 65 | port Freqtrade stratégie z r. 2022 (bez Pine); vyššie TF si skladá sama z barov grafu; [PORT](../tradebot/strategies/divergence/docs/PORT.md), [ANALYTIKA](../tradebot/strategies/divergence/docs/ANALYTIKA.md) |
+| `orb` | ORB — Opening Range Breakout | 44 | prvých 15/30/60 min seansy tvorí range, obchoduje sa jeho prerazenie |
+| `gap` | Gap Fill | 34 | otvárací gap a jeho zatvorenie |
+| `range` | Range Breakout | 42 | konsolidácia kdekoľvek na grafe a jej prerazenie; [ANALYTIKA](../tradebot/strategies/range/docs/ANALYTIKA.md) |
+| `sdzone` | SD Zones | 44 | dopyt/ponuka zo základne a impulzu (Skorupinski); [ANALYTIKA](../tradebot/strategies/sdzone/docs/ANALYTIKA.md) |
+| `breakout` | Breakout — prerazenie prvej sviečky NY openu | 32 | najmenšia z ostrých: dve úrovne z prvej 5m sviečky 9:30 NY, vstup na 1m/2m/3m grafe market alebo limitkou; [ANALYTIKA](../tradebot/strategies/breakout/docs/ANALYTIKA.md) |
 
 `demo_breakout` je zámerne malá a zámerne **úplná**: má všetko, čo tento návod vyžaduje,
 takže sa dá kopírovať riadok po riadku. Keď si vyberáš vzor, ber ju — IBS je port
