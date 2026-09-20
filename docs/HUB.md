@@ -132,6 +132,11 @@ TRADEBOT_HUB_TOKEN=dlhy-nahodny-retazec PY -m tester.hub serve --host 0.0.0.0 --
 Na verejnej adrese je token povinný; každé volanie API ho nesie v hlavičke
 `Authorization: Bearer …`. Bez tokenu hub beží len na `127.0.0.1`.
 
+**Za reverse proxy si token ustráž sám.** Kontrola vyššie pozerá na bind adresu, a hub
+za proxy bindne na `127.0.0.1` — takže nevystrelí, hoci je hub cez proxy verejný. Preto
+hub pri štarte bez jediného tokenu vypíše `POZOR: hub beží bez jediného tokenu`. Nechaj
+ho otvorený len vtedy, keď sa na port naozaj nikto zvonka nedostane.
+
 **Tokeny per agent.** Hlavný token (`TRADEBOT_HUB_TOKEN`) je správcovský a nepatrí na
 servery. Každý agent dostane vlastný token, ktorý ho zároveň **identifikuje**:
 

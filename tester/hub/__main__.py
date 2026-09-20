@@ -42,6 +42,11 @@ def cmd_serve(args: argparse.Namespace) -> int:
     app = create_hub_app(state)
     print(f"TradeBot hub: http://{args.host}:{args.port}  (stav v {state.root}, "
           f"tokenov agentov {len(state.token_names())})", flush=True)
+    if not token and not state.token_names():
+        # Bind na localhost nič neznamená, keď pred hubom stojí reverse proxy: hub je
+        # potom verejný a bez tokenu ho smie ovládať ktokoľvek, kto sa naň dostane.
+        print("POZOR: hub beží bez jediného tokenu — je otvorený každému, kto sa naň "
+              "dostane (aj cez reverse proxy). Token: --token / TRADEBOT_HUB_TOKEN.", flush=True)
     uvicorn.run(app, host=args.host, port=args.port, log_level="info")
     return 0
 
