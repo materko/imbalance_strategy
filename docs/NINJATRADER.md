@@ -74,9 +74,11 @@ Dve veci, na ktoré most narazil a ktoré v ňom preto sú:
   nedá, takže `CSharpEngine` si v novom procese otvorí čerstvý engine s tým istým configom
   (`__getstate__`/`__setstate__`) — generický adaptér si pri hyperopte aj tak stavia runner pre každú
   epochu nanovo.
-- **Koniec procesu**: pythonnet pri `unload` až 20× prejde celú haldu Pythonu, čo vo Freqtrade backteste
-  znamenalo ~20 s po každom behu. Vynechať `unload` nejde (CLR potom spadne, návratový kód 127), preto
-  most tesne pred ním zavolá `gc.freeze()` — ročný beh IBSNinja je tak rýchlejší než Python IBS.
+- **Koniec procesu**: pythonnet pri `unload` opakovane prejde celú haldu Pythonu. Po Freqtrade backteste
+  to bolo ~20 s, po celej sade testov (90 miliónov objektov, jeden zber 10 s) **~15 minút** „visiaceho"
+  procesu po vypísaní výsledku. Vynechať `unload` nejde (CLR potom spadne, návratový kód 127), preto
+  `tradebot.core.clr.tame_shutdown()` tesne pred ním zavolá `gc.freeze()`. Volá sa po každom načítaní
+  CLR — v moste aj pri `import clr` v MultiCharts adaptéri, lebo v testoch ho ako prvý načíta ten.
 
 Preklad rieši most sám: `csharp/bin/TradeBot.dll` sa zostaví pri prvom použití a vždy, keď je niektorý
 `.cs` novší (`python -m tradebot.adapters.csharp.build [--force]`). `csharp/bin/` je v `.gitignore`.

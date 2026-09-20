@@ -237,13 +237,23 @@ def test_sl_a_size_sa_nasobia_tak_aby_riziko_ostalo():
 
 
 @pytest.fixture
-def klient():
+def klient(tmp_path):
+    """Webapp nad DOČASNOU históriou a s falošným príkazom namiesto Freqtrade.
+
+    `create_app()` bez argumentov berie ostrý `tester/runs` a skutočný runner: `POST /api/runs`
+    z testu nižšie tak pri každom spustení celej sady pustil reálny ročný backtest a zapísal ho
+    do histórie používateľa (behy `<čas>-bf8db0` s prázdnou poznámkou).
+    """
     pytest.importorskip("fastapi")
     from fastapi.testclient import TestClient
 
     from tester.webapp.app import create_app
+    from tester.webapp.runner import BacktestRunner
+    from tester.webapp.store import RunStore
 
-    return TestClient(create_app())
+    store = RunStore(tmp_path)
+    runner = BacktestRunner(store, command_builder=lambda *a: ["python", "-c", "raise SystemExit(0)"])
+    return TestClient(create_app(store, runner))
 
 
 def test_meta_da_predvolby_aj_kluce_strategie(klient):

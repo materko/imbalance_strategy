@@ -21,6 +21,7 @@ import sys
 import threading
 from typing import Any, Sequence
 
+from tradebot.core.clr import tame_shutdown
 from tradebot.core.paths import CSHARP_DLL, CSHARP_HOST
 
 from .build import ensure_built
@@ -94,17 +95,9 @@ def _load_clr():
             if pythonnet.get_runtime_info() is None:
                 runtime = os.environ.get("TRADEBOT_CSHARP_RUNTIME") or ("netfx" if sys.platform == "win32" else "mono")
                 pythonnet.load(runtime)
-                # pythonnet si pri `load` zaregistruje `unload` na koniec procesu a ten až 20× prejde
-                # celú haldu Pythonu (`gc.collect`). Vo Freqtrade backteste (milióny objektov) to
-                # znamenalo ~20 s čakania po každom behu. `unload` sa vynechať nedá (CLR potom pri
-                # konci procesu spadne na GIL, kód 127), ale dá sa mu halda schovať: `gc.freeze()`
-                # presunie všetko živé do trvalej generácie, ktorú zber neprechádza. Handler
-                # registrovaný neskôr beží skôr, takže toto prebehne tesne pred `unload`.
-                import atexit
-                import gc
-
-                atexit.register(gc.freeze)
             import clr  # noqa: F401
+
+            tame_shutdown()  # inak koniec procesu trvá minúty — viď tradebot/core/clr.py
             from System.IO import File
             from System.Reflection import Assembly
 

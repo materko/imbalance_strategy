@@ -97,6 +97,9 @@ def _add_clr_references() -> None:  # pragma: no cover - beží len v MultiChart
         import clr
     except ImportError:
         return
+    from ...core.clr import tame_shutdown
+
+    tame_shutdown()  # mimo MultiCharts je `clr` pythonnet z pip a jeho koniec procesu trvá minúty
     for ref in _CLR_REFERENCES:
         try:
             clr.AddReference(ref)
