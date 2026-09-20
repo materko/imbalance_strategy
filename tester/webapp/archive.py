@@ -36,9 +36,10 @@ from .store import PLAN_FILE, RunStore
 __all__ = ["Plan", "plan", "report", "apply", "restore", "archived"]
 
 #: Nad koľko bajtov (zabalených) sa začne písať ďalší súbor. GitHub odmieta súbory nad
-#: 100 MB a diff veľkého súboru je aj tak na nič, takže radšej viac menších. Dávka sa
-#: nerozdeľuje, takže súbor môže prerásť o jednu dávku — do stovky megabajtov ďaleko.
-MAX_BYTES = 40_000_000
+#: 100 MB a nad 50 MB varuje; diff veľkého súboru je aj tak na nič, takže radšej viac
+#: menších. Veľkosť sa kontroluje medzi dávkami, takže súbor prerastie najviac o jednu
+#: dávku (`batch`, ~9 MB) — s týmito číslami skončí do 45 MB.
+MAX_BYTES = 35_000_000
 
 #: Súbory behu, ktoré idú do archívu. `chart.json.gz` nie — je to lokálna cache.
 FILES = ("trades.json", PLAN_FILE, "log.txt")
@@ -143,7 +144,7 @@ def _write_index(root: Path, mapa: dict[str, str]) -> None:
 
 
 def apply(store: RunStore, p: Plan, root: Path | None = None,
-          log: Callable[[str], None] = print, batch: int = 500) -> dict[str, int]:
+          log: Callable[[str], None] = print, batch: int = 100) -> dict[str, int]:
     """Odlož behy do archívu a až po overení zmaž ich adresáre."""
     root = Path(root) if root else Path(ARCHIVE_DIR)
     root.mkdir(parents=True, exist_ok=True)
