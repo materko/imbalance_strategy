@@ -68,3 +68,8 @@ csharp/bin/
 # Synteticke trhy: velke a deterministicke - recept je v registri, data sa daju
 # kedykolvek vygenerovat znova (`python -m tester.synthetic build`).
 data/tester/synthetic/
+
+# Vlastne upravy dockeru na tomto stroji: compose override (`-f zakladny -f local`)
+# a vlastny Dockerfile. Subory v docker/ bez `.local` su spolocne a verzovane.
+docker/*.local.yml
+docker/Dockerfile.*.local

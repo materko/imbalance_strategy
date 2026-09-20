@@ -222,6 +222,31 @@ spozná, dočíta, čo počíta, odhlási sa a skončí, a `restart: unless-stop
 novom kóde. Výpočet s commitom, ktorý hostiteľ ešte nepullol, zlyhá s chybou, ktorá to
 povie. Push/Pull histórie behov sa robí z hostiteľa.
 
+**Vlastné úpravy na tomto stroji.** Compose súbory v `docker/` sú spoločné a verzované;
+nemeň ich, keď ide len o tento server. Nastavenia sa dajú zmeniť bez dotyku gitu:
+
+- `.env` v koreni (gitignored) — tokeny, adresa hubu, bind, port, `TRADEBOT_HUB_NAME`,
+  `TRADEBOT_HUB_MAX_PARALLEL`;
+- **override súbor** `docker/*.local.yml` (gitignored) na čokoľvek ostatné — iné mounty,
+  limity CPU a pamäte, sieť, vlastný `command`. Compose ho zlúči nad základný:
+
+```bash
+docker compose -f docker/docker-compose.agent.yml -f docker/agent.local.yml up -d --build
+```
+
+```yaml
+# docker/agent.local.yml — do gitu nejde
+services:
+  agent:
+    deploy:
+      resources:
+        limits: {cpus: "6"}
+    volumes:
+      - /mnt/ssd/data:/app/data
+```
+
+Gitignored je aj `docker/Dockerfile.*.local`, keby si potreboval vlastný image.
+
 Webapp so zapnutým `accept` si nastaví toľko workerov, koľko má slotov — behy z hubu
 bežia vedľa seba (každý má vlastný adresár výsledkov Freqtradu), hyperopt sám.
 
