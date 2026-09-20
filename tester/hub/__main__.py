@@ -43,13 +43,38 @@ def cmd_serve(args: argparse.Namespace) -> int:
     app = create_hub_app(state)
     print(f"TradeBot hub: http://{args.host}:{args.port}  (stav v {state.root}, "
           f"tokenov agentov {len(state.token_names())})", flush=True)
+    updater = _start_updater(args, state)
     if not token and not state.token_names():
         # Bind na localhost nič neznamená, keď pred hubom stojí reverse proxy: hub je
         # potom verejný a bez tokenu ho smie ovládať ktokoľvek, kto sa naň dostane.
         print("POZOR: hub beží bez jediného tokenu — je otvorený každému, kto sa naň "
               "dostane (aj cez reverse proxy). Token: --token / TRADEBOT_HUB_TOKEN.", flush=True)
     uvicorn.run(app, host=args.host, port=args.port, log_level="info")
+    if updater is not None:
+        updater.stop()
     return 0
+
+
+def _start_updater(args: argparse.Namespace, state: Any):
+    """Samoaktualizácia: `--update MIN` (alebo TRADEBOT_HUB_UPDATE) — hub si pullne kód a
+    keď sa zmenil, skončí; v kontajneri ho `restart: unless-stopped` zdvihne na novom."""
+    from .update import Updater, from_env
+
+    minuty = args.update
+    if minuty is not None and minuty <= 0:
+        return None
+    u = (Updater(state, interval=minuty * 60, branch=args.branch,
+                 max_wait=(args.update_max_wait or 0) * 60)
+         if minuty is not None else from_env(state))
+    if u is None:
+        return None
+    u.start()
+    print(f"Samoaktualizacia: kazdych {u.interval / 60:.0f} min fetch origin/{u.branch}, "
+          f"restart po zmene kodu "
+          + ("hned, ked nic nepocita" if not u.max_wait
+             else f"ked nic nepocita, najneskor o {u.max_wait / 60:.0f} min")
+          + f" (kod {u.start_version or '?'})", flush=True)
+    return u
 
 
 def cmd_setup(args: argparse.Namespace) -> int:
@@ -290,6 +315,13 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--heartbeat", type=int,
                    default=int(getenv("HUB_HEARTBEAT", str(agent_config.DEFAULT_HEARTBEAT))),
                    help="interval heartbeatu agentov v sekundách (default 10, alebo TRADEBOT_HUB_HEARTBEAT)")
+    p.add_argument("--update", type=float, default=None, metavar="MIN",
+                   help="samoaktualizácia: každých MIN minút fetch origin a reštart po zmene "
+                        "kódu (0 = vypnuté; bez prepínača platí TRADEBOT_HUB_UPDATE)")
+    p.add_argument("--update-max-wait", dest="update_max_wait", type=float, default=None,
+                   metavar="MIN", help="ako dlho čakať na dobehnutie výpočtov pred reštartom "
+                                       "(0 = koľko treba)")
+    p.add_argument("--branch", default="main", help="vetva pre samoaktualizáciu (default main)")
     p.set_defaults(func=cmd_serve)
 
     p = sub.add_parser("token", help="tokeny agentov: add | rm | list (správca hubu)")

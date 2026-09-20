@@ -4,18 +4,29 @@
 #   docker build -f docker/Dockerfile.hub -t tradebot-hub .
 #
 # Hub nič nepočíta: drží agentov, frontu, zipy výsledkov a log udalostí. Potrebuje
-# len FastAPI a `tester.hub` (+ `tradebot.core.paths`, kde sú cesty). Stav je vo
-# volume `/app/tester/hub_data` (compose ho mountuje), image je malý a arm64 ho utiahne.
+# len FastAPI a `tester.hub` (+ `tradebot.core.paths`, kde sú cesty); image je malý
+# a arm64 ho utiahne.
+#
+# **Kód beží z klonu vo volume `/srv/tradebot`**, nie z toho v image — inak by sa hub
+# nemal ako aktualizovať a každá zmena by chcela rebuild na stroji hubu. Klon vyrobí
+# `hub-entrypoint.sh` a ďalej si ho udržiava sám hub (`tester.hub.update`: fetch a po
+# zmene kódu reštart, ktorý `restart: unless-stopped` zdvihne na novom). Kód v image
+# ostáva ako záchrana pre prvý štart bez siete; `PYTHONPATH` ich radí v tomto poradí.
+# Stav je vo volume `/srv/tradebot/tester/hub_data` (compose ho mountuje).
 
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app
+    PYTHONPATH=/srv/tradebot:/app
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir "fastapi>=0.110" "uvicorn>=0.27"
+# git je tu kvôli samoaktualizácii (klon vo volume), nie kvôli buildu.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --no-cache-dir "fastapi>=0.110" "uvicorn>=0.27"
 
 COPY pyproject.toml ./
 COPY tradebot/ ./tradebot/
@@ -27,7 +38,14 @@ COPY tester/webapp/__init__.py tester/webapp/store.py ./tester/webapp/
 # Sanity check pri builde: hub sa dá naimportovať a má svoje cesty.
 RUN python -c "from tester.hub.server import create_hub_app; from tradebot.core.paths import HUB_DIR; print('hub ok', HUB_DIR)"
 
+COPY docker/hub-entrypoint.sh /usr/local/bin/hub-entrypoint.sh
+RUN chmod +x /usr/local/bin/hub-entrypoint.sh
+
 EXPOSE 8790
 
-ENTRYPOINT ["python", "-m", "tester.hub"]
+# `docker compose exec hub python -m tester.hub … --local` ide mimo entrypointu, ale
+# `PYTHONPATH` aj tak mieri na klon — príkazy vidia ten istý kód aj ten istý stav.
+WORKDIR /srv/tradebot
+
+ENTRYPOINT ["/usr/local/bin/hub-entrypoint.sh"]
 CMD ["serve", "--host", "0.0.0.0", "--port", "8790"]

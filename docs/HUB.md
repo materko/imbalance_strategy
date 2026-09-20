@@ -156,7 +156,8 @@ odovzdanie výsledku.
    ktorýkoľvek iný beh.
 
 Naopak, **hub bez agentov** nepotrebuje nič: má stav na disku, takže po reštarte sú
-výpočty vo fronte stále tam a agenti sa prihlásia sami.
+výpočty vo fronte stále tam a agenti sa prihlásia sami. Preto si hub v Dockeri dovolí
+reštartovať sa aj sám, keď si stiahne nový kód (viď „Hub sa aktualizuje sám").
 
 ## Nastavenie
 
@@ -230,7 +231,8 @@ Agent beží dvoma spôsobmi:
 Dva samostatné compose súbory, oba sa spúšťajú z koreňa repozitára (Docker tu pri písaní
 nebol k dispozícii — build nebol overený, súbory sú podľa `docker/docker-compose.yml`):
 
-**Hub** — malý image bez Freqtradu (`docker/Dockerfile.hub`), stav vo volume `hub_data`:
+**Hub** — malý image bez Freqtradu (`docker/Dockerfile.hub`), stav vo volume `hub_data`,
+kód vo volume `hub_code` (aktualizuje sa sám, viď nižšie):
 
 ```bash
 cp .env.example .env         # TRADEBOT_HUB_TOKEN=… (povinný), TRADEBOT_HUB_BIND, TRADEBOT_HUB_PORT
@@ -246,6 +248,29 @@ skončíš na `required variable TRADEBOT_HUB_TOKEN is missing a value`.
 
 Port sa predvolene viaže na `127.0.0.1` — pred hub patrí reverse proxy s TLS (Caddy,
 nginx). `TRADEBOT_HUB_BIND=0.0.0.0` ho dá priamo na sieť, ale potom ide token po HTTP.
+
+### Hub sa aktualizuje sám
+
+Kód hubu **nie je z image**, ale z plytkého klonu vo volume `hub_code`, ktorý pri prvom
+štarte vyrobí `docker/hub-entrypoint.sh` (`git init` + `fetch --depth 1` + `reset`;
+repozitár je verejný, takže bez tokenu). Bežiaci hub si ho potom drží aktuálny sám
+(`tester/hub/update.py`):
+
+1. každých `TRADEBOT_HUB_UPDATE` minút (default 5) `git fetch` + `reset --hard` na
+   `origin/${TRADEBOT_HUB_BRANCH:-main}`,
+2. keď sa `HEAD` zmenil, **počká, kým nič nepočíta** — žiadny výpočet v stave `assigned`,
+   `running` ani `cancelling`; čo čaká vo fronte, reštart pokojne prežije v `state.json`,
+3. potom proces skončí a `restart: unless-stopped` ho zdvihne na novom kóde.
+
+Výpadok je pár sekúnd: agenti heartbeat zopakujú a keď ich hub medzitým zabudne, sami sa
+prihlásia znova. Hub s trvalou frontou by sa takto nemusel dostať k reštartu nikdy — na to
+je `TRADEBOT_HUB_UPDATE_MAX_WAIT` (minúty; 0 = čakaj, koľko treba). Vypnúť sa to dá
+`TRADEBOT_HUB_UPDATE=0`, mimo Dockeru sa to zapína `--update MIN`.
+
+**Rebuild image treba len pri zmene `Dockerfile.hub`** (alebo závislostí) — zmena kódu
+hubu sa dostane do prevádzky sama. Klon vo volume je jednorazový: nikto doň nepíše, preto
+`reset --hard`. Keby sa mal zahodiť, stačí `docker volume rm tradebot-hub_hub_code` (stav
+v `hub_data` je vedľa a ostane).
 
 **Headless agent** — image `docker/Dockerfile.agent` stavia na image Freqtradu s jadrom
 (`docker compose -f docker/docker-compose.yml build freqtrade` najprv) a pridáva git:

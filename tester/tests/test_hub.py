@@ -308,6 +308,79 @@ def test_exclusive_and_parallel_slots(hub):
     assert j["agent"] == "srv2"
 
 
+def _updater(state, clock, verzie, **kw):
+    from tester.hub.update import Updater
+
+    koniec = []
+    u = Updater(state, interval=60, clock=lambda: clock.t, pull=lambda: {"ok": True},
+                version=lambda: verzie[-1], quit=lambda: koniec.append(True), **kw)
+    return u, koniec
+
+
+def test_updater_restarts_hub_only_when_nothing_is_computing(hub):
+    """Samoaktualizácia: nový kód počká, kým dobehnú výpočty, a až potom proces skončí."""
+    state, clock = hub
+    verzie = ["aaa111"]
+    u, koniec = _updater(state, clock, verzie)
+    assert u.start_version == "aaa111"
+    assert u.tick() is False and u.pending is None      # kód sa nezmenil, nič sa nedeje
+
+    _reg(state, cores=1, slots=1)
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    caka = state.submit(kind="backtest", payload=_payload(), submitter="lap", queue=True)
+    state.heartbeat("srv", {"jobs": [{"id": job["id"], "status": "running"}]})
+    verzie.append("bbb222")
+    assert u.tick() is False and u.pending == "bbb222" and not koniec
+    assert u.busy() == [job["id"]]                      # fronta reštart prežije, tá nedrží
+    assert state.job(caka["id"])["status"] == "queued"
+    assert u.public()["waiting_for"] == 1
+
+    state.result(job["id"], b"", status="done", agent="srv")
+    assert state.job(caka["id"])["status"] == "assigned"   # hub hneď pustil ďalší z fronty
+    assert u.tick() is False and not koniec
+    state.result(caka["id"], b"", status="done", agent="srv")
+    assert u.tick() is True and koniec == [True]
+
+
+def test_updater_gives_up_waiting_after_max_wait(hub):
+    state, clock = hub
+    verzie = ["aaa111"]
+    u, koniec = _updater(state, clock, verzie, max_wait=600)
+    _reg(state)
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    state.heartbeat("srv", {"jobs": [{"id": job["id"], "status": "running"}]})
+    verzie.append("bbb222")
+    assert u.tick() is False
+    clock.t += 300
+    assert u.tick() is False and not koniec              # ešte sa čaká
+    clock.t += 301
+    assert u.tick() is True and koniec == [True]
+    assert state.job(job["id"])["status"] == "running"   # beh ostáva, dopočíta ho agent
+
+
+def test_updater_survives_failed_fetch(hub):
+    from tester.hub.update import Updater
+
+    state, clock = hub
+    u = Updater(state, interval=60, clock=lambda: clock.t, version=lambda: "aaa111",
+                pull=lambda: {"ok": False, "output": "siet nejde"}, quit=lambda: None)
+    assert u.tick() is False and u.last_error == "siet nejde" and u.pending is None
+
+
+def test_updater_from_env(monkeypatch, hub):
+    from tester.hub.update import from_env
+
+    state, _ = hub
+    assert from_env(state) is None
+    monkeypatch.setenv("TRADEBOT_HUB_UPDATE", "5")
+    monkeypatch.setenv("TRADEBOT_HUB_UPDATE_MAX_WAIT", "30")
+    monkeypatch.setenv("TRADEBOT_HUB_BRANCH", "main")
+    u = from_env(state)
+    assert u.interval == 300 and u.max_wait == 1800 and u.branch == "main"
+    monkeypatch.setenv("TRADEBOT_HUB_UPDATE", "0")
+    assert from_env(state) is None
+
+
 def test_forget_agent(hub):
     """Premenovaný agent visí na hube ako offline — dá sa vyhodiť aj s tokenom."""
     state, clock = hub

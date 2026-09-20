@@ -16,9 +16,19 @@
 #                        má byť priamo na sieti, daj 0.0.0.0 — ale token je potom jediná
 #                        ochrana a ide po HTTP.
 #   TRADEBOT_HUB_PORT    port na hostiteľovi, default 8790.
+#   TRADEBOT_HUB_UPDATE  ako často (minúty) si hub pullne kód; 0 = vypnuté, default 5.
+#   TRADEBOT_HUB_UPDATE_MAX_WAIT  koľko minút čakať na dobehnutie výpočtov pred
+#                        reštartom; 0 (default) = čakaj, koľko treba.
+#   TRADEBOT_HUB_BRANCH  vetva, z ktorej sa hub aktualizuje (default main).
+#   TRADEBOT_REPO_URL    odkiaľ si klonuje kód (default tento repozitár na GitHube).
 #
 # Stav (agenti, fronta, zipy výsledkov, tokeny, log udalostí) je vo volume `hub_data`
 # a prežije rebuild aj reštart.
+#
+# **Hub sa aktualizuje sám.** Kód nie je z image, ale z plytkého klonu vo volume
+# `hub_code` (vyrobí ho `docker/hub-entrypoint.sh`): hub si ho každých pár minút
+# fetchne, a keď sa zmenil, počká, kým nič nepočíta, a skončí — `restart: unless-stopped`
+# ho zdvihne na novom kóde. Rebuild image treba len pri zmene samotného Dockerfile.
 
 name: tradebot-hub
 
@@ -34,12 +44,20 @@ services:
       TZ: ${TZ:-Europe/Bratislava}
       TRADEBOT_HUB_TOKEN: ${TRADEBOT_HUB_TOKEN:?TRADEBOT_HUB_TOKEN chyba - hlavny token hubu (.env)}
       TRADEBOT_HUB_HEARTBEAT: ${TRADEBOT_HUB_HEARTBEAT:-10}
+      # Samoaktualizácia: fetch každých N minút, reštart až keď nič nepočíta.
+      TRADEBOT_HUB_UPDATE: ${TRADEBOT_HUB_UPDATE:-5}
+      TRADEBOT_HUB_UPDATE_MAX_WAIT: ${TRADEBOT_HUB_UPDATE_MAX_WAIT:-0}
+      TRADEBOT_HUB_BRANCH: ${TRADEBOT_HUB_BRANCH:-main}
+      TRADEBOT_REPO_URL: ${TRADEBOT_REPO_URL:-https://github.com/materko/imbalance_strategy.git}
     env_file:
       - path: ../.env
         required: false
     volumes:
-      # tradebot/core/paths.py: HUB_DIR = <repo>/tester/hub_data, v kontajneri je repo /app
-      - hub_data:/app/tester/hub_data
+      # Kód, z ktorého hub beží — klon, ktorý si sám drží aktuálny (hub-entrypoint.sh).
+      - hub_code:/srv/tradebot
+      # tradebot/core/paths.py: HUB_DIR = <repo>/tester/hub_data, a repo je tu ten klon.
+      # Starý hub mal kód v /app; pri prechode sa volume len namountuje inam, stav ostáva.
+      - hub_data:/srv/tradebot/tester/hub_data
     ports:
       - "${TRADEBOT_HUB_BIND:-127.0.0.1}:${TRADEBOT_HUB_PORT:-8790}:8790"
     healthcheck:
@@ -55,3 +73,4 @@ services:
 
 volumes:
   hub_data:
+  hub_code:
