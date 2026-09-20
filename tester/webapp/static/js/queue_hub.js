@@ -176,6 +176,15 @@ function renderHubAgent(h) {
     : "agent sa spúšťa spolu s webapp — reštartuj ju, keď si config pridal až teraz";
 }
 
+/** Akcia nad hubom (zrušenie výpočtu, vyhodenie agenta): spraví ju, prekreslí kartu a
+ *  až potom vypíše chybu — inak ju prekreslenie hneď zmaže a klik vyzerá, že sa nestalo nič. */
+async function hubAkcia(fn) {
+  let chyba = null;
+  try { await fn(); } catch (e) { chyba = e.message; }
+  await loadHub();
+  if (chyba) { $("#hub-error").textContent = chyba; $("#hub-error").hidden = false; }
+}
+
 async function loadHub() {
   clearTimeout(state.hubTimer); state.hubTimer = null;
   let h;
@@ -206,9 +215,8 @@ async function loadHub() {
 
 OK = áno (premenovaný stroj ho pod starým menom `
                             + "už nepotrebuje), Zrušiť = token nechať.");
-      try { await api(`/api/hub/agents/${encodeURIComponent(meno)}?token=${token}`, { method: "DELETE" }); }
-      catch (e) { $("#hub-error").textContent = e.message; $("#hub-error").hidden = false; }
-      loadHub();
+      await hubAkcia(() => api(`/api/hub/agents/${encodeURIComponent(meno)}?token=${token}`,
+                               { method: "DELETE" }));
     };
     let jobs = hub.jobs;
     if ($("#hub-jobs-all").checked) {
@@ -229,11 +237,8 @@ OK = áno (premenovaný stroj ho pod starým menom `
         <td>${esc(s.pair || "")} ${esc(s.timeframe || "")} ${esc(s.timerange || "")}</td>
         <td>${zive.has(j.status) ? `<button class="ghost small" data-hub-cancel="${esc(j.id)}" title="zrušiť výpočet (hub to povie počítajúcemu aj zadávajúcemu agentovi)">✕</button>` : ""}</td></tr>`;
     }).join("") || `<tr class="plain"><td colspan="10" class="muted">nič</td></tr>`;
-    for (const b of $$("[data-hub-cancel]")) b.onclick = async () => {
-      try { await api(`/api/hub/jobs/${b.dataset.hubCancel}/cancel`, { method: "POST" }); }
-      catch (e) { $("#hub-error").textContent = e.message; $("#hub-error").hidden = false; }
-      loadHub();
-    };
+    for (const b of $$("[data-hub-cancel]")) b.onclick = async () =>
+      hubAkcia(() => api(`/api/hub/jobs/${b.dataset.hubCancel}/cancel`, { method: "POST" }));
   }
   if (!$("#view-hub").hidden) state.hubTimer = setTimeout(loadHub, 10000);
 }

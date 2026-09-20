@@ -208,6 +208,12 @@ def build(ctx: AppContext) -> APIRouter:
         try:
             return client.forget_agent(name, force=force, with_token=token)
         except HubError as exc:
+            if exc.status == 404 and str(exc.detail).strip().lower() == "not found":
+                # Nie „agenta nepoznám", ale „takú cestu nepoznám": hub stojí na starom kóde.
+                raise HTTPException(409, "hub beží na staršom kóde a vyhadzovanie agentov ešte "
+                                         "nepozná — aktualizuj a reštartuj hub (git pull + reštart "
+                                         "služby/kontajnera), alebo to sprav na jeho stroji: "
+                                         f"python -m tester.hub forget \"{name}\" --local")
             raise HTTPException(exc.status if exc.status in (401, 403, 404, 409) else 502, str(exc))
 
     @router.get("/api/hub/jobs")
