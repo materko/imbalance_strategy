@@ -104,9 +104,10 @@ showState   = input.bool(true,  "Podfarbiť pozadie podľa stavu", group=_GZ)
 showWarn    = input.bool(true,  "Značky varovaní", group=_GZ)
 tablePos    = input.string("Vpravo hore", "Tabuľka — kde",
      options=["Vpravo hore", "Vpravo dole", "Vľavo hore", "Vľavo dole"], group=_GZ)
-showTickers = input.bool(true, "Tabuľka — aj jednotlivé tituly", group=_GZ,
-     tooltip="Vypni, keď je panel nízky. Smer, skóre a šírka ostanú — tie sú hore, takže " +
-     "sa neodrežú ani v úzkom paneli.")
+tableSize   = input.string("Stredná", "Tabuľka — rozsah",
+     options=["Len smer", "Kompaktná", "Stredná", "Plná"], group=_GZ,
+     tooltip="Len smer = 1 riadok. Kompaktná = smer, skóre, šírka. Stredná = + kôš, SOXX, " +
+     "index. Plná = + všetkých sedem titulov (13 riadkov, na nízkom paneli sa odreže).")
 showTable   = input.bool(true,  "Tabuľka", group=_GZ)
 
 // ------------------------------------------------------------------ //
@@ -294,8 +295,10 @@ plot(state, "» stav (1/0/−1)", color=color.new(C_FLAT, 100), display=display.
 
 // Pozadie patrí STAVU, nie varovaniam — je to jediná informácia, ktorú chceš
 // vidieť aj periférnym videním. Veľmi jemne, nech neprebije samotnú čiaru.
-bgcolor(showState and state ==  1 ? color.new(C_UP, 93) : na, title="Stav LONG")
-bgcolor(showState and state == -1 ? color.new(C_DN, 93) : na, title="Stav SELL")
+// Na malom paneli (mobil) je pozadie často to jediné, čo je poriadne vidieť,
+// preto je sýtejšie, než by sa na veľkom monitore hodilo.
+bgcolor(showState and state ==  1 ? color.new(C_UP, 88) : na, title="Stav LONG")
+bgcolor(showState and state == -1 ? color.new(C_DN, 88) : na, title="Stav SELL")
 bgcolor(not inRth ? color.new(#263238, 82) : na, title="Mimo burzových hodín")
 
 // Varovania sú značky pri hornej hrane, nie plochy cez celý panel — inak
@@ -350,24 +353,27 @@ if showTable and barstate.islast
          text_halign=text.align_left, bgcolor=stavCol)
     table.cell(t, 1, 0, stavTxt, text_color=#000000, text_size=size.normal,
          text_halign=text.align_center, bgcolor=stavCol)
-    table.cell(t, 0, 1, "skóre", text_color=color.white, text_size=size.small,
-         text_halign=text.align_left, bgcolor=color.new(#263238, 30))
-    table.cell(t, 1, 1, na(score) ? "—" : str.tostring(score, "+0;-0"),
-         text_color=lineCol, text_size=size.normal, bgcolor=color.new(#263238, 30))
-    table.cell(t, 0, 2, "šírka", text_color=color.white, text_size=size.small,
-         text_halign=text.align_left, bgcolor=color.new(#263238, 30))
-    table.cell(t, 1, 2, str.tostring(nUp) + " / " + str.tostring(nOk),
-         text_color=nUp >= minBreadth ? C_UP : nDown >= minBreadth ? C_DN : C_FLAT,
-         text_size=size.normal, bgcolor=color.new(#263238, 30))
+    if tableSize != "Len smer"
+        table.cell(t, 0, 1, "skóre", text_color=color.white, text_size=size.small,
+             text_halign=text.align_left, bgcolor=color.new(#263238, 30))
+        table.cell(t, 1, 1, na(score) ? "—" : str.tostring(score, "+0;-0"),
+             text_color=lineCol, text_size=size.normal, bgcolor=color.new(#263238, 30))
+        table.cell(t, 0, 2, "šírka", text_color=color.white, text_size=size.small,
+             text_halign=text.align_left, bgcolor=color.new(#263238, 30))
+        table.cell(t, 1, 2, str.tostring(nUp) + " / " + str.tostring(nOk),
+             text_color=nUp >= minBreadth ? C_UP : nDown >= minBreadth ? C_DN : C_FLAT,
+             text_size=size.normal, bgcolor=color.new(#263238, 30))
 
     // ---- kontext ---- //
-    table.cell(t, 0, 3, "KÔŠ", text_color=color.white, text_size=size.small, text_halign=text.align_left)
-    table.cell(t, 1, 3, f_pctTxt(basketPct), text_color=f_pctCol(basketPct), text_size=size.small)
-    f_row(t, 4, soxxSym, soxxPct)
-    f_row(t, 5, idxSym,  idxPct)
+    if tableSize == "Stredná" or tableSize == "Plná"
+        table.cell(t, 0, 3, "KÔŠ", text_color=color.white, text_size=size.small,
+             text_halign=text.align_left)
+        table.cell(t, 1, 3, f_pctTxt(basketPct), text_color=f_pctCol(basketPct), text_size=size.small)
+        f_row(t, 4, soxxSym, soxxPct)
+        f_row(t, 5, idxSym,  idxPct)
 
     // ---- jednotlivé tituly, voliteľne ---- //
-    if showTickers
+    if tableSize == "Plná"
         f_row(t,  6, s1, p1)
         f_row(t,  7, s2, p2)
         f_row(t,  8, s3, p3)

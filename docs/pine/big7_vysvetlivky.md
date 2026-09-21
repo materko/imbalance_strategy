@@ -31,7 +31,17 @@ takže smer, skóre a šírka prežijú aj vtedy, keď na tickery už miesto nez
 | KÔŠ | vážený priemer siedmich titulov |
 | SOXX | polovodiče |
 | QQQ | index na porovnanie |
-| sedem tickerov | percentuálna zmena každého titulu; vypína sa v *Tabuľka — aj jednotlivé tituly* |
+| sedem tickerov | percentuálna zmena každého titulu |
+
+**Tabuľka — rozsah** určuje, koľko riadkov sa kreslí. Na nízkom paneli (mobil, malý panel
+pod grafom) sa tabuľka odrezáva zdola, tak si vyber podľa miesta:
+
+| rozsah | riadkov | čo obsahuje |
+|---|---|---|
+| Len smer | 1 | `SMER` a nič viac |
+| Kompaktná | 3 | + skóre a šírka |
+| **Stredná** (predvolené) | 6 | + kôš, SOXX, index |
+| Plná | 13 | + všetkých sedem titulov |
 
 Kam sa tabuľka postaví, nastavíš v *Tabuľka — kde* (štyri rohy panelu).
 
