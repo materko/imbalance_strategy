@@ -56,7 +56,9 @@ idxSym  = input.symbol("NASDAQ:QQQ",  "Index na porovnanie", group=_GC,
 // odkiaľ správa prišla (rozptyl), ako tvrdo dopadla (impulz) a či trh dostal
 // strach (VIX). Celý blok je dodatok: predvolene nič neblokuje, len ukazuje.
 _GN2 = "📰 Reakcia na správy"
-useNews   = input.bool(true, "Zapnúť blok správ", group=_GN2)
+useNews   = input.bool(false, "Zapnúť blok správ", group=_GN2,
+     tooltip="Predvolene vypnutý — indikátor beží bez neho presne tak, ako predtým, "
+     "a nerobí ani dotazy na VIX. Zapni, len keď ťa reakcia na správy zaujíma.")
 vixSym    = input.symbol("CBOE:VIX", "Index strachu", group=_GN2,
      tooltip="VIX skáče na headlinoch skôr, než sa stihne prečítať, čo sa stalo.")
 vixJump   = input.float(3.0, "VIX: skok od (%)", minval=0.5, step=0.5, group=_GN2)
