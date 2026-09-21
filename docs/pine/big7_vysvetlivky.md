@@ -100,6 +100,24 @@ Stav sa otočí na `LONG`, až keď platí **všetko naraz**:
 `SELL` je presné zrkadlo. Stav sa mení **až na zavretí sviečky**, takže indikátor
 neprekresľuje; vypína sa to v *Signál až na zavretí sviečky*.
 
+### Kedy stav zanikne
+
+Stav nie je len o vzniku signálu — musí aj **zaniknúť**, inak drží starý smer, kým sa
+nepotvrdí opačný. A keď sa opačný nepotvrdí (napríklad preto, že SOXX má veto), pozadie
+svieti starou farbou celé hodiny, hoci skóre je dávno na druhej strane.
+
+`Stav vynulovať` na to má štyri voľby:
+
+| voľba | stav zanikne |
+|---|---|
+| Pri prechode cez nulu | keď skóre prejde na opačnú stranu nuly |
+| Na začiatku dňa | každé ráno; včerajší názor nehovorí o dnešku |
+| **Oboje** (predvolené) | obe podmienky naraz |
+| Nikdy | pôvodné správanie — drží, kým nepríde opačný signál |
+
+Vynulovaný stav je **`BEZ SMERU`**, nie opačný signál. Starý smer už neplatí, nový ešte
+nevznikol.
+
 ### Prečo je stav niekedy `BEZ SMERU`, hoci skóre je vysoké
 
 Skóre je priemer. Môže byť +60 aj vtedy, keď sú v pluse len štyri tituly zo siedmich

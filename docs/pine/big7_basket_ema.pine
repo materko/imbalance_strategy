@@ -91,6 +91,11 @@ onlyRth     = input.bool(true, "Len počas burzových hodín", group=_GS,
      "hodnote. Vypni len vtedy, keď vedome sleduješ predburzu.")
 onClose     = input.bool(true, "Signál až na zavretí sviečky", group=_GS,
      tooltip="Zapnuté: indikátor neprekresľuje.")
+clearMode   = input.string("Oboje", "Stav vynulovať",
+     options=["Pri prechode cez nulu", "Na začiatku dňa", "Oboje", "Nikdy"], group=_GS,
+     tooltip="Bez tohto stav drží, kým sa nepotvrdí OPAČNÝ signál — a keď sa opačný nikdy " +
+     "nepotvrdí (napr. kvôli vetu SOXX), pozadie svieti starou farbou celé hodiny, hoci " +
+     "skóre je dávno na druhej strane. Vynulovaný stav = BEZ SMERU, nie opačný signál.")
 
 // ---------------------------------------------------------- zobraz. --- //
 _GZ = "Zobrazenie"
@@ -221,12 +226,22 @@ var int shortRun = 0
 longRun  := longOk  ? longRun  + 1 : 0
 shortRun := shortOk ? shortRun + 1 : 0
 
+clearOnZero = clearMode == "Pri prechode cez nulu" or clearMode == "Oboje"
+clearOnDay  = clearMode == "Na začiatku dňa" or clearMode == "Oboje"
+
 var int state = 0
 nextState = state
 if longRun >= confirmBars
     nextState := 1
 else if shortRun >= confirmBars
     nextState := -1
+// Skóre prešlo na druhú stranu nuly, ale opačný signál sa (zatiaľ) nepotvrdil:
+// starý smer už neplatí, nový ešte nie. To je BEZ SMERU, nie opačný signál.
+else if clearOnZero and not na(score) and ((state == 1 and score < 0) or (state == -1 and score > 0))
+    nextState := 0
+// Včerajší stav nemá čo hovoriť o dnešku — percentá aj EMA sa ráno resetujú, stav tiež.
+if clearOnDay and newDay
+    nextState := 0
 
 live    = onClose ? barstate.isconfirmed : true
 goLong  = live and nextState ==  1 and state !=  1
