@@ -99,6 +99,7 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "volSmaLen": (2, 200),
     "volMultiplier": (0.5, 10.0),
     "minClosePosPct": (0, 100),
+    "emaLen": (2, 500),
     "atrLen": (2, 100),
     "slRangePct": (5.0, 150.0),
     "slAtrMult": (0.1, 10.0),
@@ -172,6 +173,11 @@ class ORBConfig(StrategyConfig):
     volMultiplier: float = 1.5
     minClosePosPct: int = 50
     weekdaysOnly: bool = True
+    # ---- 📈 EMA ----------------------------------------------------------- #
+    emaLen: int = 200
+    emaFilter: bool = False
+    emaRangeFilter: bool = False
+    emaExit: bool = False
     # ---- 🛡️ Stop loss ----------------------------------------------------- #
     slMode: SlMode = SlMode.OPPOSITE
     slRangePct: float = 50.0
@@ -193,6 +199,7 @@ class ORBConfig(StrategyConfig):
     # ---- 🎨 Vizualizácia -------------------------------------------------- #
     showRange: bool = True
     showLevels: bool = True
+    showEma: bool = False
     # ---- rozšírenia portu ------------------------------------------------- #
     #: Hodnota jedného ticku v dolároch — CFD/futures nástroje ju potrebujú na sizing.
     tickDollarValue: float | None = None
@@ -218,6 +225,20 @@ class ORBConfig(StrategyConfig):
         if name in RANGE_MINUTE_FIELDS and isinstance(value, str):
             value = int(value)
         super().__setattr__(name, value)
+
+    @property
+    def ema_uses_history(self) -> bool:
+        """Ovplyvňuje EMA obchody? Potom musí byť rozbehnutá, kým sa smie obchodovať.
+
+        Samotné kreslenie (`showEma`) sem nepatrí — kvôli čiare na grafe by nemalo zmysel
+        odkladať prvý obchod o stovky barov; nekreslí sa proste dovtedy, kým EMA nemá dosť dát.
+        """
+        return bool(self.emaFilter or self.emaRangeFilter or self.emaExit)
+
+    @property
+    def ema_needed(self) -> bool:
+        """Počítať EMA vôbec? Kreslenie ju potrebuje tiež, len nepredlžuje rozbeh."""
+        return bool(self.ema_uses_history or self.showEma)
 
     @property
     def allow_long(self) -> bool:
