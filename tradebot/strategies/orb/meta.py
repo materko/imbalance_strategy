@@ -17,6 +17,10 @@ PARAM_NOTES: dict[str, str] = {
     "entryWindowMinutes": "Prerazenia neskôr než 60–90 min od otvorenia výrazne zaostávajú.",
     "sessionMode": "New York a Londýn sa prekrývajú (NY 9:30 = Londýn 14:30). Pri oboch "
                    "zapnutých sa nová pozícia neotvorí, kým je iná otvorená.",
+    "nyRangeMinutes": "Range sa uzatvára na hranici sviečky grafu, takže reálna dĺžka je "
+                      "zaokrúhlená nahor na timeframe grafu — na 30m grafe dá 1 aj 15 rovnaký "
+                      "30-minútový range. Pre krátke rangy choď na primerane krátky graf.",
+    "lonRangeMinutes": "Platí to isté zaokrúhlenie na sviečku grafu ako pri New Yorku.",
 }
 
 #: Prepínač -> podnastavenia, ktoré sa vo formulári zbalia pod neho.

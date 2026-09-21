@@ -40,9 +40,10 @@ PARAMS: dict[str, dict[str, Any]] = {
         tooltip="Minuta otvorenia New York seansy.",
     ),
     "nyRangeMinutes": dict(
-        group=_G0, title="New York: dlzka rangu",
-        tooltip="Kolko minut od otvorenia NY tvori opening range. 15 = viac signalov a viac falosnych;"
-                "30 = vyvazene; 60 = najmenej obchodov, ale najcistejsie.",
+        group=_G0, title="New York: dlzka rangu (min)",
+        tooltip="Kolko minut od otvorenia NY tvori opening range, 1 az 60. Kratsi range = viac"
+                " signalov a viac falosnych; 15 = vyvazene; 60 = najmenej obchodov, ale najcistejsich."
+                " 5 na 5m grafe je prva sviecka NY openu.",
     ),
     "nyEndH": dict(
         group=_G0, title="New York: koniec seansy (H)",
@@ -61,8 +62,8 @@ PARAMS: dict[str, dict[str, Any]] = {
         tooltip="Minuta otvorenia londynskej seansy.",
     ),
     "lonRangeMinutes": dict(
-        group=_G0, title="Londyn: dlzka rangu",
-        tooltip="Kolko minut od otvorenia Londyna tvori opening range.",
+        group=_G0, title="Londyn: dlzka rangu (min)",
+        tooltip="Kolko minut od otvorenia Londyna tvori opening range, 1 az 60.",
     ),
     "lonEndH": dict(
         group=_G0, title="Londyn: koniec seansy (H)",
