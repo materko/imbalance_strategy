@@ -8,7 +8,6 @@ Vysvetlivky ku [big7_basket_ema.pine](big7_basket_ema.pine). Ladené na **čiern
 |---|---|---|
 | **Plocha pod čiarou** | zelená hore, červená dole | smer. Sýta = skóre je za prahom (presvedčivé), bledá = skóre je medzi nulou a prahom (slabé) |
 | **Hrubá čiara** | 3 px, zelená / červená | samotné skóre smeru, −100 až +100 |
-| **Tenká sivá čiara** | 1 px | referencia: v režime *Skóre* je to skóre **bez vyhladenia**, v režime *Percentá* je to **EMA koša**. Keď sa hrubá čiara odtrhne od tenkej, pohyb práve zrýchľuje |
 | **Dve prerušované čiary** | zelená hore, červená dole | prahy `±Prah skóre`. Za nimi vzniká signál |
 | **Vodorovná čiara v strede** | sivomodrá | nula |
 | **Pásik štvorčekov pri spodnej hrane** | zelené / červené | aktuálny stav bar po bare. Prázdne miesto = bez smeru |
@@ -21,15 +20,20 @@ Vysvetlivky ku [big7_basket_ema.pine](big7_basket_ema.pine). Ladené na **čiern
 
 ## Tabuľka vpravo hore
 
+Zoradená tak, že **to najdôležitejšie je hore**. V nízkom paneli sa tabuľka odrezáva zdola,
+takže smer, skóre a šírka prežijú aj vtedy, keď na tickery už miesto nezostane.
+
 | riadok | čo je to |
 |---|---|
-| sedem tickerov | percentuálna zmena každého titulu od denného ukotvenia |
-| **KÔŠ** | vážený priemer tých siedmich (zvýraznený riadok) |
+| **SMER** | výsledok, celý riadok na farebnom pozadí: `LONG` / `SELL` / `BEZ SMERU` / `MIMO HODÍN` |
+| **skóre** | číslo −100…+100, veľkým písmom, vo farbe smeru |
+| **šírka** | `koľko je hore / koľko má dáta`. Zelené, keď je splnené `Min. titulov na strane signálu` |
+| KÔŠ | vážený priemer siedmich titulov |
 | SOXX | polovodiče |
 | QQQ | index na porovnanie |
-| šírka | `koľko je hore / koľko má dáta`. Zelené, keď je splnené `Min. titulov na strane signálu` |
-| skóre | číslo −100…+100, veľkým písmom, vo farbe smeru |
-| **smer** | výsledok s farebným pozadím: LONG / SELL / BEZ SMERU / MIMO HODÍN |
+| sedem tickerov | percentuálna zmena každého titulu; vypína sa v *Tabuľka — aj jednotlivé tituly* |
+
+Kam sa tabuľka postaví, nastavíš v *Tabuľka — kde* (štyri rohy panelu).
 
 ## Zložky skóre (zapína sa v *Kresliť zložky skóre*)
 
@@ -52,7 +56,10 @@ do Data Window však ide vždy oboje.
 - **Skóre smeru** (−100…+100) — hlavný pohľad, toto sleduj
 - **Percentá koša** (%) — kôš a jeho EMA, keď chceš vidieť surové čísla
 
-## Prečo v legende svietia prázdne ∅
+## Hlavička panelu
 
-Vypnuté čiary (napr. zložky skóre) tam ostávajú ako `∅`. Skryješ ich: pravým na panel →
-**Settings → Status line → Indicator values**.
+V hlavičke je jediná hodnota — **skóre**. Všetky ostatné čiary a značky sú `display.pane`,
+teda kreslia sa, ale do hlavičky nelezú, takže tam neostávajú prázdne `∅`.
+
+Dlhý zoznam vstupov za názvom (`9 1 1 1 1 0.5 …`) je TradingView, nie skript. Vypneš ho:
+pravým na panel → **Settings → Status line → Arguments**.

@@ -99,10 +99,14 @@ viewMode    = input.string("Skóre smeru", "Čo kresliť", options=["Skóre smer
      "V oboch režimoch je všetko aj v Data Window.")
 showParts   = input.bool(false, "Kresliť zložky skóre", group=_GZ,
      tooltip="Štyri tenké čiary v mierke skóre — vidno, ktorá zložka skóre ťahá a ktorá mu " +
-     "odporuje. Keď je vypnuté, v legende ostanú prázdne ∅; skryješ ich kliknutím pravým " +
-     "na panel → Settings → Status line → Indicator values.")
+     "odporuje.")
 showState   = input.bool(true,  "Podfarbiť pozadie podľa stavu", group=_GZ)
 showWarn    = input.bool(true,  "Značky varovaní", group=_GZ)
+tablePos    = input.string("Vpravo hore", "Tabuľka — kde",
+     options=["Vpravo hore", "Vpravo dole", "Vľavo hore", "Vľavo dole"], group=_GZ)
+showTickers = input.bool(true, "Tabuľka — aj jednotlivé tituly", group=_GZ,
+     tooltip="Vypni, keď je panel nízky. Smer, skóre a šírka ostanú — tie sú hore, takže " +
+     "sa neodrežú ani v úzkom paneli.")
 showTable   = input.bool(true,  "Tabuľka", group=_GZ)
 
 // ------------------------------------------------------------------ //
@@ -232,7 +236,7 @@ thin     = not na(cBasket) and math.abs(cBasket) > 0.5 and math.abs(cBreadth) < 
 // ------------------------------------------------------------ farby --- //
 // Ladené na ČIERNE pozadie: plné, sýte tóny, žiadna sivá polopriesvitná čiara.
 C_UP     = #00e676   // smer hore, potvrdený
-C_DN     = #ff3d57   // smer dole, potvrdený
+C_DN     = #ff1744   // smer dole, potvrdený
 C_FLAT   = #90a4ae   // bez smeru
 C_SOXX   = #e040fb
 C_BREAD  = #ffd740
@@ -248,7 +252,7 @@ up        = not na(score) and score > 0
 // aj to, kam to ide, aj to, či je to presvedčivé.
 lineCol = na(score) ? C_FLAT : up ? (strong ? C_UP : color.new(C_UP, 45))
      : (strong ? C_DN : color.new(C_DN, 45))
-areaCol = na(score) ? na : color.new(up ? C_UP : C_DN, strong ? 72 : 88)
+areaCol = na(score) ? na : color.new(up ? C_UP : C_DN, strong ? 55 : 80)
 
 stavTxt = not inRth ? "MIMO HODÍN" : state == 1 ? "LONG" : state == -1 ? "SELL" : "BEZ SMERU"
 stavCol = not inRth ? #455a64 : state == 1 ? C_UP : state == -1 ? C_DN : #546e7a
@@ -257,38 +261,36 @@ stavCol = not inRth ? #455a64 : state == 1 ? C_UP : state == -1 ? C_DN : #546e7a
 // Jedna dvojica plotov slúži obom režimom, aby v legende nezostávali prázdne ∅.
 //   skóre:    hlavná = vyhladené skóre, referencia = surové (nevyhladené)
 //   percentá: hlavná = kôš, referencia = jeho EMA
-mainVal = showScore ? score    : basketPct
-refVal  = showScore ? scoreRaw : basketEma
+mainVal = showScore ? score : basketPct
 thPos   = showScore ?  float(scoreTh) :  normPct
 thNeg   = showScore ? -float(scoreTh) : -normPct
 
 hline(0, "Nula", color=color.new(#607d8b, 20), linestyle=hline.style_solid, linewidth=1)
 
-plot(mainVal, "Smer", color=areaCol, style=plot.style_area, linewidth=1)
-plot(mainVal, "Smer (čiara)", color=lineCol, linewidth=3)
-// Referencia: v režime skóre surové (nevyhladené) skóre, v režime percent EMA koša.
-// Titul plotu musí byť konštanta, takže je spoločný pre oba režimy.
-plot(refVal, "Referencia", color=color.new(C_FLAT, 35), linewidth=1)
-plot(thPos, "Prah +", color=color.new(C_UP, 60), style=plot.style_linebr)
-plot(thNeg, "Prah −", color=color.new(C_DN, 60), style=plot.style_linebr)
+// `display.pane` = kresli, ale nelez do status line. Bez toho tam za každú vypnutú
+// čiaru ostane prázdne ∅ a hlavička sa stane nečitateľnou.
+plot(mainVal, "Plocha", color=areaCol, style=plot.style_area, linewidth=1, display=display.pane)
+plot(mainVal, "Smer",   color=lineCol, linewidth=3)
+plot(thPos, "Prah +", color=color.new(C_UP, 35), display=display.pane)
+plot(thNeg, "Prah −", color=color.new(C_DN, 35), display=display.pane)
 
 // Pásik stavu pri spodnej hrane — najrýchlejšia odpoveď na otázku „kam teraz".
-plotshape(state ==  1 ? 1 : na, "Stav LONG", shape.square, location.bottom, color=C_UP, size=size.tiny)
-plotshape(state == -1 ? 1 : na, "Stav SELL", shape.square, location.bottom, color=C_DN, size=size.tiny)
+plotshape(state ==  1 ? 1 : na, "Stav LONG", shape.square, location.bottom, color=C_UP,
+     size=size.tiny, display=display.pane)
+plotshape(state == -1 ? 1 : na, "Stav SELL", shape.square, location.bottom, color=C_DN,
+     size=size.tiny, display=display.pane)
 
 // Zložky skóre — v mierke skóre (−100…+100), preto len v režime skóre.
-plot(showScore and showParts ? cBreadth * 100 : na, "Zložka: šírka",   color=C_BREAD, style=plot.style_stepline)
-plot(showScore and showParts ? cSoxx    * 100 : na, "Zložka: SOXX",    color=C_SOXX)
-plot(showScore and showParts ? cLead    * 100 : na, "Zložka: vedenie", color=C_LEAD)
-plot(showScore and showParts ? cTrend   * 100 : na, "Zložka: trend",   color=C_TREND)
+plot(showScore and showParts ? cBreadth * 100 : na, "Zložka: šírka",   color=C_BREAD,
+     style=plot.style_stepline, display=display.pane)
+plot(showScore and showParts ? cSoxx    * 100 : na, "Zložka: SOXX",    color=C_SOXX, display=display.pane)
+plot(showScore and showParts ? cLead    * 100 : na, "Zložka: vedenie", color=C_LEAD, display=display.pane)
+plot(showScore and showParts ? cTrend   * 100 : na, "Zložka: trend",   color=C_TREND, display=display.pane)
 
 // Do Data Window ide vždy všetko, nech sa dá čítať v oboch režimoch.
-plot(basketPct, "» kôš %",         color=color.new(C_FLAT, 100), display=display.data_window)
-plot(soxxPct,   "» SOXX %",        color=color.new(C_FLAT, 100), display=display.data_window)
-plot(idxPct,    "» index %",       color=color.new(C_FLAT, 100), display=display.data_window)
-plot(nUp,       "» titulov hore",  color=color.new(C_FLAT, 100), display=display.data_window)
-plot(score,     "» skóre",         color=color.new(C_FLAT, 100), display=display.data_window)
-plot(state,     "» stav (1/0/−1)", color=color.new(C_FLAT, 100), display=display.data_window)
+// Pre alerty a export; v tabuľke je to isté čitateľnejšie.
+plot(score, "» skóre",         color=color.new(C_FLAT, 100), display=display.data_window)
+plot(state, "» stav (1/0/−1)", color=color.new(C_FLAT, 100), display=display.data_window)
 
 // Pozadie patrí STAVU, nie varovaniam — je to jediná informácia, ktorú chceš
 // vidieť aj periférnym videním. Veľmi jemne, nech neprebije samotnú čiaru.
@@ -299,16 +301,16 @@ bgcolor(not inRth ? color.new(#263238, 82) : na, title="Mimo burzových hodín")
 // Varovania sú značky pri hornej hrane, nie plochy cez celý panel — inak
 // prekryjú graf presne vtedy, keď na ňom najviac záleží.
 plotchar(showWarn and (narrow or thin) ? 1 : na, "Úzky ťah", "▲", location.top,
-     color=C_LEAD, size=size.tiny)
+     color=C_LEAD, size=size.tiny, display=display.pane)
 plotchar(showWarn and soxxAway ? 1 : na, "SOXX proti košu", "◆", location.top,
-     color=C_SOXX, size=size.tiny)
+     color=C_SOXX, size=size.tiny, display=display.pane)
 
 // Štítky sedia PRIAMO NA ČIARE v mieste otočenia — na spodnej hrane ich prekrýval
 // pásik stavu a v paneli sa strácali.
 plotshape(goLong  ? mainVal : na, "Signál LONG", shape.labelup,   location.absolute,
-     color=C_UP, text="LONG", textcolor=#000000, size=size.normal)
+     color=C_UP, text="LONG", textcolor=#000000, size=size.normal, display=display.pane)
 plotshape(goShort ? mainVal : na, "Signál SELL", shape.labeldown, location.absolute,
-     color=C_DN, text="SELL", textcolor=#000000, size=size.normal)
+     color=C_DN, text="SELL", textcolor=#000000, size=size.normal, display=display.pane)
 
 // Veľká visačka na poslednom bare: aktuálny stav sa dá prečítať bez hľadania.
 var label tag = na
@@ -324,6 +326,8 @@ alertcondition(goShort, "Big 7: SELL", "Big 7 + SOXX: smer nadol")
 alertcondition(narrow or thin, "Big 7: úzky ťah", "Kôš ťahá, ale index alebo šírka nejdú s ním")
 
 // ---------------------------------------------------------- tabuľka --- //
+// SMER je prvý riadok, nie posledný. V nízkom paneli sa tabuľka odreže zdola —
+// a odrezať to jediné číslo, kvôli ktorému sa na ňu pozeráš, je nezmysel.
 f_pctTxt(v) => na(v) ? "—" : str.tostring(v, "+0.00;-0.00") + " %"
 f_pctCol(v) => na(v) ? C_FLAT : v > 0 ? C_UP : C_DN
 
@@ -332,30 +336,42 @@ f_row(t, row, name, pct) =>
          text_color=C_FLAT, text_size=size.small, text_halign=text.align_left)
     table.cell(t, 1, row, f_pctTxt(pct), text_color=f_pctCol(pct), text_size=size.small)
 
+tPos = tablePos == "Vpravo hore" ? position.top_right
+     : tablePos == "Vpravo dole" ? position.bottom_right
+     : tablePos == "Vľavo hore"  ? position.top_left : position.bottom_left
+
 if showTable and barstate.islast
-    var table t = table.new(position.top_right, 2, 13, border_width=1,
+    var table t = table.new(tPos, 2, 13, border_width=1,
          frame_color=color.new(#455a64, 40), frame_width=1)
-    f_row(t, 0, s1, p1)
-    f_row(t, 1, s2, p2)
-    f_row(t, 2, s3, p3)
-    f_row(t, 3, s4, p4)
-    f_row(t, 4, s5, p5)
-    f_row(t, 5, s6, p6)
-    f_row(t, 6, s7, p7)
-    table.cell(t, 0, 7, "KÔŠ", text_color=color.white, text_size=size.small,
-         text_halign=text.align_left, bgcolor=color.new(#37474f, 40))
-    table.cell(t, 1, 7, f_pctTxt(basketPct), text_color=f_pctCol(basketPct), text_size=size.small,
-         bgcolor=color.new(#37474f, 40))
-    f_row(t, 8, soxxSym, soxxPct)
-    f_row(t, 9, idxSym,  idxPct)
-    table.cell(t, 0, 10, "šírka", text_color=C_FLAT, text_size=size.small, text_halign=text.align_left)
-    table.cell(t, 1, 10, str.tostring(nUp) + " / " + str.tostring(nOk),
+    table.clear(t, 0, 0, 1, 12)
+
+    // ---- to podstatné, hore a veľkým ---- //
+    table.cell(t, 0, 0, "SMER", text_color=#000000, text_size=size.normal,
+         text_halign=text.align_left, bgcolor=stavCol)
+    table.cell(t, 1, 0, stavTxt, text_color=#000000, text_size=size.normal,
+         text_halign=text.align_center, bgcolor=stavCol)
+    table.cell(t, 0, 1, "skóre", text_color=color.white, text_size=size.small,
+         text_halign=text.align_left, bgcolor=color.new(#263238, 30))
+    table.cell(t, 1, 1, na(score) ? "—" : str.tostring(score, "+0;-0"),
+         text_color=lineCol, text_size=size.normal, bgcolor=color.new(#263238, 30))
+    table.cell(t, 0, 2, "šírka", text_color=color.white, text_size=size.small,
+         text_halign=text.align_left, bgcolor=color.new(#263238, 30))
+    table.cell(t, 1, 2, str.tostring(nUp) + " / " + str.tostring(nOk),
          text_color=nUp >= minBreadth ? C_UP : nDown >= minBreadth ? C_DN : C_FLAT,
-         text_size=size.small)
-    table.cell(t, 0, 11, "skóre", text_color=color.white, text_size=size.small, text_halign=text.align_left)
-    table.cell(t, 1, 11, na(score) ? "—" : str.tostring(score, "+0;-0"),
-         text_color=lineCol, text_size=size.normal)
-    table.cell(t, 0, 12, "smer", text_color=color.white, text_size=size.small, text_halign=text.align_left,
-         bgcolor=color.new(stavCol, 60))
-    table.cell(t, 1, 12, stavTxt, text_color=state == 0 or not inRth ? color.white : #000000,
-         text_size=size.normal, bgcolor=color.new(stavCol, state == 0 or not inRth ? 60 : 10))
+         text_size=size.normal, bgcolor=color.new(#263238, 30))
+
+    // ---- kontext ---- //
+    table.cell(t, 0, 3, "KÔŠ", text_color=color.white, text_size=size.small, text_halign=text.align_left)
+    table.cell(t, 1, 3, f_pctTxt(basketPct), text_color=f_pctCol(basketPct), text_size=size.small)
+    f_row(t, 4, soxxSym, soxxPct)
+    f_row(t, 5, idxSym,  idxPct)
+
+    // ---- jednotlivé tituly, voliteľne ---- //
+    if showTickers
+        f_row(t,  6, s1, p1)
+        f_row(t,  7, s2, p2)
+        f_row(t,  8, s3, p3)
+        f_row(t,  9, s4, p4)
+        f_row(t, 10, s5, p5)
+        f_row(t, 11, s6, p6)
+        f_row(t, 12, s7, p7)
