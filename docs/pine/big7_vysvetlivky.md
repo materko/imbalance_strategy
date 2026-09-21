@@ -1,27 +1,61 @@
-# Big 7 + SOXX — čo je čo na paneli
+# Big 7 + SOXX — vysvetlivky k panelu
 
-Vysvetlivky ku [big7_basket_ema.pine](big7_basket_ema.pine). Ladené na **čierne pozadie**.
+Ku skriptu [big7_basket_ema.pine](big7_basket_ema.pine). Ladené na čierne pozadie.
 
-## Čo panel kreslí
+---
+
+## 1. Čo to vlastne počíta
+
+Panel nekreslí cenu. Kreslí **skóre smeru od −100 do +100**, ktoré vzniká zlúčením
+piatich nezávislých pohľadov na to isté:
+
+| zložka | čo meria | ako sa normalizuje |
+|---|---|---|
+| **Kôš** | vážený priemer percentuálnych zmien siedmich mega-capov | ±100 pri `Kôš / SOXX: plné skóre pri (%)` |
+| **Trend** | sklon EMA nad košom, za jednu sviečku | ±100 pri `Trend: plné skóre pri sklone` |
+| **Šírka** | `(hore − dole) / počet` — koľko zo siedmich ide tým istým smerom | prirodzene ±100 |
+| **SOXX** | percentuálna zmena polovodičov | ±100 pri tom istom prahu ako kôš |
+| **Vedenie** | `kôš % − index %` — o koľko mega-capy prekonávajú index | ±100 pri `Vedenie: plné skóre pri rozdiele (%)` |
+
+Každá má vlastnú váhu. **Chýbajúci feed vypadne aj z menovateľa** — keď jeden ticker mlčí,
+neráta sa ako nula, ale akoby tam nebol. To isté platí pre samotný kôš.
+
+Percentá sa počítajú od denného ukotvenia: buď od **včerajšieho zavretia** (denná zmena
+vrátane nočnej medzery), alebo od **dnešného otvorenia** (len pohyb v seanse). Prepína sa
+v *Percentá počítať od*.
+
+---
+
+## 2. Čo je čo na obrazovke
 
 | prvok | vzhľad | čo znamená |
 |---|---|---|
-| **Plocha pod čiarou** | zelená hore, červená dole | smer. Sýta = skóre je za prahom (presvedčivé), bledá = skóre je medzi nulou a prahom (slabé) |
-| **Hrubá čiara** | 3 px, zelená / červená | samotné skóre smeru, −100 až +100 |
-| **Dve prerušované čiary** | zelená hore, červená dole | prahy `±Prah skóre`. Za nimi vzniká signál |
-| **Vodorovná čiara v strede** | sivomodrá | nula |
-| **Pásik štvorčekov pri spodnej hrane** | zelené / červené | aktuálny stav bar po bare. Prázdne miesto = bez smeru |
-| **Podfarbené pozadie** | slabo zelené / červené | ten istý stav, len periférnym videním. Vypína sa v *Podfarbiť pozadie podľa stavu* |
-| **Tmavosivé pozadie** | šedé | mimo 9:30–16:00 New York. Vtedy sú akciové feedy stojaté a nesignalizuje sa |
-| **Štítok LONG / SELL** | zelený / červený, na čiare | okamih **otočenia** stavu. Nie je to „stále platí", je to „práve teraz sa to zmenilo" |
-| **Veľká visačka vpravo** | na konci čiary | aktuálny stav: `LONG`, `SELL`, `BEZ SMERU` alebo `MIMO HODÍN` |
-| **▲ oranžový trojuholník** | pri hornej hrane | úzky ťah: kôš letí, ale index stojí, alebo šírka nesúhlasí |
-| **◆ fialový kosoštvorec** | pri hornej hrane | polovodiče idú proti košu |
+| **Vyplnená plocha** | zelená hore, červená dole | smer. **Sýta** = skóre je za prahom (presvedčivé), **bledá** = medzi nulou a prahom (slabé) |
+| **Hrubá čiara, 3 px** | zelená / červená | samotné skóre. Toto je jediná hodnota, ktorá je aj v hlavičke panelu |
+| **Dve vodorovné čiary** | zelená hore, červená dole | prahy `±Prah skóre`. Za nimi môže vzniknúť signál |
+| **Tenká čiara v strede** | sivomodrá | nula |
+| **Pásik štvorčekov pri spodnej hrane** | zelené / červené | stav bar po bare. Prázdne miesto = bez smeru alebo mimo burzových hodín |
+| **Podfarbené pozadie** | slabo zelené / červené | ten istý stav, na periférne videnie. Vypína sa v *Podfarbiť pozadie podľa stavu* |
+| **Tmavosivé pozadie** | šedé | mimo 9:30–16:00 New York |
+| **Štítok LONG / SELL na čiare** | zelený / červený | okamih **otočenia**. Nie „stále platí", ale „práve teraz sa to zmenilo" |
+| **Veľká visačka na konci čiary** | zelená / červená / sivá | aktuálny stav. Toto je odpoveď na otázku „kam teraz" |
+| **▲ oranžový trojuholník pri hornej hrane** | | úzky ťah alebo slabá šírka |
+| **◆ fialový kosoštvorec pri hornej hrane** | | polovodiče idú proti košu |
 
-## Tabuľka vpravo hore
+### Rozdiel medzi štítkom a visačkou
 
-Zoradená tak, že **to najdôležitejšie je hore**. V nízkom paneli sa tabuľka odrezáva zdola,
-takže smer, skóre a šírka prežijú aj vtedy, keď na tickery už miesto nezostane.
+**Štítok `LONG`** na čiare je udalosť — v tom mieste sa stav otočil. Za deň ich býva jeden
+až tri.
+
+**Visačka** na pravom konci je stav — čo platí **teraz**. Je tam vždy, aj keď sa dnes nič
+neotočilo, a môže ukazovať `LONG`, `SELL`, `BEZ SMERU` alebo `MIMO HODÍN`.
+
+---
+
+## 3. Tabuľka
+
+Zoradená tak, že **to najdôležitejšie je hore** — na nízkom paneli sa tabuľka odrezáva
+zdola, tak nech prežije to, kvôli čomu sa na ňu pozeráš.
 
 | riadok | čo je to |
 |---|---|
@@ -33,43 +67,110 @@ takže smer, skóre a šírka prežijú aj vtedy, keď na tickery už miesto nez
 | QQQ | index na porovnanie |
 | sedem tickerov | percentuálna zmena každého titulu |
 
-**Tabuľka — rozsah** určuje, koľko riadkov sa kreslí. Na nízkom paneli (mobil, malý panel
-pod grafom) sa tabuľka odrezáva zdola, tak si vyber podľa miesta:
+`Tabuľka — rozsah` určuje, koľko riadkov sa kreslí:
 
-| rozsah | riadkov | čo obsahuje |
+| rozsah | riadkov | obsahuje |
 |---|---|---|
-| Len smer | 1 | `SMER` a nič viac |
-| Kompaktná | 3 | + skóre a šírka |
+| Len smer | 1 | `SMER` |
+| Kompaktná | 3 | + skóre, šírka |
 | **Stredná** (predvolené) | 6 | + kôš, SOXX, index |
 | Plná | 13 | + všetkých sedem titulov |
 
-Kam sa tabuľka postaví, nastavíš v *Tabuľka — kde* (štyri rohy panelu).
+`Tabuľka — kde` ju postaví do ktoréhokoľvek zo štyroch rohov panelu.
 
-## Zložky skóre (zapína sa v *Kresliť zložky skóre*)
+---
+
+## 4. Kedy vznikne signál
+
+Stav sa otočí na `LONG`, až keď platí **všetko naraz**:
+
+1. skóre je **nad prahom** (`Prah skóre`)
+2. aspoň `Min. titulov na strane signálu` zo siedmich je v pluse
+3. SOXX je v pluse — ak je zapnuté `SOXX musí súhlasiť`
+4. drží to `Potvrdiť N sviečok` po sebe
+5. je po `Preskočiť prvých N sviečok dňa`
+6. je v rámci 9:30–16:00 New York — ak je zapnuté `Len počas burzových hodín`
+
+`SELL` je presné zrkadlo. Stav sa mení **až na zavretí sviečky**, takže indikátor
+neprekresľuje; vypína sa to v *Signál až na zavretí sviečky*.
+
+### Prečo je stav niekedy `BEZ SMERU`, hoci skóre je vysoké
+
+Skóre je priemer. Môže byť +60 aj vtedy, keď sú v pluse len štyri tituly zo siedmich
+a šírka podmienku nesplní. Alebo SOXX klesá a má veto. Práve o to ide — **skóre nie je
+signál, je to jedna z podmienok.**
+
+---
+
+## 5. Varovania
+
+| značka | podmienka | čo znamená |
+|---|---|---|
+| ▲ | vedenie je takmer na maxime, ale index sa takmer nehýbe | **úzky ťah** — nesú to mega-capy, zvyšok trhu nejde s nimi |
+| ▲ | kôš je silný, ale šírka slabá | **pár mien ťahá priemer**, skupina nie je zajedno |
+| ◆ | SOXX a kôš majú opačné znamienko a oba sú dosť ďaleko od nuly | **polovodiče idú proti** — historicky skôr varovanie než príležitosť |
+
+Varovania platia len počas burzových hodín a len keď má indikátor vôbec názor. Pred
+otvorením stoja všetky tituly presne na svojom ukotvení, percentá sú nuly a z porovnávania
+núl vychádza „nesúhlas", ktorý nič neznamená.
+
+---
+
+## 6. Zložky skóre (zapína sa v *Kresliť zložky skóre*)
 
 Štyri tenké čiary v mierke skóre. Ukážu, ktorá zložka skóre ťahá a ktorá mu odporuje.
 
 | farba | zložka |
 |---|---|
-| žltá, schodíková | **šírka** — koľko zo siedmich je na tej istej strane |
-| fialová | **SOXX** |
-| oranžová | **vedenie** — o koľko kôš prekonáva index |
-| zelenkavá | **trend** — sklon EMA nad košom |
+| **žltá**, schodíková | šírka |
+| **fialová** | SOXX |
+| **oranžová** | vedenie |
+| **zelenkavá** | trend |
 
 Piata zložka (kôš) je samotná hlavná čiara v režime *Percentá koša*.
 
-## Dva režimy
+Zapni si ich na prvý týždeň. Uvidíš, ktorá zložka rozhoduje a ktorá len šumí — a podľa
+toho jej zmeníš váhu.
 
-Prepína sa v *Čo kresliť*. Skóre a percentá majú úplne inú mierku, preto sa nekreslia naraz —
-do Data Window však ide vždy oboje.
+---
+
+## 7. Dva režimy
+
+Prepína sa v *Čo kresliť*. Skóre a percentá majú úplne inú mierku, preto sa nekreslia naraz.
 
 - **Skóre smeru** (−100…+100) — hlavný pohľad, toto sleduj
 - **Percentá koša** (%) — kôš a jeho EMA, keď chceš vidieť surové čísla
 
-## Hlavička panelu
+---
 
-V hlavičke je jediná hodnota — **skóre**. Všetky ostatné čiary a značky sú `display.pane`,
-teda kreslia sa, ale do hlavičky nelezú, takže tam neostávajú prázdne `∅`.
+## 8. Ako to používať
 
-Dlhý zoznam vstupov za názvom (`9 1 1 1 1 0.5 …`) je TradingView, nie skript. Vypneš ho:
+Nie je to spúšťač vstupu. Je to **smerová brána** nad tvojimi stratégiami:
+
+| stav | čo s tým |
+|---|---|
+| `LONG` | z ORB alebo Breakout ber len prerazenia nahor |
+| `SELL` | len nadol |
+| `BEZ SMERU` | deň bez smeru — menšia veľkosť alebo nič |
+| `MIMO HODÍN` | indikátor nemá názor, akciové feedy stoja |
+| ▲ alebo ◆ | signál stojí na pár menách — zníž veľkosť alebo počkaj |
+
+---
+
+## 9. Hlavička panelu
+
+V hlavičke je jediná hodnota — **skóre**. Všetko ostatné je `display.pane`: kreslí sa,
+ale do hlavičky nelezie, takže tam neostávajú prázdne `∅`.
+
+Dlhý zoznam čísel za názvom (`9 1 1 1 1 0.5 …`) je TradingView, nie skript. Vypneš ho:
 pravým na panel → **Settings → Status line → Arguments**.
+
+---
+
+## 10. Čo tento nástroj nevie
+
+**Nie je odmeraný.** V našom archíve nemáme dáta jednotlivých akcií, takže sa nedal
+prehrať ani vo Freqtrade, ani v emulátore MultiCharts. Prahy a váhy sú odvodené z toho,
+ako sa tie veličiny správajú, nie z výsledku testu. Ber ho ako kontext, nie ako model.
+
+Čo by bolo treba na to, aby sa dal zmerať, je v [README.md](README.md).

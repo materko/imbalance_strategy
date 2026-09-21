@@ -226,13 +226,24 @@ if live
     state := nextState
 
 // ------------------------------------------------------ varovania --- //
+// Varovania platia len vtedy, keď má indikátor vôbec názor. Pred otvorením burzy
+// stoja všetky tituly presne na svojom ukotvení, percentá sú nuly a z porovnávania
+// núl vychádza „nesúhlas", ktorý nič neznamená — predtým sa preto ◆ tiahlo celým
+// nočným úsekom.
+warnOk   = ready and inRth
+//: Pod týmto prahom sa percentá berú ako nula a neporovnávajú sa.
+wEps     = normPct * 0.3
+
 // Úzky ťah: kôš letí, index stojí — nesú to mega-capy, zvyšok trhu nejde s nimi.
-narrow   = not na(cLead) and math.abs(cLead) > 0.8 and not na(idxPct) and math.abs(idxPct) < normPct * 0.3
+narrow   = warnOk and not na(cLead) and math.abs(cLead) > 0.8
+     and not na(idxPct) and math.abs(idxPct) < wEps
 // Semis idú proti košu — historicky to býva skôr varovanie než príležitosť.
-soxxAway = not na(soxxPct) and not na(basketPct) and math.sign(soxxPct) != math.sign(basketPct)
-     and math.abs(soxxPct) > normPct * 0.3
+// Obe strany musia byť dosť ďaleko od nuly, inak sa porovnáva šum.
+soxxAway = warnOk and not na(soxxPct) and not na(basketPct)
+     and math.abs(soxxPct) > wEps and math.abs(basketPct) > wEps
+     and math.sign(soxxPct) != math.sign(basketPct)
 // Priemer hovorí niečo iné než šírka: pár mien ťahá, zvyšok nie.
-thin     = not na(cBasket) and math.abs(cBasket) > 0.5 and math.abs(cBreadth) < 0.3
+thin     = warnOk and not na(cBasket) and math.abs(cBasket) > 0.5 and math.abs(cBreadth) < 0.3
 
 // ------------------------------------------------------------ farby --- //
 // Ladené na ČIERNE pozadie: plné, sýte tóny, žiadna sivá polopriesvitná čiara.
@@ -276,10 +287,12 @@ plot(thPos, "Prah +", color=color.new(C_UP, 35), display=display.pane)
 plot(thNeg, "Prah −", color=color.new(C_DN, 35), display=display.pane)
 
 // Pásik stavu pri spodnej hrane — najrýchlejšia odpoveď na otázku „kam teraz".
-plotshape(state ==  1 ? 1 : na, "Stav LONG", shape.square, location.bottom, color=C_UP,
-     size=size.tiny, display=display.pane)
-plotshape(state == -1 ? 1 : na, "Stav SELL", shape.square, location.bottom, color=C_DN,
-     size=size.tiny, display=display.pane)
+// Mimo burzových hodín stav nezaniká, ale ani sa nekreslí — je to včerajší názor
+// na dnes stojaté dáta a zelený pásik cez celú noc by tvrdil niečo, čo neplatí.
+plotshape(inRth and state ==  1 ? 1 : na, "Stav LONG", shape.square, location.bottom,
+     color=C_UP, size=size.tiny, display=display.pane)
+plotshape(inRth and state == -1 ? 1 : na, "Stav SELL", shape.square, location.bottom,
+     color=C_DN, size=size.tiny, display=display.pane)
 
 // Zložky skóre — v mierke skóre (−100…+100), preto len v režime skóre.
 plot(showScore and showParts ? cBreadth * 100 : na, "Zložka: šírka",   color=C_BREAD,
@@ -297,8 +310,8 @@ plot(state, "» stav (1/0/−1)", color=color.new(C_FLAT, 100), display=display.
 // vidieť aj periférnym videním. Veľmi jemne, nech neprebije samotnú čiaru.
 // Na malom paneli (mobil) je pozadie často to jediné, čo je poriadne vidieť,
 // preto je sýtejšie, než by sa na veľkom monitore hodilo.
-bgcolor(showState and state ==  1 ? color.new(C_UP, 88) : na, title="Stav LONG")
-bgcolor(showState and state == -1 ? color.new(C_DN, 88) : na, title="Stav SELL")
+bgcolor(showState and inRth and state ==  1 ? color.new(C_UP, 88) : na, title="Stav LONG")
+bgcolor(showState and inRth and state == -1 ? color.new(C_DN, 88) : na, title="Stav SELL")
 bgcolor(not inRth ? color.new(#263238, 82) : na, title="Mimo burzových hodín")
 
 // Varovania sú značky pri hornej hrane, nie plochy cez celý panel — inak
