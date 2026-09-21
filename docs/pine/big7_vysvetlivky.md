@@ -133,10 +133,61 @@ signál, je to jedna z podmienok.**
 | ▲ | vedenie je takmer na maxime, ale index sa takmer nehýbe | **úzky ťah** — nesú to mega-capy, zvyšok trhu nejde s nimi |
 | ▲ | kôš je silný, ale šírka slabá | **pár mien ťahá priemer**, skupina nie je zajedno |
 | ◆ | SOXX a kôš majú opačné znamienko a oba sú dosť ďaleko od nuly | **polovodiče idú proti** — historicky skôr varovanie než príležitosť |
+| ⚡ | kôš sa pohol o viac než `Impulz: koľko sigma` za `Impulz: okno` | **trh na niečo reaguje** — cena po správe skáče, nedriftuje |
+| ✦ | VIX vyskočil nad `VIX: skok od (%)` | **trh dostal strach** |
 
 Varovania platia len počas burzových hodín a len keď má indikátor vôbec názor. Pred
 otvorením stoja všetky tituly presne na svojom ukotvení, percentá sú nuly a z porovnávania
 núl vychádza „nesúhlas", ktorý nič neznamená.
+
+---
+
+## 5b. Blok „Reakcia na správy"
+
+**Pine nevie prečítať text správy** — žiadne API na to v TradingView nie je. Vie však
+prečítať, ako trh na správu reaguje, a to sa dá rozobrať na tri merateľné veci.
+
+### Rozptyl — odkiaľ správa prišla
+
+Vážená smerodajná odchýlka siedmich percent okolo koša, vydelená veľkosťou pohybu koša.
+
+| hodnota | znamená |
+|---|---|
+| **nízka** (pod `Rozptyl: pod týmto je to makro`) | všetkých sedem ide spolu → za tým je **makro** správa: CPI, Fed, clá, dáta z trhu práce. Smer koša je vtedy dôveryhodný |
+| **vysoká** (nad `Rozptyl: nad týmto ťahá jeden titul`) | pole je roztiahnuté → ťahá to **jeden titul**: earnings, žaloba, produkt. Priemer vtedy o skupine nehovorí takmer nič |
+
+Toto je presne ten prípad, keď je META +6,9 % a zvyšok okolo +0,5 %: kôš vyzerá silne,
+ale je to správa o jednej firme. Vysoký rozptyl preto spúšťa aj varovanie ▲.
+
+### Impulz — ako tvrdo to dopadlo
+
+O koľko sigma sa kôš pohol za posledných `Impulz: okno` sviečok oproti tomu, ako sa
+hýbal doteraz. Správa sa v cene prejaví ako **náhly skok**, nie ako plynulý drift.
+
+### VIX — či trh dostal strach
+
+Index strachu skáče na headlinoch skôr, než sa stihne prečítať, čo sa vlastne stalo.
+Voliteľne (`VIX blokuje LONG`) vie zablokovať LONG signál — len LONG, lebo strach je
+asymetrický a rastúci VIX pádom neprekáža. Predvolene je to **vypnuté**: blok správ má
+najprv informovať, nie rozhodovať.
+
+### Riadok „správy" v tabuľke
+
+| text | znamená |
+|---|---|
+| `pokoj` | nič mimoriadne |
+| `makro` | sedmička ide spolu, ale bez náhleho skoku |
+| `jeden titul` | pole je roztiahnuté, priemer je zavádzajúci |
+| `IMPULZ ⚡` | náhly pohyb, pôvod nejasný |
+| `MAKRO ⚡` | náhly pohyb a všetci idú spolu — najsilnejší prípad, smer sa dá brať vážne |
+| `JEDEN TITUL ⚡` | náhly pohyb, ale ťahá ho jedna firma — smer koša neznamená smer trhu |
+| `VIX SKOK` | strach prebíja všetko ostatné |
+
+### Čo tento blok nevie
+
+Nevie, **o akú správu ide ani či je dobrá**. Vie len povedať, že trh sa práve pohol
+netypicky, či sa hýbu všetci naraz, a či stúpa strach. Na zistenie, čo sa stalo,
+potrebuješ kalendár alebo terminál — na to Pine nestačí.
 
 ---
 
