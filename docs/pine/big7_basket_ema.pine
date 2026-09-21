@@ -1,29 +1,28 @@
 //@version=5
-// Big 7 — vážený kôš siedmich najväčších technologických titulov na Nasdaqu
-// s vlastnou EMA a explicitnými signálmi LONG / SELL.
+// Big 7 + SOXX — nástroj na určovanie smeru Nasdaqu.
 //
-// Oproti bežnej verzii tohto nápadu rieši päť vecí, kvôli ktorým inak vychádzajú
-// nepresné čísla a falošné signály:
+// Skladá päť nezávislých pohľadov na to isté do jedného skóre −100…+100:
 //
-//   1. Chýbajúci titul sa VYNECHÁ z priemeru, nepočíta sa ako 0 %. Keď jeden feed
-//      mlčí, bežná verzia pripočíta nulu a aj tak delí siedmimi — kôš to ťahá k nule.
-//   2. EMA sa na začiatku dňa RESETUJE. Percentá sú ukotvené k dennému otvoreniu
-//      (alebo k včerajšiemu zavretiu), takže séria každé ráno skočí späť k nule;
-//      priebežná EMA by do dnešného otvorenia ťahala včerajšie hodnoty.
-//   3. Pridáva ŠÍRKU trhu: koľko zo siedmich je nad vlastným ukotvením. Priemer
-//      +0,8 % môže znamenať NVDA +6 % a šesť titulov v mínuse — to nie je long.
-//   4. Signál sa mení až na ZAVRETÍ sviečky a musí vydržať N sviečok, takže
-//      neprekresľuje a nepreblikáva na hranici.
-//   5. Prvých N sviečok dňa je hluchých — čerstvo resetovaná EMA sa ešte rovná
-//      samotnému košu a sklon z nej nič nehovorí.
+//   1. KÔŠ      kde sú dnes vážené percentá siedmich najväčších tech titulov
+//   2. TREND    sklon EMA nad košom — ide to hore alebo dole
+//   3. ŠÍRKA    koľko zo siedmich je na tej istej strane (priemer +0,8 % môže byť
+//               NVDA +6 % a šesť v mínuse; to nie je trend, to je jeden ťahúň)
+//   4. SOXX     polovodiče, ktoré Nasdaqu historicky chodia napred
+//   5. VEDENIE  o koľko kôš prekonáva samotný index (QQQ) — či ťah nesú mega-capy,
+//               alebo ide trh naozaj celý
 //
-// Ukotvenie „Včerajšie zavretie" je to, čo ako dennú zmenu ukazujú burzové weby.
-// „Denné otvorenie" meria len pohyb v rámci seansy, bez nočnej medzery.
+// Každý pohľad má vlastnú váhu a chýbajúci feed z výpočtu vypadne aj z menovateľa,
+// takže mlčiaci symbol skóre neťahá k nule.
+//
+// Presnosť: EMA sa na začiatku dňa resetuje (percentá sú ukotvené k dňu, priebežná
+// EMA by do rána ťahala včerajšok), stav sa mení až na zavretí sviečky a musí
+// vydržať N sviečok, prvé sviečky dňa sú hluché a mimo burzových hodín sa
+// nesignalizuje, lebo vtedy sú akciové feedy stojaté.
 
-indicator("Big 7 Basket EMA + signály", overlay=false, precision=2)
+indicator("Big 7 + SOXX — smer Nasdaqu", overlay=false, precision=2)
 
 // ---------------------------------------------------------------- kôš --- //
-_GK = "Kôš"
+_GK = "Kôš Big 7"
 s1 = input.symbol("NASDAQ:NVDA",  "1", group=_GK, inline="a1")
 w1 = input.float(1.0, "váha",     group=_GK, inline="a1", minval=0.0, step=0.1)
 s2 = input.symbol("NASDAQ:MSFT",  "2", group=_GK, inline="a2")
@@ -42,42 +41,69 @@ weightMode = input.string("Rovnaká váha", "Váženie", options=["Rovnaká váh
      group=_GK, tooltip="Vlastné váhy = do políčok napíš trhové kapitalizácie alebo váhy " +
      "z indexu. Normalizujú sa samy, takže nemusia dávať súčet 1.")
 
+// ------------------------------------------------------------ kontext --- //
+_GC = "Sektor a index"
+soxxSym = input.symbol("NASDAQ:SOXX", "Polovodiče", group=_GC,
+     tooltip="SOXX (alebo SMH, prípadne index SOX). Polovodiče Nasdaqu chodia napred — " +
+     "keď kôš stúpa a semis nie, ťah býva krátky.")
+idxSym  = input.symbol("NASDAQ:QQQ",  "Index na porovnanie", group=_GC,
+     tooltip="QQQ alebo NDX. Slúži na VEDENIE: o koľko kôš prekonáva index. Kôš silno hore " +
+     "a index nikam = úzky ťah niekoľkých mien, krehký.")
+
 // ----------------------------------------------------------- výpočet --- //
 _GV = "Výpočet"
 anchorMode = input.string("Včerajšie zavretie", "Percentá počítať od",
      options=["Včerajšie zavretie", "Denné otvorenie"], group=_GV,
      tooltip="Včerajšie zavretie = denná zmena, akú ukazujú burzové weby (obsahuje nočnú " +
-     "medzeru). Denné otvorenie = len pohyb v rámci dnešnej seansy.")
+     "medzeru, kde pri tech tituloch býva väčšina pohybu). Denné otvorenie = len dnešná seansa.")
 emaLen     = input.int(9, "Dĺžka EMA koša", minval=2, maxval=200, group=_GV)
 resetDaily = input.bool(true, "Resetovať EMA na začiatku dňa", group=_GV,
-     tooltip="Zapnuté (odporúčané): EMA začína každý deň odznova. Vypnuté: EMA beží cez " +
-     "noc ďalej a prvé hodiny dňa ťahá včerajšími hodnotami.")
+     tooltip="Zapnuté (odporúčané): EMA aj skóre začínajú každý deň odznova. Vypnuté: " +
+     "prvé hodiny dňa ťahajú včerajšie hodnoty.")
+
+// -------------------------------------------------------------- skóre --- //
+_GP = "Skóre — váhy zložiek"
+wBasket  = input.float(1.0, "Kôš",     minval=0.0, step=0.1, group=_GP)
+wTrend   = input.float(1.0, "Trend",   minval=0.0, step=0.1, group=_GP)
+wBreadth = input.float(1.0, "Šírka",   minval=0.0, step=0.1, group=_GP)
+wSoxx    = input.float(1.0, "SOXX",    minval=0.0, step=0.1, group=_GP)
+wLead    = input.float(0.5, "Vedenie", minval=0.0, step=0.1, group=_GP)
+
+_GN = "Skóre — kedy je zložka na plno"
+normPct   = input.float(1.0,  "Kôš / SOXX: plné skóre pri (%)", minval=0.05, step=0.05, group=_GN,
+     tooltip="Pri akej percentuálnej zmene dá zložka ±100. Nižšie číslo = citlivejšie skóre.")
+normSlope = input.float(0.05, "Trend: plné skóre pri sklone", minval=0.005, step=0.005, group=_GN)
+normLead  = input.float(0.5,  "Vedenie: plné skóre pri rozdiele (%)", minval=0.05, step=0.05, group=_GN)
 
 // ------------------------------------------------------------ signál --- //
 _GS = "Signál"
-minBreadth  = input.int(5, "Min. titulov na strane signálu", minval=1, maxval=7, group=_GS,
-     tooltip="Koľko zo siedmich musí byť na správnej strane vlastného ukotvenia. 5 z 7 " +
-     "znamená, že signál nesmie stáť na jednom ťahúňovi.")
-minBasket   = input.float(0.15, "Min. |kôš| (%)", minval=0.0, step=0.05, group=_GS)
-minSlope    = input.float(0.015, "Min. |sklon EMA| za sviečku", minval=0.0, step=0.005, group=_GS)
+scoreSmooth = input.int(3, "Vyhladiť skóre (EMA)", minval=1, maxval=50, group=_GS,
+     tooltip="1 = bez vyhladenia.")
+scoreTh     = input.int(40, "Prah skóre", minval=5, maxval=100, group=_GS)
+minBreadth  = input.int(5, "Min. titulov na strane signálu", minval=1, maxval=7, group=_GS)
+needSoxx    = input.bool(true, "SOXX musí súhlasiť", group=_GS,
+     tooltip="Signál nevznikne, keď sú polovodiče na opačnej strane než kôš.")
 confirmBars = input.int(2, "Potvrdiť N sviečok", minval=1, maxval=20, group=_GS)
 skipOpen    = input.int(3, "Preskočiť prvých N sviečok dňa", minval=0, maxval=60, group=_GS,
-     tooltip="Čerstvo resetovaná EMA sa rovná samotnému košu, takže sklon z nej prvé " +
-     "sviečky nič nehovorí.")
+     tooltip="Čerstvo resetovaná EMA sa rovná samotnému košu, sklon z nej ešte nič nehovorí.")
+onlyRth     = input.bool(true, "Len počas burzových hodín", group=_GS,
+     tooltip="Mimo 9:30–16:00 New York sú akciové feedy stojaté a skóre zamrzne na poslednej " +
+     "hodnote. Vypni len vtedy, keď vedome sleduješ predburzu.")
 onClose     = input.bool(true, "Signál až na zavretí sviečky", group=_GS,
-     tooltip="Zapnuté: indikátor neprekresľuje. Vypnuté: signál skočí už počas sviečky " +
-     "a môže zmiznúť, kým sviečka zavrie.")
+     tooltip="Zapnuté: indikátor neprekresľuje.")
 
 // ---------------------------------------------------------- zobraz. --- //
 _GZ = "Zobrazenie"
-showBreadth = input.bool(true,  "Kresliť šírku trhu", group=_GZ)
-showFlat    = input.bool(true,  "Podfarbiť pásmo bez smeru", group=_GZ)
-showTable   = input.bool(true,  "Tabuľka titulov", group=_GZ)
+mode        = input.string("Skóre smeru", "Čo kresliť", options=["Skóre smeru", "Percentá koša"],
+     group=_GZ, tooltip="Skóre a percentá majú inú mierku, preto sa kreslia zvlášť. " +
+     "V oboch režimoch je všetko aj v Data Window.")
+showParts   = input.bool(false, "Kresliť zložky skóre", group=_GZ)
+showWarn    = input.bool(true,  "Podfarbiť varovania", group=_GZ)
+showTable   = input.bool(true,  "Tabuľka", group=_GZ)
 
 // ------------------------------------------------------------------ //
-// Percentuálna zmena jedného titulu. Obe ukotvenia si vypýtame naraz jedným
-// volaním — `request.security` sa nesmie volať podmienene a tuple ich vráti
-// na jeden dotaz namiesto dvoch.
+// Percentuálna zmena jedného symbolu od denného ukotvenia. Obe ukotvenia
+// naraz jedným dotazom — `request.security` sa nesmie volať podmienene.
 // ------------------------------------------------------------------ //
 f_pct(sym) =>
     [dOpen, dPrevClose] = request.security(sym, "D", [open, close[1]],
@@ -86,6 +112,16 @@ f_pct(sym) =>
     anchor = anchorMode == "Denné otvorenie" ? dOpen : dPrevClose
     na(px) or na(anchor) or anchor == 0 ? float(na) : (px - anchor) / anchor * 100.0
 
+//: EMA, ktorá sa vie resetovať. Každé volanie má vlastný stav (`var` vo funkcii).
+f_ema(src, len, doReset) =>
+    var float e = na
+    a = 2.0 / (len + 1)
+    if not na(src)
+        e := na(e) or doReset ? src : e + a * (src - e)
+    e
+
+f_clamp(v, lim) => na(v) ? float(na) : math.max(-lim, math.min(lim, v))
+
 p1 = f_pct(s1)
 p2 = f_pct(s2)
 p3 = f_pct(s3)
@@ -93,16 +129,18 @@ p4 = f_pct(s4)
 p5 = f_pct(s5)
 p6 = f_pct(s6)
 p7 = f_pct(s7)
+soxxPct = f_pct(soxxSym)
+idxPct  = f_pct(idxSym)
 
 pcts = array.from(p1, p2, p3, p4, p5, p6, p7)
 wts  = array.from(w1, w2, w3, w4, w5, w6, w7)
 
 // Vážený priemer len z titulov, ktoré naozaj majú dáta — chýbajúci sa nevynuluje,
 // ale vypadne aj z menovateľa.
-pSum  = 0.0
-wSum  = 0.0
-nOk   = 0
-nUp   = 0
+pSum = 0.0
+wSum = 0.0
+nOk  = 0
+nUp  = 0
 for i = 0 to 6
     p = array.get(pcts, i)
     w = weightMode == "Rovnaká váha" ? 1.0 : array.get(wts, i)
@@ -119,23 +157,46 @@ basketPct = wSum > 0 ? pSum / wSum : float(na)
 newDay = ta.change(time("D")) != 0
 var int barsToday = 0
 barsToday := newDay ? 1 : barsToday + 1
+doReset = resetDaily and newDay
 
-alpha = 2.0 / (emaLen + 1)
-var float basketEma = na
-if not na(basketPct)
-    basketEma := na(basketEma) or (resetDaily and newDay)
-         ? basketPct
-         : basketEma + alpha * (basketPct - basketEma)
-
+basketEma = f_ema(basketPct, emaLen, doReset)
 // Na resetovej sviečke nie je sklon definovaný — inak by z neho vyšiel skok
 // z včerajšej hodnoty na dnešnú nulu.
-emaSlope = (resetDaily and newDay) or na(basketEma) or na(basketEma[1])
-     ? 0.0 : basketEma - basketEma[1]
+emaSlope = doReset or na(basketEma) or na(basketEma[1]) ? 0.0 : basketEma - basketEma[1]
 
-// ------------------------------------------------------- stav LONG/SELL --- //
-ready   = not na(basketPct) and not na(basketEma) and barsToday > skipOpen and nOk > 0
-longOk  = ready and basketPct > basketEma and basketPct >  minBasket and emaSlope >  minSlope and nUp   >= minBreadth
-shortOk = ready and basketPct < basketEma and basketPct < -minBasket and emaSlope < -minSlope and nDown >= minBreadth
+// ------------------------------------------------- zložky skóre --- //
+// Každá je −1…+1; chýbajúca (na) sa z priemeru vynechá aj s váhou.
+cBasket  = na(basketPct) ? float(na) : f_clamp(basketPct / normPct, 1.0)
+cTrend   = na(basketEma) ? float(na) : f_clamp(emaSlope / normSlope, 1.0)
+cBreadth = nOk > 0 ? (nUp - nDown) / nOk : float(na)
+cSoxx    = na(soxxPct) ? float(na) : f_clamp(soxxPct / normPct, 1.0)
+cLead    = na(basketPct) or na(idxPct) ? float(na) : f_clamp((basketPct - idxPct) / normLead, 1.0)
+
+parts   = array.from(cBasket, cTrend, cBreadth, cSoxx, cLead)
+pWeights = array.from(wBasket, wTrend, wBreadth, wSoxx, wLead)
+sSum = 0.0
+sW   = 0.0
+for i = 0 to 4
+    c = array.get(parts, i)
+    w = array.get(pWeights, i)
+    if not na(c) and w > 0
+        sSum += c * w
+        sW   += w
+scoreRaw = sW > 0 ? sSum / sW * 100.0 : float(na)
+// Vyhladenie sa volá vždy, aj keď je vypnuté — funkcia so stavom (`var`) sa v Pine
+// nesmie volať podmienene, inak jej stav zamrzne na baroch, kde sa nezavolá.
+scoreSm  = f_ema(scoreRaw, scoreSmooth, doReset)
+score    = scoreSmooth > 1 ? scoreSm : scoreRaw
+
+// ------------------------------------------------- stav LONG/SELL --- //
+inRth = not onlyRth or not na(time(timeframe.period, "0930-1600", "America/New_York"))
+ready = not na(score) and barsToday > skipOpen and nOk > 0 and inRth
+
+soxxLongOk  = not needSoxx or (not na(soxxPct) and soxxPct > 0)
+soxxShortOk = not needSoxx or (not na(soxxPct) and soxxPct < 0)
+
+longOk  = ready and score >=  scoreTh and nUp   >= minBreadth and soxxLongOk
+shortOk = ready and score <= -scoreTh and nDown >= minBreadth and soxxShortOk
 
 var int longRun  = 0
 var int shortRun = 0
@@ -155,38 +216,75 @@ goShort = live and next == -1 and state != -1
 if live
     state := next
 
+// ------------------------------------------------------ varovania --- //
+// Úzky ťah: kôš letí, index stojí — nesú to mega-capy, zvyšok trhu nejde s nimi.
+narrow   = not na(cLead) and math.abs(cLead) > 0.8 and not na(idxPct) and math.abs(idxPct) < normPct * 0.3
+// Semis idú proti košu — historicky to býva skôr varovanie než príležitosť.
+soxxAway = not na(soxxPct) and not na(basketPct) and math.sign(soxxPct) != math.sign(basketPct)
+     and math.abs(soxxPct) > normPct * 0.3
+// Priemer hovorí niečo iné než šírka: pár mien ťahá, zvyšok nie.
+thin     = not na(cBasket) and math.abs(cBasket) > 0.5 and math.abs(cBreadth) < 0.3
+
 // ------------------------------------------------------------ kresby --- //
+showScore = mode == "Skóre smeru"
+
 hline(0, "Nula", color=color.new(color.gray, 40), linestyle=hline.style_dotted)
 
-cBasket = na(basketEma) ? color.new(color.gray, 60)
+cScore = na(score) ? color.gray : score >= scoreTh ? #26a69a
+     : score <= -scoreTh ? #ef5350 : color.new(color.gray, 20)
+pScore = plot(showScore ? score : na, "Skóre smeru", color=cScore, linewidth=2)
+pZero  = plot(showScore ? 0 : na, "", color=color.new(color.gray, 100), display=display.none)
+fill(pScore, pZero, color=na(score) ? na : score > 0 ? color.new(#26a69a, 85) : color.new(#ef5350, 85))
+
+plot(showScore ?  scoreTh : na, "Prah +", color=color.new(#26a69a, 55), style=plot.style_linebr)
+plot(showScore ? -scoreTh : na, "Prah −", color=color.new(#ef5350, 55), style=plot.style_linebr)
+
+cBasketCol = na(basketEma) ? color.new(color.gray, 60)
      : basketPct >= basketEma ? color.new(#26a69a, 55) : color.new(#ef5350, 55)
-cEma = emaSlope > 0 ? #26a69a : emaSlope < 0 ? #ef5350 : color.gray
+plot(showScore ? na : basketPct, "Kôš Big 7 (%)", color=cBasketCol, style=plot.style_columns)
+plot(showScore ? na : basketEma, "EMA koša", color=emaSlope > 0 ? #26a69a : #ef5350, linewidth=2)
+plot(showScore ? na : soxxPct,   "SOXX (%)", color=color.new(#ab47bc, 20), linewidth=1)
+plot(showScore ? na : idxPct,    "Index (%)", color=color.new(#42a5f5, 40), linewidth=1)
 
-plot(basketPct, "Kôš Big 7 (%)", color=cBasket, style=plot.style_columns)
-plot(basketEma, "EMA koša", color=cEma, linewidth=2)
-plot(showBreadth ? nUp - nDown : na, "Šírka (hore − dole)", color=color.new(color.blue, 30),
-     style=plot.style_stepline, display=display.data_window + display.pane)
+// Zložky skóre — v mierke skóre, teda −100…+100. Zapína sa zvlášť, aby graf
+// nebol zaplavený piatimi čiarami naraz.
+plot(showScore and showParts ? cBreadth * 100 : na, "Zložka: šírka", color=color.new(#42a5f5, 30),
+     style=plot.style_stepline)
+plot(showScore and showParts ? cSoxx * 100 : na, "Zložka: SOXX", color=color.new(#ab47bc, 30))
+plot(showScore and showParts ? cLead * 100 : na, "Zložka: vedenie", color=color.new(#ffa726, 30))
+plot(showScore and showParts ? cTrend * 100 : na, "Zložka: trend", color=color.new(#66bb6a, 30))
 
-isFlat = ready and math.abs(emaSlope) < minSlope and math.abs(basketPct) < minBasket
-bgcolor(showFlat and isFlat ? color.new(color.yellow, 92) : na, title="Bez smeru")
+// Do Data Window ide vždy všetko, nech sa dá čítať aj v druhom režime.
+plot(basketPct, "» kôš %", color=color.new(color.gray, 100), display=display.data_window)
+plot(soxxPct,   "» SOXX %", color=color.new(color.gray, 100), display=display.data_window)
+plot(idxPct,    "» index %", color=color.new(color.gray, 100), display=display.data_window)
+plot(nUp,       "» titulov hore", color=color.new(color.gray, 100), display=display.data_window)
+plot(score,     "» skóre", color=color.new(color.gray, 100), display=display.data_window)
+
+bgcolor(showWarn and (narrow or thin) ? color.new(color.orange, 92) : na, title="Úzky ťah")
+bgcolor(showWarn and soxxAway ? color.new(#ab47bc, 92) : na, title="SOXX proti košu")
+bgcolor(not inRth ? color.new(color.gray, 94) : na, title="Mimo burzových hodín")
 
 plotshape(goLong,  "LONG", shape.labelup,   location.bottom, color=#26a69a,
      text="LONG", textcolor=color.white, size=size.small)
 plotshape(goShort, "SELL", shape.labeldown, location.top,    color=#ef5350,
      text="SELL", textcolor=color.white, size=size.small)
 
-alertcondition(goLong,  "Big 7: LONG", "Big 7 kôš otočil nahor")
-alertcondition(goShort, "Big 7: SELL", "Big 7 kôš otočil nadol")
+alertcondition(goLong,  "Big 7: LONG", "Big 7 + SOXX: smer nahor")
+alertcondition(goShort, "Big 7: SELL", "Big 7 + SOXX: smer nadol")
+alertcondition(narrow or thin, "Big 7: úzky ťah", "Kôš ťahá, ale index alebo šírka nejdú s ním")
 
 // ---------------------------------------------------------- tabuľka --- //
-f_row(t, row, sym, pct) =>
-    table.cell(t, 0, row, str.replace_all(sym, "NASDAQ:", ""), text_color=color.gray,
+f_pctTxt(v) => na(v) ? "—" : str.tostring(v, "+0.00;-0.00") + " %"
+f_pctCol(v) => na(v) ? color.gray : v > 0 ? #26a69a : #ef5350
+
+f_row(t, row, name, pct) =>
+    table.cell(t, 0, row, str.replace_all(name, "NASDAQ:", ""), text_color=color.gray,
          text_size=size.small, text_halign=text.align_left)
-    table.cell(t, 1, row, na(pct) ? "—" : str.tostring(pct, "+0.00;-0.00") + " %",
-         text_color=na(pct) ? color.gray : pct > 0 ? #26a69a : #ef5350, text_size=size.small)
+    table.cell(t, 1, row, f_pctTxt(pct), text_color=f_pctCol(pct), text_size=size.small)
 
 if showTable and barstate.islast
-    var table t = table.new(position.top_right, 2, 10, border_width=1)
+    var table t = table.new(position.top_right, 2, 13, border_width=1)
     f_row(t, 0, s1, p1)
     f_row(t, 1, s2, p2)
     f_row(t, 2, s3, p3)
@@ -194,16 +292,17 @@ if showTable and barstate.islast
     f_row(t, 4, s5, p5)
     f_row(t, 5, s6, p6)
     f_row(t, 6, s7, p7)
-    table.cell(t, 0, 7, "kôš", text_color=color.white, text_size=size.small,
-         text_halign=text.align_left)
-    table.cell(t, 1, 7, na(basketPct) ? "—" : str.tostring(basketPct, "+0.00;-0.00") + " %",
-         text_color=color.white, text_size=size.small)
-    table.cell(t, 0, 8, "šírka", text_color=color.gray, text_size=size.small,
-         text_halign=text.align_left)
-    table.cell(t, 1, 8, str.tostring(nUp) + " / " + str.tostring(nOk),
-         text_color=color.gray, text_size=size.small)
-    table.cell(t, 0, 9, "stav", text_color=color.gray, text_size=size.small,
-         text_halign=text.align_left)
-    table.cell(t, 1, 9, state == 1 ? "LONG" : state == -1 ? "SELL" : "—",
-         text_color=state == 1 ? #26a69a : state == -1 ? #ef5350 : color.gray,
+    table.cell(t, 0, 7, "kôš", text_color=color.white, text_size=size.small, text_halign=text.align_left)
+    table.cell(t, 1, 7, f_pctTxt(basketPct), text_color=color.white, text_size=size.small)
+    f_row(t, 8, soxxSym, soxxPct)
+    f_row(t, 9, idxSym,  idxPct)
+    table.cell(t, 0, 10, "šírka", text_color=color.gray, text_size=size.small, text_halign=text.align_left)
+    table.cell(t, 1, 10, str.tostring(nUp) + " / " + str.tostring(nOk),
+         text_color=nUp >= minBreadth ? #26a69a : nDown >= minBreadth ? #ef5350 : color.gray,
          text_size=size.small)
+    table.cell(t, 0, 11, "skóre", text_color=color.white, text_size=size.small, text_halign=text.align_left)
+    table.cell(t, 1, 11, na(score) ? "—" : str.tostring(score, "+0;-0"),
+         text_color=cScore, text_size=size.small)
+    table.cell(t, 0, 12, "stav", text_color=color.gray, text_size=size.small, text_halign=text.align_left)
+    table.cell(t, 1, 12, not inRth ? "mimo hodín" : state == 1 ? "LONG" : state == -1 ? "SELL" : "—",
+         text_color=state == 1 ? #26a69a : state == -1 ? #ef5350 : color.gray, text_size=size.small)

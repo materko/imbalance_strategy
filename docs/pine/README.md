@@ -9,7 +9,7 @@ Pine zdroje portovaných stratégií sú inde: `tradebot/strategies/<kľúč>/do
 
 | súbor | čo robí |
 |---|---|
-| [big7_basket_ema.pine](big7_basket_ema.pine) | vážený kôš siedmich najväčších technologických titulov na Nasdaqu, EMA nad ním a signály LONG / SELL so šírkou trhu |
+| [big7_basket_ema.pine](big7_basket_ema.pine) | smer Nasdaqu: vážený kôš Big 7 + SOXX + QQQ zlúčené do skóre −100…+100, signály LONG / SELL a varovania na úzky ťah |
 
 ## Prečo Big 7 nebeží v našom Testeri
 
