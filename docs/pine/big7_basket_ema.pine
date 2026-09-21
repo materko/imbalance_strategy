@@ -19,7 +19,7 @@
 // vydržať N sviečok, prvé sviečky dňa sú hluché a mimo burzových hodín sa
 // nesignalizuje, lebo vtedy sú akciové feedy stojaté.
 
-indicator("Big 7 + SOXX — smer Nasdaqu", overlay=false, precision=2)
+indicator("Big 7 + SOXX — smer Nasdaqu", overlay=false, precision=2, max_labels_count=50)
 
 // ---------------------------------------------------------------- kôš --- //
 _GK = "Kôš Big 7"
@@ -94,11 +94,15 @@ onClose     = input.bool(true, "Signál až na zavretí sviečky", group=_GS,
 
 // ---------------------------------------------------------- zobraz. --- //
 _GZ = "Zobrazenie"
-mode        = input.string("Skóre smeru", "Čo kresliť", options=["Skóre smeru", "Percentá koša"],
+viewMode    = input.string("Skóre smeru", "Čo kresliť", options=["Skóre smeru", "Percentá koša"],
      group=_GZ, tooltip="Skóre a percentá majú inú mierku, preto sa kreslia zvlášť. " +
      "V oboch režimoch je všetko aj v Data Window.")
-showParts   = input.bool(false, "Kresliť zložky skóre", group=_GZ)
-showWarn    = input.bool(true,  "Podfarbiť varovania", group=_GZ)
+showParts   = input.bool(false, "Kresliť zložky skóre", group=_GZ,
+     tooltip="Štyri tenké čiary v mierke skóre — vidno, ktorá zložka skóre ťahá a ktorá mu " +
+     "odporuje. Keď je vypnuté, v legende ostanú prázdne ∅; skryješ ich kliknutím pravým " +
+     "na panel → Settings → Status line → Indicator values.")
+showState   = input.bool(true,  "Podfarbiť pozadie podľa stavu", group=_GZ)
+showWarn    = input.bool(true,  "Značky varovaní", group=_GZ)
 showTable   = input.bool(true,  "Tabuľka", group=_GZ)
 
 // ------------------------------------------------------------------ //
@@ -204,17 +208,17 @@ longRun  := longOk  ? longRun  + 1 : 0
 shortRun := shortOk ? shortRun + 1 : 0
 
 var int state = 0
-next = state
+nextState = state
 if longRun >= confirmBars
-    next := 1
+    nextState := 1
 else if shortRun >= confirmBars
-    next := -1
+    nextState := -1
 
 live    = onClose ? barstate.isconfirmed : true
-goLong  = live and next ==  1 and state !=  1
-goShort = live and next == -1 and state != -1
+goLong  = live and nextState ==  1 and state !=  1
+goShort = live and nextState == -1 and state != -1
 if live
-    state := next
+    state := nextState
 
 // ------------------------------------------------------ varovania --- //
 // Úzky ťah: kôš letí, index stojí — nesú to mega-capy, zvyšok trhu nejde s nimi.
@@ -225,50 +229,95 @@ soxxAway = not na(soxxPct) and not na(basketPct) and math.sign(soxxPct) != math.
 // Priemer hovorí niečo iné než šírka: pár mien ťahá, zvyšok nie.
 thin     = not na(cBasket) and math.abs(cBasket) > 0.5 and math.abs(cBreadth) < 0.3
 
+// ------------------------------------------------------------ farby --- //
+// Ladené na ČIERNE pozadie: plné, sýte tóny, žiadna sivá polopriesvitná čiara.
+C_UP     = #00e676   // smer hore, potvrdený
+C_DN     = #ff3d57   // smer dole, potvrdený
+C_FLAT   = #90a4ae   // bez smeru
+C_SOXX   = #e040fb
+C_BREAD  = #ffd740
+C_LEAD   = #ff9100
+C_TREND  = #69f0ae
+
+showScore = viewMode == "Skóre smeru"
+strong    = not na(score) and math.abs(score) >= scoreTh
+up        = not na(score) and score > 0
+
+// Tri úrovne, nie dve: smer HORE/DOLE hovorí znamienko, silu hovorí jas.
+// Slabé skóre je ten istý odtieň, len stlmený — tak je na prvý pohľad vidieť
+// aj to, kam to ide, aj to, či je to presvedčivé.
+lineCol = na(score) ? C_FLAT : up ? (strong ? C_UP : color.new(C_UP, 45))
+     : (strong ? C_DN : color.new(C_DN, 45))
+areaCol = na(score) ? na : color.new(up ? C_UP : C_DN, strong ? 72 : 88)
+
+stavTxt = not inRth ? "MIMO HODÍN" : state == 1 ? "LONG" : state == -1 ? "SELL" : "BEZ SMERU"
+stavCol = not inRth ? #455a64 : state == 1 ? C_UP : state == -1 ? C_DN : #546e7a
+
 // ------------------------------------------------------------ kresby --- //
-showScore = mode == "Skóre smeru"
+// Jedna dvojica plotov slúži obom režimom, aby v legende nezostávali prázdne ∅.
+//   skóre:    hlavná = vyhladené skóre, referencia = surové (nevyhladené)
+//   percentá: hlavná = kôš, referencia = jeho EMA
+mainVal = showScore ? score    : basketPct
+refVal  = showScore ? scoreRaw : basketEma
+thPos   = showScore ?  float(scoreTh) :  normPct
+thNeg   = showScore ? -float(scoreTh) : -normPct
 
-hline(0, "Nula", color=color.new(color.gray, 40), linestyle=hline.style_dotted)
+hline(0, "Nula", color=color.new(#607d8b, 20), linestyle=hline.style_solid, linewidth=1)
 
-cScore = na(score) ? color.gray : score >= scoreTh ? #26a69a
-     : score <= -scoreTh ? #ef5350 : color.new(color.gray, 20)
-pScore = plot(showScore ? score : na, "Skóre smeru", color=cScore, linewidth=2)
-pZero  = plot(showScore ? 0 : na, "", color=color.new(color.gray, 100), display=display.none)
-fill(pScore, pZero, color=na(score) ? na : score > 0 ? color.new(#26a69a, 85) : color.new(#ef5350, 85))
+plot(mainVal, "Smer", color=areaCol, style=plot.style_area, linewidth=1)
+plot(mainVal, "Smer (čiara)", color=lineCol, linewidth=3)
+// Referencia: v režime skóre surové (nevyhladené) skóre, v režime percent EMA koša.
+// Titul plotu musí byť konštanta, takže je spoločný pre oba režimy.
+plot(refVal, "Referencia", color=color.new(C_FLAT, 35), linewidth=1)
+plot(thPos, "Prah +", color=color.new(C_UP, 60), style=plot.style_linebr)
+plot(thNeg, "Prah −", color=color.new(C_DN, 60), style=plot.style_linebr)
 
-plot(showScore ?  scoreTh : na, "Prah +", color=color.new(#26a69a, 55), style=plot.style_linebr)
-plot(showScore ? -scoreTh : na, "Prah −", color=color.new(#ef5350, 55), style=plot.style_linebr)
+// Pásik stavu pri spodnej hrane — najrýchlejšia odpoveď na otázku „kam teraz".
+plotshape(state ==  1 ? 1 : na, "Stav LONG", shape.square, location.bottom, color=C_UP, size=size.tiny)
+plotshape(state == -1 ? 1 : na, "Stav SELL", shape.square, location.bottom, color=C_DN, size=size.tiny)
 
-cBasketCol = na(basketEma) ? color.new(color.gray, 60)
-     : basketPct >= basketEma ? color.new(#26a69a, 55) : color.new(#ef5350, 55)
-plot(showScore ? na : basketPct, "Kôš Big 7 (%)", color=cBasketCol, style=plot.style_columns)
-plot(showScore ? na : basketEma, "EMA koša", color=emaSlope > 0 ? #26a69a : #ef5350, linewidth=2)
-plot(showScore ? na : soxxPct,   "SOXX (%)", color=color.new(#ab47bc, 20), linewidth=1)
-plot(showScore ? na : idxPct,    "Index (%)", color=color.new(#42a5f5, 40), linewidth=1)
+// Zložky skóre — v mierke skóre (−100…+100), preto len v režime skóre.
+plot(showScore and showParts ? cBreadth * 100 : na, "Zložka: šírka",   color=C_BREAD, style=plot.style_stepline)
+plot(showScore and showParts ? cSoxx    * 100 : na, "Zložka: SOXX",    color=C_SOXX)
+plot(showScore and showParts ? cLead    * 100 : na, "Zložka: vedenie", color=C_LEAD)
+plot(showScore and showParts ? cTrend   * 100 : na, "Zložka: trend",   color=C_TREND)
 
-// Zložky skóre — v mierke skóre, teda −100…+100. Zapína sa zvlášť, aby graf
-// nebol zaplavený piatimi čiarami naraz.
-plot(showScore and showParts ? cBreadth * 100 : na, "Zložka: šírka", color=color.new(#42a5f5, 30),
-     style=plot.style_stepline)
-plot(showScore and showParts ? cSoxx * 100 : na, "Zložka: SOXX", color=color.new(#ab47bc, 30))
-plot(showScore and showParts ? cLead * 100 : na, "Zložka: vedenie", color=color.new(#ffa726, 30))
-plot(showScore and showParts ? cTrend * 100 : na, "Zložka: trend", color=color.new(#66bb6a, 30))
+// Do Data Window ide vždy všetko, nech sa dá čítať v oboch režimoch.
+plot(basketPct, "» kôš %",         color=color.new(C_FLAT, 100), display=display.data_window)
+plot(soxxPct,   "» SOXX %",        color=color.new(C_FLAT, 100), display=display.data_window)
+plot(idxPct,    "» index %",       color=color.new(C_FLAT, 100), display=display.data_window)
+plot(nUp,       "» titulov hore",  color=color.new(C_FLAT, 100), display=display.data_window)
+plot(score,     "» skóre",         color=color.new(C_FLAT, 100), display=display.data_window)
+plot(state,     "» stav (1/0/−1)", color=color.new(C_FLAT, 100), display=display.data_window)
 
-// Do Data Window ide vždy všetko, nech sa dá čítať aj v druhom režime.
-plot(basketPct, "» kôš %", color=color.new(color.gray, 100), display=display.data_window)
-plot(soxxPct,   "» SOXX %", color=color.new(color.gray, 100), display=display.data_window)
-plot(idxPct,    "» index %", color=color.new(color.gray, 100), display=display.data_window)
-plot(nUp,       "» titulov hore", color=color.new(color.gray, 100), display=display.data_window)
-plot(score,     "» skóre", color=color.new(color.gray, 100), display=display.data_window)
+// Pozadie patrí STAVU, nie varovaniam — je to jediná informácia, ktorú chceš
+// vidieť aj periférnym videním. Veľmi jemne, nech neprebije samotnú čiaru.
+bgcolor(showState and state ==  1 ? color.new(C_UP, 93) : na, title="Stav LONG")
+bgcolor(showState and state == -1 ? color.new(C_DN, 93) : na, title="Stav SELL")
+bgcolor(not inRth ? color.new(#263238, 82) : na, title="Mimo burzových hodín")
 
-bgcolor(showWarn and (narrow or thin) ? color.new(color.orange, 92) : na, title="Úzky ťah")
-bgcolor(showWarn and soxxAway ? color.new(#ab47bc, 92) : na, title="SOXX proti košu")
-bgcolor(not inRth ? color.new(color.gray, 94) : na, title="Mimo burzových hodín")
+// Varovania sú značky pri hornej hrane, nie plochy cez celý panel — inak
+// prekryjú graf presne vtedy, keď na ňom najviac záleží.
+plotchar(showWarn and (narrow or thin) ? 1 : na, "Úzky ťah", "▲", location.top,
+     color=C_LEAD, size=size.tiny)
+plotchar(showWarn and soxxAway ? 1 : na, "SOXX proti košu", "◆", location.top,
+     color=C_SOXX, size=size.tiny)
 
-plotshape(goLong,  "LONG", shape.labelup,   location.bottom, color=#26a69a,
-     text="LONG", textcolor=color.white, size=size.small)
-plotshape(goShort, "SELL", shape.labeldown, location.top,    color=#ef5350,
-     text="SELL", textcolor=color.white, size=size.small)
+// Štítky sedia PRIAMO NA ČIARE v mieste otočenia — na spodnej hrane ich prekrýval
+// pásik stavu a v paneli sa strácali.
+plotshape(goLong  ? mainVal : na, "Signál LONG", shape.labelup,   location.absolute,
+     color=C_UP, text="LONG", textcolor=#000000, size=size.normal)
+plotshape(goShort ? mainVal : na, "Signál SELL", shape.labeldown, location.absolute,
+     color=C_DN, text="SELL", textcolor=#000000, size=size.normal)
+
+// Veľká visačka na poslednom bare: aktuálny stav sa dá prečítať bez hľadania.
+var label tag = na
+if barstate.islast
+    label.delete(tag)
+    tag := label.new(bar_index + 2, nz(mainVal, 0), stavTxt,
+         style=label.style_label_left, size=size.large,
+         color=color.new(stavCol, state == 0 or not inRth ? 35 : 0),
+         textcolor=state == 0 or not inRth ? color.white : #000000)
 
 alertcondition(goLong,  "Big 7: LONG", "Big 7 + SOXX: smer nahor")
 alertcondition(goShort, "Big 7: SELL", "Big 7 + SOXX: smer nadol")
@@ -276,15 +325,16 @@ alertcondition(narrow or thin, "Big 7: úzky ťah", "Kôš ťahá, ale index ale
 
 // ---------------------------------------------------------- tabuľka --- //
 f_pctTxt(v) => na(v) ? "—" : str.tostring(v, "+0.00;-0.00") + " %"
-f_pctCol(v) => na(v) ? color.gray : v > 0 ? #26a69a : #ef5350
+f_pctCol(v) => na(v) ? C_FLAT : v > 0 ? C_UP : C_DN
 
 f_row(t, row, name, pct) =>
-    table.cell(t, 0, row, str.replace_all(name, "NASDAQ:", ""), text_color=color.gray,
-         text_size=size.small, text_halign=text.align_left)
+    table.cell(t, 0, row, str.replace_all(str.replace_all(name, "NASDAQ:", ""), "BATS:", ""),
+         text_color=C_FLAT, text_size=size.small, text_halign=text.align_left)
     table.cell(t, 1, row, f_pctTxt(pct), text_color=f_pctCol(pct), text_size=size.small)
 
 if showTable and barstate.islast
-    var table t = table.new(position.top_right, 2, 13, border_width=1)
+    var table t = table.new(position.top_right, 2, 13, border_width=1,
+         frame_color=color.new(#455a64, 40), frame_width=1)
     f_row(t, 0, s1, p1)
     f_row(t, 1, s2, p2)
     f_row(t, 2, s3, p3)
@@ -292,17 +342,20 @@ if showTable and barstate.islast
     f_row(t, 4, s5, p5)
     f_row(t, 5, s6, p6)
     f_row(t, 6, s7, p7)
-    table.cell(t, 0, 7, "kôš", text_color=color.white, text_size=size.small, text_halign=text.align_left)
-    table.cell(t, 1, 7, f_pctTxt(basketPct), text_color=color.white, text_size=size.small)
+    table.cell(t, 0, 7, "KÔŠ", text_color=color.white, text_size=size.small,
+         text_halign=text.align_left, bgcolor=color.new(#37474f, 40))
+    table.cell(t, 1, 7, f_pctTxt(basketPct), text_color=f_pctCol(basketPct), text_size=size.small,
+         bgcolor=color.new(#37474f, 40))
     f_row(t, 8, soxxSym, soxxPct)
     f_row(t, 9, idxSym,  idxPct)
-    table.cell(t, 0, 10, "šírka", text_color=color.gray, text_size=size.small, text_halign=text.align_left)
+    table.cell(t, 0, 10, "šírka", text_color=C_FLAT, text_size=size.small, text_halign=text.align_left)
     table.cell(t, 1, 10, str.tostring(nUp) + " / " + str.tostring(nOk),
-         text_color=nUp >= minBreadth ? #26a69a : nDown >= minBreadth ? #ef5350 : color.gray,
+         text_color=nUp >= minBreadth ? C_UP : nDown >= minBreadth ? C_DN : C_FLAT,
          text_size=size.small)
     table.cell(t, 0, 11, "skóre", text_color=color.white, text_size=size.small, text_halign=text.align_left)
     table.cell(t, 1, 11, na(score) ? "—" : str.tostring(score, "+0;-0"),
-         text_color=cScore, text_size=size.small)
-    table.cell(t, 0, 12, "stav", text_color=color.gray, text_size=size.small, text_halign=text.align_left)
-    table.cell(t, 1, 12, not inRth ? "mimo hodín" : state == 1 ? "LONG" : state == -1 ? "SELL" : "—",
-         text_color=state == 1 ? #26a69a : state == -1 ? #ef5350 : color.gray, text_size=size.small)
+         text_color=lineCol, text_size=size.normal)
+    table.cell(t, 0, 12, "smer", text_color=color.white, text_size=size.small, text_halign=text.align_left,
+         bgcolor=color.new(stavCol, 60))
+    table.cell(t, 1, 12, stavTxt, text_color=state == 0 or not inRth ? color.white : #000000,
+         text_size=size.normal, bgcolor=color.new(stavCol, state == 0 or not inRth ? 60 : 10))
