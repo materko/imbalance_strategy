@@ -100,6 +100,15 @@ viewMode    = input.string("Skóre smeru", "Čo kresliť", options=["Skóre smer
 showParts   = input.bool(false, "Kresliť zložky skóre", group=_GZ,
      tooltip="Štyri tenké čiary v mierke skóre — vidno, ktorá zložka skóre ťahá a ktorá mu " +
      "odporuje.")
+palette     = input.string("Neón", "Paleta", options=["Neón", "Klasika"], group=_GZ,
+     tooltip="Neón = cyan / magenta, na čiernom pozadí svieti. Klasika = zelená / červená.")
+shapeMode   = input.string("Plocha", "Tvar skóre", options=["Plocha", "Histogram", "Oboje"],
+     group=_GZ)
+useGlow     = input.bool(true, "Žiara okolo čiary", group=_GZ,
+     tooltip="Čiara sa kreslí v troch vrstvách nad sebou, každá širšia a priesvitnejšia. " +
+     "Vypni, ak ti to na svetlom pozadí rozmazáva obraz.")
+markOnChart = input.bool(true, "Značky aj na cenovom grafe", group=_GZ,
+     tooltip="LONG/SELL sa kreslí aj k sviečkam, nielen do panelu.")
 showState   = input.bool(true,  "Podfarbiť pozadie podľa stavu", group=_GZ)
 showWarn    = input.bool(true,  "Značky varovaní", group=_GZ)
 tablePos    = input.string("Vpravo hore", "Tabuľka — kde",
@@ -247,8 +256,9 @@ thin     = warnOk and not na(cBasket) and math.abs(cBasket) > 0.5 and math.abs(c
 
 // ------------------------------------------------------------ farby --- //
 // Ladené na ČIERNE pozadie: plné, sýte tóny, žiadna sivá polopriesvitná čiara.
-C_UP     = #00e676   // smer hore, potvrdený
-C_DN     = #ff1744   // smer dole, potvrdený
+neon     = palette == "Neón"
+C_UP     = neon ? #00e5ff : #00e676   // smer hore
+C_DN     = neon ? #ff2e7e : #ff1744   // smer dole
 C_FLAT   = #90a4ae   // bez smeru
 C_SOXX   = #e040fb
 C_BREAD  = #ffd740
@@ -259,32 +269,54 @@ showScore = viewMode == "Skóre smeru"
 strong    = not na(score) and math.abs(score) >= scoreTh
 up        = not na(score) and score > 0
 
+mainVal   = showScore ? score : basketPct
+thPosAbs  = showScore ? float(scoreTh) : normPct
+
 // Tri úrovne, nie dve: smer HORE/DOLE hovorí znamienko, silu hovorí jas.
 // Slabé skóre je ten istý odtieň, len stlmený — tak je na prvý pohľad vidieť
 // aj to, kam to ide, aj to, či je to presvedčivé.
-lineCol = na(score) ? C_FLAT : up ? (strong ? C_UP : color.new(C_UP, 45))
-     : (strong ? C_DN : color.new(C_DN, 45))
-areaCol = na(score) ? na : color.new(up ? C_UP : C_DN, strong ? 55 : 80)
+baseCol = na(score) ? C_FLAT : up ? C_UP : C_DN
+//: Presvedčivosť sa prejaví plynule, nie skokom na prahu — čím ďalej od nuly,
+//: tým sýtejšia čiara aj výplň. Prah ostáva len hranicou pre samotný signál.
+conv    = math.min(math.abs(nz(mainVal)) / math.max(thPosAbs, 1.0), 1.0)
+lineCol = na(score) ? C_FLAT : color.new(baseCol, math.round(55 - 55 * conv))
+areaCol = na(score) ? na     : color.new(baseCol, math.round(90 - 35 * conv))
+histCol = na(score) ? na     : color.from_gradient(conv, 0.0, 1.0,
+     color.new(baseCol, 70), color.new(baseCol, 10))
 
 stavTxt = not inRth ? "MIMO HODÍN" : state == 1 ? "LONG" : state == -1 ? "SELL" : "BEZ SMERU"
-stavCol = not inRth ? #455a64 : state == 1 ? C_UP : state == -1 ? C_DN : #546e7a
+stavCol = not inRth ? #37474f : state == 1 ? C_UP : state == -1 ? C_DN : #546e7a
 
 // ------------------------------------------------------------ kresby --- //
 // Jedna dvojica plotov slúži obom režimom, aby v legende nezostávali prázdne ∅.
 //   skóre:    hlavná = vyhladené skóre, referencia = surové (nevyhladené)
 //   percentá: hlavná = kôš, referencia = jeho EMA
-mainVal = showScore ? score : basketPct
-thPos   = showScore ?  float(scoreTh) :  normPct
-thNeg   = showScore ? -float(scoreTh) : -normPct
+thPos   =  thPosAbs
+thNeg   = -thPosAbs
 
-hline(0, "Nula", color=color.new(#607d8b, 20), linestyle=hline.style_solid, linewidth=1)
+hline(0, "Nula", color=color.new(#607d8b, 35), linestyle=hline.style_solid, linewidth=1)
+
+wantArea = shapeMode == "Plocha" or shapeMode == "Oboje"
+wantHist = shapeMode == "Histogram" or shapeMode == "Oboje"
+
+// Histogram: stĺpce tmavnú a rozsvecujú sa s presvedčivosťou skóre.
+plot(wantHist ? mainVal : na, "Histogram", color=histCol, style=plot.style_columns,
+     display=display.pane)
 
 // `display.pane` = kresli, ale nelez do status line. Bez toho tam za každú vypnutú
 // čiaru ostane prázdne ∅ a hlavička sa stane nečitateľnou.
-plot(mainVal, "Plocha", color=areaCol, style=plot.style_area, linewidth=1, display=display.pane)
-plot(mainVal, "Smer",   color=lineCol, linewidth=3)
-plot(thPos, "Prah +", color=color.new(C_UP, 35), display=display.pane)
-plot(thNeg, "Prah −", color=color.new(C_DN, 35), display=display.pane)
+plot(wantArea ? mainVal : na, "Plocha", color=areaCol, style=plot.style_area, linewidth=1,
+     display=display.pane)
+
+// Žiara: tá istá čiara trikrát pod sebou, vždy širšia a priesvitnejšia. Je to jediný
+// spôsob, ako v Pine spraviť neónový efekt — vlastné tiene sa kresliť nedajú.
+plot(useGlow ? mainVal : na, "Žiara 3", color=color.new(baseCol, 90), linewidth=10, display=display.pane)
+plot(useGlow ? mainVal : na, "Žiara 2", color=color.new(baseCol, 82), linewidth=6,  display=display.pane)
+plot(useGlow ? mainVal : na, "Žiara 1", color=color.new(baseCol, 70), linewidth=3,  display=display.pane)
+plot(mainVal, "Smer", color=lineCol, linewidth=2)
+
+plot(thPos, "Prah +", color=color.new(C_UP, 55), display=display.pane)
+plot(thNeg, "Prah −", color=color.new(C_DN, 55), display=display.pane)
 
 // Pásik stavu pri spodnej hrane — najrýchlejšia odpoveď na otázku „kam teraz".
 // Mimo burzových hodín stav nezaniká, ale ani sa nekreslí — je to včerajší názor
@@ -323,10 +355,26 @@ plotchar(showWarn and soxxAway ? 1 : na, "SOXX proti košu", "◆", location.top
 
 // Štítky sedia PRIAMO NA ČIARE v mieste otočenia — na spodnej hrane ich prekrýval
 // pásik stavu a v paneli sa strácali.
+// Štítok + šípka pod ním, ako to má väčšina moderných indikátorov: štítok nesie text,
+// šípka dáva smeru tvar, ktorý sa dá prečítať aj bokom okom.
 plotshape(goLong  ? mainVal : na, "Signál LONG", shape.labelup,   location.absolute,
-     color=C_UP, text="LONG", textcolor=#000000, size=size.normal, display=display.pane)
+     color=C_UP, text="LONG", textcolor=#0b0f14, size=size.normal, display=display.pane)
 plotshape(goShort ? mainVal : na, "Signál SELL", shape.labeldown, location.absolute,
-     color=C_DN, text="SELL", textcolor=#000000, size=size.normal, display=display.pane)
+     color=C_DN, text="SELL", textcolor=#0b0f14, size=size.normal, display=display.pane)
+plotchar(goLong  ? mainVal : na, "Šípka LONG", "▲", location.absolute, color=C_UP,
+     size=size.tiny, display=display.pane)
+plotchar(goShort ? mainVal : na, "Šípka SELL", "▼", location.absolute, color=C_DN,
+     size=size.tiny, display=display.pane)
+
+// ---- značky priamo na cenovom grafe ---- //
+// `force_overlay` dovolí panelovému indikátoru kresliť aj do hlavného grafu. Keby ho
+// tvoja verzia TradingView nepoznala, zmaž tieto dva riadky — nič iné na nich nevisí.
+plotshape(markOnChart and goLong  ? low  : na, "Na grafe: LONG", shape.labelup, location.absolute,
+     color=C_UP, text="LONG", textcolor=#0b0f14, size=size.small,
+     display=display.pane, force_overlay=true)
+plotshape(markOnChart and goShort ? high : na, "Na grafe: SELL", shape.labeldown, location.absolute,
+     color=C_DN, text="SELL", textcolor=#0b0f14, size=size.small,
+     display=display.pane, force_overlay=true)
 
 // Veľká visačka na poslednom bare: aktuálny stav sa dá prečítať bez hľadania.
 var label tag = na
@@ -335,7 +383,7 @@ if barstate.islast
     tag := label.new(bar_index + 2, nz(mainVal, 0), stavTxt,
          style=label.style_label_left, size=size.large,
          color=color.new(stavCol, state == 0 or not inRth ? 35 : 0),
-         textcolor=state == 0 or not inRth ? color.white : #000000)
+         textcolor=state == 0 or not inRth ? color.white : #0b0f14)
 
 alertcondition(goLong,  "Big 7: LONG", "Big 7 + SOXX: smer nahor")
 alertcondition(goShort, "Big 7: SELL", "Big 7 + SOXX: smer nadol")
@@ -362,9 +410,9 @@ if showTable and barstate.islast
     table.clear(t, 0, 0, 1, 12)
 
     // ---- to podstatné, hore a veľkým ---- //
-    table.cell(t, 0, 0, "SMER", text_color=#000000, text_size=size.normal,
+    table.cell(t, 0, 0, "SMER", text_color=#0b0f14, text_size=size.normal,
          text_halign=text.align_left, bgcolor=stavCol)
-    table.cell(t, 1, 0, stavTxt, text_color=#000000, text_size=size.normal,
+    table.cell(t, 1, 0, stavTxt, text_color=#0b0f14, text_size=size.normal,
          text_halign=text.align_center, bgcolor=stavCol)
     if tableSize != "Len smer"
         table.cell(t, 0, 1, "skóre", text_color=color.white, text_size=size.small,

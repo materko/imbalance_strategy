@@ -28,16 +28,22 @@ v *Percentá počítať od*.
 
 ## 2. Čo je čo na obrazovke
 
+Farby určuje *Paleta*: **Neón** (cyan hore, magenta dole — predvolené, na čiernom pozadí
+svieti) alebo **Klasika** (zelená / červená).
+
 | prvok | vzhľad | čo znamená |
 |---|---|---|
-| **Vyplnená plocha** | zelená hore, červená dole | smer. **Sýta** = skóre je za prahom (presvedčivé), **bledá** = medzi nulou a prahom (slabé) |
-| **Hrubá čiara, 3 px** | zelená / červená | samotné skóre. Toto je jediná hodnota, ktorá je aj v hlavičke panelu |
+| **Vyplnená plocha** | cyan hore, magenta dole | smer. Sýtosť rastie **plynule** s tým, ako ďaleko je skóre od nuly — nie skokom na prahu |
+| **Žiara okolo čiary** | rozmazaný neónový okraj | len vzhľad. Tri vrstvy tej istej čiary, každá širšia a priesvitnejšia. Vypína sa v *Žiara okolo čiary* |
+| **Hrubá čiara** | cyan / magenta | samotné skóre. Toto je jediná hodnota, ktorá je aj v hlavičke panelu |
+| **Histogram** | stĺpce | alternatíva k ploche, zapína sa v *Tvar skóre*. Stĺpce sa rozsvecujú s presvedčivosťou |
 | **Dve vodorovné čiary** | zelená hore, červená dole | prahy `±Prah skóre`. Za nimi môže vzniknúť signál |
 | **Tenká čiara v strede** | sivomodrá | nula |
 | **Pásik štvorčekov pri spodnej hrane** | zelené / červené | stav bar po bare. Prázdne miesto = bez smeru alebo mimo burzových hodín |
 | **Podfarbené pozadie** | slabo zelené / červené | ten istý stav, na periférne videnie. Vypína sa v *Podfarbiť pozadie podľa stavu* |
 | **Tmavosivé pozadie** | šedé | mimo 9:30–16:00 New York |
-| **Štítok LONG / SELL na čiare** | zelený / červený | okamih **otočenia**. Nie „stále platí", ale „práve teraz sa to zmenilo" |
+| **Štítok LONG / SELL na čiare** | cyan / magenta so šípkou | okamih **otočenia**. Nie „stále platí", ale „práve teraz sa to zmenilo" |
+| **Štítok LONG / SELL pri sviečke** | na hlavnom grafe | ten istý signál, nakreslený priamo k cene. Vypína sa v *Značky aj na cenovom grafe* |
 | **Veľká visačka na konci čiary** | zelená / červená / sivá | aktuálny stav. Toto je odpoveď na otázku „kam teraz" |
 | **▲ oranžový trojuholník pri hornej hrane** | | úzky ťah alebo slabá šírka |
 | **◆ fialový kosoštvorec pri hornej hrane** | | polovodiče idú proti košu |
@@ -154,6 +160,23 @@ Nie je to spúšťač vstupu. Je to **smerová brána** nad tvojimi stratégiami
 | `BEZ SMERU` | deň bez smeru — menšia veľkosť alebo nič |
 | `MIMO HODÍN` | indikátor nemá názor, akciové feedy stoja |
 | ▲ alebo ◆ | signál stojí na pár menách — zníž veľkosť alebo počkaj |
+
+---
+
+## 8b. Vzhľad
+
+| nastavenie | čo robí |
+|---|---|
+| **Paleta** | Neón (cyan / magenta) alebo Klasika (zelená / červená) |
+| **Tvar skóre** | Plocha, Histogram alebo Oboje |
+| **Žiara okolo čiary** | neónový efekt — tri vrstvy čiary nad sebou |
+| **Značky aj na cenovom grafe** | LONG/SELL sa kreslí aj k sviečkam, nielen do panelu |
+| **Podfarbiť pozadie podľa stavu** | jemný farebný nádych celého panelu |
+| **Tabuľka — rozsah / kde** | koľko riadkov a v ktorom rohu |
+
+Značky na cenovom grafe používajú `force_overlay`. Keby ich tvoja verzia TradingView
+nepoznala a skript hlásil chybu, zmaž tie dva riadky — sú v kóde označené a nič iné
+na nich nevisí.
 
 ---
 
