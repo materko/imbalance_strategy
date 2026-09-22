@@ -15,6 +15,11 @@
 // zobrazenú z indikátora vedľa, počíta to isté.
 // ═══════════════════════════════════════════════════════════════════════════
 
+// !!! DÔLEŽITÉ: tieto nastavenia sa musia ZHODOVAŤ s nastaveniami samostatného
+// indikátora "Big 7 + SOXX — smer Nasdaqu", ktorý máš na grafe ako panel. Obe
+// skripty počítajú skóre samostatne — keď v jednom zmeníš dĺžku EMA, ukotvenie
+// percent alebo váhy a v druhom nie, panel bude ukazovať iné číslo, než akým sa
+// riadi filter. Predvolené hodnoty nižšie sú zhodné s indikátorom.
 _GB7 = "🧠 Big 7 (smer Nasdaqu)"
 
 useBig7Filter = input.bool(false, "Big 7: filter smeru obchodov", group=_GB7,

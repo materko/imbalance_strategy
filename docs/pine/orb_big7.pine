@@ -105,6 +105,11 @@ pmtStpType   = input.string("STP", "'order_type' pre STOP príkaz", tooltip="Pou
 // Dáva zmysel len na nástrojoch naviazaných na Nasdaq (NAS100, MNQ, QQQ).
 // Na zlate alebo rope je to náhodný šum, ktorý len ubelí obchody.
 // =============================================================================
+// !!! DÔLEŽITÉ: tieto nastavenia sa musia ZHODOVAŤ s nastaveniami samostatného
+// indikátora "Big 7 + SOXX — smer Nasdaqu", ktorý máš na grafe ako panel. Obe
+// skripty počítajú skóre samostatne — keď v jednom zmeníš dĺžku EMA, ukotvenie
+// percent alebo váhy a v druhom nie, panel bude ukazovať iné číslo, než akým sa
+// riadi filter. Predvolené hodnoty nižšie sú zhodné s indikátorom.
 _GB7 = "🧠 Big 7 (smer Nasdaqu)"
 
 useBig7Filter = input.bool(false, "Big 7: filter smeru obchodov", group=_GB7,
@@ -127,21 +132,21 @@ b7ClearMode   = input.string("Oboje", "Stav vynulovať",
      tooltip="Bez tohto by stav držal starý smer, kým sa nepotvrdí opačný — a keby sa opačný " +
      "nepotvrdil, blokoval by jeden smer celé hodiny. Vynulovaný stav = bez smeru.")
 
-b7Anchor      = input.string("Denné otvorenie", "Percentá počítať od",
+b7Anchor      = input.string("Včerajšie zavretie", "Percentá počítať od",
      options=["Včerajšie zavretie", "Denné otvorenie"], group=_GB7,
      tooltip="Pre vnútrodenné obchodovanie dáva zmysel 'Denné otvorenie' — nočná medzera je " +
      "v momente otvorenia už zaplatená a pre ORB ťa zaujíma dnešný ťah.")
 b7EmaLen      = input.int(9,    "Dĺžka EMA koša", minval=2, maxval=200, group=_GB7)
 b7Smooth      = input.int(3,    "Vyhladiť skóre (EMA)", minval=1, maxval=50, group=_GB7)
-b7NormPct     = input.float(0.4,  "Kôš / SOXX: plné skóre pri (%)", minval=0.05, step=0.05, group=_GB7,
+b7NormPct     = input.float(1.0,  "Kôš / SOXX: plné skóre pri (%)", minval=0.05, step=0.05, group=_GB7,
      tooltip="Pohyby od otvorenia sú menšie než od včerajšieho zavretia, preto nižšia hodnota.")
-b7NormSlope   = input.float(0.075, "Trend: plné skóre pri sklone", minval=0.005, step=0.005, group=_GB7,
+b7NormSlope   = input.float(0.05, "Trend: plné skóre pri sklone", minval=0.005, step=0.005, group=_GB7,
      tooltip="Závisí od timeframu grafu. Na 30m nechaj 0,075; na 15m daj ~0,05; na 5m ~0,025.")
-b7NormLead    = input.float(0.3,  "Vedenie: plné skóre pri rozdiele (%)", minval=0.05, step=0.05, group=_GB7)
+b7NormLead    = input.float(0.5,  "Vedenie: plné skóre pri rozdiele (%)", minval=0.05, step=0.05, group=_GB7)
 
 b7wBasket  = input.float(1.0, "Váha: Kôš",     minval=0.0, step=0.1, group=_GB7)
 b7wTrend   = input.float(1.0, "Váha: Trend",   minval=0.0, step=0.1, group=_GB7)
-b7wBreadth = input.float(1.5, "Váha: Šírka",   minval=0.0, step=0.1, group=_GB7)
+b7wBreadth = input.float(1.0, "Váha: Šírka",   minval=0.0, step=0.1, group=_GB7)
 b7wSoxx    = input.float(1.0, "Váha: SOXX",    minval=0.0, step=0.1, group=_GB7)
 b7wLead    = input.float(0.5, "Váha: Vedenie", minval=0.0, step=0.1, group=_GB7)
 
