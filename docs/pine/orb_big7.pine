@@ -90,6 +90,8 @@ pmtStratName = input.string("ORB", "Strategy name", tooltip="Musí sa zhodovať 
 pmtMktType   = input.string("MKT", "'order_type' pre MARKET príkaz", tooltip="Over v dokumentácii PickMyTrade. Použije sa pri type vstupu close.", group="🔗 PickMyTrade")
 pmtLmtType   = input.string("LMT", "'order_type' pre LIMIT príkaz", tooltip="Použije sa pri type vstupu retest.", group="🔗 PickMyTrade")
 pmtStpType   = input.string("STP", "'order_type' pre STOP príkaz", tooltip="Použije sa pri type vstupu stop.", group="🔗 PickMyTrade")
+pmtMode      = input.string("Order fills only", "Ako sa príkaz odošle", options=["Order fills only", "Any alert() function call", "Oboje"], tooltip="Určuje, AKÝ typ alertu musíš v TradingView vytvoriť, aby sa JSON naozaj odoslal.\n\nOrder fills only (odporúčané) = JSON visí na samotnom príkaze (alert_message) a odošle sa až vtedy, keď sa obchod SKUTOČNE vyplní. Alert vytvor s podmienkou 'Order fills only' a do správy napíš {{strategy.order.alert_message}}.\n\nAny alert() function call = JSON sa odošle hneď pri signáli, aj keď sa limitka/stopka nikdy nevyplní. Alert vytvor s podmienkou 'Any alert() function call' a správu nechaj prázdnu.\n\nOboje = pripravené sú obe cesty; vytvor si LEN JEDEN alert, inak sa príkaz odošle dvakrát.", group="🔗 PickMyTrade")
+cancelPendingAtEnd = input.bool(true, "Zruš nevyplnené príkazy na konci seansy", tooltip="Týka sa len typov vstupu retest a stop (tie vytvárajú čakajúci príkaz). PickMyTrade taký príkaz zahodí sám podľa gtd_in_second — bez tohto by ho TradingView držal ďalej a simulácia by sa rozišla s realitou. Pri type vstupu close (market) nemá žiadny efekt.", group="🔗 PickMyTrade")
 
 // =============================================================================
 // 🧠 BIG 7 — filter smeru podľa koša najväčších tech titulov na Nasdaqu
@@ -348,6 +350,13 @@ pmtMsg(string dir, float price, float tp, float sl, int qty, string orderType, i
 pmtCloseMsg() =>
     '{"strategy_name":"' + pmtStratName + '","symbol":"' + syminfo.ticker + '","date":"{{timenow}}","data":"close","quantity":1,"risk_percentage":0,"price":"{{close}}","gtd_in_second":0,"stp_limit_stp_price":0,"dollar_tp":0,"percentage_tp":0,"tp":0,"dollar_sl":0,"percentage_sl":0,"sl":0,"trail":0,"trail_stop":0,"trail_trigger":0,"trail_freq":0,"update_tp":false,"update_sl":false,"breakeven":0,"breakeven_offset":0,"token":"' + pmtToken + '","pyramid":false,"same_direction_ignore":false,"reverse_order_close":true,"multiple_accounts":[{"token":"' + pmtToken + '","account_id":"' + pmtAccountId + '","risk_percentage":0,"quantity_multiplier":1}]}'
 
+// Dve nezávislé cesty, ako sa JSON dostane do PickMyTrade. `alert_message` visí na
+// príkaze a odošle sa až pri jeho skutočnom vyplnení; `alert()` sa odošle hneď pri
+// signáli. Ktorá z nich zafunguje, rozhoduje typ alertu vytvorený v TradingView —
+// preto sú obe pripravené a vstup vyššie len hovorí, ktorú plníš obsahom.
+bool pmtViaFill  = pmtOn and (pmtMode == "Order fills only" or pmtMode == "Oboje")
+bool pmtViaAlert = pmtOn and (pmtMode == "Any alert() function call" or pmtMode == "Oboje")
+
 // =============================================================================
 // SPOLOČNÉ VÝPOČTY
 // =============================================================================
@@ -529,29 +538,42 @@ for i = 0 to 1
 // VYKONANIE — TradingView simulácia + alert do PickMyTrade
 // =============================================================================
 if sigClose and strategy.position_size != 0
-    strategy.close_all(comment="koniec seansy")
-    if pmtOn
+    strategy.close_all(comment="koniec seansy", alert_message=pmtViaFill ? pmtCloseMsg() : "")
+    if pmtViaAlert
         alert(pmtCloseMsg(), alert.freq_once_per_bar_close)
     openedBy := -1
+
+// Nevyplnená limitka/stopka z končiacej seansy už nemá čo robiť. PickMyTrade ju
+// zahodí sám podľa gtd_in_second — TradingView by ju držal ďalej a simulácia by sa
+// rozišla s tým, čo naozaj beží u brokera. Pri vstupe `close` tu nie je čo rušiť.
+if cancelPendingAtEnd and sigClose
+    strategy.cancel_all()
 
 if sigDir != 0 and strategy.position_size == 0
     bool jeLong = sigDir == 1
     string smer = jeLong ? "long" : "short"
     string id   = jeLong ? "ORB long" : "ORB short"
+    string ot   = entryMode == "close" ? pmtMktType : entryMode == "stop" ? pmtStpType : pmtLmtType
+    int    gtd  = math.max(60, entryWindowMinutes * 60)
+    // JSON sa skladá RAZ a použije sa pre obe cesty, nech sa nemôžu rozísť.
+    string msgIn   = pmtMsg(smer, sigEntry, sigTp, sigSl, sigQty, ot, gtd)
+    string msgFill = pmtViaFill ? msgIn : ""
 
     if entryMode == "close"
-        strategy.entry(id, jeLong ? strategy.long : strategy.short, qty=sigQty)
+        strategy.entry(id, jeLong ? strategy.long : strategy.short, qty=sigQty, alert_message=msgFill)
     else if entryMode == "stop"
-        strategy.entry(id, jeLong ? strategy.long : strategy.short, qty=sigQty, stop=sigEntry)
+        strategy.entry(id, jeLong ? strategy.long : strategy.short, qty=sigQty, stop=sigEntry, alert_message=msgFill)
     else
-        strategy.entry(id, jeLong ? strategy.long : strategy.short, qty=sigQty, limit=sigEntry)
+        strategy.entry(id, jeLong ? strategy.long : strategy.short, qty=sigQty, limit=sigEntry, alert_message=msgFill)
 
-    strategy.exit("exit " + id, from_entry=id, stop=sigSl, limit=sigTp)
+    // Bezpečnostná poistka: keď TP/SL zoberie TradingView, pošle sa do PickMyTrade
+    // aj príkaz na zatvorenie. PickMyTrade má svoj vlastný bracket z entry JSON-u,
+    // takže je to druhá vrstva, nie jediná.
+    strategy.exit("exit " + id, from_entry=id, stop=sigSl, limit=sigTp,
+         alert_message=pmtViaFill ? pmtCloseMsg() : "")
 
-    if pmtOn
-        string ot = entryMode == "close" ? pmtMktType : entryMode == "stop" ? pmtStpType : pmtLmtType
-        int gtd = math.max(60, entryWindowMinutes * 60)
-        alert(pmtMsg(smer, sigEntry, sigTp, sigSl, sigQty, ot, gtd), alert.freq_once_per_bar_close)
+    if pmtViaAlert
+        alert(msgIn, alert.freq_once_per_bar_close)
 
 if strategy.position_size == 0 and openedBy != -1 and not sigClose and sigDir == 0
     openedBy := -1
