@@ -13,6 +13,7 @@ __all__ = ["GROUPS", "PARAMS"]
 _G0 = "🕐 Seansy"
 _G1 = "🚀 Vstup"
 _G2 = "🚦 Filtre"
+_GE = "📈 EMA"
 _G3 = "🛡️ Stop loss"
 _G4 = "🎯 Ciel"
 _G5 = "⏱️ Riadenie pozicie"
@@ -21,7 +22,7 @@ _G7 = "🎨 Vizualizacia"
 _G8 = "🧩 Rozšírenia portu"
 
 #: Poradie skupín vo formulári.
-GROUPS: tuple[str, ...] = (_G0, _G1, _G2, _G3, _G4, _G5, _G6, _G7, _G8)
+GROUPS: tuple[str, ...] = (_G0, _G1, _G2, _GE, _G3, _G4, _G5, _G6, _G7, _G8)
 
 #: `pole configu -> {group, title, tooltip}`.
 PARAMS: dict[str, dict[str, Any]] = {
@@ -40,9 +41,10 @@ PARAMS: dict[str, dict[str, Any]] = {
         tooltip="Minuta otvorenia New York seansy.",
     ),
     "nyRangeMinutes": dict(
-        group=_G0, title="New York: dlzka rangu",
-        tooltip="Kolko minut od otvorenia NY tvori opening range. 15 = viac signalov a viac falosnych;"
-                "30 = vyvazene; 60 = najmenej obchodov, ale najcistejsie.",
+        group=_G0, title="New York: dlzka rangu (min)",
+        tooltip="Kolko minut od otvorenia NY tvori opening range, 1 az 60. Kratsi range = viac"
+                " signalov a viac falosnych; 15 = vyvazene; 60 = najmenej obchodov, ale najcistejsich."
+                " 5 na 5m grafe je prva sviecka NY openu.",
     ),
     "nyEndH": dict(
         group=_G0, title="New York: koniec seansy (H)",
@@ -61,8 +63,8 @@ PARAMS: dict[str, dict[str, Any]] = {
         tooltip="Minuta otvorenia londynskej seansy.",
     ),
     "lonRangeMinutes": dict(
-        group=_G0, title="Londyn: dlzka rangu",
-        tooltip="Kolko minut od otvorenia Londyna tvori opening range.",
+        group=_G0, title="Londyn: dlzka rangu (min)",
+        tooltip="Kolko minut od otvorenia Londyna tvori opening range, 1 az 60.",
     ),
     "lonEndH": dict(
         group=_G0, title="Londyn: koniec seansy (H)",
@@ -135,6 +137,30 @@ PARAMS: dict[str, dict[str, Any]] = {
         group=_G2, title="Obchoduj len Pondelok-Piatok",
         tooltip="Vypne vikendove bary.",
     ),
+    # ---- 📈 EMA ------------------------------------------------------- #
+    "emaLen": dict(
+        group=_GE, title="EMA: dlzka",
+        tooltip="Dlzka exponencialneho priemeru zo zatvaracich cien, 2 az 500. Plati pre vsetky"
+                " tri EMA funkcie naraz aj pre ciaru na grafe. Klasika je 200; dlha EMA potrebuje"
+                " dlhy rozbeh (EMA 200 = 500 barov pred prvym obchodom).",
+    ),
+    "emaFilter": dict(
+        group=_GE, title="EMA: filter smeru prerazenia",
+        tooltip="Long len ked prerazovacia sviecka zavrie NAD EMA, short len ked pod nou."
+                " Klasicke ORB + EMA200. Kym EMA nema dost barov, neobchoduje sa.",
+    ),
+    "emaRangeFilter": dict(
+        group=_GE, title="EMA: filter dna podla rangu",
+        tooltip="Obchoduju sa len dni, kde cely opening range vznikol na jednej strane EMA:"
+                " range nad EMA = len longy, pod EMA = len shorty. Ked EMA lezi vnutri rangu,"
+                " den sa zahodi cely. Da sa kombinovat s filtrom smeru prerazenia.",
+    ),
+    "emaExit": dict(
+        group=_GE, title="EMA: vystup pri navrate cez priemer",
+        tooltip="Zavrie poziciu na zavreti sviecky, ktora skoncila na opacnej strane EMA."
+                " Stop loss aj take profit zostavaju v platnosti - toto je vystup navyse,"
+                " nie namiesto nich.",
+    ),
     # ---- 🛡️ Stop loss ------------------------------------------------ #
     "slMode": dict(
         group=_G3, title="Umiestnenie SL",
@@ -206,6 +232,11 @@ PARAMS: dict[str, dict[str, Any]] = {
     "showRange": dict(
         group=_G7, title="Kreslit opening range",
         tooltip="Zapne box opening rangu pre kazdu zapnutu seansu.",
+    ),
+    "showEma": dict(
+        group=_G7, title="Kreslit EMA",
+        tooltip="Ciara EMA na grafe behu. Na obchody nema vplyv - da sa zapnut aj ked su vsetky"
+                " tri EMA funkcie vypnute. Nepredlzuje rozbeh, ciara proste zacne neskor.",
     ),
     "showLevels": dict(
         group=_G7, title="Kreslit hranice rangu",

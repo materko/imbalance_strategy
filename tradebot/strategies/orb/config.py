@@ -14,23 +14,17 @@ from typing import ClassVar, Iterable
 from tradebot.core.config import StrategyConfig
 from tradebot.core.types import SizeSpec, SizeUnit
 
-__all__ = ["ORBConfig", "EntryMode", "RangeLength", "SessionMode", "SlMode", "TpMode",
-           "TradeDirection", "SessionWindow", "CONFIG_DIR"]
+__all__ = ["ORBConfig", "EntryMode", "SessionMode", "SlMode", "TpMode",
+           "TradeDirection", "SessionWindow", "CONFIG_DIR", "RANGE_MINUTE_FIELDS"]
 
 #: Profily stratégie ležia pri nej, aby bol balík sebestačný.
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 
 
-class RangeLength(str, Enum):
-    """Dĺžka opening rangu v minútach — tri bežné varianty ORB."""
-
-    M15 = "15"
-    M30 = "30"
-    M60 = "60"
-
-    @property
-    def minutes(self) -> int:
-        return int(self.value)
+#: Dĺžka opening rangu v minútach. Kedysi to bol enum s troma hodnotami (15/30/60),
+#: dnes je to voľné číslo 1–60 — staré profily a behy ho nesú ako reťazec ("15"),
+#: preto ho `__setattr__` nižšie dotypuje.
+RANGE_MINUTE_FIELDS: tuple[str, ...] = ("nyRangeMinutes", "lonRangeMinutes")
 
 
 class SessionMode(str, Enum):
@@ -79,8 +73,6 @@ SIZE_FIELDS: dict[str, SizeUnit] = {
 
 ENUM_FIELDS: dict[str, type] = {
     "sessionMode": SessionMode,
-    "nyRangeMinutes": RangeLength,
-    "lonRangeMinutes": RangeLength,
     "tradeDirection": TradeDirection,
     "entryMode": EntryMode,
     "slMode": SlMode,
@@ -90,10 +82,12 @@ ENUM_FIELDS: dict[str, type] = {
 CONSTRAINTS: dict[str, tuple[float, float]] = {
     "nyStartH": (0, 23),
     "nyStartM": (0, 59),
+    "nyRangeMinutes": (1, 60),
     "nyEndH": (0, 23),
     "nyEndM": (0, 59),
     "lonStartH": (0, 23),
     "lonStartM": (0, 59),
+    "lonRangeMinutes": (1, 60),
     "lonEndH": (0, 23),
     "lonEndM": (0, 59),
     "breakBufferAtr": (0.0, 2.0),
@@ -105,6 +99,7 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "volSmaLen": (2, 200),
     "volMultiplier": (0.5, 10.0),
     "minClosePosPct": (0, 100),
+    "emaLen": (2, 500),
     "atrLen": (2, 100),
     "slRangePct": (5.0, 150.0),
     "slAtrMult": (0.1, 10.0),
@@ -155,12 +150,12 @@ class ORBConfig(StrategyConfig):
     sessionMode: SessionMode = SessionMode.BOTH
     nyStartH: int = 9
     nyStartM: int = 30
-    nyRangeMinutes: RangeLength = RangeLength.M15
+    nyRangeMinutes: int = 15
     nyEndH: int = 15
     nyEndM: int = 55
     lonStartH: int = 8
     lonStartM: int = 0
-    lonRangeMinutes: RangeLength = RangeLength.M15
+    lonRangeMinutes: int = 15
     lonEndH: int = 16
     lonEndM: int = 30
     # ---- 🚀 Vstup --------------------------------------------------------- #
@@ -178,6 +173,11 @@ class ORBConfig(StrategyConfig):
     volMultiplier: float = 1.5
     minClosePosPct: int = 50
     weekdaysOnly: bool = True
+    # ---- 📈 EMA ----------------------------------------------------------- #
+    emaLen: int = 200
+    emaFilter: bool = False
+    emaRangeFilter: bool = False
+    emaExit: bool = False
     # ---- 🛡️ Stop loss ----------------------------------------------------- #
     slMode: SlMode = SlMode.OPPOSITE
     slRangePct: float = 50.0
@@ -199,6 +199,7 @@ class ORBConfig(StrategyConfig):
     # ---- 🎨 Vizualizácia -------------------------------------------------- #
     showRange: bool = True
     showLevels: bool = True
+    showEma: bool = False
     # ---- rozšírenia portu ------------------------------------------------- #
     #: Hodnota jedného ticku v dolároch — CFD/futures nástroje ju potrebujú na sizing.
     tickDollarValue: float | None = None
@@ -214,6 +215,31 @@ class ORBConfig(StrategyConfig):
 
     # ------------------------------------------------------------------ #
 
+    def __setattr__(self, name: str, value: object) -> None:
+        """Dĺžka rangu bola kedysi enum, takže staré profily a behy ju nesú ako reťazec.
+
+        Dotypovať ju musíme tu, nie až v `sessions` — inak by `"15"` prešlo celým
+        configom a spadlo by to až pri porovnaní rozsahu, kde už nie je vidieť, odkiaľ
+        tá hodnota prišla.
+        """
+        if name in RANGE_MINUTE_FIELDS and isinstance(value, str):
+            value = int(value)
+        super().__setattr__(name, value)
+
+    @property
+    def ema_uses_history(self) -> bool:
+        """Ovplyvňuje EMA obchody? Potom musí byť rozbehnutá, kým sa smie obchodovať.
+
+        Samotné kreslenie (`showEma`) sem nepatrí — kvôli čiare na grafe by nemalo zmysel
+        odkladať prvý obchod o stovky barov; nekreslí sa proste dovtedy, kým EMA nemá dosť dát.
+        """
+        return bool(self.emaFilter or self.emaRangeFilter or self.emaExit)
+
+    @property
+    def ema_needed(self) -> bool:
+        """Počítať EMA vôbec? Kreslenie ju potrebuje tiež, len nepredlžuje rozbeh."""
+        return bool(self.ema_uses_history or self.showEma)
+
     @property
     def allow_long(self) -> bool:
         return self.tradeDirection is not TradeDirection.SHORT_ONLY
@@ -228,13 +254,13 @@ class ORBConfig(StrategyConfig):
         ny = SessionWindow(
             key="ny", title="New York", tz="America/New_York",
             start_minutes=self.nyStartH * 60 + self.nyStartM,
-            range_minutes=self.nyRangeMinutes.minutes,
+            range_minutes=self.nyRangeMinutes,
             end_minutes=self.nyEndH * 60 + self.nyEndM,
         )
         london = SessionWindow(
             key="london", title="Londýn", tz="Europe/London",
             start_minutes=self.lonStartH * 60 + self.lonStartM,
-            range_minutes=self.lonRangeMinutes.minutes,
+            range_minutes=self.lonRangeMinutes,
             end_minutes=self.lonEndH * 60 + self.lonEndM,
         )
         if self.sessionMode is SessionMode.NY:

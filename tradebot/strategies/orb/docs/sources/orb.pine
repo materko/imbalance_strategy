@@ -15,12 +15,12 @@ strategy("ORB Opening Range Breakout", overlay=true, initial_capital=10000, defa
 sessionMode        = input.string("both", "Ktore seansy obchodovat", options=["both", "ny", "london"], tooltip="both = New York aj Londyn, kazda ma vlastny range aj vlastny obchod; ny = len New York open; london = len Londyn open.", group="🕐 Seansy")
 nyStartH           = input.int(9, "New York: otvorenie (H)", minval=0, maxval=23, tooltip="Hodina otvorenia New York cash seansy v pasme America/New_York. Standardne 9:30.", group="🕐 Seansy")
 nyStartM           = input.int(30, "New York: otvorenie (M)", minval=0, maxval=59, tooltip="Minuta otvorenia New York seansy.", group="🕐 Seansy")
-nyRangeMinutes     = input.string("15", "New York: dlzka rangu", options=["15", "30", "60"], tooltip="Kolko minut od otvorenia NY tvori opening range. 15 = viac signalov a viac falosnych; 30 = vyvazene; 60 = najmenej obchodov, ale najcistejsie.", group="🕐 Seansy")
+nyRangeMinutes     = input.int(15, "New York: dlzka rangu", minval=1, maxval=60, tooltip="Kolko minut od otvorenia NY tvori opening range. Kratsi range = viac signalov a viac falosnych, dlhsi = menej obchodov, ale cistejsich. Range sa zatvara na hranici sviecky grafu, takze hodnota ma zmysel az od dlzky sviecky vyssie (na 5m grafe je 1, 2 aj 5 to iste).", group="🕐 Seansy")
 nyEndH             = input.int(15, "New York: koniec seansy (H)", minval=0, maxval=23, tooltip="Hodina, kedy sa NY pozicie zatvaraju a prestava sa vstupovat.", group="🕐 Seansy")
 nyEndM             = input.int(55, "New York: koniec seansy (M)", minval=0, maxval=59, tooltip="Minuta konca NY seansy.", group="🕐 Seansy")
 lonStartH          = input.int(8, "Londyn: otvorenie (H)", minval=0, maxval=23, tooltip="Hodina otvorenia londynskej seansy v pasme Europe/London. Standardne 8:00.", group="🕐 Seansy")
 lonStartM          = input.int(0, "Londyn: otvorenie (M)", minval=0, maxval=59, tooltip="Minuta otvorenia londynskej seansy.", group="🕐 Seansy")
-lonRangeMinutes    = input.string("15", "Londyn: dlzka rangu", options=["15", "30", "60"], tooltip="Kolko minut od otvorenia Londyna tvori opening range.", group="🕐 Seansy")
+lonRangeMinutes    = input.int(15, "Londyn: dlzka rangu", minval=1, maxval=60, tooltip="Kolko minut od otvorenia Londyna tvori opening range. Rovnako ako pri NY sa zaokruhluje nahor na sviecku grafu.", group="🕐 Seansy")
 lonEndH            = input.int(16, "Londyn: koniec seansy (H)", minval=0, maxval=23, tooltip="Hodina, kedy sa londynske pozicie zatvaraju a prestava sa vstupovat.", group="🕐 Seansy")
 lonEndM            = input.int(30, "Londyn: koniec seansy (M)", minval=0, maxval=59, tooltip="Minuta konca londynskej seansy.", group="🕐 Seansy")
 
@@ -41,6 +41,10 @@ weekdaysOnly       = input.bool(true, "Obchoduj len Pondelok-Piatok", tooltip="V
 
 slMode             = input.string("opposite", "Umiestnenie SL", options=["opposite", "mid", "range_pct", "atr", "break_candle"], tooltip="opposite = na opacnu hranu rangu (= 100 % vysky rangu); mid = na stred rangu (= 50 %); range_pct = do rangu o nastavene percento jeho vysky, meria sa od prerazenej hranice; atr = nasobok ATR od vstupu; break_candle = za low/high prerazovacej sviecky (najtesnejsi).", group="🛡️ Stop loss")
 slRangePct         = input.float(50, "SL: hlbka do rangu (% vysky rangu)", minval=5, maxval=150, step=5, tooltip="Pouzije sa pri umiestneni SL nastavenom na range_pct. Meria sa od prerazenej hranice smerom do rangu: 25 % = tesny stop tesne pod hranicou, 50 % = stred rangu, 100 % = opacna hrana. Nad 100 % ide stop az za range.", group="🛡️ Stop loss")
+emaLen             = input.int(200, "EMA: dlzka", minval=2, maxval=500, tooltip="Dlzka exponencialneho priemeru zo zatvaracich cien. Plati pre vsetky tri EMA funkcie aj pre ciaru na grafe.", group="📈 EMA")
+emaFilter          = input.bool(false, "EMA: filter smeru prerazenia", tooltip="Long len ked prerazovacia sviecka zavrie nad EMA, short len ked pod nou. Klasicke ORB + EMA200.", group="📈 EMA")
+emaRangeFilter     = input.bool(false, "EMA: filter dna podla rangu", tooltip="Obchoduju sa len dni, kde cely opening range vznikol na jednej strane EMA. EMA vnutri rangu = den sa zahodi.", group="📈 EMA")
+emaExit            = input.bool(false, "EMA: vystup pri navrate cez priemer", tooltip="Zavrie poziciu na zavreti sviecky na opacnej strane EMA. Stop loss aj take profit zostavaju v platnosti.", group="📈 EMA")
 atrLen             = input.int(14, "ATR dlzka", minval=2, maxval=100, tooltip="Dlzka ATR (Wilder) pre vsetky ATR jednotky.", group="🛡️ Stop loss")
 slAtrMult          = input.float(1.0, "SL vzdialenost (nasobok ATR)", minval=0.1, maxval=10.0, step=0.1, tooltip="Pouzije sa len ked je umiestnenie SL nastavene na atr.", group="🛡️ Stop loss")
 slBufferAtr        = input.float(0.1, "Buffer za SL uroven (nasobok ATR)", minval=0.0, maxval=2.0, step=0.05, tooltip="Kolko sa prida za vypocitanu SL uroven, aby stop prezil bezny knot.", group="🛡️ Stop loss")
@@ -57,6 +61,7 @@ closeAtSessionEnd  = input.bool(true, "Zatvor poziciu na konci seansy", tooltip=
 
 riskDollar         = input.float(100, "Riziko na obchod ($)", minval=0, maxval=100000, step=10, tooltip="Velkost pozicie = riziko / vzdialenost SL. 0 = 1 kontrakt.", group="💰 Riziko")
 
+showEma            = input.bool(false, "Kreslit EMA", tooltip="Ciara EMA na grafe. Na obchody nema vplyv.", group="🎨 Vizualizacia")
 showRange          = input.bool(true, "Kreslit opening range", tooltip="Zapne box opening rangu pre kazdu zapnutu seansu.", group="🎨 Vizualizacia")
 showLevels         = input.bool(true, "Kreslit hranice rangu", tooltip="Zapne predlzene ciary high a low rangu cez zvysok seansy.", group="🎨 Vizualizacia")
 

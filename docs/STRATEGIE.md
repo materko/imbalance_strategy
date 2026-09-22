@@ -25,7 +25,7 @@ poradí, čo si smie stratégia určiť sama a kedy je hotová.
 | `structure` | Market Structure BOS / CHoCH | 18 | druhý archetyp (štruktúra, protitrendový `sweep`); [ANALYTIKA](../tradebot/strategies/structure/docs/ANALYTIKA.md) |
 | `demo_breakout` | Demo Donchian Breakout | 8 | ukážka, ktorá overuje rámec end-to-end; nie je to obchodné odporúčanie |
 | `divergence` | Divergence — divergencie indikátorov v smere supertrendu | 65 | port Freqtrade stratégie z r. 2022 (bez Pine); vyššie TF si skladá sama z barov grafu; [PORT](../tradebot/strategies/divergence/docs/PORT.md), [ANALYTIKA](../tradebot/strategies/divergence/docs/ANALYTIKA.md) |
-| `orb` | ORB — Opening Range Breakout | 44 | prvých 15/30/60 min seansy tvorí range, obchoduje sa jeho prerazenie |
+| `orb` | ORB — Opening Range Breakout | 49 | prvých 1–60 min seansy tvorí range, obchoduje sa jeho prerazenie; voliteľná EMA (filter smeru, filter dňa, výstup) |
 | `gap` | Gap Fill | 34 | otvárací gap a jeho zatvorenie |
 | `range` | Range Breakout | 42 | konsolidácia kdekoľvek na grafe a jej prerazenie; [ANALYTIKA](../tradebot/strategies/range/docs/ANALYTIKA.md) |
 | `sdzone` | SD Zones | 44 | dopyt/ponuka zo základne a impulzu (Skorupinski); [ANALYTIKA](../tradebot/strategies/sdzone/docs/ANALYTIKA.md) |
