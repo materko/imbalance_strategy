@@ -367,8 +367,12 @@ b7ShowBg    = input.bool(false, "Big 7: podfarbiť pozadie podľa smeru", group=
      tooltip="Pozor, IBS už pozadím kreslí seansy — ak si to zapneš, farby sa budú miešať.")
 
 // ---- farby (vlastné, nezávislé od PAL_* palety stratégie) ---- //
-color B7_UP   = #00e5ff
-color B7_DN   = #ff2e7e
+_GB7P = "🧠 Big 7 — panel pod cenou"
+b7Palette = input.string("Neón", "Big 7: paleta", options=["Neón", "Klasika"], group=_GB7,
+     tooltip="Neón = cyan / magenta, na čiernom pozadí svieti. Klasika = zelená / červená.")
+
+color B7_UP   = b7Palette == "Neón" ? #00e5ff : #00e676
+color B7_DN   = b7Palette == "Neón" ? #ff2e7e : #ff1744
 color B7_FLAT = #90a4ae
 
 // ---- percentuálna zmena jedného symbolu od denného ukotvenia ---- //
@@ -503,6 +507,48 @@ f_b7Allows(int typ) =>
 
 // ---- vizuál (voliteľný, na obchody nemá vplyv) ---- //
 color b7Col = na(b7Score) ? B7_FLAT : b7Score > 0 ? B7_UP : B7_DN
+
+// ---- PANEL POD CENOU ------------------------------------------------------ //
+// Pine nevie poslať plot zo `strategy()` do vlastného panelu pod grafom —
+// `force_overlay` funguje len opačným smerom. Skóre sa preto kreslí PRIAMO
+// v cenovom grafe: pod najnižšou cenou sa vyhradí pásmo a skóre −100…+100 sa
+// doň premietne. Vyzerá to ako panel, ale je to stále cenová os, takže si sviečky
+// o toto pásmo „posunie" mierka grafu. Menšia výška = menší zásah do sviečok.
+b7PanelOn   = input.bool(true, "Big 7: panel pod cenou", group=_GB7P,
+     tooltip="Kreslí skóre ako pásmo pod sviečkami. Vypni, ak ti to stláča sviečky viac, " +
+     "než je únosné — čiaru máš aj tak v samostatnom indikátore, počíta to isté.")
+b7PanelLook = input.int(200, "Panel: koľko sviečok určuje mierku", minval=50, maxval=1000, group=_GB7P,
+     tooltip="Z tohto počtu sviečok sa berie cenový rozsah, podľa ktorého sa panel umiestni a zväčší.")
+b7PanelH    = input.float(15, "Panel: výška (% cenového rozsahu)", minval=5, maxval=60, step=1, group=_GB7P)
+b7PanelGap  = input.float(6,  "Panel: medzera pod cenou (%)", minval=0, maxval=50, step=1, group=_GB7P)
+b7PanelGlow = input.bool(true, "Panel: neónová žiara okolo čiary", group=_GB7P,
+     tooltip="Tá istá čiara v troch vrstvách nad sebou, každá širšia a priesvitnejšia — " +
+     "vlastné tiene sa v Pine kresliť nedajú, toto je jediný spôsob.")
+
+float b7pHi   = ta.highest(high, b7PanelLook)
+float b7pLo   = ta.lowest(low,   b7PanelLook)
+float b7pRng  = b7pHi - b7pLo
+float b7pTop  = b7pLo - b7pRng * b7PanelGap / 100.0
+float b7pHgt  = b7pRng * b7PanelH / 100.0
+float b7pZero = b7pTop - b7pHgt / 2.0
+
+//: skóre −100…+100 -> cena vnútri vyhradeného pásma
+f_b7y(float sc) =>
+    na(sc) or na(b7pZero) ? float(na) : b7pZero + math.max(-100.0, math.min(100.0, sc)) / 100.0 * (b7pHgt / 2.0)
+
+float b7yScore = b7PanelOn ? f_b7y(b7Score)  : na
+float b7yZero  = b7PanelOn ? b7pZero         : na
+float b7yUp    = b7PanelOn ? f_b7y(b7Th)     : na
+float b7yDn    = b7PanelOn ? f_b7y(-b7Th)    : na
+
+plot(b7yUp, "Big 7: prah +", color=color.new(B7_UP, 55), display=display.pane)
+plot(b7yDn, "Big 7: prah −", color=color.new(B7_DN, 55), display=display.pane)
+pB7Zero = plot(b7yZero, "Big 7: nula", color=color.new(#607d8b, 45), display=display.pane)
+plot(b7PanelOn and b7PanelGlow ? b7yScore : na, "Big 7: žiara 3", color=color.new(b7Col, 90), linewidth=10, display=display.pane)
+plot(b7PanelOn and b7PanelGlow ? b7yScore : na, "Big 7: žiara 2", color=color.new(b7Col, 82), linewidth=6,  display=display.pane)
+pB7Line = plot(b7yScore, "Big 7: skóre", color=b7Col, linewidth=2, display=display.pane)
+fill(pB7Line, pB7Zero, color=na(b7Score) ? na : color.new(b7Col, 78), title="Big 7: výplň")
+
 bgcolor(b7ShowBg and useBig7Filter and b7InRth and not na(b7Score)
      ? color.new(b7Col, 94) : na, title="Big 7 smer")
 

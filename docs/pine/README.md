@@ -12,6 +12,7 @@ Pine zdroje portovaných stratégií sú inde: `tradebot/strategies/<kľúč>/do
 | [big7_basket_ema.pine](big7_basket_ema.pine) | smer Nasdaqu: vážený kôš Big 7 + SOXX + QQQ zlúčené do skóre −100…+100, signály LONG / SELL a varovania na úzky ťah — vysvetlivky k panelu sú v [big7_vysvetlivky.md](big7_vysvetlivky.md) |
 | [big7_do_ibs.pine](big7_do_ibs.pine) | ten istý výpočet ako blok do IBS stratégie (Pine v6) — filter smeru obchodov; postup vloženia je v [big7_do_ibs.md](big7_do_ibs.md) |
 | [ibs_big7.pine](ibs_big7.pine) | celá IBS Imbalance Breakout Strategy (v6) s už vloženým blokom Big 7 — na priame nahradenie skriptu v Pine editore |
+| [orb_big7.pine](orb_big7.pine) | celá ORB Opening Range Breakout + PickMyTrade (v5) s už vloženým blokom Big 7 |
 
 ## Prečo Big 7 nebeží v našom Testeri
 
