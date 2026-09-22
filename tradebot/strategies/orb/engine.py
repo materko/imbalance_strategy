@@ -9,10 +9,6 @@ Priebeh jednej seansy v jeden deň:
   5. SL a TP sa počítajú podľa ``slMode`` / ``tpMode``
   6. na konci seansy sa pozícia zatvorí (``closeAtSessionEnd``)
 
-EMA je voliteľná vrstva nad tým všetkým — vie filtrovať smer prerazenia, zahodiť celý
-deň, keď range nevznikol na jednej strane priemeru, zavrieť pozíciu pri návrate cez
-priemer, alebo sa len kresliť. Všetky štyri roly sú nezávislé prepínače, predvolene vypnuté.
-
 Seansy sú nezávislé: New York a Londýn majú vlastný range, vlastný denný limit obchodov
 aj vlastný koniec. Prekrývajú sa (NY 9:30 = Londýn 14:30), takže sa spracúvajú v poradí
 a nová pozícia sa neotvorí, kým je iná otvorená — o to sa stará ``ctx.position_size``.
@@ -29,14 +25,13 @@ from zoneinfo import ZoneInfo
 from tradebot.core.drawing import DrawBox, DrawCommand, DrawLabel, DrawLine, LabelStyle
 from tradebot.core.engine import EngineOutput
 from tradebot.core.history import BarHistory
-from tradebot.core.ma import EMA
-from tradebot.core.warmup import Warmup, ema_bars
+from tradebot.core.warmup import Warmup
 from tradebot.core.orders import MarketContext, OrderAction, OrderIntent
 from tradebot.core.risk import TradePlan, TrailingPlan
 from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
 
 from .config import EntryMode, ORBConfig, SessionWindow, SlMode, TpMode
-from .drawing import ORB_BOX, ORB_EMA, ORB_ENTRY, ORB_HIGH, ORB_LOW
+from .drawing import ORB_BOX, ORB_ENTRY, ORB_HIGH, ORB_LOW
 
 __all__ = ["ORBEngine"]
 
@@ -45,7 +40,6 @@ _SHORT_COLOR = "#ef4444"
 #: Každá seansa má vlastnú farbu, nech sa na grafe nepomýlia.
 _RANGE_COLORS = {"ny": "#3b82f628", "london": "#a855f728"}
 _LEVEL_COLORS = {"ny": "#3b82f6b3", "london": "#a855f7b3"}
-_EMA_COLOR = "#f59e0b"
 
 
 @dataclass
@@ -63,9 +57,6 @@ class _SessionState:
     break_level: float = 0.0
     break_bar: int = -1
     break_extreme: float = 0.0
-    #: Pri `emaRangeFilter`: na ktorej strane EMA celý range vznikol. `None` = filter je
-    #: vypnutý alebo sa ešte nerozhodlo; deň s EMA vnútri rangu sa zahodí cez `ok`.
-    ema_side: Direction | None = None
 
     def reset(self, day: tuple[int, int, int], ts_ms: int) -> None:
         self.day = day
@@ -77,7 +68,6 @@ class _SessionState:
         self.trades = 0
         self.break_dir = None
         self.break_bar = -1
-        self.ema_side = None
 
 
 class ORBEngine:
@@ -95,18 +85,9 @@ class ORBEngine:
         #: v ktorej seanse vznikla otvorená pozícia — jej koniec ju aj zatvorí
         self._open_session: str | None = None
 
-        #: EMA sa počíta, len keď ju niečo potrebuje — inak by každý beh platil za nič.
-        self._ema = EMA(int(cfg.emaLen)) if cfg.ema_needed else None
-        #: posledný nakreslený bod čiary EMA (čas, hodnota) — úsečka sa kreslí z neho
-        self._ema_prev: tuple[int, float] | None = None
-
         #: predhistória grafu: ATR a SMA objemu (seansa sa do nej nepočíta — `tradebot.core.warmup`)
         self.warmup = Warmup(self.chart_tf_minutes).add(
             f"ATR {cfg.atrLen} + SMA objemu {cfg.volSmaLen}", int(cfg.atrLen) + int(cfg.volSmaLen) + 16)
-        if cfg.ema_uses_history:
-            # Dlhá EMA je drahá: EMA(200) chce 500 barov, čo je na 3m grafe vyše dňa
-            # navyše pred prvým obchodom. Kreslenie ju do rozbehu zámerne nepridáva.
-            self.warmup.add(f"EMA {cfg.emaLen}", ema_bars(int(cfg.emaLen)))
         self.required_history = self.warmup.chart_bars
         self.history = BarHistory(maxlen=self.required_history + 16, atr_len=int(cfg.atrLen))
         self._pending: tuple[str, int] | None = None
@@ -200,21 +181,6 @@ class ORBEngine:
         width_pct = (st.high - st.low) / price * 100.0
         return self.cfg.minRangePct <= width_pct <= self.cfg.maxRangePct
 
-    def _ema_side_of_range(self, st: _SessionState, ema: float | None) -> tuple[bool, Direction | None]:
-        """Na ktorej strane EMA leží celý opening range — a či sa deň vôbec obchoduje.
-
-        EMA vnútri rangu znamená, že trh sa otvoril presne na priemere: nie je to ani
-        býčí, ani medvedí deň, tak sa zahodí celý. To je zmysel tohto filtra — nie
-        obmedziť smer na prerazovacom bare (to robí `emaFilter`), ale vybrať dni.
-        """
-        if ema is None or st.high is None or st.low is None:
-            return False, None
-        if st.low > ema:
-            return True, Direction.LONG
-        if st.high < ema:
-            return True, Direction.SHORT
-        return False, None
-
     def _volume_ok(self, bar: Bar) -> bool:
         if not self.cfg.useVolumeFilter:
             return True
@@ -252,33 +218,14 @@ class ORBEngine:
         if ctx.position_size == 0.0:
             self._open_session = None
 
-        ema = self._ema.push(bar.close) if self._ema is not None else None
-        if cfg.showEma and ema is not None:
-            if self._ema_prev is not None:
-                prev_ms, prev_v = self._ema_prev
-                out.drawings.append(DrawLine(ORB_EMA, prev_ms, prev_v, bar.time, ema,
-                                             _EMA_COLOR, obj_id=f"orb_ema.{bar.time}",
-                                             text=f"EMA {cfg.emaLen}"))
-            self._ema_prev = (bar.time, ema)
-
-        # ---- výstup cez EMA: platí pre celý účet, nie pre jednu seansu ---- #
-        if cfg.emaExit and ema is not None and ctx.position_size != 0.0:
-            long = ctx.position_size > 0.0
-            if (bar.close < ema) if long else (bar.close > ema):
-                out.close_session = True
-                for order_id in ctx.open_order_ids:
-                    out.orders.append(OrderIntent(OrderAction.CLOSE, order_id, idx,
-                                                  reason=f"návrat cez EMA {cfg.emaLen}"))
-                self._open_session = None
-
         for sess in self.sessions:
-            self._on_session(out, sess, bar, atr, idx, ctx, ema)
+            self._on_session(out, sess, bar, atr, idx, ctx)
         return out
 
     # ------------------------------------------------------------------ #
 
     def _on_session(self, out: EngineOutput, sess: SessionWindow, bar: Bar, atr: float,
-                    idx: int, ctx: MarketContext, ema: float | None = None) -> None:
+                    idx: int, ctx: MarketContext) -> None:
         cfg = self.cfg
         st = self._state[sess.key]
         local = datetime.fromtimestamp(bar.time / 1000, tz=self._zones[sess.key])
@@ -301,8 +248,6 @@ class ORBEngine:
         if not st.closed and minutes >= sess.range_end_minutes and st.high is not None and st.low is not None:
             st.closed = True
             st.ok = self._range_passes(st, bar.close)
-            if st.ok and cfg.emaRangeFilter:
-                st.ok, st.ema_side = self._ema_side_of_range(st, ema)
             if cfg.showRange:
                 out.drawings.append(DrawBox(
                     ORB_BOX, st.open_ms, st.high, bar.time, st.low,
@@ -348,14 +293,6 @@ class ORBEngine:
         if st.break_dir is None:
             long_break = cfg.allow_long and bar.close > hi + buffer
             short_break = cfg.allow_short and bar.close < lo - buffer
-            if cfg.emaFilter:
-                # Bez hodnoty EMA sa filter nedá vyhodnotiť — vtedy sa neobchoduje,
-                # rovnako ako pri objemovom filtri bez dosť barov.
-                long_break = long_break and ema is not None and bar.close > ema
-                short_break = short_break and ema is not None and bar.close < ema
-            if st.ema_side is not None:
-                long_break = long_break and st.ema_side is Direction.LONG
-                short_break = short_break and st.ema_side is Direction.SHORT
             if not (long_break or short_break):
                 return
             if not self._volume_ok(bar) or not self._close_position_ok(bar, long_break):

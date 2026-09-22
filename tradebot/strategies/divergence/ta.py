@@ -6,9 +6,8 @@ v MultiCharts aj v emulátore, takže každý indikátor tu má stav a metódu `
 
 Čo sa oproti knižničným verziám líši (vedome, drobnosti v rozbehu):
 
-* SMA, EMA a Wilderov RMA sú v jadre (`tradebot.core.ma`) a len sa odtiaľ re-exportujú,
-  aby ich mohli používať aj iné stratégie. Rozbiehajú sa z jednoduchého priemeru prvých
-  `n` hodnôt (ako talib), nie z prvej hodnoty (ako Pine `ta.ema`).
+* EMA a Wilderov RMA sa rozbiehajú z jednoduchého priemeru prvých `n` hodnôt (ako talib),
+  nie z prvej hodnoty (ako Pine `ta.ema`). Po ~3n baroch je rozdiel zanedbateľný.
 * Heikin Ashi je štandardná (`ha_high = max(high, ha_open, ha_close)`); qtpylib, ktoré
   pôvodná stratégia použila, berie do `ha_high` surové `open`/`close`. Štandard je to,
   čo kreslí TradingView aj MultiCharts.
@@ -23,7 +22,6 @@ from __future__ import annotations
 
 from collections import deque
 
-from tradebot.core.ma import EMA, RMA, SMA
 from tradebot.core.types import Bar
 from tradebot.core.warmup import decay_bars
 
@@ -83,6 +81,68 @@ class HeikinAshi:
 
     #: `ha_open` je priemer predchádzajúceho `ha_open` a `ha_close` — dozvuk s alpha 1/2
     warmup_bars = decay_bars(0.5)
+
+
+class SMA:
+    __slots__ = ("n", "_q", "_sum")
+
+    def __init__(self, n: int) -> None:
+        self.n = max(1, int(n))
+        self._q: deque = deque(maxlen=self.n)
+        self._sum = 0.0
+
+    def push(self, v: float) -> float | None:
+        if len(self._q) == self.n:
+            self._sum -= self._q[0]
+        self._q.append(v)
+        self._sum += v
+        return self._sum / self.n if len(self._q) == self.n else None
+
+    @property
+    def value(self) -> float | None:
+        return self._sum / self.n if len(self._q) == self.n else None
+
+    @property
+    def warmup_bars(self) -> int:
+        return self.n
+
+
+class _Smooth:
+    """Spoločný základ EMA/RMA: rozbeh z SMA prvých `n` hodnôt, potom rekurzia."""
+
+    __slots__ = ("n", "alpha", "value", "_seed")
+
+    def __init__(self, n: int, alpha: float) -> None:
+        self.n = max(1, int(n))
+        self.alpha = alpha
+        self.value: float | None = None
+        self._seed = SMA(self.n)
+
+    def push(self, v: float) -> float | None:
+        if self.value is None:
+            seed = self._seed.push(v)
+            if seed is not None:
+                self.value = seed
+            return self.value
+        self.value = self.value + self.alpha * (v - self.value)
+        return self.value
+
+    @property
+    def warmup_bars(self) -> int:
+        """SMA štart + dozvuk štartovacej hodnoty — `tradebot.core.warmup`."""
+        return self.n + decay_bars(self.alpha)
+
+
+class EMA(_Smooth):
+    def __init__(self, n: int) -> None:
+        super().__init__(n, 2.0 / (int(n) + 1))
+
+
+class RMA(_Smooth):
+    """Wilderov kĺzavý priemer (Pine `ta.rma`, základ ATR aj RSI)."""
+
+    def __init__(self, n: int) -> None:
+        super().__init__(n, 1.0 / int(n))
 
 
 class RSI:
