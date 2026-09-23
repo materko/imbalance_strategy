@@ -3,15 +3,14 @@
  "created": "2026-09-11T20:31:56.814825+00:00",
  "seq": 5,
  "strategy": "ibs",
- "config_key": "mixed",
+ "config_key": "18ac4a826b",
  "market": "NAS100/USD|3m",
  "profile": "FINAL_winrate54_RRR1.3",
  "timeranges": [
   "20211001-20221001",
   "20221001-20231001",
   "20231001-20241001",
-  "20240904-20250904",
-  "20250904-20260904"
+  "20240904-20250904"
  ],
  "timeframes": [
   "3m"
