@@ -75,6 +75,12 @@ namespace TradeBot.Strategies.OrbNinja
         public int minClosePosPct = 50;
         public bool weekdaysOnly = true;
 
+        // ---- EMA --------------------------------------------------------------
+        public int emaLen = 200;
+        public bool emaFilter = false;
+        public bool emaRangeFilter = false;
+        public bool emaExit = false;
+
         // ---- stop loss --------------------------------------------------------
         public OrbSlMode slMode = OrbSlMode.Opposite;
         public double slRangePct = 50.0;
@@ -100,6 +106,7 @@ namespace TradeBot.Strategies.OrbNinja
         // ---- vizualizacia -----------------------------------------------------
         public bool showRange = true;
         public bool showLevels = true;
+        public bool showEma = false;
 
         // ---- rozsirenia portu -------------------------------------------------
         /// <summary>Pine `tickDollarValue`; pouziva sa len s `legacyPineSizing`.</summary>
@@ -116,6 +123,13 @@ namespace TradeBot.Strategies.OrbNinja
             { "minSlDistance", "pct" }, { "breakBufferAtr", "atr" }, { "slAtrMult", "atr" },
             { "slBufferAtr", "atr" }, { "tpAtrMult", "atr" },
         };
+
+        /// <summary>Ovplyvnuje EMA obchody? Potom musi byt rozbehnuta, kym sa smie obchodovat.
+        /// Samotne kreslenie (`showEma`) rozbeh nepredlzuje.</summary>
+        public bool EmaUsesHistory { get { return emaFilter || emaRangeFilter || emaExit; } }
+
+        /// <summary>Pocitat EMA vobec? Kreslenie ju potrebuje tiez.</summary>
+        public bool EmaNeeded { get { return EmaUsesHistory || showEma; } }
 
         public bool AllowLong { get { return tradeDirection != OrbDirection.ShortOnly; } }
         public bool AllowShort { get { return tradeDirection != OrbDirection.LongOnly; } }
@@ -162,7 +176,7 @@ namespace TradeBot.Strategies.OrbNinja
             if (t == typeof(bool)) return (bool)raw;
             if (t == typeof(int))
             {
-                // dlzka rangu je v Pythone enum s hodnotou "15" / "30" / "60"
+                // dlzka rangu byvala enum ("15" / "30" / "60") - stare profily ju nesu ako retazec
                 string text = raw as string;
                 if (text != null) return int.Parse(text, CultureInfo.InvariantCulture);
                 return Json.ToInt(raw);
@@ -228,5 +242,6 @@ namespace TradeBot.Strategies.OrbNinja
         public const string High = "orb_high";
         public const string Low = "orb_low";
         public const string Entry = "orb_entry";
+        public const string Ema = "orb_ema";
     }
 }

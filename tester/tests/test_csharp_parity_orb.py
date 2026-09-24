@@ -20,7 +20,7 @@ from tester.compare import csharp_parity  # noqa: E402
 from tester.tests.test_csharp_parity import _random_walk, _with_ts  # noqa: E402
 from tradebot.core.types import SizeSpec  # noqa: E402
 from tradebot.strategies.orb.config import (  # noqa: E402
-    EntryMode, RangeLength, SessionMode, SlMode, TpMode, TradeDirection,
+    EntryMode, SessionMode, SlMode, TpMode, TradeDirection,
 )
 
 PROFILE = "nas100_dukascopy_3m"
@@ -38,10 +38,12 @@ VARIANTS = {
                                   "tpMode": TpMode.MEASURED, "retestMaxBars": 4},
     "stop_break_candle_atr": {"entryMode": EntryMode.STOP, "slMode": SlMode.BREAK_CANDLE, "tpMode": TpMode.ATR},
     "mid_trailing_volume": {"slMode": SlMode.MID, "enableTrailing": True, "useVolumeFilter": True,
-                            "volMultiplier": 1.0, "nyRangeMinutes": RangeLength.M30},
+                            "volMultiplier": 1.0, "nyRangeMinutes": 30, "lonRangeMinutes": 7},
     "atr_long_only_legacy": {"slMode": SlMode.ATR, "tradeDirection": TradeDirection.LONG_ONLY,
                              "legacyPineSizing": True, "closeAtSessionEnd": False,
                              "minSlDistance": SizeSpec(0.02, "pct")},
+    "ema_filter_exit_kreslenie": {"emaLen": 30, "emaFilter": True, "emaExit": True, "showEma": True},
+    "ema_filter_dna": {"emaLen": 50, "emaRangeFilter": True, "entryMode": EntryMode.RETEST, "retestMaxBars": 6},
 }
 
 

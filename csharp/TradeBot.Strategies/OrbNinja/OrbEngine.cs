@@ -9,6 +9,9 @@
 //   5. SL a TP sa pocitaju podla `slMode` / `tpMode`
 //   6. na konci seansy sa pozicia zatvori (`closeAtSessionEnd`)
 //
+// EMA je volitelna vrstva nad tym vsetkym - filter smeru prerazenia, filter dna (range cely na jednej
+// strane priemeru), vystup pri navrate cez priemer, alebo len ciara. Styri nezavisle prepinace.
+//
 // Seansy su nezavisle (New York a Londyn maju vlastny range, denny limit aj koniec) a spracuvaju
 // sa v poradi; nova pozicia sa neotvori, kym je ina otvorena.
 //
@@ -26,6 +29,7 @@ namespace TradeBot.Strategies.OrbNinja
     {
         private const string LongColor = "#10b981";
         private const string ShortColor = "#ef4444";
+        private const string EmaColor = "#f59e0b";
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>Stav jednej seansy v jeden den.</summary>
@@ -42,6 +46,8 @@ namespace TradeBot.Strategies.OrbNinja
             public double BreakLevel;
             public int BreakBar = -1;
             public double BreakExtreme;
+            /// <summary>Pri `emaRangeFilter`: na ktorej strane EMA cely range vznikol.</summary>
+            public Direction? EmaSide;
 
             public void Reset(string day, long tsMs)
             {
@@ -54,6 +60,7 @@ namespace TradeBot.Strategies.OrbNinja
                 Trades = 0;
                 BreakDir = null;
                 BreakBar = -1;
+                EmaSide = null;
             }
         }
 
@@ -73,6 +80,12 @@ namespace TradeBot.Strategies.OrbNinja
         /// <summary>nevyplneny vstup: id orderu a bar, na ktorom vznikol</summary>
         private string _pendingId;
         private int _pendingBar;
+
+        /// <summary>EMA sa pocita, len ked ju nieco potrebuje (null inak).</summary>
+        private readonly Ema _ema;
+        /// <summary>posledny nakresleny bod ciary EMA - usecka sa kresli z neho</summary>
+        private long _emaPrevMs;
+        private double? _emaPrev;
 
         public OrbEngine(Dictionary<string, object> config, InstrumentSpec inst, int chartTfMinutes)
             : this(OrbConfig.FromDict(config), inst, chartTfMinutes)
@@ -98,6 +111,9 @@ namespace TradeBot.Strategies.OrbNinja
             // predhistoria grafu: ATR a SMA objemu (seansa sa do nej nepocita)
             _warmup = new Warmup(_chartTfMinutes).Add(
                 "ATR " + cfg.atrLen + " + SMA objemu " + cfg.volSmaLen, cfg.atrLen + cfg.volSmaLen + 16);
+            if (cfg.EmaUsesHistory)
+                _warmup.Add("EMA " + cfg.emaLen, WarmupMath.EmaBars(cfg.emaLen));
+            _ema = cfg.EmaNeeded ? new Ema(cfg.emaLen) : null;
             _requiredHistory = _warmup.ChartBars;
             History = new BarHistory(_requiredHistory + 16, cfg.atrLen);
         }
@@ -258,11 +274,56 @@ namespace TradeBot.Strategies.OrbNinja
             if (ctx.PositionSize != 0.0) _pendingId = null;
             if (ctx.PositionSize == 0.0) _openSession = null;
 
-            for (int i = 0; i < _sessions.Length; i++) OnSession(o, i, bar, atr, idx, ctx);
+            double? ema = _ema != null ? _ema.Push(bar.Close) : null;
+            if (Cfg.showEma && ema.HasValue)
+            {
+                if (_emaPrev.HasValue)
+                {
+                    DrawLine line = new DrawLine(OrbKinds.Ema, _emaPrevMs, _emaPrev.Value, bar.Time, ema.Value, EmaColor);
+                    line.ObjId = "orb_ema." + bar.Time.ToString(CultureInfo.InvariantCulture);
+                    line.Text = "EMA " + Cfg.emaLen;
+                    o.Drawings.Add(line);
+                }
+                _emaPrevMs = bar.Time;
+                _emaPrev = ema;
+            }
+
+            // ---- vystup cez EMA: plati pre cely ucet, nie pre jednu seansu ---- //
+            if (Cfg.emaExit && ema.HasValue && ctx.PositionSize != 0.0)
+            {
+                bool isLong = ctx.PositionSize > 0.0;
+                if (isLong ? bar.Close < ema.Value : bar.Close > ema.Value)
+                {
+                    o.CloseSession = true;
+                    foreach (string orderId in SortedIds(ctx))
+                        o.Orders.Add(new OrderIntent(OrderAction.Close, orderId, idx, "návrat cez EMA " + Cfg.emaLen));
+                    _openSession = null;
+                }
+            }
+
+            for (int i = 0; i < _sessions.Length; i++) OnSession(o, i, bar, atr, idx, ctx, ema);
             return o;
         }
 
-        private void OnSession(EngineOutput o, int si, Bar bar, double atr, int idx, MarketContext ctx)
+        private static List<string> SortedIds(MarketContext ctx)
+        {
+            List<string> ids = new List<string>(ctx.OpenOrderIds);
+            ids.Sort(StringComparer.Ordinal);
+            return ids;
+        }
+
+        /// <summary>Na ktorej strane EMA lezi cely opening range - a ci sa den vobec obchoduje.
+        /// EMA vnutri rangu = trh sa otvoril na priemere, den sa zahodi.</summary>
+        private static bool EmaSideOfRange(SessionState st, double? ema, out Direction? side)
+        {
+            side = null;
+            if (!ema.HasValue || !st.High.HasValue || !st.Low.HasValue) return false;
+            if (st.Low.Value > ema.Value) { side = Direction.Long; return true; }
+            if (st.High.Value < ema.Value) { side = Direction.Short; return true; }
+            return false;
+        }
+
+        private void OnSession(EngineOutput o, int si, Bar bar, double atr, int idx, MarketContext ctx, double? ema)
         {
             OrbSession sess = _sessions[si];
             SessionState st = _state[si];
@@ -291,6 +352,12 @@ namespace TradeBot.Strategies.OrbNinja
             {
                 st.Closed = true;
                 st.Ok = RangePasses(st, bar.Close);
+                if (st.Ok && Cfg.emaRangeFilter)
+                {
+                    Direction? side;
+                    st.Ok = EmaSideOfRange(st, ema, out side);
+                    st.EmaSide = side;
+                }
                 if (Cfg.showRange)
                 {
                     DrawBox box = new DrawBox(OrbKinds.Box, st.OpenMs, st.High.Value, bar.Time, st.Low.Value,
@@ -320,9 +387,7 @@ namespace TradeBot.Strategies.OrbNinja
                 if (Cfg.closeAtSessionEnd && ctx.PositionSize != 0.0 && _openSession == sess.Key)
                 {
                     o.CloseSession = true;
-                    List<string> ids = new List<string>(ctx.OpenOrderIds);
-                    ids.Sort(StringComparer.Ordinal);
-                    foreach (string orderId in ids)
+                    foreach (string orderId in SortedIds(ctx))
                         o.Orders.Add(new OrderIntent(OrderAction.Close, orderId, idx, "koniec seansy " + sess.Title));
                     _openSession = null;
                 }
@@ -344,6 +409,17 @@ namespace TradeBot.Strategies.OrbNinja
             {
                 bool longBreak = Cfg.AllowLong && bar.Close > hi + buffer;
                 bool shortBreak = Cfg.AllowShort && bar.Close < lo - buffer;
+                if (Cfg.emaFilter)
+                {
+                    // bez hodnoty EMA sa filter neda vyhodnotit - vtedy sa neobchoduje
+                    longBreak = longBreak && ema.HasValue && bar.Close > ema.Value;
+                    shortBreak = shortBreak && ema.HasValue && bar.Close < ema.Value;
+                }
+                if (st.EmaSide.HasValue)
+                {
+                    longBreak = longBreak && st.EmaSide.Value == Direction.Long;
+                    shortBreak = shortBreak && st.EmaSide.Value == Direction.Short;
+                }
                 if (!(longBreak || shortBreak)) return;
                 if (!VolumeOk(bar) || !ClosePositionOk(bar, longBreak)) return;
                 st.BreakDir = longBreak ? Direction.Long : Direction.Short;

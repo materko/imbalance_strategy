@@ -23,6 +23,11 @@ Londýn s 30/60-min rangom, short-only New York bez zatvárania na konci seansy,
 | NAS100 Dukascopy (`--exchange nas100`), 2021-01 – 2026-09 | 647 400 na variant | 40 863 | **0** |
 | MNQ Databento (`--exchange mnq`) | celý sklad | 53 606 | **0** |
 
+**Doplnené 2026-09-25** po zmene ORB na `main` (dĺžka rangu 1–60 min, EMA v štyroch rolách: filter
+smeru, filter dňa, výstup, kreslenie): matica rozšírená na 25 variantov (EMA 20/50/100/200, všetky
+roly aj naraz, rangy 1, 5, 7, 42 min) — NAS100 72 425 vstupov, MNQ 95 128 vstupov, **0 rozdielov**.
+EMA je v C# jadre `TradeBot.Core.Ema` (zrkadlo `tradebot/core/ma.py`).
+
 Prvý pokus mal jeden rozdiel (variant s volume filtrom, NAS100 2022-12-22): Python predloha počíta
 priemer objemu cez `sum(...)`, čo je od Pythonu 3.12 **kompenzovaná (Neumaierova) suma**, nie cyklus
 zľava doprava. Na hrane `volume >= avg * volMultiplier` sa posledný bit preklopil. C# jadro má na to
