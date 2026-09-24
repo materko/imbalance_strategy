@@ -87,6 +87,9 @@ def export_profiles(nt_dir: Path, extra: list[str]) -> int:
         sources = [*sorted(spec.profile_dir.glob("*.json")), *[Path(p) for p in extra]]
         for src in sources:
             raw = json.loads(src.read_text(encoding="utf-8"))
+            if raw.get("_strategy", spec.key) != spec.key:
+                continue  # `--profile` patrí inej C# stratégii
+
             cfg, _inst = load_profile(src, strategy=spec.key)
             data = {"_strategy": spec.key, "_instrument": raw.get("_instrument"), "_source": str(src), **cfg.to_dict()}
             (out_dir / src.name).write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
