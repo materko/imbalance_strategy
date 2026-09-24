@@ -45,6 +45,8 @@ from .. import engines
 _PAIRS = {
     "binance": "btcusdt_binance",
     "coinbase": "btcusd_coinbase",
+    "nas100": "nas100_dukascopy",
+    "mnq": "mnq_databento",
 }
 
 

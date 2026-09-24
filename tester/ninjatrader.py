@@ -142,9 +142,10 @@ def compare(nt: dict[str, list[tuple]], ref: dict[str, list[tuple]]) -> dict:
     def span(rows):
         return (min(r[0] for r in rows), max(r[0] for r in rows)) if rows else None
 
-    a, b = span(nt["events"]), span(ref["events"])
+    # okno z udalostí aj orderov — stratégia bez stavového automatu (ORB) udalosti nemá
+    a, b = span(nt["events"] + nt["orders"]), span(ref["events"] + ref["orders"])
     if a is None or b is None:
-        return {"error": "jeden z behov nemá žiadne udalosti", "nt": a, "ref": b}
+        return {"error": "jeden z behov nemá žiadne udalosti ani ordery", "nt": a, "ref": b}
     lo, hi = max(a[0], b[0]), min(a[1], b[1])
 
     def cut(rows):

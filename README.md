@@ -87,7 +87,7 @@ Podrobne: [docs/DATA.md](docs/DATA.md), prehľad celej cesty dát:
 | spúšťať backtesty, pozerať a zdieľať históriu | [docs/WEBAPP.md](docs/WEBAPP.md) |
 | krypto: prostredie, backtest, hyperopt, Docker, server | [docs/FREQTRADE.md](docs/FREQTRADE.md) |
 | MultiCharts: študia, QuoteManager, emulátor | [docs/MULTICHARTS.md](docs/MULTICHARTS.md) |
-| NinjaTrader 8 a stratégie s jadrom v C# (IBSNinja) | [docs/NINJATRADER.md](docs/NINJATRADER.md) |
+| NinjaTrader 8 a stratégie s jadrom v C# (IBSNinja, ORBNinja) | [docs/NINJATRADER.md](docs/NINJATRADER.md) |
 | dáta: archív, Dukascopy import, nový symbol | [docs/DATA.md](docs/DATA.md) |
 | pridať ďalšiu stratégiu | [docs/STRATEGIE.md](docs/STRATEGIE.md) |
 | čo tá stratégia je: v čom je dobrá, kde má chyby | [docs/ANALYTIKA.md](docs/ANALYTIKA.md) |

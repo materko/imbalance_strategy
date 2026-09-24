@@ -18,8 +18,13 @@ csharp/TradeBot.Host/                 TradeBot.Host.exe — engine ako proces (s
                 └── tradebot/strategies/<kľúč>/                 Python balík stratégie: config, popisy, SPEC
 ```
 
-Dnes má C# jadro jedna stratégia: **`ibsninja`** — prepis `ibs` (IBS Imbalance Breakout). Parametre,
-profily, kresby aj signály má zhodné s IBS; vo webapp je to obyčajná stratégia „IBSNinja" pod Freqtrade.
+Dnes majú C# jadro dve stratégie, obe prepisy Python predlohy s parametrami, profilmi, kresbami aj
+signálmi zhodnými s ňou; vo webapp sú to obyčajné stratégie pod Freqtrade:
+
+| kľúč | predloha | C# | NinjaTrader šablóna |
+|---|---|---|---|
+| **`ibsninja`** | `ibs` (IBS Imbalance Breakout) | `csharp/TradeBot.Strategies/IbsNinja` | `deploy/ninjatrader/IBSNinja.cs` |
+| **`orbninja`** | `orb` (Opening Range Breakout) | `csharp/TradeBot.Strategies/OrbNinja` | `deploy/ninjatrader/ORBNinja.cs` |
 
 ## Pravidlá (tie isté ako inde, len v C#)
 
@@ -100,6 +105,19 @@ bare sa porovnajú ordery, kresby, udalosti stavu, koniec seansy aj hodiny. Výs
 [merania/PARITA_ibsninja_2026-09-20.md](merania/PARITA_ibsninja_2026-09-20.md). V `pytest` to stráži
 `tester/tests/test_csharp_parity.py` (syntetické bary so všetkým zapnutým, oba transporty, golden okno).
 
+ORBNinja proti ORB (burza `nas100` = Dukascopy NAS100 zo skladu, `mnq` = Databento MNQ):
+
+```bash
+PY -m tester.compare.csharp_parity --python orb --csharp orbninja --profile nas100_dukascopy_3m --exchange nas100 --from 2021-01-04
+```
+
+V Strategy Analyzeri (MNQ 12-26, 2026-03-01 – 09-10) sedí 207 z 207 vstupov s Testerom
+(`tester.ninjatrader compare --strategy orbninja --profile nas100_dukascopy_3m`).
+Výsledok: [merania/PARITA_orbninja_2026-09-24.md](merania/PARITA_orbninja_2026-09-24.md), v `pytest`
+`tester/tests/test_csharp_parity_orb.py`. Pri ORB sa ukázala ďalšia pasca: Python 3.12 `sum()` nad
+floatmi nie je cyklus, ale kompenzovaná (Neumaierova) suma — kde predloha píše `sum(...)`, C# volá
+`PyMath.Sum`, kde píše cyklus, C# píše cyklus.
+
 Na čo si dať pri prepise pozor (všetko sa už raz stalo alebo skoro stalo):
 
 - **poradie operácií** — plávajúca čiarka nie je asociatívna; `sum()` je cyklus zľava doprava;
@@ -118,9 +136,9 @@ PY -m tradebot.adapters.ninjatrader install    # skopíruje jadro, adaptér, ša
 ```
 
 `install` kopíruje **zdrojáky** do `Documents\NinjaTrader 8\bin\Custom` (`AddOns\TradeBot\…` jadro,
-`Strategies\TradeBotStrategy.cs` adaptér, `Strategies\IBSNinja.cs` šablóna) a profily ako úplné configy
+`Strategies\TradeBotStrategy.cs` adaptér, `Strategies\IBSNinja.cs` a `ORBNinja.cs` šablóny) a profily ako úplné configy
 do `Documents\NinjaTrader 8\TradeBot\profiles\`. Potom v NinjaTraderi *New → NinjaScript Editor → F5*
-a stratégia **IBSNinja** na **minútový** graf. Netreba pridávať referenciu na DLL; po zmene jadra stačí
+a stratégia **IBSNinja** alebo **ORBNinja** na **minútový** graf. Netreba pridávať referenciu na DLL; po zmene jadra stačí
 `install` zopakovať. `check` beží aj samostatne — chybu NinjaTrader API ukáže pri preklade, nie v grafe.
 
 Čo adaptér robí:

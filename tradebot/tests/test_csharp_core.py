@@ -68,8 +68,9 @@ def test_kazde_pole_configu_ma_csharp_naprotivok_s_rovnakym_defaultom(spec):
             number, _, unit = rest.partition(":")
             ok = _tag == "SIZE" and float(number) == value.value and unit == value.unit
         elif isinstance(value, Enum):
-            # C# enum je PascalCase toho istého textu: "Long only" -> LongOnly, "hl2" -> Hl2
-            want = "".join(w[:1].upper() + w[1:] for w in str(value.value).split())
+            # C# enum je PascalCase toho istého textu: "Long only" -> LongOnly, "hl2" -> Hl2,
+            # "range_pct" -> RangePct; číselný enum ("15") je v C# obyčajné číslo
+            want = "".join(w[:1].upper() + w[1:] for w in re.split(r"[\s_]+", str(value.value)) if w)
             ok = text.split(".")[-1] == want
         elif isinstance(value, (int, float)):
             ok = float(text) == float(value)

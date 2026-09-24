@@ -14,6 +14,7 @@ from .gap import SPEC as GAP_SPEC
 from .ibs import SPEC as IBS_SPEC
 from .ibsninja import SPEC as IBSNINJA_SPEC
 from .orb import SPEC as ORB_SPEC
+from .orbninja import SPEC as ORBNINJA_SPEC
 from .range import SPEC as RANGE_SPEC
 from .sdzone import SPEC as SDZONE_SPEC
 from .structure import SPEC as STRUCTURE_SPEC
@@ -24,6 +25,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     STRUCTURE_SPEC.key: STRUCTURE_SPEC,
     DEMO_SPEC.key: DEMO_SPEC,
     ORB_SPEC.key: ORB_SPEC,
+    ORBNINJA_SPEC.key: ORBNINJA_SPEC,
     GAP_SPEC.key: GAP_SPEC,
     RANGE_SPEC.key: RANGE_SPEC,
     SDZONE_SPEC.key: SDZONE_SPEC,
@@ -36,7 +38,7 @@ __all__ = ["STRATEGIES", "StrategySpec", "get_spec", "spec_for_config"]
 
 def spec_for_config(cfg) -> StrategySpec:
     """Stratégia podľa triedy configu — adaptéry tak nepotrebujú kľúč navyše."""
-    # najprv presná trieda: config stratégie, ktorá dedí z inej (IBSNinja z IBS), patrí jej
+    # najprv presná trieda: config stratégie, ktorá dedí z inej (IBSNinja z IBS, ORBNinja z ORB), patrí jej
     for spec in STRATEGIES.values():
         if type(cfg) is spec.config_cls:
             return spec

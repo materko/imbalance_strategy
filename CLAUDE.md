@@ -3,7 +3,7 @@
 Repozitár je TradeBot — rámec pre porty TradingView stratégií do Pythonu (generické jadro
 `tradebot/core`, registry stratégií `tradebot/strategies` — dnes „IBS Imbalance Breakout",
 „Market Structure BOS / CHoCH" a ukážková „Demo Donchian Breakout" —, Freqtrade
-a MultiCharts adaptéry; „IBSNinja" je IBS s jadrom v C# (`csharp/`) pre NinjaTrader 8, pod Freqtrade
+a MultiCharts adaptéry; „IBSNinja" a „ORBNinja" sú IBS a ORB s jadrom v C# (`csharp/`) pre NinjaTrader 8, pod Freqtrade
 beží cez most `tradebot/adapters/csharp`) plus webová aplikácia
 pre testerov (`tester/webapp`). Ako pridať stratégiu: [docs/STRATEGIE.md](docs/STRATEGIE.md).
 Pracujú v ňom dva druhy ľudí a pre každého platí iné:
@@ -66,11 +66,11 @@ Bez obmedzení. Platia len konvencie repozitára:
   nič iné. ASCII pre QuoteManager robí `tester.quotemanager`
   zo skladu sviečok. Celá cesta dát: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md),
   podrobne [docs/DATA.md](docs/DATA.md).
-- Stratégia s jadrom v C# (`csharp/TradeBot.Strategies/<Meno>`, dnes `ibsninja`): C# 5 bez NuGet
+- Stratégia s jadrom v C# (`csharp/TradeBot.Strategies/<Meno>`, dnes `ibsninja`, `orbninja`): C# 5 bez NuGet
   (prekladá ho `csc.exe` z .NET Frameworku, Mono aj NinjaTrader), jadro ani adaptér NinjaTrader
   nepoznajú stratégiu menom (`[TradeBotEngine("kľúč")]`), a zmena logiky musí prejsť paritou
   bar po bare proti Python predlohe (`python -m tester.compare.csharp_parity`,
-  `tester/tests/test_csharp_parity.py`). Zmena v `ibs` = tá istá zmena v `csharp/…/IbsNinja`.
+  `tester/tests/test_csharp_parity.py`). Zmena v `ibs` = tá istá zmena v `csharp/…/IbsNinja`, v `orb` v `csharp/…/OrbNinja`.
   [docs/NINJATRADER.md](docs/NINJATRADER.md).
 - Zoznam a hľadanie v histórii idú cez odvodený sqlite index (`tester/webapp/index.py`,
   `runs/.index/`, gitignored) — nikdy nie cez parsovanie všetkých `run.json`. Index musí

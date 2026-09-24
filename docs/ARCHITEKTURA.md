@@ -16,7 +16,7 @@ flowchart TB
         strat["strategies/&lt;kľúč&gt;/<br/>engine + config + profily<br/>+ Pine zdroj"]
         ft["adapters/freqtrade/<br/>TradebotStrategyBase"]
         mc["adapters/multicharts/<br/>TradebotSignal + emulátor"]
-        cs["csharp/ — jadro a stratégie v C#<br/>(IBSNinja)"]
+        cs["csharp/ — jadro a stratégie v C#<br/>(IBSNinja, ORBNinja)"]
         bridge["adapters/csharp/<br/>most: C# engine ako Python engine"]
         nt["adapters/ninjatrader/<br/>NinjaScript stratégia (C#)"]
         strat --> core

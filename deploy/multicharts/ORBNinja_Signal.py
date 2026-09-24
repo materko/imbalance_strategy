@@ -1,12 +1,12 @@
-# Šablóna MultiCharts študie pre ORB Opening Range Breakout — skopíruj obsah do
-# PowerLanguage .NET Editora (File → New → Signal, jazyk Python, názov ORB = trieda nižšie).
+# Šablóna MultiCharts študie pre ORBNinja (ORB s jadrom v C#; treba pythonnet) — skopíruj obsah do
+# PowerLanguage .NET Editora (File → New → Signal, jazyk Python, názov ORBNinja = trieda nižšie).
 #
 # Celá logika je v balíku `tradebot` (nainštaluje ho deploy/multicharts/scripts/setup.ps1).
 # Trieda je v tvare, aký MultiCharts x Python vyžaduje: bez rodiča, metódy priamo v triede,
 # len delegujú na balík. Stratégia nemá informatívny TF, na grafe stačí Data1.
 #
 # Profil sa prepína premennou prostredia TRADEBOT_PROFILE (predvolene "nas100_dukascopy_3m"
-# z tradebot/strategies/orb/configs), alebo natvrdo nižšie cez PROFILE.
+# z tradebot/strategies/orbninja/configs), alebo natvrdo nižšie cez PROFILE.
 # Ordery študie sa volajú tb_sl, tb_tp a tb_session_end.
 
 import clr
@@ -25,7 +25,7 @@ from System.Drawing import *
 from PowerLanguage import *
 
 
-class ORB:
+class ORBNinja:
     PROFILE = None
     # PROFILE = "nas100_dukascopy_3m"
     HTF_CSV = None   # demo nemá informatívny TF; pole je tu len pre jednotný tvar šablóny
@@ -33,13 +33,13 @@ class ORB:
 
     # Balík tradebot sa importuje až tu, nie na úrovni modulu: MultiCharts zdroják
     # overuje aj v procesoch, kde balík nemusí byť viditeľný. Študia je obyčajná
-    # trieda bez rodiča ako v šablóne bety; všetko deleguje na ORBSignal.
+    # trieda bez rodiča ako v šablóne bety; všetko deleguje na ORBNinjaSignal.
     def _sig(self):
         s = getattr(self, "_tb", None)
         if s is None:
-            from tradebot.strategies.orb.multicharts import ORBSignal
+            from tradebot.strategies.orbninja.multicharts import ORBNinjaSignal
 
-            s = ORBSignal()
+            s = ORBNinjaSignal()
             s.PROFILE = self.PROFILE
             s.HTF_CSV = self.HTF_CSV
             s.NO_DRAW = self.NO_DRAW
