@@ -145,6 +145,12 @@ def _strategy_refs(key: str) -> _Refs:
     csharp_dir = STRATEGIES[key].csharp_dir
     if csharp_dir is not None:  # jadro v C#: polia číta ono, Python balík je len popis
         refs.attrs |= _csharp_reads(csharp_dir)
+    logic_of = STRATEGIES[key].logic_of
+    if logic_of is not None:  # variant: logiku (a teda čítanie polí) má balík predlohy
+        base_refs = _strategy_refs(logic_of)
+        refs.attrs |= base_refs.attrs
+        refs.strings |= base_refs.strings
+        refs.patterns += base_refs.patterns
     for path in sorted(pkg.rglob("*.py")):
         if path.parent == pkg and path.name in DECLARATIVE:
             continue

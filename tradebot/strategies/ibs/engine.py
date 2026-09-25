@@ -162,6 +162,9 @@ class IBSEngine:
             )
         )
 
+    def _spawn_extra_zones(self, bar: Bar, out: EngineOutput) -> None:
+        """Hook pre varianty IBS s vlastným zdrojom zón. IBS sám nemá žiadny, tak nerobí nič."""
+
     def _spawn_sweep_zones(self, sweeps, bar: Bar, out: EngineOutput) -> None:
         """Pine riadky 1198–1247 — fade po sweepe, obchod ide PROTI prepichnutiu."""
         for sw in sweeps:
@@ -223,6 +226,12 @@ class IBSEngine:
         out.drawings.extend(liq_draw)
         if state.in_zone_window:
             self._spawn_sweep_zones(sweeps, bar, out)
+
+        # Zóny z vlastného zdroja variantu (`ibsentry`) musia vzniknúť TU - teda ešte
+        # pred `machine.on_bar()`, rovnako ako S/R a likvidita. Keby sa pridávali až po
+        # ňom, automat by ich videl o bar neskôr než zóny z ostatných zdrojov.
+        if state.in_zone_window:
+            self._spawn_extra_zones(bar, out)
 
         self.elliott.on_bar(bar, self.history)
         out.drawings.extend(self.direction_gate.on_bar(bar))

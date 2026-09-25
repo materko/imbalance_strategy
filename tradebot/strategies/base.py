@@ -89,6 +89,11 @@ class StrategySpec:
     #: stratégie vie spustiť adaptér NinjaTrader; pod Freqtrade bežia cez most
     #: `tradebot.adapters.csharp`. `None` = stratégia je v Pythone.
     csharp_dir: Path | None = None
+    #: Kľúč stratégie, ktorej Python kód táto stratégia používa ako svoju logiku (engine,
+    #: state machine, zóny). Varianty ako IBSZones majú vlastný len ten kúsok, v ktorom sa
+    #: od predlohy líšia — polia configu číta kód TAMTOHO balíka. Statická kontrola
+    #: `test_param_parity.py` podľa toho vie, kde ich hľadať. `None` = balík je sebestačný.
+    logic_of: str | None = None
     #: názvy tried v adaptéroch (shim vo Freqtrade user_data, šablóna v MultiCharts)
     freqtrade_class: str = ""
     multicharts_class: str = ""

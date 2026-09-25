@@ -43,6 +43,10 @@ class ZoneSource(int, Enum):
     SD = 0
     SR = 1
     LIQUIDITY = 2
+    #: Veľký imbalance (fair value gap) z vyššieho TF. IBS tento zdroj sám nikdy
+    #: nevytvorí — používa ho variant `ibsentry`, ktorý zóny do tej istej knihy pridáva
+    #: a nechá ich prejsť tým istým STATE 0-5 automatom ako SD zóny.
+    FVG = 3
 
 
 def snap_time(t_ms: int, step_ms: int, mode: SnapMode) -> int:
