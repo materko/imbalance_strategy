@@ -104,6 +104,21 @@ MT5) preto rátajú **odoslaný, ešte nevyplnený market vstup ako pozíciu** a
 neskôr než dva TF po svojom zatvorení, neobchodujú** (do logu ide „prisiel neskoro“). Ani jedno
 nemení backtest ani paritu signálov.
 
+**Jedna pozícia naraz.** Pine má `pyramiding=0`. Simulátor `scan_trades`, emulátor MultiCharts aj
+Freqtrade (`max_open_trades=1`) preto ďalší vstup nevyplnia, kým beží pozícia. Engine IBS pritom
+limitky kladie aj počas pozície a spolieha sa na platformu. NinjaTrader (`EntriesPerDirection=10`)
+a MT5 ich vyplnili: 25. 9. 2026 NT otvoril druhý long popri prvom, ktorý TradingView nemal.
+Oba adaptéry teraz vstup, ktorý príde počas pozície, **odložia**, teda nepošlú ho brokerovi.
+Keď sa niektorý vstup vyplní, ostatné čakajúce vstupy stiahnu od brokera a odložia. Keď pozícia
+skončí, odložené vstupy, ktoré engine medzitým nezrušil, pošlú znova. Engine o odložených
+vstupoch stále vie a ruší ich timeoutom ako predtým. Naživo zostáva jedno okno: dve limitky
+vyplnené v tej istej sekunde, skôr než príde zrušenie.
+
+Export má okrem zámerov aj **`fill` riadky**. `a` je `in` (vstup) alebo `out` (výstup, v `b` je
+meno výstupného orderu), `entry` je cena, `qty` počet kusov a `bar_open_ms` čas exekúcie v ms UTC.
+Z nich sa skladajú obchody na porovnanie s TradingView. Naživo sa súbor zapisuje hneď
+(dovtedy zaostával o hodiny).
+
 ## Parita s Python predlohou
 
 C# jadro je prepis, nie nová stratégia — kontroluje sa bar po bare, nie počtom obchodov:

@@ -60,6 +60,7 @@ long             g_firstBarMs  = 0, g_lastBarMs = 0;
 int              g_maxDailyWins = 0;
 int              g_export      = INVALID_HANDLE;
 bool             g_hedging     = false;
+bool             g_replaying   = false;       // prehravanie predhistorie pri starte (bez obchodov)
 CTrade           g_trade;
 
 //--- sledovane ordery (zrkadlo `Tracked` v NinjaTrader adapteri)
@@ -79,6 +80,8 @@ struct Tracked
    double   trailActivation, trailOffset;
    double   extreme;          // najlepsia cena od vstupu
    double   lastStop;
+   string   ot;               // Limit / Stop / Market
+   bool     parked;           // odlozeny vstup: bezi pozicia, u brokera nie je (Pine `pyramiding=0`)
   };
 Tracked g_orders[];
 
@@ -214,6 +217,15 @@ void ExportOrders(long barMs, CJson *out, bool ready)
      }
   }
 
+/// Vyplnenie u brokera (zrkadlo `ExportFill` v NinjaTrader adapteri): `in` = vstup, `out` = vystup; cas dealu v ms UTC.
+void ExportFill(datetime dealTime, string id, bool entry, string exitName, double price, double volume)
+  {
+   if(g_export == INVALID_HANDLE) return;
+   FileWriteString(g_export, StringFormat("fill;%I64d;%s;%s;%s;%s;;;%s;%s;\n", ToMs(dealTime), id, entry ? "in" : "out", exitName,
+                                          Num(price), Num(volume), g_replaying || MQLInfoInteger(MQL_TESTER) ? "0" : "1"));
+   if(!MQLInfoInteger(MQL_TESTER)) FileFlush(g_export);
+  }
+
 void CloseExport()
   {
    if(g_export == INVALID_HANDLE) return;
@@ -334,7 +346,6 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 //| Predhistoria: uzavrete bary spred startu idu do engine-u bez obchodovania (ready = false)          |
 //+------------------------------------------------------------------+
-bool g_replaying = false;
 
 void ReplayHistory()
   {
@@ -436,7 +447,7 @@ void ProcessChartBar(const MqlRates &r)
         }
       // market vstup, ktory uz odisiel, ale deal este neprisiel, sa pocita ako pozicia (inak by engine
       // po bare vstup zrusil a poslal dalsi - viď NinjaTrader adapter, 25. 9. 2026: 20 orderov naraz)
-      else if(!g_orders[i].filled && g_orders[i].isMarket) positionSize += g_orders[i].dir * g_orders[i].lots;
+      else if(!g_orders[i].filled && !g_orders[i].parked && g_orders[i].isMarket) positionSize += g_orders[i].dir * g_orders[i].lots;
      }
    long day = UtcDay(barMs);
    bool dailyLimit = g_maxDailyWins > 0 && g_winsSeenDay == day && g_winsSeen >= g_maxDailyWins;
@@ -530,11 +541,16 @@ void Apply(CJson *intent, bool ready)
       if(!ready || p == NULL) return;
       // Ten isty vstup este drzi poziciu: Pine by druhy `strategy.entry` s rovnakym id ignoroval.
       if(idx >= 0 && g_orders[idx].filled && g_orders[idx].openQty > 0) return;
-      if(idx >= 0) RemoveOrder(idx);
+      if(idx >= 0)
+        {
+         // rovnake meno este caka u brokera (re-entry bez CANCEL) - stiahni ho, novy plan ho nahradi
+         if(g_orders[idx].orderTicket > 0) g_trade.OrderDelete(g_orders[idx].orderTicket);
+         RemoveOrder(idx);
+        }
 
       Tracked t;
       t.id = id; t.orderTicket = 0; t.positionTicket = 0; t.slTicket = 0; t.tpTicket = 0; t.filled = false; t.openQty = 0;
-      t.isMarket = intent.Str("ot") == "Market"; t.lots = 0;
+      t.ot = intent.Str("ot"); t.isMarket = t.ot == "Market"; t.lots = 0; t.parked = false;
       t.dir = (int)p.Dbl("dir");
       t.entry = p.Dbl("e"); t.stopLoss = p.Dbl("sl"); t.takeProfit = p.Dbl("tp");
       CJson *tr = p.Find("tr");
@@ -543,31 +559,20 @@ void Apply(CJson *intent, bool ready)
       t.trailOffset = tr != NULL ? tr.Dbl("op") : 0;
       t.extreme = t.entry; t.lastStop = t.stopLoss;
 
-      double lots = Lots(p.Dbl("q"));
-      t.lots = lots;
-      double price = Tick(t.entry);
-      // hedging: SL/TP na pozicii (kazdy vstup ma vlastnu); netting: pozicia je jedna na symbol, SL/TP by boli
-      // spolocne - vystupy su preto vlastne pending ordery s komentarom = id (PlaceExits po vyplneni)
-      double sl = g_hedging ? Tick(t.stopLoss) : 0, tp = g_hedging ? Tick(t.takeProfit) : 0;
-      string ot = intent.Str("ot");
-      bool isLong = t.dir > 0;
-      bool ok;
-      if(ot == "Market")
-         ok = isLong ? g_trade.Buy(lots, _Symbol, 0, sl, tp, id) : g_trade.Sell(lots, _Symbol, 0, sl, tp, id);
-      else if(ot == "Stop")
-         ok = isLong ? g_trade.BuyStop(lots, price, _Symbol, sl, tp, ORDER_TIME_GTC, 0, id)
-                     : g_trade.SellStop(lots, price, _Symbol, sl, tp, ORDER_TIME_GTC, 0, id);
-      else
-         ok = isLong ? g_trade.BuyLimit(lots, price, _Symbol, sl, tp, ORDER_TIME_GTC, 0, id)
-                     : g_trade.SellLimit(lots, price, _Symbol, sl, tp, ORDER_TIME_GTC, 0, id);
-      if(!ok || (g_trade.ResultRetcode() != TRADE_RETCODE_DONE && g_trade.ResultRetcode() != TRADE_RETCODE_PLACED))
-        { Print("TradeBot: vstup ", id, " odmietnuty: ", g_trade.ResultRetcode(), " ", g_trade.ResultRetcodeDescription()); return; }
-      t.orderTicket = g_trade.ResultOrder();
+      t.lots = Lots(p.Dbl("q"));
+      // Jedna pozicia naraz (Pine `pyramiding=0`, MultiCharts, Freqtrade `max_open_trades=1`, simulator
+      // `scan_trades`): kym pozicia bezi, vstup caka mimo brokera a posle sa, az ked skonci - ak ho engine
+      // medzitym nezrusi. Rovnako NinjaTrader adapter (25. 9. 2026 otvoril druhy long popri prvom).
+      if(HasOpenPosition())
+        {
+         t.parked = true;
+         if(InpLogEvents) Print("ENTRY ", id, " odlozeny - bezi pozicia");
+        }
+      else if(!SendEntry(t)) return;
       // vyplnenie (aj market) zaeviduje az deal v OnTradeTransaction - inak by sa objem pocital dvakrat
       int n = ArraySize(g_orders);
       ArrayResize(g_orders, n + 1);
       g_orders[n] = t;
-      if(InpLogEvents) Print("ENTRY ", id, " ", ot, " @", t.entry, " SL ", t.stopLoss, " TP ", t.takeProfit, " lots ", lots);
       return;
      }
 
@@ -591,6 +596,67 @@ void Apply(CJson *intent, bool ready)
 bool Sent()
   {
    return g_trade.ResultRetcode() == TRADE_RETCODE_DONE || g_trade.ResultRetcode() == TRADE_RETCODE_PLACED;
+  }
+
+/// Posle vstup brokerovi; `orderTicket` = cakajuci order (market: ticket orderu, deal pride v OnTradeTransaction).
+bool SendEntry(Tracked &t)
+  {
+   double price = Tick(t.entry);
+   // hedging: SL/TP na pozicii (kazdy vstup ma vlastnu); netting: pozicia je jedna na symbol, SL/TP by boli
+   // spolocne - vystupy su preto vlastne pending ordery s komentarom = id (PlaceExits po vyplneni)
+   double sl = g_hedging ? Tick(t.lastStop) : 0, tp = g_hedging ? Tick(t.takeProfit) : 0;
+   bool isLong = t.dir > 0;
+   bool ok;
+   if(t.ot == "Market")
+      ok = isLong ? g_trade.Buy(t.lots, _Symbol, 0, sl, tp, t.id) : g_trade.Sell(t.lots, _Symbol, 0, sl, tp, t.id);
+   else if(t.ot == "Stop")
+      ok = isLong ? g_trade.BuyStop(t.lots, price, _Symbol, sl, tp, ORDER_TIME_GTC, 0, t.id)
+                  : g_trade.SellStop(t.lots, price, _Symbol, sl, tp, ORDER_TIME_GTC, 0, t.id);
+   else
+      ok = isLong ? g_trade.BuyLimit(t.lots, price, _Symbol, sl, tp, ORDER_TIME_GTC, 0, t.id)
+                  : g_trade.SellLimit(t.lots, price, _Symbol, sl, tp, ORDER_TIME_GTC, 0, t.id);
+   if(!ok || !Sent())
+     { Print("TradeBot: vstup ", t.id, " odmietnuty: ", g_trade.ResultRetcode(), " ", g_trade.ResultRetcodeDescription()); return false; }
+   t.orderTicket = g_trade.ResultOrder();
+   if(InpLogEvents) Print("ENTRY ", t.id, " ", t.ot, " @", t.entry, " SL ", t.stopLoss, " TP ", t.takeProfit, " lots ", t.lots);
+   return true;
+  }
+
+/// Bezi pozicia: vyplneny vstup s otvorenym objemom, alebo odoslany market vstup bez dealu.
+bool HasOpenPosition()
+  {
+   for(int i = 0; i < ArraySize(g_orders); i++)
+     {
+      if(g_orders[i].filled && g_orders[i].openQty > 0) return true;
+      if(!g_orders[i].filled && !g_orders[i].parked && g_orders[i].isMarket) return true;
+     }
+   return false;
+  }
+
+/// Vstup sa vyplnil: ostatne cakajuce vstupy stiahni od brokera a odloz (engine o nich stale vie).
+void ParkOthers(int filled)
+  {
+   for(int i = 0; i < ArraySize(g_orders); i++)
+     {
+      if(i == filled || g_orders[i].filled || g_orders[i].parked || g_orders[i].isMarket) continue;
+      if(g_orders[i].orderTicket > 0 && !g_trade.OrderDelete(g_orders[i].orderTicket))
+        { Print("TradeBot: odlozenie ", g_orders[i].id, " zlyhalo: ", g_trade.ResultRetcode()); continue; }
+      g_orders[i].orderTicket = 0;
+      g_orders[i].parked = true;
+      if(InpLogEvents) Print("ENTRY ", g_orders[i].id, " odlozeny - vyplnil sa ", g_orders[filled].id);
+     }
+  }
+
+/// Pozicia skoncila: odlozene vstupy znova k brokerovi.
+void ReleaseParked()
+  {
+   if(HasOpenPosition()) return;
+   for(int i = ArraySize(g_orders) - 1; i >= 0; i--)
+     {
+      if(!g_orders[i].parked) continue;
+      g_orders[i].parked = false;
+      if(!SendEntry(g_orders[i])) RemoveOrder(i);
+     }
   }
 
 /// Netting: vystupy vstupu ako vlastne pending ordery (SL = stop, TP = limit) opacneho smeru s komentarom = id.
@@ -686,6 +752,7 @@ void CountWin(int i, double exitPrice, datetime dealTime)
 /// Uzavretie casti/celeho vstupu; `win` = vystup na SL/TP (pocita sa do denneho limitu).
 void Reduce(int i, double volume, double price, datetime dealTime, bool win)
   {
+   ExportFill(dealTime, g_orders[i].id, false, win ? "sltp" : "close", price, volume);
    g_orders[i].openQty = MathMax(0.0, g_orders[i].openQty - volume);
    if(g_orders[i].openQty > 0) return;
    CancelExits(i);
@@ -711,6 +778,13 @@ double CloseOpposite(int dir, double volume, double price, datetime dealTime)
 void OnTradeTransaction(const MqlTradeTransaction &trans, const MqlTradeRequest &request, const MqlTradeResult &result)
   {
    if(trans.type != TRADE_TRANSACTION_DEAL_ADD) return;
+   HandleDeal(trans);
+   // az po celom deale: pri netting obrate CloseOpposite na chvilu nechava poziciu nulovu
+   ReleaseParked();
+  }
+
+void HandleDeal(const MqlTradeTransaction &trans)
+  {
    if(!HistoryDealSelect(trans.deal)) return;
    if(HistoryDealGetInteger(trans.deal, DEAL_MAGIC) != InpMagic) return;
    string comment = HistoryDealGetString(trans.deal, DEAL_COMMENT);
@@ -734,9 +808,11 @@ void OnTradeTransaction(const MqlTradeTransaction &trans, const MqlTradeRequest 
       idx = FindOrder(comment);   // CloseOpposite mohol pole preusporiadat
       if(idx < 0) return;
       g_orders[idx].filled = true;
+      g_orders[idx].parked = false;
       g_orders[idx].openQty += volume - closed;
       g_orders[idx].positionTicket = positionId;
-      if(g_orders[idx].openQty > 0) PlaceExits(idx); else RemoveOrder(idx);
+      ExportFill(dealTime, comment, true, "", price, volume - closed);
+      if(g_orders[idx].openQty > 0) { PlaceExits(idx); ParkOthers(idx); } else RemoveOrder(idx);
       return;
      }
 

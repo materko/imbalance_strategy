@@ -64,6 +64,10 @@ a text je v `LastError()`.
   vstupov v smere pozície;
 - **naživo**: odoslaný, ešte nevyplnený market vstup sa ráta ako pozícia a bar, ktorý prišiel
   neskôr než dva TF po svojom zatvorení, sa neobchoduje (viď docs/NINJATRADER.md, „Naživo“);
+- **jedna pozícia naraz** (Pine `pyramiding=0`): vstup, ktorý príde počas pozície, sa odloží a
+  nepošle sa brokerovi. Po vyplnení vstupu sa ostatné čakajúce vstupy zmažu (`OrderDelete`) a odložia.
+  Po konci pozície sa znova pošlú, ak ich engine nezrušil. Rovnako ako NinjaTrader, viď
+  docs/NINJATRADER.md, „Jedna pozícia naraz“;
 - **denný limit výhier** (Pine `dailyWinsCount`) presne ako NinjaTrader: výhra = obchod zavretý na
   SL/TP so ziskom > 0 voči plánovanému vstupu (hedging podľa `DEAL_REASON_SL/TP`, netting podľa
   komentára výstupného orderu), zavretie enginom sa nepočíta; engine sa pýta na stav z konca
@@ -79,7 +83,8 @@ a text je v `LastError()`.
   predhistórie prehrať a nakresliť);
 - **export signálov** do `Common\Files\TradeBot\logs\*.csv` v tvare NinjaTrader exportu
   (`kind;bar_open_ms;id;a;b;entry;sl;tp;qty;ready;text`), takže porovnanie s Testerom je to isté
-  `python -m tester.ninjatrader compare --csv <súbor>`.
+  `python -m tester.ninjatrader compare --csv <súbor>`. Riadky `fill` sú vyplnenia z dealov:
+  `in`/`out`, cena, objem a čas dealu v ms UTC; v `b` je pri výstupe `sltp` alebo `close`.
 
 **Čas servera.** MT5 dáva časy barov v čase servera brokera, nie UTC, a v Strategy Testeri sa
 posun zistiť nedá (`TimeGMT()` tam kopíruje čas servera). Preto je vstup

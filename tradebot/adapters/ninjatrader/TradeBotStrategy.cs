@@ -48,6 +48,8 @@ namespace NinjaTrader.NinjaScript.Strategies
             /// <summary>najlepsia cena od vyplnenia (vstup trailingu)</summary>
             public double? Extreme;
             public double LastStop;
+            /// <summary>Odlozeny vstup: engine ho chce, ale bezi pozicia, takze u brokera nie je (Pine `pyramiding=0`).</summary>
+            public bool Parked;
         }
 
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -262,6 +264,17 @@ namespace NinjaTrader.NinjaScript.Strategies
             foreach (TB.StateEvent e in output.Events)
                 _export.WriteLine("event;" + bar.Time + ";" + e.ZoneUid + ";" + e.FromState + ";" + e.ToState + ";;;;;;"
                                   + e.Reason.Replace(';', ',').Replace('\n', ' '));
+            // nazivo hned na disk - inak subor zaostava o hodiny (buffer) a porovnanie pocas dna nevidi posledne bary
+            if (State == State.Realtime) _export.Flush();
+        }
+
+        /// <summary>Vyplnenie u brokera: `in` = vstup, `out` = vystup (b = meno vystupneho orderu); cas = cas exekucie v ms UTC.</summary>
+        private void ExportFill(DateTime time, string id, bool entry, string exitName, double price, int quantity)
+        {
+            if (_export == null) return;
+            _export.WriteLine("fill;" + ToMs(time) + ";" + id + ";" + (entry ? "in" : "out") + ";" + exitName + ";"
+                              + Num(price) + ";;;" + quantity + ";" + (State == State.Realtime ? "1" : "0") + ";");
+            if (State == State.Realtime) _export.Flush();
         }
 
         // ------------------------------------------------------------------ //
@@ -325,7 +338,7 @@ namespace NinjaTrader.NinjaScript.Strategies
             foreach (KeyValuePair<string, Tracked> kv in _orders)
             {
                 Tracked p = kv.Value;
-                if (p.Filled || p.Intent.OrderType != TB.OrderType.Market || p.Intent.Plan == null) continue;
+                if (p.Filled || p.Parked || p.Intent.OrderType != TB.OrderType.Market || p.Intent.Plan == null) continue;
                 if (p.Entry != null && (p.Entry.OrderState == OrderState.Cancelled || p.Entry.OrderState == OrderState.Rejected)) continue;
                 ctx.PositionSize += (p.Intent.Plan.Direction == TB.Direction.Long ? 1 : -1) * Math.Max(1, Math.Round(p.Intent.Plan.Qty));
             }
@@ -385,36 +398,24 @@ namespace NinjaTrader.NinjaScript.Strategies
                 // Ten isty vstup este drzi poziciu (engine po re-entry pouzije rovnake meno): Pine by druhy
                 // `strategy.entry` s rovnakym id pri otvorenej pozicii ignoroval - pozicia dobehne na svojom SL/TP.
                 if (_orders.TryGetValue(intent.OrderId, out t) && t.Filled && t.OpenQty > 0) return;
-                TB.TradePlan plan = intent.Plan;
-                int qty = (int)Math.Max(1, Math.Round(plan.Qty));
-                string id = intent.OrderId;
-
+                Tracked previous = t;
                 t = new Tracked();
                 t.Intent = intent;
-                t.LastStop = plan.StopLoss;
-                _orders[id] = t;
+                t.LastStop = intent.Plan.StopLoss;
+                _orders[intent.OrderId] = t;
 
-                // SL a TP sa viazu na meno vstupu a musia byt nastavene PRED vstupom
-                SetStopLoss(id, CalculationMode.Price, Tick(plan.StopLoss), false);
-                SetProfitTarget(id, CalculationMode.Price, Tick(plan.TakeProfit));
-
-                bool isLong = plan.Direction == TB.Direction.Long;
-                if (intent.OrderType == TB.OrderType.Market)
+                // Jedna pozicia naraz (Pine `pyramiding=0`, MultiCharts, Freqtrade `max_open_trades=1`,
+                // simulator `scan_trades`): kym pozicia bezi, vstup caka mimo brokera a posle sa, az ked
+                // skonci - ak ho engine medzitym nezrusi. 25. 9. 2026 NT inak otvoril druhy long popri prvom.
+                if (HasOpenPosition())
                 {
-                    if (isLong) EnterLong(_fillSeries, qty, id); else EnterShort(_fillSeries, qty, id);
+                    t.Parked = true;
+                    // rovnake meno este caka u brokera (re-entry bez CANCEL) - stiahni ho, inak by sa vyplnil
+                    if (previous != null && !previous.Filled && previous.Entry != null) CancelOrder(previous.Entry);
+                    if (LogEvents) Print("ENTRY " + intent.OrderId + " odlozeny - bezi pozicia");
+                    return;
                 }
-                else if (intent.OrderType == TB.OrderType.Stop)
-                {
-                    if (isLong) EnterLongStopMarket(_fillSeries, true, qty, Tick(plan.Entry), id);
-                    else EnterShortStopMarket(_fillSeries, true, qty, Tick(plan.Entry), id);
-                }
-                else
-                {
-                    if (isLong) EnterLongLimit(_fillSeries, true, qty, Tick(plan.Entry), id);
-                    else EnterShortLimit(_fillSeries, true, qty, Tick(plan.Entry), id);
-                }
-                if (LogEvents)
-                    Print("ENTRY " + id + " " + intent.OrderType + " @" + plan.Entry + " SL " + plan.StopLoss + " TP " + plan.TakeProfit + " qty " + qty);
+                Submit(intent.OrderId, t);
                 return;
             }
 
@@ -437,6 +438,70 @@ namespace NinjaTrader.NinjaScript.Strategies
                     else ExitShort(_fillSeries, t.OpenQty, "tb_close", intent.OrderId);
                 }
                 if (LogEvents) Print("CLOSE " + intent.OrderId + " (" + intent.Reason + ")");
+            }
+        }
+
+        private void Submit(string id, Tracked t)
+        {
+            TB.OrderIntent intent = t.Intent;
+            TB.TradePlan plan = intent.Plan;
+            int qty = (int)Math.Max(1, Math.Round(plan.Qty));
+
+            // SL a TP sa viazu na meno vstupu a musia byt nastavene PRED vstupom
+            SetStopLoss(id, CalculationMode.Price, Tick(t.LastStop), false);
+            SetProfitTarget(id, CalculationMode.Price, Tick(plan.TakeProfit));
+
+            bool isLong = plan.Direction == TB.Direction.Long;
+            Order order;
+            if (intent.OrderType == TB.OrderType.Market)
+                order = isLong ? EnterLong(_fillSeries, qty, id) : EnterShort(_fillSeries, qty, id);
+            else if (intent.OrderType == TB.OrderType.Stop)
+                order = isLong ? EnterLongStopMarket(_fillSeries, true, qty, Tick(plan.Entry), id)
+                               : EnterShortStopMarket(_fillSeries, true, qty, Tick(plan.Entry), id);
+            else
+                order = isLong ? EnterLongLimit(_fillSeries, true, qty, Tick(plan.Entry), id)
+                               : EnterShortLimit(_fillSeries, true, qty, Tick(plan.Entry), id);
+            if (order != null) t.Entry = order;
+            if (LogEvents)
+                Print("ENTRY " + id + " " + intent.OrderType + " @" + plan.Entry + " SL " + plan.StopLoss + " TP " + plan.TakeProfit + " qty " + qty);
+        }
+
+        /// <summary>Bezi pozicia: vyplneny vstup s otvorenym objemom, alebo odoslany market vstup bez fillu.</summary>
+        private bool HasOpenPosition()
+        {
+            foreach (KeyValuePair<string, Tracked> kv in _orders)
+            {
+                Tracked t = kv.Value;
+                if (t.Filled && t.OpenQty > 0) return true;
+                if (!t.Filled && !t.Parked && t.Entry != null && t.Intent.OrderType == TB.OrderType.Market
+                    && t.Entry.OrderState != OrderState.Cancelled && t.Entry.OrderState != OrderState.Rejected) return true;
+            }
+            return false;
+        }
+
+        /// <summary>Vstup sa vyplnil: ostatne cakajuce vstupy stiahni od brokera a odloz (engine o nich stale vie).</summary>
+        private void ParkOthers(string filledId)
+        {
+            foreach (KeyValuePair<string, Tracked> kv in _orders)
+            {
+                Tracked t = kv.Value;
+                if (kv.Key == filledId || t.Filled || t.Parked) continue;
+                t.Parked = true;
+                if (t.Entry != null) CancelOrder(t.Entry);
+                if (LogEvents) Print("ENTRY " + kv.Key + " odlozeny - vyplnil sa " + filledId);
+            }
+        }
+
+        /// <summary>Pozicia skoncila: odlozene vstupy znova k brokerovi (az ked NT potvrdil zrusenie stareho orderu).</summary>
+        private void ReleaseParked()
+        {
+            if (HasOpenPosition()) return;
+            foreach (KeyValuePair<string, Tracked> kv in new List<KeyValuePair<string, Tracked>>(_orders))
+            {
+                Tracked t = kv.Value;
+                if (!t.Parked || t.Entry != null) continue;
+                t.Parked = false;
+                Submit(kv.Key, t);
             }
         }
 
@@ -484,9 +549,20 @@ namespace NinjaTrader.NinjaScript.Strategies
         {
             Tracked t;
             if (order == null || !_orders.TryGetValue(order.Name, out t)) return;
+            // neskora sprava o starom orderi s tym istym menom (zruseny pri odlozeni) - novy nechaj tak
+            if (t.Entry != null && !ReferenceEquals(t.Entry, order)) return;
             t.Entry = order;
             if ((orderState == OrderState.Cancelled || orderState == OrderState.Rejected) && !t.Filled)
-                _orders.Remove(order.Name);
+            {
+                if (t.Parked && orderState == OrderState.Cancelled)
+                {
+                    // odlozeny vstup: order je od brokera stiahnuty, vstup caka na koniec pozicie
+                    t.Entry = null;
+                    ReleaseParked();
+                }
+                else
+                    _orders.Remove(order.Name);
+            }
         }
 
         protected override void OnExecutionUpdate(Execution execution, string executionId, double price, int quantity,
@@ -500,16 +576,21 @@ namespace NinjaTrader.NinjaScript.Strategies
             {
                 // vyplnenie vstupu
                 t.Filled = true;
+                t.Parked = false;
                 t.OpenQty += quantity;
+                ExportFill(time, order.Name, true, "", price, quantity);
+                ParkOthers(order.Name);
                 return;
             }
 
             string entryName = order.FromEntrySignal;
             if (string.IsNullOrEmpty(entryName) || !_orders.TryGetValue(entryName, out t)) return;
 
+            ExportFill(time, entryName, false, order.Name, price, quantity);
             t.OpenQty -= quantity;
             if (t.OpenQty > 0) return;
             _orders.Remove(entryName);
+            ReleaseParked();
 
             // Pine `dailyWinsCount`: vyhra = uzavrety obchod so ziskom > 0. Zavretie koncom seansy sa nepocita.
             if (order.Name == "tb_session_end" || order.Name == "tb_close") return;
