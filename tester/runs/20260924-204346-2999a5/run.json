@@ -5,7 +5,7 @@
   "started": "2026-09-24T20:43:46+00:00",
   "finished": "2026-09-24T20:43:47+00:00",
   "user": "",
-  "note": "Parita ORBNinja (C# jadro) vs ORB: profil nas100_dukascopy_3m, NAS100 Dukascopy, emulátor MultiCharts",
+  "note": "Parita ORBNet (C# jadro) vs ORB: profil nas100_dukascopy_3m, NAS100 Dukascopy, emulátor MultiCharts",
   "settings": {
     "strategy": "orb",
     "pair": "NAS100/USD",

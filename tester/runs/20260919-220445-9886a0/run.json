@@ -5,9 +5,9 @@
   "started": "2026-09-19T22:04:45+00:00",
   "finished": "2026-09-19T22:05:27+00:00",
   "user": "",
-  "note": "porovnanie IBS (Python) vs IBSNinja (C# jadro): ibsninja, profil btcusdt_3m_binance_ny_sl, okno 20250904-20260904",
+  "note": "porovnanie IBS (Python) vs IBSNet (C# jadro): ibsnet, profil btcusdt_3m_binance_ny_sl, okno 20250904-20260904",
   "settings": {
-    "strategy": "ibsninja",
+    "strategy": "ibsnet",
     "pair": "BTC/USDT:USDT",
     "engine": "freqtrade",
     "timeframe": "3m",

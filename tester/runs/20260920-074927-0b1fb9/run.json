@@ -5,9 +5,9 @@
   "started": "2026-09-20T07:49:37+00:00",
   "finished": "2026-09-20T07:49:38+00:00",
   "user": "IBS",
-  "note": "NOCNE_TESTY_A prepis — ibsninja",
+  "note": "NOCNE_TESTY_A prepis — ibsnet",
   "settings": {
-    "strategy": "ibsninja",
+    "strategy": "ibsnet",
     "exchange": null,
     "sweep": null,
     "pair": "MNQ/USD",

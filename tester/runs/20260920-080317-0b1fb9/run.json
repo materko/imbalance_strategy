@@ -5,9 +5,9 @@
   "started": "2026-09-20T08:03:17+00:00",
   "finished": "2026-09-20T08:03:30+00:00",
   "user": "IBS",
-  "note": "NOCNE_TESTY_A prepis — ibsninja (C# jadro)",
+  "note": "NOCNE_TESTY_A prepis — ibsnet (C# jadro)",
   "settings": {
-    "strategy": "ibsninja",
+    "strategy": "ibsnet",
     "exchange": null,
     "sweep": null,
     "pair": "MNQ/USD",

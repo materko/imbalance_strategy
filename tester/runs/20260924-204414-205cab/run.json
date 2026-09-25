@@ -5,7 +5,7 @@
   "started": "2026-09-24T20:44:14+00:00",
   "finished": "2026-09-24T20:46:37+00:00",
   "user": "",
-  "note": "Parita ORBNinja (C# jadro) vs ORB: 5 rokov, profil nas100_dukascopy_3m na BTC perp, Freqtrade, 1m detail",
+  "note": "Parita ORBNet (C# jadro) vs ORB: 5 rokov, profil nas100_dukascopy_3m na BTC perp, Freqtrade, 1m detail",
   "settings": {
     "strategy": "orb",
     "pair": "BTC/USDT:USDT",

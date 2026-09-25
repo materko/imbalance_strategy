@@ -5,7 +5,7 @@
   "started": "2026-09-19T22:04:13+00:00",
   "finished": "2026-09-19T22:04:41+00:00",
   "user": "",
-  "note": "porovnanie IBS (Python) vs IBSNinja (C# jadro): ibs, profil btcusdt_3m_binance_ny_sl, okno 20250904-20260904",
+  "note": "porovnanie IBS (Python) vs IBSNet (C# jadro): ibs, profil btcusdt_3m_binance_ny_sl, okno 20250904-20260904",
   "settings": {
     "strategy": "ibs",
     "pair": "BTC/USDT:USDT",

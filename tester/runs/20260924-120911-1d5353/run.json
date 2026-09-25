@@ -7,7 +7,7 @@
   "user": "IBS",
   "note": "",
   "settings": {
-    "strategy": "ibsninja",
+    "strategy": "ibsnet",
     "exchange": null,
     "sweep": null,
     "pair": "BTC/USDT:USDT",

@@ -7,7 +7,7 @@
   "user": "",
   "note": "checkup 20260924-205105-9b55: 20250904-20260904",
   "settings": {
-    "strategy": "orbninja",
+    "strategy": "orbnet",
     "pair": "NAS100/USD",
     "engine": "multicharts",
     "timeframe": "15m",
@@ -21,7 +21,7 @@
     "profile": "tester/profiles/NINJA_ORB_RRR1.0_15m.json",
     "checkup": {
       "id": "20260924-205105-9b55",
-      "strategy": "orbninja"
+      "strategy": "orbnet"
     },
     "instrument": "nas100_dukascopy"
   },
