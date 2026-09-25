@@ -7,7 +7,7 @@
 //| da sablona (`deploy/mt5/<Meno>.mq5`) cez TRADEBOT_ENGINE_KEY.                                     |
 //|                                                                                                   |
 //| Overene: preklad, beh v Strategy Testeri (signaly 1:1 s Testerom), kreslenie na zivom grafe.        |
-//| Neoverene: zivy trh s tikmi, shorty, netting ucet (TODO v kode).                                  |
+//| Neoverene: zivy trh s tikmi, shorty, netting ucet (napisany; tester bezi v rezime uctu = hedging). |
 //| Preklada ho MetaEditor (`python -m tradebot.adapters.mt5 install` to spravi sam); v terminali musi  |
 //| byt `Tools > Options > Expert Advisors > Allow DLL imports`.                                       |
 //+------------------------------------------------------------------+
@@ -68,6 +68,7 @@ struct Tracked
    string   id;
    ulong    orderTicket;      // cakajuci vstup (0 = market alebo uz vyplneny)
    ulong    positionTicket;   // pozicia po vyplneni (hedging: ticket pozicie; netting: POSITION_ID dealu)
+   ulong    slTicket, tpTicket;   // netting: vlastne vystupne ordery (stop + limit) s komentarom = id
    bool     filled;
    double   openQty;
    int      dir;              // 1 long, -1 short
@@ -79,9 +80,12 @@ struct Tracked
   };
 Tracked g_orders[];
 
-//--- denny limit vyhier: den (UTC, yyyymmdd) -> pocet; "seen" je stav na zaciatku baru
+//--- denny limit vyhier (Pine `dailyWinsCount`): vyhra = obchod zavrety na SL/TP so ziskom > 0 voci planovanemu
+//--- vstupu; zavretie enginom (close, koniec seansy) sa nepocita. `seen` = stav na konci predosleho baru,
+//--- presne ako v NinjaTrader adapteri (engine sa pyta na zaciatku baru).
 long   g_winsDay = 0;      int g_winsCount = 0;
 long   g_winsSeenDay = 0;  int g_winsSeen = 0;
+long   g_limitLoggedDay = 0;
 
 //+------------------------------------------------------------------+
 //| Pomocne                                                          |
@@ -272,6 +276,7 @@ int OnInit()
       Print("TradeBot: POZOR, posun servera voci UTC je 0 - seansy engine-u su v UTC/pasme profilu, skontroluj InpServerGmtOffsetMin");
 
    if(InpShowDrawings) ObjectsDeleteAll(0, TB_OBJ_PREFIX);   // zvysky z predoslej instancie EA
+   if(InpScreenshotFile != "") { ChartSetInteger(0, CHART_SCALE, 2); ChartSetInteger(0, CHART_SHOW_GRID, false); }   // pred kreslenim: pozadia popiskov sa pocitaju z mierky
    ReplayHistory();
    if(InpScreenshotFile != "") EventSetTimer(3);   // graf sa musi najprv vykreslit
    return INIT_SUCCEEDED;
@@ -280,8 +285,6 @@ int OnInit()
 void OnTimer()
   {
    EventKillTimer();
-   ChartSetInteger(0, CHART_SCALE, 2);          // viac barov v zabere
-   ChartSetInteger(0, CHART_SHOW_GRID, false);
    ChartRedraw(0);
    bool ok = ChartScreenShot(0, InpScreenshotFile, 1800, 900, ALIGN_RIGHT);
    Print("TradeBot: screenshot ", InpScreenshotFile, ok ? " ulozeny" : " zlyhal", " (", GetLastError(), "), objektov ", ObjectsTotalPrefix());
@@ -429,6 +432,8 @@ void ProcessChartBar(const MqlRates &r)
         }
    long day = UtcDay(barMs);
    bool dailyLimit = g_maxDailyWins > 0 && g_winsSeenDay == day && g_winsSeen >= g_maxDailyWins;
+   if(dailyLimit && InpLogEvents && g_limitLoggedDay != day)
+     { g_limitLoggedDay = day; Print("DENNY LIMIT ", g_winsSeen, "/", g_maxDailyWins, " vyhier - dnes uz bez vstupov (", TimeToString(r.time, TIME_DATE | TIME_MINUTES), ")"); }
 
    bool real = r.real_volume > 0;
    string json = StaticHost::OnBar(g_engine, barMs, r.open, r.high, r.low, r.close, BarVolume(r, real),
@@ -513,7 +518,7 @@ void Apply(CJson *intent, bool ready)
       if(idx >= 0) RemoveOrder(idx);
 
       Tracked t;
-      t.id = id; t.orderTicket = 0; t.positionTicket = 0; t.filled = false; t.openQty = 0;
+      t.id = id; t.orderTicket = 0; t.positionTicket = 0; t.slTicket = 0; t.tpTicket = 0; t.filled = false; t.openQty = 0;
       t.dir = (int)p.Dbl("dir");
       t.entry = p.Dbl("e"); t.stopLoss = p.Dbl("sl"); t.takeProfit = p.Dbl("tp");
       CJson *tr = p.Find("tr");
@@ -523,7 +528,10 @@ void Apply(CJson *intent, bool ready)
       t.extreme = t.entry; t.lastStop = t.stopLoss;
 
       double lots = Lots(p.Dbl("q"));
-      double sl = Tick(t.stopLoss), tp = Tick(t.takeProfit), price = Tick(t.entry);
+      double price = Tick(t.entry);
+      // hedging: SL/TP na pozicii (kazdy vstup ma vlastnu); netting: pozicia je jedna na symbol, SL/TP by boli
+      // spolocne - vystupy su preto vlastne pending ordery s komentarom = id (PlaceExits po vyplneni)
+      double sl = g_hedging ? Tick(t.stopLoss) : 0, tp = g_hedging ? Tick(t.takeProfit) : 0;
       string ot = intent.Str("ot");
       bool isLong = t.dir > 0;
       bool ok;
@@ -538,7 +546,7 @@ void Apply(CJson *intent, bool ready)
       if(!ok || (g_trade.ResultRetcode() != TRADE_RETCODE_DONE && g_trade.ResultRetcode() != TRADE_RETCODE_PLACED))
         { Print("TradeBot: vstup ", id, " odmietnuty: ", g_trade.ResultRetcode(), " ", g_trade.ResultRetcodeDescription()); return; }
       t.orderTicket = g_trade.ResultOrder();
-      if(ot == "Market") { t.filled = true; t.openQty = lots; t.positionTicket = g_hedging ? g_trade.ResultDeal() : 0; }
+      // vyplnenie (aj market) zaeviduje az deal v OnTradeTransaction - inak by sa objem pocital dvakrat
       int n = ArraySize(g_orders);
       ArrayResize(g_orders, n + 1);
       g_orders[n] = t;
@@ -563,11 +571,47 @@ void Apply(CJson *intent, bool ready)
      }
   }
 
+bool Sent()
+  {
+   return g_trade.ResultRetcode() == TRADE_RETCODE_DONE || g_trade.ResultRetcode() == TRADE_RETCODE_PLACED;
+  }
+
+/// Netting: vystupy vstupu ako vlastne pending ordery (SL = stop, TP = limit) opacneho smeru s komentarom = id.
+/// Vyplnenie jedneho zrusi druhy (OCO robi adapter v OnTradeTransaction).
+void PlaceExits(int i)
+  {
+   if(g_hedging || g_orders[i].openQty <= 0) return;
+   bool isLong = g_orders[i].dir > 0;
+   double vol = g_orders[i].openQty, sl = Tick(g_orders[i].lastStop), tp = Tick(g_orders[i].takeProfit);
+   string id = g_orders[i].id;
+   if(isLong ? g_trade.SellStop(vol, sl, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id) : g_trade.BuyStop(vol, sl, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id))
+      if(Sent()) g_orders[i].slTicket = g_trade.ResultOrder();
+   if(g_orders[i].slTicket == 0) Print("TradeBot: SL order ", id, " odmietnuty: ", g_trade.ResultRetcode(), " ", g_trade.ResultRetcodeDescription());
+   if(isLong ? g_trade.SellLimit(vol, tp, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id) : g_trade.BuyLimit(vol, tp, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id))
+      if(Sent()) g_orders[i].tpTicket = g_trade.ResultOrder();
+   if(g_orders[i].tpTicket == 0) Print("TradeBot: TP order ", id, " odmietnuty: ", g_trade.ResultRetcode(), " ", g_trade.ResultRetcodeDescription());
+  }
+
+void CancelExits(int i)
+  {
+   if(g_orders[i].slTicket > 0) { g_trade.OrderDelete(g_orders[i].slTicket); g_orders[i].slTicket = 0; }
+   if(g_orders[i].tpTicket > 0) { g_trade.OrderDelete(g_orders[i].tpTicket); g_orders[i].tpTicket = 0; }
+  }
+
+/// Zavretie vstupu enginom (close, koniec seansy) - nepocita sa ako vyhra.
 void ClosePosition(int idx)
   {
-   // hedging: kazdy vstup ma vlastnu poziciu; netting: jedna pozicia na symbol, zatvara sa jej cast
-   if(g_hedging && g_orders[idx].positionTicket > 0) g_trade.PositionClose(g_orders[idx].positionTicket);
-   else g_trade.PositionClosePartial(_Symbol, g_orders[idx].openQty);   // TODO netting: overit smer a zvysok
+   if(g_hedging)
+     {
+      if(g_orders[idx].positionTicket > 0) g_trade.PositionClose(g_orders[idx].positionTicket);
+      return;
+     }
+   // netting: opacny market order s komentarom "close:<id>" zavrie prave tolko z netto pozicie
+   CancelExits(idx);
+   double vol = MathMin(g_orders[idx].openQty, PositionSelect(_Symbol) ? PositionGetDouble(POSITION_VOLUME) : 0);
+   if(vol <= 0) { g_orders[idx].openQty = 0; return; }
+   string comment = "close:" + g_orders[idx].id;
+   if(g_orders[idx].dir > 0) g_trade.Sell(vol, _Symbol, 0, 0, 0, comment); else g_trade.Buy(vol, _Symbol, 0, 0, 0, comment);
   }
 
 /// Koniec poslednej seansy dna: zrus cakajuce vstupy a zavri, co ostalo otvorene.
@@ -603,14 +647,50 @@ void UpdateTrailing(const MqlRates &r)
       bool better = isLong ? stop > g_orders[i].lastStop : stop < g_orders[i].lastStop;
       if(!better) continue;
       g_orders[i].lastStop = stop;
-      if(g_hedging && g_orders[i].positionTicket > 0) g_trade.PositionModify(g_orders[i].positionTicket, Tick(stop), Tick(g_orders[i].takeProfit));
-      else g_trade.PositionModify(_Symbol, Tick(stop), Tick(g_orders[i].takeProfit));   // TODO netting: SL je spolocny
+      if(g_hedging) { if(g_orders[i].positionTicket > 0) g_trade.PositionModify(g_orders[i].positionTicket, Tick(stop), Tick(g_orders[i].takeProfit)); }
+      else if(g_orders[i].slTicket > 0) g_trade.OrderModify(g_orders[i].slTicket, Tick(stop), 0, 0, ORDER_TIME_GTC, 0, 0);
      }
   }
 
 //+------------------------------------------------------------------+
 //| Vyplnenia: co sa stalo s nasimi ordermi (zrkadlo OnExecutionUpdate v NinjaTraderi)                 |
 //+------------------------------------------------------------------+
+void CountWin(int i, double exitPrice, datetime dealTime)
+  {
+   // Pine `dailyWinsCount`: vyhra = zisk voci PLANOVANEMU vstupu > 0 (ako NinjaTrader adapter)
+   double move = g_orders[i].dir > 0 ? exitPrice - g_orders[i].entry : g_orders[i].entry - exitPrice;
+   if(move <= 0) return;
+   long day = UtcDay(ToMs(dealTime));
+   if(g_winsDay != day) { g_winsDay = day; g_winsCount = 0; }
+   g_winsCount++;
+   if(InpLogEvents) Print("VYHRA ", g_orders[i].id, " @", exitPrice, " (", g_winsCount, ". dnes)");
+}
+
+/// Uzavretie casti/celeho vstupu; `win` = vystup na SL/TP (pocita sa do denneho limitu).
+void Reduce(int i, double volume, double price, datetime dealTime, bool win)
+  {
+   g_orders[i].openQty = MathMax(0.0, g_orders[i].openQty - volume);
+   if(g_orders[i].openQty > 0) return;
+   CancelExits(i);
+   if(win) CountWin(i, price, dealTime);
+   RemoveOrder(i);
+  }
+
+/// Netting: vstup opacneho smeru najprv zavrie vsetko otvorene v opacnom smere (deal OUT/INOUT).
+/// Vrati objem, ktory sa tym zavrel.
+double CloseOpposite(int dir, double volume, double price, datetime dealTime)
+  {
+   double closed = 0;
+   for(int i = ArraySize(g_orders) - 1; i >= 0 && volume - closed > 1e-9; i--)
+     {
+      if(!g_orders[i].filled || g_orders[i].openQty <= 0 || g_orders[i].dir == dir) continue;
+      double part = MathMin(g_orders[i].openQty, volume - closed);
+      closed += part;
+      Reduce(i, part, price, dealTime, false);   // zavretie opacnym vstupom nie je SL/TP
+     }
+   return closed;
+  }
+
 void OnTradeTransaction(const MqlTradeTransaction &trans, const MqlTradeRequest &request, const MqlTradeResult &result)
   {
    if(trans.type != TRADE_TRANSACTION_DEAL_ADD) return;
@@ -618,32 +698,54 @@ void OnTradeTransaction(const MqlTradeTransaction &trans, const MqlTradeRequest 
    if(HistoryDealGetInteger(trans.deal, DEAL_MAGIC) != InpMagic) return;
    string comment = HistoryDealGetString(trans.deal, DEAL_COMMENT);
    ENUM_DEAL_ENTRY entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(trans.deal, DEAL_ENTRY);
+   ENUM_DEAL_REASON reason = (ENUM_DEAL_REASON)HistoryDealGetInteger(trans.deal, DEAL_REASON);
+   ENUM_DEAL_TYPE type = (ENUM_DEAL_TYPE)HistoryDealGetInteger(trans.deal, DEAL_TYPE);
    double volume = HistoryDealGetDouble(trans.deal, DEAL_VOLUME);
-   double profit = HistoryDealGetDouble(trans.deal, DEAL_PROFIT);
+   double price = HistoryDealGetDouble(trans.deal, DEAL_PRICE);
+   datetime dealTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
    ulong positionId = (ulong)HistoryDealGetInteger(trans.deal, DEAL_POSITION_ID);
+   int dealDir = type == DEAL_TYPE_BUY ? 1 : (type == DEAL_TYPE_SELL ? -1 : 0);
+   if(dealDir == 0) return;
 
-   if(entry == DEAL_ENTRY_IN)
+   int idx = FindOrder(comment);
+   bool isEntryDeal = idx >= 0 && !g_orders[idx].filled;
+
+   if(isEntryDeal || entry == DEAL_ENTRY_IN || entry == DEAL_ENTRY_INOUT)
      {
-      int idx = FindOrder(comment);
+      // netting: vstup proti otvorenej pozicii ju najprv zavrie (OUT = cely, INOUT = cast a zvysok otvori)
+      double closed = g_hedging ? 0 : CloseOpposite(dealDir, volume, price, dealTime);
+      idx = FindOrder(comment);   // CloseOpposite mohol pole preusporiadat
       if(idx < 0) return;
       g_orders[idx].filled = true;
-      g_orders[idx].openQty += volume;
+      g_orders[idx].openQty += volume - closed;
       g_orders[idx].positionTicket = positionId;
+      if(g_orders[idx].openQty > 0) PlaceExits(idx); else RemoveOrder(idx);
       return;
      }
-   // vystup: SL/TP/close - deal nesie POSITION_ID vstupu (hedging); na nettingu je pozicia spolocna (TODO)
-   for(int i = 0; i < ArraySize(g_orders); i++)
+
+   // vystup
+   if(g_hedging)
      {
-      if(!g_orders[i].filled || g_orders[i].openQty <= 0) continue;
-      if(g_hedging && g_orders[i].positionTicket != positionId) continue;
-      g_orders[i].openQty = MathMax(0.0, g_orders[i].openQty - volume);
-      if(g_orders[i].openQty <= 0 && profit > 0)
-        {
-         long day = UtcDay(ToMs((datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME)));
-         if(g_winsDay != day) { g_winsDay = day; g_winsCount = 0; }
-         g_winsCount++;
-        }
-      break;
+      for(int i = 0; i < ArraySize(g_orders); i++)
+         if(g_orders[i].filled && g_orders[i].openQty > 0 && g_orders[i].positionTicket == positionId)
+           { Reduce(i, volume, price, dealTime, reason == DEAL_REASON_SL || reason == DEAL_REASON_TP); return; }
+      return;
+     }
+   if(idx >= 0) { Reduce(idx, volume, price, dealTime, true); return; }          // nas SL/TP order (komentar = id)
+   if(StringFind(comment, "close:") == 0)
+     {
+      idx = FindOrder(StringSubstr(comment, 6));
+      if(idx >= 0) Reduce(idx, volume, price, dealTime, false);
+      return;
+     }
+   // cudzie zavretie netto pozicie (rucne, stop-out): odpise sa z otvorenych vstupov v smere pozicie
+   double left = volume;
+   for(int i = ArraySize(g_orders) - 1; i >= 0 && left > 1e-9; i--)
+     {
+      if(!g_orders[i].filled || g_orders[i].openQty <= 0 || g_orders[i].dir == dealDir) continue;
+      double part = MathMin(g_orders[i].openQty, left);
+      left -= part;
+      Reduce(i, part, price, dealTime, false);
      }
   }
 

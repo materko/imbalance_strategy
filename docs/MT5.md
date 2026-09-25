@@ -52,16 +52,29 @@ a text je v `LastError()`.
   cez `CopyRates`) bez obchodovania (`ready = 0`), potom každý nový bar v `OnTick`;
 - **HTF**: bary informatívneho TF uzavreté najneskôr s otvorením baru grafu idú do `FeedHtf`
   pred ním — engine si okno vyberie podľa času;
-- **ordery** cez `CTrade`: limit/stop/market so SL a TP, komentár = id vstupu, magic number;
-  cancel = `OrderDelete`, close = `PositionClose`; trailing z `TradePlan.Trailing` sa posúva na
-  zatvorení baru a nikdy späť; koniec seansy = flatten;
+- **ordery** cez `CTrade`: limit/stop/market, komentár = id vstupu, magic number; vyplnenie (aj
+  market) eviduje až deal v `OnTradeTransaction`; cancel = `OrderDelete`; trailing z
+  `TradePlan.Trailing` sa posúva na zatvorení baru a nikdy späť; koniec seansy = flatten.
+  **Hedging účet**: každý vstup je vlastná pozícia so SL/TP na nej (ako NinjaTrader
+  `UniqueEntries`), close = `PositionClose`. **Netting účet**: pozícia je jedna na symbol, SL/TP
+  by boli spoločné, preto sú výstupy vlastné pending ordery opačného smeru (stop = SL, limit =
+  TP) s komentárom = id; vyplnenie jedného zruší druhý, trailing = `OrderModify` stopu, close =
+  opačný market order `close:<id>`, vstup proti otvorenej pozícii najprv odpíše otvorené vstupy
+  opačného smeru (deal OUT/INOUT) a cudzie zavretie (ručné, stop-out) sa odpíše z otvorených
+  vstupov v smere pozície;
+- **denný limit výhier** (Pine `dailyWinsCount`) presne ako NinjaTrader: výhra = obchod zavretý na
+  SL/TP so ziskom > 0 voči plánovanému vstupu (hedging podľa `DEAL_REASON_SL/TP`, netting podľa
+  komentára výstupného orderu), zavretie enginom sa nepočíta; engine sa pýta na stav z konca
+  predošlého baru;
 - **kresby**: každý `DrawCommand` z engine-u je objekt grafu s menom `TB_<id>` (box = `OBJ_RECTANGLE`,
   line = `OBJ_TREND`, label = `OBJ_TEXT`, bgcolor = obdĺžnik cez celú výšku); registrom pre `update`
   a `delete` je sám graf. MT5 nemá priehľadnosť objektov, alfa z `#rrggbbaa` sa zmieša s farbou pozadia
   grafu a výplne idú do pozadia (`OBJPROP_BACK`), aby neprekryli sviečky; box s výplňou aj okrajom sú
   dva objekty (`TB_<id>` a `TB_<id>_b`). `FinalDrawings` (Pine `barstate.islast`) sa kreslia naživo na
-  každom bare, v testeri na konci behu. Vstupy `InpShowDrawings`, `InpShowSessionBg`, `InpReplayBars`
-  (koľko barov predhistórie prehrať a nakresliť);
+  každom bare, v testeri na konci behu. Popisok s pozadím (`bg`) = `OBJ_TEXT` + vyplnený obdĺžnik
+  `TB_<id>_bg` za ním, veľkosť z pixelov textu prepočítaná na čas a cenu (sedí presne pri mierke,
+  v ktorej vznikol). Vstupy `InpShowDrawings`, `InpShowSessionBg`, `InpReplayBars` (koľko barov
+  predhistórie prehrať a nakresliť);
 - **export signálov** do `Common\Files\TradeBot\logs\*.csv` v tvare NinjaTrader exportu
   (`kind;bar_open_ms;id;a;b;entry;sl;tp;qty;ready;text`), takže porovnanie s Testerom je to isté
   `python -m tester.ninjatrader compare --csv <súbor>`.
@@ -80,9 +93,10 @@ pár hodín vedľa. Živý účet: `TimeTradeServer() - TimeGMT()`.
 Hotové a overené: fasáda (test parity s mostom), preklad oboch EA MetaEditorom (0 chýb),
 profil, instrument, predhistória, HTF, JSON parser, tok orderov, trailing, export signálov,
 inštalátor, **beh v Strategy Testeri so signálmi zhodnými s Testerom** (nižšie), **kreslenie na
-živom grafe** (screenshot nižšie). Neoverené: živý graf s tikmi (custom symbol ich nemá), shorty,
-netting účet. Chýba (TODO v kóde): netting účet (spoločný SL a zvyšok pozície), overenie denného
-limitu výhier na reálnych dealoch, pozadie popisiek (`OBJ_TEXT` ho nemá).
+živom grafe** vrátane pozadia popiskov, **denný limit výhier** (profil s `maxDailyWins=1`: 38 dní
+s limitom, 0 vstupov po limite v ten deň). Napísané, ale **neoverené**: netting účet — tester berie
+režim z účtu a tvoj demo je hedging; na overenie treba netting demo (pri zakladaní účtu typ
+„netting“). Neoverené aj: živý graf s tikmi (custom symbol ich nemá), shorty.
 
 ## Inštalácia a beh
 

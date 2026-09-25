@@ -138,10 +138,32 @@ void TbLabel(CJson *o, datetime t)
    ObjectSetString(0, name, OBJPROP_FONT, "Arial");
    ObjectSetInteger(0, name, OBJPROP_FONTSIZE, 8);
    ObjectSetInteger(0, name, OBJPROP_COLOR, c);
-   // `ab` = text nad bodom (kotva dole), inak pod nim (kotva hore); OBJ_TEXT pozadie nema, `bg` sa ignoruje
+   // `ab` = text nad bodom (kotva dole), inak pod nim (kotva hore)
    bool above = o.Find("ab") == NULL || o.Bool("ab");
    ObjectSetInteger(0, name, OBJPROP_ANCHOR, above ? ANCHOR_LOWER : ANCHOR_UPPER);
    TbCommonProps(name, false);
+   // OBJ_TEXT pozadie nema: `bg` je vyplneny obdlznik za textom, velkost z pixelov textu prepocitana na cas a cenu
+   bool bgVisible;
+   color bg = TbColor(o.Str("bg"), bgVisible);
+   if(bgVisible) TbLabelBg(name, t, y, above, o.Str("tx"), bg); else ObjectDelete(0, name + "_bg");
+  }
+
+/// Pozadie popisku: obdlznik `<name>_bg` okolo textu. Sedi presne pri mierke, v ktorej vznikol
+/// (pri zmene mierky grafu ostane v cene a case, nie v pixeloch).
+void TbLabelBg(string name, datetime t, double y, bool above, string text, color bg)
+  {
+   int chartW = (int)ChartGetInteger(0, CHART_WIDTH_IN_PIXELS), chartH = (int)ChartGetInteger(0, CHART_HEIGHT_IN_PIXELS);
+   int bars = (int)ChartGetInteger(0, CHART_WIDTH_IN_BARS);
+   double pMax = ChartGetDouble(0, CHART_PRICE_MAX), pMin = ChartGetDouble(0, CHART_PRICE_MIN);
+   if(chartW <= 0 || chartH <= 0 || bars <= 0 || pMax <= pMin) return;   // tester bez vizualu
+   uint w, h;
+   TextSetFont("Arial", -80);
+   if(!TextGetSize(text, w, h)) return;
+   double secPerPx = (double)bars * PeriodSeconds() / chartW;
+   double pricePerPx = (pMax - pMin) / chartH;
+   datetime t1 = t - (datetime)((w + 4) / 2 * secPerPx), t2 = t + (datetime)((w + 4) / 2 * secPerPx);
+   double p1 = above ? y : y - (h + 2) * pricePerPx, p2 = above ? y + (h + 2) * pricePerPx : y;
+   TbRect(name + "_bg", t1, p1, t2, p2, bg, true, 1, STYLE_SOLID, "");
   }
 
 void TbBg(CJson *o, datetime t1, datetime t2)
@@ -192,6 +214,11 @@ void TbUpdate(CJson *o)
      }
    else if(field == "text")
       ObjectSetString(0, name, OBJPROP_TEXT, v.type == JSON_STRING ? v.str : DoubleToString(v.num, 2));
+   // popisok s pozadim: po posune alebo zmene textu sa pozadie prepocita
+   if(ObjectFind(0, name + "_bg") >= 0 && ObjectGetInteger(0, name, OBJPROP_TYPE) == OBJ_TEXT)
+      TbLabelBg(name, (datetime)ObjectGetInteger(0, name, OBJPROP_TIME, 0), ObjectGetDouble(0, name, OBJPROP_PRICE, 0),
+                ObjectGetInteger(0, name, OBJPROP_ANCHOR) == ANCHOR_LOWER, ObjectGetString(0, name, OBJPROP_TEXT),
+                (color)ObjectGetInteger(0, name + "_bg", OBJPROP_COLOR));
   }
 
 /// Jeden prikaz engine-u. `TbFromMs` (ms UTC otvorenia baru -> cas servera) dava hostitel (TradeBotEA.mqh).
@@ -203,7 +230,7 @@ void TbDraw(CJson *o)
    else if(t == "label") TbLabel(o, TbFromMs((long)o.Dbl("x")));
    else if(t == "bg") TbBg(o, TbFromMs((long)o.Dbl("x1")), TbFromMs((long)o.Dbl("x2")));
    else if(t == "update") TbUpdate(o);
-   else if(t == "delete") { string name = TbObjName(o.Str("id")); ObjectDelete(0, name); ObjectDelete(0, name + "_b"); }
+   else if(t == "delete") { string name = TbObjName(o.Str("id")); ObjectDelete(0, name); ObjectDelete(0, name + "_b"); ObjectDelete(0, name + "_bg"); }
   }
 
 int TbObjectsCount() { return ObjectsTotal(0, -1, -1) > 0 ? ObjectsTotalPrefix() : 0; }
