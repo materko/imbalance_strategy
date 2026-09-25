@@ -53,6 +53,8 @@ namespace TradeBot.Strategies.IbsNet
         public double? ImbHigh;
         public double? ImbLow;
         public int? ImbBarIndex;
+        /// <summary>Pine `zImb0LblDrawnA` - stitok "0" pri imbalance sviecke uz je nakresleny.</summary>
+        public bool Imb0Drawn;
 
         // ---- order ----
         public double? OrderSl;

@@ -86,9 +86,25 @@ namespace TradeBot.Strategies.IbsNet
         /// <summary>`tradeDirection = Indicator`; bez neho sa smer indikatorom neobmedzuje.</summary>
         public DirectionGate DirectionGate;
 
+        /// <summary>Pine `stateLabelMax` - graf drzi len poslednych tolko cisel stavov, starsie sa zmazu.</summary>
+        public const int StateLabelMax = 350;
+        /// <summary>Pine `stateLabelPool` pre cisla stavov (obj_id v poradi vzniku).</summary>
+        private readonly Queue<string> _stateLabels = new Queue<string>();
+        /// <summary>Pine `lblCountUp` / `lblCountDown` - cisla viacerych zon na jednom bare idu pod seba.</summary>
+        private int _lblUp, _lblDown;
+        /// <summary>Pine lokalne `st` ostane po timeoute STATE 1-3 na starej hodnote (zona je uz -1).</summary>
+        private int? _timeoutSt;
+
         public StateMachine(IbsConfig cfg, InstrumentSpec inst, ZoneBook book)
         {
             _cfg = cfg; _inst = inst; _book = book;
+        }
+
+        /// <summary>Pine `str.tostring(float)` - bez nadbytocnych nul, `na` ako "NaN".</summary>
+        public static string PineToString(double? v)
+        {
+            if (!v.HasValue) return "NaN";
+            return v.Value.ToString("0.##########", System.Globalization.CultureInfo.InvariantCulture);
         }
 
         public List<OrderIntent> OnBar(Bar bar, BarHistory history, MarketContext ctx, double atr)
@@ -96,6 +112,8 @@ namespace TradeBot.Strategies.IbsNet
             List<OrderIntent> intents = new List<OrderIntent>();
             Events = new List<StateEvent>();
             Drawings = new List<DrawCommand>();
+            _lblUp = 0;
+            _lblDown = 0;
 
             Expire(bar);
 
@@ -173,6 +191,7 @@ namespace TradeBot.Strategies.IbsNet
         private List<OrderIntent> Advance(Zone z, Bar bar, BarHistory history, MarketContext ctx, double atr)
         {
             List<OrderIntent> intents = new List<OrderIntent>();
+            _timeoutSt = null;
 
             if (z.State == ZoneState.Waiting) State0(z, bar, history, atr);
 
@@ -187,6 +206,7 @@ namespace TradeBot.Strategies.IbsNet
             if (z.State == ZoneState.Ready) intents.AddRange(State4(z, bar, history, ctx, atr));
             if (z.State == ZoneState.OrderPending) intents.AddRange(State5(z, bar, history, ctx));
 
+            DrawStateLabel(z, bar, history);
             return intents;
         }
 
@@ -304,6 +324,7 @@ namespace TradeBot.Strategies.IbsNet
             if (hit == null || (z.ImbBarIndex.HasValue && hit.BarIndex == z.ImbBarIndex.Value)) return none;
 
             TakeHit(z, hit);
+            z.Imb0Drawn = false;
             z.Filled = false;
             z.PendingInvalid = false;
             z.Ordered = false;
@@ -338,6 +359,7 @@ namespace TradeBot.Strategies.IbsNet
         {
             if (BarsInState(z, history) > _cfg.state1MaxBars)
             {
+                _timeoutSt = ZoneState.GapFound;
                 Invalidate(z, bar, "STATE1 timeout");
                 return;
             }
@@ -357,6 +379,7 @@ namespace TradeBot.Strategies.IbsNet
         {
             if (BarsInState(z, history) > _cfg.state2MaxBars)
             {
+                _timeoutSt = ZoneState.LeftZone;
                 Invalidate(z, bar, "STATE2 timeout");
                 return;
             }
@@ -375,6 +398,7 @@ namespace TradeBot.Strategies.IbsNet
         {
             if (BarsInState(z, history) > _cfg.state3MaxBars)
             {
+                _timeoutSt = ZoneState.Confirmed;
                 Invalidate(z, bar, "STATE3 timeout");
                 return;
             }
@@ -524,6 +548,50 @@ namespace TradeBot.Strategies.IbsNet
             label.ObjId = "z" + z.Uid + "." + kind + "." + bar.Time;
             label.ZoneUid = z.Uid;
             Drawings.Add(label);
+        }
+
+        /// <summary>Pine 2237-2269 - cislo stavu pod/nad svieckou, kym je zona v STATE 1-4;
+        /// pri prvom cisle zony este "0" pri imbalance sviecke.</summary>
+        private void DrawStateLabel(Zone z, Bar bar, BarHistory history)
+        {
+            int st = _timeoutSt.HasValue ? _timeoutSt.Value : z.State;
+            if (st < 1 || st > 4) return;
+            bool isLong = z.Direction == Direction.Long;
+            string color = isLong ? Palette.Long : Palette.Short;
+            double tick = _inst.TickSize;
+
+            if (!z.Imb0Drawn && z.ImbBarIndex.HasValue)
+            {
+                int offset = history.BarIndex - z.ImbBarIndex.Value;
+                long x = history.Has(offset) ? history[offset].Time : bar.Time - offset * _book.StepMs;
+                double y0 = isLong
+                    ? (z.ImbLow.HasValue ? z.ImbLow.Value : bar.Low) - tick * 5
+                    : (z.ImbHigh.HasValue ? z.ImbHigh.Value : bar.High) + tick * 5;
+                DrawLabel zero = new DrawLabel(IbsKinds.ImbZero, x, y0, "0", color);
+                zero.Above = !isLong;
+                zero.ObjId = "z" + z.Uid + "." + IbsKinds.ImbZero + "." + x;
+                zero.ZoneUid = z.Uid;
+                PushStateLabel(zero);
+                z.Imb0Drawn = true;
+            }
+
+            double off = tick * 10;
+            double y;
+            if (isLong) { y = bar.Low - off * (1 + _lblUp); _lblUp++; }
+            else { y = bar.High + off * (1 + _lblDown); _lblDown++; }
+            string text = st == 4 ? "4\n" + PineToString(z.ImbOpen) : st.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            DrawLabel label = new DrawLabel(IbsKinds.Counter, bar.Time, y, text, color);
+            label.Above = !isLong;
+            label.ObjId = "z" + z.Uid + "." + IbsKinds.Counter + "." + bar.Time;
+            label.ZoneUid = z.Uid;
+            PushStateLabel(label);
+        }
+
+        private void PushStateLabel(DrawLabel label)
+        {
+            Drawings.Add(label);
+            _stateLabels.Enqueue(label.ObjId);
+            if (_stateLabels.Count > StateLabelMax) Drawings.Add(new DrawDelete(_stateLabels.Dequeue()));
         }
 
         /// <summary>Pine `canTrade` - poradie dovodov je zachovane, lebo sa zobrazuje v SKIP labeli.</summary>

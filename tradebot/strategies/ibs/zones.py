@@ -181,6 +181,8 @@ class Zone:
     imb_high: float | None = None
     imb_low: float | None = None
     imb_bar_index: int | None = None
+    #: Pine `zImb0LblDrawnA` — štítok „0" pri imbalance sviečke už je nakreslený.
+    imb0_drawn: bool = False
 
     # ---- order (Pine zS4OrderedA, zOrderSlA, zFilledA, zPendingInvalidA) -- #
     order_sl: float | None = None

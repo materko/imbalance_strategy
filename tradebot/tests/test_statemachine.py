@@ -330,6 +330,72 @@ def test_full_long_sequence_reaches_an_order(cfg, ctx):
     assert entries[0].order_id == "LONG_0"
 
 
+def _state_labels(drawings):
+    from tradebot.core import DrawKind, DrawLabel
+
+    return [(d.kind.value, d.x_ms, d.y, d.text) for d in drawings
+            if isinstance(d, DrawLabel) and d.kind in (DrawKind.COUNTER, DrawKind.IMB_ZERO)]
+
+
+def test_cisla_stavov_ako_v_pine(cfg, ctx):
+    """Pine 2237-2269: „0" pri imbalance sviečke, potom číslo stavu pod každým barom v STATE 1-4."""
+    cfg.state3MaxBars = 5
+    book = ZoneBook(cfg, MNQ, chart_tf_minutes=3)
+    sm = StateMachine(cfg, MNQ, book)
+    make_zone(book, top=100.0, bot=90.0)
+    h = BarHistory()
+    seq = [
+        bar(0, 125, 126, 120, 121),
+        bar(1, 118, 119, 112, 113),
+        bar(2, 105, 106, 95, 99),     # gap a hneď aj výstup: 0 -> 1 -> 2
+        bar(3, 99, 112, 98, 100.5),   # stále STATE 2
+        bar(4, 101, 122, 101, 121),   # 2 -> 3 -> 4 -> 5: order, žiadne číslo
+    ]
+    labels = []
+    for b in seq:
+        h.append(b)
+        sm.on_bar(b, h, ctx)
+        labels += _state_labels(sm.drawings)
+
+    tick = MNQ.tick_size
+    assert labels == [
+        ("imb_zero", seq[1].time, 112 - tick * 5, "0"),
+        ("counter", seq[2].time, 95 - tick * 10, "2"),
+        ("counter", seq[3].time, 98 - tick * 10, "2"),
+    ]
+
+
+def test_cislo_stavu_sa_nakresli_aj_na_bare_timeoutu(cfg, ctx):
+    """Pine po timeoute STATE 1-3 nezmení lokálne `st`, takže číslo na tom bare ešte je."""
+    cfg.state1MaxBars = 2
+    book = ZoneBook(cfg, MNQ, chart_tf_minutes=3)
+    sm = StateMachine(cfg, MNQ, book)
+    z = make_zone(book)
+    z.state = ZoneState.GAP_FOUND
+    z.imb0_drawn = True
+    h = BarHistory()
+    texts = []
+    for i in range(5):
+        h.append(bar(i, 95, 96, 94, 95))
+        if z.state_bar_index is None:
+            z.state_bar_index = h.bar_index
+        sm.on_bar(h.current, h, ctx)
+        texts.append([t for *_, t in _state_labels(sm.drawings)])
+    assert texts == [["1"], ["1"], ["1"], ["1"], []]  # timeout na 4. bare, potom už nič
+
+
+def test_cisla_stavov_drzi_len_poslednych_350(cfg):
+    from tradebot.core import DrawDelete, DrawKind, DrawLabel
+    from tradebot.strategies.ibs.statemachine import STATE_LABEL_MAX
+
+    sm = StateMachine(cfg, MNQ, ZoneBook(cfg, MNQ, chart_tf_minutes=3))
+    for i in range(STATE_LABEL_MAX + 2):
+        sm._push_state_label(DrawLabel(kind=DrawKind.COUNTER, x_ms=i, y=0.0, text="1",
+                                       color="#000000", obj_id=f"c{i}"))
+    deletes = [d.obj_id for d in sm.drawings if isinstance(d, DrawDelete)]
+    assert deletes == ["c0", "c1"]
+
+
 def test_state3_waits_for_the_trade_window(cfg):
     """Retest mimo trade okna nesmie spustiť order."""
     book = ZoneBook(cfg, MNQ, chart_tf_minutes=3)

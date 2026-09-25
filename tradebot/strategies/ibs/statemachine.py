@@ -21,6 +21,7 @@ splnené a v podmienkach sa už neobjavuje.
 
 from __future__ import annotations
 
+from collections import deque
 from enum import IntEnum
 from typing import TYPE_CHECKING
 
@@ -68,6 +69,17 @@ class ZoneState(IntEnum):
     ORDER_PENDING = 5
 
 
+#: Pine `stateLabelMax` — graf drží len posledných toľko čísel stavov, staršie sa zmažú.
+STATE_LABEL_MAX = 350
+
+
+def pine_tostring(v: float | None) -> str:
+    """Pine `str.tostring(float)` — bez nadbytočných núl, `na` ako „NaN"."""
+    if v is None:
+        return "NaN"
+    return f"{v:.10f}".rstrip("0").rstrip(".")
+
+
 class StateMachine:
     """Posúva všetky zóny o jeden bar. Stav drží v samotných `Zone` objektoch."""
 
@@ -80,6 +92,14 @@ class StateMachine:
         self.drawings: list[DrawCommand] = []
         #: `tradeDirection = Indicator` — nastaví engine; bez neho sa smer indikátorom neobmedzuje
         self.direction_gate: DirectionGate | None = None
+        #: Pine `stateLabelPool` pre čísla stavov (obj_id v poradí vzniku).
+        self._state_labels: deque[str] = deque()
+        #: Pine `lblCountUp` / `lblCountDown` — čísla viacerých zón na jednom bare sa skladajú pod seba.
+        self._lbl_up = 0
+        self._lbl_down = 0
+        #: Pine lokálne `st` ostane po timeoute STATE 1-3 na starej hodnote (zóna je už -1),
+        #: takže sa na tom bare ešte nakreslí číslo stavu.
+        self._timeout_st: int | None = None
 
     # ------------------------------------------------------------------ #
 
@@ -94,6 +114,7 @@ class StateMachine:
         intents: list[OrderIntent] = []
         self.events = []
         self.drawings = []
+        self._lbl_up = self._lbl_down = 0
 
         self._expire(bar)
 
@@ -198,6 +219,7 @@ class StateMachine:
     ) -> list[OrderIntent]:
         cfg = self.cfg
         intents: list[OrderIntent] = []
+        self._timeout_st = None
 
         if z.state == ZoneState.WAITING:
             self._state0(z, bar, history, atr)
@@ -223,6 +245,7 @@ class StateMachine:
         if z.state == ZoneState.ORDER_PENDING:
             intents += self._state5(z, bar, history, ctx)
 
+        self._draw_state_label(z, bar, history)
         return intents
 
     # ---- STATE 0 ------------------------------------------------------- #
@@ -329,6 +352,7 @@ class StateMachine:
         z.imb_high = hit.high
         z.imb_low = hit.low
         z.imb_bar_index = hit.bar_index
+        z.imb0_drawn = False
         z.filled = False
         z.pending_invalid = False
         z.ordered = False
@@ -364,6 +388,7 @@ class StateMachine:
 
     def _state1(self, z: Zone, bar: Bar, history: BarHistory) -> None:
         if self._bars_in_state(z, history) > self.cfg.state1MaxBars:
+            self._timeout_st = ZoneState.GAP_FOUND
             self._invalidate(z, bar, "STATE1 timeout")
             return
 
@@ -377,6 +402,7 @@ class StateMachine:
 
     def _state2(self, z: Zone, bar: Bar, history: BarHistory, atr: float) -> None:
         if self._bars_in_state(z, history) > self.cfg.state2MaxBars:
+            self._timeout_st = ZoneState.LEFT_ZONE
             self._invalidate(z, bar, "STATE2 timeout")
             return
 
@@ -391,6 +417,7 @@ class StateMachine:
 
     def _state3(self, z: Zone, bar: Bar, history: BarHistory, ctx: MarketContext) -> None:
         if self._bars_in_state(z, history) > self.cfg.state3MaxBars:
+            self._timeout_st = ZoneState.CONFIRMED
             self._invalidate(z, bar, "STATE3 timeout")
             return
 
@@ -543,6 +570,55 @@ class StateMachine:
                 zone_uid=z.uid,
             )
         )
+
+    def _draw_state_label(self, z: Zone, bar: Bar, history: BarHistory) -> None:
+        """Pine riadky 2237–2269 — číslo stavu pod/nad sviečkou, kým je zóna v STATE 1–4.
+
+        Pri prvom čísle zóny sa ešte nakreslí „0" pri imbalance sviečke. Čísla viacerých
+        zón na jednom bare idú pod seba (Pine `lblCountUp/Down`) a graf ich drží len
+        `STATE_LABEL_MAX` — staršie sa mažú ako v Pine `stateLabelPool`.
+        """
+        st = self._timeout_st if self._timeout_st is not None else int(z.state)
+        if not 1 <= st <= 4:
+            return
+        long = z.direction is Direction.LONG
+        color = PAL.LONG.value if long else PAL.SHORT.value
+        tick = self.inst.tick_size
+
+        if not z.imb0_drawn and z.imb_bar_index is not None:
+            offset = history.bar_index - z.imb_bar_index
+            try:
+                x = history[offset].time
+            except IndexError:
+                x = bar.time - offset * self.book.step_ms
+            if long:
+                y = (z.imb_low if z.imb_low is not None else bar.low) - tick * 5
+            else:
+                y = (z.imb_high if z.imb_high is not None else bar.high) + tick * 5
+            self._push_state_label(DrawLabel(
+                kind=DrawKind.IMB_ZERO, x_ms=x, y=y, text="0", color=color, above=not long,
+                obj_id=f"z{z.uid}.{DrawKind.IMB_ZERO.value}.{x}", zone_uid=z.uid,
+            ))
+            z.imb0_drawn = True
+
+        off = tick * 10
+        if long:
+            y = bar.low - off * (1 + self._lbl_up)
+            self._lbl_up += 1
+        else:
+            y = bar.high + off * (1 + self._lbl_down)
+            self._lbl_down += 1
+        text = f"4\n{pine_tostring(z.imb_open)}" if st == 4 else str(st)
+        self._push_state_label(DrawLabel(
+            kind=DrawKind.COUNTER, x_ms=bar.time, y=y, text=text, color=color, above=not long,
+            obj_id=f"z{z.uid}.{DrawKind.COUNTER.value}.{bar.time}", zone_uid=z.uid,
+        ))
+
+    def _push_state_label(self, label: DrawLabel) -> None:
+        self.drawings.append(label)
+        self._state_labels.append(label.obj_id)
+        if len(self._state_labels) > STATE_LABEL_MAX:
+            self.drawings.append(DrawDelete(self._state_labels.popleft()))
 
     def _skip_reason(
         self,
