@@ -1,0 +1,147 @@
+$ /Users/martin/document/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json --userdir /Users/martin/document/IBS/deploy/freqtrade/user_data --strategy IBSEntryZoneStrategy --cache none --export trades --timerange 20250904-20260904 --pairs MNQ/USD --timeframe 3m --dry-run-wallet 10000.0 --fee 0.0 --datadir /Users/martin/document/IBS/data/tester/databento --backtest-directory /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260925-165334-d6bdab
+2026-09-25 18:53:41,164 - freqtrade - INFO - freqtrade 2026.8
+2026-09-25 18:53:41,703 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json ...
+2026-09-25 18:53:41,705 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-25 18:53:41,705 - freqtrade.loggers - INFO - Logfile configured
+2026-09-25 18:53:41,705 - freqtrade.loggers - INFO - Verbosity set to 0
+2026-09-25 18:53:41,705 - freqtrade.configuration.configuration - INFO - Parameter -i/--timeframe detected ... Using timeframe: 3m ...
+2026-09-25 18:53:41,705 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2026-09-25 18:53:41,705 - freqtrade.configuration.configuration - INFO - Parameter --dry-run-wallet detected, overriding dry_run_wallet to: 10000.0 ...
+2026-09-25 18:53:41,705 - freqtrade.configuration.configuration - INFO - Parameter --fee detected, setting fee to: 0.0 ...
+2026-09-25 18:53:41,706 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20250904-20260904 ...
+2026-09-25 18:53:41,706 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/document/IBS/deploy/freqtrade/user_data ...
+2026-09-25 18:53:41,706 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/document/IBS/data/tester/databento ...
+2026-09-25 18:53:41,706 - freqtrade.configuration.configuration - INFO - Using /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260925-165334-d6bdab as backtest directory ...
+2026-09-25 18:53:41,706 - freqtrade.configuration.configuration - INFO - Parameter --export detected: trades ...
+2026-09-25 18:53:41,706 - freqtrade.configuration.configuration - INFO - Parameter --cache=none detected ...
+2026-09-25 18:53:41,706 - freqtrade.configuration.configuration - INFO - Using pairs ['MNQ/USD']
+2026-09-25 18:53:41,706 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20250904-20260904
+2026-09-25 18:53:41,706 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2026-09-25 18:53:41,708 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+team. It may work flawlessly (please report back) or have serious issues. Use it at your own discretion.
+2026-09-25 18:53:41,708 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-25 18:53:41,709 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2026-09-25 18:53:41,709 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2026-09-25 18:53:41,709 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.77
+2026-09-25 18:53:41,709 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-25 18:53:41,710 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-25 18:53:41,711 - freqtrade.exchange.exchange - INFO - Using Exchange "Tester"
+2026-09-25 18:53:41,712 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange class 'Tester' ...
+2026-09-25 18:53:41,748 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSEntryZoneStrategy from 
+'/Users/martin/document/IBS/deploy/freqtrade/user_data/strategies/IBSEntryZoneStrategy.py'...
+2026-09-25 18:53:41,749 - freqtrade.strategy.hyper - INFO - Found no parameter file.
+2026-09-25 18:53:41,749 - tradebot.adapters.freqtrade.base - WARNING - ibsentry config: engMinRangePoints, ewMinWavePoints, liqSweepMinWick, minImbSizePoints, pbMinRangePoints, srClusterPoints sú v 
+absolútnych cenových bodoch — tie hodnoty sú ladené na MNQ a na MNQ/USD nemusia dávať zmysel; zváž unit='atr'.
+2026-09-25 18:53:41,921 - freqtrade.data.converter.converter - INFO - Missing data fillup for MNQ/USD, 3m: before: 865722 - after: 1288839 - 48.87%
+2026-09-25 18:53:42,104 - freqtrade.data.converter.converter - INFO - Missing data fillup for MNQ/USD, 3m: before: 865722 - after: 1288839 - 48.87%
+2026-09-25 18:53:42,104 - tradebot.adapters.freqtrade.base - INFO - ibsentry: startup_candle_count 300 na 3m (engine 94)
+2026-09-25 18:53:42,105 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 3m.
+2026-09-25 18:53:42,105 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USD.
+2026-09-25 18:53:42,105 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2026-09-25 18:53:42,105 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'unfilledtimeout' with value from the configuration: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 
+'unit': 'minutes'}.
+2026-09-25 18:53:42,105 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2026-09-25 18:53:42,105 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 100.0}
+2026-09-25 18:53:42,105 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 3m
+2026-09-25 18:53:42,105 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.99
+2026-09-25 18:53:42,105 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2026-09-25 18:53:42,105 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2026-09-25 18:53:42,105 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2026-09-25 18:53:42,106 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: True
+2026-09-25 18:53:42,106 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2026-09-25 18:53:42,106 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2026-09-25 18:53:42,106 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2026-09-25 18:53:42,106 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USD
+2026-09-25 18:53:42,106 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2026-09-25 18:53:42,106 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 300
+2026-09-25 18:53:42,106 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using unfilledtimeout: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 'unit': 'minutes'}
+2026-09-25 18:53:42,106 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2026-09-25 18:53:42,106 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2026-09-25 18:53:42,106 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2026-09-25 18:53:42,106 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2026-09-25 18:53:42,106 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2026-09-25 18:53:42,106 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2026-09-25 18:53:42,107 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2026-09-25 18:53:42,107 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2026-09-25 18:53:42,107 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2026-09-25 18:53:42,107 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-25 18:53:42,110 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-09-25 18:53:42,111 - freqtrade.optimize.backtesting - INFO - Using fee 0.0000% from config.
+2026-09-25 18:53:42,135 - freqtrade.data.converter.converter - INFO - Missing data fillup for MNQ/USD, 3m: before: 118421 - after: 175501 - 48.20%
+2026-09-25 18:53:42,136 - freqtrade.optimize.backtesting - INFO - Loading data from 2025-09-03 09:00:00 up to 2026-09-04 00:00:00 (365 days).
+2026-09-25 18:53:42,136 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, funding_rate, 1h found. Use `freqtrade download-data` to download the data
+2026-09-25 18:53:42,136 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, mark, 1h found. Use `freqtrade download-data` to download the data
+2026-09-25 18:53:42,565 - freqtrade.optimize.backtesting - INFO - Dataload complete. Calculating indicators
+2026-09-25 18:53:42,566 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSEntryZoneStrategy
+2026-09-25 18:53:42,572 - freqtrade.data.dataprovider - INFO - Loading data for MNQ/USD 3m from 2025-09-03 09:00:00 to 2026-09-04 00:00:00
+2026-09-25 18:53:42,594 - freqtrade.data.converter.converter - INFO - Missing data fillup for MNQ/USD, 3m: before: 118421 - after: 175501 - 48.20%
+2026-09-25 18:53:49,863 - tradebot.strategies.ibs.freqtrade - INFO - IBS MNQ/USD: 175501 barov, 175501 HTF barov, 200 zon, 9 signalov (4 long / 5 short)
+2026-09-25 18:53:50,021 - tradebot.adapters.freqtrade.base - INFO - ibsentry MNQ/USD: kresby ulozene do /Users/martin/document/IBS/tester/runs/.profiles/20260925-165334-d6bdab.chart.json.gz (65598 
+objektov)
+2026-09-25 18:53:50,024 - freqtrade.optimize.backtesting - INFO - Backtesting with data from 2025-09-04 00:00:00 up to 2026-09-04 00:00:00 (365 days).
+2026-09-25 18:53:50,289 - tradebot.adapters.freqtrade.callbacks - WARNING - ibsentry MNQ/USD: stake orezany z 252650.00 na 9900.00 (3.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-25 18:53:50,295 - tradebot.adapters.freqtrade.callbacks - WARNING - ibsentry MNQ/USD: stake orezany z 510135.00 na 9900.00 (1.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-25 18:53:50,347 - tradebot.adapters.freqtrade.callbacks - WARNING - ibsentry MNQ/USD: stake orezany z 252455.00 na 9900.00 (3.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-25 18:53:50,421 - tradebot.adapters.freqtrade.callbacks - WARNING - ibsentry MNQ/USD: stake orezany z 195232.00 na 9900.00 (5.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-25 18:53:50,506 - tradebot.adapters.freqtrade.callbacks - WARNING - ibsentry MNQ/USD: stake orezany z 333957.00 na 9900.00 (3.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-25 18:53:50,639 - tradebot.adapters.freqtrade.callbacks - WARNING - ibsentry MNQ/USD: stake orezany z 398881.00 na 9900.00 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-25 18:53:50,645 - tradebot.adapters.freqtrade.callbacks - WARNING - ibsentry MNQ/USD: stake orezany z 278052.50 na 9900.00 (3.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-25 18:53:50,680 - tradebot.adapters.freqtrade.callbacks - WARNING - ibsentry MNQ/USD: stake orezany z 473716.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-25 18:53:50,688 - tradebot.adapters.freqtrade.callbacks - WARNING - ibsentry MNQ/USD: stake orezany z 464788.00 na 9900.00 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4/4           100% • 0:00:08 • 0:00:00
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 175200/175200 100% • 0:00:08 • 0:00:00
+2026-09-25 18:53:50,836 - freqtrade.misc - INFO - dumping json to 
+"/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260925-165334-d6bdab/backtest-result-2026-09-25_16-53-50.meta.json"
+Result for strategy IBSEntryZoneStrategy
+                                            BACKTESTING REPORT                                             
+┏━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃    Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ MNQ/USD │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+│   TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┏━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                               ENTER TAG STATS                                                
+┏━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Entries ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │       0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                              EXIT REASON STATS                                               
+┏━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Exit Reason ┃ Exits ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│       TOTAL │     0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                      MIXED TAG STATS                                                      
+┏━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Exit Reason ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │             │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+No trades made. Your starting balance was 10000 USD, and your stake was unlimited.
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                           STRATEGY SUMMARY                                                            
+┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃             Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃     Drawdown ┃
+┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ IBSEntryZoneStrategy │      0 │         0.00 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │ 0 USD  0.00% │
+└──────────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────┘
+POZOR: engine dal 9 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh.
