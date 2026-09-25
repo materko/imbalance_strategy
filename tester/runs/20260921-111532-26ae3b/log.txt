@@ -1,0 +1,13 @@
+$ emulator MultiCharts MGC 30m 20101003-20260916 (MGC_USD-1m.feather)
+emulacia MultiCharts: 184375 barov 30m, 3704719 1m, 0 HTF
+  20000/184375 barov, 284 obchodov
+  40000/184375 barov, 520 obchodov
+  60000/184375 barov, 735 obchodov
+  80000/184375 barov, 917 obchodov
+  100000/184375 barov, 1057 obchodov
+  120000/184375 barov, 1376 obchodov
+  140000/184375 barov, 1686 obchodov
+  160000/184375 barov, 1938 obchodov
+  180000/184375 barov, 2291 obchodov
+hotovo: 2366 obchodov, nerozhodnutelnych minut 0
+kresby: {'orb_box': 8101, 'orb_high': 8101, 'orb_low': 8101, 'orb_entry': 2366}

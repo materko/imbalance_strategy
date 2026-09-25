@@ -1,0 +1,30 @@
+$ emulator MultiCharts BTCUSDT.P 1m 20250904-20260904 (BTC_USDT_USDT-1m-futures.feather)
+emulacia MultiCharts: 525600 barov 1m, 525600 1m, 525600 HTF
+  20000/525600 barov, 292 obchodov
+  40000/525600 barov, 577 obchodov
+  60000/525600 barov, 782 obchodov
+  80000/525600 barov, 965 obchodov
+  100000/525600 barov, 1127 obchodov
+  120000/525600 barov, 1258 obchodov
+  140000/525600 barov, 1447 obchodov
+  160000/525600 barov, 1631 obchodov
+  180000/525600 barov, 1900 obchodov
+  200000/525600 barov, 2145 obchodov
+  220000/525600 barov, 2372 obchodov
+  240000/525600 barov, 2509 obchodov
+  260000/525600 barov, 2652 obchodov
+  280000/525600 barov, 2795 obchodov
+  300000/525600 barov, 2976 obchodov
+  320000/525600 barov, 3145 obchodov
+  340000/525600 barov, 3349 obchodov
+  360000/525600 barov, 3574 obchodov
+  380000/525600 barov, 3823 obchodov
+  400000/525600 barov, 4009 obchodov
+  420000/525600 barov, 4169 obchodov
+  440000/525600 barov, 4350 obchodov
+  460000/525600 barov, 4567 obchodov
+  480000/525600 barov, 4832 obchodov
+  500000/525600 barov, 5122 obchodov
+  520000/525600 barov, 5323 obchodov
+hotovo: 5399 obchodov, nerozhodnutelnych minut 9
+kresby: {'session': 262, 'imb_box': 157036, 'sd_zone_pre': 75352, 'sd_zone_post': 75352, 'tp_box': 8132, 'sl_box': 8132, 'structure': 53232, 'swing': 65031, 'liq_sweep': 10648, 'skip': 3200, 'expired': 2699, 'sr_level': 20, 'elliott_wave': 6}

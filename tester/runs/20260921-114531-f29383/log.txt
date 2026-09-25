@@ -1,0 +1,40 @@
+$ emulator MultiCharts BTCUSDT.P 5m 20190908-20260904 (BTC_USDT_USDT-1m-futures.feather)
+emulacia MultiCharts: 735049 barov 5m, 3675242 1m, 0 HTF
+  20000/735049 barov, 40 obchodov
+  40000/735049 barov, 86 obchodov
+  60000/735049 barov, 124 obchodov
+  80000/735049 barov, 168 obchodov
+  100000/735049 barov, 216 obchodov
+  120000/735049 barov, 262 obchodov
+  140000/735049 barov, 299 obchodov
+  160000/735049 barov, 326 obchodov
+  180000/735049 barov, 361 obchodov
+  200000/735049 barov, 405 obchodov
+  220000/735049 barov, 454 obchodov
+  240000/735049 barov, 497 obchodov
+  260000/735049 barov, 539 obchodov
+  280000/735049 barov, 586 obchodov
+  300000/735049 barov, 625 obchodov
+  320000/735049 barov, 669 obchodov
+  340000/735049 barov, 713 obchodov
+  360000/735049 barov, 754 obchodov
+  380000/735049 barov, 797 obchodov
+  400000/735049 barov, 842 obchodov
+  420000/735049 barov, 890 obchodov
+  440000/735049 barov, 939 obchodov
+  460000/735049 barov, 987 obchodov
+  480000/735049 barov, 1029 obchodov
+  500000/735049 barov, 1075 obchodov
+  520000/735049 barov, 1123 obchodov
+  540000/735049 barov, 1168 obchodov
+  560000/735049 barov, 1214 obchodov
+  580000/735049 barov, 1263 obchodov
+  600000/735049 barov, 1309 obchodov
+  620000/735049 barov, 1355 obchodov
+  640000/735049 barov, 1402 obchodov
+  660000/735049 barov, 1450 obchodov
+  680000/735049 barov, 1498 obchodov
+  700000/735049 barov, 1543 obchodov
+  720000/735049 barov, 1589 obchodov
+hotovo: 1622 obchodov, nerozhodnutelnych minut 1
+kresby: {'orb_box': 1824, 'orb_high': 1824, 'orb_low': 1824, 'orb_entry': 1622}

@@ -1,0 +1,402 @@
+$ /Users/martin/document/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/document/IBS/deploy/freqtrade/config.tester.json --userdir /Users/martin/document/IBS/deploy/freqtrade/user_data --strategy ORBStrategy --cache none --export trades --timerange 20240904-20250904 --pairs BTC/USDT:USDT --timeframe 3m --dry-run-wallet 10000.0 --fee 0.0005 --timeframe-detail 1m --datadir /Users/martin/document/IBS/data/tester/binance --backtest-directory /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260921-121310-38a04e
+2026-09-21 14:13:11,156 - freqtrade - INFO - freqtrade 2026.8
+2026-09-21 14:13:11,575 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/document/IBS/deploy/freqtrade/config.tester.json ...
+2026-09-21 14:13:11,576 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-21 14:13:11,576 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-09-21 14:13:11,577 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/document/IBS/deploy/freqtrade/user_data ...
+2026-09-21 14:13:11,577 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/document/IBS/data/tester/binance ...
+2026-09-21 14:13:11,577 - freqtrade.configuration.configuration - INFO - Using /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260921-121310-38a04e as backtest directory ...
+2026-09-21 14:13:11,579 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-21 14:13:11,609 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy ORBStrategy from '/Users/martin/document/IBS/deploy/freqtrade/user_data/strategies/ORBStrategy.py'...
+'/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-09-21 14:13:13,513 - tradebot.adapters.freqtrade.base - INFO - orb BTC/USDT:USDT: kresby ulozene do /Users/martin/document/IBS/tester/runs/.profiles/20260921-121310-38a04e.chart.json.gz (176416 
+2026-09-21 14:13:13,612 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 26916.33 na 9900.00 (36.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,669 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 17653.73 na 9853.89 (55.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,680 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 56193.62 na 9789.38 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,687 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 37011.48 na 9762.53 (26.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,724 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 29069.12 na 9726.80 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,775 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 47671.81 na 9816.15 (20.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,796 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 46877.46 na 9867.23 (21.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,831 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 48390.47 na 9836.45 (20.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,850 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 50505.27 na 9806.73 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,856 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 26383.62 na 9777.92 (37.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,893 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 29630.27 na 9731.90 (32.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,911 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 60361.48 na 9819.44 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,916 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 29314.58 na 9793.66 (33.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,926 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 29043.10 na 9750.28 (33.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,986 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 78731.70 na 9707.48 (12.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,990 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 58536.43 na 9685.79 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:13,998 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 53671.12 na 9659.84 (18.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,010 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 23345.83 na 9703.56 (41.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,022 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 48068.55 na 9652.87 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,047 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 54696.01 na 9703.67 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,058 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 68176.57 na 9676.56 (14.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,070 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 80790.05 na 9652.95 (11.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,113 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 44041.45 na 9678.71 (22.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,118 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 54041.56 na 9647.46 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,119 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 54041.56 na 9620.41 (17.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,120 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 54041.56 na 9600.40 (17.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,136 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 38448.98 na 9573.35 (24.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,148 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 19594.17 na 9637.45 (49.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,155 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 16586.13 na 9579.69 (57.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,173 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 30811.99 na 9513.53 (30.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,178 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 26675.39 na 9473.72 (35.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,205 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 48703.71 na 9429.51 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,236 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 32872.15 na 9477.09 (28.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,266 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 10055.91 na 9439.34 (93.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,305 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 40764.24 na 9337.59 (22.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,319 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 29079.61 na 9305.89 (32.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,345 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 17032.49 na 9265.44 (54.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,394 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 45706.28 na 9202.70 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,419 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 46543.87 na 9253.08 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,427 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 27491.84 na 9224.41 (33.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,454 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 19333.60 na 9182.44 (47.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,530 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 32742.45 na 9313.12 (28.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,553 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 38785.50 na 9276.17 (23.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,578 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 54495.47 na 9243.42 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,590 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 25985.86 na 9217.61 (35.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,600 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 30194.81 na 9173.86 (30.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,659 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 34310.06 na 9254.60 (27.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,680 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 29383.51 na 9218.90 (31.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,689 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 38764.04 na 9179.04 (23.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,738 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 9317.77 na 9146.84 (98.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 14:13:14,784 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 17440.51 na 9427.61 (54.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,863 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 22560.41 na 9422.00 (41.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,939 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 11520.53 na 9536.11 (82.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,950 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 36735.27 na 9445.63 (25.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,956 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 39960.12 na 9410.95 (23.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,983 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 17121.57 na 9471.40 (55.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,990 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 30725.05 na 9407.46 (30.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:14,999 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 43290.42 na 9368.04 (21.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,015 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 24690.61 na 9337.73 (37.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,024 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 45442.97 na 9291.24 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,053 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 60186.38 na 9342.39 (15.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,064 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 70714.46 na 9317.81 (13.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,098 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 38135.90 na 9295.58 (24.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,105 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 87109.47 na 9262.53 (10.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,121 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 15464.35 na 9284.77 (60.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,135 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 27318.17 na 9452.45 (34.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,178 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 17741.92 na 9409.10 (53.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,191 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 23421.06 na 9348.07 (39.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,216 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 17191.27 na 9456.70 (55.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,264 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 21444.12 na 9393.40 (43.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,268 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 16155.73 na 9341.21 (57.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,340 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 47559.26 na 9502.19 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,380 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 27708.65 na 9551.67 (34.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,395 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 67380.22 na 9508.26 (14.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,401 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 25807.08 na 9485.08 (36.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,419 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 68855.01 na 9439.65 (13.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,430 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 20437.56 na 9470.70 (46.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,470 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 27066.91 na 9415.09 (34.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,483 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 35004.60 na 9372.08 (26.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,520 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 41283.10 na 9336.41 (22.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,525 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 40409.49 na 9304.97 (23.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,559 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 51020.29 na 9273.16 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,568 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 39270.43 na 9317.37 (23.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,589 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 57197.87 na 9285.18 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,597 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 67411.38 na 9259.94 (13.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,625 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 67944.46 na 9237.36 (13.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,643 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 49335.93 na 9214.86 (18.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,648 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 45652.74 na 9187.04 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,666 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 52672.85 na 9157.31 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,735 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 47683.63 na 9199.54 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,798 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 23993.02 na 9171.55 (38.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,812 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 25261.44 na 9123.99 (36.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,877 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 28677.51 na 9150.05 (31.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,890 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 25018.50 na 9109.82 (36.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,913 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 31326.87 na 9065.62 (28.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,935 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 22918.95 na 9027.44 (39.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,965 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 50930.22 na 8980.34 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:15,985 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 43466.18 na 8954.08 (20.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,034 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 33415.43 na 9006.00 (27.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,050 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 26771.30 na 8971.44 (33.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,089 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 39140.00 na 8929.39 (22.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,115 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 67497.90 na 8987.53 (13.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,131 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 22546.42 na 9017.82 (40.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,217 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 58103.98 na 8969.10 (15.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,235 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 59273.70 na 8944.77 (15.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,242 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 49865.03 na 8921.08 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,286 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 60482.35 na 8894.77 (14.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,297 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 45332.05 na 8929.21 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,311 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 48362.38 na 8978.50 (18.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,335 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 74687.46 na 8951.91 (12.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,345 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 127136.92 na 8930.94 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,362 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 23277.82 na 8942.94 (38.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,388 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 43015.05 na 8896.51 (20.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,407 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 35136.27 na 8866.65 (25.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,427 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 64373.15 na 8834.19 (13.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,447 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 23963.46 na 8865.83 (37.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,483 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 55808.57 na 8821.03 (15.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,509 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 16065.57 na 8796.85 (54.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,519 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 28495.52 na 8735.65 (30.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,523 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 66446.97 na 8696.88 (13.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,529 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 39815.23 na 8675.46 (21.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,543 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 64664.14 na 8645.59 (13.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,570 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 51280.13 na 8624.75 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,581 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 34717.20 na 8599.93 (24.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,619 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 48691.95 na 8567.29 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,623 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 55126.15 na 8541.67 (15.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,641 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 64017.38 na 8518.23 (13.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,679 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 32475.60 na 8549.26 (26.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,745 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 27066.03 na 8619.09 (31.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,756 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 12404.41 na 8579.11 (69.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-21 14:13:16,803 - tradebot.adapters.freqtrade.callbacks - WARNING - orb BTC/USDT:USDT: stake orezany z 62373.12 na 8502.81 (13.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+"/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260921-121310-38a04e/backtest-result-2026-09-21_12-13-17.meta.json"
+…
+│ orb:1733389200000 │       1 │        -0.46 │         -42.398 │        -0.42 │      1:02:00 │    0     0     1     0 │
+│ orb:1750059000000 │       1 │        -0.48 │         -42.472 │        -0.42 │      3:44:00 │    0     0     1     0 │
+│ orb:1728027900000 │       1 │        -0.45 │         -43.228 │        -0.43 │      4:46:00 │    0     0     1     0 │
+│ orb:1744356960000 │       1 │        -0.46 │         -43.452 │        -0.43 │      0:22:00 │    0     0     1     0 │
+│ orb:1740650760000 │       1 │        -0.46 │         -43.784 │        -0.44 │      3:24:00 │    0     0     1     0 │
+│ orb:1727854380000 │       1 │        -0.45 │         -43.818 │        -0.44 │      0:26:00 │    0     0     1     0 │
+│ orb:1742806080000 │       1 │        -0.46 │         -43.845 │        -0.44 │      1:01:00 │    0     0     1     0 │
+│ orb:1735723260000 │       1 │        -0.48 │         -44.190 │        -0.44 │      0:40:00 │    0     0     1     0 │
+│ orb:1747295100000 │       1 │        -0.49 │         -44.649 │        -0.45 │      0:43:00 │    0     0     1     0 │
+│ orb:1732092300000 │       1 │        -0.47 │         -44.662 │        -0.45 │      2:25:00 │    0     0     1     0 │
+│ orb:1753180200000 │       1 │        -0.52 │         -45.257 │        -0.45 │      3:25:00 │    0     0     1     0 │
+│ orb:1743159240000 │       1 │        -0.49 │         -45.882 │        -0.46 │      0:59:00 │    0     0     1     0 │
+│ orb:1727425260000 │       1 │        -0.48 │         -46.488 │        -0.46 │      3:01:00 │    0     0     1     0 │
+│ orb:1725528240000 │       1 │        -0.47 │         -46.578 │        -0.47 │      4:12:00 │    0     0     1     0 │
+│ orb:1752225300000 │       1 │        -0.53 │         -46.906 │        -0.47 │      2:00:00 │    0     0     1     0 │
+│ orb:1738658160000 │       1 │         -0.5 │         -46.956 │        -0.47 │      0:22:00 │    0     0     1     0 │
+│ orb:1748590380000 │       1 │        -0.53 │         -47.576 │        -0.48 │      2:22:00 │    0     0     1     0 │
+│ orb:1746776520000 │       1 │        -0.53 │         -48.040 │        -0.48 │      0:28:00 │    0     0     1     0 │
+│ orb:1750404780000 │       1 │        -0.55 │         -49.210 │        -0.49 │      7:06:00 │    0     0     1     0 │
+│ orb:1729161000000 │       1 │        -0.53 │         -51.205 │        -0.51 │      0:22:00 │    0     0     1     0 │
+│ orb:1741855140000 │       1 │        -0.57 │         -52.711 │        -0.53 │      0:09:00 │    0     0     1     0 │
+│ orb:1743752700000 │       1 │        -0.59 │         -56.165 │        -0.56 │      2:33:00 │    0     0     1     0 │
+│ orb:1731401820000 │       1 │        -0.61 │         -58.341 │        -0.58 │      0:08:00 │    0     0     1     0 │
+│ orb:1740991680000 │       1 │        -0.66 │         -61.650 │        -0.62 │      0:44:00 │    0     0     1     0 │
+│ orb:1753429860000 │       1 │        -0.71 │         -61.817 │        -0.62 │      0:06:00 │    0     0     1     0 │
+│ orb:1733128560000 │       1 │        -0.69 │         -63.373 │        -0.63 │      4:37:00 │    0     0     1     0 │
+│ orb:1741682700000 │       1 │        -0.68 │         -63.946 │        -0.64 │      4:21:00 │    0     0     1     0 │
+│ orb:1737975060000 │       1 │        -0.68 │         -64.588 │        -0.65 │      0:24:00 │    0     0     1     0 │
+│ orb:1725955560000 │       1 │        -0.66 │         -65.160 │        -0.65 │      0:49:00 │    0     0     1     0 │
+│ orb:1731584880000 │       1 │         -0.7 │         -66.837 │        -0.67 │      0:45:00 │    0     0     1     0 │
+│ orb:1730797020000 │       3 │        -0.26 │         -74.857 │        -0.75 │      0:06:00 │    0     0     3     0 │
+│ orb:1756456560000 │       1 │         -0.9 │         -77.073 │        -0.77 │      3:51:00 │    0     0     1     0 │
+│ orb:1737363780000 │       1 │        -0.97 │         -91.386 │        -0.91 │      0:32:00 │    0     0     1     0 │
+│ orb:1732618800000 │       1 │        -1.09 │        -102.777 │        -1.03 │      3:38:00 │    0     0     1     0 │
+│             TOTAL │     131 │        -0.12 │       -1433.417 │       -14.33 │      1:46:00 │   33     0    98  25.2 │
+└───────────────────┴─────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                  EXIT REASON STATS                                                   
+┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃        Exit Reason ┃ Exits ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│                roi │    32 │         0.76 │        2245.752 │        22.46 │      2:34:00 │   32     0     0   100 │
+│       signal_close │     2 │         0.11 │          20.664 │         0.21 │      6:45:00 │    1     0     1  50.0 │
+│ trailing_stop_loss │    21 │        -0.47 │        -913.472 │        -9.13 │      1:42:00 │    0     0    21     0 │
+│          stop_loss │    76 │         -0.4 │       -2786.361 │       -27.86 │      1:20:00 │    0     0    76     0 │
+│              TOTAL │   131 │        -0.12 │       -1433.417 │       -14.33 │      1:46:00 │   33     0    98  25.2 │
+└────────────────────┴───────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                              MIXED TAG STATS                                                              
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃         Enter Tag ┃        Exit Reason ┃ Trades ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ orb:1736763300000 │                roi │      1 │         3.11 │         283.598 │         2.84 │      4:17:00 │    1     0     0   100 │
+│ orb:1740475260000 │                roi │      1 │         1.83 │         169.373 │         1.69 │      0:57:00 │    1     0     0   100 │
+│ orb:1741944420000 │                roi │      1 │         1.75 │         162.600 │         1.63 │      5:41:00 │    1     0     0   100 │
+│ orb:1733906160000 │                roi │      1 │         1.45 │         132.004 │         1.32 │      6:27:00 │    1     0     0   100 │
+│ orb:1737102780000 │                roi │      1 │         1.23 │         115.261 │         1.15 │      6:27:00 │    1     0     0   100 │
+│ orb:1741165560000 │                roi │      1 │         1.18 │         109.730 │          1.1 │      1:16:00 │    1     0     0   100 │
+│ orb:1726560000000 │                roi │      1 │         0.93 │          90.250 │          0.9 │      4:42:00 │    1     0     0   100 │
+│ orb:1727684460000 │                roi │      1 │         0.91 │          88.433 │         0.88 │      1:33:00 │    1     0     0   100 │
+│ orb:1735808040000 │                roi │      1 │         0.89 │          81.554 │         0.82 │      5:35:00 │    1     0     0   100 │
+│ orb:1756107180000 │                roi │      1 │         0.83 │          70.533 │         0.71 │      6:10:00 │    1     0     0   100 │
+│ orb:1731316140000 │                roi │      1 │         0.68 │          64.750 │         0.65 │      0:56:00 │    1     0     0   100 │
+│ orb:1737622080000 │                roi │      1 │         0.65 │          61.068 │         0.61 │      1:50:00 │    1     0     0   100 │
+│ orb:1750151160000 │                roi │      1 │         0.67 │          58.726 │         0.59 │      2:17:00 │    1     0     0   100 │
+│ orb:1749199500000 │                roi │      1 │         0.59 │          52.447 │         0.52 │      3:42:00 │    1     0     0   100 │
+│ orb:1738832940000 │                roi │      1 │         0.56 │          51.664 │         0.52 │      1:38:00 │    1     0     0   100 │
+│ orb:1726737660000 │                roi │      1 │         0.53 │          51.598 │         0.52 │      0:45:00 │    1     0     0   100 │
+│ orb:1729495980000 │                roi │      1 │         0.53 │          51.309 │         0.51 │      1:58:00 │    1     0     0   100 │
+│ orb:1733215500000 │                roi │      1 │         0.56 │          50.889 │         0.51 │      2:08:00 │    1     0     0   100 │
+│ orb:1742373360000 │                roi │      1 │         0.53 │          49.980 │          0.5 │      2:58:00 │    1     0     0   100 │
+│ orb:1751531220000 │                roi │      1 │         0.56 │          49.786 │          0.5 │      1:12:00 │    1     0     0   100 │
+│ orb:1732179600000 │                roi │      1 │         0.51 │          48.066 │         0.48 │      1:57:00 │    1     0     0   100 │
+│ orb:1745393760000 │                roi │      1 │         0.49 │          44.663 │         0.45 │      0:35:00 │    1     0     0   100 │
+│ orb:1728891180000 │                roi │      1 │         0.46 │          44.163 │         0.44 │      0:14:00 │    1     0     0   100 │
+│ orb:1746603720000 │                roi │      1 │         0.47 │          42.650 │         0.43 │      6:41:00 │    1     0     0   100 │
+│ orb:1751441760000 │                roi │      1 │         0.39 │          34.789 │         0.35 │      0:42:00 │    1     0     0   100 │
+│ orb:1752654600000 │                roi │      1 │         0.36 │          31.960 │         0.32 │      0:35:00 │    1     0     0   100 │
+│ orb:1743494760000 │                roi │      1 │         0.33 │          31.355 │         0.31 │      0:19:00 │    1     0     0   100 │
+│ orb:1755766800000 │                roi │      1 │         0.37 │          31.347 │         0.31 │      2:51:00 │    1     0     0   100 │
+│ orb:1750239540000 │                roi │      1 │         0.34 │          30.599 │         0.31 │      1:12:00 │    1     0     0   100 │
+│ orb:1747127880000 │       signal_close │      1 │         0.29 │          26.329 │         0.26 │      6:12:00 │    1     0     0   100 │
+│ orb:1730190600000 │                roi │      1 │         0.27 │          26.021 │         0.26 │      2:59:00 │    1     0     0   100 │
+│ orb:1739958120000 │                roi │      1 │         0.24 │          22.464 │         0.22 │      0:16:00 │    1     0     0   100 │
+│ orb:1752058620000 │                roi │      1 │         0.14 │          12.121 │         0.12 │      1:09:00 │    1     0     0   100 │
+│ orb:1736845920000 │       signal_close │      1 │        -0.06 │          -5.665 │        -0.06 │      7:18:00 │    0     0     1     0 │
+│ orb:1754379180000 │          stop_loss │      1 │        -0.25 │         -21.049 │        -0.21 │      0:47:00 │    0     0     1     0 │
+│ orb:1751961060000 │          stop_loss │      1 │        -0.24 │         -21.179 │        -0.21 │      0:43:00 │    0     0     1     0 │
+│ orb:1753865460000 │          stop_loss │      1 │        -0.25 │         -21.634 │        -0.22 │      0:08:00 │    0     0     1     0 │
+│ orb:1728556560000 │          stop_loss │      1 │        -0.23 │         -21.913 │        -0.22 │      0:06:00 │    0     0     1     0 │
+│ orb:1756802340000 │          stop_loss │      1 │        -0.26 │         -22.115 │        -0.22 │      0:49:00 │    0     0     1     0 │
+│ orb:1739524140000 │          stop_loss │      1 │        -0.24 │         -22.458 │        -0.22 │      2:17:00 │    0     0     1     0 │
+│ orb:1745913600000 │          stop_loss │      1 │        -0.25 │         -22.730 │        -0.23 │      1:20:00 │    0     0     1     0 │
+│ orb:1745825400000 │          stop_loss │      1 │        -0.25 │         -22.809 │        -0.23 │      2:33:00 │    0     0     1     0 │
+│ orb:1742985180000 │          stop_loss │      1 │        -0.25 │         -23.415 │        -0.23 │      0:07:00 │    0     0     1     0 │
+│ orb:1755678600000 │          stop_loss │      1 │        -0.28 │         -23.680 │        -0.24 │      1:19:00 │    0     0     1     0 │
+│ orb:1730109780000 │          stop_loss │      1 │        -0.25 │         -23.848 │        -0.24 │      0:58:00 │    0     0     1     0 │
+│ orb:1751278500000 │ trailing_stop_loss │      1 │        -0.27 │         -23.926 │        -0.24 │      0:24:00 │    0     0     1     0 │
+│ orb:1753261920000 │          stop_loss │      1 │        -0.28 │         -24.423 │        -0.24 │      2:07:00 │    0     0     1     0 │
+│ orb:1750836960000 │          stop_loss │      1 │        -0.27 │         -24.582 │        -0.25 │      0:44:00 │    0     0     1     0 │
+│ orb:1739349000000 │          stop_loss │      1 │        -0.27 │         -24.824 │        -0.25 │      0:35:00 │    0     0     1     0 │
+│ orb:1755165780000 │ trailing_stop_loss │      1 │        -0.29 │         -25.076 │        -0.25 │      0:14:00 │    0     0     1     0 │
+│ orb:1745567640000 │          stop_loss │      1 │        -0.27 │         -25.497 │        -0.25 │      0:10:00 │    0     0     1     0 │
+│ orb:1755588600000 │          stop_loss │      1 │        -0.31 │         -25.884 │        -0.26 │      0:05:00 │    0     0     1     0 │
+│ orb:1727768160000 │          stop_loss │      1 │        -0.27 │         -26.044 │        -0.26 │      0:15:00 │    0     0     1     0 │
+│ orb:1735551720000 │          stop_loss │      1 │        -0.28 │         -26.075 │        -0.26 │      0:47:00 │    0     0     1     0 │
+│ orb:1728638100000 │          stop_loss │      1 │        -0.27 │         -26.213 │        -0.26 │      0:05:00 │    0     0     1     0 │
+│ orb:1748851380000 │          stop_loss │      1 │         -0.3 │         -26.532 │        -0.27 │      0:46:00 │    0     0     1     0 │
+│ orb:1751361480000 │ trailing_stop_loss │      1 │         -0.3 │         -26.573 │        -0.27 │      4:15:00 │    0     0     1     0 │
+│ orb:1751615460000 │ trailing_stop_loss │      1 │         -0.3 │         -26.859 │        -0.27 │      1:25:00 │    0     0     1     0 │
+│ orb:1726043940000 │          stop_loss │      1 │        -0.28 │         -27.121 │        -0.27 │      0:28:00 │    0     0     1     0 │
+│ orb:1729670580000 │          stop_loss │      1 │        -0.28 │         -27.383 │        -0.27 │      0:02:00 │    0     0     1     0 │
+│ orb:1746085680000 │          stop_loss │      1 │        -0.31 │         -28.102 │        -0.28 │      0:16:00 │    0     0     1     0 │
+│ orb:1746691380000 │          stop_loss │      1 │        -0.31 │         -28.275 │        -0.28 │      5:41:00 │    0     0     1     0 │
+│ orb:1733305140000 │          stop_loss │      1 │        -0.31 │         -28.952 │        -0.29 │      0:31:00 │    0     0     1     0 │
+│ orb:1727339580000 │          stop_loss │      1 │         -0.3 │         -29.099 │        -0.29 │      0:20:00 │    0     0     1     0 │
+│ orb:1727258220000 │ trailing_stop_loss │      1 │        -0.31 │         -30.023 │         -0.3 │      1:37:00 │    0     0     1     0 │
+│ orb:1746171360000 │ trailing_stop_loss │      1 │        -0.33 │         -30.025 │         -0.3 │      0:39:00 │    0     0     1     0 │
+│ orb:1752478380000 │          stop_loss │      1 │        -0.34 │         -30.159 │         -0.3 │      1:36:00 │    0     0     1     0 │
+│ orb:1754033400000 │          stop_loss │      1 │        -0.35 │         -30.171 │         -0.3 │      0:26:00 │    0     0     1     0 │
+│ orb:1738229400000 │          stop_loss │      1 │        -0.33 │         -30.616 │        -0.31 │      0:34:00 │    0     0     1     0 │
+│ orb:1727164440000 │          stop_loss │      1 │        -0.32 │         -31.092 │        -0.31 │      3:11:00 │    0     0     1     0 │
+│ orb:1730709540000 │          stop_loss │      1 │        -0.33 │         -31.566 │        -0.32 │      0:14:00 │    0     0     1     0 │
+│ orb:1745226000000 │          stop_loss │      1 │        -0.34 │         -31.762 │        -0.32 │      0:13:00 │    0     0     1     0 │
+│ orb:1732702860000 │          stop_loss │      1 │        -0.34 │         -32.016 │        -0.32 │      1:12:00 │    0     0     1     0 │
+│ orb:1745307000000 │          stop_loss │      1 │        -0.35 │         -32.136 │        -0.32 │      2:52:00 │    0     0     1     0 │
+│ orb:1745480160000 │ trailing_stop_loss │      1 │        -0.35 │         -32.512 │        -0.33 │      1:45:00 │    0     0     1     0 │
+│ orb:1736500320000 │          stop_loss │      1 │        -0.36 │         -32.521 │        -0.33 │      4:15:00 │    0     0     1     0 │
+│ orb:1752565320000 │          stop_loss │      1 │        -0.37 │         -32.784 │        -0.33 │      1:26:00 │    0     0     1     0 │
+│ orb:1755507960000 │ trailing_stop_loss │      1 │        -0.39 │         -32.961 │        -0.33 │      3:34:00 │    0     0     1     0 │
+│ orb:1734599700000 │          stop_loss │      1 │        -0.36 │         -33.085 │        -0.33 │      0:06:00 │    0     0     1     0 │
+│ orb:1739868480000 │          stop_loss │      1 │        -0.36 │         -33.380 │        -0.33 │      0:22:00 │    0     0     1     0 │
+│ orb:1749713940000 │          stop_loss │      1 │        -0.39 │         -34.911 │        -0.35 │      0:40:00 │    0     0     1     0 │
+│ orb:1737540180000 │          stop_loss │      1 │        -0.37 │         -35.037 │        -0.35 │      0:19:00 │    0     0     1     0 │
+│ orb:1744704180000 │          stop_loss │      1 │        -0.38 │         -36.022 │        -0.36 │      2:30:00 │    0     0     1     0 │
+│ orb:1735893000000 │ trailing_stop_loss │      1 │        -0.39 │         -36.052 │        -0.36 │      0:43:00 │    0     0     1     0 │
+│ orb:1726128000000 │          stop_loss │      1 │        -0.37 │         -36.090 │        -0.36 │      2:38:00 │    0     0     1     0 │
+│ orb:1734424380000 │          stop_loss │      1 │         -0.4 │         -37.323 │        -0.37 │      1:43:00 │    0     0     1     0 │
+│ orb:1732525380000 │          stop_loss │      1 │         -0.4 │         -38.138 │        -0.38 │      2:44:00 │    0     0     1     0 │
+│ orb:1747900440000 │          stop_loss │      1 │        -0.43 │         -38.565 │        -0.39 │      0:31:00 │    0     0     1     0 │
+│ orb:1753775100000 │          stop_loss │      1 │        -0.45 │         -39.166 │        -0.39 │      0:09:00 │    0     0     1     0 │
+│ orb:1738059300000 │          stop_loss │      1 │        -0.42 │         -39.825 │         -0.4 │      0:25:00 │    0     0     1     0 │
+│ orb:1732006980000 │          stop_loss │      1 │        -0.42 │         -40.204 │         -0.4 │      0:13:00 │    0     0     1     0 │
+│ orb:1736330220000 │          stop_loss │      1 │        -0.44 │         -40.268 │         -0.4 │      0:22:00 │    0     0     1     0 │
+│ orb:1756283400000 │ trailing_stop_loss │      1 │        -0.47 │         -40.379 │         -0.4 │      0:34:00 │    0     0     1     0 │
+│ orb:1747213020000 │          stop_loss │      1 │        -0.45 │         -40.633 │        -0.41 │      1:05:00 │    0     0     1     0 │
+│ orb:1732787820000 │ trailing_stop_loss │      1 │        -0.44 │         -40.866 │        -0.41 │      1:44:00 │    0     0     1     0 │
+│ orb:1733389200000 │          stop_loss │      1 │        -0.46 │         -42.398 │        -0.42 │      1:02:00 │    0     0     1     0 │
+│ orb:1750059000000 │          stop_loss │      1 │        -0.48 │         -42.472 │        -0.42 │      3:44:00 │    0     0     1     0 │
+│ orb:1728027900000 │          stop_loss │      1 │        -0.45 │         -43.228 │        -0.43 │      4:46:00 │    0     0     1     0 │
+│ orb:1744356960000 │          stop_loss │      1 │        -0.46 │         -43.452 │        -0.43 │      0:22:00 │    0     0     1     0 │
+│ orb:1740650760000 │          stop_loss │      1 │        -0.46 │         -43.784 │        -0.44 │      3:24:00 │    0     0     1     0 │
+│ orb:1727854380000 │          stop_loss │      1 │        -0.45 │         -43.818 │        -0.44 │      0:26:00 │    0     0     1     0 │
+│ orb:1742806080000 │          stop_loss │      1 │        -0.46 │         -43.845 │        -0.44 │      1:01:00 │    0     0     1     0 │
+│ orb:1735723260000 │ trailing_stop_loss │      1 │        -0.48 │         -44.190 │        -0.44 │      0:40:00 │    0     0     1     0 │
+│ orb:1747295100000 │ trailing_stop_loss │      1 │        -0.49 │         -44.649 │        -0.45 │      0:43:00 │    0     0     1     0 │
+│ orb:1732092300000 │          stop_loss │      1 │        -0.47 │         -44.662 │        -0.45 │      2:25:00 │    0     0     1     0 │
+│ orb:1753180200000 │          stop_loss │      1 │        -0.52 │         -45.257 │        -0.45 │      3:25:00 │    0     0     1     0 │
+│ orb:1743159240000 │ trailing_stop_loss │      1 │        -0.49 │         -45.882 │        -0.46 │      0:59:00 │    0     0     1     0 │
+│ orb:1727425260000 │          stop_loss │      1 │        -0.48 │         -46.488 │        -0.46 │      3:01:00 │    0     0     1     0 │
+│ orb:1725528240000 │ trailing_stop_loss │      1 │        -0.47 │         -46.578 │        -0.47 │      4:12:00 │    0     0     1     0 │
+│ orb:1752225300000 │          stop_loss │      1 │        -0.53 │         -46.906 │        -0.47 │      2:00:00 │    0     0     1     0 │
+│ orb:1738658160000 │ trailing_stop_loss │      1 │         -0.5 │         -46.956 │        -0.47 │      0:22:00 │    0     0     1     0 │
+│ orb:1748590380000 │ trailing_stop_loss │      1 │        -0.53 │         -47.576 │        -0.48 │      2:22:00 │    0     0     1     0 │
+│ orb:1746776520000 │          stop_loss │      1 │        -0.53 │         -48.040 │        -0.48 │      0:28:00 │    0     0     1     0 │
+│ orb:1750404780000 │          stop_loss │      1 │        -0.55 │         -49.210 │        -0.49 │      7:06:00 │    0     0     1     0 │
+│ orb:1729161000000 │          stop_loss │      1 │        -0.53 │         -51.205 │        -0.51 │      0:22:00 │    0     0     1     0 │
+│ orb:1741855140000 │          stop_loss │      1 │        -0.57 │         -52.711 │        -0.53 │      0:09:00 │    0     0     1     0 │
+│ orb:1743752700000 │          stop_loss │      1 │        -0.59 │         -56.165 │        -0.56 │      2:33:00 │    0     0     1     0 │
+│ orb:1731401820000 │          stop_loss │      1 │        -0.61 │         -58.341 │        -0.58 │      0:08:00 │    0     0     1     0 │
+│ orb:1740991680000 │ trailing_stop_loss │      1 │        -0.66 │         -61.650 │        -0.62 │      0:44:00 │    0     0     1     0 │
+│ orb:1753429860000 │          stop_loss │      1 │        -0.71 │         -61.817 │        -0.62 │      0:06:00 │    0     0     1     0 │
+│ orb:1733128560000 │ trailing_stop_loss │      1 │        -0.69 │         -63.373 │        -0.63 │      4:37:00 │    0     0     1     0 │
+│ orb:1741682700000 │          stop_loss │      1 │        -0.68 │         -63.946 │        -0.64 │      4:21:00 │    0     0     1     0 │
+│ orb:1737975060000 │ trailing_stop_loss │      1 │        -0.68 │         -64.588 │        -0.65 │      0:24:00 │    0     0     1     0 │
+│ orb:1725955560000 │          stop_loss │      1 │        -0.66 │         -65.160 │        -0.65 │      0:49:00 │    0     0     1     0 │
+│ orb:1731584880000 │          stop_loss │      1 │         -0.7 │         -66.837 │        -0.67 │      0:45:00 │    0     0     1     0 │
+│ orb:1730797020000 │          stop_loss │      3 │        -0.26 │         -74.857 │        -0.75 │      0:06:00 │    0     0     3     0 │
+│ orb:1756456560000 │          stop_loss │      1 │         -0.9 │         -77.073 │        -0.77 │      3:51:00 │    0     0     1     0 │
+│ orb:1737363780000 │          stop_loss │      1 │        -0.97 │         -91.386 │        -0.91 │      0:32:00 │    0     0     1     0 │
+│ orb:1732618800000 │ trailing_stop_loss │      1 │        -1.09 │        -102.777 │        -1.03 │      3:38:00 │    0     0     1     0 │
+│             TOTAL │                    │    131 │        -0.12 │       -1433.417 │       -14.33 │      1:46:00 │   33     0    98  25.2 │
+└───────────────────┴────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Metric                                 ┃ Value                                     ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Backtesting from                       │ 2024-09-04 00:00:00                       │
+│ Backtesting to                         │ 2025-09-04 00:00:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 131 / 0.36                                │
+│ Starting balance                       │ 10000 USDT                                │
+│ Final balance                          │ 8566.583 USDT                             │
+│ Absolute profit                        │ -1433.417 USDT                            │
+│ Total profit %                         │ -14.33%                                   │
+│ CAGR %                                 │ -14.33%                                   │
+│ Sharpe (closed trades)                 │ -1.36                                     │
+│ Sortino (closed trades)                │ -4.89                                     │
+│ Calmar (closed trades)                 │ -5.23                                     │
+│ SQN                                    │ -2.26                                     │
+│ Mean profit p-value                    │ 0.02532                                   │
+│ Profit factor                          │ 0.61                                      │
+│ Expectancy (Ratio)                     │ -10.94 (-0.29)                            │
+│ Avg. daily profit                      │ -3.927 USDT                               │
+│ Avg. stake amount                      │ 9222.884 USDT                             │
+│ Market change                          │ 93.98%                                    │
+│ Total trade volume                     │ 2417847.371 USDT                          │
+│                                        │                                           │
+│ Long / Short trades                    │ 83 / 48                                   │
+│ Long / Short profit %                  │ -7.68% / -6.65%                           │
+│ Long / Short profit USDT               │ -768.404 / -665.013                       │
+│                                        │                                           │
+│ Best Pair                              │ BTC/USDT:USDT -14.33%                     │
+│ Worst Pair                             │ BTC/USDT:USDT -14.33%                     │
+│ Best trade                             │ BTC/USDT:USDT 3.11%                       │
+│ Worst trade                            │ BTC/USDT:USDT -1.09%                      │
+│ Best day                               │ 283.598 USDT                              │
+│ Worst day                              │ -102.777 USDT                             │
+│ Days win/draw/lose                     │ 33 / 234 / 96                             │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:14 / 0d 06:41 / 0d 02:40            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:00 / 0d 07:18 / 0d 01:28            │
+│ Max Consecutive Wins / Loss            │ 2 / 11                                    │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 0 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 8566.583 USDT / 9966.898 USDT             │
+│ Max % of account underwater            │ 14.33%                                    │
+│ Absolute drawdown                      │ 1433.417 USDT (14.33%)                    │
+│ Drawdown duration                      │ 361 days 19:52:00                         │
+│ Profit at drawdown start               │ 0 USDT                                    │
+│ Profit at drawdown end                 │ -1433.417 USDT                            │
+│ Drawdown start                         │ 2024-09-05 13:39:00                       │
+│ Drawdown end                           │ 2025-09-02 09:31:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 8566.583 USDT / 10000 USDT                │
+│ Min/Max balance dates (wallet balance) │ 2025-09-02 09:33:00 / 2024-09-04 00:03:00 │
+│ Max % of account underwater (balance)  │ 14.33%                                    │
+│ Absolute drawdown (wallet balance)     │ 1433.417 USDT (14.33%)                    │
+│ Drawdown duration                      │ 363 days 09:30:00                         │
+│ Profit at drawdown start               │ 0 USDT                                    │
+│ Profit at drawdown end                 │ -1433.417 USDT                            │
+│ Drawdown start                         │ 2024-09-04 00:03:00                       │
+│ Drawdown end                           │ 2025-09-02 09:33:00                       │
+│ Sharpe (daily wallet balance)          │ -2.22                                     │
+│ Sortino (daily wallet balance)         │ -4.83                                     │
+│ Calmar (daily wallet balance)          │ -5.25                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2024-09-04 00:00:00 -> 2025-09-04 00:00:00 | Max open trades : 1
+                                                            STRATEGY SUMMARY                                                            
+┏━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━┓
+┃    Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃              Drawdown ┃
+┡━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━┩
+│ ORBStrategy │    131 │        -0.12 │       -1433.417 │       -14.33 │      1:46:00 │   33     0    98  25.2 │ 1433.417 USDT  14.33% │
+└─────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┴───────────────────────┘

@@ -1,0 +1,84 @@
+$ /Users/martin/document/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json --userdir /Users/martin/document/IBS/deploy/freqtrade/user_data --strategy IBSNinjaStrategy --cache none --export trades --timerange 20250904-20260904 --pairs MNQ/USD --timeframe 1m --dry-run-wallet 10000.0 --fee 0.0005 --datadir /Users/martin/document/IBS/data/tester/databento --backtest-directory /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260924-120430-8ff78b
+2026-09-24 14:04:31,633 - freqtrade - INFO - freqtrade 2026.8
+2026-09-24 14:04:32,149 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json ...
+2026-09-24 14:04:32,150 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-24 14:04:32,150 - freqtrade.loggers - INFO - Logfile configured
+2026-09-24 14:04:32,150 - freqtrade.loggers - INFO - Verbosity set to 0
+2026-09-24 14:04:32,151 - freqtrade.configuration.configuration - INFO - Parameter -i/--timeframe detected ... Using timeframe: 1m ...
+2026-09-24 14:04:32,151 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2026-09-24 14:04:32,151 - freqtrade.configuration.configuration - INFO - Parameter --dry-run-wallet detected, overriding dry_run_wallet to: 10000.0 ...
+2026-09-24 14:04:32,151 - freqtrade.configuration.configuration - INFO - Parameter --fee detected, setting fee to: 0.0005 ...
+2026-09-24 14:04:32,151 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20250904-20260904 ...
+2026-09-24 14:04:32,151 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/document/IBS/deploy/freqtrade/user_data ...
+2026-09-24 14:04:32,151 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/document/IBS/data/tester/databento ...
+2026-09-24 14:04:32,151 - freqtrade.configuration.configuration - INFO - Using /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260924-120430-8ff78b as backtest directory ...
+2026-09-24 14:04:32,151 - freqtrade.configuration.configuration - INFO - Parameter --export detected: trades ...
+2026-09-24 14:04:32,151 - freqtrade.configuration.configuration - INFO - Parameter --cache=none detected ...
+2026-09-24 14:04:32,151 - freqtrade.configuration.configuration - INFO - Using pairs ['MNQ/USD']
+2026-09-24 14:04:32,151 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20250904-20260904
+2026-09-24 14:04:32,152 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2026-09-24 14:04:32,153 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+team. It may work flawlessly (please report back) or have serious issues. Use it at your own discretion.
+2026-09-24 14:04:32,153 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-24 14:04:32,154 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2026-09-24 14:04:32,154 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2026-09-24 14:04:32,154 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.77
+2026-09-24 14:04:32,154 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-24 14:04:32,155 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-24 14:04:32,156 - freqtrade.exchange.exchange - INFO - Using Exchange "Tester"
+2026-09-24 14:04:32,157 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange class 'Tester' ...
+2026-09-24 14:04:32,197 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSNinjaStrategy from '/Users/martin/document/IBS/deploy/freqtrade/user_data/strategies/IBSNinjaStrategy.py'...
+2026-09-24 14:04:32,198 - freqtrade.strategy.hyper - INFO - Found no parameter file.
+2026-09-24 14:04:32,198 - tradebot.adapters.freqtrade.base - WARNING - ibsninja config: engMinRangePoints, ewMinWavePoints, liqSweepMinWick, minImbSizePoints, pbMinRangePoints, srClusterPoints sú v 
+absolútnych cenových bodoch — tie hodnoty sú ladené na MNQ a na MNQ/USD nemusia dávať zmysel; zváž unit='atr'.
+2026-09-24 14:04:32,625 - freqtrade.data.converter.converter - INFO - Missing data fillup for MNQ/USD, 1m: before: 2593168 - after: 3866517 - 49.10%
+2026-09-24 14:04:32,857 - freqtrade.data.converter.converter - INFO - Missing data fillup for MNQ/USD, 1m: before: 2593168 - after: 3866517 - 49.10%
+2026-09-24 14:04:32,858 - tradebot.adapters.csharp.build - INFO - C# jadro: prekladám /Users/martin/document/IBS/csharp/bin/TradeBot.dll
+2026-09-24 14:04:32,858 - freqtrade - ERROR - Fatal exception!
+Traceback (most recent call last):
+  File "/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/main.py", line 52, in main
+    return_code = args["func"](args)
+                  ^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/commands/optimize_commands.py", line 60, in start_backtesting
+    backtesting = Backtesting(config)
+                  ^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/optimize/backtesting.py", line 189, in __init__
+    self.strategylist.append(StrategyResolver.load_strategy(self.config))
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/resolvers/strategy_resolver.py", line 51, in load_strategy
+    strategy: IStrategy = StrategyResolver._load_strategy(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/resolvers/strategy_resolver.py", line 297, in _load_strategy
+    strategy = StrategyResolver._load_object(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/resolvers/iresolver.py", line 184, in _load_object
+    return module(**kwargs)
+           ^^^^^^^^^^^^^^^^
+  File "/Users/martin/document/IBS/tradebot/adapters/freqtrade/base.py", line 145, in __init__
+    probe = self.spec.engine_factory(self.tb_cfg, self.tb_inst, timeframe_minutes(run_tf))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/document/IBS/tradebot/adapters/csharp/engine.py", line 232, in factory
+    return CSharpEngine(key, cfg, inst, chart_tf_minutes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/document/IBS/tradebot/adapters/csharp/engine.py", line 136, in __init__
+    self._open()
+  File "/Users/martin/document/IBS/tradebot/adapters/csharp/engine.py", line 146, in _open
+    self._transport: Transport = open_transport(
+                                 ^^^^^^^^^^^^^^^
+  File "/Users/martin/document/IBS/tradebot/adapters/csharp/bridge.py", line 222, in open_transport
+    return cls(key, config_json, instrument_json, chart_tf_minutes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/document/IBS/tradebot/adapters/csharp/bridge.py", line 166, in __init__
+    self._proc = subprocess.Popen(_host_command(), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                  ^^^^^^^^^^^^^^^
+  File "/Users/martin/document/IBS/tradebot/adapters/csharp/bridge.py", line 155, in _host_command
+    ensure_built()
+  File "/Users/martin/document/IBS/tradebot/adapters/csharp/build.py", line 130, in ensure_built
+    build()
+  File "/Users/martin/document/IBS/tradebot/adapters/csharp/build.py", line 104, in build
+    compiler = find_compiler()
+               ^^^^^^^^^^^^^^^
+  File "/Users/martin/document/IBS/tradebot/adapters/csharp/build.py", line 53, in find_compiler
+    raise BuildError(
+tradebot.adapters.csharp.build.BuildError: nenašiel sa C# kompilátor: na Windows je `csc.exe` súčasťou .NET Frameworku 4.x, na macOS/Linuxe nainštaluj Mono (`brew install mono`); cestu sa dá vnútiť 
+cez TRADEBOT_CSC

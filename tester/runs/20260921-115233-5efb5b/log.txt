@@ -1,0 +1,402 @@
+$ /Users/martin/document/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json --userdir /Users/martin/document/IBS/deploy/freqtrade/user_data --strategy ORBStrategy --cache none --export trades --timerange 20250910-20260910 --pairs MNQ/USD --timeframe 1m --dry-run-wallet 10000.0 --fee 0.0 --datadir /Users/martin/document/IBS/data/tester/databento --backtest-directory /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260921-115233-5efb5b
+2026-09-21 13:52:33,596 - freqtrade - INFO - freqtrade 2026.8
+2026-09-21 13:52:33,948 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json ...
+2026-09-21 13:52:33,949 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-21 13:52:33,949 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-09-21 13:52:33,949 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/document/IBS/deploy/freqtrade/user_data ...
+2026-09-21 13:52:33,950 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/document/IBS/data/tester/databento ...
+2026-09-21 13:52:33,950 - freqtrade.configuration.configuration - INFO - Using /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260921-115233-5efb5b as backtest directory ...
+2026-09-21 13:52:33,951 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-21 13:52:33,981 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy ORBStrategy from '/Users/martin/document/IBS/deploy/freqtrade/user_data/strategies/ORBStrategy.py'...
+'/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-09-21 13:52:34,339 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, funding_rate, 1h found. Use `freqtrade download-data` to download the data
+2026-09-21 13:52:34,339 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, mark, 1h found. Use `freqtrade download-data` to download the data
+2026-09-21 13:52:37,502 - tradebot.adapters.freqtrade.base - INFO - orb MNQ/USD: kresby ulozene do /Users/martin/document/IBS/tester/runs/.profiles/20260921-115233-5efb5b.chart.json.gz (1320 objektov)
+2026-09-21 13:52:37,793 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 47864.00 na 9900.00 (20.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,831 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49308.00 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,860 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49656.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,865 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49032.50 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,870 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49402.00 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,889 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49516.00 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,894 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49487.00 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,899 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50226.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,918 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50312.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,928 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50270.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,937 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50693.50 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,952 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49516.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,957 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49119.00 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,962 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49891.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,967 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50212.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,972 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49586.00 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,986 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50403.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,991 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50512.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:37,996 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50543.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,001 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50095.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,005 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50988.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,034 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 52086.00 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,039 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 52289.50 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,058 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51514.00 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,063 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51001.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,068 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51261.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,072 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50090.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,087 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51183.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,096 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51348.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,101 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50852.50 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,106 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49521.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,121 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50197.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,126 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49329.00 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,130 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49304.00 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,135 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50484.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,140 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 48316.50 na 9900.00 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,154 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49369.50 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,159 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49635.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,164 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50416.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,188 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50599.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,192 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51054.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,197 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50915.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,202 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51120.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,207 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51554.00 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,221 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51556.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,226 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51278.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,231 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51217.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,236 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51126.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,241 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51175.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,255 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50629.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,260 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50639.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,265 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50786.50 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,270 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50513.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,274 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50921.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,289 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51388.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,294 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51475.00 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,323 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51453.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,342 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51308.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,356 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51163.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,366 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51645.00 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,370 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51385.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,375 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51430.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,389 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51720.00 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,394 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51975.50 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,399 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51336.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,404 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51762.50 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,409 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51668.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,428 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50694.00 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,433 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50299.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,438 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51329.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,443 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51171.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,458 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51552.00 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,462 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51911.00 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,467 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 52460.00 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,472 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 52165.00 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,477 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51834.00 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,491 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51337.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,496 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51677.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,501 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50460.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,506 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49630.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,510 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49774.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,525 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50150.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,530 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50692.50 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,535 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50734.00 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,540 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50630.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,544 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49382.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,564 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49523.00 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,569 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49668.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,573 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49627.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,578 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49639.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,593 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49940.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,597 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49651.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,602 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50489.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,607 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50511.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,612 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49608.00 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,627 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49699.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,632 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49254.00 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,637 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49938.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,642 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50191.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,647 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49304.50 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,661 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 48840.00 na 9900.00 (20.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,666 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49981.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,671 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50199.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,675 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49484.00 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,680 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49274.00 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,694 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49844.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,699 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50146.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,704 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49922.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,709 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 48858.00 na 9900.00 (20.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,714 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 48765.50 na 9900.00 (20.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,728 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 49043.50 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,733 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 48451.50 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,738 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 48956.50 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,743 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 48175.00 na 9900.00 (20.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,747 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 47113.00 na 9900.00 (21.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,762 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 46914.00 na 9900.00 (21.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,767 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 46919.00 na 9900.00 (21.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,771 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 48326.50 na 9900.00 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,776 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 47525.50 na 9900.00 (20.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,796 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 48528.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,801 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 48396.00 na 9900.00 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,806 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50265.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,810 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50038.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,815 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 50613.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,834 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 51454.00 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,844 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 52734.50 na 9900.00 (18.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,848 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 53441.50 na 9900.00 (18.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,863 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 53494.00 na 9900.00 (18.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,868 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 53676.00 na 9900.00 (18.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,872 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 53785.00 na 9900.00 (18.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,877 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 54035.00 na 9900.00 (18.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,882 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 54491.50 na 9900.00 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,897 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 54724.50 na 9900.00 (18.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,901 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 54325.00 na 9900.00 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,906 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 54437.00 na 9900.00 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,911 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 54686.00 na 9900.00 (18.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,916 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 55511.50 na 9900.00 (17.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,930 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 55758.50 na 9900.00 (17.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,935 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 56062.00 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,940 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 56894.00 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,949 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 57942.00 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,964 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58560.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,969 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58455.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,974 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58428.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,979 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59104.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,984 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58377.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:38,998 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58553.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,003 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 57998.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,008 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58138.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,012 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58532.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,017 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59316.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,036 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59871.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,041 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60253.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,046 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60010.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,051 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60852.00 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,065 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60844.00 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,070 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60933.50 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,075 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 61428.00 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,079 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60420.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,084 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59997.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,098 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58830.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,103 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59488.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,108 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 57909.00 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,113 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 57566.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,119 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58613.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,133 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 61392.50 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,138 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 61637.00 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,142 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60839.50 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,147 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60965.00 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,166 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 61804.00 na 9900.00 (16.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,171 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59551.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,176 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59271.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,180 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60080.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,185 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58745.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,199 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59536.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,204 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60378.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,209 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60521.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,214 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60278.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,233 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59874.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,237 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59031.50 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,242 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58654.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,247 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59563.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,252 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59624.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,266 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59261.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,271 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59380.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,276 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59824.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,281 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58860.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,286 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 57079.50 na 9900.00 (17.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,301 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58275.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,305 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58266.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,310 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58324.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,315 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 57529.50 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,320 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 56998.50 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,334 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 56973.50 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,339 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 55742.00 na 9900.00 (17.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,344 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 55673.00 na 9900.00 (17.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,349 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 55785.50 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,354 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 57081.50 na 9900.00 (17.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,368 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 56872.50 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,373 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58772.50 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,378 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59870.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,383 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58742.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,388 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59366.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,402 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59682.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,407 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59452.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,412 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59755.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,416 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59894.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,421 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60411.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,435 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60381.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,440 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59510.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,445 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59296.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,450 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58867.50 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,455 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58715.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,470 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58165.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,475 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58754.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,479 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58562.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,484 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58905.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,489 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59275.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,503 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58834.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,508 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58125.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,513 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58204.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,518 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58570.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,523 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59270.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,542 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59143.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-21 13:52:39,547 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58998.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+"/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260921-115233-5efb5b/backtest-result-2026-09-21_11-52-39.meta.json"
+…
+2026-09-21 13:52:39,147 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60965.00 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,166 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 61804.00 na 9900.00 (16.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,171 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59551.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,176 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59271.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,180 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60080.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,185 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58745.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,199 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59536.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,204 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60378.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,209 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60521.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,214 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60278.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,233 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59874.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,237 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59031.50 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,242 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58654.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,247 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59563.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,252 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59624.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,266 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59261.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,271 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59380.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,276 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59824.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,281 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58860.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,286 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 57079.50 na 9900.00 (17.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,301 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58275.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,305 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58266.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,310 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58324.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,315 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 57529.50 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,320 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 56998.50 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,334 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 56973.50 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,339 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 55742.00 na 9900.00 (17.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,344 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 55673.00 na 9900.00 (17.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,349 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 55785.50 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,354 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 57081.50 na 9900.00 (17.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,368 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 56872.50 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,373 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58772.50 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,378 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59870.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,383 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58742.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,388 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59366.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,402 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59682.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,407 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59452.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,412 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59755.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,416 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59894.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,421 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60411.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,435 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 60381.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,440 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59510.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,445 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59296.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,450 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58867.50 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,455 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58715.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,470 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58165.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,475 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58754.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,479 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58562.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,484 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58905.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,489 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59275.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,503 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58834.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,508 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58125.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,513 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58204.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,518 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58570.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,523 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59270.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,542 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 59143.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-09-21 13:52:39,547 - tradebot.adapters.freqtrade.callbacks - WARNING - orb MNQ/USD: stake orezany z 58998.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4/4           100% • 0:00:03 • 0:00:00
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 525600/525600 100% • 0:00:05 • 0:00:00
+2026-09-21 13:52:39,902 - freqtrade.misc - INFO - dumping json to 
+"/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260921-115233-5efb5b/backtest-result-2026-09-21_11-52-39.meta.json"
+Result for strategy ORBStrategy
+                                            BACKTESTING REPORT                                             
+┏━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃    Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ MNQ/USD │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+│   TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┏━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                               ENTER TAG STATS                                                
+┏━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Entries ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │       0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                              EXIT REASON STATS                                               
+┏━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Exit Reason ┃ Exits ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│       TOTAL │     0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                      MIXED TAG STATS                                                      
+┏━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Exit Reason ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │             │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+No trades made. Your starting balance was 10000 USD, and your stake was unlimited.
+
+Backtested 2025-09-10 00:00:00 -> 2026-09-10 00:00:00 | Max open trades : 1
+                                                       STRATEGY SUMMARY                                                       
+┏━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃    Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃     Drawdown ┃
+┡━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ ORBStrategy │      0 │         0.00 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │ 0 USD  0.00% │
+└─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────┘
+POZOR: engine dal 225 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh.
