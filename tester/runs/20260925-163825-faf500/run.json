@@ -1,0 +1,577 @@
+{
+  "id": "20260925-163825-faf500",
+  "status": "done",
+  "created": "2026-09-25T16:38:25+00:00",
+  "started": "2026-09-25T16:38:25+00:00",
+  "finished": "2026-09-25T16:38:28+00:00",
+  "user": "IBS",
+  "note": "porovnanie ibs vs ibszones: synchronizovaná detekcia zón",
+  "settings": {
+    "strategy": "ibs",
+    "exchange": "tester",
+    "sweep": null,
+    "pair": "BTC/USDT:USDT",
+    "engine": "freqtrade",
+    "timeframe": "3m",
+    "timerange": "20250101-20250301",
+    "fee": 0.0005,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 10000.0,
+    "timeframe_detail": "1m",
+    "profile": "golden_binance_btcusdt_3m",
+    "instrument": "btcusdt_binance"
+  },
+  "params": {
+    "enableImbEntry": true,
+    "enablePinBarEntry": true,
+    "enableEngulfingEntry": false,
+    "pbWickToBodyRatio": 4.0,
+    "pbBodyPositionPct": 20.0,
+    "pbMinRangePoints": 2.0,
+    "engMinRangePoints": 2.0,
+    "engSizeAvgLen": 10,
+    "engSizeMultiplier": 2.0,
+    "engTouchWindowBars": 3,
+    "pbEngOrderType": "Market",
+    "enableTrailing": true,
+    "trailActivationR": 1.0,
+    "trailOffsetR": 0.5,
+    "weekdaysOnly": true,
+    "enableTrading": true,
+    "enableZoneDetection": true,
+    "enableGapDetection": true,
+    "enableSrTrading": false,
+    "enableLqTrading": false,
+    "closeAtSessionEnd": true,
+    "sess1On": false,
+    "sess1TZ": "Europe/Prague",
+    "sess1ZoneStartH": 1,
+    "sess1ZoneStartM": 0,
+    "sess1ZoneEndH": 9,
+    "sess1ZoneEndM": 0,
+    "sess1TradeStartH": 2,
+    "sess1TradeStartM": 0,
+    "sess1TradeEndH": 5,
+    "sess1TradeEndM": 0,
+    "sess2On": true,
+    "sess2TZ": "America/New_York",
+    "sess2ZoneStartH": 8,
+    "sess2ZoneStartM": 0,
+    "sess2ZoneEndH": 11,
+    "sess2ZoneEndM": 0,
+    "sess2TradeStartH": 10,
+    "sess2TradeStartM": 0,
+    "sess2TradeEndH": 15,
+    "sess2TradeEndM": 45,
+    "sess3On": true,
+    "sess3TZ": "Europe/London",
+    "sess3ZoneStartH": 8,
+    "sess3ZoneStartM": 0,
+    "sess3ZoneEndH": 10,
+    "sess3ZoneEndM": 0,
+    "sess3TradeStartH": 8,
+    "sess3TradeStartM": 0,
+    "sess3TradeEndH": 11,
+    "sess3TradeEndM": 0,
+    "zoneDetectionTF": "5",
+    "zoneValidHours": 6,
+    "maxSdZones": 200,
+    "snapMode": "Floor",
+    "invalidateOnFill": true,
+    "useVolumeFilter": false,
+    "volumeFilterBlockTrading": false,
+    "volSmaLen": 20,
+    "volMultiplier": 1.5,
+    "showMarketStructure": true,
+    "structureSwingLen": 5,
+    "useStructureFilter": false,
+    "showSR": true,
+    "srSwingLen": 10,
+    "srClusterPoints": 15.0,
+    "srMinTouches": 2,
+    "srMaxLevels": 10,
+    "srLookbackDays": 5,
+    "srZoneSaturationPct": 30,
+    "showLiqSweep": true,
+    "liqSweepLen": 10,
+    "liqSweepMinWick": 5.0,
+    "liqSweepConfirmBars": 2,
+    "liqStrengthLen": 50,
+    "showElliott": false,
+    "ewSwingLen": 8,
+    "ewMinWavePoints": 20.0,
+    "ewShowLabels": true,
+    "ewShowProjection": true,
+    "ewProjExtendBars": 40,
+    "ewLineColor": "#334155",
+    "showImbalance": true,
+    "imbLookback": 20,
+    "imbMaxDistTicks": 100.0,
+    "minImbSizePoints": 2.5,
+    "state1MaxBars": 10,
+    "state2MaxBars": 15,
+    "state2ConfirmTicks": 1.0,
+    "state3MaxBars": 1,
+    "state4MaxBars": 10,
+    "state5MaxBars": 10,
+    "rrRatio": 1.0,
+    "slLookback": 10,
+    "slBufferTicks": 2.0,
+    "maxLossDollar": 350.0,
+    "maxDailyWins": 5,
+    "tradeDirection": "Long only",
+    "indSupertrend": true,
+    "stTimeframe": "60",
+    "stAtrPeriod": 10,
+    "stSource": "hl2",
+    "stMultiplier": 3.0,
+    "stChangeAtr": true,
+    "stShowSignals": true,
+    "stHighlighting": true,
+    "indAdx": false,
+    "adxTimeframe": "60",
+    "adxDiLength": 14,
+    "adxSmoothing": 14,
+    "adxThreshold": 20.0,
+    "adxShowState": true,
+    "ruleStUp": "Long only",
+    "ruleStDown": "Short only",
+    "ruleAdxUp": "Long only",
+    "ruleAdxDown": "Short only",
+    "ruleAdxSide": "No trade",
+    "ruleStUpAdxUp": "Long only",
+    "ruleStUpAdxSide": "No trade",
+    "ruleStUpAdxDown": "No trade",
+    "ruleStDownAdxUp": "No trade",
+    "ruleStDownAdxSide": "No trade",
+    "ruleStDownAdxDown": "Short only",
+    "tickDollarValue": 0.5,
+    "legacyPineSizing": true,
+    "atrLen": 14,
+    "minSlDistance": 0.0,
+    "leverage": 1.0
+  },
+  "error": null,
+  "result": {
+    "trades": 25,
+    "wins": 9,
+    "losses": 16,
+    "draws": 0,
+    "winrate": 36.0,
+    "pnl_abs": -369.44,
+    "pnl_pct": -3.694,
+    "profit_factor": 0.355,
+    "max_drawdown_abs": 369.44,
+    "max_drawdown_pct": 3.694,
+    "starting_balance": 10000.0,
+    "final_balance": 9630.56,
+    "gross_abs": -125.7,
+    "volume_abs": 485573.86,
+    "break_even_pct": -0.0259,
+    "exits": {
+      "stop_loss": {
+        "n": 14,
+        "pnl_abs": -562.17
+      },
+      "roi": {
+        "n": 11,
+        "pnl_abs": 192.73
+      }
+    },
+    "streaks": {
+      "win": {
+        "n": 2,
+        "from_i": 4,
+        "to_i": 5,
+        "start": "2025-01-10T16:42:00+00:00",
+        "end": "2025-01-14T09:16:00+00:00",
+        "pnl_abs": 42.9,
+        "count": 1
+      },
+      "loss": {
+        "n": 4,
+        "from_i": 12,
+        "to_i": 15,
+        "start": "2025-01-30T17:48:00+00:00",
+        "end": "2025-02-05T09:33:00+00:00",
+        "pnl_abs": -140.52,
+        "count": 1
+      }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": -10.106,
+    "backtest_start": "2025-01-01 00:00:00",
+    "backtest_end": "2025-03-01 00:00:00",
+    "holding_avg": "0:22:00",
+    "duration_s": 3.2,
+    "zip": "backtest-result-2026-09-25_16-38-28.zip"
+  },
+  "series": {
+    "equity": [
+      [
+        "2025-01-06T17:19:00+00:00",
+        -0.4513,
+        -0.4513
+      ],
+      [
+        "2025-01-06T20:13:00+00:00",
+        0.3124,
+        -0.1389
+      ],
+      [
+        "2025-01-07T10:02:00+00:00",
+        -0.1813,
+        -0.3202
+      ],
+      [
+        "2025-01-08T15:22:00+00:00",
+        -0.3678,
+        -0.688
+      ],
+      [
+        "2025-01-10T16:45:00+00:00",
+        0.3099,
+        -0.3781
+      ],
+      [
+        "2025-01-14T09:16:00+00:00",
+        0.119,
+        -0.2591
+      ],
+      [
+        "2025-01-15T17:48:00+00:00",
+        -0.2849,
+        -0.544
+      ],
+      [
+        "2025-01-15T18:15:00+00:00",
+        0.1037,
+        -0.4403
+      ],
+      [
+        "2025-01-27T10:35:00+00:00",
+        -0.6542,
+        -1.0945
+      ],
+      [
+        "2025-01-28T15:31:00+00:00",
+        0.5282,
+        -0.5663
+      ],
+      [
+        "2025-01-28T15:57:00+00:00",
+        -0.4335,
+        -0.9998
+      ],
+      [
+        "2025-01-30T09:36:00+00:00",
+        0.1065,
+        -0.8933
+      ],
+      [
+        "2025-01-30T18:26:00+00:00",
+        -0.3055,
+        -1.1988
+      ],
+      [
+        "2025-01-31T10:37:00+00:00",
+        -0.0389,
+        -1.2377
+      ],
+      [
+        "2025-02-03T17:02:00+00:00",
+        -0.811,
+        -2.0487
+      ],
+      [
+        "2025-02-05T09:33:00+00:00",
+        -0.2498,
+        -2.2985
+      ],
+      [
+        "2025-02-12T15:24:00+00:00",
+        0.4166,
+        -1.8819
+      ],
+      [
+        "2025-02-19T18:13:00+00:00",
+        -0.3699,
+        -2.2518
+      ],
+      [
+        "2025-02-20T10:03:00+00:00",
+        -0.1612,
+        -2.413
+      ],
+      [
+        "2025-02-21T08:36:00+00:00",
+        -0.0651,
+        -2.4781
+      ],
+      [
+        "2025-02-21T10:15:00+00:00",
+        0.0769,
+        -2.4012
+      ],
+      [
+        "2025-02-24T10:23:00+00:00",
+        -0.2677,
+        -2.6689
+      ],
+      [
+        "2025-02-26T10:16:00+00:00",
+        -0.1849,
+        -2.8538
+      ],
+      [
+        "2025-02-26T16:01:00+00:00",
+        0.058,
+        -2.7958
+      ],
+      [
+        "2025-02-26T18:27:00+00:00",
+        -0.8986,
+        -3.6944
+      ]
+    ],
+    "market": [
+      [
+        "2025-01-01T00:00:00+00:00",
+        0.9621
+      ],
+      [
+        "2025-01-02T00:00:00+00:00",
+        3.481
+      ],
+      [
+        "2025-01-03T00:00:00+00:00",
+        4.7052
+      ],
+      [
+        "2025-01-04T00:00:00+00:00",
+        4.7397
+      ],
+      [
+        "2025-01-05T00:00:00+00:00",
+        4.9166
+      ],
+      [
+        "2025-01-06T00:00:00+00:00",
+        8.7718
+      ],
+      [
+        "2025-01-07T00:00:00+00:00",
+        3.5184
+      ],
+      [
+        "2025-01-08T00:00:00+00:00",
+        1.5741
+      ],
+      [
+        "2025-01-09T00:00:00+00:00",
+        -1.0539
+      ],
+      [
+        "2025-01-10T00:00:00+00:00",
+        1.3168
+      ],
+      [
+        "2025-01-11T00:00:00+00:00",
+        1.2042
+      ],
+      [
+        "2025-01-12T00:00:00+00:00",
+        1.1461
+      ],
+      [
+        "2025-01-13T00:00:00+00:00",
+        1.2098
+      ],
+      [
+        "2025-01-14T00:00:00+00:00",
+        3.3708
+      ],
+      [
+        "2025-01-15T00:00:00+00:00",
+        7.4132
+      ],
+      [
+        "2025-01-16T00:00:00+00:00",
+        6.9244
+      ],
+      [
+        "2025-01-17T00:00:00+00:00",
+        10.9795
+      ],
+      [
+        "2025-01-18T00:00:00+00:00",
+        11.4692
+      ],
+      [
+        "2025-01-19T00:00:00+00:00",
+        8.4405
+      ],
+      [
+        "2025-01-20T00:00:00+00:00",
+        9.6548
+      ],
+      [
+        "2025-01-21T00:00:00+00:00",
+        13.4487
+      ],
+      [
+        "2025-01-22T00:00:00+00:00",
+        11.1455
+      ],
+      [
+        "2025-01-23T00:00:00+00:00",
+        11.469
+      ],
+      [
+        "2025-01-24T00:00:00+00:00",
+        12.407
+      ],
+      [
+        "2025-01-25T00:00:00+00:00",
+        12.3164
+      ],
+      [
+        "2025-01-26T00:00:00+00:00",
+        10.2608
+      ],
+      [
+        "2025-01-27T00:00:00+00:00",
+        9.8085
+      ],
+      [
+        "2025-01-28T00:00:00+00:00",
+        9.1131
+      ],
+      [
+        "2025-01-29T00:00:00+00:00",
+        11.5139
+      ],
+      [
+        "2025-01-30T00:00:00+00:00",
+        12.4729
+      ],
+      [
+        "2025-01-31T00:00:00+00:00",
+        10.2789
+      ],
+      [
+        "2025-02-01T00:00:00+00:00",
+        8.5403
+      ],
+      [
+        "2025-02-02T00:00:00+00:00",
+        5.6326
+      ],
+      [
+        "2025-02-03T00:00:00+00:00",
+        9.3969
+      ],
+      [
+        "2025-02-04T00:00:00+00:00",
+        5.8704
+      ],
+      [
+        "2025-02-05T00:00:00+00:00",
+        4.7175
+      ],
+      [
+        "2025-02-06T00:00:00+00:00",
+        4.7112
+      ],
+      [
+        "2025-02-07T00:00:00+00:00",
+        4.6956
+      ],
+      [
+        "2025-02-08T00:00:00+00:00",
+        4.6596
+      ],
+      [
+        "2025-02-09T00:00:00+00:00",
+        4.6867
+      ],
+      [
+        "2025-02-10T00:00:00+00:00",
+        5.6956
+      ],
+      [
+        "2025-02-11T00:00:00+00:00",
+        4.0072
+      ],
+      [
+        "2025-02-12T00:00:00+00:00",
+        6.2107
+      ],
+      [
+        "2025-02-13T00:00:00+00:00",
+        4.9398
+      ],
+      [
+        "2025-02-14T00:00:00+00:00",
+        5.8723
+      ],
+      [
+        "2025-02-15T00:00:00+00:00",
+        5.9722
+      ],
+      [
+        "2025-02-16T00:00:00+00:00",
+        4.459
+      ],
+      [
+        "2025-02-17T00:00:00+00:00",
+        4.1338
+      ],
+      [
+        "2025-02-18T00:00:00+00:00",
+        4.0295
+      ],
+      [
+        "2025-02-19T00:00:00+00:00",
+        5.0623
+      ],
+      [
+        "2025-02-20T00:00:00+00:00",
+        6.7726
+      ],
+      [
+        "2025-02-21T00:00:00+00:00",
+        4.6155
+      ],
+      [
+        "2025-02-22T00:00:00+00:00",
+        5.0095
+      ],
+      [
+        "2025-02-23T00:00:00+00:00",
+        4.7189
+      ],
+      [
+        "2025-02-24T00:00:00+00:00",
+        -0.2573
+      ],
+      [
+        "2025-02-25T00:00:00+00:00",
+        -3.3355
+      ],
+      [
+        "2025-02-26T00:00:00+00:00",
+        -8.372
+      ],
+      [
+        "2025-02-27T00:00:00+00:00",
+        -7.7675
+      ],
+      [
+        "2025-02-28T00:00:00+00:00",
+        -8.048
+      ]
+    ]
+  }
+}
