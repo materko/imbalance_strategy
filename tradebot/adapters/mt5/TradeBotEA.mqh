@@ -70,6 +70,8 @@ struct Tracked
    ulong    positionTicket;   // pozicia po vyplneni (hedging: ticket pozicie; netting: POSITION_ID dealu)
    ulong    slTicket, tpTicket;   // netting: vlastne vystupne ordery (stop + limit) s komentarom = id
    bool     filled;
+   bool     isMarket;         // market vstup: medzi odoslanim a dealom sa pocita ako pozicia
+   double   lots;             // objem vstupu
    double   openQty;
    int      dir;              // 1 long, -1 short
    double   entry, stopLoss, takeProfit;
@@ -86,6 +88,7 @@ Tracked g_orders[];
 long   g_winsDay = 0;      int g_winsCount = 0;
 long   g_winsSeenDay = 0;  int g_winsSeen = 0;
 long   g_limitLoggedDay = 0;
+int    g_staleLogged = 0;
 
 //+------------------------------------------------------------------+
 //| Pomocne                                                          |
@@ -425,11 +428,16 @@ void ProcessChartBar(const MqlRates &r)
    double positionSize = 0;
    string openIds = "";
    for(int i = 0; i < ArraySize(g_orders); i++)
+     {
       if(g_orders[i].filled && g_orders[i].openQty > 0)
         {
          positionSize += g_orders[i].dir * g_orders[i].openQty;
          openIds += (openIds == "" ? "" : ",") + g_orders[i].id;
         }
+      // market vstup, ktory uz odisiel, ale deal este neprisiel, sa pocita ako pozicia (inak by engine
+      // po bare vstup zrusil a poslal dalsi - viď NinjaTrader adapter, 25. 9. 2026: 20 orderov naraz)
+      else if(!g_orders[i].filled && g_orders[i].isMarket) positionSize += g_orders[i].dir * g_orders[i].lots;
+     }
    long day = UtcDay(barMs);
    bool dailyLimit = g_maxDailyWins > 0 && g_winsSeenDay == day && g_winsSeen >= g_maxDailyWins;
    if(dailyLimit && InpLogEvents && g_limitLoggedDay != day)
@@ -444,6 +452,13 @@ void ProcessChartBar(const MqlRates &r)
 
    // Signal z baru bez celej predhistorie vstup neurobi (engine si ho odpise sam timeoutom).
    bool ready = !g_replaying && g_chartBars >= g_required;
+   // Nazivo: bar, ktory prisiel s velkym oneskorenim (vypadok spojenia, davka barov naraz), sa neobchoduje.
+   if(ready && !MQLInfoInteger(MQL_TESTER) && TimeCurrent() - (r.time + PeriodSeconds()) > 2 * PeriodSeconds())
+     {
+      ready = false;
+      if(g_staleLogged++ < 5) Print("TradeBot: bar ", TimeToString(r.time, TIME_MINUTES), " prisiel neskoro (",
+                                    (long)(TimeCurrent() - r.time - PeriodSeconds()), " s) - bez vstupu");
+     }
    ExportOrders(barMs, out, ready);
 
    CJson *orders = out.Find("o");
@@ -519,6 +534,7 @@ void Apply(CJson *intent, bool ready)
 
       Tracked t;
       t.id = id; t.orderTicket = 0; t.positionTicket = 0; t.slTicket = 0; t.tpTicket = 0; t.filled = false; t.openQty = 0;
+      t.isMarket = intent.Str("ot") == "Market"; t.lots = 0;
       t.dir = (int)p.Dbl("dir");
       t.entry = p.Dbl("e"); t.stopLoss = p.Dbl("sl"); t.takeProfit = p.Dbl("tp");
       CJson *tr = p.Find("tr");
@@ -528,6 +544,7 @@ void Apply(CJson *intent, bool ready)
       t.extreme = t.entry; t.lastStop = t.stopLoss;
 
       double lots = Lots(p.Dbl("q"));
+      t.lots = lots;
       double price = Tick(t.entry);
       // hedging: SL/TP na pozicii (kazdy vstup ma vlastnu); netting: pozicia je jedna na symbol, SL/TP by boli
       // spolocne - vystupy su preto vlastne pending ordery s komentarom = id (PlaceExits po vyplneni)

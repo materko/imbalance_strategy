@@ -61,6 +61,7 @@ namespace NinjaTrader.NinjaScript.Strategies
         private long _stepMs;
         private int _maxDailyWins;
         private readonly Dictionary<string, Tracked> _orders = new Dictionary<string, Tracked>();
+        private int _staleLogged;
         /// <summary>UTC den -> pocet obchodov zavretych v zisku (Pine `dailyWinsCount`).</summary>
         private readonly Dictionary<string, int> _dailyWins = new Dictionary<string, int>();
         /// <summary>To iste, ako to bolo na konci predosleho baru - limit plati az od DALSIEHO baru.</summary>
@@ -318,6 +319,16 @@ namespace NinjaTrader.NinjaScript.Strategies
             TB.MarketContext ctx = new TB.MarketContext();
             ctx.PositionSize = Position.MarketPosition == MarketPosition.Long ? Position.Quantity
                              : (Position.MarketPosition == MarketPosition.Short ? -Position.Quantity : 0);
+            // Market vstup, ktory uz odisiel, ale fill este neprisiel (nazivo je asynchronny; pri davke
+            // oneskorenych barov pride az po nich), sa pocita ako pozicia - inak engine vidi 0, po bare
+            // vstup "zrusi" a posle dalsi: 25. 9. 2026 tak ORB poslal 20 market orderov v jednej sekunde.
+            foreach (KeyValuePair<string, Tracked> kv in _orders)
+            {
+                Tracked p = kv.Value;
+                if (p.Filled || p.Intent.OrderType != TB.OrderType.Market || p.Intent.Plan == null) continue;
+                if (p.Entry != null && (p.Entry.OrderState == OrderState.Cancelled || p.Entry.OrderState == OrderState.Rejected)) continue;
+                ctx.PositionSize += (p.Intent.Plan.Direction == TB.Direction.Long ? 1 : -1) * Math.Max(1, Math.Round(p.Intent.Plan.Qty));
+            }
             string day = UtcDay(bar.Time);
             int winsSeen;
             ctx.DailyWinLimitReached = _maxDailyWins > 0 && _dailyWinsSeen.TryGetValue(day, out winsSeen) && winsSeen >= _maxDailyWins;
@@ -329,6 +340,14 @@ namespace NinjaTrader.NinjaScript.Strategies
 
             // Signal z baru bez celej predhistorie vstup neurobi (engine si ho odpise sam timeoutom).
             bool ready = CurrentBars[0] >= _engine.RequiredHistory;
+            // Nazivo: bar, ktory prisiel s velkym oneskorenim (vypadok dat, davka barov naraz), sa
+            // neobchoduje - signal je stary a fill by bol uplne inde.
+            if (State == State.Realtime && (NinjaTrader.Core.Globals.Now - Times[0][0]).TotalSeconds > 2 * _chartTfMinutes * 60)
+            {
+                ready = false;
+                if (_staleLogged++ < 5) Print("TradeBot " + EngineKey + ": bar " + Times[0][0].ToString("HH:mm", CultureInfo.InvariantCulture)
+                                              + " prisiel neskoro (" + (int)(NinjaTrader.Core.Globals.Now - Times[0][0]).TotalSeconds + " s) - bez vstupu");
+            }
             Export(bar, output, ready);
             foreach (TB.OrderIntent intent in output.Orders) Apply(intent, ready);
             if (output.CloseSession) Flatten("tb_session_end");

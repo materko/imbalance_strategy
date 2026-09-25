@@ -62,6 +62,8 @@ a text je v `LastError()`.
   opačný market order `close:<id>`, vstup proti otvorenej pozícii najprv odpíše otvorené vstupy
   opačného smeru (deal OUT/INOUT) a cudzie zavretie (ručné, stop-out) sa odpíše z otvorených
   vstupov v smere pozície;
+- **naživo**: odoslaný, ešte nevyplnený market vstup sa ráta ako pozícia a bar, ktorý prišiel
+  neskôr než dva TF po svojom zatvorení, sa neobchoduje (viď docs/NINJATRADER.md, „Naživo“);
 - **denný limit výhier** (Pine `dailyWinsCount`) presne ako NinjaTrader: výhra = obchod zavretý na
   SL/TP so ziskom > 0 voči plánovanému vstupu (hedging podľa `DEAL_REASON_SL/TP`, netting podľa
   komentára výstupného orderu), zavretie enginom sa nepočíta; engine sa pýta na stav z konca

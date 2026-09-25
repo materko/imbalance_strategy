@@ -93,6 +93,17 @@ Preklad rieši most sám: `csharp/bin/TradeBot.dll` sa zostaví pri prvom použi
 DLL sa do procesu načíta z bajtov, takže ju bežiaci beh nezamkne. `setup.ps1`/`setup.sh` inštalujú
 pythonnet (`pip install -e .[csharp]`), `install-macos.sh` aj Mono.
 
+
+### Naživo: asynchrónne fily a oneskorené bary
+
+Engine ORB berie vstup, ktorý po jednom bare stále nemá pozíciu, ako nevyplnený: zruší ho a na
+ďalšom bare pošle nový. V backteste market order vyplní hneď, naživo je fill asynchrónny — a keď
+dátový feed dodá dávku oneskorených barov naraz (25. 9. 2026: 20 minútových barov v jednej sekunde),
+engine vidí na každom z nich pozíciu 0 a pošle 20 market orderov. Oba živé adaptéry (NinjaTrader,
+MT5) preto rátajú **odoslaný, ešte nevyplnený market vstup ako pozíciu** a **bar, ktorý prišiel
+neskôr než dva TF po svojom zatvorení, neobchodujú** (do logu ide „prisiel neskoro“). Ani jedno
+nemení backtest ani paritu signálov.
+
 ## Parita s Python predlohou
 
 C# jadro je prepis, nie nová stratégia — kontroluje sa bar po bare, nie počtom obchodov:
