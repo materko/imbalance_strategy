@@ -269,11 +269,9 @@ class RunIndex:
             if not isinstance(rec, dict) or rec.get("id") != run_id:
                 conn.execute("DELETE FROM runs WHERE id = ?", (run_id,))
                 continue
-            nastavenia = rec.get("settings")
-            if isinstance(nastavenia, dict) and not nastavenia.get("strategy"):
-                from .store import LEGACY_STRATEGY      # kruhový import len tu, nie pri načítaní
+            from .store import _with_strategy      # kruhový import len tu, nie pri načítaní
 
-                nastavenia["strategy"] = LEGACY_STRATEGY
+            _with_strategy(rec)      # chýbajúci a starý kľúč stratégie presne ako sklad pri čítaní
             riadky.append(row_of(rec, st.st_mtime_ns, st.st_size))
         if riadky:
             conn.executemany(

@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import csv
 import sys
+from collections import Counter
 from pathlib import Path
 
 from tradebot.core import load_profile
@@ -151,21 +152,35 @@ def compare(nt: dict[str, list[tuple]], ref: dict[str, list[tuple]]) -> dict:
     def cut(rows):
         return [r for r in rows if lo <= r[0] <= hi]
 
+    # Uid zóny v id vstupu (`LONG_8`) a v udalostiach je poradové číslo od štartu engine-u — platforma
+    # s inou predhistóriou (MT5 prehrá 2×RequiredHistory barov pred štartom) má uidy posunuté, hoci
+    # signály sú tie isté. Porovnáva sa preto bez uidu: vstup = (bar, strana, poradie v bare), udalosť
+    # = (bar, zo stavu, do stavu) ako multimnožina.
     def entries(rows):
-        return {(r[0], r[1]): r[3] for r in cut(rows) if r[2] == "Entry"}
+        out: dict = {}
+        seen: dict = {}
+        for r in cut(rows):
+            if r[2] != "Entry":
+                continue
+            side = r[1].rsplit("_", 1)[0]
+            n = seen.get((r[0], side), 0)
+            seen[(r[0], side)] = n + 1
+            out[(r[0], side, n)] = r[3]
+        return out
 
     nt_e, ref_e = entries(nt["orders"]), entries(ref["orders"])
     same_plan = [k for k in nt_e if k in ref_e and _close(nt_e[k], ref_e[k])]
     # stavy 0-3 na fill modeli nezávisia; 4-5 áno (vyplnenie, OCO, timeout po vyplnení)
-    early = lambda rows: {r for r in cut(rows) if r[3] in (1, 2, 3, 4) or (r[3] == -1 and r[2] in (0, 1, 2, 3))}  # noqa: E731
+    early = lambda rows: Counter((r[0], r[2], r[3]) for r in cut(rows)  # noqa: E731
+                                 if r[3] in (1, 2, 3, 4) or (r[3] == -1 and r[2] in (0, 1, 2, 3)))
     nt_ev, ref_ev = early(nt["events"]), early(ref["events"])
     return {
         "window_ms": (lo, hi),
         "entries": {"nt": len(nt_e), "ref": len(ref_e), "same_bar_and_plan": len(same_plan),
                     "only_nt": sorted(set(nt_e) - set(ref_e))[:10], "only_ref": sorted(set(ref_e) - set(nt_e))[:10],
                     "different_plan": [(k, nt_e[k], ref_e[k]) for k in nt_e if k in ref_e and not _close(nt_e[k], ref_e[k])][:10]},
-        "zone_events": {"nt": len(nt_ev), "ref": len(ref_ev), "same": len(nt_ev & ref_ev),
-                        "only_nt": sorted(nt_ev - ref_ev)[:10], "only_ref": sorted(ref_ev - nt_ev)[:10]},
+        "zone_events": {"nt": sum(nt_ev.values()), "ref": sum(ref_ev.values()), "same": sum((nt_ev & ref_ev).values()),
+                        "only_nt": sorted((nt_ev - ref_ev).elements())[:10], "only_ref": sorted((ref_ev - nt_ev).elements())[:10]},
     }
 
 
@@ -187,7 +202,7 @@ def main(argv: list[str] | None = None) -> int:
             p.add_argument("--contract", default="MNQ 12-26", help="meno inštrumentu v NinjaTraderi")
             p.add_argument("--out", type=Path)
         else:
-            p.add_argument("--strategy", default="ibsninja")
+            p.add_argument("--strategy", default="ibsnet")
             p.add_argument("--profile", default="multicharts_mnq_3m")
             p.add_argument("--timeframe", default="3m")
             p.add_argument("--csv", type=Path, help="export z NinjaTradera (default: najnovší v TradeBot\\logs)")

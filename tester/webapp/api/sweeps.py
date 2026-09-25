@@ -10,7 +10,7 @@ from uuid import uuid4
 from fastapi import APIRouter, HTTPException
 
 from tradebot.core.config import ConfigError
-from tradebot.strategies import STRATEGIES
+from tradebot.strategies import STRATEGIES, get_spec
 
 from ..batches import strip_tag
 from ..runner import check_market_rules
@@ -73,7 +73,7 @@ def build(ctx: AppContext) -> APIRouter:
 
         # Celá mriežka sa overí ešte pred zaradením: keby prvý bod prešiel a piaty mal
         # hodnotu mimo Pine rozsahu, tester by mal vo fronte štyri behy a chybu k tomu.
-        config_cls = STRATEGIES[req.strategy].config_cls
+        config_cls = get_spec(req.strategy).config_cls
         for point in points:
             merged = {**req.params, **point}
             try:

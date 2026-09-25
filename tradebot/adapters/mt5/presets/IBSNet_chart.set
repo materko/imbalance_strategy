@@ -1,0 +1,11 @@
+InpProfile=multicharts_mnq_3m
+InpServerGmtOffsetMin=0
+InpMagic=20260925
+InpExportSignals=false
+InpLogEvents=false
+InpShowDrawings=true
+InpShowSessionBg=false
+InpReplayBars=1500
+InpScreenshotFile=TradeBot\chart_ibsnet.png
+InpCloseAfterShot=true
+InpPointValueOverride=0

@@ -1,0 +1,11 @@
+InpSymbol=MNQ.TB
+InpCsv=TradeBot\import\MNQ_1m.csv
+InpDigits=2
+InpTickSize=0.25
+InpTickValue=0.5
+InpContractSize=2.0
+InpVolumeMin=1.0
+InpVolumeStep=1.0
+InpMarginInitial=2500.0
+InpMarginMaint=2300.0
+InpCloseTerminal=true

@@ -1,5 +1,5 @@
 {
-  "_title": "ORBNinja (C# jadro) — prepis ORB_RRR1.0_15m, parametre nezmenené. ORB 15m NY Long only, RRR 1.0, SL 20% rangu. WR 57.14% PF 1.238 ret 13.7% DD 9.53% tr 133 (12m). POZOR: nulltest len +0.8 sigma = neodlisitelne od nahody.",
+  "_title": "ORBNet (C# jadro) — prepis ORB_RRR1.0_15m, parametre nezmenené. ORB 15m NY Long only, RRR 1.0, SL 20% rangu. WR 57.14% PF 1.238 ret 13.7% DD 9.53% tr 133 (12m). POZOR: nulltest len +0.8 sigma = neodlisitelne od nahody.",
   "_comment": "ORB 15m NY Long only, RRR 1.0, SL 20% rangu. WR 57.14% PF 1.238 ret 13.7% DD 9.53% tr 133 (12m). POZOR: nulltest len +0.8 sigma = neodlisitelne od nahody. — z behu 20260910-085321-2e824c (NAS100/USD, 20250904-20260904)",
   "_base": "nas100_dukascopy_3m",
   "_timeframe": "15m",
@@ -7,7 +7,7 @@
   "_fee": 0.0,
   "_wallet": 10000.0,
   "_detail": false,
-  "_strategy": "orbninja",
+  "_strategy": "orbnet",
   "_instrument": "nas100_dukascopy",
   "sessionMode": "ny",
   "nyStartH": 9,

@@ -1,4 +1,4 @@
-"""IBSNinja (C# jadro) proti IBS (Python) — bar po bare, na rovnosť.
+"""IBSNet (C# jadro) proti IBS (Python) — bar po bare, na rovnosť.
 
 C# jadro je prepis, nie nová stratégia: na rovnakých vstupoch musí dať rovnaké ordery, kresby,
 udalosti aj hodiny seáns, do posledného bitu. Syntetický test beží vždy (nepotrebuje dáta),
@@ -65,7 +65,7 @@ def _run(frames, overrides, monkeypatch=None, bridge=None):
     if bridge is not None:
         monkeypatch.setenv("TRADEBOT_CSHARP_BRIDGE", bridge)
     return csharp_parity.compare_frames(
-        "ibs", "ibsninja", "golden_binance_btcusdt_3m", frames[3], lambda tf: frames[int(tf.rstrip("m"))], 3,
+        "ibs", "ibsnet", "golden_binance_btcusdt_3m", frames[3], lambda tf: frames[int(tf.rstrip("m"))], 3,
         "2026-03-28", None, overrides, 10,
     )
 
@@ -76,7 +76,7 @@ def test_synteticke_bary_vsetko_zapnute(frames):
     c = res["counts"]
     # bez toho by zhoda nič neznamenala: test musí naozaj prejsť vstupmi, stavmi aj kresbami
     assert c["entries"] > 0 and c["events"] > 100 and c["drawings"] > 1000, c
-    assert res["seeded"]["ibs"] == res["seeded"]["ibsninja"] != {}
+    assert res["seeded"]["ibs"] == res["seeded"]["ibsnet"] != {}
 
 
 def test_synteticke_bary_pine_defaulty(frames):
@@ -92,7 +92,7 @@ def test_stdio_transport_dava_to_iste(frames, monkeypatch):
 
 def test_golden_okno_binance():
     try:
-        res = csharp_parity.compare("ibs", "ibsninja", "golden_binance_btcusdt_3m", "binance", 3,
+        res = csharp_parity.compare("ibs", "ibsnet", "golden_binance_btcusdt_3m", "binance", 3,
                                     "2026-08-24", "2026-09-04")
     except SystemExit as exc:  # chýbajúce feather dáta
         pytest.skip(f"dáta nie sú k dispozícii: {exc}")
@@ -108,8 +108,8 @@ def test_engine_prezije_pickle_pre_hyperopt():
     from tradebot.core import load_profile
     from tradebot.strategies import get_spec
 
-    cfg, inst = load_profile("golden_binance_btcusdt_3m", strategy="ibsninja")
-    engine = get_spec("ibsninja").engine_factory(cfg, inst, 3)
+    cfg, inst = load_profile("golden_binance_btcusdt_3m", strategy="ibsnet")
+    engine = get_spec("ibsnet").engine_factory(cfg, inst, 3)
     clone = pickle.loads(pickle.dumps(engine))
     assert clone.required_history == engine.required_history
     assert clone.warmup.describe() == engine.warmup.describe()

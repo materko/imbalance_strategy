@@ -30,6 +30,8 @@ from tradebot.strategies import STRATEGIES
 ADAPTER_DIR = Path(__file__).resolve().parent
 #: Zdrojáky C# jadra, ktoré idú do NinjaTradera (hostiteľ pre stdio most nie).
 CORE_DIRS = ("TradeBot.Core", "TradeBot.Strategies")
+#: Šablóny, ktoré `install` z NinjaTradera odstráni: IBSNinja/ORBNinja sa 25. 9. 2026 premenovali na IBSNet/ORBNet.
+STALE_TEMPLATES = ("IBSNinja.cs", "ORBNinja.cs")
 
 
 def nt_user_dir(override: str | None = None) -> Path:
@@ -106,6 +108,8 @@ def install(nt_dir: Path, extra_profiles: list[str]) -> None:
     for d in CORE_DIRS:
         shutil.copytree(CSHARP_DIR / d, target / d)
     shutil.copy2(ADAPTER_DIR / "TradeBotStrategy.cs", custom / "Strategies" / "TradeBotStrategy.cs")
+    for stale in STALE_TEMPLATES:   # šablóny spred premenovania by sa preložili, ale ich kľúč už engine nepozná
+        (custom / "Strategies" / stale).unlink(missing_ok=True)
     templates = sorted(NINJATRADER_DIR.glob("*.cs"))
     for t in templates:
         shutil.copy2(t, custom / "Strategies" / t.name)

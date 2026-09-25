@@ -3,8 +3,8 @@
 Repozitár je TradeBot — rámec pre porty TradingView stratégií do Pythonu (generické jadro
 `tradebot/core`, registry stratégií `tradebot/strategies` — dnes „IBS Imbalance Breakout",
 „Market Structure BOS / CHoCH" a ukážková „Demo Donchian Breakout" —, Freqtrade
-a MultiCharts adaptéry; „IBSNinja" a „ORBNinja" sú IBS a ORB s jadrom v C# (`csharp/`) pre NinjaTrader 8, pod Freqtrade
-beží cez most `tradebot/adapters/csharp`) plus webová aplikácia
+a MultiCharts adaptéry; „IBSNet" a „ORBNet" sú IBS a ORB s jadrom v C# (.NET, `csharp/`), ktoré spúšťajú
+NinjaTrader 8, MetaTrader 5 (`tradebot/adapters/mt5`) aj Freqtrade cez most `tradebot/adapters/csharp`) plus webová aplikácia
 pre testerov (`tester/webapp`). Ako pridať stratégiu: [docs/STRATEGIE.md](docs/STRATEGIE.md).
 Pracujú v ňom dva druhy ľudí a pre každého platí iné:
 
@@ -66,12 +66,15 @@ Bez obmedzení. Platia len konvencie repozitára:
   nič iné. ASCII pre QuoteManager robí `tester.quotemanager`
   zo skladu sviečok. Celá cesta dát: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md),
   podrobne [docs/DATA.md](docs/DATA.md).
-- Stratégia s jadrom v C# (`csharp/TradeBot.Strategies/<Meno>`, dnes `ibsninja`, `orbninja`): C# 5 bez NuGet
-  (prekladá ho `csc.exe` z .NET Frameworku, Mono aj NinjaTrader), jadro ani adaptér NinjaTrader
-  nepoznajú stratégiu menom (`[TradeBotEngine("kľúč")]`), a zmena logiky musí prejsť paritou
+- Stratégia s jadrom v C# (`csharp/TradeBot.Strategies/<Meno>`, dnes `ibsnet`, `orbnet`): C# 5 bez NuGet
+  (prekladá ho `csc.exe` z .NET Frameworku, Mono aj NinjaTrader), jadro ani adaptéry (NinjaTrader,
+  MT5, most) nepoznajú stratégiu menom (`[TradeBotEngine("kľúč")]`), a zmena logiky musí prejsť paritou
   bar po bare proti Python predlohe (`python -m tester.compare.csharp_parity`,
-  `tester/tests/test_csharp_parity.py`). Zmena v `ibs` = tá istá zmena v `csharp/…/IbsNinja`, v `orb` v `csharp/…/OrbNinja`.
-  [docs/NINJATRADER.md](docs/NINJATRADER.md).
+  `tester/tests/test_csharp_parity.py`). Zmena v `ibs` = tá istá zmena v `csharp/…/IbsNet`, v `orb` v `csharp/…/OrbNet`.
+  [docs/NINJATRADER.md](docs/NINJATRADER.md). MetaTrader 5 volá tú istú DLL cez statickú fasádu
+  `StaticHost` (jediná trieda v globálnom namespace — MQL5 iné nevidí) z Expert Advisora v MQL5 (`tradebot/adapters/mt5`, šablóny `deploy/mt5`);
+  fasáda musí dávať to isté, čo most (`tester/tests/test_mt5_static_host.py`) — [docs/MT5.md](docs/MT5.md).
+  Staré kľúče `ibsninja`/`orbninja` sú aliasy (`tradebot.strategies.ALIASES`), história sa neprepisuje.
 - Zoznam a hľadanie v histórii idú cez odvodený sqlite index (`tester/webapp/index.py`,
   `runs/.index/`, gitignored) — nikdy nie cez parsovanie všetkých `run.json`. Index musí
   odpovedať presne to isté, čo prehľadanie súborov (`tester/tests/test_run_index.py`).
@@ -93,7 +96,7 @@ Bez obmedzení. Platia len konvencie repozitára:
 Podrobnosti: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) (prehľad a cesta dát),
 [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) (návrh),
 [docs/FREQTRADE.md](docs/FREQTRADE.md) (krypto vetva), [docs/MULTICHARTS.md](docs/MULTICHARTS.md)
-(MultiCharts vetva), [docs/NINJATRADER.md](docs/NINJATRADER.md) (C# jadro a NinjaTrader), [docs/HYPEROPT.md](docs/HYPEROPT.md) (hľadanie parametrov, FreqAI),
+(MultiCharts vetva), [docs/NINJATRADER.md](docs/NINJATRADER.md) (C# jadro a NinjaTrader), [docs/MT5.md](docs/MT5.md) (MetaTrader 5), [docs/HYPEROPT.md](docs/HYPEROPT.md) (hľadanie parametrov, FreqAI),
 [docs/TYPY_STRATEGII.md](docs/TYPY_STRATEGII.md) (charakter stratégie a čo z neho vyplýva),
 [docs/ANALYTIKA.md](docs/ANALYTIKA.md) (základná analytika stratégie a posudok),
 [docs/DATA.md](docs/DATA.md) (dáta), [docs/WEBAPP.md](docs/WEBAPP.md)

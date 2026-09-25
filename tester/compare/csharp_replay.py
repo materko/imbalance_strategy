@@ -81,7 +81,7 @@ def record(out: Path, profile: str, exchange: str, timeframe: str, date_from: st
 
     engine_mod.open_transport = recording
     try:
-        res = csharp_parity.compare("ibs", "ibsninja", profile, exchange, timeframe_minutes(timeframe),
+        res = csharp_parity.compare("ibs", "ibsnet", profile, exchange, timeframe_minutes(timeframe),
                                     date_from, date_to, overrides)
     finally:
         engine_mod.open_transport = original

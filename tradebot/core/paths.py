@@ -7,7 +7,8 @@ data/quotemanager/<zdroj>/          ASCII exporty na import do QuoteManagera —
 deploy/freqtrade/                 čo potrebuje Freqtrade: configy búrz, skripty, user_data
 deploy/multicharts/               čo potrebuje MultiCharts: šablóny štúdií, setup
 deploy/ninjatrader/               čo potrebuje NinjaTrader 8: šablóny stratégií, inštalácia
-csharp/                           jadro a stratégie v C# (NinjaTrader natívne, Freqtrade cez most)
+deploy/mt5/                       čo potrebuje MetaTrader 5: šablóny Expert Advisorov nad C# jadrom
+csharp/                           jadro a stratégie v C# (NinjaTrader natívne, MT5 cez .NET import, Freqtrade cez most)
 tester/runs/, tester/profiles/   história behov a configy testerov — v gite (bez kresieb)
 tester/sweeps/                    výsledky mriežok, matíc a overení hyperoptu — v gite
 tester/runs/.charts/              kresby behov pre graf, prepočítané na vyžiadanie — gitignored
@@ -43,7 +44,7 @@ __all__ = [
     "DATA", "DATA_ARCHIVE", "TESTER_ARCHIVE", "TESTER_DATA", "DERIVED_MANIFEST",
     "QUOTEMANAGER_DATA", "NINJATRADER_DATA",
     "DEPLOY_DIR", "FREQTRADE_DIR", "FREQTRADE_USER_DIR", "BACKTEST_RESULTS",
-    "MULTICHARTS_DIR", "NINJATRADER_DIR",
+    "MULTICHARTS_DIR", "NINJATRADER_DIR", "MT5_DIR",
     "CSHARP_DIR", "CSHARP_BIN", "CSHARP_DLL", "CSHARP_HOST",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES", "ANALYTICS_DIR",
     "SWEEPS_DIR", "CHART_CACHE", "ARCHIVE_DIR",
@@ -87,6 +88,8 @@ BACKTEST_RESULTS = FREQTRADE_USER_DIR / "backtest_results"
 MULTICHARTS_DIR = DEPLOY_DIR / "multicharts"
 #: Čo potrebuje NinjaTrader 8: šablóny stratégií (NinjaScript) a inštalácia do `bin/Custom`.
 NINJATRADER_DIR = DEPLOY_DIR / "ninjatrader"
+#: Čo potrebuje MetaTrader 5: šablóny Expert Advisorov (MQL5) — inštalácia do `MQL5/Experts`.
+MT5_DIR = DEPLOY_DIR / "mt5"
 
 # -- C# jadro ---------------------------------------------------------------- #
 

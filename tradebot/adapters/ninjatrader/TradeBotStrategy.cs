@@ -2,7 +2,7 @@
 //
 // Vie spustit KAZDU strategiu, ktorej jadro je v C# (trieda s `[TradeBotEngine("kluc")]` nad
 // `TradeBot.Core.IEngine`); konkretnu strategiu nepozna menom. Strategia pre graf je tenky potomok,
-// ktory povie len kluc enginu (sablony v `deploy/ninjatrader/`, napr. `IBSNinja.cs`).
+// ktory povie len kluc enginu (sablony v `deploy/ninjatrader/`, napr. `IBSNet.cs`).
 //
 // Delba prace je rovnaka ako vo Freqtrade a MultiCharts adapteri:
 //   engine  - na kazdom UZAVRETOM bare grafu povie, co chce (ENTRY / CANCEL / CLOSE, kresby),

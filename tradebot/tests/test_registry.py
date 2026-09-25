@@ -164,3 +164,16 @@ def test_bazy_strategie_koncia_na_istrategy_nie_na_object(spec):
 
     ako_freqtrade(trieda.__bases__)
     assert "builtins" not in moduly, f"{spec.key}: bázy vedú k `object`, hyperopt by spadol"
+
+
+def test_stare_kluce_su_aliasy_premenovanych_strategii():
+    """IBSNinja/ORBNinja sa 25. 9. 2026 premenovali na IBSNet/ORBNet; história behov, profily
+    a odkazy so starým kľúčom musia ďalej patriť tej istej stratégii."""
+    from tradebot.strategies import ALIASES, canonical_key
+
+    assert canonical_key("ibsninja") == "ibsnet" and canonical_key("orbninja") == "orbnet"
+    assert canonical_key("ibs") == "ibs" and canonical_key(None) is None
+    assert get_spec("ibsninja") is STRATEGIES["ibsnet"]
+    assert get_spec("orbninja") is STRATEGIES["orbnet"]
+    for old, new in ALIASES.items():
+        assert old not in STRATEGIES and new in STRATEGIES

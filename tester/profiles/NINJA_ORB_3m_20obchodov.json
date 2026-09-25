@@ -1,6 +1,6 @@
 {
-  "_title": "ORBNinja 3m MNQ, obe seansy, az 20 obchodov na seansu a den (zivy graf NinjaTrader, Sim101)",
-  "_strategy": "orbninja",
+  "_title": "ORBNet 3m MNQ, obe seansy, az 20 obchodov na seansu a den (zivy graf NinjaTrader, Sim101)",
+  "_strategy": "orbnet",
   "_instrument": "mnq_databento",
   "_timeframe": "3m",
   "_comment": "Profil nas100_dukascopy_3m (najviac obchodov zo vsetkych ORB profilov) s maxTradesPerDay=20. Na zivy graf v NinjaTraderi na Sim101, nie na ostre obchodovanie.",

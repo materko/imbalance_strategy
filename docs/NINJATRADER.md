@@ -14,6 +14,9 @@ csharp/TradeBot.Host/                 TradeBot.Host.exe — engine ako proces (s
         ├── tradebot/adapters/ninjatrader/TradeBotStrategy.cs   adaptér NinjaTrader (NinjaScript, managed ordery)
         │       └── deploy/ninjatrader/<Meno>.cs                šablóna stratégie pre graf (3 riadky)
         │
+        ├── tradebot/adapters/mt5/TradeBotEA.mqh                adaptér MetaTrader 5 (MQL5 nad TradeBot.dll) — docs/MT5.md
+        │       └── deploy/mt5/<Meno>.mq5                       šablóna Expert Advisora (2 define + include)
+        │
         └── tradebot/adapters/csharp/                           adaptér Freqtrade nad C# jadrom = most
                 └── tradebot/strategies/<kľúč>/                 Python balík stratégie: config, popisy, SPEC
 ```
@@ -23,14 +26,14 @@ signálmi zhodnými s ňou; vo webapp sú to obyčajné stratégie pod Freqtrade
 
 | kľúč | predloha | C# | NinjaTrader šablóna |
 |---|---|---|---|
-| **`ibsninja`** | `ibs` (IBS Imbalance Breakout) | `csharp/TradeBot.Strategies/IbsNinja` | `deploy/ninjatrader/IBSNinja.cs` |
-| **`orbninja`** | `orb` (Opening Range Breakout) | `csharp/TradeBot.Strategies/OrbNinja` | `deploy/ninjatrader/ORBNinja.cs` |
+| **`ibsnet`** | `ibs` (IBS Imbalance Breakout) | `csharp/TradeBot.Strategies/IbsNet` | `deploy/ninjatrader/IBSNet.cs` |
+| **`orbnet`** | `orb` (Opening Range Breakout) | `csharp/TradeBot.Strategies/OrbNet` | `deploy/ninjatrader/ORBNet.cs` |
 
 ## Pravidlá (tie isté ako inde, len v C#)
 
 - **Jadro ani adaptér nepoznajú stratégiu menom.** C# engine sa hlási atribútom
-  `[TradeBotEngine("ibsninja", "…")]`; `EngineRegistry` si triedy nájde v načítaných assembly.
-  Python strana má `StrategySpec.csharp_dir` a `engine_factory=csharp_engine_factory("ibsninja")`.
+  `[TradeBotEngine("ibsnet", "…")]`; `EngineRegistry` si triedy nájde v načítaných assembly.
+  Python strana má `StrategySpec.csharp_dir` a `engine_factory=csharp_engine_factory("ibsnet")`.
 - **Adaptér NinjaTrader spustí len stratégiu s C# jadrom.** Python stratégie (`ibs`, `structure`, …)
   v ňom nejdú — a naopak C# stratégia ide pod Freqtrade aj do emulátora MultiCharts cez most.
 - **Engine je čistý**: žiadne I/O, žiadny globálny stav, jedno volanie `OnBar` na uzavretý bar grafu.
@@ -102,18 +105,18 @@ PY -m tester.compare.csharp_parity --profile docs/profily_archiv/ibs/btcusdt_3m_
 
 Oba enginy bežia v tom istom `EngineRunner` (rovnaký model vyplnenia, HTF feeder, seeding) a na každom
 bare sa porovnajú ordery, kresby, udalosti stavu, koniec seansy aj hodiny. Výsledok a čísla behov:
-[merania/PARITA_ibsninja_2026-09-20.md](merania/PARITA_ibsninja_2026-09-20.md). V `pytest` to stráži
+[merania/PARITA_ibsnet_2026-09-20.md](merania/PARITA_ibsnet_2026-09-20.md). V `pytest` to stráži
 `tester/tests/test_csharp_parity.py` (syntetické bary so všetkým zapnutým, oba transporty, golden okno).
 
-ORBNinja proti ORB (burza `nas100` = Dukascopy NAS100 zo skladu, `mnq` = Databento MNQ):
+ORBNet proti ORB (burza `nas100` = Dukascopy NAS100 zo skladu, `mnq` = Databento MNQ):
 
 ```bash
-PY -m tester.compare.csharp_parity --python orb --csharp orbninja --profile nas100_dukascopy_3m --exchange nas100 --from 2021-01-04
+PY -m tester.compare.csharp_parity --python orb --csharp orbnet --profile nas100_dukascopy_3m --exchange nas100 --from 2021-01-04
 ```
 
 V Strategy Analyzeri (MNQ 12-26, 2026-03-01 – 09-10) sedí 207 z 207 vstupov s Testerom
-(`tester.ninjatrader compare --strategy orbninja --profile nas100_dukascopy_3m`).
-Výsledok: [merania/PARITA_orbninja_2026-09-24.md](merania/PARITA_orbninja_2026-09-24.md), v `pytest`
+(`tester.ninjatrader compare --strategy orbnet --profile nas100_dukascopy_3m`).
+Výsledok: [merania/PARITA_orbnet_2026-09-24.md](merania/PARITA_orbnet_2026-09-24.md), v `pytest`
 `tester/tests/test_csharp_parity_orb.py`. Pri ORB sa ukázala ďalšia pasca: Python 3.12 `sum()` nad
 floatmi nie je cyklus, ale kompenzovaná (Neumaierova) suma — kde predloha píše `sum(...)`, C# volá
 `PyMath.Sum`, kde píše cyklus, C# píše cyklus.
@@ -136,9 +139,9 @@ PY -m tradebot.adapters.ninjatrader install    # skopíruje jadro, adaptér, ša
 ```
 
 `install` kopíruje **zdrojáky** do `Documents\NinjaTrader 8\bin\Custom` (`AddOns\TradeBot\…` jadro,
-`Strategies\TradeBotStrategy.cs` adaptér, `Strategies\IBSNinja.cs` a `ORBNinja.cs` šablóny) a profily ako úplné configy
+`Strategies\TradeBotStrategy.cs` adaptér, `Strategies\IBSNet.cs` a `ORBNet.cs` šablóny) a profily ako úplné configy
 do `Documents\NinjaTrader 8\TradeBot\profiles\`. Potom v NinjaTraderi *New → NinjaScript Editor → F5*
-a stratégia **IBSNinja** alebo **ORBNinja** na **minútový** graf. Netreba pridávať referenciu na DLL; po zmene jadra stačí
+a stratégia **IBSNet** alebo **ORBNet** na **minútový** graf. Netreba pridávať referenciu na DLL; po zmene jadra stačí
 `install` zopakovať. `check` beží aj samostatne — chybu NinjaTrader API ukáže pri preklade, nie v grafe.
 
 Čo adaptér robí:
@@ -177,7 +180,7 @@ PY -m tester.ninjatrader export --instrument mnq_databento --contract "MNQ 12-26
    „Merge back adjusted" NinjaTrader pre staršie dátumy číta vtedajšie kontrakty (`MNQ 03-26`, `06-26`…),
    ktoré import nemá — beh potom skončí za sekundu, bez jedinej zóny a orderu (adaptér to vypíše do
    Output okna: „PRILIS MALO DAT").
-2. *New → Strategy Analyzer*: Backtest, stratégia **IBSNinja**, inštrument `MNQ 12-26`, **Minute 3**,
+2. *New → Strategy Analyzer*: Backtest, stratégia **IBSNet**, inštrument `MNQ 12-26`, **Minute 3**,
    obdobie importu, *Order fill resolution* **Standard** — „High" NinjaTrader pre stratégiu s viac sériami
    nepovolí; jemné plnenie si adaptér robí sám (parameter „Detail plnenia (min)" = 1 pridá 1m sériu
    a ordery idú na ňu, obdoba `--timeframe-detail 1m`); v parametroch stratégie zapni
@@ -196,7 +199,7 @@ okne: 83 vstupov, 2 438 udalostí stavu.
 Stav k 2026-09-20: prvý beh v Strategy Analyzeri prebehol a **signály sedia s Testerom úplne** —
 83 z 83 vstupov (bar, cena, SL, TP, veľkosť) a 1 988 z 1 988 prechodov stavov zón; výsledok sa líši len
 fill modelom (78 obchodov, +6 974 $, PF 1,87 proti 71, +6 150 $, PF 1,861 v emulátore). Čísla:
-[merania/PARITA_ibsninja_2026-09-20.md](merania/PARITA_ibsninja_2026-09-20.md). Neoverené ostáva: živý
+[merania/PARITA_ibsnet_2026-09-20.md](merania/PARITA_ibsnet_2026-09-20.md). Neoverené ostáva: živý
 graf (realtime prechod, kreslenie) a shorty v NinjaTraderi (profil MNQ je long-only; trailing v ňom zapnutý je).
 Ovládanie okna NinjaTradera je pre AI asistenta len na čítanie — import a Run musí naklikať človek.
 

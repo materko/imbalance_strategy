@@ -7,7 +7,7 @@ pracujú bez zmeny. Logika beží v C# (`csharp/`), tu sa len prekladajú typy: 
 
 Stratégia s C# jadrom si ho vyžiada v `StrategySpec.engine_factory`:
 
-    engine_factory=csharp_engine_factory("ibsninja")
+    engine_factory=csharp_engine_factory("ibsnet")
 """
 
 from __future__ import annotations

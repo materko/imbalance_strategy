@@ -16,15 +16,17 @@ flowchart TB
         strat["strategies/&lt;kľúč&gt;/<br/>engine + config + profily<br/>+ Pine zdroj"]
         ft["adapters/freqtrade/<br/>TradebotStrategyBase"]
         mc["adapters/multicharts/<br/>TradebotSignal + emulátor"]
-        cs["csharp/ — jadro a stratégie v C#<br/>(IBSNinja, ORBNinja)"]
+        cs["csharp/ — jadro a stratégie v C#<br/>(IBSNet, ORBNet)"]
         bridge["adapters/csharp/<br/>most: C# engine ako Python engine"]
         nt["adapters/ninjatrader/<br/>NinjaScript stratégia (C#)"]
+        mt5["adapters/mt5/<br/>Expert Advisor (MQL5) cez .NET import"]
         strat --> core
         ft --> strat
         mc --> strat
         strat -.->|"engine_factory"| bridge
         bridge --> cs
         nt --> cs
+        mt5 --> cs
     end
 
     subgraph T["TradeBot Tester — nástroje (tester/)"]

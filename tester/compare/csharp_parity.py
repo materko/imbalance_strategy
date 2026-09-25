@@ -167,7 +167,7 @@ def compare_frames(python_key: str, csharp_key: str, profile: str, chart_all, ht
 def compare_runs(run_a: str, run_b: str) -> list[str]:
     """Dva behy z histórie (`tester/runs/<id>`) obchod po obchode; vráti zoznam rozdielov.
 
-    `enter_tag` nesie prefix stratégie (`ibs:` / `ibsninja:`), preto sa porovnáva len čas
+    `enter_tag` nesie prefix stratégie (`ibs:` / `ibsnet:`), preto sa porovnáva len čas
     baru signálu za dvojbodkou; všetko ostatné (časy, ceny, veľkosť, zisk, dôvod výstupu,
     stop, extrémy) musí sedieť presne.
     """
@@ -209,7 +209,7 @@ def _value(text: str) -> Any:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--python", default="ibs", help="kľúč Python stratégie (predloha)")
-    ap.add_argument("--csharp", default="ibsninja", help="kľúč stratégie s C# jadrom")
+    ap.add_argument("--csharp", default="ibsnet", help="kľúč stratégie s C# jadrom")
     ap.add_argument("--profile", default="golden_binance_btcusdt_3m")
     ap.add_argument("--exchange", default="binance", help="kľúč burzy alebo cesta k Dukascopy CSV")
     ap.add_argument("--timeframe", default="3m")

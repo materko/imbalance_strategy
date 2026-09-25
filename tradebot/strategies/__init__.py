@@ -12,20 +12,20 @@ from .demo_breakout import SPEC as DEMO_SPEC
 from .divergence import SPEC as DIVERGENCE_SPEC
 from .gap import SPEC as GAP_SPEC
 from .ibs import SPEC as IBS_SPEC
-from .ibsninja import SPEC as IBSNINJA_SPEC
+from .ibsnet import SPEC as IBSNET_SPEC
 from .orb import SPEC as ORB_SPEC
-from .orbninja import SPEC as ORBNINJA_SPEC
+from .orbnet import SPEC as ORBNET_SPEC
 from .range import SPEC as RANGE_SPEC
 from .sdzone import SPEC as SDZONE_SPEC
 from .structure import SPEC as STRUCTURE_SPEC
 
 STRATEGIES: dict[str, StrategySpec] = {
     IBS_SPEC.key: IBS_SPEC,
-    IBSNINJA_SPEC.key: IBSNINJA_SPEC,
+    IBSNET_SPEC.key: IBSNET_SPEC,
     STRUCTURE_SPEC.key: STRUCTURE_SPEC,
     DEMO_SPEC.key: DEMO_SPEC,
     ORB_SPEC.key: ORB_SPEC,
-    ORBNINJA_SPEC.key: ORBNINJA_SPEC,
+    ORBNET_SPEC.key: ORBNET_SPEC,
     GAP_SPEC.key: GAP_SPEC,
     RANGE_SPEC.key: RANGE_SPEC,
     SDZONE_SPEC.key: SDZONE_SPEC,
@@ -33,12 +33,24 @@ STRATEGIES: dict[str, StrategySpec] = {
     DIVERGENCE_SPEC.key: DIVERGENCE_SPEC,
 }
 
-__all__ = ["STRATEGIES", "StrategySpec", "get_spec", "spec_for_config"]
+#: Staré kľúče -> dnešné. História behov, profily a odkazy z minulosti sa nemenia na disku;
+#: každé čítanie kľúča ide cez `canonical_key`, takže staré záznamy patria k premenovanej stratégii.
+ALIASES: dict[str, str] = {
+    "ibsninja": IBSNET_SPEC.key,    # IBSNinja -> IBSNet (25. 9. 2026: .NET jadro nie je len pre NinjaTrader)
+    "orbninja": ORBNET_SPEC.key,    # ORBNinja -> ORBNet
+}
+
+__all__ = ["ALIASES", "STRATEGIES", "StrategySpec", "canonical_key", "get_spec", "spec_for_config"]
+
+
+def canonical_key(key: str | None) -> str | None:
+    """Dnešný kľúč stratégie aj pre starý názov; neznámy kľúč vráti nezmenený."""
+    return ALIASES.get(key, key) if key else key
 
 
 def spec_for_config(cfg) -> StrategySpec:
     """Stratégia podľa triedy configu — adaptéry tak nepotrebujú kľúč navyše."""
-    # najprv presná trieda: config stratégie, ktorá dedí z inej (IBSNinja z IBS, ORBNinja z ORB), patrí jej
+    # najprv presná trieda: config stratégie, ktorá dedí z inej (IBSNet z IBS, ORBNet z ORB), patrí jej
     for spec in STRATEGIES.values():
         if type(cfg) is spec.config_cls:
             return spec
@@ -50,6 +62,6 @@ def spec_for_config(cfg) -> StrategySpec:
 
 def get_spec(key: str) -> StrategySpec:
     try:
-        return STRATEGIES[key]
+        return STRATEGIES[canonical_key(key)]
     except KeyError:
         raise KeyError(f"neznáma stratégia {key!r}; známe: {sorted(STRATEGIES)}") from None

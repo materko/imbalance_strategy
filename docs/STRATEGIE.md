@@ -21,12 +21,12 @@ poradí, čo si smie stratégia určiť sama a kedy je hotová.
 | kľúč | názov | parametrov | na čo |
 |---|---|---|---|
 | `ibs` | IBS Imbalance Breakout | 115 | ostrá stratégia, golden testy proti TradingView |
-| `ibsninja` | IBSNinja Imbalance Breakout (C# jadro) | 115 | prepis `ibs` do C# — natívne v NinjaTraderi, pod Freqtrade cez most; signály zhodné s `ibs` bar po bare ([NINJATRADER.md](NINJATRADER.md)) |
+| `ibsnet` | IBSNet Imbalance Breakout (C# jadro) | 115 | prepis `ibs` do C# — natívne v NinjaTraderi, pod Freqtrade cez most; signály zhodné s `ibs` bar po bare ([NINJATRADER.md](NINJATRADER.md)) |
 | `structure` | Market Structure BOS / CHoCH | 18 | druhý archetyp (štruktúra, protitrendový `sweep`); [ANALYTIKA](../tradebot/strategies/structure/docs/ANALYTIKA.md) |
 | `demo_breakout` | Demo Donchian Breakout | 8 | ukážka, ktorá overuje rámec end-to-end; nie je to obchodné odporúčanie |
 | `divergence` | Divergence — divergencie indikátorov v smere supertrendu | 65 | port Freqtrade stratégie z r. 2022 (bez Pine); vyššie TF si skladá sama z barov grafu; [PORT](../tradebot/strategies/divergence/docs/PORT.md), [ANALYTIKA](../tradebot/strategies/divergence/docs/ANALYTIKA.md) |
 | `orb` | ORB — Opening Range Breakout | 49 | prvých 1–60 min seansy tvorí range, obchoduje sa jeho prerazenie; voliteľná EMA (filter smeru, filter dňa, výstup) |
-| `orbninja` | ORBNinja Opening Range Breakout (C# jadro) | 49 | prepis `orb` do C# — natívne v NinjaTraderi, pod Freqtrade cez most; signály zhodné s `orb` bar po bare ([NINJATRADER.md](NINJATRADER.md)) |
+| `orbnet` | ORBNet Opening Range Breakout (C# jadro) | 49 | prepis `orb` do C# — natívne v NinjaTraderi, pod Freqtrade cez most; signály zhodné s `orb` bar po bare ([NINJATRADER.md](NINJATRADER.md)) |
 | `gap` | Gap Fill | 34 | otvárací gap a jeho zatvorenie |
 | `range` | Range Breakout | 42 | konsolidácia kdekoľvek na grafe a jej prerazenie; [ANALYTIKA](../tradebot/strategies/range/docs/ANALYTIKA.md) |
 | `sdzone` | SD Zones | 44 | dopyt/ponuka zo základne a impulzu (Skorupinski); [ANALYTIKA](../tradebot/strategies/sdzone/docs/ANALYTIKA.md) |
@@ -352,7 +352,7 @@ csharp_dir=CSHARP_DIR / "TradeBot.Strategies" / "Meno",
 Zvyšok rámca (Freqtrade, emulátor MultiCharts, webapp, analytika, hyperopt) sa nemení — engine je pre
 neho stále `on_bar() -> EngineOutput`. Testy parity parametrov čítajú pri takej stratégii C# zdrojáky
 (`cfg.pole`) a `test_csharp_core.py` stráži, že C# config má každé pole s rovnakým defaultom.
-Vzory sú `ibsninja` a `orbninja`; celé pravidlá, most a NinjaTrader adaptér: [NINJATRADER.md](NINJATRADER.md).
+Vzory sú `ibsnet` a `orbnet`; celé pravidlá, most a NinjaTrader adaptér: [NINJATRADER.md](NINJATRADER.md).
 
 ## Informatívny timeframe
 

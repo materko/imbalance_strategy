@@ -49,6 +49,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from tradebot.core.paths import CHART_CACHE, REPO, RUNS_DIR, SWEEPS_DIR  # noqa: F401  (REPO sa reexportuje)
+from tradebot.strategies import canonical_key
 
 _ID_RE = re.compile(r"^[0-9]{8}-[0-9]{6}-[0-9a-f]{6}$")
 
@@ -80,13 +81,13 @@ LEGACY_STRATEGY = "ibs"
 def _with_strategy(record: dict[str, Any]) -> dict[str, Any]:
     """Staré `run.json` nemajú `settings.strategy` — doplní sa len pri čítaní, disk sa nemení."""
     settings = record.get("settings")
-    if isinstance(settings, dict) and not settings.get("strategy"):
-        settings["strategy"] = LEGACY_STRATEGY
+    if isinstance(settings, dict):
+        settings["strategy"] = canonical_key(settings.get("strategy")) or LEGACY_STRATEGY
     return record
 
 
 def strategy_of(record: dict[str, Any]) -> str:
-    return ((record.get("settings") or {}).get("strategy")) or LEGACY_STRATEGY
+    return canonical_key((record.get("settings") or {}).get("strategy")) or LEGACY_STRATEGY
 
 
 def _write_json(path: Path, data: Any) -> None:

@@ -93,7 +93,7 @@ main() {
     # 3. Python 3.12 + TA-Lib
     # ---------------------------------------------------------------------------- #
     bold "Balíky cez Homebrew"
-    # mono: prekladá a spúšťa C# jadro stratégií (IBSNinja) - na macOS nie je .NET Framework
+    # mono: prekladá a spúšťa C# jadro stratégií (IBSNet) - na macOS nie je .NET Framework
     for f in "$PY_FORMULA" ta-lib mono; do
         if brew list --versions "$f" 2>/dev/null | grep -q .; then
             ok "$f už je nainštalovaný"

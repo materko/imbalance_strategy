@@ -3,7 +3,7 @@
 // Jeden riadok = jedna poziadavka, jeden riadok = odpoved; double ide dnu ako 16 hex znakov bitoveho
 // vzoru (IEEE 754), aby sa cestou nezmenil ani posledny bit.
 //
-//   {"op":"create","key":"ibsninja","config":{...},"instrument":{...},"tf":3}
+//   {"op":"create","key":"ibsnet","config":{...},"instrument":{...},"tf":3}
 //   {"op":"bar","t":1756200000000,"b":["40f3...", o,h,l,c,v],"htf":{"t":[...4],"v":[...20],"sma":"..."},
 //    "pos":"0000000000000000","dl":false,"ids":"LONG_3,SHORT_7"}
 //   {"op":"seed","name":"Supertrend 10","t":[...],"v":[...],"partial":true}

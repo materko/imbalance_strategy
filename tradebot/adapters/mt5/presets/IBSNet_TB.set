@@ -1,0 +1,7 @@
+InpProfile=multicharts_mnq_3m
+InpServerGmtOffsetMin=0
+InpMagic=20260925
+InpExportSignals=true
+InpLogEvents=false
+InpShowDrawings=false
+InpPointValueOverride=0

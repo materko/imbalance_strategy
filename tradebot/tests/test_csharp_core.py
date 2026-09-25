@@ -39,7 +39,7 @@ def _csharp_fields(spec) -> dict[str, str]:
 
 
 def test_aspon_jedna_strategia_ma_csharp_jadro():
-    assert "ibsninja" in IDS
+    assert "ibsnet" in IDS
 
 
 @pytest.mark.parametrize("spec", SPECS, ids=IDS)

@@ -175,3 +175,20 @@ def test_cela_historia_sa_v_pamati_nedrzi(tmp_path: Path):
         assert len(store._cache) == 3
     finally:
         store_mod.CACHE_RUNS = povodne
+
+
+def test_stary_kluc_strategie_v_historii_patri_premenovanej(tmp_path: Path):
+    """Beh uložený ako `ibsninja` (pred premenovaním na `ibsnet`) sa nájde pod novým kľúčom —
+    v zozname aj v indexe rovnako, disk sa nemení."""
+    from tester.webapp.store import strategy_of
+
+    store = _store(tmp_path, 2)
+    rec = _record(3)
+    rec["settings"]["strategy"] = "ibsninja"
+    store.save(rec, trades=[], log="")
+    zaznam = store.get(rec["id"])
+    assert strategy_of(zaznam) == "ibsnet"
+    ids = {r["id"] for r in store.all() if strategy_of(r) == "ibsnet"}
+    assert ids == {rec["id"]}
+    na_disku = json.loads((tmp_path / "runs" / rec["id"] / "run.json").read_text(encoding="utf-8"))
+    assert na_disku["settings"]["strategy"] == "ibsninja"

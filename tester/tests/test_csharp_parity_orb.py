@@ -1,6 +1,6 @@
-"""ORBNinja (C# jadro) proti ORB (Python) — bar po bare, na rovnosť.
+"""ORBNet (C# jadro) proti ORB (Python) — bar po bare, na rovnosť.
 
-To isté ako `test_csharp_parity.py` pre IBSNinja: C# jadro je prepis, nie nová stratégia, takže
+To isté ako `test_csharp_parity.py` pre IBSNet: C# jadro je prepis, nie nová stratégia, takže
 na rovnakých vstupoch musí dať rovnaké ordery a kresby do posledného bitu. Syntetické bary bežia
 vždy, okno NAS100 len keď sú v sklade sviečky. Bez C# kompilátora (csc / Mono) sa preskočí.
 """
@@ -62,7 +62,7 @@ def _resample(df, minutes):
 @pytest.mark.parametrize("name", sorted(VARIANTS))
 def test_synteticke_bary(frames, name):
     res = csharp_parity.compare_frames(
-        "orb", "orbninja", PROFILE, frames[3], lambda tf: frames[int(tf.rstrip("m"))], 3,
+        "orb", "orbnet", PROFILE, frames[3], lambda tf: frames[int(tf.rstrip("m"))], 3,
         "2026-03-28", None, {**LOOSE, **VARIANTS[name]}, 10,
     )
     assert res["mismatches"] == [], res["mismatches"][:3]
@@ -74,7 +74,7 @@ def test_stdio_transport_dava_to_iste(frames, monkeypatch):
     """Samostatný proces (`TradeBot.Host.exe`) musí dať to isté čo pythonnet."""
     monkeypatch.setenv("TRADEBOT_CSHARP_BRIDGE", "stdio")
     res = csharp_parity.compare_frames(
-        "orb", "orbninja", PROFILE, frames[3], lambda tf: frames[int(tf.rstrip("m"))], 3,
+        "orb", "orbnet", PROFILE, frames[3], lambda tf: frames[int(tf.rstrip("m"))], 3,
         "2026-03-28", None, {**LOOSE, **VARIANTS["mid_trailing_volume"]}, 10,
     )
     assert res["mismatches"] == [], res["mismatches"][:3]
@@ -82,7 +82,7 @@ def test_stdio_transport_dava_to_iste(frames, monkeypatch):
 
 def test_okno_nas100():
     try:
-        res = csharp_parity.compare("orb", "orbninja", PROFILE, "nas100", 3, "2025-09-04", "2026-09-04")
+        res = csharp_parity.compare("orb", "orbnet", PROFILE, "nas100", 3, "2025-09-04", "2026-09-04")
     except (SystemExit, FileNotFoundError, KeyError) as exc:  # chýbajúce dáta
         pytest.skip(f"dáta nie sú k dispozícii: {exc}")
     assert res["mismatches"] == [], res["mismatches"][:3]
