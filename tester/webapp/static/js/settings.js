@@ -308,14 +308,40 @@ async function saveFormAsProfile() {
   }, $("#profile-msg"));
 }
 
+let profileLoadSeq = 0;
+
 async function loadProfile(name) {
-  state.profile = name || null;
-  state.profileInstrument = null;
-  updateProfileActions();
+  const seq = ++profileLoadSeq;
   $("#profile-base").textContent = "";
-  if (!name) { setParams({}, true); checkPairProfile(); return; }
-  const r = await api(`/api/profiles/${encodeURIComponent(name)}?strategy=${encodeURIComponent(state.strategy)}`);
+  if (!name) {
+    $("#run").disabled = false;
+    state.profile = null; state.profileInstrument = null; updateProfileActions();
+    setParams({}, true); checkPairProfile(); return;
+  }
+  // Kým hodnoty profilu nie sú vo formulári, beh sa spustiť nedá — inak by odišiel s menom
+  // nového profilu a parametrami predošlého. `state.profile` sa prepne až s hodnotami.
+  $("#run").disabled = true;
+  let r;
+  try {
+    r = await api(`/api/profiles/${encodeURIComponent(name)}?strategy=${encodeURIComponent(state.strategy)}`);
+  } catch (e) {
+    if (seq !== profileLoadSeq) return;
+    // Profil medzičasom zmizol (zmazaný inde, stránka má starý zoznam): obnov zoznam
+    // a vráť formulár na Pine defaulty, aby meno profilu nesľubovalo iné hodnoty.
+    try {
+      await applyProfileList(await api(`/api/profiles?strategy=${encodeURIComponent(state.strategy)}`), "");
+    } catch { $("#profile").value = ""; }
+    state.profile = null; state.profileInstrument = null; updateProfileActions();
+    setParams({}, true); checkPairProfile();
+    profileMsg(`Profil ${name} sa nepodarilo načítať (${e.message}) — zoznam je obnovený, formulár je na Pine defaultoch.`, true);
+    return;
+  } finally {
+    if (seq === profileLoadSeq) $("#run").disabled = false;
+  }
+  if (seq !== profileLoadSeq) return;   // medzitým si tester vybral iný profil
+  state.profile = name;
   state.profileInstrument = r.instrument;
+  updateProfileActions();
   setParams(r.params, true);
   // profil určuje aj nástroj -> prepni pár, ak zodpovedá
   const inst = r.instrument;
