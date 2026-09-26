@@ -5,11 +5,13 @@
 - **odpor** cez dva vrcholy (pri `classic` musí klesať — prerazenie nahor je long),
 - **podpora** cez dve dná (pri `classic` musí rásť — prerazenie nadol je short).
 
-Čiara je **platná**, keď ju medzi kotvami nepreráža žiadna sviečka (knôt alebo telo podľa
-`anchorMode`, s toleranciou `touchTolAtr`) a za druhou kotvou ju nepreráža žiadne zatvorenie.
-Z viacerých kandidátov sa berie ten s najviac dotykmi (pri zhode dlhší). Dotyk je pivot
-blízko čiary alebo samostatná epizóda barov, ktoré sa k nej priblížili — tretí dotyk tak
-môže prísť aj po vzniku čiary a čiara sa stane obchodovateľnou až vtedy (`minTouches`).
+Prvá kotva je začiatok trendu (najvyšší vrchol / najnižšie dno spomedzi `maxPivots` posledných
+pivotov), druhá najnovší pivot; pivot, ktorý už bol kotvou, sa znova nepoužije (z jedného bodu
+vedie najviac jedna čiara). Čiara je **platná**, keď ju medzi kotvami ani za druhou kotvou
+nepreráža žiadna sviečka (knôt alebo telo podľa `anchorMode`, s toleranciou `touchTolAtr`).
+Na každú stranu žije najviac jedna čiara: kým ju cena neprerazí alebo nevyprší, nový pivot ju
+nenahradí. Dotyk je samostatná epizóda barov, ktoré sa k čiare priblížili — tretí dotyk môže
+prísť aj po vzniku čiary a čiara sa stane obchodovateľnou až vtedy (`minTouches`).
 
 Vyšší TF sa skladá z barov grafu (`TFAggregator`, rovnaké pravidlo ako `core/candles.py`),
 HTF bar je k dispozícii na prvom bare grafu novej periódy — nikdy sa nepoužije rozpracovaný.
@@ -75,9 +77,13 @@ class LineBook:
     res: Line | None = None
     sup: Line | None = None
     _uid: int = 0
+    #: časy pivotov, ktoré už boli kotvou nejakej čiary — z jedného bodu vedie najviac jedna
+    used_anchors: set = field(default_factory=set)
     #: čiary a pivoty, ktoré vznikli pri poslednom `on_htf_bar` (na kreslenie)
     new_lines: list = field(default_factory=list)
     new_pivots: list = field(default_factory=list)
+    #: čiary, ktoré pri poslednom `on_htf_bar` skončili (prerazené, nahradené, vypršané): (čiara, koniec v ms)
+    ended: list = field(default_factory=list)
 
     def __post_init__(self) -> None:
         cfg = self.cfg
@@ -116,6 +122,7 @@ class LineBook:
     def on_htf_bar(self, b: Bar) -> None:
         self.new_lines = []
         self.new_pivots = []
+        self.ended = []
         prev = self.bars[-1] if self.bars else None
         self.bars.append(b)
         self.count += 1
@@ -131,6 +138,7 @@ class LineBook:
             v = ln.value(b.time)
             broken = b.close > v + 1e-12 if ln.kind == "res" else b.close < v - 1e-12
             if broken or ln.consumed or i_now - ln.i2 > self.cfg.lineMaxAgeBars:
+                self.ended.append((ln, b.time + self.tf_ms))
                 setattr(self, name, None)
                 continue
             near = self._hi(b) >= v - tol if ln.kind == "res" else self._lo(b) <= v + tol
@@ -154,30 +162,47 @@ class LineBook:
                 self._add_pivot(self.lows, _Pivot(i_c, c.time, pl), "sup")
 
     def _add_pivot(self, store: list, p: _Pivot, kind: str) -> None:
+        if len(self.used_anchors) > 4 * int(self.cfg.maxPivots) + 50:   # staré pivoty už v okne nie sú
+            oldest = min(x.t for x in (self.highs + self.lows)) if (self.highs or self.lows) else 0
+            self.used_anchors = {u for u in self.used_anchors if u[1] >= oldest}
         store.append(p)
         if len(store) > int(self.cfg.maxPivots):
             del store[0]
         self.new_pivots.append((kind, p))
+        # Jedna čiara na stranu: kým žije, nový pivot ju nenahradí (ak je pri nej, je to dotyk,
+        # ktorý už započítal `on_htf_bar`). Nová čiara vzniká až po prerazení alebo vypršaní.
+        if getattr(self, kind) is not None:
+            return
         line = self._best_line(store, kind)
         if line is not None:
             setattr(self, kind, line)
             self.new_lines.append(line)
 
     def _best_line(self, store: list, kind: str) -> Line | None:
-        """Najlepšia platná čiara s najnovším pivotom ako druhou kotvou."""
+        """Čiara ako by ju nakreslil človek: od začiatku trendu po najnovší pivot.
+
+        Druhá kotva je najnovší pivot. Prvá je najvyšší vrchol (odpor), resp. najnižšie dno
+        (podpora) spomedzi starších pivotov — začiatok trendu —, ak je čiara z neho platná;
+        inak ďalší v poradí. Platná znamená, že medzi kotvami ani za druhou kotvou ju
+        nepreráža žiadna sviečka (knôt alebo telo podľa `anchorMode`, s toleranciou dotyku).
+        """
         cfg = self.cfg
         b = store[-1]
         tol = self._tol()
         i_now = self.count - 1
-        best: tuple[int, int, Line] | None = None
-        for a in reversed(store[:-1]):
+        res = kind == "res"
+        # kandidáti na prvú kotvu: od najvýraznejšieho (najvyšší vrchol / najnižšie dno)
+        cands = sorted(store[:-1], key=lambda x: -x.price if res else x.price)
+        for a in cands:
+            if (kind, a.t) in self.used_anchors:
+                continue            # z tohto bodu už čiara viedla — žiadne vejáre z jedného bodu
             gap = b.i - a.i
             if gap < cfg.minAnchorGap:
                 continue
             if cfg.lineSlope is LineSlope.CLASSIC:
-                if kind == "res" and not b.price < a.price:
+                if res and not b.price < a.price:
                     continue
-                if kind == "sup" and not b.price > a.price:
+                if not res and not b.price > a.price:
                     continue
             per_bar = abs(b.price - a.price) / gap
             if self.atr > 0:
@@ -188,25 +213,20 @@ class LineBook:
             if self._bar(a.i) is None:
                 continue
             ln = Line(kind, a.t, a.price, b.t, b.price, a.i, b.i, 2, 0)
-            ok, touches = True, 2
-            last = -10
+            ok, touches, last = True, 2, -10
             for i in range(a.i + 1, i_now + 1):
+                if i == b.i:
+                    continue
                 x = self._bar(i)
                 if x is None:
                     ok = False
                     break
                 v = ln.value(x.time)
-                if i == b.i:
-                    continue
-                if i < b.i:
-                    val = self._hi(x) if kind == "res" else self._lo(x)
-                    if (kind == "res" and val > v + tol) or (kind == "sup" and val < v - tol):
-                        ok = False
-                        break
-                elif (kind == "res" and x.close > v) or (kind == "sup" and x.close < v):
-                    ok = False
+                val = self._hi(x) if res else self._lo(x)
+                if (res and val > v + tol) or (not res and val < v - tol):
+                    ok = False          # sviečka prechádza čiarou — to nie je trendovka
                     break
-                near = self._hi(x) >= v - tol if kind == "res" else self._lo(x) <= v + tol
+                near = val >= v - tol if res else val <= v + tol
                 if near and abs(i - a.i) > 1 and abs(i - b.i) > 1:
                     if i - last > 1:
                         touches += 1
@@ -214,11 +234,9 @@ class LineBook:
             if not ok:
                 continue
             ln.touches, ln.last_touch_i = touches, last
-            key = (touches, gap)
-            if best is None or key > best[:2]:
-                best = (touches, gap, ln)
-        if best is None:
-            return None
-        self._uid += 1
-        best[2].uid = self._uid
-        return best[2]
+            self._uid += 1
+            ln.uid = self._uid
+            self.used_anchors.add((kind, a.t))
+            self.used_anchors.add((kind, b.t))
+            return ln
+        return None

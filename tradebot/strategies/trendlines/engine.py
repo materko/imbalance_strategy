@@ -165,6 +165,15 @@ class TrendlineEngine:
         pos = (bar.close - bar.low) / span * 100.0
         return pos >= self.cfg.minClosePosPct if long else (100.0 - pos) >= self.cfg.minClosePosPct
 
+    def _draw_line(self, ln: Line, end_ms: int) -> DrawLine:
+        """Čiara od prvej kotvy po miesto, kde skončila — nikdy nie cez cenu za prerazením."""
+        ln.drawn = True
+        res = ln.kind == "res"
+        return DrawLine(
+            TL_RESISTANCE if res else TL_SUPPORT, ln.t1, ln.y1, end_ms, ln.value(end_ms),
+            _RES_COLOR if res else _SUP_COLOR, obj_id=f"tl.{ln.kind}.{ln.t1}.{ln.t2}",
+            text=f"{'odpor' if res else 'podpora'} {self.cfg.lineTF}m ({ln.touches}x)")
+
     def _draw_lines(self, out: EngineOutput) -> None:
         cfg = self.cfg
         if cfg.showPivots:
@@ -174,16 +183,9 @@ class TrendlineEngine:
                     TL_PIVOT, p.t, p.price, "▼" if high else "▲",
                     _SHORT_COLOR if high else _LONG_COLOR, style=LabelStyle.NONE, above=high,
                     obj_id=f"tlp.{kind}.{p.t}"))
-        if not cfg.showLines:
-            return
-        tf_ms = self.lines.tf_ms
-        for ln in self.lines.new_lines:
-            end = ln.t2 + tf_ms * int(cfg.lineMaxAgeBars)
-            res = ln.kind == "res"
-            out.drawings.append(DrawLine(
-                TL_RESISTANCE if res else TL_SUPPORT, ln.t1, ln.y1, end, ln.value(end),
-                _RES_COLOR if res else _SUP_COLOR, obj_id=f"tl.{ln.kind}.{ln.t1}.{ln.t2}",
-                text=f"{'odpor' if res else 'podpora'} {cfg.lineTF}m ({ln.touches}x)"))
+        # Čiary sa nekreslia pri vzniku ani keď ich nahradí novšia — tých je na každý pivot
+        # jedna a graf by bol nimi preplnený. Kreslí sa len prerazená čiara (pri prerazení,
+        # od prvej kotvy po miesto prerazenia) a na konci dát tie, ktoré ešte žijú.
 
     # ------------------------------------------------------------------ #
 
@@ -262,6 +264,8 @@ class TrendlineEngine:
                 continue
             ln.consumed = True          # každá čiara sa prerazí najviac raz
             self.breaks += 1
+            if cfg.showLines:
+                out.drawings.append(self._draw_line(ln, t_close))
             allowed = cfg.allow_long if long else cfg.allow_short
             if (not allowed or not in_window or self._trades_today >= cfg.maxTradesPerDay
                     or not self._close_position_ok(bar, long)):
@@ -357,4 +361,9 @@ class TrendlineEngine:
             bg_color=_LONG_COLOR if long else _SHORT_COLOR, obj_id=f"tle.{bar.time}"))
 
     def final_drawings(self, bar: Bar) -> list[DrawCommand]:
-        return []
+        """Čiary, ktoré na konci dát ešte žijú, po posledný bar."""
+        if not self.cfg.showLines:
+            return []
+        end = bar.time + self.step_ms
+        return [self._draw_line(ln, end) for ln in (self.lines.res, self.lines.sup)
+                if ln is not None and not ln.drawn and ln.touches >= self.cfg.minTouches]
