@@ -1,0 +1,8 @@
+$ emulator MultiCharts MNQ 5m 20250904-20260904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: HTF 15m supertrend + zony @15m 25/25, HTF 240m supertrend + zony @240m 25/25
+emulacia MultiCharts: 70884 barov 5m, 354420 1m, 0 HTF
+  20000/70884 barov, 50 obchodov
+  40000/70884 barov, 122 obchodov
+  60000/70884 barov, 165 obchodov
+hotovo: 209 obchodov, nerozhodnutelnych minut 0
+kresby: {'dv_st_htf': 70884, 'dv_st_up': 38303, 'dv_line_bull': 10489, 'dv_bull': 7477, 'dv_st_down': 32577, 'dv_line_bear': 4859, 'dv_bear': 3830, 'dv_armed': 294, 'dv_entry': 209, 'sl_box': 209}
