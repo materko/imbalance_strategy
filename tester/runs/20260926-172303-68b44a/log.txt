@@ -1,0 +1,402 @@
+$ /Users/martin/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/IBS/deploy/freqtrade/config.tester.json --userdir /Users/martin/IBS/deploy/freqtrade/user_data --strategy TrendlineStrategy --cache none --export trades --timerange 20250904-20251104 --pairs BTC/USDT:USDT --timeframe 5m --dry-run-wallet 10000.0 --fee 0.0005 --timeframe-detail 1m --datadir /Users/martin/IBS/data/tester/binance --backtest-directory /Users/martin/IBS/deploy/freqtrade/user_data/backtest_results/20260926-172303-68b44a
+2026-09-26 19:23:04,553 - freqtrade - INFO - freqtrade 2026.8
+2026-09-26 19:23:05,173 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/IBS/deploy/freqtrade/config.tester.json ...
+2026-09-26 19:23:05,175 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-26 19:23:05,175 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-09-26 19:23:05,177 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/IBS/deploy/freqtrade/user_data ...
+2026-09-26 19:23:05,177 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/IBS/data/tester/binance ...
+2026-09-26 19:23:05,177 - freqtrade.configuration.configuration - INFO - Using /Users/martin/IBS/deploy/freqtrade/user_data/backtest_results/20260926-172303-68b44a as backtest directory ...
+2026-09-26 19:23:05,180 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-26 19:23:05,242 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy TrendlineStrategy from '/Users/martin/IBS/deploy/freqtrade/user_data/strategies/TrendlineStrategy.py'...
+'/Users/martin/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-09-26 19:23:05,834 - tradebot.adapters.freqtrade.base - INFO - trendline BTC/USDT:USDT: kresby ulozene do /Users/martin/IBS/tester/runs/.profiles/20260926-172303-68b44a.chart.json.gz (735 
+2026-09-26 19:23:05,858 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 298629.48 na 9900.00 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,864 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 99605.64 na 9886.96 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,867 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 114653.65 na 9891.89 (8.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,881 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 209069.66 na 9894.86 (4.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,886 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 106696.87 na 9892.11 (9.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,888 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 106696.87 na 9896.08 (9.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,895 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 239109.37 na 9896.08 (4.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,902 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 136102.72 na 9882.19 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,906 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 148262.84 na 9883.19 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,910 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 135114.57 na 9866.86 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,912 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 28866.60 na 9867.92 (34.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,921 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 198117.03 na 9908.48 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,923 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 93005.60 na 9906.10 (10.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,939 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 22204.82 na 9912.10 (44.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,959 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 279564.34 na 9968.07 (3.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,962 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 143101.23 na 9963.52 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,964 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 119154.24 na 9946.85 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,974 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 159391.85 na 9928.80 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,982 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 158867.00 na 9928.22 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,997 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 285083.49 na 9927.67 (3.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,998 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 285083.49 na 9914.45 (3.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:05,999 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 285083.49 na 9903.83 (3.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,017 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 131053.23 na 9897.89 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,025 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 291923.18 na 9899.29 (3.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,026 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 291923.18 na 9894.54 (3.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,030 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 152631.86 na 9881.44 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,031 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 152631.86 na 9865.27 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,033 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 162101.18 na 9855.69 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,034 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 162101.18 na 9840.07 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,035 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 162101.18 na 9829.72 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,038 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 163568.25 na 9821.09 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,040 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 163568.25 na 9820.28 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,042 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 75748.89 na 9819.46 (13.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,045 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 243429.97 na 9828.96 (4.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,047 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 243429.97 na 9825.23 (4.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,050 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 105339.14 na 9825.23 (9.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,060 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 82377.89 na 9829.34 (11.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,062 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 85810.46 na 9808.00 (11.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,066 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 286804.99 na 9787.10 (3.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,069 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 195109.99 na 9774.13 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,075 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 142106.88 na 9759.56 (6.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,081 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 113703.43 na 9760.10 (8.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,084 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 133685.05 na 9742.09 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,093 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 381704.53 na 9725.29 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,094 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 381704.53 na 9719.48 (2.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,102 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 163742.94 na 9719.48 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,110 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 74743.43 na 9704.05 (13.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,114 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 162312.52 na 9713.69 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,118 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 297788.76 na 9712.96 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,119 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 297788.76 na 9700.13 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,120 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 297788.76 na 9687.45 (3.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,122 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 144146.32 na 9678.01 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,126 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 101120.83 na 9661.78 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,128 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 121618.30 na 9642.83 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,129 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 121618.30 na 9625.62 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,130 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 121618.30 na 9610.33 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,131 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 121618.30 na 9598.63 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,132 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 121618.30 na 9587.09 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,134 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 71821.88 na 9579.16 (13.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,160 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 246880.34 na 9589.34 (3.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,163 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 83156.90 na 9576.07 (11.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,166 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 48630.74 na 9555.41 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,171 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 80540.55 na 9525.86 (11.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,177 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 83868.40 na 9533.91 (11.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,183 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 145598.60 na 9513.35 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,189 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 102939.66 na 9497.62 (9.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,196 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 199163.14 na 9479.24 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,200 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 127773.17 na 9476.94 (7.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,204 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 62957.20 na 9478.56 (15.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,210 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 421975.95 na 9454.57 (2.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,212 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 140843.55 na 9448.60 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,215 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 72256.00 na 9449.21 (13.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,225 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 203051.32 na 9427.09 (4.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,228 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 30714.29 na 9413.25 (30.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,234 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 104620.40 na 9449.00 (9.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,237 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 212412.60 na 9430.86 (4.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,239 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 117077.52 na 9417.23 (8.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,246 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 210826.88 na 9400.99 (4.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,252 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 184901.33 na 9398.32 (5.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,255 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 438192.35 na 9396.57 (2.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,257 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 259463.72 na 9390.48 (3.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,259 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 259463.72 na 9386.61 (3.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,265 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 187127.84 na 9373.90 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,271 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 131458.01 na 9372.09 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,272 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 68589.94 na 9373.38 (13.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,281 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 128186.28 na 9351.75 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,283 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 72807.84 na 9353.31 (12.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,289 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 58202.91 na 9363.07 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,296 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 105532.45 na 9377.67 (8.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,304 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 235615.26 na 9359.62 (4.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,306 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 99877.80 na 9346.44 (9.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,308 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 99877.80 na 9351.06 (9.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,311 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 237760.18 na 9351.06 (3.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,312 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 237760.18 na 9338.03 (3.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,341 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 84861.93 na 9332.31 (11.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,344 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 213510.23 na 9312.39 (4.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,346 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 75441.44 na 9298.99 (12.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,353 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 192682.43 na 9307.99 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,361 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 86483.83 na 9305.96 (10.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,363 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 86483.83 na 9312.69 (10.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,366 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 82281.06 na 9292.92 (11.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,367 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 82281.06 na 9272.75 (11.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,370 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 55019.98 na 9264.70 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,375 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 62108.42 na 9238.97 (14.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,378 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 85904.62 na 9215.21 (10.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,380 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 27260.40 na 9221.95 (33.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,383 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 168622.15 na 9262.61 (5.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,387 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 82085.16 na 9261.61 (11.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,391 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 62457.76 na 9241.34 (14.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,393 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 79687.97 na 9217.57 (11.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,398 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 112060.78 na 9197.15 (8.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,402 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 11713.27 na 9179.94 (78.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,407 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 74706.58 na 9094.14 (12.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,420 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 71339.93 na 9103.13 (12.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,423 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 76801.82 na 9113.04 (11.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,432 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 67025.34 na 9121.59 (13.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,435 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 149714.88 na 9099.14 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,438 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 123878.46 na 9084.19 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,440 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 21819.49 na 9067.99 (41.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,463 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 19855.01 na 9120.24 (45.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,467 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 49872.90 na 9178.98 (18.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,469 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 42621.88 na 9151.71 (21.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,475 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 116012.19 na 9121.40 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,476 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 116012.19 na 9104.69 (7.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,477 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 116012.19 na 9092.63 (7.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,479 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 52357.86 na 9087.62 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,489 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 48732.81 na 9104.37 (18.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,498 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 77289.75 na 9077.00 (11.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,499 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 77289.75 na 9085.43 (11.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,502 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 22538.45 na 9064.91 (40.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,506 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 64213.71 na 9016.18 (14.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,508 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 121782.94 na 9028.04 (7.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,510 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 82621.06 na 9011.86 (10.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,518 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 229777.00 na 8992.36 (3.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,520 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 80501.71 na 8989.30 (11.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,523 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 146420.33 na 8969.46 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,526 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 123586.08 na 8969.66 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,529 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 204953.62 na 8953.74 (4.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,533 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 250827.65 na 8940.68 (3.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,544 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 180171.48 na 8937.12 (5.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,547 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 102207.41 na 8923.42 (8.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,549 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 69449.01 na 8906.15 (12.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,552 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 43651.86 na 8884.92 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,555 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 15185.75 na 8906.09 (58.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,594 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 111190.63 na 8839.33 (7.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,596 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 145759.75 na 8822.83 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,597 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 145759.75 na 8808.19 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,599 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 43431.54 na 8799.57 (20.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,608 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 112931.88 na 8820.87 (7.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,610 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 52988.15 na 8823.72 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:06,615 - tradebot.adapters.freqtrade.callbacks - WARNING - trendline BTC/USDT:USDT: stake orezany z 68047.04 na 8798.82 (12.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-26 19:23:07,866 - freqtrade.misc - INFO - dumping json to "/Users/martin/IBS/deploy/freqtrade/user_data/backtest_results/20260926-172303-68b44a/backtest-result-2026-09-26_17-23-07.meta.json"
+…
+│ trendline:1758634200000 │       3 │        -0.12 │         -35.307 │        -0.35 │      0:01:00 │    0     0     3     0 │
+│ trendline:1761238200000 │       1 │        -0.54 │         -49.219 │        -0.49 │      0:05:00 │    0     0     1     0 │
+│ trendline:1758688500000 │       5 │        -0.13 │         -64.313 │        -0.64 │      0:00:00 │    0     0     5     0 │
+│ trendline:1761806400000 │       1 │        -0.76 │         -67.434 │        -0.67 │      2:35:00 │    0     0     1     0 │
+│ trendline:1760607000000 │       1 │        -0.95 │         -86.663 │        -0.87 │      0:09:00 │    0     0     1     0 │
+│                   TOTAL │     147 │        -0.08 │       -1133.862 │       -11.34 │      0:12:00 │   39     0   108  26.5 │
+└─────────────────────────┴─────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                  EXIT REASON STATS                                                   
+┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃        Exit Reason ┃ Exits ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│                roi │    61 │         0.08 │         456.826 │         4.57 │      0:14:00 │   39     0    22  63.9 │
+│ trailing_stop_loss │    21 │        -0.14 │        -281.486 │        -2.81 │      0:18:00 │    0     0    21     0 │
+│          stop_loss │    65 │        -0.22 │       -1309.202 │       -13.09 │      0:09:00 │    0     0    65     0 │
+│              TOTAL │   147 │        -0.08 │       -1133.862 │       -11.34 │      0:12:00 │   39     0   108  26.5 │
+└────────────────────┴───────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                                 MIXED TAG STATS                                                                 
+┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃               Enter Tag ┃        Exit Reason ┃ Trades ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ trendline:1761055800000 │                roi │      1 │         0.65 │          59.328 │         0.59 │      0:06:00 │    1     0     0   100 │
+│ trendline:1757507400000 │                roi │      1 │         0.57 │          56.544 │         0.57 │      1:10:00 │    1     0     0   100 │
+│ trendline:1761043500000 │                roi │      1 │         0.59 │          52.786 │         0.53 │      1:32:00 │    1     0     0   100 │
+│ trendline:1760470500000 │                roi │      1 │         0.45 │          41.072 │         0.41 │      0:04:00 │    1     0     0   100 │
+│ trendline:1757426400000 │                roi │      1 │         0.42 │          40.966 │         0.41 │      0:29:00 │    1     0     0   100 │
+│ trendline:1759307100000 │                roi │      1 │         0.39 │          36.109 │         0.36 │      0:14:00 │    1     0     0   100 │
+│ trendline:1761928800000 │                roi │      1 │         0.25 │          21.513 │         0.22 │      0:05:00 │    1     0     0   100 │
+│ trendline:1761797400000 │                roi │      1 │         0.24 │          21.387 │         0.21 │      0:08:00 │    1     0     0   100 │
+│ trendline:1761152100000 │                roi │      1 │         0.19 │          16.916 │         0.17 │      0:28:00 │    1     0     0   100 │
+│ trendline:1759893600000 │                roi │      1 │         0.16 │          14.749 │         0.15 │      0:21:00 │    1     0     0   100 │
+│ trendline:1761279900000 │                roi │      1 │         0.13 │          11.985 │         0.12 │      0:03:00 │    1     0     0   100 │
+│ trendline:1758706500000 │                roi │      1 │         0.11 │          10.284 │          0.1 │      1:27:00 │    1     0     0   100 │
+│ trendline:1760714100000 │                roi │      1 │         0.11 │          10.006 │          0.1 │      0:06:00 │    1     0     0   100 │
+│ trendline:1759818000000 │                roi │      1 │         0.11 │           9.862 │          0.1 │      0:13:00 │    1     0     0   100 │
+│ trendline:1758559800000 │                roi │      1 │          0.1 │           9.739 │          0.1 │      0:11:00 │    1     0     0   100 │
+│ trendline:1758029700000 │                roi │      1 │          0.1 │           9.596 │          0.1 │      0:05:00 │    1     0     0   100 │
+│ trendline:1760081400000 │                roi │      1 │          0.1 │           9.092 │         0.09 │      0:24:00 │    1     0     0   100 │
+│ trendline:1760676600000 │                roi │      1 │          0.1 │           9.086 │         0.09 │      0:45:00 │    1     0     0   100 │
+│ trendline:1760728500000 │                roi │      1 │          0.1 │           8.639 │         0.09 │      0:05:00 │    1     0     0   100 │
+│ trendline:1761228600000 │                roi │      1 │         0.09 │           8.511 │         0.09 │      0:00:00 │    1     0     0   100 │
+│ trendline:1758818700000 │                roi │      1 │         0.09 │           8.132 │         0.08 │      0:14:00 │    1     0     0   100 │
+│ trendline:1760465100000 │                roi │      1 │         0.07 │           6.810 │         0.07 │      0:03:00 │    1     0     0   100 │
+│ trendline:1760353200000 │                roi │      1 │         0.07 │           6.796 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ trendline:1757500200000 │                roi │      1 │         0.06 │           6.051 │         0.06 │      1:07:00 │    1     0     0   100 │
+│ trendline:1756992900000 │                roi │      1 │         0.05 │           4.978 │         0.05 │      0:02:00 │    1     0     0   100 │
+│ trendline:1759919400000 │                roi │      1 │         0.05 │           4.667 │         0.05 │      0:00:00 │    1     0     0   100 │
+│ trendline:1758102300000 │                roi │      1 │         0.04 │           4.154 │         0.04 │      0:31:00 │    1     0     0   100 │
+│ trendline:1757081400000 │                roi │      1 │         0.04 │           4.003 │         0.04 │      0:00:00 │    1     0     0   100 │
+│ trendline:1757019300000 │                roi │      1 │         0.03 │           3.006 │         0.03 │      0:52:00 │    1     0     0   100 │
+│ trendline:1762152300000 │                roi │      1 │         0.03 │           2.876 │         0.03 │      0:01:00 │    1     0     0   100 │
+│ trendline:1759150200000 │                roi │      1 │         0.02 │           1.637 │         0.02 │      0:11:00 │    1     0     0   100 │
+│ trendline:1759811400000 │                roi │      1 │         0.02 │           1.573 │         0.02 │      0:04:00 │    1     0     0   100 │
+│ trendline:1757685000000 │                roi │      1 │         0.01 │           1.417 │         0.01 │      0:06:00 │    1     0     0   100 │
+│ trendline:1759732200000 │                roi │      1 │         0.01 │           1.300 │         0.01 │      0:01:00 │    1     0     0   100 │
+│ trendline:1757397000000 │                roi │      1 │         0.01 │           1.074 │         0.01 │      0:02:00 │    1     0     0   100 │
+│ trendline:1757353200000 │                roi │      1 │         0.01 │           1.008 │         0.01 │      0:08:00 │    1     0     0   100 │
+│ trendline:1759217400000 │                roi │      1 │         0.01 │           0.622 │         0.01 │      0:04:00 │    1     0     0   100 │
+│ trendline:1758200700000 │                roi │      1 │         0.01 │           0.539 │         0.01 │      0:13:00 │    1     0     0   100 │
+│ trendline:1761582300000 │                roi │      1 │          0.0 │           0.204 │          0.0 │      0:03:00 │    1     0     0   100 │
+│ trendline:1757658300000 │                roi │      1 │        -0.01 │          -0.553 │        -0.01 │      0:56:00 │    0     0     1     0 │
+│ trendline:1757580300000 │                roi │      1 │        -0.01 │          -0.588 │        -0.01 │      0:20:00 │    0     0     1     0 │
+│ trendline:1758569400000 │                roi │      1 │        -0.01 │          -0.737 │        -0.01 │      0:01:00 │    0     0     1     0 │
+│ trendline:1760508900000 │                roi │      1 │        -0.01 │          -1.010 │        -0.01 │      0:05:00 │    0     0     1     0 │
+│ trendline:1757998800000 │                roi │      2 │        -0.01 │          -1.643 │        -0.02 │      0:06:00 │    0     0     2     0 │
+│ trendline:1759465800000 │                roi │      1 │        -0.02 │          -1.764 │        -0.02 │      0:04:00 │    0     0     1     0 │
+│ trendline:1759725300000 │                roi │      1 │        -0.02 │          -1.832 │        -0.02 │      0:15:00 │    0     0     1     0 │
+│ trendline:1760086200000 │                roi │      1 │        -0.02 │          -2.049 │        -0.02 │      0:02:00 │    0     0     1     0 │
+│ trendline:1759143600000 │                roi │      1 │        -0.02 │          -2.319 │        -0.02 │      0:09:00 │    0     0     1     0 │
+│ trendline:1757463300000 │                roi │      1 │        -0.02 │          -2.399 │        -0.02 │      0:01:00 │    0     0     1     0 │
+│ trendline:1759402500000 │                roi │      1 │        -0.03 │          -2.704 │        -0.03 │      0:11:00 │    0     0     1     0 │
+│ trendline:1757046900000 │                roi │      1 │        -0.03 │          -2.778 │        -0.03 │      0:12:00 │    0     0     1     0 │
+│ trendline:1761541200000 │                roi │      1 │        -0.03 │          -3.087 │        -0.03 │      0:04:00 │    0     0     1     0 │
+│ trendline:1761648000000 │                roi │      1 │        -0.04 │          -3.597 │        -0.04 │      0:10:00 │    0     0     1     0 │
+│ trendline:1758037200000 │                roi │      1 │        -0.04 │          -3.770 │        -0.04 │      0:00:00 │    0     0     1     0 │
+│ trendline:1759497600000 │                roi │      1 │        -0.04 │          -3.914 │        -0.04 │      0:00:00 │    0     0     1     0 │
+│ trendline:1757541300000 │                roi │      1 │        -0.05 │          -4.595 │        -0.05 │      0:01:00 │    0     0     1     0 │
+│ trendline:1757911200000 │                roi │      1 │        -0.05 │          -4.799 │        -0.05 │      0:00:00 │    0     0     1     0 │
+│ trendline:1761135300000 │ trailing_stop_loss │      1 │        -0.06 │          -5.065 │        -0.05 │      0:02:00 │    0     0     1     0 │
+│ trendline:1759996800000 │ trailing_stop_loss │      1 │        -0.06 │          -5.775 │        -0.06 │      1:57:00 │    0     0     1     0 │
+│ trendline:1758275100000 │                roi │      1 │        -0.06 │          -5.873 │        -0.06 │      0:00:00 │    0     0     1     0 │
+│ trendline:1757671500000 │ trailing_stop_loss │      1 │        -0.06 │          -6.001 │        -0.06 │      1:12:00 │    0     0     1     0 │
+│ trendline:1759206300000 │                roi │      1 │        -0.06 │          -6.029 │        -0.06 │      0:02:00 │    0     0     1     0 │
+│ trendline:1759475700000 │                roi │      1 │        -0.07 │          -6.147 │        -0.06 │      0:02:00 │    0     0     1     0 │
+│ trendline:1758688500000 │ trailing_stop_loss │      1 │        -0.08 │          -8.015 │        -0.08 │      0:01:00 │    0     0     1     0 │
+│ trendline:1760362200000 │ trailing_stop_loss │      1 │        -0.09 │          -8.131 │        -0.08 │      0:07:00 │    0     0     1     0 │
+│ trendline:1761917400000 │ trailing_stop_loss │      1 │         -0.1 │          -8.702 │        -0.09 │      0:02:00 │    0     0     1     0 │
+│ trendline:1757954400000 │ trailing_stop_loss │      1 │        -0.09 │          -8.722 │        -0.09 │      0:02:00 │    0     0     1     0 │
+│ trendline:1758634200000 │ trailing_stop_loss │      1 │         -0.1 │          -9.536 │         -0.1 │      0:02:00 │    0     0     1     0 │
+│ trendline:1757941200000 │ trailing_stop_loss │      1 │         -0.1 │          -9.674 │         -0.1 │      0:02:00 │    0     0     1     0 │
+│ trendline:1759497600000 │          stop_loss │      1 │        -0.14 │         -12.834 │        -0.13 │      0:06:00 │    0     0     1     0 │
+│ trendline:1758182400000 │ trailing_stop_loss │      1 │        -0.13 │         -13.092 │        -0.13 │      0:07:00 │    0     0     1     0 │
+│ trendline:1759996800000 │          stop_loss │      1 │        -0.14 │         -13.159 │        -0.13 │      0:00:00 │    0     0     1     0 │
+│ trendline:1756986000000 │          stop_loss │      1 │        -0.13 │         -13.173 │        -0.13 │      0:03:00 │    0     0     1     0 │
+│ trendline:1761632400000 │          stop_loss │      1 │        -0.15 │         -13.195 │        -0.13 │      0:06:00 │    0     0     1     0 │
+│ trendline:1757911200000 │          stop_loss │      1 │        -0.13 │         -13.235 │        -0.13 │      0:05:00 │    0     0     1     0 │
+│ trendline:1759905300000 │          stop_loss │      1 │        -0.14 │         -13.320 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ trendline:1758737700000 │          stop_loss │      1 │        -0.14 │         -13.401 │        -0.13 │      0:03:00 │    0     0     1     0 │
+│ trendline:1760073600000 │          stop_loss │      1 │        -0.15 │         -13.540 │        -0.14 │      0:03:00 │    0     0     1     0 │
+│ trendline:1759388100000 │          stop_loss │      1 │        -0.15 │         -13.767 │        -0.14 │      0:01:00 │    0     0     1     0 │
+│ trendline:1761711300000 │          stop_loss │      1 │        -0.16 │         -13.837 │        -0.14 │      0:04:00 │    0     0     1     0 │
+│ trendline:1759299900000 │ trailing_stop_loss │      1 │        -0.15 │         -13.986 │        -0.14 │      0:09:00 │    0     0     1     0 │
+│ trendline:1757312700000 │          stop_loss │      1 │        -0.14 │         -14.025 │        -0.14 │      0:23:00 │    0     0     1     0 │
+│ trendline:1758189000000 │          stop_loss │      1 │        -0.15 │         -14.718 │        -0.15 │      0:15:00 │    0     0     1     0 │
+│ trendline:1761917400000 │          stop_loss │      1 │        -0.17 │         -14.787 │        -0.15 │      0:00:00 │    0     0     1     0 │
+│ trendline:1760997600000 │          stop_loss │      1 │        -0.17 │         -15.100 │        -0.15 │      0:02:00 │    0     0     1     0 │
+│ trendline:1758543600000 │ trailing_stop_loss │      1 │        -0.16 │         -15.581 │        -0.16 │      0:25:00 │    0     0     1     0 │
+│ trendline:1758876000000 │          stop_loss │      1 │        -0.17 │         -15.886 │        -0.16 │      0:13:00 │    0     0     1     0 │
+│ trendline:1761626700000 │          stop_loss │      1 │        -0.18 │         -16.081 │        -0.16 │      0:09:00 │    0     0     1     0 │
+│ trendline:1757941200000 │          stop_loss │      1 │        -0.17 │         -16.333 │        -0.16 │      0:00:00 │    0     0     1     0 │
+│ trendline:1761292800000 │ trailing_stop_loss │      1 │        -0.18 │         -16.342 │        -0.16 │      0:02:00 │    0     0     1     0 │
+│ trendline:1761003600000 │          stop_loss │      1 │        -0.18 │         -16.371 │        -0.16 │      0:01:00 │    0     0     1     0 │
+│ trendline:1758647400000 │          stop_loss │      1 │        -0.17 │         -16.389 │        -0.16 │      0:08:00 │    0     0     1     0 │
+│ trendline:1759390200000 │ trailing_stop_loss │      1 │        -0.18 │         -16.399 │        -0.16 │      0:25:00 │    0     0     1     0 │
+│ trendline:1757374800000 │ trailing_stop_loss │      1 │        -0.17 │         -16.493 │        -0.16 │      0:10:00 │    0     0     1     0 │
+│ trendline:1761884400000 │          stop_loss │      1 │        -0.19 │         -16.673 │        -0.17 │      0:03:00 │    0     0     1     0 │
+│ trendline:1757568000000 │          stop_loss │      1 │        -0.17 │         -16.841 │        -0.17 │      0:01:00 │    0     0     1     0 │
+│ trendline:1758269100000 │          stop_loss │      1 │        -0.17 │         -16.967 │        -0.17 │      0:31:00 │    0     0     1     0 │
+│ trendline:1760599200000 │ trailing_stop_loss │      1 │        -0.19 │         -17.387 │        -0.17 │      0:12:00 │    0     0     1     0 │
+│ trendline:1761737400000 │          stop_loss │      1 │         -0.2 │         -17.443 │        -0.17 │      0:01:00 │    0     0     1     0 │
+│ trendline:1758263400000 │ trailing_stop_loss │      1 │        -0.19 │         -18.191 │        -0.18 │      0:11:00 │    0     0     1     0 │
+│ trendline:1759898700000 │          stop_loss │      1 │        -0.19 │         -18.231 │        -0.18 │      0:27:00 │    0     0     1     0 │
+│ trendline:1757574000000 │ trailing_stop_loss │      1 │        -0.18 │         -18.233 │        -0.18 │      0:36:00 │    0     0     1     0 │
+│ trendline:1759349100000 │ trailing_stop_loss │      1 │         -0.2 │         -18.321 │        -0.18 │      0:02:00 │    0     0     1     0 │
+│ trendline:1758894300000 │          stop_loss │      1 │         -0.2 │         -18.574 │        -0.19 │      0:01:00 │    0     0     1     0 │
+│ trendline:1758682200000 │          stop_loss │      1 │         -0.2 │         -19.147 │        -0.19 │      0:01:00 │    0     0     1     0 │
+│ trendline:1761309000000 │          stop_loss │      1 │        -0.22 │         -19.707 │         -0.2 │      0:01:00 │    0     0     1     0 │
+│ trendline:1760353200000 │          stop_loss │      1 │        -0.22 │         -19.972 │         -0.2 │      0:09:00 │    0     0     1     0 │
+│ trendline:1761572100000 │          stop_loss │      1 │        -0.22 │         -20.042 │         -0.2 │      0:04:00 │    0     0     1     0 │
+│ trendline:1760057100000 │          stop_loss │      1 │        -0.22 │         -20.121 │         -0.2 │      0:04:00 │    0     0     1     0 │
+│ trendline:1760362200000 │          stop_loss │      1 │        -0.22 │         -20.369 │         -0.2 │      0:00:00 │    0     0     1     0 │
+│ trendline:1760552400000 │          stop_loss │      1 │        -0.22 │         -20.473 │         -0.2 │      0:10:00 │    0     0     1     0 │
+│ trendline:1760597400000 │          stop_loss │      1 │        -0.23 │         -20.626 │        -0.21 │      0:10:00 │    0     0     1     0 │
+│ trendline:1761228600000 │          stop_loss │      1 │        -0.23 │         -20.728 │        -0.21 │      0:06:00 │    0     0     1     0 │
+│ trendline:1758871800000 │          stop_loss │      1 │        -0.22 │         -20.766 │        -0.21 │      0:23:00 │    0     0     1     0 │
+│ trendline:1758809700000 │          stop_loss │      1 │        -0.22 │         -20.872 │        -0.21 │      0:09:00 │    0     0     1     0 │
+│ trendline:1758154800000 │          stop_loss │      1 │        -0.22 │         -21.116 │        -0.21 │      0:10:00 │    0     0     1     0 │
+│ trendline:1761745500000 │          stop_loss │      1 │        -0.24 │         -21.444 │        -0.21 │      0:01:00 │    0     0     1     0 │
+│ trendline:1758145500000 │          stop_loss │      1 │        -0.22 │         -21.559 │        -0.22 │      0:03:00 │    0     0     1     0 │
+│ trendline:1762170300000 │          stop_loss │      1 │        -0.25 │         -21.559 │        -0.22 │      0:07:00 │    0     0     1     0 │
+│ trendline:1759736400000 │ trailing_stop_loss │      1 │        -0.24 │         -21.846 │        -0.22 │      0:24:00 │    0     0     1     0 │
+│ trendline:1759249800000 │          stop_loss │      1 │        -0.24 │         -22.342 │        -0.22 │      0:30:00 │    0     0     1     0 │
+│ trendline:1760973000000 │          stop_loss │      1 │        -0.25 │         -22.677 │        -0.23 │      0:03:00 │    0     0     1     0 │
+│ trendline:1760449500000 │          stop_loss │      1 │        -0.26 │         -23.997 │        -0.24 │      0:01:00 │    0     0     1     0 │
+│ trendline:1760561100000 │          stop_loss │      1 │        -0.26 │         -24.016 │        -0.24 │      0:03:00 │    0     0     1     0 │
+│ trendline:1757671500000 │          stop_loss │      2 │        -0.12 │         -24.083 │        -0.24 │      0:00:00 │    0     0     2     0 │
+│ trendline:1759175100000 │          stop_loss │      1 │        -0.26 │         -24.237 │        -0.24 │      0:12:00 │    0     0     1     0 │
+│ trendline:1762160400000 │          stop_loss │      1 │        -0.29 │         -25.150 │        -0.25 │      0:15:00 │    0     0     1     0 │
+│ trendline:1758634200000 │          stop_loss │      2 │        -0.13 │         -25.771 │        -0.26 │      0:00:00 │    0     0     2     0 │
+│ trendline:1760367000000 │ trailing_stop_loss │      1 │        -0.28 │         -25.994 │        -0.26 │      0:06:00 │    0     0     1     0 │
+│ trendline:1757954400000 │          stop_loss │      2 │        -0.13 │         -26.228 │        -0.26 │      0:00:00 │    0     0     2     0 │
+│ trendline:1761092700000 │          stop_loss │      1 │         -0.3 │         -27.545 │        -0.28 │      0:02:00 │    0     0     1     0 │
+│ trendline:1761226200000 │          stop_loss │      1 │         -0.3 │         -27.644 │        -0.28 │      0:32:00 │    0     0     1     0 │
+│ trendline:1761135300000 │          stop_loss │      2 │        -0.16 │         -29.057 │        -0.29 │      0:00:00 │    0     0     2     0 │
+│ trendline:1758815700000 │          stop_loss │      1 │        -0.31 │         -29.851 │         -0.3 │      0:16:00 │    0     0     1     0 │
+│ trendline:1761116700000 │          stop_loss │      1 │        -0.33 │         -30.613 │        -0.31 │      0:15:00 │    0     0     1     0 │
+│ trendline:1761238200000 │          stop_loss │      1 │        -0.54 │         -49.219 │        -0.49 │      0:05:00 │    0     0     1     0 │
+│ trendline:1758688500000 │          stop_loss │      4 │        -0.15 │         -56.298 │        -0.56 │      0:00:00 │    0     0     4     0 │
+│ trendline:1761806400000 │          stop_loss │      1 │        -0.76 │         -67.434 │        -0.67 │      2:35:00 │    0     0     1     0 │
+│ trendline:1760607000000 │          stop_loss │      1 │        -0.95 │         -86.663 │        -0.87 │      0:09:00 │    0     0     1     0 │
+│                   TOTAL │                    │    147 │        -0.08 │       -1133.862 │       -11.34 │      0:12:00 │   39     0   108  26.5 │
+└─────────────────────────┴────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Metric                                 ┃ Value                                     ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Backtesting from                       │ 2025-09-04 00:00:00                       │
+│ Backtesting to                         │ 2025-11-04 00:00:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 147 / 2.41                                │
+│ Starting balance                       │ 10000 USDT                                │
+│ Final balance                          │ 8866.138 USDT                             │
+│ Absolute profit                        │ -1133.862 USDT                            │
+│ Total profit %                         │ -11.34%                                   │
+│ CAGR %                                 │ -51.33%                                   │
+│ Sharpe (closed trades)                 │ -19.58                                    │
+│ Sortino (closed trades)                │ -30.16                                    │
+│ Calmar (closed trades)                 │ -29.73                                    │
+│ SQN                                    │ -5.14                                     │
+│ Mean profit p-value                    │ 8.755e-07                                 │
+│ Profit factor                          │ 0.31                                      │
+│ Expectancy (Ratio)                     │ -7.71 (-0.50)                             │
+│ Avg. daily profit                      │ -18.588 USDT                              │
+│ Avg. stake amount                      │ 9389.944 USDT                             │
+│ Market change                          │ -4.63%                                    │
+│ Total trade volume                     │ 2761914.452 USDT                          │
+│                                        │                                           │
+│ Long / Short trades                    │ 81 / 66                                   │
+│ Long / Short profit %                  │ -6.94% / -4.40%                           │
+│ Long / Short profit USDT               │ -693.784 / -440.079                       │
+│                                        │                                           │
+│ Best Pair                              │ BTC/USDT:USDT -11.34%                     │
+│ Worst Pair                             │ BTC/USDT:USDT -11.34%                     │
+│ Best trade                             │ BTC/USDT:USDT 0.65%                       │
+│ Worst trade                            │ BTC/USDT:USDT -0.95%                      │
+│ Best day                               │ 112.113 USDT                              │
+│ Worst day                              │ -124.676 USDT                             │
+│ Days win/draw/lose                     │ 9 / 18 / 34                               │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:00 / 0d 01:32 / 0d 00:18            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:00 / 0d 02:35 / 0d 00:10            │
+│ Max Consecutive Wins / Loss            │ 3 / 11                                    │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 4 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 8866.138 USDT / 10068.761 USDT            │
+│ Max % of account underwater            │ 11.94%                                    │
+│ Absolute drawdown                      │ 1202.624 USDT (11.94%)                    │
+│ Drawdown duration                      │ 53 days 22:12:00                          │
+│ Profit at drawdown start               │ 68.761 USDT                               │
+│ Profit at drawdown end                 │ -1133.862 USDT                            │
+│ Drawdown start                         │ 2025-09-10 13:45:00                       │
+│ Drawdown end                           │ 2025-11-03 11:57:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 8866.138 USDT / 10068.761 USDT            │
+│ Min/Max balance dates (wallet balance) │ 2025-11-03 12:00:00 / 2025-09-10 13:50:00 │
+│ Max % of account underwater (balance)  │ 11.94%                                    │
+│ Absolute drawdown (wallet balance)     │ 1202.624 USDT (11.94%)                    │
+│ Drawdown duration                      │ 53 days 22:10:00                          │
+│ Profit at drawdown start               │ 68.761 USDT                               │
+│ Profit at drawdown end                 │ -1133.862 USDT                            │
+│ Drawdown start                         │ 2025-09-10 13:50:00                       │
+│ Drawdown end                           │ 2025-11-03 12:00:00                       │
+│ Sharpe (daily wallet balance)          │ -9.85                                     │
+│ Sortino (daily wallet balance)         │ -13.61                                    │
+│ Calmar (daily wallet balance)          │ -30.23                                    │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2025-09-04 00:00:00 -> 2025-11-04 00:00:00 | Max open trades : 1
+                                                               STRATEGY SUMMARY                                                               
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━┓
+┃          Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃              Drawdown ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━┩
+│ TrendlineStrategy │    147 │        -0.08 │       -1133.862 │       -11.34 │      0:12:00 │   39     0   108  26.5 │ 1202.624 USDT  11.94% │
+└───────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┴───────────────────────┘

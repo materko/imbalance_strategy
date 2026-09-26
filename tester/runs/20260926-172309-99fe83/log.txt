@@ -1,0 +1,5 @@
+$ emulator MultiCharts BTCUSDT.P 5m 20250904-20251104 (BTC_USDT_USDT-1m-futures.feather)
+predhistoria indikatorov z dat pred behom: trendovky 15m @15m 89/89
+emulacia MultiCharts: 17568 barov 5m, 87840 1m, 0 HTF
+hotovo: 128 obchodov, nerozhodnutelnych minut 0
+kresby: {'tl_support': 235, 'tl_resistance': 225, 'tl_break': 128, 'tl_entry': 128}
