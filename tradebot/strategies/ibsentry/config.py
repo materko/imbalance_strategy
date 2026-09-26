@@ -45,6 +45,8 @@ class IBSEntryZoneConfig(IBSConfig):
 
     # ---- 💠 Zóny z imbalance (FVG) --------------------------------------- #
     enableFvgTrading: bool = True
+    #: Inverzné FVG — medzera prerazená zatvorením sa stane zónou opačného smeru.
+    enableIfvgTrading: bool = False
     fvgUse5m: bool = True
     fvgUse15m: bool = True
     fvgUse30m: bool = True
@@ -52,10 +54,16 @@ class IBSEntryZoneConfig(IBSConfig):
     fvgMinSize: SizeSpec = field(default_factory=lambda: _size(5.0, "fvgMinSize"))
 
     def _problems(self) -> Iterable[str]:
-        yield from super()._problems()
-        if self.enableFvgTrading and not self.active_fvg_timeframes():
+        # FVG je plnohodnotný zdroj zón — stratégia smie obchodovať len z neho (SD, S/R
+        # aj likvidita vypnuté), IBS ho vo svojej kontrole zdrojov nepozná.
+        fvg_on = (self.enableFvgTrading or self.enableIfvgTrading) and bool(self.active_fvg_timeframes())
+        for problem in super()._problems():
+            if fvg_on and problem.startswith("nie je zapnutý žiadny zdroj zón"):
+                continue
+            yield problem
+        if (self.enableFvgTrading or self.enableIfvgTrading) and not self.active_fvg_timeframes():
             yield (
-                "enableFvgTrading je zapnuté, ale nie je zvolený ani jeden TF "
+                "enableFvgTrading/enableIfvgTrading je zapnuté, ale nie je zvolený ani jeden TF "
                 "(fvgUse5m, fvgUse15m, fvgUse30m, fvgUse60m) — zóny by nemali z čoho vznikať"
             )
 

@@ -158,3 +158,73 @@ def test_vypnuty_zdroj_nevyrobi_nic():
             t += MIN
     assert eng.fvg_zones_created == 0
     assert eng.book.zones == []
+
+
+def _feed_5m(det: FvgDetector, candles: list[tuple[float, float, float]], min_size: float = 1.0):
+    """5m sviečky (high, low, close) z 1m barov; vráti (nové FVG, IFVG) zo všetkých volaní."""
+    found: list[FvgHit] = []
+    inverted: list[FvgHit] = []
+    t = 0
+    for high, low, close in candles + [candles[-1]]:
+        for _ in range(5):
+            found += det.on_bar(Bar(time=t, open=low, high=high, low=low, close=close, volume=1.0), min_size)
+            inverted += det.inverted
+            t += MIN
+    return found, inverted
+
+
+def test_bullish_fvg_prerazeny_zatvorenim_je_short_ifvg():
+    """Bullish medzera 100-105; sviečka zatvorená pod 100 z nej robí ponuku (SHORT)."""
+    found, inv = _feed_5m(_detector(), [(100.0, 99.0, 99.5), (104.0, 101.0, 104.0), (108.0, 105.0, 107.0),
+                                        (107.0, 97.0, 98.0)])
+    assert len(found) == 1 and found[0].direction == 1
+    assert len(inv) == 1, f"cakal som jednu inverziu, dostal {len(inv)}"
+    assert inv[0].direction == -1
+    assert (inv[0].bot, inv[0].top) == (pytest.approx(100.0), pytest.approx(105.0))
+
+
+def test_knot_cez_medzeru_bez_zatvorenia_nie_je_inverzia():
+    """Prepichnutie knôtom nestačí — rozhoduje zatvorenie sviečky TF."""
+    _, inv = _feed_5m(_detector(), [(100.0, 99.0, 99.5), (104.0, 101.0, 104.0), (108.0, 105.0, 107.0),
+                                    (107.0, 97.0, 101.0)])
+    assert inv == []
+
+
+def test_medzera_sa_invertuje_len_raz():
+    _, inv = _feed_5m(_detector(), [(100.0, 99.0, 99.5), (104.0, 101.0, 104.0), (108.0, 105.0, 107.0),
+                                    (107.0, 97.0, 98.0), (98.0, 95.0, 96.0)])
+    assert len(inv) == 1
+
+
+def test_bearish_fvg_prerazeny_nahor_je_long_ifvg():
+    _, inv = _feed_5m(_detector(), [(108.0, 105.0, 105.5), (104.0, 101.0, 101.0), (100.0, 99.0, 99.5),
+                                    (107.0, 99.0, 106.0)])
+    assert len(inv) == 1 and inv[0].direction == 1
+
+
+def test_len_ifvg_bez_sd_zon_je_platny_config_a_vyrobi_zonu():
+    from tradebot.core.types import INSTRUMENTS
+    from tradebot.strategies.ibs.zones import ZoneSource
+    from tradebot.strategies.ibsentry.engine import IBSEntryZoneEngine
+
+    cfg = IBSEntryZoneConfig(enableZoneDetection=False, enableFvgTrading=False, enableIfvgTrading=True,
+                             fvgUse15m=False, fvgUse30m=False, fvgUse60m=False)
+    eng = IBSEntryZoneEngine(cfg, INSTRUMENTS["mnq_databento"], 1)
+    out = type("O", (), {"drawings": []})()
+    t = 0
+    for high, low, close in [(100.0, 99.0, 99.5), (104.0, 101.0, 104.0), (108.0, 105.0, 107.0),
+                             (107.0, 97.0, 98.0), (98.0, 96.0, 97.0)]:
+        for _ in range(5):
+            eng.history.append(Bar(time=t, open=low, high=high, low=low, close=close, volume=1.0))
+            eng._spawn_extra_zones(eng.history.current, out)
+            t += MIN
+    zones = [z for z in eng.book.zones if z.source is ZoneSource.FVG]
+    assert eng.fvg_zones_created == 0, "FVG je vypnute, obycajna medzera zonu nerobi"
+    assert len(zones) == 1 and zones[0].variant == "IFVG5m"
+    assert zones[0].direction is Direction.SHORT
+
+
+def test_len_fvg_bez_sd_zon_je_platny_config():
+    IBSEntryZoneConfig(enableZoneDetection=False, enableFvgTrading=True)
+    with pytest.raises(Exception):
+        IBSEntryZoneConfig(enableZoneDetection=False, enableFvgTrading=False, enableIfvgTrading=False)

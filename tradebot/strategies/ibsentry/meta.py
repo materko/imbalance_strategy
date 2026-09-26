@@ -12,7 +12,7 @@ __all__ = ["FEATURES", "INERT_INPUTS", "KIND_TITLES", "LAYERS", "PARAM_NOTES"]
 
 #: Prepínače, ktoré zapínajú ďalšie polia — formulár podľa toho polia zašedne.
 FEATURES = list(IBS_FEATURES) + [
-    {"switches": ["enableFvgTrading"],
+    {"switches": ["enableFvgTrading", "enableIfvgTrading"],
      "params": ["fvgUse5m", "fvgUse15m", "fvgUse30m", "fvgUse60m", "fvgMinSize"]},
 ]
 

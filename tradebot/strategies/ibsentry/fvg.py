@@ -17,7 +17,10 @@ from dataclasses import dataclass
 
 from tradebot.core.types import Bar
 
-__all__ = ["FVG_TIMEFRAMES", "FvgHit", "TimeframeAggregator", "FvgDetector"]
+__all__ = ["FVG_TIMEFRAMES", "FvgHit", "TimeframeAggregator", "FvgDetector", "MAX_OPEN_GAPS"]
+
+#: Koľko neprerazených medzier na TF sa sleduje kvôli inverzii — strop proti rastu pamäte.
+MAX_OPEN_GAPS = 200
 
 #: TF, z ktorých sa čítajú veľké imbalance — pole configu -> minúty.
 FVG_TIMEFRAMES: tuple[tuple[str, int], ...] = (
@@ -73,18 +76,31 @@ class TimeframeAggregator:
 
 
 class FvgDetector:
-    """Na každom bare grafu povie, ktoré nové FVG sa na zapnutých TF práve uzavreli."""
+    """Na každom bare grafu povie, ktoré nové FVG sa na zapnutých TF práve uzavreli.
+
+    Popri tom sleduje doteraz neprerazené medzery a do `inverted` dá tie, ktoré práve
+    prerazila uzavretá sviečka toho istého TF — inverzné FVG (IFVG). Bullish FVG
+    zatvorený pod spodkom sa mení na ponuku (SHORT), bearish zatvorený nad vrchom na
+    dopyt (LONG); rozsah zóny ostáva rozsahom pôvodnej medzery. Každá medzera sa
+    invertuje najviac raz a po `max_age_ms` sa prestane sledovať.
+    """
 
     def __init__(self, tf_minutes: tuple[int, ...]) -> None:
         self._aggs = {m: TimeframeAggregator(m) for m in tf_minutes}
         self._recent: dict[int, list[Bar]] = {m: [] for m in tf_minutes}
+        #: neprerazené medzery na TF: (medzera, čas vzniku v ms)
+        self._open: dict[int, list[tuple[FvgHit, int]]] = {m: [] for m in tf_minutes}
+        #: IFVG nájdené pri poslednom `on_bar` (smer už otočený)
+        self.inverted: list[FvgHit] = []
 
-    def on_bar(self, bar: Bar, min_size: float) -> list[FvgHit]:
+    def on_bar(self, bar: Bar, min_size: float, max_age_ms: int | None = None) -> list[FvgHit]:
         found: list[FvgHit] = []
+        self.inverted = []
         for minutes, agg in self._aggs.items():
             closed = agg.push(bar)
             if closed is None:
                 continue
+            self._check_inversions(minutes, closed, bar.time, max_age_ms)
             recent = self._recent[minutes]
             recent.append(closed)
             if len(recent) > 3:
@@ -93,7 +109,25 @@ class FvgDetector:
                 hit = self._detect(recent, minutes, min_size)
                 if hit is not None:
                     found.append(hit)
+                    gaps = self._open[minutes]
+                    gaps.append((hit, bar.time))
+                    if len(gaps) > MAX_OPEN_GAPS:
+                        del gaps[:-MAX_OPEN_GAPS]
         return found
+
+    def _check_inversions(self, minutes: int, closed: Bar, now_ms: int, max_age_ms: int | None) -> None:
+        """Uzavretá sviečka TF prerazila zatvorením niektorú zo sledovaných medzier?"""
+        keep: list[tuple[FvgHit, int]] = []
+        for hit, born in self._open[minutes]:
+            if max_age_ms is not None and now_ms - born > max_age_ms:
+                continue
+            if hit.direction == 1 and closed.close < hit.bot:
+                self.inverted.append(FvgHit(hit.top, hit.bot, -1, minutes))
+            elif hit.direction == -1 and closed.close > hit.top:
+                self.inverted.append(FvgHit(hit.top, hit.bot, 1, minutes))
+            else:
+                keep.append((hit, born))
+        self._open[minutes] = keep
 
     @staticmethod
     def _detect(trio: list[Bar], minutes: int, min_size: float) -> FvgHit | None:

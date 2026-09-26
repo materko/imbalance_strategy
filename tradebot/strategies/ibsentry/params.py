@@ -22,6 +22,13 @@ PARAMS: dict[str, dict[str, Any]] = {
                 "imbalance / pin bar / engulfing entry). Je to presne ten isty mechanizmus, "
                 "akym sa obchoduju zony zo S/R urovni a z likvidity.",
     ),
+    "enableIfvgTrading": dict(group=FVG_GROUP, title="Obchodovať inverzné FVG (IFVG)",
+        tooltip="Imbalance, ktory cena prerazi zatvorenim sviecky toho isteho TF, sa otoci: "
+                "bullish FVG zatvoreny pod spodkom je ponuka (SHORT zona), bearish zatvoreny "
+                "nad vrchom je dopyt (LONG zona). Rozsah zony je rozsah povodnej medzery. "
+                "Plati pre nu rovnaky model ako pre kazdu inu zonu. Da sa zapnut aj bez FVG "
+                "a bez SD zon - vtedy strategia obchoduje len IFVG.",
+    ),
     "fvgUse5m": dict(group=FVG_GROUP, title="Brať z 5m", inline="fvgtf",
         tooltip="Hladat velke imbalance na 5-minutovom TF. Vyssi TF = menej, ale vyznamnejsich zon.",
     ),
