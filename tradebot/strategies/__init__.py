@@ -21,6 +21,7 @@ from .orbnet import SPEC as ORBNET_SPEC
 from .range import SPEC as RANGE_SPEC
 from .sdzone import SPEC as SDZONE_SPEC
 from .structure import SPEC as STRUCTURE_SPEC
+from .trendlines import SPEC as TRENDLINES_SPEC
 
 STRATEGIES: dict[str, StrategySpec] = {
     IBS_SPEC.key: IBS_SPEC,
@@ -37,6 +38,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     SDZONE_SPEC.key: SDZONE_SPEC,
     BREAKOUT_SPEC.key: BREAKOUT_SPEC,
     DIVERGENCE_SPEC.key: DIVERGENCE_SPEC,
+    TRENDLINES_SPEC.key: TRENDLINES_SPEC,
 }
 
 #: Staré kľúče -> dnešné. História behov, profily a odkazy z minulosti sa nemenia na disku;
@@ -44,6 +46,7 @@ STRATEGIES: dict[str, StrategySpec] = {
 ALIASES: dict[str, str] = {
     "ibsninja": IBSNET_SPEC.key,    # IBSNinja -> IBSNet (25. 9. 2026: .NET jadro nie je len pre NinjaTrader)
     "orbninja": ORBNET_SPEC.key,    # ORBNinja -> ORBNet
+    "trendline": TRENDLINES_SPEC.key,  # prvé skúšobné behy 26. 9. 2026 pred premenovaním na Trendlines
 }
 
 __all__ = ["ALIASES", "STRATEGIES", "StrategySpec", "canonical_key", "get_spec", "spec_for_config"]

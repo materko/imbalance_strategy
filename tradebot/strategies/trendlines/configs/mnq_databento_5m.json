@@ -1,0 +1,13 @@
+{
+  "_title": "MNQ futures 5m — trendovky z 15m, prerazenie zatvorením, RR 1,5",
+  "_strategy": "trendlines",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Vychodiskovy profil Trendline Breakout (2026-09-26): defaulty configu na MNQ 5m.",
+    "Trendovky cez pivoty (5 barov z kazdej strany) na 15m, klasicke (klesajuci odpor / rastuca podpora),",
+    "vstup na zavreti za ciarou s bufferom 0,1 ATR, stop za ciaru + 0,2 ATR, ciel 1,5R, riziko 100 $.",
+    "Nie je to obchodne odporucanie - je to vychodisko na dalsie ladenie."
+  ],
+  "tickDollarValue": 0.5
+}

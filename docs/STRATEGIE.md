@@ -31,6 +31,7 @@ poradí, čo si smie stratégia určiť sama a kedy je hotová.
 | `range` | Range Breakout | 42 | konsolidácia kdekoľvek na grafe a jej prerazenie; [ANALYTIKA](../tradebot/strategies/range/docs/ANALYTIKA.md) |
 | `sdzone` | SD Zones | 44 | dopyt/ponuka zo základne a impulzu (Skorupinski); [ANALYTIKA](../tradebot/strategies/sdzone/docs/ANALYTIKA.md) |
 | `breakout` | Breakout — prerazenie prvej sviečky NY openu | 32 | najmenšia z ostrých: dve úrovne z prvej 5m sviečky 9:30 NY, vstup na 1m/2m/3m grafe market alebo limitkou; [ANALYTIKA](../tradebot/strategies/breakout/docs/ANALYTIKA.md) |
+| `trendlines` | Trendlines — prerazenie trendovky | 46 | klasické trendovky cez pivoty na vlastnom TF (5m–4h), prerazenie zatvorením, druhým zatvorením alebo retestom; RR a smer nastaviteľné |
 
 `demo_breakout` je zámerne malá a zámerne **úplná**: má všetko, čo tento návod vyžaduje,
 takže sa dá kopírovať riadok po riadku. Keď si vyberáš vzor, ber ju — IBS je port
