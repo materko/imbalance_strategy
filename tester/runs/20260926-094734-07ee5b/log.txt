@@ -1,0 +1,10 @@
+$ emulator MultiCharts MNQ 3m 20250904-20260904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: ADX/DMI 14/14 @60m 111/111
+emulacia MultiCharts: 118140 barov 3m, 354420 1m, 23628 HTF
+  20000/118140 barov, 44 obchodov
+  40000/118140 barov, 132 obchodov
+  60000/118140 barov, 233 obchodov
+  80000/118140 barov, 308 obchodov
+  100000/118140 barov, 430 obchodov
+hotovo: 531 obchodov, nerozhodnutelnych minut 1
+kresby: {'session': 1536, 'imb_box': 16982, 'sd_zone_pre': 27008, 'sd_zone_post': 27008, 'adx_state': 5910, 'swing': 14237, 'structure': 11166, 'skip': 1862, 'tp_box': 533, 'sl_box': 533, 'expired': 2}

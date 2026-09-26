@@ -1,0 +1,802 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20260926-060138-edee",
+ "strategy": "ibsentry",
+ "created": "2026-09-26T06:01:38+00:00",
+ "user": "IBS",
+ "base": {
+  "params": {
+   "enableImbEntry": true,
+   "enablePinBarEntry": true,
+   "enableEngulfingEntry": false,
+   "pbWickToBodyRatio": 8,
+   "pbBodyPositionPct": 20.0,
+   "pbMinRangePoints": 4.0,
+   "engMinRangePoints": 6.0,
+   "engSizeAvgLen": 10,
+   "engSizeMultiplier": 2.0,
+   "engTouchWindowBars": 3,
+   "pbEngOrderType": "Market",
+   "enableTrailing": false,
+   "trailActivationR": 1.0,
+   "trailOffsetR": 0.5,
+   "weekdaysOnly": false,
+   "enableTrading": true,
+   "enableZoneDetection": true,
+   "enableGapDetection": true,
+   "enableSrTrading": false,
+   "enableLqTrading": false,
+   "closeAtSessionEnd": false,
+   "sess1On": true,
+   "sess1TZ": "America/New_York",
+   "sess1ZoneStartH": 0,
+   "sess1ZoneStartM": 0,
+   "sess1ZoneEndH": 3,
+   "sess1ZoneEndM": 0,
+   "sess1TradeStartH": 0,
+   "sess1TradeStartM": 0,
+   "sess1TradeEndH": 3,
+   "sess1TradeEndM": 0,
+   "sess2On": true,
+   "sess2TZ": "America/New_York",
+   "sess2ZoneStartH": 18,
+   "sess2ZoneStartM": 0,
+   "sess2ZoneEndH": 17,
+   "sess2ZoneEndM": 0,
+   "sess2TradeStartH": 9,
+   "sess2TradeStartM": 30,
+   "sess2TradeEndH": 16,
+   "sess2TradeEndM": 0,
+   "sess3On": true,
+   "sess3TZ": "America/New_York",
+   "sess3ZoneStartH": 14,
+   "sess3ZoneStartM": 0,
+   "sess3ZoneEndH": 16,
+   "sess3ZoneEndM": 0,
+   "sess3TradeStartH": 14,
+   "sess3TradeStartM": 0,
+   "sess3TradeEndH": 19,
+   "sess3TradeEndM": 45,
+   "zoneDetectionTF": "3",
+   "zoneValidHours": 3,
+   "maxSdZones": 400,
+   "snapMode": "Ceil",
+   "invalidateOnFill": true,
+   "useVolumeFilter": false,
+   "volumeFilterBlockTrading": true,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "showMarketStructure": true,
+   "structureSwingLen": 5,
+   "useStructureFilter": false,
+   "showSR": true,
+   "srSwingLen": 10,
+   "srClusterPoints": 15.0,
+   "srMinTouches": 2,
+   "srMaxLevels": 10,
+   "srLookbackDays": 5,
+   "srZoneSaturationPct": 30,
+   "showLiqSweep": true,
+   "liqSweepLen": 5,
+   "liqSweepMinWick": 10.0,
+   "liqSweepConfirmBars": 1,
+   "liqStrengthLen": 50,
+   "showElliott": false,
+   "ewSwingLen": 8,
+   "ewMinWavePoints": 20.0,
+   "ewShowLabels": true,
+   "ewShowProjection": true,
+   "ewProjExtendBars": 40,
+   "ewLineColor": "#334155",
+   "showImbalance": true,
+   "imbLookback": 5,
+   "imbMaxDistTicks": 40.0,
+   "minImbSizePoints": 8.0,
+   "state1MaxBars": 1,
+   "state2MaxBars": 10,
+   "state2ConfirmTicks": 6.0,
+   "state3MaxBars": 2,
+   "state4MaxBars": 10,
+   "state5MaxBars": 5,
+   "rrRatio": 0.5,
+   "slLookback": 10,
+   "slBufferTicks": 0.0,
+   "maxLossDollar": 1000,
+   "maxDailyWins": 9,
+   "tradeDirection": "Indicator",
+   "indSupertrend": false,
+   "stTimeframe": "240",
+   "stAtrPeriod": 14,
+   "stSource": "hl2",
+   "stMultiplier": 5,
+   "stChangeAtr": true,
+   "stShowSignals": true,
+   "stHighlighting": true,
+   "indAdx": true,
+   "adxTimeframe": "60",
+   "adxDiLength": 14,
+   "adxSmoothing": 5,
+   "adxThreshold": 20,
+   "adxShowState": true,
+   "ruleStUp": "Long only",
+   "ruleStDown": "Short only",
+   "ruleAdxUp": "Long only",
+   "ruleAdxDown": "Both",
+   "ruleAdxSide": "Both",
+   "ruleStUpAdxUp": "Long only",
+   "ruleStUpAdxSide": "No trade",
+   "ruleStUpAdxDown": "No trade",
+   "ruleStDownAdxUp": "No trade",
+   "ruleStDownAdxSide": "No trade",
+   "ruleStDownAdxDown": "Short only",
+   "tickDollarValue": 0.5,
+   "legacyPineSizing": false,
+   "atrLen": 14,
+   "minSlDistance": 0.1,
+   "leverage": 1.0,
+   "enableFvgTrading": true,
+   "fvgUse5m": true,
+   "fvgUse15m": false,
+   "fvgUse30m": false,
+   "fvgUse60m": false,
+   "fvgMinSize": 2.0
+  },
+  "settings": {
+   "strategy": "ibsentry",
+   "exchange": null,
+   "pair": "MNQ/USD",
+   "engine": "multicharts",
+   "timeframe": "3m",
+   "timerange": "20250904-20260904",
+   "fee": 0.0,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 10000.0,
+   "timeframe_detail": "1m",
+   "profile": "tester/profiles/NOCNE2_B_stabilny_entry.json",
+   "instrument": "mnq_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20260926-060138-ed1762",
+   "status": "done",
+   "created": "2026-09-26T06:01:38+00:00",
+   "started": "2026-09-26T06:01:38+00:00",
+   "finished": "2026-09-26T06:01:50+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-060138-edee: fvgMinSize=2 — IBS Entry Zone: FVG len z 5m + SD zony, velkost 2-30 b.",
+   "tag": {
+    "values": {
+     "fvgMinSize": 2
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 8
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 369,
+    "wins": 278,
+    "losses": 91,
+    "draws": 0,
+    "winrate": 75.34,
+    "pnl_abs": 48200.5,
+    "pnl_pct": 482.005,
+    "profit_factor": 1.56,
+    "max_drawdown_abs": 7178.5,
+    "max_drawdown_pct": 21.508,
+    "starting_balance": 10000.0,
+    "final_balance": 58200.5,
+    "gross_abs": 48200.5,
+    "volume_abs": 401451604.0,
+    "break_even_pct": 0.012,
+    "exits": {
+     "take_profit": {
+      "n": 278,
+      "pnl_abs": 134233.0
+     },
+     "stop_loss": {
+      "n": 91,
+      "pnl_abs": -86032.5
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 16,
+      "from_i": 345,
+      "to_i": 360,
+      "start": "2026-08-06T18:00:00+00:00",
+      "end": "2026-08-25T17:26:00+00:00",
+      "pnl_abs": 7647.5,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 166,
+      "to_i": 169,
+      "start": "2026-03-12T16:10:00+00:00",
+      "end": "2026-03-17T15:34:00+00:00",
+      "pnl_abs": -3632.0,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:30:00",
+    "bars": 118140,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 11.4
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-060151-4f0fdb",
+   "status": "done",
+   "created": "2026-09-26T06:01:51+00:00",
+   "started": "2026-09-26T06:01:51+00:00",
+   "finished": "2026-09-26T06:02:02+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-060138-edee: fvgMinSize=4 — IBS Entry Zone: FVG len z 5m + SD zony, velkost 2-30 b.",
+   "tag": {
+    "values": {
+     "fvgMinSize": 4
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 8
+   },
+   "params": {
+    "fvgMinSize": 4.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 364,
+    "wins": 275,
+    "losses": 89,
+    "draws": 0,
+    "winrate": 75.55,
+    "pnl_abs": 48721.25,
+    "pnl_pct": 487.212,
+    "profit_factor": 1.579,
+    "max_drawdown_abs": 7178.5,
+    "max_drawdown_pct": 21.483,
+    "starting_balance": 10000.0,
+    "final_balance": 58721.25,
+    "gross_abs": 48721.25,
+    "volume_abs": 395084532.25,
+    "break_even_pct": 0.0123,
+    "exits": {
+     "take_profit": {
+      "n": 275,
+      "pnl_abs": 132813.25
+     },
+     "stop_loss": {
+      "n": 89,
+      "pnl_abs": -84092.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 16,
+      "from_i": 340,
+      "to_i": 355,
+      "start": "2026-08-06T18:00:00+00:00",
+      "end": "2026-08-25T17:26:00+00:00",
+      "pnl_abs": 7647.5,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 163,
+      "to_i": 166,
+      "start": "2026-03-12T16:10:00+00:00",
+      "end": "2026-03-17T15:34:00+00:00",
+      "pnl_abs": -3632.0,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:31:00",
+    "bars": 118140,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 11.3
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-060203-23becc",
+   "status": "done",
+   "created": "2026-09-26T06:02:03+00:00",
+   "started": "2026-09-26T06:02:03+00:00",
+   "finished": "2026-09-26T06:02:15+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-060138-edee: fvgMinSize=6 — IBS Entry Zone: FVG len z 5m + SD zony, velkost 2-30 b.",
+   "tag": {
+    "values": {
+     "fvgMinSize": 6
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 8
+   },
+   "params": {
+    "fvgMinSize": 6.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 356,
+    "wins": 270,
+    "losses": 86,
+    "draws": 0,
+    "winrate": 75.84,
+    "pnl_abs": 49251.25,
+    "pnl_pct": 492.513,
+    "profit_factor": 1.606,
+    "max_drawdown_abs": 8086.5,
+    "max_drawdown_pct": 22.919,
+    "starting_balance": 10000.0,
+    "final_balance": 59251.25,
+    "gross_abs": 49251.25,
+    "volume_abs": 385758640.25,
+    "break_even_pct": 0.0128,
+    "exits": {
+     "take_profit": {
+      "n": 270,
+      "pnl_abs": 130460.25
+     },
+     "stop_loss": {
+      "n": 86,
+      "pnl_abs": -81209.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 16,
+      "from_i": 60,
+      "to_i": 75,
+      "start": "2025-11-19T18:24:00+00:00",
+      "end": "2025-12-11T16:48:00+00:00",
+      "pnl_abs": 8800.25,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 159,
+      "to_i": 162,
+      "start": "2026-03-12T16:10:00+00:00",
+      "end": "2026-03-17T15:34:00+00:00",
+      "pnl_abs": -3632.0,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:31:00",
+    "bars": 118140,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 11.3
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-060216-365451",
+   "status": "done",
+   "created": "2026-09-26T06:02:16+00:00",
+   "started": "2026-09-26T06:02:16+00:00",
+   "finished": "2026-09-26T06:02:27+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-060138-edee: fvgMinSize=8 — IBS Entry Zone: FVG len z 5m + SD zony, velkost 2-30 b.",
+   "tag": {
+    "values": {
+     "fvgMinSize": 8
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 8
+   },
+   "params": {
+    "fvgMinSize": 8.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 351,
+    "wins": 267,
+    "losses": 84,
+    "draws": 0,
+    "winrate": 76.07,
+    "pnl_abs": 49740.75,
+    "pnl_pct": 497.408,
+    "profit_factor": 1.627,
+    "max_drawdown_abs": 8086.5,
+    "max_drawdown_pct": 22.919,
+    "starting_balance": 10000.0,
+    "final_balance": 59740.75,
+    "gross_abs": 49740.75,
+    "volume_abs": 379828947.75,
+    "break_even_pct": 0.0131,
+    "exits": {
+     "take_profit": {
+      "n": 267,
+      "pnl_abs": 129041.75
+     },
+     "stop_loss": {
+      "n": 84,
+      "pnl_abs": -79301.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 15,
+      "from_i": 59,
+      "to_i": 73,
+      "start": "2025-11-19T18:24:00+00:00",
+      "end": "2025-12-11T16:48:00+00:00",
+      "pnl_abs": 8345.25,
+      "count": 2
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 156,
+      "to_i": 159,
+      "start": "2026-03-12T16:10:00+00:00",
+      "end": "2026-03-17T15:34:00+00:00",
+      "pnl_abs": -3632.0,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:31:00",
+    "bars": 118140,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 10.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-060228-2b4e62",
+   "status": "done",
+   "created": "2026-09-26T06:02:28+00:00",
+   "started": "2026-09-26T06:02:28+00:00",
+   "finished": "2026-09-26T06:02:39+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-060138-edee: fvgMinSize=10 — IBS Entry Zone: FVG len z 5m + SD zony, velkost 2-30 b.",
+   "tag": {
+    "values": {
+     "fvgMinSize": 10
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 8
+   },
+   "params": {
+    "fvgMinSize": 10.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 346,
+    "wins": 262,
+    "losses": 84,
+    "draws": 0,
+    "winrate": 75.72,
+    "pnl_abs": 47373.0,
+    "pnl_pct": 473.73,
+    "profit_factor": 1.597,
+    "max_drawdown_abs": 8565.0,
+    "max_drawdown_pct": 24.954,
+    "starting_balance": 10000.0,
+    "final_balance": 57373.0,
+    "gross_abs": 47373.0,
+    "volume_abs": 374003657.5,
+    "break_even_pct": 0.0127,
+    "exits": {
+     "take_profit": {
+      "n": 262,
+      "pnl_abs": 126674.0
+     },
+     "stop_loss": {
+      "n": 84,
+      "pnl_abs": -79301.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 15,
+      "from_i": 323,
+      "to_i": 337,
+      "start": "2026-08-06T18:00:00+00:00",
+      "end": "2026-08-25T17:26:00+00:00",
+      "pnl_abs": 7171.5,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 144,
+      "to_i": 147,
+      "start": "2026-03-05T14:46:00+00:00",
+      "end": "2026-03-06T19:22:00+00:00",
+      "pnl_abs": -3908.0,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:32:00",
+    "bars": 118140,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 11.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-060241-ef4a5b",
+   "status": "done",
+   "created": "2026-09-26T06:02:41+00:00",
+   "started": "2026-09-26T06:02:41+00:00",
+   "finished": "2026-09-26T06:02:52+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-060138-edee: fvgMinSize=15 — IBS Entry Zone: FVG len z 5m + SD zony, velkost 2-30 b.",
+   "tag": {
+    "values": {
+     "fvgMinSize": 15
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 8
+   },
+   "params": {
+    "fvgMinSize": 15.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 330,
+    "wins": 254,
+    "losses": 76,
+    "draws": 0,
+    "winrate": 76.97,
+    "pnl_abs": 51445.25,
+    "pnl_pct": 514.452,
+    "profit_factor": 1.72,
+    "max_drawdown_abs": 8565.0,
+    "max_drawdown_pct": 21.847,
+    "starting_balance": 10000.0,
+    "final_balance": 61445.25,
+    "gross_abs": 51445.25,
+    "volume_abs": 354460310.25,
+    "break_even_pct": 0.0145,
+    "exits": {
+     "take_profit": {
+      "n": 254,
+      "pnl_abs": 122904.25
+     },
+     "stop_loss": {
+      "n": 76,
+      "pnl_abs": -71459.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 14,
+      "from_i": 55,
+      "to_i": 68,
+      "start": "2025-11-19T18:24:00+00:00",
+      "end": "2025-12-11T16:00:00+00:00",
+      "pnl_abs": 7875.0,
+      "count": 3
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 139,
+      "to_i": 142,
+      "start": "2026-03-05T14:46:00+00:00",
+      "end": "2026-03-06T19:22:00+00:00",
+      "pnl_abs": -3908.0,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:32:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 11.0
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-060253-4ba34b",
+   "status": "done",
+   "created": "2026-09-26T06:02:53+00:00",
+   "started": "2026-09-26T06:02:53+00:00",
+   "finished": "2026-09-26T06:03:04+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-060138-edee: fvgMinSize=20 — IBS Entry Zone: FVG len z 5m + SD zony, velkost 2-30 b.",
+   "tag": {
+    "values": {
+     "fvgMinSize": 20
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 8
+   },
+   "params": {
+    "fvgMinSize": 20.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 321,
+    "wins": 249,
+    "losses": 72,
+    "draws": 0,
+    "winrate": 77.57,
+    "pnl_abs": 52964.0,
+    "pnl_pct": 529.64,
+    "profit_factor": 1.784,
+    "max_drawdown_abs": 8079.75,
+    "max_drawdown_pct": 19.385,
+    "starting_balance": 10000.0,
+    "final_balance": 62964.0,
+    "gross_abs": 52964.0,
+    "volume_abs": 342884103.5,
+    "break_even_pct": 0.0154,
+    "exits": {
+     "take_profit": {
+      "n": 249,
+      "pnl_abs": 120496.0
+     },
+     "stop_loss": {
+      "n": 72,
+      "pnl_abs": -67532.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 14,
+      "from_i": 53,
+      "to_i": 66,
+      "start": "2025-11-19T18:24:00+00:00",
+      "end": "2025-12-11T16:00:00+00:00",
+      "pnl_abs": 7875.0,
+      "count": 2
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 134,
+      "to_i": 137,
+      "start": "2026-03-05T14:46:00+00:00",
+      "end": "2026-03-06T19:22:00+00:00",
+      "pnl_abs": -3908.0,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:32:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 11.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-060306-5da16b",
+   "status": "done",
+   "created": "2026-09-26T06:03:06+00:00",
+   "started": "2026-09-26T06:03:06+00:00",
+   "finished": "2026-09-26T06:03:17+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-060138-edee: fvgMinSize=30 — IBS Entry Zone: FVG len z 5m + SD zony, velkost 2-30 b.",
+   "tag": {
+    "values": {
+     "fvgMinSize": 30
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 8
+   },
+   "params": {
+    "fvgMinSize": 30.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 293,
+    "wins": 233,
+    "losses": 60,
+    "draws": 0,
+    "winrate": 79.52,
+    "pnl_abs": 56561.0,
+    "pnl_pct": 565.61,
+    "profit_factor": 2.002,
+    "max_drawdown_abs": 6729.5,
+    "max_drawdown_pct": 15.982,
+    "starting_balance": 10000.0,
+    "final_balance": 66561.0,
+    "gross_abs": 56561.0,
+    "volume_abs": 313218888.0,
+    "break_even_pct": 0.0181,
+    "exits": {
+     "take_profit": {
+      "n": 233,
+      "pnl_abs": 113009.0
+     },
+     "stop_loss": {
+      "n": 60,
+      "pnl_abs": -56448.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 13,
+      "from_i": 23,
+      "to_i": 35,
+      "start": "2025-10-30T20:33:00+00:00",
+      "end": "2025-11-11T14:49:00+00:00",
+      "pnl_abs": 6291.5,
+      "count": 4
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 122,
+      "to_i": 125,
+      "start": "2026-03-05T14:46:00+00:00",
+      "end": "2026-03-06T19:22:00+00:00",
+      "pnl_abs": -3908.0,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:34:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 10.8
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-09-26T06:03:17+00:00"
+}

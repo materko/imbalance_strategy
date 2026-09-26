@@ -1,0 +1,1042 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20260926-055903-de3a",
+ "strategy": "ibsentry",
+ "created": "2026-09-26T05:59:03+00:00",
+ "user": "IBS",
+ "base": {
+  "params": {
+   "enableImbEntry": true,
+   "enablePinBarEntry": true,
+   "enableEngulfingEntry": false,
+   "pbWickToBodyRatio": 8,
+   "pbBodyPositionPct": 20.0,
+   "pbMinRangePoints": 4.0,
+   "engMinRangePoints": 6.0,
+   "engSizeAvgLen": 10,
+   "engSizeMultiplier": 2.0,
+   "engTouchWindowBars": 3,
+   "pbEngOrderType": "Market",
+   "enableTrailing": false,
+   "trailActivationR": 1.0,
+   "trailOffsetR": 0.5,
+   "weekdaysOnly": false,
+   "enableTrading": true,
+   "enableZoneDetection": true,
+   "enableGapDetection": true,
+   "enableSrTrading": false,
+   "enableLqTrading": false,
+   "closeAtSessionEnd": false,
+   "sess1On": true,
+   "sess1TZ": "America/New_York",
+   "sess1ZoneStartH": 0,
+   "sess1ZoneStartM": 0,
+   "sess1ZoneEndH": 3,
+   "sess1ZoneEndM": 0,
+   "sess1TradeStartH": 0,
+   "sess1TradeStartM": 0,
+   "sess1TradeEndH": 3,
+   "sess1TradeEndM": 0,
+   "sess2On": true,
+   "sess2TZ": "America/New_York",
+   "sess2ZoneStartH": 18,
+   "sess2ZoneStartM": 0,
+   "sess2ZoneEndH": 17,
+   "sess2ZoneEndM": 0,
+   "sess2TradeStartH": 9,
+   "sess2TradeStartM": 30,
+   "sess2TradeEndH": 16,
+   "sess2TradeEndM": 0,
+   "sess3On": true,
+   "sess3TZ": "America/New_York",
+   "sess3ZoneStartH": 14,
+   "sess3ZoneStartM": 0,
+   "sess3ZoneEndH": 16,
+   "sess3ZoneEndM": 0,
+   "sess3TradeStartH": 14,
+   "sess3TradeStartM": 0,
+   "sess3TradeEndH": 19,
+   "sess3TradeEndM": 45,
+   "zoneDetectionTF": "3",
+   "zoneValidHours": 3,
+   "maxSdZones": 400,
+   "snapMode": "Ceil",
+   "invalidateOnFill": true,
+   "useVolumeFilter": false,
+   "volumeFilterBlockTrading": true,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "showMarketStructure": true,
+   "structureSwingLen": 5,
+   "useStructureFilter": false,
+   "showSR": true,
+   "srSwingLen": 10,
+   "srClusterPoints": 15.0,
+   "srMinTouches": 2,
+   "srMaxLevels": 10,
+   "srLookbackDays": 5,
+   "srZoneSaturationPct": 30,
+   "showLiqSweep": true,
+   "liqSweepLen": 5,
+   "liqSweepMinWick": 10.0,
+   "liqSweepConfirmBars": 1,
+   "liqStrengthLen": 50,
+   "showElliott": false,
+   "ewSwingLen": 8,
+   "ewMinWavePoints": 20.0,
+   "ewShowLabels": true,
+   "ewShowProjection": true,
+   "ewProjExtendBars": 40,
+   "ewLineColor": "#334155",
+   "showImbalance": true,
+   "imbLookback": 5,
+   "imbMaxDistTicks": 40.0,
+   "minImbSizePoints": 8.0,
+   "state1MaxBars": 1,
+   "state2MaxBars": 10,
+   "state2ConfirmTicks": 6.0,
+   "state3MaxBars": 2,
+   "state4MaxBars": 10,
+   "state5MaxBars": 5,
+   "rrRatio": 0.5,
+   "slLookback": 10,
+   "slBufferTicks": 0.0,
+   "maxLossDollar": 1000,
+   "maxDailyWins": 9,
+   "tradeDirection": "Indicator",
+   "indSupertrend": false,
+   "stTimeframe": "240",
+   "stAtrPeriod": 14,
+   "stSource": "hl2",
+   "stMultiplier": 5,
+   "stChangeAtr": true,
+   "stShowSignals": true,
+   "stHighlighting": true,
+   "indAdx": true,
+   "adxTimeframe": "60",
+   "adxDiLength": 14,
+   "adxSmoothing": 5,
+   "adxThreshold": 20,
+   "adxShowState": true,
+   "ruleStUp": "Long only",
+   "ruleStDown": "Short only",
+   "ruleAdxUp": "Long only",
+   "ruleAdxDown": "Both",
+   "ruleAdxSide": "Both",
+   "ruleStUpAdxUp": "Long only",
+   "ruleStUpAdxSide": "No trade",
+   "ruleStUpAdxDown": "No trade",
+   "ruleStDownAdxUp": "No trade",
+   "ruleStDownAdxSide": "No trade",
+   "ruleStDownAdxDown": "Short only",
+   "tickDollarValue": 0.5,
+   "legacyPineSizing": false,
+   "atrLen": 14,
+   "minSlDistance": 0.1,
+   "leverage": 1.0,
+   "enableFvgTrading": true,
+   "fvgUse5m": true,
+   "fvgUse15m": true,
+   "fvgUse30m": true,
+   "fvgUse60m": true,
+   "fvgMinSize": 2.0
+  },
+  "settings": {
+   "strategy": "ibsentry",
+   "exchange": null,
+   "pair": "MNQ/USD",
+   "engine": "multicharts",
+   "timeframe": "3m",
+   "timerange": "20250904-20260904",
+   "fee": 0.0,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 10000.0,
+   "timeframe_detail": "1m",
+   "profile": "tester/profiles/NOCNE2_B_stabilny_entry.json",
+   "instrument": "mnq_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20260926-055903-a1a7a1",
+   "status": "done",
+   "created": "2026-09-26T05:59:03+00:00",
+   "started": "2026-09-26T05:59:03+00:00",
+   "finished": "2026-09-26T05:59:15+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-055903-de3a: fvgMinSize=2 — IBS Entry Zone: FVG min. velkost 2-40 b., vsetky 4 TF (profil NOCNE2_B)",
+   "tag": {
+    "values": {
+     "fvgMinSize": 2
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 11
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 416,
+    "wins": 314,
+    "losses": 102,
+    "draws": 0,
+    "winrate": 75.48,
+    "pnl_abs": 54816.0,
+    "pnl_pct": 548.16,
+    "profit_factor": 1.568,
+    "max_drawdown_abs": 5703.5,
+    "max_drawdown_pct": 16.149,
+    "starting_balance": 10000.0,
+    "final_balance": 64816.0,
+    "gross_abs": 54816.0,
+    "volume_abs": 445263057.0,
+    "break_even_pct": 0.0123,
+    "exits": {
+     "take_profit": {
+      "n": 314,
+      "pnl_abs": 151279.5
+     },
+     "stop_loss": {
+      "n": 102,
+      "pnl_abs": -96463.5
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 13,
+      "from_i": 95,
+      "to_i": 107,
+      "start": "2025-12-18T00:21:00+00:00",
+      "end": "2026-01-08T21:34:00+00:00",
+      "pnl_abs": 6259.75,
+      "count": 2
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 191,
+      "to_i": 194,
+      "start": "2026-03-12T16:10:00+00:00",
+      "end": "2026-03-17T15:34:00+00:00",
+      "pnl_abs": -3632.0,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:29:00",
+    "bars": 118140,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 12.2
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-055915-7c2ea6",
+   "status": "done",
+   "created": "2026-09-26T05:59:15+00:00",
+   "started": "2026-09-26T05:59:15+00:00",
+   "finished": "2026-09-26T05:59:27+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-055903-de3a: fvgMinSize=4 — IBS Entry Zone: FVG min. velkost 2-40 b., vsetky 4 TF (profil NOCNE2_B)",
+   "tag": {
+    "values": {
+     "fvgMinSize": 4
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 11
+   },
+   "params": {
+    "fvgMinSize": 4.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 413,
+    "wins": 312,
+    "losses": 101,
+    "draws": 0,
+    "winrate": 75.54,
+    "pnl_abs": 54820.0,
+    "pnl_pct": 548.2,
+    "profit_factor": 1.574,
+    "max_drawdown_abs": 5703.5,
+    "max_drawdown_pct": 15.923,
+    "starting_balance": 10000.0,
+    "final_balance": 64820.0,
+    "gross_abs": 54820.0,
+    "volume_abs": 441261558.0,
+    "break_even_pct": 0.0124,
+    "exits": {
+     "take_profit": {
+      "n": 312,
+      "pnl_abs": 150321.0
+     },
+     "stop_loss": {
+      "n": 101,
+      "pnl_abs": -95501.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 13,
+      "from_i": 94,
+      "to_i": 106,
+      "start": "2025-12-18T00:21:00+00:00",
+      "end": "2026-01-08T21:34:00+00:00",
+      "pnl_abs": 6259.75,
+      "count": 2
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 189,
+      "to_i": 192,
+      "start": "2026-03-12T16:10:00+00:00",
+      "end": "2026-03-17T15:34:00+00:00",
+      "pnl_abs": -3632.0,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:30:00",
+    "bars": 118140,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 12.1
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-055928-9a0685",
+   "status": "done",
+   "created": "2026-09-26T05:59:28+00:00",
+   "started": "2026-09-26T05:59:28+00:00",
+   "finished": "2026-09-26T05:59:39+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-055903-de3a: fvgMinSize=6 — IBS Entry Zone: FVG min. velkost 2-40 b., vsetky 4 TF (profil NOCNE2_B)",
+   "tag": {
+    "values": {
+     "fvgMinSize": 6
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 11
+   },
+   "params": {
+    "fvgMinSize": 6.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 409,
+    "wins": 311,
+    "losses": 98,
+    "draws": 0,
+    "winrate": 76.04,
+    "pnl_abs": 57227.0,
+    "pnl_pct": 572.27,
+    "profit_factor": 1.618,
+    "max_drawdown_abs": 5703.5,
+    "max_drawdown_pct": 15.115,
+    "starting_balance": 10000.0,
+    "final_balance": 67227.0,
+    "gross_abs": 57227.0,
+    "volume_abs": 436884314.0,
+    "break_even_pct": 0.0131,
+    "exits": {
+     "take_profit": {
+      "n": 311,
+      "pnl_abs": 149845.0
+     },
+     "stop_loss": {
+      "n": 98,
+      "pnl_abs": -92618.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 13,
+      "from_i": 93,
+      "to_i": 105,
+      "start": "2025-12-18T00:21:00+00:00",
+      "end": "2026-01-08T21:34:00+00:00",
+      "pnl_abs": 6259.75,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 187,
+      "to_i": 190,
+      "start": "2026-03-12T16:10:00+00:00",
+      "end": "2026-03-17T15:34:00+00:00",
+      "pnl_abs": -3632.0,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:30:00",
+    "bars": 118140,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 11.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-055940-ab56ff",
+   "status": "done",
+   "created": "2026-09-26T05:59:40+00:00",
+   "started": "2026-09-26T05:59:40+00:00",
+   "finished": "2026-09-26T05:59:52+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-055903-de3a: fvgMinSize=8 — IBS Entry Zone: FVG min. velkost 2-40 b., vsetky 4 TF (profil NOCNE2_B)",
+   "tag": {
+    "values": {
+     "fvgMinSize": 8
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 11
+   },
+   "params": {
+    "fvgMinSize": 8.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 405,
+    "wins": 308,
+    "losses": 97,
+    "draws": 0,
+    "winrate": 76.05,
+    "pnl_abs": 56744.5,
+    "pnl_pct": 567.445,
+    "profit_factor": 1.619,
+    "max_drawdown_abs": 5703.5,
+    "max_drawdown_pct": 15.115,
+    "starting_balance": 10000.0,
+    "final_balance": 66744.5,
+    "gross_abs": 56744.5,
+    "volume_abs": 431651803.5,
+    "break_even_pct": 0.0131,
+    "exits": {
+     "take_profit": {
+      "n": 308,
+      "pnl_abs": 148426.5
+     },
+     "stop_loss": {
+      "n": 97,
+      "pnl_abs": -91682.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 91,
+      "to_i": 102,
+      "start": "2025-12-18T00:21:00+00:00",
+      "end": "2026-01-08T17:41:00+00:00",
+      "pnl_abs": 5778.25,
+      "count": 2
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 184,
+      "to_i": 187,
+      "start": "2026-03-12T16:10:00+00:00",
+      "end": "2026-03-17T15:34:00+00:00",
+      "pnl_abs": -3632.0,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:30:00",
+    "bars": 118140,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 11.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-055953-98b87c",
+   "status": "done",
+   "created": "2026-09-26T05:59:53+00:00",
+   "started": "2026-09-26T05:59:53+00:00",
+   "finished": "2026-09-26T06:00:04+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-055903-de3a: fvgMinSize=10 — IBS Entry Zone: FVG min. velkost 2-40 b., vsetky 4 TF (profil NOCNE2_B)",
+   "tag": {
+    "values": {
+     "fvgMinSize": 10
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 11
+   },
+   "params": {
+    "fvgMinSize": 10.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 400,
+    "wins": 303,
+    "losses": 97,
+    "draws": 0,
+    "winrate": 75.75,
+    "pnl_abs": 54403.75,
+    "pnl_pct": 544.038,
+    "profit_factor": 1.593,
+    "max_drawdown_abs": 6182.0,
+    "max_drawdown_pct": 16.811,
+    "starting_balance": 10000.0,
+    "final_balance": 64403.75,
+    "gross_abs": 54403.75,
+    "volume_abs": 425187384.25,
+    "break_even_pct": 0.0128,
+    "exits": {
+     "take_profit": {
+      "n": 303,
+      "pnl_abs": 146085.75
+     },
+     "stop_loss": {
+      "n": 97,
+      "pnl_abs": -91682.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 12,
+      "from_i": 90,
+      "to_i": 101,
+      "start": "2025-12-18T00:21:00+00:00",
+      "end": "2026-01-08T17:41:00+00:00",
+      "pnl_abs": 5778.25,
+      "count": 2
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 181,
+      "to_i": 184,
+      "start": "2026-03-12T16:10:00+00:00",
+      "end": "2026-03-17T15:34:00+00:00",
+      "pnl_abs": -3632.0,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:30:00",
+    "bars": 118140,
+    "ambiguous_minutes": 1,
+    "engine": "multicharts-emulator",
+    "duration_s": 11.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-060005-af4c7d",
+   "status": "done",
+   "created": "2026-09-26T06:00:05+00:00",
+   "started": "2026-09-26T06:00:05+00:00",
+   "finished": "2026-09-26T06:00:18+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-055903-de3a: fvgMinSize=12 — IBS Entry Zone: FVG min. velkost 2-40 b., vsetky 4 TF (profil NOCNE2_B)",
+   "tag": {
+    "values": {
+     "fvgMinSize": 12
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 11
+   },
+   "params": {
+    "fvgMinSize": 12.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 390,
+    "wins": 298,
+    "losses": 92,
+    "draws": 0,
+    "winrate": 76.41,
+    "pnl_abs": 57006.0,
+    "pnl_pct": 570.06,
+    "profit_factor": 1.658,
+    "max_drawdown_abs": 6182.0,
+    "max_drawdown_pct": 15.763,
+    "starting_balance": 10000.0,
+    "final_balance": 67006.0,
+    "gross_abs": 57006.0,
+    "volume_abs": 411893985.5,
+    "break_even_pct": 0.0138,
+    "exits": {
+     "take_profit": {
+      "n": 298,
+      "pnl_abs": 143693.0
+     },
+     "stop_loss": {
+      "n": 92,
+      "pnl_abs": -86687.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 15,
+      "from_i": 65,
+      "to_i": 79,
+      "start": "2025-11-19T18:24:00+00:00",
+      "end": "2025-12-11T16:00:00+00:00",
+      "pnl_abs": 8328.75,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 177,
+      "to_i": 180,
+      "start": "2026-03-12T16:10:00+00:00",
+      "end": "2026-03-17T15:34:00+00:00",
+      "pnl_abs": -3632.0,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:31:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 12.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-060018-b45f34",
+   "status": "done",
+   "created": "2026-09-26T06:00:18+00:00",
+   "started": "2026-09-26T06:00:18+00:00",
+   "finished": "2026-09-26T06:00:30+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-055903-de3a: fvgMinSize=15 — IBS Entry Zone: FVG min. velkost 2-40 b., vsetky 4 TF (profil NOCNE2_B)",
+   "tag": {
+    "values": {
+     "fvgMinSize": 15
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 11
+   },
+   "params": {
+    "fvgMinSize": 15.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 385,
+    "wins": 296,
+    "losses": 89,
+    "draws": 0,
+    "winrate": 76.88,
+    "pnl_abs": 58750.25,
+    "pnl_pct": 587.502,
+    "profit_factor": 1.7,
+    "max_drawdown_abs": 6182.0,
+    "max_drawdown_pct": 15.248,
+    "starting_balance": 10000.0,
+    "final_balance": 68750.25,
+    "gross_abs": 58750.25,
+    "volume_abs": 407100563.75,
+    "break_even_pct": 0.0144,
+    "exits": {
+     "take_profit": {
+      "n": 296,
+      "pnl_abs": 142725.75
+     },
+     "stop_loss": {
+      "n": 89,
+      "pnl_abs": -83975.5
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 16,
+      "from_i": 109,
+      "to_i": 124,
+      "start": "2026-01-30T05:18:00+00:00",
+      "end": "2026-02-05T15:52:00+00:00",
+      "pnl_abs": 8543.75,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 174,
+      "to_i": 177,
+      "start": "2026-03-12T16:10:00+00:00",
+      "end": "2026-03-17T15:34:00+00:00",
+      "pnl_abs": -3632.0,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:31:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 11.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-060031-e2d815",
+   "status": "done",
+   "created": "2026-09-26T06:00:31+00:00",
+   "started": "2026-09-26T06:00:31+00:00",
+   "finished": "2026-09-26T06:00:42+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-055903-de3a: fvgMinSize=20 — IBS Entry Zone: FVG min. velkost 2-40 b., vsetky 4 TF (profil NOCNE2_B)",
+   "tag": {
+    "values": {
+     "fvgMinSize": 20
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 11
+   },
+   "params": {
+    "fvgMinSize": 20.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 373,
+    "wins": 287,
+    "losses": 86,
+    "draws": 0,
+    "winrate": 76.94,
+    "pnl_abs": 57394.5,
+    "pnl_pct": 573.945,
+    "profit_factor": 1.708,
+    "max_drawdown_abs": 6663.75,
+    "max_drawdown_pct": 16.401,
+    "starting_balance": 10000.0,
+    "final_balance": 67394.5,
+    "gross_abs": 57394.5,
+    "volume_abs": 392512922.5,
+    "break_even_pct": 0.0146,
+    "exits": {
+     "take_profit": {
+      "n": 287,
+      "pnl_abs": 138416.0
+     },
+     "stop_loss": {
+      "n": 86,
+      "pnl_abs": -81021.5
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 16,
+      "from_i": 105,
+      "to_i": 120,
+      "start": "2026-01-30T05:18:00+00:00",
+      "end": "2026-02-05T15:52:00+00:00",
+      "pnl_abs": 8543.75,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 164,
+      "to_i": 167,
+      "start": "2026-03-12T16:10:00+00:00",
+      "end": "2026-03-17T15:34:00+00:00",
+      "pnl_abs": -3632.0,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:31:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 11.9
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-060043-df2a23",
+   "status": "done",
+   "created": "2026-09-26T06:00:43+00:00",
+   "started": "2026-09-26T06:00:43+00:00",
+   "finished": "2026-09-26T06:00:54+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-055903-de3a: fvgMinSize=25 — IBS Entry Zone: FVG min. velkost 2-40 b., vsetky 4 TF (profil NOCNE2_B)",
+   "tag": {
+    "values": {
+     "fvgMinSize": 25
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 11
+   },
+   "params": {
+    "fvgMinSize": 25.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 358,
+    "wins": 282,
+    "losses": 76,
+    "draws": 0,
+    "winrate": 78.77,
+    "pnl_abs": 64514.5,
+    "pnl_pct": 645.145,
+    "profit_factor": 1.902,
+    "max_drawdown_abs": 5707.25,
+    "max_drawdown_pct": 12.99,
+    "starting_balance": 10000.0,
+    "final_balance": 74514.5,
+    "gross_abs": 64514.5,
+    "volume_abs": 373488138.5,
+    "break_even_pct": 0.0173,
+    "exits": {
+     "take_profit": {
+      "n": 282,
+      "pnl_abs": 136056.5
+     },
+     "stop_loss": {
+      "n": 76,
+      "pnl_abs": -71542.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 17,
+      "from_i": 334,
+      "to_i": 350,
+      "start": "2026-08-06T18:00:00+00:00",
+      "end": "2026-08-25T17:26:00+00:00",
+      "pnl_abs": 8084.0,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 158,
+      "to_i": 161,
+      "start": "2026-03-12T16:10:00+00:00",
+      "end": "2026-03-17T15:34:00+00:00",
+      "pnl_abs": -3632.0,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:32:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 11.5
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-060056-b55f05",
+   "status": "done",
+   "created": "2026-09-26T06:00:56+00:00",
+   "started": "2026-09-26T06:00:56+00:00",
+   "finished": "2026-09-26T06:01:07+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-055903-de3a: fvgMinSize=30 — IBS Entry Zone: FVG min. velkost 2-40 b., vsetky 4 TF (profil NOCNE2_B)",
+   "tag": {
+    "values": {
+     "fvgMinSize": 30
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 11
+   },
+   "params": {
+    "fvgMinSize": 30.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 337,
+    "wins": 268,
+    "losses": 69,
+    "draws": 0,
+    "winrate": 79.53,
+    "pnl_abs": 64549.0,
+    "pnl_pct": 645.49,
+    "profit_factor": 1.993,
+    "max_drawdown_abs": 4825.25,
+    "max_drawdown_pct": 11.345,
+    "starting_balance": 10000.0,
+    "final_balance": 74549.0,
+    "gross_abs": 64549.0,
+    "volume_abs": 352266663.0,
+    "break_even_pct": 0.0183,
+    "exits": {
+     "take_profit": {
+      "n": 268,
+      "pnl_abs": 129567.5
+     },
+     "stop_loss": {
+      "n": 69,
+      "pnl_abs": -65018.5
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 15,
+      "from_i": 69,
+      "to_i": 83,
+      "start": "2025-12-12T17:50:00+00:00",
+      "end": "2026-01-08T17:41:00+00:00",
+      "pnl_abs": 7199.0,
+      "count": 3
+     },
+     "loss": {
+      "n": 3,
+      "from_i": 149,
+      "to_i": 151,
+      "start": "2026-03-12T16:10:00+00:00",
+      "end": "2026-03-13T16:59:00+00:00",
+      "pnl_abs": -2750.0,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:32:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 11.4
+   },
+   "error": null
+  },
+  {
+   "run": "20260926-060108-117922",
+   "status": "done",
+   "created": "2026-09-26T06:01:08+00:00",
+   "started": "2026-09-26T06:01:08+00:00",
+   "finished": "2026-09-26T06:01:19+00:00",
+   "user": "IBS",
+   "note": "sweep 20260926-055903-de3a: fvgMinSize=40 — IBS Entry Zone: FVG min. velkost 2-40 b., vsetky 4 TF (profil NOCNE2_B)",
+   "tag": {
+    "values": {
+     "fvgMinSize": 40
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": null,
+    "per_year": true,
+    "points": 11
+   },
+   "params": {
+    "fvgMinSize": 40.0
+   },
+   "settings": {},
+   "result": {
+    "trades": 323,
+    "wins": 259,
+    "losses": 64,
+    "draws": 0,
+    "winrate": 80.19,
+    "pnl_abs": 64736.25,
+    "pnl_pct": 647.363,
+    "profit_factor": 2.07,
+    "max_drawdown_abs": 6290.25,
+    "max_drawdown_pct": 14.483,
+    "starting_balance": 10000.0,
+    "final_balance": 74736.25,
+    "gross_abs": 64736.25,
+    "volume_abs": 339982124.25,
+    "break_even_pct": 0.019,
+    "exits": {
+     "take_profit": {
+      "n": 259,
+      "pnl_abs": 125260.25
+     },
+     "stop_loss": {
+      "n": 64,
+      "pnl_abs": -60524.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 16,
+      "from_i": 68,
+      "to_i": 83,
+      "start": "2025-12-12T17:50:00+00:00",
+      "end": "2026-01-13T17:31:00+00:00",
+      "pnl_abs": 7682.0,
+      "count": 1
+     },
+     "loss": {
+      "n": 3,
+      "from_i": 145,
+      "to_i": 147,
+      "start": "2026-03-12T16:10:00+00:00",
+      "end": "2026-03-13T16:59:00+00:00",
+      "pnl_abs": -2750.0,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 25.809,
+    "backtest_start": "2025-09-04T00:00:00+00:00",
+    "backtest_end": "2026-09-03T23:57:00+00:00",
+    "holding_avg": "0:33:00",
+    "bars": 118140,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 11.3
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-09-26T06:01:19+00:00"
+}
