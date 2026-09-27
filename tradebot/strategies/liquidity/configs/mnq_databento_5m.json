@@ -1,0 +1,13 @@
+{
+  "_title": "MNQ futures 5m — likvidita z 15m a 1h, prerazenie + IBS imbalance, RR 1,5",
+  "_strategy": "liquidity",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Vychodiskovy profil Liquidity (2026-09-27): defaulty configu na MNQ 5m.",
+    "Likvidita z vyraznych swingov (5 barov, odchod 1,5 ATR) na 15m a 1h, rovnake vrcholy/dna zlucene;",
+    "obchod po prerazeni likvidity v smere pokracovania, vstup IBS imbalance, stop za urovnou, ciel 1,5R.",
+    "Nie je to obchodne odporucanie - je to vychodisko na dalsie ladenie."
+  ],
+  "tickDollarValue": 0.5
+}
