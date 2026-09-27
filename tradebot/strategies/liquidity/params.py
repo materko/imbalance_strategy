@@ -38,9 +38,8 @@ PARAMS: dict[str, dict[str, Any]] = {
     "liqMinStrength": dict(group=_G0, title="Min. sila urovne",
                            tooltip="1 = kazda uroven; 2 = len zlucene rovnake vrcholy/dna (aspon dva)."),
     "tradeMode": dict(group=_G1, title="Spustac obchodu",
-                      tooltip="sweep = cena zoberie likviditu a zavrie spat -> obchod proti; breakout = "
-                              "zavrie za nou -> pokracovanie k dalsej likvidite; draw = bez udalosti, "
-                              "smer k najblizsej nevybratej likvidite."),
+                      tooltip="sweep = cena zoberie likviditu a zavrie spat -> obchod proti (vyber likvidity); "
+                              "breakout = zavrie za nou -> pokracovanie smeru k dalsej likvidite."),
     "tradeDirection": dict(group=_G1, title="Smer obchodov", tooltip="Both / Long only / Short only."),
     "breakBufferAtr": dict(group=_G1, title="Prerazenie: buffer (ATR)",
                            tooltip="O kolko musi byt zavretie za urovnou, aby to bolo prerazenie."),

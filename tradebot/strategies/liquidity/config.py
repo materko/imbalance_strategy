@@ -34,7 +34,6 @@ class TradeMode(str, Enum):
 
     SWEEP = "sweep"        # cena zoberie likviditu a zavrie späť -> obchod proti (otočka)
     BREAKOUT = "breakout"  # cena zoberie likviditu a zavrie za ňou -> pokračovanie k ďalšej
-    DRAW = "draw"          # bez udalosti: vstupný signál smerom k najbližšej nevybratej likvidite
 
 
 class EntryModel(str, Enum):

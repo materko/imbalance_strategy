@@ -14,7 +14,7 @@ class LiquidityHyperopt(StrategyHyperopt):
                            "prvé, až potom vstupný model, stop a cieľ.")
 
     SUGGESTED: ClassVar[dict[str, Suggestion]] = {
-        "tradeMode": {"choices": ["sweep", "breakout", "draw"]},
+        "tradeMode": {"choices": ["sweep", "breakout"]},
         "entryModel": {"choices": ["imbalance", "pinbar", "any", "close"]},
         "liqPivotLen": {"low": 2, "high": 10},
         "slMode": {"choices": ["level", "signal", "swing", "atr"]},

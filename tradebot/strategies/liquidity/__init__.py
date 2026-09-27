@@ -2,9 +2,8 @@
 
 Likvidita sa značí klasicky, ako ju značí trader: z výrazného swing vrcholu (buy-side) a dna
 (sell-side) na viacerých TF (5m až 4h) sa ťahá úroveň, kým ju cena nezoberie; rovnaké
-vrcholy/dná sa zlúčia. Obchoduje sa sweep (otočka), prerazenie (pokračovanie k ďalšej
-likvidite) alebo cesta k najbližšej nevybratej likvidite, so vstupom cez IBS imbalance alebo
-pin bar. Stratégia nemá Pine predlohu.
+vrcholy/dná sa zlúčia. Obchoduje sa sweep (výber likvidity a otočka) alebo prerazenie
+(pokračovanie k ďalšej likvidite), so vstupom cez IBS imbalance alebo pin bar. Stratégia nemá Pine predlohu.
 """
 
 from __future__ import annotations

@@ -9,7 +9,6 @@ Priebeh:
   2. **spúšťač** podľa `tradeMode`:
      - ``sweep``    — cena úroveň zoberie a zavrie späť (hneď, alebo do `sweepBars`) → obchod proti
      - ``breakout`` — cena úroveň zoberie a zavrie za ňou o `breakBufferAtr` → pokračovanie
-     - ``draw``     — bez udalosti: smer k najbližšej nevybratej likvidite
   3. **vstup** — do `setupMaxBars` barov musí prísť vstupný model v smere obchodu: IBS
      imbalance, pin bar, jeden z nich, alebo len zavretie v smere; market alebo limitka.
   4. **SL** podľa `slMode`, **TP** pevné RR alebo najbližšia nevybratá likvidita v smere
@@ -33,7 +32,7 @@ from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
 from tradebot.core.warmup import Warmup
 
 from ..divergence.htf import TFAggregator
-from .config import EntryModel, EntryOrder, LiquidityConfig, SlMode, TpMode, TradeMode
+from .config import EntryModel, EntryOrder, LiquidityConfig, SlMode, TpMode
 from .drawing import LIQ_BUY, LIQ_ENTRY, LIQ_EVENT, LIQ_SELL
 from .levels import Level, SwingFinder
 
@@ -48,7 +47,7 @@ _SSL_COLOR = "#10b981d9"
 @dataclass
 class _Setup:
     direction: Direction
-    level: float          #: úroveň, okolo ktorej udalosť vznikla (pri `draw` 0)
+    level: float          #: úroveň, okolo ktorej udalosť vznikla
     extreme: float        #: knôt sweepu / extrém prerazovacej sviečky
     start: int
     reason: str
@@ -197,8 +196,6 @@ class LiquidityEngine:
         long = s.direction is Direction.LONG
         buf = cfg.slBufferAtr.resolve(self.inst, price=entry, atr=atr)
         mode = cfg.slMode
-        if mode is SlMode.LEVEL and s.reason == "draw":
-            mode = SlMode.SWING
         if mode is SlMode.LEVEL:
             base = min(s.extreme, s.level) if long else max(s.extreme, s.level)
         elif mode is SlMode.SIGNAL:
@@ -360,19 +357,6 @@ class LiquidityEngine:
             return out
         in_window = self._in_window(bar)
         if not in_window or self._trades_today >= cfg.maxTradesPerDay:
-            return out
-
-        # ---- draw: smer k najbližšej nevybratej likvidite ------------------ #
-        if mode is TradeMode.DRAW and self._setup is None:
-            up = self._nearest("buy", bar.close)
-            dn = self._nearest("sell", bar.close)
-            if up is None and dn is None:
-                return out
-            long = dn is None or (up is not None and up.price - bar.close <= bar.close - dn.price)
-            if (long and cfg.allow_long) or (not long and cfg.allow_short):
-                if self._signal(bar, long, atr):
-                    s = _Setup(Direction.LONG if long else Direction.SHORT, 0.0, 0.0, idx, "draw")
-                    self._enter(out, s, bar, atr, idx)
             return out
 
         # ---- vstup v rámci setupu ------------------------------------------ #
