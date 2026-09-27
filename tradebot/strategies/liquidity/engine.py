@@ -295,7 +295,7 @@ class LiquidityEngine:
         events: list[tuple[Direction, Level, float, str]] = []
         for lv, side in taken:
             if cfg.showLevels:
-                out.drawings.append(self._draw_level(lv, bar.time + self.step_ms))
+                out.drawings.append(self._draw_level(lv, bar.time))   # končí na sviečke, ktorá ju prerazila
             if lv.strength < cfg.liqMinStrength:
                 continue
             buy = side == "buy"
