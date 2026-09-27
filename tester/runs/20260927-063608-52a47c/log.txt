@@ -1,0 +1,8 @@
+$ emulator MultiCharts MNQ 5m 20240904-20250904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: trendovky 10m @10m 85/85
+emulacia MultiCharts: 70647 barov 5m, 353232 1m, 0 HTF
+  20000/70647 barov, 134 obchodov
+  40000/70647 barov, 258 obchodov
+  60000/70647 barov, 378 obchodov
+hotovo: 447 obchodov, nerozhodnutelnych minut 3
+kresby: {'tl_resistance': 744, 'tl_break': 877, 'tl_support': 796}
