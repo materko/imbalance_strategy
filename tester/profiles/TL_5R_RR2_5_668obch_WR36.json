@@ -1,0 +1,73 @@
+{
+  "lineTF": "15",
+  "pivotLen": 2,
+  "anchorMode": "wick",
+  "lineSlope": "any",
+  "maxPivots": 3,
+  "minTouches": 2,
+  "touchTolAtr": {
+    "value": 0.5,
+    "unit": "atr"
+  },
+  "minAnchorGap": 2,
+  "lineMaxAgeBars": 40,
+  "minSlopeAtr": 0.02,
+  "maxSlopeAtr": 0.5,
+  "tradeDirection": "Both",
+  "entryMode": "retest",
+  "breakBufferAtr": {
+    "value": 0.1,
+    "unit": "atr"
+  },
+  "retestMaxBars": 5,
+  "minClosePosPct": 70,
+  "maxTradesPerDay": 10,
+  "cooldownBars": 6,
+  "weekdaysOnly": false,
+  "useTradeWindow": false,
+  "tradeTZ": "America/New_York",
+  "tradeStartH": 2,
+  "tradeStartM": 30,
+  "tradeEndH": 15,
+  "tradeEndM": 0,
+  "slMode": "line",
+  "atrLen": 14,
+  "slBufferAtr": {
+    "value": 0.2,
+    "unit": "atr"
+  },
+  "slAtrMult": {
+    "value": 0.5,
+    "unit": "atr"
+  },
+  "slLookback": 8,
+  "rrRatio": 2.5,
+  "enableTrailing": false,
+  "trailActivationR": 1.0,
+  "trailOffsetR": 0.75,
+  "maxHoldBars": 0,
+  "closeAtWindowEnd": false,
+  "riskDollar": 100.0,
+  "showLines": true,
+  "showPivots": false,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "_strategy": "trendlines",
+  "_instrument": "mnq_databento",
+  "_title": "Trendlines 5R RR 2.5: posl. rok 668 obch, 36.2 % WR, PF 1.15; 5 rokov 3333 obch, 36.1 % WR, ziskove 5/5",
+  "_comment": [
+    "Trendlines 5R RR 2.5: posl. rok 668 obch, 36.2 % WR, PF 1.15; 5 rokov 3333 obch, 36.1 % WR, ziskove 5/5",
+    "Po rokoch: 21/22: 660 obch 36.1 % PF 1.23 +11652 $, 22/23: 650 obch 34.6 % PF 1.24 +12536 $, 23/24: 718 obch 35.6 % PF 1.30 +17851 $, 24/25: 637 obch 38.0 % PF 1.16 +8664 $, 25/26: 668 obch 36.2 % PF 1.15 +7997 $",
+    "Nocne testy 26.-27.9.2026, emulator MultiCharts, MNQ, BEZ nakladov, riziko 100 $/obchod."
+  ],
+  "_timeframe": "5m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}
