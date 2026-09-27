@@ -75,6 +75,7 @@
   "_instrument": "mnq_databento",
   "_title": "Liquidity sweep RR 0.5 (alternativa 300-320 obch/rok): posl. rok 318 obch, 70.1 % WR, PF 1.13; 5 rokov 72.2 % WR, ziskove 5/5",
   "_comment": [
+    "NAJLEPSIE: sweep RR 0,5 s najvyssim WR, posl. rok 318 obch 70,1 % +1 591 $; WR 72 % na 5 rokoch (bez nakladov).",
     "Liquidity sweep RR 0.5 (alternativa 300-320 obch/rok): posl. rok 318 obch, 70.1 % WR, PF 1.13; 5 rokov 72.2 % WR, ziskove 5/5",
     "Po rokoch: 21/22: 304 obch 70.1 % PF 1.21 +1766 $, 22/23: 293 obch 74.7 % PF 1.50 +3152 $, 23/24: 301 obch 76.1 % PF 1.53 +3634 $, 24/25: 304 obch 70.4 % PF 1.07 +760 $, 25/26: 318 obch 70.1 % PF 1.13 +1591 $",
     "Testy 27.9.2026, emulator MultiCharts, MNQ, BEZ nakladov, riziko 100 $/obchod."
