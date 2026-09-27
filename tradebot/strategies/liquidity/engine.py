@@ -113,10 +113,10 @@ class LiquidityEngine:
                 raise RuntimeError(f"{finder.tf}m: seeding smie ísť len pred prvým barom grafu")
             self._seeding = True
             for b in bars:
-                # úrovne, ktoré cena v predhistórii vyplnila, sa zrušia (nekreslia sa cez cenu)
+                # úrovne, ktoré cena v predhistórii prerazila, sa zrušia (nekreslia sa cez cenu)
                 self.levels = [lv for lv in self.levels
-                               if not (lv.side == "buy" and b.high >= lv.price)
-                               and not (lv.side == "sell" and b.low <= lv.price)
+                               if not (lv.side == "buy" and b.high > lv.price)
+                               and not (lv.side == "sell" and b.low < lv.price)
                                and b.time < lv.expires_ms]
                 for lv in finder.push(b):
                     self._add_level(lv, None, finder.atr)
@@ -280,10 +280,11 @@ class LiquidityEngine:
         taken: list[tuple[Level, str]] = []
         keep: list[Level] = []
         for lv in self.levels:
-            # dotyk úrovne už je vybratie (vyplnená likvidita) — čiara končí na tejto sviečke
-            if lv.side == "buy" and bar.high >= lv.price:
+            # vybratie = cena úroveň prerazí; presný dotyk je rovnaký vrchol/dno (equal highs/lows),
+            # ktorý sa zlúči do silnejšej úrovne, nie jej vyplnenie
+            if lv.side == "buy" and bar.high > lv.price:
                 taken.append((lv, "buy"))
-            elif lv.side == "sell" and bar.low <= lv.price:
+            elif lv.side == "sell" and bar.low < lv.price:
                 taken.append((lv, "sell"))
             elif bar.time >= lv.expires_ms:
                 if cfg.showLevels:
