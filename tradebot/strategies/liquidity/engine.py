@@ -92,6 +92,9 @@ class LiquidityEngine:
                                   atr_len=int(cfg.atrLen))
 
         self.levels: list[Level] = []
+        #: swingy (strana, čas, cena), ktorých likvidita už bola vybratá alebo vypršala — ten istý
+        #: swing potvrdený neskôr vyšším TF sa nesmie vrátiť ako nová likvidita
+        self._gone: set[tuple[str, int, float]] = set()
         self._uid = 0
         self._zone = ZoneInfo(cfg.tradeTZ)
         self._setup: _Setup | None = None
@@ -114,10 +117,14 @@ class LiquidityEngine:
             self._seeding = True
             for b in bars:
                 # úrovne, ktoré cena v predhistórii prerazila, sa zrušia (nekreslia sa cez cenu)
-                self.levels = [lv for lv in self.levels
-                               if not (lv.side == "buy" and b.high > lv.price)
-                               and not (lv.side == "sell" and b.low < lv.price)
-                               and b.time < lv.expires_ms]
+                keep = []
+                for lv in self.levels:
+                    if (lv.side == "buy" and b.high > lv.price) or (lv.side == "sell" and b.low < lv.price) \
+                            or b.time >= lv.expires_ms:
+                        self._gone.add((lv.side, lv.start_ms, lv.price))
+                    else:
+                        keep.append(lv)
+                self.levels = keep
                 for lv in finder.push(b):
                     self._add_level(lv, None, finder.atr)
             self._seeding = False
@@ -126,6 +133,8 @@ class LiquidityEngine:
 
     def _add_level(self, lv: Level, out: EngineOutput | None, atr_tf: float) -> None:
         """Nová úroveň; rovnaký vrchol/dno blízko existujúcej úrovne sa zlúči (equal highs/lows)."""
+        if (lv.side, lv.start_ms, lv.price) in self._gone:
+            return
         tol = self.cfg.liqEqualTolAtr.value * atr_tf
         for ex in self.levels:
             if ex.side == lv.side and abs(ex.price - lv.price) <= tol:
@@ -287,11 +296,14 @@ class LiquidityEngine:
             elif lv.side == "sell" and bar.low < lv.price:
                 taken.append((lv, "sell"))
             elif bar.time >= lv.expires_ms:
+                self._gone.add((lv.side, lv.start_ms, lv.price))
                 if cfg.showLevels:
                     out.drawings.append(self._draw_level(lv, lv.expires_ms))
             else:
                 keep.append(lv)
         self.levels = keep
+        for lv, _ in taken:
+            self._gone.add((lv.side, lv.start_ms, lv.price))
         events: list[tuple[Direction, Level, float, str]] = []
         for lv, side in taken:
             if cfg.showLevels:
