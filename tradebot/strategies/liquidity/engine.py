@@ -113,6 +113,11 @@ class LiquidityEngine:
                 raise RuntimeError(f"{finder.tf}m: seeding smie ísť len pred prvým barom grafu")
             self._seeding = True
             for b in bars:
+                # úrovne, ktoré cena v predhistórii vyplnila, sa zrušia (nekreslia sa cez cenu)
+                self.levels = [lv for lv in self.levels
+                               if not (lv.side == "buy" and b.high >= lv.price)
+                               and not (lv.side == "sell" and b.low <= lv.price)
+                               and b.time < lv.expires_ms]
                 for lv in finder.push(b):
                     self._add_level(lv, None, finder.atr)
             self._seeding = False
@@ -136,7 +141,7 @@ class LiquidityEngine:
     def _draw_level(self, lv: Level, end_ms: int) -> DrawLine:
         buy = lv.side == "buy"
         return DrawLine(LIQ_BUY if buy else LIQ_SELL, lv.start_ms, lv.price, end_ms, lv.price,
-                        _BSL_COLOR if buy else _SSL_COLOR, obj_id=f"liq.{lv.side}.{lv.uid}", text=lv.label)
+                        _BSL_COLOR if buy else _SSL_COLOR, obj_id=f"liq.{lv.side}.{lv.start_ms}.{lv.uid}", text=lv.label)
 
     def _nearest(self, side: str, price: float, beyond: float = 0.0) -> Level | None:
         """Najbližšia nevybratá likvidita nad (buy) / pod (sell) cenou, aspoň `beyond` od nej."""
@@ -277,9 +282,10 @@ class LiquidityEngine:
         taken: list[tuple[Level, str]] = []
         keep: list[Level] = []
         for lv in self.levels:
-            if lv.side == "buy" and bar.high > lv.price:
+            # dotyk úrovne už je vybratie (vyplnená likvidita) — čiara končí na tejto sviečke
+            if lv.side == "buy" and bar.high >= lv.price:
                 taken.append((lv, "buy"))
-            elif lv.side == "sell" and bar.low < lv.price:
+            elif lv.side == "sell" and bar.low <= lv.price:
                 taken.append((lv, "sell"))
             elif bar.time >= lv.expires_ms:
                 if cfg.showLevels:
