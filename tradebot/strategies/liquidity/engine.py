@@ -11,6 +11,7 @@ Priebeh:
      - ``breakout`` — cena úroveň zoberie a zavrie za ňou o `breakBufferAtr` → pokračovanie
   3. **vstup** — do `setupMaxBars` barov musí prísť vstupný model v smere obchodu: IBS
      imbalance, pin bar, jeden z nich, alebo len zavretie v smere; market alebo limitka.
+     Vstup len **pri likvidite**: cena vstupu najviac `entryMaxDistAtr` ATR od úrovne.
   4. **SL** podľa `slMode`, **TP** pevné RR alebo najbližšia nevybratá likvidita v smere
      (v pásme `minRR`–`maxRR`, `tpOffsetAtr` pred ňou), veľkosť z rizika.
 
@@ -375,8 +376,14 @@ class LiquidityEngine:
         elif (long and bar.close < s.level - buffer) or (not long and bar.close > s.level + buffer):
             self._setup = None
             return out
-        if self._signal(bar, long, atr):
-            self._enter(out, s, bar, atr, idx)
+        if not self._signal(bar, long, atr):
+            return out
+        # vstup len pri likvidite: cena vstupu smie byť od úrovne najviac `entryMaxDistAtr` ATR,
+        # inak by signál prišiel ďaleko od zóny (a stop za knôtom sweepu by bol obrovský)
+        entry = (bar.high + bar.low) / 2.0 if cfg.entryOrder is EntryOrder.LIMIT else bar.close
+        if abs(entry - s.level) > cfg.entryMaxDistAtr.resolve(self.inst, price=entry, atr=atr):
+            return out
+        self._enter(out, s, bar, atr, idx)
         return out
 
     def _enter(self, out: EngineOutput, s: _Setup, bar: Bar, atr: float, idx: int) -> None:

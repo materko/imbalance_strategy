@@ -52,6 +52,9 @@ PARAMS: dict[str, dict[str, Any]] = {
                        tooltip="market = na zavreti signalnej sviecky; limit = limitka na stred signalnej sviecky."),
     "setupMaxBars": dict(group=_G1, title="Max. barov na vstupny signal",
                          tooltip="Kolko barov grafu po udalosti sa caka na vstupny model, potom sa setup zahodi."),
+    "entryMaxDistAtr": dict(group=_G1, title="Vstup max. od likvidity (ATR)",
+                            tooltip="Vstupny signal plati len ked je cena vstupu najviac tolko ATR od vybratej / "
+                                    "prerazenej urovne - odmietnutie musi vzniknut pri likvidite, nie daleko od nej."),
     "imbMinSizeAtr": dict(group=_G1, title="Imbalance: min. medzera (ATR)",
                           tooltip="Minimalna velkost medzery imbalance sviecky v ATR grafu."),
     "pbWickPct": dict(group=_G1, title="Pin bar: min. knot (% rozsahu)",

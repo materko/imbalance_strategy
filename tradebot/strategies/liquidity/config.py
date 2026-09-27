@@ -70,6 +70,7 @@ SIZE_FIELDS: dict[str, SizeUnit] = {
     "liqMinDispAtr": "atr",
     "liqEqualTolAtr": "atr",
     "breakBufferAtr": "atr",
+    "entryMaxDistAtr": "atr",
     "imbMinSizeAtr": "atr",
     "slBufferAtr": "atr",
     "slAtrMult": "atr",
@@ -142,7 +143,8 @@ class LiquidityConfig(StrategyConfig):
     sweepBars: int = 3
     entryModel: EntryModel = EntryModel.IMBALANCE
     entryOrder: EntryOrder = EntryOrder.MARKET
-    setupMaxBars: int = 12
+    setupMaxBars: int = 6
+    entryMaxDistAtr: SizeSpec = field(default_factory=lambda: SizeSpec(1.0, "atr"))
     imbMinSizeAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.2, "atr"))
     pbWickPct: int = 60
     pbBodyPct: int = 30

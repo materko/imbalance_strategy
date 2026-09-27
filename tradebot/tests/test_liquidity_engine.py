@@ -20,7 +20,7 @@ MNQ = INSTRUMENTS["mnq_databento"]
 def _cfg(**kw) -> LiquidityConfig:
     base = dict(liqUse5m=True, liqUse15m=False, liqUse60m=False, liqPivotLen=2, liqMinDispAtr=0.0,
                 atrLen=3, breakBufferAtr=0.0, entryModel="close", cooldownBars=0, setupMaxBars=5,
-                liqEqualTolAtr=0.05)
+                liqEqualTolAtr=0.05, entryMaxDistAtr=10.0)
     base.update(kw)
     return LiquidityConfig(**base)
 
@@ -70,6 +70,15 @@ def test_sweep_likvidity_dá_short():
     entries = [o for o in outs[-1].orders if o.action is OrderAction.ENTRY]
     assert entries and entries[0].direction is Direction.SHORT
     assert entries[0].plan.stop_loss > 111, "stop za knôtom sweepu"
+
+
+def test_signal_daleko_od_likvidity_nevstupi():
+    """Sweep áno, ale medvedia sviečka príde až keď je cena ďaleko pod úrovňou — žiadny vstup."""
+    engine = LiquidityEngine(_cfg(tradeMode="sweep", entryMaxDistAtr=0.5, entryModel="close"), MNQ, 5)
+    _run(engine, _BARS)
+    n = len(_BARS)
+    outs = _run(engine, [(104, 97, 103), (111, 103, 108, ), (108, 100, 100.5)], start=n)
+    assert not [o for out in outs for o in out.orders if o.action is OrderAction.ENTRY]
 
 
 def test_rovnake_vrcholy_sa_zlucia():
