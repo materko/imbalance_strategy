@@ -1,0 +1,22 @@
+$ emulator MultiCharts MGC 1m 20250904-20260904 (MGC_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: trendovky 15m @15m 89/89
+emulacia MultiCharts: 353883 barov 1m, 353883 1m, 0 HTF
+  20000/353883 barov, 23 obchodov
+  40000/353883 barov, 45 obchodov
+  60000/353883 barov, 65 obchodov
+  80000/353883 barov, 85 obchodov
+  100000/353883 barov, 111 obchodov
+  120000/353883 barov, 130 obchodov
+  140000/353883 barov, 152 obchodov
+  160000/353883 barov, 175 obchodov
+  180000/353883 barov, 199 obchodov
+  200000/353883 barov, 216 obchodov
+  220000/353883 barov, 234 obchodov
+  240000/353883 barov, 255 obchodov
+  260000/353883 barov, 270 obchodov
+  280000/353883 barov, 287 obchodov
+  300000/353883 barov, 306 obchodov
+  320000/353883 barov, 327 obchodov
+  340000/353883 barov, 340 obchodov
+hotovo: 351 obchodov, nerozhodnutelnych minut 5
+kresby: {'tl_support': 354, 'tl_break': 544, 'tl_resistance': 353}
