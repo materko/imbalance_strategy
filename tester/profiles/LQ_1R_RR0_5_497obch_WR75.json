@@ -1,0 +1,87 @@
+{
+  "liqUse5m": true,
+  "liqUse15m": true,
+  "liqUse30m": false,
+  "liqUse60m": false,
+  "liqUse240m": false,
+  "liqPivotLen": 2,
+  "liqMinDispAtr": {
+    "value": 1.0,
+    "unit": "atr"
+  },
+  "liqEqualTolAtr": {
+    "value": 0.05,
+    "unit": "atr"
+  },
+  "liqMaxAgeHours": 240,
+  "liqMinStrength": 1,
+  "tradeMode": "sweep",
+  "tradeDirection": "Long only",
+  "breakBufferAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "sweepBars": 1,
+  "entryModel": "any",
+  "entryOrder": "market",
+  "setupMaxBars": 3,
+  "entryMaxDistAtr": {
+    "value": 2.0,
+    "unit": "atr"
+  },
+  "imbMinSizeAtr": {
+    "value": 0.05,
+    "unit": "atr"
+  },
+  "pbWickPct": 60,
+  "pbBodyPct": 25,
+  "maxTradesPerDay": 2,
+  "cooldownBars": 1,
+  "weekdaysOnly": true,
+  "useTradeWindow": false,
+  "tradeTZ": "America/New_York",
+  "tradeStartH": 9,
+  "tradeStartM": 0,
+  "tradeEndH": 15,
+  "tradeEndM": 0,
+  "slMode": "level",
+  "atrLen": 14,
+  "slBufferAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "slAtrMult": {
+    "value": 0.5,
+    "unit": "atr"
+  },
+  "slLookback": 3,
+  "tpMode": "rr",
+  "rrRatio": 0.5,
+  "minRR": 1.0,
+  "maxRR": 5.0,
+  "tpOffsetAtr": 0.0,
+  "maxHoldBars": 0,
+  "riskDollar": 100.0,
+  "showLevels": true,
+  "showEvents": true,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0.02,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "_strategy": "liquidity",
+  "_instrument": "mnq_databento",
+  "_title": "Liquidity 1R RR 0.5: posl. rok 497 obch, 75.0 % WR, PF 1.52; 5 rokov 2440 obch, 68.4 % WR, ziskove 3/5",
+  "_comment": [
+    "Liquidity 1R RR 0.5: posl. rok 497 obch, 75.0 % WR, PF 1.52; 5 rokov 2440 obch, 68.4 % WR, ziskove 3/5",
+    "Po rokoch: 21/22: 477 obch 66.5 % PF 0.99 -180 $, 22/23: 488 obch 67.8 % PF 1.06 +799 $, 23/24: 489 obch 67.1 % PF 1.02 +312 $, 24/25: 489 obch 65.2 % PF 0.97 -468 $, 25/26: 497 obch 75.0 % PF 1.52 +5881 $",
+    "Testy 27.9.2026, emulator MultiCharts, MNQ, BEZ nakladov, riziko 100 $/obchod."
+  ],
+  "_timeframe": "5m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

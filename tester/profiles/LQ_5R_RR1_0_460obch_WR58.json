@@ -1,0 +1,87 @@
+{
+  "liqUse5m": true,
+  "liqUse15m": false,
+  "liqUse30m": false,
+  "liqUse60m": false,
+  "liqUse240m": false,
+  "liqPivotLen": 3,
+  "liqMinDispAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "liqEqualTolAtr": {
+    "value": 0.15,
+    "unit": "atr"
+  },
+  "liqMaxAgeHours": 120,
+  "liqMinStrength": 1,
+  "tradeMode": "sweep",
+  "tradeDirection": "Long only",
+  "breakBufferAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "sweepBars": 1,
+  "entryModel": "any",
+  "entryOrder": "limit",
+  "setupMaxBars": 4,
+  "entryMaxDistAtr": {
+    "value": 2.0,
+    "unit": "atr"
+  },
+  "imbMinSizeAtr": {
+    "value": 0.05,
+    "unit": "atr"
+  },
+  "pbWickPct": 70,
+  "pbBodyPct": 15,
+  "maxTradesPerDay": 10,
+  "cooldownBars": 6,
+  "weekdaysOnly": true,
+  "useTradeWindow": false,
+  "tradeTZ": "America/New_York",
+  "tradeStartH": 3,
+  "tradeStartM": 0,
+  "tradeEndH": 12,
+  "tradeEndM": 30,
+  "slMode": "signal",
+  "atrLen": 14,
+  "slBufferAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "slAtrMult": {
+    "value": 1.5,
+    "unit": "atr"
+  },
+  "slLookback": 3,
+  "tpMode": "rr",
+  "rrRatio": 1.0,
+  "minRR": 1.0,
+  "maxRR": 5.0,
+  "tpOffsetAtr": 0.0,
+  "maxHoldBars": 0,
+  "riskDollar": 100.0,
+  "showLevels": true,
+  "showEvents": true,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "_strategy": "liquidity",
+  "_instrument": "mnq_databento",
+  "_title": "Liquidity 5R RR 1.0: posl. rok 460 obch, 58.3 % WR, PF 1.59; 5 rokov 2250 obch, 55.3 % WR, ziskove 5/5",
+  "_comment": [
+    "Liquidity 5R RR 1.0: posl. rok 460 obch, 58.3 % WR, PF 1.59; 5 rokov 2250 obch, 55.3 % WR, ziskove 5/5",
+    "Po rokoch: 21/22: 447 obch 53.2 % PF 1.17 +3198 $, 22/23: 468 obch 57.5 % PF 1.48 +8105 $, 23/24: 443 obch 54.6 % PF 1.29 +5120 $, 24/25: 432 obch 52.5 % PF 1.21 +3823 $, 25/26: 460 obch 58.3 % PF 1.59 +10572 $",
+    "Testy 27.9.2026, emulator MultiCharts, MNQ, BEZ nakladov, riziko 100 $/obchod."
+  ],
+  "_timeframe": "5m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

@@ -1,0 +1,381 @@
+$ /Users/martin/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/IBS/deploy/freqtrade/config.tester.json --userdir /Users/martin/IBS/deploy/freqtrade/user_data --strategy LiquidityStrategy --cache none --export trades --timerange 20250904-20251004 --pairs BTC/USDT:USDT --timeframe 5m --dry-run-wallet 10000.0 --fee 0.0005 --timeframe-detail 1m --datadir /Users/martin/IBS/data/tester/binance --backtest-directory /Users/martin/IBS/deploy/freqtrade/user_data/backtest_results/20260927-070327-3fba9f
+2026-09-27 09:03:28,278 - freqtrade - INFO - freqtrade 2026.8
+2026-09-27 09:03:28,956 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/IBS/deploy/freqtrade/config.tester.json ...
+2026-09-27 09:03:28,959 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-27 09:03:28,959 - freqtrade.loggers - INFO - Logfile configured
+2026-09-27 09:03:28,959 - freqtrade.loggers - INFO - Verbosity set to 0
+2026-09-27 09:03:28,959 - freqtrade.configuration.configuration - INFO - Parameter -i/--timeframe detected ... Using timeframe: 5m ...
+2026-09-27 09:03:28,959 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2026-09-27 09:03:28,959 - freqtrade.configuration.configuration - INFO - Parameter --timeframe-detail detected, using 1m for intra-candle backtesting ...
+2026-09-27 09:03:28,959 - freqtrade.configuration.configuration - INFO - Parameter --dry-run-wallet detected, overriding dry_run_wallet to: 10000.0 ...
+2026-09-27 09:03:28,960 - freqtrade.configuration.configuration - INFO - Parameter --fee detected, setting fee to: 0.0005 ...
+2026-09-27 09:03:28,960 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20250904-20251004 ...
+2026-09-27 09:03:28,960 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/IBS/deploy/freqtrade/user_data ...
+2026-09-27 09:03:28,961 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/IBS/data/tester/binance ...
+2026-09-27 09:03:28,961 - freqtrade.configuration.configuration - INFO - Using /Users/martin/IBS/deploy/freqtrade/user_data/backtest_results/20260927-070327-3fba9f as backtest directory ...
+2026-09-27 09:03:28,961 - freqtrade.configuration.configuration - INFO - Parameter --export detected: trades ...
+2026-09-27 09:03:28,961 - freqtrade.configuration.configuration - INFO - Parameter --cache=none detected ...
+2026-09-27 09:03:28,961 - freqtrade.configuration.configuration - INFO - Using pairs ['BTC/USDT:USDT']
+2026-09-27 09:03:28,961 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20250904-20251004
+2026-09-27 09:03:28,962 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2026-09-27 09:03:28,963 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+team. It may work flawlessly (please report back) or have serious issues. Use it at your own discretion.
+2026-09-27 09:03:28,963 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-27 09:03:28,965 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2026-09-27 09:03:28,965 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2026-09-27 09:03:28,965 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.78
+2026-09-27 09:03:28,965 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-27 09:03:28,967 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-27 09:03:28,968 - freqtrade.exchange.exchange - INFO - Using Exchange "Tester"
+2026-09-27 09:03:28,969 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange class 'Tester' ...
+2026-09-27 09:03:29,031 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy LiquidityStrategy from '/Users/martin/IBS/deploy/freqtrade/user_data/strategies/LiquidityStrategy.py'...
+2026-09-27 09:03:29,031 - freqtrade.strategy.hyper - INFO - Found no parameter file.
+2026-09-27 09:03:29,330 - tradebot.adapters.freqtrade.base - INFO - liquidity: startup_candle_count 300 na 5m (engine 27: ATR 14 + SL okno 5: 27; likvidita 15m @15m: 509 vlastnych; likvidita 60m @60m:
+149 vlastnych)
+2026-09-27 09:03:29,330 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 5m.
+2026-09-27 09:03:29,331 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USDT.
+2026-09-27 09:03:29,331 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2026-09-27 09:03:29,331 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'unfilledtimeout' with value from the configuration: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 
+'unit': 'minutes'}.
+2026-09-27 09:03:29,331 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2026-09-27 09:03:29,331 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 100.0}
+2026-09-27 09:03:29,331 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 5m
+2026-09-27 09:03:29,331 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.99
+2026-09-27 09:03:29,332 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2026-09-27 09:03:29,332 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2026-09-27 09:03:29,332 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2026-09-27 09:03:29,332 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: True
+2026-09-27 09:03:29,332 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2026-09-27 09:03:29,332 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2026-09-27 09:03:29,332 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2026-09-27 09:03:29,332 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USDT
+2026-09-27 09:03:29,332 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2026-09-27 09:03:29,333 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 300
+2026-09-27 09:03:29,333 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using unfilledtimeout: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 'unit': 'minutes'}
+2026-09-27 09:03:29,333 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2026-09-27 09:03:29,333 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2026-09-27 09:03:29,333 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2026-09-27 09:03:29,333 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2026-09-27 09:03:29,333 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2026-09-27 09:03:29,333 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2026-09-27 09:03:29,333 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2026-09-27 09:03:29,333 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2026-09-27 09:03:29,334 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2026-09-27 09:03:29,334 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-27 09:03:29,339 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'/Users/martin/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-09-27 09:03:29,339 - freqtrade.optimize.backtesting - INFO - Using fee 0.0500% from config.
+2026-09-27 09:03:29,357 - freqtrade.optimize.backtesting - INFO - Loading data from 2025-09-02 23:00:00 up to 2025-10-04 00:00:00 (31 days).
+2026-09-27 09:03:29,453 - freqtrade.optimize.backtesting - INFO - Dataload complete. Calculating indicators
+2026-09-27 09:03:29,454 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy LiquidityStrategy
+2026-09-27 09:03:29,480 - tradebot.adapters.freqtrade.live - INFO - liquidity BTC/USDT:USDT: indikatory seedovane pred behom (likvidita 15m 509, likvidita 60m 149)
+2026-09-27 09:03:29,557 - tradebot.adapters.freqtrade.base - INFO - liquidity BTC/USDT:USDT: 8941 barov, 50 signalov (28 long / 22 short)
+2026-09-27 09:03:29,561 - tradebot.adapters.freqtrade.base - INFO - liquidity BTC/USDT:USDT: kresby ulozene do /Users/martin/IBS/tester/runs/.profiles/20260927-070327-3fba9f.chart.json.gz (486 
+objektov)
+2026-09-27 09:03:29,562 - freqtrade.optimize.backtesting - INFO - Backtesting with data from 2025-09-04 00:00:00 up to 2025-10-04 00:00:00 (30 days).
+2026-09-27 09:03:29,575 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 57209.33 na 9900.00 (17.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:29,588 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 29079.59 na 9915.84 (34.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:29,597 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 16272.42 na 9872.49 (60.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:29,608 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 71254.82 na 9803.17 (13.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:29,610 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 36839.66 na 9813.80 (26.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:29,640 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 12029.06 na 9776.87 (81.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,006 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 103732.11 na 9888.62 (9.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,008 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 42872.17 na 9869.57 (23.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,017 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 34488.29 na 9837.47 (28.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,045 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 81534.65 na 9869.99 (12.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,048 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 13453.31 na 9878.17 (73.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,070 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 21047.65 na 9977.04 (47.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,125 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 105228.09 na 9921.37 (9.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,133 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 116070.96 na 9902.30 (8.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,134 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 116070.96 na 9905.14 (8.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,136 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 170596.19 na 9905.14 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,139 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 42479.39 na 9889.61 (23.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,164 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 71735.98 na 9857.21 (13.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,172 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 32379.83 na 9833.90 (30.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,183 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 60904.11 na 9794.38 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,186 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 61807.02 na 9768.91 (15.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,196 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 40636.81 na 9743.65 (24.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,199 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 43054.84 na 9710.39 (22.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,204 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 27913.87 na 9734.18 (34.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,223 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 64716.45 na 9776.15 (15.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,225 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 86475.58 na 9751.63 (11.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,235 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 49748.87 na 9758.71 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,239 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 24980.04 na 9777.98 (39.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,511 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 33249.72 na 9728.58 (29.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,523 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 76041.85 na 9690.18 (12.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,566 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 44613.45 na 9699.50 (21.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:30,573 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 140522.49 na 9721.93 (6.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,754 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 48361.46 na 9851.39 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,761 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 74258.78 na 9821.96 (13.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,765 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 32458.16 na 9799.31 (30.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,772 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 37135.42 na 9760.14 (26.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,800 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 71201.54 na 9724.81 (13.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,810 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 54041.93 na 9735.33 (18.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,821 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 57244.21 na 9708.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,826 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 78475.86 na 9681.93 (12.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,860 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 57900.82 na 9690.67 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,863 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 27564.25 na 9705.84 (35.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,874 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 47736.60 na 9747.61 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,892 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 27852.59 na 9768.00 (35.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,906 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 28790.32 na 9724.06 (33.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,950 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 81580.70 na 9681.40 (11.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,959 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 96883.53 na 9690.29 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-09-27 09:03:31,962 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity BTC/USDT:USDT: stake orezany z 20265.35 na 9670.93 (47.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4/4       100% • 0:00:00 • 0:00:00
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8640/8640 100% • 0:00:02 • 0:00:00
+2026-09-27 09:03:32,497 - freqtrade.misc - INFO - dumping json to "/Users/martin/IBS/deploy/freqtrade/user_data/backtest_results/20260927-070327-3fba9f/backtest-result-2026-09-27_07-03-32.meta.json"
+Result for strategy LiquidityStrategy
+                                                BACKTESTING REPORT                                                
+┏━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃          Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ BTC/USDT:USDT │     48 │        -0.02 │        -170.067 │         -1.7 │      3:22:00 │   21     0    27  43.8 │
+│         TOTAL │     48 │        -0.02 │        -170.067 │         -1.7 │      3:22:00 │   21     0    27  43.8 │
+└───────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                          
+┏━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ TOTAL │      0 │          0.0 │           0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                         ENTER TAG STATS                                                         
+┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃               Enter Tag ┃ Entries ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃     Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ liquidity:1758520800000 │       1 │         2.47 │         147.356 │         1.47 │ 3 days, 11:29:00 │    1     0     0   100 │
+│ liquidity:1757081700000 │       1 │         1.17 │         112.880 │         1.13 │   1 day, 2:01:00 │    1     0     0   100 │
+│ liquidity:1757426700000 │       1 │         1.01 │          99.872 │          1.0 │          1:27:00 │    1     0     0   100 │
+│ liquidity:1759504800000 │       1 │         0.64 │          61.320 │         0.61 │          0:34:00 │    1     0     0   100 │
+│ liquidity:1758038400000 │       1 │         0.44 │          42.400 │         0.42 │          1:07:00 │    1     0     0   100 │
+│ liquidity:1759360800000 │       1 │         0.43 │          42.201 │         0.42 │          0:37:00 │    1     0     0   100 │
+│ liquidity:1757377500000 │       1 │         0.33 │          32.844 │         0.33 │          1:52:00 │    1     0     0   100 │
+│ liquidity:1758029700000 │       1 │         0.25 │          24.031 │         0.24 │          0:11:00 │    1     0     0   100 │
+│ liquidity:1758293400000 │       1 │         0.24 │          22.660 │         0.23 │          0:16:00 │    1     0     0   100 │
+│ liquidity:1759407900000 │       1 │         0.21 │          20.596 │         0.21 │          1:12:00 │    1     0     0   100 │
+│ liquidity:1758149700000 │       1 │          0.2 │          19.465 │         0.19 │          0:06:00 │    1     0     0   100 │
+│ liquidity:1756961700000 │       1 │         0.16 │          16.000 │         0.16 │          0:22:00 │    1     0     0   100 │
+│ liquidity:1759356000000 │       1 │         0.16 │          15.323 │         0.15 │          0:03:00 │    1     0     0   100 │
+│ liquidity:1757055300000 │       1 │         0.11 │          10.738 │         0.11 │          0:01:00 │    1     0     0   100 │
+│ liquidity:1759132800000 │       1 │         0.11 │          10.624 │         0.11 │          0:36:00 │    1     0     0   100 │
+│ liquidity:1758275400000 │       1 │          0.1 │           9.409 │         0.09 │          2:31:00 │    1     0     0   100 │
+│ liquidity:1759477200000 │       1 │         0.09 │           8.980 │         0.09 │          0:31:00 │    1     0     0   100 │
+│ liquidity:1759209900000 │       1 │         0.09 │           8.824 │         0.09 │          2:08:00 │    1     0     0   100 │
+│ liquidity:1757397300000 │       1 │         0.08 │           8.258 │         0.08 │          0:04:00 │    1     0     0   100 │
+│ liquidity:1758146700000 │       1 │         0.07 │           7.150 │         0.07 │          0:05:00 │    1     0     0   100 │
+│ liquidity:1757628900000 │       1 │         0.03 │           2.868 │         0.03 │          0:00:00 │    1     0     0   100 │
+│ liquidity:1757664300000 │       1 │        -0.16 │         -15.686 │        -0.16 │          0:03:00 │    0     0     1     0 │
+│ liquidity:1758334500000 │       1 │        -0.17 │         -16.591 │        -0.17 │          0:02:00 │    0     0     1     0 │
+│ liquidity:1757316600000 │       1 │         -0.2 │         -19.243 │        -0.19 │          0:01:00 │    0     0     1     0 │
+│ liquidity:1757465400000 │       1 │         -0.2 │         -19.255 │        -0.19 │          0:11:00 │    0     0     1     0 │
+│ liquidity:1759497900000 │       1 │         -0.2 │         -19.563 │         -0.2 │          0:02:00 │    0     0     1     0 │
+│ liquidity:1758849300000 │       1 │        -0.23 │         -22.883 │        -0.23 │          0:09:00 │    0     0     1     0 │
+│ liquidity:1757728500000 │       1 │        -0.24 │         -23.544 │        -0.24 │          0:10:00 │    0     0     1     0 │
+│ liquidity:1758130800000 │       1 │        -0.25 │         -24.771 │        -0.25 │          0:01:00 │    0     0     1     0 │
+│ liquidity:1757940600000 │       1 │        -0.26 │         -25.514 │        -0.26 │          0:30:00 │    0     0     1     0 │
+│ liquidity:1757926500000 │       1 │        -0.26 │         -25.729 │        -0.26 │          0:06:00 │    0     0     1     0 │
+│ liquidity:1759175100000 │       1 │        -0.27 │         -26.331 │        -0.26 │          0:12:00 │    0     0     1     0 │
+│ liquidity:1759156800000 │       1 │        -0.28 │         -27.609 │        -0.28 │          0:39:00 │    0     0     1     0 │
+│ liquidity:1758843300000 │       1 │         -0.3 │         -29.728 │         -0.3 │          0:23:00 │    0     0     1     0 │
+│ liquidity:1757336700000 │       1 │        -0.33 │         -32.416 │        -0.32 │          0:29:00 │    0     0     1     0 │
+│ liquidity:1757701800000 │       1 │        -0.33 │         -32.730 │        -0.33 │          1:38:00 │    0     0     1     0 │
+│ liquidity:1757999400000 │       1 │        -0.35 │         -33.603 │        -0.34 │          0:03:00 │    0     0     1     0 │
+│ liquidity:1758907500000 │       1 │        -0.37 │         -35.686 │        -0.36 │          1:32:00 │    0     0     1     0 │
+│ liquidity:1757057100000 │       1 │        -0.38 │         -37.305 │        -0.37 │          1:49:00 │    0     0     1     0 │
+│ liquidity:1758236400000 │       1 │         -0.4 │         -38.789 │        -0.39 │          0:41:00 │    0     0     1     0 │
+│ liquidity:1758871800000 │       1 │        -0.41 │         -39.559 │         -0.4 │          0:24:00 │    0     0     1     0 │
+│ liquidity:1757915700000 │       1 │        -0.41 │         -39.916 │         -0.4 │          0:41:00 │    0     0     1     0 │
+│ liquidity:1759431300000 │       1 │        -0.45 │         -43.084 │        -0.43 │          3:00:00 │    0     0     1     0 │
+│ liquidity:1756994700000 │       1 │        -0.44 │         -43.787 │        -0.44 │          0:26:00 │    0     0     1     0 │
+│ liquidity:1759412700000 │       1 │        -0.46 │         -44.390 │        -0.44 │          0:52:00 │    0     0     1     0 │
+│ liquidity:1758164700000 │       1 │        -0.51 │         -49.894 │         -0.5 │         19:50:00 │    0     0     1     0 │
+│ liquidity:1757432400000 │       1 │        -0.56 │         -56.237 │        -0.56 │          3:51:00 │    0     0     1     0 │
+│ liquidity:1757026500000 │       1 │        -0.71 │         -70.023 │         -0.7 │          0:36:00 │    0     0     1     0 │
+│                   TOTAL │      48 │        -0.02 │        -170.067 │         -1.7 │          3:22:00 │   21     0    27  43.8 │
+└─────────────────────────┴─────────┴──────────────┴─────────────────┴──────────────┴──────────────────┴────────────────────────┘
+                                                  EXIT REASON STATS                                                   
+┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃        Exit Reason ┃ Exits ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│                roi │    21 │          0.4 │         723.799 │         7.24 │      5:52:00 │   21     0     0   100 │
+│ trailing_stop_loss │     5 │        -0.31 │        -153.061 │        -1.53 │      0:21:00 │    0     0     5     0 │
+│          stop_loss │    22 │        -0.34 │        -740.805 │        -7.41 │      1:40:00 │    0     0    22     0 │
+│              TOTAL │    48 │        -0.02 │        -170.067 │         -1.7 │      3:22:00 │   21     0    27  43.8 │
+└────────────────────┴───────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                                   MIXED TAG STATS                                                                   
+┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃               Enter Tag ┃        Exit Reason ┃ Trades ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃     Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ liquidity:1758520800000 │                roi │      1 │         2.47 │         147.356 │         1.47 │ 3 days, 11:29:00 │    1     0     0   100 │
+│ liquidity:1757081700000 │                roi │      1 │         1.17 │         112.880 │         1.13 │   1 day, 2:01:00 │    1     0     0   100 │
+│ liquidity:1757426700000 │                roi │      1 │         1.01 │          99.872 │          1.0 │          1:27:00 │    1     0     0   100 │
+│ liquidity:1759504800000 │                roi │      1 │         0.64 │          61.320 │         0.61 │          0:34:00 │    1     0     0   100 │
+│ liquidity:1758038400000 │                roi │      1 │         0.44 │          42.400 │         0.42 │          1:07:00 │    1     0     0   100 │
+│ liquidity:1759360800000 │                roi │      1 │         0.43 │          42.201 │         0.42 │          0:37:00 │    1     0     0   100 │
+│ liquidity:1757377500000 │                roi │      1 │         0.33 │          32.844 │         0.33 │          1:52:00 │    1     0     0   100 │
+│ liquidity:1758029700000 │                roi │      1 │         0.25 │          24.031 │         0.24 │          0:11:00 │    1     0     0   100 │
+│ liquidity:1758293400000 │                roi │      1 │         0.24 │          22.660 │         0.23 │          0:16:00 │    1     0     0   100 │
+│ liquidity:1759407900000 │                roi │      1 │         0.21 │          20.596 │         0.21 │          1:12:00 │    1     0     0   100 │
+│ liquidity:1758149700000 │                roi │      1 │          0.2 │          19.465 │         0.19 │          0:06:00 │    1     0     0   100 │
+│ liquidity:1756961700000 │                roi │      1 │         0.16 │          16.000 │         0.16 │          0:22:00 │    1     0     0   100 │
+│ liquidity:1759356000000 │                roi │      1 │         0.16 │          15.323 │         0.15 │          0:03:00 │    1     0     0   100 │
+│ liquidity:1757055300000 │                roi │      1 │         0.11 │          10.738 │         0.11 │          0:01:00 │    1     0     0   100 │
+│ liquidity:1759132800000 │                roi │      1 │         0.11 │          10.624 │         0.11 │          0:36:00 │    1     0     0   100 │
+│ liquidity:1758275400000 │                roi │      1 │          0.1 │           9.409 │         0.09 │          2:31:00 │    1     0     0   100 │
+│ liquidity:1759477200000 │                roi │      1 │         0.09 │           8.980 │         0.09 │          0:31:00 │    1     0     0   100 │
+│ liquidity:1759209900000 │                roi │      1 │         0.09 │           8.824 │         0.09 │          2:08:00 │    1     0     0   100 │
+│ liquidity:1757397300000 │                roi │      1 │         0.08 │           8.258 │         0.08 │          0:04:00 │    1     0     0   100 │
+│ liquidity:1758146700000 │                roi │      1 │         0.07 │           7.150 │         0.07 │          0:05:00 │    1     0     0   100 │
+│ liquidity:1757628900000 │                roi │      1 │         0.03 │           2.868 │         0.03 │          0:00:00 │    1     0     0   100 │
+│ liquidity:1757664300000 │          stop_loss │      1 │        -0.16 │         -15.686 │        -0.16 │          0:03:00 │    0     0     1     0 │
+│ liquidity:1758334500000 │          stop_loss │      1 │        -0.17 │         -16.591 │        -0.17 │          0:02:00 │    0     0     1     0 │
+│ liquidity:1757316600000 │          stop_loss │      1 │         -0.2 │         -19.243 │        -0.19 │          0:01:00 │    0     0     1     0 │
+│ liquidity:1757465400000 │ trailing_stop_loss │      1 │         -0.2 │         -19.255 │        -0.19 │          0:11:00 │    0     0     1     0 │
+│ liquidity:1759497900000 │          stop_loss │      1 │         -0.2 │         -19.563 │         -0.2 │          0:02:00 │    0     0     1     0 │
+│ liquidity:1758849300000 │          stop_loss │      1 │        -0.23 │         -22.883 │        -0.23 │          0:09:00 │    0     0     1     0 │
+│ liquidity:1757728500000 │          stop_loss │      1 │        -0.24 │         -23.544 │        -0.24 │          0:10:00 │    0     0     1     0 │
+│ liquidity:1758130800000 │          stop_loss │      1 │        -0.25 │         -24.771 │        -0.25 │          0:01:00 │    0     0     1     0 │
+│ liquidity:1757940600000 │          stop_loss │      1 │        -0.26 │         -25.514 │        -0.26 │          0:30:00 │    0     0     1     0 │
+│ liquidity:1757926500000 │ trailing_stop_loss │      1 │        -0.26 │         -25.729 │        -0.26 │          0:06:00 │    0     0     1     0 │
+│ liquidity:1759175100000 │          stop_loss │      1 │        -0.27 │         -26.331 │        -0.26 │          0:12:00 │    0     0     1     0 │
+│ liquidity:1759156800000 │          stop_loss │      1 │        -0.28 │         -27.609 │        -0.28 │          0:39:00 │    0     0     1     0 │
+│ liquidity:1758843300000 │ trailing_stop_loss │      1 │         -0.3 │         -29.728 │         -0.3 │          0:23:00 │    0     0     1     0 │
+│ liquidity:1757336700000 │          stop_loss │      1 │        -0.33 │         -32.416 │        -0.32 │          0:29:00 │    0     0     1     0 │
+│ liquidity:1757701800000 │          stop_loss │      1 │        -0.33 │         -32.730 │        -0.33 │          1:38:00 │    0     0     1     0 │
+│ liquidity:1757999400000 │          stop_loss │      1 │        -0.35 │         -33.603 │        -0.34 │          0:03:00 │    0     0     1     0 │
+│ liquidity:1758907500000 │          stop_loss │      1 │        -0.37 │         -35.686 │        -0.36 │          1:32:00 │    0     0     1     0 │
+│ liquidity:1757057100000 │          stop_loss │      1 │        -0.38 │         -37.305 │        -0.37 │          1:49:00 │    0     0     1     0 │
+│ liquidity:1758236400000 │ trailing_stop_loss │      1 │         -0.4 │         -38.789 │        -0.39 │          0:41:00 │    0     0     1     0 │
+│ liquidity:1758871800000 │ trailing_stop_loss │      1 │        -0.41 │         -39.559 │         -0.4 │          0:24:00 │    0     0     1     0 │
+│ liquidity:1757915700000 │          stop_loss │      1 │        -0.41 │         -39.916 │         -0.4 │          0:41:00 │    0     0     1     0 │
+│ liquidity:1759431300000 │          stop_loss │      1 │        -0.45 │         -43.084 │        -0.43 │          3:00:00 │    0     0     1     0 │
+│ liquidity:1756994700000 │          stop_loss │      1 │        -0.44 │         -43.787 │        -0.44 │          0:26:00 │    0     0     1     0 │
+│ liquidity:1759412700000 │          stop_loss │      1 │        -0.46 │         -44.390 │        -0.44 │          0:52:00 │    0     0     1     0 │
+│ liquidity:1758164700000 │          stop_loss │      1 │        -0.51 │         -49.894 │         -0.5 │         19:50:00 │    0     0     1     0 │
+│ liquidity:1757432400000 │          stop_loss │      1 │        -0.56 │         -56.237 │        -0.56 │          3:51:00 │    0     0     1     0 │
+│ liquidity:1757026500000 │          stop_loss │      1 │        -0.71 │         -70.023 │         -0.7 │          0:36:00 │    0     0     1     0 │
+│                   TOTAL │                    │     48 │        -0.02 │        -170.067 │         -1.7 │          3:22:00 │   21     0    27  43.8 │
+└─────────────────────────┴────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Metric                                 ┃ Value                                     ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Backtesting from                       │ 2025-09-04 00:00:00                       │
+│ Backtesting to                         │ 2025-10-04 00:00:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 48 / 1.6                                  │
+│ Starting balance                       │ 10000 USDT                                │
+│ Final balance                          │ 9829.933 USDT                             │
+│ Absolute profit                        │ -170.067 USDT                             │
+│ Total profit %                         │ -1.70%                                    │
+│ CAGR %                                 │ -18.84%                                   │
+│ Sharpe (closed trades)                 │ -2.51                                     │
+│ Sortino (closed trades)                │ -8.61                                     │
+│ Calmar (closed trades)                 │ -35.30                                    │
+│ SQN                                    │ -0.56                                     │
+│ Mean profit p-value                    │ 0.5756                                    │
+│ Profit factor                          │ 0.81                                      │
+│ Expectancy (Ratio)                     │ -3.54 (-0.11)                             │
+│ Avg. daily profit                      │ -5.669 USDT                               │
+│ Avg. stake amount                      │ 9659.463 USDT                             │
+│ Market change                          │ 9.33%                                     │
+│ Total trade volume                     │ 927376.865 USDT                           │
+│                                        │                                           │
+│ Long / Short trades                    │ 27 / 21                                   │
+│ Long / Short profit %                  │ -3.19% / 1.48%                            │
+│ Long / Short profit USDT               │ -318.504 / 148.438                        │
+│                                        │                                           │
+│ Best Pair                              │ BTC/USDT:USDT -1.70%                      │
+│ Worst Pair                             │ BTC/USDT:USDT -1.70%                      │
+│ Best trade                             │ BTC/USDT:USDT 2.47%                       │
+│ Worst trade                            │ BTC/USDT:USDT -0.71%                      │
+│ Best day                               │ 147.356 USDT                              │
+│ Worst day                              │ -127.856 USDT                             │
+│ Days win/draw/lose                     │ 10 / 8 / 12                               │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:00 / 3d 11:29 / 0d 05:52            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:01 / 0d 19:50 / 0d 01:25            │
+│ Max Consecutive Wins / Loss            │ 4 / 7                                     │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 1 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 9768.614 USDT / 10077.818 USDT            │
+│ Max % of account underwater            │ 3.07%                                     │
+│ Absolute drawdown                      │ 309.205 USDT (3.07%)                      │
+│ Drawdown duration                      │ 23 days 21:55:00                          │
+│ Profit at drawdown start               │ 77.818 USDT                               │
+│ Profit at drawdown end                 │ -231.386 USDT                             │
+│ Drawdown start                         │ 2025-09-09 15:37:00                       │
+│ Drawdown end                           │ 2025-10-03 13:32:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 9768.614 USDT / 10077.818 USDT            │
+│ Min/Max balance dates (wallet balance) │ 2025-10-03 13:35:00 / 2025-09-09 15:40:00 │
+│ Max % of account underwater (balance)  │ 3.07%                                     │
+│ Absolute drawdown (wallet balance)     │ 309.205 USDT (3.07%)                      │
+│ Drawdown duration                      │ 23 days 21:55:00                          │
+│ Profit at drawdown start               │ 77.818 USDT                               │
+│ Profit at drawdown end                 │ -231.386 USDT                             │
+│ Drawdown start                         │ 2025-09-09 15:40:00                       │
+│ Drawdown end                           │ 2025-10-03 13:35:00                       │
+│ Sharpe (daily wallet balance)          │ -0.80                                     │
+│ Sortino (daily wallet balance)         │ -1.25                                     │
+│ Calmar (daily wallet balance)          │ -36.52                                    │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2025-09-04 00:00:00 -> 2025-10-04 00:00:00 | Max open trades : 1
+                                                              STRATEGY SUMMARY                                                              
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃          Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃            Drawdown ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│ LiquidityStrategy │     48 │        -0.02 │        -170.067 │         -1.7 │      3:22:00 │   21     0    27  43.8 │ 309.205 USDT  3.07% │
+└───────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┴─────────────────────┘
