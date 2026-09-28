@@ -1,0 +1,12 @@
+{
+  "_title": "MNQ futures 5m — NY range 15 min, vstup ked VWAP (od 9:30 NY) prerazi za range a cena je tam tiez, RR 1,5",
+  "_strategy": "vwaporb",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Vychodiskovy profil VWAP ORB 1.0 (2026-09-28): New York range 9:30-9:45 NY, VWAP od 9:30 NY z 15m,",
+    "long ked VWAP aj close nad high rangu, short zrkadlovo; vstup market na zavreti, stop na opacnej",
+    "strane rangu (+0,1 ATR), ciel 1,5R, zatvorenie 15:55 NY. Nie je to obchodne odporucanie."
+  ],
+  "tickDollarValue": 0.5
+}

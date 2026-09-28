@@ -24,6 +24,7 @@ from .sdzone import SPEC as SDZONE_SPEC
 from .structure import SPEC as STRUCTURE_SPEC
 from .trendlines import SPEC as TRENDLINES_SPEC
 from .vwapdrift import SPEC as VWAPDRIFT_SPEC
+from .vwaporb import SPEC as VWAPORB_SPEC
 
 STRATEGIES: dict[str, StrategySpec] = {
     IBS_SPEC.key: IBS_SPEC,
@@ -43,6 +44,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     TRENDLINES_SPEC.key: TRENDLINES_SPEC,
     LIQUIDITY_SPEC.key: LIQUIDITY_SPEC,
     VWAPDRIFT_SPEC.key: VWAPDRIFT_SPEC,
+    VWAPORB_SPEC.key: VWAPORB_SPEC,
 }
 
 #: Staré kľúče -> dnešné. História behov, profily a odkazy z minulosti sa nemenia na disku;

@@ -215,6 +215,14 @@ class ORBEngine:
             return True, Direction.SHORT
         return False, None
 
+    def _break_allowed(self, st: _SessionState, direction: Direction, bar: Bar,
+                       atr: float) -> bool:
+        """Háčik pre varianty ORB (VWAP ORB): smie byť prerazenie v tomto smere signálom?
+
+        ORB sám žiadnu podmienku navyše nemá — preto sa ORBNet (C# prepis) nemusí meniť.
+        """
+        return True
+
     def _volume_ok(self, bar: Bar) -> bool:
         if not self.cfg.useVolumeFilter:
             return True
@@ -356,6 +364,8 @@ class ORBEngine:
             if st.ema_side is not None:
                 long_break = long_break and st.ema_side is Direction.LONG
                 short_break = short_break and st.ema_side is Direction.SHORT
+            long_break = long_break and self._break_allowed(st, Direction.LONG, bar, atr)
+            short_break = short_break and self._break_allowed(st, Direction.SHORT, bar, atr)
             if not (long_break or short_break):
                 return
             if not self._volume_ok(bar) or not self._close_position_ok(bar, long_break):

@@ -1,4 +1,6 @@
-"""Drift VWAP Pullback — prvý návrat ceny k VWAP v smere jeho sklonu.
+"""VWAP Session 1.0 (kľúč `vwapdrift`) — Drift VWAP Pullback: návrat ceny k VWAP v smere jeho sklonu.
+
+Do 2026-09-28 sa volala „Drift VWAP Pullback"; kľúč ostal, aby história behov patrila k nej.
 
 VWAP ukotvený na otvorení 9:30 New York (alebo klasický seansový VWAP), počítaný z 15m
 sviečok a zobrazený na 5m grafe; sklon VWAP („drift") určí smer dňa a obchoduje sa prvý
@@ -21,7 +23,7 @@ from .params import GROUPS, PARAMS
 
 SPEC = StrategySpec(
     key="vwapdrift",
-    title="Drift VWAP Pullback — prvý návrat k VWAP v smere driftu",
+    title="VWAP Session 1.0",
     config_cls=VwapDriftConfig,
     profile_dir=CONFIG_DIR,
     default_profile="mnq_databento_5m",
