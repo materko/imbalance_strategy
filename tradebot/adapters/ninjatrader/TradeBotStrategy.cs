@@ -906,6 +906,8 @@ namespace NinjaTrader.NinjaScript.Strategies
                 if (!better) continue;
                 t.LastStop = stop;
                 SetStopLoss(kv.Key, CalculationMode.Price, Tick(stop), false);
+                // kazdy posun stopu ide do spoolu ako order/modify, aby webapp videla trailing (docs/LIVE.md)
+                if (_spool != null) { _spool.Modify(bar.Time, kv.Key, Tick(stop), null, "trailing", State == State.Realtime); SpoolCheck(); }
             }
         }
 

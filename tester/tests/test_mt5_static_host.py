@@ -187,6 +187,8 @@ def test_spool_zapise_platne_udalosti(static_host, tmp_path):
         assert static_host.SpoolRealtime(h, True) == 1
         _feed_bars(static_host, h, 2, True)
         assert static_host.SpoolFill(h, 1_790_000_600_500, "L-1", True, "", 20001.25, 1.0, True) == 1, static_host.LastError()
+        # trailing posunul SL: order/modify, tp=0 -> null (MQL nemá nullable)
+        assert static_host.SpoolModify(h, 1_790_000_720_000, "L-1", 20005.5, 0.0, "trailing", True) == 1, static_host.LastError()
         assert static_host.SpoolFill(h, 1_790_000_700_500, "L-1", False, "sltp", 20011.25, 1.0, True) == 1
         assert static_host.SpoolNote(h, "warn", "bar prisiel neskoro") == 1
         assert static_host.SpoolClose(h, "deinit") == 1, static_host.LastError()
@@ -216,6 +218,14 @@ def test_spool_zapise_platne_udalosti(static_host, tmp_path):
     assert bars[0]["bt"] == 1_790_000_000_000 and bars[0]["o"] == 20000.0 and "mb" in bars[0]
     fills = [e for e in events if e["k"] == "fill"]
     assert [(f["side"], f["exit"], f["id"]) for f in fills] == [("in", "", "L-1"), ("out", "sltp", "L-1")]
+    mods = [e for e in events if e["k"] == "order" and e["a"] == "modify"]
+    assert len(mods) == 1
+    mod = mods[0]
+    assert mod["id"] == "L-1" and mod["bt"] == 1_790_000_720_000 and mod["ready"] is True and mod["r"] == "trailing"
+    assert mod["p"] == {"sl": 20005.5, "tp": None}
+    assert events.index(mod) < events.index(next(e for e in events if e["k"] == "fill" and e["side"] == "out"))
+    with pytest.raises(schema.SchemaError):
+        schema.validate(dict(mod, a="move"))                        # neznáma akcia orderu sa odmietne
     note = next(e for e in events if e["k"] == "note")
     assert note["level"] == "warn" and "neskoro" in note["text"]
     stat = next(e for e in events if e["k"] == "stat")

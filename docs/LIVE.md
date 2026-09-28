@@ -67,6 +67,7 @@ Freqtrade a graf webapp).
 | `hello` | `schema`, `platform` (`ninjatrader`/`mt5`), `account`, `symbol`, `tf` (min), `strategy` (kľúč enginu), `profile` (názov/cesta), `session`, `host` (meno stroja), `tester` (bool), `config` (celý config enginu), `instrument` (InstrumentSpec ako JSON mostu) | prvý riadok každého súboru session (pri rotácii dňa sa zopakuje) |
 | `bar` | `bt,o,h,l,c,v`, `ready` (bool — engine smie obchodovať), `mb` (bias), `cs` (bool, koniec seansy, len keď true) | každý uzavretý bar grafu, aj pri prehrávaní predhistórie (`ready:false`) |
 | `order` | `bt`, `ready` + polia `OrderIntent.WriteJson` (`a` entry/cancel/close, `id`, `src`, `dir`, `ot`, `r`, `p{dir,e,sl,tp,q,sd,tr}`) | zámer enginu, jeden riadok na zámer |
+| `order` (`a: "modify"`) | `bt`, `ready`, `a: "modify"`, `id` (id vstupu), `p{sl,tp}` (nová hodnota alebo `null` = nemenené), `r` (`trailing` / iný dôvod) | adaptér (nie engine) posunul SL/TP pracujúceho orderu — každý posun trailingu; SL/TP pri vstupe nesie už plán, ten sa nehlási |
 | `event` | `bt` + `StateEvent.WriteJson` (`ts,z,f,to,r`) | prechod stavu zóny |
 | `draw` | `bt`, `d`: pole `DrawCommand` (box/line/label/bg/update/delete), `final` (bool, len pre kresby posledného baru) | keď engine za bar niečo nakreslil |
 | `fill` | `ft` (čas exekúcie ms UTC), `id` (id vstupu), `side` `in`/`out`, `exit` (meno výstupu: NT `Stop loss`/`Profit target`/`tb_close`/`tb_session_end`, MT5 `sltp`/`close`; pri `in` prázdne), `price`, `qty`, `ready` | vyplnenie u brokera (adaptér, nie engine) |
@@ -82,6 +83,7 @@ Príklad:
 {"seq":3,"t":1790000000457,"k":"order","bt":1789999820000,"ready":true,"a":"entry","id":"L-4711","src":4711,"dir":1,"ot":"limit","r":"zone touch","p":{"dir":1,"e":20090,"sl":20070,"tp":20150,"q":1,"sd":20}}
 {"seq":4,"t":1790000000458,"k":"draw","bt":1789999820000,"d":[{"t":"box","k":"zone","id":"z4711",...}]}
 {"seq":5,"t":1790000063000,"k":"fill","ft":1790000062800,"id":"L-4711","side":"in","exit":"","price":20090,"qty":1,"ready":true}
+{"seq":6,"t":1790000180002,"k":"order","bt":1790000000000,"ready":true,"a":"modify","id":"L-4711","p":{"sl":20085,"tp":null},"r":"trailing"}
 ```
 
 ## C# (`csharp/TradeBot.Core/Live.cs`)
@@ -104,6 +106,7 @@ public sealed class LiveSpool : IDisposable {
     public void Bar(Bar bar, EngineOutput output, bool ready, int marketBias);   // bar + order* + event* + draw
     public void FinalDrawings(Bar bar, IList<DrawCommand> drawings);            // draw s final:true
     public void Fill(long execMs, string id, bool entry, string exitName, double price, double qty, bool ready);
+    public void Modify(long barMs, string id, double? sl, double? tp, string reason, bool ready);  // order a:"modify" (null = nemenené)
     public void Note(string level, string text);
     public void Stats(Dictionary<string, double> stats);
     public void Close(string reason);    // stat sa píše zvlášť pred Close; Close = bye + Dispose
@@ -115,16 +118,18 @@ public sealed class LiveSpool : IDisposable {
 - `StaticHost` (MQL5) dostane: `SpoolOpen(handle, root, platform, account, symbol, profile, tester)`
   → 1/-1 (symbol/tf/strategy/config/instrument pozná zo slotu), `SpoolRealtime(handle, bool)`,
   `SpoolBar(handle, ready)` (posledný bar z `OnBar`), `SpoolFill(handle, execMs, id, entry, exitName,
-  price, qty, ready)`, `SpoolNote(handle, level, text)`, `SpoolClose(handle, reason)` (napíše aj
+  price, qty, ready)`, `SpoolModify(handle, barMs, id, sl, tp, reason, ready)` (MQL nemá nullable:
+  `sl`/`tp` ≤ 0 = nemenené → `null`), `SpoolNote(handle, level, text)`, `SpoolClose(handle, reason)` (napíše aj
   `stat`), `SpoolPath(handle)`; `Destroy` zavrie spool, ak ostal otvorený. `Version()` → **2**
   (EA kontroluje 2; starú DLL treba preinštalovať).
 - NinjaTrader volá `LiveSpool` priamo (`TradeBotStrategy.cs`): otvorí v `DataLoaded` (ak
   `LiveTelemetry && !IsInStrategyAnalyzer`), `Realtime = true` v `State.Realtime`, `Bar` hneď po
-  `Export(...)`, `Fill` vedľa `ExportFill`, `Stats` + `Close("terminated")` v `Terminated`.
+  `Export(...)`, `Fill` vedľa `ExportFill`, `Modify(..., "trailing", ...)` v `UpdateTrailing` pri každom
+  `SetStopLoss` po vstupe, `Stats` + `Close("terminated")` v `Terminated`.
 - MT5 EA (`TradeBotEA.mqh`) zrkadlo: `SpoolOpen` v `OnInit` po `Create` (koreň
   `TerminalInfoString(TERMINAL_COMMONDATA_PATH) + "\\Files\\TradeBot\\spool"`), `SpoolRealtime(true)`
   po `ReplayHistory`, `SpoolBar` hneď po `StaticHost::OnBar`, `SpoolFill` vedľa `ExportFill`,
-  `SpoolClose` v `OnDeinit`.
+  `SpoolModify` v `UpdateTrailing` po úspešnom `PositionModify`/`OrderModify`, `SpoolClose` v `OnDeinit`.
 
 ## Python (`tradebot/live/`)
 
@@ -143,8 +148,9 @@ LiveStore(path: Path)
 .ingest(agent: str, instance: str, session: str, events: list[dict]) -> int   # počet nových (idempotentné)
 .instances() -> list[dict]        # id, agent, platform, account, symbol, tf, strategy, profile, host, first_seen, last_seen, last_t, last_bar_ms, last_session, hello
 .instance(id) -> dict | None
-.events(instance, *, after: int = 0, kinds: list[str] | None = None, limit: int = 1000) -> list[dict]   # riadky {"id": rowid, "session", "seq", "event": {...}}
-.snapshot(instance, *, bars: int = 500) -> dict    # {"instance", "bars", "orders", "events", "draw", "fills", "stats", "notes"} za posledných N barov
+.sessions(instance) -> list[dict]  # behy, najnovší prvý: session, agent, started, ended, last_t, bars, fills, orders, first_bar_ms, last_bar_ms, profile, reason, live
+.events(instance, *, after: int = 0, kinds: list[str] | None = None, limit: int = 1000, session: str | None = None) -> list[dict]   # riadky {"id": rowid, "session", "seq", "event": {...}}
+.snapshot(instance, *, bars: int | None = None, session: str | None = None) -> dict    # {"instance", "session", "bars", "orders", "events", "draw", "fills", "stats", "notes"} za posledných N barov (500; so session celý beh do 5000)
 .export(after: int = 0, limit: int = 5000) -> list[dict]   # {"id", "agent", "instance", "session", "event"} — pre zrkadlo
 .cursor() -> int                   # max rowid
 ```
@@ -156,8 +162,9 @@ Hub (`tester/hub/live.py`, pripája `create_hub_app`), auth ako ostatné (token 
 | POST | `/api/live/events` | `{"agent", "batches": [{"instance", "session", "events": [...]}]}` → `{"accepted": n}`; `own(who, agent)` |
 | GET | `/api/live/instances` | zoznam |
 | GET | `/api/live/instances/{id}` | jedna |
-| GET | `/api/live/instances/{id}/events?after=&kinds=&limit=` | riadky |
-| GET | `/api/live/instances/{id}/snapshot?bars=` | snapshot |
+| GET | `/api/live/instances/{id}/sessions` | behy inštancie (`LiveStore.sessions`) |
+| GET | `/api/live/instances/{id}/events?after=&kinds=&limit=&session=` | riadky |
+| GET | `/api/live/instances/{id}/snapshot?bars=&session=` | snapshot (so `session=` len ten beh) |
 | GET | `/api/live/export?after=&limit=` | riadky pre zrkadlo |
 
 Agent (`tester/hub/agent.py`): v pomalom vlákne (`work()`) pribudne krok `_ship_live` — shipper
@@ -166,9 +173,21 @@ vznikne, keď existuje aspoň jeden koreň spoolu; heartbeat sa nemení. Headles
 
 Webapp (`tester/webapp/api/live.py`, `static/js/live.js`, karta **Live**): `LiveMirror` vlákno
 (každých 5 s `export` z hubu + lokálny spool, ak je) → `tester/live/mirror.sqlite`;
-`GET /api/live` (inštancie + stav zrkadla), `GET /api/live/{id}/snapshot`, `GET /api/live/{id}/events`.
-Graf: Plotly sviečky z `bar`, kresby cez `objectTraces` z `chart.js`, fills ako značky, tabuľky
-orderov a fillov; obnova každých 5 s.
+`GET /api/live` (inštancie + stav zrkadla), `GET /api/live/{id}/sessions`, `GET /api/live/{id}/snapshot?bars=&session=`,
+`GET /api/live/{id}/events?…&session=`.
+Graf: Plotly sviečky z `bar`, kresby cez `objectTraces` z `chart.js`, fills ako značky, posuny SL/TP
+(`order` `a:"modify"`) ako malé stupienky a riadky „posun SL/TP“ v tabuľke orderov; obnova každých 5 s.
+
+**Behy (sessions).** Každý štart stratégie je nový beh — `session` v `hello` a v každom riadku
+spoolu; dáta sa ukladajú po behoch a `LiveStore.sessions(instance)` z nich urobí prehľad (štart =
+`t` prvého `hello`, koniec = `t` `bye`, počty barov/fillov/orderov, profil, dôvod ukončenia,
+`live` = bez `bye` a posledná udalosť do 3 barov TF). V detaile inštancie je výber **Beh**:
+„aktuálny / živý“ = posledných 500 barov naprieč behmi ako doteraz (po reštarte teda vidno
+prehratú predhistóriu aj nový beh v jednom okne), pod ním behy od najnovšieho ako
+`štart UTC → koniec UTC (bary, fills, profil)`. Vybraný beh načíta `snapshot?session=` — celý beh
+(do 5000 barov), tabuľky orderov a fillov aj graf idú len z neho, pod hlavičkou je jeho agent, profil,
+stroj a dôvod konca. Ukončený beh sa už neobnovuje; živý beh a „aktuálny“ ďalej každých 5 s. Zrkadlo
+nič navyše nerobí — nesie všetky behy tak, ako prišli z hubu.
 
 ## Fáza 2: ovládanie cez control súbor
 
@@ -215,5 +234,5 @@ nové pripojenie z mena a hesla NT API nemá.
   shipper proti falošnému HTTP (výpadok = kurzor stojí, po návrate nič dvakrát).
 - `tester/tests/test_hub.py` — `/api/live/*` cez TestClient, práva tokenov.
 - `tester/tests/test_mt5_static_host.py` — `Spool*` cez reflexiu: súbor vznikne, `hello`+`bar`+`fill`
-  sú platné podľa `schema.validate`, `Version() == 2`.
+  +`order/modify` sú platné podľa `schema.validate`, `Version() == 2`.
 - `python -m tradebot.adapters.ninjatrader check` a `python -m tradebot.adapters.mt5 check` prekladajú.

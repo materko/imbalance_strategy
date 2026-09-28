@@ -117,6 +117,65 @@ def test_snapshot_window_and_duplicate_bars(tmp_path: Path):
     assert prazdny["instance"] is None and prazdny["bars"] == [] and prazdny["stats"] is None
 
 
+def test_sessions_summary_live_flag_and_snapshot_per_session(tmp_path: Path):
+    """Dva behy jednej inštancie: starší ukončený (`bye`), novší živý — prehľad behov,
+    príznak `live` podľa hodín a snapshot/events obmedzené na jeden beh."""
+    hodiny = {"now": (BT0 + 20 * 180_000) / 1000.0}
+    st = LiveStore(tmp_path / "live.sqlite", clock=lambda: hodiny["now"])
+    # beh 1: hello, 5 barov, order + fill, stat, bye
+    stary = [hello()] + [bar(2 + i, i) for i in range(5)] + [order(7, 2), fill(8, 2),
+             {"seq": 9, "t": BT0, "k": "stat", "stats": {"trades": 1}},
+             {"seq": 10, "t": BT0 + 5 * 180_000 + 1_000, "k": "bye", "reason": "terminated"}]
+    st.ingest("srv", INST, "a1b2c3d4", stary)
+    # beh 2 (reštart, iný agent, iný profil): prehrá bary 3–4 (ready:false), potom 5–9 naživo, bez bye
+    h2 = hello(1, "ffffffff", t=BT0 + 6 * 180_000)
+    h2["profile"] = "nas100_v2"
+    novy = [h2, bar(2, 3, ready=False), bar(3, 4, ready=False)] + [bar(4 + i, 5 + i) for i in range(5)]
+    novy += [order(20, 7), order(21, 8), fill(22, 8), fill(23, 9)]
+    st.ingest("srv2", INST, "ffffffff", novy)
+
+    behy = st.sessions(INST)
+    assert [s["session"] for s in behy] == ["ffffffff", "a1b2c3d4"]        # najnovší prvý
+    s1, s2 = behy[1], behy[0]
+    assert s1["started"] == BT0 and s1["ended"] == BT0 + 5 * 180_000 + 1_000 and s1["reason"] == "terminated"
+    assert s1["bars"] == 5 and s1["fills"] == 1 and s1["orders"] == 1 and s1["agent"] == "srv"
+    assert s1["first_bar_ms"] == BT0 and s1["last_bar_ms"] == BT0 + 4 * 180_000
+    assert s1["profile"] == "nas100_dukas_3m" and s1["live"] is False
+    assert s2["started"] == BT0 + 6 * 180_000 and s2["ended"] is None and s2["reason"] is None
+    assert s2["bars"] == 7 and s2["fills"] == 2 and s2["orders"] == 2 and s2["agent"] == "srv2"
+    assert s2["first_bar_ms"] == BT0 + 3 * 180_000 and s2["last_bar_ms"] == BT0 + 9 * 180_000
+    assert s2["last_t"] == bar(0, 9)["t"] and s2["profile"] == "nas100_v2"
+    # posledná udalosť behu 2 je bar 9 (t = BT0 + 10 barov); teraz je BT0 + 20 barov → 10 barov ticha > 3
+    assert s2["live"] is False
+    hodiny["now"] = (BT0 + 12 * 180_000) / 1000.0                          # 2 bary od poslednej udalosti
+    assert st.sessions(INST)[0]["live"] is True
+    assert st.sessions("nie-je") == []
+
+    # snapshot behu 1: len jeho bary/ordery/fills/stat/bye, aj keď beh 2 tie isté bary prepísal
+    a = st.snapshot(INST, session="a1b2c3d4")
+    assert a["session"] == "a1b2c3d4"
+    assert [b["bt"] for b in a["bars"]] == [BT0 + i * 180_000 for i in range(5)]
+    assert all(b["ready"] for b in a["bars"])
+    assert [o["id"] for o in a["orders"]] == ["L-2"] and [f["id"] for f in a["fills"]] == ["L-2"]
+    assert a["stats"] == {"trades": 1} and [n["k"] for n in a["notes"]] == ["bye"]
+    # snapshot behu 2: celý beh (7 barov, replay ready:false), bez stat behu 1
+    b = st.snapshot(INST, session="ffffffff")
+    assert [x["bt"] for x in b["bars"]] == [BT0 + i * 180_000 for i in range(3, 10)]
+    assert b["bars"][0]["ready"] is False and b["stats"] is None and b["notes"] == []
+    assert [o["id"] for o in b["orders"]] == ["L-7", "L-8"] and [f["id"] for f in b["fills"]] == ["L-8", "L-9"]
+    assert len(st.snapshot(INST, session="ffffffff", bars=2)["bars"]) == 2
+    # bez session: ako doteraz — naprieč behmi, posledný zápis baru platí
+    c = st.snapshot(INST)
+    assert c["session"] is None and [x["bt"] for x in c["bars"]] == [BT0 + i * 180_000 for i in range(10)]
+    assert c["bars"][3]["ready"] is False and c["stats"] == {"trades": 1}
+    assert st.snapshot("nie-je", session="x")["session"] == "x"
+
+    # events so session
+    assert [r["seq"] for r in st.events(INST, session="a1b2c3d4", kinds=["bar"])] == [2, 3, 4, 5, 6]
+    assert [r["session"] for r in st.events(INST, session="ffffffff", limit=1)] == ["ffffffff"]
+    assert len(st.events(INST, limit=100)) == len(stary) + len(novy)
+
+
 def test_export_and_cursor_for_mirror(tmp_path: Path):
     hub = LiveStore(tmp_path / "hub.sqlite")
     zrkadlo = LiveStore(tmp_path / "mirror.sqlite")

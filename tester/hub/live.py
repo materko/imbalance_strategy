@@ -63,16 +63,24 @@ def add_live_routes(app: FastAPI, state: Any, store: LiveStore, auth: Callable[.
             raise HTTPException(404, "inštancia neexistuje")
         return inst
 
+    @app.get("/api/live/instances/{instance}/sessions")
+    def live_instance_sessions(instance: str, who: str = Depends(auth)):
+        """Behy (sessions) inštancie, najnovší prvý — každý štart stratégie je jeden."""
+        if store.instance(instance) is None:
+            raise HTTPException(404, "inštancia neexistuje")
+        return store.sessions(instance)
+
     @app.get("/api/live/instances/{instance}/events")
     def live_instance_events(instance: str, after: int = Query(0, ge=0), kinds: str | None = None,
-                             limit: int = Query(1000, ge=1, le=20000), who: str = Depends(auth)):
+                             limit: int = Query(1000, ge=1, le=20000), session: str | None = None,
+                             who: str = Depends(auth)):
         druhy = [k for k in (kinds or "").split(",") if k] or None
-        return store.events(instance, after=after, kinds=druhy, limit=limit)
+        return store.events(instance, after=after, kinds=druhy, limit=limit, session=session or None)
 
     @app.get("/api/live/instances/{instance}/snapshot")
-    def live_instance_snapshot(instance: str, bars: int = Query(500, ge=1, le=20000),
-                               who: str = Depends(auth)):
-        return store.snapshot(instance, bars=bars)
+    def live_instance_snapshot(instance: str, bars: int | None = Query(None, ge=1, le=20000),
+                               session: str | None = None, who: str = Depends(auth)):
+        return store.snapshot(instance, bars=bars, session=session or None)
 
     @app.get("/api/live/export")
     def live_export(after: int = Query(0, ge=0), limit: int = Query(5000, ge=1, le=50000),

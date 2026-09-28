@@ -1,5 +1,6 @@
 // Live telemetria: bezaca strategia (NinjaTrader 8, MetaTrader 5) pise bary, zamery engine-u, prechody
-// stavov, kresby a vyplnenia do append-only JSONL spoolu na lokalnom disku; agent hubu ho odtial
+// stavov, kresby, vyplnenia a posuny SL/TP adaptera (`Modify`, trailing) do append-only JSONL spoolu
+// na lokalnom disku; agent hubu ho odtial
 // odosiela do webapp (docs/LIVE.md). Siet z platformy nejde nikdy - ked nic necita, subory cakaju.
 //
 // Zapis je synchronny v obchodnom vlakne (riadok JSON na uzavrety bar je lacny), ale NIKDY nesmie
@@ -295,6 +296,26 @@ namespace TradeBot.Core
                     JsonWriter w = Begin("fill");
                     w.Key("ft").Value(execMs).Key("id").Value(id ?? "").Key("side").Value(entry ? "in" : "out");
                     w.Key("exit").Value(entry ? "" : (exitName ?? "")).Key("price").Value(price).Key("qty").Value(qty).Key("ready").Value(ready);
+                    End(w);
+                }
+            }
+            catch (Exception e) { Break(e); }
+        }
+
+        /// <summary>Adapter posunul SL/TP pracujuceho orderu (trailing, rucny zasah...): riadok `order`
+        /// s `a:"modify"`, `p{sl,tp}` (null = nemenene) a dovodom `r`. Zamery enginu (entry/cancel/close)
+        /// idu cez `Bar`; toto je jediny `order` riadok, ktory pise adapter sam.</summary>
+        public void Modify(long barMs, string id, double? sl, double? tp, string reason, bool ready)
+        {
+            try
+            {
+                lock (_gate)
+                {
+                    if (Off()) return;
+                    JsonWriter w = Begin("order");
+                    w.Key("bt").Value(barMs).Key("ready").Value(ready).Key("a").Value("modify").Key("id").Value(id ?? "");
+                    w.Key("p").BeginObject().Key("sl").Value(sl).Key("tp").Value(tp).EndObject();
+                    w.Key("r").Value(reason ?? "");
                     End(w);
                 }
             }

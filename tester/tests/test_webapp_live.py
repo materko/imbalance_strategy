@@ -102,6 +102,61 @@ def test_api_instancia_a_snapshot(live_app):
     assert [r["event"]["k"] for r in dalsie] == ["order", "draw", "fill"]
 
 
+def _bye(seq: int, t: int, reason: str = "terminated") -> dict:
+    return {"seq": seq, "t": t, "k": "bye", "reason": reason}
+
+
+def _second_session(t0: int = 1_790_000_000_000 + 600_000) -> list[dict]:
+    """Nový štart stratégie o 10 min neskôr: iný profil, dva bary, jeden posun SL/TP, bez `bye`."""
+    h = _hello("ffffffff", 1, t0)
+    h["profile"] = "nas100_v2"
+    return [
+        h,
+        {"seq": 2, "t": t0 + 1, "k": "bar", "bt": t0 - 180_000, "o": 20110.0, "h": 20120.0, "l": 20105.0,
+         "c": 20115.0, "v": 900, "ready": True, "mb": 1},
+        {"seq": 3, "t": t0 + 2, "k": "order", "bt": t0 - 180_000, "ready": True, "a": "modify", "id": "L-4711",
+         "r": "trail", "p": {"sl": 20080.0, "tp": 20150.0}},
+        {"seq": 4, "t": t0 + 180_001, "k": "bar", "bt": t0, "o": 20115.0, "h": 20125.0, "l": 20110.0,
+         "c": 20120.0, "v": 800, "ready": True, "mb": 1},
+    ]
+
+
+def test_api_behy_a_snapshot_so_session(live_app):
+    """Dva behy jednej inštancie v zrkadle: `/sessions` ich vymenuje (najnovší prvý, živý bez `bye`),
+    snapshot/events so `session=` dajú len ten beh; bez `session` ako doteraz naprieč behmi."""
+    c, mirror = live_app
+    t0 = 1_790_000_000_000
+    st = LiveStore(mirror.mirror_path)
+    st.ingest("agent-x", INSTANCE, "a1b2c3d4", _events() + [_bye(6, t0 + 120_000)])
+    st.ingest("agent-x", INSTANCE, "ffffffff", _second_session(t0 + 600_000))
+    mirror.clock = lambda: (t0 + 600_000 + 240_000) / 1000.0
+
+    assert c.get("/api/live/neexistuje/sessions").status_code == 404
+    behy = c.get(f"/api/live/{INSTANCE}/sessions").json()
+    assert [b["session"] for b in behy] == ["ffffffff", "a1b2c3d4"]
+    assert behy[1]["ended"] == t0 + 120_000 and behy[1]["reason"] == "terminated" and behy[1]["live"] is False
+    assert behy[1]["bars"] == 1 and behy[1]["fills"] == 1 and behy[1]["orders"] == 1 and behy[1]["profile"] == "nas100_dukas_3m"
+    assert behy[0]["started"] == t0 + 600_000 and behy[0]["ended"] is None and behy[0]["profile"] == "nas100_v2"
+    assert behy[0]["bars"] == 2 and behy[0]["orders"] == 1 and behy[0]["fills"] == 0 and behy[0]["agent"] == "agent-x"
+    # hodiny zrkadla: 4 min po štarte behu 2, posledný bar pred 1 min → do 3 barov TF = živý
+    assert behy[0]["live"] is True
+
+    a = c.get(f"/api/live/{INSTANCE}/snapshot?session=a1b2c3d4").json()
+    assert a["session"] == "a1b2c3d4" and [b["c"] for b in a["bars"]] == [20105.25]
+    assert [o["a"] for o in a["orders"]] == ["entry"] and [n["k"] for n in a["notes"]] == ["bye"]
+    b = c.get(f"/api/live/{INSTANCE}/snapshot?session=ffffffff").json()
+    assert [x["c"] for x in b["bars"]] == [20115.0, 20120.0] and [o["a"] for o in b["orders"]] == ["modify"]
+    assert b["fills"] == [] and b["notes"] == []
+    assert len(c.get(f"/api/live/{INSTANCE}/snapshot?session=ffffffff&bars=1").json()["bars"]) == 1
+    vsetko = c.get(f"/api/live/{INSTANCE}/snapshot").json()
+    assert vsetko["session"] is None and len(vsetko["bars"]) == 3
+    assert c.get(f"/api/live/{INSTANCE}/snapshot?bars=9999").status_code == 422
+
+    rows = c.get(f"/api/live/{INSTANCE}/events?session=ffffffff&kinds=order").json()
+    assert [r["event"]["a"] for r in rows] == ["modify"] and rows[0]["session"] == "ffffffff"
+    assert len(c.get(f"/api/live/{INSTANCE}/events?kinds=bar").json()) == 3
+
+
 # --------------------------------------------------------------------------- #
 # zrkadlo: hub
 # --------------------------------------------------------------------------- #
@@ -121,8 +176,9 @@ class _FakeHubHttp:
         return [r for r in self.rows if r["id"] > after][:limit]
 
 
-def _export_rows(events: list[dict], *, agent: str = "trade-pc", start_id: int = 1) -> list[dict]:
-    return [{"id": start_id + i, "agent": agent, "instance": INSTANCE, "session": "a1b2c3d4", "event": ev}
+def _export_rows(events: list[dict], *, agent: str = "trade-pc", start_id: int = 1,
+                 session: str = "a1b2c3d4") -> list[dict]:
+    return [{"id": start_id + i, "agent": agent, "instance": INSTANCE, "session": session, "event": ev}
             for i, ev in enumerate(events)]
 
 
@@ -150,6 +206,29 @@ def test_zrkadlo_stiahne_z_hubu_po_strankach_a_posunie_kurzor(tmp_path: Path):
     m.tick()
     assert m.hub_cursor == 5 and m.store.cursor() == 5
     assert http.calls[-1] == "/api/live/export?after=5&limit=5000"
+
+
+def test_zrkadlo_prenesie_dva_behy_jednej_instancie(tmp_path: Path):
+    """Reštart stratégie na obchodnom PC = druhá session tej istej inštancie; zrkadlo ju zoskupí
+    zvlášť (kľúč (agent, inštancia, session)) a `sessions()` zrkadla dá obe ako hub."""
+    t0 = 1_790_000_000_000
+    stary = _events() + [_bye(6, t0 + 120_000)]
+    rows = _export_rows(stary) + _export_rows(_second_session(t0 + 600_000), start_id=len(stary) + 1, session="ffffffff")
+    http = _FakeHubHttp(rows)
+    cfg = SimpleNamespace(name="notebook", hub_url="http://hub.test:8790", send=True)
+    m = _mirror(tmp_path, hub=(cfg, http), clock=lambda: (t0 + 600_000 + 240_000) / 1000.0)
+
+    assert m.pull_hub(http, limit=3) == len(rows)        # stránka pretne hranicu behov — nevadí
+    behy = m.store.sessions(INSTANCE)
+    assert [(b["session"], b["bars"], b["live"]) for b in behy] == [("ffffffff", 2, True), ("a1b2c3d4", 1, False)]
+    assert behy[1]["reason"] == "terminated" and behy[0]["profile"] == "nas100_v2"
+    assert m.store.instance(INSTANCE)["last_session"] == "ffffffff"
+    assert {r["session"] for r in m.store.events(INSTANCE)} == {"a1b2c3d4", "ffffffff"}
+    assert [o["a"] for o in m.store.snapshot(INSTANCE, session="ffffffff")["orders"]] == ["modify"]
+    # opakovaný export od nuly nič nezdvojí ani v jednom behu
+    m.hub_cursor = 0
+    assert m.pull_hub(http) == 0
+    assert [b["bars"] for b in m.store.sessions(INSTANCE)] == [2, 1]
 
 
 def test_zrkadlo_stranky_po_limite_a_opakovane_riadky(tmp_path: Path):

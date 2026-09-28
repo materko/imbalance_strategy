@@ -6,6 +6,10 @@ alebo opakovaný export do zrkadla nič nezdvojí). `rowid` udalostí je kurzor 
 (`export(after=)`) aj pre prírastkové čítanie z prehliadača (`events(after=)`).
 
 Store nič nepočíta — snapshot len poskladá posledných N barov a to, čo k nim patrí.
+
+Každý štart stratégie je nová **session** (beh): `sessions(instance)` dá prehľad behov
+(štart z `hello`, koniec z `bye`, počty), `snapshot`/`events` so `session=` čítajú len ten
+jeden beh — v webapp je to výber „Beh“ v detaile inštancie.
 """
 
 from __future__ import annotations
@@ -53,7 +57,14 @@ CREATE TABLE IF NOT EXISTS events (
 );
 CREATE INDEX IF NOT EXISTS events_instance_kind ON events (instance, kind, id);
 CREATE INDEX IF NOT EXISTS events_instance_bt ON events (instance, bt);
+CREATE INDEX IF NOT EXISTS events_instance_session_kind ON events (instance, session, kind, id);
 """
+
+#: Koľko barov dá snapshot bez / s vybranou session, keď volajúci počet neurčí.
+DEFAULT_BARS = 500
+SESSION_BARS = 5000
+#: Beh je „živý“, kým od poslednej udalosti neprešlo viac než toľko barov jeho TF (ako chip v webapp).
+LIVE_BARS = 3
 
 _INSTANCE_COLS = ("id", "agent", "platform", "account", "symbol", "tf", "strategy", "profile", "host",
                   "hello", "first_seen", "last_seen", "last_t", "last_bar_ms", "last_session")
@@ -146,9 +157,12 @@ class LiveStore:
         return d
 
     def events(self, instance: str, *, after: int = 0, kinds: list[str] | None = None,
-               limit: int = 1000) -> list[dict[str, Any]]:
+               limit: int = 1000, session: str | None = None) -> list[dict[str, Any]]:
         sql = "SELECT * FROM events WHERE instance = ? AND id > ?"
         args: list[Any] = [instance, int(after)]
+        if session:
+            sql += " AND session = ?"
+            args.append(session)
         if kinds:
             sql += " AND kind IN (%s)" % ",".join("?" * len(kinds))
             args.extend(kinds)
@@ -170,22 +184,78 @@ class LiveStore:
             r = self._db.execute("SELECT COALESCE(MAX(id), 0) AS m FROM events").fetchone()
         return int(r["m"])
 
-    def snapshot(self, instance: str, *, bars: int = 500) -> dict[str, Any]:
-        """Posledných `bars` barov a všetko, čo k nim patrí (ordery, udalosti, kresby, fills),
-        plus posledný `stat` a posledné poznámky — na graf a tabuľky v webapp."""
+    def sessions(self, instance: str) -> list[dict[str, Any]]:
+        """Behy (sessions) inštancie, najnovší prvý: štart (`t` z `hello`, inak prvej udalosti),
+        koniec (`t` z `bye`, inak None), posledná udalosť, počty barov/fillov/orderov, rozsah
+        barov, profil z `hello`, dôvod ukončenia a `live` — bez `bye` a posledná udalosť nie je
+        staršia než `LIVE_BARS` barov TF inštancie podľa hodín store."""
         inst = self.instance(instance)
         if inst is None:
-            return {"instance": None, "bars": [], "orders": [], "events": [], "draw": [], "fills": [],
-                    "stats": None, "notes": []}
+            return []
+        now_ms = self.clock() * 1000.0
+        okno_ms = LIVE_BARS * max(1, int(inst["tf"] or 0) or 1) * 60_000
+        with self._lock:
+            rows = self._db.execute(
+                "SELECT session, MIN(t) AS first_t, MAX(t) AS last_t, MAX(agent) AS agent, "
+                "SUM(kind = 'bar') AS bars, SUM(kind = 'fill') AS fills, SUM(kind = 'order') AS orders, "
+                "MIN(CASE WHEN kind = 'bar' THEN bt END) AS first_bar_ms, "
+                "MAX(CASE WHEN kind = 'bar' THEN bt END) AS last_bar_ms "
+                "FROM events WHERE instance = ? GROUP BY session",
+                (instance,)).fetchall()
+            out: list[dict[str, Any]] = []
+            for r in rows:
+                hello = self._db.execute(
+                    "SELECT body FROM events WHERE instance = ? AND session = ? AND kind = 'hello' ORDER BY id LIMIT 1",
+                    (instance, r["session"])).fetchone()
+                bye = self._db.execute(
+                    "SELECT body FROM events WHERE instance = ? AND session = ? AND kind = 'bye' ORDER BY id DESC LIMIT 1",
+                    (instance, r["session"])).fetchone()
+                h = json.loads(hello["body"]) if hello is not None else {}
+                b = json.loads(bye["body"]) if bye is not None else None
+                last_t = int(r["last_t"])
+                out.append({
+                    "session": r["session"],
+                    "agent": r["agent"] or "",
+                    "started": int(h["t"]) if h else int(r["first_t"]),
+                    "ended": int(b["t"]) if b is not None else None,
+                    "last_t": last_t,
+                    "bars": int(r["bars"] or 0),
+                    "fills": int(r["fills"] or 0),
+                    "orders": int(r["orders"] or 0),
+                    "first_bar_ms": int(r["first_bar_ms"]) if r["first_bar_ms"] is not None else None,
+                    "last_bar_ms": int(r["last_bar_ms"]) if r["last_bar_ms"] is not None else None,
+                    "profile": str(h.get("profile") or "") if h else "",
+                    "reason": str(b.get("reason") or "") if b is not None else None,
+                    "live": b is None and (now_ms - last_t) <= okno_ms,
+                })
+        out.sort(key=lambda s: (s["started"], s["last_t"]), reverse=True)
+        return out
+
+    def snapshot(self, instance: str, *, bars: int | None = None, session: str | None = None) -> dict[str, Any]:
+        """Posledných `bars` barov a všetko, čo k nim patrí (ordery, udalosti, kresby, fills),
+        plus posledný `stat` a posledné poznámky — na graf a tabuľky v webapp.
+
+        So `session=` sa všetko číta len z toho jedného behu (predvolene až `SESSION_BARS`
+        barov, nech je vidieť celý beh); bez nej je to posledných `DEFAULT_BARS` barov
+        inštancie naprieč behmi ako doteraz."""
+        if bars is None:
+            bars = SESSION_BARS if session else DEFAULT_BARS
+        inst = self.instance(instance)
+        if inst is None:
+            return {"instance": None, "session": session or None, "bars": [], "orders": [], "events": [],
+                    "draw": [], "fills": [], "stats": None, "notes": []}
         bars = max(1, int(bars))
+        # filter na session ide do každého dopytu rovnako; bez session je prázdny
+        ses_sql = " AND session = ?" if session else ""
+        ses_args: tuple[Any, ...] = (session,) if session else ()
         with self._lock:
             # posledných N **rôznych** barov: ten istý bar sa po reštarte zopakuje (prehratie
             # predhistórie), platí posledný zápis — inak by okno po reštarte bolo kratšie
             bar_rows = self._db.execute(
-                "SELECT body FROM events WHERE instance = ? AND kind = 'bar' AND id IN "
-                "(SELECT MAX(id) FROM events WHERE instance = ? AND kind = 'bar' GROUP BY bt) "
+                f"SELECT body FROM events WHERE instance = ? AND kind = 'bar'{ses_sql} AND id IN "
+                f"(SELECT MAX(id) FROM events WHERE instance = ? AND kind = 'bar'{ses_sql} GROUP BY bt) "
                 "ORDER BY bt DESC LIMIT ?",
-                (instance, instance, bars)).fetchall()
+                (instance, *ses_args, instance, *ses_args, bars)).fetchall()
             bar_list = [json.loads(r["body"]) for r in reversed(bar_rows)]
             # ten istý bar sa mohol zopakovať po reštarte (prehratie predhistórie) — nechaj posledný
             by_bt: dict[int, dict[str, Any]] = {}
@@ -196,20 +266,22 @@ class LiveStore:
 
             def kind(k: str, time_col: str = "bt") -> list[dict[str, Any]]:
                 rows = self._db.execute(
-                    f"SELECT body FROM events WHERE instance = ? AND kind = ? AND "
+                    f"SELECT body FROM events WHERE instance = ? AND kind = ?{ses_sql} AND "
                     f"COALESCE(json_extract(body, '$.{time_col}'), 0) >= ? ORDER BY id",
-                    (instance, k, since)).fetchall()
+                    (instance, k, *ses_args, since)).fetchall()
                 return [json.loads(r["body"]) for r in rows]
 
             stat = self._db.execute(
-                "SELECT body FROM events WHERE instance = ? AND kind = 'stat' ORDER BY id DESC LIMIT 1",
-                (instance,)).fetchone()
+                f"SELECT body FROM events WHERE instance = ? AND kind = 'stat'{ses_sql} ORDER BY id DESC LIMIT 1",
+                (instance, *ses_args)).fetchone()
             notes = self._db.execute(
-                "SELECT body FROM events WHERE instance = ? AND kind IN ('note', 'bye') ORDER BY id DESC LIMIT 20",
-                (instance,)).fetchall()
+                f"SELECT body FROM events WHERE instance = ? AND kind IN ('note', 'bye'){ses_sql} "
+                "ORDER BY id DESC LIMIT 20",
+                (instance, *ses_args)).fetchall()
         # kresby toho istého objektu po reštarte prídu znova — graf ich zlúči podľa `id`
         return {
             "instance": inst,
+            "session": session or None,
             "bars": bar_list,
             "orders": kind("order"),
             "events": kind("event"),

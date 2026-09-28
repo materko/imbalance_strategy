@@ -13,7 +13,7 @@ import re
 from typing import Any
 
 __all__ = [
-    "SCHEMA", "KINDS", "REQUIRED", "PLATFORMS", "CONTROL_MODES",
+    "SCHEMA", "KINDS", "REQUIRED", "PLATFORMS", "CONTROL_MODES", "ORDER_ACTIONS",
     "instance_id", "parse_line", "validate", "SchemaError",
 ]
 
@@ -25,6 +25,8 @@ PLATFORMS = ("ninjatrader", "mt5")
 REQUIRED: dict[str, tuple[str, ...]] = {
     "hello": ("schema", "platform", "account", "symbol", "tf", "strategy", "session"),
     "bar": ("bt", "o", "h", "l", "c", "v", "ready"),
+    #: `a` entry/cancel/close sú zámery enginu (`OrderIntent.WriteJson`); `modify` je adaptér
+    #: (posun SL/TP na pracujúcom ordere, napr. trailing): `p{sl,tp}` (null = nemenené), `r` dôvod.
     "order": ("bt", "ready", "a", "id"),
     "event": ("bt", "z", "f", "to"),
     "draw": ("bt", "d"),
@@ -37,6 +39,7 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "bye": (),
 }
 CONTROL_MODES = ("enabled", "paused", "flatten")
+ORDER_ACTIONS = ("entry", "cancel", "close", "modify")
 KINDS = tuple(REQUIRED)
 
 _BAD = re.compile(r"[^A-Za-z0-9._-]")
@@ -88,6 +91,8 @@ def validate(ev: Any) -> dict[str, Any]:
             raise SchemaError(f"hello: schéma {ev['schema']!r}, čítam {SCHEMA}")
         if ev["platform"] not in PLATFORMS:
             raise SchemaError(f"hello: neznáma platforma {ev['platform']!r}")
+    if kind == "order" and ev["a"] not in ORDER_ACTIONS:
+        raise SchemaError(f"order: a musí byť {'/'.join(ORDER_ACTIONS)}, je {ev['a']!r}")
     if kind == "fill" and ev["side"] not in ("in", "out"):
         raise SchemaError(f"fill: side musí byť in/out, je {ev['side']!r}")
     if kind == "draw" and not isinstance(ev["d"], list):

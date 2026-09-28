@@ -16,7 +16,8 @@
 // V MQL5 sa vola `StaticHost::Metoda(...)`; z pythonnet `clr.StaticHost` / `import StaticHost`.
 //
 // Live telemetria (docs/LIVE.md): `SpoolOpen` otvori `LiveSpool` pre slot (kluc, TF, config a instrument
-// pozna zo slotu), `SpoolBar` napise posledny bar z `OnBar`, `SpoolFill`/`SpoolNote`/`SpoolClose` zvysok;
+// pozna zo slotu), `SpoolBar` napise posledny bar z `OnBar`, `SpoolFill`/`SpoolModify` (posun SL/TP
+// adapterom, napr. trailing)/`SpoolNote`/`SpoolClose` zvysok;
 // `Destroy` zavrie spool, ak ostal otvoreny. Chyba spoolu strategiu nezhodi: -1 a text v `LastError()`.
 using System;
 using System.Collections.Generic;
@@ -232,6 +233,21 @@ public static class StaticHost
             Slot s = Get(handle);
             if (s.Spool == null) return 0;
             s.Spool.Fill(execMs, id, entry, exitName, price, qty, ready);
+            if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
+            return 1;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Adapter posunul SL/TP pracujuceho orderu (trailing...): riadok `order` s `a:"modify"`.
+    /// MQL nema nullable, preto `sl`/`tp` &lt;= 0 znamena "nemenene" a ide ako null.</summary>
+    public static int SpoolModify(int handle, long barMs, string id, double sl, double tp, string reason, bool ready)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            if (s.Spool == null) return 0;
+            s.Spool.Modify(barMs, id, sl > 0 ? sl : (double?)null, tp > 0 ? tp : (double?)null, reason, ready);
             if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
             return 1;
         }

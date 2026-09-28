@@ -9,10 +9,15 @@
 // zoznam aj otvorený detail sa obnovujú každých 5 s; inak sa nič nepýta.
 // Graf: sviečky z `bar`, kresby z `draw` zlúčené podľa `id` (update mení pole, delete
 // maže) a nakreslené tým istým `objectTraces` ako graf behu, vyplnenia ako značky.
+// Behy: každý štart stratégie je nová session; výber „Beh" v detaile načíta snapshot so
+// `session=` (celý beh, do 5000 barov). Ukončený beh sa neobnovuje, živý áno.
 // --------------------------------------------------------------------------- //
 
 const LIVE_POLL_MS = 5000;
 const LIVE_FILLS_LAYER = { id: "fills", title: "Vyplnenia u brokera", kinds: [], sw: BLUE, hollow_kinds: [] };
+const LIVE_MODIFY_COLOR = "#ff9800";
+/** Posuny SL/TP otvorenej pozície (`order` s `a:"modify"`) — malé stupienky na grafe. */
+const LIVE_MODIFY_LAYER = { id: "modify", title: "Posuny SL/TP", kinds: [], sw: LIVE_MODIFY_COLOR, hollow_kinds: [] };
 /** Polia `update` kresby (názvy atribútov objektu v jadre) → krátke kľúče JSON kresby. */
 const LIVE_DRAW_FIELD = { x1_ms: "x1", x2_ms: "x2", x_ms: "x", fill_color: "fc", border_color: "bc",
   border_style: "bs", border_width: "bw", extend_right: "er", color: "c", style: "s", width: "w",
@@ -21,9 +26,16 @@ const LIVE_DRAW_FIELD = { x1_ms: "x1", x2_ms: "x2", x_ms: "x", fill_color: "fc",
 const lv = {
   timer: null, selected: null, instances: [], now: 0, mirror: null,
   snap: null, seq: 0,
+  session: "", sessions: [], sessionsKey: "", // vybraný beh ("" = aktuálny naprieč behmi) a zoznam behov inštancie
   strategy: null, L: null, layers: {},       // kontext kresieb pre objectTraces (ako `pc` pri behu)
   fills: {},                                  // id inštancie → { after, fills: [], dirs: {} } (prírastkovo)
 };
+
+/** Vybraný beh, alebo null pre „aktuálny". */
+function liveChosenSession() { return lv.session ? lv.sessions.find(s => s.session === lv.session) || null : null; }
+
+/** Detail sa obnovuje, kým je zvolený „aktuálny" alebo živý beh; ukončený beh sa už nemení. */
+function liveDetailPolls() { const s = liveChosenSession(); return !lv.session || !s || s.live; }
 
 function liveAge(ms, now) {
   if (!ms) return "—";
@@ -39,6 +51,14 @@ function stopLive() { clearTimeout(lv.timer); lv.timer = null; }
 
 function liveSetup() {
   $("#live-back").onclick = () => { lv.selected = null; renderLiveList(); $("#live-detail").hidden = true; $("#live-list").hidden = false; };
+  $("#live-session").onchange = async e => {
+    lv.session = e.target.value; lv.snap = null;
+    if (!lv.selected) return;
+    $("#live-detail-error").hidden = true; $("#live-chart").classList.add("loading");
+    try { await loadLiveDetail(lv.selected); }
+    catch (err) { $("#live-detail-error").textContent = err.message; $("#live-detail-error").hidden = false; }
+    finally { $("#live-chart").classList.remove("loading"); }
+  };
   // chip pri záložke hneď po štarte — bez otvárania karty
   api("/api/live").then(d => { lv.instances = d.instances; lv.now = d.now; lv.mirror = d.mirror; liveChip(); }).catch(() => {});
 }
@@ -71,8 +91,44 @@ async function loadLive() {
   renderLiveStatus();
   await Promise.all(lv.instances.map(i => loadLiveFills(i.id).catch(() => {})));
   renderLiveList();
-  if (lv.selected) await loadLiveDetail(lv.selected).catch(e => { $("#live-detail-error").textContent = e.message; $("#live-detail-error").hidden = false; });
+  if (lv.selected) {
+    // zoznam behov je lacný — obnoví sa vždy (nový štart pribudne, živý sa ukončí); detail len keď sa mení
+    await loadLiveSessions(lv.selected).catch(() => {});
+    if (liveDetailPolls()) await loadLiveDetail(lv.selected).catch(e => { $("#live-detail-error").textContent = e.message; $("#live-detail-error").hidden = false; });
+  }
   if (!$("#view-live").hidden) lv.timer = setTimeout(loadLive, LIVE_POLL_MS);
+}
+
+/** Behy inštancie do výberu „Beh": „aktuálny / živý" prvý, potom behy od najnovšieho
+ *  (`štart UTC → koniec UTC (bary, fills, profil)`). Prekreslí sa len keď sa zoznam zmenil,
+ *  nech obnova každých 5 s nezavrie rozbalený výber. */
+async function loadLiveSessions(id) {
+  const rows = await api(`/api/live/${encodeURIComponent(id)}/sessions`);
+  if (lv.selected !== id) return;
+  lv.sessions = rows;
+  const key = rows.map(s => `${s.session}:${s.live ? 1 : 0}:${s.ended || 0}:${s.bars}:${s.fills}`).join("|");
+  if (key === lv.sessionsKey && $("#live-session").options.length) return;
+  lv.sessionsKey = key;
+  if (lv.session && !rows.some(s => s.session === lv.session)) lv.session = "";
+  const sel = $("#live-session");
+  sel.innerHTML = `<option value="">aktuálny / živý (posledných 500 barov)</option>` + rows.map(s => {
+    const koniec = s.ended ? utc(s.ended).slice(0, 16) : (s.live ? "beží" : "bez konca");
+    const lab = `${utc(s.started).slice(0, 16)} → ${koniec} (${s.bars} barov, ${s.fills} fills${s.profile ? ", " + s.profile : ""})${s.live ? " ● živý" : ""}`;
+    return `<option value="${esc(s.session)}">${esc(lab)}</option>`;
+  }).join("");
+  sel.value = lv.session;
+  renderLiveSessionMeta();
+}
+
+/** Riadok pod hlavičkou pre vybraný beh: id, agent, profil, stroj, štart, koniec a dôvod. */
+function renderLiveSessionMeta() {
+  const box = $("#live-session-meta"), s = liveChosenSession();
+  if (!s) { box.hidden = true; box.textContent = ""; return; }
+  const inst = lv.snap && lv.snap.instance || {};
+  const stav = s.live ? "beží (obnova každých 5 s)" : (s.ended ? `ukončený ${utc(s.ended)} UTC · dôvod: ${s.reason || "—"}` : "bez `bye` a ticho — ukončený bez rozlúčky (pád, výpadok spoolu)");
+  box.textContent = `beh ${s.session} · agent ${s.agent || "—"} · profil ${s.profile || "—"} · stroj ${inst.host || "—"}`
+    + ` · štart ${utc(s.started)} UTC · ${stav} · ${s.bars} barov · ${s.orders} orderov · ${s.fills} fillov`;
+  box.hidden = false;
 }
 
 function renderLiveStatus() {
@@ -147,26 +203,31 @@ function renderLiveList() {
 
 async function openLiveDetail(id) {
   lv.selected = id; lv.snap = null;
+  lv.session = ""; lv.sessions = []; lv.sessionsKey = "";
+  $("#live-session").innerHTML = `<option value="">aktuálny / živý</option>`;
+  $("#live-session-meta").hidden = true;
   $("#live-list").hidden = true; $("#live-detail").hidden = false;
   $("#live-detail-error").hidden = true;
   $("#live-title").textContent = id;
   $("#live-chart").classList.add("loading");
-  try { await loadLiveDetail(id); }
+  try { await Promise.all([loadLiveDetail(id), loadLiveSessions(id).catch(() => {})]); }
   catch (e) { $("#live-detail-error").textContent = e.message; $("#live-detail-error").hidden = false; }
   finally { $("#live-chart").classList.remove("loading"); }
 }
 
 async function loadLiveDetail(id) {
   const seq = ++lv.seq;
-  const snap = await api(`/api/live/${encodeURIComponent(id)}/snapshot?bars=500`);
-  if (seq !== lv.seq || lv.selected !== id) return;
+  const session = lv.session;
+  const q = session ? `session=${encodeURIComponent(session)}` : "bars=500";   // beh: celý (server dá do 5000 barov)
+  const snap = await api(`/api/live/${encodeURIComponent(id)}/snapshot?${q}`);
+  if (seq !== lv.seq || lv.selected !== id || lv.session !== session) return;
   lv.snap = snap;
   const inst = snap.instance;
   if (lv.strategy !== inst.strategy) {
     lv.strategy = inst.strategy;
     // vrstvy podľa stratégie (cez /api/meta); neznáma stratégia → kresby bez vrstiev, predvolený štýl
     const L = layersFor(inst.strategy);
-    L.layers = [...L.layers.filter(l => l.id !== "trades"), LIVE_FILLS_LAYER];
+    L.layers = [...L.layers.filter(l => l.id !== "trades"), LIVE_FILLS_LAYER, LIVE_MODIFY_LAYER];
     lv.L = L;
     lv.layers = {};
     for (const l of L.layers) lv.layers[l.id] = true;
@@ -174,12 +235,14 @@ async function loadLiveDetail(id) {
   }
   $("#live-title").textContent = `${inst.symbol} · ${inst.tf}m · ${inst.strategy}`;
   $("#live-meta").textContent = `${inst.platform} · účet ${inst.account} · profil ${inst.profile || "—"} · stroj ${inst.host || "—"}`
-    + ` · agent ${inst.agent || "—"} · session ${inst.last_session || "—"} · UTC`;
+    + ` · agent ${inst.agent || "—"} · posledný beh ${inst.last_session || "—"} · UTC`;
   $("#live-detail-status").innerHTML = liveStatusChip(inst);
+  renderLiveSessionMeta();
   renderLiveCards(snap);
   renderLiveChart(snap);
   renderLiveOrders(snap.orders);
-  renderLiveFills(snap.fills, lv.fills[id]);
+  // vybraný beh: len jeho fills; „aktuálny": všetky, čo zrkadlo o inštancii má
+  renderLiveFills(snap.fills, session ? null : lv.fills[id]);
   renderLiveNotes(snap.notes);
   renderLiveStats(snap.stats);
 }
@@ -206,7 +269,7 @@ function renderLiveCards(snap) {
     card("engine", last ? (last.ready ? "obchoduje" : "prehráva") : "—", last ? `bias ${last.mb ?? "—"}${last.cs ? " · koniec seansy" : ""}` : ""),
     card("pozícia", pos === null ? "—" : (pos.qty > 0 ? `+${pos.qty}` : String(pos.qty)), pos && pos.open.length ? pos.open.join(", ") : "odhad z fillov"),
     card("fills dnes", String(liveFillsToday(f)), f ? `${f.fills.length} spolu v zrkadle` : ""),
-    card("barov v okne", String(bars.length), `${snap.orders.length} orderov · ${snap.draw.length} kresieb`),
+    card(snap.session ? "barov v behu" : "barov v okne", String(bars.length), `${snap.orders.length} orderov · ${snap.draw.length} kresieb`),
   ];
   $("#live-cards").innerHTML = cards.join("");
 }
@@ -248,6 +311,22 @@ function liveFillTraces(snap) {
   return [entry, exit];
 }
 
+/** Posuny SL/TP (`order` `a:"modify"`) ako malé stupienky na čase baru: SL plný, TP dutý. */
+function liveModifyTraces(snap) {
+  if (!lv.layers.modify) return [];
+  const mk = (name, symbol) => ({ type: "scatter", mode: "markers", x: [], y: [], text: [], hoverinfo: "text", showlegend: false, name,
+    marker: { symbol, size: 9, color: LIVE_MODIFY_COLOR, line: { color: LIVE_MODIFY_COLOR, width: 1.5 } } });
+  const sl = mk("SL", "line-ew"), tp = mk("TP", "line-ew-open");
+  for (const o of snap.orders) {
+    if (o.a !== "modify") continue;
+    const p = o.p || {};
+    const txt = `<b>POSUN</b> ${esc(o.id)}${o.r ? " · " + esc(o.r) : ""}<br>SL ${liveNum(p.sl)} · TP ${liveNum(p.tp)} · ${utc(o.bt)}`;
+    if (p.sl !== null && p.sl !== undefined) { sl.x.push(utc(o.bt)); sl.y.push(p.sl); sl.text.push(txt); }
+    if (p.tp !== null && p.tp !== undefined) { tp.x.push(utc(o.bt)); tp.y.push(p.tp); tp.text.push(txt); }
+  }
+  return [sl, tp];
+}
+
 function renderLiveChart(snap) {
   const el = $("#live-chart"), bars = snap.bars;
   if (!bars.length) { el.innerHTML = `<div class="muted" style="padding:16px">Zatiaľ žiadny bar — engine ešte nič neuzavrel.</div>`; return; }
@@ -260,11 +339,15 @@ function renderLiveChart(snap) {
   let lo = Math.min(...candles.l), hi = Math.max(...candles.h);
   if (!Number.isFinite(lo)) { lo = 0; hi = 1; }
   const pad = (hi - lo) * 0.05 || 1, grid = chartGridColor();
-  $("#live-chart-note").textContent = `${bars.length} barov · ${objects.length} objektov · ${snap.fills.length} fillov v okne`;
-  Plotly.react(el, [...traces, ...candleTraces(candles, objects, ctx, snap.instance.symbol), ...liveFillTraces(snap)], {
+  const posuny = snap.orders.filter(o => o.a === "modify").length;
+  $("#live-chart-note").textContent = `${bars.length} barov · ${objects.length} objektov · ${snap.fills.length} fillov`
+    + `${posuny ? ` · ${posuny} posunov SL/TP` : ""} ${snap.session ? `v behu ${snap.session}` : "v okne"}`;
+  // vybraný beh sa ukáže celý; „aktuálny" posledných 200 barov (zvyšok je za posunom)
+  const okno = snap.session ? from : Math.max(from, to - 200 * tfMs);
+  Plotly.react(el, [...traces, ...candleTraces(candles, objects, ctx, snap.instance.symbol), ...liveFillTraces(snap), ...liveModifyTraces(snap)], {
     height: 640, margin: { l: 10, r: 70, t: 8, b: 36 }, template: plotlyTemplate(), dragmode: "pan", hovermode: "closest",
-    showlegend: false, shapes, uirevision: snap.instance.id,   // pan/zoom používateľa prežije obnovu každých 5 s
-    xaxis: { type: "date", range: [utc(Math.max(from, to - 200 * tfMs)), utc(to)], rangeslider: { visible: false }, showgrid: true, gridcolor: grid },
+    showlegend: false, shapes, uirevision: `${snap.instance.id}:${snap.session || ""}`,   // pan/zoom prežije obnovu každých 5 s; zmena behu ho vráti
+    xaxis: { type: "date", range: [utc(okno), utc(to)], rangeslider: { visible: false }, showgrid: true, gridcolor: grid },
     yaxis: { side: "right", range: [lo - pad, hi + pad], showgrid: true, gridcolor: grid, fixedrange: false, autorange: true },
     paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
   }, { displaylogo: false, responsive: true, scrollZoom: true, modeBarButtonsToRemove: ["select2d", "lasso2d", "autoScale2d", "toggleSpikelines"] });
@@ -273,20 +356,24 @@ function renderLiveChart(snap) {
 function liveDir(o) { const d = Number(o.dir ?? (o.p && o.p.dir)); return d > 0 ? "long" : (d < 0 ? "short" : "—"); }
 const liveNum = v => (v === null || v === undefined || v === "" ? "—" : fmtPrice(v));
 
+/** Tabuľka zámerov: entry/cancel/close ako doteraz, `modify` = riadok „posun SL/TP" (id, SL, TP, dôvod). */
 function renderLiveOrders(orders) {
   const rows = orders.slice(-40).reverse();
   $("#live-orders tbody").innerHTML = rows.map(o => {
     const p = o.p || {};
-    const chip = o.a === "entry" ? "ok" : (o.a === "cancel" ? "" : "warn");
-    return `<tr class="plain"><td>${utc(o.bt).slice(5, 16)}</td><td><span class="chip ${chip}">${esc(o.a)}</span></td><td>${esc(o.id)}</td>
-      <td>${esc(o.ot || "—")}</td><td>${liveDir(o)}</td><td class="num">${liveNum(p.e)}</td><td class="num">${liveNum(p.sl)}</td>
-      <td class="num">${liveNum(p.tp)}</td><td class="num">${liveNum(p.q)}</td><td title="${esc(o.r || "")}">${esc(o.r || "")}</td>
+    const modify = o.a === "modify";
+    const chip = o.a === "entry" ? "ok" : (o.a === "cancel" || modify ? "" : "warn");
+    const akcia = modify ? "posun SL/TP" : o.a;
+    return `<tr class="plain"><td>${utc(o.bt).slice(5, 16)}</td><td><span class="chip ${chip}"${modify ? ` style="border-color:${LIVE_MODIFY_COLOR}"` : ""}>${esc(akcia)}</span></td><td>${esc(o.id)}</td>
+      <td>${modify ? "—" : esc(o.ot || "—")}</td><td>${liveDir(o)}</td><td class="num">${modify ? "—" : liveNum(p.e)}</td><td class="num">${liveNum(p.sl)}</td>
+      <td class="num">${liveNum(p.tp)}</td><td class="num">${modify ? "—" : liveNum(p.q)}</td><td title="${esc(o.r || "")}">${esc(o.r || "")}</td>
       <td>${o.ready ? "áno" : "nie"}</td></tr>`;
-  }).join("") || `<tr class="plain"><td colspan="11" class="muted">žiadne ordery v okne</td></tr>`;
+  }).join("") || `<tr class="plain"><td colspan="11" class="muted">žiadne ordery ${lv.session ? "v behu" : "v okne"}</td></tr>`;
 }
 
 function renderLiveFills(inWindow, f) {
-  // v okne snapshotu môže byť fillov málo — tabuľka berie všetky, čo zrkadlo o inštancii má
+  // „aktuálny": v okne snapshotu môže byť fillov málo — tabuľka berie všetky, čo zrkadlo o inštancii má;
+  // vybraný beh: len jeho (f je null)
   const all = f && f.fills.length ? f.fills : inWindow;
   const rows = all.slice(-60).reverse();
   $("#live-fills tbody").innerHTML = rows.map(x => `<tr class="plain"><td>${utc(x.ft)}</td><td>${esc(x.id)}</td>

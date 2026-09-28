@@ -102,7 +102,7 @@ class LiveMirror:
         """Zrkadlo sa otvára až pri prvom použití — zostavenie aplikácie nič na disk nepíše."""
         with self._lock:
             if self._store is None:
-                self._store = LiveStore(self.mirror_path)
+                self._store = LiveStore(self.mirror_path, clock=self.clock)
             return self._store
 
     def _load_cursor(self, hub_url: str) -> int:
@@ -257,16 +257,25 @@ def build(ctx: AppContext) -> APIRouter:
         return {"instances": mirror.store.instances(), "mirror": mirror.status(),
                 "now": int(mirror.clock() * 1000)}
 
+    @router.get("/api/live/{instance}/sessions")
+    def live_sessions(instance: str):
+        """Behy (sessions) inštancie zo zrkadla, najnovší prvý — výber „Beh“ v detaile."""
+        if mirror.store.instance(instance) is None:
+            raise HTTPException(404, f"inštancia {instance!r} v zrkadle nie je")
+        return mirror.store.sessions(instance)
+
     @router.get("/api/live/{instance}/snapshot")
-    def live_snapshot(instance: str, bars: int = Query(500, ge=1, le=5000)):
-        snap = mirror.store.snapshot(instance, bars=bars)
+    def live_snapshot(instance: str, bars: int | None = Query(None, ge=1, le=5000), session: str = ""):
+        """Bez `session` posledných 500 barov naprieč behmi; so `session` celý ten beh (do 5000 barov)."""
+        snap = mirror.store.snapshot(instance, bars=bars, session=session or None)
         if snap["instance"] is None:
             raise HTTPException(404, f"inštancia {instance!r} v zrkadle nie je")
         return snap
 
     @router.get("/api/live/{instance}/events")
-    def live_events(instance: str, after: int = 0, kinds: str = "", limit: int = Query(1000, ge=1, le=10000)):
+    def live_events(instance: str, after: int = 0, kinds: str = "", limit: int = Query(1000, ge=1, le=10000),
+                    session: str = ""):
         druhy = [k.strip() for k in kinds.split(",") if k.strip()] or None
-        return mirror.store.events(instance, after=after, kinds=druhy, limit=limit)
+        return mirror.store.events(instance, after=after, kinds=druhy, limit=limit, session=session or None)
 
     return router

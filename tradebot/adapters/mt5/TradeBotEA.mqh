@@ -8,7 +8,8 @@
 //|                                                                                                   |
 //| Overene: preklad, beh v Strategy Testeri (signaly 1:1 s Testerom), kreslenie na zivom grafe.        |
 //| Neoverene: zivy trh s tikmi, shorty, netting ucet (napisany; tester bezi v rezime uctu = hedging). |
-//| Live telemetria (docs/LIVE.md): mimo Strategy Testera pise DLL bary, zamery, kresby a vyplnenia   |
+//| Live telemetria (docs/LIVE.md): mimo Strategy Testera pise DLL bary, zamery, kresby, vyplnenia    |
+//| a posuny SL trailingom (`order` s a:"modify")                                                       |
 //| do JSONL spoolu Common\Files\TradeBot\spool\<instancia>\ (StaticHost::Spool*); agent hubu ich    |
 //| posiela do webapp. Chyba spoolu EA nezhodi - zaloguje sa a obchoduje sa dalej.                    |
 //| Ovladanie na dialku (docs/LIVE.md, faza 2): Common\Files\TradeBot\control\<instancia>.json         |
@@ -523,6 +524,14 @@ void SpoolFill(datetime dealTime, string id, bool entry, string exitName, double
      { Print(EngineError("SpoolFill (telemetria vypnuta)")); g_spool = false; }
   }
 
+/// Posun SL/TP pracujuceho orderu adapterom (trailing): riadok `order` s `a:"modify"`; 0 = nemenene (null).
+void SpoolModify(long barMs, string id, double sl, double tp, string reason, bool ready)
+  {
+   if(!g_spool) return;
+   if(StaticHost::SpoolModify(g_engine, barMs, id, sl, tp, reason, ready) < 0)
+     { Print(EngineError("SpoolModify (telemetria vypnuta)")); g_spool = false; }
+  }
+
 /// Spolocny timer (5 s): screenshot raz po vykresleni grafu, control subor pri kazdom tiku timera.
 void OnTimer()
   {
@@ -989,8 +998,11 @@ void UpdateTrailing(const MqlRates &r)
       bool better = isLong ? stop > g_orders[i].lastStop : stop < g_orders[i].lastStop;
       if(!better) continue;
       g_orders[i].lastStop = stop;
-      if(g_hedging) { if(g_orders[i].positionTicket > 0) g_trade.PositionModify(g_orders[i].positionTicket, Tick(stop), Tick(g_orders[i].takeProfit)); }
-      else if(g_orders[i].slTicket > 0) g_trade.OrderModify(g_orders[i].slTicket, Tick(stop), 0, 0, ORDER_TIME_GTC, 0, 0);
+      bool moved = false;
+      if(g_hedging) { if(g_orders[i].positionTicket > 0) moved = g_trade.PositionModify(g_orders[i].positionTicket, Tick(stop), Tick(g_orders[i].takeProfit)); }
+      else if(g_orders[i].slTicket > 0) moved = g_trade.OrderModify(g_orders[i].slTicket, Tick(stop), 0, 0, ORDER_TIME_GTC, 0, 0);
+      // kazdy uspesny posun stopu ide do spoolu ako order/modify, aby webapp videla trailing (docs/LIVE.md)
+      if(moved) SpoolModify(ToMs(r.time), g_orders[i].id, Tick(stop), 0, "trailing", !g_replaying && !MQLInfoInteger(MQL_TESTER));
      }
   }
 

@@ -1736,6 +1736,46 @@ def test_live_api_tokens_and_idempotence(tmp_path: Path):
     assert c.get("/api/live/export?after=-1", headers=H(t_lap)).status_code == 422
 
 
+def test_live_api_sessions_and_session_param(tmp_path: Path):
+    """Druhý štart stratégie = druhá session: `/sessions` ich vymenuje (najnovší prvý),
+    `snapshot`/`events` so `session=` čítajú len ten jeden beh."""
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.hub.server import create_hub_app
+    from tradebot.live.store import LiveStore
+
+    state = HubState(tmp_path / "hub", token="hlavny", clock=Clock())
+    t_srv = state.add_token("srv")
+    store = LiveStore(tmp_path / "live.sqlite", clock=lambda: (1_790_000_000_000 + 4 * 180_000) / 1000.0)
+    c = TestClient(create_hub_app(state, live_store=store))
+    H = {"Authorization": f"Bearer {t_srv}"}
+    bye = {"seq": 4, "t": 1_790_000_000_000 + 2 * 180_000, "k": "bye", "reason": "terminated"}
+    h2 = {**_live_hello(1, "ffffffff"), "t": 1_790_000_000_000 + 2 * 180_000 + 5_000, "profile": "p2"}
+    telo = {"agent": "srv", "batches": [
+        {"instance": LIVE_INST, "session": "a1b2c3d4", "events": [_live_hello(), _live_bar(2, 0), _live_bar(3, 1), bye]},
+        {"instance": LIVE_INST, "session": "ffffffff", "events": [h2, _live_bar(2, 1), _live_bar(3, 2)]},
+    ]}
+    assert c.post("/api/live/events", json=telo, headers=H).json() == {"accepted": 7}
+
+    assert c.get("/api/live/instances/nie-je/sessions", headers=H).status_code == 404
+    assert c.get(f"/api/live/instances/{LIVE_INST}/sessions").status_code == 401
+    behy = c.get(f"/api/live/instances/{LIVE_INST}/sessions", headers=H).json()
+    assert [b["session"] for b in behy] == ["ffffffff", "a1b2c3d4"]
+    assert behy[0]["live"] is True and behy[0]["ended"] is None and behy[0]["profile"] == "p2" and behy[0]["bars"] == 2
+    assert behy[1]["live"] is False and behy[1]["reason"] == "terminated" and behy[1]["ended"] == bye["t"]
+
+    snap = c.get(f"/api/live/instances/{LIVE_INST}/snapshot?session=a1b2c3d4", headers=H).json()
+    assert snap["session"] == "a1b2c3d4" and [b["bt"] for b in snap["bars"]] == [_live_bar(2, 0)["bt"], _live_bar(3, 1)["bt"]]
+    assert [n["k"] for n in snap["notes"]] == ["bye"]
+    snap2 = c.get(f"/api/live/instances/{LIVE_INST}/snapshot?session=ffffffff&bars=1", headers=H).json()
+    assert [b["bt"] for b in snap2["bars"]] == [_live_bar(3, 2)["bt"]] and snap2["notes"] == []
+    vsetko = c.get(f"/api/live/instances/{LIVE_INST}/snapshot", headers=H).json()
+    assert vsetko["session"] is None and len(vsetko["bars"]) == 3
+    rows = c.get(f"/api/live/instances/{LIVE_INST}/events?session=ffffffff&kinds=bar", headers=H).json()
+    assert [r["seq"] for r in rows] == [2, 3] and {r["session"] for r in rows} == {"ffffffff"}
+
+
 def test_hub_app_puts_live_db_next_to_state(tmp_path: Path):
     pytest.importorskip("fastapi")
     from tester.hub.server import create_hub_app

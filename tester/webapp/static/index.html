@@ -369,9 +369,12 @@
       <button id="live-back" class="ghost">← Späť</button>
       <h2 id="live-title"></h2>
       <div class="spacer"></div>
+      <label class="inline small" title="Každý štart stratégie je nový beh (session). „aktuálny“ = posledných 500 barov naprieč behmi, obnova každých 5 s; vybraný beh sa ukáže celý.">Beh
+        <select id="live-session" class="small"></select></label>
       <span id="live-detail-status" class="muted small"></span>
     </div>
     <div id="live-meta" class="muted"></div>
+    <div id="live-session-meta" class="muted small" hidden></div>
     <div id="live-detail-error" class="error" hidden></div>
     <div id="live-cards" class="cards"></div>
     <div id="live-layers" class="pc-layers"></div>

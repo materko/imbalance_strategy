@@ -533,13 +533,20 @@ posledného baru, odhad pozície (vstupy − výstupy z fillov podľa id, smer z
 fillov za dnešný deň UTC. Klik otvorí detail: Plotly sviečky z posledných 500 barov, kresby
 enginu zlúčené podľa `id` (tie isté vrstvy a štýly ako graf behu — `objectTraces` z
 `chart.js`), vyplnenia ako značky (▲ long, ▼ short, × výstup), tabuľky posledných orderov a
-fillov, poznámky adaptéra a posledná štatistika enginu. Detail aj zoznam sa obnovujú každých
+fillov (posun SL/TP otvorenej pozície je riadok „posun SL/TP“ a oranžový stupienok na grafe),
+poznámky adaptéra a posledná štatistika enginu. Detail aj zoznam sa obnovujú každých
 5 s, kým je karta otvorená; pan/zoom grafu obnovu prežije. Riadok pod nadpisom hlási stav
 zrkadla (hub, kurzor, lokálny spool, posledná chyba).
 
-API: `GET /api/live` (inštancie + stav zrkadla), `GET /api/live/{id}/snapshot?bars=`,
-`GET /api/live/{id}/events?after=&kinds=&limit=` — `tester/webapp/api/live.py`,
-stránka `static/js/live.js`.
+Výber **Beh** v hlavičke detailu: každý štart stratégie je nový beh (session). „aktuálny / živý“
+je predvolený pohľad naprieč behmi; pod ním sú behy od najnovšieho (`štart UTC → koniec UTC
+(bary, fills, profil)`, živý označený ●). Vybraný beh sa ukáže celý — graf, ordery aj fills len
+z neho, pod hlavičkou agent, profil, stroj, štart, koniec a dôvod ukončenia (`bye`). Ukončený
+beh sa už neobnovuje, živý áno.
+
+API: `GET /api/live` (inštancie + stav zrkadla), `GET /api/live/{id}/sessions`,
+`GET /api/live/{id}/snapshot?bars=&session=`, `GET /api/live/{id}/events?after=&kinds=&limit=&session=`
+— `tester/webapp/api/live.py`, stránka `static/js/live.js`.
 
 ## Príkazový riadok a Claude Code
 
