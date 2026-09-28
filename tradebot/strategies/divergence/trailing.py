@@ -7,7 +7,7 @@ Pôvodná stratégia vracala Freqtradu relatívny stop podľa zisku:
 * zisk nad 4 %: stop 1 % pod aktuálnou cenou — obyčajný trailing s odstupom 1 %.
 
 Generický `TrailingPlan` má jednu aktiváciu a jeden odstup; tento potomok pridáva zámok.
-Adaptéry ho nepoznajú menom — volajú `plan.trailing.stop_price(...)` polymorfne
+Adaptéry ho nepoznajú menom — volajú `plan.trailing.stop_price_at(...)` (tá `stop_price`) polymorfne
 (MC runner, emulátor), Freqtrade vetva ho stavia znova v `freqtrade.py`.
 
 Percentá sú z **ceny vstupu**, nie z marže: pôvodné `strat_lvrg` násobilo prahy pákou

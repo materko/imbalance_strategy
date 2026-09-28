@@ -226,3 +226,50 @@ def test_break_candle_ked_vwap_nesedi_dalsia_sviecka_uz_nie():
     opening_range(e)
     assert not entries(e.on_bar(bar(3, 103.0, v=10.0), ctx=OKNO))    # VWAP ešte v range
     assert not entries(e.on_bar(bar(4, 103.0, v=100.0), ctx=OKNO))   # any by tu vstúpil
+
+
+# ---- SL na dotyk VWAP (1.4) --------------------------------------------------- #
+
+from tradebot.strategies.vwaporb.trailing import VwapSeries, VwapTrailing  # noqa: E402
+
+
+def test_stop_na_vwap_pri_vstupe_a_posuva_sa_s_vwap_v_case():
+    e, intent = _long_entry(vwapStop=True)
+    plan = intent.plan
+    vwap = e._vwap_value
+    assert abs(plan.stop_loss - vwap) <= 0.1                    # počiatočný stop = VWAP
+    assert isinstance(plan.trailing, VwapTrailing)
+    t_next = OPEN_MS + 5 * STEP                                 # sviečka po signáli
+    assert plan.trailing.stop_price_at(t_next, Direction.LONG, plan.entry, plan.stop_loss,
+                                       plan.entry) == vwap
+    e.on_bar(bar(5, 106.0, v=200.0), ctx=POS)                   # VWAP ide hore
+    newer = e._vwap_value
+    assert newer > vwap
+    # sviečka začínajúca po zavretí baru 5 vidí nový VWAP, sviečka pred ním ešte starý
+    assert plan.trailing.stop_price_at(OPEN_MS + 6 * STEP, Direction.LONG, plan.entry,
+                                       plan.stop_loss, 106.5) == newer   # high baru 5
+    assert plan.trailing.stop_price_at(t_next, Direction.LONG, plan.entry, plan.stop_loss,
+                                       plan.entry) == vwap
+
+
+def test_vwap_na_zlej_strane_vstupu_plati_stop_orb():
+    e = engine(vwapStop=True, vwapRule=VwapRule.DIRECTION, vwapDriftBars=1)
+    warm(e)
+    opening_range(e)
+    out = e.on_bar(bar(3, 103.0, v=10.0), ctx=OKNO)            # VWAP ~100,75 pod vstupom — OK
+    (intent,) = entries(out)
+    assert abs(intent.plan.stop_loss - e._vwap_value) <= 0.1
+    s = VwapSeries()
+    s.add(1000, 104.0)                                          # VWAP nad vstupom 103 pri longu
+    trail = VwapTrailing.following(s, 0.0)
+    # cena ešte nebola nad VWAP -> stop ORB; keď bola (high 105), stop na VWAP
+    assert trail.stop_price_at(2000, Direction.LONG, 103.0, 98.9, 103.0) == 98.9
+    assert trail.stop_price_at(2000, Direction.LONG, 103.0, 98.9, 105.0) == 104.0
+
+
+def test_vwap_series_at():
+    s = VwapSeries()
+    assert s.at(5) is None
+    s.add(10, 1.0)
+    s.add(20, 2.0)
+    assert s.at(9) is None and s.at(10) == 1.0 and s.at(19) == 1.0 and s.at(25) == 2.0 and s.at(None) == 2.0

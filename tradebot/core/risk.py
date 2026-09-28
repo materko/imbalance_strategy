@@ -83,6 +83,18 @@ class TrailingPlan:
             return base_stop
         return min(base_stop, extreme + self.offset_price_distance)
 
+    def stop_price_at(
+        self, ts_ms: int | None, direction: Direction, entry: float, base_stop: float, extreme: float
+    ) -> float:
+        """Stop platný počas sviečky, ktorá začína v ``ts_ms`` (``None`` = najnovší známy stav).
+
+        Adaptéry volajú túto metódu, nie `stop_price`. Bežný trailing čas nepotrebuje a vráti
+        `stop_price`; potomok, ktorého stop závisí od hodnoty v čase (VWAP ORB: stop na VWAP),
+        si ju prepíše — vo Freqtrade backteste engine prebehne celé dáta skôr, než sa obchoduje,
+        takže „aktuálna hodnota" by bola posledná, nie tá z času sviečky.
+        """
+        return self.stop_price(direction, entry, base_stop, extreme)
+
     def scaled(self, factor: float) -> "TrailingPlan":
         """Ten istý trailing pre stop `factor`-krát ďalej od vstupu.
 

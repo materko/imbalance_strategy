@@ -10,6 +10,11 @@ k nemu pridáva seansový VWAP (`tradebot.core.vwap.SessionVwap`) a podmienku ce
   pri ``closeBeyondVwap`` navyše close nad VWAP
 * **short** — zrkadlovo pod low
 
+Stop na VWAP (``vwapStop``): počiatočný stop je VWAP pri signáli (± ``vwapStopAtr`` × ATR),
+potom sa posúva s VWAP (`trailing.VwapTrailing`) a obchod končí dotykom VWAP. Keď je VWAP pri
+signáli na zlej strane vstupu (pri ``vwapRule=direction`` sa to stáva), platí stop ORB
+a s VWAP sa posunie, až keď VWAP prejde na správnu stranu.
+
 Výstup (``exitMode``): ``tp`` je cieľ ORB; ``vwap`` drží obchod bez cieľa, kým cena od vstupu
 neprerazí VWAP proti nemu — bola na správnej strane a zavrie na opačnej (o ``vwapExitAtr`` × ATR);
 ``tp_vwap`` čo príde skôr.
@@ -23,13 +28,17 @@ from __future__ import annotations
 
 from tradebot.core.drawing import DrawCommand, DrawLine
 from tradebot.core.engine import EngineOutput
+from dataclasses import replace
+
 from tradebot.core.orders import MarketContext, OrderAction, OrderIntent
+from tradebot.core.risk import TradePlan
 from tradebot.core.types import Bar, Direction, InstrumentSpec
 from tradebot.core.vwap import SessionVwap
 
 from ..orb.engine import ORBEngine
 from .config import EntryTiming, ExitMode, VwapOrbConfig, VwapRule
 from .drawing import VO_VWAP
+from .trailing import VwapSeries, VwapTrailing
 
 __all__ = ["VwapOrbEngine"]
 
@@ -53,6 +62,8 @@ class VwapOrbEngine(ORBEngine):
         self._fast_bars = max(1, int(cfg.vwapDriftBars) * (per // self.chart_tf_minutes if per else 1))
         self.vwap_fast = SessionVwap(self.chart_tf_minutes, start_minutes=start, end_minutes=end,
                                      tz=tz, keep=self._fast_bars + 2)
+        #: VWAP v čase (kedy bola hodnota známa) — pre stop na VWAP
+        self._series = VwapSeries()
         #: smery, v ktorých už dnes prerazovacia sviečka bola: (deň, smer)
         self._broke: set[tuple] = set()
         self._vwap_value: float | None = None
@@ -66,6 +77,8 @@ class VwapOrbEngine(ORBEngine):
         ctx = ctx or MarketContext(in_trade_window=True)
         self._vwap_value = self.vwap.push(bar)
         self.vwap_fast.push(bar)
+        if self.vwap.updated and self._vwap_value is not None:
+            self._series.add(bar.time + self.step_ms, self._vwap_value)
         out = super().on_bar(bar, htf, ctx)
         if self.cfg.showVwap and self.vwap.updated and self._vwap_value is not None:
             out.drawings += self._vwap_drawing(bar, self._vwap_value)
@@ -103,6 +116,23 @@ class VwapOrbEngine(ORBEngine):
                                               reason="prerazenie VWAP proti obchodu"))
             self._open_session = None
             self._exit_ready = False
+
+    def _stop_level(self, st, direction: Direction, entry: float, atr: float) -> float | None:
+        """Pri ``vwapStop`` stop na VWAP, ak je VWAP na správnej strane vstupu; inak stop ORB."""
+        vwap = self._vwap_value
+        if self.cfg.vwapStop and vwap is not None:
+            buffer = self.cfg.vwapStopAtr.resolve(self.inst, price=entry, atr=atr)
+            stop = vwap - buffer if direction is Direction.LONG else vwap + buffer
+            if (stop < entry) if direction is Direction.LONG else (stop > entry):
+                return stop
+        return super()._stop_level(st, direction, entry, atr)
+
+    def _plan(self, st, direction: Direction, entry: float, atr: float) -> TradePlan | None:
+        plan = super()._plan(st, direction, entry, atr)
+        if plan is None or not self.cfg.vwapStop:
+            return plan
+        buffer = self.cfg.vwapStopAtr.resolve(self.inst, price=entry, atr=atr)
+        return replace(plan, trailing=VwapTrailing.following(self._series, buffer))
 
     def _target_level(self, st, direction: Direction, entry: float, sl_distance: float,
                       atr: float) -> float:

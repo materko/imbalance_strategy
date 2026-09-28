@@ -270,8 +270,9 @@ class MCRunner:
         self._open_extreme = max(self._open_extreme, best) if long else min(
             self._open_extreme, best
         )
-        return plan.trailing.stop_price(
-            plan.direction, plan.entry, plan.stop_loss, self._open_extreme
+        # stop sa pošle na ďalší bar — platí od jeho otvorenia
+        return plan.trailing.stop_price_at(
+            bar.time + self.step_ms, plan.direction, plan.entry, plan.stop_loss, self._open_extreme
         )
 
     def _to_live(self, intent: OrderIntent) -> LiveOrder:

@@ -65,6 +65,17 @@ PARAMS: dict[str, dict[str, Any]] = {
                 "strane VWAP; ked VWAP prerazi a sviecka zavrie na opacnej strane proti obchodu (long pod VWAP), "
                 "obchod sa zavrie. tp_vwap = co pride skor. Stop na opacnej strane rangu plati vzdy.",
     ),
+    "vwapStop": dict(
+        group=_GX, title="SL na dotyk VWAP",
+        tooltip="Zapnute = stop lezi na VWAP a posuva sa s nim; obchod konci, ked sa cena VWAP dotkne (aj knotom). "
+                "Pociatocny stop je VWAP pri signali a z neho sa pocita aj velkost pozicie - blizky VWAP = mensie "
+                "riziko v bodoch a vacsia pozicia. Ked je VWAP pri vstupe na zlej strane, plati stop ORB, kym "
+                "VWAP neprejde na spravnu stranu. Prepisuje trailing ORB.",
+    ),
+    "vwapStopAtr": dict(
+        group=_GX, title="SL za VWAP o (ATR)",
+        tooltip="Rezerva stopu za VWAP v ATR; 0 = presne na VWAP.",
+    ),
     "vwapExitAtr": dict(
         group=_GX, title="Zavretie za VWAP o (ATR)",
         tooltip="O kolko ATR musi sviecka zavriet za VWAP proti obchodu, aby sa obchod zavrel; 0 = staci za nim.",

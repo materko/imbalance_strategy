@@ -77,13 +77,13 @@ class ExitMode(str, Enum):
 
 
 SIZE_FIELDS: dict[str, SizeUnit] = {**ORB_SIZE_FIELDS, "vwapBreakAtr": "atr", "vwapDriftMinAtr": "atr",
-                                    "vwapExitAtr": "atr"}
+                                    "vwapExitAtr": "atr", "vwapStopAtr": "atr"}
 ENUM_FIELDS: dict[str, type] = {**ORB_ENUM_FIELDS, "vwapAnchor": VwapAnchor, "vwapPeriod": VwapPeriod,
                                 "vwapRule": VwapRule, "exitMode": ExitMode,
                                 "entryTiming": EntryTiming}
 CONSTRAINTS: dict[str, tuple[float, float]] = {**ORB_CONSTRAINTS, "vwapBreakAtr": (0.0, 5.0),
                                                "vwapDriftBars": (1, 26), "vwapDriftMinAtr": (0.0, 5.0),
-                                               "vwapExitAtr": (0.0, 5.0)}
+                                               "vwapExitAtr": (0.0, 5.0), "vwapStopAtr": (0.0, 5.0)}
 
 
 @dataclass
@@ -117,4 +117,7 @@ class VwapOrbConfig(ORBConfig):
     exitMode: ExitMode = ExitMode.TP
     #: O koľko musí cena zavrieť za VWAP proti obchodu, aby sa obchod zavrel (0 = stačí za ním).
     vwapExitAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "atr"))
+    #: Stop na VWAP: posúva sa s ním a obchod končí dotykom VWAP (aj knôtom). Vypnuté = stop ORB.
+    vwapStop: bool = False
+    vwapStopAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "atr"))
     showVwap: bool = True

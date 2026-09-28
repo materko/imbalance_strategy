@@ -176,8 +176,8 @@ class EngineRunner:
         best = bar.high if long else bar.low
         after = max(prev, best) if long else min(prev, best)
         order.extreme = after
-        before_stop = plan.trailing.stop_price(plan.direction, plan.entry, plan.stop_loss, prev)
-        after_stop = plan.trailing.stop_price(plan.direction, plan.entry, plan.stop_loss, after)
+        before_stop = plan.trailing.stop_price_at(bar.time, plan.direction, plan.entry, plan.stop_loss, prev)
+        after_stop = plan.trailing.stop_price_at(bar.time, plan.direction, plan.entry, plan.stop_loss, after)
         if extreme_before_stop(bar.open, bar.high, bar.low, long=long):
             return after_stop, (bar.low <= after_stop if long else bar.high >= after_stop)
         if (bar.low <= before_stop) if long else (bar.high >= before_stop):

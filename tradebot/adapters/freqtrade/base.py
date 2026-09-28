@@ -278,16 +278,18 @@ class TradebotStrategyBase(CallbacksMixin, LiveMixin, TimeframesMixin, AIMixin, 
         prev = self._extremes.get(key, row.entry)
 
         bar_open, high, low = getattr(self, "_candle", (None, None, None))
+        when = getattr(self, "_candle_time", None)
+        ts = int(when.timestamp() * 1000) if when is not None and high is not None else None
         if high is None or low is None:
             # Dry-run a live: sviečku nemáme, ostáva bežiaci extrém od Freqtrade.
             extreme = trade.min_rate if trade.is_short else trade.max_rate
-            return trail.stop_price(direction, row.entry, base_stop, extreme or row.entry)
+            return trail.stop_price_at(None, direction, row.entry, base_stop, extreme or row.entry)
 
         best = high if long else low
         after = max(prev, best) if long else min(prev, best)
         self._extremes[key] = after
-        before_stop = trail.stop_price(direction, row.entry, base_stop, prev)
-        after_stop = trail.stop_price(direction, row.entry, base_stop, after)
+        before_stop = trail.stop_price_at(ts, direction, row.entry, base_stop, prev)
+        after_stop = trail.stop_price_at(ts, direction, row.entry, base_stop, after)
 
         if extreme_before_stop(bar_open, high, low, long=long):
             return after_stop

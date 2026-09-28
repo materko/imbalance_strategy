@@ -21,7 +21,8 @@ PARAM_NOTES: dict[str, str] = {
                           "často až neskôr počas dňa.",
 }
 
-FEATURES: list[dict[str, Any]] = [*ORB_FEATURES, {"switches": ["showVwap"], "params": []}]
+FEATURES: list[dict[str, Any]] = [*ORB_FEATURES, {"switches": ["showVwap"], "params": []},
+                                  {"switches": ["vwapStop"], "params": ["vwapStopAtr"]}]
 
 LAYERS: tuple[ChartLayer, ...] = (
     *ORB_LAYERS[:2],
