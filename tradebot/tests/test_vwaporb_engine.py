@@ -145,3 +145,50 @@ def test_direction_vwap_proti_smeru_nie():
     e.on_bar(Bar(OPEN_MS + 3 * STEP, 99.2, 99.5, 99.0, 99.2, 200.0), ctx=OKNO)
     out = e.on_bar(Bar(OPEN_MS + 4 * STEP, 101.5, 101.8, 101.3, 101.5, 1.0), ctx=OKNO)
     assert e.vwap.change(2) < 0 and not entries(out)
+
+
+# ---- výstup cez VWAP (1.2) --------------------------------------------------- #
+
+from tradebot.strategies.vwaporb import ExitMode  # noqa: E402
+
+POS = MarketContext(in_trade_window=True, position_size=1.0, open_order_ids=frozenset({"orb:ny:1"}))
+
+
+def _long_entry(**kw):
+    e = engine(**kw)
+    warm(e)
+    opening_range(e)
+    e.on_bar(bar(3, 103.0, v=10.0), ctx=OKNO)
+    out = e.on_bar(bar(4, 103.0, v=100.0), ctx=OKNO)         # vstup long, close nad VWAP
+    (intent,) = entries(out)
+    return e, intent
+
+
+def test_exit_vwap_bez_ciela_a_zavretie_pod_vwap():
+    e, intent = _long_entry(exitMode=ExitMode.VWAP)
+    assert intent.plan.take_profit - intent.plan.entry > 50 * (intent.plan.entry - intent.plan.stop_loss)
+    out = e.on_bar(bar(5, 104.0), ctx=POS)                    # nad VWAP — drží
+    assert not out.close_session
+    vwap = e._vwap_value
+    out = e.on_bar(bar(6, vwap - 0.5, v=1.0), ctx=POS)       # zavrie pod VWAP — koniec
+    assert out.close_session and [o.action for o in out.orders] == [OrderAction.CLOSE]
+
+
+def test_exit_tp_vwapom_nezatvara():
+    e, intent = _long_entry()
+    assert abs(intent.plan.take_profit - intent.plan.entry
+               - 1.5 * (intent.plan.entry - intent.plan.stop_loss)) <= 0.2
+    vwap = e._vwap_value
+    assert not e.on_bar(bar(5, vwap - 0.5, v=1.0), ctx=POS).close_session
+
+
+def test_exit_len_po_prerazeni_nie_ked_bol_vstup_uz_za_vwap():
+    """Pozícia, ktorá nikdy nebola na správnej strane VWAP, sa cez VWAP nezatvára (nebolo prerazenie)."""
+    e = engine(exitMode=ExitMode.TP_VWAP)
+    e._exit_ready = False
+    e._vwap_value = None
+    warm(e)
+    opening_range(e)
+    e.vwap.push = lambda b: 110.0                              # VWAP stále nad cenou
+    out = e.on_bar(bar(3, 103.0), ctx=POS)
+    assert not out.close_session

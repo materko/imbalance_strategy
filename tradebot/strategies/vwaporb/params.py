@@ -9,9 +9,10 @@ from ..orb.params import GROUPS as ORB_GROUPS, PARAMS as ORB_PARAMS
 __all__ = ["GROUPS", "PARAMS"]
 
 _GV = "📊 VWAP"
+_GX = "🚪 Vystup cez VWAP"
 
 #: VWAP hneď za seansami — je to podmienka vstupu, nie filter navyše.
-GROUPS: tuple[str, ...] = (ORB_GROUPS[0], _GV, *ORB_GROUPS[1:])
+GROUPS: tuple[str, ...] = (ORB_GROUPS[0], _GV, *ORB_GROUPS[1:], _GX)
 
 PARAMS: dict[str, dict[str, Any]] = {
     **ORB_PARAMS,
@@ -49,6 +50,16 @@ PARAMS: dict[str, dict[str, Any]] = {
     "closeBeyondVwap": dict(
         group=_GV, title="Cena aj za VWAP",
         tooltip="Zapnute = close musi byt aj nad VWAP (short: pod), nielen nad high rangu.",
+    ),
+    "exitMode": dict(
+        group=_GX, title="Vystup",
+        tooltip="tp = ciel podla ORB (RR). vwap = bez pevneho ciela: obchod sa drzi, kym je cena na spravnej "
+                "strane VWAP; ked VWAP prerazi a sviecka zavrie na opacnej strane proti obchodu (long pod VWAP), "
+                "obchod sa zavrie. tp_vwap = co pride skor. Stop na opacnej strane rangu plati vzdy.",
+    ),
+    "vwapExitAtr": dict(
+        group=_GX, title="Zavretie za VWAP o (ATR)",
+        tooltip="O kolko ATR musi sviecka zavriet za VWAP proti obchodu, aby sa obchod zavrel; 0 = staci za nim.",
     ),
     "showVwap": dict(
         group=_GV, title="Kreslit VWAP",

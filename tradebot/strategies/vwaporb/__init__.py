@@ -1,7 +1,8 @@
-"""VWAP ORB 1.1 — New York opening range, vstup keď VWAP prerazí za range a cena je tam tiež
+"""VWAP ORB 1.2 — New York opening range, vstup keď VWAP prerazí za range a cena je tam tiež
 (alebo, pri ``vwapRule=direction``, cena prerazí range a VWAP smeruje rovnako).
 
 1.1 (2026-09-28): voľba ``vwapRule`` — VWAP za rangom (``break``) alebo len v smere prerazenia.
+1.2 (2026-09-28): voľba ``exitMode`` — držať obchod, kým cena neprerazí VWAP proti nemu.
 
 Zadanie testera (2026-09-28): klasický ORB z New York rangu (od 9:30 NY = 15:30 SEČ) a VWAP
 od toho istého času; long, keď VWAP prerazí nad high rangu a zároveň je tam aj cena (short
@@ -13,7 +14,7 @@ from __future__ import annotations
 
 from . import drawing as _drawing  # noqa: F401  — registrácia druhov kresieb musí byť prvá
 from ..base import StrategySpec
-from .config import CONFIG_DIR, VwapOrbConfig, VwapRule
+from .config import CONFIG_DIR, ExitMode, VwapOrbConfig, VwapRule
 from .engine import VwapOrbEngine
 from .meta import (FEATURES, INTENTIONAL_DEFAULT_DIFFS, KIND_TITLES, LAYERS, PARAM_NOTES,
                    REMOVED_INPUTS)
@@ -21,7 +22,7 @@ from .params import GROUPS, PARAMS
 
 SPEC = StrategySpec(
     key="vwaporb",
-    title="VWAP ORB 1.1",
+    title="VWAP ORB 1.2",
     config_cls=VwapOrbConfig,
     profile_dir=CONFIG_DIR,
     default_profile="mnq_databento_5m",
@@ -49,4 +50,4 @@ SPEC = StrategySpec(
     logic_of="orb",  # range, stop, cieľ aj koniec seansy sú z ORB; vlastná je podmienka VWAP
 )
 
-__all__ = ["SPEC", "VwapOrbConfig", "VwapOrbEngine", "VwapRule", "CONFIG_DIR"]
+__all__ = ["SPEC", "VwapOrbConfig", "VwapOrbEngine", "VwapRule", "ExitMode", "CONFIG_DIR"]

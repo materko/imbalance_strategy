@@ -25,7 +25,7 @@ from ..orb.config import (CONSTRAINTS as ORB_CONSTRAINTS, ENUM_FIELDS as ORB_ENU
                           ORBConfig, SessionMode, SIZE_FIELDS as ORB_SIZE_FIELDS)
 from ..vwapdrift.config import VwapAnchor, VwapPeriod
 
-__all__ = ["VwapOrbConfig", "VwapRule", "CONFIG_DIR"]
+__all__ = ["VwapOrbConfig", "VwapRule", "ExitMode", "CONFIG_DIR"]
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 
@@ -41,11 +41,31 @@ class VwapRule(str, Enum):
     DIRECTION = "direction"
 
 
-SIZE_FIELDS: dict[str, SizeUnit] = {**ORB_SIZE_FIELDS, "vwapBreakAtr": "atr", "vwapDriftMinAtr": "atr"}
+class ExitMode(str, Enum):
+    """Ako sa obchod končí (stop na opačnej strane rangu platí vždy).
+
+    * ``tp``      — cieľ podľa ORB (``tpMode``, štandardne RR)
+    * ``vwap``    — bez pevného cieľa: drží sa, kým cena od vstupu neprerazí VWAP proti obchodu
+                    (long zavrie pod VWAP); cieľ je technicky 100R, aby ho adaptéry mali
+    * ``tp_vwap`` — čo príde skôr: cieľ alebo prerazenie VWAP proti obchodu
+    """
+
+    TP = "tp"
+    VWAP = "vwap"
+    TP_VWAP = "tp_vwap"
+
+    @property
+    def vwap_exit(self) -> bool:
+        return self is not ExitMode.TP
+
+
+SIZE_FIELDS: dict[str, SizeUnit] = {**ORB_SIZE_FIELDS, "vwapBreakAtr": "atr", "vwapDriftMinAtr": "atr",
+                                    "vwapExitAtr": "atr"}
 ENUM_FIELDS: dict[str, type] = {**ORB_ENUM_FIELDS, "vwapAnchor": VwapAnchor, "vwapPeriod": VwapPeriod,
-                                "vwapRule": VwapRule}
+                                "vwapRule": VwapRule, "exitMode": ExitMode}
 CONSTRAINTS: dict[str, tuple[float, float]] = {**ORB_CONSTRAINTS, "vwapBreakAtr": (0.0, 5.0),
-                                               "vwapDriftBars": (1, 26), "vwapDriftMinAtr": (0.0, 5.0)}
+                                               "vwapDriftBars": (1, 26), "vwapDriftMinAtr": (0.0, 5.0),
+                                               "vwapExitAtr": (0.0, 5.0)}
 
 
 @dataclass
@@ -74,4 +94,8 @@ class VwapOrbConfig(ORBConfig):
     #: Pri ``vwapRule=direction``: smer VWAP = zmena za toľko periód VWAP (15m sviečok, resp. barov).
     vwapDriftBars: int = 2
     vwapDriftMinAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "atr"))
+    # ---- 🚪 Výstup cez VWAP ------------------------------------------------ #
+    exitMode: ExitMode = ExitMode.TP
+    #: O koľko musí cena zavrieť za VWAP proti obchodu, aby sa obchod zavrel (0 = stačí za ním).
+    vwapExitAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "atr"))
     showVwap: bool = True

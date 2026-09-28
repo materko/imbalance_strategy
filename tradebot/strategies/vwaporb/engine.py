@@ -10,6 +10,10 @@ k nemu pridáva seansový VWAP (`tradebot.core.vwap.SessionVwap`) a podmienku ce
   pri ``closeBeyondVwap`` navyše close nad VWAP
 * **short** — zrkadlovo pod low
 
+Výstup (``exitMode``): ``tp`` je cieľ ORB; ``vwap`` drží obchod bez cieľa, kým cena od vstupu
+neprerazí VWAP proti nemu — bola na správnej strane a zavrie na opačnej (o ``vwapExitAtr`` × ATR);
+``tp_vwap`` čo príde skôr.
+
 ORB hodnotí prerazenie na každom bare obchodného okna, kým nepadne obchod — vstup je teda
 na zavretí **prvej** sviečky, na ktorej platí oboje, aj keď VWAP za range dôjde až hodinu
 po tom, čo ho prerazila cena.
@@ -19,17 +23,20 @@ from __future__ import annotations
 
 from tradebot.core.drawing import DrawCommand, DrawLine
 from tradebot.core.engine import EngineOutput
-from tradebot.core.orders import MarketContext
+from tradebot.core.orders import MarketContext, OrderAction, OrderIntent
 from tradebot.core.types import Bar, Direction, InstrumentSpec
 from tradebot.core.vwap import SessionVwap
 
 from ..orb.engine import ORBEngine
-from .config import VwapOrbConfig, VwapRule
+from .config import ExitMode, VwapOrbConfig, VwapRule
 from .drawing import VO_VWAP
 
 __all__ = ["VwapOrbEngine"]
 
 _VWAP_COLOR = "#a855f7"
+
+#: Cieľ pri ``exitMode=vwap`` — ďaleko, aby ho cena prakticky nedosiahla (adaptéry TP potrebujú).
+_NO_TP_R = 100.0
 
 
 class VwapOrbEngine(ORBEngine):
@@ -42,16 +49,62 @@ class VwapOrbEngine(ORBEngine):
                                 tz=tz, period_minutes=cfg.vwapPeriod.minutes,
                                 keep=int(cfg.vwapDriftBars) + 2)
         self._vwap_value: float | None = None
+        #: pozícia už bola na správnej strane VWAP — ďalšie zavretie za ním proti obchodu ju zatvorí
+        self._exit_ready = False
         #: posledný nakreslený bod čiary VWAP (čas, hodnota, deň)
         self._vwap_point: tuple[int, float, tuple[int, int, int] | None] | None = None
 
     def on_bar(self, bar: Bar, htf=None, ctx: MarketContext | None = None) -> EngineOutput:
         # VWAP pred ORB: podmienka prerazenia sa pýta na hodnotu po zavretí tohto baru
+        ctx = ctx or MarketContext(in_trade_window=True)
         self._vwap_value = self.vwap.push(bar)
         out = super().on_bar(bar, htf, ctx)
         if self.cfg.showVwap and self.vwap.updated and self._vwap_value is not None:
             out.drawings += self._vwap_drawing(bar, self._vwap_value)
+        if self.cfg.exitMode.vwap_exit:
+            self._vwap_exit(out, bar, ctx)
         return out
+
+    def _vwap_exit(self, out: EngineOutput, bar: Bar, ctx: MarketContext) -> None:
+        """Zavrie pozíciu, keď cena od vstupu prerazí VWAP proti obchodu.
+
+        Prerazenie = pozícia bola na správnej strane VWAP (long nad ním) a bar zavrie na opačnej
+        o ``vwapExitAtr`` × ATR. Signálny bar sa počíta tiež: vstup nad VWAP je už na správnej strane.
+        """
+        vwap = self._vwap_value
+        pos = ctx.position_size
+        entry = next((o for o in out.orders if o.action is OrderAction.ENTRY), None)
+        if pos == 0.0:
+            # nová pozícia z tohto baru: pripravená, ak signálny bar zavrel na správnej strane
+            long = entry is not None and entry.direction is Direction.LONG
+            self._exit_ready = (entry is not None and vwap is not None
+                                and ((bar.close > vwap) if long else (bar.close < vwap)))
+            return
+        if vwap is None or out.close_session:
+            return
+        long = pos > 0.0
+        buffer = self.cfg.vwapExitAtr.resolve(self.inst, price=bar.close, atr=self.history.atr)
+        if (bar.close > vwap) if long else (bar.close < vwap):
+            self._exit_ready = True
+            return
+        wrong = (bar.close < vwap - buffer) if long else (bar.close > vwap + buffer)
+        if self._exit_ready and wrong:
+            out.close_session = True
+            for order_id in ctx.open_order_ids:
+                out.orders.append(OrderIntent(OrderAction.CLOSE, order_id, self.history.bar_index,
+                                              reason="prerazenie VWAP proti obchodu"))
+            self._open_session = None
+            self._exit_ready = False
+
+    def _target_level(self, st, direction: Direction, entry: float, sl_distance: float,
+                      atr: float) -> float:
+        """Pri ``exitMode=vwap`` bez pevného cieľa — cieľ 100R, inak cieľ ORB."""
+        if self.cfg.exitMode is ExitMode.VWAP:
+            dist = sl_distance * _NO_TP_R
+            if direction is Direction.LONG:
+                return entry + dist
+            return max(entry - dist, entry * 0.01)
+        return super()._target_level(st, direction, entry, sl_distance, atr)
 
     def _break_allowed(self, st, direction: Direction, bar: Bar, atr: float) -> bool:
         """VWAP podľa ``vwapRule`` v smere prerazenia (a pri ``closeBeyondVwap`` aj cena za VWAP)."""

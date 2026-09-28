@@ -15,6 +15,8 @@ PARAM_NOTES: dict[str, str] = {
     **ORB_PARAM_NOTES,
     "vwapAnchor": "S kotvou 9:30 NY je VWAP na konci rangu vždy vnútri neho (je to priemer cien "
                   "rangu) — za range sa dostane, až keď cena drží za ním dosť dlho.",
+    "exitMode": "Pri 'vwap' je cieľ technicky 100R — v analytike je preto plánované RR 100, "
+                "skutočný výsledok určuje VWAP alebo stop.",
     "entryWindowMinutes": "Pri VWAP ORB je default 0 (do konca seansy): VWAP sa za range dostane "
                           "často až neskôr počas dňa.",
 }
