@@ -11,7 +11,7 @@ from __future__ import annotations
 from . import drawing as _drawing  # noqa: F401  — registrácia druhov kresieb musí byť prvá
 from ..base import StrategySpec
 from .config import (CONFIG_DIR, EntryModel, EntryOrder, LiquidityConfig, SlMode, TpMode,
-                     TradeDirection, TradeMode)
+                     TradeDirection, TradeMode, TrendFilter)
 from .engine import LiquidityEngine
 from .hyperopt import LiquidityHyperopt
 from .meta import (FEATURES, INTENTIONAL_DEFAULT_DIFFS, KIND_TITLES, LAYERS, PARAM_NOTES,
@@ -49,4 +49,4 @@ SPEC = StrategySpec(
 )
 
 __all__ = ["SPEC", "LiquidityConfig", "LiquidityEngine", "TradeMode", "EntryModel", "EntryOrder",
-           "SlMode", "TpMode", "TradeDirection", "CONFIG_DIR"]
+           "SlMode", "TpMode", "TradeDirection", "TrendFilter", "CONFIG_DIR"]

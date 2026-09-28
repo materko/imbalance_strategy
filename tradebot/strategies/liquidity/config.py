@@ -19,7 +19,7 @@ from tradebot.core.config import StrategyConfig
 from tradebot.core.types import SizeSpec, SizeUnit
 
 __all__ = ["LiquidityConfig", "TradeMode", "EntryModel", "EntryOrder", "SlMode", "TpMode",
-           "TradeDirection", "LIQ_TIMEFRAMES", "CONFIG_DIR"]
+           "TradeDirection", "TrendFilter", "LIQ_TIMEFRAMES", "CONFIG_DIR"]
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 
@@ -60,6 +60,12 @@ class TpMode(str, Enum):
     LIQUIDITY = "liquidity"  # najbližšia nevybratá likvidita v smere obchodu
 
 
+class TrendFilter(str, Enum):
+    OFF = "off"
+    WITH = "with"        # obchod len v smere EMA (cena nad EMA -> long)
+    AGAINST = "against"  # obchod len proti EMA (sweep na konci pohybu)
+
+
 class TradeDirection(str, Enum):
     BOTH = "Both"
     LONG_ONLY = "Long only"
@@ -76,6 +82,8 @@ SIZE_FIELDS: dict[str, SizeUnit] = {
     "slAtrMult": "atr",
     "tpOffsetAtr": "atr",
     "minSlDistance": "pct",
+    "sweepMinDepthAtr": "atr",
+    "sweepMaxDepthAtr": "atr",
 }
 
 ENUM_FIELDS: dict[str, type] = {
@@ -85,6 +93,7 @@ ENUM_FIELDS: dict[str, type] = {
     "slMode": SlMode,
     "tpMode": TpMode,
     "tradeDirection": TradeDirection,
+    "trendFilter": TrendFilter,
 }
 
 CONSTRAINTS: dict[str, tuple[float, float]] = {
@@ -110,6 +119,9 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "riskDollar": (0, 100000),
     "tickDollarValue": (0.01, 1000),
     "leverage": (1, 125),
+    "liqMinAgeBars": (0, 2000),
+    "trendEmaLen": (2, 1000),
+    "sweepVolMult": (0.0, 10.0),
 }
 
 PORT_ONLY_FIELDS: frozenset[str] = frozenset(
@@ -136,11 +148,18 @@ class LiquidityConfig(StrategyConfig):
     liqEqualTolAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.15, "atr"))
     liqMaxAgeHours: int = 120
     liqMinStrength: int = 1
+    #: úroveň sa obchoduje, len keď od swingu po vybratie prešlo aspoň toľko barov grafu (0 = vypnuté)
+    liqMinAgeBars: int = 0
     # ---- 🎯 Spúšťač a vstup ----------------------------------------------- #
     tradeMode: TradeMode = TradeMode.BREAKOUT
     tradeDirection: TradeDirection = TradeDirection.BOTH
     breakBufferAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.1, "atr"))
     sweepBars: int = 3
+    #: sweep: knôt za úrovňou aspoň / najviac toľko ATR grafu (0 = vypnuté)
+    sweepMinDepthAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "atr"))
+    sweepMaxDepthAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "atr"))
+    #: objem sviečky, ktorá likviditu zobrala, aspoň toľkonásobok priemeru 20 barov (0 = vypnuté)
+    sweepVolMult: float = 0.0
     entryModel: EntryModel = EntryModel.IMBALANCE
     entryOrder: EntryOrder = EntryOrder.MARKET
     setupMaxBars: int = 6
@@ -153,6 +172,8 @@ class LiquidityConfig(StrategyConfig):
     # ---- 🚦 Filtre -------------------------------------------------------- #
     weekdaysOnly: bool = True
     useTradeWindow: bool = False
+    trendFilter: TrendFilter = TrendFilter.OFF
+    trendEmaLen: int = 50
     tradeTZ: str = "America/New_York"
     tradeStartH: int = 9
     tradeStartM: int = 30
@@ -176,6 +197,8 @@ class LiquidityConfig(StrategyConfig):
     # ---- 🎨 Vizualizácia -------------------------------------------------- #
     showLevels: bool = True
     showEvents: bool = True
+    #: kresliť len úrovne, ktoré prejdú min. silou (slabšie sa nezobrazia)
+    showOnlyQuality: bool = False
     # ---- rozšírenia portu ------------------------------------------------- #
     tickDollarValue: float | None = None
     #: Doslovný Pine vzorec veľkosti pozície vrátane `int()` + `max(1, …)` — len na porovnanie.

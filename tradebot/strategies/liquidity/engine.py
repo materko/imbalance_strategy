@@ -33,7 +33,7 @@ from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
 from tradebot.core.warmup import Warmup
 
 from ..divergence.htf import TFAggregator
-from .config import EntryModel, EntryOrder, LiquidityConfig, SlMode, TpMode
+from .config import EntryModel, EntryOrder, LiquidityConfig, SlMode, TpMode, TrendFilter
 from .drawing import LIQ_BUY, LIQ_ENTRY, LIQ_EVENT, LIQ_SELL
 from .levels import Level, SwingFinder
 
@@ -105,6 +105,9 @@ class LiquidityEngine:
         self._day: tuple[int, int, int] | None = None
         self._trades_today = 0
         self._seeding = False
+        self._ema = 0.0
+        self._ema_n = 0
+        self._vols: list[float] = []
 
     # ------------------------------------------------------------------ #
     # likvidita
@@ -146,6 +149,21 @@ class LiquidityEngine:
         self._uid += 1
         lv.uid = self._uid
         self.levels.append(lv)
+
+    def _shown(self, lv: Level) -> bool:
+        cfg = self.cfg
+        if not cfg.showLevels:
+            return False
+        if not cfg.showOnlyQuality:
+            return True
+        # len úrovne strany, ktorú stratégia obchoduje (sweep longu berie sell-side, breakout longu buy-side)
+        sweep = cfg.tradeMode.value == "sweep"
+        need = set()
+        if cfg.allow_long:
+            need.add("sell" if sweep else "buy")
+        if cfg.allow_short:
+            need.add("buy" if sweep else "sell")
+        return lv.side in need and lv.strength >= cfg.liqMinStrength
 
     def _draw_level(self, lv: Level, end_ms: int) -> DrawLine:
         buy = lv.side == "buy"
@@ -277,6 +295,16 @@ class LiquidityEngine:
         self.history.append(bar)
         atr = self.history.atr
         idx = self.history.bar_index
+        n_ema = int(cfg.trendEmaLen)
+        self._ema_n += 1
+        self._ema = bar.close if self._ema_n == 1 else self._ema + (bar.close - self._ema) * 2.0 / (n_ema + 1)
+        vol_ok = None
+        if cfg.sweepVolMult > 0:
+            avg = sum(self._vols) / len(self._vols) if self._vols else 0.0
+            vol_ok = len(self._vols) >= 20 and bar.volume >= cfg.sweepVolMult * avg
+            self._vols.append(float(bar.volume))
+            if len(self._vols) > 20:
+                self._vols.pop(0)
 
         local = datetime.fromtimestamp(bar.time / 1000, tz=self._zone)
         day = (local.year, local.month, local.day)
@@ -297,7 +325,7 @@ class LiquidityEngine:
                 taken.append((lv, "sell"))
             elif bar.time >= lv.expires_ms:
                 self._gone.add((lv.side, lv.start_ms, lv.price))
-                if cfg.showLevels:
+                if self._shown(lv):
                     out.drawings.append(self._draw_level(lv, lv.expires_ms))
             else:
                 keep.append(lv)
@@ -306,9 +334,14 @@ class LiquidityEngine:
             self._gone.add((lv.side, lv.start_ms, lv.price))
         events: list[tuple[Direction, Level, float, str]] = []
         for lv, side in taken:
-            if cfg.showLevels:
+            if self._shown(lv):
                 out.drawings.append(self._draw_level(lv, bar.time))   # končí na sviečke, ktorá ju prerazila
             if lv.strength < cfg.liqMinStrength:
+                continue
+            # kvalita zóny: dosť stará úroveň a sviečka vybratia s objemom
+            if cfg.liqMinAgeBars > 0 and (bar.time - lv.start_ms) < cfg.liqMinAgeBars * self.step_ms:
+                continue
+            if vol_ok is False:
                 continue
             buy = side == "buy"
             back = bar.close < lv.price if buy else bar.close > lv.price
@@ -360,10 +393,23 @@ class LiquidityEngine:
             if kind != mode.value:
                 continue
             long = direction is Direction.LONG
-            self._event_label(out, bar, "sweep" if kind == "sweep" else "prerazenie",
-                              above=lv.side == "buy", long=long)
+            text = "sweep" if kind == "sweep" else "prerazenie"
+            if not cfg.showOnlyQuality:
+                self._event_label(out, bar, text, above=lv.side == "buy", long=long)
             if (long and not cfg.allow_long) or (not long and not cfg.allow_short):
                 continue
+            if kind == "sweep":
+                depth = abs(extreme - lv.price)
+                lo_d = cfg.sweepMinDepthAtr.value * atr
+                hi_d = cfg.sweepMaxDepthAtr.value * atr
+                if depth < lo_d or (hi_d > 0 and depth > hi_d):
+                    continue
+            if cfg.trendFilter is not TrendFilter.OFF and self._ema_n >= int(cfg.trendEmaLen):
+                up = bar.close > self._ema
+                if (cfg.trendFilter is TrendFilter.WITH) != (up == long):
+                    continue
+            if cfg.showOnlyQuality:   # štítok len pri udalosti, ktorá prešla filtrami kvality
+                self._event_label(out, bar, text, above=lv.side == "buy", long=long)
             self._setup = _Setup(direction, lv.price, extreme, idx, kind)
             break
 
@@ -426,4 +472,4 @@ class LiquidityEngine:
         if not self.cfg.showLevels:
             return []
         end = bar.time + self.step_ms
-        return [self._draw_level(lv, end) for lv in self.levels]
+        return [self._draw_level(lv, end) for lv in self.levels if self._shown(lv)]

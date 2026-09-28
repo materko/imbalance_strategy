@@ -37,6 +37,9 @@ PARAMS: dict[str, dict[str, Any]] = {
                            tooltip="Po tolkych hodinach sa nevybrata uroven prestane sledovat."),
     "liqMinStrength": dict(group=_G0, title="Min. sila urovne",
                            tooltip="1 = kazda uroven; 2 = len zlucene rovnake vrcholy/dna (aspon dva)."),
+    "liqMinAgeBars": dict(group=_G0, title="Min. vek urovne (bary grafu)",
+                          tooltip="Uroven sa obchoduje, len ked od swingu po jej vybratie preslo aspon tolko barov. "
+                                  "Cerstve urovne su slabsie. 0 = vypnute."),
     "tradeMode": dict(group=_G1, title="Spustac obchodu",
                       tooltip="sweep = cena zoberie likviditu a zavrie spat -> obchod proti (vyber likvidity); "
                               "breakout = zavrie za nou -> pokracovanie smeru k dalsej likvidite."),
@@ -45,6 +48,13 @@ PARAMS: dict[str, dict[str, Any]] = {
                            tooltip="O kolko musi byt zavretie za urovnou, aby to bolo prerazenie."),
     "sweepBars": dict(group=_G1, title="Sweep: max. barov na navrat",
                       tooltip="Ak cena urovnen prerazi a do tolkych barov zavrie spat, je to neskory sweep."),
+    "sweepMinDepthAtr": dict(group=_G1, title="Sweep: min. hlbka knota (ATR)",
+                             tooltip="Knot sweepu musi ist za uroven aspon o tolko ATR grafu. 0 = vypnute."),
+    "sweepMaxDepthAtr": dict(group=_G1, title="Sweep: max. hlbka knota (ATR)",
+                             tooltip="Hlbsi knot uz nie je vybratie likvidity, ale pohyb za nou. 0 = vypnute."),
+    "sweepVolMult": dict(group=_G1, title="Sweep: min. objem (x priemer 20)", step=0.1,
+                         tooltip="Sviecka, ktora likviditu zobrala, musi mat aspon tolkonasobok priemerneho "
+                                 "objemu poslednych 20 barov. 0 = vypnute."),
     "entryModel": dict(group=_G1, title="Vstupny model",
                        tooltip="imbalance = IBS imbalance sviecka v smere; pinbar = pin bar; any = jedno "
                                "z nich; close = len zavretie sviecky v smere."),
@@ -64,6 +74,9 @@ PARAMS: dict[str, dict[str, Any]] = {
     "maxTradesPerDay": dict(group=_G1, title="Max. obchodov za den", tooltip="Denny strop vstupov."),
     "cooldownBars": dict(group=_G1, title="Pauza po vstupe (bary)", tooltip="Kolko barov po vstupe sa nehlada dalsi."),
     "weekdaysOnly": dict(group=_G2, title="Len pondelok-piatok", tooltip="Cez vikend sa neobchoduje."),
+    "trendFilter": dict(group=_G2, title="Trend filter (EMA)",
+                        tooltip="off = bez filtra; with = long len nad EMA, short len pod; against = naopak."),
+    "trendEmaLen": dict(group=_G2, title="Trend EMA dlzka", tooltip="EMA zo zavreti grafu."),
     "useTradeWindow": dict(group=_G2, title="Obchodne okno", tooltip="Vstupovat len v zadanych hodinach."),
     "tradeTZ": dict(group=_G2, title="Casove pasmo okna", tooltip="Pasmo hodin okna a dna pre denny limit."),
     "tradeStartH": dict(group=_G2, title="Okno od (H)", inline="tws", tooltip="Zaciatok okna - hodina."),
@@ -91,6 +104,8 @@ PARAMS: dict[str, dict[str, Any]] = {
     "showLevels": dict(group=_G6, title="Kreslit likviditu",
                        tooltip="Urovne od swingu po miesto, kde ich cena zobrala; nevybrate po koniec dat."),
     "showEvents": dict(group=_G6, title="Kreslit sweepy a prerazenia", tooltip="Stitky udalosti."),
+    "showOnlyQuality": dict(group=_G6, title="Kreslit len kvalitne urovne",
+                            tooltip="Kreslia sa len urovne strany, ktoru strategia obchoduje, s min. silou; stitky len pri udalostiach, ktore prejdu filtrami."),
     "tickDollarValue": dict(group=_G7, title="Hodnota ticku ($)", type="float",
                             tooltip="Len pre Pine vzorec velkosti pozicie (legacyPineSizing)."),
     "legacyPineSizing": dict(group=_G7, title="Pine sizing", tooltip="Len na porovnanie s TradingView."),
