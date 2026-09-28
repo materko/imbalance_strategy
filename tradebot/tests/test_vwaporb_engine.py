@@ -273,3 +273,31 @@ def test_vwap_series_at():
     s.add(10, 1.0)
     s.add(20, 2.0)
     assert s.at(9) is None and s.at(10) == 1.0 and s.at(19) == 1.0 and s.at(25) == 2.0 and s.at(None) == 2.0
+
+
+# ---- TP na cross VWAP (1.5) ---------------------------------------------------- #
+
+
+def test_tp_na_cross_vwap_len_v_zisku():
+    s = VwapSeries()
+    trail = VwapTrailing.following(s, 0.0, profit_only=True)
+    s.add(1000, 102.0, 105.0)              # VWAP pod vstupom 103 (long) — dotyk by bola strata
+    assert trail.stop_price_at(2000, Direction.LONG, 103.0, 98.9, 106.0) == 98.9
+    s.add(3000, 104.0, 105.0)              # VWAP nad vstupom, close nad VWAP — dotyk je výber zisku
+    assert trail.stop_price_at(4000, Direction.LONG, 103.0, 98.9, 106.0) == 104.0
+    assert trail.stop_price_at(4000, Direction.LONG, 103.0, 98.9, 103.5) == 98.9  # cena ešte nebola nad VWAP
+    # MNQ 19. 3. 2026: VWAP skočil do zisku, keď už bola cena pod ním — cross už bol, TP nie
+    s.add(5000, 104.5, 103.8)
+    assert trail.stop_price_at(6000, Direction.LONG, 103.0, 98.9, 106.0) == 98.9
+    # short zrkadlovo
+    s2 = VwapSeries()
+    s2.add(1000, 95.0, 93.5)
+    t2 = VwapTrailing.following(s2, 0.0, profit_only=True)
+    assert t2.stop_price_at(2000, Direction.SHORT, 97.0, 101.0, 94.0) == 95.0
+    assert t2.stop_price_at(2000, Direction.SHORT, 94.0, 101.0, 93.0) == 101.0   # VWAP nad vstupom 94
+
+
+def test_tp_na_cross_stop_a_velkost_ostava_z_rangu():
+    e, intent = _long_entry(vwapTp=True)
+    assert intent.plan.stop_loss < 99.0                    # stop ORB, nie VWAP
+    assert isinstance(intent.plan.trailing, VwapTrailing) and intent.plan.trailing.profit_only

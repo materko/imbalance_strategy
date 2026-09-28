@@ -15,6 +15,9 @@ potom sa posúva s VWAP (`trailing.VwapTrailing`) a obchod končí dotykom VWAP.
 signáli na zlej strane vstupu (pri ``vwapRule=direction`` sa to stáva), platí stop ORB
 a s VWAP sa posunie, až keď VWAP prejde na správnu stranu.
 
+TP na cross VWAP (``vwapTp``): stop ostáva ORB; keď je VWAP za vstupom v zisku, stop ide na
+VWAP a jeho dotyk obchod zavrie so ziskom. Pri zapnutom ``vwapStop`` sa nepoužije.
+
 Výstup (``exitMode``): ``tp`` je cieľ ORB; ``vwap`` drží obchod bez cieľa, kým cena od vstupu
 neprerazí VWAP proti nemu — bola na správnej strane a zavrie na opačnej (o ``vwapExitAtr`` × ATR);
 ``tp_vwap`` čo príde skôr.
@@ -77,8 +80,8 @@ class VwapOrbEngine(ORBEngine):
         ctx = ctx or MarketContext(in_trade_window=True)
         self._vwap_value = self.vwap.push(bar)
         self.vwap_fast.push(bar)
-        if self.vwap.updated and self._vwap_value is not None:
-            self._series.add(bar.time + self.step_ms, self._vwap_value)
+        if self._vwap_value is not None:
+            self._series.add(bar.time + self.step_ms, self._vwap_value, bar.close)
         out = super().on_bar(bar, htf, ctx)
         if self.cfg.showVwap and self.vwap.updated and self._vwap_value is not None:
             out.drawings += self._vwap_drawing(bar, self._vwap_value)
@@ -129,10 +132,14 @@ class VwapOrbEngine(ORBEngine):
 
     def _plan(self, st, direction: Direction, entry: float, atr: float) -> TradePlan | None:
         plan = super()._plan(st, direction, entry, atr)
-        if plan is None or not self.cfg.vwapStop:
+        cfg = self.cfg
+        if plan is None or not (cfg.vwapStop or cfg.vwapTp):
             return plan
-        buffer = self.cfg.vwapStopAtr.resolve(self.inst, price=entry, atr=atr)
-        return replace(plan, trailing=VwapTrailing.following(self._series, buffer))
+        if cfg.vwapStop:  # stop na VWAP pokrýva aj TP na cross — je prísnejší
+            buffer = cfg.vwapStopAtr.resolve(self.inst, price=entry, atr=atr)
+            return replace(plan, trailing=VwapTrailing.following(self._series, buffer))
+        buffer = cfg.vwapTpAtr.resolve(self.inst, price=entry, atr=atr)
+        return replace(plan, trailing=VwapTrailing.following(self._series, buffer, profit_only=True))
 
     def _target_level(self, st, direction: Direction, entry: float, sl_distance: float,
                       atr: float) -> float:

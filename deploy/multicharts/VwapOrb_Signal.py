@@ -1,4 +1,4 @@
-# Šablóna MultiCharts študie pre VWAP ORB 1.4 — skopíruj obsah do PowerLanguage .NET
+# Šablóna MultiCharts študie pre VWAP ORB 1.5 — skopíruj obsah do PowerLanguage .NET
 # Editora (File → New → Signal, jazyk Python, názov študie VwapOrb = trieda nižšie).
 #
 # Celá logika je v balíku `tradebot` (nainštaluje ho deploy/multicharts/scripts/setup.ps1).

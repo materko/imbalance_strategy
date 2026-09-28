@@ -76,6 +76,16 @@ PARAMS: dict[str, dict[str, Any]] = {
         group=_GX, title="SL za VWAP o (ATR)",
         tooltip="Rezerva stopu za VWAP v ATR; 0 = presne na VWAP.",
     ),
+    "vwapTp": dict(
+        group=_GX, title="TP na cross VWAP",
+        tooltip="Stop ostava na opacnej strane rangu. Ked sa VWAP posunie za vstupnu cenu do zisku, dotyk VWAP "
+                "(aj knotom) obchod zavrie so ziskom. Kym je VWAP pred vstupom, dotyk VWAP obchod nezavrie. "
+                "Pri zapnutom 'SL na dotyk VWAP' sa nepouzije (ten je prisnejsi).",
+    ),
+    "vwapTpAtr": dict(
+        group=_GX, title="TP za VWAP o (ATR)",
+        tooltip="Rezerva za VWAP v ATR (long pod VWAP); 0 = presne na VWAP.",
+    ),
     "vwapExitAtr": dict(
         group=_GX, title="Zavretie za VWAP o (ATR)",
         tooltip="O kolko ATR musi sviecka zavriet za VWAP proti obchodu, aby sa obchod zavrel; 0 = staci za nim.",
