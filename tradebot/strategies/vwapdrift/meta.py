@@ -18,12 +18,16 @@ PARAM_NOTES: dict[str, str] = {
                          "porovnaj ako dva behy.",
     "entryMode": "Signál (drift, odchod, dotyk VWAP) je pri všetkých rovnaký — líši sa len to, kedy a za "
                  "koľko sa vstúpi. Porovnávaj ich ako samostatné behy.",
+    "everyBounce": "Video obchoduje len prvý pullback — každý odraz je iná stratégia, porovnaj ako dva behy.",
+    "tradeBreakout": "Prerazenie je opak odrazu: obchoduje presne tie dotyky, ktoré odraz zahodí ako prerazené.",
     "rrRatio": "Video stop ani cieľ neuvádza — stop za pullback a RR 2 sú východisko, nie predloha.",
 }
 
 #: Prepínač -> podnastavenia, ktoré sa vo formulári zbalia pod neho.
 FEATURES: list[dict[str, Any]] = [
     {"switches": ["showVwap"], "params": []},
+    {"switches": ["everyBounce"], "params": ["bounceAwayAtr", "maxBouncesPerDay"]},
+    {"switches": ["tradeBreakout"], "params": ["breakoutAtr", "breakoutWithBias", "maxBreakoutsPerDay"]},
 ]
 
 LAYERS: tuple[ChartLayer, ...] = (

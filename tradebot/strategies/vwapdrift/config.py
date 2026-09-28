@@ -136,6 +136,8 @@ SIZE_FIELDS: dict[str, SizeUnit] = {
     "awayAtr": "atr",
     "touchTolAtr": "atr",
     "failCloseAtr": "atr",
+    "bounceAwayAtr": "atr",
+    "breakoutAtr": "atr",
     "slBufferAtr": "atr",
     "slAtr": "atr",
     "minSlDistance": "pct",
@@ -159,6 +161,10 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "awayAtr": (0.0, 10.0),
     "touchTolAtr": (0.0, 2.0),
     "failCloseAtr": (0.0, 5.0),
+    "bounceAwayAtr": (0.0, 10.0),
+    "maxBouncesPerDay": (1, 20),
+    "breakoutAtr": (0.0, 5.0),
+    "maxBreakoutsPerDay": (1, 10),
     "entryDelayMinutes": (0, 390),
     "entryWindowMinutes": (0, 390),
     "maxTradesPerDay": (1, 10),
@@ -217,6 +223,15 @@ class VwapDriftConfig(StrategyConfig):
     #: Pullback je prerazený, až keď bar zavrie za VWAP o viac než toto — kúsok pod VWAP je stále pullback.
     failCloseAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.5, "atr"))
     firstPullbackOnly: bool = True
+    #: Obchodovať každý odraz od VWAP v smere dňa, nie len prvý (firstPullbackOnly sa ignoruje).
+    everyBounce: bool = False
+    bounceAwayAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.25, "atr"))
+    maxBouncesPerDay: int = 5
+    # ---- 💥 Prerazenie VWAP ------------------------------------------------ #
+    tradeBreakout: bool = False
+    breakoutAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.5, "atr"))
+    breakoutWithBias: bool = False
+    maxBreakoutsPerDay: int = 1
     entryDelayMinutes: int = 15
     entryWindowMinutes: int = 0
     maxTradesPerDay: int = 1

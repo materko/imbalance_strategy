@@ -13,6 +13,7 @@ __all__ = ["GROUPS", "PARAMS"]
 _G0 = "🕐 Seansa"
 _G1 = "📈 VWAP a drift"
 _G2 = "🚀 Vstup (pullback)"
+_G2b = "💥 Prerazenie VWAP"
 _G3 = "🛡️ Stop loss"
 _G4 = "🎯 Ciel"
 _G5 = "💰 Riziko"
@@ -20,7 +21,7 @@ _G6 = "🎨 Vizualizacia"
 _G7 = "🧩 Rozšírenia portu"
 
 #: Poradie skupín vo formulári.
-GROUPS: tuple[str, ...] = (_G0, _G1, _G2, _G3, _G4, _G5, _G6, _G7)
+GROUPS: tuple[str, ...] = (_G0, _G1, _G2, _G2b, _G3, _G4, _G5, _G6, _G7)
 
 PARAMS: dict[str, dict[str, Any]] = {
     # ---- 🕐 Seansa ---------------------------------------------------- #
@@ -117,6 +118,41 @@ PARAMS: dict[str, dict[str, Any]] = {
         group=_G2, title="Len prvy pullback",
         tooltip="Obchoduje sa len prvy pullback dna v danom smere (ako vo videu) - aj ked prerazil a obchod "
                 "nevznikol. Vypnute = po novom odchode od VWAP sa pocita dalsi pullback.",
+    ),
+    "everyBounce": dict(
+        group=_G2, title="Kazdy odraz od VWAP",
+        tooltip="Zapnute = obchoduje sa kazdy odraz od VWAP v smere dna, nie len prvy pullback. Dalsi odraz "
+                "chce, aby cena po predoslom dotyku znova odisla od VWAP aspon o 'Odchod pred dalsim odrazom'. "
+                "Strop je 'Max odrazov za den'; 'Len prvy pullback' a 'Max obchodov za den' sa vtedy nepouzivaju.",
+    ),
+    "bounceAwayAtr": dict(
+        group=_G2, title="Odchod pred dalsim odrazom (ATR)",
+        tooltip="Pri 'Kazdy odraz': o kolko ATR musi cena po dotyku znova zavriet od VWAP, aby dalsi dotyk bol "
+                "novy odraz. Prvy odchod dna je stale 'Odchod od VWAP'. 0 = staci zavriet na spravnej strane.",
+    ),
+    "maxBouncesPerDay": dict(
+        group=_G2, title="Max odrazov za den",
+        tooltip="Pri 'Kazdy odraz': kolko odrazov sa za den najviac obchoduje.",
+    ),
+    "tradeBreakout": dict(
+        group=_G2b, title="Obchodovat prerazenie VWAP",
+        tooltip="Zapnute = obchoduje sa aj prerazenie VWAP: cena zavrela na jednej strane VWAP a dalsia sviecka "
+                "zavrie na druhej aspon o 'Prerazenie o (ATR)'. Vstup market na zavreti v smere prerazenia, "
+                "stop podla 'Druh stopu' (pullback = za extrem prerazovacej sviecky). Nezavisle od odrazov.",
+    ),
+    "breakoutAtr": dict(
+        group=_G2b, title="Prerazenie o (ATR)",
+        tooltip="Kolko ATR za VWAP musi prerazovacia sviecka zavriet. Strana VWAP sa meni len zavretim mimo "
+                "tolerancie dotyku, takze sviecky motajuce sa na VWAP prerazenie nevyrobia.",
+    ),
+    "breakoutWithBias": dict(
+        group=_G2b, title="Prerazenie len v smere dna",
+        tooltip="Zapnute = len prerazenie v smere driftu (long pri stupajucom VWAP). Vypnute = oba smery, aj "
+                "prerazenie proti driftu (zlyhany pullback ako otocka).",
+    ),
+    "maxBreakoutsPerDay": dict(
+        group=_G2b, title="Max prerazeni za den",
+        tooltip="Kolko prerazeni sa za den najviac obchoduje (nezavisle od odrazov).",
     ),
     "entryDelayMinutes": dict(
         group=_G2, title="Vstup najskor po (min)",

@@ -314,3 +314,60 @@ def test_zavretie_hlboko_za_vwap_je_prerazenie():
     e.on_bar(candle(t, vwap + 0.5, vwap + 0.6, vwap - 1.5 * atr, vwap - 1.0 * atr), ctx=OKNO)
     out = e.on_bar(candle(t + STEP, vwap - atr, vwap + 0.9, vwap - atr, vwap + 0.8), ctx=OKNO)
     assert not entries(out)
+
+
+# ---- každý odraz a prerazenie --------------------------------------------- #
+
+
+def _bounce(e, i, ctx=OKNO):
+    """Dotyk VWAP zhora a zavretie nad ním (vstup `close`); vráti výstup a ďalší index."""
+    vwap = e.vwap.value
+    out = e.on_bar(bar(OPEN_MS + i * STEP, vwap + 0.6, low=vwap - 0.4, high=vwap + 0.8), ctx=ctx)
+    return out, i + 1
+
+
+def test_bez_every_bounce_sa_druhy_odraz_neobchoduje_a_s_nim_ano():
+    for every, expected in ((False, 0), (True, 1)):
+        e, i = armed_long(everyBounce=every)
+        out, i = _bounce(e, i)
+        assert len(entries(out)) == 1
+        i = trend(e, [e.vwap.value + 1.0, e.vwap.value + 1.2], i)   # nový odchod ~1 ATR
+        out, i = _bounce(e, i)
+        assert len(entries(out)) == expected, every
+
+
+def test_every_bounce_chce_novy_odchod_a_drzi_strop():
+    e, i = armed_long(everyBounce=True, maxBouncesPerDay=2,
+                      bounceAwayAtr=SizeSpec(0.25, "atr"))
+    out, i = _bounce(e, i)
+    assert entries(out)
+    out, i = _bounce(e, i)                        # hneď ďalší dotyk bez odchodu — nie je odraz
+    assert not entries(out)
+    i = trend(e, [e.vwap.value + 1.0], i)
+    out, i = _bounce(e, i)
+    assert entries(out)                           # druhý odraz
+    i = trend(e, [e.vwap.value + 1.0], i)
+    out, i = _bounce(e, i)
+    assert not entries(out)                       # strop 2 odrazy za deň
+
+
+def test_prerazenie_vwap_zdola_je_long_a_zhora_short():
+    for with_bias, expected in ((False, [Direction.SHORT]), (True, [])):
+        e, i = armed_long(tradeBreakout=True, breakoutWithBias=with_bias, entryMode=EntryMode.REACTION)
+        vwap, atr = e.vwap.value, e.history.atr
+        # zo strany nad VWAP zavrie 1 ATR pod ním — prerazenie nadol (proti rastúcemu dňu)
+        out = e.on_bar(candle(OPEN_MS + i * STEP, vwap + 0.5, vwap + 0.6, vwap - 1.3 * atr,
+                              vwap - 1.0 * atr), ctx=OKNO)
+        assert [o.plan.direction for o in entries(out)] == expected, with_bias
+
+
+def test_prerazenie_v_smere_dna_po_navrate_zdola():
+    e, i = armed_long(tradeBreakout=True, breakoutWithBias=True)
+    vwap, atr = e.vwap.value, e.history.atr
+    e.on_bar(candle(OPEN_MS + i * STEP, vwap + 0.5, vwap + 0.6, vwap - 1.3 * atr, vwap - 1.0 * atr), ctx=OKNO)
+    vwap = e.vwap.value
+    out = e.on_bar(candle(OPEN_MS + (i + 1) * STEP, vwap - 0.9 * atr, vwap + 1.2 * atr, vwap - 1.0 * atr,
+                          vwap + 1.0 * atr), ctx=OKNO)
+    (intent,) = entries(out)
+    assert intent.plan.direction is Direction.LONG and intent.reason == "prerazenie VWAP"
+    assert e._state.breakouts == 1

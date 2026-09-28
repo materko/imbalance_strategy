@@ -32,6 +32,8 @@ class VwapDriftHyperopt(StrategyHyperopt):
         "driftMinAtr": {"low": 0.0, "high": 0.5, "step": 0.05, "unit": "atr"},
         "awayAtr": {"low": 0.0, "high": 3.0, "step": 0.25, "unit": "atr"},
         "tradeDirection": {"choices": ["Both", "Long only", "Short only"]},
+        "everyBounce": {"choices": [False, True]},
+        "tradeBreakout": {"choices": [False, True]},
     }
 
     #: Ktorý parameter robí staticky to, čo model mení za behu.
@@ -54,6 +56,8 @@ class VwapDriftHyperopt(StrategyHyperopt):
     }
 
     WARN: ClassVar[dict[str, str]] = {
+        "maxBouncesPerDay": "strop, nie signál — ladením sa z neho stane skrytý filter dní",
+        "maxBreakoutsPerDay": "to isté ako maxBouncesPerDay",
         "pbWickPct": "tvar pin baru — filter citlivosti, nie štruktúra obchodu",
         "pbBodyPct": "to isté ako pbWickPct",
         "touchTolAtr": "filter citlivosti, nie štruktúra obchodu — ladí sa ľahko a prefituje ešte ľahšie",

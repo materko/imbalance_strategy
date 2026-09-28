@@ -25,6 +25,14 @@ Priebeh jedného obchodného dňa:
   6. stop podľa ``slMode`` (pullback / vstupná sviečka / VWAP / ATR od vstupu / swing), cieľ ``rrRatio`` × riziko
   7. na konci seansy sa pozícia zatvorí (``closeAtSessionEnd``)
 
+Dva prepínače navyše:
+
+* ``everyBounce`` — obchoduje sa každý odraz v smere dňa, nie len prvý; ďalší odraz chce nový
+  odchod aspoň ``bounceAwayAtr`` × ATR, strop je ``maxBouncesPerDay``
+* ``tradeBreakout`` — prerazenie VWAP: po zavretí na jednej strane zavrie bar na druhej aspoň
+  ``breakoutAtr`` × ATR za VWAP; vstup market na zavretí v smere prerazenia (pri
+  ``breakoutWithBias`` len v smere dňa), strop ``maxBreakoutsPerDay``
+
 Engine je čistý: žiadne I/O, žiadny globálny stav, všetko je v ``self``.
 """
 
@@ -65,16 +73,25 @@ class _DayState:
     #: prvý pullback v tom smere už bol (obchodovaný alebo prerazený)
     long_done: bool = False
     short_done: bool = False
+    #: obchody z odrazu od VWAP a z prerazenia VWAP — každý má vlastný strop
     trades: int = 0
+    breakouts: int = 0
+    #: odraz v tom smere už dnes bol — ďalší odchod stačí `bounceAwayAtr` (pri `everyBounce`)
+    long_bounced: bool = False
+    short_bounced: bool = False
+    #: na ktorej strane VWAP naposledy zavrela cena mimo tolerancie (+1 nad, -1 pod, 0 ešte nie)
+    side: int = 0
     #: smer dňa — posledný jasný drift (+1 / -1), 0 kým VWAP smer nemal
     bias: int = 0
 
     def reset(self, day: tuple[int, int, int]) -> None:
         self.day = day
         self.bias = 0
+        self.side = 0
         self.long_armed = self.short_armed = False
         self.long_done = self.short_done = False
-        self.trades = 0
+        self.long_bounced = self.short_bounced = False
+        self.trades = self.breakouts = 0
 
 
 @dataclass
@@ -249,26 +266,39 @@ class VwapDriftEngine:
         if minutes < cfg.start_minutes or vwap is None or atr <= 0:
             return out
 
-        # ---- odchod od VWAP v smere driftu ----------------------------- #
-        away = cfg.awayAtr.resolve(self.inst, price=bar.close, atr=atr)
-        if bar.close >= vwap + away and not st.long_done:
-            st.long_armed = True
-        if bar.close <= vwap - away and not st.short_done:
-            st.short_armed = True
-
-        # ---- pullback k VWAP ------------------------------------------- #
+        every = cfg.everyBounce
+        # ---- pullback k VWAP (odchod z predošlých barov) --------------- #
         touched: Direction | None = None
         # dotyk bez smeru dňa (alebo proti nemu) len zruší odchod — pullbackom nebol
+        first_only = cfg.firstPullbackOnly and not every
         if st.long_armed and bar.low <= vwap + tol:
             st.long_armed = False
             if st.bias > 0:
-                st.long_done = cfg.firstPullbackOnly
+                st.long_done = first_only
+                st.long_bounced = True
                 touched = Direction.LONG
         if st.short_armed and bar.high >= vwap - tol:
             st.short_armed = False
             if st.bias < 0:
-                st.short_done = cfg.firstPullbackOnly
+                st.short_done = first_only
+                st.short_bounced = True
                 touched = Direction.SHORT if touched is None else None  # oba naraz = nejasné
+
+        # ---- odchod od VWAP -------------------------------------------- #
+        # Až po dotyku a nie na bare, ktorý sa VWAP práve dotkol: odrazová sviečka, ktorá
+        # zavrie nad VWAP, je ešte ten istý pullback, nie nový odchod.
+        away = cfg.awayAtr.resolve(self.inst, price=bar.close, atr=atr)
+        rearm = cfg.bounceAwayAtr.resolve(self.inst, price=bar.close, atr=atr)
+        near_up, near_dn = bar.low <= vwap + tol, bar.high >= vwap - tol
+        if (not near_up and not st.long_done
+                and bar.close >= vwap + (rearm if every and st.long_bounced else away)):
+            st.long_armed = True
+        if (not near_dn and not st.short_done
+                and bar.close <= vwap - (rearm if every and st.short_bounced else away)):
+            st.short_armed = True
+
+        # ---- prerazenie VWAP ------------------------------------------- #
+        breakout = self._breakout(bar, vwap, tol, atr)
 
         if self._pending is not None and self._pending.kind is OrderType.LIMIT:
             # limitka sa buď práve vyplnila (adaptér to povie na ďalšom bare), alebo jej
@@ -276,8 +306,18 @@ class VwapDriftEngine:
             if touched is None:
                 self._cancel(out, idx, "obnovenie limitky na VWAP", draw=False)
 
-        can_enter = (ctx.position_size == 0.0 and self._pending is None
-                     and st.trades < cfg.maxTradesPerDay and self._in_window(minutes))
+        free = ctx.position_size == 0.0 and self._pending is None and self._in_window(minutes)
+        if breakout is not None and free and st.breakouts < cfg.maxBreakoutsPerDay:
+            long = breakout is Direction.LONG
+            self._await = None
+            self._enter(out, idx, bar, breakout, bar.close, bar.low if long else bar.high, vwap, atr,
+                        OrderType.MARKET, "prerazenie VWAP", candle=bar.low if long else bar.high,
+                        kind="breakout")
+            if out.orders:
+                return out
+
+        cap = cfg.maxBouncesPerDay if every else cfg.maxTradesPerDay
+        can_enter = free and st.trades < cap
 
         if cfg.entryMode is EntryMode.LIMIT:
             if can_enter:
@@ -354,6 +394,30 @@ class VwapDriftEngine:
             return bull and prev.close < prev.open and bar.close >= prev.open and bar.open <= prev.close
         return bear and prev.close > prev.open and bar.close <= prev.open and bar.open >= prev.close
 
+    def _breakout(self, bar: Bar, vwap: float, tol: float, atr: float) -> Direction | None:
+        """Zavretie na druhej strane VWAP (o ``breakoutAtr`` × ATR) po zavretí na opačnej strane.
+
+        Strana sa mení len zavretím mimo tolerancie dotyku, takže sviečky motajúce sa na VWAP
+        prerazenie nevyrobia. Pri ``breakoutWithBias`` len v smere dňa.
+        """
+        cfg = self.cfg
+        st = self._state
+        prev = st.side
+        if bar.close > vwap + tol:
+            st.side = 1
+        elif bar.close < vwap - tol:
+            st.side = -1
+        if not cfg.tradeBreakout or prev == 0:
+            return None
+        need = cfg.breakoutAtr.resolve(self.inst, price=bar.close, atr=atr)
+        if prev < 0 and bar.close >= vwap + need and cfg.allow_long:
+            if not cfg.breakoutWithBias or st.bias > 0:
+                return Direction.LONG
+        if prev > 0 and bar.close <= vwap - need and cfg.allow_short:
+            if not cfg.breakoutWithBias or st.bias < 0:
+                return Direction.SHORT
+        return None
+
     def _in_window(self, minutes: int) -> bool:
         since_open = minutes - self.cfg.start_minutes
         if since_open < self.cfg.entryDelayMinutes:
@@ -373,12 +437,15 @@ class VwapDriftEngine:
         return bias < 0 and self.cfg.allow_short
 
     def _mark_done(self, direction: Direction) -> None:
-        if not self.cfg.firstPullbackOnly:
-            return
+        """Vyplnený odraz: ďalší chce nový odchod; pri prvom pullbacku je smer na dnes hotový."""
+        st = self._state
+        done = self.cfg.firstPullbackOnly and not self.cfg.everyBounce
         if direction is Direction.LONG:
-            self._state.long_done, self._state.long_armed = True, False
+            st.long_armed, st.long_bounced = False, True
+            st.long_done = st.long_done or done
         else:
-            self._state.short_done, self._state.short_armed = True, False
+            st.short_armed, st.short_bounced = False, True
+            st.short_done = st.short_done or done
 
     def _place_limit(self, out: EngineOutput, idx: int, vwap: float, tol: float, drift: int,
                      atr: float) -> None:
@@ -401,7 +468,8 @@ class VwapDriftEngine:
 
     def _enter(self, out: EngineOutput, idx: int, bar: Bar, direction: Direction, entry: float,
                extreme: float, vwap: float, atr: float, order_type: OrderType, reason: str,
-               until: int | None = None, candle: float | None = None) -> None:
+               until: int | None = None, candle: float | None = None,
+               kind: str = "bounce") -> None:
         plan = self._plan(direction, entry, extreme, vwap, atr, candle)
         if plan is None:
             return
@@ -409,7 +477,10 @@ class VwapDriftEngine:
         out.orders.append(OrderIntent(OrderAction.ENTRY, order_id, idx, direction=direction,
                                       plan=plan, order_type=order_type, reason=reason))
         if order_type is OrderType.MARKET:
-            self._state.trades += 1
+            if kind == "breakout":
+                self._state.breakouts += 1
+            else:
+                self._state.trades += 1
             out.drawings.append(self._entry_label(bar, direction))
         else:
             self._pending = _Pending(order_id, direction, order_type, plan.entry,
