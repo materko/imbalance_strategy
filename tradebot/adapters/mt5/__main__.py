@@ -121,6 +121,29 @@ def common_files(mql5: Path) -> Path:
     return Path(raw) if raw else mql5.parent.parent / "Common" / "Files"
 
 
+def find_common_files() -> Path | None:
+    """`Common/Files` bez výberu terminálu (`Common` je spoločný pre všetky), alebo `None`, keď
+    MT5 na stroji nie je — nič nevyhadzuje (live spool sa pýta aj tam, kde MT5 len môže byť)."""
+    try:
+        raw = os.environ.get("TRADEBOT_MT5_COMMON")
+        if raw:
+            return Path(raw) if Path(raw).is_dir() else None
+        raw = os.environ.get("TRADEBOT_MT5_DIR")
+        if raw:
+            path = Path(raw)
+            if path.name != "MQL5" and (path / "MQL5").is_dir():
+                path = path / "MQL5"
+            spolocny = common_files(path)
+            return spolocny if spolocny.is_dir() else None
+        appdata = os.environ.get("APPDATA")
+        if not appdata:
+            return None
+        spolocny = Path(appdata) / "MetaQuotes" / "Terminal" / "Common" / "Files"
+        return spolocny if spolocny.is_dir() else None
+    except (OSError, RuntimeError):
+        return None
+
+
 def csharp_strategies():
     return [s for s in STRATEGIES.values() if s.csharp_dir is not None]
 

@@ -10,7 +10,10 @@ function showView(name) {
   $("#view-new").hidden = name !== "new"; $("#view-history").hidden = name !== "history";
   $("#view-analytics").hidden = name !== "analytics";
   $("#view-hub").hidden = name !== "hub";
+  $("#view-live").hidden = name !== "live";
   if (name === "hub") loadHub(); else if (state.hubTimer) { clearTimeout(state.hubTimer); state.hubTimer = null; }
+  // karta Live sa obnovuje každých 5 s, kým je otvorená; inak sa nič nepýta
+  if (name === "live") loadLive(); else stopLive();
   // karta História je vždy celý zoznam — otvorený detail behu sa zavrie, nech neprekrýva tabuľku
   if (name === "history") { closeDetail(); loadRuns(); }
   // Historia analytiky je per strategia, takze sa nacita az pri otvoreni karty - vtedy
@@ -41,6 +44,7 @@ async function init() {
   pollQueue();
   gitStatus();
   hubSetup();
+  liveSetup();
 
   $$(".tabs button").forEach(b => b.onclick = () => showView(b.dataset.view));
   $("#run").onclick = submitRun;

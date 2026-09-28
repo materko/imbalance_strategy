@@ -11,6 +11,10 @@
 //
 // Cas: engine pracuje s casom OTVORENIA baru v ms UTC; NinjaTrader znackuje bar casom ZATVORENIA
 // v pasme z Tools > Options > General. Prepocet je na jednom mieste (`BarOpenMs`).
+//
+// Live telemetria (docs/LIVE.md): mimo Strategy Analyzera pise adapter bary, zamery, kresby a vyplnenia
+// do JSONL spoolu `Documents\NinjaTrader 8\TradeBot\spool\<instancia>\` (`TB.LiveSpool`); agent hubu
+// ho odtial posiela do webapp. Chyba spoolu strategiu nezhodi - vypise sa raz do Output a obchoduje sa dalej.
 #region Using declarations
 using System;
 using System.Collections.Generic;
@@ -71,6 +75,9 @@ namespace NinjaTrader.NinjaScript.Strategies
         private readonly TB.DrawRegistry _registry = new TB.DrawRegistry();
         private readonly Dictionary<string, Brush> _brushes = new Dictionary<string, Brush>();
         private StreamWriter _export;
+        private Dictionary<string, object> _config;
+        private TB.LiveSpool _spool;
+        private bool _spoolErrorPrinted;
         // diagnostika behu: kolko barov adapter naozaj dostal (malo barov = ziadne zony, ziadne ordery)
         private int _chartBars, _htfBars;
         private long _firstBarMs, _lastBarMs;
@@ -100,6 +107,10 @@ namespace NinjaTrader.NinjaScript.Strategies
         public bool ExportSignals { get; set; }
 
         [NinjaScriptProperty]
+        [Display(Name = "Live telemetria", Description = "Bary, zamery enginu, kresby a vyplnenia do JSONL spoolu v Documents\\NinjaTrader 8\\TradeBot\\spool (docs/LIVE.md) - agent hubu ich posiela do webapp, karta Live. V Strategy Analyzeri sa nepise.", GroupName = "TradeBot", Order = 7)]
+        public bool LiveTelemetry { get; set; }
+
+        [NinjaScriptProperty]
         [Range(0, 60)]
         [Display(Name = "Detail plnenia (min)", Description = "Ordery sa plnia na barovej serii s tymto poctom minut (1 = ako --timeframe-detail 1m v Testeri). NinjaTrader volbu Order fill resolution = High pre strategie s viac seriami nepovoli, preto si jemnu seriu pridava strategia sama; v Strategy Analyzeri nechaj Standard. 0 = plnit na baroch grafu.", GroupName = "TradeBot", Order = 6)]
         public int FillDetailMinutes { get; set; }
@@ -109,6 +120,26 @@ namespace NinjaTrader.NinjaScript.Strategies
         public static string ProfilesDir
         {
             get { return Path.Combine(NinjaTrader.Core.Globals.UserDataDir, "TradeBot", "profiles"); }
+        }
+
+        public static string SpoolDir
+        {
+            get { return Path.Combine(NinjaTrader.Core.Globals.UserDataDir, "TradeBot", "spool"); }
+        }
+
+        /// <summary>Profil sa cita raz (Configure aj DataLoaded ho potrebuju, spool ho pise do `hello`).</summary>
+        private Dictionary<string, object> Config()
+        {
+            if (_config == null) _config = LoadConfig();
+            return _config;
+        }
+
+        /// <summary>Chyba spoolu strategiu nezhodi: vypise sa raz a spool je dalej no-op.</summary>
+        private void SpoolCheck()
+        {
+            if (_spool == null || !_spool.Broken || _spoolErrorPrinted) return;
+            _spoolErrorPrinted = true;
+            Print("TradeBot " + EngineKey + ": live telemetria vypnuta - " + _spool.LastError);
         }
 
         private string ResolveProfilePath()
@@ -152,6 +183,7 @@ namespace NinjaTrader.NinjaScript.Strategies
                 ShowSessionBackground = false;
                 LogEvents = false;
                 ExportSignals = false;
+                LiveTelemetry = true;
                 FillDetailMinutes = 1;
             }
             else if (State == State.Configure)
@@ -160,7 +192,7 @@ namespace NinjaTrader.NinjaScript.Strategies
                 // k dispozicii - na zistenie TF staci engine nad zastupnym instrumentom a 1m grafom (kazdy
                 // TF je nasobkom 1m); ostry engine vznikne v DataLoaded.
                 TB.EngineRegistry.Reset();
-                TB.IEngine probe = TB.EngineRegistry.Create(EngineKey, LoadConfig(),
+                TB.IEngine probe = TB.EngineRegistry.Create(EngineKey, Config(),
                     new TB.InstrumentSpec("probe", "ninjatrader", 0.01, 1.0, 1.0, 1.0, true), 1);
                 TB.IHtfFeeder feeder = probe.CreateHtfFeeder();
                 int next = 1;
@@ -185,12 +217,20 @@ namespace NinjaTrader.NinjaScript.Strategies
                 _chartTfMinutes = BarsArray[0].BarsPeriod.Value;
                 if (FillDetailMinutes >= _chartTfMinutes) _fillSeries = 0; // jemnejsie nez graf to nie je
                 _stepMs = _chartTfMinutes * 60000L;
-                _engine = TB.EngineRegistry.Create(EngineKey, LoadConfig(), InstrumentSpec(), _chartTfMinutes);
+                _engine = TB.EngineRegistry.Create(EngineKey, Config(), InstrumentSpec(), _chartTfMinutes);
                 _htf = _htfSeries >= 0 ? _engine.CreateHtfFeeder() : null;
                 Dictionary<string, double> stats = _engine.Stats();
                 double wins;
                 _maxDailyWins = stats != null && stats.TryGetValue("max_daily_wins", out wins) ? (int)wins : 0;
                 if (ExportSignals) OpenExport();
+                if (LiveTelemetry && !IsInStrategyAnalyzer)
+                {
+                    _spool = new TB.LiveSpool(SpoolDir, "ninjatrader", Account != null ? Account.Name : "",
+                                              Instrument.MasterInstrument.Name, _chartTfMinutes, EngineKey,
+                                              string.IsNullOrEmpty(Profile) ? DefaultProfile : Profile, false, Config(), InstrumentSpec());
+                    SpoolCheck();
+                    if (!_spool.Broken) Print("TradeBot " + EngineKey + ": live telemetria -> " + _spool.Path);
+                }
                 Print("TradeBot " + EngineKey + ": TF " + _chartTfMinutes + "m, predhistoria " + _engine.RequiredHistory
                       + " barov (" + (_engine.Warmup != null ? _engine.Warmup.Describe() : "") + "), tick " + Instrument.MasterInstrument.TickSize
                       + ", bod " + Instrument.MasterInstrument.PointValue);
@@ -200,6 +240,7 @@ namespace NinjaTrader.NinjaScript.Strategies
                 // historicke Order objekty v realnom case neplatia - NinjaTrader da ich nastupcov
                 foreach (Tracked t in _orders.Values)
                     if (t.Entry != null) t.Entry = GetRealtimeOrder(t.Entry);
+                if (_spool != null) { _spool.Realtime = true; SpoolCheck(); }
             }
             else if (State == State.Terminated)
             {
@@ -210,7 +251,36 @@ namespace NinjaTrader.NinjaScript.Strategies
                           + _htfBars + " barov informativneho TF"
                           + (_chartBars < _engine.RequiredHistory * 2 ? " - PRILIS MALO DAT: skontroluj obdobie, import a Merge policy (Tools > Options > Market data)" : ""));
                 CloseExport();
+                CloseSpool();
             }
+        }
+
+        /// <summary>`stat` (Engine.Stats() + pocitadla adaptera ako v CSV exporte) a `bye`.</summary>
+        private void CloseSpool()
+        {
+            if (_spool == null) return;
+            Dictionary<string, double> stats = new Dictionary<string, double>();
+            stats["adapter_chart_bars"] = _chartBars;
+            stats["adapter_htf_bars"] = _htfBars;
+            stats["adapter_first_bar_ms"] = _firstBarMs;
+            stats["adapter_last_bar_ms"] = _lastBarMs;
+            if (_engine != null)
+            {
+                Dictionary<string, double> engineStats = _engine.Stats();
+                if (engineStats != null)
+                    foreach (KeyValuePair<string, double> kv in engineStats) stats[kv.Key] = kv.Value;
+            }
+            _spool.Stats(stats);
+            _spool.Close("terminated");
+            SpoolCheck();
+            _spool = null;
+        }
+
+        private void SpoolFill(DateTime time, string id, bool entry, string exitName, double price, int quantity)
+        {
+            if (_spool == null) return;
+            _spool.Fill(ToMs(time), id, entry, exitName, price, quantity, State == State.Realtime);
+            SpoolCheck();
         }
 
         // ------------------------------------------------------------------ //
@@ -358,10 +428,16 @@ namespace NinjaTrader.NinjaScript.Strategies
             if (State == State.Realtime && (NinjaTrader.Core.Globals.Now - Times[0][0]).TotalSeconds > 2 * _chartTfMinutes * 60)
             {
                 ready = false;
-                if (_staleLogged++ < 5) Print("TradeBot " + EngineKey + ": bar " + Times[0][0].ToString("HH:mm", CultureInfo.InvariantCulture)
-                                              + " prisiel neskoro (" + (int)(NinjaTrader.Core.Globals.Now - Times[0][0]).TotalSeconds + " s) - bez vstupu");
+                if (_staleLogged++ < 5)
+                {
+                    string stale = "TradeBot " + EngineKey + ": bar " + Times[0][0].ToString("HH:mm", CultureInfo.InvariantCulture)
+                                 + " prisiel neskoro (" + (int)(NinjaTrader.Core.Globals.Now - Times[0][0]).TotalSeconds + " s) - bez vstupu";
+                    Print(stale);
+                    if (_spool != null) _spool.Note("warn", stale);
+                }
             }
             Export(bar, output, ready);
+            if (_spool != null) { _spool.Bar(bar, output, ready, ctx.MarketBias); SpoolCheck(); }
             foreach (TB.OrderIntent intent in output.Orders) Apply(intent, ready);
             if (output.CloseSession) Flatten("tb_session_end");
 
@@ -370,13 +446,17 @@ namespace NinjaTrader.NinjaScript.Strategies
                     Print(Times[0][0].ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) + " zona " + e.ZoneUid + ": "
                           + e.FromState + " -> " + e.ToState + " " + e.Reason);
 
-            if (ShowDrawings && ChartControl != null)
-            {
+            bool paint = ShowDrawings && ChartControl != null;
+            if (paint)
                 foreach (TB.DrawCommand cmd in output.Drawings) Render(cmd);
-                // Pine `barstate.islast`: co sa kresli az na poslednom bare (S/R zhluky, Elliott) -
-                // na konci historie a potom na kazdom bare nazivo (objekty maju stale id, prekreslia sa)
-                if (State == State.Realtime || CurrentBars[0] >= BarsArray[0].Count - 2)
-                    foreach (TB.DrawCommand cmd in _engine.FinalDrawings(bar)) Render(cmd);
+            // Pine `barstate.islast`: co sa kresli az na poslednom bare (S/R zhluky, Elliott) -
+            // na konci historie a potom na kazdom bare nazivo (objekty maju stale id, prekreslia sa)
+            if ((paint || _spool != null) && (State == State.Realtime || CurrentBars[0] >= BarsArray[0].Count - 2))
+            {
+                List<TB.DrawCommand> finals = _engine.FinalDrawings(bar);
+                if (paint)
+                    foreach (TB.DrawCommand cmd in finals) Render(cmd);
+                if (_spool != null) { _spool.FinalDrawings(bar, finals); SpoolCheck(); }
             }
 
             int winsNow;
@@ -579,6 +659,7 @@ namespace NinjaTrader.NinjaScript.Strategies
                 t.Parked = false;
                 t.OpenQty += quantity;
                 ExportFill(time, order.Name, true, "", price, quantity);
+                SpoolFill(time, order.Name, true, "", price, quantity);
                 ParkOthers(order.Name);
                 return;
             }
@@ -587,6 +668,7 @@ namespace NinjaTrader.NinjaScript.Strategies
             if (string.IsNullOrEmpty(entryName) || !_orders.TryGetValue(entryName, out t)) return;
 
             ExportFill(time, entryName, false, order.Name, price, quantity);
+            SpoolFill(time, entryName, false, order.Name, price, quantity);
             t.OpenQty -= quantity;
             if (t.OpenQty > 0) return;
             _orders.Remove(entryName);

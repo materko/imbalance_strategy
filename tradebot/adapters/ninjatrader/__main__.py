@@ -34,12 +34,24 @@ CORE_DIRS = ("TradeBot.Core", "TradeBot.Strategies")
 STALE_TEMPLATES = ("IBSNinja.cs", "ORBNinja.cs")
 
 
+def find_nt_user_dir(override: str | None = None) -> Path | None:
+    """`Documents\\NinjaTrader 8` (`--nt-dir`, `TRADEBOT_NT_DIR`), alebo `None`, keď tam NinjaTrader
+    nie je — nič nevyhadzuje, nech sa dá použiť aj tam, kde platforma len môže byť (live spool)."""
+    try:
+        raw = override or os.environ.get("TRADEBOT_NT_DIR")
+        path = Path(raw) if raw else Path.home() / "Documents" / "NinjaTrader 8"
+        return path if (path / "bin" / "Custom").is_dir() else None
+    except (OSError, RuntimeError):
+        return None
+
+
 def nt_user_dir(override: str | None = None) -> Path:
     """`Documents\\NinjaTrader 8` — dá sa vnútiť (`--nt-dir`, `TRADEBOT_NT_DIR`), keď sú Dokumenty inde."""
-    raw = override or os.environ.get("TRADEBOT_NT_DIR")
-    path = Path(raw) if raw else Path.home() / "Documents" / "NinjaTrader 8"
-    if not (path / "bin" / "Custom").is_dir():
-        raise SystemExit(f"NinjaTrader 8 sa nenašiel v {path} (chýba bin\\Custom); zadaj --nt-dir")
+    path = find_nt_user_dir(override)
+    if path is None:
+        raw = override or os.environ.get("TRADEBOT_NT_DIR")
+        hladane = Path(raw) if raw else Path.home() / "Documents" / "NinjaTrader 8"
+        raise SystemExit(f"NinjaTrader 8 sa nenašiel v {hladane} (chýba bin\\Custom); zadaj --nt-dir")
     return path
 
 

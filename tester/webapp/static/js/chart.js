@@ -210,8 +210,8 @@ async function loadPairChart() {
   } finally { if (seq === pc.seq) el.classList.remove("loading"); }
 }
 
-function describe(o) {
-  const head = `<b>${esc(pc.L.titles[o.k] || o.k)}</b>${o.tx ? " · " + esc(o.tx).replace(/\n/g, " ") : ""}${o.z != null ? ` · zóna #${o.z}` : ""}`;
+function describe(o, L = pc.L) {
+  const head = `<b>${esc(L.titles[o.k] || o.k)}</b>${o.tx ? " · " + esc(o.tx).replace(/\n/g, " ") : ""}${o.z != null ? ` · zóna #${o.z}` : ""}`;
   if (o.t === "label") return `${head}<br>${utc(o.x).slice(0, 16)} · ${fmtPrice(o.y)}`;
   const y = o.t === "bg" ? "" : `<br>${fmtPrice(Math.max(o.y1, o.y2))} – ${fmtPrice(Math.min(o.y1, o.y2))}`;
   return `${head}<br>${utc(o.x1).slice(0, 16)} → ${utc(o.x2).slice(0, 16)}${y}`;
@@ -251,22 +251,27 @@ function chartColor(c) {
   return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`;
 }
 
-function objectTraces(objects) {
+/**
+ * Kresby → Plotly trace. `c` je kontext grafu: `L` (vrstvy z `layersFor`), `layers`
+ * (zapnuté vrstvy) a `to` (pravý okraj okna pre boxy s `er`). Predvolene stav grafu
+ * behu (`pc`); karta Live si podáva vlastný, aby ten istý kód kreslil aj živé kresby.
+ */
+function objectTraces(objects, c = pc) {
   const groups = new Map(), shapes = [];
   const group = (key, init) => { let g = groups.get(key); if (!g) { g = init(); groups.set(key, g); } return g; };
   for (const o of objects) {
-    const layer = pc.L.byKind[o.k];  // druh mimo vrstiev sa kreslí vždy
-    if (layer && !pc.layers[layer]) continue;
-    if (pc.L.hollow.has(o.k)) continue;  // kreslí sa ako dutá sviečka, viď candleTraces
-    const name = (pc.L.layers.find(l => l.id === layer) || {}).title || o.k;
-    const desc = describe(o);
+    const layer = c.L.byKind[o.k];  // druh mimo vrstiev sa kreslí vždy
+    if (layer && !c.layers[layer]) continue;
+    if (c.L.hollow.has(o.k)) continue;  // kreslí sa ako dutá sviečka, viď candleTraces
+    const name = (c.L.layers.find(l => l.id === layer) || {}).title || o.k;
+    const desc = describe(o, c.L);
     if (o.t === "bg") {
       shapes.push({ type: "rect", xref: "x", yref: "paper", layer: "below", x0: utc(o.x1), x1: utc(o.x2), y0: 0, y1: 1, fillcolor: chartColor(o.c), line: { width: 0 } });
     } else if (o.t === "box") {
       const fill = chartColor(o.fc) || "rgba(0,0,0,0)", bc = chartColor(o.bc), dash = DASH[o.bs] || "solid", w = o.bw ?? 1;
       const g = group(`box|${fill}|${bc}|${dash}|${w}`, () => ({ type: "scatter", mode: "lines", fill: "toself", fillcolor: fill,
         line: { color: bc, width: w, dash }, x: [], y: [], text: [], hoverinfo: "text", hoveron: "points", showlegend: false, name }));
-      const x2 = o.er ? Math.max(o.x2, pc.to) : o.x2;
+      const x2 = o.er ? Math.max(o.x2, c.to) : o.x2;
       g.x.push(utc(o.x1), utc(x2), utc(x2), utc(o.x1), utc(o.x1), null);
       g.y.push(o.y1, o.y1, o.y2, o.y2, o.y1, null);
       g.text.push(desc, desc, desc, desc, desc, "");
@@ -300,14 +305,14 @@ function objectTraces(objects) {
  * takže duté sviečky sú rovnako široké ako ostatné. Na hrubšom TF sa označí sviečka,
  * do ktorej imbalance 3m sviečka časovo patrí.
  */
-function candleTraces(candles, objects) {
+function candleTraces(candles, objects, c = pc, name = pc.rec && pc.rec.settings.pair) {
   const marks = new Map();  // index sviečky -> farba obrysu
-  if (pc.L.hollow.size) {
+  if (c.L.hollow.size) {
     const t = candles.t;
     for (const o of objects) {
-      if (!pc.L.hollow.has(o.k) || o.t !== "box") continue;
-      const layer = pc.L.byKind[o.k];
-      if (layer && !pc.layers[layer]) continue;
+      if (!c.L.hollow.has(o.k) || o.t !== "box") continue;
+      const layer = c.L.byKind[o.k];
+      if (layer && !c.layers[layer]) continue;
       let lo = 0, hi = t.length - 1, idx = -1;
       while (lo <= hi) { const m = (lo + hi) >> 1; if (t[m] <= o.x1) { idx = m; lo = m + 1; } else hi = m - 1; }
       if (idx >= 0 && (idx + 1 >= t.length || o.x1 < t[idx + 1])) marks.set(idx, chartColor(o.bc));
@@ -315,7 +320,7 @@ function candleTraces(candles, objects) {
   }
   const base = (name, inc, dec, fill) => ({ type: "candlestick", x: [], open: [], high: [], low: [], close: [], name, showlegend: false, whiskerwidth: 0.3,
     increasing: { line: { color: inc, width: 1 }, fillcolor: fill || inc }, decreasing: { line: { color: dec, width: 1 }, fillcolor: fill || dec } });
-  const normal = base(pc.rec.settings.pair, GREEN, RED);
+  const normal = base(name, GREEN, RED);
   const hollow = new Map();
   for (let i = 0; i < candles.t.length; i++) {
     let tr = normal;

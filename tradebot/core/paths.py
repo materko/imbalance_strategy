@@ -49,6 +49,7 @@ __all__ = [
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES", "ANALYTICS_DIR",
     "SWEEPS_DIR", "CHART_CACHE", "ARCHIVE_DIR",
     "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE",
+    "HUB_LIVE_DB", "LIVE_DIR", "LIVE_CURSOR", "LIVE_CURSOR_WEBAPP", "LIVE_MIRROR", "LIVE_MIRROR_CURSOR",
     "DOCS_DIR", "MERANIA_DIR",
     "ARCHIVE_ROOTS",
 ]
@@ -136,6 +137,23 @@ HUB_DIR = TESTER_DIR / "hub_data"
 AGENT_CONFIG = TESTER_DIR / "agent.json"
 #: Stav agenta: čo poslal na hub a ešte sa nevrátilo, čo preň počíta. Prežije reštart.
 AGENT_STATE = TESTER_DIR / "agent_state.json"
+
+# -- Live telemetria (tradebot.live, docs/LIVE.md) -------------------------- #
+
+#: Udalosti zo spustených stratégií na hube (`live.sqlite`) — vedľa stavu hubu, gitignored.
+HUB_LIVE_DB = HUB_DIR / "live.sqlite"
+#: Lokálny stav live telemetrie tohto klonu: kurzory do spoolu platforiem a zrkadlo hubu
+#: pre webapp. Každý stroj má vlastný, gitignored.
+LIVE_DIR = TESTER_DIR / "live"
+#: Kurzor agenta do spoolu (súbor → offset); posúva sa až po potvrdení hubom.
+LIVE_CURSOR = LIVE_DIR / "cursor.json"
+#: Kurzor webapp do lokálneho spoolu (keď webapp beží na obchodnom PC, číta ho priamo).
+LIVE_CURSOR_WEBAPP = LIVE_DIR / "cursor_webapp.json"
+#: Zrkadlo udalostí hubu pre webapp — hub dole = webapp ukazuje, čo má.
+LIVE_MIRROR = LIVE_DIR / "mirror.sqlite"
+#: Kurzor zrkadla do hubu (`{"hub_url", "cursor"}` = posledný prevzatý rowid hubu); pri zmene
+#: adresy hubu začína od nuly, lebo rowid iného hubu nič neznamená.
+LIVE_MIRROR_CURSOR = LIVE_DIR / "mirror_cursor.json"
 
 # -- Dokumentácia ----------------------------------------------------------- #
 

@@ -26,6 +26,7 @@
     <button data-view="history">História</button>
     <button data-view="analytics">Analytika</button>
     <button data-view="hub" id="tab-hub">Hub <span id="hub-tab-chip" class="chip"></span></button>
+    <button data-view="live" id="tab-live" title="Telemetria zo spustených stratégií (NinjaTrader 8, MetaTrader 5)">Live <span id="live-tab-chip" class="chip"></span></button>
   </nav>
   <div class="git">
     <input id="who" class="who" type="text" maxlength="80" placeholder="meno testera" title="Meno testera – ukladá sa ku každému behu a ako autor commitu. Drží sa v tomto prehliadači.">
@@ -344,6 +345,55 @@
   </div>
 </main>
 
+<main id="view-live" class="view single" hidden>
+  <div id="live-list" class="card">
+    <h2>Bežiace stratégie <span id="live-count" class="chip"></span></h2>
+    <p class="mode-hint">Stratégia s C# jadrom (NinjaTrader 8, MetaTrader 5) píše bary, zámery enginu,
+      kresby a vyplnenia do lokálneho spoolu; agent hubu ich posiela na hub a táto webapp si ich
+      odtiaľ zrkadlí (keď beží na obchodnom PC, číta spool aj priamo). Len čítanie — fáza 1
+      podľa docs/LIVE.md.</p>
+    <div id="live-error" class="error" hidden></div>
+    <div id="live-status" class="muted small"></div>
+    <div id="live-empty" class="muted" hidden>Zatiaľ žiadna inštancia. Dáta prídu, keď na niektorom stroji
+      beží stratégia s telemetriou (NT vlastnosť <code>LiveTelemetry</code>, MT5 <code>InpTelemetry</code>)
+      a buď má ten stroj agenta hubu (<code>tester/agent.json</code>) a táto webapp hub nastavený,
+      alebo webapp beží priamo na ňom.</div>
+    <div class="scroll"><table id="live-table" class="runs"><thead><tr>
+      <th>stav</th><th>platforma</th><th>účet</th><th>symbol</th><th>TF</th><th>stratégia</th><th>profil</th>
+      <th>stroj</th><th>agent</th><th>posledný bar</th><th class="num" title="odhad z fillov: vstupy − výstupy podľa id">pozícia</th>
+      <th class="num" title="vyplnenia u brokera za dnešný deň (UTC)">fills dnes</th></tr></thead><tbody></tbody></table></div>
+  </div>
+
+  <div id="live-detail" class="card" hidden>
+    <div class="detail-head">
+      <button id="live-back" class="ghost">← Späť</button>
+      <h2 id="live-title"></h2>
+      <div class="spacer"></div>
+      <span id="live-detail-status" class="muted small"></span>
+    </div>
+    <div id="live-meta" class="muted"></div>
+    <div id="live-detail-error" class="error" hidden></div>
+    <div id="live-cards" class="cards"></div>
+    <div id="live-layers" class="pc-layers"></div>
+    <div id="live-chart" class="pair-chart"></div>
+    <div id="live-chart-note" class="muted small pc-note"></div>
+    <div class="cols">
+      <div><h3>Posledné zámery enginu <span class="muted small">— ordery</span></h3>
+        <div class="scroll"><table id="live-orders" class="runs"><thead><tr>
+          <th>bar</th><th>akcia</th><th>id</th><th>typ</th><th>smer</th><th class="num">vstup</th><th class="num">SL</th>
+          <th class="num">TP</th><th class="num">množ.</th><th>dôvod</th><th>ready</th></tr></thead><tbody></tbody></table></div></div>
+      <div><h3>Vyplnenia u brokera <span class="muted small">— fills</span></h3>
+        <div class="scroll"><table id="live-fills" class="runs"><thead><tr>
+          <th>čas (UTC)</th><th>id</th><th>strana</th><th>výstup</th><th class="num">cena</th><th class="num">množ.</th><th>ready</th>
+        </tr></thead><tbody></tbody></table></div></div>
+    </div>
+    <div class="cols">
+      <div><h3>Poznámky adaptéra</h3><div id="live-notes"></div></div>
+      <div><h3>Štatistika enginu <span class="muted small">— posledný <code>stat</code></span></h3><div id="live-stats"></div></div>
+    </div>
+  </div>
+</main>
+
 <main id="view-analytics" class="view single" hidden>
   <div class="card">
     <h2>Analytika obchodov</h2>
@@ -561,6 +611,7 @@
 <script src="/static/js/history.js"></script>
 <script src="/static/js/montecarlo.js"></script>
 <script src="/static/js/chart.js"></script>
+<script src="/static/js/live.js"></script>
 <script src="/static/js/git.js"></script>
 <script src="/static/js/analytics.js"></script>
 <script src="/static/js/analytics_history.js"></script>

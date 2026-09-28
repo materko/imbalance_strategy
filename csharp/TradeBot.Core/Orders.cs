@@ -103,6 +103,13 @@ namespace TradeBot.Core
         public void WriteJson(JsonWriter w)
         {
             w.BeginObject();
+            WriteFields(w);
+            w.EndObject();
+        }
+
+        /// <summary>Polia zameru do uz otvoreneho objektu (live telemetria ich klade vedla `seq`, `bt`...).</summary>
+        public void WriteFields(JsonWriter w)
+        {
             w.Key("a").Value(Action == OrderAction.Entry ? "entry" : (Action == OrderAction.Cancel ? "cancel" : "close"));
             w.Key("id").Value(OrderId).Key("src").Value(SourceId);
             if (Direction.HasValue) w.Key("dir").Value((int)Direction.Value);
@@ -122,7 +129,6 @@ namespace TradeBot.Core
                 }
                 w.EndObject();
             }
-            w.EndObject();
         }
     }
 
@@ -143,9 +149,15 @@ namespace TradeBot.Core
         public void WriteJson(JsonWriter w)
         {
             w.BeginObject();
+            WriteFields(w);
+            w.EndObject();
+        }
+
+        /// <summary>Polia udalosti do uz otvoreneho objektu (live telemetria).</summary>
+        public void WriteFields(JsonWriter w)
+        {
             w.Key("ts").Value(TsMs).Key("z").Value(ZoneUid).Key("f").Value(FromState).Key("to").Value(ToState);
             w.Key("r").Value(Reason);
-            w.EndObject();
         }
     }
 

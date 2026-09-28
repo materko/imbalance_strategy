@@ -8,6 +8,9 @@
 //|                                                                                                   |
 //| Overene: preklad, beh v Strategy Testeri (signaly 1:1 s Testerom), kreslenie na zivom grafe.        |
 //| Neoverene: zivy trh s tikmi, shorty, netting ucet (napisany; tester bezi v rezime uctu = hedging). |
+//| Live telemetria (docs/LIVE.md): mimo Strategy Testera pise DLL bary, zamery, kresby a vyplnenia   |
+//| do JSONL spoolu Common\Files\TradeBot\spool\<instancia>\ (StaticHost::Spool*); agent hubu ich    |
+//| posiela do webapp. Chyba spoolu EA nezhodi - zaloguje sa a obchoduje sa dalej.                    |
 //| Preklada ho MetaEditor (`python -m tradebot.adapters.mt5 install` to spravi sam); v terminali musi  |
 //| byt `Tools > Options > Expert Advisors > Allow DLL imports`.                                       |
 //+------------------------------------------------------------------+
@@ -43,6 +46,8 @@ input int    InpReplayBars          = 0;      // Kolko uzavretych barov prehrat 
 input string InpScreenshotFile      = "";     // Po prehrati predhistorie ulozit screenshot grafu (MQL5\Files\...png) - diagnostika
 input bool   InpCloseAfterShot      = false;  // ...a potom terminal zavriet (davkove overenie kreslenia)
 input double InpPointValueOverride  = 0;      // Hodnota bodu (1.0 ceny) za 1 lot v mene uctu; 0 = zo SymbolInfo
+input bool   InpTelemetry           = true;   // Live telemetria: JSONL spool do Common\Files\TradeBot\spool (docs/LIVE.md)
+input bool   InpTelemetryInTester   = false;  // ...aj v Strategy Testeri (len na overenie; inak tester spool nepise)
 
 //--- stav adaptera
 int              g_engine      = -1;          // handle v StaticHost
@@ -59,6 +64,7 @@ datetime         g_lastHtf     = 0;
 long             g_firstBarMs  = 0, g_lastBarMs = 0;
 int              g_maxDailyWins = 0;
 int              g_export      = INVALID_HANDLE;
+bool             g_spool       = false;       // live telemetria otvorena (StaticHost::SpoolOpen)
 bool             g_hedging     = false;
 bool             g_replaying   = false;       // prehravanie predhistorie pri starte (bez obchodov)
 CTrade           g_trade;
@@ -255,8 +261,8 @@ int OnInit()
    g_stepMs = (long)g_chartTfMin * 60000;
    g_hedging = AccountInfoInteger(ACCOUNT_MARGIN_MODE) == ACCOUNT_MARGIN_MODE_RETAIL_HEDGING;
 
-   if(StaticHost::Version() != 1)
-     { Print("TradeBot: ina verzia fasady TradeBot.dll, preinstaluj (python -m tradebot.adapters.mt5 install)"); return INIT_FAILED; }
+   if(StaticHost::Version() != 2)
+     { Print("TradeBot: ina verzia fasady TradeBot.dll (cakam 2, docs/LIVE.md), preinstaluj: python -m tradebot.adapters.mt5 install"); return INIT_FAILED; }
 
    string profilePath = ResolveProfilePath();
    string config = ReadTextFile(profilePath);
@@ -284,6 +290,7 @@ int OnInit()
    g_trade.SetDeviationInPoints(10);
 
    if(InpExportSignals) OpenExport();
+   OpenSpool(profilePath);
    Print("TradeBot ", TRADEBOT_ENGINE_KEY, ": TF ", g_chartTfMin, "m, predhistoria ", g_required, " barov, HTF ", g_htfMin,
          "m, tick ", SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE), ", ucet ", g_hedging ? "hedging" : "netting",
          ", server UTC", InpServerGmtOffsetMin >= 0 ? "+" : "", InpServerGmtOffsetMin / 60.0, "h, profil ", profilePath);
@@ -293,8 +300,32 @@ int OnInit()
    if(InpShowDrawings) ObjectsDeleteAll(0, TB_OBJ_PREFIX);   // zvysky z predoslej instancie EA
    if(InpScreenshotFile != "") { ChartSetInteger(0, CHART_SCALE, 2); ChartSetInteger(0, CHART_SHOW_GRID, false); }   // pred kreslenim: pozadia popiskov sa pocitaju z mierky
    ReplayHistory();
+   // od teraz kazdy riadok spoolu hned na disk (nazivo); tester si flushuje po davkach
+   if(g_spool && !MQLInfoInteger(MQL_TESTER) && StaticHost::SpoolRealtime(g_engine, true) < 0) Print(EngineError("SpoolRealtime"));
    if(InpScreenshotFile != "") EventSetTimer(3);   // graf sa musi najprv vykreslit
    return INIT_SUCCEEDED;
+  }
+
+//+------------------------------------------------------------------+
+//| Live telemetria (docs/LIVE.md): DLL pise priamo na disk, nie cez MQL sandbox                        |
+//+------------------------------------------------------------------+
+void OpenSpool(string profilePath)
+  {
+   bool tester = MQLInfoInteger(MQL_TESTER) != 0;
+   if(!InpTelemetry || (tester && !InpTelemetryInTester)) return;
+   string root = TerminalInfoString(TERMINAL_COMMONDATA_PATH) + "\\Files\\TradeBot\\spool";
+   string account = IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN)) + "-" + AccountInfoString(ACCOUNT_SERVER);
+   if(StaticHost::SpoolOpen(g_engine, root, "mt5", account, _Symbol, profilePath, tester) < 0)
+     { Print(EngineError("SpoolOpen (telemetria vypnuta)")); return; }
+   g_spool = true;
+   Print("TradeBot: live telemetria -> ", StaticHost::SpoolPath(g_engine));
+  }
+
+void SpoolFill(datetime dealTime, string id, bool entry, string exitName, double price, double volume, bool ready)
+  {
+   if(!g_spool) return;
+   if(StaticHost::SpoolFill(g_engine, ToMs(dealTime), id, entry, exitName, price, volume, ready) < 0)
+     { Print(EngineError("SpoolFill (telemetria vypnuta)")); g_spool = false; }
   }
 
 void OnTimer()
@@ -339,6 +370,8 @@ void OnDeinit(const int reason)
             g_chartBars < g_required * 2 ? " - PRILIS MALO DAT: skontroluj obdobie a historiu symbolu" : "");
    if(g_engine > 0 && InpShowDrawings && MQLInfoInteger(MQL_TESTER) && g_chartBars > 0) RenderFinal(g_lastRates);
    CloseExport();
+   if(g_engine > 0 && g_spool && StaticHost::SpoolClose(g_engine, "deinit") < 0) Print(EngineError("SpoolClose"));
+   g_spool = false;
    if(g_engine > 0) StaticHost::Destroy(g_engine);
    g_engine = -1;
   }
@@ -467,10 +500,17 @@ void ProcessChartBar(const MqlRates &r)
    if(ready && !MQLInfoInteger(MQL_TESTER) && TimeCurrent() - (r.time + PeriodSeconds()) > 2 * PeriodSeconds())
      {
       ready = false;
-      if(g_staleLogged++ < 5) Print("TradeBot: bar ", TimeToString(r.time, TIME_MINUTES), " prisiel neskoro (",
-                                    (long)(TimeCurrent() - r.time - PeriodSeconds()), " s) - bez vstupu");
+      if(g_staleLogged++ < 5)
+        {
+         string stale = "TradeBot: bar " + TimeToString(r.time, TIME_MINUTES) + " prisiel neskoro ("
+                      + IntegerToString((long)(TimeCurrent() - r.time - PeriodSeconds())) + " s) - bez vstupu";
+         Print(stale);
+         if(g_spool) StaticHost::SpoolNote(g_engine, "warn", stale);
+        }
      }
    ExportOrders(barMs, out, ready);
+   if(g_spool && StaticHost::SpoolBar(g_engine, ready) < 0)
+     { Print(EngineError("SpoolBar (telemetria vypnuta)")); g_spool = false; }
 
    CJson *orders = out.Find("o");
    for(int i = 0; orders != NULL && i < orders.Size(); i++) Apply(orders.At(i), ready);
@@ -753,6 +793,7 @@ void CountWin(int i, double exitPrice, datetime dealTime)
 void Reduce(int i, double volume, double price, datetime dealTime, bool win)
   {
    ExportFill(dealTime, g_orders[i].id, false, win ? "sltp" : "close", price, volume);
+   SpoolFill(dealTime, g_orders[i].id, false, win ? "sltp" : "close", price, volume, !g_replaying && !MQLInfoInteger(MQL_TESTER));
    g_orders[i].openQty = MathMax(0.0, g_orders[i].openQty - volume);
    if(g_orders[i].openQty > 0) return;
    CancelExits(i);
@@ -812,6 +853,7 @@ void HandleDeal(const MqlTradeTransaction &trans)
       g_orders[idx].openQty += volume - closed;
       g_orders[idx].positionTicket = positionId;
       ExportFill(dealTime, comment, true, "", price, volume - closed);
+      SpoolFill(dealTime, comment, true, "", price, volume - closed, !g_replaying && !MQLInfoInteger(MQL_TESTER));
       if(g_orders[idx].openQty > 0) { PlaceExits(idx); ParkOthers(idx); } else RemoveOrder(idx);
       return;
      }

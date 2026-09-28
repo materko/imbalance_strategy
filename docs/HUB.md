@@ -436,6 +436,17 @@ Všetko pod `/api/`, s tokenom; `/api/health` bez neho.
 | `GET /api/jobs/{id}/result` | zadávateľ | zip; 410, keď už bol vyzdvihnutý |
 | `POST /api/jobs/{id}/ack` | zadávateľ | výsledok mám, zip zmaž |
 | `GET /api/status`, `GET /api/agents` | ktokoľvek | prehľad |
+| `POST /api/live/events` | agent | dávky udalostí zo spoolu bežiacich stratégií (`{"agent", "batches": [{instance, session, events}]}` → `{"accepted"}`) |
+| `GET /api/live/instances[/{id}]`, `…/{id}/events`, `…/{id}/snapshot`, `GET /api/live/export` | ktokoľvek | live telemetria (nižšie) |
+
+### Live telemetria
+
+Agent na obchodnom PC (NinjaTrader 8, MetaTrader 5) v kole `work()` číta spool platforiem
+(`tradebot.live.SpoolReader`, kurzor `tester/live/cursor.json`) a posiela ho na hub
+(`LiveShipper` → `POST /api/live/events`); kurzor posunie až po 200. Hub ukladá do
+`tester/hub_data/live.sqlite` idempotentne (`tradebot.live.store.LiveStore`), webapp si
+udalosti zrkadlí cez `GET /api/live/export?after=`. Celá cesta dát, identita inštancie
+a schéma udalostí: [LIVE.md](LIVE.md). Ručne: `python -m tradebot.live status|tail|ship`.
 
 Webapp k tomu pridáva `GET /api/hub` (stav jej agenta a hubu), `POST /api/hub/jobs`
 (hotový payload z CLI), `POST /api/hub/runs` a `POST /api/hub/hyperopts` (zadanie

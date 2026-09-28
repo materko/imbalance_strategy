@@ -516,6 +516,31 @@ na disku sa nemenia.
 Výsledkové zipy Freqtradu ostávajú v `backtest_results/` (gitignored) — beh ich
 nepotrebuje, všetko podstatné je v `run.json`.
 
+## Karta Live
+
+Telemetria zo **spustených** stratégií s C# jadrom (NinjaTrader 8, MetaTrader 5) — len
+čítanie, fáza 1 podľa [LIVE.md](LIVE.md). Stratégia píše bary, zámery enginu (ordery),
+kresby a vyplnenia u brokera do lokálneho spoolu; agent hubu ich posiela na hub a webapp si
+ich z hubu zrkadlí do `tester/live/mirror.sqlite` (vlákno `LiveMirror`, každých 5 s; kurzor
+hubu v `tester/live/mirror_cursor.json`). Keď webapp beží priamo na obchodnom PC, číta aj
+lokálny spool (vlastný kurzor `tester/live/cursor_webapp.json`) — funguje aj bez hubu. Hub
+dole = karta ukazuje, čo má; nič sa nestráca (spool je append-only, kurzory sa posúvajú až
+po zápise).
+
+Tabuľka inštancií (`<platforma>_<účet>_<symbol>_<tf>m_<stratégia>`): stav (zelená = posledná
+udalosť do 3 barov TF), platforma, účet, symbol, TF, stratégia, profil, stroj, agent, vek
+posledného baru, odhad pozície (vstupy − výstupy z fillov podľa id, smer z orderu) a počet
+fillov za dnešný deň UTC. Klik otvorí detail: Plotly sviečky z posledných 500 barov, kresby
+enginu zlúčené podľa `id` (tie isté vrstvy a štýly ako graf behu — `objectTraces` z
+`chart.js`), vyplnenia ako značky (▲ long, ▼ short, × výstup), tabuľky posledných orderov a
+fillov, poznámky adaptéra a posledná štatistika enginu. Detail aj zoznam sa obnovujú každých
+5 s, kým je karta otvorená; pan/zoom grafu obnovu prežije. Riadok pod nadpisom hlási stav
+zrkadla (hub, kurzor, lokálny spool, posledná chyba).
+
+API: `GET /api/live` (inštancie + stav zrkadla), `GET /api/live/{id}/snapshot?bars=`,
+`GET /api/live/{id}/events?after=&kinds=&limit=` — `tester/webapp/api/live.py`,
+stránka `static/js/live.js`.
+
 ## Príkazový riadok a Claude Code
 
 `python -m tester.webapp.cli` robí to isté, čo stránka, z terminálu — pre Claude Code

@@ -1,0 +1,76 @@
+"""Odosielanie spoolu na hub: `LiveShipper.pump()` číta dávky z `SpoolReader`, POSTne ich na
+`/api/live/events` a **kurzor posunie až po 200** — hub dole = kurzor stojí, nič sa nestratí,
+nič sa nepošle dvakrát (a keby aj, hub je idempotentný).
+
+`http` je čokoľvek s `.post(path, body)`, čo pri chybe vyhodí výnimku (`tester.hub.client.HubHttp`,
+v testoch falošný klient nad TestClientom).
+"""
+
+from __future__ import annotations
+
+import logging
+import time
+from typing import Any
+
+from .spool import Batch, SpoolReader
+
+__all__ = ["LiveShipper", "EVENTS_PATH"]
+
+log = logging.getLogger(__name__)
+
+EVENTS_PATH = "/api/live/events"
+
+
+class LiveShipper:
+    def __init__(self, reader: SpoolReader, http: Any, agent: str, *, batch_events: int = 500,
+                 max_batches: int = 20, clock=time.time) -> None:
+        self.reader = reader
+        self.http = http
+        self.agent = agent
+        self.batch_events = max(1, int(batch_events))
+        self.max_batches = max(1, int(max_batches))
+        self.clock = clock
+        self.last_ok: float | None = None
+        self.last_error: str | None = None
+        self.sent_total = 0
+        self.accepted_total = 0
+
+    @staticmethod
+    def body(agent: str, batches: list[Batch]) -> dict[str, Any]:
+        return {"agent": agent,
+                "batches": [{"instance": b.instance, "session": b.session, "events": b.events}
+                            for b in batches]}
+
+    def pump(self) -> dict[str, Any]:
+        """Jedno kolo: kým je čo posielať (najviac `max_batches` čítaní), pošli a potvrď.
+        Pri chybe skončí bez posunu kurzora — ďalšie kolo to skúsi znova od toho istého miesta."""
+        sent = accepted = rounds = 0
+        error: str | None = None
+        for _ in range(self.max_batches):
+            batches = self.reader.read(self.batch_events)
+            if not batches:
+                break
+            rounds += 1
+            try:
+                odpoved = self.http.post(EVENTS_PATH, self.body(self.agent, batches))
+            except Exception as exc:  # noqa: BLE001 - hub mimo, sieť, 4xx/5xx — kurzor ostáva
+                error = f"{type(exc).__name__}: {exc}"
+                break
+            for b in batches:
+                self.reader.commit(b)
+            n = sum(len(b.events) for b in batches)
+            sent += n
+            prijate = odpoved.get("accepted") if isinstance(odpoved, dict) else None
+            accepted += int(prijate) if isinstance(prijate, (int, float)) else n
+            self.last_ok = self.clock()
+            self.last_error = None
+        if error is not None:
+            self.last_error = error
+        self.sent_total += sent
+        self.accepted_total += accepted
+        return {"sent": sent, "accepted": accepted, "rounds": rounds, "error": error}
+
+    def status(self) -> dict[str, Any]:
+        return {"agent": self.agent, "last_ok": self.last_ok, "last_error": self.last_error,
+                "sent_total": self.sent_total, "accepted_total": self.accepted_total,
+                "reader": self.reader.status()}

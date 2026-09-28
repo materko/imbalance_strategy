@@ -42,6 +42,10 @@ výsledky číta len k svojim. Hub bez jediného tokenu (vývoj na localhoste) j
 Log udalostí (`events.jsonl`, riadok na udalosť): kto sa prihlásil a odhlásil, kto čo
 zadal, komu to hub pridelil, kedy beh začal a ako skončil, kto čo zrušil. Číta sa cez
 `GET /api/events` a `python -m tester.hub events`.
+
+Live telemetria (`/api/live/*`, `tester/hub/live.py`, docs/LIVE.md): agenti na obchodných
+PC posielajú udalosti bežiacich stratégií zo spoolu platforiem; hub ich ukladá do
+`live.sqlite` vedľa stavu (`LiveStore`, idempotentne) a webapp si ich odtiaľ zrkadlí.
 """
 
 from __future__ import annotations
@@ -52,8 +56,12 @@ from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
+from tradebot.core.paths import HUB_DIR, HUB_LIVE_DB
+from tradebot.live.store import LiveStore
+
 from . import protocol as P
 from .events import EVENTS_KEEP
+from .live import add_live_routes
 from .state import (  # noqa: F401 — verejné mená z čias pred rozdelením
     DEFAULT_AGENT_TIMEOUT, KEEP_FINISHED, MAX_ATTEMPTS, HubState, NameTaken, NoCapacity,
 )
@@ -107,8 +115,12 @@ class SubmitRequest(BaseModel):
     max_seconds: float | None = None
 
 
-def create_hub_app(state: HubState | None = None) -> FastAPI:
+def create_hub_app(state: HubState | None = None, live_store: LiveStore | None = None) -> FastAPI:
+    """`live_store` sa dá podstrčiť (testy); inak je `live.sqlite` vedľa stavu hubu
+    (`HUB_LIVE_DB`, alebo v koreni stavu, keď hub nebeží v `tester/hub_data`)."""
     state = state or HubState()
+    if live_store is None:
+        live_store = LiveStore(HUB_LIVE_DB if state.root == HUB_DIR else state.root / HUB_LIVE_DB.name)
     app = FastAPI(title="TradeBot hub", version="0.2")
     app.state.hub = state
 
@@ -306,5 +318,9 @@ def create_hub_app(state: HubState | None = None) -> FastAPI:
     def events(limit: int = Query(100, ge=1, le=EVENTS_KEEP), job: str | None = None,
                agent: str | None = None, event: str | None = None, who: str = Depends(auth)):
         return state.events(limit=limit, job=job, agent=agent, event=event)
+
+    # -- live telemetria (docs/LIVE.md) --------------------------------------- #
+
+    add_live_routes(app, state, live_store, auth, own)
 
     return app

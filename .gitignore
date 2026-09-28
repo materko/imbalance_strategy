@@ -55,6 +55,7 @@ tester/runs/.index/
 # agenta tohto klonu (adresa hubu, token) - oboje je per stroj, nie na zdielanie.
 tester/hub_data/
 tester/agent.json
+tester/live/
 tester/agent_state.json
 .claude/
 

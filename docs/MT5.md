@@ -81,6 +81,13 @@ a text je v `LastError()`.
   `TB_<id>_bg` za ním, veľkosť z pixelov textu prepočítaná na čas a cenu (sedí presne pri mierke,
   v ktorej vznikol). Vstupy `InpShowDrawings`, `InpShowSessionBg`, `InpReplayBars` (koľko barov
   predhistórie prehrať a nakresliť);
+- **live telemetria** (docs/LIVE.md): mimo Strategy Testera píše DLL (`StaticHost::SpoolOpen/SpoolBar/
+  SpoolFill/SpoolNote/SpoolClose`, priamo na disk, nie cez MQL sandbox) bary, zámery, prechody, kresby
+  a vyplnenia do JSONL spoolu `Common\Files\TradeBot\spool\mt5_<login>-<server>_<symbol>_<TF>m_<kľúč>\`;
+  agent hubu ho posiela do webapp (karta **Live**). Vstupy `InpTelemetry` (predvolene zapnuté) a
+  `InpTelemetryInTester` (predvolene vypnuté — tester spool nepíše, iba na overenie). Fasáda má od toho
+  `Version() == 2`: staršiu `TradeBot.dll` EA odmietne pri štarte, stačí `install`. Chyba spoolu EA
+  nezhodí — zaloguje sa a obchoduje sa ďalej;
 - **export signálov** do `Common\Files\TradeBot\logs\*.csv` v tvare NinjaTrader exportu
   (`kind;bar_open_ms;id;a;b;entry;sl;tp;qty;ready;text`), takže porovnanie s Testerom je to isté
   `python -m tester.ninjatrader compare --csv <súbor>`. Riadky `fill` sú vyplnenia z dealov:

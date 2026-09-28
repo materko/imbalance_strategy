@@ -14,6 +14,10 @@
 // Trieda je ZAMERNE v globalnom namespace (jedina v jadre): MetaEditor (overene 25. 9. 2026, build 5xxx)
 // generuje obaly len pre triedy bez namespace - `TradeBot.Core.StaticHost` by v MQL5 nebolo vidiet vobec.
 // V MQL5 sa vola `StaticHost::Metoda(...)`; z pythonnet `clr.StaticHost` / `import StaticHost`.
+//
+// Live telemetria (docs/LIVE.md): `SpoolOpen` otvori `LiveSpool` pre slot (kluc, TF, config a instrument
+// pozna zo slotu), `SpoolBar` napise posledny bar z `OnBar`, `SpoolFill`/`SpoolNote`/`SpoolClose` zvysok;
+// `Destroy` zavrie spool, ak ostal otvoreny. Chyba spoolu strategiu nezhodi: -1 a text v `LastError()`.
 using System;
 using System.Collections.Generic;
 using TradeBot.Core;
@@ -24,6 +28,7 @@ public static class StaticHost
     {
         public EngineHost Host;
         public IHtfFeeder Htf;
+        public LiveSpool Spool;
     }
 
     private static readonly object Lock = new object();
@@ -47,7 +52,7 @@ public static class StaticHost
     }
 
     /// <summary>Verzia fasady - hostitel si ju overi, kym zacne (zmena kontraktu = ina verzia).</summary>
-    public static int Version() { return 1; }
+    public static int Version() { return 2; }
 
     /// <summary>Kluce C# strategii v tejto assembly, oddelene ciarkou.</summary>
     public static string Strategies()
@@ -78,7 +83,13 @@ public static class StaticHost
 
     public static void Destroy(int handle)
     {
-        lock (Lock) { Slots.Remove(handle); }
+        Slot s = null;
+        lock (Lock)
+        {
+            if (Slots.TryGetValue(handle, out s)) Slots.Remove(handle);
+        }
+        try { if (s != null && s.Spool != null) { s.Spool.Close("destroy"); s.Spool = null; } }
+        catch (Exception e) { Fail(e); }
     }
 
     /// <summary>`{"key","required_history","describe","warmup":[...]}` - ako `EngineHost.Info`.</summary>
@@ -161,6 +172,111 @@ public static class StaticHost
     public static string Stats(int handle)
     {
         try { return Get(handle).Host.Stats(); }
+        catch (Exception e) { Fail(e); return ""; }
+    }
+
+    // -- live telemetria (docs/LIVE.md) ------------------------------------------------------- //
+
+    private static void FailSpool(LiveSpool sp) { lock (Lock) { _lastError = "LiveSpool: " + sp.LastError; } }
+
+    /// <summary>Otvori spool `root/instance/start_session.jsonl` a napise `hello`. Kluc strategie, TF,
+    /// config a instrument berie zo slotu. Vrati 1, alebo -1 (chyba v `LastError`; engine bezi dalej).</summary>
+    public static int SpoolOpen(int handle, string root, string platform, string account, string symbol, string profile, bool tester)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            if (s.Spool != null) { s.Spool.Close("reopen"); s.Spool = null; }
+            LiveSpool sp = new LiveSpool(root, platform, account, symbol, s.Host.Engine.ChartTfMinutes, s.Host.Key,
+                                         profile, tester, s.Host.Config, s.Host.Instrument);
+            if (sp.Broken) { FailSpool(sp); return -1; }
+            s.Spool = sp;
+            return 1;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Nazivo: flush po kazdom riadku. 1 ok, 0 spool nie je otvoreny, -1 chyba.</summary>
+    public static int SpoolRealtime(int handle, bool realtime)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            if (s.Spool == null) return 0;
+            s.Spool.Realtime = realtime;
+            if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
+            return 1;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Napise posledny bar z `OnBar` (bar + order* + event* + draw). 1 ok, 0 bez baru alebo bez spoolu, -1 chyba.</summary>
+    public static int SpoolBar(int handle, bool ready)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            if (s.Spool == null || s.Host.LastBar == null) return 0;
+            s.Spool.Bar(s.Host.LastBar, s.Host.LastOutput, ready, s.Host.LastBias);
+            if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
+            return 1;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Vyplnenie u brokera (cas exekucie v ms UTC; `entry` = vstup, inak vystup s menom `exitName`).</summary>
+    public static int SpoolFill(int handle, long execMs, string id, bool entry, string exitName, double price, double qty, bool ready)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            if (s.Spool == null) return 0;
+            s.Spool.Fill(execMs, id, entry, exitName, price, qty, ready);
+            if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
+            return 1;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Poznamka adaptera (`info` / `warn` / `error`).</summary>
+    public static int SpoolNote(int handle, string level, string text)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            if (s.Spool == null) return 0;
+            s.Spool.Note(level, text);
+            if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
+            return 1;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Napise `stat` (Engine.Stats()) a `bye` a subor zavrie. 1 ok, 0 bez spoolu, -1 chyba.</summary>
+    public static int SpoolClose(int handle, string reason)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            if (s.Spool == null) return 0;
+            LiveSpool sp = s.Spool;
+            s.Spool = null;
+            sp.Stats(s.Host.Engine.Stats());
+            sp.Close(reason);
+            if (sp.Broken) { FailSpool(sp); return -1; }
+            return 1;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
+    /// <summary>Cesta aktualneho suboru spoolu; "" bez spoolu alebo pri chybe.</summary>
+    public static string SpoolPath(int handle)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            return s.Spool != null ? s.Spool.Path : "";
+        }
         catch (Exception e) { Fail(e); return ""; }
     }
 }

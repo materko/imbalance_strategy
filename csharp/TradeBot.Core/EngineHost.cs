@@ -12,12 +12,21 @@ namespace TradeBot.Core
     {
         public readonly IEngine Engine;
         public readonly string Key;
+        /// <summary>Rozparsovany config a instrument - live telemetria ich pise do `hello` bez dalsieho parsovania.</summary>
+        public readonly Dictionary<string, object> Config;
+        public readonly InstrumentSpec Instrument;
+
+        /// <summary>Posledny bar, vystup a bias z `OnBar` - fasada pre MT5 z nich pise telemetriu (`LiveSpool.Bar`).</summary>
+        public Bar LastBar { get; private set; }
+        public EngineOutput LastOutput { get; private set; }
+        public int LastBias { get; private set; }
 
         public EngineHost(string key, string configJson, string instrumentJson, int chartTfMinutes)
         {
             Key = key;
-            Engine = EngineRegistry.Create(key, Json.ParseObject(configJson),
-                                           InstrumentSpec.FromJson(Json.ParseObject(instrumentJson)), chartTfMinutes);
+            Config = Json.ParseObject(configJson);
+            Instrument = InstrumentSpec.FromJson(Json.ParseObject(instrumentJson));
+            Engine = EngineRegistry.Create(key, Config, Instrument, chartTfMinutes);
         }
 
         /// <summary>Zoznam klucov C# strategii v nacitanych assembly.</summary>
@@ -95,7 +104,9 @@ namespace TradeBot.Core
                 // na ktore by `mcs` volanie naviazal - a taka DLL potom na .NET Frameworku nenabehne
                 foreach (string id in openOrderIds.Split(new char[] { ',' })) if (id.Length > 0) ctx.OpenOrderIds.Add(id);
 
-            EngineOutput o = Engine.OnBar(new Bar(time, open, high, low, close, volume), htf, ctx);
+            Bar bar = new Bar(time, open, high, low, close, volume);
+            EngineOutput o = Engine.OnBar(bar, htf, ctx);
+            LastBar = bar; LastOutput = o; LastBias = ctx.MarketBias;
 
             JsonWriter w = new JsonWriter();
             w.BeginObject();

@@ -22,7 +22,10 @@ Jedno kolo `work()`:
    víťaza) a pošle ich hubu; kým sa upload nepodarí, skúša to znova,
 2. **pullne** kód, keď naň čaká pridelený výpočet (viď nižšie),
 3. **vyzdvihne** výsledky výpočtov, ktoré tento agent sám zadal (zip do vlastnej histórie,
-   `ack` hubu).
+   `ack` hubu),
+4. **pošle live telemetriu** (`_ship_live`, docs/LIVE.md): keď je na stroji spool NinjaTradera
+   alebo MT5 (`tradebot.live.default_roots`), `LiveShipper` ho odošle na hub a kurzor posunie
+   až po 200; korene sa preverujú každú minútu, nech sa platforma nainštalovaná neskôr chytí.
 
 Čo agent počíta a čo poslal, si drží v `tester/agent_state.json` (`config.AgentState`):
 po reštarte procesu bežiace behy ďalej hlási (runner ich už nemá, ale história áno) a
@@ -56,7 +59,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
-from tradebot.core.paths import AGENT_CONFIG
+from tradebot.core.paths import AGENT_CONFIG, LIVE_CURSOR
 
 from . import config as agent_config
 from . import gitcode
@@ -86,6 +89,9 @@ WORK_POLL_SECONDS = 2.0
 #: do `undelivered`. Hub po reštarte môže mať stav ešte nenačítaný — pár tickov mu dáme.
 DELIVER_404_TRIES = 5
 
+#: Ako často sa znova hľadajú korene live spoolu (platforma nainštalovaná po štarte agenta).
+LIVE_ROOTS_RECHECK_SECONDS = 60.0
+
 
 def _parse_iso(text: str | None) -> float | None:
     if not text:
@@ -99,13 +105,19 @@ def _parse_iso(text: str | None) -> float | None:
 class HubAgent:
     def __init__(self, cfg: AgentConfig, runner: Any, store: Any, *, http: HubHttp | None = None,
                  state_path: Path | None = None, config_path: Path | None = None,
-                 clock: Callable[[], float] = time.time, version: str = "") -> None:
+                 clock: Callable[[], float] = time.time, version: str = "",
+                 live_cursor: Path | None = None) -> None:
         self.cfg = cfg
         self.runner = runner
         self.store = store
         self.http = http or HubHttp(cfg.hub_url, cfg.token)
         self.state_path = state_path
         self.config_path = Path(config_path or AGENT_CONFIG)
+        #: Live telemetria (docs/LIVE.md): shipper vznikne, až keď je na stroji spool platformy.
+        self.live_cursor = Path(live_cursor or LIVE_CURSOR)
+        self._live: Any = None
+        self._live_checked: float | None = None
+        self._live_error: str | None = None
         self._config_mtime = self._config_stamp()
         self.clock = clock
         self.version = version or gitcode.version()
@@ -183,11 +195,60 @@ class HubAgent:
         """Jedno kolo pomalej práce. Beží **mimo heartbeatu** — zip s výsledkom, sťahovanie
         výsledku a hlavne `git pull` s dopočítaním dát trvajú aj minúty a hub by medzitým
         agenta vyhlásil za mŕtveho (`agent_timeout` je 45 s) a jeho výpočty dal inému."""
-        for krok in (self._upload_finished, self._do_pull, self._drain_collects):
+        for krok in (self._upload_finished, self._ship_live, self._do_pull, self._drain_collects):
             try:
                 krok()
             except Exception as exc:  # noqa: BLE001 - jeden krok nesmie zhodiť vlákno
                 log.warning("hub agent: %s zlyhalo: %s: %s", krok.__name__, type(exc).__name__, exc)
+
+    # -- live telemetria ---------------------------------------------------- #
+
+    def _live_shipper(self) -> Any:
+        """Shipper, keď má z čoho posielať; korene spoolu sa preverujú každú minútu, nech sa
+        chytí aj platforma nainštalovaná po štarte agenta (a odpadne, keď jej spool zmizne)."""
+        now = self.clock()
+        if self._live_checked is not None and now - self._live_checked < LIVE_ROOTS_RECHECK_SECONDS:
+            return self._live
+        self._live_checked = now
+        from tradebot.live.spool import SpoolReader, default_roots
+
+        roots = default_roots()
+        if not roots:
+            self._live = None
+            return None
+        if self._live is not None and [str(r) for r in self._live.reader.roots] == [str(r) for r in roots]:
+            return self._live
+        from tradebot.live.shipper import LiveShipper
+
+        self._live = LiveShipper(SpoolReader(roots, self.live_cursor), self.http, self.cfg.name)
+        log.info("hub agent: live spool %s", ", ".join(str(r) for r in roots))
+        return self._live
+
+    def _ship_live(self) -> None:
+        """Spool platforiem → hub. Chyba (hub mimo) sa zaloguje raz na jej znenie — kurzor stojí
+        a ďalšie kolo to skúsi znova; nikdy nevyhodí výnimku von."""
+        shipper = self._live_shipper()
+        if shipper is None:
+            return
+        r = shipper.pump()
+        chyba = r.get("error")
+        if chyba and chyba != self._live_error:
+            log.warning("hub agent: live telemetria sa nedá poslať: %s", chyba)
+        self._live_error = chyba
+
+    def live_status(self) -> dict[str, Any]:
+        """Stav live telemetrie pre webapp a CLI: kde je spool a či sa posiela."""
+        if self._live is None:
+            return {"active": False, "roots": [], "last_ok": None, "last_error": self._live_error,
+                    "sent_total": 0, "accepted_total": 0, "pending_bytes": 0, "files": 0}
+        st = self._live.status()
+        reader = st.get("reader") or {}
+        return {"active": True, "roots": reader.get("roots", []),
+                "last_ok": datetime.fromtimestamp(st["last_ok"], tz=timezone.utc).isoformat(timespec="seconds")
+                if st.get("last_ok") else None,
+                "last_error": st.get("last_error"), "sent_total": st.get("sent_total", 0),
+                "accepted_total": st.get("accepted_total", 0),
+                "pending_bytes": reader.get("pending_bytes", 0), "files": len(reader.get("files") or [])}
 
     # -- jeden krok --------------------------------------------------------- #
 
@@ -696,6 +757,7 @@ class HubAgent:
             "undelivered": {k: dict(v) for k, v in self.state.undelivered.items()},
             # Spočítané a čakajúce na hub (výpadok) — beh je hotový, len sa ešte neodovzdal.
             "pending_upload": sum(1 for v in self.state.computing.values() if v.get("deliver_fails")),
+            "live": self.live_status(),
         }
 
 

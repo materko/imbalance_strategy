@@ -185,6 +185,16 @@ a stratégia **IBSNet** alebo **ORBNet** na **minútový** graf. Netreba pridáv
 | kresby | `Draw.Rectangle/Line/Text/RegionHighlightX`, zmeny cez `DrawRegistry`; pozadie seáns je vypnuté (parameter) |
 | predhistória | signál z baru pred `RequiredHistory` order nepošle; indikátory smeru sa rozbehnú na histórii grafu (bez seedingu, ako živá študia MultiCharts) |
 
+### Live telemetria
+
+Mimo Strategy Analyzera adaptér píše každý uzavretý bar, zámery enginu, prechody stavov, kresby
+a vyplnenia u brokera do append-only JSONL spoolu `Documents\NinjaTrader 8\TradeBot\spool\<inštancia>\`
+(`TB.LiveSpool` z jadra, inštancia = `ninjatrader_<účet>_<symbol>_<TF>m_<kľúč>`); agent hubu ho odtiaľ
+posiela do webapp na kartu **Live**. Zapína ju parameter **„Live telemetria"** (`LiveTelemetry`,
+predvolene zapnutá), v Strategy Analyzeri (`IsInStrategyAnalyzer`) sa nepíše nikdy. Chyba spoolu
+stratégiu nezhodí — vypíše sa raz do Output a obchoduje sa ďalej; CSV export signálov (`ExportSignals`)
+je od toho nezávislý. Schéma riadkov, cesta dát a Python strana: [LIVE.md](LIVE.md).
+
 **Signály sú rovnaké, fill model nie** — to platí pre každú platformu. Strategy Analyzer plní limitku
 podľa svojho *Order fill resolution*; pre porovnateľné čísla nastav *High* s 1-minútovou sériou (to je
 to isté, čo `--timeframe-detail 1m` vo Freqtrade). Závery pre NinjaTrader patria behom v NinjaTraderi.

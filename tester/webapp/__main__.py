@@ -66,6 +66,10 @@ def main() -> int:
     else:
         print("Hub: nenastaveny - karta Hub vo webapp (alebo python -m tester.hub setup)", flush=True)
 
+    # Zrkadlo live telemetrie (docs/LIVE.md): každých 5 s stiahne nové udalosti z hubu
+    # (ak je nastavený) a z lokálneho spoolu platforiem (ak tu nejaký je) — karta Live.
+    _app.state.start_live_mirror()
+
     host = getenv("WEB_HOST", "127.0.0.1")
     port = int(getenv("WEB_PORT", "8765"))
     print(f"TradeBot Tester: http://{host}:{port}", flush=True)

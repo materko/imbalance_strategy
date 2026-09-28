@@ -26,6 +26,18 @@ BT = {"strategy": "ibs", "pair": "BTC/USDT:USDT", "timeframe": "3m",
 HO = {**BT, "hyperopt": {"knobs": {"rrRatio": "2:8:0.5"}, "epochs": 100, "verify": True}}
 
 
+@pytest.fixture(autouse=True)
+def _isolated_live(tmp_path: Path, monkeypatch):
+    """Agent v `work()` hľadá live spool platforiem: v testoch nech nenájde skutočný NinjaTrader
+    ani MT5 tohto stroja a kurzor nech nepíše do `tester/live/`."""
+    from tester.hub import agent as agent_mod
+
+    monkeypatch.setenv("TRADEBOT_NT_DIR", str(tmp_path / "nie-je-nt"))
+    monkeypatch.setenv("TRADEBOT_MT5_COMMON", str(tmp_path / "nie-je-mt5"))
+    monkeypatch.delenv("TRADEBOT_LIVE_SPOOL", raising=False)
+    monkeypatch.setattr(agent_mod, "LIVE_CURSOR", tmp_path / "live" / "cursor.json")
+
+
 def _payload(settings=BT, **extra) -> dict[str, Any]:
     return {"params": {"rrRatio": 3.0}, "settings": settings, "note": "test", "user": "t", **extra}
 
@@ -1657,3 +1669,139 @@ def test_webapp_hub_config_saves_and_starts_agent(monkeypatch, tmp_path: Path):
     r = c.delete("/api/hub/config")
     assert r.status_code == 200 and r.json()["configured"] is False
     assert not (tmp_path / "agent.json").exists() and app.state.hub_agent is None and started[1].byed
+
+
+# --------------------------------------------------------------------------- #
+# live telemetria (docs/LIVE.md)
+# --------------------------------------------------------------------------- #
+
+
+def _live_hello(seq=1, session="a1b2c3d4"):
+    return {"seq": seq, "t": 1_790_000_000_000, "k": "hello", "schema": 1, "platform": "ninjatrader",
+            "account": "Sim101", "symbol": "MNQ 12-26", "tf": 3, "strategy": "ibsnet", "profile": "p",
+            "session": session, "host": "PC", "tester": False, "config": {}, "instrument": {}}
+
+
+def _live_bar(seq, i):
+    bt = 1_790_000_000_000 + i * 180_000
+    return {"seq": seq, "t": bt + 180_000, "k": "bar", "bt": bt, "o": 1.0, "h": 2.0, "l": 0.5, "c": 1.5,
+            "v": 3, "ready": True, "mb": 0}
+
+
+LIVE_INST = "ninjatrader_Sim101_MNQ-12-26_3m_ibsnet"
+
+
+def test_live_api_tokens_and_idempotence(tmp_path: Path):
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.hub.server import create_hub_app
+    from tradebot.live.store import LiveStore
+
+    state = HubState(tmp_path / "hub", token="hlavny", clock=Clock())
+    t_srv, t_lap = state.add_token("srv"), state.add_token("lap")
+    store = LiveStore(tmp_path / "live.sqlite")
+    c = TestClient(create_hub_app(state, live_store=store))
+    H = lambda t: {"Authorization": f"Bearer {t}"}  # noqa: E731
+    telo = {"agent": "srv", "batches": [{"instance": LIVE_INST, "session": "a1b2c3d4",
+                                          "events": [_live_hello(), _live_bar(2, 0), _live_bar(3, 1)]}]}
+
+    assert c.post("/api/live/events", json=telo).status_code == 401
+    assert c.post("/api/live/events", json=telo, headers=H(t_lap)).status_code == 403   # cudzí token
+    r = c.post("/api/live/events", json=telo, headers=H(t_srv))
+    assert r.status_code == 200 and r.json() == {"accepted": 3}
+    # tá istá dávka znova (výpadok po prijatí): nič sa nezdvojí; správca smie pod hocikým
+    assert c.post("/api/live/events", json=telo, headers=H("hlavny")).json() == {"accepted": 0}
+    assert c.post("/api/live/events", json={**telo, "batches": []}, headers=H(t_srv)).json() == {"accepted": 0}
+    assert c.post("/api/live/events", json={"agent": "srv", "batches": [{"instance": "", "session": "x", "events": []}]},
+                  headers=H(t_srv)).status_code == 422
+    # prvá videná inštancia je v logu udalostí hubu
+    assert [e for e in state.events(event="live_instance")][0]["instance"] == LIVE_INST
+
+    insts = c.get("/api/live/instances", headers=H(t_lap)).json()
+    assert [i["id"] for i in insts] == [LIVE_INST] and insts[0]["agent"] == "srv" and insts[0]["symbol"] == "MNQ 12-26"
+    assert c.get(f"/api/live/instances/{LIVE_INST}", headers=H(t_lap)).json()["last_session"] == "a1b2c3d4"
+    assert c.get("/api/live/instances/nie-je", headers=H(t_lap)).status_code == 404
+    assert c.get("/api/live/instances", headers=H("zle")).status_code == 401
+
+    rows = c.get(f"/api/live/instances/{LIVE_INST}/events", headers=H(t_lap)).json()
+    assert [r["seq"] for r in rows] == [1, 2, 3] and rows[0]["event"]["k"] == "hello"
+    rows = c.get(f"/api/live/instances/{LIVE_INST}/events?after=1&kinds=bar&limit=1", headers=H(t_lap)).json()
+    assert [r["seq"] for r in rows] == [2]
+    snap = c.get(f"/api/live/instances/{LIVE_INST}/snapshot?bars=1", headers=H(t_lap)).json()
+    assert len(snap["bars"]) == 1 and snap["bars"][0]["bt"] == _live_bar(3, 1)["bt"] and snap["instance"]["id"] == LIVE_INST
+    exp = c.get("/api/live/export?after=0&limit=2", headers=H(t_lap)).json()
+    assert [e["id"] for e in exp] == [1, 2] and exp[0]["agent"] == "srv"
+    assert [e["id"] for e in c.get("/api/live/export?after=2", headers=H(t_lap)).json()] == [3]
+    assert c.get("/api/live/export?after=-1", headers=H(t_lap)).status_code == 422
+
+
+def test_hub_app_puts_live_db_next_to_state(tmp_path: Path):
+    pytest.importorskip("fastapi")
+    from tester.hub.server import create_hub_app
+
+    state = HubState(tmp_path / "hub", token="t", clock=Clock())
+    app = create_hub_app(state)
+    assert app.state.live.path == tmp_path / "hub" / "live.sqlite"
+
+
+def test_agent_work_ships_live_spool_to_hub(hub_api, tmp_path: Path, monkeypatch):
+    """Agent v kole `work()` pošle spool platformy na hub, kurzor posunie až po 200 a po
+    výpadku hubu nič nepošle dvakrát; platforma nainštalovaná neskôr sa chytí po minúte."""
+    import json as _json
+
+    c, state, clock = hub_api
+    http = FakeHttp(c, "tajne")
+    live_store = c.app.state.live
+    root = tmp_path / "spool"
+    root.mkdir()
+    monkeypatch.setenv("TRADEBOT_LIVE_SPOOL", str(root))
+    srv, runner, _ = _agent("srv", tmp_path, http)
+    srv.live_cursor = tmp_path / "srv" / "live-cursor.json"
+
+    def zapis(name, *events):
+        d = root / LIVE_INST
+        d.mkdir(exist_ok=True)
+        with open(d / name, "ab") as fh:
+            for ev in events:
+                fh.write(_json.dumps(ev).encode() + b"\n")
+
+    # prázdny koreň: shipper vznikne, ale nič neposiela
+    srv.tick()
+    st = srv.live_status()
+    assert st["active"] and st["roots"] == [str(root)] and st["sent_total"] == 0 and st["files"] == 0
+    assert srv.public()["live"]["active"]
+
+    zapis("20260928-100000_a1b2c3d4.jsonl", _live_hello(), _live_bar(2, 0))
+    srv.tick()
+    assert srv.live_status()["sent_total"] == 2 and srv.live_status()["accepted_total"] == 2
+    assert [i["id"] for i in live_store.instances()] == [LIVE_INST]
+    assert live_store.instance(LIVE_INST)["agent"] == "srv"
+    kurzor = _json.loads((tmp_path / "srv" / "live-cursor.json").read_text())
+    assert list(kurzor.values()) == [(root / LIVE_INST / "20260928-100000_a1b2c3d4.jsonl").stat().st_size]
+
+    # výpadok hubu: kurzor stojí, chyba je v stave (a work() nevyhodí nič)
+    zapis("20260928-100000_a1b2c3d4.jsonl", _live_bar(3, 1))
+    http.down = True
+    srv.work()
+    assert srv.live_status()["last_error"] and srv.live_status()["pending_bytes"] > 0
+    assert live_store.cursor() == 2
+    http.down = False
+    srv.tick()
+    assert srv.live_status()["last_error"] is None and srv.live_status()["pending_bytes"] == 0
+    assert live_store.cursor() == 3 and srv.live_status()["accepted_total"] == 3
+    srv.tick()
+    assert live_store.cursor() == 3 and srv.live_status()["sent_total"] == 3   # nič dvakrát
+
+    # bez koreňa (platforma nie je): shipper nie je; keď pribudne, po minúte sa chytí
+    monkeypatch.delenv("TRADEBOT_LIVE_SPOOL")
+    srv.clock.t += 61
+    srv.tick()
+    assert srv.live_status()["active"] is False
+    monkeypatch.setenv("TRADEBOT_LIVE_SPOOL", str(root))
+    srv.tick()
+    assert srv.live_status()["active"] is False        # ešte v minútovom okne
+    srv.clock.t += 61
+    zapis("20260928-100000_a1b2c3d4.jsonl", _live_bar(4, 2))
+    srv.tick()
+    assert srv.live_status()["active"] and live_store.cursor() == 4

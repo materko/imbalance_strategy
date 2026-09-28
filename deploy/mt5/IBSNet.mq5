@@ -10,7 +10,7 @@
 //| Potom v MetaEditore otvorit Experts\TradeBot\IBSNet.mq5 a prelozit (F7); v terminali musi byt      |
 //| povolene Tools > Options > Expert Advisors > Allow DLL imports. EA sa spusta na MINUTOVOM grafe   |
 //| (napr. M3); informativny TF zon (`zoneDetectionTF` z profilu) si cita sam cez CopyRates.          |
-//| Profil: vstup „InpProfile" = nazov JSON z MQL5\Files\TradeBot\profiles\ibsnet alebo cela cesta.   |
+//| Profil: vstup „InpProfile" = nazov JSON z Common\Files\TradeBot\profiles\ibsnet alebo cela cesta. |
 //+------------------------------------------------------------------+
 #define TRADEBOT_ENGINE_KEY      "ibsnet"
 #define TRADEBOT_DEFAULT_PROFILE "multicharts_mnq_3m"   // futures MNQ, 1:1 s nastaveniami z TradingView

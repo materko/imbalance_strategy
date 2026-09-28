@@ -77,7 +77,7 @@ def _instrument_json(inst) -> str:
 
 
 def test_verzia_strategie_a_chyba_bez_vynimky(static_host):
-    assert static_host.Version() == 1
+    assert static_host.Version() == 2      # docs/LIVE.md: Spool* pribudli, EA kontroluje 2
     assert {"ibsnet", "orbnet"} <= set(static_host.Strategies().split(","))
     # chyba nesmie letieť cez hranicu .NET -> MQL5 ako výnimka: -1 a text v LastError
     inst = '{"symbol":"X","venue":"mt5","tick_size":0.25,"point_value":2.0,"qty_step":1,"min_qty":1}'
@@ -146,5 +146,95 @@ def test_fasada_da_to_iste_co_most_do_freqtrade(static_host):
             seen_events += len(got_events)
         assert seen_orders > 0 and seen_events > 0
         assert json.loads(static_host.Stats(h)) == runner.engine.stats()
+    finally:
+        static_host.Destroy(h)
+
+
+# ---------------------------------------------------------------------------------------- #
+# Live telemetria (docs/LIVE.md): `Spool*` cez reflexiu, riadky musia prejsť `schema.validate`
+# ---------------------------------------------------------------------------------------- #
+
+_INST = '{"symbol":"NAS100.cash","venue":"mt5","tick_size":0.25,"point_value":2.0,"qty_step":1,"min_qty":1,"has_real_volume":false}'
+
+
+def _feed_bars(static_host, h: int, n: int, ready: bool) -> None:
+    t0 = 1_790_000_000_000
+    for i in range(n):
+        px = 20000.0 + i
+        raw = static_host.OnBar(h, t0 + i * 180_000, px, px + 5, px - 5, px + 1, 100.0 + i, 0.0, False, "")
+        assert raw, static_host.LastError()
+        assert static_host.SpoolBar(h, ready) == 1, static_host.LastError()
+
+
+def test_spool_zapise_platne_udalosti(static_host, tmp_path):
+    from tradebot.live import schema
+
+    h = static_host.Create("ibsnet", "{}", _INST, 3)
+    assert h > 0, static_host.LastError()
+    try:
+        # pred prvým barom nie je čo písať – 0, nie chyba
+        assert static_host.SpoolBar(h, True) == 0
+        assert static_host.SpoolOpen(h, str(tmp_path), "mt5", "5012345-Demo Server", "NAS100.cash", "nas100_dukas_3m", False) == 1, \
+            static_host.LastError()
+        path = static_host.SpoolPath(h)
+        assert path
+        instance = schema.instance_id("mt5", "5012345-Demo Server", "NAS100.cash", 3, "ibsnet")
+        assert instance == "mt5_5012345-Demo-Server_NAS100.cash_3m_ibsnet"
+        assert (tmp_path / instance).is_dir()
+        assert str(tmp_path / instance) in path and path.endswith(".jsonl")
+
+        _feed_bars(static_host, h, 3, False)
+        assert static_host.SpoolRealtime(h, True) == 1
+        _feed_bars(static_host, h, 2, True)
+        assert static_host.SpoolFill(h, 1_790_000_600_500, "L-1", True, "", 20001.25, 1.0, True) == 1, static_host.LastError()
+        assert static_host.SpoolFill(h, 1_790_000_700_500, "L-1", False, "sltp", 20011.25, 1.0, True) == 1
+        assert static_host.SpoolNote(h, "warn", "bar prisiel neskoro") == 1
+        assert static_host.SpoolClose(h, "deinit") == 1, static_host.LastError()
+        assert static_host.SpoolPath(h) == ""
+        # po zatvorení je všetko no-op (0), engine ide ďalej
+        assert static_host.SpoolBar(h, True) == 0
+        assert static_host.OnBar(h, 1_790_001_000_000, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, False, "")
+    finally:
+        static_host.Destroy(h)
+
+    lines = (tmp_path / instance / path.rsplit("\\", 1)[-1].rsplit("/", 1)[-1]).read_text(encoding="utf-8").splitlines()
+    events = [schema.parse_line(line) for line in lines]          # každý riadok musí byť platný
+    assert [e["seq"] for e in events] == list(range(1, len(events) + 1))
+    hello = events[0]
+    assert hello["k"] == "hello" and hello["schema"] == 1 and hello["platform"] == "mt5"
+    assert hello["account"] == "5012345-Demo Server" and hello["symbol"] == "NAS100.cash" and hello["tf"] == 3
+    assert hello["strategy"] == "ibsnet" and hello["profile"] == "nas100_dukas_3m" and hello["tester"] is False
+    assert len(hello["session"]) == 8 and hello["host"]
+    assert isinstance(hello["config"], dict)
+    assert hello["instrument"] == json.loads(_INST)
+    assert path.endswith("_" + hello["session"] + ".jsonl")
+    kinds = [e["k"] for e in events]
+    assert kinds.count("bar") == 5 and {"fill", "note", "stat", "bye"} <= set(kinds)
+    assert kinds[-1] == "bye" and kinds[-2] == "stat" and events[-1]["reason"] == "deinit"
+    bars = [e for e in events if e["k"] == "bar"]
+    assert [b["ready"] for b in bars] == [False] * 3 + [True] * 2
+    assert bars[0]["bt"] == 1_790_000_000_000 and bars[0]["o"] == 20000.0 and "mb" in bars[0]
+    fills = [e for e in events if e["k"] == "fill"]
+    assert [(f["side"], f["exit"], f["id"]) for f in fills] == [("in", "", "L-1"), ("out", "sltp", "L-1")]
+    note = next(e for e in events if e["k"] == "note")
+    assert note["level"] == "warn" and "neskoro" in note["text"]
+    stat = next(e for e in events if e["k"] == "stat")
+    assert isinstance(stat["stats"], dict) and "max_daily_wins" in stat["stats"]
+    assert all(isinstance(e["t"], int) and e["t"] > 1_700_000_000_000 for e in events)
+
+
+def test_spool_zly_koren_nezhodi_engine(static_host, tmp_path):
+    blocker = tmp_path / "subor.txt"
+    blocker.write_text("nie som adresar", encoding="utf-8")
+    h = static_host.Create("ibsnet", "{}", _INST, 3)
+    assert h > 0, static_host.LastError()
+    try:
+        assert static_host.SpoolOpen(h, str(blocker / "spool"), "mt5", "acc", "NAS100", "p", False) == -1
+        assert static_host.LastError()
+        assert static_host.SpoolPath(h) == ""
+        assert static_host.SpoolBar(h, True) == 0            # spool nie je, nie chyba
+        raw = static_host.OnBar(h, 1_790_000_000_000, 1.0, 2.0, 0.5, 1.5, 10.0, 0.0, False, "")
+        assert raw and json.loads(raw) is not None
+        assert static_host.SpoolClose(h, "x") == 0
     finally:
         static_host.Destroy(h)
