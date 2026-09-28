@@ -40,6 +40,7 @@ from pydantic import BaseModel
 
 from tradebot.core.config import ConfigError
 from tradebot.core.paths import LIVE_CURSOR_WEBAPP, LIVE_MIRROR, LIVE_MIRROR_CURSOR
+from tradebot.live.deploy import DEFAULT_MODE
 from tradebot.live.store import LiveStore
 from tradebot.live.transport import as_transport
 from tradebot.strategies import STRATEGIES, canonical_key
@@ -351,7 +352,8 @@ class LiveDeploymentRequest(BaseModel):
     tf: int
     profile: str = ""
     config: dict[str, Any] | None = None
-    mode: str = "enabled"
+    #: Nové nasadenie štartuje pauznuté; formulár „Nasadiť“ to smie prebiť (`enabled`).
+    mode: str = DEFAULT_MODE
     user: str | None = None
 
 

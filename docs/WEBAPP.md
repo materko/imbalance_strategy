@@ -558,7 +558,8 @@ načítanie (aj obnova každých 5 s) ide na hub; hub dole = chyba v sekcii, tab
 - **Účty**: id, názov, agent (stroj), platforma, login, server/pripojenie, terminál, či čaká
   heslo na prevzatie agentom, počet nasadení, „zmazať“. **Pridať účet**: agent z hubu
   (`/api/live/agents`, online prví, s drivermi, ktoré hlási), platforma (ponuka z driverov),
-  názov, login, server, terminál, portable, heslo — heslo odíde na hub raz v tele požiadavky,
+  názov, nepovinné id účtu (placeholder = slug názvu, ktorý by hub spravil sám; obsadené dostane
+  `-2`), login, server, terminál, portable, heslo — heslo odíde na hub raz v tele požiadavky,
   do zrkadla ani na disk webapp sa nedostane a políčko sa po odoslaní vyprázdni.
 - **Nasadenia**: stav, účet, stratégia, symbol, TF, profil (výber = zmena profilu; aplikuje
   sa, až keď je stratégia bez pozície), režim, čo agent naposledy potvrdil (profil ✓/≠,
@@ -569,7 +570,10 @@ načítanie (aj obnova každých 5 s) ide na hub; hub dole = chyba v sekcii, tab
   zelený **živá** = aplikované a inštancia v spoole žije, sivý **ok** = aplikované, spool
   ticho. **Nasadiť**: účet, stratégia (z `/api/meta`), symbol tak, ako ho pozná platforma,
   TF v minútach, profil (`/api/live/profiles?strategy=` — repozitár aj vlastné profily;
-  snímka configu sa poskladá vo webapp a na hub ide hotová). **Audit** = posledných 50 zmien.
+  snímka configu sa poskladá vo webapp a na hub ide hotová), režim — predvolene **pauza**:
+  nová stratégia štartuje pauznutá (control súbor je na disku skôr, než platforma inštanciu
+  spustí) a zapína sa tlačidlom v tabuľke; „obchoduje hneď“ pošle `enabled`. **Audit** =
+  posledných 50 zmien.
 - Mutácie idú na hub s **admin tokenom** (`admin_token` v `tester/agent.json` alebo
   `TRADEBOT_HUB_ADMIN_TOKEN`, reštart webapp); bez neho je chip „len na čítanie“, tlačidlá
   a formuláre sú vypnuté a API vráti 403 s radou. Čítanie ide tokenom agenta.

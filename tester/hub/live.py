@@ -22,7 +22,7 @@ from typing import Any, Callable
 from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from tradebot.live.deploy import Conflict, DeployError, DeployStore, NotFound
+from tradebot.live.deploy import DEFAULT_MODE, Conflict, DeployError, DeployStore, NotFound
 from tradebot.live.store import LIVE_BARS, LiveStore
 
 __all__ = ["add_live_routes", "add_deploy_routes", "LiveBatch", "LiveEventsRequest"]
@@ -127,7 +127,8 @@ class DeploymentRequest(BaseModel):
     tf: int
     profile: str = ""
     config: dict[str, Any] | None = None
-    mode: str = "enabled"
+    #: Nové nasadenie štartuje pauznuté (`DEFAULT_MODE`); zapne sa až ručne.
+    mode: str = DEFAULT_MODE
     #: Commit, na ktorom zadávateľ (webapp) stojí — bez neho commit hubu (fáza 2c).
     version: str | None = None
 

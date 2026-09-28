@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from ..schema import CONTROL_MODES, instance_id
+from ..schema import CONTROL_MODES, instance_id, instance_symbol
 
 __all__ = ["Account", "Deployment", "Driver", "load_drivers", "DRIVER_MODULES"]
 
@@ -125,8 +125,9 @@ class Driver(ABC):
 
     @abstractmethod
     def remove_instance(self, account: Account, deployment: Deployment) -> None:
-        """Nasadenie sa ruší (`active: false` alebo zmizlo z hubu): odstrániť, čo je len jeho
-        (control súbor); graf/inštanciu odoberie nasledujúci `ensure_instance` bez neho."""
+        """Nasadenie sa ruší (`active: false`, zmizlo z hubu, alebo zmenilo id inštancie): control súbor
+        sa **nemaže hneď** (adaptér berie chýbajúci ako `enabled`), prepne sa na `paused` a odloží;
+        graf/inštanciu odoberie nasledujúci `ensure_instance` bez neho a až po jej zastavení control zmaže."""
 
     @abstractmethod
     def status(self, account: Account) -> dict[str, Any]:
@@ -150,7 +151,8 @@ class Driver(ABC):
         """Id inštancie tak, ako ho počíta platforma (`LiveSpool.InstanceId`); hub ho posiela hotové,
         toto je záloha pre starý hub alebo ručné volanie."""
         return deployment.instance or instance_id(self.platform, self.spool_account(account),
-                                                  deployment.symbol, deployment.tf, deployment.strategy)
+                                                  instance_symbol(self.platform, deployment.symbol),
+                                                  deployment.tf, deployment.strategy)
 
     def spool_account(self, account: Account) -> str:
         """Ako sa účet volá v spoole (MT5 `<login>-<server>`, NT meno účtu) — prebíja driver."""

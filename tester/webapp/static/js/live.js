@@ -821,11 +821,11 @@ function ldSetupForms() {
     const btn = $("#ld-d-submit"); btn.disabled = true; $("#ld-d-error").hidden = true; $("#ld-d-status").textContent = "posielam na hub…";
     try {
       const body = { account: $("#ld-d-account").value, strategy: $("#ld-d-strategy").value, symbol: $("#ld-d-symbol").value.trim(),
-        tf: Number($("#ld-d-tf").value) || 0, profile: $("#ld-d-profile").value, user: ldUser() };
+        tf: Number($("#ld-d-tf").value) || 0, profile: $("#ld-d-profile").value, mode: $("#ld-d-mode").value || "paused", user: ldUser() };
       if (!body.account) throw new Error("vyber účet");
       if (!body.symbol) throw new Error("zadaj symbol");
       const d = await api("/api/live/deployments", { method: "POST", body: JSON.stringify(body) });
-      $("#ld-d-status").textContent = `nasadené: ${d.instance} (agent si to vezme v najbližšom heartbeate)`;
+      $("#ld-d-status").textContent = `nasadené: ${d.instance} (agent si to vezme v najbližšom heartbeate${d.mode === "paused" ? "; štartuje pauznuté — zapni v tabuľke" : ""})`;
       $("#ld-d-symbol").value = "";
       await loadLiveDeploy();
     } catch (e) { $("#ld-d-error").textContent = e.message; $("#ld-d-error").hidden = false; $("#ld-d-status").textContent = ""; }
@@ -835,6 +835,7 @@ function ldSetupForms() {
     const btn = $("#ld-a-submit"); btn.disabled = true; $("#ld-a-error").hidden = true; $("#ld-a-status").textContent = "posielam na hub…";
     try {
       const body = { agent: $("#ld-a-agent").value, platform: $("#ld-a-platform").value.trim(), label: $("#ld-a-label").value.trim(),
+        id: $("#ld-a-id").value.trim() || null,
         login: $("#ld-a-login").value.trim(), server: $("#ld-a-server").value.trim(), terminal: $("#ld-a-terminal").value.trim(),
         portable: $("#ld-a-portable").checked, password: $("#ld-a-password").value || null, user: ldUser() };
       if (!body.agent) throw new Error("vyber agenta (stroj)");
@@ -843,12 +844,26 @@ function ldSetupForms() {
       const a = await api("/api/live/accounts", { method: "POST", body: JSON.stringify(body) });
       $("#ld-a-password").value = "";   // heslo odišlo raz; v stránke neostáva
       $("#ld-a-status").textContent = `účet ${a.id} pridaný${a.secret_pending ? " — heslo čaká na prevzatie agentom" : ""}`;
-      for (const id of ["#ld-a-label", "#ld-a-login", "#ld-a-server", "#ld-a-terminal"]) $(id).value = "";
+      for (const id of ["#ld-a-label", "#ld-a-id", "#ld-a-login", "#ld-a-server", "#ld-a-terminal"]) $(id).value = "";
+      ldAccountIdHint();
       await loadLiveDeploy();
     } catch (e) { $("#ld-a-error").textContent = e.message; $("#ld-a-error").hidden = false; $("#ld-a-status").textContent = ""; }
     finally { btn.disabled = !ld.admin; }
   };
   $("#ld-audit-box").ontoggle = () => { if ($("#ld-audit-box").open) loadLiveAudit().catch(() => {}); };
+  for (const id of ["#ld-a-label", "#ld-a-login"]) $(id).oninput = ldAccountIdHint;
+  ldAccountIdHint();
+}
+
+/** Id účtu tak, ako ho spraví hub z názvu (`_slug` v `tradebot/live/deploy.py`): malé písmená, číslice, `.-_`;
+ *  ukáže sa ako placeholder políčka „Id účtu“, kým ho človek nezadá sám. */
+function ldSlug(text) {
+  return String(text || "").trim().toLowerCase().replace(/[^a-z0-9._-]+/g, "-").replace(/^[-._]+|[-._]+$/g, "") || "ucet";
+}
+
+function ldAccountIdHint() {
+  const el = $("#ld-a-id");
+  if (el) el.placeholder = ldSlug($("#ld-a-label").value || $("#ld-a-login").value);
 }
 
 function ldFail(e) { $("#ld-error").textContent = e.message; $("#ld-error").hidden = false; }

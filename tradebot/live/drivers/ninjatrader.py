@@ -9,6 +9,10 @@ NT konta musí byť zapamätaný — jediný ručný krok); heslo účtu NT nem�
 
 `deploy.json` je jeden súbor pre celý stroj (NT beží raz), s inštanciami všetkých účtov: driver
 pri `ensure_instance` účtu vymení len jeho položky a ostatné ponechá.
+
+Control súbor rušeného nasadenia: stratégia berie **chýbajúci súbor ako `enabled`**, preto ho
+`remove_instance` nemaže, ale prepne na `paused` a odloží; zmaže sa v `ensure_instance` až po tom,
+čo inštancia z `deploy.json` zmizla v niektorom z minulých kôl (AddOn ju medzitým zastavil).
 """
 
 from __future__ import annotations
@@ -57,6 +61,8 @@ class NinjaTraderDriver(Driver):
         self._launcher = launcher
         env = os.environ.get("TRADEBOT_NT_AUTOSTART")
         self.autostart = autostart if autostart is not None else (env is None or env.strip().lower() in ("1", "true", "yes", "on"))
+        #: Inštancie (podľa účtu), ktorých control súbor čaká na zmazanie, kým ich AddOn zastaví.
+        self._pending_remove: dict[str, set[str]] = {}
 
     # -- kde je čo ------------------------------------------------------------ #
 
@@ -141,13 +147,41 @@ class NinjaTraderDriver(Driver):
         return control_dir(nt) / f"{deployment.instance}.json"
 
     def remove_instance(self, account: Account, deployment: Deployment) -> None:
-        from tradebot.adapters.ninjatrader.__main__ import control_dir
+        """Nasadenie končí: control sa prepne na `paused` (kým AddOn inštanciu zastaví, nesmie otvoriť nový
+        vstup; zmazaný súbor by stratégia vzala ako `enabled`) a odloží — zmaže ho `ensure_instance`, keď
+        inštancia už nie je v `deploy.json`. `flatten` sa neprebíja."""
+        from tradebot.adapters.ninjatrader.__main__ import read_control, write_control
 
         instance = self.instance_of(account, deployment)
-        path = control_dir(self.nt_dir()) / f"{instance}.json"
-        if path.exists():
-            path.unlink()
-            log.info("ninjatrader driver [%s]: control súbor %s zmazaný", account.id, instance)
+        nt = self.nt_dir()
+        current = read_control(nt, instance)
+        if current is None:
+            return
+        if current.get("mode") not in ("paused", "flatten"):
+            write_control(nt, instance, mode="paused", by="hub")
+            log.info("ninjatrader driver [%s]: control %s: paused (nasadenie %s sa ruší; súbor sa zmaže, keď ju AddOn zastaví)",
+                     account.id, instance, deployment.id)
+        self._pending_remove.setdefault(account.id, set()).add(instance)
+
+    def _drop_removed_controls(self, account: Account, running: set[str], wanted: set[str]) -> None:
+        """Zmaže odložené control súbory inštancií, ktoré už nie sú ani v `deploy.json` z pred tohto kola
+        (`running` — tie AddOn ešte len zastavuje, počkajú na ďalšie kolo), ani medzi chcenými (`wanted`)."""
+        from tradebot.adapters.ninjatrader.__main__ import control_dir
+
+        pending = self._pending_remove.get(account.id) or set()
+        for inst in sorted(pending):
+            if inst in wanted:
+                pending.discard(inst)          # nasadenie sa vrátilo — control patrí jemu
+                continue
+            if inst in running:
+                continue                       # AddOn ju práve zastavuje; zmazať až v ďalšom kole
+            path = control_dir(self.nt_dir()) / f"{inst}.json"
+            if path.exists():
+                path.unlink()
+                log.info("ninjatrader driver [%s]: control súbor %s zmazaný (inštancia už nie je v deploy.json)", account.id, inst)
+            pending.discard(inst)
+        if not pending:
+            self._pending_remove.pop(account.id, None)
 
     # -- deploy.json ------------------------------------------------------------ #
 
@@ -170,6 +204,7 @@ class NinjaTraderDriver(Driver):
 
     def ensure_instance(self, account: Account, deployments: list[Deployment]) -> None:
         current = self.read_deploy()
+        bezali = {str(e.get("instance") or "") for e in current["instances"] if isinstance(e, dict)}
         mine = self._entries(account, deployments)
         cudzie = [e for e in current["instances"]
                   if isinstance(e, dict) and not (e.get("account") == account.login and e.get("connection") == account.server)]
@@ -180,6 +215,8 @@ class NinjaTraderDriver(Driver):
             _atomic_json(self.deploy_path(), wanted)
             log.info("ninjatrader driver [%s]: deploy.json: %d inštancií (%d tohto účtu)", account.id,
                      len(wanted["instances"]), len(mine))
+        # control rušených nasadení až po deploy.json (AddOn inštanciu zastaví) — a až keď v ňom už neboli
+        self._drop_removed_controls(account, bezali, {e["instance"] for e in mine})
         if mine and self.autostart and not self.running():
             self._start()
 

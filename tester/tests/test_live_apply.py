@@ -22,6 +22,7 @@ class FakeDriver(Driver):
         self.calls: list[tuple] = []
         self.fail = fail or {}      # názov metódy → id nasadenia/účtu, pri ktorom má padnúť
         self.secrets: dict[str, str] = {}
+        self.removed: list[str] = []    # id inštancií, ktoré prešli `remove_instance`
 
     def available(self) -> bool:
         return True
@@ -55,6 +56,7 @@ class FakeDriver(Driver):
     def remove_instance(self, account, deployment):
         self._maybe_fail("remove_instance", deployment.id)
         self.calls.append(("remove_instance", account.id, deployment.id))
+        self.removed.append(deployment.instance)
 
     def status(self, account):
         return {"running": True, "account": account.id}
@@ -212,6 +214,39 @@ def test_state_persists_and_vanished_deployment_is_removed(tmp_path: Path):
     rec4 = Reconciler({"mt5": drv4}, state)
     rec4.run(desired(dep("d1")))
     assert [c[0] for c in drv4.calls] == ["ensure_instance"]
+
+
+def test_zmena_instancie_odstrani_stary_control_bez_siroty(tmp_path: Path):
+    """Stav si ku každému nasadeniu pamätá `instance` a cestu control súboru (len lokálne, do heartbeatu
+    nejdú); keď sa id inštancie zmení (iný login účtu), starý control ide cez `remove_instance` drivera."""
+    state = tmp_path / "s.json"
+    drv = FakeDriver()
+    rec = Reconciler({"mt5": drv}, state)
+    rec.run(desired(dep("d1")))
+    inst1 = instance_id("mt5", "1514750898-FTMO-Demo", "US100.cash", 1, "ibsnet")
+    saved = json.loads(state.read_text(encoding="utf-8"))["applied"]["d1"]
+    assert saved["instance"] == inst1 and saved["control"] == str(Path(f"/c/{inst1}.json"))
+    assert not {"instance", "control", "sig"} & set(rec.fragment()["applied"][0])
+
+    # účet zmenil login → iné id inštancie: starý control preč (pauza → zmazanie rieši driver), nový sa píše
+    drv.calls.clear()
+    acc2 = {**ACC, "login": "999"}
+    inst2 = instance_id("mt5", "999-FTMO-Demo", "US100.cash", 1, "ibsnet")
+    rec.run(desired(dep("d1"), accounts=(acc2,)))
+    assert [c[0] for c in drv.calls] == ["remove_instance", "ensure_profile", "write_control", "ensure_instance"]
+    assert drv.removed == [inst1] and drv.calls[2][2] == inst2
+    assert json.loads(state.read_text(encoding="utf-8"))["applied"]["d1"]["instance"] == inst2
+    # bez ďalšej zmeny sa nič neodstraňuje ani nepíše; cesta control ostáva v stave
+    drv.calls.clear()
+    rec.run(desired(dep("d1"), accounts=(acc2,)))
+    assert [c[0] for c in drv.calls] == ["ensure_instance"] and drv.removed == [inst1]
+    assert json.loads(state.read_text(encoding="utf-8"))["applied"]["d1"]["control"] == str(Path(f"/c/{inst2}.json"))
+    # deaktivácia po ďalšej zmene loginu: odstráni sa stará aj nová inštancia
+    drv.calls.clear()
+    acc3 = {**ACC, "login": "555"}
+    inst3 = instance_id("mt5", "555-FTMO-Demo", "US100.cash", 1, "ibsnet")
+    rec.run(desired(dep("d1", active=False), accounts=(acc3,)))
+    assert drv.removed == [inst1, inst2, inst3] and [c[0] for c in drv.calls] == ["remove_instance", "remove_instance", "ensure_instance"]
 
 
 def test_deployment_dataclass_defaults_and_validation():
@@ -414,20 +449,20 @@ def test_hub_agent_reconciler_driver_end_to_end(tmp_path: Path, monkeypatch):
     agent.tick()   # heartbeat prinesie účet s heslom a nasadenie → reconciler v `work()` → driver
     assert drv.secrets == {"ic": "tajne"}
     assert [k[0] for k in drv.calls] == ["store_secret", "ensure_profile", "write_control", "ensure_instance"]
-    assert drv.calls[2][2] == d["instance"] and drv.calls[2][3] == "enabled"
+    assert drv.calls[2][2] == d["instance"] and drv.calls[2][3] == "paused"      # nové nasadenie štartuje pauznuté
     assert c.get("/api/live/accounts/ic", headers=H).json()["secret_pending"] is True   # ack ide až ďalším heartbeatom
 
     agent.tick()
     assert c.get("/api/live/accounts/ic", headers=H).json()["secret_pending"] is False
     dep = c.get(f"/api/live/deployments/{d['id']}", headers=H).json()
-    assert dep["applied"]["status"] == "ok" and dep["applied"]["config_hash"] == d["config_hash"] and dep["applied"]["mode"] == "enabled"
+    assert dep["applied"]["status"] == "ok" and dep["applied"]["config_hash"] == d["config_hash"] and dep["applied"]["mode"] == "paused"
     assert state.live_state("trade-pc")["drivers"] == ["mt5"]
 
-    # pauza z hubu → len control; zrušenie → remove_instance a inštancia bez neho
-    c.patch(f"/api/live/deployments/{d['id']}", json={"mode": "paused"}, headers=H)
+    # zapnutie z hubu → len control; zrušenie → remove_instance a inštancia bez neho
+    c.patch(f"/api/live/deployments/{d['id']}", json={"mode": "enabled"}, headers=H)
     drv.calls.clear()
     agent.tick()
-    assert [k[0] for k in drv.calls] == ["ensure_profile", "write_control", "ensure_instance"] and drv.calls[1][3] == "paused"
+    assert [k[0] for k in drv.calls] == ["ensure_profile", "write_control", "ensure_instance"] and drv.calls[1][3] == "enabled"
     c.delete(f"/api/live/deployments/{d['id']}", headers=H)
     drv.calls.clear()
     agent.tick()

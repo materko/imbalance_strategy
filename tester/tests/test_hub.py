@@ -1688,7 +1688,8 @@ def _live_bar(seq, i):
             "v": 3, "ready": True, "mb": 0}
 
 
-LIVE_INST = "ninjatrader_Sim101_MNQ-12-26_3m_ibsnet"
+#: Ako id počíta AddOn: `MasterInstrument.Name` (`MNQ`), nie celý názov `MNQ 12-26` (`instance_symbol`).
+LIVE_INST = "ninjatrader_Sim101_MNQ_3m_ibsnet"
 
 
 def test_live_api_tokens_and_idempotence(tmp_path: Path):
@@ -1941,14 +1942,15 @@ def test_live_deploy_mutacie_len_spravca_a_citanie_ktokolvek(tmp_path: Path):
     d = r.json()
     assert d["instance"] == "mt5_5012345-ICMarkets-Demo_NAS100_3m_ibsnet" and d["config"] == {"rrRatio": 3.0, "p": "p1"}
     assert d["applied"] is None and d["live"]["seen"] is False and d["agent"] == "trade-pc"
+    assert d["mode"] == "paused"                                                                          # nové = pauznuté
     assert c.post("/api/live/deployments", json=dep, headers=H("hlavny")).status_code == 409            # duplicitná inštancia
     assert c.post("/api/live/deployments", json={**dep, "account": "nie"}, headers=H("hlavny")).status_code == 404
     assert c.post("/api/live/deployments", json={**dep, "symbol": "ES", "mode": "zle"}, headers=H("hlavny")).status_code == 422
-    assert c.patch(f"/api/live/deployments/{d['id']}", json={"mode": "paused"}, headers=H(t_agent)).status_code == 403
-    assert c.patch(f"/api/live/deployments/{d['id']}", json={"mode": "paused"}, headers=H("hlavny")).json()["mode"] == "paused"
+    assert c.patch(f"/api/live/deployments/{d['id']}", json={"mode": "enabled"}, headers=H(t_agent)).status_code == 403
+    assert c.patch(f"/api/live/deployments/{d['id']}", json={"mode": "enabled"}, headers=H("hlavny")).json()["mode"] == "enabled"
     assert c.patch(f"/api/live/deployments/{d['id']}", json={"symbol": "ES"}, headers=H("hlavny")).status_code == 200  # ignorované pole modelu
     assert c.patch("/api/live/deployments/nie", json={"mode": "paused"}, headers=H("hlavny")).status_code == 404
-    assert c.get(f"/api/live/deployments/{d['id']}", headers=H(t_agent)).json()["mode"] == "paused"
+    assert c.get(f"/api/live/deployments/{d['id']}", headers=H(t_agent)).json()["mode"] == "enabled"
     assert c.delete(f"/api/live/deployments/{d['id']}", headers=H(t_agent)).status_code == 403
     assert c.delete("/api/live/accounts/ic-demo", headers=H("hlavny")).status_code == 409          # má nasadenia
     assert c.delete("/api/live/accounts/ic-demo", headers=H(t_agent)).status_code == 403

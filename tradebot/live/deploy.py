@@ -29,10 +29,10 @@ import uuid
 from pathlib import Path
 from typing import Any, Callable
 
-from .schema import CONTROL_MODES, instance_id
+from .schema import CONTROL_MODES, instance_id, instance_symbol
 
 __all__ = ["DeployStore", "DeployError", "Conflict", "NotFound", "config_hash", "account_identity", "ACCOUNT_IDENTITY",
-           "code_state", "CODE_STATES"]
+           "code_state", "CODE_STATES", "DEFAULT_MODE"]
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS accounts (
@@ -95,6 +95,8 @@ DEFAULT_IDENTITY = "{login}"
 
 #: Stavy, ktoré agent hlási v `applied.status`.
 APPLIED_STATES = ("ok", "pending", "error", "removed")
+#: Režim nového nasadenia, keď ho zadávateľ neurčí: pauznuté — zapne sa ručne v tabuľke.
+DEFAULT_MODE = "paused"
 
 _ACCOUNT_FIELDS = ("agent", "platform", "label", "login", "server", "terminal", "portable")
 _ACCOUNT_COLS = ("id", *_ACCOUNT_FIELDS, "created", "updated", "by")
@@ -195,6 +197,13 @@ class DeployStore:
             mena = {r["name"] for r in self._db.execute(f"PRAGMA table_info({table})")}
             if col not in mena:
                 self._db.execute(f"ALTER TABLE {table} ADD COLUMN {col} {ddl}")
+        # `instance` je odvodený stĺpec — keď sa zmení pravidlo (napr. NT `MNQ 12-26` → `MNQ`,
+        # `instance_symbol`), staré riadky sa dorovnajú pri štarte, nie až pri zmene účtu.
+        for r in self._db.execute("SELECT DISTINCT account FROM deployments"):
+            try:
+                self._recompute_instances(r["account"])
+            except KeyError:
+                continue   # nasadenie bez účtu (nemalo by nastať) — nechať tak
         self._db.commit()
 
     def version(self) -> str:
@@ -334,7 +343,8 @@ class DeployStore:
     def _recompute_instances(self, account_id: str) -> None:
         acc = self._account_row(self._account_or_404(account_id))
         for r in self._db.execute("SELECT id, symbol, tf, strategy FROM deployments WHERE account = ?", (account_id,)):
-            inst = instance_id(acc["platform"], account_identity(acc), r["symbol"], int(r["tf"]), r["strategy"])
+            inst = instance_id(acc["platform"], account_identity(acc), instance_symbol(acc["platform"], r["symbol"]),
+                               int(r["tf"]), r["strategy"])
             self._db.execute("UPDATE deployments SET instance = ? WHERE id = ?", (inst, r["id"]))
 
     def delete_account(self, account_id: str, by: str, force: bool = False) -> dict[str, Any]:
@@ -413,14 +423,16 @@ class DeployStore:
             raise DeployError("tf musí byť celé číslo minút") from None
         if tf < 1:
             raise DeployError("tf musí byť aspoň 1 minúta")
-        mode = str(data.get("mode") or "enabled")
+        # nové nasadenie štartuje pauznuté (control `paused` je na disku skôr, než platforma inštanciu
+        # spustí) — obchodovať začne, až keď ho človek v tabuľke zapne; výslovný `mode` sa rešpektuje
+        mode = str(data.get("mode") or DEFAULT_MODE)
         if mode not in CONTROL_MODES:
             raise DeployError(f"mode musí byť {'/'.join(CONTROL_MODES)}")
         profile = str(data.get("profile") or "").strip()
         config = self._resolve_config(strategy, profile, data.get("config"))
         with self._lock, self._db:
             acc = self._account_row(self._account_or_404(account_id))
-            inst = instance_id(acc["platform"], account_identity(acc), symbol, tf, strategy)
+            inst = instance_id(acc["platform"], account_identity(acc), instance_symbol(acc["platform"], symbol), tf, strategy)
             dup = self._db.execute("SELECT id FROM deployments WHERE instance = ?", (inst,)).fetchone()
             if dup is not None:
                 raise Conflict(f"tá istá inštancia ({inst}) už je nasadená ako {dup['id']}")

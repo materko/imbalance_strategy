@@ -634,7 +634,11 @@ def test_deploy_proxy_mutacie_admin_tokenom_a_heslo_nikde_neostane(deploy_app, m
     assert r.status_code == 200
     m, path, token, body = hub.calls[-1]
     assert (m, path, token) == ("POST", "/api/live/deployments?by=r", "hlavny")
-    assert body["strategy"] == "ibsnet" and body["symbol"] == "MNQ 12-26" and "rrRatio" in body["config"] and body["mode"] == "enabled"
+    assert body["strategy"] == "ibsnet" and body["symbol"] == "MNQ 12-26" and "rrRatio" in body["config"] and body["mode"] == "paused"
+    # formulár smie poslať `enabled`; bez `mode` ide na hub pauza (nová stratégia štartuje pauznutá)
+    r = c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "ES 12-26", "tf": 3,
+                                             "profile": "multicharts_mnq_3m", "mode": "enabled"})
+    assert r.status_code == 200 and hub.calls[-1][3]["mode"] == "enabled"
     assert c.post("/api/live/deployments", json={"account": "ic", "strategy": "cudzia", "symbol": "X", "tf": 3, "profile": "p"}).status_code == 422
     assert c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "X", "tf": 3, "profile": "nie-je"}).status_code == 422
     assert c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "X", "tf": 3, "profile": ""}).status_code == 422

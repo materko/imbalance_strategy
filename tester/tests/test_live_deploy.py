@@ -96,15 +96,19 @@ def test_nasadenie_hash_instancia_a_config_z_profilu(store: DeployStore):
     assert d["strategy"] == "ibsnet"                                  # alias → dnešný kľúč
     assert d["instance"] == instance_id("mt5", "5012345-ICMarkets-Demo", "NAS100", 3, "ibsnet")
     assert d["config"] == _resolver("ibsnet", "p1") and d["config_hash"] == config_hash(d["config"])
-    assert d["mode"] == "enabled" and d["active"] is True and d["applied"] is None and d["agent"] == "trade-pc"
+    assert d["mode"] == "paused" and d["active"] is True and d["applied"] is None and d["agent"] == "trade-pc"   # štartuje pauznuté
     assert len(d["id"]) == 12
+    # výslovný režim sa rešpektuje
+    z = store.create_deployment({"account": a["id"], "strategy": "ibsnet", "symbol": "NAS100", "tf": 5, "profile": "p1",
+                                 "mode": "enabled"}, by="r")
+    assert z["mode"] == "enabled"
     # hash je kanonický: poradie kľúčov nehrá rolu
     assert config_hash({"b": 1, "a": [1, 2]}) == config_hash({"a": [1, 2], "b": 1})
     # hotový config má prednosť pred profilom
     e = store.create_deployment({"account": a["id"], "strategy": "orbnet", "symbol": "NAS100", "tf": 3,
                                  "profile": "p1", "config": {"x": 1}}, by="r")
     assert e["config"] == {"x": 1} and e["config_hash"] == config_hash({"x": 1})
-    assert [x["id"] for x in store.deployments(agent="trade-pc")] == [d["id"], e["id"]]
+    assert [x["id"] for x in store.deployments(agent="trade-pc")] == [d["id"], z["id"], e["id"]]
     assert store.deployments(account="nie") == [] and store.deployment("nie") is None
 
 
@@ -134,8 +138,8 @@ def test_update_meni_len_mode_profil_a_active(store: DeployStore):
     a = _acc(store)
     d = store.create_deployment({"account": a["id"], "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p1"}, by="r")
     store.clock.t = 2000.0
-    u = store.update_deployment(d["id"], {"mode": "paused"}, by="rasto")
-    assert u["mode"] == "paused" and u["updated"] == 2000.0 and u["config_hash"] == d["config_hash"]
+    u = store.update_deployment(d["id"], {"mode": "enabled"}, by="rasto")     # nové je paused → zapnutie je zmena
+    assert u["mode"] == "enabled" and u["updated"] == 2000.0 and u["config_hash"] == d["config_hash"]
     u = store.update_deployment(d["id"], {"profile": "p2"}, by="rasto")
     assert u["profile"] == "p2" and u["config"]["rrRatio"] == 2.5 and u["config_hash"] != d["config_hash"]
     u = store.update_deployment(d["id"], {"config": {"rrRatio": 9.0}}, by="rasto")   # hotový config, profil ostáva
@@ -151,10 +155,10 @@ def test_update_meni_len_mode_profil_a_active(store: DeployStore):
         store.update_deployment("nie", {"mode": "paused"}, by="r")
     # rovnaká hodnota = žiadna zmena ani audit
     n = len(store.audit())
-    assert store.update_deployment(d["id"], {"mode": "paused"}, by="r")["updated"] == u["updated"]
+    assert store.update_deployment(d["id"], {"mode": "enabled"}, by="r")["updated"] == u["updated"]
     assert len(store.audit()) == n
     zaznam = [x for x in store.audit() if x["action"] == "deployment_update"]
-    assert zaznam[-1]["old"] == {"mode": "enabled"} and zaznam[-1]["new"] == {"mode": "paused"} and zaznam[-1]["by"] == "rasto"
+    assert zaznam[-1]["old"] == {"mode": "paused"} and zaznam[-1]["new"] == {"mode": "enabled"} and zaznam[-1]["by"] == "rasto"
 
 
 # --------------------------------------------------------------------------- #
@@ -289,7 +293,37 @@ def test_predvoleny_resolver_berie_profil_z_repozitara(tmp_path: Path):
     a = st.upsert_account({"agent": "a", "platform": "ninjatrader", "label": "NT", "login": "Sim101"}, by="r")
     d = st.create_deployment({"account": a["id"], "strategy": "ibsnet", "symbol": "MNQ 12-26", "tf": 3,
                               "profile": "multicharts_mnq_3m"}, by="r")
-    assert d["instance"] == "ninjatrader_Sim101_MNQ-12-26_3m_ibsnet"
+    # NT: do id ide `MasterInstrument.Name` (`MNQ`), nie celý názov `MNQ 12-26` — tak ho počíta AddOn
+    # (`LiveSpool.InstanceId`), inak by control súbor z hubu nikdy nečítal.
+    assert d["instance"] == "ninjatrader_Sim101_MNQ_3m_ibsnet"
     assert d["config"] and "rrRatio" in d["config"]
     with pytest.raises(DeployError):
         st.create_deployment({"account": a["id"], "strategy": "nie", "symbol": "X", "tf": 1, "profile": "p"}, by="r")
+
+
+def test_instance_symbol_ninjatrader_berie_master_name():
+    """NT: id inštancie počíta AddOn z `MasterInstrument.Name` — hub aj driver musia dať to isté."""
+    from tradebot.live.schema import instance_id, instance_symbol
+
+    assert instance_symbol("ninjatrader", "MNQ 12-26") == "MNQ"
+    assert instance_symbol("ninjatrader", "  ES 03-27 ") == "ES"
+    assert instance_symbol("ninjatrader", "MNQ") == "MNQ"
+    assert instance_symbol("mt5", "US100.cash") == "US100.cash"
+    assert instance_symbol("mt5", "NAS100 x") == "NAS100 x"   # iná platforma sa nemení
+    assert (instance_id("ninjatrader", "Sim101", instance_symbol("ninjatrader", "MNQ 12-26"), 3, "ibsnet")
+            == "ninjatrader_Sim101_MNQ_3m_ibsnet")
+
+
+def test_instance_sa_prepocita_pri_starte_storu(tmp_path: Path):
+    """`instance` je odvodený stĺpec: riadok uložený podľa starého pravidla (`…_MNQ-12-26_…`) sa pri
+    ďalšom otvorení storu dorovná na to, čo počíta platforma (`…_MNQ_…`)."""
+    import sqlite3
+
+    st = DeployStore(tmp_path / "live.sqlite")
+    a = st.upsert_account({"agent": "a", "platform": "ninjatrader", "label": "NT", "login": "Sim101"}, by="r")
+    d = st.create_deployment({"account": a["id"], "strategy": "ibsnet", "symbol": "MNQ 12-26", "tf": 3,
+                              "profile": "multicharts_mnq_3m"}, by="r")
+    with sqlite3.connect(tmp_path / "live.sqlite") as c:
+        c.execute("UPDATE deployments SET instance = ? WHERE id = ?", ("ninjatrader_Sim101_MNQ-12-26_3m_ibsnet", d["id"]))
+    st2 = DeployStore(tmp_path / "live.sqlite")
+    assert st2.deployment(d["id"])["instance"] == "ninjatrader_Sim101_MNQ_3m_ibsnet"

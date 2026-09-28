@@ -59,6 +59,21 @@ def instance_id(platform: str, account: str, symbol: str, tf_minutes: int, strat
     return "_".join(_BAD.sub("-", str(p or "")) for p in parts)
 
 
+def instance_symbol(platform: str, symbol: str) -> str:
+    """Symbol tak, ako ho platforma dá do id inštancie (`LiveSpool.InstanceId`).
+
+    NinjaTrader: adaptér aj AddOn používajú `Instrument.MasterInstrument.Name` (`MNQ`), kým
+    nasadenie nesie celý názov inštrumentu `MNQ 12-26` (master + expirácia) — do id ide len
+    časť pred prvou medzerou; inak by hub počítal `…_MNQ-12-26_…`, agent písal control súbor
+    pod týmto menom a AddOn (spool `…_MNQ_…`) by ho nikdy nečítal. Ostatné platformy (MT5
+    symboly medzery nemajú) sa nemenia.
+    """
+    text = str(symbol or "").strip()
+    if str(platform or "").lower() == "ninjatrader":
+        return text.split()[0] if text.split() else text
+    return text
+
+
 def parse_line(line: str | bytes) -> dict[str, Any]:
     """JSON riadok → udalosť; `SchemaError`, keď to nie je objekt alebo nesedí schéma."""
     try:

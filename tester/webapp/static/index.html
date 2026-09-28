@@ -386,8 +386,10 @@
           <label class="field">Symbol<span class="hint">tak, ako ho pozná platforma (MT5 <code>NAS100</code>, NT <code>MNQ 12-26</code>)</span>
             <input id="ld-d-symbol" placeholder="NAS100"></label>
           <label class="field">TF (min)<input id="ld-d-tf" type="number" min="1" step="1" value="3"></label>
-          <label class="field span2">Profil<span class="hint">snímka profilu (repozitár aj vlastné) sa uloží k nasadeniu ako config; agent ju zapíše na platformu</span>
+          <label class="field">Profil<span class="hint">snímka profilu (repozitár aj vlastné) sa uloží k nasadeniu ako config; agent ju zapíše na platformu</span>
             <select id="ld-d-profile"></select></label>
+          <label class="field">Režim<span class="hint">nová stratégia štartuje pauznutá — zapni ju v tabuľke (control súbor je na disku skôr, než platforma inštanciu spustí)</span>
+            <select id="ld-d-mode"><option value="paused" selected>pauza (predvolené)</option><option value="enabled">obchoduje hneď</option></select></label>
           <div id="ld-d-code-hint" class="span2 muted small" hidden></div>
           <div class="span2 profile-actions"><button id="ld-d-submit" class="primary">Nasadiť</button>
             <span id="ld-d-status" class="muted small"></span></div>
@@ -415,6 +417,8 @@
           <label class="field">Platforma<span class="hint">podľa driverov agenta; inak napíš kľúč (<code>mt5</code>, <code>ninjatrader</code>)</span>
             <input id="ld-a-platform" list="ld-a-platforms" placeholder="mt5"><datalist id="ld-a-platforms"></datalist></label>
           <label class="field">Názov<input id="ld-a-label" placeholder="IC Markets demo"></label>
+          <label class="field">Id účtu<span class="hint">nepovinné; bez neho slug názvu (malé písmená, číslice, <code>.-_</code>; obsadené dostane <code>-2</code>)</span>
+            <input id="ld-a-id" placeholder="ucet"></label>
           <label class="field">Login<span class="hint">MT5 číslo účtu / NT meno účtu (<code>Sim101</code>)</span><input id="ld-a-login"></label>
           <label class="field">Server / pripojenie<span class="hint">MT5 server / NT meno pripojenia</span><input id="ld-a-server"></label>
           <label class="field">Terminál<span class="hint">MT5: cesta k <code>terminal64.exe</code> alebo portable inštancii; NT prázdne</span><input id="ld-a-terminal"></label>

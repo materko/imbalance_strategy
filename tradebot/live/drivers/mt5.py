@@ -20,6 +20,13 @@ Zmena množiny grafov (nové nasadenie, odobraté, iný config profilu) = slušn
 (`taskkill` bez `/F`, EA dostane `OnDeinit`, spool `bye`), prepísať profil, spustiť znova. Režim
 (`paused`/`flatten`) a zmena názvu profilu idú cez control súbor bez reštartu. Keď stav sedí a
 terminál beží, `ensure_instance` nerobí nič; keď nebeží (pád, človek ho zavrel), spustí ho.
+
+Poradie okolo control súboru je vec bezpečnosti — EA berie **chýbajúci súbor ako `enabled`**:
+
+- pred štartom terminálu má každý graf control súbor s režimom nasadenia (reconciler ho píše pred
+  `ensure_instance`; driver to pred `_start` ešte skontroluje a chýbajúci dopíše),
+- rušené nasadenie (`remove_instance`) sa najprv prepne na `paused`, control ostáva, kým terminál
+  s tým grafom beží; zmaže sa až v `ensure_instance` **po** zavretí terminálu (`_drop_removed_controls`).
 """
 
 from __future__ import annotations
@@ -303,6 +310,8 @@ class Mt5Driver(Driver):
         self.ea_source = Path(ea_source) if ea_source else None
         self._templates: dict[str, str] | None = None
         self._inputs: list[tuple[str, str, str]] | None = None
+        #: Inštancie (podľa účtu), ktorých control súbor čaká na zmazanie, kým terminál s ich grafom zavrie.
+        self._pending_remove: dict[str, set[str]] = {}
 
     # -- kde je čo ------------------------------------------------------------ #
 
@@ -501,13 +510,33 @@ class Mt5Driver(Driver):
         return control_dir(common) / f"{instance}.json"
 
     def remove_instance(self, account: Account, deployment: Deployment) -> None:
-        from tradebot.adapters.mt5.__main__ import control_dir
+        """Nasadenie končí: kým terminál s jeho grafom beží, EA nesmie otvoriť nový vstup — control sa
+        prepne na `paused` (zmazaný súbor by EA vzala ako `enabled`) a odloží na zmazanie; zmaže ho až
+        `ensure_instance` po zavretí terminálu (`_drop_removed_controls`). `flatten` sa neprebíja."""
+        from tradebot.adapters.mt5.__main__ import read_control, write_control
 
         instance = self.instance_of(account, deployment)
-        path = control_dir(self.common()) / f"{instance}.json"
-        if path.exists():
-            path.unlink()
-            self._log(account, f"control súbor {instance} zmazaný (nasadenie {deployment.id} zrušené)")
+        common = self.common()
+        current = read_control(common, instance)
+        if current is None:
+            return
+        if current.get("mode") not in ("paused", "flatten"):
+            write_control(common, instance, "paused", None, by="hub")
+            self._log(account, f"control {instance}: paused (nasadenie {deployment.id} sa ruší; súbor sa zmaže "
+                               f"po zavretí terminálu)")
+        self._pending_remove.setdefault(account.id, set()).add(instance)
+
+    def _ensure_controls(self, account: Account, deployments: list[Deployment]) -> None:
+        """Pred štartom terminálu má každý graf control súbor s režimom nasadenia — bez neho by EA
+        naštartovala `enabled`. Reconciler ho píše pred `ensure_instance`; toto je poistka."""
+        from tradebot.adapters.mt5.__main__ import read_control, write_control
+
+        common = self.common()
+        for dep in deployments:
+            instance = self.instance_of(account, dep)
+            if read_control(common, instance) is None:
+                write_control(common, instance, dep.mode, dep.profile, by="hub")
+                self._log(account, f"control {instance}: {dep.mode} dopísaný pred štartom (chýbal)")
 
     # -- grafy --------------------------------------------------------------- #
 
@@ -660,13 +689,19 @@ class Mt5Driver(Driver):
         exe, data_dir, portable = self.terminal_for(account)
         charts = self._charts(account, deployments)
         key = self._charts_key(charts)
+        ident = self.spool_account(account)
         manifest = self._manifest(account)
-        same = manifest is not None and manifest.get("key") == key and self._profile_matches(data_dir, charts)
+        # identita účtu je v id inštancií aj v ini (Login/Server) — iný login = iný terminál, nie ten istý
+        # s tými istými grafmi; starý manifest bez `account` sa berie ako zhodný
+        same = (manifest is not None and manifest.get("key") == key and manifest.get("account", ident) == ident
+                and self._profile_matches(data_dir, charts))
         pid = self._running_pid(account)
         if pid is not None and same:
             self._scrub_password(account)
+            self._drop_removed_controls(account, None, charts)   # grafy z manifestu bežia ďalej; len odložené
             return
         if not charts and pid is None and same:
+            self._drop_removed_controls(account, manifest, charts)
             return   # nič nemá bežať a nič nebeží
         # zmena množiny grafov alebo terminál nebeží: (re)štart
         foreign = [] if pid is not None else [p for p in self.processes.find(exe) if p]
@@ -674,30 +709,36 @@ class Mt5Driver(Driver):
             self._close(account, p)
         if not same:
             self.write_chart_profile(data_dir, charts)
-            self._drop_stale_controls(account, manifest, charts)
             self._log(account, "profil grafov `tradebot`: " + (", ".join(f"{c['symbol']} {c['tf']}m {c['expert']}({c['profile']})"
                                                                      for c in charts) or "bez grafov"))
+        # terminál je zavretý: control súbory grafov, ktoré už nebudú, smú preč; tie, čo budú, musia existovať
+        self._drop_removed_controls(account, manifest, charts)
         d = self.account_dir(account)
         d.mkdir(parents=True, exist_ok=True)
-        (d / "charts.json").write_text(json.dumps({"key": key, "charts": charts, "profile_dir": str(self.profile_dir(data_dir)),
+        (d / "charts.json").write_text(json.dumps({"key": key, "account": ident, "charts": charts,
+                                                   "profile_dir": str(self.profile_dir(data_dir)),
                                                    "updated": datetime.now(timezone.utc).isoformat(timespec="seconds")},
                                                   ensure_ascii=False, indent=1), encoding="utf-8")
         if not charts:
             self._log(account, "žiadne aktívne nasadenie — terminál sa nespúšťa")
             return
+        self._ensure_controls(account, deployments)
         ini = self._write_ini(account, with_password=True)
         self._start(account, exe, ini, portable)
 
-    def _drop_stale_controls(self, account: Account, manifest: dict[str, Any] | None, charts: list[dict[str, Any]]) -> None:
-        """Control súbory inštancií, ktoré boli v minulom manifeste a v novom už nie sú — graf zmizol,
-        súbor by ostal ako stará správa pre EA, keby sa inštancia niekedy vrátila."""
+    def _drop_removed_controls(self, account: Account, manifest: dict[str, Any] | None, charts: list[dict[str, Any]]) -> None:
+        """Zmaže control súbory inštancií, ktoré už nemajú graf: tie z minulého manifestu (`manifest`, len
+        keď je terminál zavretý — inak `None`) a tie, čo odložil `remove_instance`. Súbor by inak ostal ako
+        stará správa pre EA, keby sa inštancia niekedy vrátila. Volá sa až po zavretí terminálu s tými grafmi."""
         from tradebot.adapters.mt5.__main__ import control_dir
 
         zostavaju = {c["instance"] for c in charts}
+        kandidati: set[str] = set(self._pending_remove.pop(account.id, set()))
         for old in (manifest or {}).get("charts") or []:
             inst = old.get("instance") if isinstance(old, dict) else None
-            if not inst or inst in zostavaju:
-                continue
+            if inst:
+                kandidati.add(inst)
+        for inst in sorted(kandidati - zostavaju):
             path = control_dir(self.common()) / f"{inst}.json"
             if path.exists():
                 path.unlink()

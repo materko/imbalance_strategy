@@ -21,10 +21,14 @@ Pravidlá:
 - **Prežije reštart.** Posledný požadovaný stav (bez hesiel) a čo sa z neho aplikovalo, je v
   `tester/live/apply_state.json`; po štarte agent hlási to isté, kým hub nepošle nový stav, a nasadenie,
   ktoré medzitým z hubu zmizlo, vie odstrániť.
+- **Bez sirôt.** Ku každému nasadeniu si stav pamätá `instance` a cestu naposledy zapísaného control
+  súboru (`control`); keď sa id inštancie zmení (iný login/server účtu), starý control ide cez
+  `remove_instance` drivera (pauza → zmazanie až po zastavení), nie ostane ležať ako správa pre EA.
 """
 
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import json
 import logging
@@ -45,6 +49,8 @@ log = logging.getLogger(__name__)
 
 #: Polia účtu, ktoré sa nikdy neukladajú (heslo nesie hub len do prevzatia).
 _SECRET_FIELDS = ("secret", "password")
+#: Polia `applied` len pre tento stroj — do heartbeatu nejdú (podpis, id inštancie, cesta control súboru).
+_LOCAL_FIELDS = ("sig", "instance", "control")
 
 
 def config_hash(config: dict[str, Any]) -> str:
@@ -105,7 +111,7 @@ class Reconciler:
     def fragment(self) -> dict[str, Any]:
         """`applied` + `secret_ack` do heartbeatu — z posledného kola, po reštarte z disku."""
         with self._lock:
-            applied = [{k: v for k, v in e.items() if k != "sig"} for e in self.state["applied"].values()]
+            applied = [{k: v for k, v in e.items() if k not in _LOCAL_FIELDS} for e in self.state["applied"].values()]
             return {"applied": applied, "secret_ack": list(self.state.get("secret_ack") or [])}
 
     def status(self) -> dict[str, Any]:
@@ -214,22 +220,27 @@ class Reconciler:
             touched = False
             for dep in deps:
                 entry = self._entry(dep, "ok", "")
+                predtym = prev_applied.get(dep.id) or {}
                 try:
+                    dep.instance = drv.instance_of(acc, dep)
+                    entry["instance"] = dep.instance
                     if not dep.active:
+                        self._retire_old_instance(drv, acc, dep, predtym)
                         drv.remove_instance(acc, dep)
                         touched = True
                         applied[dep.id] = entry
                         continue
                     dep.validate()
-                    dep.instance = drv.instance_of(acc, dep)
                     sig = self._signature(acc, dep)
                     entry["sig"] = sig
-                    predtym = prev_applied.get(dep.id) or {}
                     if predtym.get("sig") == sig and predtym.get("status") == "ok" and predtym.get("active", True):
                         entry["unchanged"] = True
+                        if predtym.get("control"):
+                            entry["control"] = predtym["control"]
                     else:
+                        self._retire_old_instance(drv, acc, dep, predtym)
                         drv.ensure_profile(dep)
-                        drv.write_control(dep)
+                        entry["control"] = str(drv.write_control(dep))
                         touched = True
                         log.info("live apply: nasadenie %s (%s %s %dm, %s, %s) zapísané", dep.id, dep.strategy,
                                  dep.symbol, dep.tf, dep.profile, dep.mode)
@@ -269,3 +280,13 @@ class Reconciler:
     def _entry(dep: Deployment, status: str, error: str) -> dict[str, Any]:
         return {"deployment": dep.id, "config_hash": dep.config_hash or config_hash(dep.config),
                 "mode": dep.mode, "active": dep.active, "status": status, "error": error}
+
+    @staticmethod
+    def _retire_old_instance(drv: Driver, acc: Account, dep: Deployment, predtym: dict[str, Any]) -> None:
+        """Nasadenie malo minule iné id inštancie (zmenil sa login/server účtu): jeho starý control súbor
+        by ostal ako sirota — driver ho odstráni tak, ako rušené nasadenie (pauza, zmazanie po zastavení)."""
+        old = str(predtym.get("instance") or "")
+        if not old or old == dep.instance:
+            return
+        log.info("live apply: nasadenie %s zmenilo inštanciu %s -> %s, stará sa odstraňuje", dep.id, old, dep.instance)
+        drv.remove_instance(acc, dataclasses.replace(dep, instance=old))

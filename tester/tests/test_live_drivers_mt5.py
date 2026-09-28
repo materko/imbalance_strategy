@@ -331,9 +331,16 @@ def test_profile_control_secret_and_password_scrub(drv, tmp_path: Path):
     assert json.loads(ctl.read_text(encoding="utf-8")) == data1   # nezmenené = nepíše sa (mtime = správa pre EA)
     d.write_control(dep("d1", mode="enabled"))
     assert json.loads(ctl.read_text(encoding="utf-8"))["mode"] == "enabled"
+    # zrušenie: control sa nemaže hneď (chýbajúci = enabled pre EA), prepne sa na paused a zmaže ho až
+    # ensure_instance, keď terminál s tým grafom nebeží
     d.remove_instance(ACC, d1)
+    zrusene = json.loads(ctl.read_text(encoding="utf-8"))
+    assert zrusene["mode"] == "paused" and zrusene["profile"] == "golden_binance_btcusdt_3m"
+    d.remove_instance(ACC, d1)   # druhýkrát nič (už je paused — mtime = správa pre EA)
+    assert json.loads(ctl.read_text(encoding="utf-8")) == zrusene
+    d.ensure_instance(ACC, [])
     assert not ctl.exists()
-    d.remove_instance(ACC, d1)   # druhýkrát nič
+    d.remove_instance(ACC, d1)   # bez súboru nič
 
     # heslo: DPAPI na Windows (inak čitateľne s varovaním), ide do ini len na štart a potom sa zmaže
     d.store_secret(ACC, "tajne-heslo")
@@ -344,12 +351,101 @@ def test_profile_control_secret_and_password_scrub(drv, tmp_path: Path):
     d.ensure_instance(ACC, [d1])
     ini = d.account_dir(ACC) / "start.ini"
     assert "Password=tajne-heslo" in ini.read_text(encoding="utf-8")
+    assert json.loads(ctl.read_text(encoding="utf-8"))["mode"] == "paused"   # poistka: chýbajúci control sa dopísal pred štartom
     d.ensure_instance(ACC, [d1])                       # hneď po štarte ešte ostáva
     assert "Password=" in ini.read_text(encoding="utf-8")
     clock.t += 60
     d.ensure_instance(ACC, [d1])
     assert "Password=" not in ini.read_text(encoding="utf-8") and len(procs.started) == 1
     assert secrets.delete("ftmo", d.secrets_root) and not secrets.delete("ftmo", d.secrets_root)
+
+
+def test_control_je_na_disku_pred_startom_terminalu(drv, tmp_path: Path):
+    """Reconciler → driver: v momente, keď sa terminál spúšťa, má každý graf control súbor s režimom
+    nasadenia (nové = paused) — EA by bez neho naštartovala `enabled`."""
+    from tradebot.adapters.mt5.__main__ import control_dir
+    from tradebot.live.apply import Reconciler
+
+    d, procs, clock, data, common = drv
+    videne: list[tuple[str, str]] = []
+
+    class Watch(FakeProcesses):
+        def start(self, cmd, cwd):
+            for p in sorted(control_dir(common).glob("*.json")):
+                videne.append((p.name, json.loads(p.read_text(encoding="utf-8"))["mode"]))
+            return super().start(cmd, cwd)
+
+    d.processes = Watch()
+    rec = Reconciler({"mt5": d}, tmp_path / "apply.json")
+    acc = {"id": "ftmo", "platform": "mt5", "label": "FTMO demo", "login": "1514750898", "server": "FTMO-Demo"}
+    novy = {"id": "d1", "account": "ftmo", "strategy": "ibsnet", "symbol": "US100.cash", "tf": 1,
+            "profile": "golden_binance_btcusdt_3m", "config": CFG, "config_hash": "h1", "mode": "paused", "active": True}
+    out = rec.run({"accounts": [acc], "deployments": [novy]})
+    inst = dep("d1").instance
+    assert out["applied"][0]["status"] == "ok" and len(d.processes.started) == 1
+    assert videne == [(f"{inst}.json", "paused")]
+    assert json.loads((tmp_path / "apply.json").read_text(encoding="utf-8"))["applied"]["d1"]["control"] \
+        == str(control_dir(common) / f"{inst}.json")
+
+    # poistka drivera: keď control chýba (niekto ho zmazal) a terminál treba spustiť znova, dopíše ho pred štartom
+    (control_dir(common) / f"{inst}.json").unlink()
+    d.processes.alive_pids.clear()
+    videne.clear()
+    d.ensure_instance(ACC, [dep("d1")])
+    assert videne == [(f"{inst}.json", "paused")] and "dopísaný pred štartom" in (d.account_dir(ACC) / "driver.log").read_text(encoding="utf-8")
+
+
+def test_zrusene_nasadenie_pauza_pred_zavretim_control_prec_az_po(drv):
+    """Poradie pri zrušení: control → paused (EA neotvorí nový vstup), terminál sa zavrie s grafom, control
+    sa zmaže až potom; `flatten` sa neprebíja; iný login účtu = reštart terminálu."""
+    from tradebot.adapters.mt5.__main__ import control_dir, read_control
+
+    d, procs, clock, data, common = drv
+    d1, d2 = dep("d1", mode="enabled"), dep("d2", symbol="EURUSD", tf=5, mode="enabled")
+    for x in (d1, d2):
+        d.write_control(x)
+    d.ensure_instance(ACC, [d1, d2])
+    ctl2 = control_dir(common) / f"{d2.instance}.json"
+    pri_zavreti: list[str | None] = []
+
+    class Watch(FakeProcesses):
+        def close(self, pid, force=False):
+            c = read_control(common, d2.instance)
+            pri_zavreti.append(c["mode"] if c else None)
+            super().close(pid, force)
+
+    w = Watch()
+    w.alive_pids = set(procs.alive_pids)
+    d.processes = w
+    d.remove_instance(ACC, d2)
+    assert read_control(common, d2.instance)["mode"] == "paused" and ctl2.exists()
+    d.ensure_instance(ACC, [d1])
+    assert pri_zavreti == ["paused"]                      # pri zatváraní terminálu control ešte bol, s pauzou
+    assert not ctl2.exists() and read_control(common, d1.instance)["mode"] == "enabled"
+    assert len(w.started) == 1 and len(w.closed) == 1
+
+    # flatten ostáva flatten; zmazanie až keď terminál bez grafu zavrel
+    d.write_control(dep("d1", mode="flatten"))
+    d.remove_instance(ACC, d1)
+    assert read_control(common, d1.instance)["mode"] == "flatten"
+    d.ensure_instance(ACC, [])
+    assert not (control_dir(common) / f"{d1.instance}.json").exists() and not w.alive_pids
+
+    # nasadenie, ktoré nikdy nemalo control (ani graf), nič nezapisuje
+    d.remove_instance(ACC, dep("d9", symbol="XAUUSD"))
+    assert not list(control_dir(common).glob("*XAUUSD*"))
+    d.ensure_instance(ACC, [])
+    assert not list(control_dir(common).glob("*XAUUSD*"))
+
+    # iný login toho istého účtu (id inštancií aj ini sa menia) = nie je to ten istý terminál: reštart
+    d.ensure_instance(ACC, [d1])
+    n = len(w.started)
+    iny = Account.from_dict({**ACC.raw, "login": "999"})
+    d.ensure_instance(iny, [Deployment.from_dict({**d1.raw})])
+    assert len(w.started) == n + 1 and "Login=999" in (d.account_dir(iny) / "start.ini").read_text(encoding="utf-8")
+    assert json.loads((d.account_dir(iny) / "charts.json").read_text(encoding="utf-8"))["account"] == "999-FTMO-Demo"
+    d.ensure_instance(iny, [Deployment.from_dict({**d1.raw})])
+    assert len(w.started) == n + 1                        # a potom už nič
 
 
 def test_terminal_resolution_and_errors(drv, tmp_path: Path):
@@ -397,7 +493,7 @@ def test_ninjatrader_driver_writes_deploy_json_control_and_profile(tmp_path: Pat
 
     a = nt_dep("n1")
     a.instance = d.instance_of(NT_ACC, a)
-    assert a.instance == "ninjatrader_Sim101_MNQ-12-26_3m_ibsnet"
+    assert a.instance == "ninjatrader_Sim101_MNQ_3m_ibsnet"   # ako AddOn: MasterInstrument.Name, nie `MNQ 12-26`
     assert d.ensure_profile(a) == nt / "TradeBot" / "profiles" / "ibsnet" / "multicharts_mnq_3m.json"
     assert json.loads(d.ensure_profile(a).read_text(encoding="utf-8"))["_strategy"] == "ibsnet"
     ctl = d.write_control(a)
@@ -427,8 +523,29 @@ def test_ninjatrader_driver_writes_deploy_json_control_and_profile(tmp_path: Pat
     d.ensure_instance(NT_ACC, [])
     deploy = json.loads((nt / "TradeBot" / "deploy.json").read_text(encoding="utf-8"))
     assert [e["deployment"] for e in deploy["instances"]] == ["n2"]
+    # zrušenie (poradie ako v reconcileri: remove_instance, potom ensure_instance): control → paused, nie preč;
+    # zmaže sa, až keď inštancia nebola v deploy.json už pred týmto kolom (AddOn ju stihol zastaviť)
+    d.ensure_instance(NT_ACC, [a])                       # n1 znova beží
     d.remove_instance(NT_ACC, a)
+    assert json.loads(ctl.read_text(encoding="utf-8"))["mode"] == "paused"
+    d.ensure_instance(NT_ACC, [])                        # deploy.json bez n1; control ešte ostáva (AddOn zastavuje)
+    deploy = json.loads((nt / "TradeBot" / "deploy.json").read_text(encoding="utf-8"))
+    assert [e["deployment"] for e in deploy["instances"]] == ["n2"] and ctl.exists()
+    d.remove_instance(NT_ACC, a)                         # ďalšie kolo (hub ju stále posiela ako active=false)
+    d.ensure_instance(NT_ACC, [])
     assert not ctl.exists()
+    d.remove_instance(NT_ACC, a)                         # bez súboru nič
+    # flatten sa neprebíja; nasadenie, ktoré sa medzitým vrátilo, o control nepríde
+    d.write_control(a)
+    d.ensure_instance(NT_ACC, [a])
+    from tradebot.adapters.ninjatrader.__main__ import write_control as nt_write_control
+    nt_write_control(nt, a.instance, mode="flatten", by="test")
+    d.remove_instance(NT_ACC, a)
+    assert json.loads(ctl.read_text(encoding="utf-8"))["mode"] == "flatten"
+    d.ensure_instance(NT_ACC, [a])                       # vrátilo sa: control ostáva
+    assert ctl.exists()
+    d.ensure_instance(NT_ACC, [])
+    assert ctl.exists()                                  # nič odložené — bez remove_instance sa nemaže
     st = d.status(other)
     assert st["running"] and [e["deployment"] for e in st["instances"]] == ["n2"] and st["deploy"].endswith("deploy.json")
 

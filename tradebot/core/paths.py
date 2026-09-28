@@ -134,7 +134,9 @@ CHART_CACHE = RUNS_DIR / ".charts"
 
 #: Stav hubu: zoznam agentov, fronta výpočtov a odovzdané výsledky (`results/<id>.zip`).
 #: Gitignored — hub je jeden proces na verejnom stroji, jeho stav nikto nezdieľa.
-HUB_DIR = TESTER_DIR / "hub_data"
+#: `TRADEBOT_HUB_DATA` ho presunie inam (druhý hub na tom istom stroji, skúška proti
+#: dočasnému stavu) — platí pre `serve` aj pre `token add --local` a ďalšie `--local` príkazy.
+HUB_DIR = Path(getenv("HUB_DATA") or TESTER_DIR / "hub_data")
 #: Konfigurácia agenta v tomto klone: adresa hubu, token, či prijíma a či posiela
 #: výpočty. Každý klon má vlastnú, preto gitignored.
 AGENT_CONFIG = TESTER_DIR / "agent.json"

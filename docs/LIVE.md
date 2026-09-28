@@ -58,9 +58,14 @@ v docstringu modulu — len náčrt, žiadna implementácia.
 ## Identita
 
 - **instance** = adresár spoolu: `<platform>_<account>_<symbol>_<tf>m_<strategy>`, znaky mimo
-  `[A-Za-z0-9._-]` nahradené `-` (`ninjatrader_Sim101_MNQ-12-26_3m_ibsnet`,
+  `[A-Za-z0-9._-]` nahradené `-` (`ninjatrader_Sim101_MNQ_3m_ibsnet`,
   `mt5_5012345-ICMarkets-Demo_NAS100_3m_orbnet`). Stabilná cez reštarty — jedna inštancia v webapp.
   - NT: `Account.Name`; MT5: `<ACCOUNT_LOGIN>-<ACCOUNT_SERVER>`.
+  - Symbol na NT je `Instrument.MasterInstrument.Name` (`MNQ`), nie celý názov `MNQ 12-26` —
+    nasadenie nesie celý názov (AddOn ho potrebuje pre `BarsRequest`), do id ide časť pred prvou
+    medzerou (`schema.instance_symbol`; hub aj driver). Overené 28. 9. 2026: kým to tak nebolo,
+    hub počítal `…_MNQ-12-26_…`, agent písal control súbor pod tým menom, hlásil `ok`, a AddOn
+    (spool `…_MNQ_…`) pauzu z webapp nikdy nevidel.
 - **session** = 8 hex znakov na jeden štart stratégie (nový engine = nová session). `seq` je
   poradové číslo riadku v rámci session, od 1. Kľúč idempotencie: `(instance, session, seq)`.
 - Súbor: `<yyyyMMdd-HHmmss UTC štartu>_<session>.jsonl`; nový súbor aj pri zmene UTC dňa
@@ -279,7 +284,7 @@ o platforme vie len **driver** na strane agenta (`tradebot/live/drivers/<platfor
 | entita | polia |
 |---|---|
 | **account** | `id` (slug), `agent` (meno agenta = stroj), `platform` (`mt5`/`ninjatrader`), `label`, `login` (MT5 číslo účtu / NT meno účtu, napr. `Sim101`), `server` (MT5 server / NT meno pripojenia), `terminal` (MT5: cesta k `terminal64.exe` alebo k portable inštancii; NT: prázdne), `portable` (bool), `created`, `updated`, `by`, `secret_pending` (heslo čaká na prevzatie agentom — po prevzatí sa z hubu zmaže; hub nikdy heslo neukladá natrvalo) |
-| **deployment** | `id`, `account` (id), `strategy` (kľúč enginu), `symbol`, `tf` (min), `profile` (názov), `config` (celý config enginu = snímka profilu), `config_hash` (sha256 configu), `mode` (`enabled`/`paused`/`flatten`), `active` (bool — má inštancia vôbec existovať; `false` = odstrániť z platformy), `created`, `updated`, `by`; odvodené `instance` = `instance_id(platform, <MT5 login>-<server> / NT meno účtu, symbol, tf, strategy)` |
+| **deployment** | `id`, `account` (id), `strategy` (kľúč enginu), `symbol`, `tf` (min), `profile` (názov), `config` (celý config enginu = snímka profilu), `config_hash` (sha256 configu), `mode` (`enabled`/`paused`/`flatten`; **nové nasadenie je predvolene `paused`** — `DEFAULT_MODE`, control súbor s pauzou je na disku skôr, než platforma inštanciu spustí, a obchodovať začne, až keď ho človek zapne; výslovný `mode: enabled` v POST sa rešpektuje), `active` (bool — má inštancia vôbec existovať; `false` = odstrániť z platformy), `created`, `updated`, `by`; odvodené `instance` = `instance_id(platform, <MT5 login>-<server> / NT meno účtu, symbol, tf, strategy)` |
 | **audit** | `ts`, `by`, `action`, `account`/`deployment`, `old`, `new` (JSON) — každá zmena |
 | **applied** | čo agent naposledy hlásil k deploymentu: `deployment`, `agent`, `config_hash`, `mode`, `status` (`ok`/`pending`/`error`), `error`, `ts` |
 
@@ -314,6 +319,18 @@ class Driver:                      # jedna trieda na platformu; agent ich načí
 control → `write_control`, inštancie → `ensure_instance`/`remove_instance`; výsledok ide do `applied`
 v ďalšom heartbeate. Nič nesmie vyhodiť výnimku von (chyba = `status: error` k danému deploymentu).
 
+Poradie okolo control súboru je vec bezpečnosti, lebo adaptéry berú **chýbajúci súbor ako `enabled`**:
+
+- control sa píše **pred** `ensure_instance` (nové nasadenie = `paused` na disku skôr, než platforma
+  inštanciu spustí; MT5 driver to pred štartom terminálu ešte skontroluje a chýbajúci dopíše);
+- `remove_instance` control **nemaže**, ale prepne na `paused` (`flatten` neprebíja) a odloží; zmaže ho až
+  `ensure_instance` — MT5 po zavretí terminálu s tým grafom, NT až v kole, keď inštancia už nebola
+  v `deploy.json` (AddOn ju medzitým zastavil);
+- stav agenta (`apply_state.json`) si ku každému nasadeniu pamätá `instance` a cestu control súboru;
+  keď sa id inštancie zmení (iný login/server účtu), starý control ide tou istou cestou
+  (`remove_instance`), nie ostane ako sirota. MT5 driver má identitu účtu aj v manifeste grafov
+  (`charts.json: account`) — iný login = reštart terminálu s novým ini.
+
 - **MT5 driver:** jeden účet = jedna inštancia terminálu (nainštalovaný terminál stroja, daný
   `terminal`, alebo portable kópia v `tester/live/mt5/<account>/terminal/` pri `portable` bez `terminal`);
   ini `[Common] Login/Server[/Password z DPAPI, po prihlásení sa z ini zmaže]`, `[Charts] ProfileLast=tradebot`,
@@ -342,7 +359,9 @@ terminál, heslo — heslo ide raz na hub, nikdy sa neukladá do zrkadla) a **Na
 účet, stratégia, symbol, TF, profil, režim, stav inštancie zo spoolu, drift `config_hash` vs.
 `applied`, posledný bar; tlačidlá pauza/zapnúť/flatten, zmena profilu (výber z profilov stratégie
 alebo úprava parametrov formulárom z `params.py`), odstrániť; „Nasadiť“: účet, stratégia, symbol,
-TF, profil). Mutácie idú cez webapp na hub s **admin tokenom** (`admin_token` v `tester/agent.json`
+TF, profil, režim — predvolene **pauza**, nová stratégia sa zapína až v tabuľke). „Pridať účet“ má
+nepovinné **Id účtu** (placeholder ukazuje slug názvu, ktorý by hub spravil sám). Mutácie idú cez
+webapp na hub s **admin tokenom** (`admin_token` v `tester/agent.json`
 / `TRADEBOT_HUB_ADMIN_TOKEN`); bez neho je karta len na čítanie.
 
 ## Fáza 2c: nový kód na stroji (hub = cieľový commit, agent = inštalácia a preklad)

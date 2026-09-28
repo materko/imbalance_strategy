@@ -194,7 +194,9 @@ PY -m tester.hub token rm srv-01
 
 Príkaz ide cez API s tokenom z `tester/agent.json` (musí to byť hlavný), alebo
 `--local` priamo nad `tester/hub_data/` na stroji hubu (v kontajneri `docker compose
-exec hub …`); bežiaci hub si zmenu súboru všimne sám. S vlastným tokenom sa agent hlási
+exec hub …`); bežiaci hub si zmenu súboru všimne sám. Stav hubu presunie inam
+`TRADEBOT_HUB_DATA=<adresár>` (platí pre `serve` aj pre `--local` príkazy — druhý, skúšobný
+hub na tom istom stroji bez zásahu do `tester/hub_data/`). S vlastným tokenom sa agent hlási
 len pod svojím menom, zadáva len ako on, výsledky sťahuje len k svojim výpočtom a rušiť
 smie len to, čo zadal alebo počíta; parametre cudzieho behu neuvidí. Prepínanie
 `accept` z hubu a správa tokenov sú len pre správcu. Hub bez jediného tokenu (vývoj na
