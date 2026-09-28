@@ -598,11 +598,103 @@ function ldAppliedCell(dep) {
     <span class="muted small">${a.ts ? liveAge(a.ts * 1000, lv.now) : ""}</span>${err}`;
 }
 
+/** Chip stavu kódu (fáza 2c): `{installed, state}` nasadenia alebo platformy agenta. */
+function ldCodeChip(cs, wanted) {
+  if (!cs) return `<span class="chip" title="stroj kód nehlási">neznámy</span>`;
+  const sha = cs.installed ? String(cs.installed).slice(0, 7) : "";
+  if (cs.state === "ok") return `<span class="chip ok" title="platforma má ${esc(sha)}${wanted ? ` (chcené ${esc(String(wanted).slice(0, 7))})` : ""}">kód: aktuálny</span>`;
+  if (cs.state === "outdated") return `<span class="chip warn" title="platforma má ${esc(sha)}, chcené ${esc(String(wanted || "").slice(0, 7) || "?")} — Aktualizovať kód v sekcii Stroje">kód: zastaraný ${esc(sha)}</span>`;
+  return `<span class="chip" title="platforma nehlási installed.json (kód nainštalovaný ručne pred fázou 2c, alebo nikdy)">kód: neznámy</span>`;
+}
+
+/** Posledná aktualizácia kódu, ktorú agent hlásil (`live.code_update`): stav, verzia, dôvod. */
+function ldCodeUpdateCell(a) {
+  const cu = a.live && a.live.code_update;
+  const cielovy = a.code_target;
+  const caka = cielovy ? `<span class="chip warn" title="hub posiela cieľ ${esc(cielovy.version)} v každom heartbeate, kým ho agent nepotvrdí">čaká: ${esc(String(cielovy.version).slice(0, 7))}${cielovy.force ? " (force)" : ""}</span> ` : "";
+  if (!cu) return caka || `<span class="muted">—</span>`;
+  const ver = String(cu.version || "").slice(0, 7);
+  if (cu.status === "ok") return `${caka}<span class="chip ok" title="${esc(JSON.stringify(cu.platforms || {}))}">${esc(ver)} ok${cu.noop ? " (už bol)" : ""}</span> <span class="muted small">${cu.ts ? liveAge(cu.ts * 1000, lv.now) : ""}${cu.needs_restart ? " · agent čaká na reštart" : ""}</span>`;
+  if (cu.status === "blocked") return `${caka}<span class="chip warn" title="${esc((cu.reasons || []).join("\n"))}">blokované: ${esc((cu.reasons || [])[0] || cu.error || "")}</span>`;
+  return `${caka}<span class="chip bad" title="${esc(cu.error || "")}">${esc(ver)} chyba: ${esc((cu.error || "").slice(0, 80))}</span>`;
+}
+
+/** Tabuľka strojov (agentov): kód agenta, kód platforiem proti webapp, tlačidlo „Aktualizovať kód“. */
+function renderLiveAgents() {
+  const agents = ld.agents.slice().sort((a, b) => (b.online - a.online) || a.name.localeCompare(b.name));
+  $("#ld-ag-count").textContent = agents.length ? String(agents.length) : "";
+  $("#ld-ag-empty").hidden = !!agents.length;
+  $("#ld-agents").parentElement.hidden = !agents.length;
+  const mine = lv.deploy && lv.deploy.version ? String(lv.deploy.version) : "";
+  $("#ld-agents tbody").innerHTML = agents.map(a => {
+    const cs = (a.live && a.live.code_state) || {};
+    const platformy = Object.keys(cs).length
+      ? Object.entries(cs).map(([p, s]) => `${esc(p)}: ${ldCodeChip(s, mine)}`).join(" ")
+      : `<span class="muted">${a.live && a.live.drivers && a.live.drivers.length ? esc(a.live.drivers.join(", ")) + ": kód: neznámy" : "bez platformy"}</span>`;
+    const dis = ld.admin && a.online ? "" : "disabled";
+    const stav = `<span class="chip ${a.online ? "ok" : ""}">${a.online ? "online" : "offline"}</span>${a.updating ? ' <span class="chip warn" title="agent práve mení kód alebo ťahá commit">mení kód</span>' : ""}${a.needs_restart ? ' <span class="chip warn" title="agent má na disku nový kód a čaká na reštart (headless sa reštartuje sám, webapp reštartuj ručne)">reštart</span>' : ""}`;
+    const verzia = a.version ? `<code title="${esc(a.version)}">${esc(String(a.version).slice(0, 7))}</code>${mine && a.version !== mine ? ` <span class="muted small" title="webapp ${esc(mine)}">≠ webapp</span>` : ""}` : "—";
+    return `<tr class="plain" data-agent="${esc(a.name)}"><td><b>${esc(a.name)}</b></td><td>${stav}</td><td>${verzia}</td>
+      <td>${platformy}</td><td>${ldCodeUpdateCell(a)}</td>
+      <td class="ld-actions" style="white-space:nowrap">
+        <label class="inline small" title="preskočiť bránu: kód sa vymení, aj keď nasadenia obchodujú alebo majú pozíciu — MT5 terminál sa reštartuje s pozíciou u brokera"><input type="checkbox" class="ld-force"> aj s otvorenými pozíciami</label>
+        <button class="small" data-update="1" ${dis} title="nasadiť commit tejto webapp (${esc(mine || "?")}) na platformy stroja">Aktualizovať kód</button>
+        ${a.code_target ? `<button class="small ghost" data-cancel="1" ${ld.admin ? "" : "disabled"} title="stiahnuť cieľ z hubu (čo už agent urobil, ostáva)">zrušiť</button>` : ""}
+      </td></tr>`;
+  }).join("");
+  for (const tr of $$("#ld-agents tbody tr")) {
+    const name = tr.dataset.agent;
+    const upd = tr.querySelector("button[data-update]");
+    if (upd) upd.onclick = () => ldUpdateCode(name, tr.querySelector("input.ld-force").checked);
+    const cancel = tr.querySelector("button[data-cancel]");
+    if (cancel) cancel.onclick = () => ldCancelCode(name);
+  }
+}
+
+async function ldUpdateCode(name, force) {
+  const mine = lv.deploy && lv.deploy.version ? String(lv.deploy.version) : "";
+  const agent = ld.agents.find(a => a.name === name) || {};
+  const platformy = (agent.live && agent.live.drivers) || [];
+  const co = [];
+  if (platformy.includes("mt5")) co.push("MT5 terminály stroja sa zavrú a po inštalácii DLL reštartujú (výpadok ~1 min; EA prehrá predhistóriu)");
+  if (platformy.includes("ninjatrader")) co.push("NinjaTrader sa prekompiluje (F5 v NinjaScript Editore, NT musí bežať) a AddOn nabehne v novej generácii (nová session)");
+  const otazka = `Aktualizovať kód na stroji „${name}“ na commit ${mine ? mine.slice(0, 7) : "?"} (commit tejto webapp)?\n\n`
+    + `Agent najprv pullne kód. ${co.join("; ") || "Platformy podľa driverov agenta."}.\n\n`
+    + (force ? "VYNÚTENÉ: brána sa preskočí — aj keď nasadenia obchodujú alebo majú otvorenú pozíciu."
+             : "Prejde, len keď sú všetky nasadenia stroja v pauze/flatten a bez otvorenej pozície (inak „blokované“).");
+  if (!confirm(otazka)) return;
+  try {
+    await api(`/api/live/agents/${encodeURIComponent(name)}/update`, { method: "POST", body: JSON.stringify({ force: !!force, user: ldUser() }) });
+    await loadLiveDeploy();
+  } catch (e) { ldFail(e); }
+}
+
+async function ldCancelCode(name) {
+  try {
+    await api(`/api/live/agents/${encodeURIComponent(name)}/update?user=${encodeURIComponent(ldUser() || "")}`, { method: "DELETE" });
+    await loadLiveDeploy();
+  } catch (e) { ldFail(e); }
+}
+
+/** „Nasadiť“: keď má stroj vybraného účtu starší kód než táto webapp, poradí najprv aktualizovať (neblokuje). */
+function ldCodeHint() {
+  const box = $("#ld-d-code-hint");
+  const acc = ld.accounts.find(a => a.id === $("#ld-d-account").value);
+  const agent = acc && ld.agents.find(a => a.name === acc.agent);
+  const mine = lv.deploy && lv.deploy.version ? String(lv.deploy.version) : "";
+  const cs = agent && agent.live && agent.live.code_state && agent.live.code_state[acc.platform];
+  if (!acc || !agent || !mine || !cs || cs.state === "ok") { box.hidden = true; box.textContent = ""; return; }
+  box.textContent = cs.state === "outdated"
+    ? `Stroj ${acc.agent} má na platforme ${acc.platform} kód ${String(cs.installed).slice(0, 7)}, táto webapp je na ${mine.slice(0, 7)} — nasadenie vznikne z novšieho kódu; najprv „Aktualizovať kód“ v sekcii Stroje (nasadiť sa dá aj tak).`
+    : `Stroj ${acc.agent} nehlási, z akého commitu je kód na platforme ${acc.platform} (installed.json chýba) — po nasadení zváž „Aktualizovať kód“ v sekcii Stroje.`;
+  box.hidden = false;
+}
+
 function renderLiveDeploy() {
   const accById = Object.fromEntries(ld.accounts.map(a => [a.id, a]));
   const deps = ld.deployments;
-  const key = JSON.stringify([ld.admin, ld.accounts, Object.keys(ld.profiles),
-    deps.map(d => [d.id, d.mode, d.active, d.config_hash, d.profile, d.applied, d.live && d.live.alive, d.live && d.live.last_bar_ms])]);
+  const key = JSON.stringify([ld.admin, ld.accounts, Object.keys(ld.profiles), ld.agents, lv.deploy && lv.deploy.version,
+    deps.map(d => [d.id, d.mode, d.active, d.config_hash, d.profile, d.applied, d.live && d.live.alive, d.live && d.live.last_bar_ms, d.code_state])]);
   const instances = new Set(lv.instances.map(i => i.id));
   if (key !== ld.key) {
     ld.key = key;
@@ -623,6 +715,7 @@ function renderLiveDeploy() {
         <td><select class="small ld-profile" ${dis} title="zmena profilu: aplikuje sa, až keď je stratégia bez pozície">${ldProfileOptions(d.strategy, d.profile)}</select></td>
         <td><span class="chip ${d.mode === "enabled" ? "ok" : (d.mode === "flatten" ? "bad" : "warn")}">${esc(LD_MODE_LABEL[d.mode] || d.mode)}</span></td>
         <td>${ldAppliedCell(d)}</td>
+        <td>${ldCodeChip(d.code_state, d.version)}</td>
         <td>${inst}${live.host ? ` <span class="muted small">${esc(live.host)}</span>` : ""}</td>
         <td title="${live.last_bar_ms ? utc(live.last_bar_ms) + " UTC" : ""}">${live.last_bar_ms ? liveAge(live.last_bar_ms, lv.now) : "—"}</td>
         <td class="ld-actions" style="white-space:nowrap">
@@ -640,11 +733,13 @@ function renderLiveDeploy() {
       const a = tr.querySelector("a[data-inst]"); if (a) a.onclick = e => { e.preventDefault(); openLiveDetail(a.dataset.inst); };
     }
     renderLiveAccounts(deps);
+    renderLiveAgents();
     // profily stratégií v tabuľke — po načítaní sa riadky prekreslia s celou ponukou
     for (const s of new Set(deps.map(d => d.strategy))) ldLoadProfiles(s).catch(() => {});
   }
   if (!ld.formsReady) { ldSetupForms(); ld.formsReady = true; }
   ldFillFormSelects();
+  ldCodeHint();
 }
 
 function ldProfileOptions(strategy, current) {
@@ -690,6 +785,7 @@ function ldFillFormSelects() {
   selA.innerHTML = ld.accounts.map(a => `<option value="${esc(a.id)}">${esc(a.label)} · ${esc(a.agent)} · ${esc(a.platform)}</option>`).join("")
     || `<option value="">— najprv pridaj účet —</option>`;
   if (curA && ld.accounts.some(a => a.id === curA)) selA.value = curA;
+  selA.onchange = () => ldCodeHint();
   // agent do „Pridať účet": online prví; platformy z ich driverov
   const selAg = $("#ld-a-agent"), curAg = selAg.value;
   const agents = ld.agents.slice().sort((a, b) => (b.online - a.online) || a.name.localeCompare(b.name));

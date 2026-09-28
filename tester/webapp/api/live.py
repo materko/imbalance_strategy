@@ -363,6 +363,13 @@ class LiveDeploymentPatch(BaseModel):
     user: str | None = None
 
 
+class LiveCodeUpdateRequest(BaseModel):
+    """„Aktualizovať kód na stroji“ (fáza 2c): cieľový commit (bez neho commit tejto webapp) a `force`."""
+    version: str | None = None
+    force: bool = False
+    user: str | None = None
+
+
 def build(ctx: AppContext) -> APIRouter:
     router = APIRouter()
     app = ctx.app
@@ -423,11 +430,17 @@ def build(ctx: AppContext) -> APIRouter:
     # -- fáza 2b: účty a nasadenia — len proxy na hub ------------------------- #
 
     def _deploy_state() -> dict[str, Any]:
-        from ...hub import config as hub_config
+        from ...hub import config as hub_config, gitcode
 
         cfg = hub_config.load()
         return {"configured": cfg is not None, "hub_url": cfg.hub_url if cfg else None,
-                "admin": bool(cfg and cfg.admin_token)}
+                "admin": bool(cfg and cfg.admin_token), "version": gitcode.version() or None}
+
+    def _version() -> str | None:
+        """Commit tejto webapp — ide k nasadeniu (`version`) a je cieľom „Aktualizovať kód“."""
+        from ...hub import gitcode
+
+        return gitcode.version() or None
 
     def _hub_http(admin: bool = False) -> Any:
         """HTTP na hub: tokenom agenta na čítanie, hlavným tokenom na mutácie (403 bez neho)."""
@@ -484,7 +497,21 @@ def build(ctx: AppContext) -> APIRouter:
         http = _hub_http()
         agents = _via_hub(lambda: http.get("/api/agents"))
         return [{"name": a.get("name"), "online": bool(a.get("online")), "last_seen": a.get("last_seen"),
-                 "live": a.get("live")} for a in (agents or [])]
+                 "live": a.get("live"), "version": a.get("version"), "needs_restart": bool(a.get("needs_restart")),
+                 "updating": bool(a.get("updating")), "code_target": a.get("code_target")} for a in (agents or [])]
+
+    @router.post("/api/live/agents/{name}/update")
+    def live_agent_update(name: str, req: LiveCodeUpdateRequest):
+        """„Aktualizovať kód na stroji“ (fáza 2c) — na hub s hlavným tokenom; cieľ = commit tejto webapp,
+        keď ho požiadavka nenesie."""
+        http = _hub_http(admin=True)
+        body = {"version": req.version or _version(), "force": bool(req.force)}
+        return _via_hub(lambda: http.post(f"/api/live/agents/{name}/update?by={_by(req.user)}", body))
+
+    @router.delete("/api/live/agents/{name}/update")
+    def live_agent_update_cancel(name: str, user: str = ""):
+        http = _hub_http(admin=True)
+        return _via_hub(lambda: http.delete(f"/api/live/agents/{name}/update?by={_by(user)}"))
 
     @router.get("/api/live/profiles")
     def live_profiles(strategy: str = Query("ibs")):
@@ -529,7 +556,7 @@ def build(ctx: AppContext) -> APIRouter:
         strategy = _strategy(req.strategy)
         config = req.config if isinstance(req.config, dict) and req.config else _config_of(strategy, req.profile)
         body = {"account": req.account, "strategy": strategy, "symbol": req.symbol.strip(), "tf": req.tf,
-                "profile": req.profile, "config": config, "mode": req.mode}
+                "profile": req.profile, "config": config, "mode": req.mode, "version": _version()}
         return _via_hub(lambda: http.post(f"/api/live/deployments?by={_by(req.user)}", body))
 
     @router.patch("/api/live/deployments/{dep_id}")
@@ -548,6 +575,7 @@ def build(ctx: AppContext) -> APIRouter:
             else:
                 dep = _via_hub(lambda: http.get(f"/api/live/deployments/{dep_id}"))
                 body["config"] = _config_of(dep["strategy"], body["profile"])
+            body["version"] = _version()   # nový config = kód, na ktorom vznikol
         return _via_hub(lambda: http.patch(f"/api/live/deployments/{dep_id}?by={_by(req.user)}", body))
 
     @router.delete("/api/live/deployments/{dep_id}")

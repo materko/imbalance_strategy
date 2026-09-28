@@ -19,6 +19,9 @@ web = ["fastapi", "uvicorn", "pandas", "pyarrow"]
 # Most do C# jadra strategii (tradebot.adapters.csharp) v procese. Bez neho most spusta
 # TradeBot.Host.exe ako samostatny proces (pomalsie, ale bez zavislosti); na macOS/Linuxe treba Mono.
 csharp = ["pythonnet>=3.0"]
+# Obchodny stroj s NinjaTraderom: preklad bez cloveka = F5 v NinjaScript Editore cez UI automatizaciu
+# (tradebot.adapters.ninjatrader nt_compile_via_editor, docs/LIVE.md faza 2c). Inde netreba.
+live = ["pywinauto>=0.6.8"]
 
 # Instaluje sa LEN produkt. Balik `tester` je naradie tohto repozitara, spusta sa
 # z jeho korena (`python -m tester.webapp`) a zamerne sa nedostane do globalneho

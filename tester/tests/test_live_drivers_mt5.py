@@ -431,3 +431,36 @@ def test_ninjatrader_driver_writes_deploy_json_control_and_profile(tmp_path: Pat
     assert not ctl.exists()
     st = d.status(other)
     assert st["running"] and [e["deployment"] for e in st["instances"]] == ["n2"] and st["deploy"].endswith("deploy.json")
+
+
+# --------------------------------------------------------------------------- #
+# nový kód na stroji (docs/LIVE.md, fáza 2c): marker a install_code drivera MT5
+# --------------------------------------------------------------------------- #
+
+
+def test_mt5_install_code_zavrie_terminaly_nainstaluje_a_zapise_marker(drv, monkeypatch):
+    from tradebot.adapters.mt5 import __main__ as mt5cli
+
+    d, procs, clock, data, common = drv
+    assert d.installed_version() is None
+    volania = []
+    monkeypatch.setattr(mt5cli, "install", lambda mql5, extra, **kw: (volania.append((mql5, kw.get("common"))), {"compiled": ["IBSNet"]})[1])
+    # terminál účtu beží (spustený driverom) + cudzí z toho istého exe
+    d.ensure_instance(ACC, [dep("d1")])
+    pid = d._running_pid(ACC)
+    assert pid is not None
+    procs.foreign = [777]
+    out = d.install_code("abc1234", [ACC])
+    assert sorted(out["closed"]) == sorted([pid, 777]) and [p for p, f in procs.closed] == [pid, 777]
+    assert volania == [(data / "MQL5", common)]                     # jeden dátový adresár = jedna inštalácia
+    assert out["installed_to"][0]["mql5"] == str(data / "MQL5") and out["installed_to"][0]["compiled"] == ["IBSNet"]
+    assert d.installed_version() == "abc1234" and json.loads((common / "TradeBot" / "installed.json").read_text())["by"] == "hub"
+    assert d.status(ACC)["installed"] == "abc1234" and d.status(ACC)["running"] is False
+    # ďalšie kolo reconcilera terminál spustí znova (grafy sedia, pid nie je)
+    n = len(procs.started)
+    d.ensure_instance(ACC, [dep("d1")])
+    assert len(procs.started) == n + 1
+    # bez účtov sa inštaluje aspoň do nainštalovaného terminálu stroja
+    volania.clear()
+    d.install_code("def5678", [])
+    assert volania == [(data / "MQL5", common)] and d.installed_version() == "def5678"

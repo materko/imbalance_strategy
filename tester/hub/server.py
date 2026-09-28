@@ -131,7 +131,7 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
     if live_store is None:
         live_store = LiveStore(HUB_LIVE_DB if state.root == HUB_DIR else state.root / HUB_LIVE_DB.name)
     if deploy_store is None:
-        deploy_store = DeployStore(live_store.path, clock=state.clock)
+        deploy_store = DeployStore(live_store.path, clock=state.clock, version=lambda: state.version)
     state.deploy = deploy_store
     app = FastAPI(title="TradeBot hub", version="0.2")
     app.state.hub = state

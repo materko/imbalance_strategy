@@ -500,11 +500,21 @@ class _FakeDeployHub:
     def handler(self, method: str, path: str, token: str, body: dict | None):
         from tester.hub.client import HubError
 
+        if path.startswith("/api/live/export"):
+            return []   # zrkadlo (vlákno z iného testu) sa pýta na export — do zoznamu volaní nepatrí
         self.calls.append((method, path, token, body))
         if method in ("POST", "PATCH", "DELETE") and token != self.admin_token:
             raise HubError(403, "len správca hubu (hlavný token)")
+        if path.startswith("/api/live/agents/"):
+            name = path.split("/")[4]
+            if name == "nikto":
+                raise HubError(404, "agent 'nikto' nie je zaregistrovaný")
+            return {"name": name, "code_target": None if method == "DELETE" else {**(body or {}), "requested_by": "r", "ts": 1.0}}
         if path.startswith("/api/agents"):
-            return [{"name": "trade-pc", "online": True, "last_seen": "x", "live": {"drivers": ["mt5"], "instances": 0}}]
+            return [{"name": "trade-pc", "online": True, "last_seen": "x", "version": "abc1234", "needs_restart": False,
+                     "updating": False, "code_target": None,
+                     "live": {"drivers": ["mt5"], "instances": 0, "installed": {"mt5": "abc1234"},
+                              "code_state": {"mt5": {"installed": "abc1234", "state": "ok"}}, "code_update": None}}]
         if path.startswith("/api/live/accounts"):
             if method == "GET":
                 return self.accounts
@@ -571,12 +581,16 @@ def deploy_app(tmp_path: Path, monkeypatch):
 def test_deploy_proxy_len_na_citanie_bez_admin_tokenu(deploy_app):
     make, hub, tmp = deploy_app
     c = make(admin="")
-    assert c.get("/api/live").json()["deploy"] == {"configured": True, "hub_url": "http://hub.test:8790", "admin": False}
+    from tester.hub import gitcode
+
+    stav = c.get("/api/live").json()["deploy"]
+    assert stav == {"configured": True, "hub_url": "http://hub.test:8790", "admin": False, "version": gitcode.version() or None}
     # čítanie ide tokenom agenta
     assert c.get("/api/live/accounts").json()[0]["id"] == "ic"
     assert c.get("/api/live/deployments").json()[0]["id"] == "d1"
-    assert c.get("/api/live/agents").json() == [{"name": "trade-pc", "online": True, "last_seen": "x",
-                                                 "live": {"drivers": ["mt5"], "instances": 0}}]
+    ag = c.get("/api/live/agents").json()
+    assert len(ag) == 1 and ag[0]["name"] == "trade-pc" and ag[0]["version"] == "abc1234"
+    assert ag[0]["live"]["code_state"] == {"mt5": {"installed": "abc1234", "state": "ok"}} and ag[0]["code_target"] is None
     assert c.get("/api/live/audit").json()[0]["action"] == "account_create"
     assert {t for _, _, t, _ in hub.calls} == {"agent-token"}
     # mutácie bez admin tokenu: 403 so slovenskou radou, na hub nič neodíde
@@ -586,7 +600,9 @@ def test_deploy_proxy_len_na_citanie_bez_admin_tokenu(deploy_app):
               c.delete("/api/live/accounts/ic"),
               c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p"}),
               c.patch("/api/live/deployments/d1", json={"mode": "paused"}),
-              c.delete("/api/live/deployments/d1")):
+              c.delete("/api/live/deployments/d1"),
+              c.post("/api/live/agents/trade-pc/update", json={"force": True}),
+              c.delete("/api/live/agents/trade-pc/update")):
         assert r.status_code == 403 and "admin_token" in r.json()["detail"]
     assert len(hub.calls) == n
 
@@ -659,8 +675,10 @@ def test_deploy_proxy_bez_hubu_a_stary_hub(deploy_app, monkeypatch):
 
     from tester.hub import config as hub_config
 
+    from tester.hub import gitcode
+
     hub_config.AGENT_CONFIG.unlink()
-    assert c.get("/api/live").json()["deploy"] == {"configured": False, "hub_url": None, "admin": False}
+    assert c.get("/api/live").json()["deploy"] == {"configured": False, "hub_url": None, "admin": False, "version": gitcode.version() or None}
     assert c.get("/api/live/accounts").status_code == 404
     assert c.post("/api/live/accounts", json={"agent": "a", "platform": "mt5", "login": "1"}).status_code == 404
 
@@ -680,3 +698,32 @@ def test_admin_token_v_configu_a_prostredi(tmp_path: Path, monkeypatch):
     hub_config.save(hub_config.AgentConfig(name="n", hub_url="http://h", token="t"), p)
     monkeypatch.delenv("TRADEBOT_HUB_ADMIN_TOKEN")
     assert hub_config.load(p).admin_token == "" and hub_config.load(p).public()["admin_token"] is False
+
+
+def test_deploy_proxy_aktualizacia_kodu_admin_tokenom_a_verzia_webapp(deploy_app):
+    """„Aktualizovať kód na stroji“ (fáza 2c): cieľ = commit tejto webapp, `force` a `by` idú ďalej; nasadenie
+    nesie `version` webapp; zrušenie a neznámy agent."""
+    from tester.hub import gitcode
+
+    make, hub, tmp = deploy_app
+    c = make(admin="hlavny")
+    moja = gitcode.version() or None
+    r = c.post("/api/live/agents/trade-pc/update", json={"force": True, "user": "Rasto"})
+    assert r.status_code == 200 and r.json()["code_target"]["version"] == moja and r.json()["code_target"]["force"] is True
+    method, path, token, body = hub.calls[-1]
+    assert (method, token) == ("POST", "hlavny") and path == "/api/live/agents/trade-pc/update?by=Rasto"
+    assert body == {"version": moja, "force": True}
+    # zadaná verzia sa preposiela, ako je
+    c.post("/api/live/agents/trade-pc/update", json={"version": "fff0000"})
+    assert hub.calls[-1][3] == {"version": "fff0000", "force": False}
+    assert c.post("/api/live/agents/nikto/update", json={}).status_code == 404
+    r = c.delete("/api/live/agents/trade-pc/update?user=Rasto")
+    assert r.status_code == 200 and r.json()["code_target"] is None and hub.calls[-1][1] == "/api/live/agents/trade-pc/update?by=Rasto"
+    # nové nasadenie a zmena profilu nesú commit webapp
+    c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "NAS100", "tf": 3,
+                                          "profile": "p", "config": {"rrRatio": 3.0}})
+    assert hub.calls[-1][3]["version"] == moja
+    c.patch("/api/live/deployments/d1", json={"profile": "p2", "config": {"rrRatio": 2.0}})
+    assert hub.calls[-1][3]["version"] == moja and hub.calls[-1][3]["profile"] == "p2"
+    c.patch("/api/live/deployments/d1", json={"mode": "paused"})
+    assert "version" not in hub.calls[-1][3]        # len režim: kód nasadenia sa nemení

@@ -8,6 +8,11 @@ Hub nepozná stratégiu ani platformu menom — inštancia je len kľúč a `hel
 Fáza 2b (`add_deploy_routes`): účty a nasadenia ako **požadovaný stav** (`DeployStore`);
 mutácie len s hlavným tokenom (`?by=` nesie meno človeka do auditu), čítanie s hocijakým.
 Agent si svoj diel berie v heartbeate — sem chodí len webapp.
+
+Fáza 2c: nasadenie nesie `version` (commit zadávateľa; bez neho commit hubu) a v odpovedi `code_state`
+= porovnanie s kódom, ktorý agent hlási ako nainštalovaný na tej platforme (`live.installed` v heartbeate).
+`POST /api/live/agents/{name}/update {version?, force?}` (správca) uloží agentovi `code_target`, ktorý mu
+hub posiela v heartbeate, kým ho nepotvrdí; `DELETE` ho stiahne.
 """
 
 from __future__ import annotations
@@ -123,6 +128,8 @@ class DeploymentRequest(BaseModel):
     profile: str = ""
     config: dict[str, Any] | None = None
     mode: str = "enabled"
+    #: Commit, na ktorom zadávateľ (webapp) stojí — bez neho commit hubu (fáza 2c).
+    version: str | None = None
 
 
 class DeploymentPatch(BaseModel):
@@ -130,6 +137,14 @@ class DeploymentPatch(BaseModel):
     profile: str | None = None
     config: dict[str, Any] | None = None
     active: bool | None = None
+    version: str | None = None
+
+
+class CodeUpdateRequest(BaseModel):
+    """`POST /api/live/agents/{name}/update`: cieľový commit (bez neho commit hubu) a `force` = aj keď
+    nasadenia obchodujú alebo majú pozíciu (brána agenta sa preskočí)."""
+    version: str | None = None
+    force: bool = False
 
 
 def add_deploy_routes(app: FastAPI, state: Any, deploy: DeployStore, store: LiveStore,
@@ -144,8 +159,17 @@ def add_deploy_routes(app: FastAPI, state: Any, deploy: DeployStore, store: Live
             return HTTPException(404, str(exc.args[0]) if exc.args else "neexistuje")
         return HTTPException(409 if isinstance(exc, Conflict) else 422, str(exc))
 
+    def _with_code(dep: dict[str, Any]) -> dict[str, Any]:
+        """`code_state` nasadenia: jeho `version` proti kódu, ktorý agent hlási pre platformu účtu."""
+        zive = state.live_state(dep.get("agent") or "") if hasattr(state, "live_state") else None
+        installed = ((zive or {}).get("installed") or {}).get(dep.get("platform") or "")
+        stav = state.code_state_for(dep.get("version"), installed) if hasattr(state, "code_state_for")             else ("unknown" if not installed else ("ok" if installed == dep.get("version") else "outdated"))
+        dep["code_state"] = {"installed": installed, "state": stav}
+        return dep
+
     def _with_live(dep: dict[str, Any]) -> dict[str, Any]:
         """K nasadeniu inštancia zo spoolu: videná? posledná udalosť do `LIVE_BARS` barov TF?"""
+        _with_code(dep)
         inst = store.instance(dep["instance"]) if dep.get("instance") else None
         if inst is None:
             dep["live"] = {"seen": False, "alive": False, "last_t": None, "last_bar_ms": None,
@@ -252,3 +276,28 @@ def add_deploy_routes(app: FastAPI, state: Any, deploy: DeployStore, store: Live
     @app.get("/api/live/audit")
     def audit(limit: int = Query(100, ge=1, le=2000), who: str = Depends(auth)):
         return deploy.audit(limit=limit)
+
+    # -- fáza 2c: nový kód na stroji ------------------------------------------- #
+
+    @app.post("/api/live/agents/{name}/update")
+    def agent_code_update(name: str, req: CodeUpdateRequest, by: str = "", who: str = Depends(auth)):
+        """Správca: agent má nasadiť `version` (bez nej commit hubu) na svoje platformy; cieľ ide v heartbeate,
+        kým ho agent nepotvrdí. Audit aj log udalostí hubu."""
+        admin(who)
+        try:
+            out = state.request_code_update(name, version=req.version, force=req.force, by=by or who)
+        except KeyError:
+            raise HTTPException(404, f"agent {name!r} nie je zaregistrovaný")
+        except ValueError as exc:
+            raise HTTPException(422, str(exc))
+        deploy.note(by or who, "code_update_request", new={"agent": name, "version": out["code_target"]["version"],
+                                                            "force": bool(req.force)})
+        return out
+
+    @app.delete("/api/live/agents/{name}/update")
+    def agent_code_update_cancel(name: str, by: str = "", who: str = Depends(auth)):
+        admin(who)
+        try:
+            return state.cancel_code_update(name, by=by or who)
+        except KeyError:
+            raise HTTPException(404, f"agent {name!r} nie je zaregistrovaný")

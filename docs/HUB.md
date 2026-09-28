@@ -442,6 +442,7 @@ Všetko pod `/api/`, s tokenom; `/api/health` bez neho.
 | `GET /api/live/instances[/{id}]`, `…/{id}/events`, `…/{id}/snapshot`, `GET /api/live/export` | ktokoľvek | live telemetria (nižšie) |
 | `GET /api/live/accounts[/{id}]`, `GET /api/live/deployments[/{id}]`, `GET /api/live/audit?limit=` | ktokoľvek | požadovaný stav live nasadení (nižšie) |
 | `POST /api/live/accounts`, `PATCH/DELETE /api/live/accounts/{id}?force=`, `POST /api/live/deployments`, `PATCH/DELETE /api/live/deployments/{id}?force=` | správca | zmeny účtov a nasadení (`?by=` = meno človeka do auditu) |
+| `POST /api/live/agents/{name}/update {version?, force?}`, `DELETE …/update` | správca | nový kód na stroji agenta (fáza 2c, nižšie) |
 
 ### Live telemetria
 
@@ -480,6 +481,21 @@ inak `login`) a v odpovedi nasadenia pridá `applied` (čo agent naposledy potvr
   nikdy nevidel, inak `?force=true`. Účet s nasadeniami len s `force` (zmažú sa aj tie).
 - Každá zmena je v `audit` (`GET /api/live/audit`, kto, akcia, staré/nové) a v logu
   udalostí hubu (`live_account`, `live_deployment`).
+
+### Nový kód na stroji (fáza 2c)
+
+Nasadenie nesie `version` (commit zadávateľa, inak commit hubu — `HubState.version`), agent hlási
+v heartbeate `live.installed` (commit, z ktorého je kód na každej platforme — marker `installed.json`)
+a hub z toho robí `code_state` (`ok`/`outdated`/`unknown`; `ok` aj keď je stroj novší — `git
+merge-base --is-ancestor` v klone hubu) pri nasadení aj pri agentovi (`GET /api/agents` →
+`live.code_state`, `live.code_update`, `code_target`).
+
+`POST /api/live/agents/{name}/update {version?, force?}` (správca, `?by=`) uloží agentovi
+`code_target`; hub ho posiela v heartbeate (`live.code_target`), kým agent nehlási `live.code_update`
+so `status: ok` pre tú verziu (udalosti `code_update_request`, `code_update_done`, riadok v audite).
+Agent pullne chýbajúci commit, overí bránu (nasadenia v pauze/flatten a bez pozície; `force` ju
+preskočí), zavolá `install_code` driverov a po zmene HEAD sa reštartuje (headless) alebo hlási
+`needs_restart` (webapp). Celý tok: [LIVE.md](LIVE.md), „Fáza 2c“.
 
 Webapp k tomu pridáva `GET /api/hub` (stav jej agenta a hubu), `POST /api/hub/jobs`
 (hotový payload z CLI), `POST /api/hub/runs` a `POST /api/hub/hyperopts` (zadanie

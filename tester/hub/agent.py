@@ -33,7 +33,14 @@ Jedno kolo `work()`:
 5. **zosúladí nasadenia** (`_apply_live`, docs/LIVE.md fáza 2b): heartbeat prinesie v `live`
    účty a nasadenia tohto agenta, `Reconciler` s drivermi platforiem (`tradebot.live.drivers`)
    ich zapíše na disk platformy a spustí terminál; čo sa podarilo, ide v `live.applied`
-   ďalšieho heartbeatu. Starý hub bez `live` = nič.
+   ďalšieho heartbeatu. Starý hub bez `live` = nič,
+6. **nasadí nový kód na platformy** (`_update_code`, docs/LIVE.md fáza 2c): keď heartbeat prinesie
+   `live.code_target` (commit, `force`), `CodeUpdater` (`tradebot.live.update`) pullne chýbajúci commit,
+   overí bránu (všetky nasadenia v pauze/flatten a bez pozície, inak `blocked`) a zavolá
+   `install_code` každého drivera; výsledok ide v `live.code_update` (+ `live.installed` = markery
+   platforiem) ďalšieho heartbeatu a hub cieľ zmaže, keď je `ok`. Kým sa kód mení, agent hlási
+   `updating` (hub mu nič nepridelí); zmena HEAD = `needs_restart` (headless sa reštartuje sám, webapp
+   to ukáže). Blokovaný cieľ sa skúša znova každú minútu, chybný každých 5 minút.
 
 Čo agent počíta a čo poslal, si drží v `tester/agent_state.json` (`config.AgentState`):
 po reštarte procesu bežiace behy ďalej hlási (runner ich už nemá, ale história áno) a
@@ -107,6 +114,10 @@ SPOOL_WATCH_SECONDS = 1.0
 #: Rozumné hranice pre `heartbeat_seconds`, ktoré pošle hub — mimo nich sa nechá config.
 HEARTBEAT_MIN, HEARTBEAT_MAX = 1, 600
 
+#: Nový kód na stroji (fáza 2c): ako často sa blokovaný / chybný cieľ skúša znova.
+CODE_RETRY_BLOCKED = 60.0
+CODE_RETRY_ERROR = 300.0
+
 
 def _parse_iso(text: str | None) -> float | None:
     if not text:
@@ -122,7 +133,7 @@ class HubAgent:
                  state_path: Path | None = None, config_path: Path | None = None,
                  clock: Callable[[], float] = time.time, version: str = "",
                  live_cursor: Path | None = None, reconciler: Any = None,
-                 apply_state: Path | None = None) -> None:
+                 apply_state: Path | None = None, updater: Any = None) -> None:
         self.cfg = cfg
         self.runner = runner
         self.store = store
@@ -147,6 +158,11 @@ class HubAgent:
         self._live_applied_seq = 0
         self._live_cache: dict[str, Any] = {}
         self._live_lock = threading.Lock()
+        #: Nový kód na stroji (fáza 2c): cieľ z heartbeatu, výsledok poslednej aktualizácie a kedy bola.
+        self._updater: Any = updater
+        self._code_target: dict[str, Any] | None = None
+        self._code_update: dict[str, Any] | None = None
+        self._code_attempt: tuple[tuple[Any, ...], float] | None = None
         self._config_mtime = self._config_stamp()
         self.clock = clock
         self.version = version or gitcode.version()
@@ -258,7 +274,7 @@ class HubAgent:
         """Jedno kolo pomalej práce. Beží **mimo heartbeatu** — zip s výsledkom, sťahovanie
         výsledku a hlavne `git pull` s dopočítaním dát trvajú aj minúty a hub by medzitým
         agenta vyhlásil za mŕtveho (`agent_timeout` je 45 s) a jeho výpočty dal inému."""
-        for krok in (self._upload_finished, self._ship_live, self._apply_live, self._do_pull,
+        for krok in (self._upload_finished, self._ship_live, self._apply_live, self._update_code, self._do_pull,
                      self._drain_collects):
             try:
                 krok()
@@ -354,15 +370,26 @@ class HubAgent:
                 out["drivers"] = sorted(rec.drivers)
             except Exception as exc:  # noqa: BLE001
                 log.debug("hub agent: stav reconcilera sa nedal zistiť: %s", exc)
+        # fáza 2c: z akého commitu je kód platforiem a ako dopadla posledná aktualizácia
+        upd = self._updater
+        if upd is not None:
+            try:
+                out["installed"] = upd.installed()
+            except Exception as exc:  # noqa: BLE001
+                log.debug("hub agent: markery kódu sa nedali prečítať: %s", exc)
+        with self._live_lock:
+            out["code_update"] = dict(self._code_update) if self._code_update else None
         return out
 
     def _note_live(self, desired: Any) -> None:
         """Heartbeat priniesol požadovaný stav — odloží sa pomalému vláknu (nikdy sa neaplikuje tu)."""
         if not isinstance(desired, dict):
             return
+        cielovy = desired.get("code_target")
         with self._live_lock:
             self._live_desired = desired
             self._live_desired_seq += 1
+            self._code_target = dict(cielovy) if isinstance(cielovy, dict) and cielovy.get("version") else None
         self._work.set()
 
     def _apply_live(self) -> None:
@@ -375,6 +402,63 @@ class HubAgent:
         self._get_reconciler().run(desired)
         with self._live_lock:
             self._live_applied_seq = seq
+
+    # -- nový kód na stroji (fáza 2c) --------------------------------------- #
+
+    def _get_updater(self) -> Any:
+        """`CodeUpdater` nad drivermi reconcilera; vzniká pri prvom cieli z hubu."""
+        if self._updater is None:
+            from tradebot.live.update import CodeUpdater
+
+            rec = self._get_reconciler()
+            self._updater = CodeUpdater(rec.drivers, git=gitcode, reconciler=rec, clock=self.clock)
+        return self._updater
+
+    def _update_code(self) -> None:
+        """Pomalé vlákno: keď hub poslal `code_target`, ktorý ešte nie je hotový, spustí aktualizáciu.
+        Ten istý cieľ sa po `ok` neopakuje (hub ho zmaže), po `blocked` sa skúša o minútu, po chybe
+        o 5 minút; nový cieľ (iná verzia, iný čas, `force`) ide hneď. Kým beží výpočet hubu, čaká."""
+        with self._live_lock:
+            target = dict(self._code_target) if self._code_target else None
+        if target is None:
+            return
+        key = (target.get("version"), target.get("ts"), bool(target.get("force")))
+        now = self.clock()
+        last = self._code_attempt
+        if last is not None and last[0] == key:
+            posledny = self._code_update or {}
+            if posledny.get("status") == "ok":
+                return
+            cakanie = CODE_RETRY_BLOCKED if posledny.get("status") == "blocked" else CODE_RETRY_ERROR
+            if now - last[1] < cakanie:
+                return
+        self._code_attempt = (key, now)
+        if self.state.computing:
+            vysledok = {"version": target.get("version"), "status": "blocked", "ts": now,
+                        "reasons": [f"agent počíta {len(self.state.computing)} výpočtov hubu — počkám, kým dobehnú"],
+                        "error": "blokované: bežia výpočty hubu", "platforms": {}, "force": bool(target.get("force"))}
+            with self._live_lock:
+                self._code_update = vysledok
+            return
+        upd = self._get_updater()
+        self.updating = str(target.get("version") or "")
+        log.info("hub agent: nový kód %s na platformy (%s)", target.get("version"),
+                 "vynútené" if target.get("force") else "brána: pauza a bez pozície")
+        try:
+            vysledok = upd.run(target)
+        finally:
+            self.updating = None
+        self.version = gitcode.version() or self.version
+        if vysledok.get("code_changed") or (self.start_version and self.version and self.version != self.start_version):
+            # kód na disku je novší než tento proces: headless agent sa reštartuje (`__main__`), webapp to ukáže
+            self.code_changed = True
+            self.needs_restart = True
+            vysledok["needs_restart"] = True
+        with self._live_lock:
+            self._code_update = vysledok
+        log.info("hub agent: aktualizácia kódu %s: %s%s", vysledok.get("version"), vysledok.get("status"),
+                 f" — {vysledok.get('error')}" if vysledok.get("error") else "")
+        self._work.set()   # heartbeat to odnesie; ďalšie kolo reconcilera spustí zavreté terminály
 
     # -- jeden krok --------------------------------------------------------- #
 
@@ -902,6 +986,8 @@ class HubAgent:
             # Spočítané a čakajúce na hub (výpadok) — beh je hotový, len sa ešte neodovzdal.
             "pending_upload": sum(1 for v in self.state.computing.values() if v.get("deliver_fails")),
             "live": self.live_status(),
+            "code_target": dict(self._code_target) if self._code_target else None,
+            "code_update": dict(self._code_update) if self._code_update else None,
         }
 
 

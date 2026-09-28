@@ -35,6 +35,10 @@ v termináli (File > Open an Account), raz.
 `.ex5` sa v termináli objaví bez F7. MetaEditor číta .NET DLL len z `Libraries` terminálu, preto sa
 mimo neho prekladať nedá. Na rozdiel od NinjaTradera ide jadro ako **DLL**, nie zdrojáky: po zmene
 v `csharp/` stačí `install` (terminál drží DLL otvorenú, kým EA beží — najprv ho z grafu odstráň).
+
+`install` zapíše aj `Common\\Files\\TradeBot\\installed.json` (`version` = commit tohto klonu,
+`installed`, `by`) — podľa neho hub a webapp vedia, na akom kóde platforma stojí (docs/LIVE.md, fáza 2c);
+driver `tradebot.live.drivers.mt5` volá `install()` v procese agenta (zavrie terminály, lebo držia DLL).
 """
 
 from __future__ import annotations
@@ -53,7 +57,13 @@ from pathlib import Path
 from tradebot.adapters.csharp.build import BuildError, ensure_built
 from tradebot.core.config import load_profile
 from tradebot.core.paths import CSHARP_DLL, MT5_DIR
+from tradebot.core.version import repo_version
 from tradebot.strategies import STRATEGIES
+
+
+class InstallError(RuntimeError):
+    """Inštalácia alebo preklad zlyhali (CLI z toho spraví `SystemExit`, driver `status: error`)."""
+
 
 ADAPTER_DIR = Path(__file__).resolve().parent
 INCLUDES = ("TradeBotEA.mqh", "TradeBotJson.mqh", "TradeBotDraw.mqh")
@@ -80,7 +90,7 @@ def compile_experts(mql5: Path) -> list[str]:
     vráti riadky s chybami a varovaniami."""
     editor = metaeditor()
     if editor is None:
-        raise SystemExit("metaeditor64.exe sa nenašiel (Program Files, MetaTrader 5); cestu zadaj cez TRADEBOT_METAEDITOR")
+        raise InstallError("metaeditor64.exe sa nenašiel (Program Files, MetaTrader 5); cestu zadaj cez TRADEBOT_METAEDITOR")
     problems: list[str] = []
     sources = [*sorted((mql5 / "Experts" / "TradeBot").glob("*.mq5")), *sorted((mql5 / "Scripts" / "TradeBot").glob("*.mq5"))]
     for src in sources:
@@ -280,11 +290,12 @@ def cmd_control(target: str | None, mode: str | None, profile: str | None, by: s
     return 0
 
 
-def export_profiles(mql5: Path, extra: list[str]) -> int:
+def export_profiles(mql5: Path, extra: list[str], *, common: Path | None = None) -> int:
     """Profily ako úplné configy (`to_dict()` + `_instrument`) — rovnaký tvar ako pre NinjaTrader."""
     count = 0
+    common = common or common_files(mql5)
     for spec in csharp_strategies():
-        out_dir = common_files(mql5) / "TradeBot" / "profiles" / spec.key
+        out_dir = common / "TradeBot" / "profiles" / spec.key
         out_dir.mkdir(parents=True, exist_ok=True)
         sources = [*sorted(spec.profile_dir.glob("*.json")), *[Path(p) for p in extra]]
         for src in sources:
@@ -298,13 +309,45 @@ def export_profiles(mql5: Path, extra: list[str]) -> int:
     return count
 
 
-def install(mql5: Path, extra_profiles: list[str]) -> None:
+# ------------------------------------------------------------------------------------------------ #
+# marker nainštalovaného kódu (docs/LIVE.md, fáza 2c): Common/Files/TradeBot/installed.json
+# ------------------------------------------------------------------------------------------------ #
+
+def installed_marker(common: Path) -> Path:
+    return common / "TradeBot" / "installed.json"
+
+
+def read_installed(common: Path) -> dict | None:
+    """`{"version", "installed", "by", "platform"}` z markera, alebo `None` (bez markera / rozbitý)."""
+    try:
+        data = json.loads(installed_marker(common).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return data if isinstance(data, dict) and data.get("version") else None
+
+
+def write_installed(common: Path, version: str, by: str | None = None) -> dict:
+    data = {"platform": "mt5", "version": str(version or ""),
+            "installed": datetime.now(timezone.utc).isoformat(timespec="seconds"), "by": by or getpass.getuser()}
+    path = installed_marker(common)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    os.replace(tmp, path)
+    return data
+
+
+def install(mql5: Path, extra_profiles: list[str], *, say=print, version: str | None = None,
+            by: str | None = None, common: Path | None = None) -> dict:
+    """Celá inštalácia (DLL, includy, šablóny, skripty, presety, profily) + preklad MetaEditorom.
+    Chyba = `InstallError`/`BuildError` (nie `SystemExit`), aby to vedel volať aj driver agenta.
+    S `version` zapíše marker `installed.json`. Vráti, čo urobil."""
     dll = ensure_built()
     (mql5 / "Libraries").mkdir(exist_ok=True)
     try:
         shutil.copy2(dll, mql5 / "Libraries" / CSHARP_DLL.name)
     except PermissionError:
-        raise SystemExit("TradeBot.dll je zamknutá — odstráň EA z grafu (alebo zavri terminál) a spusti install znova")
+        raise InstallError("TradeBot.dll je zamknutá — odstráň EA z grafu (alebo zavri terminál) a spusti install znova") from None
     inc = mql5 / "Include" / "TradeBot"
     inc.mkdir(parents=True, exist_ok=True)
     for name in INCLUDES:
@@ -322,25 +365,33 @@ def install(mql5: Path, extra_profiles: list[str]) -> None:
         mql5.joinpath(*sub).mkdir(parents=True, exist_ok=True)
         shutil.copy2(ADAPTER_DIR / "presets" / name, mql5.joinpath(*sub) / name)
     (mql5 / "Files" / "TradeBot" / "import").mkdir(parents=True, exist_ok=True)
-    (common_files(mql5) / "TradeBot" / "logs").mkdir(parents=True, exist_ok=True)
-    n = export_profiles(mql5, extra_profiles)
-    print(f"OK: jadro -> {mql5 / 'Libraries' / CSHARP_DLL.name}\nOK: adaptér -> {inc}\n"
-          f"OK: šablóny ({', '.join(t.stem for t in templates)}) -> {experts}\n"
-          f"OK: {n} profilov -> {common_files(mql5) / 'TradeBot' / 'profiles'}")
-    check(mql5)
-    print("V termináli povoľ Tools > Options > Expert Advisors > Allow DLL imports a EA vlož na minútový graf.")
+    common = common or common_files(mql5)
+    (common / "TradeBot" / "logs").mkdir(parents=True, exist_ok=True)
+    n = export_profiles(mql5, extra_profiles, common=common)
+    say(f"OK: jadro -> {mql5 / 'Libraries' / CSHARP_DLL.name}\nOK: adaptér -> {inc}\n"
+        f"OK: šablóny ({', '.join(t.stem for t in templates)}) -> {experts}\n"
+        f"OK: {n} profilov -> {common / 'TradeBot' / 'profiles'}")
+    compiled = check(mql5, say=say)
+    out = {"dll": str(mql5 / "Libraries" / CSHARP_DLL.name), "templates": [t.stem for t in templates], "profiles": n,
+           "compiled": compiled}
+    if version:
+        out["marker"] = write_installed(common, version, by)
+    say("V termináli povoľ Tools > Options > Expert Advisors > Allow DLL imports a EA vlož na minútový graf.")
+    return out
 
 
-def check(mql5: Path) -> None:
-    """Preklad nainštalovaných EA MetaEditorom — chyba API sa ukáže tu, nie až v termináli."""
+def check(mql5: Path, *, say=print) -> list[str]:
+    """Preklad nainštalovaných EA MetaEditorom — chyba API sa ukáže tu, nie až v termináli.
+    Vráti názvy preložených `.ex5`; chyba prekladu = `InstallError`."""
     problems = compile_experts(mql5)
     errors = [x for x in problems if " error " in x or ".ex5 nevznikol" in x]
     for x in problems:
-        print(("CHYBA: " if x in errors else "varovanie: ") + x)
+        say(("CHYBA: " if x in errors else "varovanie: ") + x)
     if errors:
-        raise SystemExit("EA sa v MetaEditore nepreložilo")
+        raise InstallError("EA sa v MetaEditore nepreložilo: " + "; ".join(errors)[:800])
     hotove = sorted(f.stem for d in ("Experts", "Scripts") for f in (mql5 / d / "TradeBot").glob("*.ex5"))
-    print(f"OK: MetaEditor preložil {', '.join(hotove)} -> {mql5 / 'Experts' / 'TradeBot'}, {mql5 / 'Scripts' / 'TradeBot'}")
+    say(f"OK: MetaEditor preložil {', '.join(hotove)} -> {mql5 / 'Experts' / 'TradeBot'}, {mql5 / 'Scripts' / 'TradeBot'}")
+    return hotove
 
 
 def terminal_exe(mql5: Path) -> Path:
@@ -424,7 +475,7 @@ def main(argv: list[str] | None = None) -> int:
     mql5 = mt5_dir(args.mt5_dir)
     try:
         if args.command == "install":
-            install(mql5, args.profile)
+            install(mql5, args.profile, version=repo_version() or None)
         elif args.command == "check":
             check(mql5)
         elif args.command == "csv":
@@ -435,7 +486,7 @@ def main(argv: list[str] | None = None) -> int:
             return run_config(mql5, Path(args.ini), args.wait)
         else:
             print(f"OK: {export_profiles(mql5, args.profile)} profilov -> {common_files(mql5) / 'TradeBot' / 'profiles'}")
-    except BuildError as exc:
+    except (BuildError, InstallError) as exc:
         raise SystemExit(str(exc))
     return 0
 

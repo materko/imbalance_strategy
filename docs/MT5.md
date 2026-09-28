@@ -372,6 +372,26 @@ požadovaný stav zapísaný priamo do `Reconciler.run` namiesto hubu):
 Neoverené: portable kópia (viac účtov na jednom stroji), heslo v ini pri prvom prihlásení, `AllowLiveTrading=1`
 so skutočnými vstupmi, správanie EA s otvorenou pozíciou pri reštarte terminálu kvôli zmene configu.
 
+### Nový kód z hubu (fáza 2c)
+
+`install` zapisuje marker `Common\Files\TradeBot\installed.json` (`version` = commit klonu, `installed`, `by`);
+driver ho číta ako `installed_version()` a agent ho hlási hubu (`live.installed.mt5`), webapp z toho ukáže
+„kód: aktuálny / zastaraný / neznámy“. Tlačidlo „Aktualizovať kód“ (docs/LIVE.md, fáza 2c) dôjde k driveru
+ako `install_code(version, účty)`:
+
+1. slušne zavrie terminál každého účtu (`taskkill` bez `/F`, ako pri zmene grafov) aj cudzí terminál z toho
+   istého `terminal64.exe` — **DLL je zamknutá, kým EA beží**, bez toho by kopírovanie padlo;
+2. `tradebot.adapters.mt5.install()` v procese agenta (bez `SystemExit` — chyba je `InstallError`) do dátového
+   adresára každého terminálu účtov (portable kópia, len keď už existuje; vzniká až pri `ensure_instance`,
+   vtedy už z nového kódu) aj nainštalovaného terminálu stroja: `TradeBot.dll`, includy, šablóny EA, skripty,
+   presety, profily, preklad MetaEditorom; potom marker;
+3. terminály **nespúšťa** — urobí to ďalšie kolo reconcilera (`ensure_instance`: pid nie je, grafy sedia →
+   štart s ini, EA prehrá predhistóriu a číta control súbor).
+
+Agent to spustí, len keď sú všetky nasadenia stroja v pauze/flatten a bez pozície (fills v spoole), alebo
+s `force`. Neoverené naživo (terminál MT5 bol pri práci na fáze 2c zavretý) — driver je pokrytý testom
+s falošnými procesmi (`test_live_drivers_mt5.py`).
+
 ## Záloha bez .NET importu
 
 Keby import zlyhal (MT5 pod Wine na macu), `TradeBot.Host.exe` už hovorí JSON riadkami cez stdio

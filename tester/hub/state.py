@@ -13,7 +13,9 @@ from pathlib import Path
 from typing import Any, Callable
 
 from tradebot.core.paths import HUB_DIR
+from tradebot.live.deploy import code_state
 
+from . import gitcode
 from . import protocol as P
 from .config import DEFAULT_HEARTBEAT
 from .events import EVENTS_KEEP, EventsMixin, _iso
@@ -47,9 +49,15 @@ class NameTaken(Exception):
 class HubState(TokensMixin, EventsMixin):
     def __init__(self, root: Path | None = None, token: str | None = None, *,
                  heartbeat_seconds: int = DEFAULT_HEARTBEAT, agent_timeout: float = DEFAULT_AGENT_TIMEOUT,
-                 clock: Callable[[], float] = time.time) -> None:
+                 clock: Callable[[], float] = time.time, version: str | None = None,
+                 ancestor: Callable[[str, str], bool] | None = None) -> None:
         self.root = Path(root or HUB_DIR)
         self.token = token or None
+        #: Commit, na ktorom hub beží — predvolená verzia nasadenia a cieľ „Aktualizovať kód“ (fáza 2c).
+        self.version = version if version is not None else gitcode.version()
+        #: Je commit A v histórii B? (stav kódu stroja `ok`, aj keď je novší než nasadenie)
+        self._ancestor = ancestor if ancestor is not None else gitcode.is_ancestor
+        self._code_cache: dict[tuple[str, str], str] = {}
         self.heartbeat_seconds = int(heartbeat_seconds)
         self.agent_timeout = float(agent_timeout)
         self.clock = clock
@@ -191,25 +199,75 @@ class HubState(TokensMixin, EventsMixin):
             if self.deploy is not None:
                 # vždy celý požadovaný stav tohto agenta (malý) — agent ho zosúlaďuje pri každom heartbeate
                 out["live"] = self.deploy.desired_for_agent(name)
+                # nový kód na stroji (fáza 2c): cieľ sa posiela, kým ho agent nepotvrdí ako `ok`
+                if agent.get("code_target"):
+                    out["live"]["code_target"] = dict(agent["code_target"])
             return out
 
     def _live_report(self, name: str, agent: dict[str, Any], zive: dict[str, Any]) -> None:
         """`live` z heartbeatu: inštancie a drivery si hub pamätá pri agentovi (prehľad),
         `applied` a `secret_ack` idú do `DeployStore`."""
         inst = [dict(i) for i in (zive.get("instances") or []) if isinstance(i, dict)][:200]
+        installed = zive.get("installed")
+        code_update = zive.get("code_update")
         agent["live"] = {
             "drivers": [str(d) for d in (zive.get("drivers") or [])],
             "instances": inst,
             "reported": self.clock(),
+            # fáza 2c: z akého commitu je kód každej platformy a ako dopadla posledná aktualizácia
+            "installed": {str(k): (str(v) if v else None) for k, v in installed.items()} if isinstance(installed, dict) else {},
+            "code_update": dict(code_update) if isinstance(code_update, dict) else None,
         }
         if self.deploy is not None:
             self.deploy.report_applied(name, zive.get("applied") or [], zive.get("secret_ack") or [])
+        target = agent.get("code_target")
+        if target and isinstance(code_update, dict) and code_update.get("status") == "ok" \
+                and code_state(target.get("version"), code_update.get("version")) == "ok":
+            agent.pop("code_target", None)
+            self.log("code_update_done", agent=name, version=target.get("version"),
+                     requested_by=target.get("requested_by"), noop=bool(code_update.get("noop")))
 
     def live_state(self, name: str) -> dict[str, Any] | None:
         """Čo agent naposledy hlásil o live inštanciách (heartbeat `live`), alebo None."""
         with self._lock:
             agent = self.agents.get(name)
             return dict(agent.get("live") or {}) if agent and agent.get("live") else None
+
+    def code_state_for(self, wanted: str | None, installed: str | None) -> str:
+        """`ok`/`outdated`/`unknown` s cache — porovnanie cez git (`is_ancestor`) je subprocess."""
+        key = (str(wanted or ""), str(installed or ""))
+        if key not in self._code_cache:
+            self._code_cache[key] = code_state(wanted, installed, self._ancestor)
+            if len(self._code_cache) > 2000:
+                self._code_cache.clear()
+        return self._code_cache[key]
+
+    def request_code_update(self, name: str, *, version: str | None = None, force: bool = False,
+                            by: str = "") -> dict[str, Any]:
+        """Správca chce na stroji agenta nový kód (fáza 2c): cieľ ide agentovi v každom heartbeate
+        (`live.code_target`), kým ho nehlási ako hotový; bez `version` je cieľom commit hubu."""
+        with self._lock:
+            agent = self.agents.get(name)
+            if agent is None:
+                raise KeyError(name)
+            cielova = str(version or self.version or "").strip()
+            if not cielova:
+                raise ValueError("neznáma verzia: hub nebeží z gitu a version nebola zadaná")
+            agent["code_target"] = {"version": cielova, "force": bool(force), "requested_by": by or "hub",
+                                    "ts": self.clock()}
+            self.log("code_update_request", agent=name, version=cielova, force=bool(force), by=by or None)
+            self._save()
+            return self._agent_public(agent)
+
+    def cancel_code_update(self, name: str, by: str = "") -> dict[str, Any]:
+        with self._lock:
+            agent = self.agents.get(name)
+            if agent is None:
+                raise KeyError(name)
+            if agent.pop("code_target", None) is not None:
+                self.log("code_update_cancel", agent=name, by=by or None)
+                self._save()
+            return self._agent_public(agent)
 
     def request_accept(self, name: str, value: bool) -> dict[str, Any]:
         """Správca hubu zapne alebo vypne prijímanie výpočtov na agentovi — agent si to
@@ -309,11 +367,22 @@ class HubState(TokensMixin, EventsMixin):
             "jobs": [{"id": j["id"], "kind": j["kind"], "status": j["status"],
                       "progress": j.get("progress"), "eta_seconds": j.get("eta_seconds")} for j in moje],
             "eta_free_1": P.eta_free(agent, 1, moje), "eta_free_all": P.eta_free(agent, P.ALL, moje),
-            # live nasadenia: ktoré platformy agent vie obsluhovať a koľko inštancií hlási
-            "live": {"drivers": list((agent.get("live") or {}).get("drivers") or []),
-                     "instances": len((agent.get("live") or {}).get("instances") or [])}
-            if agent.get("live") else None,
+            # live nasadenia: ktoré platformy agent vie obsluhovať a koľko inštancií hlási; fáza 2c: kód
+            # každej platformy voči kódu hubu, posledná aktualizácia a či na stroj ešte niečo čaká
+            "live": self._agent_live_public(agent),
+            "code_target": dict(agent["code_target"]) if agent.get("code_target") else None,
         }
+
+    def _agent_live_public(self, agent: dict[str, Any]) -> dict[str, Any] | None:
+        zive = agent.get("live")
+        if not zive:
+            return None
+        installed = dict(zive.get("installed") or {})
+        drivers = list(zive.get("drivers") or [])
+        stav = {p: {"installed": installed.get(p), "state": self.code_state_for(self.version, installed.get(p))}
+                for p in sorted(set(drivers) | set(installed))}
+        return {"drivers": drivers, "instances": len(zive.get("instances") or []),
+                "installed": installed, "code_state": stav, "code_update": zive.get("code_update")}
 
     def _sweep(self) -> None:
         """Agenti bez heartbeatu sú offline a ich výpočty sa vrátia do fronty alebo zlyhajú."""

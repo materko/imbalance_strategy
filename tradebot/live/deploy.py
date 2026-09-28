@@ -31,7 +31,8 @@ from typing import Any, Callable
 
 from .schema import CONTROL_MODES, instance_id
 
-__all__ = ["DeployStore", "DeployError", "Conflict", "NotFound", "config_hash", "account_identity", "ACCOUNT_IDENTITY"]
+__all__ = ["DeployStore", "DeployError", "Conflict", "NotFound", "config_hash", "account_identity", "ACCOUNT_IDENTITY",
+           "code_state", "CODE_STATES"]
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS accounts (
@@ -60,6 +61,7 @@ CREATE TABLE IF NOT EXISTS deployments (
     mode        TEXT NOT NULL DEFAULT 'enabled',
     active      INTEGER NOT NULL DEFAULT 1,
     instance    TEXT NOT NULL DEFAULT '',
+    version     TEXT NOT NULL DEFAULT '',
     created     REAL NOT NULL,
     updated     REAL NOT NULL,
     by          TEXT NOT NULL DEFAULT ''
@@ -97,7 +99,32 @@ APPLIED_STATES = ("ok", "pending", "error", "removed")
 _ACCOUNT_FIELDS = ("agent", "platform", "label", "login", "server", "terminal", "portable")
 _ACCOUNT_COLS = ("id", *_ACCOUNT_FIELDS, "created", "updated", "by")
 _DEPLOYMENT_COLS = ("id", "account", "strategy", "symbol", "tf", "profile", "config", "config_hash",
-                    "mode", "active", "instance", "created", "updated", "by")
+                    "mode", "active", "instance", "version", "created", "updated", "by")
+#: Stĺpce, ktoré pribudli po prvom vydaní — `ALTER TABLE` pri otvorení starého súboru.
+_MIGRATIONS = (("deployments", "version", "TEXT NOT NULL DEFAULT ''"),)
+
+#: Stav kódu na stroji voči tomu, čo nasadenie (alebo hub) chce — fáza 2c.
+CODE_STATES = ("ok", "outdated", "unknown")
+
+
+def code_state(wanted: str | None, installed: str | None, ancestor: Callable[[str, str], bool] | None = None) -> str:
+    """`ok` = platforma má commit `wanted` (rovnaký sha, alebo `wanted` je v histórii nainštalovaného —
+    `ancestor(wanted, installed)`, hub to vie z vlastného klonu), `unknown` = stroj marker nehlási,
+    `outdated` = niečo iné."""
+    if not installed:
+        return "unknown"
+    if not wanted:
+        return "ok"
+    a, b = str(wanted).strip().lower(), str(installed).strip().lower()
+    if a == b or (len(a) >= 7 and len(b) >= 7 and (a.startswith(b) or b.startswith(a))):
+        return "ok"
+    if ancestor is not None:
+        try:
+            if ancestor(wanted, installed):
+                return "ok"
+        except Exception:  # noqa: BLE001 - git mimo nesmie zhodiť zoznam
+            pass
+    return "outdated"
 _APPLIED_COLS = ("deployment", "agent", "config_hash", "mode", "status", "error", "ts")
 
 _SLUG_BAD = re.compile(r"[^a-z0-9._-]+")
@@ -147,17 +174,35 @@ def _default_resolver(strategy: str, profile: str) -> dict[str, Any]:
 class DeployStore:
     def __init__(self, path: Path | str, *, clock: Callable[[], float] = time.time,
                  config_resolver: Callable[[str, str], dict[str, Any]] | None = None,
-                 strategy_check: Callable[[str], str] | None = None) -> None:
+                 strategy_check: Callable[[str], str] | None = None,
+                 version: Callable[[], str] | str | None = None) -> None:
         self.path = Path(path)
         self.clock = clock
         self.config_resolver = config_resolver or _default_resolver
         self.strategy_check = strategy_check or _check_strategy
+        #: Predvolená verzia kódu nového nasadenia (commit hubu), keď ju zadávateľ neposlal — fáza 2c.
+        self._version = version if callable(version) else (lambda v=version: str(v or ""))
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
         self._db = sqlite3.connect(str(self.path), check_same_thread=False)
         self._db.row_factory = sqlite3.Row
         with self._lock:
             self._db.executescript("PRAGMA journal_mode=WAL;" + _DDL)
+            self._migrate()
+
+    def _migrate(self) -> None:
+        for table, col, ddl in _MIGRATIONS:
+            mena = {r["name"] for r in self._db.execute(f"PRAGMA table_info({table})")}
+            if col not in mena:
+                self._db.execute(f"ALTER TABLE {table} ADD COLUMN {col} {ddl}")
+        self._db.commit()
+
+    def version(self) -> str:
+        """Predvolená verzia kódu pre nasadenia (commit hubu)."""
+        try:
+            return str(self._version() or "")
+        except Exception:  # noqa: BLE001
+            return ""
 
     def close(self) -> None:
         with self._lock:
@@ -190,6 +235,12 @@ class DeployStore:
             (self.clock(), by or "", action, account, deployment,
              json.dumps(old, ensure_ascii=False, sort_keys=True, default=str) if old is not None else None,
              json.dumps(new, ensure_ascii=False, sort_keys=True, default=str) if new is not None else None))
+
+    def note(self, by: str, action: str, *, account: str | None = None, deployment: str | None = None,
+             old: Any = None, new: Any = None) -> None:
+        """Riadok auditu mimo účtov a nasadení (napr. požiadavka na nový kód stroja) — to isté, čo píšu mutácie."""
+        with self._lock, self._db:
+            self._audit(by, action, account=account, deployment=deployment, old=old, new=new)
 
     def _account_or_404(self, account_id: str) -> sqlite3.Row:
         r = self._db.execute("SELECT * FROM accounts WHERE id = ?", (account_id,)).fetchone()
@@ -306,7 +357,7 @@ class DeployStore:
     # -- nasadenia ------------------------------------------------------------- #
 
     def deployments(self, agent: str | None = None, account: str | None = None) -> list[dict[str, Any]]:
-        sql = "SELECT d.*, a.agent AS _agent FROM deployments d JOIN accounts a ON a.id = d.account"
+        sql = "SELECT d.*, a.agent AS _agent, a.platform AS _platform FROM deployments d JOIN accounts a ON a.id = d.account"
         where, args = [], []
         if agent:
             where.append("a.agent = ?"); args.append(agent)
@@ -320,6 +371,7 @@ class DeployStore:
             for r in rows:
                 d = self._deployment_row(r)
                 d["agent"] = r["_agent"]
+                d["platform"] = r["_platform"]
                 d["applied"] = self._applied_row(
                     self._db.execute("SELECT * FROM applied WHERE deployment = ?", (d["id"],)).fetchone())
                 out.append(d)
@@ -327,12 +379,13 @@ class DeployStore:
 
     def deployment(self, dep_id: str) -> dict[str, Any] | None:
         with self._lock:
-            r = self._db.execute("SELECT d.*, a.agent AS _agent FROM deployments d JOIN accounts a ON a.id = d.account "
-                                 "WHERE d.id = ?", (dep_id,)).fetchone()
+            r = self._db.execute("SELECT d.*, a.agent AS _agent, a.platform AS _platform FROM deployments d "
+                                 "JOIN accounts a ON a.id = d.account WHERE d.id = ?", (dep_id,)).fetchone()
             if r is None:
                 return None
             d = self._deployment_row(r)
             d["agent"] = r["_agent"]
+            d["platform"] = r["_platform"]
             d["applied"] = self._applied_row(
                 self._db.execute("SELECT * FROM applied WHERE deployment = ?", (dep_id,)).fetchone())
         return d
@@ -376,18 +429,20 @@ class DeployStore:
             row = {"id": dep_id, "account": account_id, "strategy": strategy, "symbol": symbol, "tf": tf,
                    "profile": profile, "config": json.dumps(config, ensure_ascii=False, sort_keys=True),
                    "config_hash": config_hash(config), "mode": mode, "active": 1, "instance": inst,
+                   "version": str(data.get("version") or "").strip() or self.version(),
                    "created": now, "updated": now, "by": by or ""}
             self._db.execute(
                 "INSERT INTO deployments (id, account, strategy, symbol, tf, profile, config, config_hash, mode, "
-                "active, instance, created, updated, by) VALUES (:id, :account, :strategy, :symbol, :tf, :profile, "
-                ":config, :config_hash, :mode, :active, :instance, :created, :updated, :by)", row)
+                "active, instance, version, created, updated, by) VALUES (:id, :account, :strategy, :symbol, :tf, "
+                ":profile, :config, :config_hash, :mode, :active, :instance, :version, :created, :updated, :by)", row)
             self._audit(by, "deployment_create", account=account_id, deployment=dep_id,
                         new={k: v for k, v in row.items() if k != "config"})
         return self.deployment(dep_id)  # type: ignore[return-value]
 
     def update_deployment(self, dep_id: str, patch: dict[str, Any], by: str) -> dict[str, Any]:
-        """Meniť sa smie `mode`, `profile` (+`config`, inak sa dopočíta z profilu) a `active`;
-        účet, stratégia, symbol a TF sú identita inštancie — na iné treba nové nasadenie."""
+        """Meniť sa smie `mode`, `profile` (+`config`, inak sa dopočíta z profilu), `active` a `version`
+        (commit, na ktorom zadávateľ zmenu urobil); účet, stratégia, symbol a TF sú identita inštancie —
+        na iné treba nové nasadenie."""
         patch = dict(patch or {})
         zakazane = [k for k in ("account", "strategy", "symbol", "tf", "instance") if k in patch and patch[k] is not None]
         if zakazane:
@@ -401,6 +456,8 @@ class DeployStore:
                 sets["mode"] = patch["mode"]
             if patch.get("active") is not None:
                 sets["active"] = 1 if patch["active"] else 0
+            if str(patch.get("version") or "").strip():
+                sets["version"] = str(patch["version"]).strip()
             if patch.get("profile") is not None or isinstance(patch.get("config"), dict):
                 profile = str(patch.get("profile") if patch.get("profile") is not None else old["profile"]).strip()
                 config = self._resolve_config(old["strategy"], profile, patch.get("config"))

@@ -118,3 +118,80 @@ def test_control_odmietne_zly_mode_a_instanciu(nt_dir: Path):
         ntcli.write_control(nt_dir, "../x", mode="paused")
     with pytest.raises(SystemExit):
         ntcli.main(["control", "x", "--mode", "off"])
+
+
+# --------------------------------------------------------------------------- #
+# nový kód na stroji (docs/LIVE.md, fáza 2c): marker, preklad bez človeka
+# --------------------------------------------------------------------------- #
+
+
+def test_installed_marker_a_driver(nt_dir: Path):
+    from tradebot.live.drivers.ninjatrader import NinjaTraderDriver
+
+    drv = NinjaTraderDriver(nt_dir=nt_dir, is_running=lambda: False)
+    assert ntcli.read_installed(nt_dir) is None and drv.installed_version() is None
+    data = ntcli.write_installed(nt_dir, "abc1234", by="hub", compiled=False)
+    assert data["platform"] == "ninjatrader" and data["compiled"] is False
+    assert ntcli.read_installed(nt_dir)["version"] == "abc1234"
+    assert drv.installed_version() is None          # nakopírované, ale nepreložené = ešte starý kód
+    ntcli.write_installed(nt_dir, "abc1234", by="hub", compiled=True)
+    assert drv.installed_version() == "abc1234"
+    assert not list((nt_dir / "TradeBot").glob("*.tmp"))
+
+
+def test_msbuild_neprelozi_sdk_projekt_ninjatradera(nt_dir: Path):
+    """`NinjaTrader.Custom.csproj` je SDK-style (`Sdk=Microsoft.NET.Sdk`, C# 13, NuGet) — MSBuild z .NET
+    Frameworku ho nenačíta (MSB4041). Helper to hlási ako neúspech, nie výnimku."""
+    if ntcli.msbuild_path() is None:
+        pytest.skip("MSBuild.exe z .NET Frameworku nie je")
+    r = ntcli.nt_compile_msbuild(nt_dir)
+    assert r["ok"] is False and r["method"] == "msbuild" and "nie je" in r["error"]     # bez csproj
+    csproj = nt_dir / "bin" / "Custom" / "NinjaTrader.Custom.csproj"
+    csproj.write_text('<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net48</TargetFramework>'
+                      '</PropertyGroup></Project>', encoding="utf-8")
+    r = ntcli.nt_compile_msbuild(nt_dir, timeout=120)
+    assert r["ok"] is False and "MSB4041" in (r.get("error") or "") + (r.get("output") or "")
+    assert not (nt_dir / "bin" / "Custom" / "NinjaTrader.Custom.dll").exists()
+
+
+def test_nt_compile_skusa_msbuild_a_potom_editor(nt_dir: Path):
+    poradie = []
+    ms = lambda d: (poradie.append("msbuild"), {"method": "msbuild", "ok": False, "error": "MSB4041"})[1]  # noqa: E731
+    ed = lambda d: (poradie.append("editor"), {"method": "editor", "ok": True, "generation": "e55cca88"})[1]  # noqa: E731
+    r = ntcli.nt_compile(nt_dir, msbuild=ms, editor=ed)
+    assert poradie == ["msbuild", "editor"] and r["ok"] and r["generation"] == "e55cca88"
+    assert [a["method"] for a in r["attempts"]] == ["msbuild", "editor"]
+    poradie.clear()
+    r = ntcli.nt_compile(nt_dir, msbuild=lambda d: {"method": "msbuild", "ok": True}, editor=ed)
+    assert poradie == [] and r["method"] == "msbuild" and len(r["attempts"]) == 1
+
+
+def test_editor_bez_beziaceho_nt_a_generacia_z_logu(nt_dir: Path, monkeypatch):
+    monkeypatch.setattr(ntcli, "nt_running_pid", lambda: None)
+    r = ntcli.nt_compile_via_editor(nt_dir)
+    assert r["ok"] is False and "nebeží" in r["error"]
+    logs = nt_dir / "TradeBot" / "logs"
+    logs.mkdir(parents=True)
+    assert ntcli.addon_generation(nt_dir) == (None, None)
+    (logs / "addon_20260928-092210.txt").write_text("2026-09-28 07:22:10.249 start (NinjaTrader …)\n", encoding="utf-8")
+    (logs / "addon_20260928-111048.txt").write_text("2026-09-28 09:10:48.606 start generacia e55cca88 (NinjaTrader …)\n", encoding="utf-8")
+    assert ntcli.addon_generation(nt_dir) == ("addon_20260928-111048.txt", "e55cca88")
+
+
+def test_driver_install_code_bez_nt_hlasi_chybu_a_marker_nepreklada(nt_dir: Path, monkeypatch):
+    from tradebot.live.drivers.ninjatrader import NinjaTraderDriver
+
+    monkeypatch.setattr(ntcli, "install", lambda nt, extra, **kw: ntcli.write_installed(nt, kw["version"], kw.get("by"), kw.get("compiled")) and {"profiles": 0})
+    drv = NinjaTraderDriver(nt_dir=nt_dir, is_running=lambda: False)
+    with pytest.raises(ntcli.InstallError, match="nebeží"):
+        drv.install_code("abc1234", [])
+    assert ntcli.read_installed(nt_dir)["compiled"] is False and drv.installed_version() is None
+    # NT beží, preklad (falošný) prejde → marker compiled, driver hlási verziu
+    monkeypatch.setattr(ntcli, "nt_compile", lambda nt: {"method": "editor", "ok": True, "generation": "e55cca88", "attempts": []})
+    drv = NinjaTraderDriver(nt_dir=nt_dir, is_running=lambda: True)
+    out = drv.install_code("abc1234", [])
+    assert out["compiled"] is True and out["generation"] == "e55cca88" and drv.installed_version() == "abc1234"
+    monkeypatch.setattr(ntcli, "nt_compile", lambda nt: {"method": "editor", "ok": False, "error": "DLL sa nezmenila", "attempts": []})
+    with pytest.raises(ntcli.InstallError, match="DLL sa nezmenila"):
+        drv.install_code("def5678", [])
+    assert drv.installed_version() is None and ntcli.read_installed(nt_dir)["version"] == "def5678"

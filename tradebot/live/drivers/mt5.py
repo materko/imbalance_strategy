@@ -734,7 +734,81 @@ class Mt5Driver(Driver):
             out.update(exe=str(exe) if exe else None, data_dir=str(data_dir) if data_dir else None, portable=portable)
         except Exception as exc:  # noqa: BLE001 - stav nesmie padnúť
             out["error"] = str(exc)
+        out["installed"] = self.installed_version()
         return out
+
+    # -- kód platformy (docs/LIVE.md, fáza 2c) --------------------------------- #
+
+    def installed_version(self) -> str | None:
+        """Commit z `Common\\Files\\TradeBot\\installed.json` (píše ho `install`), alebo `None`."""
+        from tradebot.adapters.mt5.__main__ import read_installed
+
+        try:
+            data = read_installed(self.common())
+        except Exception:  # noqa: BLE001
+            return None
+        return str((data or {}).get("version") or "") or None
+
+    def _install_targets(self, accounts: list[Account]) -> list[tuple[Account | None, Path, Path, bool]]:
+        """Kam sa kód inštaluje: dátový adresár každého terminálu účtov (portable kópia len keď už existuje)
+        a nainštalovaný terminál stroja (aj bez účtov — `install` naň ukazuje aj CLI)."""
+        out: list[tuple[Account | None, Path, Path, bool]] = []
+        seen: set[str] = set()
+        for acc in accounts:
+            if acc.portable and not acc.terminal.strip() and not (self.account_dir(acc) / "terminal" / EXE_NAME).is_file():
+                continue   # portable kópia ešte nevznikla — vznikne až pri `ensure_instance` už z nového kódu
+            try:
+                exe, data_dir, portable = self.terminal_for(acc)
+            except ValueError as exc:
+                self._log(acc, f"kód: terminál účtu sa nenašiel: {exc}")
+                continue
+            key = os.path.normcase(str(data_dir))
+            if key not in seen:
+                seen.add(key)
+                out.append((acc, exe, data_dir, portable))
+        exe = self._installed_exe()
+        if exe is not None:
+            try:
+                data_dir = self._data_dir_for(exe)
+                if os.path.normcase(str(data_dir)) not in seen:
+                    out.append((None, exe, data_dir, False))
+            except ValueError:
+                pass
+        return out
+
+    def install_code(self, version: str, accounts: list[Account]) -> dict[str, Any]:
+        """Slušne zavrie terminály účtov (aj cudzie z toho istého `exe` — DLL je zamknutá, kým EA beží), potom
+        `install` z `tradebot.adapters.mt5` do každého dátového adresára (DLL, includy, šablóny, presety,
+        profily, preklad MetaEditorom) a marker `installed.json` v `Common\\Files\\TradeBot`. Terminály znova
+        spustí `ensure_instance` v ďalšom kole reconcilera (pid neexistuje → štart s ini)."""
+        from tradebot.adapters.mt5.__main__ import install, write_installed
+
+        targets = self._install_targets(accounts)
+        if not targets:
+            raise ValueError("nenašiel sa žiadny terminál MT5, do ktorého by sa kód nainštaloval")
+        closed: list[int] = []
+        for acc in accounts:
+            pid = self._running_pid(acc)
+            if pid is not None:
+                self._close(acc, pid)
+                closed.append(pid)
+        for acc, exe, _data_dir, _portable in targets:
+            for p in self.processes.find(exe):
+                if p and p not in closed:
+                    self._close(acc or Account(id="_", platform=self.platform), p)
+                    closed.append(p)
+        installed: list[dict[str, Any]] = []
+        for acc, exe, data_dir, portable in targets:
+            mql5 = data_dir / "MQL5"
+            say = (lambda t, a=acc: self._log(a, "kód: " + t.replace("\n", " | "))) if acc is not None \
+                else (lambda t: log.info("mt5 driver: kód: %s", t.replace("\n", " | ")))
+            r = install(mql5, [], say=say, common=self.common())
+            installed.append({"account": acc.id if acc else None, "mql5": str(mql5), "portable": portable,
+                              "compiled": r.get("compiled")})
+        marker = write_installed(self.common(), version, by="hub")
+        for acc in accounts:
+            self._log(acc, f"kód {version} nainštalovaný ({len(installed)} terminálov), terminál spustí ďalšie kolo")
+        return {"closed": closed, "installed_to": installed, "marker": marker}
 
 
 DRIVER = Mt5Driver()

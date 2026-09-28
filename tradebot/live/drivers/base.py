@@ -132,6 +132,20 @@ class Driver(ABC):
     def status(self, account: Account) -> dict[str, Any]:
         """Beží proces? Ktoré inštancie má? — pre `live_status` agenta a webapp."""
 
+    # -- kód platformy (docs/LIVE.md, fáza 2c) --------------------------------- #
+
+    def installed_version(self) -> str | None:
+        """Z akého commitu je kód TradeBotu na platforme nainštalovaný (`installed.json` vedľa kódu,
+        píše ho `install`); `None` = marker nie je (ručná inštalácia spred fázy 2c, alebo nikdy)."""
+        return None
+
+    def install_code(self, version: str, accounts: list[Account]) -> dict[str, Any]:
+        """Nasadí kód TradeBotu z tohto klonu na platformu (jadro, adaptér, šablóny, profily), preloží,
+        čo platforma prekladať potrebuje, a zapíše `installed.json` s `version`. Bežiace inštancie
+        účtov `accounts` smie zavrieť (MT5 drží DLL); ich opätovný štart je vec `ensure_instance`
+        v ďalšom kole reconcilera. Vráti, čo urobil (`dict`, ide do heartbeatu); chyba = výnimka."""
+        raise NotImplementedError(f"driver {self.platform!r} nevie nasadiť kód")
+
     def instance_of(self, account: Account, deployment: Deployment) -> str:
         """Id inštancie tak, ako ho počíta platforma (`LiveSpool.InstanceId`); hub ho posiela hotové,
         toto je záloha pre starý hub alebo ručné volanie."""

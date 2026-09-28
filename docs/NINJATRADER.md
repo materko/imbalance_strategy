@@ -299,14 +299,41 @@ PY -m tradebot.adapters.ninjatrader control ninjatrader_Sim101_MNQ_3m_ibsnet --m
 type "%USERPROFILE%\Documents\NinjaTrader 8\TradeBot\logs\addon_*.txt"
 ```
 
+**Preklad bez človeka** (fáza 2c, `python -m tradebot.adapters.ninjatrader compile`, `install --compile`,
+driver agenta `install_code`) — čo sa skúšalo 28. 9. 2026 a ako to dopadlo:
+
+1. **MSBuild z .NET Frameworku** (`C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe`) na
+   `Documents\NinjaTrader 8\bin\Custom\NinjaTrader.Custom.csproj`: **neprejde**. Projekt je SDK-style
+   (`<Project Sdk="Microsoft.NET.Sdk">`, `LangVersion 13.0`, `TargetFramework net48`, NuGet
+   `PackageReference` na Actipro SyntaxEditor) — starý MSBuild ho ani nenačíta (`MSB4041`), a .NET SDK
+   ani Visual Studio na stroji nie sú. Aj keby prešiel, `OutputPath` je `bin\Release\` pod `bin\Custom`,
+   nie `bin\Custom\NinjaTrader.Custom.dll`, ktorú NT načítava; NT prekladá vlastným kompilátorom
+   v procese. Helper `nt_compile_msbuild` to hlási ako neúspech (nie výnimku).
+2. **F5 v NinjaScript Editore cez pywinauto** (`nt_compile_via_editor`, backend UIA): nájde okno
+   `NinjaScript Editor - …` bežiaceho `NinjaTrader.exe`, dá mu fokus a pošle `{F5}` — presne to, čo by
+   stlačil človek. **Funguje**: `NinjaTrader.Custom.dll` sa zmenila **do 2 s**, AddOn zapísal nový
+   `TradeBot\logs\addon_<čas>.txt` so `start generacia e55cca88` do 2 s, stará generácia skončila
+   (`koniec (terminated)`) a inštancia `ninjatrader_Sim101_MNQ_3m_ibsnet` z `deploy.json` nabehla znova
+   v novej session (BarsRequest, predhistória prehratá, control prečítaný). Úspech sa posudzuje podľa
+   zmeny mtime DLL + novej generácie v logu (bez nej: DLL nová, ale AddOn nenabehol — varovanie).
+   Keď editor nie je otvorený, skúsi ho otvoriť z Control Center (`New → NinjaScript Editor`) — táto
+   vetva je **neoverená** (pri teste už editor bežal). Chybu prekladu helper nevie prečítať — hlási len,
+   že sa DLL do 90 s nezmenila; chyby sú v okne editora.
+3. NT musí **bežať** (login je ručný, na tomto stroji nie je zapamätaný — NT sa preto z kódu
+   nereštartuje); keď nebeží, `install` zdrojáky nakopíruje a marker `TradeBot\installed.json` má
+   `compiled: false` (driver ho nepočíta ako nainštalovaný kód, hlási chybu a agent to skúsi znova).
+
+`pywinauto` je voliteľná závislosť (`pip install -e .[live]`), len na obchodnom stroji s NT.
+
 **Čo musí človek urobiť raz** (asistent má okno NT len na čítanie, klikať nemôže):
 
 1. NT login s „Remember“ — AddOn štartuje až po prihlásení; heslo z kódu nejde a nikdy sa nezadáva za človeka.
    Login dialóg NT konta si meno a heslo pamätá, ale tlačidlo **Log In** je stále klik.
 2. Pripojenie nakonfigurované v *Connections* (Simulated Data Feed, alebo broker/dáta); `Connection.Connect`
    si AddOn zavolá sám, voliteľne *Connect on startup*.
-3. `PY -m tradebot.adapters.ninjatrader install` pri **bežiacom** NT — preklad urobí NT sám (sleduje `bin\Custom`)
-   a AddOn nabehne v novej generácii bez reštartu.
+3. `PY -m tradebot.adapters.ninjatrader install --compile` pri **bežiacom** NT — zdrojáky sa nakopírujú a preklad
+   spustí F5 v NinjaScript Editore (pywinauto); AddOn nabehne v novej generácii bez reštartu. Z webapp to isté
+   robí „Aktualizovať kód“ (docs/LIVE.md, fáza 2c). Bez `--compile` (a bez `compile`) F5 stlačí človek.
 
 **Obmedzenia** (poctivo):
 

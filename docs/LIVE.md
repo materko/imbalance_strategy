@@ -345,8 +345,101 @@ alebo úprava parametrov formulárom z `params.py`), odstrániť; „Nasadiť“
 TF, profil). Mutácie idú cez webapp na hub s **admin tokenom** (`admin_token` v `tester/agent.json`
 / `TRADEBOT_HUB_ADMIN_TOKEN`); bez neho je karta len na čítanie.
 
+## Fáza 2c: nový kód na stroji (hub = cieľový commit, agent = inštalácia a preklad)
+
+Zmena jadra alebo C# enginu sa na obchodný stroj dostane z webapp, nie ručne cez `install` + F5.
+Tá istá cesta ako pri nasadeniach: hub nesie **cieľ**, agent ho **vykoná** a hlási, čo urobil; hub
+ani webapp nepoznajú platformu — čo znamená „nainštalovať a preložiť“, vie len driver.
+
+### Kto akú verziu má
+
+| kde | čo | odkiaľ |
+|---|---|---|
+| nasadenie | `version` = commit, na ktorom zadávateľ (webapp) nasadenie vytvoril alebo mu zmenil profil/config; bez neho commit hubu | `POST/PATCH /api/live/deployments` (`version`), `DeployStore.version()` |
+| agent | `version` = HEAD klonu agenta (už v heartbeate) | `gitcode.version()` |
+| platforma | `installed` = commit, z ktorého bol kód TradeBotu na platformu **nainštalovaný** — marker vedľa kódu, píše ho `install` a číta `Driver.installed_version()` | MT5 `Common\Files\TradeBot\installed.json`, NT `Documents\NinjaTrader 8\TradeBot\installed.json` (`compiled: false` = zdrojáky sú na disku, NT ich ešte nepreložil → nepočíta sa) |
+
+Heartbeat agenta nesie navyše `live.installed = {"mt5": "<sha>", "ninjatrader": "<sha>"|null}` a
+`live.code_update` (výsledok poslednej aktualizácie, nižšie). Hub z toho odvodí **`code_state`**
+(`tradebot.live.deploy.code_state`): `ok` = platforma má chcený commit (rovnaký sha, alebo chcený je
+v histórii nainštalovaného — hub to overí `git merge-base --is-ancestor` vo vlastnom klone, takže
+novší kód na stroji je `ok`), `outdated` = iný commit, `unknown` = stroj marker nehlási (kód
+nainštalovaný ručne pred fázou 2c). Ukazuje sa **pri nasadení** (`code_state` = jeho `version` proti
+platforme účtu) aj **pri agentovi** (`GET /api/agents` → `live.code_state` po platformách proti commitu
+hubu, `live.installed`, `live.code_update`, `code_target`).
+
+### Požiadavka a doručenie
+
+`POST /api/live/agents/{name}/update {version?, force?}` (len hlavný token; `?by=` do auditu, riadok
+`code_update_request` v audite aj v logu udalostí hubu) uloží agentovi **`code_target`**
+`{version, force, requested_by, ts}` — bez `version` je cieľom commit hubu; webapp posiela svoj.
+Hub ho posiela v každom heartbeate ako `live.code_target`, **kým agent nehlási `code_update` so
+`status: ok` pre tú istú verziu** (potom ho zmaže, udalosť `code_update_done`); `DELETE …/update` ho
+stiahne ručne. Cieľ prežije reštart hubu (`state.json`).
+
+### Agent: `tradebot/live/update.py` (`CodeUpdater`), krok `_update_code` pomalého vlákna
+
+1. **Už hotové?** Každý driver hlási `installed_version() == version` a nie je `force` → `ok` bez zásahu
+   (`noop`). Preto sa po reštarte agenta uprostred aktualizácie nič nerobí dvakrát a headless agent,
+   ktorý sa po pulle reštartoval skôr, než odišiel heartbeat, cieľ potvrdí hneď.
+2. **Kód**: `gitcode.has_version` → keď commit chýba, `gitcode.pull()` (to isté, čo pri výpočtoch); keď
+   nie je ani potom → `error` („zadávateľ ho musí pushnúť do main“). Kým sa mení kód, agent hlási
+   `updating` (hub mu nič nepridelí); keď beží výpočet hubu, aktualizácia čaká (`blocked`, dôvod
+   „agent počíta…“). Zmena HEAD = `needs_restart`: headless agent sa reštartuje **až po**
+   inštalácii platforiem (`__main__`), webapp to ukáže (chip „reštart“, `/api/hub`).
+3. **Brána** (`gate_reasons`), preskočí ju len `force`: každé aktívne nasadenie tohto agenta musí byť
+   v režime `paused`/`flatten` (posledný `control` v spoole; keď ho spool nemá, to, čo reconciler
+   zapísal do control súboru) **a bez pozície** — fills v spoole, `in` − `out` po id cez všetky
+   súbory inštancie (`position_from_spool`). Inštancia bez spoolu = pozícia neznáma = blokované.
+   Výsledok `blocked` s `reasons` (webapp: „blokované: <dôvod>“); agent to skúša znova každú minútu
+   (chybu každých 5 minút), nový cieľ hneď.
+4. **Platformy**: `Driver.install_code(version, účty platformy)` pre každý driver stroja, chyba jedného
+   je `error` len preň (`platforms`), druhý ide ďalej. Potom marker `installed.json`.
+   - **MT5**: slušne zavrie terminály účtov (aj cudzí z toho istého `exe`) — DLL je zamknutá, kým EA
+     beží —, `tradebot.adapters.mt5.install()` v procese agenta (DLL, includy, šablóny, presety,
+     profily, preklad MetaEditorom) do dátového adresára každého terminálu účtov (portable kópia, len
+     keď už existuje) aj nainštalovaného terminálu stroja; terminály **spustí ďalšie kolo reconcilera**
+     (`ensure_instance`: pid nie je → štart s ini, EA prehrá predhistóriu).
+   - **NinjaTrader**: `tradebot.adapters.ninjatrader.install()` (zdrojáky do `bin\Custom`) a **preklad bez
+     človeka** (`nt_compile`): MSBuild z .NET Frameworku na `NinjaTrader.Custom.csproj` **neprejde** —
+     je to SDK-style projekt (`Sdk=Microsoft.NET.Sdk`, C# 13, NuGet; MSB4041) a .NET SDK ani VS na
+     stroji nie sú; funguje **F5 do okna NinjaScript Editora** bežiaceho NT cez pywinauto (UIA; overené
+     28. 9. 2026: DLL nová a AddOn v novej generácii do 2 s, bežiaca inštancia nabehla znova v novej
+     session). NT musí bežať (login je ručný); keď nebeží, zdrojáky sú na disku, marker má
+     `compiled: false` a platforma hlási chybu, kým to niekto nepreloží (ďalší pokus pri bežiacom NT).
+     Podrobne [NINJATRADER.md](NINJATRADER.md).
+5. **Hlásenie**: `live.code_update = {version, status: ok|blocked|error, error, reasons, pulled,
+   code_changed, needs_restart, platforms: {<platforma>: {status, error, installed, …}}, ts, noop}` v
+   každom ďalšom heartbeate; `live.installed` z markerov.
+
+### Webapp (karta Live)
+
+Sekcia **Stroje**: agent, online/„mení kód“/„reštart“, commit agenta, kód platforiem („kód: aktuálny /
+zastaraný <sha7> / neznámy“ proti commitu webapp), posledná aktualizácia („čaká: <sha7>“, „ok“,
+„blokované: <dôvod>“, „chyba: …“), tlačidlo **Aktualizovať kód** (len s admin tokenom; potvrdenie
+popíše výpadok: MT5 terminály sa zavrú a reštartujú, NT sa prekompiluje a AddOn nabehne v novej
+generácii) s voľbou **aj s otvorenými pozíciami** (`force`) a „zrušiť“, keď cieľ ešte visí. Tabuľka
+nasadení má stĺpec **kód** (`code_state` nasadenia). Formulár **Nasadiť** upozorní, keď má stroj
+vybraného účtu starší (alebo neznámy) kód než webapp — neblokuje.
+
+**Čo potrebuje človeka**: NinjaTrader beží len prihlásený (login s „Remember“ + klik na Log In) — bez
+bežiaceho NT sa preklad neurobí; MT5 nič (terminál štartuje driver s ini). Beh agenta bez človeka na
+VM (autoštart, služba) je popísaný zvlášť, neskôr.
+
 ## Testy
 
+- `tester/tests/test_live_update.py` — `CodeUpdater`: brána (obchoduje / pozícia / bez spoolu), `force`,
+  pull len keď commit chýba a chyba, keď nepríde, chyby po platformách oddelene, markery, `noop`;
+  agent: cieľ z heartbeatu → `live.installed` + `live.code_update`, hotový cieľ sa neopakuje, blokovaný
+  o minútu, počas výpočtu hubu čaká, po zmene HEAD `needs_restart`.
+- `tester/tests/test_hub.py` — `code_target` len správca, doručuje sa do `ok`, `code_state` nasadenia
+  aj agenta (aj cez `is_ancestor`), audit a log, prežije reštart, zrušenie.
+- `tester/tests/test_webapp_live.py` — proxy „Aktualizovať kód“ len s admin tokenom, cieľ = commit
+  webapp, nasadenie nesie `version`.
+- `tester/tests/test_ninjatrader_tools.py` — marker (`compiled: false` sa nepočíta), MSBuild na SDK
+  projekte hlási neúspech (skip bez MSBuild), poradie MSBuild → editor, driver bez bežiaceho NT.
+- `tester/tests/test_live_drivers_mt5.py` — `install_code` zavrie terminály, inštaluje raz na dátový
+  adresár, marker, ďalšie kolo terminál spustí.
 - `tester/tests/test_live_store.py` — store: idempotencia, snapshot, export/kurzor.
 - `tester/tests/test_live_spool.py` — reader: kurzor, neúplný riadok, rotácia, viac inštancií;
   shipper proti falošnému `Transport` aj starému falošnému HTTP (výpadok = kurzor stojí, po

@@ -199,7 +199,50 @@ class NinjaTraderDriver(Driver):
         data = self.read_deploy()
         return {"platform": self.platform, "running": self.running(), "deploy": str(self.deploy_path()),
                 "instances": [e for e in data["instances"] if isinstance(e, dict) and e.get("account") == account.login],
-                "updated": data.get("updated")}
+                "updated": data.get("updated"), "installed": self.installed_version()}
+
+    # -- kód platformy (docs/LIVE.md, fáza 2c) --------------------------------- #
+
+    def installed_version(self) -> str | None:
+        """Commit z `TradeBot\\installed.json`; marker s `compiled: false` (zdrojáky nakopírované, NT ich
+        nepreložil) sa nepočíta — na platforme ešte beží starý kód."""
+        from tradebot.adapters.ninjatrader.__main__ import read_installed
+
+        try:
+            data = read_installed(self.nt_dir())
+        except Exception:  # noqa: BLE001
+            return None
+        if not data or data.get("compiled") is False:
+            return None
+        return str(data.get("version") or "") or None
+
+    def install_code(self, version: str, accounts: list[Account]) -> dict[str, Any]:
+        """`install` (zdrojáky jadra, AddOn, adaptér, šablóny, profily do `bin\\Custom`) a preklad bez človeka
+        (`nt_compile`: MSBuild, potom F5 v NinjaScript Editore bežiaceho NT). Po preklade NT sám inštancuje
+        AddOn znova (nová generácia) a bežiace inštancie z `deploy.json` nabehnú v novej session — driver nič
+        nezastavuje. Keď NT nebeží, zdrojáky sú na disku, ale marker má `compiled: false` a hlási sa chyba
+        (preklad urobí až človek F5, alebo ďalší pokus pri bežiacom NT)."""
+        from tradebot.adapters.ninjatrader.__main__ import InstallError, install, nt_compile, write_installed
+
+        nt = self.nt_dir()
+        out: dict[str, Any] = {"nt_dir": str(nt), "nt_running": self.running()}
+        out["install"] = install(nt, [], say=lambda t: log.info("ninjatrader driver: %s", t.replace("\n", " | ")),
+                                 version=version, by="hub", compiled=False)
+        if not out["nt_running"]:
+            raise InstallError("NinjaTrader nebeží — zdrojáky sú nakopírované, preklad (F5) urobí až bežiaci NT; "
+                               "spusti NT (login je ručný) a aktualizáciu zopakuj")
+        comp = nt_compile(nt)
+        out["compile"] = {k: v for k, v in comp.items() if k != "attempts"}
+        out["compile"]["attempts"] = [{"method": a.get("method"), "ok": a.get("ok"), "error": a.get("error")}
+                                      for a in comp.get("attempts") or []]
+        out["compiled"] = bool(comp.get("ok"))
+        out["generation"] = comp.get("generation")
+        write_installed(nt, version, by="hub", compiled=out["compiled"])
+        if not out["compiled"]:
+            raise InstallError("zdrojáky nakopírované, ale preklad bez človeka neprešiel: " + str(comp.get("error") or "?"))
+        log.info("ninjatrader driver: kód %s nasadený, preklad %s, generácia AddOnu %s", version, comp.get("method"),
+                 comp.get("generation") or "?")
+        return out
 
 
 DRIVER = NinjaTraderDriver()

@@ -21,7 +21,7 @@ from typing import Any
 
 from tradebot.core.paths import REPO
 
-__all__ = ["version", "has_version", "pull", "dirty_code"]
+__all__ = ["version", "has_version", "is_ancestor", "pull", "dirty_code"]
 
 #: Čo sa nepovažuje za kód: história behov, profily a analytiky testera idú cez Push.
 _DATA_PREFIXES = ("tester/runs/", "tester/profiles/", "tester/analytics/", "data_archive/", "docs/")
@@ -47,6 +47,18 @@ def has_version(commit: str | None) -> bool:
         return True
     try:
         r = _git("merge-base", "--is-ancestor", commit, "HEAD")
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return r.returncode == 0
+
+
+def is_ancestor(older: str | None, newer: str | None) -> bool:
+    """Je `older` v histórii `newer`? (Kód nasadený z `newer` má všetko z `older` — stav `ok`, nie
+    `outdated`.) Neznámy commit alebo prázdny vstup = nie."""
+    if not older or not newer:
+        return False
+    try:
+        r = _git("merge-base", "--is-ancestor", older, newer)
     except (OSError, subprocess.SubprocessError):
         return False
     return r.returncode == 0

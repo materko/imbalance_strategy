@@ -377,6 +377,7 @@
       <div class="scroll"><table id="ld-deployments" class="runs"><thead><tr>
         <th>stav</th><th>účet</th><th>stratégia</th><th>symbol</th><th>TF</th><th>profil</th><th>režim</th>
         <th title="čo agent naposledy potvrdil (config_hash a režim) proti požadovanému">aplikované</th>
+        <th title="kód na platforme stroja (installed.json) proti commitu, na ktorom nasadenie vzniklo — fáza 2c">kód</th>
         <th>inštancia</th><th>posledný bar</th><th></th></tr></thead><tbody></tbody></table></div>
       <details id="ld-deploy-box" style="margin-top:10px"><summary>Nasadiť <span class="muted small">— stratégia na účet</span></summary>
         <div class="form-grid" style="margin-top:8px">
@@ -387,6 +388,7 @@
           <label class="field">TF (min)<input id="ld-d-tf" type="number" min="1" step="1" value="3"></label>
           <label class="field span2">Profil<span class="hint">snímka profilu (repozitár aj vlastné) sa uloží k nasadeniu ako config; agent ju zapíše na platformu</span>
             <select id="ld-d-profile"></select></label>
+          <div id="ld-d-code-hint" class="span2 muted small" hidden></div>
           <div class="span2 profile-actions"><button id="ld-d-submit" class="primary">Nasadiť</button>
             <span id="ld-d-status" class="muted small"></span></div>
         </div>
@@ -423,6 +425,20 @@
         </div>
         <div id="ld-a-error" class="error" hidden></div>
       </details>
+    </div>
+
+    <div class="card">
+      <h2>Stroje <span id="ld-ag-count" class="chip"></span> <span class="muted small">— kód na platformách (fáza 2c)</span></h2>
+      <p class="mode-hint">Každý agent hlási, z akého commitu je kód TradeBotu nainštalovaný na jeho platformách
+        (<code>installed.json</code>). <b>Aktualizovať kód</b> pošle stroju commit tejto webapp: agent pullne,
+        MT5 terminály zavrie a po inštalácii ich reštartuje, NinjaTrader prekompiluje cez F5 v NinjaScript Editore
+        (NT musí bežať, prihlásený človekom). Prejde, len keď sú všetky nasadenia stroja v pauze/flatten a bez
+        pozície — inak je stav „blokované“ a treba flatten, alebo „aj s otvorenými pozíciami“.</p>
+      <div id="ld-ag-empty" class="muted" hidden>Žiadny agent na hube.</div>
+      <div class="scroll"><table id="ld-agents" class="runs"><thead><tr>
+        <th>agent</th><th>stav</th><th title="commit, na ktorom beží agent (git HEAD klonu)">kód agenta</th>
+        <th title="kód na platforme podľa installed.json proti commitu tejto webapp">platformy</th>
+        <th title="posledná aktualizácia kódu, ktorú agent hlásil">posledná aktualizácia</th><th></th></tr></thead><tbody></tbody></table></div>
     </div>
   </div>
 

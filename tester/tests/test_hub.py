@@ -2002,7 +2002,9 @@ def test_live_deploy_heartbeat_nesie_pozadovany_stav_a_prijme_applied(tmp_path: 
     ov = c.get("/api/status", headers=H("hlavny")).json()
     assert ov["live_instances"] == 1
     ag = {a["name"]: a for a in c.get("/api/agents", headers=H("hlavny")).json()}
-    assert ag["trade-pc"]["live"] == {"drivers": ["mt5"], "instances": 1} and ag["iny-pc"]["live"] is None
+    assert ag["trade-pc"]["live"] == {"drivers": ["mt5"], "instances": 1, "installed": {}, "code_update": None,
+                                      "code_state": {"mt5": {"installed": None, "state": "unknown"}}}   # fáza 2c: bez markera
+    assert ag["iny-pc"]["live"] is None
     # cudzí agent nemôže potvrdiť cudzie nasadenie
     c.post("/api/agents/iny-pc/heartbeat", json={"jobs": [], "live": {"applied": [{"deployment": d["id"], "status": "error", "error": "x"}]}},
            headers=H(t_iny))
@@ -2048,3 +2050,73 @@ def test_hub_app_deploy_store_v_tom_istom_subore_ako_live(tmp_path: Path):
     app = create_hub_app(state)
     assert app.state.deploy.path == app.state.live.path == tmp_path / "hub" / "live.sqlite"
     assert state.deploy is app.state.deploy
+
+
+# --------------------------------------------------------------------------- #
+# nový kód na stroji (docs/LIVE.md, fáza 2c): code_target, installed, code_state
+# --------------------------------------------------------------------------- #
+
+
+def test_live_code_target_len_spravca_dorucuje_sa_do_hotova_a_code_state(tmp_path: Path):
+    c, state, clock, t_agent, live = _deploy_hub(tmp_path)
+    H = lambda t: {"Authorization": f"Bearer {t}"}  # noqa: E731
+    state.version = "hub1234"
+    state._ancestor = lambda older, newer: (older, newer) == ("old0000", "hub1234")   # „old0000 je v histórii hub1234“
+    c.post("/api/live/accounts", json={"agent": "trade-pc", "platform": "mt5", "label": "IC", "login": "1", "server": "S"},
+           headers=H("hlavny"))
+    d = c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p1",
+                                              "version": "hub1234"}, headers=H("hlavny")).json()
+    assert d["version"] == "hub1234" and d["platform"] == "mt5"
+    assert d["code_state"] == {"installed": None, "state": "unknown"}     # agent ešte nič nehlásil
+
+    # požiadavka: len správca; neznámy agent 404; bez `version` = commit hubu
+    body = {"force": False}
+    assert c.post("/api/live/agents/trade-pc/update", json=body, headers=H(t_agent)).status_code == 403
+    assert c.post("/api/live/agents/nikto/update", json=body, headers=H("hlavny")).status_code == 404
+    r = c.post("/api/live/agents/trade-pc/update?by=rasto", json=body, headers=H("hlavny"))
+    assert r.status_code == 200
+    assert r.json()["code_target"] == {"version": "hub1234", "force": False, "requested_by": "rasto", "ts": clock()}
+    assert c.get("/api/live/audit", headers=H(t_agent)).json()[0]["action"] == "code_update_request"
+    assert state.events(event="code_update_request")[0]["version"] == "hub1234"
+
+    # heartbeat: cieľ ide v `live`, kým agent nehlási `ok` pre tú verziu (blokované = ďalej sa posiela)
+    hb = c.post("/api/agents/trade-pc/heartbeat", json={"jobs": []}, headers=H(t_agent)).json()
+    assert hb["live"]["code_target"]["version"] == "hub1234"
+    telo = {"jobs": [], "live": {"drivers": ["mt5"], "installed": {"mt5": "old0000"},
+                                 "code_update": {"version": "hub1234", "status": "blocked", "reasons": ["obchoduje"], "ts": 1.0}}}
+    hb = c.post("/api/agents/trade-pc/heartbeat", json=telo, headers=H(t_agent)).json()
+    assert hb["live"]["code_target"]["version"] == "hub1234"
+    ag = {a["name"]: a for a in c.get("/api/agents", headers=H(t_agent)).json()}["trade-pc"]
+    assert ag["code_target"]["version"] == "hub1234"
+    assert ag["live"]["installed"] == {"mt5": "old0000"} and ag["live"]["code_update"]["status"] == "blocked"
+    assert ag["live"]["code_state"] == {"mt5": {"installed": "old0000", "state": "outdated"}}
+    dep = c.get(f"/api/live/deployments/{d['id']}", headers=H(t_agent)).json()
+    assert dep["code_state"] == {"installed": "old0000", "state": "outdated"}
+    # nasadenie zo staršieho commitu, než má stroj: `ok` cez históriu (is_ancestor)
+    c.patch(f"/api/live/deployments/{d['id']}", json={"mode": "paused", "version": "old0000"}, headers=H("hlavny"))
+    c.post("/api/agents/trade-pc/heartbeat", json={"jobs": [], "live": {"drivers": ["mt5"], "installed": {"mt5": "hub1234"}}},
+           headers=H(t_agent))
+    assert c.get(f"/api/live/deployments/{d['id']}", headers=H(t_agent)).json()["code_state"] == {"installed": "hub1234", "state": "ok"}
+    assert c.get("/api/live/deployments", headers=H(t_agent)).json()[0]["code_state"]["state"] == "ok"
+    # cieľ prežije reštart hubu
+    assert HubState(tmp_path / "hub", token="hlavny", clock=clock, version="hub1234").agents["trade-pc"]["code_target"]["version"] == "hub1234"
+
+    # `ok` pre cieľovú verziu = cieľ zmizne, log udalostí to zapíše
+    telo["live"]["installed"] = {"mt5": "hub1234"}
+    telo["live"]["code_update"] = {"version": "hub1234", "status": "ok", "ts": 2.0, "platforms": {"mt5": {"status": "ok"}}}
+    hb = c.post("/api/agents/trade-pc/heartbeat", json=telo, headers=H(t_agent)).json()
+    assert "code_target" not in hb["live"]
+    assert state.events(event="code_update_done")[0]["agent"] == "trade-pc"
+    ag = {a["name"]: a for a in c.get("/api/agents", headers=H(t_agent)).json()}["trade-pc"]
+    assert ag["code_target"] is None and ag["live"]["code_state"]["mt5"]["state"] == "ok"
+
+    # `ok` pre inú verziu cieľ nezmaže; zrušenie len správca
+    c.post("/api/live/agents/trade-pc/update", json={"version": "zzz9999", "force": True}, headers=H("hlavny"))
+    c.post("/api/agents/trade-pc/heartbeat", json=telo, headers=H(t_agent))
+    assert state.agents["trade-pc"]["code_target"] == {"version": "zzz9999", "force": True, "requested_by": "*", "ts": clock()}
+    assert c.delete("/api/live/agents/trade-pc/update", headers=H(t_agent)).status_code == 403
+    assert c.delete("/api/live/agents/trade-pc/update", headers=H("hlavny")).json()["code_target"] is None
+    assert c.delete("/api/live/agents/nikto/update", headers=H("hlavny")).status_code == 404
+    # bez verzie hubu (mimo gitu) a bez `version` v tele: 422
+    state.version = ""
+    assert c.post("/api/live/agents/trade-pc/update", json={}, headers=H("hlavny")).status_code == 422
