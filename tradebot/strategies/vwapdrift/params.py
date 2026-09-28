@@ -133,7 +133,8 @@ PARAMS: dict[str, dict[str, Any]] = {
     "slMode": dict(
         group=_G3, title="Druh stopu",
         tooltip="pullback = za extrem pullbacku (od dotyku po vstup), nikdy nie blizsie nez VWAP; pri limitke "
-                "extrem este nie je, ide za VWAP. vwap = za VWAP. atr = 'Stop ATR' x ATR od vstupu. "
+                "extrem este nie je, ide za VWAP. candle = pod low (short: nad high) vstupnej sviecky - pri "
+                "reaction / pinbar / engulfing je to reakcna (potvrdzovacia) sviecka. vwap = za VWAP. atr = 'Stop ATR' x ATR od vstupu. "
                 "swing = za najnizsi low (short: najvyssi high) poslednych 'Swing barov'. Okrem atr sa pridava "
                 "rezerva stopu.",
     ),

@@ -26,7 +26,7 @@ class VwapDriftHyperopt(StrategyHyperopt):
     SUGGESTED: ClassVar[dict[str, Suggestion]] = {
         # Druh vstupu a stopu menia tvar obchodu najviac — porovnaj ich ako prvé.
         "entryMode": {"choices": ["close", "limit", "stop", "reaction", "pinbar", "engulfing"]},
-        "slMode": {"choices": ["pullback", "vwap", "atr", "swing"]},
+        "slMode": {"choices": ["pullback", "candle", "vwap", "atr", "swing"]},
         "rrRatio": {"low": 0.75, "high": 4.0, "step": 0.25},
         "slBufferAtr": {"low": 0.0, "high": 1.0, "step": 0.1, "unit": "atr"},
         "driftMinAtr": {"low": 0.0, "high": 0.5, "step": 0.05, "unit": "atr"},

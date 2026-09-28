@@ -132,7 +132,7 @@ def test_bez_driftu_sa_neobchoduje():
     e = engine(driftMinAtr=SizeSpec(5.0, "atr"))
     warm(e)
     i = trend(e, UP)
-    assert e.drift(e.history.atr) == 0 and not e._state.long_armed
+    assert e.drift(e.history.atr) == 0 and e._state.bias == 0
     vwap = e.vwap.value
     assert not entries(e.on_bar(bar(OPEN_MS + i * STEP, vwap + 0.6, low=vwap - 0.4), ctx=OKNO))
 
@@ -254,3 +254,38 @@ def test_druhy_stopu():
     assert abs((plan.entry - plan.stop_loss) - 1.5 * atr) <= 0.1
     plan, _, _ = atr_stop[SlMode.SWING]
     assert plan.stop_loss <= atr_stop[SlMode.PULLBACK][0].stop_loss
+
+
+def test_odchod_skor_nez_ma_vwap_smer_sa_zaeviduje_a_dotyk_potom_obchoduje():
+    """Váš graf: cena je nad VWAP skôr, než je drift z 15m známy (10:15) — dotyk po ňom sa má obchodovať."""
+    e = engine(vwapPeriod=VwapPeriod.M15)
+    warm(e)
+    closes = [102, 103, 104, 105, 106, 107, 108, 109, 110]   # 9:30–10:10, VWAP z 15m od 9:45
+    for k, c in enumerate(closes):
+        e.on_bar(bar(OPEN_MS + k * STEP, c), ctx=OKNO)
+    assert e._state.long_armed and e._state.bias > 0
+    vwap = e.vwap.value
+    i = len(closes)
+    out = e.on_bar(bar(OPEN_MS + i * STEP, vwap + 0.6, low=vwap - 0.4, high=vwap + 0.8), ctx=OKNO)
+    assert [o.plan.direction for o in entries(out)] == [Direction.LONG]
+
+
+def test_vstup_drzi_smer_dna_aj_ked_sa_vwap_v_pullbacku_splosti():
+    e, i = armed_long(entryMode=EntryMode.REACTION)
+    vwap = e.vwap.value
+    t = OPEN_MS + i * STEP
+    for k in range(2):  # pullback pri VWAP — VWAP sa takmer nehýbe
+        e.on_bar(candle(t + k * STEP, vwap + 0.2, vwap + 0.3, vwap - 0.3, vwap + 0.1), ctx=OKNO)
+    assert e.drift(e.history.atr) == 0 and e._state.bias == 1
+
+
+def test_stop_pod_reakcnu_sviecku():
+    e, i = armed_long(entryMode=EntryMode.REACTION, slMode=SlMode.CANDLE,
+                      slBufferAtr=SizeSpec(0.0, "atr"))
+    vwap = e.vwap.value
+    t = OPEN_MS + i * STEP
+    e.on_bar(candle(t, vwap + 1.0, vwap + 1.1, vwap - 0.8, vwap + 0.2), ctx=OKNO)   # hlboký knôt dotyku
+    out = e.on_bar(candle(t + STEP, vwap + 0.2, vwap + 0.9, vwap - 0.1, vwap + 0.8), ctx=OKNO)
+    (intent,) = entries(out)
+    # stop pod low reakčnej sviečky (vwap - 0.1), nie pod celý pullback (vwap - 0.8)
+    assert abs(intent.plan.stop_loss - (vwap - 0.1)) <= 0.1

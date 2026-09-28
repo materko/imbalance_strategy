@@ -33,7 +33,7 @@ poradí, čo si smie stratégia určiť sama a kedy je hotová.
 | `breakout` | Breakout — prerazenie prvej sviečky NY openu | 32 | najmenšia z ostrých: dve úrovne z prvej 5m sviečky 9:30 NY, vstup na 1m/2m/3m grafe market alebo limitkou; [ANALYTIKA](../tradebot/strategies/breakout/docs/ANALYTIKA.md) |
 | `trendlines` | Trendlines — prerazenie trendovky | 46 | klasické trendovky cez pivoty na vlastnom TF (5m–4h), prerazenie zatvorením, druhým zatvorením alebo retestom; RR a smer nastaviteľné |
 | `liquidity` | Liquidity — likvidita, sweep a cesta k nej | 50 | likvidita zo swingov na viacerých TF (5m–4h), rovnaké vrcholy zlúčené; sweep alebo prerazenie, vstup IBS imbalance / pin bar, cieľ RR alebo ďalšia likvidita |
-| `vwapdrift` | Drift VWAP Pullback — prvý návrat k VWAP v smere driftu | 34 | VWAP od 9:30 NY (alebo klasický od 18:00 / 00:00 UTC) z 15m, drift = sklon VWAP, prvý pullback; vstup close / limit / stop / reakčná sviečka / pin bar / engulfing, stop za pullback / VWAP / ATR / swing; VWAP je v jadre (`tradebot/core/vwap.py`); [ANALYTIKA](../tradebot/strategies/vwapdrift/docs/ANALYTIKA.md) |
+| `vwapdrift` | Drift VWAP Pullback — prvý návrat k VWAP v smere driftu | 34 | VWAP od 9:30 NY (alebo klasický od 18:00 / 00:00 UTC) z 15m, drift = sklon VWAP, prvý pullback; vstup close / limit / stop / reakčná sviečka / pin bar / engulfing, stop za pullback / pod vstupnú sviečku / VWAP / ATR / swing; smer dňa = posledný jasný drift; VWAP je v jadre (`tradebot/core/vwap.py`); [ANALYTIKA](../tradebot/strategies/vwapdrift/docs/ANALYTIKA.md) |
 
 `demo_breakout` je zámerne malá a zámerne **úplná**: má všetko, čo tento návod vyžaduje,
 takže sa dá kopírovať riadok po riadku. Keď si vyberáš vzor, ber ju — IBS je port

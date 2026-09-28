@@ -107,14 +107,18 @@ class EntryMode(str, Enum):
 class SlMode(str, Enum):
     """Kam ide stop loss (každý + ``slBufferAtr`` × ATR, okrem ``atr``).
 
-    * ``pullback`` — za extrém pullbackového baru, nikdy nie bližšie než VWAP
+    * ``pullback`` — za extrém pullbacku (od dotyku po vstup), nikdy nie bližšie než VWAP
                      (pri ``limit`` vstupe extrém ešte nie je, ide za VWAP)
+    * ``candle``   — pod low (short: nad high) vstupnej sviečky — pri ``reaction`` / ``pinbar``
+                     / ``engulfing`` je to potvrdzovacia sviečka, pri ``close`` a ``stop``
+                     pullbacková; pri ``limit`` ide za VWAP
     * ``vwap``     — za VWAP
     * ``atr``      — ``slAtr`` × ATR od vstupu
     * ``swing``    — za najnižší low (short: najvyšší high) posledných ``slSwingBars`` barov
     """
 
     PULLBACK = "pullback"
+    CANDLE = "candle"
     VWAP = "vwap"
     ATR = "atr"
     SWING = "swing"

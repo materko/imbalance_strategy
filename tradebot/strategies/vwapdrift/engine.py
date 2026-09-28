@@ -6,11 +6,14 @@ Priebeh jedného obchodného dňa:
      zložených z barov grafu (`vwapPeriod`), indikátor je `tradebot.core.vwap.SessionVwap`
   2. **drift** = zmena VWAP za posledných ``driftBars`` periód; kladný nad ``driftMinAtr`` × ATR
      je deň kupcov, záporný deň predajcov, medzi tým sa neobchoduje
-  3. cena musí v smere driftu **odísť** od VWAP — zavrieť aspoň ``awayAtr`` × ATR nad ním
-     (long) alebo pod ním (short); tým je pohyb „ustálený" a návrat k VWAP je pullback
+     **smer dňa** = posledný jasný drift dňa; drží, kým sa VWAP jasne neotočí — počas
+     pullbacku sa VWAP sploští a drift pod prah by inak zahodil práve ten dotyk
+  3. cena musí **odísť** od VWAP — zavrieť aspoň ``awayAtr`` × ATR nad ním (long) alebo pod
+     ním (short); tým je pohyb „ustálený" a návrat k VWAP je pullback. Odchod sa zaeviduje
+     aj skôr, než má VWAP smer (z 15m je drift za 2 periódy známy až o 10:15)
   4. **pullback** = low baru (short: high) príde k VWAP bližšie než ``touchTolAtr`` × ATR.
-     Pri ``firstPullbackOnly`` sa tým deň v tom smere končí — obchoduje sa len prvý.
-     Pri vstupe sa drift už nevyžaduje, len nesmie byť proti (VWAP sa v pullbacku sploští)
+     Počíta sa len dotyk, pri ktorom je smer dňa ten istý; pri ``firstPullbackOnly`` sa tým
+     deň v tom smere končí — obchoduje sa len prvý
   5. vstup podľa ``entryMode``:
        ``close`` market na zavretí pullbackového baru, ak zavrel späť na strane driftu
        ``limit`` limitka na VWAP (± tolerancia), leží od odchodu až do dotyku
@@ -18,7 +21,7 @@ Priebeh jedného obchodného dňa:
        ``reaction`` / ``pinbar`` / ``engulfing`` market na zavretí prvej potvrdzovacej
                  sviečky do ``confirmBars`` barov po dotyku (prvá reakčná do protipohybu,
                  pin bar, pohltenie)
-  6. stop podľa ``slMode`` (pullback / VWAP / ATR od vstupu / swing), cieľ ``rrRatio`` × riziko
+  6. stop podľa ``slMode`` (pullback / vstupná sviečka / VWAP / ATR od vstupu / swing), cieľ ``rrRatio`` × riziko
   7. na konci seansy sa pozícia zatvorí (``closeAtSessionEnd``)
 
 Engine je čistý: žiadne I/O, žiadny globálny stav, všetko je v ``self``.
@@ -62,9 +65,12 @@ class _DayState:
     long_done: bool = False
     short_done: bool = False
     trades: int = 0
+    #: smer dňa — posledný jasný drift (+1 / -1), 0 kým VWAP smer nemal
+    bias: int = 0
 
     def reset(self, day: tuple[int, int, int]) -> None:
         self.day = day
+        self.bias = 0
         self.long_armed = self.short_armed = False
         self.long_done = self.short_done = False
         self.trades = 0
@@ -136,7 +142,8 @@ class VwapDriftEngine:
             return -1
         return 0
 
-    def _stop(self, long: bool, entry: float, extreme: float, vwap: float, atr: float) -> float:
+    def _stop(self, long: bool, entry: float, extreme: float, vwap: float, atr: float,
+              candle: float) -> float:
         """Cena stopu podľa ``slMode``."""
         cfg = self.cfg
         buffer = cfg.slBufferAtr.resolve(self.inst, price=entry, atr=atr)
@@ -146,6 +153,8 @@ class VwapDriftEngine:
             return entry - dist if long else entry + dist
         if mode is SlMode.VWAP:
             base = vwap
+        elif mode is SlMode.CANDLE:
+            base = candle
         elif mode is SlMode.SWING:
             n = min(int(cfg.slSwingBars), len(self.history))
             bars = [self.history[i] for i in range(n)]
@@ -155,11 +164,11 @@ class VwapDriftEngine:
         return base - buffer if long else base + buffer
 
     def _plan(self, direction: Direction, entry: float, extreme: float, vwap: float,
-              atr: float) -> TradePlan | None:
+              atr: float, candle: float | None = None) -> TradePlan | None:
         """Plán obchodu: stop podľa ``slMode``, cieľ ``rrRatio`` × vzdialenosť stopu."""
         cfg = self.cfg
         long = direction is Direction.LONG
-        stop = self._stop(long, entry, extreme, vwap, atr)
+        stop = self._stop(long, entry, extreme, vwap, atr, extreme if candle is None else candle)
         if (stop >= entry) if long else (stop <= entry):
             return None  # stop na zlej strane vstupu (napr. za VWAP pri vstupe pod ním)
         sl_distance = abs(entry - stop)
@@ -198,6 +207,8 @@ class VwapDriftEngine:
             st.reset(day)
         minutes = local.hour * 60 + local.minute
         drift = self.drift(atr) if atr > 0 else 0
+        if drift != 0 and self.vwap.day == st.day:
+            st.bias = drift
 
         if cfg.showVwap and self.vwap.updated and vwap is not None:
             out.drawings += self._vwap_drawing(bar, vwap, drift)
@@ -238,21 +249,24 @@ class VwapDriftEngine:
 
         # ---- odchod od VWAP v smere driftu ----------------------------- #
         away = cfg.awayAtr.resolve(self.inst, price=bar.close, atr=atr)
-        if drift > 0 and bar.close >= vwap + away and not st.long_done:
+        if bar.close >= vwap + away and not st.long_done:
             st.long_armed = True
-        if drift < 0 and bar.close <= vwap - away and not st.short_done:
+        if bar.close <= vwap - away and not st.short_done:
             st.short_armed = True
 
         # ---- pullback k VWAP ------------------------------------------- #
         touched: Direction | None = None
+        # dotyk bez smeru dňa (alebo proti nemu) len zruší odchod — pullbackom nebol
         if st.long_armed and bar.low <= vwap + tol:
             st.long_armed = False
-            st.long_done = cfg.firstPullbackOnly
-            touched = Direction.LONG
+            if st.bias > 0:
+                st.long_done = cfg.firstPullbackOnly
+                touched = Direction.LONG
         if st.short_armed and bar.high >= vwap - tol:
             st.short_armed = False
-            st.short_done = cfg.firstPullbackOnly
-            touched = Direction.SHORT if touched is None else None  # oba naraz = nejasné
+            if st.bias < 0:
+                st.short_done = cfg.firstPullbackOnly
+                touched = Direction.SHORT if touched is None else None  # oba naraz = nejasné
 
         if self._pending is not None and self._pending.kind is OrderType.LIMIT:
             # limitka sa buď práve vyplnila (adaptér to povie na ďalšom bare), alebo jej
@@ -311,7 +325,8 @@ class VwapDriftEngine:
             self._await = None
             if can_enter and self._direction_ok(aw.direction, drift):
                 self._enter(out, idx, bar, aw.direction, bar.close, aw.extreme, vwap, atr,
-                            OrderType.MARKET, f"pullback k VWAP potvrdený ({cfg.entryMode.value})")
+                            OrderType.MARKET, f"pullback k VWAP potvrdený ({cfg.entryMode.value})",
+                            candle=bar.low if long else bar.high)
             return
         if idx >= aw.until:
             self._await = None
@@ -343,15 +358,16 @@ class VwapDriftEngine:
         return not (self.cfg.entryWindowMinutes > 0 and since_open > self.cfg.entryWindowMinutes)
 
     def _direction_ok(self, direction: Direction, drift: int) -> bool:
-        """Smer je povolený a drift nie je proti nemu.
+        """Smer je povolený a smer dňa (posledný jasný drift) je ten istý.
 
-        Jasný drift sa vyžaduje pri odchode od VWAP (tam sa setup nastaví). Pri vstupe stačí,
-        že sa neotočil: počas pullbacku sa VWAP sploští a prísny prah by zahodil práve ten
-        dotyk, na ktorý stratégia čaká.
+        ``drift`` je tu kvôli podpisu volaní; rozhoduje ``bias`` dňa, nie drift práve tohto
+        baru — počas pullbacku sa VWAP sploští a prísny prah by zahodil práve ten dotyk,
+        na ktorý stratégia čaká.
         """
+        bias = self._state.bias
         if direction is Direction.LONG:
-            return drift >= 0 and self.cfg.allow_long
-        return drift <= 0 and self.cfg.allow_short
+            return bias > 0 and self.cfg.allow_long
+        return bias < 0 and self.cfg.allow_short
 
     def _mark_done(self, direction: Direction) -> None:
         if not self.cfg.firstPullbackOnly:
@@ -382,8 +398,8 @@ class VwapDriftEngine:
 
     def _enter(self, out: EngineOutput, idx: int, bar: Bar, direction: Direction, entry: float,
                extreme: float, vwap: float, atr: float, order_type: OrderType, reason: str,
-               until: int | None = None) -> None:
-        plan = self._plan(direction, entry, extreme, vwap, atr)
+               until: int | None = None, candle: float | None = None) -> None:
+        plan = self._plan(direction, entry, extreme, vwap, atr, candle)
         if plan is None:
             return
         order_id = f"vd:{idx}"
