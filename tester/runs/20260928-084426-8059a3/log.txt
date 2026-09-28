@@ -1,0 +1,402 @@
+$ /Users/martin/document/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/document/IBS/deploy/freqtrade/config.tester.json --userdir /Users/martin/document/IBS/deploy/freqtrade/user_data --strategy VwapOrbStrategy --cache none --export trades --timerange 20250904-20260904 --pairs BTC/USDT:USDT --timeframe 5m --dry-run-wallet 10000.0 --fee 0.0005 --timeframe-detail 1m --datadir /Users/martin/document/IBS/data/tester/binance --backtest-directory /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260928-084426-8059a3
+2026-09-28 10:44:26,804 - freqtrade - INFO - freqtrade 2026.8
+2026-09-28 10:44:27,256 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/document/IBS/deploy/freqtrade/config.tester.json ...
+2026-09-28 10:44:27,258 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-28 10:44:27,258 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-09-28 10:44:27,259 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/document/IBS/deploy/freqtrade/user_data ...
+2026-09-28 10:44:27,259 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/document/IBS/data/tester/binance ...
+2026-09-28 10:44:27,259 - freqtrade.configuration.configuration - INFO - Using /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260928-084426-8059a3 as backtest directory ...
+2026-09-28 10:44:27,261 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-28 10:44:27,309 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy VwapOrbStrategy from '/Users/martin/document/IBS/deploy/freqtrade/user_data/strategies/VwapOrbStrategy.py'...
+'/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-09-28 10:44:28,271 - tradebot.adapters.freqtrade.base - INFO - vwaporb BTC/USDT:USDT: kresby ulozene do /Users/martin/document/IBS/tester/runs/.profiles/20260928-084426-8059a3.chart.json.gz 
+2026-09-28 10:44:28,332 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 9989.16 na 9900.00 (99.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,390 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10995.05 na 9892.52 (90.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,396 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 15765.65 na 9971.07 (63.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,447 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 21355.56 na 9911.62 (46.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,453 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 15170.78 na 9947.61 (65.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,493 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 14526.97 na 9872.52 (68.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,576 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 21099.90 na 9861.16 (46.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,609 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 15305.09 na 9896.69 (64.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,630 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 21263.75 na 9901.43 (46.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,657 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 17457.16 na 9845.60 (56.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,708 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 20239.41 na 9780.89 (48.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,766 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 40480.86 na 9748.79 (24.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,775 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 16061.89 na 9715.71 (60.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,803 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 31755.14 na 9646.59 (30.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,808 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 33503.41 na 9607.26 (28.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,839 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 13274.32 na 9665.63 (72.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,922 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 25211.69 na 9605.21 (38.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,928 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 14992.84 na 9558.55 (63.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,952 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 21880.80 na 9610.78 (43.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,957 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 15471.12 na 9558.20 (61.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:28,970 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 15764.59 na 9488.16 (60.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:29,139 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10434.72 na 9630.03 (92.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:29,173 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 11381.12 na 9709.96 (85.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:29,178 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 13132.96 na 9783.67 (74.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:29,296 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12317.04 na 9832.77 (79.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:29,333 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 16905.58 na 9727.89 (57.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:29,425 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 14587.08 na 9645.77 (66.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:29,435 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 14700.81 na 9571.37 (65.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:29,444 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 14757.32 na 9625.86 (65.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:29,479 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12152.60 na 9583.79 (78.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:29,486 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12166.69 na 9497.26 (78.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:29,528 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 16709.88 na 9619.96 (57.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:29,792 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 9882.37 na 9545.04 (96.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:29,902 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12646.03 na 9615.87 (76.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,076 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 9658.85 na 9648.29 (99.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,144 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10454.48 na 9623.46 (92.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,150 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 14786.12 na 9523.45 (64.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,163 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 21552.09 na 9450.76 (43.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,294 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10531.59 na 9616.32 (91.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,378 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 14038.07 na 9371.88 (66.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,383 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 20743.47 na 9428.15 (45.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,431 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10917.93 na 9357.42 (85.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,599 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 9461.78 na 9141.96 (96.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,637 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10604.81 na 9228.18 (87.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,688 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 40884.14 na 9131.52 (22.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,753 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 11009.12 na 9106.63 (82.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,767 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 17838.28 na 9117.31 (51.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,774 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 11372.21 na 9158.53 (80.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,790 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 46345.91 na 9228.54 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,854 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 14993.89 na 9417.98 (62.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:30,867 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10948.57 na 9470.75 (86.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:31,016 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 14397.69 na 9575.88 (66.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:31,080 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 9957.51 na 9562.65 (96.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:31,140 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 26690.11 na 9485.76 (35.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:31,211 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 9933.50 na 9554.36 (96.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:31,277 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 11050.78 na 9330.03 (84.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:31,805 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 16641.80 na 9372.20 (56.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:31,900 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 16700.34 na 9351.17 (56.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:31,984 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10450.27 na 9487.69 (90.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:32,255 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10221.84 na 9701.37 (94.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:32,324 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10774.83 na 9774.46 (90.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:32,719 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12910.61 na 9437.02 (73.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:32,724 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 9914.87 na 9499.73 (95.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:32,733 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10024.52 na 9584.72 (95.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:32,740 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 9629.81 na 9481.41 (98.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:32,866 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12132.03 na 9361.25 (77.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:32,877 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 16141.01 na 9428.18 (58.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:32,947 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 17654.54 na 9338.41 (52.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:32,951 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10700.76 na 9381.35 (87.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,002 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 9489.07 na 9209.77 (97.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,009 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 30773.09 na 9295.87 (30.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,022 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 16150.63 na 9316.50 (57.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,129 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 18041.25 na 9267.85 (51.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,233 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12274.12 na 9247.27 (75.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,317 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10121.21 na 9151.37 (90.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,324 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 15157.71 na 9053.55 (59.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,329 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 9798.24 na 8986.23 (91.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,383 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 36014.06 na 8952.09 (24.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,386 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 17668.05 na 8918.80 (50.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,428 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 14760.22 na 8959.37 (60.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,434 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 18835.62 na 8891.02 (47.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,487 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 14898.23 na 8842.89 (59.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,498 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 13680.54 na 8892.42 (65.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,506 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 18929.18 na 8819.58 (46.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,515 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 17832.25 na 8856.72 (49.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,526 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12862.45 na 8798.94 (68.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,580 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 15360.64 na 8788.98 (57.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,591 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 20772.75 na 8836.62 (42.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,596 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 15334.86 na 8869.78 (57.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,607 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 28991.99 na 8804.43 (30.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,610 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 15538.19 na 8825.66 (56.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,626 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 16583.66 na 8872.67 (53.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,686 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12650.14 na 8902.61 (70.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,696 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12536.72 na 8963.25 (71.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,753 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 14866.54 na 8915.88 (60.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,806 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12292.27 na 8929.29 (72.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,823 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 24188.27 na 8991.40 (37.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,834 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 41350.56 na 9019.12 (21.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,841 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10291.13 na 9031.70 (87.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,853 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 13867.18 na 8936.66 (64.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,878 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12971.21 na 8863.69 (68.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,884 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 13679.54 na 8788.06 (64.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,896 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12944.32 na 8716.22 (67.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,917 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12408.65 na 8774.40 (70.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:33,921 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12599.93 na 8835.24 (70.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,013 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12001.60 na 8886.30 (74.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,041 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 11963.47 na 8804.43 (73.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,086 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 19542.68 na 8812.31 (45.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,108 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10621.70 na 8848.22 (83.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,123 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 13474.29 na 8921.82 (66.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,137 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10352.82 na 8847.63 (85.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,171 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12539.42 na 8754.59 (69.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,178 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10264.07 na 8677.15 (84.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,192 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10884.16 na 8751.80 (80.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,245 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12143.31 na 8704.92 (71.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,564 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 8780.21 na 8570.36 (97.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,615 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 13891.34 na 8555.16 (61.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,626 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 9720.62 na 8486.16 (87.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,636 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 21594.73 na 8564.03 (39.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,642 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 19644.83 na 8594.71 (43.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,661 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12344.57 na 8543.63 (69.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,708 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 19618.00 na 8566.91 (43.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,714 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 11173.11 na 8601.42 (77.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,731 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 19137.61 na 8516.24 (44.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,740 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 17521.88 na 8551.68 (48.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,744 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12986.61 na 8591.43 (66.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,819 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 13951.84 na 8608.21 (61.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,830 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10505.18 na 8539.27 (81.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,864 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 13605.11 na 8451.07 (62.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,907 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 21411.92 na 8423.42 (39.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:34,959 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 13877.15 na 8424.00 (60.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,069 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 9519.63 na 8363.15 (87.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,117 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 17374.95 na 8408.57 (48.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,138 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 18037.07 na 8448.40 (46.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,301 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 20345.76 na 8455.06 (41.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,308 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10568.68 na 8405.87 (79.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,366 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 20943.46 na 8443.98 (40.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,372 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 12961.18 na 8475.41 (65.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,430 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 16648.71 na 8451.24 (50.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,441 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 28223.91 na 8493.24 (30.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,447 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 27164.02 na 8514.51 (31.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,452 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 16679.75 na 8536.98 (51.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,466 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 25964.06 na 8478.22 (32.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,482 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 14882.11 na 8437.71 (56.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,505 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 24728.78 na 8484.63 (34.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,508 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10721.68 na 8510.09 (79.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,672 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 11567.29 na 8521.15 (73.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,720 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 16088.05 na 8476.19 (52.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,726 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 21601.80 na 8415.83 (39.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,729 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 10375.42 na 8445.70 (81.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,738 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 14773.05 na 8357.43 (56.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,743 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 9700.93 na 8293.61 (85.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,768 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 8828.03 na 8201.00 (92.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-09-28 10:44:35,803 - tradebot.adapters.freqtrade.callbacks - WARNING - vwaporb BTC/USDT:USDT: stake orezany z 14211.90 na 8178.65 (57.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+"/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260928-084426-8059a3/backtest-result-2026-09-28_08-44-37.meta.json"
+…
+│ vwaporb:1787839800000 │                roi │      1 │         0.36 │          30.177 │          0.3 │      0:06:00 │    1     0     0   100 │
+│ vwaporb:1772552700000 │       signal_close │      1 │         0.63 │          29.284 │         0.29 │      5:10:00 │    1     0     0   100 │
+│ vwaporb:1779459000000 │                roi │      1 │         0.31 │          28.005 │         0.28 │      0:37:00 │    1     0     0   100 │
+│ vwaporb:1787062200000 │                roi │      1 │          0.3 │          25.719 │         0.26 │      0:05:00 │    1     0     0   100 │
+│ vwaporb:1762356600000 │       signal_close │      1 │         0.32 │          25.710 │         0.26 │      5:25:00 │    1     0     0   100 │
+│ vwaporb:1768835400000 │                roi │      1 │         0.27 │          25.685 │         0.26 │      1:39:00 │    1     0     0   100 │
+│ vwaporb:1783608900000 │       signal_close │      1 │         0.28 │          23.518 │         0.24 │      5:00:00 │    1     0     0   100 │
+│ vwaporb:1786543800000 │                roi │      1 │         0.27 │          22.697 │         0.23 │      0:16:00 │    1     0     0   100 │
+│ vwaporb:1770995400000 │       signal_close │      1 │          0.5 │          21.800 │         0.22 │      5:45:00 │    1     0     0   100 │
+│ vwaporb:1786458300000 │                roi │      1 │         0.25 │          21.491 │         0.21 │      0:22:00 │    1     0     0   100 │
+│ vwaporb:1778598900000 │                roi │      1 │         0.24 │          21.441 │         0.21 │      0:04:00 │    1     0     0   100 │
+│ vwaporb:1775225400000 │                roi │      1 │         0.22 │          20.841 │         0.21 │      0:55:00 │    1     0     0   100 │
+│ vwaporb:1772813400000 │       signal_close │      1 │         0.23 │          20.136 │          0.2 │      4:45:00 │    1     0     0   100 │
+│ vwaporb:1772464200000 │       signal_close │      1 │         0.86 │          19.952 │          0.2 │      5:45:00 │    1     0     0   100 │
+│ vwaporb:1759155000000 │       signal_close │      1 │          0.3 │          19.431 │         0.19 │      5:45:00 │    1     0     0   100 │
+│ vwaporb:1758724500000 │                roi │      1 │          0.2 │          18.795 │         0.19 │      0:10:00 │    1     0     0   100 │
+│ vwaporb:1767799500000 │       signal_close │      1 │         0.15 │          13.803 │         0.14 │      5:30:00 │    1     0     0   100 │
+│ vwaporb:1779286500000 │       signal_close │      1 │         0.15 │          13.542 │         0.14 │      5:40:00 │    1     0     0   100 │
+│ vwaporb:1766675400000 │                roi │      1 │         0.14 │          13.172 │         0.13 │      0:10:00 │    1     0     0   100 │
+│ vwaporb:1779718200000 │                roi │      1 │         0.14 │          12.710 │         0.13 │      0:31:00 │    1     0     0   100 │
+│ vwaporb:1764688200000 │       signal_close │      1 │          0.3 │          11.596 │         0.12 │      5:45:00 │    1     0     0   100 │
+│ vwaporb:1767037200000 │       signal_close │      1 │         0.12 │          10.787 │         0.11 │      1:15:00 │    1     0     0   100 │
+│ vwaporb:1775657400000 │       signal_close │      1 │         0.17 │          10.657 │         0.11 │      5:45:00 │    1     0     0   100 │
+│ vwaporb:1767280200000 │                roi │      1 │         0.11 │          10.396 │          0.1 │      2:05:00 │    1     0     0   100 │
+│ vwaporb:1757958900000 │       signal_close │      1 │         0.05 │           4.785 │         0.05 │      2:00:00 │    1     0     0   100 │
+│ vwaporb:1784818500000 │       signal_close │      1 │         0.01 │           0.586 │         0.01 │      5:00:00 │    1     0     0   100 │
+│ vwaporb:1782915000000 │       signal_close │      1 │        -0.02 │          -0.911 │        -0.01 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1772637900000 │       signal_close │      1 │        -0.05 │          -2.073 │        -0.02 │      5:30:00 │    0     0     1     0 │
+│ vwaporb:1766593800000 │       signal_close │      1 │        -0.03 │          -2.135 │        -0.02 │      4:25:00 │    0     0     1     0 │
+│ vwaporb:1782396600000 │       signal_close │      1 │        -0.22 │          -5.958 │        -0.06 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1763479500000 │       signal_close │      1 │         -0.1 │          -6.413 │        -0.06 │      5:30:00 │    0     0     1     0 │
+│ vwaporb:1756995000000 │       signal_close │      1 │        -0.08 │          -7.557 │        -0.08 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1778076600000 │       signal_close │      1 │        -0.11 │         -10.053 │         -0.1 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1772118600000 │       signal_close │      1 │        -0.16 │         -11.084 │        -0.11 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1757601000000 │       signal_close │      1 │        -0.12 │         -11.470 │        -0.11 │      5:25:00 │    0     0     1     0 │
+│ vwaporb:1778855100000 │       signal_close │      1 │        -0.17 │         -13.962 │        -0.14 │      5:30:00 │    0     0     1     0 │
+│ vwaporb:1783003200000 │       signal_close │      1 │        -0.18 │         -15.358 │        -0.15 │      5:15:00 │    0     0     1     0 │
+│ vwaporb:1785162300000 │       signal_close │      1 │        -0.27 │         -20.879 │        -0.21 │      5:30:00 │    0     0     1     0 │
+│ vwaporb:1788365700000 │       signal_close │      1 │        -0.28 │         -22.572 │        -0.23 │      3:40:00 │    0     0     1     0 │
+│ vwaporb:1774621200000 │       signal_close │      1 │        -0.29 │         -23.137 │        -0.23 │      5:35:00 │    0     0     1     0 │
+│ vwaporb:1786111800000 │       signal_close │      1 │        -0.29 │         -24.411 │        -0.24 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1785423300000 │       signal_close │      1 │        -0.29 │         -24.488 │        -0.24 │      5:00:00 │    0     0     1     0 │
+│ vwaporb:1782483000000 │       signal_close │      1 │         -0.5 │         -25.427 │        -0.25 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1784733900000 │       signal_close │      1 │        -0.33 │         -27.930 │        -0.28 │      4:30:00 │    0     0     1     0 │
+│ vwaporb:1785507000000 │       signal_close │      1 │        -0.54 │         -29.298 │        -0.29 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1758204900000 │       signal_close │      1 │        -0.33 │         -32.418 │        -0.32 │      5:40:00 │    0     0     1     0 │
+│ vwaporb:1758291600000 │          stop_loss │      1 │        -0.35 │         -33.423 │        -0.33 │      0:21:00 │    0     0     1     0 │
+│ vwaporb:1776953700000 │ trailing_stop_loss │      1 │        -0.38 │         -33.633 │        -0.34 │      0:04:00 │    0     0     1     0 │
+│ vwaporb:1776867000000 │       signal_close │      1 │        -0.39 │         -34.478 │        -0.34 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1766761800000 │       signal_close │      1 │        -1.03 │         -38.314 │        -0.38 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1765206600000 │       signal_close │      1 │        -0.71 │         -39.712 │         -0.4 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1758636600000 │          stop_loss │      1 │        -0.41 │         -39.732 │         -0.4 │      0:19:00 │    0     0     1     0 │
+│ vwaporb:1787324100000 │       signal_close │      1 │        -0.62 │         -40.086 │         -0.4 │      5:00:00 │    0     0     1     0 │
+│ vwaporb:1784902200000 │       signal_close │      1 │        -0.48 │         -40.585 │        -0.41 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1786716900000 │ trailing_stop_loss │      1 │        -0.48 │         -40.916 │        -0.41 │      1:09:00 │    0     0     1     0 │
+│ vwaporb:1762183500000 │       signal_close │      1 │        -0.75 │         -41.092 │        -0.41 │      5:30:00 │    0     0     1     0 │
+│ vwaporb:1761582300000 │       signal_close │      1 │        -0.44 │         -42.487 │        -0.42 │      3:30:00 │    0     0     1     0 │
+│ vwaporb:1765900500000 │       signal_close │      1 │        -0.56 │         -44.454 │        -0.44 │      5:00:00 │    0     0     1     0 │
+│ vwaporb:1773671100000 │       signal_close │      1 │        -0.57 │         -44.948 │        -0.45 │      5:30:00 │    0     0     1     0 │
+│ vwaporb:1787669400000 │       signal_close │      1 │        -0.54 │         -45.411 │        -0.45 │      5:05:00 │    0     0     1     0 │
+│ vwaporb:1759242000000 │          stop_loss │      1 │         -0.5 │         -47.131 │        -0.47 │      0:25:00 │    0     0     1     0 │
+│ vwaporb:1781880000000 │       signal_close │      1 │        -0.54 │         -47.351 │        -0.47 │      5:15:00 │    0     0     1     0 │
+│ vwaporb:1779200100000 │       signal_close │      1 │        -0.54 │         -47.848 │        -0.48 │      5:40:00 │    0     0     1     0 │
+│ vwaporb:1777385700000 │       signal_close │      1 │        -0.55 │         -48.618 │        -0.49 │      5:40:00 │    0     0     1     0 │
+│ vwaporb:1782223800000 │       signal_close │      1 │        -0.63 │         -49.371 │        -0.49 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1785852600000 │ trailing_stop_loss │      1 │        -0.59 │         -49.690 │         -0.5 │      0:25:00 │    0     0     1     0 │
+│ vwaporb:1787580600000 │       signal_close │      1 │        -0.69 │         -50.708 │        -0.51 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1783522800000 │ trailing_stop_loss │      1 │         -0.6 │         -51.598 │        -0.52 │      1:50:00 │    0     0     1     0 │
+│ vwaporb:1759414800000 │          stop_loss │      1 │        -0.55 │         -53.112 │        -0.53 │      0:18:00 │    0     0     1     0 │
+│ vwaporb:1770739800000 │       signal_close │      1 │        -1.42 │         -54.559 │        -0.55 │      4:45:00 │    0     0     1     0 │
+│ vwaporb:1758031800000 │          stop_loss │      1 │        -0.57 │         -56.391 │        -0.56 │      1:40:00 │    0     0     1     0 │
+│ vwaporb:1781106000000 │       signal_close │      1 │        -0.83 │         -56.530 │        -0.57 │      4:15:00 │    0     0     1     0 │
+│ vwaporb:1774015800000 │       signal_close │      1 │        -0.62 │         -58.160 │        -0.58 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1777990200000 │          stop_loss │      1 │        -0.66 │         -58.368 │        -0.58 │      0:57:00 │    0     0     1     0 │
+│ vwaporb:1786631400000 │          stop_loss │      1 │         -0.7 │         -59.360 │        -0.59 │      1:22:00 │    0     0     1     0 │
+│ vwaporb:1757341800000 │       signal_close │      1 │        -0.61 │         -60.048 │         -0.6 │      5:25:00 │    0     0     1     0 │
+│ vwaporb:1775743800000 │ trailing_stop_loss │      1 │        -0.65 │         -60.183 │         -0.6 │      0:35:00 │    0     0     1     0 │
+│ vwaporb:1787753700000 │          stop_loss │      1 │        -0.72 │         -60.970 │        -0.61 │      0:22:00 │    0     0     1     0 │
+│ vwaporb:1764777900000 │       signal_close │      1 │        -1.27 │         -62.937 │        -0.63 │      4:50:00 │    0     0     1     0 │
+│ vwaporb:1788186000000 │          stop_loss │      1 │        -0.78 │         -64.469 │        -0.64 │      0:16:00 │    0     0     1     0 │
+│ vwaporb:1758119100000 │          stop_loss │      1 │        -0.67 │         -65.368 │        -0.65 │      3:30:00 │    0     0     1     0 │
+│ vwaporb:1778509500000 │ trailing_stop_loss │      1 │        -0.75 │         -66.007 │        -0.66 │      0:57:00 │    0     0     1     0 │
+│ vwaporb:1760970300000 │          stop_loss │      1 │        -0.69 │         -66.814 │        -0.67 │      1:31:00 │    0     0     1     0 │
+│ vwaporb:1774534200000 │          stop_loss │      1 │        -0.72 │         -67.548 │        -0.68 │      0:54:00 │    0     0     1     0 │
+│ vwaporb:1776781800000 │          stop_loss │      1 │        -0.76 │         -68.006 │        -0.68 │      0:23:00 │    0     0     1     0 │
+│ vwaporb:1771341000000 │       signal_close │      1 │         -1.5 │         -68.016 │        -0.68 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1777300500000 │          stop_loss │      1 │        -0.78 │         -69.042 │        -0.69 │      0:24:00 │    0     0     1     0 │
+│ vwaporb:1770822600000 │       signal_close │      1 │        -2.28 │         -69.137 │        -0.69 │      5:45:00 │    0     0     1     0 │
+│ vwaporb:1784556600000 │          stop_loss │      1 │        -0.81 │         -69.629 │         -0.7 │      0:53:00 │    0     0     1     0 │
+│ vwaporb:1783087800000 │ trailing_stop_loss │      1 │        -0.82 │         -69.698 │         -0.7 │      0:39:00 │    0     0     1     0 │
+│ vwaporb:1758550200000 │          stop_loss │      1 │        -0.73 │         -69.812 │         -0.7 │      2:48:00 │    0     0     1     0 │
+│ vwaporb:1759500900000 │          stop_loss │      1 │        -0.75 │         -70.746 │        -0.71 │      0:20:00 │    0     0     1     0 │
+│ vwaporb:1780064100000 │ trailing_stop_loss │      1 │        -0.83 │         -72.568 │        -0.73 │      0:45:00 │    0     0     1     0 │
+│ vwaporb:1764169800000 │ trailing_stop_loss │      1 │        -0.77 │         -73.426 │        -0.73 │      1:00:00 │    0     0     1     0 │
+│ vwaporb:1777644600000 │          stop_loss │      1 │        -0.83 │         -73.579 │        -0.74 │      0:22:00 │    0     0     1     0 │
+│ vwaporb:1779895200000 │          stop_loss │      1 │        -0.83 │         -73.710 │        -0.74 │      2:31:00 │    0     0     1     0 │
+│ vwaporb:1784211000000 │          stop_loss │      1 │        -0.87 │         -74.555 │        -0.75 │      3:02:00 │    0     0     1     0 │
+│ vwaporb:1781533200000 │          stop_loss │      1 │        -0.84 │         -74.936 │        -0.75 │      1:17:00 │    0     0     1     0 │
+│ vwaporb:1761228600000 │          stop_loss │      1 │        -0.78 │         -75.146 │        -0.75 │      0:20:00 │    0     0     1     0 │
+│ vwaporb:1757513700000 │          stop_loss │      1 │        -0.76 │         -75.844 │        -0.76 │      4:07:00 │    0     0     1     0 │
+│ vwaporb:1779977400000 │          stop_loss │      1 │        -0.87 │         -76.392 │        -0.76 │      0:31:00 │    0     0     1     0 │
+│ vwaporb:1775056800000 │       signal_close │      1 │        -1.01 │         -76.797 │        -0.77 │      4:35:00 │    0     0     1     0 │
+│ vwaporb:1768576500000 │       signal_close │      1 │        -0.82 │         -77.662 │        -0.78 │      5:40:00 │    0     0     1     0 │
+│ vwaporb:1781705400000 │          stop_loss │      1 │        -0.89 │         -78.223 │        -0.78 │      0:32:00 │    0     0     1     0 │
+│ vwaporb:1758897000000 │ trailing_stop_loss │      1 │        -0.84 │         -80.459 │         -0.8 │      2:49:00 │    0     0     1     0 │
+│ vwaporb:1780927800000 │          stop_loss │      1 │        -0.93 │         -82.698 │        -0.83 │      2:48:00 │    0     0     1     0 │
+│ vwaporb:1776263100000 │          stop_loss │      1 │        -0.91 │         -84.095 │        -0.84 │      1:00:00 │    0     0     1     0 │
+│ vwaporb:1783954500000 │          stop_loss │      1 │         -1.0 │         -86.043 │        -0.86 │      1:35:00 │    0     0     1     0 │
+│ vwaporb:1761660600000 │          stop_loss │      1 │        -0.92 │         -87.409 │        -0.87 │      0:28:00 │    0     0     1     0 │
+│ vwaporb:1767972300000 │       signal_close │      1 │        -1.59 │         -87.621 │        -0.88 │      5:30:00 │    0     0     1     0 │
+│ vwaporb:1760537400000 │          stop_loss │      1 │        -0.91 │         -88.489 │        -0.88 │      0:31:00 │    0     0     1     0 │
+│ vwaporb:1784643000000 │          stop_loss │      1 │        -1.05 │         -89.098 │        -0.89 │      3:31:00 │    0     0     1     0 │
+│ vwaporb:1787926200000 │ trailing_stop_loss │      1 │        -1.06 │         -89.161 │        -0.89 │      0:22:00 │    0     0     1     0 │
+│ vwaporb:1769530200000 │          stop_loss │      1 │         -1.0 │         -93.125 │        -0.93 │      1:03:00 │    0     0     1     0 │
+│ vwaporb:1788271800000 │          stop_loss │      1 │        -1.13 │         -93.548 │        -0.94 │      2:07:00 │    0     0     1     0 │
+│ vwaporb:1781619900000 │ trailing_stop_loss │      1 │        -1.06 │         -93.984 │        -0.94 │      3:32:00 │    0     0     1     0 │
+│ vwaporb:1766502600000 │ trailing_stop_loss │      1 │        -1.04 │         -95.502 │        -0.96 │      0:48:00 │    0     0     1     0 │
+│ vwaporb:1779804600000 │          stop_loss │      1 │        -1.07 │         -96.002 │        -0.96 │      1:07:00 │    0     0     1     0 │
+│ vwaporb:1774966200000 │          stop_loss │      1 │        -1.03 │         -96.520 │        -0.97 │      0:36:00 │    0     0     1     0 │
+│ vwaporb:1776695100000 │          stop_loss │      1 │        -1.08 │         -98.804 │        -0.99 │      0:33:00 │    0     0     1     0 │
+│ vwaporb:1764862500000 │          stop_loss │      1 │        -1.05 │        -100.529 │        -1.01 │      1:14:00 │    0     0     1     0 │
+│ vwaporb:1765984200000 │          stop_loss │      1 │        -3.28 │        -100.712 │        -1.01 │      0:40:00 │    0     0     1     0 │
+│ vwaporb:1764084000000 │ trailing_stop_loss │      1 │        -1.05 │        -101.022 │        -1.01 │      0:20:00 │    0     0     1     0 │
+│ vwaporb:1782742200000 │ trailing_stop_loss │      1 │        -2.14 │        -103.418 │        -1.03 │      2:56:00 │    0     0     1     0 │
+│ vwaporb:1763739000000 │ trailing_stop_loss │      1 │        -2.44 │        -103.797 │        -1.04 │      1:32:00 │    0     0     1     0 │
+│ vwaporb:1769008200000 │          stop_loss │      1 │         -1.1 │        -104.341 │        -1.04 │      1:07:00 │    0     0     1     0 │
+│ vwaporb:1773930300000 │          stop_loss │      1 │        -1.09 │        -104.353 │        -1.04 │      0:36:00 │    0     0     1     0 │
+│ vwaporb:1773151800000 │ trailing_stop_loss │      1 │        -2.21 │        -104.481 │        -1.04 │      0:38:00 │    0     0     1     0 │
+│ vwaporb:1763133900000 │          stop_loss │      1 │        -1.81 │        -104.974 │        -1.05 │      3:31:00 │    0     0     1     0 │
+│ vwaporb:1780582200000 │          stop_loss │      1 │        -1.97 │        -105.198 │        -1.05 │      3:09:00 │    0     0     1     0 │
+│ vwaporb:1776348600000 │ trailing_stop_loss │      1 │        -1.75 │        -105.580 │        -1.06 │      4:38:00 │    0     0     1     0 │
+│ vwaporb:1766072100000 │          stop_loss │      1 │        -1.97 │        -105.597 │        -1.06 │      1:23:00 │    0     0     1     0 │
+│ vwaporb:1769440200000 │          stop_loss │      1 │        -1.55 │        -105.793 │        -1.06 │      0:27:00 │    0     0     1     0 │
+│ vwaporb:1770046500000 │          stop_loss │      1 │        -1.48 │        -106.110 │        -1.06 │      5:19:00 │    0     0     1     0 │
+│ vwaporb:1776175800000 │          stop_loss │      1 │        -1.53 │        -106.116 │        -1.06 │      3:18:00 │    0     0     1     0 │
+│ vwaporb:1766157000000 │          stop_loss │      1 │        -1.54 │        -106.391 │        -1.06 │      2:15:00 │    0     0     1     0 │
+│ vwaporb:1768491900000 │ trailing_stop_loss │      1 │        -1.62 │        -106.473 │        -1.06 │      0:10:00 │    0     0     1     0 │
+│ vwaporb:1764947400000 │          stop_loss │      1 │        -1.38 │        -106.664 │        -1.07 │      0:52:00 │    0     0     1     0 │
+│ vwaporb:1769786700000 │          stop_loss │      1 │        -1.39 │        -106.844 │        -1.07 │      3:23:00 │    0     0     1     0 │
+│ vwaporb:1773241800000 │ trailing_stop_loss │      1 │        -1.53 │        -106.968 │        -1.07 │      2:09:00 │    0     0     1     0 │
+│ vwaporb:1782828600000 │          stop_loss │      1 │        -1.44 │        -107.160 │        -1.07 │      0:51:00 │    0     0     1     0 │
+│ vwaporb:1765469100000 │ trailing_stop_loss │      1 │        -1.33 │        -107.274 │        -1.07 │      2:26:00 │    0     0     1     0 │
+│ vwaporb:1774275000000 │          stop_loss │      1 │        -1.35 │        -107.286 │        -1.07 │      1:28:00 │    0     0     1     0 │
+│ vwaporb:1773326400000 │ trailing_stop_loss │      1 │        -1.39 │        -107.348 │        -1.07 │      0:54:00 │    0     0     1     0 │
+│ vwaporb:1775571000000 │ trailing_stop_loss │      1 │        -1.16 │        -107.612 │        -1.08 │      3:21:00 │    0     0     1     0 │
+│ vwaporb:1769613000000 │          stop_loss │      1 │         -1.3 │        -107.616 │        -1.08 │      2:37:00 │    0     0     1     0 │
+│ vwaporb:1762787400000 │ trailing_stop_loss │      1 │         -1.3 │        -107.642 │        -1.08 │      4:59:00 │    0     0     1     0 │
+│ vwaporb:1762269000000 │          stop_loss │      1 │        -1.26 │        -107.820 │        -1.08 │      1:03:00 │    0     0     1     0 │
+│ vwaporb:1769095200000 │ trailing_stop_loss │      1 │        -1.15 │        -107.886 │        -1.08 │      2:56:00 │    0     0     1     0 │
+│ vwaporb:1761144900000 │          stop_loss │      1 │        -1.39 │        -107.905 │        -1.08 │      3:16:00 │    0     0     1     0 │
+│ vwaporb:1763565000000 │          stop_loss │      1 │        -1.13 │        -108.130 │        -1.08 │      0:15:00 │    0     0     1     0 │
+│ vwaporb:1763046600000 │          stop_loss │      1 │        -1.24 │        -108.267 │        -1.08 │      0:22:00 │    0     0     1     0 │
+│ vwaporb:1760365500000 │          stop_loss │      1 │        -1.22 │        -108.500 │        -1.08 │      4:51:00 │    0     0     1     0 │
+│ vwaporb:1773067200000 │          stop_loss │      1 │        -1.13 │        -108.600 │        -1.09 │      1:48:00 │    0     0     1     0 │
+│ vwaporb:1760711100000 │ trailing_stop_loss │      1 │        -1.13 │        -108.720 │        -1.09 │      0:56:00 │    0     0     1     0 │
+│ vwaporb:1773411000000 │          stop_loss │      1 │        -1.17 │        -109.026 │        -1.09 │      0:31:00 │    0     0     1     0 │
+│                 TOTAL │                    │    260 │        -0.07 │       -1689.959 │        -16.9 │      2:30:00 │  130     0   130  50.0 │
+└───────────────────────┴────────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Metric                                 ┃ Value                                     ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Backtesting from                       │ 2025-09-04 00:00:00                       │
+│ Backtesting to                         │ 2026-09-04 00:00:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 260 / 0.71                                │
+│ Starting balance                       │ 10000 USDT                                │
+│ Final balance                          │ 8310.041 USDT                             │
+│ Absolute profit                        │ -1689.959 USDT                            │
+│ Total profit %                         │ -16.90%                                   │
+│ CAGR %                                 │ -16.90%                                   │
+│ Sharpe (closed trades)                 │ -1.28                                     │
+│ Sortino (closed trades)                │ -2.77                                     │
+│ Calmar (closed trades)                 │ -4.83                                     │
+│ SQN                                    │ -1.51                                     │
+│ Mean profit p-value                    │ 0.1318                                    │
+│ Profit factor                          │ 0.81                                      │
+│ Expectancy (Ratio)                     │ -6.50 (-0.09)                             │
+│ Avg. daily profit                      │ -4.63 USDT                                │
+│ Avg. stake amount                      │ 8066.224 USDT                             │
+│ Market change                          │ -27.34%                                   │
+│ Total trade volume                     │ 4195468.907 USDT                          │
+│                                        │                                           │
+│ Long / Short trades                    │ 134 / 126                                 │
+│ Long / Short profit %                  │ -14.35% / -2.55%                          │
+│ Long / Short profit USDT               │ -1435.393 / -254.566                      │
+│                                        │                                           │
+│ Best Pair                              │ BTC/USDT:USDT -16.90%                     │
+│ Worst Pair                             │ BTC/USDT:USDT -16.90%                     │
+│ Best trade                             │ BTC/USDT:USDT 4.21%                       │
+│ Worst trade                            │ BTC/USDT:USDT -3.28%                      │
+│ Best day                               │ 97.307 USDT                               │
+│ Worst day                              │ -109.026 USDT                             │
+│ Days win/draw/lose                     │ 130 / 105 / 130                           │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:01 / 0d 05:45 / 0d 02:08            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:04 / 0d 05:45 / 0d 02:52            │
+│ Max Consecutive Wins / Loss            │ 9 / 7                                     │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 0 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 8261.263 USDT / 10113.711 USDT            │
+│ Max % of account underwater            │ 18.32%                                    │
+│ Absolute drawdown                      │ 1852.448 USDT (18.32%)                    │
+│ Drawdown duration                      │ 179 days 23:00:00                         │
+│ Profit at drawdown start               │ 113.711 USDT                              │
+│ Profit at drawdown end                 │ -1738.737 USDT                            │
+│ Drawdown start                         │ 2026-03-06 21:00:00                       │
+│ Drawdown end                           │ 2026-09-02 20:00:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 8261.263 USDT / 10113.711 USDT            │
+│ Min/Max balance dates (wallet balance) │ 2026-09-02 20:05:00 / 2026-03-06 21:05:00 │
+│ Max % of account underwater (balance)  │ 18.32%                                    │
+│ Absolute drawdown (wallet balance)     │ 1852.448 USDT (18.32%)                    │
+│ Drawdown duration                      │ 179 days 23:00:00                         │
+│ Profit at drawdown start               │ 113.711 USDT                              │
+│ Profit at drawdown end                 │ -1738.737 USDT                            │
+│ Drawdown start                         │ 2026-03-06 21:05:00                       │
+│ Drawdown end                           │ 2026-09-02 20:05:00                       │
+│ Sharpe (daily wallet balance)          │ -1.49                                     │
+│ Sortino (daily wallet balance)         │ -2.81                                     │
+│ Calmar (daily wallet balance)          │ -4.84                                     │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                              STRATEGY SUMMARY                                                              
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━┓
+┃        Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USDT ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃              Drawdown ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━┩
+│ VwapOrbStrategy │    260 │        -0.07 │       -1689.959 │        -16.9 │      2:30:00 │  130     0   130  50.0 │ 1852.448 USDT  18.32% │
+└─────────────────┴────────┴──────────────┴─────────────────┴──────────────┴──────────────┴────────────────────────┴───────────────────────┘
