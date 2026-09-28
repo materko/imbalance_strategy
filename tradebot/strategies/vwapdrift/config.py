@@ -78,8 +78,9 @@ class EntryMode(str, Enum):
     * ``stop``  — po dotyku VWAP stop order nad high (short: pod low) pullbackového baru,
                   platí ``stopValidBars`` barov; vstúpi sa, až keď cena pokračuje v smere driftu
 
-    Potvrdzovacie sviečky — po dotyku VWAP sa čaká najviac ``confirmBars`` barov (vrátane
-    baru dotyku) a vstupuje sa market na zavretí prvej, ktorá sedí:
+    Všetky okrem ``limit`` čakajú po dotyku VWAP najviac ``confirmBars`` barov (vrátane baru
+    dotyku) na prvú vstupnú sviečku; ``close`` je bar, ktorý sa VWAP dotkne a zavrie späť na
+    strane smeru. Potvrdzovacie sviečky (vstup market na zavretí prvej, ktorá sedí):
 
     * ``reaction``  — prvá reakčná sviečka do protipohybu: long prvá býčia (close > open),
                       short prvá medvedia
@@ -87,7 +88,7 @@ class EntryMode(str, Enum):
                       (najviac ``pbBodyPct`` %)
     * ``engulfing`` — býčia (medvedia) sviečka, ktorej telo pohltí telo predošlej opačnej sviečky
 
-    Keď cena medzitým zavrie za VWAP (o viac než toleranciu dotyku), pullback prerazil
+    Keď cena medzitým zavrie za VWAP o viac než ``failCloseAtr`` × ATR, pullback prerazil
     a čakanie sa zruší.
     """
 
@@ -134,6 +135,7 @@ SIZE_FIELDS: dict[str, SizeUnit] = {
     "driftMinAtr": "atr",
     "awayAtr": "atr",
     "touchTolAtr": "atr",
+    "failCloseAtr": "atr",
     "slBufferAtr": "atr",
     "slAtr": "atr",
     "minSlDistance": "pct",
@@ -156,6 +158,7 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "driftMinAtr": (0.0, 5.0),
     "awayAtr": (0.0, 10.0),
     "touchTolAtr": (0.0, 2.0),
+    "failCloseAtr": (0.0, 5.0),
     "entryDelayMinutes": (0, 390),
     "entryWindowMinutes": (0, 390),
     "maxTradesPerDay": (1, 10),
@@ -211,6 +214,8 @@ class VwapDriftConfig(StrategyConfig):
     awayAtr: SizeSpec = field(default_factory=lambda: SizeSpec(1.0, "atr"))
     #: Pullback = low (short: high) baru príde k VWAP bližšie než táto tolerancia.
     touchTolAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.1, "atr"))
+    #: Pullback je prerazený, až keď bar zavrie za VWAP o viac než toto — kúsok pod VWAP je stále pullback.
+    failCloseAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.5, "atr"))
     firstPullbackOnly: bool = True
     entryDelayMinutes: int = 15
     entryWindowMinutes: int = 0

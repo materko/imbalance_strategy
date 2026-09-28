@@ -96,8 +96,8 @@ PARAMS: dict[str, dict[str, Any]] = {
     ),
     "confirmBars": dict(
         group=_G2, title="Potvrdenie do (barov)",
-        tooltip="Pri vstupe reaction / pinbar / engulfing: v kolkych baroch od dotyku VWAP (vratane neho) "
-                "musi prist potvrdzovacia sviecka.",
+        tooltip="V kolkych baroch od dotyku VWAP (vratane neho) musi prist vstupna sviecka - pri close, "
+                "stop, reaction, pinbar aj engulfing. Pri limit sa nepouziva.",
     ),
     "pbWickPct": dict(
         group=_G2, title="Pin bar: knot min. %",
@@ -106,6 +106,12 @@ PARAMS: dict[str, dict[str, Any]] = {
     "pbBodyPct": dict(
         group=_G2, title="Pin bar: telo max. %",
         tooltip="Telo pin baru smie byt najviac tolkoto percent rozpatia sviecky.",
+    ),
+    "failCloseAtr": dict(
+        group=_G2, title="Prerazenie VWAP (ATR)",
+        tooltip="Pullback je prerazeny (a caka sa uz len na dalsi den / dalsi odchod), az ked sviecka zavrie "
+                "za VWAP o viac nez tolkoto ATR. Zavretie kusok pod VWAP (long) je stale pullback a reakcna "
+                "sviecka po nom sa obchoduje.",
     ),
     "firstPullbackOnly": dict(
         group=_G2, title="Len prvy pullback",

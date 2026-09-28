@@ -289,3 +289,28 @@ def test_stop_pod_reakcnu_sviecku():
     (intent,) = entries(out)
     # stop pod low reakčnej sviečky (vwap - 0.1), nie pod celý pullback (vwap - 0.8)
     assert abs(intent.plan.stop_loss - (vwap - 0.1)) <= 0.1
+
+
+def test_graf_testera_dotyk_zavrie_kusok_pod_vwap_a_reakcna_sviecka_je_vstup():
+    """Graf z 28. 9. 2026: červená sviečka sa dotkne VWAP a zavrie kúsok POD ním, ďalšia zelená
+    zavrie nad ním. To je pullback a vstup — nie prerazenie. Platí pre `close` aj `reaction`."""
+    for mode in (EntryMode.CLOSE, EntryMode.REACTION):
+        e, i = armed_long(entryMode=mode)
+        vwap = e.vwap.value
+        atr = e.history.atr
+        t = OPEN_MS + i * STEP
+        below = vwap - 0.3 * atr          # pod VWAP, ale menej než failCloseAtr (0,5 ATR)
+        out = e.on_bar(candle(t, vwap + 0.5, vwap + 0.6, vwap - 0.6 * atr, below), ctx=OKNO)
+        assert not entries(out), mode
+        out = e.on_bar(candle(t + STEP, below, vwap + 0.9, vwap - 0.5 * atr, vwap + 0.8), ctx=OKNO)
+        assert [o.plan.direction for o in entries(out)] == [Direction.LONG], mode
+
+
+def test_zavretie_hlboko_za_vwap_je_prerazenie():
+    e, i = armed_long(entryMode=EntryMode.REACTION)
+    vwap = e.vwap.value
+    atr = e.history.atr
+    t = OPEN_MS + i * STEP
+    e.on_bar(candle(t, vwap + 0.5, vwap + 0.6, vwap - 1.5 * atr, vwap - 1.0 * atr), ctx=OKNO)
+    out = e.on_bar(candle(t + STEP, vwap - atr, vwap + 0.9, vwap - atr, vwap + 0.8), ctx=OKNO)
+    assert not entries(out)

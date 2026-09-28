@@ -15,12 +15,13 @@ Priebeh jedného obchodného dňa:
      Počíta sa len dotyk, pri ktorom je smer dňa ten istý; pri ``firstPullbackOnly`` sa tým
      deň v tom smere končí — obchoduje sa len prvý
   5. vstup podľa ``entryMode``:
-       ``close`` market na zavretí pullbackového baru, ak zavrel späť na strane driftu
        ``limit`` limitka na VWAP (± tolerancia), leží od odchodu až do dotyku
-       ``stop``  stop order za extrém pullbackového baru, platí ``stopValidBars`` barov
-       ``reaction`` / ``pinbar`` / ``engulfing`` market na zavretí prvej potvrdzovacej
-                 sviečky do ``confirmBars`` barov po dotyku (prvá reakčná do protipohybu,
-                 pin bar, pohltenie)
+       ostatné čakajú od dotyku najviac ``confirmBars`` barov na vstupnú sviečku:
+       ``close`` bar, ktorý sa dotkne VWAP a zavrie späť na strane smeru (market na zavretí)
+       ``stop``  stop order za prvý bar pullbacku, platí ``stopValidBars`` barov
+       ``reaction`` / ``pinbar`` / ``engulfing`` market na zavretí prvej reakčnej sviečky
+                 do protipohybu, pin baru, pohltenia
+       pullback je prerazený, až keď bar zavrie za VWAP o viac než ``failCloseAtr`` × ATR
   6. stop podľa ``slMode`` (pullback / vstupná sviečka / VWAP / ATR od vstupu / swing), cieľ ``rrRatio`` × riziko
   7. na konci seansy sa pozícia zatvorí (``closeAtSessionEnd``)
 
@@ -224,9 +225,10 @@ class VwapDriftEngine:
             pend = None
 
         tol = cfg.touchTolAtr.resolve(self.inst, price=bar.close, atr=atr) if atr > 0 else 0.0
+        fail = cfg.failCloseAtr.resolve(self.inst, price=bar.close, atr=atr) if atr > 0 else 0.0
         if pend is not None and pend.kind is OrderType.STOP:
             long = pend.direction is Direction.LONG
-            failed = vwap is not None and (bar.close < vwap - tol if long else bar.close > vwap + tol)
+            failed = vwap is not None and (bar.close < vwap - fail if long else bar.close > vwap + fail)
             if idx > pend.until or failed:
                 self._cancel(out, idx, "stop vypršal" if idx > pend.until else "pullback prerazil VWAP")
 
@@ -277,38 +279,24 @@ class VwapDriftEngine:
         can_enter = (ctx.position_size == 0.0 and self._pending is None
                      and st.trades < cfg.maxTradesPerDay and self._in_window(minutes))
 
-        mode = cfg.entryMode
-        if mode.confirms:
-            self._confirm(out, idx, bar, touched, vwap, tol, drift, atr, can_enter)
-            return out
-        if mode is EntryMode.LIMIT:
+        if cfg.entryMode is EntryMode.LIMIT:
             if can_enter:
                 self._place_limit(out, idx, vwap, tol, drift, atr)
             return out
-        if touched is None or not can_enter or not self._direction_ok(touched, drift):
-            return out
-
-        long = touched is Direction.LONG
-        extreme = bar.low if long else bar.high
-        if mode is EntryMode.CLOSE:
-            if (bar.close > vwap) if long else (bar.close < vwap):
-                self._enter(out, idx, bar, touched, bar.close, extreme, vwap, atr,
-                            OrderType.MARKET, "pullback k VWAP odmietnutý (market na zavretí)")
-            return out
-        # STOP: pullback nesmie zavrieť za VWAP
-        if (bar.close < vwap - tol) if long else (bar.close > vwap + tol):
-            return out
-        tick = self.inst.tick_size or 0.0
-        price = bar.high + tick if long else bar.low - tick
-        self._enter(out, idx, bar, touched, price, extreme, vwap, atr, OrderType.STOP,
-                    "pokračovanie po pullbacku k VWAP (stop)", until=idx + int(cfg.stopValidBars))
+        self._confirm(out, idx, bar, touched, vwap, tol, fail, drift, atr, can_enter)
         return out
 
     # ------------------------------------------------------------------ #
 
     def _confirm(self, out: EngineOutput, idx: int, bar: Bar, touched: Direction | None,
-                 vwap: float, tol: float, drift: int, atr: float, can_enter: bool) -> None:
-        """Potvrdzovacia sviečka po dotyku VWAP — prvá, ktorá sedí, je vstup na jej zavretí."""
+                 vwap: float, tol: float, fail: float, drift: int, atr: float,
+                 can_enter: bool) -> None:
+        """Pullback od dotyku VWAP: najviac ``confirmBars`` barov sa čaká na vstupnú sviečku.
+
+        Prvá, ktorá sedí na ``entryMode``, je vstup (market na jej zavretí, pri ``stop`` stop
+        order za ňu). Pullback je prerazený, až keď bar zavrie za VWAP o viac než
+        ``failCloseAtr`` — zavretie kúsok pod VWAP je stále pullback, nie jeho koniec.
+        """
         cfg = self.cfg
         if touched is not None and self._await is None:
             extreme = bar.low if touched is Direction.LONG else bar.high
@@ -318,23 +306,38 @@ class VwapDriftEngine:
             return
         long = aw.direction is Direction.LONG
         aw.extreme = min(aw.extreme, bar.low) if long else max(aw.extreme, bar.high)
-        if (bar.close < vwap - tol) if long else (bar.close > vwap + tol):
+        if (bar.close < vwap - fail) if long else (bar.close > vwap + fail):
             self._await = None  # pullback prerazil VWAP
             return
-        if self._pattern(bar, long):
+        if self._pattern(bar, long, vwap, tol):
             self._await = None
-            if can_enter and self._direction_ok(aw.direction, drift):
+            if not (can_enter and self._direction_ok(aw.direction, drift)):
+                return
+            candle = bar.low if long else bar.high
+            if cfg.entryMode is EntryMode.STOP:
+                tick = self.inst.tick_size or 0.0
+                price = bar.high + tick if long else bar.low - tick
+                self._enter(out, idx, bar, aw.direction, price, aw.extreme, vwap, atr,
+                            OrderType.STOP, "pokračovanie po pullbacku k VWAP (stop)",
+                            until=idx + int(cfg.stopValidBars), candle=candle)
+            else:
                 self._enter(out, idx, bar, aw.direction, bar.close, aw.extreme, vwap, atr,
-                            OrderType.MARKET, f"pullback k VWAP potvrdený ({cfg.entryMode.value})",
-                            candle=bar.low if long else bar.high)
+                            OrderType.MARKET, f"pullback k VWAP ({cfg.entryMode.value})",
+                            candle=candle)
             return
         if idx >= aw.until:
             self._await = None
 
-    def _pattern(self, bar: Bar, long: bool) -> bool:
-        """Sedí bar na potvrdzovaciu sviečku zvoleného ``entryMode``?"""
+    def _pattern(self, bar: Bar, long: bool, vwap: float, tol: float) -> bool:
+        """Sedí bar na vstupnú sviečku zvoleného ``entryMode``?"""
         mode = self.cfg.entryMode
         bull, bear = bar.close > bar.open, bar.close < bar.open
+        if mode is EntryMode.CLOSE:  # dotkne sa VWAP a zavrie späť na strane smeru
+            if long:
+                return bar.low <= vwap + tol and bar.close > vwap
+            return bar.high >= vwap - tol and bar.close < vwap
+        if mode is EntryMode.STOP:  # prvý bar pullbacku, ktorý ho neprerazil
+            return True
         if mode is EntryMode.REACTION:
             return bull if long else bear
         if mode is EntryMode.PINBAR:
