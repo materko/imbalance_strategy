@@ -1,0 +1,100 @@
+{
+  "liqUse5m": true,
+  "liqUse15m": false,
+  "liqUse30m": true,
+  "liqUse60m": false,
+  "liqUse240m": false,
+  "liqPivotLen": 3,
+  "liqMinDispAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "liqEqualTolAtr": {
+    "value": 0.25,
+    "unit": "atr"
+  },
+  "liqMaxAgeHours": 120,
+  "liqMinStrength": 1,
+  "liqMinAgeBars": 0,
+  "tradeMode": "sweep",
+  "tradeDirection": "Long only",
+  "breakBufferAtr": {
+    "value": 0.05,
+    "unit": "atr"
+  },
+  "sweepBars": 1,
+  "sweepMinDepthAtr": {
+    "value": 0.2,
+    "unit": "atr"
+  },
+  "sweepMaxDepthAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "sweepVolMult": 0,
+  "entryModel": "any",
+  "entryOrder": "market",
+  "setupMaxBars": 4,
+  "entryMaxDistAtr": {
+    "value": 2.0,
+    "unit": "atr"
+  },
+  "imbMinSizeAtr": {
+    "value": 0.05,
+    "unit": "atr"
+  },
+  "pbWickPct": 60,
+  "pbBodyPct": 15,
+  "maxTradesPerDay": 3,
+  "cooldownBars": 3,
+  "weekdaysOnly": true,
+  "useTradeWindow": true,
+  "trendFilter": "off",
+  "trendEmaLen": 20,
+  "tradeTZ": "America/New_York",
+  "tradeStartH": 9,
+  "tradeStartM": 30,
+  "tradeEndH": 16,
+  "tradeEndM": 0,
+  "slMode": "level",
+  "atrLen": 14,
+  "slBufferAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "slAtrMult": {
+    "value": 3,
+    "unit": "atr"
+  },
+  "slLookback": 8,
+  "tpMode": "rr",
+  "rrRatio": 0.5,
+  "minRR": 1.0,
+  "maxRR": 5.0,
+  "tpOffsetAtr": 0.0,
+  "maxHoldBars": 0,
+  "riskDollar": 100.0,
+  "showLevels": true,
+  "showEvents": true,
+  "showOnlyQuality": true,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0.02,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "_strategy": "liquidity",
+  "_instrument": "mnq_databento",
+  "_title": "Liquidity sweep RR 0.5, filtre kvality zón: posl. rok 138 obch, 81.2 % WR, PF 2.26; 5 rokov 70.7 % WR",
+  "_comment": [
+    "Liquidity sweep RR 0.5, filtre kvality zón: posl. rok 138 obch, 81.2 % WR, PF 2.26; 5 rokov 70.7 % WR",
+    "Po rokoch: 21/22: 129 obch 69.0 % PF 1.07 +292 $, 22/23: 165 obch 67.3 % PF 1.13 +564 $, 23/24: 167 obch 63.5 % PF 0.82 -1050 $, 24/25: 148 obch 74.3 % PF 1.61 +2166 $, 25/26: 138 obch 81.2 % PF 2.26 +3720 $",
+    "Testy 28.9.2026, emulátor MultiCharts, MNQ, BEZ nákladov."
+  ],
+  "_timeframe": "5m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}
