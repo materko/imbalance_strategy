@@ -192,3 +192,37 @@ def test_exit_len_po_prerazeni_nie_ked_bol_vstup_uz_za_vwap():
     e.vwap.push = lambda b: 110.0                              # VWAP stále nad cenou
     out = e.on_bar(bar(3, 103.0), ctx=POS)
     assert not out.close_session
+
+
+# ---- vstup na prerazovacej sviečke (1.3) ------------------------------------- #
+
+from tradebot.strategies.vwaporb import EntryTiming, VwapRule  # noqa: E402
+
+
+def _engine15(**kw) -> VwapOrbEngine:
+    return VwapOrbEngine(VwapOrbConfig(vwapPeriod=VwapPeriod.M15, **kw), BTCUSDT_BINANCE, 5)
+
+
+def _falling_open(e) -> None:
+    """9:30–9:45 range 99–101, VWAP z 15m o 9:45; 9:45–9:55 cena klesá, stále v range."""
+    for i, c in enumerate((100.5, 100.0, 99.8)):
+        e.on_bar(Bar(OPEN_MS + i * STEP, c, 101.0, 99.0, c, 10.0), ctx=OKNO)
+    e.on_bar(Bar(OPEN_MS + 3 * STEP, 99.5, 99.8, 99.2, 99.4, 30.0), ctx=OKNO)
+
+
+def test_break_candle_vstupi_hned_aj_ked_15m_vwap_nema_2_periody():
+    """Graf testera: prerazenie o 9:50, 15m VWAP má len jednu hodnotu — any čaká, break_candle nie."""
+    for timing, expected in ((EntryTiming.ANY, []), (EntryTiming.BREAK_CANDLE, [Direction.SHORT])):
+        e = _engine15(vwapRule=VwapRule.DIRECTION, entryTiming=timing)
+        warm(e)
+        _falling_open(e)
+        out = e.on_bar(Bar(OPEN_MS + 4 * STEP, 99.0, 99.2, 97.5, 97.6, 60.0), ctx=OKNO)
+        assert [o.plan.direction for o in entries(out)] == expected, timing
+
+
+def test_break_candle_ked_vwap_nesedi_dalsia_sviecka_uz_nie():
+    e = engine(vwapRule=VwapRule.BREAK, entryTiming=EntryTiming.BREAK_CANDLE)
+    warm(e)
+    opening_range(e)
+    assert not entries(e.on_bar(bar(3, 103.0, v=10.0), ctx=OKNO))    # VWAP ešte v range
+    assert not entries(e.on_bar(bar(4, 103.0, v=100.0), ctx=OKNO))   # any by tu vstúpil

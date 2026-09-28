@@ -32,6 +32,14 @@ PARAMS: dict[str, dict[str, Any]] = {
                 "direction = staci prerazenie rangu cenou (close za hranicou), VWAP len smeruje rovnako: "
                 "pri longu stupa, pri shorte klesa (zmena za 'Smer VWAP za period').",
     ),
+    "entryTiming": dict(
+        group=_GV, title="Vstup",
+        tooltip="any = prva sviecka, na ktorej plati prerazenie rangu aj podmienka VWAP (moze prist neskor, "
+                "kym VWAP dojde). break_candle = len prerazovacia sviecka (prva, ktora zavrie za range); VWAP "
+                "sa vyhodnoti na nej a ked nesedi, v tom smere sa v ten den nevstupuje. Smer VWAP sa vtedy "
+                "berie z tolkych period, kolko ich je, alebo z VWAP 5m barov. Hodi sa k 'direction' - pri "
+                "'break' je VWAP v momente prerazenia takmer vzdy este v range.",
+    ),
     "vwapDriftBars": dict(
         group=_GV, title="Smer VWAP za period",
         tooltip="Pri 'direction': smer VWAP = zmena za tolkoto poslednych period VWAP (15m sviecok, resp. "

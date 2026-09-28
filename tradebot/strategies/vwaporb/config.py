@@ -25,7 +25,7 @@ from ..orb.config import (CONSTRAINTS as ORB_CONSTRAINTS, ENUM_FIELDS as ORB_ENU
                           ORBConfig, SessionMode, SIZE_FIELDS as ORB_SIZE_FIELDS)
 from ..vwapdrift.config import VwapAnchor, VwapPeriod
 
-__all__ = ["VwapOrbConfig", "VwapRule", "ExitMode", "CONFIG_DIR"]
+__all__ = ["VwapOrbConfig", "VwapRule", "ExitMode", "EntryTiming", "CONFIG_DIR"]
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 
@@ -39,6 +39,23 @@ class VwapRule(str, Enum):
 
     BREAK = "break"
     DIRECTION = "direction"
+
+
+class EntryTiming(str, Enum):
+    """Kedy sa smie vstúpiť.
+
+    * ``any``          — prvá sviečka, na ktorej platí prerazenie rangu cenou aj podmienka VWAP
+                         (môže prísť aj hodinu po prerazení, kým VWAP dôjde)
+    * ``break_candle`` — len prerazovacia sviečka (prvá, ktorá zavrie za range); podmienka VWAP
+                         sa vyhodnotí na nej a keď nesedí, v tom smere sa v ten deň nevstupuje.
+                         Smer VWAP sa berie z toľkých periód, koľko ich je (15m VWAP má o 9:50
+                         len jednu); keď nie je ani jedna, z VWAP barov grafu. Dáva zmysel
+                         s ``vwapRule=direction`` — pri ``break`` je VWAP v momente prerazenia
+                         takmer vždy ešte vnútri rangu
+    """
+
+    ANY = "any"
+    BREAK_CANDLE = "break_candle"
 
 
 class ExitMode(str, Enum):
@@ -62,7 +79,8 @@ class ExitMode(str, Enum):
 SIZE_FIELDS: dict[str, SizeUnit] = {**ORB_SIZE_FIELDS, "vwapBreakAtr": "atr", "vwapDriftMinAtr": "atr",
                                     "vwapExitAtr": "atr"}
 ENUM_FIELDS: dict[str, type] = {**ORB_ENUM_FIELDS, "vwapAnchor": VwapAnchor, "vwapPeriod": VwapPeriod,
-                                "vwapRule": VwapRule, "exitMode": ExitMode}
+                                "vwapRule": VwapRule, "exitMode": ExitMode,
+                                "entryTiming": EntryTiming}
 CONSTRAINTS: dict[str, tuple[float, float]] = {**ORB_CONSTRAINTS, "vwapBreakAtr": (0.0, 5.0),
                                                "vwapDriftBars": (1, 26), "vwapDriftMinAtr": (0.0, 5.0),
                                                "vwapExitAtr": (0.0, 5.0)}
@@ -87,6 +105,7 @@ class VwapOrbConfig(ORBConfig):
     vwapAnchor: VwapAnchor = VwapAnchor.NY_OPEN
     vwapPeriod: VwapPeriod = VwapPeriod.M15
     vwapRule: VwapRule = VwapRule.BREAK
+    entryTiming: EntryTiming = EntryTiming.ANY
     #: O koľko musí byť VWAP za hranicou rangu, aby to bolo prerazenie (0 = stačí za ňou).
     vwapBreakAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "atr"))
     #: Cena musí byť aj za VWAP (long close nad VWAP), nielen za hranicou rangu.

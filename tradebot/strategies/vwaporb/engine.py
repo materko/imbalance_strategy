@@ -28,7 +28,7 @@ from tradebot.core.types import Bar, Direction, InstrumentSpec
 from tradebot.core.vwap import SessionVwap
 
 from ..orb.engine import ORBEngine
-from .config import ExitMode, VwapOrbConfig, VwapRule
+from .config import EntryTiming, ExitMode, VwapOrbConfig, VwapRule
 from .drawing import VO_VWAP
 
 __all__ = ["VwapOrbEngine"]
@@ -48,6 +48,13 @@ class VwapOrbEngine(ORBEngine):
         self.vwap = SessionVwap(self.chart_tf_minutes, start_minutes=start, end_minutes=end,
                                 tz=tz, period_minutes=cfg.vwapPeriod.minutes,
                                 keep=int(cfg.vwapDriftBars) + 2)
+        #: VWAP z barov grafu — smer pri ``break_candle``, keď 15m VWAP ešte nemá ani jednu periódu
+        per = cfg.vwapPeriod.minutes
+        self._fast_bars = max(1, int(cfg.vwapDriftBars) * (per // self.chart_tf_minutes if per else 1))
+        self.vwap_fast = SessionVwap(self.chart_tf_minutes, start_minutes=start, end_minutes=end,
+                                     tz=tz, keep=self._fast_bars + 2)
+        #: smery, v ktorých už dnes prerazovacia sviečka bola: (deň, smer)
+        self._broke: set[tuple] = set()
         self._vwap_value: float | None = None
         #: pozícia už bola na správnej strane VWAP — ďalšie zavretie za ním proti obchodu ju zatvorí
         self._exit_ready = False
@@ -58,6 +65,7 @@ class VwapOrbEngine(ORBEngine):
         # VWAP pred ORB: podmienka prerazenia sa pýta na hodnotu po zavretí tohto baru
         ctx = ctx or MarketContext(in_trade_window=True)
         self._vwap_value = self.vwap.push(bar)
+        self.vwap_fast.push(bar)
         out = super().on_bar(bar, htf, ctx)
         if self.cfg.showVwap and self.vwap.updated and self._vwap_value is not None:
             out.drawings += self._vwap_drawing(bar, self._vwap_value)
@@ -113,16 +121,38 @@ class VwapOrbEngine(ORBEngine):
             return False
         cfg = self.cfg
         long = direction is Direction.LONG
+        candle_only = cfg.entryTiming is EntryTiming.BREAK_CANDLE
+        if candle_only:
+            # ORB sa pýta len pri close za rangom — prvé opýtanie v smere je prerazovacia sviečka
+            key = (st.day, direction)
+            if key in self._broke:
+                return False
+            self._broke.add(key)
         if cfg.closeBeyondVwap and not ((bar.close > vwap) if long else (bar.close < vwap)):
             return False
         if cfg.vwapRule is VwapRule.DIRECTION:
-            change = self.vwap.change(int(cfg.vwapDriftBars))
+            change = self._vwap_change(int(cfg.vwapDriftBars), fallback=candle_only)
             if change is None:
                 return False
             need = cfg.vwapDriftMinAtr.resolve(self.inst, price=vwap, atr=atr)
             return change > 0 and change >= need if long else change < 0 and -change >= need
         need = cfg.vwapBreakAtr.resolve(self.inst, price=bar.close, atr=atr)
         return vwap > st.high + need if long else vwap < st.low - need
+
+    def _vwap_change(self, bars: int, fallback: bool) -> float | None:
+        """Zmena VWAP za ``bars`` periód; pri ``fallback`` aj za menej periód, alebo z barov grafu."""
+        change = self.vwap.change(bars)
+        if change is not None or not fallback:
+            return change
+        for n in range(bars - 1, 0, -1):
+            change = self.vwap.change(n)
+            if change is not None:
+                return change
+        for n in range(self._fast_bars, 0, -1):
+            change = self.vwap_fast.change(n)
+            if change is not None:
+                return change
+        return None
 
     def _vwap_drawing(self, bar: Bar, vwap: float) -> list[DrawCommand]:
         """Úsečka VWAP od posledného bodu; bod je na konci baru, keď je hodnota známa."""
