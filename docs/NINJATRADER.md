@@ -320,11 +320,21 @@ type "%USERPROFILE%\Documents\NinjaTrader 8\TradeBot\logs\addon_*.txt"
   orderov (id z enginu sa môžu zhodovať) — nerob to.
 - Ako v každom živom adaptéri: dve limitky vyplnené v tej istej sekunde, skôr než príde zrušenie, dajú dve pozície.
 
-Stav k 28. 9. 2026: kód sa prekladá proti NT (`check`), `install` hotový, `deploy.json` so Sim101 / MNQ 12-26 / 3m /
-ibsnet / multicharts_mnq_3m a control súbor `paused` zapísané. **Živý beh ešte neprebehol**: NinjaTrader nové
-zdrojáky po `install` sám nepreložil (`NinjaTrader.Custom.dll` ostala zo starej zostavy, aj po 20 minútach a dvoch
-`install`) — dnešný „automatický“ preklad o 02:18 bol v skutočnosti F5. Ďalší krok je človek: *New → NinjaScript
-Editor → F5* (alebo reštart NT po F5), potom `TradeBot\logs\addon_*.txt` a `PY -m tradebot.live tail`.
+Stav k 28. 9. 2026 (Sim101, MNQ 12-26, 3m, `ibsnet`, `multicharts_mnq_3m`, `addon_20260928-095036.txt`): po `install`
+NinjaTrader nové zdrojáky **sám nepreložil** (F5 v NinjaScript Editore musel stlačiť človek), ale po preklade
+**inštancoval AddOn znova bez reštartu** a nová generácia nabehla sama: `deploy.json` prečítaný, Simulated Data Feed
+Connected, Sim101 Connected, engine (predhistória 84 barov, 5m informatívny TF), spool
+`spool\ninjatrader_Sim101_MNQ_3m_ibsnet\`, control súbor (`paused`) prečítaný, `BarsRequest` 173 × 3m + 112 × 5m,
+predhistória prehratá (172 barov, `ready:false`), prvý živý uzavretý bar s `ready:true` presne na konci minúty
+(`bar … 07:48 … ready=True`, zóna, kresby, `final`). `control --mode enabled` zaúčinkoval do 5 s.
+Živé bary chodia každé 3 min presne na konci minúty (`t` = koniec baru + ~0,25 s). `--mode flatten` → `FLATTEN (control)`
+do 5 s; `--mode enabled --profile golden_binance_btcusdt_3m` (flat) → `novy engine z profilu … prehravam historiu znova`,
+`predhistoria prehrata: 175 barov grafu, 112 barov 5m`, nová session spoolu (`bye profile_switch` + `hello` s novým
+profilom); `deploy.json` `{"instances":[]}` → `odstranena z deploy.json - zastavujem`, `koniec (removed)`, `stat` + `bye removed`;
+späť do `deploy.json` → nová inštancia do 5 s (`hello`, `paused`, BarsRequest, prehratie). **Neoverené**: ordery a fily
+na Sim101 — Simulated Data Feed sa v okne testu hýbal o 2 body a engine žiadny vstup neposlal; cesta
+`CreateOrder/Submit/OCO/ExecutionUpdate` je napísaná podľa PoC (tam market order na Sim101 prešiel), ale prvý živý fill
+z AddOnu ešte čaká.
 
 **Signály sú rovnaké, fill model nie** — to platí pre každú platformu. Strategy Analyzer plní limitku
 podľa svojho *Order fill resolution*; pre porovnateľné čísla nastav *High* s 1-minútovou sériou (to je
