@@ -15,6 +15,7 @@ okno), sú tu vypnuté: VWAP sa dostane za range často až neskôr počas dňa.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
 from typing import ClassVar
 
@@ -24,13 +25,27 @@ from ..orb.config import (CONSTRAINTS as ORB_CONSTRAINTS, ENUM_FIELDS as ORB_ENU
                           ORBConfig, SessionMode, SIZE_FIELDS as ORB_SIZE_FIELDS)
 from ..vwapdrift.config import VwapAnchor, VwapPeriod
 
-__all__ = ["VwapOrbConfig", "CONFIG_DIR"]
+__all__ = ["VwapOrbConfig", "VwapRule", "CONFIG_DIR"]
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 
-SIZE_FIELDS: dict[str, SizeUnit] = {**ORB_SIZE_FIELDS, "vwapBreakAtr": "atr"}
-ENUM_FIELDS: dict[str, type] = {**ORB_ENUM_FIELDS, "vwapAnchor": VwapAnchor, "vwapPeriod": VwapPeriod}
-CONSTRAINTS: dict[str, tuple[float, float]] = {**ORB_CONSTRAINTS, "vwapBreakAtr": (0.0, 5.0)}
+class VwapRule(str, Enum):
+    """Čo musí VWAP spraviť, aby prerazenie rangu cenou bolo signálom.
+
+    * ``break``     — VWAP prerazí za range (long nad high, short pod low) a cena je tam tiež
+    * ``direction`` — stačí prerazenie rangu cenou; VWAP len smeruje rovnako (long stúpa,
+                      short klesá) — zmena za ``vwapDriftBars`` periód aspoň ``vwapDriftMinAtr``
+    """
+
+    BREAK = "break"
+    DIRECTION = "direction"
+
+
+SIZE_FIELDS: dict[str, SizeUnit] = {**ORB_SIZE_FIELDS, "vwapBreakAtr": "atr", "vwapDriftMinAtr": "atr"}
+ENUM_FIELDS: dict[str, type] = {**ORB_ENUM_FIELDS, "vwapAnchor": VwapAnchor, "vwapPeriod": VwapPeriod,
+                                "vwapRule": VwapRule}
+CONSTRAINTS: dict[str, tuple[float, float]] = {**ORB_CONSTRAINTS, "vwapBreakAtr": (0.0, 5.0),
+                                               "vwapDriftBars": (1, 26), "vwapDriftMinAtr": (0.0, 5.0)}
 
 
 @dataclass
@@ -51,8 +66,12 @@ class VwapOrbConfig(ORBConfig):
     # ---- 📊 VWAP ---------------------------------------------------------- #
     vwapAnchor: VwapAnchor = VwapAnchor.NY_OPEN
     vwapPeriod: VwapPeriod = VwapPeriod.M15
+    vwapRule: VwapRule = VwapRule.BREAK
     #: O koľko musí byť VWAP za hranicou rangu, aby to bolo prerazenie (0 = stačí za ňou).
     vwapBreakAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "atr"))
     #: Cena musí byť aj za VWAP (long close nad VWAP), nielen za hranicou rangu.
     closeBeyondVwap: bool = False
+    #: Pri ``vwapRule=direction``: smer VWAP = zmena za toľko periód VWAP (15m sviečok, resp. barov).
+    vwapDriftBars: int = 2
+    vwapDriftMinAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "atr"))
     showVwap: bool = True

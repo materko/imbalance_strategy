@@ -4,8 +4,10 @@ Celý ORB (stavanie rangu, stop, cieľ, koniec seansy, kresby) je `ORBEngine`; t
 k nemu pridáva seansový VWAP (`tradebot.core.vwap.SessionVwap`) a podmienku cez háčik
 `_break_allowed`:
 
-* **long** — close nad high rangu (to kontroluje ORB) **a** VWAP nad high rangu
-  (o ``vwapBreakAtr`` × ATR); pri ``closeBeyondVwap`` aj close nad VWAP
+* **long** — close nad high rangu (to kontroluje ORB) **a** podľa ``vwapRule``:
+  ``break`` VWAP nad high rangu (o ``vwapBreakAtr`` × ATR), ``direction`` VWAP stúpa
+  (zmena za ``vwapDriftBars`` periód aspoň ``vwapDriftMinAtr`` × ATR);
+  pri ``closeBeyondVwap`` navyše close nad VWAP
 * **short** — zrkadlovo pod low
 
 ORB hodnotí prerazenie na každom bare obchodného okna, kým nepadne obchod — vstup je teda
@@ -22,7 +24,7 @@ from tradebot.core.types import Bar, Direction, InstrumentSpec
 from tradebot.core.vwap import SessionVwap
 
 from ..orb.engine import ORBEngine
-from .config import VwapOrbConfig
+from .config import VwapOrbConfig, VwapRule
 from .drawing import VO_VWAP
 
 __all__ = ["VwapOrbEngine"]
@@ -37,7 +39,8 @@ class VwapOrbEngine(ORBEngine):
         super().__init__(cfg, inst, chart_tf_minutes)
         start, end, tz = cfg.vwapAnchor.window(cfg.nyStartH * 60 + cfg.nyStartM)
         self.vwap = SessionVwap(self.chart_tf_minutes, start_minutes=start, end_minutes=end,
-                                tz=tz, period_minutes=cfg.vwapPeriod.minutes)
+                                tz=tz, period_minutes=cfg.vwapPeriod.minutes,
+                                keep=int(cfg.vwapDriftBars) + 2)
         self._vwap_value: float | None = None
         #: posledný nakreslený bod čiary VWAP (čas, hodnota, deň)
         self._vwap_point: tuple[int, float, tuple[int, int, int] | None] | None = None
@@ -51,15 +54,22 @@ class VwapOrbEngine(ORBEngine):
         return out
 
     def _break_allowed(self, st, direction: Direction, bar: Bar, atr: float) -> bool:
-        """VWAP je za hranicou rangu v smere prerazenia (a pri ``closeBeyondVwap`` aj cena za VWAP)."""
+        """VWAP podľa ``vwapRule`` v smere prerazenia (a pri ``closeBeyondVwap`` aj cena za VWAP)."""
         vwap = self._vwap_value
         if vwap is None or st.high is None or st.low is None:
             return False
         cfg = self.cfg
+        long = direction is Direction.LONG
+        if cfg.closeBeyondVwap and not ((bar.close > vwap) if long else (bar.close < vwap)):
+            return False
+        if cfg.vwapRule is VwapRule.DIRECTION:
+            change = self.vwap.change(int(cfg.vwapDriftBars))
+            if change is None:
+                return False
+            need = cfg.vwapDriftMinAtr.resolve(self.inst, price=vwap, atr=atr)
+            return change > 0 and change >= need if long else change < 0 and -change >= need
         need = cfg.vwapBreakAtr.resolve(self.inst, price=bar.close, atr=atr)
-        if direction is Direction.LONG:
-            return vwap > st.high + need and (not cfg.closeBeyondVwap or bar.close > vwap)
-        return vwap < st.low - need and (not cfg.closeBeyondVwap or bar.close < vwap)
+        return vwap > st.high + need if long else vwap < st.low - need
 
     def _vwap_drawing(self, bar: Bar, vwap: float) -> list[DrawCommand]:
         """Úsečka VWAP od posledného bodu; bod je na konci baru, keď je hodnota známa."""

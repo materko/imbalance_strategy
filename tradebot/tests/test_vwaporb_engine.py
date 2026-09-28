@@ -121,3 +121,27 @@ def test_vwap_sa_kresli():
         outs.append(e.on_bar(bar(i, c), ctx=OKNO))
     lines = [d for o in outs for d in o.drawings if d.kind.value == "vo_vwap"]
     assert len(lines) == 3
+
+
+def test_direction_staci_prerazenie_cenou_a_vwap_v_smere():
+    """vwapRule=direction: VWAP ostáva v range, ale stúpa — prerazenie cenou je signál hneď."""
+    from tradebot.strategies.vwaporb import VwapRule
+
+    e = engine(vwapRule=VwapRule.DIRECTION, vwapDriftBars=1)
+    warm(e)
+    opening_range(e)
+    out = e.on_bar(bar(3, 103.0, v=10.0), ctx=OKNO)
+    (intent,) = entries(out)
+    assert e._vwap_value < 101.0 and intent.plan.direction is Direction.LONG
+
+
+def test_direction_vwap_proti_smeru_nie():
+    """VWAP klesá (veľký objem nízko v range) a cena prerazí nahor — long nie je."""
+    from tradebot.strategies.vwaporb import VwapRule
+
+    e = engine(vwapRule=VwapRule.DIRECTION, vwapDriftBars=2)
+    warm(e)
+    opening_range(e)
+    e.on_bar(Bar(OPEN_MS + 3 * STEP, 99.2, 99.5, 99.0, 99.2, 200.0), ctx=OKNO)
+    out = e.on_bar(Bar(OPEN_MS + 4 * STEP, 101.5, 101.8, 101.3, 101.5, 1.0), ctx=OKNO)
+    assert e.vwap.change(2) < 0 and not entries(out)

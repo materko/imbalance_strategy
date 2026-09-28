@@ -25,9 +25,25 @@ PARAMS: dict[str, dict[str, Any]] = {
         tooltip="'15' = VWAP z 15-minutovych sviecok zlozenych z grafu (meni sa pri zatvoreni 15m sviecky). "
                 "'chart' = priamo z barov grafu.",
     ),
+    "vwapRule": dict(
+        group=_GV, title="Podmienka VWAP",
+        tooltip="break = VWAP musi prerazit za range (long nad high, short pod low) a cena je tam tiez. "
+                "direction = staci prerazenie rangu cenou (close za hranicou), VWAP len smeruje rovnako: "
+                "pri longu stupa, pri shorte klesa (zmena za 'Smer VWAP za period').",
+    ),
+    "vwapDriftBars": dict(
+        group=_GV, title="Smer VWAP za period",
+        tooltip="Pri 'direction': smer VWAP = zmena za tolkoto poslednych period VWAP (15m sviecok, resp. "
+                "barov grafu).",
+    ),
+    "vwapDriftMinAtr": dict(
+        group=_GV, title="Min. zmena VWAP (ATR)",
+        tooltip="Pri 'direction': o kolko ATR sa musi VWAP za tie periody pohnut v smere prerazenia; "
+                "0 = staci, ze sa pohol spravnym smerom.",
+    ),
     "vwapBreakAtr": dict(
         group=_GV, title="VWAP za rangom o (ATR)",
-        tooltip="Signal je, ked VWAP prerazi nad high rangu (short: pod low) a zaroven je tam aj cena. "
+        tooltip="Pri 'break': signal je, ked VWAP prerazi nad high rangu (short: pod low) a zaroven je tam aj cena. "
                 "Toto je, o kolko ATR musi byt VWAP za hranicou; 0 = staci byt za nou.",
     ),
     "closeBeyondVwap": dict(
