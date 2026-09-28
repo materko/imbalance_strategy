@@ -3,13 +3,18 @@
 Webapp si udalosti **zrkadlí** do vlastného sqlite (`tester/live/mirror.sqlite`, `LiveStore`)
 z dvoch zdrojov a stránka číta len zrkadlo:
 
-* z hubu (`GET /api/live/export?after=<kurzor>`), keď má klon `tester/agent.json` — kurzor je
-  rowid hubu a drží sa v `tester/live/mirror_cursor.json`; hub dole = ukazuje sa, čo je;
+* z hubu cez `Transport.pull_export` (`tradebot.live.transport`; dnes HTTP
+  `GET /api/live/export?after=<kurzor>`), keď má klon `tester/agent.json` — kurzor je rowid
+  hubu a drží sa v `tester/live/mirror_cursor.json`; hub dole = ukazuje sa, čo je;
 * z lokálneho spoolu platforiem (`tradebot.live.spool`), keď webapp beží na obchodnom PC —
   vlastný kurzor `tester/live/cursor_webapp.json`, funguje aj bez hubu.
 
-`LiveMirror` je vlákno, ktoré to robí každých 5 s; štartuje ho `__main__` (ako agenta hubu),
-takže testy s `TestClient` ho nespúšťajú a zrkadlo sa otvára až pri prvom použití.
+`LiveMirror` je vlákno, ktoré to robí každé 2 s (plná stránka z hubu = hneď ďalšia); štartuje
+ho `__main__` (ako agenta hubu), takže testy s `TestClient` ho nespúšťajú a zrkadlo sa otvára
+až pri prvom použití. Každé uložené nové riadky zdvihnú `version` zrkadla a zobudia
+čakajúcich (`wait_for_change`) — na tom stojí `GET /api/live/stream` (SSE): stránka nič
+nepolluje, server jej pošle `instances` (zoznam + stav zrkadla) a `events` (nové riadky
+inštancie) hneď, ako prídu; každých 15 s ide komentár ako keepalive.
 
 Fáza 2b (účty a nasadenia, sekcie **Účty** a **Nasadenia** na karte): webapp nič nezrkadlí,
 len **preposiela** na hub — čítanie s tokenom agenta (`/api/live/accounts`, `/deployments`,
@@ -21,31 +26,41 @@ skladá tu (webapp má aj vlastné profily testera) a na hub ide už hotový.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import re
 import threading
 import time
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Iterator
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from tradebot.core.config import ConfigError
 from tradebot.core.paths import LIVE_CURSOR_WEBAPP, LIVE_MIRROR, LIVE_MIRROR_CURSOR
 from tradebot.live.store import LiveStore
+from tradebot.live.transport import as_transport
 from tradebot.strategies import STRATEGIES, canonical_key
 
 from ..runner import default_params, list_profiles, profile_titles
 from .common import clean_user
 from .context import AppContext
 
-__all__ = ["LiveMirror", "build"]
+__all__ = ["LiveMirror", "build", "sse_event", "stream_messages", "MIRROR_INTERVAL"]
 
 #: Koľko riadkov naraz pýta zrkadlo od hubu (strop hubu je tiež 5000).
 EXPORT_LIMIT = 5000
 #: Koľko dávok lokálneho spoolu najviac za jeden tik — nech dobiehanie neblokuje hub.
 LOCAL_BATCHES_PER_TICK = 20
+#: Interval zrkadla (hub + lokálny spool). 2 s: hub sám dostáva dávky do ~1 s od baru, takže
+#: koniec-koniec je bar → stránka ≈ 2–4 s; plná stránka z hubu sa dočíta hneď (bez čakania).
+MIRROR_INTERVAL = 2.0
+#: SSE: komentár každých toľko sekúnd, nech proxy a prehliadač spojenie nezavrú.
+SSE_KEEPALIVE = 15.0
+#: SSE: ako dlho generátor čaká na zmenu zrkadla, než skontroluje odpojenie klienta.
+SSE_WAIT = 1.0
 
 
 def _short(exc: BaseException, limit: int = 200) -> str:
@@ -85,7 +100,7 @@ class LiveMirror:
                  local_cursor: Path = LIVE_CURSOR_WEBAPP,
                  hub_factory: Callable[[], tuple[Any, Any] | None] = _default_hub,
                  reader_factory: Callable[[Path], Any | None] = _default_reader,
-                 interval: float = 5.0, clock: Callable[[], float] = time.time) -> None:
+                 interval: float = MIRROR_INTERVAL, clock: Callable[[], float] = time.time) -> None:
         self.mirror_path = Path(mirror_path)
         self.cursor_path = Path(cursor_path)
         self.local_cursor = Path(local_cursor)
@@ -106,6 +121,25 @@ class LiveMirror:
         self.last_error: str | None = None
         self.ticks = 0
         self.ingested = 0
+        #: Rastie s každým tikom, ktorý niečo uložil; `wait_for_change` na ňom čaká (SSE).
+        self.version = 0
+        self._changed = threading.Condition()
+
+    # -- poslucháči (SSE) ------------------------------------------------------ #
+
+    def _bump(self, n: int) -> None:
+        if n <= 0:
+            return
+        with self._changed:
+            self.version += 1
+            self._changed.notify_all()
+
+    def wait_for_change(self, since: int, timeout: float | None = None) -> int:
+        """Čaká, kým `version` prerastie `since` (alebo uplynie `timeout`); vráti aktuálnu."""
+        with self._changed:
+            if self.version <= since:
+                self._changed.wait(timeout)
+            return self.version
 
     # -- store a kurzor ------------------------------------------------------- #
 
@@ -137,24 +171,29 @@ class LiveMirror:
 
     # -- zdroje ---------------------------------------------------------------- #
 
-    def pull_hub(self, http: Any, *, limit: int = EXPORT_LIMIT) -> int:
-        """Stiahne z hubu všetko za kurzorom (po stránkach) a uloží; vráti počet nových udalostí.
+    def pull_hub(self, transport: Any, *, limit: int = EXPORT_LIMIT) -> int:
+        """Stiahne z hubu všetko za kurzorom (po stránkach; plná stránka = hneď ďalšia) a uloží;
+        vráti počet nových udalostí. `transport` je `Transport` (alebo HTTP klient, ktorý sa zabalí).
 
         Riadky sa zoskupia podľa (agent, inštancia, session) — `ingest` je idempotentný, takže
         opakovaná stránka (pád medzi uložením a zápisom kurzora) nič nezdvojí."""
+        transport = as_transport(transport)
         total = 0
         while True:
-            rows = http.get(f"/api/live/export?after={int(self.hub_cursor)}&limit={int(limit)}")
+            rows = transport.pull_export(int(self.hub_cursor), int(limit))
             if not isinstance(rows, list) or not rows:
                 break
             groups: dict[tuple[str, str, str], list[dict[str, Any]]] = {}
             for r in rows:
                 key = (str(r.get("agent") or ""), str(r["instance"]), str(r["session"]))
                 groups.setdefault(key, []).append(r["event"])
+            nove = 0
             for (agent, instance, session), events in groups.items():
-                total += self.store.ingest(agent, instance, session, events)
+                nove += self.store.ingest(agent, instance, session, events)
             self.hub_cursor = max(self.hub_cursor, max(int(r["id"]) for r in rows))
             self._save_cursor()
+            self._bump(nove)
+            total += nove
             if len(rows) < limit:
                 break
         return total
@@ -166,9 +205,12 @@ class LiveMirror:
             batches = reader.read(max_events=500)
             if not batches:
                 break
+            nove = 0
             for batch in batches:
-                total += self.store.ingest(agent, batch.instance, batch.session, list(batch.events))
+                nove += self.store.ingest(agent, batch.instance, batch.session, list(batch.events))
                 reader.commit(batch)
+            self._bump(nove)
+            total += nove
         return total
 
     def tick(self) -> None:
@@ -246,7 +288,46 @@ class LiveMirror:
             "running": self.running,
             "ticks": self.ticks,
             "ingested": self.ingested,
+            "version": self.version,
+            "interval": self.interval,
         }
+
+
+# --------------------------------------------------------------------------- #
+# SSE: `GET /api/live/stream`
+# --------------------------------------------------------------------------- #
+
+
+def sse_event(data: Any, *, event: str | None = None) -> str:
+    """Jedna správa SSE: `event:` (voliteľne) + `data:` s JSON na jednom riadku + prázdny riadok."""
+    telo = json.dumps(data, separators=(",", ":"), ensure_ascii=False)
+    hlava = f"event: {event}\n" if event else ""
+    return f"{hlava}data: {telo}\n\n"
+
+
+def stream_messages(mirror: LiveMirror, *, after: int, deploy: Callable[[], Any] | None = None,
+                    limit: int = EXPORT_LIMIT) -> Iterator[dict[str, Any]]:
+    """Správy pre klienta po zmene zrkadla: nové riadky od `after` (rowid zrkadla) zoskupené
+    podľa inštancie ako `{"type": "events", "instance", "rows": [...]}` (riadky ako
+    `LiveStore.events`: `id`, `session`, `seq`, `event`) a na záver jedno
+    `{"type": "instances", "instances", "mirror", "now", "deploy"}` — to isté, čo `GET /api/live`."""
+    store = mirror.store
+    kurzor = int(after)
+    while True:
+        rows = store.export(after=kurzor, limit=limit)
+        if not rows:
+            break
+        po_instancii: dict[str, list[dict[str, Any]]] = {}
+        for r in rows:
+            po_instancii.setdefault(str(r["instance"]), []).append(
+                {"id": r["id"], "session": r["session"], "seq": r["seq"], "event": r["event"]})
+        for instance, riadky in po_instancii.items():
+            yield {"type": "events", "instance": instance, "rows": riadky}
+        kurzor = max(int(r["id"]) for r in rows)
+        if len(rows) < limit:
+            break
+    yield {"type": "instances", "instances": store.instances(), "mirror": mirror.status(),
+           "now": int(mirror.clock() * 1000), "deploy": deploy() if deploy else None, "cursor": kurzor}
 
 
 class LiveAccountRequest(BaseModel):
@@ -299,9 +380,45 @@ def build(ctx: AppContext) -> APIRouter:
     @router.get("/api/live")
     def live_overview():
         """Inštancie v zrkadle, stav zrkadla (hub, kurzor, lokálny spool, posledná chyba) a či
-        táto webapp smie nasadenia aj meniť (`deploy.admin` = má hlavný token hubu)."""
+        táto webapp smie nasadenia aj meniť (`deploy.admin` = má hlavný token hubu).
+        `cursor` je rowid zrkadla — odtiaľ pokračuje `/api/live/stream?after=`."""
         return {"instances": mirror.store.instances(), "mirror": mirror.status(),
-                "now": int(mirror.clock() * 1000), "deploy": _deploy_state()}
+                "now": int(mirror.clock() * 1000), "deploy": _deploy_state(),
+                "cursor": mirror.store.cursor()}
+
+    @router.get("/api/live/stream")
+    async def live_stream(request: Request, after: int = Query(-1, ge=-1)):
+        """SSE (`text/event-stream`): po každej zmene zrkadla pošle nové riadky (`events`, po
+        inštanciách) a zoznam inštancií so stavom (`instances`); bez zmeny každých 15 s komentár.
+        `after` = rowid zrkadla, od ktorého klient riadky ešte nemá (-1 = len od teraz)."""
+
+        async def gen():
+            kurzor = mirror.store.cursor() if after < 0 else int(after)
+            verzia = mirror.version
+            yield "retry: 3000\n\n"
+            # prvý stav hneď (aj keď sa nič nezmenilo) — klient nemusí volať /api/live zvlášť
+            for msg in stream_messages(mirror, after=kurzor, deploy=_deploy_state):
+                kurzor = max(kurzor, int(msg.get("cursor") or 0), *(r["id"] for r in msg.get("rows") or []))
+                yield sse_event(msg)
+            ticho = 0.0
+            loop = asyncio.get_running_loop()
+            while True:
+                if await request.is_disconnected():
+                    return
+                nova = await loop.run_in_executor(None, mirror.wait_for_change, verzia, SSE_WAIT)
+                if nova == verzia:
+                    ticho += SSE_WAIT
+                    if ticho >= SSE_KEEPALIVE:
+                        ticho = 0.0
+                        yield ": keepalive\n\n"
+                    continue
+                verzia, ticho = nova, 0.0
+                for msg in stream_messages(mirror, after=kurzor, deploy=_deploy_state):
+                    kurzor = max(kurzor, int(msg.get("cursor") or 0), *(r["id"] for r in msg.get("rows") or []))
+                    yield sse_event(msg)
+
+        return StreamingResponse(gen(), media_type="text/event-stream",
+                                 headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
     # -- fáza 2b: účty a nasadenia — len proxy na hub ------------------------- #
 
@@ -453,10 +570,13 @@ def build(ctx: AppContext) -> APIRouter:
 
     @router.get("/api/live/{instance}/snapshot")
     def live_snapshot(instance: str, bars: int | None = Query(None, ge=1, le=5000), session: str = ""):
-        """Bez `session` posledných 500 barov naprieč behmi; so `session` celý ten beh (do 5000 barov)."""
+        """Bez `session` posledných 500 barov naprieč behmi; so `session` celý ten beh (do 5000 barov).
+        `cursor` je rowid zrkadla **pred** čítaním — všetko po ňom stránke dopošle stream."""
+        kurzor = mirror.store.cursor()
         snap = mirror.store.snapshot(instance, bars=bars, session=session or None)
         if snap["instance"] is None:
             raise HTTPException(404, f"inštancia {instance!r} v zrkadle nie je")
+        snap["cursor"] = kurzor
         return snap
 
     @router.get("/api/live/{instance}/events")

@@ -1847,6 +1847,48 @@ def test_agent_work_ships_live_spool_to_hub(hub_api, tmp_path: Path, monkeypatch
     assert srv.live_status()["active"] and live_store.cursor() == 4
 
 
+def test_agent_heartbeat_podla_hubu_a_strazca_spoolu(hub_api, tmp_path: Path, monkeypatch):
+    """Hub v odpovedi posiela `heartbeat_seconds` a agent sa mu prispôsobí (nezmysel = config);
+    strážca spoolu zobudí pomalé vlákno, keď spool narastie — bez čakania na heartbeat."""
+    import json as _json
+
+    from tester.hub import config as agent_config
+
+    c, state, clock = hub_api
+    assert state.heartbeat_seconds == agent_config.DEFAULT_HEARTBEAT == 3
+    http = FakeHttp(c, "tajne")
+    root = tmp_path / "spool"
+    root.mkdir()
+    monkeypatch.setenv("TRADEBOT_LIVE_SPOOL", str(root))
+    srv, _, _ = _agent("srv", tmp_path, http)
+    srv.live_cursor = tmp_path / "srv" / "live-cursor.json"
+    assert srv.cfg.heartbeat_seconds == 3 and srv.heartbeat_seconds == 3
+
+    state.heartbeat_seconds = 7
+    srv.tick()
+    assert srv.hub_heartbeat == 7 and srv.heartbeat_seconds == 7 and srv.public()["heartbeat_seconds"] == 7
+    state.heartbeat_seconds = 0                     # mimo hraníc → config
+    srv.tick()
+    assert srv.hub_heartbeat is None and srv.heartbeat_seconds == 3
+    srv._note_heartbeat("nie číslo")
+    assert srv.heartbeat_seconds == 3
+
+    # strážca: prvý pohľad si len zapamätá odtlačok, rast spoolu nastaví `_work`
+    assert srv._live is not None                      # shipper vznikol v work() po ticku
+    srv._work.clear()
+    assert srv.watch_spool() is False and not srv._work.is_set()
+    d = root / LIVE_INST
+    d.mkdir()
+    with open(d / "20260928-100000_a1b2c3d4.jsonl", "ab") as fh:
+        fh.write(_json.dumps(_live_hello()).encode() + b"\n")
+    assert srv.watch_spool() is True and srv._work.is_set()
+    srv._work.clear()
+    assert srv.watch_spool() is False                # bez rastu nič
+    srv.work()                                        # pomalé vlákno pošle hneď
+    assert c.app.state.live.cursor() == 1
+    assert srv.watch_spool() is False                # odoslanie samo spool nemení
+
+
 # --------------------------------------------------------------------------- #
 # live nasadenia (docs/LIVE.md, fáza 2b): účty, nasadenia, heartbeat `live`
 # --------------------------------------------------------------------------- #

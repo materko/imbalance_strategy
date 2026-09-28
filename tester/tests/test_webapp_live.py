@@ -158,6 +158,76 @@ def test_api_behy_a_snapshot_so_session(live_app):
     assert len(c.get(f"/api/live/{INSTANCE}/events?kinds=bar").json()) == 3
 
 
+def test_api_stream_sse_posle_stav_a_nove_riadky(live_app):
+    """`GET /api/live/stream`: hneď `instances`, po zápise do zrkadla `events` (riadky inštancie)
+    a znova `instances`; formát je SSE (`data:` + prázdny riadok).
+
+    `TestClient` odpoveď vždy dočíta celú (stream by nikdy neskončil), preto sa ASGI aplikácia
+    volá priamo: `send` zbiera kúsky tela a `receive` ohlási odpojenie, keď ich je dosť — tak
+    isto, ako keď stránka zavrie `EventSource`."""
+    import asyncio
+    import threading
+    import time as _t
+
+    from tester.webapp.api.live import sse_event, stream_messages
+
+    c, mirror = live_app
+    assert sse_event({"type": "x"}) == 'data: {"type":"x"}\n\n'
+    assert sse_event({"a": 1}, event="ping").startswith("event: ping\ndata: ")
+
+    # formátovač správ priamo: prázdne zrkadlo = len `instances`
+    msgs = list(stream_messages(mirror, after=0))
+    assert [m["type"] for m in msgs] == ["instances"] and msgs[0]["instances"] == [] and msgs[0]["cursor"] == 0
+    mirror.store.ingest("trade-pc", INSTANCE, "a1b2c3d4", _events()[:2])
+    msgs = list(stream_messages(mirror, after=0))
+    assert [m["type"] for m in msgs] == ["events", "instances"]
+    assert msgs[0]["instance"] == INSTANCE and [r["seq"] for r in msgs[0]["rows"]] == [1, 2]
+    assert set(msgs[0]["rows"][0]) == {"id", "session", "seq", "event"}
+    assert msgs[1]["cursor"] == 2 and msgs[1]["instances"][0]["id"] == INSTANCE
+    assert [m["type"] for m in stream_messages(mirror, after=2)] == ["instances"]   # nič za kurzorom
+
+    # cez ASGI: stream začne od `after`, potom zobudenie zmenou zrkadla (ingest + _bump ako tik)
+    def neskor():
+        _t.sleep(0.3)
+        n = mirror.store.ingest("trade-pc", INSTANCE, "a1b2c3d4", _events()[2:4])
+        mirror._bump(n)
+
+    async def klient() -> tuple[dict, list[dict]]:
+        hlava: dict = {}
+        telo = bytearray()
+        prijate: list[dict] = []
+        dost = asyncio.Event()
+
+        async def receive():
+            await dost.wait()
+            return {"type": "http.disconnect"}
+
+        async def send(msg):
+            if msg["type"] == "http.response.start":
+                hlava.update(status=msg["status"], headers={k.decode(): v.decode() for k, v in msg["headers"]})
+            elif msg["type"] == "http.response.body":
+                telo.extend(msg.get("body") or b"")
+                prijate[:] = [json.loads(l[6:]) for l in telo.decode("utf-8").split("\n") if l.startswith("data: ")]
+                if len(prijate) >= 4:
+                    dost.set()
+
+        scope = {"type": "http", "asgi": {"version": "3.0"}, "http_version": "1.1", "method": "GET",
+                 "scheme": "http", "path": "/api/live/stream", "raw_path": b"/api/live/stream",
+                 "query_string": b"after=1", "headers": [(b"host", b"testserver")],
+                 "client": ("127.0.0.1", 1), "server": ("testserver", 80), "root_path": ""}
+        threading.Thread(target=neskor).start()
+        await asyncio.wait_for(c.app(scope, receive, send), timeout=10)
+        return hlava, prijate
+
+    hlava, prijate = asyncio.run(klient())
+    assert hlava["status"] == 200 and hlava["headers"]["content-type"].startswith("text/event-stream")
+    assert [m["type"] for m in prijate[:4]] == ["events", "instances", "events", "instances"]
+    assert [x["seq"] for x in prijate[0]["rows"]] == [2]            # od after=1
+    assert [x["seq"] for x in prijate[2]["rows"]] == [3, 4]         # čo pribudlo počas streamu
+    assert prijate[3]["cursor"] == 4 and prijate[3]["mirror"]["version"] == 1
+    assert c.get(f"/api/live/{INSTANCE}/snapshot").json()["cursor"] == 4 and c.get("/api/live").json()["cursor"] == 4
+
+
 # --------------------------------------------------------------------------- #
 # zrkadlo: hub
 # --------------------------------------------------------------------------- #
@@ -207,6 +277,46 @@ def test_zrkadlo_stiahne_z_hubu_po_strankach_a_posunie_kurzor(tmp_path: Path):
     m.tick()
     assert m.hub_cursor == 5 and m.store.cursor() == 5
     assert http.calls[-1] == "/api/live/export?after=5&limit=5000"
+
+
+def test_zrkadlo_cez_transport_a_poslucháč_verzie(tmp_path: Path):
+    """Zrkadlo ťahá cez `Transport.pull_export` (nie cez HTTP cesty) a každý tik, ktorý niečo
+    uložil, zdvihne `version` — na tom čaká SSE stream (`wait_for_change`)."""
+    from tester.tests.test_live_spool import FakeTransport
+
+    hub_store = LiveStore(tmp_path / "hub.sqlite")
+    t = FakeTransport(hub_store)
+    cfg = SimpleNamespace(name="notebook", hub_url="http://hub.test:8790", send=True)
+    m = _mirror(tmp_path, hub=(cfg, t), clock=lambda: 123.0)
+    assert m.interval == 2.0 and m.version == 0
+
+    m.tick()                                     # prázdny hub: nič, verzia stojí
+    assert m.version == 0 and m.wait_for_change(0, timeout=0.01) == 0
+    hub_store.ingest("trade-pc", INSTANCE, "a1b2c3d4", _events())
+    m.tick()
+    assert m.version == 1 and m.hub_cursor == 5 and len(m.store.events(INSTANCE)) == 5
+    assert m.wait_for_change(0, timeout=0) == 1  # už je novšia — vráti sa hneď
+    m.tick()                                     # nič nové: verzia stojí, kurzor tiež
+    assert m.version == 1 and m.hub_cursor == 5
+
+    # výpadok transportu: chyba v stave, verzia stojí; po návrate dobehne
+    t.down = True
+    m.tick()
+    assert m.last_error and "hub je mimo" in m.last_error and m.version == 1
+    t.down = False
+    hub_store.ingest("trade-pc", INSTANCE, "a1b2c3d4", [{"seq": 6, "t": 1_790_000_100_000, "k": "note", "text": "x", "level": "info"}])
+    m.tick()
+    assert m.last_error is None and m.version == 2 and m.hub_cursor == 6
+
+    # čakanie z iného vlákna sa zobudí zmenou, nie časom
+    import threading
+    videne: list[int] = []
+    th = threading.Thread(target=lambda: videne.append(m.wait_for_change(2, timeout=5)))
+    th.start()
+    hub_store.ingest("trade-pc", INSTANCE, "a1b2c3d4", [{"seq": 7, "t": 1_790_000_100_001, "k": "note", "text": "y", "level": "info"}])
+    m.tick()
+    th.join(2)
+    assert videne == [3]
 
 
 def test_zrkadlo_prenesie_dva_behy_jednej_instancie(tmp_path: Path):

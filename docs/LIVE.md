@@ -7,14 +7,21 @@ prechody stavov, kresby a vyplnenia u brokera; webapp ich ukazuje na karte **Liv
 ## Cesta dát a kde sa čo cache-uje
 
 ```
-NT8 strategia / MT5 EA ──► TradeBot.Core LiveSpool ──► spool/<instance>/<súbor>.jsonl   (1) disk platformy
+NT8 strategia / MT5 EA ──► TradeBot.Core LiveSpool ──► spool/<instance>/<súbor>.jsonl   (1) disk platformy, flush hneď
                                                               │
-      tester.hub agent (na tom istom PC) ── SpoolReader + kurzor ──► POST /api/live/events   (2) kurzor za potvrdením
-                                                              │
+      tester.hub agent (na tom istom PC) ── SpoolReader + kurzor ──► Transport.push_events    (2) strážca spoolu 1 s → hneď;
+                                                              │       (HTTP POST /api/live/events)  heartbeat 3 s = poistka
                                                      HUB  live.sqlite                        (3) hub
                                                               │
-      webapp ── LiveMirror (GET /api/live/export?after=) ──► tester/live/mirror.sqlite       (4) webapp
+      webapp ── LiveMirror (Transport.pull_export, 2 s) ──► tester/live/mirror.sqlite        (4) webapp, 2 s
+                                                              │
+      prehliadač ◄── GET /api/live/stream (SSE, push po každom zápise do zrkadla)              (5) stránka, hneď
 ```
+
+**Oneskorenie bar → stránka ≈ 2–4 s** (súčet: zápis hneď + strážca do 1 s + HTTP + zrkadlo do 2 s
++ push hneď). Predtým to bol heartbeat 10 s + zrkadlo 5 s + polling stránky 5 s, teda do 20 s.
+Pokyny opačným smerom (control súbor, fáza 2) idú heartbeatom (3 s) a adaptér súbor číta
+každých 5 s → ≈ 3 + 5 s.
 
 Každý uzol smie byť dole a nič sa nestratí:
 
@@ -23,13 +30,30 @@ Každý uzol smie byť dole a nič sa nestratí:
    agent alebo hub, stratégia obchoduje ďalej a súbory čakajú.
 2. **Agent** číta spool od uloženého kurzora (`tester/live/cursor.json`: súbor → offset) a posúva
    ho **až po 200 od hubu**. Hub dole = kurzor stojí, súbory rastú, po návrate sa dopošle všetko.
+   Ľahké vlákno agenta každú sekundu pozrie veľkosti súborov spoolu (len `stat`) a keď narástli,
+   zobudí odosielanie hneď — bar nečaká na heartbeat (ten ostáva ako poistka).
 3. **Hub** ukladá do `tester/hub_data/live.sqlite` idempotentne (`UNIQUE(instance, session, seq)`),
    takže opakované poslanie tej istej dávky nič nezdvojí.
-4. **Webapp** si z hubu zrkadlí udalosti do vlastného sqlite (kurzor = rowid hubu). Hub dole =
-   webapp ukazuje, čo má. Keď webapp beží na obchodnom PC, číta aj lokálny spool priamo
-   (vlastný kurzor `tester/live/cursor_webapp.json`) — funguje aj bez hubu.
+4. **Webapp** si z hubu zrkadlí udalosti do vlastného sqlite (kurzor = rowid hubu) každé 2 s
+   (plná stránka = hneď ďalšia). Hub dole = webapp ukazuje, čo má. Keď webapp beží na
+   obchodnom PC, číta aj lokálny spool priamo (vlastný kurzor `tester/live/cursor_webapp.json`)
+   — funguje aj bez hubu.
+5. **Stránka** drží otvorený `EventSource` na `/api/live/stream`; webapp jej po každom zápise do
+   zrkadla pošle nové riadky. Bez SSE (starý server, proxy) sa stránka vráti k pollingu 5 s.
 
 Platformy sú za NAT, verejný je len hub → všetko je **pull/push od agenta**, hub nikdy nevolá von.
+
+### Transport
+
+Shipper agenta ani zrkadlo webapp nepoznajú HTTP cesty hubu — hovoria s rozhraním
+`tradebot.live.transport.Transport`: `push_events(agent, batches) -> {"accepted": n}` (agent →
+hub, idempotentné podľa `(instance, session, seq)`) a `pull_export(after, limit) -> rows` (hub →
+zrkadlo). Dnes ho plní `HttpTransport(HubHttp)` nad `/api/live/events` a `/api/live/export`;
+`as_transport()` zabalí aj holý HTTP klient (staré volania, falošné HTTP v testoch). Heartbeat
+agenta a celý protokol výpočtov (`tester/hub/protocol.py`) sú **mimo** transportu — cez
+`Transport` ide len telemetria. Ako by tie isté tri operácie vyzerali cez NATS/JetStream
+(subjecty `live.events.<agent>`, durable consumer pre export, dedup podľa `Nats-Msg-Id`), je
+v docstringu modulu — len náčrt, žiadna implementácia.
 
 ## Identita
 
@@ -167,16 +191,30 @@ Hub (`tester/hub/live.py`, pripája `create_hub_app`), auth ako ostatné (token 
 | GET | `/api/live/instances/{id}/snapshot?bars=&session=` | snapshot (so `session=` len ten beh) |
 | GET | `/api/live/export?after=&limit=` | riadky pre zrkadlo |
 
-Agent (`tester/hub/agent.py`): v pomalom vlákne (`work()`) pribudne krok `_ship_live` — shipper
-vznikne, keď existuje aspoň jeden koreň spoolu; heartbeat sa nemení. Headless
-`python -m tester.hub agent` posiela rovnako.
+Agent (`tester/hub/agent.py`): v pomalom vlákne (`work()`) je krok `_ship_live` — shipper
+vznikne, keď existuje aspoň jeden koreň spoolu. Tretie, ľahké vlákno (`watch_spool`, 1 s) pozerá
+veľkosti súborov spoolu a pri raste zobudí pomalé vlákno hneď; heartbeat (predvolene 3 s,
+`DEFAULT_HEARTBEAT`; hub pošle svoj interval v odpovedi a agent ho prevezme) ostáva poistkou.
+Headless `python -m tester.hub agent` posiela rovnako.
 
 Webapp (`tester/webapp/api/live.py`, `static/js/live.js`, karta **Live**): `LiveMirror` vlákno
-(každých 5 s `export` z hubu + lokálny spool, ak je) → `tester/live/mirror.sqlite`;
-`GET /api/live` (inštancie + stav zrkadla), `GET /api/live/{id}/sessions`, `GET /api/live/{id}/snapshot?bars=&session=`,
-`GET /api/live/{id}/events?…&session=`.
+(každé 2 s `Transport.pull_export` z hubu + lokálny spool, ak je) → `tester/live/mirror.sqlite`;
+každý tik, ktorý niečo uložil, zdvihne `version` zrkadla a zobudí čakajúcich (`wait_for_change`).
+`GET /api/live` (inštancie + stav zrkadla + `cursor`), `GET /api/live/{id}/sessions`,
+`GET /api/live/{id}/snapshot?bars=&session=` (nesie `cursor` zrkadla pred čítaním),
+`GET /api/live/{id}/events?…&session=`, a **`GET /api/live/stream?after=`** — SSE
+(`text/event-stream`): hneď `{"type":"instances", instances, mirror, now, deploy, cursor}` a po
+každej zmene zrkadla `{"type":"events", instance, rows:[{id, session, seq, event}]}` po inštanciách
++ znova `instances`; bez zmeny každých 15 s komentár (keepalive). Stránka pri otvorení karty
+načíta zoznam a snapshot ako doteraz, potom drží `EventSource`: zoznam sa prekreslí z `instances`,
+otvorený detail sa **dopĺňa** z `events` (bary podľa `bt`, ordery, kresby, fills, poznámky, stat;
+riadky s `id ≤ cursor` snapshotu sa preskočia) a snapshot sa sťahuje znova len pri zmene behu
+(nový `hello` v „aktuálnom“ pohľade). Ukončený beh sa nemení. Bez `EventSource` alebo po chybe
+streamu ide polling každých 5 s (stream sa skúsi znova o minútu); účty a nasadenia (hub, nie
+zrkadlo) sa pri streame obnovujú každých 15 s. `TRADEBOT_LIVE_DIR` presunie `tester/live/`
+(zrkadlo, kurzory) inam — druhá webapp na stroji, skúšky proti dočasnému zrkadlu.
 Graf: Plotly sviečky z `bar`, kresby cez `objectTraces` z `chart.js`, fills ako značky, posuny SL/TP
-(`order` `a:"modify"`) ako malé stupienky a riadky „posun SL/TP“ v tabuľke orderov; obnova každých 5 s.
+(`order` `a:"modify"`) ako malé stupienky a riadky „posun SL/TP“ v tabuľke orderov.
 
 **Behy (sessions).** Každý štart stratégie je nový beh — `session` v `hello` a v každom riadku
 spoolu; dáta sa ukladajú po behoch a `LiveStore.sessions(instance)` z nich urobí prehľad (štart =
@@ -186,8 +224,8 @@ spoolu; dáta sa ukladajú po behoch a `LiveStore.sessions(instance)` z nich uro
 prehratú predhistóriu aj nový beh v jednom okne), pod ním behy od najnovšieho ako
 `štart UTC → koniec UTC (bary, fills, profil)`. Vybraný beh načíta `snapshot?session=` — celý beh
 (do 5000 barov), tabuľky orderov a fillov aj graf idú len z neho, pod hlavičkou je jeho agent, profil,
-stroj a dôvod konca. Ukončený beh sa už neobnovuje; živý beh a „aktuálny“ ďalej každých 5 s. Zrkadlo
-nič navyše nerobí — nesie všetky behy tak, ako prišli z hubu.
+stroj a dôvod konca. Ukončený beh sa už neobnovuje; živý beh a „aktuálny“ sa dopĺňajú zo streamu
+(pri pollingu každých 5 s). Zrkadlo nič navyše nerobí — nesie všetky behy tak, ako prišli z hubu.
 
 ## Fáza 2: ovládanie cez control súbor
 
@@ -212,8 +250,10 @@ súbor. Chýbajúci súbor = `enabled` + profil z parametrov stratégie (dnešn�
   (engine je deterministický, výsledok je ako čerstvý štart; MT5 to v `OnInit` robí aj dnes). Kým nie
   je flat, zmena čaká (`control` udalosť so `source:"pending"`). Vynútenie = najprv `flatten`.
 - Adaptér súbor kontroluje podľa mtime **každých 5 s** (MT5 `OnTimer`, NT `System.Timers.Timer` +
-  `TriggerCustomEvent`, nech to beží vo vlákne stratégie) a pri každom bare. Každá aplikovaná zmena
-  ide do spoolu ako `control` (`mode`, `profile`, `source`: `control`/`default`/`pending`) a do logu.
+  `TriggerCustomEvent`, nech to beží vo vlákne stratégie; AddOn takisto 5 s) a pri každom bare. Každá
+  aplikovaná zmena ide do spoolu ako `control` (`mode`, `profile`, `source`: `control`/`default`/`pending`)
+  a do logu. Oneskorenie pokynu z webapp ≈ heartbeat agenta (3 s) + tých 5 s.
+  TODO: znížiť poll adaptérov na 1–2 s (NT `Timer`, MT5 `EventSetTimer`, AddOn) — C#/MQL, mení sa zvlášť.
 - Id inštancie adaptér pozná zo spoolu (`LiveSpool.Instance`, MT5 `StaticHost::SpoolInstance`);
   keď je telemetria vypnutá, spočíta ho `LiveSpool.InstanceId` / `StaticHost::InstanceId`.
 - NT8: súbor ručne píše `python -m tradebot.adapters.ninjatrader control <inštancia|list> [--mode] [--profile]`
@@ -309,8 +349,13 @@ TF, profil). Mutácie idú cez webapp na hub s **admin tokenom** (`admin_token` 
 
 - `tester/tests/test_live_store.py` — store: idempotencia, snapshot, export/kurzor.
 - `tester/tests/test_live_spool.py` — reader: kurzor, neúplný riadok, rotácia, viac inštancií;
-  shipper proti falošnému HTTP (výpadok = kurzor stojí, po návrate nič dvakrát).
-- `tester/tests/test_hub.py` — `/api/live/*` cez TestClient, práva tokenov.
+  shipper proti falošnému `Transport` aj starému falošnému HTTP (výpadok = kurzor stojí, po
+  návrate nič dvakrát).
+- `tester/tests/test_webapp_live.py` — zrkadlo cez `Transport` a poslucháč verzie; SSE
+  (`sse_event`, `stream_messages`, `/api/live/stream` volaný priamo ako ASGI — `TestClient`
+  odpoveď vždy dočíta celú, stream by nikdy neskončil).
+- `tester/tests/test_hub.py` — `/api/live/*` cez TestClient, práva tokenov; agent preberá
+  `heartbeat_seconds` hubu a strážca spoolu zobudí odosielanie.
 - `tester/tests/test_mt5_static_host.py` — `Spool*` cez reflexiu: súbor vznikne, `hello`+`bar`+`fill`
   +`order/modify` sú platné podľa `schema.validate`, `Version() == 2`.
 - `python -m tradebot.adapters.ninjatrader check` a `python -m tradebot.adapters.mt5 check` prekladajú.

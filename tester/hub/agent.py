@@ -3,8 +3,9 @@
     agent = HubAgent(cfg, runner, store)   # runner = BacktestRunner webapp alebo vlastný
     agent.start()                          # dve vlákna: heartbeat (`tick`) a pomalá práca (`work`)
 
-**Dve vlákna, nie jedno.** Heartbeat musí odísť každých `heartbeat_seconds`, inak hub po
-45 sekundách vyhlási agenta za mŕtveho a jeho výpočty dá inému. Zip s výsledkom, sťahovanie
+**Dve vlákna, nie jedno.** Heartbeat musí odísť každých `heartbeat_seconds` (predvolene 3 s;
+hub v odpovedi pošle svoj interval a agent sa mu prispôsobí), inak hub po 45 sekundách
+vyhlási agenta za mŕtveho a jeho výpočty dá inému. Zip s výsledkom, sťahovanie
 výsledku a hlavne `git pull` s poskladaním dát po ňom trvajú aj minúty — preto ich robí
 druhé vlákno (`work()`) a tick len povie, že je čo robiť. Bez vlákien (testy, `tick()`
 naholo) sa pomalá práca spraví na konci ticku.
@@ -25,7 +26,10 @@ Jedno kolo `work()`:
    `ack` hubu),
 4. **pošle live telemetriu** (`_ship_live`, docs/LIVE.md): keď je na stroji spool NinjaTradera
    alebo MT5 (`tradebot.live.default_roots`), `LiveShipper` ho odošle na hub a kurzor posunie
-   až po 200; korene sa preverujú každú minútu, nech sa platforma nainštalovaná neskôr chytí,
+   až po 200; korene sa preverujú každú minútu, nech sa platforma nainštalovaná neskôr chytí.
+   Aby bar nečakal na heartbeat, **tretie, ľahké vlákno** (`_spool_watch_loop`) každú sekundu
+   pozrie veľkosti súborov spoolu (`SpoolReader.status()`, len `stat`) a keď narástli, zobudí
+   pomalé vlákno hneď (`_work`); heartbeat ostáva ako poistka,
 5. **zosúladí nasadenia** (`_apply_live`, docs/LIVE.md fáza 2b): heartbeat prinesie v `live`
    účty a nasadenia tohto agenta, `Reconciler` s drivermi platforiem (`tradebot.live.drivers`)
    ich zapíše na disk platformy a spustí terminál; čo sa podarilo, ide v `live.applied`
@@ -96,6 +100,13 @@ DELIVER_404_TRIES = 5
 #: Ako často sa znova hľadajú korene live spoolu (platforma nainštalovaná po štarte agenta).
 LIVE_ROOTS_RECHECK_SECONDS = 60.0
 
+#: Ako často ľahké vlákno pozrie, či spool narástol (len `stat` súborov) — po raste zobudí
+#: pomalé vlákno hneď, takže bar odíde na hub do ~1 s, nie až s heartbeatom.
+SPOOL_WATCH_SECONDS = 1.0
+
+#: Rozumné hranice pre `heartbeat_seconds`, ktoré pošle hub — mimo nich sa nechá config.
+HEARTBEAT_MIN, HEARTBEAT_MAX = 1, 600
+
 
 def _parse_iso(text: str | None) -> float | None:
     if not text:
@@ -123,6 +134,10 @@ class HubAgent:
         self._live: Any = None
         self._live_checked: float | None = None
         self._live_error: str | None = None
+        #: Odtlačok spoolu (počet súborov, bajty spolu) z posledného pohľadu strážcu.
+        self._spool_stamp: tuple[int, int] | None = None
+        #: Interval heartbeatu, ktorý poslal hub v odpovedi (None = z configu).
+        self.hub_heartbeat: int | None = None
         #: Nasadenia z hubu (fáza 2b): reconciler vznikne pri prvom `live` v odpovedi; požadovaný
         #: stav si heartbeat odloží a pomalé vlákno ho aplikuje (`_apply_live`).
         self._reconciler: Any = reconciler
@@ -166,6 +181,7 @@ class HubAgent:
         self._work = threading.Event()
         self._thread: threading.Thread | None = None
         self._worker: threading.Thread | None = None
+        self._watcher: threading.Thread | None = None
 
     # -- vlákno ------------------------------------------------------------- #
 
@@ -178,10 +194,19 @@ class HubAgent:
             self._worker = threading.Thread(target=self._work_loop, name="hub-agent-work",
                                             daemon=True)
             self._worker.start()
+        if self._watcher is None or not self._watcher.is_alive():
+            self._watcher = threading.Thread(target=self._spool_watch_loop, name="hub-agent-spool",
+                                             daemon=True)
+            self._watcher.start()
 
     def stop(self) -> None:
         self._stop.set()
         self._work.set()
+
+    @property
+    def heartbeat_seconds(self) -> int:
+        """Platný interval heartbeatu: čo poslal hub, inak config."""
+        return self.hub_heartbeat or self.cfg.heartbeat_seconds
 
     def _loop(self) -> None:
         while not self._stop.is_set():
@@ -191,7 +216,31 @@ class HubAgent:
                 self.registered = False
                 self.last_error = f"{type(exc).__name__}: {exc}"
                 log.warning("hub agent: %s", self.last_error)
-            self._stop.wait(self.cfg.heartbeat_seconds)
+            self._stop.wait(self.heartbeat_seconds)
+
+    def _spool_watch_loop(self) -> None:
+        """Ľahký strážca spoolu: každú sekundu `stat` súborov; rast = zobudiť pomalé vlákno."""
+        while not self._stop.wait(SPOOL_WATCH_SECONDS):
+            try:
+                self.watch_spool()
+            except Exception as exc:  # noqa: BLE001 - strážca nesmie umrieť
+                log.debug("hub agent: strážca spoolu: %s", exc)
+
+    def watch_spool(self) -> bool:
+        """Jeden pohľad na spool: keď od minula pribudli bajty alebo súbory, nastaví `_work`
+        (shipper pošle hneď, nie až s heartbeatom) a vráti True. Bez shippera (žiadny koreň)
+        nič nerobí — ten vzniká v `work()` a heartbeat ho zavolá."""
+        shipper = self._live
+        if shipper is None:
+            return False
+        st = shipper.reader.status()
+        subory = st.get("files") or []
+        stamp = (len(subory), sum(int(f.get("size") or 0) for f in subory))
+        zmena = self._spool_stamp is not None and stamp != self._spool_stamp
+        self._spool_stamp = stamp
+        if zmena:
+            self._work.set()
+        return zmena
 
     def _has_worker(self) -> bool:
         return self._worker is not None and self._worker.is_alive()
@@ -351,6 +400,7 @@ class HubAgent:
                 self._queue_collect(job)
             if "live" in odpoved:
                 self._note_live(odpoved.get("live"))
+            self._note_heartbeat(odpoved.get("heartbeat_seconds"))
             self.last_ok = self.clock()
             self.last_error = None
             return odpoved
@@ -359,6 +409,20 @@ class HubAgent:
             # nedvíha a heartbeat spadol: odovzdanie výsledku na ňom nezávisí.
             if not self._has_worker():
                 self.work()
+
+    def _note_heartbeat(self, value: Any) -> None:
+        """Hub v odpovedi posiela svoj `heartbeat_seconds` — agent sa mu prispôsobí (mimo
+        rozumných hraníc alebo chýbajúci = ostáva config)."""
+        try:
+            n = int(value) if value is not None else None
+        except (TypeError, ValueError):
+            n = None
+        if n is not None and not (HEARTBEAT_MIN <= n <= HEARTBEAT_MAX):
+            n = None
+        if n != self.hub_heartbeat:
+            if n is not None and n != self.cfg.heartbeat_seconds:
+                log.info("hub agent: heartbeat podľa hubu %d s (config %d s)", n, self.cfg.heartbeat_seconds)
+            self.hub_heartbeat = n
 
     def _heartbeat(self) -> dict[str, Any]:
         """Heartbeat; keď hub agenta nepozná (nový hub, stratený `state.json`), prihlási sa
@@ -829,6 +893,7 @@ class HubAgent:
             "version": self.version, "needs_restart": self.needs_restart,
             "code_changed": self.code_changed, "updating": self.updating,
             "registered": self.registered, "last_error": self.last_error,
+            "heartbeat_seconds": self.heartbeat_seconds,
             "last_ok": datetime.fromtimestamp(self.last_ok, tz=timezone.utc).isoformat(timespec="seconds")
             if self.last_ok else None,
             "computing": {k: dict(v) for k, v in self.state.computing.items()},

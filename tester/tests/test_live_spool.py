@@ -204,8 +204,33 @@ def test_default_roots_env_and_dedupe(tmp_path: Path, monkeypatch):
 # --------------------------------------------------------------------------- #
 
 
+class FakeTransport:
+    """Falošný `Transport` (tradebot.live.transport): `push_events` ukladá do `LiveStore` ako
+    skutočný hub, `pull_export` z neho číta; `down` = výpadok (výnimka)."""
+
+    def __init__(self, store: LiveStore) -> None:
+        self.store = store
+        self.down = False
+        self.pushes: list[tuple[str, list[dict]]] = []
+
+    def push_events(self, agent: str, batches: list[dict]) -> dict:
+        if self.down:
+            raise OSError("hub je mimo")
+        self.pushes.append((agent, batches))
+        n = 0
+        for b in batches:
+            n += self.store.ingest(agent, b["instance"], b["session"], b["events"])
+        return {"accepted": n}
+
+    def pull_export(self, after: int = 0, limit: int = 5000) -> list[dict]:
+        if self.down:
+            raise OSError("hub je mimo")
+        return self.store.export(after=after, limit=limit)
+
+
 class FakeHub:
-    """Falošné HTTP: `post` ukladá do `LiveStore` ako skutočný hub; `down` = výpadok."""
+    """Falošné **HTTP** (starý tvar `http` shipperu): `post` ukladá do `LiveStore` ako skutočný
+    hub; `down` = výpadok. Shipper ho zabalí do `HttpTransport` — starí volajúci fungujú ďalej."""
 
     def __init__(self, store: LiveStore) -> None:
         self.store = store
@@ -280,6 +305,38 @@ def test_shipper_failure_mid_way_resends_only_unconfirmed(reader, tmp_path: Path
     assert out["sent"] == 3 and out["accepted"] == 1 and out["error"] is None   # 2 zopakované + 1 nová
     assert [e["seq"] for e in hub_store.events(INST)] == [1, 2, 3, 4, 5]   # nič zdvojené
     assert s.status()["sent_total"] == 5 and s.status()["accepted_total"] == 3
+
+
+def test_shipper_over_transport_outage_and_resume(reader, tmp_path: Path):
+    """To isté cez `Transport` (nie HTTP): výpadok = kurzor stojí, po návrate raz; shipper HTTP
+    cesty nepozná — vidí len `push_events(agent, batches)`."""
+    from tradebot.live.transport import HttpTransport, Transport, as_transport
+
+    r, root = reader
+    hub_store = LiveStore(tmp_path / "hub.sqlite")
+    t = FakeTransport(hub_store)
+    assert isinstance(t, Transport) and as_transport(t) is t
+    s = LiveShipper(r, t, "nt-pc", batch_events=4)
+    assert s.transport is t and s.http is t          # bez podkladového HTTP je `http` transport sám
+
+    f = spool_file(root, INST, "a1b2c3d4")
+    f.write_bytes(line(hello(1, "a1b2c3d4")) + b"".join(line(bar(2 + i, i)) for i in range(5)))
+    t.down = True
+    assert s.pump()["sent"] == 0 and r.status()["pending_bytes"] > 0
+    t.down = False
+    out = s.pump()
+    assert out == {"sent": 6, "accepted": 6, "rounds": 2, "error": None}
+    assert [(a, [b["instance"] for b in bs]) for a, bs in t.pushes] == [("nt-pc", [INST])] * 2
+    assert t.pushes[0][1][0]["session"] == "a1b2c3d4" and len(t.pushes[0][1][0]["events"]) == 4
+    assert r.status()["pending_bytes"] == 0 and hub_store.cursor() == 6
+    assert [x["event"]["seq"] for x in t.pull_export(after=4)] == [5, 6]
+
+    # starý HTTP klient sa zabalí; `as_transport` odmietne nezmysel
+    hub = FakeHub(hub_store)
+    s2 = LiveShipper(r, hub, "nt-pc")
+    assert isinstance(s2.transport, HttpTransport) and s2.http is hub
+    with pytest.raises(TypeError):
+        as_transport(object())
 
 
 def test_shipper_max_batches_bounds_one_pump(reader, tmp_path: Path):

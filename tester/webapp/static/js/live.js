@@ -5,8 +5,12 @@
 // Live: bežiace stratégie (NinjaTrader 8, MetaTrader 5) zo zrkadla webapp
 //
 // Stránka číta len zrkadlo (`/api/live`, `/api/live/<id>/snapshot`, `/api/live/<id>/events`),
-// ktoré plní vlákno LiveMirror na serveri (hub + lokálny spool). Kým je karta otvorená,
-// zoznam aj otvorený detail sa obnovujú každých 5 s; inak sa nič nepýta.
+// ktoré plní vlákno LiveMirror na serveri (hub + lokálny spool). Kým je karta otvorená, drží
+// otvorený `EventSource` na `/api/live/stream` (SSE): server pošle `instances` (zoznam + stav
+// zrkadla) a `events` (nové riadky inštancie) hneď, ako zrkadlo niečo uloží — zoznam sa
+// prekreslí a otvorený detail sa **doplní** (bary, ordery, kresby, fills), snapshot sa
+// sťahuje znova len pri zmene behu. Bez EventSource alebo po chybe streamu sa karta vráti
+// k pôvodnému pollingu každých 5 s (a stream skúsi znova o minútu). Mimo karty sa nič nepýta.
 // Graf: sviečky z `bar`, kresby z `draw` zlúčené podľa `id` (update mení pole, delete
 // maže) a nakreslené tým istým `objectTraces` ako graf behu, vyplnenia ako značky.
 // Behy: každý štart stratégie je nová session; výber „Beh" v detaile načíta snapshot so
@@ -14,7 +18,10 @@
 // Účty a nasadenia (fáza 2b, dole v súbore) idú vždy na hub cez proxy webapp.
 // --------------------------------------------------------------------------- //
 
-const LIVE_POLL_MS = 5000;
+const LIVE_POLL_MS = 5000;            // polling, keď stream nejde (starý server, proxy bez SSE)
+const LIVE_SSE_RETRY_MS = 60000;      // po chybe streamu: polling a o minútu stream znova
+const LIVE_DEPLOY_POLL_MS = 15000;    // účty a nasadenia idú z hubu (nie zo zrkadla) — pri streame sa obnovujú takto
+const LIVE_WINDOW_BARS = 500;         // „aktuálny" detail drží toľko barov (ako snapshot servera)
 const LIVE_FILLS_LAYER = { id: "fills", title: "Vyplnenia u brokera", kinds: [], sw: BLUE, hollow_kinds: [] };
 const LIVE_MODIFY_COLOR = "#ff9800";
 /** Posuny SL/TP otvorenej pozície (`order` s `a:"modify"`) — malé stupienky na grafe. */
@@ -27,6 +34,7 @@ const LIVE_DRAW_FIELD = { x1_ms: "x1", x2_ms: "x2", x_ms: "x", fill_color: "fc",
 const lv = {
   timer: null, selected: null, instances: [], now: 0, mirror: null, deploy: null,
   snap: null, seq: 0,
+  sse: null, sseFailedAt: 0, cursor: 0, snapCursor: 0, deployTimer: null,   // stream (SSE) a kurzory zrkadla
   session: "", sessions: [], sessionsKey: "", // vybraný beh ("" = aktuálny naprieč behmi) a zoznam behov inštancie
   strategy: null, L: null, layers: {},       // kontext kresieb pre objectTraces (ako `pc` pri behu)
   fills: {},                                  // id inštancie → { after, fills: [], dirs: {} } (prírastkovo)
@@ -47,8 +55,120 @@ function liveAge(ms, now) {
   return `pred ${Math.round(s / 86400)} d`;
 }
 
-/** Zapnutie polling-u karty; `stopLive()` ho vypne (volá showView pri odchode z karty). */
-function stopLive() { clearTimeout(lv.timer); lv.timer = null; }
+/** Vypne obnovu karty: polling, stream aj obnovu nasadení (volá showView pri odchode z karty). */
+function stopLive() {
+  clearTimeout(lv.timer); lv.timer = null;
+  clearTimeout(lv.deployTimer); lv.deployTimer = null;
+  if (lv.sse) { lv.sse.close(); lv.sse = null; }
+}
+
+/** Stream sa skúša, keď ho prehliadač má a naposledy nezlyhal (po chybe minúta pollingu). */
+function liveStreamWanted() {
+  return typeof EventSource !== "undefined" && (!lv.sseFailedAt || Date.now() - lv.sseFailedAt > LIVE_SSE_RETRY_MS);
+}
+
+/** Otvorí SSE na `/api/live/stream?after=<kurzor>`; chyba = zavrieť a vrátiť sa k pollingu. */
+function liveConnectStream() {
+  if (lv.sse || $("#view-live").hidden) return;
+  const es = new EventSource(`/api/live/stream?after=${lv.cursor || 0}`);
+  lv.sse = es;
+  es.onmessage = e => {
+    let msg; try { msg = JSON.parse(e.data); } catch { return; }
+    if (msg.type === "instances") liveApplyInstances(msg);
+    else if (msg.type === "events") liveApplyRows(msg.instance, msg.rows || []).catch(() => {});
+  };
+  es.onerror = () => {
+    if (lv.sse !== es) return;
+    es.close(); lv.sse = null; lv.sseFailedAt = Date.now();
+    if (!$("#view-live").hidden && !lv.timer) lv.timer = setTimeout(loadLive, LIVE_POLL_MS);
+  };
+  liveScheduleDeploy();
+}
+
+/** Pri streame sa účty a nasadenia (hub, nie zrkadlo) obnovujú samostatne a redšie. */
+function liveScheduleDeploy() {
+  clearTimeout(lv.deployTimer); lv.deployTimer = null;
+  if (!lv.sse || $("#view-live").hidden) return;
+  lv.deployTimer = setTimeout(async () => {
+    if (!lv.selected && lv.deploy && lv.deploy.configured) await loadLiveDeploy().catch(() => {});
+    liveScheduleDeploy();
+  }, LIVE_DEPLOY_POLL_MS);
+}
+
+/** Správa `instances` zo streamu: to isté, čo odpoveď `/api/live`. */
+function liveApplyInstances(d) {
+  lv.instances = d.instances; lv.now = d.now; lv.mirror = d.mirror; lv.deploy = d.deploy || lv.deploy;
+  if (d.cursor) lv.cursor = Math.max(lv.cursor, d.cursor);
+  $("#live-error").hidden = true;
+  liveChip(); renderLiveStatus(); renderLiveList();
+  if (lv.selected && lv.snap) { renderLiveCards(lv.snap); $("#live-detail-status").innerHTML = liveStatusChip(lv.snap.instance); }
+}
+
+/** Nové riadky inštancie zo streamu: fills/ordery do `lv.fills` (pozícia v zozname) a keď je
+ *  inštancia otvorená, doplní ich do snapshotu namiesto jeho sťahovania. Snapshot sa sťahuje
+ *  znova len pri zmene behu (nový `hello` v „aktuálnom" pohľade). */
+async function liveApplyRows(id, rows) {
+  if (!rows.length) return;
+  const f = lv.fills[id] || (lv.fills[id] = { after: 0, fills: [], dirs: {} });
+  for (const r of rows) {
+    if (r.id <= f.after) continue;
+    const ev = r.event;
+    if (ev.k === "fill") { f.after = r.id; f.fills.push(ev); }
+    else if (ev.k === "order" && ev.a === "entry") { f.after = r.id; f.dirs[ev.id] = Number(ev.dir ?? (ev.p && ev.p.dir) ?? 1) || 1; }
+  }
+  lv.cursor = Math.max(lv.cursor, ...rows.map(r => r.id));
+  if (lv.selected !== id || !lv.snap) return;
+  const snap = lv.snap;
+  const nove = rows.filter(r => r.id > lv.snapCursor);
+  if (!nove.length) return;
+  lv.snapCursor = Math.max(...nove.map(r => r.id));
+  const chosen = liveChosenSession();
+  if (lv.session) {
+    if (!chosen || !chosen.live) return;                       // ukončený beh sa nemení
+  } else if (nove.some(r => r.event.k === "hello" && r.session !== snap.instance.last_session)) {
+    // nový beh v „aktuálnom" pohľade: zoznam behov aj snapshot znova (predhistória sa prehráva)
+    await Promise.all([loadLiveSessions(id).catch(() => {}), loadLiveDetail(id)]);
+    return;
+  }
+  let bars = false, zmena = false;
+  const firstBt = snap.bars.length ? snap.bars[0].bt : 0;
+  for (const r of nove) {
+    if (lv.session && r.session !== lv.session) continue;
+    const ev = r.event;
+    zmena = true;
+    if (ev.k === "bar") {
+      const i = snap.bars.findIndex(b => b.bt === ev.bt);
+      if (i >= 0) snap.bars[i] = ev; else snap.bars.push(ev);
+      bars = true;
+      if (typeof ev.bt === "number") snap.instance.last_bar_ms = Math.max(snap.instance.last_bar_ms || 0, ev.bt);
+    } else if (ev.k === "order") snap.orders.push(ev);
+    else if (ev.k === "event") snap.events.push(ev);
+    else if (ev.k === "draw") snap.draw.push(ev);
+    else if (ev.k === "fill") snap.fills.push(ev);
+    else if (ev.k === "stat") snap.stats = ev.stats || snap.stats;
+    else if (ev.k === "note" || ev.k === "bye") { snap.notes.push(ev); if (snap.notes.length > 20) snap.notes.shift(); }
+    else if (ev.k === "hello") snap.instance.profile = ev.profile || snap.instance.profile;
+    if (typeof ev.t === "number") snap.instance.last_t = Math.max(snap.instance.last_t || 0, ev.t);
+  }
+  if (!zmena) return;
+  if (bars) {
+    snap.bars.sort((a, b) => a.bt - b.bt);
+    if (!lv.session && snap.bars.length > LIVE_WINDOW_BARS) snap.bars.splice(0, snap.bars.length - LIVE_WINDOW_BARS);
+    const since = snap.bars[0].bt;
+    if (since !== firstBt) {   // okno sa posunulo — čo je pred ním, ide preč (ako snapshot servera)
+      for (const k of ["orders", "events", "draw"]) snap[k] = snap[k].filter(x => (x.bt ?? since) >= since);
+      snap.fills = snap.fills.filter(x => (x.ft ?? since) >= since);
+    }
+  }
+  renderLiveCards(snap);
+  if (bars || nove.some(r => ["draw", "fill", "order"].includes(r.event.k))) renderLiveChart(snap);
+  renderLiveOrders(snap.orders);
+  renderLiveFills(snap.fills, lv.session ? null : lv.fills[id]);
+  renderLiveNotes(snap.notes);
+  renderLiveStats(snap.stats);
+  $("#live-detail-status").innerHTML = liveStatusChip(snap.instance);
+  if (nove.some(r => ["hello", "bye", "bar", "fill"].includes(r.event.k))) loadLiveSessions(id).catch(() => {});
+}
 
 function liveSetup() {
   $("#live-back").onclick = () => { lv.selected = null; renderLiveList(); $("#live-detail").hidden = true; $("#live-list").hidden = false; $("#live-deploy").hidden = false; };
@@ -82,6 +202,7 @@ async function loadLive() {
   try {
     const d = await api("/api/live");
     lv.instances = d.instances; lv.now = d.now; lv.mirror = d.mirror; lv.deploy = d.deploy;
+    lv.cursor = d.cursor || lv.cursor;
     $("#live-error").hidden = true;
   } catch (e) {
     $("#live-error").textContent = e.message; $("#live-error").hidden = false;
@@ -99,12 +220,15 @@ async function loadLive() {
     await loadLiveSessions(lv.selected).catch(() => {});
     if (liveDetailPolls()) await loadLiveDetail(lv.selected).catch(e => { $("#live-detail-error").textContent = e.message; $("#live-detail-error").hidden = false; });
   }
-  if (!$("#view-live").hidden) lv.timer = setTimeout(loadLive, LIVE_POLL_MS);
+  if ($("#view-live").hidden) return;
+  // stream namiesto pollingu; keď nejde, polling ako doteraz
+  if (liveStreamWanted()) liveConnectStream();
+  if (!lv.sse) lv.timer = setTimeout(loadLive, LIVE_POLL_MS);
 }
 
 /** Behy inštancie do výberu „Beh": „aktuálny / živý" prvý, potom behy od najnovšieho
  *  (`štart UTC → koniec UTC (bary, fills, profil)`). Prekreslí sa len keď sa zoznam zmenil,
- *  nech obnova každých 5 s nezavrie rozbalený výber. */
+ *  nech obnova nezavrie rozbalený výber. */
 async function loadLiveSessions(id) {
   const rows = await api(`/api/live/${encodeURIComponent(id)}/sessions`);
   if (lv.selected !== id) return;
@@ -128,7 +252,7 @@ function renderLiveSessionMeta() {
   const box = $("#live-session-meta"), s = liveChosenSession();
   if (!s) { box.hidden = true; box.textContent = ""; return; }
   const inst = lv.snap && lv.snap.instance || {};
-  const stav = s.live ? "beží (obnova každých 5 s)" : (s.ended ? `ukončený ${utc(s.ended)} UTC · dôvod: ${s.reason || "—"}` : "bez `bye` a ticho — ukončený bez rozlúčky (pád, výpadok spoolu)");
+  const stav = s.live ? (lv.sse ? "beží (živé aktualizácie)" : "beží (obnova každých 5 s)") : (s.ended ? `ukončený ${utc(s.ended)} UTC · dôvod: ${s.reason || "—"}` : "bez `bye` a ticho — ukončený bez rozlúčky (pád, výpadok spoolu)");
   box.textContent = `beh ${s.session} · agent ${s.agent || "—"} · profil ${s.profile || "—"} · stroj ${inst.host || "—"}`
     + ` · štart ${utc(s.started)} UTC · ${stav} · ${s.bars} barov · ${s.orders} orderov · ${s.fills} fillov`;
   box.hidden = false;
@@ -140,12 +264,13 @@ function renderLiveStatus() {
   parts.push(m.hub_url ? `hub ${m.hub_url} · kurzor ${m.hub_cursor}` : "hub: nenastavený (karta Hub)");
   parts.push(m.local_roots && m.local_roots.length ? `lokálny spool: ${m.local_roots.join(", ")}` : "lokálny spool: žiadny");
   parts.push(m.running ? (m.last_ok ? `synchronizované ${liveAge(m.last_ok * 1000, lv.now)}` : "zrkadlo beží, zatiaľ nič") : "zrkadlo nebeží (štartuje sa s webapp)");
+  parts.push(lv.sse ? "stream" : "polling 5 s");
   $("#live-status").textContent = parts.join(" · ");
   const err = $("#live-error");
   if (m.last_error) { err.textContent = `zrkadlo: ${m.last_error}`; err.hidden = false; }
 }
 
-/** Fills a smery vstupov inštancie — prírastkovo od posledného rowid, nech sa každých 5 s neťahá všetko. */
+/** Fills a smery vstupov inštancie — prírastkovo od posledného rowid, nech sa pri obnove neťahá všetko. */
 async function loadLiveFills(id) {
   const f = lv.fills[id] || (lv.fills[id] = { after: 0, fills: [], dirs: {} });
   const rows = await api(`/api/live/${encodeURIComponent(id)}/events?after=${f.after}&kinds=fill,order&limit=5000`);
@@ -225,6 +350,7 @@ async function loadLiveDetail(id) {
   const snap = await api(`/api/live/${encodeURIComponent(id)}/snapshot?${q}`);
   if (seq !== lv.seq || lv.selected !== id || lv.session !== session) return;
   lv.snap = snap;
+  lv.snapCursor = snap.cursor || 0;   // riadky za ním dopĺňa stream, nie ďalší snapshot
   const inst = snap.instance;
   if (lv.strategy !== inst.strategy) {
     lv.strategy = inst.strategy;
@@ -349,7 +475,7 @@ function renderLiveChart(snap) {
   const okno = snap.session ? from : Math.max(from, to - 200 * tfMs);
   Plotly.react(el, [...traces, ...candleTraces(candles, objects, ctx, snap.instance.symbol), ...liveFillTraces(snap), ...liveModifyTraces(snap)], {
     height: 640, margin: { l: 10, r: 70, t: 8, b: 36 }, template: plotlyTemplate(), dragmode: "pan", hovermode: "closest",
-    showlegend: false, shapes, uirevision: `${snap.instance.id}:${snap.session || ""}`,   // pan/zoom prežije obnovu každých 5 s; zmena behu ho vráti
+    showlegend: false, shapes, uirevision: `${snap.instance.id}:${snap.session || ""}`,   // pan/zoom prežije obnovu (stream aj polling); zmena behu ho vráti
     xaxis: { type: "date", range: [utc(okno), utc(to)], rangeslider: { visible: false }, showgrid: true, gridcolor: grid },
     yaxis: { side: "right", range: [lo - pad, hi + pad], showgrid: true, gridcolor: grid, fixedrange: false, autorange: true },
     paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
@@ -405,7 +531,7 @@ function renderLiveStats(stats) {
 // Webapp nič nezrkadlí, každé načítanie ide cez `/api/live/accounts|deployments|agents|audit`
 // na hub. Mutácie len s admin tokenom (`deploy.admin` v `/api/live`); bez neho sú tlačidlá
 // vypnuté a v hlavičke je chip „len na čítanie". Tabuľky sa prekresľujú len keď sa dáta
-// zmenili, nech obnova každých 5 s nezavrie rozbalený výber.
+// zmenili, nech obnova (pri streame každých 15 s, pri pollingu 5 s) nezavrie rozbalený výber.
 // --------------------------------------------------------------------------- //
 
 const ld = {

@@ -9,7 +9,7 @@ oboje. Kód je v `tester/hub/`, architektúra v docstringu
 ```
                      hub (verejný, python -m tester.hub serve)
                      agenti · fronta · zipy výsledkov · stav na disku
-                  ▲ heartbeat ~10 s        ▲ POST /api/jobs         ▲ zip
+                  ▲ heartbeat ~3 s         ▲ POST /api/jobs         ▲ zip
         ┌─────────┴──────┐        ┌─────────┴──────┐        ┌─────────┴──────┐
         │ srv-01         │        │ notebook       │        │ srv-02         │
         │ headless agent │        │ webapp, send   │        │ webapp, accept │
@@ -20,7 +20,7 @@ oboje. Kód je v `tester/hub/`, architektúra v docstringu
 ## Prečo agent ťahá a hub netlačí
 
 Servery aj notebooky sú za NAT-om; verejnú adresu má len hub. Agent sa preto hubu **hlási
-sám** každých ~10 s (heartbeat) a v odpovedi dostane, čo mu hub pridelil, čo má zrušiť a
+sám** každé ~3 s (heartbeat; interval určuje hub, `--heartbeat`, a agent si ho z odpovede prevezme) a v odpovedi dostane, čo mu hub pridelil, čo má zrušiť a
 čo mu (ako zadávateľovi) dobehlo. Oneskorenie je najviac jeden interval, čo je pri behoch
 na minúty jedno. Hub sám nič nepočíta a nič nevie o stratégiách — nesie `params` a
 `settings` behu tak, ako ich prijíma `POST /api/runs` webapp.
@@ -127,7 +127,7 @@ inak zlyhá s chybou „agent sa odmlčal". Beh, ktorý agent tri heartbeaty po 
 nenahlási (reštart bez stavu), zlyhá tiež. To je ale len pohľad hubu — agent medzitým
 počíta ďalej, viď nižšie.
 
-**Agent preto beží na dvoch vláknach.** Heartbeat musí odísť každých 10 sekúnd, ale zip
+**Agent preto beží na dvoch vláknach.** Heartbeat musí odísť každé 3 sekundy (predvolený interval; hub môže poslať iný), ale zip
 s výsledkom, jeho stiahnutie a hlavne `git pull` s poskladaním dát po ňom trvajú aj
 minúty. Keby boli v jednom vlákne, hub by agenta uprostred tej práce vyhlásil za mŕtveho
 a jeho výpočty rozdal ďalej — a keďže pull sa púšťa až vtedy, keď agentovi dobehnú behy,
@@ -145,7 +145,7 @@ odovzdanie výsledku.
 Čo sa stane s výsledkom:
 
 1. Kým sa výsledok neodovzdá, **záznam ostáva v `computing`** a agent to skúša pri každom
-   ticku (~10 s), donekonečna, aj po reštarte agenta. Vo webapp to na karte **Hub** vidno
+   ticku (~3 s), donekonečna, aj po reštarte agenta. Vo webapp to na karte **Hub** vidno
    ako „spočítané, čaká na hub N", v headless agentovi ako `caka na hub N`.
 2. Keď hub vstane, výsledok odíde **hneď v prvom ticku** — ešte pred registráciou a
    heartbeatom (aby ho neblokovalo ani obsadené meno). Zlyhanie jedného odovzdania

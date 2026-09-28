@@ -39,6 +39,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .env import getenv
+
 __all__ = [
     "REPO",
     "DATA", "DATA_ARCHIVE", "TESTER_ARCHIVE", "TESTER_DATA", "DERIVED_MANIFEST",
@@ -144,8 +146,9 @@ AGENT_STATE = TESTER_DIR / "agent_state.json"
 #: Udalosti zo spustených stratégií na hube (`live.sqlite`) — vedľa stavu hubu, gitignored.
 HUB_LIVE_DB = HUB_DIR / "live.sqlite"
 #: Lokálny stav live telemetrie tohto klonu: kurzory do spoolu platforiem a zrkadlo hubu
-#: pre webapp. Každý stroj má vlastný, gitignored.
-LIVE_DIR = TESTER_DIR / "live"
+#: pre webapp. Každý stroj má vlastný, gitignored. `TRADEBOT_LIVE_DIR` ho presunie inam
+#: (druhá webapp na tom istom stroji, testy proti dočasnému zrkadlu).
+LIVE_DIR = Path(getenv("LIVE_DIR") or TESTER_DIR / "live")
 #: Kurzor agenta do spoolu (súbor → offset); posúva sa až po potvrdení hubom.
 LIVE_CURSOR = LIVE_DIR / "cursor.json"
 #: Kurzor webapp do lokálneho spoolu (keď webapp beží na obchodnom PC, číta ho priamo).

@@ -8,7 +8,7 @@
   "accept": true,                   // prijíma výpočty od hubu
   "send": true,                     // smie posielať výpočty (cli --remote)
   "max_parallel": 4,                // koľko behov naraz (strop; jadrá si agent zistí sám)
-  "heartbeat_seconds": 10,
+  "heartbeat_seconds": 3,           // hub v odpovedi pošle svoj interval a agent sa mu prispôsobí
   "admin_token": ""                 // hlavný token hubu — len na webapp, ktorá spravuje live nasadenia
 }
 ```
@@ -46,7 +46,9 @@ from tradebot.core.paths import AGENT_CONFIG, AGENT_STATE
 
 __all__ = ["AgentConfig", "AgentState", "load", "save", "load_state", "save_state"]
 
-DEFAULT_HEARTBEAT = 10
+#: Interval heartbeatu agenta. 3 s: heartbeat je lacný (malý JSON) a je to zároveň strop
+#: na oneskorenie live telemetrie a pokynov z hubu (`agent_timeout` hubu ostáva 45 s).
+DEFAULT_HEARTBEAT = 3
 
 
 @dataclass

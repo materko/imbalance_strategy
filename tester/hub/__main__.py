@@ -356,7 +356,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--token", help="zdieľaný token (inak TRADEBOT_HUB_TOKEN); na verejnej adrese povinný")
     p.add_argument("--heartbeat", type=int,
                    default=int(getenv("HUB_HEARTBEAT", str(agent_config.DEFAULT_HEARTBEAT))),
-                   help="interval heartbeatu agentov v sekundách (default 10, alebo TRADEBOT_HUB_HEARTBEAT)")
+                   help=f"interval heartbeatu agentov v sekundách (default {agent_config.DEFAULT_HEARTBEAT}, "
+                        "alebo TRADEBOT_HUB_HEARTBEAT); agenti si ho z odpovede hubu prevezmú")
     p.add_argument("--update", type=float, default=None, metavar="MIN",
                    help="samoaktualizácia: každých MIN minút fetch origin a reštart po zmene "
                         "kódu (0 = vypnuté; bez prepínača platí TRADEBOT_HUB_UPDATE)")

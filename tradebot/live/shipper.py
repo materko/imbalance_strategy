@@ -1,9 +1,10 @@
-"""Odosielanie spoolu na hub: `LiveShipper.pump()` číta dávky z `SpoolReader`, POSTne ich na
-`/api/live/events` a **kurzor posunie až po 200** — hub dole = kurzor stojí, nič sa nestratí,
-nič sa nepošle dvakrát (a keby aj, hub je idempotentný).
+"""Odosielanie spoolu na hub: `LiveShipper.pump()` číta dávky z `SpoolReader`, pošle ich cez
+`Transport.push_events` a **kurzor posunie až po potvrdení** — hub dole = kurzor stojí, nič sa
+nestratí, nič sa nepošle dvakrát (a keby aj, hub je idempotentný).
 
-`http` je čokoľvek s `.post(path, body)`, čo pri chybe vyhodí výnimku (`tester.hub.client.HubHttp`,
-v testoch falošný klient nad TestClientom).
+`transport` je `tradebot.live.transport.Transport` (dnes `HttpTransport` nad
+`tester.hub.client.HubHttp`, ktorý POSTuje na `/api/live/events`). Kvôli starým volajúcim
+a testom sa berie aj holý HTTP klient s `.post()` — zabalí ho `as_transport`.
 """
 
 from __future__ import annotations
@@ -13,19 +14,20 @@ import time
 from typing import Any
 
 from .spool import Batch, SpoolReader
+from .transport import EVENTS_PATH, as_transport
 
 __all__ = ["LiveShipper", "EVENTS_PATH"]
 
 log = logging.getLogger(__name__)
 
-EVENTS_PATH = "/api/live/events"
-
 
 class LiveShipper:
-    def __init__(self, reader: SpoolReader, http: Any, agent: str, *, batch_events: int = 500,
+    def __init__(self, reader: SpoolReader, transport: Any, agent: str, *, batch_events: int = 500,
                  max_batches: int = 20, clock=time.time) -> None:
         self.reader = reader
-        self.http = http
+        self.transport = as_transport(transport)
+        #: Podkladový HTTP klient, keď ho transport má (stav agenta, staré volania) — inak transport sám.
+        self.http = getattr(self.transport, "http", self.transport)
         self.agent = agent
         self.batch_events = max(1, int(batch_events))
         self.max_batches = max(1, int(max_batches))
@@ -36,10 +38,14 @@ class LiveShipper:
         self.accepted_total = 0
 
     @staticmethod
+    def batches_body(batches: list[Batch]) -> list[dict[str, Any]]:
+        """Dávky v tvare transportu: `[{"instance", "session", "events"}, …]`."""
+        return [{"instance": b.instance, "session": b.session, "events": b.events} for b in batches]
+
+    @staticmethod
     def body(agent: str, batches: list[Batch]) -> dict[str, Any]:
-        return {"agent": agent,
-                "batches": [{"instance": b.instance, "session": b.session, "events": b.events}
-                            for b in batches]}
+        """Celé telo `POST /api/live/events` (ako ho posiela `HttpTransport`)."""
+        return {"agent": agent, "batches": LiveShipper.batches_body(batches)}
 
     def pump(self) -> dict[str, Any]:
         """Jedno kolo: kým je čo posielať (najviac `max_batches` čítaní), pošli a potvrď.
@@ -52,7 +58,7 @@ class LiveShipper:
                 break
             rounds += 1
             try:
-                odpoved = self.http.post(EVENTS_PATH, self.body(self.agent, batches))
+                odpoved = self.transport.push_events(self.agent, self.batches_body(batches))
             except Exception as exc:  # noqa: BLE001 - hub mimo, sieť, 4xx/5xx — kurzor ostáva
                 error = f"{type(exc).__name__}: {exc}"
                 break

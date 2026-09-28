@@ -15,6 +15,7 @@ from typing import Any, Callable
 from tradebot.core.paths import HUB_DIR
 
 from . import protocol as P
+from .config import DEFAULT_HEARTBEAT
 from .events import EVENTS_KEEP, EventsMixin, _iso
 from .tokens import ADMIN, TokensMixin
 
@@ -45,7 +46,7 @@ class NameTaken(Exception):
 
 class HubState(TokensMixin, EventsMixin):
     def __init__(self, root: Path | None = None, token: str | None = None, *,
-                 heartbeat_seconds: int = 10, agent_timeout: float = DEFAULT_AGENT_TIMEOUT,
+                 heartbeat_seconds: int = DEFAULT_HEARTBEAT, agent_timeout: float = DEFAULT_AGENT_TIMEOUT,
                  clock: Callable[[], float] = time.time) -> None:
         self.root = Path(root or HUB_DIR)
         self.token = token or None
