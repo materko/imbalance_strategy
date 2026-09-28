@@ -13,7 +13,7 @@ import re
 from typing import Any
 
 __all__ = [
-    "SCHEMA", "KINDS", "REQUIRED", "PLATFORMS",
+    "SCHEMA", "KINDS", "REQUIRED", "PLATFORMS", "CONTROL_MODES",
     "instance_id", "parse_line", "validate", "SchemaError",
 ]
 
@@ -31,8 +31,12 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     "fill": ("ft", "id", "side", "price", "qty", "ready"),
     "stat": ("stats",),
     "note": ("text",),
+    #: Adaptér potvrdzuje, v akom režime beží (fáza 2, control súbor): `mode` enabled/paused/flatten,
+    #: `profile` názov práve načítaného profilu, `source` odkiaľ (control/default).
+    "control": ("mode",),
     "bye": (),
 }
+CONTROL_MODES = ("enabled", "paused", "flatten")
 KINDS = tuple(REQUIRED)
 
 _BAD = re.compile(r"[^A-Za-z0-9._-]")
@@ -88,4 +92,6 @@ def validate(ev: Any) -> dict[str, Any]:
         raise SchemaError(f"fill: side musí byť in/out, je {ev['side']!r}")
     if kind == "draw" and not isinstance(ev["d"], list):
         raise SchemaError("draw: d musí byť pole kresieb")
+    if kind == "control" and ev["mode"] not in CONTROL_MODES:
+        raise SchemaError(f"control: mode musí byť {'/'.join(CONTROL_MODES)}, je {ev['mode']!r}")
     return ev

@@ -170,6 +170,44 @@ Webapp (`tester/webapp/api/live.py`, `static/js/live.js`, karta **Live**): `Live
 Graf: Plotly sviečky z `bar`, kresby cez `objectTraces` z `chart.js`, fills ako značky, tabuľky
 orderov a fillov; obnova každých 5 s.
 
+## Fáza 2: ovládanie cez control súbor
+
+Tá istá cesta naopak: hub nesie **požadovaný stav** (deployment), agent ho zapíše ako súbor na disk
+platformy a adaptér ho číta. Sieť do NT/MT5 stále nejde; keď agent alebo hub spadne, platí posledný
+súbor. Chýbajúci súbor = `enabled` + profil z parametrov stratégie (dnešné správanie).
+
+| platforma | control súbor |
+|---|---|
+| NinjaTrader 8 | `Documents\NinjaTrader 8\TradeBot\control\<instance>.json` |
+| MetaTrader 5 | `Common\Files\TradeBot\control\<instance>.json` (MQL číta cez `FILE_COMMON`) |
+
+```json
+{"mode": "enabled" | "paused" | "flatten", "profile": "<názov alebo cesta>", "updated": <ms UTC>, "by": "<kto>"}
+```
+
+- `enabled` — obchoduje normálne. `paused` — **nové vstupy sa neposielajú** (zámery `entry` sa zahodia
+  a engine to vidí ako zrušené), `cancel`/`close` a SL/TP otvorenej pozície bežia ďalej. `flatten` —
+  raz zruší všetky čakajúce vstupy a zavrie pozíciu (`tb_flatten`), potom sa správa ako `paused`.
+- **Zmena profilu** (iný `profile` než beží): aplikuje sa, **až keď je stratégia bez pozície a bez
+  čakajúcich vstupov** — adaptér zahodí engine, postaví nový z nového profilu a prehrá predhistóriu
+  (engine je deterministický, výsledok je ako čerstvý štart; MT5 to v `OnInit` robí aj dnes). Kým nie
+  je flat, zmena čaká (`control` udalosť so `source:"pending"`). Vynútenie = najprv `flatten`.
+- Adaptér súbor kontroluje podľa mtime **každých 5 s** (MT5 `OnTimer`, NT `System.Timers.Timer` +
+  `TriggerCustomEvent`, nech to beží vo vlákne stratégie) a pri každom bare. Každá aplikovaná zmena
+  ide do spoolu ako `control` (`mode`, `profile`, `source`: `control`/`default`/`pending`) a do logu.
+- Id inštancie adaptér pozná zo spoolu (`LiveSpool.Instance`, MT5 `StaticHost::SpoolInstance`);
+  keď je telemetria vypnutá, spočíta ho `LiveSpool.InstanceId` / `StaticHost::InstanceId`.
+- NT8: súbor ručne píše `python -m tradebot.adapters.ninjatrader control <inštancia|list> [--mode] [--profile]`
+  (atomicky); čo adaptér `Strategy` pri zmene profilu vie a nevie (bez predhistórie, pevný informatívny TF)
+  je v [NINJATRADER.md](NINJATRADER.md), „Ovládanie na diaľku“.
+
+Nasadenie a účty (čo z toho vie platforma bez človeka): MT5 — terminál spustený s ini
+(`[StartUp] Expert/Symbol/Period/ExpertParameters`, `[Common] Login/Server[/Password]`) pripne EA
+sám, jeden portable terminál = jeden účet, po reštarte sa grafy s EA obnovia. NT8 — `Strategy` sa
+programovo zapnúť nedá (ani po reštarte), preto ide živý beh cez **AddOn** (štartuje s NT,
+`Connection.Connect` na nakonfigurované pripojenie, `BarsRequest`, `Account.CreateOrder/Submit`);
+nové pripojenie z mena a hesla NT API nemá.
+
 ## Testy
 
 - `tester/tests/test_live_store.py` — store: idempotencia, snapshot, export/kurzor.

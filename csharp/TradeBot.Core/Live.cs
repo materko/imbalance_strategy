@@ -317,6 +317,24 @@ namespace TradeBot.Core
             catch (Exception e) { Break(e); }
         }
 
+        /// <summary>Adapter potvrdzuje rezim z control suboru (faza 2): `mode` enabled/paused/flatten,
+        /// `profile` prave nacitany profil, `source` odkial rezim prisiel (control / default).</summary>
+        public void Control(string mode, string profile, string source)
+        {
+            try
+            {
+                lock (_gate)
+                {
+                    if (Off()) return;
+                    JsonWriter w = Begin("control");
+                    w.Key("mode").Value(string.IsNullOrEmpty(mode) ? "enabled" : mode);
+                    w.Key("profile").Value(profile ?? "").Key("source").Value(source ?? "");
+                    End(w);
+                }
+            }
+            catch (Exception e) { Break(e); }
+        }
+
         /// <summary>`Engine.Stats()` + pocitadla adaptera - pri ukonceni, pred `Close`.</summary>
         public void Stats(Dictionary<string, double> stats)
         {

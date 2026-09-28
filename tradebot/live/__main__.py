@@ -55,6 +55,8 @@ def _short(ev: dict) -> str:
         return "stat " + json.dumps(ev.get("stats"), ensure_ascii=False)
     if k == "bye":
         return f"bye {ev.get('reason') or ''}".rstrip()
+    if k == "control":
+        return f"control {ev.get('mode')} profil={ev.get('profile') or '(vstup)'} zdroj={ev.get('source') or ''}".rstrip()
     return json.dumps(ev, ensure_ascii=False)
 
 

@@ -1,0 +1,13 @@
+InpProfile=multicharts_mnq_3m
+InpServerGmtOffsetMin=180
+InpMagic=20260925
+InpExportSignals=false
+InpLogEvents=true
+InpShowDrawings=true
+InpShowSessionBg=false
+InpReplayBars=0
+InpScreenshotFile=
+InpCloseAfterShot=false
+InpPointValueOverride=0
+InpTelemetry=true
+InpTelemetryInTester=false

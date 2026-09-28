@@ -11,6 +11,11 @@
 //| Live telemetria (docs/LIVE.md): mimo Strategy Testera pise DLL bary, zamery, kresby a vyplnenia   |
 //| do JSONL spoolu Common\Files\TradeBot\spool\<instancia>\ (StaticHost::Spool*); agent hubu ich    |
 //| posiela do webapp. Chyba spoolu EA nezhodi - zaloguje sa a obchoduje sa dalej.                    |
+//| Ovladanie na dialku (docs/LIVE.md, faza 2): Common\Files\TradeBot\control\<instancia>.json         |
+//| {"mode": enabled|paused|flatten, "profile": ...} - EA ho cita podla mtime kazdych 5 s (OnTimer)   |
+//| a pri kazdom novom bare; paused = vstupy sa neposielaju, flatten = raz zrusi vstupy a zavrie       |
+//| pozicie, iny profil = novy engine, ked je strategia bez pozicie (inak caka). Chybajuci subor =     |
+//| enabled + InpProfile. V Strategy Testeri sa control subor necita (beh musi byt deterministicky).    |
 //| Preklada ho MetaEditor (`python -m tradebot.adapters.mt5 install` to spravi sam); v terminali musi  |
 //| byt `Tools > Options > Expert Advisors > Allow DLL imports`.                                       |
 //+------------------------------------------------------------------+
@@ -91,6 +96,18 @@ struct Tracked
   };
 Tracked g_orders[];
 
+//--- ovladanie na dialku (docs/LIVE.md, faza 2): Common\Files\TradeBot\control\<instancia>.json
+string g_instance       = "";          // id instancie = adresar spoolu (StaticHost::SpoolInstance / InstanceId)
+string g_controlPath    = "";          // relativne k Common\Files (FILE_COMMON)
+string g_mode           = "enabled";   // enabled / paused / flatten
+string g_profile        = "";          // profil, z ktoreho bezi engine (nazov alebo cesta ako v InpProfile / control)
+string g_pendingProfile = "";          // zmena profilu, ktora caka, kym bude strategia flat
+long   g_controlMtime   = -2;          // posledne videne FILE_MODIFY_DATE (-1 = subor nie je)
+long   g_controlSize    = -2;
+bool   g_controlOn      = false;       // len mimo Strategy Testera
+bool   g_shotDone       = false;       // screenshot (InpScreenshotFile) uz bol - timer je od toho spolocny
+bool   g_suppressLogged = false;       // "vstup potlaceny" sa loguje raz na zmenu rezimu
+
 //--- denny limit vyhier (Pine `dailyWinsCount`): vyhra = obchod zavrety na SL/TP so ziskom > 0 voci planovanemu
 //--- vstupu; zavretie enginom (close, koniec seansy) sa nepocita. `seen` = stav na konci predosleho baru,
 //--- presne ako v NinjaTrader adapteri (engine sa pyta na zaciatku baru).
@@ -149,7 +166,8 @@ string EngineError(string where)
 // v agentovi s vlastnym prazdnym MQL5\Files, terminalove Files tam nie su - Common je spolocne obom.
 string ReadTextFile(string path)
   {
-   int h = FileOpen(path, FILE_READ | FILE_BIN | FILE_COMMON);
+   // zdielane citanie: control subor prepisuje agent (tmp + rename) aj pocas behu EA
+   int h = FileOpen(path, FILE_READ | FILE_BIN | FILE_COMMON | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(h == INVALID_HANDLE) return "";
    uchar bytes[];
    int n = (int)FileSize(h);
@@ -159,11 +177,12 @@ string ReadTextFile(string path)
    return CharArrayToString(bytes, 0, n, CP_UTF8);
   }
 
-string ResolveProfilePath()
+/// Profil ako nazov (`multicharts_mnq_3m`) alebo cesta - z InpProfile aj z control suboru (rovnake pravidla).
+string ResolveProfilePath(string spec)
   {
    // vsetko je relativne k Common\Files (sandbox FileOpen s FILE_COMMON); cela cesta sa berie tak, ako je
-   if(StringFind(InpProfile, "\\") >= 0 || StringFind(InpProfile, "/") >= 0) return InpProfile;
-   string name = InpProfile;
+   if(StringFind(spec, "\\") >= 0 || StringFind(spec, "/") >= 0) return spec;
+   string name = spec;
    if(StringLen(name) < 5 || StringSubstr(name, StringLen(name) - 5) != ".json") name += ".json";
    return "TradeBot\\profiles\\" + TRADEBOT_ENGINE_KEY + "\\" + name;
   }
@@ -264,26 +283,30 @@ int OnInit()
    if(StaticHost::Version() != 2)
      { Print("TradeBot: ina verzia fasady TradeBot.dll (cakam 2, docs/LIVE.md), preinstaluj: python -m tradebot.adapters.mt5 install"); return INIT_FAILED; }
 
-   string profilePath = ResolveProfilePath();
-   string config = ReadTextFile(profilePath);
-   if(config == "") { Print("TradeBot: profil sa nenasiel: Common\\Files\\", profilePath, " (", GetLastError(), ")"); return INIT_PARAMETERS_INCORRECT; }
-
-   bool realVolume = HasRealVolume();
-   g_engine = StaticHost::Create(TRADEBOT_ENGINE_KEY, config, InstrumentJson(realVolume), g_chartTfMin);
-   if(g_engine <= 0) { Print(EngineError("Create")); return INIT_FAILED; }
-
-   g_required = StaticHost::RequiredHistory(g_engine);
-   g_htfMin = StaticHost::HtfTfMinutes(g_engine);
-   if(g_htfMin > 0)
+   // Ovladanie na dialku: id instancie je zname este pred engine-om (rovnake polia ako spool), control subor
+   // moze uz pri starte urcit rezim a profil - chybajuci subor = enabled + InpProfile (docs/LIVE.md, faza 2).
+   g_controlOn = MQLInfoInteger(MQL_TESTER) == 0;
+   g_instance = StaticHost::InstanceId("mt5", AccountId(), _Symbol, g_chartTfMin, TRADEBOT_ENGINE_KEY);
+   g_controlPath = "TradeBot\\control\\" + g_instance + ".json";
+   g_profile = InpProfile;
+   string source = "default";
+   if(g_controlOn)
      {
-      g_htfPeriod = PeriodOfMinutes(g_htfMin);
-      if(g_htfPeriod == PERIOD_CURRENT)
-        { Print("TradeBot: informativny TF ", g_htfMin, "m MetaTrader nepozna (zvol iny zoneDetectionTF)"); return INIT_PARAMETERS_INCORRECT; }
-      g_htfStepMs = (long)g_htfMin * 60000;
+      g_controlMtime = FileGetInteger(g_controlPath, FILE_MODIFY_DATE, true);
+      g_controlSize = g_controlMtime < 0 ? -1 : FileGetInteger(g_controlPath, FILE_SIZE, true);
+      string mode, profile;
+      if(g_controlMtime >= 0 && ReadControl(mode, profile) > 0)
+        {
+         g_mode = mode;
+         if(profile != "") g_profile = profile;
+         source = "control";
+        }
      }
-   CJson *stats = JsonParse(StaticHost::Stats(g_engine));
-   g_maxDailyWins = stats != NULL && stats.Find("max_daily_wins") != NULL ? (int)stats.Dbl("max_daily_wins") : 0;
-   delete stats;
+
+   string profilePath = ResolveProfilePath(g_profile);
+   int h = CreateEngine(profilePath);
+   if(h <= 0) return INIT_FAILED;
+   AdoptEngine(h);
 
    g_trade.SetExpertMagicNumber(InpMagic);
    g_trade.SetTypeFillingBySymbol(_Symbol);
@@ -291,9 +314,7 @@ int OnInit()
 
    if(InpExportSignals) OpenExport();
    OpenSpool(profilePath);
-   Print("TradeBot ", TRADEBOT_ENGINE_KEY, ": TF ", g_chartTfMin, "m, predhistoria ", g_required, " barov, HTF ", g_htfMin,
-         "m, tick ", SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE), ", ucet ", g_hedging ? "hedging" : "netting",
-         ", server UTC", InpServerGmtOffsetMin >= 0 ? "+" : "", InpServerGmtOffsetMin / 60.0, "h, profil ", profilePath);
+   PrintEngineInfo(profilePath);
    if(InpServerGmtOffsetMin == 0)
       Print("TradeBot: POZOR, posun servera voci UTC je 0 - seansy engine-u su v UTC/pasme profilu, skontroluj InpServerGmtOffsetMin");
 
@@ -302,8 +323,179 @@ int OnInit()
    ReplayHistory();
    // od teraz kazdy riadok spoolu hned na disk (nazivo); tester si flushuje po davkach
    if(g_spool && !MQLInfoInteger(MQL_TESTER) && StaticHost::SpoolRealtime(g_engine, true) < 0) Print(EngineError("SpoolRealtime"));
-   if(InpScreenshotFile != "") EventSetTimer(3);   // graf sa musi najprv vykreslit
+   SpoolControl(g_mode, g_profile, source);
+   if(g_controlOn)
+      Print("TradeBot control: instancia ", g_instance, ", subor Common\\Files\\", g_controlPath, g_controlMtime >= 0 ? " (existuje)" : " (nie je)",
+            ", rezim ", g_mode, " (", source, ")", g_mode == "enabled" ? "" : " - nove vstupy sa neposielaju");
+   // jeden spolocny timer: screenshot raz (graf sa musi najprv vykreslit), control subor kazdych 5 s
+   if(g_controlOn || InpScreenshotFile != "") EventSetTimer(5);
    return INIT_SUCCEEDED;
+  }
+
+string AccountId() { return IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN)) + "-" + AccountInfoString(ACCOUNT_SERVER); }
+
+/// Engine z profilu (config JSON z Common\Files, instrument zo SymbolInfo): handle > 0, alebo -1 (dovod v logu).
+int CreateEngine(string profilePath)
+  {
+   string config = ReadTextFile(profilePath);
+   if(config == "") { Print("TradeBot: profil sa nenasiel: Common\\Files\\", profilePath, " (", GetLastError(), ")"); return -1; }
+   int h = StaticHost::Create(TRADEBOT_ENGINE_KEY, config, InstrumentJson(HasRealVolume()), g_chartTfMin);
+   if(h <= 0) { Print(EngineError("Create")); return -1; }
+   int htfMin = StaticHost::HtfTfMinutes(h);
+   if(htfMin > 0 && PeriodOfMinutes(htfMin) == PERIOD_CURRENT)
+     { Print("TradeBot: informativny TF ", htfMin, "m MetaTrader nepozna (zvol iny zoneDetectionTF)"); StaticHost::Destroy(h); return -1; }
+   return h;
+  }
+
+/// Prevezme engine: co adapter potrebuje vediet na kazdom bare (predhistoria, HTF, denny limit).
+void AdoptEngine(int h)
+  {
+   g_engine = h;
+   g_required = StaticHost::RequiredHistory(h);
+   g_htfMin = StaticHost::HtfTfMinutes(h);
+   g_htfPeriod = g_htfMin > 0 ? PeriodOfMinutes(g_htfMin) : PERIOD_CURRENT;
+   g_htfStepMs = (long)g_htfMin * 60000;
+   CJson *stats = JsonParse(StaticHost::Stats(h));
+   g_maxDailyWins = stats != NULL && stats.Find("max_daily_wins") != NULL ? (int)stats.Dbl("max_daily_wins") : 0;
+   delete stats;
+  }
+
+void PrintEngineInfo(string profilePath)
+  {
+   Print("TradeBot ", TRADEBOT_ENGINE_KEY, ": TF ", g_chartTfMin, "m, predhistoria ", g_required, " barov, HTF ", g_htfMin,
+         "m, tick ", SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE), ", ucet ", g_hedging ? "hedging" : "netting",
+         ", server UTC", InpServerGmtOffsetMin >= 0 ? "+" : "", InpServerGmtOffsetMin / 60.0, "h, profil ", profilePath);
+  }
+
+//+------------------------------------------------------------------+
+//| Ovladanie na dialku (docs/LIVE.md, faza 2): control subor podla mtime                              |
+//+------------------------------------------------------------------+
+/// Precita control subor: 1 = platny (`mode`, `profile`), 0 = neda sa otvorit, -1 = neplatny (zalogovane).
+int ReadControl(string &mode, string &profile)
+  {
+   string text = ReadTextFile(g_controlPath);
+   if(text == "") return 0;
+   CJson *root = JsonParse(text);
+   if(root == NULL || root.type != JSON_OBJECT)
+     { if(root != NULL) delete root; Print("TradeBot control: neplatny JSON v Common\\Files\\", g_controlPath, " - ostava rezim ", g_mode); return -1; }
+   mode = root.Str("mode");
+   profile = root.Str("profile");
+   delete root;
+   if(mode == "") mode = "enabled";
+   if(mode != "enabled" && mode != "paused" && mode != "flatten")
+     { Print("TradeBot control: neznamy rezim '", mode, "' v Common\\Files\\", g_controlPath, " - ostava rezim ", g_mode); return -1; }
+   return 1;
+  }
+
+/// Kazdych 5 s (OnTimer) a pri kazdom novom bare: zmena mtime/velkosti = precitat a aplikovat; inak len skusit
+/// cakajucu zmenu profilu. Nezavisi od barov - funguje aj so zavretym trhom.
+void CheckControl()
+  {
+   if(!g_controlOn || g_engine <= 0) return;
+   long mtime = FileGetInteger(g_controlPath, FILE_MODIFY_DATE, true);   // -1 = subor nie je
+   long size = mtime < 0 ? -1 : FileGetInteger(g_controlPath, FILE_SIZE, true);
+   if(mtime == g_controlMtime && size == g_controlSize) { RetryPendingProfile(); return; }
+   if(mtime < 0)
+     {
+      // subor zmizol = enabled + profil zo vstupu EA (docs/LIVE.md)
+      g_controlMtime = mtime; g_controlSize = size;
+      Print("TradeBot control: subor Common\\Files\\", g_controlPath, " zmizol - enabled + InpProfile");
+      ApplyControl("enabled", InpProfile, "default");
+      return;
+     }
+   string mode, profile;
+   int r = ReadControl(mode, profile);
+   if(r == 0) return;   // prave sa prepisuje (tmp + rename) - skusi sa o 5 s
+   g_controlMtime = mtime; g_controlSize = size;
+   if(r < 0) return;    // neplatny obsah: ostava posledny rezim, zalogovane raz (mtime si pamatame)
+   ApplyControl(mode, profile, "control");
+  }
+
+/// Aplikuje rezim a profil; kazda aplikovana zmena ide do spoolu ako `control` (mode, profile, source).
+void ApplyControl(string mode, string profile, string source)
+  {
+   bool modeChanged = mode != g_mode;
+   g_mode = mode;
+   if(modeChanged)
+     {
+      g_suppressLogged = false;
+      Print("TradeBot control: rezim ", mode, " (", source, ")", mode == "enabled" ? " - obchoduje sa normalne" : " - nove vstupy sa neposielaju");
+     }
+   if(mode == "flatten")
+     {
+      // raz: zrusit cakajuce vstupy a zavriet pozicie (dealy pridu cez OnTradeTransaction), dalej ako paused
+      int pending = 0, open = 0;
+      for(int i = 0; i < ArraySize(g_orders); i++) { if(g_orders[i].filled && g_orders[i].openQty > 0) open++; else pending++; }
+      Flatten("tb_flatten");
+      Print("TradeBot control: flatten - zrusenych ", pending, " cakajucich vstupov, zatvara sa ", open, " pozicii");
+     }
+   string want = profile == "" ? g_profile : profile;
+   if(ResolveProfilePath(want) != ResolveProfilePath(g_profile))
+     {
+      if(!IsFlat())
+        {
+         g_pendingProfile = want;
+         Print("TradeBot control: profil ", want, " caka, kym bude strategia bez pozicie a cakajucich vstupov (bezi ", g_profile, ")");
+         SpoolControl(g_mode, want, "pending");
+         return;
+        }
+      g_pendingProfile = "";
+      RebuildEngine(want);   // pri chybe bezi dalej stary profil (zalogovane)
+     }
+   else g_pendingProfile = "";
+   SpoolControl(g_mode, g_profile, source);
+  }
+
+/// Cakajuca zmena profilu (po deale, po bare, z timera): aplikuje sa, len co je strategia flat.
+void RetryPendingProfile()
+  {
+   if(g_pendingProfile == "" || !IsFlat()) return;
+   string want = g_pendingProfile;
+   g_pendingProfile = "";
+   if(RebuildEngine(want)) SpoolControl(g_mode, g_profile, "control");
+  }
+
+/// Bez pozicie a bez cakajucich vstupov u brokera (odlozene vstupy u brokera nie su - novy engine ich nepozna).
+bool IsFlat()
+  {
+   for(int i = 0; i < ArraySize(g_orders); i++)
+     {
+      if(g_orders[i].filled && g_orders[i].openQty > 0) return false;
+      if(!g_orders[i].filled && !g_orders[i].parked && (g_orders[i].orderTicket > 0 || g_orders[i].isMarket)) return false;
+     }
+   return true;
+  }
+
+/// Zmena profilu: novy engine z noveho profilu, stary zahodit (spool zavriet s dovodom "profile"), stav adaptera
+/// od nuly a predhistoriu prehrat znova - engine je deterministicky, vysledok je ako cerstvy start (docs/LIVE.md).
+bool RebuildEngine(string spec)
+  {
+   string path = ResolveProfilePath(spec);
+   int h = CreateEngine(path);
+   if(h <= 0) { Print("TradeBot control: profil ", spec, " sa neda nacitat - bezi dalej ", g_profile); return false; }
+   if(g_spool && StaticHost::SpoolClose(g_engine, "profile") < 0) Print(EngineError("SpoolClose"));
+   g_spool = false;
+   CloseExport();
+   StaticHost::Destroy(g_engine);
+   ArrayResize(g_orders, 0);
+   g_winsDay = 0; g_winsCount = 0; g_winsSeenDay = 0; g_winsSeen = 0; g_limitLoggedDay = 0; g_staleLogged = 0;
+   g_chartBars = 0; g_htfBars = 0; g_lastChart = 0; g_lastHtf = 0; g_firstBarMs = 0; g_lastBarMs = 0;
+   g_profile = spec;
+   AdoptEngine(h);
+   if(InpExportSignals) OpenExport();
+   OpenSpool(path);
+   PrintEngineInfo(path);
+   if(InpShowDrawings) ObjectsDeleteAll(0, TB_OBJ_PREFIX);
+   ReplayHistory();
+   if(g_spool && !MQLInfoInteger(MQL_TESTER) && StaticHost::SpoolRealtime(g_engine, true) < 0) Print(EngineError("SpoolRealtime"));
+   Print("TradeBot control: profil zmeneny na ", spec, " (Common\\Files\\", path, "), engine postaveny nanovo, predhistoria prehrana");
+   return true;
+  }
+
+void SpoolControl(string mode, string profile, string source)
+  {
+   if(!g_spool) return;
+   if(StaticHost::SpoolControl(g_engine, mode, profile, source) < 0) { Print(EngineError("SpoolControl (telemetria vypnuta)")); g_spool = false; }
   }
 
 //+------------------------------------------------------------------+
@@ -314,10 +506,13 @@ void OpenSpool(string profilePath)
    bool tester = MQLInfoInteger(MQL_TESTER) != 0;
    if(!InpTelemetry || (tester && !InpTelemetryInTester)) return;
    string root = TerminalInfoString(TERMINAL_COMMONDATA_PATH) + "\\Files\\TradeBot\\spool";
-   string account = IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN)) + "-" + AccountInfoString(ACCOUNT_SERVER);
-   if(StaticHost::SpoolOpen(g_engine, root, "mt5", account, _Symbol, profilePath, tester) < 0)
+   if(StaticHost::SpoolOpen(g_engine, root, "mt5", AccountId(), _Symbol, profilePath, tester) < 0)
      { Print(EngineError("SpoolOpen (telemetria vypnuta)")); return; }
    g_spool = true;
+   // id instancie zo spoolu je smerodajne (to iste, co InstanceId - control subor sa hlada podla neho)
+   string instance = StaticHost::SpoolInstance(g_engine);
+   if(instance != "" && instance != g_instance)
+     { g_instance = instance; g_controlPath = "TradeBot\\control\\" + g_instance + ".json"; }
    Print("TradeBot: live telemetria -> ", StaticHost::SpoolPath(g_engine));
   }
 
@@ -328,9 +523,21 @@ void SpoolFill(datetime dealTime, string id, bool entry, string exitName, double
      { Print(EngineError("SpoolFill (telemetria vypnuta)")); g_spool = false; }
   }
 
+/// Spolocny timer (5 s): screenshot raz po vykresleni grafu, control subor pri kazdom tiku timera.
 void OnTimer()
   {
-   EventKillTimer();
+   if(InpScreenshotFile != "" && !g_shotDone)
+     {
+      g_shotDone = true;
+      TakeScreenshot();
+      if(InpCloseAfterShot) return;
+     }
+   if(g_controlOn) CheckControl();
+   else EventKillTimer();
+  }
+
+void TakeScreenshot()
+  {
    ChartRedraw(0);
    bool ok = ChartScreenShot(0, InpScreenshotFile, 1800, 900, ALIGN_RIGHT);
    Print("TradeBot: screenshot ", InpScreenshotFile, ok ? " ulozeny" : " zlyhal", " (", GetLastError(), "), objektov ", ObjectsTotalPrefix());
@@ -363,6 +570,7 @@ void DumpObjects(string path)
 
 void OnDeinit(const int reason)
   {
+   EventKillTimer();
    if(g_engine > 0)
       Print("TradeBot ", TRADEBOT_ENGINE_KEY, ": spracovanych ", g_chartBars, " barov grafu (",
             TimeToString(FromMs(g_firstBarMs), TIME_DATE | TIME_MINUTES), " - ", TimeToString(FromMs(g_lastBarMs), TIME_DATE | TIME_MINUTES),
@@ -445,6 +653,8 @@ void OnTick()
         }
       ProcessChartBar(chart[i]);
      }
+   // novy bar = aj kontrola control suboru (a cakajucej zmeny profilu); timer to robi kazdych 5 s bez ohladu na bary
+   if(n > 0) CheckControl();
   }
 
 MqlRates g_lastRates;   // posledny spracovany bar grafu - pre FinalDrawings
@@ -579,6 +789,13 @@ void Apply(CJson *intent, bool ready)
      {
       CJson *p = intent.Find("p");
       if(!ready || p == NULL) return;
+      // paused / flatten (control subor): vstup sa brokerovi neposle, engine si ho odpise timeoutom ako pri !ready
+      if(g_mode != "enabled")
+        {
+         if(!g_suppressLogged)
+           { g_suppressLogged = true; Print("TradeBot control: ENTRY ", id, " potlaceny - rezim ", g_mode, " (dalsie potlacene vstupy sa do zmeny rezimu neloguju)"); }
+         return;
+        }
       // Ten isty vstup este drzi poziciu: Pine by druhy `strategy.entry` s rovnakym id ignoroval.
       if(idx >= 0 && g_orders[idx].filled && g_orders[idx].openQty > 0) return;
       if(idx >= 0)
@@ -695,6 +912,8 @@ void ReleaseParked()
      {
       if(!g_orders[i].parked) continue;
       g_orders[i].parked = false;
+      // paused / flatten: odlozeny vstup sa uz neposle (engine si ho odpise timeoutom)
+      if(g_mode != "enabled") { if(InpLogEvents) Print("ENTRY ", g_orders[i].id, " odlozeny sa neposle - rezim ", g_mode); RemoveOrder(i); continue; }
       if(!SendEntry(g_orders[i])) RemoveOrder(i);
      }
   }
@@ -822,6 +1041,8 @@ void OnTradeTransaction(const MqlTradeTransaction &trans, const MqlTradeRequest 
    HandleDeal(trans);
    // az po celom deale: pri netting obrate CloseOpposite na chvilu nechava poziciu nulovu
    ReleaseParked();
+   // zmena profilu, ktora cakala na flat (control subor)
+   RetryPendingProfile();
   }
 
 void HandleDeal(const MqlTradeTransaction &trans)

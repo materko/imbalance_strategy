@@ -15,6 +15,12 @@
 // Live telemetria (docs/LIVE.md): mimo Strategy Analyzera pise adapter bary, zamery, kresby a vyplnenia
 // do JSONL spoolu `Documents\NinjaTrader 8\TradeBot\spool\<instancia>\` (`TB.LiveSpool`); agent hubu
 // ho odtial posiela do webapp. Chyba spoolu strategiu nezhodi - vypise sa raz do Output a obchoduje sa dalej.
+//
+// Ovladanie na dialku (docs/LIVE.md, faza 2): `Documents\NinjaTrader 8\TradeBot\control\<instancia>.json`
+// s `mode` (enabled / paused / flatten) a `profile`. Subor sa cita podla mtime kazdych 5 s
+// (System.Timers.Timer -> TriggerCustomEvent, nech praca bezi vo vlakne strategie) a pri kazdom bare.
+// Zmena profilu sa aplikuje, az ked je strategia flat; novy engine NEMA predhistoriu (NinjaTrader
+// strategii historiu znova neprehra) a informativny TF sa zmenit neda (seria je pridana v Configure).
 #region Using declarations
 using System;
 using System.Collections.Generic;
@@ -72,7 +78,7 @@ namespace NinjaTrader.NinjaScript.Strategies
         private readonly Dictionary<string, int> _dailyWins = new Dictionary<string, int>();
         /// <summary>To iste, ako to bolo na konci predosleho baru - limit plati az od DALSIEHO baru.</summary>
         private readonly Dictionary<string, int> _dailyWinsSeen = new Dictionary<string, int>();
-        private readonly TB.DrawRegistry _registry = new TB.DrawRegistry();
+        private TB.DrawRegistry _registry = new TB.DrawRegistry();
         private readonly Dictionary<string, Brush> _brushes = new Dictionary<string, Brush>();
         private StreamWriter _export;
         private Dictionary<string, object> _config;
@@ -81,6 +87,22 @@ namespace NinjaTrader.NinjaScript.Strategies
         // diagnostika behu: kolko barov adapter naozaj dostal (malo barov = ziadne zony, ziadne ordery)
         private int _chartBars, _htfBars;
         private long _firstBarMs, _lastBarMs;
+        /// <summary>Bary grafu, ktore dostal AKTUALNY engine - po vymene profilu zacina od nuly (bez predhistorie).</summary>
+        private int _engineBars;
+
+        // ovladanie cez control subor (docs/LIVE.md, faza 2)
+        private string _controlPath;
+        private DateTime _controlMtime = DateTime.MinValue;
+        private bool _controlSeen;
+        private string _controlMode = "enabled";
+        /// <summary>Profil, z ktoreho je postaveny aktualny engine (nazov alebo cesta, ako v parametri).</summary>
+        private string _controlProfile;
+        /// <summary>Profil z control suboru, ktory caka, kym bude strategia flat.</summary>
+        private string _pendingProfile;
+        private bool _pendingLogged;
+        private int _controlEvents;
+        private System.Timers.Timer _controlTimer;
+        private bool _controlTickQueued;
 
         // ------------------------------------------------------------------ //
         // Parametre strategie v NinjaTraderi
@@ -127,6 +149,17 @@ namespace NinjaTrader.NinjaScript.Strategies
             get { return Path.Combine(NinjaTrader.Core.Globals.UserDataDir, "TradeBot", "spool"); }
         }
 
+        public static string ControlDir
+        {
+            get { return Path.Combine(NinjaTrader.Core.Globals.UserDataDir, "TradeBot", "control"); }
+        }
+
+        /// <summary>Profil z parametrov strategie (nazov alebo cesta); prazdne = ziadny profil.</summary>
+        private string ParameterProfile
+        {
+            get { return string.IsNullOrEmpty(Profile) ? DefaultProfile : Profile; }
+        }
+
         /// <summary>Profil sa cita raz (Configure aj DataLoaded ho potrebuju, spool ho pise do `hello`).</summary>
         private Dictionary<string, object> Config()
         {
@@ -142,9 +175,8 @@ namespace NinjaTrader.NinjaScript.Strategies
             Print("TradeBot " + EngineKey + ": live telemetria vypnuta - " + _spool.LastError);
         }
 
-        private string ResolveProfilePath()
+        private static string ResolveProfilePath(string name)
         {
-            string name = string.IsNullOrEmpty(Profile) ? DefaultProfile : Profile;
             if (string.IsNullOrEmpty(name)) return null;
             if (File.Exists(name)) return name;
             string path = Path.Combine(ProfilesDir, name.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ? name : name + ".json");
@@ -152,11 +184,16 @@ namespace NinjaTrader.NinjaScript.Strategies
             return path;
         }
 
-        private Dictionary<string, object> LoadConfig()
+        private static Dictionary<string, object> LoadConfig(string name)
         {
-            string path = ResolveProfilePath();
+            string path = ResolveProfilePath(name);
             if (path == null) return new Dictionary<string, object>();
             return TB.Json.ParseObject(File.ReadAllText(path));
+        }
+
+        private Dictionary<string, object> LoadConfig()
+        {
+            return LoadConfig(ParameterProfile);
         }
 
         private TB.InstrumentSpec InstrumentSpec()
@@ -223,17 +260,21 @@ namespace NinjaTrader.NinjaScript.Strategies
                 double wins;
                 _maxDailyWins = stats != null && stats.TryGetValue("max_daily_wins", out wins) ? (int)wins : 0;
                 if (ExportSignals) OpenExport();
+                _controlProfile = ParameterProfile;
                 if (LiveTelemetry && !IsInStrategyAnalyzer)
                 {
                     _spool = new TB.LiveSpool(SpoolDir, "ninjatrader", Account != null ? Account.Name : "",
                                               Instrument.MasterInstrument.Name, _chartTfMinutes, EngineKey,
-                                              string.IsNullOrEmpty(Profile) ? DefaultProfile : Profile, false, Config(), InstrumentSpec());
+                                              ParameterProfile, false, Config(), InstrumentSpec());
                     SpoolCheck();
                     if (!_spool.Broken) Print("TradeBot " + EngineKey + ": live telemetria -> " + _spool.Path);
                 }
                 Print("TradeBot " + EngineKey + ": TF " + _chartTfMinutes + "m, predhistoria " + _engine.RequiredHistory
                       + " barov (" + (_engine.Warmup != null ? _engine.Warmup.Describe() : "") + "), tick " + Instrument.MasterInstrument.TickSize
                       + ", bod " + Instrument.MasterInstrument.PointValue);
+                // control subor: v Strategy Analyzeri sa neovlada nic; nazivo sa precita hned (pred prvym barom
+                // je vymena profilu zadarmo - engine este nic nevidel, historia grafu sa prehra do noveho)
+                if (!IsInStrategyAnalyzer) ControlInit();
             }
             else if (State == State.Realtime)
             {
@@ -241,9 +282,11 @@ namespace NinjaTrader.NinjaScript.Strategies
                 foreach (Tracked t in _orders.Values)
                     if (t.Entry != null) t.Entry = GetRealtimeOrder(t.Entry);
                 if (_spool != null) { _spool.Realtime = true; SpoolCheck(); }
+                ControlStartTimer();
             }
             else if (State == State.Terminated)
             {
+                ControlStopTimer();
                 if (_engine != null)
                     Print("TradeBot " + EngineKey + ": spracovanych " + _chartBars + " barov grafu ("
                           + Epoch.AddMilliseconds(_firstBarMs).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) + " - "
@@ -281,6 +324,238 @@ namespace NinjaTrader.NinjaScript.Strategies
             if (_spool == null) return;
             _spool.Fill(ToMs(time), id, entry, exitName, price, quantity, State == State.Realtime);
             SpoolCheck();
+        }
+
+        // ------------------------------------------------------------------ //
+        // Ovladanie cez control subor (docs/LIVE.md, faza 2)
+        //   {"mode": "enabled"|"paused"|"flatten", "profile": "<nazov alebo cesta>", "updated": ms, "by": "..."}
+        // ------------------------------------------------------------------ //
+
+        /// <summary>Id instancie = adresar spoolu; bez telemetrie sa spocita rovnako (`LiveSpool.InstanceId`).</summary>
+        private string InstanceId()
+        {
+            if (_spool != null) return _spool.Instance;
+            return TB.LiveSpool.InstanceId("ninjatrader", Account != null ? Account.Name : "",
+                                           Instrument.MasterInstrument.Name, _chartTfMinutes, EngineKey);
+        }
+
+        private void ControlLog(string level, string text)
+        {
+            Print("TradeBot " + EngineKey + " control: " + text);
+            if (_spool != null) { _spool.Note(level, "control: " + text); SpoolCheck(); }
+        }
+
+        private void ControlEvent(string source)
+        {
+            _controlEvents++;
+            Print("TradeBot " + EngineKey + " control: rezim " + _controlMode + ", profil '" + (_controlProfile ?? "") + "' (" + source + ")");
+            if (_spool != null) { _spool.Control(_controlMode, _controlProfile ?? "", source); SpoolCheck(); }
+        }
+
+        /// <summary>DataLoaded: subor sa precita hned; ked chyba, plati `enabled` + profil z parametrov (`default`).</summary>
+        private void ControlInit()
+        {
+            try
+            {
+                _controlPath = Path.Combine(ControlDir, InstanceId() + ".json");
+                Print("TradeBot " + EngineKey + ": control subor " + _controlPath);
+                bool exists = ControlCheck();
+                // stav pri starte sa hlasi vzdy - aj ked subor ziada presne to, co uz bezi
+                if (_controlEvents == 0) ControlEvent(exists ? "control" : "default");
+            }
+            catch (Exception e) { ControlLog("error", "init zlyhal - " + e.Message); }
+        }
+
+        /// <summary>Kazdych 5 s: timer len zaradi udalost, praca bezi vo vlakne strategie (TriggerCustomEvent).</summary>
+        private void ControlStartTimer()
+        {
+            if (_controlPath == null || _controlTimer != null) return;
+            try
+            {
+                _controlTimer = new System.Timers.Timer(5000);
+                _controlTimer.AutoReset = true;
+                _controlTimer.Elapsed += OnControlTimer;
+                _controlTimer.Start();
+            }
+            catch (Exception e) { ControlLog("error", "timer zlyhal - " + e.Message); }
+        }
+
+        private void ControlStopTimer()
+        {
+            if (_controlTimer == null) return;
+            try
+            {
+                _controlTimer.Stop();
+                _controlTimer.Elapsed -= OnControlTimer;
+                _controlTimer.Dispose();
+            }
+            catch (Exception) { }
+            _controlTimer = null;
+        }
+
+        private void OnControlTimer(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            try
+            {
+                if (State != State.Realtime || _controlTickQueued) return;
+                _controlTickQueued = true;
+                TriggerCustomEvent(ControlTick, null);
+            }
+            catch (Exception) { _controlTickQueued = false; }
+        }
+
+        private void ControlTick(object state)
+        {
+            _controlTickQueued = false;
+            if (State != State.Realtime || _engine == null) return;
+            ControlCheck();
+        }
+
+        /// <summary>Precita subor, ked sa zmenil (mtime), a skusi cakajucu vymenu profilu. Vracia true, ked subor existuje.</summary>
+        private bool ControlCheck()
+        {
+            if (_controlPath == null) return false;
+            try
+            {
+                if (!File.Exists(_controlPath))
+                {
+                    if (_controlSeen)
+                    {
+                        // subor zmizol = spat na predvolene: enabled + profil z parametrov
+                        _controlSeen = false;
+                        _controlMtime = DateTime.MinValue;
+                        ControlApply("enabled", ParameterProfile, "default");
+                    }
+                    return false;
+                }
+                DateTime mtime = File.GetLastWriteTimeUtc(_controlPath);
+                if (mtime != _controlMtime)
+                {
+                    _controlMtime = mtime;
+                    _controlSeen = true;
+                    Dictionary<string, object> d = TB.Json.ParseObject(File.ReadAllText(_controlPath));
+                    string mode = TB.Json.GetString(d, "mode", "enabled");
+                    string profile = TB.Json.GetString(d, "profile", "");
+                    if (mode != "enabled" && mode != "paused" && mode != "flatten")
+                    {
+                        ControlLog("error", "neznamy mode '" + mode + "' v " + _controlPath + " - ignorujem");
+                        return true;
+                    }
+                    ControlApply(mode, string.IsNullOrEmpty(profile) ? _controlProfile : profile, "control");
+                }
+                else if (_pendingProfile != null)
+                {
+                    // vymena cakala na flat: prebehla (true) alebo bola odmietnuta (pending zmizol) -> potvrd stav
+                    bool ok = TrySwitchProfile();
+                    if (ok || _pendingProfile == null) ControlEvent("control");
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                ControlLog("error", "citanie " + _controlPath + " zlyhalo - " + e.Message);
+                return true;
+            }
+        }
+
+        private void ControlApply(string mode, string profile, string source)
+        {
+            bool changed = false;
+            if (mode != _controlMode)
+            {
+                string before = _controlMode;
+                _controlMode = mode;
+                changed = true;
+                if (mode == "flatten")
+                {
+                    // raz zrusi cakajuce vstupy a zavrie poziciu; dalej sa sprava ako paused
+                    Flatten("tb_flatten");
+                    if (LogEvents) Print("FLATTEN (control)");
+                }
+                else if (mode == "enabled" && before != "enabled")
+                    ReleaseParked();
+            }
+            string wanted = profile ?? "";
+            if (wanted != (_controlProfile ?? ""))
+            {
+                _pendingProfile = wanted;
+                _pendingLogged = false;
+                bool ok = TrySwitchProfile();
+                if (!ok && _pendingProfile != null)
+                {
+                    // caka na flat (udalost `pending` je napisana); zmenu rezimu potvrd hned
+                    if (changed) ControlEvent(source);
+                    return;
+                }
+                changed = true;   // vymenene, alebo odmietnute - v oboch pripadoch potvrd, co bezi
+            }
+            if (changed || source == "default") ControlEvent(source);
+        }
+
+        private bool IsFlat()
+        {
+            return _orders.Count == 0 && Position.MarketPosition == MarketPosition.Flat;
+        }
+
+        /// <summary>Vymena profilu, ked je strategia flat. true = novy engine bezi; false = caka
+        /// (`_pendingProfile` ostava) alebo odmietnute (`_pendingProfile` je null, chyba je v logu).</summary>
+        private bool TrySwitchProfile()
+        {
+            string wanted = _pendingProfile;
+            if (wanted == null) return false;
+            if (!IsFlat())
+            {
+                if (!_pendingLogged)
+                {
+                    _pendingLogged = true;
+                    Print("TradeBot " + EngineKey + " control: profil '" + wanted + "' caka, kym bude strategia flat");
+                    if (_spool != null) { _spool.Control(_controlMode, wanted, "pending"); SpoolCheck(); }
+                }
+                return false;
+            }
+            _pendingProfile = null;
+            try
+            {
+                Dictionary<string, object> cfg = LoadConfig(wanted);
+                TB.IEngine fresh = TB.EngineRegistry.Create(EngineKey, cfg, InstrumentSpec(), _chartTfMinutes);
+                TB.IHtfFeeder feeder = fresh.CreateHtfFeeder();
+                int oldTf = _htf != null ? _htf.TfMinutes : 0;
+                int newTf = feeder != null ? feeder.TfMinutes : 0;
+                if (oldTf != newTf)
+                {
+                    // seria informativneho TF je pridana v Configure zo stareho profilu a za behu sa zmenit neda
+                    ControlLog("error", "profil '" + wanted + "' chce informativny TF " + newTf + "m, graf ma " + oldTf
+                               + "m - vymena odmietnuta, bezi dalej '" + _controlProfile + "' (vypni a zapni strategiu)");
+                    return false;
+                }
+                _engine = fresh;
+                _htf = feeder;
+                _config = cfg;
+                _engineBars = 0;
+                _orders.Clear();
+                _dailyWins.Clear();
+                _dailyWinsSeen.Clear();
+                Dictionary<string, double> stats = _engine.Stats();
+                double wins;
+                _maxDailyWins = stats != null && stats.TryGetValue("max_daily_wins", out wins) ? (int)wins : 0;
+                if (ShowDrawings && ChartControl != null)
+                {
+                    try { RemoveDrawObjects(); } catch (Exception) { }
+                    _registry = new TB.DrawRegistry();
+                }
+                _controlProfile = wanted;
+                Print("TradeBot " + EngineKey + " control: novy engine z profilu '" + wanted + "', predhistoria " + _engine.RequiredHistory
+                      + " barov" + (_chartBars > 0 ? " - BEZ PREDHISTORIE (NinjaTrader historiu znova neprehra), obchoduje az po "
+                      + _engine.RequiredHistory + " novych baroch" : ""));
+                if (_chartBars > 0 && _spool != null)
+                    _spool.Note("warn", "control: engine z profilu '" + wanted + "' bez predhistorie - caka " + _engine.RequiredHistory + " barov");
+                return true;
+            }
+            catch (Exception e)
+            {
+                ControlLog("error", "profil '" + wanted + "' sa nenacital - " + e.Message + "; bezi dalej '" + _controlProfile + "'");
+                return false;
+            }
         }
 
         // ------------------------------------------------------------------ //
@@ -396,6 +671,8 @@ namespace NinjaTrader.NinjaScript.Strategies
             TB.Bar bar = new TB.Bar(BarOpenMs(0, _stepMs), Open[0], High[0], Low[0], Close[0], Volume[0]);
             if (_chartBars++ == 0) _firstBarMs = bar.Time;
             _lastBarMs = bar.Time;
+            ControlCheck();   // moze vymenit _engine (profil), ked je strategia flat
+            _engineBars++;
 
             UpdateTrailing(bar);
 
@@ -422,7 +699,8 @@ namespace NinjaTrader.NinjaScript.Strategies
             TB.EngineOutput output = _engine.OnBar(bar, window, ctx);
 
             // Signal z baru bez celej predhistorie vstup neurobi (engine si ho odpise sam timeoutom).
-            bool ready = CurrentBars[0] >= _engine.RequiredHistory;
+            // Po vymene profilu za behu ma novy engine len bary od vymeny (`_engineBars`), nie cely graf.
+            bool ready = CurrentBars[0] >= _engine.RequiredHistory && _engineBars > _engine.RequiredHistory;
             // Nazivo: bar, ktory prisiel s velkym oneskorenim (vypadok dat, davka barov naraz), sa
             // neobchoduje - signal je stary a fill by bol uplne inde.
             if (State == State.Realtime && (NinjaTrader.Core.Globals.Now - Times[0][0]).TotalSeconds > 2 * _chartTfMinutes * 60)
@@ -475,6 +753,12 @@ namespace NinjaTrader.NinjaScript.Strategies
             if (intent.Action == TB.OrderAction.Entry)
             {
                 if (!ready || intent.Plan == null) return;
+                // paused / flatten: novy vstup sa brokerovi neposle; engine si ho odpise timeoutom ako nevyplneny
+                if (_controlMode != "enabled")
+                {
+                    if (LogEvents) Print("ENTRY " + intent.OrderId + " zahodeny - rezim " + _controlMode);
+                    return;
+                }
                 // Ten isty vstup este drzi poziciu (engine po re-entry pouzije rovnake meno): Pine by druhy
                 // `strategy.entry` s rovnakym id pri otvorenej pozicii ignoroval - pozicia dobehne na svojom SL/TP.
                 if (_orders.TryGetValue(intent.OrderId, out t) && t.Filled && t.OpenQty > 0) return;
@@ -575,7 +859,8 @@ namespace NinjaTrader.NinjaScript.Strategies
         /// <summary>Pozicia skoncila: odlozene vstupy znova k brokerovi (az ked NT potvrdil zrusenie stareho orderu).</summary>
         private void ReleaseParked()
         {
-            if (HasOpenPosition()) return;
+            // pauza: odlozene vstupy ostanu odlozene, poslu sa az po navrate do `enabled` (alebo ich engine zrusi)
+            if (HasOpenPosition() || _controlMode != "enabled") return;
             foreach (KeyValuePair<string, Tracked> kv in new List<KeyValuePair<string, Tracked>>(_orders))
             {
                 Tracked t = kv.Value;

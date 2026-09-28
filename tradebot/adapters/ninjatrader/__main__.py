@@ -1,25 +1,34 @@
 """Inštalácia a kontrola adaptéra NinjaTrader 8.
 
     python -m tradebot.adapters.ninjatrader check       # preloží adaptér proti DLL NinjaTradera (nič nekopíruje)
-    python -m tradebot.adapters.ninjatrader install     # skopíruje jadro, adaptér, šablóny a profily
+    python -m tradebot.adapters.ninjatrader install     # skopíruje jadro, adaptér, AddOn, šablóny a profily
     python -m tradebot.adapters.ninjatrader profiles    # len znova vyexportuje profily
+    python -m tradebot.adapters.ninjatrader control list                                   # control súbory a inštancie spoolu
+    python -m tradebot.adapters.ninjatrader control <inštancia> [--mode M] [--profile P]   # zapíše control súbor
 
 `install` kopíruje **zdrojáky** (nie DLL) do `Documents\\NinjaTrader 8\\bin\\Custom`: NinjaTrader si
 ich preloží sám spolu s ostatným NinjaScriptom (NinjaScript Editor → F5), takže netreba pridávať
 referenciu na DLL a po zmene jadra stačí `install` zopakovať. Profily idú ako úplné configy do
 `Documents\\NinjaTrader 8\\TradeBot\\profiles\\<stratégia>\\` a v parametri stratégie „Profil" sa
 zadávajú menom.
+
+`control` píše `Documents\\NinjaTrader 8\\TradeBot\\control\\<inštancia>.json` (docs/LIVE.md, fáza 2)
+atomicky; bez `--mode` ostáva mode z existujúceho súboru (inak `enabled`), bez `--profile` ostáva
+profil. Inštancia je názov adresára spoolu (`ninjatrader_Sim101_MNQ-12-26_3m_ibsnet`) alebo `addon`
+pre sondu `TradeBotLiveAddOn`.
 """
 
 from __future__ import annotations
 
 import argparse
+import getpass
 import json
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 from tradebot.adapters.csharp.build import BuildError, ensure_built, find_compiler
@@ -28,8 +37,13 @@ from tradebot.core.paths import CSHARP_DIR, CSHARP_DLL, NINJATRADER_DIR
 from tradebot.strategies import STRATEGIES
 
 ADAPTER_DIR = Path(__file__).resolve().parent
+#: Adaptér (NinjaScript Strategy) — ide do `bin\\Custom\\Strategies`.
+ADAPTER_FILE = ADAPTER_DIR / "TradeBotStrategy.cs"
+#: AddOn (štartuje s NinjaTraderom, sonda behu bez človeka) — ide do `bin\\Custom\\AddOns\\TradeBot`.
+ADDON_FILE = ADAPTER_DIR / "TradeBotLiveAddOn.cs"
 #: Zdrojáky C# jadra, ktoré idú do NinjaTradera (hostiteľ pre stdio most nie).
 CORE_DIRS = ("TradeBot.Core", "TradeBot.Strategies")
+CONTROL_MODES = ("enabled", "paused", "flatten")
 #: Šablóny, ktoré `install` z NinjaTradera odstráni: IBSNinja/ORBNinja sa 25. 9. 2026 premenovali na IBSNet/ORBNet.
 STALE_TEMPLATES = ("IBSNinja.cs", "ORBNinja.cs")
 
@@ -67,6 +81,13 @@ def csharp_strategies():
     return [s for s in STRATEGIES.values() if s.csharp_dir is not None]
 
 
+def check_sources() -> list[Path]:
+    """Všetko, čo NinjaTrader po `install` prekladá: jadro, adaptér, AddOn, šablóny."""
+    core = [f for d in CORE_DIRS for f in sorted((CSHARP_DIR / d).rglob("*.cs"))]
+    templates = sorted(NINJATRADER_DIR.glob("*.cs"))
+    return [*core, ADAPTER_FILE, ADDON_FILE, *templates]
+
+
 def check(nt_dir: Path) -> None:
     """Preloží adaptér a šablóny proti skutočným DLL NinjaTradera — chyba API sa ukáže tu, nie v grafe."""
     ensure_built()
@@ -78,9 +99,8 @@ def check(nt_dir: Path) -> None:
     # Jadro ide do prekladu ako ZDROJÁKY, nie ako DLL — presne tak ho prekladá NinjaTrader. A po
     # `install` už `NinjaTrader.Custom.dll` tie isté typy obsahuje: typ definovaný v prekladanej
     # assembly má prednosť (len varovanie CS0436), kým dva referencované by bola chyba.
-    core = [f for d in CORE_DIRS for f in sorted((CSHARP_DIR / d).rglob("*.cs"))]
+    files = check_sources()
     templates = sorted(NINJATRADER_DIR.glob("*.cs"))
-    files = [*core, ADAPTER_DIR / "TradeBotStrategy.cs", *templates]
     with tempfile.TemporaryDirectory() as tmp:
         cmd = [*find_compiler(), "-nologo", "-codepage:65001", "-nowarn:0436", "-target:library",
                f"-out:{Path(tmp) / 'nt_check.dll'}",
@@ -89,7 +109,7 @@ def check(nt_dir: Path) -> None:
         done = subprocess.run(cmd, capture_output=True, text=True)
     if done.returncode != 0:
         raise SystemExit(f"adaptér sa proti NinjaTraderu nepreložil:\n{done.stdout}{done.stderr}")
-    print(f"OK: jadro, adaptér a {len(templates)} šablón sa preložilo proti {nt_bin}")
+    print(f"OK: jadro, adaptér, AddOn a {len(templates)} šablón sa preložilo proti {nt_bin}")
 
 
 def export_profiles(nt_dir: Path, extra: list[str]) -> int:
@@ -119,25 +139,115 @@ def install(nt_dir: Path, extra_profiles: list[str]) -> None:
         shutil.rmtree(target)  # vlastný adresár adaptéra — zmazané zdrojáky jadra nesmú v NinjaTraderi ostať
     for d in CORE_DIRS:
         shutil.copytree(CSHARP_DIR / d, target / d)
-    shutil.copy2(ADAPTER_DIR / "TradeBotStrategy.cs", custom / "Strategies" / "TradeBotStrategy.cs")
+    shutil.copy2(ADDON_FILE, target / ADDON_FILE.name)
+    shutil.copy2(ADAPTER_FILE, custom / "Strategies" / ADAPTER_FILE.name)
     for stale in STALE_TEMPLATES:   # šablóny spred premenovania by sa preložili, ale ich kľúč už engine nepozná
         (custom / "Strategies" / stale).unlink(missing_ok=True)
     templates = sorted(NINJATRADER_DIR.glob("*.cs"))
     for t in templates:
         shutil.copy2(t, custom / "Strategies" / t.name)
     n = export_profiles(nt_dir, extra_profiles)
-    print(f"OK: jadro -> {target}\nOK: adaptér + šablóny ({', '.join(t.stem for t in templates)}) -> {custom / 'Strategies'}\n"
+    print(f"OK: jadro + AddOn ({ADDON_FILE.stem}) -> {target}\n"
+          f"OK: adaptér + šablóny ({', '.join(t.stem for t in templates)}) -> {custom / 'Strategies'}\n"
           f"OK: {n} profilov -> {nt_dir / 'TradeBot' / 'profiles'}\n"
           "Teraz v NinjaTraderi: New > NinjaScript Editor > F5 (preklad).")
 
 
+# --------------------------------------------------------------------------- #
+# control súbor (docs/LIVE.md, fáza 2)
+# --------------------------------------------------------------------------- #
+
+
+def control_dir(nt_dir: Path) -> Path:
+    return nt_dir / "TradeBot" / "control"
+
+
+def read_control(nt_dir: Path, instance: str) -> dict | None:
+    path = control_dir(nt_dir) / f"{instance}.json"
+    if not path.is_file():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def write_control(nt_dir: Path, instance: str, *, mode: str | None = None, profile: str | None = None,
+                  by: str | None = None) -> dict:
+    """Zapíše control súbor atomicky (tmp + `os.replace`), nezadané polia prevezme z existujúceho súboru.
+    Adaptér číta podľa mtime, takže každý zápis je pre neho nová správa aj pri rovnakom obsahu."""
+    if mode is not None and mode not in CONTROL_MODES:
+        raise SystemExit(f"mode musí byť {'/'.join(CONTROL_MODES)}, nie {mode!r}")
+    if "/" in instance or "\\" in instance or instance in ("", ".", ".."):
+        raise SystemExit(f"neplatná inštancia {instance!r}")
+    current = read_control(nt_dir, instance) or {}
+    data = {
+        "mode": mode if mode is not None else current.get("mode", "enabled"),
+        "profile": profile if profile is not None else current.get("profile", ""),
+        "updated": int(time.time() * 1000),
+        "by": by or current.get("by") or _whoami(),
+    }
+    directory = control_dir(nt_dir)
+    directory.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(prefix=f".{instance}.", suffix=".json.tmp", dir=directory)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(data, ensure_ascii=False) + "\n")
+        os.replace(tmp, directory / f"{instance}.json")
+    finally:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+    return data
+
+
+def _whoami() -> str:
+    try:
+        return f"{getpass.getuser()}@{os.environ.get('COMPUTERNAME') or os.uname().nodename}"
+    except Exception:  # noqa: BLE001 - len popis, nie logika
+        return "cli"
+
+
+def list_control(nt_dir: Path) -> list[dict]:
+    """Inštancie zo spoolu a z control adresára (zjednotené), s obsahom control súboru, ak je."""
+    names: set[str] = set()
+    spool = nt_dir / "TradeBot" / "spool"
+    if spool.is_dir():
+        names.update(p.name for p in spool.iterdir() if p.is_dir())
+    if control_dir(nt_dir).is_dir():
+        names.update(p.stem for p in control_dir(nt_dir).glob("*.json"))
+    return [{"instance": n, "control": read_control(nt_dir, n), "spool": (spool / n).is_dir()} for n in sorted(names)]
+
+
+def cmd_control(nt_dir: Path, args: argparse.Namespace) -> int:
+    if not args.instance:
+        raise SystemExit("control: zadaj inštanciu alebo `list`")
+    if args.instance == "list":
+        rows = list_control(nt_dir)
+        if not rows:
+            print(f"žiadne inštancie (spool ani control v {nt_dir / 'TradeBot'})")
+        for r in rows:
+            c = r["control"]
+            stav = f"mode={c.get('mode')} profile={c.get('profile') or '-'} by={c.get('by') or '-'}" if c else "bez control súboru (= enabled)"
+            print(f"{r['instance']:<55} {'spool' if r['spool'] else '     '}  {stav}")
+        return 0
+    profile = args.profile[-1] if args.profile else None
+    if args.mode is None and profile is None:
+        current = read_control(nt_dir, args.instance)
+        print(json.dumps(current, ensure_ascii=False) if current else f"{args.instance}: bez control súboru (= enabled, profil z parametrov)")
+        return 0
+    data = write_control(nt_dir, args.instance, mode=args.mode, profile=profile, by=args.by)
+    print(f"OK: {control_dir(nt_dir) / (args.instance + '.json')}\n{json.dumps(data, ensure_ascii=False)}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("command", choices=("check", "install", "profiles"))
+    ap.add_argument("command", choices=("check", "install", "profiles", "control"))
+    ap.add_argument("instance", nargs="?", help="control: inštancia (adresár spoolu, `addon`) alebo `list`")
     ap.add_argument("--nt-dir", help="adresár `Documents\\NinjaTrader 8`, keď nie je na obvyklom mieste")
-    ap.add_argument("--profile", action="append", default=[], help="ďalší profil (cesta k JSON) na export")
+    ap.add_argument("--profile", action="append", default=[],
+                    help="install/profiles: ďalší profil (cesta k JSON) na export; control: profil pre adaptér")
+    ap.add_argument("--mode", choices=CONTROL_MODES, help="control: enabled / paused / flatten")
+    ap.add_argument("--by", help="control: kto zmenu zadal (predvolene používateľ@stroj)")
     args = ap.parse_args(argv)
-    if sys.platform != "win32":
+    if sys.platform != "win32" and args.command != "control":
         raise SystemExit("NinjaTrader 8 beží len na Windows")
     nt_dir = nt_user_dir(args.nt_dir)
     try:
@@ -145,6 +255,8 @@ def main(argv: list[str] | None = None) -> int:
             check(nt_dir)
         elif args.command == "install":
             install(nt_dir, args.profile)
+        elif args.command == "control":
+            return cmd_control(nt_dir, args)
         else:
             print(f"OK: {export_profiles(nt_dir, args.profile)} profilov")
     except BuildError as exc:

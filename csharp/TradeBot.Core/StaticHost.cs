@@ -252,6 +252,34 @@ public static class StaticHost
         catch (Exception e) { Fail(e); return -1; }
     }
 
+    /// <summary>Id instancie (nazov adresara spoolu) - hostitel podla neho najde svoj control subor.</summary>
+    public static string SpoolInstance(int handle)
+    {
+        try { Slot s = Get(handle); return s.Spool != null ? s.Spool.Instance : ""; }
+        catch (Exception e) { Fail(e); return ""; }
+    }
+
+    /// <summary>To iste bez spoolu (Strategy Tester, telemetria vypnuta): id z tych istych poli.</summary>
+    public static string InstanceId(string platform, string account, string symbol, int tfMinutes, string strategy)
+    {
+        try { return LiveSpool.InstanceId(platform, account, symbol, tfMinutes, strategy); }
+        catch (Exception e) { Fail(e); return ""; }
+    }
+
+    /// <summary>Potvrdenie rezimu z control suboru (`enabled`/`paused`/`flatten`), profil a zdroj.</summary>
+    public static int SpoolControl(int handle, string mode, string profile, string source)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            if (s.Spool == null) return 0;
+            s.Spool.Control(mode, profile, source);
+            if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
+            return 1;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
     /// <summary>Napise `stat` (Engine.Stats()) a `bye` a subor zavrie. 1 ok, 0 bez spoolu, -1 chyba.</summary>
     public static int SpoolClose(int handle, string reason)
     {

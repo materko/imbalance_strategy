@@ -12,9 +12,9 @@ tradebot/adapters/mt5/TradeBotJson.mqh    minimálny JSON parser (MQL5 JSON neč
 tradebot/adapters/mt5/TradeBotDraw.mqh    DrawCommand → objekty grafu (zóny, čiary, popisky, pozadie, update, delete)
 deploy/mt5/<Meno>.mq5                     šablóna EA: TRADEBOT_ENGINE_KEY + default profil + include
 tradebot/adapters/mt5/TradeBotImport.mq5  skript: Custom symbol z CSV 1m sviečok skladu (UTC)
-tradebot/adapters/mt5/presets/*.set       parametre skriptu a EA v testeri
-deploy/mt5/ini/*.ini                      štartovacie ini terminálu: import symbolu, beh v Strategy Testeri
-tradebot/adapters/mt5/__main__.py         inštalácia do terminálu (DLL, include, šablóny, skript, profily), csv, run
+tradebot/adapters/mt5/presets/*.set       parametre skriptu a EA (tester, kreslenie, živý beh)
+deploy/mt5/ini/*.ini                      štartovacie ini terminálu: import symbolu, beh v Strategy Testeri, živý beh bez človeka
+tradebot/adapters/mt5/__main__.py         inštalácia do terminálu (DLL, include, šablóny, skript, profily), csv, run, control
 tester/tests/test_mt5_static_host.py      fasáda musí dať bar po bare to isté, čo most do Freqtrade
 ```
 
@@ -88,6 +88,8 @@ a text je v `LastError()`.
   `InpTelemetryInTester` (predvolene vypnuté — tester spool nepíše, iba na overenie). Fasáda má od toho
   `Version() == 2`: staršiu `TradeBot.dll` EA odmietne pri štarte, stačí `install`. Chyba spoolu EA
   nezhodí — zaloguje sa a obchoduje sa ďalej;
+- **ovládanie na diaľku** cez `Common\Files\TradeBot\control\<inštancia>.json` (pauza, flatten, zmena
+  profilu bez človeka pri termináli) — sekcia „Ovládanie na diaľku“ nižšie;
 - **export signálov** do `Common\Files\TradeBot\logs\*.csv` v tvare NinjaTrader exportu
   (`kind;bar_open_ms;id;a;b;entry;sl;tp;qty;ready;text`), takže porovnanie s Testerom je to isté
   `python -m tester.ninjatrader compare --csv <súbor>`. Riadky `fill` sú vyplnenia z dealov:
@@ -158,6 +160,10 @@ s Testerom úplne — 81/81 vstupov na rovnakom bare s rovnakým plánom, 1975/1
 „1 minute OHLC“, vklad 1 000 000 $): 76 obchodov, +6 853,50 $, PF 1,91, max. DD 1 859 $ — NinjaTrader
 na tom istom období 78 obchodov, +6 974 $, PF 1,87; emulátor MultiCharts 71, +6 150 $, PF 1,86.
 Fill model je iný, PnL sa porovnáva len orientačne, parita platí na signály.
+**28. 9. 2026** (po „jedna pozícia naraz“, 694bef711): ten istý beh dáva 71 obchodov, +5 999 $, PF 1,83, max. DD
+1 859 $ — počet sedí s emulátorom MultiCharts (71); signály stále 81/81 a 1975/1975. EA s control súborom
+(bez súboru = `enabled`) dáva v testeri **presne to isté** ako EA pred ním: správa aj riadky `order`/`fill`
+exportu sú identické.
 
 Pasce, na ktoré sa prišlo: `CopyRates` s časovým rozsahom vracia aj práve otvorený bar (EA ho bralo
 ako uzavretý — teraz sa berú bary podľa indexu od 1); Strategy Tester beží v agentovi s vlastným
@@ -176,6 +182,111 @@ objektov `…png.objects.csv` (meno, typ, časy, ceny, farba) a terminál zavrie
 bez klikania. Overené 25. 9. 2026: 293 objektov engine-u (zóny `imb`/`z`, štruktúra BOS/CHoCH, swingy
 HH/HL/LL/LH, S/R zhluky s `2x`…`6x`, likvidita, EXPIRED), rovnaké kresby ako Tester a NinjaTrader.
 Predhistória nikdy neobchoduje (`ready` je false), na živom grafe so zavretým trhom by ordery padali.
+
+## Ovládanie na diaľku (control súbor)
+
+Fáza 2 z docs/LIVE.md, tá istá cesta ako telemetria, len naopak: hub → agent → súbor na disku platformy →
+EA. Sieť do terminálu nejde nikdy; keď agent alebo hub spadne, platí posledný súbor.
+
+```
+Common\Files\TradeBot\control\<inštancia>.json      {"mode": "enabled"|"paused"|"flatten", "profile": "<názov alebo cesta>", "updated": <ms UTC>, "by": "<kto>"}
+```
+
+`<inštancia>` = adresár spoolu (`mt5_<login>-<server>_<symbol>_<TF>m_<kľúč>`, napr.
+`mt5_1514750898-FTMO-Demo_US100.cash_1m_ibsnet`); EA ho má zo spoolu (`StaticHost::SpoolInstance`), a keď je
+telemetria vypnutá, spočíta si ho rovnako (`StaticHost::InstanceId`). Ručne / z agenta:
+
+```
+python -m tradebot.adapters.mt5 control list                                   # inštancie v spoole + ich control súbory
+python -m tradebot.adapters.mt5 control <inštancia> --mode paused              # len režim (profil ostáva)
+python -m tradebot.adapters.mt5 control <inštancia> --profile golden_binance_btcusdt_3m   # len profil (režim ostáva)
+python -m tradebot.adapters.mt5 control <inštancia> --mode flatten
+python -m tradebot.adapters.mt5 control <inštancia>                            # ukáže, čo tam je
+python -m tradebot.live tail --instance <inštancia>                            # potvrdenie: udalosti `control` v spoole
+```
+
+Zápis je atomický (tmp + rename), EA číta s `FILE_COMMON | FILE_SHARE_*`. Čo EA robí (`TradeBotEA.mqh`,
+`CheckControl`/`ApplyControl`):
+
+- **kedy číta**: `OnTimer` každých 5 s (jeden spoločný timer so screenshotom) a po každom novom bare grafu;
+  zmena sa spozná podľa `FILE_MODIFY_DATE` + `FILE_SIZE`, čítanie teda nezávisí od tikov — funguje aj so
+  zavretým trhom. Pri štarte sa súbor číta ešte pred stavbou engine-u, takže **profil z control súboru má
+  prednosť pred `InpProfile`** a EA sa hneď rozbehne v uloženom režime (po reštarte terminálu ostáva to, čo
+  hub naposledy zapísal). Chýbajúci súbor = `enabled` + `InpProfile`; keď súbor zmizne počas behu, EA sa
+  vráti na `enabled` + `InpProfile` (udalosť `control` so `source:"default"`).
+- `enabled` — obchoduje normálne. `paused` — zámery `entry` z engine-u sa brokerovi neposielajú (engine si ich
+  odpíše timeoutom, ako pri `ready = false`), odložené vstupy (jedna pozícia naraz) sa po konci pozície už
+  nepošlú; `cancel`/`close`, SL/TP a trailing otvorenej pozície bežia ďalej. `flatten` — raz zruší všetky
+  čakajúce vstupy a zavrie pozície (`Flatten("tb_flatten")`, netting cez `close:<id>`), potom sa správa ako
+  `paused`; každý nový zápis súboru s `flatten` to zopakuje.
+- **zmena profilu** (`profile` iný než beží; prázdny = bez zmeny): aplikuje sa, len keď je stratégia bez
+  otvoreného objemu a bez čakajúcich vstupov u brokera (`IsFlat`). Vtedy EA zavrie spool (`bye` s dôvodom
+  `profile`), zahodí engine, postaví nový z nového profilu (rovnaké pravidlá cesty ako `InpProfile`, relatívne
+  k `Common\Files\TradeBot\profiles\<kľúč>\`), vynuluje stav adaptéra (sledované ordery, denný limit výhier,
+  počítadlá), zmaže kresby, prehrá predhistóriu a otvorí spool znova (tá istá inštancia, nová session s
+  `hello` s novým profilom). Kým nie je flat, zmena čaká (udalosť `control` so `source:"pending"`) a skúša sa
+  po každom deale, bare a tiku timera. Profil, ktorý sa nedá načítať, sa zaloguje a beží ďalej starý.
+- každá aplikovaná zmena ide do spoolu ako `{"k":"control","mode","profile","source"}` (`source`:
+  `control` zo súboru, `default` bez súboru, `pending` čaká na flat) a do Experts logu (`TradeBot control: …`);
+  potlačený vstup sa loguje raz na zmenu režimu. Neplatný JSON alebo neznámy režim = log + ostáva posledný
+  režim (skúsi sa znova až po ďalšej zmene súboru).
+- v **Strategy Testeri sa control súbor nečíta** (beh musí byť deterministický a rovnaký ako doteraz).
+
+**Overené 28. 9. 2026** (FTMO-Demo hedging, `US100.cash` M1, živé tiky v nedeľu večer, `AllowLiveTrading=0`):
+`--mode paused` → do 0,1 s udalosť `control paused (control)` a log „rezim paused (control) - nove vstupy sa
+neposielaju“; `--mode enabled` späť; `--profile golden_binance_btcusdt_3m` → `stat`, `bye profile`, nový súbor
+session s `hello profil=…golden_binance_btcusdt_3m.json`, `control enabled golden_binance_btcusdt_3m (control)`,
+log „profil zmeneny na … engine postaveny nanovo, predhistoria prehrana“; `--mode flatten` → `control flatten`
+a log „flatten - zrusenych 0 cakajucich vstupov, zatvara sa 0 pozicii“; zmazanie súboru → `control enabled
+multicharts_mnq_3m (default)` a návrat na `InpProfile`. Neoverené s reálnou pozíciou (obchodovanie bolo
+vypnuté): `flatten` so skutočným zatváraním a `pending` čakanie na flat — kód ide cez tie isté `Flatten`/
+`ClosePosition`/`OnTradeTransaction` ako koniec seansy. Pasca: `FILE_MODIFY_DATE` má sekundové rozlíšenie,
+preto sa porovnáva aj veľkosť; dva zápisy s rovnakou veľkosťou v tej istej sekunde by sa mohli zliať (ďalší
+zápis to napraví).
+
+## Štart bez človeka (ini)
+
+Terminál spustený so štartovacím ini si sám prihlási uložený účet a pripne EA na graf — nikto nemusí
+klikať. `deploy/mt5/ini/live_ibsnet_demo.ini` (overené 28. 9. 2026, build 6230):
+
+```
+[Experts]
+AllowLiveTrading=0        ; 1 = naozaj obchodovať; tu vypnuté, išlo o mechanizmus
+AllowDllImport=1
+Enabled=1
+[StartUp]
+Symbol=US100.cash         ; symbol brokera (FTMO: US100.cash; MNQ.TB je custom symbol bez živých tikov)
+Period=M1
+Expert=TradeBot\IBSNet
+ExpertParameters=IBSNet_live.set    ; MQL5\Presets\ — InpTelemetry=true, InpExportSignals=false, InpLogEvents=true, profil, posun servera
+```
+
+```
+python -m tradebot.adapters.mt5 run deploy/mt5/ini/live_ibsnet_demo.ini --wait 5    # `run` bežiaci terminál zavrie a spustí nový; po --wait sekundách ho nechá bežať
+```
+
+Účet: `[Common] Login/Server` v ini netreba, keď je účet v termináli už prihlásený s uloženým heslom
+(`config\common.ini`); pri prvom prihlásení na novom stroji patrí do ini `Login=… Server=FTMO-Demo Password=…`
+(a heslo z ini potom zmazať). Jeden dátový adresár terminálu = jeden účet; viac účtov = viac portable
+terminálov (`/portable`).
+
+Čo sa overilo a čo nie:
+
+- **EA sa pripne sám** z `[StartUp]`: log „13 inputs read from expert 'TradeBot\IBSNet' set file …“,
+  „expert IBSNet (US100.cash,M1) loaded successfully“, v spoole nový súbor session s `hello`; keď existuje
+  control súbor, EA ho pri štarte prevezme (profil aj režim, `source:"control"`).
+- **`[StartUp]` graf sa po reštarte terminálu neobnoví.** Terminál zavretý slušne (`taskkill /IM
+  terminal64.exe`, log „shutdown with 0“) a spustený holo (`terminal64.exe` bez `/config`) obnovil len grafy
+  uložené v profile `Default` — vrátane EA, ktoré tam predtým človek pripol ručne (IBSNet na EURUSD M5 nabehol:
+  „expert IBSNet (EURUSD,M5) loaded successfully“, nová session v spoole) — ale graf z `[StartUp]` sa do
+  profilu neuložil a EA na `US100.cash` nenabehlo. Dôsledok: **pre beh bez človeka sa terminál vždy štartuje
+  s ini** (autostart / Task Scheduler / agent hubu), nie holo; reštart s tým istým ini EA pripne znova a control
+  súbor ho vráti do posledného režimu a profilu. Ak má EA prežiť aj holý štart, treba ho raz pripnúť ručne (alebo
+  po štarte z ini v termináli uložiť profil grafov `File > Profiles > Save As`).
+- Beh z ini nechá terminál bežať; `run` vráti -1 („terminál stále beží“), to je v poriadku. Zavretie zvonka
+  = `taskkill /IM terminal64.exe` (bez `/F` — terminál sa zavrie slušne, EA dostane `OnDeinit`, spool `bye`).
+- Chart z `[StartUp]` s `InpTelemetry` posiela bary, kresby a `control` do spoolu; s `AllowLiveTrading=0`
+  by vstupy padli na `TRADE_RETCODE_*` — na živé obchodovanie treba `AllowLiveTrading=1` a demo účet.
 
 ## Záloha bez .NET importu
 

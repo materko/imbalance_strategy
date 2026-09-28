@@ -223,6 +223,44 @@ def test_spool_zapise_platne_udalosti(static_host, tmp_path):
     assert all(isinstance(e["t"], int) and e["t"] > 1_700_000_000_000 for e in events)
 
 
+def test_control_instancia_a_udalost(static_host, tmp_path):
+    """Fáza 2 (docs/LIVE.md): EA hľadá control súbor podľa id inštancie — `InstanceId` bez spoolu a
+    `SpoolInstance` so spoolom musia dať to isté, čo `schema.instance_id`; `SpoolControl` píše platnú udalosť."""
+    from tradebot.live import schema
+
+    expected = schema.instance_id("mt5", "1514750898-FTMO-Demo", "US100.cash", 1, "ibsnet")
+    assert expected == "mt5_1514750898-FTMO-Demo_US100.cash_1m_ibsnet"
+    assert static_host.InstanceId("mt5", "1514750898-FTMO-Demo", "US100.cash", 1, "ibsnet") == expected
+
+    h = static_host.Create("ibsnet", "{}", _INST, 1)
+    assert h > 0, static_host.LastError()
+    try:
+        assert static_host.SpoolInstance(h) == ""                          # bez spoolu prázdne (EA použije InstanceId)
+        assert static_host.SpoolControl(h, "paused", "x", "control") == 0  # bez spoolu no-op, nie chyba
+        assert static_host.SpoolOpen(h, str(tmp_path), "mt5", "1514750898-FTMO-Demo", "US100.cash", "multicharts_mnq_3m", False) == 1, \
+            static_host.LastError()
+        assert static_host.SpoolInstance(h) == expected
+        path = static_host.SpoolPath(h)
+        assert static_host.SpoolControl(h, "enabled", "multicharts_mnq_3m", "default") == 1, static_host.LastError()
+        assert static_host.SpoolControl(h, "paused", "multicharts_mnq_3m", "control") == 1
+        assert static_host.SpoolControl(h, "flatten", "golden_binance_btcusdt_3m", "pending") == 1
+        assert static_host.SpoolClose(h, "profile") == 1
+    finally:
+        static_host.Destroy(h)
+
+    lines = (tmp_path / expected / path.rsplit("\\", 1)[-1].rsplit("/", 1)[-1]).read_text(encoding="utf-8").splitlines()
+    events = [schema.parse_line(line) for line in lines]
+    controls = [e for e in events if e["k"] == "control"]
+    assert [(c["mode"], c["profile"], c["source"]) for c in controls] == [
+        ("enabled", "multicharts_mnq_3m", "default"),
+        ("paused", "multicharts_mnq_3m", "control"),
+        ("flatten", "golden_binance_btcusdt_3m", "pending"),
+    ]
+    assert events[-1]["k"] == "bye" and events[-1]["reason"] == "profile"
+    with pytest.raises(schema.SchemaError):
+        schema.validate({"seq": 1, "t": 1, "k": "control", "mode": "stop"})
+
+
 def test_spool_zly_koren_nezhodi_engine(static_host, tmp_path):
     blocker = tmp_path / "subor.txt"
     blocker.write_text("nie som adresar", encoding="utf-8")
