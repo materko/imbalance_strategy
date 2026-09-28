@@ -1,0 +1,87 @@
+$ /Users/martin/document/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json --userdir /Users/martin/document/IBS/deploy/freqtrade/user_data --strategy IBSEntryZoneStrategy --cache none --export trades --timerange 20190505-20260910 --pairs MNQ/USD --timeframe 3m --dry-run-wallet 10000.0 --fee 0.0 --timeframe-detail 1m --datadir /Users/martin/document/IBS/data/tester/databento --backtest-directory /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260927-181730-bc19db
+2026-09-27 20:17:31,404 - freqtrade - INFO - freqtrade 2026.8
+2026-09-27 20:17:31,837 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json ...
+2026-09-27 20:17:31,838 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-27 20:17:31,838 - freqtrade.loggers - INFO - Logfile configured
+2026-09-27 20:17:31,838 - freqtrade.loggers - INFO - Verbosity set to 0
+2026-09-27 20:17:31,838 - freqtrade.configuration.configuration - INFO - Parameter -i/--timeframe detected ... Using timeframe: 3m ...
+2026-09-27 20:17:31,838 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2026-09-27 20:17:31,838 - freqtrade.configuration.configuration - INFO - Parameter --timeframe-detail detected, using 1m for intra-candle backtesting ...
+2026-09-27 20:17:31,839 - freqtrade.configuration.configuration - INFO - Parameter --dry-run-wallet detected, overriding dry_run_wallet to: 10000.0 ...
+2026-09-27 20:17:31,839 - freqtrade.configuration.configuration - INFO - Parameter --fee detected, setting fee to: 0.0 ...
+2026-09-27 20:17:31,839 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20190505-20260910 ...
+2026-09-27 20:17:31,839 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/document/IBS/deploy/freqtrade/user_data ...
+2026-09-27 20:17:31,839 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/document/IBS/data/tester/databento ...
+2026-09-27 20:17:31,839 - freqtrade.configuration.configuration - INFO - Using /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260927-181730-bc19db as backtest directory ...
+2026-09-27 20:17:31,839 - freqtrade.configuration.configuration - INFO - Parameter --export detected: trades ...
+2026-09-27 20:17:31,839 - freqtrade.configuration.configuration - INFO - Parameter --cache=none detected ...
+2026-09-27 20:17:31,839 - freqtrade.configuration.configuration - INFO - Using pairs ['MNQ/USD']
+2026-09-27 20:17:31,839 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20190505-20260910
+2026-09-27 20:17:31,840 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2026-09-27 20:17:31,841 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+team. It may work flawlessly (please report back) or have serious issues. Use it at your own discretion.
+2026-09-27 20:17:31,841 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-27 20:17:31,842 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2026-09-27 20:17:31,842 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2026-09-27 20:17:31,842 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.77
+2026-09-27 20:17:31,842 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-27 20:17:31,843 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-27 20:17:31,844 - freqtrade.exchange.exchange - INFO - Using Exchange "Tester"
+2026-09-27 20:17:31,845 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange class 'Tester' ...
+2026-09-27 20:17:31,897 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy IBSEntryZoneStrategy from 
+'/Users/martin/document/IBS/deploy/freqtrade/user_data/strategies/IBSEntryZoneStrategy.py'...
+2026-09-27 20:17:31,898 - freqtrade.strategy.hyper - INFO - Found no parameter file.
+2026-09-27 20:17:31,898 - tradebot.adapters.freqtrade.base - WARNING - ibsentry config: engMinRangePoints, ewMinWavePoints, liqSweepMinWick, minImbSizePoints, pbMinRangePoints, srClusterPoints sú v 
+absolútnych cenových bodoch — tie hodnoty sú ladené na MNQ a na MNQ/USD nemusia dávať zmysel; zváž unit='atr'.
+2026-09-27 20:17:32,023 - freqtrade.data.converter.converter - INFO - Missing data fillup for MNQ/USD, 3m: before: 865722 - after: 1288839 - 48.87%
+2026-09-27 20:17:32,088 - freqtrade.data.converter.converter - INFO - Missing data fillup for MNQ/USD, 3m: before: 865722 - after: 1288839 - 48.87%
+2026-09-27 20:17:32,089 - tradebot.adapters.freqtrade.base - INFO - ibsentry: startup_candle_count 300 na 3m (engine 84: okno historie: 84; ADX/DMI 14/5 @60m: 75 vlastnych)
+2026-09-27 20:17:32,089 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 3m.
+2026-09-27 20:17:32,089 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USD.
+2026-09-27 20:17:32,089 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2026-09-27 20:17:32,089 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'unfilledtimeout' with value from the configuration: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 
+'unit': 'minutes'}.
+2026-09-27 20:17:32,089 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2026-09-27 20:17:32,089 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 100.0}
+2026-09-27 20:17:32,089 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 3m
+2026-09-27 20:17:32,089 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.99
+2026-09-27 20:17:32,089 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2026-09-27 20:17:32,090 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2026-09-27 20:17:32,090 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2026-09-27 20:17:32,090 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: True
+2026-09-27 20:17:32,090 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2026-09-27 20:17:32,090 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2026-09-27 20:17:32,090 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2026-09-27 20:17:32,090 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USD
+2026-09-27 20:17:32,090 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2026-09-27 20:17:32,090 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 300
+2026-09-27 20:17:32,090 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using unfilledtimeout: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 'unit': 'minutes'}
+2026-09-27 20:17:32,090 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2026-09-27 20:17:32,090 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2026-09-27 20:17:32,090 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2026-09-27 20:17:32,090 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2026-09-27 20:17:32,091 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2026-09-27 20:17:32,091 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2026-09-27 20:17:32,091 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2026-09-27 20:17:32,091 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2026-09-27 20:17:32,091 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2026-09-27 20:17:32,091 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-27 20:17:32,098 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-09-27 20:17:32,098 - freqtrade.optimize.backtesting - INFO - Using fee 0.0000% from config.
+2026-09-27 20:17:32,109 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, futures, 3m, data starts at 2019-05-05 22:03:00
+2026-09-27 20:17:32,202 - freqtrade.data.converter.converter - INFO - Missing data fillup for MNQ/USD, 3m: before: 865263 - after: 1288360 - 48.90%
+2026-09-27 20:17:32,203 - freqtrade.optimize.backtesting - INFO - Loading data from 2019-05-05 22:03:00 up to 2026-09-10 00:00:00 (2684 days).
+2026-09-27 20:17:32,204 - freqtrade.configuration.timerange - WARNING - Moving start-date by 300 candles to account for startup time.
+2026-09-27 20:17:32,655 - freqtrade.data.converter.converter - INFO - Missing data fillup for MNQ/USD, 1m: before: 2591226 - after: 3864178 - 49.13%
+2026-09-27 20:17:32,655 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, funding_rate, 1h found. Use `freqtrade download-data` to download the data
+2026-09-27 20:17:32,656 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, mark, 1h found. Use `freqtrade download-data` to download the data
+2026-09-27 20:17:35,744 - freqtrade.optimize.backtesting - INFO - Dataload complete. Calculating indicators
+2026-09-27 20:17:35,744 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy IBSEntryZoneStrategy
+2026-09-27 20:17:35,788 - freqtrade.data.dataprovider - INFO - Loading data for MNQ/USD 3m from 2019-05-04 09:00:00 to 2026-09-10 00:00:00
+2026-09-27 20:17:35,799 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, futures, 3m, data starts at 2019-05-05 22:03:00
+2026-09-27 20:17:35,896 - freqtrade.data.converter.converter - INFO - Missing data fillup for MNQ/USD, 3m: before: 865263 - after: 1288360 - 48.90%
+2026-09-27 20:17:37,337 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, futures, 3m, data starts at 2019-05-05 22:03:00
+2026-09-27 20:17:37,338 - tradebot.adapters.freqtrade.live - WARNING - ibsentry MNQ/USD: predhistoria indikatorov pred behom neuplna (ADX/DMI 14/5 @60m 0/75) - rozbehnu sa na grafe, dovtedy 
+neobchoduju

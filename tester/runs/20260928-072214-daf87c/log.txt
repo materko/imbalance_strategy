@@ -1,0 +1,847 @@
+$ /Users/martin/document/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json --userdir /Users/martin/document/IBS/deploy/freqtrade/user_data --strategy VwapDriftStrategy --cache none --export trades --timerange 20250904-20260904 --pairs MNQ/USD --timeframe 5m --dry-run-wallet 10000.0 --fee 0.0005 --timeframe-detail 1m --datadir /Users/martin/document/IBS/data/tester/databento --backtest-directory /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260928-072214-daf87c
+2026-09-28 09:22:14,786 - freqtrade - INFO - freqtrade 2026.8
+2026-09-28 09:22:15,232 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json ...
+2026-09-28 09:22:15,234 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-28 09:22:15,234 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-09-28 09:22:15,235 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/document/IBS/deploy/freqtrade/user_data ...
+2026-09-28 09:22:15,235 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/document/IBS/data/tester/databento ...
+2026-09-28 09:22:15,235 - freqtrade.configuration.configuration - INFO - Using /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260928-072214-daf87c as backtest directory ...
+2026-09-28 09:22:15,237 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+'/Users/martin/document/IBS/deploy/freqtrade/user_data/strategies/VwapDriftStrategy.py'...
+'/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-09-28 09:22:15,488 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, funding_rate, 1h found. Use `freqtrade download-data` to download the data
+2026-09-28 09:22:15,488 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, mark, 1h found. Use `freqtrade download-data` to download the data
+2026-09-28 09:22:16,228 - tradebot.adapters.freqtrade.base - INFO - vwapdrift MNQ/USD: kresby ulozene do /Users/martin/document/IBS/tester/runs/.profiles/20260928-072214-daf87c.chart.json.gz (6527 
+2026-09-28 09:22:16,298 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 47544.00 na 9900.00 (20.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,298 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 47544.00 na 9900.00 (20.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,298 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 47544.00 na 9900.00 (20.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,298 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 47544.00 na 9900.00 (20.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,298 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 47544.00 na 9900.00 (20.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,307 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48509.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,307 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48509.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,307 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48509.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,307 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48509.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,307 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48509.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,309 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 98152.00 na 9900.00 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,309 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 98152.00 na 9900.00 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,309 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 98152.00 na 9900.00 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,309 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 98152.00 na 9900.00 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,309 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 98152.00 na 9900.00 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,311 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 97743.00 na 9900.00 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,312 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 97743.00 na 9900.00 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,312 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 97743.00 na 9900.00 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,312 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 97743.00 na 9900.00 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,312 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 97743.00 na 9900.00 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,313 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49511.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,314 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49511.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,314 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49511.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,314 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49511.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,314 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49511.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,316 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 99158.00 na 9900.00 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,316 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 99158.00 na 9900.00 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,316 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 99158.00 na 9900.00 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,316 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 99158.00 na 9900.00 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,316 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 99158.00 na 9900.00 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,321 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 99490.00 na 9900.00 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,321 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 99490.00 na 9900.00 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,321 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 99490.00 na 9900.00 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,321 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 99490.00 na 9900.00 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,321 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 99490.00 na 9900.00 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,323 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49872.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,323 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49872.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,323 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49872.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,323 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49872.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,323 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49872.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,325 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49603.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,325 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49603.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,325 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49603.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,325 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49603.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,326 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49603.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,329 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49129.50 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,329 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49129.50 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,329 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49129.50 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,329 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49129.50 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,329 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49129.50 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,334 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49930.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,334 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49930.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,334 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49930.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,334 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49930.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,334 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49930.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,340 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 150739.50 na 9900.00 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,340 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 150739.50 na 9900.00 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,340 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 150739.50 na 9900.00 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,341 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 150739.50 na 9900.00 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,341 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 150739.50 na 9900.00 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,348 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50388.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,348 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50388.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,348 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50388.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,348 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50388.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,348 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50388.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,351 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50388.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,351 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50388.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,352 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50388.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,352 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50388.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,352 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50388.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,359 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 99691.00 na 9900.00 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-28 09:22:16,359 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 99691.00 na 9900.00 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-28 09:22:16,359 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 99691.00 na 9900.00 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-28 09:22:16,359 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 99691.00 na 9900.00 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-28 09:22:16,360 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 99691.00 na 9900.00 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-09-28 09:22:16,361 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50248.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,361 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50248.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,361 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50248.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,361 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50248.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,362 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50248.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,363 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49482.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,363 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49482.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,363 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49482.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,364 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49482.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,364 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49482.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,369 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 101103.00 na 9900.00 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,370 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 101103.00 na 9900.00 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,370 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 101103.00 na 9900.00 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,370 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 101103.00 na 9900.00 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,370 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 101103.00 na 9900.00 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,372 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50319.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,372 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50319.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,372 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50319.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,372 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50319.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,372 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50319.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,374 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50273.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,374 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50273.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,374 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50273.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,374 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50273.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,374 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50273.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,381 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 104165.00 na 9900.00 (9.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,381 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 104165.00 na 9900.00 (9.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,382 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 104165.00 na 9900.00 (9.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,382 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 104165.00 na 9900.00 (9.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,382 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 104165.00 na 9900.00 (9.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,384 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52492.00 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,384 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52492.00 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,384 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52492.00 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,384 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52492.00 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,384 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52492.00 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,386 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52216.50 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,386 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52216.50 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,386 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52216.50 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,386 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52216.50 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,386 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52216.50 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,388 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52170.50 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,388 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52170.50 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,388 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52170.50 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,388 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52170.50 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,388 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52170.50 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,393 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52220.00 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,393 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52220.00 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,393 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52220.00 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,393 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52220.00 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,393 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52220.00 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,398 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51012.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,398 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51012.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,398 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51012.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,398 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51012.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,398 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51012.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,404 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51310.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,404 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51310.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,404 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51310.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,404 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51310.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,404 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51310.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,407 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51189.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,407 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51189.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,408 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51189.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,408 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51189.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,408 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51189.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,411 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49864.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,411 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49864.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,411 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49864.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,411 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49864.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,411 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49864.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,417 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49091.50 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,417 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49091.50 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,417 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49091.50 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,418 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49091.50 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,418 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49091.50 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,422 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48092.00 na 9900.00 (20.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,422 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48092.00 na 9900.00 (20.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,422 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48092.00 na 9900.00 (20.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,422 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48092.00 na 9900.00 (20.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,423 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48092.00 na 9900.00 (20.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,427 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49468.00 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,427 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49468.00 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,427 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49468.00 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,427 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49468.00 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,428 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49468.00 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,429 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49636.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,429 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49636.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,430 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49636.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,430 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49636.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,430 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49636.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,434 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50804.50 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,435 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50804.50 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,435 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50804.50 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,435 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50804.50 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,435 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50804.50 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,442 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51032.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,442 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51032.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,442 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51032.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,442 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51032.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,443 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51032.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,444 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 204824.00 na 9900.00 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,444 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 204824.00 na 9900.00 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,445 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 204824.00 na 9900.00 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,445 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 204824.00 na 9900.00 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,445 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 204824.00 na 9900.00 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,446 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51459.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,447 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51459.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,447 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51459.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,447 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51459.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,447 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51459.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,451 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51334.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,452 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51334.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,452 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51334.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,452 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51334.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,452 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51334.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,455 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51144.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,455 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51144.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,455 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51144.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,455 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51144.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,455 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51144.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,457 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50933.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,457 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50933.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,457 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50933.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,457 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50933.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,458 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50933.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,463 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50311.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,463 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50311.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,464 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50311.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,464 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50311.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,464 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50311.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,467 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50515.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,467 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50515.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,467 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50515.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,467 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50515.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,467 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50515.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,470 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51082.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,470 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51082.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,470 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51082.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,471 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51082.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,471 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51082.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,475 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51375.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,475 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51375.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,475 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51375.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,476 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51375.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,476 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51375.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,477 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 102694.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,477 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 102694.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,478 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 102694.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,478 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 102694.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,478 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 102694.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,479 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 154894.50 na 9900.00 (6.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,480 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 154894.50 na 9900.00 (6.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,480 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 154894.50 na 9900.00 (6.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,480 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 154894.50 na 9900.00 (6.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,480 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 154894.50 na 9900.00 (6.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,498 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 102908.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,498 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 102908.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,498 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 102908.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,498 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 102908.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,499 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 102908.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,500 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 103418.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,500 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 103418.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,500 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 103418.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,501 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 103418.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,501 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 103418.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,508 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51790.00 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,508 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51790.00 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,508 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51790.00 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,508 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51790.00 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,508 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51790.00 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,510 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 103639.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,510 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 103639.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,510 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 103639.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,510 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 103639.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,510 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 103639.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,515 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51428.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,515 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51428.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,515 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51428.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,515 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51428.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,515 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51428.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,520 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50637.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,520 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50637.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,520 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50637.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,520 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50637.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,520 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50637.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,522 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50726.50 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,522 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50726.50 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,522 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50726.50 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,522 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50726.50 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,522 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50726.50 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,524 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 101131.00 na 9900.00 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,524 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 101131.00 na 9900.00 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,524 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 101131.00 na 9900.00 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,525 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 101131.00 na 9900.00 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,525 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 101131.00 na 9900.00 (9.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,526 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51099.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,526 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51099.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,526 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51099.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,526 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51099.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,527 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51099.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,532 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51678.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,532 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51678.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,533 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51678.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,533 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51678.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,533 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51678.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,535 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 104231.00 na 9900.00 (9.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,535 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 104231.00 na 9900.00 (9.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,535 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 104231.00 na 9900.00 (9.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,535 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 104231.00 na 9900.00 (9.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,535 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 104231.00 na 9900.00 (9.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,537 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52441.50 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,537 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52441.50 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,537 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52441.50 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,537 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52441.50 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,537 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52441.50 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,540 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51595.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,540 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51595.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,541 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51595.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,541 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51595.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,541 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51595.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,545 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51740.50 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,546 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51740.50 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,546 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51740.50 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,546 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51740.50 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,546 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51740.50 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,548 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51142.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,548 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51142.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,548 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51142.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,548 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51142.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,548 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 51142.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,550 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50435.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,550 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50435.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,550 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50435.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,550 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50435.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,550 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50435.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,553 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49465.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,553 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49465.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,553 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49465.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,553 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49465.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,553 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49465.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,560 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50814.00 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,560 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50814.00 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,561 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50814.00 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,561 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50814.00 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,561 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50814.00 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,564 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50354.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,564 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50354.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,564 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50354.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,564 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50354.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,564 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50354.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,572 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49328.50 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,572 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49328.50 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,572 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49328.50 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,572 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49328.50 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,572 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49328.50 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,574 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 100109.00 na 9900.00 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,574 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 100109.00 na 9900.00 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,574 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 100109.00 na 9900.00 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,574 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 100109.00 na 9900.00 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,574 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 100109.00 na 9900.00 (9.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,576 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49803.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,576 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49803.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,576 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49803.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,576 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49803.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,576 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49803.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,578 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50014.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,578 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50014.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,578 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50014.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,578 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50014.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,579 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50014.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,583 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49796.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,583 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49796.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,583 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49796.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,583 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49796.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,583 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49796.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,586 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50618.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,587 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50618.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,587 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50618.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,587 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50618.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,587 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50618.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,589 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50035.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,589 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50035.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,589 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50035.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,589 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50035.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,589 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50035.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,591 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49973.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,591 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49973.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,591 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49973.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,591 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49973.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,591 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49973.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,596 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49836.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,596 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49836.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,596 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49836.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,596 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49836.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,596 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49836.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,601 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50081.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,601 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50081.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,601 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50081.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,601 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50081.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,601 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50081.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,603 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49578.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,603 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49578.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,603 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49578.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,603 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49578.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,603 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49578.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,612 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49230.00 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,612 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49230.00 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,612 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49230.00 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,612 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49230.00 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,612 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49230.00 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,614 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49323.00 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,614 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49323.00 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,614 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49323.00 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,614 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49323.00 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,614 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49323.00 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,619 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49761.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,619 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49761.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,619 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49761.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,619 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49761.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,619 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49761.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,621 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 200236.00 na 9900.00 (4.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,621 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 200236.00 na 9900.00 (4.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,621 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 200236.00 na 9900.00 (4.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,621 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 200236.00 na 9900.00 (4.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,621 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 200236.00 na 9900.00 (4.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,626 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48530.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,626 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48530.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,626 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48530.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,626 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48530.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,626 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48530.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,631 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49261.50 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,631 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49261.50 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,631 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49261.50 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,631 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49261.50 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,631 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 49261.50 na 9900.00 (20.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,633 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48561.50 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,633 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48561.50 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,633 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48561.50 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,633 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48561.50 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,633 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48561.50 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,635 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48759.50 na 9900.00 (20.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,635 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48759.50 na 9900.00 (20.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,635 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48759.50 na 9900.00 (20.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,635 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48759.50 na 9900.00 (20.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,636 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48759.50 na 9900.00 (20.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,639 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 47012.00 na 9900.00 (21.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,639 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 47012.00 na 9900.00 (21.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,639 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 47012.00 na 9900.00 (21.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,639 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 47012.00 na 9900.00 (21.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,639 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 47012.00 na 9900.00 (21.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,643 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 46680.00 na 9900.00 (21.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,644 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 46680.00 na 9900.00 (21.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,644 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 46680.00 na 9900.00 (21.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,644 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 46680.00 na 9900.00 (21.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,644 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 46680.00 na 9900.00 (21.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,647 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48427.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,647 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48427.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,647 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48427.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,647 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48427.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,648 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48427.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,655 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 145942.50 na 9900.00 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,655 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 145942.50 na 9900.00 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,655 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 145942.50 na 9900.00 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,655 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 145942.50 na 9900.00 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,655 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 145942.50 na 9900.00 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,657 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48180.00 na 9900.00 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,657 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48180.00 na 9900.00 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,657 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48180.00 na 9900.00 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,657 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48180.00 na 9900.00 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,658 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 48180.00 na 9900.00 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,659 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 150531.00 na 9900.00 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,659 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 150531.00 na 9900.00 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,660 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 150531.00 na 9900.00 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,660 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 150531.00 na 9900.00 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,660 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 150531.00 na 9900.00 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,667 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50592.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,667 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50592.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,667 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50592.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,667 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50592.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,667 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 50592.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,671 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52309.00 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,671 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52309.00 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,671 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52309.00 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,671 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52309.00 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,671 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52309.00 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,673 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52880.50 na 9900.00 (18.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,673 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52880.50 na 9900.00 (18.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,673 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52880.50 na 9900.00 (18.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,673 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52880.50 na 9900.00 (18.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,673 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 52880.50 na 9900.00 (18.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,675 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 53479.50 na 9900.00 (18.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,675 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 53479.50 na 9900.00 (18.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,675 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 53479.50 na 9900.00 (18.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,675 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 53479.50 na 9900.00 (18.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,675 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 53479.50 na 9900.00 (18.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,680 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 53316.50 na 9900.00 (18.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,680 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 53316.50 na 9900.00 (18.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,680 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 53316.50 na 9900.00 (18.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,680 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 53316.50 na 9900.00 (18.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,680 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 53316.50 na 9900.00 (18.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,682 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 53466.00 na 9900.00 (18.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,682 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 53466.00 na 9900.00 (18.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,682 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 53466.00 na 9900.00 (18.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,682 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 53466.00 na 9900.00 (18.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,682 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 53466.00 na 9900.00 (18.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,691 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 54680.00 na 9900.00 (18.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,691 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 54680.00 na 9900.00 (18.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,691 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 54680.00 na 9900.00 (18.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,691 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 54680.00 na 9900.00 (18.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,691 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 54680.00 na 9900.00 (18.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,694 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 54517.50 na 9900.00 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,695 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 54517.50 na 9900.00 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,695 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 54517.50 na 9900.00 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,695 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 54517.50 na 9900.00 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,695 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 54517.50 na 9900.00 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,702 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 55781.00 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,702 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 55781.00 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,702 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 55781.00 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,702 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 55781.00 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,703 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 55781.00 na 9900.00 (17.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,707 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57776.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,707 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57776.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,707 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57776.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,707 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57776.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,707 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57776.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,713 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58572.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,713 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58572.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,713 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58572.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,713 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58572.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,714 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58572.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,718 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59271.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,718 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59271.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,718 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59271.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,718 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59271.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,719 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59271.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,720 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58615.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,720 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58615.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,720 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58615.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,721 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58615.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,721 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58615.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,725 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57934.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,725 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57934.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,726 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57934.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,726 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57934.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,726 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57934.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,727 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57586.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,727 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57586.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,727 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57586.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,728 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57586.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,728 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57586.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,729 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58419.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,729 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58419.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,730 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58419.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,730 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58419.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,730 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58419.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,733 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 118579.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,733 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 118579.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,733 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 118579.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,733 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 118579.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,733 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 118579.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,740 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59931.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,741 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59931.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,741 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59931.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,741 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59931.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,741 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59931.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,743 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60322.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,743 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60322.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,743 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60322.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,743 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60322.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,743 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60322.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,750 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 61191.50 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,750 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 61191.50 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,750 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 61191.50 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,751 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 61191.50 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,751 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 61191.50 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,752 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 61388.00 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,753 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 61388.00 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,753 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 61388.00 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,753 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 61388.00 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,753 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 61388.00 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,762 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57844.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,762 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57844.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,762 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57844.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,762 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57844.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,762 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57844.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,775 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 61094.00 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,775 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 61094.00 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,775 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 61094.00 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,775 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 61094.00 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,775 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 61094.00 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,784 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59161.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,784 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59161.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,784 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59161.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,784 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59161.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,784 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59161.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,786 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59093.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,786 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59093.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,786 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59093.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,786 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59093.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,786 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59093.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,794 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60736.00 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,794 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60736.00 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,794 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60736.00 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,794 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60736.00 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,794 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60736.00 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,796 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60528.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,796 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60528.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,796 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60528.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,796 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60528.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,796 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60528.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,798 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60432.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,798 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60432.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,798 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60432.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,798 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60432.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,798 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60432.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,800 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 119630.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,800 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 119630.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,800 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 119630.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,800 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 119630.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,801 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 119630.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,805 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60012.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,805 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60012.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,805 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60012.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,805 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60012.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,805 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60012.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,808 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58423.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,809 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58423.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,809 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58423.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,809 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58423.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,809 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58423.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,811 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59518.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,811 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59518.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,811 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59518.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,811 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59518.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,811 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59518.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,813 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59814.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,813 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59814.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,813 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59814.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,813 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59814.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,813 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59814.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,818 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59383.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,818 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59383.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,818 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59383.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,818 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59383.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,818 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59383.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,829 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58005.00 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,829 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58005.00 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,829 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58005.00 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,829 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58005.00 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,829 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58005.00 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,831 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58449.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,831 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58449.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,831 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58449.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,831 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58449.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,832 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58449.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,833 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58503.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,833 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58503.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,833 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58503.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,834 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58503.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,834 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58503.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,835 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57340.50 na 9900.00 (17.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,835 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57340.50 na 9900.00 (17.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,836 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57340.50 na 9900.00 (17.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,836 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57340.50 na 9900.00 (17.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,836 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 57340.50 na 9900.00 (17.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,837 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 56842.50 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,838 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 56842.50 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,838 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 56842.50 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,838 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 56842.50 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,838 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 56842.50 na 9900.00 (17.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,842 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 56299.50 na 9900.00 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,843 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 56299.50 na 9900.00 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,843 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 56299.50 na 9900.00 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,843 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 56299.50 na 9900.00 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,843 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 56299.50 na 9900.00 (17.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,845 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 55261.50 na 9900.00 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,845 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 55261.50 na 9900.00 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,845 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 55261.50 na 9900.00 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,845 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 55261.50 na 9900.00 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,845 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 55261.50 na 9900.00 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,847 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 55422.00 na 9900.00 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,847 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 55422.00 na 9900.00 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,847 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 55422.00 na 9900.00 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,847 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 55422.00 na 9900.00 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,848 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 55422.00 na 9900.00 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,850 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 56597.00 na 9900.00 (17.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,850 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 56597.00 na 9900.00 (17.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,851 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 56597.00 na 9900.00 (17.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,851 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 56597.00 na 9900.00 (17.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,851 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 56597.00 na 9900.00 (17.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,858 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59830.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,858 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59830.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,858 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59830.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,858 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59830.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,858 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59830.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,860 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59131.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,860 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59131.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,860 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59131.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,860 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59131.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,861 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59131.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,866 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59715.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,866 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59715.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,866 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59715.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,867 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59715.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,867 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59715.50 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,870 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 119540.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,870 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 119540.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,870 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 119540.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,870 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 119540.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,870 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 119540.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,872 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60303.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,872 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60303.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,872 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60303.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,872 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60303.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,873 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60303.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,878 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60455.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,878 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60455.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,879 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60455.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,879 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60455.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,879 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 60455.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,883 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58631.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,883 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58631.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,884 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58631.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,884 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58631.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,884 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58631.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,885 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58506.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,886 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58506.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,886 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58506.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,886 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58506.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,886 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58506.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,890 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58162.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,891 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58162.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,891 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58162.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,891 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58162.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,891 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58162.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,893 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58536.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,893 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58536.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,893 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58536.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,893 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58536.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,893 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58536.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,896 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59115.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,896 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59115.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,896 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59115.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,897 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59115.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,897 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59115.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,902 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58733.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,903 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58733.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,903 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58733.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,903 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58733.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,903 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58733.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,906 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58279.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,906 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58279.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,906 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58279.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,906 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58279.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+2026-09-28 09:22:16,906 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58279.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+"/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260928-072214-daf87c/backtest-result-2026-09-28_07-22-16.meta.json"
+…
+2026-09-28 09:22:16,886 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58506.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,886 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58506.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,890 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58162.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,891 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58162.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,891 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58162.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,891 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58162.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,891 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58162.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,893 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58536.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,893 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58536.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,893 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58536.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,893 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58536.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,893 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58536.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,896 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59115.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,896 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59115.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,896 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59115.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,897 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59115.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,897 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 59115.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,902 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58733.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,903 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58733.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,903 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58733.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,903 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58733.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,903 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58733.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,906 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58279.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,906 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58279.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,906 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58279.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,906 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58279.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 09:22:16,906 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift MNQ/USD: stake orezany z 58279.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4/4           100% • 0:00:00 • 0:00:00
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 105120/105120 100% • 0:00:01 • 0:00:00
+2026-09-28 09:22:16,993 - freqtrade.misc - INFO - dumping json to 
+"/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20260928-072214-daf87c/backtest-result-2026-09-28_07-22-16.meta.json"
+Result for strategy VwapDriftStrategy
+                                            BACKTESTING REPORT                                             
+┏━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃    Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ MNQ/USD │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+│   TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┏━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                               ENTER TAG STATS                                                
+┏━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Entries ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │       0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                              EXIT REASON STATS                                               
+┏━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Exit Reason ┃ Exits ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│       TOTAL │     0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                      MIXED TAG STATS                                                      
+┏━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Exit Reason ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │             │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+No trades made. Your starting balance was 10000 USD, and your stake was unlimited.
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                          STRATEGY SUMMARY                                                          
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃          Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃     Drawdown ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ VwapDriftStrategy │      0 │         0.00 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │ 0 USD  0.00% │
+└───────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────┘
+POZOR: engine dal 146 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh.
