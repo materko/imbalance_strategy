@@ -1,0 +1,13 @@
+{
+  "_title": "MNQ futures 5m — prvy pullback k VWAP od 9:30 NY (z 15m) v smere driftu, RR 2",
+  "_strategy": "vwapdrift",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Vychodiskovy profil Drift VWAP Pullback (2026-09-28) podla videa IQCapital: MNQ 5m, VWAP od 9:30 NY",
+    "z 15m sviecok, drift = zmena VWAP za 2 periody (min. 0,1 ATR), odchod 1 ATR, prvy pullback,",
+    "vstup market na zavreti pullbackovej sviecky, stop za pullback + 0,25 ATR, ciel 2R, zatvorenie 15:55 NY.",
+    "Stop, ciel a prahy video neuvadza - su to odhady na prvy test, nie obchodne odporucanie."
+  ],
+  "tickDollarValue": 0.5
+}
