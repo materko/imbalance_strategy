@@ -164,7 +164,7 @@ PY -m tradebot.adapters.ninjatrader check      # preloží adaptér proti DLL na
 PY -m tradebot.adapters.ninjatrader install    # skopíruje jadro, adaptér, šablóny a profily
 ```
 
-`install` kopíruje **zdrojáky** do `Documents\NinjaTrader 8\bin\Custom` (`AddOns\TradeBot\…` jadro,
+`install` kopíruje **zdrojáky** do `Documents\NinjaTrader 8\bin\Custom` (`AddOns\TradeBot\…` jadro a AddOn `TradeBotLiveAddOn` + `TradeBotLiveInstance`,
 `Strategies\TradeBotStrategy.cs` adaptér, `Strategies\IBSNet.cs` a `ORBNet.cs` šablóny) a profily ako úplné configy
 do `Documents\NinjaTrader 8\TradeBot\profiles\`. Potom v NinjaTraderi *New → NinjaScript Editor → F5*
 a stratégia **IBSNet** alebo **ORBNet** na **minútový** graf. Netreba pridávať referenciu na DLL; po zmene jadra stačí
@@ -207,7 +207,6 @@ rovnako (`LiveSpool.InstanceId`). Súbor píše hub cez agenta, alebo ručne:
 PY -m tradebot.adapters.ninjatrader control list                                          # inštancie zo spoolu + control súbory
 PY -m tradebot.adapters.ninjatrader control ninjatrader_Sim101_MNQ-12-26_3m_ibsnet --mode paused
 PY -m tradebot.adapters.ninjatrader control ninjatrader_Sim101_MNQ-12-26_3m_ibsnet --mode enabled --profile nas100_dukascopy_3m
-PY -m tradebot.adapters.ninjatrader control addon --mode paused                            # sonda AddOn (nižšie)
 ```
 
 Zápis je atomický (tmp + `os.replace`); nezadané pole ostáva z existujúceho súboru; `TRADEBOT_NT_DIR`
@@ -236,67 +235,96 @@ obmedzenia, ktoré vyplývajú z NinjaTradera a nie z nás:
   „čerstvý štart“ ako v MT5 (`OnInit` prehrá históriu). Jediná výnimka je zadarmo: keď control súbor
   s iným profilom existuje **už pri štarte** stratégie, výmena prebehne v `DataLoaded` pred prvým barom
   a história grafu sa prehrá do nového enginu. Správny spôsob v NinjaTraderi je stratégiu vypnúť a zapnúť —
-  to z kódu nejde (nižšie), rieši to návrh s AddOnom.
+  to z kódu nejde, rieši to AddOn (nižšie): po výmene profilu prehrá históriu z `BarsRequest` znova.
 - **Informatívny TF sa nemení.** Séria zón (`zoneDetectionTF`) sa pridáva v `Configure` z pôvodného
   profilu; profil s iným TF adaptér odmietne (`note` `error`, beží ďalej starý engine, treba vypnúť/zapnúť).
 
-### Beh bez človeka: AddOn
+### Beh bez človeka: AddOn `TradeBotLiveAddOn`
 
-Čo NinjaTrader 8 API dovoľuje a čo nie (overené na tomto stroji 28. 9. 2026, NT 8.1, Simulated Data Feed):
+NinjaScript `Strategy` sa programovo zapnúť nedá (ani po reštarte NT — „Enabled“ je vždy klik).
+`AddOnBase` NinjaTrader inštancuje sám pri štarte **a znova po každej rekompilácii `NinjaTrader.Custom.dll`**
+(NT sleduje `bin\Custom` len keď beží; po `install` pri bežiacom NT nabehne nová generácia AddOnu do minúty,
+pri štarte NT sa zmenené zdrojáky neprekladajú — vtedy `install` zopakuj, alebo F5 v NinjaScript Editore).
+Živý beh bez človeka preto ide cez AddOn, ktorý namiesto grafu a managed orderov používa priamo API NinjaTradera:
 
-| cieľ | z kódu | dôkaz / stav |
-|---|---|---|
-| (a) spustiť obchodnú logiku pri štarte NT bez kliknutia | **Strategy nie**, AddOn áno | `Strategy` sa nedá zapnúť programovo ani sa po reštarte NT nezapne sama („Enabled“ je vždy klik); `AddOnBase` NT inštancuje sám pri štarte a `OnWindowCreated(ControlCenter)` je bod štartu. Sonda `TradeBotLiveAddOn` sa preložila (NT zdrojáky z `install` preložil sám bez F5) a **28. 9. 2026 pri štarte NT nabehla sama** (`addon_20260928-023626.txt`) |
-| (b) pripojiť sa na nakonfigurované pripojenie | **áno, overené** (`Connect vratil Connecting`, o 1 s `Connected`, Sim101 `Connected`) | `Connection.Connect(ConnectOptions)` nad `Core.Globals.ConnectOptions` (mená z `Config.xml`: „Simulated Data Feed“, „Playback Connection“, Kinetick); nové pripojenie z mena a hesla API nemá — heslo a „remember me“ NT loginu ostáva na človeku |
-| (c) ordery a fily zo Sim101 z AddOnu | **áno, overené** (BUY market → `Filled @30922,75` za 0,4 s, `ExecutionUpdate Long x1`; po 20 s SELL → `Filled @30923`; `BarsRequest` 50 barov + 297 živých aktualizácií) | `Account.CreateOrder(inst, Buy, Market, OrderEntry.Automated, Day, 1, 0, 0, "", "tb_addon_test", MaxDate, null)` + `Account.Submit`, udalosti `Account.OrderUpdate` / `ExecutionUpdate`; dáta cez `BarsRequest(inst, 50)` + `Update` |
-| (d) pauza / obnovenie / flatten / iný profil cez control súbor | **áno, overené** v AddOne (`enabled → paused → flatten → enabled`, každé do 5 s od zápisu súboru) | Strategy: sekcia vyššie; AddOn: číta `control\addon.json` každých 5 s (sonda len loguje) |
-| (e) zoznam účtov | **áno, overené** | `Account.All` (meno, `Connection.Options.Name`, `ConnectionStatus`); na tomto stroji `Backtest`, `Playback101`, `Sim101`, `DEMO9326694` (z `db\NinjaTrader.sqlite`) |
-
-Sonda `tradebot/adapters/ninjatrader/TradeBotLiveAddOn.cs` (inštaluje ju `install` do
-`bin\Custom\AddOns\TradeBot\`, prekladá `check`) engine ešte nepoužíva — overuje schopnosti, každú v
-`try/catch`, nič nesmie spadnúť do UI vlákna NT. Konfigurácia `Documents\NinjaTrader 8\TradeBot\addon.json`:
-
-```json
-{"connection": "Simulated Data Feed", "account": "Sim101", "instrument": "MNQ 12-26", "tf": 1, "test_order": false}
+```
+tradebot/adapters/ninjatrader/TradeBotLiveAddOn.cs      supervízor: deploy.json → inštancie, pripojenie, log, generácie
+tradebot/adapters/ninjatrader/TradeBotLiveInstance.cs   LiveInstance: BarsRequest → engine → Account.CreateOrder/Submit, spool, control
 ```
 
-Po štarte NT (3 s po vzniku Control Center) v pozadovom vlákne: vypíše účty a pripojenia; ak nie je
-`connection` pripojené, zavolá `Connection.Connect` (najprv z pozadia, pri výnimke cez `RandomDispatcher`)
-a 30 s sleduje stav; počká na účet `Connected`; `BarsRequest` 50 × `tf` min + 2 minúty živých `Update`;
-pri `test_order: true` **jeden** market BUY 1 kontrakt, po 20 s SELL (alebo Cancel, keď sa nevyplnil);
-potom donekonečna číta `control\addon.json`. Log: okno *New → NinjaScript Output* a
-`TradeBot\logs\addon_<čas>.txt`. Bez `addon.json` sa spraví len zoznam účtov a control slučka.
+`install` ich kopíruje do `bin\Custom\AddOns\TradeBot\` (vedľa jadra), `check` ich prekladá.
+Riadi ho **`Documents\NinjaTrader 8\TradeBot\deploy.json`** (píše ho driver agenta, `tradebot/live/drivers`,
+alebo ruka):
+
+```json
+{"instances":[{"deployment":"dep-1","connection":"Simulated Data Feed","account":"Sim101",
+               "instrument":"MNQ 12-26","tf":3,"strategy":"ibsnet","profile":"multicharts_mnq_3m"}]}
+```
+
+Profil je `TradeBot\profiles\<stratégia>\<profil>.json`, inak `TradeBot\profiles\<profil>.json` (tam ich
+dáva `install`), inak celá cesta; chýbajúci profil = záznam sa preskočí a zaloguje. Supervízor (vlastné
+vlákno, štart 3 s po vzniku Control Center) číta súbor podľa mtime **každých 5 s** a znova pri zmene stavu
+pripojenia: nový záznam spustí, odstránený zastaví (`bye removed`), zmenený reštartuje, neúspešný štart
+(pripojenie dole, účet nepripojený) skúša každých 60 s. `instances: []` alebo chýbajúci súbor = nič nebeží.
+
+Čo jedna `LiveInstance` robí (semantika je tá istá ako v `TradeBotStrategy.cs`, riadok po riadku):
+
+| | |
+|---|---|
+| pripojenie, účet | `Connection.Connect` na meno z *Connections* (zdieľané medzi inštanciami, čaká do 60 s na `Connected`), účet podľa `Account.Name` |
+| engine | `EngineRegistry.Create(kľúč, profil, InstrumentSpec z MasterInstrument, TF)`; informatívny TF z `CreateHtfFeeder` |
+| bary | dva `BarsRequest` (graf: `RequiredHistory × 2` barov, informatívny TF: toľko, aby pokryl to isté okno); NT callbacky len kopírujú bary do vlastného zoznamu, engine beží v jednom vlastnom vlákne inštancie |
+| uzavretý bar | bar je uzavretý, keď je za ním ďalší, alebo jeho čas zatvorenia + 1 s prešiel (tichý trh bez tickov ho inak nezavrie); HTF bar sa kŕmi pred barom grafu, s ktorým sa uzavrel; čas otvorenia = čas zatvorenia − TF, pásmo z *Options → General* |
+| predhistória | história z BarsRequest sa prehrá do enginu s `ready:false` (bez orderov, `Realtime=false` v spoole), potom `Realtime=true`; bar starší než 2 × TF sa neobchoduje (`note warn`) |
+| ENTRY | `Account.CreateOrder` + `Submit`, meno = id z enginu, `OrderEntry.Automated`, **GTC**; limit / stop-market / market podľa zámeru |
+| SL / TP | po vyplnení vstupu dva ordery s tým istým `Oco`: stop-market `<id>:sl` a limit `<id>:tp`; čiastočný fill navýši objem cez `Account.Change` |
+| CANCEL / CLOSE | `Account.Cancel`; CLOSE = najprv zrušiť SL/TP, trhový výstup `<id>:tb_close` ide až po potvrdení zrušenia (inak by sa SL mohol vyplniť v tej istej sekunde a trh by otvoril opačnú pozíciu), po 10 s bez potvrdenia ide aj tak; koniec seansy `tb_session_end`, control `tb_flatten` |
+| jedna pozícia naraz | vstup počas pozície sa odloží (a čakajúci s tým istým menom stiahne), po skončení pozície sa pošle — ako `ParkOthers/ReleaseParked` v Strategy; cudzia pozícia účtu na inštrumente sa počíta tiež (žiadny druhý vstup, engine ju vidí ako `PositionSize`) |
+| trailing | `TradePlan.Trailing` na zatvorení baru: `StopPriceChanged` + `Account.Change` na SL orderi, do spoolu `order a:"modify"` |
+| denný limit výhier | `max_daily_wins` zo `Stats()`, výhra = výstup SL/TP so ziskom > 0, platí od ďalšieho baru |
+| fily | `Account.ExecutionUpdate` filtrované na vlastné mená; `fill` `in`/`out` s menom výstupu `Stop loss` / `Profit target` / `tb_close` / `tb_session_end` / `tb_flatten` |
+| spool | `LiveSpool` v `TradeBot\spool\ninjatrader_<účet>_<symbol>_<TF>m_<kľúč>\` (symbol = `MasterInstrument.Name`, teda `MNQ`), `tester:false`; pri konci `stat` + `bye` (`removed`, `changed`, `terminated`, `superseded`, `profile_switch`) |
+| control | `TradeBot\control\<inštancia>.json` každých 5 s a pri každom bare, režimy ako v Strategy; **zmena profilu** (keď je flat) = nový engine, nová session spoolu a **história z BarsRequest sa prehrá znova** — čerstvý štart, aj iný informatívny TF (nový BarsRequest) |
+| kresby | nekreslia sa (nie je graf) — idú len do spoolu, webapp karta Live ich ukáže |
+| zastavenie | zruší čakajúce vstupy, **pozíciu nechá** (jej SL/TP sú GTC ordery na účte), zatvorí BarsRequesty a spool; flatten je vec control súboru |
+| generácie | po rekompilácii NT inštancuje AddOn znova, ale staré vlákno nezmizne — každá generácia si zapíše token do `AppDomain` a stará sa zastaví (`bye superseded`), inak by bežali dve kópie |
+| chyby | každý NT callback v `try/catch`; log okno *NinjaScript Output* a `TradeBot\logs\addon_<čas>.txt`; NT UI vlákno sa nikdy neblokuje |
+
+Sledovanie:
+
+```bash
+PY -m tradebot.live tail --instance ninjatrader_Sim101_MNQ_3m_ibsnet -n 30    # hello, bar, order, draw, fill, control, note, bye
+PY -m tradebot.adapters.ninjatrader control ninjatrader_Sim101_MNQ_3m_ibsnet --mode paused
+PY -m tradebot.adapters.ninjatrader control ninjatrader_Sim101_MNQ_3m_ibsnet --mode enabled --profile golden_binance_btcusdt_3m   # keď je flat: nový engine + prehratie histórie
+type "%USERPROFILE%\Documents\NinjaTrader 8\TradeBot\logs\addon_*.txt"
+```
 
 **Čo musí človek urobiť raz** (asistent má okno NT len na čítanie, klikať nemôže):
 
 1. NT login s „Remember“ — AddOn štartuje až po prihlásení; heslo z kódu nejde a nikdy sa nezadáva za človeka.
-2. Pripojenie nakonfigurované v *Connections* (pre sondu stačí Simulated Data Feed; pre reálny beh broker/dáta);
-   voliteľne *Connect on startup* v jeho nastaveniach, potom `Connection.Connect` netreba.
-3. `PY -m tradebot.adapters.ninjatrader install` a preklad — NT ho urobí sám (sleduje `bin\Custom`), inak
-   *New → NinjaScript Editor → F5*; výsledok v okne *NinjaScript Output* („Compiled successfully“).
-4. **Reštart NinjaTradera** (*File → Exit*, workspace uložiť) — AddOn sa inštancuje len pri štarte.
-   Ak má sonda poslať skúšobný order na Sim101, predtým v `addon.json` daj `"test_order": true` a po
- Stav k 28. 9. 2026: **(a)–(e) overené behom** — po ručnom prihlásení do NT (login dialóg NT konta je ten
-jediný krok, ktorý ostáva na človeku; heslo asistent nezadáva) AddOn nabehol sám, pripojil Simulated Data
-Feed, stiahol bary, poslal a zavrel skúšobný order na Sim101 a reagoval na control súbor. Živý test
-ovládania `Strategy` cez control súbor (IBSNet na grafe, `control\<inštancia>.json`) ešte čaká — vyžaduje
-pridať stratégiu na graf v NT ručne.
+   Login dialóg NT konta si meno a heslo pamätá, ale tlačidlo **Log In** je stále klik.
+2. Pripojenie nakonfigurované v *Connections* (Simulated Data Feed, alebo broker/dáta); `Connection.Connect`
+   si AddOn zavolá sám, voliteľne *Connect on startup*.
+3. `PY -m tradebot.adapters.ninjatrader install` pri **bežiacom** NT — preklad urobí NT sám (sleduje `bin\Custom`)
+   a AddOn nabehne v novej generácii bez reštartu.
 
-m** — NT bol spustený so starou zostavou a
-reštart z kódu ani cez okno asistent urobiť nesmel. Rovnako ovládanie stratégie cez control súbor je
-preložené, ale prvý živý test (IBSNet na MNQ 12-26 3m, Sim101, `control\<inštancia>.json` paused →
-enabled → flatten, `python -m tradebot.live tail`) čaká na reštart NT.
+**Obmedzenia** (poctivo):
 
-**Plán: engine do AddOnu.** Keď sonda potvrdí (a)–(e), živý beh v NT pôjde bez `Strategy`:
-AddOn pri štarte prečíta `TradeBot\deploy.json` (zoznam inštancií: pripojenie, účet, inštrument, TF,
-kľúč enginu, profil), pre každú `Connection.Connect` (ak treba), `BarsRequest` na históriu
-(`RequiredHistory` barov + HTF séria) → prehrá do enginu (plný warmup, deterministicky ako `EngineRunner`),
-potom `Update` = uzavreté bary → `OnBar` → zámery na `Account.CreateOrder/Submit` (SL/TP ako OCO
-skupina, trailing cez `Account.Change`), fily z `ExecutionUpdate` do `LiveSpool.Fill`. Control súbor
-potom vie aj to, čo `Strategy` nevie: zmena profilu = zahodiť engine a **prehrať históriu znova**
-z `BarsRequest`, pridať/odobrať inštanciu, iný účet. Managed ordery `Strategy` (SetStopLoss, ExitLong)
-sa nahradia vlastnou správou orderov — to je najväčšia časť práce a musí prejsť paritou fillov proti
-dnešnému adaptéru na Sim101.
+- Ordery sú **GTC** (Strategy mala tiež GTC); `Day` by NinjaTrader zrušil na konci dňa, a s `paused` by sa nevrátili.
+- Bez grafu, bez kreslenia; Playback Connection nie je podporovaný (čas z `Globals.Now` a `BarsRequest`
+  na Playback neoverené).
+- Seedované indikátory (Supertrend/ADX na vlastnom TF) sa nesejú — rozbehnú sa na histórii grafu ako v Strategy.
+- Pozícia z predošlého behu / z grafu sa neprevezme: AddOn ju len rešpektuje (žiadny druhý vstup, engine ju vidí),
+  jej SL/TP ostávajú na účte, trailing pre ňu nepokračuje.
+- Dve inštancie tej istej stratégie na tom istom účte a inštrumente (iný TF) by si mohli pomiešať mená
+  orderov (id z enginu sa môžu zhodovať) — nerob to.
+- Ako v každom živom adaptéri: dve limitky vyplnené v tej istej sekunde, skôr než príde zrušenie, dajú dve pozície.
+
+Stav k 28. 9. 2026: kód sa prekladá proti NT (`check`), `install` hotový, `deploy.json` so Sim101 / MNQ 12-26 / 3m /
+ibsnet / multicharts_mnq_3m a control súbor `paused` zapísané. **Živý beh ešte neprebehol**: NinjaTrader nové
+zdrojáky po `install` sám nepreložil (`NinjaTrader.Custom.dll` ostala zo starej zostavy, aj po 20 minútach a dvoch
+`install`) — dnešný „automatický“ preklad o 02:18 bol v skutočnosti F5. Ďalší krok je človek: *New → NinjaScript
+Editor → F5* (alebo reštart NT po F5), potom `TradeBot\logs\addon_*.txt` a `PY -m tradebot.live tail`.
 
 **Signály sú rovnaké, fill model nie** — to platí pre každú platformu. Strategy Analyzer plní limitku
 podľa svojho *Order fill resolution*; pre porovnateľné čísla nastav *High* s 1-minútovou sériou (to je

@@ -223,7 +223,9 @@ PY -m tester.hub setup --max-parallel 4                     # strop behov naraz
 ```
 
 Zapíše `tester/agent.json` (gitignored; premenné `TRADEBOT_HUB_URL`, `TRADEBOT_HUB_TOKEN`,
-`TRADEBOT_HUB_NAME`, `TRADEBOT_HUB_ACCEPT`, `TRADEBOT_HUB_SEND` ho prebijú — pre Docker).
+`TRADEBOT_HUB_NAME`, `TRADEBOT_HUB_ACCEPT`, `TRADEBOT_HUB_SEND`, `TRADEBOT_HUB_ADMIN_TOKEN` ho
+prebijú — pre Docker). `admin_token` (hlavný token hubu) patrí len do configu webapp, z ktorej
+sa spravujú live účty a nasadenia (karta Live); počítajúci agent ho nemá mať.
 Agent potrebuje to isté, čo každý klon: `.venv` zo setup skriptu a zložený sklad sviečok
 (`PY -m tester.data_archive merge`; headless agent si ho zloží sám).
 
@@ -438,6 +440,8 @@ Všetko pod `/api/`, s tokenom; `/api/health` bez neho.
 | `GET /api/status`, `GET /api/agents` | ktokoľvek | prehľad |
 | `POST /api/live/events` | agent | dávky udalostí zo spoolu bežiacich stratégií (`{"agent", "batches": [{instance, session, events}]}` → `{"accepted"}`) |
 | `GET /api/live/instances[/{id}]`, `…/{id}/events`, `…/{id}/snapshot`, `GET /api/live/export` | ktokoľvek | live telemetria (nižšie) |
+| `GET /api/live/accounts[/{id}]`, `GET /api/live/deployments[/{id}]`, `GET /api/live/audit?limit=` | ktokoľvek | požadovaný stav live nasadení (nižšie) |
+| `POST /api/live/accounts`, `PATCH/DELETE /api/live/accounts/{id}?force=`, `POST /api/live/deployments`, `PATCH/DELETE /api/live/deployments/{id}?force=` | správca | zmeny účtov a nasadení (`?by=` = meno človeka do auditu) |
 
 ### Live telemetria
 
@@ -447,6 +451,35 @@ Agent na obchodnom PC (NinjaTrader 8, MetaTrader 5) v kole `work()` číta spool
 `tester/hub_data/live.sqlite` idempotentne (`tradebot.live.store.LiveStore`), webapp si
 udalosti zrkadlí cez `GET /api/live/export?after=`. Celá cesta dát, identita inštancie
 a schéma udalostí: [LIVE.md](LIVE.md). Ručne: `python -m tradebot.live status|tail|ship`.
+
+### Live nasadenia (fáza 2b)
+
+Opačným smerom nesie hub **požadovaný stav** — čo má na ktorom stroji bežať
+(`tradebot.live.deploy.DeployStore`, tabuľky `accounts`, `deployments`, `audit`, `applied`
+v tom istom `live.sqlite`). Účet = agent (stroj) + platforma + login/server/terminál;
+nasadenie = účet + stratégia + symbol + TF + profil so snímkou configu (`config`,
+`config_hash` = sha256 kanonického JSON) + režim (`enabled`/`paused`/`flatten`) + `active`.
+Z toho hub odvodí `instance` (`schema.instance_id`, identita účtu MT5 `<login>-<server>`,
+inak `login`) a v odpovedi nasadenia pridá `applied` (čo agent naposledy potvrdil) a `live`
+(inštancia zo spoolu: `seen`, `alive` = udalosť do 3 barov TF, `last_bar_ms`, `session`).
+
+- **Mutácie len s hlavným tokenom** (`TRADEBOT_HUB_TOKEN`); token agenta číta. Webapp na to
+  má `admin_token` v `tester/agent.json` (alebo `TRADEBOT_HUB_ADMIN_TOKEN`) — bez neho je jej
+  karta Live len na čítanie. Hlavný token na počítajúce agenty nepatrí.
+- **Heslo** účtu (`password` v POST/PATCH) hub uloží len ako `secret_pending`; agent ho
+  dostane v najbližšom heartbeate a keď potvrdí (`secret_ack`), hub ho zmaže. V žiadnom
+  zozname nie je, len `secret_pending: true/false`.
+- **Heartbeat** nesie navyše: agent → `live: {instances, applied: [{deployment, config_hash,
+  mode, status ok|pending|error|removed, error}], drivers, secret_ack}`, hub → `live:
+  {accounts, deployments}` = celý požadovaný stav toho agenta (so `secret`, keď čaká, a
+  s `config`). Starý agent `live` neposiela a nič sa nedeje; `applied` cudzieho nasadenia
+  hub ignoruje. Čo agent hlási, je v `GET /api/agents` (`live.drivers`, počet inštancií)
+  a v `/api/status` (`live_instances`).
+- **Mazanie**: `DELETE` nasadenia ho najprv vypne (`active=false`, agent ho z platformy
+  odstráni); naozaj zmazať sa dá, keď agent potvrdil (`applied` po deaktivácii) alebo ho
+  nikdy nevidel, inak `?force=true`. Účet s nasadeniami len s `force` (zmažú sa aj tie).
+- Každá zmena je v `audit` (`GET /api/live/audit`, kto, akcia, staré/nové) a v logu
+  udalostí hubu (`live_account`, `live_deployment`).
 
 Webapp k tomu pridáva `GET /api/hub` (stav jej agenta a hubu), `POST /api/hub/jobs`
 (hotový payload z CLI), `POST /api/hub/runs` a `POST /api/hub/hyperopts` (zadanie

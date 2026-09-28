@@ -227,6 +227,84 @@ programovo zapnúť nedá (ani po reštarte), preto ide živý beh cez **AddOn**
 `Connection.Connect` na nakonfigurované pripojenie, `BarsRequest`, `Account.CreateOrder/Submit`);
 nové pripojenie z mena a hesla NT API nemá.
 
+## Fáza 2b: účty a nasadenia z webapp (hub = požadovaný stav, agent = zosúladenie)
+
+Hub drží **požadovaný stav** (čo má kde bežať), agent na obchodnom stroji ho **zosúlaďuje** so
+skutočnosťou (súbory, terminály) a hlási, čo sa mu podarilo; webapp ukazuje oboje vedľa seba
+(deployment vs. inštancia zo spoolu) a rozdiel je drift. Hub ani webapp nepoznajú platformu menom —
+o platforme vie len **driver** na strane agenta (`tradebot/live/drivers/<platforma>.py`).
+
+### Entity (hub, `live.sqlite`, modul `tradebot/live/deploy.py` — `DeployStore`)
+
+| entita | polia |
+|---|---|
+| **account** | `id` (slug), `agent` (meno agenta = stroj), `platform` (`mt5`/`ninjatrader`), `label`, `login` (MT5 číslo účtu / NT meno účtu, napr. `Sim101`), `server` (MT5 server / NT meno pripojenia), `terminal` (MT5: cesta k `terminal64.exe` alebo k portable inštancii; NT: prázdne), `portable` (bool), `created`, `updated`, `by`, `secret_pending` (heslo čaká na prevzatie agentom — po prevzatí sa z hubu zmaže; hub nikdy heslo neukladá natrvalo) |
+| **deployment** | `id`, `account` (id), `strategy` (kľúč enginu), `symbol`, `tf` (min), `profile` (názov), `config` (celý config enginu = snímka profilu), `config_hash` (sha256 configu), `mode` (`enabled`/`paused`/`flatten`), `active` (bool — má inštancia vôbec existovať; `false` = odstrániť z platformy), `created`, `updated`, `by`; odvodené `instance` = `instance_id(platform, <MT5 login>-<server> / NT meno účtu, symbol, tf, strategy)` |
+| **audit** | `ts`, `by`, `action`, `account`/`deployment`, `old`, `new` (JSON) — každá zmena |
+| **applied** | čo agent naposledy hlásil k deploymentu: `deployment`, `agent`, `config_hash`, `mode`, `status` (`ok`/`pending`/`error`), `error`, `ts` |
+
+### Hub API (mutácie len s hlavným tokenom; čítanie ktokoľvek s tokenom)
+
+`GET/POST /api/live/accounts`, `GET/PATCH/DELETE /api/live/accounts/{id}` (POST/PATCH smie niesť
+`password` — uloží sa len ako `secret_pending`), `GET/POST /api/live/deployments`,
+`GET/PATCH/DELETE /api/live/deployments/{id}` (PATCH: `mode`, `profile`+`config`, `active`),
+`GET /api/live/audit?limit=`. Odpoveď deploymentu nesie aj `applied` a `instance` (a či inštancia
+v spoole žije).
+
+### Heartbeat (rozšírenie, `tester/hub`)
+
+- Agent posiela navyše `live: {"instances": [ {instance, session, last_t, last_bar_ms, mode, profile} ], "applied": [ {deployment, config_hash, mode, status, error} ], "drivers": ["mt5", "ninjatrader"] }`.
+- Hub odpovedá navyše `live: {"accounts": [ … len tohto agenta, so `secret` ak čaká … ], "deployments": [ … len tohto agenta, s `config` … ]}` — vždy celý zoznam (malý), agent si drží posledný a zosúlaďuje pri každom heartbeate; keď agent v `applied` potvrdí prevzatie hesla (`secret_ack: [account_id]`), hub `secret_pending` zmaže.
+
+### Agent: reconciler a drivery (`tradebot/live/apply.py`, `tradebot/live/drivers/`)
+
+```python
+class Driver:                      # jedna trieda na platformu; agent ich načíta podľa toho, čo je na stroji
+    platform: str
+    def available(self) -> bool                      # je platforma na tomto stroji?
+    def store_secret(self, account, password) -> None   # DPAPI (CryptProtectData), tester/live/secrets/<account>.bin
+    def ensure_profile(self, deployment) -> Path     # config snímka -> profil na disku platformy (názov = deployment.profile)
+    def write_control(self, deployment) -> Path      # control/<instance>.json {mode, profile}
+    def ensure_instance(self, account, deployments) -> None   # platforma beží a má všetky aktívne inštancie účtu
+    def remove_instance(self, account, deployment) -> None
+    def status(self, account) -> dict                # beží proces? ktoré inštancie má?
+```
+
+`Reconciler.run(desired)` volá driver pre každý účet: heslo → `store_secret`, profily → `ensure_profile`,
+control → `write_control`, inštancie → `ensure_instance`/`remove_instance`; výsledok ide do `applied`
+v ďalšom heartbeate. Nič nesmie vyhodiť výnimku von (chyba = `status: error` k danému deploymentu).
+
+- **MT5 driver:** jeden účet = jedna inštancia terminálu (nainštalovaný terminál stroja, daný
+  `terminal`, alebo portable kópia v `tester/live/mt5/<account>/terminal/` pri `portable` bez `terminal`);
+  ini `[Common] Login/Server[/Password z DPAPI, po prihlásení sa z ini zmaže]`, `[Charts] ProfileLast=tradebot`,
+  `[Experts] AllowLiveTrading=1 AllowDllImport=1 Enabled=1`; viac grafov na účte = vygenerovaný
+  **profil grafov** terminálu (`MQL5\Profiles\Charts\tradebot\chartNN.chr` + `order.wnd`, UTF-16 s BOM,
+  so symbolom, periódou a EA s inputmi; šablóna EA z `deploy/mt5/*.mq5`, magic z id nasadenia). Overené
+  28. 9. 2026: terminál profil otvorí cez `ProfileLast` v `/config:` ini (žiadny `/profile:` prepínač ani
+  Supervisor EA netreba), profil reštart prežije (terminál si ho pri vypnutí prepíše, driver ho porovnáva
+  podľa obsahu, nie textu). Zmena množiny grafov (aj zmenený config pri rovnakom názve profilu — EA číta
+  profil len pri štarte) = slušný reštart terminálu; režim a názov profilu idú bez reštartu cez control.
+  Driver terminál spúšťa a pri páde reštartuje; `install` DLL/EA nerobí (to je nasadenie kódu, fáza 2c).
+  Podrobne [MT5.md](MT5.md), „Nasadenie z hubu (driver)“.
+- **NinjaTrader driver:** zapíše `Documents\NinjaTrader 8\TradeBot\deploy.json`
+  `{"instances":[{deployment, connection, account, instrument, tf, strategy, profile}]}` a control
+  súbory; beh robí **AddOn** (`TradeBotLiveAddOn`), ktorý pri štarte NT a pri zmene mtime
+  `deploy.json` inštancie spustí/zastaví: `Connection.Connect`, `BarsRequest` (história =
+  predhistória enginu + živé bary), `Engine.OnBar`, ordery cez `Account.CreateOrder/Submit`,
+  SL/TP ako samostatné ordery (OCO), jedna pozícia naraz, trailing, fills z `ExecutionUpdate`,
+  spool cez `LiveSpool`, control súbor. NT proces spúšťa driver len ak nebeží (login NT konta musí
+  byť zapamätaný — jediný ručný krok).
+
+### Webapp (karta Live)
+
+Sekcie **Účty** (zoznam + „Pridať účet“: agent, platforma, názov, login, server/pripojenie,
+terminál, heslo — heslo ide raz na hub, nikdy sa neukladá do zrkadla) a **Nasadenia** (tabuľka:
+účet, stratégia, symbol, TF, profil, režim, stav inštancie zo spoolu, drift `config_hash` vs.
+`applied`, posledný bar; tlačidlá pauza/zapnúť/flatten, zmena profilu (výber z profilov stratégie
+alebo úprava parametrov formulárom z `params.py`), odstrániť; „Nasadiť“: účet, stratégia, symbol,
+TF, profil). Mutácie idú cez webapp na hub s **admin tokenom** (`admin_token` v `tester/agent.json`
+/ `TRADEBOT_HUB_ADMIN_TOKEN`); bez neho je karta len na čítanie.
+
 ## Testy
 
 - `tester/tests/test_live_store.py` — store: idempotencia, snapshot, export/kurzor.

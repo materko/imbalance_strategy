@@ -10,6 +10,13 @@ z dvoch zdrojov a stránka číta len zrkadlo:
 
 `LiveMirror` je vlákno, ktoré to robí každých 5 s; štartuje ho `__main__` (ako agenta hubu),
 takže testy s `TestClient` ho nespúšťajú a zrkadlo sa otvára až pri prvom použití.
+
+Fáza 2b (účty a nasadenia, sekcie **Účty** a **Nasadenia** na karte): webapp nič nezrkadlí,
+len **preposiela** na hub — čítanie s tokenom agenta (`/api/live/accounts`, `/deployments`,
+`/audit`, `/agents`), mutácie s hlavným tokenom (`admin_token` v `tester/agent.json` alebo
+`TRADEBOT_HUB_ADMIN_TOKEN`; bez neho 403 a karta je len na čítanie). Heslo účtu ide na hub
+raz v tele požiadavky a nikde tu sa neukladá ani neloguje. Config nasadenia sa z profilu
+skladá tu (webapp má aj vlastné profily testera) a na hub ide už hotový.
 """
 
 from __future__ import annotations
@@ -22,10 +29,15 @@ from pathlib import Path
 from typing import Any, Callable
 
 from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel
 
+from tradebot.core.config import ConfigError
 from tradebot.core.paths import LIVE_CURSOR_WEBAPP, LIVE_MIRROR, LIVE_MIRROR_CURSOR
 from tradebot.live.store import LiveStore
+from tradebot.strategies import STRATEGIES, canonical_key
 
+from ..runner import default_params, list_profiles, profile_titles
+from .common import clean_user
 from .context import AppContext
 
 __all__ = ["LiveMirror", "build"]
@@ -237,6 +249,39 @@ class LiveMirror:
         }
 
 
+class LiveAccountRequest(BaseModel):
+    """Účet do hubu; `password` sa preposiela raz a nikde vo webapp neostáva."""
+    id: str | None = None
+    agent: str | None = None
+    platform: str | None = None
+    label: str | None = None
+    login: str | None = None
+    server: str | None = None
+    terminal: str | None = None
+    portable: bool | None = None
+    password: str | None = None
+    user: str | None = None
+
+
+class LiveDeploymentRequest(BaseModel):
+    account: str
+    strategy: str
+    symbol: str
+    tf: int
+    profile: str = ""
+    config: dict[str, Any] | None = None
+    mode: str = "enabled"
+    user: str | None = None
+
+
+class LiveDeploymentPatch(BaseModel):
+    mode: str | None = None
+    profile: str | None = None
+    config: dict[str, Any] | None = None
+    active: bool | None = None
+    user: str | None = None
+
+
 def build(ctx: AppContext) -> APIRouter:
     router = APIRouter()
     app = ctx.app
@@ -253,9 +298,151 @@ def build(ctx: AppContext) -> APIRouter:
 
     @router.get("/api/live")
     def live_overview():
-        """Inštancie v zrkadle a stav zrkadla (hub, kurzor, lokálny spool, posledná chyba)."""
+        """Inštancie v zrkadle, stav zrkadla (hub, kurzor, lokálny spool, posledná chyba) a či
+        táto webapp smie nasadenia aj meniť (`deploy.admin` = má hlavný token hubu)."""
         return {"instances": mirror.store.instances(), "mirror": mirror.status(),
-                "now": int(mirror.clock() * 1000)}
+                "now": int(mirror.clock() * 1000), "deploy": _deploy_state()}
+
+    # -- fáza 2b: účty a nasadenia — len proxy na hub ------------------------- #
+
+    def _deploy_state() -> dict[str, Any]:
+        from ...hub import config as hub_config
+
+        cfg = hub_config.load()
+        return {"configured": cfg is not None, "hub_url": cfg.hub_url if cfg else None,
+                "admin": bool(cfg and cfg.admin_token)}
+
+    def _hub_http(admin: bool = False) -> Any:
+        """HTTP na hub: tokenom agenta na čítanie, hlavným tokenom na mutácie (403 bez neho)."""
+        from ...hub import config as hub_config
+        from ...hub.client import HubHttp
+
+        cfg = hub_config.load()
+        if cfg is None:
+            raise HTTPException(404, "hub nie je nastavený (karta Hub, alebo python -m tester.hub setup …)")
+        if admin and not cfg.admin_token:
+            raise HTTPException(403, "účty a nasadenia sa menia len s hlavným tokenom hubu — nastav "
+                                     "`admin_token` v tester/agent.json (alebo TRADEBOT_HUB_ADMIN_TOKEN) "
+                                     "a reštartuj webapp; bez neho je karta len na čítanie")
+        return HubHttp(cfg.hub_url, cfg.admin_token if admin else cfg.token, timeout=15.0)
+
+    def _via_hub(call: Callable[[], Any]) -> Any:
+        """Chyba hubu → tá istá HTTP chyba (401/403/404/409/422), hub mimo → 502."""
+        from ...hub.client import HubError
+
+        try:
+            return call()
+        except HubError as exc:
+            if exc.status == 404 and str(exc.detail).strip().lower() == "not found":
+                raise HTTPException(409, "hub beží na staršom kóde a účty/nasadenia ešte nepozná — "
+                                         "aktualizuj a reštartuj hub")
+            raise HTTPException(exc.status if exc.status in (401, 403, 404, 409, 422) else 502,
+                                exc.detail if isinstance(exc.detail, str) else str(exc))
+        except (OSError, ValueError) as exc:
+            raise HTTPException(502, f"hub nedostupný: {exc}")
+
+    def _by(user: str | None) -> str:
+        from urllib.parse import quote
+
+        return quote(clean_user(user), safe="")
+
+    def _strategy(key: str) -> str:
+        k = canonical_key((key or "").strip())
+        if k not in STRATEGIES:
+            raise HTTPException(422, f"neznáma stratégia {key!r}")
+        return k
+
+    def _config_of(strategy: str, profile: str) -> dict[str, Any]:
+        """Snímka profilu (repozitár aj vlastné profily testera) — celý config enginu."""
+        if not (profile or "").strip():
+            raise HTTPException(422, "nasadenie potrebuje profil")
+        try:
+            return default_params(profile, strategy)[0]
+        except (ConfigError, FileNotFoundError, StopIteration) as exc:
+            raise HTTPException(422, f"profil {profile!r} stratégie {strategy!r}: {exc}")
+
+    @router.get("/api/live/agents")
+    def live_agents():
+        """Agenti hubu a čo vedia o live (drivery, počet inštancií) — výber stroja pri účte."""
+        http = _hub_http()
+        agents = _via_hub(lambda: http.get("/api/agents"))
+        return [{"name": a.get("name"), "online": bool(a.get("online")), "last_seen": a.get("last_seen"),
+                 "live": a.get("live")} for a in (agents or [])]
+
+    @router.get("/api/live/profiles")
+    def live_profiles(strategy: str = Query("ibs")):
+        """Profily stratégie (repozitár + vlastné) do výberu pri nasadení — ako formulár behu."""
+        key = _strategy(strategy)
+        return {"strategy": key, "profiles": list_profiles(key), "profile_titles": profile_titles(key)}
+
+    @router.get("/api/live/accounts")
+    def live_accounts(agent: str = ""):
+        http = _hub_http()
+        return _via_hub(lambda: http.get("/api/live/accounts" + (f"?agent={agent}" if agent else "")))
+
+    @router.post("/api/live/accounts")
+    def live_account_create(req: LiveAccountRequest):
+        """Heslo (ak je) ide na hub raz v tele; tu sa neukladá ani neloguje."""
+        http = _hub_http(admin=True)
+        body = {k: v for k, v in req.model_dump().items() if k != "user" and v is not None}
+        return _via_hub(lambda: http.post(f"/api/live/accounts?by={_by(req.user)}", body))
+
+    @router.patch("/api/live/accounts/{account_id}")
+    def live_account_patch(account_id: str, req: LiveAccountRequest):
+        http = _hub_http(admin=True)
+        body = {k: v for k, v in req.model_dump().items() if k not in ("user", "id") and v is not None}
+        return _via_hub(lambda: http.patch(f"/api/live/accounts/{account_id}?by={_by(req.user)}", body))
+
+    @router.delete("/api/live/accounts/{account_id}")
+    def live_account_delete(account_id: str, force: bool = False, user: str = ""):
+        http = _hub_http(admin=True)
+        return _via_hub(lambda: http.delete(
+            f"/api/live/accounts/{account_id}?force={'true' if force else 'false'}&by={_by(user)}"))
+
+    @router.get("/api/live/deployments")
+    def live_deployments(agent: str = "", account: str = ""):
+        http = _hub_http()
+        q = "&".join(f"{k}={v}" for k, v in (("agent", agent), ("account", account)) if v)
+        return _via_hub(lambda: http.get("/api/live/deployments" + (f"?{q}" if q else "")))
+
+    @router.post("/api/live/deployments")
+    def live_deployment_create(req: LiveDeploymentRequest):
+        """Config nasadenia sa poskladá tu z profilu (aj vlastného) a na hub ide hotový."""
+        http = _hub_http(admin=True)
+        strategy = _strategy(req.strategy)
+        config = req.config if isinstance(req.config, dict) and req.config else _config_of(strategy, req.profile)
+        body = {"account": req.account, "strategy": strategy, "symbol": req.symbol.strip(), "tf": req.tf,
+                "profile": req.profile, "config": config, "mode": req.mode}
+        return _via_hub(lambda: http.post(f"/api/live/deployments?by={_by(req.user)}", body))
+
+    @router.patch("/api/live/deployments/{dep_id}")
+    def live_deployment_patch(dep_id: str, req: LiveDeploymentPatch):
+        """`mode`, `active`, alebo nový `profile` (config sa dopočíta tu) / hotový `config`."""
+        http = _hub_http(admin=True)
+        body: dict[str, Any] = {}
+        if req.mode is not None:
+            body["mode"] = req.mode
+        if req.active is not None:
+            body["active"] = req.active
+        if req.profile is not None or isinstance(req.config, dict):
+            body["profile"] = req.profile or ""
+            if isinstance(req.config, dict) and req.config:
+                body["config"] = req.config
+            else:
+                dep = _via_hub(lambda: http.get(f"/api/live/deployments/{dep_id}"))
+                body["config"] = _config_of(dep["strategy"], body["profile"])
+        return _via_hub(lambda: http.patch(f"/api/live/deployments/{dep_id}?by={_by(req.user)}", body))
+
+    @router.delete("/api/live/deployments/{dep_id}")
+    def live_deployment_delete(dep_id: str, force: bool = False, user: str = ""):
+        http = _hub_http(admin=True)
+        return _via_hub(lambda: http.delete(
+            f"/api/live/deployments/{dep_id}?force={'true' if force else 'false'}&by={_by(user)}"))
+
+    @router.get("/api/live/audit")
+    def live_audit(limit: int = Query(50, ge=1, le=2000)):
+        http = _hub_http()
+        return _via_hub(lambda: http.get(f"/api/live/audit?limit={int(limit)}"))
 
     @router.get("/api/live/{instance}/sessions")
     def live_sessions(instance: str):

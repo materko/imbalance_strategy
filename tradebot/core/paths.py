@@ -50,6 +50,7 @@ __all__ = [
     "SWEEPS_DIR", "CHART_CACHE", "ARCHIVE_DIR",
     "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE",
     "HUB_LIVE_DB", "LIVE_DIR", "LIVE_CURSOR", "LIVE_CURSOR_WEBAPP", "LIVE_MIRROR", "LIVE_MIRROR_CURSOR",
+    "LIVE_SECRETS", "LIVE_APPLY_STATE", "LIVE_MT5_DIR",
     "DOCS_DIR", "MERANIA_DIR",
     "ARCHIVE_ROOTS",
 ]
@@ -154,6 +155,15 @@ LIVE_MIRROR = LIVE_DIR / "mirror.sqlite"
 #: Kurzor zrkadla do hubu (`{"hub_url", "cursor"}` = posledný prevzatý rowid hubu); pri zmene
 #: adresy hubu začína od nuly, lebo rowid iného hubu nič neznamená.
 LIVE_MIRROR_CURSOR = LIVE_DIR / "mirror_cursor.json"
+#: Heslá účtov platforiem z hubu, zašifrované DPAPI na tento stroj a používateľa
+#: (`<account>.bin`) — nikdy v gite, nikdy v čitateľnej podobe (docs/LIVE.md, fáza 2b).
+LIVE_SECRETS = LIVE_DIR / "secrets"
+#: Posledný požadovaný stav z hubu a čo z neho agent aplikoval (`tradebot.live.apply`);
+#: po reštarte agent hlási to isté, kým hub nepošle nový.
+LIVE_APPLY_STATE = LIVE_DIR / "apply_state.json"
+#: Pracovné adresáre MT5 drivera po účtoch: štartovací ini, pid, log, prípadná portable
+#: kópia terminálu (`<account>/…`).
+LIVE_MT5_DIR = LIVE_DIR / "mt5"
 
 # -- Dokumentácia ----------------------------------------------------------- #
 

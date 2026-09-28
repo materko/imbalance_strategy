@@ -106,6 +106,10 @@ class HubHttp:
         out, ct = self._call("POST", path, data, "application/zip", timeout=max(self.timeout, 300))
         return json.loads(out) if "json" in ct else out.decode("utf-8", "replace")
 
+    def patch(self, path: str, body: dict[str, Any] | None = None) -> Any:
+        data, ct = self._call("PATCH", path, json.dumps(body or {}).encode("utf-8"), "application/json")
+        return json.loads(data) if "json" in ct else data.decode("utf-8", "replace")
+
     def delete(self, path: str) -> Any:
         data, ct = self._call("DELETE", path)
         return json.loads(data) if "json" in ct else data.decode("utf-8", "replace")

@@ -74,7 +74,8 @@ def build(ctx: AppContext) -> APIRouter:
         stary = hub_config.load()
         token = req.token.strip() or (stary.token if stary else "")
         cfg = hub_config.AgentConfig(name=req.name.strip(), hub_url=url, token=token,
-                                     accept=req.accept, send=req.send, max_parallel=req.max_parallel)
+                                     accept=req.accept, send=req.send, max_parallel=req.max_parallel,
+                                     admin_token=stary.admin_token if stary else "")
         hub_config.save(cfg)
         start_hub_agent(hub_config.load() or cfg)
         return hub_status()

@@ -518,8 +518,8 @@ nepotrebuje, všetko podstatné je v `run.json`.
 
 ## Karta Live
 
-Telemetria zo **spustených** stratégií s C# jadrom (NinjaTrader 8, MetaTrader 5) — len
-čítanie, fáza 1 podľa [LIVE.md](LIVE.md). Stratégia píše bary, zámery enginu (ordery),
+Telemetria zo **spustených** stratégií s C# jadrom (NinjaTrader 8, MetaTrader 5) — čítanie
+podľa [LIVE.md](LIVE.md) fáza 1; účty a nasadenia (fáza 2b) sú nižšie. Stratégia píše bary, zámery enginu (ordery),
 kresby a vyplnenia u brokera do lokálneho spoolu; agent hubu ich posiela na hub a webapp si
 ich z hubu zrkadlí do `tester/live/mirror.sqlite` (vlákno `LiveMirror`, každých 5 s; kurzor
 hubu v `tester/live/mirror_cursor.json`). Keď webapp beží priamo na obchodnom PC, číta aj
@@ -544,9 +544,41 @@ je predvolený pohľad naprieč behmi; pod ním sú behy od najnovšieho (`štar
 z neho, pod hlavičkou agent, profil, stroj, štart, koniec a dôvod ukončenia (`bye`). Ukončený
 beh sa už neobnovuje, živý áno.
 
-API: `GET /api/live` (inštancie + stav zrkadla), `GET /api/live/{id}/sessions`,
-`GET /api/live/{id}/snapshot?bars=&session=`, `GET /api/live/{id}/events?after=&kinds=&limit=&session=`
-— `tester/webapp/api/live.py`, stránka `static/js/live.js`.
+API: `GET /api/live` (inštancie + stav zrkadla + `deploy` = či je hub nastavený a či webapp má
+admin token), `GET /api/live/{id}/sessions`, `GET /api/live/{id}/snapshot?bars=&session=`,
+`GET /api/live/{id}/events?after=&kinds=&limit=&session=` — `tester/webapp/api/live.py`, stránka
+`static/js/live.js`.
+
+### Účty a nasadenia (fáza 2b)
+
+Pod zoznamom inštancií sú sekcie **Nasadenia** a **Účty** — požadovaný stav z hubu
+([LIVE.md](LIVE.md), [HUB.md](HUB.md) „Live nasadenia“). Webapp ich nezrkadlí, každé
+načítanie (aj obnova každých 5 s) ide na hub; hub dole = chyba v sekcii, tabuľky ostanú.
+
+- **Účty**: id, názov, agent (stroj), platforma, login, server/pripojenie, terminál, či čaká
+  heslo na prevzatie agentom, počet nasadení, „zmazať“. **Pridať účet**: agent z hubu
+  (`/api/live/agents`, online prví, s drivermi, ktoré hlási), platforma (ponuka z driverov),
+  názov, login, server, terminál, portable, heslo — heslo odíde na hub raz v tele požiadavky,
+  do zrkadla ani na disk webapp sa nedostane a políčko sa po odoslaní vyprázdni.
+- **Nasadenia**: stav, účet, stratégia, symbol, TF, profil (výber = zmena profilu; aplikuje
+  sa, až keď je stratégia bez pozície), režim, čo agent naposledy potvrdil (profil ✓/≠,
+  režim, vek), inštancia zo spoolu (odkaz do detailu, keď ju zrkadlo má) a posledný bar;
+  tlačidlá **pauza** / **zapnúť**, **flatten** (potvrdenie), **odstrániť** (najprv vypne,
+  po potvrdení agentom „zmazať“). Stav: žltý **čaká** = agent ešte neaplikoval (drift
+  `config_hash` alebo režimu, alebo čaká na flat), červený **chyba** s textom z agenta,
+  zelený **živá** = aplikované a inštancia v spoole žije, sivý **ok** = aplikované, spool
+  ticho. **Nasadiť**: účet, stratégia (z `/api/meta`), symbol tak, ako ho pozná platforma,
+  TF v minútach, profil (`/api/live/profiles?strategy=` — repozitár aj vlastné profily;
+  snímka configu sa poskladá vo webapp a na hub ide hotová). **Audit** = posledných 50 zmien.
+- Mutácie idú na hub s **admin tokenom** (`admin_token` v `tester/agent.json` alebo
+  `TRADEBOT_HUB_ADMIN_TOKEN`, reštart webapp); bez neho je chip „len na čítanie“, tlačidlá
+  a formuláre sú vypnuté a API vráti 403 s radou. Čítanie ide tokenom agenta.
+
+API webapp: `GET/POST /api/live/accounts`, `PATCH/DELETE /api/live/accounts/{id}`,
+`GET/POST /api/live/deployments`, `PATCH/DELETE /api/live/deployments/{id}`,
+`GET /api/live/audit`, `GET /api/live/agents`, `GET /api/live/profiles?strategy=` — všetko
+proxy na hub (`by` = meno testera do auditu). Úprava parametrov formulárom (namiesto výberu
+profilu) zatiaľ nie je — vlastný profil si ulož v karte Nový beh a vyber ho tu.
 
 ## Príkazový riadok a Claude Code
 

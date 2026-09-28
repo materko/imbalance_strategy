@@ -46,6 +46,9 @@ zadal, komu to hub pridelil, kedy beh začal a ako skončil, kto čo zrušil. Č
 Live telemetria (`/api/live/*`, `tester/hub/live.py`, docs/LIVE.md): agenti na obchodných
 PC posielajú udalosti bežiacich stratégií zo spoolu platforiem; hub ich ukladá do
 `live.sqlite` vedľa stavu (`LiveStore`, idempotentne) a webapp si ich odtiaľ zrkadlí.
+Opačným smerom nesie hub **požadovaný stav** live nasadení (účty, nasadenia — `DeployStore`
+v tom istom súbore): mutácie len s hlavným tokenom, agent si svoj diel berie v heartbeate
+(`live` v odpovedi) a hlási späť, čo aplikoval (`live` v tele).
 """
 
 from __future__ import annotations
@@ -57,11 +60,12 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from tradebot.core.paths import HUB_DIR, HUB_LIVE_DB
+from tradebot.live.deploy import DeployStore
 from tradebot.live.store import LiveStore
 
 from . import protocol as P
 from .events import EVENTS_KEEP
-from .live import add_live_routes
+from .live import add_deploy_routes, add_live_routes
 from .state import (  # noqa: F401 — verejné mená z čias pred rozdelením
     DEFAULT_AGENT_TIMEOUT, KEEP_FINISHED, MAX_ATTEMPTS, HubState, NameTaken, NoCapacity,
 )
@@ -100,6 +104,9 @@ class HeartbeatRequest(BaseModel):
     updating: bool | None = None
     load: dict[str, Any] = Field(default_factory=dict)
     jobs: list[dict[str, Any]] = Field(default_factory=list)
+    #: Live nasadenia (docs/LIVE.md, fáza 2b): `instances`, `applied`, `drivers`, `secret_ack`;
+    #: starý agent to neposiela.
+    live: dict[str, Any] | None = None
 
 
 class SubmitRequest(BaseModel):
@@ -115,12 +122,17 @@ class SubmitRequest(BaseModel):
     max_seconds: float | None = None
 
 
-def create_hub_app(state: HubState | None = None, live_store: LiveStore | None = None) -> FastAPI:
-    """`live_store` sa dá podstrčiť (testy); inak je `live.sqlite` vedľa stavu hubu
-    (`HUB_LIVE_DB`, alebo v koreni stavu, keď hub nebeží v `tester/hub_data`)."""
+def create_hub_app(state: HubState | None = None, live_store: LiveStore | None = None,
+                   deploy_store: DeployStore | None = None) -> FastAPI:
+    """`live_store` a `deploy_store` sa dajú podstrčiť (testy); inak je `live.sqlite` vedľa
+    stavu hubu (`HUB_LIVE_DB`, alebo v koreni stavu, keď hub nebeží v `tester/hub_data`) a
+    požadovaný stav nasadení je v tom istom súbore (`DeployStore`, vlastné tabuľky)."""
     state = state or HubState()
     if live_store is None:
         live_store = LiveStore(HUB_LIVE_DB if state.root == HUB_DIR else state.root / HUB_LIVE_DB.name)
+    if deploy_store is None:
+        deploy_store = DeployStore(live_store.path, clock=state.clock)
+    state.deploy = deploy_store
     app = FastAPI(title="TradeBot hub", version="0.2")
     app.state.hub = state
 
@@ -322,5 +334,6 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
     # -- live telemetria (docs/LIVE.md) --------------------------------------- #
 
     add_live_routes(app, state, live_store, auth, own)
+    add_deploy_routes(app, state, deploy_store, live_store, auth, admin)
 
     return app

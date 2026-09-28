@@ -1,20 +1,24 @@
-// TradeBot Live AddOn - sonda, ci NinjaTrader 8 vie bezat bez cloveka (docs/NINJATRADER.md, "Beh bez cloveka").
+// TradeBot Live AddOn - beh strategii s C# jadrom v NinjaTraderi 8 bez cloveka (docs/NINJATRADER.md, "Beh bez cloveka").
 //
 // NinjaScript Strategia sa programovo zapnut neda (ani po restarte NT). AddOn startuje s NinjaTraderom
-// sam, takze zivy beh bez kliknutia musi ist cez AddOn. Tento subor engine este NEPOUZIVA - je to
-// overenie schopnosti, kazda v try/catch, nic nesmie vyhodit vynimku do UI vlakna NinjaTradera:
+// sam (a NT ho znova instancuje aj po rekompilacii NinjaTrader.Custom.dll), preto zivy beh bez kliknutia
+// ide tadialto. AddOn cita `Documents\NinjaTrader 8\TradeBot\deploy.json`:
 //
-//   1. zoznam uctov (`Account.All`: meno, pripojenie, stav)
-//   2. pripojenie z kodu (`Connection.Connect` na `Core.Globals.ConnectOptions` podla mena)
-//   3. bary z kodu (`BarsRequest`, 1m, poslednych 50 + `Update` nazivo 2 minuty)
-//   4. order z kodu (`Account.CreateOrder` + `Account.Submit`, market 1 kontrakt; po 20 s zavriet)
-//      s udalostami `OrderUpdate` / `ExecutionUpdate`
-//   5. control subor `Documents\NinjaTrader 8\TradeBot\control\addon.json` (mtime kazdych 5 s)
+//   {"instances":[{"deployment":"dep-1","connection":"Simulated Data Feed","account":"Sim101",
+//                  "instrument":"MNQ 12-26","tf":3,"strategy":"ibsnet","profile":"multicharts_mnq_3m"}]}
 //
-// Konfiguracia: `Documents\NinjaTrader 8\TradeBot\addon.json`
-//   {"connection": "Simulated Data Feed", "account": "Sim101", "instrument": "MNQ 12-26", "tf": 1, "test_order": false}
-// Bez suboru sa spravi len bod 1 a 5. Log: okno Output (New > NinjaScript Output) a
-// `Documents\NinjaTrader 8\TradeBot\logs\addon_<cas>.txt`.
+// a pre kazdy zaznam drzi jednu `LiveInstance` (TradeBotLiveInstance.cs): pripojenie, ucet, BarsRequest,
+// engine, ordery, spool, control subor. Subor sa sleduje podla mtime kazdych 5 s (nove zaznamy sa spustia,
+// odstranene zastavia, zmenene sa restartuju) a znova pri zmene stavu pripojenia (neuspesne starty sa
+// skusaju znova). Profil je `TradeBot\profiles\<strategia>\<profil>.json` alebo `TradeBot\profiles\<profil>.json`
+// (tam ich pise `python -m tradebot.adapters.ninjatrader install`); chybajuci profil = zaznam sa preskoci a loguje.
+//
+// Generacie: po rekompilacii NT nacita novu assembly a instancuje AddOn znova, ale stara instancia so svojim
+// vlaknom nezmizne. Kazda generacia si preto zapise token do AppDomain (zdielany cez assembly) a stara sa
+// zastavi, len co uvidi cudzi token - inak by bezali dve kopie tej istej instancie.
+//
+// Log: okno Output (New > NinjaScript Output) a `TradeBot\logs\addon_<cas>.txt`. Nic z AddOnu nesmie
+// vyhodit vynimku do UI vlakna NinjaTradera - kazdy vstupny bod je v try/catch.
 #region Using declarations
 using System;
 using System.Collections.Generic;
@@ -24,7 +28,6 @@ using System.Text;
 using System.Threading;
 using System.Windows;
 using NinjaTrader.Cbi;
-using NinjaTrader.Data;
 using NinjaTrader.Gui;
 using NinjaTrader.NinjaScript;
 using TB = TradeBot.Core;
@@ -34,20 +37,36 @@ namespace NinjaTrader.NinjaScript.AddOns
 {
     public class TradeBotLiveAddOn : AddOnBase
     {
+        private const string GenerationKey = "TradeBotLiveAddOn.generation";
+        private const int DeployPeriodSeconds = 5;
+        private const int RetrySeconds = 60;
+
         private static int _started;
         private static volatile bool _stop;
+        private static volatile bool _reconcile;
         private static readonly object _logGate = new object();
         private static StreamWriter _log;
+        private static string _generation;
 
         public static string TradeBotDir { get { return Path.Combine(NinjaTrader.Core.Globals.UserDataDir, "TradeBot"); } }
+        public static string ProfilesDir { get { return Path.Combine(TradeBotDir, "profiles"); } }
+        public static string SpoolDir { get { return Path.Combine(TradeBotDir, "spool"); } }
+        public static string ControlDir { get { return Path.Combine(TradeBotDir, "control"); } }
+        public static string DeployPath { get { return Path.Combine(TradeBotDir, "deploy.json"); } }
 
         protected override void OnStateChange()
         {
-            if (State == State.SetDefaults)
+            try
             {
-                Name = "TradeBot Live";
-                Description = "TradeBot: sonda behu bez cloveka (ucty, pripojenie, bary, order, control subor) - docs/NINJATRADER.md";
+                if (State == State.SetDefaults)
+                {
+                    Name = "TradeBot Live";
+                    Description = "TradeBot: beh strategii s C# jadrom bez cloveka podla TradeBot\\deploy.json - docs/NINJATRADER.md";
+                }
+                else if (State == State.Terminated)
+                    _stop = true;
             }
+            catch (Exception) { }
         }
 
         protected override void OnWindowCreated(Window window)
@@ -55,8 +74,8 @@ namespace NinjaTrader.NinjaScript.AddOns
             try
             {
                 if (!(window is ControlCenter)) return;
-                if (Interlocked.Exchange(ref _started, 1) == 1) return;   // raz na proces
-                Thread t = new Thread(Worker);
+                if (Interlocked.Exchange(ref _started, 1) == 1) return;   // raz na proces (a generaciu)
+                Thread t = new Thread(Supervisor);
                 t.IsBackground = true;
                 t.Name = "TradeBotLiveAddOn";
                 t.Start();
@@ -77,7 +96,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         // Log
         // ------------------------------------------------------------------ //
 
-        private static void Say(string text)
+        public static void Say(string text)
         {
             string line = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture) + " " + text;
             try { NinjaTrader.Code.Output.Process("TradeBot addon: " + text, PrintTo.OutputTab1); } catch (Exception) { }
@@ -100,99 +119,10 @@ namespace NinjaTrader.NinjaScript.AddOns
         }
 
         // ------------------------------------------------------------------ //
-        // Sonda
+        // Pripojenie (zdielane instanciami)
         // ------------------------------------------------------------------ //
 
-        private sealed class Cfg
-        {
-            public string Connection = "";
-            public string Account = "Sim101";
-            public string Instrument = "";
-            public int Tf = 1;
-            public bool TestOrder;
-        }
-
-        private static Cfg ReadCfg()
-        {
-            Cfg c = new Cfg();
-            try
-            {
-                string path = Path.Combine(TradeBotDir, "addon.json");
-                if (!File.Exists(path)) { Say("addon.json nie je (" + path + ") - len ucty a control subor"); return c; }
-                Dictionary<string, object> d = TB.Json.ParseObject(File.ReadAllText(path));
-                c.Connection = TB.Json.GetString(d, "connection", "");
-                c.Account = TB.Json.GetString(d, "account", "Sim101");
-                c.Instrument = TB.Json.GetString(d, "instrument", "");
-                c.Tf = (int)TB.Json.GetDouble(d, "tf", 1);
-                c.TestOrder = TB.Json.GetBool(d, "test_order", false);
-                Say("addon.json: connection='" + c.Connection + "' account='" + c.Account + "' instrument='" + c.Instrument
-                    + "' tf=" + c.Tf + " test_order=" + c.TestOrder);
-            }
-            catch (Exception e) { Say("addon.json sa nenacital: " + e.Message); }
-            return c;
-        }
-
-        private static void Worker()
-        {
-            try
-            {
-                Say("start (NinjaTrader " + NinjaTrader.Core.Globals.UserDataDir + ", stroj " + Environment.MachineName + ")");
-                Thread.Sleep(3000);   // Control Center sa este stavia; ucty a pripojenia sa objavia o chvilu
-                ListAccounts("pri starte");
-                Cfg cfg = ReadCfg();
-
-                Account account = null;
-                if (!string.IsNullOrEmpty(cfg.Connection))
-                {
-                    Connect(cfg.Connection);
-                    account = WaitAccount(cfg.Account, 60);
-                    ListAccounts("po pripojeni");
-                }
-                else
-                    Say("connection nie je zadane - nepripajam");
-
-                if (account != null && !string.IsNullOrEmpty(cfg.Instrument))
-                {
-                    Instrument inst = null;
-                    try { inst = Instrument.GetInstrument(cfg.Instrument); } catch (Exception e) { Say("GetInstrument: " + e.Message); }
-                    if (inst == null) Say("instrument '" + cfg.Instrument + "' NinjaTrader nepozna");
-                    else
-                    {
-                        Say("instrument " + inst.FullName + " tick " + inst.MasterInstrument.TickSize + " bod " + inst.MasterInstrument.PointValue);
-                        BarsRequest req = RequestBars(inst, cfg.Tf);
-                        if (cfg.TestOrder) TestOrder(account, inst);
-                        Thread.Sleep(120000);   // 2 minuty zivych barov
-                        if (req != null)
-                        {
-                            try { req.Update -= OnBarsUpdate; req.Dispose(); } catch (Exception) { }
-                            Say("BarsRequest zatvoreny, zivych aktualizacii: " + _liveUpdates);
-                        }
-                    }
-                }
-                ControlLoop();
-            }
-            catch (Exception e) { Say("worker spadol: " + e); }
-            finally { Say("koniec"); }
-        }
-
-        private static void ListAccounts(string when)
-        {
-            try
-            {
-                List<string> lines = new List<string>();
-                lock (Account.All)
-                    foreach (Account a in Account.All)
-                        lines.Add(a.Name + " [" + (a.Connection != null && a.Connection.Options != null ? a.Connection.Options.Name : "-")
-                                  + " " + a.ConnectionStatus + "]");
-                Say("ucty " + when + " (" + lines.Count + "): " + string.Join(", ", lines.ToArray()));
-                List<string> conns = new List<string>();
-                lock (Connection.Connections)
-                    foreach (Connection c in Connection.Connections)
-                        conns.Add((c.Options != null ? c.Options.Name : "?") + "=" + c.Status + "/" + c.PriceStatus);
-                Say("pripojenia (" + conns.Count + "): " + string.Join(", ", conns.ToArray()));
-            }
-            catch (Exception e) { Say("ucty: " + e.Message); }
-        }
+        private static readonly object _connectGate = new object();
 
         private static Connection FindConnection(string name)
         {
@@ -202,236 +132,247 @@ namespace NinjaTrader.NinjaScript.AddOns
             return null;
         }
 
-        private static void Connect(string name)
+        /// <summary>Pripojenie podla mena z Core.Globals.ConnectOptions je Connected (pripoji, ak treba). Vracia false po timeoute.</summary>
+        public static bool EnsureConnected(string name, int seconds)
+        {
+            lock (_connectGate)
+            {
+                try
+                {
+                    Connection existing = FindConnection(name);
+                    if (existing != null && existing.Status == ConnectionStatus.Connected) return true;
+                    if (existing != null && existing.Status == ConnectionStatus.Connecting)
+                        return WaitConnected(name, seconds);
+                    ConnectOptions found = null;
+                    List<string> names = new List<string>();
+                    foreach (ConnectOptions o in NinjaTrader.Core.Globals.ConnectOptions)
+                    {
+                        names.Add(o.Name);
+                        if (o.Name == name) found = o;
+                    }
+                    if (found == null)
+                    {
+                        Say("pripojenie '" + name + "' v Core.Globals.ConnectOptions nie je (su: " + string.Join(", ", names.ToArray()) + ")");
+                        return false;
+                    }
+                    Say("Connection.Connect('" + name + "')...");
+                    Connection conn = null;
+                    Exception err = null;
+                    try { conn = Connection.Connect(found); }
+                    catch (Exception e) { err = e; }
+                    if (err != null)
+                    {
+                        // niektore volania NT chcu UI vlakno - skus cez dispatcher
+                        Say("Connect z pozadia zlyhal (" + err.Message + "), skusam cez RandomDispatcher");
+                        NinjaTrader.Core.Globals.RandomDispatcher.Invoke(new Action(delegate
+                        {
+                            try { conn = Connection.Connect(found); }
+                            catch (Exception e2) { Say("Connect cez dispatcher zlyhal: " + e2.Message); }
+                        }));
+                    }
+                    Say("Connect vratil " + (conn == null ? "null" : conn.Status.ToString()));
+                    return WaitConnected(name, seconds);
+                }
+                catch (Exception e) { Say("Connect: " + e); return false; }
+            }
+        }
+
+        private static bool WaitConnected(string name, int seconds)
+        {
+            for (int i = 0; i < seconds && !_stop; i++)
+            {
+                Connection c = FindConnection(name);
+                if (c != null && c.Status == ConnectionStatus.Connected)
+                {
+                    Say("pripojenie '" + name + "' Connected (price feed " + c.PriceStatus + ")");
+                    return true;
+                }
+                Thread.Sleep(1000);
+            }
+            Connection last = FindConnection(name);
+            Say("pripojenie '" + name + "' po " + seconds + " s: " + (last == null ? "ziadne" : last.Status.ToString()));
+            return false;
+        }
+
+        private static void OnConnectionStatus(object sender, ConnectionStatusEventArgs e)
         {
             try
             {
-                Connection existing = FindConnection(name);
-                if (existing != null && existing.Status == ConnectionStatus.Connected)
+                if (e.Status == e.PreviousStatus) return;
+                Say("pripojenie " + (e.Connection != null && e.Connection.Options != null ? e.Connection.Options.Name : "?") + ": "
+                    + e.PreviousStatus + " -> " + e.Status + (e.Error != ErrorCode.NoError ? " " + e.Error + " " + e.NativeError : ""));
+                _reconcile = true;
+            }
+            catch (Exception) { }
+        }
+
+        // ------------------------------------------------------------------ //
+        // deploy.json
+        // ------------------------------------------------------------------ //
+
+        private static List<LiveDeployment> ReadDeploy()
+        {
+            List<LiveDeployment> list = new List<LiveDeployment>();
+            Dictionary<string, object> d = TB.Json.ParseObject(File.ReadAllText(DeployPath));
+            List<object> items = TB.Json.Get(d, "instances") as List<object>;
+            if (items == null) return list;
+            foreach (object item in items)
+            {
+                Dictionary<string, object> entry = item as Dictionary<string, object>;
+                if (entry != null) list.Add(LiveDeployment.FromJson(entry));
+            }
+            return list;
+        }
+
+        private static bool IsCurrentGeneration()
+        {
+            try { return string.Equals(AppDomain.CurrentDomain.GetData(GenerationKey) as string, _generation); }
+            catch (Exception) { return true; }
+        }
+
+        // ------------------------------------------------------------------ //
+        // Supervizor: deploy.json -> instancie
+        // ------------------------------------------------------------------ //
+
+        private static void Supervisor()
+        {
+            Dictionary<string, LiveInstance> running = new Dictionary<string, LiveInstance>();
+            List<LiveInstance> stopping = new List<LiveInstance>();
+            try
+            {
+                _generation = Guid.NewGuid().ToString("N");
+                try { AppDomain.CurrentDomain.SetData(GenerationKey, _generation); } catch (Exception) { }
+                Say("start generacia " + _generation.Substring(0, 8) + " (NinjaTrader " + NinjaTrader.Core.Globals.UserDataDir
+                    + ", stroj " + Environment.MachineName + "), deploy " + DeployPath);
+                Thread.Sleep(3000);   // Control Center sa este stavia; ucty a pripojenia sa objavia o chvilu
+                try { Connection.ConnectionStatusUpdate += OnConnectionStatus; }
+                catch (Exception e) { Say("ConnectionStatusUpdate sa neda odoberat: " + e.Message); }
+
+                Dictionary<string, LiveDeployment> desired = new Dictionary<string, LiveDeployment>();
+                DateTime deployMtime = DateTime.MinValue;
+                bool deploySeen = false;
+                bool missingLogged = false;
+                DateTime lastCheck = DateTime.MinValue;
+
+                while (!_stop)
                 {
-                    Say("pripojenie '" + name + "' uz je Connected");
-                    return;
-                }
-                ConnectOptions found = null;
-                List<string> names = new List<string>();
-                foreach (ConnectOptions o in NinjaTrader.Core.Globals.ConnectOptions)
-                {
-                    names.Add(o.Name);
-                    if (o.Name == name) found = o;
-                }
-                Say("nakonfigurovane pripojenia: " + string.Join(", ", names.ToArray()));
-                if (found == null) { Say("pripojenie '" + name + "' v Core.Globals.ConnectOptions nie je"); return; }
-                Say("Connection.Connect('" + name + "') z pozadia...");
-                Connection conn = null;
-                Exception err = null;
-                try { conn = Connection.Connect(found); }
-                catch (Exception e) { err = e; }
-                if (err != null)
-                {
-                    // niektore volania NT chcu UI vlakno - skus cez dispatcher
-                    Say("Connect z pozadia zlyhal (" + err.Message + "), skusam cez RandomDispatcher");
-                    NinjaTrader.Core.Globals.RandomDispatcher.Invoke(new Action(delegate
+                    if (!IsCurrentGeneration())
                     {
-                        try { conn = Connection.Connect(found); }
-                        catch (Exception e2) { Say("Connect cez dispatcher zlyhal: " + e2.Message); }
-                    }));
-                }
-                Say("Connect vratil " + (conn == null ? "null" : conn.Status.ToString()));
-                for (int i = 0; i < 30; i++)
-                {
-                    Connection c = conn ?? FindConnection(name);
-                    if (c != null && c.Status == ConnectionStatus.Connected)
+                        Say("nova generacia AddOnu (rekompilacia) - tato konci");
+                        break;
+                    }
+                    bool force = _reconcile;
+                    if (force || (DateTime.UtcNow - lastCheck).TotalSeconds >= DeployPeriodSeconds)
                     {
-                        Say("pripojenie '" + name + "' Connected po " + i + " s (price feed " + c.PriceStatus + ")");
-                        return;
+                        _reconcile = false;
+                        lastCheck = DateTime.UtcNow;
+                        try
+                        {
+                            if (File.Exists(DeployPath))
+                            {
+                                DateTime mtime = File.GetLastWriteTimeUtc(DeployPath);
+                                if (mtime != deployMtime)
+                                {
+                                    deployMtime = mtime;
+                                    deploySeen = true;
+                                    List<LiveDeployment> list = ReadDeploy();
+                                    desired = new Dictionary<string, LiveDeployment>();
+                                    foreach (LiveDeployment dep in list)
+                                    {
+                                        if (desired.ContainsKey(dep.Key)) { Say("deploy.json: duplicitny zaznam " + dep.Key + " - beriem prvy"); continue; }
+                                        desired[dep.Key] = dep;
+                                    }
+                                    Say("deploy.json: " + desired.Count + " instancii");
+                                    foreach (LiveDeployment dep in desired.Values) Say("  " + dep.Describe());
+                                }
+                            }
+                            else if (deploySeen)
+                            {
+                                Say("deploy.json zmizol - vsetky instancie sa zastavia");
+                                deploySeen = false;
+                                deployMtime = DateTime.MinValue;
+                                desired = new Dictionary<string, LiveDeployment>();
+                            }
+                            else if (!missingLogged)
+                            {
+                                missingLogged = true;
+                                Say("deploy.json nie je (" + DeployPath + ") - cakam");
+                            }
+                        }
+                        catch (Exception e) { Say("deploy.json sa nenacital: " + e.Message + " - platia predosle instancie"); }
+
+                        Reconcile(running, stopping, desired, force);
                     }
                     Thread.Sleep(1000);
                 }
-                Connection last = conn ?? FindConnection(name);
-                Say("pripojenie '" + name + "' po 30 s: " + (last == null ? "ziadne" : last.Status.ToString()));
             }
-            catch (Exception e) { Say("Connect: " + e); }
+            catch (Exception e) { Say("supervizor spadol: " + e); }
+            finally
+            {
+                try { Connection.ConnectionStatusUpdate -= OnConnectionStatus; } catch (Exception) { }
+                StopAll(running, stopping, _stop ? "terminated" : "superseded");
+                Say("koniec");
+            }
         }
 
-        private static Account WaitAccount(string name, int seconds)
+        /// <summary>Zastav odstranene/zmenene, spusti nove, restartuj skoncene (po 60 s, pri zmene pripojenia hned).</summary>
+        private static void Reconcile(Dictionary<string, LiveInstance> running, List<LiveInstance> stopping,
+                                      Dictionary<string, LiveDeployment> desired, bool force)
         {
-            for (int i = 0; i < seconds; i++)
+            foreach (KeyValuePair<string, LiveInstance> kv in new List<KeyValuePair<string, LiveInstance>>(running))
             {
-                try
+                LiveInstance inst = kv.Value;
+                LiveDeployment want;
+                bool keep = desired.TryGetValue(kv.Key, out want) && want.SameAs(inst.Deployment);
+                if (!keep && !inst.Finished)
                 {
-                    lock (Account.All)
-                        foreach (Account a in Account.All)
-                            if (a.Name == name && a.ConnectionStatus == ConnectionStatus.Connected)
-                            {
-                                Say("ucet " + name + " je Connected (" + (a.Connection != null && a.Connection.Options != null ? a.Connection.Options.Name : "-") + ")");
-                                return a;
-                            }
+                    Say("instancia " + kv.Key + ": " + (desired.ContainsKey(kv.Key) ? "zmena zaznamu - restart" : "odstranena z deploy.json") + " - zastavujem");
+                    inst.Stop(desired.ContainsKey(kv.Key) ? "changed" : "removed");
+                    running.Remove(kv.Key);
+                    stopping.Add(inst);
+                    continue;
                 }
-                catch (Exception e) { Say("WaitAccount: " + e.Message); }
-                Thread.Sleep(1000);
-            }
-            Say("ucet " + name + " sa do " + seconds + " s nepripojil");
-            return null;
-        }
-
-        // ------------------------------------------------------------------ //
-        // Bary
-        // ------------------------------------------------------------------ //
-
-        private static int _liveUpdates;
-        private static readonly ManualResetEvent _barsDone = new ManualResetEvent(false);
-
-        private static BarsRequest RequestBars(Instrument inst, int tf)
-        {
-            try
-            {
-                BarsRequest req = new BarsRequest(inst, 50);
-                BarsPeriod period = new BarsPeriod();
-                period.BarsPeriodType = BarsPeriodType.Minute;
-                period.Value = tf < 1 ? 1 : tf;
-                req.BarsPeriod = period;
-                req.TradingHours = inst.MasterInstrument.TradingHours;
-                req.MergePolicy = MergePolicy.DoNotMerge;
-                req.Update += OnBarsUpdate;
-                _barsDone.Reset();
-                req.Request(new Action<BarsRequest, ErrorCode, string>(delegate(BarsRequest r, ErrorCode code, string msg)
+                if (!keep && inst.Finished) { running.Remove(kv.Key); continue; }
+                if (inst.Finished)
                 {
-                    try
+                    double age = (DateTime.UtcNow - inst.FinishedAt).TotalSeconds;
+                    if (force || age >= RetrySeconds)
                     {
-                        if (code != ErrorCode.NoError || r.Bars == null)
-                            Say("BarsRequest chyba " + code + " " + msg);
-                        else
-                        {
-                            int n = r.Bars.Count;
-                            Say("BarsRequest " + inst.FullName + " " + period.Value + "m: " + n + " barov"
-                                + (n > 0 ? ", posledny " + r.Bars.GetTime(n - 1).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)
-                                           + " c=" + r.Bars.GetClose(n - 1) : ""));
-                        }
-                    }
-                    catch (Exception e) { Say("BarsRequest callback: " + e.Message); }
-                    finally { _barsDone.Set(); }
-                }));
-                if (!_barsDone.WaitOne(60000)) Say("BarsRequest bez odpovede 60 s");
-                return req;
-            }
-            catch (Exception e) { Say("BarsRequest: " + e); return null; }
-        }
-
-        private static void OnBarsUpdate(object sender, BarsUpdateEventArgs e)
-        {
-            try
-            {
-                _liveUpdates++;
-                if (_liveUpdates > 400) return;   // ticky na Simulated Data Feed chodia 2x za sekundu; staci ukazka
-                BarsSeries s = e.BarsSeries;
-                for (int i = e.MinIndex; i <= e.MaxIndex; i++)
-                    if (_liveUpdates <= 20 || i == e.MaxIndex && s.GetTime(i).Second == 0 && _liveUpdates % 50 == 0)
-                        Say("bar update #" + _liveUpdates + " idx " + i + " " + s.GetTime(i).ToString("HH:mm:ss", CultureInfo.InvariantCulture)
-                            + " o=" + s.GetOpen(i) + " h=" + s.GetHigh(i) + " l=" + s.GetLow(i) + " c=" + s.GetClose(i) + " v=" + s.GetVolume(i));
-            }
-            catch (Exception ex) { Say("bar update: " + ex.Message); }
-        }
-
-        // ------------------------------------------------------------------ //
-        // Order
-        // ------------------------------------------------------------------ //
-
-        private static void OnOrderUpdate(object sender, OrderEventArgs e)
-        {
-            try
-            {
-                Order o = e.Order;
-                Say("OrderUpdate " + (o != null ? o.Name + " " + o.OrderAction + " " + o.OrderType + " x" + o.Quantity : "?")
-                    + " -> " + e.OrderState + " filled " + e.Filled + " @" + e.AverageFillPrice
-                    + (e.Error != ErrorCode.NoError ? " CHYBA " + e.Error : ""));
-            }
-            catch (Exception ex) { Say("OrderUpdate: " + ex.Message); }
-        }
-
-        private static void OnExecutionUpdate(object sender, ExecutionEventArgs e)
-        {
-            try
-            {
-                Say("ExecutionUpdate " + e.MarketPosition + " x" + e.Quantity + " @" + e.Price + " order " + e.OrderId
-                    + " " + e.Time.ToString("HH:mm:ss", CultureInfo.InvariantCulture));
-            }
-            catch (Exception ex) { Say("ExecutionUpdate: " + ex.Message); }
-        }
-
-        private static void TestOrder(Account account, Instrument inst)
-        {
-            try
-            {
-                account.OrderUpdate += OnOrderUpdate;
-                account.ExecutionUpdate += OnExecutionUpdate;
-                Order buy = account.CreateOrder(inst, OrderAction.Buy, OrderType.Market, OrderEntry.Automated, TimeInForce.Day,
-                                                1, 0, 0, "", "tb_addon_test", NinjaTrader.Core.Globals.MaxDate, null);
-                Say("Submit BUY market 1 " + inst.FullName + " na " + account.Name);
-                account.Submit(new Order[] { buy });
-                Thread.Sleep(20000);
-                Say("stav po 20 s: order " + buy.OrderState + " filled " + buy.Filled + " @" + buy.AverageFillPrice);
-                int qty = 0;
-                lock (account.Positions)
-                    foreach (Position p in account.Positions)
-                        if (p.Instrument == inst) { Say("pozicia " + p.MarketPosition + " x" + p.Quantity + " @" + p.AveragePrice); if (p.MarketPosition == MarketPosition.Long) qty = p.Quantity; }
-                if (buy.OrderState == OrderState.Working || buy.OrderState == OrderState.Accepted || buy.OrderState == OrderState.Submitted)
-                {
-                    Say("vstup sa nevyplnil - rusim");
-                    account.Cancel(new Order[] { buy });
-                }
-                if (qty > 0)
-                {
-                    Order sell = account.CreateOrder(inst, OrderAction.Sell, OrderType.Market, OrderEntry.Automated, TimeInForce.Day,
-                                                     qty, 0, 0, "", "tb_addon_flat", NinjaTrader.Core.Globals.MaxDate, null);
-                    Say("Submit SELL market " + qty + " (zavretie)");
-                    account.Submit(new Order[] { sell });
-                    Thread.Sleep(10000);
-                    Say("stav zavretia: " + sell.OrderState + " filled " + sell.Filled + " @" + sell.AverageFillPrice);
-                }
-                else Say("bez pozicie, nie je co zavriet");
-            }
-            catch (Exception e) { Say("TestOrder: " + e); }
-        }
-
-        // ------------------------------------------------------------------ //
-        // Control subor
-        // ------------------------------------------------------------------ //
-
-        private static void ControlLoop()
-        {
-            string path = Path.Combine(TradeBotDir, "control", "addon.json");
-            Say("control subor " + path + " (mtime kazdych 5 s)");
-            DateTime seen = DateTime.MinValue;
-            string mode = "";
-            while (!_stop)
-            {
-                try
-                {
-                    if (File.Exists(path))
-                    {
-                        DateTime mtime = File.GetLastWriteTimeUtc(path);
-                        if (mtime != seen)
-                        {
-                            seen = mtime;
-                            Dictionary<string, object> d = TB.Json.ParseObject(File.ReadAllText(path));
-                            string m = TB.Json.GetString(d, "mode", "enabled");
-                            if (m != mode)
-                            {
-                                Say("control: mode '" + mode + "' -> '" + m + "' profil '" + TB.Json.GetString(d, "profile", "") + "' by " + TB.Json.GetString(d, "by", ""));
-                                mode = m;
-                            }
-                        }
-                    }
-                    else if (mode != "")
-                    {
-                        Say("control: subor zmizol -> enabled");
-                        mode = "";
-                        seen = DateTime.MinValue;
+                        Say("instancia " + kv.Key + " skoncila (" + inst.Status + ") - skusam znova");
+                        running.Remove(kv.Key);
                     }
                 }
-                catch (Exception e) { Say("control: " + e.Message); }
-                Thread.Sleep(5000);
             }
+            // zastavene instancie so zmenenym zaznamom: novu spusti az ked stara naozaj skoncila
+            foreach (LiveInstance inst in new List<LiveInstance>(stopping))
+                if (inst.Finished) stopping.Remove(inst);
+            foreach (KeyValuePair<string, LiveDeployment> kv in desired)
+            {
+                if (running.ContainsKey(kv.Key)) continue;
+                bool stillStopping = false;
+                foreach (LiveInstance s in stopping)
+                    if (s.Deployment.Key == kv.Key) stillStopping = true;
+                if (stillStopping) continue;
+                LiveInstance inst = new LiveInstance(kv.Value);
+                running[kv.Key] = inst;
+                inst.Start();
+            }
+        }
+
+        private static void StopAll(Dictionary<string, LiveInstance> running, List<LiveInstance> stopping, string reason)
+        {
+            List<LiveInstance> all = new List<LiveInstance>(running.Values);
+            all.AddRange(stopping);
+            foreach (LiveInstance inst in all)
+                try { inst.Stop(reason); } catch (Exception) { }
+            DateTime deadline = DateTime.UtcNow.AddSeconds(15);
+            foreach (LiveInstance inst in all)
+            {
+                int ms = (int)Math.Max(100, (deadline - DateTime.UtcNow).TotalMilliseconds);
+                inst.Join(ms);
+            }
+            running.Clear();
+            stopping.Clear();
         }
     }
 }

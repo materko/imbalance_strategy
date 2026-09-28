@@ -63,6 +63,9 @@ class HubState(TokensMixin, EventsMixin):
         self.tokens: dict[str, str] = {}
         self._tokens_stamp: tuple[int, int] | None = None
         self._events: deque[dict[str, Any]] = deque(maxlen=EVENTS_KEEP)
+        #: Požadovaný stav live nasadení (`tradebot.live.deploy.DeployStore`) — nastaví
+        #: `create_hub_app`; bez neho heartbeat `live` len uloží, čo agent hlási.
+        self.deploy: Any = None
         self._load()
         self._load_tokens()
         self._load_events()
@@ -142,6 +145,11 @@ class HubState(TokensMixin, EventsMixin):
             agent["load"] = dict(body.get("load") or {})
             if body.get("instance"):
                 agent["instance"] = body["instance"]
+            # Live nasadenia (docs/LIVE.md, fáza 2b): čo agent hlási o inštanciách a čo k
+            # nasadeniam spravil; starý agent `live` neposiela a nič sa nedeje.
+            zive = body.get("live")
+            if isinstance(zive, dict):
+                self._live_report(name, agent, zive)
             # Prepnutie `accept` z hubu: agent dostane pokyn, kým nehlási to isté.
             ziadane = agent.get("accept_request")
             if ziadane is not None and bool(agent.get("accept")) == bool(ziadane):
@@ -176,9 +184,31 @@ class HubState(TokensMixin, EventsMixin):
                         if j.get("submitter") == name and j["status"] in P.FINAL_STATES
                         and not j.get("collected")]
             self._save()
-            return {"assign": assign, "cancel": cancel, "finished": finished,
-                    "set_accept": ziadane,
-                    "heartbeat_seconds": self.heartbeat_seconds, "now": _iso(now)}
+            out = {"assign": assign, "cancel": cancel, "finished": finished,
+                   "set_accept": ziadane,
+                   "heartbeat_seconds": self.heartbeat_seconds, "now": _iso(now)}
+            if self.deploy is not None:
+                # vždy celý požadovaný stav tohto agenta (malý) — agent ho zosúlaďuje pri každom heartbeate
+                out["live"] = self.deploy.desired_for_agent(name)
+            return out
+
+    def _live_report(self, name: str, agent: dict[str, Any], zive: dict[str, Any]) -> None:
+        """`live` z heartbeatu: inštancie a drivery si hub pamätá pri agentovi (prehľad),
+        `applied` a `secret_ack` idú do `DeployStore`."""
+        inst = [dict(i) for i in (zive.get("instances") or []) if isinstance(i, dict)][:200]
+        agent["live"] = {
+            "drivers": [str(d) for d in (zive.get("drivers") or [])],
+            "instances": inst,
+            "reported": self.clock(),
+        }
+        if self.deploy is not None:
+            self.deploy.report_applied(name, zive.get("applied") or [], zive.get("secret_ack") or [])
+
+    def live_state(self, name: str) -> dict[str, Any] | None:
+        """Čo agent naposledy hlásil o live inštanciách (heartbeat `live`), alebo None."""
+        with self._lock:
+            agent = self.agents.get(name)
+            return dict(agent.get("live") or {}) if agent and agent.get("live") else None
 
     def request_accept(self, name: str, value: bool) -> dict[str, Any]:
         """Správca hubu zapne alebo vypne prijímanie výpočtov na agentovi — agent si to
@@ -278,6 +308,10 @@ class HubState(TokensMixin, EventsMixin):
             "jobs": [{"id": j["id"], "kind": j["kind"], "status": j["status"],
                       "progress": j.get("progress"), "eta_seconds": j.get("eta_seconds")} for j in moje],
             "eta_free_1": P.eta_free(agent, 1, moje), "eta_free_all": P.eta_free(agent, P.ALL, moje),
+            # live nasadenia: ktoré platformy agent vie obsluhovať a koľko inštancií hlási
+            "live": {"drivers": list((agent.get("live") or {}).get("drivers") or []),
+                     "instances": len((agent.get("live") or {}).get("instances") or [])}
+            if agent.get("live") else None,
         }
 
     def _sweep(self) -> None:
@@ -581,4 +615,7 @@ class HubState(TokensMixin, EventsMixin):
                 "running": sum(1 for j in zive if j["status"] in ("assigned", "running", "cancelling")),
                 "jobs": [self._job_public(j) for j in zive],
                 "heartbeat_seconds": self.heartbeat_seconds,
+                # inštancie live stratégií, ktoré online agenti hlásia v heartbeate
+                "live_instances": sum(len((a.get("live") or {}).get("instances") or [])
+                                      for a in self.agents.values() if a.get("online")),
             }

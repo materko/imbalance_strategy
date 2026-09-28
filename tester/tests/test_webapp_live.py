@@ -7,6 +7,7 @@ stačí naplniť `LiveStore` v dočasnom adresári.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -365,3 +366,207 @@ def test_vlakno_zrkadla_sa_da_spustit_a_zastavit(tmp_path: Path):
         _t.sleep(0.01)
     m.stop()
     assert not m.running and m.ticks >= 1
+
+
+# --------------------------------------------------------------------------- #
+# fáza 2b: účty a nasadenia — proxy na hub, admin token, heslo nikde neostáva
+# --------------------------------------------------------------------------- #
+
+
+class _FakeDeployHub:
+    """Falošný hub pre `HubHttp`: pamätá si volania (metóda, cesta, token, telo) a odpovedá
+    ako hub — `admin` vyžaduje hlavný token, inak 403."""
+
+    def __init__(self, admin_token: str = "hlavny") -> None:
+        self.admin_token = admin_token
+        self.calls: list[tuple[str, str, str, dict | None]] = []
+        self.accounts = [{"id": "ic", "agent": "trade-pc", "platform": "mt5", "label": "IC", "login": "1", "server": "S",
+                          "terminal": "", "portable": False, "created": 1.0, "updated": 1.0, "by": "r", "secret_pending": False}]
+        self.deployments = [{"id": "d1", "account": "ic", "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p",
+                             "config": {"rrRatio": 3.0}, "config_hash": "h", "mode": "enabled", "active": True,
+                             "instance": "mt5_1-S_NAS100_3m_ibsnet", "agent": "trade-pc", "applied": None,
+                             "live": {"seen": False, "alive": False}}]
+
+    def handler(self, method: str, path: str, token: str, body: dict | None):
+        from tester.hub.client import HubError
+
+        self.calls.append((method, path, token, body))
+        if method in ("POST", "PATCH", "DELETE") and token != self.admin_token:
+            raise HubError(403, "len správca hubu (hlavný token)")
+        if path.startswith("/api/agents"):
+            return [{"name": "trade-pc", "online": True, "last_seen": "x", "live": {"drivers": ["mt5"], "instances": 0}}]
+        if path.startswith("/api/live/accounts"):
+            if method == "GET":
+                return self.accounts
+            if method == "DELETE":
+                return {"id": "ic", "deleted": True, "deployments": []}
+            return {**self.accounts[0], "secret_pending": bool((body or {}).get("password"))}
+        if path.startswith("/api/live/deployments/nie"):
+            raise HubError(404, "nasadenie neexistuje")
+        if path.startswith("/api/live/deployments"):
+            if method == "GET":
+                return self.deployments[0] if path.startswith("/api/live/deployments/") else self.deployments
+            if method == "DELETE":
+                return {"id": "d1", "deleted": False, "active": False}
+            return {**self.deployments[0], **{k: v for k, v in (body or {}).items() if k in ("mode", "profile", "config", "active")}}
+        if path.startswith("/api/live/audit"):
+            return [{"id": 1, "ts": 1.0, "by": "r", "action": "account_create", "account": "ic", "deployment": None, "old": None, "new": {}}]
+        if path.startswith("/api/live/export"):
+            return []
+        raise HubError(404, "Not Found")
+
+
+@pytest.fixture
+def deploy_app(tmp_path: Path, monkeypatch):
+    """Webapp s agent.json v tmp (admin token voliteľný) a `HubHttp` presmerovaným na falošný hub."""
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.hub import client as client_mod, config as hub_config
+    from tester.webapp.api import live as live_mod
+    from tester.webapp.app import create_app
+    from tester.webapp.runner import BacktestRunner
+    from tester.webapp.store import RunStore
+
+    live_dir = tmp_path / "live"
+    monkeypatch.setattr(live_mod, "LIVE_MIRROR", live_dir / "mirror.sqlite")
+    monkeypatch.setattr(live_mod, "LIVE_MIRROR_CURSOR", live_dir / "mirror_cursor.json")
+    monkeypatch.setattr(live_mod, "LIVE_CURSOR_WEBAPP", live_dir / "cursor_webapp.json")
+    for k in ("TRADEBOT_HUB_URL", "TRADEBOT_HUB_TOKEN", "TRADEBOT_HUB_NAME", "TRADEBOT_HUB_ADMIN_TOKEN"):
+        monkeypatch.delenv(k, raising=False)
+    cfg_path = tmp_path / "agent.json"
+    monkeypatch.setattr(hub_config, "AGENT_CONFIG", cfg_path)
+    hub = _FakeDeployHub()
+
+    class FakeHttp(client_mod.HubHttp):
+        def _call(self, method, path, data=None, content_type=None, timeout=None):
+            import json as _json
+
+            body = _json.loads(data) if data else None
+            out = hub.handler(method, path, self.token, body)
+            return _json.dumps(out).encode("utf-8"), "application/json"
+
+    monkeypatch.setattr(client_mod, "HubHttp", FakeHttp)
+
+    def make(admin: str = ""):
+        hub_config.save(hub_config.AgentConfig(name="notebook", hub_url="http://hub.test:8790", token="agent-token",
+                                               admin_token=admin), cfg_path)
+        store = RunStore(tmp_path / "runs")
+        runner = BacktestRunner(store, command_builder=lambda *a: ["python", "-c", "raise SystemExit(0)"])
+        return TestClient(create_app(store, runner))
+
+    return make, hub, tmp_path
+
+
+def test_deploy_proxy_len_na_citanie_bez_admin_tokenu(deploy_app):
+    make, hub, tmp = deploy_app
+    c = make(admin="")
+    assert c.get("/api/live").json()["deploy"] == {"configured": True, "hub_url": "http://hub.test:8790", "admin": False}
+    # čítanie ide tokenom agenta
+    assert c.get("/api/live/accounts").json()[0]["id"] == "ic"
+    assert c.get("/api/live/deployments").json()[0]["id"] == "d1"
+    assert c.get("/api/live/agents").json() == [{"name": "trade-pc", "online": True, "last_seen": "x",
+                                                 "live": {"drivers": ["mt5"], "instances": 0}}]
+    assert c.get("/api/live/audit").json()[0]["action"] == "account_create"
+    assert {t for _, _, t, _ in hub.calls} == {"agent-token"}
+    # mutácie bez admin tokenu: 403 so slovenskou radou, na hub nič neodíde
+    n = len(hub.calls)
+    for r in (c.post("/api/live/accounts", json={"agent": "trade-pc", "platform": "mt5", "login": "1"}),
+              c.patch("/api/live/accounts/ic", json={"label": "x"}),
+              c.delete("/api/live/accounts/ic"),
+              c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p"}),
+              c.patch("/api/live/deployments/d1", json={"mode": "paused"}),
+              c.delete("/api/live/deployments/d1")):
+        assert r.status_code == 403 and "admin_token" in r.json()["detail"]
+    assert len(hub.calls) == n
+
+
+def test_deploy_proxy_mutacie_admin_tokenom_a_heslo_nikde_neostane(deploy_app, monkeypatch):
+    make, hub, tmp = deploy_app
+    c = make(admin="hlavny")
+    assert c.get("/api/live").json()["deploy"]["admin"] is True
+    r = c.post("/api/live/accounts", json={"agent": "trade-pc", "platform": "mt5", "label": "IC", "login": "1", "server": "S",
+                                          "password": "SuperTajneHeslo42", "user": "Rasto P"})
+    assert r.status_code == 200 and r.json()["secret_pending"] is True and "SuperTajne" not in r.text
+    m, path, token, body = hub.calls[-1]
+    assert (m, token) == ("POST", "hlavny") and path == "/api/live/accounts?by=Rasto%20P"
+    assert body["password"] == "SuperTajneHeslo42" and "user" not in body     # na hub ide raz, v tele
+    # heslo nie je v žiadnom súbore webapp (zrkadlo, kurzory, agent.json, runs)
+    for f in tmp.rglob("*"):
+        if f.is_file():
+            assert b"SuperTajneHeslo42" not in f.read_bytes(), f
+    assert "SuperTajneHeslo42" not in json.dumps(c.get("/api/live/accounts").json())
+
+    assert c.patch("/api/live/accounts/ic", json={"label": "x", "password": "Druhe"}).status_code == 200
+    assert hub.calls[-1][0] == "PATCH" and hub.calls[-1][3] == {"label": "x", "password": "Druhe"}
+    assert c.delete("/api/live/accounts/ic?force=true&user=r").json()["deleted"] is True
+    assert hub.calls[-1][1] == "/api/live/accounts/ic?force=true&by=r"
+
+    # nasadenie: config sa z profilu poskladá vo webapp (repozitár + vlastné) a na hub ide hotový
+    r = c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsninja", "symbol": "MNQ 12-26", "tf": 3,
+                                             "profile": "multicharts_mnq_3m", "user": "r"})
+    assert r.status_code == 200
+    m, path, token, body = hub.calls[-1]
+    assert (m, path, token) == ("POST", "/api/live/deployments?by=r", "hlavny")
+    assert body["strategy"] == "ibsnet" and body["symbol"] == "MNQ 12-26" and "rrRatio" in body["config"] and body["mode"] == "enabled"
+    assert c.post("/api/live/deployments", json={"account": "ic", "strategy": "cudzia", "symbol": "X", "tf": 3, "profile": "p"}).status_code == 422
+    assert c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "X", "tf": 3, "profile": "nie-je"}).status_code == 422
+    assert c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "X", "tf": 3, "profile": ""}).status_code == 422
+    # patch: mode ide priamo; profil sa prekladá na config
+    assert c.patch("/api/live/deployments/d1", json={"mode": "paused", "user": "r"}).json()["mode"] == "paused"
+    assert hub.calls[-1][3] == {"mode": "paused"}
+    r = c.patch("/api/live/deployments/d1", json={"profile": "multicharts_mnq_3m"})
+    assert r.status_code == 200 and hub.calls[-1][3]["profile"] == "multicharts_mnq_3m" and "rrRatio" in hub.calls[-1][3]["config"]
+    assert hub.calls[-2][:2] == ("GET", "/api/live/deployments/d1")     # stratégia nasadenia sa vzala z hubu
+    assert c.patch("/api/live/deployments/nie", json={"profile": "multicharts_mnq_3m"}).status_code == 404
+    assert c.delete("/api/live/deployments/d1?user=r").json() == {"id": "d1", "deleted": False, "active": False}
+    assert hub.calls[-1][1] == "/api/live/deployments/d1?force=false&by=r"
+    # profily do výberu
+    p = c.get("/api/live/profiles?strategy=ibsnet").json()
+    assert "multicharts_mnq_3m" in p["profiles"] and p["strategy"] == "ibsnet"
+    assert c.get("/api/live/profiles?strategy=nie").status_code == 422
+
+
+def test_deploy_proxy_bez_hubu_a_stary_hub(deploy_app, monkeypatch):
+    make, hub, tmp = deploy_app
+    c = make(admin="hlavny")
+    from tester.hub.client import HubError
+
+    povodny = hub.handler
+
+    def stary(method, path, token, body):
+        if path.startswith("/api/live/accounts"):
+            raise HubError(404, "Not Found")
+        if path.startswith("/api/live/deployments"):
+            raise OSError("connection refused")
+        return povodny(method, path, token, body)
+
+    hub.handler = stary
+    r = c.get("/api/live/accounts")
+    assert r.status_code == 409 and "staršom kóde" in r.json()["detail"]
+    r = c.get("/api/live/deployments")
+    assert r.status_code == 502 and "nedostupný" in r.json()["detail"]
+
+    from tester.hub import config as hub_config
+
+    hub_config.AGENT_CONFIG.unlink()
+    assert c.get("/api/live").json()["deploy"] == {"configured": False, "hub_url": None, "admin": False}
+    assert c.get("/api/live/accounts").status_code == 404
+    assert c.post("/api/live/accounts", json={"agent": "a", "platform": "mt5", "login": "1"}).status_code == 404
+
+
+def test_admin_token_v_configu_a_prostredi(tmp_path: Path, monkeypatch):
+    from tester.hub import config as hub_config
+
+    for k in ("TRADEBOT_HUB_URL", "TRADEBOT_HUB_TOKEN", "TRADEBOT_HUB_ADMIN_TOKEN"):
+        monkeypatch.delenv(k, raising=False)
+    p = tmp_path / "agent.json"
+    hub_config.save(hub_config.AgentConfig(name="n", hub_url="http://h", token="t", admin_token="adm"), p)
+    cfg = hub_config.load(p)
+    assert cfg.admin_token == "adm" and cfg.public()["admin_token"] is True and cfg.public()["token"] is True
+    assert json.loads(p.read_text(encoding="utf-8"))["admin_token"] == "adm"
+    monkeypatch.setenv("TRADEBOT_HUB_ADMIN_TOKEN", "z-env")
+    assert hub_config.load(p).admin_token == "z-env"
+    hub_config.save(hub_config.AgentConfig(name="n", hub_url="http://h", token="t"), p)
+    monkeypatch.delenv("TRADEBOT_HUB_ADMIN_TOKEN")
+    assert hub_config.load(p).admin_token == "" and hub_config.load(p).public()["admin_token"] is False

@@ -41,6 +41,8 @@ ADAPTER_DIR = Path(__file__).resolve().parent
 ADAPTER_FILE = ADAPTER_DIR / "TradeBotStrategy.cs"
 #: AddOn (štartuje s NinjaTraderom, sonda behu bez človeka) — ide do `bin\\Custom\\AddOns\\TradeBot`.
 ADDON_FILE = ADAPTER_DIR / "TradeBotLiveAddOn.cs"
+#: Všetky zdrojáky AddOnu (supervízor + jedna inštancia enginu).
+ADDON_FILES = (ADDON_FILE, ADAPTER_DIR / "TradeBotLiveInstance.cs")
 #: Zdrojáky C# jadra, ktoré idú do NinjaTradera (hostiteľ pre stdio most nie).
 CORE_DIRS = ("TradeBot.Core", "TradeBot.Strategies")
 CONTROL_MODES = ("enabled", "paused", "flatten")
@@ -85,7 +87,7 @@ def check_sources() -> list[Path]:
     """Všetko, čo NinjaTrader po `install` prekladá: jadro, adaptér, AddOn, šablóny."""
     core = [f for d in CORE_DIRS for f in sorted((CSHARP_DIR / d).rglob("*.cs"))]
     templates = sorted(NINJATRADER_DIR.glob("*.cs"))
-    return [*core, ADAPTER_FILE, ADDON_FILE, *templates]
+    return [*core, ADAPTER_FILE, *ADDON_FILES, *templates]
 
 
 def check(nt_dir: Path) -> None:
@@ -139,7 +141,8 @@ def install(nt_dir: Path, extra_profiles: list[str]) -> None:
         shutil.rmtree(target)  # vlastný adresár adaptéra — zmazané zdrojáky jadra nesmú v NinjaTraderi ostať
     for d in CORE_DIRS:
         shutil.copytree(CSHARP_DIR / d, target / d)
-    shutil.copy2(ADDON_FILE, target / ADDON_FILE.name)
+    for f in ADDON_FILES:
+        shutil.copy2(f, target / f.name)
     shutil.copy2(ADAPTER_FILE, custom / "Strategies" / ADAPTER_FILE.name)
     for stale in STALE_TEMPLATES:   # šablóny spred premenovania by sa preložili, ale ich kľúč už engine nepozná
         (custom / "Strategies" / stale).unlink(missing_ok=True)

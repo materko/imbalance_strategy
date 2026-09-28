@@ -8,16 +8,22 @@
   "accept": true,                   // prijíma výpočty od hubu
   "send": true,                     // smie posielať výpočty (cli --remote)
   "max_parallel": 4,                // koľko behov naraz (strop; jadrá si agent zistí sám)
-  "heartbeat_seconds": 10
+  "heartbeat_seconds": 10,
+  "admin_token": ""                 // hlavný token hubu — len na webapp, ktorá spravuje live nasadenia
 }
 ```
+
+`admin_token` je hlavný (správcovský) token hubu: webapp ním posiela mutácie účtov a nasadení
+(karta Live, docs/LIVE.md fáza 2b). Bez neho je karta len na čítanie. Agent, ktorý má len
+počítať, ho nepotrebuje — a nemá ho mať.
 
 Meno je **statické a jednoznačné** — hub podľa neho pozná agenta cez reštarty aj výpadky
 siete a podľa neho vie, komu poslať hotový výsledok. Dvaja agenti s jedným menom sa
 na hub nedostanú (druhého odmietne, kým prvý žije).
 
 Premenné prostredia prebijú súbor (`TRADEBOT_HUB_URL`, `TRADEBOT_HUB_TOKEN`,
-`TRADEBOT_HUB_NAME`, `TRADEBOT_HUB_ACCEPT`, `TRADEBOT_HUB_SEND`, `TRADEBOT_HUB_MAX_PARALLEL`)
+`TRADEBOT_HUB_NAME`, `TRADEBOT_HUB_ACCEPT`, `TRADEBOT_HUB_SEND`, `TRADEBOT_HUB_MAX_PARALLEL`,
+`TRADEBOT_HUB_ADMIN_TOKEN`)
 — pre Docker a servery, kde sa súbor nechce písať.
 
 Stav agenta (`tester/agent_state.json`) je oddelený od konfigurácie: čo agent **poslal**
@@ -52,6 +58,8 @@ class AgentConfig:
     send: bool = True
     max_parallel: int = 0          # 0 = podľa jadier
     heartbeat_seconds: int = DEFAULT_HEARTBEAT
+    #: Hlavný token hubu pre mutácie live nasadení z webapp; prázdny = karta Live len na čítanie.
+    admin_token: str = ""
 
     def slots(self, cores: int | None = None) -> int:
         """Koľko behov naraz: strop z configu, inak jadrá stroja."""
@@ -62,6 +70,7 @@ class AgentConfig:
         """Bez tokenu — do API a na obrazovku."""
         d = asdict(self)
         d["token"] = bool(self.token)
+        d["admin_token"] = bool(self.admin_token)
         return d
 
 
@@ -94,6 +103,7 @@ def load(path: Path | None = None) -> AgentConfig | None:
         send=bool(data.get("send", True)) if send is None else send,
         max_parallel=int(getenv("HUB_MAX_PARALLEL") or data.get("max_parallel") or 0),
         heartbeat_seconds=int(data.get("heartbeat_seconds") or DEFAULT_HEARTBEAT),
+        admin_token=getenv("HUB_ADMIN_TOKEN") or str(data.get("admin_token") or ""),
     )
 
 

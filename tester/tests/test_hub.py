@@ -1845,3 +1845,164 @@ def test_agent_work_ships_live_spool_to_hub(hub_api, tmp_path: Path, monkeypatch
     zapis("20260928-100000_a1b2c3d4.jsonl", _live_bar(4, 2))
     srv.tick()
     assert srv.live_status()["active"] and live_store.cursor() == 4
+
+
+# --------------------------------------------------------------------------- #
+# live nasadenia (docs/LIVE.md, fáza 2b): účty, nasadenia, heartbeat `live`
+# --------------------------------------------------------------------------- #
+
+
+def _deploy_hub(tmp_path: Path):
+    """Hub s hlavným tokenom, agent `trade-pc` s vlastným tokenom, resolver profilov bez repozitára."""
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.hub.server import create_hub_app
+    from tradebot.live.deploy import DeployStore
+    from tradebot.live.store import LiveStore
+
+    clock = Clock()
+    state = HubState(tmp_path / "hub", token="hlavny", clock=clock)
+    t_agent = state.add_token("trade-pc")
+    live = LiveStore(tmp_path / "hub" / "live.sqlite", clock=clock)
+    deploy = DeployStore(live.path, clock=clock, config_resolver=lambda s, p: {"rrRatio": 3.0, "p": p},
+                         strategy_check=lambda k: k)
+    c = TestClient(create_hub_app(state, live_store=live, deploy_store=deploy))
+    c.post("/api/agents/register", headers={"Authorization": f"Bearer {t_agent}"},
+           json={"name": "trade-pc", "instance": "i1", "cores": 4, "slots": 4, "accept": True, "send": True})
+    return c, state, clock, t_agent, live
+
+
+def test_live_deploy_mutacie_len_spravca_a_citanie_ktokolvek(tmp_path: Path):
+    c, state, clock, t_agent, live = _deploy_hub(tmp_path)
+    H = lambda t: {"Authorization": f"Bearer {t}"}  # noqa: E731
+    ucet = {"agent": "trade-pc", "platform": "mt5", "label": "IC Demo", "login": "5012345", "server": "ICMarkets-Demo",
+            "password": "tajne"}
+    assert c.post("/api/live/accounts", json=ucet).status_code == 401
+    assert c.post("/api/live/accounts", json=ucet, headers=H(t_agent)).status_code == 403     # token agenta
+    r = c.post("/api/live/accounts?by=rasto", json=ucet, headers=H("hlavny"))
+    assert r.status_code == 200
+    acc = r.json()
+    assert acc["id"] == "ic-demo" and acc["by"] == "rasto" and acc["secret_pending"] is True and "tajne" not in r.text
+    assert c.get("/api/live/accounts", headers=H(t_agent)).json()[0]["id"] == "ic-demo"      # čítanie hocikto
+    assert c.get("/api/live/accounts/ic-demo", headers=H(t_agent)).json()["login"] == "5012345"
+    assert c.get("/api/live/accounts/nie", headers=H(t_agent)).status_code == 404
+    assert c.patch("/api/live/accounts/ic-demo", json={"label": "x"}, headers=H(t_agent)).status_code == 403
+    assert c.patch("/api/live/accounts/nie", json={"label": "x"}, headers=H("hlavny")).status_code == 404
+    assert c.patch("/api/live/accounts/ic-demo", json={"label": "IC Demo 2"}, headers=H("hlavny")).json()["label"] == "IC Demo 2"
+    assert c.post("/api/live/accounts", json={"agent": "a", "platform": "mt5"}, headers=H("hlavny")).status_code == 422
+
+    dep = {"account": "ic-demo", "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p1"}
+    assert c.post("/api/live/deployments", json=dep, headers=H(t_agent)).status_code == 403
+    r = c.post("/api/live/deployments?by=rasto", json=dep, headers=H("hlavny"))
+    assert r.status_code == 200
+    d = r.json()
+    assert d["instance"] == "mt5_5012345-ICMarkets-Demo_NAS100_3m_ibsnet" and d["config"] == {"rrRatio": 3.0, "p": "p1"}
+    assert d["applied"] is None and d["live"]["seen"] is False and d["agent"] == "trade-pc"
+    assert c.post("/api/live/deployments", json=dep, headers=H("hlavny")).status_code == 409            # duplicitná inštancia
+    assert c.post("/api/live/deployments", json={**dep, "account": "nie"}, headers=H("hlavny")).status_code == 404
+    assert c.post("/api/live/deployments", json={**dep, "symbol": "ES", "mode": "zle"}, headers=H("hlavny")).status_code == 422
+    assert c.patch(f"/api/live/deployments/{d['id']}", json={"mode": "paused"}, headers=H(t_agent)).status_code == 403
+    assert c.patch(f"/api/live/deployments/{d['id']}", json={"mode": "paused"}, headers=H("hlavny")).json()["mode"] == "paused"
+    assert c.patch(f"/api/live/deployments/{d['id']}", json={"symbol": "ES"}, headers=H("hlavny")).status_code == 200  # ignorované pole modelu
+    assert c.patch("/api/live/deployments/nie", json={"mode": "paused"}, headers=H("hlavny")).status_code == 404
+    assert c.get(f"/api/live/deployments/{d['id']}", headers=H(t_agent)).json()["mode"] == "paused"
+    assert c.delete(f"/api/live/deployments/{d['id']}", headers=H(t_agent)).status_code == 403
+    assert c.delete("/api/live/accounts/ic-demo", headers=H("hlavny")).status_code == 409          # má nasadenia
+    assert c.delete("/api/live/accounts/ic-demo", headers=H(t_agent)).status_code == 403
+    assert c.get("/api/live/audit", headers=H(t_agent)).json()[0]["action"] == "deployment_update"
+    assert c.get("/api/live/audit", headers=H("zle")).status_code == 401
+    assert len(state.events(event="live_deployment")) == 3      # create + 2× PATCH v logu hubu
+
+    assert c.delete(f"/api/live/deployments/{d['id']}", headers=H("hlavny")).json() == {"id": d["id"], "deleted": False, "active": False}
+    assert c.delete(f"/api/live/deployments/{d['id']}?force=true", headers=H("hlavny")).json()["deleted"] is True
+    assert c.delete("/api/live/accounts/ic-demo", headers=H("hlavny")).json()["deleted"] is True
+    assert c.get("/api/live/accounts", headers=H(t_agent)).json() == []
+
+
+def test_live_deploy_heartbeat_nesie_pozadovany_stav_a_prijme_applied(tmp_path: Path):
+    """Agent v heartbeate dostane `live` (účty so `secret`, nasadenia s `config`) len svoje; čo pošle
+    v `live` (applied, secret_ack, instances, drivers) hub uloží a heslo po potvrdení zmaže."""
+    c, state, clock, t_agent, live = _deploy_hub(tmp_path)
+    H = lambda t: {"Authorization": f"Bearer {t}"}  # noqa: E731
+    t_iny = state.add_token("iny-pc")
+    c.post("/api/agents/register", headers=H(t_iny), json={"name": "iny-pc", "instance": "i2", "cores": 1, "slots": 1})
+    c.post("/api/live/accounts", json={"agent": "trade-pc", "platform": "mt5", "label": "IC", "login": "1", "server": "S",
+                                       "password": "tajne"}, headers=H("hlavny"))
+    c.post("/api/live/accounts", json={"agent": "iny-pc", "platform": "ninjatrader", "label": "NT", "login": "Sim101"},
+           headers=H("hlavny"))
+    d = c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p1"},
+               headers=H("hlavny")).json()
+
+    # starý agent (bez `live` v tele): odpoveď `live` má aj tak, nič nepadá
+    hb = c.post("/api/agents/trade-pc/heartbeat", json={"jobs": []}, headers=H(t_agent)).json()
+    assert [a["id"] for a in hb["live"]["accounts"]] == ["ic"] and hb["live"]["accounts"][0]["secret"] == "tajne"
+    assert [x["id"] for x in hb["live"]["deployments"]] == [d["id"]] and hb["live"]["deployments"][0]["config"] == {"rrRatio": 3.0, "p": "p1"}
+    hb2 = c.post("/api/agents/iny-pc/heartbeat", json={"jobs": []}, headers=H(t_iny)).json()
+    assert [a["id"] for a in hb2["live"]["accounts"]] == ["nt"] and "secret" not in hb2["live"]["accounts"][0]
+    assert hb2["live"]["deployments"] == []
+    assert state.live_state("trade-pc") is None
+
+    # nový agent: applied + secret_ack + instances + drivers
+    telo = {"jobs": [], "live": {
+        "drivers": ["mt5"],
+        "instances": [{"instance": d["instance"], "session": "a1b2c3d4", "last_t": 5, "last_bar_ms": 4, "mode": "enabled", "profile": "p1"}],
+        "applied": [{"deployment": d["id"], "config_hash": d["config_hash"], "mode": "enabled", "status": "ok", "error": ""}],
+        "secret_ack": ["ic"],
+    }}
+    hb = c.post("/api/agents/trade-pc/heartbeat", json=telo, headers=H(t_agent)).json()
+    assert "secret" not in hb["live"]["accounts"][0]                       # potvrdené v tom istom heartbeate
+    st = state.live_state("trade-pc")
+    assert st["drivers"] == ["mt5"] and st["instances"][0]["instance"] == d["instance"] and st["reported"] == clock()
+    assert c.get("/api/live/accounts/ic", headers=H(t_agent)).json()["secret_pending"] is False
+    dep = c.get(f"/api/live/deployments/{d['id']}", headers=H(t_agent)).json()
+    assert dep["applied"]["status"] == "ok" and dep["applied"]["config_hash"] == d["config_hash"] and dep["applied"]["agent"] == "trade-pc"
+    ov = c.get("/api/status", headers=H("hlavny")).json()
+    assert ov["live_instances"] == 1
+    ag = {a["name"]: a for a in c.get("/api/agents", headers=H("hlavny")).json()}
+    assert ag["trade-pc"]["live"] == {"drivers": ["mt5"], "instances": 1} and ag["iny-pc"]["live"] is None
+    # cudzí agent nemôže potvrdiť cudzie nasadenie
+    c.post("/api/agents/iny-pc/heartbeat", json={"jobs": [], "live": {"applied": [{"deployment": d["id"], "status": "error", "error": "x"}]}},
+           headers=H(t_iny))
+    assert c.get(f"/api/live/deployments/{d['id']}", headers=H(t_agent)).json()["applied"]["status"] == "ok"
+    # stav agenta prežije reštart hubu (state.json)
+    znovu = HubState(tmp_path / "hub", token="hlavny", clock=clock)
+    assert znovu.live_state("trade-pc")["drivers"] == ["mt5"]
+
+
+def test_live_deploy_zoznam_spaja_applied_a_instanciu_zo_spoolu(tmp_path: Path):
+    c, state, clock, t_agent, live = _deploy_hub(tmp_path)
+    H = lambda t: {"Authorization": f"Bearer {t}"}  # noqa: E731
+    c.post("/api/live/accounts", json={"agent": "trade-pc", "platform": "ninjatrader", "label": "Sim", "login": "Sim101"},
+           headers=H("hlavny"))
+    d = c.post("/api/live/deployments", json={"account": "sim", "strategy": "ibsnet", "symbol": "MNQ 12-26", "tf": 3, "profile": "p"},
+               headers=H("hlavny")).json()
+    assert d["instance"] == LIVE_INST
+    # udalosti zo spoolu pod tou istou inštanciou: `live` v nasadení ožije
+    t_bar = _live_bar(2, 0)
+    c.post("/api/live/events", json={"agent": "trade-pc", "batches": [{"instance": LIVE_INST, "session": "a1b2c3d4",
+                                                                       "events": [_live_hello(), t_bar]}]}, headers=H(t_agent))
+    clock.t = t_bar["t"] / 1000.0 + 60          # minútu po poslednej udalosti → do 3 barov × 3 min
+    rows = c.get("/api/live/deployments", headers=H(t_agent)).json()
+    assert len(rows) == 1 and rows[0]["live"] == {"seen": True, "alive": True, "last_t": t_bar["t"], "last_bar_ms": t_bar["bt"],
+                                                  "session": "a1b2c3d4", "profile": "p", "host": "PC"}
+    assert rows[0]["applied"] is None
+    clock.t = t_bar["t"] / 1000.0 + 20 * 60      # 20 min ticho → seen, ale nie alive
+    assert c.get("/api/live/deployments?agent=trade-pc", headers=H(t_agent)).json()[0]["live"]["alive"] is False
+    assert c.get("/api/live/deployments?agent=nikto", headers=H(t_agent)).json() == []
+    assert c.get("/api/live/deployments?account=sim", headers=H(t_agent)).json()[0]["id"] == d["id"]
+    # applied s iným hashom = drift, ktorý stránka ukáže; hub ho len nesie
+    c.post("/api/agents/trade-pc/heartbeat", json={"jobs": [], "live": {"applied": [
+        {"deployment": d["id"], "config_hash": "stary", "mode": "enabled", "status": "ok"}]}}, headers=H(t_agent))
+    row = c.get("/api/live/deployments", headers=H(t_agent)).json()[0]
+    assert row["applied"]["config_hash"] == "stary" != row["config_hash"]
+
+
+def test_hub_app_deploy_store_v_tom_istom_subore_ako_live(tmp_path: Path):
+    pytest.importorskip("fastapi")
+    from tester.hub.server import create_hub_app
+
+    state = HubState(tmp_path / "hub", token="t", clock=Clock())
+    app = create_hub_app(state)
+    assert app.state.deploy.path == app.state.live.path == tmp_path / "hub" / "live.sqlite"
+    assert state.deploy is app.state.deploy

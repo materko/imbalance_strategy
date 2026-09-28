@@ -288,6 +288,90 @@ terminálov (`/portable`).
 - Chart z `[StartUp]` s `InpTelemetry` posiela bary, kresby a `control` do spoolu; s `AllowLiveTrading=0`
   by vstupy padli na `TRADE_RETCODE_*` — na živé obchodovanie treba `AllowLiveTrading=1` a demo účet.
 
+## Nasadenie z hubu (driver)
+
+Fáza 2b z docs/LIVE.md: hub nesie účty a nasadenia, agent (`tester.hub agent`, aj webapp agent) ich v pomalom
+vlákne zosúlaďuje cez `tradebot.live.apply.Reconciler` a driver `tradebot/live/drivers/mt5.py`. Driver je
+jediné miesto, ktoré vie, že ide o MetaTrader; hub ani reconciler platformu menom nepoznajú.
+
+**Jeden účet = jedna inštancia terminálu.** Účet bez `terminal` beží v nainštalovanom termináli stroja
+(`TRADEBOT_MT5_TERMINAL`, inak `origin.txt` dátového adresára, inak Program Files); účet s `terminal`
+(cesta k `terminal64.exe` alebo k adresáru) v tom; účet s `portable` a bez `terminal` dostane **portable
+kópiu** v `tester/live/mt5/<account>/terminal/` (`terminal64.exe` + `Config`, `Profiles`, `Sounds` z inštalácie,
+bez `Bases` a MetaEditora — ~120 MB; k tomu `MQL5\Libraries\TradeBot.dll`, `Include\TradeBot`, `Experts\TradeBot`,
+`Presets` a `config\servers.dat` zo zdrojového terminálu) a štartuje sa s `/portable`. `Common\Files` je
+spoločný pre všetky terminály, profily/control/spool teda ostávajú na jednom mieste. Portable kópia je
+neoverená (na tomto stroji je jeden účet).
+
+Čo driver pre účet drží v `tester/live/mt5/<account>/` (gitignored):
+
+| súbor | čo |
+|---|---|
+| `start.ini` | `[Common] Login/Server[/Password]`, `[Charts] ProfileLast=tradebot`, `[Experts] AllowLiveTrading=1 AllowDllImport=1 Enabled=1` (`TRADEBOT_MT5_ALLOW_LIVE_TRADING=0` = bez obchodovania, na skúšky) |
+| `terminal.pid` | PID a čas štartu procesu, ktorý driver spustil |
+| `charts.json` | manifest grafov, ktoré má profil `tradebot` mať (symbol, TF, EA, profil, magic, `config_hash`) |
+| `driver.log` | čo driver s terminálom robil (štart, zavretie, prepis profilu, control) |
+
+Heslo účtu príde z hubu raz (`secret_pending`), agent ho uloží **DPAPI** na tohto používateľa a stroj
+(`tester/live/secrets/<account>.bin`, `CryptProtectData` cez ctypes) a hubu ackne; do `start.ini` ide len
+na štart a po 30 s od štartu ho driver z ini zmaže. Účet, ktorý je v termináli už prihlásený s uloženým
+heslom, heslo v ini nepotrebuje (tak bežal aj test nižšie).
+
+**Grafy = profil grafov terminálu**, nie `[StartUp]` (ten pripne jeden EA a po reštarte sa neobnoví).
+Driver generuje `MQL5\Profiles\Charts\tradebot\chartNN.chr` + `order.wnd` presne v tvare, v akom ich
+terminál build 6230 sám ukladá (UTF-16 LE s BOM, CRLF; `<chart>` hlavička so `symbol`, `period_type`/`period_size`
+— 0 = minúty, 1 = hodiny, 2 = dni —, `<expert>` s `name`, `path=Experts\TradeBot\<Šablóna>.ex5`, `expertmode=4`
+a `<inputs>`, `<window>` s indikátorom `Main`), jeden súbor na nasadenie. Šablóna EA sa berie z
+`#define TRADEBOT_ENGINE_KEY` v `deploy/mt5/*.mq5` (`ibsnet` → `IBSNet`), inputy z `input` deklarácií
+v `TradeBotEA.mqh`, cez ne `presets/<Šablóna>_live.set` (posun servera `InpServerGmtOffsetMin=180` pre FTMO…)
+a nakoniec to, čo určuje driver: `InpProfile=<profil nasadenia>`, `InpMagic` deterministicky z id nasadenia
+(`magic_for`, sha256 → 100 000 … 2·10⁹), `InpTelemetry=true`, `InpExportSignals=false`, screenshot vypnutý.
+Terminál profil otvorí vďaka `[Charts] ProfileLast=tradebot` v `/config:` ini (CLI prepínač `/profile:` nebol
+potrebný; `config\common.ini` terminálu ostáva na `ProfileLast=Default`, ručný štart terminálu bez ini teda
+otvorí pôvodný profil človeka). Pri vypnutí si terminál profil `tradebot` prepíše (objekty engine-u,
+prečíslovanie) — driver preto zhodu neposudzuje textovo, ale podľa toho, čo v `.chr` je (symbol, perióda,
+cesta EA, `InpProfile`, `InpMagic`), a k tomu `config_hash` z manifestu.
+
+Čo sa kedy deje (`ensure_instance`, každé kolo reconcilera = každý heartbeat):
+
+- terminál beží a grafy sedia → nič (len prípadné zmazanie hesla z ini);
+- terminál nebeží (pád, človek ho zavrel), grafy sedia → len štart s ini, profil sa neprepisuje;
+- iná množina grafov (nové nasadenie, `active: false`, zmenený `config_hash` profilu s rovnakým názvom —
+  EA si profil načíta len pri štarte, zmena názvu profilu ide bez reštartu cez control súbor) → slušne zavrieť
+  terminál (`taskkill /PID` bez `/F`, opakuje sa každých 10 s, natvrdo až po 60 s; EA dostane `OnDeinit`,
+  spool `bye`), prepísať profil, zmazať control súbory grafov, ktoré zmizli, spustiť znova;
+- bez aktívneho nasadenia → terminál sa zavrie a nespúšťa; cudzí terminál z toho istého `exe` (spustený
+  človekom bez ini) sa pred štartom s ini slušne zavrie (iné portable kópie sa nepočítajú — hľadá sa podľa
+  cesty procesu).
+
+Režim (`paused`/`enabled`/`flatten`) a zmena názvu profilu idú cez `control\<inštancia>.json` (sekcia vyššie),
+bez reštartu; nezmenený obsah sa neprepisuje (EA číta podľa mtime). Profil nasadenia (snímka configu z hubu)
+ide do `Common\Files\TradeBot\profiles\<kľúč>\<profil>.json` v tvare `install`/`profiles` (`_strategy`,
+`_instrument`, `_source: hub:<id>`, config), rovnaký obsah sa neprepisuje.
+
+**Overené 28. 9. 2026** (build 6230, FTMO-Demo 1514750898 v nainštalovanom termináli, `AllowLiveTrading=0`,
+požadovaný stav zapísaný priamo do `Reconciler.run` namiesto hubu):
+
+- dve nasadenia (IBSNet `US100.cash` M1 `golden_binance_btcusdt_3m`, IBSNet `EURUSD` M5 `multicharts_mnq_3m`,
+  obe `paused`) → vygenerovaný profil s dvoma grafmi, terminál spustený s ini; log terminálu
+  „successfully initialized from start config …\start.ini“, „expert IBSNet (EURUSD,M5) loaded successfully“,
+  „expert IBSNet (US100.cash,M1) loaded successfully“ (1 s po štarte); Experts log „server UTC+3.0h“ (z live
+  presetu), „TradeBot control: … (existuje), rezim paused (control)“; v spoole oboch inštancií nová session
+  s `hello` a `control paused (control)`;
+- `mode: enabled` pre US100 → control súbor prepísaný, do 0,3 s v spoole `control enabled … (control)`,
+  terminál bez reštartu (ten istý PID);
+- `active: false` pre EURUSD → control EURUSD zmazaný, „zatváram terminál PID … (taskkill bez /F)“, „shutdown
+  with 0“ za 2 s, profil s jedným grafom, nový štart, len „expert IBSNet (US100.cash,M1) loaded“, EURUSD spool
+  končí `bye deinit`;
+- to isté kolo znova → žiadna akcia; terminál zavretý ručne (`taskkill`) → prepísal profil (`objects=73`),
+  driver ho vyhodnotil ako zhodný a terminál len spustil (bez „profil grafov“ v `driver.log`);
+- nasadenia zmizli z hubu → control súbory zmazané, terminál zavretý, profil bez grafov, nič sa nespúšťa.
+  Pasca: slušné zavretie terminálu, ktorý štartoval pred 2 s, prvý `taskkill` nevidí (ešte nemá okno) —
+  preto sa opakuje.
+
+Neoverené: portable kópia (viac účtov na jednom stroji), heslo v ini pri prvom prihlásení, `AllowLiveTrading=1`
+so skutočnými vstupmi, správanie EA s otvorenou pozíciou pri reštarte terminálu kvôli zmene configu.
+
 ## Záloha bez .NET importu
 
 Keby import zlyhal (MT5 pod Wine na macu), `TradeBot.Host.exe` už hovorí JSON riadkami cez stdio

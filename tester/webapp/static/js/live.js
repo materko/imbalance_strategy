@@ -11,6 +11,7 @@
 // maže) a nakreslené tým istým `objectTraces` ako graf behu, vyplnenia ako značky.
 // Behy: každý štart stratégie je nová session; výber „Beh" v detaile načíta snapshot so
 // `session=` (celý beh, do 5000 barov). Ukončený beh sa neobnovuje, živý áno.
+// Účty a nasadenia (fáza 2b, dole v súbore) idú vždy na hub cez proxy webapp.
 // --------------------------------------------------------------------------- //
 
 const LIVE_POLL_MS = 5000;
@@ -24,7 +25,7 @@ const LIVE_DRAW_FIELD = { x1_ms: "x1", x2_ms: "x2", x_ms: "x", fill_color: "fc",
   text: "tx", above: "ab", bg_color: "bg", zone_uid: "z" };
 
 const lv = {
-  timer: null, selected: null, instances: [], now: 0, mirror: null,
+  timer: null, selected: null, instances: [], now: 0, mirror: null, deploy: null,
   snap: null, seq: 0,
   session: "", sessions: [], sessionsKey: "", // vybraný beh ("" = aktuálny naprieč behmi) a zoznam behov inštancie
   strategy: null, L: null, layers: {},       // kontext kresieb pre objectTraces (ako `pc` pri behu)
@@ -50,7 +51,7 @@ function liveAge(ms, now) {
 function stopLive() { clearTimeout(lv.timer); lv.timer = null; }
 
 function liveSetup() {
-  $("#live-back").onclick = () => { lv.selected = null; renderLiveList(); $("#live-detail").hidden = true; $("#live-list").hidden = false; };
+  $("#live-back").onclick = () => { lv.selected = null; renderLiveList(); $("#live-detail").hidden = true; $("#live-list").hidden = false; $("#live-deploy").hidden = false; };
   $("#live-session").onchange = async e => {
     lv.session = e.target.value; lv.snap = null;
     if (!lv.selected) return;
@@ -60,7 +61,7 @@ function liveSetup() {
     finally { $("#live-chart").classList.remove("loading"); }
   };
   // chip pri záložke hneď po štarte — bez otvárania karty
-  api("/api/live").then(d => { lv.instances = d.instances; lv.now = d.now; lv.mirror = d.mirror; liveChip(); }).catch(() => {});
+  api("/api/live").then(d => { lv.instances = d.instances; lv.now = d.now; lv.mirror = d.mirror; lv.deploy = d.deploy; liveChip(); }).catch(() => {});
 }
 
 /** Inštancia je „živá", keď posledná udalosť nie je staršia než 3 bary jej TF. */
@@ -80,7 +81,7 @@ async function loadLive() {
   if (document.hidden) { lv.timer = setTimeout(loadLive, LIVE_POLL_MS); return; }
   try {
     const d = await api("/api/live");
-    lv.instances = d.instances; lv.now = d.now; lv.mirror = d.mirror;
+    lv.instances = d.instances; lv.now = d.now; lv.mirror = d.mirror; lv.deploy = d.deploy;
     $("#live-error").hidden = true;
   } catch (e) {
     $("#live-error").textContent = e.message; $("#live-error").hidden = false;
@@ -91,6 +92,8 @@ async function loadLive() {
   renderLiveStatus();
   await Promise.all(lv.instances.map(i => loadLiveFills(i.id).catch(() => {})));
   renderLiveList();
+  // účty a nasadenia z hubu (fáza 2b) — len keď je zoznam na obrazovke, detail ich nepotrebuje
+  if (!lv.selected) await loadLiveDeploy().catch(e => { $("#ld-error").textContent = e.message; $("#ld-error").hidden = false; });
   if (lv.selected) {
     // zoznam behov je lacný — obnoví sa vždy (nový štart pribudne, živý sa ukončí); detail len keď sa mení
     await loadLiveSessions(lv.selected).catch(() => {});
@@ -206,7 +209,7 @@ async function openLiveDetail(id) {
   lv.session = ""; lv.sessions = []; lv.sessionsKey = "";
   $("#live-session").innerHTML = `<option value="">aktuálny / živý</option>`;
   $("#live-session-meta").hidden = true;
-  $("#live-list").hidden = true; $("#live-detail").hidden = false;
+  $("#live-list").hidden = true; $("#live-deploy").hidden = true; $("#live-detail").hidden = false;
   $("#live-detail-error").hidden = true;
   $("#live-title").textContent = id;
   $("#live-chart").classList.add("loading");
@@ -394,4 +397,291 @@ function renderLiveStats(stats) {
   if (!stats || !Object.keys(stats).length) { $("#live-stats").innerHTML = `<div class="muted">engine ešte nič nehlásil (píše sa pri ukončení)</div>`; return; }
   $("#live-stats").innerHTML = `<table class="runs"><tbody>${Object.entries(stats).map(([k, v]) =>
     `<tr class="plain"><td>${esc(k)}</td><td class="num">${typeof v === "number" ? fmtPrice(v) : esc(v)}</td></tr>`).join("")}</tbody></table>`;
+}
+
+// --------------------------------------------------------------------------- //
+// Fáza 2b: účty a nasadenia (docs/LIVE.md) — požadovaný stav na hube vs. čo agent aplikoval
+//
+// Webapp nič nezrkadlí, každé načítanie ide cez `/api/live/accounts|deployments|agents|audit`
+// na hub. Mutácie len s admin tokenom (`deploy.admin` v `/api/live`); bez neho sú tlačidlá
+// vypnuté a v hlavičke je chip „len na čítanie". Tabuľky sa prekresľujú len keď sa dáta
+// zmenili, nech obnova každých 5 s nezavrie rozbalený výber.
+// --------------------------------------------------------------------------- //
+
+const ld = {
+  admin: false, configured: false, accounts: [], deployments: [], agents: [],
+  key: "", auditKey: "", profiles: {},   // profily podľa stratégie (cache pre výber)
+  formsReady: false,
+};
+
+const LD_MODE_LABEL = { enabled: "obchoduje", paused: "pauza", flatten: "flatten" };
+
+function ldUser() { return typeof currentUser === "function" ? currentUser() : null; }
+
+/** Načíta účty, nasadenia a agentov z hubu (cez webapp); hub mimo → chyba v sekcii, tabuľky ostanú. */
+async function loadLiveDeploy() {
+  const d = lv.deploy || {};
+  ld.admin = !!d.admin; ld.configured = !!d.configured;
+  $("#ld-readonly").hidden = ld.admin;
+  if (!ld.configured) {
+    $("#ld-error").textContent = "hub nie je nastavený — účty a nasadenia žijú na hube (karta Hub)";
+    $("#ld-error").hidden = false;
+    return;
+  }
+  try {
+    const [accounts, deployments, agents] = await Promise.all([
+      api("/api/live/accounts"), api("/api/live/deployments"), api("/api/live/agents").catch(() => ld.agents),
+    ]);
+    ld.accounts = accounts; ld.deployments = deployments; ld.agents = agents;
+    $("#ld-error").hidden = true;
+  } catch (e) {
+    $("#ld-error").textContent = `hub: ${e.message}`; $("#ld-error").hidden = false;
+    return;
+  }
+  renderLiveDeploy();
+  if ($("#ld-audit-box").open) loadLiveAudit().catch(() => {});
+}
+
+function ldStatusChip(dep) {
+  const a = dep.applied, live = dep.live || {};
+  if (!dep.active) {
+    return a && a.status === "removed" ? `<span class="chip" title="agent inštanciu z platformy odstránil">odstránené</span>`
+      : `<span class="chip warn" title="čaká, kým agent inštanciu z platformy odstráni">odstraňuje sa</span>`;
+  }
+  if (a && a.status === "error") return `<span class="chip bad" title="${esc(a.error || "")}">chyba</span>`;
+  if (!a) return `<span class="chip warn" title="agent nasadenie ešte nepotvrdil">čaká</span>`;
+  if (a.config_hash !== dep.config_hash || a.mode !== dep.mode || a.status === "pending") {
+    const co = [];
+    if (a.config_hash !== dep.config_hash) co.push("profil");
+    if (a.mode !== dep.mode) co.push("režim");
+    if (a.status === "pending") co.push("čaká na flat");
+    return `<span class="chip warn" title="agent ešte neaplikoval: ${esc(co.join(", "))}">čaká</span>`;
+  }
+  if (live.alive) return `<span class="chip ok" title="inštancia v spoole žije (udalosť do 3 barov)">živá</span>`;
+  return `<span class="chip" title="${live.seen ? "aplikované, ale spool je ticho dlhšie než 3 bary" : "aplikované, inštancia v spoole ešte nie je"}">ok</span>`;
+}
+
+function ldAppliedCell(dep) {
+  const a = dep.applied;
+  if (!a) return `<span class="muted">—</span>`;
+  const hashOk = a.config_hash === dep.config_hash;
+  const modeOk = a.mode === dep.mode;
+  const err = a.status === "error" ? ` <span class="small err" title="${esc(a.error || "")}">${esc((a.error || "").slice(0, 60))}</span>` : "";
+  return `<span title="hash ${esc(a.config_hash || "—")}" class="${hashOk ? "" : "err"}">${hashOk ? "profil ✓" : "profil ≠"}</span>
+    · <span class="${modeOk ? "" : "err"}">${esc(LD_MODE_LABEL[a.mode] || a.mode || "—")}</span>
+    <span class="muted small">${a.ts ? liveAge(a.ts * 1000, lv.now) : ""}</span>${err}`;
+}
+
+function renderLiveDeploy() {
+  const accById = Object.fromEntries(ld.accounts.map(a => [a.id, a]));
+  const deps = ld.deployments;
+  const key = JSON.stringify([ld.admin, ld.accounts, Object.keys(ld.profiles),
+    deps.map(d => [d.id, d.mode, d.active, d.config_hash, d.profile, d.applied, d.live && d.live.alive, d.live && d.live.last_bar_ms])]);
+  const instances = new Set(lv.instances.map(i => i.id));
+  if (key !== ld.key) {
+    ld.key = key;
+    $("#ld-dep-count").textContent = deps.length ? String(deps.filter(d => d.active).length) : "";
+    $("#ld-empty").hidden = !!deps.length;
+    $("#ld-deployments").parentElement.hidden = !deps.length;
+    $("#ld-deployments tbody").innerHTML = deps.map(d => {
+      const acc = accById[d.account] || {};
+      const live = d.live || {};
+      const dis = ld.admin && d.active ? "" : "disabled";
+      const inst = instances.has(d.instance)
+        ? `<a href="#" data-inst="${esc(d.instance)}" title="otvoriť detail inštancie">${esc(d.instance)}</a>`
+        : `<span class="muted" title="v zrkadle zatiaľ nie je">${esc(d.instance)}</span>`;
+      return `<tr class="plain" data-dep="${esc(d.id)}">
+        <td>${ldStatusChip(d)}</td>
+        <td title="${esc(acc.agent || "")}">${esc(acc.label || d.account)} <span class="muted small">${esc(acc.agent || "")}</span></td>
+        <td>${esc(d.strategy)}</td><td><b>${esc(d.symbol)}</b></td><td>${d.tf}m</td>
+        <td><select class="small ld-profile" ${dis} title="zmena profilu: aplikuje sa, až keď je stratégia bez pozície">${ldProfileOptions(d.strategy, d.profile)}</select></td>
+        <td><span class="chip ${d.mode === "enabled" ? "ok" : (d.mode === "flatten" ? "bad" : "warn")}">${esc(LD_MODE_LABEL[d.mode] || d.mode)}</span></td>
+        <td>${ldAppliedCell(d)}</td>
+        <td>${inst}${live.host ? ` <span class="muted small">${esc(live.host)}</span>` : ""}</td>
+        <td title="${live.last_bar_ms ? utc(live.last_bar_ms) + " UTC" : ""}">${live.last_bar_ms ? liveAge(live.last_bar_ms, lv.now) : "—"}</td>
+        <td class="ld-actions" style="white-space:nowrap">
+          ${d.mode === "enabled" ? `<button class="small" data-mode="paused" ${dis} title="nové vstupy sa neposielajú; SL/TP bežia ďalej">pauza</button>`
+                                 : `<button class="small" data-mode="enabled" ${dis}>zapnúť</button>`}
+          <button class="small danger" data-mode="flatten" ${dis} title="zrušiť čakajúce vstupy a zavrieť pozíciu, potom pauza">flatten</button>
+          <button class="small ghost danger" data-del="1" ${ld.admin ? "" : "disabled"} title="${d.active ? "vypnúť (agent odstráni z platformy), po potvrdení zmazať" : "zmazať z hubu"}">${d.active ? "odstrániť" : "zmazať"}</button>
+        </td></tr>`;
+    }).join("");
+    for (const tr of $$("#ld-deployments tbody tr")) {
+      const id = tr.dataset.dep;
+      for (const b of tr.querySelectorAll("button[data-mode]")) b.onclick = () => ldSetMode(id, b.dataset.mode);
+      const del = tr.querySelector("button[data-del]"); if (del) del.onclick = () => ldDelete(id);
+      const sel = tr.querySelector("select.ld-profile"); if (sel) sel.onchange = () => ldSetProfile(id, sel);
+      const a = tr.querySelector("a[data-inst]"); if (a) a.onclick = e => { e.preventDefault(); openLiveDetail(a.dataset.inst); };
+    }
+    renderLiveAccounts(deps);
+    // profily stratégií v tabuľke — po načítaní sa riadky prekreslia s celou ponukou
+    for (const s of new Set(deps.map(d => d.strategy))) ldLoadProfiles(s).catch(() => {});
+  }
+  if (!ld.formsReady) { ldSetupForms(); ld.formsReady = true; }
+  ldFillFormSelects();
+}
+
+function ldProfileOptions(strategy, current) {
+  const p = ld.profiles[strategy];
+  const names = p ? p.profiles.slice() : [];
+  if (current && !names.includes(current)) names.unshift(current);
+  if (!names.length) names.push(current || "");
+  return names.map(n => {
+    const title = p && p.profile_titles && p.profile_titles[n];
+    return `<option value="${esc(n)}" ${n === current ? "selected" : ""}>${esc(title && title !== n ? `${n} — ${title}` : n)}</option>`;
+  }).join("");
+}
+
+function renderLiveAccounts(deps) {
+  const list = ld.accounts;
+  $("#ld-acc-count").textContent = list.length ? String(list.length) : "";
+  $("#ld-acc-empty").hidden = !!list.length;
+  $("#ld-accounts").parentElement.hidden = !list.length;
+  $("#ld-accounts tbody").innerHTML = list.map(a => {
+    const n = deps.filter(d => d.account === a.id).length;
+    return `<tr class="plain" data-acc="${esc(a.id)}"><td><code>${esc(a.id)}</code></td><td>${esc(a.label)}</td><td>${esc(a.agent)}</td>
+      <td>${esc(a.platform)}</td><td>${esc(a.login)}</td><td>${esc(a.server || "—")}</td><td title="${esc(a.terminal || "")}">${esc(a.terminal ? a.terminal.slice(-28) : "—")}${a.portable ? ' <span class="chip">portable</span>' : ""}</td>
+      <td>${a.secret_pending ? '<span class="chip warn" title="agent si ho ešte neprevzal">čaká</span>' : '<span class="muted">—</span>'}</td>
+      <td class="num">${n}</td>
+      <td><button class="small ghost danger" data-del="1" ${ld.admin ? "" : "disabled"} title="${n ? "účet má nasadenia — zmazanie ich vyhodí tiež" : "zmazať účet"}">zmazať</button></td></tr>`;
+  }).join("");
+  for (const tr of $$("#ld-accounts tbody tr")) tr.querySelector("button[data-del]").onclick = () => ldDeleteAccount(tr.dataset.acc);
+}
+
+/** Profily stratégie do výberu (cache; po načítaní sa tabuľka prekreslí, nech má riadok všetky možnosti). */
+async function ldLoadProfiles(strategy) {
+  if (!strategy) return null;
+  if (ld.profiles[strategy]) return ld.profiles[strategy];
+  const p = await api(`/api/live/profiles?strategy=${encodeURIComponent(strategy)}`);
+  ld.profiles[strategy] = p;
+  renderLiveDeploy();
+  return p;
+}
+
+function ldFillFormSelects() {
+  // účet do „Nasadiť"
+  const selA = $("#ld-d-account"), curA = selA.value;
+  selA.innerHTML = ld.accounts.map(a => `<option value="${esc(a.id)}">${esc(a.label)} · ${esc(a.agent)} · ${esc(a.platform)}</option>`).join("")
+    || `<option value="">— najprv pridaj účet —</option>`;
+  if (curA && ld.accounts.some(a => a.id === curA)) selA.value = curA;
+  // agent do „Pridať účet": online prví; platformy z ich driverov
+  const selAg = $("#ld-a-agent"), curAg = selAg.value;
+  const agents = ld.agents.slice().sort((a, b) => (b.online - a.online) || a.name.localeCompare(b.name));
+  selAg.innerHTML = agents.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.online ? "" : " (offline)"}${a.live && a.live.drivers && a.live.drivers.length ? " · " + esc(a.live.drivers.join(", ")) : ""}</option>`).join("")
+    || `<option value="">— žiadny agent na hube —</option>`;
+  if (curAg && agents.some(a => a.name === curAg)) selAg.value = curAg;
+  const drivers = new Set(); for (const a of agents) for (const d of (a.live && a.live.drivers) || []) drivers.add(d);
+  $("#ld-a-platforms").innerHTML = [...drivers].map(d => `<option value="${esc(d)}">`).join("");
+  // stratégie z /api/meta
+  const selS = $("#ld-d-strategy");
+  if (!selS.options.length && state.meta && state.meta.strategies) {
+    selS.innerHTML = state.meta.strategies.map(s => `<option value="${esc(s.key)}">${esc(s.title || s.key)}</option>`).join("");
+    selS.onchange = () => ldFormProfiles();
+    ldFormProfiles();
+  }
+  for (const b of ["#ld-d-submit", "#ld-a-submit"]) $(b).disabled = !ld.admin;
+  const hint = ld.admin ? "" : "len na čítanie (bez admin tokenu)";
+  if (!$("#ld-d-status").textContent || !ld.admin) $("#ld-d-status").textContent = hint;
+  if (!$("#ld-a-status").textContent || !ld.admin) $("#ld-a-status").textContent = hint;
+}
+
+async function ldFormProfiles() {
+  const strategy = $("#ld-d-strategy").value, sel = $("#ld-d-profile");
+  sel.innerHTML = `<option value="">načítavam…</option>`;
+  try {
+    const p = await ldLoadProfiles(strategy);
+    sel.innerHTML = ldProfileOptions(strategy, p.profiles[0] || "");
+  } catch (e) { sel.innerHTML = `<option value="">${esc(e.message)}</option>`; }
+}
+
+function ldSetupForms() {
+  $("#ld-d-submit").onclick = async () => {
+    const btn = $("#ld-d-submit"); btn.disabled = true; $("#ld-d-error").hidden = true; $("#ld-d-status").textContent = "posielam na hub…";
+    try {
+      const body = { account: $("#ld-d-account").value, strategy: $("#ld-d-strategy").value, symbol: $("#ld-d-symbol").value.trim(),
+        tf: Number($("#ld-d-tf").value) || 0, profile: $("#ld-d-profile").value, user: ldUser() };
+      if (!body.account) throw new Error("vyber účet");
+      if (!body.symbol) throw new Error("zadaj symbol");
+      const d = await api("/api/live/deployments", { method: "POST", body: JSON.stringify(body) });
+      $("#ld-d-status").textContent = `nasadené: ${d.instance} (agent si to vezme v najbližšom heartbeate)`;
+      $("#ld-d-symbol").value = "";
+      await loadLiveDeploy();
+    } catch (e) { $("#ld-d-error").textContent = e.message; $("#ld-d-error").hidden = false; $("#ld-d-status").textContent = ""; }
+    finally { btn.disabled = !ld.admin; }
+  };
+  $("#ld-a-submit").onclick = async () => {
+    const btn = $("#ld-a-submit"); btn.disabled = true; $("#ld-a-error").hidden = true; $("#ld-a-status").textContent = "posielam na hub…";
+    try {
+      const body = { agent: $("#ld-a-agent").value, platform: $("#ld-a-platform").value.trim(), label: $("#ld-a-label").value.trim(),
+        login: $("#ld-a-login").value.trim(), server: $("#ld-a-server").value.trim(), terminal: $("#ld-a-terminal").value.trim(),
+        portable: $("#ld-a-portable").checked, password: $("#ld-a-password").value || null, user: ldUser() };
+      if (!body.agent) throw new Error("vyber agenta (stroj)");
+      if (!body.platform) throw new Error("zadaj platformu");
+      if (!body.login) throw new Error("zadaj login");
+      const a = await api("/api/live/accounts", { method: "POST", body: JSON.stringify(body) });
+      $("#ld-a-password").value = "";   // heslo odišlo raz; v stránke neostáva
+      $("#ld-a-status").textContent = `účet ${a.id} pridaný${a.secret_pending ? " — heslo čaká na prevzatie agentom" : ""}`;
+      for (const id of ["#ld-a-label", "#ld-a-login", "#ld-a-server", "#ld-a-terminal"]) $(id).value = "";
+      await loadLiveDeploy();
+    } catch (e) { $("#ld-a-error").textContent = e.message; $("#ld-a-error").hidden = false; $("#ld-a-status").textContent = ""; }
+    finally { btn.disabled = !ld.admin; }
+  };
+  $("#ld-audit-box").ontoggle = () => { if ($("#ld-audit-box").open) loadLiveAudit().catch(() => {}); };
+}
+
+function ldFail(e) { $("#ld-error").textContent = e.message; $("#ld-error").hidden = false; }
+
+async function ldSetMode(id, mode) {
+  if (mode === "flatten" && !confirm("Flatten: zrušiť všetky čakajúce vstupy a zavrieť otvorenú pozíciu u brokera. Potom sa stratégia správa ako v pauze. Pokračovať?")) return;
+  try {
+    await api(`/api/live/deployments/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ mode, user: ldUser() }) });
+    await loadLiveDeploy();
+  } catch (e) { ldFail(e); }
+}
+
+async function ldSetProfile(id, sel) {
+  const dep = ld.deployments.find(d => d.id === id);
+  const profile = sel.value;
+  if (!dep || profile === dep.profile) return;
+  if (!confirm(`Zmeniť profil nasadenia ${dep.symbol} ${dep.tf}m na „${profile}“? Aplikuje sa, až keď je stratégia bez pozície a bez čakajúcich vstupov (vynútenie = najprv flatten).`)) { sel.value = dep.profile; return; }
+  try {
+    await api(`/api/live/deployments/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ profile, user: ldUser() }) });
+    await loadLiveDeploy();
+  } catch (e) { sel.value = dep.profile; ldFail(e); }
+}
+
+async function ldDelete(id) {
+  const dep = ld.deployments.find(d => d.id === id);
+  if (!dep) return;
+  const otazka = dep.active
+    ? `Odstrániť nasadenie ${dep.symbol} ${dep.tf}m (${dep.strategy}) z účtu? Agent inštanciu z platformy odstráni; otvorená pozícia sa nezatvára (na to je flatten). Po potvrdení agentom sa dá zmazať z hubu.`
+    : `Zmazať nasadenie ${dep.symbol} ${dep.tf}m z hubu? Keď to agent ešte nepotvrdil, zmaže sa aj tak (force).`;
+  if (!confirm(otazka)) return;
+  try {
+    await api(`/api/live/deployments/${encodeURIComponent(id)}?force=${dep.active ? "false" : "true"}&user=${encodeURIComponent(ldUser() || "")}`, { method: "DELETE" });
+    await loadLiveDeploy();
+  } catch (e) { ldFail(e); }
+}
+
+async function ldDeleteAccount(id) {
+  const acc = ld.accounts.find(a => a.id === id);
+  const n = ld.deployments.filter(d => d.account === id).length;
+  if (!acc) return;
+  if (!confirm(`Zmazať účet „${acc.label}“ (${acc.id})?${n ? ` Má ${n} nasadení — zmažú sa z hubu tiež a agent ich má z platformy odstrániť sám.` : ""}`)) return;
+  try {
+    await api(`/api/live/accounts/${encodeURIComponent(id)}?force=${n ? "true" : "false"}&user=${encodeURIComponent(ldUser() || "")}`, { method: "DELETE" });
+    await loadLiveDeploy();
+  } catch (e) { ldFail(e); }
+}
+
+async function loadLiveAudit() {
+  const rows = await api("/api/live/audit?limit=50");
+  const key = rows.length ? `${rows[0].id}:${rows.length}` : "0";
+  if (key === ld.auditKey) return;
+  ld.auditKey = key;
+  const short = v => { if (v === null || v === undefined) return ""; const s = JSON.stringify(v); return s.length > 90 ? s.slice(0, 89) + "…" : s; };
+  $("#ld-audit tbody").innerHTML = rows.map(r => `<tr class="plain"><td>${utc(r.ts * 1000).slice(0, 19)}</td><td>${esc(r.by || "—")}</td>
+    <td>${esc(r.action)}</td><td>${esc(r.account || "")}</td><td>${esc(r.deployment || "")}</td>
+    <td class="small" title="${esc(JSON.stringify({ old: r.old, new: r.new }))}">${esc(short(r.new) || short(r.old))}</td></tr>`).join("")
+    || `<tr class="plain"><td colspan="6" class="muted">zatiaľ nič</td></tr>`;
 }

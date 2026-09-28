@@ -25,7 +25,11 @@ Jedno kolo `work()`:
    `ack` hubu),
 4. **pošle live telemetriu** (`_ship_live`, docs/LIVE.md): keď je na stroji spool NinjaTradera
    alebo MT5 (`tradebot.live.default_roots`), `LiveShipper` ho odošle na hub a kurzor posunie
-   až po 200; korene sa preverujú každú minútu, nech sa platforma nainštalovaná neskôr chytí.
+   až po 200; korene sa preverujú každú minútu, nech sa platforma nainštalovaná neskôr chytí,
+5. **zosúladí nasadenia** (`_apply_live`, docs/LIVE.md fáza 2b): heartbeat prinesie v `live`
+   účty a nasadenia tohto agenta, `Reconciler` s drivermi platforiem (`tradebot.live.drivers`)
+   ich zapíše na disk platformy a spustí terminál; čo sa podarilo, ide v `live.applied`
+   ďalšieho heartbeatu. Starý hub bez `live` = nič.
 
 Čo agent počíta a čo poslal, si drží v `tester/agent_state.json` (`config.AgentState`):
 po reštarte procesu bežiace behy ďalej hlási (runner ich už nemá, ale história áno) a
@@ -59,7 +63,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
-from tradebot.core.paths import AGENT_CONFIG, LIVE_CURSOR
+from tradebot.core.paths import AGENT_CONFIG, LIVE_APPLY_STATE, LIVE_CURSOR
 
 from . import config as agent_config
 from . import gitcode
@@ -106,7 +110,8 @@ class HubAgent:
     def __init__(self, cfg: AgentConfig, runner: Any, store: Any, *, http: HubHttp | None = None,
                  state_path: Path | None = None, config_path: Path | None = None,
                  clock: Callable[[], float] = time.time, version: str = "",
-                 live_cursor: Path | None = None) -> None:
+                 live_cursor: Path | None = None, reconciler: Any = None,
+                 apply_state: Path | None = None) -> None:
         self.cfg = cfg
         self.runner = runner
         self.store = store
@@ -118,6 +123,15 @@ class HubAgent:
         self._live: Any = None
         self._live_checked: float | None = None
         self._live_error: str | None = None
+        #: Nasadenia z hubu (fáza 2b): reconciler vznikne pri prvom `live` v odpovedi; požadovaný
+        #: stav si heartbeat odloží a pomalé vlákno ho aplikuje (`_apply_live`).
+        self._reconciler: Any = reconciler
+        self._apply_state = Path(apply_state or LIVE_APPLY_STATE)
+        self._live_desired: dict[str, Any] | None = None
+        self._live_desired_seq = 0
+        self._live_applied_seq = 0
+        self._live_cache: dict[str, Any] = {}
+        self._live_lock = threading.Lock()
         self._config_mtime = self._config_stamp()
         self.clock = clock
         self.version = version or gitcode.version()
@@ -195,7 +209,8 @@ class HubAgent:
         """Jedno kolo pomalej práce. Beží **mimo heartbeatu** — zip s výsledkom, sťahovanie
         výsledku a hlavne `git pull` s dopočítaním dát trvajú aj minúty a hub by medzitým
         agenta vyhlásil za mŕtveho (`agent_timeout` je 45 s) a jeho výpočty dal inému."""
-        for krok in (self._upload_finished, self._ship_live, self._do_pull, self._drain_collects):
+        for krok in (self._upload_finished, self._ship_live, self._apply_live, self._do_pull,
+                     self._drain_collects):
             try:
                 krok()
             except Exception as exc:  # noqa: BLE001 - jeden krok nesmie zhodiť vlákno
@@ -237,10 +252,16 @@ class HubAgent:
         self._live_error = chyba
 
     def live_status(self) -> dict[str, Any]:
-        """Stav live telemetrie pre webapp a CLI: kde je spool a či sa posiela."""
+        """Stav live telemetrie pre webapp a CLI: kde je spool, či sa posiela a čo reconciler aplikoval."""
+        apply = None
+        if self._reconciler is not None:
+            try:
+                apply = self._reconciler.status()
+            except Exception as exc:  # noqa: BLE001 - stav nesmie zhodiť API
+                apply = {"error": f"{type(exc).__name__}: {exc}"}
         if self._live is None:
             return {"active": False, "roots": [], "last_ok": None, "last_error": self._live_error,
-                    "sent_total": 0, "accepted_total": 0, "pending_bytes": 0, "files": 0}
+                    "sent_total": 0, "accepted_total": 0, "pending_bytes": 0, "files": 0, "apply": apply}
         st = self._live.status()
         reader = st.get("reader") or {}
         return {"active": True, "roots": reader.get("roots", []),
@@ -248,7 +269,63 @@ class HubAgent:
                 if st.get("last_ok") else None,
                 "last_error": st.get("last_error"), "sent_total": st.get("sent_total", 0),
                 "accepted_total": st.get("accepted_total", 0),
-                "pending_bytes": reader.get("pending_bytes", 0), "files": len(reader.get("files") or [])}
+                "pending_bytes": reader.get("pending_bytes", 0), "files": len(reader.get("files") or []),
+                "apply": apply}
+
+    # -- nasadenia z hubu (fáza 2b) ----------------------------------------- #
+
+    def _get_reconciler(self) -> Any:
+        """Reconciler s drivermi platforiem tohto stroja — vznikne pri prvom použití (import driverov
+        siaha na disk platforiem, do konštruktora agenta to nepatrí)."""
+        if self._reconciler is None:
+            from tradebot.live.apply import Reconciler
+            from tradebot.live.drivers import load_drivers
+
+            self._reconciler = Reconciler(load_drivers(), self._apply_state)
+            log.info("hub agent: live drivery: %s", ", ".join(sorted(self._reconciler.drivers)) or "žiadne")
+        return self._reconciler
+
+    def _live_body(self) -> dict[str, Any]:
+        """`live` do heartbeatu: inštancie zo spoolu (posledný stav súborov), čo reconciler aplikoval
+        a ktoré drivery stroj má. Nikdy nevyhodí výnimku — heartbeat musí odísť."""
+        out: dict[str, Any] = {"instances": [], "applied": [], "secret_ack": [], "drivers": []}
+        try:
+            from tradebot.live.spool import default_roots, latest_state
+
+            roots = self._live.reader.roots if self._live is not None else default_roots()
+            out["instances"] = [{"instance": s["instance"], "session": s["session"], "last_t": s["last_t"],
+                                 "last_bar_ms": s["last_bar_ms"], "mode": s["mode"], "profile": s["profile"],
+                                 "ended": s["ended"]} for s in latest_state(roots, self._live_cache)]
+        except Exception as exc:  # noqa: BLE001
+            log.debug("hub agent: stav spoolu sa nedal zistiť: %s", exc)
+        rec = self._reconciler
+        if rec is not None:
+            try:
+                out.update(rec.fragment())
+                out["drivers"] = sorted(rec.drivers)
+            except Exception as exc:  # noqa: BLE001
+                log.debug("hub agent: stav reconcilera sa nedal zistiť: %s", exc)
+        return out
+
+    def _note_live(self, desired: Any) -> None:
+        """Heartbeat priniesol požadovaný stav — odloží sa pomalému vláknu (nikdy sa neaplikuje tu)."""
+        if not isinstance(desired, dict):
+            return
+        with self._live_lock:
+            self._live_desired = desired
+            self._live_desired_seq += 1
+        self._work.set()
+
+    def _apply_live(self) -> None:
+        """Zosúladenie nasadení v pomalom vlákne: posledný požadovaný stav z heartbeatu → reconciler.
+        Beží, len keď od minula prišiel nový stav; výsledok ide do ďalšieho heartbeatu."""
+        with self._live_lock:
+            if self._live_desired is None or self._live_applied_seq == self._live_desired_seq:
+                return
+            desired, seq = self._live_desired, self._live_desired_seq
+        self._get_reconciler().run(desired)
+        with self._live_lock:
+            self._live_applied_seq = seq
 
     # -- jeden krok --------------------------------------------------------- #
 
@@ -272,6 +349,8 @@ class HubAgent:
                 self._cancel(job_id)
             for job in odpoved.get("finished") or []:
                 self._queue_collect(job)
+            if "live" in odpoved:
+                self._note_live(odpoved.get("live"))
             self.last_ok = self.clock()
             self.last_error = None
             return odpoved
@@ -455,7 +534,7 @@ class HubAgent:
         return {"instance": self.instance, "accept": self.cfg.accept, "send": self.cfg.send,
                 "cores": self.cores, "slots": self.slots, "version": self.version,
                 "needs_restart": self.needs_restart, "updating": bool(self.updating),
-                "load": self._local_load(), "jobs": jobs}
+                "load": self._local_load(), "jobs": jobs, "live": self._live_body()}
 
     # -- výpočty od hubu ---------------------------------------------------- #
 

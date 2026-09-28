@@ -350,8 +350,8 @@
     <h2>Bežiace stratégie <span id="live-count" class="chip"></span></h2>
     <p class="mode-hint">Stratégia s C# jadrom (NinjaTrader 8, MetaTrader 5) píše bary, zámery enginu,
       kresby a vyplnenia do lokálneho spoolu; agent hubu ich posiela na hub a táto webapp si ich
-      odtiaľ zrkadlí (keď beží na obchodnom PC, číta spool aj priamo). Len čítanie — fáza 1
-      podľa docs/LIVE.md.</p>
+      odtiaľ zrkadlí (keď beží na obchodnom PC, číta spool aj priamo). Fáza 1 podľa docs/LIVE.md;
+      čo má kde bežať (účty, nasadenia) je nižšie.</p>
     <div id="live-error" class="error" hidden></div>
     <div id="live-status" class="muted small"></div>
     <div id="live-empty" class="muted" hidden>Zatiaľ žiadna inštancia. Dáta prídu, keď na niektorom stroji
@@ -362,6 +362,68 @@
       <th>stav</th><th>platforma</th><th>účet</th><th>symbol</th><th>TF</th><th>stratégia</th><th>profil</th>
       <th>stroj</th><th>agent</th><th>posledný bar</th><th class="num" title="odhad z fillov: vstupy − výstupy podľa id">pozícia</th>
       <th class="num" title="vyplnenia u brokera za dnešný deň (UTC)">fills dnes</th></tr></thead><tbody></tbody></table></div>
+  </div>
+
+  <div id="live-deploy">
+    <div class="card">
+      <h2>Nasadenia <span id="ld-dep-count" class="chip"></span>
+        <span id="ld-readonly" class="chip warn" style="margin-left:8px" hidden title="mutácie idú na hub s hlavným tokenom — nastav admin_token v tester/agent.json (alebo TRADEBOT_HUB_ADMIN_TOKEN) a reštartuj webapp">len na čítanie</span></h2>
+      <p class="mode-hint">Hub drží <b>požadovaný stav</b> (čo má kde bežať), agent na obchodnom stroji ho zosúlaďuje
+        s platformou a hlási, čo sa mu podarilo; vedľa toho je inštancia zo spoolu. Žltý stav = agent ešte
+        nepotvrdil (drift profilu alebo režimu), červený = chyba pri aplikovaní, zelený = inštancia žije.
+        Fáza 2b podľa docs/LIVE.md.</p>
+      <div id="ld-error" class="error" hidden></div>
+      <div id="ld-empty" class="muted" hidden>Zatiaľ žiadne nasadenie — najprv pridaj účet a potom „Nasadiť“.</div>
+      <div class="scroll"><table id="ld-deployments" class="runs"><thead><tr>
+        <th>stav</th><th>účet</th><th>stratégia</th><th>symbol</th><th>TF</th><th>profil</th><th>režim</th>
+        <th title="čo agent naposledy potvrdil (config_hash a režim) proti požadovanému">aplikované</th>
+        <th>inštancia</th><th>posledný bar</th><th></th></tr></thead><tbody></tbody></table></div>
+      <details id="ld-deploy-box" style="margin-top:10px"><summary>Nasadiť <span class="muted small">— stratégia na účet</span></summary>
+        <div class="form-grid" style="margin-top:8px">
+          <label class="field">Účet<select id="ld-d-account"></select></label>
+          <label class="field">Stratégia<select id="ld-d-strategy"></select></label>
+          <label class="field">Symbol<span class="hint">tak, ako ho pozná platforma (MT5 <code>NAS100</code>, NT <code>MNQ 12-26</code>)</span>
+            <input id="ld-d-symbol" placeholder="NAS100"></label>
+          <label class="field">TF (min)<input id="ld-d-tf" type="number" min="1" step="1" value="3"></label>
+          <label class="field span2">Profil<span class="hint">snímka profilu (repozitár aj vlastné) sa uloží k nasadeniu ako config; agent ju zapíše na platformu</span>
+            <select id="ld-d-profile"></select></label>
+          <div class="span2 profile-actions"><button id="ld-d-submit" class="primary">Nasadiť</button>
+            <span id="ld-d-status" class="muted small"></span></div>
+        </div>
+        <div id="ld-d-error" class="error" hidden></div>
+      </details>
+      <details id="ld-audit-box" style="margin-top:6px"><summary>Audit <span class="muted small">— každá zmena účtov a nasadení</span></summary>
+        <div class="scroll"><table id="ld-audit" class="runs"><thead><tr>
+          <th>čas (UTC)</th><th>kto</th><th>akcia</th><th>účet</th><th>nasadenie</th><th>zmena</th></tr></thead><tbody></tbody></table></div>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2>Účty <span id="ld-acc-count" class="chip"></span></h2>
+      <p class="mode-hint">Účet = stroj (agent hubu) + platforma + prihlásenie. Heslo ide na hub raz a agent si ho
+        prevezme v najbližšom heartbeate (na hube neostáva, do zrkadla webapp sa nedostane).</p>
+      <div id="ld-acc-empty" class="muted" hidden>Zatiaľ žiadny účet.</div>
+      <div class="scroll"><table id="ld-accounts" class="runs"><thead><tr>
+        <th>id</th><th>názov</th><th>agent</th><th>platforma</th><th>login</th><th>server / pripojenie</th>
+        <th>terminál</th><th title="heslo čaká na prevzatie agentom">heslo</th><th>nasadení</th><th></th></tr></thead><tbody></tbody></table></div>
+      <details id="ld-acc-box" style="margin-top:10px"><summary>Pridať účet</summary>
+        <div class="form-grid" style="margin-top:8px">
+          <label class="field">Agent<span class="hint">stroj, na ktorom platforma beží (agent hubu)</span>
+            <select id="ld-a-agent"></select></label>
+          <label class="field">Platforma<span class="hint">podľa driverov agenta; inak napíš kľúč (<code>mt5</code>, <code>ninjatrader</code>)</span>
+            <input id="ld-a-platform" list="ld-a-platforms" placeholder="mt5"><datalist id="ld-a-platforms"></datalist></label>
+          <label class="field">Názov<input id="ld-a-label" placeholder="IC Markets demo"></label>
+          <label class="field">Login<span class="hint">MT5 číslo účtu / NT meno účtu (<code>Sim101</code>)</span><input id="ld-a-login"></label>
+          <label class="field">Server / pripojenie<span class="hint">MT5 server / NT meno pripojenia</span><input id="ld-a-server"></label>
+          <label class="field">Terminál<span class="hint">MT5: cesta k <code>terminal64.exe</code> alebo portable inštancii; NT prázdne</span><input id="ld-a-terminal"></label>
+          <label class="field">Heslo<span class="hint">len MT5; ide na hub raz, nikde sa neukladá</span><input id="ld-a-password" type="password" autocomplete="new-password"></label>
+          <label class="field inline-check"><input type="checkbox" id="ld-a-portable"> portable inštancia terminálu</label>
+          <div class="span2 profile-actions"><button id="ld-a-submit" class="primary">Pridať účet</button>
+            <span id="ld-a-status" class="muted small"></span></div>
+        </div>
+        <div id="ld-a-error" class="error" hidden></div>
+      </details>
+    </div>
   </div>
 
   <div id="live-detail" class="card" hidden>

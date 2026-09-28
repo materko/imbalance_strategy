@@ -21,7 +21,7 @@ from typing import Any
 
 from .schema import SchemaError, parse_line
 
-__all__ = ["Batch", "SpoolReader", "default_roots", "ENV_ROOTS"]
+__all__ = ["Batch", "SpoolReader", "default_roots", "latest_state", "ENV_ROOTS"]
 
 log = logging.getLogger(__name__)
 
@@ -232,3 +232,90 @@ class SpoolReader:
             subory.append({"instance": instance, "path": str(path), "size": velkost,
                            "offset": offset, "pending": pending})
         return {"roots": [str(r) for r in self.roots], "files": subory, "pending_bytes": cakaju}
+
+
+# --------------------------------------------------------------------------- #
+# stav inštancií pre heartbeat (docs/LIVE.md, fáza 2b)
+# --------------------------------------------------------------------------- #
+
+#: Koľko bajtov z konca posledného súboru sa číta pri hľadaní poslednej udalosti.
+_TAIL_BYTES = 65536
+
+
+def latest_state(roots: list[Path], cache: dict[str, tuple[int, dict[str, Any]]] | None = None) -> list[dict[str, Any]]:
+    """Posledný známy stav každej inštancie v spoole — pre `live.instances` v heartbeate agenta:
+    `instance`, `session`, `platform`, `account`, `symbol`, `tf`, `strategy`, `profile`, `mode`,
+    `last_t`, `last_bar_ms`, `ended` (posledný súbor má `bye`).
+
+    Číta len prvý riadok (`hello`) a chvost posledného súboru inštancie; `cache` (cesta →
+    (veľkosť, výsledok)) ušetrí čítanie, keď súbor od minula nenarástol. Nikdy nevyhodí výnimku."""
+    out: list[dict[str, Any]] = []
+    for root in roots:
+        try:
+            instancie = sorted(p for p in Path(root).iterdir() if p.is_dir())
+        except OSError:
+            continue
+        for inst in instancie:
+            try:
+                subory = sorted(p for p in inst.iterdir() if p.is_file() and p.suffix == ".jsonl")
+            except OSError:
+                continue
+            if not subory:
+                continue
+            posledny = subory[-1]
+            try:
+                velkost = posledny.stat().st_size
+            except OSError:
+                continue
+            kluc = str(posledny)
+            if cache is not None and kluc in cache and cache[kluc][0] == velkost:
+                out.append(cache[kluc][1])
+                continue
+            stav = _instance_state(inst.name, posledny, velkost)
+            if cache is not None:
+                cache[kluc] = (velkost, stav)
+            out.append(stav)
+    return out
+
+
+def _instance_state(instance: str, path: Path, size: int) -> dict[str, Any]:
+    stav: dict[str, Any] = {"instance": instance, "session": _session_from_name(path), "platform": None,
+                            "account": None, "symbol": None, "tf": None, "strategy": None, "profile": None,
+                            "mode": None, "last_t": None, "last_bar_ms": None, "ended": False,
+                            "file": path.name}
+    try:
+        with open(path, "rb") as fh:
+            prvy = fh.readline()
+            if size > _TAIL_BYTES:
+                fh.seek(size - _TAIL_BYTES)
+                fh.readline()   # od ďalšieho celého riadku
+            else:
+                fh.seek(len(prvy))
+            chvost = fh.read()
+    except OSError:
+        return stav
+    riadky = [prvy] if prvy.endswith(b"\n") else []
+    riadky += [r for r in chvost.split(b"\n")[:-1] if r.strip()]   # posledný kus bez `\n` sa nečíta
+    for riadok in riadky:
+        try:
+            ev = json.loads(riadok)
+        except ValueError:
+            continue
+        if not isinstance(ev, dict):
+            continue
+        k = ev.get("k")
+        if isinstance(ev.get("t"), int):
+            stav["last_t"] = ev["t"] if stav["last_t"] is None else max(stav["last_t"], ev["t"])
+        if k == "hello":
+            stav.update(session=ev.get("session") or stav["session"], platform=ev.get("platform"),
+                        account=ev.get("account"), symbol=ev.get("symbol"), tf=ev.get("tf"),
+                        strategy=ev.get("strategy"), profile=ev.get("profile"), ended=False)
+        elif k == "bar" and isinstance(ev.get("bt"), int):
+            stav["last_bar_ms"] = ev["bt"]
+        elif k == "control":
+            stav["mode"] = ev.get("mode")
+            if ev.get("profile"):
+                stav["profile"] = ev["profile"]
+        elif k == "bye":
+            stav["ended"] = True
+    return stav
