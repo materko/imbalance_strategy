@@ -8,7 +8,7 @@
 //                  "instrument":"MNQ 12-26","tf":3,"strategy":"ibsnet","profile":"multicharts_mnq_3m"}]}
 //
 // a pre kazdy zaznam drzi jednu `LiveInstance` (TradeBotLiveInstance.cs): pripojenie, ucet, BarsRequest,
-// engine, ordery, spool, control subor. Subor sa sleduje podla mtime kazdych 5 s (nove zaznamy sa spustia,
+// engine, ordery, spool, control subor. Subor sa sleduje podla mtime kazde 2 s (nove zaznamy sa spustia,
 // odstranene zastavia, zmenene sa restartuju) a znova pri zmene stavu pripojenia (neuspesne starty sa
 // skusaju znova). Profil je `TradeBot\profiles\<strategia>\<profil>.json` alebo `TradeBot\profiles\<profil>.json`
 // (tam ich pise `python -m tradebot.adapters.ninjatrader install`); chybajuci profil = zaznam sa preskoci a loguje.
@@ -38,7 +38,7 @@ namespace NinjaTrader.NinjaScript.AddOns
     public class TradeBotLiveAddOn : AddOnBase
     {
         private const string GenerationKey = "TradeBotLiveAddOn.generation";
-        private const int DeployPeriodSeconds = 5;
+        private const int DeployPeriodSeconds = 2;
         private const int RetrySeconds = 60;
 
         private static int _started;

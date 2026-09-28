@@ -13,7 +13,7 @@
 //| do JSONL spoolu Common\Files\TradeBot\spool\<instancia>\ (StaticHost::Spool*); agent hubu ich    |
 //| posiela do webapp. Chyba spoolu EA nezhodi - zaloguje sa a obchoduje sa dalej.                    |
 //| Ovladanie na dialku (docs/LIVE.md, faza 2): Common\Files\TradeBot\control\<instancia>.json         |
-//| {"mode": enabled|paused|flatten, "profile": ...} - EA ho cita podla mtime kazdych 5 s (OnTimer)   |
+//| {"mode": enabled|paused|flatten, "profile": ...} - EA ho cita podla mtime kazde 2 s (OnTimer)     |
 //| a pri kazdom novom bare; paused = vstupy sa neposielaju, flatten = raz zrusi vstupy a zavrie       |
 //| pozicie, iny profil = novy engine, ked je strategia bez pozicie (inak caka). Chybajuci subor =     |
 //| enabled + InpProfile. V Strategy Testeri sa control subor necita (beh musi byt deterministicky).    |
@@ -314,7 +314,7 @@ int OnInit()
    g_trade.SetDeviationInPoints(10);
 
    if(InpExportSignals) OpenExport();
-   OpenSpool(profilePath);
+   OpenSpool(g_profile);
    PrintEngineInfo(profilePath);
    if(InpServerGmtOffsetMin == 0)
       Print("TradeBot: POZOR, posun servera voci UTC je 0 - seansy engine-u su v UTC/pasme profilu, skontroluj InpServerGmtOffsetMin");
@@ -328,8 +328,9 @@ int OnInit()
    if(g_controlOn)
       Print("TradeBot control: instancia ", g_instance, ", subor Common\\Files\\", g_controlPath, g_controlMtime >= 0 ? " (existuje)" : " (nie je)",
             ", rezim ", g_mode, " (", source, ")", g_mode == "enabled" ? "" : " - nove vstupy sa neposielaju");
-   // jeden spolocny timer: screenshot raz (graf sa musi najprv vykreslit), control subor kazdych 5 s
-   if(g_controlOn || InpScreenshotFile != "") EventSetTimer(5);
+   // jeden spolocny timer: screenshot raz (graf sa musi najprv vykreslit), control subor kazde 2 s
+   // (jeden FileGetInteger na tik; pokyn z webapp = heartbeat agenta 3 s + tento interval)
+   if(g_controlOn || InpScreenshotFile != "") EventSetTimer(2);
    return INIT_SUCCEEDED;
   }
 
@@ -484,7 +485,7 @@ bool RebuildEngine(string spec)
    g_profile = spec;
    AdoptEngine(h);
    if(InpExportSignals) OpenExport();
-   OpenSpool(path);
+   OpenSpool(spec);
    PrintEngineInfo(path);
    if(InpShowDrawings) ObjectsDeleteAll(0, TB_OBJ_PREFIX);
    ReplayHistory();
@@ -502,12 +503,14 @@ void SpoolControl(string mode, string profile, string source)
 //+------------------------------------------------------------------+
 //| Live telemetria (docs/LIVE.md): DLL pise priamo na disk, nie cez MQL sandbox                        |
 //+------------------------------------------------------------------+
-void OpenSpool(string profilePath)
+/// `profile` = nazov profilu tak, ako ho pozna hub/driver (`deployment.profile`, InpProfile alebo control
+/// subor) - nie rozriesena cesta; NinjaTrader posiela to iste, takze `hello.profile` sa da porovnat.
+void OpenSpool(string profile)
   {
    bool tester = MQLInfoInteger(MQL_TESTER) != 0;
    if(!InpTelemetry || (tester && !InpTelemetryInTester)) return;
    string root = TerminalInfoString(TERMINAL_COMMONDATA_PATH) + "\\Files\\TradeBot\\spool";
-   if(StaticHost::SpoolOpen(g_engine, root, "mt5", AccountId(), _Symbol, profilePath, tester) < 0)
+   if(StaticHost::SpoolOpen(g_engine, root, "mt5", AccountId(), _Symbol, profile, tester) < 0)
      { Print(EngineError("SpoolOpen (telemetria vypnuta)")); return; }
    g_spool = true;
    // id instancie zo spoolu je smerodajne (to iste, co InstanceId - control subor sa hlada podla neho)
@@ -532,7 +535,7 @@ void SpoolModify(long barMs, string id, double sl, double tp, string reason, boo
      { Print(EngineError("SpoolModify (telemetria vypnuta)")); g_spool = false; }
   }
 
-/// Spolocny timer (5 s): screenshot raz po vykresleni grafu, control subor pri kazdom tiku timera.
+/// Spolocny timer (2 s): screenshot raz po vykresleni grafu, control subor pri kazdom tiku timera.
 void OnTimer()
   {
    if(InpScreenshotFile != "" && !g_shotDone)

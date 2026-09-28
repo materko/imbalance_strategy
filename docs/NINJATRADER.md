@@ -210,7 +210,7 @@ PY -m tradebot.adapters.ninjatrader control ninjatrader_Sim101_MNQ-12-26_3m_ibsn
 ```
 
 Zápis je atomický (tmp + `os.replace`); nezadané pole ostáva z existujúceho súboru; `TRADEBOT_NT_DIR`
-presmeruje adresár (testy). Adaptér súbor kontroluje podľa mtime **pri každom bare** a **každých 5 s**
+presmeruje adresár (testy). Adaptér súbor kontroluje podľa mtime **pri každom bare** a **každé 2 s**
 (`System.Timers.Timer` → `TriggerCustomEvent`, takže práca beží vo vlákne stratégie, nie v timeri);
 v Strategy Analyzeri sa control ignoruje. Každá aplikovaná zmena ide do Output okna a do spoolu ako
 `control` (`mode`, `profile`, `source`: `control` / `default` / `pending`) — vidno ju cez
@@ -263,7 +263,7 @@ alebo ruka):
 
 Profil je `TradeBot\profiles\<stratégia>\<profil>.json`, inak `TradeBot\profiles\<profil>.json` (tam ich
 dáva `install`), inak celá cesta; chýbajúci profil = záznam sa preskočí a zaloguje. Supervízor (vlastné
-vlákno, štart 3 s po vzniku Control Center) číta súbor podľa mtime **každých 5 s** a znova pri zmene stavu
+vlákno, štart 3 s po vzniku Control Center) číta súbor podľa mtime **každé 2 s** a znova pri zmene stavu
 pripojenia: nový záznam spustí, odstránený zastaví (`bye removed`), zmenený reštartuje, neúspešný štart
 (pripojenie dole, účet nepripojený) skúša každých 60 s. `instances: []` alebo chýbajúci súbor = nič nebeží.
 
@@ -284,7 +284,7 @@ pripojenia: nový záznam spustí, odstránený zastaví (`bye removed`), zmenen
 | denný limit výhier | `max_daily_wins` zo `Stats()`, výhra = výstup SL/TP so ziskom > 0, platí od ďalšieho baru |
 | fily | `Account.ExecutionUpdate` filtrované na vlastné mená; `fill` `in`/`out` s menom výstupu `Stop loss` / `Profit target` / `tb_close` / `tb_session_end` / `tb_flatten` |
 | spool | `LiveSpool` v `TradeBot\spool\ninjatrader_<účet>_<symbol>_<TF>m_<kľúč>\` (symbol = `MasterInstrument.Name`, teda `MNQ`), `tester:false`; pri konci `stat` + `bye` (`removed`, `changed`, `terminated`, `superseded`, `profile_switch`) |
-| control | `TradeBot\control\<inštancia>.json` každých 5 s a pri každom bare, režimy ako v Strategy; **zmena profilu** (keď je flat) = nový engine, nová session spoolu a **história z BarsRequest sa prehrá znova** — čerstvý štart, aj iný informatívny TF (nový BarsRequest) |
+| control | `TradeBot\control\<inštancia>.json` každé 2 s a pri každom bare, režimy ako v Strategy; **zmena profilu** (keď je flat) = nový engine, nová session spoolu a **história z BarsRequest sa prehrá znova** — čerstvý štart, aj iný informatívny TF (nový BarsRequest) |
 | kresby | nekreslia sa (nie je graf) — idú len do spoolu, webapp karta Live ich ukáže |
 | zastavenie | zruší čakajúce vstupy, **pozíciu nechá** (jej SL/TP sú GTC ordery na účte), zatvorí BarsRequesty a spool; flatten je vec control súboru |
 | generácie | po rekompilácii NT inštancuje AddOn znova, ale staré vlákno nezmizne — každá generácia si zapíše token do `AppDomain` a stará sa zastaví (`bye superseded`), inak by bežali dve kópie |

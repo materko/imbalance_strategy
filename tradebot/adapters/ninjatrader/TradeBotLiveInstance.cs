@@ -124,7 +124,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         /// <summary>Bar je uzavrety, ked jeho cas zatvorenia + tato rezerva uz presiel.</summary>
         private const int CloseGraceSeconds = 1;
-        private const int ControlPeriodSeconds = 5;
+        private const int ControlPeriodSeconds = 2;
         /// <summary>Kym sa pri zatvarani pozicie nepotvrdi zrusenie SL/TP, trhovy vystup pocka najviac tolko.</summary>
         private const int CloseCancelTimeoutSeconds = 10;
 
@@ -156,7 +156,7 @@ namespace NinjaTrader.NinjaScript.AddOns
         private readonly Dictionary<string, int> _dailyWinsSeen = new Dictionary<string, int>();
         private TB.LiveSpool _spool;
         private bool _spoolErrorPrinted;
-        /// <summary>Predhistoria je prehrata, dalsie bary su nazivo (ready, stale guard, control kazdych 5 s).</summary>
+        /// <summary>Predhistoria je prehrata, dalsie bary su nazivo (ready, stale guard, control kazde 2 s).</summary>
         private bool _live;
         private int _chartBars, _htfBars, _engineBars;
         private long _firstBarMs, _lastBarMs;

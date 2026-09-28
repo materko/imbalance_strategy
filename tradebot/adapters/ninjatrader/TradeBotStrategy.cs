@@ -17,7 +17,7 @@
 // ho odtial posiela do webapp. Chyba spoolu strategiu nezhodi - vypise sa raz do Output a obchoduje sa dalej.
 //
 // Ovladanie na dialku (docs/LIVE.md, faza 2): `Documents\NinjaTrader 8\TradeBot\control\<instancia>.json`
-// s `mode` (enabled / paused / flatten) a `profile`. Subor sa cita podla mtime kazdych 5 s
+// s `mode` (enabled / paused / flatten) a `profile`. Subor sa cita podla mtime kazde 2 s
 // (System.Timers.Timer -> TriggerCustomEvent, nech praca bezi vo vlakne strategie) a pri kazdom bare.
 // Zmena profilu sa aplikuje, az ked je strategia flat; novy engine NEMA predhistoriu (NinjaTrader
 // strategii historiu znova neprehra) a informativny TF sa zmenit neda (seria je pridana v Configure).
@@ -366,13 +366,13 @@ namespace NinjaTrader.NinjaScript.Strategies
             catch (Exception e) { ControlLog("error", "init zlyhal - " + e.Message); }
         }
 
-        /// <summary>Kazdych 5 s: timer len zaradi udalost, praca bezi vo vlakne strategie (TriggerCustomEvent).</summary>
+        /// <summary>Kazde 2 s: timer len zaradi udalost, praca bezi vo vlakne strategie (TriggerCustomEvent).</summary>
         private void ControlStartTimer()
         {
             if (_controlPath == null || _controlTimer != null) return;
             try
             {
-                _controlTimer = new System.Timers.Timer(5000);
+                _controlTimer = new System.Timers.Timer(2000);   // pokyn z webapp = heartbeat agenta (3 s) + tento interval
                 _controlTimer.AutoReset = true;
                 _controlTimer.Elapsed += OnControlTimer;
                 _controlTimer.Start();

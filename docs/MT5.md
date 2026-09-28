@@ -208,7 +208,7 @@ python -m tradebot.live tail --instance <inštancia>                            
 Zápis je atomický (tmp + rename), EA číta s `FILE_COMMON | FILE_SHARE_*`. Čo EA robí (`TradeBotEA.mqh`,
 `CheckControl`/`ApplyControl`):
 
-- **kedy číta**: `OnTimer` každých 5 s (jeden spoločný timer so screenshotom) a po každom novom bare grafu;
+- **kedy číta**: `OnTimer` každé 2 s (jeden spoločný timer so screenshotom) a po každom novom bare grafu;
   zmena sa spozná podľa `FILE_MODIFY_DATE` + `FILE_SIZE`, čítanie teda nezávisí od tikov — funguje aj so
   zavretým trhom. Pri štarte sa súbor číta ešte pred stavbou engine-u, takže **profil z control súboru má
   prednosť pred `InpProfile`** a EA sa hneď rozbehne v uloženom režime (po reštarte terminálu ostáva to, čo

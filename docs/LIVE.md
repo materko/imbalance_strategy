@@ -21,7 +21,7 @@ NT8 strategia / MT5 EA ──► TradeBot.Core LiveSpool ──► spool/<instan
 **Oneskorenie bar → stránka ≈ 2–4 s** (súčet: zápis hneď + strážca do 1 s + HTTP + zrkadlo do 2 s
 + push hneď). Predtým to bol heartbeat 10 s + zrkadlo 5 s + polling stránky 5 s, teda do 20 s.
 Pokyny opačným smerom (control súbor, fáza 2) idú heartbeatom (3 s) a adaptér súbor číta
-každých 5 s → ≈ 3 + 5 s.
+každé 2 s → ≈ 3 + 2 s.
 
 Každý uzol smie byť dole a nič sa nestratí:
 
@@ -254,10 +254,10 @@ súbor. Chýbajúci súbor = `enabled` + profil z parametrov stratégie (dnešn�
   čakajúcich vstupov** — adaptér zahodí engine, postaví nový z nového profilu a prehrá predhistóriu
   (engine je deterministický, výsledok je ako čerstvý štart; MT5 to v `OnInit` robí aj dnes). Kým nie
   je flat, zmena čaká (`control` udalosť so `source:"pending"`). Vynútenie = najprv `flatten`.
-- Adaptér súbor kontroluje podľa mtime **každých 5 s** (MT5 `OnTimer`, NT `System.Timers.Timer` +
-  `TriggerCustomEvent`, nech to beží vo vlákne stratégie; AddOn takisto 5 s) a pri každom bare. Každá
+- Adaptér súbor kontroluje podľa mtime **každé 2 s** (MT5 `OnTimer`, NT `System.Timers.Timer` +
+  `TriggerCustomEvent`, nech to beží vo vlákne stratégie; AddOn takisto 2 s) a pri každom bare. Každá
   aplikovaná zmena ide do spoolu ako `control` (`mode`, `profile`, `source`: `control`/`default`/`pending`)
-  a do logu. Oneskorenie pokynu z webapp ≈ heartbeat agenta (3 s) + tých 5 s.
+  a do logu. Oneskorenie pokynu z webapp ≈ heartbeat agenta (3 s) + tie 2 s.
   TODO: znížiť poll adaptérov na 1–2 s (NT `Timer`, MT5 `EventSetTimer`, AddOn) — C#/MQL, mení sa zvlášť.
 - Id inštancie adaptér pozná zo spoolu (`LiveSpool.Instance`, MT5 `StaticHost::SpoolInstance`);
   keď je telemetria vypnutá, spočíta ho `LiveSpool.InstanceId` / `StaticHost::InstanceId`.
