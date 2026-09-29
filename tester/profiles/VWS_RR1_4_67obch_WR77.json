@@ -1,0 +1,81 @@
+{
+  "sessionStartH": 9,
+  "sessionStartM": 30,
+  "sessionEndH": 11,
+  "sessionEndM": 30,
+  "weekdaysOnly": true,
+  "vwapAnchor": "ny_open",
+  "vwapPeriod": "chart",
+  "driftBars": 6,
+  "driftMinAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "tradeDirection": "Long only",
+  "entryMode": "stop",
+  "stopValidBars": 3,
+  "confirmBars": 1,
+  "pbWickPct": 50,
+  "pbBodyPct": 15,
+  "awayAtr": {
+    "value": 0.5,
+    "unit": "atr"
+  },
+  "touchTolAtr": {
+    "value": 0.3,
+    "unit": "atr"
+  },
+  "failCloseAtr": {
+    "value": 0.5,
+    "unit": "atr"
+  },
+  "firstPullbackOnly": false,
+  "everyBounce": true,
+  "bounceAwayAtr": {
+    "value": 1.0,
+    "unit": "atr"
+  },
+  "maxBouncesPerDay": 5,
+  "tradeBreakout": true,
+  "breakoutAtr": {
+    "value": 1.0,
+    "unit": "atr"
+  },
+  "breakoutWithBias": false,
+  "maxBreakoutsPerDay": 1,
+  "entryDelayMinutes": 60,
+  "entryWindowMinutes": 180,
+  "maxTradesPerDay": 1,
+  "atrLen": 14,
+  "slMode": "pullback",
+  "slBufferAtr": {
+    "value": 0.25,
+    "unit": "atr"
+  },
+  "slAtr": {
+    "value": 1.5,
+    "unit": "atr"
+  },
+  "slSwingBars": 3,
+  "rrRatio": 1.4,
+  "closeAtSessionEnd": true,
+  "riskDollar": 100.0,
+  "showVwap": true,
+  "tickDollarValue": 0.5,
+  "legacyPineSizing": false,
+  "minSlDistance": 0.0,
+  "leverage": 1.0,
+  "_strategy": "vwapdrift",
+  "_instrument": "mnq_databento",
+  "_title": "VWAP Session 1.0: posl. rok 67 obch, 77.6 % WR, RR 1.4, reálny zisk:strata 1.05, PF 3.65, +3524 $",
+  "_comment": [
+    "VWAP Session 1.0: posl. rok 67 obch, 77.6 % WR, RR 1.4, reálny zisk:strata 1.05, PF 3.65, +3524 $",
+    "Predch. rok (24/25): 55 obch, 41.8 % WR, -554 $",
+    "Testy 28.-29.9.2026, emulátor MultiCharts, MNQ, BEZ nákladov, riziko 100 $/obchod (min. 1 kontrakt)."
+  ],
+  "_timeframe": "3m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

@@ -1,0 +1,103 @@
+{
+  "sessionMode": "ny",
+  "nyStartH": 9,
+  "nyStartM": 30,
+  "nyRangeMinutes": 45,
+  "nyEndH": 15,
+  "nyEndM": 55,
+  "lonStartH": 8,
+  "lonStartM": 0,
+  "lonRangeMinutes": 15,
+  "lonEndH": 16,
+  "lonEndM": 30,
+  "tradeDirection": "Both",
+  "entryMode": "close",
+  "breakBufferAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "retestMaxBars": 10,
+  "entryWindowMinutes": 240,
+  "maxTradesPerDay": 3,
+  "minRangePct": 0.2,
+  "maxRangePct": 1.0,
+  "useVolumeFilter": true,
+  "volSmaLen": 50,
+  "volMultiplier": 2.0,
+  "minClosePosPct": 25,
+  "weekdaysOnly": true,
+  "emaLen": 20,
+  "emaFilter": true,
+  "emaRangeFilter": false,
+  "emaExit": false,
+  "slMode": "opposite",
+  "slRangePct": 25,
+  "atrLen": 14,
+  "slAtrMult": {
+    "value": 1,
+    "unit": "atr"
+  },
+  "slBufferAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "tpMode": "rr",
+  "rrRatio": 1.25,
+  "measuredMult": 1.0,
+  "tpAtrMult": 2.0,
+  "enableTrailing": true,
+  "trailActivationR": 0.5,
+  "trailOffsetR": 0.25,
+  "closeAtSessionEnd": true,
+  "riskDollar": 100.0,
+  "showRange": true,
+  "showLevels": true,
+  "showEma": false,
+  "tickDollarValue": 0.5,
+  "legacyPineSizing": false,
+  "minSlDistance": 0.0,
+  "leverage": 1.0,
+  "vwapAnchor": "session",
+  "vwapPeriod": "15",
+  "vwapRule": "direction",
+  "entryTiming": "any",
+  "vwapBreakAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "closeBeyondVwap": false,
+  "vwapDriftBars": 3,
+  "vwapDriftMinAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "exitMode": "tp",
+  "vwapExitAtr": {
+    "value": 0.25,
+    "unit": "atr"
+  },
+  "vwapStop": false,
+  "vwapStopAtr": {
+    "value": 0.5,
+    "unit": "atr"
+  },
+  "vwapTp": false,
+  "vwapTpAtr": {
+    "value": 0.1,
+    "unit": "atr"
+  },
+  "showVwap": true,
+  "_strategy": "vwaporb",
+  "_instrument": "mnq_databento",
+  "_title": "VWAP ORB 1.5: posl. rok 62 obch, 82.3 % WR, RR 1.25, reálny zisk:strata 1.25, PF 5.81, +8125 $",
+  "_comment": [
+    "VWAP ORB 1.5: posl. rok 62 obch, 82.3 % WR, RR 1.25, reálny zisk:strata 1.25, PF 5.81, +8125 $",
+    "Predch. rok (24/25): 70 obch, 48.6 % WR, -1710 $",
+    "Testy 28.-29.9.2026, emulátor MultiCharts, MNQ, BEZ nákladov, riziko 100 $/obchod (min. 1 kontrakt)."
+  ],
+  "_timeframe": "2m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

@@ -1,0 +1,399 @@
+$ /Users/martin/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/IBS/deploy/freqtrade/config.tester.cfd.json --userdir /Users/martin/IBS/deploy/freqtrade/user_data --strategy LiquidityStrategy --cache none --export trades --timerange 20250904-20260904 --pairs MNQ/USD --timeframe 5m --dry-run-wallet 10000.0 --fee 0.0 --datadir /Users/martin/IBS/data/tester/databento --backtest-directory /Users/martin/IBS/deploy/freqtrade/user_data/backtest_results/20260928-161416-7915b5
+2026-09-28 18:14:17,843 - freqtrade - INFO - freqtrade 2026.8
+2026-09-28 18:14:18,813 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/IBS/deploy/freqtrade/config.tester.cfd.json ...
+2026-09-28 18:14:18,816 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-09-28 18:14:18,816 - freqtrade.loggers - INFO - Logfile configured
+2026-09-28 18:14:18,816 - freqtrade.loggers - INFO - Verbosity set to 0
+2026-09-28 18:14:18,816 - freqtrade.configuration.configuration - INFO - Parameter -i/--timeframe detected ... Using timeframe: 5m ...
+2026-09-28 18:14:18,816 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2026-09-28 18:14:18,817 - freqtrade.configuration.configuration - INFO - Parameter --dry-run-wallet detected, overriding dry_run_wallet to: 10000.0 ...
+2026-09-28 18:14:18,817 - freqtrade.configuration.configuration - INFO - Parameter --fee detected, setting fee to: 0.0 ...
+2026-09-28 18:14:18,817 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20250904-20260904 ...
+2026-09-28 18:14:18,817 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/IBS/deploy/freqtrade/user_data ...
+2026-09-28 18:14:18,817 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/IBS/data/tester/databento ...
+2026-09-28 18:14:18,817 - freqtrade.configuration.configuration - INFO - Using /Users/martin/IBS/deploy/freqtrade/user_data/backtest_results/20260928-161416-7915b5 as backtest directory ...
+2026-09-28 18:14:18,817 - freqtrade.configuration.configuration - INFO - Parameter --export detected: trades ...
+2026-09-28 18:14:18,817 - freqtrade.configuration.configuration - INFO - Parameter --cache=none detected ...
+2026-09-28 18:14:18,818 - freqtrade.configuration.configuration - INFO - Using pairs ['MNQ/USD']
+2026-09-28 18:14:18,818 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20250904-20260904
+2026-09-28 18:14:18,818 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2026-09-28 18:14:18,820 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+team. It may work flawlessly (please report back) or have serious issues. Use it at your own discretion.
+2026-09-28 18:14:18,821 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-28 18:14:18,822 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2026-09-28 18:14:18,822 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2026-09-28 18:14:18,822 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.78
+2026-09-28 18:14:18,822 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-28 18:14:18,824 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'swap'}}
+2026-09-28 18:14:18,826 - freqtrade.exchange.exchange - INFO - Using Exchange "Tester"
+2026-09-28 18:14:18,830 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange class 'Tester' ...
+2026-09-28 18:14:18,963 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy LiquidityStrategy from '/Users/martin/IBS/deploy/freqtrade/user_data/strategies/LiquidityStrategy.py'...
+2026-09-28 18:14:18,963 - freqtrade.strategy.hyper - INFO - Found no parameter file.
+2026-09-28 18:14:19,371 - freqtrade.data.converter.converter - INFO - Missing data fillup for MNQ/USD, 5m: before: 519524 - after: 773304 - 48.85%
+2026-09-28 18:14:19,372 - tradebot.adapters.freqtrade.base - INFO - liquidity: startup_candle_count 300 na 5m (engine 30: ATR 14 + SL okno 8: 30; likvidita 5m @5m: 1465 vlastnych; likvidita 30m @30m: 
+265 vlastnych)
+2026-09-28 18:14:19,372 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'timeframe' with value from the configuration: 5m.
+2026-09-28 18:14:19,373 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USD.
+2026-09-28 18:14:19,373 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: unlimited.
+2026-09-28 18:14:19,373 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'unfilledtimeout' with value from the configuration: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 
+'unit': 'minutes'}.
+2026-09-28 18:14:19,373 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2026-09-28 18:14:19,373 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 100.0}
+2026-09-28 18:14:19,373 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 5m
+2026-09-28 18:14:19,373 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.99
+2026-09-28 18:14:19,374 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: False
+2026-09-28 18:14:19,374 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2026-09-28 18:14:19,374 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2026-09-28 18:14:19,375 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: True
+2026-09-28 18:14:19,375 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2026-09-28 18:14:19,375 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2026-09-28 18:14:19,376 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2026-09-28 18:14:19,376 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USD
+2026-09-28 18:14:19,376 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: unlimited
+2026-09-28 18:14:19,376 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 300
+2026-09-28 18:14:19,377 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using unfilledtimeout: {'entry': 30, 'exit': 10, 'exit_timeout_count': 0, 'unit': 'minutes'}
+2026-09-28 18:14:19,377 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2026-09-28 18:14:19,377 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2026-09-28 18:14:19,377 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2026-09-28 18:14:19,377 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2026-09-28 18:14:19,377 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2026-09-28 18:14:19,377 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2026-09-28 18:14:19,377 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2026-09-28 18:14:19,377 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2026-09-28 18:14:19,378 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2026-09-28 18:14:19,378 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2026-09-28 18:14:19,384 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'/Users/martin/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-09-28 18:14:19,384 - freqtrade.optimize.backtesting - INFO - Using fee 0.0000% from config.
+2026-09-28 18:14:19,445 - freqtrade.data.converter.converter - INFO - Missing data fillup for MNQ/USD, 5m: before: 71173 - after: 105421 - 48.12%
+2026-09-28 18:14:19,446 - freqtrade.optimize.backtesting - INFO - Loading data from 2025-09-02 23:00:00 up to 2026-09-04 00:00:00 (366 days).
+2026-09-28 18:14:19,446 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, funding_rate, 1h found. Use `freqtrade download-data` to download the data
+2026-09-28 18:14:19,447 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, mark, 1h found. Use `freqtrade download-data` to download the data
+2026-09-28 18:14:19,964 - freqtrade.optimize.backtesting - INFO - Dataload complete. Calculating indicators
+2026-09-28 18:14:19,965 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy LiquidityStrategy
+2026-09-28 18:14:20,018 - tradebot.adapters.freqtrade.live - INFO - liquidity MNQ/USD: indikatory seedovane pred behom (likvidita 5m 1465, likvidita 30m 265)
+2026-09-28 18:14:21,460 - tradebot.adapters.freqtrade.base - INFO - liquidity MNQ/USD: 105421 barov, 138 signalov (138 long / 0 short)
+2026-09-28 18:14:21,493 - tradebot.adapters.freqtrade.base - INFO - liquidity MNQ/USD: kresby ulozene do /Users/martin/IBS/tester/runs/.profiles/20260928-161416-7915b5.chart.json.gz (8195 objektov)
+2026-09-28 18:14:21,497 - freqtrade.optimize.backtesting - INFO - Backtesting with data from 2025-09-04 00:00:00 up to 2026-09-04 00:00:00 (365 days).
+2026-09-28 18:14:21,609 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 95143.00 na 9900.00 (10.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,610 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 190152.00 na 9900.00 (5.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,612 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 95372.00 na 9900.00 (10.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,617 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 96102.00 na 9900.00 (10.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,617 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 48235.50 na 9900.00 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,623 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 48542.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,625 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 98122.00 na 9900.00 (10.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,636 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 49884.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,641 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 49453.00 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,646 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 99439.00 na 9900.00 (10.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,646 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 49663.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,651 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50063.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,653 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50012.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,660 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50408.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,668 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 49518.00 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,672 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50169.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,679 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 151836.00 na 9900.00 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,683 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50388.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,685 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50968.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,689 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51676.50 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,693 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 105019.00 na 9900.00 (9.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,693 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 52492.00 na 9900.00 (18.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,713 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50014.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,718 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50966.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,720 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51194.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,721 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51153.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,722 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 204736.00 na 9900.00 (4.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,722 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 102248.00 na 9900.00 (9.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,724 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50762.50 na 9900.00 (19.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,731 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 49062.00 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,736 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 48389.00 na 9900.00 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,752 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50977.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,755 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51102.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,761 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51402.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,761 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 102470.00 na 9900.00 (9.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,771 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50250.50 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,781 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 256937.50 na 9900.00 (3.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,783 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 103077.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,787 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51798.50 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,795 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51160.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,798 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51112.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,798 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50590.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,807 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51218.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,807 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51256.00 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,815 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51708.00 na 9900.00 (19.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,816 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50996.50 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,817 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51140.00 na 9900.00 (19.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,819 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51361.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,820 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51407.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,830 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 102833.00 na 9900.00 (9.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,836 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 52165.50 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,836 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 52149.00 na 9900.00 (19.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,838 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 104675.00 na 9900.00 (9.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,839 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51363.50 na 9900.00 (19.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,847 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 101959.00 na 9900.00 (9.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,852 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50210.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,852 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50193.00 na 9900.00 (19.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,859 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50424.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,860 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50610.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,867 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 49446.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,873 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 49569.00 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,884 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 49761.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,885 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 49877.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,891 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 49639.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,894 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50083.00 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,903 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 49869.50 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,904 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 49904.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,905 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 49409.50 na 9900.00 (20.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,911 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 49797.00 na 9900.00 (19.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,913 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50068.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,924 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 48893.00 na 9900.00 (20.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,925 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 48719.00 na 9900.00 (20.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,935 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 48334.00 na 9900.00 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,937 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 48292.50 na 9900.00 (20.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,943 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 48613.00 na 9900.00 (20.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,943 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 97373.00 na 9900.00 (10.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,947 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50069.50 na 9900.00 (19.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,949 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50578.50 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,949 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 50530.00 na 9900.00 (19.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,955 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 51647.00 na 9900.00 (19.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,970 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 109566.00 na 9900.00 (9.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,975 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 54775.50 na 9900.00 (18.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,975 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 54710.50 na 9900.00 (18.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,978 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 54450.00 na 9900.00 (18.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,986 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 55452.00 na 9900.00 (17.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,989 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 57124.50 na 9900.00 (17.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,990 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 57708.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,991 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 57482.00 na 9900.00 (17.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:21,993 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 58588.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,003 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 58601.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,007 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 58488.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,012 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 58470.00 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,014 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59128.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,014 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59374.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,014 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59309.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,021 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59987.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,025 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 60720.00 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,025 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 121592.00 na 9900.00 (8.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,041 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 58874.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,046 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59270.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,053 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 60938.00 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,053 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 60758.00 na 9900.00 (16.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,055 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 61355.00 na 9900.00 (16.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,061 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 61167.00 na 9900.00 (16.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,062 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59248.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,064 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59320.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,067 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59185.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,067 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59002.50 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,077 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59408.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,079 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 179371.50 na 9900.00 (5.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,079 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59844.00 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,087 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 58282.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,088 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 58705.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,095 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59038.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,097 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59601.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,098 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59202.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,100 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 58678.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,106 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 57936.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,108 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 58286.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,109 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 58539.50 na 9900.00 (16.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,128 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 57801.50 na 9900.00 (17.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,131 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59665.00 na 9900.00 (16.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,132 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59429.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,135 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59405.00 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,143 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 118584.00 na 9900.00 (8.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,143 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59189.50 na 9900.00 (16.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,144 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59849.50 na 9900.00 (16.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,146 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 120779.00 na 9900.00 (8.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,148 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 60478.50 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,148 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 60319.00 na 9900.00 (16.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,153 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 120364.00 na 9900.00 (8.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,156 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 58942.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,156 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 58988.00 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,157 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 59022.50 na 9900.00 (16.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,174 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 117597.00 na 9900.00 (8.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,176 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 58285.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,176 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 58151.50 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+2026-09-28 18:14:22,178 - tradebot.adapters.freqtrade.callbacks - WARNING - liquidity MNQ/USD: stake orezany z 58191.00 na 9900.00 (17.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku
+neuplatni cely.
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4/4           100% • 0:00:02 • 0:00:00
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 105120/105120 100% • 0:00:02 • 0:00:00
+2026-09-28 18:14:22,320 - freqtrade.misc - INFO - dumping json to "/Users/martin/IBS/deploy/freqtrade/user_data/backtest_results/20260928-161416-7915b5/backtest-result-2026-09-28_16-14-22.meta.json"
+Result for strategy LiquidityStrategy
+                                            BACKTESTING REPORT                                             
+┏━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃    Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ MNQ/USD │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+│   TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┏━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                               ENTER TAG STATS                                                
+┏━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Entries ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │       0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                              EXIT REASON STATS                                               
+┏━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Exit Reason ┃ Exits ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│       TOTAL │     0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                      MIXED TAG STATS                                                      
+┏━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Exit Reason ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │             │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+No trades made. Your starting balance was 10000 USD, and your stake was unlimited.
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                          STRATEGY SUMMARY                                                          
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃          Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃     Drawdown ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ LiquidityStrategy │      0 │         0.00 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │ 0 USD  0.00% │
+└───────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────┘
+POZOR: engine dal 138 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh.
