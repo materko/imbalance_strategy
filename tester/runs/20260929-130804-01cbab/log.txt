@@ -1,0 +1,30 @@
+$ emulator MultiCharts MNQ 5m 20190505-20260910 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: likvidita 5m @5m 0/1465, likvidita 30m @30m 0/265
+emulacia MultiCharts: 519248 barov 5m, 2591788 1m, 0 HTF
+  20000/519248 barov, 50 obchodov
+  40000/519248 barov, 106 obchodov
+  60000/519248 barov, 143 obchodov
+  80000/519248 barov, 183 obchodov
+  100000/519248 barov, 225 obchodov
+  120000/519248 barov, 287 obchodov
+  140000/519248 barov, 328 obchodov
+  160000/519248 barov, 377 obchodov
+  180000/519248 barov, 419 obchodov
+  200000/519248 barov, 457 obchodov
+  220000/519248 barov, 483 obchodov
+  240000/519248 barov, 520 obchodov
+  260000/519248 barov, 571 obchodov
+  280000/519248 barov, 607 obchodov
+  300000/519248 barov, 658 obchodov
+  320000/519248 barov, 695 obchodov
+  340000/519248 barov, 735 obchodov
+  360000/519248 barov, 781 obchodov
+  380000/519248 barov, 844 obchodov
+  400000/519248 barov, 886 obchodov
+  420000/519248 barov, 927 obchodov
+  440000/519248 barov, 966 obchodov
+  460000/519248 barov, 1006 obchodov
+  480000/519248 barov, 1043 obchodov
+  500000/519248 barov, 1078 obchodov
+hotovo: 1121 obchodov, nerozhodnutelnych minut 3
+kresby: {'liq_sell': 42963, 'liq_event': 13781, 'liq_entry': 1121}
