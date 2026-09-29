@@ -16,6 +16,7 @@ from .ibsnet import SPEC as IBSNET_SPEC
 from .ibsentry import SPEC as IBSENTRY_SPEC
 from .ibsfvg import SPEC as IBSFVG_SPEC
 from .ibszones import SPEC as IBSZONES_SPEC
+from .jss import SPEC as JSS_SPEC
 from .liquidity import SPEC as LIQUIDITY_SPEC
 from .orb import SPEC as ORB_SPEC
 from .orbnet import SPEC as ORBNET_SPEC
@@ -45,6 +46,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     LIQUIDITY_SPEC.key: LIQUIDITY_SPEC,
     VWAPDRIFT_SPEC.key: VWAPDRIFT_SPEC,
     VWAPORB_SPEC.key: VWAPORB_SPEC,
+    JSS_SPEC.key: JSS_SPEC,
 }
 
 #: Staré kľúče -> dnešné. História behov, profily a odkazy z minulosti sa nemenia na disku;
