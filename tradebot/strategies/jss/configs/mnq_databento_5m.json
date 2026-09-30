@@ -1,12 +1,12 @@
 {
-  "_title": "MNQ futures 5m — JSS 1.0: BOS / CHoCH na 5m, limitka na hranu SD zóny, stop za zónou, RR 2",
+  "_title": "MNQ futures 5m — JSS 1.0: BOS / CHoCH na 4h, SD zóna 4h upresnená 15m zónou, limitka na jej hranu, RR 2",
   "_strategy": "jss",
   "_instrument": "mnq_databento",
   "_timeframe": "5m",
   "_comment": [
-    "Vychodiskovy profil JSS 1.0 (2026-09-29): defaulty configu na MNQ 5m.",
-    "Struktura 5m (swing 3 bary), BOS aj CHoCH; zona = posledna opacna sviecka pred impulzom na zaciatku nohy;",
-    "limitka na hranu zony pri prvom navrate, stop za protilahlou hranou (+0,1 ATR), ciel 2R.",
+    "Vychodiskovy profil JSS 1.0 (2026-09-30): defaulty configu na MNQ 5m.",
+    "Struktura 4h (swing 3 bary), BOS aj CHoCH; zona 4h = posledna opacna sviecka pred impulzom na zaciatku nohy;",
+    "v nej 15m zona tou istou definiciou - limitka na jej hranu, stop za 15m zonu (+0,1 ATR), ciel 2R.",
     "Nie je to obchodne odporucanie - je to vychodisko na dalsie ladenie."
   ],
   "tickDollarValue": 0.5

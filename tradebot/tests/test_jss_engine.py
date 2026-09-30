@@ -82,3 +82,31 @@ def test_swing_sa_nepouzije_skor_nez_je_potvrdeny():
     rows = [(106, 107, 103, 104), (104, 105, 101, 102), (102, 103, 100, 101), (101, 104, 99.5, 99.6)]
     _run(e, rows)
     assert e.zone is None and e.trend == 0
+
+
+def _split(rows):
+    """Každý riadok ako 10m sviečka z dvoch 5m: prvá o -> stred, druhá nesie high/low aj zavretie."""
+    out = []
+    for o, h, lo, c in rows:
+        m = (o + c) / 2
+        out += [(o, max(o, m), min(o, m), m), (m, h, lo, c)]
+    return out
+
+
+def test_zona_tf_struktury_sa_upresni_zonou_nizsieho_tf_a_limitka_ide_na_nu():
+    """Štruktúra 10m, upresnenie 5m: 10m zóna 103–110, v nej 5m zóna 104,5–110 — limitka na 104,5."""
+    rows = _split(_ROWS)
+    rows[10] = (104, 105, 103, 104.8)      # 10m zóna (index 5) = 5m 104->104,8 a 104,8->109
+    rows[11] = (104.8, 110, 104.5, 109)
+    e = JssEngine(_cfg(structTF=10, refineTF=5, impulseAtr=0.3), MNQ, 5)
+    outs = _run(e, rows)
+    z = e.zone
+    assert z is not None and z.refined
+    assert (z.htf_top, z.htf_bot) == (110, 103) and (z.top, z.bot) == (110, 104.5)
+    o = [x for x in outs[-1].orders if x.action is OrderAction.ENTRY][0]
+    assert o.order_type is OrderType.LIMIT and o.plan.entry == 104.5 and o.plan.stop_loss == 110
+
+
+def test_bez_upresnenia_ked_refine_tf_nie_je_nizsi_nez_struktura():
+    e = JssEngine(_cfg(structTF=5, refineTF=15), MNQ, 5)
+    assert e.ragg is None

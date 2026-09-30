@@ -2,10 +2,12 @@
 
 Stratégia nemá Pine predlohu; pravidlá zadal používateľ (29. 9. 2026):
 
-  1. na TF štruktúry (`structTF`, skladá sa z barov grafu) príde BOS alebo CHoCH —
+  1. na TF štruktúry (`structTF`, default 4h, skladá sa z barov grafu) príde BOS alebo CHoCH —
      sviečka **zavrie** za posledným potvrdeným swingom,
   2. nájde sa najbližšia SD zóna, ktorá ten pohyb spôsobila (báza / posledná opačná sviečka
      pred impulzom na začiatku nohy, ktorá swing prerazila),
+  2b. v tej zóne sa nájde zóna nižšieho TF (`refineTF`, default 15m) rovnakou definíciou —
+     na nej je limitka (upresnenie vstupu, 30. 9. 2026),
   3. vstup pri návrate do zóny: limitka na hranu zóny, alebo po dotyku IBS imbalance /
      pin bar na grafe (nižší TF),
   4. SL za protiľahlú hranu zóny, cieľ RR alebo extrém nohy, ktorá BOS spravila.
@@ -24,7 +26,7 @@ from tradebot.core.config import StrategyConfig
 from tradebot.core.types import SizeSpec, SizeUnit
 
 __all__ = ["JssConfig", "TriggerMode", "ZoneType", "ZoneEdge", "EntryModel", "TpMode",
-           "TradeDirection", "STRUCT_TFS", "CONFIG_DIR"]
+           "TradeDirection", "SlFrom", "STRUCT_TFS", "CONFIG_DIR"]
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 
@@ -55,6 +57,11 @@ class EntryModel(str, Enum):
     ANY = "any"              # imbalance alebo pin bar
 
 
+class SlFrom(str, Enum):
+    REFINED = "refined"  # za upresnenú zónu nižšieho TF (tesnejší stop)
+    HTF = "htf"          # za zónu TF štruktúry
+
+
 class TpMode(str, Enum):
     RR = "rr"                # násobok stopu
     STRUCTURE = "structure"  # extrém nohy, ktorá BOS spravila (nové dno / vrchol)
@@ -82,11 +89,13 @@ ENUM_FIELDS: dict[str, type] = {
     "zoneEdge": ZoneEdge,
     "entryModel": EntryModel,
     "tpMode": TpMode,
+    "slFrom": SlFrom,
     "tradeDirection": TradeDirection,
 }
 
 CONSTRAINTS: dict[str, tuple[float, float]] = {
-    "structTF": (1, 240),
+    "structTF": (1, 1440),
+    "refineTF": (0, 240),
     "swingLen": (1, 30),
     "baseMaxBars": (1, 20),
     "zoneMaxAgeBars": (0, 5000),
@@ -122,7 +131,9 @@ class JssConfig(StrategyConfig):
     PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS
 
     # ---- 🧭 Štruktúra ---------------------------------------------------- #
-    structTF: int = 5
+    structTF: int = 240
+    #: TF zóny na upresnenie vstupu v zóne TF štruktúry (0 = vypnuté; musí byť nižší než structTF)
+    refineTF: int = 15
     swingLen: int = 3
     triggerMode: TriggerMode = TriggerMode.BOTH
     atrLen: int = 14
@@ -153,6 +164,7 @@ class JssConfig(StrategyConfig):
     tradeEndH: int = 16
     tradeEndM: int = 0
     # ---- 🛡️ Stop a cieľ --------------------------------------------------- #
+    slFrom: SlFrom = SlFrom.REFINED
     slBufferAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.1, "atr"))
     #: rezerva stopu v bodoch ceny za zónou — priestor na výber likvidity (pripočíta sa k ATR rezerve)
     slBufferPoints: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "abs"))

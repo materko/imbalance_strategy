@@ -21,6 +21,9 @@ PARAMS: dict[str, dict[str, Any]] = {
     "structTF": dict(group=_G0, title="TF struktury (min)",
                      tooltip="Na tomto TF sa hladaju swingy, BOS a zona. Musi byt nasobkom TF grafu; vstupne "
                              "modely bezia na grafe (nizsi TF)."),
+    "refineTF": dict(group=_G0, title="TF upresnenia (min)",
+                     tooltip="V zone TF struktury sa najde zona tohto nizsieho TF (napr. 4h -> 15m) a limitka ide "
+                             "na nu. 0 = vypnute, obchoduje sa priamo zona TF struktury."),
     "swingLen": dict(group=_G0, title="Swing: barov z kazdej strany",
                      tooltip="Vrchol/dno je swing, ked je najvyssi/najnizsi aspon o tolkoto barov dolava aj doprava."),
     "triggerMode": dict(group=_G0, title="Spustac",
@@ -57,6 +60,8 @@ PARAMS: dict[str, dict[str, Any]] = {
     "tradeStartM": dict(group=_G3, title="M", inline="tws", tooltip="Zaciatok okna - minuta."),
     "tradeEndH": dict(group=_G3, title="Okno do (H)", inline="twe", tooltip="Koniec okna - hodina."),
     "tradeEndM": dict(group=_G3, title="M", inline="twe", tooltip="Koniec okna - minuta."),
+    "slFrom": dict(group=_G4, title="Stop za zonu",
+                   tooltip="refined = za upresnenu zonu nizsieho TF (tesnejsi stop); htf = za zonu TF struktury."),
     "slBufferAtr": dict(group=_G4, title="Stop za zonou (ATR)", tooltip="Rezerva stopu za protilahlou hranou zony v ATR."),
     "slBufferPoints": dict(group=_G4, title="Stop za zonou (body)",
                            tooltip="Rezerva stopu v bodoch ceny, keby cena vybrala likviditu za zonou. "
