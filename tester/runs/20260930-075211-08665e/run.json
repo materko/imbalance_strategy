@@ -1,0 +1,195 @@
+{
+  "id": "20260930-075211-08665e",
+  "status": "done",
+  "created": "2026-09-30T07:52:11+00:00",
+  "started": "2026-09-30T07:52:11+00:00",
+  "finished": "2026-09-30T07:52:11+00:00",
+  "user": "tester",
+  "note": "porovnanie s TradingView DriftVWAP Strat, rovnake okno Aug31-Sep30 2026",
+  "settings": {
+    "strategy": "vwapop",
+    "exchange": null,
+    "sweep": null,
+    "pair": "MNQ/USD",
+    "engine": "multicharts",
+    "timeframe": "3m",
+    "timerange": "20260831-20260930",
+    "fee": 1.2727342149138996e-05,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 10000.0,
+    "timeframe_detail": "1m",
+    "profile": "mnq_databento_5m",
+    "instrument": "mnq_databento"
+  },
+  "params": {
+    "htf": 3,
+    "rthSess": "0930-1600",
+    "driftLen": 3,
+    "driftAtr": 0.1,
+    "needSide": true,
+    "tolAtr": 0.1,
+    "needClose": true,
+    "firstOnly": true,
+    "maxTrades": 2,
+    "tradeWin": "0945-1530",
+    "allowLong": true,
+    "allowShort": true,
+    "slAtr": 0.7,
+    "rr": 1,
+    "useBE": false,
+    "closeEOD": false,
+    "flatTime": "1555-1600",
+    "showCross": true,
+    "colUp": "#22c55e",
+    "colDn": "#ef4444",
+    "colFlat": "#9ca3af",
+    "riskDollar": 100.0,
+    "legacyPineSizing": false,
+    "minSlDistance": 0.0,
+    "leverage": 1.0
+  },
+  "error": null,
+  "result": {
+    "trades": 8,
+    "wins": 4,
+    "losses": 4,
+    "draws": 0,
+    "winrate": 50.0,
+    "pnl_abs": -109.89,
+    "pnl_pct": -1.099,
+    "profit_factor": 0.762,
+    "max_drawdown_abs": 266.94,
+    "max_drawdown_pct": 2.645,
+    "starting_balance": 10000.0,
+    "final_balance": 9890.11,
+    "gross_abs": -93.5,
+    "volume_abs": 1287661.5,
+    "break_even_pct": -0.0073,
+    "exits": {
+      "take_profit": {
+        "n": 4,
+        "pnl_abs": 351.55
+      },
+      "stop_loss": {
+        "n": 4,
+        "pnl_abs": -461.44
+      }
+    },
+    "streaks": {
+      "win": {
+        "n": 2,
+        "from_i": 5,
+        "to_i": 6,
+        "start": "2026-09-08T14:00:00+00:00",
+        "end": "2026-09-09T13:49:00+00:00",
+        "pnl_abs": 206.0,
+        "count": 1
+      },
+      "loss": {
+        "n": 2,
+        "from_i": 3,
+        "to_i": 4,
+        "start": "2026-09-03T14:00:00+00:00",
+        "end": "2026-09-04T14:12:00+00:00",
+        "pnl_abs": -230.5,
+        "count": 1
+      }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": -0.765,
+    "backtest_start": "2026-08-31T00:00:00+00:00",
+    "backtest_end": "2026-09-10T23:57:00+00:00",
+    "holding_avg": "0:04:00",
+    "bars": 4060,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.1
+  },
+  "series": {
+    "equity": [
+      [
+        "2026-09-01T14:00:00+00:00",
+        0.9304,
+        0.9304
+      ],
+      [
+        "2026-09-02T13:49:00+00:00",
+        -0.8896,
+        0.0408
+      ],
+      [
+        "2026-09-02T14:02:00+00:00",
+        0.5252,
+        0.566
+      ],
+      [
+        "2026-09-03T14:01:00+00:00",
+        -1.1949,
+        -0.6289
+      ],
+      [
+        "2026-09-04T14:12:00+00:00",
+        -1.1101,
+        -1.739
+      ],
+      [
+        "2026-09-08T14:02:00+00:00",
+        1.26,
+        -0.479
+      ],
+      [
+        "2026-09-09T13:49:00+00:00",
+        0.8,
+        0.3209
+      ],
+      [
+        "2026-09-10T13:54:00+00:00",
+        -1.4198,
+        -1.0989
+      ]
+    ],
+    "market": [
+      [
+        "2026-08-31T00:00:00+00:00",
+        0.7238
+      ],
+      [
+        "2026-09-01T00:00:00+00:00",
+        -0.5275
+      ],
+      [
+        "2026-09-02T00:00:00+00:00",
+        -0.2996
+      ],
+      [
+        "2026-09-03T00:00:00+00:00",
+        0.7366
+      ],
+      [
+        "2026-09-04T00:00:00+00:00",
+        0.8058
+      ],
+      [
+        "2026-09-06T00:00:00+00:00",
+        0.9193
+      ],
+      [
+        "2026-09-07T00:00:00+00:00",
+        1.0089
+      ],
+      [
+        "2026-09-08T00:00:00+00:00",
+        0.7221
+      ],
+      [
+        "2026-09-09T00:00:00+00:00",
+        0.5992
+      ],
+      [
+        "2026-09-10T00:00:00+00:00",
+        -0.7648
+      ]
+    ]
+  }
+}

@@ -1,0 +1,1085 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20260922-194044-2d37",
+ "strategy": "orb",
+ "created": "2026-09-22T19:40:44+00:00",
+ "user": "tester",
+ "base": {
+  "params": {
+   "sessionMode": "ny",
+   "nyStartH": 9,
+   "nyStartM": 30,
+   "nyRangeMinutes": 5,
+   "nyEndH": 14,
+   "nyEndM": 55,
+   "lonStartH": 8,
+   "lonStartM": 0,
+   "lonRangeMinutes": 30,
+   "lonEndH": 16,
+   "lonEndM": 30,
+   "tradeDirection": "Both",
+   "entryMode": "stop",
+   "breakBufferAtr": 0.1,
+   "retestMaxBars": 10,
+   "entryWindowMinutes": 90,
+   "maxTradesPerDay": 1,
+   "minRangePct": 0.15,
+   "maxRangePct": 1.5,
+   "useVolumeFilter": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "minClosePosPct": 50,
+   "weekdaysOnly": false,
+   "emaLen": 200,
+   "emaFilter": false,
+   "emaRangeFilter": false,
+   "emaExit": false,
+   "slMode": "opposite",
+   "slRangePct": 50.0,
+   "atrLen": 7,
+   "slAtrMult": 1.0,
+   "slBufferAtr": 0.1,
+   "tpMode": "rr",
+   "rrRatio": 1.5,
+   "measuredMult": 1.0,
+   "tpAtrMult": 2.0,
+   "enableTrailing": false,
+   "trailActivationR": 1.0,
+   "trailOffsetR": 0.5,
+   "closeAtSessionEnd": true,
+   "riskDollar": 100.0,
+   "showRange": true,
+   "showLevels": true,
+   "showEma": false,
+   "tickDollarValue": null,
+   "legacyPineSizing": false,
+   "minSlDistance": 0.2,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "orb",
+   "exchange": null,
+   "pair": "MNQ/USD",
+   "engine": "multicharts",
+   "timeframe": "5m",
+   "timerange": "20240904-20250904",
+   "fee": 1.7630258224515462e-05,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 10000.0,
+   "timeframe_detail": "1m",
+   "profile": "tester/profiles/ORB_MNQ_STOP_WR55_271obch.json",
+   "instrument": "mnq_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20260922-194044-faabb4",
+   "status": "done",
+   "created": "2026-09-22T19:40:44+00:00",
+   "started": "2026-09-22T19:40:44+00:00",
+   "finished": "2026-09-22T19:40:45+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-194044-2d37: nyRangeMinutes=5 — ORB range-length sweep MNQ, 5m graf, okno 2024-2025",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 217,
+    "wins": 127,
+    "losses": 90,
+    "draws": 0,
+    "winrate": 58.53,
+    "pnl_abs": 2636.0,
+    "pnl_pct": 26.36,
+    "profit_factor": 1.159,
+    "max_drawdown_abs": 2049.33,
+    "max_drawdown_pct": 15.059,
+    "starting_balance": 10000.0,
+    "final_balance": 12636.0,
+    "gross_abs": 2958.0,
+    "volume_abs": 18264288.0,
+    "break_even_pct": 0.0162,
+    "exits": {
+     "stop_loss": {
+      "n": 86,
+      "pnl_abs": -16483.17
+     },
+     "take_profit": {
+      "n": 115,
+      "pnl_abs": 17932.37
+     },
+     "session_end": {
+      "n": 16,
+      "pnl_abs": 1186.79
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 17,
+      "from_i": 97,
+      "to_i": 113,
+      "start": "2025-02-18T14:50:00+00:00",
+      "end": "2025-03-13T13:54:00+00:00",
+      "pnl_abs": 2893.12,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 167,
+      "to_i": 171,
+      "start": "2025-06-04T13:50:00+00:00",
+      "end": "2025-06-11T16:07:00+00:00",
+      "pnl_abs": -753.2,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.529,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:55:00+00:00",
+    "holding_avg": "1:10:00",
+    "bars": 70647,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-194047-d70eac",
+   "status": "done",
+   "created": "2026-09-22T19:40:47+00:00",
+   "started": "2026-09-22T19:40:47+00:00",
+   "finished": "2026-09-22T19:40:48+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-194044-2d37: nyRangeMinutes=10 — ORB range-length sweep MNQ, 5m graf, okno 2024-2025",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 10
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 10
+   },
+   "settings": {},
+   "result": {
+    "trades": 241,
+    "wins": 131,
+    "losses": 110,
+    "draws": 0,
+    "winrate": 54.36,
+    "pnl_abs": 1435.25,
+    "pnl_pct": 14.353,
+    "profit_factor": 1.063,
+    "max_drawdown_abs": 2578.32,
+    "max_drawdown_pct": 20.209,
+    "starting_balance": 10000.0,
+    "final_balance": 11435.25,
+    "gross_abs": 1794.5,
+    "volume_abs": 20376773.5,
+    "break_even_pct": 0.0088,
+    "exits": {
+     "stop_loss": {
+      "n": 95,
+      "pnl_abs": -21297.02
+     },
+     "take_profit": {
+      "n": 103,
+      "pnl_abs": 21312.16
+     },
+     "session_end": {
+      "n": 43,
+      "pnl_abs": 1420.11
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 99,
+      "to_i": 107,
+      "start": "2025-02-04T14:55:00+00:00",
+      "end": "2025-02-14T19:55:00+00:00",
+      "pnl_abs": 1201.65,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 126,
+      "to_i": 130,
+      "start": "2025-03-14T13:55:00+00:00",
+      "end": "2025-03-20T18:55:00+00:00",
+      "pnl_abs": -1090.96,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.529,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:55:00+00:00",
+    "holding_avg": "2:07:00",
+    "bars": 70647,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-194050-05c216",
+   "status": "done",
+   "created": "2026-09-22T19:40:50+00:00",
+   "started": "2026-09-22T19:40:50+00:00",
+   "finished": "2026-09-22T19:40:51+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-194044-2d37: nyRangeMinutes=15 — ORB range-length sweep MNQ, 5m graf, okno 2024-2025",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 15
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 15
+   },
+   "settings": {},
+   "result": {
+    "trades": 239,
+    "wins": 129,
+    "losses": 110,
+    "draws": 0,
+    "winrate": 53.97,
+    "pnl_abs": 2706.86,
+    "pnl_pct": 27.069,
+    "profit_factor": 1.123,
+    "max_drawdown_abs": 1850.99,
+    "max_drawdown_pct": 14.178,
+    "starting_balance": 10000.0,
+    "final_balance": 12706.86,
+    "gross_abs": 3064.0,
+    "volume_abs": 20257304.0,
+    "break_even_pct": 0.0151,
+    "exits": {
+     "stop_loss": {
+      "n": 86,
+      "pnl_abs": -19936.15
+     },
+     "take_profit": {
+      "n": 89,
+      "pnl_abs": 20879.72
+     },
+     "session_end": {
+      "n": 64,
+      "pnl_abs": 1763.29
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 202,
+      "to_i": 210,
+      "start": "2025-07-10T13:50:00+00:00",
+      "end": "2025-07-22T13:54:00+00:00",
+      "pnl_abs": 1088.34,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 223,
+      "to_i": 227,
+      "start": "2025-08-11T14:00:00+00:00",
+      "end": "2025-08-18T14:25:00+00:00",
+      "pnl_abs": -562.89,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.529,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:55:00+00:00",
+    "holding_avg": "2:37:00",
+    "bars": 70647,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-194053-da45b6",
+   "status": "done",
+   "created": "2026-09-22T19:40:53+00:00",
+   "started": "2026-09-22T19:40:53+00:00",
+   "finished": "2026-09-22T19:40:54+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-194044-2d37: nyRangeMinutes=20 — ORB range-length sweep MNQ, 5m graf, okno 2024-2025",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 20
+   },
+   "settings": {},
+   "result": {
+    "trades": 233,
+    "wins": 128,
+    "losses": 105,
+    "draws": 0,
+    "winrate": 54.94,
+    "pnl_abs": 1769.04,
+    "pnl_pct": 17.69,
+    "profit_factor": 1.079,
+    "max_drawdown_abs": 1814.98,
+    "max_drawdown_pct": 17.029,
+    "starting_balance": 10000.0,
+    "final_balance": 11769.04,
+    "gross_abs": 2117.5,
+    "volume_abs": 19764965.5,
+    "break_even_pct": 0.0107,
+    "exits": {
+     "session_end": {
+      "n": 83,
+      "pnl_abs": 1390.34
+     },
+     "stop_loss": {
+      "n": 72,
+      "pnl_abs": -18771.18
+     },
+     "take_profit": {
+      "n": 78,
+      "pnl_abs": 19149.87
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 56,
+      "to_i": 62,
+      "start": "2024-11-27T14:55:00+00:00",
+      "end": "2024-12-09T16:05:00+00:00",
+      "pnl_abs": 973.51,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 7,
+      "to_i": 10,
+      "start": "2024-09-13T14:25:00+00:00",
+      "end": "2024-09-18T18:00:00+00:00",
+      "pnl_abs": -652.04,
+      "count": 3
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.529,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:55:00+00:00",
+    "holding_avg": "3:13:00",
+    "bars": 70647,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-194057-c522c5",
+   "status": "done",
+   "created": "2026-09-22T19:40:57+00:00",
+   "started": "2026-09-22T19:40:57+00:00",
+   "finished": "2026-09-22T19:40:57+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-194044-2d37: nyRangeMinutes=25 — ORB range-length sweep MNQ, 5m graf, okno 2024-2025",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 25
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 25
+   },
+   "settings": {},
+   "result": {
+    "trades": 225,
+    "wins": 117,
+    "losses": 108,
+    "draws": 0,
+    "winrate": 52.0,
+    "pnl_abs": -1872.5,
+    "pnl_pct": -18.725,
+    "profit_factor": 0.919,
+    "max_drawdown_abs": 3110.17,
+    "max_drawdown_pct": 30.748,
+    "starting_balance": 10000.0,
+    "final_balance": 8127.5,
+    "gross_abs": -1536.5,
+    "volume_abs": 19058364.5,
+    "break_even_pct": -0.0081,
+    "exits": {
+     "session_end": {
+      "n": 104,
+      "pnl_abs": 2774.87
+     },
+     "stop_loss": {
+      "n": 68,
+      "pnl_abs": -18573.13
+     },
+     "take_profit": {
+      "n": 53,
+      "pnl_abs": 13925.76
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 54,
+      "to_i": 58,
+      "start": "2024-11-27T15:15:00+00:00",
+      "end": "2024-12-04T19:35:00+00:00",
+      "pnl_abs": 688.55,
+      "count": 3
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 7,
+      "to_i": 10,
+      "start": "2024-09-13T14:25:00+00:00",
+      "end": "2024-09-18T18:00:00+00:00",
+      "pnl_abs": -713.04,
+      "count": 5
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.529,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:55:00+00:00",
+    "holding_avg": "3:48:00",
+    "bars": 70647,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-194100-350644",
+   "status": "done",
+   "created": "2026-09-22T19:41:00+00:00",
+   "started": "2026-09-22T19:41:00+00:00",
+   "finished": "2026-09-22T19:41:00+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-194044-2d37: nyRangeMinutes=30 — ORB range-length sweep MNQ, 5m graf, okno 2024-2025",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 30
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 30
+   },
+   "settings": {},
+   "result": {
+    "trades": 216,
+    "wins": 109,
+    "losses": 107,
+    "draws": 0,
+    "winrate": 50.46,
+    "pnl_abs": -2405.26,
+    "pnl_pct": -24.053,
+    "profit_factor": 0.895,
+    "max_drawdown_abs": 4895.67,
+    "max_drawdown_pct": 48.957,
+    "starting_balance": 10000.0,
+    "final_balance": 7594.74,
+    "gross_abs": -2082.5,
+    "volume_abs": 18307120.5,
+    "break_even_pct": -0.0114,
+    "exits": {
+     "session_end": {
+      "n": 111,
+      "pnl_abs": 3560.01
+     },
+     "stop_loss": {
+      "n": 61,
+      "pnl_abs": -17367.28
+     },
+     "take_profit": {
+      "n": 44,
+      "pnl_abs": 11402.01
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 52,
+      "to_i": 58,
+      "start": "2024-11-27T15:15:00+00:00",
+      "end": "2024-12-09T16:06:00+00:00",
+      "pnl_abs": 800.51,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 7,
+      "to_i": 10,
+      "start": "2024-09-13T14:25:00+00:00",
+      "end": "2024-09-18T18:00:00+00:00",
+      "pnl_abs": -696.54,
+      "count": 5
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.529,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:55:00+00:00",
+    "holding_avg": "4:04:00",
+    "bars": 70647,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-194103-c103c9",
+   "status": "done",
+   "created": "2026-09-22T19:41:03+00:00",
+   "started": "2026-09-22T19:41:03+00:00",
+   "finished": "2026-09-22T19:41:03+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-194044-2d37: nyRangeMinutes=35 — ORB range-length sweep MNQ, 5m graf, okno 2024-2025",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 35
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 35
+   },
+   "settings": {},
+   "result": {
+    "trades": 197,
+    "wins": 99,
+    "losses": 98,
+    "draws": 0,
+    "winrate": 50.25,
+    "pnl_abs": -4766.54,
+    "pnl_pct": -47.665,
+    "profit_factor": 0.787,
+    "max_drawdown_abs": 6626.37,
+    "max_drawdown_pct": 66.264,
+    "starting_balance": 10000.0,
+    "final_balance": 5233.46,
+    "gross_abs": -4472.0,
+    "volume_abs": 16706364.0,
+    "break_even_pct": -0.0268,
+    "exits": {
+     "session_end": {
+      "n": 116,
+      "pnl_abs": 4815.19
+     },
+     "stop_loss": {
+      "n": 56,
+      "pnl_abs": -16765.45
+     },
+     "take_profit": {
+      "n": 25,
+      "pnl_abs": 7183.72
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 6,
+      "from_i": 123,
+      "to_i": 128,
+      "start": "2025-04-21T14:20:00+00:00",
+      "end": "2025-04-30T18:55:00+00:00",
+      "pnl_abs": 1693.48,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 81,
+      "to_i": 86,
+      "start": "2025-01-29T15:45:00+00:00",
+      "end": "2025-02-06T19:33:00+00:00",
+      "pnl_abs": -1311.64,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.529,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:55:00+00:00",
+    "holding_avg": "4:18:00",
+    "bars": 70647,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-194106-cdff8b",
+   "status": "done",
+   "created": "2026-09-22T19:41:06+00:00",
+   "started": "2026-09-22T19:41:06+00:00",
+   "finished": "2026-09-22T19:41:06+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-194044-2d37: nyRangeMinutes=40 — ORB range-length sweep MNQ, 5m graf, okno 2024-2025",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 40
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 40
+   },
+   "settings": {},
+   "result": {
+    "trades": 177,
+    "wins": 90,
+    "losses": 87,
+    "draws": 0,
+    "winrate": 50.85,
+    "pnl_abs": -3850.8,
+    "pnl_pct": -38.508,
+    "profit_factor": 0.801,
+    "max_drawdown_abs": 5041.29,
+    "max_drawdown_pct": 50.413,
+    "starting_balance": 10000.0,
+    "final_balance": 6149.2,
+    "gross_abs": -3586.0,
+    "volume_abs": 15019692.0,
+    "break_even_pct": -0.0239,
+    "exits": {
+     "session_end": {
+      "n": 106,
+      "pnl_abs": 4476.67
+     },
+     "stop_loss": {
+      "n": 49,
+      "pnl_abs": -14990.63
+     },
+     "take_profit": {
+      "n": 22,
+      "pnl_abs": 6663.16
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 109,
+      "to_i": 113,
+      "start": "2025-04-21T14:20:00+00:00",
+      "end": "2025-04-30T18:55:00+00:00",
+      "pnl_abs": 1428.86,
+      "count": 2
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 71,
+      "to_i": 76,
+      "start": "2025-01-29T15:45:00+00:00",
+      "end": "2025-02-06T19:33:00+00:00",
+      "pnl_abs": -1356.14,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.529,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:55:00+00:00",
+    "holding_avg": "4:26:00",
+    "bars": 70647,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-194109-658432",
+   "status": "done",
+   "created": "2026-09-22T19:41:09+00:00",
+   "started": "2026-09-22T19:41:09+00:00",
+   "finished": "2026-09-22T19:41:09+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-194044-2d37: nyRangeMinutes=45 — ORB range-length sweep MNQ, 5m graf, okno 2024-2025",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 45
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 45
+   },
+   "settings": {},
+   "result": {
+    "trades": 159,
+    "wins": 79,
+    "losses": 80,
+    "draws": 0,
+    "winrate": 49.69,
+    "pnl_abs": -5090.29,
+    "pnl_pct": -50.903,
+    "profit_factor": 0.717,
+    "max_drawdown_abs": 5926.08,
+    "max_drawdown_pct": 59.261,
+    "starting_balance": 10000.0,
+    "final_balance": 4909.71,
+    "gross_abs": -4852.5,
+    "volume_abs": 13487860.5,
+    "break_even_pct": -0.036,
+    "exits": {
+     "session_end": {
+      "n": 103,
+      "pnl_abs": 3700.5
+     },
+     "stop_loss": {
+      "n": 40,
+      "pnl_abs": -13255.79
+     },
+     "take_profit": {
+      "n": 16,
+      "pnl_abs": 4465.0
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 6,
+      "from_i": 129,
+      "to_i": 134,
+      "start": "2025-06-24T14:45:00+00:00",
+      "end": "2025-07-07T18:55:00+00:00",
+      "pnl_abs": 769.38,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 76,
+      "to_i": 81,
+      "start": "2025-02-25T15:20:00+00:00",
+      "end": "2025-03-07T19:22:00+00:00",
+      "pnl_abs": -2334.73,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.529,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:55:00+00:00",
+    "holding_avg": "4:30:00",
+    "bars": 70647,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-194112-3dc853",
+   "status": "done",
+   "created": "2026-09-22T19:41:12+00:00",
+   "started": "2026-09-22T19:41:12+00:00",
+   "finished": "2026-09-22T19:41:12+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-194044-2d37: nyRangeMinutes=50 — ORB range-length sweep MNQ, 5m graf, okno 2024-2025",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 50
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 50
+   },
+   "settings": {},
+   "result": {
+    "trades": 141,
+    "wins": 70,
+    "losses": 71,
+    "draws": 0,
+    "winrate": 49.65,
+    "pnl_abs": -2480.97,
+    "pnl_pct": -24.81,
+    "profit_factor": 0.832,
+    "max_drawdown_abs": 3986.52,
+    "max_drawdown_pct": 39.865,
+    "starting_balance": 10000.0,
+    "final_balance": 7519.03,
+    "gross_abs": -2270.0,
+    "volume_abs": 11966227.0,
+    "break_even_pct": -0.019,
+    "exits": {
+     "session_end": {
+      "n": 94,
+      "pnl_abs": 4224.02
+     },
+     "stop_loss": {
+      "n": 32,
+      "pnl_abs": -10773.86
+     },
+     "take_profit": {
+      "n": 15,
+      "pnl_abs": 4068.87
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 112,
+      "to_i": 118,
+      "start": "2025-06-20T14:25:00+00:00",
+      "end": "2025-07-07T18:55:00+00:00",
+      "pnl_abs": 995.84,
+      "count": 1
+     },
+     "loss": {
+      "n": 4,
+      "from_i": 97,
+      "to_i": 100,
+      "start": "2025-05-16T14:40:00+00:00",
+      "end": "2025-05-26T22:00:00+00:00",
+      "pnl_abs": -796.03,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.529,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:55:00+00:00",
+    "holding_avg": "4:15:00",
+    "bars": 70647,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-194115-dcc63f",
+   "status": "done",
+   "created": "2026-09-22T19:41:15+00:00",
+   "started": "2026-09-22T19:41:15+00:00",
+   "finished": "2026-09-22T19:41:15+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-194044-2d37: nyRangeMinutes=55 — ORB range-length sweep MNQ, 5m graf, okno 2024-2025",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 55
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 55
+   },
+   "settings": {},
+   "result": {
+    "trades": 123,
+    "wins": 63,
+    "losses": 60,
+    "draws": 0,
+    "winrate": 51.22,
+    "pnl_abs": -1806.35,
+    "pnl_pct": -18.064,
+    "profit_factor": 0.853,
+    "max_drawdown_abs": 4477.52,
+    "max_drawdown_pct": 40.358,
+    "starting_balance": 10000.0,
+    "final_balance": 8193.65,
+    "gross_abs": -1622.0,
+    "volume_abs": 10456606.0,
+    "break_even_pct": -0.0155,
+    "exits": {
+     "session_end": {
+      "n": 86,
+      "pnl_abs": 3475.27
+     },
+     "stop_loss": {
+      "n": 25,
+      "pnl_abs": -8891.5
+     },
+     "take_profit": {
+      "n": 12,
+      "pnl_abs": 3609.87
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 98,
+      "to_i": 104,
+      "start": "2025-06-20T14:45:00+00:00",
+      "end": "2025-07-07T18:55:00+00:00",
+      "pnl_abs": 908.84,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 84,
+      "to_i": 89,
+      "start": "2025-05-16T14:40:00+00:00",
+      "end": "2025-05-30T16:27:00+00:00",
+      "pnl_abs": -1199.04,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.529,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:55:00+00:00",
+    "holding_avg": "4:24:00",
+    "bars": 70647,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-194118-6b0d53",
+   "status": "done",
+   "created": "2026-09-22T19:41:18+00:00",
+   "started": "2026-09-22T19:41:18+00:00",
+   "finished": "2026-09-22T19:41:18+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-194044-2d37: nyRangeMinutes=60 — ORB range-length sweep MNQ, 5m graf, okno 2024-2025",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 60
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 60
+   },
+   "settings": {},
+   "result": {
+    "trades": 107,
+    "wins": 57,
+    "losses": 50,
+    "draws": 0,
+    "winrate": 53.27,
+    "pnl_abs": -1474.59,
+    "pnl_pct": -14.746,
+    "profit_factor": 0.855,
+    "max_drawdown_abs": 3959.87,
+    "max_drawdown_pct": 37.687,
+    "starting_balance": 10000.0,
+    "final_balance": 8525.41,
+    "gross_abs": -1314.0,
+    "volume_abs": 9109000.0,
+    "break_even_pct": -0.0144,
+    "exits": {
+     "session_end": {
+      "n": 80,
+      "pnl_abs": 2760.06
+     },
+     "stop_loss": {
+      "n": 19,
+      "pnl_abs": -6740.58
+     },
+     "take_profit": {
+      "n": 8,
+      "pnl_abs": 2505.92
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 84,
+      "to_i": 90,
+      "start": "2025-06-20T14:45:00+00:00",
+      "end": "2025-07-07T18:55:00+00:00",
+      "pnl_abs": 959.84,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 58,
+      "to_i": 62,
+      "start": "2025-03-25T14:40:00+00:00",
+      "end": "2025-04-17T18:21:00+00:00",
+      "pnl_abs": -878.86,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.529,
+    "backtest_start": "2024-09-04T00:00:00+00:00",
+    "backtest_end": "2025-09-03T23:55:00+00:00",
+    "holding_avg": "4:36:00",
+    "bars": 70647,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-09-22T19:41:18+00:00"
+}

@@ -1,0 +1,170 @@
+{
+  "id": "20260930-075418-998894",
+  "status": "done",
+  "created": "2026-09-30T07:54:18+00:00",
+  "started": "2026-09-30T07:54:18+00:00",
+  "finished": "2026-09-30T07:54:18+00:00",
+  "user": "tester",
+  "note": "porovnanie s TradingView DriftVWAP Strat na NAS100 CFD, chart 5m, htf=5 (Pine to tak realne pocitalo)",
+  "settings": {
+    "strategy": "vwapop",
+    "exchange": null,
+    "sweep": null,
+    "pair": "NAS100/USD",
+    "engine": "multicharts",
+    "timeframe": "5m",
+    "timerange": "20260831-20260930",
+    "fee": 3.412887979665194e-07,
+    "fee_note": "zadané vo formulári",
+    "ai": null,
+    "wallet": 10000.0,
+    "timeframe_detail": "1m",
+    "profile": "mnq_databento_5m",
+    "instrument": "nas100_dukascopy"
+  },
+  "params": {
+    "htf": 5,
+    "rthSess": "0930-1600",
+    "driftLen": 3,
+    "driftAtr": 0.1,
+    "needSide": true,
+    "tolAtr": 0.1,
+    "needClose": true,
+    "firstOnly": true,
+    "maxTrades": 2,
+    "tradeWin": "0945-1530",
+    "allowLong": true,
+    "allowShort": true,
+    "slAtr": 0.7,
+    "rr": 1,
+    "useBE": false,
+    "closeEOD": false,
+    "flatTime": "1555-1600",
+    "showCross": true,
+    "colUp": "#22c55e",
+    "colDn": "#ef4444",
+    "colFlat": "#9ca3af",
+    "riskDollar": 100.0,
+    "legacyPineSizing": false,
+    "minSlDistance": 0.0,
+    "leverage": 1.0
+  },
+  "error": null,
+  "result": {
+    "trades": 7,
+    "wins": 4,
+    "losses": 3,
+    "draws": 0,
+    "winrate": 57.14,
+    "pnl_abs": 31.98,
+    "pnl_pct": 0.32,
+    "profit_factor": 1.114,
+    "max_drawdown_abs": 196.97,
+    "max_drawdown_pct": 1.942,
+    "starting_balance": 10000.0,
+    "final_balance": 10031.98,
+    "gross_abs": 32.34,
+    "volume_abs": 1051695.52,
+    "break_even_pct": 0.0031,
+    "exits": {
+      "take_profit": {
+        "n": 4,
+        "pnl_abs": 311.64
+      },
+      "stop_loss": {
+        "n": 3,
+        "pnl_abs": -279.66
+      }
+    },
+    "streaks": {
+      "win": {
+        "n": 2,
+        "from_i": 0,
+        "to_i": 1,
+        "start": "2026-08-31T14:20:00+00:00",
+        "end": "2026-09-01T14:01:00+00:00",
+        "pnl_abs": 143.47,
+        "count": 1
+      },
+      "loss": {
+        "n": 2,
+        "from_i": 4,
+        "to_i": 5,
+        "start": "2026-09-03T14:00:00+00:00",
+        "end": "2026-09-03T14:19:00+00:00",
+        "pnl_abs": -193.64,
+        "count": 1
+      }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 0.908,
+    "backtest_start": "2026-08-31T00:00:00+00:00",
+    "backtest_end": "2026-09-04T20:10:00+00:00",
+    "holding_avg": "0:03:00",
+    "bars": 1311,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.0
+  },
+  "series": {
+    "equity": [
+      [
+        "2026-08-31T14:23:00+00:00",
+        0.6853,
+        0.6853
+      ],
+      [
+        "2026-09-01T14:01:00+00:00",
+        0.7493,
+        1.4347
+      ],
+      [
+        "2026-09-02T14:05:00+00:00",
+        -0.8601,
+        0.5746
+      ],
+      [
+        "2026-09-02T15:06:00+00:00",
+        0.8268,
+        1.4014
+      ],
+      [
+        "2026-09-03T14:01:00+00:00",
+        -0.9442,
+        0.4572
+      ],
+      [
+        "2026-09-03T14:19:00+00:00",
+        -0.9922,
+        -0.535
+      ],
+      [
+        "2026-09-04T13:56:00+00:00",
+        0.8548,
+        0.3198
+      ]
+    ],
+    "market": [
+      [
+        "2026-08-31T00:00:00+00:00",
+        0.7271
+      ],
+      [
+        "2026-09-01T00:00:00+00:00",
+        -0.5126
+      ],
+      [
+        "2026-09-02T00:00:00+00:00",
+        -0.2817
+      ],
+      [
+        "2026-09-03T00:00:00+00:00",
+        0.7659
+      ],
+      [
+        "2026-09-04T00:00:00+00:00",
+        0.9082
+      ]
+    ]
+  }
+}

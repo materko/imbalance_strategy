@@ -1,0 +1,1085 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20260922-191109-5d2e",
+ "strategy": "orb",
+ "created": "2026-09-22T19:11:09+00:00",
+ "user": "tester",
+ "base": {
+  "params": {
+   "sessionMode": "ny",
+   "nyStartH": 9,
+   "nyStartM": 30,
+   "nyRangeMinutes": 5,
+   "nyEndH": 14,
+   "nyEndM": 55,
+   "lonStartH": 8,
+   "lonStartM": 0,
+   "lonRangeMinutes": 30,
+   "lonEndH": 16,
+   "lonEndM": 30,
+   "tradeDirection": "Both",
+   "entryMode": "stop",
+   "breakBufferAtr": 0.1,
+   "retestMaxBars": 10,
+   "entryWindowMinutes": 90,
+   "maxTradesPerDay": 1,
+   "minRangePct": 0.15,
+   "maxRangePct": 1.5,
+   "useVolumeFilter": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "minClosePosPct": 50,
+   "weekdaysOnly": false,
+   "emaLen": 200,
+   "emaFilter": false,
+   "emaRangeFilter": false,
+   "emaExit": false,
+   "slMode": "opposite",
+   "slRangePct": 50.0,
+   "atrLen": 7,
+   "slAtrMult": 1.0,
+   "slBufferAtr": 0.1,
+   "tpMode": "rr",
+   "rrRatio": 1.5,
+   "measuredMult": 1.0,
+   "tpAtrMult": 2.0,
+   "enableTrailing": false,
+   "trailActivationR": 1.0,
+   "trailOffsetR": 0.5,
+   "closeAtSessionEnd": true,
+   "riskDollar": 100.0,
+   "showRange": true,
+   "showLevels": true,
+   "showEma": false,
+   "tickDollarValue": null,
+   "legacyPineSizing": false,
+   "minSlDistance": 0.2,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "orb",
+   "exchange": null,
+   "pair": "MNQ/USD",
+   "engine": "multicharts",
+   "timeframe": "5m",
+   "timerange": "20250910-20260910",
+   "fee": 1.4571736659575088e-05,
+   "fee_note": "zadané vo formulári",
+   "ai": null,
+   "wallet": 10000.0,
+   "timeframe_detail": "1m",
+   "profile": "tester/profiles/ORB_MNQ_STOP_WR55_271obch.json",
+   "instrument": "mnq_databento"
+  }
+ },
+ "points": [
+  {
+   "run": "20260922-191109-18778f",
+   "status": "done",
+   "created": "2026-09-22T19:11:09+00:00",
+   "started": "2026-09-22T19:11:09+00:00",
+   "finished": "2026-09-22T19:11:09+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-191109-5d2e: nyRangeMinutes=5 — ORB range-length sweep MNQ databento, 5m graf, NY session, RR=1.5",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 5
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 223,
+    "wins": 115,
+    "losses": 108,
+    "draws": 0,
+    "winrate": 51.57,
+    "pnl_abs": -1776.56,
+    "pnl_pct": -17.766,
+    "profit_factor": 0.934,
+    "max_drawdown_abs": 4099.54,
+    "max_drawdown_pct": 34.296,
+    "starting_balance": 10000.0,
+    "final_balance": 8223.44,
+    "gross_abs": -1426.5,
+    "volume_abs": 24023497.5,
+    "break_even_pct": -0.0059,
+    "exits": {
+     "session_end": {
+      "n": 25,
+      "pnl_abs": 1096.14
+     },
+     "stop_loss": {
+      "n": 97,
+      "pnl_abs": -25684.51
+     },
+     "take_profit": {
+      "n": 101,
+      "pnl_abs": 22811.81
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 190,
+      "to_i": 197,
+      "start": "2026-07-24T13:45:00+00:00",
+      "end": "2026-08-04T15:23:00+00:00",
+      "pnl_abs": 2348.79,
+      "count": 1
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 209,
+      "to_i": 216,
+      "start": "2026-08-20T13:40:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1632.2,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "1:22:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-191112-c94454",
+   "status": "done",
+   "created": "2026-09-22T19:11:12+00:00",
+   "started": "2026-09-22T19:11:12+00:00",
+   "finished": "2026-09-22T19:11:12+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-191109-5d2e: nyRangeMinutes=10 — ORB range-length sweep MNQ databento, 5m graf, NY session, RR=1.5",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 10
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 10
+   },
+   "settings": {},
+   "result": {
+    "trades": 235,
+    "wins": 123,
+    "losses": 112,
+    "draws": 0,
+    "winrate": 52.34,
+    "pnl_abs": -3173.05,
+    "pnl_pct": -31.731,
+    "profit_factor": 0.899,
+    "max_drawdown_abs": 7430.04,
+    "max_drawdown_pct": 52.115,
+    "starting_balance": 10000.0,
+    "final_balance": 6826.95,
+    "gross_abs": -2805.5,
+    "volume_abs": 25223627.5,
+    "break_even_pct": -0.0111,
+    "exits": {
+     "session_end": {
+      "n": 67,
+      "pnl_abs": 4159.07
+     },
+     "take_profit": {
+      "n": 77,
+      "pnl_abs": 21013.7
+     },
+     "stop_loss": {
+      "n": 91,
+      "pnl_abs": -28345.82
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 0,
+      "to_i": 4,
+      "start": "2025-09-10T13:55:00+00:00",
+      "end": "2025-09-17T16:40:00+00:00",
+      "pnl_abs": 561.46,
+      "count": 5
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 222,
+      "to_i": 228,
+      "start": "2026-08-21T13:55:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1593.48,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "2:14:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-191115-dc46df",
+   "status": "done",
+   "created": "2026-09-22T19:11:15+00:00",
+   "started": "2026-09-22T19:11:15+00:00",
+   "finished": "2026-09-22T19:11:15+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-191109-5d2e: nyRangeMinutes=15 — ORB range-length sweep MNQ databento, 5m graf, NY session, RR=1.5",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 15
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 15
+   },
+   "settings": {},
+   "result": {
+    "trades": 234,
+    "wins": 129,
+    "losses": 105,
+    "draws": 0,
+    "winrate": 55.13,
+    "pnl_abs": -393.4,
+    "pnl_pct": -3.934,
+    "profit_factor": 0.987,
+    "max_drawdown_abs": 6577.73,
+    "max_drawdown_pct": 41.35,
+    "starting_balance": 10000.0,
+    "final_balance": 9606.6,
+    "gross_abs": -28.0,
+    "volume_abs": 25075661.0,
+    "break_even_pct": -0.0001,
+    "exits": {
+     "session_end": {
+      "n": 95,
+      "pnl_abs": 6066.66
+     },
+     "take_profit": {
+      "n": 64,
+      "pnl_abs": 19060.14
+     },
+     "stop_loss": {
+      "n": 75,
+      "pnl_abs": -25520.2
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 82,
+      "to_i": 90,
+      "start": "2026-01-23T15:00:00+00:00",
+      "end": "2026-02-04T16:43:00+00:00",
+      "pnl_abs": 2564.5,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 222,
+      "to_i": 227,
+      "start": "2026-08-21T13:55:00+00:00",
+      "end": "2026-08-31T18:55:00+00:00",
+      "pnl_abs": -1409.29,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "2:49:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-191118-0a6701",
+   "status": "done",
+   "created": "2026-09-22T19:11:18+00:00",
+   "started": "2026-09-22T19:11:18+00:00",
+   "finished": "2026-09-22T19:11:18+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-191109-5d2e: nyRangeMinutes=20 — ORB range-length sweep MNQ databento, 5m graf, NY session, RR=1.5",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 20
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 20
+   },
+   "settings": {},
+   "result": {
+    "trades": 223,
+    "wins": 129,
+    "losses": 94,
+    "draws": 0,
+    "winrate": 57.85,
+    "pnl_abs": 1918.11,
+    "pnl_pct": 19.181,
+    "profit_factor": 1.067,
+    "max_drawdown_abs": 4865.52,
+    "max_drawdown_pct": 28.99,
+    "starting_balance": 10000.0,
+    "final_balance": 11918.11,
+    "gross_abs": 2266.0,
+    "volume_abs": 23874426.0,
+    "break_even_pct": 0.0095,
+    "exits": {
+     "session_end": {
+      "n": 113,
+      "pnl_abs": 9078.4
+     },
+     "take_profit": {
+      "n": 48,
+      "pnl_abs": 16170.18
+     },
+     "stop_loss": {
+      "n": 62,
+      "pnl_abs": -23330.47
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 66,
+      "to_i": 74,
+      "start": "2026-01-06T14:55:00+00:00",
+      "end": "2026-01-19T17:07:00+00:00",
+      "pnl_abs": 1478.99,
+      "count": 3
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 40,
+      "to_i": 44,
+      "start": "2025-11-17T14:55:00+00:00",
+      "end": "2025-11-21T16:53:00+00:00",
+      "pnl_abs": -2288.22,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:11:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-191121-84eb9c",
+   "status": "done",
+   "created": "2026-09-22T19:11:21+00:00",
+   "started": "2026-09-22T19:11:21+00:00",
+   "finished": "2026-09-22T19:11:22+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-191109-5d2e: nyRangeMinutes=25 — ORB range-length sweep MNQ databento, 5m graf, NY session, RR=1.5",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 25
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 25
+   },
+   "settings": {},
+   "result": {
+    "trades": 206,
+    "wins": 120,
+    "losses": 86,
+    "draws": 0,
+    "winrate": 58.25,
+    "pnl_abs": 1497.61,
+    "pnl_pct": 14.976,
+    "profit_factor": 1.055,
+    "max_drawdown_abs": 5361.15,
+    "max_drawdown_pct": 31.8,
+    "starting_balance": 10000.0,
+    "final_balance": 11497.61,
+    "gross_abs": 1819.0,
+    "volume_abs": 22055691.0,
+    "break_even_pct": 0.0082,
+    "exits": {
+     "session_end": {
+      "n": 110,
+      "pnl_abs": 8006.17
+     },
+     "take_profit": {
+      "n": 43,
+      "pnl_abs": 15534.99
+     },
+     "stop_loss": {
+      "n": 53,
+      "pnl_abs": -22043.55
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 9,
+      "from_i": 73,
+      "to_i": 81,
+      "start": "2026-01-23T15:00:00+00:00",
+      "end": "2026-02-04T16:43:00+00:00",
+      "pnl_abs": 1787.49,
+      "count": 2
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 197,
+      "to_i": 201,
+      "start": "2026-08-26T14:00:00+00:00",
+      "end": "2026-09-01T18:42:00+00:00",
+      "pnl_abs": -1162.07,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:19:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-191124-c36e90",
+   "status": "done",
+   "created": "2026-09-22T19:11:24+00:00",
+   "started": "2026-09-22T19:11:24+00:00",
+   "finished": "2026-09-22T19:11:25+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-191109-5d2e: nyRangeMinutes=30 — ORB range-length sweep MNQ databento, 5m graf, NY session, RR=1.5",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 30
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 30
+   },
+   "settings": {},
+   "result": {
+    "trades": 194,
+    "wins": 109,
+    "losses": 85,
+    "draws": 0,
+    "winrate": 56.19,
+    "pnl_abs": -391.67,
+    "pnl_pct": -3.917,
+    "profit_factor": 0.985,
+    "max_drawdown_abs": 6567.25,
+    "max_drawdown_pct": 40.6,
+    "starting_balance": 10000.0,
+    "final_balance": 9608.33,
+    "gross_abs": -89.0,
+    "volume_abs": 20771341.0,
+    "break_even_pct": -0.0004,
+    "exits": {
+     "session_end": {
+      "n": 120,
+      "pnl_abs": 8411.38
+     },
+     "take_profit": {
+      "n": 29,
+      "pnl_abs": 10736.91
+     },
+     "stop_loss": {
+      "n": 45,
+      "pnl_abs": -19539.96
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 8,
+      "from_i": 58,
+      "to_i": 65,
+      "start": "2026-01-06T15:30:00+00:00",
+      "end": "2026-01-19T23:00:00+00:00",
+      "pnl_abs": 834.0,
+      "count": 1
+     },
+     "loss": {
+      "n": 5,
+      "from_i": 83,
+      "to_i": 87,
+      "start": "2026-02-13T15:35:00+00:00",
+      "end": "2026-02-19T18:20:00+00:00",
+      "pnl_abs": -1662.23,
+      "count": 2
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:31:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-191127-df68ca",
+   "status": "done",
+   "created": "2026-09-22T19:11:27+00:00",
+   "started": "2026-09-22T19:11:27+00:00",
+   "finished": "2026-09-22T19:11:28+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-191109-5d2e: nyRangeMinutes=35 — ORB range-length sweep MNQ databento, 5m graf, NY session, RR=1.5",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 35
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 35
+   },
+   "settings": {},
+   "result": {
+    "trades": 177,
+    "wins": 98,
+    "losses": 79,
+    "draws": 0,
+    "winrate": 55.37,
+    "pnl_abs": -558.96,
+    "pnl_pct": -5.59,
+    "profit_factor": 0.975,
+    "max_drawdown_abs": 5387.93,
+    "max_drawdown_pct": 37.043,
+    "starting_balance": 10000.0,
+    "final_balance": 9441.04,
+    "gross_abs": -282.0,
+    "volume_abs": 19006433.0,
+    "break_even_pct": -0.0015,
+    "exits": {
+     "session_end": {
+      "n": 119,
+      "pnl_abs": 7643.93
+     },
+     "take_profit": {
+      "n": 22,
+      "pnl_abs": 8114.16
+     },
+     "stop_loss": {
+      "n": 36,
+      "pnl_abs": -16317.04
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 7,
+      "from_i": 60,
+      "to_i": 66,
+      "start": "2026-01-21T15:25:00+00:00",
+      "end": "2026-02-02T19:55:00+00:00",
+      "pnl_abs": 1094.45,
+      "count": 1
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 167,
+      "to_i": 173,
+      "start": "2026-08-19T14:15:00+00:00",
+      "end": "2026-09-01T18:42:00+00:00",
+      "pnl_abs": -1701.99,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:37:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.8
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-191130-b683a5",
+   "status": "done",
+   "created": "2026-09-22T19:11:30+00:00",
+   "started": "2026-09-22T19:11:30+00:00",
+   "finished": "2026-09-22T19:11:31+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-191109-5d2e: nyRangeMinutes=40 — ORB range-length sweep MNQ databento, 5m graf, NY session, RR=1.5",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 40
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 40
+   },
+   "settings": {},
+   "result": {
+    "trades": 168,
+    "wins": 92,
+    "losses": 76,
+    "draws": 0,
+    "winrate": 54.76,
+    "pnl_abs": -966.67,
+    "pnl_pct": -9.667,
+    "profit_factor": 0.955,
+    "max_drawdown_abs": 4906.53,
+    "max_drawdown_pct": 35.93,
+    "starting_balance": 10000.0,
+    "final_balance": 9033.33,
+    "gross_abs": -704.0,
+    "volume_abs": 18026253.0,
+    "break_even_pct": -0.0039,
+    "exits": {
+     "session_end": {
+      "n": 118,
+      "pnl_abs": 6467.53
+     },
+     "take_profit": {
+      "n": 20,
+      "pnl_abs": 7563.71
+     },
+     "stop_loss": {
+      "n": 30,
+      "pnl_abs": -14997.91
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 6,
+      "from_i": 56,
+      "to_i": 61,
+      "start": "2026-01-21T15:25:00+00:00",
+      "end": "2026-01-30T18:20:00+00:00",
+      "pnl_abs": 1051.46,
+      "count": 2
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 158,
+      "to_i": 164,
+      "start": "2026-08-19T14:15:00+00:00",
+      "end": "2026-09-01T18:42:00+00:00",
+      "pnl_abs": -1724.49,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:40:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-191133-b513c9",
+   "status": "done",
+   "created": "2026-09-22T19:11:33+00:00",
+   "started": "2026-09-22T19:11:33+00:00",
+   "finished": "2026-09-22T19:11:34+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-191109-5d2e: nyRangeMinutes=45 — ORB range-length sweep MNQ databento, 5m graf, NY session, RR=1.5",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 45
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 45
+   },
+   "settings": {},
+   "result": {
+    "trades": 150,
+    "wins": 82,
+    "losses": 68,
+    "draws": 0,
+    "winrate": 54.67,
+    "pnl_abs": 3124.81,
+    "pnl_pct": 31.248,
+    "profit_factor": 1.189,
+    "max_drawdown_abs": 1954.2,
+    "max_drawdown_pct": 13.177,
+    "starting_balance": 10000.0,
+    "final_balance": 13124.81,
+    "gross_abs": 3359.0,
+    "volume_abs": 16071223.0,
+    "break_even_pct": 0.0209,
+    "exits": {
+     "session_end": {
+      "n": 110,
+      "pnl_abs": 5867.79
+     },
+     "take_profit": {
+      "n": 18,
+      "pnl_abs": 7659.26
+     },
+     "stop_loss": {
+      "n": 22,
+      "pnl_abs": -10402.24
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 6,
+      "from_i": 51,
+      "to_i": 56,
+      "start": "2026-01-21T15:25:00+00:00",
+      "end": "2026-01-30T18:20:00+00:00",
+      "pnl_abs": 1051.46,
+      "count": 2
+     },
+     "loss": {
+      "n": 8,
+      "from_i": 140,
+      "to_i": 147,
+      "start": "2026-08-17T15:05:00+00:00",
+      "end": "2026-09-02T18:55:00+00:00",
+      "pnl_abs": -1740.75,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:44:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-191136-80214c",
+   "status": "done",
+   "created": "2026-09-22T19:11:36+00:00",
+   "started": "2026-09-22T19:11:36+00:00",
+   "finished": "2026-09-22T19:11:37+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-191109-5d2e: nyRangeMinutes=50 — ORB range-length sweep MNQ databento, 5m graf, NY session, RR=1.5",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 50
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 50
+   },
+   "settings": {},
+   "result": {
+    "trades": 139,
+    "wins": 76,
+    "losses": 63,
+    "draws": 0,
+    "winrate": 54.68,
+    "pnl_abs": 3193.84,
+    "pnl_pct": 31.938,
+    "profit_factor": 1.222,
+    "max_drawdown_abs": 1572.07,
+    "max_drawdown_pct": 11.067,
+    "starting_balance": 10000.0,
+    "final_balance": 13193.84,
+    "gross_abs": 3410.0,
+    "volume_abs": 14834192.0,
+    "break_even_pct": 0.023,
+    "exits": {
+     "session_end": {
+      "n": 107,
+      "pnl_abs": 6108.72
+     },
+     "take_profit": {
+      "n": 14,
+      "pnl_abs": 5530.91
+     },
+     "stop_loss": {
+      "n": 18,
+      "pnl_abs": -8445.79
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 6,
+      "from_i": 96,
+      "to_i": 101,
+      "start": "2026-05-08T14:25:00+00:00",
+      "end": "2026-05-20T18:55:00+00:00",
+      "pnl_abs": 1536.78,
+      "count": 1
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 130,
+      "to_i": 136,
+      "start": "2026-08-17T15:05:00+00:00",
+      "end": "2026-09-02T18:55:00+00:00",
+      "pnl_abs": -1298.04,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:46:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-191139-469ef3",
+   "status": "done",
+   "created": "2026-09-22T19:11:39+00:00",
+   "started": "2026-09-22T19:11:39+00:00",
+   "finished": "2026-09-22T19:11:40+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-191109-5d2e: nyRangeMinutes=55 — ORB range-length sweep MNQ databento, 5m graf, NY session, RR=1.5",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 55
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 55
+   },
+   "settings": {},
+   "result": {
+    "trades": 130,
+    "wins": 72,
+    "losses": 58,
+    "draws": 0,
+    "winrate": 55.38,
+    "pnl_abs": 3101.99,
+    "pnl_pct": 31.02,
+    "profit_factor": 1.245,
+    "max_drawdown_abs": 2134.92,
+    "max_drawdown_pct": 14.383,
+    "starting_balance": 10000.0,
+    "final_balance": 13101.99,
+    "gross_abs": 3304.0,
+    "volume_abs": 13863004.0,
+    "break_even_pct": 0.0238,
+    "exits": {
+     "session_end": {
+      "n": 105,
+      "pnl_abs": 6172.56
+     },
+     "take_profit": {
+      "n": 10,
+      "pnl_abs": 3985.89
+     },
+     "stop_loss": {
+      "n": 15,
+      "pnl_abs": -7056.46
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 6,
+      "from_i": 91,
+      "to_i": 96,
+      "start": "2026-05-08T14:55:00+00:00",
+      "end": "2026-05-20T18:55:00+00:00",
+      "pnl_abs": 1520.78,
+      "count": 1
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 121,
+      "to_i": 127,
+      "start": "2026-08-17T15:05:00+00:00",
+      "end": "2026-09-02T18:55:00+00:00",
+      "pnl_abs": -1390.04,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:47:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.6
+   },
+   "error": null
+  },
+  {
+   "run": "20260922-191142-842264",
+   "status": "done",
+   "created": "2026-09-22T19:11:42+00:00",
+   "started": "2026-09-22T19:11:42+00:00",
+   "finished": "2026-09-22T19:11:43+00:00",
+   "user": "tester",
+   "note": "sweep 20260922-191109-5d2e: nyRangeMinutes=60 — ORB range-length sweep MNQ databento, 5m graf, NY session, RR=1.5",
+   "tag": {
+    "values": {
+     "nyRangeMinutes": 60
+    },
+    "goal": "winrate",
+    "max_dd": null,
+    "min_trades": 20,
+    "per_year": true,
+    "points": 12
+   },
+   "params": {
+    "nyRangeMinutes": 60
+   },
+   "settings": {},
+   "result": {
+    "trades": 112,
+    "wins": 62,
+    "losses": 50,
+    "draws": 0,
+    "winrate": 55.36,
+    "pnl_abs": 3777.79,
+    "pnl_pct": 37.778,
+    "profit_factor": 1.377,
+    "max_drawdown_abs": 1308.81,
+    "max_drawdown_pct": 8.821,
+    "starting_balance": 10000.0,
+    "final_balance": 13777.79,
+    "gross_abs": 3952.0,
+    "volume_abs": 11955590.0,
+    "break_even_pct": 0.0331,
+    "exits": {
+     "session_end": {
+      "n": 91,
+      "pnl_abs": 6199.06
+     },
+     "take_profit": {
+      "n": 8,
+      "pnl_abs": 3156.13
+     },
+     "stop_loss": {
+      "n": 13,
+      "pnl_abs": -5577.41
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 5,
+      "from_i": 78,
+      "to_i": 82,
+      "start": "2026-05-12T14:35:00+00:00",
+      "end": "2026-05-20T18:55:00+00:00",
+      "pnl_abs": 1390.98,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 104,
+      "to_i": 109,
+      "start": "2026-08-17T15:05:00+00:00",
+      "end": "2026-09-02T18:55:00+00:00",
+      "pnl_abs": -1308.81,
+      "count": 1
+     }
+    },
+    "stake_currency": "USD",
+    "market_change_pct": 23.367,
+    "backtest_start": "2025-09-10T00:00:00+00:00",
+    "backtest_end": "2026-09-09T23:55:00+00:00",
+    "holding_avg": "3:44:00",
+    "bars": 70836,
+    "ambiguous_minutes": 0,
+    "engine": "multicharts-emulator",
+    "duration_s": 0.7
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-09-22T19:11:43+00:00"
+}
