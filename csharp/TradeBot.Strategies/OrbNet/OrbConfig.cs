@@ -23,6 +23,10 @@ namespace TradeBot.Strategies.OrbNet
 
     public enum OrbTpMode { Rr, Measured, Atr }
 
+    /// <summary>Typ vstupu (Python `tradebot.core.entry_order`): limitku z market vstupu robi obal v Python
+    /// adapteroch; C# engine vstupuje vzdy tak ako doteraz. Pole je tu kvoli zhode configu s Pythonom.</summary>
+    public enum OrbEntryOrderType { Market, Limit }
+
     /// <summary>Jedna obchodna seansa - Python `SessionWindow` z configu ORB. Minuty su od polnoci
     /// v PASME seansy, nie v UTC - preto si kazda nesie svoje `Tz`.</summary>
     public sealed class OrbSession
@@ -115,6 +119,12 @@ namespace TradeBot.Strategies.OrbNet
         public SizeSpec minSlDistance = new SizeSpec(0.0, "pct");
         public double leverage = 1.0;
 
+        // ---- typ vstupu (market / limit) - spolocne pre strategie mimo IBS ----------
+        public OrbEntryOrderType entryOrderType = OrbEntryOrderType.Market;
+        public int limitOffsetPct = 50;
+        public int limitValidBars = 3;
+        public bool limitKeepRR = true;
+
         // -------------------------------------------------------------------- //
 
         /// <summary>Povodna jednotka velkostnych poli - hole cislo v JSON znamena tuto jednotku.</summary>
@@ -184,6 +194,8 @@ namespace TradeBot.Strategies.OrbNet
             if (t == typeof(double)) return Json.ToDouble(raw);
             if (t == typeof(double?)) return raw == null ? (double?)null : Json.ToDouble(raw);
             string s = (string)raw;
+            if (t == typeof(OrbEntryOrderType))
+                return s == "limit" ? OrbEntryOrderType.Limit : OrbEntryOrderType.Market;
             if (t == typeof(OrbSessionMode))
             {
                 switch (s)

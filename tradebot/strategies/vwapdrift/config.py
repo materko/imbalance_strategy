@@ -20,6 +20,8 @@ from typing import ClassVar, Iterable
 
 from tradebot.core.config import StrategyConfig
 from tradebot.core.types import SizeSpec, SizeUnit
+from tradebot.core.entry_order import (ENTRY_ORDER_CONSTRAINTS, ENTRY_ORDER_ENUMS, ENTRY_ORDER_FIELD_NAMES,
+                                          EntryOrderFields)
 
 __all__ = ["VwapDriftConfig", "VwapAnchor", "VwapPeriod", "EntryMode", "SlMode", "TradeDirection",
            "CONFIG_DIR"]
@@ -187,13 +189,13 @@ PORT_ONLY_FIELDS: frozenset[str] = frozenset(
 
 
 @dataclass
-class VwapDriftConfig(StrategyConfig):
+class VwapDriftConfig(StrategyConfig, EntryOrderFields):
     """Parametre Drift VWAP Pullback. Defaulty = video (9:30 NY, VWAP z 15m, prvý pullback)."""
 
     SIZE_FIELDS: ClassVar[dict[str, SizeUnit]] = SIZE_FIELDS
-    ENUM_FIELDS: ClassVar[dict[str, type]] = ENUM_FIELDS
-    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = CONSTRAINTS
-    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS
+    ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_ORDER_ENUMS}
+    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_ORDER_CONSTRAINTS}
+    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS | ENTRY_ORDER_FIELD_NAMES
 
     # ---- 🕐 Seansa -------------------------------------------------------- #
     #: Kotva VWAP a začiatok obchodovania v pásme America/New_York (9:30 = otvorenie cash

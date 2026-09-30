@@ -17,6 +17,8 @@ from typing import ClassVar, Iterable
 
 from tradebot.core.config import StrategyConfig
 from tradebot.core.types import SizeSpec
+from tradebot.core.entry_order import (ENTRY_ORDER_CONSTRAINTS, ENTRY_ORDER_ENUMS, ENTRY_ORDER_FIELD_NAMES,
+                                          EntryOrderFields)
 
 __all__ = ["VwapOpConfig", "CONFIG_DIR", "parse_session"]
 
@@ -69,12 +71,13 @@ PORT_ONLY_FIELDS: frozenset[str] = frozenset(
 
 
 @dataclass
-class VwapOpConfig(StrategyConfig):
+class VwapOpConfig(StrategyConfig, EntryOrderFields):
     """Parametre VWAP OP. Defaulty = Pine skript (9:30 NY, VWAP z 15m, prvý pullback, RR 2)."""
 
     SIZE_FIELDS: ClassVar[dict[str, str]] = SIZE_FIELDS
-    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = CONSTRAINTS
-    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS
+    ENUM_FIELDS: ClassVar[dict[str, type]] = dict(ENTRY_ORDER_ENUMS)
+    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_ORDER_CONSTRAINTS}
+    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS | ENTRY_ORDER_FIELD_NAMES
 
     # ---- 📈 VWAP / Drift (HTF) --------------------------------------- #
     #: Timeframe VWAP a driftu (Pine `input.timeframe`) — musí byť násobkom TF grafu.

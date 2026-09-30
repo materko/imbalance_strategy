@@ -24,6 +24,8 @@ from tradebot.core.types import SizeSpec, SizeUnit
 from ..orb.config import (CONSTRAINTS as ORB_CONSTRAINTS, ENUM_FIELDS as ORB_ENUM_FIELDS,
                           ORBConfig, SessionMode, SIZE_FIELDS as ORB_SIZE_FIELDS)
 from ..vwapdrift.config import VwapAnchor, VwapPeriod
+from tradebot.core.entry_order import (ENTRY_ORDER_CONSTRAINTS, ENTRY_ORDER_ENUMS, ENTRY_ORDER_FIELD_NAMES,
+                                          EntryOrderFields)
 
 __all__ = ["VwapOrbConfig", "VwapRule", "ExitMode", "EntryTiming", "CONFIG_DIR"]
 
@@ -92,8 +94,8 @@ class VwapOrbConfig(ORBConfig):
     """ORB + prerazenie VWAP za range. Defaulty ORB zmenené len tam, kde by bránili zadaniu."""
 
     SIZE_FIELDS: ClassVar[dict[str, SizeUnit]] = SIZE_FIELDS
-    ENUM_FIELDS: ClassVar[dict[str, type]] = ENUM_FIELDS
-    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = CONSTRAINTS
+    ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_ORDER_ENUMS}
+    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_ORDER_CONSTRAINTS}
 
     # ---- zmenené defaulty ORB -------------------------------------------- #
     sessionMode: SessionMode = SessionMode.NY

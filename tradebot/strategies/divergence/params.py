@@ -276,3 +276,10 @@ PARAMS: dict[str, dict[str, Any]] = {
                 "risk-based pozícia zmestí na účet.",
     ),
 }
+
+# ---- typ vstupu market / limit (spoločný pre stratégie mimo IBS, `tradebot.core.entry_order`) ---- #
+from tradebot.core.entry_order import entry_order_params  # noqa: E402
+
+_GE = "🧾 Typ vstupu (market / limit)"
+GROUPS = GROUPS + (_GE,)
+PARAMS.update(entry_order_params(_GE))

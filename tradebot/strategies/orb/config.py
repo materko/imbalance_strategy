@@ -13,6 +13,8 @@ from typing import ClassVar, Iterable
 
 from tradebot.core.config import StrategyConfig
 from tradebot.core.types import SizeSpec, SizeUnit
+from tradebot.core.entry_order import (ENTRY_ORDER_CONSTRAINTS, ENTRY_ORDER_ENUMS, ENTRY_ORDER_FIELD_NAMES,
+                                          EntryOrderFields)
 
 __all__ = ["ORBConfig", "EntryMode", "SessionMode", "SlMode", "TpMode",
            "TradeDirection", "SessionWindow", "CONFIG_DIR", "RANGE_MINUTE_FIELDS"]
@@ -138,13 +140,13 @@ class SessionWindow:
 
 
 @dataclass
-class ORBConfig(StrategyConfig):
+class ORBConfig(StrategyConfig, EntryOrderFields):
     """Defaulty = Pine defaulty."""
 
     SIZE_FIELDS: ClassVar[dict[str, SizeUnit]] = SIZE_FIELDS
-    ENUM_FIELDS: ClassVar[dict[str, type]] = ENUM_FIELDS
-    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = CONSTRAINTS
-    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS
+    ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_ORDER_ENUMS}
+    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_ORDER_CONSTRAINTS}
+    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS | ENTRY_ORDER_FIELD_NAMES
 
     # ---- 🕐 Seansy -------------------------------------------------------- #
     sessionMode: SessionMode = SessionMode.BOTH

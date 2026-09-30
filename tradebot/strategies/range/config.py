@@ -17,6 +17,8 @@ from typing import ClassVar, Iterable
 
 from tradebot.core.config import StrategyConfig
 from tradebot.core.types import SizeSpec, SizeUnit
+from tradebot.core.entry_order import (ENTRY_ORDER_CONSTRAINTS, ENTRY_ORDER_ENUMS, ENTRY_ORDER_FIELD_NAMES,
+                                          EntryOrderFields)
 
 __all__ = ["RangeConfig", "BoundaryMode", "EntryMode", "SlMode", "TpMode",
            "TradeDirection", "CONFIG_DIR"]
@@ -112,13 +114,13 @@ PORT_ONLY_FIELDS: frozenset[str] = frozenset(
 
 
 @dataclass
-class RangeConfig(StrategyConfig):
+class RangeConfig(StrategyConfig, EntryOrderFields):
     """Range breakout — konsolidácia kdekoľvek na grafe, jej prerazenie a pokračovanie."""
 
     SIZE_FIELDS: ClassVar[dict[str, SizeUnit]] = SIZE_FIELDS
-    ENUM_FIELDS: ClassVar[dict[str, type]] = ENUM_FIELDS
-    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = CONSTRAINTS
-    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS
+    ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_ORDER_ENUMS}
+    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_ORDER_CONSTRAINTS}
+    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS | ENTRY_ORDER_FIELD_NAMES
 
     # ---- 🔍 Detekcia rangu ------------------------------------------------ #
     lookbackBars: int = 15
