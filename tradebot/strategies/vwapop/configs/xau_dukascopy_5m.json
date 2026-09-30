@@ -1,0 +1,12 @@
+{
+  "_title": "XAU/USD (zlato) CFD 5m — VWAP OP (drift VWAP pullback), Pine defaulty",
+  "_strategy": "vwapop",
+  "_instrument": "xau_dukascopy",
+  "_timeframe": "5m",
+  "_comment": [
+    "Vsetky prahy strategie su v ATR/pct, ziadne v absolutnych bodoch/tickoch - profil je",
+    "teda len metadatovy (_instrument, _title), ziadne odchylky od Pine defaultov nema.",
+    "CFD objem je len aktivita tickov u brokera (Dukascopy), nie skutocny objem burzy -",
+    "VWAP z neho je odhad."
+  ]
+}

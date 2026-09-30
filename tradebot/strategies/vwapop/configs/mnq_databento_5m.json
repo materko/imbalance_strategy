@@ -1,0 +1,11 @@
+{
+  "_title": "MNQ futures 5m — doslovny port Pine skriptu Drift VWAP Pullback (VWAP z 15m, RR 2)",
+  "_strategy": "vwapop",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Vychodiskovy profil VWAP OP (2026-09-29), presny port pastnuteho Pine v6 skriptu:",
+    "MNQ 5m, VWAP z 15m od 9:30 NY, drift meraný ATR 15m, prvy pullback, vstup market na zavreti,",
+    "SL = VWAP +/- 0,5 ATR grafu, ciel 2R. SL/TP/EOD zatvaranie nie su z videa - su to odhady na prvy test."
+  ]
+}

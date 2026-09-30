@@ -1,0 +1,149 @@
+//@version=6
+// ============================================================================
+//  Drift VWAP Pullback — STRATÉGIA (backtest)
+//  Podľa videa "This VWAP Strategy Has a 93.6% Chance of Getting You Funded"
+//  (IQCapital Clips, Matteo)
+//
+//  Pravidlá:
+//   - 5m graf NQ, VWAP z 15m ukotvený na 9:30 ET
+//   - Drift = sklon 15m VWAP (bias dňa)
+//   - Drift hore + prvý pullback zhora k VWAP  -> LONG
+//   - Drift dole + prvý pullback zdola k VWAP  -> SHORT
+//   - SL / TP / záverečné uzavretie pred koncom seansy NIE SÚ z videa
+//     (vo videu neboli špecifikované) -> nastaviteľné.
+// ============================================================================
+strategy("Drift VWAP Pullback Strategy", shorttitle = "DriftVWAP Strat", overlay = true,
+     initial_capital = 50000, default_qty_type = strategy.fixed, default_qty_value = 1,
+     commission_type = strategy.commission.cash_per_contract, commission_value = 2.0,
+     slippage = 1, pyramiding = 0, process_orders_on_close = false,
+     max_labels_count = 500, max_lines_count = 500)
+
+// ---------------- Inputs ----------------
+grpV = "VWAP / Drift"
+htf        = input.timeframe("15", "Timeframe pre VWAP a drift", group = grpV)
+rthSess    = input.session("0930-1600", "RTH session (ET)", group = grpV)
+driftLen   = input.int(2, "Drift lookback (počet 15m sviečok)", minval = 1, group = grpV)
+driftAtr   = input.float(0.10, "Min. sklon VWAP (× ATR 15m)", minval = 0.0, step = 0.05, group = grpV)
+needSide   = input.bool(true, "15m close musí byť na strane trendu voči VWAP", group = grpV)
+
+grpS = "Vstupy (5m)"
+tolAtr     = input.float(0.10, "Tolerancia dotyku VWAP (× ATR)", minval = 0.0, step = 0.05, group = grpS)
+needClose  = input.bool(true, "Sviečka musí zavrieť na strane trendu", group = grpS)
+firstOnly  = input.bool(true, "Iba prvý pullback za deň v každom smere", group = grpS)
+maxTrades  = input.int(2, "Max. obchodov za deň", minval = 1, group = grpS)
+tradeWin   = input.session("0945-1530", "Okno pre vstupy (ET)", group = grpS)
+allowLong  = input.bool(true, "Povoliť LONG", group = grpS)
+allowShort = input.bool(true, "Povoliť SHORT", group = grpS)
+
+grpR = "Risk / výstupy (nie je z videa)"
+slAtr      = input.float(0.5, "SL za VWAP (× ATR)", minval = 0.0, step = 0.1, group = grpR)
+rr         = input.float(2.0, "Take profit (R násobok)", minval = 0.1, step = 0.25, group = grpR)
+useBE      = input.bool(false, "Posunúť SL na breakeven po +1R", group = grpR)
+closeEOD   = input.bool(false, "Zatvoriť pozíciu na konci session", group = grpR,
+     tooltip = "Vypnuté = pozícia ostáva otvorená aj po konci session (aj cez noc) a ukončí ju iba SL alebo TP.")
+flatTime   = input.session("1555-1600", "Čas zatvorenia (ET)", group = grpR)
+
+grpD = "Vzhľad"
+showCross  = input.bool(true, "VWAP ako krížiky", group = grpD)
+colUp      = input.color(color.new(#22c55e, 0), "Drift hore", group = grpD)
+colDn      = input.color(color.new(#ef4444, 0), "Drift dole", group = grpD)
+colFlat    = input.color(color.new(#9ca3af, 0), "Bez driftu", group = grpD)
+
+const string TZ = "America/New_York"
+
+// ---------------- HTF (15m), len uzavreté sviečky = bez repaintu ----------------
+htfCalc() =>
+    inS    = not na(time(timeframe.period, rthSess, TZ))
+    newS   = inS and not inS[1]
+    vw     = ta.vwap(hlc3, newS)
+    v      = inS ? vw : na
+    since  = ta.barssince(newS)
+    d      = inS and since >= driftLen ? v - v[driftLen] : na
+    a      = ta.atr(14)
+    [v[1], d[1], close[1], a[1]]
+
+[vwap15, drift15, close15, atr15] = request.security(syminfo.tickerid, htf, htfCalc(), lookahead = barmerge.lookahead_on)
+
+// ---------------- Drift ----------------
+driftUp = not na(drift15) and drift15 >  driftAtr * atr15 and (not needSide or close15 > vwap15)
+driftDn = not na(drift15) and drift15 < -driftAtr * atr15 and (not needSide or close15 < vwap15)
+bias    = driftUp ? 1 : driftDn ? -1 : 0
+biasCol = bias == 1 ? colUp : bias == -1 ? colDn : colFlat
+
+// ---------------- Pullback logika ----------------
+inRth   = not na(time(timeframe.period, rthSess, TZ))
+newDay  = inRth and not inRth[1]
+inWin   = not na(time(timeframe.period, tradeWin, TZ))
+inFlat  = not na(time(timeframe.period, flatTime, TZ))
+atrC    = ta.atr(14)
+tol     = tolAtr * atrC
+
+var bool armedL = false
+var bool armedS = false
+var bool doneL  = false
+var bool doneS  = false
+var int  nDay   = 0
+
+if newDay
+    armedL := false
+    armedS := false
+    doneL  := false
+    doneS  := false
+    nDay   := 0
+
+hasV   = not na(vwap15)
+flat   = strategy.position_size == 0
+touchL = hasV and low  <= vwap15 + tol and (not needClose or close > vwap15)
+touchS = hasV and high >= vwap15 - tol and (not needClose or close < vwap15)
+
+longSig  = allowLong  and flat and hasV and inWin and bias ==  1 and armedL and touchL and not (firstOnly and doneL) and nDay < maxTrades
+shortSig = allowShort and flat and hasV and inWin and bias == -1 and armedS and touchS and not (firstOnly and doneS) and nDay < maxTrades
+
+// ---------------- Príkazy ----------------
+var float slPrice = na
+var float tpPrice = na
+var float entryRef = na
+
+if longSig
+    entryRef := close
+    slPrice  := vwap15 - slAtr * atrC
+    tpPrice  := entryRef + rr * (entryRef - slPrice)
+    strategy.entry("L", strategy.long)
+    doneL  := true
+    armedL := false
+    nDay   += 1
+
+if shortSig
+    entryRef := close
+    slPrice  := vwap15 + slAtr * atrC
+    tpPrice  := entryRef - rr * (slPrice - entryRef)
+    strategy.entry("S", strategy.short)
+    doneS  := true
+    armedS := false
+    nDay   += 1
+
+// breakeven
+if useBE and strategy.position_size > 0 and high >= entryRef + (entryRef - slPrice) and slPrice < entryRef
+    slPrice := entryRef
+if useBE and strategy.position_size < 0 and low <= entryRef - (slPrice - entryRef) and slPrice > entryRef
+    slPrice := entryRef
+
+strategy.exit("L-exit", from_entry = "L", stop = slPrice, limit = tpPrice)
+strategy.exit("S-exit", from_entry = "S", stop = slPrice, limit = tpPrice)
+
+// koniec dňa -> flat (len ak je zapnuté; inak SL/TP ostávajú aktívne aj po session)
+if closeEOD and inFlat and strategy.position_size != 0
+    strategy.close_all(comment = "EOD")
+
+// arming (po vyhodnotení signálu na tejto sviečke)
+if hasV and low > vwap15 + tol
+    armedL := true
+if hasV and high < vwap15 - tol
+    armedS := true
+
+// ---------------- Kreslenie ----------------
+plot(vwap15, "VWAP 15m", color = biasCol, linewidth = 2, style = showCross ? plot.style_cross : plot.style_linebr)
+plot(strategy.position_size != 0 ? slPrice : na, "SL", color = colDn, style = plot.style_linebr)
+plot(strategy.position_size != 0 ? tpPrice : na, "TP", color = colUp, style = plot.style_linebr)
+plotshape(longSig,  "Long signál",  shape.triangleup,   location.belowbar, colUp, size = size.tiny)
+plotshape(shortSig, "Short signál", shape.triangledown, location.abovebar, colDn, size = size.tiny)
