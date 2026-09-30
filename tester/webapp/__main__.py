@@ -8,6 +8,56 @@ from tradebot.core.env import getenv
 import sys
 
 
+#: Súbory, ktorých zmena si vyžaduje reštart (kód a jeho statické súbory), a čo sa nepočíta —
+#: história behov, profily a archív sa menia pri každom Pushi a reštart nepotrebujú.
+_CODE_EXT = (".py", ".js", ".html", ".css", ".json")
+_NOT_CODE = ("tester/runs/", "tester/profiles/", "tester/archive/", "data_archive/", "docs/")
+
+
+def code_signature() -> str | None:
+    """Odtlačok kódu v HEAD (bez histórie behov a profilov); `None`, keď git nie je k dispozícii."""
+    import hashlib
+    import subprocess
+    from pathlib import Path
+
+    repo = Path(__file__).resolve().parents[2]
+    try:
+        p = subprocess.run(["git", "ls-tree", "-r", "HEAD"], cwd=repo, capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if p.returncode != 0:
+        return None
+    h = hashlib.sha1()
+    for line in p.stdout.splitlines():
+        path = line.split("\t", 1)[-1]
+        if path.endswith(_CODE_EXT) and not path.startswith(_NOT_CODE):
+            h.update(line.encode())
+    return h.hexdigest()
+
+
+def _watch_code(interval: float = 20.0) -> None:
+    import json
+    import time
+    import urllib.request
+
+    start = code_signature()
+    if start is None:
+        return
+    port = int(getenv("WEB_PORT", "8765"))
+    while True:
+        time.sleep(interval)
+        if code_signature() in (start, None):
+            continue
+        try:   # beh, ktorý práve počíta, sa nepreruší — reštart počká
+            with urllib.request.urlopen(f"http://127.0.0.1:{port}/api/queue", timeout=10) as r:
+                if json.load(r):
+                    continue
+        except Exception:  # noqa: BLE001 — server ešte nebeží / neodpovedá: skús neskôr
+            continue
+        print("Kód v gite sa zmenil (pull) — reštartujem webapp, aby načítala nové stratégie ...", flush=True)
+        os.execv(sys.executable, [sys.executable, "-m", "tester.webapp"])
+
+
 def main() -> int:
     from .. import data_archive, quotemanager, timeframes
 
@@ -69,6 +119,12 @@ def main() -> int:
     # Zrkadlo live telemetrie (docs/LIVE.md): každých 5 s stiahne nové udalosti z hubu
     # (ak je nastavený) a z lokálneho spoolu platforiem (ak tu nejaký je) — karta Live.
     _app.state.start_live_mirror()
+
+    # Pull (tlačidlo Pull, Push aj `cli push`) stiahne nový kód, ale bežiaci proces ho nenačíta —
+    # nová stratégia by vo webapp chýbala až do ručného reštartu. Keď sa kód v gite zmení,
+    # webapp sa reštartuje sama, hneď ako nebeží žiadny beh. `TRADEBOT_AUTO_RESTART=0` to vypne.
+    if getenv("AUTO_RESTART", "1") != "0":
+        threading.Thread(target=_watch_code, name="code-watch", daemon=True).start()
 
     host = getenv("WEB_HOST", "127.0.0.1")
     port = int(getenv("WEB_PORT", "8765"))
