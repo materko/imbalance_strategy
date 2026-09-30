@@ -1,0 +1,103 @@
+{
+  "sessionMode": "both",
+  "nyStartH": 9,
+  "nyStartM": 30,
+  "nyRangeMinutes": 60,
+  "nyEndH": 15,
+  "nyEndM": 55,
+  "lonStartH": 8,
+  "lonStartM": 0,
+  "lonRangeMinutes": 15,
+  "lonEndH": 16,
+  "lonEndM": 30,
+  "tradeDirection": "Both",
+  "entryMode": "close",
+  "breakBufferAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "retestMaxBars": 10,
+  "entryWindowMinutes": 120,
+  "maxTradesPerDay": 1,
+  "minRangePct": 0.1,
+  "maxRangePct": 0.4,
+  "useVolumeFilter": true,
+  "volSmaLen": 50,
+  "volMultiplier": 2.0,
+  "minClosePosPct": 50,
+  "weekdaysOnly": true,
+  "emaLen": 50,
+  "emaFilter": true,
+  "emaRangeFilter": false,
+  "emaExit": false,
+  "slMode": "break_candle",
+  "slRangePct": 100,
+  "atrLen": 14,
+  "slAtrMult": {
+    "value": 0.5,
+    "unit": "atr"
+  },
+  "slBufferAtr": {
+    "value": 0.1,
+    "unit": "atr"
+  },
+  "tpMode": "rr",
+  "rrRatio": 1.4,
+  "measuredMult": 1.0,
+  "tpAtrMult": 2.0,
+  "enableTrailing": false,
+  "trailActivationR": 1.5,
+  "trailOffsetR": 0.5,
+  "closeAtSessionEnd": false,
+  "riskDollar": 100.0,
+  "showRange": true,
+  "showLevels": true,
+  "showEma": false,
+  "tickDollarValue": 0.5,
+  "legacyPineSizing": false,
+  "minSlDistance": 0.0,
+  "leverage": 1.0,
+  "vwapAnchor": "ny_open",
+  "vwapPeriod": "chart",
+  "vwapRule": "direction",
+  "entryTiming": "any",
+  "vwapBreakAtr": {
+    "value": 0.25,
+    "unit": "atr"
+  },
+  "closeBeyondVwap": true,
+  "vwapDriftBars": 6,
+  "vwapDriftMinAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "exitMode": "tp",
+  "vwapExitAtr": {
+    "value": 0.1,
+    "unit": "atr"
+  },
+  "vwapStop": false,
+  "vwapStopAtr": {
+    "value": 0.25,
+    "unit": "atr"
+  },
+  "vwapTp": false,
+  "vwapTpAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "showVwap": true,
+  "_strategy": "vwaporb",
+  "_instrument": "mnq_databento",
+  "_title": "VWAP ORB 1.5 (stop/cieľ): posl. rok 65 obch, 69.2 % WR, RR 1.4, reálny zisk:strata 1.38, PF 3.25, +3771 $",
+  "_comment": [
+    "VWAP ORB 1.5 (stop/cieľ): posl. rok 65 obch, 69.2 % WR, RR 1.4, reálny zisk:strata 1.38, PF 3.25, +3771 $",
+    "Predch. rok (24/25): 63 obch, 50.8 % WR, +1310 $",
+    "Bez konca seansy a trailingu, len stop a cieľ. Testy 28.-30.9.2026, emulátor MultiCharts, MNQ, BEZ nákladov, riziko 100 $/obchod (min. 1 kontrakt)."
+  ],
+  "_timeframe": "2m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}
