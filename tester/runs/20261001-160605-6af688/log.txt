@@ -1,0 +1,13 @@
+$ emulator MultiCharts BTCUSDT.P 3m 20250904-20260904 (BTC_USDT_USDT-1m-futures.feather)
+predhistoria indikatorov z dat pred behom: ADX/DMI 10/10 @60m 79/79
+emulacia MultiCharts: 175200 barov 3m, 525600 1m, 105120 HTF
+  20000/175200 barov, 19 obchodov
+  40000/175200 barov, 52 obchodov
+  60000/175200 barov, 72 obchodov
+  80000/175200 barov, 106 obchodov
+  100000/175200 barov, 136 obchodov
+  120000/175200 barov, 145 obchodov
+  140000/175200 barov, 167 obchodov
+  160000/175200 barov, 177 obchodov
+hotovo: 190 obchodov, nerozhodnutelnych minut 0
+kresby: {'session': 1097, 'imb_box': 40847, 'adx_state': 8760, 'sd_zone_pre': 9118, 'sd_zone_post': 9118, 'swing': 21725, 'skip': 610, 'structure': 16956, 'tp_box': 190, 'sl_box': 190}

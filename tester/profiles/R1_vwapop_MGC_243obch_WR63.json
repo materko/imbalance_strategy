@@ -1,0 +1,56 @@
+{
+  "entryOrderType": "limit",
+  "limitOffsetPct": 62,
+  "limitValidBars": 9,
+  "limitKeepRR": true,
+  "htf": "15",
+  "rthSess": "0930-1600",
+  "driftLen": 4,
+  "driftAtr": {
+    "value": 0.05,
+    "unit": "atr"
+  },
+  "needSide": false,
+  "tolAtr": {
+    "value": 0.1,
+    "unit": "atr"
+  },
+  "needClose": true,
+  "firstOnly": false,
+  "maxTrades": 2,
+  "tradeWin": "0945-1530",
+  "allowLong": true,
+  "allowShort": true,
+  "slAtr": {
+    "value": 1.5,
+    "unit": "atr"
+  },
+  "rr": 1.0,
+  "useBE": false,
+  "closeEOD": false,
+  "flatTime": "1555-1600",
+  "showCross": true,
+  "colUp": "#22c55e",
+  "colDn": "#ef4444",
+  "colFlat": "#9ca3af",
+  "riskDollar": 100.0,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0.1,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "_strategy": "vwapop",
+  "_title": "VWAP OP MGC RR 1:1: posl. rok 243 obch, 63.8 % WR, PF 1.85, +8920 (len stop a cieľ)",
+  "_comment": [
+    "VWAP OP MGC RR 1:1: posl. rok 243 obch, 63.8 % WR, PF 1.85, +8920 (len stop a cieľ)",
+    "Predch. rok 24/25: 198 obch, 52.5 % WR",
+    "Testy 30.9.-1.10.2026, emulátor MultiCharts, BEZ nákladov, bez konca seansy a trailingu."
+  ],
+  "_instrument": "mgc_databento",
+  "_timeframe": "3m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

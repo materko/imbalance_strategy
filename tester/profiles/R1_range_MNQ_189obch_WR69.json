@@ -1,0 +1,82 @@
+{
+  "entryOrderType": "limit",
+  "limitOffsetPct": 25,
+  "limitValidBars": 3,
+  "limitKeepRR": true,
+  "lookbackBars": 11,
+  "boundaryMode": "close",
+  "maxWidthAtr": {
+    "value": 2.0,
+    "unit": "atr"
+  },
+  "minWidthAtr": {
+    "value": 0.5,
+    "unit": "atr"
+  },
+  "maxRangeAgeBars": 30,
+  "cooldownBars": 9,
+  "tradeDirection": "Both",
+  "entryMode": "close",
+  "breakBufferAtr": {
+    "value": 0.2,
+    "unit": "atr"
+  },
+  "requireSecondClose": true,
+  "retestMaxBars": 8,
+  "confirmMaxBars": 8,
+  "maxTradesPerDay": 1,
+  "minClosePosPct": 50,
+  "weekdaysOnly": true,
+  "useTradeWindow": false,
+  "tradeTZ": "America/New_York",
+  "tradeStartH": 13,
+  "tradeStartM": 15,
+  "tradeEndH": 15,
+  "tradeEndM": 30,
+  "slMode": "opposite",
+  "slRangePct": 150.0,
+  "atrLen": 21,
+  "slAtrMult": {
+    "value": 2.0,
+    "unit": "atr"
+  },
+  "slBufferAtr": {
+    "value": 0.3,
+    "unit": "atr"
+  },
+  "tpMode": "rr",
+  "rrRatio": 1.0,
+  "measuredMult": 1.25,
+  "tpAtrMult": {
+    "value": 3.0,
+    "unit": "atr"
+  },
+  "enableTrailing": false,
+  "trailActivationR": 1.0,
+  "trailOffsetR": 0.5,
+  "maxHoldBars": 0,
+  "closeAtWindowEnd": false,
+  "riskDollar": 100.0,
+  "showRange": true,
+  "showLevels": true,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0.0,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "_strategy": "range",
+  "_title": "Range Breakout MNQ RR 1:1: posl. rok 189 obch, 69.8 % WR, PF 2.31, +7511 (len stop a cieľ)",
+  "_comment": [
+    "Range Breakout MNQ RR 1:1: posl. rok 189 obch, 69.8 % WR, PF 2.31, +7511 (len stop a cieľ)",
+    "Predch. rok 24/25: 190 obch, 51.6 % WR",
+    "Testy 30.9.-1.10.2026, emulátor MultiCharts, BEZ nákladov, bez konca seansy a trailingu."
+  ],
+  "_instrument": "mnq_databento",
+  "_timeframe": "3m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

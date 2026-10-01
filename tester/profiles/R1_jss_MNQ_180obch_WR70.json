@@ -1,0 +1,82 @@
+{
+  "entryOrderType": "market",
+  "limitOffsetPct": 50,
+  "limitValidBars": 3,
+  "limitKeepRR": true,
+  "structTF": 5,
+  "refineTF": 11,
+  "swingLen": 3,
+  "triggerMode": "both",
+  "atrLen": 18,
+  "zoneType": "ob",
+  "zoneEdge": "wick",
+  "impulseAtr": {
+    "value": 0.75,
+    "unit": "atr"
+  },
+  "baseMaxBars": 5,
+  "zoneMinAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "zoneMaxAtr": {
+    "value": 2.25,
+    "unit": "atr"
+  },
+  "zoneMaxAgeBars": 200,
+  "entryModel": "any",
+  "entryDepthPct": 1,
+  "confirmBars": 4,
+  "imbMinSizeAtr": {
+    "value": 0.2,
+    "unit": "atr"
+  },
+  "pbWickPct": 60,
+  "pbBodyPct": 20,
+  "tradeDirection": "Both",
+  "maxTradesPerDay": 2,
+  "cooldownBars": 12,
+  "weekdaysOnly": true,
+  "useTradeWindow": true,
+  "tradeTZ": "America/New_York",
+  "tradeStartH": 8,
+  "tradeStartM": 0,
+  "tradeEndH": 16,
+  "tradeEndM": 0,
+  "slFrom": "refined",
+  "slBufferAtr": {
+    "value": 0.05,
+    "unit": "atr"
+  },
+  "slBufferPoints": {
+    "value": 20,
+    "unit": "abs"
+  },
+  "tpMode": "rr",
+  "rrRatio": 1.0,
+  "minRR": 1.0,
+  "maxHoldBars": 0,
+  "riskDollar": 100.0,
+  "showStructure": true,
+  "showZones": true,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0.0,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "_strategy": "jss",
+  "_title": "JSS 1.0 MNQ RR 1:1: posl. rok 180 obch, 70.6 % WR, PF 2.03, +10074 (len stop a cieľ)",
+  "_comment": [
+    "JSS 1.0 MNQ RR 1:1: posl. rok 180 obch, 70.6 % WR, PF 2.03, +10074 (len stop a cieľ)",
+    "Predch. rok 24/25: 182 obch, 50.0 % WR",
+    "Testy 30.9.-1.10.2026, emulátor MultiCharts, BEZ nákladov, bez konca seansy a trailingu."
+  ],
+  "_instrument": "mnq_databento",
+  "_timeframe": "3m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

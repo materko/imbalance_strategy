@@ -1,0 +1,80 @@
+{
+  "baseMaxBars": 1,
+  "baseMaxBodyPct": 30,
+  "baseMaxWidthAtr": {
+    "value": 1.2,
+    "unit": "atr"
+  },
+  "impulseMinBodyAtr": {
+    "value": 0.4,
+    "unit": "atr"
+  },
+  "impulseMinBodyPct": 55,
+  "legOutMinAtr": {
+    "value": 0.0,
+    "unit": "atr"
+  },
+  "legOutMaxBars": 3,
+  "zoneMode": "wfz",
+  "patterns": "all",
+  "maxZoneAgeBars": 225,
+  "maxZones": 30,
+  "requireFresh": true,
+  "tradeDirection": "Both",
+  "entryMode": "reject",
+  "entryDepthPct": 0,
+  "maxTradesPerDay": 3,
+  "weekdaysOnly": true,
+  "useTrendFilter": true,
+  "trendMaLen": 100,
+  "useTradeWindow": false,
+  "tradeTZ": "America/New_York",
+  "tradeStartH": 10,
+  "tradeStartM": 30,
+  "tradeEndH": 16,
+  "tradeEndM": 45,
+  "slMode": "zone",
+  "atrLen": 18,
+  "slBufferAtr": {
+    "value": 0.225,
+    "unit": "atr"
+  },
+  "slAtrMult": {
+    "value": 0.75,
+    "unit": "atr"
+  },
+  "tpMode": "rr",
+  "rrRatio": 1.0,
+  "tpAtrMult": {
+    "value": 3.75,
+    "unit": "atr"
+  },
+  "enableTrailing": false,
+  "trailActivationR": 1.0,
+  "trailOffsetR": 0.5,
+  "maxHoldBars": 0,
+  "closeAtWindowEnd": false,
+  "riskDollar": 100.0,
+  "showZones": true,
+  "showPatterns": true,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0.5,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "_strategy": "sdzone",
+  "_title": "SD Zones BTC RR 1:1: posl. rok 180 obch, 65.6 % WR, PF 1.90, +5583 (len stop a cieľ)",
+  "_comment": [
+    "SD Zones BTC RR 1:1: posl. rok 180 obch, 65.6 % WR, PF 1.90, +5583 (len stop a cieľ)",
+    "Predch. rok 24/25: 206 obch, 50.0 % WR",
+    "Testy 30.9.-1.10.2026, emulátor MultiCharts, BEZ nákladov, bez konca seansy a trailingu."
+  ],
+  "_instrument": "btcusdt_binance",
+  "_timeframe": "5m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}
