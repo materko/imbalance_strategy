@@ -1,0 +1,9 @@
+$ emulator MultiCharts 6E 3m 20250928-20260928 (6E_USD-1m.feather)
+emulacia MultiCharts: 117983 barov 3m, 345732 1m, 70862 HTF
+  20000/117983 barov, 0 obchodov
+  40000/117983 barov, 0 obchodov
+  60000/117983 barov, 0 obchodov
+  80000/117983 barov, 0 obchodov
+  100000/117983 barov, 0 obchodov
+hotovo: 0 obchodov, nerozhodnutelnych minut 0
+kresby: {'structure': 10366, 'swing': 14434, 'session': 530, 'sd_zone_pre': 798, 'sd_zone_post': 798, 'sr_level': 2}
