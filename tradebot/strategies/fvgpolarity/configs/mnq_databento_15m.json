@@ -1,0 +1,12 @@
+{
+  "_title": "MNQ futures 15m — po vzniku FVG market k medzere, TP na dotyk FVG, SL 20 bodov",
+  "_strategy": "fvgpolarity",
+  "_instrument": "mnq_databento",
+  "_timeframe": "15m",
+  "_comment": [
+    "Vychodiskovy profil FVG POLARITY (2026-10-01) podla zadania: 15m graf, kazdy FVG, vstup market na",
+    "otvoreni najblizsej sviecky po potvrdeni FVG k medzere, TP na prvy dotyk FVG, SL 20 bodov.",
+    "Nie je to obchodne odporucanie."
+  ],
+  "tickDollarValue": 0.5
+}
