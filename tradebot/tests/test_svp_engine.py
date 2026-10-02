@@ -160,3 +160,11 @@ def test_vyvijajuci_sa_poc_je_bez_aktualneho_baru():
     outs = _day2(e, [(101.2, 101.75, 101.0, 101.5, 30)] + [r + (1,) for r in _ABOVE])
     o = _entries(outs)[0]
     assert o.direction is Direction.LONG and o.plan.entry == 101.5
+
+
+def test_limitka_vyplnena_a_zavreta_v_jednom_bare_sa_rata_a_kresli():
+    e = SvpEngine(_cfg(maxTradesPerDay=1), MNQ, 5)
+    _day1(e)
+    outs = _day2(e, _BELOW + [(96, 104, 96, 97), (97, 97.5, 95, 95.5), (95.5, 96, 95, 95.5)])   # bar 4 prešiel POC, pozícia nikdy „otvorená"
+    assert [d.text for d in outs[3].drawings if d.kind.value == "svp_entry"] == ["SHORT POC"]
+    assert e._trades_today == 1 and not _entries(outs[3:]), "denný strop — ďalšia limitka už nejde"

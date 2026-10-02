@@ -128,7 +128,7 @@ class SvpEngine:
         self._break_idx = -10**9  #: index baru posledného prerazenia úrovne
         self._armed = False       #: od posledného dotyku cena znova odišla — ďalší návrat je dotyk
         self._await: tuple[Direction, int] | None = None   #: po dotyku sa čaká na vstupný model (smer, do indexu)
-        self._pending: tuple[str, int, float] | None = None   #: (id, index baru, cena limitky)
+        self._pending: tuple[str, int, float, bool, bool] | None = None   #: (id, index baru, cena limitky, long, retest)
         self._drawn_from: int | None = None
 
     # ------------------------------------------------------------------ #
@@ -258,18 +258,20 @@ class SvpEngine:
 
         # ---- čakajúca limitka / pozícia -------------------------------------- #
         if self._pending is not None:
-            if ctx.position_size != 0.0:
+            order_id, at, price, long, retest = self._pending
+            # vyplnená: pozícia je otvorená, alebo cena limitkou prešla a obchod sa v tom istom bare aj zavrel
+            if ctx.position_size != 0.0 or bar.low <= price <= bar.high:
                 self._trades_today += 1
-                long = ctx.position_size > 0
                 out.drawings.append(DrawLabel(
-                    SVP_ENTRY, bar.time, bar.low if long else bar.high, f"{'LONG' if long else 'SHORT'} POC", "#ffffff",
+                    SVP_ENTRY, bar.time, bar.low if long else bar.high,
+                    f"{'LONG' if long else 'SHORT'} {'retest' if retest else 'POC'}", "#ffffff",
                     style=LabelStyle.UP if long else LabelStyle.DOWN, above=not long,
                     bg_color=_LONG_COLOR if long else _SHORT_COLOR, obj_id=f"svp.e.{bar.time}"))
+                if ctx.position_size == 0.0:
+                    out.orders.append(OrderIntent(OrderAction.CANCEL, order_id, at, reason="vyplnené a zavreté v jednom bare"))
                 self._pending = None
-            elif idx - self._pending[1] >= 1:
-                if bar.low <= self._pending[2] <= bar.high:
-                    self._trades_today += 1      # limitka sa vyplnila a obchod sa v tom istom bare aj zavrel
-                out.orders.append(OrderIntent(OrderAction.CANCEL, self._pending[0], self._pending[1], reason="nevyplnené"))
+            elif idx - at >= 1:
+                out.orders.append(OrderIntent(OrderAction.CANCEL, order_id, at, reason="nevyplnené"))
                 self._pending = None
 
         in_window = (not cfg.weekdaysOnly or local.weekday() < 5) and (
@@ -354,7 +356,7 @@ class SvpEngine:
                                       order_type=OrderType.LIMIT if limit else OrderType.MARKET,
                                       reason=("retest POC po prerazení" if retest else "odmietnutie POC")))
         if limit:
-            self._pending = (order_id, idx, plan.entry)
+            self._pending = (order_id, idx, plan.entry, long, retest)
         else:
             self._trades_today += 1
             out.drawings.append(DrawLabel(
