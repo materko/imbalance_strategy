@@ -1,0 +1,13 @@
+{
+  "_title": "MNQ futures 5m — CRT + TBS 1.0: range 4h sviečky, výber telom, vstup CISD, cieľ opačný koniec rangu",
+  "_strategy": "crt",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Vychodiskovy profil CRT + TBS 1.0 (2026-10-02): defaulty configu na MNQ 5m.",
+    "Range = 4h sviecka; dalsia 4h sviecka jednu stranu vyberie (sviecka grafu zavrie za hranicou = TBS);",
+    "vstup CISD po navrate do rangu, stop za extrem vyberu (+0,1 ATR), ciel opacny koniec rangu (min. 1R).",
+    "Nie je to obchodne odporucanie - je to vychodisko na dalsie ladenie."
+  ],
+  "tickDollarValue": 0.5
+}

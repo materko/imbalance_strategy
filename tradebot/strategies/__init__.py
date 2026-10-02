@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from .base import StrategySpec
 from .breakout import SPEC as BREAKOUT_SPEC
+from .crt import SPEC as CRT_SPEC
 from .demo_breakout import SPEC as DEMO_SPEC
 from .divergence import SPEC as DIVERGENCE_SPEC
 from .fvgpolarity import SPEC as FVGPOLARITY_SPEC
@@ -50,6 +51,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     VWAPOP_SPEC.key: VWAPOP_SPEC,
     VWAPORB_SPEC.key: VWAPORB_SPEC,
     JSS_SPEC.key: JSS_SPEC,
+    CRT_SPEC.key: CRT_SPEC,
     FVGPOLARITY_SPEC.key: FVGPOLARITY_SPEC,
 }
 
