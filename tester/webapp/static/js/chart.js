@@ -14,9 +14,11 @@
 // Vrstvy grafu (prepínače) a názvy druhov kresieb dodáva stratégia cez /api/meta
 // (`strategies[].layers`, `kind_titles`); vrstva „Obchody Freqtrade" je spoločná.
 const TRADES_LAYER = { id: "trades", title: "Obchody Freqtrade", kinds: [], sw: GREEN, hollow_kinds: [] };
+// Klasický indikátor objemu: stĺpce pod sviečkami (zelený = sviečka zavrela vyššie, červený nižšie).
+const VOLUME_LAYER = { id: "volume", title: "Objem (volume)", kinds: [], sw: "#64748b", hollow_kinds: [] };
 function layersFor(strategyKey) {
   const spec = strategySpec(strategyKey);
-  const layers = [...((spec && spec.layers) || []), TRADES_LAYER];
+  const layers = [...((spec && spec.layers) || []), VOLUME_LAYER, TRADES_LAYER];
   return {
     layers,
     byKind: Object.fromEntries(layers.flatMap(l => l.kinds.map(k => [k, l.id]))),
@@ -175,8 +177,8 @@ function renderLayerToggles() {
   const box = $("#pc-layers"); box.innerHTML = "";
   const counts = (pc.meta && pc.meta.counts) || {};
   for (const l of pc.L.layers) {
-    if (!pc.rec.has_chart && l.id !== "trades") continue;
-    const n = l.id === "trades" ? pc.trades.length : l.kinds.reduce((s, k) => s + (counts[k] || 0), 0);
+    if (!pc.rec.has_chart && l.id !== "trades" && l.id !== "volume") continue;
+    const n = l.id === "trades" ? pc.trades.length : l.id === "volume" ? "" : l.kinds.reduce((s, k) => s + (counts[k] || 0), 0);
     const lab = document.createElement("label"); lab.classList.toggle("off", !pc.layers[l.id]);
     lab.innerHTML = `<input type="checkbox" ${pc.layers[l.id] ? "checked" : ""}> <span class="sw" style="background:${l.sw}"></span>${esc(l.title)} <span class="n">${pc.meta || l.id === "trades" ? n : ""}</span>`;
     lab.querySelector("input").onchange = e => {
@@ -359,6 +361,15 @@ function tradeTraces() {
   return [win, loss, entry, exit];
 }
 
+/** Stĺpce objemu na vlastnej osi pod sviečkami; farba podľa smeru sviečky. */
+function volumeTrace(candles) {
+  if (!pc.layers.volume || !candles.v || !candles.v.length) return null;
+  const up = "rgba(16,185,129,0.55)", down = "rgba(239,68,68,0.55)";
+  return { type: "bar", x: candles.t.map(utc), y: candles.v, yaxis: "y2", name: "Objem", showlegend: false,
+    marker: { color: candles.c.map((c, i) => (c >= candles.o[i] ? up : down)), line: { width: 0 } },
+    hovertemplate: "objem %{y:,.0f}<extra></extra>" };
+}
+
 function renderPairChart(candles, objects) {
   const el = $("#pair-chart");
   const { traces, shapes } = objectTraces(objects);
@@ -366,11 +377,15 @@ function renderPairChart(candles, objects) {
   if (!Number.isFinite(lo)) { lo = 0; hi = 1; }
   const pad = (hi - lo) * 0.05 || 1;
   const grid = chartGridColor();
-  Plotly.react(el, [...traces, ...candleTraces(candles, objects), ...tradeTraces()], {
+  const vol = volumeTrace(candles);
+  Plotly.react(el, [...traces, ...candleTraces(candles, objects), ...tradeTraces(), ...(vol ? [vol] : [])], {
     height: 640, margin: { l: 10, r: 70, t: 8, b: 36 }, template: plotlyTemplate(), dragmode: "pan", hovermode: "closest",
-    showlegend: false, shapes,
+    showlegend: false, shapes, bargap: 0.15,
     xaxis: { type: "date", range: [utc(pc.from), utc(pc.to)], rangeslider: { visible: false }, showgrid: true, gridcolor: grid },
-    yaxis: { side: "right", range: [lo - pad, hi + pad], showgrid: true, gridcolor: grid, fixedrange: false },
+    yaxis: { side: "right", range: [lo - pad, hi + pad], showgrid: true, gridcolor: grid, fixedrange: false,
+      domain: vol ? [0.2, 1] : [0, 1] },
+    yaxis2: { side: "right", domain: [0, 0.17], showgrid: false, fixedrange: true, rangemode: "tozero",
+      tickfont: { size: 9 }, nticks: 3, visible: !!vol },
     paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
   }, { displaylogo: false, responsive: true, scrollZoom: true, modeBarButtonsToRemove: ["select2d", "lasso2d", "autoScale2d", "toggleSpikelines"] });
   pc.quietUntil = Date.now() + 400;
