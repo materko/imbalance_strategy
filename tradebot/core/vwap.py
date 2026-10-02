@@ -41,6 +41,8 @@ class SessionVwap:
     ``value``   posledná publikovaná hodnota (``None`` pred prvým barom seansy)
     ``updated`` či sa hodnota na poslednom bare zmenila (pri periode len na jej zatvorení)
     ``history`` posledných ``keep`` publikovaných hodnôt dnešnej seansy, najnovšia posledná
+    ``live``    posledný bar bol v seanse — mimo nej ``value`` ostáva zamrznutá na konci
+                predošlej seansy a pre rozhodovanie je to včerajší VWAP, nie dnešný
     """
 
     def __init__(self, chart_tf_minutes: int, *, start_minutes: int = 9 * 60 + 30,
@@ -53,6 +55,7 @@ class SessionVwap:
         self.period = int(period_minutes) if period_minutes else None
         self.value: float | None = None
         self.updated = False
+        self.live = False
         self.history: deque[float] = deque(maxlen=max(2, int(keep)))
         self.day: tuple[int, int, int] | None = None
         self._pv = 0.0
@@ -96,6 +99,7 @@ class SessionVwap:
         self.updated = False
         local = datetime.fromtimestamp(bar.time / 1000, tz=self.zone)
         pos = self._session_minute(local)
+        self.live = pos is not None
         if pos is None:
             return self.value
         day, minute = pos

@@ -301,3 +301,21 @@ def test_tp_na_cross_stop_a_velkost_ostava_z_rangu():
     e, intent = _long_entry(vwapTp=True)
     assert intent.plan.stop_loss < 99.0                    # stop ORB, nie VWAP
     assert isinstance(intent.plan.trailing, VwapTrailing) and intent.plan.trailing.profit_only
+
+
+def test_londyn_pri_kotve_930_ny_neobchoduje_podla_vcerajsieho_vwap():
+    """Deň 1: NY seansa stúpa, VWAP končí vysoko a rastie. Deň 2 ráno (Londýn 8:00) cena prerazí
+    londýnsky range hore — dnešný VWAP ešte neexistuje, včerajší zamrznutý sa nesmie použiť."""
+    e = engine(sessionMode="both", vwapRule="direction", vwapDriftBars=1)
+    warm(e)
+    for i in range(78):                                   # 9:30–16:00 NY, cena stúpa
+        e.on_bar(bar(i, 100.0 + i * 0.1), ctx=OKNO)
+    assert e.vwap.value is not None and e.vwap.change(1) > 0
+    lon = int(datetime(2025, 9, 3, 8, 0, tzinfo=ZoneInfo("Europe/London")).timestamp() * 1000)
+    outs = []
+    for k in range(-6, 3):                                # pred 8:00 a londýnsky range 8:00–8:15
+        outs.append(e.on_bar(Bar(lon + k * STEP, 108.0, 108.5, 107.5, 108.0, 10.0), ctx=OKNO))
+    for k in range(3, 9):                                 # prerazenie rangu hore
+        outs.append(e.on_bar(Bar(lon + k * STEP, 109.0 + k, 109.6 + k, 108.9 + k, 109.5 + k, 10.0), ctx=OKNO))
+    assert not e.vwap.live and e._vwap_value is None
+    assert not any(entries(o) for o in outs), "bez dnešného VWAP sa v Londýne nevstupuje"

@@ -78,7 +78,10 @@ class VwapOrbEngine(ORBEngine):
     def on_bar(self, bar: Bar, htf=None, ctx: MarketContext | None = None) -> EngineOutput:
         # VWAP pred ORB: podmienka prerazenia sa pýta na hodnotu po zavretí tohto baru
         ctx = ctx or MarketContext(in_trade_window=True)
-        self._vwap_value = self.vwap.push(bar)
+        # Mimo seansy VWAP (napr. Londýn pri kotve 9:30 NY) by `push` vrátil včerajšiu zamrznutú hodnotu —
+        # tá nie je dnešný VWAP, takže sa podľa nej nevstupuje, nestopuje ani nevystupuje.
+        value = self.vwap.push(bar)
+        self._vwap_value = value if self.vwap.live else None
         self.vwap_fast.push(bar)
         if self._vwap_value is not None:
             self._series.add(bar.time + self.step_ms, self._vwap_value, bar.close)
