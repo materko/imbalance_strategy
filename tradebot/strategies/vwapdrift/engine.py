@@ -1,5 +1,17 @@
 """Engine stratégie Drift VWAP Pullback: prvý návrat k VWAP v smere jeho sklonu.
 
+Dve sady pravidiel (`ruleSet`):
+
+**video** (default od 2. 10. 2026) — presne video Mattea Contiho (IQCapital, „Ex-Market Maker Shows
+the Exact VWAP Setup That Gets Traders Funded"): VWAP od 9:30 NY z 15m sviečok na 5m grafe;
+každých 15 minút otázka „je trend?" — long: cena nad VWAP, VWAP za posledných 15 minút stúpa,
+cena za poslednú hodinu aspoň +0,1 % (short zrkadlovo). Prvú hodinu sa neobchoduje. Spúšťač je
+prvá červená (short: zelená) sviečka po kladnej odpovedi — nezáleží, ako blízko VWAP je —, market
+na otvorení ďalšej. Long riskuje 80 bodov na 40, short 80 na 50. Jedna pozícia naraz, najviac
+4 obchody a 2 straty denne, žiadny nový obchod po 15:30, všetko sa zavrie 15:55 NY.
+
+**custom** — pôvodná voľná rekonštrukcia, popísaná nižšie.
+
 Priebeh jedného obchodného dňa:
 
   1. VWAP sa počíta od kotvy (`vwapAnchor`, štandardne 9:30 New York) z 15m sviečok
@@ -51,7 +63,7 @@ from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
 from tradebot.core.vwap import SessionVwap
 from tradebot.core.warmup import Warmup
 
-from .config import EntryMode, SlMode, VwapDriftConfig
+from .config import EntryMode, RuleSet, SlMode, VwapDriftConfig
 from .drawing import VD_ENTRY, VD_VWAP
 
 __all__ = ["VwapDriftEngine"]
@@ -83,10 +95,15 @@ class _DayState:
     side: int = 0
     #: smer dňa — posledný jasný drift (+1 / -1), 0 kým VWAP smer nemal
     bias: int = 0
+    #: pravidlá z videa: trend z poslednej 15m otázky (+1 / -1 / 0) a stratové obchody dňa
+    trend: int = 0
+    losses: int = 0
 
     def reset(self, day: tuple[int, int, int]) -> None:
         self.day = day
         self.bias = 0
+        self.trend = 0
+        self.losses = 0
         self.side = 0
         self.long_armed = self.short_armed = False
         self.long_done = self.short_done = False
@@ -130,14 +147,21 @@ class VwapDriftEngine:
         start, end, tz = cfg.vwapAnchor.window(cfg.start_minutes)
         self.vwap = SessionVwap(self.chart_tf_minutes, start_minutes=start, end_minutes=end,
                                 tz=tz, period_minutes=cfg.vwapPeriod.minutes,
-                                keep=int(cfg.driftBars) + 2)
+                                keep=max(int(cfg.driftBars), int(cfg.vwapRisePeriods)) + 2)
+        self.video = cfg.ruleSet is RuleSet.VIDEO
+        #: o koľko barov grafu späť je cena spred `trendLookbackMinutes`
+        self._look = max(1, int(cfg.trendLookbackMinutes) // self.chart_tf_minutes)
+        #: obchod poslaný podľa pravidiel z videa: (smer, stop, cieľ, vstup, index baru), kým neskončí
+        self._v_trade: tuple[Direction, float, float, float, int] | None = None
+        self._v_inpos = False
 
         #: predhistória grafu: ATR a okno swingu — VWAP sa každý deň začína od nuly
         self.warmup = Warmup(self.chart_tf_minutes).add(
             f"ATR {cfg.atrLen}", int(cfg.atrLen) + 16).add(
-            f"swing {cfg.slSwingBars}", int(cfg.slSwingBars))
+            f"swing {cfg.slSwingBars}", int(cfg.slSwingBars)).add(
+            f"cena pred {cfg.trendLookbackMinutes} min", self._look + 1)
         self.required_history = self.warmup.chart_bars
-        self.history = BarHistory(maxlen=max(self.required_history, int(cfg.slSwingBars)) + 16,
+        self.history = BarHistory(maxlen=max(self.required_history, int(cfg.slSwingBars), self._look + 1) + 16,
                                   atr_len=int(cfg.atrLen))
 
         self._state = _DayState()
@@ -227,6 +251,12 @@ class VwapDriftEngine:
         drift = self.drift(atr) if atr > 0 else 0
         if drift != 0 and self.vwap.day == st.day:
             st.bias = drift
+        prev_trend = st.trend
+        if self.video:
+            self._video_track(bar, ctx, idx)
+            if self.vwap.updated and vwap is not None and self.vwap.day == st.day:
+                st.trend = self._video_trend(bar, vwap)   # „každých 15 minút sa pýtame: je trend?"
+            drift = st.trend                               # farba čiary VWAP = trend
 
         if cfg.showVwap and self.vwap.updated and vwap is not None:
             out.drawings += self._vwap_drawing(bar, vwap, drift)
@@ -264,6 +294,9 @@ class VwapDriftEngine:
                                                   reason="koniec seansy"))
             return out
         if minutes < cfg.start_minutes or vwap is None or atr <= 0:
+            return out
+        if self.video:
+            self._video_entry(out, bar, ctx, idx, minutes, prev_trend)
             return out
 
         every = cfg.everyBounce
@@ -327,6 +360,90 @@ class VwapDriftEngine:
         return out
 
     # ------------------------------------------------------------------ #
+
+    # ------------------------------------------------------------------ #
+    # pravidlá z videa (ruleSet = video)
+    # ------------------------------------------------------------------ #
+
+    def _video_trend(self, bar: Bar, vwap: float) -> int:
+        """Tri podmienky naraz: cena nad VWAP (úroveň), VWAP za `vwapRisePeriods` stúpa (smer),
+        cena za `trendLookbackMinutes` aspoň +`trendMovePct` % (rýchlosť); pre short zrkadlovo."""
+        cfg = self.cfg
+        change = self.vwap.change(int(cfg.vwapRisePeriods))
+        if change is None or not self.history.has(self._look + 1):
+            return 0
+        ref = self.history[self._look].close
+        if ref <= 0:
+            return 0
+        move = (bar.close / ref - 1.0) * 100.0
+        if bar.close > vwap and change > 0 and move >= cfg.trendMovePct:
+            return 1
+        if bar.close < vwap and change < 0 and move <= -cfg.trendMovePct:
+            return -1
+        return 0
+
+    def _video_track(self, bar: Bar, ctx: MarketContext, idx: int) -> None:
+        """Sleduje poslaný obchod, aby sa dali rátať stratové obchody dňa (najviac `maxLossesPerDay`)."""
+        tr = self._v_trade
+        if tr is None:
+            return
+        direction, stop, take, entry, sent = tr
+        if ctx.position_size != 0.0:
+            self._v_inpos = True
+            return
+        if not self._v_inpos and idx <= sent:
+            return   # ešte len bar, na ktorom sa order poslal
+        # pozícia skončila na tomto bare (alebo sa otvorila aj zavrela vnútri neho)
+        long = direction is Direction.LONG
+        hit_sl = bar.low <= stop if long else bar.high >= stop
+        hit_tp = bar.high >= take if long else bar.low <= take
+        if hit_sl or (not hit_tp and ((bar.close < entry) if long else (bar.close > entry))):
+            self._state.losses += 1
+        self._v_trade = None
+        self._v_inpos = False
+
+    def _video_entry(self, out: EngineOutput, bar: Bar, ctx: MarketContext, idx: int, minutes: int,
+                     prev_trend: int) -> None:
+        """Spúšťač: prvá sviečka proti trendu (long červená, short zelená) po 15m otázke s odpoveďou áno;
+        market na otvorení ďalšej sviečky, stop a cieľ v bodoch."""
+        cfg = self.cfg
+        st = self._state
+        trend = st.trend
+        if trend == 0 or prev_trend != trend:
+            return   # trend musel platiť už pred touto sviečkou a platí aj po nej
+        if ctx.position_size != 0.0 or self._v_trade is not None:
+            return   # jedna pozícia naraz
+        if st.trades >= cfg.maxTradesPerDay or (cfg.maxLossesPerDay > 0 and st.losses >= cfg.maxLossesPerDay):
+            return
+        since_open = minutes + self.chart_tf_minutes - cfg.start_minutes   # čas vstupu = otvorenie ďalšej sviečky
+        if since_open < cfg.entryDelayMinutes or (cfg.entryWindowMinutes > 0 and since_open > cfg.entryWindowMinutes):
+            return
+        long = trend > 0
+        if (long and not cfg.allow_long) or (not long and not cfg.allow_short):
+            return
+        if not ((bar.close < bar.open) if long else (bar.close > bar.open)):
+            return
+        entry = bar.close
+        sl = (cfg.slPointsLong if long else cfg.slPointsShort).value
+        tp = (cfg.tpPointsLong if long else cfg.tpPointsShort).value
+        if sl <= 0 or tp <= 0:
+            return
+        stop = entry - sl if long else entry + sl
+        take = entry + tp if long else entry - tp
+        qty = cfg.position_qty(self.inst, cfg.riskDollar, sl) if cfg.riskDollar > 0 else 1.0
+        if qty <= 0:
+            qty = float(self.inst.min_qty or 1.0)
+        direction = Direction.LONG if long else Direction.SHORT
+        plan = TradePlan(direction=direction, entry=self.inst.round_price(entry),
+                         stop_loss=self.inst.round_price(stop), take_profit=self.inst.round_price(take),
+                         qty=qty, sl_distance=sl)
+        out.orders.append(OrderIntent(OrderAction.ENTRY, f"vd:{idx}", idx, direction=direction, plan=plan,
+                                      order_type=OrderType.MARKET,
+                                      reason="video: prvá sviečka proti trendu, vstup na otvorení ďalšej"))
+        st.trades += 1
+        self._v_trade = (direction, plan.stop_loss, plan.take_profit, plan.entry, idx)
+        self._v_inpos = False
+        out.drawings.append(self._entry_label(bar, direction))
 
     def _confirm(self, out: EngineOutput, idx: int, bar: Bar, touched: Direction | None,
                  vwap: float, tol: float, fail: float, drift: int, atr: float,

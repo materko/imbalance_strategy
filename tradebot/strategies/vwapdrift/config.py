@@ -23,7 +23,7 @@ from tradebot.core.types import SizeSpec, SizeUnit
 from tradebot.core.entry_order import (ENTRY_ORDER_CONSTRAINTS, ENTRY_ORDER_ENUMS, ENTRY_ORDER_FIELD_NAMES,
                                           EntryOrderFields)
 
-__all__ = ["VwapDriftConfig", "VwapAnchor", "VwapPeriod", "EntryMode", "SlMode", "TradeDirection",
+__all__ = ["RuleSet", "VwapDriftConfig", "VwapAnchor", "VwapPeriod", "EntryMode", "SlMode", "TradeDirection",
            "CONFIG_DIR"]
 
 #: Profily stratégie ležia pri nej, aby bol balík sebestačný.
@@ -127,6 +127,22 @@ class SlMode(str, Enum):
     SWING = "swing"
 
 
+class RuleSet(str, Enum):
+    """Podľa čoho stratégia obchoduje.
+
+    * ``video``  — presne pravidlá z videa (Matteo Conti, „drift VWAP pullback"): každých 15 minút
+                   sa pýta, či je trend (cena nad VWAP, VWAP za 15 min stúpa, cena za hodinu +0,1 %);
+                   spúšťač je prvá červená 5m sviečka (short: zelená), market na otvorení ďalšej;
+                   long riskuje 80 bodov na 40, short 80 na 50; prvú hodinu sa neobchoduje, najviac
+                   4 obchody a 2 straty denne, žiadny nový obchod po 15:30, všetko sa zavrie 15:55
+    * ``custom`` — pôvodná voľná rekonštrukcia (odchod od VWAP, dotyk s toleranciou, vstupné
+                   modely, stop podľa ``slMode``, cieľ ``rrRatio``) — všetky ostatné parametre
+    """
+
+    VIDEO = "video"
+    CUSTOM = "custom"
+
+
 class TradeDirection(str, Enum):
     BOTH = "Both"
     LONG_ONLY = "Long only"
@@ -143,9 +159,14 @@ SIZE_FIELDS: dict[str, SizeUnit] = {
     "slBufferAtr": "atr",
     "slAtr": "atr",
     "minSlDistance": "pct",
+    "slPointsLong": "abs",
+    "tpPointsLong": "abs",
+    "slPointsShort": "abs",
+    "tpPointsShort": "abs",
 }
 
 ENUM_FIELDS: dict[str, type] = {
+    "ruleSet": RuleSet,
     "vwapAnchor": VwapAnchor,
     "vwapPeriod": VwapPeriod,
     "tradeDirection": TradeDirection,
@@ -179,10 +200,19 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "slAtr": (0.1, 10.0),
     "slSwingBars": (2, 100),
     "rrRatio": (0.25, 10.0),
+    "trendMovePct": (0.0, 5.0),
+    "trendLookbackMinutes": (5, 390),
+    "vwapRisePeriods": (1, 26),
+    "maxLossesPerDay": (0, 10),
     "riskDollar": (0, 100000),
     "tickDollarValue": (0.01, 1000),
     "leverage": (1, 125),
 }
+
+#: Parametre pôvodnej rekonštrukcie — ich prítomnosť v profile bez `ruleSet` znamená `custom`.
+_CUSTOM_KEYS: frozenset[str] = frozenset({
+    "awayAtr", "touchTolAtr", "failCloseAtr", "entryMode", "slMode", "driftBars", "driftMinAtr", "rrRatio",
+    "everyBounce", "tradeBreakout", "firstPullbackOnly", "slBufferAtr", "slAtr", "confirmBars"})
 
 PORT_ONLY_FIELDS: frozenset[str] = frozenset(
     {"tickDollarValue", "legacyPineSizing", "minSlDistance", "leverage"})
@@ -197,6 +227,22 @@ class VwapDriftConfig(StrategyConfig, EntryOrderFields):
     CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_ORDER_CONSTRAINTS}
     PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS | ENTRY_ORDER_FIELD_NAMES
 
+    # ---- 🎬 Pravidlá z videa ---------------------------------------------- #
+    #: `video` = presne pravidlá z videa (polia tejto skupiny + seansa, VWAP, okno a stropy);
+    #: `custom` = pôvodná rekonštrukcia so všetkými ostatnými parametrami.
+    ruleSet: RuleSet = RuleSet.VIDEO
+    #: Trend: cena sa za `trendLookbackMinutes` pohla v smere aspoň o toľko percent (video: 0,1 % za hodinu).
+    trendMovePct: float = 0.1
+    trendLookbackMinutes: int = 60
+    #: Trend: VWAP je vyššie (short: nižšie) než pred toľkými periódami VWAP (video: 1 = 15 minút).
+    vwapRisePeriods: int = 1
+    #: Stop a cieľ v bodoch ceny (video na NQ: long 80 na 40, short 80 na 50).
+    slPointsLong: SizeSpec = field(default_factory=lambda: SizeSpec(80.0, "abs"))
+    tpPointsLong: SizeSpec = field(default_factory=lambda: SizeSpec(40.0, "abs"))
+    slPointsShort: SizeSpec = field(default_factory=lambda: SizeSpec(80.0, "abs"))
+    tpPointsShort: SizeSpec = field(default_factory=lambda: SizeSpec(50.0, "abs"))
+    #: Po toľkých stratových obchodoch sa v ten deň končí (video: 2). 0 = bez stropu.
+    maxLossesPerDay: int = 2
     # ---- 🕐 Seansa -------------------------------------------------------- #
     #: Kotva VWAP a začiatok obchodovania v pásme America/New_York (9:30 = otvorenie cash
     #: seansy). Pásmo rieši letný čas samo.
@@ -234,9 +280,10 @@ class VwapDriftConfig(StrategyConfig, EntryOrderFields):
     breakoutAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.5, "atr"))
     breakoutWithBias: bool = False
     maxBreakoutsPerDay: int = 1
-    entryDelayMinutes: int = 15
-    entryWindowMinutes: int = 0
-    maxTradesPerDay: int = 1
+    #: Video: prvú hodinu (9:30–10:30) sa neobchoduje, žiadny nový obchod po 15:30 (360 min), najviac 4 denne.
+    entryDelayMinutes: int = 60
+    entryWindowMinutes: int = 360
+    maxTradesPerDay: int = 4
     # ---- 🛡️ Stop loss ----------------------------------------------------- #
     atrLen: int = 14
     slMode: SlMode = SlMode.PULLBACK
@@ -284,6 +331,15 @@ class VwapDriftConfig(StrategyConfig, EntryOrderFields):
         if self.legacyPineSizing:
             return inst.qty_for_risk_pine(risk_amount, sl_distance, self.tickDollarValue or 0.0)
         return inst.qty_for_risk(risk_amount, sl_distance)
+
+    @classmethod
+    def from_dict(cls, data):
+        """Profil alebo beh spred 2. 10. 2026 (bez `ruleSet`, ale s parametrami pôvodnej rekonštrukcie)
+        ostáva `custom` so vtedajšími defaultmi — inak by sa starým profilom ticho zmenila logika."""
+        if "ruleSet" not in data and any(k in data for k in _CUSTOM_KEYS):
+            data = {"ruleSet": "custom", "maxLossesPerDay": 0, "entryDelayMinutes": 15,
+                    "entryWindowMinutes": 0, "maxTradesPerDay": 1, **data}
+        return super().from_dict(data)
 
     def _problems(self) -> Iterable[str]:
         if self.legacyPineSizing and self.tickDollarValue is None:
