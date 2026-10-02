@@ -1,0 +1,402 @@
+$ /Users/martin/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/IBS/deploy/freqtrade/config.tester.json --userdir /Users/martin/IBS/deploy/freqtrade/user_data --strategy VwapDriftStrategy --cache none --export trades --timerange 20250904-20260904 --pairs BTC/USDT:USDT --timeframe 5m --dry-run-wallet 10000.0 --fee 0.0005 --timeframe-detail 1m --datadir /Users/martin/IBS/data/tester/binance --backtest-directory /Users/martin/IBS/deploy/freqtrade/user_data/backtest_results/20261002-083344-4b6ead
+2026-10-02 10:33:45,489 - freqtrade - INFO - freqtrade 2026.8
+2026-10-02 10:33:46,208 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/IBS/deploy/freqtrade/config.tester.json ...
+2026-10-02 10:33:46,210 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-10-02 10:33:46,210 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-10-02 10:33:46,211 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/IBS/deploy/freqtrade/user_data ...
+2026-10-02 10:33:46,212 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/IBS/data/tester/binance ...
+2026-10-02 10:33:46,212 - freqtrade.configuration.configuration - INFO - Using /Users/martin/IBS/deploy/freqtrade/user_data/backtest_results/20261002-083344-4b6ead as backtest directory ...
+2026-10-02 10:33:46,214 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-10-02 10:33:46,292 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy VwapDriftStrategy from '/Users/martin/IBS/deploy/freqtrade/user_data/strategies/VwapDriftStrategy.py'...
+2026-10-02 10:33:46,293 - tradebot.adapters.freqtrade.base - WARNING - vwapdrift config: slPointsLong, slPointsShort, tpPointsLong, tpPointsShort sú v absolútnych cenových bodoch — tie hodnoty nemusia
+'/Users/martin/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-10-02 10:33:47,840 - tradebot.adapters.freqtrade.base - INFO - vwapdrift BTC/USDT:USDT: kresby ulozene do /Users/martin/IBS/tester/runs/.profiles/20261002-083344-4b6ead.chart.json.gz (9976 
+2026-10-02 10:33:47,938 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 137415.13 na 9900.00 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,945 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 137415.13 na 9883.07 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,946 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 137415.13 na 9873.22 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,949 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 137603.00 na 9868.00 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,951 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 136742.75 na 9862.71 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,952 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 136742.75 na 9845.83 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,953 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 136742.75 na 9828.95 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,956 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 138576.63 na 9812.26 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,958 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 138576.63 na 9806.96 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,959 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 138412.13 na 9806.96 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,967 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 140630.25 na 9790.34 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,969 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 140702.63 na 9773.78 (6.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,975 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 140341.75 na 9767.60 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,977 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139184.50 na 9767.60 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,978 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139184.50 na 9751.12 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,979 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139184.50 na 9739.15 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,983 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142541.38 na 9731.89 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,984 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142541.38 na 9725.66 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,985 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142307.00 na 9719.43 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,987 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142337.25 na 9714.06 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,989 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142118.75 na 9708.68 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,990 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142118.75 na 9703.33 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,994 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 143054.00 na 9697.97 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,995 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 143054.00 na 9691.78 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,997 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 143047.13 na 9675.62 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:47,998 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 143047.13 na 9669.43 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,002 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 143917.50 na 9653.27 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,003 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 143917.50 na 9637.24 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,004 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 143917.50 na 9627.50 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,009 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 143830.25 na 9625.00 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,016 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 143449.75 na 9619.66 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,017 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 143449.75 na 9613.52 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,019 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 143162.63 na 9607.37 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,021 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 143162.63 na 9591.39 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,025 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 143700.00 na 9575.41 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,027 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 144781.50 na 9559.39 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,031 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 144518.25 na 9543.50 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,033 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 144475.00 na 9538.18 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,034 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 144475.00 na 9532.86 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,035 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 144652.50 na 9527.53 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,038 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 144612.00 na 9522.20 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,040 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 144612.00 na 9516.06 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,044 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 147048.63 na 9500.17 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,045 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 147048.63 na 9494.02 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,047 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 146975.75 na 9487.87 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,049 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 146975.75 na 9481.73 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,055 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 144848.88 na 9466.08 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,057 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 144385.38 na 9460.80 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,058 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 144680.63 na 9445.13 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,060 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 144680.63 na 9439.86 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,068 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 141375.00 na 9424.16 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,070 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 141169.50 na 9408.29 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,072 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 141169.50 na 9403.12 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,074 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 140777.88 na 9397.95 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,076 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 140837.00 na 9392.81 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,079 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 140759.63 na 9387.66 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,081 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 140759.63 na 9371.83 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,082 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 140759.63 na 9360.69 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,083 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 141096.38 na 9346.34 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,085 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 141096.38 na 9340.42 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,088 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142078.38 na 9334.51 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,090 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142078.38 na 9328.52 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,091 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142010.38 na 9322.54 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,095 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139233.00 na 9306.83 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,096 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139233.00 na 9300.96 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,098 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139261.38 na 9295.09 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,099 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139261.38 na 9289.22 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,101 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 138974.00 na 9273.50 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,105 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 136091.50 na 9268.47 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,107 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 136312.00 na 9252.58 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,108 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 136312.00 na 9247.67 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,110 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 136382.88 na 9242.76 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,112 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 136626.75 na 9237.85 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,120 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142096.38 na 9232.08 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,122 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142558.00 na 9226.17 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,124 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142558.00 na 9220.31 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,125 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142379.13 na 9214.44 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,126 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142379.13 na 9208.59 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,128 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142249.88 na 9193.23 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,131 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 141331.75 na 9177.89 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,132 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 141331.75 na 9172.84 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,134 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 141331.75 na 9159.17 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,135 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 141331.75 na 9148.66 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,136 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 141331.75 na 9133.37 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,137 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 141451.88 na 9128.37 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,141 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 146356.25 na 9113.07 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,142 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 146356.25 na 9107.19 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,144 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 146577.38 na 9092.17 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,145 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 146577.38 na 9077.15 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,146 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 146577.38 na 9065.08 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,147 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 146577.38 na 9053.13 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,149 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 146537.63 na 9046.35 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,153 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 149344.25 na 9031.32 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,154 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 149344.25 na 9016.52 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,168 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 151076.75 na 9008.38 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,169 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 151076.75 na 8993.68 (6.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,170 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 151076.75 na 8981.34 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,172 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 151559.25 na 8974.04 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,173 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 151559.25 na 8968.08 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,181 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 155767.13 na 8968.08 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,182 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 155767.13 na 8962.84 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,184 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 155827.75 na 8957.60 (5.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,185 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 155827.75 na 8943.21 (5.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,268 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 153704.38 na 8936.17 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,269 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 153704.38 na 8930.97 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,271 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 152383.63 na 8930.97 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,275 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 152862.63 na 8916.38 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,277 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 152862.63 na 8901.95 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,278 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 152862.63 na 8891.72 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,280 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 153017.38 na 8889.41 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,281 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 153017.38 na 8884.25 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,282 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 153017.38 na 8869.82 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,284 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 152872.13 na 8864.66 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,285 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 152872.13 na 8850.24 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,288 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 152735.00 na 8847.27 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,289 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 152735.00 na 8842.13 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,290 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 152735.00 na 8827.72 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,294 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 151811.00 na 8819.02 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,296 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 151811.00 na 8804.66 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,298 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 151811.00 na 8790.46 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,299 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 151811.00 na 8776.10 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,300 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 151811.00 na 8771.01 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,303 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 151914.00 na 8756.64 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,305 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 151914.00 na 8751.55 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,307 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 151255.13 na 8751.55 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,310 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 151722.25 na 8746.49 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,312 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 151722.25 na 8741.40 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,314 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 150208.38 na 8741.40 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,316 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 150208.38 na 8727.13 (5.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,319 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 148971.13 na 8731.21 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,320 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 148971.13 na 8726.22 (5.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,328 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142467.00 na 8721.22 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,330 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142818.88 na 8706.62 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,331 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 142818.88 na 8692.01 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,336 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139294.63 na 8684.79 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,337 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139294.63 na 8670.21 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,338 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139294.63 na 8655.63 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,340 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139453.63 na 8650.18 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,341 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139453.63 na 8635.59 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,345 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139076.25 na 8629.08 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,348 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139833.88 na 8614.50 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,350 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139833.88 na 8599.88 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,351 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 139833.88 na 8588.90 (6.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,527 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 137844.25 na 8584.56 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,528 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 137844.25 na 8570.05 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,530 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 137844.25 na 8557.09 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,531 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 137844.25 na 8542.78 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,532 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 137844.25 na 8532.66 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,533 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 138279.50 na 8520.02 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,534 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 138279.50 na 8505.49 (6.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,540 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 130830.13 na 8502.74 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,541 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 130830.13 na 8487.93 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:48,542 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 130830.13 na 8473.12 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,115 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 130525.13 na 8485.46 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,117 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 130525.13 na 8470.68 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,118 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 130525.13 na 8460.36 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,120 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 130274.25 na 8456.91 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,122 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 130274.25 na 8451.76 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,123 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 130274.25 na 8438.20 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,486 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 127255.63 na 8428.38 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,487 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 127255.63 na 8413.63 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,489 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 127255.63 na 8398.87 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,490 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 127255.63 na 8384.12 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,491 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 127255.63 na 8369.36 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,493 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 127196.75 na 8368.87 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,494 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 127196.75 na 8364.67 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,496 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 127196.75 na 8349.92 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,497 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 127196.75 na 8335.16 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,499 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 126325.75 na 8331.01 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,500 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 126325.75 na 8326.87 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,502 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 126276.38 na 8322.72 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,504 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 126276.38 na 8318.58 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,507 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 125883.63 na 8314.44 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,509 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 125883.63 na 8309.51 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,510 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 125883.63 na 8304.58 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,511 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 125883.63 na 8289.93 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,512 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 125883.63 na 8281.46 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,514 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 125959.50 na 8282.82 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:54,515 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 125959.50 na 8268.14 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,145 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 127368.88 na 8287.77 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,147 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 126650.00 na 8287.77 (6.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,148 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 126032.13 na 8283.66 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,150 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 126032.13 na 8279.53 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,153 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 121076.25 na 8264.85 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,154 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 121076.25 na 8260.07 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,156 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 120563.88 na 8245.19 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,157 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 120563.88 na 8230.34 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,164 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 120563.88 na 8219.40 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,165 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 120563.88 na 8211.14 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,166 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 120563.88 na 8196.30 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,168 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 120581.13 na 8191.60 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,169 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 120581.13 na 8186.90 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,177 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 116509.88 na 8172.24 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,178 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 116881.88 na 8168.52 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,179 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 116881.88 na 8153.58 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,180 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 116881.88 na 8142.47 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,181 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 116881.88 na 8131.36 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,195 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 115562.88 na 8124.50 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,196 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 115562.88 na 8109.65 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,198 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 115867.00 na 8105.13 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,199 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 115867.00 na 8090.26 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,200 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 115867.00 na 8085.72 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,201 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 116064.25 na 8070.84 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,203 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 116064.25 na 8066.05 (6.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,204 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 116064.25 na 8051.34 (6.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,208 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112449.50 na 8053.76 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,210 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112449.50 na 8050.24 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,211 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112449.50 na 8035.26 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,212 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112449.50 na 8024.14 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,213 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112610.75 na 8016.62 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,214 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112610.75 na 8001.80 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,216 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112610.75 na 7998.31 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,217 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112087.75 na 7998.31 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,219 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 111822.38 na 7988.70 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,220 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 111822.38 na 7985.23 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,221 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 111822.38 na 7981.75 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,232 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 113125.13 na 7978.28 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,237 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 110864.63 na 7974.75 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,242 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 110864.63 na 7959.89 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,247 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 110836.88 na 7956.48 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,249 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 110836.88 na 7941.61 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,250 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 110836.88 na 7926.75 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,255 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 110836.88 na 7923.34 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,257 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108797.63 na 7919.94 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,259 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108797.63 na 7916.64 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,262 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 104044.50 na 7901.75 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,264 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 104044.50 na 7898.66 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,266 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 103824.88 na 7898.66 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,267 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 103824.88 na 7883.32 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,268 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 103824.88 na 7872.22 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,269 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 103824.88 na 7859.53 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,270 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 103824.88 na 7844.35 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,278 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108005.00 na 7830.30 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,279 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108005.00 na 7815.49 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,281 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108005.00 na 7811.35 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,283 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108908.88 na 7811.35 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,284 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108908.88 na 7796.63 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,285 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108908.88 na 7781.91 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,287 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108908.88 na 7777.75 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,288 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 109226.25 na 7773.60 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,292 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108713.25 na 7759.02 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,293 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108713.25 na 7744.31 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,295 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108713.25 na 7729.61 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,297 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108683.13 na 7725.51 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,301 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108627.38 na 7721.65 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,302 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108627.38 na 7718.44 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,304 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 109422.63 na 7715.22 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,305 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 109422.63 na 7711.08 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,306 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 109422.63 na 7706.94 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,308 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 109473.88 na 7692.34 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,312 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 113641.13 na 7688.24 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,314 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 113502.50 na 7683.66 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,315 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 113964.00 na 7679.43 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,317 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 113964.00 na 7665.21 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,319 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 113964.00 na 7655.06 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,320 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 114057.63 na 7650.85 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,326 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 115473.38 na 7646.64 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,327 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 114923.38 na 7632.65 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,329 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 114923.38 na 7629.21 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,337 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 105346.25 na 7629.21 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,339 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 105346.25 na 7614.57 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,343 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 105382.00 na 7621.91 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,345 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 105382.00 na 7607.27 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-02 10:33:56,346 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 105382.00 na 7599.16 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+…
+zostatku neuplatni cely.
+2026-10-02 10:33:56,203 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 116064.25 na 8066.05 (6.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,204 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 116064.25 na 8051.34 (6.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,208 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112449.50 na 8053.76 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,210 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112449.50 na 8050.24 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,211 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112449.50 na 8035.26 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,212 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112449.50 na 8024.14 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,213 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112610.75 na 8016.62 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,214 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112610.75 na 8001.80 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,216 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112610.75 na 7998.31 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,217 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 112087.75 na 7998.31 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,219 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 111822.38 na 7988.70 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,220 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 111822.38 na 7985.23 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,221 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 111822.38 na 7981.75 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,232 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 113125.13 na 7978.28 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,237 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 110864.63 na 7974.75 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,242 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 110864.63 na 7959.89 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,247 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 110836.88 na 7956.48 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,249 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 110836.88 na 7941.61 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,250 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 110836.88 na 7926.75 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,255 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 110836.88 na 7923.34 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,257 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108797.63 na 7919.94 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,259 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108797.63 na 7916.64 (7.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,262 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 104044.50 na 7901.75 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,264 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 104044.50 na 7898.66 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,266 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 103824.88 na 7898.66 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,267 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 103824.88 na 7883.32 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,268 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 103824.88 na 7872.22 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,269 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 103824.88 na 7859.53 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,270 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 103824.88 na 7844.35 (7.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,278 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108005.00 na 7830.30 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,279 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108005.00 na 7815.49 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,281 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108005.00 na 7811.35 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,283 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108908.88 na 7811.35 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,284 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108908.88 na 7796.63 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,285 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108908.88 na 7781.91 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,287 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108908.88 na 7777.75 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,288 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 109226.25 na 7773.60 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,292 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108713.25 na 7759.02 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,293 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108713.25 na 7744.31 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,295 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108713.25 na 7729.61 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,297 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108683.13 na 7725.51 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,301 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108627.38 na 7721.65 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,302 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 108627.38 na 7718.44 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,304 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 109422.63 na 7715.22 (7.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,305 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 109422.63 na 7711.08 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,306 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 109422.63 na 7706.94 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,308 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 109473.88 na 7692.34 (7.0% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,312 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 113641.13 na 7688.24 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,314 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 113502.50 na 7683.66 (6.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,315 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 113964.00 na 7679.43 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,317 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 113964.00 na 7665.21 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,319 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 113964.00 na 7655.06 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,320 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 114057.63 na 7650.85 (6.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,326 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 115473.38 na 7646.64 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,327 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 114923.38 na 7632.65 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,329 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 114923.38 na 7629.21 (6.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,337 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 105346.25 na 7629.21 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,339 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 105346.25 na 7614.57 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,343 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 105382.00 na 7621.91 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,345 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 105382.00 na 7607.27 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-02 10:33:56,346 - tradebot.adapters.freqtrade.callbacks - WARNING - vwapdrift BTC/USDT:USDT: stake orezany z 105382.00 na 7599.16 (7.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
