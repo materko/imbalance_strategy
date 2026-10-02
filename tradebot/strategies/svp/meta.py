@@ -13,6 +13,7 @@ PARAM_NOTES: dict[str, str] = {
     "rowTicks": "Profil sa počíta z barov grafu: objem baru sa rozloží rovnomerne medzi jeho low a high. "
                 "Jemnejší graf (2m, 3m) dáva presnejší profil.",
     "pocSource": "previous = POC včerajšej seansy, pevná úroveň; developing = POC dnešnej seansy, hýbe sa.",
+    "useFibo": "Fibo ako konfluencia: POC sa obchoduje, len keď leží v pásme návratu poslednej nohy v smere obchodu.",
     "tradeMode": "rejection = pod POC short, nad POC long na dotyk; retest = len po prerazení POC zavretím.",
 }
 
@@ -20,8 +21,11 @@ FEATURES: list[dict[str, Any]] = [
     {"switches": ["useTradeWindow"], "params": ["tradeStartH", "tradeStartM", "tradeEndH", "tradeEndM", "closeAtWindowEnd"]},
     {"switches": ["slMode"], "when": {"slMode": ["atr"]}, "params": ["slAtr"]},
     {"switches": ["slMode"], "when": {"slMode": ["points"]}, "params": ["slPoints"]},
+    {"switches": ["slMode"], "when": {"slMode": ["leg"]}, "params": ["slBufferAtr"]},
+    {"switches": ["useFibo"], "params": ["fibMinPct", "fibMaxPct", "fibSwingTF", "fibSwingLen", "fibLegMinAtr", "showFibo"]},
+    {"switches": ["tpMode"], "when": {"tpMode": ["extension"]}, "params": ["tpExtensionPct"]},
     {"switches": ["tpMode"], "when": {"tpMode": ["rr"]}, "params": ["rrRatio"]},
-    {"switches": ["tpMode"], "when": {"tpMode": ["va_edge"]}, "params": ["minRR"]},
+    {"switches": ["tpMode"], "when": {"tpMode": ["va_edge", "extension"]}, "params": ["minRR"]},
     {"switches": ["entryModel"], "when": {"entryModel": ["imbalance", "pinbar", "any"]},
      "params": ["confirmBars", "touchTolAtr", "imbMinSizeAtr", "pbWickPct", "pbBodyPct"]},
     {"switches": ["tradeMode"], "when": {"tradeMode": ["retest", "rejection"]}, "params": ["retestMaxBars", "breakBufferAtr"]},
@@ -30,6 +34,7 @@ FEATURES: list[dict[str, Any]] = [
 LAYERS: tuple[ChartLayer, ...] = (
     ChartLayer("poc", "POC", ("svp_poc",), "#f59e0b"),
     ChartLayer("va", "Value area (VAH / VAL)", ("svp_va",), "#64748b"),
+    ChartLayer("fibo", "Fibonacci nohy", ("svp_fib",), "#eab308"),
     ChartLayer("entries", "Vstupy", ("svp_entry",), "#10b981"),
     ChartLayer("tpsl", "TP / SL boxy", ("tp_box", "sl_box", "entry", "exit"), "#10b981"),
 )
@@ -37,6 +42,7 @@ LAYERS: tuple[ChartLayer, ...] = (
 KIND_TITLES: dict[str, str] = {
     "svp_poc": "POC (point of control)",
     "svp_va": "Hrana value area",
+    "svp_fib": "Fibonacciho úroveň nohy",
     "svp_entry": "Vstup",
     "tp_box": "TP box",
     "sl_box": "SL box",

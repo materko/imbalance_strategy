@@ -14,13 +14,15 @@ Priebeh:
      ``touch`` = limitka na POC; inak sa po dotyku (do `touchTolAtr`) čaká `confirmBars` barov
      na IBS imbalance / pin bar v smere a vstupuje sa na zavretí. Po dotyku treba nový odchod.
   5. **stop** v ATR alebo bodoch od vstupu, **cieľ** RR alebo hrana value area.
+  6. **Fibonacci** (`useFibo`): vstup len keď POC leží v pásme návratu poslednej nohy v smere obchodu
+     (long: rastúca noha, short: klesajúca); stop sa dá dať za začiatok nohy, cieľ na jej extenziu.
 
 Engine je čistý: žiadne I/O, žiadny globálny stav.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -32,8 +34,9 @@ from tradebot.core.risk import TradePlan
 from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
 from tradebot.core.warmup import Warmup
 
+from ..fibo.legs import Leg, SwingLegs
 from .config import EntryModel, PocSource, SlMode, SvpConfig, TpMode, TradeMode
-from .drawing import SVP_ENTRY, SVP_POC, SVP_VA
+from .drawing import SVP_ENTRY, SVP_FIB, SVP_POC, SVP_VA
 
 __all__ = ["SvpEngine", "VolumeProfile"]
 
@@ -41,6 +44,7 @@ _LONG_COLOR = "#10b981"
 _SHORT_COLOR = "#ef4444"
 _POC_COLOR = "#f59e0b"
 _VA_COLOR = "#64748b"
+_FIB_COLOR = "#eab308"
 _NY = "America/New_York"
 
 
@@ -98,6 +102,18 @@ class VolumeProfile:
 
 
 @dataclass
+class _Pending:
+    """Čakajúca limitka na POC."""
+
+    order_id: str
+    at: int              #: index baru, na ktorom bola zadaná
+    price: float
+    long: bool
+    retest: bool
+    leg: Leg | None      #: Fibonacciho noha, s ktorou POC sedí (kreslí sa pri vyplnení)
+
+
+@dataclass
 class _Level:
     poc: float
     val: float
@@ -116,6 +132,11 @@ class SvpEngine:
         self.row = float(inst.tick_size) * int(cfg.rowTicks)
         self.zone = ZoneInfo(_NY)
         self.warmup = Warmup(self.chart_tf_minutes).add(f"ATR {cfg.atrLen}", int(cfg.atrLen) + 8)
+        self.legs: SwingLegs | None = None
+        if cfg.useFibo:
+            self.legs = SwingLegs(cfg.fibSwingTF, self.chart_tf_minutes, cfg.fibSwingLen, cfg.atrLen,
+                                  cfg.fibLegMinAtr.value)
+            self.warmup.add_seeded(f"fibo swingy {self.legs.tf}m", self.legs.seed_bars, self.legs.tf, self.legs.seed)
         self.required_history = self.warmup.chart_bars
         self.history = BarHistory(maxlen=max(self.required_history, 8) + 16, atr_len=int(cfg.atrLen))
 
@@ -128,7 +149,7 @@ class SvpEngine:
         self._break_idx = -10**9  #: index baru posledného prerazenia úrovne
         self._armed = False       #: od posledného dotyku cena znova odišla — ďalší návrat je dotyk
         self._await: tuple[Direction, int] | None = None   #: po dotyku sa čaká na vstupný model (smer, do indexu)
-        self._pending: tuple[str, int, float, bool, bool] | None = None   #: (id, index baru, cena limitky, long, retest)
+        self._pending: _Pending | None = None
         self._drawn_from: int | None = None
 
     # ------------------------------------------------------------------ #
@@ -193,9 +214,39 @@ class SvpEngine:
             return self._pinbar(bar, long)
         return self._imbalance(long, atr) or self._pinbar(bar, long)
 
-    def _plan(self, long: bool, entry: float, atr: float, lv: _Level) -> TradePlan | None:
+    def _fib(self, long: bool, price: float) -> tuple[bool, Leg | None]:
+        """(smie sa obchodovať, noha): pri `useFibo` musí `price` (POC) ležať v pásme návratu nohy v smere obchodu."""
+        if self.legs is None:
+            return True, None
+        leg = self.legs.legs.get(Direction.LONG if long else Direction.SHORT)
+        if leg is None or leg.size <= 0:
+            return False, None
+        r = leg.retrace(price) * 100.0
+        return self.cfg.fibMinPct - 1e-9 <= r <= self.cfg.fibMaxPct + 1e-9, leg
+
+    def _draw_fib(self, out: EngineOutput, leg: Leg, end_ms: int) -> None:
         cfg = self.cfg
-        sl = cfg.slAtr.value * atr if cfg.slMode is SlMode.ATR else cfg.slPoints.value
+        if not cfg.showFibo:
+            return
+        out.drawings.append(DrawLine(SVP_FIB, leg.start_ms, leg.start, leg.end_ms, leg.end, _VA_COLOR,
+                                     style=LineStyle.DASHED, obj_id=f"svp.fib.leg.{leg.uid}.{end_ms}", text="noha"))
+        fracs = [0.0, cfg.fibMinPct / 100.0, cfg.fibMaxPct / 100.0, 1.0]
+        if cfg.tpMode is TpMode.EXTENSION:
+            fracs.append(-cfg.tpExtensionPct / 100.0)
+        for f in fracs:
+            y = leg.level(f)
+            out.drawings.append(DrawLine(SVP_FIB, leg.end_ms, y, max(end_ms, leg.end_ms + self.step_ms), y, _FIB_COLOR,
+                                         obj_id=f"svp.fib.{leg.uid}.{end_ms}.{f:g}", text=f"{f * 100:g} %"))
+
+    def _plan(self, long: bool, entry: float, atr: float, lv: _Level, leg: Leg | None = None) -> TradePlan | None:
+        cfg = self.cfg
+        if cfg.slMode is SlMode.LEG:
+            if leg is None:
+                return None
+            buf = cfg.slBufferAtr.value * atr
+            sl = (entry - (leg.start - buf)) if long else ((leg.start + buf) - entry)
+        else:
+            sl = cfg.slAtr.value * atr if cfg.slMode is SlMode.ATR else cfg.slPoints.value
         if sl < self.inst.tick_size * 2:
             return None
         min_sl = cfg.minSlDistance.resolve(self.inst, price=entry, atr=atr)
@@ -205,7 +256,12 @@ class SvpEngine:
         if cfg.tpMode is TpMode.RR:
             take = entry + sl * cfg.rrRatio if long else entry - sl * cfg.rrRatio
         else:
-            take = lv.vah if long else lv.val
+            if cfg.tpMode is TpMode.EXTENSION:
+                if leg is None:
+                    return None
+                take = leg.level(-cfg.tpExtensionPct / 100.0)
+            else:
+                take = lv.vah if long else lv.val
             if (take - entry if long else entry - take) < sl * cfg.minRR:
                 return None
         qty = cfg.position_qty(self.inst, cfg.riskDollar, sl) if cfg.riskDollar > 0 else 1.0
@@ -233,6 +289,8 @@ class SvpEngine:
         self.history.append(bar)
         atr = self.history.atr
         idx = self.history.bar_index
+        if self.legs is not None:
+            self.legs.on_bar(bar)
 
         local = datetime.fromtimestamp(bar.time / 1000, tz=self.zone)
         day = (local.year, local.month, local.day)
@@ -258,20 +316,24 @@ class SvpEngine:
 
         # ---- čakajúca limitka / pozícia -------------------------------------- #
         if self._pending is not None:
-            order_id, at, price, long, retest = self._pending
+            pe = self._pending
+            long = pe.long
             # vyplnená: pozícia je otvorená, alebo cena limitkou prešla a obchod sa v tom istom bare aj zavrel
-            if ctx.position_size != 0.0 or bar.low <= price <= bar.high:
+            if ctx.position_size != 0.0 or bar.low <= pe.price <= bar.high:
                 self._trades_today += 1
                 out.drawings.append(DrawLabel(
                     SVP_ENTRY, bar.time, bar.low if long else bar.high,
-                    f"{'LONG' if long else 'SHORT'} {'retest' if retest else 'POC'}", "#ffffff",
+                    f"{'LONG' if long else 'SHORT'} {'retest' if pe.retest else 'POC'}", "#ffffff",
                     style=LabelStyle.UP if long else LabelStyle.DOWN, above=not long,
                     bg_color=_LONG_COLOR if long else _SHORT_COLOR, obj_id=f"svp.e.{bar.time}"))
+                if pe.leg is not None:
+                    self._draw_fib(out, pe.leg, bar.time)
                 if ctx.position_size == 0.0:
-                    out.orders.append(OrderIntent(OrderAction.CANCEL, order_id, at, reason="vyplnené a zavreté v jednom bare"))
+                    out.orders.append(OrderIntent(OrderAction.CANCEL, pe.order_id, pe.at,
+                                                  reason="vyplnené a zavreté v jednom bare"))
                 self._pending = None
-            elif idx - at >= 1:
-                out.orders.append(OrderIntent(OrderAction.CANCEL, order_id, at, reason="nevyplnené"))
+            elif idx - pe.at >= 1:
+                out.orders.append(OrderIntent(OrderAction.CANCEL, pe.order_id, pe.at, reason="nevyplnené"))
                 self._pending = None
 
         in_window = (not cfg.weekdaysOnly or local.weekday() < 5) and (
@@ -327,8 +389,9 @@ class SvpEngine:
             # limitka na POC platí na ďalší bar, kým je cena odídená a dotyk ešte nebol
             if self._armed and self._side != 0 and self._mode_ok(idx):
                 long = self._side > 0
-                if (long and cfg.allow_long and bar.close > L) or (not long and cfg.allow_short and bar.close < L):
-                    self._enter(out, bar, idx, long, self.inst.round_price(L), atr, lv, limit=True)
+                ok, leg = self._fib(long, L)
+                if ok and ((long and cfg.allow_long and bar.close > L) or (not long and cfg.allow_short and bar.close < L)):
+                    self._enter(out, bar, idx, long, self.inst.round_price(L), atr, lv, limit=True, leg=leg)
             return out
         aw = self._await
         if aw is None:
@@ -338,16 +401,17 @@ class SvpEngine:
         if (long and bar.close < L - brk) or (not long and bar.close > L + brk):
             self._await = None       # POC prerazený zavretím — dotyk neplatí
             return out
-        if self._signal(bar, long, atr) and ((long and cfg.allow_long) or (not long and cfg.allow_short)):
+        ok, leg = self._fib(long, L)
+        if ok and self._signal(bar, long, atr) and ((long and cfg.allow_long) or (not long and cfg.allow_short)):
             self._await = None
-            self._enter(out, bar, idx, long, bar.close, atr, lv, limit=False)
+            self._enter(out, bar, idx, long, bar.close, atr, lv, limit=False, leg=leg)
         elif idx >= until:
             self._await = None
         return out
 
     def _enter(self, out: EngineOutput, bar: Bar, idx: int, long: bool, entry: float, atr: float, lv: _Level,
-               limit: bool) -> None:
-        plan = self._plan(long, entry, atr, lv)
+               limit: bool, leg: Leg | None = None) -> None:
+        plan = self._plan(long, entry, atr, lv, leg)
         if plan is None:
             return
         order_id = f"{'svpL' if limit else 'svp'}:{idx}"
@@ -356,7 +420,8 @@ class SvpEngine:
                                       order_type=OrderType.LIMIT if limit else OrderType.MARKET,
                                       reason=("retest POC po prerazení" if retest else "odmietnutie POC")))
         if limit:
-            self._pending = (order_id, idx, plan.entry, long, retest)
+            # nohu si limitka nesie ako kópiu — do vyplnenia sa živá noha môže predĺžiť alebo zaniknúť
+            self._pending = _Pending(order_id, idx, plan.entry, long, retest, replace(leg) if leg is not None else None)
         else:
             self._trades_today += 1
             out.drawings.append(DrawLabel(
@@ -364,6 +429,8 @@ class SvpEngine:
                 f"{'LONG' if long else 'SHORT'} {'retest' if retest else 'POC'}", "#ffffff",
                 style=LabelStyle.UP if long else LabelStyle.DOWN, above=not long,
                 bg_color=_LONG_COLOR if long else _SHORT_COLOR, obj_id=f"svp.e.{bar.time}"))
+            if leg is not None:
+                self._draw_fib(out, leg, bar.time)
 
     def final_drawings(self, bar: Bar) -> list[DrawCommand]:
         out = EngineOutput()

@@ -10,6 +10,11 @@ medzi jeho low a high (`rowTicks` tickov na riadok). POC je riadok s najväčš�
 area (VAH – VAL) je `valueAreaPct` % objemu okolo neho. Úroveň na obchodovanie je POC
 **predošlej** seansy (hotový profil, pevná úroveň na celý deň) alebo **vyvíjajúci sa** POC
 dnešnej seansy. Stratégia nemá Pine predlohu.
+
+Fibonacci (`useFibo`, 2. 10. 2026 „spoj aj fibo a SVP"): POC sa obchoduje, len keď leží v pásme návratu
+(`fibMinPct`–`fibMaxPct`) poslednej nohy v smere obchodu — long: rastúca noha a POC je jej zľava, short
+zrkadlovo. Nohu hľadá `tradebot.strategies.fibo.legs.SwingLegs` (swingy na `fibSwingTF`). Stop sa potom dá
+dať za začiatok nohy (`slMode = leg`) a cieľ na jej extenziu (`tpMode = extension`). Vypnuté = bez zmeny.
 """
 
 from __future__ import annotations
@@ -50,11 +55,13 @@ class EntryModel(str, Enum):
 class SlMode(str, Enum):
     ATR = "atr"        # násobok ATR od vstupu
     POINTS = "points"  # pevné body ceny od vstupu
+    LEG = "leg"        # za začiatok Fibonacciho nohy (100 %); len pri `useFibo`
 
 
 class TpMode(str, Enum):
     RR = "rr"            # násobok stopu
     VA_EDGE = "va_edge"  # hrana value area v smere obchodu (long VAH, short VAL)
+    EXTENSION = "extension"  # Fibonacciho extenzia nohy (`tpExtensionPct`, −27 %); len pri `useFibo`
 
 
 class TradeDirection(str, Enum):
@@ -70,6 +77,8 @@ SIZE_FIELDS: dict[str, SizeUnit] = {
     "imbMinSizeAtr": "atr",
     "slAtr": "atr",
     "slPoints": "abs",
+    "slBufferAtr": "atr",
+    "fibLegMinAtr": "atr",
     "minSlDistance": "pct",
 }
 
@@ -101,6 +110,11 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "atrLen": (2, 100),
     "rrRatio": (0.2, 20.0),
     "minRR": (0.0, 20.0),
+    "fibSwingTF": (1, 1440),
+    "fibSwingLen": (1, 20),
+    "fibMinPct": (0.0, 100.0),
+    "fibMaxPct": (0.0, 100.0),
+    "tpExtensionPct": (0.0, 500.0),
     "riskDollar": (0, 100000),
     "tickDollarValue": (0.01, 1000),
     "leverage": (1, 125),
@@ -146,6 +160,14 @@ class SvpConfig(StrategyConfig, EntryOrderFields):
     pbBodyPct: int = 30
     tradeDirection: TradeDirection = TradeDirection.BOTH
     maxTradesPerDay: int = 2
+    # ---- 🔢 Fibonacci (konfluencia s POC) ---------------------------------- #
+    #: POC sa obchoduje, len keď leží v pásme návratu poslednej nohy v smere obchodu.
+    useFibo: bool = False
+    fibSwingTF: int = 15
+    fibSwingLen: int = 3
+    fibLegMinAtr: SizeSpec = field(default_factory=lambda: SizeSpec(3.0, "atr"))
+    fibMinPct: float = 38.2
+    fibMaxPct: float = 78.6
     # ---- 🚦 Okno obchodovania --------------------------------------------- #
     weekdaysOnly: bool = True
     useTradeWindow: bool = True
@@ -159,15 +181,19 @@ class SvpConfig(StrategyConfig, EntryOrderFields):
     slMode: SlMode = SlMode.ATR
     slAtr: SizeSpec = field(default_factory=lambda: SizeSpec(1.5, "atr"))
     slPoints: SizeSpec = field(default_factory=lambda: SizeSpec(20.0, "abs"))
+    #: Rezerva za začiatok nohy pri `slMode = leg`.
+    slBufferAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.1, "atr"))
     atrLen: int = 14
     tpMode: TpMode = TpMode.RR
     rrRatio: float = 1.5
     minRR: float = 1.0
+    tpExtensionPct: float = 27.0
     # ---- 💰 Riziko -------------------------------------------------------- #
     riskDollar: float = 100.0
     # ---- 🎨 Vizualizácia -------------------------------------------------- #
     showPoc: bool = True
     showValueArea: bool = True
+    showFibo: bool = True
     # ---- rozšírenia portu ------------------------------------------------- #
     tickDollarValue: float | None = None
     legacyPineSizing: bool = False
@@ -208,6 +234,12 @@ class SvpConfig(StrategyConfig, EntryOrderFields):
             yield "seansa profilu: koniec musí byť za začiatkom (seansa cez polnoc sa nepodporuje)"
         if self.useTradeWindow and self.window_end_minutes <= self.window_start_minutes:
             yield "obchodné okno: koniec musí byť za začiatkom"
+        if self.useFibo and self.fibMinPct >= self.fibMaxPct:
+            yield "Fibonacci: fibMinPct musí byť menej než fibMaxPct"
+        if not self.useFibo and self.slMode is SlMode.LEG:
+            yield "slMode = leg potrebuje zapnutý useFibo (stop je za začiatkom Fibonacciho nohy)"
+        if not self.useFibo and self.tpMode is TpMode.EXTENSION:
+            yield "tpMode = extension potrebuje zapnutý useFibo (cieľ je extenzia Fibonacciho nohy)"
         if self.legacyPineSizing and self.tickDollarValue is None:
             yield "legacyPineSizing vyžaduje zadaný tickDollarValue"
         if self.leverage < 1:
