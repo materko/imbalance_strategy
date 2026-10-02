@@ -1,0 +1,40 @@
+{
+  "entryOrderType": "limit",
+  "limitOffsetPct": 75,
+  "limitValidBars": 2,
+  "limitKeepRR": true,
+  "fvgMinSize": {
+    "value": 0,
+    "unit": "abs"
+  },
+  "fvgMaxSize": {
+    "value": 10,
+    "unit": "abs"
+  },
+  "tradeDirection": "Long only",
+  "slPoints": {
+    "value": 300,
+    "unit": "abs"
+  },
+  "tpLevel": "near",
+  "atrLen": 14,
+  "riskDollar": 100.0,
+  "showFvg": true,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": 0.0,
+  "leverage": 1.0,
+  "_strategy": "fvgpolarity",
+  "_title": "FVG POLARITY MNQ: posl. rok 2183 obch, 97.3 % WR, zisk:strata 0.03 R, PF 1.19, +6807",
+  "_comment": [
+    "FVG POLARITY MNQ: posl. rok 2183 obch, 97.3 % WR, zisk:strata 0.03 R, PF 1.19, +6807",
+    "Predch. rok 24/25: 2015 obch, 97.7 % WR, +2634",
+    "Testy 1.-2.10.2026, emulátor MultiCharts, BEZ nákladov."
+  ],
+  "_instrument": "mnq_databento",
+  "_timeframe": "3m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}
