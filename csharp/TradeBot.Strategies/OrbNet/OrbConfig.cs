@@ -27,6 +27,10 @@ namespace TradeBot.Strategies.OrbNet
     /// adapteroch; C# engine vstupuje vzdy tak ako doteraz. Pole je tu kvoli zhode configu s Pythonom.</summary>
     public enum OrbEntryOrderType { Market, Limit }
 
+    /// <summary>Vstupny model (Python `tradebot.core.entry_confirm`): potvrdenie vstupu svieckou robi obal v Python
+    /// adapteroch; C# engine vstupuje vzdy tak ako doteraz. Pole je tu kvoli zhode configu s Pythonom.</summary>
+    public enum OrbEntryConfirm { None, Imbalance, Pinbar, Any }
+
     /// <summary>Jedna obchodna seansa - Python `SessionWindow` z configu ORB. Minuty su od polnoci
     /// v PASME seansy, nie v UTC - preto si kazda nesie svoje `Tz`.</summary>
     public sealed class OrbSession
@@ -125,6 +129,13 @@ namespace TradeBot.Strategies.OrbNet
         public int limitValidBars = 3;
         public bool limitKeepRR = true;
 
+        // ---- vstupny model (potvrdenie svieckou IBS imbalance / pin bar) - spolocne ----
+        public OrbEntryConfirm entryConfirm = OrbEntryConfirm.None;
+        public int confirmBars = 3;
+        public double confirmImbMinAtr = 0.05;
+        public int confirmPbWickPct = 60;
+        public int confirmPbBodyPct = 30;
+
         // -------------------------------------------------------------------- //
 
         /// <summary>Povodna jednotka velkostnych poli - hole cislo v JSON znamena tuto jednotku.</summary>
@@ -196,6 +207,16 @@ namespace TradeBot.Strategies.OrbNet
             string s = (string)raw;
             if (t == typeof(OrbEntryOrderType))
                 return s == "limit" ? OrbEntryOrderType.Limit : OrbEntryOrderType.Market;
+            if (t == typeof(OrbEntryConfirm))
+            {
+                switch (s)
+                {
+                    case "imbalance": return OrbEntryConfirm.Imbalance;
+                    case "pinbar": return OrbEntryConfirm.Pinbar;
+                    case "any": return OrbEntryConfirm.Any;
+                    default: return OrbEntryConfirm.None;
+                }
+            }
             if (t == typeof(OrbSessionMode))
             {
                 switch (s)

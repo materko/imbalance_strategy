@@ -21,7 +21,9 @@ _G7 = "🎨 Vizualizacia"
 _G8 = "🧩 Rozšírenia portu"
 
 #: Poradie skupín vo formulári.
-GROUPS: tuple[str, ...] = (_G0, _G1, _G2, _G3, _G4, _G5, _G6, _G7, _G8)
+_GC = "🕯️ Vstupny model (IBS / pin bar)"
+
+GROUPS: tuple[str, ...] = (_G0, _G1, _G2, _G3, _G4, _G5, _G6, _G7, _G8, _GC)
 
 PARAMS: dict[str, dict[str, Any]] = {
     # ---- 🕐 Seansa ---------------------------------------------------- #
@@ -192,3 +194,8 @@ PARAMS: dict[str, dict[str, Any]] = {
                 "sizingu, ktora by sa inak na ucet nezmestila.",
     ),
 }
+
+# ---- vstupný model IBS imbalance / pin bar (spoločný, `tradebot.core.entry_confirm`) ---- #
+from tradebot.core.entry_confirm import entry_confirm_params  # noqa: E402
+
+PARAMS.update(entry_confirm_params(_GC))

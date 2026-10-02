@@ -20,6 +20,8 @@ from typing import ClassVar, Iterable
 
 from tradebot.core.config import StrategyConfig
 from tradebot.core.types import SizeSpec, SizeUnit
+from tradebot.core.entry_confirm import (ENTRY_CONFIRM_CONSTRAINTS, ENTRY_CONFIRM_ENUMS, ENTRY_CONFIRM_FIELD_NAMES,
+                                         EntryConfirmFields)
 from tradebot.core.entry_order import (ENTRY_ORDER_CONSTRAINTS, ENTRY_ORDER_ENUMS, ENTRY_ORDER_FIELD_NAMES,
                                           EntryOrderFields)
 
@@ -219,13 +221,13 @@ PORT_ONLY_FIELDS: frozenset[str] = frozenset(
 
 
 @dataclass
-class VwapDriftConfig(StrategyConfig, EntryOrderFields):
+class VwapDriftConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields):
     """Parametre Drift VWAP Pullback. Defaulty = video (9:30 NY, VWAP z 15m, prvý pullback)."""
 
     SIZE_FIELDS: ClassVar[dict[str, SizeUnit]] = SIZE_FIELDS
-    ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_ORDER_ENUMS}
-    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_ORDER_CONSTRAINTS}
-    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS | ENTRY_ORDER_FIELD_NAMES
+    ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_ORDER_ENUMS, **ENTRY_CONFIRM_ENUMS}
+    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_ORDER_CONSTRAINTS, **ENTRY_CONFIRM_CONSTRAINTS}
+    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS | ENTRY_ORDER_FIELD_NAMES | ENTRY_CONFIRM_FIELD_NAMES
 
     # ---- 🎬 Pravidlá z videa ---------------------------------------------- #
     #: `video` = presne pravidlá z videa (polia tejto skupiny + seansa, VWAP, okno a stropy);

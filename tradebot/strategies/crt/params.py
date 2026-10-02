@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from tradebot.core.entry_confirm import entry_confirm_params
 from tradebot.core.entry_order import entry_order_params
 
 __all__ = ["GROUPS", "PARAMS"]
@@ -72,3 +73,4 @@ PARAMS: dict[str, dict[str, Any]] = {
     "leverage": dict(group=_G7, title="Paka", tooltip="Paka pre Freqtrade futures."),
 }
 PARAMS.update(entry_order_params(_GE))
+PARAMS.update(entry_confirm_params(_GE))
