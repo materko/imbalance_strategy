@@ -12,6 +12,7 @@ from .crt import SPEC as CRT_SPEC
 from .demo_breakout import SPEC as DEMO_SPEC
 from .divergence import SPEC as DIVERGENCE_SPEC
 from .fvgpolarity import SPEC as FVGPOLARITY_SPEC
+from .fibo import SPEC as FIBO_SPEC
 from .gap import SPEC as GAP_SPEC
 from .ibs import SPEC as IBS_SPEC
 from .ibsnet import SPEC as IBSNET_SPEC
@@ -54,6 +55,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     JSS_SPEC.key: JSS_SPEC,
     CRT_SPEC.key: CRT_SPEC,
     SCALP3MA_SPEC.key: SCALP3MA_SPEC,
+    FIBO_SPEC.key: FIBO_SPEC,
     FVGPOLARITY_SPEC.key: FVGPOLARITY_SPEC,
 }
 

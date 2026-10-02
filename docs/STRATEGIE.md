@@ -38,6 +38,7 @@ poradí, čo si smie stratégia určiť sama a kedy je hotová.
 | `jss` | JSS 1.0 — BOS a SD zóna | 40 | BOS / CHoCH na TF štruktúry (skladá sa z grafu), SD zóna na začiatku nohy, ktorá swing prerazila (posledná opačná sviečka / báza pred impulzom); prvý návrat: limitka na hranu zóny alebo IBS imbalance / pin bar na grafe (nižší TF); stop za zónou (+ATR, +body), cieľ RR alebo extrém nohy |
 | `crt` | CRT + TBS 1.0 | 40 | Candle Range Theory s Turtle Body Soup: sviečka vyššieho TF (4h, skladá sa z grafu) je range, ďalšia jednu stranu vyberie (telom / knôtom), po návrate do rangu vstup model 1 / CISD / MSS + FVG; stop za extrém výberu, cieľ stred alebo opačný koniec rangu alebo RR |
 | `scalp3ma` | Scalping 3MA + RSI + fraktál 1.0 | 37 | podľa videa Money Knowledge: trend podľa troch SMMA (20 / 60 / 200), RSI nad / pod 50, Williamsov fraktál ako potvrdenie; stop v bodoch (5 pipov) / ATR / za fraktál, cieľ RR 2, posun stopu na vstup, výstup pri RSI cez 50 |
+| `fibo` | Fibo 1.0 | 45 | podľa videa The Trading Geek: noha (impulz) medzi swingmi na vlastnom TF, návrat k úrovniam 38,2 / 50 / 61,8 / 78,6 % (zóna alebo pri úrovni), vstup IBS imbalance / pin bar na grafe, stop za začiatok nohy alebo za extrém návratu, cieľ extenzia −27 % / −61,8 % alebo RR; hrubý základ pre väčšiu stratégiu |
 
 `demo_breakout` je zámerne malá a zámerne **úplná**: má všetko, čo tento návod vyžaduje,
 takže sa dá kopírovať riadok po riadku. Keď si vyberáš vzor, ber ju — IBS je port

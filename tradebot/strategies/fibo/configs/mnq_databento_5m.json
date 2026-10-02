@@ -1,0 +1,13 @@
+{
+  "_title": "MNQ futures 5m — Fibo 1.0: noha na 15m, návrat 38,2–78,6 %, vstup IBS imbalance / pin bar, stop za nohu, cieľ −27 %",
+  "_strategy": "fibo",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Vychodiskovy profil Fibo 1.0 (2026-10-02) podla videa Brada Goha (The Trading Geek): defaulty configu na MNQ 5m.",
+    "Noha = impulz medzi swingmi na 15m (aspon 3 ATR, prekona predosly swing); navrat do zony 38,2-78,6 %;",
+    "vstup IBS imbalance alebo pin bar na 5m v smere nohy; stop za zaciatok nohy (+0,1 ATR), ciel extenzia -27 %.",
+    "Hruby zaklad pre vacsiu strategiu, nie obchodne odporucanie."
+  ],
+  "tickDollarValue": 0.5
+}
