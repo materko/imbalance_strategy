@@ -8,6 +8,7 @@ __all__ = ["GROUPS", "PARAMS"]
 
 _G0 = "🧭 Štruktúra"
 _G1 = "🟦 SD zóna"
+_GF = "🔢 Fibonacci (noha BOS)"
 _G2 = "🎯 Vstup"
 _G3 = "🚦 Filtre a okno"
 _G4 = "🛡️ Stop a ciel"
@@ -15,7 +16,7 @@ _G5 = "💰 Riziko"
 _G6 = "🎨 Vizualizacia"
 _G7 = "🧩 Rozšírenia portu"
 
-GROUPS: tuple[str, ...] = (_G0, _G1, _G2, _G3, _G4, _G5, _G6, _G7)
+GROUPS: tuple[str, ...] = (_G0, _G1, _GF, _G2, _G3, _G4, _G5, _G6, _G7)
 
 PARAMS: dict[str, dict[str, Any]] = {
     "structTF": dict(group=_G0, title="TF struktury (min)",
@@ -40,6 +41,13 @@ PARAMS: dict[str, dict[str, Any]] = {
     "zoneMaxAtr": dict(group=_G1, title="Zona: max. vyska (ATR)", tooltip="Sirsia zona sa neobchoduje. 0 = bez limitu."),
     "zoneMaxAgeBars": dict(group=_G1, title="Platnost zony (bary struktury)",
                            tooltip="Po tolkych baroch struktury bez navratu zona zanikne. 0 = bez limitu."),
+    "useFibo": dict(group=_GF, title="Filter Fibonacci",
+                    tooltip="Fibo cez nohu, ktora BOS spravila (100 % = zaciatok, 0 % = extrem po BOS). Zona sa obchoduje, "
+                            "len ked vstup lezi v zadanom pasme navratu."),
+    "fibMinPct": dict(group=_GF, title="Navrat od (%)", inline="fib", step=0.1,
+                      tooltip="Najmensi navrat nohy, pri ktorom sa este vstupuje. 50 = len v zlave, 61.8 = hlbsie."),
+    "fibMaxPct": dict(group=_GF, title="do (%)", inline="fib", step=0.1,
+                      tooltip="Najvacsi navrat. 100 = az po zaciatok nohy."),
     "entryModel": dict(group=_G2, title="Vstupny model",
                        tooltip="touch = limitka na hranu zony; imbalance / pinbar / any = po dotyku zony IBS "
                                "imbalance alebo pin bar na grafe, vstup na zavreti."),
@@ -67,13 +75,16 @@ PARAMS: dict[str, dict[str, Any]] = {
                            tooltip="Rezerva stopu v bodoch ceny, keby cena vybrala likviditu za zonou. "
                                    "Pripocita sa k rezerve v ATR."),
     "tpMode": dict(group=_G4, title="Ciel",
-                   tooltip="rr = nasobok stopu; structure = extrem nohy, ktora BOS spravila (nove dno / vrchol)."),
+                   tooltip="rr = nasobok stopu; structure = extrem nohy, ktora BOS spravila; extension = Fibonacciho extenzia nohy."),
     "rrRatio": dict(group=_G4, title="Risk:Reward", step=0.05, tooltip="TP = tento nasobok stopu."),
+    "tpExtensionPct": dict(group=_G4, title="Extenzia (%)", step=0.1,
+                           tooltip="Pri cieli extension: 27 = uroven -27 %, 61.8 = -61,8 %, 0 = koniec nohy."),
     "minRR": dict(group=_G4, title="Min. RR k cielu struktury", step=0.05,
                   tooltip="Pri cieli structure: blizsi ciel sa neobchoduje."),
     "maxHoldBars": dict(group=_G4, title="Casovy limit obchodu (bary)", tooltip="0 = bez limitu."),
     "riskDollar": dict(group=_G5, title="Riziko na obchod ($)", tooltip="Strata na stope v dolaroch."),
     "showStructure": dict(group=_G6, title="Kreslit BOS / CHoCH", tooltip="Prerazena uroven od swingu po prerazenie."),
+    "showFibo": dict(group=_G6, title="Kreslit Fibonacci", tooltip="Urovne nohy BOS pri zapnutom filtri."),
     "showZones": dict(group=_G6, title="Kreslit zony", tooltip="SD zona od svojej sviecky po dotyk / koniec."),
     "tickDollarValue": dict(group=_G7, title="Hodnota ticku ($)", type="float",
                             tooltip="Len pre Pine vzorec velkosti pozicie (legacyPineSizing)."),

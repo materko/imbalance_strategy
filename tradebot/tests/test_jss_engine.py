@@ -110,3 +110,30 @@ def test_zona_tf_struktury_sa_upresni_zonou_nizsieho_tf_a_limitka_ide_na_nu():
 def test_bez_upresnenia_ked_refine_tf_nie_je_nizsi_nez_struktura():
     e = JssEngine(_cfg(structTF=5, refineTF=15), MNQ, 5)
     assert e.ragg is None
+
+
+# --------------------------------------------------------------------------- #
+# Fibonacci cez nohu BOS
+# --------------------------------------------------------------------------- #
+
+
+def test_fibo_zona_mimo_pasma_navratu_sa_neobchoduje_a_po_predlzeni_nohy_ano():
+    """Noha BOS 110 -> 98, zóna 103–110: hrana 103 je 41,7 % návratu — pod 50 % sa nevstupuje.
+    Keď noha pokračuje na 96, tá istá hrana je presne 50 % a limitka sa zadá."""
+    e = JssEngine(_cfg(useFibo=True, fibMinPct=50, fibMaxPct=100), MNQ, 5)
+    outs = _run(e, _ROWS)
+    z = e.zone
+    assert (z.leg_start, z.leg_end) == (110, 98) and abs(z.retrace(103) - 41.67) < 0.01
+    assert not [o for o in outs[-1].orders if o.action is OrderAction.ENTRY]
+    out = e.on_bar(_bar(len(_ROWS), 98.5, 99, 96, 97), None, OKNO)
+    assert e.zone.leg_end == 96 and abs(e.zone.retrace(103) - 50.0) < 1e-9
+    o = [x for x in out.orders if x.action is OrderAction.ENTRY][0]
+    assert o.order_type is OrderType.LIMIT and o.plan.entry == 103
+
+
+def test_fibo_vypnute_sa_sprava_ako_doteraz_a_ciel_na_extenzii():
+    e = JssEngine(_cfg(), MNQ, 5)
+    assert [o for o in _run(e, _ROWS)[-1].orders if o.action is OrderAction.ENTRY], "bez filtra limitka hneď po BOS"
+    e = JssEngine(_cfg(useFibo=True, fibMinPct=40, tpMode="extension", tpExtensionPct=27, minRR=0.0), MNQ, 5)
+    o = [x for x in _run(e, _ROWS)[-1].orders if x.action is OrderAction.ENTRY][0]
+    assert abs(o.plan.take_profit - 94.75) < 0.01      # 98 − 27 % z 12, na tick

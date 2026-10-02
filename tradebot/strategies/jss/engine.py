@@ -13,7 +13,9 @@ Priebeh:
   3. **vstup** — len pri prvom návrate do zóny: limitka na hranu (`touch`, `entryDepthPct`
      do hĺbky), alebo po dotyku IBS imbalance / pin bar na grafe do `confirmBars` barov.
      Zóna končí dotykom (potom sa už neobchoduje), zavretím za protiľahlou hranou alebo vekom.
-  4. **SL** za protiľahlou hranou zóny (+ `slBufferAtr`), **TP** RR alebo extrém nohy BOS.
+  4. **SL** za protiľahlou hranou zóny (+ `slBufferAtr`), **TP** RR, extrém nohy BOS alebo jej extenzia.
+  5. **Fibonacci** (`useFibo`): cez nohu BOS (100 % = začiatok, 0 % = extrém od BOS po návrat do zóny)
+     sa natiahne fibo; zóna sa obchoduje, len keď vstup leží medzi `fibMinPct` a `fibMaxPct` návratu.
 
 Engine je čistý: žiadne I/O, žiadny globálny stav.
 """
@@ -34,7 +36,7 @@ from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
 from tradebot.core.warmup import Warmup
 
 from .config import EntryModel, JssConfig, SlFrom, TpMode, TriggerMode, ZoneEdge, ZoneType
-from .drawing import JSS_BOS, JSS_CHOCH, JSS_ENTRY, JSS_REFINE, JSS_ZONE
+from .drawing import JSS_BOS, JSS_CHOCH, JSS_ENTRY, JSS_FIB, JSS_REFINE, JSS_ZONE
 
 __all__ = ["JssEngine", "StructAggregator"]
 
@@ -111,6 +113,8 @@ class _Zone:
     refined: bool = False
     ref_start_ms: int = 0
     touched_idx: int = -1   #: index baru grafu prvého dotyku
+    leg_start: float = 0.0  #: začiatok nohy BOS (Fibonacci 100 %)
+    leg_end: float = 0.0    #: koniec nohy (Fibonacci 0 %) — extrém od BOS, kým sa cena nevráti do zóny
 
     @property
     def near(self) -> float:
@@ -121,6 +125,15 @@ class _Zone:
         """Cena vstupu `depth_pct` % do hĺbky zóny od bližšej hrany."""
         h = (self.top - self.bot) * depth_pct / 100.0
         return self.bot + h if self.direction is Direction.SHORT else self.top - h
+
+    def retrace(self, price: float) -> float:
+        """Koľko percent nohy BOS je `price` vrátená (0 = koniec nohy, 100 = jej začiatok)."""
+        size = self.leg_end - self.leg_start
+        return (self.leg_end - price) / size * 100.0 if size != 0 else 0.0
+
+    def fib(self, pct: float) -> float:
+        """Cena Fibonacciho úrovne `pct` % (záporné = extenzia za koniec nohy)."""
+        return self.leg_end - pct / 100.0 * (self.leg_end - self.leg_start)
 
     @property
     def far(self) -> float:
@@ -318,7 +331,9 @@ class JssEngine:
             return None
         leg_ext = max(x.high for x in seg[o:]) if up else min(x.low for x in seg[o:])
         self._uid += 1
-        z = _Zone(d, hi, lo, zb[0].time, self.s_idx, leg_ext, self._uid, htf_top=hi, htf_bot=lo)
+        leg_start = seg[o].low if up else seg[o].high
+        z = _Zone(d, hi, lo, zb[0].time, self.s_idx, leg_ext, self._uid, htf_top=hi, htf_bot=lo,
+                  leg_start=leg_start, leg_end=leg_ext)
         if self.ragg is not None:
             self._refine(z, zb[0].time, seg[j].time + self.agg.ms, up)
         return z
@@ -348,6 +363,21 @@ class JssEngine:
             out.drawings.append(DrawBox(JSS_REFINE, z.ref_start_ms, z.top, max(end_ms, z.ref_start_ms), z.bot,
                                         "#f59e0b", "#f59e0b40", obj_id=f"jss.ref.{z.uid}",
                                         text=f"{name} {self.cfg.refineTF}m"))
+        if self.cfg.useFibo and self.cfg.showFibo:
+            pcts = [0.0, 38.2, 50.0, 61.8, 78.6, 100.0]
+            if self.cfg.tpMode is TpMode.EXTENSION:
+                pcts.append(-self.cfg.tpExtensionPct)
+            for p in pcts:
+                y = z.fib(p)
+                out.drawings.append(DrawLine(JSS_FIB, z.start_ms, y, max(end_ms, z.start_ms), y, "#eab308",
+                                             obj_id=f"jss.fib.{z.uid}.{p:g}", text=f"{p:g} %"))
+
+    def _fib_ok(self, z: _Zone, price: float) -> bool:
+        """Leží vstup v povolenom pásme návratu nohy BOS? (pri vypnutom `useFibo` vždy áno)"""
+        cfg = self.cfg
+        if not cfg.useFibo:
+            return True
+        return cfg.fibMinPct <= z.retrace(price) <= cfg.fibMaxPct
 
     # ------------------------------------------------------------------ #
     # vstupné modely (na baroch grafu)
@@ -397,7 +427,7 @@ class JssEngine:
         if cfg.tpMode is TpMode.RR:
             take = entry + sl * cfg.rrRatio if long else entry - sl * cfg.rrRatio
         else:
-            take = z.target
+            take = z.fib(-cfg.tpExtensionPct) if cfg.tpMode is TpMode.EXTENSION else z.target
             if (take - entry if long else entry - take) < sl * cfg.minRR:
                 return None
         qty = cfg.position_qty(self.inst, cfg.riskDollar, sl) if cfg.riskDollar > 0 else 1.0
@@ -438,6 +468,8 @@ class JssEngine:
             if z.touched_idx < 0 and ((short and bar.high >= z.near_at(cfg.entryDepthPct))
                                       or (not short and bar.low <= z.near_at(cfg.entryDepthPct))):
                 z.touched_idx = idx
+            if z.touched_idx < 0:   # noha BOS pokračuje, kým sa cena nevráti do zóny — koniec nohy (0 %) sa posúva
+                z.leg_end = min(z.leg_end, bar.low) if short else max(z.leg_end, bar.high)
             beyond = bar.close > z.htf_top if short else bar.close < z.htf_bot   # zóna TF štruktúry prerazená
             old = cfg.zoneMaxAgeBars > 0 and self.s_idx - z.born_idx > cfg.zoneMaxAgeBars
             done = z.touched_idx >= 0 and (cfg.entryModel is EntryModel.TOUCH
@@ -484,11 +516,11 @@ class JssEngine:
             # limitka na hranu zóny platí na ďalší bar; kým zóna žije a nie je dotknutá, obnovuje sa
             if z.touched_idx < 0:
                 price = z.near_at(cfg.entryDepthPct)
-                if (long and bar.close > price) or (not long and bar.close < price):
+                if ((long and bar.close > price) or (not long and bar.close < price)) and self._fib_ok(z, price):
                     self._enter(out, z, price, bar, atr, idx, limit=True)
             return out
         # imbalance / pin bar po dotyku, vstup na zavretí — cena musí byť ešte pred protiľahlou hranou
-        if z.touched_idx >= 0 and self._signal(bar, long, atr):
+        if z.touched_idx >= 0 and self._signal(bar, long, atr) and self._fib_ok(z, z.near_at(cfg.entryDepthPct)):
             if (long and bar.close > z.far) or (not long and bar.close < z.far):
                 self._enter(out, z, bar.close, bar, atr, idx, limit=False)
                 if self.zone is z and self._pending is not None:

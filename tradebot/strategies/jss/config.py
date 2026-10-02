@@ -10,7 +10,9 @@ Stratégia nemá Pine predlohu; pravidlá zadal používateľ (29. 9. 2026):
      na nej je limitka (upresnenie vstupu, 30. 9. 2026),
   3. vstup pri návrate do zóny: limitka na hranu zóny, alebo po dotyku IBS imbalance /
      pin bar na grafe (nižší TF),
-  4. SL za protiľahlú hranu zóny, cieľ RR alebo extrém nohy, ktorá BOS spravila.
+  4. SL za protiľahlú hranu zóny, cieľ RR, extrém nohy, ktorá BOS spravila, alebo jej Fibonacciho extenzia.
+  5. voliteľne Fibonacci (`useFibo`): cez nohu BOS sa natiahne fibo a zóna sa obchoduje, len keď vstup
+     leží v zadanom pásme návratu (napr. 50–100 % = „zľava").
 
 Obchoduje sa len prvý dotyk zóny; nový BOS nahradí zónu starého. Prahy sú v ATR.
 """
@@ -67,6 +69,7 @@ class SlFrom(str, Enum):
 class TpMode(str, Enum):
     RR = "rr"                # násobok stopu
     STRUCTURE = "structure"  # extrém nohy, ktorá BOS spravila (nové dno / vrchol)
+    EXTENSION = "extension"  # Fibonacciho extenzia nohy BOS (`tpExtensionPct`, −27 %)
 
 
 class TradeDirection(str, Enum):
@@ -114,6 +117,9 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "atrLen": (2, 100),
     "rrRatio": (0.2, 10.0),
     "minRR": (0.0, 20.0),
+    "fibMinPct": (0.0, 100.0),
+    "fibMaxPct": (0.0, 150.0),
+    "tpExtensionPct": (-100.0, 500.0),
     "maxHoldBars": (0, 5000),
     "riskDollar": (0, 100000),
     "tickDollarValue": (0.01, 1000),
@@ -147,6 +153,13 @@ class JssConfig(StrategyConfig, EntryOrderFields):
     zoneMinAtr: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "atr"))
     zoneMaxAtr: SizeSpec = field(default_factory=lambda: SizeSpec(3.0, "atr"))
     zoneMaxAgeBars: int = 100
+    # ---- 🔢 Fibonacci (noha BOS) ------------------------------------------- #
+    #: Fibonacci cez nohu, ktorá BOS spravila: 100 % = jej začiatok, 0 % = jej koniec (extrém po BOS, kým sa
+    #: cena nevráti do zóny). Zóna sa obchoduje, len keď vstup leží medzi `fibMinPct` a `fibMaxPct` návratu
+    #: (30. 9. / 2. 10. 2026: Fibo zakomponované do JSS). Vypnuté = správanie ako doteraz.
+    useFibo: bool = False
+    fibMinPct: float = 50.0
+    fibMaxPct: float = 100.0
     # ---- 🎯 Vstup --------------------------------------------------------- #
     entryModel: EntryModel = EntryModel.TOUCH
     entryDepthPct: int = 0
@@ -173,12 +186,15 @@ class JssConfig(StrategyConfig, EntryOrderFields):
     tpMode: TpMode = TpMode.RR
     rrRatio: float = 2.0
     minRR: float = 1.0
+    #: Cieľ pri `tpMode=extension`: extenzia za koniec nohy v % jej dĺžky (27 = −27 %, 61.8 = −61,8 %, 0 = koniec nohy).
+    tpExtensionPct: float = 27.0
     maxHoldBars: int = 0
     # ---- 💰 Riziko -------------------------------------------------------- #
     riskDollar: float = 100.0
     # ---- 🎨 Vizualizácia -------------------------------------------------- #
     showStructure: bool = True
     showZones: bool = True
+    showFibo: bool = True
     # ---- rozšírenia portu ------------------------------------------------- #
     tickDollarValue: float | None = None
     legacyPineSizing: bool = False
@@ -215,5 +231,7 @@ class JssConfig(StrategyConfig, EntryOrderFields):
             yield f"pbWickPct + pbBodyPct = {self.pbWickPct + self.pbBodyPct} > 100 — pin bar nemôže vzniknúť"
         if self.useTradeWindow and self.window_end_minutes <= self.window_start_minutes:
             yield "obchodné okno: koniec musí byť za začiatkom"
+        if self.useFibo and self.fibMinPct >= self.fibMaxPct:
+            yield "Fibonacci: fibMinPct musí byť menej než fibMaxPct"
         if self.zoneMaxAtr.value and self.zoneMinAtr.value > self.zoneMaxAtr.value:
             yield "zoneMinAtr musí byť najviac zoneMaxAtr"
