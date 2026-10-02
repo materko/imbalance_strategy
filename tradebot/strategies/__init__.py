@@ -27,6 +27,7 @@ from .range import SPEC as RANGE_SPEC
 from .scalp3ma import SPEC as SCALP3MA_SPEC
 from .sdzone import SPEC as SDZONE_SPEC
 from .structure import SPEC as STRUCTURE_SPEC
+from .svp import SPEC as SVP_SPEC
 from .trendlines import SPEC as TRENDLINES_SPEC
 from .vwapdrift import SPEC as VWAPDRIFT_SPEC
 from .vwapop import SPEC as VWAPOP_SPEC
@@ -56,6 +57,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     CRT_SPEC.key: CRT_SPEC,
     SCALP3MA_SPEC.key: SCALP3MA_SPEC,
     FIBO_SPEC.key: FIBO_SPEC,
+    SVP_SPEC.key: SVP_SPEC,
     FVGPOLARITY_SPEC.key: FVGPOLARITY_SPEC,
 }
 
