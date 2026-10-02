@@ -23,6 +23,7 @@ from .liquidity import SPEC as LIQUIDITY_SPEC
 from .orb import SPEC as ORB_SPEC
 from .orbnet import SPEC as ORBNET_SPEC
 from .range import SPEC as RANGE_SPEC
+from .scalp3ma import SPEC as SCALP3MA_SPEC
 from .sdzone import SPEC as SDZONE_SPEC
 from .structure import SPEC as STRUCTURE_SPEC
 from .trendlines import SPEC as TRENDLINES_SPEC
@@ -52,6 +53,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     VWAPORB_SPEC.key: VWAPORB_SPEC,
     JSS_SPEC.key: JSS_SPEC,
     CRT_SPEC.key: CRT_SPEC,
+    SCALP3MA_SPEC.key: SCALP3MA_SPEC,
     FVGPOLARITY_SPEC.key: FVGPOLARITY_SPEC,
 }
 

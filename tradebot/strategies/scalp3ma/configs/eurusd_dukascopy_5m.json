@@ -1,0 +1,18 @@
+{
+  "_title": "EURUSD 5m — Scalping 3MA + RSI + fraktál 1.0 podľa videa: SMMA 20/60/200, RSI 50, stop 5 pipov, cieľ 10 pipov",
+  "_strategy": "scalp3ma",
+  "_instrument": "eurusd_dukascopy",
+  "_timeframe": "5m",
+  "_comment": [
+    "Vychodiskovy profil (2026-10-02) presne podla videa Money Knowledge (Rene), 5 Minutova Scalping Strategia:",
+    "tri vyhladene priemery 20 / 60 / 200, RSI 14 nad / pod 50, Williamsov fraktal ako potvrdenie, stop 5 pipov, ciel 10 pipov,",
+    "stop na vstup po 1R, zavretie ked RSI prejde cez 50 proti obchodu, jeden obchod denne.",
+    "Nie je to obchodne odporucanie."
+  ],
+  "slMode": "points",
+  "slPoints": {
+    "value": 0.0005,
+    "unit": "abs"
+  },
+  "rrRatio": 2.0
+}

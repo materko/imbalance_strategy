@@ -1,0 +1,11 @@
+{
+  "_title": "MNQ futures 5m — Scalping 3MA + RSI + fraktál 1.0: SMMA 20/60/200, RSI 50, stop 1 ATR, cieľ 2R",
+  "_strategy": "scalp3ma",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Ten isty postup ako vo videu, stop v ATR namiesto pipov (1 ATR), ciel 2R. Vychodisko na ladenie."
+  ],
+  "slMode": "atr",
+  "tickDollarValue": 0.5
+}
