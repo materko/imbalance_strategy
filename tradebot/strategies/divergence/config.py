@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import ClassVar, Iterable
 
 from tradebot.core.config import StrategyConfig
+from tradebot.core.entry_filter import (ENTRY_FILTER_CONSTRAINTS, ENTRY_FILTER_ENUMS, ENTRY_FILTER_FIELD_NAMES,
+                                        EntryFilterFields)
 from tradebot.core.types import SizeUnit, TradeDirection
 from tradebot.core.entry_confirm import (ENTRY_CONFIRM_CONSTRAINTS, ENTRY_CONFIRM_ENUMS, ENTRY_CONFIRM_FIELD_NAMES,
                                          EntryConfirmFields)
@@ -113,13 +115,13 @@ PORT_ONLY_FIELDS: frozenset[str] = frozenset({"leverage"})
 
 
 @dataclass
-class DivergenceConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields):
+class DivergenceConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilterFields):
     """Defaulty = posledný naladený config pôvodnej stratégie (BTC 15m)."""
 
     SIZE_FIELDS: ClassVar[dict[str, SizeUnit]] = SIZE_FIELDS
-    ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_ORDER_ENUMS, **ENTRY_CONFIRM_ENUMS}
-    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_ORDER_CONSTRAINTS, **ENTRY_CONFIRM_CONSTRAINTS}
-    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS | ENTRY_ORDER_FIELD_NAMES | ENTRY_CONFIRM_FIELD_NAMES
+    ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_ORDER_ENUMS, **ENTRY_CONFIRM_ENUMS, **ENTRY_FILTER_ENUMS}
+    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_ORDER_CONSTRAINTS, **ENTRY_CONFIRM_CONSTRAINTS, **ENTRY_FILTER_CONSTRAINTS}
+    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS | ENTRY_ORDER_FIELD_NAMES | ENTRY_CONFIRM_FIELD_NAMES | ENTRY_FILTER_FIELD_NAMES
 
     # ---- 🔎 Divergencie --------------------------------------------------- #
     prd: int = 5

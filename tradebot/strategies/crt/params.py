@@ -74,3 +74,8 @@ PARAMS: dict[str, dict[str, Any]] = {
 }
 PARAMS.update(entry_order_params(_GE))
 PARAMS.update(entry_confirm_params(_GE))
+
+# ---- filter trendu EMA (spoločný, `tradebot.core.entry_filter`) ---- #
+from tradebot.core.entry_filter import entry_filter_params  # noqa: E402
+
+PARAMS.update(entry_filter_params(_GE))

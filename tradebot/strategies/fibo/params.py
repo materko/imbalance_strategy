@@ -77,3 +77,8 @@ PARAMS: dict[str, dict[str, Any]] = {
     "leverage": dict(group=_G7, title="Paka", tooltip="Paka pre Freqtrade futures."),
 }
 PARAMS.update(entry_order_params(_GE))
+
+# ---- filter trendu EMA (spoločný, `tradebot.core.entry_filter`) ---- #
+from tradebot.core.entry_filter import entry_filter_params  # noqa: E402
+
+PARAMS.update(entry_filter_params(_GE))

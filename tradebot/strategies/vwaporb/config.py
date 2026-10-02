@@ -25,6 +25,7 @@ from ..orb.config import (CONSTRAINTS as ORB_CONSTRAINTS, ENUM_FIELDS as ORB_ENU
                           ORBConfig, SessionMode, SIZE_FIELDS as ORB_SIZE_FIELDS)
 from ..vwapdrift.config import VwapAnchor, VwapPeriod
 from tradebot.core.entry_confirm import ENTRY_CONFIRM_CONSTRAINTS, ENTRY_CONFIRM_ENUMS
+from tradebot.core.entry_filter import ENTRY_FILTER_CONSTRAINTS, ENTRY_FILTER_ENUMS
 from tradebot.core.entry_order import (ENTRY_ORDER_CONSTRAINTS, ENTRY_ORDER_ENUMS, ENTRY_ORDER_FIELD_NAMES,
                                           EntryOrderFields)
 
@@ -95,8 +96,8 @@ class VwapOrbConfig(ORBConfig):
     """ORB + prerazenie VWAP za range. Defaulty ORB zmenené len tam, kde by bránili zadaniu."""
 
     SIZE_FIELDS: ClassVar[dict[str, SizeUnit]] = SIZE_FIELDS
-    ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_ORDER_ENUMS, **ENTRY_CONFIRM_ENUMS}
-    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_ORDER_CONSTRAINTS, **ENTRY_CONFIRM_CONSTRAINTS}
+    ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_ORDER_ENUMS, **ENTRY_CONFIRM_ENUMS, **ENTRY_FILTER_ENUMS}
+    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_ORDER_CONSTRAINTS, **ENTRY_CONFIRM_CONSTRAINTS, **ENTRY_FILTER_CONSTRAINTS}
 
     # ---- zmenené defaulty ORB -------------------------------------------- #
     sessionMode: SessionMode = SessionMode.NY

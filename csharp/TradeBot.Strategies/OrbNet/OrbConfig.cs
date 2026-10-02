@@ -31,6 +31,10 @@ namespace TradeBot.Strategies.OrbNet
     /// adapteroch; C# engine vstupuje vzdy tak ako doteraz. Pole je tu kvoli zhode configu s Pythonom.</summary>
     public enum OrbEntryConfirm { None, Imbalance, Pinbar, Any }
 
+    /// <summary>Filter trendu (Python `tradebot.core.entry_filter`): vstupy podla EMA filtruje obal v Python
+    /// adapteroch; C# engine vstupuje vzdy tak ako doteraz. Pole je tu kvoli zhode configu s Pythonom.</summary>
+    public enum OrbTrendFilter { Off, With, Against }
+
     /// <summary>Jedna obchodna seansa - Python `SessionWindow` z configu ORB. Minuty su od polnoci
     /// v PASME seansy, nie v UTC - preto si kazda nesie svoje `Tz`.</summary>
     public sealed class OrbSession
@@ -136,6 +140,11 @@ namespace TradeBot.Strategies.OrbNet
         public int confirmPbWickPct = 60;
         public int confirmPbBodyPct = 30;
 
+        // ---- filter trendu (EMA) - spolocne ----
+        public OrbTrendFilter trendFilter = OrbTrendFilter.Off;
+        public int trendEmaLen = 200;
+        public int trendTF = 0;
+
         // -------------------------------------------------------------------- //
 
         /// <summary>Povodna jednotka velkostnych poli - hole cislo v JSON znamena tuto jednotku.</summary>
@@ -207,6 +216,8 @@ namespace TradeBot.Strategies.OrbNet
             string s = (string)raw;
             if (t == typeof(OrbEntryOrderType))
                 return s == "limit" ? OrbEntryOrderType.Limit : OrbEntryOrderType.Market;
+            if (t == typeof(OrbTrendFilter))
+                return s == "with" ? OrbTrendFilter.With : s == "against" ? OrbTrendFilter.Against : OrbTrendFilter.Off;
             if (t == typeof(OrbEntryConfirm))
             {
                 switch (s)

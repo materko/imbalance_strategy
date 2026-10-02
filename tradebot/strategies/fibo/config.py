@@ -23,6 +23,8 @@ from pathlib import Path
 from typing import ClassVar, Iterable
 
 from tradebot.core.config import StrategyConfig
+from tradebot.core.entry_filter import (ENTRY_FILTER_CONSTRAINTS, ENTRY_FILTER_ENUMS, ENTRY_FILTER_FIELD_NAMES,
+                                        EntryFilterFields)
 from tradebot.core.entry_order import (ENTRY_ORDER_CONSTRAINTS, ENTRY_ORDER_ENUMS, ENTRY_ORDER_FIELD_NAMES,
                                        EntryOrderFields)
 from tradebot.core.types import SizeSpec, SizeUnit
@@ -106,13 +108,13 @@ PORT_ONLY_FIELDS: frozenset[str] = frozenset({"tickDollarValue", "leverage", "le
 
 
 @dataclass
-class FiboConfig(StrategyConfig, EntryOrderFields):
+class FiboConfig(StrategyConfig, EntryOrderFields, EntryFilterFields):
     """Impulz, návrat k Fibonacciho úrovniam a vstup na potvrdzovaciu sviečku."""
 
     SIZE_FIELDS: ClassVar[dict[str, SizeUnit]] = SIZE_FIELDS
-    ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_ORDER_ENUMS}
-    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_ORDER_CONSTRAINTS}
-    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS | ENTRY_ORDER_FIELD_NAMES
+    ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_ORDER_ENUMS, **ENTRY_FILTER_ENUMS}
+    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_ORDER_CONSTRAINTS, **ENTRY_FILTER_CONSTRAINTS}
+    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS | ENTRY_ORDER_FIELD_NAMES | ENTRY_FILTER_FIELD_NAMES
 
     # ---- 📐 Noha (impulz) -------------------------------------------------- #
     swingTF: int = 15

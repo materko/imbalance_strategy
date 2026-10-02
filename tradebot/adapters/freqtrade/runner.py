@@ -37,6 +37,7 @@ from ...core.risk import TrailingPlan, extreme_before_stop
 from ...core.types import Direction
 from ...strategies import StrategySpec, spec_for_config
 from ...core.entry_confirm import wrap_entry_confirm
+from ...core.entry_filter import wrap_entry_filter
 from ...core.entry_order import wrap_entry_order
 
 __all__ = ["SignalRow", "EngineRunner", "COLUMNS", "COLUMN_ATTRS", "export_chart"]
@@ -113,8 +114,8 @@ class EngineRunner:
         self.fee = float(fee or 0.0)
         assert self.spec.engine_factory is not None, f"{self.spec.key}: chýba engine_factory"
         # market vstupy stratégie ako limitky, keď to config chce (`entryOrderType`); inak ten istý engine
-        self.engine = wrap_entry_order(
-            wrap_entry_confirm(self.spec.engine_factory(cfg, inst, chart_tf_minutes), cfg), cfg)
+        engine = wrap_entry_filter(self.spec.engine_factory(cfg, inst, chart_tf_minutes), cfg, chart_tf_minutes)
+        self.engine = wrap_entry_order(wrap_entry_confirm(engine, cfg), cfg)
 
         #: feeder informatívneho TF (IBS: okno detekčného TF zón), alebo None — engine bez HTF
         self.htf = self.spec.htf_feeder(cfg, chart_tf_minutes) if self.spec.htf_feeder else None

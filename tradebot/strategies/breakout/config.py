@@ -22,6 +22,8 @@ from pathlib import Path
 from typing import ClassVar, Iterable
 
 from tradebot.core.config import StrategyConfig
+from tradebot.core.entry_filter import (ENTRY_FILTER_CONSTRAINTS, ENTRY_FILTER_ENUMS, ENTRY_FILTER_FIELD_NAMES,
+                                        EntryFilterFields)
 from tradebot.core.entry_confirm import (ENTRY_CONFIRM_CONSTRAINTS, ENTRY_CONFIRM_ENUMS, ENTRY_CONFIRM_FIELD_NAMES,
                                          EntryConfirmFields)
 from tradebot.core.types import SizeSpec, SizeUnit
@@ -113,13 +115,13 @@ PORT_ONLY_FIELDS: frozenset[str] = frozenset(
 
 
 @dataclass
-class BreakoutConfig(StrategyConfig, EntryConfirmFields):
+class BreakoutConfig(StrategyConfig, EntryConfirmFields, EntryFilterFields):
     """Parametre stratégie Breakout. Defaulty = zadanie (NY 9:30, 5 min, SL pod sviečku, 1:1)."""
 
     SIZE_FIELDS: ClassVar[dict[str, SizeUnit]] = SIZE_FIELDS
-    ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_CONFIRM_ENUMS}
-    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_CONFIRM_CONSTRAINTS}
-    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS | ENTRY_CONFIRM_FIELD_NAMES
+    ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_CONFIRM_ENUMS, **ENTRY_FILTER_ENUMS}
+    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_CONFIRM_CONSTRAINTS, **ENTRY_FILTER_CONSTRAINTS}
+    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS | ENTRY_CONFIRM_FIELD_NAMES | ENTRY_FILTER_FIELD_NAMES
 
     # ---- 🕐 Seansa -------------------------------------------------------- #
     #: Otvorenie newyorskej seansy v pásme America/New_York — 9:30 NY je 15:30 SEČ v zime
