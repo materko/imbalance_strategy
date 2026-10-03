@@ -35,6 +35,9 @@ namespace TradeBot.Strategies.OrbNet
     /// adapteroch; C# engine vstupuje vzdy tak ako doteraz. Pole je tu kvoli zhode configu s Pythonom.</summary>
     public enum OrbTrendFilter { Off, With, Against }
 
+    /// <summary>Filter volatility (Python `tradebot.core.entry_filter`) - tiez len kvoli zhode configu.</summary>
+    public enum OrbVolFilter { Off, Low, High }
+
     /// <summary>Jedna obchodna seansa - Python `SessionWindow` z configu ORB. Minuty su od polnoci
     /// v PASME seansy, nie v UTC - preto si kazda nesie svoje `Tz`.</summary>
     public sealed class OrbSession
@@ -144,6 +147,8 @@ namespace TradeBot.Strategies.OrbNet
         public OrbTrendFilter trendFilter = OrbTrendFilter.Off;
         public int trendEmaLen = 200;
         public int trendTF = 0;
+        public OrbVolFilter volFilter = OrbVolFilter.Off;
+        public int volLookback = 100;
 
         // -------------------------------------------------------------------- //
 
@@ -216,6 +221,8 @@ namespace TradeBot.Strategies.OrbNet
             string s = (string)raw;
             if (t == typeof(OrbEntryOrderType))
                 return s == "limit" ? OrbEntryOrderType.Limit : OrbEntryOrderType.Market;
+            if (t == typeof(OrbVolFilter))
+                return s == "low" ? OrbVolFilter.Low : s == "high" ? OrbVolFilter.High : OrbVolFilter.Off;
             if (t == typeof(OrbTrendFilter))
                 return s == "with" ? OrbTrendFilter.With : s == "against" ? OrbTrendFilter.Against : OrbTrendFilter.Off;
             if (t == typeof(OrbEntryConfirm))

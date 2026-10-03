@@ -106,3 +106,28 @@ def test_kazda_strategia_ma_filter_trendu(key):
     cfg = STRATEGIES[key].config_cls()
     assert TrendFilter(cfg.trendFilter) is TrendFilter.OFF, "default nemení správanie stratégie"
     assert "trendFilter" in STRATEGIES[key].param_meta
+
+
+def test_filter_volatility_pokojny_a_rozkyvany_trh():
+    from tradebot.core.entry_filter import VolFilter
+
+    @dataclass
+    class _V(_Cfg):
+        trendFilter: TrendFilter = TrendFilter.OFF
+        volFilter: VolFilter = VolFilter.LOW
+        volLookback: int = 10
+
+    def bar(i, rng):
+        return Bar(time=i * MIN5, open=100, high=100 + rng / 2, low=100 - rng / 2, close=100, volume=1)
+
+    assert isinstance(wrap_entry_filter(_Eng(), _V(), 5), EntryFilterEngine)
+    low, high = EntryFilterEngine(_Eng(), _V(), 5), EntryFilterEngine(_Eng(), _V(volFilter=VolFilter.HIGH), 5)
+    for i in range(30):
+        for w in (low, high):
+            w.on_bar(bar(i, 4), None, CTX)
+    # pokles volatility: ATR pod priemerom → low púšťa, high nie
+    assert len(low.on_bar(bar(30, 1), None, CTX).orders) == 2 and high.on_bar(bar(30, 1), None, CTX).orders == []
+    for i in range(31, 36):
+        for w in (low, high):
+            w.on_bar(bar(i, 20), None, CTX)
+    assert low.on_bar(bar(36, 20), None, CTX).orders == [] and len(high.on_bar(bar(36, 20), None, CTX).orders) == 2
