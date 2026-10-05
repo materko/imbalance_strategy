@@ -530,6 +530,20 @@ def databento_specs(path: Path | None = None) -> dict[str, InstrumentSpec]:
     return out
 
 
+#: Americké akcie z Interactive Brokers (TRADES, len RTH) — 1m rada z `tester.ibkr_import`.
+IBKR_REGISTRY = Path(__file__).with_name("instruments_ibkr.json")
+
+
+def ibkr_specs(path: Path | None = None) -> dict[str, InstrumentSpec]:
+    """Načíta tabuľku IBKR akcií. Tvar riadku je ten istý ako pri Databento (burza
+    MultiCharts, náklad v tickoch, burzový objem), líši sa len zdroj."""
+    out = databento_specs(path or IBKR_REGISTRY)
+    for key, inst in out.items():
+        if inst.source == "databento":
+            raise ValueError(f"{key}: riadok v instruments_ibkr.json musí mať \"source\": \"ibkr\"")
+    return out
+
+
 #: Syntetické trhy — premiešané bary skutočného trhu (`tester.synthetic`). Register je
 #: **recept**, nie dáta: zdroj, okno, blok a seed, z ktorých sa trh dá kedykoľvek
 #: vygenerovať znova bit po bite. Samotné sviečky sa nikam necommitujú.
@@ -570,6 +584,7 @@ def synthetic_specs(path: Path | None = None) -> dict[str, InstrumentSpec]:
 
 INSTRUMENTS.update(dukascopy_specs())
 INSTRUMENTS.update(databento_specs())
+INSTRUMENTS.update(ibkr_specs())
 INSTRUMENTS.update(synthetic_specs())
 
 #: Ponechané meno pre staršie importy — vzorový Dukascopy symbol.

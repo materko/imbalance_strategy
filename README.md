@@ -120,7 +120,7 @@ Podrobne: [docs/DATA.md](docs/DATA.md), prehľad celej cesty dát:
 | **TradeBot Tester** | |
 | [`tester/webapp/`](tester/webapp) | Webová aplikácia pre testerov (FastAPI + Plotly) a jej CLI. |
 | [`tester/compare/`](tester/compare) | Porovnávacie behy: `scan_zones`/`scan_trades` (engine offline nad burzou alebo surovým CSV), `mc_log_trades` (obchody z logu MultiCharts študie), `mc_compare` (spárovanie oboch zoznamov). |
-| `tester/dukas_import.py`, `tester/bento_import.py`, `tester/data_archive.py` | Prevod a čistenie surových exportov (Dukascopy CFD, Databento CME futures), ročný archív sviečok. |
+| `tester/dukas_import.py`, `tester/bento_import.py`, `tester/ibkr_import.py`, `tester/data_archive.py` | Prevod a čistenie surových exportov (Dukascopy CFD, Databento CME futures, IBKR akcie), ročný archív sviečok. |
 | `tester/timeframes.py`, [`tester/timeframes.json`](tester/timeframes.json) | Ktoré timeframy má mať Tester na disku a ich dopočet z 1m (webapp ich doplní pri štarte). |
 | `tester/quotemanager.py` | ASCII export pre QuoteManager (MultiCharts) zo skladu 1m sviečok. |
 | `tester/ftexchange.py`, `tester/ftrun.py` | Fiktívna burza **Tester** pre Freqtrade (pozná naše páry a všetky TF) a obal, ktorý ju zaregistruje pred behom. |
@@ -136,6 +136,7 @@ Podrobne: [docs/DATA.md](docs/DATA.md), prehľad celej cesty dát:
 | `webapp.cmd`, `webapp.ps1`, `webapp.sh` | Spúšťače Testera z koreňa repozitára (obaly nad `tester/scripts/`). |
 | `dukas-import.ps1`, `dukas-import.sh` | Import surových Dukascopy dát (obaly nad `tester.dukas_import`). |
 | `bento-import.ps1`, `bento-import.sh` | Import Databento exportu CME futures — front-month z kontraktov (obaly nad `tester.bento_import`). |
+| `ibkr-import.ps1`, `ibkr-import.sh` | Import IBKR exportu amerických akcií — 1m TRADES, RTH (obaly nad `tester.ibkr_import`). |
 | [`CLAUDE.md`](CLAUDE.md) | Pokyny pre Claude Code v dvoch režimoch podľa `.ibs-role` (gitignored, pýta sa raz): **tester** = backtesty do histórie cez `python -m tester.webapp.cli`, bez zásahov do kódu; **developer** = bez obmedzení, len konvencie. |
 | `install-macos.sh` | Inštalátor pre macOS jedným príkazom (`curl \| bash`). |
 | [`docs/`](docs) | Návody a architektúra; merania v [`docs/merania/`](docs/merania/README.md), archív profilov v [`docs/profily_archiv/`](docs/profily_archiv/ibs/README.md). |

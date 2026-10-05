@@ -47,7 +47,8 @@ ENGINE_TITLES = {
 #: Zdroje, ktoré nie sú ccxt burza — Freqtrade ich vezme len cez vlastný config
 #: a nemá pre ne futures podadresár. `databento` = CME futures (MNQ) z Databento,
 #: pre Tester ten istý druh zdroja ako Dukascopy: 1m na disku, beh emulátorom.
-_OFF_EXCHANGE = ("dukascopy", "databento")
+#: `ibkr` = americké akcie z Interactive Brokers, to isté.
+_OFF_EXCHANGE = ("dukascopy", "databento", "ibkr")
 
 
 def _is_off_exchange(inst: InstrumentSpec) -> bool:

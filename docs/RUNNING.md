@@ -38,6 +38,7 @@ Všetko sa spúšťa **z koreňa repozitára**. `PY` = Python z `.venv`:
 | Tester (webapp) | `./webapp.sh` | `.\webapp.ps1` alebo `webapp.cmd` |
 | Dukascopy import | `./dukas-import.sh` | `.\dukas-import.ps1` |
 | Databento import (CME futures) | `./bento-import.sh` | `.\bento-import.ps1` |
+| IBKR import (americké akcie) | `./ibkr-import.sh` | `.\ibkr-import.ps1` |
 | Setup (ak `.venv` chýba) | `deploy/freqtrade/scripts/setup.sh` | `deploy\freqtrade\scripts\setup.ps1` |
 
 ## Mapa repozitára
@@ -64,6 +65,7 @@ tester/                         TESTER - cim sa to skusa
   compare/                      scan_zones, scan_trades, mc_log_trades, mc_compare
   dukas_import.py               import surovych exportov: cistenie, 1m feather, archiv
   bento_import.py               import Databento (CME futures): kontrakty -> front-month, archiv
+  ibkr_import.py                import IBKR (akcie, RTH): New York -> UTC, bez vypchavky, archiv
   timeframes.py                 dopocet vyssich TF z 1m (tester/timeframes.json)
   quotemanager.py               ASCII export pre QuoteManager (MultiCharts)
   data_archive.py               rocny archiv sviecok

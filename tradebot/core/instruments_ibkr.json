@@ -1,0 +1,113 @@
+{
+  "_comment": [
+    "Americke akcie z Interactive Brokers (historicke bary TRADES, useRTH=1, 1 min) pre burzu",
+    "MultiCharts (webapp emulator aj MultiCharts studia). Jeden riadok = jedna akcia; nacita ich",
+    "tradebot/core/types.py do INSTRUMENTS s venue=multicharts, source=ibkr a has_real_volume=true.",
+    "Sviecky vyraba `python -m tester.ibkr_import <parquet|csv.gz|adresar>` z exportu IBKR.",
+    "",
+    "Ceny su SPLIT-ADJUSTED (IBKR prepocita historiu po splite a zaokruhli na centy), dividendy nie.",
+    "Pred splitom je preto cena hrubsia, nez sa obchodovala (NVDA 2019: tick 0,01 = 0,23 % ceny).",
+    "Len RTH 9:30-16:00 New York; bary bez obchodu (IBKR ich vypcha s objemom 0) import vyhodi.",
+    "",
+    "Trh `futures` tu znamena len 'da sa shortovat a pacit' (marzovy ucet), nie futures kontrakt.",
+    "Bod = 1 akcia x 1 USD; qty = pocet akcii. NAKLAD NA STRANU v tickoch (0,01 USD): polovica",
+    "spreadu (Mag7 spread bezne 1 cent = 0,5 ticku) + provizia IBKR ~0,0035-0,005 USD/akcia",
+    "(0,35-0,5 ticku) = 1 tick. Pri vacsom objeme obchodu sa sklz zvacsi, z dat ho nevidno."
+  ],
+  "aapl_ibkr": {
+    "symbol": "AAPL/USD",
+    "source": "ibkr",
+    "tick_size": 0.01,
+    "point_value": 1.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "half_spread_ticks": 1.0,
+    "cost_note": "odhad: polovica spreadu 0,5 ticku + provizia IBKR ~0,5 ticku (0,005 $/akcia) = 1 tick (0,01 $) na stranu; spread z TRADES barov nevidno",
+    "note": "Apple (AAPL), NASDAQ, IBKR TRADES 1m len RTH, split-adjusted (split 4:1 2020-08-31), dividendy neupravene."
+  },
+  "msft_ibkr": {
+    "symbol": "MSFT/USD",
+    "source": "ibkr",
+    "tick_size": 0.01,
+    "point_value": 1.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "half_spread_ticks": 1.0,
+    "cost_note": "odhad: polovica spreadu 0,5 ticku + provizia IBKR ~0,5 ticku (0,005 $/akcia) = 1 tick (0,01 $) na stranu; spread z TRADES barov nevidno",
+    "note": "Microsoft (MSFT), NASDAQ, IBKR TRADES 1m len RTH, split-adjusted, dividendy neupravene."
+  },
+  "googl_ibkr": {
+    "symbol": "GOOGL/USD",
+    "source": "ibkr",
+    "tick_size": 0.01,
+    "point_value": 1.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "half_spread_ticks": 1.0,
+    "cost_note": "odhad: polovica spreadu 0,5 ticku + provizia IBKR ~0,5 ticku (0,005 $/akcia) = 1 tick (0,01 $) na stranu; spread z TRADES barov nevidno",
+    "note": "Alphabet trieda A (hlasovacia) (GOOGL), NASDAQ, IBKR TRADES 1m len RTH, split-adjusted (split 20:1 2022-07-18), dividendy neupravene."
+  },
+  "goog_ibkr": {
+    "symbol": "GOOG/USD",
+    "source": "ibkr",
+    "tick_size": 0.01,
+    "point_value": 1.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "half_spread_ticks": 1.0,
+    "cost_note": "odhad: polovica spreadu 0,5 ticku + provizia IBKR ~0,5 ticku (0,005 $/akcia) = 1 tick (0,01 $) na stranu; spread z TRADES barov nevidno",
+    "note": "Alphabet trieda C (bez hlasu) (GOOG), NASDAQ, IBKR TRADES 1m len RTH, split-adjusted (split 20:1 2022-07-18), dividendy neupravene."
+  },
+  "amzn_ibkr": {
+    "symbol": "AMZN/USD",
+    "source": "ibkr",
+    "tick_size": 0.01,
+    "point_value": 1.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "half_spread_ticks": 1.0,
+    "cost_note": "odhad: polovica spreadu 0,5 ticku + provizia IBKR ~0,5 ticku (0,005 $/akcia) = 1 tick (0,01 $) na stranu; spread z TRADES barov nevidno",
+    "note": "Amazon (AMZN), NASDAQ, IBKR TRADES 1m len RTH, split-adjusted (split 20:1 2022-06-06), dividendy neupravene."
+  },
+  "meta_ibkr": {
+    "symbol": "META/USD",
+    "source": "ibkr",
+    "tick_size": 0.01,
+    "point_value": 1.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "half_spread_ticks": 1.0,
+    "cost_note": "odhad: polovica spreadu 0,5 ticku + provizia IBKR ~0,5 ticku (0,005 $/akcia) = 1 tick (0,01 $) na stranu; spread z TRADES barov nevidno",
+    "note": "Meta Platforms (META), NASDAQ, IBKR TRADES 1m len RTH, split-adjusted, dividendy neupravene."
+  },
+  "nvda_ibkr": {
+    "symbol": "NVDA/USD",
+    "source": "ibkr",
+    "tick_size": 0.01,
+    "point_value": 1.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "half_spread_ticks": 1.0,
+    "cost_note": "odhad: polovica spreadu 0,5 ticku + provizia IBKR ~0,5 ticku (0,005 $/akcia) = 1 tick (0,01 $) na stranu; spread z TRADES barov nevidno",
+    "note": "NVIDIA (NVDA), NASDAQ, IBKR TRADES 1m len RTH, split-adjusted (splity 4:1 2021-07-20 a 10:1 2024-06-10), dividendy neupravene."
+  },
+  "tsla_ibkr": {
+    "symbol": "TSLA/USD",
+    "source": "ibkr",
+    "tick_size": 0.01,
+    "point_value": 1.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "half_spread_ticks": 1.0,
+    "cost_note": "odhad: polovica spreadu 0,5 ticku + provizia IBKR ~0,5 ticku (0,005 $/akcia) = 1 tick (0,01 $) na stranu; spread z TRADES barov nevidno",
+    "note": "Tesla (TSLA), NASDAQ, IBKR TRADES 1m len RTH, split-adjusted (splity 5:1 2020-08-31 a 3:1 2022-08-25), dividendy neupravene."
+  }
+}

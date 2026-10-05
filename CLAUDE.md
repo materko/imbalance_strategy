@@ -62,7 +62,8 @@ Bez obmedzení. Platia len konvencie repozitára:
   Surový export spracuje importér zdroja — `tester.dukas_import` pre Dukascopy CFD
   (obal `./dukas-import.sh`, `.\dukas-import.ps1`) a `tester.bento_import` pre Databento
   CME futures (`./bento-import.sh`; kontrakty → front-month podľa objemu, bez
-  back-adjustmentu): vyčistí, spraví feather v TF zdroja a rozdelí po rokoch do archívu;
+  back-adjustmentu) a `tester.ibkr_import` pre americké akcie z IBKR (`./ibkr-import.sh`;
+  čas New York → UTC, vypchávka s objemom 0 von): vyčistí, spraví feather v TF zdroja a rozdelí po rokoch do archívu;
   nič iné. ASCII pre QuoteManager robí `tester.quotemanager`
   zo skladu sviečok. Celá cesta dát: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md),
   podrobne [docs/DATA.md](docs/DATA.md).

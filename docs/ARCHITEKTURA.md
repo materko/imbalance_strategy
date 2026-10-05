@@ -76,7 +76,7 @@ flowchart LR
 ```
 
 * **Importér je jeden na zdroj** (`tester.dukas_import` pre Dukascopy CFD,
-  `tester.bento_import` pre Databento CME futures). Vždy: vyčistí surové dáta,
+  `tester.bento_import` pre Databento CME futures, `tester.ibkr_import` pre akcie z IBKR). Vždy: vyčistí surové dáta,
   spraví feather v tom timeframe, v akom zdroj je, rozdelí po rokoch, uloží do archívu.
 * **Burzové dáta** sa sťahujú priamo do skladu a do archívu idú cez `split`.
 * **`data/` sa nikdy necommituje.** Tester si ho pri prvom spustení vyrobí celý sám

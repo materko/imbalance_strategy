@@ -25,7 +25,7 @@ súbor — práve preto sa dajú porovnať). **Archív zrkadlí `data/` cestu za
 rokoch — `split` a `merge` sú preto obyčajné kopírovanie koreň na koreň a niet miesta, kde
 by sa cesty mohli rozísť.
 
-Zdroj je `binance`, `coinbase`, `dukascopy`; trh je `spot` alebo `futures`. Z cesty tak
+Zdroj je `binance`, `coinbase`, `dukascopy`, `databento`, `ibkr`; trh je `spot` alebo `futures`. Z cesty tak
 vidno, čo súbor obsahuje, bez otvárania.
 
 | zdroj | čo to je | ako pribudne |
@@ -34,6 +34,7 @@ vidno, čo súbor obsahuje, bez otvárania.
 | `coinbase` | BTC/USD spot, referenčný | to isté |
 | `dukascopy` | CFD (NAS100, forex, komodity) — 1m, UTC, bid strana | `./dukas-import.sh` (§B) |
 | `databento` | CME futures (MNQ) — 1m, UTC, burzový objem, front-month z kontraktov | `./bento-import.sh` (§B3) |
+| `ibkr` | americké akcie (Mag7) — 1m TRADES len RTH, split-adjusted, burzový objem | `./ibkr-import.sh` (§B4) |
 
 Ten istý strom čítajú **oba enginy**: Freqtrade dostane koreň cez `--datadir data/<zdroj>`,
 emulátor MultiCharts si berie 1m súbor odtiaľ istadiaľ. Preto sa dá krypto prehrať
@@ -43,7 +44,7 @@ emulátorom a Dukascopy cez Freqtrade — dáta v tom nebránia
 Podadresár `futures/` a príponu `-futures` v mene si Freqtrade drží natvrdo, pre spot
 nepridáva nič — preto mu `--datadir` podávame rôzne podľa trhu (pri futures o úroveň
 vyššie, pri spote priamo na `spot/`). Na disku je tým rozloženie súmerné. Trhy mimo burzy
-(Dukascopy, Databento) ležia v `futures/` **bez** prípony `-futures`; Freqtrade ich na burze
+(Dukascopy, Databento, IBKR) ležia v `futures/` **bez** prípony `-futures`; Freqtrade ich na burze
 Tester číta ako futures a príponu mu pre tieto páry vypne `tester.ftexchange`. Cesty počíta
 jedno miesto —
 [`tester/engines.py`](../tester/engines.py); korene sú v
@@ -336,6 +337,56 @@ z NAS100 profilov sedia 1:1 (ten istý podklad), ale tick a hodnota bodu sú in�
 v dolároch preto nie je ten istý.
 
 Prepínače: `--from` / `--to`, `--archive`, `--no-merge`.
+
+## B4. IBKR: americké akcie (Mag7), 1m TRADES len RTH
+
+Export historických barov z Interactive Brokers (TWS API `reqHistoricalData`,
+`whatToShow=TRADES`, `useRTH=1`, `1 min`), jeden symbol na súbor, meno začína symbolom.
+Import berie oba tvary, v akých to chodí:
+
+* **zlúčený** `AAPL_m1_2019_20261003.parquet` (alebo `.csv.gz`) — `dt` s časovou zónou
+  New York, `open, high, low, close, volume`;
+* **surové 2-mesačné bloky** `AAPL_201901_201903.parquet` + záplaty začiatkov blokov
+  (`min1_patch/`) — `dt` naivný čas New York, ceny `o, h, l, c`. Bloky sa prekrývajú,
+  duplicitné časy sa zlúčia (rozdielny obsah sa hlási ako konflikt).
+
+```powershell
+.\ibkr-import.ps1 C:\mag7\merged
+```
+```bash
+./ibkr-import.sh ~/mag7/merged
+./ibkr-import.sh ~/mag7/min1 ~/mag7/min1_patch --symbol NVDA   # zo surových blokov
+```
+
+Import (`tester.ibkr_import`) robí:
+
+1. **Čas New York → UTC** (naivný čas sa lokalizuje cez `America/New_York`;
+   nejednoznačný čas je chyba). RTH 9:30–16:00 ET je v UTC v zime 14:30–21:00,
+   v lete 13:30–20:00 — session filter profilu treba nastaviť podľa toho.
+2. **Vyhodí vypchávku**: minútu bez obchodu IBKR vyplní plochým barom s objemom 0
+   a cenou predošlého close. Rada má bary len tam, kde sa obchodovalo (ako Databento).
+3. Bar s nezmyselným OHLC do rady nejde, jeden čas je jeden bar.
+4. **Len hlási**: bary mimo RTH a cez víkend, ceny mimo mriežky ticku, najväčší skok
+   medzi dňami (nad 35 % varuje — neupravený split).
+
+Vlastnosti dát, ktoré import nemení:
+
+* **Split-adjusted, zaokrúhlené na centy.** IBKR históriu po splite prepočíta, takže
+  pred splitom je cena hrubšia, než sa obchodovala: NVDA 2019 (pred 4:1 a 10:1) má
+  tick 0,01 = 0,23 % ceny a 54 % plochých 1m barov; v 2024+ je to 0,005 %. Prahy
+  v bodoch sú preto naprieč rokmi nesúmerné — skoré roky NVDA/TSLA berte s rezervou.
+* **Dividendy nie sú v cenách** (pre intradenné stratégie jedno).
+* **Objem** je v akciách, burzový (TRADES), prepočítaný splitom → `has_real_volume=True`.
+* Spread v TRADES baroch nie je; náklad v registri je odhad (1 tick = 0,01 $ na stranu:
+  pol centového spreadu + provízia IBKR).
+
+Symbol musí byť v `tradebot/core/instruments_ibkr.json` (tick 0,01, bod 1 $ = 1 akcia,
+náklad v tickoch). Trh je `futures` len v zmysle „dá sa shortovať a páčiť" (maržový
+účet) — na spote by Tester shorty odmietol. V Testeri je to pár `AAPL/USD` (v ponuke
+`AAPL`) na „burze" MultiCharts, beh ide emulátorom. Ročné feathery sú v
+`data_archive/tester/ibkr/futures/`.
+
+Prepínače: `--symbol` (opakovateľný), `--from` / `--to`, `--archive`, `--no-merge`.
 
 ## B2. ASCII pre QuoteManager (MultiCharts)
 
