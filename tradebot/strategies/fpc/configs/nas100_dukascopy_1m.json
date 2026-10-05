@@ -1,0 +1,9 @@
+{
+  "_title": "NAS100 CFD 1m — FPC 1.0 podľa videa (ten istý podklad ako NQ, body sedia 1:1)",
+  "_strategy": "fpc",
+  "_instrument": "nas100_dukascopy",
+  "_timeframe": "1m",
+  "_comment": [
+    "To iste ako mnq_databento_1m na Dukascopy NAS100 (2021-2026). Filtre su vypnute."
+  ]
+}
