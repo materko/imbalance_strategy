@@ -1,13 +1,13 @@
 {
-  "_title": "MNQ futures 5m — prvy pullback k VWAP od 9:30 NY (z 15m) v smere driftu, RR 2",
+  "_title": "MNQ futures 5m — VWAP Session 1.0 presne podla videa: trend z 15m, prva sviecka proti trendu, long 80/40, short 80/50 bodov",
   "_strategy": "vwapdrift",
   "_instrument": "mnq_databento",
   "_timeframe": "5m",
   "_comment": [
-    "Vychodiskovy profil Drift VWAP Pullback (2026-09-28) podla videa IQCapital: MNQ 5m, VWAP od 9:30 NY",
-    "z 15m sviecok, drift = zmena VWAP za 2 periody (min. 0,1 ATR), odchod 1 ATR, prvy pullback,",
-    "vstup market na zavreti pullbackovej sviecky, stop za pullback + 0,25 ATR, ciel 2R, zatvorenie 15:55 NY.",
-    "Stop, ciel a prahy video neuvadza - su to odhady na prvy test, nie obchodne odporucanie."
+    "Vychodiskovy profil VWAP Session 1.0 (2026-10-02) presne podla videa Mattea Contiho (drift VWAP pullback):",
+    "VWAP od 9:30 NY z 15m sviecok; kazdych 15 min: cena nad VWAP, VWAP za 15 min stupa, cena za hodinu +0,1 % (short zrkadlovo);",
+    "spustac prva cervena (short zelena) 5m sviecka, market na otvoreni dalsej; long stop 80 / ciel 40 bodov, short 80 / 50;",
+    "prvu hodinu sa neobchoduje, najviac 4 obchody a 2 straty denne, ziadny novy obchod po 15:30, zatvorenie 15:55 NY."
   ],
   "tickDollarValue": 0.5
 }

@@ -111,7 +111,7 @@
         <label class="field">Do <input type="date" id="to"></label>
 
         <label class="field">Poplatok % / strana
-          <input type="number" id="fee" step="0.001" min="0" value="0.05" title="Poplatok burzy na jednu stranu. Binance taker berie 0,05 %.">
+          <input type="number" id="fee" step="0.001" min="0" value="" placeholder="podľa trhu" title="Poplatok na jednu stranu v %. Prázdne = náklad trhu: krypto 0,05 % (Binance taker), MNQ 1,5 ticku, 6E 1 tick, NAS100 1 tick (spread). Pri zmene páru sa vynuluje na náklad trhu.">
         </label>
         <label class="field">Počiatočný kapitál
           <input type="number" id="wallet" step="100" min="100" value="10000" title="Počiatočný zostatok účtu. Pri porovnaní s TradingView daj toľko, koľko má graf.">

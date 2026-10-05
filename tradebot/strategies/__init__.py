@@ -8,8 +8,12 @@ from __future__ import annotations
 
 from .base import StrategySpec
 from .breakout import SPEC as BREAKOUT_SPEC
+from .crt import SPEC as CRT_SPEC
 from .demo_breakout import SPEC as DEMO_SPEC
 from .divergence import SPEC as DIVERGENCE_SPEC
+from .fvgpolarity import SPEC as FVGPOLARITY_SPEC
+from .fibo import SPEC as FIBO_SPEC
+from .fpc import SPEC as FPC_SPEC
 from .gap import SPEC as GAP_SPEC
 from .ibs import SPEC as IBS_SPEC
 from .ibsnet import SPEC as IBSNET_SPEC
@@ -21,8 +25,10 @@ from .liquidity import SPEC as LIQUIDITY_SPEC
 from .orb import SPEC as ORB_SPEC
 from .orbnet import SPEC as ORBNET_SPEC
 from .range import SPEC as RANGE_SPEC
+from .scalp3ma import SPEC as SCALP3MA_SPEC
 from .sdzone import SPEC as SDZONE_SPEC
 from .structure import SPEC as STRUCTURE_SPEC
+from .svp import SPEC as SVP_SPEC
 from .trendlines import SPEC as TRENDLINES_SPEC
 from .vwapdrift import SPEC as VWAPDRIFT_SPEC
 from .vwapop import SPEC as VWAPOP_SPEC
@@ -49,6 +55,12 @@ STRATEGIES: dict[str, StrategySpec] = {
     VWAPOP_SPEC.key: VWAPOP_SPEC,
     VWAPORB_SPEC.key: VWAPORB_SPEC,
     JSS_SPEC.key: JSS_SPEC,
+    CRT_SPEC.key: CRT_SPEC,
+    SCALP3MA_SPEC.key: SCALP3MA_SPEC,
+    FIBO_SPEC.key: FIBO_SPEC,
+    SVP_SPEC.key: SVP_SPEC,
+    FVGPOLARITY_SPEC.key: FVGPOLARITY_SPEC,
+    FPC_SPEC.key: FPC_SPEC,
 }
 
 #: Staré kľúče -> dnešné. História behov, profily a odkazy z minulosti sa nemenia na disku;

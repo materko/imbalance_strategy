@@ -1,0 +1,77 @@
+{
+  "entryOrderType": "market",
+  "limitOffsetPct": 100,
+  "limitValidBars": 6,
+  "limitKeepRR": false,
+  "lineTF": "15",
+  "pivotLen": 4,
+  "anchorMode": "wick",
+  "lineSlope": "classic",
+  "maxPivots": 12,
+  "minTouches": 3,
+  "touchTolAtr": {
+    "value": 0.05,
+    "unit": "atr"
+  },
+  "minAnchorGap": 15,
+  "lineMaxAgeBars": 90,
+  "minSlopeAtr": 0.0,
+  "maxSlopeAtr": 0.3,
+  "tradeDirection": "Long only",
+  "entryMode": "close",
+  "breakBufferAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "retestMaxBars": 5,
+  "minClosePosPct": 75,
+  "maxTradesPerDay": 1,
+  "cooldownBars": 3,
+  "weekdaysOnly": false,
+  "useTradeWindow": false,
+  "tradeTZ": "America/New_York",
+  "tradeStartH": 8,
+  "tradeStartM": 45,
+  "tradeEndH": 16,
+  "tradeEndM": 0,
+  "slMode": "atr",
+  "atrLen": 10,
+  "slBufferAtr": {
+    "value": 0.4,
+    "unit": "atr"
+  },
+  "slAtrMult": {
+    "value": 0.75,
+    "unit": "atr"
+  },
+  "slLookback": 6,
+  "rrRatio": 1.0,
+  "enableTrailing": false,
+  "trailActivationR": 1.0,
+  "trailOffsetR": 0.5,
+  "maxHoldBars": 0,
+  "closeAtWindowEnd": false,
+  "riskDollar": 100.0,
+  "showLines": true,
+  "showPivots": false,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0.0,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "_strategy": "trendlines",
+  "_title": "Trendlines BTC RR 1:1: posl. rok 184 obch, 65.2 % WR, PF 1.88, +5596 (len stop a cieľ)",
+  "_comment": [
+    "Trendlines BTC RR 1:1: posl. rok 184 obch, 65.2 % WR, PF 1.88, +5596 (len stop a cieľ)",
+    "Predch. rok 24/25: 197 obch, 52.8 % WR",
+    "Testy 30.9.-1.10.2026, emulátor MultiCharts, BEZ nákladov, bez konca seansy a trailingu."
+  ],
+  "_instrument": "btcusdt_binance",
+  "_timeframe": "3m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

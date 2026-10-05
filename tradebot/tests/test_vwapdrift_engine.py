@@ -29,7 +29,8 @@ def bar(ts, c, rng=1.0, v=10.0, low=None, high=None) -> Bar:
 
 
 def engine(**kw) -> VwapDriftEngine:
-    base = dict(vwapPeriod=VwapPeriod.CHART, entryDelayMinutes=0)
+    base = dict(ruleSet="custom", vwapPeriod=VwapPeriod.CHART, entryDelayMinutes=0, entryWindowMinutes=0,
+                maxTradesPerDay=1)
     base.update(kw)
     return VwapDriftEngine(VwapDriftConfig(**base), BTCUSDT_BINANCE, 5)
 
@@ -371,3 +372,95 @@ def test_prerazenie_v_smere_dna_po_navrate_zdola():
     (intent,) = entries(out)
     assert intent.plan.direction is Direction.LONG and intent.reason == "prerazenie VWAP"
     assert e._state.breakouts == 1
+
+
+# --------------------------------------------------------------------------- #
+# pravidlá z videa (ruleSet = video)
+# --------------------------------------------------------------------------- #
+
+
+def vbar(i: int, o: float, c: float, low: float | None = None, high: float | None = None) -> Bar:
+    return Bar(time=OPEN_MS + i * STEP, open=o, high=max(o, c) + 0.01 if high is None else high,
+               low=min(o, c) - 0.01 if low is None else low, close=c, volume=10.0)
+
+
+def video(**kw) -> VwapDriftEngine:
+    e = VwapDriftEngine(VwapDriftConfig(**kw), BTCUSDT_BINANCE, 5)
+    warm(e)
+    return e
+
+
+def climb(e, n: int, start: float = 100.0, step: float = 0.05, first: int = 0, sign: int = 1):
+    """`n` sviečok v smere (`sign` +1 zelené hore, -1 červené dole); vráti (ďalší index, cena)."""
+    px = start
+    for i in range(first, first + n):
+        out = e.on_bar(vbar(i, px, px + sign * step), ctx=OKNO)
+        assert not entries(out), "sviečka v smere trendu nie je spúšťač"
+        px += sign * step
+    return first + n, px
+
+
+def test_video_defaulty():
+    cfg = VwapDriftConfig()
+    assert cfg.ruleSet.value == "video"
+    assert (cfg.slPointsLong.value, cfg.tpPointsLong.value) == (80, 40)
+    assert (cfg.slPointsShort.value, cfg.tpPointsShort.value) == (80, 50)
+    assert cfg.trendMovePct == 0.1 and cfg.trendLookbackMinutes == 60 and cfg.vwapRisePeriods == 1
+    assert cfg.entryDelayMinutes == 60 and cfg.entryWindowMinutes == 360     # 10:30 až 15:30
+    assert cfg.maxTradesPerDay == 4 and cfg.maxLossesPerDay == 2
+    assert cfg.end_minutes == 15 * 60 + 55 and cfg.closeAtSessionEnd
+
+
+def test_stary_profil_bez_ruleset_ostava_custom():
+    cfg = VwapDriftConfig.from_dict({"awayAtr": 1.0, "entryMode": "limit"})
+    assert cfg.ruleSet.value == "custom" and cfg.maxTradesPerDay == 1 and cfg.entryDelayMinutes == 15
+
+
+def test_video_long_prva_cervena_sviecka_po_prvej_hodine_stop_80_ciel_40():
+    e = video()
+    i, px = climb(e, 9)                                            # 9:30–10:15, trend hore
+    assert not entries(e.on_bar(vbar(i, px, px - 0.02), ctx=OKNO)), "červená o 10:15 — vstup by bol pred 10:30"
+    i, px = climb(e, 2, start=px - 0.02, first=i + 1)              # do 10:30, 15m otázka: áno
+    assert e._state.trend == 1
+    out = e.on_bar(vbar(i, px, px - 0.02), ctx=OKNO)               # 10:30–10:35 červená = spúšťač
+    o = entries(out)[0]
+    assert o.direction is Direction.LONG and o.order_type.value == "Market"
+    assert abs(o.plan.entry - (px - 0.02)) < 0.06          # zaokrúhlené na tick
+    assert abs(o.plan.entry - o.plan.stop_loss - 80) < 1e-6 and abs(o.plan.take_profit - o.plan.entry - 40) < 1e-6
+
+
+def test_video_short_prva_zelena_sviecka_stop_80_ciel_50():
+    e = video()
+    i, px = climb(e, 12, sign=-1)
+    assert e._state.trend == -1
+    o = entries(e.on_bar(vbar(i, px, px + 0.02), ctx=OKNO))[0]
+    assert o.direction is Direction.SHORT
+    assert abs(o.plan.stop_loss - o.plan.entry - 80) < 1e-6 and abs(o.plan.entry - o.plan.take_profit - 50) < 1e-6
+
+
+def test_video_bez_pohybu_ceny_o_desatinu_percenta_za_hodinu_nie_je_trend():
+    e = video()
+    i, px = climb(e, 12, step=0.005)                               # +0,06 % za hodinu
+    assert e._state.trend == 0
+    assert not entries(e.on_bar(vbar(i, px, px - 0.02), ctx=OKNO))
+
+
+def test_video_po_dvoch_stratach_sa_v_ten_den_konci():
+    e = video(slPointsLong=0.5, tpPointsLong=5.0)
+    i, px = climb(e, 12)
+    for n in range(2):
+        o = entries(e.on_bar(vbar(i, px, px - 0.02), ctx=OKNO))[0]
+        drzi = MarketContext(in_trade_window=True, position_size=1.0, open_order_ids=frozenset({o.order_id}))
+        e.on_bar(vbar(i + 1, px - 0.02, px + 0.05), ctx=drzi)
+        e.on_bar(vbar(i + 2, px + 0.05, px + 0.1, low=o.plan.stop_loss - 0.1), ctx=OKNO)   # stop zasiahnutý
+        assert e._state.losses == n + 1
+        i, px = climb(e, 3, start=px + 0.1, first=i + 3)           # ďalšia 15m otázka: stále trend
+    assert e._state.trend == 1
+    assert not entries(e.on_bar(vbar(i, px, px - 0.02), ctx=OKNO)), "po dvoch stratách už žiadny obchod"
+
+
+def test_video_po_okne_uz_ziadny_novy_obchod():
+    e = video(entryWindowMinutes=70)                               # vstup najneskôr 10:40
+    i, px = climb(e, 15)                                           # do 10:45
+    assert e._state.trend == 1
+    assert not entries(e.on_bar(vbar(i, px, px - 0.02), ctx=OKNO))

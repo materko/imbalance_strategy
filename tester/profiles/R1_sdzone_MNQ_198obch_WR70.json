@@ -1,0 +1,80 @@
+{
+  "baseMaxBars": 2,
+  "baseMaxBodyPct": 20,
+  "baseMaxWidthAtr": {
+    "value": 1.5,
+    "unit": "atr"
+  },
+  "impulseMinBodyAtr": {
+    "value": 0.6,
+    "unit": "atr"
+  },
+  "impulseMinBodyPct": 28,
+  "legOutMinAtr": {
+    "value": 0.0,
+    "unit": "atr"
+  },
+  "legOutMaxBars": 3,
+  "zoneMode": "wfz",
+  "patterns": "continuation",
+  "maxZoneAgeBars": 900,
+  "maxZones": 40,
+  "requireFresh": false,
+  "tradeDirection": "Both",
+  "entryMode": "reject",
+  "entryDepthPct": 2,
+  "maxTradesPerDay": 1,
+  "weekdaysOnly": true,
+  "useTrendFilter": true,
+  "trendMaLen": 250,
+  "useTradeWindow": true,
+  "tradeTZ": "America/New_York",
+  "tradeStartH": 2,
+  "tradeStartM": 45,
+  "tradeEndH": 13,
+  "tradeEndM": 0,
+  "slMode": "zone",
+  "atrLen": 14,
+  "slBufferAtr": {
+    "value": 0.188,
+    "unit": "atr"
+  },
+  "slAtrMult": {
+    "value": 3.0,
+    "unit": "atr"
+  },
+  "tpMode": "rr",
+  "rrRatio": 1.0,
+  "tpAtrMult": {
+    "value": 0.75,
+    "unit": "atr"
+  },
+  "enableTrailing": false,
+  "trailActivationR": 1.0,
+  "trailOffsetR": 0.5,
+  "maxHoldBars": 0,
+  "closeAtWindowEnd": false,
+  "riskDollar": 100.0,
+  "showZones": true,
+  "showPatterns": true,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0.1,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "_strategy": "sdzone",
+  "_title": "SD Zones MNQ RR 1:1: posl. rok 198 obch, 70.2 % WR, PF 2.48, +8418 (len stop a cieľ)",
+  "_comment": [
+    "SD Zones MNQ RR 1:1: posl. rok 198 obch, 70.2 % WR, PF 2.48, +8418 (len stop a cieľ)",
+    "Predch. rok 24/25: 202 obch, 43.6 % WR",
+    "Testy 30.9.-1.10.2026, emulátor MultiCharts, BEZ nákladov, bez konca seansy a trailingu."
+  ],
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

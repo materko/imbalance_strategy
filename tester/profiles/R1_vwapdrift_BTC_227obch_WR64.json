@@ -1,0 +1,88 @@
+{
+  "entryOrderType": "market",
+  "limitOffsetPct": 50,
+  "limitValidBars": 2,
+  "limitKeepRR": true,
+  "sessionStartH": 9,
+  "sessionStartM": 30,
+  "sessionEndH": 16,
+  "sessionEndM": 45,
+  "weekdaysOnly": true,
+  "vwapAnchor": "ny_open",
+  "vwapPeriod": "chart",
+  "driftBars": 2,
+  "driftMinAtr": {
+    "value": 0.3,
+    "unit": "atr"
+  },
+  "tradeDirection": "Short only",
+  "entryMode": "limit",
+  "stopValidBars": 3,
+  "confirmBars": 5,
+  "pbWickPct": 30,
+  "pbBodyPct": 44,
+  "awayAtr": {
+    "value": 0.5,
+    "unit": "atr"
+  },
+  "touchTolAtr": {
+    "value": 0.3,
+    "unit": "atr"
+  },
+  "failCloseAtr": {
+    "value": 1.0,
+    "unit": "atr"
+  },
+  "firstPullbackOnly": false,
+  "everyBounce": false,
+  "bounceAwayAtr": {
+    "value": 0.312,
+    "unit": "atr"
+  },
+  "maxBouncesPerDay": 2,
+  "tradeBreakout": true,
+  "breakoutAtr": {
+    "value": 0.125,
+    "unit": "atr"
+  },
+  "breakoutWithBias": true,
+  "maxBreakoutsPerDay": 1,
+  "entryDelayMinutes": 30,
+  "entryWindowMinutes": 180,
+  "maxTradesPerDay": 1,
+  "atrLen": 14,
+  "slMode": "vwap",
+  "slBufferAtr": {
+    "value": 0.5,
+    "unit": "atr"
+  },
+  "slAtr": {
+    "value": 0.75,
+    "unit": "atr"
+  },
+  "slSwingBars": 4,
+  "rrRatio": 1.0,
+  "closeAtSessionEnd": false,
+  "riskDollar": 100.0,
+  "showVwap": true,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0.1,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "_strategy": "vwapdrift",
+  "_title": "VWAP Session 1.0 BTC RR 1:1: posl. rok 227 obch, 64.3 % WR, PF 1.83, +6772 (len stop a cieľ)",
+  "_comment": [
+    "VWAP Session 1.0 BTC RR 1:1: posl. rok 227 obch, 64.3 % WR, PF 1.83, +6772 (len stop a cieľ)",
+    "Predch. rok 24/25: 231 obch, 51.5 % WR",
+    "Testy 30.9.-1.10.2026, emulátor MultiCharts, BEZ nákladov, bez konca seansy a trailingu."
+  ],
+  "_instrument": "btcusdt_binance",
+  "_timeframe": "3m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

@@ -10,6 +10,7 @@ from typing import Any
 
 __all__ = ["GROUPS", "PARAMS"]
 
+_GV = "🎬 Pravidla z videa"
 _G0 = "🕐 Seansa"
 _G1 = "📈 VWAP a drift"
 _G2 = "🚀 Vstup (pullback)"
@@ -21,10 +22,26 @@ _G6 = "🎨 Vizualizacia"
 _G7 = "🧩 Rozšírenia portu"
 
 #: Poradie skupín vo formulári.
-GROUPS: tuple[str, ...] = (_G0, _G1, _G2, _G2b, _G3, _G4, _G5, _G6, _G7)
+GROUPS: tuple[str, ...] = (_GV, _G0, _G1, _G2, _G2b, _G3, _G4, _G5, _G6, _G7)
 
 PARAMS: dict[str, dict[str, Any]] = {
     # ---- 🕐 Seansa ---------------------------------------------------- #
+    "ruleSet": dict(group=_GV, title="Pravidla",
+                    tooltip="video = presne pravidla z videa (Matteo Conti, drift VWAP pullback): kazdych 15 min "
+                            "otazka, ci je trend; spustac prva cervena (short: zelena) sviecka; stop a ciel v bodoch. "
+                            "custom = povodna rekonstrukcia - plati skupiny Vstup, Prerazenie, Stop loss a Ciel."),
+    "trendMovePct": dict(group=_GV, title="Trend: pohyb ceny (%)", step=0.05,
+                         tooltip="Cena sa za sledovany cas pohla v smere aspon o tolko percent. Video: 0,1 %."),
+    "trendLookbackMinutes": dict(group=_GV, title="Trend: za kolko minut",
+                                 tooltip="Sledovany cas pohybu ceny. Video: 60 minut (styri 15m sviecky)."),
+    "vwapRisePeriods": dict(group=_GV, title="Trend: VWAP stupa za (periody)",
+                            tooltip="VWAP je vyssie (short: nizsie) nez pred tolkymi periodami VWAP. Video: 1 = 15 minut."),
+    "slPointsLong": dict(group=_GV, title="Long: stop (body)", tooltip="Video: 80 bodov."),
+    "tpPointsLong": dict(group=_GV, title="Long: ciel (body)", tooltip="Video: 40 bodov."),
+    "slPointsShort": dict(group=_GV, title="Short: stop (body)", tooltip="Video: 80 bodov."),
+    "tpPointsShort": dict(group=_GV, title="Short: ciel (body)", tooltip="Video: 50 bodov."),
+    "maxLossesPerDay": dict(group=_GV, title="Max. strat za den",
+                            tooltip="Po tolkych stratovych obchodoch sa v ten den konci. Video: 2. 0 = bez stropu."),
     "sessionStartH": dict(
         group=_G0, title="Otvorenie seansy (H)",
         tooltip="Hodina otvorenia New York cash seansy v pasme America/New_York (standardne 9:30 NY). "
@@ -232,3 +249,17 @@ PARAMS: dict[str, dict[str, Any]] = {
         tooltip="Paka vo Freqtrade futures. Na MultiCharts bez ucinku.",
     ),
 }
+
+# ---- typ vstupu market / limit (spoločný pre stratégie mimo IBS, `tradebot.core.entry_order`) ---- #
+from tradebot.core.entry_confirm import entry_confirm_params  # noqa: E402
+from tradebot.core.entry_order import entry_order_params  # noqa: E402
+
+_GE = "🧾 Typ vstupu (market / limit)"
+GROUPS = GROUPS + (_GE,)
+PARAMS.update(entry_order_params(_GE))
+PARAMS.update(entry_confirm_params(_GE))
+
+# ---- filter trendu EMA (spoločný, `tradebot.core.entry_filter`) ---- #
+from tradebot.core.entry_filter import entry_filter_params  # noqa: E402
+
+PARAMS.update(entry_filter_params(_GE))

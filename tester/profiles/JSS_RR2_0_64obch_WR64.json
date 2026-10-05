@@ -1,0 +1,73 @@
+{
+  "structTF": 5,
+  "swingLen": 3,
+  "triggerMode": "both",
+  "atrLen": 14,
+  "zoneType": "ob",
+  "zoneEdge": "body",
+  "impulseAtr": {
+    "value": 0.75,
+    "unit": "atr"
+  },
+  "baseMaxBars": 2,
+  "zoneMinAtr": {
+    "value": 0.25,
+    "unit": "atr"
+  },
+  "zoneMaxAtr": {
+    "value": 2.0,
+    "unit": "atr"
+  },
+  "zoneMaxAgeBars": 12,
+  "entryModel": "pinbar",
+  "entryDepthPct": 0,
+  "confirmBars": 4,
+  "imbMinSizeAtr": {
+    "value": 0.05,
+    "unit": "atr"
+  },
+  "pbWickPct": 60,
+  "pbBodyPct": 30,
+  "tradeDirection": "Both",
+  "maxTradesPerDay": 2,
+  "cooldownBars": 12,
+  "weekdaysOnly": true,
+  "useTradeWindow": true,
+  "tradeTZ": "America/New_York",
+  "tradeStartH": 9,
+  "tradeStartM": 0,
+  "tradeEndH": 12,
+  "tradeEndM": 0,
+  "slBufferAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "slBufferPoints": {
+    "value": 20,
+    "unit": "abs"
+  },
+  "tpMode": "rr",
+  "rrRatio": 2.0,
+  "minRR": 1.5,
+  "maxHoldBars": 0,
+  "riskDollar": 100.0,
+  "showStructure": true,
+  "showZones": true,
+  "tickDollarValue": 0.5,
+  "legacyPineSizing": false,
+  "minSlDistance": 0.0,
+  "leverage": 1.0,
+  "_strategy": "jss",
+  "_instrument": "mnq_databento",
+  "_title": "JSS 1.0 (stop/cieľ): posl. rok 64 obch, 64.1 % WR, RR 2.0, reálny zisk:strata 2.00, PF 3.25, +7378 $",
+  "_comment": [
+    "JSS 1.0 (stop/cieľ): posl. rok 64 obch, 64.1 % WR, RR 2.0, reálny zisk:strata 2.00, PF 3.25, +7378 $",
+    "Predch. rok (24/25): 61 obch, 36.1 % WR, +1170 $",
+    "Bez konca seansy a trailingu, len stop a cieľ. Testy 28.-30.9.2026, emulátor MultiCharts, MNQ, BEZ nákladov, riziko 100 $/obchod (min. 1 kontrakt)."
+  ],
+  "_timeframe": "3m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

@@ -1,0 +1,10 @@
+$ emulator MultiCharts BTCUSDT.P 5m 20250904-20260904 (BTC_USDT_USDT-1m-futures.feather)
+predhistoria indikatorov z dat pred behom: likvidita 5m @5m 4000/4000, likvidita 240m @240m 123/123
+emulacia MultiCharts: 105120 barov 5m, 525600 1m, 0 HTF
+  20000/105120 barov, 25 obchodov
+  40000/105120 barov, 61 obchodov
+  60000/105120 barov, 97 obchodov
+  80000/105120 barov, 147 obchodov
+  100000/105120 barov, 175 obchodov
+hotovo: 184 obchodov, nerozhodnutelnych minut 0
+kresby: {'liq_sell': 5867, 'liq_event': 7572, 'liq_buy': 5887, 'liq_entry': 184}

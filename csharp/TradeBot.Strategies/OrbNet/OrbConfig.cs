@@ -23,6 +23,21 @@ namespace TradeBot.Strategies.OrbNet
 
     public enum OrbTpMode { Rr, Measured, Atr }
 
+    /// <summary>Typ vstupu (Python `tradebot.core.entry_order`): limitku z market vstupu robi obal v Python
+    /// adapteroch; C# engine vstupuje vzdy tak ako doteraz. Pole je tu kvoli zhode configu s Pythonom.</summary>
+    public enum OrbEntryOrderType { Market, Limit }
+
+    /// <summary>Vstupny model (Python `tradebot.core.entry_confirm`): potvrdenie vstupu svieckou robi obal v Python
+    /// adapteroch; C# engine vstupuje vzdy tak ako doteraz. Pole je tu kvoli zhode configu s Pythonom.</summary>
+    public enum OrbEntryConfirm { None, Imbalance, Pinbar, Any }
+
+    /// <summary>Filter trendu (Python `tradebot.core.entry_filter`): vstupy podla EMA filtruje obal v Python
+    /// adapteroch; C# engine vstupuje vzdy tak ako doteraz. Pole je tu kvoli zhode configu s Pythonom.</summary>
+    public enum OrbTrendFilter { Off, With, Against }
+
+    /// <summary>Filter volatility (Python `tradebot.core.entry_filter`) - tiez len kvoli zhode configu.</summary>
+    public enum OrbVolFilter { Off, Low, High }
+
     /// <summary>Jedna obchodna seansa - Python `SessionWindow` z configu ORB. Minuty su od polnoci
     /// v PASME seansy, nie v UTC - preto si kazda nesie svoje `Tz`.</summary>
     public sealed class OrbSession
@@ -115,6 +130,26 @@ namespace TradeBot.Strategies.OrbNet
         public SizeSpec minSlDistance = new SizeSpec(0.0, "pct");
         public double leverage = 1.0;
 
+        // ---- typ vstupu (market / limit) - spolocne pre strategie mimo IBS ----------
+        public OrbEntryOrderType entryOrderType = OrbEntryOrderType.Market;
+        public int limitOffsetPct = 50;
+        public int limitValidBars = 3;
+        public bool limitKeepRR = true;
+
+        // ---- vstupny model (potvrdenie svieckou IBS imbalance / pin bar) - spolocne ----
+        public OrbEntryConfirm entryConfirm = OrbEntryConfirm.None;
+        public int confirmBars = 3;
+        public double confirmImbMinAtr = 0.05;
+        public int confirmPbWickPct = 60;
+        public int confirmPbBodyPct = 30;
+
+        // ---- filter trendu (EMA) - spolocne ----
+        public OrbTrendFilter trendFilter = OrbTrendFilter.Off;
+        public int trendEmaLen = 200;
+        public int trendTF = 0;
+        public OrbVolFilter volFilter = OrbVolFilter.Off;
+        public int volLookback = 100;
+
         // -------------------------------------------------------------------- //
 
         /// <summary>Povodna jednotka velkostnych poli - hole cislo v JSON znamena tuto jednotku.</summary>
@@ -184,6 +219,22 @@ namespace TradeBot.Strategies.OrbNet
             if (t == typeof(double)) return Json.ToDouble(raw);
             if (t == typeof(double?)) return raw == null ? (double?)null : Json.ToDouble(raw);
             string s = (string)raw;
+            if (t == typeof(OrbEntryOrderType))
+                return s == "limit" ? OrbEntryOrderType.Limit : OrbEntryOrderType.Market;
+            if (t == typeof(OrbVolFilter))
+                return s == "low" ? OrbVolFilter.Low : s == "high" ? OrbVolFilter.High : OrbVolFilter.Off;
+            if (t == typeof(OrbTrendFilter))
+                return s == "with" ? OrbTrendFilter.With : s == "against" ? OrbTrendFilter.Against : OrbTrendFilter.Off;
+            if (t == typeof(OrbEntryConfirm))
+            {
+                switch (s)
+                {
+                    case "imbalance": return OrbEntryConfirm.Imbalance;
+                    case "pinbar": return OrbEntryConfirm.Pinbar;
+                    case "any": return OrbEntryConfirm.Any;
+                    default: return OrbEntryConfirm.None;
+                }
+            }
             if (t == typeof(OrbSessionMode))
             {
                 switch (s)

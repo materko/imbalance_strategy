@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from . import drawing as _drawing  # noqa: F401  — registrácia druhov kresieb musí byť prvá
 from ..base import StrategySpec
-from .config import (CONFIG_DIR, EntryMode, SlMode, TradeDirection, VwapAnchor, VwapDriftConfig,
+from .config import (CONFIG_DIR, EntryMode, RuleSet, SlMode, TradeDirection, VwapAnchor, VwapDriftConfig,
                      VwapPeriod)
 from .engine import VwapDriftEngine
 from .hyperopt import VwapDriftHyperopt
@@ -51,5 +51,5 @@ SPEC = StrategySpec(
     htf_feeder=None,
 )
 
-__all__ = ["SPEC", "VwapDriftConfig", "VwapDriftEngine", "VwapAnchor", "VwapPeriod", "EntryMode",
+__all__ = ["SPEC", "RuleSet", "VwapDriftConfig", "VwapDriftEngine", "VwapAnchor", "VwapPeriod", "EntryMode",
            "SlMode", "TradeDirection", "CONFIG_DIR"]

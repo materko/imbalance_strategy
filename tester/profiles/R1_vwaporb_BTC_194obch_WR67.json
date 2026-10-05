@@ -1,0 +1,113 @@
+{
+  "entryOrderType": "market",
+  "limitOffsetPct": 62,
+  "limitValidBars": 4,
+  "limitKeepRR": true,
+  "sessionMode": "ny",
+  "nyStartH": 9,
+  "nyStartM": 30,
+  "nyRangeMinutes": 45,
+  "nyEndH": 15,
+  "nyEndM": 45,
+  "lonStartH": 8,
+  "lonStartM": 45,
+  "lonRangeMinutes": 15,
+  "lonEndH": 9,
+  "lonEndM": 15,
+  "tradeDirection": "Both",
+  "entryMode": "close",
+  "breakBufferAtr": {
+    "value": 0.05,
+    "unit": "atr"
+  },
+  "retestMaxBars": 20,
+  "entryWindowMinutes": 240,
+  "maxTradesPerDay": 1,
+  "minRangePct": 0.0,
+  "maxRangePct": 2.5,
+  "useVolumeFilter": false,
+  "volSmaLen": 50,
+  "volMultiplier": 2.0,
+  "minClosePosPct": 2,
+  "weekdaysOnly": true,
+  "emaLen": 200,
+  "emaFilter": false,
+  "emaRangeFilter": false,
+  "emaExit": false,
+  "slMode": "break_candle",
+  "slRangePct": 12.5,
+  "atrLen": 14,
+  "slAtrMult": {
+    "value": 3.0,
+    "unit": "atr"
+  },
+  "slBufferAtr": {
+    "value": 0.2,
+    "unit": "atr"
+  },
+  "tpMode": "rr",
+  "rrRatio": 1.0,
+  "measuredMult": 1.0,
+  "tpAtrMult": {
+    "value": 2.0,
+    "unit": "atr"
+  },
+  "enableTrailing": false,
+  "trailActivationR": 1.0,
+  "trailOffsetR": 0.5,
+  "closeAtSessionEnd": false,
+  "riskDollar": 100.0,
+  "showRange": true,
+  "showLevels": true,
+  "showEma": false,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0.0,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "vwapAnchor": "session",
+  "vwapPeriod": "chart",
+  "vwapRule": "direction",
+  "entryTiming": "break_candle",
+  "vwapBreakAtr": {
+    "value": 1,
+    "unit": "atr"
+  },
+  "closeBeyondVwap": true,
+  "vwapDriftBars": 3,
+  "vwapDriftMinAtr": {
+    "value": 0.0,
+    "unit": "atr"
+  },
+  "exitMode": "tp",
+  "vwapExitAtr": {
+    "value": 1,
+    "unit": "atr"
+  },
+  "vwapStop": false,
+  "vwapStopAtr": {
+    "value": 1,
+    "unit": "atr"
+  },
+  "vwapTp": false,
+  "vwapTpAtr": {
+    "value": 0.0,
+    "unit": "atr"
+  },
+  "showVwap": true,
+  "_strategy": "vwaporb",
+  "_title": "VWAP ORB 1.5 BTC RR 1:1: posl. rok 194 obch, 67.0 % WR, PF 2.03, +6595 (len stop a cieľ)",
+  "_comment": [
+    "VWAP ORB 1.5 BTC RR 1:1: posl. rok 194 obch, 67.0 % WR, PF 2.03, +6595 (len stop a cieľ)",
+    "Predch. rok 24/25: 199 obch, 54.3 % WR",
+    "Testy 30.9.-1.10.2026, emulátor MultiCharts, BEZ nákladov, bez konca seansy a trailingu."
+  ],
+  "_instrument": "btcusdt_binance",
+  "_timeframe": "2m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

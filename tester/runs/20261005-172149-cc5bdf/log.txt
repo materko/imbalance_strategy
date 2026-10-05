@@ -1,0 +1,4 @@
+$ emulator MultiCharts MNQ 1m 20260817-20260904 (MNQ_USD-1m.feather)
+emulacia MultiCharts: 19320 barov 1m, 19320 1m, 0 HTF
+hotovo: 77 obchodov, nerozhodnutelnych minut 0
+kresby: {'fpc_window': 30, 'fpc_fair': 60, 'fpc_zone': 60, 'fpc_signal': 754, 'tp_box': 77, 'sl_box': 77, 'fpc_entry': 77, 'fpc_news': 2}

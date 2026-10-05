@@ -1,0 +1,10 @@
+$ emulator MultiCharts MGC 3m 20250904-20260904 (MGC_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: ADX/DMI 14/18 @60m 127/127
+emulacia MultiCharts: 117963 barov 3m, 353883 1m, 70778 HTF
+  20000/117963 barov, 20 obchodov
+  40000/117963 barov, 38 obchodov
+  60000/117963 barov, 96 obchodov
+  80000/117963 barov, 140 obchodov
+  100000/117963 barov, 164 obchodov
+hotovo: 184 obchodov, nerozhodnutelnych minut 0
+kresby: {'session': 2008, 'sd_zone_pre': 4655, 'sd_zone_post': 4655, 'adx_state': 5903, 'swing': 7513, 'structure': 6046, 'skip': 881, 'imb_box': 636, 'liq_sweep': 178, 'tp_box': 184, 'sl_box': 184, 'sr_level': 12, 'sr_golden': 2, 'elliott_wave': 6}

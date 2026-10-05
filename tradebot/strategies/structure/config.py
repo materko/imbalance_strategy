@@ -15,7 +15,13 @@ from pathlib import Path
 from typing import ClassVar, Iterable
 
 from tradebot.core.config import StrategyConfig
+from tradebot.core.entry_filter import (ENTRY_FILTER_CONSTRAINTS, ENTRY_FILTER_ENUMS, ENTRY_FILTER_FIELD_NAMES,
+                                        EntryFilterFields)
 from tradebot.core.types import SizeSpec, SizeUnit, TradeDirection
+from tradebot.core.entry_confirm import (ENTRY_CONFIRM_CONSTRAINTS, ENTRY_CONFIRM_ENUMS, ENTRY_CONFIRM_FIELD_NAMES,
+                                         EntryConfirmFields)
+from tradebot.core.entry_order import (ENTRY_ORDER_CONSTRAINTS, ENTRY_ORDER_ENUMS, ENTRY_ORDER_FIELD_NAMES,
+                                          EntryOrderFields)
 
 __all__ = ["StructureConfig", "EntryMode", "ExitMode", "SlMode", "SessionTZ", "CONFIG_DIR"]
 
@@ -90,13 +96,13 @@ PORT_ONLY_FIELDS: frozenset[str] = frozenset({"leverage"})
 
 
 @dataclass
-class StructureConfig(StrategyConfig):
+class StructureConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilterFields):
     """Defaulty = Pine defaulty."""
 
     SIZE_FIELDS: ClassVar[dict[str, SizeUnit]] = SIZE_FIELDS
-    ENUM_FIELDS: ClassVar[dict[str, type]] = ENUM_FIELDS
-    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = CONSTRAINTS
-    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS
+    ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_ORDER_ENUMS, **ENTRY_CONFIRM_ENUMS, **ENTRY_FILTER_ENUMS}
+    CONSTRAINTS: ClassVar[dict[str, tuple[float, float]]] = {**CONSTRAINTS, **ENTRY_ORDER_CONSTRAINTS, **ENTRY_CONFIRM_CONSTRAINTS, **ENTRY_FILTER_CONSTRAINTS}
+    PORT_ONLY_FIELDS: ClassVar[frozenset[str]] = PORT_ONLY_FIELDS | ENTRY_ORDER_FIELD_NAMES | ENTRY_CONFIRM_FIELD_NAMES | ENTRY_FILTER_FIELD_NAMES
 
     # ---- 🎯 Štruktúra ----------------------------------------------------- #
     swingLeft: int = 5

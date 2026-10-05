@@ -20,22 +20,46 @@ poradí, čo si smie stratégia určiť sama a kedy je hotová.
 
 | kľúč | názov | parametrov | na čo |
 |---|---|---|---|
-| `ibs` | IBS Imbalance Breakout | 115 | ostrá stratégia, golden testy proti TradingView |
-| `ibsnet` | IBSNet Imbalance Breakout (C# jadro) | 115 | prepis `ibs` do C# — natívne v NinjaTraderi, pod Freqtrade cez most; signály zhodné s `ibs` bar po bare ([NINJATRADER.md](NINJATRADER.md)) |
-| `structure` | Market Structure BOS / CHoCH | 18 | druhý archetyp (štruktúra, protitrendový `sweep`); [ANALYTIKA](../tradebot/strategies/structure/docs/ANALYTIKA.md) |
-| `demo_breakout` | Demo Donchian Breakout | 8 | ukážka, ktorá overuje rámec end-to-end; nie je to obchodné odporúčanie |
-| `divergence` | Divergence — divergencie indikátorov v smere supertrendu | 65 | port Freqtrade stratégie z r. 2022 (bez Pine); vyššie TF si skladá sama z barov grafu; [PORT](../tradebot/strategies/divergence/docs/PORT.md), [ANALYTIKA](../tradebot/strategies/divergence/docs/ANALYTIKA.md) |
-| `orb` | ORB — Opening Range Breakout | 49 | prvých 1–60 min seansy tvorí range, obchoduje sa jeho prerazenie; voliteľná EMA (filter smeru, filter dňa, výstup) |
-| `orbnet` | ORBNet Opening Range Breakout (C# jadro) | 49 | prepis `orb` do C# — natívne v NinjaTraderi, pod Freqtrade cez most; signály zhodné s `orb` bar po bare ([NINJATRADER.md](NINJATRADER.md)) |
-| `gap` | Gap Fill | 34 | otvárací gap a jeho zatvorenie |
-| `range` | Range Breakout | 42 | konsolidácia kdekoľvek na grafe a jej prerazenie; [ANALYTIKA](../tradebot/strategies/range/docs/ANALYTIKA.md) |
-| `sdzone` | SD Zones | 44 | dopyt/ponuka zo základne a impulzu (Skorupinski); [ANALYTIKA](../tradebot/strategies/sdzone/docs/ANALYTIKA.md) |
-| `breakout` | Breakout — prerazenie prvej sviečky NY openu | 32 | najmenšia z ostrých: dve úrovne z prvej 5m sviečky 9:30 NY, vstup na 1m/2m/3m grafe market alebo limitkou; [ANALYTIKA](../tradebot/strategies/breakout/docs/ANALYTIKA.md) |
-| `trendlines` | Trendlines — prerazenie trendovky | 46 | klasické trendovky cez pivoty na vlastnom TF (5m–4h), prerazenie zatvorením, druhým zatvorením alebo retestom; RR a smer nastaviteľné |
-| `liquidity` | Liquidity — likvidita, sweep a cesta k nej | 50 | likvidita zo swingov na viacerých TF (5m–4h), rovnaké vrcholy zlúčené; sweep alebo prerazenie, vstup IBS imbalance / pin bar, cieľ RR alebo ďalšia likvidita |
-| `vwapdrift` | VWAP Session 1.0 (Drift VWAP Pullback) | 42 | VWAP od 9:30 NY (alebo klasický od 18:00 / 00:00 UTC) z 15m, drift = sklon VWAP, prvý pullback; vstup close / limit / stop / reakčná sviečka / pin bar / engulfing, stop za pullback / pod vstupnú sviečku / VWAP / ATR / swing; smer dňa = posledný jasný drift; prepínače každý odraz a prerazenie VWAP; VWAP je v jadre (`tradebot/core/vwap.py`); [ANALYTIKA](../tradebot/strategies/vwapdrift/docs/ANALYTIKA.md) |
-| `vwaporb` | VWAP ORB 1.5 | 54 | ORB z New York rangu (od 9:30 NY = 15:30 SEČ); vstup, keď VWAP (od 9:30 NY) prerazí nad high rangu (pod low) a zároveň je tam aj cena, alebo (`vwapRule=direction`) cena prerazí range a VWAP smeruje rovnako; market, stop na opačnej strane rangu, RR alebo držať, kým cena neprerazí VWAP proti obchodu; vstup aj len na prerazovacej sviečke; stop aj na dotyk VWAP; TP na cross VWAP v zisku; logika je ORB (`logic_of="orb"`), vlastná je podmienka VWAP |
-| `jss` | JSS 1.0 — BOS a SD zóna | 40 | BOS / CHoCH na TF štruktúry (skladá sa z grafu), SD zóna na začiatku nohy, ktorá swing prerazila (posledná opačná sviečka / báza pred impulzom); prvý návrat: limitka na hranu zóny alebo IBS imbalance / pin bar na grafe (nižší TF); stop za zónou (+ATR, +body), cieľ RR alebo extrém nohy |
+| `ibs` | IBS Imbalance Breakout | 128 | ostrá stratégia, golden testy proti TradingView |
+| `ibsnet` | IBSNet Imbalance Breakout (C# jadro) | 128 | prepis `ibs` do C# — natívne v NinjaTraderi, pod Freqtrade cez most; signály zhodné s `ibs` bar po bare ([NINJATRADER.md](NINJATRADER.md)) |
+| `structure` | Market Structure BOS / CHoCH | 33 | druhý archetyp (štruktúra, protitrendový `sweep`); [ANALYTIKA](../tradebot/strategies/structure/docs/ANALYTIKA.md) |
+| `demo_breakout` | Demo Donchian Breakout | 23 | ukážka, ktorá overuje rámec end-to-end; nie je to obchodné odporúčanie |
+| `divergence` | Divergence — divergencie indikátorov v smere supertrendu | 79 | port Freqtrade stratégie z r. 2022 (bez Pine); vyššie TF si skladá sama z barov grafu; [PORT](../tradebot/strategies/divergence/docs/PORT.md), [ANALYTIKA](../tradebot/strategies/divergence/docs/ANALYTIKA.md) |
+| `orb` | ORB — Opening Range Breakout | 63 | prvých 1–60 min seansy tvorí range, obchoduje sa jeho prerazenie; voliteľná EMA (filter smeru, filter dňa, výstup) |
+| `orbnet` | ORBNet Opening Range Breakout (C# jadro) | 63 | prepis `orb` do C# — natívne v NinjaTraderi, pod Freqtrade cez most; signály zhodné s `orb` bar po bare ([NINJATRADER.md](NINJATRADER.md)) |
+| `gap` | Gap Fill | 48 | otvárací gap a jeho zatvorenie |
+| `range` | Range Breakout | 56 | konsolidácia kdekoľvek na grafe a jej prerazenie; [ANALYTIKA](../tradebot/strategies/range/docs/ANALYTIKA.md) |
+| `sdzone` | SD Zones | 54 | dopyt/ponuka zo základne a impulzu (Skorupinski); [ANALYTIKA](../tradebot/strategies/sdzone/docs/ANALYTIKA.md) |
+| `breakout` | Breakout — prerazenie prvej sviečky NY openu | 42 | najmenšia z ostrých: dve úrovne z prvej 5m sviečky 9:30 NY, vstup na 1m/2m/3m grafe market alebo limitkou; [ANALYTIKA](../tradebot/strategies/breakout/docs/ANALYTIKA.md) |
+| `trendlines` | Trendlines — prerazenie trendovky | 57 | klasické trendovky cez pivoty na vlastnom TF (5m–4h), prerazenie zatvorením, druhým zatvorením alebo retestom; RR a smer nastaviteľné |
+| `liquidity` | Liquidity — likvidita, sweep a cesta k nej | 55 | likvidita zo swingov na viacerých TF (5m–4h), rovnaké vrcholy zlúčené; sweep alebo prerazenie, vstup IBS imbalance / pin bar, cieľ RR alebo ďalšia likvidita |
+| `vwapdrift` | VWAP Session 1.0 (Drift VWAP Pullback) | 64 | VWAP od 9:30 NY (alebo klasický od 18:00 / 00:00 UTC) z 15m, drift = sklon VWAP, prvý pullback; vstup close / limit / stop / reakčná sviečka / pin bar / engulfing, stop za pullback / pod vstupnú sviečku / VWAP / ATR / swing; smer dňa = posledný jasný drift; prepínače každý odraz a prerazenie VWAP; VWAP je v jadre (`tradebot/core/vwap.py`); [ANALYTIKA](../tradebot/strategies/vwapdrift/docs/ANALYTIKA.md) |
+| `vwaporb` | VWAP ORB 1.5 | 78 | ORB z New York rangu (od 9:30 NY = 15:30 SEČ); vstup, keď VWAP (od 9:30 NY) prerazí nad high rangu (pod low) a zároveň je tam aj cena, alebo (`vwapRule=direction`) cena prerazí range a VWAP smeruje rovnako; market, stop na opačnej strane rangu, RR alebo držať, kým cena neprerazí VWAP proti obchodu; vstup aj len na prerazovacej sviečke; stop aj na dotyk VWAP; TP na cross VWAP v zisku; logika je ORB (`logic_of="orb"`), vlastná je podmienka VWAP |
+| `jss` | JSS 1.0 — BOS a SD zóna | 56 | BOS / CHoCH na TF štruktúry (skladá sa z grafu), SD zóna na začiatku nohy, ktorá swing prerazila (posledná opačná sviečka / báza pred impulzom); prvý návrat: limitka na hranu zóny alebo IBS imbalance / pin bar na grafe (nižší TF); stop za zónou (+ATR, +body), cieľ RR alebo extrém nohy |
+| `crt` | CRT + TBS 1.0 | 50 | Candle Range Theory s Turtle Body Soup: sviečka vyššieho TF (4h, skladá sa z grafu) je range, ďalšia jednu stranu vyberie (telom / knôtom), po návrate do rangu vstup model 1 / CISD / MSS + FVG; stop za extrém výberu, cieľ stred alebo opačný koniec rangu alebo RR |
+| `scalp3ma` | Scalping 3MA + RSI + fraktál 1.0 | 47 | podľa videa Money Knowledge: trend podľa troch SMMA (20 / 60 / 200), RSI nad / pod 50, Williamsov fraktál ako potvrdenie; stop v bodoch (5 pipov) / ATR / za fraktál, cieľ RR 2, posun stopu na vstup, výstup pri RSI cez 50 |
+| `fibo` | Fibo 1.0 | 50 | podľa videa The Trading Geek: noha (impulz) medzi swingmi na vlastnom TF, návrat k úrovniam 38,2 / 50 / 61,8 / 78,6 % (zóna alebo pri úrovni), vstup IBS imbalance / pin bar na grafe, stop za začiatok nohy alebo za extrém návratu, cieľ extenzia −27 % / −61,8 % alebo RR; hrubý základ pre väčšiu stratégiu |
+| `fpc` | FPC 1.0 — férová cena | 76 | podľa rozhovoru Chart Fanatics s JJ Simonom (Fair Pricing Theory), NQ / MNQ na 1m grafe: férová cena = open prvej sviečky okna (NY 9:30 a 14:00, voliteľne Ázia a Londýn, 90 min), v deň správy o 8:30 (skok sviečky) cena pred správou; prvý obchod okna pokračovanie v smere otváracej sviečky (prvých 5 min, bias = opak pohybu za 8 h), ďalšie návraty k férovej cene na displacement alebo prieraz štruktúry, keď je k nej aspoň 80 % cieľa; 38 / 25 bodov (cieľ aj na férovej cene), 3 straty po sebe ukončia okno; šesť filtrov na zapnutie (trendový deň cez VWAP okna, max. vzdialenosť, pauza po strate, oneskorenie návratov, pevná štruktúra, smer biasu) |
+| `svp` | Volume Profile POC 1.0 | 58 | seansový volume profile New York seansy z barov grafu (POC, value area); úroveň = POC predošlej seansy alebo vyvíjajúci sa; pod POC short a nad POC long na dotyk (limitka alebo IBS imbalance / pin bar), retest po prerazení POC zavretím; stop ATR / body, cieľ RR alebo hrana value area; voliteľne Fibonacci ako konfluencia (POC v pásme návratu nohy, stop za nohu, cieľ na extenzii) |
+
+### Spoločné polia vstupu — má ich mať každá stratégia
+
+Každá stratégia má **typ vstupu** (market / limit) a **vstupné modely IBS imbalance a pin bar**. Kto ich nemá
+vlastné, dostane ich mixinom configu a obalom enginu — logika stratégie ani jej parita sa nemení a default
+je vždy „tak, ako to robí stratégia":
+
+| čo | modul | polia | kto ho nemá a prečo |
+|---|---|---|---|
+| typ vstupu | `tradebot/core/entry_order.py` | `entryOrderType`, `limitOffsetPct`, `limitValidBars`, `limitKeepRR` | IBS a odnože (`pbEngOrderType`), `breakout` (`orderType`), `sdzone` (`entryMode`), `liquidity` (`entryOrder`) — majú vlastný |
+| vstupný model | `tradebot/core/entry_confirm.py` | `entryConfirm` (none / imbalance / pinbar / any), `confirmBars`, `confirmImbMinAtr`, `confirmPbWickPct`, `confirmPbBodyPct` | IBS a odnože, `jss`, `fibo`, `svp`, `liquidity` — majú vlastný `entryModel` |
+| filter trendu a volatility | `tradebot/core/entry_filter.py` | `trendFilter` (off / with / against), `trendEmaLen`, `trendTF`, `volFilter` (off / low / high), `volLookback` | IBS a odnože, `liquidity` — majú vlastný |
+
+Obaly nasadzujú oba runnery (`wrap_entry_order(wrap_entry_confirm(wrap_entry_filter(engine)))`): filter trendu pustí vstup len na správnej strane EMA, market vstup stratégie sa podrží do
+potvrdzovacej sviečky (stop ostáva, cieľ na rovnaký RR, veľkosť na rovnaké riziko) a potom sa dá poslať aj limitkou.
+Stratégia s jadrom v C# nesie tie isté polia v configu (`OrbConfig.cs`) kvôli zhode; obal beží v Pythone.
+Nová stratégia: pridaj všetky tri mixiny do configu a `entry_order_params` / `entry_confirm_params` /
+`entry_filter_params` do `params.py` (strážia `tradebot/tests/test_entry_confirm.py`, `test_entry_filter.py`).
+
 
 `demo_breakout` je zámerne malá a zámerne **úplná**: má všetko, čo tento návod vyžaduje,
 takže sa dá kopírovať riadok po riadku. Keď si vyberáš vzor, ber ju — IBS je port

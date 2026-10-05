@@ -1,0 +1,103 @@
+{
+  "liqUse5m": true,
+  "liqUse15m": false,
+  "liqUse30m": false,
+  "liqUse60m": true,
+  "liqUse240m": false,
+  "liqPivotLen": 5,
+  "liqMinDispAtr": {
+    "value": 1.125,
+    "unit": "atr"
+  },
+  "liqEqualTolAtr": {
+    "value": 0.112,
+    "unit": "atr"
+  },
+  "liqMaxAgeHours": 30,
+  "liqMinStrength": 1,
+  "liqMinAgeBars": 1,
+  "tradeMode": "sweep",
+  "tradeDirection": "Long only",
+  "breakBufferAtr": {
+    "value": 0.3,
+    "unit": "atr"
+  },
+  "sweepBars": 1,
+  "sweepMinDepthAtr": {
+    "value": 0.0,
+    "unit": "atr"
+  },
+  "sweepMaxDepthAtr": {
+    "value": 2,
+    "unit": "atr"
+  },
+  "sweepVolMult": 0.0,
+  "entryModel": "any",
+  "entryOrder": "limit",
+  "setupMaxBars": 4,
+  "entryMaxDistAtr": {
+    "value": 2.0,
+    "unit": "atr"
+  },
+  "imbMinSizeAtr": {
+    "value": 0.15,
+    "unit": "atr"
+  },
+  "pbWickPct": 75,
+  "pbBodyPct": 15,
+  "maxTradesPerDay": 6,
+  "cooldownBars": 6,
+  "weekdaysOnly": false,
+  "useTradeWindow": false,
+  "trendFilter": "off",
+  "trendEmaLen": 50,
+  "tradeTZ": "America/New_York",
+  "tradeStartH": 0,
+  "tradeStartM": 30,
+  "tradeEndH": 13,
+  "tradeEndM": 15,
+  "slMode": "level",
+  "atrLen": 4,
+  "slBufferAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "slAtrMult": {
+    "value": 1.5,
+    "unit": "atr"
+  },
+  "slLookback": 15,
+  "tpMode": "rr",
+  "rrRatio": 1.0,
+  "minRR": 1.0,
+  "maxRR": 5.0,
+  "tpOffsetAtr": {
+    "value": 0.0,
+    "unit": "atr"
+  },
+  "maxHoldBars": 0,
+  "riskDollar": 100.0,
+  "showLevels": true,
+  "showEvents": true,
+  "showOnlyQuality": false,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0.0,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "_strategy": "liquidity",
+  "_title": "Liquidity MGC RR 1:1: posl. rok 194 obch, 64.4 % WR, PF 1.89, +7528 (len stop a cieľ)",
+  "_comment": [
+    "Liquidity MGC RR 1:1: posl. rok 194 obch, 64.4 % WR, PF 1.89, +7528 (len stop a cieľ)",
+    "Predch. rok 24/25: 213 obch, 54.5 % WR",
+    "Testy 30.9.-1.10.2026, emulátor MultiCharts, BEZ nákladov, bez konca seansy a trailingu."
+  ],
+  "_instrument": "mgc_databento",
+  "_timeframe": "5m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

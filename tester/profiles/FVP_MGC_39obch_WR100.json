@@ -1,0 +1,40 @@
+{
+  "entryOrderType": "limit",
+  "limitOffsetPct": 100,
+  "limitValidBars": 1,
+  "limitKeepRR": true,
+  "fvgMinSize": {
+    "value": 0.2,
+    "unit": "abs"
+  },
+  "fvgMaxSize": {
+    "value": 1,
+    "unit": "abs"
+  },
+  "tradeDirection": "Long only",
+  "slPoints": {
+    "value": 50,
+    "unit": "abs"
+  },
+  "tpLevel": "near",
+  "atrLen": 14,
+  "riskDollar": 100.0,
+  "showFvg": true,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": 0.0,
+  "leverage": 1.0,
+  "_strategy": "fvgpolarity",
+  "_title": "FVG POLARITY MGC: posl. rok 39 obch, 100.0 % WR, zisk:strata 9.00 R, PF 2530.19, +2530",
+  "_comment": [
+    "FVG POLARITY MGC: posl. rok 39 obch, 100.0 % WR, zisk:strata 9.00 R, PF 2530.19, +2530",
+    "Predch. rok 24/25: 63 obch, 96.8 % WR, +312",
+    "Testy 1.-2.10.2026, emulátor MultiCharts, BEZ nákladov."
+  ],
+  "_instrument": "mgc_databento",
+  "_timeframe": "30m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

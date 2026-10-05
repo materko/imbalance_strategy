@@ -13,7 +13,9 @@ Priebeh:
   3. **vstup** — len pri prvom návrate do zóny: limitka na hranu (`touch`, `entryDepthPct`
      do hĺbky), alebo po dotyku IBS imbalance / pin bar na grafe do `confirmBars` barov.
      Zóna končí dotykom (potom sa už neobchoduje), zavretím za protiľahlou hranou alebo vekom.
-  4. **SL** za protiľahlou hranou zóny (+ `slBufferAtr`), **TP** RR alebo extrém nohy BOS.
+  4. **SL** za protiľahlou hranou zóny (+ `slBufferAtr`), **TP** RR, extrém nohy BOS alebo jej extenzia.
+  5. **Fibonacci** (`useFibo`): cez nohu BOS (100 % = začiatok, 0 % = extrém od BOS po návrat do zóny)
+     sa natiahne fibo; zóna sa obchoduje, len keď vstup leží medzi `fibMinPct` a `fibMaxPct` návratu.
 
 Engine je čistý: žiadne I/O, žiadny globálny stav.
 """
@@ -33,8 +35,8 @@ from tradebot.core.risk import TradePlan
 from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
 from tradebot.core.warmup import Warmup
 
-from .config import EntryModel, JssConfig, TpMode, TriggerMode, ZoneEdge, ZoneType
-from .drawing import JSS_BOS, JSS_CHOCH, JSS_ENTRY, JSS_ZONE
+from .config import EntryModel, JssConfig, SlFrom, TpMode, TriggerMode, ZoneEdge, ZoneType
+from .drawing import JSS_BOS, JSS_CHOCH, JSS_ENTRY, JSS_FIB, JSS_REFINE, JSS_ZONE
 
 __all__ = ["JssEngine", "StructAggregator"]
 
@@ -106,7 +108,13 @@ class _Zone:
     born_idx: int     #: index baru štruktúry, na ktorom vznikla (BOS)
     target: float     #: extrém nohy BOS (cieľ pri tpMode=structure)
     uid: int
+    htf_top: float = 0.0    #: zóna TF štruktúry (pri upresnení je top/bot zóna nižšieho TF)
+    htf_bot: float = 0.0
+    refined: bool = False
+    ref_start_ms: int = 0
     touched_idx: int = -1   #: index baru grafu prvého dotyku
+    leg_start: float = 0.0  #: začiatok nohy BOS (Fibonacci 100 %)
+    leg_end: float = 0.0    #: koniec nohy (Fibonacci 0 %) — extrém od BOS, kým sa cena nevráti do zóny
 
     @property
     def near(self) -> float:
@@ -117,6 +125,15 @@ class _Zone:
         """Cena vstupu `depth_pct` % do hĺbky zóny od bližšej hrany."""
         h = (self.top - self.bot) * depth_pct / 100.0
         return self.bot + h if self.direction is Direction.SHORT else self.top - h
+
+    def retrace(self, price: float) -> float:
+        """Koľko percent nohy BOS je `price` vrátená (0 = koniec nohy, 100 = jej začiatok)."""
+        size = self.leg_end - self.leg_start
+        return (self.leg_end - price) / size * 100.0 if size != 0 else 0.0
+
+    def fib(self, pct: float) -> float:
+        """Cena Fibonacciho úrovne `pct` % (záporné = extenzia za koniec nohy)."""
+        return self.leg_end - pct / 100.0 * (self.leg_end - self.leg_start)
 
     @property
     def far(self) -> float:
@@ -138,6 +155,15 @@ class JssEngine:
             tf = -(-max(tf, self.chart_tf_minutes) // self.chart_tf_minutes) * self.chart_tf_minutes
         self.struct_tf = tf
         self.agg = StructAggregator(tf, self.chart_tf_minutes)
+        # upresnenie vstupu zónou nižšieho TF (napr. 4h zóna -> 15m zóna v nej); len keď je nižší než
+        # štruktúra a dá sa poskladať z grafu, inak sa obchoduje priamo zóna TF štruktúry
+        rtf = int(cfg.refineTF)
+        self.ragg: StructAggregator | None = None
+        if 0 < rtf < tf and rtf >= self.chart_tf_minutes and rtf % self.chart_tf_minutes == 0:
+            self.ragg = StructAggregator(rtf, self.chart_tf_minutes)
+        self.rbars: deque[Bar] = deque(maxlen=4000)
+        self.r_atr = 0.0
+        self._r_seed: list[float] = []
         n = int(cfg.swingLen)
         self.sbars: deque[Bar] = deque(maxlen=max(400, 2 * n + 10))
         self.s_idx = -1
@@ -154,6 +180,8 @@ class JssEngine:
 
         self.warmup = Warmup(self.chart_tf_minutes).add(f"ATR {cfg.atrLen}", int(cfg.atrLen) + 8)
         self.warmup.add_seeded(f"štruktúra {tf}m", 2 * n + int(cfg.atrLen) + 60, tf, self._seed)
+        if self.ragg is not None:
+            self.warmup.add_seeded(f"upresnenie {rtf}m", min(4000, (2 * n + 60) * tf // rtf), rtf, self._seed_refine)
         self.required_history = self.warmup.chart_bars
         self.history = BarHistory(maxlen=max(self.required_history, 8) + 16, atr_len=int(cfg.atrLen))
 
@@ -176,6 +204,22 @@ class JssEngine:
             self._on_struct(b, None)
         self._seeding = False
         self.agg.prime(partial)
+
+    def _seed_refine(self, bars, partial: Bar | None) -> None:
+        for b in bars:
+            self._on_refine(b)
+        self.ragg.prime(partial)
+
+    def _on_refine(self, b: Bar) -> None:
+        prev = self.rbars[-1] if self.rbars else None
+        tr = b.high - b.low if prev is None else max(b.high - b.low, abs(b.high - prev.close), abs(b.low - prev.close))
+        if self.r_atr > 0:
+            self.r_atr += (tr - self.r_atr) / int(self.cfg.atrLen)
+        else:
+            self._r_seed.append(tr)
+            if len(self._r_seed) >= int(self.cfg.atrLen):
+                self.r_atr = sum(self._r_seed) / len(self._r_seed)
+        self.rbars.append(b)
 
     def _update_atr(self, b: Bar) -> None:
         prev = self.sbars[-1] if self.sbars else None
@@ -237,61 +281,103 @@ class JssEngine:
             self._draw_zone(out, self.zone, b.time)   # nový BOS nahradí starú zónu
         self.zone = zone
 
-    def _find_zone(self, d: Direction, sw: _Swing, b: Bar) -> _Zone | None:
-        """SD zóna na začiatku nohy, ktorá swing `sw` prerazila."""
+    def _zone_in(self, seg: list[Bar], up: bool, atr: float) -> tuple[list[Bar], int, int] | None:
+        """Zóna v úseku sviečok: od extrému proti smeru prvá impulzná sviečka v smere, zóna pred ňou.
+        Vráti (sviečky zóny, index začiatku nohy, index impulzu) alebo None."""
         cfg = self.cfg
-        atr = self.s_atr
-        if atr <= 0:
+        if len(seg) < 2 or atr <= 0:
             return None
-        up = d is Direction.LONG
-        first = max(sw.idx, self.s_idx - len(self.sbars) + 1)
-        seg = [(i, self._sbar(i)) for i in range(first, self.s_idx + 1)]
-        seg = [(i, x) for i, x in seg if x is not None]
-        if len(seg) < 2:
-            return None
-        # začiatok nohy: extrém proti smeru medzi prerazeným swingom a prerazením
-        o_i, o_bar = (min(seg, key=lambda t: t[1].low) if up else max(seg, key=lambda t: t[1].high))
-        leg = [(i, x) for i, x in seg if i >= o_i]
+        o = min(range(len(seg)), key=lambda k: seg[k].low) if up else max(range(len(seg)), key=lambda k: seg[k].high)
         imp_min = cfg.impulseAtr.value * atr
-        j = None
-        for i, x in leg:
-            body = x.close - x.open
-            if (body if up else -body) >= imp_min:
-                j = i
-                break
+        j = next((k for k in range(o, len(seg)) if ((seg[k].close - seg[k].open) if up else (seg[k].open - seg[k].close)) >= imp_min), None)
         if j is None:
             return None
-        before = [(i, x) for i, x in leg if i < j] or [(o_i, o_bar)]
+        before = seg[o:j] or [seg[o]]
         opposite = (lambda x: x.close < x.open) if up else (lambda x: x.close > x.open)
         if cfg.zoneType is ZoneType.OB:
-            cand = [t for t in before if opposite(t[1])]
+            cand = [x for x in before if opposite(x)]
             zb = [cand[-1] if cand else before[-1]]
         else:
             zb = before[-int(cfg.baseMaxBars):]
-        hi = max(x.high for _, x in zb)
-        lo = min(x.low for _, x in zb)
-        if cfg.zoneEdge is ZoneEdge.BODY:   # bližšia hrana na tele sviečok zóny
+        return zb, o, j
+
+    def _edges(self, zb: list[Bar], up: bool) -> tuple[float, float]:
+        hi = max(x.high for x in zb)
+        lo = min(x.low for x in zb)
+        if self.cfg.zoneEdge is ZoneEdge.BODY:   # bližšia hrana na tele sviečok zóny
             if up:
-                hi = max(max(x.open, x.close) for _, x in zb)
+                hi = max(max(x.open, x.close) for x in zb)
             else:
-                lo = min(min(x.open, x.close) for _, x in zb)
+                lo = min(min(x.open, x.close) for x in zb)
+        return hi, lo
+
+    def _find_zone(self, d: Direction, sw: _Swing, b: Bar) -> _Zone | None:
+        """SD zóna na začiatku nohy, ktorá swing `sw` prerazila; s `refineTF` upresnená zónou nižšieho TF."""
+        cfg = self.cfg
+        atr = self.s_atr
+        up = d is Direction.LONG
+        first = max(sw.idx, self.s_idx - len(self.sbars) + 1)
+        seg = [x for x in (self._sbar(i) for i in range(first, self.s_idx + 1)) if x is not None]
+        found = self._zone_in(seg, up, atr)
+        if found is None:
+            return None
+        zb, o, j = found
+        hi, lo = self._edges(zb, up)
         h = hi - lo
         if h <= 0 or h < cfg.zoneMinAtr.value * atr or (cfg.zoneMaxAtr.value > 0 and h > cfg.zoneMaxAtr.value * atr):
             return None
         # zóna musí byť za cenou (návrat do nej je pullback), nie pod ňou / nad ňou
         if (up and b.close <= hi) or (not up and b.close >= lo):
             return None
-        leg_ext = max(x.high for _, x in leg) if up else min(x.low for _, x in leg)
+        leg_ext = max(x.high for x in seg[o:]) if up else min(x.low for x in seg[o:])
         self._uid += 1
-        return _Zone(d, hi, lo, zb[0][1].time, self.s_idx, leg_ext, self._uid)
+        leg_start = seg[o].low if up else seg[o].high
+        z = _Zone(d, hi, lo, zb[0].time, self.s_idx, leg_ext, self._uid, htf_top=hi, htf_bot=lo,
+                  leg_start=leg_start, leg_end=leg_ext)
+        if self.ragg is not None:
+            self._refine(z, zb[0].time, seg[j].time + self.agg.ms, up)
+        return z
+
+    def _refine(self, z: _Zone, t0: int, t1: int, up: bool) -> None:
+        """V zóne vyššieho TF nájde zónu `refineTF` (tá istá definícia) a vstup/stop presunie na ňu."""
+        seg = [x for x in self.rbars if t0 <= x.time < t1]
+        found = self._zone_in(seg, up, self.r_atr)
+        if found is None:
+            return
+        hi, lo = self._edges(found[0], up)
+        hi, lo = min(hi, z.htf_top), max(lo, z.htf_bot)   # upresnenie leží v zóne vyššieho TF
+        if hi - lo <= 0:
+            return
+        z.top, z.bot, z.refined = hi, lo, True
+        z.ref_start_ms = found[0][0].time
 
     def _draw_zone(self, out: EngineOutput, z: _Zone, end_ms: int) -> None:
         if not self.cfg.showZones:
             return
         long = z.direction is Direction.LONG
-        out.drawings.append(DrawBox(JSS_ZONE, z.start_ms, z.top, max(end_ms, z.start_ms), z.bot,
+        name = "demand" if long else "supply"
+        out.drawings.append(DrawBox(JSS_ZONE, z.start_ms, z.htf_top, max(end_ms, z.start_ms), z.htf_bot,
                                     _LONG_COLOR if long else "#3b82f6", _DEMAND_FILL if long else _SUPPLY_FILL,
-                                    obj_id=f"jss.zone.{z.uid}", text="demand" if long else "supply"))
+                                    obj_id=f"jss.zone.{z.uid}", text=f"{name} {self.struct_tf}m"))
+        if z.refined:
+            out.drawings.append(DrawBox(JSS_REFINE, z.ref_start_ms, z.top, max(end_ms, z.ref_start_ms), z.bot,
+                                        "#f59e0b", "#f59e0b40", obj_id=f"jss.ref.{z.uid}",
+                                        text=f"{name} {self.cfg.refineTF}m"))
+        if self.cfg.useFibo and self.cfg.showFibo:
+            pcts = [0.0, 38.2, 50.0, 61.8, 78.6, 100.0]
+            if self.cfg.tpMode is TpMode.EXTENSION:
+                pcts.append(-self.cfg.tpExtensionPct)
+            for p in pcts:
+                y = z.fib(p)
+                out.drawings.append(DrawLine(JSS_FIB, z.start_ms, y, max(end_ms, z.start_ms), y, "#eab308",
+                                             obj_id=f"jss.fib.{z.uid}.{p:g}", text=f"{p:g} %"))
+
+    def _fib_ok(self, z: _Zone, price: float) -> bool:
+        """Leží vstup v povolenom pásme návratu nohy BOS? (pri vypnutom `useFibo` vždy áno)"""
+        cfg = self.cfg
+        if not cfg.useFibo:
+            return True
+        return cfg.fibMinPct <= z.retrace(price) <= cfg.fibMaxPct
 
     # ------------------------------------------------------------------ #
     # vstupné modely (na baroch grafu)
@@ -328,7 +414,10 @@ class JssEngine:
         long = z.direction is Direction.LONG
         buf = (cfg.slBufferAtr.resolve(self.inst, price=entry, atr=atr)
                + cfg.slBufferPoints.resolve(self.inst, price=entry, atr=atr))
-        stop = z.far - buf if long else z.far + buf
+        far = z.far
+        if cfg.slFrom is SlFrom.HTF:
+            far = z.htf_bot if long else z.htf_top
+        stop = far - buf if long else far + buf
         sl = entry - stop if long else stop - entry
         if sl < self.inst.tick_size * 2:
             return None
@@ -338,7 +427,7 @@ class JssEngine:
         if cfg.tpMode is TpMode.RR:
             take = entry + sl * cfg.rrRatio if long else entry - sl * cfg.rrRatio
         else:
-            take = z.target
+            take = z.fib(-cfg.tpExtensionPct) if cfg.tpMode is TpMode.EXTENSION else z.target
             if (take - entry if long else entry - take) < sl * cfg.minRR:
                 return None
         qty = cfg.position_qty(self.inst, cfg.riskDollar, sl) if cfg.riskDollar > 0 else 1.0
@@ -379,7 +468,9 @@ class JssEngine:
             if z.touched_idx < 0 and ((short and bar.high >= z.near_at(cfg.entryDepthPct))
                                       or (not short and bar.low <= z.near_at(cfg.entryDepthPct))):
                 z.touched_idx = idx
-            beyond = bar.close > z.top if short else bar.close < z.bot
+            if z.touched_idx < 0:   # noha BOS pokračuje, kým sa cena nevráti do zóny — koniec nohy (0 %) sa posúva
+                z.leg_end = min(z.leg_end, bar.low) if short else max(z.leg_end, bar.high)
+            beyond = bar.close > z.htf_top if short else bar.close < z.htf_bot   # zóna TF štruktúry prerazená
             old = cfg.zoneMaxAgeBars > 0 and self.s_idx - z.born_idx > cfg.zoneMaxAgeBars
             done = z.touched_idx >= 0 and (cfg.entryModel is EntryModel.TOUCH
                                            or idx - z.touched_idx >= int(cfg.confirmBars))
@@ -406,6 +497,9 @@ class JssEngine:
             self._entry_bar = -1
 
         # ---- štruktúra: uzavreté bary TF štruktúry (po zavretí tohto baru) --- #
+        if self.ragg is not None:
+            for rb in self.ragg.push(bar):
+                self._on_refine(rb)
         for sb in self.agg.push(bar):
             self._on_struct(sb, out)
 
@@ -422,11 +516,11 @@ class JssEngine:
             # limitka na hranu zóny platí na ďalší bar; kým zóna žije a nie je dotknutá, obnovuje sa
             if z.touched_idx < 0:
                 price = z.near_at(cfg.entryDepthPct)
-                if (long and bar.close > price) or (not long and bar.close < price):
+                if ((long and bar.close > price) or (not long and bar.close < price)) and self._fib_ok(z, price):
                     self._enter(out, z, price, bar, atr, idx, limit=True)
             return out
         # imbalance / pin bar po dotyku, vstup na zavretí — cena musí byť ešte pred protiľahlou hranou
-        if z.touched_idx >= 0 and self._signal(bar, long, atr):
+        if z.touched_idx >= 0 and self._signal(bar, long, atr) and self._fib_ok(z, z.near_at(cfg.entryDepthPct)):
             if (long and bar.close > z.far) or (not long and bar.close < z.far):
                 self._enter(out, z, bar.close, bar, atr, idx, limit=False)
                 if self.zone is z and self._pending is not None:

@@ -1,0 +1,12 @@
+{
+  "_title": "MNQ futures 1m — FPC 1.0 podľa videa: okná NY 9:30 a 14:00 (90 min), férová cena = open okna / pred správou 8:30, 38 / 25 bodov, 3 straty po sebe",
+  "_strategy": "fpc",
+  "_instrument": "mnq_databento",
+  "_timeframe": "1m",
+  "_comment": [
+    "Vychodiskovy profil (2026-10-05) presne podla rozhovoru Chart Fanatics s JJ Simonom (Fair Pricing Theory):",
+    "ferova cena = open prvej sviecky okna, v den spravy o 8:30 cena pred spravou; pokracovanie prvej sviecky",
+    "v prvych 5 min v sulade s biasom 8 h; navraty na displacement / prieraz struktury, ciel 38, stop 25 bodov,",
+    "aspon 80 % ciela k ferovej cene; tri straty po sebe ukoncia okno. Filtre su vypnute. Nie je to obchodne odporucanie."
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "entryOrderType": "market",
+  "limitOffsetPct": 25,
+  "limitValidBars": 3,
+  "limitKeepRR": true,
+  "sessionMode": "both",
+  "nyStartH": 10,
+  "nyStartM": 30,
+  "nyRangeMinutes": 15,
+  "nyEndH": 10,
+  "nyEndM": 55,
+  "lonStartH": 8,
+  "lonStartM": 0,
+  "lonRangeMinutes": 4,
+  "lonEndH": 15,
+  "lonEndM": 45,
+  "tradeDirection": "Both",
+  "entryMode": "close",
+  "breakBufferAtr": {
+    "value": 0.1,
+    "unit": "atr"
+  },
+  "retestMaxBars": 12,
+  "entryWindowMinutes": 0,
+  "maxTradesPerDay": 3,
+  "minRangePct": 0.0,
+  "maxRangePct": 10.0,
+  "useVolumeFilter": false,
+  "volSmaLen": 20,
+  "volMultiplier": 0.5,
+  "minClosePosPct": 1,
+  "weekdaysOnly": true,
+  "emaLen": 300,
+  "emaFilter": true,
+  "emaRangeFilter": false,
+  "emaExit": false,
+  "slMode": "mid",
+  "slRangePct": 25.0,
+  "atrLen": 10,
+  "slAtrMult": {
+    "value": 1.0,
+    "unit": "atr"
+  },
+  "slBufferAtr": {
+    "value": 0.125,
+    "unit": "atr"
+  },
+  "tpMode": "rr",
+  "rrRatio": 1.0,
+  "measuredMult": 1.0,
+  "tpAtrMult": {
+    "value": 1.5,
+    "unit": "atr"
+  },
+  "enableTrailing": false,
+  "trailActivationR": 1.0,
+  "trailOffsetR": 0.5,
+  "closeAtSessionEnd": false,
+  "riskDollar": 100.0,
+  "showRange": true,
+  "showLevels": true,
+  "showEma": false,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0.1,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "vwapAnchor": "ny_open",
+  "vwapPeriod": "15",
+  "vwapRule": "break",
+  "entryTiming": "any",
+  "vwapBreakAtr": {
+    "value": 0.1,
+    "unit": "atr"
+  },
+  "closeBeyondVwap": false,
+  "vwapDriftBars": 1,
+  "vwapDriftMinAtr": {
+    "value": 0.25,
+    "unit": "atr"
+  },
+  "exitMode": "tp",
+  "vwapExitAtr": {
+    "value": 0.0,
+    "unit": "atr"
+  },
+  "vwapStop": false,
+  "vwapStopAtr": {
+    "value": 0.0,
+    "unit": "atr"
+  },
+  "vwapTp": false,
+  "vwapTpAtr": {
+    "value": 2,
+    "unit": "atr"
+  },
+  "showVwap": true,
+  "_strategy": "vwaporb",
+  "_title": "VWAP ORB 1.5 MNQ RR 1:1: posl. rok 182 obch, 63.7 % WR, PF 1.66, +16816 (len stop a cieľ)",
+  "_comment": [
+    "VWAP ORB 1.5 MNQ RR 1:1: posl. rok 182 obch, 63.7 % WR, PF 1.66, +16816 (len stop a cieľ)",
+    "Predch. rok 24/25: 144 obch, 47.9 % WR",
+    "Testy 30.9.-1.10.2026, emulátor MultiCharts, BEZ nákladov, bez konca seansy a trailingu."
+  ],
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

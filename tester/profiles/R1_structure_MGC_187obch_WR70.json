@@ -1,0 +1,44 @@
+{
+  "entryOrderType": "limit",
+  "limitOffsetPct": 38,
+  "limitValidBars": 6,
+  "limitKeepRR": false,
+  "swingLeft": 15,
+  "swingRight": 6,
+  "minSwingSize": {
+    "value": 0.0,
+    "unit": "atr"
+  },
+  "atrLen": 4,
+  "entryMode": "sweep",
+  "tradeDirection": "Long only",
+  "exitMode": "rr",
+  "rrRatio": 1.0,
+  "slMode": "atr",
+  "slBuffer": {
+    "value": 0.075,
+    "unit": "atr"
+  },
+  "slAtrMult": 4.5,
+  "maxBars": 1,
+  "riskDollar": 100.0,
+  "useSession": false,
+  "sessionTZ": "America/New_York",
+  "sessionStartH": 8,
+  "sessionEndH": 13,
+  "showStructure": true,
+  "leverage": 1.0,
+  "_strategy": "structure",
+  "_title": "Market Structure BOS / CHoCH MGC RR 1:1: posl. rok 187 obch, 70.6 % WR, PF 2.14, +2979 (len stop a cieľ)",
+  "_comment": [
+    "Market Structure BOS / CHoCH MGC RR 1:1: posl. rok 187 obch, 70.6 % WR, PF 2.14, +2979 (len stop a cieľ)",
+    "Predch. rok 24/25: 213 obch, 59.1 % WR",
+    "Testy 30.9.-1.10.2026, emulátor MultiCharts, BEZ nákladov, bez konca seansy a trailingu."
+  ],
+  "_instrument": "mgc_databento",
+  "_timeframe": "5m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

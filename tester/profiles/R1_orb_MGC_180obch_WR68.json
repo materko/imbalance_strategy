@@ -1,0 +1,83 @@
+{
+  "entryOrderType": "market",
+  "limitOffsetPct": 100,
+  "limitValidBars": 6,
+  "limitKeepRR": true,
+  "sessionMode": "both",
+  "nyStartH": 9,
+  "nyStartM": 30,
+  "nyRangeMinutes": "60",
+  "nyEndH": 13,
+  "nyEndM": 55,
+  "lonStartH": 8,
+  "lonStartM": 15,
+  "lonRangeMinutes": 22,
+  "lonEndH": 10,
+  "lonEndM": 45,
+  "tradeDirection": "Both",
+  "entryMode": "close",
+  "breakBufferAtr": {
+    "value": 0.15,
+    "unit": "atr"
+  },
+  "retestMaxBars": 5,
+  "entryWindowMinutes": 90,
+  "maxTradesPerDay": 1,
+  "minRangePct": 0.225,
+  "maxRangePct": 1.125,
+  "useVolumeFilter": false,
+  "volSmaLen": 25,
+  "volMultiplier": 1.5,
+  "minClosePosPct": 70,
+  "weekdaysOnly": true,
+  "emaLen": 150,
+  "emaFilter": false,
+  "emaRangeFilter": false,
+  "emaExit": false,
+  "slMode": "range_pct",
+  "slRangePct": 37.5,
+  "atrLen": 14,
+  "slAtrMult": {
+    "value": 1.25,
+    "unit": "atr"
+  },
+  "slBufferAtr": {
+    "value": 0.025,
+    "unit": "atr"
+  },
+  "tpMode": "rr",
+  "rrRatio": 1.0,
+  "measuredMult": 0.75,
+  "tpAtrMult": {
+    "value": 1.0,
+    "unit": "atr"
+  },
+  "enableTrailing": false,
+  "trailActivationR": 1.0,
+  "trailOffsetR": 0.5,
+  "closeAtSessionEnd": false,
+  "riskDollar": 100.0,
+  "showRange": true,
+  "showLevels": true,
+  "showEma": false,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0.1,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "_strategy": "orb",
+  "_title": "ORB MGC RR 1:1: posl. rok 180 obch, 68.9 % WR, PF 2.31, +8973 (len stop a cieľ)",
+  "_comment": [
+    "ORB MGC RR 1:1: posl. rok 180 obch, 68.9 % WR, PF 2.31, +8973 (len stop a cieľ)",
+    "Predch. rok 24/25: 163 obch, 41.7 % WR",
+    "Testy 30.9.-1.10.2026, emulátor MultiCharts, BEZ nákladov, bez konca seansy a trailingu."
+  ],
+  "_instrument": "mgc_databento",
+  "_timeframe": "3m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

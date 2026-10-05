@@ -61,6 +61,10 @@ function fillSettings() {
     const o = pair.selectedOptions[0]; if (!o) return;
     checkPairProfile();
     showMarket();
+    // Poplatok patrí trhu: 0,05 % z Binance na MNQ zje ~23 bodov na obchod. Pri zmene páru sa
+    // vráti na „podľa trhu" (prázdne pole = server dá náklad páru); profil a načítaný beh
+    // ho nastavujú až po zmene páru, takže ich zadanie ostane.
+    $("#fee").value = "";
     if (enforceSpotParams()) renderParams(); else lockSpotParams();
     $("#pair-range").textContent = `dáta ${o.dataset.from} → ${o.dataset.to}`;
     fillEngines(o.value);

@@ -1,0 +1,103 @@
+{
+  "liqUse5m": true,
+  "liqUse15m": false,
+  "liqUse30m": false,
+  "liqUse60m": false,
+  "liqUse240m": true,
+  "liqPivotLen": 5,
+  "liqMinDispAtr": {
+    "value": 1.125,
+    "unit": "atr"
+  },
+  "liqEqualTolAtr": {
+    "value": 0.225,
+    "unit": "atr"
+  },
+  "liqMaxAgeHours": 360,
+  "liqMinStrength": 1,
+  "liqMinAgeBars": 0,
+  "tradeMode": "sweep",
+  "tradeDirection": "Long only",
+  "breakBufferAtr": {
+    "value": 0.025,
+    "unit": "atr"
+  },
+  "sweepBars": 6,
+  "sweepMinDepthAtr": {
+    "value": 0.5,
+    "unit": "atr"
+  },
+  "sweepMaxDepthAtr": {
+    "value": 0,
+    "unit": "atr"
+  },
+  "sweepVolMult": 0.25,
+  "entryModel": "any",
+  "entryOrder": "market",
+  "setupMaxBars": 8,
+  "entryMaxDistAtr": {
+    "value": 3.0,
+    "unit": "atr"
+  },
+  "imbMinSizeAtr": {
+    "value": 0.05,
+    "unit": "atr"
+  },
+  "pbWickPct": 60,
+  "pbBodyPct": 15,
+  "maxTradesPerDay": 2,
+  "cooldownBars": 1,
+  "weekdaysOnly": true,
+  "useTradeWindow": true,
+  "trendFilter": "against",
+  "trendEmaLen": 20,
+  "tradeTZ": "America/New_York",
+  "tradeStartH": 9,
+  "tradeStartM": 45,
+  "tradeEndH": 16,
+  "tradeEndM": 30,
+  "slMode": "level",
+  "atrLen": 18,
+  "slBufferAtr": {
+    "value": 0.2,
+    "unit": "atr"
+  },
+  "slAtrMult": {
+    "value": 0.25,
+    "unit": "atr"
+  },
+  "slLookback": 2,
+  "tpMode": "rr",
+  "rrRatio": 1.0,
+  "minRR": 1.0,
+  "maxRR": 5.0,
+  "tpOffsetAtr": {
+    "value": 0.25,
+    "unit": "atr"
+  },
+  "maxHoldBars": 0,
+  "riskDollar": 100.0,
+  "showLevels": true,
+  "showEvents": true,
+  "showOnlyQuality": false,
+  "tickDollarValue": null,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0.0,
+    "unit": "pct"
+  },
+  "leverage": 1.0,
+  "_strategy": "liquidity",
+  "_title": "Liquidity BTC RR 1:1: posl. rok 184 obch, 64.7 % WR, PF 1.83, +5388 (len stop a cieľ)",
+  "_comment": [
+    "Liquidity BTC RR 1:1: posl. rok 184 obch, 64.7 % WR, PF 1.83, +5388 (len stop a cieľ)",
+    "Predch. rok 24/25: 198 obch, 49.0 % WR",
+    "Testy 30.9.-1.10.2026, emulátor MultiCharts, BEZ nákladov, bez konca seansy a trailingu."
+  ],
+  "_instrument": "btcusdt_binance",
+  "_timeframe": "5m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

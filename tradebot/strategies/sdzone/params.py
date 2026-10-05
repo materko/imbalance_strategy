@@ -17,7 +17,9 @@ _RIZ = "💰 Riziko"
 _VIZ = "🎨 Vizualizácia"
 _PORT = "🧩 Rozšírenia portu"
 
-GROUPS: tuple[str, ...] = (_DET, _ZON, _VST, _FIL, _SL, _TP, _RIA, _RIZ, _VIZ, _PORT)
+_GC = "🕯️ Vstupny model (IBS / pin bar)"
+
+GROUPS: tuple[str, ...] = (_DET, _ZON, _VST, _FIL, _SL, _TP, _RIA, _RIZ, _VIZ, _PORT, _GC)
 
 PARAMS: dict[str, dict[str, Any]] = {
     # ---- detekcia ----------------------------------------------------- #
@@ -138,3 +140,13 @@ PARAMS: dict[str, dict[str, Any]] = {
         tooltip="Páka vo Freqtrade futures. Nemení edge, len umožní otvoriť pozíciu z "
                 "risk-based sizingu."),
 }
+
+# ---- vstupný model IBS imbalance / pin bar (spoločný, `tradebot.core.entry_confirm`) ---- #
+from tradebot.core.entry_confirm import entry_confirm_params  # noqa: E402
+
+PARAMS.update(entry_confirm_params(_GC))
+
+# ---- filter trendu EMA (spoločný, `tradebot.core.entry_filter`) ---- #
+from tradebot.core.entry_filter import entry_filter_params  # noqa: E402
+
+PARAMS.update(entry_filter_params(_GC))

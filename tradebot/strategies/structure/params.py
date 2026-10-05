@@ -135,3 +135,17 @@ PARAMS: dict[str, dict[str, Any]] = {
                 "sizingu, ktorá by sa inak na účet nezmestila.",
     ),
 }
+
+# ---- typ vstupu market / limit (spoločný pre stratégie mimo IBS, `tradebot.core.entry_order`) ---- #
+from tradebot.core.entry_confirm import entry_confirm_params  # noqa: E402
+from tradebot.core.entry_order import entry_order_params  # noqa: E402
+
+_GE = "🧾 Typ vstupu (market / limit)"
+GROUPS = GROUPS + (_GE,)
+PARAMS.update(entry_order_params(_GE))
+PARAMS.update(entry_confirm_params(_GE))
+
+# ---- filter trendu EMA (spoločný, `tradebot.core.entry_filter`) ---- #
+from tradebot.core.entry_filter import entry_filter_params  # noqa: E402
+
+PARAMS.update(entry_filter_params(_GE))

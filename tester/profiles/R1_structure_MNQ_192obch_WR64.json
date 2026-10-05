@@ -1,0 +1,44 @@
+{
+  "entryOrderType": "limit",
+  "limitOffsetPct": 62,
+  "limitValidBars": 3,
+  "limitKeepRR": true,
+  "swingLeft": 5,
+  "swingRight": 5,
+  "minSwingSize": {
+    "value": 0.1,
+    "unit": "atr"
+  },
+  "atrLen": 28,
+  "entryMode": "choch",
+  "tradeDirection": "Both",
+  "exitMode": "rr",
+  "rrRatio": 1.0,
+  "slMode": "swing",
+  "slBuffer": {
+    "value": 0.2,
+    "unit": "atr"
+  },
+  "slAtrMult": 4.5,
+  "maxBars": 1,
+  "riskDollar": 100.0,
+  "useSession": true,
+  "sessionTZ": "Europe/London",
+  "sessionStartH": 9,
+  "sessionEndH": 15,
+  "showStructure": true,
+  "leverage": 1.0,
+  "_strategy": "structure",
+  "_title": "Market Structure BOS / CHoCH MNQ RR 1:1: posl. rok 192 obch, 64.1 % WR, PF 1.51, +1222 (len stop a cieľ)",
+  "_comment": [
+    "Market Structure BOS / CHoCH MNQ RR 1:1: posl. rok 192 obch, 64.1 % WR, PF 1.51, +1222 (len stop a cieľ)",
+    "Predch. rok 24/25: 193 obch, 57.0 % WR",
+    "Testy 30.9.-1.10.2026, emulátor MultiCharts, BEZ nákladov, bez konca seansy a trailingu."
+  ],
+  "_instrument": "mnq_databento",
+  "_timeframe": "3m",
+  "_timerange": "20250904-20260904",
+  "_fee": 0.0,
+  "_wallet": 10000.0,
+  "_detail": false
+}

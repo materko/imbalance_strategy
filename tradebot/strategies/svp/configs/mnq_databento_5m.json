@@ -1,0 +1,13 @@
+{
+  "_title": "MNQ futures 5m — Volume Profile POC 1.0: POC včerajšej NY seansy, dotyk (pod POC short, nad POC long) a retest po prerazení",
+  "_strategy": "svp",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Vychodiskovy profil Volume Profile POC 1.0 (2026-10-02): defaulty configu na MNQ 5m.",
+    "Profil New York seansy 9:30-16:00 (riadok 1 bod, value area 70 %); uroven = POC predoslej seansy;",
+    "limitka na POC po odchode aspon 1 ATR (pod POC short, nad POC long) aj retest po prerazeni; stop 1,5 ATR, ciel 1,5R.",
+    "Nie je to obchodne odporucanie - je to vychodisko na dalsie ladenie."
+  ],
+  "tickDollarValue": 0.5
+}
