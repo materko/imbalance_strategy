@@ -29,6 +29,7 @@ from .engine import EngineOutput
 from .orders import MarketContext, OrderAction
 from .types import Bar, Direction
 from .warmup import ema_bars
+from .entry_draw import trade_drawings, with_ids
 
 __all__ = ["TrendFilter", "VolFilter", "EntryFilterFields", "ENTRY_FILTER_ENUMS", "ENTRY_FILTER_CONSTRAINTS",
            "ENTRY_FILTER_FIELD_NAMES", "entry_filter_params", "EntryFilterEngine", "wrap_entry_filter"]
@@ -107,6 +108,7 @@ class EntryFilterEngine:
         self._sum = 0.0
         self._bucket: int | None = None
         self._last_close: float | None = None
+        self._dropped: set[str] = set()
         warmup = getattr(engine, "warmup", None)
         if warmup is not None and hasattr(warmup, "add_seeded"):
             if self.mode is not TrendFilter.OFF:
@@ -194,10 +196,17 @@ class EntryFilterEngine:
             self._push(bar)
         if self.vol_mode is not VolFilter.OFF:
             self._vol(bar)
-        out = self.engine.on_bar(bar, htf, ctx)
-        out.orders = [o for o in out.orders
-                      if not (o.action is OrderAction.ENTRY and o.plan is not None
-                              and not self.allows(o.plan.direction, bar.close))]
+        out = self.engine.on_bar(bar, htf, with_ids(ctx, set(), self._dropped))
+        self._dropped = set()
+        kept = []
+        for o in out.orders:
+            if o.action is OrderAction.ENTRY and o.plan is not None and not self.allows(o.plan.direction, bar.close):
+                objs = trade_drawings(out.drawings, bar.time)    # zahodený vstup — jeho kresba tiež
+                out.drawings = [d for d in out.drawings if not any(d is x for x in objs)]
+                self._dropped.add(o.order_id)
+                continue
+            kept.append(o)
+        out.orders = kept
         return out
 
 

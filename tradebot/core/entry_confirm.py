@@ -13,7 +13,8 @@ obchodu naším základným vstupným modelom:
 market na zavretí potvrdzovacej sviečky; stop ostáva tam, kde ho dala stratégia, cieľ sa prepočíta na
 rovnaký RR a veľkosť pozície na rovnaké riziko. Signál padá, keď cena medzitým prejde stopom, keď
 stratégia pošle nový signál (ten ho nahradí) alebo keď by stop vyšiel pod 1/4 pôvodného.
-Limitky stratégie (vstup na dotyk úrovne) sa nemenia.
+Limitky stratégie (vstup na dotyk úrovne) sa nemenia. Kresba obchodu (TP / SL boxy, štítok vstupu) sa
+posunie na potvrdzovaciu sviečku, pri prepadnutom signáli sa zmaže (`tradebot.core.entry_draw`).
 
 Obal je generický (nepozná stratégiu menom) a nasadzujú ho adaptéry pod obal typu orderu
 (`entry_order`): potvrdený vstup sa tak dá poslať aj limitkou späť do potvrdzovacej sviečky.
@@ -31,6 +32,7 @@ from typing import Any
 from .engine import EngineOutput
 from .orders import MarketContext, OrderAction, OrderIntent
 from .types import Bar, Direction, OrderType
+from .entry_draw import deleted, released, trade_drawings, with_ids
 
 __all__ = ["EntryConfirm", "EntryConfirmFields", "ENTRY_CONFIRM_ENUMS", "ENTRY_CONFIRM_CONSTRAINTS",
            "ENTRY_CONFIRM_FIELD_NAMES", "entry_confirm_params", "EntryConfirmEngine", "wrap_entry_confirm",
@@ -105,7 +107,8 @@ class EntryConfirmEngine:
         self._bars: deque[Bar] = deque(maxlen=3)
         self._atr = 0.0
         self._tr: list[float] = []
-        self._wait: tuple[OrderIntent, int] | None = None    #: (vstup stratégie, index baru signálu)
+        self._wait: tuple[OrderIntent, int, list] | None = None    #: (vstup stratégie, index baru signálu, jeho kresba)
+        self._dropped: set[str] = set()
         self._idx = -1
 
     def __getattr__(self, name: str) -> Any:   # inst, required_history, warmup, final_drawings…
@@ -157,35 +160,57 @@ class EntryConfirmEngine:
     def on_bar(self, bar: Bar, htf: Any = None, ctx: MarketContext | None = None) -> EngineOutput:
         self._idx += 1
         self._push(bar)
-        out = self.engine.on_bar(bar, htf, ctx)
+        pend = {self._wait[0].order_id} if self._wait is not None else set()
+        out = self.engine.on_bar(bar, htf, with_ids(ctx, pend, self._dropped))
+        self._dropped = set()
         pos = ctx.position_size if ctx is not None else 0.0
-        if pos != 0.0:
-            self._wait = None
+        if pos != 0.0 and self._wait is not None:
+            self._drop(out)
         orders: list[OrderIntent] = []
         fresh = False
         for o in out.orders:
             if o.action is OrderAction.ENTRY and o.order_type is OrderType.MARKET and o.plan is not None:
+                objs = trade_drawings(out.drawings, bar.time)
                 if pos == 0.0:
-                    self._wait, fresh = (o, self._idx), True     # nový signál nahrádza čakajúci
+                    if self._wait is not None:
+                        self._drop(out)                      # nový signál nahrádza čakajúci
+                    self._wait, fresh = (o, self._idx, objs), True
+                else:
+                    out.drawings = [d for d in out.drawings if not any(d is x for x in objs)]
+                    self._dropped.add(o.order_id)
                 continue
             if o.action is OrderAction.CANCEL and self._wait is not None and o.order_id == self._wait[0].order_id:
                 self._wait = None
             orders.append(o)
         if self._wait is not None:
-            intent, at = self._wait
+            intent, at, objs = self._wait
             plan = intent.plan
             long = plan.direction is Direction.LONG
             if not fresh and ((bar.low <= plan.stop_loss) if long else (bar.high >= plan.stop_loss)):
-                self._wait = None          # cena prešla stopom skôr, než prišlo potvrdenie
+                self._drop(out)            # cena prešla stopom skôr, než prišlo potvrdenie
             elif self._confirmed(bar, long):
-                self._wait = None
                 entry = self._entry(intent, bar)
                 if entry is not None:
                     orders.append(entry)
+                    out.drawings = [d for d in out.drawings if not any(d is x for x in objs)]
+                    out.drawings += released(objs, bar.time, entry.plan)   # kresba na potvrdzovaciu sviečku
+                    self._wait = None
+                else:
+                    self._drop(out)
             elif self._idx - at + 1 >= int(self.cfg.confirmBars):
-                self._wait = None
+                self._drop(out)
         out.orders = orders
         return out
+
+    def _drop(self, out: EngineOutput) -> None:
+        """Čakajúci signál prepadol: kresba preč a stratégia sa to dozvie na ďalšom bare."""
+        intent, _, objs = self._wait
+        if any(d is x for d in out.drawings for x in objs):
+            out.drawings = [d for d in out.drawings if not any(d is x for x in objs)]
+        else:
+            out.drawings += deleted(objs)
+        self._dropped.add(intent.order_id)
+        self._wait = None
 
 
 def wrap_entry_confirm(engine: Any, cfg: Any) -> Any:

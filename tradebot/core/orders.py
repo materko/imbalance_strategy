@@ -84,3 +84,8 @@ class MarketContext:
     market_bias: int = 0
     #: id orderov, ktoré u brokera práve reálne bežia (Pine `strategy.opentrades`)
     open_order_ids: frozenset[str] = field(default_factory=frozenset)
+    #: vstupy stratégie, ktoré obal (limitka, potvrdenie sviečkou) ešte drží — order čaká, obchod nie je
+    pending_entry_ids: frozenset[str] = field(default_factory=frozenset)
+    #: vstupy stratégie, ktoré obal zahodil (limitka sa nevyplnila, potvrdenie neprišlo, filter) — obchod nebol;
+    #: posiela sa raz, na ďalšom bare po zahodení
+    dropped_entry_ids: frozenset[str] = field(default_factory=frozenset)

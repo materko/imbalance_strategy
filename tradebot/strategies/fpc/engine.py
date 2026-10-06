@@ -186,6 +186,13 @@ class FpcEngine:
         if ctx.position_size != 0.0:
             tr.in_pos = True
             return
+        oid = f"fpc:{tr.sent_idx}"
+        if not tr.in_pos and oid in ctx.dropped_entry_ids:
+            self._n_trades -= 1      # obal vstup zahodil (nevyplnená limitka, filter…) — obchod nebol
+            self._trade = None
+            return
+        if not tr.in_pos and oid in ctx.pending_entry_ids:
+            return                   # order ešte čaká (limitka, potvrdenie sviečkou)
         if not tr.in_pos and idx <= tr.sent_idx:
             return   # bar, na ktorom sa order poslal
         hit_sl = bar.low <= tr.stop if tr.long else bar.high >= tr.stop

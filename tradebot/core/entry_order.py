@@ -26,6 +26,7 @@ from typing import Any
 from .engine import EngineOutput
 from .orders import MarketContext, OrderAction, OrderIntent
 from .types import Bar, Direction, OrderType
+from .entry_draw import deleted, moved, relevel, trade_drawings, with_ids
 
 __all__ = ["EntryOrderType", "EntryOrderFields", "ENTRY_ORDER_ENUMS", "ENTRY_ORDER_CONSTRAINTS",
            "ENTRY_ORDER_FIELD_NAMES", "entry_order_params", "EntryOrderEngine", "wrap_entry_order"]
@@ -71,7 +72,8 @@ class EntryOrderEngine:
     def __init__(self, engine: Any, cfg: Any) -> None:
         self.engine = engine
         self.cfg = cfg
-        self._pending: tuple[str, int] | None = None
+        self._pending: tuple[str, int, float, list] | None = None   #: (id, index, cena limitky, kresba obchodu)
+        self._dropped: set[str] = set()
         self._idx = -1
 
     def __getattr__(self, name: str) -> Any:   # inst, required_history, warmup, final_drawings…
@@ -104,24 +106,32 @@ class EntryOrderEngine:
 
     def on_bar(self, bar: Bar, htf: Any = None, ctx: MarketContext | None = None) -> EngineOutput:
         self._idx += 1
-        out = self.engine.on_bar(bar, htf, ctx)
+        pend = {self._pending[0]} if self._pending is not None else set()
+        out = self.engine.on_bar(bar, htf, with_ids(ctx, pend, self._dropped))
+        self._dropped = set()
         pos = ctx.position_size if ctx is not None else 0.0
         orders: list[OrderIntent] = []
         if self._pending is not None:
-            if pos != 0.0:
-                self._pending = None   # vyplnila sa
-            elif self._idx - self._pending[1] >= int(self.cfg.limitValidBars):
-                orders.append(OrderIntent(OrderAction.CANCEL, self._pending[0], self._pending[1],
-                                          reason="limitka nevyplnená"))
+            oid, at, price, objs = self._pending
+            if pos != 0.0 or bar.low <= price <= bar.high:
+                out.drawings += moved(objs, bar.time)    # vyplnila sa — kresba začína na bare vyplnenia
+                self._pending = None
+            elif self._idx - at >= int(self.cfg.limitValidBars):
+                orders.append(OrderIntent(OrderAction.CANCEL, oid, at, reason="limitka nevyplnená"))
+                out.drawings += deleted(objs)            # obchod nebol — boxy a štítok preč
+                self._dropped.add(oid)
                 self._pending = None
         for o in out.orders:
             if o.action is OrderAction.ENTRY and o.order_type is OrderType.MARKET and o.plan is not None:
-                if self._pending is not None or pos != 0.0:
-                    continue   # kým limitka čaká, ďalší vstup sa neposiela
-                lim = self._limit(o, bar)
+                objs = trade_drawings(out.drawings, bar.time)
+                lim = None if (self._pending is not None or pos != 0.0) else self._limit(o, bar)
                 if lim is None:
+                    # kým limitka čaká, ďalší vstup sa neposiela; alebo by bola za stopom
+                    out.drawings = [d for d in out.drawings if not any(d is x for x in objs)]
+                    self._dropped.add(o.order_id)
                     continue
-                self._pending = (lim.order_id, self._idx)
+                relevel(objs, lim.plan)
+                self._pending = (lim.order_id, self._idx, lim.plan.entry, objs)
                 orders.append(lim)
                 continue
             if o.action is OrderAction.CANCEL and self._pending is not None and o.order_id == self._pending[0]:
