@@ -9,6 +9,7 @@ from __future__ import annotations
 from .base import StrategySpec
 from .breakout import SPEC as BREAKOUT_SPEC
 from .crt import SPEC as CRT_SPEC
+from .dailyopen import SPEC as DAILYOPEN_SPEC
 from .demo_breakout import SPEC as DEMO_SPEC
 from .divergence import SPEC as DIVERGENCE_SPEC
 from .fvgpolarity import SPEC as FVGPOLARITY_SPEC
@@ -63,6 +64,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     FVGPOLARITY_SPEC.key: FVGPOLARITY_SPEC,
     FPC_SPEC.key: FPC_SPEC,
     MAG7_SPEC.key: MAG7_SPEC,
+    DAILYOPEN_SPEC.key: DAILYOPEN_SPEC,
 }
 
 #: Staré kľúče -> dnešné. História behov, profily a odkazy z minulosti sa nemenia na disku;

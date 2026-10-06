@@ -1,0 +1,11 @@
+{
+  "_title": "MNQ futures 1h — DAILY OPEN 1.0 podľa videa: zavretie polnoci NY, od 8:00 long nad + 30 bodov (stop order), stop 50 bodov, výstup 16:00",
+  "_strategy": "dailyopen",
+  "_instrument": "mnq_databento",
+  "_timeframe": "1h",
+  "_comment": [
+    "Vychodiskovy profil (2026-10-06) presne podla videa Ali Caseyho (StatOasis) Easy Nasdaq Scalping Strategy:",
+    "uroven = zavretie 60m sviecky o polnoci NY, od 8:00 long, ked cena prerazi uroven + 30 bodov, stop 1 000 $ na NQ",
+    "= 50 bodov, vystup na konci dennej seansy 16:00 NY, jeden obchod za den, 1 kontrakt. Nie je to obchodne odporucanie."
+  ]
+}
