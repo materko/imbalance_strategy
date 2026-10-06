@@ -131,3 +131,32 @@ def test_filter_volatility_pokojny_a_rozkyvany_trh():
         for w in (low, high):
             w.on_bar(bar(i, 20), None, CTX)
     assert low.on_bar(bar(36, 20), None, CTX).orders == [] and len(high.on_bar(bar(36, 20), None, CTX).orders) == 2
+
+
+from tradebot.core.entry_confirm import EntryConfirm  # noqa: E402
+from tradebot.core.entry_order import EntryOrderType  # noqa: E402
+
+
+@dataclass
+class _All(_Cfg):
+    """Config so všetkými tromi obalmi (na pickle)."""
+    entryConfirm: EntryConfirm = EntryConfirm.ANY
+    confirmBars: int = 3
+    confirmImbMinAtr: float = 0.0
+    confirmPbWickPct: int = 60
+    confirmPbBodyPct: int = 30
+    entryOrderType: EntryOrderType = EntryOrderType.LIMIT
+    limitOffsetPct: int = 50
+    limitValidBars: int = 2
+    limitKeepRR: bool = True
+
+def test_obaly_vstupov_sa_daju_picklovat():
+    """Freqtrade hyperopt prenáša stratégiu medzi procesmi — obal nesmie pri unpickle spadnúť do rekurzie."""
+    import pickle
+    from tradebot.core.entry_confirm import EntryConfirmEngine
+    from tradebot.core.entry_order import EntryOrderEngine
+
+    cfg = _All()
+    w = EntryOrderEngine(EntryConfirmEngine(EntryFilterEngine(_Eng(), cfg, 5), cfg), cfg)
+    w2 = pickle.loads(pickle.dumps(w))
+    assert w2.inst is MNQ and isinstance(w2.engine.engine, EntryFilterEngine)

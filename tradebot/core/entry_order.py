@@ -75,6 +75,8 @@ class EntryOrderEngine:
         self._idx = -1
 
     def __getattr__(self, name: str) -> Any:   # inst, required_history, warmup, final_drawings…
+        if name == "engine" or name.startswith("__"):
+            raise AttributeError(name)   # pri unpickle ešte `engine` nie je — bez tohto nekonečná rekurzia
         return getattr(self.engine, name)
 
     def _round(self, price: float) -> float:
