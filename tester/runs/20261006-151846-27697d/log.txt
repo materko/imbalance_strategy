@@ -1,0 +1,402 @@
+$ /Users/martin/IBS/.venv/bin/python -m tester.ftrun hyperopt --config /Users/martin/IBS/deploy/freqtrade/config.tester.cfd.json --userdir /Users/martin/IBS/deploy/freqtrade/user_data --datadir /Users/martin/IBS/data/tester/databento --strategy FpcStrategy --hyperopt-loss TradebotPlanLoss --spaces plan --analyze-per-epoch --epochs 100 --timerange 20250904-20260904 --pairs MNQ/USD --timeframe 1m --dry-run-wallet 60000.0 --fee 0.0
+2026-10-06 17:18:47,845 - freqtrade - INFO - freqtrade 2026.8
+2026-10-06 17:18:48,603 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/IBS/deploy/freqtrade/config.tester.cfd.json ...
+2026-10-06 17:18:48,605 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-10-06 17:18:48,605 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-10-06 17:18:48,606 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/IBS/deploy/freqtrade/user_data ...
+2026-10-06 17:18:48,606 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/IBS/data/tester/databento ...
+2026-10-06 17:18:48,608 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-10-06 17:18:48,611 - freqtrade.optimize.hyperopt.hyperopt - INFO - Removing `/Users/martin/IBS/deploy/freqtrade/user_data/hyperopt_results/hyperopt_tickerdata.pkl`.
+2026-10-06 17:18:48,701 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy FpcStrategy from '/Users/martin/IBS/deploy/freqtrade/user_data/strategies/FpcStrategy.py'...
+2026-10-06 17:18:48,701 - tradebot.adapters.freqtrade.base - WARNING - fpc config: bigBar, contSL, contTP, maxDist, minDist, revSL, revTP, testTol, trendPts sú v absolútnych cenových bodoch — tie 
+'/Users/martin/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-10-06 17:18:49,152 - freqtrade.resolvers.iresolver - INFO - Using resolved hyperoptloss TradebotPlanLoss from '/Users/martin/IBS/deploy/freqtrade/user_data/hyperopts/TradebotPlanLoss.py'...
+2026-10-06 17:18:49,305 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, funding_rate, 1h found. Use `freqtrade download-data` to download the data
+2026-10-06 17:18:49,306 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, mark, 1h found. Use `freqtrade download-data` to download the data
+2026-10-06 17:18:51,277 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, futures, 1m, data starts at 2025-08-31 22:00:00
+2026-10-06 17:18:57,742 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64203.95 na 59578.73 (92.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:57,990 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62748.75 na 59662.90 (95.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,032 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 66941.22 na 59809.42 (89.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,064 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60273.17 na 59955.94 (99.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,069 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61334.57 na 59874.76 (97.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,087 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60407.19 na 59919.81 (99.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,110 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62409.94 na 59886.66 (96.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,117 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62485.09 na 59806.97 (95.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,241 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64648.45 na 59918.88 (92.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,291 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 65308.33 na 59864.45 (91.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,335 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62497.22 na 59846.65 (95.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,387 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63142.41 na 59861.99 (94.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,404 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63832.28 na 59905.55 (93.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,407 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 67162.22 na 59996.14 (89.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,413 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 78531.20 na 60046.13 (76.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,437 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 69188.36 na 60298.58 (87.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,439 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 89064.79 na 60366.89 (67.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,461 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61526.88 na 60403.52 (98.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,478 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62553.16 na 60143.65 (96.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,606 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64672.33 na 60090.21 (92.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,624 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64233.76 na 60096.64 (93.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,646 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60229.76 na 60071.40 (99.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,660 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62338.27 na 60038.23 (96.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,662 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61634.70 na 60096.64 (97.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,821 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 67790.79 na 60292.70 (88.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,891 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 65836.94 na 60612.00 (92.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,898 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62822.09 na 60655.56 (96.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,923 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62682.42 na 60757.03 (96.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,942 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61422.97 na 60643.70 (98.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:58,987 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 74988.89 na 60559.57 (80.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,005 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60873.81 na 60412.08 (99.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,012 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62360.98 na 60366.04 (96.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,065 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63111.52 na 60376.46 (95.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,109 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63739.51 na 60151.75 (94.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,111 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60969.64 na 60071.56 (98.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,118 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62754.55 na 60118.09 (95.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,135 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60908.82 na 60163.63 (98.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,153 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 66806.54 na 60187.88 (90.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,156 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61039.16 na 60230.45 (98.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,161 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 75750.38 na 60230.45 (79.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,163 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 75392.65 na 60267.08 (79.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,171 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 71115.71 na 60230.47 (84.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,173 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61597.52 na 60161.17 (97.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,178 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63424.20 na 60161.17 (94.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,195 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62785.63 na 60229.48 (95.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,204 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 68393.24 na 60150.30 (87.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,232 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 75317.16 na 60305.73 (80.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,241 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 75081.06 na 60402.26 (80.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,264 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 68657.34 na 60438.89 (88.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,282 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62622.01 na 60390.40 (96.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,312 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 73313.97 na 60345.35 (82.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,316 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60907.69 na 60436.43 (99.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,327 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61459.26 na 60391.39 (98.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,347 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63980.77 na 60535.93 (94.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,389 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61720.50 na 60516.62 (98.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,409 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 72330.37 na 60614.14 (83.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,449 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63321.43 na 60623.05 (95.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,452 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64216.99 na 60665.62 (94.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,455 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60880.86 na 60708.19 (99.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,466 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62687.50 na 60674.55 (96.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,481 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 66718.92 na 60817.60 (91.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,580 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62438.71 na 61070.59 (97.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,661 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62305.16 na 61188.43 (98.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,685 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62507.05 na 61171.13 (97.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,699 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 66145.39 na 61263.20 (92.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,869 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62057.62 na 61029.68 (98.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,921 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64023.53 na 61060.86 (95.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,928 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61319.10 na 61107.89 (99.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,937 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 70133.24 na 61157.39 (87.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,947 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64168.24 na 61311.83 (95.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,954 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64946.20 na 61358.85 (94.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,976 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 67252.69 na 61274.23 (91.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,993 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 69210.18 na 61320.76 (88.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,995 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63558.79 na 61238.09 (96.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:18:59,997 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 95887.04 na 61238.09 (63.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,004 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61912.83 na 61204.95 (98.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,005 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 69937.04 na 61204.95 (87.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,006 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 65755.93 na 61316.32 (93.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,025 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 78868.46 na 61228.73 (77.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,031 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 75009.68 na 61228.73 (81.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,037 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 65010.00 na 61276.74 (94.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,038 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 75281.29 na 61276.74 (81.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,040 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64248.37 na 61319.81 (95.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,045 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63719.46 na 61319.81 (96.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,045 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 72238.41 na 61319.81 (84.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,045 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 69277.19 na 61319.81 (88.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,046 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 72391.46 na 61319.81 (84.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,067 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 89863.85 na 61319.81 (68.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,068 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 67534.50 na 61319.81 (90.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,073 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 85291.18 na 61368.32 (72.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,080 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 72079.01 na 61437.62 (85.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,087 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 74589.81 na 61357.45 (82.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,093 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61519.17 na 61357.45 (99.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,109 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 65124.19 na 61357.45 (94.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,109 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61509.74 na 61357.45 (99.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,115 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 68388.07 na 61357.45 (89.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,120 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 82835.86 na 61357.45 (74.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,125 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64324.60 na 61357.45 (95.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,126 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 71745.24 na 61357.45 (85.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,131 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 70908.72 na 61357.45 (86.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,147 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 83372.60 na 61357.45 (73.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,152 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 65592.47 na 61357.45 (93.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,153 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 70456.65 na 61357.45 (87.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,158 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 80052.29 na 61357.45 (76.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,159 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 70762.06 na 61357.45 (86.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,164 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 67360.00 na 61357.45 (91.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,164 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64414.29 na 61357.45 (95.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,169 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64995.14 na 61357.45 (94.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,170 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 72745.12 na 61357.45 (84.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,186 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 74878.98 na 61357.45 (81.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,186 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 75496.79 na 61357.45 (81.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,191 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 70907.14 na 61357.45 (86.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,196 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64975.28 na 61357.45 (94.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,198 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 70828.22 na 61406.95 (86.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,199 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 90017.83 na 61464.86 (68.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,206 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 86577.61 na 61500.50 (71.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,212 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 86288.24 na 61537.63 (71.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,214 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 65478.45 na 61537.63 (94.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,229 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 72317.65 na 61537.63 (85.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,235 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 71214.53 na 61537.63 (86.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,240 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 83213.01 na 61537.63 (74.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,241 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 100186.78 na 61537.63 (61.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,246 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 83558.83 na 61537.63 (73.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,246 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 82316.89 na 61537.63 (74.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,267 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 70266.48 na 61537.63 (87.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,272 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 76341.40 na 61537.63 (80.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,274 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 73246.77 na 61537.63 (84.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,278 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 77969.28 na 61537.63 (78.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,284 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64613.90 na 61537.63 (95.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,284 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 107129.09 na 61537.63 (57.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,289 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 79312.08 na 61537.63 (77.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,306 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 74369.62 na 61537.63 (82.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,307 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 67229.68 na 61537.63 (91.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,312 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 76320.13 na 61537.63 (80.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,312 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 71162.57 na 61537.63 (86.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,317 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 76355.70 na 61537.63 (80.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,318 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 70421.51 na 61537.63 (87.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,319 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 68989.14 na 61537.63 (89.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,323 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 75171.43 na 61537.63 (81.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,323 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 71788.43 na 61537.63 (85.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,324 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 70713.45 na 61537.63 (87.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,325 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64833.10 na 61537.63 (94.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,325 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 67737.93 na 61537.63 (90.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,346 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 74434.16 na 61537.63 (82.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,347 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 76146.00 na 61537.63 (80.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,347 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62397.40 na 61537.63 (98.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,352 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 72480.86 na 61537.63 (84.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,357 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 77144.74 na 61537.63 (79.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,358 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 69172.35 na 61537.63 (89.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,363 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 83464.34 na 61537.63 (73.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,368 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 66504.44 na 61537.63 (92.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,384 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 76321.94 na 61537.63 (80.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,385 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 68819.33 na 61537.63 (89.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,390 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 74967.92 na 61537.63 (82.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,390 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 68053.14 na 61537.63 (90.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,391 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 74297.07 na 61537.63 (82.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,396 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63436.51 na 61537.63 (97.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,396 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 73103.07 na 61537.63 (84.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,397 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63932.26 na 61537.63 (96.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,402 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 75683.87 na 61537.63 (81.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,407 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 77048.65 na 61537.63 (79.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,409 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 65568.75 na 61537.63 (93.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,426 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 69345.83 na 61586.63 (88.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,433 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 81254.96 na 61633.16 (75.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,440 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63215.68 na 61730.18 (97.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,444 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 68282.67 na 61781.66 (90.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,450 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 72468.55 na 61734.14 (85.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,456 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 76991.89 na 61806.41 (80.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,457 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 73319.35 na 61733.15 (84.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,474 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 75928.67 na 61776.22 (81.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,475 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 72863.64 na 61817.80 (84.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,482 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 93916.10 na 61868.29 (65.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,488 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 69027.95 na 61900.96 (89.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,490 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 70439.24 na 61821.26 (87.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,503 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 67807.23 na 61919.77 (91.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,505 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 68401.21 na 61965.80 (90.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,510 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 83488.15 na 61965.80 (74.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,528 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 70094.48 na 62003.42 (88.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,537 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 74147.80 na 61956.89 (83.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,544 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 92401.54 na 61878.19 (67.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,549 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 69841.42 na 61878.19 (88.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,555 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64181.72 na 61878.19 (96.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,555 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63743.85 na 61878.19 (97.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,571 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 66372.22 na 61878.19 (93.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,577 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 71653.01 na 61878.19 (86.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,582 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64451.61 na 61878.19 (96.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,583 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64901.63 na 61878.19 (95.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,588 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61981.35 na 61878.19 (99.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,589 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 76005.06 na 61878.19 (81.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,589 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64592.51 na 61878.19 (95.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,595 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 67026.11 na 61878.19 (92.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,611 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 65787.50 na 61878.19 (94.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,617 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 66793.22 na 61878.19 (92.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,622 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 88019.40 na 61878.19 (70.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,627 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 78441.33 na 61878.19 (78.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,628 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 66044.94 na 61803.94 (93.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,647 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 65152.78 na 61906.90 (95.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,665 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 68643.79 na 61817.80 (90.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,672 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64998.89 na 61864.82 (95.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,678 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63044.86 na 61775.72 (98.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,689 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63710.33 na 61827.20 (97.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,691 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 66761.71 na 61878.19 (92.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,694 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63681.24 na 61926.70 (97.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,716 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 65224.18 na 61875.73 (94.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,738 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62173.94 na 61875.73 (99.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,747 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 71296.32 na 61927.71 (86.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:00,755 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 67061.71 na 61972.75 (92.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-06 17:19:06,273 - freqtrade - ERROR - Fatal exception!
+joblib.externals.loky.process_executor._RemoteTraceback: 
+Traceback (most recent call last):
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/joblib/externals/loky/process_executor.py", line 453, in _process_worker
+  File "/Users/martin/IBS/tradebot/core/entry_filter.py", line 119, in __getattr__
+  File "/Users/martin/IBS/tradebot/core/entry_filter.py", line 119, in __getattr__
+  File "/Users/martin/IBS/tradebot/core/entry_filter.py", line 119, in __getattr__
+Traceback (most recent call last):
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/freqtrade/main.py", line 52, in main
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/freqtrade/commands/optimize_commands.py", line 111, in start_hyperopt
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/freqtrade/optimize/hyperopt/hyperopt.py", line 264, in start
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/freqtrade/optimize/hyperopt/hyperopt.py", line 139, in run_optimizer_parallel
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 2072, in __call__
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 1682, in _get_outputs
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 1784, in _retrieve
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 1859, in _raise_error_fast
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 758, in get_result
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 773, in _return_or_raise
+…
+2026-10-06 17:19:00,396 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 73103.07 na 61537.63 (84.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,397 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63932.26 na 61537.63 (96.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,402 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 75683.87 na 61537.63 (81.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,407 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 77048.65 na 61537.63 (79.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,409 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 65568.75 na 61537.63 (93.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,426 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 69345.83 na 61586.63 (88.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,433 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 81254.96 na 61633.16 (75.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,440 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63215.68 na 61730.18 (97.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,444 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 68282.67 na 61781.66 (90.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,450 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 72468.55 na 61734.14 (85.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,456 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 76991.89 na 61806.41 (80.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,457 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 73319.35 na 61733.15 (84.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,474 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 75928.67 na 61776.22 (81.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,475 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 72863.64 na 61817.80 (84.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,482 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 93916.10 na 61868.29 (65.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,488 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 69027.95 na 61900.96 (89.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,490 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 70439.24 na 61821.26 (87.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,503 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 67807.23 na 61919.77 (91.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,505 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 68401.21 na 61965.80 (90.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,510 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 83488.15 na 61965.80 (74.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,528 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 70094.48 na 62003.42 (88.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,537 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 74147.80 na 61956.89 (83.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,544 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 92401.54 na 61878.19 (67.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,549 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 69841.42 na 61878.19 (88.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,555 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64181.72 na 61878.19 (96.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,555 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63743.85 na 61878.19 (97.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,571 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 66372.22 na 61878.19 (93.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,577 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 71653.01 na 61878.19 (86.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,582 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64451.61 na 61878.19 (96.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,583 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64901.63 na 61878.19 (95.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,588 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61981.35 na 61878.19 (99.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,589 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 76005.06 na 61878.19 (81.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,589 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64592.51 na 61878.19 (95.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,595 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 67026.11 na 61878.19 (92.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,611 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 65787.50 na 61878.19 (94.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,617 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 66793.22 na 61878.19 (92.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,622 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 88019.40 na 61878.19 (70.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,627 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 78441.33 na 61878.19 (78.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,628 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 66044.94 na 61803.94 (93.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,647 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 65152.78 na 61906.90 (95.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,665 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 68643.79 na 61817.80 (90.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,672 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 64998.89 na 61864.82 (95.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,678 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63044.86 na 61775.72 (98.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,689 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63710.33 na 61827.20 (97.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,691 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 66761.71 na 61878.19 (92.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,694 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 63681.24 na 61926.70 (97.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,716 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 65224.18 na 61875.73 (94.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,738 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 62173.94 na 61875.73 (99.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,747 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 71296.32 na 61927.71 (86.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+2026-10-06 17:19:00,755 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 67061.71 na 61972.75 (92.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+neuplatni cely.
+                                                                                           Hyperopt results                                                                                             
+                            ┏━━━━━━━━┳━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓                             
+                            ┃ Best   ┃ Epoch ┃ Trades ┃  Win  Draw  Loss  Win% ┃ Avg profit ┃                  Profit ┃ Avg duration ┃ Objective ┃    Max Drawdown (Acct) ┃                             
+                            ┡━━━━━━━━╇━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩                             
+                            │ * Best │ 1/100 │    281 │  192     0    89  68.3 │      0.02% │ 2647.740 USD    (4.41%) │      0:15:00 │ -68.32740 │ 692.400 USD    (1.13%) │                             
+                            └────────┴───────┴────────┴────────────────────────┴────────────┴─────────────────────────┴──────────────┴───────────┴────────────────────────┘                             
+Epochs ━╸                                                                                                                                                                 1/100   1% • 0:00:15 • -:--:--
+2026-10-06 17:19:06,273 - freqtrade - ERROR - Fatal exception!
+joblib.externals.loky.process_executor._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/joblib/externals/loky/process_executor.py", line 453, in _process_worker
+    call_item = call_queue.get(block=True, timeout=timeout)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.14/Frameworks/Python.framework/Versions/3.12/lib/python3.12/multiprocessing/queues.py", line 122, in get
+    return _ForkingPickler.loads(res)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/IBS/tradebot/core/entry_filter.py", line 119, in __getattr__
+    return getattr(self.engine, name)
+                   ^^^^^^^^^^^
+  File "/Users/martin/IBS/tradebot/core/entry_filter.py", line 119, in __getattr__
+    return getattr(self.engine, name)
+                   ^^^^^^^^^^^
+  File "/Users/martin/IBS/tradebot/core/entry_filter.py", line 119, in __getattr__
+    return getattr(self.engine, name)
+                   ^^^^^^^^^^^
+  [Previous line repeated 990 more times]
+RecursionError: maximum recursion depth exceeded
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/freqtrade/main.py", line 52, in main
+    return_code = args["func"](args)
+                  ^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/freqtrade/commands/optimize_commands.py", line 111, in start_hyperopt
+    hyperopt.start()
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/freqtrade/optimize/hyperopt/hyperopt.py", line 264, in start
+    f_val = self.run_optimizer_parallel(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/freqtrade/optimize/hyperopt/hyperopt.py", line 139, in run_optimizer_parallel
+    return parallel(self.hyperopter.generate_optimizer_wrapped(v) for v in asked)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 2072, in __call__
+    return output if self.return_generator else list(output)
+                                                ^^^^^^^^^^^^
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 1682, in _get_outputs
+    yield from self._retrieve()
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 1784, in _retrieve
+    self._raise_error_fast()
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 1859, in _raise_error_fast
+    error_job.get_result(self.timeout)
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 758, in get_result
+    return self._return_or_raise()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/martin/IBS/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 773, in _return_or_raise
+    raise self._result
+joblib.externals.loky.process_executor.BrokenProcessPool: A task has failed to un-serialize. Please ensure that the arguments of the function are all picklable.
