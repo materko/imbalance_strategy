@@ -1,0 +1,13 @@
+{
+  "_title": "MNQ futures 15m — Mag7 + SPX sila 1.0: nastavenia z TradingView (meranie po 10 min, okno do 30 min, VWAP + EMA 50 + MAG7 5, stop za open NY, RR 1,5)",
+  "_strategy": "mag7",
+  "_instrument": "mnq_databento",
+  "_timeframe": "15m",
+  "_comment": [
+    "Nastavenia, s ktorymi pouzivatel strategiu pusta na 15m grafe v TradingView (6. 10. 2026): prah 5, meranie sily",
+    "od 10. minuty, podmienky do 30. minuty, long nad VWAP od 9:30, nad EMA 50 a nad ciarou MAG7 (EMA 5), short zrkadlovo;",
+    "stop za open NY + 2 body, ciel 1,5 nasobok stopu, bez zatvorenia v case, 1 kontrakt.",
+    "Sila: AAPL, MSFT, NVDA, GOOGL, AMZN, META, TSLA (IBKR 1m) + S&P 500 (Dukascopy US500), bezny pohyb z 20 dni.",
+    "Nie je to obchodne odporucanie."
+  ]
+}

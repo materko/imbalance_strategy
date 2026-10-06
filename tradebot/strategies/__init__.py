@@ -22,6 +22,7 @@ from .ibsfvg import SPEC as IBSFVG_SPEC
 from .ibszones import SPEC as IBSZONES_SPEC
 from .jss import SPEC as JSS_SPEC
 from .liquidity import SPEC as LIQUIDITY_SPEC
+from .mag7 import SPEC as MAG7_SPEC
 from .orb import SPEC as ORB_SPEC
 from .orbnet import SPEC as ORBNET_SPEC
 from .range import SPEC as RANGE_SPEC
@@ -61,6 +62,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     SVP_SPEC.key: SVP_SPEC,
     FVGPOLARITY_SPEC.key: FVGPOLARITY_SPEC,
     FPC_SPEC.key: FPC_SPEC,
+    MAG7_SPEC.key: MAG7_SPEC,
 }
 
 #: Staré kľúče -> dnešné. História behov, profily a odkazy z minulosti sa nemenia na disku;
