@@ -74,11 +74,12 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "wMag": (0.0, 100.0),
     "wBreadth": (0.0, 100.0),
     "spxW": (0.0, 100.0),
+    "stockW": (0.0, 100.0),
     "riskDollar": (0, 100000),
     "leverage": (1, 125),
 }
 
-PORT_ONLY_FIELDS: frozenset[str] = frozenset({"vwapData", "fixedQty", "riskDollar", "sessEndH", "sessEndM",
+PORT_ONLY_FIELDS: frozenset[str] = frozenset({"stockW", "vwapData", "fixedQty", "riskDollar", "sessEndH", "sessEndM",
                                               "showLines", "leverage"})
 
 
@@ -126,6 +127,9 @@ class Mag7Config(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilt
     wMag: float = 1.0
     wBreadth: float = 1.0
     spxW: float = 1.0
+    #: 1.1: váha akcií Mag7 (symboly 1–7). 1 = verzia 1.0 (všetkých 8 symbolov); 0 = sila len z indexu —
+    #: tak počíta TradingView, keď mu akcie vrátia na (zistené 6. 10. 2026: 469 obchodov za 3 roky).
+    stockW: float = 1.0
     # ---- 📊 Symboly (kľúče nástrojov) ----------------------------------------- #
     s1: str = "aapl_ibkr"
     s2: str = "msft_ibkr"
@@ -157,8 +161,9 @@ class Mag7Config(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilt
     @property
     def symbols(self) -> list[tuple[str, float]]:
         """(kľúč nástroja, váha) symbolov sily — Pine `ws`."""
-        return [(self.s1, 1.0), (self.s2, 1.0), (self.s3, 1.0), (self.s4, 1.0), (self.s5, 1.0), (self.s6, 1.0),
-                (self.s7, 1.0), (self.s8, self.spxW)]
+        w = self.stockW
+        return [(self.s1, w), (self.s2, w), (self.s3, w), (self.s4, w), (self.s5, w), (self.s6, w), (self.s7, w),
+                (self.s8, self.spxW)]
 
     def _problems(self) -> Iterable[str]:
         if self.leverage < 1:
@@ -170,5 +175,7 @@ class Mag7Config(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilt
                 yield f"neznámy symbol sily {key!r}; známe: {sorted(INSTRUMENTS)}"
         if self.vwapData and self.vwapData not in INSTRUMENTS:
             yield f"neznámy nástroj VWAP {self.vwapData!r}"
+        if self.stockW <= 0 and self.spxW <= 0:
+            yield "aspoň jedna z váh stockW / spxW musí byť > 0"
         if self.wMag + self.wBreadth <= 0:
             yield "aspoň jedna z váh wMag / wBreadth musí byť > 0"

@@ -125,3 +125,16 @@ def test_vwap_zo_sviecok_grafu_ked_graf_nie_je_nastroj_vwap():
     warm(e)
     e.on_bar(Bar(t(9, 30), 20000, 20030, 19998, 20025, 50.0), snap(0.5, vwap=99999.0), OKNO)
     assert abs(e.vwap - (20030 + 19998 + 20025) / 3) < 1e-9
+
+
+def test_vaha_akcii_0_pocita_silu_len_z_indexu():
+    """1.1: stockW = 0 — akcie sa nepočítajú (tak to vyšlo v TradingView), index sám určí silu."""
+    cfg = Mag7Config(stockW=0.0)
+    w = [wt for _k, wt in cfg.symbols]
+    assert w[:7] == [0.0] * 7 and w[7] == 1.0
+    s = Mag7Snapshot(tuple(SymbolValue(-1.0, 0.2, wt) for wt in w[:7]) + (SymbolValue(0.3, 0.12, 1.0),), None, "")
+    sila, avg = strength(s, cfg)
+    assert sila == 10.0 and abs(avg - 0.3) < 1e-12
+    w10 = [wt for _k, wt in Mag7Config().symbols]       # 1.0: všetky váhy 1, akcie dole prevážia
+    s10 = Mag7Snapshot(tuple(SymbolValue(-1.0, 0.2, wt) for wt in w10[:7]) + (SymbolValue(0.3, 0.12, 1.0),), None, "")
+    assert strength(s10, Mag7Config())[0] < 0

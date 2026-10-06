@@ -70,7 +70,10 @@ PARAMS: dict[str, dict[str, Any]] = {
                   tooltip="Pohyb symbolu v násobkoch bežného pohybu; plná veľkosť pri tomto násobku."),
     "wMag": dict(group=_G3, title="Váha: veľkosť pohybu", step=0.5, tooltip="Váha veľkosti pohybu v sile."),
     "wBreadth": dict(group=_G3, title="Váha: zhoda symbolov", step=0.5, tooltip="Váha zhody smeru symbolov."),
-    "spxW": dict(group=_G3, title="Váha SPX", step=0.5, tooltip="Váha indexu (symbol 8); akcie majú váhu 1."),
+    "spxW": dict(group=_G3, title="Váha SPX", step=0.5, tooltip="Váha indexu (symbol 8)."),
+    "stockW": dict(group=_G3, title="Váha akcií Mag7", step=0.5,
+                   tooltip="Váha symbolov 1–7. 1 = verzia 1.0 (sila zo všetkých 8 symbolov); 0 = sila len zo SPX — "
+                           "tak to počíta TradingView, keď mu akcie vrátia prázdnu hodnotu."),
     **{f"s{k}": dict(group=_G4, title=f"Symbol {k}", options=_SYMBOLS,
                      tooltip="Kľúč nástroja, z ktorého 1m dát sa počíta pohyb od otvorenia.")
        for k in range(1, 8)},

@@ -10,6 +10,8 @@ REMOVED_INPUTS: frozenset[str] = frozenset()
 INTENTIONAL_DEFAULT_DIFFS: frozenset[str] = frozenset()
 
 PARAM_NOTES: dict[str, str] = {
+    "stockW": "TradingView (6. 10. 2026) počítal silu len zo SP:SPX — akcie Mag7 mu vrátili na. Váha 0 to "
+              "zopakuje (495 obchodov za 3 roky voči 469 v TradingView), váha 1 je stratégia, ako je napísaná.",
     "waitMin": "Bežný pohyb sa meria v tej istej minúte ako sila — pri meraní po 10 min sa dnešný 10-minútový "
                "pohyb porovná s bežným 10-minútovým (Pine `refMin = waitMin`).",
     "s8": "S&P 500 je Dukascopy US500 (CFD na index); pohyb od 9:30 je ten istý ako pri SP:SPX.",

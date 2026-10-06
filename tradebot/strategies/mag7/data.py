@@ -169,7 +169,7 @@ class Mag7Feeder:
         k = min(self.length - 1, (ts_ms + self.step_ms - open_ms) // MIN_MS - 1)
         values = []
         for key, w in self._symbols:
-            days = self._days(key)
+            days = self._days(key) if w > 0 else None   # symbol s váhou 0 sa ani nenačíta
             day = days.get(d) if days else None
             mv = None
             if day is not None and day.first == 0 and k >= 0:

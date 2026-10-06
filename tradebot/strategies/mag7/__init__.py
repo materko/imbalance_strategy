@@ -1,4 +1,7 @@
-"""Mag7 + SPX sila 1.0 — sila pohybu Mag7 a S&P 500 od otvorenia NY, obchod na Nasdaqu.
+"""Mag7 + SPX sila 1.1 — sila pohybu Mag7 a S&P 500 od otvorenia NY, obchod na Nasdaqu.
+
+Verzie: 1.0 = sila zo všetkých 8 symbolov (git tag `mag7-1.0`); 1.1 = váha akcií `stockW`
+(default 1 = správanie 1.0, 0 = sila len zo SPX ako v TradingView).
 
 Port Pine stratégie „Mag7 + SPX sila od NY open" (Pine mimo repozitára). Symboly sily číta feeder
 `data.py` z 1m skladu sviečok (akcie Mag7 z IBKR, S&P 500 = Dukascopy US500).
@@ -17,7 +20,7 @@ from .params import GROUPS, PARAMS
 
 SPEC = StrategySpec(
     key="mag7",
-    title="Mag7 + SPX sila 1.0",
+    title="Mag7 + SPX sila 1.1",
     config_cls=Mag7Config,
     profile_dir=CONFIG_DIR,
     default_profile="mnq_databento_15m",
