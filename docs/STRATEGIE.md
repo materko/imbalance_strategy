@@ -123,6 +123,7 @@ tradebot/strategies/moja/
   configs/           profily stratégie (JSON)
   docs/sources/      Pine zdroj — LEN keď o neho niekto požiada
   docs/ANALYTIKA.md  generovaná analytika + posudok (viď nižšie)
+  docs/VYSVETLIVKA.md vysvetlivka pre začiatočníka — webapp ju ukáže v okne „Ako funguje táto stratégia?"
 ```
 
 ## Postup
@@ -414,7 +415,7 @@ prestane niečo znamenať.
 
 | # | čo | ako to overiť |
 |---|---|---|
-| 1 | balík, registry, popisy parametrov, shim, šablóna | `pytest tradebot/tests/test_registry.py` |
+| 1 | balík, registry, popisy parametrov, shim, šablóna, vysvetlivka `docs/VYSVETLIVKA.md` | `pytest tradebot/tests/test_registry.py` |
 | 1b | každé pole formulára kód naozaj číta, inertné a zrušené sú deklarované | `pytest tradebot/tests/test_param_parity.py` |
 | 2 | config sedí s Pine (ak Pine je) | `pytest tester/tests/test_pine_parity.py` |
 | 3 | logika enginu | vlastný test na syntetických baroch |

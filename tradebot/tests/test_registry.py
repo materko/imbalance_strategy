@@ -177,3 +177,13 @@ def test_stare_kluce_su_aliasy_premenovanych_strategii():
     assert get_spec("orbninja") is STRATEGIES["orbnet"]
     for old, new in ALIASES.items():
         assert old not in STRATEGIES and new in STRATEGIES
+
+
+@pytest.mark.parametrize("spec", SPECS, ids=IDS)
+def test_kazda_strategia_ma_vysvetlivku_pre_laika(spec):
+    """Okno „Ako funguje táto stratégia?" vo webapp číta `docs/VYSVETLIVKA.md` stratégie."""
+    text = spec.explainer()
+    assert text, f"{spec.key}: chýba {spec.explainer_path} — napíš vysvetlivku pre začiatočníka"
+    assert text.startswith("# "), f"{spec.key}: vysvetlivka má začínať nadpisom „# <názov> — ako funguje\""
+    assert "V jednej vete" in text, f"{spec.key}: vysvetlivke chýba úvod „V jednej vete\""
+    assert "## " in text and "Stop" in text, f"{spec.key}: vysvetlivke chýbajú sekcie (aspoň stop a cieľ)"

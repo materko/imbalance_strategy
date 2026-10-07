@@ -108,6 +108,16 @@ class StrategySpec:
     #: vyzdvihne odtiaľto, menom ju nepozná; bez nej platí základ `StrategyHyperopt`.
     hyperopt_cls: type | None = None
 
+    @property
+    def explainer_path(self) -> Path:
+        """Vysvetlivka pre laika — `tradebot/strategies/<key>/docs/VYSVETLIVKA.md` (vedľa `configs/`)."""
+        return Path(self.profile_dir).parent / "docs" / "VYSVETLIVKA.md"
+
+    def explainer(self) -> str:
+        """Text vysvetlivky (Markdown) alebo prázdny reťazec, keď stratégia vysvetlivku nemá."""
+        p = self.explainer_path
+        return p.read_text(encoding="utf-8") if p.is_file() else ""
+
     def public(self) -> dict[str, Any]:
         """Čo o stratégii dostane prehliadač."""
         return {
@@ -116,4 +126,5 @@ class StrategySpec:
             "default_timeframe": self.default_timeframe,
             "layers": [layer.to_dict() for layer in self.layers],
             "kind_titles": dict(self.kind_titles),
+            "has_explainer": self.explainer_path.is_file(),
         }

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import HTMLResponse
 
 from tradebot.strategies import STRATEGIES
@@ -33,6 +33,16 @@ def build(ctx: AppContext) -> APIRouter:
         html = html.replace('href="/static/app.css"', f'href="/static/app.css?v={v}"')
         html = re.sub(r'src="(/static/js/[^"?]+\.js)"', lambda m: f'src="{m.group(1)}?v={v}"', html)
         return HTMLResponse(html, headers={"Cache-Control": "no-cache, must-revalidate"})
+
+    @router.get("/api/strategies/{key}/explainer")
+    def explainer(key: str):
+        """Vysvetlivka stratégie pre laika (Markdown) — okno „Ako funguje?" vo formulári."""
+        from tradebot.strategies import canonical_key
+
+        spec = STRATEGIES.get(canonical_key(key) or "")
+        if spec is None:
+            raise HTTPException(404, f"neznáma stratégia {key!r}")
+        return {"key": spec.key, "title": spec.title, "markdown": spec.explainer()}
 
     @router.get("/api/meta")
     def meta():

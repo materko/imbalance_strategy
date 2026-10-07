@@ -661,3 +661,19 @@ table.runs tbody tr.plain:hover { background: transparent; }
 .hub-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px 16px; margin: 10px 0; align-items: end; }
 .hub-form .field input { width: 100%; }
 details#hub-settings > summary { cursor: pointer; font-weight: 600; }
+
+/* Vysvetlivka stratégie (okno „Ako funguje?") */
+.xp-overlay { position: fixed; inset: 0; background: rgba(8, 15, 20, .55); z-index: 1000; display: flex;
+  align-items: flex-start; justify-content: center; padding: 6vh 16px; overflow: auto; }
+.xp-overlay[hidden] { display: none; }
+.xp-box { position: relative; background: var(--card); color: var(--ink); border: 1px solid var(--line);
+  border-radius: 12px; max-width: 760px; width: 100%; padding: 22px 26px; box-shadow: 0 18px 48px rgba(0,0,0,.25); }
+.xp-close { position: absolute; top: 12px; right: 12px; }
+.xp-body { font-size: 14px; line-height: 1.55; }
+.xp-body h1 { font-size: 20px; margin: 0 32px 10px 0; }
+.xp-body h2 { font-size: 15px; margin: 18px 0 6px; }
+.xp-body p { margin: 6px 0; }
+.xp-body ul, .xp-body ol { margin: 6px 0 6px 20px; padding: 0; }
+.xp-body li { margin: 3px 0; }
+.xp-body code { background: var(--bg); padding: 1px 4px; border-radius: 4px; font-size: 12.5px; }
+.xp-body .xp-lead { background: var(--bg); border-left: 3px solid var(--accent, #17c9a4); padding: 8px 12px; border-radius: 6px; }

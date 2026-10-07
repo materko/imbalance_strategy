@@ -67,6 +67,10 @@
         <label class="field span2">Stratégia
           <select id="strategy"></select>
         </label>
+        <div class="field span2 profile-actions">
+          <button id="strategy-explain" class="ghost small" type="button"
+                  title="vysvetlivka pre začiatočníka: myšlienka, kedy vstupuje, stop a cieľ, hlavné nastavenia">Ako funguje táto stratégia?</button>
+        </div>
 
         <label class="field span2">Začni z profilu
           <select id="profile"></select>
@@ -703,6 +707,13 @@
 <script src="/static/js/analytics_render.js"></script>
 <script src="/static/js/ai.js"></script>
 <script src="/static/js/prop.js"></script>
+<div id="explainer" class="xp-overlay" hidden>
+  <div class="xp-box" role="dialog" aria-modal="true" aria-labelledby="explainer-title">
+    <button id="explainer-close" class="ghost small xp-close" type="button" aria-label="zavrieť">✕</button>
+    <div id="explainer-body" class="xp-body"></div>
+  </div>
+</div>
+<script src="/static/js/explainer.js"></script>
 <script src="/static/js/main.js"></script>
 </body>
 </html>
