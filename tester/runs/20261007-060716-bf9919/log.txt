@@ -1,0 +1,47 @@
+$ emulator MultiCharts EURUSD 5m 20150101-20260904 (EURUSD_USD-1m.feather)
+emulacia MultiCharts: 865680 barov 5m, 4287844 1m, 0 HTF
+  20000/865680 barov, 19 obchodov
+  40000/865680 barov, 40 obchodov
+  60000/865680 barov, 61 obchodov
+  80000/865680 barov, 74 obchodov
+  100000/865680 barov, 90 obchodov
+  120000/865680 barov, 102 obchodov
+  140000/865680 barov, 118 obchodov
+  160000/865680 barov, 136 obchodov
+  180000/865680 barov, 156 obchodov
+  200000/865680 barov, 174 obchodov
+  220000/865680 barov, 190 obchodov
+  240000/865680 barov, 204 obchodov
+  260000/865680 barov, 228 obchodov
+  280000/865680 barov, 248 obchodov
+  300000/865680 barov, 268 obchodov
+  320000/865680 barov, 285 obchodov
+  340000/865680 barov, 309 obchodov
+  360000/865680 barov, 327 obchodov
+  380000/865680 barov, 346 obchodov
+  400000/865680 barov, 363 obchodov
+  420000/865680 barov, 388 obchodov
+  440000/865680 barov, 411 obchodov
+  460000/865680 barov, 432 obchodov
+  480000/865680 barov, 451 obchodov
+  500000/865680 barov, 468 obchodov
+  520000/865680 barov, 484 obchodov
+  540000/865680 barov, 503 obchodov
+  560000/865680 barov, 526 obchodov
+  580000/865680 barov, 545 obchodov
+  600000/865680 barov, 566 obchodov
+  620000/865680 barov, 585 obchodov
+  640000/865680 barov, 609 obchodov
+  660000/865680 barov, 634 obchodov
+  680000/865680 barov, 652 obchodov
+  700000/865680 barov, 670 obchodov
+  720000/865680 barov, 691 obchodov
+  740000/865680 barov, 705 obchodov
+  760000/865680 barov, 718 obchodov
+  780000/865680 barov, 731 obchodov
+  800000/865680 barov, 745 obchodov
+  820000/865680 barov, 766 obchodov
+  840000/865680 barov, 780 obchodov
+  860000/865680 barov, 794 obchodov
+hotovo: 800 obchodov, nerozhodnutelnych minut 1
+kresby: {'as_range': 3030, 'as_sweep': 3676, 'as_npoc': 3014, 'sl_box': 800, 'tp_box': 800, 'as_entry': 800}

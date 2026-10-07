@@ -53,6 +53,7 @@
   "wMag": 1.0,
   "wBreadth": 1.0,
   "spxW": 1.0,
+  "spxOnly": false,
   "stockW": 1.0,
   "s1": "aapl_ibkr",
   "s2": "msft_ibkr",

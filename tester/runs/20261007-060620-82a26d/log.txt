@@ -1,0 +1,402 @@
+$ /Users/martin/document/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json --userdir /Users/martin/document/IBS/deploy/freqtrade/user_data --strategy AsiaSweepStrategy --cache none --export trades --timerange 20250904-20260904 --pairs EURUSD/USD --timeframe 1m --dry-run-wallet 10000.0 --fee 8.59379699732733e-06 --datadir /Users/martin/document/IBS/data/tester/dukascopy --backtest-directory /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20261007-060620-82a26d
+2026-10-07 08:06:20,989 - freqtrade - INFO - freqtrade 2026.8
+2026-10-07 08:06:21,529 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json ...
+2026-10-07 08:06:21,531 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-10-07 08:06:21,531 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-10-07 08:06:21,531 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/document/IBS/deploy/freqtrade/user_data ...
+2026-10-07 08:06:21,532 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/document/IBS/data/tester/dukascopy ...
+2026-10-07 08:06:21,532 - freqtrade.configuration.configuration - INFO - Using /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20261007-060620-82a26d as backtest directory ...
+2026-10-07 08:06:21,533 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+'/Users/martin/document/IBS/deploy/freqtrade/user_data/strategies/AsiaSweepStrategy.py'...
+'/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-10-07 08:06:22,440 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for EURUSD/USD, funding_rate, 1h found. Use `freqtrade download-data` to download the data
+2026-10-07 08:06:22,441 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for EURUSD/USD, mark, 1h found. Use `freqtrade download-data` to download the data
+2026-10-07 08:06:26,602 - tradebot.adapters.freqtrade.base - INFO - asiasweep EURUSD/USD: kresby ulozene do /Users/martin/document/IBS/tester/runs/.profiles/20261007-060620-82a26d.chart.json.gz (1174 
+2026-10-07 08:06:26,913 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1398900.00 na 9900.00 (0.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:26,918 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1633898.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:26,933 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3514740.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:26,938 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3886410.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:26,943 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 11124405.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:26,948 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1403268.00 na 9900.00 (0.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:26,953 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2228035.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:26,968 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3519960.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:26,973 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 8604291.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:26,988 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1765845.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,003 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5870000.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,008 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3421217.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,013 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3656884.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,023 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2569512.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,038 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 7975924.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,053 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3405093.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,059 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5624544.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,074 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3629201.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,090 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2093796.00 na 9900.00 (0.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,096 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4165992.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,111 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3139128.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,117 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1621620.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,122 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6510280.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,133 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1988762.00 na 9900.00 (0.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,148 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3034174.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,158 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1625008.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,164 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3014440.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,184 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6511512.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,189 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6531672.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,221 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2879425.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,236 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 7249851.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,241 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3921288.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,262 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 10403100.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,268 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2314560.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,278 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2328360.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,294 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4992128.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,299 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3132783.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,304 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3011970.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,315 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 12581216.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,330 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4262363.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,336 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2882450.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,341 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4288189.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,367 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3601890.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,372 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3600092.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,382 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6648765.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,408 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4305246.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,441 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 8093424.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,447 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2467206.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,457 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2698751.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,462 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 7145540.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,485 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2355360.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,490 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 8250620.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,495 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1177520.00 na 9900.00 (0.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,515 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1531608.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,520 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4710480.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,556 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 18903493.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,566 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4202784.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,571 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 8967882.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,587 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 7935940.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,592 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2332080.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,598 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6756246.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,608 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2670484.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,623 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4770186.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,631 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5366498.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,637 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2694105.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,642 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2689482.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,647 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4931976.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,661 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1778475.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,666 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3442996.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,671 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 720666.00 na 9900.00 (1.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,676 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1198700.00 na 9900.00 (0.8% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,681 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2268163.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,697 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3082352.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,702 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2008533.00 na 9900.00 (0.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,708 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2129940.00 na 9900.00 (0.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,713 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3423682.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,718 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6723834.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,738 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2502045.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,743 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2025040.00 na 9900.00 (0.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,748 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1898448.00 na 9900.00 (0.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,768 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1898336.00 na 9900.00 (0.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,774 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3551850.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,784 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3538500.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,790 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 7050480.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,807 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5554413.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,812 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2710734.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,822 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2835000.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,856 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1741410.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,863 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6152187.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,882 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 8144570.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,888 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3714144.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,892 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4852680.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,922 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5534976.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,927 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4012505.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,931 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2311400.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,951 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1044702.00 na 9900.00 (0.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,961 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3004716.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,966 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3808563.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:27,982 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 8523690.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,002 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4848438.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,021 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2769984.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,031 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6300234.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,036 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 7128460.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,051 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2221100.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,056 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1647016.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,061 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2594922.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,066 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3656822.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,071 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6004587.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,086 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2234020.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,090 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2119824.00 na 9900.00 (0.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,095 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2702109.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,106 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4090520.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,136 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2216046.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,142 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2346880.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,158 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 9140898.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,163 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2920750.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,173 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3172095.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,193 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1528397.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,198 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3526440.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,203 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3402860.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,208 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2342240.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,232 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2910350.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,237 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2783280.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,247 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2902775.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,267 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1861520.00 na 9900.00 (0.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,272 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 9547506.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,296 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 15035337.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,306 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3254076.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,311 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5457076.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,332 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2418276.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,347 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2422329.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,351 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2312440.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,366 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1393224.00 na 9900.00 (0.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,372 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 10204920.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,381 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4033610.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,387 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4585440.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,401 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4238424.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,407 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5604326.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,417 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1589182.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,436 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5126940.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,446 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 9920088.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,471 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2171358.00 na 9900.00 (0.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,491 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5030168.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,506 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 7528026.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,511 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3076407.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,515 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5033776.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,521 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2868125.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,525 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 11218844.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,544 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5366648.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,549 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3423180.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,554 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2628601.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,574 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1711815.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,579 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5228912.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,589 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 11905296.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,593 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2647162.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,613 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2993510.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,618 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 15463868.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,623 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6350850.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,628 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3571386.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,679 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1853360.00 na 9900.00 (0.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,694 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2453430.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,715 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 10507410.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,725 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6648423.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,730 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 12118808.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,735 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5473667.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,750 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2665378.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,760 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3704704.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+2026-10-07 08:06:28,765 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3015142.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+"/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20261007-060620-82a26d/backtest-result-2026-10-07_06-06-29.meta.json"
+…
+zostatku neuplatni cely.
+2026-10-07 08:06:27,790 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 7050480.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:27,807 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5554413.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:27,812 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2710734.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:27,822 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2835000.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:27,856 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1741410.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:27,863 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6152187.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:27,882 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 8144570.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:27,888 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3714144.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:27,892 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4852680.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:27,922 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5534976.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:27,927 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4012505.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:27,931 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2311400.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:27,951 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1044702.00 na 9900.00 (0.9% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:27,961 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3004716.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:27,966 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3808563.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:27,982 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 8523690.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,002 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4848438.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,021 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2769984.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,031 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6300234.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,036 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 7128460.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,051 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2221100.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,056 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1647016.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,061 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2594922.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,066 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3656822.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,071 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6004587.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,086 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2234020.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,090 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2119824.00 na 9900.00 (0.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,095 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2702109.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,106 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4090520.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,136 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2216046.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,142 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2346880.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,158 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 9140898.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,163 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2920750.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,173 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3172095.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,193 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1528397.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,198 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3526440.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,203 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3402860.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,208 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2342240.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,232 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2910350.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,237 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2783280.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,247 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2902775.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,267 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1861520.00 na 9900.00 (0.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,272 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 9547506.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,296 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 15035337.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,306 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3254076.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,311 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5457076.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,332 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2418276.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,347 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2422329.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,351 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2312440.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,366 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1393224.00 na 9900.00 (0.7% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,372 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 10204920.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,381 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4033610.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,387 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4585440.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,401 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 4238424.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,407 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5604326.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,417 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1589182.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,436 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5126940.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,446 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 9920088.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,471 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2171358.00 na 9900.00 (0.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,491 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5030168.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,506 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 7528026.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,511 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3076407.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,515 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5033776.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,521 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2868125.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,525 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 11218844.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,544 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5366648.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,549 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3423180.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,554 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2628601.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,574 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1711815.00 na 9900.00 (0.6% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,579 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5228912.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,589 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 11905296.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,593 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2647162.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,613 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2993510.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,618 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 15463868.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,623 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6350850.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,628 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3571386.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,679 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 1853360.00 na 9900.00 (0.5% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,694 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2453430.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,715 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 10507410.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,725 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 6648423.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,730 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 12118808.00 na 9900.00 (0.1% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,735 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 5473667.00 na 9900.00 (0.2% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,750 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 2665378.00 na 9900.00 (0.4% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,760 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3704704.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+2026-10-07 08:06:28,765 - tradebot.adapters.freqtrade.callbacks - WARNING - asiasweep EURUSD/USD: stake orezany z 3015142.00 na 9900.00 (0.3% z chceneho). Limit rizika na obchod sa pri tomto SL a 
+zostatku neuplatni cely.
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4/4           100% • 0:00:04 • 0:00:00
+backtest ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 525600/525600 100% • 0:00:06 • 0:00:00
+2026-10-07 08:06:29,153 - freqtrade.misc - INFO - dumping json to 
+"/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20261007-060620-82a26d/backtest-result-2026-10-07_06-06-29.meta.json"
+Result for strategy AsiaSweepStrategy
+                                              BACKTESTING REPORT                                              
+┏━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃       Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ EURUSD/USD │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+│      TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                         LEFT OPEN TRADES REPORT                                         
+┏━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Pair ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ TOTAL │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                               ENTER TAG STATS                                                
+┏━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Entries ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │       0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                              EXIT REASON STATS                                               
+┏━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Exit Reason ┃ Exits ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│       TOTAL │     0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└─────────────┴───────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                                      MIXED TAG STATS                                                      
+┏━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Enter Tag ┃ Exit Reason ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃
+┡━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│     TOTAL │             │      0 │          0.0 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │
+└───────────┴─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+No trades made. Your starting balance was 10000 USD, and your stake was unlimited.
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                          STRATEGY SUMMARY                                                          
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃          Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃     Drawdown ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ AsiaSweepStrategy │      0 │         0.00 │          0.000 │          0.0 │         0:00 │    0     0     0     0 │ 0 USD  0.00% │
+└───────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴──────────────┘
+POZOR: engine dal 168 vstupných signálov, ale nevznikol ani jeden obchod — Freqtrade každý vstup odmietol. Skús väčšiu peňaženku (profil s `legacyPineSizing` pýta nominál v stovkách tisíc) alebo páku; v logu je celý priebeh.
