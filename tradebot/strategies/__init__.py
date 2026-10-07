@@ -6,6 +6,7 @@ Registry je obyčajný dict s explicitnými importmi — bez entry-pointov a má
 
 from __future__ import annotations
 
+from .asiasweep import SPEC as ASIASWEEP_SPEC
 from .base import StrategySpec
 from .breakout import SPEC as BREAKOUT_SPEC
 from .crt import SPEC as CRT_SPEC
@@ -64,6 +65,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     FVGPOLARITY_SPEC.key: FVGPOLARITY_SPEC,
     FPC_SPEC.key: FPC_SPEC,
     MAG7_SPEC.key: MAG7_SPEC,
+    ASIASWEEP_SPEC.key: ASIASWEEP_SPEC,
     DAILYOPEN_SPEC.key: DAILYOPEN_SPEC,
 }
 

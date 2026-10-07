@@ -1,0 +1,10 @@
+{
+  "_title": "EURUSD 5m — ASIA SWEEP 1.0: range Ázie 20:00–00:00 NY, sweep v Londýne 2:00–5:00, návrat do rangu, vstup IBS imbalance / pin bar, stop za sweep, RR 2, výstup 12:00",
+  "_strategy": "asiasweep",
+  "_instrument": "eurusd_dukascopy",
+  "_timeframe": "5m",
+  "_comment": [
+    "Vychodiskovy profil (2026-10-07): klasicky koncept vybratia likvidity Azie v londynskej seanse a obchodu do protismeru.",
+    "Filter naked POC je vypnuty (useNpoc). Nie je to obchodne odporucanie."
+  ]
+}
