@@ -1,4 +1,4 @@
-"""Config stratégie Mag7 + SPX sila 1.0 — sila pohybu Mag7 a S&P 500 od otvorenia NY.
+"""Config stratégie SPX sila 1.0 (kľúč `mag7`, pôvodne „Mag7 + SPX sila") — sila pohybu S&P 500 (voliteľne + Mag7) od otvorenia NY.
 
 Port Pine stratégie „Mag7 + SPX sila od NY open" (TradingView, október 2026, mimo repozitára):
 
@@ -79,13 +79,13 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "leverage": (1, 125),
 }
 
-PORT_ONLY_FIELDS: frozenset[str] = frozenset({"stockW", "vwapData", "fixedQty", "riskDollar", "sessEndH", "sessEndM",
+PORT_ONLY_FIELDS: frozenset[str] = frozenset({"spxOnly", "stockW", "vwapData", "fixedQty", "riskDollar", "sessEndH", "sessEndM",
                                               "showLines", "leverage"})
 
 
 @dataclass
 class Mag7Config(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilterFields):
-    """Sila Mag7 + S&P 500 od 9:30 NY; vstup v okne po otvorení s potvrdením VWAP / EMA / MAG7 na Nasdaqu."""
+    """Sila S&P 500 (voliteľne + Mag7) od 9:30 NY; vstup v okne po otvorení s potvrdením VWAP / EMA / čiary sily na Nasdaqu."""
 
     SIZE_FIELDS: ClassVar[dict[str, SizeUnit]] = SIZE_FIELDS
     ENUM_FIELDS: ClassVar[dict[str, type]] = {**ENUM_FIELDS, **ENTRY_ORDER_ENUMS, **ENTRY_CONFIRM_ENUMS, **ENTRY_FILTER_ENUMS}
@@ -127,8 +127,10 @@ class Mag7Config(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilt
     wMag: float = 1.0
     wBreadth: float = 1.0
     spxW: float = 1.0
-    #: 1.1: váha akcií Mag7 (symboly 1–7). 1 = verzia 1.0 (všetkých 8 symbolov); 0 = sila len z indexu —
-    #: tak počíta TradingView, keď mu akcie vrátia na (zistené 6. 10. 2026: 469 obchodov za 3 roky).
+    #: Sila len z indexu (symbol 8) — tak počíta Pine Mag7 1.0 v TradingView (akcie nezachytia nový deň,
+    #: 469 obchodov za 3 roky); od 7. 10. 2026 stratégia „SPX sila". Vypnuté = index + akcie s váhou `stockW`.
+    spxOnly: bool = True
+    #: Váha akcií Mag7 (symboly 1–7), keď `spxOnly` je vypnuté; 1 = všetkých 8 symbolov rovnako (Pine 1.1).
     stockW: float = 1.0
     # ---- 📊 Symboly (kľúče nástrojov) ----------------------------------------- #
     s1: str = "aapl_ibkr"
@@ -161,7 +163,7 @@ class Mag7Config(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilt
     @property
     def symbols(self) -> list[tuple[str, float]]:
         """(kľúč nástroja, váha) symbolov sily — Pine `ws`."""
-        w = self.stockW
+        w = 0.0 if self.spxOnly else self.stockW
         return [(self.s1, w), (self.s2, w), (self.s3, w), (self.s4, w), (self.s5, w), (self.s6, w), (self.s7, w),
                 (self.s8, self.spxW)]
 
@@ -175,7 +177,7 @@ class Mag7Config(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilt
                 yield f"neznámy symbol sily {key!r}; známe: {sorted(INSTRUMENTS)}"
         if self.vwapData and self.vwapData not in INSTRUMENTS:
             yield f"neznámy nástroj VWAP {self.vwapData!r}"
-        if self.stockW <= 0 and self.spxW <= 0:
-            yield "aspoň jedna z váh stockW / spxW musí byť > 0"
+        if self.spxW <= 0 and (self.spxOnly or self.stockW <= 0):
+            yield "sila nemá z čoho počítať: spxW musí byť > 0 (pri spxOnly), inak aspoň jedna z váh stockW / spxW"
         if self.wMag + self.wBreadth <= 0:
             yield "aspoň jedna z váh wMag / wBreadth musí byť > 0"

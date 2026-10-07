@@ -1,4 +1,4 @@
-"""Popisy parametrov Mag7 + SPX sila pre formulár webapp."""
+"""Popisy parametrov SPX sila (kľúč mag7) pre formulár webapp."""
 
 from __future__ import annotations
 
@@ -43,9 +43,9 @@ PARAMS: dict[str, dict[str, Any]] = {
                     tooltip="Zavretie sviečky grafu voči VWAP od otvorenia NY."),
     "useEma": dict(group=_G1, title="Long len nad EMA, short len pod EMA", tooltip="EMA na TF grafu."),
     "emaLen": dict(group=_G1, title="EMA dĺžka", tooltip="Pine default 100; v TradingView používané 50."),
-    "useMag": dict(group=_G1, title="Long len nad čiarou MAG7, short len pod",
-                   tooltip="Čiara MAG7 = kde by Nasdaq bol, keby sa od 9:30 pohol ako vážený priemer Mag7 + SPX."),
-    "magLen": dict(group=_G1, title="Čiara MAG7: dĺžka EMA (sviečky grafu)", tooltip="Vyhladenie čiary MAG7."),
+    "useMag": dict(group=_G1, title="Long len nad čiarou sily, short len pod",
+                   tooltip="Čiara sily = kde by Nasdaq bol, keby sa od 9:30 pohol ako SPX (pri vypnutom „len SPX“ ako vážený priemer SPX + Mag7)."),
+    "magLen": dict(group=_G1, title="Čiara sily: dĺžka EMA (sviečky grafu)", tooltip="Vyhladenie čiary sily."),
     "useOpen": dict(group=_G1, title="Navyše: long len nad open NY, short len pod",
                     tooltip="Cena musí byť od open NY aspoň o min. pohyb."),
     "minMove": dict(group=_G1, title="Min. pohyb od open NY (body)", tooltip="Pri zapnutom filtri open NY."),
@@ -71,9 +71,11 @@ PARAMS: dict[str, dict[str, Any]] = {
     "wMag": dict(group=_G3, title="Váha: veľkosť pohybu", step=0.5, tooltip="Váha veľkosti pohybu v sile."),
     "wBreadth": dict(group=_G3, title="Váha: zhoda symbolov", step=0.5, tooltip="Váha zhody smeru symbolov."),
     "spxW": dict(group=_G3, title="Váha SPX", step=0.5, tooltip="Váha indexu (symbol 8)."),
-    "stockW": dict(group=_G3, title="Váha akcií Mag7", step=0.5,
-                   tooltip="Váha symbolov 1–7. 1 = verzia 1.0 (sila zo všetkých 8 symbolov); 0 = sila len zo SPX — "
-                           "tak to počíta TradingView, keď mu akcie vrátia prázdnu hodnotu."),
+    "spxOnly": dict(group=_G3, title="Sila len zo SPX (vypni = SPX + akcie Mag7)",
+                    tooltip="Zapnuté = sila a čiara len z S&P 500 (tak počítala Mag7 1.0 v TradingView). "
+                            "Vypnuté = S&P 500 + AAPL, MSFT, NVDA, GOOGL, AMZN, META, TSLA."),
+    "stockW": dict(group=_G3, title="Váha akcií Mag7 (keď nie je len SPX)", step=0.5,
+                   tooltip="Váha symbolov 1–7 pri vypnutom „Sila len zo SPX“; 1 = všetkých 8 symbolov rovnako."),
     **{f"s{k}": dict(group=_G4, title=f"Symbol {k}", options=_SYMBOLS,
                      tooltip="Kľúč nástroja, z ktorého 1m dát sa počíta pohyb od otvorenia.")
        for k in range(1, 8)},
@@ -84,7 +86,7 @@ PARAMS: dict[str, dict[str, Any]] = {
     "qty": dict(group=_G5, title="Počet kontraktov", tooltip="Pine default 1."),
     "riskDollar": dict(group=_G5, title="Riziko na obchod ($)",
                        tooltip="Pri vypnutom pevnom počte: strata na stope v dolároch."),
-    "showLines": dict(group=_G6, title="Kresliť VWAP, MAG7, EMA a open NY", tooltip="Čiary počas NY seansy."),
+    "showLines": dict(group=_G6, title="Kresliť VWAP, čiaru sily, EMA a open NY", tooltip="Čiary počas NY seansy."),
     "leverage": dict(group=_G7, title="Páka", tooltip="Páka pre Freqtrade futures."),
 }
 PARAMS.update(entry_order_params(_GE))

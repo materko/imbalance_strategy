@@ -128,13 +128,14 @@ def test_vwap_zo_sviecok_grafu_ked_graf_nie_je_nastroj_vwap():
 
 
 def test_vaha_akcii_0_pocita_silu_len_z_indexu():
-    """1.1: stockW = 0 — akcie sa nepočítajú (tak to vyšlo v TradingView), index sám určí silu."""
-    cfg = Mag7Config(stockW=0.0)
+    """Default spxOnly — akcie sa nepočítajú (tak počíta Pine Mag7 1.0 v TradingView), index sám určí silu."""
+    assert Mag7Config().spxOnly and Mag7Config(stockW=0.0, spxOnly=False).symbols[0][1] == 0.0
+    cfg = Mag7Config()
     w = [wt for _k, wt in cfg.symbols]
     assert w[:7] == [0.0] * 7 and w[7] == 1.0
     s = Mag7Snapshot(tuple(SymbolValue(-1.0, 0.2, wt) for wt in w[:7]) + (SymbolValue(0.3, 0.12, 1.0),), None, "")
     sila, avg = strength(s, cfg)
     assert sila == 10.0 and abs(avg - 0.3) < 1e-12
-    w10 = [wt for _k, wt in Mag7Config().symbols]       # 1.0: všetky váhy 1, akcie dole prevážia
+    w10 = [wt for _k, wt in Mag7Config(spxOnly=False).symbols]   # všetkých 8: váhy 1, akcie dole prevážia
     s10 = Mag7Snapshot(tuple(SymbolValue(-1.0, 0.2, wt) for wt in w10[:7]) + (SymbolValue(0.3, 0.12, 1.0),), None, "")
-    assert strength(s10, Mag7Config())[0] < 0
+    assert strength(s10, Mag7Config(spxOnly=False))[0] < 0

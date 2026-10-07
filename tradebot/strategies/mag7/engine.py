@@ -1,4 +1,4 @@
-"""Engine Mag7 + SPX sila 1.0 — port Pine stratégie „Mag7 + SPX sila od NY open".
+"""Engine SPX sila 1.0 (kľúč `mag7`) — port Pine stratégie „SPX sila od NY open" (pôvodne „Mag7 + SPX sila").
 
 Priebeh (na každom uzavretom bare grafu, čas New York):
 
@@ -6,7 +6,7 @@ Priebeh (na každom uzavretom bare grafu, čas New York):
   2. **sila** z `Mag7Snapshot` (feeder `data.py`): pre symbol s pohybom `mv` a bežným pohybom `typ`
      veľkosť `clamp(mv / (zFull × typ))` a smer `sign(mv)`, vážené váhou symbolu;
      sila = 10 × (wMag × veľkosť + wBreadth × zhoda) / (wMag + wBreadth),
-  3. **čiara MAG7** = open NY × (1 + vážený priemerný pohyb / 100), vyhladená EMA `magLen` barov grafu
+  3. **čiara sily** = open NY × (1 + vážený priemerný pohyb / 100), vyhladená EMA `magLen` barov grafu
      (od nuly každý deň), **VWAP** od 9:30 z 1m dát (`vwapData`, inak zo sviečok grafu), **EMA** `emaLen`
      na TF grafu,
   4. **vstup** na zavretí baru, ktorý sa zavrie `waitMin`–`entryEnd` minút po otvorení, raz za deň:
@@ -170,7 +170,7 @@ class Mag7Engine:
         else:
             self.vwap = None
 
-        # čiara MAG7 (Pine `magLine`)
+        # čiara sily (Pine `magLine`)
         if not in_ny:
             self.mag_line = None
         elif self.ny_open is not None and avg_move is not None:
@@ -180,7 +180,7 @@ class Mag7Engine:
 
         # ---- kresby ------------------------------------------------------ #
         self._line(out, M7_VWAP, "vwap", end, self.vwap, _VWAP_COLOR, "VWAP od 9:30")
-        self._line(out, M7_LINE, "mag", end, self.mag_line, _MAG_COLOR, "MAG7")
+        self._line(out, M7_LINE, "mag", end, self.mag_line, _MAG_COLOR, "Sila")
         self._line(out, M7_EMA, "ema", end, ema if in_ny else None, _EMA_COLOR, f"EMA {cfg.emaLen}")
         self._line(out, M7_OPEN, "open", end, self.ny_open if in_ny else None, _OPEN_COLOR, "Open NY")
         in_entry = in_ny and cfg.waitMin <= since_open <= max(cfg.entryEnd, cfg.waitMin)

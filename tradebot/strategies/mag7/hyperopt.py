@@ -21,7 +21,6 @@ class Mag7Hyperopt(StrategyHyperopt):
         "magLen": {"low": 2, "high": 20},
         "rr": {"low": 1.0, "high": 3.0, "step": 0.25},
         "slMode": {"choices": ["points", "open"]},
-        "stockW": {"low": 0.0, "high": 2.0, "step": 0.5},
     }
 
     AI_ADJUSTABLE = {
