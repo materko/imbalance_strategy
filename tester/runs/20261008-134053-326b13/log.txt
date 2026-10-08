@@ -1,0 +1,9 @@
+$ emulator MultiCharts MNQ 15m 20211001-20250904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: EMA 50 @15m @15m 125/125
+emulacia MultiCharts: 92659 barov 15m, 1389879 1m, 0 HTF
+  20000/92659 barov, 170 obchodov
+  40000/92659 barov, 342 obchodov
+  60000/92659 barov, 497 obchodov
+  80000/92659 barov, 655 obchodov
+hotovo: 761 obchodov, nerozhodnutelnych minut 4
+kresby: {'m7_vwap': 24876, 'm7_line': 24763, 'm7_ema': 24876, 'm7_open': 24876, 'm7_window': 1012, 'm7_measure': 1007, 'tp_box': 761, 'sl_box': 761, 'm7_entry': 761}
