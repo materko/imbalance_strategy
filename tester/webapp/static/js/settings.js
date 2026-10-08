@@ -491,11 +491,10 @@ function renderStrategyPicker() {
   const sel = $("#strategy");
   if (!sel || !state.meta || !state.meta.strategies) return;
   sel.classList.add("spicker-native");
-  let wrap = $("#strategy-picker");
-  if (!wrap) {
-    wrap = document.createElement("div");
-    wrap.id = "strategy-picker"; wrap.className = "spicker";
-    sel.after(wrap);
+  const wrap = $("#strategy-picker");
+  if (!wrap) return;
+  if (!wrap.dataset.bound) {
+    wrap.dataset.bound = "1";
     document.addEventListener("click", e => { if (!wrap.contains(e.target)) wrap.classList.remove("open"); });
     document.addEventListener("keydown", e => { if (e.key === "Escape") wrap.classList.remove("open"); });
   }
