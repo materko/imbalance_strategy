@@ -1,0 +1,11 @@
+{
+  "_title": "MNQ futures 1m — Craig Percoco 1.0 podľa videa: 15m trend a FVG, 1m CHoCH + FVG, limitka na stred FVG, cieľ 1:4",
+  "_strategy": "percoco",
+  "_instrument": "mnq_databento",
+  "_timeframe": "1m",
+  "_comment": [
+    "Východiskový profil (8. 10. 2026) presne podľa videa Craiga Percoca „This Boring Strategy Made Me $53,478 In A Month“:",
+    "15m smer zo štruktúry a nevyplnené 15m FVG ako body záujmu; od 9:30 NY na 1m CHoCH v smere, FVG v jeho pohybe,",
+    "limitka na stred FVG, stop pod low pohybu, cieľ 4R, bez posunu stopu a čiastočných výstupov. Nie je to obchodné odporúčanie."
+  ]
+}
