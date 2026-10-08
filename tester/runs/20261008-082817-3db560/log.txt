@@ -1,0 +1,11 @@
+$ emulator MultiCharts BTCUSDT.P 1m 20260601-20260904 (BTC_USDT_USDT-1m-futures.feather)
+predhistoria indikatorov z dat pred behom: 15m štruktúra a FVG (15m) @15m 218/218
+emulacia MultiCharts: 136800 barov 1m, 136800 1m, 0 HTF
+  20000/136800 barov, 6 obchodov
+  40000/136800 barov, 12 obchodov
+  60000/136800 barov, 15 obchodov
+  80000/136800 barov, 20 obchodov
+  100000/136800 barov, 31 obchodov
+  120000/136800 barov, 36 obchodov
+hotovo: 45 obchodov, nerozhodnutelnych minut 0
+kresby: {'pc_choch': 6151, 'pc_htf_fvg': 2012, 'tp_box': 45, 'sl_box': 45, 'pc_fvg': 45, 'pc_entry': 45}

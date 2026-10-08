@@ -3,18 +3,11 @@
  "created": "2026-09-19T11:54:29.366957+00:00",
  "seq": 9,
  "strategy": "ibs",
- "config_key": "8dba23a430",
- "market": "MNQ/USD|3m",
- "profile": "RRR06_WR74_301obch",
- "timeranges": [
-  "20211001-20221001",
-  "20221001-20231001",
-  "20231001-20241001",
-  "20240904-20250904"
- ],
- "timeframes": [
-  "3m"
- ],
+ "config_key": "",
+ "market": "",
+ "profile": "",
+ "timeranges": [],
+ "timeframes": [],
  "note": "",
  "user": "IBS",
  "run_ids": [
