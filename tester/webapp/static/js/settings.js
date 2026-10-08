@@ -478,12 +478,15 @@ function timerange() {
 
 
 // --------------------------------------------------------------------------- //
-// Výber stratégie s priečinkami — príbuzné stratégie (IBS a jej odnože) v jednom
+// Výber stratégie s priečinkami — príbuzné stratégie (IBS, ORB a ich odnože) v jednom
 // rozkliknuteľnom priečinku. Skutočná hodnota ostáva v skrytom <select id="strategy">,
 // takže všetok ostatný kód (history, analytika, profily) funguje bez zmeny.
 // --------------------------------------------------------------------------- //
 
-const STRATEGY_FOLDERS = [{ name: "IBS", match: k => k.startsWith("ibs") }];
+const STRATEGY_FOLDERS = [
+  { name: "IBS", match: k => k.startsWith("ibs") },
+  { name: "ORB", match: k => k.startsWith("orb") || k.endsWith("orb") },   // orb, orbnet, vwaporb
+];
 const pickerOpenFolders = new Set();
 let pickerInit = false;
 
