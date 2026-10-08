@@ -677,3 +677,21 @@ details#hub-settings > summary { cursor: pointer; font-weight: 600; }
 .xp-body li { margin: 3px 0; }
 .xp-body code { background: var(--bg); padding: 1px 4px; border-radius: 4px; font-size: 12.5px; }
 .xp-body .xp-lead { background: var(--bg); border-left: 3px solid var(--accent, #17c9a4); padding: 8px 12px; border-radius: 6px; }
+
+/* Výber stratégie s priečinkami (settings.js renderStrategyPicker) */
+select.spicker-native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.spicker { position: relative; }
+.spicker-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; text-align: left;
+  font-weight: 500; color: var(--ink); background: var(--card); }
+.spicker-caret { color: var(--muted); font-size: 11px; }
+.spicker-menu { display: none; position: absolute; z-index: 50; left: 0; right: 0; top: calc(100% + 4px); max-height: 60vh; overflow-y: auto;
+  background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.18); padding: 4px; }
+.spicker.open .spicker-menu { display: block; }
+.spicker-item, .spicker-folder { display: block; width: 100%; text-align: left; border: none; background: none; border-radius: 6px;
+  padding: 7px 10px; color: var(--ink); font-size: 13px; cursor: pointer; }
+.spicker-item:hover, .spicker-folder:hover { background: var(--accent-soft); }
+.spicker-item.sub { padding-left: 34px; }
+.spicker-item.sel { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.spicker-folder { font-weight: 600; }
+.spicker-folder.active { color: var(--accent); }
+.spicker-arrow { display: inline-block; width: 12px; color: var(--muted); }

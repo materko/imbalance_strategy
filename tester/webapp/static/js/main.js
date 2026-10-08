@@ -37,6 +37,7 @@ async function init() {
   Object.assign(state.meta, strategyMeta(state.strategy) || {});
   fillSettings();
   $("#strategy").value = state.strategy;
+  renderStrategyPicker();
   // Východisko sú Pine defaulty; referenčné profily (golden test, MultiCharts) sú na výber.
   const preferred = "";
   $("#profile").value = preferred;

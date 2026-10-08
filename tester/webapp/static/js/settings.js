@@ -17,6 +17,7 @@ function setStrategy(key) {
   Object.assign(state.meta, sm);
   state.activeGroup = null;
   $("#strategy").value = key;
+  renderStrategyPicker();
   fillProfiles("");
   const spec = strategySpec(key);
   if (spec && spec.default_timeframe) fillTimeframes($("#pair").value, spec.default_timeframe);
@@ -38,6 +39,7 @@ function fillSettings() {
     $("#profile").value = "";
     await loadProfile("");
   };
+  renderStrategyPicker();
   fillProfiles();
   const pair = $("#pair"); pair.innerHTML = "";
   // z jedného riadku má byť vidno, odkiaľ sviečky sú, aký je to trh a ako sa pár volá
@@ -472,4 +474,73 @@ function markQuickRange(value) {
 function timerange() {
   const a = $("#from").value.replaceAll("-", ""), b = $("#to").value.replaceAll("-", "");
   return `${a}-${b}`;
+}
+
+
+// --------------------------------------------------------------------------- //
+// Výber stratégie s priečinkami — príbuzné stratégie (IBS a jej odnože) v jednom
+// rozkliknuteľnom priečinku. Skutočná hodnota ostáva v skrytom <select id="strategy">,
+// takže všetok ostatný kód (history, analytika, profily) funguje bez zmeny.
+// --------------------------------------------------------------------------- //
+
+const STRATEGY_FOLDERS = [{ name: "IBS", match: k => k.startsWith("ibs") }];
+const pickerOpenFolders = new Set();
+let pickerInit = false;
+
+function renderStrategyPicker() {
+  const sel = $("#strategy");
+  if (!sel || !state.meta || !state.meta.strategies) return;
+  sel.classList.add("spicker-native");
+  let wrap = $("#strategy-picker");
+  if (!wrap) {
+    wrap = document.createElement("div");
+    wrap.id = "strategy-picker"; wrap.className = "spicker";
+    sel.after(wrap);
+    document.addEventListener("click", e => { if (!wrap.contains(e.target)) wrap.classList.remove("open"); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") wrap.classList.remove("open"); });
+  }
+  const list = state.meta.strategies;
+  const folderOf = k => STRATEGY_FOLDERS.find(f => f.match(k));
+  if (!pickerInit && sel.value) {           // prvé zobrazenie: priečinok aktívnej stratégie otvorený
+    const f = folderOf(sel.value); if (f) pickerOpenFolders.add(f.name);
+    pickerInit = true;
+  }
+  const item = (s, sub) => `<button type="button" class="spicker-item${sub ? " sub" : ""}${s.key === sel.value ? " sel" : ""}" data-key="${esc(s.key)}">${esc(s.title || s.key)}</button>`;
+  let html = "";
+  const done = new Set();
+  for (const s of list) {                    // priečinok je na mieste svojej prvej stratégie
+    const f = folderOf(s.key);
+    if (!f) { html += item(s, false); continue; }
+    if (done.has(f.name)) continue;
+    done.add(f.name);
+    const members = list.filter(x => f.match(x.key));
+    const open = pickerOpenFolders.has(f.name);
+    const active = members.some(x => x.key === sel.value);
+    html += `<button type="button" class="spicker-folder${active ? " active" : ""}" data-folder="${esc(f.name)}">`
+      + `<span class="spicker-arrow">${open ? "▾" : "▸"}</span> 📁 ${esc(f.name)} <span class="muted">(${members.length})</span></button>`;
+    if (open) html += members.map(x => item(x, true)).join("");
+  }
+  const cur = list.find(s => s.key === sel.value);
+  const curFolder = cur && folderOf(cur.key);
+  const label = cur ? (curFolder ? `📁 ${curFolder.name} › ` : "") + (cur.title || cur.key) : "—";
+  const wasOpen = wrap.classList.contains("open");
+  wrap.innerHTML = `<button type="button" class="spicker-btn" aria-haspopup="listbox">${esc(label)}<span class="spicker-caret">▾</span></button>`
+    + `<div class="spicker-menu" role="listbox">${html}</div>`;
+  if (wasOpen) wrap.classList.add("open");
+  wrap.querySelector(".spicker-btn").onclick = e => { e.preventDefault(); wrap.classList.toggle("open"); };
+  for (const b of wrap.querySelectorAll(".spicker-folder")) b.onclick = e => {
+    e.preventDefault(); e.stopPropagation();
+    const n = b.dataset.folder;
+    if (pickerOpenFolders.has(n)) pickerOpenFolders.delete(n); else pickerOpenFolders.add(n);
+    renderStrategyPicker();
+  };
+  for (const b of wrap.querySelectorAll(".spicker-item")) b.onclick = e => {
+    e.preventDefault(); e.stopPropagation();
+    wrap.classList.remove("open");
+    if (sel.value !== b.dataset.key) {
+      sel.value = b.dataset.key;
+      if (sel.onchange) sel.onchange();
+    }
+    renderStrategyPicker();
+  };
 }
