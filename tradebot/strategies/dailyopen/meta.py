@@ -18,6 +18,7 @@ PARAM_NOTES: dict[str, str] = {
 
 FEATURES: list[dict[str, Any]] = [
     {"switches": ["fixedQty"], "params": ["qty"]},
+    {"switches": ["useExit"], "params": ["exitH", "exitM"]},
 ]
 
 LAYERS: tuple[ChartLayer, ...] = (

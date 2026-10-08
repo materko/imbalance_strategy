@@ -106,6 +106,8 @@ class DailyOpenConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, Entr
     slPts: SizeSpec = field(default_factory=lambda: SizeSpec(50.0, "abs"))
     #: Cieľ v bodoch; 0 = bez cieľa (video: drží do konca dňa).
     tpPts: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "abs"))
+    #: Zatvoriť v čase `exitH:exitM` (a pri zmene dňa). Vypnuté = obchod drží do stopu / cieľa (treba `tpPts`).
+    useExit: bool = True
     exitH: int = 16
     exitM: int = 0
     # ---- 💰 Veľkosť -------------------------------------------------------- #
@@ -142,6 +144,8 @@ class DailyOpenConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, Entr
         return self.exitH * 60 + self.exitM
 
     def _problems(self) -> Iterable[str]:
+        if not self.useExit and self.tpPts.value <= 0:
+            yield "bez výstupu v čase (useExit vypnuté) treba cieľ tpPts > 0 — inak obchod nemá ako skončiť ziskom"
         if self.leverage < 1:
             yield f"leverage={self.leverage} musí byť >= 1"
         if self.slPts.value <= 0:

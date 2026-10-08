@@ -40,6 +40,7 @@ PARAMS: dict[str, dict[str, Any]] = {
     "weekdaysOnly": dict(group=_G1, title="Len pondelok–piatok", tooltip="Cez víkend sa nevstupuje."),
     "slPts": dict(group=_G2, title="Stop (body)", tooltip="Video: 1 000 $ na NQ = 50 bodov."),
     "tpPts": dict(group=_G2, title="Cieľ (body, 0 = bez cieľa)", tooltip="Video: bez cieľa, výstup v čase."),
+    "useExit": dict(group=_G2, title="Zatvoriť v čase", tooltip="Zatvorenie v čase nižšie (a pri zmene dňa). Vypnuté = drží do stopu alebo cieľa — treba zadať cieľ."),
     "exitH": dict(group=_G2, title="Výstup o (H)", inline="ex", tooltip="Zatvorenie na zavretí sviečky v tomto čase. Video: 16:00."),
     "exitM": dict(group=_G2, title="M", inline="ex", tooltip="Minúta."),
     "fixedQty": dict(group=_G3, title="Pevný počet kontraktov", tooltip="Vypnuté = veľkosť z rizika v $."),

@@ -8,7 +8,7 @@ Priebeh (na každom uzavretom bare grafu, čas New York podľa ZAVRETIA baru):
   3. **vstup** od `entryStartH:M` do `entryEndH:M`: long nad úrovňou + `breakPts` — stop order na tej
      cene (`entryMode = stop`, platí do konca okna) alebo market na zavretí baru nad ňou (`close`);
      pri `tradeDirection = Both / Short only` short zrkadlovo pod úrovňou − `breakPts`,
-  4. **výstup**: stop `slPts` od vstupu, cieľ `tpPts` (0 = bez cieľa) a zatvorenie na zavretí baru
+  4. **výstup**: stop `slPts` od vstupu, cieľ `tpPts` (0 = bez cieľa) a pri `useExit` zatvorenie na zavretí baru
      v čase `exitH:exitM` (video: 16:00, koniec dennej seansy NY).
 
 Engine je čistý: žiadne I/O, žiadny globálny stav.
@@ -182,7 +182,7 @@ class DailyOpenEngine:
 
         # ---- 4. výstup v čase -------------------------------------------- #
         if not flat:
-            if self._entry_day is not None and (today != self._entry_day or cmin >= cfg.exit_minutes):
+            if cfg.useExit and self._entry_day is not None and (today != self._entry_day or cmin >= cfg.exit_minutes):
                 out.close_session = True
                 for order_id in ctx.open_order_ids:
                     out.orders.append(OrderIntent(OrderAction.CLOSE, order_id, idx,

@@ -128,3 +128,23 @@ def test_vyplnenie_a_stop_v_jednom_bare_nezmaze_boxy():
         out = e.on_bar(bar(t(h), 20010), None, FLAT)
         assert not any(type(d).__name__ == "DrawDelete" for d in out.drawings)
         assert not any(o.action is OrderAction.CANCEL for o in out.orders)
+
+
+def test_bez_vystupu_v_case_drzi_do_stopu_alebo_ciela():
+    """useExit vypnuté: žiadne zatvorenie v čase ani pri zmene dňa (len stop / cieľ)."""
+    import pytest
+    from tradebot.strategies.dailyopen import DailyOpenConfig
+    with pytest.raises(Exception):
+        DailyOpenConfig(useExit=False).validate()          # bez cieľa nemá obchod ako skončiť
+    cfg = DailyOpenConfig(useExit=False, tpPts=40.0)
+    cfg.validate()
+    assert cfg.useExit is False and DailyOpenConfig().useExit is True
+
+
+def test_bez_vystupu_v_case_nezatvara_o_16_ani_na_druhy_den():
+    e = engine(useExit=False, tpPts=60.0)
+    night(e, [20005] * 7)
+    oid = entries(e.on_bar(bar(t(7), 20010), None, FLAT))[0].order_id
+    pos = MarketContext(in_trade_window=True, position_size=1.0, open_order_ids=frozenset({oid}))
+    for h in range(8, 30):                                             # cez 16:00 aj polnoc do ďalšieho dňa
+        assert not e.on_bar(bar(t(h), 20040), None, pos).close_session
