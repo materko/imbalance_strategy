@@ -100,6 +100,7 @@
   tbody tr.click:hover { background: var(--surface-2); }
   th.sort { cursor: pointer; user-select: none; }
   th.sort:hover { color: var(--text); }
+  .advice ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; line-height: 1.5; }
   .tiles { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; min-width: 0; }
   .tile span { display: block; color: var(--muted); font-size: 12px; }
@@ -349,6 +350,8 @@
       '<p class="sub">' + esc(strat.name) + (st.plateau_min != null ? " · plató min " + pfFmt(st.plateau_min) : "") + "</p>" +
       (params ? '<div class="params">' + params + "</div>" : "");
 
+    html += analysisBlocks(st);
+
     // (a) equity + drawdown
     html += '<div class="card"><div class="row"><h2>Krivka kapitálu a prepad</h2><span class="muted">kumulatívny PnL podľa dní</span></div>' +
       '<div class="chart-box"><canvas id="ch-eq"></canvas></div>' +
@@ -377,6 +380,58 @@
     html += '<div class="card section"><div class="row"><h2>Obchody</h2><span class="muted" id="tr-count"></span></div>' +
       '<div class="table-wrap"><table><thead><tr><th class="sort l" data-k="date">Otvorenie</th><th class="l">Zatvorenie</th><th class="l">Smer</th><th>Vstup</th><th>Výstup</th><th class="sort" data-k="pnl">PnL</th><th class="l">Dôvod</th></tr></thead><tbody id="tr-body"></tbody></table></div>' +
       '<div class="pager"><button class="btn" id="pg-prev">‹ Späť</button><span id="pg-info"></span><button class="btn" id="pg-next">Ďalej ›</button></div></div>';
+    return html;
+  }
+
+  function analysisBlocks(st) {
+    var a = st.analysis, adv = st.advice || [];
+    if (!a) return "";
+    var t = a.total || {}, m = a.mc || {}, html = "";
+    if (adv.length) html += '<div class="card section advice"><h2>Odporúčania — ako to zapínať</h2><ul>' +
+      adv.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></div>";
+    function k(label, val, c, sub) { return '<div class="tile"><span>' + label + '</span><b class="' + (c || "") + '">' + val + "</b>" + (sub ? "<span>" + sub + "</span>" : "") + "</div>"; }
+    html += '<div class="section"><h2>Hlavné čísla</h2><div class="grid tiles">' +
+      k("Profit factor", pfFmt(t.pf), pfCls(t.pf)) +
+      k("Win rate", t.winrate == null ? "—" : num(t.winrate, 1) + " %") +
+      k("Obchodov", num(t.trades)) +
+      k("Čistý zisk", money(t.pnl), cls(t.pnl)) +
+      k("Max. prepad", "−$" + num(t.maxdd), "neg", "Monte Carlo 95 %: −$" + num(m.dd_p95)) +
+      k("Max. strát po sebe", num(t.loss_streak), "neg", "Monte Carlo 95 %: " + num(m.streak_p95)) +
+      k("Max. ziskov po sebe", num(t.win_streak), "pos") +
+      k("Najväčší zisk", money(t.max_win), "pos") +
+      k("Najväčšia strata", money(t.max_loss), "neg") +
+      k("Priem. zisk / strata", money(t.avg_win) + " / " + money(t.avg_loss)) +
+      k("Najlepší / najhorší deň", money(a.best_day) + " / " + money(a.worst_day)) +
+      k("Max. obchodov za deň", num(a.max_trades_day)) +
+      "</div></div>";
+    var yr = (a.years || []).map(function (y) {
+      if (y.pending) return '<tr><td class="l">' + esc(y.year) + '</td><td colspan="8" class="l muted">ešte nebežal — smernica ho púšťa len raz, keď nastavenie prejde ladením a plató</td></tr>';
+      return '<tr><td class="l">' + esc(y.year) + "</td><td>" + num(y.trades) + "</td><td>" + (y.winrate == null ? "—" : num(y.winrate, 1) + " %") +
+        '</td><td class="' + pfCls(y.pf) + '">' + pfFmt(y.pf) + '</td><td class="' + cls(y.pnl) + '">' + money(y.pnl) +
+        '</td><td class="neg">−$' + num(y.maxdd) + "</td><td>" + num(y.loss_streak) + "</td><td>" + money(y.max_win) + "</td><td>" + money(y.max_loss) + "</td></tr>";
+    }).join("");
+    html += '<div class="card section"><h2>Roky jeden za druhým</h2><div class="table-wrap"><table><thead><tr><th class="l">Rok (okt – sep)</th><th>Obchody</th><th>Win rate</th><th>PF</th><th>Zisk</th><th>Max. prepad</th><th>Strát po sebe</th><th>Najv. zisk</th><th>Najv. strata</th></tr></thead><tbody>' + yr + "</tbody></table></div></div>";
+    var nl = a.null || {};
+    function f4(v) { return v == null ? "—" : String((+v).toFixed(4)).replace(".", ","); }
+    function nrow(kind, label) {
+      var r = nl[kind] || {};
+      if (r.sigma == null) return '<tr><td class="l">' + label + '</td><td colspan="4" class="l muted">nedalo sa spočítať</td></tr>';
+      var v = r.sigma >= 2 ? ["pos", "odlíšiteľné od náhody"] : r.sigma >= 1 ? ["warn", "náznak, nie dôkaz"] : ["neg", "ako náhoda"];
+      return '<tr><td class="l">' + label + "</td><td>" + f4(r.observed) + " %</td><td>" + f4(r.mean) + " % (" + f4(r.lo) + " až " + f4(r.hi) + ")</td><td>" +
+        (r.sigma > 0 ? "+" : "") + num(r.sigma, 1) + ' σ</td><td class="l"><span class="badge ' + v[0] + '">' + v[1] + "</span></td></tr>";
+    }
+    html += '<div class="grid two section"><div class="card"><h2>Test proti náhode</h2>' +
+      '<p class="muted" style="margin:0 0 8px">Tisíce náhodných vstupov s tým istým stopom, cieľom a počtom obchodov. Merané je break-even (koľko poplatku stratégia znesie). Od 2 σ je edge skutočný.</p>' +
+      '<div class="table-wrap"><table><thead><tr><th class="l">Náhoda</th><th>Stratégia</th><th>Náhoda (5–95 %)</th><th>Rozdiel</th><th class="l">Záver</th></tr></thead><tbody>' +
+      nrow("session", "v tých istých hodinách") + nrow("anytime", "kedykoľvek") + "</tbody></table></div></div>" +
+      '<div class="card"><h2>Monte Carlo (5000 poradí obchodov)</h2><div class="kv">' +
+      "<div><span>Prepad — typický</span><b>−$" + num(m.dd_median) + "</b></div>" +
+      '<div><span>Prepad — 95 % ciest</span><b class="neg">−$' + num(m.dd_p95) + "</b></div>" +
+      "<div><span>Strát po sebe — typicky</span><b>" + num(m.streak_median) + "</b></div>" +
+      '<div><span>Strát po sebe — 95 %</span><b class="neg">' + num(m.streak_p95) + "</b></div>" +
+      "<div><span>Čakanie na nové maximum (95 %)</span><b>" + num(m.wait_p95) + " obch.</b></div>" +
+      '<div><span>Pravdepodobnosť zisku</span><b class="' + (m.p_positive >= 95 ? "pos" : "warn") + '">' + num(m.p_positive, 1) + " %</b></div>" +
+      "</div></div></div>";
     return html;
   }
 
