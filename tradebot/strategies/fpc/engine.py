@@ -31,6 +31,7 @@ from zoneinfo import ZoneInfo
 from tradebot.core.drawing import (DrawBg, DrawBox, DrawCommand, DrawKind, DrawLabel, DrawLine, DrawUpdate, LabelStyle,
                                    LineStyle, with_alpha)
 from tradebot.core.engine import EngineOutput
+from tradebot.core.entry_order import EntryOrderType
 from tradebot.core.history import BarHistory
 from tradebot.core.orders import MarketContext, OrderAction, OrderIntent
 from tradebot.core.risk import TradePlan
@@ -64,6 +65,7 @@ class _Trade:
     sent_idx: int
     signal_t: int
     in_pos: bool = False
+    fill: float | None = None   # cena vyplnenia vstupu (market = open baru po signáli)
 
 
 class FpcEngine:
@@ -181,6 +183,8 @@ class FpcEngine:
         tr = self._trade
         if tr is None:
             return
+        if idx == tr.sent_idx + 1 and tr.fill is None and self.cfg.entryOrderType is EntryOrderType.MARKET:
+            tr.fill = bar.open       # market vstup sa vyplní na otvorení baru po signáli (limitka = plánovaná cena)
         for kind in ("tp", "sl"):   # boxy obchodu rastú doprava, kým obchod beží
             out.drawings.append(DrawUpdate(f"fpc.{kind}.{tr.signal_t}", "x2_ms", bar.time + self.step_ms))
         if ctx.position_size != 0.0:
@@ -197,7 +201,10 @@ class FpcEngine:
             return   # bar, na ktorom sa order poslal
         hit_sl = bar.low <= tr.stop if tr.long else bar.high >= tr.stop
         hit_tp = bar.high >= tr.take if tr.long else bar.low <= tr.take
-        loss = hit_sl or (not hit_tp and ((bar.close < tr.entry) if tr.long else (bar.close > tr.entry)))
+        # bez zásahu TP / SL obchod zavrelo okno — market na otvorení tejto sviečky voči vyplneniu vstupu
+        # (Pine: znamienko zisku obchodu); SL zasiahnutý = strata aj keď sviečka zasiahla aj TP, ako v Pine
+        fill = tr.fill if tr.fill is not None else tr.entry
+        loss = hit_sl or (not hit_tp and ((bar.open < fill) if tr.long else (bar.open > fill)))
         if loss:
             self.loss_row += 1
             self._last_loss_t = bar.time

@@ -222,3 +222,13 @@ def test_zatvorenie_po_konci_okna():
             closed = m
             break
     assert closed == 47                 # koniec okna 9:42 + 5 min
+
+
+def test_sviecka_so_zasahom_tp_aj_sl_je_strata():
+    """Ako Pine (naživo aj po reštarte rovnako): sviečka zavretia zasiahla SL aj TP → strata."""
+    s = Sim()
+    warm(s)
+    pre_open(s)
+    morning(s)                                         # short 9:39 z 20032: SL 20057, TP 19994
+    s.step(t(9, 40), 20032, 20060, 19990, 20000)       # zasiahne oboje
+    assert s.e.loss_row == 1
