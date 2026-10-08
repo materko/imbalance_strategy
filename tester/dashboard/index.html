@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Výsledky testovania</title>
+<script>
+  // Téma sa nastaví ešte pred vykreslením, aby stránka nezablikala.
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem("dashboard-theme"); } catch (e) {}
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0b0f14; --surface: #121821; --surface-2: #18202b; --border: #232d3a;
+    --text: #e7edf4; --muted: #8a97a8; --accent: #3b82f6;
+    --pos: #22c55e; --pos-bg: rgba(34,197,94,.16); --neg: #ef4444; --neg-bg: rgba(239,68,68,.16);
+    --warn: #f59e0b; --warn-bg: rgba(245,158,11,.16); --grid: rgba(138,151,168,.14);
+    --shadow: 0 1px 2px rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #f4f6f9; --surface: #ffffff; --surface-2: #f0f3f7; --border: #e1e6ed;
+      --text: #111827; --muted: #5f6b7a; --accent: #2563eb;
+      --pos: #15803d; --pos-bg: rgba(22,163,74,.13); --neg: #dc2626; --neg-bg: rgba(220,38,38,.12);
+      --warn: #b45309; --warn-bg: rgba(217,119,6,.14); --grid: rgba(95,107,122,.15);
+      --shadow: 0 1px 3px rgba(16,24,40,.08);
+      color-scheme: light;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #f4f6f9; --surface: #ffffff; --surface-2: #f0f3f7; --border: #e1e6ed;
+    --text: #111827; --muted: #5f6b7a; --accent: #2563eb;
+    --pos: #15803d; --pos-bg: rgba(22,163,74,.13); --neg: #dc2626; --neg-bg: rgba(220,38,38,.12);
+    --warn: #b45309; --warn-bg: rgba(217,119,6,.14); --grid: rgba(95,107,122,.15);
+    --shadow: 0 1px 3px rgba(16,24,40,.08);
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px 48px; }
+  header.top {
+    position: sticky; top: 0; z-index: 10; background: var(--bg);
+    border-bottom: 1px solid var(--border); margin-bottom: 20px;
+  }
+  header.top .wrap { display: flex; align-items: center; gap: 12px; padding-top: 12px; padding-bottom: 12px; }
+  .brand { font-weight: 700; font-size: 16px; letter-spacing: .2px; white-space: nowrap; }
+  .brand span { color: var(--pos); }
+  .meta { flex: 1; min-width: 0; color: var(--muted); font-size: 12px; }
+  .meta .note { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .icon-btn {
+    border: 1px solid var(--border); background: var(--surface); border-radius: 8px;
+    width: 36px; height: 36px; display: inline-grid; place-items: center; cursor: pointer; flex: none;
+  }
+  .icon-btn:hover { background: var(--surface-2); }
+  .crumbs { color: var(--muted); font-size: 13px; margin: 0 0 6px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .crumbs a:hover { color: var(--text); }
+  h1 { font-size: 22px; margin: 0 0 4px; line-height: 1.25; }
+  h2 { font-size: 15px; margin: 0 0 12px; font-weight: 600; }
+  .sub { color: var(--muted); margin: 0 0 18px; }
+  .grid { display: grid; gap: 14px; }
+  .cards { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px; box-shadow: var(--shadow); min-width: 0;
+  }
+  a.card { display: block; transition: border-color .15s, transform .15s; }
+  a.card:hover { border-color: var(--accent); }
+  .card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 12px; }
+  .card-title { font-size: 17px; font-weight: 650; }
+  .kv { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+  .kv div span { display: block; color: var(--muted); font-size: 12px; }
+  .kv div b { font-size: 18px; font-variant-numeric: tabular-nums; }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600;
+    white-space: nowrap; background: var(--surface-2); color: var(--muted);
+  }
+  .badge.pos { background: var(--pos-bg); color: var(--pos); }
+  .badge.neg { background: var(--neg-bg); color: var(--neg); }
+  .badge.warn { background: var(--warn-bg); color: var(--warn); }
+  .pos { color: var(--pos); } .neg { color: var(--neg); } .muted { color: var(--muted); }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { padding: 9px 10px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; }
+  th:first-child, td:first-child { text-align: left; }
+  td.l, th.l { text-align: left; }
+  tbody tr.click { cursor: pointer; }
+  tbody tr.click:hover { background: var(--surface-2); }
+  th.sort { cursor: pointer; user-select: none; }
+  th.sort:hover { color: var(--text); }
+  .tiles { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; min-width: 0; }
+  .tile span { display: block; color: var(--muted); font-size: 12px; }
+  .tile b { display: block; font-size: 20px; margin-top: 2px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .two { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+  @media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); } }
+  .chart-box { position: relative; height: 300px; }
+  .chart-box.sm { height: 220px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .seg button { border: 0; background: transparent; padding: 6px 12px; cursor: pointer; color: var(--muted); }
+  .seg button.on { background: var(--surface-2); color: var(--text); font-weight: 600; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .row h2 { margin: 0; }
+  .section { margin-top: 14px; }
+  /* Kalendár */
+  .cal-nav { display: flex; align-items: center; gap: 8px; }
+  .cal-nav b { min-width: 120px; text-align: center; }
+  .cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)) minmax(0, 1.1fr); gap: 4px; }
+  .cal .dow { color: var(--muted); font-size: 11px; text-align: center; padding: 2px 0; }
+  .cell {
+    min-height: 64px; border-radius: 8px; background: var(--surface-2); padding: 5px 6px;
+    display: flex; flex-direction: column; justify-content: space-between; min-width: 0;
+  }
+  .cell.empty { background: transparent; }
+  .cell .d { font-size: 11px; color: var(--muted); }
+  .cell .v { font-size: 13px; font-weight: 650; text-align: right; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
+  .cell .n { font-size: 10px; color: var(--muted); text-align: right; }
+  .cell.win { background: var(--pos-bg); } .cell.win .v { color: var(--pos); }
+  .cell.loss { background: var(--neg-bg); } .cell.loss .v { color: var(--neg); }
+  .cell.week { background: transparent; border: 1px dashed var(--border); }
+  @media (max-width: 520px) {
+    .cell { min-height: 46px; padding: 3px 4px; border-radius: 6px; }
+    .cell .v { font-size: 10.5px; } .cell .n { display: none; }
+    .cal { gap: 3px; }
+    h1 { font-size: 19px; }
+    .tile b { font-size: 17px; }
+    .chart-box { height: 240px; }
+  }
+  .pager { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 10px; color: var(--muted); }
+  .btn { border: 1px solid var(--border); background: var(--surface); border-radius: 8px; padding: 5px 10px; cursor: pointer; }
+  .btn:disabled { opacity: .4; cursor: default; }
+  .btn:not(:disabled):hover { background: var(--surface-2); }
+  .params { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; }
+  .params code {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    padding: 2px 7px; font-size: 12px; overflow-wrap: anywhere;
+  }
+  .oos-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  .msg { padding: 40px 0; color: var(--muted); }
+  .msg code { background: var(--surface); padding: 2px 6px; border-radius: 4px; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#/">Trade<span>Bot</span> výsledky</a>
+    <div class="meta"><span id="updated"></span><span class="note" id="note"></span></div>
+    <button class="icon-btn" id="theme" title="Prepnúť svetlý / tmavý režim" aria-label="Prepnúť svetlý / tmavý režim">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<main class="wrap" id="app"><div class="msg">Načítavam dáta…</div></main>
+
+<script>
+(function () {
+  "use strict";
+  var OOS_START = "2025-09-04";
+  var DATA = null;
+  var charts = [];
+  var state = { scope: "all", calMonth: null, sortKey: "date", sortDir: -1, page: 0, settingId: null };
+
+  // ---------- pomocné ----------
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  var nf0 = new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 });
+  var nf2 = new Intl.NumberFormat("sk-SK", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var nf1 = new Intl.NumberFormat("sk-SK", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  function num(v, d) {
+    if (v == null || !isFinite(v)) return "—";
+    return d === 2 ? nf2.format(v) : d === 1 ? nf1.format(v) : nf0.format(v);
+  }
+  function money(v, d) {
+    if (v == null || !isFinite(v)) return "—";
+    return (v > 0 ? "+" : v < 0 ? "−" : "") + "$" + num(Math.abs(v), d);
+  }
+  function compact(v) {
+    var a = Math.abs(v), s = v > 0 ? "+" : v < 0 ? "−" : "";
+    if (a >= 1000) return s + nf1.format(a / 1000) + "k";
+    return s + nf0.format(a);
+  }
+  function pfFmt(v) { return v == null || !isFinite(v) ? "—" : nf2.format(v); }
+  function cls(v) { return v > 0 ? "pos" : v < 0 ? "neg" : ""; }
+  function pfCls(v) { return v == null ? "" : v >= 1.3 ? "pos" : v < 1 ? "neg" : "warn"; }
+  function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+  function statusBadge(s) {
+    var t = String(s || "").toLowerCase();
+    var c = t.indexOf("neprešiel") === 0 ? "neg" : t.indexOf("prešiel") === 0 ? "pos" : t.indexOf("kandidát") === 0 ? "warn" : "";
+    return '<span class="badge ' + c + '">' + esc(s || "—") + "</span>";
+  }
+  var MONTHS = ["január", "február", "marec", "apríl", "máj", "jún", "júl", "august", "september", "október", "november", "december"];
+  var MONTHS_SHORT = ["jan", "feb", "mar", "apr", "máj", "jún", "júl", "aug", "sep", "okt", "nov", "dec"];
+  function fmtDate(iso) {
+    var d = String(iso);
+    return d.slice(8, 10).replace(/^0/, "") + ". " + d.slice(5, 7).replace(/^0/, "") + ". " + d.slice(0, 4);
+  }
+  function fmtDateTime(iso) { return fmtDate(iso) + " " + String(iso).slice(11, 16); }
+
+  function destroyCharts() { charts.forEach(function (c) { c.destroy(); }); charts = []; }
+  function hasChart() { return typeof window.Chart !== "undefined"; }
+  function chartFallback(id) {
+    var el = $(id); if (el) el.parentNode.innerHTML = '<div class="msg">Graf sa nenačítal (knižnica Chart.js nie je dostupná).</div>';
+  }
+  function baseOpts() {
+    var muted = cssVar("--muted"), grid = cssVar("--grid");
+    return {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: cssVar("--surface-2"), titleColor: cssVar("--text"), bodyColor: cssVar("--text"), borderColor: cssVar("--border"), borderWidth: 1 } },
+      scales: {
+        x: { ticks: { color: muted, maxRotation: 0, autoSkip: true, maxTicksLimit: 6 }, grid: { display: false }, border: { color: grid } },
+        y: { ticks: { color: muted, maxTicksLimit: 6 }, grid: { color: grid }, border: { display: false } }
+      }
+    };
+  }
+  // Vodorovné čiary (napr. PF 1,0 a 1,3) a zvislá značka začiatku OOS.
+  var guidePlugin = {
+    id: "guides",
+    afterDatasetsDraw: function (chart, args, opts) {
+      var ctx = chart.ctx, area = chart.chartArea;
+      ctx.save();
+      (opts.hlines || []).forEach(function (h) {
+        var y = chart.scales.y.getPixelForValue(h.value);
+        if (y < area.top || y > area.bottom) return;
+        ctx.strokeStyle = h.color; ctx.lineWidth = 1; ctx.setLineDash(h.dash || [4, 4]);
+        ctx.beginPath(); ctx.moveTo(area.left, y); ctx.lineTo(area.right, y); ctx.stroke();
+        if (h.label) { ctx.setLineDash([]); ctx.fillStyle = h.color; ctx.font = "11px sans-serif"; ctx.textAlign = "right"; ctx.fillText(h.label, area.right - 2, y - 4); }
+      });
+      if (opts.vline != null) {
+        var x = chart.scales.x.getPixelForValue(opts.vline);
+        ctx.strokeStyle = opts.vcolor; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]);
+        ctx.beginPath(); ctx.moveTo(x, area.top); ctx.lineTo(x, area.bottom); ctx.stroke();
+        ctx.setLineDash([]); ctx.fillStyle = opts.vcolor; ctx.font = "11px sans-serif"; ctx.textAlign = "left";
+        ctx.fillText("odložený rok →", Math.min(x + 4, area.right - 80), area.top + 12);
+      }
+      ctx.restore();
+    }
+  };
+
+  // ---------- výpočty ----------
+  function scopeTrades(st, scope) {
+    var t = (st.trades || []).slice().sort(function (a, b) { return a.close < b.close ? -1 : a.close > b.close ? 1 : 0; });
+    if (scope === "is") return t.filter(function (x) { return x.close.slice(0, 10) < OOS_START; });
+    if (scope === "oos") return t.filter(function (x) { return x.close.slice(0, 10) >= OOS_START; });
+    return t;
+  }
+  function calcStats(trades) {
+    var wins = [], losses = [], gw = 0, gl = 0, streak = 0, maxStreak = 0, eq = 0, peak = 0, dd = 0;
+    trades.forEach(function (t) {
+      var p = +t.pnl;
+      if (p > 0) { wins.push(p); gw += p; streak = 0; }
+      else if (p < 0) { losses.push(p); gl += -p; streak++; if (streak > maxStreak) maxStreak = streak; }
+      else streak = 0;
+      eq += p; if (eq > peak) peak = eq; if (peak - eq > dd) dd = peak - eq;
+    });
+    var n = trades.length, years = 1;
+    if (n > 1) {
+      var span = (Date.parse(trades[n - 1].close) - Date.parse(trades[0].open)) / 864e5;
+      years = Math.max(span, 30) / 365.25;
+    }
+    return {
+      n: n, net: gw - gl,
+      winrate: n ? 100 * wins.length / n : null,
+      pf: gl ? gw / gl : (gw ? Infinity : null),
+      avgWin: wins.length ? gw / wins.length : null,
+      avgLoss: losses.length ? -gl / losses.length : null,
+      maxWin: wins.length ? Math.max.apply(null, wins) : null,
+      maxLoss: losses.length ? Math.min.apply(null, losses) : null,
+      streak: maxStreak, maxdd: dd,
+      perYear: n ? n / years : null,
+      expectancy: n ? (gw - gl) / n : null
+    };
+  }
+  function worstYear(st) {
+    var y = (st.is && st.is.years) || {}, v = Object.keys(y).map(function (k) { return y[k]; }).filter(function (x) { return x != null; });
+    return v.length ? Math.min.apply(null, v) : null;
+  }
+  function isCandidate(st) { var s = String(st.status || "").toLowerCase(); return s.indexOf("kandidát") === 0 || s.indexOf("prešiel") === 0; }
+  function findSetting(id) {
+    for (var i = 0; i < DATA.strategies.length; i++) {
+      var s = DATA.strategies[i];
+      for (var j = 0; j < (s.settings || []).length; j++) if (s.settings[j].id === id) return { strat: s, st: s.settings[j] };
+    }
+    return null;
+  }
+  function findStrategy(key) { return DATA.strategies.filter(function (s) { return s.key === key; })[0] || null; }
+
+  // ---------- obrazovky ----------
+  function viewOverview() {
+    var html = '<h1>Prehľad stratégií</h1><p class="sub">Klikni na stratégiu pre zoznam jej nastavení.</p><div class="grid cards">';
+    DATA.strategies.forEach(function (s) {
+      var sets = s.settings || [];
+      var best = sets.reduce(function (m, x) { return x.is && x.is.pf != null && (m == null || x.is.pf > m) ? x.is.pf : m; }, null);
+      var cand = sets.filter(isCandidate).length;
+      var s1 = String(s.step1 || "").toLowerCase();
+      html += '<a class="card" href="#/s/' + encodeURIComponent(s.key) + '">' +
+        '<div class="card-head"><div><div class="card-title">' + esc(s.name) + '</div><div class="muted">' + esc(s.guideline_step || "") + '</div></div>' +
+        '<span class="badge ' + (s1.indexOf("neprešiel") === 0 ? "neg" : s1.indexOf("prešiel") === 0 ? "pos" : "") + '">krok 1: ' + esc(s.step1 || "—") + "</span></div>" +
+        '<div class="kv">' +
+        "<div><span>Skúšané kombinácie</span><b>" + num(s.combos) + "</b></div>" +
+        "<div><span>Kandidáti</span><b>" + cand + ' <small class="muted">/ ' + sets.length + "</small></b></div>" +
+        '<div><span>Najlepší PF (in-sample)</span><b class="' + pfCls(best) + '">' + pfFmt(best) + "</b></div>" +
+        "<div><span>Nastavení</span><b>" + sets.length + "</b></div>" +
+        "</div></a>";
+    });
+    return html + "</div>";
+  }
+
+  function viewStrategy(s) {
+    var rows = (s.settings || []).map(function (st) {
+      var w = worstYear(st);
+      return '<tr class="click" data-href="#/d/' + encodeURIComponent(st.id) + '">' +
+        '<td class="l">' + esc(st.label) + "</td><td class=\"l\">" + statusBadge(st.status) + "</td>" +
+        '<td class="' + pfCls(st.is && st.is.pf) + '">' + pfFmt(st.is && st.is.pf) + "</td>" +
+        "<td>" + num(st.is && st.is.trades_per_year) + "</td>" +
+        '<td class="' + pfCls(w) + '">' + pfFmt(w) + "</td>" +
+        '<td class="' + (st.oos ? pfCls(st.oos.pf) : "muted") + '">' + (st.oos ? pfFmt(st.oos.pf) : "—") + "</td></tr>";
+    }).join("");
+    return '<div class="crumbs"><a href="#/">Prehľad</a><span>/</span><span>' + esc(s.name) + "</span></div>" +
+      "<h1>" + esc(s.name) + '</h1><p class="sub">' + esc(s.guideline_step || "") + " · krok 1: " + esc(s.step1 || "—") +
+      " · skúšaných kombinácií " + num(s.combos) + "</p>" +
+      '<div class="card"><div class="table-wrap"><table><thead><tr><th>Nastavenie</th><th class="l">Stav</th><th>PF IS</th><th>Obch./rok</th><th>Najhorší rok PF</th><th>PF OOS</th></tr></thead><tbody>' +
+      (rows || '<tr><td colspan="6" class="muted">Žiadne nastavenia.</td></tr>') + "</tbody></table></div></div>";
+  }
+
+  function viewDetail(strat, st) {
+    var hasOos = !!st.oos;
+    var params = Object.keys(st.params || {}).map(function (k) { return "<code>" + esc(k) + " = " + esc(JSON.stringify(st.params[k])) + "</code>"; }).join("");
+    var html = '<div class="crumbs"><a href="#/">Prehľad</a><span>/</span><a href="#/s/' + encodeURIComponent(strat.key) + '">' + esc(strat.name) + "</a><span>/</span><span>" + esc(st.id) + "</span></div>" +
+      '<div class="row" style="margin-bottom:6px"><h1>' + esc(st.label) + "</h1>" + statusBadge(st.status) + "</div>" +
+      '<p class="sub">' + esc(strat.name) + (st.plateau_min != null ? " · plató min " + pfFmt(st.plateau_min) : "") + "</p>" +
+      (params ? '<div class="params">' + params + "</div>" : "");
+
+    // (a) equity + drawdown
+    html += '<div class="card"><div class="row"><h2>Krivka kapitálu a prepad</h2><span class="muted">kumulatívny PnL podľa dní</span></div>' +
+      '<div class="chart-box"><canvas id="ch-eq"></canvas></div>' +
+      '<div class="legend"><span><i style="background:' + cssVar("--accent") + '"></i>kapitál</span><span><i style="background:' + cssVar("--neg") + '"></i>prepad od maxima</span>' +
+      (hasOos ? '<span><i style="background:' + cssVar("--warn") + '"></i>začiatok odloženého roka (' + fmtDate(OOS_START) + ")</span>" : "") + "</div></div>";
+
+    // (c) dlaždice
+    html += '<div class="section row"><h2>Štatistiky z obchodov</h2><div class="seg" id="scope">' +
+      '<button data-s="all">Celé obdobie</button><button data-s="is">In-sample</button>' + (hasOos ? '<button data-s="oos">Odložený rok</button>' : "") +
+      '</div></div><div class="grid tiles" id="tiles"></div>';
+
+    // (b) kalendár + mesačné súčty
+    html += '<div class="grid two section">' +
+      '<div class="card"><div class="row"><h2>Denný PnL</h2><div class="cal-nav"><button class="btn" id="cal-prev" aria-label="Predchádzajúci mesiac">‹</button><b id="cal-title"></b><button class="btn" id="cal-next" aria-label="Nasledujúci mesiac">›</button></div></div>' +
+      '<div class="row" style="margin-bottom:8px"><span class="muted" id="cal-sum"></span></div><div class="cal" id="cal"></div></div>' +
+      '<div class="grid" style="align-content:start">' +
+      '<div class="card"><h2>Mesačné súčty</h2><div class="chart-box sm"><canvas id="ch-month"></canvas></div></div>' +
+      '<div class="card"><h2>PF po rokoch</h2><div class="chart-box sm"><canvas id="ch-years"></canvas></div>' +
+      '<div class="legend"><span>čiary: PF 1,0 a 1,3</span>' + (hasOos ? '<span><i style="background:' + cssVar("--warn") + '"></i>odložený rok</span>' : "") + "</div></div>" +
+      "</div></div>";
+
+    // (e) OOS
+    html += '<div class="card section"><h2>Odložený rok (out-of-sample)</h2>' + oosBlock(st) + "</div>";
+
+    // (f) obchody
+    html += '<div class="card section"><div class="row"><h2>Obchody</h2><span class="muted" id="tr-count"></span></div>' +
+      '<div class="table-wrap"><table><thead><tr><th class="sort l" data-k="date">Otvorenie</th><th class="l">Zatvorenie</th><th class="l">Smer</th><th>Vstup</th><th>Výstup</th><th class="sort" data-k="pnl">PnL</th><th class="l">Dôvod</th></tr></thead><tbody id="tr-body"></tbody></table></div>' +
+      '<div class="pager"><button class="btn" id="pg-prev">‹ Späť</button><span id="pg-info"></span><button class="btn" id="pg-next">Ďalej ›</button></div></div>';
+    return html;
+  }
+
+  function oosBlock(st) {
+    if (!st.oos) return '<p class="muted" style="margin:0">Toto nastavenie zatiaľ nemá výsledok na odloženom roku (od ' + fmtDate(OOS_START) + ").</p>";
+    var o = st.oos, i = st.is || {};
+    function tile(label, a, b, fmt, c) {
+      return '<div class="tile"><span>' + label + '</span><b class="' + (c || "") + '">' + fmt(a) + '</b><span>IS: ' + fmt(b) + "</span></div>";
+    }
+    return '<div class="grid oos-grid">' +
+      tile("Profit factor", o.pf, i.pf, pfFmt, pfCls(o.pf)) +
+      tile("Obchody", o.trades, i.trades, function (v) { return num(v); }) +
+      tile("Win rate", o.winrate, i.winrate, function (v) { return v == null ? "—" : num(v, 1) + " %"; }) +
+      tile("Čistý PnL", o.pnl, i.pnl, function (v) { return money(v); }, cls(o.pnl)) +
+      tile("Max. prepad", o.maxdd, i.maxdd, function (v) { return v == null ? "—" : "$" + num(v); }) +
+      "</div>" +
+      '<p class="muted" style="margin:10px 0 0">PF odloženého roka ' + pfFmt(o.pf) + " oproti in-sample " + pfFmt(i.pf) +
+      (i.pf ? " (" + num(100 * o.pf / i.pf) + " % in-sample)" : "") + (st.plateau_min != null ? "; plató min " + pfFmt(st.plateau_min) : "") + ".</p>";
+  }
+
+  // ---------- vykreslenie častí detailu ----------
+  function renderTiles(st) {
+    var s = calcStats(scopeTrades(st, state.scope));
+    function t(label, val, c) { return '<div class="tile"><span>' + label + '</span><b class="' + (c || "") + '">' + val + "</b></div>"; }
+    $("tiles").innerHTML =
+      t("Win rate", s.winrate == null ? "—" : num(s.winrate, 1) + " %") +
+      t("Profit factor", s.pf === Infinity ? "∞" : pfFmt(s.pf), pfCls(s.pf)) +
+      t("Čistý PnL", money(s.net), cls(s.net)) +
+      t("Priem. zisk", money(s.avgWin), "pos") +
+      t("Priem. strata", money(s.avgLoss), "neg") +
+      t("Najväčší zisk", money(s.maxWin), "pos") +
+      t("Najväčšia strata", money(s.maxLoss), "neg") +
+      t("Najdlhšia séria strát", s.n ? num(s.streak) + " obch." : "—") +
+      t("Max. prepad", s.n ? "−$" + num(s.maxdd) : "—", s.maxdd ? "neg" : "") +
+      t("Obchodov za rok", num(s.perYear)) +
+      t("Očakávanie / obchod", money(s.expectancy, 2), cls(s.expectancy)) +
+      t("Počet obchodov", num(s.n));
+    Array.prototype.forEach.call($("scope").querySelectorAll("button"), function (b) { b.classList.toggle("on", b.getAttribute("data-s") === state.scope); });
+  }
+
+  function dailyMap(st) {
+    var m = {}, cnt = {};
+    (st.daily || []).forEach(function (d) { m[d[0]] = (m[d[0]] || 0) + (+d[1]); });
+    (st.trades || []).forEach(function (t) { var k = t.close.slice(0, 10); cnt[k] = (cnt[k] || 0) + 1; });
+    return { pnl: m, cnt: cnt };
+  }
+
+  function renderCalendar(st, dm) {
+    var ym = state.calMonth, y = +ym.slice(0, 4), mo = +ym.slice(5, 7) - 1;
+    $("cal-title").textContent = MONTHS[mo] + " " + y;
+    var first = new Date(Date.UTC(y, mo, 1)), days = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
+    var lead = (first.getUTCDay() + 6) % 7; // pondelok = 0
+    var html = ["po", "ut", "st", "št", "pi", "so", "ne", "týždeň"].map(function (d) { return '<div class="dow">' + d + "</div>"; }).join("");
+    var cells = [], i, total = 0, tradingDays = 0;
+    for (i = 0; i < lead; i++) cells.push(null);
+    for (i = 1; i <= days; i++) cells.push(i);
+    while (cells.length % 7) cells.push(null);
+    for (var w = 0; w < cells.length / 7; w++) {
+      var wk = 0, wkHas = false;
+      for (var c = 0; c < 7; c++) {
+        var day = cells[w * 7 + c];
+        if (day == null) { html += '<div class="cell empty"></div>'; continue; }
+        var key = y + "-" + String(mo + 1).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+        var v = dm.pnl[key], n = dm.cnt[key] || 0;
+        if (v == null) { html += '<div class="cell' + '"><span class="d">' + day + "</span></div>"; continue; }
+        wk += v; wkHas = true; total += v; tradingDays++;
+        html += '<div class="cell ' + (v > 0 ? "win" : v < 0 ? "loss" : "") + '" title="' + fmtDate(key) + ": " + esc(money(v, 2)) + '">' +
+          '<span class="d">' + day + '</span><div><div class="v">' + compact(v) + '</div><div class="n">' + n + " obch.</div></div></div>";
+      }
+      html += '<div class="cell week"><span class="d">t' + (w + 1) + '</span><div class="v ' + (wkHas ? cls(wk) : "muted") + '">' + (wkHas ? compact(wk) : "—") + "</div></div>";
+    }
+    $("cal").innerHTML = html;
+    $("cal-sum").innerHTML = 'Mesiac: <b class="' + cls(total) + '">' + money(total) + "</b> · obchodných dní " + tradingDays +
+      (st.oos && ym >= OOS_START.slice(0, 7) ? ' · <span class="badge warn">odložený rok</span>' : "");
+    var months = calMonths(st);
+    $("cal-prev").disabled = ym <= months[0];
+    $("cal-next").disabled = ym >= months[months.length - 1];
+  }
+  function calMonths(st) {
+    var d = st.daily || [];
+    if (!d.length) return [OOS_START.slice(0, 7)];
+    return [d[0][0].slice(0, 7), d[d.length - 1][0].slice(0, 7)];
+  }
+  function shiftMonth(ym, k) {
+    var y = +ym.slice(0, 4), m = +ym.slice(5, 7) - 1 + k;
+    y += Math.floor(m / 12); m = ((m % 12) + 12) % 12;
+    return y + "-" + String(m + 1).padStart(2, "0");
+  }
+
+  function renderCharts(st, dm) {
+    if (!hasChart()) { ["ch-eq", "ch-month", "ch-years"].forEach(chartFallback); return; }
+    var pos = cssVar("--pos"), neg = cssVar("--neg"), accent = cssVar("--accent"), warn = cssVar("--warn"), muted = cssVar("--muted");
+    // equity + drawdown
+    var eq = st.equity || [], labels = eq.map(function (e) { return e[0]; }), peak = 0;
+    var ddv = eq.map(function (e) { if (e[1] > peak) peak = e[1]; return Math.round((e[1] - peak) * 100) / 100; });
+    var vIdx = null;
+    if (st.oos) for (var i = 0; i < labels.length; i++) if (labels[i] >= OOS_START) { vIdx = i; break; }
+    var o = baseOpts();
+    o.scales.x.ticks.callback = function (v) { var l = labels[v]; return l ? MONTHS_SHORT[+l.slice(5, 7) - 1] + " " + l.slice(2, 4) : ""; };
+    o.scales.y.ticks.callback = function (v) { return compact(v); };
+    o.plugins.tooltip.callbacks = { title: function (it) { return fmtDate(it[0].label); }, label: function (it) { return (it.datasetIndex ? "prepad " : "kapitál ") + money(it.raw, 2); } };
+    o.plugins.guides = { vline: vIdx, vcolor: warn, hlines: [{ value: 0, color: muted, dash: [2, 3] }] };
+    charts.push(new Chart($("ch-eq"), {
+      type: "line", plugins: [guidePlugin],
+      data: { labels: labels, datasets: [
+        { data: eq.map(function (e) { return e[1]; }), borderColor: accent, borderWidth: 2, pointRadius: 0, tension: 0.15, fill: false },
+        { data: ddv, borderColor: neg, borderWidth: 1, pointRadius: 0, fill: "origin", backgroundColor: cssVar("--neg-bg"), tension: 0 }
+      ] },
+      options: o
+    }));
+    // mesačné súčty
+    var mm = {};
+    Object.keys(dm.pnl).forEach(function (k) { var m = k.slice(0, 7); mm[m] = (mm[m] || 0) + dm.pnl[k]; });
+    var mk = Object.keys(mm).sort(), mv = mk.map(function (k) { return Math.round(mm[k] * 100) / 100; });
+    var o2 = baseOpts();
+    o2.scales.x.ticks.callback = function (v) { var l = mk[v]; return l ? MONTHS_SHORT[+l.slice(5, 7) - 1] + " " + l.slice(2, 4) : ""; };
+    o2.scales.y.ticks.callback = function (v) { return compact(v); };
+    o2.plugins.tooltip.callbacks = { title: function (it) { var l = it[0].label; return MONTHS[+l.slice(5, 7) - 1] + " " + l.slice(0, 4); }, label: function (it) { return money(it.raw, 2); } };
+    o2.onClick = function (e, els) { if (els.length) { state.calMonth = mk[els[0].index]; renderCalendar(st, dm); } };
+    charts.push(new Chart($("ch-month"), {
+      type: "bar",
+      data: { labels: mk, datasets: [{ data: mv, backgroundColor: mv.map(function (v) { return v >= 0 ? pos : neg; }), borderRadius: 2, maxBarThickness: 14 }] },
+      options: o2
+    }));
+    // PF po rokoch
+    var yrs = (st.is && st.is.years) || {}, yk = Object.keys(yrs), yv = yk.map(function (k) { return yrs[k]; });
+    var colors = yv.map(function (v) { return v == null ? muted : v >= 1 ? pos : neg; });
+    if (st.oos) { yk.push("odlož."); yv.push(st.oos.pf); colors.push(warn); }
+    var o3 = baseOpts();
+    o3.scales.x.ticks.maxTicksLimit = 12;
+    o3.scales.y.beginAtZero = true;
+    o3.scales.y.suggestedMax = 1.6;
+    o3.plugins.tooltip.callbacks = { label: function (it) { return "PF " + pfFmt(it.raw); } };
+    o3.plugins.guides = { hlines: [{ value: 1, color: neg, label: "1,0" }, { value: 1.3, color: pos, label: "1,3" }] };
+    charts.push(new Chart($("ch-years"), {
+      type: "bar", plugins: [guidePlugin],
+      data: { labels: yk, datasets: [{ data: yv, backgroundColor: colors, borderRadius: 3, maxBarThickness: 40 }] },
+      options: o3
+    }));
+  }
+
+  function renderTrades(st) {
+    var t = (st.trades || []).slice(), k = state.sortKey, d = state.sortDir;
+    t.sort(function (a, b) {
+      var x = k === "pnl" ? a.pnl - b.pnl : (a.open < b.open ? -1 : a.open > b.open ? 1 : 0);
+      return x * d;
+    });
+    var per = 50, pages = Math.max(1, Math.ceil(t.length / per));
+    if (state.page >= pages) state.page = pages - 1;
+    var rows = t.slice(state.page * per, state.page * per + per).map(function (x) {
+      var oos = st.oos && x.close.slice(0, 10) >= OOS_START;
+      return "<tr><td class=\"l\">" + fmtDateTime(x.open) + (oos ? ' <span class="badge warn">OOS</span>' : "") + '</td><td class="l">' + fmtDateTime(x.close) + "</td>" +
+        '<td class="l">' + (x.dir === "short" ? '<span class="neg">short</span>' : '<span class="pos">long</span>') + "</td>" +
+        "<td>" + num(x.entry, 2) + "</td><td>" + num(x.exit, 2) + '</td><td class="' + cls(x.pnl) + '">' + money(x.pnl, 2) + '</td><td class="l muted">' + esc(x.reason || "") + "</td></tr>";
+    }).join("");
+    $("tr-body").innerHTML = rows || '<tr><td colspan="7" class="muted">Žiadne obchody.</td></tr>';
+    $("tr-count").textContent = num(t.length) + " obchodov";
+    $("pg-info").textContent = "strana " + (state.page + 1) + " / " + pages;
+    $("pg-prev").disabled = state.page === 0;
+    $("pg-next").disabled = state.page >= pages - 1;
+    Array.prototype.forEach.call(document.querySelectorAll("th.sort"), function (th) {
+      var base = th.getAttribute("data-k") === "pnl" ? "PnL" : "Otvorenie";
+      th.textContent = base + (th.getAttribute("data-k") === k ? (d > 0 ? " ▲" : " ▼") : " ↕");
+    });
+  }
+
+  // ---------- smerovanie ----------
+  function route() {
+    destroyCharts();
+    var h = location.hash.replace(/^#\/?/, ""), parts = h.split("/").map(decodeURIComponent), app = $("app");
+    window.scrollTo(0, 0);
+    if (parts[0] === "s" && parts[1]) {
+      var s = findStrategy(parts[1]);
+      app.innerHTML = s ? viewStrategy(s) : notFound();
+      Array.prototype.forEach.call(app.querySelectorAll("tr[data-href]"), function (tr) {
+        tr.addEventListener("click", function () { location.hash = tr.getAttribute("data-href"); });
+      });
+      document.title = (s ? s.name + " — " : "") + "Výsledky testovania";
+      return;
+    }
+    if (parts[0] === "d" && parts[1]) {
+      var f = findSetting(parts[1]);
+      if (!f) { app.innerHTML = notFound(); return; }
+      if (state.settingId !== f.st.id) {
+        state.settingId = f.st.id; state.scope = "all"; state.page = 0; state.sortKey = "date"; state.sortDir = -1;
+        state.calMonth = calMonths(f.st)[1];
+      }
+      app.innerHTML = viewDetail(f.strat, f.st);
+      document.title = f.st.label + " — Výsledky testovania";
+      mountDetail(f.st);
+      return;
+    }
+    app.innerHTML = viewOverview();
+    document.title = "Výsledky testovania";
+  }
+  function notFound() { return '<div class="msg">Nenašlo sa. <a class="pos" href="#/">Späť na prehľad</a></div>'; }
+
+  function mountDetail(st) {
+    var dm = dailyMap(st);
+    renderTiles(st);
+    renderCalendar(st, dm);
+    renderCharts(st, dm);
+    renderTrades(st);
+    $("scope").addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      state.scope = b.getAttribute("data-s"); renderTiles(st);
+    });
+    $("cal-prev").addEventListener("click", function () { state.calMonth = shiftMonth(state.calMonth, -1); renderCalendar(st, dm); });
+    $("cal-next").addEventListener("click", function () { state.calMonth = shiftMonth(state.calMonth, 1); renderCalendar(st, dm); });
+    $("pg-prev").addEventListener("click", function () { state.page--; renderTrades(st); });
+    $("pg-next").addEventListener("click", function () { state.page++; renderTrades(st); });
+    Array.prototype.forEach.call(document.querySelectorAll("th.sort"), function (th) {
+      th.addEventListener("click", function () {
+        var k = th.getAttribute("data-k");
+        if (state.sortKey === k) state.sortDir *= -1; else { state.sortKey = k; state.sortDir = -1; }
+        state.page = 0; renderTrades(st);
+      });
+    });
+  }
+
+  // ---------- téma ----------
+  function currentTheme() {
+    var t = document.documentElement.getAttribute("data-theme");
+    if (t) return t;
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  }
+  $("theme").addEventListener("click", function () {
+    var t = currentTheme() === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", t);
+    try { localStorage.setItem("dashboard-theme", t); } catch (e) {}
+    if (DATA) route();
+  });
+  if (window.matchMedia) {
+    var mq = window.matchMedia("(prefers-color-scheme: light)");
+    var onMq = function () { if (DATA && !document.documentElement.getAttribute("data-theme")) route(); };
+    if (mq.addEventListener) mq.addEventListener("change", onMq); else if (mq.addListener) mq.addListener(onMq);
+  }
+
+  // ---------- štart ----------
+  function start(data) {
+    DATA = data || {};
+    DATA.strategies = DATA.strategies || [];
+    $("updated").textContent = DATA.updated ? "Aktualizované " + DATA.updated : "";
+    $("note").textContent = DATA.note || "";
+    $("note").title = DATA.note || "";
+    window.addEventListener("hashchange", route);
+    route();
+  }
+  if (window.DASHBOARD_DATA) start(window.DASHBOARD_DATA);
+  else {
+    fetch("dashboard_data.json", { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(start)
+      .catch(function (e) {
+        $("app").innerHTML = '<div class="msg"><h1>Dáta sa nepodarilo načítať</h1><p>Súbor <code>dashboard_data.json</code> musí ležať vedľa tejto stránky. ' +
+          "Pri otvorení priamo zo súboru (file://) prehliadač načítanie blokuje — spusti v priečinku <code>python3 -m http.server</code> a otvor " +
+          "<code>http://localhost:8000/</code>.</p><p class=\"muted\">" + esc(e && e.message) + "</p></div>";
+      });
+  }
+})();
+</script>
+</body>
+</html>
