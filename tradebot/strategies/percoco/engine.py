@@ -223,10 +223,6 @@ class PercocoEngine:
     def _choch(self, long: bool, pivot: _Pivot, bar: Bar, out: EngineOutput) -> None:
         """CHoCH na grafe: hľadanie FVG v pohybe a nový setup."""
         cfg = self.cfg
-        if self.cfg.showStructure:
-            out.drawings.append(DrawLine(PC_CHOCH, pivot.time, pivot.price, bar.time + self.step_ms, pivot.price,
-                                         _LONG if long else _SHORT, style=LineStyle.DASHED,
-                                         obj_id=f"pc.c.{bar.time}", text="CHoCH"))
         if cfg.useHtfBias and self.h_trend != (1 if long else -1):
             return
         if cfg.useHtfPoi and self.idx - self._touch[long] > int(cfg.poiBars):
@@ -263,6 +259,10 @@ class PercocoEngine:
             return
         take = entry + cfg.rrRatio * risk if long else entry - cfg.rrRatio * risk
         self.setup = _Setup(long, entry, stop, take, self.idx, top, bot, t, f"pc.{bar.time}")
+        if cfg.showStructure:    # kreslí sa len CHoCH, z ktorého vznikol setup
+            out.drawings.append(DrawLine(PC_CHOCH, pivot.time, pivot.price, bar.time + self.step_ms, pivot.price,
+                                         _LONG if long else _SHORT, style=LineStyle.DASHED,
+                                         obj_id=f"pc.c.{bar.time}", text="CHoCH"))
 
     def _swings(self, bar: Bar, out: EngineOutput) -> None:
         n = int(self.cfg.swingLen)
