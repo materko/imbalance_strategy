@@ -1,0 +1,8 @@
+$ emulator MultiCharts MNQ 5m 20250925-20260925 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: EMA 50 @5m @5m 125/125
+emulacia MultiCharts: 70836 barov 5m, 354180 1m, 0 HTF
+  20000/70836 barov, 63 obchodov
+  40000/70836 barov, 126 obchodov
+  60000/70836 barov, 190 obchodov
+hotovo: 210 obchodov, nerozhodnutelnych minut 1
+kresby: {'m7_vwap': 19548, 'm7_line': 18198, 'm7_ema': 19548, 'm7_open': 19548, 'm7_window': 258, 'm7_measure': 240, 'tp_box': 210, 'sl_box': 210, 'm7_entry': 210}
