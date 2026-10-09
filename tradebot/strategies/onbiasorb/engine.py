@@ -135,7 +135,7 @@ class OnBiasOrbEngine:
                                               obj_id=f"ob_entry.{bar.time}"))
                 out.drawings += self._trade_boxes(bar, plan)
 
-        if not flat and close_min >= self.ex and bar_min < SESSION_END_MIN:
+        if cfg.useTimeExit and not flat and close_min >= self.ex and bar_min < SESSION_END_MIN:
             out.close_session = True
             for order_id in ctx.open_order_ids:
                 out.orders.append(OrderIntent(OrderAction.CLOSE, order_id, idx, reason="časový exit"))

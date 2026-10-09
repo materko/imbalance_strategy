@@ -51,7 +51,7 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
 }
 
 PORT_ONLY_FIELDS: frozenset[str] = frozenset(
-    {"usdPerPoint", "riskDollar", "legacyPineSizing", "leverage", "showLevels"})
+    {"useTimeExit", "usdPerPoint", "riskDollar", "legacyPineSizing", "leverage", "showLevels"})
 
 
 @dataclass
@@ -77,6 +77,8 @@ class VoltBreakConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, Entr
     # ---- 🕐 Čas (CT) --------------------------------------------------------- #
     startHHMM: int = 1000
     endHHMM: int = 1430
+    #: časový výstup (ako vo videu); vypnutý = drží do SL / TP
+    useTimeExit: bool = True
     # ---- 🧩 Rozšírenia portu ------------------------------------------------- #
     #: Koľko $ je pohyb o 1 bod na kontrakte, pre ktorý sú `tpUsd`/`slUsd` písané. Pine ich prepočíta cez
     #: `syminfo.pointvalue` grafu; skript je písaný na NQ (20 $/bod) — tak sa TP 800 $ = 40 bodov aj na MNQ.

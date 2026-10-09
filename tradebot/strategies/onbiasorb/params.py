@@ -25,6 +25,7 @@ PARAMS: dict[str, dict[str, Any]] = {
                     tooltip="Koniec overnight rangu a začiatok 15m opening rangu (830 = 8:30 CT = 9:30 New York)."),
     "exitHHMM": dict(group=_G1, title="Časový exit (HHMM CT)",
                      tooltip="Od tohto času sa nevstupuje a otvorená pozícia sa zatvorí (1430 = 14:30 CT)."),
+    "useTimeExit": dict(group=_G1, title="Časový výstup", tooltip="Zapnuté = ako vo videu: otvorená pozícia sa zatvorí v čase výstupu. Vypnuté = obchod drží do stopu alebo cieľa (rozšírenie portu, pravidlá testov bez konca seansy)."),
     "minEntryHHMM": dict(group=_G1, title="Najskorší signál (HHMM CT)",
                          tooltip="Signál len zo sviečky, ktorá sa zatvára v tomto čase alebo neskôr (900 = 9:00 CT)."),
     "atrLen": dict(group=_G2, title="Dĺžka ATR", tooltip="ATR za toľko seáns (alebo denných sviečok)."),

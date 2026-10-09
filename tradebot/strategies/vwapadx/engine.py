@@ -150,7 +150,7 @@ class VwapAdxEngine:
 
         # ---- časový exit -------------------------------------------------- #
         flat = ctx.position_size == 0.0
-        if not flat and close_min >= self.ex and bar_min < 17 * 60:
+        if cfg.useTimeExit and not flat and close_min >= self.ex and bar_min < 17 * 60:
             out.close_session = True
             for order_id in ctx.open_order_ids:
                 out.orders.append(OrderIntent(OrderAction.CLOSE, order_id, idx, reason="časový exit"))

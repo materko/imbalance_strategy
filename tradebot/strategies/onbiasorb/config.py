@@ -40,7 +40,7 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "leverage": (1, 125),
 }
 
-PORT_ONLY_FIELDS: frozenset[str] = frozenset({"riskDollar", "legacyPineSizing", "leverage", "showLevels"})
+PORT_ONLY_FIELDS: frozenset[str] = frozenset({"useTimeExit", "riskDollar", "legacyPineSizing", "leverage", "showLevels"})
 
 
 @dataclass
@@ -58,6 +58,8 @@ class OnBiasOrbConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, Entr
     onStartHHMM: int = 0
     rthHHMM: int = 830
     exitHHMM: int = 1430
+    #: časový výstup (ako vo videu); vypnutý = drží do SL / TP
+    useTimeExit: bool = True
     minEntryHHMM: int = 900
     # ---- 🛡️ SL / TP ---------------------------------------------------------- #
     atrLen: int = 14

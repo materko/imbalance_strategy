@@ -53,7 +53,7 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
 }
 
 PORT_ONLY_FIELDS: frozenset[str] = frozenset(
-    {"riskDollar", "legacyPineSizing", "leverage", "showVwap", "showRange"})
+    {"useTimeExit", "riskDollar", "legacyPineSizing", "leverage", "showVwap", "showRange"})
 
 
 @dataclass
@@ -71,6 +71,8 @@ class VwapAdxConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryF
     orStartHHMM: int = 830
     orEndHHMM: int = 900
     exitHHMM: int = 1555
+    #: časový výstup (ako vo videu); vypnutý = drží do SL / TP
+    useTimeExit: bool = True
     # ---- 📈 VWAP a ADX ----------------------------------------------------- #
     vwapAnchor: VwapAnchor = VwapAnchor.RTH
     adxLen: int = 14

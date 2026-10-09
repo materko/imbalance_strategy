@@ -149,3 +149,11 @@ def test_po_casovom_exite_uz_ziadny_signal():
     opening_range(e)
     vw = e.vwap.value
     assert not entries(e.on_bar(bar(ms(15, 54), 105, 115, vw - 1, 112), ctx=FLAT))
+
+
+def test_bez_casoveho_exitu_drzi_do_sl_tp():
+    e = engine(useTimeExit=False)
+    opening_range(e)
+    pos = MarketContext(in_trade_window=True, position_size=1.0, open_order_ids=frozenset({"va:1"}))
+    out = e.on_bar(bar(ms(15, 54), 100, 101, 99, 100), ctx=pos)      # zatvára sa 15:55
+    assert not out.close_session and not [o for o in out.orders if o.action == OrderAction.CLOSE]

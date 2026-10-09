@@ -28,6 +28,7 @@ PARAMS: dict[str, dict[str, Any]] = {
     "exitHHMM": dict(group=_G1, title="Časový exit (HHMM CT)",
                      tooltip="Otvorená pozícia sa zatvorí na zavretí baru, ktorý sa zatvára v tomto čase alebo "
                              "neskôr. Signály sa berú len zo sviečok, ktoré sa zatvoria skôr."),
+    "useTimeExit": dict(group=_G1, title="Časový výstup", tooltip="Zapnuté = ako vo videu: otvorená pozícia sa zatvorí v čase výstupu. Vypnuté = obchod drží do stopu alebo cieľa (rozšírenie portu, pravidlá testov bez konca seansy)."),
     "vwapAnchor": dict(group=_G2, title="Ukotvenie VWAP",
                        tooltip="RTH 8:30 CT = VWAP od začiatku opening rangu (beží aj cez večer až do ďalšieho "
                                "rangu). Polnoc CT = od polnoci Chicaga. VWAP potrebuje skutočný objem (MNQ áno, "

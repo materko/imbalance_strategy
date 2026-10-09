@@ -38,6 +38,7 @@ PARAMS: dict[str, dict[str, Any]] = {
                       tooltip="Signál len zo sviečky, ktorá sa zatvára v tomto čase alebo neskôr (1000 = 10:00 CT)."),
     "endHHMM": dict(group=_G3, title="Koniec vstupov a zatvorenie (HHMM CT)",
                     tooltip="Od tohto času sa nevstupuje a otvorená pozícia sa zatvorí (1430 = 14:30 CT)."),
+    "useTimeExit": dict(group=_G3, title="Časový výstup", tooltip="Zapnuté = ako vo videu: otvorená pozícia sa zatvorí v čase výstupu. Vypnuté = obchod drží do stopu alebo cieľa (rozšírenie portu, pravidlá testov bez konca seansy)."),
     "usdPerPoint": dict(group=_G4, title="USD za bod (pre TP/SL)",
                         tooltip="Pine prepočíta TP/SL v $ cez hodnotu bodu grafu. Skript je na NQ (20 $/bod), takže "
                                 "800 $ = 40 bodov. Na MNQ (2 $/bod) by doslovne vyšlo 400 bodov — preto 20."),

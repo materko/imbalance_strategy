@@ -148,3 +148,14 @@ def test_onb_adx_jeden_obchod_a_exit():
     pos = MarketContext(in_trade_window=True, position_size=1.0, open_order_ids=frozenset({"ob:1"}))
     out = e.on_bar(bar(ms(14, 15), 1000, 1001, 999, 1000), ctx=pos)               # zatvára sa 14:30
     assert out.close_session
+
+
+def test_bez_casoveho_exitu_volt_aj_onb_drzia():
+    pos = MarketContext(in_trade_window=True, position_size=1.0, open_order_ids=frozenset({"x:1"}))
+    e = volt(useTimeExit=False)
+    e.on_bar(bar(ms(0, 0), 1000, 1005, 995, 1000), ctx=FLAT)
+    out = e.on_bar(bar(ms(14, 0), 1045, 1046, 1044, 1045), ctx=pos)              # zatvára sa 14:30
+    assert not out.close_session and not [o for o in out.orders if o.action == OrderAction.CLOSE]
+    e = onb(990, useTimeExit=False)
+    out = e.on_bar(bar(ms(14, 15), 1000, 1001, 999, 1000), ctx=pos)              # zatvára sa 14:30
+    assert not out.close_session
