@@ -1,0 +1,34 @@
+$ emulator MultiCharts MNQ 3m 20211001-20260904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: štruktúra 6m @6m 82/82, filter volatility ATR 14 / 100 barov @3m 156/156
+emulacia MultiCharts: 581435 barov 3m, 1744299 1m, 0 HTF
+  20000/581435 barov, 23 obchodov
+  40000/581435 barov, 45 obchodov
+  60000/581435 barov, 77 obchodov
+  80000/581435 barov, 117 obchodov
+  100000/581435 barov, 140 obchodov
+  120000/581435 barov, 164 obchodov
+  140000/581435 barov, 184 obchodov
+  160000/581435 barov, 211 obchodov
+  180000/581435 barov, 240 obchodov
+  200000/581435 barov, 273 obchodov
+  220000/581435 barov, 299 obchodov
+  240000/581435 barov, 323 obchodov
+  260000/581435 barov, 344 obchodov
+  280000/581435 barov, 370 obchodov
+  300000/581435 barov, 395 obchodov
+  320000/581435 barov, 428 obchodov
+  340000/581435 barov, 453 obchodov
+  360000/581435 barov, 473 obchodov
+  380000/581435 barov, 498 obchodov
+  400000/581435 barov, 534 obchodov
+  420000/581435 barov, 558 obchodov
+  440000/581435 barov, 586 obchodov
+  460000/581435 barov, 606 obchodov
+  480000/581435 barov, 629 obchodov
+  500000/581435 barov, 651 obchodov
+  520000/581435 barov, 678 obchodov
+  540000/581435 barov, 700 obchodov
+  560000/581435 barov, 724 obchodov
+  580000/581435 barov, 747 obchodov
+hotovo: 751 obchodov, nerozhodnutelnych minut 1
+kresby: {'jss_bos': 13481, 'jss_choch': 12978, 'jss_zone': 12120, 'jss_entry': 751}
