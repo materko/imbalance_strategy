@@ -1,0 +1,135 @@
+//@version=6
+// ============================================================================
+//  STRATÉGIA 3: OVERNIGHT BIAS OPENING RANGE BREAKOUT  (NQ / MNQ, 15 min, LONG aj SHORT)
+//  Podľa videa "Hedge Fund Manager TOP 3 Strategies" (Matteo Conti / IQ Capital)
+// ----------------------------------------------------------------------------
+//  - Overnight range: od polnoci CT do 8:30 CT (vo videu aj "od 23:00 CT" –
+//    nastaviteľné)
+//  - Kde je cena o 8:30 CT v overnight range:
+//      horná 1/3  -> iba LONG,  dolná 1/3 -> iba SHORT,  stred -> neobchoduje sa
+//  - Opening range = prvá 15-min sviečka 8:30 – 8:45 CT
+//  - LONG:  sviečka uzavrie NAD OR high a ADX > 20
+//    SHORT: sviečka uzavrie POD OR low  a ADX > 20
+//    vstup na otvorení ďalšej sviečky, max 1 obchod za deň
+//  - SL = 30 % z 15-seansového priemeru (SMA) ATR;
+//    seansa = polnoc – 16:00 CT, ako hovoril vo videu, TP = 3 × SL
+//  - Časový exit 14:30 CT
+// ============================================================================
+strategy("Overnight Bias ORB (NQ 15m)", overlay = true,
+     initial_capital = 50000, default_qty_type = strategy.fixed, default_qty_value = 1,
+     commission_type = strategy.commission.cash_per_contract, commission_value = 2.5,
+     slippage = 1, pyramiding = 0)
+
+TZ = "America/Chicago"
+onStartHHMM = input.int(0,    "Overnight range od (HHMM CT, 0 = polnoc, 2300 = 23:00)")
+rthHHMM     = input.int(830,  "Open trhu (HHMM CT)")
+exitHHMM    = input.int(1430, "Časový exit (HHMM CT)")
+minEntryHHMM = input.int(900, "Najskorší signál = zatvorenie sviečky o (HHMM CT)")
+atrLen    = input.int(14, "Dĺžka denného ATR", minval = 1)
+avgLen    = input.int(15, "Priemer ATR za N dní (SMA)", minval = 1)
+slPct       = input.float(30, "SL (% z priem. ATR)") / 100.0
+rr          = input.float(3, "TP = násobok SL")
+adxLen      = input.int(14, "ADX dĺžka")
+adxMin      = input.float(20, "ADX minimum")
+
+toMin(int hhmm) => int(hhmm / 100) * 60 + hhmm % 100
+barMin   = hour(time, TZ) * 60 + minute(time, TZ)
+closeMin = hour(time_close, TZ) * 60 + minute(time_close, TZ)
+newDay   = na(time[1]) or dayofmonth(time, TZ) != dayofmonth(time[1], TZ)
+onS = toMin(onStartHHMM)
+rth = toMin(rthHHMM)
+exM = toMin(exitHHMM)
+
+inOvernight = onS < rth ? (barMin >= onS and barMin < rth) : (barMin >= onS or barMin < rth)
+onBegin  = inOvernight and not inOvernight[1]
+rthStart = barMin >= rth and (newDay or barMin[1] < rth)
+
+atrSource = input.string("Seansa 0:00–16:00 CT (ako vo videu)", "Zdroj ATR", options = ["Seansa 0:00–16:00 CT (ako vo videu)", "Denné sviečky burzy"])
+
+// --- ATR zo seáns polnoc – 16:00 CT (Matteo: "ATR of the past 15 sessions from midnight to the end of the trading day")
+sessEndMin = 16 * 60
+inSess   = barMin < sessEndMin
+sessBeg  = inSess and not inSess[1]
+sessDone = not inSess and inSess[1]
+var float sH = na
+var float sL = na
+var float sC = na
+var float prevSessC = na
+var float sessATR = na
+var int   nSess = 0
+var array<float> atrHist = array.new<float>()
+if sessDone and not na(sH)
+    sessTR = na(prevSessC) ? sH - sL : math.max(sH, prevSessC) - math.min(sL, prevSessC)
+    nSess += 1
+    sessATR := na(sessATR) ? sessTR : nSess <= atrLen ? sessATR + (sessTR - sessATR) / nSess : (sessATR * (atrLen - 1) + sessTR) / atrLen
+    array.push(atrHist, sessATR)
+    if array.size(atrHist) > avgLen
+        array.shift(atrHist)
+    prevSessC := sC
+if sessBeg
+    sH := high
+    sL := low
+else if inSess
+    sH := math.max(sH, high)
+    sL := math.min(sL, low)
+if inSess
+    sC := close
+sessAvgATR = array.size(atrHist) >= avgLen ? array.avg(atrHist) : na
+
+dailyAvgATR = request.security(syminfo.tickerid, "D", ta.sma(ta.atr(atrLen), avgLen)[1], lookahead = barmerge.lookahead_on)
+avgATR = atrSource == "Denné sviečky burzy" ? dailyAvgATR : sessAvgATR
+[diPlus, diMinus, adx] = ta.dmi(adxLen, adxLen)
+
+var float onH = na
+var float onL = na
+var float orH = na
+var float orL = na
+var int   bias = 0
+var bool  tradedToday = false
+
+if onBegin
+    onH := high
+    onL := low
+else if inOvernight
+    onH := math.max(onH, high)
+    onL := math.min(onL, low)
+
+if rthStart
+    rng = onH - onL
+    pos = rng > 0 ? (open - onL) / rng : 0.5
+    bias := pos > 2.0 / 3.0 ? 1 : pos < 1.0 / 3.0 ? -1 : 0   // presne na hranici = žiadny bias (ako vo videu)
+    orH := high      // 15-min sviečka 8:30–8:45 = opening range
+    orL := low
+    tradedToday := false
+
+afterOR = barMin >= rth + 15 and closeMin >= toMin(minEntryHHMM) and closeMin < exM
+isFlat  = strategy.position_size == 0
+
+longSignal  = afterOR and isFlat and not tradedToday and bias ==  1 and close > orH and adx > adxMin
+shortSignal = afterOR and isFlat and not tradedToday and bias == -1 and close < orL and adx > adxMin
+
+slTicks = slPct * avgATR / syminfo.mintick
+if longSignal
+    tradedToday := true
+    strategy.entry("Long", strategy.long)
+if shortSignal
+    tradedToday := true
+    strategy.entry("Short", strategy.short)
+
+strategy.exit("L-exit", from_entry = "Long",  loss = slTicks, profit = slTicks * rr)
+strategy.exit("S-exit", from_entry = "Short", loss = slTicks, profit = slTicks * rr)
+
+if not isFlat and closeMin >= exM and barMin < 16 * 60
+    strategy.close_all(comment = "14:30 CT", immediately = true)
+
+top3 = onL + (onH - onL) * 2.0 / 3.0
+bot3 = onL + (onH - onL) / 3.0
+plot(onH,  "Overnight high", color = color.teal, style = plot.style_linebr)
+plot(onL,  "Overnight low",  color = color.teal, style = plot.style_linebr)
+plot(top3, "Horná 1/3", color = color.new(color.gray, 30), style = plot.style_linebr)
+plot(bot3, "Dolná 1/3", color = color.new(color.gray, 30), style = plot.style_linebr)
+plot(barMin >= rth ? orH : na, "OR high", color = color.orange, style = plot.style_linebr)
+plot(barMin >= rth ? orL : na, "OR low",  color = color.orange, style = plot.style_linebr)
+bgcolor(barMin >= rth and closeMin <= exM ? (bias == 1 ? color.new(color.green, 92) : bias == -1 ? color.new(color.red, 92) : na) : na, title = "Bias dňa")
+plotshape(longSignal,  "LONG",  shape.triangleup,   location.belowbar, color.lime,    size = size.small)
+plotshape(shortSignal, "SHORT", shape.triangledown, location.abovebar, color.fuchsia, size = size.small)

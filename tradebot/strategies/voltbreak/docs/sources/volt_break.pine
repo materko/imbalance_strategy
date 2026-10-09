@@ -1,0 +1,98 @@
+//@version=6
+// ============================================================================
+//  STRATÉGIA 1: VOLT BREAK  (NQ / MNQ, 30 min, iba LONG)
+//  Podľa videa "Hedge Fund Manager TOP 3 Strategies" (Matteo Conti / IQ Capital)
+// ----------------------------------------------------------------------------
+//  - Open session = cena o polnoci (Chicago čas, CT)
+//  - Noise Up = open session + 30 % z 15-seansového priemeru (SMA) ATR;
+//    seansa = polnoc – 16:00 CT, ako hovoril vo videu
+//  - VWAP ukotvený o polnoci CT
+//  - LONG: 30-min sviečka uzavrie NAD Noise Up a NAD VWAP,
+//          medzi 10:00 a 14:30 CT, vstup na otvorení ďalšej sviečky
+//  - Max 3 obchody za deň (po exite znova, ak podmienky stále platia)
+//  - TP 800 $, SL 1 500 $ (na 1 kontrakt NQ), inak zavrieť o 14:30 CT
+// ============================================================================
+strategy("Volt Break (NQ 30m)", overlay = true,
+     initial_capital = 50000, default_qty_type = strategy.fixed, default_qty_value = 1,
+     commission_type = strategy.commission.cash_per_contract, commission_value = 2.5,
+     slippage = 1, pyramiding = 0)
+
+TZ = "America/Chicago"
+noisePct  = input.float(30, "Noise barrier (% z priem. ATR)", step = 1) / 100.0
+atrLen    = input.int(14, "Dĺžka denného ATR", minval = 1)
+avgLen    = input.int(15, "Priemer ATR za N dní (SMA)", minval = 1)
+tpUsd     = input.float(800,  "Take profit ($ na kontrakt)")
+slUsd     = input.float(1500, "Stop loss ($ na kontrakt)")
+maxTrades = input.int(3, "Max obchodov za deň", minval = 1)
+startHHMM = input.int(1000, "Začiatok vstupov (HHMM CT)")
+endHHMM   = input.int(1430, "Koniec vstupov a zatvorenie (HHMM CT)")
+
+toMin(int hhmm) => int(hhmm / 100) * 60 + hhmm % 100
+barMin   = hour(time, TZ) * 60 + minute(time, TZ)
+closeMin = hour(time_close, TZ) * 60 + minute(time_close, TZ)
+newDay   = na(time[1]) or dayofmonth(time, TZ) != dayofmonth(time[1], TZ)
+
+atrSource = input.string("Seansa 0:00–16:00 CT (ako vo videu)", "Zdroj ATR", options = ["Seansa 0:00–16:00 CT (ako vo videu)", "Denné sviečky burzy"])
+
+// --- ATR zo seáns polnoc – 16:00 CT (Matteo: "ATR of the past 15 sessions from midnight to the end of the trading day")
+sessEndMin = 16 * 60
+inSess   = barMin < sessEndMin
+sessBeg  = inSess and not inSess[1]
+sessDone = not inSess and inSess[1]
+var float sH = na
+var float sL = na
+var float sC = na
+var float prevSessC = na
+var float sessATR = na
+var int   nSess = 0
+var array<float> atrHist = array.new<float>()
+if sessDone and not na(sH)
+    sessTR = na(prevSessC) ? sH - sL : math.max(sH, prevSessC) - math.min(sL, prevSessC)
+    nSess += 1
+    sessATR := na(sessATR) ? sessTR : nSess <= atrLen ? sessATR + (sessTR - sessATR) / nSess : (sessATR * (atrLen - 1) + sessTR) / atrLen
+    array.push(atrHist, sessATR)
+    if array.size(atrHist) > avgLen
+        array.shift(atrHist)
+    prevSessC := sC
+if sessBeg
+    sH := high
+    sL := low
+else if inSess
+    sH := math.max(sH, high)
+    sL := math.min(sL, low)
+if inSess
+    sC := close
+sessAvgATR = array.size(atrHist) >= avgLen ? array.avg(atrHist) : na
+
+dailyAvgATR = request.security(syminfo.tickerid, "D", ta.sma(ta.atr(atrLen), avgLen)[1], lookahead = barmerge.lookahead_on)
+avgATR = atrSource == "Denné sviečky burzy" ? dailyAvgATR : sessAvgATR
+
+var float sessOpen = na
+var float noiseUp  = na
+var int   tradesAtDay = 0
+if newDay
+    sessOpen    := open
+    noiseUp     := open + noisePct * avgATR
+    tradesAtDay := strategy.closedtrades + strategy.opentrades
+
+vw = ta.vwap(hlc3, newDay)
+
+tradesToday = strategy.closedtrades + strategy.opentrades - tradesAtDay
+inWindow    = closeMin >= toMin(startHHMM) and closeMin < toMin(endHHMM)
+isFlat      = strategy.position_size == 0
+
+longSignal = inWindow and isFlat and tradesToday < maxTrades and close > noiseUp and close > vw
+if longSignal
+    strategy.entry("Long", strategy.long)
+
+ticksPerUsd = 1.0 / (syminfo.pointvalue * syminfo.mintick)
+strategy.exit("Exit", from_entry = "Long", profit = tpUsd * ticksPerUsd, loss = slUsd * ticksPerUsd)
+
+// Časový exit 14:30 CT
+if not isFlat and closeMin >= toMin(endHHMM) and barMin < 16 * 60
+    strategy.close_all(comment = "14:30 CT", immediately = true)
+
+plot(sessOpen, "Open o polnoci", color = color.gray, style = plot.style_linebr)
+plot(noiseUp,  "Noise Up", color = color.orange, style = plot.style_cross, linewidth = 2)
+plot(vw,       "VWAP (od polnoci CT)", color = color.blue, linewidth = 2)
+plotshape(longSignal, "Signál LONG", shape.triangleup, location.belowbar, color.lime, size = size.small)

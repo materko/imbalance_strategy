@@ -1,0 +1,12 @@
+{
+  "_title": "MNQ futures 15m — Overnight Bias ORB podľa Pine skriptu (bias z tretín overnight rangu, ADX > 20, SL 30 % ATR, TP 3R)",
+  "_strategy": "onbiasorb",
+  "_instrument": "mnq_databento",
+  "_timeframe": "15m",
+  "_comment": [
+    "Vychodiskovy profil (2026-10-09) = Pine defaulty: overnight range polnoc-8:30 CT, bias z polohy openu 8:30",
+    "(horna / dolna tretina), opening range = 15m sviecka 8:30-8:45, signal od 9:00 CT, ADX 14 > 20,",
+    "SL 30 % priemeru ATR 15 seans 0:00-16:00 CT, TP 3 x SL, exit 14:30 CT, 1 obchod denne.",
+    "Velkost z rizika 300 $. Nie je to obchodne odporucanie."
+  ]
+}

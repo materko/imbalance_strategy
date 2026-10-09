@@ -1,0 +1,11 @@
+{
+  "_title": "MNQ futures 30m — Volt Break podľa Pine skriptu (noise 30 % priem. ATR seáns, TP 800 $ / SL 1 500 $ na NQ)",
+  "_strategy": "voltbreak",
+  "_instrument": "mnq_databento",
+  "_timeframe": "30m",
+  "_comment": [
+    "Vychodiskovy profil (2026-10-09) = Pine defaulty: noise 30 % z priemeru ATR 15 seans 0:00-16:00 CT,",
+    "vstupy 10:00-14:30 CT nad noise aj VWAP od polnoci, max 3 obchody denne, TP 40 / SL 75 bodov (800/1500 $ na NQ),",
+    "zatvorenie 14:30 CT. Velkost z rizika 150 $ = 1 MNQ. Nie je to obchodne odporucanie."
+  ]
+}

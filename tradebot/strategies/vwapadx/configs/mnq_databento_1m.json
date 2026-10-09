@@ -1,0 +1,11 @@
+{
+  "_title": "MNQ futures 1m — VWAP ADX Pullback podľa Pine skriptu (range 8:30-9:00 CT, ADX > 20 a neklesá, TP high 5 / SL low 20)",
+  "_strategy": "vwapadx",
+  "_instrument": "mnq_databento",
+  "_timeframe": "1m",
+  "_comment": [
+    "Vychodiskovy profil (2026-10-06) = Pine defaulty: opening range 8:30-9:00 CT, VWAP od 8:30 CT,",
+    "ADX 14 > 20 a nerastie, TP = najvyssi high 5 barov, SL = najnizsi low 20 barov, casovy exit 15:55 CT,",
+    "1 obchod denne, len long. Velkost z rizika 100 $ (Pine ma 1 kontrakt). Nie je to obchodne odporucanie."
+  ]
+}

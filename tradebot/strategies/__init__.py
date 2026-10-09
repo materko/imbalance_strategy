@@ -25,6 +25,7 @@ from .ibszones import SPEC as IBSZONES_SPEC
 from .jss import SPEC as JSS_SPEC
 from .liquidity import SPEC as LIQUIDITY_SPEC
 from .mag7 import SPEC as MAG7_SPEC
+from .onbiasorb import SPEC as ONBIASORB_SPEC
 from .orb import SPEC as ORB_SPEC
 from .orbnet import SPEC as ORBNET_SPEC
 from .range import SPEC as RANGE_SPEC
@@ -34,6 +35,8 @@ from .structure import SPEC as STRUCTURE_SPEC
 from .percoco import SPEC as PERCOCO_SPEC
 from .svp import SPEC as SVP_SPEC
 from .trendlines import SPEC as TRENDLINES_SPEC
+from .voltbreak import SPEC as VOLTBREAK_SPEC
+from .vwapadx import SPEC as VWAPADX_SPEC
 from .vwapdrift import SPEC as VWAPDRIFT_SPEC
 from .vwapop import SPEC as VWAPOP_SPEC
 from .vwaporb import SPEC as VWAPORB_SPEC
@@ -56,6 +59,9 @@ STRATEGIES: dict[str, StrategySpec] = {
     TRENDLINES_SPEC.key: TRENDLINES_SPEC,
     LIQUIDITY_SPEC.key: LIQUIDITY_SPEC,
     VWAPDRIFT_SPEC.key: VWAPDRIFT_SPEC,
+    VWAPADX_SPEC.key: VWAPADX_SPEC,
+    VOLTBREAK_SPEC.key: VOLTBREAK_SPEC,
+    ONBIASORB_SPEC.key: ONBIASORB_SPEC,
     VWAPOP_SPEC.key: VWAPOP_SPEC,
     VWAPORB_SPEC.key: VWAPORB_SPEC,
     JSS_SPEC.key: JSS_SPEC,

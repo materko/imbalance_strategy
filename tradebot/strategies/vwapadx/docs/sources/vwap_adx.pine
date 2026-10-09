@@ -1,0 +1,93 @@
+//@version=6
+// ============================================================================
+//  STRATÉGIA 2: VWAP PULLBACK S ADX FILTROM  (NQ / MNQ, 1 min, iba LONG)
+//  Podľa videa "Hedge Fund Manager TOP 3 Strategies" (Matteo Conti / IQ Capital)
+// ----------------------------------------------------------------------------
+//  - Opening range = 8:30 – 9:00 CT (high / low)
+//  - Krok 1: sviečka uzavrie NAD opening range high  -> stratégia "nabitá"
+//  - Krok 2: cena sa dotkne VWAP (pullback)
+//  - Krok 3: sviečka uzavrie NAD VWAP
+//  - Krok 4: ADX > 20 a ADX NEstúpa oproti predošlej sviečke
+//    (ak ADX ešte stúpa, čaká sa, kým prestane)
+//  - Vstup na otvorení ďalšej sviečky. Kroky 1–3 môžu nastať v jednej sviečke.
+//  - TP = najvyšší high posledných 5 sviečok, SL = najnižší low posledných 20
+//  - Časový exit 15:55 CT (ako povedal vo videu; nastaviteľné)
+// ============================================================================
+strategy("VWAP ADX Pullback (NQ 1m)", overlay = true,
+     initial_capital = 50000, default_qty_type = strategy.fixed, default_qty_value = 1,
+     commission_type = strategy.commission.cash_per_contract, commission_value = 2.5,
+     slippage = 1, pyramiding = 0)
+
+TZ = "America/Chicago"
+orStartHHMM = input.int(830,  "Opening range od (HHMM CT)")
+orEndHHMM   = input.int(900,  "Opening range do (HHMM CT)")
+exitHHMM    = input.int(1555, "Časový exit (HHMM CT)")
+vwapAnchor  = input.string("RTH 8:30 CT", "Ukotvenie VWAP", options = ["RTH 8:30 CT", "Polnoc CT"])
+adxLen      = input.int(14, "ADX dĺžka")
+adxMin      = input.float(20, "ADX minimum")
+tpBars      = input.int(5,  "TP = high posledných N sviečok")
+slBars      = input.int(20, "SL = low posledných N sviečok")
+maxTrades   = input.int(1,  "Max obchodov za deň", minval = 1)
+
+toMin(int hhmm) => int(hhmm / 100) * 60 + hhmm % 100
+barMin   = hour(time, TZ) * 60 + minute(time, TZ)
+closeMin = hour(time_close, TZ) * 60 + minute(time_close, TZ)
+newDay   = na(time[1]) or dayofmonth(time, TZ) != dayofmonth(time[1], TZ)
+orS = toMin(orStartHHMM)
+orE = toMin(orEndHHMM)
+exM = toMin(exitHHMM)
+
+rthStart = barMin >= orS and (newDay or barMin[1] < orS)
+vw = ta.vwap(hlc3, vwapAnchor == "Polnoc CT" ? newDay : rthStart)
+
+// Opening range
+var float orH = na
+var float orL = na
+var bool  armed   = false
+var bool  touched = false
+var int   tradesAtDay = 0
+if rthStart
+    orH := high
+    orL := low
+    armed   := false
+    touched := false
+    tradesAtDay := strategy.closedtrades + strategy.opentrades
+else if barMin >= orS and barMin < orE
+    orH := math.max(orH, high)
+    orL := math.min(orL, low)
+
+afterOR = barMin >= orE and closeMin < exM
+[diPlus, diMinus, adx] = ta.dmi(adxLen, adxLen)
+adxOK = adx > adxMin and adx <= adx[1]
+
+if afterOR
+    if not armed and close > orH
+        armed := true
+    if armed and low <= vw
+        touched := true
+
+tradesToday = strategy.closedtrades + strategy.opentrades - tradesAtDay
+isFlat = strategy.position_size == 0
+longSignal = afterOR and armed and touched and close > vw and adxOK and isFlat and tradesToday < maxTrades
+
+hhN = ta.highest(high, tpBars)
+llN = ta.lowest(low, slBars)
+var float tpLvl = na
+var float slLvl = na
+if longSignal
+    tpLvl := hhN
+    slLvl := llN
+    touched := false   // ďalší obchod (ak je povolený) potrebuje nový pullback
+    strategy.entry("Long", strategy.long)
+
+strategy.exit("Exit", from_entry = "Long", limit = tpLvl, stop = slLvl)
+
+if not isFlat and closeMin >= exM and barMin < 17 * 60
+    strategy.close_all(comment = "Časový exit", immediately = true)
+
+plot(barMin >= orS ? orH : na, "OR high", color = color.orange, style = plot.style_linebr)
+plot(barMin >= orS ? orL : na, "OR low",  color = color.orange, style = plot.style_linebr)
+plot(vw, "VWAP", color = color.blue, linewidth = 2)
+plot(strategy.position_size > 0 ? tpLvl : na, "TP", color = color.green, style = plot.style_linebr)
+plot(strategy.position_size > 0 ? slLvl : na, "SL", color = color.red,   style = plot.style_linebr)
+plotshape(longSignal, "Signál LONG", shape.triangleup, location.belowbar, color.lime, size = size.small)
