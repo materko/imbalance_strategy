@@ -96,8 +96,8 @@
  "state1MaxBars": 1,
  "state2MaxBars": 10,
  "state2ConfirmTicks": 6,
- "state3MaxBars": 4,
- "state4MaxBars": 20,
+ "state3MaxBars": 2,
+ "state4MaxBars": 10,
  "state5MaxBars": 5,
  "alertOnState2": false,
  "alertOnState3": false,
@@ -147,5 +147,5 @@
  "_strategy": "ibsentry",
  "_instrument": "mnq_databento",
  "_timeframe": "3m",
- "_title": "PREŠIEL SMERNICAMI — IBS Entry Zone 2: MNQ 3m, 2021–2026 PF 1.46, WR 75 %, 162 obch/rok, max DD 9536 $, posledný rok PF 1.77"
+ "_title": "PREŠIEL SMERNICAMI — IBS Entry Zone 1: MNQ 3m, 2021–2026 PF 1.47, WR 75 %, 161 obch/rok, max DD 9536 $, posledný rok PF 1.79"
 }
