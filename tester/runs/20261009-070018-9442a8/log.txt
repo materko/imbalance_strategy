@@ -1,0 +1,48 @@
+$ emulator MultiCharts MNQ 3m 20190505-20260925 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: ADX/DMI 14/5 @60m 0/75
+emulacia MultiCharts: 870322 barov 3m, 2606968 1m, 870322 HTF
+  20000/870322 barov, 0 obchodov
+  40000/870322 barov, 8 obchodov
+  60000/870322 barov, 10 obchodov
+  80000/870322 barov, 10 obchodov
+  100000/870322 barov, 39 obchodov
+  120000/870322 barov, 112 obchodov
+  140000/870322 barov, 131 obchodov
+  160000/870322 barov, 155 obchodov
+  180000/870322 barov, 188 obchodov
+  200000/870322 barov, 201 obchodov
+  220000/870322 barov, 232 obchodov
+  240000/870322 barov, 258 obchodov
+  260000/870322 barov, 267 obchodov
+  280000/870322 barov, 270 obchodov
+  300000/870322 barov, 292 obchodov
+  320000/870322 barov, 329 obchodov
+  340000/870322 barov, 387 obchodov
+  360000/870322 barov, 435 obchodov
+  380000/870322 barov, 470 obchodov
+  400000/870322 barov, 502 obchodov
+  420000/870322 barov, 538 obchodov
+  440000/870322 barov, 565 obchodov
+  460000/870322 barov, 598 obchodov
+  480000/870322 barov, 608 obchodov
+  500000/870322 barov, 621 obchodov
+  520000/870322 barov, 638 obchodov
+  540000/870322 barov, 650 obchodov
+  560000/870322 barov, 661 obchodov
+  580000/870322 barov, 673 obchodov
+  600000/870322 barov, 690 obchodov
+  620000/870322 barov, 726 obchodov
+  640000/870322 barov, 748 obchodov
+  660000/870322 barov, 766 obchodov
+  680000/870322 barov, 791 obchodov
+  700000/870322 barov, 862 obchodov
+  720000/870322 barov, 894 obchodov
+  740000/870322 barov, 906 obchodov
+  760000/870322 barov, 916 obchodov
+  780000/870322 barov, 955 obchodov
+  800000/870322 barov, 993 obchodov
+  820000/870322 barov, 1040 obchodov
+  840000/870322 barov, 1095 obchodov
+  860000/870322 barov, 1130 obchodov
+hotovo: 1141 obchodov, nerozhodnutelnych minut 1
+kresby: {'session': 12665, 'imb_box': 30134, 'sd_zone_pre': 107399, 'sd_zone_post': 107399, 'structure': 81730, 'swing': 105711, 'adx_state': 43674, 'skip': 3252, 'liq_sweep': 5786, 'tp_box': 1409, 'sl_box': 1409, 'expired': 268, 'counter': 317, 'imb_zero': 33, 'sr_level': 8, 'sr_golden': 6}
