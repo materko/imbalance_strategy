@@ -17,7 +17,7 @@
   "unit": "atr"
  },
  "zoneMaxAtr": 3.0,
- "zoneMaxAgeBars": 48,
+ "zoneMaxAgeBars": 200,
  "entryModel": "pinbar",
  "entryDepthPct": 0,
  "confirmBars": 4,
@@ -64,5 +64,5 @@
  "_strategy": "jss",
  "_instrument": "mnq_databento",
  "_timeframe": "3m",
- "_title": "PREŠIEL SMERNICAMI — JSS 2: MNQ 3m, 2021–2026 PF 1.32, WR 39 %, 154 obch/rok, max DD 2010 $, posledný rok PF 1.37"
+ "_title": "PREŠIEL SMERNICAMI — JSS 2: MNQ 3m, 2021–2026 PF 1.32, WR 39 %, 155 obch/rok, max DD 2010 $, posledný rok PF 1.37"
 }

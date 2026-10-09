@@ -1,0 +1,10 @@
+$ emulator MultiCharts MNQ 15m 20211001-20260904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter volatility ATR 14 / 50 barov @15m 106/106
+emulacia MultiCharts: 116287 barov 15m, 1744299 1m, 0 HTF
+  20000/116287 barov, 139 obchodov
+  40000/116287 barov, 309 obchodov
+  60000/116287 barov, 468 obchodov
+  80000/116287 barov, 642 obchodov
+  100000/116287 barov, 808 obchodov
+hotovo: 923 obchodov, nerozhodnutelnych minut 0
+kresby: {'svp_entry': 982, 'svp_poc': 1270, 'svp_va': 2540}

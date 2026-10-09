@@ -1,0 +1,34 @@
+$ emulator MultiCharts MNQ 3m 20211001-20260904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: ADX/DMI 14/5 @60m 75/75
+emulacia MultiCharts: 581435 barov 3m, 1744299 1m, 581435 HTF
+  20000/581435 barov, 20 obchodov
+  40000/581435 barov, 55 obchodov
+  60000/581435 barov, 109 obchodov
+  80000/581435 barov, 158 obchodov
+  100000/581435 barov, 191 obchodov
+  120000/581435 barov, 223 obchodov
+  140000/581435 barov, 257 obchodov
+  160000/581435 barov, 283 obchodov
+  180000/581435 barov, 310 obchodov
+  200000/581435 barov, 322 obchodov
+  220000/581435 barov, 335 obchodov
+  240000/581435 barov, 353 obchodov
+  260000/581435 barov, 364 obchodov
+  280000/581435 barov, 375 obchodov
+  300000/581435 barov, 393 obchodov
+  320000/581435 barov, 407 obchodov
+  340000/581435 barov, 438 obchodov
+  360000/581435 barov, 458 obchodov
+  380000/581435 barov, 472 obchodov
+  400000/581435 barov, 492 obchodov
+  420000/581435 barov, 559 obchodov
+  440000/581435 barov, 584 obchodov
+  460000/581435 barov, 594 obchodov
+  480000/581435 barov, 602 obchodov
+  500000/581435 barov, 642 obchodov
+  520000/581435 barov, 674 obchodov
+  540000/581435 barov, 713 obchodov
+  560000/581435 barov, 769 obchodov
+  580000/581435 barov, 796 obchodov
+hotovo: 797 obchodov, nerozhodnutelnych minut 1
+kresby: {'session': 7542, 'sd_zone_pre': 71566, 'sd_zone_post': 71566, 'adx_state': 29082, 'imb_box': 23256, 'swing': 70339, 'structure': 54684, 'skip': 2264, 'tp_box': 918, 'sl_box': 918, 'expired': 120, 'liq_sweep': 4640, 'counter': 318, 'imb_zero': 32, 'sr_level': 12, 'sr_golden': 4}

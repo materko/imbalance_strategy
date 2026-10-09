@@ -53,7 +53,7 @@
  "zoneDetectionTF": "3",
  "zoneValidHours": 3,
  "maxSdZones": 400,
- "snapMode": "Ceil",
+ "snapMode": "Floor",
  "invalidateOnFill": true,
  "useVolumeFilter": false,
  "volumeFilterBlockTrading": true,
@@ -104,7 +104,7 @@
  "alertOnState4": false,
  "rrRatio": 0.5,
  "slLookback": 10,
- "slBufferTicks": 4,
+ "slBufferTicks": 0,
  "maxLossDollar": 1000,
  "maxDailyWins": 9,
  "tradeDirection": "Indicator",
@@ -147,5 +147,5 @@
  "_strategy": "ibsentry",
  "_instrument": "mnq_databento",
  "_timeframe": "3m",
- "_title": "PREŠIEL SMERNICAMI — IBS Entry Zone 7: MNQ 3m, 2021–2026 PF 1.45, WR 75 %, 157 obch/rok, max DD 8281 $, posledný rok PF 1.48"
+ "_title": "PREŠIEL SMERNICAMI — IBS Entry Zone 7: MNQ 3m, 2021–2026 PF 1.46, WR 75 %, 150 obch/rok, max DD 7232 $, posledný rok PF 1.53"
 }

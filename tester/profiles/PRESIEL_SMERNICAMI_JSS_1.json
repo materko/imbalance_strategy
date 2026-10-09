@@ -8,19 +8,19 @@
  "swingLen": 2,
  "triggerMode": "both",
  "atrLen": 18,
- "zoneType": "base",
- "zoneEdge": "body",
- "impulseAtr": 1.0,
+ "zoneType": "ob",
+ "zoneEdge": "wick",
+ "impulseAtr": 0.787,
  "baseMaxBars": 5,
  "zoneMinAtr": {
   "value": 0,
   "unit": "atr"
  },
- "zoneMaxAtr": 3.0,
- "zoneMaxAgeBars": 200,
- "entryModel": "pinbar",
- "entryDepthPct": 0,
- "confirmBars": 4,
+ "zoneMaxAtr": 2.903,
+ "zoneMaxAgeBars": 62,
+ "entryModel": "any",
+ "entryDepthPct": 2,
+ "confirmBars": 8,
  "imbMinSizeAtr": {
   "value": 0.2,
   "unit": "atr"
@@ -28,17 +28,17 @@
  "pbWickPct": 60,
  "pbBodyPct": 20,
  "tradeDirection": "Both",
- "maxTradesPerDay": 3,
- "cooldownBars": 12,
+ "maxTradesPerDay": 1,
+ "cooldownBars": 6,
  "weekdaysOnly": true,
  "useTradeWindow": true,
  "tradeTZ": "America/New_York",
- "tradeStartH": 2,
+ "tradeStartH": 8,
  "tradeStartM": 0,
- "tradeEndH": 12,
+ "tradeEndH": 16,
  "tradeEndM": 0,
- "slFrom": "refined",
- "slBufferAtr": 0.1,
+ "slFrom": "htf",
+ "slBufferAtr": 0.05,
  "slBufferPoints": {
   "value": 20,
   "unit": "abs"
@@ -57,12 +57,12 @@
   "unit": "pct"
  },
  "leverage": 1.0,
- "useFibo": false,
- "fibMinPct": 50.0,
+ "useFibo": true,
+ "fibMinPct": 40.458,
  "trendFilter": "off",
  "volFilter": "high",
  "_strategy": "jss",
  "_instrument": "mnq_databento",
- "_timeframe": "3m",
- "_title": "PREŠIEL SMERNICAMI — JSS 1: MNQ 3m, 2021–2026 PF 1.32, WR 39 %, 155 obch/rok, max DD 2010 $, posledný rok PF 1.37"
+ "_timeframe": "5m",
+ "_title": "PREŠIEL SMERNICAMI — JSS 1: MNQ 5m, 2021–2026 PF 1.43, WR 39 %, 150 obch/rok, max DD 2473 $, posledný rok PF 1.53"
 }
