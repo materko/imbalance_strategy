@@ -24,7 +24,7 @@ from tradebot.core.history import BarHistory
 from tradebot.core.orders import MarketContext, OrderAction, OrderIntent
 from tradebot.core.risk import TradePlan
 from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
-from tradebot.core.warmup import Warmup
+from tradebot.core.warmup import Warmup, decay_bars
 from tradebot.strategies.ibs.ta.trend import DMI
 
 from ..voltbreak.avgatr import SESSION_END_MIN, DailyAvgAtr, SessionAvgAtr
@@ -38,6 +38,13 @@ _LONG_COLOR = "#10b981"
 _SHORT_COLOR = "#ef4444"
 _BOX_BARS = 8
 
+
+
+def _seed_sessions(cfg) -> int:
+    """Koľko seáns treba na ustálený priemer ATR: rozbeh RMA, kým váha štartu neklesne pod 0,01 % (SL je
+    percento z ATR, takže aj malá odchýlka posunie stop o tick), + okno priemeru + rezerva."""
+    n = max(1, int(cfg.atrLen))
+    return n + decay_bars(1.0 / n, weight=0.0001) + int(cfg.avgLen) + 2
 
 class OnBiasOrbEngine:
     def __init__(self, cfg: OnBiasOrbConfig, inst: InstrumentSpec, chart_tf_minutes: int) -> None:
@@ -54,6 +61,10 @@ class OnBiasOrbEngine:
         self.daily_atr = DailyAvgAtr(cfg.atrLen, cfg.avgLen)
         self.dmi = DMI(int(cfg.adxLen), int(cfg.adxLen))
         self.warmup = Warmup(self.chart_tf_minutes).add(f"ADX {cfg.adxLen}", self.dmi.warmup_bars)
+        # Priemer ATR za N seáns (a ADX) dostane predhistóriu z dát pred behom: prehrajú sa nimi bary grafu
+        # bez obchodov. Bez toho by štart v inom dni dával iné obchody, kým sa priemer nerozbehne (krok 1 smernice).
+        self.warmup.add_seeded(f"ATR {cfg.atrLen} za {cfg.avgLen} seáns", _seed_sessions(cfg) * 1380 // self.chart_tf_minutes,
+                               self.chart_tf_minutes, self._seed)
         self.required_history = self.warmup.chart_bars
         self.history = BarHistory(maxlen=8, atr_len=14)
 
@@ -76,6 +87,10 @@ class OnBiasOrbEngine:
         if self.on_s < self.rth:
             return self.on_s <= m < self.rth
         return m >= self.on_s or m < self.rth
+
+    def _seed(self, bars, partial) -> None:
+        for b in bars:
+            self.on_bar(b, ctx=MarketContext(in_trade_window=True))
 
     def on_bar(self, bar: Bar, htf=None, ctx: MarketContext | None = None) -> EngineOutput:
         ctx = ctx or MarketContext(in_trade_window=True)
