@@ -126,7 +126,7 @@ def test_potvrdeny_vstup_ide_aj_limitkou_spat_do_potvrdzovacej_sviecky():
 
 
 #: stratégie s vlastným vstupným modelom IBS imbalance / pin bar — spoločný obal nemajú
-_OWN = {"ibs", "ibsentry", "ibsfvg", "ibsnet", "ibszones", "jss", "fibo", "svp", "liquidity", "asiasweep"}
+_OWN = {"ibs", "ibsentry", "ibsfvg", "ibsnet", "ibszones", "jss", "fibo", "svp", "liquidity", "asiasweep", "intraday", "sweepfvg"}
 
 
 @pytest.mark.parametrize("key", sorted(STRATEGIES))

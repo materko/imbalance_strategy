@@ -22,6 +22,7 @@ from .ibsnet import SPEC as IBSNET_SPEC
 from .ibsentry import SPEC as IBSENTRY_SPEC
 from .ibsfvg import SPEC as IBSFVG_SPEC
 from .ibszones import SPEC as IBSZONES_SPEC
+from .intraday import SPEC as INTRADAY_SPEC
 from .jss import SPEC as JSS_SPEC
 from .liquidity import SPEC as LIQUIDITY_SPEC
 from .mag7 import SPEC as MAG7_SPEC
@@ -34,7 +35,10 @@ from .sdzone import SPEC as SDZONE_SPEC
 from .structure import SPEC as STRUCTURE_SPEC
 from .percoco import SPEC as PERCOCO_SPEC
 from .svp import SPEC as SVP_SPEC
+from .sweepengulf import SPEC as SWEEPENGULF_SPEC
+from .sweepfvg import SPEC as SWEEPFVG_SPEC
 from .trendlines import SPEC as TRENDLINES_SPEC
+from .varev import SPEC as VAREV_SPEC
 from .voltbreak import SPEC as VOLTBREAK_SPEC
 from .vwapadx import SPEC as VWAPADX_SPEC
 from .vwapdrift import SPEC as VWAPDRIFT_SPEC
@@ -75,6 +79,10 @@ STRATEGIES: dict[str, StrategySpec] = {
     MAG7_SPEC.key: MAG7_SPEC,
     ASIASWEEP_SPEC.key: ASIASWEEP_SPEC,
     DAILYOPEN_SPEC.key: DAILYOPEN_SPEC,
+    INTRADAY_SPEC.key: INTRADAY_SPEC,
+    SWEEPFVG_SPEC.key: SWEEPFVG_SPEC,
+    SWEEPENGULF_SPEC.key: SWEEPENGULF_SPEC,
+    VAREV_SPEC.key: VAREV_SPEC,
 }
 
 #: Staré kľúče -> dnešné. História behov, profily a odkazy z minulosti sa nemenia na disku;

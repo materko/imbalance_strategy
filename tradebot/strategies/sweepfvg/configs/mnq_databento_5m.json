@@ -1,0 +1,10 @@
+{
+  "_title": "MNQ futures 5m — SWEEP FVG 1.0: výber likvidity 15m/1h, CHoCH / BOS, limitka na okraji FVG, RR 2",
+  "_strategy": "sweepfvg",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Východiskový profil podľa zadania používateľa (10. 10. 2026), parametre neladené.",
+    "Nie je to obchodné odporúčanie."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "_title": "MNQ futures 5m — VALUE AREA REVERSION 1.0: rovnaké pravidlá na 5m grafe (návrat do 5 barov = 25 minút)",
+  "_strategy": "varev",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Video odporúča 15m a 30m; 5m na skúšku podľa Martina (10. 10. 2026). Neladené.",
+    "Nie je to obchodné odporúčanie."
+  ]
+}

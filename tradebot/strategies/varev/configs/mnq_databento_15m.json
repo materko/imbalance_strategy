@@ -1,0 +1,10 @@
+{
+  "_title": "MNQ futures 15m — VALUE AREA REVERSION 1.0: profil predošlej seansy 18:00, VA 70 %, návrat do 5 barov, cieľ opačná hrana VA",
+  "_strategy": "varev",
+  "_instrument": "mnq_databento",
+  "_timeframe": "15m",
+  "_comment": [
+    "Východiskový profil podľa videa LuxAlgo (dUczefIYKIU) / Fabio Valentini. Neladené, nebacktestované.",
+    "Nie je to obchodné odporúčanie."
+  ]
+}

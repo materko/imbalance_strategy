@@ -1,0 +1,10 @@
+{
+  "_title": "MNQ futures 5m — INTRADAY 1.0: bias EMA 20, zobratie PDH/PDL, 5m zóna v 15m v 1H, limitka na hranu, RR 2",
+  "_strategy": "intraday",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Východiskový profil podľa smernice obchodovania Martina (8. 10. 2026), parametre zatiaľ neladené.",
+    "Nie je to obchodné odporúčanie."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "_title": "MNQ futures 4h — SWEEPING ENGULF 1.0: výber + pohltenie predošlej sviečky, EMA 200, stop za sviečku, RR 2",
+  "_strategy": "sweepengulf",
+  "_instrument": "mnq_databento",
+  "_timeframe": "4h",
+  "_comment": [
+    "Východiskový profil podľa videa LuxAlgo (oxZj1kSye-g): 4h, predošlá sviečka smerom manipulácie, filter EMA 200,",
+    "stop za low / high signálnej sviečky, cieľ 1:2. Neladené. Nie je to obchodné odporúčanie."
+  ],
+  "trendFilter": "with",
+  "trendEmaLen": 200
+}

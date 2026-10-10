@@ -1,0 +1,10 @@
+{
+  "_title": "MNQ futures 30m — VALUE AREA REVERSION 1.0: rovnaké ako 15m profil, druhý TF odporúčaný vo videu",
+  "_strategy": "varev",
+  "_instrument": "mnq_databento",
+  "_timeframe": "30m",
+  "_comment": [
+    "Video: 15m a 30m dávali najsilnejšie signály. Neladené, nebacktestované.",
+    "Nie je to obchodné odporúčanie."
+  ]
+}
