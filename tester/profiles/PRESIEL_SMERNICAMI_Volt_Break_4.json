@@ -1,0 +1,10 @@
+{
+ "useTimeExit": false,
+ "noisePct": 40.0,
+ "tpUsd": 1200.0,
+ "slUsd": 1000.0,
+ "_strategy": "voltbreak",
+ "_instrument": "mnq_databento",
+ "_timeframe": "30m",
+ "_title": "PREŠIEL SMERNICAMI — Volt Break 4: MNQ 30m, 2021–2026 PF 1.42, WR 54 %, 170 obch/rok, max DD 1410 $, posledný rok PF 1.33"
+}

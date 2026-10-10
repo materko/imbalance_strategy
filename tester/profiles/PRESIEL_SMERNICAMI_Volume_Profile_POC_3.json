@@ -41,12 +41,12 @@
  "tradeEndM": 0,
  "closeAtWindowEnd": false,
  "slMode": "atr",
- "slAtr": 0.889,
+ "slAtr": 1.0,
  "slPoints": 20.0,
  "slBufferAtr": 0.1,
  "atrLen": 14,
  "tpMode": "rr",
- "rrRatio": 1.314,
+ "rrRatio": 1.0,
  "minRR": 1.0,
  "tpExtensionPct": 27.0,
  "riskDollar": 100.0,
@@ -60,5 +60,5 @@
  "_strategy": "svp",
  "_instrument": "mnq_databento",
  "_timeframe": "15m",
- "_title": "PREŠIEL SMERNICAMI — Volume Profile POC 3: MNQ 15m, 2021–2026 PF 1.39, WR 52 %, 189 obch/rok, max DD 1068 $, posledný rok PF 1.41"
+ "_title": "PREŠIEL SMERNICAMI — Volume Profile POC 3: MNQ 15m, 2021–2026 PF 1.37, WR 58 %, 189 obch/rok, max DD 812 $, posledný rok PF 1.48"
 }

@@ -1,0 +1,18 @@
+{
+ "useTimeExit": false,
+ "noisePct": 40.0,
+ "tpUsd": 1200.0,
+ "slUsd": 1000.0,
+ "startHHMM": 1000,
+ "endHHMM": 1430,
+ "maxTrades": 3,
+ "avgLen": 10,
+ "atrSource": "Denné sviečky burzy",
+ "atrLen": 24,
+ "trendFilter": "off",
+ "volFilter": "off",
+ "_strategy": "voltbreak",
+ "_instrument": "mnq_databento",
+ "_timeframe": "30m",
+ "_title": "PREŠIEL SMERNICAMI — Volt Break 3: MNQ 30m, 2021–2026 PF 1.47, WR 55 %, 166 obch/rok, max DD 1411 $, posledný rok PF 1.33"
+}

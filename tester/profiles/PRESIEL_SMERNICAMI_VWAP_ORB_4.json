@@ -22,11 +22,12 @@
  "vwapPeriod": "chart",
  "closeBeyondVwap": true,
  "trendFilter": "with",
- "trendEmaLen": 223,
- "trendTF": 23,
+ "trendEmaLen": 109,
+ "trendTF": 44,
  "volFilter": "high",
+ "confirmBars": 3,
  "_strategy": "vwaporb",
  "_instrument": "mnq_databento",
  "_timeframe": "3m",
- "_title": "PREŠIEL SMERNICAMI — VWAP ORB 4: MNQ 3m, 2021–2026 PF 1.56, WR 73 %, 157 obch/rok, max DD 4391 $, posledný rok PF 1.48"
+ "_title": "PREŠIEL SMERNICAMI — VWAP ORB 4: MNQ 3m, 2021–2026 PF 1.57, WR 73 %, 158 obch/rok, max DD 3829 $, posledný rok PF 1.51"
 }

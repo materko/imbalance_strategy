@@ -13,10 +13,10 @@
  "tpMode": "rr",
  "rrRatio": 2.0,
  "slBufferAtr": 0.25,
- "entryWindowMinutes": 240,
+ "entryWindowMinutes": 254,
  "maxTradesPerDay": 3,
- "minRangePct": 0.2,
- "maxRangePct": 10.0,
+ "minRangePct": 0.162,
+ "maxRangePct": 5.942,
  "sessionMode": "ny",
  "vwapAnchor": "session",
  "vwapPeriod": "chart",
@@ -24,10 +24,10 @@
  "trendFilter": "with",
  "trendEmaLen": 100,
  "trendTF": 60,
- "volFilter": "off",
+ "volFilter": "high",
  "limitOffsetPct": 25,
  "_strategy": "vwaporb",
  "_instrument": "mnq_databento",
  "_timeframe": "5m",
- "_title": "PREŠIEL SMERNICAMI — VWAP ORB 7: MNQ 5m, 2021–2026 PF 1.36, WR 40 %, 193 obch/rok, max DD 4444 $, posledný rok PF 1.36"
+ "_title": "PREŠIEL SMERNICAMI — VWAP ORB 9: MNQ 5m, 2021–2026 PF 1.36, WR 40 %, 193 obch/rok, max DD 4282 $, posledný rok PF 1.35"
 }

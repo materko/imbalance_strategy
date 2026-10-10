@@ -1,8 +1,8 @@
 {
  "trendFilter": "off",
  "trendEmaLen": 50,
- "trendTF": 15,
- "volFilter": "high",
+ "trendTF": 0,
+ "volFilter": "off",
  "volLookback": 50,
  "entryOrderType": "limit",
  "limitOffsetPct": 25,
@@ -31,7 +31,7 @@
  "fibSwingTF": 5,
  "fibSwingLen": 2,
  "fibLegMinAtr": 1,
- "fibMinPct": 61.8,
+ "fibMinPct": 23.6,
  "fibMaxPct": 78.6,
  "weekdaysOnly": true,
  "useTradeWindow": true,
@@ -60,5 +60,5 @@
  "_strategy": "svp",
  "_instrument": "mnq_databento",
  "_timeframe": "15m",
- "_title": "PREŠIEL SMERNICAMI — Volume Profile POC 4: MNQ 15m, 2021–2026 PF 1.37, WR 58 %, 187 obch/rok, max DD 812 $, posledný rok PF 1.48"
+ "_title": "PREŠIEL SMERNICAMI — Volume Profile POC 7: MNQ 15m, 2021–2026 PF 1.33, WR 57 %, 196 obch/rok, max DD 858 $, posledný rok PF 1.40"
 }
