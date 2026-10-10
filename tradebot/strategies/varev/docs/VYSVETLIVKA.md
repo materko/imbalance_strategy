@@ -8,6 +8,7 @@ stratégia Fabia Valentiniho (viacnásobné top 3 v Robbins World Cup Trading Ch
 ## Ako vznikne obchod (long; short zrkadlovo nad VAH)
 1. **Profil** — objem obchodovaný na každej cene počas seansy 18:00–18:00 New York. **Value area** je pásmo okolo
    najobchodovanejšej ceny (POC), kde prebehlo 70 % objemu. Predvolene sa berie profil **predošlej** seansy (vo videu čistejšie).
+   Prepínač „Value area z: ny“ počíta profil len z NY seansy 9:30–16:00 — obchoduje sa potom VAH / VAL z NY seansy predošlého dňa.
 2. **Únik** — sviečka zavrie pod spodnou hranou value area (VAL).
 3. **Slabnúci objem** — ďalšie medvedie sviečky pod VAL majú menší objem: predajcovia cenu nenasledujú, kupujúci ich absorbujú.
 4. **Návrat** — do 5 sviečok od úniku zavrie býčia sviečka späť vo value area a má väčší objem ako posledná medvedia sviečka úniku.

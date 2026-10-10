@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from . import drawing as _drawing  # noqa: F401  — registrácia druhov kresieb musí byť prvá
 from ..base import StrategySpec
-from .config import CONFIG_DIR, ProfileSource, TpMode, TradeDirection, VaRevConfig
+from .config import CONFIG_DIR, ProfileSession, ProfileSource, TpMode, TradeDirection, VaRevConfig
 from .engine import VaRevEngine
 from .hyperopt import VaRevHyperopt
 from .meta import FEATURES, INTENTIONAL_DEFAULT_DIFFS, KIND_TITLES, LAYERS, PARAM_NOTES, REMOVED_INPUTS
@@ -44,4 +44,5 @@ SPEC = StrategySpec(
     htf_feeder=None,
 )
 
-__all__ = ["SPEC", "VaRevConfig", "VaRevEngine", "ProfileSource", "TpMode", "TradeDirection", "CONFIG_DIR"]
+__all__ = ["SPEC", "VaRevConfig", "VaRevEngine", "ProfileSession", "ProfileSource", "TpMode", "TradeDirection",
+           "CONFIG_DIR"]

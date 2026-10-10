@@ -11,10 +11,13 @@ INTENTIONAL_DEFAULT_DIFFS: frozenset[str] = frozenset()
 
 PARAM_NOTES: dict[str, str] = {
     "profileSource": "Video (LuxAlgo): profil predošlého dňa dal čistejšie setupy ako rozvíjajúci sa dnešný.",
+    "profileSession": "Zadanie Martina 10. 10. 2026: value area len z NY seansy predošlého dňa, obchod na jej VAH / VAL.",
     "requireVolDecline": "Graf nemá bid / ask — medvedí objem = objem medvedej sviečky (rovnako ako LuxAlgo).",
 }
 
 FEATURES: list[dict[str, Any]] = [
+    {"switches": ["profileSession"], "when": {"profileSession": ["ny"]}, "params": ["nyStartH", "nyStartM", "nyEndH", "nyEndM"]},
+    {"switches": ["profileSession"], "when": {"profileSession": ["globex"]}, "params": ["anchorH"]},
     {"switches": ["useTradeWindow"], "params": ["startH", "startM", "endH", "endM"]},
     {"switches": ["tpMode"], "when": {"tpMode": ["rr"]}, "params": ["rrRatio"]},
     {"switches": ["fixedQty"], "params": ["qty"]},

@@ -88,3 +88,32 @@ def test_predhistoria_da_rovnaky_profil():
         a.on_bar(x, None, OKNO)
     b._seed(bars, None)
     assert a.prev_levels == b.prev_levels and a.levels == b.levels
+
+
+def test_value_area_len_z_ny_seansy_predosleho_dna():
+    """Profil NY: bary mimo 9:30–16:00 do neho nejdú; po 16:00 platí ako previous na ďalší deň."""
+    from tradebot.strategies.varev import ProfileSession
+
+    e = VaRevEngine(VaRevConfig(profileSession=ProfileSession.NY), MNQ, 15)
+    ts = t(2, 4)
+    bars = [Bar(ts + i * M15, 150, 160, 140, 150, 1000.0) for i in range(22)]       # 4:00–9:30 mimo NY, veľký objem
+    ts = t(2, 9, 30)
+    bars += [Bar(ts + i * M15, 101, 102, 100, 101, 100.0) for i in range(26)]       # NY 9:30–16:00 okolo 100–102
+    bars.append(Bar(t(2, 16), 101, 102, 100, 101, 10.0))                            # prvý bar po NY → profil hotový
+    for b in bars:
+        e.on_bar(b, None, OKNO)
+    vah, val, poc = e.prev_levels
+    assert 100.0 <= val < vah <= 102.0 and e.levels == e.prev_levels
+
+
+def test_ny_profil_v_predhistorii_rovnaky():
+    from tradebot.strategies.varev import ProfileSession
+
+    c = VaRevConfig(profileSession=ProfileSession.NY)
+    a, b = VaRevEngine(c, MNQ, 15), VaRevEngine(c, MNQ, 15)
+    ts = t(2, 4)
+    bars = [Bar(ts + i * M15, 100 + i % 3, 102 + i % 5, 99 - i % 4, 101, 10.0 + i) for i in range(150)]
+    for x in bars:
+        a.on_bar(x, None, OKNO)
+    b._seed(bars, None)
+    assert a.prev_levels == b.prev_levels and a.prev_levels is not None

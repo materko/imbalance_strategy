@@ -2,7 +2,8 @@
 
 Priebeh na každom uzavretom bare grafu (`_update` — to isté aj pre predhistóriu pred behom):
 
-  1. **seansa** — začína o `anchorH` (18:00 New York). Bary seansy sa zbierajú do profilu; na konci seansy sa z neho
+  1. **seansa** — začína o `anchorH` (18:00 New York), pri `profileSession` ny je to len NY seansa 9:30–16:00 (bary
+     mimo nej do profilu nejdú). Bary seansy sa zbierajú do profilu; na konci seansy sa z neho
      spočíta POC a value area (`_Profile.levels`) — to je profil „previous“ pre celú ďalšiu seansu. Pri „current“ sa
      value area počíta z barov dnešnej seansy pred aktuálnym barom (bez pohľadu na bar, o ktorom sa rozhoduje),
   2. **únik** — zavretie pod VAL (nad VAH), keď predošlé zavretie ešte nebolo pod VAL (nad VAH); od neho sa sleduje
@@ -29,7 +30,7 @@ from tradebot.core.risk import TradePlan
 from tradebot.core.types import Bar, Direction, InstrumentSpec, OrderType
 from tradebot.core.warmup import Warmup
 
-from .config import ProfileSource, TpMode, VaRevConfig
+from .config import ProfileSession, ProfileSource, TpMode, VaRevConfig
 from .drawing import VR_ESCAPE, VR_POC, VR_SIGNAL, VR_VAH, VR_VAL
 
 __all__ = ["VaRevEngine", "value_area"]
@@ -135,18 +136,27 @@ class VaRevEngine:
         self.idx += 1
         idx = self.idx
         self.history.append(bar)
-        key = self._session_key(bar.time)
+        # seansa profilu: globex 18:00–18:00, alebo len NY seansa (bar patrí do nej podľa času otvorenia);
+        # profil sa uzavrie na prvom bare mimo svojej seansy — od neho platí ako „previous“
+        if cfg.profileSession is ProfileSession.NY:
+            local = datetime.fromtimestamp(bar.time / 1000, tz=NY)
+            m = local.hour * 60 + local.minute
+            in_profile = cfg.nyStartH * 60 + cfg.nyStartM <= m < cfg.nyEndH * 60 + cfg.nyEndM
+            key = local.date() if in_profile else None
+        else:
+            in_profile, key = True, self._session_key(bar.time)
         if key != self._sess:
             if self._sess is not None:
                 self.prev_levels = value_area(self._bars, int(cfg.profileRows), float(cfg.valueAreaPct))
+                self.escape = None
             self._sess, self._sess_start_ms, self._bars = key, bar.time, []
-            self.escape = None
         # value area pre tento bar: predošlá seansa, alebo dnešná z barov pred týmto
         if cfg.profileSource is ProfileSource.CURRENT:
             levels = value_area(self._bars, int(cfg.profileRows), float(cfg.valueAreaPct))
         else:
             levels = self.prev_levels
-        self._bars.append((bar.high, bar.low, max(0.0, float(bar.volume))))
+        if in_profile:
+            self._bars.append((bar.high, bar.low, max(0.0, float(bar.volume))))
         if levels != (self._seg[1] if self._seg else None):
             self._close_segment(bar.time, out)
             if levels is not None:

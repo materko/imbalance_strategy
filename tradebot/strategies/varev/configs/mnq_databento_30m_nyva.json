@@ -1,0 +1,13 @@
+{
+  "_title": "MNQ futures 30m — VALUE AREA REVERSION 1.0: value area z NY seansy predošlého dňa (9:30–16:00), obchod pri jej VAH / VAL v NY, cieľ POC",
+  "_strategy": "varev",
+  "_instrument": "mnq_databento",
+  "_timeframe": "30m",
+  "_comment": [
+    "Zadanie Martina 10. 10. 2026: area len z NY, obchod na VAH / VAL predošlého dňa. Neladené.",
+    "Nie je to obchodné odporúčanie."
+  ],
+  "profileSession": "ny",
+  "useTradeWindow": true,
+  "tpMode": "poc"
+}

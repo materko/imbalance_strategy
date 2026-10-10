@@ -24,7 +24,14 @@ PARAMS: dict[str, dict[str, Any]] = {
     "profileSource": dict(group=_GP, title="Profil", options=["previous", "current"],
                           tooltip="previous = value area predošlej dokončenej seansy 18:00–18:00 (vo videu čistejšie signály); "
                                   "current = rozvíjajúci sa profil dnešnej seansy."),
-    "anchorH": dict(group=_GP, title="Začiatok seansy (hodina NY)", tooltip="Futures otvárajú o 18:00 New York."),
+    "profileSession": dict(group=_GP, title="Value area z", options=["globex", "ny"],
+                           tooltip="globex = celá futures seansa 18:00–18:00 (video); ny = len NY seansa 9:30–16:00 — pri profile "
+                                   "previous sa obchoduje VAH / VAL z NY seansy predošlého dňa."),
+    "anchorH": dict(group=_GP, title="Začiatok seansy globex (hodina NY)", tooltip="Futures otvárajú o 18:00 New York."),
+    "nyStartH": dict(group=_GP, title="NY seansa od: hodina", inline="ny1", tooltip="Pri value area z NY seansy (čas New York)."),
+    "nyStartM": dict(group=_GP, title="minúta", inline="ny1", tooltip=""),
+    "nyEndH": dict(group=_GP, title="NY seansa do: hodina", inline="ny2", tooltip="Bar, ktorý sa otvára o tomto čase, už nepatrí do profilu."),
+    "nyEndM": dict(group=_GP, title="minúta", inline="ny2", tooltip=""),
     "profileRows": dict(group=_GP, title="Riadkov profilu", tooltip="Video: 60. Objem sviečky sa rozdelí rovnomerne do riadkov, ktorých sa dotkla."),
     "valueAreaPct": dict(group=_GP, title="Value area (%)", step=0.5, tooltip="Koľko objemu okolo POC tvorí value area. Video: 70 %."),
     "maxBarsOutside": dict(group=_GS, title="Návrat do (barov po úniku)", tooltip="Video: 5 barov."),

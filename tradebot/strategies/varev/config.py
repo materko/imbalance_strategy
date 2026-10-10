@@ -4,7 +4,8 @@ Stratégia nemá Pine predlohu; je to zápis z videa LuxAlgo „I Turned A 4x Wo
 Indicator“ (youtube.com/watch?v=dUczefIYKIU, indikátor „Value Area Reversion Signals“), podľa stratégie
 Fabia Valentiniho (viacnásobné top 3 v Robbins World Cup Trading Championship):
 
-  * **profil** — objemový profil futures seansy od 18:00 do 18:00 New York (`profileRows` riadkov, objem sviečky sa
+  * **profil** — objemový profil futures seansy od 18:00 do 18:00 New York (`profileSession` ny = len NY seansa
+    9:30–16:00, pri previous tá z predošlého dňa — zadanie Martina 10. 10. 2026) (`profileRows` riadkov, objem sviečky sa
     rozdelí rovnomerne do riadkov, ktorých sa dotkla — ako LuxAlgo), value area `valueAreaPct` % okolo POC;
     `profileSource` previous = profil predošlej dokončenej seansy (vo videu čistejšie signály), current = rozvíjajúci
     sa profil dnešnej seansy (z barov pred aktuálnym),
@@ -34,7 +35,7 @@ from tradebot.core.entry_order import (ENTRY_ORDER_CONSTRAINTS, ENTRY_ORDER_ENUM
                                        EntryOrderFields)
 from tradebot.core.types import SizeSpec, SizeUnit
 
-__all__ = ["VaRevConfig", "ProfileSource", "TpMode", "TradeDirection", "CONFIG_DIR"]
+__all__ = ["VaRevConfig", "ProfileSession", "ProfileSource", "TpMode", "TradeDirection", "CONFIG_DIR"]
 
 CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 
@@ -42,6 +43,11 @@ CONFIG_DIR = Path(__file__).resolve().parent / "configs"
 class ProfileSource(str, Enum):
     PREVIOUS = "previous"   # profil predošlej dokončenej seansy 18:00–18:00 (video: čistejšie)
     CURRENT = "current"     # rozvíjajúci sa profil dnešnej seansy (z barov pred aktuálnym)
+
+
+class ProfileSession(str, Enum):
+    GLOBEX = "globex"   # celá futures seansa od `anchorH` (18:00) do 18:00 — video
+    NY = "ny"           # len NY seansa `nyStartH:nyStartM`–`nyEndH:nyEndM` (9:30–16:00)
 
 
 class TpMode(str, Enum):
@@ -57,9 +63,11 @@ class TradeDirection(str, Enum):
 
 
 SIZE_FIELDS: dict[str, SizeUnit] = {"slBufferAtr": "atr"}
-ENUM_FIELDS: dict[str, type] = {"profileSource": ProfileSource, "tpMode": TpMode, "tradeDirection": TradeDirection}
+ENUM_FIELDS: dict[str, type] = {"profileSession": ProfileSession, "profileSource": ProfileSource, "tpMode": TpMode,
+                                "tradeDirection": TradeDirection}
 CONSTRAINTS: dict[str, tuple[float, float]] = {
-    "anchorH": (0, 23), "profileRows": (10, 300), "valueAreaPct": (50.0, 99.0), "maxBarsOutside": (1, 50),
+    "anchorH": (0, 23), "nyStartH": (0, 23), "nyStartM": (0, 59), "nyEndH": (0, 23), "nyEndM": (0, 59),
+    "profileRows": (10, 300), "valueAreaPct": (50.0, 99.0), "maxBarsOutside": (1, 50),
     "reclaimVolMult": (0.0, 10.0), "maxTradesPerDay": (1, 50), "startH": (0, 23), "startM": (0, 59),
     "endH": (0, 23), "endM": (0, 59), "atrLen": (2, 100), "rrRatio": (0.2, 20.0), "minRR": (0.0, 20.0),
     "riskDollar": (0, 100000), "qty": (0.001, 1000), "leverage": (1, 125),
@@ -81,8 +89,15 @@ class VaRevConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFil
 
     # ---- 📊 Profil ----------------------------------------------------------- #
     profileSource: ProfileSource = ProfileSource.PREVIOUS
+    #: Z akých barov je profil: globex = 18:00–18:00 (video), ny = len NY seansa (pri previous: NY seansa predošlého dňa).
+    profileSession: ProfileSession = ProfileSession.GLOBEX
     #: Začiatok seansy profilu (hodina New York) — futures otvárajú o 18:00.
     anchorH: int = 18
+    #: NY seansa profilu pri `profileSession` ny (čas New York, začiatok baru).
+    nyStartH: int = 9
+    nyStartM: int = 30
+    nyEndH: int = 16
+    nyEndM: int = 0
     profileRows: int = 60
     valueAreaPct: float = 70.0
     # ---- 🔁 Signál ------------------------------------------------------------ #
@@ -133,6 +148,8 @@ class VaRevConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFil
     def _problems(self) -> Iterable[str]:
         if self.leverage < 1:
             yield f"leverage={self.leverage} musí byť >= 1"
+        if self.nyEndH * 60 + self.nyEndM <= self.nyStartH * 60 + self.nyStartM:
+            yield "NY seansa profilu: koniec musí byť po začiatku"
         start, end = self.window
         if self.useTradeWindow and end <= start:
             yield "okno vstupov: koniec musí byť po začiatku"
