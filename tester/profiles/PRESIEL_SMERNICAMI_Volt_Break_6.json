@@ -7,13 +7,12 @@
  "endHHMM": 1430,
  "maxTrades": 3,
  "avgLen": 10,
- "atrSource": "Seansa 0:00–16:00 CT (ako vo videu)",
+ "atrSource": "Denné sviečky burzy",
  "atrLen": 20,
  "trendFilter": "off",
  "volFilter": "off",
- "limitOffsetPct": 75,
  "_strategy": "voltbreak",
  "_instrument": "mnq_databento",
- "_timeframe": "60m",
- "_title": "PREŠIEL SMERNICAMI — Volt Break 1: MNQ 60m, 2021–2026 PF 1.44, WR 55 %, 156 obch/rok, max DD 1148 $, posledný rok PF 1.43"
+ "_timeframe": "30m",
+ "_title": "PREŠIEL SMERNICAMI — Volt Break 6: MNQ 30m, 2021–2026 PF 1.46, WR 55 %, 165 obch/rok, max DD 1308 $, posledný rok PF 1.33"
 }

@@ -1,0 +1,22 @@
+{
+ "useTimeExit": false,
+ "orEndHHMM": 845,
+ "vwapAnchor": "RTH 8:30 CT",
+ "adxMin": 20.0,
+ "tpBars": 4,
+ "slBars": 18,
+ "maxTrades": 2,
+ "exitHHMM": 1531,
+ "adxLen": 14,
+ "volFilter": "high",
+ "trendFilter": "off",
+ "trendEmaLen": 200,
+ "entryOrderType": "market",
+ "limitOffsetPct": 75,
+ "entryConfirm": "none",
+ "confirmBars": 2,
+ "_strategy": "vwapadx",
+ "_instrument": "mnq_databento",
+ "_timeframe": "3m",
+ "_title": "PREŠIEL SMERNICAMI — VWAP ADX Pullback 2: MNQ 3m, 2021–2026 PF 1.60, WR 77 %, 172 obch/rok, max DD 1988 $, posledný rok PF 1.31"
+}
