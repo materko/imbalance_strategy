@@ -1,0 +1,8 @@
+$ emulator MultiCharts MNQ 5m 20211001-20221001 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: štruktúra 5m @5m 82/82, filter volatility ATR 14 / 100 barov @5m 156/156
+emulacia MultiCharts: 71079 barov 5m, 355395 1m, 0 HTF
+  20000/71079 barov, 47 obchodov
+  40000/71079 barov, 91 obchodov
+  60000/71079 barov, 127 obchodov
+hotovo: 149 obchodov, nerozhodnutelnych minut 0
+kresby: {'jss_bos': 3234, 'jss_choch': 3317, 'jss_zone': 4422, 'jss_fib': 26532, 'jss_entry': 149}

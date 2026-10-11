@@ -1,0 +1,8 @@
+$ emulator MultiCharts MNQ 5m 20240904-20250904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: štruktúra 5m @5m 82/82, filter volatility ATR 14 / 100 barov @5m 156/156
+emulacia MultiCharts: 70647 barov 5m, 353232 1m, 0 HTF
+  20000/70647 barov, 44 obchodov
+  40000/70647 barov, 88 obchodov
+  60000/70647 barov, 128 obchodov
+hotovo: 148 obchodov, nerozhodnutelnych minut 0
+kresby: {'jss_choch': 3229, 'jss_zone': 4175, 'jss_fib': 25050, 'jss_bos': 3181, 'jss_entry': 148}

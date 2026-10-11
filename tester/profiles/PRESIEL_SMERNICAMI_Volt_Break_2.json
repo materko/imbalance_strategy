@@ -17,6 +17,6 @@
  "confirmBars": 3,
  "_strategy": "voltbreak",
  "_instrument": "mnq_databento",
- "_timeframe": "60m",
+ "_timeframe": "1h",
  "_title": "PREŠIEL SMERNICAMI — Volt Break 2: MNQ 60m, 2021–2026 PF 1.33, WR 93 %, 210 obch/rok, max DD 656 $, posledný rok PF 1.43"
 }
