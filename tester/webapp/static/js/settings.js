@@ -494,9 +494,11 @@ function smerniceKeys() {
 }
 function inSmernice(key) { return smerniceKeys().has(key); }
 const STRATEGY_FOLDERS = [
-  { name: "SMERNICE", match: k => inSmernice(k), top: true },
-  { name: "IBS", match: k => !inSmernice(k) && k.startsWith("ibs") },
-  { name: "ORB", match: k => !inSmernice(k) && (k.startsWith("orb") || k.endsWith("orb")) },   // orb, orbnet, vwaporb
+  { name: "SMERNICE", match: k => inSmernice(k) },
+  { name: "ČAKÁ NA TESTY", match: k => !inSmernice(k), sub: [
+    { name: "IBS", match: k => k.startsWith("ibs") },
+    { name: "ORB", match: k => k.startsWith("orb") || k.endsWith("orb") },   // orb, orbnet, vwaporb
+  ] },
 ];
 const pickerOpenFolders = new Set();
 let pickerInit = false;
@@ -514,29 +516,36 @@ function renderStrategyPicker() {
   }
   const list = state.meta.strategies;
   const folderOf = k => STRATEGY_FOLDERS.find(f => f.match(k));
+  const subOf = (f, k) => (f && f.sub || []).find(x => x.match(k));
+  const subId = (f, x) => f.name + "/" + x.name;
   if (!pickerInit && sel.value) {           // prvé zobrazenie: priečinok aktívnej stratégie otvorený
-    const f = folderOf(sel.value); if (f) pickerOpenFolders.add(f.name);
+    const f = folderOf(sel.value);
+    if (f) { pickerOpenFolders.add(f.name); const x = subOf(f, sel.value); if (x) pickerOpenFolders.add(subId(f, x)); }
     pickerInit = true;
   }
-  const item = (s, sub) => `<button type="button" class="spicker-item${sub ? " sub" : ""}${s.key === sel.value ? " sel" : ""}" data-key="${esc(s.key)}">${esc(s.title || s.key)}</button>`;
+  const item = (s, depth) => `<button type="button" class="spicker-item${depth ? " sub" : ""}${s.key === sel.value ? " sel" : ""}"${depth > 1 ? ' style="padding-left:44px"' : ""} data-key="${esc(s.key)}">${esc(s.title || s.key)}</button>`;
+  const folderBtn = (id, name, members, depth) => {
+    const open = pickerOpenFolders.has(id), active = members.some(x => x.key === sel.value);
+    return `<button type="button" class="spicker-folder${active ? " active" : ""}"${depth ? ' style="padding-left:24px"' : ""} data-folder="${esc(id)}">`
+      + `<span class="spicker-arrow">${open ? "▾" : "▸"}</span> 📁 ${esc(name)} <span class="muted">(${members.length})</span></button>`;
+  };
   let html = "";
-  const done = new Set();
-  const ordered = [...list.filter(s => (folderOf(s.key) || {}).top), ...list.filter(s => !(folderOf(s.key) || {}).top)];
-  for (const s of ordered) {                 // priečinok je na mieste svojej prvej stratégie (SMERNICE celkom hore)
-    const f = folderOf(s.key);
-    if (!f) { html += item(s, false); continue; }
-    if (done.has(f.name)) continue;
-    done.add(f.name);
+  for (const f of STRATEGY_FOLDERS) {        // SMERNICE celkom hore, potom ČAKÁ NA TESTY
     const members = list.filter(x => f.match(x.key));
-    const open = pickerOpenFolders.has(f.name);
-    const active = members.some(x => x.key === sel.value);
-    html += `<button type="button" class="spicker-folder${active ? " active" : ""}" data-folder="${esc(f.name)}">`
-      + `<span class="spicker-arrow">${open ? "▾" : "▸"}</span> 📁 ${esc(f.name)} <span class="muted">(${members.length})</span></button>`;
-    if (open) html += members.map(x => item(x, true)).join("");
+    if (!members.length) continue;
+    html += folderBtn(f.name, f.name, members, 0);
+    if (!pickerOpenFolders.has(f.name)) continue;
+    for (const x of f.sub || []) {
+      const sm = members.filter(m => x.match(m.key));
+      if (!sm.length) continue;
+      html += folderBtn(subId(f, x), x.name, sm, 1);
+      if (pickerOpenFolders.has(subId(f, x))) html += sm.map(m => item(m, 2)).join("");
+    }
+    html += members.filter(m => !subOf(f, m.key)).map(m => item(m, 1)).join("");
   }
   const cur = list.find(s => s.key === sel.value);
-  const curFolder = cur && folderOf(cur.key);
-  const label = cur ? (curFolder ? `📁 ${curFolder.name} › ` : "") + (cur.title || cur.key) : "—";
+  const curFolder = cur && folderOf(cur.key), curSub = cur && subOf(curFolder, cur.key);
+  const label = cur ? (curFolder ? `📁 ${curFolder.name} › ` : "") + (curSub ? `${curSub.name} › ` : "") + (cur.title || cur.key) : "—";
   const wasOpen = wrap.classList.contains("open");
   wrap.innerHTML = `<button type="button" class="spicker-btn" aria-haspopup="listbox">${esc(label)}<span class="spicker-caret">▾</span></button>`
     + `<div class="spicker-menu" role="listbox">${html}</div>`;
