@@ -493,12 +493,15 @@ function smerniceKeys() {
   return new Set(Object.keys(sm).filter(k => (sm[k].profiles || []).some(p => p.startsWith(SMERNICE_PREFIX))));
 }
 function inSmernice(key) { return smerniceKeys().has(key); }
+/** Nové stratégie (práve pridané / v teste podľa smernice). Keď prejdú, presunú sa samy do SMERNICE. */
+const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev"]);
 const STRATEGY_FOLDERS = [
   { name: "SMERNICE", match: k => inSmernice(k) },
-  { name: "ČAKÁ NA TESTY", match: k => !inSmernice(k), sub: [
+  { name: "ČAKÁ NA TESTY", match: k => !inSmernice(k) && !NOVE_STRATEGIE.has(k), sub: [
     { name: "IBS", match: k => k.startsWith("ibs") },
     { name: "ORB", match: k => k.startsWith("orb") || k.endsWith("orb") },   // orb, orbnet, vwaporb
   ] },
+  { name: "NOVÉ", match: k => !inSmernice(k) && NOVE_STRATEGIE.has(k) },
 ];
 const pickerOpenFolders = new Set();
 let pickerInit = false;
@@ -518,11 +521,7 @@ function renderStrategyPicker() {
   const folderOf = k => STRATEGY_FOLDERS.find(f => f.match(k));
   const subOf = (f, k) => (f && f.sub || []).find(x => x.match(k));
   const subId = (f, x) => f.name + "/" + x.name;
-  if (!pickerInit && sel.value) {           // prvé zobrazenie: priečinok aktívnej stratégie otvorený
-    const f = folderOf(sel.value);
-    if (f) { pickerOpenFolders.add(f.name); const x = subOf(f, sel.value); if (x) pickerOpenFolders.add(subId(f, x)); }
-    pickerInit = true;
-  }
+  pickerInit = true;                        // na začiatku sú všetky priečinky zatvorené: vidno SMERNICE, ČAKÁ NA TESTY, NOVÉ
   const item = (s, depth) => `<button type="button" class="spicker-item${depth ? " sub" : ""}${s.key === sel.value ? " sel" : ""}"${depth > 1 ? ' style="padding-left:44px"' : ""} data-key="${esc(s.key)}">${esc(s.title || s.key)}</button>`;
   const folderBtn = (id, name, members, depth) => {
     const open = pickerOpenFolders.has(id), active = members.some(x => x.key === sel.value);
