@@ -215,7 +215,7 @@ Chýba. Napíše ho AI: prečíta čísla vyššie a odpovie na týchto šesť o
 1. **Na čo sa to hodí a na čo nie.** MNQ, prieraz polnočného zavretia, TP malý / SL veľký (payoff 0,15, WR 91 %). Pevný počet kontraktov. Typ 'veľa malých výhier, zriedka veľká strata' — séria výhier až 47.
 2. **Má to potenciál?** Áno, štatisticky: +4,7 σ, 5 z 5 rokov. Ale rezerva je len v tom, že veľká strata príde zriedka; break-even 0,018 % a rok 22/23 takmer nulový (+0,8 %).
 3. **Čo dorobiť.** Pri payoffe 0,15 zmaže jedna strata ~7 výhier — sklz na stope je kritický. Overiť správanie pri gape cez noc. Analytika ráta obchody z prekrývajúcich sa okien 23/24 a 24/25 (september 2024) dvakrát — najdlhšia séria strát môže byť o 1–2 nadsadená.
-4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; parita s TradingView na 1–2 mesiacoch (krok 9); forward test 4–8 týždňov na 1 MNQ (krok 10).
+4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; forward test 4–8 týždňov na 1 MNQ (krok 9).
 5. **Je to použiteľné?** Podmienečne — na ostrý účet len s 2× poplatkom a sklzom v pluse; inak je to pekné WR bez rezervy.
 6. **Čo by som pridal.** Stop podľa ATR namiesto pevných bodov, aby sa strata prispôsobila volatilite.
 <!-- POSUDOK KONIEC -->

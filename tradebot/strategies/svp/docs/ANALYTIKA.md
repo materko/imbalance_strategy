@@ -188,7 +188,7 @@ Chýba. Napíše ho AI: prečíta čísla vyššie a odpovie na týchto šesť o
 1. **Na čo sa to hodí a na čo nie.** MNQ 5m–15m, odraz od POC predošlej seansy (mean reversion), drží veľmi krátko (~0,5 baru). WR 51 %, payoff 1,46. Hodí sa na pokojnejšie dni; v trendových dňoch prichádzajú dlhé série strát.
 2. **Má to potenciál?** Áno, ale opatrne: +8,1 σ proti náhode, no v tých istých hodinách už len +6,7 σ — časť edge je v tom, KEDY obchoduje. Rok 22/23 takmer nulový (+0,4 %, break-even 0,003 %), ostatné roky stabilné.
 3. **Čo dorobiť.** Longy sú slabšia polovica (68 % obchodov, bez nich +0,011 break-even) — skúsiť `tradeDirection` alebo filter trendu pre longy. Séria strát až 12 (MC 95 %: 14) — vyžaduje trpezlivý účet. Analytika ráta obchody z prekrývajúcich sa okien 23/24 a 24/25 (september 2024) dvakrát — najdlhšia séria strát môže byť o 1–2 nadsadená.
-4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; parita s TradingView na 1–2 mesiacoch (krok 9); forward test 4–8 týždňov na 1 MNQ (krok 10).
+4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; forward test 4–8 týždňov na 1 MNQ (krok 9).
 5. **Je to použiteľné?** Použiteľné ako diverzifikácia (iný typ než breakouty), samostatne slabšia rezerva (break-even 0,018 %). Krok 8 rozhodne.
 6. **Čo by som pridal.** Filter dňa podľa trendu (v trendovom dni POC nefunguje ako magnet) a denný limit strát.
 <!-- POSUDOK KONIEC -->

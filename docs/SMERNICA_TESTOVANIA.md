@@ -1,6 +1,6 @@
 # Smernica testovania stratégií
 
-*Vytvorené 8. 10. 2026, doplnené v ten istý deň: krok 1 „naživo = história“ a doplnkové testy. Platí pre každú stratégiu pred ostrým obchodovaním.*
+*Krok s TradingView zrušený 11. 10. 2026 (porovnanie s TV nemáme; obchody naživo sa porovnajú s webapp vo forward teste). Vytvorené 8. 10. 2026, doplnené v ten istý deň: krok 1 „naživo = história“ a doplnkové testy. Platí pre každú stratégiu pred ostrým obchodovaním.*
 
 Cieľ: mať čo najväčšiu dôveru, že čísla z backtestu budú naživo aspoň podobné. Backtest ber ako **horný strop**, naživo
 vychádza takmer vždy horšie. Dôvera sa buduje tak, že stratégia prejde sériou skúšok, ktoré ju môžu „zabiť“. Čo neprejde,
@@ -132,7 +132,7 @@ python -m tester.webapp.cli checkup --strategy X --profile Y --fee 1.755e-05
   - Monte Carlo drawdown,
   - break-even poplatok.
 - Výsledok: `tradebot/strategies/<kľúč>/docs/ANALYTIKA.md`.
-- Max. drawdown z Monte Carlo (95 %) si zapíš. Je to hranica na vypnutie stratégie v kroku 11.
+- Max. drawdown z Monte Carlo (95 %) si zapíš. Je to hranica na vypnutie stratégie v kroku 10.
 
 ### 8. Iné dáta a iný trh (Mac mini)
 - To isté nastavenie na NAS100 z Dukascopy (`--pair NAS100/USD`) a ak sa dá, aj na ES alebo inom indexe.
@@ -144,25 +144,13 @@ python -m tester.webapp.cli checkup --strategy X --profile Y --fee 1.755e-05
 - **Prešiel:** PF na NAS100 ≥ 1,1 a aspoň 4 z 5 rokov v pluse. Inak výsledok na MNQ môže byť vlastnosť dát —
   na CFD (FTMO) nepoužívať.
 
-### 9. Parita platforiem (TradingView / MultiCharts)
-- Webapp a TradingView (príp. MultiCharts) musia mať **tie isté obchody v tie isté dni** (kontrola na 1–2 mesiacoch).
-- V TradingView ten istý test ako krok 1: reštart grafu v iný deň, obchody na tých istých miestach. V tabuľke skriptu
-  sleduj „História od“.
-- V Pine skontrolovať (už sa reálne stalo):
-  - `request.security` z nižšieho TF alebo z neuzavretej sviečky vyššieho TF,
-  - riadenie podľa výsledku obchodu,
-  - `calc_on_every_tick`,
-  - začiatok seansy pri akciách,
-  - málo histórie na 1m,
-  - limit 500 boxov.
-
-### 10. Forward test 4–8 týždňov
+### 9. Forward test 4–8 týždňov
 - Paper účet alebo 1 MNQ, aspoň **20–30 obchodov**.
 - Každý týždeň porovnať obchody naživo s webapp na tie isté dni, **obchod po obchode**.
   Rozdiely ukážu sklz, chyby v kóde aj repaint.
 - Veľkosť sa zvyšuje až keď sa zhodujú.
 
-### 11. Ostrá prevádzka
+### 10. Ostrá prevádzka
 - Začať s malou veľkosťou.
 - Pravidlo na vypnutie nastaviť **vopred**:
   - drawdown nad Monte Carlo 95 % → stratégia sa vypína,
@@ -170,7 +158,7 @@ python -m tester.webapp.cli checkup --strategy X --profile Y --fee 1.755e-05
 
 ---
 
-## Doplnkové testy (pred krokom 10, Mac mini)
+## Doplnkové testy (pred krokom 9, Mac mini)
 
 Tieto testy zvyšujú dôveru, keď hlavné kroky prešli.
 
@@ -237,10 +225,9 @@ Stratégia: ____________   Profil: ____________   Dátum: ________
 [ ] 6. odložený rok: obch ____ PF ____ (≥ 1,2 a ≥ 70 % z ladenia?)
 [ ] 7. checkup: rokov v pluse __/5, náhoda ____ %, break-even poplatok ____, MC DD 95 % ____
 [ ] 8. NAS100 / iný trh: PF ____ (rovnaký smer?)
-[ ] 9. TV = webapp na 1–2 mesiacoch, TV reštart = rovnaké obchody
 [ ] doplnky: walk-forward PF ____, 2× poplatok PF ____, režimy ok, dáta ok, portfólio DD ____
-[ ] 10. forward ____ týždňov, ____ obchodov, PF ____ (≤ 30 % pod backtestom?)
-[ ] 11. ostrá prevádzka: veľkosť ____, vypnúť pri DD ____ alebo PF < 1 po 50 obchodoch
+[ ] 9. forward ____ týždňov, ____ obchodov, PF ____ (≤ 30 % pod backtestom?)
+[ ] 10. ostrá prevádzka: veľkosť ____, vypnúť pri DD ____ alebo PF < 1 po 50 obchodoch
 ```
 
 ---

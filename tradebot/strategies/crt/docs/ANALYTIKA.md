@@ -186,7 +186,7 @@ Chýba. Napíše ho AI: prečíta čísla vyššie a odpovie na týchto šesť o
 1. **Na čo sa to hodí a na čo nie.** MNQ 3m, Candle Range Theory s výberom likvidity, WR 55 %, payoff 1,07, drží ~11 barov. Veľmi rovnomerné roky (+3,1 až +4,8 %).
 2. **Má to potenciál?** Áno, ale s najmenšou rezervou: +5,5 σ, rovnomerné roky, no break-even len 0,0125 % (~7× poplatok) — najtenšia vrstva z deviatich.
 3. **Čo dorobiť.** Žiadna skupina obchodov výsledok nekazí — filtrovať nie je čo; zlepšiť sa dá len vstupom. Analytika ráta obchody z prekrývajúcich sa okien 23/24 a 24/25 (september 2024) dvakrát — najdlhšia séria strát môže byť o 1–2 nadsadená.
-4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; parita s TradingView na 1–2 mesiacoch (krok 9); forward test 4–8 týždňov na 1 MNQ (krok 10).
+4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; forward test 4–8 týždňov na 1 MNQ (krok 9).
 5. **Je to použiteľné?** Podmienečne — rozhodne stres 2× poplatok + 1 tick sklzu; pri break-even 0,0125 % je to hranica.
 6. **Čo by som pridal.** Cieľ na opačnú stranu rangu namiesto RR — pri stabilnom WR by zvýšil payoff.
 <!-- POSUDOK KONIEC -->

@@ -192,7 +192,7 @@ Chýba. Napíše ho AI: prečíta čísla vyššie a odpovie na týchto šesť o
 1. **Na čo sa to hodí a na čo nie.** MNQ 1m, pullback k VWAP s ADX, cieľ ~0,7 R, WR 67 %, drží ~9 barov. Na 1m je výsledok citlivý na plnenie a sklz.
 2. **Má to potenciál?** Áno, ale najtesnejšie: +4,3 σ, break-even 0,019 % (~11× poplatok). Roky 22/23 a 23/24 slabé (+2,8 %, break-even ~0,01 %) — rezerva v pokojných rokoch je malá.
 3. **Čo dorobiť.** Štvrtina obchodov so stopom 0,22–0,40 % je najslabšia (`slBars`). 1m graf → overiť sklz 1 tick, pri tak malej rezerve rozhodne. Analytika ráta obchody z prekrývajúcich sa okien 23/24 a 24/25 (september 2024) dvakrát — najdlhšia séria strát môže byť o 1–2 nadsadená.
-4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; parita s TradingView na 1–2 mesiacoch (krok 9); forward test 4–8 týždňov na 1 MNQ (krok 10).
+4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; forward test 4–8 týždňov na 1 MNQ (krok 9).
 5. **Je to použiteľné?** Podmienečne — len ak prejde stresom 1 tick sklzu. Inak o ničom.
 6. **Čo by som pridal.** Filter volatility (pokojné dni vynechať) — slabé roky boli pokojné.
 <!-- POSUDOK KONIEC -->

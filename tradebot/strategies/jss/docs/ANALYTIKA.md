@@ -186,7 +186,7 @@ Chýba. Napíše ho AI: prečíta čísla vyššie a odpovie na týchto šesť o
 1. **Na čo sa to hodí a na čo nie.** MNQ 3m, BOS/CHoCH a SD zóna, cieľ ~2,2 R, WR 39 %, drží ~16 barov. Typ s veľa malými stratami a menej veľkými ziskami — psychicky náročnejší (séria strát až 11, MC 95 %: 15).
 2. **Má to potenciál?** Áno: 5 z 5 rokov, +4,3 σ, break-even 0,048 % (~26× poplatok), rok 25/26 najlepší (+11,7 %). Rovnomerné roky (+5,7 až +11,7 %) — nie je to jeden šťastný rok.
 3. **Čo dorobiť.** Najhoršia štvrtina obchodov má tesný stop (do 0,23 %) — `slBufferAtr` vyššie (+0,022 break-even). Dlhé série strát → sizing nižší (MC odporúča max. ~490 $ riziko pri 60k). Analytika ráta obchody z prekrývajúcich sa okien 23/24 a 24/25 (september 2024) dvakrát — najdlhšia séria strát môže byť o 1–2 nadsadená.
-4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; parita s TradingView na 1–2 mesiacoch (krok 9); forward test 4–8 týždňov na 1 MNQ (krok 10).
+4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; forward test 4–8 týždňov na 1 MNQ (krok 9).
 5. **Je to použiteľné?** Áno, solídny kandidát s dobrou rezervou; vhodný pre účet bez denných limitov (prop s denným limitom môže zhodiť séria strát).
 6. **Čo by som pridal.** Posun stopu na vstup po 1 R — pri payoffe 2,2 by skrátil straty v sériách; testovať len ako prepínač na forward teste.
 <!-- POSUDOK KONIEC -->

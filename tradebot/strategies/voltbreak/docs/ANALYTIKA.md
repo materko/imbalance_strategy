@@ -186,7 +186,7 @@ Chýba. Napíše ho AI: prečíta čísla vyššie a odpovie na týchto šesť o
 1. **Na čo sa to hodí a na čo nie.** MNQ 1h, prieraz noise barrier + VWAP (Matteo Conti), len long, drží ~1 bar. WR 55 %, payoff 1,2, veľmi stabilné roky (+5,0 až +6,4 %).
 2. **Má to potenciál?** Áno: najstabilnejšie roky zo všetkých, +4,8 σ, break-even 0,029 % (~16× poplatok), drawdown nízky (MC 95 %: 2,9 %). Pozor: posledné obdobie na 27. percentile a break-even po rokoch klesá (0,040 → 0,021) — sleduj, či edge neslabne.
 3. **Čo dorobiť.** Len long — na medvedom trhu (2022) držala, ale treba overiť short variantu ako zvlášť test. Makro dni (CPI, FOMC) sú lepšie než bežné — bez filtra dobre. Analytika ráta obchody z prekrývajúcich sa okien 23/24 a 24/25 (september 2024) dvakrát — najdlhšia séria strát môže byť o 1–2 nadsadená.
-4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; parita s TradingView na 1–2 mesiacoch (krok 9); forward test 4–8 týždňov na 1 MNQ (krok 10).
+4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; forward test 4–8 týždňov na 1 MNQ (krok 9).
 5. **Je to použiteľné?** Áno — vďaka stabilite a nízkemu DD najvhodnejšia pre prop účty (FTMO/Tradeify). Krok 8 a 10.
 6. **Čo by som pridal.** Short zrkadlo (noise barrier dole) ako samostatný test a filter režimu: v rokoch s klesajúcim break-even sledovať veľkosť noise pásma.
 <!-- POSUDOK KONIEC -->

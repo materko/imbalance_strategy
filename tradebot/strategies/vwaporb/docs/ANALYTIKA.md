@@ -188,7 +188,7 @@ Chýba. Napíše ho AI: prečíta čísla vyššie a odpovie na týchto šesť o
 1. **Na čo sa to hodí a na čo nie.** MNQ 3m–5m, NY otvorenie (range po 9:30 a prieraz s VWAP). Scalp s cieľom ~0,55 R a winrate 73 %, drží ~40 barov. Hodí sa na futures s dobrým plnením; na CFD so širším spreadom bude horšia, ale break-even 0,073 % na stranu (~40× poplatok) dáva najväčšiu rezervu zo všetkých.
 2. **Má to potenciál?** Áno. 5 z 5 rokov v zisku, +5,4 σ proti náhode (aj v tých istých hodinách +5,2 σ — edge je vo výbere, nie len v čase), break-even suverénne najvyšší. Proti: rok 24/25 slabší (+6,6 %, WR 67 %) a posledné obdobie na 21. percentile — zatiaľ v norme, ale sledovať.
 3. **Čo dorobiť.** Najhoršia štvrtina obchodov má veľmi tesný stop (do 0,63 %) — minimálna vzdialenosť stopu (`minSlDistance` / `slBufferAtr`) by ich odfiltrovala (+0,029 break-even). Analytika ráta obchody z prekrývajúcich sa okien 23/24 a 24/25 (september 2024) dvakrát — najdlhšia séria strát môže byť o 1–2 nadsadená.
-4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; parita s TradingView na 1–2 mesiacoch (krok 9); forward test 4–8 týždňov na 1 MNQ (krok 10).
+4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; forward test 4–8 týždňov na 1 MNQ (krok 9).
 5. **Je to použiteľné?** Áno — najsilnejší kandidát podľa rezervy na náklady. Ďalej krok 8 a 10.
 6. **Čo by som pridal.** Filter na tesný stop (min. vzdialenosť v ATR) a denný limit 2 strát (séria strát 4–5 prichádza v zhlukoch).
 <!-- POSUDOK KONIEC -->

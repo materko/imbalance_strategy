@@ -181,7 +181,7 @@ Chýba. Napíše ho AI: prečíta čísla vyššie a odpovie na týchto šesť o
 1. **Na čo sa to hodí a na čo nie.** MNQ 5m–15m, sila S&P 500 od otvorenia NY, breakout v smere sily, WR 38 %, payoff 2,15. Séria strát až 11 (MC 95 %: 15).
 2. **Má to potenciál?** Áno: 5 z 5 rokov rovnomerne (+5,5 až +7,2 %), +3,6 σ, break-even 0,037 % (~20× poplatok). Najistejšie zaradený charakter (breakout, istota dobrá).
 3. **Čo dorobiť.** Obchody s trendom tvoria 92 % a sú slabšie než proti trendu — filter trendu (`trendFilter`) stojí za test, ale je to väčšina obchodov. Analytika ráta obchody z prekrývajúcich sa okien 23/24 a 24/25 (september 2024) dvakrát — najdlhšia séria strát môže byť o 1–2 nadsadená.
-4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; parita s TradingView na 1–2 mesiacoch (krok 9); forward test 4–8 týždňov na 1 MNQ (krok 10).
+4. **Čo otestovať ďalej.** NAS100 z Dukascopy (krok 8) — rovnaký smer výsledku = jav trhu, nie dát; 2× poplatok (`--fee 3.51e-05`) a 1 tick sklzu navyše; forward test 4–8 týždňov na 1 MNQ (krok 9).
 5. **Je to použiteľné?** Áno, použiteľná — na účte bez denného limitu; dlhé série strát sú pri payoffe 2,15 normálne.
 6. **Čo by som pridal.** Kombinácia s VWAP ORB v portfóliu — obe obchodujú NY otvorenie z iného uhla; overiť spoločný drawdown (`cli portfolio`).
 <!-- POSUDOK KONIEC -->

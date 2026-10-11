@@ -205,10 +205,10 @@ Chýba. Napíše ho AI: prečíta čísla vyššie a odpovie na týchto šesť o
    filter volatility (`volFilter`) skúsiť ako ochranu, nie na ladenie výsledku.
 4. **Čo otestovať ďalej.** Krok 8: ten istý profil na NAS100 (Dukascopy) — `cli run --strategy ibsentry --profile … --pair NAS100/USD
    --engine multicharts` — rovnaký smer výsledku = jav trhu, nie dát. Doplnky: 2× poplatok (`--fee 3.51e-05`) a
-   1 tick sklzu navyše — pri TP 0,5 R je to najdôležitejší stres. Krok 9: parita s TradingView na 1–2 mesiacoch.
-   Krok 10: forward test 4–8 týždňov na 1 MNQ, obchod po obchode proti webapp.
+   1 tick sklzu navyše — pri TP 0,5 R je to najdôležitejší stres.
+   Krok 9: forward test 4–8 týždňov na 1 MNQ, obchod po obchode proti webapp.
 5. **Je to použiteľné? Áno, ako kandidát na forward test** — zatiaľ najlepšia stratégia z testovania podľa smernice.
-   Na ostrý účet až po kroku 8 a 10; kým nie je overený sklz na krátkych obchodoch, nie je to hotové.
+   Na ostrý účet až po kroku 8 a 9; kým nie je overený sklz na krátkych obchodoch, nie je to hotové.
 6. **Čo by som pridal.** Denný limit straty (napr. 2 stopy) — séria strát prichádza v zhlukoch v jednom-dvoch dňoch
    (2024-09-18, 2024-09-27) a pre prop účty (denný limit FTMO/Tradeify) je to rozhodujúce. A čiastočný posun stopu na
    vstup po 0,3 R, otestovaný len ako prepínač na kroku 10, nie hľadaním.
