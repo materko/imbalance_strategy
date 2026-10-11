@@ -438,16 +438,17 @@
   // Série obchodov po sebe: dĺžky sérií ziskov a strát, medián a rozdelenie.
   function streaks(trades) {
     var list = trades.slice().sort(function (a, b) { return a.close < b.close ? -1 : a.close > b.close ? 1 : 0; });
-    var w = [], l = [], cur = 0, sign = 0;
+    var w = [], l = [], seq = [], cur = 0, sign = 0, start = null;
+    function close() { if (sign > 0) w.push(cur); else if (sign < 0) l.push(cur); if (sign) seq.push({ v: sign * cur, d: start }); }
     list.forEach(function (t) {
       var sg = t.pnl > 0 ? 1 : t.pnl < 0 ? -1 : 0;
       if (sg === 0) return;
-      if (sg === sign) cur++; else { if (sign > 0) w.push(cur); else if (sign < 0) l.push(cur); sign = sg; cur = 1; }
+      if (sg === sign) cur++; else { close(); sign = sg; cur = 1; start = t.close; }
     });
-    if (sign > 0) w.push(cur); else if (sign < 0) l.push(cur);
+    close();
     function med(v) { if (!v.length) return null; var x = v.slice().sort(function (a, b) { return a - b; }); var m = x.length >> 1; return x.length % 2 ? x[m] : (x[m - 1] + x[m]) / 2; }
     function avg(v) { return v.length ? v.reduce(function (a, b) { return a + b; }, 0) / v.length : null; }
-    return { w: w, l: l, wMed: med(w), lMed: med(l), wAvg: avg(w), lAvg: avg(l), wMax: w.length ? Math.max.apply(null, w) : 0, lMax: l.length ? Math.max.apply(null, l) : 0 };
+    return { seq: seq, w: w, l: l, wMed: med(w), lMed: med(l), wAvg: avg(w), lAvg: avg(l), wMax: w.length ? Math.max.apply(null, w) : 0, lMax: l.length ? Math.max.apply(null, l) : 0 };
   }
   function renderStreaks(st) {
     var z = streaks(st.trades || []);
@@ -460,25 +461,22 @@
       k("Najdlhšia séria strát", num(z.lMax) + " obch.", "neg") +
       k("Počet sérií ziskov / strát", num(z.w.length) + " / " + num(z.l.length));
     if (!hasChart()) return;
-    var n = Math.max(z.wMax, z.lMax, 1), labels = [], wc = [], lc = [];
-    for (var i = 1; i <= n; i++) {
-      labels.push(i);
-      wc.push(z.w.filter(function (x) { return x === i; }).length);
-      lc.push(-z.l.filter(function (x) { return x === i; }).length);
-    }
+    // klasická čiara: série za sebou v čase — hore séria ziskov (dĺžka), dole séria strát; čiarkované mediány
+    var labels = z.seq.map(function (x) { return x.d; }), vals = z.seq.map(function (x) { return x.v; });
     var o = baseOpts();
-    o.scales.x.stacked = true; o.scales.y.stacked = true;
-    o.scales.x.title = { display: true, text: "dĺžka série (obchodov po sebe)", color: cssVar("--muted") };
+    o.scales.x.ticks.callback = function (v) { var l = labels[v]; return l ? MONTHS_SHORT[+l.slice(5, 7) - 1] + " " + l.slice(2, 4) : ""; };
+    o.scales.x.ticks.maxTicksLimit = 10;
     o.scales.y.ticks.callback = function (v) { return Math.abs(v); };
-    o.scales.y.title = { display: true, text: "koľkokrát", color: cssVar("--muted") };
-    o.plugins.tooltip.callbacks = { title: function (it) { return it[0].label + " obchodov po sebe"; },
-      label: function (it) { return (it.datasetIndex ? "strát" : "ziskov") + ": " + Math.abs(it.raw) + "×"; } };
-    var mi = function (m) { return m == null ? null : Math.round(m) - 1; };
-    o.plugins.guides = { hlines: [{ value: 0, color: cssVar("--muted"), dash: [2, 3] }] };
-    charts.push(new Chart($("ch-streaks"), { type: "bar", plugins: [guidePlugin],
-      data: { labels: labels, datasets: [
-        { data: wc, backgroundColor: labels.map(function (x, j) { return j === mi(z.wMed) ? cssVar("--pos") : cssVar("--pos") + "88"; }), borderRadius: 3 },
-        { data: lc, backgroundColor: labels.map(function (x, j) { return j === mi(z.lMed) ? cssVar("--neg") : cssVar("--neg") + "88"; }), borderRadius: 3 }] },
+    o.scales.y.title = { display: true, text: "obchodov po sebe", color: cssVar("--muted") };
+    o.plugins.tooltip.callbacks = { title: function (it) { return "od " + fmtDate(labels[it[0].dataIndex]); },
+      label: function (it) { return (it.raw > 0 ? "zisky: " : "straty: ") + Math.abs(it.raw) + " po sebe"; } };
+    var pos = cssVar("--pos"), neg = cssVar("--neg");
+    o.plugins.guides = { hlines: [{ value: 0, color: cssVar("--muted"), dash: [2, 3] },
+      z.wMed != null ? { value: z.wMed, color: pos, label: "medián ziskov " + num(z.wMed, z.wMed % 1 ? 1 : 0) } : null,
+      z.lMed != null ? { value: -z.lMed, color: neg, label: "medián strát " + num(z.lMed, z.lMed % 1 ? 1 : 0) } : null].filter(Boolean) };
+    charts.push(new Chart($("ch-streaks"), { type: "line", plugins: [guidePlugin],
+      data: { labels: labels, datasets: [{ data: vals, borderColor: cssVar("--accent"), borderWidth: 1.2, tension: 0, fill: false,
+        pointRadius: 2, pointBackgroundColor: vals.map(function (v) { return v > 0 ? pos : neg; }), pointBorderWidth: 0 }] },
       options: o }));
   }
 
@@ -609,8 +607,8 @@
 
     // (d2) série ziskov a strát
     html += '<div class="card section"><div class="row"><h2>Série ziskov a strát po sebe</h2><span class="muted">medián = typická dĺžka série</span></div>' +
-      '<div class="grid tiles" id="sr-tiles"></div><div class="chart-box sm" style="margin-top:12px"><canvas id="ch-streaks"></canvas></div>' +
-      '<div class="legend"><span><i style="background:' + cssVar("--pos") + '"></i>série ziskov (hore)</span><span><i style="background:' + cssVar("--neg") + '"></i>série strát (dole)</span><span>plný stĺpec = medián</span></div></div>';
+      '<div class="grid tiles" id="sr-tiles"></div><div class="chart-box" style="margin-top:12px"><canvas id="ch-streaks"></canvas></div>' +
+      '<div class="legend"><span><i style="background:' + cssVar("--pos") + '"></i>séria ziskov (hore)</span><span><i style="background:' + cssVar("--neg") + '"></i>séria strát (dole)</span><span>čiarkované = medián</span><span>série idú za sebou v čase</span></div></div>';
 
     // (e) OOS
     html += '<div class="card section"><h2>Odložený rok (out-of-sample)</h2>' + oosBlock(st) + "</div>";
