@@ -101,6 +101,7 @@
   th.sort { cursor: pointer; user-select: none; }
   th.sort:hover { color: var(--text); }
   .prop-ctl { display: flex; flex-wrap: wrap; gap: 10px 16px; margin: 4px 0 12px; }
+  .pp-firm { font: inherit; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; }
   .prop-ctl [hidden] { display: none !important; }
   .prop-ctl label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
   .prop-ctl select, .prop-ctl input { font: inherit; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; min-width: 0; }
@@ -345,9 +346,9 @@
   function propSim(trades, firm) {
     var a = PROP.account, R = firm.rules(a);
     var list = trades.slice().sort(function (x, y) { return x.close < y.close ? -1 : x.close > y.close ? 1 : 0; });
-    var res = { passed: 0, failed: 0, open: false, daysToPass: [], reasons: {} };
+    var res = { passed: 0, failed: 0, open: false, daysToPass: [], tradesToPass: [], reasons: {}, paths: [] };
     var cur = null, skipDay = null;
-    function fresh(d) { return { bal: a, eodPeak: a, day: null, dayStart: a, paused: false, days: {}, dayProfit: {}, phase: 0, start: d }; }
+    function fresh(d) { return { bal: a, eodPeak: a, day: null, dayStart: a, paused: false, days: {}, dayProfit: {}, phase: 0, start: d, path: [], n: 0 }; }
     for (var i = 0; i < list.length; i++) {
       var t = list[i], d = dayKey(t.close, firm);
       if (skipDay && d === skipDay) continue;
@@ -356,26 +357,62 @@
       if (d !== cur.day) { if (cur.day) cur.eodPeak = Math.max(cur.eodPeak, cur.bal); cur.day = d; cur.dayStart = cur.bal; cur.paused = false; }
       if (cur.paused) continue;
       var pnl = tradePnl(t);
-      cur.bal += pnl; cur.days[d] = 1; cur.dayProfit[d] = (cur.dayProfit[d] || 0) + pnl;
+      cur.bal += pnl; cur.days[d] = 1; cur.dayProfit[d] = (cur.dayProfit[d] || 0) + pnl; cur.n++;
+      cur.path.push(Math.round(((cur.base2 || 0) + cur.bal - a) * 100) / 100);
       var fail = null;
       if (R.dll > 0 && cur.bal <= cur.dayStart - R.dll) { if (R.dllSoft) cur.paused = true; else fail = "denná strata"; }
       var floor = (R.trailing ? cur.eodPeak : a) - R.maxLoss;
       if (!fail && cur.bal <= floor) fail = R.trailing ? "trailing drawdown" : "celková strata";
-      if (fail) { res.failed++; res.reasons[fail] = (res.reasons[fail] || 0) + 1; cur = null; skipDay = d; continue; }
+      if (fail) { res.failed++; res.reasons[fail] = (res.reasons[fail] || 0) + 1; res.paths.push({ p: cur.path, ok: false }); cur = null; skipDay = d; continue; }
       var profit = cur.bal - a, ndays = Object.keys(cur.days).length;
       if (profit >= R.targets[cur.phase] && ndays >= R.minDays) {
         if (R.best > 0) {
           var bestDay = 0; for (var dd in cur.dayProfit) bestDay = Math.max(bestDay, cur.dayProfit[dd]);
           if (bestDay > R.best * profit) continue;
         }
-        if (cur.phase + 1 < R.targets.length) { var st0 = cur.start; cur = fresh(st0); cur.phase = 1; skipDay = d; continue; }
-        res.passed++; res.daysToPass.push((Date.parse(d) - Date.parse(cur.start)) / 864e5 + 1); cur = null; skipDay = d;
+        if (cur.phase + 1 < R.targets.length) { var st0 = cur.start, p0 = cur.path, n0 = cur.n; cur = fresh(st0); cur.phase = 1; cur.path = p0.concat([]); cur.base2 = p0[p0.length - 1]; cur.n = n0; skipDay = d; continue; }
+        res.passed++; res.daysToPass.push((Date.parse(d) - Date.parse(cur.start)) / 864e5 + 1); res.tradesToPass.push(cur.n);
+        res.paths.push({ p: cur.path, ok: true }); cur = null; skipDay = d;
       }
     }
     res.open = !!cur;
     res.attempts = res.passed + res.failed;
+    function med(v) { if (!v.length) return null; var x = v.slice().sort(function (p, q) { return p - q; }); return x[Math.floor(x.length / 2)]; }
+    res.medTrades = med(res.tradesToPass);
     res.medDays = res.daysToPass.length ? res.daysToPass.slice().sort(function (x, y) { return x - y; })[Math.floor(res.daysToPass.length / 2)] : null;
     return res;
+  }
+  function renderPropChart(st, firmKey) {
+    var firm = FIRMS.filter(function (f) { return f.key === firmKey; })[0] || FIRMS[0];
+    var r = propSim(st.trades || [], firm), R = firm.rules(PROP.account);
+    var box = $("ch-prop"); if (!box) return;
+    if (!hasChart()) return;
+    if (window._propChart) { window._propChart.destroy(); }
+    var maxN = r.paths.reduce(function (m, x) { return Math.max(m, x.p.length); }, 0);
+    var labels = []; for (var i = 1; i <= maxN; i++) labels.push(i);
+    var pos = cssVar("--pos"), neg = cssVar("--neg"), acc = cssVar("--accent");
+    var ds = r.paths.map(function (x) {
+      return { data: x.p, borderColor: (x.ok ? pos : neg) + "66", borderWidth: 1, pointRadius: 0, tension: 0, fill: false };
+    });
+    // medián: v každom poradí obchodu medián zo všetkých výziev (skončená výzva drží svoj posledný stav)
+    var medv = [];
+    for (var k = 0; k < maxN; k++) {
+      var col = r.paths.map(function (x) { return x.p[Math.min(k, x.p.length - 1)]; }).filter(function (v) { return v != null; }).sort(function (a, b) { return a - b; });
+      medv.push(col.length ? col[Math.floor(col.length / 2)] : null);
+    }
+    ds.push({ data: medv, borderColor: acc, borderWidth: 3, pointRadius: 0, tension: 0.1, fill: false });
+    var o = baseOpts();
+    o.plugins.tooltip = { enabled: false };
+    o.scales.x.ticks.callback = function (v) { return labels[v] % 10 === 0 ? labels[v] : ""; };
+    o.scales.x.title = { display: true, text: "obchod č. vo výzve", color: cssVar("--muted") };
+    o.scales.y.ticks.callback = function (v) { return compact(v); };
+    var tgt = R.targets.reduce(function (s0, x) { return s0 + x; }, 0);
+    var hl = [{ value: tgt, color: pos, label: "cieľ " + compact(tgt) }, { value: -R.maxLoss, color: neg, label: "limit straty " + compact(-R.maxLoss) },
+              { value: 0, color: cssVar("--muted"), dash: [2, 3] }];
+    if (R.targets.length > 1) hl.push({ value: R.targets[0], color: pos, label: "fáza 1" });
+    o.plugins.guides = { hlines: hl };
+    o.plugins.legend = { display: false };
+    window._propChart = new Chart(box, { type: "line", data: { labels: labels, datasets: ds }, options: o, plugins: [guidePlugin] });
   }
   function propCell(st, firm) {
     var r = propSim(st.trades || [], firm);
@@ -414,7 +451,7 @@
         "<td>" + (r.attempts ? num(100 * r.passed / r.attempts) + " %" : "—") + "</td><td>" + (r.medDays != null ? num(r.medDays) + " dní" : "—") + "</td>" +
         '<td class="l muted" style="white-space:normal">' + (reasons || "—") + "</td></tr>";
     }).join("");
-    return '<div class="table-wrap"><table><thead><tr><th class="l">Výzva</th><th>Prešlo</th><th>Spálené</th><th>Pokusov</th><th>Úspešnosť</th><th>Medián do prejdenia</th><th class="l">Prečo spálené</th></tr></thead><tbody>' + rows + "</tbody></table></div>";
+    return '<div class="table-wrap"><table><thead><tr><th class="l">Výzva</th><th>Prešlo</th><th>Spálené</th><th>Pokusov</th><th>Úspešnosť</th><th>Medián dní</th><th>Medián obchodov</th><th class="l">Prečo spálené</th></tr></thead><tbody>' + rows + "</tbody></table></div>";
   }
 
   // ---------- obrazovky ----------
@@ -493,6 +530,11 @@
     // (d) prop výzvy
     html += '<div class="card section"><div class="row"><h2>Prop výzvy — prešla by?</h2><span class="muted" id="pp-size"></span></div>' +
       propControls() + '<div id="pp-table"></div>' +
+      '<div class="row" style="margin-top:14px"><h2>Výzvy obchod po obchode</h2><select id="pp-firm" class="pp-firm">' +
+      FIRMS.map(function (f) { return '<option value="' + f.key + '">' + f.name + "</option>"; }).join("") + "</select></div>" +
+      '<div class="chart-box"><canvas id="ch-prop"></canvas></div>' +
+      '<div class="legend"><span><i style="background:' + cssVar("--pos") + '"></i>prešla</span><span><i style="background:' + cssVar("--neg") + '"></i>spálená</span>' +
+      '<span><i style="background:' + cssVar("--accent") + '"></i>medián všetkých výziev</span><span>čiary: cieľ a limit straty</span></div>' +
       '<p class="muted" style="margin:10px 0 0">Výzvy idú za sebou cez celé obdobie 2021–2026: po prejdení aj po spálení začne ďalšia nasledujúci obchodný deň. ' +
       'Rovnaké riziko = každý obchod sa prepočíta na zvolenú sumu podľa vzdialenosti stopu (funguje pre futures aj CFD). Pevný počet = body obchodu × $ za bod × počet. ' +
       'Kontroluje sa po zatvorení obchodu, nie počas neho — skutočnosť je o niečo prísnejšia. Pravidlá overené 9. 10. 2026, firmy ich menia.</p></div>';
@@ -759,8 +801,9 @@
     renderCalendar(st, dm);
     renderCharts(st, dm);
     renderTrades(st);
-    function renderProp() { $("pp-table").innerHTML = propTable(st); $("pp-size").textContent = propSizeText(); }
+    function renderProp() { $("pp-table").innerHTML = propTable(st); $("pp-size").textContent = propSizeText(); renderPropChart(st, $("pp-firm").value); }
     renderProp(); bindPropControls(renderProp);
+    $("pp-firm").addEventListener("change", renderProp);
     $("scope").addEventListener("click", function (e) {
       var b = e.target.closest("button"); if (!b) return;
       state.scope = b.getAttribute("data-s"); renderTiles(st);

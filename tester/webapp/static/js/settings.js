@@ -182,8 +182,10 @@ function fillProfiles(selected) {
   const vlastne = state.meta.profiles.filter(p => own.has(p))
     .sort((a, b) => String(info[b]?.created || "").localeCompare(String(info[a]?.created || "")) || a.localeCompare(b));
   ps.innerHTML = `<option value="">(Pine defaulty)</option>`;
-  for (const [label, names] of [["Profily repozitára", state.meta.profiles.filter(p => !own.has(p))],
-                                ["Vlastné profily", vlastne]]) {
+  const groups = inSmernice(state.strategy)
+    ? [["Prešli smernicou", state.meta.profiles.filter(p => p.startsWith(SMERNICE_PREFIX))]]
+    : [["Profily repozitára", state.meta.profiles.filter(p => !own.has(p))], ["Vlastné profily", vlastne]];
+  for (const [label, names] of groups) {
     if (!names.length) continue;
     const g = document.createElement("optgroup"); g.label = label;
     for (const p of names) {
@@ -483,9 +485,18 @@ function timerange() {
 // takže všetok ostatný kód (history, analytika, profily) funguje bez zmeny.
 // --------------------------------------------------------------------------- //
 
+/** Stratégie, ktoré majú aspoň jeden profil PREŠIEL SMERNICAMI (testovanie podľa smernice ich tam pridáva
+ *  samo) — patria do priečinka SMERNICE celkom hore a ukazujú len tieto profily. */
+const SMERNICE_PREFIX = "PRESIEL_SMERNICAMI_";
+function smerniceKeys() {
+  const sm = (state.meta && state.meta.strategy_meta) || {};
+  return new Set(Object.keys(sm).filter(k => (sm[k].profiles || []).some(p => p.startsWith(SMERNICE_PREFIX))));
+}
+function inSmernice(key) { return smerniceKeys().has(key); }
 const STRATEGY_FOLDERS = [
-  { name: "IBS", match: k => k.startsWith("ibs") },
-  { name: "ORB", match: k => k.startsWith("orb") || k.endsWith("orb") },   // orb, orbnet, vwaporb
+  { name: "SMERNICE", match: k => inSmernice(k), top: true },
+  { name: "IBS", match: k => !inSmernice(k) && k.startsWith("ibs") },
+  { name: "ORB", match: k => !inSmernice(k) && (k.startsWith("orb") || k.endsWith("orb")) },   // orb, orbnet, vwaporb
 ];
 const pickerOpenFolders = new Set();
 let pickerInit = false;
@@ -510,7 +521,8 @@ function renderStrategyPicker() {
   const item = (s, sub) => `<button type="button" class="spicker-item${sub ? " sub" : ""}${s.key === sel.value ? " sel" : ""}" data-key="${esc(s.key)}">${esc(s.title || s.key)}</button>`;
   let html = "";
   const done = new Set();
-  for (const s of list) {                    // priečinok je na mieste svojej prvej stratégie
+  const ordered = [...list.filter(s => (folderOf(s.key) || {}).top), ...list.filter(s => !(folderOf(s.key) || {}).top)];
+  for (const s of ordered) {                 // priečinok je na mieste svojej prvej stratégie (SMERNICE celkom hore)
     const f = folderOf(s.key);
     if (!f) { html += item(s, false); continue; }
     if (done.has(f.name)) continue;
