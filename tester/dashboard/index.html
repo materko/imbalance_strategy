@@ -13,6 +13,8 @@
   })();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js"></script>
 <style>
   :root {
     --bg: #0b0f14; --surface: #121821; --surface-2: #18202b; --border: #232d3a;
@@ -117,6 +119,9 @@
   @media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); } }
   .chart-box { position: relative; height: 300px; }
   .chart-box.sm { height: 220px; }
+  .chart-box.big { height: 75vh; }
+  .zoom-bar { display: flex; gap: 6px; }
+  .zoom-bar .btn { font-size: 12px; }
   .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
   .seg button { border: 0; background: transparent; padding: 6px 12px; cursor: pointer; color: var(--muted); }
   .seg button.on { background: var(--surface-2); color: var(--text); font-weight: 600; }
@@ -422,6 +427,7 @@
     if (R.targets.length > 1) hl.push({ value: R.targets[0], color: pos, label: "fáza 1" });
     o.plugins.guides = { hlines: hl };
     o.plugins.legend = { display: false };
+    zoomable(o);
     window._propChart = new Chart(box, { type: "line", data: { labels: labels, datasets: ds }, options: o, plugins: [guidePlugin] });
     // zoznam výziev pod grafom — klik zvýrazní jej čiaru, druhý klik zruší
     var lst = $("pp-list");
@@ -435,6 +441,29 @@
       });
     }
   }
+  // Zväčšenie grafu: tlačidlo „Zväčšiť“ (vyšší graf), ťahom myši vyber úsek = priblíženie, Ctrl + koliesko,
+  // na mobile dvoma prstami; „Pôvodný“ vráti celý graf.
+  function zoomable(o) {
+    o.plugins.zoom = { zoom: { drag: { enabled: true, backgroundColor: "rgba(59,130,246,.15)" }, pinch: { enabled: true },
+                               wheel: { enabled: true, modifierKey: "ctrl" }, mode: "x" },
+                       pan: { enabled: true, mode: "x", modifierKey: "shift" } };
+    return o;
+  }
+  function zoomBar(id) {
+    return '<div class="zoom-bar"><button class="btn" type="button" data-zoom-big="' + id + '">⤢ Zväčšiť</button>' +
+      '<button class="btn" type="button" data-zoom-reset="' + id + '">Pôvodný</button></div>';
+  }
+  function bindZoom(id, getChart) {
+    var b = document.querySelector('[data-zoom-big="' + id + '"]'), r = document.querySelector('[data-zoom-reset="' + id + '"]');
+    if (b) b.addEventListener("click", function () {
+      var box = $(id).parentNode; box.classList.toggle("big");
+      b.textContent = box.classList.contains("big") ? "⤡ Zmenšiť" : "⤢ Zväčšiť";
+      var c = getChart(); if (c) c.resize();
+      if (box.classList.contains("big")) box.scrollIntoView({ block: "center" });
+    });
+    if (r) r.addEventListener("click", function () { var c = getChart(); if (c && c.resetZoom) c.resetZoom(); });
+  }
+
   // Série obchodov po sebe: dĺžky sérií ziskov a strát, medián a rozdelenie.
   function streaks(trades) {
     var list = trades.slice().sort(function (a, b) { return a.close < b.close ? -1 : a.close > b.close ? 1 : 0; });
@@ -474,7 +503,8 @@
     o.plugins.guides = { hlines: [{ value: 0, color: cssVar("--muted"), dash: [2, 3] },
       z.wMed != null ? { value: z.wMed, color: pos, label: "medián ziskov " + num(z.wMed, z.wMed % 1 ? 1 : 0) } : null,
       z.lMed != null ? { value: -z.lMed, color: neg, label: "medián strát " + num(z.lMed, z.lMed % 1 ? 1 : 0) } : null].filter(Boolean) };
-    charts.push(new Chart($("ch-streaks"), { type: "line", plugins: [guidePlugin],
+    zoomable(o);
+    charts.push(window._streakChart = new Chart($("ch-streaks"), { type: "line", plugins: [guidePlugin],
       data: { labels: labels, datasets: [{ data: vals, borderColor: cssVar("--accent"), borderWidth: 1.2, tension: 0, fill: false,
         pointRadius: 2, pointBackgroundColor: vals.map(function (v) { return v > 0 ? pos : neg; }), pointBorderWidth: 0 }] },
       options: o }));
@@ -596,7 +626,7 @@
     // (d) prop výzvy
     html += '<div class="card section"><div class="row"><h2>Prop výzvy — prešla by?</h2><span class="muted" id="pp-size"></span></div>' +
       propControls() + '<div id="pp-table"></div>' +
-      '<div class="row" style="margin-top:14px"><h2>Výzvy obchod po obchode</h2><select id="pp-firm" class="pp-firm">' +
+      '<div class="row" style="margin-top:14px"><h2>Výzvy obchod po obchode</h2>' + zoomBar("ch-prop") + '<select id="pp-firm" class="pp-firm">' +
       FIRMS.map(function (f) { return '<option value="' + f.key + '">' + f.name + "</option>"; }).join("") + "</select></div>" +
       '<div class="chart-box"><canvas id="ch-prop"></canvas></div><div class="pp-list" id="pp-list"></div>' +
       '<div class="legend"><span><i style="background:' + cssVar("--pos") + '"></i>prešla</span><span><i style="background:' + cssVar("--neg") + '"></i>spálená</span>' +
@@ -606,9 +636,9 @@
       'Kontroluje sa po zatvorení obchodu, nie počas neho — skutočnosť je o niečo prísnejšia. Pravidlá overené 9. 10. 2026, firmy ich menia.</p></div>';
 
     // (d2) série ziskov a strát
-    html += '<div class="card section"><div class="row"><h2>Série ziskov a strát po sebe</h2><span class="muted">medián = typická dĺžka série</span></div>' +
+    html += '<div class="card section"><div class="row"><h2>Série ziskov a strát po sebe</h2>' + zoomBar("ch-streaks") + '</div>' +
       '<div class="grid tiles" id="sr-tiles"></div><div class="chart-box" style="margin-top:12px"><canvas id="ch-streaks"></canvas></div>' +
-      '<div class="legend"><span><i style="background:' + cssVar("--pos") + '"></i>séria ziskov (hore)</span><span><i style="background:' + cssVar("--neg") + '"></i>séria strát (dole)</span><span>čiarkované = medián</span><span>série idú za sebou v čase</span></div></div>';
+      '<div class="legend"><span><i style="background:' + cssVar("--pos") + '"></i>séria ziskov (hore)</span><span><i style="background:' + cssVar("--neg") + '"></i>séria strát (dole)</span><span>čiarkované = medián</span><span>série idú za sebou v čase</span><span>priblíženie: ťahaj myšou cez úsek grafu (Ctrl + koliesko, na mobile dvoma prstami)</span></div></div>';
 
     // (e) OOS
     html += '<div class="card section"><h2>Odložený rok (out-of-sample)</h2>' + oosBlock(st) + "</div>";
@@ -875,6 +905,8 @@
     function renderProp() { $("pp-table").innerHTML = propTable(st); $("pp-size").textContent = propSizeText(); renderPropChart(st, $("pp-firm").value); }
     renderProp(); bindPropControls(renderProp);
     renderStreaks(st);
+    bindZoom("ch-streaks", function () { return window._streakChart; });
+    bindZoom("ch-prop", function () { return window._propChart; });
     $("pp-firm").addEventListener("change", function () { window._propHi = null; renderProp(); });
     $("scope").addEventListener("click", function (e) {
       var b = e.target.closest("button"); if (!b) return;
