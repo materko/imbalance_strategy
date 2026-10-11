@@ -27,11 +27,16 @@ relácii používateľa ako naplánovaná úloha „pri prihlásení“.
 .\deploy\agent\install-agent.ps1          # -WhatIf len ukáže, čo spraví
 ```
 
-Úloha „TradeBot agent“ sa spustí pri prihlásení používateľa, po páde sa reštartuje každú minútu,
-výstup ide do `tester\live\agent.log`. Stav: `Get-ScheduledTask 'TradeBot agent' | Get-ScheduledTaskInfo`.
+Úloha „TradeBot agent“ sa spustí pri prihlásení používateľa a potom **každých 5 minút** (strážca).
+Spúšťa `deploy\agent\run-agent.ps1` **bez okna** (`conhost --headless`), ktorý agenta naštartuje,
+len keď ešte nebeží — po zavretí, páde aj inom skončení je agent späť do 5 minút a druhá kópia
+nevznikne. Výstup ide do `tester\live\agent.log`. Stav: `Get-ScheduledTask 'TradeBot agent' | Get-ScheduledTaskInfo`.
 Odstránenie: `.\deploy\agent\uninstall-agent.ps1`.
 
-Agent sa po `git pull` (aktualizácia kódu z hubu) sám reštartuje (`os.execv`), úloha ostáva.
+Agent sa po `git pull` (aktualizácia kódu z hubu) sám reštartuje (`os.execv`). Na Windows to spustí
+nový proces a pôvodný skončí, takže úloha prejde do stavu „Ready“, ale agent beží ďalej — strážca
+ho nájde a nič nespúšťa. Agent preto hľadaj podľa procesu, nie podľa stavu úlohy:
+`Get-CimInstance Win32_Process -Filter "Name='python.exe'" | ? CommandLine -match 'tester.hub agent'`.
 
 ## Kontrola, že to žije
 
