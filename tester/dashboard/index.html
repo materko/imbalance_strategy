@@ -110,6 +110,16 @@
   .prop-ctl [hidden] { display: none !important; }
   .prop-ctl label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
   .prop-ctl select, .prop-ctl input { font: inherit; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; min-width: 0; }
+  .steps { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .step { border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; color: var(--muted); font-size: 13px; display: flex; gap: 6px; align-items: baseline; }
+  .step b { color: var(--muted); } .step span { font-weight: 600; }
+  .step.on { color: var(--text); border-color: var(--pos); background: var(--pos-bg); } .step.on b { color: var(--pos); }
+  .steps-mini { display: flex; gap: 3px; align-items: center; margin-top: 12px; }
+  .steps-mini i { width: 14px; height: 6px; border-radius: 3px; background: var(--surface-2); border: 1px solid var(--border); }
+  .steps-mini i.on { background: var(--pos); border-color: var(--pos); } .steps-mini span { margin-left: 6px; font-size: 12px; }
+  .an-list { margin: 4px 0 10px; padding-left: 18px; display: grid; gap: 4px; font-size: 13px; line-height: 1.45; }
+  .posudok { font-size: 13px; line-height: 1.55; } .posudok ol { padding-left: 20px; display: grid; gap: 6px; }
+  h3 { font-size: 14px; margin: 6px 0; }
   .advice ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; line-height: 1.5; }
   .tiles { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; min-width: 0; }
@@ -550,6 +560,42 @@
     return '<div class="table-wrap"><table><thead><tr><th class="l">Výzva</th><th>Prešlo</th><th>Spálené</th><th>Pokusov</th><th>Úspešnosť</th><th>Medián dní</th><th>Medián obchodov</th><th class="l">Prečo spálené</th></tr></thead><tbody>' + rows + "</tbody></table></div>";
   }
 
+  // ---------- postup podľa smernice a analytika ----------
+  function stepsRow(s, compact) {
+    var st = s.steps || [];
+    if (!st.length) return "";
+    var done = st.filter(function (x) { return x[2]; }).length;
+    if (compact) return '<div class="steps-mini" title="' + esc(st.map(function (x) { return (x[2] ? "✓ " : "☐ ") + x[0] + " " + x[1]; }).join("\n")) + '">' +
+      st.map(function (x) { return '<i class="' + (x[2] ? "on" : "") + '"></i>'; }).join("") + '<span class="muted">' + done + " / " + st.length + " krokov</span></div>";
+    return '<div class="steps">' + st.map(function (x) {
+      return '<div class="step' + (x[2] ? " on" : "") + '"><b>' + (x[2] ? "✓" : "☐") + "</b><span>" + esc(x[0]) + "</span>" + esc(x[1]) + "</div>";
+    }).join("") + "</div>";
+  }
+  function mdInline(t) {
+    return esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>");
+  }
+  function analyticsSection(s) {
+    var a = s.analytics;
+    if (!a) return '<div class="card section"><h2>📁 Analytika</h2><p class="muted" style="margin:0">Krok 7 smernice ešte nebežal.</p></div>';
+    var w = (a.windows || []).map(function (r) {
+      var pos = String(r.pnl).charAt(0) === "+";
+      return '<tr><td class="l">' + esc(r.okno) + "</td><td>" + esc(r.obchody) + '</td><td class="' + (pos ? "pos" : "neg") + '">' + esc(r.pnl) + " %</td><td>" +
+        esc(r.wr) + " %</td><td>" + esc(r.dd) + " %</td><td>" + esc(r.be) + " %</td><td>" + esc(r.seria) + "</td></tr>";
+    }).join("");
+    var pos = (a.posudok || "").split("\n").filter(function (l) { return l.trim(); }).map(function (l) {
+      return /^\d\./.test(l.trim()) ? "<li>" + mdInline(l.trim().replace(/^\d\.\s*/, "")) + "</li>" : "<p>" + mdInline(l.trim()) + "</p>";
+    }).join("").replace(/(<li>.*<\/li>)/s, "<ol>$1</ol>");
+    return '<div class="card section"><div class="row"><h2>📁 Analytika <span class="badge pos">krok 7 ✓</span></h2><span class="muted">' + esc(a.date || "") +
+      ' · <a href="' + esc(a.link) + '" target="_blank" rel="noopener">celý dokument</a></span></div>' +
+      '<div class="kv" style="margin-bottom:12px"><div><span>Charakter</span><b>' + esc(a.character || "—") + '</b></div><div><span>Test proti náhode</span><b class="pos">' +
+      (a.sigma != null ? (a.sigma > 0 ? "+" : "") + num(a.sigma, 1) + " σ" : "—") + "</b></div></div>" +
+      '<div class="table-wrap"><table><thead><tr><th class="l">Rok (okno)</th><th>Obchody</th><th>Zisk</th><th>WR</th><th>Max. DD</th><th>Break-even</th><th>Séria +/−</th></tr></thead><tbody>' + w + "</tbody></table></div>" +
+      '<div class="grid two" style="margin-top:12px"><div><h3>V čom je dobrá</h3><ul class="an-list">' + (a.good || []).map(function (x) { return "<li>" + mdInline(x) + "</li>"; }).join("") +
+      '</ul><h3>Kde má chyby</h3><ul class="an-list">' + (a.bad || []).map(function (x) { return "<li>" + mdInline(x) + "</li>"; }).join("") + "</ul></div>" +
+      '<div><h3>Monte Carlo</h3><ul class="an-list">' + (a.mc || []).map(function (x) { return "<li>" + mdInline(x) + "</li>"; }).join("") + "</ul></div></div>" +
+      (pos ? '<h3 style="margin-top:12px">Posudok</h3><div class="posudok">' + pos + "</div>" : "") + "</div>";
+  }
+
   // ---------- obrazovky ----------
   function viewOverview() {
     var html = '<h1>Prehľad stratégií</h1><p class="sub">Klikni na stratégiu pre zoznam jej nastavení.</p><div class="grid cards">';
@@ -566,7 +612,7 @@
         "<div><span>Kandidáti</span><b>" + cand + ' <small class="muted">/ ' + sets.length + "</small></b></div>" +
         '<div><span>Najlepší PF (in-sample)</span><b class="' + pfCls(best) + '">' + pfFmt(best) + "</b></div>" +
         "<div><span>Nastavení</span><b>" + sets.length + "</b></div>" +
-        "</div></a>";
+        "</div>" + stepsRow(s, true) + "</a>";
     });
     return html + "</div>";
   }
@@ -589,7 +635,8 @@
       FIRMS.map(function (f) { return "<th>" + f.short + "</th>"; }).join("") + '</tr></thead><tbody>' +
       (rows || '<tr><td colspan="10" class="muted">Žiadne nastavenia.</td></tr>') + "</tbody></table></div>" +
       '<p class="muted" style="margin:10px 0 0">Prop výzvy: koľkokrát prešla / koľko výziev sa za 2021–2026 odohralo za sebou (' + propSizeText() +
-      '). Veľkosť a účet zmeníš v detaile nastavenia.</p></div>';
+      '). Veľkosť a účet zmeníš v detaile nastavenia.</p></div>' +
+      '<div class="card section"><h2>Postup podľa smernice</h2>' + stepsRow(s, false) + "</div>" + analyticsSection(s);
   }
 
   function viewDetail(strat, st) {
