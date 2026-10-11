@@ -138,6 +138,11 @@ python -m tester.webapp.cli checkup --strategy X --profile Y --fee 1.755e-05
 - To isté nastavenie na NAS100 z Dukascopy (`--pair NAS100/USD`) a ak sa dá, aj na ES alebo inom indexe.
 - Výsledok nemusí byť rovnaký, ale musí ísť **rovnakým smerom**.
 - Funguje len na jednom zdroji dát → výsledok závisí od detailov dát, nie od trhu.
+- **Ako sa to robí (od 11. 10. 2026):** profil PREŠIEL SMERNICAMI č. 1 na `NAS100/USD` (Dukascopy CFD), 10/2021 – 9/2026,
+  poplatok 2,5e-05 na stranu (≈ spread 1 bod). Tick NAS100 je 0,01 (MNQ 0,25): tickové polia sa prepočítajú
+  (IBS v absolútnych bodoch, ostatné ×25), `tickDollarValue` = 0,01. Skript `.nightsearch/glnas100.py`.
+- **Prešiel:** PF na NAS100 ≥ 1,1 a aspoň 4 z 5 rokov v pluse. Inak výsledok na MNQ môže byť vlastnosť dát —
+  na CFD (FTMO) nepoužívať.
 
 ### 9. Parita platforiem (TradingView / MultiCharts)
 - Webapp a TradingView (príp. MultiCharts) musia mať **tie isté obchody v tie isté dni** (kontrola na 1–2 mesiacoch).
