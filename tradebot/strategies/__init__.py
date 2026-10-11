@@ -22,7 +22,6 @@ from .ibsnet import SPEC as IBSNET_SPEC
 from .ibsentry import SPEC as IBSENTRY_SPEC
 from .ibsfvg import SPEC as IBSFVG_SPEC
 from .ibszones import SPEC as IBSZONES_SPEC
-from .intraday import SPEC as INTRADAY_SPEC
 from .jss import SPEC as JSS_SPEC
 from .liquidity import SPEC as LIQUIDITY_SPEC
 from .mag7 import SPEC as MAG7_SPEC
@@ -79,7 +78,6 @@ STRATEGIES: dict[str, StrategySpec] = {
     MAG7_SPEC.key: MAG7_SPEC,
     ASIASWEEP_SPEC.key: ASIASWEEP_SPEC,
     DAILYOPEN_SPEC.key: DAILYOPEN_SPEC,
-    INTRADAY_SPEC.key: INTRADAY_SPEC,
     SWEEPFVG_SPEC.key: SWEEPFVG_SPEC,
     SWEEPENGULF_SPEC.key: SWEEPENGULF_SPEC,
     VAREV_SPEC.key: VAREV_SPEC,
