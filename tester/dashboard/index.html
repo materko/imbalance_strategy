@@ -101,6 +101,9 @@
   th.sort { cursor: pointer; user-select: none; }
   th.sort:hover { color: var(--text); }
   .prop-ctl { display: flex; flex-wrap: wrap; gap: 10px 16px; margin: 4px 0 12px; }
+  .pp-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; align-items: center; }
+  .pp-chip { font: inherit; font-size: 12px; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+  .pp-chip.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
   .pp-firm { font: inherit; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; }
   .prop-ctl [hidden] { display: none !important; }
   .prop-ctl label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
@@ -363,7 +366,7 @@
       if (R.dll > 0 && cur.bal <= cur.dayStart - R.dll) { if (R.dllSoft) cur.paused = true; else fail = "denná strata"; }
       var floor = (R.trailing ? cur.eodPeak : a) - R.maxLoss;
       if (!fail && cur.bal <= floor) fail = R.trailing ? "trailing drawdown" : "celková strata";
-      if (fail) { res.failed++; res.reasons[fail] = (res.reasons[fail] || 0) + 1; res.paths.push({ p: cur.path, ok: false }); cur = null; skipDay = d; continue; }
+      if (fail) { res.failed++; res.reasons[fail] = (res.reasons[fail] || 0) + 1; res.paths.push({ p: cur.path, ok: false, from: cur.start, to: d, why: fail }); cur = null; skipDay = d; continue; }
       var profit = cur.bal - a, ndays = Object.keys(cur.days).length;
       if (profit >= R.targets[cur.phase] && ndays >= R.minDays) {
         if (R.best > 0) {
@@ -372,7 +375,7 @@
         }
         if (cur.phase + 1 < R.targets.length) { var st0 = cur.start, p0 = cur.path, n0 = cur.n; cur = fresh(st0); cur.phase = 1; cur.path = p0.concat([]); cur.base2 = p0[p0.length - 1]; cur.n = n0; skipDay = d; continue; }
         res.passed++; res.daysToPass.push((Date.parse(d) - Date.parse(cur.start)) / 864e5 + 1); res.tradesToPass.push(cur.n);
-        res.paths.push({ p: cur.path, ok: true }); cur = null; skipDay = d;
+        res.paths.push({ p: cur.path, ok: true, from: cur.start, to: d, why: "prešla" }); cur = null; skipDay = d;
       }
     }
     res.open = !!cur;
@@ -391,8 +394,12 @@
     var maxN = r.paths.reduce(function (m, x) { return Math.max(m, x.p.length); }, 0);
     var labels = []; for (var i = 1; i <= maxN; i++) labels.push(i);
     var pos = cssVar("--pos"), neg = cssVar("--neg"), acc = cssVar("--accent");
-    var ds = r.paths.map(function (x) {
-      return { data: x.p, borderColor: (x.ok ? pos : neg) + "66", borderWidth: 1, pointRadius: 0, tension: 0, fill: false };
+    var hi = window._propHi;
+    var ds = r.paths.map(function (x, i) {
+      var on = hi == null || hi === i;
+      return { label: "Výzva " + (i + 1) + ": " + fmtDate(x.from) + " – " + fmtDate(x.to) + ", " + x.why + ", " + x.p.length + " obch.",
+               data: x.p, borderColor: (x.ok ? pos : neg) + (hi === i ? "" : on ? "88" : "22"), borderWidth: hi === i ? 3 : 1.2,
+               pointRadius: 0, pointHitRadius: 6, tension: 0, fill: false };
     });
     // medián: v každom poradí obchodu medián zo všetkých výziev (skončená výzva drží svoj posledný stav)
     var medv = [];
@@ -400,9 +407,12 @@
       var col = r.paths.map(function (x) { return x.p[Math.min(k, x.p.length - 1)]; }).filter(function (v) { return v != null; }).sort(function (a, b) { return a - b; });
       medv.push(col.length ? col[Math.floor(col.length / 2)] : null);
     }
-    ds.push({ data: medv, borderColor: acc, borderWidth: 3, pointRadius: 0, tension: 0.1, fill: false });
+    ds.push({ label: "Medián všetkých výziev", data: medv, borderColor: acc + (hi == null ? "" : "55"), borderWidth: 3, pointRadius: 0, tension: 0.1, fill: false });
     var o = baseOpts();
-    o.plugins.tooltip = { enabled: false };
+    o.interaction = { mode: "nearest", intersect: false, axis: "xy" };
+    o.plugins.tooltip.callbacks = { title: function (it) { return it[0].dataset.label; },
+      label: function (it) { return "obchod " + (it.dataIndex + 1) + ": " + money(it.raw); } };
+    o.plugins.tooltip.filter = function (it, idx) { return idx === 0; };
     o.scales.x.ticks.callback = function (v) { return labels[v] % 10 === 0 ? labels[v] : ""; };
     o.scales.x.title = { display: true, text: "obchod č. vo výzve", color: cssVar("--muted") };
     o.scales.y.ticks.callback = function (v) { return compact(v); };
@@ -413,6 +423,17 @@
     o.plugins.guides = { hlines: hl };
     o.plugins.legend = { display: false };
     window._propChart = new Chart(box, { type: "line", data: { labels: labels, datasets: ds }, options: o, plugins: [guidePlugin] });
+    // zoznam výziev pod grafom — klik zvýrazní jej čiaru, druhý klik zruší
+    var lst = $("pp-list");
+    if (lst) {
+      lst.innerHTML = r.paths.map(function (x, i) {
+        return '<button type="button" class="pp-chip' + (hi === i ? " on" : "") + '" data-i="' + i + '"><b class="' + (x.ok ? "pos" : "neg") + '">' + (i + 1) +
+          "</b> " + fmtDate(x.from) + " – " + fmtDate(x.to) + " · " + x.why + " · " + x.p.length + " obch.</button>";
+      }).join("") + (r.open ? '<span class="muted">+ 1 výzva ešte beží (koniec dát)</span>' : "");
+      Array.prototype.forEach.call(lst.querySelectorAll(".pp-chip"), function (b) {
+        b.addEventListener("click", function () { var i = +b.getAttribute("data-i"); window._propHi = window._propHi === i ? null : i; renderPropChart(st, firmKey); });
+      });
+    }
   }
   function propCell(st, firm) {
     var r = propSim(st.trades || [], firm);
@@ -448,7 +469,7 @@
       var c = !r.attempts ? "muted" : r.passed / r.attempts >= 0.5 ? "pos" : r.passed ? "warn" : "neg";
       return '<tr><td class="l"><b>' + f.name + '</b><div class="muted" style="white-space:normal;font-size:12px">' + f.note + "</div></td>" +
         '<td class="' + c + '"><b>' + r.passed + "×</b></td><td>" + r.failed + "×</td><td>" + r.attempts + (r.open ? " (+1 beží)" : "") + "</td>" +
-        "<td>" + (r.attempts ? num(100 * r.passed / r.attempts) + " %" : "—") + "</td><td>" + (r.medDays != null ? num(r.medDays) + " dní" : "—") + "</td>" +
+        "<td>" + (r.attempts ? num(100 * r.passed / r.attempts) + " %" : "—") + "</td><td>" + (r.medDays != null ? num(r.medDays) + " dní" : "—") + "</td><td>" + (r.medTrades != null ? num(r.medTrades) : "—") + "</td>" +
         '<td class="l muted" style="white-space:normal">' + (reasons || "—") + "</td></tr>";
     }).join("");
     return '<div class="table-wrap"><table><thead><tr><th class="l">Výzva</th><th>Prešlo</th><th>Spálené</th><th>Pokusov</th><th>Úspešnosť</th><th>Medián dní</th><th>Medián obchodov</th><th class="l">Prečo spálené</th></tr></thead><tbody>' + rows + "</tbody></table></div>";
@@ -532,9 +553,9 @@
       propControls() + '<div id="pp-table"></div>' +
       '<div class="row" style="margin-top:14px"><h2>Výzvy obchod po obchode</h2><select id="pp-firm" class="pp-firm">' +
       FIRMS.map(function (f) { return '<option value="' + f.key + '">' + f.name + "</option>"; }).join("") + "</select></div>" +
-      '<div class="chart-box"><canvas id="ch-prop"></canvas></div>' +
+      '<div class="chart-box"><canvas id="ch-prop"></canvas></div><div class="pp-list" id="pp-list"></div>' +
       '<div class="legend"><span><i style="background:' + cssVar("--pos") + '"></i>prešla</span><span><i style="background:' + cssVar("--neg") + '"></i>spálená</span>' +
-      '<span><i style="background:' + cssVar("--accent") + '"></i>medián všetkých výziev</span><span>čiary: cieľ a limit straty</span></div>' +
+      '<span><i style="background:' + cssVar("--accent") + '"></i>medián všetkých výziev</span><span>čiary: cieľ a limit straty</span><span>klikni na výzvu v zozname = zvýrazní sa jej čiara; myšou nad čiarou uvidíš, ktorá to je</span></div>' +
       '<p class="muted" style="margin:10px 0 0">Výzvy idú za sebou cez celé obdobie 2021–2026: po prejdení aj po spálení začne ďalšia nasledujúci obchodný deň. ' +
       'Rovnaké riziko = každý obchod sa prepočíta na zvolenú sumu podľa vzdialenosti stopu (funguje pre futures aj CFD). Pevný počet = body obchodu × $ za bod × počet. ' +
       'Kontroluje sa po zatvorení obchodu, nie počas neho — skutočnosť je o niečo prísnejšia. Pravidlá overené 9. 10. 2026, firmy ich menia.</p></div>';
@@ -803,7 +824,7 @@
     renderTrades(st);
     function renderProp() { $("pp-table").innerHTML = propTable(st); $("pp-size").textContent = propSizeText(); renderPropChart(st, $("pp-firm").value); }
     renderProp(); bindPropControls(renderProp);
-    $("pp-firm").addEventListener("change", renderProp);
+    $("pp-firm").addEventListener("change", function () { window._propHi = null; renderProp(); });
     $("scope").addEventListener("click", function (e) {
       var b = e.target.closest("button"); if (!b) return;
       state.scope = b.getAttribute("data-s"); renderTiles(st);
