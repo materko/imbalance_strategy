@@ -165,6 +165,8 @@ function runIdStamp(id) {
  *  profily repozitára ho nemajú (sú z gitu), tie ostávajú „meno — popis". */
 function profileLabel(name, meta = state.meta) {
   const info = (meta.profile_info || {})[name] || {};
+  // profily zo smernice: len krátky názov („IBS EZ 1 · PF 1,55 · …“), rovnaký ako na stránke výsledkov
+  if (name.startsWith(SMERNICE_PREFIX)) return info.title || (meta.profile_titles || {})[name] || name;
   const titles = meta.profile_titles || {};
   const popis = info.title || (titles[name] && titles[name] !== name ? titles[name] : "") || name;
   if (!info.created) return popis === name ? name : `${name} — ${popis}`;
@@ -183,7 +185,8 @@ function fillProfiles(selected) {
     .sort((a, b) => String(info[b]?.created || "").localeCompare(String(info[a]?.created || "")) || a.localeCompare(b));
   ps.innerHTML = `<option value="">(Pine defaulty)</option>`;
   const groups = inSmernice(state.strategy)
-    ? [["Prešli smernicou", state.meta.profiles.filter(p => p.startsWith(SMERNICE_PREFIX))]]
+    ? [["Prešli smernicou", state.meta.profiles.filter(p => p.startsWith(SMERNICE_PREFIX))
+        .sort((a, b) => (+a.match(/_(\d+)$/)?.[1] || 0) - (+b.match(/_(\d+)$/)?.[1] || 0))]]
     : [["Profily repozitára", state.meta.profiles.filter(p => !own.has(p))], ["Vlastné profily", vlastne]];
   for (const [label, names] of groups) {
     if (!names.length) continue;

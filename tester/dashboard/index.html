@@ -667,7 +667,8 @@
     var params = Object.keys(st.params || {}).map(function (k) { return "<code>" + esc(k) + " = " + esc(JSON.stringify(st.params[k])) + "</code>"; }).join("");
     var html = '<div class="crumbs"><a href="#/">Prehľad</a><span>/</span><a href="#/s/' + encodeURIComponent(strat.key) + '">' + esc(strat.name) + "</a><span>/</span><span>" + esc(st.id) + "</span></div>" +
       '<div class="row" style="margin-bottom:6px"><h1>' + esc(st.label) + "</h1>" + statusBadge(st.status) + "</div>" +
-      '<p class="sub">' + esc(strat.name) + (st.plateau_min != null ? " · plató min " + pfFmt(st.plateau_min) : "") + "</p>" +
+      '<p class="sub">' + esc(strat.name) + (st.plateau_min != null ? " · plató min " + pfFmt(st.plateau_min) : "") +
+      (st.params_label ? '<br><span class="muted" style="font-size:12px">' + esc(st.params_label) + "</span>" : "") + "</p>" +
       (params ? '<div class="params">' + params + "</div>" : "");
 
     html += analysisBlocks(st);
