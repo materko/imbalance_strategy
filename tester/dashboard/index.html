@@ -116,7 +116,9 @@
   .step.on { color: var(--text); border-color: var(--pos); background: var(--pos-bg); } .step.on b { color: var(--pos); }
   .steps-mini { display: flex; gap: 3px; align-items: center; margin-top: 12px; }
   .steps-mini i { width: 14px; height: 6px; border-radius: 3px; background: var(--surface-2); border: 1px solid var(--border); }
-  .steps-mini i.on { background: var(--pos); border-color: var(--pos); } .steps-mini span { margin-left: 6px; font-size: 12px; }
+  .steps-mini i.on { background: var(--pos); border-color: var(--pos); }
+  .steps-mini i.fail { background: var(--neg); border-color: var(--neg); }
+  .step.fail { color: var(--neg); border-color: var(--neg); background: var(--neg-bg); } .step.fail b { color: var(--neg); } .steps-mini span { margin-left: 6px; font-size: 12px; }
   .an-list { margin: 4px 0 10px; padding-left: 18px; display: grid; gap: 4px; font-size: 13px; line-height: 1.45; }
   .posudok { font-size: 13px; line-height: 1.55; } .posudok ol { padding-left: 20px; display: grid; gap: 6px; }
   h3 { font-size: 14px; margin: 6px 0; }
@@ -562,13 +564,17 @@
 
   // ---------- postup podľa smernice a analytika ----------
   function stepsRow(s, compact) {
-    var st = s.steps || [];
+    // krok, ktorý stratégia skúsila a neprešla (napr. NAS100), je červený ✗
+    var st = (s.steps || []).map(function (x) {
+      var fail = x[0] === "8" && s.nas100 && !s.nas100.passed;
+      return [x[0], x[1], x[2], fail];
+    });
     if (!st.length) return "";
     var done = st.filter(function (x) { return x[2]; }).length;
-    if (compact) return '<div class="steps-mini" title="' + esc(st.map(function (x) { return (x[2] ? "✓ " : "☐ ") + x[0] + " " + x[1]; }).join("\n")) + '">' +
-      st.map(function (x) { return '<i class="' + (x[2] ? "on" : "") + '"></i>'; }).join("") + '<span class="muted">' + done + " / " + st.length + " krokov</span></div>";
+    if (compact) return '<div class="steps-mini" title="' + esc(st.map(function (x) { return (x[2] ? "✓ " : x[3] ? "✗ " : "☐ ") + x[0] + " " + x[1]; }).join("\n")) + '">' +
+      st.map(function (x) { return '<i class="' + (x[2] ? "on" : x[3] ? "fail" : "") + '"></i>'; }).join("") + '<span class="muted">' + done + " / " + st.length + " krokov</span></div>";
     return '<div class="steps">' + st.map(function (x) {
-      return '<div class="step' + (x[2] ? " on" : "") + '"><b>' + (x[2] ? "✓" : "☐") + "</b><span>" + esc(x[0]) + "</span>" + esc(x[1]) + "</div>";
+      return '<div class="step' + (x[2] ? " on" : x[3] ? " fail" : "") + '"><b>' + (x[2] ? "✓" : x[3] ? "✗" : "☐") + "</b><span>" + esc(x[0]) + "</span>" + esc(x[1]) + (x[3] ? " — neprešiel" : "") + "</div>";
     }).join("") + "</div>";
   }
   function mdInline(t) {
