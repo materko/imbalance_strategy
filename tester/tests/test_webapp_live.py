@@ -830,3 +830,17 @@ def test_deploy_sam_aktualizuje_kod_stroja(deploy_app):
     r = c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "ibsnet", "symbol": "NAS100",
                                              "tf": 3, "profile": "p", "config": {"rrRatio": 3.0}})
     assert r.json()["code_update"]["requested"] is False and hub.calls[-1][0] == "POST" and hub.calls[-1][1].startswith("/api/live/deployments")
+
+
+def test_deploy_zastaraly_kod_overi_webapp_vlastnym_gitom(deploy_app, monkeypatch):
+    """Hub na staršom kóde nový commit stroja nepozná a hlási `outdated` — webapp to opraví na `ok`, keď
+    je commit nasadenia v histórii nainštalovaného (a nechá `outdated`, keď nie je)."""
+    from tester.hub import gitcode
+
+    make, hub, tmp = deploy_app
+    c = make(admin="")
+    hub.deployments[0].update(version="aaa1111", code_state={"installed": "bbb2222", "state": "outdated"})
+    monkeypatch.setattr(gitcode, "is_ancestor", lambda older, newer: (older, newer) == ("aaa1111", "bbb2222"))
+    assert c.get("/api/live/deployments").json()[0]["code_state"] == {"installed": "bbb2222", "state": "ok"}
+    hub.deployments[0].update(version="ccc3333", code_state={"installed": "bbb2222", "state": "outdated"})
+    assert c.get("/api/live/deployments").json()[0]["code_state"]["state"] == "outdated"

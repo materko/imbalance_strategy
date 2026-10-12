@@ -630,11 +630,34 @@ def build(ctx: AppContext) -> APIRouter:
         return _via_hub(lambda: http.delete(
             f"/api/live/accounts/{account_id}?force={'true' if force else 'false'}&by={_by(user)}"))
 
+    ancestor_cache: dict[tuple[str, str], bool] = {}
+
+    def _code_state(dep: Any) -> Any:
+        """Hub `code_state` overuje históriu vo vlastnom klone — keď je hub na staršom kóde, nový commit
+        stroja nepozná a nasadenie z jeho starého commitu hlási „zastaraný“, hoci stroj má novší kód.
+        Webapp (klon zadávateľa) to overí znova a `outdated` opraví na `ok`, keď je commit nasadenia
+        v histórii nainštalovaného."""
+        from ...hub import gitcode
+
+        cs = dep.get("code_state") if isinstance(dep, dict) else None
+        if not isinstance(cs, dict) or cs.get("state") != "outdated":
+            return dep
+        key = (str(dep.get("version") or ""), str(cs.get("installed") or ""))
+        if all(key):
+            if key not in ancestor_cache:
+                if len(ancestor_cache) > 500:
+                    ancestor_cache.clear()
+                ancestor_cache[key] = gitcode.is_ancestor(*key)
+            if ancestor_cache[key]:
+                dep["code_state"] = {**cs, "state": "ok"}
+        return dep
+
     @router.get("/api/live/deployments")
     def live_deployments(agent: str = "", account: str = ""):
         http = _hub_http()
         q = "&".join(f"{k}={v}" for k, v in (("agent", agent), ("account", account)) if v)
-        return _via_hub(lambda: http.get("/api/live/deployments" + (f"?{q}" if q else "")))
+        deps = _via_hub(lambda: http.get("/api/live/deployments" + (f"?{q}" if q else "")))
+        return [_code_state(d) for d in deps] if isinstance(deps, list) else deps
 
     @router.post("/api/live/deployments")
     def live_deployment_create(req: LiveDeploymentRequest):
@@ -655,6 +678,7 @@ def build(ctx: AppContext) -> APIRouter:
                 "profile": req.profile, "config": config, "mode": req.mode, "version": _version()}
         dep = _via_hub(lambda: http.post(f"/api/live/deployments?by={_by(req.user)}", body))
         if isinstance(dep, dict):
+            _code_state(dep)
             dep["code_update"] = _auto_update(http, dep, req.user)
         return dep
 
