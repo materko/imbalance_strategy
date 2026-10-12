@@ -323,7 +323,9 @@ driver agenta `install_code`) — čo sa skúšalo 28. 9. 2026 a ako to dopadlo:
    nereštartuje); keď nebeží, `install` zdrojáky nakopíruje a marker `TradeBot\installed.json` má
    `compiled: false` (driver ho nepočíta ako nainštalovaný kód, hlási chybu a agent to skúsi znova).
 
-`pywinauto` je voliteľná závislosť (`pip install -e .[live]`), len na obchodnom stroji s NT.
+`pywinauto` je voliteľná závislosť (extra `live`, len Windows): inštaluje ju `deploy/freqtrade/scripts/setup.ps1`
+aj `deploy/agent/install-agent.ps1`, a keď na stroji predsa chýba, agent si ju pri preklade doinštaluje sám
+(`pip install pywinauto>=0.6.8` do svojho `.venv`).
 
 **Čo musí človek urobiť raz** (asistent má okno NT len na čítanie, klikať nemôže):
 

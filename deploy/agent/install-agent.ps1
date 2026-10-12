@@ -11,8 +11,9 @@
     (aj po zavretí, páde či reštarte po git pull). Windows musí mať zapnuté automatické
     prihlásenie toho istého používateľa (viď README.md).
 
-    Skript nič nesťahuje ani neinštaluje — predpokladá hotový klon s .venv (setup.ps1) a
-    tester/agent.json (python -m tester.hub setup …). Opakované spustenie úlohu prepíše.
+    Predpokladá hotový klon s .venv (setup.ps1) a tester/agent.json (python -m tester.hub setup …);
+    doinštaluje len závislosti obchodného stroja (extra `live` = pywinauto na preklad NinjaTraderu
+    bez človeka), keď v .venv chýbajú. Opakované spustenie úlohu prepíše.
 
 .PARAMETER TaskName
     Názov úlohy (predvolene „TradeBot agent“).
@@ -40,6 +41,14 @@ $log = Join-Path $logDir "agent.log"
 if (-not (Test-Path $python)) { throw "Chýba $python — najprv .\deploy\freqtrade\scripts\setup.ps1" }
 if (-not (Test-Path $config)) { throw "Chýba $config — najprv .venv\Scripts\python.exe -m tester.hub setup --name <stroj> --hub-url … --token … --no-accept --send" }
 if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Force $logDir | Out-Null }
+
+# extra `live` (pywinauto): aktualizácia kódu z webapp prekladá NinjaTrader F5 v NinjaScript Editore
+& $python -c "import pywinauto" 2>$null
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Inštalujem závislosti obchodného stroja (pywinauto)..."
+    & $python -m pip install --disable-pip-version-check -q "pywinauto>=0.6.8"
+    if ($LASTEXITCODE -ne 0) { throw "pip install pywinauto zlyhal" }
+}
 
 # run-agent.ps1 spustí agenta, len keď nebeží (výstup do logu presmeruje sám);
 # conhost --headless = bez okna v relácii používateľa

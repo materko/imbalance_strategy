@@ -195,3 +195,36 @@ def test_driver_install_code_bez_nt_hlasi_chybu_a_marker_nepreklada(nt_dir: Path
     with pytest.raises(ntcli.InstallError, match="DLL sa nezmenila"):
         drv.install_code("def5678", [])
     assert drv.installed_version() is None and ntcli.read_installed(nt_dir)["version"] == "def5678"
+
+
+def test_pywinauto_sa_doinstaluje_ked_chyba(monkeypatch):
+    """Obchodný stroj bez pywinauto si ho na F5 v NinjaScript Editore doinštaluje sám (`pip install`)."""
+    import builtins
+    import types
+
+    povodny = builtins.__import__
+    stav = {"je": False}
+
+    def fake_import(name, *a, **kw):
+        if name == "pywinauto":
+            if not stav["je"]:
+                raise ImportError("No module named 'pywinauto'")
+            return types.SimpleNamespace(Application="APP")
+        return povodny(name, *a, **kw)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+    volania = []
+
+    def pip_ok(cmd):
+        volania.append(cmd)
+        stav["je"] = True
+        return types.SimpleNamespace(returncode=0, stdout="", stderr="")
+
+    assert ntcli._pywinauto_app(install=pip_ok) == ("APP", None)
+    assert volania and volania[0][1:4] == ["-m", "pip", "install"] and ntcli.PYWINAUTO_REQ in volania[0]
+    # už je: pip sa nevolá
+    assert ntcli._pywinauto_app(install=lambda cmd: pytest.fail("pip netreba")) == ("APP", None)
+    # pip zlyhá: chyba s výstupom pipu
+    stav["je"] = False
+    app, chyba = ntcli._pywinauto_app(install=lambda cmd: types.SimpleNamespace(returncode=1, stdout="", stderr="no network"))
+    assert app is None and "no network" in chyba

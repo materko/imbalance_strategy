@@ -30,7 +30,9 @@ from __future__ import annotations
 
 import argparse
 import getpass
+import importlib
 import json
+import logging
 import os
 import shutil
 import subprocess
@@ -46,6 +48,8 @@ from tradebot.core.config import load_profile
 from tradebot.core.paths import CSHARP_DIR, CSHARP_DLL, NINJATRADER_DIR
 from tradebot.core.version import repo_version
 from tradebot.strategies import STRATEGIES
+
+log = logging.getLogger(__name__)
 
 
 class InstallError(RuntimeError):
@@ -327,6 +331,38 @@ def nt_running_pid() -> int | None:
     return None
 
 
+#: Voliteľná závislosť `live` v pyproject.toml — obchodný stroj ju doinštaluje sám, keď chýba.
+PYWINAUTO_REQ = "pywinauto>=0.6.8"
+
+
+def _pywinauto_app(install: Callable[[list[str]], Any] | None = None) -> tuple[Any, str | None]:
+    """`pywinauto.Application`; keď chýba, raz ho `pip install` do prostredia agenta (stroj s NT ho potrebuje
+    na F5 a nikto ho tam nemusí inštalovať ručne). `(None, chyba)`, keď to nejde."""
+    try:
+        from pywinauto import Application  # type: ignore[import-not-found]
+
+        return Application, None
+    except ImportError:
+        pass
+    run = install or (lambda cmd: subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
+                                                 errors="replace", timeout=600))
+    try:
+        r = run([sys.executable, "-m", "pip", "install", "--disable-pip-version-check", "-q", PYWINAUTO_REQ])
+    except (OSError, subprocess.SubprocessError) as exc:
+        return None, f"pywinauto nie je nainštalované a pip zlyhal: {exc}"
+    if getattr(r, "returncode", 1) != 0:
+        tail = ((getattr(r, "stderr", "") or "") + (getattr(r, "stdout", "") or "")).strip()[-300:]
+        return None, f"pywinauto nie je nainštalované a `pip install {PYWINAUTO_REQ}` zlyhal: {tail}"
+    importlib.invalidate_caches()
+    try:
+        from pywinauto import Application  # type: ignore[import-not-found]
+
+        log.info("ninjatrader: pywinauto doinštalované")
+        return Application, None
+    except ImportError as exc:
+        return None, f"pywinauto sa nainštalovalo, ale nedá sa načítať: {exc}"
+
+
 def nt_compile_via_editor(nt_dir: Path, *, timeout: float = COMPILE_TIMEOUT, sleep=time.sleep,
                           clock=time.time, pid: int | None = None) -> dict[str, Any]:
     """Pokus (ii): F5 do okna **NinjaScript Editora** bežiaceho NinjaTradera cez pywinauto (UIA) — presne to,
@@ -336,10 +372,9 @@ def nt_compile_via_editor(nt_dir: Path, *, timeout: float = COMPILE_TIMEOUT, sle
     Nikdy nevyhodí výnimku. Overené 28. 9. 2026 (DLL aj nová generácia do 2 s)."""
     dll = custom_dll(nt_dir)
     out: dict[str, Any] = {"method": "editor", "ok": False, "dll": str(dll), "compiled": False, "generation": None}
-    try:
-        from pywinauto import Application  # type: ignore[import-not-found]
-    except ImportError:
-        out["error"] = "pywinauto nie je nainštalované (pip install pywinauto)"
+    Application, chyba = _pywinauto_app()
+    if Application is None:
+        out["error"] = chyba
         return out
     pid = pid or nt_running_pid()
     if pid is None:
