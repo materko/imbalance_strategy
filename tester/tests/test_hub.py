@@ -144,6 +144,27 @@ def test_pack_unpack_roundtrip(tmp_path: Path):
     assert dst.log("20260901-000001-aaaaaa") == "log"
 
 
+def test_pack_unpack_batch_points(tmp_path: Path):
+    """Bod mriežky nie je v histórii, len v `sweeps/` — zip ho musí niesť aj tak a u
+    zadávateľa skončí v jeho `sweeps/` aj s poliami navyše (interval víťaza, koniec logu)."""
+    src, dst = RunStore(tmp_path / "a"), RunStore(tmp_path / "b")
+    bod = {**_rec("20260901-000003-cccccc", settings={**BT, "sweep": {"id": "g1", "signature": "x" * 50,
+                                                                        "index": 2}}),
+           "created": "2026-09-01T00:00:03+00:00"}
+    src.batches.add_point(bod, {"break_even_ci": {"lo": 1.0, "hi": 2.0}})
+    src.save(_rec("20260901-000001-aaaaaa"))
+    data = pack_runs(src.root, ["20260901-000001-aaaaaa", "20260901-000003-cccccc"], src.batches)
+    # bez skladu celkov (staré volanie) sa body preskočia, behy rozbalia
+    assert unpack_runs(data, tmp_path / "c") == ["20260901-000001-aaaaaa"]
+    assert unpack_runs(data, dst.root, dst.batches) == ["20260901-000001-aaaaaa", "20260901-000003-cccccc"]
+    assert dst.get("20260901-000003-cccccc") is None                     # do histórie nie
+    got = dst.find("20260901-000003-cccccc")
+    assert got["batch"] == {"kind": "sweep", "id": "g1"} and got["settings"]["sweep"]["index"] == 2
+    assert got["result"] == {"duration_s": 30.0, "trades": 5}
+    assert got["break_even_ci"] == {"lo": 1.0, "hi": 2.0}
+    assert [r["id"] for r in dst.tagged("sweep", "g1")] == ["20260901-000003-cccccc"]
+
+
 def test_unpack_ignores_foreign_paths(tmp_path: Path):
     import io
     import zipfile
@@ -152,8 +173,10 @@ def test_unpack_ignores_foreign_paths(tmp_path: Path):
     with zipfile.ZipFile(buf, "w") as z:
         z.writestr("../../evil.txt", "x")
         z.writestr("nie-id/run.json", "{}")
+        z.writestr("points/nie-id.json", "{}")
+        z.writestr("points/20260901-000002-bbbbbb.json", json.dumps(_rec("20260901-000009-ffffff")))
         z.writestr("20260901-000001-aaaaaa/run.json", json.dumps(_rec("20260901-000001-aaaaaa")))
-    assert unpack_runs(buf.getvalue(), tmp_path) == ["20260901-000001-aaaaaa"]
+    assert unpack_runs(buf.getvalue(), tmp_path, RunStore(tmp_path).batches) == ["20260901-000001-aaaaaa"]
     assert not (tmp_path.parent / "evil.txt").exists()
 
 
@@ -583,6 +606,9 @@ class FakeJob:
     started: str | None = None
     log_lines: list = field(default_factory=list)
     cancel_requested: bool = False
+    created: str = "2026-09-12T09:59:00+00:00"
+    finished: str | None = None
+    error: str | None = None
 
     def public(self):
         return {"id": self.id, "status": self.status, "settings": self.settings, "started": self.started}
@@ -621,10 +647,15 @@ class FakeRunner:
         self.jobs[run_id].status, self.jobs[run_id].started = "running", started
 
     def finish(self, run_id, status="done"):
+        """Uloží výsledok tak ako skutočný runner (`BacktestRunner._persist`): obyčajný beh
+        do histórie, bod celku (mriežka, matica, overenie víťaza) len do `sweeps/`."""
+        from tester.webapp.runner import BacktestRunner
+
         j = self.jobs[run_id]
         j.status = status
-        self.store.save({**_rec(run_id, settings=j.settings, status=status), "params": j.params,
-                         "error": "zrusene" if status == "failed" else None})
+        j.finished = "2026-09-12T10:00:30+00:00"
+        j.error = "zrusene" if status == "failed" else None
+        BacktestRunner._persist(self, j, ({"duration_s": 30.0, "trades": 5}, [], None), 30.0)
 
 
 @pytest.fixture
@@ -711,6 +742,53 @@ def test_agent_end_to_end(hub_api, tmp_path: Path):
     assert client.collect(job["id"], lap_store.root) == [run_id]
 
 
+def test_sweep_point_reaches_submitter(hub_api, tmp_path: Path, monkeypatch):
+    """Bod mriežky cez hub: agent ho má len v `sweeps/` (nie v histórii), a predsa ho
+    zadávateľ dostane — CLI (`_remote_wait`) aj agent jeho webapp (heartbeat)."""
+    import argparse
+
+    from tester.hub import client as client_mod, config as hub_config, gitcode
+    from tester.hub.client import HubClient
+    from tester.webapp import cli
+
+    c, state, _ = hub_api
+    http = FakeHttp(c, "tajne")
+    srv, runner, srv_store = _agent("srv", tmp_path, http)
+    lap, _, lap_store = _agent("lap", tmp_path, http, accept=False)
+    srv.tick(); lap.tick()
+    client = HubClient(http, "lap")
+    bod = {**BT, "sweep": {"id": "g1", "signature": "{}", "index": 0}}
+    jobs = [client.submit("backtest", _payload(bod, params={"rrRatio": float(v)}), queue=True)
+            for v in (2, 3)]
+    srv.tick()
+    for run_id in list(runner.jobs):
+        runner.finish(run_id, "done")
+    assert srv_store.all() == [] and len(srv_store.tagged("sweep", "g1")) == 2
+    srv.tick()
+    hotove = [state.job(j["id"]) for j in jobs]
+    assert all(j["status"] == "done" and j["has_result"] and len(j["run_ids"]) == 1 for j in hotove)
+
+    # CLI zadávateľa: výsledok prvého bodu vyzdvihne a dostane záznam s výsledkom
+    monkeypatch.setattr(hub_config, "load", lambda path=None: AgentConfig(name="lap", hub_url="http://hub", token="t"))
+    monkeypatch.setattr(client_mod.HubClient, "from_config", classmethod(lambda cls, cfg: client))
+    monkeypatch.setattr(gitcode, "version", lambda: None)
+    monkeypatch.setattr("tester.webapp.store.RUNS_DIR", lap_store.root)
+    args = argparse.Namespace(remote=True, url="http://127.0.0.1:9")
+    rec = cli.remote._remote_wait(args, jobs[0]["id"], bod, quiet=True)
+    assert rec["id"] == hotove[0]["run_ids"][0] and rec["status"] == "done"
+    assert rec["result"]["trades"] == 5 and rec["batch"] == {"kind": "sweep", "id": "g1"}
+
+    # druhý bod si vezme agent webapp zadávateľa v heartbeate
+    lap.note_sent(jobs[1], "bod")
+    lap.tick()
+    assert lap.state.sent[jobs[1]["id"]]["run_ids"] == hotove[1]["run_ids"]
+    assert lap_store.all() == []                                         # história ostala čistá
+    assert sorted(r["id"] for r in lap_store.tagged("sweep", "g1")) == sorted(
+        j["run_ids"][0] for j in hotove)
+    # collect je idempotentné aj pre body: zip už nie je, nájde ich v `sweeps/`
+    assert client.collect(jobs[1]["id"], lap_store.root) == hotove[1]["run_ids"]
+
+
 def test_agent_hyperopt_waits_for_verification_runs(hub_api, tmp_path: Path):
     from tester.hub.client import HubClient
 
@@ -738,9 +816,12 @@ def test_agent_hyperopt_waits_for_verification_runs(hub_api, tmp_path: Path):
     srv.tick(); srv.tick()
     j = state.job(job["id"])
     assert j["status"] == "done" and sorted(j["run_ids"]) == sorted([run_id, over.id])
-    # v zipe sú oba behy
+    # v zipe sú oba: hyperopt ako beh histórie, overenie víťaza ako bod celku do `sweeps/`
     lap = RunStore(tmp_path / "lap-runs")
-    assert sorted(unpack_runs(state.result_path(job["id"]).read_bytes(), lap.root)) == sorted([run_id, over.id])
+    data = state.result_path(job["id"]).read_bytes()
+    assert sorted(unpack_runs(data, lap.root, lap.batches)) == sorted([run_id, over.id])
+    assert lap.get(run_id)["status"] == "done" and lap.get(over.id) is None
+    assert [r["id"] for r in lap.tagged("hyperopt_run", run_id)] == [over.id]
 
 
 def test_agent_cancel_and_bad_config(hub_api, tmp_path: Path):

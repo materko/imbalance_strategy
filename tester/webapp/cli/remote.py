@@ -148,7 +148,8 @@ def _remote_wait(args: argparse.Namespace, job_id: str, settings: dict, quiet: b
     if not run_ids:
         raise SystemExit(f"vypocet {job['id']} skoncil, ale bez behov v historii")
     hlavny = job.get("run_id") if job.get("run_id") in run_ids else run_ids[0]
-    return store.get(hlavny) or {"id": hlavny, "status": "failed", "error": "beh sa nepodarilo precitat",
+    # bod mriežky/matice nie je v histórii, ale v `sweeps/` — `find` nájde oboje
+    return store.find(hlavny) or {"id": hlavny, "status": "failed", "error": "beh sa nepodarilo precitat",
                                  "settings": settings}
 
 

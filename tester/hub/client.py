@@ -35,6 +35,7 @@ from urllib.parse import urlsplit
 
 from tradebot.core.paths import RUNS_DIR
 
+from ..webapp.store import RunStore
 from . import protocol as P
 from .config import AgentConfig
 from .transfer import unpack_runs
@@ -336,7 +337,8 @@ class HubClient:
     def collect(self, job_id: str, store_root: Path | None = None) -> list[str]:
         """Stiahne zip výsledku do histórie a potvrdí hubu. Keď si ho už vzal agent tejto
         webapp (heartbeat), zip na hube nie je — vráti sa zoznam behov zo záznamu."""
-        root = Path(store_root or RUNS_DIR)
+        store = RunStore(store_root or RUNS_DIR)
+        root = store.root
         job = self.job(job_id)
         run_ids: list[str] = []
         if job.get("has_result") and not job.get("collected"):
@@ -347,8 +349,9 @@ class HubClient:
                     raise
                 data = b""
             if data:
-                run_ids = unpack_runs(data, root)
+                run_ids = unpack_runs(data, root, store.batches)
                 self.http.post(f"/api/jobs/{job_id}/ack")
         if not run_ids:
-            run_ids = [r for r in (job.get("run_ids") or []) if (root / r / "run.json").exists()]
+            run_ids = [r for r in (job.get("run_ids") or [])
+                       if (root / r / "run.json").exists() or store.batches.find(r)]
         return run_ids

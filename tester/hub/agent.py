@@ -624,7 +624,7 @@ class HubAgent:
             status = job.status
             settings, log_lines, started = job.settings, job.log_lines, job.started
         else:
-            rec = self.store.get(run_id)
+            rec = self.store.find(run_id)
             if rec is None:
                 return None
             status = rec.get("status") or "failed"
@@ -814,8 +814,8 @@ class HubAgent:
                 if ((j.get("settings") or {}).get("hyperopt_run") or {}).get("id") == run_id]
 
     def _verification_ids(self, run_id: str) -> list[str]:
-        return [r["id"] for r in self.store.all()
-                if (((r.get("settings") or {}).get("hyperopt_run") or {}).get("id")) == run_id]
+        # Overenia víťaza sú body celku v `sweeps/`, nie behy histórie — `tagged` vidí oboje.
+        return [r["id"] for r in self.store.tagged("hyperopt_run", run_id)]
 
     def _settled(self, run_id: str) -> tuple[bool, str]:
         """(je hotové, stav) — hotové = lokálny beh v konečnom stave a nič, čo naň nadväzuje, nežije."""
@@ -823,7 +823,7 @@ class HubAgent:
         if job is not None:
             status = job.status
         else:
-            rec = self.store.get(run_id)
+            rec = self.store.find(run_id)
             status = (rec or {}).get("status") or "failed"
         if status not in ("done", "failed"):
             return False, status
@@ -852,7 +852,7 @@ class HubAgent:
                 continue
             run_ids = [run_id] + self._verification_ids(run_id)
             try:
-                data = pack_runs(self.store.root, run_ids)
+                data = pack_runs(self.store.root, run_ids, self.store.batches)
             except OSError as exc:  # zamknutý súbor, plný disk — skúsi sa o tick znova
                 self._deliver_failed(job_id, entry, f"zabalenie behu zlyhalo: {exc}")
                 continue
@@ -864,7 +864,7 @@ class HubAgent:
                 stav, chyba = "cancelled", ""  # kto a prečo dopíše hub (`cancelled_by`)
             else:
                 stav = status
-                chyba = ((self.store.get(run_id) or {}).get("error") or "") if status == "failed" else ""
+                chyba = ((self.store.find(run_id) or {}).get("error") or "") if status == "failed" else ""
             q = (f"?status={stav}&agent={self.cfg.name}&version={_q(self.version)}"
                  f"&run_ids={','.join(run_ids)}")
             if chyba:
@@ -960,7 +960,7 @@ class HubAgent:
                     raise
                 data = b""
             if data:
-                run_ids = unpack_runs(data, self.store.root)
+                run_ids = unpack_runs(data, self.store.root, self.store.batches)
         zaznam.update({"status": job.get("status"), "error": job.get("error"),
                        "run_ids": run_ids or list(job.get("run_ids") or []),
                        "agent": job.get("agent"),

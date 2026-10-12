@@ -99,7 +99,8 @@ def cmd_hyperopt(args: argparse.Namespace) -> int:
         run_id = rec.get("id")
         if rec.get("status") != "done":
             raise SystemExit(f"hyperopt skoncil: {rec.get('error') or rec.get('status')}")
-        det = ho.detail(rec, store.extra(run_id, "epochs.json") or [], store.all())
+        det = ho.detail(rec, store.extra(run_id, "epochs.json") or [],
+                        store.tagged("hyperopt_run", run_id), store.log(run_id) or "")
     elif server_alive(args.url):
         telo = {"params": params, "space": space, "goal": args.goal, "max_dd": args.max_dd,
                 "min_trades": args.min_trades, "epochs": int(args.epochs), "seed": args.seed,
@@ -196,7 +197,8 @@ def _hyperopt_seeds(args: argparse.Namespace, params: dict, settings: dict, zada
         if rec.get("status") != "done":
             print(f"      {rec.get('status')}: {rec.get('error') or ''}", flush=True)
             continue
-        det = ho.detail(rec, store.extra(rec["id"], "epochs.json") or [], store.all())
+        det = ho.detail(rec, store.extra(rec["id"], "epochs.json") or [],
+                        store.tagged("hyperopt_run", rec["id"]), store.log(rec["id"]) or "")
         dets.append(det)
         over = det.get("overrides") or {}
         print(f"      {rec['id']}  vitaz: "
