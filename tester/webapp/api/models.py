@@ -218,6 +218,15 @@ class HubAcceptRequest(BaseModel):
     accept: bool
 
 
+class HubTokenRequest(BaseModel):
+    """Vydať token agenta hlavným tokenom servera — to isté, čo `python -m tester.hub token add`."""
+
+    name: str = Field(..., min_length=1, max_length=60)
+    hub_url: str = Field(..., min_length=1)
+    admin_token: str = Field(..., min_length=1, description="hlavný token hubu; neukladá sa")
+    replace: bool = Field(False, description="prepísať token, ktorý agent s tým menom už má")
+
+
 class HubConfigRequest(BaseModel):
     """Nastavenie agenta z karty Hub — to isté, čo `python -m tester.hub setup`."""
 

@@ -1752,6 +1752,48 @@ def test_webapp_hub_config_saves_and_starts_agent(monkeypatch, tmp_path: Path):
     assert not (tmp_path / "agent.json").exists() and app.state.hub_agent is None and started[1].byed
 
 
+def test_webapp_issues_agent_token_from_hub_admin_token(monkeypatch, tmp_path: Path):
+    """Karta Hub: hlavný token servera → hub vydá token agenta pre meno z formulára.
+    Token agenta na to nestačí a existujúci token sa bez `replace` neprepíše."""
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.hub import client as client_mod
+    from tester.hub.server import create_hub_app
+    from tester.webapp.app import create_app
+    from tester.webapp.runner import BacktestRunner
+
+    state = HubState(tmp_path / "hub", token="hlavny", clock=Clock())
+    hub = TestClient(create_hub_app(state))
+    urls = []
+
+    def fake_http(url, token="", timeout=30.0, **kw):
+        urls.append(url)
+        return FakeHttp(hub, token)
+
+    monkeypatch.setattr(client_mod, "HubHttp", fake_http)
+    store = RunStore(tmp_path / "runs")
+    c = TestClient(create_app(store, BacktestRunner(store, command_builder=lambda *a: ["python", "-c", ""])))
+    telo = {"name": " nb-rasto ", "hub_url": "https://hub:8790/", "admin_token": "hlavny"}
+
+    r = c.post("/api/hub/token", json=telo)
+    assert r.status_code == 200, r.text
+    token = r.json()["token"]
+    assert r.json()["name"] == "nb-rasto" and urls[-1] == "https://hub:8790"
+    assert state.identity(token) == "nb-rasto"
+
+    # už má token: bez replace 409, s replace nový a starý prestane platiť
+    assert c.post("/api/hub/token", json=telo).status_code == 409
+    r = c.post("/api/hub/token", json={**telo, "replace": True})
+    assert r.status_code == 200 and state.identity(r.json()["token"]) == "nb-rasto"
+    assert state.identity(token) is None
+
+    # token agenta ani zlý token hlavný nie je; adresa musí byť URL
+    assert c.post("/api/hub/token", json={**telo, "admin_token": r.json()["token"]}).status_code == 403
+    assert c.post("/api/hub/token", json={**telo, "admin_token": "zle"}).status_code == 403
+    assert c.post("/api/hub/token", json={**telo, "hub_url": "hub:8790"}).status_code == 422
+
+
 # --------------------------------------------------------------------------- #
 # live telemetria (docs/LIVE.md)
 # --------------------------------------------------------------------------- #

@@ -303,7 +303,8 @@
       hub mu prideľuje behy podľa voľných jadier (backtest = 1 jadro, hyperopt = celý stroj); keď <i>posiela</i>,
       pri behu a hyperopte sa objaví prepínač „na hube" a mriežky (sweep, checkup, matrix, plateau s
       <code>--remote</code>) idú naraz na všetkých voľných agentov. Výsledok sa vráti do tejto histórie.
-      Token agenta vydá správca hubu: <code>python -m tester.hub token add &lt;meno&gt;</code>. Návod: docs/HUB.md.</p>
+      Token agenta vydá správca hubu: <code>python -m tester.hub token add &lt;meno&gt;</code> — alebo ho tu
+      vygeneruj z hlavného tokenu servera (<code>TRADEBOT_HUB_TOKEN</code>; neukladá sa). Návod: docs/HUB.md.</p>
     <div class="hub-form">
       <label class="field">Meno agenta <input id="hub-cfg-name" type="text" maxlength="60" placeholder="napr. notebook-rasto" title="statické, jednoznačné — hub podľa neho pozná tento klon"></label>
       <label class="field">Adresa hubu <input id="hub-cfg-url" type="text" placeholder="https://hub.example.com:8790"></label>
@@ -311,6 +312,10 @@
       <label class="field">Behov naraz <input id="hub-cfg-parallel" type="number" min="0" max="256" step="1" placeholder="0 = podľa jadier" title="strop paralelných behov od hubu; hyperopt berie vždy celý stroj"></label>
       <label class="inline"><input type="checkbox" id="hub-cfg-accept" checked> prijímať výpočty od hubu</label>
       <label class="inline"><input type="checkbox" id="hub-cfg-send" checked> posielať výpočty na hub</label>
+    </div>
+    <div class="hub-form">
+      <label class="field">Hlavný token servera <input id="hub-cfg-admin" type="password" autocomplete="off" placeholder="TRADEBOT_HUB_TOKEN — len na vygenerovanie, neukladá sa" title="hub ním vydá token agenta pre meno vyššie"></label>
+      <div><button id="hub-cfg-issue" class="ghost" title="vydá token agenta pre toto meno, vloží ho do poľa Token a uloží nastavenie">Vygenerovať token a pripojiť</button></div>
     </div>
     <div class="hub-row">
       <button id="hub-cfg-save" class="primary">Uložiť a pripojiť</button>

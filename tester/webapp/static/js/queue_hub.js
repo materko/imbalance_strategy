@@ -83,6 +83,7 @@ async function hubSetup() {
   };
   $("#hub-jobs-all").onchange = loadHub;
   $("#hub-cfg-save").onclick = saveHubConfig;
+  $("#hub-cfg-issue").onclick = issueHubToken;
   $("#hub-cfg-remove").onclick = removeHubConfig;
   applyHubConfig(h);
   renderHubAgent(h);
@@ -136,6 +137,37 @@ async function saveHubConfig() {
     applyHubConfig(h); renderHubAgent(h);
     $("#hub-cfg-status").textContent = "uložené; agent sa hlási hubu (stav nižšie sa obnoví o pár sekúnd)";
     setTimeout(loadHub, 3000);
+  } catch (e) {
+    $("#hub-cfg-error").textContent = e.message; $("#hub-cfg-error").hidden = false;
+    $("#hub-cfg-status").textContent = "";
+  } finally { btn.disabled = false; }
+}
+
+/** Token agenta z hlavného tokenu servera: hub ho vydá pre meno vo formulári, stránka ho vloží
+ *  do poľa Token a hneď uloží nastavenie. Hlavný token sa po použití z poľa zmaže. */
+async function issueHubToken() {
+  const btn = $("#hub-cfg-issue");
+  const body = { name: $("#hub-cfg-name").value.trim(), hub_url: $("#hub-cfg-url").value.trim(),
+                 admin_token: $("#hub-cfg-admin").value.trim(), replace: false };
+  $("#hub-cfg-error").hidden = true;
+  if (!body.name || !body.hub_url || !body.admin_token) {
+    $("#hub-cfg-error").textContent = "vyplň meno agenta, adresu hubu a hlavný token servera";
+    $("#hub-cfg-error").hidden = false;
+    return;
+  }
+  btn.disabled = true; $("#hub-cfg-status").textContent = "hub vydáva token…";
+  try {
+    let r;
+    try { r = await api("/api/hub/token", { method: "POST", body: JSON.stringify(body) }); }
+    catch (e) {
+      if (!/už token má/.test(e.message) || !confirm(`${e.message}.
+
+Vydať nový token aj tak?`)) throw e;
+      r = await api("/api/hub/token", { method: "POST", body: JSON.stringify({ ...body, replace: true }) });
+    }
+    $("#hub-cfg-admin").value = "";
+    $("#hub-cfg-token").value = r.token;
+    await saveHubConfig();
   } catch (e) {
     $("#hub-cfg-error").textContent = e.message; $("#hub-cfg-error").hidden = false;
     $("#hub-cfg-status").textContent = "";

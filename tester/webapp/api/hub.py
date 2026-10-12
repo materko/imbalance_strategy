@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from typing import Any
+from urllib.parse import quote
 
 from fastapi import APIRouter, HTTPException
 
@@ -14,7 +15,7 @@ from .common import clean_user
 from .context import AppContext
 from .models import (
     HubJobRequest, HubOptions, HubRunRequest, HubHyperoptRequest, HubAcceptRequest,
-    HubConfigRequest,
+    HubConfigRequest, HubTokenRequest,
 )
 from .settings import run_settings
 
@@ -79,6 +80,33 @@ def build(ctx: AppContext) -> APIRouter:
         hub_config.save(cfg)
         start_hub_agent(hub_config.load() or cfg)
         return hub_status()
+
+    @router.post("/api/hub/token")
+    def hub_token_issue(req: HubTokenRequest):
+        """Token agenta pre túto webapp z hlavného tokenu servera. Hlavný token ide len na hub
+        (`POST /api/tokens/<meno>`) a nikde sa neukladá; vydaný token si stránka vloží do
+        formulára a uloží cez `/api/hub/config`."""
+        from ...hub.client import HubError, HubHttp
+
+        name = req.name.strip()
+        url = req.hub_url.strip().rstrip("/")
+        if not url.startswith(("http://", "https://")):
+            raise HTTPException(422, "adresa hubu musí začínať http:// alebo https://")
+        http = HubHttp(url, req.admin_token.strip(), timeout=15.0)
+        try:
+            if not req.replace:
+                # Prepísaný token odpojí stroj, ktorý ho používa — to nech je vedomé rozhodnutie.
+                if any(t.get("name") == name for t in http.get("/api/tokens") or []):
+                    raise HTTPException(409, f"agent {name!r} už token má — nový ho prepíše a stroj, "
+                                             "ktorý ho používa, sa od hubu odpojí")
+            return http.post(f"/api/tokens/{quote(name, safe='')}")
+        except HubError as exc:
+            if exc.status in (401, 403):
+                raise HTTPException(403, "hub tento token neprijal ako hlavný (správcovský) — "
+                                         "treba TRADEBOT_HUB_TOKEN zo servera, nie token agenta")
+            raise HTTPException(502, str(exc))
+        except (OSError, ValueError) as exc:
+            raise HTTPException(502, f"hub {url} neodpovedá: {exc}")
 
     @router.delete("/api/hub/config")
     def hub_config_delete():
