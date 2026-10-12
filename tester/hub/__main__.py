@@ -50,7 +50,9 @@ def cmd_serve(args: argparse.Namespace) -> int:
         # potom verejný a bez tokenu ho smie ovládať ktokoľvek, kto sa naň dostane.
         print("POZOR: hub beží bez jediného tokenu — je otvorený každému, kto sa naň "
               "dostane (aj cez reverse proxy). Token: --token / TRADEBOT_HUB_TOKEN.", flush=True)
-    uvicorn.run(app, host=args.host, port=args.port, log_level="info")
+    # Agenti a webapp držia jedno spojenie (keep-alive, `client.HubHttp`) — nech ho hub
+    # nezavrie medzi dvoma heartbeatmi (predvolených 5 s je kratších ako heartbeat).
+    uvicorn.run(app, host=args.host, port=args.port, log_level="info", timeout_keep_alive=75)
     if updater is not None:
         updater.stop()
     return 0

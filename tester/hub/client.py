@@ -6,18 +6,32 @@
     job = client.wait(job["id"])
     run_ids = client.collect(job["id"])        # zip → tester/runs/, ack na hube
 
-`HubHttp` je tenký obal nad `urllib` (žiadna nová závislosť) s tokenom v hlavičke —
+`HubHttp` je tenký obal nad `http.client` (žiadna nová závislosť) s tokenom v hlavičke —
 používa ho aj agent. Chyby hubu prídu ako `HubError(status, detail)`.
+
+**Jedno trvalé spojenie na vlákno (HTTP/1.1 keep-alive), nie nové na každú požiadavku.**
+Heartbeat každých pár sekúnd a pollovanie webapp robili stovky krátkych TCP+TLS spojení za
+minútu. Domáci router alebo CGNAT, ktorý prideľuje zdrojové porty z úzkeho rozsahu, ich rýchlo
+pretočí a nový SYN na port, ku ktorému firewall pred hubom ešte drží starý stav, sa zahodí —
+spojenie sa nenadviaže a agent padá online/offline (10/2026, Mac za Orange optikou). Preto:
+spojenie sa drží a znova používa; nadviazanie má krátky timeout (`CONNECT_TIMEOUT`) a keď
+sa zasekne, skúsi sa nové spojenie (nový zdrojový port); spojenie, ktoré server medzitým
+zavrel, sa zahodí a požiadavka ide raz znova na novom.
 """
 
 from __future__ import annotations
 
+import http.client
 import json
+import select
+import ssl
+import threading
 import time
 import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any, Callable
+from urllib.parse import urlsplit
 
 from tradebot.core.paths import RUNS_DIR
 
@@ -62,11 +76,43 @@ class NoCapacityError(HubError):
         return (self.detail or {}).get("eta_start_seconds") if isinstance(self.detail, dict) else None
 
 
+#: Na nadviazanie TCP/TLS spojenia sa čaká krátko; zaseknuté nadviazanie sa skúsi znova
+#: s novým spojením (iný zdrojový port), spolu najviac `CONNECT_ATTEMPTS`-krát.
+CONNECT_TIMEOUT = 5.0
+CONNECT_ATTEMPTS = 3
+
+#: Server zavrel nečinné spojenie (keep-alive timeout) práve vtedy, keď išla požiadavka.
+_STALE = (http.client.RemoteDisconnected, ConnectionResetError, ConnectionAbortedError, BrokenPipeError)
+
+
+def _dropped(conn: http.client.HTTPConnection) -> bool:
+    """Spojenie bez rozbehnutej požiadavky, z ktorého sa dá čítať, server zavrel (EOF)."""
+    if conn.sock is None:
+        return True
+    try:
+        readable, _, _ = select.select([conn.sock], [], [], 0)
+    except (OSError, ValueError):
+        return True
+    return bool(readable)
+
+
 class HubHttp:
-    def __init__(self, url: str, token: str = "", timeout: float = 30.0) -> None:
+    def __init__(self, url: str, token: str = "", timeout: float = 30.0,
+                 connect_timeout: float = CONNECT_TIMEOUT) -> None:
         self.url = url.rstrip("/")
         self.token = token
         self.timeout = timeout
+        self.connect_timeout = connect_timeout
+        parts = urlsplit(self.url)
+        self._scheme = parts.scheme or "http"
+        self._host = parts.hostname or ""
+        self._port = parts.port
+        self._prefix = parts.path
+        self._ssl: ssl.SSLContext | None = None
+        self._local = threading.local()
+        # Cez proxy (HTTP_PROXY a spol.) ostáva pôvodná cesta cez urllib.
+        self._proxied = bool(urllib.request.getproxies().get(self._scheme)) \
+            and not urllib.request.proxy_bypass(self._host)
 
     def _headers(self, content_type: str | None = None) -> dict[str, str]:
         h = {"Authorization": f"Bearer {self.token}"} if self.token else {}
@@ -74,22 +120,101 @@ class HubHttp:
             h["Content-Type"] = content_type
         return h
 
+    @staticmethod
+    def _error(status: int, telo: bytes, method: str, path: str) -> HubError:
+        text = telo.decode("utf-8", "replace")
+        try:
+            detail = json.loads(text).get("detail", text)
+        except (json.JSONDecodeError, AttributeError):
+            detail = text
+        if status == 409 and path.startswith("/api/jobs") and method == "POST" and path.count("/") == 2:
+            return NoCapacityError(status, detail)
+        return HubError(status, detail)
+
+    # -- spojenie (jedno na vlákno) ----------------------------------------- #
+
+    def _connect(self) -> http.client.HTTPConnection:
+        posledna: OSError | None = None
+        for _ in range(CONNECT_ATTEMPTS):
+            if self._scheme == "https":
+                if self._ssl is None:
+                    self._ssl = ssl.create_default_context()
+                conn: http.client.HTTPConnection = http.client.HTTPSConnection(
+                    self._host, self._port, timeout=self.connect_timeout, context=self._ssl)
+            else:
+                conn = http.client.HTTPConnection(self._host, self._port, timeout=self.connect_timeout)
+            try:
+                conn.connect()
+                return conn
+            except OSError as exc:
+                conn.close()
+                posledna = exc
+                # Znova má zmysel len zaseknuté alebo zhodené nadviazanie, nie odmietnutie,
+                # neznáma adresa či zlý certifikát.
+                if not isinstance(exc, (TimeoutError, ConnectionResetError, ConnectionAbortedError)):
+                    break
+        raise urllib.error.URLError(posledna)
+
+    def _connection(self, timeout: float) -> tuple[http.client.HTTPConnection, bool]:
+        conn = getattr(self._local, "conn", None)
+        if conn is not None and _dropped(conn):
+            self.close()
+            conn = None
+        if conn is not None:
+            try:
+                conn.sock.settimeout(timeout)
+                return conn, True
+            except OSError:
+                self.close()
+        conn = self._connect()
+        self._local.conn = conn
+        conn.sock.settimeout(timeout)
+        return conn, False
+
+    def close(self) -> None:
+        """Zavrie spojenie tohto vlákna (ďalšia požiadavka otvorí nové)."""
+        conn = getattr(self._local, "conn", None)
+        self._local.conn = None
+        if conn is not None:
+            conn.close()
+
     def _call(self, method: str, path: str, data: bytes | None = None,
               content_type: str | None = None, timeout: float | None = None) -> tuple[bytes, str]:
+        if self._proxied:
+            return self._call_urllib(method, path, data, content_type, timeout)
+        headers = self._headers(content_type)
+        for pokus in (1, 2):
+            conn, reused = self._connection(timeout or self.timeout)
+            try:
+                conn.request(method, self._prefix + path, body=data, headers=headers)
+                r = conn.getresponse()
+                body = r.read()
+            except _STALE as exc:
+                self.close()
+                if reused and pokus == 1:
+                    continue
+                raise urllib.error.URLError(exc) from None
+            except BaseException:
+                self.close()
+                raise
+            if r.will_close:
+                self.close()
+            if 300 <= r.status < 400:  # presmerovanie (proxy pred hubom) — postará sa urllib
+                return self._call_urllib(method, path, data, content_type, timeout)
+            if r.status >= 400:
+                raise self._error(r.status, body, method, path)
+            return body, r.headers.get("content-type", "")
+        raise AssertionError("nedosiahnuteľné")
+
+    def _call_urllib(self, method: str, path: str, data: bytes | None,
+                     content_type: str | None, timeout: float | None) -> tuple[bytes, str]:
         req = urllib.request.Request(self.url + path, data=data, method=method,
                                      headers=self._headers(content_type))
         try:
             with urllib.request.urlopen(req, timeout=timeout or self.timeout) as r:
                 return r.read(), r.headers.get("content-type", "")
         except urllib.error.HTTPError as exc:
-            telo = exc.read().decode("utf-8", "replace")
-            try:
-                detail = json.loads(telo).get("detail", telo)
-            except (json.JSONDecodeError, AttributeError):
-                detail = telo
-            if exc.code == 409 and path.startswith("/api/jobs") and method == "POST" and path.count("/") == 2:
-                raise NoCapacityError(exc.code, detail) from None
-            raise HubError(exc.code, detail) from None
+            raise self._error(exc.code, exc.read(), method, path) from None
 
     def get(self, path: str) -> Any:
         data, ct = self._call("GET", path)
