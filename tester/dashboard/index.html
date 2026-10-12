@@ -623,24 +623,30 @@
 
   // ---------- obrazovky ----------
   function viewOverview() {
-    var html = '<h1>Prehľad stratégií</h1><p class="sub">Klikni na stratégiu pre zoznam jej nastavení.</p><div class="grid cards">';
-    DATA.strategies.forEach(function (s) {
+    function card(s) {
       var sets = s.settings || [];
       var best = sets.reduce(function (m, x) { return x.is && x.is.pf != null && (m == null || x.is.pf > m) ? x.is.pf : m; }, null);
       var cand = sets.filter(isCandidate).length;
       var s1 = String(s.step1 || "").toLowerCase();
-      html += '<a class="card" href="#/s/' + encodeURIComponent(s.key) + '">' +
-        '<div class="card-head"><div><div class="card-title">' + esc(s.name) + '</div><div class="muted">' + esc(s.guideline_step || "") + '</div></div>' +
-        '<span class="badge ' + (s1.indexOf("neprešiel") === 0 ? "neg" : s1.indexOf("prešiel") === 0 ? "pos" : "") + '">krok 1: ' + esc(s.step1 || "—") + "</span></div>" +
+      var badge = s.testing ? '<span class="badge warn">v teste</span>'
+        : '<span class="badge ' + (s1.indexOf("neprešiel") === 0 ? "neg" : s1.indexOf("prešiel") === 0 ? "pos" : "") + '">krok 1: ' + esc(s.step1 || "—") + "</span>";
+      return '<a class="card" href="#/s/' + encodeURIComponent(s.key) + '">' +
+        '<div class="card-head"><div><div class="card-title">' + esc(s.name) + '</div><div class="muted">' + esc(s.guideline_step || "") + "</div></div>" + badge + "</div>" +
         '<div class="kv">' +
         "<div><span>Skúšané kombinácie</span><b>" + num(s.combos) + "</b></div>" +
-        "<div><span>Kandidáti</span><b>" + cand + ' <small class="muted">/ ' + sets.length + "</small></b></div>" +
+        "<div><span>" + (s.testing ? "Najlepší kandidáti" : "Kandidáti") + "</span><b>" + cand + ' <small class="muted">/ ' + sets.length + "</small></b></div>" +
         '<div><span>Najlepší PF (in-sample)</span><b class="' + pfCls(best) + '">' + pfFmt(best) + "</b></div>" +
-        "<div><span>Nastavení</span><b>" + sets.length + "</b></div>" +
+        "<div><span>" + (s.testing ? "Prešlo smernicou" : "Nastavení") + "</span><b>" + (s.testing ? "0" : sets.length) + "</b></div>" +
         "</div>" + stepsRow(s, true) + "</a>";
-    });
-    return html + "</div>";
+    }
+    var ok = DATA.strategies.filter(function (s) { return !s.testing; }), test = DATA.strategies.filter(function (s) { return s.testing; });
+    var html = '<h1>Prehľad stratégií</h1><p class="sub">Klikni na stratégiu pre zoznam jej nastavení.</p>' +
+      '<h2 class="section">Prešli smernicou</h2><div class="grid cards">' + ok.map(card).join("") + "</div>";
+    if (test.length) html += '<h2 class="section">V teste — zatiaľ neprešli</h2><p class="sub">Práve sa testujú podľa smernice. Ukázané sú 3 najlepší kandidáti; ' +
+      "keď niektorý prejde odloženým rokom, stratégia sa presunie hore.</p>" + '<div class="grid cards">' + test.map(card).join("") + "</div>";
+    return html;
   }
+
 
   function viewStrategy(s) {
     var rows = (s.settings || []).map(function (st) {
