@@ -20,6 +20,7 @@ v baroch, takže TF patrí k nastaveniu), `_timerange`, `_fee`, `_wallet` a `_de
 from __future__ import annotations
 
 import json
+import os
 import re
 from datetime import datetime
 from pathlib import Path
@@ -53,15 +54,66 @@ def _strategy_of_file(path: Path) -> str:
         return LEGACY_STRATEGY
 
 
+#: Stratégia vlastného profilu podľa (mtime_ns, veľkosť) súboru. `/api/meta` sa pýta na profily
+#: každej stratégie niekoľkokrát a bez cache čítal každý JSON v `tester/profiles/` zakaždým
+#: (stovky profilov × desiatky stratégií = desaťtisíce čítaní, ~20 s na načítanie stránky).
+_STRATEGY_CACHE: dict[str, tuple[int, int, str]] = {}
+
+
+def _user_files() -> list[tuple[Path, str]]:
+    """Vlastné profily ako (súbor, stratégia), zoradené podľa mena; súbor sa číta len keď sa zmenil."""
+    d = _dir()
+    try:
+        entries = [e for e in os.scandir(d) if e.name.endswith(".json") and e.is_file()]
+    except OSError:
+        return []
+    out: list[tuple[Path, str]] = []
+    for e in sorted(entries, key=lambda e: e.name):
+        try:
+            st = e.stat()
+        except OSError:
+            continue
+        hit = _STRATEGY_CACHE.get(e.path)
+        if hit is None or hit[:2] != (st.st_mtime_ns, st.st_size):
+            hit = (st.st_mtime_ns, st.st_size, _strategy_of_file(Path(e.path)))
+            _STRATEGY_CACHE[e.path] = hit
+        out.append((Path(e.path), hit[2]))
+    return out
+
+
+def files_version(strategy: str = LEGACY_STRATEGY) -> str:
+    """Odtlačok súborov, z ktorých sa skladajú profily stratégie (repozitár + všetky vlastné:
+    meno, mtime, veľkosť) — zmení sa pri každom pridaní, úprave, premenovaní aj zmazaní profilu.
+    Len `stat`, nič sa nečíta; stránka podľa neho vie, či má profily stiahnuť nanovo."""
+    import hashlib
+
+    h = hashlib.sha1()
+    for d in (get_spec(strategy).profile_dir, _dir()):
+        try:
+            entries = sorted((e for e in os.scandir(d) if e.name.endswith(".json")), key=lambda e: e.name)
+        except OSError:
+            continue
+        h.update(str(d).encode())
+        for e in entries:
+            try:
+                st = e.stat()
+            except OSError:
+                continue
+            h.update(f"{e.name}|{st.st_mtime_ns}|{st.st_size};".encode())
+    return h.hexdigest()[:16]
+
+
 def builtin_names(strategy: str = LEGACY_STRATEGY) -> list[str]:
     return sorted(p.stem for p in get_spec(strategy).profile_dir.glob("*.json"))
 
 
 def user_names(strategy: str = LEGACY_STRATEGY) -> list[str]:
-    d = _dir()
-    if not d.exists():
-        return []
-    return sorted(p.stem for p in d.glob("*.json") if _strategy_of_file(p) == strategy)
+    return sorted(p.stem for p, key in _user_files() if key == strategy)
+
+
+def strategies_with_prefix(prefix: str) -> list[str]:
+    """Stratégie, ktoré majú vlastný profil s menom začínajúcim `prefix` (jeden prechod adresárom)."""
+    return sorted({key for p, key in _user_files() if p.stem.startswith(prefix)})
 
 
 def all_names(strategy: str = LEGACY_STRATEGY) -> list[str]:
@@ -71,11 +123,9 @@ def all_names(strategy: str = LEGACY_STRATEGY) -> list[str]:
 def all_paths(strategy: str = LEGACY_STRATEGY) -> dict[str, Path]:
     """Meno profilu → súbor; profil repozitára má prednosť pred rovnako nazvaným vlastným."""
     out = {p.stem: p for p in sorted(get_spec(strategy).profile_dir.glob("*.json"))}
-    d = _dir()
-    if d.exists():
-        for p in sorted(d.glob("*.json")):
-            if _strategy_of_file(p) == strategy:
-                out.setdefault(p.stem, p)
+    for p, key in _user_files():
+        if key == strategy:
+            out.setdefault(p.stem, p)
     return out
 
 

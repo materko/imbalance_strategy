@@ -420,7 +420,7 @@ function closeDetail() {
 async function loadDetailIntoForm() {
   const r = await api(`/api/runs/${state.detailId}`);
   const rec = r.record;
-  setStrategy(rec.settings.strategy || "ibs");  // formulár musí byť tej stratégie, ktorej sú parametre
+  await setStrategy(rec.settings.strategy || "ibs");  // formulár musí byť tej stratégie, ktorej sú parametre
   state.profile = rec.settings.profile || null;
   // základ = profil (aby sa zvýraznili odchýlky), hodnoty = beh. Profil behu už nemusí
   // existovať (archivované presety) — vtedy je základom Pine default a odchýlky sú voči nemu.

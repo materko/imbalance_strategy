@@ -10,8 +10,28 @@
 function strategyMeta(key) { return (state.meta.strategy_meta || {})[key] || null; }
 function strategySpec(key) { return (state.meta.strategies || []).find(s => s.key === key) || null; }
 
-function setStrategy(key) {
-  const sm = strategyMeta(key);
+/** Parametre, defaulty a profily stratégie `/api/meta` nenesie (len zoznam a strom) — sú
+ *  v `strategy_meta[key]` a overujú sa pri každom výbere stratégie: stránka pošle `version`,
+ *  ktorú má, a server buď povie „nič nové" (`unchanged`), alebo pošle nové (pribudol / zmenil
+ *  sa profil, reštart s novým kódom). Vráti `strategy_meta[key]` (null pri neznámej stratégii);
+ *  keď server neodpovie, ostane to, čo stránka už má. */
+async function ensureStrategyMeta(key) {
+  if (!strategySpec(key)) return null;
+  const cache = state.meta.strategy_meta || (state.meta.strategy_meta = {});
+  const have = cache[key] && cache[key].params && cache[key].profiles ? cache[key] : null;
+  let r;
+  try {
+    r = await api(`/api/strategies/${encodeURIComponent(key)}/meta`
+      + (have && have.version ? `?v=${encodeURIComponent(have.version)}` : ""));
+  } catch (e) { if (have) return have; throw e; }
+  if (r.unchanged && have) return have;
+  delete r.strategy; delete r.unchanged;
+  cache[key] = Object.assign(cache[key] || {}, r);
+  return cache[key];
+}
+
+async function setStrategy(key) {
+  const sm = await ensureStrategyMeta(key);
   if (!sm) return;
   state.strategy = key;
   Object.assign(state.meta, sm);
@@ -30,7 +50,7 @@ function fillSettings() {
   const ss = $("#strategy"); ss.innerHTML = "";
   for (const s of state.meta.strategies) { const o = document.createElement("option"); o.value = s.key; o.textContent = s.title; ss.append(o); }
   ss.onchange = async () => {
-    setStrategy(ss.value);
+    await setStrategy(ss.value);
     const f = $("#filter-strategy");
     if (f && f.value) { f.value = ss.value; historyPage.offset = 0; }
     fillAnalyticsStrategy(ss.value);
@@ -294,7 +314,7 @@ async function saveProfile(what, msg) {
       if (!/už existuje/.test(e.message) || !confirm(`${e.message}. Prepísať ho?`)) throw e;
       r = await api("/api/profiles", { method: "POST", body: JSON.stringify({ ...body, overwrite: true }) });
     }
-    if (r.strategy && r.strategy !== state.strategy) { setStrategy(r.strategy); }
+    if (r.strategy && r.strategy !== state.strategy) { await setStrategy(r.strategy); }
     await applyProfileList(r, r.name);
     msg.textContent = `uložené ako ${r.name} — formulár teraz vychádza z neho, do gitu ide cez Push`;
   } catch (e) { msg.textContent = ""; profileFailed(e, msg); }
@@ -492,8 +512,10 @@ function timerange() {
  *  samo) — patria do priečinka SMERNICE celkom hore a ukazujú len tieto profily. */
 const SMERNICE_PREFIX = "PRESIEL_SMERNICAMI_";
 function smerniceKeys() {
+  // zo servera (/api/meta) + čo pribudlo v tejto relácii (profily dotiahnutých stratégií)
   const sm = (state.meta && state.meta.strategy_meta) || {};
-  return new Set(Object.keys(sm).filter(k => (sm[k].profiles || []).some(p => p.startsWith(SMERNICE_PREFIX))));
+  return new Set([...(state.meta && state.meta.smernice_strategies) || [],
+    ...Object.keys(sm).filter(k => (sm[k].profiles || []).some(p => p.startsWith(SMERNICE_PREFIX)))]);
 }
 function inSmernice(key) { return smerniceKeys().has(key); }
 /** Nové stratégie (práve pridané / v teste podľa smernice). Keď prejdú, presunú sa samy do SMERNICE. */

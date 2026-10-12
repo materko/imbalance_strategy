@@ -9,11 +9,15 @@ from fastapi.responses import HTMLResponse
 
 from tradebot.strategies import STRATEGIES
 
-from .. import gitsync
+from .. import gitsync, profiles as user_profiles
 from ... import engines
 from ..runner import available_pairs
 from .common import STATIC, SECONDS_PER_YEAR, asset_version, current_user
 from .context import AppContext
+
+
+#: Prefix profilov, ktoré prešli smernicou (ten istý ako `SMERNICE_PREFIX` v settings.js).
+SMERNICE_PREFIX = "PRESIEL_SMERNICAMI_"
 
 
 def build(ctx: AppContext) -> APIRouter:
@@ -34,6 +38,21 @@ def build(ctx: AppContext) -> APIRouter:
         html = re.sub(r'src="(/static/js/[^"?]+\.js)"', lambda m: f'src="{m.group(1)}?v={v}"', html)
         return HTMLResponse(html, headers={"Cache-Control": "no-cache, must-revalidate"})
 
+    @router.get("/api/strategies/{key}/meta")
+    def strategy_meta_one(key: str, v: str = ""):
+        """Metadáta formulára jednej stratégie: parametre, defaulty a profily (aj vlastné) a ich
+        `version`. Stránka sa pýta pri každom prepnutí stratégie a posiela verziu, ktorú má
+        (`?v=`); keď sa nič nezmenilo, dostane len `{"unchanged": true}` a nič sa neskladá."""
+        from tradebot.strategies import canonical_key
+
+        k = canonical_key(key) or ""
+        if k not in STRATEGIES:
+            raise HTTPException(404, f"neznáma stratégia {key!r}")
+        version = ctx.strategy_meta_version(k)
+        if v and v == version:
+            return {"strategy": k, "version": version, "unchanged": True}
+        return {"strategy": k, "version": version, **strategy_meta(k)}
+
     @router.get("/api/strategies/{key}/explainer")
     def explainer(key: str):
         """Vysvetlivka stratégie pre laika (Markdown) — okno „Ako funguje?" vo formulári."""
@@ -47,11 +66,15 @@ def build(ctx: AppContext) -> APIRouter:
     @router.get("/api/meta")
     def meta():
         pairs = available_pairs()
-        by_key = {key: strategy_meta(key) for key in STRATEGIES}
+        # Parametre a profily stratégií sa tu neposielajú (stovky profilov × desiatky stratégií
+        # = sekundy a megabajty pri každom načítaní) — stránka si ich vypýta cez
+        # `/api/strategies/<key>/meta` až pri výbere stratégie; tu je len zoznam a strom.
         return {
             # `params`/`defaults`/`profiles`… na najvyššej úrovni = stratégia "ibs" (spätná
             # kompatibilita pre CLI a testy); stránka pracuje so `strategy_meta[key]`.
-            **by_key["ibs"],
+            **strategy_meta("ibs"),
+            # Stratégie s profilom, ktorý prešiel smernicou — priečinok SMERNICE vo výbere stratégie.
+            "smernice_strategies": user_profiles.strategies_with_prefix(SMERNICE_PREFIX),
             "strategies": [spec.public() for spec in STRATEGIES.values()],
             "exchanges": [{"key": e, "title": engines.EXCHANGE_TITLES.get(e, e)}
                           for e in engines.EXCHANGES],
@@ -59,7 +82,6 @@ def build(ctx: AppContext) -> APIRouter:
             # Strop mriežky a cena jedného roka behu — stránka z toho poskladá odhad času.
             "max_sweep_runs": MAX_SWEEP_RUNS,
             "sweep_seconds_per_year": SECONDS_PER_YEAR,
-            "strategy_meta": by_key,
             "pairs": pairs,
             "user": current_user(),
             "branch": gitsync.branch(),

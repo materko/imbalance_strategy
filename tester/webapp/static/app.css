@@ -490,6 +490,12 @@ header .who { background: #203e48; border-color: #38535d; color: #eef7f8; }
 header .git button { color: #dcecee; border-color: #3d5962; border-radius: 8px; }
 header .git .muted { color: #a2bec6; }
 header .chip { background: #244650; color: #8ee2d3; }
+/* Stav pri záložke (Hub: spojenie agenta, Live: či niečo beží) — zelená / oranžová / červená / sivá. */
+.tab-dot { display: inline-block; width: 8px; height: 8px; margin-right: 7px; border-radius: 50%; background: #5b737a; vertical-align: 1px; }
+.tab-dot[hidden] { display: none; }
+.tab-dot.ok { background: #34d399; box-shadow: 0 0 6px #34d39999; }
+.tab-dot.warn { background: #f5b94a; }
+.tab-dot.bad { background: #ff5a68; }
 .theme-switch button { color: #aac3ca; border: 1px solid transparent; background: transparent; }
 .theme-switch button:hover { color: #edf7f8; border-color: #3d5962; }
 .theme-switch button.active { background: #203e48; color: #edf7f8; border-color: #38535d; }

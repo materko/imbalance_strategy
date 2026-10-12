@@ -34,7 +34,7 @@ async function init() {
   if (systemDark) systemDark.addEventListener("change", () => { if (loadThemePref() === "auto") applyTheme("auto"); });
 
   state.meta = await api("/api/meta");
-  Object.assign(state.meta, strategyMeta(state.strategy) || {});
+  Object.assign(state.meta, (await ensureStrategyMeta(state.strategy).catch(() => null)) || {});
   fillSettings();
   $("#strategy").value = state.strategy;
   renderStrategyPicker();

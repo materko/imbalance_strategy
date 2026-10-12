@@ -280,8 +280,14 @@ def test_meta_carries_every_strategy_and_runs_default_to_ibs(client):
     c, store = client
     m = c.get("/api/meta").json()
     keys = [s["key"] for s in m["strategies"]]
-    assert "ibs" in keys and set(m["strategy_meta"]) == set(keys)
-    ibs = m["strategy_meta"]["ibs"]
+    assert "ibs" in keys and "strategy_meta" not in m   # parametre a profily až na vyžiadanie
+    ibs = c.get("/api/strategies/ibs/meta").json()
+    assert all(c.get(f"/api/strategies/{k}/meta").json()["params"] for k in keys)
+    assert c.get("/api/strategies/neexistuje/meta").status_code == 404
+    # rovnaká verzia → „nič nové" bez dát; iná → celé metadáta
+    v = ibs["version"]
+    assert c.get("/api/strategies/ibs/meta", params={"v": v}).json() == {"strategy": "ibs", "version": v, "unchanged": True}
+    assert "params" in c.get("/api/strategies/ibs/meta", params={"v": "stara"}).json()
     assert len(ibs["params"]) == len(m["params"]) and ibs["defaults"] == m["defaults"]
     assert any(l["id"] == "imb" and l["hollow_kinds"] == ["imb_box"] for l in m["strategies"][keys.index("ibs")]["layers"])
 
@@ -397,9 +403,13 @@ def test_save_run_as_profile_writes_every_field(client, own_profiles):
     rec = _record("20260905-120000-aaaaaa", params={"rrRatio": 5.0})
     rec["settings"]["timeframe"] = "3m"
     store.save(rec)
+    pred = c.get("/api/strategies/ibs/meta").json()["version"]
     r = c.post("/api/profiles", json={"name": "moj_rr5", "from_run": "20260905-120000-aaaaaa",
                                       "note": "RR 5"})
     assert r.status_code == 200 and r.json()["user_profiles"] == ["moj_rr5"]
+    # nový profil = nová verzia metadát: stránka, ktorá posiela starú, dostane nový zoznam
+    po = c.get("/api/strategies/ibs/meta", params={"v": pred}).json()
+    assert po["version"] != pred and "moj_rr5" in po["profiles"]
 
     data = json.loads((own_profiles / "moj_rr5.json").read_text(encoding="utf-8"))
     assert data["_instrument"] == "btcusdt_binance" and data["rrRatio"] == 5.0
@@ -648,7 +658,7 @@ def test_user_profile_belongs_to_its_strategy(client, own_profiles):
     assert "demo_moj" in c.get("/api/profiles", params={"strategy": "demo_breakout"}).json()["profiles"]
     meta = c.get("/api/meta").json()
     assert "demo_moj" not in meta["profiles"]
-    assert "demo_moj" in meta["strategy_meta"]["demo_breakout"]["profiles"]
+    assert "demo_moj" in c.get("/api/strategies/demo_breakout/meta").json()["profiles"]
 
     got = c.get("/api/profiles/demo_moj", params={"strategy": "demo_breakout"}).json()
     assert got["params"]["channelLen"] == 33 and got["kind"] == "user" and got["timeframe"] == "5m"

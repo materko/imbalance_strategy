@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import uuid
 from typing import Any
 
 from fastapi import FastAPI
@@ -34,11 +35,18 @@ class AppContext:
         #: Metadáta formulára stratégie. Parametre a defaulty sú kód (nemenia sa za behu),
         #: zoznam profilov sa číta vždy nanovo — tester si ich cez API ukladá, premenúva a maže.
         self.param_meta = {key: param_metadata(spec) for key, spec in STRATEGIES.items()}
+        #: Identita procesu — časť verzie metadát (nový kód = reštart = iná verzia).
+        self.boot = uuid.uuid4().hex[:8]
     #: Mriežka nemá strop: sweep má zmysel púšťať cez noc alebo na serveri a číslo,
     #: ktoré by sme vymysleli, by len prekážalo. Namiesto obmedzenia dostane tester
     #: odhad času vopred a tlačidlo, ktorým celú mriežku zruší naraz.
     #: `TRADEBOT_MAX_SWEEP_RUNS` strop zapne tomu, kto ho chce (0 = bez stropu).
         self.max_sweep_runs = max(0, int(getenv("MAX_SWEEP_RUNS", "0") or 0))
+
+    def strategy_meta_version(self, key: str) -> str:
+        """Verzia `strategy_meta(key)`: proces (parametre a defaulty sú kód, menia sa reštartom)
+        + odtlačok profilových súborov stratégie."""
+        return f"{self.boot}-{user_profiles.files_version(key)}"
 
     def strategy_meta(self, key: str) -> dict[str, Any]:
         return {

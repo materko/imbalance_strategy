@@ -182,18 +182,25 @@ function liveSetup() {
   };
   // chip pri záložke hneď po štarte — bez otvárania karty
   api("/api/live").then(d => { lv.instances = d.instances; lv.now = d.now; lv.mirror = d.mirror; lv.deploy = d.deploy; liveChip(); }).catch(() => {});
+  // a potom každých 30 s, aj keď je karta zatvorená (otvorenú drží aktuálnu stream)
+  setInterval(() => api("/api/live").then(d => liveChip(d.instances, d.now, d.mirror)).catch(() => liveChip([], 0, { last_error: "webapp neodpovedá" })), 30e3);
 }
 
 /** Inštancia je „živá", keď posledná udalosť nie je staršia než 3 bary jej TF. */
-function liveAlive(inst) {
+function liveAlive(inst, now = lv.now) {
   const tf = Math.max(1, Number(inst.tf) || 1);
-  return inst.last_t && (lv.now - inst.last_t) <= 3 * tf * 60e3;
+  return inst.last_t && (now - inst.last_t) <= 3 * tf * 60e3;
 }
 
-function liveChip() {
-  const n = lv.instances.filter(liveAlive).length;
+/** Bodka a počet živých pri záložke Live; bez argumentov zo stavu karty. */
+function liveChip(list = lv.instances, now = lv.now, mirror = lv.mirror) {
+  const n = list.filter(i => liveAlive(i, now)).length;
+  const chyba = mirror && mirror.last_error;
   $("#live-tab-chip").textContent = n ? String(n) : "";
   $("#live-tab-chip").className = `chip ${n ? "ok" : ""}`;
+  const dot = $("#live-tab-dot");
+  dot.className = `tab-dot ${chyba ? "bad" : (n ? "ok" : "")}`;
+  dot.title = chyba ? `zrkadlo: ${chyba}` : (n ? `beží ${n} z ${list.length}` : "nič nebeží");
 }
 
 async function loadLive() {
@@ -311,7 +318,9 @@ function liveStatusChip(inst) {
 
 function renderLiveList() {
   const list = lv.instances;
-  $("#live-count").textContent = list.length ? String(list.length) : "";
+  const alive = list.filter(i => liveAlive(i)).length;
+  $("#live-count").textContent = list.length ? `${alive} živ${alive === 1 ? "á" : (alive >= 2 && alive <= 4 ? "é" : "ých")} z ${list.length}` : "";
+  $("#live-count").className = `chip ${alive ? "ok" : ""}`;
   $("#live-empty").hidden = !!list.length;
   $("#live-table").parentElement.hidden = !list.length;
   $("#live-table tbody").innerHTML = list.map(i => {
@@ -619,9 +628,16 @@ function ldCodeUpdateCell(a) {
   return `${caka}<span class="chip bad" title="${esc(cu.error || "")}">${esc(ver)} chyba: ${esc((cu.error || "").slice(0, 80))}</span>`;
 }
 
+/** Agenti, ktorí vedia live: majú aspoň jeden driver platformy (NinjaTrader, MT5). Agent bez
+ *  platformy (napr. server, ktorý len počíta backtesty) účet ani nasadenie mať nemôže. */
+function ldLiveAgents() {
+  return ld.agents.filter(a => a.live && a.live.drivers && a.live.drivers.length)
+    .sort((a, b) => (b.online - a.online) || a.name.localeCompare(b.name));
+}
+
 /** Tabuľka strojov (agentov): kód agenta, kód platforiem proti webapp, tlačidlo „Aktualizovať kód“. */
 function renderLiveAgents() {
-  const agents = ld.agents.slice().sort((a, b) => (b.online - a.online) || a.name.localeCompare(b.name));
+  const agents = ldLiveAgents();
   $("#ld-ag-count").textContent = agents.length ? String(agents.length) : "";
   $("#ld-ag-empty").hidden = !!agents.length;
   $("#ld-agents").parentElement.hidden = !agents.length;
@@ -786,11 +802,11 @@ function ldFillFormSelects() {
     || `<option value="">— najprv pridaj účet —</option>`;
   if (curA && ld.accounts.some(a => a.id === curA)) selA.value = curA;
   selA.onchange = () => ldCodeHint();
-  // agent do „Pridať účet": online prví; platformy z ich driverov
+  // agent do „Pridať účet": len tí s platformou, online prví; platformy z ich driverov
   const selAg = $("#ld-a-agent"), curAg = selAg.value;
-  const agents = ld.agents.slice().sort((a, b) => (b.online - a.online) || a.name.localeCompare(b.name));
+  const agents = ldLiveAgents();
   selAg.innerHTML = agents.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.online ? "" : " (offline)"}${a.live && a.live.drivers && a.live.drivers.length ? " · " + esc(a.live.drivers.join(", ")) : ""}</option>`).join("")
-    || `<option value="">— žiadny agent na hube —</option>`;
+    || `<option value="">— žiadny agent s NinjaTraderom / MT5 —</option>`;
   if (curAg && agents.some(a => a.name === curAg)) selAg.value = curAg;
   const drivers = new Set(); for (const a of agents) for (const d of (a.live && a.live.drivers) || []) drivers.add(d);
   $("#ld-a-platforms").innerHTML = [...drivers].map(d => `<option value="${esc(d)}">`).join("");

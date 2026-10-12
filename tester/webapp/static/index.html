@@ -25,8 +25,8 @@
     <button data-view="new" class="active">Nový beh</button>
     <button data-view="history">História</button>
     <button data-view="analytics">Analytika</button>
-    <button data-view="hub" id="tab-hub">Hub <span id="hub-tab-chip" class="chip"></span></button>
-    <button data-view="live" id="tab-live" title="Telemetria zo spustených stratégií (NinjaTrader 8, MetaTrader 5)">Live <span id="live-tab-chip" class="chip"></span></button>
+    <button data-view="hub" id="tab-hub"><span id="hub-tab-dot" class="tab-dot" hidden></span>Hub <span id="hub-tab-chip" class="chip"></span></button>
+    <button data-view="live" id="tab-live" title="Telemetria zo spustených stratégií (NinjaTrader 8, MetaTrader 5)"><span id="live-tab-dot" class="tab-dot"></span>Live <span id="live-tab-chip" class="chip"></span></button>
   </nav>
   <div class="git">
     <input id="who" class="who" type="text" maxlength="80" placeholder="meno testera" title="Meno testera – ukladá sa ku každému behu a ako autor commitu. Drží sa v tomto prehliadači.">
@@ -352,7 +352,7 @@
 
 <main id="view-live" class="view single" hidden>
   <div id="live-list" class="card">
-    <h2>Bežiace stratégie <span id="live-count" class="chip"></span></h2>
+    <h2>Stratégie na platformách <span id="live-count" class="chip" title="živé (udalosť do 3 barov) / všetky inštancie v zrkadle"></span></h2>
     <p class="mode-hint">Stratégia s C# jadrom (NinjaTrader 8, MetaTrader 5) píše bary, zámery enginu,
       kresby a vyplnenia do lokálneho spoolu; agent hubu ich posiela na hub a táto webapp si ich
       odtiaľ zrkadlí (keď beží na obchodnom PC, číta spool aj priamo). Fáza 1 podľa docs/LIVE.md;
@@ -443,7 +443,7 @@
         MT5 terminály zavrie a po inštalácii ich reštartuje, NinjaTrader prekompiluje cez F5 v NinjaScript Editore
         (NT musí bežať, prihlásený človekom). Prejde, len keď sú všetky nasadenia stroja v pauze/flatten a bez
         pozície — inak je stav „blokované“ a treba flatten, alebo „aj s otvorenými pozíciami“.</p>
-      <div id="ld-ag-empty" class="muted" hidden>Žiadny agent na hube.</div>
+      <div id="ld-ag-empty" class="muted" hidden>Žiadny agent s NinjaTraderom ani MT5 (agenti bez platformy sa tu neukazujú).</div>
       <div class="scroll"><table id="ld-agents" class="runs"><thead><tr>
         <th>agent</th><th>stav</th><th title="commit, na ktorom beží agent (git HEAD klonu)">kód agenta</th>
         <th title="kód na platforme podľa installed.json proti commitu tejto webapp">platformy</th>

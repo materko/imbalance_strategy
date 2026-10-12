@@ -25,7 +25,8 @@ function fillAnalyticsStrategy(key = "") {
     for (const s of state.meta.strategies || []) {
       const o = document.createElement("option"); o.value = s.key; o.textContent = s.title; sel.append(o);
     }
-    sel.onchange = () => {
+    sel.onchange = async () => {
+      await ensureStrategyMeta(anStrategy()).catch(() => null);   // profily tej stratégie, aj zmenené
       $("#an-summary").innerHTML = ""; $("#an-result").innerHTML = "";
       state.analytics = null; showPosudok(null);
       $("#an-paper").disabled = true; $("#an-save").disabled = true;
@@ -40,7 +41,12 @@ function fillAnalyticsStrategy(key = "") {
 function fillAnalyticsProfile() {
   const sel = $("#an-profile");
   if (!sel) return;
-  const meta = strategyMeta(anStrategy()) || state.meta;
+  const sm = strategyMeta(anStrategy());
+  if (!(sm && sm.profiles) && strategySpec(anStrategy())) {
+    ensureStrategyMeta(anStrategy()).then(fillAnalyticsProfile).catch(() => {});
+    return;
+  }
+  const meta = sm || state.meta;
   const own = new Set(meta.user_profiles || []);
   const info = meta.profile_info || {};
   const keep = sel.value;

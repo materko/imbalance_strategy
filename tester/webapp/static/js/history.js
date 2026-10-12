@@ -114,7 +114,7 @@ async function openRun(id) {
   $("#runs-table").parentElement.parentElement.hidden = true;
   $("#run-detail").hidden = false;
   const runStrategy = rec.settings.strategy || "ibs";
-  const runMeta = strategyMeta(runStrategy) || state.meta;
+  const runMeta = (await ensureStrategyMeta(runStrategy).catch(() => null)) || state.meta;
   $("#detail-title").textContent = `${(strategySpec(runStrategy) || {}).title || runStrategy} · ${rec.settings.pair} · ${rec.settings.timeframe || "3m"} · ${rec.settings.timerange}`;
   $("#detail-meta").textContent = `${rec.id} · ${rec.user || ""} · ${(rec.created || "").replace("T", " ").slice(0, 16)} · profil ${rec.settings.profile || "(Pine)"} · poplatok ${rec.settings.fee != null ? (rec.settings.fee * 100).toFixed(3) + " %" : "—"} · peňaženka ${rec.settings.wallet} · engine ${rec.settings.engine || "freqtrade"}${rec.settings.exchange ? " (" + rec.settings.exchange + ")" : ""} · detail ${rec.settings.timeframe_detail || "bez"}${rec.note ? " · " + rec.note : ""}`;
   // Beh z mriežky sa dá otvoriť aj z histórie, takže musí byť vidieť, že je jej súčasťou

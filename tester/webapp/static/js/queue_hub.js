@@ -86,6 +86,24 @@ async function hubSetup() {
   $("#hub-cfg-remove").onclick = removeHubConfig;
   applyHubConfig(h);
   renderHubAgent(h);
+  // bodka pri záložke sa obnovuje aj pri zatvorenej karte
+  setInterval(() => api("/api/hub").then(hubDot).catch(() => hubDot(null)), 30e3);
+}
+
+/** Bodka pri záložke Hub: zelená = agent je na hube prihlásený, oranžová = pripája sa / nebeží,
+ *  červená = bez spojenia; bez nastaveného hubu sa neukazuje (chip hovorí „nastaviť"). */
+function hubDot(h) {
+  const dot = $("#hub-tab-dot");
+  if (h && !h.configured) { dot.hidden = true; return; }
+  const a = h && h.agent;
+  let cls, title;
+  if (!h) { cls = "bad"; title = "webapp neodpovedá"; }
+  else if (!a) { cls = "warn"; title = "agent nebeží — reštartuj webapp"; }
+  else if (a.last_error || h.error) { cls = "bad"; title = `bez spojenia: ${a.last_error || h.error}`; }
+  else if (a.updating) { cls = "warn"; title = "agent ťahá kód"; }
+  else if (a.registered) { cls = "ok"; title = `online · ${h.config.hub_url}`; }
+  else { cls = "warn"; title = "pripája sa"; }
+  dot.hidden = false; dot.className = `tab-dot ${cls}`; dot.title = title;
 }
 
 /** Nastavenie z /api/hub do formulára a prepínač „na hube" podľa `send`. */
@@ -146,6 +164,7 @@ function renderHubAgent(h) {
   $("#hub-agent-send").textContent = cfg.send ? "posiela" : "neposiela";
   $("#hub-agent-send").className = `chip ${cfg.send ? "ok" : ""}`;
   $("#hub-agent-version").textContent = a && a.version ? a.version : "";
+  hubDot(h);
   const chip = $("#hub-agent-chip");
   if (!a) { chip.textContent = "agent nebeží"; chip.className = "chip warn"; }
   else if (a.last_error) { chip.textContent = "bez spojenia"; chip.className = "chip bad"; }
