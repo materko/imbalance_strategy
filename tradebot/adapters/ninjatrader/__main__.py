@@ -335,6 +335,22 @@ def nt_running_pid() -> int | None:
 PYWINAUTO_REQ = "pywinauto>=0.6.8"
 
 
+def _reload_site_paths() -> None:
+    """Po `pip install` v bežiacom procese: pywin32 (závislosť pywinauto) pridáva `win32`, `win32\\lib` a
+    `pywin32_system32` cez `pywin32.pth`, ktorý Python spracuje len pri štarte — `site.addsitedir` ho spracuje
+    teraz (inak `No module named 'win32api'` až do reštartu agenta). Napoly načítané moduly sa zahodia."""
+    import site
+
+    dirs = list(site.getsitepackages()) if hasattr(site, "getsitepackages") else []
+    for d in dirs:
+        if Path(d).is_dir():
+            site.addsitedir(d)
+    for name in [m for m in sys.modules if m.split(".")[0] in ("pywinauto", "win32api", "win32con", "win32gui",
+                                                                "pywintypes", "pythoncom", "comtypes")]:
+        sys.modules.pop(name, None)
+    importlib.invalidate_caches()
+
+
 def _pywinauto_app(install: Callable[[list[str]], Any] | None = None) -> tuple[Any, str | None]:
     """`pywinauto.Application`; keď chýba, raz ho `pip install` do prostredia agenta (stroj s NT ho potrebuje
     na F5 a nikto ho tam nemusí inštalovať ručne). `(None, chyba)`, keď to nejde."""
@@ -353,7 +369,7 @@ def _pywinauto_app(install: Callable[[list[str]], Any] | None = None) -> tuple[A
     if getattr(r, "returncode", 1) != 0:
         tail = ((getattr(r, "stderr", "") or "") + (getattr(r, "stdout", "") or "")).strip()[-300:]
         return None, f"pywinauto nie je nainštalované a `pip install {PYWINAUTO_REQ}` zlyhal: {tail}"
-    importlib.invalidate_caches()
+    _reload_site_paths()
     try:
         from pywinauto import Application  # type: ignore[import-not-found]
 
