@@ -21,7 +21,7 @@ from typing import Any
 
 from tradebot.core.paths import REPO
 
-__all__ = ["version", "has_version", "is_ancestor", "pull", "dirty_code"]
+__all__ = ["version", "has_version", "is_ancestor", "on_remote", "pull", "dirty_code"]
 
 #: Čo sa nepovažuje za kód: história behov, profily a analytiky testera idú cez Push.
 _DATA_PREFIXES = ("tester/runs/", "tester/profiles/", "tester/analytics/", "data_archive/", "docs/")
@@ -62,6 +62,25 @@ def is_ancestor(older: str | None, newer: str | None) -> bool:
     except (OSError, subprocess.SubprocessError):
         return False
     return r.returncode == 0
+
+
+def on_remote(commit: str | None, fetch: bool = True) -> bool | None:
+    """Je `commit` na GitHube (v `origin/<vetva>`)? Agent si cieľ aktualizácie ťahá odtiaľ — commit,
+    ktorý je len v tomto klone, si nestiahne. `fetch` najprv obnoví `origin/<vetva>`; `None` = nevedno
+    (mimo gitu, bez `origin`)."""
+    if not commit:
+        return None
+    from tradebot.core.env import getenv
+
+    br = getenv("GIT_BRANCH", "").strip() or "main"
+    try:
+        if fetch:
+            _git("fetch", "--quiet", "origin", br)
+        if _git("rev-parse", "--verify", "--quiet", f"origin/{br}").returncode != 0:
+            return None
+        return _git("merge-base", "--is-ancestor", commit, f"origin/{br}").returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return None
 
 
 def pull_enabled() -> bool:

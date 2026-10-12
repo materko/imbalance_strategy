@@ -127,4 +127,6 @@ class StrategySpec:
             "layers": [layer.to_dict() for layer in self.layers],
             "kind_titles": dict(self.kind_titles),
             "has_explainer": self.explainer_path.is_file(),
+            # live (NinjaTrader, MT5) beží len C# jadro — pythonová stratégia sa dá nasadiť až po porte
+            "csharp": self.csharp_dir is not None,
         }

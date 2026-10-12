@@ -351,8 +351,9 @@ class LiveDeploymentRequest(BaseModel):
     terminal: str = ""
     portable: bool = False
     strategy: str
-    symbol: str
-    tf: int
+    #: Prázdny symbol / TF 0 = z profilu (`_instrument`, `_timeframe`) — `tradebot.live.symbols`.
+    symbol: str = ""
+    tf: int = 0
     profile: str = ""
     config: dict[str, Any] | None = None
     #: Nové nasadenie štartuje pauznuté; formulár „Nasadiť“ to smie prebiť (`enabled`).
@@ -438,8 +439,31 @@ def build(ctx: AppContext) -> APIRouter:
         from ...hub import config as hub_config, gitcode
 
         cfg = hub_config.load()
+        verzia = gitcode.version() or None
         return {"configured": cfg is not None, "hub_url": cfg.hub_url if cfg else None,
-                "admin": bool(cfg and cfg.admin_token), "version": gitcode.version() or None}
+                "admin": bool(cfg and cfg.admin_token), "version": verzia, "pushed": _pushed(verzia)}
+
+    pushed_cache: dict[str, Any] = {"version": None, "ts": 0.0, "value": None}
+
+    def _pushed(version: str | None, fetch: bool = False) -> bool | None:
+        """Je commit webapp na GitHube? Bez `fetch` z lokálneho `origin/main` (stav ide v každej SSE
+        správe — cache 60 s); s `fetch` overí naostro (pred aktualizáciou kódu na stroji)."""
+        from ...hub import gitcode
+
+        now = time.time()
+        if not fetch and pushed_cache["version"] == version and now - pushed_cache["ts"] < 60:
+            return pushed_cache["value"]
+        value = gitcode.on_remote(version, fetch=fetch)
+        pushed_cache.update(version=version, ts=now, value=value)
+        return value
+
+    def _not_pushed(version: str | None) -> str | None:
+        """Cieľ aktualizácie, ktorý je len v tomto klone, agent nestiahne („klon nemá commit … ani po
+        git pull“) — povedať to hneď, nie poslať cieľ, ktorý nemôže prejsť."""
+        if version and _pushed(version, fetch=True) is False:
+            return (f"commit {version} (táto webapp) nie je na GitHube — stroj si ho pri aktualizácii "
+                    f"nestiahne. Najprv ho pushni (`git push origin main`), potom „Aktualizovať kód“.")
+        return None
 
     def _version() -> str | None:
         """Commit tejto webapp — ide k nasadeniu (`version`) a je cieľom „Aktualizovať kód“."""
@@ -511,6 +535,9 @@ def build(ctx: AppContext) -> APIRouter:
         keď ho požiadavka nenesie."""
         http = _hub_http(admin=True)
         body = {"version": req.version or _version(), "force": bool(req.force)}
+        chyba = _not_pushed(body["version"])
+        if chyba:
+            raise HTTPException(409, chyba)
         return _via_hub(lambda: http.post(f"/api/live/agents/{name}/update?by={_by(req.user)}", body))
 
     @router.delete("/api/live/agents/{name}/update")
@@ -523,6 +550,61 @@ def build(ctx: AppContext) -> APIRouter:
         """Profily stratégie (repozitár + vlastné) do výberu pri nasadení — ako formulár behu."""
         key = _strategy(strategy)
         return {"strategy": key, "profiles": list_profiles(key), "profile_titles": profile_titles(key)}
+
+    def _profile_meta(strategy: str, profile: str) -> dict[str, Any]:
+        """`_instrument` a `_timeframe` profilu (repozitár aj vlastný); bez profilu prázdne."""
+        from ..repo_profiles import profiles as prof
+
+        path = prof.all_paths(strategy).get(profile) if profile else None
+        try:
+            return json.loads(path.read_text(encoding="utf-8")) if path else {}
+        except (OSError, ValueError):
+            return {}
+
+    def _defaults(http: Any, account: str, strategy: str, profile: str) -> dict[str, Any]:
+        """Symbol a TF z profilu pre platformu účtu; symbol radšej ten, čo už na účte beží."""
+        from tradebot.live.symbols import deploy_defaults
+
+        acc = _via_hub(lambda: http.get(f"/api/live/accounts/{account}")) if account else {}
+        deps = _via_hub(lambda: http.get(f"/api/live/deployments?account={account}")) if account else []
+        meta = _profile_meta(strategy, profile)
+        out = deploy_defaults(str((acc or {}).get("platform") or ""), meta.get("_instrument"), meta.get("_timeframe"),
+                              existing=[d.get("symbol") for d in deps or [] if isinstance(d, dict)])
+        out["platform"] = (acc or {}).get("platform")
+        return out
+
+    @router.get("/api/live/deploy-defaults")
+    def live_deploy_defaults(account: str = "", strategy: str = "", profile: str = ""):
+        """Čo „Nasadiť“ doplní, keď symbol / TF ostanú prázdne (placeholder formulára)."""
+        return _defaults(_hub_http(), account, _strategy(strategy), profile)
+
+    def _auto_update(http: Any, dep: dict[str, Any], user: str | None) -> dict[str, Any]:
+        """Po nasadení: keď stroj nemá na platforme účtu kód nasadenia (`code_state` ≠ ok — starší commit,
+        alebo installed.json chýba a stratégiu ani nemusí mať), hub dostane `code_target` sám. Bez iných
+        aktívnych nasadení na stroji ide s `force` (nové štartuje pauznuté a nikdy nebežalo — niet čo
+        chrániť, a brána starého agenta by ho pre chýbajúci spool blokovala); inak cez bránu agenta."""
+        cs = dep.get("code_state") or {}
+        version = dep.get("version") or _version()
+        if cs.get("state") == "ok" or not version or not dep.get("agent"):
+            return {"requested": False, "reason": "kód na stroji je aktuálny"}
+        name = dep["agent"]
+        try:
+            agents = _via_hub(lambda: http.get("/api/agents")) or []
+            agent = next((a for a in agents if isinstance(a, dict) and a.get("name") == name), None)
+            cielovy = (agent or {}).get("code_target") or {}
+            if cielovy.get("version") and str(cielovy["version"])[:7] == str(version)[:7]:
+                return {"requested": False, "reason": f"stroj {name} už čaká na {str(version)[:7]}"}
+            chyba = _not_pushed(version)
+            if chyba:
+                return {"requested": False, "error": chyba}
+            ine = [d for d in _via_hub(lambda: http.get(f"/api/live/deployments?agent={name}")) or []
+                   if isinstance(d, dict) and d.get("active") and d.get("id") != dep.get("id")]
+            body = {"version": version, "force": not ine}
+            _via_hub(lambda: http.post(f"/api/live/agents/{name}/update?by={_by(user)}", body))
+        except HTTPException as exc:
+            return {"requested": False, "error": f"hub: {exc.detail}"}
+        return {"requested": True, "version": version, "force": body["force"], "agent": name,
+                "from": cs.get("installed"), "state": cs.get("state")}
 
     @router.get("/api/live/accounts")
     def live_accounts(agent: str = ""):
@@ -560,10 +642,21 @@ def build(ctx: AppContext) -> APIRouter:
         http = _hub_http(admin=True)
         strategy = _strategy(req.strategy)
         config = req.config if isinstance(req.config, dict) and req.config else _config_of(strategy, req.profile)
+        symbol, tf = req.symbol.strip(), int(req.tf or 0)
+        if not symbol or tf < 1:
+            dflt = _defaults(http, req.account, strategy, req.profile)
+            if not symbol and not dflt["symbol"]:
+                raise HTTPException(422, f"symbol: {dflt['symbol_error']}")
+            if tf < 1 and not dflt["tf"]:
+                raise HTTPException(422, dflt["tf_error"])
+            symbol, tf = symbol or dflt["symbol"], tf if tf >= 1 else dflt["tf"]
         body = {"account": req.account, "agent": req.agent.strip(), "terminal": req.terminal.strip(),
-                "portable": bool(req.portable), "strategy": strategy, "symbol": req.symbol.strip(), "tf": req.tf,
+                "portable": bool(req.portable), "strategy": strategy, "symbol": symbol, "tf": tf,
                 "profile": req.profile, "config": config, "mode": req.mode, "version": _version()}
-        return _via_hub(lambda: http.post(f"/api/live/deployments?by={_by(req.user)}", body))
+        dep = _via_hub(lambda: http.post(f"/api/live/deployments?by={_by(req.user)}", body))
+        if isinstance(dep, dict):
+            dep["code_update"] = _auto_update(http, dep, req.user)
+        return dep
 
     @router.patch("/api/live/deployments/{dep_id}")
     def live_deployment_patch(dep_id: str, req: LiveDeploymentPatch):

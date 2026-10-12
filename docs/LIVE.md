@@ -362,9 +362,22 @@ niečo beží, sa pýta, lebo stroje inštancie zastavia a spustia s novým prih
 účet, stratégia, symbol, TF, profil, režim, stav inštancie zo spoolu, drift `config_hash` vs.
 `applied`, posledný bar; tlačidlá pauza/zapnúť/flatten, zmena profilu (výber z profilov stratégie
 alebo úprava parametrov formulárom z `params.py`), odstrániť; „Nasadiť“: účet, stroj (agenti s driverom
-platformy účtu), pri MT5 terminál a portable, stratégia, symbol, TF, profil, režim — predvolene **pauza**, nová stratégia sa zapína až v tabuľke). „Pridať účet“ má
-nepovinné **Id účtu** (placeholder ukazuje slug názvu, ktorý by hub spravil sám). Mutácie idú cez
-webapp na hub s **admin tokenom** (`admin_token` v `tester/agent.json`
+platformy účtu), pri MT5 terminál a portable, stratégia, profil, symbol, TF, režim — predvolene **pauza**, nová stratégia sa zapína až v tabuľke). „Pridať účet“ má
+nepovinné **Id účtu** (placeholder ukazuje slug názvu, ktorý by hub spravil sám).
+
+„Nasadiť“ ponúka **len stratégie s C# jadrom** (`StrategySpec.csharp_dir`, v `/api/meta` príznak `csharp`) —
+NinjaTrader aj MT5 spúšťajú C# engine; pythonová stratégia sa na live dostane až portom do
+`csharp/TradeBot.Strategies`. **Symbol a TF sú nepovinné**: prázdne doplní webapp z profilu
+(`tradebot.live.symbols`, `GET /api/live/deploy-defaults` = placeholder formulára) — TF z `_timeframe`,
+symbol z `_instrument` pre platformu účtu: najprv symbol, ktorý už na tom účte beží s rovnakým základom,
+inak NinjaTrader front-month kvartálneho CME kontraktu (`MNQ 12-26`, roll 8 dní pred tretím piatkom) a
+MT5 meno Dukascopy CFD (`NAS100`, `EURUSD`, `XAUUSD`); keď sa nedá (MT5 + futures z Databento, NT MGC), 422
+s radou zadať ho ručne. Keď stroj po nasadení nemá na platforme účtu jeho kód (`code_state` ≠ `ok`),
+webapp hubu **sama pošle `code_target`** (fáza 2c nižšie) — bez iných aktívnych nasadení na stroji s
+`force` (nové je pauznuté a nebežalo), inak cez bránu agenta; odpoveď nesie `code_update`. Commit, ktorý
+nie je na GitHube (`gitcode.on_remote`), sa ako cieľ neposiela vôbec (agent by ho ani po `git pull`
+nemal) — nasadenie aj „Aktualizovať kód“ to povedia hneď, sekcia Stroje ukáže „nie je na GitHube“.
+Mutácie idú cez webapp na hub s **admin tokenom** (`admin_token` v `tester/agent.json`
 / `TRADEBOT_HUB_ADMIN_TOKEN`); bez neho je karta len na čítanie.
 
 ## Fáza 2c: nový kód na stroji (hub = cieľový commit, agent = inštalácia a preklad)
@@ -412,7 +425,9 @@ stiahne ručne. Cieľ prežije reštart hubu (`state.json`).
 3. **Brána** (`gate_reasons`), preskočí ju len `force`: každé aktívne nasadenie tohto agenta musí byť
    v režime `paused`/`flatten` (posledný `control` v spoole; keď ho spool nemá, to, čo reconciler
    zapísal do control súboru) **a bez pozície** — fills v spoole, `in` − `out` po id cez všetky
-   súbory inštancie (`position_from_spool`). Inštancia bez spoolu = pozícia neznáma = blokované.
+   súbory inštancie (`position_from_spool`). Inštancia bez spoolu = pozícia neznáma = blokované —
+   okrem pauznutej, keď koreň spoolu na stroji existuje (inštancia tam nikdy nič nezapísala, teda
+   nebežala: nové nasadenie, ktoré na svoju stratégiu v novom kóde len čaká).
    Výsledok `blocked` s `reasons` (webapp: „blokované: <dôvod>“); agent to skúša znova každú minútu
    (chybu každých 5 minút), nový cieľ hneď.
 4. **Platformy**: `Driver.install_code(version, účty platformy)` pre každý driver stroja, chyba jedného

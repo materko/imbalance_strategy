@@ -649,6 +649,7 @@ function renderLiveAgents() {
   $("#ld-ag-empty").hidden = !!agents.length;
   $("#ld-agents").parentElement.hidden = !agents.length;
   const mine = lv.deploy && lv.deploy.version ? String(lv.deploy.version) : "";
+  const nepushnute = lv.deploy && lv.deploy.pushed === false;
   $("#ld-agents tbody").innerHTML = agents.map(a => {
     const cs = (a.live && a.live.code_state) || {};
     const platformy = Object.keys(cs).length
@@ -662,6 +663,7 @@ function renderLiveAgents() {
       <td class="ld-actions" style="white-space:nowrap">
         <label class="inline small" title="preskočiť bránu: kód sa vymení, aj keď nasadenia obchodujú alebo majú pozíciu — MT5 terminál sa reštartuje s pozíciou u brokera"><input type="checkbox" class="ld-force"> aj s otvorenými pozíciami</label>
         <button class="small" data-update="1" ${dis} title="nasadiť commit tejto webapp (${esc(mine || "?")}) na platformy stroja">Aktualizovať kód</button>
+        ${nepushnute ? `<span class="chip warn" title="commit ${esc(mine)} je len v tomto klone — agent ho pri aktualizácii zo GitHubu nestiahne; najprv git push origin main">nie je na GitHube</span>` : ""}
         ${a.code_target ? `<button class="small ghost" data-cancel="1" ${ld.admin ? "" : "disabled"} title="stiahnuť cieľ z hubu (čo už agent urobil, ostáva)">zrušiť</button>` : ""}
       </td></tr>`;
   }).join("");
@@ -708,9 +710,10 @@ function ldCodeHint() {
   const mine = lv.deploy && lv.deploy.version ? String(lv.deploy.version) : "";
   const cs = agent && agent.live && agent.live.code_state && agent.live.code_state[acc.platform];
   if (!acc || !agent || !mine || !cs || cs.state === "ok") { box.hidden = true; box.textContent = ""; return; }
-  box.textContent = cs.state === "outdated"
-    ? `Stroj ${name} má na platforme ${acc.platform} kód ${String(cs.installed).slice(0, 7)}, táto webapp je na ${mine.slice(0, 7)} — nasadenie vznikne z novšieho kódu; najprv „Aktualizovať kód“ v sekcii Stroje (nasadiť sa dá aj tak).`
-    : `Stroj ${name} nehlási, z akého commitu je kód na platforme ${acc.platform} (installed.json chýba) — po nasadení zváž „Aktualizovať kód“ v sekcii Stroje.`;
+  const pushnut = lv.deploy && lv.deploy.pushed === false ? ` Commit ${mine.slice(0, 7)} ale nie je na GitHube — stroj si ho nestiahne, najprv git push origin main.` : "";
+  box.textContent = (cs.state === "outdated"
+    ? `Stroj ${name} má na platforme ${acc.platform} kód ${String(cs.installed).slice(0, 7)}, táto webapp je na ${mine.slice(0, 7)} — po nasadení sa kód na stroji aktualizuje sám (stav v sekcii Stroje).`
+    : `Stroj ${name} nehlási, z akého commitu je kód na platforme ${acc.platform} (installed.json chýba) — po nasadení sa kód na stroji aktualizuje sám (stav v sekcii Stroje).`) + pushnut;
   box.hidden = false;
 }
 
@@ -722,7 +725,7 @@ function ldShowPlatform(container, platform) {
 function renderLiveDeploy() {
   const accById = Object.fromEntries(ld.accounts.map(a => [a.id, a]));
   const deps = ld.deployments;
-  const key = JSON.stringify([ld.admin, ld.accounts, Object.keys(ld.profiles), ld.agents, lv.deploy && lv.deploy.version,
+  const key = JSON.stringify([ld.admin, ld.accounts, Object.keys(ld.profiles), ld.agents, lv.deploy && lv.deploy.version, lv.deploy && lv.deploy.pushed,
     deps.map(d => [d.id, d.mode, d.active, d.config_hash, d.profile, d.applied, d.live && d.live.alive, d.live && d.live.last_bar_ms, d.code_state])]);
   const instances = new Set(lv.instances.map(i => i.id));
   if (key !== ld.key) {
@@ -841,13 +844,18 @@ function ldFillFormSelects() {
   selA.innerHTML = ld.accounts.map(a => `<option value="${esc(a.id)}">${esc(a.label)} · ${esc((LD_PLATFORMS[a.platform] || {}).title || a.platform)}</option>`).join("")
     || `<option value="">— najprv pridaj účet —</option>`;
   if (curA && ld.accounts.some(a => a.id === curA)) selA.value = curA;
-  selA.onchange = () => { ldFillAgents(); ldCodeHint(); };
+  selA.onchange = () => { ldFillAgents(); ldCodeHint(); ldFormDefaults(); };
   ldFillAgents();
-  // stratégie z /api/meta
+  // stratégie z /api/meta — na live (NinjaTrader aj MT5) beží len C# jadro
   const selS = $("#ld-d-strategy");
   if (!selS.options.length && state.meta && state.meta.strategies) {
-    selS.innerHTML = state.meta.strategies.map(s => `<option value="${esc(s.key)}">${esc(s.title || s.key)}</option>`).join("");
+    // webapp pred reštartom (starý /api/meta) príznak `csharp` nemá — vtedy všetky
+    const vie = state.meta.strategies.some(s => "csharp" in s);
+    const cs = state.meta.strategies.filter(s => !vie || s.csharp);
+    selS.innerHTML = cs.map(s => `<option value="${esc(s.key)}">${esc(s.title || s.key)}</option>`).join("")
+      || `<option value="">— žiadna stratégia s C# jadrom —</option>`;
     selS.onchange = () => ldFormProfiles();
+    $("#ld-d-profile").onchange = () => ldFormDefaults();
     ldFormProfiles();
   }
   for (const b of ["#ld-d-submit", "#ld-a-submit"]) $(b).disabled = !ld.admin;
@@ -897,6 +905,33 @@ async function ldFormProfiles() {
     const p = await ldLoadProfiles(strategy);
     sel.innerHTML = ldProfileOptions(strategy, p.profiles[0] || "");
   } catch (e) { sel.innerHTML = `<option value="">${esc(e.message)}</option>`; }
+  ldFormDefaults();
+}
+
+/** Symbol a TF z profilu pre platformu účtu — placeholder polí; prázdne pole = toto pôjde na hub. */
+async function ldFormDefaults() {
+  const account = $("#ld-d-account").value, strategy = $("#ld-d-strategy").value, profile = $("#ld-d-profile").value;
+  const sym = $("#ld-d-symbol"), tf = $("#ld-d-tf");
+  const kluc = JSON.stringify([account, strategy, profile]);
+  ld.defaultsKey = kluc;
+  if (!account || !strategy || !profile) { sym.placeholder = tf.placeholder = "z profilu"; sym.title = tf.title = ""; return; }
+  try {
+    const d = await api(`/api/live/deploy-defaults?account=${encodeURIComponent(account)}&strategy=${encodeURIComponent(strategy)}&profile=${encodeURIComponent(profile)}`);
+    if (ld.defaultsKey !== kluc) return;
+    const odkial = { "účet": "už beží na účte", "front-month": "front-month podľa dátumu", "profil": "z inštrumentu profilu" };
+    sym.placeholder = d.symbol ? `${d.symbol} (z profilu)` : "zadaj — z profilu sa nedá";
+    sym.title = d.symbol ? `${d.symbol}: ${odkial[d.symbol_from] || d.symbol_from || ""}${d.instrument ? ` · ${d.instrument}` : ""}` : (d.symbol_error || "");
+    tf.placeholder = d.tf ? `${d.tf} (z profilu)` : "zadaj";
+    tf.title = d.tf ? "" : (d.tf_error || "");
+  } catch (e) { if (ld.defaultsKey === kluc) { sym.placeholder = tf.placeholder = "z profilu"; sym.title = e.message; } }
+}
+
+/** Čo sa stalo s kódom stroja po nasadení (`code_update` z webapp). */
+function ldCodeUpdateNote(cu) {
+  if (!cu) return "";
+  if (cu.requested) return ` · kód na ${cu.agent} sa aktualizuje na ${String(cu.version).slice(0, 7)}${cu.force ? "" : " (brána: ostatné nasadenia stroja musia byť v pauze a bez pozície)"} — stav v sekcii Stroje`;
+  if (cu.error) return ` · kód stroja sa neaktualizoval: ${cu.error}`;
+  return "";
 }
 
 function ldSetupForms() {
@@ -911,10 +946,10 @@ function ldSetupForms() {
         portable: mt5 ? $("#ld-d-portable").checked : false, user: ldUser() };
       if (!body.account) throw new Error("vyber účet");
       if (!body.agent) throw new Error("vyber stroj, na ktorom má stratégia bežať");
-      if (!body.symbol) throw new Error("zadaj symbol");
+      if (!body.strategy) throw new Error("vyber stratégiu s C# jadrom");
       const d = await api("/api/live/deployments", { method: "POST", body: JSON.stringify(body) });
-      $("#ld-d-status").textContent = `nasadené: ${d.instance} na ${d.agent} (agent si to vezme v najbližšom heartbeate${d.mode === "paused" ? "; štartuje pauznuté — zapni v tabuľke" : ""})`;
-      $("#ld-d-symbol").value = "";
+      $("#ld-d-status").textContent = `nasadené: ${d.symbol} ${d.tf}m → ${d.instance} na ${d.agent} (agent si to vezme v najbližšom heartbeate${d.mode === "paused" ? "; štartuje pauznuté — zapni v tabuľke" : ""})${ldCodeUpdateNote(d.code_update)}`;
+      $("#ld-d-symbol").value = ""; $("#ld-d-tf").value = "";
       await loadLiveDeploy();
     } catch (e) { $("#ld-d-error").textContent = e.message; $("#ld-d-error").hidden = false; $("#ld-d-status").textContent = ""; }
     finally { btn.disabled = !ld.admin; }

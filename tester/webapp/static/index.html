@@ -398,12 +398,14 @@
             <input id="ld-d-terminal" placeholder="C:\MT5\IC\terminal64.exe"></label>
           <label class="field inline-check" data-ld-only="mt5"><input type="checkbox" id="ld-d-portable"> portable inštancia terminálu</label>
           <div id="ld-d-terminal-hint" class="span2 muted small" hidden></div>
-          <label class="field">Stratégia<select id="ld-d-strategy"></select></label>
-          <label class="field">Symbol<span class="hint">tak, ako ho pozná platforma (MT5 <code>NAS100</code>, NT <code>MNQ 12-26</code>)</span>
-            <input id="ld-d-symbol" placeholder="NAS100"></label>
-          <label class="field">TF (min)<input id="ld-d-tf" type="number" min="1" step="1" value="3"></label>
+          <label class="field">Stratégia<span class="hint">len stratégie s C# jadrom — NinjaTrader aj MT5 spúšťajú C# engine; pythonová stratégia sa na live dostane až portom do <code>csharp/TradeBot.Strategies</code></span>
+            <select id="ld-d-strategy"></select></label>
           <label class="field">Profil<span class="hint">snímka profilu (repozitár aj vlastné) sa uloží k nasadeniu ako config; agent ju zapíše na platformu</span>
             <select id="ld-d-profile"></select></label>
+          <label class="field">Symbol <span class="muted small">(nepovinné)</span><span class="hint">prázdne = z profilu: symbol, ktorý už na účte beží, inak NT front-month (<code>MNQ 12-26</code>) / MT5 meno CFD (<code>NAS100</code>)</span>
+            <input id="ld-d-symbol" placeholder="z profilu"></label>
+          <label class="field">TF (min) <span class="muted small">(nepovinné)</span><span class="hint">prázdne = <code>_timeframe</code> profilu</span>
+            <input id="ld-d-tf" type="number" min="1" step="1" placeholder="z profilu"></label>
           <label class="field">Režim<span class="hint">nová stratégia štartuje pauznutá — zapni ju v tabuľke (control súbor je na disku skôr, než platforma inštanciu spustí)</span>
             <select id="ld-d-mode"><option value="paused" selected>pauza (predvolené)</option><option value="enabled">obchoduje hneď</option></select></label>
           <div id="ld-d-code-hint" class="span2 muted small" hidden></div>

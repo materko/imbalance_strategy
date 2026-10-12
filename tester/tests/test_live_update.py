@@ -125,6 +125,11 @@ def test_position_from_spool_a_brana(tmp_path: Path):
     assert len(r) == 1 and "obchoduje" in r[0] and "enabled" in r[0]
     r = gate_reasons([dep("d1")], [], [tmp_path / "nie"])                                   # bez spoolu: režim z hubu, pozícia neznáma
     assert len(r) == 1 and "neznáma" in r[0]
+    # spool stroja je, len inštancia v ňom nie je: pauznutá ešte nebežala (nové nasadenie) — neblokuje;
+    # obchodujúca áno (režim), aj bez spoolu
+    assert gate_reasons([dep("d1", instance="nova")], [], [root]) == []
+    r = gate_reasons([dep("d1", instance="nova", mode="enabled")], [], [root])
+    assert len(r) == 2 and "obchoduje" in r[0] and "neznáma" in r[1]
     # spool bez `control` udalosti: režim z toho, čo reconciler zapísal, inak z nasadenia
     assert gate_reasons([dep("d1", mode="enabled")], [{"instance": INST_MT5, "mode": None}], [root],
                         applied={"d1": {"mode": "paused"}}) == []

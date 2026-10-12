@@ -495,7 +495,9 @@ class _FakeDeployHub:
         self.deployments = [{"id": "d1", "account": "ic", "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p",
                              "config": {"rrRatio": 3.0}, "config_hash": "h", "mode": "enabled", "active": True,
                              "instance": "mt5_1-S_NAS100_3m_ibsnet", "agent": "trade-pc", "applied": None,
-                             "live": {"seen": False, "alive": False}}]
+                             "live": {"seen": False, "alive": False},
+                             "code_state": {"installed": "abc1234", "state": "ok"}}]
+        self.code_target: dict | None = None
 
     def handler(self, method: str, path: str, token: str, body: dict | None):
         from tester.hub.client import HubError
@@ -509,15 +511,16 @@ class _FakeDeployHub:
             name = path.split("/")[4]
             if name == "nikto":
                 raise HubError(404, "agent 'nikto' nie je zaregistrovaný")
-            return {"name": name, "code_target": None if method == "DELETE" else {**(body or {}), "requested_by": "r", "ts": 1.0}}
+            self.code_target = None if method == "DELETE" else {**(body or {}), "requested_by": "r", "ts": 1.0}
+            return {"name": name, "code_target": self.code_target}
         if path.startswith("/api/agents"):
             return [{"name": "trade-pc", "online": True, "last_seen": "x", "version": "abc1234", "needs_restart": False,
-                     "updating": False, "code_target": None,
+                     "updating": False, "code_target": self.code_target,
                      "live": {"drivers": ["mt5"], "instances": 0, "installed": {"mt5": "abc1234"},
                               "code_state": {"mt5": {"installed": "abc1234", "state": "ok"}}, "code_update": None}}]
         if path.startswith("/api/live/accounts"):
             if method == "GET":
-                return self.accounts
+                return self.accounts[0] if path.startswith("/api/live/accounts/") else self.accounts
             if method == "DELETE":
                 return {"id": "ic", "deleted": True, "deployments": []}
             return {**self.accounts[0], "secret_pending": bool((body or {}).get("password"))}
@@ -528,6 +531,8 @@ class _FakeDeployHub:
                 return self.deployments[0] if path.startswith("/api/live/deployments/") else self.deployments
             if method == "DELETE":
                 return {"id": "d1", "deleted": False, "active": False}
+            if method == "POST" and getattr(self, "new_code_state", None):
+                return {**(body or {}), "id": "d2", "instance": "x", "active": True, "code_state": self.new_code_state}
             return {**self.deployments[0], **{k: v for k, v in (body or {}).items() if k in ("mode", "profile", "config", "active")}}
         if path.startswith("/api/live/audit"):
             return [{"id": 1, "ts": 1.0, "by": "r", "action": "account_create", "account": "ic", "deployment": None, "old": None, "new": {}}]
@@ -567,6 +572,11 @@ def deploy_app(tmp_path: Path, monkeypatch):
             return _json.dumps(out).encode("utf-8"), "application/json"
 
     monkeypatch.setattr(client_mod, "HubHttp", FakeHttp)
+    # „je commit na GitHube?“ — bez siete a nezávisle od stavu tohto klonu; test si to prepne
+    from tester.hub import gitcode as gitcode_mod
+
+    hub.pushed = True
+    monkeypatch.setattr(gitcode_mod, "on_remote", lambda commit, fetch=True: hub.pushed if commit else None)
 
     def make(admin: str = ""):
         hub_config.save(hub_config.AgentConfig(name="notebook", hub_url="http://hub.test:8790", token="agent-token",
@@ -584,7 +594,8 @@ def test_deploy_proxy_len_na_citanie_bez_admin_tokenu(deploy_app):
     from tester.hub import gitcode
 
     stav = c.get("/api/live").json()["deploy"]
-    assert stav == {"configured": True, "hub_url": "http://hub.test:8790", "admin": False, "version": gitcode.version() or None}
+    assert stav == {"configured": True, "hub_url": "http://hub.test:8790", "admin": False, "version": gitcode.version() or None,
+                    "pushed": True if gitcode.version() else None}
     # čítanie ide tokenom agenta
     assert c.get("/api/live/accounts").json()[0]["id"] == "ic"
     assert c.get("/api/live/deployments").json()[0]["id"] == "d1"
@@ -689,7 +700,8 @@ def test_deploy_proxy_bez_hubu_a_stary_hub(deploy_app, monkeypatch):
     from tester.hub import gitcode
 
     hub_config.AGENT_CONFIG.unlink()
-    assert c.get("/api/live").json()["deploy"] == {"configured": False, "hub_url": None, "admin": False, "version": gitcode.version() or None}
+    assert c.get("/api/live").json()["deploy"] == {"configured": False, "hub_url": None, "admin": False, "version": gitcode.version() or None,
+                                                   "pushed": True if gitcode.version() else None}
     assert c.get("/api/live/accounts").status_code == 404
     assert c.post("/api/live/accounts", json={"agent": "a", "platform": "mt5", "login": "1"}).status_code == 404
 
@@ -738,3 +750,83 @@ def test_deploy_proxy_aktualizacia_kodu_admin_tokenom_a_verzia_webapp(deploy_app
     assert hub.calls[-1][3]["version"] == moja and hub.calls[-1][3]["profile"] == "p2"
     c.patch("/api/live/deployments/d1", json={"mode": "paused"})
     assert "version" not in hub.calls[-1][3]        # len režim: kód nasadenia sa nemení
+
+
+def test_deploy_symbol_a_tf_z_profilu(deploy_app):
+    """Prázdny symbol / TF = z profilu (`_instrument`, `_timeframe`) pre platformu účtu; symbol, ktorý už na účte
+    beží, má prednosť; keď sa odvodiť nedá, 422 s radou a na hub nič neodíde."""
+    make, hub, tmp = deploy_app
+    c = make(admin="hlavny")
+    # MT5 účet, profil nas100_dukascopy 3m (orbnet) — CFD meno z profilu, ale na účte už beží NAS100
+    d = c.get("/api/live/deploy-defaults?account=ic&strategy=orbnet&profile=nas100_dukascopy_3m").json()
+    assert d["symbol"] == "NAS100" and d["tf"] == 3 and d["platform"] == "mt5"
+    r = c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "orbnet",
+                                             "profile": "nas100_dukascopy_3m"})
+    assert r.status_code == 200
+    body = [b for m, path, _, b in hub.calls if m == "POST" and path.startswith("/api/live/deployments")][-1]
+    assert body["symbol"] == "NAS100" and body["tf"] == 3
+    # výslovný symbol / TF sa nemenia
+    c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "orbnet",
+                                          "profile": "nas100_dukascopy_3m", "symbol": "US100.cash", "tf": 5})
+    body = [b for m, path, _, b in hub.calls if m == "POST" and path.startswith("/api/live/deployments")][-1]
+    assert body["symbol"] == "US100.cash" and body["tf"] == 5
+    # MT5 + futures profil (mnq_databento) bez behu na účte: meno u brokera sa hádať nedá
+    hub.deployments[0]["symbol"] = "GER40"
+    n = len([x for x in hub.calls if x[0] == "POST"])
+    r = c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "ibsnet",
+                                             "profile": "multicharts_mnq_3m"})
+    assert r.status_code == 422 and "symbol" in r.json()["detail"]
+    assert len([x for x in hub.calls if x[0] == "POST"]) == n
+    # NinjaTrader účet: front-month
+    hub.accounts[0]["platform"] = "ninjatrader"
+    d = c.get("/api/live/deploy-defaults?account=ic&strategy=ibsnet&profile=multicharts_mnq_3m").json()
+    assert d["symbol"].startswith("MNQ ") and d["symbol_from"] == "front-month" and d["tf"] == 3
+
+
+def test_deploy_sam_aktualizuje_kod_stroja(deploy_app):
+    """Nasadenie, ktorého kód stroj na platforme nemá (`code_state` ≠ ok), pošle hubu `code_target` samo:
+    bez iných aktívnych nasadení na stroji s `force`, inak cez bránu; commit mimo GitHubu sa neposiela."""
+    from tester.hub import gitcode
+
+    make, hub, tmp = deploy_app
+    c = make(admin="hlavny")
+    moja = gitcode.version() or None
+    if not moja:
+        pytest.skip("mimo gitu")
+    hub.new_code_state = {"installed": None, "state": "unknown"}
+    hub.deployments[0]["active"] = False          # stroj nemá iné aktívne nasadenie
+    r = c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "ibsnet", "symbol": "NAS100",
+                                             "tf": 3, "profile": "p", "config": {"rrRatio": 3.0}, "user": "r"})
+    cu = r.json()["code_update"]
+    assert cu["requested"] is True and cu["force"] is True and cu["version"] == moja
+    assert hub.calls[-1][:2] == ("POST", "/api/live/agents/trade-pc/update?by=r") and hub.calls[-1][3] == {"version": moja, "force": True}
+    # stroj už na ten commit čaká — druhý cieľ sa neposiela
+    n = len(hub.calls)
+    r = c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "ibsnet", "symbol": "NAS100",
+                                             "tf": 3, "profile": "p", "config": {"rrRatio": 3.0}})
+    assert r.json()["code_update"]["requested"] is False and not any(x[1].startswith("/api/live/agents/") for x in hub.calls[n:])
+    # iné aktívne nasadenie na stroji = bez force (brána agenta)
+    hub.code_target = None
+    hub.deployments[0]["active"] = True
+    r = c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "ibsnet", "symbol": "NAS100",
+                                             "tf": 3, "profile": "p", "config": {"rrRatio": 3.0}})
+    assert r.json()["code_update"]["force"] is False and hub.calls[-1][3] == {"version": moja, "force": False}
+    # commit nie je na GitHube: nasadenie áno, cieľ nie — s radou
+    hub.code_target = None
+    hub.pushed = False
+    n = len(hub.calls)
+    r = c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "ibsnet", "symbol": "NAS100",
+                                             "tf": 3, "profile": "p", "config": {"rrRatio": 3.0}})
+    cu = r.json()["code_update"]
+    assert r.status_code == 200 and cu["requested"] is False and "GitHub" in cu["error"]
+    assert not any(x[0] == "POST" and x[1].startswith("/api/live/agents/") for x in hub.calls[n:])
+    # aj ručné „Aktualizovať kód“ to povie hneď (409), na hub nič neodíde
+    n = len(hub.calls)
+    r = c.post("/api/live/agents/trade-pc/update", json={})
+    assert r.status_code == 409 and "git push" in r.json()["detail"] and len(hub.calls) == n
+    # aktuálny kód = nič
+    hub.pushed = True
+    hub.new_code_state = {"installed": moja, "state": "ok"}
+    r = c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "ibsnet", "symbol": "NAS100",
+                                             "tf": 3, "profile": "p", "config": {"rrRatio": 3.0}})
+    assert r.json()["code_update"]["requested"] is False and hub.calls[-1][0] == "POST" and hub.calls[-1][1].startswith("/api/live/deployments")

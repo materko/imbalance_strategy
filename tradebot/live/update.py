@@ -13,7 +13,9 @@ Jedno `run`:
    (zadávateľ ho nepushol). Zmena HEAD = `code_changed` (agent sa potom reštartuje / hlási `needs_restart`).
 3. **Brána** (`gate`): každé aktívne nasadenie tohto agenta musí byť `paused`/`flatten` a **bez pozície** —
    režim z posledného `control` v spoole (keď ho spool nemá, z toho, čo reconciler zapísal do control súboru),
-   pozícia z fillov v spoole (`in` − `out` po id). Inštancia bez spoolu = pozícia neznáma = blokované.
+   pozícia z fillov v spoole (`in` − `out` po id). Inštancia bez spoolu = pozícia neznáma = blokované,
+   okrem pauznutej (`paused`/`flatten`), keď koreň spoolu na stroji existuje — tá na stroji ešte nebežala
+   (nové nasadenie čakajúce na kód).
    Dôvody idú do `reasons` a stav je `blocked`; `force` bránu preskočí.
 4. **Platformy**: každý driver `install_code(version, účty platformy)` — chyba jedného drivera je `error`
    len preň, ostatné idú ďalej (`platforms`). Driver MT5 zavrie terminály (držia DLL) a nechá ich reštart
@@ -86,6 +88,7 @@ def gate_reasons(deployments: list[dict[str, Any]], spool_state: list[dict[str, 
     `spool_state` = `tradebot.live.spool.latest_state`, `applied` = čo reconciler naposledy zapísal."""
     reasons: list[str] = []
     by_inst = {s.get("instance"): s for s in spool_state if isinstance(s, dict)}
+    vidno_spool = any(Path(r).is_dir() for r in roots)
     for d in deployments:
         if not isinstance(d, dict) or not d.get("active", True):
             continue
@@ -98,6 +101,10 @@ def gate_reasons(deployments: list[dict[str, Any]], spool_state: list[dict[str, 
         if mode not in SAFE_MODES:
             reasons.append(f"{label}: obchoduje (režim {mode or '?'}) — najprv pauza alebo flatten")
         pos = position_from_spool(roots, inst)
+        if pos is None and mode in SAFE_MODES and vidno_spool:
+            # spool stroja existuje, len táto inštancia v ňom nie je, a je v pauze = na stroji ešte nebežala
+            # (ani `hello`) — typicky nové nasadenie, ktoré na stratégiu v novom kóde len čaká
+            continue
         if pos is None:
             reasons.append(f"{label}: nemá spool, pozícia je neznáma")
         elif pos > 0:
