@@ -394,11 +394,15 @@ class HubAgent:
 
     def _apply_live(self) -> None:
         """Zosúladenie nasadení v pomalom vlákne: posledný požadovaný stav z heartbeatu → reconciler.
-        Beží, len keď od minula prišiel nový stav; výsledok ide do ďalšieho heartbeatu."""
+        Beží, len keď od minula prišiel nový stav; výsledok ide do ďalšieho heartbeatu. Bez nového stavu
+        reconciler len znova pozrie, či inštancie na platforme nabehli (`refresh`, sám si stráži interval)."""
         with self._live_lock:
-            if self._live_desired is None or self._live_applied_seq == self._live_desired_seq:
-                return
+            novy = self._live_desired is not None and self._live_applied_seq != self._live_desired_seq
             desired, seq = self._live_desired, self._live_desired_seq
+        if not novy:
+            if self._reconciler is not None:
+                self._reconciler.refresh()
+            return
         self._get_reconciler().run(desired)
         with self._live_lock:
             self._live_applied_seq = seq

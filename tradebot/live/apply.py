@@ -24,6 +24,10 @@ Pravidlá:
 - **Bez sirôt.** Ku každému nasadeniu si stav pamätá `instance` a cestu naposledy zapísaného control
   súboru (`control`); keď sa id inštancie zmení (iný login/server účtu), starý control ide cez
   `remove_instance` drivera (pauza → zmazanie až po zastavení), nie ostane ležať ako správa pre EA.
+- **Nenabehla.** Aplikované nasadenie (`ok`), ktorého inštancia na platforme nenabehla (driver to vie z
+  logov platformy, `instance_issue`), ostáva `ok`, ale `error` nesie `nenabehla: <dôvod>` — prejde aj cez
+  starší hub a webapp to ukáže ako upozornenie. Zisťuje sa každé kolo a bez nového stavu z hubu cez
+  `refresh()` (najviac raz za `ISSUE_REFRESH_SECONDS`).
 """
 
 from __future__ import annotations
@@ -33,6 +37,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 import threading
 import time
 from datetime import datetime, timezone
@@ -43,7 +48,7 @@ from tradebot.core.paths import LIVE_APPLY_STATE
 
 from .drivers.base import Account, Deployment, Driver
 
-__all__ = ["Reconciler", "config_hash"]
+__all__ = ["Reconciler", "config_hash", "ISSUE_PREFIX"]
 
 log = logging.getLogger(__name__)
 
@@ -51,6 +56,10 @@ log = logging.getLogger(__name__)
 _SECRET_FIELDS = ("secret", "password")
 #: Polia `applied` len pre tento stroj — do heartbeatu nejdú (podpis, id inštancie, cesta control súboru).
 _LOCAL_FIELDS = ("sig", "instance", "control")
+#: Začiatok `error` pri stave `ok`: nasadenie je aplikované, ale inštancia na platforme nenabehla.
+ISSUE_PREFIX = "nenabehla: "
+#: Ako často `refresh()` (bez nového stavu z hubu) znova pozrie, či inštancie nabehli.
+ISSUE_REFRESH_SECONDS = 15.0
 
 
 def config_hash(config: dict[str, Any]) -> str:
@@ -81,6 +90,7 @@ class Reconciler:
         self.last_error: str | None = None
         #: Chyby, ktoré sa už logovali — tá istá chyba každých 10 s do logu nepatrí.
         self._logged: dict[str, str] = {}
+        self._issues_checked: float | None = None
 
     # -- stav na disku ------------------------------------------------------- #
 
@@ -167,6 +177,53 @@ class Reconciler:
         finally:
             self.last_run = self.clock()
         return self.fragment()
+
+    def refresh(self) -> dict[str, Any]:
+        """Bez nového stavu z hubu: len znova zistí, či inštancie aplikovaných nasadení nabehli (najviac raz
+        za `ISSUE_REFRESH_SECONDS`), a zmenu uloží. Vráti `fragment()`."""
+        try:
+            with self._lock:
+                if self._issues_checked is None or self.clock() - self._issues_checked >= ISSUE_REFRESH_SECONDS:
+                    if self._check_issues():
+                        self._save()
+        except Exception as exc:  # noqa: BLE001 - nesmie zhodiť pomalé vlákno agenta
+            log.warning("live apply: kontrola inštancií zlyhala: %s", _short(exc))
+        return self.fragment()
+
+    def _check_issues(self) -> bool:
+        """Ku každému aplikovanému (`ok`) aktívnemu nasadeniu sa driver opýta, či jeho inštancia nenabehla;
+        dôvod ide do `error` (stav ostáva `ok`). Vráti, či sa niečo zmenilo."""
+        self._issues_checked = self.clock()
+        desired = self.state.get("desired") or {}
+        accounts = {a.id: a for a in (Account.from_dict(d) for d in desired.get("accounts") or [] if isinstance(d, dict))}
+        deps = {d.get("id"): d for d in desired.get("deployments") or [] if isinstance(d, dict) and d.get("id")}
+        changed = False
+        for dep_id, entry in (self.state.get("applied") or {}).items():
+            if entry.get("status") != "ok" or not entry.get("active", True) or dep_id not in deps:
+                continue
+            if entry.get("error") and not str(entry["error"]).startswith(ISSUE_PREFIX):
+                continue
+            dep = Deployment.from_dict(deps[dep_id])
+            acc = accounts.get(dep.account)
+            drv = self.drivers.get(acc.platform) if acc is not None else None
+            if drv is None:
+                continue
+            if entry.get("instance"):
+                dep.instance = str(entry["instance"])
+            try:
+                issue = drv.instance_issue(acc, dep)
+            except Exception as exc:  # noqa: BLE001 - zistenie dôvodu nesmie pokaziť kolo
+                self._warn_once(f"nenabehla {dep_id}", f"dôvod sa nedal zistiť: {_short(exc)}")
+                continue
+            error = f"{ISSUE_PREFIX}{issue}"[:500] if issue else ""
+            if error:   # čas pokusu sa mení každú minútu — do logu len zmena dôvodu
+                self._warn_once(f"nenabehla {dep_id}", re.sub(r" \(\d\d:\d\d:\d\d UTC\)$", "", error))
+            elif self._logged.pop(f"nenabehla {dep_id}", None):
+                log.info("live apply: inštancia nasadenia %s nabehla", dep_id)
+            if (entry.get("error") or "") != error:
+                entry["error"] = error
+                changed = True
+        return changed
 
     def _run(self, desired: dict[str, Any]) -> None:
         accounts = {a.id: a for a in (Account.from_dict(d) for d in desired.get("accounts") or [] if isinstance(d, dict)) if a.id}
@@ -280,6 +337,7 @@ class Reconciler:
         self.state["accounts"] = account_status
         self.state["secret_ack"] = secret_ack
         self.state["updated"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        self._check_issues()
         self._save()
 
     @staticmethod

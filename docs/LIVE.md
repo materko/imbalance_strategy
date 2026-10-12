@@ -286,7 +286,7 @@ o platforme vie len **driver** na strane agenta (`tradebot/live/drivers/<platfor
 | **account** | prihlásenie do platformy, **bez stroja**: `id` (slug), `platform` (`mt5`/`ninjatrader` — iná sa neprijme), `label`, `login` (MT5 číslo účtu / NT meno účtu, napr. `Sim101`), `server` (MT5 server / NT meno pripojenia), `rev` (verzia prihlásenia — nová pri zmene loginu, servera alebo hesla; driver podľa nej inštanciu reštartuje), `created`, `updated`, `by`; heslo (len MT5) hub drží **šifrované** (`tradebot/live/vault.py`, kľúč `secret.key` vedľa `live.sqlite` alebo `TRADEBOT_HUB_SECRET_KEY`) — v zozname len `secret` (uložené?) a `secret_waiting` (stroje, ktoré aktuálnu verziu ešte neprevzali). Zmazať sa dá len účet bez aktívneho nasadenia; platforma sa nemení, kým má účet nasadenia |
 | **deployment** | `id`, `account` (id), `agent` (stroj, na ktorom beží — povinný; starý klient bez neho dostane stroj, na ktorý bol účet kedysi viazaný), `terminal` + `portable` (len MT5: terminál na tom stroji; jeden účet má na stroji jeden terminál — ďalšie nasadenie musí ísť do toho istého), `strategy` (kľúč enginu), `symbol`, `tf` (min), `profile` (názov), `config` (celý config enginu = snímka profilu), `config_hash` (sha256 configu), `mode` (`enabled`/`paused`/`flatten`; **nové nasadenie je predvolene `paused`** — `DEFAULT_MODE`, control súbor s pauzou je na disku skôr, než platforma inštanciu spustí, a obchodovať začne, až keď ho človek zapne; výslovný `mode: enabled` v POST sa rešpektuje), `active` (bool — má inštancia vôbec existovať; `false` = odstrániť z platformy), `created`, `updated`, `by`; odvodené `instance` = `instance_id(platform, <MT5 login>-<server> / NT meno účtu, symbol, tf, strategy)` |
 | **audit** | `ts`, `by`, `action`, `account`/`deployment`, `old`, `new` (JSON) — každá zmena |
-| **applied** | čo agent naposledy hlásil k deploymentu: `deployment`, `agent`, `config_hash`, `mode`, `status` (`ok`/`pending`/`error`), `error`, `ts` |
+| **applied** | čo agent naposledy hlásil k deploymentu: `deployment`, `agent`, `config_hash`, `mode`, `status` (`ok`/`pending`/`error`), `error`, `ts`; `status: ok` s `error` „nenabehla: <dôvod>“ = aplikované, ale inštancia na platforme nenabehla (nižšie) |
 
 ### Hub API (mutácie len s hlavným tokenom; čítanie ktokoľvek s tokenom)
 
@@ -313,11 +313,25 @@ class Driver:                      # jedna trieda na platformu; agent ich načí
     def ensure_instance(self, account, deployments) -> None   # platforma beží a má všetky aktívne inštancie účtu
     def remove_instance(self, account, deployment) -> None
     def status(self, account) -> dict                # beží proces? ktoré inštancie má?
+    def instance_issue(self, account, deployment) -> str | None   # prečo inštancia nenabehla (log platformy); predvolene None
 ```
 
 `Reconciler.run(desired)` volá driver pre každý účet: heslo → `store_secret`, profily → `ensure_profile`,
 control → `write_control`, inštancie → `ensure_instance`/`remove_instance`; výsledok ide do `applied`
 v ďalšom heartbeate. Nič nesmie vyhodiť výnimku von (chyba = `status: error` k danému deploymentu).
+
+**Inštancia nenabehla.** Driver súbory zapíše bez chyby, ale platforma inštanciu nespustí (NT: účet nie
+je Connected, pripojenie nie je v `ConnectOptions`, inštrument, profil, engine, `BarsRequest`) — to vie
+len log platformy na stroji. Po `ensure_instance` sa reconciler ku každému aplikovanému aktívnemu
+nasadeniu opýta `Driver.instance_issue` a dôvod pošle v `applied` ako **`status: ok` + `error:
+"nenabehla: <dôvod>"`** — stav ostáva `ok` (idempotencia, brána mazania, žiadny drift), takže to prejde
+aj cez hub, ktorý o tom nič nevie (ukladá `status` a `error` tak, ako prišli). Reálna chyba nasadenia
+(`status: error`) sa dôvodom neprepíše. Zisťuje sa v každom kole a bez nového stavu z hubu aj cez
+`Reconciler.refresh()` (krok `_apply_live` agenta, najviac raz za 15 s). NinjaTrader driver číta koniec
+(256 kB) najnovšieho `TradeBot\logs\addon_*.txt`: posledný pokus `[<nasadenie>] start …` (AddOn skúša
+znova každých 60 s) skončený riadkom zlyhania `LiveInstance.Setup` → jeho text s časom (UTC), pri
+pripojení aj s riadkom AddOnu o pripojení; `predhistoria prehrata` → nabehla; pokus, ktorý ešte beží
+(čakanie na pripojenie/účet až 2 × 60 s), drží výsledok predošlého. Log staršieho štartu NT sa nečíta.
 
 Poradie okolo control súboru je vec bezpečnosti, lebo adaptéry berú **chýbajúci súbor ako `enabled`**:
 
@@ -360,7 +374,8 @@ Sekcie **Účty** (zoznam s prehľadom „kde beží“ — každé nasadenie ú
 niečo beží, sa pýta, lebo stroje inštancie zastavia a spustia s novým prihlásením; „zmazať“ len keď na
 účte nič nebeží) a **Nasadenia** (tabuľka:
 účet, stratégia, symbol, TF, profil, režim, stav inštancie zo spoolu, drift `config_hash` vs.
-`applied`, posledný bar; tlačidlá pauza/zapnúť/flatten, zmena profilu (výber z profilov stratégie
+`applied`, posledný bar — pri stave `ok` bez živého spoolu chip upozornenia **„nenabehla: <dôvod>“**
+(plný text v title); tlačidlá pauza/zapnúť/flatten, zmena profilu (výber z profilov stratégie
 alebo úprava parametrov formulárom z `params.py`), odstrániť; „Nasadiť“: účet, stroj (agenti s driverom
 platformy účtu), pri MT5 terminál a portable, stratégia, profil, symbol, TF, režim — predvolene **pauza**, nová stratégia sa zapína až v tabuľke). „Pridať účet“ má
 nepovinné **Id účtu** (placeholder ukazuje slug názvu, ktorý by hub spravil sám).
@@ -475,6 +490,11 @@ VM (autoštart, služba) je popísaný zvlášť, neskôr.
   webapp, nasadenie nesie `version`.
 - `tester/tests/test_ninjatrader_tools.py` — marker (`compiled: false` sa nepočíta), MSBuild na SDK
   projekte hlási neúspech (skip bez MSBuild), poradie MSBuild → editor, driver bez bežiaceho NT.
+- `tester/tests/test_live_drivers_ninjatrader.py` — `instance_issue` z addon logu: dôvody `Setup`, detail
+  pripojenia, pokus v behu drží predošlý dôvod, `predhistoria prehrata` = nabehla, len najnovší log a jeho koniec.
+- `tester/tests/test_live_apply.py` — „nenabehla“: `ok` + `error`, idempotencia drží, `refresh()` s intervalom
+  a uložením, `status: error` sa neprepíše; cez hub (`DeployStore`) end-to-end.
+- `tester/tests/test_webapp_live.py` — `applied.error` „nenabehla: …“ prejde proxy, `ldIssueChip` v stave.
 - `tester/tests/test_live_drivers_mt5.py` — `install_code` zavrie terminály, inštaluje raz na dátový
   adresár, marker, ďalšie kolo terminál spustí.
 - `tester/tests/test_live_store.py` — store: idempotencia, snapshot, export/kurzor.

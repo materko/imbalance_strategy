@@ -23,6 +23,7 @@ class FakeDriver(Driver):
         self.fail = fail or {}      # názov metódy → id nasadenia/účtu, pri ktorom má padnúť
         self.secrets: dict[str, str] = {}
         self.removed: list[str] = []    # id inštancií, ktoré prešli `remove_instance`
+        self.issues: dict[str, str] = {}  # id nasadenia → prečo jeho inštancia nenabehla
 
     def available(self) -> bool:
         return True
@@ -60,6 +61,10 @@ class FakeDriver(Driver):
 
     def status(self, account):
         return {"running": True, "account": account.id}
+
+    def instance_issue(self, account, deployment):
+        self._maybe_fail("instance_issue", deployment.id)
+        return self.issues.get(deployment.id)
 
 
 ACC = {"id": "ftmo", "platform": "mt5", "label": "FTMO demo", "login": "1514750898", "server": "FTMO-Demo",
@@ -249,6 +254,49 @@ def test_zmena_instancie_odstrani_stary_control_bez_siroty(tmp_path: Path):
     assert drv.removed == [inst1, inst2, inst3] and [c[0] for c in drv.calls] == ["remove_instance", "remove_instance", "ensure_instance"]
 
 
+class Clock:
+    def __init__(self) -> None:
+        self.t = 1_790_000_000.0
+
+    def __call__(self):
+        return self.t
+
+
+def test_nenabehla_instancia_ostava_ok_s_dovodom_a_obnovuje_sa(tmp_path: Path):
+    drv = FakeDriver()
+    clock = Clock()
+    rec = Reconciler({"mt5": drv}, tmp_path / "apply.json", clock=clock)
+    drv.issues["d1"] = "ucet 1514750898 sa do 60 s nepripojil (15:01:03 UTC)"
+    frag = rec.run(desired(dep("d1"), dep("d2", symbol="GER40.cash"), dep("d3", active=False)))
+    by = {a["deployment"]: a for a in frag["applied"]}
+    # stav ostáva `ok` (nasadenie je aplikované; `pending`/`error` by hub a webapp brali ako drift/chybu)
+    assert by["d1"]["status"] == "ok" and by["d1"]["error"] == "nenabehla: ucet 1514750898 sa do 60 s nepripojil (15:01:03 UTC)"
+    assert by["d2"]["error"] == "" and by["d3"]["error"] == ""
+
+    # ďalšie kolo bez zmeny: nič sa neprepisuje (idempotencia drží), dôvod ostáva
+    drv.calls.clear()
+    frag = rec.run(desired(dep("d1"), dep("d2", symbol="GER40.cash"), dep("d3", active=False)))
+    assert [c[0] for c in drv.calls] == ["remove_instance", "ensure_instance"]
+    assert {a["deployment"]: a["error"] for a in frag["applied"]}["d1"].startswith("nenabehla: ")
+
+    # bez nového stavu z hubu: refresh najviac raz za ISSUE_REFRESH_SECONDS, zmena sa uloží na disk
+    drv.issues.clear()
+    assert rec.refresh()["applied"][0]["error"].startswith("nenabehla: ")     # ešte nie je čas
+    clock.t += 15
+    assert all(a["error"] == "" for a in rec.refresh()["applied"])
+    drv.issues["d2"] = "instrument 'GER40.cash' NinjaTrader nepozna (15:05:00 UTC)"
+    clock.t += 15
+    rec.refresh()
+    assert Reconciler({"mt5": drv}, tmp_path / "apply.json").fragment()["applied"][1]["error"].startswith("nenabehla: instrument")
+
+    # skutočná chyba nasadenia sa dôvodom neprepíše; chyba drivera pri zisťovaní kolo nezhodí
+    drv.fail = {"write_control": "d1", "instance_issue": "d2"}
+    frag = rec.run(desired(dep("d1", mode="enabled"), dep("d2", symbol="GER40.cash")))
+    by = {a["deployment"]: a for a in frag["applied"]}
+    assert by["d1"]["status"] == "error" and "write_control zlyhalo" in by["d1"]["error"]
+    assert by["d2"]["status"] == "ok" and by["d2"]["error"] == "" and rec.last_error is None
+
+
 def test_deployment_dataclass_defaults_and_validation():
     d = Deployment.from_dict({"id": "x", "tf": "3", "mode": "divne"})
     assert d.tf == 3 and d.mode == "enabled" and d.active is True and d.config == {}
@@ -282,6 +330,10 @@ class FakeReconciler:
 
     def status(self):
         return {"drivers": ["mt5"], "runs": len(self.runs)}
+
+    def refresh(self):
+        self.refreshes = getattr(self, "refreshes", 0) + 1
+        return self.fragment()
 
 
 class FakeHttp:
@@ -371,6 +423,7 @@ def test_agent_heartbeat_carries_live_and_response_drives_reconciler(tmp_path: P
     http.live_response = None
     agent.tick()
     assert len(rec.runs) == 2 and "live" in http.heartbeats[2]
+    assert getattr(rec, "refreshes", 0) >= 1      # bez nového stavu len kontrola, či inštancie nabehli
 
 
 def test_agent_survives_reconciler_failure(tmp_path: Path, monkeypatch):
@@ -469,3 +522,12 @@ def test_hub_agent_reconciler_driver_end_to_end(tmp_path: Path, monkeypatch):
     assert drv.calls == [("remove_instance", "ic", d["id"]), ("ensure_instance", "ic", ())]
     agent.tick()
     assert c.get(f"/api/live/deployments/{d['id']}", headers=H).json()["applied"]["status"] == "ok"
+
+    # inštancia nenabehla: hub uloží `ok` s dôvodom v `error` (to isté robí aj hub spred tejto zmeny)
+    d2 = c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "GER40", "tf": 3, "profile": "p1"},
+                headers=H).json()
+    drv.issues[d2["id"]] = "ucet 1 sa do 60 s nepripojil (15:01:03 UTC)"
+    agent.tick()
+    agent.tick()
+    applied = c.get(f"/api/live/deployments/{d2['id']}", headers=H).json()["applied"]
+    assert applied["status"] == "ok" and applied["error"] == "nenabehla: ucet 1 sa do 60 s nepripojil (15:01:03 UTC)"

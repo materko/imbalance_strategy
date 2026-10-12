@@ -13,6 +13,9 @@ pri `ensure_instance` účtu vymení len jeho položky a ostatné ponechá.
 Control súbor rušeného nasadenia: stratégia berie **chýbajúci súbor ako `enabled`**, preto ho
 `remove_instance` nemaže, ale prepne na `paused` a odloží; zmaže sa v `ensure_instance` až po tom,
 čo inštancia z `deploy.json` zmizla v niektorom z minulých kôl (AddOn ju medzitým zastavil).
+
+Prečo inštancia nenabehla (účet nie je Connected, pripojenie, inštrument, profil, engine), AddOn píše len
+do `TradeBot\\logs\\addon_*.txt` — `instance_issue` to z konca najnovšieho logu vytiahne pre reconciler.
 """
 
 from __future__ import annotations
@@ -20,6 +23,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -35,6 +39,17 @@ __all__ = ["NinjaTraderDriver", "DRIVER"]
 log = logging.getLogger(__name__)
 
 EXE_NAME = "NinjaTrader.exe"
+#: Koľko z konca addon logu sa číta (riadky štartu inštancie sú pri konci; celý log môže mať megabajty).
+LOG_TAIL_BYTES = 256 * 1024
+
+#: Riadok `TradeBot\logs\addon_*.txt`: `<UTC čas> [<inštancia alebo nasadenie>] <text>`; riadky AddOnu bez značky.
+_LOG_LINE = re.compile(r"^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)(?:\.\d+)? (?:\[([^\]]*)\] )?(.*)$")
+#: Riadky `LiveInstance.Setup`/`Run`, po ktorých inštancia skončila bez obchodovania (AddOn ju skúsi znova).
+_LOG_FAIL = re.compile(r"^(neuplny zaznam v deploy\.json|profil '.*' sa nenasiel|pripojenie '.*' nie je Connected"
+                       r"|ucet .* sa do \d+ s nepripojil|instrument '.*' NinjaTrader nepozna|engine '.*' sa nepostavil"
+                       r"|BarsRequest \d+m( bez odpovede| chyba|: )|vlakno instancie spadlo)")
+#: Koniec `Setup` — predhistória prehratá, inštancia beží nazivo.
+_LOG_OK = re.compile(r"^predhistoria prehrata")
 
 
 def _atomic_json(path: Path, data: Any) -> None:
@@ -63,6 +78,8 @@ class NinjaTraderDriver(Driver):
         self.autostart = autostart if autostart is not None else (env is None or env.strip().lower() in ("1", "true", "yes", "on"))
         #: Inštancie (podľa účtu), ktorých control súbor čaká na zmazanie, kým ich AddOn zastaví.
         self._pending_remove: dict[str, set[str]] = {}
+        #: Posledné prečítané riadky addon logu: ((cesta, veľkosť, mtime), riadky).
+        self._log_cache: tuple[tuple[str, int, int], list[str]] | None = None
 
     # -- kde je čo ------------------------------------------------------------ #
 
@@ -231,6 +248,66 @@ class NinjaTraderDriver(Driver):
         subprocess.Popen([str(exe)], cwd=str(exe.parent), creationflags=flags, close_fds=True,
                          stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         log.info("ninjatrader driver: spustený %s", exe)
+
+    # -- prečo inštancia nenabehla (addon log) --------------------------------- #
+
+    def log_path(self) -> Path | None:
+        """Najnovší `TradeBot\\logs\\addon_<yyyyMMdd-HHmmss>.txt` (jeden na štart NT / generáciu AddOnu)."""
+        try:
+            logs = sorted((self.nt_dir() / "TradeBot" / "logs").glob("addon_*.txt"))
+        except OSError:
+            return None
+        return logs[-1] if logs else None
+
+    def _log_lines(self) -> list[str]:
+        """Posledných `LOG_TAIL_BYTES` najnovšieho addon logu po riadkoch; podľa (cesta, veľkosť, mtime)
+        sa číta len raz — reconciler sa pýta každé kolo za každé nasadenie."""
+        path = self.log_path()
+        if path is None:
+            return []
+        try:
+            st = path.stat()
+            key = (str(path), st.st_size, st.st_mtime_ns)
+            if self._log_cache is not None and self._log_cache[0] == key:
+                return self._log_cache[1]
+            with path.open("rb") as fh:
+                if st.st_size > LOG_TAIL_BYTES:
+                    fh.seek(st.st_size - LOG_TAIL_BYTES)
+                    fh.readline()                      # začiatok prvého riadku je odrezaný
+                lines = fh.read().decode("utf-8", errors="replace").splitlines()
+        except OSError:
+            return []
+        self._log_cache = (key, lines)
+        return lines
+
+    def instance_issue(self, account: Account, deployment: Deployment) -> str | None:
+        """Dôvod z addon logu, prečo inštancia nasadenia nenabehla (`LiveInstance.Setup` v
+        TradeBotLiveInstance.cs): posledný pokus (`[<nasadenie>] start …`) skončil riadkom zlyhania →
+        jeho text; prehral predhistóriu → `None`. Pokus, ktorý ešte beží (AddOn skúša znova o 60 s, na
+        pripojenie a účet čaká až 2 × 60 s), nič nemení — platí výsledok predošlého pokusu."""
+        tags = {deployment.id, self.instance_of(account, deployment)}
+        last: str | None = None           # výsledok posledného ukončeného pokusu (None = nabehla)
+        pripojenie: str | None = None     # posledný riadok AddOnu o pripojení počas pokusu (bez značky)
+        for line in self._log_lines():
+            m = _LOG_LINE.match(line)
+            if m is None:
+                continue
+            cas, tag, text = m.group(1), m.group(2), m.group(3)
+            if tag is None:
+                if text.startswith(f"pripojenie '{account.server}'") and account.server:
+                    pripojenie = text
+                continue
+            if tag not in tags:
+                continue
+            if text.startswith("start "):
+                pripojenie = None
+            elif _LOG_OK.match(text):
+                last = None
+            elif _LOG_FAIL.match(text):
+                last = f"{text} ({cas[11:19]} UTC)"
+                if pripojenie and "nie je Connected" in text:
+                    last = f"{text} — {pripojenie} ({cas[11:19]} UTC)"
+        return last[:400] if last else None
 
     def status(self, account: Account) -> dict[str, Any]:
         data = self.read_deploy()

@@ -136,6 +136,11 @@ class Driver(ABC):
     def status(self, account: Account) -> dict[str, Any]:
         """Beží proces? Ktoré inštancie má? — pre `live_status` agenta a webapp."""
 
+    def instance_issue(self, account: Account, deployment: Deployment) -> str | None:
+        """Prečo inštancia aplikovaného nasadenia na platforme nenabehla (z logov platformy), alebo `None`,
+        keď beží, ešte štartuje, alebo to driver nevie. Volá sa každé kolo — musí byť lacné a nesmie nič meniť."""
+        return None
+
     # -- kód platformy (docs/LIVE.md, fáza 2c) --------------------------------- #
 
     def installed_version(self) -> str | None:

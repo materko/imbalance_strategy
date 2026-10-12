@@ -844,3 +844,24 @@ def test_deploy_zastaraly_kod_overi_webapp_vlastnym_gitom(deploy_app, monkeypatc
     assert c.get("/api/live/deployments").json()[0]["code_state"] == {"installed": "bbb2222", "state": "ok"}
     hub.deployments[0].update(version="ccc3333", code_state={"installed": "bbb2222", "state": "outdated"})
     assert c.get("/api/live/deployments").json()[0]["code_state"]["state"] == "outdated"
+
+
+def test_deploy_nenabehla_prejde_z_hubu_a_tabulka_ukaze_upozornenie(deploy_app):
+    """Agent hlási inštanciu, ktorá na platforme nenabehla, ako `applied.status: ok` s dôvodom v `error`
+    („nenabehla: …“) — webapp ho z hubu prepustí bez zmeny a tabuľka Nasadenia ukáže pri stave chip
+    upozornenia (plný text v title), nie chybu."""
+    make, hub, tmp = deploy_app
+    c = make(admin="")
+    dovod = "nenabehla: ucet Sim101 sa do 60 s nepripojil (15:01:03 UTC)"
+    hub.deployments[0]["applied"] = {"deployment": "d1", "agent": "trade-pc", "config_hash": "h", "mode": "enabled",
+                                     "status": "ok", "error": dovod, "ts": 1.0}
+    assert c.get("/api/live/deployments").json()[0]["applied"]["error"] == dovod
+
+    from tradebot.core.paths import TESTER_DIR
+
+    js = (TESTER_DIR / "webapp" / "static" / "js" / "live.js").read_text(encoding="utf-8")
+    chip = js[js.index("function ldStatusChip("):js.index("function ldAppliedCell(")]
+    assert "ldIssueChip(a)" in chip                       # pri stave `ok` (spool ticho)
+    issue = chip[chip.index("function ldIssueChip("):]
+    assert 'a.status === "ok"' in issue and 'startsWith("nenabehla: ")' in issue
+    assert 'class="chip warn" title="${esc(text' in issue    # upozornenie, plný text v title

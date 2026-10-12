@@ -600,7 +600,17 @@ function ldStatusChip(dep) {
     return `<span class="chip warn" title="agent ešte neaplikoval: ${esc(co.join(", "))}">čaká</span>`;
   }
   if (live.alive) return `<span class="chip ok" title="inštancia v spoole žije (udalosť do 3 barov)">živá</span>`;
-  return `<span class="chip" title="${live.seen ? "aplikované, ale spool je ticho dlhšie než 3 bary" : "aplikované, inštancia v spoole ešte nie je"}">ok</span>`;
+  return `<span class="chip" title="${live.seen ? "aplikované, ale spool je ticho dlhšie než 3 bary" : "aplikované, inštancia v spoole ešte nie je"}">ok</span>`
+    + ldIssueChip(a);
+}
+
+/** Aplikované (`ok`), ale inštancia na platforme nenabehla: agent posiela dôvod z logu platformy v `error`
+ *  so začiatkom „nenabehla: “ (prejde aj cez starší hub) — upozornenie, nie chyba; plný text v title. */
+function ldIssueChip(a) {
+  const text = a && a.status === "ok" ? String(a.error || "") : "";
+  if (!text.startsWith("nenabehla: ")) return "";
+  const kratko = text.length > 70 ? text.slice(0, 69) + "…" : text;
+  return ` <span class="chip warn" title="${esc(text + " — z logu platformy na stroji (NinjaTrader: TradeBot\\logs\\addon_*.txt), platforma skúša znova sama")}">${esc(kratko)}</span>`;
 }
 
 function ldAppliedCell(dep) {
