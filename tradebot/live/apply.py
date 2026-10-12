@@ -140,10 +140,13 @@ class Reconciler:
 
     @staticmethod
     def _signature(acc: Account, dep: Deployment) -> str:
-        return config_hash({"cfg": config_hash(dep.config), "mode": dep.mode, "profile": dep.profile,
-                            "strategy": dep.strategy, "symbol": dep.symbol, "tf": dep.tf,
-                            "login": acc.login, "server": acc.server, "terminal": acc.terminal,
-                            "portable": acc.portable, "instance": dep.instance})
+        sig = {"cfg": config_hash(dep.config), "mode": dep.mode, "profile": dep.profile,
+               "strategy": dep.strategy, "symbol": dep.symbol, "tf": dep.tf,
+               "login": acc.login, "server": acc.server, "terminal": acc.terminal,
+               "portable": acc.portable, "instance": dep.instance}
+        if acc.rev:   # bez `rev` (starý hub) ostáva podpis ako doteraz — nič sa zbytočne neprepisuje
+            sig["rev"] = acc.rev
+        return config_hash(sig)
 
     def _warn_once(self, key: str, text: str) -> None:
         if self._logged.get(key) != text:
@@ -189,6 +192,9 @@ class Reconciler:
                 self._warn_once(f"účet {acc.id}", account_status[acc.id]["error"])
                 continue
             account_status[acc.id] = {}
+            if acc.raw.get("secret_error"):
+                account_status[acc.id]["error"] = f"hub heslo nerozšifroval: {acc.raw['secret_error']}"
+                self._warn_once(f"heslo {acc.id}", account_status[acc.id]["error"])
             if acc.secret:
                 try:
                     drv.store_secret(acc, acc.secret)

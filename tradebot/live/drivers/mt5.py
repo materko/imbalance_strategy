@@ -692,9 +692,16 @@ class Mt5Driver(Driver):
         ident = self.spool_account(account)
         manifest = self._manifest(account)
         # identita účtu je v id inštancií aj v ini (Login/Server) — iný login = iný terminál, nie ten istý
-        # s tými istými grafmi; starý manifest bez `account` sa berie ako zhodný
+        # s tými istými grafmi; starý manifest bez `account` sa berie ako zhodný. Nová verzia prihlásenia
+        # (`rev`: zmenené heslo, login, server) = terminál zavrieť a spustiť s novým ini.
         same = (manifest is not None and manifest.get("key") == key and manifest.get("account", ident) == ident
-                and self._profile_matches(data_dir, charts))
+                and manifest.get("rev", account.rev) == account.rev and self._profile_matches(data_dir, charts))
+        if same and manifest is not None and manifest.get("rev") != account.rev:
+            # manifest spred `rev`: terminál beží s platným prihlásením — len zapamätať verziu, nech ďalšia
+            # zmena prihlásenia reštart naozaj spustí
+            manifest["rev"] = account.rev
+            (self.account_dir(account) / "charts.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1),
+                                                                    encoding="utf-8")
         pid = self._running_pid(account)
         if pid is not None and same:
             self._scrub_password(account)
@@ -715,7 +722,7 @@ class Mt5Driver(Driver):
         self._drop_removed_controls(account, manifest, charts)
         d = self.account_dir(account)
         d.mkdir(parents=True, exist_ok=True)
-        (d / "charts.json").write_text(json.dumps({"key": key, "account": ident, "charts": charts,
+        (d / "charts.json").write_text(json.dumps({"key": key, "account": ident, "rev": account.rev, "charts": charts,
                                                    "profile_dir": str(self.profile_dir(data_dir)),
                                                    "updated": datetime.now(timezone.utc).isoformat(timespec="seconds")},
                                                   ensure_ascii=False, indent=1), encoding="utf-8")

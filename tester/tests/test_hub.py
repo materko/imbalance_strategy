@@ -2049,7 +2049,7 @@ def test_live_deploy_mutacie_len_spravca_a_citanie_ktokolvek(tmp_path: Path):
     r = c.post("/api/live/accounts?by=rasto", json=ucet, headers=H("hlavny"))
     assert r.status_code == 200
     acc = r.json()
-    assert acc["id"] == "ic-demo" and acc["by"] == "rasto" and acc["secret_pending"] is True and "tajne" not in r.text
+    assert acc["id"] == "ic-demo" and acc["by"] == "rasto" and acc["secret"] is True and "tajne" not in r.text
     assert c.get("/api/live/accounts", headers=H(t_agent)).json()[0]["id"] == "ic-demo"      # čítanie hocikto
     assert c.get("/api/live/accounts/ic-demo", headers=H(t_agent)).json()["login"] == "5012345"
     assert c.get("/api/live/accounts/nie", headers=H(t_agent)).status_code == 404
@@ -2106,8 +2106,7 @@ def test_live_deploy_heartbeat_nesie_pozadovany_stav_a_prijme_applied(tmp_path: 
     assert [a["id"] for a in hb["live"]["accounts"]] == ["ic"] and hb["live"]["accounts"][0]["secret"] == "tajne"
     assert [x["id"] for x in hb["live"]["deployments"]] == [d["id"]] and hb["live"]["deployments"][0]["config"] == {"rrRatio": 3.0, "p": "p1"}
     hb2 = c.post("/api/agents/iny-pc/heartbeat", json={"jobs": []}, headers=H(t_iny)).json()
-    assert [a["id"] for a in hb2["live"]["accounts"]] == ["nt"] and "secret" not in hb2["live"]["accounts"][0]
-    assert hb2["live"]["deployments"] == []
+    assert hb2["live"] == {"accounts": [], "deployments": []}     # účet bez nasadenia na stroji nedostane
     assert state.live_state("trade-pc") is None
 
     # nový agent: applied + secret_ack + instances + drivers

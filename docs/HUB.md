@@ -469,13 +469,16 @@ inak `login`) a v odpovedi nasadenia pridá `applied` (čo agent naposledy potvr
 - **Mutácie len s hlavným tokenom** (`TRADEBOT_HUB_TOKEN`); token agenta číta. Webapp na to
   má `admin_token` v `tester/agent.json` (alebo `TRADEBOT_HUB_ADMIN_TOKEN`) — bez neho je jej
   karta Live len na čítanie. Hlavný token na počítajúce agenty nepatrí.
-- **Heslo** účtu (`password` v POST/PATCH) hub uloží len ako `secret_pending`; agent ho
-  dostane v najbližšom heartbeate a keď potvrdí (`secret_ack`), hub ho zmaže. V žiadnom
-  zozname nie je, len `secret_pending: true/false`.
+- **Účet nie je viazaný na stroj** — stroj (`agent`) a pri MT5 terminál sú v nasadení.
+  **Heslo** účtu (`password` v POST/PATCH, len MT5) hub drží šifrované (`secret.key` vo
+  volume `hub_data` vedľa `live.sqlite`, alebo `TRADEBOT_HUB_SECRET_KEY`) a pošle ho v heartbeate
+  každému stroju s nasadením na účte, kým ten aktuálnu verziu nepotvrdí (`secret_ack`). V žiadnom
+  zozname nie je, len `secret` (uložené?) a `secret_waiting` (ktoré stroje ho ešte nemajú). Bez
+  `secret.key` sa heslá nedajú rozšifrovať — zálohuj ho spolu s `live.sqlite`.
 - **Heartbeat** nesie navyše: agent → `live: {instances, applied: [{deployment, config_hash,
   mode, status ok|pending|error|removed, error}], drivers, secret_ack}`, hub → `live:
-  {accounts, deployments}` = celý požadovaný stav toho agenta (so `secret`, keď čaká, a
-  s `config`). Starý agent `live` neposiela a nič sa nedeje; `applied` cudzieho nasadenia
+  {accounts, deployments}` = celý požadovaný stav toho agenta (účty jeho nasadení so `secret`,
+  keď čaká, a s `rev`; nasadenia s `config`). Starý agent `live` neposiela a nič sa nedeje; `applied` cudzieho nasadenia
   hub ignoruje. Čo agent hlási, je v `GET /api/agents` (`live.drivers`, počet inštancií)
   a v `/api/status` (`live_instances`).
 - **Mazanie**: `DELETE` nasadenia ho najprv vypne (`active=false`, agent ho z platformy

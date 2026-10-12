@@ -1,6 +1,6 @@
 """Heslá účtov platforiem na disku agenta — DPAPI (`CryptProtectData`, rozsah používateľa).
 
-Hub heslo nesie len dovtedy, kým ho agent neprevezme (`secret_pending`); agent ho uloží ako
+Hub heslo pošle v heartbeate, kým tento stroj jeho aktuálnu verziu nepotvrdí; agent ho uloží ako
 `tester/live/secrets/<account>.bin` zašifrované na **tento stroj a tohto používateľa** — iný účet
 Windows ani iný stroj súbor nerozšifruje. Do štartovacieho ini MT5 ide heslo len pri štarte
 terminálu a driver ho z ini hneď po prihlásení zmaže.

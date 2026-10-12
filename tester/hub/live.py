@@ -104,7 +104,9 @@ def add_live_routes(app: FastAPI, state: Any, store: LiveStore, auth: Callable[.
 
 
 class AccountRequest(BaseModel):
-    """POST/PATCH účtu; `password` sa uloží len ako `secret_pending` a odíde agentovi raz."""
+    """POST/PATCH účtu (prihlásenie do platformy, bez stroja); `password` sa uloží šifrované a odíde
+    strojom, ktoré účet používajú. `terminal`/`portable` posiela starý klient — ignorujú sa (stroj
+    a terminál sú v nasadení); jeho `agent` je len predvolený stroj pre nasadenie bez stroja."""
     id: str | None = None
     agent: str | None = None
     platform: str | None = None
@@ -116,12 +118,19 @@ class AccountRequest(BaseModel):
     password: str | None = None
 
     def fields(self) -> dict[str, Any]:
-        return {k: v for k, v in self.model_dump().items() if k != "password" and v is not None}
+        return {k: v for k, v in self.model_dump().items()
+                if k not in ("password", "terminal", "portable") and v is not None}
 
 
 class DeploymentRequest(BaseModel):
     id: str | None = None
     account: str
+    #: Stroj (agent hubu), na ktorom nasadenie beží; starý klient ho neposiela — vtedy stroj, na ktorý
+    #: bol účet kedysi viazaný.
+    agent: str | None = None
+    #: MT5: terminál na tom stroji (cesta k `terminal64.exe` / adresár) a či je portable; NT ignoruje.
+    terminal: str | None = None
+    portable: bool = False
     strategy: str
     symbol: str
     tf: int
@@ -196,7 +205,7 @@ def add_deploy_routes(app: FastAPI, state: Any, deploy: DeployStore, store: Live
             acc = deploy.upsert_account(req.fields(), by=by or who, password=req.password or None)
         except (DeployError, NotFound) as exc:
             raise _err(exc)
-        state.log("live_account", account=acc["id"], agent=acc["agent"], action="create")
+        state.log("live_account", account=acc["id"], platform=acc["platform"], action="create")
         return acc
 
     @app.get("/api/live/accounts/{account_id}")
@@ -216,7 +225,7 @@ def add_deploy_routes(app: FastAPI, state: Any, deploy: DeployStore, store: Live
                                         password=req.password or None)
         except (DeployError, NotFound) as exc:
             raise _err(exc)
-        state.log("live_account", account=account_id, agent=acc["agent"], action="update")
+        state.log("live_account", account=account_id, platform=acc["platform"], action="update")
         return acc
 
     @app.delete("/api/live/accounts/{account_id}")

@@ -1,6 +1,7 @@
-"""`tradebot.live.deploy.DeployStore`: účty, nasadenia, hash configu, id inštancie, heslo na jedno
-prevzatie (`secret_pending` → `desired_for_agent` → `report_applied(secret_ack)`), audit a
-pravidlá mazania — všetko bez siete, nad sqlite v dočasnom adresári."""
+"""`tradebot.live.deploy.DeployStore`: účty (bez stroja), nasadenia (so strojom a terminálom), hash
+configu, id inštancie, šifrované heslo doručené každému stroju raz za verziu (`desired_for_agent` →
+`report_applied(secret_ack)`), verzia prihlásenia `rev`, migrácia účtov viazaných na stroj, audit
+a pravidlá mazania — všetko bez siete, nad sqlite v dočasnom adresári."""
 
 from __future__ import annotations
 
@@ -13,6 +14,7 @@ import pytest
 from tradebot.live.deploy import Conflict, DeployError, DeployStore, NotFound, account_identity, config_hash
 from tradebot.live.schema import instance_id
 from tradebot.live.store import LiveStore
+from tradebot.live.vault import Vault, VaultError
 
 
 class Clock:
@@ -33,6 +35,7 @@ def _resolver(strategy: str, profile: str) -> dict:
 @pytest.fixture
 def store(tmp_path: Path):
     return DeployStore(tmp_path / "live.sqlite", clock=Clock(), config_resolver=_resolver,
+                       vault=Vault(key=b"k" * 32),
                        strategy_check=lambda k: {"ibsnet": "ibsnet", "ibsninja": "ibsnet", "orbnet": "orbnet"}.get(k)
                        or (_ for _ in ()).throw(DeployError(f"neznáma stratégia {k!r}")))
 
@@ -49,34 +52,63 @@ def _acc(store: DeployStore, **kw) -> dict:
 
 
 def test_ucet_id_zo_slugu_a_zoznam_bez_hesla(store: DeployStore):
-    a = store.upsert_account({"agent": "trade-pc", "platform": "mt5", "label": "IC Markets Demo",
-                              "login": "5012345", "server": "ICMarkets-Demo"}, by="rasto", password="tajne-heslo")
-    assert a["id"] == "ic-markets-demo" and a["by"] == "rasto" and a["portable"] is False
-    assert a["secret_pending"] is True and "secret" not in a and "tajne" not in json.dumps(a)
-    b = store.upsert_account({"agent": "trade-pc", "platform": "mt5", "label": "IC Markets Demo", "login": "9"}, by="x")
-    assert b["id"] == "ic-markets-demo-2" and b["secret_pending"] is False
+    a = store.upsert_account({"platform": "mt5", "label": "IC Markets Demo", "login": "5012345",
+                              "server": "ICMarkets-Demo"}, by="rasto", password="tajne-heslo")
+    assert a["id"] == "ic-markets-demo" and a["by"] == "rasto" and "agent" not in a and "terminal" not in a
+    assert a["secret"] is True and a["secret_waiting"] == [] and a["secret_pending"] is False   # nikto ho zatiaľ nepoužíva
+    assert "tajne" not in json.dumps(a)
+    b = store.upsert_account({"platform": "mt5", "label": "IC Markets Demo", "login": "9"}, by="x")
+    assert b["id"] == "ic-markets-demo-2" and b["secret"] is False
     assert [x["id"] for x in store.accounts()] == ["ic-markets-demo", "ic-markets-demo-2"]
     assert store.accounts(agent="iny") == [] and store.account("nie") is None
-    # heslo nie je v žiadnom zozname, len v tabuľke
+    # heslo nie je v žiadnom zozname ani v databáze čitateľne — len šifrované
     assert "tajne" not in json.dumps(store.accounts())
-    raw = sqlite3.connect(str(store.path)).execute("SELECT secret_pending FROM accounts WHERE id = 'ic-markets-demo'").fetchone()
-    assert raw[0] == "tajne-heslo"
+    raw = sqlite3.connect(str(store.path)).execute(
+        "SELECT secret_enc, secret_pending FROM accounts WHERE id = 'ic-markets-demo'").fetchone()
+    assert raw[1] is None and raw[0].startswith("v1:") and "tajne" not in raw[0]
+    assert store.vault.decrypt(raw[0]) == "tajne-heslo"
 
 
-def test_ucet_povinne_polia_a_zmena(store: DeployStore):
+def test_ucet_povinne_polia_platforma_a_zmena(store: DeployStore):
     with pytest.raises(DeployError):
-        store.upsert_account({"platform": "mt5", "login": "1"}, by="r")
+        store.upsert_account({"platform": "cokolvek", "login": "1"}, by="r")      # len MT5 a NinjaTrader
     with pytest.raises(DeployError):
-        store.upsert_account({"agent": "a", "platform": "mt5"}, by="r")
+        store.upsert_account({"platform": "mt5"}, by="r")
     a = _acc(store)
+    rev = a["rev"]
     z = store.upsert_account({"id": a["id"], "label": "Nový názov", "portable": True}, by="rasto")
-    assert z["label"] == "Nový názov" and z["portable"] is True and z["login"] == "5012345"
+    assert z["label"] == "Nový názov" and z["login"] == "5012345" and "portable" not in z
+    assert z["rev"] == rev                                              # názov nie je prihlásenie
     assert store.upsert_account({"id": a["id"]}, by="r") == z    # nič na zmenu = nič sa nestane
+    assert store.upsert_account({"id": a["id"], "label": "Nový názov"}, by="r") == z
     with pytest.raises(DeployError):
         store.upsert_account({"id": a["id"], "login": ""}, by="r")
     akcie = [x["action"] for x in store.audit()]
     assert akcie[:2] == ["account_update", "account_create"]
-    assert store.audit()[0]["old"] == {"label": "IC Markets Demo", "portable": False}
+    assert store.audit()[0]["old"] == {"label": "IC Markets Demo"}
+    # NinjaTrader heslo nemá — ani pri založení, ani pri zmene sa neuloží
+    nt = store.upsert_account({"platform": "ninjatrader", "label": "NT", "login": "Sim101"}, by="r", password="x")
+    assert nt["secret"] is False
+    assert store.upsert_account({"id": nt["id"]}, by="r", password="y")["secret"] is False
+
+
+def test_rev_sa_meni_s_prihlasenim(store: DeployStore):
+    a = _acc(store)
+    b = store.upsert_account({"id": a["id"], "server": "ICMarkets-Live"}, by="r")
+    assert b["rev"] and b["rev"] != a["rev"]
+    c = store.upsert_account({"id": a["id"]}, by="r", password="nove")
+    assert c["rev"] != b["rev"] and c["secret"] is True
+    assert store.audit()[0]["new"] == {"password": True}
+
+
+def test_platforma_uctu_s_nasadeniami_sa_nemeni(store: DeployStore):
+    a = _acc(store)
+    store.create_deployment({"account": a["id"], "agent": "pc", "strategy": "ibsnet", "symbol": "NAS100", "tf": 3,
+                             "profile": "p1"}, by="r")
+    with pytest.raises(Conflict):
+        store.upsert_account({"id": a["id"], "platform": "ninjatrader"}, by="r")
+    b = _acc(store, label="b")
+    assert store.upsert_account({"id": b["id"], "platform": "ninjatrader"}, by="r", password="x")["platform"] == "ninjatrader"
 
 
 def test_identita_uctu_podla_platformy():
@@ -166,18 +198,20 @@ def test_update_meni_len_mode_profil_a_active(store: DeployStore):
 # --------------------------------------------------------------------------- #
 
 
-def test_heslo_odide_agentovi_raz_a_po_potvrdeni_zmizne(store: DeployStore):
-    a = store.upsert_account({"agent": "trade-pc", "platform": "mt5", "label": "IC", "login": "1", "server": "S"},
-                             by="r", password="tajne")
-    b = store.upsert_account({"agent": "iny-pc", "platform": "ninjatrader", "label": "NT", "login": "Sim101"}, by="r")
-    d = store.create_deployment({"account": a["id"], "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p1"}, by="r")
+def test_heslo_dostane_kazdy_stroj_s_nasadenim_raz_za_verziu(store: DeployStore):
+    a = store.upsert_account({"platform": "mt5", "label": "IC", "login": "1", "server": "S"}, by="r", password="tajne")
+    b = store.upsert_account({"platform": "ninjatrader", "label": "NT", "login": "Sim101"}, by="r")
+    d = store.create_deployment({"account": a["id"], "agent": "trade-pc", "strategy": "ibsnet", "symbol": "NAS100",
+                                 "tf": 3, "profile": "p1"}, by="r")
+    assert store.account(a["id"])["secret_waiting"] == ["trade-pc"]
 
     want = store.desired_for_agent("trade-pc")
     assert [x["id"] for x in want["accounts"]] == [a["id"]] and want["accounts"][0]["secret"] == "tajne"
+    assert want["accounts"][0]["rev"] == store.account(a["id"])["rev"] and "agent" not in want["accounts"][0]
     assert [x["id"] for x in want["deployments"]] == [d["id"]] and want["deployments"][0]["config"] == d["config"]
-    iny = store.desired_for_agent("iny-pc")
-    assert [x["id"] for x in iny["accounts"]] == [b["id"]] and "secret" not in iny["accounts"][0] and iny["deployments"] == []
-    assert store.desired_for_agent("nikto") == {"accounts": [], "deployments": []}
+    # účet bez nasadenia na stroji stroj nedostane
+    assert store.desired_for_agent("iny-pc") == {"accounts": [], "deployments": []}
+    assert [x["id"] for x in store.desired_for_agent("trade-pc")["accounts"]] == [a["id"]]   # nie `b`
 
     # cudzí agent heslo nepotvrdí (a cudzie applied sa ignoruje)
     assert store.report_applied("iny-pc", [{"deployment": d["id"], "status": "ok"}], secret_ack=[a["id"]]) == 0
@@ -188,17 +222,78 @@ def test_heslo_odide_agentovi_raz_a_po_potvrdeni_zmizne(store: DeployStore):
                                            "status": "ok"}, {"deployment": "nie-je"}, {}], secret_ack=[a["id"]])
     assert n == 1
     assert "secret" not in store.desired_for_agent("trade-pc")["accounts"][0]
-    assert store.account(a["id"])["secret_pending"] is False
+    assert store.account(a["id"])["secret_pending"] is False and store.account(a["id"])["secret"] is True
     ap = store.deployment(d["id"])["applied"]
     assert ap["agent"] == "trade-pc" and ap["status"] == "ok" and ap["config_hash"] == d["config_hash"] and ap["ts"] == 1000.0
     assert [x["action"] for x in store.audit()][0] == "secret_taken"
 
-    # nové heslo → znova čaká; neznámy stav → error; opakované hlásenie prepíše
+    # ten istý účet na druhom stroji: heslo dostane aj on (hub ho drží), prvý už nie
+    e = store.create_deployment({"account": a["id"], "agent": "iny-pc", "strategy": "ibsnet", "symbol": "NAS100",
+                                 "tf": 5, "profile": "p1"}, by="r")
+    assert store.account(a["id"])["secret_waiting"] == ["iny-pc"]
+    iny = store.desired_for_agent("iny-pc")
+    assert iny["accounts"][0]["secret"] == "tajne" and [x["id"] for x in iny["deployments"]] == [e["id"]]
+    store.report_applied("iny-pc", [], secret_ack=[a["id"]])
+    assert store.account(a["id"])["secret_waiting"] == []
+
+    # nové heslo → znova čaká na oboch strojoch; neznámy stav → error; opakované hlásenie prepíše
     store.upsert_account({"id": a["id"]}, by="r", password="nove")
+    assert store.account(a["id"])["secret_waiting"] == ["iny-pc", "trade-pc"]
     assert store.desired_for_agent("trade-pc")["accounts"][0]["secret"] == "nove"
     store.report_applied("trade-pc", [{"deployment": d["id"], "status": "divny", "error": "x" * 900}])
     ap = store.deployment(d["id"])["applied"]
     assert ap["status"] == "error" and len(ap["error"]) == 500
+
+
+def test_heslo_s_inym_klucom_sa_nedoruci(tmp_path: Path):
+    st = DeployStore(tmp_path / "live.sqlite", config_resolver=_resolver, strategy_check=lambda k: k,
+                     vault=Vault(key=b"a" * 32))
+    a = st.upsert_account({"platform": "mt5", "label": "IC", "login": "1", "server": "S"}, by="r", password="tajne")
+    st.create_deployment({"account": a["id"], "agent": "pc", "strategy": "ibsnet", "symbol": "X", "tf": 3,
+                          "profile": "p"}, by="r")
+    st2 = DeployStore(tmp_path / "live.sqlite", config_resolver=_resolver, strategy_check=lambda k: k,
+                      vault=Vault(key=b"b" * 32))
+    acc = st2.desired_for_agent("pc")["accounts"][0]
+    assert "secret" not in acc and "nedá rozšifrovať" in acc["secret_error"]
+
+
+def test_vault_kluc_v_subore_a_overenie(tmp_path: Path, monkeypatch):
+    monkeypatch.delenv("TRADEBOT_HUB_SECRET_KEY", raising=False)
+    v = Vault(tmp_path / "secret.key")
+    blob = v.encrypt("heslo s diakritikou ľščť")
+    assert (tmp_path / "secret.key").exists() and blob.startswith("v1:")
+    assert v.encrypt("heslo s diakritikou ľščť") != blob                # náhodný nonce
+    assert Vault(tmp_path / "secret.key").decrypt(blob) == "heslo s diakritikou ľščť"
+    pokazeny = blob[:-6] + ("A" if blob[-6] != "A" else "B") + blob[-5:]
+    with pytest.raises(VaultError):
+        v.decrypt(pokazeny)
+    with pytest.raises(VaultError):
+        Vault(key=b"z" * 32).decrypt(blob)
+    monkeypatch.setenv("TRADEBOT_HUB_SECRET_KEY", "11" * 32)
+    assert Vault(tmp_path / "iny.key").decrypt(Vault(key=bytes.fromhex("11" * 32)).encrypt("x")) == "x"
+    assert not (tmp_path / "iny.key").exists()
+
+
+def test_terminal_mt5_je_v_nasadeni_a_jeden_na_ucet_a_stroj(store: DeployStore):
+    a = _acc(store)
+    base = {"account": a["id"], "agent": "pc", "strategy": "ibsnet", "symbol": "NAS100", "profile": "p1"}
+    d = store.create_deployment({**base, "tf": 3, "terminal": r"C:\MT5\terminal64.exe", "portable": True}, by="r")
+    assert d["terminal"] == r"C:\MT5\terminal64.exe" and d["portable"] is True and d["agent"] == "pc"
+    acc = store.desired_for_agent("pc")["accounts"][0]
+    assert acc["terminal"] == r"C:\MT5\terminal64.exe" and acc["portable"] is True
+    with pytest.raises(Conflict):                                    # iný terminál pre ten istý účet na tom stroji
+        store.create_deployment({**base, "tf": 5}, by="r")
+    store.create_deployment({**base, "tf": 5, "terminal": r"C:\MT5\terminal64.exe", "portable": True}, by="r")
+    store.create_deployment({**base, "tf": 15, "agent": "iny"}, by="r")          # iný stroj, iný terminál
+    with pytest.raises(DeployError):
+        store.update_deployment(d["id"], {"agent": "iny"}, by="r")
+    bez = store.upsert_account({"platform": "mt5", "label": "bez stroja", "login": "7", "server": "S"}, by="r")
+    with pytest.raises(DeployError, match="stroj"):                  # stroj je povinný (účet žiadny nemá)
+        store.create_deployment({**base, "account": bez["id"], "tf": 30, "agent": ""}, by="r")
+    # NinjaTrader terminál nemá — pole sa ignoruje
+    nt = store.upsert_account({"platform": "ninjatrader", "label": "NT", "login": "Sim101"}, by="r")
+    e = store.create_deployment({**base, "account": nt["id"], "tf": 3, "terminal": "x", "portable": True}, by="r")
+    assert e["terminal"] == "" and e["portable"] is False
 
 
 def test_desired_nesie_aj_neaktivne_nasadenia(store: DeployStore):
@@ -248,18 +343,58 @@ def test_mazanie_nasadenia_ktore_agent_nikdy_nevidel_a_force(store: DeployStore)
     assert raw == 0
 
 
-def test_mazanie_uctu_s_nasadeniami_len_s_force(store: DeployStore):
+def test_ucet_sa_neda_zmazat_ked_na_nom_nieco_bezi(store: DeployStore):
     a = _acc(store)
     d = store.create_deployment({"account": a["id"], "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p1"}, by="r")
-    with pytest.raises(Conflict):
-        store.delete_account(a["id"], by="r")
-    out = store.delete_account(a["id"], by="r", force=True)
+    for force in (False, True):                                      # ani force aktívne nasadenia neprebije
+        with pytest.raises(Conflict, match="ešte beží: ibsnet NAS100 3m na trade-pc"):
+            store.delete_account(a["id"], by="r", force=force)
+    store.update_deployment(d["id"], {"active": False}, by="r")      # odstránené (čaká na potvrdenie agentom)
+    out = store.delete_account(a["id"], by="r")
     assert out == {"id": a["id"], "deleted": True, "deployments": [d["id"]]}
     assert store.accounts() == [] and store.deployments() == []
     with pytest.raises(NotFound):
         store.delete_account(a["id"], by="r")
     b = _acc(store, label="x")
     assert store.delete_account(b["id"], by="r")["deployments"] == []
+
+
+def test_migracia_uctu_viazaneho_na_stroj(tmp_path: Path):
+    """Starý súbor: účet so strojom, terminálom a čitateľným `secret_pending`. Nasadenia zdedia stroj aj
+    terminál (agent dostane to isté ako doteraz), heslo sa zašifruje a doručí znova."""
+    path = tmp_path / "live.sqlite"
+    with sqlite3.connect(str(path)) as c:
+        c.executescript("""
+        CREATE TABLE accounts (id TEXT PRIMARY KEY, agent TEXT NOT NULL, platform TEXT NOT NULL,
+            label TEXT NOT NULL DEFAULT '', login TEXT NOT NULL DEFAULT '', server TEXT NOT NULL DEFAULT '',
+            terminal TEXT NOT NULL DEFAULT '', portable INTEGER NOT NULL DEFAULT 0, created REAL NOT NULL,
+            updated REAL NOT NULL, by TEXT NOT NULL DEFAULT '', secret_pending TEXT);
+        CREATE TABLE deployments (id TEXT PRIMARY KEY, account TEXT NOT NULL, strategy TEXT NOT NULL,
+            symbol TEXT NOT NULL, tf INTEGER NOT NULL, profile TEXT NOT NULL DEFAULT '', config TEXT NOT NULL DEFAULT '{}',
+            config_hash TEXT NOT NULL DEFAULT '', mode TEXT NOT NULL DEFAULT 'enabled', active INTEGER NOT NULL DEFAULT 1,
+            instance TEXT NOT NULL DEFAULT '', created REAL NOT NULL, updated REAL NOT NULL, by TEXT NOT NULL DEFAULT '');
+        INSERT INTO accounts VALUES ('ic', 'trade-pc', 'mt5', 'IC', '1', 'S', 'C:\\MT5', 1, 1, 1, 'r', 'tajne');
+        INSERT INTO accounts VALUES ('nt', 'nas-win11', 'ninjatrader', 'NT', 'Sim101', '', '', 0, 1, 1, 'r', NULL);
+        INSERT INTO deployments VALUES ('d1', 'ic', 'ibsnet', 'NAS100', 3, 'p1', '{}', 'h', 'enabled', 1,
+            'mt5_1-S_NAS100_3m_ibsnet', 1, 1, 'r');
+        INSERT INTO deployments VALUES ('d2', 'nt', 'ibsnet', 'MNQ 12-26', 3, 'p1', '{}', 'h', 'enabled', 1,
+            'ninjatrader_Sim101_MNQ_3m_ibsnet', 1, 1, 'r');
+        """)
+    st = DeployStore(path, config_resolver=_resolver, strategy_check=lambda k: k, vault=Vault(key=b"k" * 32))
+    assert st.deployment("d1")["agent"] == "trade-pc" and st.deployment("d2")["agent"] == "nas-win11"
+    assert st.deployment("d1")["terminal"] == "C:\\MT5" and st.deployment("d1")["portable"] is True
+    want = st.desired_for_agent("trade-pc")
+    assert want["accounts"][0] == {"id": "ic", "platform": "mt5", "label": "IC", "login": "1", "server": "S", "rev": "",
+                                   "terminal": "C:\\MT5", "portable": True, "secret": "tajne"}
+    nt = st.desired_for_agent("nas-win11")
+    assert nt["accounts"] == [{"id": "nt", "platform": "ninjatrader", "label": "NT", "login": "Sim101", "server": "",
+                               "rev": "", "terminal": "", "portable": False}]
+    assert [d["instance"] for d in nt["deployments"]] == ["ninjatrader_Sim101_MNQ_3m_ibsnet"]
+    raw = sqlite3.connect(str(path)).execute("SELECT secret_pending, secret_enc FROM accounts WHERE id = 'ic'").fetchone()
+    assert raw[0] is None and "tajne" not in raw[1]
+    # druhé otvorenie nič nemení
+    st2 = DeployStore(path, config_resolver=_resolver, strategy_check=lambda k: k, vault=Vault(key=b"k" * 32))
+    assert st2.deployment("d1")["terminal"] == "C:\\MT5" and st2.account("ic")["secret"] is True
 
 
 def test_zmena_loginu_prepocita_instancie(store: DeployStore):
@@ -278,13 +413,13 @@ def test_zdiela_subor_s_livestore(tmp_path: Path):
     path = tmp_path / "live.sqlite"
     live = LiveStore(path)
     dep = DeployStore(path, config_resolver=_resolver, strategy_check=lambda k: k)
-    a = dep.upsert_account({"agent": "a", "platform": "mt5", "label": "x", "login": "1", "server": "s"}, by="r")
+    a = dep.upsert_account({"platform": "mt5", "label": "x", "login": "1", "server": "s"}, by="r")
     live.ingest("a", "mt5_1-s_NAS100_3m_ibsnet", "s1", [{"seq": 1, "t": 1, "k": "note", "text": "hi"}])
     assert [i["id"] for i in live.instances()] == ["mt5_1-s_NAS100_3m_ibsnet"]
     assert dep.accounts()[0]["id"] == a["id"]
     assert dep.counts() == {"accounts": 1, "deployments": 0}
     tabulky = {r[0] for r in sqlite3.connect(str(path)).execute("SELECT name FROM sqlite_master WHERE type='table'")}
-    assert {"instances", "events", "accounts", "deployments", "audit", "applied"} <= tabulky
+    assert {"instances", "events", "accounts", "deployments", "audit", "applied", "secret_sent"} <= tabulky
 
 
 def test_predvoleny_resolver_berie_profil_z_repozitara(tmp_path: Path):

@@ -8,9 +8,16 @@ a hlási späť, čo sa mu podarilo (`report_applied` → tabuľka `applied`). R
 Ten istý sqlite súbor ako `LiveStore` (`live.sqlite`), vlastné spojenie a vlastné tabuľky —
 udalosti zo spoolu a požadovaný stav ležia vedľa seba, ale jeden kód nepotrebuje druhý.
 
-Heslo účtu hub **nikdy neukladá natrvalo**: príde raz (`upsert_account(password=…)`), leží
-v `secret_pending`, odíde agentovi v najbližšom heartbeate a po potvrdení (`secret_ack`) sa
-zmaže. Do žiadneho zoznamu okrem `desired_for_agent` sa nedostane.
+Účet **nie je viazaný na stroj**: je to prihlásenie do platformy (MT5: číslo účtu, server,
+heslo; NinjaTrader: meno účtu a pripojenie). Stroj (agent) a pri MT5 terminál určuje až
+nasadenie — ten istý účet môže bežať na viacerých strojoch. Agent dostane v `desired_for_agent`
+účty, ktoré používajú jeho nasadenia, s terminálom z týchto nasadení.
+
+Heslo hub drží **šifrované** (`tradebot.live.vault`, kľúč `secret.key` vedľa databázy): každý
+stroj s nasadením na účte ho dostane v heartbeate raz za verziu hesla (`secret_rev`) a potvrdí
+(`secret_ack` → `secret_sent`); nové heslo odíde znova všetkým. Do žiadneho zoznamu okrem
+`desired_for_agent` sa nedostane. `rev` účtu sa mení so zmenou prihlásenia (login, server,
+heslo) — driver podľa neho bežiacu inštanciu zastaví a spustí s novými údajmi.
 
 Hub nepozná platformu menom — jediné, čo z nej potrebuje, je identita účtu do id inštancie
 (`ACCOUNT_IDENTITY`: MT5 `<login>-<server>`, inak `<login>`), aby `instance` nasadenia sedelo
@@ -30,9 +37,10 @@ from pathlib import Path
 from typing import Any, Callable
 
 from .schema import CONTROL_MODES, instance_id, instance_symbol
+from .vault import Vault, VaultError
 
 __all__ = ["DeployStore", "DeployError", "Conflict", "NotFound", "config_hash", "account_identity", "ACCOUNT_IDENTITY",
-           "code_state", "CODE_STATES", "DEFAULT_MODE"]
+           "code_state", "CODE_STATES", "DEFAULT_MODE", "PLATFORMS"]
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS accounts (
@@ -67,6 +75,13 @@ CREATE TABLE IF NOT EXISTS deployments (
     by          TEXT NOT NULL DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS deployments_account ON deployments (account);
+CREATE TABLE IF NOT EXISTS secret_sent (
+    account  TEXT NOT NULL,
+    agent    TEXT NOT NULL,
+    rev      TEXT NOT NULL DEFAULT '',
+    sent_rev TEXT NOT NULL DEFAULT '',
+    PRIMARY KEY (account, agent)
+);
 CREATE TABLE IF NOT EXISTS audit (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     ts         REAL NOT NULL,
@@ -98,12 +113,27 @@ APPLIED_STATES = ("ok", "pending", "error", "removed")
 #: Režim nového nasadenia, keď ho zadávateľ neurčí: pauznuté — zapne sa ručne v tabuľke.
 DEFAULT_MODE = "paused"
 
-_ACCOUNT_FIELDS = ("agent", "platform", "label", "login", "server", "terminal", "portable")
-_ACCOUNT_COLS = ("id", *_ACCOUNT_FIELDS, "created", "updated", "by")
-_DEPLOYMENT_COLS = ("id", "account", "strategy", "symbol", "tf", "profile", "config", "config_hash",
-                    "mode", "active", "instance", "version", "created", "updated", "by")
+#: Platformy účtov a čo k prihláseniu potrebujú. `password` = heslo ide na stroj (MT5); NinjaTrader sa
+#: prihlasuje zapamätaným loginom NT, heslo účtu nemá. Terminál (MT5) je vec stroja — je v nasadení.
+PLATFORMS: dict[str, dict[str, Any]] = {
+    "mt5": {"title": "MetaTrader 5", "password": True, "terminal": True},
+    "ninjatrader": {"title": "NinjaTrader 8", "password": False, "terminal": False},
+}
+
+_ACCOUNT_FIELDS = ("platform", "label", "login", "server")
+#: Zmena týchto polí (a hesla) = nové prihlásenie: nový `rev`, stroje inštanciu reštartujú.
+_LOGIN_FIELDS = ("platform", "login", "server")
+_ACCOUNT_COLS = ("id", *_ACCOUNT_FIELDS, "rev", "created", "updated", "by")
+_DEPLOYMENT_COLS = ("id", "account", "agent", "strategy", "symbol", "tf", "profile", "config", "config_hash",
+                    "mode", "active", "instance", "version", "terminal", "portable", "created", "updated", "by")
 #: Stĺpce, ktoré pribudli po prvom vydaní — `ALTER TABLE` pri otvorení starého súboru.
-_MIGRATIONS = (("deployments", "version", "TEXT NOT NULL DEFAULT ''"),)
+_MIGRATIONS = (("deployments", "version", "TEXT NOT NULL DEFAULT ''"),
+               ("deployments", "agent", "TEXT NOT NULL DEFAULT ''"),
+               ("deployments", "terminal", "TEXT NOT NULL DEFAULT ''"),
+               ("deployments", "portable", "INTEGER NOT NULL DEFAULT 0"),
+               ("accounts", "rev", "TEXT NOT NULL DEFAULT ''"),
+               ("accounts", "secret_enc", "TEXT"),
+               ("accounts", "secret_rev", "TEXT NOT NULL DEFAULT ''"))
 
 #: Stav kódu na stroji voči tomu, čo nasadenie (alebo hub) chce — fáza 2c.
 CODE_STATES = ("ok", "outdated", "unknown")
@@ -177,8 +207,10 @@ class DeployStore:
     def __init__(self, path: Path | str, *, clock: Callable[[], float] = time.time,
                  config_resolver: Callable[[str, str], dict[str, Any]] | None = None,
                  strategy_check: Callable[[str], str] | None = None,
-                 version: Callable[[], str] | str | None = None) -> None:
+                 version: Callable[[], str] | str | None = None, vault: Vault | None = None) -> None:
         self.path = Path(path)
+        #: Šifrovanie hesiel účtov — kľúč `secret.key` vedľa databázy (vznikne, keď príde prvé heslo).
+        self.vault = vault or Vault(self.path.parent / "secret.key")
         self.clock = clock
         self.config_resolver = config_resolver or _default_resolver
         self.strategy_check = strategy_check or _check_strategy
@@ -193,10 +225,26 @@ class DeployStore:
             self._migrate()
 
     def _migrate(self) -> None:
+        pridane = set()
         for table, col, ddl in _MIGRATIONS:
             mena = {r["name"] for r in self._db.execute(f"PRAGMA table_info({table})")}
             if col not in mena:
                 self._db.execute(f"ALTER TABLE {table} ADD COLUMN {col} {ddl}")
+                pridane.add((table, col))
+        self._db.execute("CREATE INDEX IF NOT EXISTS deployments_agent ON deployments (agent)")
+        # Účet bol kedysi viazaný na stroj (`accounts.agent`, aj terminál MT5): nasadenia ho zdedia —
+        # tie isté hodnoty, aké agent dostával doteraz, takže sa na strojoch nič nereštartuje.
+        self._db.execute("UPDATE deployments SET agent = (SELECT a.agent FROM accounts a WHERE a.id = deployments.account) "
+                         "WHERE agent = '' AND EXISTS (SELECT 1 FROM accounts a WHERE a.id = deployments.account "
+                         "AND a.agent != '')")
+        if ("deployments", "terminal") in pridane:
+            self._db.execute("UPDATE deployments SET terminal = COALESCE((SELECT a.terminal FROM accounts a "
+                             "WHERE a.id = deployments.account), ''), portable = COALESCE((SELECT a.portable FROM "
+                             "accounts a WHERE a.id = deployments.account), 0)")
+        # Heslo čakajúce po starom (čitateľné `secret_pending`) → šifrované; doručí sa znova.
+        for r in self._db.execute("SELECT id, secret_pending FROM accounts WHERE secret_pending IS NOT NULL").fetchall():
+            self._db.execute("UPDATE accounts SET secret_enc = ?, secret_rev = ?, secret_pending = NULL WHERE id = ?",
+                             (self.vault.encrypt(r["secret_pending"]), uuid.uuid4().hex[:12], r["id"]))
         # `instance` je odvodený stĺpec — keď sa zmení pravidlo (napr. NT `MNQ 12-26` → `MNQ`,
         # `instance_symbol`), staré riadky sa dorovnajú pri štarte, nie až pri zmene účtu.
         for r in self._db.execute("SELECT DISTINCT account FROM deployments"):
@@ -219,18 +267,30 @@ class DeployStore:
 
     # -- pomocné --------------------------------------------------------------- #
 
-    @staticmethod
-    def _account_row(r: sqlite3.Row) -> dict[str, Any]:
+    def _account_row(self, r: sqlite3.Row) -> dict[str, Any]:
+        """Účet pre zoznamy: bez hesla — len či je uložené a ktoré stroje ho ešte neprevzali."""
         d = {k: r[k] for k in _ACCOUNT_COLS}
-        d["portable"] = bool(d["portable"])
-        d["secret_pending"] = bool(r["secret_pending"])   # len či čaká — obsah nikdy
+        d["secret"] = bool(r["secret_enc"])
+        d["secret_waiting"] = self._secret_waiting(r) if r["secret_enc"] else []
+        d["secret_pending"] = bool(d["secret_waiting"])
         return d
+
+    def _account_agents(self, account_id: str) -> list[str]:
+        """Stroje, ktoré účet používajú (majú s ním nasadenie, aj neaktívne — tam ešte niečo odstraňujú)."""
+        return [r["agent"] for r in self._db.execute(
+            "SELECT DISTINCT agent FROM deployments WHERE account = ? AND agent != '' ORDER BY agent", (account_id,))]
+
+    def _secret_waiting(self, r: sqlite3.Row) -> list[str]:
+        prevzate = {x["agent"] for x in self._db.execute(
+            "SELECT agent FROM secret_sent WHERE account = ? AND rev = ?", (r["id"], r["secret_rev"]))}
+        return [a for a in self._account_agents(r["id"]) if a not in prevzate]
 
     @staticmethod
     def _deployment_row(r: sqlite3.Row) -> dict[str, Any]:
         d = {k: r[k] for k in _DEPLOYMENT_COLS}
         d["config"] = json.loads(d["config"] or "{}")
         d["active"] = bool(d["active"])
+        d["portable"] = bool(d["portable"])
         return d
 
     @staticmethod
@@ -266,70 +326,91 @@ class DeployStore:
     # -- účty ------------------------------------------------------------------ #
 
     def accounts(self, agent: str | None = None) -> list[dict[str, Any]]:
+        """Všetky účty; s `agent` len tie, ktoré jeho nasadenia používajú."""
         sql, args = "SELECT * FROM accounts", []
         if agent:
-            sql += " WHERE agent = ?"
+            sql += " WHERE id IN (SELECT account FROM deployments WHERE agent = ?)"
             args.append(agent)
         with self._lock:
-            rows = self._db.execute(sql + " ORDER BY agent, id", args).fetchall()
-        return [self._account_row(r) for r in rows]
+            rows = self._db.execute(sql + " ORDER BY id", args).fetchall()
+            return [self._account_row(r) for r in rows]
 
     def account(self, account_id: str) -> dict[str, Any] | None:
         with self._lock:
             r = self._db.execute("SELECT * FROM accounts WHERE id = ?", (account_id,)).fetchone()
-        return self._account_row(r) if r is not None else None
+            return self._account_row(r) if r is not None else None
 
     def upsert_account(self, data: dict[str, Any], by: str, password: str | None = None) -> dict[str, Any]:
         """Nový účet (id zo `label`, keď chýba) alebo zmena existujúceho (podľa `id`).
-        `password` ide len do `secret_pending`; prázdny reťazec = nemení sa."""
+        `password` sa uloží šifrované a odíde strojom, ktoré účet používajú; prázdny = nemení sa.
+        Zmena prihlásenia (login, server, heslo) dá účtu nový `rev` — stroje inštancie reštartujú.
+        `terminal`/`portable` v dátach sú pozostatok účtu viazaného na stroj a ignorujú sa; `agent` od starého
+        klienta ostane len ako predvolený stroj pre nasadenie, ktoré stroj neurčí."""
         data = dict(data or {})
         with self._lock, self._db:
             now = self.clock()
             existing = self._db.execute("SELECT * FROM accounts WHERE id = ?", (data.get("id"),)).fetchone() \
                 if data.get("id") else None
             if existing is None:
-                for key in ("agent", "platform"):
-                    if not str(data.get(key) or "").strip():
-                        raise DeployError(f"účet potrebuje {key}")
+                platform = str(data.get("platform") or "").strip()
+                if platform not in PLATFORMS:
+                    raise DeployError(f"platforma účtu musí byť {' alebo '.join(PLATFORMS)}")
                 if not str(data.get("login") or "").strip():
                     raise DeployError("účet potrebuje login (MT5 číslo účtu / NT meno účtu)")
                 acc_id = str(data.get("id") or "").strip() or self._free_id(_slug(data.get("label") or data.get("login")))
                 if acc_id != _slug(acc_id):
                     raise DeployError(f"id účtu {acc_id!r}: len malé písmená, číslice, '.', '-' a '_'")
-                row = {"id": acc_id, "agent": str(data["agent"]).strip(), "platform": str(data["platform"]).strip(),
+                heslo = password if (password and PLATFORMS[platform]["password"]) else None
+                row = {"id": acc_id, "platform": platform,
                        "label": str(data.get("label") or acc_id).strip(), "login": str(data["login"]).strip(),
-                       "server": str(data.get("server") or "").strip(), "terminal": str(data.get("terminal") or "").strip(),
-                       "portable": 1 if data.get("portable") else 0, "created": now, "updated": now, "by": by or ""}
+                       "server": str(data.get("server") or "").strip(), "rev": uuid.uuid4().hex[:12],
+                       "created": now, "updated": now, "by": by or ""}
                 self._db.execute(
-                    "INSERT INTO accounts (id, agent, platform, label, login, server, terminal, portable, created, "
-                    "updated, by, secret_pending) VALUES (:id, :agent, :platform, :label, :login, :server, :terminal, "
-                    ":portable, :created, :updated, :by, :secret)", {**row, "secret": password or None})
-                self._audit(by, "account_create", account=acc_id, new={**row, "password": bool(password)})
+                    "INSERT INTO accounts (id, agent, platform, label, login, server, rev, created, updated, by, "
+                    "secret_enc, secret_rev) VALUES (:id, :legacy_agent, :platform, :label, :login, :server, :rev, "
+                    ":created, :updated, :by, :secret, :secret_rev)",
+                    # `agent` od starého klienta: len predvolený stroj pre jeho nasadenie bez stroja
+                    {**row, "legacy_agent": str(data.get("agent") or "").strip(),
+                     "secret": self.vault.encrypt(heslo) if heslo else None,
+                     "secret_rev": uuid.uuid4().hex[:12] if heslo else ""})
+                self._audit(by, "account_create", account=acc_id,
+                            new={**{k: v for k, v in row.items() if k != "rev"}, "password": bool(heslo)})
             else:
                 acc_id = existing["id"]
                 old = self._account_row(existing)
                 sets: dict[str, Any] = {}
                 for key in _ACCOUNT_FIELDS:
-                    if key in data and data[key] is not None:
-                        sets[key] = (1 if data[key] else 0) if key == "portable" else str(data[key]).strip()
-                if "platform" in sets and not sets["platform"]:
-                    raise DeployError("platforma nesmie byť prázdna")
+                    if key in data and data[key] is not None and str(data[key]).strip() != str(existing[key]):
+                        sets[key] = str(data[key]).strip()
+                if "platform" in sets:
+                    if sets["platform"] not in PLATFORMS:
+                        raise DeployError(f"platforma účtu musí byť {' alebo '.join(PLATFORMS)}")
+                    if self._account_agents(acc_id):
+                        raise Conflict("platforma účtu s nasadeniami sa nemení — sprav nový účet")
                 if "login" in sets and not sets["login"]:
                     raise DeployError("login nesmie byť prázdny")
-                if password:
-                    sets["secret_pending"] = password
+                platform = sets.get("platform") or existing["platform"]
+                heslo = password if (password and PLATFORMS.get(platform, {}).get("password")) else None
+                if heslo:
+                    sets["secret_enc"] = self.vault.encrypt(heslo)
+                    sets["secret_rev"] = uuid.uuid4().hex[:12]
+                elif "platform" in sets and not PLATFORMS[platform]["password"]:
+                    sets.update(secret_enc=None, secret_rev="")   # NinjaTrader heslo nemá
                 if not sets:
                     return old
+                if heslo or any(k in sets for k in _LOGIN_FIELDS):
+                    sets["rev"] = uuid.uuid4().hex[:12]
                 sets.update(updated=now, by=by or "")
                 cols = ", ".join(f"{k} = ?" for k in sets)
                 self._db.execute(f"UPDATE accounts SET {cols} WHERE id = ?", (*sets.values(), acc_id))
-                zmena = {k: v for k, v in sets.items() if k not in ("updated", "by", "secret_pending")}
-                if password:
+                zmena = {k: v for k, v in sets.items() if k in _ACCOUNT_FIELDS}
+                if heslo:
                     zmena["password"] = True
-                self._audit(by, "account_update", account=acc_id,
-                            old={k: old.get(k) for k in zmena if k != "password"}, new=zmena)
+                if zmena:
+                    self._audit(by, "account_update", account=acc_id,
+                                old={k: old.get(k) for k in zmena if k != "password"}, new=zmena)
                 # identita účtu je v id inštancií — keď sa zmení login/server/platforma, prepočítať
-                if any(k in sets for k in ("login", "server", "platform")):
+                if any(k in sets for k in _LOGIN_FIELDS):
                     self._recompute_instances(acc_id)
             return self._account_row(self._account_or_404(acc_id))
 
@@ -341,25 +422,29 @@ class DeployStore:
         return cand
 
     def _recompute_instances(self, account_id: str) -> None:
-        acc = self._account_row(self._account_or_404(account_id))
+        acc = dict(self._account_or_404(account_id))
         for r in self._db.execute("SELECT id, symbol, tf, strategy FROM deployments WHERE account = ?", (account_id,)):
             inst = instance_id(acc["platform"], account_identity(acc), instance_symbol(acc["platform"], r["symbol"]),
                                int(r["tf"]), r["strategy"])
             self._db.execute("UPDATE deployments SET instance = ? WHERE id = ?", (inst, r["id"]))
 
     def delete_account(self, account_id: str, by: str, force: bool = False) -> dict[str, Any]:
-        """Zmaže účet; s nasadeniami len s `force` (zmažú sa aj tie — agent ich pri ďalšom
-        heartbeate už nedostane, takže ich má odstrániť z platformy sám)."""
+        """Zmaže účet — len keď na ňom nič nebeží (žiadne aktívne nasadenie na žiadnom stroji).
+        Neaktívne nasadenia (odstránené z platformy, čakajúce na zmazanie) sa zmažú s ním. `force`
+        aktívne nasadenia **neprebíja**: najprv ich treba odstrániť (agent ich zastaví na platforme)."""
         with self._lock, self._db:
             old = self._account_row(self._account_or_404(account_id))
+            bezi = [f"{r['strategy']} {r['symbol']} {r['tf']}m na {r['agent'] or '?'}" for r in self._db.execute(
+                "SELECT strategy, symbol, tf, agent FROM deployments WHERE account = ? AND active = 1 ORDER BY created",
+                (account_id,))]
+            if bezi:
+                raise Conflict(f"na účte {account_id!r} ešte beží: {', '.join(bezi)} — najprv tie nasadenia odstráň")
             deps = [r["id"] for r in self._db.execute("SELECT id FROM deployments WHERE account = ?", (account_id,))]
-            if deps and not force:
-                raise Conflict(f"účet {account_id!r} má nasadenia ({', '.join(deps)}) — najprv ich odstráň, "
-                                  f"alebo to vynúť")
             for dep_id in deps:
                 self._db.execute("DELETE FROM applied WHERE deployment = ?", (dep_id,))
                 self._db.execute("DELETE FROM deployments WHERE id = ?", (dep_id,))
-                self._audit(by, "deployment_delete", account=account_id, deployment=dep_id, old={"forced": True})
+                self._audit(by, "deployment_delete", account=account_id, deployment=dep_id, old={"with_account": True})
+            self._db.execute("DELETE FROM secret_sent WHERE account = ?", (account_id,))
             self._db.execute("DELETE FROM accounts WHERE id = ?", (account_id,))
             self._audit(by, "account_delete", account=account_id, old=old)
             return {"id": account_id, "deleted": True, "deployments": deps}
@@ -367,20 +452,19 @@ class DeployStore:
     # -- nasadenia ------------------------------------------------------------- #
 
     def deployments(self, agent: str | None = None, account: str | None = None) -> list[dict[str, Any]]:
-        sql = "SELECT d.*, a.agent AS _agent, a.platform AS _platform FROM deployments d JOIN accounts a ON a.id = d.account"
+        sql = "SELECT d.*, a.platform AS _platform FROM deployments d JOIN accounts a ON a.id = d.account"
         where, args = [], []
         if agent:
-            where.append("a.agent = ?"); args.append(agent)
+            where.append("d.agent = ?"); args.append(agent)
         if account:
             where.append("d.account = ?"); args.append(account)
         if where:
             sql += " WHERE " + " AND ".join(where)
         with self._lock:
-            rows = self._db.execute(sql + " ORDER BY a.agent, d.account, d.created", args).fetchall()
+            rows = self._db.execute(sql + " ORDER BY d.agent, d.account, d.created", args).fetchall()
             out = []
             for r in rows:
                 d = self._deployment_row(r)
-                d["agent"] = r["_agent"]
                 d["platform"] = r["_platform"]
                 d["applied"] = self._applied_row(
                     self._db.execute("SELECT * FROM applied WHERE deployment = ?", (d["id"],)).fetchone())
@@ -389,12 +473,11 @@ class DeployStore:
 
     def deployment(self, dep_id: str) -> dict[str, Any] | None:
         with self._lock:
-            r = self._db.execute("SELECT d.*, a.agent AS _agent, a.platform AS _platform FROM deployments d "
+            r = self._db.execute("SELECT d.*, a.platform AS _platform FROM deployments d "
                                  "JOIN accounts a ON a.id = d.account WHERE d.id = ?", (dep_id,)).fetchone()
             if r is None:
                 return None
             d = self._deployment_row(r)
-            d["agent"] = r["_agent"]
             d["platform"] = r["_platform"]
             d["applied"] = self._applied_row(
                 self._db.execute("SELECT * FROM applied WHERE deployment = ?", (dep_id,)).fetchone())
@@ -431,32 +514,50 @@ class DeployStore:
         profile = str(data.get("profile") or "").strip()
         config = self._resolve_config(strategy, profile, data.get("config"))
         with self._lock, self._db:
-            acc = self._account_row(self._account_or_404(account_id))
+            acc = dict(self._account_or_404(account_id))
+            # stroj z nasadenia; starý klient ho neposiela — vtedy stroj, na ktorý bol účet kedysi viazaný
+            agent = str(data.get("agent") or "").strip() or str(acc.get("agent") or "").strip()
+            if not agent:
+                raise DeployError("nasadenie potrebuje stroj (agenta), na ktorom má bežať")
+            terminal, portable = "", 0
+            if PLATFORMS.get(acc["platform"], {}).get("terminal"):
+                terminal = str(data.get("terminal") or "").strip()
+                portable = 1 if data.get("portable") else 0
+                # jeden účet = jeden terminál na stroji: ďalšie nasadenie musí ísť do toho istého
+                iny = self._db.execute("SELECT terminal, portable FROM deployments WHERE account = ? AND agent = ? "
+                                       "AND active = 1 AND (terminal != ? OR portable != ?) LIMIT 1",
+                                       (account_id, agent, terminal, portable)).fetchone()
+                if iny is not None:
+                    raise Conflict(f"účet {account_id!r} už na stroji {agent} beží v termináli "
+                                   f"{iny['terminal'] or 'nainštalovanom'}{' (portable)' if iny['portable'] else ''} — "
+                                   f"ďalšie nasadenie musí ísť do toho istého")
             inst = instance_id(acc["platform"], account_identity(acc), instance_symbol(acc["platform"], symbol), tf, strategy)
             dup = self._db.execute("SELECT id FROM deployments WHERE instance = ?", (inst,)).fetchone()
             if dup is not None:
                 raise Conflict(f"tá istá inštancia ({inst}) už je nasadená ako {dup['id']}")
             now = self.clock()
             dep_id = str(data.get("id") or "").strip() or uuid.uuid4().hex[:12]
-            row = {"id": dep_id, "account": account_id, "strategy": strategy, "symbol": symbol, "tf": tf,
-                   "profile": profile, "config": json.dumps(config, ensure_ascii=False, sort_keys=True),
+            row = {"id": dep_id, "account": account_id, "agent": agent, "strategy": strategy, "symbol": symbol,
+                   "tf": tf, "profile": profile, "config": json.dumps(config, ensure_ascii=False, sort_keys=True),
                    "config_hash": config_hash(config), "mode": mode, "active": 1, "instance": inst,
                    "version": str(data.get("version") or "").strip() or self.version(),
-                   "created": now, "updated": now, "by": by or ""}
+                   "terminal": terminal, "portable": portable, "created": now, "updated": now, "by": by or ""}
             self._db.execute(
-                "INSERT INTO deployments (id, account, strategy, symbol, tf, profile, config, config_hash, mode, "
-                "active, instance, version, created, updated, by) VALUES (:id, :account, :strategy, :symbol, :tf, "
-                ":profile, :config, :config_hash, :mode, :active, :instance, :version, :created, :updated, :by)", row)
+                "INSERT INTO deployments (id, account, agent, strategy, symbol, tf, profile, config, config_hash, "
+                "mode, active, instance, version, terminal, portable, created, updated, by) VALUES (:id, :account, "
+                ":agent, :strategy, :symbol, :tf, :profile, :config, :config_hash, :mode, :active, :instance, "
+                ":version, :terminal, :portable, :created, :updated, :by)", row)
             self._audit(by, "deployment_create", account=account_id, deployment=dep_id,
                         new={k: v for k, v in row.items() if k != "config"})
         return self.deployment(dep_id)  # type: ignore[return-value]
 
     def update_deployment(self, dep_id: str, patch: dict[str, Any], by: str) -> dict[str, Any]:
         """Meniť sa smie `mode`, `profile` (+`config`, inak sa dopočíta z profilu), `active` a `version`
-        (commit, na ktorom zadávateľ zmenu urobil); účet, stratégia, symbol a TF sú identita inštancie —
-        na iné treba nové nasadenie."""
+        (commit, na ktorom zadávateľ zmenu urobil); účet, stratégia, symbol a TF sú identita inštancie,
+        stroj a terminál miesto behu — na iné treba nové nasadenie."""
         patch = dict(patch or {})
-        zakazane = [k for k in ("account", "strategy", "symbol", "tf", "instance") if k in patch and patch[k] is not None]
+        zakazane = [k for k in ("account", "agent", "strategy", "symbol", "tf", "instance", "terminal", "portable")
+                    if k in patch and patch[k] is not None]
         if zakazane:
             raise DeployError(f"{', '.join(zakazane)} sa nemení — sprav nové nasadenie")
         with self._lock, self._db:
@@ -512,24 +613,41 @@ class DeployStore:
     # -- agent ------------------------------------------------------------------ #
 
     def desired_for_agent(self, agent: str) -> dict[str, Any]:
-        """Celý požadovaný stav jedného agenta do heartbeatu: účty (so `secret`, keď čaká)
-        a nasadenia (s `config`, aj neaktívne — tie má agent z platformy odstrániť)."""
-        with self._lock:
-            accs = []
-            for r in self._db.execute("SELECT * FROM accounts WHERE agent = ? ORDER BY id", (agent,)):
-                a = self._account_row(r)
-                if r["secret_pending"]:
-                    a["secret"] = r["secret_pending"]
-                accs.append(a)
+        """Celý požadovaný stav jedného agenta do heartbeatu: jeho nasadenia (s `config`, aj neaktívne —
+        tie má z platformy odstrániť) a účty, ktoré používajú. Účet nesie terminál MT5 z nasadení na tomto
+        stroji, `rev` (verzia prihlásenia) a `secret`, kým stroj aktuálnu verziu hesla nepotvrdil."""
+        with self._lock, self._db:
             deps = [self._deployment_row(r) for r in self._db.execute(
-                "SELECT d.* FROM deployments d JOIN accounts a ON a.id = d.account WHERE a.agent = ? "
-                "ORDER BY d.account, d.created", (agent,))]
+                "SELECT * FROM deployments WHERE agent = ? ORDER BY account, created", (agent,))]
+            accs = []
+            for acc_id in sorted({d["account"] for d in deps}):
+                r = self._db.execute("SELECT * FROM accounts WHERE id = ?", (acc_id,)).fetchone()
+                if r is None:
+                    continue
+                a: dict[str, Any] = {k: r[k] for k in ("id", "platform", "label", "login", "server", "rev")}
+                vlastne = [d for d in deps if d["account"] == acc_id]
+                miesto = next((d for d in vlastne if d["active"]), vlastne[0])
+                a["terminal"], a["portable"] = miesto["terminal"], miesto["portable"]
+                if r["secret_enc"]:
+                    sent = self._db.execute("SELECT rev FROM secret_sent WHERE account = ? AND agent = ?",
+                                            (acc_id, agent)).fetchone()
+                    if sent is None or sent["rev"] != r["secret_rev"]:
+                        try:
+                            a["secret"] = self.vault.decrypt(r["secret_enc"])
+                        except VaultError as exc:
+                            a["secret_error"] = str(exc)
+                        else:
+                            self._db.execute(
+                                "INSERT INTO secret_sent (account, agent, rev, sent_rev) VALUES (?, ?, '', ?) "
+                                "ON CONFLICT(account, agent) DO UPDATE SET sent_rev = excluded.sent_rev",
+                                (acc_id, agent, r["secret_rev"]))
+                accs.append(a)
         return {"accounts": accs, "deployments": deps}
 
     def report_applied(self, agent: str, applied: list[dict[str, Any]] | None,
                        secret_ack: list[str] | None = None) -> int:
-        """Agent hlási, čo k nasadeniam naozaj spravil; potvrdené heslá sa z hubu zmažú.
-        Cudzie nasadenia (iného agenta) sa ignorujú. Vráti počet prijatých hlásení."""
+        """Agent hlási, čo k nasadeniam naozaj spravil, a ktoré heslá prevzal (platí verzia, ktorá mu
+        naposledy odišla). Cudzie nasadenia (iného agenta) sa ignorujú. Vráti počet prijatých hlásení."""
         n = 0
         with self._lock, self._db:
             now = self.clock()
@@ -537,8 +655,7 @@ class DeployStore:
                 dep_id = str((a or {}).get("deployment") or "")
                 if not dep_id:
                     continue
-                r = self._db.execute("SELECT a.agent FROM deployments d JOIN accounts a ON a.id = d.account "
-                                     "WHERE d.id = ?", (dep_id,)).fetchone()
+                r = self._db.execute("SELECT agent FROM deployments WHERE id = ?", (dep_id,)).fetchone()
                 if r is None or r["agent"] != agent:
                     continue
                 status = str(a.get("status") or "ok")
@@ -554,8 +671,8 @@ class DeployStore:
                 n += 1
             for acc_id in secret_ack or []:
                 cur = self._db.execute(
-                    "UPDATE accounts SET secret_pending = NULL WHERE id = ? AND agent = ? AND secret_pending IS NOT NULL",
-                    (str(acc_id), agent))
+                    "UPDATE secret_sent SET rev = sent_rev WHERE account = ? AND agent = ? AND sent_rev != '' "
+                    "AND rev != sent_rev", (str(acc_id), agent))
                 if cur.rowcount:
                     self._audit(agent, "secret_taken", account=str(acc_id))
         return n

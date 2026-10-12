@@ -283,15 +283,15 @@ o platforme vie len **driver** na strane agenta (`tradebot/live/drivers/<platfor
 
 | entita | polia |
 |---|---|
-| **account** | `id` (slug), `agent` (meno agenta = stroj), `platform` (`mt5`/`ninjatrader`), `label`, `login` (MT5 číslo účtu / NT meno účtu, napr. `Sim101`), `server` (MT5 server / NT meno pripojenia), `terminal` (MT5: cesta k `terminal64.exe` alebo k portable inštancii; NT: prázdne), `portable` (bool), `created`, `updated`, `by`, `secret_pending` (heslo čaká na prevzatie agentom — po prevzatí sa z hubu zmaže; hub nikdy heslo neukladá natrvalo) |
-| **deployment** | `id`, `account` (id), `strategy` (kľúč enginu), `symbol`, `tf` (min), `profile` (názov), `config` (celý config enginu = snímka profilu), `config_hash` (sha256 configu), `mode` (`enabled`/`paused`/`flatten`; **nové nasadenie je predvolene `paused`** — `DEFAULT_MODE`, control súbor s pauzou je na disku skôr, než platforma inštanciu spustí, a obchodovať začne, až keď ho človek zapne; výslovný `mode: enabled` v POST sa rešpektuje), `active` (bool — má inštancia vôbec existovať; `false` = odstrániť z platformy), `created`, `updated`, `by`; odvodené `instance` = `instance_id(platform, <MT5 login>-<server> / NT meno účtu, symbol, tf, strategy)` |
+| **account** | prihlásenie do platformy, **bez stroja**: `id` (slug), `platform` (`mt5`/`ninjatrader` — iná sa neprijme), `label`, `login` (MT5 číslo účtu / NT meno účtu, napr. `Sim101`), `server` (MT5 server / NT meno pripojenia), `rev` (verzia prihlásenia — nová pri zmene loginu, servera alebo hesla; driver podľa nej inštanciu reštartuje), `created`, `updated`, `by`; heslo (len MT5) hub drží **šifrované** (`tradebot/live/vault.py`, kľúč `secret.key` vedľa `live.sqlite` alebo `TRADEBOT_HUB_SECRET_KEY`) — v zozname len `secret` (uložené?) a `secret_waiting` (stroje, ktoré aktuálnu verziu ešte neprevzali). Zmazať sa dá len účet bez aktívneho nasadenia; platforma sa nemení, kým má účet nasadenia |
+| **deployment** | `id`, `account` (id), `agent` (stroj, na ktorom beží — povinný; starý klient bez neho dostane stroj, na ktorý bol účet kedysi viazaný), `terminal` + `portable` (len MT5: terminál na tom stroji; jeden účet má na stroji jeden terminál — ďalšie nasadenie musí ísť do toho istého), `strategy` (kľúč enginu), `symbol`, `tf` (min), `profile` (názov), `config` (celý config enginu = snímka profilu), `config_hash` (sha256 configu), `mode` (`enabled`/`paused`/`flatten`; **nové nasadenie je predvolene `paused`** — `DEFAULT_MODE`, control súbor s pauzou je na disku skôr, než platforma inštanciu spustí, a obchodovať začne, až keď ho človek zapne; výslovný `mode: enabled` v POST sa rešpektuje), `active` (bool — má inštancia vôbec existovať; `false` = odstrániť z platformy), `created`, `updated`, `by`; odvodené `instance` = `instance_id(platform, <MT5 login>-<server> / NT meno účtu, symbol, tf, strategy)` |
 | **audit** | `ts`, `by`, `action`, `account`/`deployment`, `old`, `new` (JSON) — každá zmena |
 | **applied** | čo agent naposledy hlásil k deploymentu: `deployment`, `agent`, `config_hash`, `mode`, `status` (`ok`/`pending`/`error`), `error`, `ts` |
 
 ### Hub API (mutácie len s hlavným tokenom; čítanie ktokoľvek s tokenom)
 
 `GET/POST /api/live/accounts`, `GET/PATCH/DELETE /api/live/accounts/{id}` (POST/PATCH smie niesť
-`password` — uloží sa len ako `secret_pending`), `GET/POST /api/live/deployments`,
+`password` — uloží sa šifrované; DELETE účtu s aktívnym nasadením je 409 aj s `force`), `GET/POST /api/live/deployments`,
 `GET/PATCH/DELETE /api/live/deployments/{id}` (PATCH: `mode`, `profile`+`config`, `active`),
 `GET /api/live/audit?limit=`. Odpoveď deploymentu nesie aj `applied` a `instance` (a či inštancia
 v spoole žije).
@@ -299,7 +299,7 @@ v spoole žije).
 ### Heartbeat (rozšírenie, `tester/hub`)
 
 - Agent posiela navyše `live: {"instances": [ {instance, session, last_t, last_bar_ms, mode, profile} ], "applied": [ {deployment, config_hash, mode, status, error} ], "drivers": ["mt5", "ninjatrader"] }`.
-- Hub odpovedá navyše `live: {"accounts": [ … len tohto agenta, so `secret` ak čaká … ], "deployments": [ … len tohto agenta, s `config` … ]}` — vždy celý zoznam (malý), agent si drží posledný a zosúlaďuje pri každom heartbeate; keď agent v `applied` potvrdí prevzatie hesla (`secret_ack: [account_id]`), hub `secret_pending` zmaže.
+- Hub odpovedá navyše `live: {"accounts": [ … účty, ktoré používajú nasadenia tohto agenta, s `terminal`/`portable` z jeho nasadení, `rev` a `secret`, kým aktuálnu verziu hesla nepotvrdil … ], "deployments": [ … len tohto agenta, s `config` … ]}` — vždy celý zoznam (malý), agent si drží posledný a zosúlaďuje pri každom heartbeate; keď agent potvrdí prevzatie hesla (`secret_ack: [account_id]`), hub si zapíše, že tento stroj má verziu, ktorá mu odišla (`secret_sent`). Nové heslo odíde znova každému stroju s nasadením na účte.
 
 ### Agent: reconciler a drivery (`tradebot/live/apply.py`, `tradebot/live/drivers/`)
 
@@ -354,12 +354,15 @@ Poradie okolo control súboru je vec bezpečnosti, lebo adaptéry berú **chýba
 
 ### Webapp (karta Live)
 
-Sekcie **Účty** (zoznam + „Pridať účet“: agent, platforma, názov, login, server/pripojenie,
-terminál, heslo — heslo ide raz na hub, nikdy sa neukladá do zrkadla) a **Nasadenia** (tabuľka:
+Sekcie **Účty** (zoznam s prehľadom „kde beží“ — každé nasadenie účtu so strojom, stavom a režimom;
+„Pridať účet“ / „upraviť“: platforma a len jej polia — MT5 číslo účtu, server, heslo; NinjaTrader meno
+účtu a pripojenie; heslo ide na hub, do zrkadla webapp sa nedostane; úprava prihlásenia účtu, na ktorom
+niečo beží, sa pýta, lebo stroje inštancie zastavia a spustia s novým prihlásením; „zmazať“ len keď na
+účte nič nebeží) a **Nasadenia** (tabuľka:
 účet, stratégia, symbol, TF, profil, režim, stav inštancie zo spoolu, drift `config_hash` vs.
 `applied`, posledný bar; tlačidlá pauza/zapnúť/flatten, zmena profilu (výber z profilov stratégie
-alebo úprava parametrov formulárom z `params.py`), odstrániť; „Nasadiť“: účet, stratégia, symbol,
-TF, profil, režim — predvolene **pauza**, nová stratégia sa zapína až v tabuľke). „Pridať účet“ má
+alebo úprava parametrov formulárom z `params.py`), odstrániť; „Nasadiť“: účet, stroj (agenti s driverom
+platformy účtu), pri MT5 terminál a portable, stratégia, symbol, TF, profil, režim — predvolene **pauza**, nová stratégia sa zapína až v tabuľke). „Pridať účet“ má
 nepovinné **Id účtu** (placeholder ukazuje slug názvu, ktorý by hub spravil sám). Mutácie idú cez
 webapp na hub s **admin tokenom** (`admin_token` v `tester/agent.json`
 / `TRADEBOT_HUB_ADMIN_TOKEN`); bez neho je karta len na čítanie.

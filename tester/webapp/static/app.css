@@ -615,6 +615,7 @@ main.view { grid-template-columns: 370px minmax(0, 1fr); gap: 20px; }
 .settings input[type=checkbox] { min-height: 0; }
 .profile-actions button { border-color: transparent; color: var(--muted); padding-left: 0; }
 .profile-actions button.danger { color: var(--danger-muted); }
+.profile-actions button.primary { color: #fff; padding-left: 14px; }
 .form-grid .sep { margin: 4px 0; }
 .chips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
 .chip-btn { white-space: nowrap; font-size: 11px; padding: 7px 3px; }

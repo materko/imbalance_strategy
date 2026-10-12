@@ -598,7 +598,7 @@ def test_deploy_proxy_len_na_citanie_bez_admin_tokenu(deploy_app):
     for r in (c.post("/api/live/accounts", json={"agent": "trade-pc", "platform": "mt5", "login": "1"}),
               c.patch("/api/live/accounts/ic", json={"label": "x"}),
               c.delete("/api/live/accounts/ic"),
-              c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p"}),
+              c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p"}),
               c.patch("/api/live/deployments/d1", json={"mode": "paused"}),
               c.delete("/api/live/deployments/d1"),
               c.post("/api/live/agents/trade-pc/update", json={"force": True}),
@@ -629,19 +629,26 @@ def test_deploy_proxy_mutacie_admin_tokenom_a_heslo_nikde_neostane(deploy_app, m
     assert hub.calls[-1][1] == "/api/live/accounts/ic?force=true&by=r"
 
     # nasadenie: config sa z profilu poskladá vo webapp (repozitár + vlastné) a na hub ide hotový
-    r = c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsninja", "symbol": "MNQ 12-26", "tf": 3,
-                                             "profile": "multicharts_mnq_3m", "user": "r"})
+    r = c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "ibsninja", "symbol": "MNQ 12-26",
+                                             "tf": 3, "profile": "multicharts_mnq_3m", "user": "r",
+                                             "terminal": r" C:\MT5\terminal64.exe ", "portable": True})
     assert r.status_code == 200
     m, path, token, body = hub.calls[-1]
     assert (m, path, token) == ("POST", "/api/live/deployments?by=r", "hlavny")
     assert body["strategy"] == "ibsnet" and body["symbol"] == "MNQ 12-26" and "rrRatio" in body["config"] and body["mode"] == "paused"
+    assert body["agent"] == "trade-pc" and body["terminal"] == r"C:\MT5\terminal64.exe" and body["portable"] is True
+    # stroj je povinný — bez neho na hub nič neodíde
+    n = len(hub.calls)
+    assert c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "X", "tf": 3,
+                                                 "profile": "multicharts_mnq_3m"}).status_code == 422
+    assert len(hub.calls) == n
     # formulár smie poslať `enabled`; bez `mode` ide na hub pauza (nová stratégia štartuje pauznutá)
-    r = c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "ES 12-26", "tf": 3,
+    r = c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "ibsnet", "symbol": "ES 12-26", "tf": 3,
                                              "profile": "multicharts_mnq_3m", "mode": "enabled"})
     assert r.status_code == 200 and hub.calls[-1][3]["mode"] == "enabled"
-    assert c.post("/api/live/deployments", json={"account": "ic", "strategy": "cudzia", "symbol": "X", "tf": 3, "profile": "p"}).status_code == 422
-    assert c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "X", "tf": 3, "profile": "nie-je"}).status_code == 422
-    assert c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "X", "tf": 3, "profile": ""}).status_code == 422
+    assert c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "cudzia", "symbol": "X", "tf": 3, "profile": "p"}).status_code == 422
+    assert c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "ibsnet", "symbol": "X", "tf": 3, "profile": "nie-je"}).status_code == 422
+    assert c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "ibsnet", "symbol": "X", "tf": 3, "profile": ""}).status_code == 422
     # patch: mode ide priamo; profil sa prekladá na config
     assert c.patch("/api/live/deployments/d1", json={"mode": "paused", "user": "r"}).json()["mode"] == "paused"
     assert hub.calls[-1][3] == {"mode": "paused"}
@@ -724,8 +731,8 @@ def test_deploy_proxy_aktualizacia_kodu_admin_tokenom_a_verzia_webapp(deploy_app
     r = c.delete("/api/live/agents/trade-pc/update?user=Rasto")
     assert r.status_code == 200 and r.json()["code_target"] is None and hub.calls[-1][1] == "/api/live/agents/trade-pc/update?by=Rasto"
     # nové nasadenie a zmena profilu nesú commit webapp
-    c.post("/api/live/deployments", json={"account": "ic", "strategy": "ibsnet", "symbol": "NAS100", "tf": 3,
-                                          "profile": "p", "config": {"rrRatio": 3.0}})
+    c.post("/api/live/deployments", json={"account": "ic", "agent": "trade-pc", "strategy": "ibsnet", "symbol": "NAS100",
+                                          "tf": 3, "profile": "p", "config": {"rrRatio": 3.0}})
     assert hub.calls[-1][3]["version"] == moja
     c.patch("/api/live/deployments/d1", json={"profile": "p2", "config": {"rrRatio": 2.0}})
     assert hub.calls[-1][3]["version"] == moja and hub.calls[-1][3]["profile"] == "p2"

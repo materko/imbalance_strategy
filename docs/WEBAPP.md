@@ -555,12 +555,16 @@ Pod zoznamom inštancií sú sekcie **Nasadenia** a **Účty** — požadovaný 
 ([LIVE.md](LIVE.md), [HUB.md](HUB.md) „Live nasadenia“). Webapp ich nezrkadlí, každé
 načítanie (aj obnova každých 5 s) ide na hub; hub dole = chyba v sekcii, tabuľky ostanú.
 
-- **Účty**: id, názov, agent (stroj), platforma, login, server/pripojenie, terminál, či čaká
-  heslo na prevzatie agentom, počet nasadení, „zmazať“. **Pridať účet**: agent z hubu
-  (`/api/live/agents`, online prví, s drivermi, ktoré hlási), platforma (ponuka z driverov),
+- **Účty** (prihlásenia, bez stroja): názov a id, platforma, login, server/pripojenie, heslo
+  (MT5: uložené / čaká na stroje …), **kde beží** (každé nasadenie účtu: stav, stratégia, symbol,
+  TF, stroj, režim), „upraviť“ a „zmazať“ (vypnuté, kým na účte niečo beží). **Pridať účet**:
+  platforma a len jej polia — MT5 číslo účtu, server, heslo; NinjaTrader meno účtu a pripojenie —,
   názov, nepovinné id účtu (placeholder = slug názvu, ktorý by hub spravil sám; obsadené dostane
-  `-2`), login, server, terminál, portable, heslo — heslo odíde na hub raz v tele požiadavky,
-  do zrkadla ani na disk webapp sa nedostane a políčko sa po odoslaní vyprázdni.
+  `-2`). **Upraviť** naplní ten istý formulár (id sa nemení, platforma len kým účet nemá
+  nasadenia, prázdne heslo = nemeniť); keď sa mení prihlásenie (login, server, heslo) a na účte
+  niečo beží, stránka vymenuje bežiace inštancie a pýta sa — stroje ich zastavia, prihlásia sa
+  nanovo a spustia. Heslo odíde na hub v tele požiadavky, do zrkadla ani na disk webapp sa
+  nedostane a políčko sa po odoslaní vyprázdni.
 - **Nasadenia**: stav, účet, stratégia, symbol, TF, profil (výber = zmena profilu; aplikuje
   sa, až keď je stratégia bez pozície), režim, čo agent naposledy potvrdil (profil ✓/≠,
   režim, vek), inštancia zo spoolu (odkaz do detailu, keď ju zrkadlo má) a posledný bar;

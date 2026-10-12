@@ -547,6 +547,13 @@ const ld = {
   admin: false, configured: false, accounts: [], deployments: [], agents: [],
   key: "", auditKey: "", profiles: {},   // profily podľa stratégie (cache pre výber)
   formsReady: false,
+  editing: null,   // id účtu, ktorý sa práve upravuje vo formulári (inak pridávanie)
+};
+
+/** Platformy účtov — čo sa pri účte vypĺňa (`PLATFORMS` v `tradebot/live/deploy.py`). */
+const LD_PLATFORMS = {
+  mt5: { title: "MetaTrader 5", password: true, terminal: true },
+  ninjatrader: { title: "NinjaTrader 8", password: false, terminal: false },
 };
 
 const LD_MODE_LABEL = { enabled: "obchoduje", paused: "pauza", flatten: "flatten" };
@@ -696,14 +703,20 @@ async function ldCancelCode(name) {
 function ldCodeHint() {
   const box = $("#ld-d-code-hint");
   const acc = ld.accounts.find(a => a.id === $("#ld-d-account").value);
-  const agent = acc && ld.agents.find(a => a.name === acc.agent);
+  const name = $("#ld-d-agent").value;
+  const agent = acc && ld.agents.find(a => a.name === name);
   const mine = lv.deploy && lv.deploy.version ? String(lv.deploy.version) : "";
   const cs = agent && agent.live && agent.live.code_state && agent.live.code_state[acc.platform];
   if (!acc || !agent || !mine || !cs || cs.state === "ok") { box.hidden = true; box.textContent = ""; return; }
   box.textContent = cs.state === "outdated"
-    ? `Stroj ${acc.agent} má na platforme ${acc.platform} kód ${String(cs.installed).slice(0, 7)}, táto webapp je na ${mine.slice(0, 7)} — nasadenie vznikne z novšieho kódu; najprv „Aktualizovať kód“ v sekcii Stroje (nasadiť sa dá aj tak).`
-    : `Stroj ${acc.agent} nehlási, z akého commitu je kód na platforme ${acc.platform} (installed.json chýba) — po nasadení zváž „Aktualizovať kód“ v sekcii Stroje.`;
+    ? `Stroj ${name} má na platforme ${acc.platform} kód ${String(cs.installed).slice(0, 7)}, táto webapp je na ${mine.slice(0, 7)} — nasadenie vznikne z novšieho kódu; najprv „Aktualizovať kód“ v sekcii Stroje (nasadiť sa dá aj tak).`
+    : `Stroj ${name} nehlási, z akého commitu je kód na platforme ${acc.platform} (installed.json chýba) — po nasadení zváž „Aktualizovať kód“ v sekcii Stroje.`;
   box.hidden = false;
+}
+
+/** Polia s `data-ld-only="<platforma>"` v kontajneri: viditeľné len pre danú platformu. */
+function ldShowPlatform(container, platform) {
+  for (const el of container.querySelectorAll("[data-ld-only]")) el.hidden = el.dataset.ldOnly !== platform;
 }
 
 function renderLiveDeploy() {
@@ -726,7 +739,7 @@ function renderLiveDeploy() {
         : `<span class="muted" title="v zrkadle zatiaľ nie je">${esc(d.instance)}</span>`;
       return `<tr class="plain" data-dep="${esc(d.id)}">
         <td>${ldStatusChip(d)}</td>
-        <td title="${esc(acc.agent || "")}">${esc(acc.label || d.account)} <span class="muted small">${esc(acc.agent || "")}</span></td>
+        <td title="účet ${esc(d.account)} na stroji ${esc(d.agent || "?")}">${esc(acc.label || d.account)} <span class="muted small">${esc(d.agent || "")}</span></td>
         <td>${esc(d.strategy)}</td><td><b>${esc(d.symbol)}</b></td><td>${d.tf}m</td>
         <td><select class="small ld-profile" ${dis} title="zmena profilu: aplikuje sa, až keď je stratégia bez pozície">${ldProfileOptions(d.strategy, d.profile)}</select></td>
         <td><span class="chip ${d.mode === "enabled" ? "ok" : (d.mode === "flatten" ? "bad" : "warn")}">${esc(LD_MODE_LABEL[d.mode] || d.mode)}</span></td>
@@ -769,20 +782,47 @@ function ldProfileOptions(strategy, current) {
   }).join("");
 }
 
+/** Nasadenia účtu, ktoré na platforme bežia alebo majú bežať (aktívne) — tie bránia zmazaniu účtu
+ *  a po úprave prihlásenia sa reštartujú. */
+function ldActiveOn(accId) { return ld.deployments.filter(d => d.account === accId && d.active); }
+
+/** „1 nasadenie / 2 nasadenia / 5 nasadení" — slovenský tvar podľa počtu. */
+function ldPocet(n, jeden, dva, pat) { return `${n} ${n === 1 ? jeden : (n >= 2 && n <= 4 ? dva : pat)}`; }
+
+/** Prehľad „kde beží“: každé nasadenie účtu so stavom, strojom a režimom. */
+function ldAccountUsage(a, deps) {
+  const mine = deps.filter(d => d.account === a.id);
+  if (!mine.length) return `<span class="muted">nikde</span>`;
+  return mine.map(d => `<div class="small" style="white-space:nowrap">${ldStatusChip(d)} ${esc(d.strategy)} <b>${esc(d.symbol)}</b> ${d.tf}m
+    · <span title="stroj (agent hubu)">${esc(d.agent || "?")}</span>${d.active ? ` · ${esc(LD_MODE_LABEL[d.mode] || d.mode)}` : ""}</div>`).join("");
+}
+
+function ldSecretCell(a) {
+  if (!(LD_PLATFORMS[a.platform] || {}).password) return `<span class="muted" title="NinjaTrader sa prihlasuje zapamätaným loginom">—</span>`;
+  if (!a.secret) return `<span class="chip warn" title="bez hesla terminál použije prihlásenie, ktoré si pamätá sám">nezadané</span>`;
+  if ((a.secret_waiting || []).length) return `<span class="chip warn" title="tieto stroje si heslo ešte neprevzali (príde v najbližšom heartbeate)">čaká: ${esc(a.secret_waiting.join(", "))}</span>`;
+  return `<span class="chip ok" title="uložené na hube šifrované; všetky stroje s nasadením ho majú">uložené</span>`;
+}
+
 function renderLiveAccounts(deps) {
   const list = ld.accounts;
   $("#ld-acc-count").textContent = list.length ? String(list.length) : "";
   $("#ld-acc-empty").hidden = !!list.length;
   $("#ld-accounts").parentElement.hidden = !list.length;
   $("#ld-accounts tbody").innerHTML = list.map(a => {
-    const n = deps.filter(d => d.account === a.id).length;
-    return `<tr class="plain" data-acc="${esc(a.id)}"><td><code>${esc(a.id)}</code></td><td>${esc(a.label)}</td><td>${esc(a.agent)}</td>
-      <td>${esc(a.platform)}</td><td>${esc(a.login)}</td><td>${esc(a.server || "—")}</td><td title="${esc(a.terminal || "")}">${esc(a.terminal ? a.terminal.slice(-28) : "—")}${a.portable ? ' <span class="chip">portable</span>' : ""}</td>
-      <td>${a.secret_pending ? '<span class="chip warn" title="agent si ho ešte neprevzal">čaká</span>' : '<span class="muted">—</span>'}</td>
-      <td class="num">${n}</td>
-      <td><button class="small ghost danger" data-del="1" ${ld.admin ? "" : "disabled"} title="${n ? "účet má nasadenia — zmazanie ich vyhodí tiež" : "zmazať účet"}">zmazať</button></td></tr>`;
+    const bezi = ldActiveOn(a.id).length;
+    const plat = LD_PLATFORMS[a.platform];
+    return `<tr class="plain" data-acc="${esc(a.id)}"><td>${esc(a.label)} <span class="muted small"><code>${esc(a.id)}</code></span></td>
+      <td>${esc(plat ? plat.title : a.platform)}</td><td>${esc(a.login)}</td><td>${esc(a.server || "—")}</td>
+      <td>${ldSecretCell(a)}</td><td>${ldAccountUsage(a, deps)}</td>
+      <td style="white-space:nowrap"><button class="small" data-edit="1" ${ld.admin ? "" : "disabled"}>upraviť</button>
+        <button class="small ghost danger" data-del="1" ${ld.admin && !bezi ? "" : "disabled"}
+          title="${bezi ? `na účte beží ${ldPocet(bezi, "nasadenie", "nasadenia", "nasadení")} — najprv ich odstráň (tabuľka Nasadenia)` : "zmazať účet"}">zmazať</button></td></tr>`;
   }).join("");
-  for (const tr of $$("#ld-accounts tbody tr")) tr.querySelector("button[data-del]").onclick = () => ldDeleteAccount(tr.dataset.acc);
+  for (const tr of $$("#ld-accounts tbody tr")) {
+    tr.querySelector("button[data-del]").onclick = () => ldDeleteAccount(tr.dataset.acc);
+    tr.querySelector("button[data-edit]").onclick = () => ldEditAccount(tr.dataset.acc);
+  }
 }
 
 /** Profily stratégie do výberu (cache; po načítaní sa tabuľka prekreslí, nech má riadok všetky možnosti). */
@@ -798,18 +838,11 @@ async function ldLoadProfiles(strategy) {
 function ldFillFormSelects() {
   // účet do „Nasadiť"
   const selA = $("#ld-d-account"), curA = selA.value;
-  selA.innerHTML = ld.accounts.map(a => `<option value="${esc(a.id)}">${esc(a.label)} · ${esc(a.agent)} · ${esc(a.platform)}</option>`).join("")
+  selA.innerHTML = ld.accounts.map(a => `<option value="${esc(a.id)}">${esc(a.label)} · ${esc((LD_PLATFORMS[a.platform] || {}).title || a.platform)}</option>`).join("")
     || `<option value="">— najprv pridaj účet —</option>`;
   if (curA && ld.accounts.some(a => a.id === curA)) selA.value = curA;
-  selA.onchange = () => ldCodeHint();
-  // agent do „Pridať účet": len tí s platformou, online prví; platformy z ich driverov
-  const selAg = $("#ld-a-agent"), curAg = selAg.value;
-  const agents = ldLiveAgents();
-  selAg.innerHTML = agents.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.online ? "" : " (offline)"}${a.live && a.live.drivers && a.live.drivers.length ? " · " + esc(a.live.drivers.join(", ")) : ""}</option>`).join("")
-    || `<option value="">— žiadny agent s NinjaTraderom / MT5 —</option>`;
-  if (curAg && agents.some(a => a.name === curAg)) selAg.value = curAg;
-  const drivers = new Set(); for (const a of agents) for (const d of (a.live && a.live.drivers) || []) drivers.add(d);
-  $("#ld-a-platforms").innerHTML = [...drivers].map(d => `<option value="${esc(d)}">`).join("");
+  selA.onchange = () => { ldFillAgents(); ldCodeHint(); };
+  ldFillAgents();
   // stratégie z /api/meta
   const selS = $("#ld-d-strategy");
   if (!selS.options.length && state.meta && state.meta.strategies) {
@@ -821,6 +854,40 @@ function ldFillFormSelects() {
   const hint = ld.admin ? "" : "len na čítanie (bez admin tokenu)";
   if (!$("#ld-d-status").textContent || !ld.admin) $("#ld-d-status").textContent = hint;
   if (!$("#ld-a-status").textContent || !ld.admin) $("#ld-a-status").textContent = hint;
+}
+
+/** Stroje do „Nasadiť": agenti s driverom platformy vybraného účtu (online prví); polia terminálu len pri MT5. */
+function ldFillAgents() {
+  const acc = ld.accounts.find(a => a.id === $("#ld-d-account").value);
+  const platform = acc ? acc.platform : "";
+  ldShowPlatform($("#ld-deploy-box"), platform);
+  const sel = $("#ld-d-agent"), cur = sel.value;
+  const agents = ldLiveAgents().filter(a => !platform || (a.live.drivers || []).includes(platform));
+  sel.innerHTML = agents.map(a => `<option value="${esc(a.name)}">${esc(a.name)}${a.online ? "" : " (offline)"}</option>`).join("")
+    || `<option value="">— žiadny stroj s ${esc((LD_PLATFORMS[platform] || {}).title || "platformou")} —</option>`;
+  if (cur && agents.some(a => a.name === cur)) sel.value = cur;
+  sel.onchange = () => { ldTerminalHint(); ldCodeHint(); };
+  ldTerminalHint();
+}
+
+/** MT5: účet beží na stroji v jednom termináli — keď už tam nejaké nasadenie má, nové ide do toho istého. */
+function ldTerminalHint() {
+  const box = $("#ld-d-terminal-hint");
+  const acc = ld.accounts.find(a => a.id === $("#ld-d-account").value);
+  const agent = $("#ld-d-agent").value;
+  const term = $("#ld-d-terminal"), port = $("#ld-d-portable");
+  const iny = acc && (LD_PLATFORMS[acc.platform] || {}).terminal
+    && ld.deployments.find(d => d.account === acc.id && d.agent === agent && d.active);
+  term.disabled = port.disabled = !!iny;
+  if (iny) {
+    term.value = iny.terminal || ""; port.checked = !!iny.portable;
+    box.textContent = `Účet už na stroji ${agent} beží v termináli ${iny.terminal || "nainštalovanom"}${iny.portable ? " (portable)" : ""} — ďalšie nasadenie pôjde do toho istého.`;
+    box.hidden = false;
+  } else {
+    if (term.dataset.locked) { term.value = ""; port.checked = false; }
+    box.hidden = true; box.textContent = "";
+  }
+  term.dataset.locked = iny ? "1" : "";
 }
 
 async function ldFormProfiles() {
@@ -836,39 +903,110 @@ function ldSetupForms() {
   $("#ld-d-submit").onclick = async () => {
     const btn = $("#ld-d-submit"); btn.disabled = true; $("#ld-d-error").hidden = true; $("#ld-d-status").textContent = "posielam na hub…";
     try {
-      const body = { account: $("#ld-d-account").value, strategy: $("#ld-d-strategy").value, symbol: $("#ld-d-symbol").value.trim(),
-        tf: Number($("#ld-d-tf").value) || 0, profile: $("#ld-d-profile").value, mode: $("#ld-d-mode").value || "paused", user: ldUser() };
+      const acc = ld.accounts.find(a => a.id === $("#ld-d-account").value);
+      const mt5 = acc && (LD_PLATFORMS[acc.platform] || {}).terminal;
+      const body = { account: $("#ld-d-account").value, agent: $("#ld-d-agent").value, strategy: $("#ld-d-strategy").value,
+        symbol: $("#ld-d-symbol").value.trim(), tf: Number($("#ld-d-tf").value) || 0, profile: $("#ld-d-profile").value,
+        mode: $("#ld-d-mode").value || "paused", terminal: mt5 ? $("#ld-d-terminal").value.trim() : "",
+        portable: mt5 ? $("#ld-d-portable").checked : false, user: ldUser() };
       if (!body.account) throw new Error("vyber účet");
+      if (!body.agent) throw new Error("vyber stroj, na ktorom má stratégia bežať");
       if (!body.symbol) throw new Error("zadaj symbol");
       const d = await api("/api/live/deployments", { method: "POST", body: JSON.stringify(body) });
-      $("#ld-d-status").textContent = `nasadené: ${d.instance} (agent si to vezme v najbližšom heartbeate${d.mode === "paused" ? "; štartuje pauznuté — zapni v tabuľke" : ""})`;
+      $("#ld-d-status").textContent = `nasadené: ${d.instance} na ${d.agent} (agent si to vezme v najbližšom heartbeate${d.mode === "paused" ? "; štartuje pauznuté — zapni v tabuľke" : ""})`;
       $("#ld-d-symbol").value = "";
       await loadLiveDeploy();
     } catch (e) { $("#ld-d-error").textContent = e.message; $("#ld-d-error").hidden = false; $("#ld-d-status").textContent = ""; }
     finally { btn.disabled = !ld.admin; }
   };
-  $("#ld-a-submit").onclick = async () => {
-    const btn = $("#ld-a-submit"); btn.disabled = true; $("#ld-a-error").hidden = true; $("#ld-a-status").textContent = "posielam na hub…";
-    try {
-      const body = { agent: $("#ld-a-agent").value, platform: $("#ld-a-platform").value.trim(), label: $("#ld-a-label").value.trim(),
-        id: $("#ld-a-id").value.trim() || null,
-        login: $("#ld-a-login").value.trim(), server: $("#ld-a-server").value.trim(), terminal: $("#ld-a-terminal").value.trim(),
-        portable: $("#ld-a-portable").checked, password: $("#ld-a-password").value || null, user: ldUser() };
-      if (!body.agent) throw new Error("vyber agenta (stroj)");
-      if (!body.platform) throw new Error("zadaj platformu");
-      if (!body.login) throw new Error("zadaj login");
-      const a = await api("/api/live/accounts", { method: "POST", body: JSON.stringify(body) });
-      $("#ld-a-password").value = "";   // heslo odišlo raz; v stránke neostáva
-      $("#ld-a-status").textContent = `účet ${a.id} pridaný${a.secret_pending ? " — heslo čaká na prevzatie agentom" : ""}`;
-      for (const id of ["#ld-a-label", "#ld-a-id", "#ld-a-login", "#ld-a-server", "#ld-a-terminal"]) $(id).value = "";
-      ldAccountIdHint();
-      await loadLiveDeploy();
-    } catch (e) { $("#ld-a-error").textContent = e.message; $("#ld-a-error").hidden = false; $("#ld-a-status").textContent = ""; }
-    finally { btn.disabled = !ld.admin; }
-  };
+  $("#ld-a-platform").onchange = () => ldShowPlatform($("#ld-acc-box"), $("#ld-a-platform").value);
+  ldShowPlatform($("#ld-acc-box"), $("#ld-a-platform").value);
+  $("#ld-a-submit").onclick = ldSaveAccount;
+  $("#ld-a-cancel").onclick = () => ldResetAccountForm();
   $("#ld-audit-box").ontoggle = () => { if ($("#ld-audit-box").open) loadLiveAudit().catch(() => {}); };
-  for (const id of ["#ld-a-label", "#ld-a-login"]) $(id).oninput = ldAccountIdHint;
+  for (const id of ["#ld-a-label", "#ld-a-login-mt5", "#ld-a-login-nt"]) $(id).oninput = ldAccountIdHint;
   ldAccountIdHint();
+}
+
+/** Login a server z polí platformy (MT5 číslo účtu + server, NT meno účtu + pripojenie). */
+function ldAccountForm() {
+  const platform = $("#ld-a-platform").value;
+  const sfx = platform === "mt5" ? "mt5" : "nt";
+  return { platform, label: $("#ld-a-label").value.trim(), login: $(`#ld-a-login-${sfx}`).value.trim(),
+           server: $(`#ld-a-server-${sfx}`).value.trim(),
+           password: (LD_PLATFORMS[platform] || {}).password ? $("#ld-a-password").value : "" };
+}
+
+function ldResetAccountForm(status = "") {
+  ld.editing = null;
+  for (const id of ["#ld-a-label", "#ld-a-id", "#ld-a-login-mt5", "#ld-a-server-mt5", "#ld-a-login-nt", "#ld-a-server-nt", "#ld-a-password"]) $(id).value = "";
+  $("#ld-a-id").disabled = false; $("#ld-a-platform").disabled = false;
+  $("#ld-a-title").textContent = "Pridať účet";
+  $("#ld-a-submit").textContent = "Pridať účet";
+  $("#ld-a-cancel").hidden = true;
+  $("#ld-a-password").placeholder = "";
+  $("#ld-a-error").hidden = true;
+  $("#ld-a-status").textContent = status;
+  ldShowPlatform($("#ld-acc-box"), $("#ld-a-platform").value);
+  ldAccountIdHint();
+}
+
+/** „upraviť": formulár sa naplní účtom; id sa nemení, platforma len kým účet nemá nasadenia. */
+function ldEditAccount(id) {
+  const a = ld.accounts.find(x => x.id === id);
+  if (!a) return;
+  ldResetAccountForm();
+  ld.editing = id;
+  const sfx = a.platform === "mt5" ? "mt5" : "nt";
+  $("#ld-a-platform").value = a.platform;
+  $("#ld-a-platform").disabled = ld.deployments.some(d => d.account === id);
+  $("#ld-a-label").value = a.label || "";
+  $("#ld-a-id").value = a.id; $("#ld-a-id").disabled = true;
+  $(`#ld-a-login-${sfx}`).value = a.login || "";
+  $(`#ld-a-server-${sfx}`).value = a.server || "";
+  $("#ld-a-password").placeholder = a.secret ? "uložené — nechať prázdne = nemeniť" : "";
+  $("#ld-a-title").textContent = `Upraviť účet ${a.label}`;
+  $("#ld-a-submit").textContent = "Uložiť zmeny";
+  $("#ld-a-cancel").hidden = false;
+  ldShowPlatform($("#ld-acc-box"), a.platform);
+  $("#ld-acc-box").open = true;
+  $("#ld-acc-box").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+async function ldSaveAccount() {
+  const btn = $("#ld-a-submit"); $("#ld-a-error").hidden = true;
+  const f = ldAccountForm();
+  try {
+    if (!f.login) throw new Error(f.platform === "mt5" ? "zadaj číslo účtu" : "zadaj meno účtu v NinjaTraderi");
+    if (!ld.editing) {
+      btn.disabled = true; $("#ld-a-status").textContent = "posielam na hub…";
+      const body = { ...f, id: $("#ld-a-id").value.trim() || null, password: f.password || null, user: ldUser() };
+      const a = await api("/api/live/accounts", { method: "POST", body: JSON.stringify(body) });
+      ldResetAccountForm(`účet ${a.id} pridaný${a.secret ? " — heslo je na hube, stroje ho dostanú s prvým nasadením" : ""}`);
+      await loadLiveDeploy();
+      return;
+    }
+    const a = ld.accounts.find(x => x.id === ld.editing);
+    if (!a) throw new Error("účet už na hube nie je");
+    const zmena = {};
+    for (const k of ["platform", "label", "login", "server"]) if (f[k] !== (a[k] || "")) zmena[k] = f[k];
+    if (f.password) zmena.password = f.password;
+    if (!Object.keys(zmena).length) { ldResetAccountForm("bez zmeny"); return; }
+    // nové prihlásenie (login, server, heslo) = stroje inštancie zastavia, prihlásia sa znova a spustia
+    const prihlasenie = ["platform", "login", "server", "password"].some(k => k in zmena);
+    const bezi = ldActiveOn(a.id);
+    if (prihlasenie && bezi.length) {
+      const zoznam = bezi.map(d => `• ${d.strategy} ${d.symbol} ${d.tf}m na ${d.agent} (${LD_MODE_LABEL[d.mode] || d.mode})`).join("\n");
+      if (!confirm(`Na účte „${a.label}“ beží ${ldPocet(bezi.length, "inštancia stratégie", "inštancie stratégií", "inštancií stratégií")}:\n${zoznam}\n\n`
+        + `Po uložení sa zastavia, účet sa na strojoch upraví (nové prihlásenie) a inštancie sa znova spustia. `
+        + `Otvorené pozície u brokera sa tým nezatvárajú (na to je flatten). Pokračovať?`)) return;
+    }
+    btn.disabled = true; $("#ld-a-status").textContent = "ukladám na hub…";
+    await api(`/api/live/accounts/${encodeURIComponent(a.id)}`, { method: "PATCH", body: JSON.stringify({ ...zmena, user: ldUser() }) });
+    ldResetAccountForm(`účet ${a.id} upravený${prihlasenie && bezi.length ? " — stroje inštancie reštartujú v najbližšom heartbeate" : ""}`);
+    await loadLiveDeploy();
+  } catch (e) { $("#ld-a-error").textContent = e.message; $("#ld-a-error").hidden = false; $("#ld-a-status").textContent = ""; }
+  finally { btn.disabled = !ld.admin; }
 }
 
 /** Id účtu tak, ako ho spraví hub z názvu (`_slug` v `tradebot/live/deploy.py`): malé písmená, číslice, `.-_`;
@@ -879,7 +1017,7 @@ function ldSlug(text) {
 
 function ldAccountIdHint() {
   const el = $("#ld-a-id");
-  if (el) el.placeholder = ldSlug($("#ld-a-label").value || $("#ld-a-login").value);
+  if (el && !ld.editing) el.placeholder = ldSlug($("#ld-a-label").value || ldAccountForm().login);
 }
 
 function ldFail(e) { $("#ld-error").textContent = e.message; $("#ld-error").hidden = false; }
@@ -918,11 +1056,13 @@ async function ldDelete(id) {
 
 async function ldDeleteAccount(id) {
   const acc = ld.accounts.find(a => a.id === id);
-  const n = ld.deployments.filter(d => d.account === id).length;
   if (!acc) return;
-  if (!confirm(`Zmazať účet „${acc.label}“ (${acc.id})?${n ? ` Má ${n} nasadení — zmažú sa z hubu tiež a agent ich má z platformy odstrániť sám.` : ""}`)) return;
+  const bezi = ldActiveOn(id);
+  if (bezi.length) { ldFail(new Error(`na účte „${acc.label}“ beží ${ldPocet(bezi.length, "nasadenie", "nasadenia", "nasadení")} — najprv ich odstráň`)); return; }
+  if (!confirm(`Zmazať účet „${acc.label}“ (${acc.id})? Heslo sa z hubu zmaže.`)) return;
   try {
-    await api(`/api/live/accounts/${encodeURIComponent(id)}?force=${n ? "true" : "false"}&user=${encodeURIComponent(ldUser() || "")}`, { method: "DELETE" });
+    await api(`/api/live/accounts/${encodeURIComponent(id)}?user=${encodeURIComponent(ldUser() || "")}`, { method: "DELETE" });
+    if (ld.editing === id) ldResetAccountForm();
     await loadLiveDeploy();
   } catch (e) { ldFail(e); }
 }

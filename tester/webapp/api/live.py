@@ -332,21 +332,24 @@ def stream_messages(mirror: LiveMirror, *, after: int, deploy: Callable[[], Any]
 
 
 class LiveAccountRequest(BaseModel):
-    """Účet do hubu; `password` sa preposiela raz a nikde vo webapp neostáva."""
+    """Účet do hubu — prihlásenie do platformy, bez stroja (ten je v nasadení). `password` (len MT5)
+    sa preposiela raz a nikde vo webapp neostáva; hub ho drží šifrované."""
     id: str | None = None
-    agent: str | None = None
     platform: str | None = None
     label: str | None = None
     login: str | None = None
     server: str | None = None
-    terminal: str | None = None
-    portable: bool | None = None
     password: str | None = None
     user: str | None = None
 
 
 class LiveDeploymentRequest(BaseModel):
     account: str
+    #: Stroj (agent hubu), na ktorom nasadenie beží.
+    agent: str
+    #: MT5: terminál na tom stroji (prázdne = nainštalovaný) a portable; NinjaTrader ich nemá.
+    terminal: str = ""
+    portable: bool = False
     strategy: str
     symbol: str
     tf: int
@@ -495,7 +498,7 @@ def build(ctx: AppContext) -> APIRouter:
 
     @router.get("/api/live/agents")
     def live_agents():
-        """Agenti hubu a čo vedia o live (drivery, počet inštancií) — výber stroja pri účte."""
+        """Agenti hubu a čo vedia o live (drivery, počet inštancií) — výber stroja pri nasadení."""
         http = _hub_http()
         agents = _via_hub(lambda: http.get("/api/agents"))
         return [{"name": a.get("name"), "online": bool(a.get("online")), "last_seen": a.get("last_seen"),
@@ -557,7 +560,8 @@ def build(ctx: AppContext) -> APIRouter:
         http = _hub_http(admin=True)
         strategy = _strategy(req.strategy)
         config = req.config if isinstance(req.config, dict) and req.config else _config_of(strategy, req.profile)
-        body = {"account": req.account, "strategy": strategy, "symbol": req.symbol.strip(), "tf": req.tf,
+        body = {"account": req.account, "agent": req.agent.strip(), "terminal": req.terminal.strip(),
+                "portable": bool(req.portable), "strategy": strategy, "symbol": req.symbol.strip(), "tf": req.tf,
                 "profile": req.profile, "config": config, "mode": req.mode, "version": _version()}
         return _via_hub(lambda: http.post(f"/api/live/deployments?by={_by(req.user)}", body))
 

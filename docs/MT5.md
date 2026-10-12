@@ -312,7 +312,7 @@ neoverená (na tomto stroji je jeden účet).
 | `charts.json` | manifest grafov, ktoré má profil `tradebot` mať (symbol, TF, EA, profil, magic, `config_hash`) |
 | `driver.log` | čo driver s terminálom robil (štart, zavretie, prepis profilu, control) |
 
-Heslo účtu príde z hubu raz (`secret_pending`), agent ho uloží **DPAPI** na tohto používateľa a stroj
+Heslo účtu príde z hubu (raz za verziu hesla — hub ho drží šifrované), agent ho uloží **DPAPI** na tohto používateľa a stroj
 (`tester/live/secrets/<account>.bin`, `CryptProtectData` cez ctypes) a hubu ackne; do `start.ini` ide len
 na štart a po 30 s od štartu ho driver z ini zmaže. Účet, ktorý je v termináli už prihlásený s uloženým
 heslom, heslo v ini nepotrebuje (tak bežal aj test nižšie).

@@ -360,6 +360,28 @@ def test_profile_control_secret_and_password_scrub(drv, tmp_path: Path):
     assert secrets.delete("ftmo", d.secrets_root) and not secrets.delete("ftmo", d.secrets_root)
 
 
+def test_nova_verzia_prihlasenia_restartuje_terminal(drv):
+    """Upravený účet (heslo, login, server) príde s novým `rev`: terminál sa zavrie a spustí s novým ini,
+    aj keď sa grafy nezmenili. Účet bez `rev` (starý hub, manifest spred zavedenia) sa nereštartuje."""
+    d, procs, clock, data, common = drv
+    d1 = dep("d1")
+    d.ensure_instance(ACC, [d1])                          # bez rev
+    assert len(procs.started) == 1
+    d.ensure_instance(Account.from_dict({**ACC.raw, "rev": ""}), [d1])
+    assert len(procs.started) == 1 and procs.closed == []
+    # manifest zo starého kódu agenta (bez `rev`) proti účtu s `rev`: zhodný — aktualizácia nereštartuje
+    m = d.account_dir(ACC) / "charts.json"
+    stary = json.loads(m.read_text(encoding="utf-8")); stary.pop("rev")
+    m.write_text(json.dumps(stary), encoding="utf-8")
+    d.ensure_instance(Account.from_dict({**ACC.raw, "rev": "r1"}), [d1])
+    assert len(procs.started) == 1
+    d.ensure_instance(Account.from_dict({**ACC.raw, "rev": "r2"}), [d1])
+    assert len(procs.started) == 2 and len(procs.closed) == 1
+    assert json.loads((d.account_dir(ACC) / "charts.json").read_text(encoding="utf-8"))["rev"] == "r2"
+    d.ensure_instance(Account.from_dict({**ACC.raw, "rev": "r2"}), [d1])
+    assert len(procs.started) == 2
+
+
 def test_control_je_na_disku_pred_startom_terminalu(drv, tmp_path: Path):
     """Reconciler → driver: v momente, keď sa terminál spúšťa, má každý graf control súbor s režimom
     nasadenia (nové = paused) — EA by bez neho naštartovala `enabled`."""

@@ -392,6 +392,12 @@
       <details id="ld-deploy-box" style="margin-top:10px"><summary>Nasadiť <span class="muted small">— stratégia na účet</span></summary>
         <div class="form-grid" style="margin-top:8px">
           <label class="field">Účet<select id="ld-d-account"></select></label>
+          <label class="field">Stroj<span class="hint">agent hubu, na ktorom stratégia pobeží (s platformou účtu)</span>
+            <select id="ld-d-agent"></select></label>
+          <label class="field" data-ld-only="mt5">Terminál MT5<span class="hint">cesta k <code>terminal64.exe</code> alebo portable inštancii na tom stroji; prázdne = nainštalovaný terminál</span>
+            <input id="ld-d-terminal" placeholder="C:\MT5\IC\terminal64.exe"></label>
+          <label class="field inline-check" data-ld-only="mt5"><input type="checkbox" id="ld-d-portable"> portable inštancia terminálu</label>
+          <div id="ld-d-terminal-hint" class="span2 muted small" hidden></div>
           <label class="field">Stratégia<select id="ld-d-strategy"></select></label>
           <label class="field">Symbol<span class="hint">tak, ako ho pozná platforma (MT5 <code>NAS100</code>, NT <code>MNQ 12-26</code>)</span>
             <input id="ld-d-symbol" placeholder="NAS100"></label>
@@ -414,27 +420,30 @@
 
     <div class="card">
       <h2>Účty <span id="ld-acc-count" class="chip"></span></h2>
-      <p class="mode-hint">Účet = stroj (agent hubu) + platforma + prihlásenie. Heslo ide na hub raz a agent si ho
-        prevezme v najbližšom heartbeate (na hube neostáva, do zrkadla webapp sa nedostane).</p>
+      <p class="mode-hint">Účet = prihlásenie do platformy: <b>MT5</b> číslo účtu, server a heslo, <b>NinjaTrader</b>
+        meno účtu a pripojenie. Na stroj viazaný nie je — stroj (a pri MT5 terminál) sa vyberá pri nasadení, ten
+        istý účet môže bežať na viacerých strojoch. Heslo MT5 drží hub zašifrované a doručí ho každému stroju,
+        ktorý má s účtom nasadenie. Zmazať sa dá len účet, na ktorom nič nebeží.</p>
       <div id="ld-acc-empty" class="muted" hidden>Zatiaľ žiadny účet.</div>
       <div class="scroll"><table id="ld-accounts" class="runs"><thead><tr>
-        <th>id</th><th>názov</th><th>agent</th><th>platforma</th><th>login</th><th>server / pripojenie</th>
-        <th>terminál</th><th title="heslo čaká na prevzatie agentom">heslo</th><th>nasadení</th><th></th></tr></thead><tbody></tbody></table></div>
-      <details id="ld-acc-box" style="margin-top:10px"><summary>Pridať účet</summary>
+        <th>účet</th><th>platforma</th><th>login</th><th>server / pripojenie</th>
+        <th title="MT5: heslo uložené na hube a či ho už prevzali všetky stroje, ktoré účet používajú">heslo</th>
+        <th title="nasadenia s týmto účtom: stratégia, symbol, TF, stroj a režim">kde beží</th><th></th></tr></thead><tbody></tbody></table></div>
+      <details id="ld-acc-box" style="margin-top:10px"><summary id="ld-a-title">Pridať účet</summary>
         <div class="form-grid" style="margin-top:8px">
-          <label class="field">Agent<span class="hint">stroj, na ktorom platforma beží (agent hubu)</span>
-            <select id="ld-a-agent"></select></label>
-          <label class="field">Platforma<span class="hint">podľa driverov agenta; inak napíš kľúč (<code>mt5</code>, <code>ninjatrader</code>)</span>
-            <input id="ld-a-platform" list="ld-a-platforms" placeholder="mt5"><datalist id="ld-a-platforms"></datalist></label>
+          <label class="field">Platforma<select id="ld-a-platform"><option value="mt5">MetaTrader 5</option><option value="ninjatrader">NinjaTrader 8</option></select></label>
           <label class="field">Názov<input id="ld-a-label" placeholder="IC Markets demo"></label>
-          <label class="field">Id účtu<span class="hint">nepovinné; bez neho slug názvu (malé písmená, číslice, <code>.-_</code>; obsadené dostane <code>-2</code>)</span>
+          <label class="field">Id účtu<span class="hint">nepovinné; bez neho slug názvu (malé písmená, číslice, <code>.-_</code>; obsadené dostane <code>-2</code>); po založení sa nemení</span>
             <input id="ld-a-id" placeholder="ucet"></label>
-          <label class="field">Login<span class="hint">MT5 číslo účtu / NT meno účtu (<code>Sim101</code>)</span><input id="ld-a-login"></label>
-          <label class="field">Server / pripojenie<span class="hint">MT5 server / NT meno pripojenia</span><input id="ld-a-server"></label>
-          <label class="field">Terminál<span class="hint">MT5: cesta k <code>terminal64.exe</code> alebo portable inštancii; NT prázdne</span><input id="ld-a-terminal"></label>
-          <label class="field">Heslo<span class="hint">len MT5; ide na hub raz, nikde sa neukladá</span><input id="ld-a-password" type="password" autocomplete="new-password"></label>
-          <label class="field inline-check"><input type="checkbox" id="ld-a-portable"> portable inštancia terminálu</label>
+          <label class="field" data-ld-only="mt5">Číslo účtu (login)<input id="ld-a-login-mt5" placeholder="5012345"></label>
+          <label class="field" data-ld-only="mt5">Server<span class="hint">tak, ako ho ukazuje MT5 pri prihlásení</span><input id="ld-a-server-mt5" placeholder="ICMarkets-Demo"></label>
+          <label class="field" data-ld-only="mt5">Heslo<span id="ld-a-password-hint" class="hint">hub ho drží zašifrované a pošle ho strojom s nasadením na tomto účte</span>
+            <input id="ld-a-password" type="password" autocomplete="new-password"></label>
+          <label class="field" data-ld-only="ninjatrader">Účet v NinjaTraderi<span class="hint">meno účtu, napr. <code>Sim101</code></span><input id="ld-a-login-nt" placeholder="Sim101"></label>
+          <label class="field" data-ld-only="ninjatrader">Pripojenie<span class="hint">meno pripojenia v NT (Connections); NT sa prihlasuje zapamätaným loginom, heslo tu netreba</span>
+            <input id="ld-a-server-nt" placeholder="Continuum"></label>
           <div class="span2 profile-actions"><button id="ld-a-submit" class="primary">Pridať účet</button>
+            <button id="ld-a-cancel" class="ghost" hidden>Zrušiť úpravu</button>
             <span id="ld-a-status" class="muted small"></span></div>
         </div>
         <div id="ld-a-error" class="error" hidden></div>

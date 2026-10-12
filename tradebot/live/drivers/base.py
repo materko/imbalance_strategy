@@ -35,8 +35,11 @@ class Account:
     server: str = ""
     terminal: str = ""
     portable: bool = False
-    #: Heslo, ktoré hub nesie, kým ho agent neprevezme (`secret_pending`); po `store_secret` sa acknu.
+    #: Heslo, ktoré hub nesie, kým tento stroj jeho aktuálnu verziu neprevezme; po `store_secret` sa acknu.
     secret: str | None = None
+    #: Verzia prihlásenia (login, server, heslo) z hubu — zmena = bežiacu inštanciu zastaviť a spustiť
+    #: s novými údajmi. Prázdne = hub ju nepozná (starý hub, účet spred zavedenia) — nič sa nereštartuje.
+    rev: str = ""
     raw: dict[str, Any] = field(default_factory=dict, repr=False)
 
     @classmethod
@@ -45,7 +48,7 @@ class Account:
                    label=str(d.get("label") or ""), login=str(d.get("login") or ""),
                    server=str(d.get("server") or ""), terminal=str(d.get("terminal") or ""),
                    portable=bool(d.get("portable")), secret=(str(d["secret"]) if d.get("secret") else None),
-                   raw=dict(d))
+                   rev=str(d.get("rev") or ""), raw=dict(d))
 
 
 @dataclass
