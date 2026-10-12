@@ -228,3 +228,25 @@ def test_pywinauto_sa_doinstaluje_ked_chyba(monkeypatch):
     stav["je"] = False
     app, chyba = ntcli._pywinauto_app(install=lambda cmd: types.SimpleNamespace(returncode=1, stdout="", stderr="no network"))
     assert app is None and "no network" in chyba
+
+
+def test_win32ui_bez_mfc_dostane_nahradu(monkeypatch):
+    """Okresaný Windows bez Visual C++ Redistributable: `win32ui` padá na DLL — pywinauto ide s náhradou."""
+    import builtins
+    import sys
+
+    povodny = builtins.__import__
+
+    def fake_import(name, *a, **kw):
+        if name == "win32ui":
+            raise ImportError("DLL load failed while importing win32ui: The specified module could not be found.")
+        return povodny(name, *a, **kw)
+
+    monkeypatch.setitem(sys.modules, "win32ui", sys.modules.get("win32ui"))
+    monkeypatch.delitem(sys.modules, "win32ui")
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+    ntcli._ensure_win32ui()
+    stub = sys.modules["win32ui"]
+    assert isinstance(stub, ntcli._Win32uiStub) and "DLL load failed" in stub.reason
+    with pytest.raises(RuntimeError, match="Visual C"):
+        stub.CreateBitmap()

@@ -39,6 +39,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import types
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -351,9 +352,36 @@ def _reload_site_paths() -> None:
     importlib.invalidate_caches()
 
 
+class _Win32uiStub(types.ModuleType):
+    """Náhrada `win32ui`, keď jeho DLL nejde načítať — pywinauto ho importuje vždy, ale používa len na snímku
+    obrazovky (`capture_as_image`); F5 v editore (UIA) ho nepotrebuje."""
+
+    def __getattr__(self, name: str) -> Any:
+        if name.startswith("__"):
+            raise AttributeError(name)
+        raise RuntimeError(f"win32ui nie je k dispozícii ({self.reason}) — chýba Visual C++ Redistributable (MFC)")
+
+
+def _ensure_win32ui() -> None:
+    """`win32ui.pyd` (pywin32) potrebuje systémovú `mfc140u.dll` z Visual C++ Redistributable; na okresanom
+    Windows (VM nas-win11) chýba a `import pywinauto` padá na „DLL load failed while importing win32ui“.
+    Vtedy sa do `sys.modules` dá náhrada; keď pywin32 vôbec nie je (`ModuleNotFoundError`), nerobí nič."""
+    try:
+        import win32ui  # type: ignore[import-not-found]  # noqa: F401
+    except ModuleNotFoundError:
+        return
+    except ImportError as exc:
+        stub = _Win32uiStub("win32ui")
+        stub.reason = str(exc)
+        sys.modules["win32ui"] = stub
+        log.warning("ninjatrader: win32ui sa nedá načítať (%s) — pywinauto ide bez neho (len UIA, bez snímok); "
+                    "nainštaluj Visual C++ Redistributable x64", exc)
+
+
 def _pywinauto_app(install: Callable[[list[str]], Any] | None = None) -> tuple[Any, str | None]:
     """`pywinauto.Application`; keď chýba, raz ho `pip install` do prostredia agenta (stroj s NT ho potrebuje
     na F5 a nikto ho tam nemusí inštalovať ručne). `(None, chyba)`, keď to nejde."""
+    _ensure_win32ui()
     try:
         from pywinauto import Application  # type: ignore[import-not-found]
 
@@ -370,6 +398,7 @@ def _pywinauto_app(install: Callable[[list[str]], Any] | None = None) -> tuple[A
         tail = ((getattr(r, "stderr", "") or "") + (getattr(r, "stdout", "") or "")).strip()[-300:]
         return None, f"pywinauto nie je nainštalované a `pip install {PYWINAUTO_REQ}` zlyhal: {tail}"
     _reload_site_paths()
+    _ensure_win32ui()
     try:
         from pywinauto import Application  # type: ignore[import-not-found]
 
