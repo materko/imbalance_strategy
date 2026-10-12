@@ -570,9 +570,11 @@
       return [x[0], x[1], x[2], fail];
     });
     if (!st.length) return "";
-    var done = st.filter(function (x) { return x[2]; }).length;
+    // posledný hotový krok smernice (2–3 sa ráta ako 3), smernica má 10 krokov
+    var done = st.reduce(function (m, x) { return x[2] ? Math.max(m, +String(x[0]).split("–").pop()) : m; }, 0);
+    var total = st.reduce(function (m, x) { return Math.max(m, +String(x[0]).split("–").pop()); }, 0);
     if (compact) return '<div class="steps-mini" title="' + esc(st.map(function (x) { return (x[2] ? "✓ " : x[3] ? "✗ " : "☐ ") + x[0] + " " + x[1]; }).join("\n")) + '">' +
-      st.map(function (x) { return '<i class="' + (x[2] ? "on" : x[3] ? "fail" : "") + '"></i>'; }).join("") + '<span class="muted">' + done + " / " + st.length + " krokov</span></div>";
+      st.map(function (x) { return '<i class="' + (x[2] ? "on" : x[3] ? "fail" : "") + '"></i>'; }).join("") + '<span class="muted">hotový krok ' + done + " z " + total + "</span></div>";
     return '<div class="steps">' + st.map(function (x) {
       return '<div class="step' + (x[2] ? " on" : x[3] ? " fail" : "") + '"><b>' + (x[2] ? "✓" : x[3] ? "✗" : "☐") + "</b><span>" + esc(x[0]) + "</span>" + esc(x[1]) + (x[3] ? " — neprešiel" : "") + "</div>";
     }).join("") + "</div>";
