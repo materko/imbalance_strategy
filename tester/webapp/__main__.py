@@ -35,6 +35,25 @@ def code_signature() -> str | None:
     return h.hexdigest()
 
 
+def _hub_bye() -> None:
+    """Odhlási agenta hubu pred koncom procesu. Bez toho hub drží meno ešte `agent_timeout` (45 s)
+    a nový proces po reštarte dostáva 409 „už beží z iného procesu“."""
+    from .app import app
+
+    agent = getattr(app.state, "hub_agent", None)
+    if agent is None:
+        return
+    agent.stop()
+    # heartbeat rozbehnutý pred stop() by po bye agenta na hube znova oživil — počkať naň
+    vlakno = getattr(agent, "_thread", None)
+    if vlakno is not None and vlakno.is_alive():
+        vlakno.join(timeout=15)
+    try:
+        agent.bye()
+    except Exception:  # noqa: BLE001 - nedostupný hub nesmie zdržať koniec
+        pass
+
+
 def _watch_code(interval: float = 20.0) -> None:
     import json
     import time
@@ -55,6 +74,7 @@ def _watch_code(interval: float = 20.0) -> None:
         except Exception:  # noqa: BLE001 — server ešte nebeží / neodpovedá: skús neskôr
             continue
         print("Kód v gite sa zmenil (pull) — reštartujem webapp, aby načítala nové stratégie ...", flush=True)
+        _hub_bye()
         os.execv(sys.executable, [sys.executable, "-m", "tester.webapp"])
 
 
@@ -129,6 +149,9 @@ def main() -> int:
     host = getenv("WEB_HOST", "127.0.0.1")
     port = int(getenv("WEB_PORT", "8765"))
     print(f"TradeBot Tester: http://{host}:{port}", flush=True)
+    # Ctrl+C aj SIGTERM (reštart): odhlásiť sa pri vypínaní aplikácie — uvicorn po ňom signál
+    # zopakuje a proces skončí, takže kód za uvicorn.run() by sa už nevykonal.
+    _app.router.on_shutdown.append(_hub_bye)
     uvicorn.run("tester.webapp.app:app", host=host, port=port, log_level="info")
     return 0
 
