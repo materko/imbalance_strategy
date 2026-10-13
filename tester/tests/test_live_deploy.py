@@ -179,6 +179,24 @@ def test_viac_strategii_na_jednom_ucte_a_symbole(store: DeployStore):
     assert [d["agent"] for d in store.desired_for_agent("trade-pc")["deployments"]] == ["trade-pc"] * 3
 
 
+def test_ta_ista_instancia_na_inom_stroji_povie_kde_bezi_a_ako_presunut(store: DeployStore):
+    """Inštancia nepozná stroj: ten istý účet + stratégia + symbol + TF na druhom stroji je kolízia a chyba
+    povie, kde beží a čo s tým (presun = odstrániť tam, zmazať, nasadiť tu)."""
+    a = _acc(store)
+    base = {"account": a["id"], "strategy": "orbnet", "symbol": "NAS100", "tf": 3, "profile": "p1"}
+    d = store.create_deployment({**base, "agent": "nb-rasto"}, by="r")
+    with pytest.raises(Conflict, match=r"orbnet NAS100 3m na tomto účte už beží na stroji nb-rasto .*profil p1.*"
+                                       r"na presun na stroj nas-win11 ho najprv .*odstráň"):
+        store.create_deployment({**base, "agent": "nas-win11", "profile": "p2"}, by="r")
+    with pytest.raises(Conflict, match=r"už beží na stroji nb-rasto .*iný profil mu zmeníš"):
+        store.create_deployment({**base, "agent": "nb-rasto", "profile": "p2"}, by="r")
+    store.delete_deployment(d["id"], by="r")                          # odstrániť: agent ho zastaví
+    with pytest.raises(Conflict, match=r"je odstránené na stroji nb-rasto .*zmaž"):
+        store.create_deployment({**base, "agent": "nas-win11"}, by="r")
+    assert store.delete_deployment(d["id"], by="r")["deleted"] is True  # zmazať (agent ho nikdy nevidel)
+    assert store.create_deployment({**base, "agent": "nas-win11"}, by="r")["agent"] == "nas-win11"
+
+
 def test_update_meni_len_mode_profil_a_active(store: DeployStore):
     a = _acc(store)
     d = store.create_deployment({"account": a["id"], "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p1"}, by="r")

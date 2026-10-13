@@ -532,9 +532,10 @@ class DeployStore:
                                    f"{iny['terminal'] or 'nainštalovanom'}{' (portable)' if iny['portable'] else ''} — "
                                    f"ďalšie nasadenie musí ísť do toho istého")
             inst = instance_id(acc["platform"], account_identity(acc), instance_symbol(acc["platform"], symbol), tf, strategy)
-            dup = self._db.execute("SELECT id FROM deployments WHERE instance = ?", (inst,)).fetchone()
+            dup = self._db.execute("SELECT id, agent, profile, active FROM deployments WHERE instance = ?",
+                                   (inst,)).fetchone()
             if dup is not None:
-                raise Conflict(f"tá istá inštancia ({inst}) už je nasadená ako {dup['id']}")
+                raise Conflict(self._duplicate_text(dup, agent, strategy, symbol, tf, inst))
             now = self.clock()
             dep_id = str(data.get("id") or "").strip() or uuid.uuid4().hex[:12]
             row = {"id": dep_id, "account": account_id, "agent": agent, "strategy": strategy, "symbol": symbol,
@@ -550,6 +551,24 @@ class DeployStore:
             self._audit(by, "deployment_create", account=account_id, deployment=dep_id,
                         new={k: v for k, v in row.items() if k != "config"})
         return self.deployment(dep_id)  # type: ignore[return-value]
+
+    @staticmethod
+    def _duplicate_text(dup: sqlite3.Row, agent: str, strategy: str, symbol: str, tf: int, inst: str) -> str:
+        """Prečo druhé nasadenie tej istej inštancie nejde a čo s tým — inštancia nepozná stroj, ten istý účet
+        so stratégiou na symbole a TF by na dvoch strojoch obchodoval dvakrát a spool by sa zlial do jedného."""
+        co = f"{strategy} {symbol} {tf}m na tomto účte"
+        kde = f"na stroji {dup['agent'] or '?'}"
+        if not dup["active"]:
+            rada = (f"je odstránené {kde} (nasadenie {dup['id']}) — v tabuľke Nasadenia ho zmaž (tlačidlo „zmazať“) "
+                    f"a potom nasaď znova")
+        elif dup["agent"] == agent:
+            rada = (f"už beží {kde} (nasadenie {dup['id']}, profil {dup['profile'] or '—'}) — iný profil mu zmeníš "
+                    f"v tabuľke Nasadenia, druhé také isté nasadenie na tom istom účte nejde")
+        else:
+            rada = (f"už beží {kde} (nasadenie {dup['id']}, profil {dup['profile'] or '—'}) — na jednom účte môže bežať "
+                    f"len raz, inak by obchodovalo dvakrát; na presun na stroj {agent} ho najprv v tabuľke Nasadenia "
+                    f"odstráň (a po potvrdení strojom {dup['agent'] or '?'} zmaž), potom nasaď tu")
+        return f"{co} {rada} (inštancia {inst})"
 
     def update_deployment(self, dep_id: str, patch: dict[str, Any], by: str) -> dict[str, Any]:
         """Meniť sa smie `mode`, `profile` (+`config`, inak sa dopočíta z profilu), `active` a `version`

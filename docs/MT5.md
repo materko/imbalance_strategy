@@ -382,7 +382,8 @@ v karte **Live → Nasadiť** (alebo `POST /api/live/deployments`). Ako sa rozlo
 | rôzne stratégie na jednom účte (IBSNet + ORBNet + VwapAdxNet…), aj na tom istom symbole | každé nasadenie = vlastný graf v profile `tradebot` jedného terminálu účtu | test (`test_rozne_strategie_na_tom_istom_symbole_su_rozne_grafy_jedneho_terminalu`, `test_viac_strategii_na_jednom_ucte_a_symbole`); naživo overený mechanizmus s dvoma grafmi IBSNet (28. 9. 2026), s rôznymi šablónami EA naživo ešte nie |
 | tá istá stratégia na rôznych symboloch alebo TF | to isté — iný graf | overené naživo (US100.cash M1 + EURUSD M5, 28. 9. 2026) |
 | viac účtov na jednom stroji | každý účet vlastný terminál: `portable` (kópia v `tester/live/mt5/<account>/terminal/`) alebo vlastná inštalácia v `terminal` | napísané, **neoverené** |
-| tá istá stratégia na tom istom symbole a TF dvakrát na jednom účte (napr. dva profily) | **nejde** — hub odmietne („tá istá inštancia už je nasadená“) | id inštancie |
+| tá istá stratégia na tom istom symbole a TF dvakrát na jednom účte (napr. dva profily) | **nejde** — hub odmietne („… na tomto účte už beží na stroji …“) | id inštancie |
+| to isté nasadenie na inom stroji (presun z notebooku na server) | **presun**: na starom stroji „odstrániť“, po potvrdení „zmazať“, potom nasadiť na novom | id inštancie nepozná stroj |
 
 Čo má každé nasadenie vlastné, takže sa grafy navzájom nevidia: graf s EA (šablóna podľa kľúča stratégie),
 **magic** (`magic_for(id nasadenia)` — EA počíta len dealy so svojím magic), id inštancie
@@ -396,7 +397,13 @@ Pravidlá, na ktoré treba myslieť:
 
 - **Jeden účet = jeden terminál na stroji.** Druhé nasadenie toho istého účtu na tom istom stroji ide
   povinne do toho istého terminálu (hub iný `terminal`/`portable` odmietne, formulár ho rovno zamkne).
-  Ten istý účet môže bežať aj na inom stroji — tam je to iný terminál.
+  Ten istý účet môže bežať aj na inom stroji — tam je to iný terminál, ale **s inými stratégiami/symbolmi/TF**:
+  id inštancie stroj neobsahuje, takže tá istá stratégia na tom istom symbole a TF smie byť na účte len raz
+  (na dvoch strojoch by obchodovala dvakrát a spool by sa na hube zlial). Hub v chybe povie, na ktorom stroji
+  už beží; **presun na iný stroj** = v tabuľke Nasadenia „odstrániť“ (agent starého stroja inštanciu zastaví;
+  keď je ten stroj vypnutý, „zmazať“ ide aj bez potvrdenia a agent po návrate nasadenie, ktoré z hubu
+  zmizlo, odstráni sám — `apply_state.json`), „zmazať“, a nasadiť na novom stroji. Kým starý stroj
+  nepotvrdil, nech je nové nasadenie v pauze (predvolené), aby na chvíľu neobchodovali oba.
 - **Pridanie alebo odobratie nasadenia reštartuje terminál so všetkými grafmi účtu** (driver profil grafov
   len prepíše a terminál slušne zavrie a spustí; zmena režimu ani názvu profilu reštart nepotrebuje). EA po
   štarte **neprevezme** pozície ani čakajúce ordery spred reštartu: na hedging účte ostanú u brokera so svojím
