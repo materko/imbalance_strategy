@@ -178,12 +178,56 @@
   .msg code { background: var(--surface); padding: 2px 6px; border-radius: 4px; }
   .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 8px; }
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  /* Diverzifikácia */
+  .topnav { display: flex; gap: 4px; flex: none; }
+  .topnav a { padding: 6px 10px; border-radius: 8px; color: var(--muted); font-size: 13px; font-weight: 600; }
+  .topnav a:hover { color: var(--text); background: var(--surface-2); }
+  .topnav a.on { color: var(--text); background: var(--surface-2); }
+  @media (max-width: 640px) { .meta { display: none; } header.top .wrap { justify-content: space-between; } }
+  @media (max-width: 440px) { #nav-home { display: none; } .topnav a { padding: 6px 8px; } .brand { font-size: 15px; } header.top .wrap { gap: 8px; } }
+  :root { --c1: #3987e5; --c2: #d95926; --c3: #199e70; --c4: #c98500; --c5: #d55181; --c6: #008300; --c7: #9085e9; --c8: #e66767; --sum: #e7edf4; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --c1: #2a78d6; --c2: #eb6834; --c3: #1baf7a; --c4: #eda100; --c5: #e87ba4; --c6: #008300; --c7: #4a3aa7; --c8: #e34948; --sum: #111827; } }
+  :root[data-theme="light"] { --c1: #2a78d6; --c2: #eb6834; --c3: #1baf7a; --c4: #eda100; --c5: #e87ba4; --c6: #008300; --c7: #4a3aa7; --c8: #e34948; --sum: #111827; }
+  .dv-pick { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; }
+  @media (max-width: 860px) { .dv-pick { grid-template-columns: minmax(0, 1fr); } }
+  .dv-strat { border-bottom: 1px solid var(--border); }
+  .dv-strat:last-child { border-bottom: 0; }
+  .dv-strat summary { cursor: pointer; padding: 10px 2px; font-weight: 600; display: flex; justify-content: space-between; gap: 8px; list-style: none; }
+  .dv-strat summary::-webkit-details-marker { display: none; }
+  .dv-strat summary::before { content: "▸"; color: var(--muted); margin-right: 6px; }
+  .dv-strat[open] summary::before { content: "▾"; }
+  .dv-strat summary span:first-child { flex: 1; min-width: 0; }
+  .dv-set { display: flex; align-items: center; gap: 10px; padding: 7px 2px 7px 18px; border-top: 1px dashed var(--border); flex-wrap: wrap; }
+  .dv-set .lbl { flex: 1 1 200px; min-width: 0; font-size: 13px; overflow-wrap: anywhere; }
+  .dv-sel { display: grid; gap: 8px; }
+  .dv-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+  .dv-item .sw { width: 12px; height: 12px; border-radius: 3px; }
+  .dv-item .lbl { font-size: 13px; min-width: 0; overflow-wrap: anywhere; }
+  .dv-item .lbl small { display: block; color: var(--muted); }
+  .dv-item input { width: 64px; font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px 6px; text-align: right; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  .btn.primary:not(:disabled):hover { background: var(--accent); filter: brightness(1.1); }
+  .btn:focus-visible, .dv-item input:focus-visible, .dv-strat summary:focus-visible, .topnav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .dv-find { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  .dv-find li { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; font-size: 13px; line-height: 1.5; }
+  .dv-find .badge { justify-self: start; }
+  @media (max-width: 520px) { .dv-find li { grid-template-columns: 1fr; gap: 4px; } }
+  .dv-months td { text-align: center; font-size: 12px; padding: 6px 4px; border: 2px solid var(--surface); border-radius: 6px; min-width: 50px; }
+  .dv-months th { text-align: center; }
+  .dv-kv { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-size: 13px; margin: 0; }
+  .dv-kv dt { color: var(--muted); } .dv-kv dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+  .dv-filters { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: end; margin-bottom: 10px; }
+  .dv-filters label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+  .dv-filters select { font: inherit; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; }
+  tr.sum td { font-weight: 650; border-top: 1px solid var(--muted); }
+  .sw-i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
 </style>
 </head>
 <body>
 <header class="top">
   <div class="wrap">
     <a class="brand" href="#/">Trade<span>Bot</span> výsledky</a>
+    <nav class="topnav" aria-label="Sekcie"><a href="#/" id="nav-home">Prehľad</a><a href="#/div" id="nav-div">Diverzifikácia</a></nav>
     <div class="meta"><span id="updated"></span><span class="note" id="note"></span></div>
     <button class="icon-btn" id="theme" title="Prepnúť svetlý / tmavý režim" aria-label="Prepnúť svetlý / tmavý režim">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
@@ -640,7 +684,7 @@
         "</div>" + stepsRow(s, true) + "</a>";
     }
     var ok = DATA.strategies.filter(function (s) { return !s.testing; }), test = DATA.strategies.filter(function (s) { return s.testing; });
-    var html = '<h1>Prehľad stratégií</h1><p class="sub">Klikni na stratégiu pre zoznam jej nastavení.</p>' +
+    var html = '<h1>Prehľad stratégií</h1><p class="sub">Klikni na stratégiu pre zoznam jej nastavení. Ako by vyzerali viaceré naraz, ukáže <a class="pos" href="#/div">Diverzifikácia</a>.</p>' +
       '<h2 class="section">Prešli smernicou</h2><div class="grid cards">' + ok.map(card).join("") + "</div>";
     if (test.length) html += '<h2 class="section">V teste — zatiaľ neprešli</h2><p class="sub">Práve sa testujú podľa smernice. Ukázané sú 3 najlepší kandidáti; ' +
       "keď niektorý prejde odloženým rokom, stratégia sa presunie hore.</p>" + '<div class="grid cards">' + test.map(card).join("") + "</div>";
@@ -944,11 +988,424 @@
     });
   }
 
+  // ---------- diverzifikácia ----------
+  // Viac nastavení naraz (aj z rôznych stratégií): obchody a dni sa zlúčia, každé nastavenie so svojím
+  // násobkom veľkosti, a spočíta sa to isté čo pri jednom nastavení — roky, mesiace, dni, obchody, prepad.
+  var DV_KEY = "dashboard-diverzifikacia";
+  var DV_MAX = 8;
+  var DV_COLORS = ["--c1", "--c2", "--c3", "--c4", "--c5", "--c6", "--c7", "--c8"];
+  var DV_YEARS = [["21/22", "2021-10-01", "2022-10-01"], ["22/23", "2022-10-01", "2023-10-01"], ["23/24", "2023-10-01", "2024-10-01"],
+                  ["24/25", "2024-10-01", OOS_START], ["25/26 (odložený)", OOS_START, "2026-09-05"]];
+  var DV_WD = ["Po", "Ut", "St", "Št", "Pi", "So", "Ne"];
+  var dv = { items: null, result: null, open: {}, log: { view: "tr", item: "", year: "", res: "", page: 0, sort: null, dir: 1 } };
+
+  function dvLoad() {
+    if (dv.items) return;
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(DV_KEY) || "null"); } catch (e) {}
+    dv.items = (saved || []).filter(function (x) { return x && findSetting(x.id); }).slice(0, DV_MAX);
+    if (!saved) {
+      // prvé otvorenie: najlepšie nastavenie (č. 1) z troch stratégií, ktoré prešli smernicou, ako príklad
+      DATA.strategies.filter(function (s) { return !s.testing && (s.settings || []).length; }).slice(0, 3).forEach(function (s) {
+        dv.items.push({ id: s.settings[0].id, mult: 1 });
+      });
+    }
+  }
+  function dvSave() { try { localStorage.setItem(DV_KEY, JSON.stringify(dv.items)); } catch (e) {} }
+  function dvColor(i) { return "var(" + DV_COLORS[i % DV_COLORS.length] + ")"; }
+  function dvSw(i) { return '<span class="sw-i" style="background:' + dvColor(i) + '"></span>'; }
+  function dvYear(d) { for (var i = 0; i < DV_YEARS.length; i++) if (d >= DV_YEARS[i][1] && d < DV_YEARS[i][2]) return DV_YEARS[i][0]; return ""; }
+  var dvNyFmt = null;
+  function dvNyHour(iso) {
+    try {
+      dvNyFmt = dvNyFmt || new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "2-digit", hour12: false });
+      return +dvNyFmt.format(new Date(iso)) % 24;
+    } catch (e) { return new Date(iso).getUTCHours(); }
+  }
+  function dvShort(f) { return String(f.st.label || f.st.id).split(" · ")[0]; }
+
+  function dvStats(pnls) {
+    var n = pnls.length, gw = 0, gl = 0, w = 0, eq = 0, peak = 0, dd = 0, cw = 0, cl = 0, ws = 0, ls = 0, best = null, worst = null;
+    pnls.forEach(function (p) {
+      if (p > 0) { gw += p; w++; cw++; cl = 0; } else { if (p < 0) gl -= p; cl++; cw = 0; }
+      if (cw > ws) ws = cw; if (cl > ls) ls = cl;
+      eq += p; if (eq > peak) peak = eq; if (peak - eq > dd) dd = peak - eq;
+      if (best == null || p > best) best = p; if (worst == null || p < worst) worst = p;
+    });
+    return { n: n, wr: n ? 100 * w / n : null, pf: gl ? gw / gl : (gw ? Infinity : null), pnl: gw - gl, dd: dd,
+             avgWin: w ? gw / w : null, avgLoss: n - w ? -gl / (n - w) : null, winStreak: ws, lossStreak: ls,
+             best: best, worst: worst, retDd: dd ? (gw - gl) / dd : null };
+  }
+
+  function dvCompute() {
+    var parts = dv.items.map(function (it, i) {
+      var f = findSetting(it.id), m = +it.mult || 1;
+      var trades = (f.st.trades || []).map(function (t) {
+        return { i: i, open: t.open, close: t.close, dir: t.dir, entry: t.entry, exit: t.exit, reason: t.reason, pnl: (+t.pnl) * m };
+      }).sort(function (a, b) { return a.open < b.open ? -1 : a.open > b.open ? 1 : 0; });
+      var daily = {};
+      (f.st.daily || []).forEach(function (d) { daily[d[0]] = (daily[d[0]] || 0) + (+d[1]) * m; });
+      return { i: i, f: f, mult: m, trades: trades, daily: daily, name: dvShort(f) };
+    });
+    var all = [].concat.apply([], parts.map(function (p) { return p.trades; })).sort(function (a, b) { return a.close < b.close ? -1 : a.close > b.close ? 1 : 0; });
+    var days = {};
+    parts.forEach(function (p) { Object.keys(p.daily).forEach(function (d) { days[d] = (days[d] || 0) + p.daily[d]; }); });
+    var dayKeys = Object.keys(days).sort();
+    function yearly(trs) {
+      return DV_YEARS.map(function (y) {
+        return dvStats(trs.filter(function (t) { var d = t.open.slice(0, 10); return d >= y[1] && d < y[2]; }).map(function (t) { return t.pnl; }));
+      });
+    }
+    function dayPart(map) {
+      var keys = Object.keys(map).sort(), vals = keys.map(function (k) { return map[k]; });
+      var pos = vals.filter(function (v) { return v > 0; }), neg = vals.filter(function (v) { return v < 0; });
+      var ls = 0, cl = 0, months = {}, wd = {};
+      keys.forEach(function (k, j) {
+        var v = vals[j]; cl = v < 0 ? cl + 1 : 0; if (cl > ls) ls = cl;
+        months[k.slice(0, 7)] = (months[k.slice(0, 7)] || 0) + v;
+        var w = (new Date(k + "T12:00:00Z").getUTCDay() + 6) % 7;
+        (wd[w] = wd[w] || []).push(v);
+      });
+      var mk = Object.keys(months).sort(), mv = mk.map(function (k) { return months[k]; });
+      var sorted = vals.slice().sort(function (a, b) { return a - b; });
+      function at(v) { return keys[vals.indexOf(v)]; }
+      return {
+        days: vals.length, winPct: vals.length ? 100 * pos.length / vals.length : 0,
+        avg: vals.length ? vals.reduce(function (a, b) { return a + b; }, 0) / vals.length : 0,
+        median: sorted.length ? (sorted.length % 2 ? sorted[(sorted.length - 1) / 2] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2) : 0,
+        avgWin: pos.length ? pos.reduce(function (a, b) { return a + b; }, 0) / pos.length : 0,
+        avgLoss: neg.length ? neg.reduce(function (a, b) { return a + b; }, 0) / neg.length : 0,
+        lossStreak: ls, months: months, monthsPos: mv.length ? 100 * mv.filter(function (v) { return v > 0; }).length / mv.length : 0,
+        worstMonth: mk.length ? [mk[mv.indexOf(Math.min.apply(null, mv))], Math.min.apply(null, mv)] : null,
+        bestMonth: mk.length ? [mk[mv.indexOf(Math.max.apply(null, mv))], Math.max.apply(null, mv)] : null,
+        worstDay: sorted.length ? [at(sorted[0]), sorted[0]] : null, bestDay: sorted.length ? [at(sorted[sorted.length - 1]), sorted[sorted.length - 1]] : null,
+        weekday: wd
+      };
+    }
+    // korelácia denných výsledkov (dni, keď obchodovali obe)
+    var corr = [];
+    for (var a = 0; a < parts.length; a++) for (var b = a + 1; b < parts.length; b++) {
+      var ka = parts[a].daily, kb = parts[b].daily, common = Object.keys(ka).filter(function (d) { return d in kb; });
+      var r = null, both = 0;
+      if (common.length > 10) {
+        var xa = common.map(function (d) { return ka[d]; }), xb = common.map(function (d) { return kb[d]; });
+        var ma = xa.reduce(function (s, v) { return s + v; }, 0) / xa.length, mb = xb.reduce(function (s, v) { return s + v; }, 0) / xb.length;
+        var cov = 0, va = 0, vb = 0;
+        for (var j = 0; j < xa.length; j++) { cov += (xa[j] - ma) * (xb[j] - mb); va += (xa[j] - ma) * (xa[j] - ma); vb += (xb[j] - mb) * (xb[j] - mb); }
+        r = va && vb ? cov / Math.sqrt(va * vb) : null;
+        both = common.filter(function (d) { return ka[d] < 0 && kb[d] < 0; }).length;
+      }
+      corr.push({ a: a, b: b, common: common.length, r: r, both: both });
+    }
+    // súbežné pozície
+    var ev = [];
+    all.forEach(function (t) { ev.push([t.open, 1]); ev.push([t.close, -1]); });
+    ev.sort(function (x, y) { return x[0] < y[0] ? -1 : x[0] > y[0] ? 1 : x[1] - y[1]; });
+    var cur = 0, mx = 0;
+    ev.forEach(function (e) { cur += e[1]; if (cur > mx) mx = cur; });
+    // hodiny NY
+    var hours = {};
+    parts.forEach(function (p) { p.trades.forEach(function (t) { var h = dvNyHour(t.open); ((hours[h] = hours[h] || {})[p.i] = hours[h][p.i] || []).push(t.pnl); }); });
+    var eq = 0, equity = dayKeys.map(function (d) { eq += days[d]; return [d, eq]; });
+    return {
+      parts: parts.map(function (p) {
+        var cum = 0, keys = Object.keys(p.daily).sort();
+        return { i: p.i, f: p.f, name: p.name, mult: p.mult, trades: p.trades, daily: p.daily,
+                 total: dvStats(p.trades.map(function (t) { return t.pnl; })), yearly: yearly(p.trades), days: dayPart(p.daily),
+                 equity: keys.map(function (d) { cum += p.daily[d]; return [d, cum]; }),
+                 reasons: ["take_profit", "stop_loss"].map(function (r) { var x = p.trades.filter(function (t) { return t.reason === r; }); return [r, x.length, x.reduce(function (s, t) { return s + t.pnl; }, 0)]; }),
+                 dirs: ["long", "short"].map(function (d) { return [d, dvStats(p.trades.filter(function (t) { return t.dir === d; }).map(function (t) { return t.pnl; }))]; }) };
+      }),
+      all: all, total: dvStats(all.map(function (t) { return t.pnl; })), yearly: yearly(all),
+      dayStats: dvStats(dayKeys.map(function (d) { return days[d]; })), days: dayPart(days), dayMap: days,
+      corr: corr, maxConcurrent: mx, hours: hours, equity: equity
+    };
+  }
+
+  function viewDiversify() {
+    dvLoad();
+    var picked = {};
+    dv.items.forEach(function (x) { picked[x.id] = true; });
+    var full = dv.items.length >= DV_MAX;
+    var strats = DATA.strategies.filter(function (s) { return (s.settings || []).some(function (st) { return (st.trades || []).length; }); });
+    var pick = strats.map(function (s) {
+      var rows = s.settings.filter(function (st) { return (st.trades || []).length; }).map(function (st) {
+        var on = picked[st.id];
+        return '<div class="dv-set"><span class="lbl">' + esc(st.label) + "</span>" + statusBadge(st.status) +
+          '<button class="btn" data-add="' + esc(st.id) + '"' + (on || full ? " disabled" : "") + ">" + (on ? "Pridané" : "Pridať") + "</button></div>";
+      }).join("");
+      return '<details class="dv-strat"' + (dv.open[s.key] ? " open" : "") + ' data-key="' + esc(s.key) + '"><summary><span>' + esc(s.name) +
+        '</span><span class="muted">' + (s.testing ? "v teste · " : "") + s.settings.length + " nast.</span></summary>" + rows + "</details>";
+    }).join("");
+    var sel = dv.items.map(function (it, i) {
+      var f = findSetting(it.id);
+      return '<div class="dv-item">' + '<span class="sw" style="background:' + dvColor(i) + '"></span>' +
+        '<span class="lbl">' + esc(f.st.label) + "<small>" + esc(f.strat.name) + "</small></span>" +
+        '<label class="muted" style="font-size:12px">× <input type="text" inputmode="decimal" value="' + esc(String(it.mult).replace(".", ",")) + '" data-mult="' + i + '" aria-label="Násobok veľkosti (napr. 0,5)"></label>' +
+        '<button class="btn" data-del="' + i + '" aria-label="Odobrať">✕</button></div>';
+    }).join("");
+    return "<h1>Diverzifikácia</h1>" +
+      '<p class="sub">Vyber nastavenia z rôznych stratégií, ktoré by bežali naraz, a prepočítaj. Obchody aj dni sa zlúčia a ukáže sa, ako by vyzerali spolu — po rokoch, mesiacoch, dňoch a obchodoch. ' +
+      "Násobok mení veľkosť pozície (napr. 0,5 = polovica): stratégie nemajú rovnaké riziko na obchod.</p>" +
+      '<div class="grid dv-pick"><div class="card"><h2>Stratégie a nastavenia</h2>' + (pick || '<p class="muted">Žiadne nastavenia s obchodmi.</p>') + "</div>" +
+      '<div class="card"><div class="row"><h2>Vybrané (' + dv.items.length + " / " + DV_MAX + ")</h2>" +
+      (dv.items.length ? '<button class="btn" id="dv-clear">Vymazať</button>' : "") + "</div>" +
+      '<div class="dv-sel">' + (sel || '<p class="muted" style="margin:0">Zatiaľ nič. Pri nastavení vľavo klikni na <b>Pridať</b>; prepočet má zmysel od dvoch nastavení.</p>') + "</div>" +
+      '<div class="row" style="margin:14px 0 0"><button class="btn primary" id="dv-run"' + (dv.items.length ? "" : " disabled") + ">Prepočítať</button>" +
+      '<span class="muted" style="font-size:12px">Ten istý trh (MNQ) a obdobie 10/2021 – 9/2026.</span></div></div></div>' +
+      '<div id="dv-out"></div>';
+  }
+
+  function dvSumRow(name, oos, all, cl) {
+    return '<tr class="' + (cl || "") + '"><td class="l">' + name + "</td>" +
+      "<td>" + oos.n + "</td><td>" + num(oos.wr, 1) + ' %</td><td class="' + pfCls(oos.pf) + '">' + pfFmt(oos.pf) + '</td><td class="' + cls(oos.pnl) + '">' + money(oos.pnl) + "</td><td>" + money(-oos.dd) + "</td>" +
+      "<td>" + all.n + "</td><td>" + num(all.wr, 1) + ' %</td><td class="' + pfCls(all.pf) + '">' + pfFmt(all.pf) + '</td><td class="' + cls(all.pnl) + '">' + money(all.pnl) + "</td><td>" + money(-all.dd) + "</td><td>" + (all.retDd == null ? "—" : num(all.retDd, 1)) + "</td></tr>";
+  }
+
+  function dvFindings(R) {
+    var out = [], P = R.parts;
+    var neg = P.filter(function (p) { return p.yearly.some(function (y) { return y.n && y.pnl < 0; }); });
+    var cy = R.yearly.filter(function (y) { return y.n && y.pnl < 0; });
+    out.push(cy.length ? ["neg", "Spolu prerobené roky: " + cy.length + " z 5."] : ["pos", "Spolu zarobili všetky roky (5 z 5)" + (neg.length ? "; samostatne mali stratový rok: " + neg.map(function (p) { return esc(p.name); }).join(", ") + "." : ", aj každé nastavenie samo.")]);
+    if (R.corr.length) {
+      var rs = R.corr.filter(function (c) { return c.r != null; });
+      var hi = rs.filter(function (c) { return c.r >= 0.5; });
+      var rtxt = rs.map(function (c) { return esc(P[c.a].name) + " × " + esc(P[c.b].name) + " " + num(c.r, 2); }).join(", ");
+      out.push(hi.length ? ["warn", "Niektoré nastavenia sa hýbu spolu (korelácia ≥ 0,5): " + hi.map(function (c) { return esc(P[c.a].name) + " × " + esc(P[c.b].name); }).join(", ") + ". Ich súčet sa správa skôr ako väčšia pozícia než ako diverzifikácia."]
+        : ["pos", "Korelácia denných výsledkov je nízka (" + rtxt + "), takže sa navzájom vyrovnávajú."]);
+    }
+    var best = Math.max.apply(null, P.map(function (p) { return p.days.monthsPos; }));
+    out.push([R.days.monthsPos >= best ? "pos" : "warn", "Spolu je v pluse " + num(R.days.monthsPos, 0) + " % mesiacov; samostatne " + P.map(function (p) { return esc(p.name) + " " + num(p.days.monthsPos, 0) + " %"; }).join(", ") + "."]);
+    var sumDd = P.reduce(function (s, p) { return s + p.total.dd; }, 0);
+    out.push(["info", "Max. prepad spolu " + money(-R.total.dd) + " oproti súčtu samostatných prepadov " + money(-sumDd) + " — " + (R.total.dd < sumDd ? "prepady neprichádzajú naraz." : "prepady prichádzajú naraz.")]);
+    var tot = R.total.pnl;
+    if (tot > 0 && P.length > 1) out.push(["info", "Podiel na zisku: " + P.map(function (p) { return esc(p.name) + " " + num(100 * p.total.pnl / tot, 0) + " %"; }).join(", ") + "."]);
+    out.push(["info", "Najhorší deň spolu " + (R.days.worstDay ? fmtDate(R.days.worstDay[0]) + " " + money(R.days.worstDay[1]) : "—") + ", najviac stratových dní po sebe " + R.days.lossStreak + ", naraz v trhu najviac " + R.maxConcurrent + " pozície."]);
+    var tag = { pos: "v poriadku", warn: "pozor", neg: "pozor", info: "dobré vedieť" };
+    return '<ul class="dv-find">' + out.map(function (x) { return '<li><span class="badge ' + (x[0] === "info" ? "" : x[0]) + '">' + tag[x[0]] + "</span><span>" + x[1] + "</span></li>"; }).join("") + "</ul>";
+  }
+
+  function dvRenderOut() {
+    var R = dv.result, P = R.parts, out = $("dv-out");
+    if (!R) { out.innerHTML = ""; return; }
+    var h = '<div class="card section"><h2>Súhrn</h2><div class="table-wrap"><table><thead><tr><th></th><th colspan="5" style="text-align:center">Posledný rok (odložený)</th><th colspan="6" style="text-align:center">Celé obdobie</th></tr>' +
+      '<tr><th class="l">Nastavenie</th><th>Obch.</th><th>WR</th><th>PF</th><th>Zisk</th><th>Max. DD</th><th>Obch.</th><th>WR</th><th>PF</th><th>Zisk</th><th>Max. DD</th><th>Zisk / DD</th></tr></thead><tbody>' +
+      P.map(function (p) { return dvSumRow(dvSw(p.i) + esc(p.f.st.label) + (p.mult !== 1 ? ' <span class="muted">× ' + num(p.mult, 2) + "</span>" : ""), p.yearly[4], p.total); }).join("") +
+      (P.length > 1 ? dvSumRow("Spolu", R.yearly[4], R.total, "sum") : "") + "</tbody></table></div></div>";
+    if (P.length > 1) h += '<div class="card section"><h2>Čo z toho vyplýva</h2>' + dvFindings(R) + "</div>";
+    h += '<div class="card section"><div class="row"><h2>Krivka kapitálu</h2><span class="muted">kumulatívny PnL podľa dní</span></div><div class="chart-box"><canvas id="dv-eq"></canvas></div>' +
+      '<div class="legend">' + P.map(function (p) { return '<span><i style="background:' + cssVar(DV_COLORS[p.i % 8]) + '"></i>' + esc(p.name) + "</span>"; }).join("") +
+      (P.length > 1 ? '<span><i style="background:' + cssVar("--sum") + '"></i>Spolu</span>' : "") + '<span><i style="background:' + cssVar("--warn") + '"></i>začiatok odloženého roka</span></div></div>';
+    if (P.length > 1) h += '<div class="card section"><div class="row"><h2>Spolu: kapitál a prepad</h2></div><div class="chart-box sm"><canvas id="dv-dd"></canvas></div></div>';
+    // po rokoch
+    h += '<div class="card section"><h2>Po rokoch</h2><div class="table-wrap"><table><thead><tr><th class="l">Rok</th><th class="l">Nastavenie</th><th>Obch.</th><th>WR</th><th>PF</th><th>Zisk</th><th>Max. DD</th><th>Priem. zisk</th><th>Priem. strata</th><th>Séria strát</th></tr></thead><tbody>';
+    DV_YEARS.forEach(function (y, yi) {
+      P.forEach(function (p, k) { var r = p.yearly[yi];
+        h += '<tr><td class="l">' + (k ? "" : y[0]) + '</td><td class="l">' + dvSw(p.i) + esc(p.name) + "</td><td>" + r.n + "</td><td>" + num(r.wr, 1) + ' %</td><td class="' + pfCls(r.pf) + '">' + pfFmt(r.pf) + '</td><td class="' + cls(r.pnl) + '">' + money(r.pnl) + "</td><td>" + money(-r.dd) + "</td><td>" + money(r.avgWin) + "</td><td>" + money(r.avgLoss) + "</td><td>" + r.lossStreak + "</td></tr>"; });
+      if (P.length > 1) { var c = R.yearly[yi];
+        h += '<tr class="sum"><td></td><td class="l">Spolu</td><td>' + c.n + "</td><td>" + num(c.wr, 1) + ' %</td><td class="' + pfCls(c.pf) + '">' + pfFmt(c.pf) + '</td><td class="' + cls(c.pnl) + '">' + money(c.pnl) + "</td><td>" + money(-c.dd) + "</td><td>" + money(c.avgWin) + "</td><td>" + money(c.avgLoss) + "</td><td>" + c.lossStreak + "</td></tr>"; }
+    });
+    h += '</tbody></table></div><p class="muted" style="margin:10px 0 0">Roky od októbra do septembra; 24/25 končí ' + fmtDate(OOS_START) + ", kde začína odložený rok.</p></div>";
+    // mesiace
+    var M = R.days.months, mvals = Object.keys(M).map(function (k) { return Math.abs(M[k]); }), mx = Math.max.apply(null, mvals.concat([1]));
+    h += '<div class="card section"><h2>Mesiace' + (P.length > 1 ? " spolu" : "") + '</h2><div class="table-wrap"><table class="dv-months"><thead><tr><th class="l">Rok</th>' +
+      MONTHS_SHORT.map(function (m) { return "<th>" + m + "</th>"; }).join("") + "<th>Rok spolu</th></tr></thead><tbody>";
+    for (var yr = 2021; yr <= 2026; yr++) {
+      var row = '<tr><th class="l">' + yr + "</th>", tot = 0, any = false;
+      for (var mo = 1; mo <= 12; mo++) {
+        var key = yr + "-" + String(mo).padStart(2, "0"), v = M[key];
+        if (v == null) { row += "<td></td>"; continue; }
+        any = true; tot += v;
+        var al = Math.round(14 + 56 * Math.min(1, Math.abs(v) / mx));
+        row += '<td title="' + MONTHS[mo - 1] + " " + yr + ": " + money(v) + '" style="background:color-mix(in srgb, ' + (v >= 0 ? "var(--pos)" : "var(--neg)") + " " + al + '%, var(--surface));">' + compact(v) + "</td>";
+      }
+      if (any) h += row + '<td class="' + cls(tot) + '">' + money(tot) + "</td></tr>";
+    }
+    h += "</tbody></table></div></div>";
+    // dni
+    function dayCard(title, d, sw) {
+      return '<div class="card"><h2>' + sw + esc(title) + '</h2><dl class="dv-kv">' +
+        "<dt>Obchodných dní</dt><dd>" + d.days + "</dd><dt>Dni v zisku</dt><dd>" + num(d.winPct, 1) + " %</dd>" +
+        "<dt>Priemerný deň</dt><dd>" + money(d.avg) + "</dd><dt>Medián dňa</dt><dd>" + money(d.median) + "</dd>" +
+        "<dt>Priemerný ziskový / stratový deň</dt><dd>" + money(d.avgWin) + " / " + money(d.avgLoss) + "</dd>" +
+        "<dt>Najviac stratových dní po sebe</dt><dd>" + d.lossStreak + "</dd><dt>Mesiace v zisku</dt><dd>" + num(d.monthsPos, 1) + " %</dd>" +
+        "<dt>Najhorší mesiac</dt><dd>" + (d.worstMonth ? d.worstMonth[0] + " " + money(d.worstMonth[1]) : "—") + "</dd>" +
+        "<dt>Najlepší mesiac</dt><dd>" + (d.bestMonth ? d.bestMonth[0] + " " + money(d.bestMonth[1]) : "—") + "</dd>" +
+        "<dt>Najhorší deň</dt><dd>" + (d.worstDay ? fmtDate(d.worstDay[0]) + " " + money(d.worstDay[1]) : "—") + "</dd>" +
+        "<dt>Najlepší deň</dt><dd>" + (d.bestDay ? fmtDate(d.bestDay[0]) + " " + money(d.bestDay[1]) : "—") + "</dd></dl></div>";
+    }
+    h += '<h2 class="section">Dni</h2><div class="grid cards">' + P.map(function (p) { return dayCard(p.name, p.days, dvSw(p.i)); }).join("") +
+      (P.length > 1 ? dayCard("Spolu", R.days, "") : "") + "</div>";
+    h += '<div class="card section"><h2>Dni v týždni</h2><div class="table-wrap"><table><thead><tr><th class="l">Deň</th>' +
+      P.map(function (p) { return "<th>" + dvSw(p.i) + esc(p.name) + "</th><th>dni v zisku</th>"; }).join("") + (P.length > 1 ? "<th>Spolu</th>" : "") + "</tr></thead><tbody>";
+    [0, 1, 2, 3, 4, 6].forEach(function (w) {
+      var tr = '<tr><td class="l">' + DV_WD[w] + (w === 6 ? " (večer)" : "") + "</td>", any = false;
+      P.forEach(function (p) { var v = p.days.weekday[w];
+        if (v && v.length) { any = true; var s2 = v.reduce(function (a, b) { return a + b; }, 0); tr += '<td class="' + cls(s2) + '">' + money(s2) + "</td><td>" + num(100 * v.filter(function (x) { return x > 0; }).length / v.length, 1) + " %</td>"; }
+        else tr += '<td class="muted">—</td><td class="muted">—</td>'; });
+      if (P.length > 1) { var cv = R.days.weekday[w] || [], cs = cv.reduce(function (a, b) { return a + b; }, 0); tr += '<td class="' + cls(cs) + '">' + (cv.length ? money(cs) : "—") + "</td>"; }
+      if (any) h += tr + "</tr>";
+    });
+    h += "</tbody></table></div></div>";
+    // obchody
+    h += '<h2 class="section">Obchody</h2><div class="grid cards">' + P.map(function (p) {
+      var t = p.total;
+      return '<div class="card"><h2>' + dvSw(p.i) + esc(p.name) + '</h2><dl class="dv-kv">' +
+        "<dt>Obchodov</dt><dd>" + t.n + "</dd><dt>Priemerný zisk / strata</dt><dd>" + money(t.avgWin) + " / " + money(t.avgLoss) + "</dd>" +
+        "<dt>Najviac výhier / strát po sebe</dt><dd>" + t.winStreak + " / " + t.lossStreak + "</dd>" +
+        p.reasons.map(function (r) { return "<dt>" + (r[0] === "take_profit" ? "Take profit" : "Stop loss") + "</dt><dd>" + r[1] + " · " + money(r[2]) + "</dd>"; }).join("") +
+        p.dirs.filter(function (d) { return d[1].n; }).map(function (d) { return "<dt>" + (d[0] === "long" ? "Long" : "Short") + " (" + d[1].n + "), PF</dt><dd>" + pfFmt(d[1].pf) + " · " + money(d[1].pnl) + "</dd>"; }).join("") +
+        "<dt>Najlepší / najhorší obchod</dt><dd>" + money(t.best) + " / " + money(t.worst) + "</dd></dl></div>";
+    }).join("") + "</div>";
+    var hrs = Object.keys(R.hours).map(Number).sort(function (a, b) { return a - b; });
+    h += '<div class="card section"><h2>Hodina vstupu (New York)</h2><div class="table-wrap"><table><thead><tr><th class="l">Hodina</th>' +
+      P.map(function (p) { return "<th>" + dvSw(p.i) + esc(p.name) + "</th><th>PF</th><th>zisk</th>"; }).join("") + "</tr></thead><tbody>" +
+      hrs.map(function (hh) {
+        return '<tr><td class="l">' + String(hh).padStart(2, "0") + ":00</td>" + P.map(function (p) { var v = R.hours[hh][p.i];
+          if (!v) return '<td class="muted">—</td><td class="muted">—</td><td class="muted">—</td>';
+          var s3 = dvStats(v); return "<td>" + s3.n + '</td><td class="' + pfCls(s3.pf) + '">' + pfFmt(s3.pf) + '</td><td class="' + cls(s3.pnl) + '">' + money(s3.pnl) + "</td>"; }).join("") + "</tr>";
+      }).join("") + "</tbody></table></div></div>";
+    if (R.corr.length) {
+      h += '<div class="card section"><h2>Korelácia denných výsledkov</h2><div class="table-wrap"><table><thead><tr><th class="l">Dvojica</th><th>Spoločných dní</th><th>Korelácia</th><th>Dni, keď obe prerobili</th></tr></thead><tbody>' +
+        R.corr.map(function (c) { return '<tr><td class="l">' + dvSw(c.a) + esc(P[c.a].name) + " × " + dvSw(c.b) + esc(P[c.b].name) + "</td><td>" + c.common + '</td><td class="' + (c.r != null && c.r >= 0.5 ? "neg" : "") + '">' + (c.r == null ? "—" : num(c.r, 2)) + "</td><td>" + c.both + "</td></tr>"; }).join("") +
+        '</tbody></table></div><p class="muted" style="margin:10px 0 0">Korelácia blízko 0 = nastavenia sa navzájom nehýbu (dobrá diverzifikácia), blízko 1 = správajú sa ako jedna väčšia pozícia.</p></div>';
+    }
+    // denník
+    h += '<div class="card section"><div class="row"><h2>Denník</h2><div class="seg" id="dv-view"><button data-v="tr">Obchody</button><button data-v="dy">Dni</button></div></div>' +
+      '<div class="dv-filters"><label>Nastavenie <select id="dv-f-item"><option value="">všetky</option>' + P.map(function (p) { return '<option value="' + p.i + '">' + esc(p.name) + "</option>"; }).join("") + "</select></label>" +
+      '<label>Rok <select id="dv-f-year"><option value="">všetky</option>' + DV_YEARS.map(function (y) { return "<option>" + y[0] + "</option>"; }).join("") + "</select></label>" +
+      '<label>Výsledok <select id="dv-f-res"><option value="">všetky</option><option value="+">v zisku</option><option value="-">v strate</option></select></label></div>' +
+      '<div class="table-wrap"><table id="dv-log"></table></div><div class="pager"><button class="btn" id="dv-prev">‹ Späť</button><span id="dv-info"></span><button class="btn" id="dv-next">Ďalej ›</button></div></div>';
+    out.innerHTML = h;
+    dvCharts();
+    dvBindLog();
+  }
+
+  function dvCharts() {
+    var R = dv.result, P = R.parts;
+    if (!hasChart()) { ["dv-eq", "dv-dd"].forEach(chartFallback); return; }
+    var labels = Object.keys(R.dayMap).sort(), idx = {};
+    labels.forEach(function (d, i) { idx[d] = i; });
+    function series(eqArr) { var out = new Array(labels.length), last = null, j = 0, m = {}; eqArr.forEach(function (e) { m[e[0]] = e[1]; });
+      for (var i = 0; i < labels.length; i++) { if (labels[i] in m) last = m[labels[i]]; out[i] = last; } return out; }
+    var vIdx = null; for (var i = 0; i < labels.length; i++) if (labels[i] >= OOS_START) { vIdx = i; break; }
+    var o = baseOpts();
+    o.scales.x.ticks.callback = function (v) { var l = labels[v]; return l ? MONTHS_SHORT[+l.slice(5, 7) - 1] + " " + l.slice(2, 4) : ""; };
+    o.scales.y.ticks.callback = function (v) { return compact(v); };
+    o.plugins.tooltip.callbacks = { title: function (it) { return fmtDate(it[0].label); }, label: function (it) { return it.dataset.label + " " + money(it.raw, 0); } };
+    o.plugins.guides = { vline: vIdx, vcolor: cssVar("--warn"), hlines: [{ value: 0, color: cssVar("--muted"), dash: [2, 3] }] };
+    var ds = P.map(function (p) { return { label: p.name, data: series(p.equity), borderColor: cssVar(DV_COLORS[p.i % 8]), borderWidth: 2, pointRadius: 0, tension: 0.1, fill: false, spanGaps: true }; });
+    if (P.length > 1) ds.push({ label: "Spolu", data: series(R.equity), borderColor: cssVar("--sum"), borderWidth: 2.5, pointRadius: 0, tension: 0.1, fill: false });
+    charts.push(new Chart($("dv-eq"), { type: "line", plugins: [guidePlugin], data: { labels: labels, datasets: ds }, options: o }));
+    if (P.length > 1 && $("dv-dd")) {
+      var peak = 0, eqv = R.equity.map(function (e) { return e[1]; }), ddv = eqv.map(function (v) { if (v > peak) peak = v; return v - peak; });
+      var o2 = baseOpts();
+      o2.scales.x.ticks.callback = o.scales.x.ticks.callback;
+      o2.scales.y.ticks.callback = function (v) { return compact(v); };
+      o2.plugins.tooltip.callbacks = { title: function (it) { return fmtDate(it[0].label); }, label: function (it) { return (it.datasetIndex ? "prepad " : "kapitál ") + money(it.raw, 0); } };
+      o2.plugins.guides = { vline: vIdx, vcolor: cssVar("--warn"), hlines: [{ value: 0, color: cssVar("--muted"), dash: [2, 3] }] };
+      charts.push(new Chart($("dv-dd"), { type: "line", plugins: [guidePlugin], data: { labels: R.equity.map(function (e) { return e[0]; }), datasets: [
+        { data: eqv, borderColor: cssVar("--accent"), borderWidth: 2, pointRadius: 0, tension: 0.1, fill: false },
+        { data: ddv, borderColor: cssVar("--neg"), borderWidth: 1, pointRadius: 0, fill: "origin", backgroundColor: cssVar("--neg-bg"), tension: 0 }] }, options: o2 }));
+    }
+  }
+
+  function dvLogRows() {
+    var L = dv.log, R = dv.result, rows;
+    if (L.view === "tr") {
+      rows = R.all.filter(function (t) { return (L.item === "" || t.i === +L.item) && (!L.year || dvYear(t.open.slice(0, 10)) === L.year) && (!L.res || (L.res === "+" ? t.pnl > 0 : t.pnl <= 0)); })
+        .map(function (t) { return { k: t.open, t: t }; });
+    } else {
+      rows = Object.keys(R.dayMap).filter(function (d) { return (!L.year || dvYear(d) === L.year) && (L.item === "" || d in R.parts[+L.item].daily); }).map(function (d) {
+        var v = L.item === "" ? R.dayMap[d] : R.parts[+L.item].daily[d]; return { k: d, d: d, v: v };
+      }).filter(function (x) { return !L.res || (L.res === "+" ? x.v > 0 : x.v <= 0); });
+    }
+    var key = L.sort || "k";
+    rows.sort(function (a, b) { var x = key === "k" ? a.k : (a.t ? a.t.pnl : a.v), y = key === "k" ? b.k : (b.t ? b.t.pnl : b.v); return (x < y ? -1 : x > y ? 1 : 0) * L.dir; });
+    return rows;
+  }
+  function dvRenderLog() {
+    var L = dv.log, R = dv.result, P = R.parts, rows = dvLogRows(), n = 50, pages = Math.max(1, Math.ceil(rows.length / n));
+    L.page = Math.min(L.page, pages - 1);
+    var part = rows.slice(L.page * n, L.page * n + n), h;
+    if (L.view === "tr") {
+      h = '<thead><tr><th class="l sort" data-k="k">Otvorenie</th><th class="l">Zatvorenie</th><th class="l">Nastavenie</th><th class="l">Smer</th><th>Vstup</th><th>Výstup</th><th class="l">Dôvod</th><th class="sort" data-k="v">PnL</th></tr></thead><tbody>' +
+        part.map(function (r) { var t = r.t; return '<tr><td class="l">' + fmtDateTime(t.open) + '</td><td class="l">' + fmtDateTime(t.close) + '</td><td class="l">' + dvSw(t.i) + esc(P[t.i].name) +
+          '</td><td class="l">' + (t.dir === "long" ? "long" : "short") + "</td><td>" + num(t.entry, 2) + "</td><td>" + num(t.exit, 2) + '</td><td class="l">' + (t.reason === "take_profit" ? "take profit" : t.reason === "stop_loss" ? "stop loss" : esc(t.reason)) +
+          '</td><td class="' + cls(t.pnl) + '">' + money(t.pnl, 2) + "</td></tr>"; }).join("");
+    } else {
+      h = '<thead><tr><th class="l sort" data-k="k">Deň</th>' + P.map(function (p) { return "<th>" + dvSw(p.i) + esc(p.name) + "</th>"; }).join("") + (P.length > 1 ? '<th class="sort" data-k="v">Spolu</th>' : "") + "</tr></thead><tbody>" +
+        part.map(function (r) { return '<tr><td class="l">' + fmtDate(r.d) + "</td>" + P.map(function (p) { var v = p.daily[r.d]; return v == null ? '<td class="muted">—</td>' : '<td class="' + cls(v) + '">' + money(v) + "</td>"; }).join("") +
+          (P.length > 1 ? '<td class="' + cls(R.dayMap[r.d]) + '">' + money(R.dayMap[r.d]) + "</td>" : "") + "</tr>"; }).join("");
+    }
+    $("dv-log").innerHTML = h + "</tbody>";
+    var tot = rows.reduce(function (s, r) { return s + (r.t ? r.t.pnl : r.v); }, 0);
+    $("dv-info").textContent = rows.length + (L.view === "tr" ? " obchodov" : " dní") + " · spolu " + money(tot) + " · strana " + (L.page + 1) + " z " + pages;
+    $("dv-prev").disabled = L.page === 0; $("dv-next").disabled = L.page >= pages - 1;
+    Array.prototype.forEach.call($("dv-view").querySelectorAll("button"), function (b) { b.className = b.getAttribute("data-v") === L.view ? "on" : ""; });
+    Array.prototype.forEach.call($("dv-log").querySelectorAll("th.sort"), function (th) {
+      th.addEventListener("click", function () { var k = th.getAttribute("data-k"); L.dir = L.sort === k ? -L.dir : (k === "v" ? 1 : -1); L.sort = k; L.page = 0; dvRenderLog(); });
+    });
+  }
+  function dvBindLog() {
+    var L = dv.log;
+    $("dv-view").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; L.view = b.getAttribute("data-v"); L.sort = null; L.dir = 1; L.page = 0; dvRenderLog(); });
+    [["dv-f-item", "item"], ["dv-f-year", "year"], ["dv-f-res", "res"]].forEach(function (x) { $(x[0]).addEventListener("change", function (e) { L[x[1]] = e.target.value; L.page = 0; dvRenderLog(); }); });
+    $("dv-prev").addEventListener("click", function () { L.page--; dvRenderLog(); });
+    $("dv-next").addEventListener("click", function () { L.page++; dvRenderLog(); });
+    dvRenderLog();
+  }
+
+  function dvRun() {
+    destroyCharts();
+    dv.log = { view: "tr", item: "", year: "", res: "", page: 0, sort: null, dir: 1 };
+    dv.result = dv.items.length ? dvCompute() : null;
+    dvRenderOut();
+  }
+  function mountDiversify() {
+    var app = $("app");
+    function rerender() {
+      var keepY = window.scrollY;
+      destroyCharts(); app.innerHTML = viewDiversify(); mountDiversify(); window.scrollTo(0, keepY);
+    }
+    // rozbalené stratégie ostanú rozbalené aj po pridaní / odobratí
+    Array.prototype.forEach.call(app.querySelectorAll("details.dv-strat"), function (d) {
+      d.addEventListener("toggle", function () { dv.open[d.getAttribute("data-key")] = d.open; });
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-add]"), function (b) {
+      b.addEventListener("click", function () {
+        if (dv.items.length >= DV_MAX) return;
+        dv.items.push({ id: b.getAttribute("data-add"), mult: 1 }); dvSave(); dv.result = null; rerender();
+      });
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-del]"), function (b) {
+      b.addEventListener("click", function () { dv.items.splice(+b.getAttribute("data-del"), 1); dvSave(); dv.result = null; rerender(); });
+    });
+    Array.prototype.forEach.call(app.querySelectorAll("[data-mult]"), function (inp) {
+      inp.addEventListener("change", function () {
+        var v = parseFloat(String(inp.value).replace(",", ".")); if (!(v > 0)) v = 1;
+        dv.items[+inp.getAttribute("data-mult")].mult = v; dvSave(); inp.value = String(v).replace(".", ",");
+      });
+    });
+    if ($("dv-clear")) $("dv-clear").addEventListener("click", function () { dv.items = []; dvSave(); dv.result = null; rerender(); });
+    if ($("dv-run")) $("dv-run").addEventListener("click", function () { dvRun(); var o = $("dv-out"); if (o && o.scrollIntoView) o.scrollIntoView({ behavior: "smooth", block: "start" }); });
+    if (dv.result == null && dv.items.length && !mountDiversify._ran) { mountDiversify._ran = true; dvRun(); }
+    else if (dv.result) dvRenderOut();
+  }
+
   // ---------- smerovanie ----------
   function route() {
     destroyCharts();
     var h = location.hash.replace(/^#\/?/, ""), parts = h.split("/").map(decodeURIComponent), app = $("app");
     window.scrollTo(0, 0);
+    $("nav-home").className = parts[0] === "div" ? "" : "on";
+    $("nav-div").className = parts[0] === "div" ? "on" : "";
+    if (parts[0] === "div") {
+      app.innerHTML = viewDiversify();
+      document.title = "Diverzifikácia — Výsledky testovania";
+      mountDiversify();
+      return;
+    }
     if (parts[0] === "s" && parts[1]) {
       var s = findStrategy(parts[1]);
       app.innerHTML = s ? viewStrategy(s) : notFound();

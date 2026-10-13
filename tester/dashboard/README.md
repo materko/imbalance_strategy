@@ -23,8 +23,17 @@ krivka z `equity`. Hodnoty `is`, `oos`, `years` a `plateau_min` sa iba zobrazuj�
   odložený rok), kalendár denného PnL po mesiacoch so súčtom týždňov, mesačné súčty
   (klik na stĺpec prepne kalendár), PF po rokoch s čiarami 1,0 a 1,3, blok odloženého
   roka a tabuľka obchodov (triedenie podľa dátumu a PnL, 50 na stranu).
+- **Diverzifikácia** (`#/div`, odkaz v hlavičke) — viac nastavení naraz, aj z rôznych stratégií
+  (najviac 8): pri nastavení **Pridať**, pri vybranom násobok veľkosti (0,5 = polovica; stratégie
+  nemajú rovnaké riziko na obchod) a **Prepočítať**. Obchody aj dni sa zlúčia v prehliadači z tých
+  istých `trades` a `daily` a ukáže sa súhrn (posledný rok a celé obdobie), automatické zistenia
+  (roky v pluse, korelácia denných výsledkov, mesiace v pluse, prepad spolu vs. súčet prepadov,
+  podiel na zisku), krivky kapitálu a prepad spolu, roky, mesiace, dni, dni v týždni, hodina
+  vstupu (New York), korelácie dvojíc a denník obchodov a dní s filtrom. Výber si stránka pamätá
+  v prehliadači (`localStorage`); pri prvom otvorení predvyplní nastavenie č. 1 z prvých troch
+  stratégií, ktoré prešli smernicou.
 
-Adresy sú v hashi: `#/`, `#/s/<key stratégie>`, `#/d/<id nastavenia>` — dajú sa poslať ako odkaz.
+Adresy sú v hashi: `#/`, `#/s/<key stratégie>`, `#/d/<id nastavenia>`, `#/div` — dajú sa poslať ako odkaz.
 
 ## Ako otvoriť
 
