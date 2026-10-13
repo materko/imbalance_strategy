@@ -25,7 +25,7 @@ using TradeBot.Core;
 namespace TradeBot.Strategies.OrbNet
 {
     [TradeBotEngine("orbnet", "ORBNet Opening Range Breakout (C#)")]
-    public sealed class OrbEngine : IEngine
+    public class OrbEngine : IEngine
     {
         private const string LongColor = "#10b981";
         private const string ShortColor = "#ef4444";
@@ -33,7 +33,7 @@ namespace TradeBot.Strategies.OrbNet
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>Stav jednej seansy v jeden den.</summary>
-        private sealed class SessionState
+        protected sealed class SessionState
         {
             public string Day;
             public double? High;
@@ -67,7 +67,7 @@ namespace TradeBot.Strategies.OrbNet
         public readonly OrbConfig Cfg;
         private readonly InstrumentSpec _inst;
         private readonly int _chartTfMinutes;
-        private readonly long _stepMs;
+        protected readonly long _stepMs;
         private readonly OrbSession[] _sessions;
         private readonly TimeZoneInfo[] _zones;
         private readonly SessionState[] _state;
@@ -76,7 +76,7 @@ namespace TradeBot.Strategies.OrbNet
         private readonly int _requiredHistory;
 
         /// <summary>v ktorej seanse vznikla otvorena pozicia - jej koniec ju aj zatvori</summary>
-        private string _openSession;
+        protected string _openSession;
         /// <summary>nevyplneny vstup: id orderu a bar, na ktorom vznikol</summary>
         private string _pendingId;
         private int _pendingBar;
@@ -141,7 +141,7 @@ namespace TradeBot.Strategies.OrbNet
         // plan obchodu
         // ------------------------------------------------------------------ //
 
-        private double? StopLevel(SessionState st, Direction direction, double entry, double atr)
+        protected virtual double? StopLevel(SessionState st, Direction direction, double entry, double atr)
         {
             bool isLong = direction == Direction.Long;
             if (!st.High.HasValue || !st.Low.HasValue) return null;
@@ -180,7 +180,7 @@ namespace TradeBot.Strategies.OrbNet
             return v.HasValue && v.Value != 0.0 ? v.Value : entry;
         }
 
-        private double TargetLevel(SessionState st, Direction direction, double entry, double slDistance, double atr)
+        protected virtual double TargetLevel(SessionState st, Direction direction, double entry, double slDistance, double atr)
         {
             bool isLong = direction == Direction.Long;
             double hi = OrEntry(st.High, entry), lo = OrEntry(st.Low, entry);
@@ -191,7 +191,7 @@ namespace TradeBot.Strategies.OrbNet
             return isLong ? entry + dist : entry - dist;
         }
 
-        private TradePlan Plan(SessionState st, Direction direction, double entry, double atr)
+        protected virtual TradePlan Plan(SessionState st, Direction direction, double entry, double atr)
         {
             double? stop = StopLevel(st, direction, entry, atr);
             if (!stop.HasValue) return null;
@@ -230,6 +230,13 @@ namespace TradeBot.Strategies.OrbNet
             return Cfg.minRangePct <= widthPct && widthPct <= Cfg.maxRangePct;
         }
 
+        /// <summary>Hacik pre varianty ORB (VWAP ORB): smie byt prerazenie v tomto smere signalom?
+        /// ORB sam ziadnu podmienku navyse nema - Python `_break_allowed`.</summary>
+        protected virtual bool BreakAllowed(SessionState st, Direction direction, Bar bar, double atr)
+        {
+            return true;
+        }
+
         private bool VolumeOk(Bar bar)
         {
             if (!Cfg.useVolumeFilter) return true;
@@ -252,7 +259,7 @@ namespace TradeBot.Strategies.OrbNet
 
         // ------------------------------------------------------------------ //
 
-        public EngineOutput OnBar(Bar bar, HtfWindow htf, MarketContext ctx)
+        public virtual EngineOutput OnBar(Bar bar, HtfWindow htf, MarketContext ctx)
         {
             if (ctx == null)
             {
@@ -305,7 +312,7 @@ namespace TradeBot.Strategies.OrbNet
             return o;
         }
 
-        private static List<string> SortedIds(MarketContext ctx)
+        protected static List<string> SortedIds(MarketContext ctx)
         {
             List<string> ids = new List<string>(ctx.OpenOrderIds);
             ids.Sort(StringComparer.Ordinal);
@@ -420,6 +427,8 @@ namespace TradeBot.Strategies.OrbNet
                     longBreak = longBreak && st.EmaSide.Value == Direction.Long;
                     shortBreak = shortBreak && st.EmaSide.Value == Direction.Short;
                 }
+                longBreak = longBreak && BreakAllowed(st, Direction.Long, bar, atr);
+                shortBreak = shortBreak && BreakAllowed(st, Direction.Short, bar, atr);
                 if (!(longBreak || shortBreak)) return;
                 if (!VolumeOk(bar) || !ClosePositionOk(bar, longBreak)) return;
                 st.BreakDir = longBreak ? Direction.Long : Direction.Short;

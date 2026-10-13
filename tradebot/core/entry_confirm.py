@@ -215,6 +215,8 @@ class EntryConfirmEngine:
 
 def wrap_entry_confirm(engine: Any, cfg: Any) -> Any:
     """Engine obalený potvrdením vstupu, keď to config chce; inak ten istý engine."""
+    if getattr(engine, "native_entry_layers", False):   # C# engine má obaly vstupov v sebe
+        return engine
     t = getattr(cfg, "entryConfirm", None)
     if t is None or EntryConfirm(t) is EntryConfirm.NONE:
         return engine

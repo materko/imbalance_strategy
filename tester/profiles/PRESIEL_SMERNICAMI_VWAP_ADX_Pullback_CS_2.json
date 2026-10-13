@@ -1,0 +1,23 @@
+{
+  "useTimeExit": false,
+  "orEndHHMM": 845,
+  "vwapAnchor": "RTH 8:30 CT",
+  "adxMin": 20.0,
+  "tpBars": 4,
+  "slBars": 18,
+  "maxTrades": 2,
+  "exitHHMM": 1531,
+  "adxLen": 14,
+  "volFilter": "high",
+  "trendFilter": "off",
+  "trendEmaLen": 200,
+  "entryOrderType": "market",
+  "limitOffsetPct": 75,
+  "entryConfirm": "none",
+  "confirmBars": 2,
+  "_strategy": "vwapadxnet",
+  "_instrument": "mnq_databento",
+  "_timeframe": "3m",
+  "_title": "VWAP ADX 2 C# · PF 1,60 · WR 77 % · 172 obch/rok · MNQ 3m · max DD 1 988 $ · posl. rok PF 1,31",
+  "_source_profile": "PRESIEL_SMERNICAMI_VWAP_ADX_Pullback_2.json"
+}

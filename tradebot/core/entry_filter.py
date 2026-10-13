@@ -212,6 +212,8 @@ class EntryFilterEngine:
 
 def wrap_entry_filter(engine: Any, cfg: Any, chart_tf_minutes: int) -> Any:
     """Engine obalený filtrom trendu, keď to config chce; inak ten istý engine."""
+    if getattr(engine, "native_entry_layers", False):   # C# engine má obaly vstupov v sebe
+        return engine
     t = getattr(cfg, "trendFilter", None)
     if t is None or not hasattr(cfg, "trendTF"):
         return engine

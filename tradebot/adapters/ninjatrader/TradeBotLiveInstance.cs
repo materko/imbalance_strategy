@@ -351,7 +351,8 @@ namespace NinjaTrader.NinjaScript.AddOns
             // control subor pred prvym barom: iny profil sa vymeni zadarmo (nic sa este neprehralo)
             ControlInit();
 
-            _chart = RequestSeries(d.Tf, Math.Max(50, _engine.RequiredHistory * 2 + 5));
+            // indikatory na vlastnom TF (filter trendu na 60m, ADX) AddOn nesieje - rozbehnu sa na tejto predhistorii
+            _chart = RequestSeries(d.Tf, Math.Max(50, Math.Max(_engine.RequiredHistory * 2, LiveHistory(_engine)) + 5));
             if (_chart == null) return false;
             if (_htf != null)
             {
@@ -371,6 +372,12 @@ namespace NinjaTrader.NinjaScript.AddOns
         private static int HtfBarsBack(int chartTf, int htfTf, int chartBars)
         {
             return (int)Math.Ceiling((double)chartBars * chartTf / Math.Max(1, htfTf)) + 8;
+        }
+
+        /// <summary>Bary grafu na prehratie: `RequiredHistory` a indikatory na vlastnom TF (`Warmup.LiveChartBars`).</summary>
+        private static int LiveHistory(TB.IEngine engine)
+        {
+            return engine.Warmup != null ? Math.Max(engine.RequiredHistory, engine.Warmup.LiveChartBars) : engine.RequiredHistory;
         }
 
         private void ReadStats()

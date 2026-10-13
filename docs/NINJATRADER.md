@@ -21,13 +21,39 @@ csharp/TradeBot.Host/                 TradeBot.Host.exe — engine ako proces (s
                 └── tradebot/strategies/<kľúč>/                 Python balík stratégie: config, popisy, SPEC
 ```
 
-Dnes majú C# jadro dve stratégie, obe prepisy Python predlohy s parametrami, profilmi, kresbami aj
+Dnes má C# jadro päť stratégií, všetky prepisy Python predlohy s parametrami, profilmi, kresbami aj
 signálmi zhodnými s ňou; vo webapp sú to obyčajné stratégie pod Freqtrade:
 
 | kľúč | predloha | C# | NinjaTrader šablóna |
 |---|---|---|---|
 | **`ibsnet`** | `ibs` (IBS Imbalance Breakout) | `csharp/TradeBot.Strategies/IbsNet` | `deploy/ninjatrader/IBSNet.cs` |
 | **`orbnet`** | `orb` (Opening Range Breakout) | `csharp/TradeBot.Strategies/OrbNet` | `deploy/ninjatrader/ORBNet.cs` |
+| **`ibsentrynet`** | `ibsentry` (IBS Entry Zone) | `csharp/TradeBot.Strategies/IbsEntryNet` (dedí z `IbsNet`) | `deploy/ninjatrader/IBSEntryNet.cs` |
+| **`vwaporbnet`** | `vwaporb` (VWAP ORB 1.5) | `csharp/TradeBot.Strategies/VwapOrbNet` (dedí z `OrbNet`) | `deploy/ninjatrader/VwapOrbNet.cs` |
+| **`vwapadxnet`** | `vwapadx` (VWAP ADX Pullback) | `csharp/TradeBot.Strategies/VwapAdxNet` (ADX z `IbsNet`) | `deploy/ninjatrader/VwapAdxNet.cs` |
+
+Ku každej je aj Expert Advisor pre MetaTrader 5 (`deploy/mt5/<Meno>.mq5`). Nastavenia `ibsentry`, `vwaporb` a `vwapadx`,
+ktoré prešli smernicou testovania, majú C# kópiu v `tester/profiles/PRESIEL_SMERNICAMI_*_CS_<n>.json`
+(webapp ich ukáže v priečinku SMERNICE, karta Live ich ponúkne na nasadenie). VWAP ORB v C# nemá stop
+posúvaný s VWAP (`vwapStop`, `vwapTp`) — potrebuje stop meniaci sa v čase, ktorý `TrailingPlan` ani živé
+adaptéry nepoznajú; config aj engine ho odmietnu.
+
+### Obaly vstupov sú v C# jadre
+
+Filter trendu a volatility (`trendFilter`, `volFilter`), potvrdenie vstupu sviečkou (`entryConfirm`) a limitka
+namiesto market vstupu (`entryOrderType`) sú v Pythone obaly, ktoré nasadzujú adaptéry Freqtrade a MultiCharts
+(`tradebot/core/entry_*.py`). Živý NinjaTrader a MT5 však spúšťajú len C# engine — preto ich má aj C# jadro
+(`csharp/TradeBot.Core/EntryLayers.cs`) a nasadzuje ich **`EngineRegistry.Create`** podľa configu, v tom istom
+poradí ako Python adaptéry. Most do Pythonu to hlási (`CSharpEngine.native_entry_layers`), takže Python obaly
+C# engine druhý raz nebalia. Parita obalov sa overuje na ORBNet aj VWAP ORB (`test_csharp_parity_orb.py`,
+`test_csharp_parity_vwaporb.py`). Do 13. 10. 2026 ich ORBNet naživo nemal — v testoch áno.
+
+### Predhistória naživo
+
+Indikátory na vlastnom TF (filter trendu EMA na 60m, ADX/Supertrend IBS) sa v backteste sejú (`Warmup.add_seeded`);
+živý adaptér ich nesieje, rozbehnú sa na prehratej histórii grafu. AddOn a MT5 EA preto prehrajú
+`max(RequiredHistory × 2, Warmup.LiveChartBars)` barov — `LiveChartBars` prepočíta každý seeded indikátor na bary
+grafu (`StaticHost.LiveHistory` pre MT5). Na `RequiredHistory` (od kedy sú signály platné) to vplyv nemá.
 
 ## Pravidlá (tie isté ako inde, len v C#)
 
@@ -414,7 +440,12 @@ Ovládanie okna NinjaTradera je pre AI asistenta len na čítanie — import a R
 1. `csharp/TradeBot.Strategies/<Meno>/` — config (`*Config.cs`, polia menom zhodné s Python configom),
    engine s `[TradeBotEngine("kľúč", "titulok")]` a konštruktorom
    `(Dictionary<string, object> config, InstrumentSpec inst, int chartTfMinutes)`.
+   Variant existujúcej C# stratégie (ako `vwaporb` z `orb`) dedí: config z jej configu (`Fill<T>`, vlastné
+   enumy cez `ConvertField`, zmenené defaulty v konštruktore — `test_csharp_core.py` ich číta), engine z jej
+   enginu cez háčiky zhodné s Pythonom (`BreakAllowed`, `StopLevel`, `TargetLevel`, `SpawnExtraZones`…).
 2. `tradebot/strategies/<kľúč>/` ako každá iná stratégia ([STRATEGIE.md](STRATEGIE.md)), len
    `engine_factory=csharp_engine_factory("kľúč")` a `csharp_dir=…`; `engine.py` v Pythone nie je.
 3. `deploy/ninjatrader/<Meno>.cs` — potomok `TradeBotStrategy` s `EngineKey`.
-4. Keď má stratégia Python predlohu, porovnaj ju cez `tester.compare.csharp_parity --python … --csharp …`.
+4. Keď má stratégia Python predlohu, porovnaj ju cez `tester.compare.csharp_parity --python … --csharp …`
+   (aj s profilmi, ktoré prešli smernicou — vzor `test_csharp_parity_vwaporb.py`).
+5. `deploy/mt5/<Meno>.mq5` — dva `#define` a `#include` (inštalátor aj driver ich berú z adresára).

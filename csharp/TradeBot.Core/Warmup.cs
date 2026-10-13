@@ -100,6 +100,20 @@ namespace TradeBot.Core
             }
         }
 
+        /// <summary>Kolko barov GRAFU treba naziVo, kde adapter seeded indikatory nesieje (NinjaTrader, MT5):
+        /// `ChartBars` a k tomu kazdy seeded indikator prepocitany na bary grafu - rozbehne sa na historii grafu.
+        /// Na `RequiredHistory` (od kedy su signaly platne) to nema vplyv.</summary>
+        public int LiveChartBars
+        {
+            get
+            {
+                int best = ChartBars;
+                foreach (WarmupNeed n in Needs)
+                    if (n.Seeded) best = Math.Max(best, n.ChartBars(ChartTfMinutes));
+                return best;
+            }
+        }
+
         public WarmupNeed FindSeed(string name)
         {
             foreach (WarmupNeed n in Needs)

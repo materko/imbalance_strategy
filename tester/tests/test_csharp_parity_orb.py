@@ -18,6 +18,9 @@ except csbuild.BuildError as exc:  # pragma: no cover - stroj bez C# kompilátor
 
 from tester.compare import csharp_parity  # noqa: E402
 from tester.tests.test_csharp_parity import _random_walk, _with_ts  # noqa: E402
+from tradebot.core.entry_confirm import EntryConfirm  # noqa: E402
+from tradebot.core.entry_filter import TrendFilter, VolFilter  # noqa: E402
+from tradebot.core.entry_order import EntryOrderType  # noqa: E402
 from tradebot.core.types import SizeSpec  # noqa: E402
 from tradebot.strategies.orb.config import (  # noqa: E402
     EntryMode, SessionMode, SlMode, TpMode, TradeDirection,
@@ -44,6 +47,17 @@ VARIANTS = {
                              "minSlDistance": SizeSpec(0.02, "pct")},
     "ema_filter_exit_kreslenie": {"emaLen": 30, "emaFilter": True, "emaExit": True, "showEma": True},
     "ema_filter_dna": {"emaLen": 50, "emaRangeFilter": True, "entryMode": EntryMode.RETEST, "retestMaxBars": 6},
+    # obaly vstupov (C# `EntryLayers`, v Pythone `tradebot.core.entry_*`) — C# ich nasadzuje sám, aby platili aj naživo
+    "obal_filter_trendu_a_volatility": {"trendFilter": TrendFilter.WITH, "trendTF": 15, "trendEmaLen": 20,
+                                        "volFilter": VolFilter.HIGH, "volLookback": 30},
+    "obal_proti_trendu": {"trendFilter": TrendFilter.AGAINST, "trendTF": 240, "trendEmaLen": 3},
+    "obal_potvrdenie_any": {"entryConfirm": EntryConfirm.ANY, "confirmBars": 8, "confirmPbWickPct": 40},
+    "obal_limitka_potvrdenie_pinbar": {"entryOrderType": EntryOrderType.LIMIT, "limitOffsetPct": 40,
+                                       "limitValidBars": 4, "limitKeepRR": False,
+                                       "entryConfirm": EntryConfirm.PINBAR, "confirmBars": 12,
+                                       "confirmPbWickPct": 40, "confirmPbBodyPct": 40},
+    "obal_imbalance_nizka_volatilita": {"entryConfirm": EntryConfirm.IMBALANCE, "confirmImbMinAtr": 0.0,
+                                        "volFilter": VolFilter.LOW, "volLookback": 20},
 }
 
 

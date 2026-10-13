@@ -107,6 +107,18 @@ public static class StaticHost
         catch (Exception e) { Fail(e); return -1; }
     }
 
+    /// <summary>Kolko barov grafu prehrat pred startom nazivo, aby sa rozbehli aj indikatory na vlastnom TF
+    /// (filter trendu na 60m, ADX/Supertrend) - zivy adapter ich nesieje (`Warmup.LiveChartBars`); -1 pri chybe.</summary>
+    public static int LiveHistory(int handle)
+    {
+        try
+        {
+            IEngine e = Get(handle).Host.Engine;
+            return Math.Max(e.RequiredHistory, e.Warmup != null ? e.Warmup.LiveChartBars : 0);
+        }
+        catch (Exception ex) { Fail(ex); return -1; }
+    }
+
     /// <summary>TF informativnej serie v minutach; 0 = strategia ju nema; -1 chyba.</summary>
     public static int HtfTfMinutes(int handle)
     {

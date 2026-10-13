@@ -7,7 +7,8 @@ using TradeBot.Core;
 namespace TradeBot.Strategies.IbsNet
 {
     /// <summary>Pine `srcIn` v `f_pushZone`.</summary>
-    public enum ZoneSource { Sd = 0, Sr = 1, Liquidity = 2 }
+    /// <summary>Pine `srcIn`; `Fvg` = velky imbalance z vyssieho TF - IBS ho sam nevytvori, pouziva ho IBS Entry Zone.</summary>
+    public enum ZoneSource { Sd = 0, Sr = 1, Liquidity = 2, Fvg = 3 }
 
     /// <summary>Vysledok hladania patternu na detekcnom TF.</summary>
     public sealed class SdPattern

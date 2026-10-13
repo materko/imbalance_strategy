@@ -143,6 +143,8 @@ class EntryOrderEngine:
 
 def wrap_entry_order(engine: Any, cfg: Any) -> Any:
     """Engine obalený limitkami, keď to config chce; inak ten istý engine."""
+    if getattr(engine, "native_entry_layers", False):   # C# engine má obaly vstupov v sebe
+        return engine
     t = getattr(cfg, "entryOrderType", None)
     if t is None or EntryOrderType(t) is EntryOrderType.MARKET:
         return engine

@@ -63,6 +63,7 @@ int              g_htfMin      = 0;
 ENUM_TIMEFRAMES  g_htfPeriod   = PERIOD_CURRENT;
 long             g_htfStepMs   = 0;
 int              g_required    = 0;           // RequiredHistory
+int              g_live        = 0;           // LiveHistory: predhistoria aj pre indikatory na vlastnom TF
 int              g_chartBars   = 0;
 int              g_htfBars     = 0;
 datetime         g_lastChart   = 0;           // cas otvorenia posledneho SPRACOVANEHO baru grafu (server)
@@ -354,6 +355,7 @@ void AdoptEngine(int h)
   {
    g_engine = h;
    g_required = StaticHost::RequiredHistory(h);
+   g_live = StaticHost::LiveHistory(h);
    g_htfMin = StaticHost::HtfTfMinutes(h);
    g_htfPeriod = g_htfMin > 0 ? PeriodOfMinutes(g_htfMin) : PERIOD_CURRENT;
    g_htfStepMs = (long)g_htfMin * 60000;
@@ -602,7 +604,8 @@ void OnDeinit(const int reason)
 
 void ReplayHistory()
   {
-   int want = InpReplayBars > 0 ? InpReplayBars : MathMax(g_required * 2, 50);
+   // indikatory na vlastnom TF (filter trendu, ADX) sa nesieju - rozbehnu sa na tejto predhistorii (g_live)
+   int want = InpReplayBars > 0 ? InpReplayBars : MathMax(MathMax(g_required * 2, g_live + 5), 50);
    g_replaying = true;
    MqlRates chart[];
    int n = CopyRates(_Symbol, PERIOD_CURRENT, 1, want, chart);   // index 1 = posledny uzavrety; pole je od najstarsieho

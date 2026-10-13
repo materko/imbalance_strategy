@@ -12,12 +12,12 @@ using TradeBot.Strategies.IbsNet.Ta;
 namespace TradeBot.Strategies.IbsNet
 {
     [TradeBotEngine("ibsnet", "IBSNet Imbalance Breakout (C#)")]
-    public sealed class IbsEngine : IEngine
+    public class IbsEngine : IEngine
     {
         public readonly IbsConfig Cfg;
-        private readonly InstrumentSpec _inst;
-        private readonly int _chartTfMinutes;
-        private readonly long _stepMs;
+        protected readonly InstrumentSpec _inst;
+        protected readonly int _chartTfMinutes;
+        protected readonly long _stepMs;
 
         public readonly SessionClock Clock;
         public readonly ZoneBook Book;
@@ -29,7 +29,8 @@ namespace TradeBot.Strategies.IbsNet
         public readonly DirectionGate Gate;
         public readonly BarHistory History;
         private readonly Warmup _warmup;
-        private readonly int _requiredHistory;
+        /// <summary>Potomok (IBS Entry Zone) ju smie zvysit v konstruktore - Python `required_history` je atribut.</summary>
+        protected int _requiredHistory;
 
         /// <summary>Pine `inTradeWindow[1]` - na detekciu konca seansy.</summary>
         private bool _wasInTradeWindow;
@@ -68,7 +69,7 @@ namespace TradeBot.Strategies.IbsNet
         public int RequiredHistory { get { return _requiredHistory; } }
         public Warmup Warmup { get { return _warmup; } }
 
-        public IHtfFeeder CreateHtfFeeder() { return new HtfFeeder(Cfg, _chartTfMinutes); }
+        public virtual IHtfFeeder CreateHtfFeeder() { return new HtfFeeder(Cfg, _chartTfMinutes); }
 
         public Dictionary<string, double> Stats()
         {
@@ -143,6 +144,12 @@ namespace TradeBot.Strategies.IbsNet
             }
         }
 
+        /// <summary>Hacik pre varianty IBS s vlastnym zdrojom zon (Python `_spawn_extra_zones`). IBS sam
+        /// ziadny nema, tak nerobi nic. Vola sa v okne zon hned po zonach z likvidity - pred automatom.</summary>
+        protected virtual void SpawnExtraZones(Bar bar, EngineOutput o)
+        {
+        }
+
         public List<DrawCommand> FinalDrawings(Bar bar)
         {
             List<DrawCommand> list = new List<DrawCommand>();
@@ -179,6 +186,8 @@ namespace TradeBot.Strategies.IbsNet
             LiquidityResult liq = Liquidity.OnBar(bar, History);
             o.Drawings.AddRange(liq.Drawings);
             if (state.InZoneWindow) SpawnSweepZones(liq.Sweeps, bar, o);
+            // Zony z vlastneho zdroja variantu (IBS Entry Zone) musia vzniknut TU - pred automatom, ako S/R a likvidita.
+            if (state.InZoneWindow) SpawnExtraZones(bar, o);
 
             Elliott.OnBar(bar, History);
             o.Drawings.AddRange(Gate.OnBar(bar));

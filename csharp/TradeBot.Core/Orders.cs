@@ -172,5 +172,23 @@ namespace TradeBot.Core
         public int MarketBias;
         /// <summary>id orderov, ktore u brokera prave realne bezia (vyplnene vstupy)</summary>
         public HashSet<string> OpenOrderIds = new HashSet<string>();
+        /// <summary>vstupy strategie, ktore obal vstupov (limitka, potvrdenie) este drzi - Python `pending_entry_ids`</summary>
+        public HashSet<string> PendingEntryIds = new HashSet<string>();
+        /// <summary>vstupy strategie, ktore obal zahodil (filter, nevyplnena limitka) - Python `dropped_entry_ids`</summary>
+        public HashSet<string> DroppedEntryIds = new HashSet<string>();
+
+        /// <summary>Python `dataclasses.replace(ctx)` - kopia pre vnutorny engine pod obalom vstupov.</summary>
+        public MarketContext Copy()
+        {
+            MarketContext c = new MarketContext();
+            c.InTradeWindow = InTradeWindow;
+            c.PositionSize = PositionSize;
+            c.DailyWinLimitReached = DailyWinLimitReached;
+            c.MarketBias = MarketBias;
+            c.OpenOrderIds = new HashSet<string>(OpenOrderIds);
+            c.PendingEntryIds = new HashSet<string>(PendingEntryIds);
+            c.DroppedEntryIds = new HashSet<string>(DroppedEntryIds);
+            return c;
+        }
     }
 }

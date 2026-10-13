@@ -15,7 +15,7 @@ namespace TradeBot.Strategies.IbsNet
 
     public enum PriceSource { Open, High, Low, Close, Hl2, Hlc3, Ohlc4, Hlcc4 }
 
-    public sealed class IbsConfig
+    public class IbsConfig
     {
         // ---- entry modely ---------------------------------------------------
         public bool enableImbEntry = true;
@@ -221,20 +221,28 @@ namespace TradeBot.Strategies.IbsNet
         /// profilov) - validaciu robi Python strana, ktora profil pise.</summary>
         public static IbsConfig FromDict(Dictionary<string, object> data)
         {
-            IbsConfig cfg = new IbsConfig();
+            return Fill(new IbsConfig(), data);
+        }
+
+        /// <summary>Naplni config (aj potomka - IBS Entry Zone) z profilu; polia sa hladaju na skutocnom type.</summary>
+        public static T Fill<T>(T cfg, Dictionary<string, object> data) where T : IbsConfig
+        {
             foreach (KeyValuePair<string, object> kv in data)
             {
                 if (kv.Key.StartsWith("_", StringComparison.Ordinal)) continue;
-                FieldInfo f = typeof(IbsConfig).GetField(kv.Key, BindingFlags.Public | BindingFlags.Instance);
+                FieldInfo f = cfg.GetType().GetField(kv.Key, BindingFlags.Public | BindingFlags.Instance);
                 if (f == null) continue;
-                f.SetValue(cfg, Convert(kv.Key, f.FieldType, kv.Value));
+                f.SetValue(cfg, cfg.ConvertField(kv.Key, f.FieldType, kv.Value));
             }
             return cfg;
         }
 
-        private static object Convert(string name, Type t, object raw)
+        /// <summary>Povodna jednotka velkostneho pola (potomok pridava svoje).</summary>
+        protected virtual string SizeUnit(string name) { return SizeFields[name]; }
+
+        protected virtual object ConvertField(string name, Type t, object raw)
         {
-            if (t == typeof(SizeSpec)) return SizeSpec.Parse(raw, SizeFields[name]);
+            if (t == typeof(SizeSpec)) return SizeSpec.Parse(raw, SizeUnit(name));
             if (t == typeof(bool)) return (bool)raw;
             if (t == typeof(int)) return Json.ToInt(raw);
             if (t == typeof(double)) return Json.ToDouble(raw);

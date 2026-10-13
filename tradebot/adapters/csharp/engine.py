@@ -128,6 +128,10 @@ class _Stats:
 class CSharpEngine:
     """Bar-by-bar engine v C#. `key` je kľúč z `[TradeBotEngine("...")]` na C# triede."""
 
+    #: Obaly vstupov (filter trendu/volatility, potvrdenie sviečkou, limitka) nasadzuje C# `EngineRegistry.Create`
+    #: podľa configu sám — aby ich mal aj NinjaTrader a MT5 naživo. Python `wrap_entry_*` ich preto nepridáva.
+    native_entry_layers = True
+
     def __init__(self, key: str, cfg: Any, inst: InstrumentSpec, chart_tf_minutes: int) -> None:
         self.key = key
         self.cfg = cfg

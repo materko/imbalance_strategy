@@ -117,14 +117,18 @@ namespace TradeBot.Core
                 keys.Sort();
                 throw new ArgumentException("neznama C# strategia '" + key + "'; zname: " + string.Join(", ", keys.ToArray()));
             }
+            IEngine engine;
             try
             {
-                return (IEngine)Activator.CreateInstance(t, new object[] { config, inst, chartTfMinutes });
+                engine = (IEngine)Activator.CreateInstance(t, new object[] { config, inst, chartTfMinutes });
             }
             catch (TargetInvocationException e)
             {
                 throw e.InnerException ?? e;
             }
+            // Obaly vstupov (filter trendu/volatility, potvrdenie sviecou, limitka) podla configu - tu, nie
+            // v adapteri, aby ich mal kazdy hostitel: most do Pythonu aj NinjaTrader a MT5 nazivo.
+            return EntryLayers.Wrap(engine, config, chartTfMinutes);
         }
     }
 }

@@ -20,6 +20,7 @@ from .gap import SPEC as GAP_SPEC
 from .ibs import SPEC as IBS_SPEC
 from .ibsnet import SPEC as IBSNET_SPEC
 from .ibsentry import SPEC as IBSENTRY_SPEC
+from .ibsentrynet import SPEC as IBSENTRYNET_SPEC
 from .ibsfvg import SPEC as IBSFVG_SPEC
 from .ibszones import SPEC as IBSZONES_SPEC
 from .jss import SPEC as JSS_SPEC
@@ -40,15 +41,18 @@ from .trendlines import SPEC as TRENDLINES_SPEC
 from .varev import SPEC as VAREV_SPEC
 from .voltbreak import SPEC as VOLTBREAK_SPEC
 from .vwapadx import SPEC as VWAPADX_SPEC
+from .vwapadxnet import SPEC as VWAPADXNET_SPEC
 from .vwapdrift import SPEC as VWAPDRIFT_SPEC
 from .vwapop import SPEC as VWAPOP_SPEC
 from .vwaporb import SPEC as VWAPORB_SPEC
+from .vwaporbnet import SPEC as VWAPORBNET_SPEC
 
 STRATEGIES: dict[str, StrategySpec] = {
     IBS_SPEC.key: IBS_SPEC,
     IBSNET_SPEC.key: IBSNET_SPEC,
     IBSZONES_SPEC.key: IBSZONES_SPEC,
     IBSENTRY_SPEC.key: IBSENTRY_SPEC,
+    IBSENTRYNET_SPEC.key: IBSENTRYNET_SPEC,
     IBSFVG_SPEC.key: IBSFVG_SPEC,
     STRUCTURE_SPEC.key: STRUCTURE_SPEC,
     DEMO_SPEC.key: DEMO_SPEC,
@@ -63,10 +67,12 @@ STRATEGIES: dict[str, StrategySpec] = {
     LIQUIDITY_SPEC.key: LIQUIDITY_SPEC,
     VWAPDRIFT_SPEC.key: VWAPDRIFT_SPEC,
     VWAPADX_SPEC.key: VWAPADX_SPEC,
+    VWAPADXNET_SPEC.key: VWAPADXNET_SPEC,
     VOLTBREAK_SPEC.key: VOLTBREAK_SPEC,
     ONBIASORB_SPEC.key: ONBIASORB_SPEC,
     VWAPOP_SPEC.key: VWAPOP_SPEC,
     VWAPORB_SPEC.key: VWAPORB_SPEC,
+    VWAPORBNET_SPEC.key: VWAPORBNET_SPEC,
     JSS_SPEC.key: JSS_SPEC,
     CRT_SPEC.key: CRT_SPEC,
     SCALP3MA_SPEC.key: SCALP3MA_SPEC,

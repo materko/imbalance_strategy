@@ -23,19 +23,19 @@ namespace TradeBot.Strategies.OrbNet
 
     public enum OrbTpMode { Rr, Measured, Atr }
 
-    /// <summary>Typ vstupu (Python `tradebot.core.entry_order`): limitku z market vstupu robi obal v Python
-    /// adapteroch; C# engine vstupuje vzdy tak ako doteraz. Pole je tu kvoli zhode configu s Pythonom.</summary>
+    /// <summary>Typ vstupu (Python `tradebot.core.entry_order`): limitku z market vstupu robi obal
+    /// `EntryOrderEngine` z C# jadra (nasadi ho `EngineRegistry.Create` podla configu).</summary>
     public enum OrbEntryOrderType { Market, Limit }
 
-    /// <summary>Vstupny model (Python `tradebot.core.entry_confirm`): potvrdenie vstupu svieckou robi obal v Python
-    /// adapteroch; C# engine vstupuje vzdy tak ako doteraz. Pole je tu kvoli zhode configu s Pythonom.</summary>
+    /// <summary>Vstupny model (Python `tradebot.core.entry_confirm`): potvrdenie vstupu svieckou robi obal
+    /// `EntryConfirmEngine` z C# jadra.</summary>
     public enum OrbEntryConfirm { None, Imbalance, Pinbar, Any }
 
-    /// <summary>Filter trendu (Python `tradebot.core.entry_filter`): vstupy podla EMA filtruje obal v Python
-    /// adapteroch; C# engine vstupuje vzdy tak ako doteraz. Pole je tu kvoli zhode configu s Pythonom.</summary>
+    /// <summary>Filter trendu (Python `tradebot.core.entry_filter`): vstupy podla EMA filtruje obal
+    /// `EntryFilterEngine` z C# jadra.</summary>
     public enum OrbTrendFilter { Off, With, Against }
 
-    /// <summary>Filter volatility (Python `tradebot.core.entry_filter`) - tiez len kvoli zhode configu.</summary>
+    /// <summary>Filter volatility (Python `tradebot.core.entry_filter`) - tiez `EntryFilterEngine`.</summary>
     public enum OrbVolFilter { Off, Low, High }
 
     /// <summary>Jedna obchodna seansa - Python `SessionWindow` z configu ORB. Minuty su od polnoci
@@ -58,7 +58,7 @@ namespace TradeBot.Strategies.OrbNet
         public int RangeEndMinutes { get { return StartMinutes + RangeMinutes; } }
     }
 
-    public sealed class OrbConfig
+    public class OrbConfig
     {
         // ---- seansy -----------------------------------------------------------
         public OrbSessionMode sessionMode = OrbSessionMode.Both;
@@ -194,20 +194,29 @@ namespace TradeBot.Strategies.OrbNet
         /// Kluce s podtrznikom su metadata profilu; neznamy kluc sa ignoruje - validaciu robi Python.</summary>
         public static OrbConfig FromDict(Dictionary<string, object> data)
         {
-            OrbConfig cfg = new OrbConfig();
+            return Fill(new OrbConfig(), data);
+        }
+
+        /// <summary>Naplni config (aj potomka - VWAP ORB) z profilu; polia sa hladaju na skutocnom type.</summary>
+        public static T Fill<T>(T cfg, Dictionary<string, object> data) where T : OrbConfig
+        {
             foreach (KeyValuePair<string, object> kv in data)
             {
                 if (kv.Key.StartsWith("_", StringComparison.Ordinal)) continue;
-                FieldInfo f = typeof(OrbConfig).GetField(kv.Key, BindingFlags.Public | BindingFlags.Instance);
+                FieldInfo f = cfg.GetType().GetField(kv.Key, BindingFlags.Public | BindingFlags.Instance);
                 if (f == null) continue;
-                f.SetValue(cfg, Convert(kv.Key, f.FieldType, kv.Value));
+                f.SetValue(cfg, cfg.ConvertField(kv.Key, f.FieldType, kv.Value));
             }
             return cfg;
         }
 
-        private static object Convert(string name, Type t, object raw)
+        /// <summary>Povodna jednotka velkostneho pola (potomok pridava svoje).</summary>
+        protected virtual string SizeUnit(string name) { return SizeFields[name]; }
+
+        /// <summary>Hodnota z JSON na typ pola; potomok prida svoje enumy a zvysok necha na tuto metodu.</summary>
+        protected virtual object ConvertField(string name, Type t, object raw)
         {
-            if (t == typeof(SizeSpec)) return SizeSpec.Parse(raw, SizeFields[name]);
+            if (t == typeof(SizeSpec)) return SizeSpec.Parse(raw, SizeUnit(name));
             if (t == typeof(bool)) return (bool)raw;
             if (t == typeof(int))
             {

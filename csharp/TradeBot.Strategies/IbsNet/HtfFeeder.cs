@@ -19,9 +19,18 @@ namespace TradeBot.Strategies.IbsNet
         private readonly Queue<long> _order = new Queue<long>();
         private long? _prevOpen;
         private readonly int _keep;
+        /// <summary>Synchronizovana detekcia (Python `ibszones.htf.ZoneSyncHTFFeeder`, IBS Entry Zone): nova perioda
+        /// sa pozna z okna dat (najnovsi HTF bar okna), nie z casu baru grafu - zony vyjdu rovnako na kazdom TF grafu.</summary>
+        public readonly bool ZoneSync;
+        private long? _prevNewest;
 
-        public HtfFeeder(IbsConfig cfg, int chartTfMinutes)
+        public HtfFeeder(IbsConfig cfg, int chartTfMinutes) : this(cfg, chartTfMinutes, false)
         {
+        }
+
+        public HtfFeeder(IbsConfig cfg, int chartTfMinutes, bool zoneSync)
+        {
+            ZoneSync = zoneSync;
             _tfMinutes = IbsConfig.TimeframeOptionMinutes(cfg.zoneDetectionTF);
             HtfMs = _tfMinutes * 60000L;
             StepMs = chartTfMinutes * 60000L;
@@ -75,11 +84,33 @@ namespace TradeBot.Strategies.IbsNet
         /// <summary>Okno styroch uzavretych HTF barov - ale len na bare, kde zacala nova perioda.</summary>
         public HtfWindow WindowFor(long tsMs)
         {
+            if (ZoneSync) return WindowForSync(tsMs);
             long htfOpen = tsMs / HtfMs * HtfMs;
             bool isNewPeriod = _prevOpen.HasValue && htfOpen != _prevOpen.Value;
             _prevOpen = htfOpen;
             if (!isNewPeriod) return null;
             long[] opens = WindowOpens(tsMs, StepMs, HtfMs, HtfWindow.RequiredBars);
+            Bar[] bars = new Bar[opens.Length];
+            for (int i = 0; i < opens.Length; i++)
+            {
+                Bar b;
+                if (!_bars.TryGetValue(opens[i], out b)) return null;
+                bars[i] = b;
+            }
+            double sma;
+            if (!_volSma.TryGetValue(opens[0], out sma)) sma = 0.0;
+            return new HtfWindow(bars, sma);
+        }
+
+        /// <summary>Python `ZoneSyncHTFFeeder.window_for`: gate aj data su z tej istej sviecky detekcneho TF.</summary>
+        private HtfWindow WindowForSync(long tsMs)
+        {
+            long[] opens = WindowOpens(tsMs, StepMs, HtfMs, HtfWindow.RequiredBars);
+            long newest = opens[0];
+            // prve volanie periodu nespusta - rovnako ako v IBS (nemame s cim porovnat)
+            bool isNewPeriod = _prevNewest.HasValue && newest != _prevNewest.Value;
+            _prevNewest = newest;
+            if (!isNewPeriod) return null;
             Bar[] bars = new Bar[opens.Length];
             for (int i = 0; i < opens.Length; i++)
             {
