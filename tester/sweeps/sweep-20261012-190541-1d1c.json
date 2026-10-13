@@ -1,0 +1,2087 @@
+{
+ "version": 1,
+ "kind": "sweep",
+ "id": "20261012-190541-1d1c",
+ "strategy": "ibs",
+ "created": "2026-10-12T19:06:01+00:00",
+ "user": "",
+ "base": {
+  "params": {
+   "enableImbEntry": true,
+   "enablePinBarEntry": true,
+   "enableEngulfingEntry": false,
+   "pbWickToBodyRatio": 4.0,
+   "pbBodyPositionPct": 20.0,
+   "pbMinRangePoints": 2.0,
+   "engMinRangePoints": 2.0,
+   "engSizeAvgLen": 10,
+   "engSizeMultiplier": 2.0,
+   "engTouchWindowBars": 3,
+   "pbEngOrderType": "Market",
+   "enableTrailing": true,
+   "trailActivationR": 1.0,
+   "trailOffsetR": 0.5,
+   "weekdaysOnly": true,
+   "enableTrading": true,
+   "enableZoneDetection": true,
+   "enableGapDetection": true,
+   "enableSrTrading": false,
+   "enableLqTrading": false,
+   "closeAtSessionEnd": true,
+   "sess1On": false,
+   "sess1TZ": "Europe/Prague",
+   "sess1ZoneStartH": 1,
+   "sess1ZoneStartM": 0,
+   "sess1ZoneEndH": 9,
+   "sess1ZoneEndM": 0,
+   "sess1TradeStartH": 2,
+   "sess1TradeStartM": 0,
+   "sess1TradeEndH": 5,
+   "sess1TradeEndM": 0,
+   "sess2On": true,
+   "sess2TZ": "America/New_York",
+   "sess2ZoneStartH": 8,
+   "sess2ZoneStartM": 0,
+   "sess2ZoneEndH": 11,
+   "sess2ZoneEndM": 0,
+   "sess2TradeStartH": 10,
+   "sess2TradeStartM": 0,
+   "sess2TradeEndH": 15,
+   "sess2TradeEndM": 45,
+   "sess3On": true,
+   "sess3TZ": "Europe/London",
+   "sess3ZoneStartH": 8,
+   "sess3ZoneStartM": 0,
+   "sess3ZoneEndH": 10,
+   "sess3ZoneEndM": 0,
+   "sess3TradeStartH": 8,
+   "sess3TradeStartM": 0,
+   "sess3TradeEndH": 11,
+   "sess3TradeEndM": 0,
+   "zoneDetectionTF": "5",
+   "zoneValidHours": 6,
+   "maxSdZones": 200,
+   "snapMode": "Floor",
+   "invalidateOnFill": true,
+   "useVolumeFilter": false,
+   "volumeFilterBlockTrading": false,
+   "volSmaLen": 20,
+   "volMultiplier": 1.5,
+   "showMarketStructure": true,
+   "structureSwingLen": 5,
+   "useStructureFilter": false,
+   "showSR": true,
+   "srSwingLen": 10,
+   "srClusterPoints": 15.0,
+   "srMinTouches": 2,
+   "srMaxLevels": 10,
+   "srLookbackDays": 5,
+   "srZoneSaturationPct": 30,
+   "showLiqSweep": true,
+   "liqSweepLen": 10,
+   "liqSweepMinWick": 5.0,
+   "liqSweepConfirmBars": 2,
+   "liqStrengthLen": 50,
+   "showElliott": false,
+   "ewSwingLen": 8,
+   "ewMinWavePoints": 20.0,
+   "ewShowLabels": true,
+   "ewShowProjection": true,
+   "ewProjExtendBars": 40,
+   "ewLineColor": "#334155",
+   "showImbalance": true,
+   "imbLookback": 20,
+   "imbMaxDistTicks": 100.0,
+   "minImbSizePoints": 2.5,
+   "state1MaxBars": 10,
+   "state2MaxBars": 15,
+   "state2ConfirmTicks": 1.0,
+   "state3MaxBars": 1,
+   "state4MaxBars": 10,
+   "state5MaxBars": 10,
+   "rrRatio": 0.5,
+   "slLookback": 10,
+   "slBufferTicks": 2.0,
+   "maxLossDollar": 350.0,
+   "maxDailyWins": 5,
+   "tradeDirection": "Long only",
+   "indSupertrend": true,
+   "stTimeframe": "60",
+   "stAtrPeriod": 10,
+   "stSource": "hl2",
+   "stMultiplier": 3.0,
+   "stChangeAtr": true,
+   "stShowSignals": true,
+   "stHighlighting": true,
+   "indAdx": false,
+   "adxTimeframe": "60",
+   "adxDiLength": 14,
+   "adxSmoothing": 14,
+   "adxThreshold": 20.0,
+   "adxShowState": true,
+   "ruleStUp": "Long only",
+   "ruleStDown": "Short only",
+   "ruleAdxUp": "Long only",
+   "ruleAdxDown": "Short only",
+   "ruleAdxSide": "No trade",
+   "ruleStUpAdxUp": "Long only",
+   "ruleStUpAdxSide": "No trade",
+   "ruleStUpAdxDown": "No trade",
+   "ruleStDownAdxUp": "No trade",
+   "ruleStDownAdxSide": "No trade",
+   "ruleStDownAdxDown": "Short only",
+   "tickDollarValue": 0.5,
+   "legacyPineSizing": true,
+   "atrLen": 14,
+   "minSlDistance": 0.0,
+   "leverage": 1.0
+  },
+  "settings": {
+   "strategy": "ibs",
+   "pair": "BTC/USDT:USDT",
+   "engine": "freqtrade",
+   "timeframe": "3m",
+   "exchange": "tester",
+   "timerange": "20260801-20260901",
+   "fee": 0.0005,
+   "fee_note": "Binance USDⓈ-M taker, VIP 0",
+   "ai": null,
+   "wallet": 10000,
+   "timeframe_detail": "1m",
+   "profile": "golden_binance_btcusdt_3m",
+   "hub": {
+    "job": "fdcc17c54472",
+    "submitter": "MACBOOKPETER",
+    "version_requested": "1257d9af3",
+    "version": "1257d9af3",
+    "agent": "MACMINIMARTIN"
+   },
+   "instrument": "btcusdt_binance"
+  }
+ },
+ "points": [
+  {
+   "run": "20261012-190601-36c325",
+   "status": "done",
+   "created": "2026-10-12T19:06:01+00:00",
+   "started": "2026-10-12T19:06:01+00:00",
+   "finished": "2026-10-12T19:06:06+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=0.5 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 0.5
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {},
+   "settings": {},
+   "result": {
+    "trades": 16,
+    "wins": 4,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 25.0,
+    "pnl_abs": -150.38,
+    "pnl_pct": -1.504,
+    "profit_factor": 0.187,
+    "max_drawdown_abs": 155.59,
+    "max_drawdown_pct": 1.556,
+    "starting_balance": 10000.0,
+    "final_balance": 9849.62,
+    "gross_abs": 6.21,
+    "volume_abs": 313166.8,
+    "break_even_pct": 0.002,
+    "exits": {
+     "roi": {
+      "n": 10,
+      "pnl_abs": -5.29
+     },
+     "stop_loss": {
+      "n": 6,
+      "pnl_abs": -145.09
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 2,
+      "from_i": 9,
+      "to_i": 10,
+      "start": "2026-08-21T16:30:00+00:00",
+      "end": "2026-08-24T14:57:00+00:00",
+      "pnl_abs": 29.39,
+      "count": 2
+     },
+     "loss": {
+      "n": 9,
+      "from_i": 0,
+      "to_i": 8,
+      "start": "2026-08-06T18:15:00+00:00",
+      "end": "2026-08-19T07:09:00+00:00",
+      "pnl_abs": -91.19,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:06:00",
+    "duration_s": 5.2,
+    "zip": "backtest-result-2026-10-12_19-06-06.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190601-377c24",
+   "status": "done",
+   "created": "2026-10-12T19:06:01+00:00",
+   "started": "2026-10-12T19:06:01+00:00",
+   "finished": "2026-10-12T19:06:06+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=0.55 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 0.55
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 0.55
+   },
+   "settings": {
+    "hub": {
+     "job": "56e817987846",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 16,
+    "wins": 4,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 25.0,
+    "pnl_abs": -141.07,
+    "pnl_pct": -1.411,
+    "profit_factor": 0.229,
+    "max_drawdown_abs": 148.79,
+    "max_drawdown_pct": 1.488,
+    "starting_balance": 10000.0,
+    "final_balance": 9858.93,
+    "gross_abs": 15.6,
+    "volume_abs": 313334.69,
+    "break_even_pct": 0.005,
+    "exits": {
+     "roi": {
+      "n": 10,
+      "pnl_abs": 4.02
+     },
+     "stop_loss": {
+      "n": 6,
+      "pnl_abs": -145.09
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 2,
+      "from_i": 9,
+      "to_i": 10,
+      "start": "2026-08-21T16:30:00+00:00",
+      "end": "2026-08-24T15:03:00+00:00",
+      "pnl_abs": 34.28,
+      "count": 2
+     },
+     "loss": {
+      "n": 9,
+      "from_i": 0,
+      "to_i": 8,
+      "start": "2026-08-06T18:15:00+00:00",
+      "end": "2026-08-19T07:09:00+00:00",
+      "pnl_abs": -89.47,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:06:00",
+    "duration_s": 5.2,
+    "zip": "backtest-result-2026-10-12_19-06-06.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190611-005431",
+   "status": "done",
+   "created": "2026-10-12T19:06:11+00:00",
+   "started": "2026-10-12T19:06:11+00:00",
+   "finished": "2026-10-12T19:06:15+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=0.75 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 0.75
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 0.75
+   },
+   "settings": {
+    "hub": {
+     "job": "f756cbaf1067",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 2,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 13.33,
+    "pnl_abs": -243.16,
+    "pnl_pct": -2.432,
+    "profit_factor": 0.062,
+    "max_drawdown_abs": 251.83,
+    "max_drawdown_pct": 2.518,
+    "starting_balance": 10000.0,
+    "final_balance": 9756.84,
+    "gross_abs": -96.71,
+    "volume_abs": 292900.12,
+    "break_even_pct": -0.033,
+    "exits": {
+     "roi": {
+      "n": 8,
+      "pnl_abs": -14.23
+     },
+     "stop_loss": {
+      "n": 7,
+      "pnl_abs": -228.93
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 10,
+      "to_i": 10,
+      "start": "2026-08-24T14:54:00+00:00",
+      "end": "2026-08-24T15:03:00+00:00",
+      "pnl_abs": 7.48,
+      "count": 2
+     },
+     "loss": {
+      "n": 10,
+      "from_i": 0,
+      "to_i": 9,
+      "start": "2026-08-06T18:15:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -167.23,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:14:00",
+    "duration_s": 4.0,
+    "zip": "backtest-result-2026-10-12_19-06-14.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190611-9ad4d4",
+   "status": "done",
+   "created": "2026-10-12T19:06:11+00:00",
+   "started": "2026-10-12T19:06:11+00:00",
+   "finished": "2026-10-12T19:06:15+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=0.65 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 0.65
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 0.65
+   },
+   "settings": {
+    "hub": {
+     "job": "21160f8fe00f",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 16,
+    "wins": 3,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 18.75,
+    "pnl_abs": -245.35,
+    "pnl_pct": -2.453,
+    "profit_factor": 0.067,
+    "max_drawdown_abs": 257.81,
+    "max_drawdown_pct": 2.578,
+    "starting_balance": 10000.0,
+    "final_balance": 9754.65,
+    "gross_abs": -89.37,
+    "volume_abs": 311960.28,
+    "break_even_pct": -0.0286,
+    "exits": {
+     "roi": {
+      "n": 9,
+      "pnl_abs": -16.49
+     },
+     "stop_loss": {
+      "n": 7,
+      "pnl_abs": -228.85
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 2,
+      "from_i": 14,
+      "to_i": 15,
+      "start": "2026-08-28T14:51:00+00:00",
+      "end": "2026-08-28T14:53:00+00:00",
+      "pnl_abs": 12.46,
+      "count": 1
+     },
+     "loss": {
+      "n": 10,
+      "from_i": 0,
+      "to_i": 9,
+      "start": "2026-08-06T18:15:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -170.54,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:13:00",
+    "duration_s": 4.0,
+    "zip": "backtest-result-2026-10-12_19-06-14.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190611-bf589e",
+   "status": "done",
+   "created": "2026-10-12T19:06:11+00:00",
+   "started": "2026-10-12T19:06:11+00:00",
+   "finished": "2026-10-12T19:06:15+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=0.7 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 0.7
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 0.7
+   },
+   "settings": {
+    "hub": {
+     "job": "6b2a82e35b69",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 2,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 13.33,
+    "pnl_abs": -247.34,
+    "pnl_pct": -2.473,
+    "profit_factor": 0.053,
+    "max_drawdown_abs": 254.79,
+    "max_drawdown_pct": 2.548,
+    "starting_balance": 10000.0,
+    "final_balance": 9752.66,
+    "gross_abs": -100.95,
+    "volume_abs": 292770.2,
+    "break_even_pct": -0.0345,
+    "exits": {
+     "roi": {
+      "n": 8,
+      "pnl_abs": -18.49
+     },
+     "stop_loss": {
+      "n": 7,
+      "pnl_abs": -228.85
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 10,
+      "to_i": 10,
+      "start": "2026-08-24T14:54:00+00:00",
+      "end": "2026-08-24T15:03:00+00:00",
+      "pnl_abs": 6.35,
+      "count": 2
+     },
+     "loss": {
+      "n": 10,
+      "from_i": 0,
+      "to_i": 9,
+      "start": "2026-08-06T18:15:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -168.87,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:14:00",
+    "duration_s": 4.0,
+    "zip": "backtest-result-2026-10-12_19-06-14.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190611-e252f6",
+   "status": "done",
+   "created": "2026-10-12T19:06:11+00:00",
+   "started": "2026-10-12T19:06:11+00:00",
+   "finished": "2026-10-12T19:06:15+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=0.6 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 0.6
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 0.6
+   },
+   "settings": {
+    "hub": {
+     "job": "a60cb8082fbb",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 16,
+    "wins": 4,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 25.0,
+    "pnl_abs": -131.82,
+    "pnl_pct": -1.318,
+    "profit_factor": 0.273,
+    "max_drawdown_abs": 142.02,
+    "max_drawdown_pct": 1.42,
+    "starting_balance": 10000.0,
+    "final_balance": 9868.18,
+    "gross_abs": 24.85,
+    "volume_abs": 313343.95,
+    "break_even_pct": 0.0079,
+    "exits": {
+     "roi": {
+      "n": 10,
+      "pnl_abs": 13.27
+     },
+     "stop_loss": {
+      "n": 6,
+      "pnl_abs": -145.09
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 2,
+      "from_i": 9,
+      "to_i": 10,
+      "start": "2026-08-21T16:30:00+00:00",
+      "end": "2026-08-24T15:03:00+00:00",
+      "pnl_abs": 39.17,
+      "count": 2
+     },
+     "loss": {
+      "n": 9,
+      "from_i": 0,
+      "to_i": 8,
+      "start": "2026-08-06T18:15:00+00:00",
+      "end": "2026-08-19T07:09:00+00:00",
+      "pnl_abs": -87.78,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:07:00",
+    "duration_s": 4.0,
+    "zip": "backtest-result-2026-10-12_19-06-14.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190621-5299fe",
+   "status": "done",
+   "created": "2026-10-12T19:06:21+00:00",
+   "started": "2026-10-12T19:06:21+00:00",
+   "finished": "2026-10-12T19:06:24+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=0.8 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 0.8
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 0.8
+   },
+   "settings": {
+    "hub": {
+     "job": "215acc331f06",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 2,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 13.33,
+    "pnl_abs": -238.91,
+    "pnl_pct": -2.389,
+    "profit_factor": 0.072,
+    "max_drawdown_abs": 248.79,
+    "max_drawdown_pct": 2.488,
+    "starting_balance": 10000.0,
+    "final_balance": 9761.09,
+    "gross_abs": -92.45,
+    "volume_abs": 292904.38,
+    "break_even_pct": -0.0316,
+    "exits": {
+     "roi": {
+      "n": 8,
+      "pnl_abs": -9.97
+     },
+     "stop_loss": {
+      "n": 7,
+      "pnl_abs": -228.93
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 10,
+      "to_i": 10,
+      "start": "2026-08-24T14:54:00+00:00",
+      "end": "2026-08-24T15:03:00+00:00",
+      "pnl_abs": 8.63,
+      "count": 2
+     },
+     "loss": {
+      "n": 10,
+      "from_i": 0,
+      "to_i": 9,
+      "start": "2026-08-06T18:15:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -165.53,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:14:00",
+    "duration_s": 3.2,
+    "zip": "backtest-result-2026-10-12_19-06-24.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190631-03256b",
+   "status": "done",
+   "created": "2026-10-12T19:06:31+00:00",
+   "started": "2026-10-12T19:06:31+00:00",
+   "finished": "2026-10-12T19:06:35+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=1 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 1.0
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 1.0
+   },
+   "settings": {
+    "hub": {
+     "job": "5441b83790bc",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 2,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 13.33,
+    "pnl_abs": -233.65,
+    "pnl_pct": -2.337,
+    "profit_factor": 0.107,
+    "max_drawdown_abs": 248.41,
+    "max_drawdown_pct": 2.484,
+    "starting_balance": 10000.0,
+    "final_balance": 9766.35,
+    "gross_abs": -87.2,
+    "volume_abs": 292909.64,
+    "break_even_pct": -0.0298,
+    "exits": {
+     "roi": {
+      "n": 7,
+      "pnl_abs": 10.98
+     },
+     "stop_loss": {
+      "n": 8,
+      "pnl_abs": -244.64
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 10,
+      "to_i": 10,
+      "start": "2026-08-24T14:54:00+00:00",
+      "end": "2026-08-24T15:03:00+00:00",
+      "pnl_abs": 13.21,
+      "count": 2
+     },
+     "loss": {
+      "n": 10,
+      "from_i": 0,
+      "to_i": 9,
+      "start": "2026-08-06T18:15:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -170.5,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:15:00",
+    "duration_s": 3.7,
+    "zip": "backtest-result-2026-10-12_19-06-34.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190631-300587",
+   "status": "done",
+   "created": "2026-10-12T19:06:31+00:00",
+   "started": "2026-10-12T19:06:31+00:00",
+   "finished": "2026-10-12T19:06:35+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=0.85 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 0.85
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 0.85
+   },
+   "settings": {
+    "hub": {
+     "job": "d155489a994d",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 2,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 13.33,
+    "pnl_abs": -234.64,
+    "pnl_pct": -2.346,
+    "profit_factor": 0.082,
+    "max_drawdown_abs": 245.74,
+    "max_drawdown_pct": 2.457,
+    "starting_balance": 10000.0,
+    "final_balance": 9765.36,
+    "gross_abs": -88.18,
+    "volume_abs": 292908.65,
+    "break_even_pct": -0.0301,
+    "exits": {
+     "roi": {
+      "n": 8,
+      "pnl_abs": -5.7
+     },
+     "stop_loss": {
+      "n": 7,
+      "pnl_abs": -228.93
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 10,
+      "to_i": 10,
+      "start": "2026-08-24T14:54:00+00:00",
+      "end": "2026-08-24T15:03:00+00:00",
+      "pnl_abs": 9.77,
+      "count": 2
+     },
+     "loss": {
+      "n": 10,
+      "from_i": 0,
+      "to_i": 9,
+      "start": "2026-08-06T18:15:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -163.82,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:14:00",
+    "duration_s": 3.7,
+    "zip": "backtest-result-2026-10-12_19-06-34.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190631-4bf33b",
+   "status": "done",
+   "created": "2026-10-12T19:06:31+00:00",
+   "started": "2026-10-12T19:06:31+00:00",
+   "finished": "2026-10-12T19:06:35+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=0.95 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 0.95
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 0.95
+   },
+   "settings": {
+    "hub": {
+     "job": "89f0b815b08b",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 2,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 13.33,
+    "pnl_abs": -226.81,
+    "pnl_pct": -2.268,
+    "profit_factor": 0.101,
+    "max_drawdown_abs": 240.35,
+    "max_drawdown_pct": 2.403,
+    "starting_balance": 10000.0,
+    "final_balance": 9773.19,
+    "gross_abs": -80.28,
+    "volume_abs": 293071.26,
+    "break_even_pct": -0.0274,
+    "exits": {
+     "roi": {
+      "n": 8,
+      "pnl_abs": 2.79
+     },
+     "stop_loss": {
+      "n": 7,
+      "pnl_abs": -229.6
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 10,
+      "to_i": 10,
+      "start": "2026-08-24T14:54:00+00:00",
+      "end": "2026-08-24T15:03:00+00:00",
+      "pnl_abs": 12.06,
+      "count": 2
+     },
+     "loss": {
+      "n": 10,
+      "from_i": 0,
+      "to_i": 9,
+      "start": "2026-08-06T18:15:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -161.1,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:14:00",
+    "duration_s": 3.6,
+    "zip": "backtest-result-2026-10-12_19-06-34.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190631-e962ea",
+   "status": "done",
+   "created": "2026-10-12T19:06:31+00:00",
+   "started": "2026-10-12T19:06:31+00:00",
+   "finished": "2026-10-12T19:06:35+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=0.9 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 0.9
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 0.9
+   },
+   "settings": {
+    "hub": {
+     "job": "4bade227e5db",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 2,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 13.33,
+    "pnl_abs": -230.39,
+    "pnl_pct": -2.304,
+    "profit_factor": 0.092,
+    "max_drawdown_abs": 242.71,
+    "max_drawdown_pct": 2.427,
+    "starting_balance": 10000.0,
+    "final_balance": 9769.61,
+    "gross_abs": -83.93,
+    "volume_abs": 292912.9,
+    "break_even_pct": -0.0287,
+    "exits": {
+     "roi": {
+      "n": 8,
+      "pnl_abs": -1.45
+     },
+     "stop_loss": {
+      "n": 7,
+      "pnl_abs": -228.93
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 10,
+      "to_i": 10,
+      "start": "2026-08-24T14:54:00+00:00",
+      "end": "2026-08-24T15:03:00+00:00",
+      "pnl_abs": 10.92,
+      "count": 2
+     },
+     "loss": {
+      "n": 10,
+      "from_i": 0,
+      "to_i": 9,
+      "start": "2026-08-06T18:15:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -162.13,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:14:00",
+    "duration_s": 3.7,
+    "zip": "backtest-result-2026-10-12_19-06-34.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190651-7344da",
+   "status": "done",
+   "created": "2026-10-12T19:06:51+00:00",
+   "started": "2026-10-12T19:06:51+00:00",
+   "finished": "2026-10-12T19:06:55+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=1.05 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 1.05
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 1.05
+   },
+   "settings": {
+    "hub": {
+     "job": "8f6d6958b9eb",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 2,
+    "losses": 13,
+    "draws": 0,
+    "winrate": 13.33,
+    "pnl_abs": -229.67,
+    "pnl_pct": -2.297,
+    "profit_factor": 0.117,
+    "max_drawdown_abs": 245.65,
+    "max_drawdown_pct": 2.457,
+    "starting_balance": 10000.0,
+    "final_balance": 9770.33,
+    "gross_abs": -83.22,
+    "volume_abs": 292913.62,
+    "break_even_pct": -0.0284,
+    "exits": {
+     "roi": {
+      "n": 7,
+      "pnl_abs": 14.96
+     },
+     "stop_loss": {
+      "n": 8,
+      "pnl_abs": -244.64
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 10,
+      "to_i": 10,
+      "start": "2026-08-24T14:54:00+00:00",
+      "end": "2026-08-24T15:03:00+00:00",
+      "pnl_abs": 14.36,
+      "count": 2
+     },
+     "loss": {
+      "n": 10,
+      "from_i": 0,
+      "to_i": 9,
+      "start": "2026-08-06T18:15:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -169.08,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:15:00",
+    "duration_s": 3.3,
+    "zip": "backtest-result-2026-10-12_19-06-54.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190651-d6ec56",
+   "status": "done",
+   "created": "2026-10-12T19:06:51+00:00",
+   "started": "2026-10-12T19:06:51+00:00",
+   "finished": "2026-10-12T19:06:55+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=1.1 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 1.1
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 1.1
+   },
+   "settings": {
+    "hub": {
+     "job": "1c3394691c23",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 3,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 20.0,
+    "pnl_abs": -230.63,
+    "pnl_pct": -2.306,
+    "profit_factor": 0.125,
+    "max_drawdown_abs": 247.82,
+    "max_drawdown_pct": 2.478,
+    "starting_balance": 10000.0,
+    "final_balance": 9769.37,
+    "gross_abs": -84.17,
+    "volume_abs": 292912.66,
+    "break_even_pct": -0.0287,
+    "exits": {
+     "trailing_stop_loss": {
+      "n": 1,
+      "pnl_abs": -4.46
+     },
+     "stop_loss": {
+      "n": 8,
+      "pnl_abs": -244.64
+     },
+     "roi": {
+      "n": 6,
+      "pnl_abs": 18.46
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 2,
+      "to_i": 2,
+      "start": "2026-08-12T07:48:00+00:00",
+      "end": "2026-08-12T07:55:00+00:00",
+      "pnl_abs": 0.4,
+      "count": 3
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 3,
+      "to_i": 9,
+      "start": "2026-08-13T15:18:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -145.73,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:15:00",
+    "duration_s": 3.3,
+    "zip": "backtest-result-2026-10-12_19-06-54.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190701-e303b9",
+   "status": "done",
+   "created": "2026-10-12T19:07:01+00:00",
+   "started": "2026-10-12T19:07:01+00:00",
+   "finished": "2026-10-12T19:07:05+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=1.15 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 1.15
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 1.15
+   },
+   "settings": {
+    "hub": {
+     "job": "b8e06c7e8e72",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 3,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 20.0,
+    "pnl_abs": -238.98,
+    "pnl_pct": -2.39,
+    "profit_factor": 0.092,
+    "max_drawdown_abs": 257.39,
+    "max_drawdown_pct": 2.574,
+    "starting_balance": 10000.0,
+    "final_balance": 9761.02,
+    "gross_abs": -92.53,
+    "volume_abs": 292904.3,
+    "break_even_pct": -0.0316,
+    "exits": {
+     "trailing_stop_loss": {
+      "n": 2,
+      "pnl_abs": 0.34
+     },
+     "stop_loss": {
+      "n": 8,
+      "pnl_abs": -244.64
+     },
+     "roi": {
+      "n": 5,
+      "pnl_abs": 5.31
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 2,
+      "to_i": 2,
+      "start": "2026-08-12T07:48:00+00:00",
+      "end": "2026-08-12T07:55:00+00:00",
+      "pnl_abs": 0.87,
+      "count": 3
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 3,
+      "to_i": 9,
+      "start": "2026-08-13T15:18:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -145.26,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:16:00",
+    "duration_s": 3.2,
+    "zip": "backtest-result-2026-10-12_19-07-04.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190712-98ae2a",
+   "status": "done",
+   "created": "2026-10-12T19:07:12+00:00",
+   "started": "2026-10-12T19:07:12+00:00",
+   "finished": "2026-10-12T19:07:15+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=1.2 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 1.2
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 1.2
+   },
+   "settings": {
+    "hub": {
+     "job": "5be11246540e",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 3,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 20.0,
+    "pnl_abs": -236.61,
+    "pnl_pct": -2.366,
+    "profit_factor": 0.098,
+    "max_drawdown_abs": 256.24,
+    "max_drawdown_pct": 2.562,
+    "starting_balance": 10000.0,
+    "final_balance": 9763.39,
+    "gross_abs": -90.16,
+    "volume_abs": 292906.68,
+    "break_even_pct": -0.0308,
+    "exits": {
+     "trailing_stop_loss": {
+      "n": 2,
+      "pnl_abs": 0.34
+     },
+     "stop_loss": {
+      "n": 8,
+      "pnl_abs": -244.64
+     },
+     "roi": {
+      "n": 5,
+      "pnl_abs": 7.68
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 2,
+      "to_i": 2,
+      "start": "2026-08-12T07:48:00+00:00",
+      "end": "2026-08-12T07:55:00+00:00",
+      "pnl_abs": 1.35,
+      "count": 3
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 3,
+      "to_i": 9,
+      "start": "2026-08-13T15:18:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -144.78,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:16:00",
+    "duration_s": 3.1,
+    "zip": "backtest-result-2026-10-12_19-07-14.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190722-b22ab2",
+   "status": "done",
+   "created": "2026-10-12T19:07:22+00:00",
+   "started": "2026-10-12T19:07:22+00:00",
+   "finished": "2026-10-12T19:07:25+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=1.25 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 1.25
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 1.25
+   },
+   "settings": {
+    "hub": {
+     "job": "3e52959dde31",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 3,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 20.0,
+    "pnl_abs": -234.26,
+    "pnl_pct": -2.343,
+    "profit_factor": 0.105,
+    "max_drawdown_abs": 255.1,
+    "max_drawdown_pct": 2.551,
+    "starting_balance": 10000.0,
+    "final_balance": 9765.74,
+    "gross_abs": -87.81,
+    "volume_abs": 292909.02,
+    "break_even_pct": -0.03,
+    "exits": {
+     "trailing_stop_loss": {
+      "n": 2,
+      "pnl_abs": 0.34
+     },
+     "stop_loss": {
+      "n": 8,
+      "pnl_abs": -244.64
+     },
+     "roi": {
+      "n": 5,
+      "pnl_abs": 10.03
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 2,
+      "to_i": 2,
+      "start": "2026-08-12T07:48:00+00:00",
+      "end": "2026-08-12T07:55:00+00:00",
+      "pnl_abs": 1.81,
+      "count": 3
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 3,
+      "to_i": 9,
+      "start": "2026-08-13T15:18:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -144.31,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:16:00",
+    "duration_s": 3.3,
+    "zip": "backtest-result-2026-10-12_19-07-25.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190722-cfbdf3",
+   "status": "done",
+   "created": "2026-10-12T19:07:22+00:00",
+   "started": "2026-10-12T19:07:22+00:00",
+   "finished": "2026-10-12T19:07:25+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=1.3 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 1.3
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 1.3
+   },
+   "settings": {
+    "hub": {
+     "job": "b35fd24ab115",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 3,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 20.0,
+    "pnl_abs": -231.92,
+    "pnl_pct": -2.319,
+    "profit_factor": 0.112,
+    "max_drawdown_abs": 253.98,
+    "max_drawdown_pct": 2.54,
+    "starting_balance": 10000.0,
+    "final_balance": 9768.08,
+    "gross_abs": -85.46,
+    "volume_abs": 292911.37,
+    "break_even_pct": -0.0292,
+    "exits": {
+     "trailing_stop_loss": {
+      "n": 2,
+      "pnl_abs": 0.34
+     },
+     "stop_loss": {
+      "n": 8,
+      "pnl_abs": -244.64
+     },
+     "roi": {
+      "n": 5,
+      "pnl_abs": 12.37
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 2,
+      "to_i": 2,
+      "start": "2026-08-12T07:48:00+00:00",
+      "end": "2026-08-12T07:55:00+00:00",
+      "pnl_abs": 2.28,
+      "count": 3
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 3,
+      "to_i": 9,
+      "start": "2026-08-13T15:18:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -143.83,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:16:00",
+    "duration_s": 3.3,
+    "zip": "backtest-result-2026-10-12_19-07-25.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190742-4ca6ef",
+   "status": "done",
+   "created": "2026-10-12T19:07:42+00:00",
+   "started": "2026-10-12T19:07:42+00:00",
+   "finished": "2026-10-12T19:07:45+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=1.35 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 1.35
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 1.35
+   },
+   "settings": {
+    "hub": {
+     "job": "053e3b02c6e3",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 3,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 20.0,
+    "pnl_abs": -229.58,
+    "pnl_pct": -2.296,
+    "profit_factor": 0.118,
+    "max_drawdown_abs": 252.86,
+    "max_drawdown_pct": 2.529,
+    "starting_balance": 10000.0,
+    "final_balance": 9770.42,
+    "gross_abs": -83.12,
+    "volume_abs": 292913.71,
+    "break_even_pct": -0.0284,
+    "exits": {
+     "trailing_stop_loss": {
+      "n": 2,
+      "pnl_abs": 0.34
+     },
+     "stop_loss": {
+      "n": 8,
+      "pnl_abs": -244.64
+     },
+     "roi": {
+      "n": 5,
+      "pnl_abs": 14.71
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 2,
+      "to_i": 2,
+      "start": "2026-08-12T07:48:00+00:00",
+      "end": "2026-08-12T07:57:00+00:00",
+      "pnl_abs": 2.74,
+      "count": 3
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 3,
+      "to_i": 9,
+      "start": "2026-08-13T15:18:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -143.37,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:16:00",
+    "duration_s": 3.2,
+    "zip": "backtest-result-2026-10-12_19-07-45.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190752-270593",
+   "status": "done",
+   "created": "2026-10-12T19:07:52+00:00",
+   "started": "2026-10-12T19:07:52+00:00",
+   "finished": "2026-10-12T19:07:56+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=1.45 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 1.45
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 1.45
+   },
+   "settings": {
+    "hub": {
+     "job": "8d2078a0fddf",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 3,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 20.0,
+    "pnl_abs": -224.89,
+    "pnl_pct": -2.249,
+    "profit_factor": 0.132,
+    "max_drawdown_abs": 250.6,
+    "max_drawdown_pct": 2.506,
+    "starting_balance": 10000.0,
+    "final_balance": 9775.11,
+    "gross_abs": -78.43,
+    "volume_abs": 292918.4,
+    "break_even_pct": -0.0268,
+    "exits": {
+     "trailing_stop_loss": {
+      "n": 2,
+      "pnl_abs": 0.34
+     },
+     "stop_loss": {
+      "n": 8,
+      "pnl_abs": -244.64
+     },
+     "roi": {
+      "n": 5,
+      "pnl_abs": 19.4
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 2,
+      "to_i": 2,
+      "start": "2026-08-12T07:48:00+00:00",
+      "end": "2026-08-12T07:57:00+00:00",
+      "pnl_abs": 3.67,
+      "count": 3
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 3,
+      "to_i": 9,
+      "start": "2026-08-13T15:18:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -142.42,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:16:00",
+    "duration_s": 3.8,
+    "zip": "backtest-result-2026-10-12_19-07-55.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190752-32f21e",
+   "status": "done",
+   "created": "2026-10-12T19:07:52+00:00",
+   "started": "2026-10-12T19:07:52+00:00",
+   "finished": "2026-10-12T19:07:56+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=1.4 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 1.4
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 1.4
+   },
+   "settings": {
+    "hub": {
+     "job": "c2eab0df3594",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 3,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 20.0,
+    "pnl_abs": -227.23,
+    "pnl_pct": -2.272,
+    "profit_factor": 0.125,
+    "max_drawdown_abs": 251.73,
+    "max_drawdown_pct": 2.517,
+    "starting_balance": 10000.0,
+    "final_balance": 9772.77,
+    "gross_abs": -80.78,
+    "volume_abs": 292916.06,
+    "break_even_pct": -0.0276,
+    "exits": {
+     "trailing_stop_loss": {
+      "n": 2,
+      "pnl_abs": 0.34
+     },
+     "stop_loss": {
+      "n": 8,
+      "pnl_abs": -244.64
+     },
+     "roi": {
+      "n": 5,
+      "pnl_abs": 17.06
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 2,
+      "to_i": 2,
+      "start": "2026-08-12T07:48:00+00:00",
+      "end": "2026-08-12T07:57:00+00:00",
+      "pnl_abs": 3.21,
+      "count": 3
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 3,
+      "to_i": 9,
+      "start": "2026-08-13T15:18:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -142.9,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:16:00",
+    "duration_s": 3.8,
+    "zip": "backtest-result-2026-10-12_19-07-55.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190752-52b77b",
+   "status": "done",
+   "created": "2026-10-12T19:07:52+00:00",
+   "started": "2026-10-12T19:07:52+00:00",
+   "finished": "2026-10-12T19:07:56+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=1.55 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 1.55
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 1.55
+   },
+   "settings": {
+    "hub": {
+     "job": "0208f56287fb",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 4,
+    "losses": 11,
+    "draws": 0,
+    "winrate": 26.67,
+    "pnl_abs": -220.26,
+    "pnl_pct": -2.203,
+    "profit_factor": 0.146,
+    "max_drawdown_abs": 248.41,
+    "max_drawdown_pct": 2.484,
+    "starting_balance": 10000.0,
+    "final_balance": 9779.74,
+    "gross_abs": -73.74,
+    "volume_abs": 293048.76,
+    "break_even_pct": -0.0252,
+    "exits": {
+     "trailing_stop_loss": {
+      "n": 2,
+      "pnl_abs": 0.34
+     },
+     "stop_loss": {
+      "n": 8,
+      "pnl_abs": -244.71
+     },
+     "roi": {
+      "n": 5,
+      "pnl_abs": 24.1
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 2,
+      "from_i": 2,
+      "to_i": 3,
+      "start": "2026-08-12T07:48:00+00:00",
+      "end": "2026-08-13T15:22:00+00:00",
+      "pnl_abs": 4.69,
+      "count": 1
+     },
+     "loss": {
+      "n": 6,
+      "from_i": 4,
+      "to_i": 9,
+      "start": "2026-08-14T09:12:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -141.63,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:16:00",
+    "duration_s": 3.8,
+    "zip": "backtest-result-2026-10-12_19-07-55.zip"
+   },
+   "error": null
+  },
+  {
+   "run": "20261012-190752-e58c88",
+   "status": "done",
+   "created": "2026-10-12T19:07:52+00:00",
+   "started": "2026-10-12T19:07:52+00:00",
+   "finished": "2026-10-12T19:07:56+00:00",
+   "user": "",
+   "note": "sweep 20261012-190541-1d1c: rrRatio=1.5 — TEST HUBU: 100 behov IBS cez hub (MACBOOKPETER posiela)",
+   "tag": {
+    "values": {
+     "rrRatio": 1.5
+    },
+    "goal": "profit",
+    "max_dd": null,
+    "min_trades": 1,
+    "per_year": true,
+    "points": 100
+   },
+   "params": {
+    "rrRatio": 1.5
+   },
+   "settings": {
+    "hub": {
+     "job": "5c502536ca41",
+     "submitter": "MACBOOKPETER",
+     "version_requested": "1257d9af3",
+     "version": "1257d9af3",
+     "agent": "MACMINIMARTIN"
+    }
+   },
+   "result": {
+    "trades": 15,
+    "wins": 3,
+    "losses": 12,
+    "draws": 0,
+    "winrate": 20.0,
+    "pnl_abs": -222.53,
+    "pnl_pct": -2.225,
+    "profit_factor": 0.139,
+    "max_drawdown_abs": 249.47,
+    "max_drawdown_pct": 2.495,
+    "starting_balance": 10000.0,
+    "final_balance": 9777.47,
+    "gross_abs": -76.07,
+    "volume_abs": 292920.76,
+    "break_even_pct": -0.026,
+    "exits": {
+     "trailing_stop_loss": {
+      "n": 2,
+      "pnl_abs": 0.34
+     },
+     "stop_loss": {
+      "n": 8,
+      "pnl_abs": -244.64
+     },
+     "roi": {
+      "n": 5,
+      "pnl_abs": 21.76
+     }
+    },
+    "streaks": {
+     "win": {
+      "n": 1,
+      "from_i": 2,
+      "to_i": 2,
+      "start": "2026-08-12T07:48:00+00:00",
+      "end": "2026-08-12T07:57:00+00:00",
+      "pnl_abs": 4.14,
+      "count": 3
+     },
+     "loss": {
+      "n": 7,
+      "from_i": 3,
+      "to_i": 9,
+      "start": "2026-08-13T15:18:00+00:00",
+      "end": "2026-08-21T18:45:00+00:00",
+      "pnl_abs": -141.95,
+      "count": 1
+     }
+    },
+    "stake_currency": "USDT",
+    "market_change_pct": 24.831,
+    "backtest_start": "2026-08-01 00:00:00",
+    "backtest_end": "2026-09-01 00:00:00",
+    "holding_avg": "0:16:00",
+    "duration_s": 3.8,
+    "zip": "backtest-result-2026-10-12_19-07-55.zip"
+   },
+   "error": null
+  }
+ ],
+ "updated": "2026-10-12T19:07:56+00:00"
+}
