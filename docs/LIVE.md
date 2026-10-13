@@ -356,7 +356,8 @@ Poradie okolo control súboru je vec bezpečnosti, lebo adaptéry berú **chýba
   podľa obsahu, nie textu). Zmena množiny grafov (aj zmenený config pri rovnakom názve profilu — EA číta
   profil len pri štarte) = slušný reštart terminálu; režim a názov profilu idú bez reštartu cez control.
   Driver terminál spúšťa a pri páde reštartuje; `install` DLL/EA nerobí (to je nasadenie kódu, fáza 2c).
-  Podrobne [MT5.md](MT5.md), „Nasadenie z hubu (driver)“.
+  Podrobne [MT5.md](MT5.md), „Nasadenie z hubu (driver)“; viac stratégií a účtov na jednom stroji (čo ide,
+  čo nie, reštart terminálu pri zmene grafov, netting) v „Viac stratégií na jednom serveri“.
 - **NinjaTrader driver:** zapíše `Documents\NinjaTrader 8\TradeBot\deploy.json`
   `{"instances":[{deployment, connection, account, instrument, tf, strategy, profile}]}` a control
   súbory; beh robí **AddOn** (`TradeBotLiveAddOn`), ktorý pri štarte NT a pri zmene mtime

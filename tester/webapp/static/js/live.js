@@ -899,7 +899,7 @@ function ldTerminalHint() {
   term.disabled = port.disabled = !!iny;
   if (iny) {
     term.value = iny.terminal || ""; port.checked = !!iny.portable;
-    box.textContent = `Účet už na stroji ${agent} beží v termináli ${iny.terminal || "nainštalovanom"}${iny.portable ? " (portable)" : ""} — ďalšie nasadenie pôjde do toho istého.`;
+    box.textContent = `Účet už na stroji ${agent} beží v termináli ${iny.terminal || "nainštalovanom"}${iny.portable ? " (portable)" : ""} — ďalšie nasadenie pôjde do toho istého ako ďalší graf. Pridanie reštartuje terminál so všetkými grafmi účtu a EA po štarte neprevezme pozície ani čakajúce ordery — ostatné nasadenia účtu najprv daj do pauzy a počkaj, kým sú flat (docs/MT5.md, „Viac stratégií na jednom serveri“).`;
     box.hidden = false;
   } else {
     if (term.dataset.locked) { term.value = ""; port.checked = false; }

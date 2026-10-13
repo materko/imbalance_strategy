@@ -166,6 +166,19 @@ def test_nasadenie_validacia(store: DeployStore):
         store.create_deployment({**base, "profile": "p2"}, by="r")
 
 
+def test_viac_strategii_na_jednom_ucte_a_symbole(store: DeployStore):
+    """docs/MT5.md „Viac stratégií na jednom serveri“: iná stratégia na tom istom účte, symbole a TF je iná
+    inštancia (vlastný control a spool); tá istá stratégia znova na inom symbole alebo TF tiež."""
+    a = _acc(store)
+    base = {"account": a["id"], "symbol": "NAS100", "tf": 3, "profile": "p1"}
+    ibs = store.create_deployment({**base, "strategy": "ibsnet"}, by="r")
+    orb = store.create_deployment({**base, "strategy": "orbnet"}, by="r")
+    ibs5 = store.create_deployment({**base, "strategy": "ibsnet", "tf": 5}, by="r")
+    assert len({ibs["instance"], orb["instance"], ibs5["instance"]}) == 3
+    assert orb["instance"] == instance_id("mt5", "5012345-ICMarkets-Demo", "NAS100", 3, "orbnet")
+    assert [d["agent"] for d in store.desired_for_agent("trade-pc")["deployments"]] == ["trade-pc"] * 3
+
+
 def test_update_meni_len_mode_profil_a_active(store: DeployStore):
     a = _acc(store)
     d = store.create_deployment({"account": a["id"], "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p1"}, by="r")

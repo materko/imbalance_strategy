@@ -372,6 +372,49 @@ požadovaný stav zapísaný priamo do `Reconciler.run` namiesto hubu):
 Neoverené: portable kópia (viac účtov na jednom stroji), heslo v ini pri prvom prihlásení, `AllowLiveTrading=1`
 so skutočnými vstupmi, správanie EA s otvorenou pozíciou pri reštarte terminálu kvôli zmene configu.
 
+### Viac stratégií na jednom serveri
+
+Na jednom stroji (VPS) môže naraz bežať ľubovoľne veľa nasadení — netreba nič navyše, len viac riadkov
+v karte **Live → Nasadiť** (alebo `POST /api/live/deployments`). Ako sa rozložia:
+
+| čo chceš | ako to vznikne | stav |
+|---|---|---|
+| rôzne stratégie na jednom účte (IBSNet + ORBNet + VwapAdxNet…), aj na tom istom symbole | každé nasadenie = vlastný graf v profile `tradebot` jedného terminálu účtu | test (`test_rozne_strategie_na_tom_istom_symbole_su_rozne_grafy_jedneho_terminalu`, `test_viac_strategii_na_jednom_ucte_a_symbole`); naživo overený mechanizmus s dvoma grafmi IBSNet (28. 9. 2026), s rôznymi šablónami EA naživo ešte nie |
+| tá istá stratégia na rôznych symboloch alebo TF | to isté — iný graf | overené naživo (US100.cash M1 + EURUSD M5, 28. 9. 2026) |
+| viac účtov na jednom stroji | každý účet vlastný terminál: `portable` (kópia v `tester/live/mt5/<account>/terminal/`) alebo vlastná inštalácia v `terminal` | napísané, **neoverené** |
+| tá istá stratégia na tom istom symbole a TF dvakrát na jednom účte (napr. dva profily) | **nejde** — hub odmietne („tá istá inštancia už je nasadená“) | id inštancie |
+
+Čo má každé nasadenie vlastné, takže sa grafy navzájom nevidia: graf s EA (šablóna podľa kľúča stratégie),
+**magic** (`magic_for(id nasadenia)` — EA počíta len dealy so svojím magic), id inštancie
+`mt5_<login>-<server>_<symbol>_<TF>m_<kľúč>` → vlastný control súbor (režim, profil), vlastný spool (karta
+**Live**) a vlastný súbor exportu signálov. Pauza, flatten a zmena profilu idú **po nasadeniach**, bez
+reštartu a bez vplyvu na ostatné. Jedna pozícia naraz a denný limit výhier platia **za EA**, nie za účet —
+tri stratégie môžu mať naraz tri pozície, aj na tom istom symbole; spoločné riziko účtu (marža, max. DD
+prop firmy) si stráži človek.
+
+Pravidlá, na ktoré treba myslieť:
+
+- **Jeden účet = jeden terminál na stroji.** Druhé nasadenie toho istého účtu na tom istom stroji ide
+  povinne do toho istého terminálu (hub iný `terminal`/`portable` odmietne, formulár ho rovno zamkne).
+  Ten istý účet môže bežať aj na inom stroji — tam je to iný terminál.
+- **Pridanie alebo odobratie nasadenia reštartuje terminál so všetkými grafmi účtu** (driver profil grafov
+  len prepíše a terminál slušne zavrie a spustí; zmena režimu ani názvu profilu reštart nepotrebuje). EA po
+  štarte **neprevezme** pozície ani čakajúce ordery spred reštartu: na hedging účte ostanú u brokera so svojím
+  SL/TP, ale bez trailingu, bez zavretia na konci seansy a čakajúci vstup sa môže vyplniť bez toho, aby o ňom
+  EA vedelo. Preto: **pred pridaním/odobratím nasadenia daj ostatné nasadenia toho účtu do `paused` a počkaj,
+  kým sú flat** (alebo `flatten`), potom zmeň množinu a zapni ich späť. Najjednoduchšie je nasadiť všetko,
+  čo má na účte bežať, naraz, kým sú nové nasadenia ešte v predvolenej pauze.
+- **Netting účet: na jednom symbole len jedna stratégia.** Pozícia je jedna na symbol a EA filtrujú dealy
+  podľa magic — vstup jednej stratégie by netto pozíciu druhej potichu zmenšil alebo otočil a jej stav by sa
+  rozišiel s brokerom. Hub typ účtu nepozná, nekontroluje to; viac stratégií na jednom symbole = hedging účet
+  (prop firmy ako FTMO ho dávajú predvolene).
+- **Dva profily tej istej stratégie na tom istom symbole a TF** dnes nejdú (id inštancie by bolo rovnaké —
+  spool aj control súbor by sa zliali). Obchádzka: iný účet, alebo iný TF grafu, keď to profil znesie.
+- **Viac účtov = viac terminálov**, každý s vlastným procesom (pamäť a CPU na predhistóriu pri štarte sa
+  sčítavajú — pri malom VPS rátať s tým). `Common\Files` (profily, control, spool) je spoločný pre všetky terminály používateľa Windows —
+  id inštancie obsahuje login a server, takže sa nebijú. `install`/„Aktualizovať kód“ ide do všetkých
+  terminálov účtov stroja naraz a všetky ich zavrie (DLL je zamknutá).
+
 ### Nový kód z hubu (fáza 2c)
 
 `install` zapisuje marker `Common\Files\TradeBot\installed.json` (`version` = commit klonu, `installed`, `by`);

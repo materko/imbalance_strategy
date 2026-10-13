@@ -311,6 +311,26 @@ def test_ensure_instance_starts_once_restarts_on_change_and_removes(drv):
     assert all(c == (running, False) for c in stuck.closed[1:-1]) and len(stuck.closed) >= 3
 
 
+def test_rozne_strategie_na_tom_istom_symbole_su_rozne_grafy_jedneho_terminalu(drv):
+    """docs/MT5.md „Viac stratégií na jednom serveri“: tri stratégie na tom istom účte, symbole a TF = tri
+    grafy v profile jedného terminálu, každý s vlastnou šablónou EA, magic a control súborom."""
+    d, procs, clock, data, common = drv
+    deps = [dep("i1"), dep("o1", strategy="orbnet"), dep("v1", strategy="vwapadxnet")]
+    for x in deps:
+        d.write_control(x)
+    d.ensure_instance(ACC, deps)
+    assert len(procs.started) == 1
+    folder = data / "MQL5" / "Profiles" / "Charts" / "tradebot"
+    charts = [parse_chart(p) for p in sorted(folder.glob("*.chr"))]
+    assert [c["path"] for c in charts] == ["Experts\\TradeBot\\IBSNet.ex5", "Experts\\TradeBot\\ORBNet.ex5",
+                                           "Experts\\TradeBot\\VwapAdxNet.ex5"]
+    assert {c["symbol"] for c in charts} == {"US100.cash"}
+    assert [int(c["inputs"]["InpMagic"]) for c in charts] == [magic_for(x.id) for x in deps]
+    assert len({magic_for(x.id) for x in deps}) == 3
+    controls = sorted(p.name for p in (common / "TradeBot" / "control").glob("*.json"))
+    assert controls == sorted(f"{x.instance}.json" for x in deps) and len(controls) == 3
+
+
 def test_profile_control_secret_and_password_scrub(drv, tmp_path: Path):
     d, procs, clock, data, common = drv
     d1 = dep("d1")
