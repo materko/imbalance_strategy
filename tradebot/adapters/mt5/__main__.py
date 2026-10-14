@@ -191,9 +191,10 @@ def read_control(common: Path, instance: str) -> dict | None:
 
 
 def write_control(common: Path, instance: str, mode: str | None = None, profile: str | None = None,
-                  by: str | None = None) -> dict:
-    """Zapíše `{"mode", "profile", "updated", "by"}` atomicky (tmp + `os.replace`); nezadané polia ostávajú
-    z existujúceho súboru (`mode` predvolene `enabled`, `profile` prázdny = profil zo vstupu EA)."""
+                  by: str | None = None, config_hash: str | None = None) -> dict:
+    """Zapíše `{"mode", "profile", "hash", "updated", "by"}` atomicky (tmp + `os.replace`); nezadané polia
+    ostávajú z existujúceho súboru (`mode` predvolene `enabled`, `profile` prázdny = profil zo vstupu EA).
+    `hash` = sha256 configu profilu: EA podľa jeho zmeny načíta profil znova aj pri rovnakom mene."""
     from tradebot.live.schema import CONTROL_MODES
 
     current = read_control(common, instance) or {}
@@ -203,6 +204,7 @@ def write_control(common: Path, instance: str, mode: str | None = None, profile:
     data = {
         "mode": mode,
         "profile": profile if profile is not None else str(current.get("profile") or ""),
+        "hash": config_hash if config_hash is not None else str(current.get("hash") or ""),
         "updated": int(time.time() * 1000),
         "by": by or getpass.getuser(),
     }

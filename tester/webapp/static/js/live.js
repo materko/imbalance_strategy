@@ -754,7 +754,7 @@ function renderLiveDeploy() {
         <td>${ldStatusChip(d)}</td>
         <td title="účet ${esc(d.account)} na stroji ${esc(d.agent || "?")}">${esc(acc.label || d.account)} <span class="muted small">${esc(d.agent || "")}</span></td>
         <td>${esc(d.strategy)}${d.slot ? ` <span class="chip" title="slot nasadenia v id inštancie">${esc(d.slot)}</span>` : ""}${d.own_terminal ? ` <span class="muted small" title="vlastný (portable) terminál len pre toto nasadenie">vlastný terminál</span>` : ""}</td><td><b>${esc(d.symbol)}</b></td><td>${d.tf}m</td>
-        <td><select class="small ld-profile" ${dis} title="zmena profilu: aplikuje sa, až keď je stratégia bez pozície">${ldProfileOptions(d.strategy, d.profile)}</select></td>
+        <td><select class="small ld-profile" ${dis} title="zmena profilu bez reštartu: len profily s rovnakým TF (${d.tf}m) a párom; aplikuje sa, až keď je stratégia bez pozície a čakajúcich vstupov">${ldProfileOptions(d.strategy, d.profile, d)}</select></td>
         <td><span class="chip ${d.mode === "enabled" ? "ok" : (d.mode === "flatten" ? "bad" : "warn")}">${esc(LD_MODE_LABEL[d.mode] || d.mode)}</span></td>
         <td>${ldAppliedCell(d)}</td>
         <td>${ldCodeChip(d.code_state, d.version)}</td>
@@ -784,15 +784,27 @@ function renderLiveDeploy() {
   ldCodeHint();
 }
 
-function ldProfileOptions(strategy, current) {
+/** Profily do výberu; s `dep` (bežiace nasadenie) len tie s rovnakým TF a párom ako jeho profil — iné by
+ *  server odmietol (symbol a TF sú identita inštancie). Na konci poznámka, koľko sa skrylo. */
+function ldProfileOptions(strategy, current, dep) {
   const p = ld.profiles[strategy];
-  const names = p ? p.profiles.slice() : [];
+  let names = p ? p.profiles.slice() : [];
+  let skryte = 0;
+  if (dep && p && p.meta) {
+    const cur = p.meta[current] || {};
+    const pair = s => (s || "").split("/");
+    const samePair = (a, b) => { const [ab, aq] = pair(a), [bb, bq] = pair(b); return ab === bb && (!aq || !bq || aq === bq); };
+    const fits = n => { const m = p.meta[n] || {}; return m.tf === dep.tf && (!cur.pair || (m.pair && samePair(cur.pair, m.pair))); };
+    const vsetky = names.length;
+    names = names.filter(n => n === current || fits(n));
+    skryte = vsetky - names.length;
+  }
   if (current && !names.includes(current)) names.unshift(current);
   if (!names.length) names.push(current || "");
   return names.map(n => {
     const title = p && p.profile_titles && p.profile_titles[n];
     return `<option value="${esc(n)}" ${n === current ? "selected" : ""}>${esc(title && title !== n ? `${n} — ${title}` : n)}</option>`;
-  }).join("");
+  }).join("") + (skryte ? `<option disabled>— ${skryte} ďalších profilov má iný TF alebo pár —</option>` : "");
 }
 
 /** Nasadenia účtu, ktoré na platforme bežia alebo majú bežať (aktívne) — tie bránia zmazaniu účtu
@@ -1090,7 +1102,7 @@ async function ldSetProfile(id, sel) {
   const dep = ld.deployments.find(d => d.id === id);
   const profile = sel.value;
   if (!dep || profile === dep.profile) return;
-  if (!confirm(`Zmeniť profil nasadenia ${dep.symbol} ${dep.tf}m na „${profile}“? Aplikuje sa, až keď je stratégia bez pozície a bez čakajúcich vstupov (vynútenie = najprv flatten).`)) { sel.value = dep.profile; return; }
+  if (!confirm(`Zmeniť profil nasadenia ${dep.symbol} ${dep.tf}m na „${profile}“? Platforma sa nereštartuje — stratégia profil vymení sama, až keď je bez pozície a bez čakajúcich vstupov (dovtedy beží starý; vynútenie = najprv flatten).`)) { sel.value = dep.profile; return; }
   try {
     await api(`/api/live/deployments/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ profile, user: ldUser() }) });
     await loadLiveDeploy();

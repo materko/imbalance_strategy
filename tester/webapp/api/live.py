@@ -550,9 +550,17 @@ def build(ctx: AppContext) -> APIRouter:
 
     @router.get("/api/live/profiles")
     def live_profiles(strategy: str = Query("ibs")):
-        """Profily stratégie (repozitár + vlastné) do výberu pri nasadení — ako formulár behu."""
+        """Profily stratégie (repozitár + vlastné) do výberu pri nasadení — ako formulár behu. `meta` = TF a pár
+        každého profilu: zmena profilu bežiaceho nasadenia ponúka len profily s rovnakým TF a párom."""
+        from tradebot.live.symbols import instrument_pair, profile_tf
+
         key = _strategy(strategy)
-        return {"strategy": key, "profiles": list_profiles(key), "profile_titles": profile_titles(key)}
+        names = list_profiles(key)
+        meta = {}
+        for name in names:
+            m = _profile_meta(key, name)
+            meta[name] = {"tf": profile_tf(m.get("_timeframe")), "pair": instrument_pair(m.get("_instrument"))}
+        return {"strategy": key, "profiles": names, "profile_titles": profile_titles(key), "meta": meta}
 
     def _profile_meta(strategy: str, profile: str) -> dict[str, Any]:
         """`_instrument` a `_timeframe` profilu (repozitár aj vlastný); bez profilu prázdne."""
@@ -697,10 +705,21 @@ def build(ctx: AppContext) -> APIRouter:
             body["active"] = req.active
         if req.profile is not None or isinstance(req.config, dict):
             body["profile"] = req.profile or ""
+            dep = _via_hub(lambda: http.get(f"/api/live/deployments/{dep_id}"))
+            if body["profile"] and body["profile"] != dep.get("profile"):
+                # bežiace nasadenie smie prejsť len na profil s rovnakým TF a párom (symbol a TF sú jeho identita)
+                from tradebot.live.symbols import profile_fit
+
+                current = _profile_meta(dep["strategy"], dep.get("profile") or "") or dep.get("config") or {}
+                new = _profile_meta(dep["strategy"], body["profile"]) or (req.config if isinstance(req.config, dict) else {})
+                # profil bez `_timeframe` (hotový config bez metadát) sa overiť nedá — vtedy rozhoduje zadávateľ
+                dovod = profile_fit(current, new, int(dep.get("tf") or 0)) if new.get("_timeframe") else None
+                if dovod:
+                    raise HTTPException(422, f"profil {body['profile']!r} sa na nasadenie {dep.get('symbol')} "
+                                             f"{dep.get('tf')}m nehodí: {dovod}")
             if isinstance(req.config, dict) and req.config:
                 body["config"] = req.config
             else:
-                dep = _via_hub(lambda: http.get(f"/api/live/deployments/{dep_id}"))
                 body["config"] = _config_of(dep["strategy"], body["profile"])
             body["version"] = _version()   # nový config = kód, na ktorom vznikol
         return _via_hub(lambda: http.patch(f"/api/live/deployments/{dep_id}?by={_by(req.user)}", body))

@@ -87,6 +87,17 @@ class Deployment:
                    active=bool(d.get("active", True)), instance=str(d.get("instance") or ""),
                    slot=str(d.get("slot") or ""), own_terminal=bool(d.get("own_terminal")), raw=dict(d))
 
+    def profile_hash(self) -> str:
+        """sha256 configu profilu (hub ho posiela ako `config_hash`) — ide do control súboru, aby adaptér načítal
+        profil znova aj pri zmene obsahu s rovnakým menom (bez reštartu platformy)."""
+        if self.config_hash:
+            return self.config_hash
+        import hashlib
+        import json
+
+        text = json.dumps(self.config or {}, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
     def validate(self) -> None:
         """Bez stratégie, symbolu, TF a profilu sa nasadenie nedá zapísať — chyba k nasadeniu, nie pád."""
         chyby = []

@@ -219,7 +219,8 @@ Zápis je atomický (tmp + rename), EA číta s `FILE_COMMON | FILE_SHARE_*`. Č
   nepošlú; `cancel`/`close`, SL/TP a trailing otvorenej pozície bežia ďalej. `flatten` — raz zruší všetky
   čakajúce vstupy a zavrie pozície (`Flatten("tb_flatten")`, netting cez `close:<id>`), potom sa správa ako
   `paused`; každý nový zápis súboru s `flatten` to zopakuje.
-- **zmena profilu** (`profile` iný než beží; prázdny = bez zmeny): aplikuje sa, len keď je stratégia bez
+- **zmena profilu** (`profile` iný než beží, alebo iný `hash` — sha256 configu, ktorý píše driver — pri tom
+  istom mene, keď sa zmenil obsah profilu; prázdny = bez zmeny): aplikuje sa, len keď je stratégia bez
   otvoreného objemu a bez čakajúcich vstupov u brokera (`IsFlat`). Vtedy EA zavrie spool (`bye` s dôvodom
   `profile`), zahodí engine, postaví nový z nového profilu (rovnaké pravidlá cesty ako `InpProfile`, relatívne
   k `Common\Files\TradeBot\profiles\<kľúč>\`), vynuluje stav adaptéra (sledované ordery, denný limit výhier,
@@ -330,14 +331,16 @@ Terminál profil otvorí vďaka `[Charts] ProfileLast=tradebot` v `/config:` ini
 potrebný; `config\common.ini` terminálu ostáva na `ProfileLast=Default`, ručný štart terminálu bez ini teda
 otvorí pôvodný profil človeka). Pri vypnutí si terminál profil `tradebot` prepíše (objekty engine-u,
 prečíslovanie) — driver preto zhodu neposudzuje textovo, ale podľa toho, čo v `.chr` je (symbol, perióda,
-cesta EA, `InpProfile`, `InpMagic`), a k tomu `config_hash` z manifestu.
+cesta EA, `InpMagic`). Profil (`InpProfile`, `config_hash`) do zhody nepatrí — jeho zmenu nesie control súbor.
 
 Čo sa kedy deje (`ensure_instance`, každé kolo reconcilera = každý heartbeat):
 
 - terminál beží a grafy sedia → nič (len prípadné zmazanie hesla z ini);
 - terminál nebeží (pád, človek ho zavrel), grafy sedia → len štart s ini, profil sa neprepisuje;
-- iná množina grafov (nové nasadenie, `active: false`, zmenený `config_hash` profilu s rovnakým názvom —
-  EA si profil načíta len pri štarte, zmena názvu profilu ide bez reštartu cez control súbor) → slušne zavrieť
+- zmena profilu nasadenia (iné meno alebo obsah) → **bez reštartu**: driver zapíše nový profil a control súbor
+  s `profile` a `hash`, EA engine vymení, keď je stratégia bez pozície a čakajúcich vstupov (dovtedy beží
+  starý profil; vo webapp sa ponúkajú len profily s rovnakým TF a párom);
+- iná množina grafov (nové nasadenie, `active: false`) → slušne zavrieť
   terminál (`taskkill /PID` bez `/F`, opakuje sa každých 10 s, natvrdo až po 60 s; EA dostane `OnDeinit`,
   spool `bye`), prepísať profil, zmazať control súbory grafov, ktoré zmizli, spustiť znova;
 - bez aktívneho nasadenia → terminál sa zavrie a nespúšťa; cudzí terminál z toho istého `exe` (spustený

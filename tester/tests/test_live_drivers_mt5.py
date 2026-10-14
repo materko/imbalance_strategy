@@ -267,27 +267,28 @@ def test_ensure_instance_starts_once_restarts_on_change_and_removes(drv):
     d.ensure_instance(ACC, [d1, d2])
     assert len(procs.started) == 2 and "objects=5" in _utf16(folder / "chart02.chr")
 
-    # zmena configu profilu (config_hash) = reštart, EA si profil načíta nanovo
-    d1b = dep("d1", config_hash="h2")
+    # zmena profilu (meno aj config_hash) = BEZ reštartu: ide cez control súbor (EA vymení engine, keď je flat)
+    d1b = dep("d1", config_hash="h2", profile="multicharts_mnq_3m")
     d.ensure_instance(ACC, [d1b, d2])
-    assert len(procs.started) == 3 and procs.closed[-1] == (procs.next_pid - 1, False)
+    assert len(procs.started) == 2 and procs.closed == []
 
     # odobratie d2: graf zmizne, reštart
     d.ensure_instance(ACC, [d1b])
-    assert len(procs.started) == 4 and sorted(p.name for p in folder.iterdir()) == ["chart01.chr", "order.wnd"]
+    assert len(procs.started) == 3 and sorted(p.name for p in folder.iterdir()) == ["chart01.chr", "order.wnd"]
     assert parse_chart(folder / "chart01.chr")["symbol"] == "US100.cash"
+    assert parse_chart(folder / "chart01.chr")["inputs"]["InpProfile"] == "multicharts_mnq_3m"   # prepísaný graf = aktuálny profil
 
     # bez nasadení: terminál sa zavrie, profil bez grafov, nič sa nespúšťa
     d.ensure_instance(ACC, [])
-    assert len(procs.started) == 4 and not procs.alive_pids and list(folder.glob("*.chr")) == []
+    assert len(procs.started) == 3 and not procs.alive_pids and list(folder.glob("*.chr")) == []
     assert d.status(ACC)["running"] is False
     d.ensure_instance(ACC, [])
-    assert len(procs.started) == 4
+    assert len(procs.started) == 3
 
     # cudzí terminál z toho istého exe (spustený človekom) sa slušne zavrie pred štartom s ini
     procs.foreign = [77]
     d.ensure_instance(ACC, [d1b])
-    assert (77, False) in procs.closed and len(procs.started) == 5
+    assert (77, False) in procs.closed and len(procs.started) == 4
     log = (d.account_dir(ACC) / "driver.log").read_text(encoding="utf-8")
     assert "zatváram terminál PID 77" in log and "profil grafov `tradebot`" in log
 
@@ -404,6 +405,9 @@ def test_profile_control_secret_and_password_scrub(drv, tmp_path: Path):
     assert data1["mode"] == "paused" and data1["profile"] == "golden_binance_btcusdt_3m" and data1["by"] == "hub"
     d.write_control(d1)
     assert json.loads(ctl.read_text(encoding="utf-8")) == data1   # nezmenené = nepíše sa (mtime = správa pre EA)
+    assert data1["hash"] == "h1"                                    # config_hash nasadenia: EA podľa neho načíta profil znova
+    d.write_control(dep("d1", config_hash="h5"))                   # rovnaké meno, iný obsah profilu = nový zápis
+    assert json.loads(ctl.read_text(encoding="utf-8"))["hash"] == "h5"
     d.write_control(dep("d1", mode="enabled"))
     assert json.loads(ctl.read_text(encoding="utf-8"))["mode"] == "enabled"
     # zrušenie: control sa nemaže hneď (chýbajúci = enabled pre EA), prepne sa na paused a zmaže ho až

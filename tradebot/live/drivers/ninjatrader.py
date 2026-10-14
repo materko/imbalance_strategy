@@ -158,9 +158,11 @@ class NinjaTraderDriver(Driver):
 
         nt = self.nt_dir()
         current = read_control(nt, deployment.instance)
-        if current and current.get("mode") == deployment.mode and current.get("profile") == deployment.profile:
+        h = deployment.profile_hash()
+        if (current and current.get("mode") == deployment.mode and current.get("profile") == deployment.profile
+                and (current.get("hash") or "") == h):
             return control_dir(nt) / f"{deployment.instance}.json"
-        write_control(nt, deployment.instance, mode=deployment.mode, profile=deployment.profile, by="hub")
+        write_control(nt, deployment.instance, mode=deployment.mode, profile=deployment.profile, by="hub", config_hash=h)
         return control_dir(nt) / f"{deployment.instance}.json"
 
     def remove_instance(self, account: Account, deployment: Deployment) -> None:

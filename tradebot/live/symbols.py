@@ -21,7 +21,8 @@ from __future__ import annotations
 import datetime as _dt
 from typing import Any, Iterable
 
-__all__ = ["front_month", "platform_symbol", "profile_tf", "deploy_defaults", "QUARTERLY_CME"]
+__all__ = ["front_month", "platform_symbol", "profile_tf", "deploy_defaults", "instrument_pair", "profile_fit",
+           "QUARTERLY_CME"]
 
 #: Kvartálne (H, M, U, Z) futures CME, ktoré NinjaTrader pomenúva `MASTER MM-YY`.
 QUARTERLY_CME = frozenset({
@@ -109,3 +110,42 @@ def deploy_defaults(platform: str, instrument_key: str | None, timeframe: Any, e
     return {"symbol": symbol, "symbol_from": why if symbol else None, "symbol_error": None if symbol else why,
             "tf": tf, "tf_error": None if tf else "profil nemá _timeframe — zadaj TF",
             "instrument": instrument_key or None}
+
+
+def instrument_pair(instrument_key: str | None) -> str | None:
+    """Pár inštrumentu profilu (`_instrument`): `nas100_dukascopy` → `NAS100/USD`, `mnq` → `MNQ`,
+    `btcusd_coinbase` → `BTC/USD`; neznámy kľúč = `None`."""
+    from tradebot.core.types import INSTRUMENTS
+
+    inst = INSTRUMENTS.get(instrument_key) if instrument_key else None
+    if inst is None:
+        return None
+    text = str(inst.symbol or "").split(":")[0].strip().upper()
+    if "/" not in text:
+        text = text.replace("-", "/", 1)
+    base, _, quote = text.partition("/")
+    return f"{base}/{quote}" if quote else base
+
+
+def _same_pair(a: str, b: str) -> bool:
+    """Rovnaký základ; kótovaná mena sa porovnáva, len keď ju majú oba (`MNQ` = `MNQ/USD`)."""
+    ab, _, aq = a.partition("/")
+    bb, _, bq = b.partition("/")
+    return ab == bb and (not aq or not bq or aq == bq)
+
+
+def profile_fit(current: dict[str, Any] | None, new: dict[str, Any] | None, tf: int) -> str | None:
+    """Smie bežiace nasadenie (TF `tf`, profil s metadátami `current`) prejsť na profil `new`? `None` = áno,
+    inak dôvod. Profil musí mať ten istý TF (`_timeframe`) a ten istý pár (`_instrument`) — symbol a TF sú
+    identita inštancie a prahy profilu v bodoch platia len pre svoj inštrument."""
+    new = new or {}
+    new_tf = profile_tf(new.get("_timeframe"))
+    if new_tf != int(tf):
+        return f"iný TF ({new.get('_timeframe') or 'profil ho nemá'}, nasadenie beží na {int(tf)}m)"
+    cur_pair = instrument_pair((current or {}).get("_instrument"))
+    new_pair = instrument_pair(new.get("_instrument"))
+    if cur_pair is None:
+        return None   # pár bežiaceho profilu sa nedá zistiť — rozhoduje len TF
+    if new_pair is None or not _same_pair(cur_pair, new_pair):
+        return f"iný pár ({new_pair or 'profil ho nemá'}, nasadenie beží na {cur_pair})"
+    return None

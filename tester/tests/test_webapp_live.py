@@ -667,11 +667,22 @@ def test_deploy_proxy_mutacie_admin_tokenom_a_heslo_nikde_neostane(deploy_app, m
     assert r.status_code == 200 and hub.calls[-1][3]["profile"] == "multicharts_mnq_3m" and "rrRatio" in hub.calls[-1][3]["config"]
     assert hub.calls[-2][:2] == ("GET", "/api/live/deployments/d1")     # stratégia nasadenia sa vzala z hubu
     assert c.patch("/api/live/deployments/nie", json={"profile": "multicharts_mnq_3m"}).status_code == 404
+    # bežiace nasadenie (NAS100 3m) smie prejsť len na profil s rovnakým TF a párom — iný na hub ani neodíde
+    hub.deployments[0]["profile"] = "multicharts_mnq_3m"                # MNQ 3m
+    n = len(hub.calls)
+    r = c.patch("/api/live/deployments/d1", json={"profile": "golden_binance_btcusdt_3m"})   # BTC 3m
+    assert r.status_code == 422 and "iný pár" in r.json()["detail"] and all(m != "PATCH" for m, *_ in hub.calls[n:])
+    hub.deployments[0]["tf"] = 5
+    r = c.patch("/api/live/deployments/d1", json={"profile": "multicharts_mnq_3m", "config": {"rrRatio": 1.0}})
+    assert r.status_code == 200                                         # ten istý profil (nový config) = bez kontroly
+    hub.deployments[0].update(tf=3, profile="p")
     assert c.delete("/api/live/deployments/d1?user=r").json() == {"id": "d1", "deleted": False, "active": False}
     assert hub.calls[-1][1] == "/api/live/deployments/d1?force=false&by=r"
     # profily do výberu
     p = c.get("/api/live/profiles?strategy=ibsnet").json()
     assert "multicharts_mnq_3m" in p["profiles"] and p["strategy"] == "ibsnet"
+    assert p["meta"]["multicharts_mnq_3m"] == {"tf": 3, "pair": "MNQ"}
+    assert p["meta"]["golden_binance_btcusdt_3m"] == {"tf": 3, "pair": "BTC/USDT"}
     assert c.get("/api/live/profiles?strategy=nie").status_code == 422
 
 

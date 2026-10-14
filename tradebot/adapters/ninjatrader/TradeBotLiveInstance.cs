@@ -46,10 +46,13 @@ namespace NinjaTrader.NinjaScript.AddOns
             get { return Id.Length > 0 ? Id : Account + "|" + Instrument + "|" + Tf + "|" + Strategy; }
         }
 
+        /// <summary>Ten isty beh (bez restartu instancie). Profil sa neporovnava: jeho zmenu (meno aj obsah, `hash`)
+        /// prinasa control subor a instancia ho vymeni sama, ked je flat - restart by zrusil cakajuce vstupy a otvorenu
+        /// poziciu by nechal bez trailingu.</summary>
         public bool SameAs(LiveDeployment o)
         {
             return o != null && Id == o.Id && Connection == o.Connection && Account == o.Account && Instrument == o.Instrument
-                && Tf == o.Tf && Strategy == o.Strategy && Profile == o.Profile;
+                && Tf == o.Tf && Strategy == o.Strategy;
         }
 
         public string Describe()
@@ -174,6 +177,10 @@ namespace NinjaTrader.NinjaScript.AddOns
         private string _controlMode = "enabled";
         private string _controlProfile;
         private string _pendingProfile;
+        // `hash` (sha256 configu) z control suboru: iny hash pri tom istom mene = obsah profilu sa zmenil, engine
+        // sa postavi znova (ked je flat) - bez restartu instancie; null = este necitane (prve citanie ho len prevezme)
+        private string _controlHash;
+        private string _pendingHash;
         private bool _pendingLogged;
         private int _controlEvents;
         private DateTime _controlChecked = DateTime.MinValue;
@@ -1091,7 +1098,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                     {
                         _controlSeen = false;
                         _controlMtime = DateTime.MinValue;
-                        ControlApply("enabled", Deployment.Profile, "default");
+                        ControlApply("enabled", Deployment.Profile, "", "default");
                     }
                     return false;
                 }
@@ -1103,12 +1110,13 @@ namespace NinjaTrader.NinjaScript.AddOns
                     Dictionary<string, object> d = TB.Json.ParseObject(File.ReadAllText(_controlPath));
                     string mode = TB.Json.GetString(d, "mode", "enabled");
                     string profile = TB.Json.GetString(d, "profile", "");
+                    string hash = TB.Json.GetString(d, "hash", "");
                     if (mode != "enabled" && mode != "paused" && mode != "flatten")
                     {
                         Note("error", "control: neznamy mode '" + mode + "' - ignorujem");
                         return true;
                     }
-                    ControlApply(mode, string.IsNullOrEmpty(profile) ? _controlProfile : profile, "control");
+                    ControlApply(mode, string.IsNullOrEmpty(profile) ? _controlProfile : profile, hash, "control");
                 }
                 else if (_pendingProfile != null)
                 {
@@ -1124,7 +1132,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             }
         }
 
-        private void ControlApply(string mode, string profile, string source)
+        private void ControlApply(string mode, string profile, string hash, string source)
         {
             bool changed = false;
             if (mode != _controlMode)
@@ -1136,9 +1144,13 @@ namespace NinjaTrader.NinjaScript.AddOns
                 else if (mode == "enabled" && before != "enabled") ReleaseParked();
             }
             string wanted = profile ?? "";
-            if (wanted != (_controlProfile ?? ""))
+            string h = hash ?? "";
+            // prve citanie s tym istym profilom, z ktoreho instancia nabehla: hash sa len prevezme
+            if (_controlHash == null && wanted == (_controlProfile ?? "")) _controlHash = h;
+            if (wanted != (_controlProfile ?? "") || (h.Length > 0 && h != (_controlHash ?? "")))
             {
                 _pendingProfile = wanted;
+                _pendingHash = h;
                 _pendingLogged = false;
                 bool ok = TrySwitchProfile();
                 if (!ok && _pendingProfile != null)
@@ -1213,6 +1225,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 _dailyWinsSeen.Clear();
                 ReadStats();
                 _controlProfile = wanted;
+                _controlHash = _pendingHash ?? "";
                 OpenSpool(wanted);
                 Log("control: novy engine z profilu '" + wanted + "' (" + path + "), predhistoria " + _engine.RequiredHistory + " barov"
                     + (setupPhase ? "" : " - prehravam historiu znova"));

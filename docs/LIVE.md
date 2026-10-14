@@ -250,7 +250,9 @@ súbor. Chýbajúci súbor = `enabled` + profil z parametrov stratégie (dnešn�
 - `enabled` — obchoduje normálne. `paused` — **nové vstupy sa neposielajú** (zámery `entry` sa zahodia
   a engine to vidí ako zrušené), `cancel`/`close` a SL/TP otvorenej pozície bežia ďalej. `flatten` —
   raz zruší všetky čakajúce vstupy a zavrie pozíciu (`tb_flatten`), potom sa správa ako `paused`.
-- **Zmena profilu** (iný `profile` než beží): aplikuje sa, **až keď je stratégia bez pozície a bez
+- **Zmena profilu** (iný `profile` než beží, alebo iný `hash` pri tom istom mene — driver ho píše z `config_hash`
+  nasadenia, aby sa prejavila aj zmena obsahu profilu; platforma sa kvôli profilu **nikdy nereštartuje**, ani MT5
+  terminál, ani NT inštancia): aplikuje sa, **až keď je stratégia bez pozície a bez
   čakajúcich vstupov** — adaptér zahodí engine, postaví nový z nového profilu a prehrá predhistóriu
   (engine je deterministický, výsledok je ako čerstvý štart; MT5 to v `OnInit` robí aj dnes). Kým nie
   je flat, zmena čaká (`control` udalosť so `source:"pending"`). Vynútenie = najprv `flatten`.
@@ -377,8 +379,9 @@ niečo beží, sa pýta, lebo stroje inštancie zastavia a spustia s novým prih
 účte nič nebeží) a **Nasadenia** (tabuľka:
 účet, stratégia, symbol, TF, profil, režim, stav inštancie zo spoolu, drift `config_hash` vs.
 `applied`, posledný bar — pri stave `ok` bez živého spoolu chip upozornenia **„nenabehla: <dôvod>“**
-(plný text v title); tlačidlá pauza/zapnúť/flatten, zmena profilu (výber z profilov stratégie
-alebo úprava parametrov formulárom z `params.py`), odstrániť; „Nasadiť“: účet, stroj (agenti s driverom
+(plný text v title); tlačidlá pauza/zapnúť/flatten, zmena profilu (výber len z profilov stratégie
+s **rovnakým TF a párom** ako bežiaci profil — `/api/live/profiles` nesie `meta` {tf, pair}, `PATCH` iný odmietne
+s 422 cez `tradebot.live.symbols.profile_fit`; alebo úprava parametrov formulárom z `params.py`), odstrániť; „Nasadiť“: účet, stroj (agenti s driverom
 platformy účtu), pri MT5 terminál a portable, stratégia, profil, symbol, TF, režim — predvolene **pauza**, nová stratégia sa zapína až v tabuľke). „Pridať účet“ má
 nepovinné **Id účtu** (placeholder ukazuje slug názvu, ktorý by hub spravil sám).
 

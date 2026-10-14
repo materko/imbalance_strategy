@@ -496,9 +496,10 @@ def read_control(nt_dir: Path, instance: str) -> dict | None:
 
 
 def write_control(nt_dir: Path, instance: str, *, mode: str | None = None, profile: str | None = None,
-                  by: str | None = None) -> dict:
+                  by: str | None = None, config_hash: str | None = None) -> dict:
     """Zapíše control súbor atomicky (tmp + `os.replace`), nezadané polia prevezme z existujúceho súboru.
-    Adaptér číta podľa mtime, takže každý zápis je pre neho nová správa aj pri rovnakom obsahu."""
+    Adaptér číta podľa mtime, takže každý zápis je pre neho nová správa aj pri rovnakom obsahu. `hash` =
+    sha256 configu profilu: inštancia podľa jeho zmeny načíta profil znova aj pri rovnakom mene."""
     if mode is not None and mode not in CONTROL_MODES:
         raise SystemExit(f"mode musí byť {'/'.join(CONTROL_MODES)}, nie {mode!r}")
     if "/" in instance or "\\" in instance or instance in ("", ".", ".."):
@@ -507,6 +508,7 @@ def write_control(nt_dir: Path, instance: str, *, mode: str | None = None, profi
     data = {
         "mode": mode if mode is not None else current.get("mode", "enabled"),
         "profile": profile if profile is not None else current.get("profile", ""),
+        "hash": config_hash if config_hash is not None else current.get("hash", ""),
         "updated": int(time.time() * 1000),
         "by": by or current.get("by") or _whoami(),
     }

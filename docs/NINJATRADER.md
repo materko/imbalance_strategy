@@ -290,7 +290,9 @@ alebo ruka):
 Profil je `TradeBot\profiles\<stratégia>\<profil>.json`, inak `TradeBot\profiles\<profil>.json` (tam ich
 dáva `install`), inak celá cesta; chýbajúci profil = záznam sa preskočí a zaloguje. Supervízor (vlastné
 vlákno, štart 3 s po vzniku Control Center) číta súbor podľa mtime **každé 2 s** a znova pri zmene stavu
-pripojenia: nový záznam spustí, odstránený zastaví (`bye removed`), zmenený reštartuje, neúspešný štart
+pripojenia: nový záznam spustí, odstránený zastaví (`bye removed`), zmenený reštartuje (zmena len profilu nie —
+`LiveDeployment.SameAs` profil neporovnáva, profil vymení inštancia sama cez control súbor s `profile` a `hash`,
+keď je flat), neúspešný štart
 (pripojenie dole, účet nepripojený) skúša každých 60 s. `instances: []` alebo chýbajúci súbor = nič nebeží.
 
 Čo jedna `LiveInstance` robí (semantika je tá istá ako v `TradeBotStrategy.cs`, riadok po riadku):

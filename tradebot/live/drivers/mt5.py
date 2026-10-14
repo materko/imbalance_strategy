@@ -14,11 +14,12 @@ grafov** terminálu `MQL5\\Profiles\\Charts\\tradebot\\chartNN.chr` + `order.wnd
 presne ako ich terminál sám ukladá): symbol, perióda, EA `Experts\\TradeBot\\<Šablóna>.ex5` a jeho
 inputy. Terminál profil otvorí, lebo ini hovorí `[Charts] ProfileLast=tradebot`, a pri vypnutí ho
 sám prepíše (pridá objekty, prečísluje) — preto sa zhoda neporovnáva textovo, ale podľa toho, čo
-v súboroch je (symbol, perióda, EA, `InpProfile`, `InpMagic`).
+v súboroch je (symbol, perióda, EA, `InpMagic`).
 
-Zmena množiny grafov (nové nasadenie, odobraté, iný config profilu) = slušne zavrieť terminál
-(`taskkill` bez `/F`, EA dostane `OnDeinit`, spool `bye`), prepísať profil, spustiť znova. Režim
-(`paused`/`flatten`) a zmena názvu profilu idú cez control súbor bez reštartu. Keď stav sedí a
+Zmena množiny grafov (nové nasadenie, odobraté) = slušne zavrieť terminál (`taskkill` bez `/F`, EA
+dostane `OnDeinit`, spool `bye`), prepísať profil, spustiť znova. Režim (`paused`/`flatten`) a zmena
+profilu — mena aj obsahu (`hash` v control súbore) — idú cez control súbor **bez reštartu**: EA profil
+vymení, keď je stratégia bez pozície a čakajúcich vstupov. Keď stav sedí a
 terminál beží, `ensure_instance` nerobí nič; keď nebeží (pád, človek ho zavrel), spustí ho.
 
 Poradie okolo control súboru je vec bezpečnosti — EA berie **chýbajúci súbor ako `enabled`**:
@@ -234,8 +235,10 @@ def parse_chart(path: Path) -> dict[str, Any] | None:
     return out if out["path"] else None
 
 
-def _chart_key(symbol: str, tf: int, path: str, profile: str, magic: int) -> tuple:
-    return (symbol, period_of(tf), path.lower(), profile, int(magic))
+def _chart_key(symbol: str, tf: int, path: str, magic: int) -> tuple:
+    """Čo graf identifikuje: symbol, perióda, EA a magic (= nasadenie). Profil nie — ten mení control súbor
+    bez reštartu terminálu (EA ho vymení, keď je flat; zmenu obsahu pozná podľa `hash`)."""
+    return (symbol, period_of(tf), path.lower(), int(magic))
 
 
 # ------------------------------------------------------------------------------------------------ #
@@ -538,9 +541,11 @@ class Mt5Driver(Driver):
         common = self.common()
         instance = deployment.instance
         current = read_control(common, instance)
-        if current and current.get("mode") == deployment.mode and current.get("profile") == deployment.profile:
+        h = deployment.profile_hash()
+        if (current and current.get("mode") == deployment.mode and current.get("profile") == deployment.profile
+                and (current.get("hash") or "") == h):
             return control_dir(common) / f"{instance}.json"
-        write_control(common, instance, deployment.mode, deployment.profile, by="hub")
+        write_control(common, instance, deployment.mode, deployment.profile, by="hub", config_hash=h)
         return control_dir(common) / f"{instance}.json"
 
     def remove_instance(self, account: Account, deployment: Deployment) -> None:
@@ -610,8 +615,7 @@ class Mt5Driver(Driver):
 
     @staticmethod
     def _charts_key(charts: list[dict[str, Any]]) -> list[list[Any]]:
-        return sorted([c["symbol"], list(period_of(c["tf"])), c["path"].lower(), c["profile"], int(c["magic"]),
-                       c.get("config_hash") or ""] for c in charts)
+        return sorted([c["symbol"], list(period_of(c["tf"])), c["path"].lower(), int(c["magic"])] for c in charts)
 
     def profile_dir(self, data_dir: Path) -> Path:
         return data_dir / "MQL5" / "Profiles" / "Charts" / PROFILE_NAME
@@ -629,12 +633,11 @@ class Mt5Driver(Driver):
                 magic = int(float(ch["inputs"].get("InpMagic", "0")))
             except ValueError:
                 magic = 0
-            out.add((ch["symbol"], (ch["period_type"], ch["period_size"]), ch["path"].lower(),
-                     ch["inputs"].get("InpProfile", ""), magic))
+            out.add((ch["symbol"], (ch["period_type"], ch["period_size"]), ch["path"].lower(), magic))
         return out
 
     def _profile_matches(self, data_dir: Path, charts: list[dict[str, Any]]) -> bool:
-        wanted = {_chart_key(c["symbol"], c["tf"], c["path"], c["profile"], c["magic"]) for c in charts}
+        wanted = {_chart_key(c["symbol"], c["tf"], c["path"], c["magic"]) for c in charts}
         return self._profile_on_disk(data_dir) == wanted
 
     def write_chart_profile(self, data_dir: Path, charts: list[dict[str, Any]]) -> Path:

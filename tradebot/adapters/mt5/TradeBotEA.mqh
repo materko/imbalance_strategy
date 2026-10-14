@@ -108,6 +108,8 @@ string g_controlPath    = "";          // relativne k Common\Files (FILE_COMMON)
 string g_mode           = "enabled";   // enabled / paused / flatten
 string g_profile        = "";          // profil, z ktoreho bezi engine (nazov alebo cesta ako v InpProfile / control)
 string g_pendingProfile = "";          // zmena profilu, ktora caka, kym bude strategia flat
+string g_profileHash    = "";          // `hash` (sha256 configu) z control suboru, z ktoreho bezi engine
+string g_pendingHash    = "";          // `hash` cakajucej zmeny profilu
 long   g_controlMtime   = -2;          // posledne videne FILE_MODIFY_DATE (-1 = subor nie je)
 long   g_controlSize    = -2;
 bool   g_controlOn      = false;       // len mimo Strategy Testera
@@ -307,11 +309,12 @@ int OnInit()
      {
       g_controlMtime = FileGetInteger(g_controlPath, FILE_MODIFY_DATE, true);
       g_controlSize = g_controlMtime < 0 ? -1 : FileGetInteger(g_controlPath, FILE_SIZE, true);
-      string mode, profile;
-      if(g_controlMtime >= 0 && ReadControl(mode, profile) > 0)
+      string mode, profile, hash;
+      if(g_controlMtime >= 0 && ReadControl(mode, profile, hash) > 0)
         {
          g_mode = mode;
          if(profile != "") g_profile = profile;
+         g_profileHash = hash;
          source = "control";
         }
      }
@@ -391,8 +394,8 @@ void PrintEngineInfo(string profilePath)
 //+------------------------------------------------------------------+
 //| Ovladanie na dialku (docs/LIVE.md, faza 2): control subor podla mtime                              |
 //+------------------------------------------------------------------+
-/// Precita control subor: 1 = platny (`mode`, `profile`), 0 = neda sa otvorit, -1 = neplatny (zalogovane).
-int ReadControl(string &mode, string &profile)
+/// Precita control subor: 1 = platny (`mode`, `profile`, `hash`), 0 = neda sa otvorit, -1 = neplatny (zalogovane).
+int ReadControl(string &mode, string &profile, string &hash)
   {
    string text = ReadTextFile(g_controlPath);
    if(text == "") return 0;
@@ -401,6 +404,7 @@ int ReadControl(string &mode, string &profile)
      { if(root != NULL) delete root; Print("TradeBot control: neplatny JSON v Common\\Files\\", g_controlPath, " - ostava rezim ", g_mode); return -1; }
    mode = root.Str("mode");
    profile = root.Str("profile");
+   hash = root.Str("hash");
    delete root;
    if(mode == "") mode = "enabled";
    if(mode != "enabled" && mode != "paused" && mode != "flatten")
@@ -421,19 +425,21 @@ void CheckControl()
       // subor zmizol = enabled + profil zo vstupu EA (docs/LIVE.md)
       g_controlMtime = mtime; g_controlSize = size;
       Print("TradeBot control: subor Common\\Files\\", g_controlPath, " zmizol - enabled + InpProfile");
-      ApplyControl("enabled", InpProfile, "default");
+      ApplyControl("enabled", InpProfile, "", "default");
       return;
      }
-   string mode, profile;
-   int r = ReadControl(mode, profile);
+   string mode, profile, hash;
+   int r = ReadControl(mode, profile, hash);
    if(r == 0) return;   // prave sa prepisuje (tmp + rename) - skusi sa o 5 s
    g_controlMtime = mtime; g_controlSize = size;
    if(r < 0) return;    // neplatny obsah: ostava posledny rezim, zalogovane raz (mtime si pamatame)
-   ApplyControl(mode, profile, "control");
+   ApplyControl(mode, profile, hash, "control");
   }
 
 /// Aplikuje rezim a profil; kazda aplikovana zmena ide do spoolu ako `control` (mode, profile, source).
-void ApplyControl(string mode, string profile, string source)
+/// Profil sa vymeni pri inom mene aj pri inom `hash` s tym istym menom (driver prepisal obsah profilu) -
+/// v oboch pripadoch az ked je strategia flat, bez restartu terminalu.
+void ApplyControl(string mode, string profile, string hash, string source)
   {
    bool modeChanged = mode != g_mode;
    g_mode = mode;
@@ -451,17 +457,18 @@ void ApplyControl(string mode, string profile, string source)
       Print("TradeBot control: flatten - zrusenych ", pending, " cakajucich vstupov, zatvara sa ", open, " pozicii");
      }
    string want = profile == "" ? g_profile : profile;
-   if(ResolveProfilePath(want) != ResolveProfilePath(g_profile))
+   if(ResolveProfilePath(want) != ResolveProfilePath(g_profile) || (hash != "" && hash != g_profileHash))
      {
       if(!IsFlat())
         {
          g_pendingProfile = want;
+         g_pendingHash = hash;
          Print("TradeBot control: profil ", want, " caka, kym bude strategia bez pozicie a cakajucich vstupov (bezi ", g_profile, ")");
          SpoolControl(g_mode, want, "pending");
          return;
         }
       g_pendingProfile = "";
-      RebuildEngine(want);   // pri chybe bezi dalej stary profil (zalogovane)
+      if(RebuildEngine(want)) g_profileHash = hash;   // pri chybe bezi dalej stary profil (zalogovane)
      }
    else g_pendingProfile = "";
    SpoolControl(g_mode, g_profile, source);
@@ -474,7 +481,7 @@ void RetryPendingProfile()
    if(g_pendingProfile == "" || !IsFlat()) return;
    string want = g_pendingProfile;
    g_pendingProfile = "";
-   if(RebuildEngine(want)) SpoolControl(g_mode, g_profile, "control");
+   if(RebuildEngine(want)) { g_profileHash = g_pendingHash; SpoolControl(g_mode, g_profile, "control"); SaveState(); }
   }
 
 /// Bez pozicie a bez cakajucich vstupov u brokera (odlozene vstupy u brokera nie su - novy engine ich nepozna).

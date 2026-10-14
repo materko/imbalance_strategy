@@ -5,7 +5,7 @@ from __future__ import annotations
 import datetime as dt
 
 from tradebot.core.types import INSTRUMENTS
-from tradebot.live.symbols import deploy_defaults, front_month, platform_symbol, profile_tf
+from tradebot.live.symbols import deploy_defaults, front_month, instrument_pair, platform_symbol, profile_fit, profile_tf
 
 
 def test_front_month_a_roll():
@@ -38,3 +38,20 @@ def test_profile_tf_a_defaults():
     assert d["symbol"] == "NAS100" and d["tf"] == 15 and d["symbol_error"] is None and d["tf_error"] is None
     d = deploy_defaults("mt5", None, None)
     assert d["symbol"] is None and d["symbol_error"] and d["tf"] is None and d["tf_error"]
+
+
+def test_par_a_zhoda_profilu_pri_zmene():
+    """Zmena profilu bežiaceho nasadenia: len rovnaký TF a pár (docs/LIVE.md, zmena profilu)."""
+    assert instrument_pair("nas100_dukascopy") == "NAS100/USD"
+    assert instrument_pair("mnq") == "MNQ" and instrument_pair("mnq_databento") == "MNQ/USD"
+    assert instrument_pair("btcusd_coinbase") == "BTC/USD" and instrument_pair("btcusdt_binance") == "BTC/USDT"
+    assert instrument_pair("nie") is None and instrument_pair(None) is None
+    nas3 = {"_instrument": "nas100_dukascopy", "_timeframe": "3m"}
+    assert profile_fit(nas3, {"_instrument": "nas100_dukascopy", "_timeframe": "3m"}, 3) is None
+    assert "iný TF" in profile_fit(nas3, {"_instrument": "nas100_dukascopy", "_timeframe": "1m"}, 3)
+    assert "iný pár" in profile_fit(nas3, {"_instrument": "mnq_databento", "_timeframe": "3m"}, 3)
+    assert "iný pár" in profile_fit(nas3, {"_timeframe": "3m"}, 3)                       # profil bez inštrumentu
+    mnq = {"_instrument": "mnq", "_timeframe": "3m"}
+    assert profile_fit(mnq, {"_instrument": "mnq_databento", "_timeframe": "3m"}, 3) is None   # MNQ = MNQ/USD
+    assert "iný pár" in profile_fit({"_instrument": "btcusd_coinbase"}, {"_instrument": "btcusdt_binance", "_timeframe": "3m"}, 3)
+    assert profile_fit({}, {"_instrument": "mnq", "_timeframe": "3m"}, 3) is None           # pár bežiaceho nevieme: len TF
