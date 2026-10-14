@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Threading;
 using NinjaTrader.Cbi;
 using NinjaTrader.Data;
@@ -183,6 +184,9 @@ namespace NinjaTrader.NinjaScript.AddOns
         private string _pendingHash;
         private bool _pendingLogged;
         private int _controlEvents;
+        // pamat obchodov cez restart NT (TradeBot\state\<instancia>.json): naposledy zapisany obsah, chyba zapisu raz
+        private string _stateText;
+        private bool _stateWarned;
         private DateTime _controlChecked = DateTime.MinValue;
 
         public LiveInstance(LiveDeployment deployment)
@@ -266,6 +270,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                     catch (Exception e) { Note("error", "spracovanie barov zlyhalo - " + e); }
                     try { if (_live) ReleaseParked(); }   // pozicia uctu sa vynuluje o chvilu po fille vystupu
                     catch (Exception e) { Note("error", "odlozene vstupy - " + e.Message); }
+                    SaveState();
                     if ((DateTime.UtcNow - lastControl).TotalSeconds >= ControlPeriodSeconds)
                     {
                         lastControl = DateTime.UtcNow;
@@ -373,6 +378,9 @@ namespace NinjaTrader.NinjaScript.AddOns
             _account.ExecutionUpdate += _executionHandler;
 
             Replay();
+            // obchody spred restartu NT / AddOnu: pozicie s nasimi SL/TP sa prevezmu, cakajuce vstupy zrusia
+            try { RestoreState(); } catch (Exception e) { Note("error", "prevzatie obchodov spred restartu zlyhalo - " + e.Message); }
+            SaveState();
             return true;
         }
 
@@ -1064,6 +1072,233 @@ namespace NinjaTrader.NinjaScript.AddOns
             }
         }
 
+
+        // ------------------------------------------------------------------ //
+        // Pamat obchodov cez restart (docs/NINJATRADER.md): TradeBot\state\<instancia>.json
+        // ------------------------------------------------------------------ //
+        // NT sa restartuje (pad, restart Windows, nova generacia AddOnu po preklade) a nova instancia by o svojej
+        // pozicii nevedela: SL/TP by ostali na ucte, ale trailing, koniec seansy a denny limit by nebezali. Stav sa
+        // pise po kazdom kole vlakna (nezmeneny sa neprepisuje) a po starte (po predhistorii) sa zladi s uctom.
+
+        private string StatePath { get { return Path.Combine(TradeBotLiveAddOn.TradeBotDir, "state", _instance + ".json"); } }
+
+        private string StateJson()
+        {
+            TB.JsonWriter w = new TB.JsonWriter();
+            w.BeginObject();
+            w.Key("v").Value(1).Key("instance").Value(_instance).Key("account").Value(_account != null ? _account.Name : "");
+            w.Key("instrument").Value(_inst != null ? _inst.FullName : "").Key("bar_ms").Value(_lastBarMs);
+            w.Key("orders").BeginArray();
+            foreach (KeyValuePair<string, Tracked> kv in _orders)
+            {
+                Tracked t = kv.Value;
+                TB.TradePlan p = t.Intent != null ? t.Intent.Plan : null;
+                if (p == null || t.Parked || (!t.Filled && t.Entry == null)) continue;
+                w.BeginObject();
+                w.Key("id").Value(kv.Key).Key("ot").Value(TB.EnumText.Text(t.Intent.OrderType)).Key("filled").Value(t.Filled);
+                w.Key("open_qty").Value(t.OpenQty).Key("dir").Value((int)p.Direction).Key("e").Value(p.Entry);
+                w.Key("sl").Value(p.StopLoss).Key("tp").Value(p.TakeProfit).Key("q").Value(p.Qty).Key("sd").Value(p.SlDistance);
+                w.Key("extreme").Value(t.Extreme).Key("last_stop").Value(t.LastStop);
+                if (p.Trailing != null)
+                {
+                    w.Key("tr").BeginObject();
+                    w.Key("ap").Value(p.Trailing.ActivationPriceDistance).Key("op").Value(p.Trailing.OffsetPriceDistance);
+                    w.Key("at").Value(p.Trailing.ActivationTicks).Key("ot").Value(p.Trailing.OffsetTicks);
+                    w.EndObject();
+                }
+                w.EndObject();
+            }
+            w.EndArray();
+            w.Key("wins").BeginObject();
+            foreach (KeyValuePair<string, int> kv in _dailyWins) w.Key(kv.Key).Value(kv.Value);
+            w.EndObject();
+            w.Key("wins_seen").BeginObject();
+            foreach (KeyValuePair<string, int> kv in _dailyWinsSeen) w.Key(kv.Key).Value(kv.Value);
+            w.EndObject();
+            w.EndObject();
+            return w.ToString();
+        }
+
+        private void SaveState()
+        {
+            if (string.IsNullOrEmpty(_instance) || !_live) return;
+            try
+            {
+                string text = StateJson();
+                if (text == _stateText) return;
+                string path = StatePath;
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                string tmp = path + ".tmp";
+                File.WriteAllText(tmp, text, new UTF8Encoding(false));
+                if (File.Exists(path)) File.Replace(tmp, path, null); else File.Move(tmp, path);
+                _stateText = text;
+                _stateWarned = false;
+            }
+            catch (Exception e)
+            {
+                if (_stateWarned) return;
+                _stateWarned = true;
+                Note("warn", "stav obchodov sa neda zapisat (" + StatePath + ") - po restarte ich instancia neprevezme: " + e.Message);
+            }
+        }
+
+        /// <summary>Zive ordery uctu na nasom instrumente (meno -> order; pri zhode mena posledny).</summary>
+        private Dictionary<string, Order> AliveOrders(out int unnamed)
+        {
+            Dictionary<string, Order> res = new Dictionary<string, Order>();
+            unnamed = 0;
+            lock (_account.Orders)
+                foreach (Order o in _account.Orders)
+                {
+                    if (o == null || o.Instrument == null || o.Instrument.FullName != _inst.FullName || !Alive(o)) continue;
+                    if (string.IsNullOrEmpty(o.Name)) unnamed++;
+                    else res[o.Name] = o;
+                }
+            return res;
+        }
+
+        /// <summary>Order uctu s danym menom na nasom instrumente v akomkolvek stave (posledny).</summary>
+        private Order OrderNamed(string name)
+        {
+            Order found = null;
+            lock (_account.Orders)
+                foreach (Order o in _account.Orders)
+                    if (o != null && o.Instrument != null && o.Instrument.FullName == _inst.FullName && o.Name == name) found = o;
+            return found;
+        }
+
+        private static void RestoreWins(Dictionary<string, object> root, string key, Dictionary<string, int> into)
+        {
+            object raw;
+            Dictionary<string, object> d = root.TryGetValue(key, out raw) ? raw as Dictionary<string, object> : null;
+            if (d == null) return;
+            foreach (KeyValuePair<string, object> kv in d)
+                if (kv.Value is double) into[kv.Key] = (int)(double)kv.Value;
+        }
+
+        /// <summary>Po predhistorii: stav spred restartu zladit s uctom. Zdroj pravdy je ucet (pozicia, zive ordery);
+        /// stav dava plan (SL, TP, trailing), ktory na ucte nie je. Vyplneny vstup s otvorenou poziciou a svojimi
+        /// `id:sl`/`id:tp` sa prevezme; vstup, ktory sa vyplnil pocas vypadku (bez vystupov), dostane SL/TP znova;
+        /// cakajuci vstup sa zrusi (engine o nom po predhistorii nevie). Ked su na instrumente zive ordery, ktore
+        /// nevieme priradit, nove vystupy sa nekladu (mohli by poziciu otocit) - len varovanie.</summary>
+        private void RestoreState()
+        {
+            if (!File.Exists(StatePath)) return;
+            Dictionary<string, object> root = TB.Json.ParseObject(File.ReadAllText(StatePath));
+            string inst = TB.Json.GetString(root, "instrument", "");
+            if (inst != _inst.FullName)
+            {
+                Log("stav " + StatePath + " je z ineho instrumentu (" + inst + ") - neprebera sa");
+                return;
+            }
+            RestoreWins(root, "wins", _dailyWins);
+            RestoreWins(root, "wins_seen", _dailyWinsSeen);
+            long savedBarMs = (long)TB.Json.GetDouble(root, "bar_ms", 0);
+            object raw;
+            List<object> list = root.TryGetValue("orders", out raw) ? raw as List<object> : null;
+            if (list == null || list.Count == 0) return;
+
+            int unnamed;
+            Dictionary<string, Order> alive = AliveOrders(out unnamed);
+            HashSet<string> known = new HashSet<string>();
+            foreach (object o in list)
+            {
+                Dictionary<string, object> d = o as Dictionary<string, object>;
+                string id = d != null ? TB.Json.GetString(d, "id", "") : "";
+                if (id.Length == 0) continue;
+                known.Add(id); known.Add(id + ":sl"); known.Add(id + ":tp");
+            }
+            int foreign = unnamed;
+            foreach (string name in alive.Keys)
+            {
+                int colon = name.LastIndexOf(':');
+                if (!known.Contains(name) && !(colon > 0 && known.Contains(name.Substring(0, colon)))) foreign++;
+            }
+
+            int position = AccountPosition();
+            int adopted = 0, cancelled = 0, closedAway = 0, unprotected = 0;
+            foreach (object o in list)
+            {
+                Dictionary<string, object> d = o as Dictionary<string, object>;
+                if (d == null) continue;
+                string id = TB.Json.GetString(d, "id", "");
+                if (id.Length == 0 || _orders.ContainsKey(id)) continue;
+                bool filled = TB.Json.GetBool(d, "filled", false);
+                Order entry = OrderNamed(id);
+                int qty;
+                if (filled) qty = (int)TB.Json.GetDouble(d, "open_qty", 0);
+                else if (entry != null && entry.OrderState == OrderState.Filled) qty = entry.Filled;   // vyplnil sa pocas vypadku
+                else
+                {
+                    if (entry != null && Alive(entry)) { CancelOrder(entry); cancelled++; }
+                    continue;
+                }
+                int dir = (int)TB.Json.GetDouble(d, "dir", 1) >= 0 ? 1 : -1;
+                int avail = dir > 0 ? Math.Max(0, position) : Math.Max(0, -position);
+                if (qty <= 0 || avail <= 0) { closedAway++; continue; }   // pozicia pocas vypadku skoncila (fill v historii uctu)
+                qty = Math.Min(qty, avail);
+                position -= dir * qty;
+
+                TB.TrailingPlan trail = null;
+                Dictionary<string, object> tr = d.TryGetValue("tr", out raw) ? raw as Dictionary<string, object> : null;
+                if (tr != null)
+                    trail = new TB.TrailingPlan(TB.Json.GetDouble(tr, "ap", 0), TB.Json.GetDouble(tr, "op", 0),
+                                                TB.Json.GetDouble(tr, "at", 0), TB.Json.GetDouble(tr, "ot", 0));
+                TB.TradePlan plan = new TB.TradePlan(dir > 0 ? TB.Direction.Long : TB.Direction.Short, TB.Json.GetDouble(d, "e", 0),
+                                                     TB.Json.GetDouble(d, "sl", 0), TB.Json.GetDouble(d, "tp", 0),
+                                                     TB.Json.GetDouble(d, "q", qty), TB.Json.GetDouble(d, "sd", 0), trail);
+                TB.OrderIntent intent = new TB.OrderIntent(TB.OrderAction.Entry, id, 0, "prevzaty po restarte");
+                intent.Plan = plan;
+                intent.Direction = plan.Direction;
+                intent.OrderType = TB.EnumText.Order(TB.Json.GetString(d, "ot", "Limit"));
+
+                Tracked t = new Tracked();
+                t.Intent = intent;
+                t.Entry = entry;
+                t.Filled = true;
+                t.OpenQty = qty;
+                t.LastStop = filled ? TB.Json.GetDouble(d, "last_stop", plan.StopLoss) : plan.StopLoss;
+                object ex;
+                if (filled && d.TryGetValue("extreme", out ex) && ex is double) t.Extreme = (double)ex;
+                // trailing: najlepsia cena z barov, ktore pocas vypadku presli (z predhistorie, co sa prave prehrala)
+                if (trail != null && savedBarMs > 0 && _chart != null)
+                    lock (_chart.Gate)
+                        foreach (Candle c in _chart.Bars)
+                        {
+                            if (c == null || ToMs(c.Time) - _stepMs <= savedBarMs) continue;
+                            double prev = t.Extreme.HasValue ? t.Extreme.Value : plan.Entry;
+                            t.Extreme = dir > 0 ? Math.Max(prev, c.High) : Math.Min(prev, c.Low);
+                        }
+                Order sl, tp;
+                alive.TryGetValue(id + ":sl", out sl);
+                alive.TryGetValue(id + ":tp", out tp);
+                _orders[id] = t;
+                adopted++;
+                if (sl != null && tp != null)
+                {
+                    t.Sl = sl;
+                    t.Tp = tp;
+                    if (sl.StopPrice > 0) t.LastStop = sl.StopPrice;   // ucet je zdroj pravdy (trailing pred restartom)
+                    continue;
+                }
+                if (foreign > 0)
+                {
+                    // nevieme, ci niektory z neznamych orderov nie je jej vystup - nove SL/TP by mohli poziciu otocit
+                    unprotected++;
+                    if (sl != null) t.Sl = sl;
+                    if (tp != null) t.Tp = tp;
+                    continue;
+                }
+                if (sl != null) CancelOrder(sl);
+                if (tp != null) CancelOrder(tp);
+                EnsureExits(id, t);
+            }
+            if (adopted + cancelled + closedAway == 0) return;
+            Note(unprotected > 0 ? "warn" : "info", "po restarte prevzatych " + adopted + " pozicii, " + closedAway + " skoncilo pocas vypadku, "
+                 + cancelled + " cakajucich vstupov zrusenych" + (unprotected > 0 ? "; " + unprotected + " bez vlastnych SL/TP - na instrumente su "
+                 + foreign + " nezname zive ordery, nove vystupy sa nekladu (skontroluj ucet)" : ""));
+        }
+
         // ------------------------------------------------------------------ //
         // Control subor (docs/LIVE.md, faza 2): mode + profil; profil sa meni len flat, s prehratim historie
         // ------------------------------------------------------------------ //
@@ -1287,6 +1522,7 @@ namespace NinjaTrader.NinjaScript.AddOns
                 }
             }
             catch (Exception e) { Log("rusenie vstupov: " + e.Message); }
+            SaveState();
             DisposeSeries(_chart);
             DisposeSeries(_htfSeries);
             if (_spool != null)

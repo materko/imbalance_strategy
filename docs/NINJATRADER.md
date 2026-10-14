@@ -377,8 +377,15 @@ aj `deploy/agent/install-agent.ps1`, a keď na stroji predsa chýba, agent si ju
 - Bez grafu, bez kreslenia; Playback Connection nie je podporovaný (čas z `Globals.Now` a `BarsRequest`
   na Playback neoverené).
 - Seedované indikátory (Supertrend/ADX na vlastnom TF) sa nesejú — rozbehnú sa na histórii grafu ako v Strategy.
-- Pozícia z predošlého behu / z grafu sa neprevezme: AddOn ju len rešpektuje (žiadny druhý vstup, engine ju vidí),
-  jej SL/TP ostávajú na účte, trailing pre ňu nepokračuje.
+- **Pozícia z predošlého behu AddOnu sa prevezme** (reštart NT, pád, nová generácia po preklade): inštancia píše
+  stav do `TradeBot\state\<inštancia>.json` (sledované vstupy s plánom — SL, TP, trailing, extrém, posledný stop —,
+  posledný bar, denný limit výhier; po každom kole vlákna, nezmenený sa neprepisuje) a po štarte ho po predhistórii
+  zladí s účtom (`RestoreState`): vyplnený vstup s otvorenou pozíciou a živými `id:sl`/`id:tp` sa prevezme (SL z
+  ordera — trailing pred reštartom), extrém trailingu dobehne bary z výpadku; vstup, ktorý sa vyplnil počas výpadku,
+  dostane SL/TP znova; čakajúci vstup sa zruší. Keď sú na inštrumente živé ordery, ktoré sa nedajú priradiť (iné
+  mená), nové SL/TP sa neklademe (mohli by pozíciu otočiť) — `note warn` do spoolu. Pozíciu z grafu / ručnú AddOn
+  len rešpektuje (žiadny druhý vstup, engine ju vidí). **Neoverené naživo** — najmä či NT po reštarte vráti mená
+  pracujúcich orderov (`Order.Name`); typová kontrola prešla len proti náhradám typov NT, nie proti NT.
 - Dve inštancie tej istej stratégie na tom istom účte a inštrumente (iný TF) by si mohli pomiešať mená
   orderov (id z enginu sa môžu zhodovať) — nerob to.
 - Ako v každom živom adaptéri: dve limitky vyplnené v tej istej sekunde, skôr než príde zrušenie, dajú dve pozície.
