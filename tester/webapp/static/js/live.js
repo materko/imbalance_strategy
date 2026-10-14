@@ -753,7 +753,7 @@ function renderLiveDeploy() {
       return `<tr class="plain" data-dep="${esc(d.id)}">
         <td>${ldStatusChip(d)}</td>
         <td title="účet ${esc(d.account)} na stroji ${esc(d.agent || "?")}">${esc(acc.label || d.account)} <span class="muted small">${esc(d.agent || "")}</span></td>
-        <td>${esc(d.strategy)}</td><td><b>${esc(d.symbol)}</b></td><td>${d.tf}m</td>
+        <td>${esc(d.strategy)}${d.slot ? ` <span class="chip" title="slot nasadenia v id inštancie">${esc(d.slot)}</span>` : ""}${d.own_terminal ? ` <span class="muted small" title="vlastný (portable) terminál len pre toto nasadenie">vlastný terminál</span>` : ""}</td><td><b>${esc(d.symbol)}</b></td><td>${d.tf}m</td>
         <td><select class="small ld-profile" ${dis} title="zmena profilu: aplikuje sa, až keď je stratégia bez pozície">${ldProfileOptions(d.strategy, d.profile)}</select></td>
         <td><span class="chip ${d.mode === "enabled" ? "ok" : (d.mode === "flatten" ? "bad" : "warn")}">${esc(LD_MODE_LABEL[d.mode] || d.mode)}</span></td>
         <td>${ldAppliedCell(d)}</td>
@@ -885,21 +885,30 @@ function ldFillAgents() {
     || `<option value="">— žiadny stroj s ${esc((LD_PLATFORMS[platform] || {}).title || "platformou")} —</option>`;
   if (cur && agents.some(a => a.name === cur)) sel.value = cur;
   sel.onchange = () => { ldTerminalHint(); ldCodeHint(); };
+  $("#ld-d-own").onchange = ldTerminalHint;
   ldTerminalHint();
 }
 
-/** MT5: účet beží na stroji v jednom termináli — keď už tam nejaké nasadenie má, nové ide do toho istého. */
+/** MT5: účet beží na stroji v jednom spoločnom termináli — keď už tam nejaké nasadenie má, nové ide do toho istého;
+ *  s „vlastný terminál" dostane stratégia vlastnú portable kópiu a terminál/portable sa nevypĺňa. */
 function ldTerminalHint() {
   const box = $("#ld-d-terminal-hint");
   const acc = ld.accounts.find(a => a.id === $("#ld-d-account").value);
   const agent = $("#ld-d-agent").value;
   const term = $("#ld-d-terminal"), port = $("#ld-d-portable");
+  if ($("#ld-d-own").checked && acc && (LD_PLATFORMS[acc.platform] || {}).terminal) {
+    term.disabled = port.disabled = true;
+    box.textContent = `Vlastný terminál: driver na stroji ${agent || "?"} spraví portable kópiu terminálu len pre túto stratégiu `
+      + `(tester/live/mt5/<účet>/units/<nasadenie>/). Jej pridanie ani odobratie nereštartuje ostatné stratégie účtu.`;
+    box.hidden = false;
+    return;
+  }
   const iny = acc && (LD_PLATFORMS[acc.platform] || {}).terminal
-    && ld.deployments.find(d => d.account === acc.id && d.agent === agent && d.active);
+    && ld.deployments.find(d => d.account === acc.id && d.agent === agent && d.active && !d.own_terminal);
   term.disabled = port.disabled = !!iny;
   if (iny) {
     term.value = iny.terminal || ""; port.checked = !!iny.portable;
-    box.textContent = `Účet už na stroji ${agent} beží v termináli ${iny.terminal || "nainštalovanom"}${iny.portable ? " (portable)" : ""} — ďalšie nasadenie pôjde do toho istého ako ďalší graf. Pridanie reštartuje terminál so všetkými grafmi účtu a EA po štarte neprevezme pozície ani čakajúce ordery — ostatné nasadenia účtu najprv daj do pauzy a počkaj, kým sú flat (docs/MT5.md, „Viac stratégií na jednom serveri“).`;
+    box.textContent = `Účet už na stroji ${agent} beží v termináli ${iny.terminal || "nainštalovanom"}${iny.portable ? " (portable)" : ""} — ďalšie nasadenie pôjde do toho istého ako ďalší graf. Pridanie reštartuje terminál so všetkými grafmi účtu (EA si otvorené pozície po štarte prevezme, čakajúce vstupy zruší); bez reštartu ostatných = „vlastný terminál“.`;
     box.hidden = false;
   } else {
     if (term.dataset.locked) { term.value = ""; port.checked = false; }
@@ -952,14 +961,16 @@ function ldSetupForms() {
       const mt5 = acc && (LD_PLATFORMS[acc.platform] || {}).terminal;
       const body = { account: $("#ld-d-account").value, agent: $("#ld-d-agent").value, strategy: $("#ld-d-strategy").value,
         symbol: $("#ld-d-symbol").value.trim(), tf: Number($("#ld-d-tf").value) || 0, profile: $("#ld-d-profile").value,
-        mode: $("#ld-d-mode").value || "paused", terminal: mt5 ? $("#ld-d-terminal").value.trim() : "",
-        portable: mt5 ? $("#ld-d-portable").checked : false, user: ldUser() };
+        mode: $("#ld-d-mode").value || "paused", user: ldUser() };
+      const own = !!mt5 && $("#ld-d-own").checked;
+      Object.assign(body, { own_terminal: own, slot: mt5 ? $("#ld-d-slot").value.trim() : "",
+        terminal: mt5 && !own ? $("#ld-d-terminal").value.trim() : "", portable: mt5 && !own ? $("#ld-d-portable").checked : false });
       if (!body.account) throw new Error("vyber účet");
       if (!body.agent) throw new Error("vyber stroj, na ktorom má stratégia bežať");
       if (!body.strategy) throw new Error("vyber stratégiu s C# jadrom");
       const d = await api("/api/live/deployments", { method: "POST", body: JSON.stringify(body) });
       $("#ld-d-status").textContent = `nasadené: ${d.symbol} ${d.tf}m → ${d.instance} na ${d.agent} (agent si to vezme v najbližšom heartbeate${d.mode === "paused" ? "; štartuje pauznuté — zapni v tabuľke" : ""})${ldCodeUpdateNote(d.code_update)}`;
-      $("#ld-d-symbol").value = ""; $("#ld-d-tf").value = "";
+      $("#ld-d-symbol").value = ""; $("#ld-d-tf").value = ""; $("#ld-d-slot").value = "";
       await loadLiveDeploy();
     } catch (e) { $("#ld-d-error").textContent = e.message; $("#ld-d-error").hidden = false; $("#ld-d-status").textContent = ""; }
     finally { btn.disabled = !ld.admin; }

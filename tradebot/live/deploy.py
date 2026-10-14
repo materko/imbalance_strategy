@@ -36,7 +36,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Callable
 
-from .schema import CONTROL_MODES, instance_id, instance_symbol
+from .schema import CONTROL_MODES, SLOT_RE, instance_id, instance_symbol
 from .vault import Vault, VaultError
 
 __all__ = ["DeployStore", "DeployError", "Conflict", "NotFound", "config_hash", "account_identity", "ACCOUNT_IDENTITY",
@@ -69,6 +69,8 @@ CREATE TABLE IF NOT EXISTS deployments (
     mode        TEXT NOT NULL DEFAULT 'enabled',
     active      INTEGER NOT NULL DEFAULT 1,
     instance    TEXT NOT NULL DEFAULT '',
+    slot        TEXT NOT NULL DEFAULT '',
+    own_terminal INTEGER NOT NULL DEFAULT 0,
     version     TEXT NOT NULL DEFAULT '',
     created     REAL NOT NULL,
     updated     REAL NOT NULL,
@@ -115,9 +117,11 @@ DEFAULT_MODE = "paused"
 
 #: Platformy účtov a čo k prihláseniu potrebujú. `password` = heslo ide na stroj (MT5); NinjaTrader sa
 #: prihlasuje zapamätaným loginom NT, heslo účtu nemá. Terminál (MT5) je vec stroja — je v nasadení.
+#: `slot` = platforma vie rozlíšiť viac nasadení tej istej stratégie na účte, symbole a TF (EA `InpSlot`);
+#: `own_terminal` = nasadenie môže bežať vo vlastnom (portable) termináli.
 PLATFORMS: dict[str, dict[str, Any]] = {
-    "mt5": {"title": "MetaTrader 5", "password": True, "terminal": True},
-    "ninjatrader": {"title": "NinjaTrader 8", "password": False, "terminal": False},
+    "mt5": {"title": "MetaTrader 5", "password": True, "terminal": True, "slot": True, "own_terminal": True},
+    "ninjatrader": {"title": "NinjaTrader 8", "password": False, "terminal": False, "slot": False, "own_terminal": False},
 }
 
 _ACCOUNT_FIELDS = ("platform", "label", "login", "server")
@@ -125,12 +129,15 @@ _ACCOUNT_FIELDS = ("platform", "label", "login", "server")
 _LOGIN_FIELDS = ("platform", "login", "server")
 _ACCOUNT_COLS = ("id", *_ACCOUNT_FIELDS, "rev", "created", "updated", "by")
 _DEPLOYMENT_COLS = ("id", "account", "agent", "strategy", "symbol", "tf", "profile", "config", "config_hash",
-                    "mode", "active", "instance", "version", "terminal", "portable", "created", "updated", "by")
+                    "mode", "active", "instance", "slot", "own_terminal", "version", "terminal", "portable", "created",
+                    "updated", "by")
 #: Stĺpce, ktoré pribudli po prvom vydaní — `ALTER TABLE` pri otvorení starého súboru.
 _MIGRATIONS = (("deployments", "version", "TEXT NOT NULL DEFAULT ''"),
                ("deployments", "agent", "TEXT NOT NULL DEFAULT ''"),
                ("deployments", "terminal", "TEXT NOT NULL DEFAULT ''"),
                ("deployments", "portable", "INTEGER NOT NULL DEFAULT 0"),
+               ("deployments", "slot", "TEXT NOT NULL DEFAULT ''"),
+               ("deployments", "own_terminal", "INTEGER NOT NULL DEFAULT 0"),
                ("accounts", "rev", "TEXT NOT NULL DEFAULT ''"),
                ("accounts", "secret_enc", "TEXT"),
                ("accounts", "secret_rev", "TEXT NOT NULL DEFAULT ''"))
@@ -291,6 +298,7 @@ class DeployStore:
         d["config"] = json.loads(d["config"] or "{}")
         d["active"] = bool(d["active"])
         d["portable"] = bool(d["portable"])
+        d["own_terminal"] = bool(d["own_terminal"])
         return d
 
     @staticmethod
@@ -423,9 +431,9 @@ class DeployStore:
 
     def _recompute_instances(self, account_id: str) -> None:
         acc = dict(self._account_or_404(account_id))
-        for r in self._db.execute("SELECT id, symbol, tf, strategy FROM deployments WHERE account = ?", (account_id,)):
+        for r in self._db.execute("SELECT id, symbol, tf, strategy, slot FROM deployments WHERE account = ?", (account_id,)):
             inst = instance_id(acc["platform"], account_identity(acc), instance_symbol(acc["platform"], r["symbol"]),
-                               int(r["tf"]), r["strategy"])
+                               int(r["tf"]), r["strategy"], r["slot"] or "")
             self._db.execute("UPDATE deployments SET instance = ? WHERE id = ?", (inst, r["id"]))
 
     def delete_account(self, account_id: str, by: str, force: bool = False) -> dict[str, Any]:
@@ -512,62 +520,77 @@ class DeployStore:
         if mode not in CONTROL_MODES:
             raise DeployError(f"mode musí byť {'/'.join(CONTROL_MODES)}")
         profile = str(data.get("profile") or "").strip()
+        slot = str(data.get("slot") or "").strip()
+        if slot and not SLOT_RE.match(slot):
+            raise DeployError(f"slot {slot!r}: písmená, číslice a pomlčka, najviac 16 znakov (napr. b, agresivny)")
+        own_terminal = bool(data.get("own_terminal"))
         config = self._resolve_config(strategy, profile, data.get("config"))
         with self._lock, self._db:
             acc = dict(self._account_or_404(account_id))
+            schopnosti = PLATFORMS.get(acc["platform"], {})
+            if slot and not schopnosti.get("slot"):
+                raise DeployError(f"slot vie len MetaTrader 5 — účet {account_id!r} je {acc['platform']}")
+            if own_terminal and not schopnosti.get("own_terminal"):
+                raise DeployError(f"vlastný terminál vie len MetaTrader 5 — účet {account_id!r} je {acc['platform']}")
             # stroj z nasadenia; starý klient ho neposiela — vtedy stroj, na ktorý bol účet kedysi viazaný
             agent = str(data.get("agent") or "").strip() or str(acc.get("agent") or "").strip()
             if not agent:
                 raise DeployError("nasadenie potrebuje stroj (agenta), na ktorom má bežať")
             terminal, portable = "", 0
-            if PLATFORMS.get(acc["platform"], {}).get("terminal"):
+            if schopnosti.get("terminal") and not own_terminal:
                 terminal = str(data.get("terminal") or "").strip()
                 portable = 1 if data.get("portable") else 0
-                # jeden účet = jeden terminál na stroji: ďalšie nasadenie musí ísť do toho istého
+                # jeden účet = jeden spoločný terminál na stroji: ďalšie nasadenie musí ísť do toho istého
+                # (nasadenia s vlastným terminálom sa nepočítajú — každé má svoju portable kópiu)
                 iny = self._db.execute("SELECT terminal, portable FROM deployments WHERE account = ? AND agent = ? "
-                                       "AND active = 1 AND (terminal != ? OR portable != ?) LIMIT 1",
+                                       "AND active = 1 AND own_terminal = 0 AND (terminal != ? OR portable != ?) LIMIT 1",
                                        (account_id, agent, terminal, portable)).fetchone()
                 if iny is not None:
                     raise Conflict(f"účet {account_id!r} už na stroji {agent} beží v termináli "
                                    f"{iny['terminal'] or 'nainštalovanom'}{' (portable)' if iny['portable'] else ''} — "
                                    f"ďalšie nasadenie musí ísť do toho istého")
-            inst = instance_id(acc["platform"], account_identity(acc), instance_symbol(acc["platform"], symbol), tf, strategy)
-            dup = self._db.execute("SELECT id, agent, profile, active FROM deployments WHERE instance = ?",
+            inst = instance_id(acc["platform"], account_identity(acc), instance_symbol(acc["platform"], symbol), tf, strategy,
+                               slot)
+            dup = self._db.execute("SELECT id, agent, profile, active, slot FROM deployments WHERE instance = ?",
                                    (inst,)).fetchone()
             if dup is not None:
-                raise Conflict(self._duplicate_text(dup, agent, strategy, symbol, tf, inst))
+                raise Conflict(self._duplicate_text(dup, agent, strategy, symbol, tf, inst, bool(schopnosti.get("slot"))))
             now = self.clock()
             dep_id = str(data.get("id") or "").strip() or uuid.uuid4().hex[:12]
             row = {"id": dep_id, "account": account_id, "agent": agent, "strategy": strategy, "symbol": symbol,
                    "tf": tf, "profile": profile, "config": json.dumps(config, ensure_ascii=False, sort_keys=True),
                    "config_hash": config_hash(config), "mode": mode, "active": 1, "instance": inst,
+                   "slot": slot, "own_terminal": 1 if own_terminal else 0,
                    "version": str(data.get("version") or "").strip() or self.version(),
                    "terminal": terminal, "portable": portable, "created": now, "updated": now, "by": by or ""}
             self._db.execute(
                 "INSERT INTO deployments (id, account, agent, strategy, symbol, tf, profile, config, config_hash, "
-                "mode, active, instance, version, terminal, portable, created, updated, by) VALUES (:id, :account, "
-                ":agent, :strategy, :symbol, :tf, :profile, :config, :config_hash, :mode, :active, :instance, "
-                ":version, :terminal, :portable, :created, :updated, :by)", row)
+                "mode, active, instance, slot, own_terminal, version, terminal, portable, created, updated, by) VALUES "
+                "(:id, :account, :agent, :strategy, :symbol, :tf, :profile, :config, :config_hash, :mode, :active, "
+                ":instance, :slot, :own_terminal, :version, :terminal, :portable, :created, :updated, :by)", row)
             self._audit(by, "deployment_create", account=account_id, deployment=dep_id,
                         new={k: v for k, v in row.items() if k != "config"})
         return self.deployment(dep_id)  # type: ignore[return-value]
 
     @staticmethod
-    def _duplicate_text(dup: sqlite3.Row, agent: str, strategy: str, symbol: str, tf: int, inst: str) -> str:
+    def _duplicate_text(dup: sqlite3.Row, agent: str, strategy: str, symbol: str, tf: int, inst: str,
+                        slots: bool = False) -> str:
         """Prečo druhé nasadenie tej istej inštancie nejde a čo s tým — inštancia nepozná stroj, ten istý účet
-        so stratégiou na symbole a TF by na dvoch strojoch obchodoval dvakrát a spool by sa zlial do jedného."""
-        co = f"{strategy} {symbol} {tf}m na tomto účte"
+        so stratégiou na symbole a TF by na dvoch strojoch obchodoval dvakrát a spool by sa zlial do jedného.
+        Druhé nasadenie s iným profilom ide so slotom (platforma, ktorá ho vie)."""
+        co = f"{strategy} {symbol} {tf}m{' slot ' + dup['slot'] if dup['slot'] else ''} na tomto účte"
+        slot_rada = (" Ak má bežať popri ňom (napr. s iným profilom), zadaj nasadeniu slot (napr. b)." if slots else "")
         kde = f"na stroji {dup['agent'] or '?'}"
         if not dup["active"]:
             rada = (f"je odstránené {kde} (nasadenie {dup['id']}) — v tabuľke Nasadenia ho zmaž (tlačidlo „zmazať“) "
                     f"a potom nasaď znova")
         elif dup["agent"] == agent:
             rada = (f"už beží {kde} (nasadenie {dup['id']}, profil {dup['profile'] or '—'}) — iný profil mu zmeníš "
-                    f"v tabuľke Nasadenia, druhé také isté nasadenie na tom istom účte nejde")
+                    f"v tabuľke Nasadenia.{slot_rada}")
         else:
             rada = (f"už beží {kde} (nasadenie {dup['id']}, profil {dup['profile'] or '—'}) — na jednom účte môže bežať "
                     f"len raz, inak by obchodovalo dvakrát; na presun na stroj {agent} ho najprv v tabuľke Nasadenia "
-                    f"odstráň (a po potvrdení strojom {dup['agent'] or '?'} zmaž), potom nasaď tu")
+                    f"odstráň (a po potvrdení strojom {dup['agent'] or '?'} zmaž), potom nasaď tu.{slot_rada}")
         return f"{co} {rada} (inštancia {inst})"
 
     def update_deployment(self, dep_id: str, patch: dict[str, Any], by: str) -> dict[str, Any]:
@@ -575,7 +598,8 @@ class DeployStore:
         (commit, na ktorom zadávateľ zmenu urobil); účet, stratégia, symbol a TF sú identita inštancie,
         stroj a terminál miesto behu — na iné treba nové nasadenie."""
         patch = dict(patch or {})
-        zakazane = [k for k in ("account", "agent", "strategy", "symbol", "tf", "instance", "terminal", "portable")
+        zakazane = [k for k in ("account", "agent", "strategy", "symbol", "tf", "instance", "terminal", "portable",
+                                "slot", "own_terminal")
                     if k in patch and patch[k] is not None]
         if zakazane:
             raise DeployError(f"{', '.join(zakazane)} sa nemení — sprav nové nasadenie")
@@ -645,7 +669,9 @@ class DeployStore:
                     continue
                 a: dict[str, Any] = {k: r[k] for k in ("id", "platform", "label", "login", "server", "rev")}
                 vlastne = [d for d in deps if d["account"] == acc_id]
-                miesto = next((d for d in vlastne if d["active"]), vlastne[0])
+                # terminál účtu = spoločný terminál; nasadenia s vlastným terminálom ho neurčujú
+                spolocne = [d for d in vlastne if not d["own_terminal"]] or vlastne
+                miesto = next((d for d in spolocne if d["active"]), spolocne[0])
                 a["terminal"], a["portable"] = miesto["terminal"], miesto["portable"]
                 if r["secret_enc"]:
                     sent = self._db.execute("SELECT rev FROM secret_sent WHERE account = ? AND agent = ?",

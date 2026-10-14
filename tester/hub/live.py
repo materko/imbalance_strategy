@@ -140,6 +140,10 @@ class DeploymentRequest(BaseModel):
     mode: str = DEFAULT_MODE
     #: Commit, na ktorom zadávateľ (webapp) stojí — bez neho commit hubu (fáza 2c).
     version: str | None = None
+    #: MT5: rozlišovač v id inštancie — viac nasadení tej istej stratégie na účte, symbole a TF (iné profily).
+    slot: str = ""
+    #: MT5: nasadenie beží vo vlastnom (portable) termináli namiesto spoločného terminálu účtu na stroji.
+    own_terminal: bool = False
 
 
 class DeploymentPatch(BaseModel):

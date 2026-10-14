@@ -19,6 +19,10 @@
 // pozna zo slotu), `SpoolBar` napise posledny bar z `OnBar`, `SpoolFill`/`SpoolModify` (posun SL/TP
 // adapterom, napr. trailing)/`SpoolNote`/`SpoolClose` zvysok;
 // `Destroy` zavrie spool, ak ostal otvoreny. Chyba spoolu strategiu nezhodi: -1 a text v `LastError()`.
+//
+// Verzia 3: `SpoolOpenSlot`/`InstanceIdSlot` - slot nasadenia v id instancie (viac nasadeni tej istej strategie
+// na tom istom ucte, symbole a TF s roznymi profilmi, docs/MT5.md). Nove mena, nie pretazenie: MQL5 aj reflexia
+// v testoch hladaju metodu podla mena.
 using System;
 using System.Collections.Generic;
 using TradeBot.Core;
@@ -53,7 +57,7 @@ public static class StaticHost
     }
 
     /// <summary>Verzia fasady - hostitel si ju overi, kym zacne (zmena kontraktu = ina verzia).</summary>
-    public static int Version() { return 2; }
+    public static int Version() { return 3; }
 
     /// <summary>Kluce C# strategii v tejto assembly, oddelene ciarkou.</summary>
     public static string Strategies()
@@ -196,12 +200,19 @@ public static class StaticHost
     /// config a instrument berie zo slotu. Vrati 1, alebo -1 (chyba v `LastError`; engine bezi dalej).</summary>
     public static int SpoolOpen(int handle, string root, string platform, string account, string symbol, string profile, bool tester)
     {
+        return SpoolOpenSlot(handle, root, platform, account, symbol, profile, tester, "");
+    }
+
+    /// <summary>`SpoolOpen` so slotom nasadenia v id instancie (prazdny = bez neho).</summary>
+    public static int SpoolOpenSlot(int handle, string root, string platform, string account, string symbol, string profile,
+                                    bool tester, string slot)
+    {
         try
         {
             Slot s = Get(handle);
             if (s.Spool != null) { s.Spool.Close("reopen"); s.Spool = null; }
             LiveSpool sp = new LiveSpool(root, platform, account, symbol, s.Host.Engine.ChartTfMinutes, s.Host.Key,
-                                         profile, tester, s.Host.Config, s.Host.Instrument);
+                                         profile, tester, s.Host.Config, s.Host.Instrument, slot ?? "");
             if (sp.Broken) { FailSpool(sp); return -1; }
             s.Spool = sp;
             return 1;
@@ -290,7 +301,13 @@ public static class StaticHost
     /// <summary>To iste bez spoolu (Strategy Tester, telemetria vypnuta): id z tych istych poli.</summary>
     public static string InstanceId(string platform, string account, string symbol, int tfMinutes, string strategy)
     {
-        try { return LiveSpool.InstanceId(platform, account, symbol, tfMinutes, strategy); }
+        return InstanceIdSlot(platform, account, symbol, tfMinutes, strategy, "");
+    }
+
+    /// <summary>`InstanceId` so slotom nasadenia (prazdny = bez neho).</summary>
+    public static string InstanceIdSlot(string platform, string account, string symbol, int tfMinutes, string strategy, string slot)
+    {
+        try { return LiveSpool.InstanceId(platform, account, symbol, tfMinutes, strategy, slot ?? ""); }
         catch (Exception e) { Fail(e); return ""; }
     }
 

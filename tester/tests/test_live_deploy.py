@@ -197,6 +197,48 @@ def test_ta_ista_instancia_na_inom_stroji_povie_kde_bezi_a_ako_presunut(store: D
     assert store.create_deployment({**base, "agent": "nas-win11"}, by="r")["agent"] == "nas-win11"
 
 
+def test_slot_dovoli_tu_istu_strategiu_s_inym_profilom(store: DeployStore):
+    """Slot (docs/MT5.md): druhé nasadenie tej istej stratégie na účte, symbole a TF s iným profilom — iná inštancia
+    `…_orbnet_b`; slot je identita (nemení sa), vie ho len MT5 a chyba pri kolízii ho poradí."""
+    a = _acc(store)
+    base = {"account": a["id"], "agent": "nas-win11", "strategy": "orbnet", "symbol": "NAS100", "tf": 3}
+    prvy = store.create_deployment({**base, "profile": "p1"}, by="r")
+    with pytest.raises(Conflict, match=r"zadaj nasadeniu slot"):
+        store.create_deployment({**base, "profile": "p2"}, by="r")
+    druhy = store.create_deployment({**base, "profile": "p2", "slot": "b"}, by="r")
+    assert druhy["slot"] == "b" and druhy["instance"] == prvy["instance"] + "_b"
+    assert druhy["instance"] == instance_id("mt5", "5012345-ICMarkets-Demo", "NAS100", 3, "orbnet", "b")
+    with pytest.raises(Conflict, match=r"slot b na tomto účte už beží"):
+        store.create_deployment({**base, "profile": "p1", "slot": "b"}, by="r")
+    for zly in ("a_b", "x" * 17, "č"):
+        with pytest.raises(DeployError, match="slot"):
+            store.create_deployment({**base, "slot": zly, "profile": "p1"}, by="r")
+    with pytest.raises(DeployError):
+        store.update_deployment(druhy["id"], {"slot": "c"}, by="r")
+    nt = store.upsert_account({"platform": "ninjatrader", "label": "NT", "login": "Sim101"}, by="r")
+    with pytest.raises(DeployError, match="slot vie len MetaTrader 5"):
+        store.create_deployment({**base, "account": nt["id"], "slot": "b", "profile": "p1"}, by="r")
+    agent = store.desired_for_agent("nas-win11")["deployments"]
+    assert sorted(d["slot"] for d in agent) == ["", "b"]
+
+
+def test_vlastny_terminal_nema_terminal_uctu_a_neblokuje_spolocny(store: DeployStore):
+    """`own_terminal`: nasadenie ide do vlastnej portable kópie — terminál/portable sa mu neukladá, pravidlo „jeden
+    spoločný terminál účtu na stroji“ sa ho netýka a terminál účtu v heartbeate určujú len spoločné nasadenia."""
+    a = _acc(store)
+    base = {"account": a["id"], "agent": "nas-win11", "symbol": "NAS100", "tf": 3, "profile": "p1"}
+    own = store.create_deployment({**base, "strategy": "orbnet", "own_terminal": True, "terminal": "C:\\X\\terminal64.exe"}, by="r")
+    assert own["own_terminal"] is True and own["terminal"] == "" and own["portable"] is False
+    spol = store.create_deployment({**base, "strategy": "ibsnet", "terminal": "C:\\MT5\\terminal64.exe"}, by="r")
+    store.create_deployment({**base, "strategy": "ibsnet", "tf": 5, "own_terminal": True}, by="r")
+    with pytest.raises(Conflict, match="do toho istého"):
+        store.create_deployment({**base, "strategy": "ibsnet", "tf": 15}, by="r")   # spoločný: iný terminál nejde
+    acc = store.desired_for_agent("nas-win11")["accounts"][0]
+    assert acc["terminal"] == spol["terminal"] == "C:\\MT5\\terminal64.exe"
+    with pytest.raises(DeployError):
+        store.update_deployment(own["id"], {"own_terminal": False}, by="r")
+
+
 def test_update_meni_len_mode_profil_a_active(store: DeployStore):
     a = _acc(store)
     d = store.create_deployment({"account": a["id"], "strategy": "ibsnet", "symbol": "NAS100", "tf": 3, "profile": "p1"}, by="r")

@@ -11,3 +11,4 @@ InpCloseAfterShot=false
 InpPointValueOverride=0
 InpTelemetry=true
 InpTelemetryInTester=false
+InpRestoreState=true

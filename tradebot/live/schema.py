@@ -14,7 +14,7 @@ from typing import Any
 
 __all__ = [
     "SCHEMA", "KINDS", "REQUIRED", "PLATFORMS", "CONTROL_MODES", "ORDER_ACTIONS",
-    "instance_id", "parse_line", "validate", "SchemaError",
+    "instance_id", "parse_line", "validate", "SchemaError", "SLOT_RE",
 ]
 
 SCHEMA = 1
@@ -49,14 +49,21 @@ class SchemaError(ValueError):
     """Riadok nie je platná udalosť telemetrie."""
 
 
-def instance_id(platform: str, account: str, symbol: str, tf_minutes: int, strategy: str) -> str:
-    """`<platform>_<account>_<symbol>_<tf>m_<strategy>`, znaky mimo `[A-Za-z0-9._-]` → `-`.
+def instance_id(platform: str, account: str, symbol: str, tf_minutes: int, strategy: str, slot: str = "") -> str:
+    """`<platform>_<account>_<symbol>_<tf>m_<strategy>[_<slot>]`, znaky mimo `[A-Za-z0-9._-]` → `-`.
 
     Musí sedieť s `LiveSpool.InstanceId` v C# — je to názov adresára spoolu a kľúč inštancie
-    v hube aj webapp.
+    v hube aj webapp. `slot` rozlišuje viac nasadení tej istej stratégie na tom istom účte, symbole
+    a TF (rôzne profily, docs/MT5.md); prázdny = id ako pred jeho zavedením.
     """
-    parts = (platform, account, symbol, f"{int(tf_minutes)}m", strategy)
+    parts = [platform, account, symbol, f"{int(tf_minutes)}m", strategy]
+    if slot:
+        parts.append(slot)
     return "_".join(_BAD.sub("-", str(p or "")) for p in parts)
+
+
+#: Slot nasadenia: krátke meno bez `_` (oddeľovač v id inštancie) — `a`, `b2`, `agresivny`.
+SLOT_RE = re.compile(r"^[A-Za-z0-9-]{1,16}$")
 
 
 def instance_symbol(platform: str, symbol: str) -> str:

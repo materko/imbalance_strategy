@@ -79,8 +79,16 @@ namespace TradeBot.Core
         /// Musi dat to iste, co `tradebot.live.schema.instance_id` (nazov adresara = kluc instancie).</summary>
         public static string InstanceId(string platform, string account, string symbol, int tfMinutes, string strategy)
         {
-            return Clean(platform) + "_" + Clean(account) + "_" + Clean(symbol) + "_"
-                 + Clean(tfMinutes.ToString(CultureInfo.InvariantCulture) + "m") + "_" + Clean(strategy);
+            return InstanceId(platform, account, symbol, tfMinutes, strategy, "");
+        }
+
+        /// <summary>To iste so slotom: `..._&lt;strategy&gt;_&lt;slot&gt;` - viac nasadeni tej istej strategie na tom istom
+        /// ucte, symbole a TF (rozne profily, docs/MT5.md). Prazdny slot = id bez neho.</summary>
+        public static string InstanceId(string platform, string account, string symbol, int tfMinutes, string strategy, string slot)
+        {
+            string id = Clean(platform) + "_" + Clean(account) + "_" + Clean(symbol) + "_"
+                      + Clean(tfMinutes.ToString(CultureInfo.InvariantCulture) + "m") + "_" + Clean(strategy);
+            return string.IsNullOrEmpty(slot) ? id : id + "_" + Clean(slot);
         }
 
         private static string Clean(string s)
@@ -98,12 +106,18 @@ namespace TradeBot.Core
 
         public LiveSpool(string root, string platform, string account, string symbol, int tfMinutes, string strategy,
                          string profile, bool tester, Dictionary<string, object> config, InstrumentSpec instrument)
+            : this(root, platform, account, symbol, tfMinutes, strategy, profile, tester, config, instrument, "")
+        {
+        }
+
+        public LiveSpool(string root, string platform, string account, string symbol, int tfMinutes, string strategy,
+                         string profile, bool tester, Dictionary<string, object> config, InstrumentSpec instrument, string slot)
         {
             LastError = "";
             _root = root ?? "";
             _platform = platform ?? ""; _account = account ?? ""; _symbol = symbol ?? ""; _strategy = strategy ?? "";
             _profile = profile ?? ""; _tf = tfMinutes; _tester = tester; _config = config; _instrument = instrument;
-            Instance = InstanceId(_platform, _account, _symbol, _tf, _strategy);
+            Instance = InstanceId(_platform, _account, _symbol, _tf, _strategy, slot ?? "");
             Session = Guid.NewGuid().ToString("N").Substring(0, 8);
             _host = "";
             try { _host = Environment.MachineName ?? ""; } catch (Exception) { }

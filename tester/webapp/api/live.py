@@ -358,6 +358,9 @@ class LiveDeploymentRequest(BaseModel):
     config: dict[str, Any] | None = None
     #: Nové nasadenie štartuje pauznuté; formulár „Nasadiť“ to smie prebiť (`enabled`).
     mode: str = DEFAULT_MODE
+    #: MT5: slot v id inštancie (tá istá stratégia na účte, symbole a TF s iným profilom) a vlastný terminál.
+    slot: str = ""
+    own_terminal: bool = False
     user: str | None = None
 
 
@@ -675,7 +678,8 @@ def build(ctx: AppContext) -> APIRouter:
             symbol, tf = symbol or dflt["symbol"], tf if tf >= 1 else dflt["tf"]
         body = {"account": req.account, "agent": req.agent.strip(), "terminal": req.terminal.strip(),
                 "portable": bool(req.portable), "strategy": strategy, "symbol": symbol, "tf": tf,
-                "profile": req.profile, "config": config, "mode": req.mode, "version": _version()}
+                "profile": req.profile, "config": config, "mode": req.mode, "version": _version(),
+                "slot": req.slot.strip(), "own_terminal": bool(req.own_terminal)}
         dep = _via_hub(lambda: http.post(f"/api/live/deployments?by={_by(req.user)}", body))
         if isinstance(dep, dict):
             _code_state(dep)

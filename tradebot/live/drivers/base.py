@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from ..schema import CONTROL_MODES, instance_id, instance_symbol
+from ..schema import CONTROL_MODES, SLOT_RE, instance_id, instance_symbol
 
 __all__ = ["Account", "Deployment", "Driver", "load_drivers", "DRIVER_MODULES"]
 
@@ -41,6 +41,8 @@ class Account:
     #: s novými údajmi. Prázdne = hub ju nepozná (starý hub, účet spred zavedenia) — nič sa nereštartuje.
     rev: str = ""
     raw: dict[str, Any] = field(default_factory=dict, repr=False)
+    #: Len v driveri: jednotka behu v rámci účtu (MT5 — nasadenie s vlastným terminálom); prázdne = spoločná.
+    unit: str = ""
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "Account":
@@ -65,6 +67,10 @@ class Deployment:
     active: bool = True
     #: Id inštancie (adresár spoolu) — hub ho odvodí; keď chýba, dopočíta ho driver (`instance_of`).
     instance: str = ""
+    #: Rozlišovač v id inštancie: viac nasadení tej istej stratégie na tom istom účte, symbole a TF (iné profily).
+    slot: str = ""
+    #: MT5: nasadenie beží vo vlastnom (portable) termináli, nie v spoločnom termináli účtu na stroji.
+    own_terminal: bool = False
     raw: dict[str, Any] = field(default_factory=dict, repr=False)
 
     @classmethod
@@ -78,7 +84,8 @@ class Deployment:
                    strategy=str(d.get("strategy") or ""), symbol=str(d.get("symbol") or ""), tf=tf,
                    profile=str(d.get("profile") or ""), config=dict(d.get("config") or {}),
                    config_hash=str(d.get("config_hash") or ""), mode=mode if mode in CONTROL_MODES else "enabled",
-                   active=bool(d.get("active", True)), instance=str(d.get("instance") or ""), raw=dict(d))
+                   active=bool(d.get("active", True)), instance=str(d.get("instance") or ""),
+                   slot=str(d.get("slot") or ""), own_terminal=bool(d.get("own_terminal")), raw=dict(d))
 
     def validate(self) -> None:
         """Bez stratégie, symbolu, TF a profilu sa nasadenie nedá zapísať — chyba k nasadeniu, nie pád."""
@@ -93,6 +100,8 @@ class Deployment:
             chyby.append("profil")
         if any(ch in self.profile for ch in "/\\") or self.profile in (".", ".."):
             chyby.append(f"profil {self.profile!r} nesmie byť cesta")
+        if self.slot and not SLOT_RE.match(self.slot):
+            chyby.append(f"slot {self.slot!r} (písmená, číslice, pomlčka, najviac 16)")
         if chyby:
             raise ValueError("nasadenie nemá: " + ", ".join(chyby))
 
@@ -160,7 +169,7 @@ class Driver(ABC):
         toto je záloha pre starý hub alebo ručné volanie."""
         return deployment.instance or instance_id(self.platform, self.spool_account(account),
                                                   instance_symbol(self.platform, deployment.symbol),
-                                                  deployment.tf, deployment.strategy)
+                                                  deployment.tf, deployment.strategy, deployment.slot)
 
     def spool_account(self, account: Account) -> str:
         """Ako sa účet volá v spoole (MT5 `<login>-<server>`, NT meno účtu) — prebíja driver."""

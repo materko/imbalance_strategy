@@ -17,6 +17,8 @@
 //| a pri kazdom novom bare; paused = vstupy sa neposielaju, flatten = raz zrusi vstupy a zavrie       |
 //| pozicie, iny profil = novy engine, ked je strategia bez pozicie (inak caka). Chybajuci subor =     |
 //| enabled + InpProfile. V Strategy Testeri sa control subor necita (beh musi byt deterministicky).    |
+//| Pamat obchodov (docs/MT5.md): stav vstupov sa pise do Common\Files\TradeBot\state\<instancia>.json |
+//| a po restarte terminalu sa zladi s brokerom - pozicie so svojim magic sa prevezmu (RestoreState).  |
 //| Preklada ho MetaEditor (`python -m tradebot.adapters.mt5 install` to spravi sam); v terminali musi  |
 //| byt `Tools > Options > Expert Advisors > Allow DLL imports`.                                       |
 //+------------------------------------------------------------------+
@@ -44,6 +46,7 @@
 input string InpProfile             = TRADEBOT_DEFAULT_PROFILE; // Profil: nazov JSON v Common\Files\TradeBot\profiles\<kluc>\ alebo cela cesta
 input int    InpServerGmtOffsetMin  = 0;      // Posun casu servera brokera voci UTC v minutach (GMT+3 = 180); v testeri sa neda zistit
 input int    InpMagic               = 20260925; // Magic number
+input string InpSlot                = "";     // Slot nasadenia v id instancie (viac nasadeni tej istej strategie na symbole a TF); prazdny = bez neho
 input bool   InpExportSignals       = true;   // Exportovat signaly (CSV do Common\Files\TradeBot\logs, na porovnanie s Testerom)
 input bool   InpLogEvents           = false;  // Logovat prechody stavov do Experts logu
 input bool   InpShowDrawings        = true;   // Kreslit objekty engine-u na graf (zony, SL/TP, vstupy...)
@@ -54,6 +57,7 @@ input bool   InpCloseAfterShot      = false;  // ...a potom terminal zavriet (da
 input double InpPointValueOverride  = 0;      // Hodnota bodu (1.0 ceny) za 1 lot v mene uctu; 0 = zo SymbolInfo
 input bool   InpTelemetry           = true;   // Live telemetria: JSONL spool do Common\Files\TradeBot\spool (docs/LIVE.md)
 input bool   InpTelemetryInTester   = false;  // ...aj v Strategy Testeri (len na overenie; inak tester spool nepise)
+input bool   InpRestoreState        = true;   // Po restarte prevziat obchody spred neho (Common\Files\TradeBot\state, mimo testera)
 
 //--- stav adaptera
 int              g_engine      = -1;          // handle v StaticHost
@@ -117,6 +121,13 @@ long   g_winsDay = 0;      int g_winsCount = 0;
 long   g_winsSeenDay = 0;  int g_winsSeen = 0;
 long   g_limitLoggedDay = 0;
 int    g_staleLogged = 0;
+
+//--- pamat obchodov cez restart terminalu (docs/MT5.md, "Restart terminalu s otvorenymi obchodmi"): mimo Strategy
+//--- Testera sa stav adaptera (sledovane vstupy, plan, trailing, denny limit) pise pri kazdej zmene do suboru
+//--- Common\Files\TradeBot\state\<instancia>.json; po starte sa zladi s tym, co je naozaj u brokera (RestoreState).
+bool   g_stateOn   = false;
+string g_stateText = "";      // naposledy zapisany obsah - nezmeneny sa neprepisuje
+bool   g_stateWarned = false;
 
 //+------------------------------------------------------------------+
 //| Pomocne                                                          |
@@ -282,13 +293,13 @@ int OnInit()
    g_stepMs = (long)g_chartTfMin * 60000;
    g_hedging = AccountInfoInteger(ACCOUNT_MARGIN_MODE) == ACCOUNT_MARGIN_MODE_RETAIL_HEDGING;
 
-   if(StaticHost::Version() != 2)
-     { Print("TradeBot: ina verzia fasady TradeBot.dll (cakam 2, docs/LIVE.md), preinstaluj: python -m tradebot.adapters.mt5 install"); return INIT_FAILED; }
+   if(StaticHost::Version() != 3)
+     { Print("TradeBot: ina verzia fasady TradeBot.dll (cakam 3, docs/MT5.md), preinstaluj: python -m tradebot.adapters.mt5 install"); return INIT_FAILED; }
 
    // Ovladanie na dialku: id instancie je zname este pred engine-om (rovnake polia ako spool), control subor
    // moze uz pri starte urcit rezim a profil - chybajuci subor = enabled + InpProfile (docs/LIVE.md, faza 2).
    g_controlOn = MQLInfoInteger(MQL_TESTER) == 0;
-   g_instance = StaticHost::InstanceId("mt5", AccountId(), _Symbol, g_chartTfMin, TRADEBOT_ENGINE_KEY);
+   g_instance = StaticHost::InstanceIdSlot("mt5", AccountId(), _Symbol, g_chartTfMin, TRADEBOT_ENGINE_KEY, InpSlot);
    g_controlPath = "TradeBot\\control\\" + g_instance + ".json";
    g_profile = InpProfile;
    string source = "default";
@@ -326,6 +337,10 @@ int OnInit()
    // od teraz kazdy riadok spoolu hned na disk (nazivo); tester si flushuje po davkach
    if(g_spool && !MQLInfoInteger(MQL_TESTER) && StaticHost::SpoolRealtime(g_engine, true) < 0) Print(EngineError("SpoolRealtime"));
    SpoolControl(g_mode, g_profile, source);
+   // obchody spred restartu (az po predhistorii - ta sa prehrava bez obchodov a s prazdnym zoznamom vstupov)
+   g_stateOn = g_controlOn;
+   if(g_stateOn && InpRestoreState) RestoreState();
+   SaveState();
    if(g_controlOn)
       Print("TradeBot control: instancia ", g_instance, ", subor Common\\Files\\", g_controlPath, g_controlMtime >= 0 ? " (existuje)" : " (nie je)",
             ", rezim ", g_mode, " (", source, ")", g_mode == "enabled" ? "" : " - nove vstupy sa neposielaju");
@@ -336,6 +351,8 @@ int OnInit()
   }
 
 string AccountId() { return IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN)) + "-" + AccountInfoString(ACCOUNT_SERVER); }
+
+string StatePath() { return "TradeBot\\state\\" + g_instance + ".json"; }
 
 /// Engine z profilu (config JSON z Common\Files, instrument zo SymbolInfo): handle > 0, alebo -1 (dovod v logu).
 int CreateEngine(string profilePath)
@@ -448,6 +465,7 @@ void ApplyControl(string mode, string profile, string source)
      }
    else g_pendingProfile = "";
    SpoolControl(g_mode, g_profile, source);
+   SaveState();
   }
 
 /// Cakajuca zmena profilu (po deale, po bare, z timera): aplikuje sa, len co je strategia flat.
@@ -493,6 +511,7 @@ bool RebuildEngine(string spec)
    ReplayHistory();
    if(g_spool && !MQLInfoInteger(MQL_TESTER) && StaticHost::SpoolRealtime(g_engine, true) < 0) Print(EngineError("SpoolRealtime"));
    Print("TradeBot control: profil zmeneny na ", spec, " (Common\\Files\\", path, "), engine postaveny nanovo, predhistoria prehrana");
+   SaveState();
    return true;
   }
 
@@ -512,7 +531,7 @@ void OpenSpool(string profile)
    bool tester = MQLInfoInteger(MQL_TESTER) != 0;
    if(!InpTelemetry || (tester && !InpTelemetryInTester)) return;
    string root = TerminalInfoString(TERMINAL_COMMONDATA_PATH) + "\\Files\\TradeBot\\spool";
-   if(StaticHost::SpoolOpen(g_engine, root, "mt5", AccountId(), _Symbol, profile, tester) < 0)
+   if(StaticHost::SpoolOpenSlot(g_engine, root, "mt5", AccountId(), _Symbol, profile, tester, InpSlot) < 0)
      { Print(EngineError("SpoolOpen (telemetria vypnuta)")); return; }
    g_spool = true;
    // id instancie zo spoolu je smerodajne (to iste, co InstanceId - control subor sa hlada podla neho)
@@ -585,6 +604,7 @@ void DumpObjects(string path)
 void OnDeinit(const int reason)
   {
    EventKillTimer();
+   if(g_engine > 0) SaveState();
    if(g_engine > 0)
       Print("TradeBot ", TRADEBOT_ENGINE_KEY, ": spracovanych ", g_chartBars, " barov grafu (",
             TimeToString(FromMs(g_firstBarMs), TIME_DATE | TIME_MINUTES), " - ", TimeToString(FromMs(g_lastBarMs), TIME_DATE | TIME_MINUTES),
@@ -762,6 +782,7 @@ void ProcessChartBar(const MqlRates &r)
 
    // stav denneho limitu na zaciatku dalsieho baru = stav na konci tohto
    if(g_winsDay == day) { g_winsSeenDay = day; g_winsSeen = g_winsCount; }
+   if(!g_replaying) SaveState();
   }
 
 //+------------------------------------------------------------------+
@@ -1015,16 +1036,18 @@ void UpdateTrailing(const MqlRates &r)
 //+------------------------------------------------------------------+
 //| Vyplnenia: co sa stalo s nasimi ordermi (zrkadlo OnExecutionUpdate v NinjaTraderi)                 |
 //+------------------------------------------------------------------+
-void CountWin(int i, double exitPrice, datetime dealTime)
+void CountWin(int i, double exitPrice, datetime dealTime) { CountWinOf(g_orders[i], exitPrice, dealTime); }
+
+void CountWinOf(const Tracked &t, double exitPrice, datetime dealTime)
   {
    // Pine `dailyWinsCount`: vyhra = zisk voci PLANOVANEMU vstupu > 0 (ako NinjaTrader adapter)
-   double move = g_orders[i].dir > 0 ? exitPrice - g_orders[i].entry : g_orders[i].entry - exitPrice;
+   double move = t.dir > 0 ? exitPrice - t.entry : t.entry - exitPrice;
    if(move <= 0) return;
    long day = UtcDay(ToMs(dealTime));
    if(g_winsDay != day) { g_winsDay = day; g_winsCount = 0; }
    g_winsCount++;
-   if(InpLogEvents) Print("VYHRA ", g_orders[i].id, " @", exitPrice, " (", g_winsCount, ". dnes)");
-}
+   if(InpLogEvents) Print("VYHRA ", t.id, " @", exitPrice, " (", g_winsCount, ". dnes)");
+  }
 
 /// Uzavretie casti/celeho vstupu; `win` = vystup na SL/TP (pocita sa do denneho limitu).
 void Reduce(int i, double volume, double price, datetime dealTime, bool win)
@@ -1061,6 +1084,7 @@ void OnTradeTransaction(const MqlTradeTransaction &trans, const MqlTradeRequest 
    ReleaseParked();
    // zmena profilu, ktora cakala na flat (control subor)
    RetryPendingProfile();
+   SaveState();
   }
 
 void HandleDeal(const MqlTradeTransaction &trans)
@@ -1121,6 +1145,282 @@ void HandleDeal(const MqlTradeTransaction &trans)
       left -= part;
       Reduce(i, part, price, dealTime, false);
      }
+  }
+
+//+------------------------------------------------------------------+
+//| Pamat obchodov cez restart terminalu (docs/MT5.md, "Restart terminalu s otvorenymi obchodmi")       |
+//+------------------------------------------------------------------+
+// Driver hubu terminal restartuje pri kazdej zmene grafov uctu, terminal moze spadnut a Windows sa restartuje.
+// Bez pamate by EA po starte o svojich poziciach nevedelo (bez trailingu, bez zavretia na konci seansy) a cakajuci
+// vstup by sa mohol vyplnit bez neho. Stav sa preto pise mimo Strategy Testera pri kazdej zmene a po starte sa
+// zladi s brokerom: otvorene pozicie so svojim magic sa prevezmu (aj tie, co sa vyplnili pocas vypadku), co sa
+// medzitym zavrelo, sa dohlada v historii (fill do spoolu, denny limit vyhier), a cakajuce vstupy sa zrusia -
+// engine po predhistorii o nich nevie a pripadny platny vstup posle znova.
+
+string JsonStr(string s)
+  {
+   string v = s;
+   StringReplace(v, "\\", "\\\\");
+   StringReplace(v, "\"", "\\\"");
+   return "\"" + v + "\"";
+  }
+string JsonBool(bool b) { return b ? "true" : "false"; }
+/// Tickety ako retazce: JSON cislo by v double nad 2^53 stratilo presnost.
+string JsonTicket(ulong v) { return "\"" + IntegerToString((long)v) + "\""; }
+ulong  TicketOf(CJson *o, string k) { return (ulong)StringToInteger(o.Str(k)); }
+
+string TrackedJson(const Tracked &t)
+  {
+   return "{\"id\":" + JsonStr(t.id) + ",\"ot\":" + JsonStr(t.ot) + ",\"order\":" + JsonTicket(t.orderTicket)
+          + ",\"position\":" + JsonTicket(t.positionTicket) + ",\"sl_order\":" + JsonTicket(t.slTicket)
+          + ",\"tp_order\":" + JsonTicket(t.tpTicket) + ",\"filled\":" + JsonBool(t.filled) + ",\"market\":" + JsonBool(t.isMarket)
+          + ",\"parked\":" + JsonBool(t.parked) + ",\"lots\":" + Num(t.lots) + ",\"open_qty\":" + Num(t.openQty)
+          + ",\"dir\":" + IntegerToString(t.dir) + ",\"entry\":" + Num(t.entry) + ",\"sl\":" + Num(t.stopLoss)
+          + ",\"tp\":" + Num(t.takeProfit) + ",\"trail\":" + JsonBool(t.hasTrail) + ",\"trail_act\":" + Num(t.trailActivation)
+          + ",\"trail_off\":" + Num(t.trailOffset) + ",\"extreme\":" + Num(t.extreme) + ",\"last_stop\":" + Num(t.lastStop) + "}";
+  }
+
+void TrackedFrom(CJson *o, Tracked &t)
+  {
+   t.id = o.Str("id"); t.ot = o.Str("ot"); t.orderTicket = TicketOf(o, "order"); t.positionTicket = TicketOf(o, "position");
+   t.slTicket = TicketOf(o, "sl_order"); t.tpTicket = TicketOf(o, "tp_order"); t.filled = o.Bool("filled");
+   t.isMarket = o.Bool("market"); t.parked = o.Bool("parked"); t.lots = o.Dbl("lots"); t.openQty = o.Dbl("open_qty");
+   t.dir = (int)o.Dbl("dir"); t.entry = o.Dbl("entry"); t.stopLoss = o.Dbl("sl"); t.takeProfit = o.Dbl("tp");
+   t.hasTrail = o.Bool("trail"); t.trailActivation = o.Dbl("trail_act"); t.trailOffset = o.Dbl("trail_off");
+   t.extreme = o.Dbl("extreme"); t.lastStop = o.Dbl("last_stop");
+  }
+
+/// Obsah stavu: bez casu zapisu, aby sa nezmeneny stav neprepisoval (`bar_ms` sa meni s kazdym barom - trailing
+/// po starte dobehne bary, ktore pocas vypadku chybali).
+string StateJson()
+  {
+   string s = "{\"v\":1,\"instance\":" + JsonStr(g_instance) + ",\"magic\":" + IntegerToString((long)InpMagic)
+              + ",\"symbol\":" + JsonStr(_Symbol) + ",\"profile\":" + JsonStr(g_profile) + ",\"bar_ms\":" + IntegerToString(g_lastBarMs)
+              + ",\"wins_day\":" + IntegerToString(g_winsDay) + ",\"wins\":" + IntegerToString(g_winsCount)
+              + ",\"wins_seen_day\":" + IntegerToString(g_winsSeenDay) + ",\"wins_seen\":" + IntegerToString(g_winsSeen) + ",\"orders\":[";
+   for(int i = 0; i < ArraySize(g_orders); i++) s += (i > 0 ? "," : "") + TrackedJson(g_orders[i]);
+   return s + "]}";
+  }
+
+/// Zapise stav, ked sa zmenil (atomicky: tmp + presun). Chyba EA nezhodi - zaloguje sa raz.
+void SaveState()
+  {
+   if(!g_stateOn || g_replaying) return;
+   string text = StateJson();
+   if(text == g_stateText) return;
+   string path = StatePath(), tmp = path + ".tmp";
+   FolderCreate("TradeBot\\state", FILE_COMMON);
+   int h = FileOpen(tmp, FILE_WRITE | FILE_BIN | FILE_COMMON);
+   bool ok = h != INVALID_HANDLE;
+   if(ok)
+     {
+      uchar bytes[];
+      int n = StringToCharArray(text, bytes, 0, WHOLE_ARRAY, CP_UTF8) - 1;   // bez koncovej nuly
+      ok = FileWriteArray(h, bytes, 0, n) == (uint)n;
+      FileClose(h);
+      ok = ok && FileMove(tmp, FILE_COMMON, path, FILE_REWRITE | FILE_COMMON);
+     }
+   if(ok) { g_stateText = text; g_stateWarned = false; return; }
+   if(!g_stateWarned)
+     {
+      g_stateWarned = true;
+      string msg = "TradeBot: stav obchodov sa neda zapisat do Common\\Files\\" + path + " (" + IntegerToString(GetLastError())
+                   + ") - po restarte terminalu ich EA neprevezme";
+      Print(msg);
+      if(g_spool) StaticHost::SpoolNote(g_engine, "warn", msg);
+     }
+  }
+
+void AppendOrder(const Tracked &t)
+  {
+   int n = ArraySize(g_orders);
+   ArrayResize(g_orders, n + 1);
+   g_orders[n] = t;
+  }
+
+/// Pozicia s magic tohto EA, ktoru stav nepozna (stav chyba, alebo je starsi): prevezme sa s planom z pozicie
+/// (vstup = otvaracia cena, SL/TP z pozicie), bez trailingu.
+void PlanFromPosition(Tracked &t, ulong ticket)
+  {
+   string comment = PositionGetString(POSITION_COMMENT);
+   t.id = comment != "" ? comment : "tb_adopt_" + IntegerToString((long)ticket);
+   t.ot = "Market"; t.orderTicket = 0; t.slTicket = 0; t.tpTicket = 0; t.isMarket = true; t.parked = false;
+   t.dir = PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY ? 1 : -1;
+   t.entry = PositionGetDouble(POSITION_PRICE_OPEN);
+   t.stopLoss = PositionGetDouble(POSITION_SL); t.takeProfit = PositionGetDouble(POSITION_TP);
+   t.hasTrail = false; t.trailActivation = 0; t.trailOffset = 0; t.extreme = t.entry; t.lastStop = t.stopLoss;
+   t.lots = PositionGetDouble(POSITION_VOLUME);
+  }
+
+/// Hedging: vyplneny vstup zo stavu, ktoreho pozicia pocas vypadku skoncila - vystupy z historie do exportu
+/// a spoolu, SL/TP so ziskom sa zarata do denneho limitu (ako `Reduce`).
+int ReportClosedAway(const Tracked &t)
+  {
+   if(t.positionTicket == 0 || !HistorySelectByPosition(t.positionTicket)) return 0;
+   int n = 0;
+   for(int k = 0; k < HistoryDealsTotal(); k++)
+     {
+      ulong d = HistoryDealGetTicket(k);
+      ENUM_DEAL_ENTRY entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(d, DEAL_ENTRY);
+      if(entry != DEAL_ENTRY_OUT && entry != DEAL_ENTRY_OUT_BY) continue;
+      ENUM_DEAL_REASON reason = (ENUM_DEAL_REASON)HistoryDealGetInteger(d, DEAL_REASON);
+      bool win = reason == DEAL_REASON_SL || reason == DEAL_REASON_TP;
+      double price = HistoryDealGetDouble(d, DEAL_PRICE), volume = HistoryDealGetDouble(d, DEAL_VOLUME);
+      datetime when = (datetime)HistoryDealGetInteger(d, DEAL_TIME);
+      ExportFill(when, t.id, false, win ? "sltp" : "close", price, volume);
+      SpoolFill(when, t.id, false, win ? "sltp" : "close", price, volume, true);
+      if(win) CountWinOf(t, price, when);
+      n++;
+     }
+   return n;
+  }
+
+/// Trailing: najlepsia cena z barov, ktore pocas vypadku presli (od posledneho spracovaneho baru zo stavu).
+void CatchUpExtreme(Tracked &t, long savedBarMs)
+  {
+   if(!t.hasTrail || savedBarMs <= 0) return;
+   MqlRates bars[];
+   int n = CopyRates(_Symbol, PERIOD_CURRENT, FromMs(savedBarMs) + PeriodSeconds(), g_lastChart, bars);
+   for(int i = 0; i < n; i++)
+      t.extreme = t.dir > 0 ? MathMax(t.extreme, bars[i].high) : MathMin(t.extreme, bars[i].low);
+  }
+
+/// Po predhistorii: stav spred restartu zladit s brokerom. Zdroj pravdy je broker; stav dava plan (SL, TP,
+/// trailing, planovany vstup pre denny limit), ktory u brokera nie je.
+void RestoreState()
+  {
+   string path = StatePath();
+   string text = ReadTextFile(path);
+   CJson *root = text == "" ? NULL : JsonParse(text);
+   Tracked saved[];
+   long savedBarMs = 0;
+   if(root != NULL && root.type == JSON_OBJECT)
+     {
+      if((long)root.Dbl("magic") != (long)InpMagic)
+         Print("TradeBot: stav Common\\Files\\", path, " je z ineho magic (", (long)root.Dbl("magic"), ") - neprebera sa");
+      else
+        {
+         savedBarMs = (long)root.Dbl("bar_ms");
+         g_winsDay = (long)root.Dbl("wins_day"); g_winsCount = (int)root.Dbl("wins");
+         g_winsSeenDay = (long)root.Dbl("wins_seen_day"); g_winsSeen = (int)root.Dbl("wins_seen");
+         CJson *arr = root.Find("orders");
+         for(int i = 0; arr != NULL && i < arr.Size(); i++)
+           {
+            int n = ArraySize(saved);
+            ArrayResize(saved, n + 1);
+            TrackedFrom(arr.At(i), saved[n]);
+           }
+        }
+     }
+   else if(text != "") Print("TradeBot: stav Common\\Files\\", path, " sa neda precitat - obchody sa preberu len od brokera");
+   if(root != NULL) delete root;
+
+   bool used[];
+   ArrayResize(used, ArraySize(saved));
+   ArrayInitialize(used, false);
+   int adopted = 0, unknown = 0, closedAway = 0, cancelled = 0;
+
+   if(g_hedging)
+     {
+      // 1. otvorene pozicie tohto EA: podla ticketu pozicie, vyplneny cakajuci vstup podla ticketu orderu
+      //    (POSITION_IDENTIFIER = ticket otvaracieho orderu), inak podla komentara (= id vstupu)
+      for(int p = 0; p < PositionsTotal(); p++)
+        {
+         ulong ticket = PositionGetTicket(p);
+         if(ticket == 0 || PositionGetString(POSITION_SYMBOL) != _Symbol || PositionGetInteger(POSITION_MAGIC) != InpMagic) continue;
+         ulong ident = (ulong)PositionGetInteger(POSITION_IDENTIFIER);
+         string comment = PositionGetString(POSITION_COMMENT);
+         int k = -1;
+         for(int i = 0; i < ArraySize(saved) && k < 0; i++)
+            if(!used[i] && saved[i].filled && saved[i].positionTicket == ticket) k = i;
+         for(int i = 0; i < ArraySize(saved) && k < 0; i++)
+            if(!used[i] && !saved[i].filled && ((saved[i].orderTicket > 0 && saved[i].orderTicket == ident) || saved[i].id == comment)) k = i;
+         Tracked t;
+         if(k >= 0)
+           {
+            t = saved[k];
+            used[k] = true;
+            if(!t.filled) { t.extreme = t.entry; t.lastStop = t.stopLoss; }   // vyplnil sa pocas vypadku
+            CatchUpExtreme(t, savedBarMs);
+           }
+         else { PlanFromPosition(t, ticket); unknown++; }
+         t.filled = true; t.parked = false; t.orderTicket = 0; t.positionTicket = ticket;
+         t.openQty = PositionGetDouble(POSITION_VOLUME);
+         double sl = PositionGetDouble(POSITION_SL);
+         if(sl > 0) t.lastStop = sl;   // broker je zdroj pravdy (trailing pred restartom, rucny posun)
+         AppendOrder(t);
+         adopted++;
+        }
+      // 2. vyplnene vstupy zo stavu, ktorych pozicia medzitym skoncila
+      for(int i = 0; i < ArraySize(saved); i++)
+         if(!used[i] && saved[i].filled && saved[i].openQty > 0) { used[i] = true; ReportClosedAway(saved[i]); closedAway++; }
+      // 3. cakajuce ordery tohto EA: v hedgingu su to len vstupy - zrusit (engine o nich po predhistorii nevie)
+      for(int o = OrdersTotal() - 1; o >= 0; o--)
+        {
+         ulong ticket = OrderGetTicket(o);
+         if(ticket == 0 || OrderGetString(ORDER_SYMBOL) != _Symbol || OrderGetInteger(ORDER_MAGIC) != InpMagic) continue;
+         if(g_trade.OrderDelete(ticket)) cancelled++;
+         else Print("TradeBot: cakajuci vstup ", OrderGetString(ORDER_COMMENT), " (ticket ", ticket, ") sa neda zrusit: ", g_trade.ResultRetcode());
+        }
+     }
+   else
+     {
+      // netting: pozicia je jedna na symbol - vyplnene vstupy zo stavu sa prevezmu, kym na to netto pozicia staci
+      double left = 0;
+      int posDir = 0;
+      if(PositionSelect(_Symbol))
+        {
+         left = PositionGetDouble(POSITION_VOLUME);
+         posDir = PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY ? 1 : -1;
+        }
+      for(int i = 0; i < ArraySize(saved); i++)
+        {
+         if(!saved[i].filled || saved[i].openQty <= 0) continue;
+         used[i] = true;
+         if(saved[i].dir != posDir || left <= 1e-9)
+           { closedAway++; SpoolNoteState("vstup " + saved[i].id + " pocas vypadku skoncil (netting - vystup len v historii uctu)"); continue; }
+         Tracked t;
+         t = saved[i];
+         t.openQty = MathMin(t.openQty, left);
+         left -= t.openQty;
+         CatchUpExtreme(t, savedBarMs);
+         AppendOrder(t);
+         adopted++;
+        }
+      // cakajuce ordery: vystupy prevzatych vstupov (SL/TP s komentarom = id) ostanu, ostatne (vstupy) sa zrusia
+      for(int o = OrdersTotal() - 1; o >= 0; o--)
+        {
+         ulong ticket = OrderGetTicket(o);
+         if(ticket == 0 || OrderGetString(ORDER_SYMBOL) != _Symbol || OrderGetInteger(ORDER_MAGIC) != InpMagic) continue;
+         bool isExit = false;
+         for(int i = 0; i < ArraySize(g_orders) && !isExit; i++) isExit = g_orders[i].slTicket == ticket || g_orders[i].tpTicket == ticket;
+         if(isExit) continue;
+         if(g_trade.OrderDelete(ticket)) cancelled++;
+        }
+      // vystup, ktory u brokera chyba, sa polozi znova (oba, aby boli s rovnakym objemom)
+      for(int i = 0; i < ArraySize(g_orders); i++)
+        {
+         if((g_orders[i].slTicket > 0 && OrderSelect(g_orders[i].slTicket)) && (g_orders[i].tpTicket > 0 && OrderSelect(g_orders[i].tpTicket))) continue;
+         CancelExits(i);
+         PlaceExits(i);
+        }
+      if(left > 1e-9 && posDir != 0)
+         SpoolNoteState("netto pozicia " + DoubleToString(left, 2) + " lotov na " + _Symbol + " nepatri ziadnemu vstupu zo stavu - EA ju nesleduje");
+     }
+   // zvysok stavu (cakajuce, odlozene, market bez dealu) zanika s restartom
+   int dropped = 0;
+   for(int i = 0; i < ArraySize(saved); i++) if(!used[i]) dropped++;
+
+   if(adopted + closedAway + cancelled + dropped + unknown == 0) return;
+   string msg = StringFormat("po restarte prevzatych %d pozicii (%d bez stavu, len z pozicie), %d skoncilo pocas vypadku, "
+                             "%d cakajucich vstupov zrusenych u brokera, %d zo stavu zahodenych", adopted, unknown, closedAway, cancelled, dropped);
+   SpoolNoteState(msg);
+  }
+
+void SpoolNoteState(string msg)
+  {
+   Print("TradeBot: ", msg);
+   if(g_spool && StaticHost::SpoolNote(g_engine, "info", msg) < 0) Print(EngineError("SpoolNote"));
   }
 
 //+------------------------------------------------------------------+

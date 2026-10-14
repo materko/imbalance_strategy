@@ -77,7 +77,7 @@ def _instrument_json(inst) -> str:
 
 
 def test_verzia_strategie_a_chyba_bez_vynimky(static_host):
-    assert static_host.Version() == 2      # docs/LIVE.md: Spool* pribudli, EA kontroluje 2
+    assert static_host.Version() == 3      # docs/LIVE.md: Spool* (2), slot v id inštancie (3); EA kontroluje 3
     assert {"ibsnet", "orbnet"} <= set(static_host.Strategies().split(","))
     # chyba nesmie letieť cez hranicu .NET -> MQL5 ako výnimka: -1 a text v LastError
     inst = '{"symbol":"X","venue":"mt5","tick_size":0.25,"point_value":2.0,"qty_step":1,"min_qty":1}'
@@ -269,6 +269,27 @@ def test_control_instancia_a_udalost(static_host, tmp_path):
     assert events[-1]["k"] == "bye" and events[-1]["reason"] == "profile"
     with pytest.raises(schema.SchemaError):
         schema.validate({"seq": 1, "t": 1, "k": "control", "mode": "stop"})
+
+
+def test_slot_v_id_instancie(static_host, tmp_path):
+    """Slot nasadenia (docs/MT5.md, „Viac stratégií na jednom serveri“): `InstanceIdSlot` a spool otvorený cez
+    `SpoolOpenSlot` dávajú to isté, čo `schema.instance_id(..., slot)`; prázdny slot = id bez neho."""
+    from tradebot.live import schema
+
+    expected = schema.instance_id("mt5", "1514750898-FTMO-Demo", "US100.cash", 3, "orbnet", "b")
+    assert expected == "mt5_1514750898-FTMO-Demo_US100.cash_3m_orbnet_b"
+    assert static_host.InstanceIdSlot("mt5", "1514750898-FTMO-Demo", "US100.cash", 3, "orbnet", "b") == expected
+    assert static_host.InstanceIdSlot("mt5", "1514750898-FTMO-Demo", "US100.cash", 3, "orbnet", "") == \
+        static_host.InstanceId("mt5", "1514750898-FTMO-Demo", "US100.cash", 3, "orbnet")
+    h = static_host.Create("orbnet", "{}", _INST, 3)
+    assert h > 0, static_host.LastError()
+    try:
+        assert static_host.SpoolOpenSlot(h, str(tmp_path), "mt5", "1514750898-FTMO-Demo", "US100.cash", "p", False, "b") == 1, \
+            static_host.LastError()
+        assert static_host.SpoolInstance(h) == expected
+    finally:
+        static_host.Destroy(h)
+    assert (tmp_path / expected).is_dir()
 
 
 def test_spool_zly_koren_nezhodi_engine(static_host, tmp_path):

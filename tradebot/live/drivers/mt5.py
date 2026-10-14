@@ -27,10 +27,16 @@ Poradie okolo control súboru je vec bezpečnosti — EA berie **chýbajúci sú
   `ensure_instance`; driver to pred `_start` ešte skontroluje a chýbajúci dopíše),
 - rušené nasadenie (`remove_instance`) sa najprv prepne na `paused`, control ostáva, kým terminál
   s tým grafom beží; zmaže sa až v `ensure_instance` **po** zavretí terminálu (`_drop_removed_controls`).
+
+Nasadenie s `own_terminal` nebeží v spoločnom termináli účtu, ale vo vlastnej **jednotke**
+`tester/live/mt5/<account>/units/<nasadenie>/` (rovnaké súbory ako účet: `start.ini`, `terminal.pid`,
+`charts.json`, `driver.log` a portable kópia `terminal/`) — jeden terminál s jedným grafom. Pridanie či
+odobratie takého nasadenia reštartuje len jeho terminál; jednotka, ktorej nasadenie zmizlo, sa zavrie a zmaže.
 """
 
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import json
 import logging
@@ -379,9 +385,37 @@ class Mt5Driver(Driver):
             raise ValueError("Common\\Files MetaTrader 5 sa nenašiel (%APPDATA%\\MetaQuotes\\Terminal\\Common\\Files)")
         return spolocny
 
+    @staticmethod
+    def _safe(name: str, fallback: str) -> str:
+        return "".join(ch if ch.isalnum() or ch in "._-" else "-" for ch in name) or fallback
+
     def account_dir(self, account: Account) -> Path:
-        safe = "".join(ch if ch.isalnum() or ch in "._-" else "-" for ch in account.id) or "ucet"
-        return self.root / safe
+        """Adresár účtu (spoločný terminál), alebo jednotky `units/<nasadenie>` (vlastný terminál)."""
+        d = self.root / self._safe(account.id, "ucet")
+        return d / "units" / self._safe(account.unit, "unit") if account.unit else d
+
+    def unit_of(self, account: Account, deployment: Deployment) -> Account:
+        """Kde nasadenie beží: spoločný terminál účtu, alebo (`own_terminal`) vlastná portable kópia."""
+        return self._unit(account, deployment.id) if deployment.own_terminal else account
+
+    @staticmethod
+    def _unit(account: Account, unit_id: str) -> Account:
+        return dataclasses.replace(account, terminal="", portable=True, unit=unit_id)
+
+    def _unit_ids(self, account: Account) -> set[str]:
+        """Jednotky účtu, ktoré sú na disku (aj tie, ktorých nasadenie už zmizlo — treba ich zavrieť)."""
+        folder = self.root / self._safe(account.id, "ucet") / "units"
+        try:
+            return {p.name for p in folder.iterdir() if p.is_dir()}
+        except OSError:
+            return set()
+
+    def _with_units(self, accounts: list[Account]) -> list[Account]:
+        out: list[Account] = []
+        for acc in accounts:
+            out.append(acc)
+            out.extend(self._unit(acc, u) for u in sorted(self._unit_ids(acc)))
+        return out
 
     def terminal_for(self, account: Account) -> tuple[Path, Path, bool]:
         """`(terminal64.exe, dátový adresár, portable)` účtu: daný `terminal` (súbor alebo adresár),
@@ -516,15 +550,16 @@ class Mt5Driver(Driver):
         from tradebot.adapters.mt5.__main__ import read_control, write_control
 
         instance = self.instance_of(account, deployment)
+        unit = self.unit_of(account, deployment)
         common = self.common()
         current = read_control(common, instance)
         if current is None:
             return
         if current.get("mode") not in ("paused", "flatten"):
             write_control(common, instance, "paused", None, by="hub")
-            self._log(account, f"control {instance}: paused (nasadenie {deployment.id} sa ruší; súbor sa zmaže "
-                               f"po zavretí terminálu)")
-        self._pending_remove.setdefault(account.id, set()).add(instance)
+            self._log(unit, f"control {instance}: paused (nasadenie {deployment.id} sa ruší; súbor sa zmaže "
+                            f"po zavretí terminálu)")
+        self._pending_remove.setdefault(str(self.account_dir(unit)), set()).add(instance)
 
     def _ensure_controls(self, account: Account, deployments: list[Deployment]) -> None:
         """Pred štartom terminálu má každý graf control súbor s režimom nasadenia — bez neho by EA
@@ -547,7 +582,8 @@ class Mt5Driver(Driver):
             self._inputs = ea_inputs(self.ea_source)
         presets = Path(__file__).resolve().parents[2] / "adapters" / "mt5" / "presets"
         live = _set_values(presets / f"{expert}_live.set")
-        forced: dict[str, Any] = {"InpProfile": deployment.profile, "InpMagic": magic_for(deployment.id), **FORCED_INPUTS}
+        forced: dict[str, Any] = {"InpProfile": deployment.profile, "InpMagic": magic_for(deployment.id),
+                                  "InpSlot": deployment.slot, **FORCED_INPUTS}
         out: dict[str, str] = {}
         for typ, name, default in self._inputs:
             if name in forced:
@@ -686,6 +722,47 @@ class Mt5Driver(Driver):
         return pid
 
     def ensure_instance(self, account: Account, deployments: list[Deployment]) -> None:
+        """Spoločný terminál účtu s nasadeniami bez `own_terminal`, jednotka (vlastný terminál) pre každé
+        s `own_terminal`, a jednotky, ktorých nasadenie zmizlo, zavrieť a zmazať. Chyba jednej jednotky
+        nezastaví ostatné — vyhodí sa až na konci (reconciler ju pripíše nasadeniam účtu)."""
+        shared = [d for d in deployments if not d.own_terminal]
+        own = [d for d in deployments if d.own_terminal]
+        chyby: list[str] = []
+        # spoločný terminál: len keď v ňom niečo má bežať alebo bežalo (manifest) — účet so samými vlastnými
+        # terminálmi nesmie zavrieť a prepisovať nainštalovaný terminál človeka
+        try:
+            if shared or self._manifest(account) is not None:
+                self._ensure_unit(account, shared)
+            else:   # terminál tu nikdy nebežal — len odložené control súbory zrušených nasadení
+                self._drop_removed_controls(account, None, [])
+        except Exception as exc:  # noqa: BLE001
+            chyby.append(f"spoločný terminál: {exc}")
+        for dep in own:
+            try:
+                self._ensure_unit(self.unit_of(account, dep), [dep])
+            except Exception as exc:  # noqa: BLE001
+                chyby.append(f"vlastný terminál {dep.id}: {exc}")
+        for unit_id in sorted(self._unit_ids(account) - {d.id for d in own}):
+            try:
+                self._retire_unit(self._unit(account, unit_id))
+            except Exception as exc:  # noqa: BLE001
+                chyby.append(f"rušený terminál {unit_id}: {exc}")
+        if chyby:
+            raise ValueError("; ".join(chyby))
+
+    def _retire_unit(self, unit: Account) -> None:
+        """Jednotka bez nasadenia: terminál slušne zavrieť (aj cudzí proces z jej kópie), control súbory jej
+        grafov zmazať až potom, a adresár jednotky s portable kópiou zmazať."""
+        manifest = self._manifest(unit)
+        pid = self._running_pid(unit)
+        exe = self.account_dir(unit) / "terminal" / EXE_NAME
+        for p in ([pid] if pid is not None else []) + [p for p in (self.processes.find(exe) if exe.is_file() else []) if p and p != pid]:
+            self._close(unit, p)
+        self._drop_removed_controls(unit, manifest, [])
+        log.info("mt5 driver [%s]: jednotka %s bez nasadenia — zavretá a zmazaná", unit.id, unit.unit)
+        shutil.rmtree(self.account_dir(unit), ignore_errors=True)
+
+    def _ensure_unit(self, account: Account, deployments: list[Deployment]) -> None:
         exe, data_dir, portable = self.terminal_for(account)
         charts = self._charts(account, deployments)
         key = self._charts_key(charts)
@@ -740,7 +817,7 @@ class Mt5Driver(Driver):
         from tradebot.adapters.mt5.__main__ import control_dir
 
         zostavaju = {c["instance"] for c in charts}
-        kandidati: set[str] = set(self._pending_remove.pop(account.id, set()))
+        kandidati: set[str] = set(self._pending_remove.pop(str(self.account_dir(account)), set()))
         for old in (manifest or {}).get("charts") or []:
             inst = old.get("instance") if isinstance(old, dict) else None
             if inst:
@@ -765,6 +842,11 @@ class Mt5Driver(Driver):
             self._log(account, "heslo z start.ini zmazané (terminál je prihlásený)")
 
     def status(self, account: Account) -> dict[str, Any]:
+        out = self._status_one(account)
+        out["units"] = [{"deployment": u, **self._status_one(self._unit(account, u))} for u in sorted(self._unit_ids(account))]
+        return out
+
+    def _status_one(self, account: Account) -> dict[str, Any]:
         info = self._pid_info(account)
         manifest = self._manifest(account) or {}
         pid = self._running_pid(account)
@@ -778,7 +860,11 @@ class Mt5Driver(Driver):
             "profile_dir": manifest.get("profile_dir"),
         }
         try:
-            exe, data_dir, portable = self.terminal_for(account) if (account.terminal or not account.portable) else (None, None, True)
+            if account.terminal or not account.portable:
+                exe, data_dir, portable = self.terminal_for(account)
+            else:   # portable kópia sa pri pohľade na stav nevytvára
+                data_dir, portable = self.account_dir(account) / "terminal", True
+                exe = data_dir / EXE_NAME if (data_dir / EXE_NAME).is_file() else None
             out.update(exe=str(exe) if exe else None, data_dir=str(data_dir) if data_dir else None, portable=portable)
         except Exception as exc:  # noqa: BLE001 - stav nesmie padnúť
             out["error"] = str(exc)
@@ -831,6 +917,7 @@ class Mt5Driver(Driver):
         spustí `ensure_instance` v ďalšom kole reconcilera (pid neexistuje → štart s ini)."""
         from tradebot.adapters.mt5.__main__ import install, write_installed
 
+        accounts = self._with_units(accounts)   # aj vlastné terminály nasadení (ich portable kópie)
         targets = self._install_targets(accounts)
         if not targets:
             raise ValueError("nenašiel sa žiadny terminál MT5, do ktorého by sa kód nainštaloval")

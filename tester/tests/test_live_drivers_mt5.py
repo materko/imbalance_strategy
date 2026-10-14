@@ -179,6 +179,7 @@ expertmode=4
 InpProfile=golden_binance_btcusdt_3m
 InpServerGmtOffsetMin=180
 InpMagic={magic}
+InpSlot=
 InpExportSignals=false
 InpLogEvents=true
 InpShowDrawings=true
@@ -189,6 +190,7 @@ InpCloseAfterShot=false
 InpPointValueOverride=0.0
 InpTelemetry=true
 InpTelemetryInTester=false
+InpRestoreState=true
 </inputs>
 </expert>
 
@@ -329,6 +331,59 @@ def test_rozne_strategie_na_tom_istom_symbole_su_rozne_grafy_jedneho_terminalu(d
     assert len({magic_for(x.id) for x in deps}) == 3
     controls = sorted(p.name for p in (common / "TradeBot" / "control").glob("*.json"))
     assert controls == sorted(f"{x.instance}.json" for x in deps) and len(controls) == 3
+
+
+def test_vlastny_terminal_nasadenia_bezi_a_konci_sam(drv):
+    """`own_terminal` (docs/MT5.md, „Viac stratégií na jednom serveri“): nasadenie beží vo vlastnej portable kópii
+    v `units/<nasadenie>/`; jeho pridanie ani odobratie nereštartuje spoločný terminál účtu ani iné jednotky.
+    Slot ide do id inštancie aj do inputu EA `InpSlot`."""
+    d, procs, clock, data, common = drv
+    (data / "MQL5" / "Libraries").mkdir(parents=True)
+    (data / "MQL5" / "Libraries" / "TradeBot.dll").write_bytes(b"dll")
+    shared = dep("s1")
+    o1 = dep("o1", strategy="orbnet", own_terminal=True)
+    o2 = dep("o2", strategy="orbnet", own_terminal=True, slot="b", profile="multicharts_mnq_3m")
+    o2.instance = instance_id("mt5", "1514750898-FTMO-Demo", "US100.cash", 1, "orbnet", "b")
+    assert o2.instance.endswith("_orbnet_b") and o1.instance != o2.instance
+    for x in (shared, o1, o2):
+        d.write_control(x)
+    d.ensure_instance(ACC, [shared, o1, o2])
+    assert len(procs.started) == 3
+    by_exe = {Path(c[0]).parent.parent.name if "units" in c[0] else "spolocny": c for c in procs.started}
+    assert set(by_exe) == {"spolocny", "o1", "o2"}
+    assert "/portable" in by_exe["o1"] and "/portable" not in by_exe["spolocny"]
+    unit = d.root / "ftmo" / "units" / "o2"
+    assert (unit / "terminal" / "terminal64.exe").is_file() and (unit / "start.ini").is_file()
+    assert (unit / "terminal" / "MQL5" / "Libraries" / "TradeBot.dll").read_bytes() == b"dll"
+    charts = [parse_chart(p) for p in (unit / "terminal" / "MQL5" / "Profiles" / "Charts" / "tradebot").glob("*.chr")]
+    assert len(charts) == 1 and charts[0]["path"].endswith("ORBNet.ex5")
+    assert charts[0]["inputs"]["InpSlot"] == "b" and int(charts[0]["inputs"]["InpMagic"]) == magic_for("o2")
+    spolocne = [parse_chart(p) for p in (data / "MQL5" / "Profiles" / "Charts" / "tradebot").glob("*.chr")]
+    assert [c["inputs"]["InpMagic"] for c in spolocne] == [str(magic_for("s1"))]
+    st = d.status(ACC)
+    assert [u["deployment"] for u in st["units"]] == ["o1", "o2"] and all(u["running"] for u in st["units"])
+
+    # to isté znova: nič sa nereštartuje
+    d.ensure_instance(ACC, [shared, o1, o2])
+    assert len(procs.started) == 3 and procs.closed == []
+
+    # odobratie o1: zavrie sa len jeho terminál, control až po zavretí, jednotka zmizne
+    pid_o1 = d._pid_info(d.unit_of(ACC, o1))["pid"]
+    d.remove_instance(ACC, o1)
+    ctl_o1 = common / "TradeBot" / "control" / f"{o1.instance}.json"
+    assert json.loads(ctl_o1.read_text(encoding="utf-8"))["mode"] == "paused"
+    d.ensure_instance(ACC, [shared, o2])
+    assert procs.closed == [(pid_o1, False)] and len(procs.started) == 3
+    assert not ctl_o1.exists() and not (d.root / "ftmo" / "units" / "o1").exists()
+    assert (common / "TradeBot" / "control" / f"{o2.instance}.json").exists()
+
+    # účet so samými vlastnými terminálmi: spoločný terminál (bez manifestu) sa nespúšťa ani nezatvára
+    acc2 = Account.from_dict({"id": "ic", "platform": "mt5", "login": "7", "server": "IC"})
+    procs.foreign = [91]   # terminál človeka z nainštalovaného exe (find hľadá podľa cesty exe)
+    procs.find = lambda exe: [] if "units" in str(exe) else list(procs.foreign)
+    d.ensure_instance(acc2, [dep("x1", account="ic", own_terminal=True)])
+    assert 91 not in [p for p, _ in procs.closed] and not (d.root / "ic" / "charts.json").exists()
+    assert (d.root / "ic" / "units" / "x1" / "charts.json").exists()
 
 
 def test_profile_control_secret_and_password_scrub(drv, tmp_path: Path):

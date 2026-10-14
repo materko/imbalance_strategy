@@ -284,7 +284,7 @@ o platforme vie len **driver** na strane agenta (`tradebot/live/drivers/<platfor
 | entita | polia |
 |---|---|
 | **account** | prihlásenie do platformy, **bez stroja**: `id` (slug), `platform` (`mt5`/`ninjatrader` — iná sa neprijme), `label`, `login` (MT5 číslo účtu / NT meno účtu, napr. `Sim101`), `server` (MT5 server / NT meno pripojenia), `rev` (verzia prihlásenia — nová pri zmene loginu, servera alebo hesla; driver podľa nej inštanciu reštartuje), `created`, `updated`, `by`; heslo (len MT5) hub drží **šifrované** (`tradebot/live/vault.py`, kľúč `secret.key` vedľa `live.sqlite` alebo `TRADEBOT_HUB_SECRET_KEY`) — v zozname len `secret` (uložené?) a `secret_waiting` (stroje, ktoré aktuálnu verziu ešte neprevzali). Zmazať sa dá len účet bez aktívneho nasadenia; platforma sa nemení, kým má účet nasadenia |
-| **deployment** | `id`, `account` (id), `agent` (stroj, na ktorom beží — povinný; starý klient bez neho dostane stroj, na ktorý bol účet kedysi viazaný), `terminal` + `portable` (len MT5: terminál na tom stroji; jeden účet má na stroji jeden terminál — ďalšie nasadenie musí ísť do toho istého), `strategy` (kľúč enginu), `symbol`, `tf` (min), `profile` (názov), `config` (celý config enginu = snímka profilu), `config_hash` (sha256 configu), `mode` (`enabled`/`paused`/`flatten`; **nové nasadenie je predvolene `paused`** — `DEFAULT_MODE`, control súbor s pauzou je na disku skôr, než platforma inštanciu spustí, a obchodovať začne, až keď ho človek zapne; výslovný `mode: enabled` v POST sa rešpektuje), `active` (bool — má inštancia vôbec existovať; `false` = odstrániť z platformy), `created`, `updated`, `by`; odvodené `instance` = `instance_id(platform, <MT5 login>-<server> / NT meno účtu, symbol, tf, strategy)` |
+| **deployment** | `id`, `account` (id), `agent` (stroj, na ktorom beží — povinný; starý klient bez neho dostane stroj, na ktorý bol účet kedysi viazaný), `terminal` + `portable` (len MT5: terminál na tom stroji; jeden účet má na stroji jeden spoločný terminál — ďalšie nasadenie musí ísť do toho istého), `own_terminal` (len MT5: nasadenie beží vo vlastnej portable kópii terminálu, `terminal`/`portable` sa mu neukladá a pravidlo spoločného terminálu sa ho netýka — [MT5.md](MT5.md), „Viac stratégií na jednom serveri“), `slot` (len MT5: rozlišovač v id inštancie — tá istá stratégia na účte, symbole a TF s iným profilom; `[A-Za-z0-9-]{1,16}`, prázdny = bez neho), `strategy` (kľúč enginu), `symbol`, `tf` (min), `profile` (názov), `config` (celý config enginu = snímka profilu), `config_hash` (sha256 configu), `mode` (`enabled`/`paused`/`flatten`; **nové nasadenie je predvolene `paused`** — `DEFAULT_MODE`, control súbor s pauzou je na disku skôr, než platforma inštanciu spustí, a obchodovať začne, až keď ho človek zapne; výslovný `mode: enabled` v POST sa rešpektuje), `active` (bool — má inštancia vôbec existovať; `false` = odstrániť z platformy), `created`, `updated`, `by`; odvodené `instance` = `instance_id(platform, <MT5 login>-<server> / NT meno účtu, symbol, tf, strategy, slot)`; `slot` a `own_terminal` sú ako stratégia, symbol a TF identita — `PATCH` ich nemení |
 | **audit** | `ts`, `by`, `action`, `account`/`deployment`, `old`, `new` (JSON) — každá zmena |
 | **applied** | čo agent naposledy hlásil k deploymentu: `deployment`, `agent`, `config_hash`, `mode`, `status` (`ok`/`pending`/`error`), `error`, `ts`; `status: ok` s `error` „nenabehla: <dôvod>“ = aplikované, ale inštancia na platforme nenabehla (nižšie) |
 
@@ -356,8 +356,9 @@ Poradie okolo control súboru je vec bezpečnosti, lebo adaptéry berú **chýba
   podľa obsahu, nie textu). Zmena množiny grafov (aj zmenený config pri rovnakom názve profilu — EA číta
   profil len pri štarte) = slušný reštart terminálu; režim a názov profilu idú bez reštartu cez control.
   Driver terminál spúšťa a pri páde reštartuje; `install` DLL/EA nerobí (to je nasadenie kódu, fáza 2c).
-  Podrobne [MT5.md](MT5.md), „Nasadenie z hubu (driver)“; viac stratégií a účtov na jednom stroji (čo ide,
-  čo nie, reštart terminálu pri zmene grafov, netting) v „Viac stratégií na jednom serveri“.
+  Podrobne [MT5.md](MT5.md), „Nasadenie z hubu (driver)“; viac stratégií a účtov na jednom stroji (vlastný
+  terminál nasadenia `units/<nasadenie>/`, slot, netting) v „Viac stratégií na jednom serveri“ a prevzatie
+  otvorených obchodov EA po reštarte terminálu v „Reštart terminálu s otvorenými obchodmi“.
 - **NinjaTrader driver:** zapíše `Documents\NinjaTrader 8\TradeBot\deploy.json`
   `{"instances":[{deployment, connection, account, instrument, tf, strategy, profile}]}` a control
   súbory; beh robí **AddOn** (`TradeBotLiveAddOn`), ktorý pri štarte NT a pri zmene mtime
@@ -508,5 +509,5 @@ VM (autoštart, služba) je popísaný zvlášť, neskôr.
 - `tester/tests/test_hub.py` — `/api/live/*` cez TestClient, práva tokenov; agent preberá
   `heartbeat_seconds` hubu a strážca spoolu zobudí odosielanie.
 - `tester/tests/test_mt5_static_host.py` — `Spool*` cez reflexiu: súbor vznikne, `hello`+`bar`+`fill`
-  +`order/modify` sú platné podľa `schema.validate`, `Version() == 2`.
+  +`order/modify` sú platné podľa `schema.validate`, `Version() == 3`, slot v id inštancie (`InstanceIdSlot`, `SpoolOpenSlot`).
 - `python -m tradebot.adapters.ninjatrader check` a `python -m tradebot.adapters.mt5 check` prekladajú.

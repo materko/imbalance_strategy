@@ -86,7 +86,7 @@ a text je v `LastError()`.
   a vyplnenia do JSONL spoolu `Common\Files\TradeBot\spool\mt5_<login>-<server>_<symbol>_<TF>m_<kľúč>\`;
   agent hubu ho posiela do webapp (karta **Live**). Vstupy `InpTelemetry` (predvolene zapnuté) a
   `InpTelemetryInTester` (predvolene vypnuté — tester spool nepíše, iba na overenie). Fasáda má od toho
-  `Version() == 2`: staršiu `TradeBot.dll` EA odmietne pri štarte, stačí `install`. Chyba spoolu EA
+  `Version() == 2` (od slotu nasadenia `3`, `InstanceIdSlot`/`SpoolOpenSlot`): staršiu `TradeBot.dll` EA odmietne pri štarte, stačí `install`. Chyba spoolu EA
   nezhodí — zaloguje sa a obchoduje sa ďalej;
 - **ovládanie na diaľku** cez `Common\Files\TradeBot\control\<inštancia>.json` (pauza, flatten, zmena
   profilu bez človeka pri termináli) — sekcia „Ovládanie na diaľku“ nižšie;
@@ -192,9 +192,9 @@ EA. Sieť do terminálu nejde nikdy; keď agent alebo hub spadne, platí posledn
 Common\Files\TradeBot\control\<inštancia>.json      {"mode": "enabled"|"paused"|"flatten", "profile": "<názov alebo cesta>", "updated": <ms UTC>, "by": "<kto>"}
 ```
 
-`<inštancia>` = adresár spoolu (`mt5_<login>-<server>_<symbol>_<TF>m_<kľúč>`, napr.
+`<inštancia>` = adresár spoolu (`mt5_<login>-<server>_<symbol>_<TF>m_<kľúč>[_<slot>]`, napr.
 `mt5_1514750898-FTMO-Demo_US100.cash_1m_ibsnet`); EA ho má zo spoolu (`StaticHost::SpoolInstance`), a keď je
-telemetria vypnutá, spočíta si ho rovnako (`StaticHost::InstanceId`). Ručne / z agenta:
+telemetria vypnutá, spočíta si ho rovnako (`StaticHost::InstanceIdSlot` so vstupom `InpSlot`). Ručne / z agenta:
 
 ```
 python -m tradebot.adapters.mt5 control list                                   # inštancie v spoole + ich control súbory
@@ -369,58 +369,103 @@ požadovaný stav zapísaný priamo do `Reconciler.run` namiesto hubu):
   Pasca: slušné zavretie terminálu, ktorý štartoval pred 2 s, prvý `taskkill` nevidí (ešte nemá okno) —
   preto sa opakuje.
 
-Neoverené: portable kópia (viac účtov na jednom stroji), heslo v ini pri prvom prihlásení, `AllowLiveTrading=1`
-so skutočnými vstupmi, správanie EA s otvorenou pozíciou pri reštarte terminálu kvôli zmene configu.
+Neoverené: portable kópia (viac účtov na jednom stroji, vlastný terminál nasadenia), heslo v ini pri prvom
+prihlásení, `AllowLiveTrading=1` so skutočnými vstupmi, prevzatie otvorených pozícií po reštarte terminálu
+(„Reštart terminálu s otvorenými obchodmi“ nižšie).
 
 ### Viac stratégií na jednom serveri
 
-Na jednom stroji (VPS) môže naraz bežať ľubovoľne veľa nasadení — netreba nič navyše, len viac riadkov
-v karte **Live → Nasadiť** (alebo `POST /api/live/deployments`). Ako sa rozložia:
+Na jednom stroji (VPS) môže naraz bežať ľubovoľne veľa nasadení — v karte **Live → Nasadiť** (alebo
+`POST /api/live/deployments`) jedno za druhým. Ako sa rozložia:
 
 | čo chceš | ako to vznikne | stav |
 |---|---|---|
-| rôzne stratégie na jednom účte (IBSNet + ORBNet + VwapAdxNet…), aj na tom istom symbole | každé nasadenie = vlastný graf v profile `tradebot` jedného terminálu účtu | test (`test_rozne_strategie_na_tom_istom_symbole_su_rozne_grafy_jedneho_terminalu`, `test_viac_strategii_na_jednom_ucte_a_symbole`); naživo overený mechanizmus s dvoma grafmi IBSNet (28. 9. 2026), s rôznymi šablónami EA naživo ešte nie |
+| rôzne stratégie na jednom účte (IBSNet + ORBNet + VwapAdxNet…), aj na tom istom symbole | každé nasadenie = vlastný graf v profile `tradebot` spoločného terminálu účtu | test (`test_rozne_strategie_na_tom_istom_symbole_su_rozne_grafy_jedneho_terminalu`, `test_viac_strategii_na_jednom_ucte_a_symbole`); naživo overený mechanizmus s dvoma grafmi IBSNet (28. 9. 2026), s rôznymi šablónami EA naživo ešte nie |
 | tá istá stratégia na rôznych symboloch alebo TF | to isté — iný graf | overené naživo (US100.cash M1 + EURUSD M5, 28. 9. 2026) |
+| **každá stratégia vo vlastnom termináli** | voľba **vlastný terminál** (`own_terminal`) — portable kópia len pre to nasadenie | test (`test_vlastny_terminal_nasadenia_bezi_a_konci_sam`), naživo **neoverené** |
+| **tá istá stratégia na tom istom symbole a TF s iným profilom** | pole **Slot** (`slot`, napr. `b`) — iná inštancia `…_<kľúč>_b`, vlastný control, spool aj magic | test (hub, driver, fasáda), naživo **neoverené** |
 | viac účtov na jednom stroji | každý účet vlastný terminál: `portable` (kópia v `tester/live/mt5/<account>/terminal/`) alebo vlastná inštalácia v `terminal` | napísané, **neoverené** |
-| tá istá stratégia na tom istom symbole a TF dvakrát na jednom účte (napr. dva profily) | **nejde** — hub odmietne („… na tomto účte už beží na stroji …“) | id inštancie |
 | to isté nasadenie na inom stroji (presun z notebooku na server) | **presun**: na starom stroji „odstrániť“, po potvrdení „zmazať“, potom nasadiť na novom | id inštancie nepozná stroj |
 
 Čo má každé nasadenie vlastné, takže sa grafy navzájom nevidia: graf s EA (šablóna podľa kľúča stratégie),
-**magic** (`magic_for(id nasadenia)` — EA počíta len dealy so svojím magic), id inštancie
-`mt5_<login>-<server>_<symbol>_<TF>m_<kľúč>` → vlastný control súbor (režim, profil), vlastný spool (karta
-**Live**) a vlastný súbor exportu signálov. Pauza, flatten a zmena profilu idú **po nasadeniach**, bez
-reštartu a bez vplyvu na ostatné. Jedna pozícia naraz a denný limit výhier platia **za EA**, nie za účet —
-tri stratégie môžu mať naraz tri pozície, aj na tom istom symbole; spoločné riziko účtu (marža, max. DD
-prop firmy) si stráži človek.
+**magic** (`magic_for(id nasadenia)` — EA počíta len dealy, pozície a ordery so svojím magic), id inštancie
+`mt5_<login>-<server>_<symbol>_<TF>m_<kľúč>[_<slot>]` → vlastný control súbor (režim, profil), vlastný spool
+(karta **Live**), vlastný stav obchodov (`state\<inštancia>.json`) a vlastný súbor exportu signálov. Pauza,
+flatten a zmena profilu idú **po nasadeniach**, bez reštartu a bez vplyvu na ostatné. Jedna pozícia naraz a denný
+limit výhier platia **za EA**, nie za účet — tri stratégie môžu mať naraz tri pozície, aj na tom istom symbole;
+spoločné riziko účtu (marža, max. DD prop firmy) si stráži človek.
+
+**Spoločný terminál** (predvolené). Jeden účet má na stroji jeden spoločný terminál; ďalšie nasadenie bez
+„vlastného terminálu“ ide povinne doň (hub iný `terminal`/`portable` odmietne, formulár ho rovno zamkne).
+Pridanie alebo odobratie nasadenia **reštartuje tento terminál so všetkými jeho grafmi** (driver prepíše profil
+grafov, terminál slušne zavrie a spustí); zmena režimu ani názvu profilu reštart nepotrebuje. Otvorené pozície
+EA po štarte prevezme (sekcia nižšie), čakajúce vstupy zruší — počas reštartu (desiatky sekúnd) sa ale
+neposúva trailing a nové vstupy nevznikajú.
+
+**Vlastný terminál** (`own_terminal`, zaškrtávatko „vlastný terminál“ pri nasadení, len MT5). Driver nasadeniu
+spraví samostatnú **jednotku** `tester/live/mt5/<account>/units/<nasadenie>/` — `start.ini`, `terminal.pid`,
+`charts.json`, `driver.log` a portable kópiu terminálu `terminal/` (ako pri `portable` účte: `terminal64.exe` +
+Config/Profiles/Sounds z inštalácie, `TradeBot.dll`, EA a presety z nainštalovaného terminálu; spúšťa sa
+s `/portable`) s jediným grafom. Prihlásenie je to isté (MT5 dovoľuje ten istý účet vo viacerých termináloch
+naraz; pri brokerovi, ktorý to obmedzuje, treba overiť). Pridanie ani odobratie takého nasadenia nereštartuje
+spoločný terminál ani iné jednotky; jednotka, ktorej nasadenie zmizlo, sa slušne zavrie, jej control súbory sa
+zmažú až potom a celý adresár jednotky sa zmaže. Cena: ďalší proces terminálu (pamäť, predhistória pri štarte)
+a ~120 MB disku na nasadenie. „Aktualizovať kód“ zavrie a aktualizuje aj jednotky (ich portable kópie). Účet so
+samými vlastnými terminálmi spoločný terminál nespúšťa ani nezatvára (nainštalovaný terminál človeka ostane
+nedotknutý). Vlastný terminál sa nemení — na zmenu nasadenie odstrániť a nasadiť znova.
+
+**Slot** (`slot`, pole „Slot“ pri nasadení, len MT5): krátke meno (písmená, číslice, pomlčka, najviac 16 znakov)
+pridané na koniec id inštancie. Bez neho hub druhé nasadenie tej istej stratégie na tom istom účte, symbole a
+TF odmietne (a v chybe slot poradí). Nasadenie bez slotu má id ako doteraz. Driver dá slot EA ako input
+`InpSlot`; EA ho pridá do id (`StaticHost::InstanceIdSlot`/`SpoolOpenSlot`, fasáda verzie 3). Rovnaký profil
+dvakrát nemá zmysel (tie isté signály = dvojnásobná pozícia s dvojnásobnými poplatkami) — na to je veľkosť
+v profile. Slot sa nemení (je to identita inštancie).
 
 Pravidlá, na ktoré treba myslieť:
 
-- **Jeden účet = jeden terminál na stroji.** Druhé nasadenie toho istého účtu na tom istom stroji ide
-  povinne do toho istého terminálu (hub iný `terminal`/`portable` odmietne, formulár ho rovno zamkne).
-  Ten istý účet môže bežať aj na inom stroji — tam je to iný terminál, ale **s inými stratégiami/symbolmi/TF**:
-  id inštancie stroj neobsahuje, takže tá istá stratégia na tom istom symbole a TF smie byť na účte len raz
-  (na dvoch strojoch by obchodovala dvakrát a spool by sa na hube zlial). Hub v chybe povie, na ktorom stroji
-  už beží; **presun na iný stroj** = v tabuľke Nasadenia „odstrániť“ (agent starého stroja inštanciu zastaví;
-  keď je ten stroj vypnutý, „zmazať“ ide aj bez potvrdenia a agent po návrate nasadenie, ktoré z hubu
-  zmizlo, odstráni sám — `apply_state.json`), „zmazať“, a nasadiť na novom stroji. Kým starý stroj
-  nepotvrdil, nech je nové nasadenie v pauze (predvolené), aby na chvíľu neobchodovali oba.
-- **Pridanie alebo odobratie nasadenia reštartuje terminál so všetkými grafmi účtu** (driver profil grafov
-  len prepíše a terminál slušne zavrie a spustí; zmena režimu ani názvu profilu reštart nepotrebuje). EA po
-  štarte **neprevezme** pozície ani čakajúce ordery spred reštartu: na hedging účte ostanú u brokera so svojím
-  SL/TP, ale bez trailingu, bez zavretia na konci seansy a čakajúci vstup sa môže vyplniť bez toho, aby o ňom
-  EA vedelo. Preto: **pred pridaním/odobratím nasadenia daj ostatné nasadenia toho účtu do `paused` a počkaj,
-  kým sú flat** (alebo `flatten`), potom zmeň množinu a zapni ich späť. Najjednoduchšie je nasadiť všetko,
-  čo má na účte bežať, naraz, kým sú nové nasadenia ešte v predvolenej pauze.
+- **Iný stroj.** Ten istý účet môže bežať aj na inom stroji, ale **s inými stratégiami/symbolmi/TF/slotmi**:
+  id inštancie stroj neobsahuje (na dvoch strojoch by to obchodovalo dvakrát a spool by sa na hube zlial). Hub
+  v chybe povie, na ktorom stroji už beží; **presun na iný stroj** = v tabuľke Nasadenia „odstrániť“ (agent
+  starého stroja inštanciu zastaví; keď je ten stroj vypnutý, „zmazať“ ide aj bez potvrdenia a agent po návrate
+  nasadenie, ktoré z hubu zmizlo, odstráni sám — `apply_state.json`), „zmazať“, a nasadiť na novom stroji. Kým
+  starý stroj nepotvrdil, nech je nové nasadenie v pauze (predvolené), aby na chvíľu neobchodovali oba.
 - **Netting účet: na jednom symbole len jedna stratégia.** Pozícia je jedna na symbol a EA filtrujú dealy
   podľa magic — vstup jednej stratégie by netto pozíciu druhej potichu zmenšil alebo otočil a jej stav by sa
   rozišiel s brokerom. Hub typ účtu nepozná, nekontroluje to; viac stratégií na jednom symbole = hedging účet
   (prop firmy ako FTMO ho dávajú predvolene).
-- **Dva profily tej istej stratégie na tom istom symbole a TF** dnes nejdú (id inštancie by bolo rovnaké —
-  spool aj control súbor by sa zliali). Obchádzka: iný účet, alebo iný TF grafu, keď to profil znesie.
-- **Viac účtov = viac terminálov**, každý s vlastným procesom (pamäť a CPU na predhistóriu pri štarte sa
-  sčítavajú — pri malom VPS rátať s tým). `Common\Files` (profily, control, spool) je spoločný pre všetky terminály používateľa Windows —
-  id inštancie obsahuje login a server, takže sa nebijú. `install`/„Aktualizovať kód“ ide do všetkých
-  terminálov účtov stroja naraz a všetky ich zavrie (DLL je zamknutá).
+- **Viac účtov alebo vlastných terminálov = viac procesov** (pamäť a CPU na predhistóriu pri štarte sa
+  sčítavajú — pri malom VPS rátať s tým). `Common\Files` (profily, control, spool, stav) je spoločný pre všetky
+  terminály používateľa Windows — id inštancie obsahuje login, server a slot, takže sa nebijú.
+
+### Reštart terminálu s otvorenými obchodmi
+
+Terminál sa reštartuje pri zmene grafov spoločného terminálu, pri „Aktualizovať kód“, po páde alebo reštarte
+Windows. Aby EA o svojich obchodoch nezabudlo, píše mimo Strategy Testera pri každej zmene (vstup, deal,
+trailing, control, nový bar) stav do `Common\Files\TradeBot\state\<inštancia>.json` (atomicky tmp + presun;
+nezmenený sa neprepisuje): sledované vstupy s plánom (vstup, SL, TP, trailing — aktivácia, odstup, extrém,
+posledný stop), tickety orderu a pozície, magic, posledný spracovaný bar a stav denného limitu výhier.
+
+Po štarte (`OnInit`, **po** predhistórii, ktorá beží bez obchodov) ho `RestoreState` zladí s brokerom — zdroj
+pravdy je broker, stav dodá plán, ktorý u brokera nie je:
+
+- **hedging**: každá otvorená pozícia so svojím magic na symbole sa prevezme — podľa ticketu pozície zo stavu,
+  vstup vyplnený počas výpadku podľa ticketu orderu (`POSITION_IDENTIFIER`) alebo komentára (= id vstupu); SL
+  sa berie z pozície (trailing pred reštartom, ručný posun). Extrém trailingu dobehne bary, ktoré počas výpadku
+  prešli. Pozícia, ktorú stav nepozná (stav chýba alebo je z iného magic), sa prevezme s plánom z pozície
+  (vstup = otváracia cena, SL/TP z pozície, bez trailingu). Vstup zo stavu, ktorého pozícia medzitým skončila,
+  sa dohľadá v histórii (`HistorySelectByPosition`): výstup ide do exportu a spoolu ako `fill` a SL/TP so ziskom
+  do denného limitu;
+- **netting**: vyplnené vstupy zo stavu sa prevezmú, kým na to netto pozícia v ich smere stačí; ich SL/TP
+  ordery ostanú, chýbajúci sa položí znova; zvyšok pozície, ktorý nepatrí žiadnemu vstupu, sa zaloguje;
+- **čakajúce vstupy** (pending ordery so svojím magic) sa **zrušia** — engine po predhistórii o nich nevie;
+  ak je signál stále platný, pošle vstup znova. Odložené vstupy a market bez dealu zanikajú.
+
+Prevzaté vstupy idú enginu v `positionSize` a `openIds` ako pred reštartom — ORB/VWAP stratégie ich zavrú
+vlastnými výstupmi (EMA, koniec seansy), koniec seansy (`cs`) a `flatten` ich zatvoria ako každé iné. Súhrn
+(„po reštarte prevzatých N pozícií…“) je v Experts logu aj v spoole (`note`). Vstup `InpRestoreState` (predvolene
+zapnutý) to vypne. V Strategy Testeri sa stav nepíše ani nečíta. **Neoverené naživo** — EA sa tu nedá preložiť
+(MetaEditor je len na Windows); overenie: demo účet, otvorená pozícia, `taskkill` terminálu, štart, v logu
+súhrn a v spoole pokračujúci trailing.
 
 ### Nový kód z hubu (fáza 2c)
 

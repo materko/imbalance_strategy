@@ -154,6 +154,8 @@ class Reconciler:
                "strategy": dep.strategy, "symbol": dep.symbol, "tf": dep.tf,
                "login": acc.login, "server": acc.server, "terminal": acc.terminal,
                "portable": acc.portable, "instance": dep.instance}
+        if dep.slot or dep.own_terminal:   # bez nich podpis ako doteraz — nič sa zbytočne neprepisuje
+            sig.update(slot=dep.slot, own_terminal=dep.own_terminal)
         if acc.rev:   # bez `rev` (starý hub) ostáva podpis ako doteraz — nič sa zbytočne neprepisuje
             sig["rev"] = acc.rev
         return config_hash(sig)
