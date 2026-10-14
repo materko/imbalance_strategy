@@ -95,10 +95,16 @@ a text je v `LastError()`.
   `python -m tester.ninjatrader compare --csv <súbor>`. Riadky `fill` sú vyplnenia z dealov:
   `in`/`out`, cena, objem a čas dealu v ms UTC; v `b` je pri výstupe `sltp` alebo `close`.
 
-**Čas servera.** MT5 dáva časy barov v čase servera brokera, nie UTC, a v Strategy Testeri sa
-posun zistiť nedá (`TimeGMT()` tam kopíruje čas servera). Preto je vstup
-`InpServerGmtOffsetMin` (GMT+3 s letným časom = 180) — bez neho by seansy engine-u sedeli o
-pár hodín vedľa. Živý účet: `TimeTradeServer() - TimeGMT()`.
+**Čas servera.** MT5 dáva časy barov v čase servera brokera, nie UTC. **Naživo si EA posun zistí samo**
+(`InpServerGmtAuto`, predvolene zapnuté): `TimeTradeServer() − TimeGMT()` zaokrúhlené na 15 min, a prekontroluje
+ho na **každom novom bare** — letný čas brokera (FTMO a väčšina: GMT+3 v lete, GMT+2 v zime) sa prejaví sám.
+Kým sa terminál po štarte nepripojí, platí posledný známy posun zo stavu (`state\<inštancia>.json`,
+`gmt_offset_min`), inak vstup `InpServerGmtOffsetMin`. Keď sa posun zmení a stratégia je bez pozície, engine sa
+postaví nanovo a predhistória sa prehrá s novým posunom (denný limit výhier prežije); s pozíciou engine beží ďalej a
+nové bary už idú s novým posunom. Zmena ide do Experts logu aj do spoolu (`note`). V **Strategy Testeri** sa posun
+zistiť nedá (`TimeGMT()` tam kopíruje čas servera) — platí `InpServerGmtOffsetMin` (GMT+3 = 180), bez neho by
+seansy engine-u sedeli o pár hodín vedľa. Predtým platilo len `InpServerGmtOffsetMin` aj naživo: stratégie bez
+`<Šablóna>_live.set` (ORBNet, IBSEntryNet, VwapOrbNet, VwapAdxNet) bežali s posunom 0 a IBSNet s pevným 180 aj v zime.
 
 **Účet.** Hedging účet = každý vstup vlastná pozícia (ako NinjaTrader `UniqueEntries`). Netting
 = jedna pozícia na symbol, SL/TP sú spoločné a čiastočné zatváranie ide cez `PositionClosePartial`

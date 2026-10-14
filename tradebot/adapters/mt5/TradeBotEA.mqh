@@ -45,6 +45,7 @@
 //--- vstupy (rovnake ako parametre strategie v NinjaTraderi)
 input string InpProfile             = TRADEBOT_DEFAULT_PROFILE; // Profil: nazov JSON v Common\Files\TradeBot\profiles\<kluc>\ alebo cela cesta
 input int    InpServerGmtOffsetMin  = 0;      // Posun casu servera brokera voci UTC v minutach (GMT+3 = 180); v testeri sa neda zistit
+input bool   InpServerGmtAuto       = true;   // Nazivo zistit posun sam (TimeTradeServer - TimeGMT, aj letny cas); vstup vyssie plati v testeri
 input int    InpMagic               = 20260925; // Magic number
 input string InpSlot                = "";     // Slot nasadenia v id instancie (viac nasadeni tej istej strategie na symbole a TF); prazdny = bez neho
 input bool   InpExportSignals       = true;   // Exportovat signaly (CSV do Common\Files\TradeBot\logs, na porovnanie s Testerom)
@@ -136,8 +137,23 @@ bool   g_stateWarned = false;
 //+------------------------------------------------------------------+
 string Num(double v) { return StringFormat("%.17g", v); }
 
-long ToMs(datetime serverTime) { return ((long)serverTime - (long)InpServerGmtOffsetMin * 60) * 1000; }
-datetime FromMs(long ms) { return (datetime)(ms / 1000 + (long)InpServerGmtOffsetMin * 60); }
+//--- posun casu servera voci UTC v minutach: v testeri InpServerGmtOffsetMin (TimeGMT() tam kopiruje cas servera),
+//--- nazivo (InpServerGmtAuto) zisteny z terminalu a prekontrolovany na kazdom bare - letny cas brokera
+//--- (GMT+2 / GMT+3) sa tak prejavi sam; kym terminal nie je pripojeny, plati posledny znamy zo stavu (state)
+int g_offsetMin = 0;
+
+long ToMs(datetime serverTime) { return ((long)serverTime - (long)g_offsetMin * 60) * 1000; }
+datetime FromMs(long ms) { return (datetime)(ms / 1000 + (long)g_offsetMin * 60); }
+
+bool OffsetAuto() { return InpServerGmtAuto && !MQLInfoInteger(MQL_TESTER); }
+
+/// Posun zisteny z terminalu (zaokruhleny na 15 min), alebo -100000, ked terminal nie je pripojeny.
+int DetectOffsetMin()
+  {
+   if(!TerminalInfoInteger(TERMINAL_CONNECTED)) return -100000;
+   long diff = (long)(TimeTradeServer() - TimeGMT());
+   return (int)(MathRound(diff / 900.0) * 15);
+  }
 
 long UtcDay(long ms)
   {
@@ -319,6 +335,17 @@ int OnInit()
         }
      }
 
+   // posun casu servera: pred predhistoriou (casy barov pre engine su z neho)
+   g_offsetMin = InpServerGmtOffsetMin;
+   if(OffsetAuto())
+     {
+      int det = DetectOffsetMin(), saved = StateOffsetMin();
+      string from = "zo vstupu (terminal este nie je pripojeny, posledny znamy nie je)";
+      if(det != -100000) { g_offsetMin = det; from = "zisteny z terminalu"; }
+      else if(saved != -100000) { g_offsetMin = saved; from = "posledny znamy zo stavu (terminal este nie je pripojeny)"; }
+      Print("TradeBot: posun servera UTC", g_offsetMin >= 0 ? "+" : "", g_offsetMin / 60.0, "h - ", from, "; prekontroluje sa na kazdom bare");
+     }
+
    string profilePath = ResolveProfilePath(g_profile);
    int h = CreateEngine(profilePath);
    if(h <= 0) return INIT_FAILED;
@@ -331,7 +358,7 @@ int OnInit()
    if(InpExportSignals) OpenExport();
    OpenSpool(g_profile);
    PrintEngineInfo(profilePath);
-   if(InpServerGmtOffsetMin == 0)
+   if(g_offsetMin == 0 && !OffsetAuto())
       Print("TradeBot: POZOR, posun servera voci UTC je 0 - seansy engine-u su v UTC/pasme profilu, skontroluj InpServerGmtOffsetMin");
 
    if(InpShowDrawings) ObjectsDeleteAll(0, TB_OBJ_PREFIX);   // zvysky z predoslej instancie EA
@@ -388,7 +415,7 @@ void PrintEngineInfo(string profilePath)
   {
    Print("TradeBot ", TRADEBOT_ENGINE_KEY, ": TF ", g_chartTfMin, "m, predhistoria ", g_required, " barov, HTF ", g_htfMin,
          "m, tick ", SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE), ", ucet ", g_hedging ? "hedging" : "netting",
-         ", server UTC", InpServerGmtOffsetMin >= 0 ? "+" : "", InpServerGmtOffsetMin / 60.0, "h, profil ", profilePath);
+         ", server UTC", g_offsetMin >= 0 ? "+" : "", g_offsetMin / 60.0, "h", OffsetAuto() ? " (auto)" : "", ", profil ", profilePath);
   }
 
 //+------------------------------------------------------------------+
@@ -497,7 +524,7 @@ bool IsFlat()
 
 /// Zmena profilu: novy engine z noveho profilu, stary zahodit (spool zavriet s dovodom "profile"), stav adaptera
 /// od nuly a predhistoriu prehrat znova - engine je deterministicky, vysledok je ako cerstvy start (docs/LIVE.md).
-bool RebuildEngine(string spec)
+bool RebuildEngine(string spec, string why = "")
   {
    string path = ResolveProfilePath(spec);
    int h = CreateEngine(path);
@@ -517,7 +544,8 @@ bool RebuildEngine(string spec)
    if(InpShowDrawings) ObjectsDeleteAll(0, TB_OBJ_PREFIX);
    ReplayHistory();
    if(g_spool && !MQLInfoInteger(MQL_TESTER) && StaticHost::SpoolRealtime(g_engine, true) < 0) Print(EngineError("SpoolRealtime"));
-   Print("TradeBot control: profil zmeneny na ", spec, " (Common\\Files\\", path, "), engine postaveny nanovo, predhistoria prehrana");
+   if(why == "") Print("TradeBot control: profil zmeneny na ", spec, " (Common\\Files\\", path, "), engine postaveny nanovo, predhistoria prehrana");
+   else Print("TradeBot: ", why, " - engine z profilu ", spec, " postaveny nanovo, predhistoria prehrana");
    SaveState();
    return true;
   }
@@ -673,6 +701,7 @@ void OnTick()
    if(g_engine <= 0) return;
    datetime open0 = iTime(_Symbol, PERIOD_CURRENT, 0);
    if(open0 == 0 || open0 <= g_lastChart) return;
+   if(OffsetAuto()) CheckServerOffset();   // novy bar: prestavenie casu u brokera, prve pripojenie po starte
    // Vsetko uzavrete od posledneho spracovaneho baru (bezne jeden bar; po vypadku tikov viac). Berie sa
    // podla INDEXU od 1 (posledny uzavrety): CopyRates s casovym rozsahom vracia aj prave otvoreny bar
    // (v testeri overene 25. 9. 2026 - bar s jednym tikom by isiel do engine-u ako uzavrety).
@@ -1203,6 +1232,7 @@ string StateJson()
   {
    string s = "{\"v\":1,\"instance\":" + JsonStr(g_instance) + ",\"magic\":" + IntegerToString((long)InpMagic)
               + ",\"symbol\":" + JsonStr(_Symbol) + ",\"profile\":" + JsonStr(g_profile) + ",\"bar_ms\":" + IntegerToString(g_lastBarMs)
+              + ",\"gmt_offset_min\":" + IntegerToString(g_offsetMin)
               + ",\"wins_day\":" + IntegerToString(g_winsDay) + ",\"wins\":" + IntegerToString(g_winsCount)
               + ",\"wins_seen_day\":" + IntegerToString(g_winsSeenDay) + ",\"wins_seen\":" + IntegerToString(g_winsSeen) + ",\"orders\":[";
    for(int i = 0; i < ArraySize(g_orders); i++) s += (i > 0 ? "," : "") + TrackedJson(g_orders[i]);
@@ -1430,6 +1460,37 @@ void SpoolNoteState(string msg)
    if(g_spool && StaticHost::SpoolNote(g_engine, "info", msg) < 0) Print(EngineError("SpoolNote"));
   }
 
+
+/// Posun servera z posledneho behu (stav), alebo -100000 - plati, kym sa terminal po starte nepripoji.
+int StateOffsetMin()
+  {
+   string text = ReadTextFile(StatePath());
+   CJson *root = text == "" ? NULL : JsonParse(text);
+   int out = -100000;
+   if(root != NULL && root.type == JSON_OBJECT && root.Find("gmt_offset_min") != NULL) out = (int)root.Dbl("gmt_offset_min");
+   if(root != NULL) delete root;
+   return out;
+  }
+
+/// Nazivo na kazdom novom bare: posun servera sa zmenil (letny cas brokera, prve pripojenie po starte terminalu).
+/// Bez pozicie sa engine postavi nanovo a predhistoria sa prehra s novym posunom (seansy sedia aj v historii);
+/// s poziciou bezi engine dalej a nove bary uz idu s novym posunom. Denny limit vyhier prezije.
+void CheckServerOffset()
+  {
+   int det = DetectOffsetMin();
+   if(det == -100000 || det == g_offsetMin) return;
+   string msg = StringFormat("posun servera sa zmenil z UTC%+.2fh na UTC%+.2fh", g_offsetMin / 60.0, det / 60.0);
+   g_offsetMin = det;
+   if(IsFlat())
+     {
+      long wd = g_winsDay, wsd = g_winsSeenDay; int wc = g_winsCount, ws = g_winsSeen;
+      if(RebuildEngine(g_profile, msg))
+        { g_winsDay = wd; g_winsCount = wc; g_winsSeenDay = wsd; g_winsSeen = ws; msg += " - engine postaveny nanovo"; }
+     }
+   else msg += " - bezi pozicia, engine pokracuje a nove bary idu s novym posunom";
+   SpoolNoteState(msg);
+   SaveState();
+  }
 //+------------------------------------------------------------------+
 //| Kresby: DrawCommand -> objekty grafu (TradeBotDraw.mqh)                                            |
 //+------------------------------------------------------------------+

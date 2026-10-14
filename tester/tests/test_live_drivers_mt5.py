@@ -97,7 +97,7 @@ def test_templates_magic_period_and_inputs():
     assert period_of(1) == (0, 1) and period_of(5) == (0, 5) and period_of(60) == (1, 1) and period_of(240) == (1, 4)
     assert period_of(1440) == (2, 1) and period_of(90) == (0, 90)
     names = [n for _t, n, _v in ea_inputs()]
-    assert names[:3] == ["InpProfile", "InpServerGmtOffsetMin", "InpMagic"] and "InpTelemetry" in names
+    assert names[:4] == ["InpProfile", "InpServerGmtOffsetMin", "InpServerGmtAuto", "InpMagic"] and "InpTelemetry" in names
 
 
 def test_ini_text(drv):
@@ -178,6 +178,7 @@ expertmode=4
 <inputs>
 InpProfile=golden_binance_btcusdt_3m
 InpServerGmtOffsetMin=180
+InpServerGmtAuto=true
 InpMagic={magic}
 InpSlot=
 InpExportSignals=false
