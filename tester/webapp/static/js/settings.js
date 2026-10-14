@@ -186,7 +186,7 @@ function runIdStamp(id) {
 function profileLabel(name, meta = state.meta) {
   const info = (meta.profile_info || {})[name] || {};
   // profily zo smernice: len krátky názov („IBS EZ 1 · PF 1,55 · …“), rovnaký ako na stránke výsledkov
-  if (name.startsWith(SMERNICE_PREFIX)) return info.title || (meta.profile_titles || {})[name] || name;
+  if (isSmerniceProfile(name)) return info.title || (meta.profile_titles || {})[name] || name;
   const titles = meta.profile_titles || {};
   const popis = info.title || (titles[name] && titles[name] !== name ? titles[name] : "") || name;
   if (!info.created) return popis === name ? name : `${name} — ${popis}`;
@@ -205,7 +205,7 @@ function fillProfiles(selected) {
     .sort((a, b) => String(info[b]?.created || "").localeCompare(String(info[a]?.created || "")) || a.localeCompare(b));
   ps.innerHTML = `<option value="">(Pine defaulty)</option>`;
   const groups = inSmernice(state.strategy)
-    ? [["Prešli smernicou", state.meta.profiles.filter(p => p.startsWith(SMERNICE_PREFIX))
+    ? [["Prešli smernicou", state.meta.profiles.filter(isSmerniceProfile)
         .sort((a, b) => (+a.match(/_(\d+)$/)?.[1] || 0) - (+b.match(/_(\d+)$/)?.[1] || 0))]]
     : [["Profily repozitára", state.meta.profiles.filter(p => !own.has(p))], ["Vlastné profily", vlastne]];
   for (const [label, names] of groups) {
@@ -510,12 +510,14 @@ function timerange() {
 
 /** Stratégie, ktoré majú aspoň jeden profil PREŠIEL SMERNICAMI (testovanie podľa smernice ich tam pridáva
  *  samo) — patria do priečinka SMERNICE celkom hore a ukazujú len tieto profily. */
-const SMERNICE_PREFIX = "PRESIEL_SMERNICAMI_";
+// PRESIEL_SMERNICAMI_ = ranná úloha Mac mini; SMERNICE_CS_ = kópie pre stratégie s C# jadrom (ten export ich nemaže)
+const SMERNICE_PREFIXES = ["PRESIEL_SMERNICAMI_", "SMERNICE_CS_"];
+function isSmerniceProfile(name) { return SMERNICE_PREFIXES.some(x => String(name).startsWith(x)); }
 function smerniceKeys() {
   // zo servera (/api/meta) + čo pribudlo v tejto relácii (profily dotiahnutých stratégií)
   const sm = (state.meta && state.meta.strategy_meta) || {};
   return new Set([...(state.meta && state.meta.smernice_strategies) || [],
-    ...Object.keys(sm).filter(k => (sm[k].profiles || []).some(p => p.startsWith(SMERNICE_PREFIX)))]);
+    ...Object.keys(sm).filter(k => (sm[k].profiles || []).some(isSmerniceProfile))]);
 }
 function inSmernice(key) { return smerniceKeys().has(key); }
 /** Nové stratégie (práve pridané / v teste podľa smernice). Keď prejdú, presunú sa samy do SMERNICE. */

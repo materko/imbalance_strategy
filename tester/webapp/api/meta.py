@@ -16,8 +16,11 @@ from .common import STATIC, SECONDS_PER_YEAR, asset_version, current_user
 from .context import AppContext
 
 
-#: Prefix profilov, ktoré prešli smernicou (ten istý ako `SMERNICE_PREFIX` v settings.js).
-SMERNICE_PREFIX = "PRESIEL_SMERNICAMI_"
+#: Prefixy profilov, ktoré prešli smernicou (tie isté ako `SMERNICE_PREFIXES` v settings.js).
+#: `PRESIEL_SMERNICAMI_` zapisuje ranná úloha na Mac mini (a pri exporte maže, čo sama nevyrobila);
+#: `SMERNICE_CS_` sú kópie pre stratégie s C# jadrom (ibsentrynet, vwaporbnet, vwapadxnet) — vlastný
+#: prefix, aby ich ten export nezmazal.
+SMERNICE_PREFIXES = ("PRESIEL_SMERNICAMI_", "SMERNICE_CS_")
 
 
 def build(ctx: AppContext) -> APIRouter:
@@ -74,7 +77,7 @@ def build(ctx: AppContext) -> APIRouter:
             # kompatibilita pre CLI a testy); stránka pracuje so `strategy_meta[key]`.
             **strategy_meta("ibs"),
             # Stratégie s profilom, ktorý prešiel smernicou — priečinok SMERNICE vo výbere stratégie.
-            "smernice_strategies": user_profiles.strategies_with_prefix(SMERNICE_PREFIX),
+            "smernice_strategies": user_profiles.strategies_with_prefix(SMERNICE_PREFIXES),
             "strategies": [spec.public() for spec in STRATEGIES.values()],
             "exchanges": [{"key": e, "title": engines.EXCHANGE_TITLES.get(e, e)}
                           for e in engines.EXCHANGES],

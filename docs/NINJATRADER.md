@@ -33,7 +33,8 @@ signálmi zhodnými s ňou; vo webapp sú to obyčajné stratégie pod Freqtrade
 | **`vwapadxnet`** | `vwapadx` (VWAP ADX Pullback) | `csharp/TradeBot.Strategies/VwapAdxNet` (ADX z `IbsNet`) | `deploy/ninjatrader/VwapAdxNet.cs` |
 
 Ku každej je aj Expert Advisor pre MetaTrader 5 (`deploy/mt5/<Meno>.mq5`). Nastavenia `ibsentry`, `vwaporb` a `vwapadx`,
-ktoré prešli smernicou testovania, majú C# kópiu v `tester/profiles/PRESIEL_SMERNICAMI_*_CS_<n>.json`
+ktoré prešli smernicou testovania, majú C# kópiu v `tester/profiles/SMERNICE_CS_<názov>_<n>.json` (vlastný prefix — export rannej úlohy
+on Mac mini maže len `PRESIEL_SMERNICAMI_*`, ktoré sám nevyrobil)
 (webapp ich ukáže v priečinku SMERNICE, karta Live ich ponúkne na nasadenie). VWAP ORB v C# nemá stop
 posúvaný s VWAP (`vwapStop`, `vwapTp`) — potrebuje stop meniaci sa v čase, ktorý `TrailingPlan` ani živé
 adaptéry nepoznajú; config aj engine ho odmietnu.

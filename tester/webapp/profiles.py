@@ -111,8 +111,8 @@ def user_names(strategy: str = LEGACY_STRATEGY) -> list[str]:
     return sorted(p.stem for p, key in _user_files() if key == strategy)
 
 
-def strategies_with_prefix(prefix: str) -> list[str]:
-    """Stratégie, ktoré majú vlastný profil s menom začínajúcim `prefix` (jeden prechod adresárom)."""
+def strategies_with_prefix(prefix: str | tuple[str, ...]) -> list[str]:
+    """Stratégie, ktoré majú vlastný profil s menom začínajúcim `prefix` (aj n-tica prefixov; jeden prechod adresárom)."""
     return sorted({key for p, key in _user_files() if p.stem.startswith(prefix)})
 
 
