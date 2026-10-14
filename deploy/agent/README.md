@@ -5,6 +5,23 @@ zosúlaďuje nasadenia (spúšťa terminály, píše profily a control súbory) 
 NT aj MT5 sú desktopové aplikácie, preto agent **nebeží ako služba ani v Dockeri**, ale v prihlásenej
 relácii používateľa ako naplánovaná úloha „pri prihlásení“.
 
+## Príprava VM jedným príkazom
+
+V PowerShelli **ako správca**, z klonu repozitára (token agenta vygeneruje webapp na karte Hub):
+
+```powershell
+.\deploy\agent\bootstrap.ps1 -HubUrl https://hub:8790 -Token <token agenta> `
+    -AutologonPassword (Read-Host -AsSecureString "heslo Windows") `
+    -Mt5Installer <URL mt5setup.exe brokera> -NtInstaller <cesta k inštalátoru NT>
+```
+
+Spraví kroky 1, 3–7 nižšie (Python prostredie, agent, Autologon cez Sysinternals — heslo v LSA, tichá inštalácia
+MT5 a NT, kód TradeBotu do oboch, úloha „TradeBot agent“); čo je hotové, preskočí, takže sa dá spustiť znova
+(napr. po prvom prihlásení do NT). `-WhatIf` len ukáže, čo by spravil. Na konci vypíše, čo ostáva človeku:
+prvé prihlásenie do NT konta s „Remember“ a pripojenie brokera v NT (Connections), MT5 účet vo webapp.
+Tichá inštalácia MT5/NT a Autologon sú **neoverené na čistej VM** — keď niektorý krok zlyhá, urob ho ručne podľa
+postupu nižšie a bootstrap spusti znova.
+
 ## Príprava VM (raz, ručne)
 
 1. **Automatické prihlásenie** používateľa Windows (napr. `netplwiz` → zrušiť „Používatelia musia zadať

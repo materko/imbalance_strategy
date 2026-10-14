@@ -13,7 +13,8 @@
 [CmdletBinding()]
 param(
     [string]$Python = "python",
-    [switch]$Recreate
+    [switch]$Recreate,
+    [switch]$NoTests    # bez pytest na konci (obchodný stroj, deploy\agent\bootstrap.ps1)
 )
 
 $ErrorActionPreference = "Stop"
@@ -55,7 +56,7 @@ if ($LASTEXITCODE -ne 0) { throw "instalacia tradebot zlyhala" }
 
 Write-Host ""
 & $py -m freqtrade --version
-& $py -m pytest $repo -q
+if (-not $NoTests) { & $py -m pytest $repo -q }
 
 Write-Host ""
 Write-Host "Hotovo. Dalsi krok:"
