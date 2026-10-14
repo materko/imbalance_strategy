@@ -70,7 +70,8 @@ INCLUDES = ("TradeBotEA.mqh", "TradeBotJson.mqh", "TradeBotDraw.mqh")
 SCRIPTS = ("TradeBotImport.mq5",)
 #: `.set` pre skripty idú do Presets, pre EA v Strategy Testeri do Profiles/Tester
 PRESETS = {"TradeBotImport.set": ("Presets",), "IBSNet_TB.set": ("Profiles", "Tester"),
-           "IBSNet_chart.set": ("Presets",), "IBSNet_live.set": ("Presets",)}
+           "IBSNet_chart.set": ("Presets",), "IBSNet_live.set": ("Presets",),
+           **{f"{t}_live.set": ("Presets",) for t in ("IBSEntryNet", "ORBNet", "VwapOrbNet", "VwapAdxNet")}}
 
 
 def metaeditor() -> Path | None:
