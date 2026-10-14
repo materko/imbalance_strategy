@@ -357,8 +357,14 @@ aj `deploy/agent/install-agent.ps1`, a keď na stroji predsa chýba, agent si ju
 
 **Čo musí človek urobiť raz** (asistent má okno NT len na čítanie, klikať nemôže):
 
-1. NT login s „Remember“ — AddOn štartuje až po prihlásení; heslo z kódu nejde a nikdy sa nezadáva za človeka.
-   Login dialóg NT konta si meno a heslo pamätá, ale tlačidlo **Log In** je stále klik.
+1. NT login s „Remember“ **raz** — AddOn štartuje až po prihlásení; heslo z kódu nejde a nikdy sa nezadáva za
+   človeka. Login dialóg NT konta si meno a heslo pamätá a tlačidlo **Log In** potom stláča agent sám: driver
+   (`NinjaTraderDriver.check_login`, `nt_login_state` v `tradebot.adapters.ninjatrader`) po štarte NT každých
+   20 s prejde okná procesu cez pywinauto (UIA), a keď nájde tlačidlo Log In a nie Control Center, stlačí ho
+   (UIA Invoke) — najviac 3× na proces NT s odstupom 60 s. Kým NT nie je prihlásený, webapp pri nasadení ukáže
+   „nenabehla: NinjaTrader čaká na prihlásenie…“, po troch neúspešných klikoch s radou skontrolovať Remember.
+   Vypnutie: `TRADEBOT_NT_AUTOLOGIN=0`. **Neoverené naživo** (text a typ tlačidla login dialógu NT sa hľadajú
+   podľa `LOGIN_BUTTONS`; keď ho UIA nevidí, stav je `unknown` a nič sa nestláča).
 2. Pripojenie nakonfigurované v *Connections* (Simulated Data Feed, alebo broker/dáta); `Connection.Connect`
    si AddOn zavolá sám, voliteľne *Connect on startup*.
 3. `PY -m tradebot.adapters.ninjatrader install --compile` pri **bežiacom** NT — zdrojáky sa nakopírujú a preklad

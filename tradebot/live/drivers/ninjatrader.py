@@ -4,8 +4,9 @@
 (`Documents\\NinjaTrader 8\\TradeBot\\profiles\\<stratégia>\\<profil>.json`), control súbor
 (`TradeBot\\control\\<inštancia>.json`) a **`TradeBot\\deploy.json`** so zoznamom inštancií účtu
 (pripojenie, účet, inštrument, TF, stratégia, profil) — AddOn ho číta pri štarte NT a pri zmene mtime
-a inštancie spustí/zastaví sám. Proces `NinjaTrader.exe` driver spustí, len keď nebeží (login
-NT konta musí byť zapamätaný — jediný ručný krok); heslo účtu NT nemá, `store_secret` je no-op.
+a inštancie spustí/zastaví sám. Proces `NinjaTrader.exe` driver spustí, len keď nebeží, a login dialóg
+NT konta po štarte potvrdí sám (`check_login`: pywinauto stlačí **Log In**, heslo musí mať NT zapamätané —
+nikdy sa nezadáva; ručne ostáva len prvé prihlásenie s „Remember“); heslo účtu NT nemá, `store_secret` je no-op.
 
 `deploy.json` je jeden súbor pre celý stroj (NT beží raz), s inštanciami všetkých účtov: driver
 pri `ensure_instance` účtu vymení len jeho položky a ostatné ponechá.
@@ -39,6 +40,11 @@ __all__ = ["NinjaTraderDriver", "DRIVER"]
 log = logging.getLogger(__name__)
 
 EXE_NAME = "NinjaTrader.exe"
+#: Ako často sa pozerá na okná NT (login dialóg) — UIA prechod okien nie je zadarmo, kolo reconcilera je časté.
+LOGIN_CHECK_SECONDS = 20.0
+#: Automatický klik na **Log In**: najviac toľkokrát na jeden proces NT, s odstupom `LOGIN_RETRY_SECONDS`.
+LOGIN_MAX_CLICKS = 3
+LOGIN_RETRY_SECONDS = 60.0
 #: Koľko z konca addon logu sa číta (riadky štartu inštancie sú pri konci; celý log môže mať megabajty).
 LOG_TAIL_BYTES = 256 * 1024
 
@@ -69,7 +75,8 @@ class NinjaTraderDriver(Driver):
 
     def __init__(self, *, nt_dir: Path | None = None, exe: Path | None = None,
                  is_running: Callable[[], bool] | None = None, launcher: Callable[[Path], int] | None = None,
-                 autostart: bool | None = None) -> None:
+                 autostart: bool | None = None, login: Callable[..., dict[str, Any]] | None = None,
+                 autologin: bool | None = None, clock: Callable[[], float] = time.time) -> None:
         self._nt_dir = Path(nt_dir) if nt_dir else None
         self._exe = Path(exe) if exe else None
         self._is_running = is_running
@@ -80,6 +87,13 @@ class NinjaTraderDriver(Driver):
         self._pending_remove: dict[str, set[str]] = {}
         #: Posledné prečítané riadky addon logu: ((cesta, veľkosť, mtime), riadky).
         self._log_cache: tuple[tuple[str, int, int], list[str]] | None = None
+        #: Login NT konta (`nt_login_state`): stav okien bežiaceho NT a automatický klik na Log In.
+        self._login = login
+        env = os.environ.get("TRADEBOT_NT_AUTOLOGIN")
+        self.autologin = autologin if autologin is not None else (env is None or env.strip().lower() in ("1", "true", "yes", "on"))
+        self.clock = clock
+        self._login_state: dict[str, Any] | None = None
+        self._login_clicks: dict[Any, list[float]] = {}
 
     # -- kde je čo ------------------------------------------------------------ #
 
@@ -238,6 +252,42 @@ class NinjaTraderDriver(Driver):
         self._drop_removed_controls(account, bezali, {e["instance"] for e in mine})
         if mine and self.autostart and not self.running():
             self._start()
+        elif mine:
+            self.check_login()
+
+    # -- login NT konta (jediný krok, ktorý po štarte NT chcel človeka) --------- #
+
+    def _login_call(self, click: bool) -> dict[str, Any]:
+        if self._login is not None:
+            return self._login(click=click)
+        from tradebot.adapters.ninjatrader.__main__ import nt_login_state
+
+        return nt_login_state(click=click)
+
+    def check_login(self, force: bool = False) -> dict[str, Any] | None:
+        """Bežiaci NT bez prihlásenia (okno **Log In**): stlačí tlačidlo za človeka — heslo musí byť v NT
+        zapamätané, nikdy sa nezadáva (`nt_login_state`). Najviac `LOGIN_MAX_CLICKS` klikov na proces NT
+        s odstupom `LOGIN_RETRY_SECONDS`; pozerá sa najviac raz za `LOGIN_CHECK_SECONDS`. Stav si driver
+        pamätá pre `instance_issue` a `status`. Nevyhodí výnimku."""
+        now = self.clock()
+        last = self._login_state
+        if not force and last is not None and now - float(last.get("checked") or 0) < LOGIN_CHECK_SECONDS:
+            return last
+        try:
+            st = dict(self._login_call(click=False))
+            if st.get("state") == "login" and self.autologin:
+                kliky = self._login_clicks.setdefault(st.get("pid"), [])
+                if len(kliky) < LOGIN_MAX_CLICKS and (not kliky or now - kliky[-1] >= LOGIN_RETRY_SECONDS):
+                    kliky.append(now)
+                    st = dict(self._login_call(click=True))
+                    log.info("ninjatrader driver: login dialóg NT — automatický klik %d/%d: %s", len(kliky),
+                             LOGIN_MAX_CLICKS, st.get("state"))
+                st["clicks"] = len(kliky)
+        except Exception as exc:  # noqa: BLE001 - login je pomocník, kolo nesmie padnúť
+            st = {"state": "unknown", "error": f"{type(exc).__name__}: {exc}"[:400]}
+        st["checked"] = now
+        self._login_state = st
+        return st
 
     def _start(self) -> None:
         exe = self.exe()
@@ -287,6 +337,13 @@ class NinjaTraderDriver(Driver):
         TradeBotLiveInstance.cs): posledný pokus (`[<nasadenie>] start …`) skončil riadkom zlyhania →
         jeho text; prehral predhistóriu → `None`. Pokus, ktorý ešte beží (AddOn skúša znova o 60 s, na
         pripojenie a účet čaká až 2 × 60 s), nič nemení — platí výsledok predošlého pokusu."""
+        login = self._login_state or {}
+        if login.get("state") in ("login", "clicked"):
+            kliky = int(login.get("clicks") or 0)
+            if login.get("state") == "clicked" or kliky < LOGIN_MAX_CLICKS:
+                return "NinjaTrader čaká na prihlásenie NT konta (okno Log In) — agent stláča Log In sám"
+            return (f"NinjaTrader čaká na prihlásenie NT konta (okno Log In) — {kliky}× automatický klik nepomohol: "
+                    f"je v login dialógu NT zaškrtnuté zapamätanie hesla (Remember)? Prihlás sa raz ručne")
         tags = {deployment.id, self.instance_of(account, deployment)}
         last: str | None = None           # výsledok posledného ukončeného pokusu (None = nabehla)
         pripojenie: str | None = None     # posledný riadok AddOnu o pripojení počas pokusu (bez značky)
@@ -313,7 +370,8 @@ class NinjaTraderDriver(Driver):
 
     def status(self, account: Account) -> dict[str, Any]:
         data = self.read_deploy()
-        return {"platform": self.platform, "running": self.running(), "deploy": str(self.deploy_path()),
+        login = {k: v for k, v in (self._login_state or {}).items() if k in ("state", "clicks", "error", "checked")}
+        return {"platform": self.platform, "running": self.running(), "deploy": str(self.deploy_path()), "login": login,
                 "instances": [e for e in data["instances"] if isinstance(e, dict) and e.get("account") == account.login],
                 "updated": data.get("updated"), "installed": self.installed_version()}
 

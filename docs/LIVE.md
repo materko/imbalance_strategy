@@ -462,7 +462,7 @@ stiahne ručne. Cieľ prežije reštart hubu (`state.json`).
      je to SDK-style projekt (`Sdk=Microsoft.NET.Sdk`, C# 13, NuGet; MSB4041) a .NET SDK ani VS na
      stroji nie sú; funguje **F5 do okna NinjaScript Editora** bežiaceho NT cez pywinauto (UIA; overené
      28. 9. 2026: DLL nová a AddOn v novej generácii do 2 s, bežiaca inštancia nabehla znova v novej
-     session). NT musí bežať (login je ručný); keď nebeží, zdrojáky sú na disku, marker má
+     session). NT musí bežať (agent ho spustí a Log In stlačí sám, ak má NT heslo zapamätané); keď nebeží, zdrojáky sú na disku, marker má
      `compiled: false` a platforma hlási chybu, kým to niekto nepreloží (ďalší pokus pri bežiacom NT).
      Podrobne [NINJATRADER.md](NINJATRADER.md).
 5. **Hlásenie**: `live.code_update = {version, status: ok|blocked|error, error, reasons, pulled,
@@ -479,9 +479,10 @@ generácii) s voľbou **aj s otvorenými pozíciami** (`force`) a „zrušiť“
 nasadení má stĺpec **kód** (`code_state` nasadenia). Formulár **Nasadiť** upozorní, keď má stroj
 vybraného účtu starší (alebo neznámy) kód než webapp — neblokuje.
 
-**Čo potrebuje človeka**: NinjaTrader beží len prihlásený (login s „Remember“ + klik na Log In) — bez
-bežiaceho NT sa preklad neurobí; MT5 nič (terminál štartuje driver s ini). Beh agenta bez človeka na
-VM (autoštart, služba) je popísaný zvlášť, neskôr.
+**Čo potrebuje človeka**: NinjaTrader beží len prihlásený — prvé prihlásenie s „Remember“ urobí človek raz,
+potom agent NT spustí a **Log In** stlačí sám (`NinjaTraderDriver.check_login`, [NINJATRADER.md](NINJATRADER.md));
+bez bežiaceho NT sa preklad neurobí. MT5 nič (terminál štartuje driver s ini). Beh agenta bez človeka na VM:
+[deploy/agent/README.md](../deploy/agent/README.md).
 
 ## Testy
 

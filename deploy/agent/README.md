@@ -11,7 +11,8 @@ relácii používateľa ako naplánovaná úloha „pri prihlásení“.
    meno a heslo“; alebo Sysinternals Autologon). Bez toho po reštarte VM nikto nenabehne.
 2. **NinjaTrader 8**: nainštalovať, prihlásiť sa do NT konta so zapamätaným prihlásením, v *Connections*
    nakonfigurovať pripojenie brokera (heslo si NT drží sám; z kódu sa nové pripojenie založiť nedá).
-   Login NT konta je jediný krok, ktorý po reštarte VM občas chce človeka (viď docs/NINJATRADER.md).
+   Po reštarte VM agent NT spustí a tlačidlo **Log In** stlačí sám (heslo musí byť v NT zapamätané —
+   docs/NINJATRADER.md); človek sa prihlasuje len raz.
 3. **MetaTrader 5**: nainštalovať terminál brokera a raz sa prihlásiť (aby existoval `servers.dat`);
    ďalšie účty už pridá agent z hubu (ini s loginom, heslo cez DPAPI).
 4. **Klon repozitára** + Python prostredie: `.\deploy\freqtrade\scripts\setup.ps1`.

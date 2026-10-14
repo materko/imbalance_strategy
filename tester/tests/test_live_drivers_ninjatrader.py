@@ -104,3 +104,41 @@ def test_najnovsi_log_a_koniec_velkeho_logu(drv, monkeypatch):
     write(filler + [f"16:05:00.000 [n1] start {START}", "16:05:01.000 [n1] instrument 'MNQ 12-26' NinjaTrader nepozna"],
           name="addon_20261012-160000.txt")
     assert d.instance_issue(ACC, nt_dep()) == "instrument 'MNQ 12-26' NinjaTrader nepozna (16:05:01 UTC)"
+
+
+def test_login_nt_konta_klikne_za_cloveka_ale_heslo_nezadava(tmp_path: Path):
+    """Po štarte NT čaká login dialóg: driver stlačí **Log In** (heslo si pamätá NT), najviac `LOGIN_MAX_CLICKS`×
+    na proces s odstupom; kým nie je prihlásený, `instance_issue` to povie a `status` nesie stav loginu."""
+    nt = tmp_path / "NinjaTrader 8"
+    (nt / "bin" / "Custom").mkdir(parents=True)
+    t = [1000.0]
+    stav = {"state": "login", "pid": 42}
+    volania: list[bool] = []
+
+    def login(click: bool) -> dict:
+        volania.append(click)
+        return {**stav, "state": "clicked"} if click else dict(stav)
+
+    d = NinjaTraderDriver(nt_dir=nt, exe=tmp_path / "NinjaTrader.exe", is_running=lambda: True, launcher=lambda exe: 1,
+                          login=login, clock=lambda: t[0])
+    d.ensure_instance(ACC, [nt_dep()])
+    assert volania == [False, True]                                      # okno Log In → klik
+    assert "čaká na prihlásenie" in d.instance_issue(ACC, nt_dep()) and d.status(ACC)["login"]["state"] == "clicked"
+    d.ensure_instance(ACC, [nt_dep()])
+    assert volania == [False, True]                                      # do LOGIN_CHECK_SECONDS sa nepozerá
+    for _ in range(5):                                                   # login nepomáha (heslo nie je zapamätané)
+        t[0] += nt_mod.LOGIN_RETRY_SECONDS
+        d.ensure_instance(ACC, [nt_dep()])
+    assert volania.count(True) == nt_mod.LOGIN_MAX_CLICKS
+    assert "Remember" in d.instance_issue(ACC, nt_dep())
+    stav["state"] = "logged_in"                                          # človek sa prihlásil
+    t[0] += nt_mod.LOGIN_CHECK_SECONDS
+    d.ensure_instance(ACC, [nt_dep()])
+    assert d.instance_issue(ACC, nt_dep()) is None and d.status(ACC)["login"]["state"] == "logged_in"
+    # vypnuté automatické prihlásenie: len hlásenie, žiadny klik
+    d2 = NinjaTraderDriver(nt_dir=nt, exe=tmp_path / "NinjaTrader.exe", is_running=lambda: True, launcher=lambda exe: 1,
+                           login=login, clock=lambda: t[0], autologin=False)
+    stav["state"] = "login"
+    volania.clear()
+    d2.ensure_instance(ACC, [nt_dep()])
+    assert volania == [False] and "čaká na prihlásenie" in d2.instance_issue(ACC, nt_dep())

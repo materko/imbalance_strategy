@@ -464,6 +464,45 @@ def nt_compile_via_editor(nt_dir: Path, *, timeout: float = COMPILE_TIMEOUT, sle
     return out
 
 
+#: Text tlačidla prihlásenia NT konta (login dialóg po štarte NinjaTradera).
+LOGIN_BUTTONS = ("log in", "login", "sign in", "prihlásiť")
+
+
+def nt_login_state(pid: int | None = None, *, click: bool = False) -> dict[str, Any]:
+    """Je bežiaci NinjaTrader prihlásený do NT konta? Cez pywinauto (UIA) prejde jeho okná:
+    `logged_in` = je Control Center, `login` = je okno s tlačidlom **Log In** (pri `click` sa stlačí:
+    `clicked`), `not_running`, `unknown` (+ `error`). **Heslo sa nikdy nezadáva** — klik pomôže, len keď
+    si ho login dialóg pamätá („Remember“); inak NT ukáže chybu a ostane `login`. Nikdy nevyhodí výnimku."""
+    pid = pid or nt_running_pid()
+    if pid is None:
+        return {"state": "not_running"}
+    Application, chyba = _pywinauto_app()
+    if Application is None:
+        return {"state": "unknown", "pid": pid, "error": chyba}
+    try:
+        from pywinauto import Desktop  # type: ignore[import-not-found]
+
+        wins = Desktop(backend="uia").windows(process=pid)
+        titles = [w.window_text() for w in wins]
+        if any("Control Center" in (t or "") for t in titles) or any(
+                (w.element_info.class_name or "") == "ControlCenter" for w in wins):
+            return {"state": "logged_in", "pid": pid, "windows": titles}
+        for w in wins:
+            for b in w.descendants(control_type="Button"):
+                if (b.window_text() or "").strip().lower() in LOGIN_BUTTONS:
+                    if not click:
+                        return {"state": "login", "pid": pid, "windows": titles}
+                    try:
+                        b.invoke()            # UIA Invoke — bez fokusu a myši
+                    except Exception:  # noqa: BLE001 - niektoré WPF tlačidlá Invoke nemajú
+                        b.click_input()
+                    log.info("ninjatrader: login dialóg NT — stlačené %r (heslo zapamätané v NT)", b.window_text())
+                    return {"state": "clicked", "pid": pid, "windows": titles}
+        return {"state": "unknown", "pid": pid, "windows": titles}
+    except Exception as exc:  # noqa: BLE001 - UI automatizácia: čokoľvek, hlási sa ako stav
+        return {"state": "unknown", "pid": pid, "error": f"{type(exc).__name__}: {exc}"[:400]}
+
+
 def nt_compile(nt_dir: Path, *, msbuild: Callable[[Path], dict[str, Any]] | None = None,
                editor: Callable[[Path], dict[str, Any]] | None = None) -> dict[str, Any]:
     """Preklad bez človeka: najprv MSBuild (i), keď nevyrobí DLL, F5 v editore (ii). Vráti výsledok toho,
