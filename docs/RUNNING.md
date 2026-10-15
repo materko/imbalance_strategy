@@ -10,6 +10,7 @@ nemiešalo, čo platí pre ktorú:
 | **MultiCharts: študia, QuoteManager, emulátor** | [MULTICHARTS.md](MULTICHARTS.md) |
 | **NinjaTrader 8, C# jadro, stratégia IBSNet** | [NINJATRADER.md](NINJATRADER.md) |
 | **MetaTrader 5 nad tým istým C# jadrom (Expert Advisor)** | [MT5.md](MT5.md) |
+| **zdieľať trhy medzi NinjaTraderom a MT5 (feed pre indikátory, návrh)** | [FEED.md](FEED.md) |
 | **dáta: odkiaľ sú, archív, Dukascopy import, nový symbol** | [DATA.md](DATA.md) |
 | **testovať z CLI (aj pre AI)** | [../tester/AI_TESTING.md](../tester/AI_TESTING.md) |
 | **počítať na viac strojoch** (hub, agenti, `run --remote`, Docker pre hub a agenta) | [HUB.md](HUB.md) |
