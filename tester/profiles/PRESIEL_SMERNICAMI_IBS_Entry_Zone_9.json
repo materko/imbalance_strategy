@@ -53,7 +53,7 @@
  "zoneDetectionTF": "3",
  "zoneValidHours": 3,
  "maxSdZones": 400,
- "snapMode": "Ceil",
+ "snapMode": "Floor",
  "invalidateOnFill": true,
  "useVolumeFilter": false,
  "volumeFilterBlockTrading": true,
@@ -104,7 +104,7 @@
  "alertOnState4": false,
  "rrRatio": 0.5,
  "slLookback": 10,
- "slBufferTicks": 2,
+ "slBufferTicks": 0,
  "maxLossDollar": 1000,
  "maxDailyWins": 9,
  "tradeDirection": "Indicator",
@@ -147,5 +147,5 @@
  "_strategy": "ibsentry",
  "_instrument": "mnq_databento",
  "_timeframe": "3m",
- "_title": "IBS EZ 9 · PF 1,41 · WR 74 % · 154 obch/rok · MNQ 3m · max DD 8 724 $ · posl. rok PF 1,45"
+ "_title": "IBS EZ 9 · PF 1,46 · WR 75 % · 150 obch/rok · MNQ 3m · max DD 7 232 $ · posl. rok PF 1,53"
 }
