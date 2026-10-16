@@ -33,7 +33,16 @@ krivka z `equity`. Hodnoty `is`, `oos`, `years` a `plateau_min` sa iba zobrazuj�
   v prehliadači (`localStorage`); pri prvom otvorení predvyplní nastavenie č. 1 z prvých troch
   stratégií, ktoré prešli smernicou.
 
-Adresy sú v hashi: `#/`, `#/s/<key stratégie>`, `#/d/<id nastavenia>`, `#/div` — dajú sa poslať ako odkaz.
+- **Live** (`#/live`, odkaz v hlavičke) — stratégie nasadené naživo (NinjaTrader, MetaTrader 5) zo sekcie `live`
+  dát (viď nižšie): súhrn (obchody, WR, PF, zisk, R, otvorené pozície, vyplnené signály), zistenia
+  (signál bez vyplnenia u brokera, výstup bez vstupu, zastavená alebo tichá inštancia, či tá istá stratégia
+  dáva na dvoch platformách tie isté signály odkedy bežia obe, málo obchodov na porovnanie), tabuľka
+  „naživo vs. test" (nastavenie stránky podľa čísla profilu, test = posledný rok), krivka zisku a denník
+  obchodov, signálov, otvorených pozícií a varovaní platformy. Časy sú v miestnom čase prehliadača; zisk je
+  hrubý (bez poplatkov), MT5 CFD má inú veľkosť kontraktu, preto sa porovnávajú WR, PF a R. Inštancie bez
+  obchodu a bez správy viac ako 7 dní sú zbalené dole.
+
+Adresy sú v hashi: `#/`, `#/s/<key stratégie>`, `#/d/<id nastavenia>`, `#/div`, `#/live` — dajú sa poslať ako odkaz.
 
 ## Ako otvoriť
 
@@ -97,3 +106,36 @@ pred `<script>` s kódom stránky (napr. hneď za `<script src=…chart.umd.min.
 Začiatok odloženého roka (out-of-sample) je pevne 2025-09-04 (konštanta `OOS_START`
 v `index.html`). Zvislá značka v grafe a voľba „Odložený rok" sa ukážu len pri nastavení
 s `oos` ≠ `null`.
+
+## Sekcia `live` (karta Live)
+
+Vyrába ju `tester/dashboard/live.py` zo zrkadla live telemetrie webapp (`tester/live/mirror.sqlite`, docs/LIVE.md)
+na stroji, ktorý stránku generuje — webapp tam musí bežať s `tester/agent.json`, aby si zrkadlo ťahalo z hubu:
+
+```python
+from tester.dashboard.live import build_live
+data["live"] = build_live()
+```
+
+alebo `python -m tester.dashboard.live --into dashboard_data.json` (pridá kľúč `live` do hotových dát).
+Bez kľúča `live` karta povie, že dáta ešte nie sú.
+
+```jsonc
+"live": {
+  "generated": "2026-10-16T05:24:00Z",
+  "instances": [{
+    "id": "ninjatrader_DEMO9584400_MNQ_3m_vwaporbnet", "engine": "vwaporbnet", "strategy": "vwaporb",
+    "name": "VWAP ORB 1.5", "setting": "vwaporb-1",          // id nastavenia stránky z čísla profilu, inak null
+    "profile": "PRESIEL_SMERNICAMI_VWAP_ORB_CS_1", "platform": "ninjatrader", "account": "DEMO9584400",
+    "symbol": "MNQ", "tf": 3, "point_value": 2.0, "status": "beží",   // beží | ticho (>30 min bez správy) | zastavená (bye)
+    "stale": false, "since": "…Z", "last_event": "…Z", "last_bar": "…Z", "orphan_fills": 0,
+    "trades": [{"id": "orb:ny:5081", "open": "…Z", "close": "…Z", "signal": "…Z", "dir": "long", "entry": 0, "exit": 0,
+                "qty": 1, "sl": 0, "tp": 0, "order_type": "Market", "reason": "take_profit", "pts": 0, "pnl": 0, "r": 0.5}],
+    "open": [{"id": "…", "open": "…Z", "dir": "short", "entry": 0, "qty": 1, "sl": 0, "tp": 0}],
+    "signals": [{"t": "…Z", "id": "…", "dir": "long", "type": "Market", "entry": 0, "sl": 0, "tp": 0, "qty": 1,
+                 "why": "…", "result": "vyplnený"}],   // vyplnený | zrušený: <dôvod> | čaká | bez vyplnenia
+    "notes": [{"t": "…Z", "level": "warn", "text": "…"}]
+  }]
+}
+```
+

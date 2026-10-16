@@ -227,7 +227,7 @@
 <header class="top">
   <div class="wrap">
     <a class="brand" href="#/">Trade<span>Bot</span> výsledky</a>
-    <nav class="topnav" aria-label="Sekcie"><a href="#/" id="nav-home">Prehľad</a><a href="#/div" id="nav-div">Diverzifikácia</a></nav>
+    <nav class="topnav" aria-label="Sekcie"><a href="#/" id="nav-home">Prehľad</a><a href="#/div" id="nav-div">Diverzifikácia</a><a href="#/live" id="nav-live">Live</a></nav>
     <div class="meta"><span id="updated"></span><span class="note" id="note"></span></div>
     <button class="icon-btn" id="theme" title="Prepnúť svetlý / tmavý režim" aria-label="Prepnúť svetlý / tmavý režim">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
@@ -1393,13 +1393,190 @@
     else if (dv.result) dvRenderOut();
   }
 
+  // ---------- Live: stratégie nasadené naživo (DATA.live z tester/dashboard/live.py) ----------
+  var LV = { log: "tr", page: 0, inst: "" };
+  var PLATFORM = { ninjatrader: "NinjaTrader", mt5: "MT5" };
+  function lvTime(iso) {
+    if (!iso) return "—";
+    var d = new Date(iso);
+    if (isNaN(d)) return esc(iso);
+    return d.getDate() + ". " + (d.getMonth() + 1) + ". " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+  function lvDate(iso) { var d = new Date(iso); return isNaN(d) ? "—" : d.getDate() + ". " + (d.getMonth() + 1) + ". " + d.getFullYear(); }
+  function lvPlat(x) { return (PLATFORM[x.platform] || x.platform) + " · " + x.symbol; }
+  function lvName(x) {
+    var f = x.setting && findSetting(x.setting);
+    return f ? f.st.label.split(" · ")[0] : x.name;
+  }
+  function lvStatus(x) {
+    var c = x.status === "beží" ? "pos" : x.status === "zastavená" ? "neg" : "warn";
+    return '<span class="badge ' + c + '">' + esc(x.status) + "</span>";
+  }
+  function lvReason(r) { return r === "take_profit" ? "take profit" : r === "stop_loss" ? "stop loss" : esc(r || "—"); }
+  function lvActive() { return ((DATA.live && DATA.live.instances) || []).filter(function (x) { return !x.stale; }); }
+  function lvExpect(x) {
+    var f = x.setting && findSetting(x.setting);
+    if (!f) return null;
+    var o = f.st.oos || {}, all = calcStats(f.st.trades || []);
+    var tpy = (f.st.is && f.st.is.trades_per_year) || all.perYear;
+    return { label: f.st.label, wr: o.winrate != null ? o.winrate : all.winrate, pf: o.pf != null ? o.pf : all.pf,
+             perWeek: tpy ? tpy / 52 : null, avg: all.expectancy, oos: o.winrate != null };
+  }
+  function lvWeeks(x) { var a = Date.parse(x.since), b = Date.parse(DATA.live.generated); return isFinite(a) && isFinite(b) ? Math.max((b - a) / 6048e5, 1 / 7) : null; }
+  function lvAllTrades(list) {
+    var out = [];
+    list.forEach(function (x, i) { (x.trades || []).forEach(function (t) { out.push({ t: t, x: x, i: i }); }); });
+    return out.sort(function (a, b) { return a.t.close < b.t.close ? -1 : 1; });
+  }
+  function lvFindings(list) {
+    var out = [];
+    list.forEach(function (x) {
+      var miss = (x.signals || []).filter(function (s) { return s.result === "bez vyplnenia"; });
+      if (miss.length) out.push(["neg", esc(lvName(x)) + " na " + esc(lvPlat(x)) + ": " + miss.length + " " + (miss.length === 1 ? "signál ostal" : "signály ostali") +
+        " bez vyplnenia u brokera (posledný " + lvTime(miss[miss.length - 1].t) + "). Skontroluj terminál a log platformy."]);
+      if (x.orphan_fills) out.push(["warn", esc(lvName(x)) + " na " + esc(lvPlat(x)) + ": " + x.orphan_fills + " výstup(y) bez zaznamenaného vstupu — obchod mohol začať pred zapnutím telemetrie."]);
+      if (x.status !== "beží") out.push([x.status === "zastavená" ? "neg" : "warn", esc(lvName(x)) + " na " + esc(lvPlat(x)) + " " + (x.status === "zastavená" ? "je zastavená" : "neposlala nič od " + lvTime(x.last_event)) + "."]);
+    });
+    // tá istá stratégia na dvoch platformách: má rovnaké signály?
+    var bySet = {};
+    list.forEach(function (x) { if (x.setting) (bySet[x.setting] = bySet[x.setting] || []).push(x); });
+    Object.keys(bySet).forEach(function (k) {
+      var g = bySet[k]; if (g.length < 2) return;
+      // porovnáva sa len čas, keď bežali obe (všetky) — pred štartom druhej platformy by chýbal každý signál
+      var from = g.reduce(function (m, x) { return x.since > m ? x.since : m; }, "");
+      var keyOf = function (s) { return s.t.slice(0, 16) + s.dir; };
+      var sets = g.map(function (x) { var m = {}; (x.signals || []).forEach(function (s) { if (s.t >= from) m[keyOf(s)] = 1; }); return m; });
+      var all = {}; sets.forEach(function (m) { Object.keys(m).forEach(function (q) { all[q] = 1; }); });
+      var n = Object.keys(all).length, both = Object.keys(all).filter(function (q) { return sets.every(function (m) { return m[q]; }); }).length;
+      if (n) out.push([both === n ? "pos" : "warn", esc(lvName(g[0])) + ": " + g.map(lvPlat).join(" a ") + " — " + both + " z " + n + " signálov od " + lvTime(from) + " (odkedy bežia obe) majú obe platformy v tej istej sviečke" +
+        (both === n ? "." : " (rozdiel môže byť v dátach brokera: CFD vs. futures, iné sviečky).")]);
+    });
+    var tr = lvAllTrades(list);
+    if (tr.length < 20) out.push(["info", "Uzavretých obchodov je zatiaľ " + tr.length + ". Porovnanie s testom (WR, PF) začne mať zmysel od ~20 – 30 obchodov na stratégiu; dovtedy sleduj hlavne to, či signály a vyplnenia sedia."]);
+    return out;
+  }
+  function viewLive() {
+    var L = DATA.live;
+    if (!L) return "<h1>Live</h1><div class=\"msg\">V tejto verzii stránky ešte nie sú dáta zo živých stratégií. Pridajú sa pri najbližšom rannom generovaní (Mac mini, <code>tester/dashboard/live.py</code>).</div>";
+    var list = lvActive(), stale = (L.instances || []).filter(function (x) { return x.stale; });
+    var tr = lvAllTrades(list), S = calcStats(tr.map(function (o) { return o.t; }));
+    var rSum = tr.reduce(function (s, o) { return s + (o.t.r || 0); }, 0);
+    var sig = [].concat.apply([], list.map(function (x) { return x.signals || []; }));
+    var filled = sig.filter(function (s) { return s.result === "vyplnený"; }).length;
+    var openN = list.reduce(function (s, x) { return s + (x.open || []).length; }, 0);
+    function tile(l, v, c) { return '<div class="tile"><span>' + l + '</span><b class="' + (c || "") + '">' + v + "</b></div>"; }
+    var rows = list.map(function (x, i) {
+      var st = calcStats(x.trades || []), e = lvExpect(x), w = lvWeeks(x), xs = x.signals || [];
+      var rs = (x.trades || []).reduce(function (s, t) { return s + (t.r || 0); }, 0);
+      return "<tr><td class=\"l\">" + dvSw(i) + esc(lvName(x)) + '<br><small class="muted">' + esc(x.profile) + "</small></td>" +
+        '<td class="l">' + esc(lvPlat(x)) + '<br><small class="muted">' + esc(x.account) + "</small></td><td class=\"l\">" + lvStatus(x) + '<br><small class="muted">od ' + lvDate(x.since) + "</small></td>" +
+        "<td>" + st.n + (x.open && x.open.length ? ' <small class="muted">+' + x.open.length + " otv.</small>" : "") + "</td><td>" + (st.n ? num(st.winrate, 0) + " %" : "—") +
+        '</td><td class="' + pfCls(st.pf) + '">' + (st.n ? pfFmt(st.pf) : "—") + '</td><td class="' + cls(st.net) + '">' + money(st.net) + '</td><td class="' + cls(rs) + '">' + (st.n ? num(rs, 2) + " R" : "—") +
+        "</td><td>" + (w && st.n ? num(st.n / w, 1) : st.n ? "—" : "0") + "</td>" +
+        '<td class="l muted">' + (e ? "WR " + num(e.wr, 0) + " % · PF " + pfFmt(e.pf) + " · " + num(e.perWeek, 1) + "/týž." : "—") + "</td>" +
+        "<td>" + xs.filter(function (s) { return s.result === "vyplnený"; }).length + " / " + xs.length + "</td></tr>";
+    }).join("");
+    var finds = lvFindings(list).map(function (f) { return '<li><span class="badge ' + (f[0] === "info" ? "" : f[0]) + '">' + (f[0] === "pos" ? "OK" : f[0] === "neg" ? "Pozor" : f[0] === "warn" ? "Sleduj" : "Info") + "</span><span>" + f[1] + "</span></li>"; }).join("");
+    var opts = list.map(function (x, i) { return '<option value="' + i + '">' + esc(lvName(x) + " · " + lvPlat(x)) + "</option>"; }).join("");
+    return "<h1>Live</h1>" +
+      '<p class="sub">Stratégie nasadené naživo (NinjaTrader, MetaTrader 5): skutočné vyplnenia u brokera, zisk hrubý bez poplatkov. Časy sú v tvojom miestnom čase. Stav k ' + lvTime(L.generated) + ".</p>" +
+      (list.length ? "" : '<div class="msg">Žiadna živá inštancia. ' + (L.error ? esc(L.error) : "") + "</div>") +
+      '<div class="grid tiles">' + tile("Uzavreté obchody", S.n) + tile("Win rate", S.n ? num(S.winrate, 1) + " %" : "—") + tile("Profit factor", S.n ? pfFmt(S.pf) : "—", pfCls(S.n ? S.pf : null)) +
+      tile("Zisk spolu", money(S.net), cls(S.net)) + tile("Spolu v R", S.n ? num(rSum, 2) + " R" : "—", cls(rSum)) + tile("Otvorené pozície", openN) +
+      tile("Signály vyplnené", filled + " / " + sig.length) + "</div>" +
+      '<div class="card section"><h2>Zistenia</h2><ul class="dv-find">' + finds + "</ul></div>" +
+      '<div class="card section"><h2>Stratégie naživo vs. test</h2><div class="table-wrap"><table><thead><tr><th class="l">Stratégia</th><th class="l">Platforma</th><th class="l">Stav</th><th>Obch.</th><th>WR</th><th>PF</th><th>Zisk</th><th>R</th><th>Obch./týž.</th><th class="l">Test (posledný rok)</th><th>Signály vypl.</th></tr></thead><tbody>' +
+      (rows || '<tr><td class="l muted" colspan="11">—</td></tr>') + "</tbody></table></div>" +
+      '<p class="muted" style="font-size:12px;margin:10px 0 0">Test = to isté nastavenie v backteste na MNQ (posledný rok 9/2025 – 9/2026). MT5 (FTMO US100.cash) je CFD s inou veľkosťou kontraktu, preto sa jeho zisk v $ nedá porovnať 1:1 — porovnávaj WR, PF a R.</p></div>' +
+      '<div class="card section"><h2>Krivka zisku naživo</h2>' + (tr.length ? '<div class="chart-box sm"><canvas id="lv-eq"></canvas></div><div class="legend">' +
+        list.map(function (x, i) { return (x.trades || []).length ? '<span><i style="background:' + dvColor(i) + '"></i>' + esc(lvName(x) + " · " + lvPlat(x)) + "</span>" : ""; }).join("") + "</div>" : '<p class="muted">Zatiaľ žiadny uzavretý obchod.</p>') + "</div>" +
+      '<div class="card section"><div class="row"><h2>Denník</h2><div class="seg" id="lv-view"><button data-v="tr">Obchody</button><button data-v="sig">Signály</button><button data-v="open">Otvorené</button><button data-v="note">Varovania</button></div></div>' +
+      '<div class="dv-filters"><label>Stratégia<select id="lv-f-inst"><option value="">všetky</option>' + opts + "</select></label></div>" +
+      '<div class="table-wrap"><table id="lv-log"></table></div><div class="pager"><span id="lv-info"></span><button class="btn" id="lv-prev">‹</button><button class="btn" id="lv-next">›</button></div></div>' +
+      (stale.length ? '<details class="card section"><summary class="muted" style="cursor:pointer">Staré a testovacie inštancie (' + stale.length + ") — bez obchodu a bez správy viac ako 7 dní</summary><div class=\"table-wrap\"><table><tbody>" +
+        stale.map(function (x) { return '<tr><td class="l">' + esc(x.name) + '</td><td class="l">' + esc(lvPlat(x)) + " · " + esc(x.account) + '</td><td class="l muted">' + esc(x.profile || "—") + "</td><td>" + lvStatus(x) + "</td><td>" + lvTime(x.last_event) + "</td></tr>"; }).join("") +
+        "</tbody></table></div></details>" : "");
+  }
+  function lvRenderLog() {
+    var list = lvActive(), n = 50, rows, head;
+    var pick = LV.inst === "" ? list.map(function (x, i) { return i; }) : [+LV.inst];
+    function each(fn) { var out = []; pick.forEach(function (i) { var x = list[i]; if (x) fn(x, i, out); }); return out; }
+    if (LV.log === "tr") {
+      head = '<th class="l">Otvorenie</th><th class="l">Zatvorenie</th><th class="l">Stratégia</th><th class="l">Smer</th><th>Množ.</th><th>Vstup</th><th>Výstup</th><th>SL</th><th>TP</th><th class="l">Dôvod</th><th>R</th><th>PnL</th>';
+      rows = each(function (x, i, out) { (x.trades || []).forEach(function (t) { out.push({ k: t.close, h: '<td class="l">' + lvTime(t.open) + '</td><td class="l">' + lvTime(t.close) + '</td><td class="l">' + dvSw(i) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + "</small></td>" +
+        '<td class="l">' + t.dir + "</td><td>" + num(t.qty, t.qty % 1 ? 2 : 0) + "</td><td>" + num(t.entry, 2) + "</td><td>" + num(t.exit, 2) + "</td><td>" + num(t.sl, 2) + "</td><td>" + num(t.tp, 2) + '</td><td class="l">' + lvReason(t.reason) +
+        '</td><td class="' + cls(t.r) + '">' + (t.r == null ? "—" : num(t.r, 2)) + '</td><td class="' + cls(t.pnl) + '">' + money(t.pnl, 2) + "</td>" }); }); });
+    } else if (LV.log === "sig") {
+      head = '<th class="l">Signál (sviečka)</th><th class="l">Stratégia</th><th class="l">Smer</th><th class="l">Typ</th><th>Vstup</th><th>SL</th><th>TP</th><th>Množ.</th><th class="l">Výsledok</th>';
+      rows = each(function (x, i, out) { (x.signals || []).forEach(function (s) {
+        var c = s.result === "vyplnený" ? "pos" : s.result === "bez vyplnenia" ? "neg" : s.result === "čaká" ? "warn" : "";
+        out.push({ k: s.t, h: '<td class="l">' + lvTime(s.t) + '</td><td class="l">' + dvSw(i) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + '</small></td><td class="l">' + s.dir + '</td><td class="l">' + esc(s.type) + "</td><td>" + num(s.entry, 2) + "</td><td>" + num(s.sl, 2) + "</td><td>" + num(s.tp, 2) +
+          "</td><td>" + (s.qty == null ? "—" : num(s.qty, s.qty % 1 ? 2 : 0)) + '</td><td class="l"><span class="badge ' + c + '">' + esc(s.result) + "</span></td>" }); }); });
+    } else if (LV.log === "open") {
+      head = '<th class="l">Otvorenie</th><th class="l">Stratégia</th><th class="l">Smer</th><th>Množ.</th><th>Vstup</th><th>SL</th><th>TP</th>';
+      rows = each(function (x, i, out) { (x.open || []).forEach(function (t) { out.push({ k: t.open, h: '<td class="l">' + lvTime(t.open) + '</td><td class="l">' + dvSw(i) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + '</small></td><td class="l">' + t.dir + "</td><td>" + num(t.qty, t.qty % 1 ? 2 : 0) + "</td><td>" + num(t.entry, 2) + "</td><td>" + num(t.sl, 2) + "</td><td>" + num(t.tp, 2) + "</td>" }); }); });
+    } else {
+      head = '<th class="l">Čas</th><th class="l">Stratégia</th><th class="l">Text</th>';
+      rows = each(function (x, i, out) { (x.notes || []).forEach(function (m) { out.push({ k: m.t, h: '<td class="l">' + lvTime(m.t) + '</td><td class="l">' + dvSw(i) + esc(lvName(x)) + ' <small class="muted">' + esc(lvPlat(x)) + '</small></td><td class="l" style="white-space:normal">' + esc(m.text) + "</td>" }); }); });
+    }
+    rows.sort(function (a, b) { return a.k < b.k ? 1 : -1; });
+    var pages = Math.max(1, Math.ceil(rows.length / n));
+    LV.page = Math.min(LV.page, pages - 1);
+    var cols = (head.match(/<th/g) || []).length;
+    $("lv-log").innerHTML = "<thead><tr>" + head + "</tr></thead><tbody>" + (rows.slice(LV.page * n, LV.page * n + n).map(function (r) { return "<tr>" + r.h + "</tr>"; }).join("") ||
+      '<tr><td class="l muted" colspan="' + cols + '">Nič.</td></tr>') + "</tbody>";
+    $("lv-info").textContent = rows.length + " riadkov · strana " + (LV.page + 1) + " z " + pages;
+    $("lv-prev").disabled = LV.page === 0; $("lv-next").disabled = LV.page >= pages - 1;
+    Array.prototype.forEach.call($("lv-view").querySelectorAll("button"), function (b) { b.className = b.getAttribute("data-v") === LV.log ? "on" : ""; });
+  }
+  function lvCharts() {
+    var list = lvActive(), tr = lvAllTrades(list);
+    if (!tr.length || !$("lv-eq")) return;
+    if (!hasChart()) { chartFallback("lv-eq"); return; }
+    // prvý bod = štart najstaršej živej inštancie s obchodom, všetky krivky od nuly
+    var start = list.filter(function (x) { return (x.trades || []).length; }).reduce(function (m, x) { return !m || x.since < m ? x.since : m; }, "");
+    var labels = [start].concat(tr.map(function (o) { return o.t.close; })), cum = list.map(function () { return 0; }), tot = 0;
+    var data = list.map(function (x) { return [(x.trades || []).length ? 0 : null]; }), sum = [0];
+    tr.forEach(function (o) {
+      cum[o.i] += o.t.pnl || 0; tot += o.t.pnl || 0;
+      list.forEach(function (x, i) { data[i].push((x.trades || []).length ? cum[i] : null); });
+      sum.push(tot);
+    });
+    var o = baseOpts();
+    o.scales.x.ticks.callback = function (v) { return lvTime(labels[v]); };
+    o.scales.y.ticks.callback = function (v) { return compact(v); };
+    o.plugins.tooltip.callbacks = { title: function (it) { return lvTime(labels[it[0].dataIndex]); }, label: function (it) { return it.dataset.label + " " + money(it.raw, 0); } };
+    o.plugins.guides = { hlines: [{ value: 0, color: cssVar("--muted"), dash: [2, 3] }] };
+    var ds = list.map(function (x, i) { return { label: lvName(x) + " · " + lvPlat(x), data: data[i], borderColor: cssVar(DV_COLORS[i % 8]), borderWidth: 2, pointRadius: 2, stepped: true, fill: false }; })
+      .filter(function (d, i) { return (list[i].trades || []).length; });
+    if (ds.length > 1) ds.push({ label: "Spolu", data: sum, borderColor: cssVar("--sum"), borderWidth: 2.5, pointRadius: 0, stepped: true, fill: false });
+    charts.push(new Chart($("lv-eq"), { type: "line", plugins: [guidePlugin], data: { labels: labels, datasets: ds }, options: o }));
+  }
+  function mountLive() {
+    if (!DATA.live) return;
+    lvCharts();
+    $("lv-view").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; LV.log = b.getAttribute("data-v"); LV.page = 0; lvRenderLog(); });
+    $("lv-f-inst").value = LV.inst;
+    $("lv-f-inst").addEventListener("change", function (e) { LV.inst = e.target.value; LV.page = 0; lvRenderLog(); });
+    $("lv-prev").addEventListener("click", function () { LV.page--; lvRenderLog(); });
+    $("lv-next").addEventListener("click", function () { LV.page++; lvRenderLog(); });
+    lvRenderLog();
+  }
+
   // ---------- smerovanie ----------
   function route() {
     destroyCharts();
     var h = location.hash.replace(/^#\/?/, ""), parts = h.split("/").map(decodeURIComponent), app = $("app");
     window.scrollTo(0, 0);
-    $("nav-home").className = parts[0] === "div" ? "" : "on";
+    $("nav-home").className = parts[0] === "div" || parts[0] === "live" ? "" : "on";
     $("nav-div").className = parts[0] === "div" ? "on" : "";
+    $("nav-live").className = parts[0] === "live" ? "on" : "";
+    if (parts[0] === "live") {
+      app.innerHTML = viewLive();
+      document.title = "Live — Výsledky testovania";
+      mountLive();
+      return;
+    }
     if (parts[0] === "div") {
       app.innerHTML = viewDiversify();
       document.title = "Diverzifikácia — Výsledky testovania";
