@@ -437,7 +437,7 @@ def test_agent_heartbeat_carries_live_and_response_drives_reconciler(tmp_path: P
 
     agent.tick()   # bez vlákien: heartbeat a hneď za ním pomalá práca (vrátane _apply_live)
     body = http.heartbeats[0]["live"]
-    assert body["instances"] == [{"instance": inst, "session": "abcd1234", "last_t": 3000, "last_bar_ms": 1500,
+    assert body["instances"] == [{"instance": inst, "session": "abcd1234", "last_t": 3000, "last_bar_ms": 1500, "last_hb": None,
                                   "mode": "paused", "profile": "golden", "ended": False}]
     assert body["applied"] == [] and body["secret_ack"] == [] and body["drivers"] == ["mt5"]
     assert rec.runs == [wanted]   # reconciler bežal v `work()`, nie v heartbeate

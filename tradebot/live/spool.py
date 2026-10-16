@@ -245,7 +245,7 @@ _TAIL_BYTES = 65536
 def latest_state(roots: list[Path], cache: dict[str, tuple[int, dict[str, Any]]] | None = None) -> list[dict[str, Any]]:
     """Posledný známy stav každej inštancie v spoole — pre `live.instances` v heartbeate agenta:
     `instance`, `session`, `platform`, `account`, `symbol`, `tf`, `strategy`, `profile`, `mode`,
-    `last_t`, `last_bar_ms`, `ended` (posledný súbor má `bye`).
+    `last_t`, `last_bar_ms`, `last_hb` (posledný ping `hb`), `ended` (posledný súbor má `bye`).
 
     Číta len prvý riadok (`hello`) a chvost posledného súboru inštancie; `cache` (cesta →
     (veľkosť, výsledok)) ušetrí čítanie, keď súbor od minula nenarástol. Nikdy nevyhodí výnimku."""
@@ -281,7 +281,7 @@ def latest_state(roots: list[Path], cache: dict[str, tuple[int, dict[str, Any]]]
 def _instance_state(instance: str, path: Path, size: int) -> dict[str, Any]:
     stav: dict[str, Any] = {"instance": instance, "session": _session_from_name(path), "platform": None,
                             "account": None, "symbol": None, "tf": None, "strategy": None, "profile": None,
-                            "mode": None, "last_t": None, "last_bar_ms": None, "ended": False,
+                            "mode": None, "last_t": None, "last_bar_ms": None, "last_hb": None, "ended": False,
                             "file": path.name}
     try:
         with open(path, "rb") as fh:
@@ -312,6 +312,10 @@ def _instance_state(instance: str, path: Path, size: int) -> dict[str, Any]:
                         strategy=ev.get("strategy"), profile=ev.get("profile"), ended=False)
         elif k == "bar" and isinstance(ev.get("bt"), int):
             stav["last_bar_ms"] = ev["bt"]
+        elif k == "hb" and isinstance(ev.get("t"), int):
+            stav["last_hb"] = ev["t"]
+            if ev.get("mode"):
+                stav["mode"] = ev["mode"]
         elif k == "control":
             stav["mode"] = ev.get("mode")
             if ev.get("profile"):

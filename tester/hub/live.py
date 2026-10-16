@@ -23,7 +23,7 @@ from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from tradebot.live.deploy import DEFAULT_MODE, Conflict, DeployError, DeployStore, NotFound
-from tradebot.live.store import LIVE_BARS, LiveStore
+from tradebot.live.store import LiveStore, liveness
 
 __all__ = ["add_live_routes", "add_deploy_routes", "LiveBatch", "LiveEventsRequest"]
 
@@ -194,17 +194,18 @@ def add_deploy_routes(app: FastAPI, state: Any, deploy: DeployStore, store: Live
         return dep
 
     def _with_live(dep: dict[str, Any]) -> dict[str, Any]:
-        """K nasadeniu inštancia zo spoolu: videná? posledná udalosť do `LIVE_BARS` barov TF?"""
+        """K nasadeniu inštancia zo spoolu: videná? živá (`liveness`: ping alebo udalosť nedávno)? `state`
+        `live` / `closed` (pinguje, trh stojí) / `silent`."""
         _with_code(dep)
         inst = store.instance(dep["instance"]) if dep.get("instance") else None
         if inst is None:
-            dep["live"] = {"seen": False, "alive": False, "last_t": None, "last_bar_ms": None,
+            dep["live"] = {"seen": False, "alive": False, "state": "silent", "last_t": None, "last_bar_ms": None, "last_hb": None,
                            "session": None, "profile": None, "host": None}
             return dep
         now_ms = store.clock() * 1000.0
-        okno = LIVE_BARS * max(1, int(dep.get("tf") or 1)) * 60_000
-        dep["live"] = {"seen": True, "alive": bool(inst["last_t"]) and (now_ms - inst["last_t"]) <= okno,
-                       "last_t": inst["last_t"], "last_bar_ms": inst["last_bar_ms"],
+        stav = liveness({**inst, "tf": dep.get("tf") or inst["tf"]}, now_ms)
+        dep["live"] = {"seen": True, "alive": stav != "silent", "state": stav,
+                       "last_t": inst["last_t"], "last_bar_ms": inst["last_bar_ms"], "last_hb": inst["last_hb"] or None,
                        "session": inst["last_session"], "profile": inst["profile"], "host": inst["host"]}
         return dep
 

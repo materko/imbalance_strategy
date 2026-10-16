@@ -350,3 +350,44 @@ def test_strazca_hubu_hlasi_offline_a_navrat(tmp_path: Path):
     w2.started -= 1000
     hub.agents["nas"]["last_seen"] = t[0] + 1000
     assert w2.check() == ["🟢 stroj nas sa znova hlási"] and bot.sent[-1][1] == "[hub] 🟢 stroj nas sa znova hlási"
+
+
+def test_status_rozlisi_trh_zatvoreny_od_ticha_a_ping_nehlasi(tmp_path: Path):
+    """Ping `hb` (docs/LIVE.md, „Ping“): /status ukáže 🟢 živá / 🌙 trh zatvorený / ⚪ ticho podľa pingu,
+    nie len podľa barov; z pingu sa správa nerobí, a spool ho dá do stavu inštancie (`last_hb`)."""
+    now = 1_800_000_000.0
+    ms = int(now * 1000)
+
+    class Ctl(FakeControls):
+        def instances(self, now=None):
+            base = {"tf": 3, "strategy": "vwaporbnet", "platform": "mt5", "account": "A", "ended": False,
+                    "control": "enabled"}
+            return [
+                {**base, "instance": "mt5_A_BEZI_3m_x", "symbol": "BEZI", "last_t": ms - 20_000, "last_hb": ms - 20_000,
+                 "last_bar_ms": ms - 200_000},
+                {**base, "instance": "mt5_A_VIKEND_3m_x", "symbol": "VIKEND", "last_t": ms - 20_000, "last_hb": ms - 20_000,
+                 "last_bar_ms": ms - 2 * 86_400_000},
+                {**base, "instance": "mt5_A_PADOL_3m_x", "symbol": "PADOL", "last_t": ms - 600_000, "last_hb": ms - 600_000,
+                 "last_bar_ms": ms - 2 * 86_400_000},
+            ]
+
+    cmd = TelegramCommands(FakeBot(), CFG, TelegramState(tmp_path / "s.json"), Ctl(), clock=lambda: now)
+    riadky = cmd.status_view()[0].splitlines()
+    # riadok so zdravím ide hneď pod riadok so symbolom
+    stav = {s: riadky[next(k for k, x in enumerate(riadky) if f"<b>{s} 3m</b>" in x) + 1] for s in ("BEZI", "VIKEND", "PADOL")}
+    assert "🟢 živá" in stav["BEZI"]
+    assert "🌙 trh zatvorený" in stav["VIKEND"]
+    assert "⚪ ticho 10 min" in stav["PADOL"]
+    detail = cmd.instance_view(ikey("mt5_A_VIKEND_3m_x"))[0]
+    assert "ping: teraz" in detail and "trh zatvorený" in detail
+
+    # notifier: ping s rovnakým seq ako posledná udalosť správu nevyrobí ani neposunie stav
+    root = tmp_path / "spool"
+    write(root, [hello(), {"seq": 1, "t": 5, "k": "hb", "bars": 0, "lb": 0}])
+    from tradebot.live.spool import latest_state
+
+    st = latest_state([root])[0]
+    assert st["last_hb"] == 5 and st["last_t"] == 5
+    n = LiveNotifier(SpoolReader([root], tmp_path / "c.json"), FakeBot(), CFG, TelegramState(tmp_path / "s2.json"))
+    b = SimpleNamespace(instance=INST, session="s1", path=root, events=[hello(), {"seq": 1, "t": 5, "k": "hb", "bars": 0, "lb": 0}])
+    assert [s for s, _ in n.messages(b)] == [1]

@@ -479,8 +479,8 @@ class HubAgent:
 
             roots = self._live.reader.roots if self._live is not None else default_roots()
             out["instances"] = [{"instance": s["instance"], "session": s["session"], "last_t": s["last_t"],
-                                 "last_bar_ms": s["last_bar_ms"], "mode": s["mode"], "profile": s["profile"],
-                                 "ended": s["ended"]} for s in latest_state(roots, self._live_cache)]
+                                 "last_bar_ms": s["last_bar_ms"], "last_hb": s.get("last_hb"), "mode": s["mode"],
+                                 "profile": s["profile"], "ended": s["ended"]} for s in latest_state(roots, self._live_cache)]
         except Exception as exc:  # noqa: BLE001
             log.debug("hub agent: stav spoolu sa nedal zistiť: %s", exc)
         rec = self._reconciler

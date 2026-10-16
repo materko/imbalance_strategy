@@ -222,3 +222,74 @@ def test_diery_v_seq_a_vyber_podla_rozsahu(tmp_path: Path):
     # doplnenie diery ju zavrie
     st.ingest("srv", INST, "a1b2c3d4", [bar(4, 2), bar(5, 3), bar(8, 6)])
     assert [g["session"] for g in st.gaps()] == ["eeeeeeee"]
+
+
+def hb(seq: int, t: int, bars: int = 1, mode: str | None = "enabled") -> dict:
+    ev = {"seq": seq, "t": t, "k": "hb", "bars": bars, "lb": BT0}
+    if mode:
+        ev["mode"] = mode
+    return ev
+
+
+def test_ping_drzi_len_posledny_bez_dier_a_posuva_stav(tmp_path: Path):
+    """`hb` (docs/LIVE.md, „Ping“): nečísluje `seq`, sklad drží jeden riadok na beh (`seq = 0`) s novým
+    rowid pre export; `last_t`/`last_hb` sa posunú, `gaps` ho nevidí, starší ping nezmení nič."""
+    st = LiveStore(tmp_path / "live.sqlite", clock=lambda: 1_000.0)
+    assert st.ingest("srv", INST, "a1b2c3d4", [hello(), bar(2, 0), hb(2, BT0 + 300_000)]) == 3
+    kurzor = st.cursor()
+    assert st.ingest("srv", INST, "a1b2c3d4", [hb(2, BT0 + 300_000)]) == 0          # opakovaná dávka
+    assert st.ingest("srv", INST, "a1b2c3d4", [hb(2, BT0 + 360_000), hb(2, BT0 + 420_000)]) == 2
+    assert st.ingest("srv", INST, "a1b2c3d4", [hb(2, BT0 + 390_000)]) == 0           # starší ping
+    pingy = st.events(INST, kinds=["hb"])
+    assert len(pingy) == 1 and pingy[0]["event"]["t"] == BT0 + 420_000 and pingy[0]["seq"] == 0
+    assert [r["event"]["k"] for r in st.export(after=kurzor)] == ["hb"]            # zrkadlo ho dostane
+    assert st.gaps() == []
+    inst = st.instance(INST)
+    assert inst["last_t"] == inst["last_hb"] == BT0 + 420_000
+    assert inst["hb"]["mode"] == "enabled" and inst["last_bar_ms"] == BT0
+    # ďalšie skutočné udalosti pokračujú v seq bez diery; snapshot ping neukazuje
+    assert st.ingest("srv", INST, "a1b2c3d4", [bar(3, 1)]) == 1
+    assert st.gaps() == []
+    snap = st.snapshot(INST)
+    assert len(snap["bars"]) == 2 and all(n["k"] != "hb" for n in snap["notes"])
+    ses = st.sessions(INST)
+    assert ses[0]["bars"] == 2 and ses[0]["last_t"] == BT0 + 420_000
+
+
+def test_liveness_zivy_trh_zatvoreny_ticho():
+    from tradebot.live.store import HB_ALIVE_MS, liveness
+
+    now = BT0 + 10 * 86_400_000
+    tf3 = {"tf": 3}
+    # pinguje, bary chodia → živá; bary stoja → trh zatvorený; ani ping 3 min → ticho
+    assert liveness({**tf3, "last_t": now - 30_000, "last_hb": now - 30_000, "last_bar_ms": now - 200_000}, now) == "live"
+    assert liveness({**tf3, "last_t": now - 30_000, "last_hb": now - 30_000, "last_bar_ms": now - 86_400_000}, now) == "closed"
+    assert liveness({**tf3, "last_t": now - 30_000, "last_hb": now - 30_000, "last_bar_ms": 0}, now) == "closed"
+    assert liveness({**tf3, "last_t": now - HB_ALIVE_MS - 1, "last_hb": now - HB_ALIVE_MS - 1,
+                     "last_bar_ms": now - 200_000}, now) == "silent"
+    # 60m TF s pingom: zamrznutá platforma je ticho po 3 min, nie po 3 h
+    assert liveness({"tf": 60, "last_t": now - 600_000, "last_hb": now - 600_000, "last_bar_ms": now - 900_000}, now) == "silent"
+    # bez pingov (starý kód, Tester): 3 bary TF, trh zatvorený sa poznať nedá
+    assert liveness({"tf": 60, "last_t": now - 600_000, "last_hb": 0, "last_bar_ms": now - 600_000}, now) == "live"
+    assert liveness({**tf3, "last_t": now - 600_000, "last_hb": 0, "last_bar_ms": now - 600_000}, now) == "silent"
+    # starý ping z minulého behu a nový beh bez pingov: platí pravidlo barov
+    assert liveness({"tf": 60, "last_t": now - 600_000, "last_hb": now - 86_400_000, "last_bar_ms": now - 600_000}, now) == "live"
+    assert liveness({"tf": 3}, now) == "silent"
+
+
+def test_stary_subor_dostane_stlpce_pingu(tmp_path: Path):
+    import sqlite3
+
+    db = sqlite3.connect(str(tmp_path / "live.sqlite"))
+    db.executescript("CREATE TABLE instances (id TEXT PRIMARY KEY, agent TEXT NOT NULL DEFAULT '', platform TEXT NOT NULL DEFAULT '', "
+                     "account TEXT NOT NULL DEFAULT '', symbol TEXT NOT NULL DEFAULT '', tf INTEGER NOT NULL DEFAULT 0, "
+                     "strategy TEXT NOT NULL DEFAULT '', profile TEXT NOT NULL DEFAULT '', host TEXT NOT NULL DEFAULT '', "
+                     "hello TEXT NOT NULL DEFAULT '{}', first_seen REAL NOT NULL, last_seen REAL NOT NULL, "
+                     "last_t INTEGER NOT NULL DEFAULT 0, last_bar_ms INTEGER NOT NULL DEFAULT 0, "
+                     "last_session TEXT NOT NULL DEFAULT '');"
+                     "INSERT INTO instances (id, first_seen, last_seen) VALUES ('x', 1, 1);")
+    db.close()
+    st = LiveStore(tmp_path / "live.sqlite")
+    assert st.instance("x")["last_hb"] == 0 and st.instance("x")["hb"] == {}
+    assert st.ingest("srv", INST, "a1b2c3d4", [hello(), hb(1, BT0 + 5)]) == 2
+    assert st.instance(INST)["last_hb"] == BT0 + 5

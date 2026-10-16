@@ -14,7 +14,7 @@ from typing import Any
 
 __all__ = [
     "SCHEMA", "KINDS", "REQUIRED", "PLATFORMS", "CONTROL_MODES", "ORDER_ACTIONS",
-    "instance_id", "parse_line", "validate", "SchemaError", "SLOT_RE",
+    "instance_id", "parse_line", "validate", "SchemaError", "SLOT_RE", "UNNUMBERED",
 ]
 
 SCHEMA = 1
@@ -36,11 +36,17 @@ REQUIRED: dict[str, tuple[str, ...]] = {
     #: Adaptér potvrdzuje, v akom režime beží (fáza 2, control súbor): `mode` enabled/paused/flatten,
     #: `profile` názov práve načítaného profilu, `source` odkiaľ (control/default).
     "control": ("mode",),
+    #: Ping (`LiveSpool.Heartbeat`, časovač každých 60 s mimo Testera): platforma žije, aj keď bary
+    #: nechodia. **Nečísluje `seq`** — nesie posledné pridelené číslo; `bars` barov v session,
+    #: `lb` čas posledného baru (0 = žiadny), voliteľne `mode` (posledný `control`).
+    "hb": ("bars",),
     "bye": (),
 }
 CONTROL_MODES = ("enabled", "paused", "flatten")
 ORDER_ACTIONS = ("entry", "cancel", "close", "modify")
 KINDS = tuple(REQUIRED)
+#: Druhy, ktoré nečíslujú `seq` (opakujú posledné) — sklad ich nedrží ako udalosti behu.
+UNNUMBERED = ("hb",)
 
 _BAD = re.compile(r"[^A-Za-z0-9._-]")
 

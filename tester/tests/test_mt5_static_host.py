@@ -307,3 +307,64 @@ def test_spool_zly_koren_nezhodi_engine(static_host, tmp_path):
         assert static_host.SpoolClose(h, "x") == 0
     finally:
         static_host.Destroy(h)
+
+
+def test_ping_hb_necisluje_seq_a_v_testeri_nie_je(static_host, tmp_path):
+    """Ping (docs/LIVE.md, „Ping“): `SpoolHeartbeat` aj časovač `LiveSpool` píšu platný `hb` s posledným
+    `seq` (bez diery), `bars`/`lb`/`mode`; v Testeri časovač nebeží."""
+    import time
+
+    from tradebot.live import schema
+
+    h = static_host.Create("ibsnet", "{}", _INST, 3)
+    assert h > 0, static_host.LastError()
+    try:
+        assert static_host.SpoolHeartbeat(h) == 0                          # bez spoolu no-op
+        assert static_host.SpoolOpen(h, str(tmp_path), "mt5", "5012345-Demo Server", "NAS100.cash", "p", False) == 1, \
+            static_host.LastError()
+        path = static_host.SpoolPath(h)
+        assert static_host.SpoolHeartbeat(h) == 1, static_host.LastError()   # hneď po hello: seq 1, žiadny bar
+        _feed_bars(static_host, h, 2, True)
+        assert static_host.SpoolControl(h, "paused", "p", "control") == 1
+        assert static_host.SpoolHeartbeat(h) == 1
+        assert static_host.SpoolNote(h, "info", "po pingu") == 1
+        # hb sa flushuje hneď — agent ho vidí, aj keď spool nie je v realtime
+        hb_lines = [x for x in open(path, encoding="utf-8").read().splitlines() if '"k":"hb"' in x]
+        assert len(hb_lines) == 2
+        assert static_host.SpoolClose(h, "deinit") == 1
+    finally:
+        static_host.Destroy(h)
+
+    events = [schema.parse_line(x) for x in open(path, encoding="utf-8").read().splitlines()]
+    cisla = [e["seq"] for e in events if e["k"] != "hb"]
+    assert cisla == list(range(1, len(cisla) + 1))                       # hb dieru nespraví
+    hb = [e for e in events if e["k"] == "hb"]
+    assert hb[0]["seq"] == 1 and hb[0]["bars"] == 0 and hb[0]["lb"] == 0 and "mode" not in hb[0]
+    po = events[events.index(hb[1]) - 1]
+    assert hb[1]["seq"] == po["seq"] and po["k"] == "control"
+    assert hb[1]["bars"] == 2 and hb[1]["lb"] == 1_790_000_180_000 and hb[1]["mode"] == "paused"
+    assert events[events.index(hb[1]) + 1]["seq"] == hb[1]["seq"] + 1
+
+    # časovač: krátky interval priamo na LiveSpool; Tester ho nespustí
+    from System.Collections.Generic import Dictionary
+    from System import Object, String
+    from TradeBot.Core import LiveSpool
+
+    def otvor(root, tester):
+        sp = LiveSpool(str(root), "mt5", "A", "S", 3, "ibsnet", "p", tester, Dictionary[String, Object](), None)
+        assert not sp.Broken, sp.LastError
+        return sp
+
+    zivy, tst = otvor(tmp_path / "zivy", False), otvor(tmp_path / "tester", True)
+    assert zivy.HeartbeatMs == 60000
+    zivy.HeartbeatMs = 40
+    tst.HeartbeatMs = 40
+    koniec = time.time() + 5
+    while time.time() < koniec and open(zivy.Path, encoding="utf-8").read().count('"k":"hb"') < 2:
+        time.sleep(0.05)
+    zivy.Close("x")
+    tst.Close("x")
+    zive = [schema.parse_line(x) for x in open(zivy.Path, encoding="utf-8")]
+    assert sum(e["k"] == "hb" for e in zive) >= 2 and all(e["seq"] == 1 for e in zive if e["k"] == "hb")
+    assert zive[-1]["k"] == "bye" and zive[-1]["seq"] == 2               # hello 1, bye 2 — pingy nečíslujú
+    assert '"k":"hb"' not in open(tst.Path, encoding="utf-8").read()     # v Testeri žiadny ping

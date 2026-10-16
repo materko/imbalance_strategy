@@ -325,6 +325,21 @@ public static class StaticHost
         catch (Exception e) { Fail(e); return -1; }
     }
 
+    /// <summary>Ping `hb` hned (spool ho inak pise sam casovacom kazdu minutu; toto je pre `OnTimer`
+    /// a testy). Nepridava `seq`. 1 ok, 0 bez spoolu, -1 chyba. Nova metoda, verzia fasady sa nemeni.</summary>
+    public static int SpoolHeartbeat(int handle)
+    {
+        try
+        {
+            Slot s = Get(handle);
+            if (s.Spool == null) return 0;
+            s.Spool.Heartbeat();
+            if (s.Spool.Broken) { FailSpool(s.Spool); return -1; }
+            return 1;
+        }
+        catch (Exception e) { Fail(e); return -1; }
+    }
+
     /// <summary>Napise `stat` (Engine.Stats()) a `bye` a subor zavrie. 1 ok, 0 bez spoolu, -1 chyba.</summary>
     public static int SpoolClose(int handle, string reason)
     {
