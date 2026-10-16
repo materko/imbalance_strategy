@@ -75,6 +75,8 @@ class TelegramConfig:
 def _ids(value: Any) -> list[int]:
     if isinstance(value, str):
         value = [v for v in value.replace(";", ",").split(",") if v.strip()]
+    elif isinstance(value, (int, float)):   # PowerShell 5.1 zapíše jednoprvkové pole ako číslo
+        value = [value]
     out = []
     for v in value or []:
         try:

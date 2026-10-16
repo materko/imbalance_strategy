@@ -216,6 +216,8 @@ def test_load_config_env_a_chyby(tmp_path: Path, monkeypatch):
     p.write_text(json.dumps({"token": "abc", "chats": [1, "2"], "admins": "3", "signals": True}), encoding="utf-8")
     cfg = load_config(p)
     assert cfg.chats == [1, 2] and cfg.admins == [3] and cfg.signals and cfg.notes == "warn"
+    p.write_text(json.dumps({"token": "abc", "chats": 5, "admins": 5}), encoding="utf-8")   # PowerShell 5.1
+    assert load_config(p).chats == [5] and load_config(p).admins == [5]
     monkeypatch.setenv("TRADEBOT_TELEGRAM_CHATS", "9,10")
     assert load_config(p).chats == [9, 10]
 
