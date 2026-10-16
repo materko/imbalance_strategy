@@ -373,6 +373,14 @@ Neoverené: portable kópia (viac účtov na jednom stroji, vlastný terminál n
 prihlásení, `AllowLiveTrading=1` so skutočnými vstupmi, prevzatie otvorených pozícií po reštarte terminálu
 („Reštart terminálu s otvorenými obchodmi“ nižšie).
 
+**Prvé skutočné vstupy 15. 10. 2026 (FTMO Global Markets MT5, `AllowLiveTrading=1`) — všetky odmietnuté**
+s `10027 auto trading disabled by client`, hoci signály prišli v tú istú minútu ako v NinjaTraderi. Príčina:
+terminál od FTMO má v Tools → Options → Expert Advisors zapnuté *Disable algorithmic trading when the account
+has been changed* a *… when the profile has been changed* — driver pri každom štarte prepína profil grafov na
+`tradebot`, takže terminál si Algo Trading sám vypne (ini `[Experts]` to neprebije). **Na stroji treba obe
+voľby vypnúť ručne** (raz na terminál). EA odvtedy každú zmenu povolenia obchodovať (terminál, EA, účet)
+a každý odmietnutý vstup či SL/TP hlási aj ako `note` (`error`) do telemetrie, nie len do Experts logu.
+
 ### Viac stratégií na jednom serveri
 
 Na jednom stroji (VPS) môže naraz bežať ľubovoľne veľa nasadení — v karte **Live → Nasadiť** (alebo

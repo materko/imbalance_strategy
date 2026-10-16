@@ -78,6 +78,7 @@ int              g_export      = INVALID_HANDLE;
 bool             g_spool       = false;       // live telemetria otvorena (StaticHost::SpoolOpen)
 bool             g_hedging     = false;
 bool             g_replaying   = false;       // prehravanie predhistorie pri starte (bez obchodov)
+int              g_tradeAllowed = -1;         // posledny zisteny stav povolenia obchodovat (-1 = este nezistene)
 CTrade           g_trade;
 
 //--- sledovane ordery (zrkadlo `Tracked` v NinjaTrader adapteri)
@@ -565,6 +566,7 @@ void OnTimer()
       TakeScreenshot();
       if(InpCloseAfterShot) return;
      }
+   CheckTradeAllowed();
    if(g_controlOn) CheckControl();
    else EventKillTimer();
   }
@@ -886,6 +888,31 @@ void Apply(CJson *intent, bool ready)
      }
   }
 
+/// Hlasenie do Experts logu aj do live telemetrie (`note`), aby ho videl hub a webapp.
+void Report(string level, string msg)
+  {
+   Print(msg);
+   if(g_spool) StaticHost::SpoolNote(g_engine, level, msg);
+  }
+
+/// Nazivo sleduje, ci terminal a EA smu obchodovat (tlacidlo Algo Trading, povolenie EA, ucet); kazdu zmenu
+/// nahlasi. Bez neho broker vstupy odmietne s 10027 a hub by videl len signaly bez fillov.
+void CheckTradeAllowed()
+  {
+   if(MQLInfoInteger(MQL_TESTER)) return;
+   bool terminal = TerminalInfoInteger(TERMINAL_TRADE_ALLOWED) != 0;
+   bool ea = MQLInfoInteger(MQL_TRADE_ALLOWED) != 0;
+   bool account = AccountInfoInteger(ACCOUNT_TRADE_EXPERT) != 0;
+   int now = terminal && ea && account ? 1 : 0;
+   if(now == g_tradeAllowed) return;
+   g_tradeAllowed = now;
+   if(now == 1)
+      Report("info", "TradeBot: obchodovanie povolene (Algo Trading zapnute)");
+   else
+      Report("error", StringFormat("TradeBot: obchodovanie VYPNUTE - vstupy budu odmietnute (terminal Algo Trading %s, povolenie EA %s, ucet %s)",
+                                   terminal ? "ano" : "NIE", ea ? "ano" : "NIE", account ? "ano" : "NIE"));
+  }
+
 bool Sent()
   {
    return g_trade.ResultRetcode() == TRADE_RETCODE_DONE || g_trade.ResultRetcode() == TRADE_RETCODE_PLACED;
@@ -909,7 +936,7 @@ bool SendEntry(Tracked &t)
       ok = isLong ? g_trade.BuyLimit(t.lots, price, _Symbol, sl, tp, ORDER_TIME_GTC, 0, t.id)
                   : g_trade.SellLimit(t.lots, price, _Symbol, sl, tp, ORDER_TIME_GTC, 0, t.id);
    if(!ok || !Sent())
-     { Print("TradeBot: vstup ", t.id, " odmietnuty: ", g_trade.ResultRetcode(), " ", g_trade.ResultRetcodeDescription()); return false; }
+     { Report("error", "TradeBot: vstup " + t.id + " odmietnuty: " + IntegerToString(g_trade.ResultRetcode()) + " " + g_trade.ResultRetcodeDescription()); return false; }
    t.orderTicket = g_trade.ResultOrder();
    if(InpLogEvents) Print("ENTRY ", t.id, " ", t.ot, " @", t.entry, " SL ", t.stopLoss, " TP ", t.takeProfit, " lots ", t.lots);
    return true;
@@ -964,10 +991,10 @@ void PlaceExits(int i)
    string id = g_orders[i].id;
    if(isLong ? g_trade.SellStop(vol, sl, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id) : g_trade.BuyStop(vol, sl, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id))
       if(Sent()) g_orders[i].slTicket = g_trade.ResultOrder();
-   if(g_orders[i].slTicket == 0) Print("TradeBot: SL order ", id, " odmietnuty: ", g_trade.ResultRetcode(), " ", g_trade.ResultRetcodeDescription());
+   if(g_orders[i].slTicket == 0) Report("error", "TradeBot: SL order " + id + " odmietnuty: " + IntegerToString(g_trade.ResultRetcode()) + " " + g_trade.ResultRetcodeDescription());
    if(isLong ? g_trade.SellLimit(vol, tp, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id) : g_trade.BuyLimit(vol, tp, _Symbol, 0, 0, ORDER_TIME_GTC, 0, id))
       if(Sent()) g_orders[i].tpTicket = g_trade.ResultOrder();
-   if(g_orders[i].tpTicket == 0) Print("TradeBot: TP order ", id, " odmietnuty: ", g_trade.ResultRetcode(), " ", g_trade.ResultRetcodeDescription());
+   if(g_orders[i].tpTicket == 0) Report("error", "TradeBot: TP order " + id + " odmietnuty: " + IntegerToString(g_trade.ResultRetcode()) + " " + g_trade.ResultRetcodeDescription());
   }
 
 void CancelExits(int i)
