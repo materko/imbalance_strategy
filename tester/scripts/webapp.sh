@@ -46,4 +46,11 @@ if [[ "${NO_BROWSER:-0}" != "1" ]]; then
 fi
 
 cd "$REPO"
+# macOS: webapp v okne Terminálu na pozadí systém utlmí (App Nap) a pri nečinnosti uspí -
+# agent hubu potom pošle heartbeat raz za 10-20 minút, hub ho po 45 s vyhlási za offline
+# a karta Live sa nesťahuje. `caffeinate -i` drží proces bdelý, kým beží (zatvorené veko
+# Mac aj tak uspí). Platí aj po samoreštarte webapp (os.execv drží ten istý proces).
+if [[ "$(uname -s)" == "Darwin" ]] && command -v caffeinate >/dev/null; then
+    exec caffeinate -i "$PY" -m tester.webapp
+fi
 exec "$PY" -m tester.webapp

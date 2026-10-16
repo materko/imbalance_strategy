@@ -71,6 +71,10 @@ Koreňové `webapp.*` sú len obaly nad `tester/scripts/webapp.*`.
 Voliteľné: `-Port 9000` / `TRADEBOT_WEB_PORT=9000`, `-NoBrowser` / `NO_BROWSER=1`.
 Server sa ukončí Ctrl+C. Aktualizácia kódu je `git pull` v koreni repozitára.
 
+Na macOS beží webapp pod `caffeinate -i`: inak ju systém v okne Terminálu na pozadí utlmí
+(App Nap) a pri nečinnosti uspí. Agent hubu vtedy pošle heartbeat len raz za 10–20 minút,
+hub ho vyhlási za offline a karta Live sa nesťahuje. Zatvorené veko Mac uspí aj tak.
+
 **Docker** (alternatíva, bez Git tlačidiel v UI):
 ```bash
 docker compose -f docker/docker-compose.yml run --rm --service-ports webapp
