@@ -71,6 +71,11 @@ PASSWORD_TTL = 30.0
 PORTABLE_ITEMS = (EXE_NAME, "Config", "Profiles", "Sounds", "Terminal.ico")
 #: Čo z dátového adresára zdrojového terminálu potrebuje portable kópia (nasadené jadro a EA).
 PORTABLE_MQL5 = (("Libraries", "TradeBot.dll"), ("Include", "TradeBot"), ("Experts", "TradeBot"), ("Presets",))
+#: `expertmode` EA v `.chr`: bit 1 = „Allow Algo Trading“ pre to EA, bit 4 = DLL importy. Bez bitu 1 EA beží,
+#: ale broker každý vstup odmietne (`MQL_TRADE_ALLOWED` = false, 10027) — naživo zistené 16. 10. 2026.
+EXPERTMODE_TRADING = 5
+EXPERTMODE_NO_TRADING = 4
+
 #: Inputy EA, ktoré driver určuje sám — čokoľvek v `<Šablóna>_live.set` neprebije.
 FORCED_INPUTS = {"InpTelemetry": True, "InpTelemetryInTester": False, "InpExportSignals": False,
                  "InpScreenshotFile": "", "InpCloseAfterShot": False}
@@ -191,7 +196,7 @@ def chart_text(chart: dict[str, Any], index: int) -> str:
         "<chart>", f"id={chart_id(chart['instance'])}", f"symbol={chart['symbol']}",
         f"period_type={ptype}", f"period_size={psize}", *_CHART_HEAD,
         "window_left=0", f"window_top={top}", "window_right=1400", f"window_bottom={top + 300}", *_CHART_TAIL,
-        "", "<expert>", f"name={chart['expert']}", f"path={chart['path']}", "expertmode=4", "<inputs>",
+        "", "<expert>", f"name={chart['expert']}", f"path={chart['path']}", f"expertmode={chart.get('expertmode', EXPERTMODE_NO_TRADING)}", "<inputs>",
         *[f"{k}={v}" for k, v in chart["inputs"].items()],
         "</inputs>", "</expert>", "", "<window>", "height=100.000000", "objects=0", "", *_MAIN_INDICATOR, "",
         "</window>", "</chart>",
@@ -605,7 +610,8 @@ class Mt5Driver(Driver):
             charts.append({"deployment": dep.id, "instance": instance, "symbol": dep.symbol, "tf": dep.tf,
                            "strategy": dep.strategy, "profile": dep.profile, "config_hash": dep.config_hash,
                            "expert": expert, "path": path, "magic": magic_for(dep.id),
-                           "inputs": self.chart_inputs(dep, expert)})
+                           "inputs": self.chart_inputs(dep, expert),
+                           "expertmode": EXPERTMODE_TRADING if self.allow_live_trading else EXPERTMODE_NO_TRADING})
         return charts
 
     @staticmethod

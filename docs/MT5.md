@@ -320,7 +320,7 @@ heslom, heslo v ini nepotrebuje (tak bežal aj test nižšie).
 **Grafy = profil grafov terminálu**, nie `[StartUp]` (ten pripne jeden EA a po reštarte sa neobnoví).
 Driver generuje `MQL5\Profiles\Charts\tradebot\chartNN.chr` + `order.wnd` presne v tvare, v akom ich
 terminál build 6230 sám ukladá (UTF-16 LE s BOM, CRLF; `<chart>` hlavička so `symbol`, `period_type`/`period_size`
-— 0 = minúty, 1 = hodiny, 2 = dni —, `<expert>` s `name`, `path=Experts\TradeBot\<Šablóna>.ex5`, `expertmode=4`
+— 0 = minúty, 1 = hodiny, 2 = dni —, `<expert>` s `name`, `path=Experts\TradeBot\<Šablóna>.ex5`, `expertmode=5` (pri `AllowLiveTrading=0` `4`)
 a `<inputs>`, `<window>` s indikátorom `Main`), jeden súbor na nasadenie. Šablóna EA sa berie z
 `#define TRADEBOT_ENGINE_KEY` v `deploy/mt5/*.mq5` (`ibsnet` → `IBSNet`), inputy z `input` deklarácií
 v `TradeBotEA.mqh`, cez ne `presets/<Šablóna>_live.set` (posun servera `InpServerGmtOffsetMin=180` pre FTMO…)
@@ -377,8 +377,9 @@ prihlásení, `AllowLiveTrading=1` so skutočnými vstupmi, prevzatie otvorenýc
 s `10027 auto trading disabled by client`, hoci signály prišli v tú istú minútu ako v NinjaTraderi. Príčina:
 terminál od FTMO má v Tools → Options → Expert Advisors zapnuté *Disable algorithmic trading when the account
 has been changed* a *… when the profile has been changed* — driver pri každom štarte prepína profil grafov na
-`tradebot`, takže terminál si Algo Trading sám vypne (ini `[Experts]` to neprebije). **Na stroji treba obe
-voľby vypnúť ručne** (raz na terminál). EA odvtedy každú zmenu povolenia obchodovať (terminál, EA, účet)
+`tradebot`, takže terminál si Algo Trading sám vypne (ini `[Experts]` to neprebije). Keď boli Algo Trading terminálu aj tieto voľby v poriadku, EA stále nesmelo obchodovať (`MQL_TRADE_ALLOWED` = false):
+driver zapisoval graf s `expertmode=4` (len DLL importy, bez „Allow Algo Trading“ pre EA). Driver teraz pri
+`AllowLiveTrading=1` píše `expertmode=5` (algo trading + DLL); voľby v Options je aj tak lepšie vypnúť (raz na terminál). EA odvtedy každú zmenu povolenia obchodovať (terminál, EA, účet)
 a každý odmietnutý vstup či SL/TP hlási aj ako `note` (`error`) do telemetrie, nie len do Experts logu.
 
 ### Viac stratégií na jednom serveri

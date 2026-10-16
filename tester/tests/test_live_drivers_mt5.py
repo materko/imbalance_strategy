@@ -235,6 +235,10 @@ def test_chart_profile_text_matches_terminal_format(drv):
     assert parsed["inputs"]["InpMagic"] == str(magic_for("d1")) and parsed["inputs"]["InpProfile"] == "golden_binance_btcusdt_3m"
     # text pre druhý graf sa dlaždicuje pod prvý
     assert "window_top=300" in chart_text(d._charts(ACC, [d1])[0], 1)
+    # bez živého obchodovania EA nesmie obchodovať (expertmode 4 = len DLL); so živým musí mať aj bit 1,
+    # inak broker vstupy odmietne s 10027 (FTMO 16. 10. 2026)
+    d.allow_live_trading = True
+    assert "expertmode=5" in chart_text(d._charts(ACC, [d1])[0], 0)
 
 
 def test_ensure_instance_starts_once_restarts_on_change_and_removes(drv):
