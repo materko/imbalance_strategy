@@ -220,6 +220,10 @@ class HubState(TokensMixin, EventsMixin):
         }
         if self.deploy is not None:
             self.deploy.report_applied(name, zive.get("applied") or [], zive.get("secret_ack") or [])
+            # režimy prepnuté na stroji (Telegram) — do nasadenia, aby webapp ukazovala skutočnosť
+            ov = zive.get("overrides")
+            if isinstance(ov, list) and ov:
+                self.deploy.apply_overrides(name, [o for o in ov if isinstance(o, dict)])
         target = agent.get("code_target")
         if target and isinstance(code_update, dict) and code_update.get("status") == "ok" \
                 and code_state(target.get("version"), code_update.get("version")) == "ok":

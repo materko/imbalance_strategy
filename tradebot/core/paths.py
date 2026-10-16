@@ -53,6 +53,7 @@ __all__ = [
     "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE",
     "HUB_LIVE_DB", "LIVE_DIR", "LIVE_CURSOR", "LIVE_CURSOR_WEBAPP", "LIVE_MIRROR", "LIVE_MIRROR_CURSOR",
     "LIVE_SECRETS", "LIVE_APPLY_STATE", "LIVE_MT5_DIR",
+    "TELEGRAM_CONFIG", "TELEGRAM_STATE", "TELEGRAM_CURSOR", "HUB_TELEGRAM_CONFIG", "HUB_TELEGRAM_STATE",
     "DOCS_DIR", "MERANIA_DIR",
     "ARCHIVE_ROOTS",
 ]
@@ -169,6 +170,18 @@ LIVE_APPLY_STATE = LIVE_DIR / "apply_state.json"
 #: Pracovné adresáre MT5 drivera po účtoch: štartovací ini, pid, log, prípadná portable
 #: kópia terminálu (`<account>/…`).
 LIVE_MT5_DIR = LIVE_DIR / "mt5"
+#: Telegram na agentovi (docs/LIVE.md, „Telegram“): token bota, povolené chaty a čo hlásiť —
+#: tajomstvo, preto v gitignored `LIVE_DIR`; env `TRADEBOT_TELEGRAM_TOKEN` / `_CHATS` ho prebijú.
+TELEGRAM_CONFIG = LIVE_DIR / "telegram.json"
+#: Kurzor správ do spoolu (posúva sa až po odoslaní), otvorené vstupy pre P&L, posledný `update_id`
+#: príkazov a lokálne prepnutia režimu z Telegramu, kým ich hub neprevezme.
+TELEGRAM_STATE = LIVE_DIR / "telegram_state.json"
+#: Kurzor Telegramu do spoolu (súbor → offset), nezávislý od kurzora shippera na hub.
+TELEGRAM_CURSOR = LIVE_DIR / "telegram_cursor.json"
+#: Telegram na hube (strážca agentov) — vedľa stavu hubu, gitignored; ten istý tvar ako na agentovi.
+HUB_TELEGRAM_CONFIG = HUB_DIR / "telegram.json"
+#: Čo strážca hubu naposledy ohlásil (agent offline/online), aby po reštarte nehlásil znova.
+HUB_TELEGRAM_STATE = HUB_DIR / "telegram_state.json"
 
 # -- Dokumentácia ----------------------------------------------------------- #
 

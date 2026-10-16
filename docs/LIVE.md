@@ -492,7 +492,106 @@ vybraného účtu starší (alebo neznámy) kód než webapp — neblokuje.
 bežiaceho NT sa preklad neurobí; MT5 nič (terminál štartuje driver s ini). Beh agenta bez človeka na
 VM (autoštart, služba) je popísaný zvlášť, neskôr.
 
+## Telegram: správy z obchodného stroja a príkazy späť
+
+Cieľ: správa o obchode príde, aj keď je hub alebo webapp dole, a o výpadku sa dozvieš aj vtedy,
+keď spadne práve to, čo by ho malo hlásiť. Preto **dve miesta, žiadne v adaptéri NT8/MT5**:
+
+| čo | kde | prečo tam |
+|---|---|---|
+| obchody, signály, režim, štart/koniec, `note`, chyby nasadení | **agent** (`tradebot.live.telegram`, vlákno `hub-agent-telegram`) | je na tom istom stroji ako platformy a číta ich spool; hub ani webapp nepotrebuje |
+| príkazy `/status`, `/pause`, `/resume`, `/flatten` | **agent** | zapíše control súbor — ten istý mechanizmus ako webapp, EA aj NT8 ho čítajú do 2 s; v MQL5 ani C# nič nové |
+| „stroj sa neozval“ / „znova sa hlási“ | **hub** (`tester.hub.telegram_watch`) | spadnutý agent, vypnutý stroj ani výpadok internetu doma zvnútra ohlásiť nejde |
+
+Adaptér by nepridal nič, čo tieto dve miesta nepokryjú, a porušil by pravidlo „platforma nechodí na
+sieť“ (MT5 `WebRequest` je blokujúci, chce allow-list v každom termináli, v Testeri nejde; v NT8 by
+HTTP bežalo vo vlákne stratégie) — a `getUpdates` smie na jednom bote volať **len jeden proces**
+(inak 409), takže príkazy v šiestich inštanciách by nešli vôbec.
+
+| výpadok | agent | hub |
+|---|---|---|
+| hub / VPS | ✅ správy aj príkazy idú ďalej | — |
+| webapp | ✅ | ✅ |
+| agent | ⏸ správy sa dopošlú po reštarte (kurzor) | ✅ „stroj sa neozval“ |
+| terminál MT5 / NT8 | ✅ `bye`, chyba nasadenia („nenabehla…“) z reconcilera | ✅ |
+| celý stroj, internet doma | ❌ | ✅ |
+
+Nepokryté: NT8/MT5 zamrznuté bez pádu (proces žije, bary nechodia) — tiché inštancie sa zatiaľ
+nehlásia, lebo zatvorený trh vyzerá rovnako; hlásilo by to každý deň pri dennej prestávke.
+
+### Nastavenie
+
+1. Bot u [@BotFather](https://t.me/BotFather) (`/newbot`) → token. Napíš botovi čokoľvek a id chatu
+   nájdeš v `https://api.telegram.org/bot<token>/getUpdates` (`message.chat.id`; skupina má záporné id).
+2. Na obchodnom stroji `tester/live/telegram.json` (gitignored, `TELEGRAM_CONFIG`):
+
+   ```json
+   {"token": "123456:ABC…", "chats": [123456789], "admins": [123456789],
+    "commands": true, "signals": false, "notes": "warn"}
+   ```
+
+   `chats` — kam idú správy a odkiaľ sa berú príkazy; `admins` — id používateľov (`message.from.id`),
+   ktorí smú ovládať (prázdne = ktokoľvek z `chats`); `signals` — aj zámery vstupu, nielen vyplnenia;
+   `notes` — najnižšia úroveň `note` (`info`/`warn`/`error`/`off`); `label` — predpona správ
+   (predvolene meno agenta). Env `TRADEBOT_TELEGRAM_TOKEN` a `TRADEBOT_TELEGRAM_CHATS` súbor prebijú.
+   Agent config preverí raz za minútu — reštart netreba.
+3. Na hube `tester/hub_data/telegram.json` (`HUB_TELEGRAM_CONFIG`, vedľa stavu hubu) v tom istom tvare;
+   `commands` sa ignoruje (hub len posiela). Ten istý bot je v poriadku — posielať smie viac procesov,
+   prijímať len jeden. Hub ho načíta pri `serve`.
+
+Príkazy prijíma **jediný agent na bot**: keď ich zapneš na dvoch strojoch s tým istým tokenom, druhý
+dostane 409, príkazy si vypne (`commands_error` v stave) a správy posiela ďalej. Pre viac obchodných
+strojov buď `commands: false` všade okrem jedného, alebo bot na stroj.
+
+### Správy (agent)
+
+`LiveNotifier` číta spool **vlastným kurzorom** (`TELEGRAM_CURSOR`, nezávisle od shippera na hub) a
+posúva ho až po odoslaní; čo už odišlo, si pamätá podľa `(instance, session, seq)` (`TELEGRAM_STATE`),
+takže výpadok Telegramu uprostred dávky nič nezdvojí. **Prvý štart** (bez stavu) prehrá históriu bez
+odosielania — pozná zámery vstupov a otvorené pozície, ale nespamuje starými obchodmi.
+
+| udalosť | správa |
+|---|---|
+| `hello` (nový beh; zopakované hello pri rotácii dňa nie) | `▶ US100.cash 3m vwaporbnet · MT5 1514925336-FTMO-Demo beží (profil …)` |
+| `fill` `in` | `🟢 VSTUP SHORT × 0.14 @ 29152.03 (SL …, TP …)` — SL/TP zo zámeru vstupu |
+| `fill` `out` | `✅/❌ VÝSTUP sltp SHORT × 0.14 @ 28802.33 (+349.70 b, +48.96 $)` — P&L z priemernej ceny vstupu a `instrument.point_value` z `hello` |
+| `order` `entry` (`ready`, len so `signals`) | `📍 signál SHORT Market @ … SL … TP … × …` |
+| `control` (okrem `pending`) | `⏸ pauza — nové vstupy sa neposielajú` / `▶ obchoduje` / `⛔ flatten` |
+| `note` od úrovne `notes` | `⚠ …: TradeBot: vstup odmietnutý …` |
+| `bye` | `⏹ … skončila (dôvod)` |
+| chyba nasadenia z reconcilera (`applied.error`, raz za 30 s) | `⚠ nasadenie vwaporbnet US100.cash 3m (ftmodemo): nenabehla: …`, po náprave `✅ … je v poriadku` |
+
+Beh v Strategy Testeri / Analyzeri (`hello.tester`) a udalosti predhistórie (`ready: false`) sa
+nehlásia. Riadky jednej dávky sa zlúčia do jednej správy (Telegram pustí ~1 správu/s do chatu).
+
+### Príkazy (agent)
+
+- `/status` — očíslované inštancie zo spoolu: režim z control súboru, vek posledného baru.
+- `/pause <č|časť mena|all>`, `/resume <…>` — zapíše control súbor (`by: telegram:<user id>`).
+- `/flatten <…>` — najprv otázka s tlačidlom **Áno, flatten** (platí 2 minúty), až potom zápis.
+
+Prepnutie je **prekrytie** požadovaného stavu, kým ho hub neprevezme: agent ho drží v
+`TELEGRAM_STATE.overrides`, posiela v heartbeate (`live.overrides: [{instance, mode, by, ts}]`)
+a reconcilerovi podstrčí nasadenie s prepnutým `mode` (`HubAgent._with_overrides`) — bez toho by
+najbližšia zmena nasadenia na hube vrátila starý režim. Hub (`DeployStore.apply_overrides`) zapíše
+`mode` do aktívneho nasadenia toho agenta s tou inštanciou (audit `by` = `telegram:<id>@<agent>`),
+**ak ho od `ts` sám nezmenil** — novšia zmena z webapp vyhráva. Prekrytie padá, keď hub má ten istý
+režim alebo nasadenie zmenil neskôr (`updated ≥ ts`). Bez hubu ostáva a control súbor platí.
+
+### Strážca (hub)
+
+Raz za 20 s pozrie stroje s aktívnym nasadením (`DeployStore.active_agents`): ticho dlhšie než
+`agent_timeout` + 2 min (`OFFLINE_GRACE`) = `🔴 stroj nas-win11 sa neozval N min — nasadenia na ňom bežia
+ďalej, ale bez dohľadu a bez príkazov z webapp`, návrat = `🟢 stroj … sa znova hlási`. Prvé 2–3 minúty
+po štarte hubu mlčí (agenti sa ešte neohlásili); čo naposledy hlásil, si pamätá v `HUB_TELEGRAM_STATE`.
+
 ## Testy
+
+- `tester/tests/test_live_telegram.py` — formát (vstup, výstup s P&L, filtre `note`/`control`), notifier
+  (prvý štart prehrá históriu bez správ, výpadok Telegramu = kurzor stojí a nič sa nezdvojí, rotácia dňa,
+  Tester sa nehlási), chyby nasadení, príkazy (cudzí chat/používateľ, `/pause` + prekrytie, `/flatten`
+  len s potvrdením a do 2 min, 409), 429 a odstup správ, config/env, prekrytie v agentovi, prevzatie
+  na hube, strážca (offline/návrat, po reštarte neopakuje).
 
 - `tester/tests/test_live_update.py` — `CodeUpdater`: brána (obchoduje / pozícia / bez spoolu), `force`,
   pull len keď commit chýba a chyba, keď nepríde, chyby po platformách oddelene, markery, `noop`;

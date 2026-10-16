@@ -42,6 +42,12 @@ Jedno kolo `work()`:
    `updating` (hub mu nič nepridelí); zmena HEAD = `needs_restart` (headless sa reštartuje sám, webapp
    to ukáže). Blokovaný cieľ sa skúša znova každú minútu, chybný každých 5 minút.
 
+**Telegram** (docs/LIVE.md, „Telegram“): keď je na stroji `TELEGRAM_CONFIG`, štvrté vlákno
+(`_telegram_loop`, `tradebot.live.telegram.TelegramService`) posiela správy zo spoolu (vlastný
+kurzor, nezávisle od hubu) a prijíma príkazy (`/pause`, `/resume`, `/flatten`) — zapíše control
+súbor hneď a prepnutie drží ako prekrytie požadovaného stavu (`_with_overrides`), kým ho hub
+v nasadení neprevezme (`live.overrides` v heartbeate).
+
 Čo agent počíta a čo poslal, si drží v `tester/agent_state.json` (`config.AgentState`):
 po reštarte procesu bežiace behy ďalej hlási (runner ich už nemá, ale história áno) a
 čakajúce výsledky si vyzdvihne.
@@ -74,7 +80,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
-from tradebot.core.paths import AGENT_CONFIG, LIVE_APPLY_STATE, LIVE_CURSOR
+from tradebot.core.paths import (AGENT_CONFIG, LIVE_APPLY_STATE, LIVE_CURSOR, TELEGRAM_CONFIG, TELEGRAM_CURSOR,
+                                 TELEGRAM_STATE)
 
 from . import config as agent_config
 from . import gitcode
@@ -114,6 +121,9 @@ SPOOL_WATCH_SECONDS = 1.0
 #: Rozumné hranice pre `heartbeat_seconds`, ktoré pošle hub — mimo nich sa nechá config.
 HEARTBEAT_MIN, HEARTBEAT_MAX = 1, 600
 
+#: Ako často sa znova pozrie config Telegramu (súbor pribudol, zmenil sa token či chaty).
+TELEGRAM_RECHECK_SECONDS = 60.0
+
 #: Nový kód na stroji (fáza 2c): ako často sa blokovaný / chybný cieľ skúša znova.
 CODE_RETRY_BLOCKED = 60.0
 CODE_RETRY_ERROR = 300.0
@@ -133,7 +143,8 @@ class HubAgent:
                  state_path: Path | None = None, config_path: Path | None = None,
                  clock: Callable[[], float] = time.time, version: str = "",
                  live_cursor: Path | None = None, reconciler: Any = None,
-                 apply_state: Path | None = None, updater: Any = None) -> None:
+                 apply_state: Path | None = None, updater: Any = None, telegram_config: Path | None = None,
+                 telegram: Any = None) -> None:
         self.cfg = cfg
         self.runner = runner
         self.store = store
@@ -163,6 +174,11 @@ class HubAgent:
         self._code_target: dict[str, Any] | None = None
         self._code_update: dict[str, Any] | None = None
         self._code_attempt: tuple[tuple[Any, ...], float] | None = None
+        #: Telegram (správy + príkazy): služba vznikne, keď je config; `telegram` sa dá podstrčiť (testy).
+        self.telegram_config = Path(telegram_config or TELEGRAM_CONFIG)
+        self._telegram: Any = telegram
+        self._telegram_stamp: tuple[float, float] | None = None
+        self._telegram_thread: threading.Thread | None = None
         self._config_mtime = self._config_stamp()
         self.clock = clock
         self.version = version or gitcode.version()
@@ -214,6 +230,10 @@ class HubAgent:
             self._watcher = threading.Thread(target=self._spool_watch_loop, name="hub-agent-spool",
                                              daemon=True)
             self._watcher.start()
+        if self._telegram_thread is None or not self._telegram_thread.is_alive():
+            self._telegram_thread = threading.Thread(target=self._telegram_loop, name="hub-agent-telegram",
+                                                     daemon=True)
+            self._telegram_thread.start()
 
     def stop(self) -> None:
         self._stop.set()
@@ -257,6 +277,99 @@ class HubAgent:
         if zmena:
             self._work.set()
         return zmena
+
+    # -- Telegram ----------------------------------------------------------- #
+
+    def _telegram_loop(self) -> None:
+        """Telegram v samostatnom vlákne: posielanie po 1 správe/s ani long-poll príkazov nesmú brzdiť
+        heartbeat ani shipper. Bez configu len raz za minútu pozrie, či nepribudol."""
+        while not self._stop.is_set():
+            try:
+                svc = self.telegram_service()
+            except Exception as exc:  # noqa: BLE001
+                log.warning("hub agent: telegram sa nedá zapnúť: %s", exc)
+                svc = None
+            if svc is None:
+                self._stop.wait(TELEGRAM_RECHECK_SECONDS)
+                continue
+            try:
+                svc.tick(3.0)
+            except Exception as exc:  # noqa: BLE001 - vlákno nesmie umrieť
+                log.warning("hub agent: telegram: %s: %s", type(exc).__name__, exc)
+                self._stop.wait(5.0)
+
+    def telegram_service(self) -> Any:
+        """Služba Telegramu podľa configu; config sa preverí raz za minútu (zmena = nová služba)."""
+        if self._telegram is not None and self._telegram_stamp is None:
+            return self._telegram   # podstrčená v teste
+        now = self.clock()
+        if self._telegram_stamp is not None and now - self._telegram_stamp[0] < TELEGRAM_RECHECK_SECONDS:
+            return self._telegram
+        try:
+            mtime = self.telegram_config.stat().st_mtime
+        except OSError:
+            mtime = -1.0
+        if self._telegram_stamp is not None and self._telegram_stamp[1] == mtime:
+            self._telegram_stamp = (now, mtime)
+            return self._telegram
+        self._telegram_stamp = (now, mtime)
+        from tradebot.live.spool import default_roots
+        from tradebot.live.telegram import TelegramService, load_config
+
+        cfg = load_config(self.telegram_config)
+        if cfg is None:
+            self._telegram = None
+            return None
+        if not cfg.label:
+            cfg.label = self.cfg.name
+        self._telegram = TelegramService(cfg, TELEGRAM_STATE, TELEGRAM_CURSOR, roots=default_roots,
+                                         issues=self._telegram_issues, on_change=self._telegram_changed)
+        log.info("hub agent: telegram zapnutý (%d chat(y), príkazy %s)", len(cfg.chats),
+                 "áno" if cfg.commands else "nie")
+        return self._telegram
+
+    def _telegram_changed(self) -> None:
+        """Príkaz z Telegramu zmenil režim: zosúladiť hneď (prekrytie ide do reconcilera) a hlásiť hubu."""
+        with self._live_lock:
+            self._live_desired_seq += 1
+        self._work.set()
+
+    def _telegram_issues(self) -> dict[str, tuple[str, str]]:
+        """Chyby aktívnych nasadení z reconcilera: `dep → (popis, chyba)` (prázdna chyba = v poriadku)."""
+        rec = self._reconciler
+        with self._live_lock:
+            desired = self._live_desired
+        if rec is None or not desired:
+            return {}
+        deps = {str(d.get("id")): d for d in desired.get("deployments") or [] if isinstance(d, dict)}
+        out: dict[str, tuple[str, str]] = {}
+        for a in rec.fragment().get("applied") or []:
+            d = deps.get(str(a.get("deployment")))
+            if d is None or not d.get("active", True):
+                continue
+            popis = f"{d.get('strategy')} {d.get('symbol')} {d.get('tf')}m ({d.get('account')})"
+            out[str(a["deployment"])] = (popis, str(a.get("error") or ""))
+        return out
+
+    def _with_overrides(self, desired: dict[str, Any]) -> dict[str, Any]:
+        """Požadovaný stav s režimami prepnutými z Telegramu. Prekrytie padá, keď ho hub prevzal (rovnaký
+        `mode`) alebo nasadenie zmenil neskôr (`updated` ≥ čas prepnutia — hub je novší, vyhráva)."""
+        svc = self._telegram
+        if svc is None or not isinstance(desired, dict):
+            return desired
+        prekrytia = {o["instance"]: o for o in svc.state.overrides()}
+        if not prekrytia:
+            return desired
+        deps = []
+        for d in desired.get("deployments") or []:
+            o = prekrytia.get(str(d.get("instance") or "")) if isinstance(d, dict) and d.get("active", True) else None
+            if o is not None:
+                if d.get("mode") == o["mode"] or float(d.get("updated") or 0) >= float(o.get("ts") or 0):
+                    svc.state.drop_override(o["instance"])
+                else:
+                    d = {**d, "mode": o["mode"]}
+            deps.append(d)
+        return {**desired, "deployments": deps}
 
     def _has_worker(self) -> bool:
         return self._worker is not None and self._worker.is_alive()
@@ -324,9 +437,16 @@ class HubAgent:
                 apply = self._reconciler.status()
             except Exception as exc:  # noqa: BLE001 - stav nesmie zhodiť API
                 apply = {"error": f"{type(exc).__name__}: {exc}"}
+        telegram = None
+        if self._telegram is not None:
+            try:
+                telegram = self._telegram.status()
+            except Exception as exc:  # noqa: BLE001
+                telegram = {"error": f"{type(exc).__name__}: {exc}"}
         if self._live is None:
             return {"active": False, "roots": [], "last_ok": None, "last_error": self._live_error,
-                    "sent_total": 0, "accepted_total": 0, "pending_bytes": 0, "files": 0, "apply": apply}
+                    "sent_total": 0, "accepted_total": 0, "pending_bytes": 0, "files": 0, "apply": apply,
+                    "telegram": telegram}
         st = self._live.status()
         reader = st.get("reader") or {}
         return {"active": True, "roots": reader.get("roots", []),
@@ -335,7 +455,7 @@ class HubAgent:
                 "last_error": st.get("last_error"), "sent_total": st.get("sent_total", 0),
                 "accepted_total": st.get("accepted_total", 0),
                 "pending_bytes": reader.get("pending_bytes", 0), "files": len(reader.get("files") or []),
-                "apply": apply}
+                "apply": apply, "telegram": telegram}
 
     # -- nasadenia z hubu (fáza 2b) ----------------------------------------- #
 
@@ -379,6 +499,12 @@ class HubAgent:
                 log.debug("hub agent: markery kódu sa nedali prečítať: %s", exc)
         with self._live_lock:
             out["code_update"] = dict(self._code_update) if self._code_update else None
+        # režimy prepnuté z Telegramu, ktoré hub ešte nemá v nasadení
+        if self._telegram is not None:
+            try:
+                out["overrides"] = self._telegram.state.overrides()
+            except Exception as exc:  # noqa: BLE001
+                log.debug("hub agent: telegram prekrytia: %s", exc)
         return out
 
     def _note_live(self, desired: Any) -> None:
@@ -403,7 +529,7 @@ class HubAgent:
             if self._reconciler is not None:
                 self._reconciler.refresh()
             return
-        self._get_reconciler().run(desired)
+        self._get_reconciler().run(self._with_overrides(desired))
         with self._live_lock:
             self._live_applied_seq = seq
 

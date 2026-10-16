@@ -722,6 +722,34 @@ class DeployStore:
                     self._audit(agent, "secret_taken", account=str(acc_id))
         return n
 
+    def apply_overrides(self, agent: str, overrides: list[dict[str, Any]] | None) -> int:
+        """Režimy, ktoré agent prepol lokálne (Telegram), do nasadení: aktívne nasadenie toho agenta s tou
+        inštanciou dostane `mode`, ak ho hub od prepnutia (`ts`) sám nezmenil — novšia zmena na hube vyhráva
+        a agent prekrytie zahodí. Vráti počet zmenených nasadení (audit `by` = `<kto>@<agent>`)."""
+        n = 0
+        for o in overrides or []:
+            inst, mode = str((o or {}).get("instance") or ""), (o or {}).get("mode")
+            try:
+                ts = float(o.get("ts") or 0)
+            except (TypeError, ValueError):
+                continue
+            if not inst or mode not in CONTROL_MODES:
+                continue
+            with self._lock:
+                r = self._db.execute("SELECT id, mode, updated FROM deployments WHERE agent = ? AND instance = ? "
+                                     "AND active = 1", (agent, inst)).fetchone()
+            if r is None or r["mode"] == mode or float(r["updated"]) >= ts:
+                continue
+            self.update_deployment(r["id"], {"mode": mode}, by=f"{o.get('by') or 'telegram'}@{agent}")
+            n += 1
+        return n
+
+    def active_agents(self) -> list[str]:
+        """Stroje, na ktorých je aspoň jedno aktívne nasadenie — tie stráži Telegram hubu."""
+        with self._lock:
+            rows = self._db.execute("SELECT DISTINCT agent FROM deployments WHERE active = 1 AND agent != ''").fetchall()
+        return sorted(r["agent"] for r in rows)
+
     # -- audit ------------------------------------------------------------------ #
 
     def audit(self, limit: int = 100) -> list[dict[str, Any]]:

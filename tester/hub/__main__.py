@@ -45,6 +45,7 @@ def cmd_serve(args: argparse.Namespace) -> int:
     print(f"TradeBot hub: http://{args.host}:{args.port}  (stav v {state.root}, "
           f"tokenov agentov {len(state.token_names())})", flush=True)
     updater = _start_updater(args, state)
+    watch = _start_telegram(state)
     if not token and not state.token_names():
         # Bind na localhost nič neznamená, keď pred hubom stojí reverse proxy: hub je
         # potom verejný a bez tokenu ho smie ovládať ktokoľvek, kto sa naň dostane.
@@ -55,7 +56,26 @@ def cmd_serve(args: argparse.Namespace) -> int:
     uvicorn.run(app, host=args.host, port=args.port, log_level="info", timeout_keep_alive=75)
     if updater is not None:
         updater.stop()
+    if watch is not None:
+        watch.stop()
     return 0
+
+
+def _start_telegram(state):
+    """Strážca strojov s nasadeniami (docs/LIVE.md, „Telegram“), keď je vedľa stavu hubu `telegram.json`
+    (alebo env `TRADEBOT_TELEGRAM_TOKEN` + `_CHATS`); hub len posiela, príkazy prijíma agent."""
+    from tradebot.core.paths import HUB_TELEGRAM_CONFIG, HUB_TELEGRAM_STATE
+    from tradebot.live.telegram import load_config
+
+    from .telegram_watch import HubTelegramWatch
+
+    cfg = load_config(state.root / HUB_TELEGRAM_CONFIG.name)
+    if cfg is None:
+        return None
+    watch = HubTelegramWatch(state, cfg, state.root / HUB_TELEGRAM_STATE.name)
+    watch.start()
+    print(f"Telegram: strážca strojov s nasadeniami → {len(cfg.chats)} chat(y)", flush=True)
+    return watch
 
 
 def _start_updater(args: argparse.Namespace, state: Any):
