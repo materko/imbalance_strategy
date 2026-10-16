@@ -550,19 +550,24 @@ posúva ho až po odoslaní; čo už odišlo, si pamätá podľa `(instance, ses
 takže výpadok Telegramu uprostred dávky nič nezdvojí. **Prvý štart** (bez stavu) prehrá históriu bez
 odosielania — pozná zámery vstupov a otvorené pozície, ale nespamuje starými obchodmi.
 
+Správy sú HTML, meno inštancie je krátke (**US100** vwaporbnet · MT5 — symbol po prvú bodku či medzeru, inak by
+Telegram z `US100.cash` urobil odkaz; účet a TF sú v 📊 Stav).
+
 | udalosť | správa |
 |---|---|
-| `hello` (nový beh; zopakované hello pri rotácii dňa nie) | `▶ US100.cash 3m vwaporbnet · MT5 1514925336-FTMO-Demo beží (profil …)` |
-| `fill` `in` | `🟢 VSTUP SHORT × 0.14 @ 29152.03 (SL …, TP …)` — SL/TP zo zámeru vstupu |
-| `fill` `out` | `✅/❌ VÝSTUP sltp SHORT × 0.14 @ 28802.33 (+349.70 b, +48.96 $)` — P&L z priemernej ceny vstupu a `instrument.point_value` z `hello` |
-| `order` `entry` (`ready`, len so `signals`) | `📍 signál SHORT Market @ … SL … TP … × …` |
-| `control` (okrem `pending`) | `⏸ pauza — nové vstupy sa neposielajú` / `▶ obchoduje` / `⛔ flatten` |
-| `note` od úrovne `notes` | `⚠ …: TradeBot: vstup odmietnutý …` |
-| `bye` | `⏹ … skončila (dôvod)` |
-| chyba nasadenia z reconcilera (`applied.error`, raz za 30 s) | `⚠ nasadenie vwaporbnet US100.cash 3m (ftmodemo): nenabehla: …`, po náprave `✅ … je v poriadku` |
+| `fill` `in` | `🟢 VSTUP SHORT × 0.14 @ 29152.03` / `US100 vwaporbnet · MT5 · SL … · TP …` — SL/TP zo zámeru vstupu |
+| `fill` `out` | `✅/❌ VÝSTUP SHORT × 0.14 @ 28802.33 · +48.96 $ (+349.70 b)` / `US100 vwaporbnet · MT5 (sltp)` — P&L z priemernej ceny vstupu a `instrument.point_value` z `hello` |
+| `order` `entry` (`ready`, len so `signals`) | `📍 Signál SHORT Market @ … × …` / `… · SL … · TP …` |
+| `note` od úrovne `notes` | `⚠️ US100 vwaporbnet · MT5` / text (escapovaný) |
+| `hello`, `bye`, `control` (zmena režimu) | **súhrn**: `🔄 Reštart · MT5 · US100: ibsentrynet, vwapadxnet, vwaporbnet`, `▶️ Spustené …`, `⏹ Zastavené … (dôvod)`, `⏸ Pauza …`, `▶️ Obchoduje …`, `⛔ Flatten …` |
+| chyba nasadenia z reconcilera (`applied.error`, raz za 30 s) | `⚠️ Nenabehli: ibsentrynet MNQ NT8, vwapadxnet MNQ NT8, …` / *príčina* — zoskupené podľa príčiny; po náprave `✅ Znova v poriadku: …` |
 
-Beh v Strategy Testeri / Analyzeri (`hello.tester`) a udalosti predhistórie (`ready: false`) sa
-nehlásia. Riadky jednej dávky sa zlúčia do jednej správy (Telegram pustí ~1 správu/s do chatu).
+Obchody a varovania jedného kola idú v jednej správe (odsek na udalosť). Štart, koniec a režim sa zbierajú
+v stave (`life`) a odídu súhrnom, keď 30 s nič nepribudlo (`LIFE_QUIET`, najneskôr po 3 min) — reštart
+terminálu s tromi EA je tak jeden riadok, nie deväť správ. Reštart = koniec a znova štart v jednej
+zbierke; režim sa hlási len pri zmene (EA ho potvrdzuje pri každom štarte). Chyba nasadenia sa porovnáva
+a ukazuje bez `nenabehla:`, detailu za „ — “, „skúsim znova“ a času pokusu. Beh v Strategy Testeri /
+Analyzeri (`hello.tester`) a udalosti predhistórie (`ready: false`) sa nehlásia.
 
 ### Príkazy (agent)
 

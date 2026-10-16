@@ -80,18 +80,17 @@ def test_format_vstup_vystup_s_pnl_a_filtre():
     ctx = {"platform": "mt5", "account": "A", "symbol": "US100.cash", "tf": 3, "strategy": "vwaporbnet",
            "point_value": 1.0}
     assert format_event(ctx, entry(2), CFG) is None                                     # signály vypnuté
-    assert "📍 signál SHORT" in format_event(dict(ctx), entry(2), TelegramConfig(token="t", signals=True))
+    assert "📍 <b>Signál SHORT</b>" in format_event(dict(ctx), entry(2), TelegramConfig(token="t", signals=True))
     vstup = format_event(ctx, fill(3, "in", 29152.0), CFG)
-    assert vstup.startswith("🟢 VSTUP SHORT × 0.14 @ 29152") and "SL 29851.44" in vstup and "MT5 A" in vstup
+    assert vstup == "🟢 <b>VSTUP SHORT</b> × 0.14 @ 29152\n<b>US100</b> vwaporbnet · MT5 · SL 29851.44 · TP 28802.33"
     vystup = format_event(ctx, fill(4, "out", 28802.0, exit_="sltp"), CFG)
-    assert vystup.startswith("✅ VÝSTUP sltp SHORT") and "+350.00 b" in vystup and "+49.00 $" in vystup
-    assert ctx["open"] == {}
-    # note podľa úrovne, control, pending sa nehlási
+    assert vystup == "✅ <b>VÝSTUP SHORT</b> × 0.14 @ 28802 · <b>+49.00 $</b> (+350.00 b)\n<b>US100</b> vwaporbnet · MT5 (sltp)"
+    assert ctx["open"] == {} and "US100.cash" not in vystup        # z bodky by Telegram urobil odkaz
+    # note podľa úrovne (escapovaná), štart/koniec/režim tu správu nedávajú (idú súhrnom)
     assert format_event(ctx, {"k": "note", "text": "x", "level": "info"}, CFG) is None
-    assert format_event(ctx, {"k": "note", "text": "rejected", "level": "warn"}, CFG).startswith("⚠")
-    assert format_event(ctx, {"k": "control", "mode": "paused", "source": "control"}, CFG).startswith("⏸")
-    assert format_event(ctx, {"k": "control", "mode": "paused", "source": "pending"}, CFG) is None
-    assert format_event(ctx, {"k": "bar"}, CFG) is None
+    assert format_event(ctx, {"k": "note", "text": "a<b", "level": "warn"}, CFG) == "⚠️ <b>US100</b> vwaporbnet · MT5\na&lt;b"
+    for ev in ({"k": "control", "mode": "paused"}, {"k": "hello"}, {"k": "bye"}, {"k": "bar"}):
+        assert format_event(ctx, ev, CFG) is None
 
 
 def test_notifier_preskoci_historiu_posiela_nove_a_po_vypadku_nezdvoji(tmp_path: Path):
@@ -100,49 +99,89 @@ def test_notifier_preskoci_historiu_posiela_nove_a_po_vypadku_nezdvoji(tmp_path:
     bot = FakeBot()
     state = TelegramState(tmp_path / "tg.json")
     n = LiveNotifier(SpoolReader([root], tmp_path / "cur.json"), bot, CFG, state)
-    assert n.pump()["skipped_history"] and bot.sent == []
+    assert n.pump()["skipped_history"] and bot.sent == [] and state.data["life"] == {}
     write(root, [fill(4, "out", 28802.0, exit_="sltp")])
     assert n.pump()["sent"] == 1
-    assert bot.sent[0][0] == 7 and "+350.00 b" in bot.sent[0][1]          # P&L z otvorenej pozície z histórie
+    assert bot.sent[0][0] == 7 and "+49.00 $" in bot.sent[0][1]           # P&L z otvorenej pozície z histórie
 
     # Telegram dole: kurzor stojí, po návrate príde raz
     write(root, [{"seq": 5, "t": 5, "k": "note", "text": "TradeBot: vstup odmietnutý", "level": "warn"},
-                 {"seq": 6, "t": 6, "k": "control", "mode": "paused", "source": "control"}])
+                 {"seq": 6, "t": 6, "k": "note", "text": "druhá", "level": "error"}])
     bot.fail = TelegramError("sendMessage: 502")
     assert n.pump()["error"]
     bot.fail = None
-    assert n.pump()["sent"] == 2 and len(bot.sent) == 2                   # dve udalosti zlúčené do jednej správy
-    assert "odmietnutý" in bot.sent[1][1] and "⏸" in bot.sent[1][1]
+    assert n.pump()["sent"] == 2 and len(bot.sent) == 2                   # dve udalosti v jednej správe
+    assert "odmietnutý" in bot.sent[1][1] and "\n\n🛑" in bot.sent[1][1]
     assert n.pump()["sent"] == 0
 
-    # nový reconciler/proces nad tým istým stavom nič neopakuje
+    # nový proces nad tým istým stavom nič neopakuje
     n2 = LiveNotifier(SpoolReader([root], tmp_path / "cur.json"), bot, CFG, TelegramState(tmp_path / "tg.json"))
     assert n2.pump()["sent"] == 0
 
 
+def test_restart_troch_strategii_je_jeden_suhrn_po_utichnuti(tmp_path: Path):
+    root = tmp_path / "spool"
+    t = [1000.0]
+    bot = FakeBot()
+    n = LiveNotifier(SpoolReader([root], tmp_path / "c.json"), bot, CFG, TelegramState(tmp_path / "s.json"),
+                     clock=lambda: t[0])
+    for k in range(3):   # bežiace pred zapnutím Telegramu
+        write(root, [hello(session=f"a{k}"), {"seq": 2, "t": 2, "k": "control", "mode": "enabled", "source": "control"}],
+              session=f"a{k}", inst=f"{INST}{k}")
+    n.pump()
+    for k in range(3):   # reštart terminálu: bye, nový beh, EA znova potvrdí enabled
+        write(root, [{"seq": 3, "t": 3, "k": "bye", "reason": "deinit"}], session=f"a{k}", inst=f"{INST}{k}")
+        write(root, [hello(session=f"b{k}"), {"seq": 2, "t": 2, "k": "control", "mode": "enabled", "source": "control"}],
+              session=f"b{k}", inst=f"{INST}{k}")
+        n.pump()
+        t[0] += 10
+    assert bot.sent == []                                   # ešte sa zbiera
+    t[0] += 30
+    n.pump()
+    assert [x[1] for x in bot.sent] == ["🔄 <b>Reštart</b> · MT5 · <b>US100</b>: vwaporbnet, vwaporbnet, vwaporbnet"]
+    # pauza jednej = jeden riadok; ten istý režim znova nie
+    write(root, [{"seq": 3, "t": 3, "k": "control", "mode": "paused", "source": "control"},
+                 {"seq": 4, "t": 4, "k": "control", "mode": "paused", "source": "control"}], session="b0", inst=f"{INST}0")
+    n.pump()
+    t[0] += 31
+    n.pump()
+    assert bot.sent[-1][1] == "⏸ <b>Pauza</b> · MT5 · <b>US100</b>: vwaporbnet" and len(bot.sent) == 2
+
+
 def test_notifier_nehlasi_tester_a_rotaciu_dna(tmp_path: Path):
     root = tmp_path / "spool"
+    t = [1000.0]
     bot = FakeBot()
-    n = LiveNotifier(SpoolReader([root], tmp_path / "c.json"), bot, CFG, TelegramState(tmp_path / "s.json"))
+    n = LiveNotifier(SpoolReader([root], tmp_path / "c.json"), bot, CFG, TelegramState(tmp_path / "s.json"),
+                     clock=lambda: t[0])
     n.pump()   # prázdna história
     write(root, [hello(session="tt", tester=True), fill(2, "in", 1.0)], session="tt", inst=INST + "x")
     write(root, [hello(), entry(2, ready=False)])
     n.pump()
-    assert [t for _, t, _ in bot.sent] == ["▶ US100.cash 3m vwaporbnet · MT5 1514925336-FTMO-Demo beží (profil P1)"]
+    t[0] += 31
+    n.pump()
+    assert [x[1] for x in bot.sent] == ["▶️ <b>Spustené</b> · MT5 · <b>US100</b>: vwaporbnet"]
     # nový súbor tej istej session (zmena UTC dňa) zopakuje hello — bez správy, zámer vstupu ostáva
     p = root / INST / "20261017-000000_s1.jsonl"
     p.write_text(json.dumps(hello(seq=3)) + "\n" + json.dumps(fill(4, "in", 29152.0)) + "\n", encoding="utf-8")
     n.pump()
-    assert len(bot.sent) == 2 and bot.sent[1][1].startswith("🟢 VSTUP SHORT")
+    t[0] += 31
+    n.pump()
+    assert len(bot.sent) == 2 and bot.sent[1][1].startswith("🟢 <b>VSTUP SHORT</b>")
 
 
-def test_report_issues_hlasi_zmenu_a_navrat(tmp_path: Path):
+def test_report_issues_hlasi_zmenu_a_navrat_zoskupene(tmp_path: Path):
     bot = FakeBot()
     n = LiveNotifier(SpoolReader([], tmp_path / "c.json"), bot, CFG, TelegramState(tmp_path / "s.json"))
-    assert n.report_issues({"d1": ("vwaporbnet US100.cash 3m (ftmo)", "")}) == 0
-    assert n.report_issues({"d1": ("vwaporbnet US100.cash 3m (ftmo)", "nenabehla: terminál nebeží")}) == 1
-    assert n.report_issues({"d1": ("vwaporbnet US100.cash 3m (ftmo)", "nenabehla: terminál nebeží")}) == 0
-    assert n.report_issues({}) == 1 and "je v poriadku" in bot.sent[-1][1]
+    chyba = ("nenabehla: pripojenie 'Simulation' nie je Connected - skusim znova neskor — pripojenie 'Simulation' "
+             "v Core.Globals.ConnectOptions nie je (su: Simulated Data Feed) (23:12:44 UTC)")
+    vsetky = {f"d{k}": (f"{s} MNQ NT8", chyba) for k, s in enumerate(("vwaporbnet", "ibsentrynet", "vwapadxnet"))}
+    assert n.report_issues({d: (p, "") for d, (p, _) in vsetky.items()}) == 0
+    assert n.report_issues(vsetky) == 1
+    assert bot.sent[0][1] == ("⚠️ <b>Nenabehli</b>: ibsentrynet MNQ NT8, vwapadxnet MNQ NT8, vwaporbnet MNQ NT8\n"
+                              "<i>pripojenie 'Simulation' nie je Connected</i>")
+    assert n.report_issues(vsetky) == 0
+    assert n.report_issues({}) == 1 and bot.sent[-1][1].startswith("✅ <b>Znova v poriadku</b>: ibsentrynet MNQ NT8, ")
 
 
 class FakeControls:
@@ -182,7 +221,7 @@ def test_prikazy_gombiky_pause_flatten_povolenia_a_konflikt(tmp_path: Path):
     assert bot.sent[0][2][0] == ["📊 Stav", "📋 Ordery"]
     text, rows = bot.sent[1][1], bot.sent[1][2]
     assert "<b>MT5</b>" in text and "<b>NINJATRADER</b>" not in text and "<b>NT8</b>" in text
-    assert "1. ▶ <b>US100.cash 3m</b>" in text and "2. ▶ <b>MNQ 3m</b>" in text
+    assert "1. ▶ <b>US100 3m</b>" in text and "2. ▶ <b>MNQ 3m</b>" in text
     assert rows[0][0]["callback_data"] == f"m:{ikey(INST)}" and rows[-1][1]["callback_data"] == "o"
 
     # ťuk na stratégiu → ponuka, ťuk na Pauza → control + prekrytie, správa sa prepíše na nový stav
@@ -211,7 +250,7 @@ def test_prikazy_gombiky_pause_flatten_povolenia_a_konflikt(tmp_path: Path):
     # textové príkazy ostávajú
     bot.ups = [msg("/resume US100", uid=13)]
     cmd.poll()
-    assert ctl.modes[INST] == "enabled" and "✓ US100.cash 3m vwaporbnet: obchoduje" in bot.sent[-1][1]
+    assert ctl.modes[INST] == "enabled" and "✓ US100 3m vwaporbnet: obchoduje" in bot.sent[-1][1]
 
     # iný proces už počúva na tom istom bote: príkazy sa vypnú, nič nepadne
     bot.fail = TelegramConflict("getUpdates: 409")
@@ -255,10 +294,10 @@ def test_stare_instancie_sa_v_ponuke_neukazuju(tmp_path: Path):
 def test_chyba_rovnaka_az_na_cas_pokusu_sa_neopakuje(tmp_path: Path):
     bot = FakeBot()
     n = LiveNotifier(SpoolReader([], tmp_path / "c.json"), bot, CFG, TelegramState(tmp_path / "s.json"))
-    d = "vwaporbnet MNQ 3m (demo)"
+    d = "vwaporbnet MNQ NT8"
     assert n.report_issues({"d1": (d, "nenabehla: pripojenie nie je Connected (23:09:44 UTC)")}) == 1
     assert n.report_issues({"d1": (d, "nenabehla: pripojenie nie je Connected (23:10:14 UTC)")}) == 0
-    assert "(23:09:44 UTC)" not in bot.sent[0][1]
+    assert "UTC" not in bot.sent[0][1]
 
 
 def test_jedno_kolo_jedna_sprava_za_vsetky_instancie(tmp_path: Path):
@@ -267,10 +306,8 @@ def test_jedno_kolo_jedna_sprava_za_vsetky_instancie(tmp_path: Path):
     n = LiveNotifier(SpoolReader([root], tmp_path / "c.json"), bot, CFG, TelegramState(tmp_path / "s.json"))
     n.pump()
     for k in range(3):
-        write(root, [hello(session=f"s{k}"), {"seq": 2, "t": 2, "k": "bye", "reason": "terminated"}],
-              session=f"s{k}", inst=f"{INST}{k}")
-    assert n.pump()["sent"] == 6 and len(bot.sent) == 1
-
+        write(root, [hello(session=f"s{k}"), entry(2), fill(3, "in", 29152.0)], session=f"s{k}", inst=f"{INST}{k}")
+    assert n.pump()["sent"] == 3 and len(bot.sent) == 1 and bot.sent[0][1].count("🟢") == 3
 
 def test_bot_drzi_odstup_a_caka_na_429():
     volania, spanky = [], []

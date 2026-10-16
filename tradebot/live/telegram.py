@@ -283,9 +283,18 @@ def _platform(p: Any) -> str:
     return {"ninjatrader": "NT8", "mt5": "MT5"}.get(str(p), str(p or "?"))
 
 
+def _e(x: Any) -> str:
+    return html.escape("" if x is None else str(x), quote=False)
+
+
+def _sym(symbol: Any) -> str:
+    """Symbol na čítanie: `US100.cash` → `US100` (Telegram by z bodky urobil odkaz), `MNQ 12-26` → `MNQ`."""
+    return str(symbol or "?").split(" ", 1)[0].split(".", 1)[0]
+
+
 def label(ctx: dict[str, Any]) -> str:
-    tf = f" {ctx['tf']}m" if ctx.get("tf") else ""
-    return f"{ctx.get('symbol') or '?'}{tf} {ctx.get('strategy') or '?'} · {_platform(ctx.get('platform'))} {ctx.get('account') or ''}".rstrip()
+    """Krátke meno inštancie do správy (HTML): **US100** vwaporbnet · MT5 — účet a TF sú v /status."""
+    return f"<b>{_e(_sym(ctx.get('symbol')))}</b> {_e(ctx.get('strategy') or '?')} · {_e(_platform(ctx.get('platform')))}"
 
 
 def _side(d: Any) -> str:
@@ -295,33 +304,29 @@ def _side(d: Any) -> str:
 #: Najviac toľko zámerov vstupu si inštancia pamätá (staršie, ktoré nikdy nedostali cancel ani fill, odpadnú).
 MAX_ENTRIES = 50
 
+#: Životný cyklus (štart, koniec, reštart, zmena režimu) ide súhrnom, nie po udalostiach — `LiveNotifier`.
+LIFECYCLE = ("hello", "bye", "control")
+
 
 def format_event(ctx: dict[str, Any], ev: dict[str, Any], cfg: TelegramConfig) -> str | None:
-    """Jedna udalosť spoolu → text správy (alebo None). Mení `ctx` — čakajúce vstupy (`entries`: entry → kým
-    nepríde fill alebo cancel), otvorené pozície (`open`: fill in − out, SL/TP aj posuny `modify`) a poslednú
-    cenu (`last_c` z baru) —, preto sa volá na každú udalosť v poradí, aj keď z nej správa nebude."""
+    """Jedna udalosť spoolu → text správy v HTML (alebo None). Mení `ctx` — čakajúce vstupy (`entries`: entry →
+    kým nepríde fill alebo cancel), otvorené pozície (`open`: fill in − out, SL/TP aj posuny `modify`) a poslednú
+    cenu (`last_c` z baru) —, preto sa volá na každú udalosť v poradí, aj keď z nej správa nebude. Štart,
+    koniec a režim (`LIFECYCLE`) tu správu nedávajú: zbiera ich notifier do súhrnu."""
     k = ev.get("k")
-    lab = label(ctx)
     if k == "bar":
         if isinstance(ev.get("c"), (int, float)):
             ctx["last_c"], ctx["last_bt"] = ev["c"], ev.get("bt")
         return None
-    if k == "hello":
-        return f"▶ {lab} beží (profil {ev.get('profile') or '—'})"
-    if k == "bye":
-        return f"⏹ {lab} skončila ({ev.get('reason') or 'bez dôvodu'})"
-    if k == "control":
-        if ev.get("source") == "pending":
-            return None
-        m = ev.get("mode")
-        ikona = {"enabled": "▶ obchoduje", "paused": "⏸ pauza — nové vstupy sa neposielajú",
-                 "flatten": "⛔ flatten — ruší vstupy a zatvára pozície"}.get(m, str(m))
-        return f"{ikona} · {lab}"
+    if k in LIFECYCLE:
+        return None
+    lab = label(ctx)
     if k == "note":
         level = str(ev.get("level") or "info")
         if not cfg.note_wanted(level):
             return None
-        return f"{'🛑' if level == 'error' else '⚠' if level == 'warn' else 'ℹ'} {lab}: {ev.get('text') or ''}"
+        ikona = "🛑" if level == "error" else "⚠️" if level == "warn" else "ℹ️"
+        return f"{ikona} {lab}\n{_e(ev.get('text') or '')}"
     if k == "order":
         p = ev.get("p") or {}
         oid = str(ev.get("id"))
@@ -332,8 +337,8 @@ def format_event(ctx: dict[str, Any], ev: dict[str, Any], cfg: TelegramConfig) -
             while len(zamery) > MAX_ENTRIES:
                 zamery.pop(next(iter(zamery)))
             if cfg.signals and ev.get("ready"):
-                return (f"📍 signál {_side(ev.get('dir') or p.get('dir'))} {ev.get('ot') or ''} @ {_num(p.get('e'))} "
-                        f"SL {_num(p.get('sl'))} TP {_num(p.get('tp'))} × {_num(p.get('q'))} · {lab}")
+                return (f"📍 <b>Signál {_side(ev.get('dir') or p.get('dir'))}</b> {_e(ev.get('ot') or '')} "
+                        f"@ {_num(p.get('e'))} × {_num(p.get('q'))}\n{lab} · SL {_num(p.get('sl'))} · TP {_num(p.get('tp'))}")
         elif ev.get("a") in ("cancel", "close"):
             zamery.pop(oid, None)
         elif ev.get("a") == "modify":
@@ -359,22 +364,22 @@ def format_event(ctx: dict[str, Any], ev: dict[str, Any], cfg: TelegramConfig) -
                 pos["qty"] = spolu
             otvorene[fid] = pos
             zamery.pop(fid, None)
-            return (f"🟢 VSTUP {_side(pos.get('dir'))} × {_num(qty)} @ {_num(price)} "
-                    f"(SL {_num(pos.get('sl'))}, TP {_num(pos.get('tp'))}) · {lab}")
+            return (f"🟢 <b>VSTUP {_side(pos.get('dir'))}</b> × {_num(qty)} @ {_num(price)}\n"
+                    f"{lab} · SL {_num(pos.get('sl'))} · TP {_num(pos.get('tp'))}")
         pos = otvorene.get(fid)
-        vysledok = ""
-        ikona = "⚪"
+        vysledok, ikona = "", "⚪"
         if pos and pos.get("dir") in (1, -1) and isinstance(price, (int, float)) and isinstance(qty, (int, float)):
             body = (price - pos["price"]) * pos["dir"]
             pv = ctx.get("point_value")
             usd = body * qty * pv if isinstance(pv, (int, float)) else None
-            vysledok = f" ({body:+.2f} b" + (f", {usd:+.2f} $)" if usd is not None else ")")
+            vysledok = f" · <b>{usd:+.2f} $</b> ({body:+.2f} b)" if usd is not None else f" · <b>{body:+.2f} b</b>"
             ikona = "✅" if body > 0 else "❌" if body < 0 else "⚪"
             pos["qty"] = max(0.0, pos["qty"] - qty)
             if pos["qty"] <= 1e-9:
                 otvorene.pop(fid, None)
-        smer = _side(pos.get("dir")) + " " if pos else ""
-        return f"{ikona} VÝSTUP {ev.get('exit') or ''} {smer}× {_num(qty)} @ {_num(price)}{vysledok} · {lab}".replace("  ", " ")
+        smer = f" {_side(pos.get('dir'))}" if pos else ""
+        vystup = f" ({_e(ev.get('exit'))})" if ev.get("exit") else ""
+        return f"{ikona} <b>VÝSTUP{smer}</b> × {_num(qty)} @ {_num(price)}{vysledok}\n{lab}{vystup}"
     return None
 
 
@@ -404,42 +409,67 @@ def _first_hello(path: Path) -> dict[str, Any] | None:
 _ISSUE_TIME = re.compile(r" \(\d\d:\d\d:\d\d UTC\)$")
 
 
-def _chunks(texty: list[str]) -> list[str]:
+def _chunks(texty: list[str], sep: str = "\n") -> list[str]:
     """Riadky zlúčené do správ najviac `MAX_TEXT` znakov (Telegram pustí ~1 správu/s do chatu)."""
     out: list[str] = []
     for t in texty:
-        if out and len(out[-1]) + 1 + len(t) <= MAX_TEXT:
-            out[-1] += "\n" + t
+        if out and len(out[-1]) + len(sep) + len(t) <= MAX_TEXT:
+            out[-1] += sep + t
         else:
             out.append(t)
     return out
 
 
-class LiveNotifier:
-    """Udalosti spoolu → správy do všetkých `chats`. Prvý štart (bez stavu) preskočí históriu na koniec
-    súborov — správy začínajú „odteraz“, nie stovkami starých obchodov."""
+#: Súhrn životného cyklu sa pošle, keď sa toľko sekúnd nič nové neudialo (reštart troch stratégií
+#: trvá desiatky sekúnd) — alebo najneskôr po `LIFE_MAX` od prvej udalosti.
+LIFE_QUIET = 30.0
+LIFE_MAX = 180.0
+#: Ako sa súhrn číta: druh → (ikona, nadpis); poradie = poradie riadkov.
+LIFE_KINDS = {"restart": ("🔄", "Reštart"), "start": ("▶️", "Spustené"), "stop": ("⏹", "Zastavené"),
+              "paused": ("⏸", "Pauza"), "enabled": ("▶️", "Obchoduje"), "flatten": ("⛔", "Flatten")}
 
-    def __init__(self, reader: Any, bot: TelegramBot, cfg: TelegramConfig, state: TelegramState) -> None:
+
+def _issue_short(chyba: str) -> str:
+    """Chyba nasadenia na čítanie: bez `nenabehla:`, bez detailu za „ — “ a bez „skúsim znova“."""
+    t = _ISSUE_TIME.sub("", chyba or "")
+    t = re.sub(r"^nenabehla:\s*", "", t).split(" — ", 1)[0]
+    return re.sub(r"\s*-\s*sk[uú][sš]im znova nesk[oô]r\s*$", "", t).strip()
+
+
+class LiveNotifier:
+    """Udalosti spoolu → správy do všetkých `chats`. Prvý štart (bez stavu) prehrá históriu bez odosielania —
+    správy začínajú „odteraz“. Obchody a varovania idú hneď (jedna správa za kolo), štart / koniec / reštart
+    a zmena režimu sa zbierajú (`state["life"]`) a idú jedným súhrnom zoskupeným podľa platformy a symbolu."""
+
+    def __init__(self, reader: Any, bot: TelegramBot, cfg: TelegramConfig, state: TelegramState, *,
+                 clock: Callable[[], float] = time.time) -> None:
         self.reader = reader
         self.bot = bot
         self.cfg = cfg
         self.state = state
+        self.clock = clock
         self.last_error: str | None = None
         self.sent_total = 0
+        self._silent = False
+        self.state.data.setdefault("life", {})
 
     def _skip_history(self) -> None:
         """História sa prehrá bez odosielania — zámery vstupov a otvorené pozície (P&L výstupu, ktorý príde
         až po zapnutí) sú potom známe, správy začínajú odteraz."""
-        while True:
-            batches = self.reader.read(5000)
-            if not batches:
-                break
-            for batch in batches:
-                riadky = self.messages(batch)
-                if riadky:
-                    kluc = f"{batch.instance}|{batch.session}"
-                    self.state["seq"][kluc] = max(int(self.state["seq"].get(kluc) or 0), riadky[-1][0])
-                self.reader.commit(batch)
+        self._silent = True
+        try:
+            while True:
+                batches = self.reader.read(5000)
+                if not batches:
+                    break
+                for batch in batches:
+                    riadky = self.messages(batch)
+                    if riadky:
+                        kluc = f"{batch.instance}|{batch.session}"
+                        self.state["seq"][kluc] = max(int(self.state["seq"].get(kluc) or 0), riadky[-1][0])
+                    self.reader.commit(batch)
+        finally:
+            self._silent = False
         self.state.data["initialized"] = True
         self.state.save()
 
@@ -453,7 +483,7 @@ class LiveNotifier:
                 novy["_repeat"] = True
             elif not novy["tester"]:   # nový beh: pozícia u brokera trvá (reštart terminálu, prekompilovanie NT)
                 novy["open"] = stary.get("open") or {}
-            for k in ("last_c", "last_bt"):
+            for k in ("last_c", "last_bt", "mode"):
                 if k in stary:
                     novy.setdefault(k, stary[k])
             ctxs[batch.instance] = novy
@@ -461,12 +491,45 @@ class LiveNotifier:
         ctx = ctxs.get(batch.instance)
         if ctx is None or ctx.get("session") != batch.session:
             hello = _first_hello(batch.path)
-            ctx = _ctx_from_hello(hello) if hello else {"session": batch.session, "entries": {}, "open": {}}
-            ctxs[batch.instance] = ctx
+            novy = _ctx_from_hello(hello) if hello else {"session": batch.session, "entries": {}, "open": {}}
+            if ctx is not None:
+                for k in ("open", "last_c", "last_bt", "mode"):
+                    if k in ctx and not novy.get(k):
+                        novy[k] = ctx[k]
+            ctx = ctxs[batch.instance] = novy
         return ctx
 
+    def _life(self, instance: str, ctx: dict[str, Any], ev: dict[str, Any]) -> None:
+        """Štart / koniec / režim do zbierky súhrnu. Režim sa hlási len pri zmene (EA ho potvrdzuje pri
+        každom štarte); prvý známy `enabled` je bežný štart, nie správa."""
+        k = ev.get("k")
+        if k == "control":
+            if ev.get("source") == "pending":
+                return
+            mode, predtym = ev.get("mode"), ctx.get("mode")
+            ctx["mode"] = mode
+            if mode == predtym or (predtym is None and mode == "enabled"):
+                return
+        if self._silent:
+            return
+        now = self.clock()
+        z = self.state["life"].setdefault(instance, {"first": now, "seq": "", "mode": None, "reason": "",
+                                                     "platform": ctx.get("platform"), "symbol": ctx.get("symbol"),
+                                                     "strategy": ctx.get("strategy")})
+        z["last"] = now
+        for f in ("platform", "symbol", "strategy"):
+            z[f] = ctx.get(f) or z.get(f)
+        if k == "hello":
+            z["seq"] += "h"
+        elif k == "bye":
+            z["seq"] += "b"
+            z["reason"] = str(ev.get("reason") or "")
+        else:
+            z["mode"] = ev.get("mode")
+
     def messages(self, batch: Any) -> list[tuple[int, str]]:
-        """`(seq, text)` z dávky; udalosti už odoslané (`seq` ≤ uložené) a behy v Testeri sa preskočia."""
+        """`(seq, text)` z dávky; udalosti už odoslané (`seq` ≤ uložené) a behy v Testeri sa preskočia.
+        Štart, koniec a režim idú do zbierky súhrnu (text prázdny)."""
         kluc = f"{batch.instance}|{batch.session}"
         hotovo = int(self.state["seq"].get(kluc) or 0)
         out = []
@@ -475,31 +538,67 @@ class LiveNotifier:
             seq = int(ev.get("seq") or 0)
             if ctx.get("tester") or seq <= hotovo:
                 continue
-            if ev.get("k") == "hello" and ctx.pop("_repeat", False):
+            if ev.get("k") in LIFECYCLE:
+                if not (ev.get("k") == "hello" and ctx.pop("_repeat", False)):
+                    self._life(batch.instance, ctx, ev)
                 out.append((seq, ""))
                 continue
             out.append((seq, format_event(ctx, ev, self.cfg) or ""))
         return out
 
+    def life_summary(self, force: bool = False) -> str | None:
+        """Zozbieraný životný cyklus ako jedna správa, keď je čas (ticho `LIFE_QUIET`, alebo `LIFE_MAX` od prvej
+        udalosti, alebo `force`); inak None. Reštart = koniec a znova štart v jednej zbierke."""
+        zb: dict[str, dict[str, Any]] = self.state["life"]
+        if not zb:
+            return None
+        now = self.clock()
+        if not force and now - max(z["last"] for z in zb.values()) < LIFE_QUIET \
+                and now - min(z["first"] for z in zb.values()) < LIFE_MAX:
+            return None
+        skupiny: dict[tuple[str, str, str], list[str]] = {}
+        for z in zb.values():
+            seq = z.get("seq") or ""
+            druhy = []
+            if seq:
+                druhy.append("restart" if seq.endswith("h") and "b" in seq else "start" if seq.endswith("h") else "stop")
+            if z.get("mode"):
+                druhy.append(str(z["mode"]))
+            for d in druhy:
+                kluc = (d, _platform(z.get("platform")), _sym(z.get("symbol")))
+                meno = str(z.get("strategy") or "?") + (f" ({z['reason']})" if d == "stop" and z.get("reason") else "")
+                skupiny.setdefault(kluc, []).append(meno)
+        poradie = list(LIFE_KINDS)
+        riadky = []
+        for (d, plat, sym), mena in sorted(skupiny.items(), key=lambda kv: (poradie.index(kv[0][0]) if kv[0][0] in poradie else 99, kv[0][1], kv[0][2])):
+            ikona, nadpis = LIFE_KINDS.get(d, ("•", d))
+            riadky.append(f"{ikona} <b>{nadpis}</b> · {_e(plat)} · <b>{_e(sym)}</b>: {_e(', '.join(sorted(mena)))}")
+        return "\n".join(riadky) or None
+
     def _send_all(self, text: str) -> None:
-        if self.cfg.label:
-            text = f"[{self.cfg.label}] {text}"
         for chat in self.cfg.chats:
-            self.bot.send(chat, text)
+            self.bot.send(chat, text, html=True)
 
     def pump(self, max_events: int = 500) -> dict[str, Any]:
-        """Jedno kolo: prečítaj, pošli, potvrď. Chyba Telegramu = kurzor stojí na prvej neodoslanej
-        udalosti (už odoslané si pamätá `seq`), ďalšie kolo pokračuje."""
+        """Jedno kolo: prečítaj, pošli, potvrď. Obchody a varovania z celého kola idú jednou správou (každý
+        obchod vlastný odsek); súhrn životného cyklu, keď dozrel. Chyba Telegramu = kurzor stojí, ďalšie kolo
+        to pošle znova (odoslané `seq` sa nezdvojí)."""
         if not self.state.data.get("initialized"):
             self._skip_history()
             return {"sent": 0, "skipped_history": True}
         sent = 0
         batches = self.reader.read(max_events)
         riadky_po: list[tuple[Any, list[tuple[int, str]]]] = [(b, self.messages(b)) for b in batches]
+        texty = [t for _, riadky in riadky_po for _, t in riadky if t]
         try:
-            for text in _chunks([t for _, riadky in riadky_po for _, t in riadky if t]):
+            for text in _chunks(texty, sep="\n\n"):
                 self._send_all(text)
-                sent += text.count("\n") + 1
+            sent += len(texty)
+            suhrn = self.life_summary()
+            if suhrn:
+                self._send_all(suhrn)
+                self.state.data["life"] = {}
+                sent += suhrn.count("\n") + 1
         except TelegramError as exc:
             self.last_error = str(exc)
             self.state.save()
@@ -509,30 +608,33 @@ class LiveNotifier:
                 kluc = f"{batch.instance}|{batch.session}"
                 self.state["seq"][kluc] = max(int(self.state["seq"].get(kluc) or 0), riadky[-1][0])
             self.reader.commit(batch)
-        if batches:
+        if batches or sent:
             self.state.save()
         self.last_error = None
         self.sent_total += sent
         return {"sent": sent, "error": None}
 
     def report_issues(self, issues: dict[str, tuple[str, str]]) -> int:
-        """Chyby nasadení z reconcilera (`dep → (popis, chyba)`): nová/zmenená chyba = správa, zmiznutá =
-        „v poriadku“. Vráti počet správ; Telegram dole = skúsi sa nabudúce (stav sa nezmení)."""
+        """Chyby nasadení z reconcilera (`dep → (popis, chyba)`) zoskupené podľa príčiny: nová/zmenená chyba =
+        „⚠ Nenabehli: a, b, c — príčina“, zmiznutá = „✅ Znova v poriadku: a, b“. Čas pokusu, detail a „skúsim
+        znova“ sa do porovnania ani do správy nedávajú. Telegram dole = skúsi sa nabudúce (stav sa nezmení)."""
         stare: dict[str, list[str]] = self.state["issues"]
-        spravy, nove = [], {}
+        nove: dict[str, list[str]] = {}
+        zle: dict[str, list[str]] = {}
         for dep, (popis, chyba) in issues.items():
-            chyba = _ISSUE_TIME.sub("", chyba or "")
-            if chyba:
-                nove[dep] = [popis, chyba]
-                if (stare.get(dep) or ["", ""])[1] != chyba:
-                    spravy.append(f"⚠ nasadenie {popis}: {chyba}")
-        for dep, (popis, _) in stare.items():
-            if dep not in nove:
-                spravy.append(f"✅ nasadenie {popis} je v poriadku")
+            kratka = _issue_short(chyba or "")
+            if kratka:
+                nove[dep] = [popis, kratka]
+                if (stare.get(dep) or ["", ""])[1] != kratka:
+                    zle.setdefault(kratka, []).append(popis)
+        dobre = sorted(popis for dep, (popis, _) in stare.items() if dep not in nove)
+        spravy = [f"⚠️ <b>Nenabehli</b>: {_e(', '.join(sorted(mena)))}\n<i>{_e(pricina)}</i>" for pricina, mena in zle.items()]
+        if dobre:
+            spravy.append(f"✅ <b>Znova v poriadku</b>: {_e(', '.join(dobre))}")
         if not spravy:
             return 0
         try:
-            self._send_all("\n".join(spravy))
+            self._send_all("\n\n".join(spravy))
         except TelegramError as exc:
             self.last_error = str(exc)
             return 0
@@ -634,10 +736,6 @@ def ikey(instance: str) -> str:
     return format(zlib.crc32(instance.encode("utf-8")) & 0xFFFFFFFF, "08x")
 
 
-def _e(x: Any) -> str:
-    return html.escape("" if x is None else str(x), quote=False)
-
-
 def _age(ms: Any, now: float) -> str:
     if not isinstance(ms, (int, float)):
         return "—"
@@ -658,7 +756,7 @@ def _alive(st: dict[str, Any], now: float) -> bool:
 
 
 def _short(st: dict[str, Any]) -> str:
-    return f"{st.get('symbol') or '?'} {st.get('tf') or '?'}m {st.get('strategy') or '?'}"
+    return f"{_sym(st.get('symbol'))} {st.get('tf') or '?'}m {st.get('strategy') or '?'}"
 
 
 def _positions(ctx: dict[str, Any]) -> list[dict[str, Any]]:
@@ -870,13 +968,13 @@ class TelegramCommands:
             poz = _positions(ctx)
             pozicia = " · " + ", ".join(f"{_side(x.get('dir'))} {_num(x.get('qty'))}" for x in poz) if poz else ""
             cak = len(_pending(ctx))
-            riadky.append(f"{n}. {MODE_ICON.get(i.get('control'), '?')} <b>{_e(i.get('symbol'))} {_e(i.get('tf'))}m</b> "
+            riadky.append(f"{n}. {MODE_ICON.get(i.get('control'), '?')} <b>{_e(_sym(i.get('symbol')))} {_e(i.get('tf'))}m</b> "
                           f"{_e(i.get('strategy'))}\n      {zdravie} · bar {_age(i.get('last_bar_ms'), now)}{_e(pozicia)}"
                           f"{f' · čaká {cak}' if cak else ''}")
         riadky.append("\n▶ obchoduje · ⏸ pauza · ⛔ flatten — ťukni na stratégiu")
         if oznam:
             riadky.append("\n" + _e(oznam))
-        gomb = [{"text": f"{n}. {i.get('symbol')} {i.get('strategy')}"[:40], "callback_data": f"m:{ikey(i['instance'])}"}
+        gomb = [{"text": f"{n}. {_sym(i.get('symbol'))} {i.get('strategy')}"[:40], "callback_data": f"m:{ikey(i['instance'])}"}
                 for n, i in enumerate(inst, 1)]
         rows = [gomb[k:k + 2] for k in range(0, len(gomb), 2)]
         rows.append([{"text": "⏸ Pauza všetkým", "callback_data": "P:*"}, {"text": "▶ Spustiť všetky", "callback_data": "R:*"}])
@@ -925,7 +1023,7 @@ class TelegramCommands:
         poz, cak = [], []
         for i in inst:
             ctx = self._ctx(i["instance"])
-            meno = f"<b>{_e(i.get('symbol'))}</b> {_e(i.get('strategy'))} ({_e(_platform(i.get('platform')))})"
+            meno = f"<b>{_e(_sym(i.get('symbol')))}</b> {_e(i.get('strategy'))} ({_e(_platform(i.get('platform')))})"
             poz += [f"• {meno}: {_e(_pos_text(x, ctx))}" for x in _positions(ctx)]
             cak += [f"• {meno}: {_e(_side(x.get('dir')))} {_e(x.get('ot') or '')} @ {_e(_num(x.get('e')))} "
                     f"SL {_e(_num(x.get('sl')))} TP {_e(_num(x.get('tp')))} × {_e(_num(x.get('q')))}" for x in _pending(ctx)]
@@ -994,7 +1092,8 @@ class TelegramService:
         if self.notifier is None or [str(r) for r in self.notifier.reader.roots] != [str(r) for r in roots]:
             from .spool import SpoolReader
 
-            self.notifier = LiveNotifier(SpoolReader(roots, self.cursor_path), self.bot, self.cfg, self.state)
+            self.notifier = LiveNotifier(SpoolReader(roots, self.cursor_path), self.bot, self.cfg, self.state,
+                                         clock=self.clock)
         return self.notifier
 
     def tick(self, wait: float = 3.0) -> None:

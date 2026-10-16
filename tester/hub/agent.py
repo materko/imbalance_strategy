@@ -336,6 +336,8 @@ class HubAgent:
 
     def _telegram_issues(self) -> dict[str, tuple[str, str]]:
         """Chyby aktívnych nasadení z reconcilera: `dep → (popis, chyba)` (prázdna chyba = v poriadku)."""
+        from tradebot.live.telegram import _platform, _sym
+
         rec = self._reconciler
         with self._live_lock:
             desired = self._live_desired
@@ -347,7 +349,7 @@ class HubAgent:
             d = deps.get(str(a.get("deployment")))
             if d is None or not d.get("active", True):
                 continue
-            popis = f"{d.get('strategy')} {d.get('symbol')} {d.get('tf')}m ({d.get('account')})"
+            popis = f"{d.get('strategy')} {_sym(d.get('symbol'))} {_platform(d.get('platform'))}".strip()
             out[str(a["deployment"])] = (popis, str(a.get("error") or ""))
         return out
 
