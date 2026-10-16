@@ -1,0 +1,402 @@
+$ C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Scripts\python.exe -m tester.ftrun hyperopt --config C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.cfd.json --userdir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data --datadir C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\data\tester\databento --strategy BreakoutStrategy --hyperopt-loss TradebotPlanLoss --spaces plan --analyze-per-epoch --epochs 200 --timerange 20190505-20260910 --pairs MNQ/USD --timeframe 3m --dry-run-wallet 100000.0 --timeframe-detail 1m --fee 0.0
+C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\.venv\Lib\site-packages\requests\__init__.py:92: RequestsDependencyWarning: Unable to find acceptable character detection dependency (chardet or charset_normalizer).
+  warnings.warn(
+2026-09-20 19:51:58,759 - freqtrade - INFO - freqtrade 2026.8
+2026-09-20 19:52:02,128 - freqtrade.configuration.load_config - INFO - Using config: C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\config.tester.cfd.json ...
+… (skrátené) …
+2026-09-20 19:52:02,137 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-09-20 19:52:03,231 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, futures, 3m, data starts at 2019-05-05 22:03:00
+2026-09-20 19:52:03,624 - freqtrade.configuration.timerange - WARNING - Moving start-date by 300 candles to account for startup time.
+2026-09-20 19:52:04,906 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, funding_rate, 1h found. Use `freqtrade download-data` to download the data
+2026-09-20 19:52:04,908 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, mark, 1h found. Use `freqtrade download-data` to download the data
+2026-09-20 19:52:10,630 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, futures, 5m, data starts at 2019-05-05 22:00:00
+…
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:00:05,533 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:00:10,336 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:00:15,049 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:00:19,745 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:00:22,364 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:00:24,798 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:00:27,117 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:00:29,711 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:00:31,688 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:00:34,710 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:00:37,097 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:00:39,625 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:00:41,297 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:00:44,621 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:00:47,646 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:00:49,564 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:00:52,132 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:00:54,602 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:00:57,039 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:00:59,500 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:01:03,266 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:01:04,732 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:01:08,345 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:01:09,730 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:01:12,829 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:01:14,794 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:01:17,431 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:01:19,900 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:01:22,905 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:01:25,234 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:01:28,503 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:01:30,249 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:01:33,665 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:01:35,359 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:01:38,663 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:01:40,371 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:01:42,920 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:01:45,394 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:01:48,376 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:01:50,320 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:01:53,869 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:01:55,430 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:01:57,494 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:02:01,809 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:02:06,717 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:02:11,222 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:02:15,402 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:02:26,962 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:02:30,744 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:02:34,716 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:02:38,878 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:02:43,111 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:02:46,339 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:02:47,652 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:02:51,450 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:02:52,350 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:02:55,665 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:02:56,933 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:03:00,641 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:03:01,684 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:03:05,708 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 4 signalov (2 long / 2 short)
+2026-09-20 20:03:06,968 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:03:11,574 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:03:11,736 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:03:16,552 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:03:16,964 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:03:21,148 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:03:21,463 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:03:24,736 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:03:26,231 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:03:32,224 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:03:32,482 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:03:37,286 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:03:37,594 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:03:42,233 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:03:43,077 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:03:47,826 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:03:48,416 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:03:52,687 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:03:53,596 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:03:57,730 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:03:58,887 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:04:02,844 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:04:04,210 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:04:07,484 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:04:09,550 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:04:13,299 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:04:14,851 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:04:20,311 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:04:20,993 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:04:25,792 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:04:30,438 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:04:34,933 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 1 signalov (0 long / 1 short)
+2026-09-20 20:04:40,204 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:04:43,837 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:04:59,126 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:05:03,891 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:05:08,824 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:05:14,376 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:05:19,931 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:05:25,886 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:05:26,031 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:05:32,511 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:05:32,919 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:05:38,589 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:05:38,697 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:05:44,511 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:05:44,792 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:05:51,018 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:05:51,356 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:05:56,782 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 2 signalov (1 long / 1 short)
+2026-09-20 20:05:57,316 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:06:03,655 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:06:03,849 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:06:09,079 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 3 signalov (1 long / 2 short)
+2026-09-20 20:06:09,931 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:06:16,690 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:06:16,758 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:06:22,601 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:06:23,718 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:06:30,158 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:06:30,498 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:06:37,789 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:06:37,908 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:06:43,579 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:06:44,385 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:06:50,827 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:06:51,240 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:06:57,945 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:06:57,975 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:07:04,893 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:07:05,214 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:07:11,844 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:07:11,865 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:07:18,073 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:07:18,761 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:07:24,803 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:07:25,562 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:07:31,328 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:07:37,952 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:07:43,789 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:07:49,240 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:07:54,330 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 2 signalov (0 long / 2 short)
+2026-09-20 20:08:14,011 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:08:19,352 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:08:24,842 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:08:30,593 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:08:36,623 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:08:42,843 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:08:44,003 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:08:49,491 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:08:50,530 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:08:56,353 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:08:56,792 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:09:03,434 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 2 signalov (1 long / 1 short)
+2026-09-20 20:09:03,600 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:09:10,787 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:09:10,824 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:09:16,963 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 4 signalov (2 long / 2 short)
+2026-09-20 20:09:17,682 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:09:24,066 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:09:24,990 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:09:31,238 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:09:31,916 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:09:38,064 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:09:39,659 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:09:47,061 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 4 signalov (2 long / 2 short)
+2026-09-20 20:09:47,455 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:09:53,224 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 1 signalov (1 long / 0 short)
+2026-09-20 20:09:54,902 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:10:01,362 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:10:02,363 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:10:09,879 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:10:09,968 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:10:16,688 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:10:17,164 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:10:23,951 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:10:24,243 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:10:30,722 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:10:30,985 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:10:35,776 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:10:36,667 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:10:41,533 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 2 signalov (1 long / 1 short)
+2026-09-20 20:10:42,185 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:10:46,970 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 2 signalov (1 long / 1 short)
+2026-09-20 20:10:47,878 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:10:52,598 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:10:57,439 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:11:02,906 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:11:07,822 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:11:11,919 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 1 signalov (0 long / 1 short)
+2026-09-20 20:11:27,924 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:11:32,544 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:11:37,408 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:11:42,274 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:11:47,175 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:11:50,256 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:11:52,298 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:11:54,681 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:11:57,339 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:12:00,069 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:12:02,521 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:12:05,973 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:12:07,527 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:12:11,512 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:12:12,677 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:12:16,931 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 1 signalov (1 long / 0 short)
+2026-09-20 20:12:17,732 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:12:22,153 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 2 signalov (0 long / 2 short)
+2026-09-20 20:12:22,972 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:12:28,020 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:12:28,193 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:12:32,310 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:12:33,530 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:12:38,286 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:12:38,892 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:12:43,514 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:12:44,552 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:12:48,719 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:12:49,663 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:12:53,829 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 2 signalov (1 long / 1 short)
+2026-09-20 20:12:54,864 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:12:59,206 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:13:00,250 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:13:05,408 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:13:05,917 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:13:11,344 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:13:11,346 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:13:16,013 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 2 signalov (0 long / 2 short)
+2026-09-20 20:13:16,504 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:13:21,606 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:13:22,038 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:13:26,461 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:13:26,697 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:13:30,501 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 4 signalov (3 long / 1 short)
+2026-09-20 20:13:36,153 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:13:40,105 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:13:44,101 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:13:48,139 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:14:02,865 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:14:07,539 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:14:12,236 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:14:17,003 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:14:21,771 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:14:26,291 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 2 signalov (0 long / 2 short)
+2026-09-20 20:14:27,064 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:14:31,672 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 2 signalov (1 long / 1 short)
+2026-09-20 20:14:32,327 - tradebot.adapters.freqtrade.base - INFO - hyperopt plan: hp_sessionStartM, hp_sessionStartH, hp_sessionEndH, hp_sessionEndM, hp_breakBufferAtr, hp_limitValidMinutes, 
+hp_entryWindowMinutes, hp_maxTradesPerDay, hp_minClosePosPct, hp_minRangePct, hp_useVolumeFilter, hp_volSmaLen, hp_volMultiplier, hp_atrLen, hp_slBufferAtr, hp_rrRatio -> priestor 'plan'
+2026-09-20 20:14:36,857 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 3 signalov (1 long / 2 short)
+2026-09-20 20:14:41,634 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 2 signalov (1 long / 1 short)
+2026-09-20 20:14:46,872 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 2 signalov (1 long / 1 short)
+2026-09-20 20:14:51,317 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+2026-09-20 20:14:55,263 - tradebot.adapters.freqtrade.base - INFO - breakout MNQ/USD: 1288360 barov, 0 signalov (0 long / 0 short)
+                                                                                            Hyperopt results                                                                                            
+                                        ┌──────┬───────┬────────┬───────────────────────┬────────────┬────────┬──────────────┬───────────┬─────────────────────┐                                        
+                                        │ Best │ Epoch │ Trades │ Win  Draw  Loss  Win% │ Avg profit │ Profit │ Avg duration │ Objective │ Max Drawdown (Acct) │                                        
+                                        ├──────┼───────┼────────┼───────────────────────┼────────────┼────────┼──────────────┼───────────┼─────────────────────┤                                        
+                                        └──────┴───────┴────────┴───────────────────────┴────────────┴────────┴──────────────┴───────────┴─────────────────────┘                                        
+Epochs ---------------------------------------------------------------------------------------------------------------------------------------------------------------- 200/200 100% • 0:22:55 • 0:00:00
+2026-09-20 20:15:07,045 - freqtrade.optimize.hyperopt.hyperopt - INFO - 200 epochs saved to 
+'C:\Users\Lenovo\Documents\_Documents\_workplace\git\imbalance_strategy\deploy\freqtrade\user_data\hyperopt_results\strategy_BreakoutStrategy_2026-09-20_17-52-02.fthypt'.
+No good result found for given optimization function in 200 epochs.
