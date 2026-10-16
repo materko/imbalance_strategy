@@ -38,6 +38,14 @@ Každý uzol smie byť dole a nič sa nestratí:
    (plná stránka = hneď ďalšia). Hub dole = webapp ukazuje, čo má. Keď webapp beží na
    obchodnom PC, číta aj lokálny spool priamo (vlastný kurzor `tester/live/cursor_webapp.json`)
    — funguje aj bez hubu.
+   **Diery:** platforma čísluje udalosti behu `seq` od 1 bez medzier, takže chýbajúci kus je
+   vidieť (`LiveStore.gaps`; koniec behu sa z čísiel poznať nedá). Zrkadlo raz za minútu
+   (`GAP_CHECK_SECONDS`) hľadá diery; tú, ktorá trvá aspoň minútu (`GAP_GRACE_SECONDS` — dávky
+   z dvoch súborov spoolu jedného behu môžu prísť v opačnom poradí), dopýta z hubu
+   (`Transport.pull_range` → `GET /api/live/range`). Čo ani tak nemá, je v stave zrkadla
+   (`gaps`: instance, session, first, last, missing, since, `on_hub` — `true` = hub na dopyt
+   nevrátil nič, stratilo sa cestou z platformy; `null` = bez hubu) a karta Live to ukáže
+   (varovanie pod stavom, chip „chýbajú dáta“ pri inštancii); doplnené počíta `gaps_refilled`.
 5. **Stránka** drží otvorený `EventSource` na `/api/live/stream`; webapp jej po každom zápise do
    zrkadla pošle nové riadky. Bez SSE (starý server, proxy) sa stránka vráti k pollingu 5 s.
 
@@ -181,6 +189,8 @@ LiveStore(path: Path)
 .events(instance, *, after: int = 0, kinds: list[str] | None = None, limit: int = 1000, session: str | None = None) -> list[dict]   # riadky {"id": rowid, "session", "seq", "event": {...}}
 .snapshot(instance, *, bars: int | None = None, session: str | None = None) -> dict    # {"instance", "session", "bars", "orders", "events", "draw", "fills", "stats", "notes"} za posledných N barov (500; so session celý beh do 5000)
 .export(after: int = 0, limit: int = 5000) -> list[dict]   # {"id", "agent", "instance", "session", "event"} — pre zrkadlo
+.gaps(instance: str | None = None) -> list[dict]          # diery v seq: {"instance", "session", "first", "last", "missing"}
+.events_range(instance, session, first, last, limit=5000) -> list[dict]   # seq first..last jedného behu, tvar ako export
 .cursor() -> int                   # max rowid
 ```
 
@@ -195,6 +205,8 @@ Hub (`tester/hub/live.py`, pripája `create_hub_app`), auth ako ostatné (token 
 | GET | `/api/live/instances/{id}/events?after=&kinds=&limit=&session=` | riadky |
 | GET | `/api/live/instances/{id}/snapshot?bars=&session=` | snapshot (so `session=` len ten beh) |
 | GET | `/api/live/export?after=&limit=` | riadky pre zrkadlo |
+| GET | `/api/live/range?instance=&session=&first=&last=&limit=` | seq `first..last` jedného behu — doplnenie diery v zrkadle |
+| GET | `/api/live/gaps?instance=` | diery v seq na hube (diagnostika) |
 
 Agent (`tester/hub/agent.py`): v pomalom vlákne (`work()`) je krok `_ship_live` — shipper
 vznikne, keď existuje aspoň jeden koreň spoolu. Tretie, ľahké vlákno (`watch_spool`, 1 s) pozerá

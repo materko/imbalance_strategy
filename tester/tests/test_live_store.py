@@ -202,3 +202,23 @@ def test_export_and_cursor_for_mirror(tmp_path: Path):
     for r in hub.export():
         assert zrkadlo.ingest(r["agent"], r["instance"], r["session"], [r["event"]]) == 0
     assert hub.export(after=4) == []
+
+
+def test_diery_v_seq_a_vyber_podla_rozsahu(tmp_path: Path):
+    """Platforma čísluje udalosti behu od 1 bez medzier: chýbajúci kus (aj začiatok) je diera,
+    úplný beh nie; `events_range` vráti seq `first..last` v tvare exportu."""
+    st = LiveStore(tmp_path / "live.sqlite")
+    st.ingest("srv", INST, "a1b2c3d4", [hello(), bar(2, 0), bar(3, 1), bar(6, 4), bar(7, 5), bar(9, 7)])
+    st.ingest("srv", INST, "eeeeeeee", [bar(3, 0, ready=True), bar(4, 1)])   # beh bez začiatku
+    st.ingest("srv", INST, "ffffffff", [hello(session="ffffffff"), bar(2, 0)])  # úplný
+    assert st.gaps() == [
+        {"instance": INST, "session": "a1b2c3d4", "first": 4, "last": 5, "missing": 2},
+        {"instance": INST, "session": "a1b2c3d4", "first": 8, "last": 8, "missing": 1},
+        {"instance": INST, "session": "eeeeeeee", "first": 1, "last": 2, "missing": 2},
+    ]
+    assert st.gaps("iná") == []
+    rows = st.events_range(INST, "a1b2c3d4", 2, 6)
+    assert [r["event"]["seq"] for r in rows] == [2, 3, 6] and rows[0]["agent"] == "srv"
+    # doplnenie diery ju zavrie
+    st.ingest("srv", INST, "a1b2c3d4", [bar(4, 2), bar(5, 3), bar(8, 6)])
+    assert [g["session"] for g in st.gaps()] == ["eeeeeeee"]

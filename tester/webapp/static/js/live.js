@@ -272,9 +272,25 @@ function renderLiveStatus() {
   parts.push(m.local_roots && m.local_roots.length ? `lokálny spool: ${m.local_roots.join(", ")}` : "lokálny spool: žiadny");
   parts.push(m.running ? (m.last_ok ? `synchronizované ${liveAge(m.last_ok * 1000, lv.now)}` : "zrkadlo beží, zatiaľ nič") : "zrkadlo nebeží (štartuje sa s webapp)");
   parts.push(lv.sse ? "stream" : "polling 5 s");
+  if (m.gaps_refilled) parts.push(`doplnené z hubu ${m.gaps_refilled} udalostí`);
   $("#live-status").textContent = parts.join(" · ");
   const err = $("#live-error");
+  const gaps = m.gaps || [];
   if (m.last_error) { err.textContent = `zrkadlo: ${m.last_error}`; err.hidden = false; }
+  else if (gaps.length) {
+    const spolu = gaps.reduce((a, g) => a + g.missing, 0);
+    const hub = gaps.filter(g => g.on_hub === true).length;
+    err.textContent = `chýba ${spolu} udalostí v ${gaps.length} ${gaps.length === 1 ? "mieste" : "miestach"} `
+      + (hub === gaps.length ? "— chýbajú aj na hube, stratili sa cestou z platformy (spool / agent)"
+        : hub ? `— ${hub} z nich chýbajú aj na hube (stratili sa cestou z platformy), ostatné sa nedali dotiahnuť`
+        : "— hub ich nedal, zrkadlo to skúša znova každú minútu");
+    err.hidden = false;
+  }
+}
+
+/** Diery v `seq` inštancie (zo stavu zrkadla) ako text do title. */
+function liveGapsOf(id) {
+  return ((lv.mirror && lv.mirror.gaps) || []).filter(g => g.instance === id);
 }
 
 /** Fills a smery vstupov inštancie — prírastkovo od posledného rowid, nech sa pri obnove neťahá všetko. */
@@ -313,7 +329,9 @@ function liveFillsToday(f) {
 function liveStatusChip(inst) {
   const alive = liveAlive(inst);
   const tester = inst.hello && inst.hello.tester ? ' <span class="chip warn" title="beží v Strategy Testeri / Analyzeri">tester</span>' : "";
-  return `<span class="chip ${alive ? "ok" : ""}" title="${alive ? "posledná udalosť do 3 barov" : "bez udalostí dlhšie než 3 bary"}">${alive ? "živá" : "ticho"}</span>${tester}`;
+  const gaps = liveGapsOf(inst.id);
+  const diera = gaps.length ? ` <span class="chip bad" title="${esc(gaps.map(g => `beh ${g.session}: chýba seq ${g.first}–${g.last} (${g.missing})${g.on_hub ? ", aj na hube" : ""}`).join("\n"))}">chýbajú dáta</span>` : "";
+  return `<span class="chip ${alive ? "ok" : ""}" title="${alive ? "posledná udalosť do 3 barov" : "bez udalostí dlhšie než 3 bary"}">${alive ? "živá" : "ticho"}</span>${tester}${diera}`;
 }
 
 function renderLiveList() {

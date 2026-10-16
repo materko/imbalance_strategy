@@ -97,6 +97,18 @@ def add_live_routes(app: FastAPI, state: Any, store: LiveStore, auth: Callable[.
                     who: str = Depends(auth)):
         return store.export(after=after, limit=limit)
 
+    @app.get("/api/live/gaps")
+    def live_gaps(instance: str | None = None, who: str = Depends(auth)):
+        """Diery v `seq` na hube (diagnostika: chýbajúce udalosti sa stratili cestou z platformy —
+        spool, agent). Koniec behu sa z čísiel poznať nedá."""
+        return store.gaps(instance or None)
+
+    @app.get("/api/live/range")
+    def live_range(instance: str, session: str, first: int = Query(..., ge=1), last: int = Query(..., ge=1),
+                   limit: int = Query(5000, ge=1, le=50000), who: str = Depends(auth)):
+        """Udalosti jedného behu so `seq` v `first..last` v tvare `export` — doplnenie diery v zrkadle."""
+        return store.events_range(instance, session, first, last, limit=limit)
+
 
 # --------------------------------------------------------------------------- #
 # fáza 2b: účty a nasadenia (požadovaný stav) — docs/LIVE.md

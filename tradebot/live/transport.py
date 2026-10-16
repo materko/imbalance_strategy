@@ -8,6 +8,10 @@ ani zrkadlo cesty `/api/live/*` nepoznajú — vidia len tri operácie:
     pull_export(after, limit)   -> [rows]             # hub → zrkadlo webapp, riadky od rowid `after`
     heartbeat(name, body)       -> odpoveď hubu       # voliteľné; hub agent ho dnes robí cez HubHttp
 
+Voliteľne (kontrola dier v zrkadle; transport bez nej zrkadlo dieru len ohlási, nedopĺňa):
+
+    pull_range(instance, session, first, last) -> [rows]   # seq first..last jedného behu, tvar ako export
+
 Ostatné cesty hubu (výpočty, tokeny, účty a nasadenia) sem **nepatria** — protokol výpočtov
 agenta (`tester/hub/protocol.py`) je mimo rozsah transportu; cez `Transport` ide len telemetria.
 
@@ -35,10 +39,11 @@ from __future__ import annotations
 
 from typing import Any, Protocol, runtime_checkable
 
-__all__ = ["Transport", "HttpTransport", "as_transport", "EVENTS_PATH", "EXPORT_PATH"]
+__all__ = ["Transport", "HttpTransport", "as_transport", "EVENTS_PATH", "EXPORT_PATH", "RANGE_PATH"]
 
 EVENTS_PATH = "/api/live/events"
 EXPORT_PATH = "/api/live/export"
+RANGE_PATH = "/api/live/range"
 
 
 @runtime_checkable
@@ -68,6 +73,15 @@ class HttpTransport:
 
     def pull_export(self, after: int = 0, limit: int = 5000) -> list[dict[str, Any]]:
         rows = self.http.get(f"{EXPORT_PATH}?after={int(after)}&limit={int(limit)}")
+        return rows if isinstance(rows, list) else []
+
+    def pull_range(self, instance: str, session: str, first: int, last: int,
+                   limit: int = 5000) -> list[dict[str, Any]]:
+        from urllib.parse import urlencode
+
+        q = urlencode({"instance": instance, "session": session, "first": int(first), "last": int(last),
+                       "limit": int(limit)})
+        rows = self.http.get(f"{RANGE_PATH}?{q}")
         return rows if isinstance(rows, list) else []
 
     def heartbeat(self, name: str, body: dict[str, Any]) -> dict[str, Any]:

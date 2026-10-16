@@ -172,6 +172,40 @@ class LiveStore:
             rows = self._db.execute(sql, args).fetchall()
         return [self._event_row(r) for r in rows]
 
+    def gaps(self, instance: str | None = None) -> list[dict[str, Any]]:
+        """Diery v `seq`: platforma čísluje udalosti behu (session) od 1 bez medzier, takže
+        chýbajúci kus je `{"instance", "session", "first", "last", "missing"}` (seq `first`..`last`
+        vrátane). Chýbajúci začiatok behu (prvé seq > 1) je diera od 1; koniec behu sa
+        z čísiel poznať nedá. Najprv lacný `GROUP BY` (počet ≠ rozsah), okno `LAG` len nad
+        behmi, kde niečo chýba."""
+        where, args = ("WHERE instance = ?", [instance]) if instance else ("", [])
+        with self._lock:
+            podozrive = self._db.execute(
+                f"SELECT instance, session FROM events {where} GROUP BY instance, session "
+                "HAVING COUNT(*) != MAX(seq) - MIN(seq) + 1 OR MIN(seq) > 1", args).fetchall()
+            out: list[dict[str, Any]] = []
+            for r in podozrive:
+                rows = self._db.execute(
+                    "SELECT seq, LAG(seq) OVER (ORDER BY seq) AS prev FROM events "
+                    "WHERE instance = ? AND session = ? ORDER BY seq", (r["instance"], r["session"])).fetchall()
+                for x in rows:
+                    prev = 0 if x["prev"] is None else int(x["prev"])
+                    if int(x["seq"]) - prev > 1:
+                        first, last = prev + 1, int(x["seq"]) - 1
+                        out.append({"instance": r["instance"], "session": r["session"], "first": first,
+                                    "last": last, "missing": last - first + 1})
+        return out
+
+    def events_range(self, instance: str, session: str, first: int, last: int,
+                     limit: int = 5000) -> list[dict[str, Any]]:
+        """Udalosti jedného behu so `seq` v `first..last` (vrátane) v tvare `export` — na
+        doplnenie diery v zrkadle."""
+        with self._lock:
+            rows = self._db.execute(
+                "SELECT * FROM events WHERE instance = ? AND session = ? AND seq BETWEEN ? AND ? "
+                "ORDER BY seq LIMIT ?", (instance, session, int(first), int(last), max(1, int(limit)))).fetchall()
+        return [self._event_row(r, with_agent=True) for r in rows]
+
     def export(self, after: int = 0, limit: int = 5000) -> list[dict[str, Any]]:
         """Riadky od `after` (rowid) pre zrkadlo — s menom agenta, nech ho zrkadlo zachová."""
         with self._lock:

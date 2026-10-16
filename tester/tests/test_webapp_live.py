@@ -865,3 +865,61 @@ def test_deploy_nenabehla_prejde_z_hubu_a_tabulka_ukaze_upozornenie(deploy_app):
     issue = chip[chip.index("function ldIssueChip("):]
     assert 'a.status === "ok"' in issue and 'startsWith("nenabehla: ")' in issue
     assert 'class="chip warn" title="${esc(text' in issue    # upozornenie, plný text v title
+
+
+def test_zrkadlo_dopyta_dieru_z_hubu_a_hlasi_co_chyba_aj_na_hube(tmp_path: Path):
+    """Diera v seq, ktorá trvá dlhšie než `GAP_GRACE_SECONDS`, sa dopýta z hubu (`pull_range`);
+    čo nemá ani hub, ostane v stave s `on_hub: True`. Krátka diera (dávka na ceste) sa nehlási."""
+    from tester.tests.test_live_spool import FakeTransport
+    from tester.webapp.api import live as live_api
+
+    ev = _events()                         # seq 1..5
+    hub_store = LiveStore(tmp_path / "hub.sqlite")
+    hub_store.ingest("trade-pc", INSTANCE, "a1b2c3d4", [e for e in ev if e["seq"] != 5])   # hub nemá seq 5
+    t = FakeTransport(hub_store)
+    cfg = SimpleNamespace(name="notebook", hub_url="http://hub.test:8790", send=True)
+    hodiny = [1000.0]
+    m = _mirror(tmp_path, hub=(cfg, t), clock=lambda: hodiny[0])
+    # zrkadlo má dieru seq 3 (hub ju má) a nemá ani 5 (to hub tiež nemá)
+    m.store.ingest("trade-pc", INSTANCE, "a1b2c3d4", [e for e in ev if e["seq"] in (1, 2, 4)])
+    m.hub_url, m.hub_cursor = cfg.hub_url, 10**9    # export už nič nedá — dopĺňa len kontrola dier
+
+    m.tick()                               # prvé videnie: nič sa nedopĺňa ani nehlási
+    assert m.status()["gaps"] == [] and m.gaps_refilled == 0 and len(m.store.events(INSTANCE)) == 3
+
+    hodiny[0] += live_api.GAP_GRACE_SECONDS + live_api.GAP_CHECK_SECONDS
+    m.tick()                               # diera trvá: seq 3 sa doplní z hubu, verzia sa zdvihne
+    assert m.gaps_refilled == 1 and m.version >= 1
+    assert sorted(r["seq"] for r in m.store.events(INSTANCE)) == [1, 2, 3, 4]
+    assert m.store.gaps() == []            # seq 5 je za koncom — z čísiel sa koniec poznať nedá
+
+    # diera, ktorú nemá ani hub: zrkadlo má 6, hub nie
+    m.store.ingest("trade-pc", INSTANCE, "a1b2c3d4", [{**ev[-1], "seq": 6}])
+    hodiny[0] += live_api.GAP_CHECK_SECONDS
+    m.tick()
+    assert m.status()["gaps"] == []        # ešte v lehote
+    hodiny[0] += live_api.GAP_CHECK_SECONDS + live_api.GAP_GRACE_SECONDS
+    m.tick()
+    gaps = m.status()["gaps"]
+    assert [(g["first"], g["last"], g["missing"]) for g in gaps] == [(5, 5, 1)]
+    assert gaps[0]["on_hub"] is True and gaps[0]["session"] == "a1b2c3d4"
+
+    # hub mimo: kontrola nezhodí zrkadlo, diera ostáva hlásená
+    t.down = True
+    hodiny[0] += live_api.GAP_CHECK_SECONDS
+    m.tick()
+    assert m.last_error and "diery" not in m.last_error      # chybu hlási sťahovanie, nie kontrola dier
+    assert [(g["first"], g["on_hub"]) for g in m.status()["gaps"]] == [(5, True)]   # posledné známe
+
+
+def test_zrkadlo_bez_hubu_hlasi_dieru_bez_doplnenia(tmp_path: Path):
+    from tester.webapp.api import live as live_api
+
+    hodiny = [1000.0]
+    m = _mirror(tmp_path, clock=lambda: hodiny[0])
+    m.store.ingest("local", INSTANCE, "a1b2c3d4", [e for e in _events() if e["seq"] != 2])
+    m.tick()
+    hodiny[0] += live_api.GAP_GRACE_SECONDS + live_api.GAP_CHECK_SECONDS
+    m.tick()
+    g = m.status()["gaps"]
+    assert [(x["first"], x["last"]) for x in g] == [(2, 2)] and g[0]["on_hub"] is None and m.last_error is None

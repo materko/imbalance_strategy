@@ -9,6 +9,12 @@ z dvoch zdrojov a stránka číta len zrkadlo:
 * z lokálneho spoolu platforiem (`tradebot.live.spool`), keď webapp beží na obchodnom PC —
   vlastný kurzor `tester/live/cursor_webapp.json`, funguje aj bez hubu.
 
+**Diery:** platforma čísluje udalosti behu `seq` od 1 bez medzier. Zrkadlo raz za minútu
+pozrie, či mu niečo nechýba (`LiveStore.gaps`); dieru, ktorá trvá aspoň minútu (nie je to len
+dávka na ceste), si dopýta z hubu (`Transport.pull_range`) a čo ani tak nemá, ukáže v stave
+(`gaps`) aj s tým, či chýba aj na hube (`on_hub`: hub na dopyt nevrátil nič = stratilo sa cestou
+z platformy; `None` = bez hubu, nevedno).
+
 `LiveMirror` je vlákno, ktoré to robí každé 2 s (plná stránka z hubu = hneď ďalšia); štartuje
 ho `__main__` (ako agenta hubu), takže testy s `TestClient` ho nespúšťajú a zrkadlo sa otvára
 až pri prvom použití. Každé uložené nové riadky zdvihnú `version` zrkadla a zobudia
@@ -58,6 +64,10 @@ LOCAL_BATCHES_PER_TICK = 20
 #: Interval zrkadla (hub + lokálny spool). 2 s: hub sám dostáva dávky do ~1 s od baru, takže
 #: koniec-koniec je bar → stránka ≈ 2–4 s; plná stránka z hubu sa dočíta hneď (bez čakania).
 MIRROR_INTERVAL = 2.0
+#: Ako často zrkadlo hľadá diery v `seq` a ako dlho musí diera trvať, než sa dopĺňa a hlási
+#: (dávky jedného behu z dvoch súborov spoolu môžu prísť v opačnom poradí — to nie je strata).
+GAP_CHECK_SECONDS = 60.0
+GAP_GRACE_SECONDS = 60.0
 #: SSE: komentár každých toľko sekúnd, nech proxy a prehliadač spojenie nezavrú.
 SSE_KEEPALIVE = 15.0
 #: SSE: ako dlho generátor čaká na zmenu zrkadla, než skontroluje odpojenie klienta.
@@ -124,6 +134,11 @@ class LiveMirror:
         self.ingested = 0
         #: Rastie s každým tikom, ktorý niečo uložil; `wait_for_change` na ňom čaká (SSE).
         self.version = 0
+        #: Diery v `seq`, ktoré trvajú dlhšie než `GAP_GRACE_SECONDS` a nedali sa doplniť.
+        self.gaps: list[dict[str, Any]] = []
+        self.gaps_refilled = 0
+        self.gaps_checked: float | None = None
+        self._gap_seen: dict[tuple[str, str, int], float] = {}
         self._changed = threading.Condition()
 
     # -- poslucháči (SSE) ------------------------------------------------------ #
@@ -214,11 +229,59 @@ class LiveMirror:
             total += nove
         return total
 
+    def check_gaps(self, transport: Any | None) -> int:
+        """Nájde diery v `seq`, tie staršie než `GAP_GRACE_SECONDS` dopýta z hubu a čo ostane,
+        zapíše do `gaps` (s `on_hub`: chýba aj na hube / nevedno). Vráti počet doplnených."""
+        now = self.clock()
+        self.gaps_checked = now
+        nalez = self.store.gaps()
+        videne: dict[tuple[str, str, int], float] = {}
+        doplnene = 0
+        #: rozsahy, na ktoré hub odpovedal celé (menej než limit) — čo v nich ostane, hub nemá
+        hub_cele: list[tuple[str, str, int, int]] = []
+        for g in nalez:
+            kluc = (g["instance"], g["session"], int(g["first"]))
+            od = self._gap_seen.get(kluc, now)
+            videne[kluc] = od
+            if transport is None or not hasattr(transport, "pull_range") or now - od < GAP_GRACE_SECONDS:
+                continue
+            try:
+                rows = transport.pull_range(g["instance"], g["session"], g["first"], g["last"], limit=EXPORT_LIMIT)
+            except Exception:  # noqa: BLE001 - hub mimo alebo starý hub bez /api/live/range:
+                continue       # diera ostáva hlásená, ďalšia kontrola to skúsi znova
+            if len(rows or []) < EXPORT_LIMIT:
+                hub_cele.append((g["instance"], g["session"], int(g["first"]), int(g["last"])))
+            po_agentoch: dict[str, list[dict[str, Any]]] = {}
+            for r in rows or []:
+                po_agentoch.setdefault(str(r.get("agent") or ""), []).append(r["event"])
+            for agent, events in po_agentoch.items():
+                doplnene += self.store.ingest(agent, g["instance"], g["session"], events)
+        if doplnene:
+            self.gaps_refilled += doplnene
+            self._bump(doplnene)
+            nalez = self.store.gaps()
+            videne = {(g["instance"], g["session"], int(g["first"])):
+                      self._gap_seen.get((g["instance"], g["session"], int(g["first"])), now) for g in nalez}
+        self._gap_seen = videne
+        trvale = [g for g in nalez if now - videne[(g["instance"], g["session"], int(g["first"]))] >= GAP_GRACE_SECONDS]
+        predtym = {(g["instance"], g["session"], int(g["first"])): g.get("on_hub") for g in self.gaps}
+
+        def on_hub(g: dict[str, Any]) -> bool | None:
+            if any(i == g["instance"] and s == g["session"] and a <= int(g["last"]) and b >= int(g["first"])
+                   for i, s, a, b in hub_cele):
+                return True
+            return predtym.get((g["instance"], g["session"], int(g["first"])))   # hub tentoraz mimo
+
+        self.gaps = [{**g, "since": videne[(g["instance"], g["session"], int(g["first"]))], "on_hub": on_hub(g)}
+                     for g in trvale]
+        return doplnene
+
     def tick(self) -> None:
         """Jeden prechod oboma zdrojmi. Chyba sa zapíše do `last_error` a ďalší tik ide znova."""
         self.ticks += 1
         errors: list[str] = []
         agent_name = "local"
+        transport: Any | None = None
         try:
             hub = self.hub_factory()
             if hub is not None:
@@ -228,7 +291,8 @@ class LiveMirror:
                 if url != self.hub_url:
                     self.hub_url = url
                     self.hub_cursor = self._load_cursor(url)
-                self.ingested += self.pull_hub(http)
+                transport = as_transport(http)
+                self.ingested += self.pull_hub(transport)
             else:
                 self.hub_url = None
         except Exception as exc:  # noqa: BLE001 - hub mimo nesmie zhodiť zrkadlo
@@ -243,6 +307,11 @@ class LiveMirror:
                 self.ingested += self.pull_local(self._reader, agent_name)
         except Exception as exc:  # noqa: BLE001 - rozbitý spool takisto nie
             errors.append(f"spool: {type(exc).__name__}: {_short(exc)}")
+        if self.gaps_checked is None or self.clock() - self.gaps_checked >= GAP_CHECK_SECONDS:
+            try:
+                self.check_gaps(transport if self.hub_url else None)
+            except Exception as exc:  # noqa: BLE001 - kontrola dier nesmie zastaviť zrkadlo
+                errors.append(f"diery: {type(exc).__name__}: {_short(exc)}")
         if errors:
             self.last_error = "; ".join(errors)
         else:
@@ -291,6 +360,9 @@ class LiveMirror:
             "ingested": self.ingested,
             "version": self.version,
             "interval": self.interval,
+            "gaps": list(self.gaps),
+            "gaps_refilled": self.gaps_refilled,
+            "gaps_checked": self.gaps_checked,
         }
 
 

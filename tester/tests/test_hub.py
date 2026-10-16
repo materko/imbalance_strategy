@@ -1859,6 +1859,17 @@ def test_live_api_tokens_and_idempotence(tmp_path: Path):
     assert [e["id"] for e in c.get("/api/live/export?after=2", headers=H(t_lap)).json()] == [3]
     assert c.get("/api/live/export?after=-1", headers=H(t_lap)).status_code == 422
 
+    # diery v seq a doplnenie podľa rozsahu (zrkadlo webapp)
+    assert c.get("/api/live/gaps", headers=H(t_lap)).json() == []
+    c.post("/api/live/events", headers=H(t_srv), json={"agent": "srv", "batches": [
+        {"instance": LIVE_INST, "session": "a1b2c3d4", "events": [_live_bar(6, 4)]}]})
+    assert c.get("/api/live/gaps", headers=H(t_lap)).json() == [
+        {"instance": LIVE_INST, "session": "a1b2c3d4", "first": 4, "last": 5, "missing": 2}]
+    assert c.get(f"/api/live/gaps?instance={LIVE_INST}x", headers=H(t_lap)).json() == []
+    rng = c.get(f"/api/live/range?instance={LIVE_INST}&session=a1b2c3d4&first=2&last=6", headers=H(t_lap)).json()
+    assert [r["event"]["seq"] for r in rng] == [2, 3, 6] and rng[0]["agent"] == "srv"
+    assert c.get(f"/api/live/range?instance={LIVE_INST}&session=a1b2c3d4&first=2&last=6").status_code == 401
+
 
 def test_live_api_sessions_and_session_param(tmp_path: Path):
     """Druhý štart stratégie = druhá session: `/sessions` ich vymenuje (najnovší prvý),

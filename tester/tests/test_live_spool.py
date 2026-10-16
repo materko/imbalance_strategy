@@ -227,6 +227,11 @@ class FakeTransport:
             raise OSError("hub je mimo")
         return self.store.export(after=after, limit=limit)
 
+    def pull_range(self, instance: str, session: str, first: int, last: int, limit: int = 5000) -> list[dict]:
+        if self.down:
+            raise OSError("hub je mimo")
+        return self.store.events_range(instance, session, first, last, limit=limit)
+
 
 class FakeHub:
     """Falošné **HTTP** (starý tvar `http` shipperu): `post` ukladá do `LiveStore` ako skutočný
