@@ -566,9 +566,28 @@ nehlásia. Riadky jednej dávky sa zlúčia do jednej správy (Telegram pustí ~
 
 ### Príkazy (agent)
 
-- `/status` — očíslované inštancie zo spoolu: režim z control súboru, vek posledného baru.
-- `/pause <č|časť mena|all>`, `/resume <…>` — zapíše control súbor (`by: telegram:<user id>`).
-- `/flatten <…>` — najprv otázka s tlačidlom **Áno, flatten** (platí 2 minúty), až potom zápis.
+Ovláda sa **gombíkmi**: `/start` pridá stálu klávesnicu (📊 Stav, 📋 Ordery, ❓ Pomoc) a agent pri štarte
+nastaví menu „/“ (`setMyCommands`). Správy so stavom sú HTML a ťuknutie ich prepíše na mieste
+(`editMessageText`), takže chat nezahltia.
+
+- **📊 Stav** (`/status`) — stratégie po platformách a účtoch: režim (▶/⏸/⛔), 🟢 živá (udalosť do 3 barov) /
+  ⚪ ticho N / ⏹ skončila, vek baru, pozícia a počet čakajúcich vstupov; gombík na každú stratégiu, **Pauza
+  všetkým**, **Spustiť všetky**, Obnoviť, Ordery. Inštancia bez udalosti 7 dní (`STALE_DAYS`) sa neukazuje.
+- **ponuka stratégie** — profil, režim, posledný bar, pozície (cena, SL/TP aj po posune trailingu, nerealizovaný
+  zisk z close posledného baru) a čakajúce vstupy; **Pauza**, **Spustiť**, **Flatten…** (otázka s **Áno, zavrieť**,
+  platí 2 minúty).
+- **📋 Ordery** (`/orders`) — otvorené pozície a čakajúce vstupy všetkých stratégií. Je to odhad zo spoolu
+  (`entry` → kým nepríde `fill`/`cancel`, `fill in − out`); pozícia prežije nový beh tej istej inštancie
+  (reštart terminálu, prekompilovanie NT), zámery nie.
+- Textom ostáva `/pause <č|časť mena|all>`, `/resume <…>`, `/flatten <…>` — zapíše control súbor
+  (`by: telegram:<user id>`).
+
+Gombíky nesú v `callback_data` krátky kľúč inštancie (`ikey` = crc32 id, Telegram drží do 64 bajtov):
+`s` stav, `o` ordery, `m:<k>` ponuka, `P:`/`R:<k|*>` pauza / spustenie, `F:<k|*>` otázka, `X:<čas>:<k|*>` flatten.
+
+Proti záplave: všetky riadky jedného kola (reštart troch stratégií = 3× `bye` + 3× `hello`) idú v jednej
+správe a chyba nasadenia sa porovnáva bez času pokusu na konci (`(23:09:44 UTC)` — AddOn ho mení pri
+každom pokuse, inak by každých 30 s odišla nová správa za každú stratégiu).
 
 Prepnutie je **prekrytie** požadovaného stavu, kým ho hub neprevezme: agent ho drží v
 `TELEGRAM_STATE.overrides`, posiela v heartbeate (`live.overrides: [{instance, mode, by, ts}]`)

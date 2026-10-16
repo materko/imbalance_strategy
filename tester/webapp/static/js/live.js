@@ -38,7 +38,17 @@ const lv = {
   session: "", sessions: [], sessionsKey: "", // vybraný beh ("" = aktuálny naprieč behmi) a zoznam behov inštancie
   strategy: null, L: null, layers: {},       // kontext kresieb pre objectTraces (ako `pc` pri behu)
   fills: {},                                  // id inštancie → { after, fills: [], dirs: {} } (prírastkovo)
+  showStale: false,                           // ukázať aj staré inštancie (bez nasadenia, ticho > LIVE_STALE_DAYS)
 };
+
+/** Inštancia bez aktívneho nasadenia a bez udalosti dlhšie než toľko dní sa v zozname skrýva (starý beh,
+ *  odstránené nasadenie — spool aj zrkadlo ju majú ďalej, ukáže ju odkaz pod tabuľkou). */
+const LIVE_STALE_DAYS = 3;
+
+function liveStale(inst) {
+  if ((ld.deployments || []).some(d => d.active && d.instance === inst.id)) return false;
+  return !inst.last_t || (lv.now - inst.last_t) > LIVE_STALE_DAYS * 86400e3;
+}
 
 /** Vybraný beh, alebo null pre „aktuálny". */
 function liveChosenSession() { return lv.session ? lv.sessions.find(s => s.session === lv.session) || null : null; }
@@ -335,7 +345,12 @@ function liveStatusChip(inst) {
 }
 
 function renderLiveList() {
-  const list = lv.instances;
+  const stare = lv.instances.filter(liveStale);
+  const list = lv.showStale ? lv.instances : lv.instances.filter(i => !liveStale(i));
+  const st = $("#live-stale");
+  st.hidden = !stare.length;
+  st.innerHTML = stare.length ? `<a href="#">${lv.showStale ? "skryť" : "ukázať"} ${stare.length} ${stare.length === 1 ? "starú inštanciu" : (stare.length <= 4 ? "staré inštancie" : "starých inštancií")}</a> — bez aktívneho nasadenia a bez udalosti viac než ${LIVE_STALE_DAYS} dni` : "";
+  if (stare.length) st.querySelector("a").onclick = e => { e.preventDefault(); lv.showStale = !lv.showStale; renderLiveList(); };
   const alive = list.filter(i => liveAlive(i)).length;
   $("#live-count").textContent = list.length ? `${alive} živ${alive === 1 ? "á" : (alive >= 2 && alive <= 4 ? "é" : "ých")} z ${list.length}` : "";
   $("#live-count").className = `chip ${alive ? "ok" : ""}`;
