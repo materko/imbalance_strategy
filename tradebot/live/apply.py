@@ -283,6 +283,10 @@ class Reconciler:
                 continue
             active_ok: list[Deployment] = []
             touched = False
+            # inštancie, ktoré si drží aktívne nasadenie účtu: rušené nasadenie s tým istým id (zmazané
+            # a hneď znova vytvorené) ich nesmie prepnúť na `paused` — nové by bez zmeny podpisu už control
+            # nikdy neprepísalo a EA by ostala v pauze
+            kept = self._kept_instances(drv, acc, deps)
             for dep in deps:
                 entry = self._entry(dep, "ok", "")
                 predtym = prev_applied.get(dep.id) or {}
@@ -290,8 +294,9 @@ class Reconciler:
                     dep.instance = drv.instance_of(acc, dep)
                     entry["instance"] = dep.instance
                     if not dep.active:
-                        self._retire_old_instance(drv, acc, dep, predtym)
-                        drv.remove_instance(acc, dep)
+                        self._retire_old_instance(drv, acc, dep, predtym, kept)
+                        if dep.instance not in kept:
+                            drv.remove_instance(acc, dep)
                         touched = True
                         applied[dep.id] = entry
                         continue
@@ -303,7 +308,7 @@ class Reconciler:
                         if predtym.get("control"):
                             entry["control"] = predtym["control"]
                     else:
-                        self._retire_old_instance(drv, acc, dep, predtym)
+                        self._retire_old_instance(drv, acc, dep, predtym, kept)
                         drv.ensure_profile(dep)
                         entry["control"] = str(drv.write_control(dep))
                         touched = True
@@ -317,6 +322,9 @@ class Reconciler:
                 applied[dep.id] = entry
             for dep in vanished_by.get(acc_id, []):
                 try:
+                    if drv.instance_of(acc, dep) in kept:
+                        log.info("live apply: nasadenie %s z hubu zmizlo, jeho inštanciu drží iné aktívne — ostáva", dep.id)
+                        continue
                     drv.remove_instance(acc, dep)
                     touched = True
                     log.info("live apply: nasadenie %s z hubu zmizlo — odstránené", dep.id)
@@ -348,11 +356,25 @@ class Reconciler:
                 "mode": dep.mode, "active": dep.active, "status": status, "error": error}
 
     @staticmethod
-    def _retire_old_instance(drv: Driver, acc: Account, dep: Deployment, predtym: dict[str, Any]) -> None:
+    def _kept_instances(drv: Driver, acc: Account, deps: list[Deployment]) -> set[str]:
+        """Id inštancií aktívnych nasadení účtu (nasadenie, ktorému id nevyjde, tu chýba — chybu ohlási cyklus)."""
+        kept: set[str] = set()
+        for dep in deps:
+            if dep.active:
+                try:
+                    kept.add(drv.instance_of(acc, dep))
+                except Exception:  # noqa: BLE001
+                    pass
+        return kept
+
+    @staticmethod
+    def _retire_old_instance(drv: Driver, acc: Account, dep: Deployment, predtym: dict[str, Any],
+                             kept: set[str] = frozenset()) -> None:
         """Nasadenie malo minule iné id inštancie (zmenil sa login/server účtu): jeho starý control súbor
-        by ostal ako sirota — driver ho odstráni tak, ako rušené nasadenie (pauza, zmazanie po zastavení)."""
+        by ostal ako sirota — driver ho odstráni tak, ako rušené nasadenie (pauza, zmazanie po zastavení).
+        Inštanciu, ktorú drží iné aktívne nasadenie (`kept`), nechá tak."""
         old = str(predtym.get("instance") or "")
-        if not old or old == dep.instance:
+        if not old or old == dep.instance or old in kept:
             return
         log.info("live apply: nasadenie %s zmenilo inštanciu %s -> %s, stará sa odstraňuje", dep.id, old, dep.instance)
         drv.remove_instance(acc, dataclasses.replace(dep, instance=old))

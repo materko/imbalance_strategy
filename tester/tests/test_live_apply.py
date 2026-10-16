@@ -221,6 +221,37 @@ def test_state_persists_and_vanished_deployment_is_removed(tmp_path: Path):
     assert [c[0] for c in drv4.calls] == ["ensure_instance"]
 
 
+def test_znova_vytvorene_nasadenie_na_tej_istej_instancii_neostane_v_pauze(tmp_path: Path):
+    """16. 10.: staré nasadenia sa vypli a zmazali, nové s tým istým účtom/symbolom/TF/stratégiou (= tá istá
+    inštancia) vznikli hneď za nimi. Odstránenie starého po zápise nového prepísalo control na `paused`
+    a nové ho už nikdy neprepísalo (podpis bez zmeny) — EA celý deň neposlala ani jeden vstup."""
+    inst = instance_id("mt5", "1514750898-FTMO-Demo", "US100.cash", 1, "ibsnet")
+
+    # zmiznuté z hubu v tom istom kole, v ktorom prišlo nové
+    drv = FakeDriver()
+    rec = Reconciler({"mt5": drv}, tmp_path / "s.json")
+    rec.run(desired(dep("stare", mode="enabled")))
+    drv.calls.clear()
+    rec.run(desired(dep("nove", mode="enabled")))
+    assert drv.calls == [("ensure_profile", "nove", "golden_binance_btcusdt_3m"),
+                         ("write_control", "nove", inst, "enabled"), ("ensure_instance", "ftmo", ("nove",))]
+    assert drv.removed == []
+
+    # vypnuté (active=False) vedľa nového s tou istou inštanciou, v ľubovoľnom poradí
+    for poradie in ((dep("stare", active=False), dep("nove", mode="enabled")),
+                    (dep("nove", mode="enabled"), dep("stare", active=False))):
+        drv = FakeDriver()
+        rec = Reconciler({"mt5": drv}, tmp_path / f"s_{poradie[0]['id']}.json")
+        rec.run(desired(*poradie))
+        assert drv.removed == [] and kinds(drv.calls, "write_control") == [("write_control", "nove", inst, "enabled")]
+
+    # inštancia bez aktívneho nasadenia sa odstraňuje ako doteraz
+    drv = FakeDriver()
+    rec = Reconciler({"mt5": drv}, tmp_path / "s_iny.json")
+    rec.run(desired(dep("stare", active=False), dep("nove", symbol="EURUSD", mode="enabled")))
+    assert drv.removed == [inst]
+
+
 def test_zmena_instancie_odstrani_stary_control_bez_siroty(tmp_path: Path):
     """Stav si ku každému nasadeniu pamätá `instance` a cestu control súboru (len lokálne, do heartbeatu
     nejdú); keď sa id inštancie zmení (iný login účtu), starý control ide cez `remove_instance` drivera."""
@@ -267,7 +298,7 @@ def test_nenabehla_instancia_ostava_ok_s_dovodom_a_obnovuje_sa(tmp_path: Path):
     clock = Clock()
     rec = Reconciler({"mt5": drv}, tmp_path / "apply.json", clock=clock)
     drv.issues["d1"] = "ucet 1514750898 sa do 60 s nepripojil (15:01:03 UTC)"
-    frag = rec.run(desired(dep("d1"), dep("d2", symbol="GER40.cash"), dep("d3", active=False)))
+    frag = rec.run(desired(dep("d1"), dep("d2", symbol="GER40.cash"), dep("d3", symbol="EURUSD", active=False)))
     by = {a["deployment"]: a for a in frag["applied"]}
     # stav ostáva `ok` (nasadenie je aplikované; `pending`/`error` by hub a webapp brali ako drift/chybu)
     assert by["d1"]["status"] == "ok" and by["d1"]["error"] == "nenabehla: ucet 1514750898 sa do 60 s nepripojil (15:01:03 UTC)"
@@ -275,7 +306,7 @@ def test_nenabehla_instancia_ostava_ok_s_dovodom_a_obnovuje_sa(tmp_path: Path):
 
     # ďalšie kolo bez zmeny: nič sa neprepisuje (idempotencia drží), dôvod ostáva
     drv.calls.clear()
-    frag = rec.run(desired(dep("d1"), dep("d2", symbol="GER40.cash"), dep("d3", active=False)))
+    frag = rec.run(desired(dep("d1"), dep("d2", symbol="GER40.cash"), dep("d3", symbol="EURUSD", active=False)))
     assert [c[0] for c in drv.calls] == ["remove_instance", "ensure_instance"]
     assert {a["deployment"]: a["error"] for a in frag["applied"]}["d1"].startswith("nenabehla: ")
 
