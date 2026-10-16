@@ -11,6 +11,7 @@ from .base import StrategySpec
 from .breakout import SPEC as BREAKOUT_SPEC
 from .crt import SPEC as CRT_SPEC
 from .dailyopen import SPEC as DAILYOPEN_SPEC
+from .noa import SPEC as NOA_SPEC
 from .demo_breakout import SPEC as DEMO_SPEC
 from .divergence import SPEC as DIVERGENCE_SPEC
 from .fvgpolarity import SPEC as FVGPOLARITY_SPEC
@@ -84,6 +85,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     MAG7_SPEC.key: MAG7_SPEC,
     ASIASWEEP_SPEC.key: ASIASWEEP_SPEC,
     DAILYOPEN_SPEC.key: DAILYOPEN_SPEC,
+    NOA_SPEC.key: NOA_SPEC,
     SWEEPFVG_SPEC.key: SWEEPFVG_SPEC,
     SWEEPENGULF_SPEC.key: SWEEPENGULF_SPEC,
     VAREV_SPEC.key: VAREV_SPEC,

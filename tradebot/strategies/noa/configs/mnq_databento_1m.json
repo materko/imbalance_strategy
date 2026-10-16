@@ -1,0 +1,10 @@
+{
+  "_title": "NOA podľa článku — MNQ 1m (ako v článku, VWAP z 1m sviečok)",
+  "_strategy": "noa",
+  "_instrument": "mnq_databento",
+  "_timeframe": "1m",
+  "_comment": [
+    "Ten istý profil ako mnq_databento_5m, len na 1m grafe — článok počíta s 1-minútovými dátami.",
+    "Rozhodnutia sú tie isté (kontroly o celej a o pol), líši sa len VWAP (z 1m namiesto 5m sviečok)."
+  ]
+}

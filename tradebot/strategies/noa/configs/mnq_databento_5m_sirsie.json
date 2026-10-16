@@ -1,0 +1,8 @@
+{
+  "_title": "NOA širšie pásmo — MNQ 5m: pásmo × 1,25 (menej a silnejšie úniky)",
+  "_strategy": "noa",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "volMult": 1.25,
+  "_comment": ["Ako článok, len pásmo šumu 1,25× širšie — vstupuje sa až pri výraznejšom úniku z bežného pohybu."]
+}

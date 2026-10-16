@@ -1,0 +1,10 @@
+{
+  "_title": "NOA podľa článku — MNQ 5m: pásmo 14 dní × 1, kontrola každých 30 min, výstup VWAP / hranica, 16:00",
+  "_strategy": "noa",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Východiskový profil (16. 10. 2026) presne podľa Zarattini, Aziz, Barbon (2024): Beat the Market — An Effective Intraday",
+    "Momentum Strategy for S&P500 ETF (SPY), Concretum Research. 1 kontrakt, poistka 1 % z ceny. Nie je to obchodné odporúčanie."
+  ]
+}

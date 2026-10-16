@@ -1,0 +1,8 @@
+{
+  "_title": "NOA bez VWAP — MNQ 5m: výstup len pod / nad hranicou pásma",
+  "_strategy": "noa",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "trailVwap": false,
+  "_comment": ["Ako článok, ale pozícia sa na kontrole zavrie len pri návrate za hranicu pásma (nie pod VWAP) — dlhšie držanie."]
+}
