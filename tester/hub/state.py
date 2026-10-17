@@ -20,6 +20,7 @@ from . import protocol as P
 from .config import DEFAULT_HEARTBEAT, ROLE_COMPUTE, ROLE_LIVE
 from .config import normalize_role as _role
 from .events import EVENTS_KEEP, EventsMixin, _iso
+from .stats import StatsMixin
 from .tokens import ADMIN, TokensMixin
 
 
@@ -49,7 +50,7 @@ class NameTaken(Exception):
     """Agent s tým istým menom už žije z iného procesu."""
 
 
-class HubState(TokensMixin, EventsMixin):
+class HubState(TokensMixin, EventsMixin, StatsMixin):
     def __init__(self, root: Path | None = None, token: str | None = None, *,
                  heartbeat_seconds: int = DEFAULT_HEARTBEAT, agent_timeout: float = DEFAULT_AGENT_TIMEOUT,
                  clock: Callable[[], float] = time.time, version: str | None = None,
@@ -103,6 +104,7 @@ class HubState(TokensMixin, EventsMixin):
         self.order = [i for i in (data.get("order") or []) if i in self.jobs]
         for name in self.agents:
             self.agents[name]["online"] = False  # kým sa znova neohlási
+        self._seed_stats()
 
     def _save(self) -> None:
         tmp = self.state_file.with_suffix(".tmp")
@@ -405,6 +407,8 @@ class HubState(TokensMixin, EventsMixin):
             # každej platformy voči kódu hubu, posledná aktualizácia a či na stroj ešte niečo čaká
             "live": self._agent_live_public(agent),
             "code_target": dict(agent["code_target"]) if agent.get("code_target") else None,
+            # koľko výpočtov z hubu spravil a ako dlho trvali (celkovo a za posledných 24 h)
+            "stats": self._agent_stats(agent),
         }
 
     def _agent_live_public(self, agent: dict[str, Any]) -> dict[str, Any] | None:
@@ -616,6 +620,7 @@ class HubState(TokensMixin, EventsMixin):
                     "eta_seconds": 0.0 if status == "done" else None})
         if run_ids:
             job["run_ids"] = list(run_ids)
+        self._count_stats(job)
         self.log("job_finished", job=job["id"], status=status, agent=job.get("agent"),
                  submitter=job.get("submitter"), error=error, run_ids=list(run_ids or []) or None)
 

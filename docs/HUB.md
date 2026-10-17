@@ -17,6 +17,15 @@ oboje. Kód je v `tester/hub/`, architektúra v docstringu
         └────────────────┘        └────────────────┘        └────────────────┘
 ```
 
+## Štatistika agentov
+
+Pod tabuľkou agentov ukazuje karta Hub, koľko výpočtov z hubu každý agent spravil
+(behy, hyperopty) a ich priemerný čas, spolu a za posledných 24 h (kĺzavo). Hub ich ráta
+pri odovzdaní výsledku (`tester/hub/stats.py`) a drží v zázname agenta v `state.json`,
+lebo hotové výpočty sa zo zoznamu zahadzujú. Čas je od prvého hlásenia „running“ po
+odovzdanie výsledku; zlyhané sa do priemeru nerátajú (počet je v tooltipe). Hub zo
+staršieho kódu po aktualizácii započíta, čo z hotových výpočtov ešte drží.
+
 ## Druhy agentov
 
 Na hube sú tri druhy strojov. Rozlišuje ich **rola** v `tester/agent.json` (`role`) a to,

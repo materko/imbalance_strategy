@@ -272,6 +272,49 @@ def test_heartbeat_delivers_progress_result_and_finished(hub):
     assert state.heartbeat("lap", {"jobs": []})["finished"] == []
 
 
+def test_agent_stats_count_done_runs_and_average_times(hub, tmp_path: Path):
+    state, clock = hub
+    _reg(state)
+
+    def spocitaj(kind, payload, sekundy, status="done"):
+        _reg(state)  # posun hodín by inak agenta odhlásil
+        job = state.submit(kind=kind, payload=payload, submitter="lap", queue=True)
+        state.heartbeat("srv", {"instance": "i1", "jobs": [{"id": job["id"], "status": "running"}]})
+        clock.t += sekundy
+        state.result(job["id"], b"PK" if status == "done" else b"", status=status, agent="srv")
+        return job
+
+    spocitaj("backtest", _payload(), 30)
+    spocitaj("backtest", _payload(), 50)
+    spocitaj("backtest", _payload(), 10, status="failed")
+    clock.t += 2 * 86400  # predošlé sú už mimo posledného dňa
+    spocitaj("hyperopt", _payload(HO), 600)
+    spocitaj("backtest", _payload(), 20)
+    st = state.overview()["agents"][0]["stats"]
+    assert st["backtest"] == {"done": 3, "failed": 1, "avg_seconds": pytest.approx(100 / 3),
+                              "day_done": 1, "day_avg_seconds": pytest.approx(20)}
+    assert st["hyperopt"]["done"] == 1 and st["hyperopt"]["avg_seconds"] == pytest.approx(600)
+    assert st["done"] == 4 and st["day_done"] == 2
+    # štatistika prežije reštart hubu a nezapočíta sa druhý raz
+    znova = HubState(tmp_path / "hub", token="tajne", clock=clock)
+    assert znova.overview()["agents"][0]["stats"] == st
+
+
+def test_agent_stats_seeded_from_jobs_of_older_hub(hub, tmp_path: Path):
+    state, clock = hub
+    _reg(state)
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    state.heartbeat("srv", {"instance": "i1", "jobs": [{"id": job["id"], "status": "running"}]})
+    clock.t += 40
+    state.result(job["id"], b"PK", status="done", agent="srv")
+    # hub zo staršieho kódu štatistiku neviedol
+    state.agents["srv"].pop("stats")
+    state.jobs[job["id"]].pop("stats_counted")
+    state._save()
+    st = HubState(tmp_path / "hub", token="tajne", clock=clock).overview()["agents"][0]["stats"]
+    assert st["backtest"]["done"] == 1 and st["backtest"]["avg_seconds"] == pytest.approx(40)
+
+
 def test_cancel_from_submitter_reaches_computing_agent(hub):
     state, _ = hub
     _reg(state)

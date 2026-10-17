@@ -65,6 +65,25 @@ function hubOptions() {
   return { queue: $("#hub-queue").checked, max_wait_minutes: w === "" ? null : Number(w) };
 }
 
+/** Trvanie výpočtu (s) — sekundy, minúty, hodiny. */
+function fmtDur(s) {
+  if (s === null || s === undefined) return "–";
+  if (s < 90) return `${Math.round(s)} s`;
+  if (s < 5400) return `${Math.round(s / 60)} min`;
+  return `${(s / 3600).toFixed(1)} h`;
+}
+
+/** Riadok štatistiky agenta: počty hotových (zlyhané v tooltipe) a priemerné časy. */
+function hubStatsRow(a) {
+  const st = a.stats || {}, bt = st.backtest || {}, ho = st.hyperopt || {};
+  const pocet = (k, n) => `<td class="num" title="${k.failed ? `zlyhalo ${k.failed}` : ""}">${n ?? 0}</td>`;
+  return `<tr class="plain"><td><b>${esc(a.name)}</b></td>
+    ${pocet(bt, bt.done)}<td class="num">${fmtDur(bt.avg_seconds)}</td>
+    ${pocet(ho, ho.done)}<td class="num">${fmtDur(ho.avg_seconds)}</td>
+    <td class="num">${bt.day_done ?? 0}</td><td class="num">${fmtDur(bt.day_avg_seconds)}</td>
+    <td class="num">${ho.day_done ?? 0}</td><td class="num">${fmtDur(ho.day_avg_seconds)}</td></tr>`;
+}
+
 function fmtEta(s) {
   if (s === null || s === undefined) return "–";
   if (s <= 0) return "hneď";
@@ -180,7 +199,7 @@ async function removeHubConfig() {
     const h = await api("/api/hub/config", { method: "DELETE" });
     applyHubConfig(h); renderHubAgent(h);
     $("#hub-cfg-status").textContent = "odpojené";
-    $("#hub-agents tbody").innerHTML = ""; $("#hub-jobs tbody").innerHTML = "";
+    $("#hub-agents tbody").innerHTML = ""; $("#hub-stats tbody").innerHTML = ""; $("#hub-jobs tbody").innerHTML = "";
   } catch (e) { $("#hub-cfg-error").textContent = e.message; $("#hub-cfg-error").hidden = false; }
 }
 
@@ -253,11 +272,11 @@ async function loadHub() {
   try { h = await api("/api/hub"); $("#hub-error").hidden = true; }
   catch (e) { $("#hub-error").textContent = e.message; $("#hub-error").hidden = false; return; }
   renderHubAgent(h);
-  if (!h.configured) { $("#hub-agents tbody").innerHTML = ""; $("#hub-jobs tbody").innerHTML = ""; return; }
+  if (!h.configured) { $("#hub-agents tbody").innerHTML = ""; $("#hub-stats tbody").innerHTML = ""; $("#hub-jobs tbody").innerHTML = ""; return; }
   const hub = h.hub;
   if (!hub) {
     if (h.error) { $("#hub-error").textContent = `hub: ${h.error}`; $("#hub-error").hidden = false; }
-    $("#hub-agents tbody").innerHTML = ""; $("#hub-jobs tbody").innerHTML = "";
+    $("#hub-agents tbody").innerHTML = ""; $("#hub-stats tbody").innerHTML = ""; $("#hub-jobs tbody").innerHTML = "";
   } else {
     $("#hub-agents-count").textContent = `${hub.online} online`;
     $("#hub-agents tbody").innerHTML = hub.agents.map(a => `<tr class="plain">
@@ -267,6 +286,8 @@ async function loadHub() {
       <td>${a.accept ? "áno" : "nie"}${a.accept_request !== null && a.accept_request !== undefined ? ` → ${a.accept_request ? "áno" : "nie"}` : ""}</td>
       <td>${fmtEta(a.eta_free_1)}</td><td>${fmtEta(a.eta_free_all)}</td>
       <td>${a.online ? "" : `<button class="ghost small" data-hub-forget="${esc(a.name)}" title="vyhodiť agenta z hubu (premenovaný stroj, zrušený agent)">✕</button>`}</td></tr>`).join("");
+    $("#hub-stats tbody").innerHTML = hub.agents.filter(a => a.role !== "live" || (a.stats && a.stats.done))
+      .map(hubStatsRow).join("");
     for (const b of $$("[data-hub-forget]")) b.onclick = async () => {
       const meno = b.dataset.hubForget;
       if (!confirm(`Vyhodiť agenta „${meno}" z hubu?
