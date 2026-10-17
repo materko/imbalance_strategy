@@ -301,6 +301,9 @@ class HubClient:
             + (f"&event={event}" if event else "")
         return self.http.get("/api/events" + q)
 
+    def plugins(self) -> list[dict[str, Any]]:
+        return self.http.get("/api/plugins")
+
     def tokens(self) -> list[dict[str, Any]]:
         return self.http.get("/api/tokens")
 

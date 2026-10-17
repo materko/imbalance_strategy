@@ -11,7 +11,7 @@ Beží v **agentovi** na stroji s platformami, nie v hube ani v adaptéri NT8/MT
   nezapíše do nasadenia — inak by webapp a platforma tvrdili niečo iné.
 
 `getUpdates` smie na jednom bote volať **jediný proces** (inak Telegram vráti 409) — preto
-príkazy prijíma len agent; strážca hubu (`tester.hub.telegram_watch`) len posiela.
+príkazy prijíma len agent; pluginy hubu (`tester.hub.plugins`: strážca, kalendár) len posielajú.
 
 Konfigurácia `TELEGRAM_CONFIG` (gitignored, tajomstvo)::
 

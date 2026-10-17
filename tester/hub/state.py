@@ -78,6 +78,8 @@ class HubState(TokensMixin, EventsMixin):
         #: Požadovaný stav live nasadení (`tradebot.live.deploy.DeployStore`) — nastaví
         #: `create_hub_app`; bez neho heartbeat `live` len uloží, čo agent hlási.
         self.deploy: Any = None
+        #: `tester.hub.plugins.PluginHost` bežiaceho hubu (nastaví `serve`)
+        self.plugins: Any = None
         self._live_cache: tuple[float, set[str]] | None = None
         self._load()
         self._load_tokens()

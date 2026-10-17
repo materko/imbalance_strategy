@@ -11,6 +11,8 @@
     python -m tester.hub sparse --no-history [--data binance]     # chudý klon (netiahne dáta)
     python -m tester.hub token add srv-01 [--local]               # token agenta (správca)
     python -m tester.hub events [--job ID] [--agent MENO] [--local]  # log udalostí hubu
+    python -m tester.hub plugins [--local]                        # pluginy hubu a ich stav
+    python -m tester.hub plugin ff_calendar [--fetch] [--test]    # príkaz pluginu (na stroji hubu)
 
 `--local` pracuje priamo so stavom hubu na disku (`tester/hub_data`) — pre príkazy
 spúšťané na stroji hubu (v kontajneri cez `docker compose exec hub …`), kde nie je
@@ -46,7 +48,7 @@ def cmd_serve(args: argparse.Namespace) -> int:
     print(f"TradeBot hub: http://{args.host}:{args.port}  (stav v {state.root}, "
           f"tokenov agentov {len(state.token_names())})", flush=True)
     updater = _start_updater(args, state)
-    watch = _start_telegram(state)
+    plugins = _start_plugins(state)
     if not token and not state.token_names():
         # Bind na localhost nič neznamená, keď pred hubom stojí reverse proxy: hub je
         # potom verejný a bez tokenu ho smie ovládať ktokoľvek, kto sa naň dostane.
@@ -57,26 +59,74 @@ def cmd_serve(args: argparse.Namespace) -> int:
     uvicorn.run(app, host=args.host, port=args.port, log_level="info", timeout_keep_alive=75)
     if updater is not None:
         updater.stop()
-    if watch is not None:
-        watch.stop()
+    plugins.stop()
     return 0
 
 
-def _start_telegram(state):
-    """Strážca strojov s nasadeniami (docs/LIVE.md, „Telegram“), keď je vedľa stavu hubu `telegram.json`
-    (alebo env `TRADEBOT_TELEGRAM_TOKEN` + `_CHATS`); hub len posiela, príkazy prijíma agent."""
-    from tradebot.core.paths import HUB_TELEGRAM_CONFIG, HUB_TELEGRAM_STATE
-    from tradebot.live.telegram import load_config
+def _plugin_host(root, hub=None):
+    from tradebot.core.paths import HUB_PLUGINS_DIR, HUB_TELEGRAM_CONFIG
 
-    from .telegram_watch import HubTelegramWatch
+    from .plugins import HubNotifier, PluginHost
 
-    cfg = load_config(state.root / HUB_TELEGRAM_CONFIG.name)
-    if cfg is None:
-        return None
-    watch = HubTelegramWatch(state, cfg, state.root / HUB_TELEGRAM_STATE.name)
-    watch.start()
-    print(f"Telegram: strážca strojov s nasadeniami → {len(cfg.chats)} chat(y)", flush=True)
-    return watch
+    return PluginHost(root / HUB_PLUGINS_DIR.name, hub, HubNotifier(root / HUB_TELEGRAM_CONFIG.name))
+
+
+def _start_plugins(state):
+    """Pluginy hubu (docs/HUB.md, „Pluginy“) — strážca strojov, kalendár …; Telegram z `telegram.json`
+    vedľa stavu hubu (alebo env `TRADEBOT_TELEGRAM_TOKEN` + `_CHATS`), hub len posiela."""
+    host = _plugin_host(state.root, state)
+    state.plugins = host
+    host.start()
+    for p in host.status():
+        stav = (f"CHYBA {p['load_error']}" if p["load_error"] else "zapnutý" if p["enabled"] else "vypnutý")
+        print(f"Plugin {p['name']}: {p['title']} — {stav}", flush=True)
+    if not host.notifier.enabled:
+        print("Telegram hubu nie je nastavený (hub_data/telegram.json) — pluginy nič nepošlú", flush=True)
+    return host
+
+
+def _fmt_plugin(p: dict) -> str:
+    import time as _t
+
+    stav = ("CHYBA " + p["load_error"] if p.get("load_error") else
+            ("beží" if p.get("running", True) else "stojí") if p.get("enabled") else "vypnutý")
+    riadok = f"{p['name']:<14}{stav:<10}{p.get('title', '')}"
+    if p.get("last_ok"):
+        riadok += f"  ok pred {int((_t.time() - p['last_ok']) // 60)} min"
+    if p.get("errors"):
+        riadok += f"  {p['errors']}× chyba: {p.get('last_error')}"
+    if p.get("problem"):
+        riadok += f"  PROBLÉM: {p['problem']}"
+    return riadok
+
+
+def cmd_plugins(args: argparse.Namespace) -> int:
+    """Pluginy hubu: cez API stav bežiaceho hubu, s `--local` len čo je na disku (bez behu)."""
+    if args.local:
+        from tradebot.core.paths import HUB_DIR
+
+        rows = _plugin_host(HUB_DIR).status()
+    else:
+        rows = _client(_cfg_or_die()).plugins()
+    for p in rows:
+        print(_fmt_plugin(p))
+        for k, v in (p.get("detail") or {}).items():
+            print(f"{'':<14}{k}: {v}")
+    if not rows:
+        print("žiadne pluginy")
+    return 0
+
+
+def cmd_plugin(args: argparse.Namespace) -> int:
+    """Príkaz pluginu na stroji hubu (v kontajneri `docker compose exec hub python -m tester.hub plugin …`)."""
+    from tradebot.core.paths import HUB_DIR
+
+    host = _plugin_host(HUB_DIR)
+    p = host.get(args.name)
+    if p is None:
+        raise SystemExit(f"plugin {args.name!r} nepoznám alebo sa nenačítal "
+                         f"({', '.join(host.slots) or 'žiadne'}): {host.slots.get(args.name) and host.slots[args.name].load_error}")
+    return int(p.cli(list(args.rest)) or 0)
 
 
 def _start_updater(args: argparse.Namespace, state: Any):
@@ -421,6 +471,15 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--event", help="len tento druh udalosti (job_finished, agent_offline, …)")
     p.add_argument("--local", action="store_true", help="priamo zo stavu hubu na tomto stroji")
     p.set_defaults(func=cmd_events)
+
+    p = sub.add_parser("plugins", help="pluginy hubu (strážca, kalendár …) a ich stav")
+    p.add_argument("--local", action="store_true", help="len čo je na disku tohto stroja (bez bežiaceho hubu)")
+    p.set_defaults(func=cmd_plugins)
+
+    p = sub.add_parser("plugin", help="príkaz pluginu na stroji hubu, napr. `plugin ff_calendar --fetch`")
+    p.add_argument("name", help="meno pluginu")
+    p.add_argument("rest", nargs=argparse.REMAINDER, help="prepínače pluginu")
+    p.set_defaults(func=cmd_plugin)
 
     p = sub.add_parser("setup", help="zapíš tester/agent.json (meno, hub, token, čo prijíma a posiela)")
     p.add_argument("--name", help="statické, jednoznačné meno agenta (default hostname)")

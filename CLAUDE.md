@@ -93,7 +93,8 @@ Bez obmedzení. Platia len konvencie repozitára:
   s `tester/agent.json` (webapp alebo `python -m tester.hub agent`), zadanie `cli run
   --remote [--queue --max-wait MIN]` — [docs/HUB.md](docs/HUB.md). Hub nepozná stratégie
   menom, nesie `params` + `settings` behu; výsledok je adresár behu, ktorý sa vráti do
-  histórie zadávateľa.
+  histórie zadávateľa. Vlastný kód v procese hubu = plugin `tester/hub/plugins/<meno>/` (strážca strojov,
+  kalendár ForexFactory); hub ho nepozná menom, plugin vidí len `PluginContext` — docs/HUB.md, „Pluginy“.
 
 Podrobnosti: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) (prehľad a cesta dát),
 [docs/ARCHITECTURE_port.md](docs/ARCHITECTURE_port.md) (návrh),

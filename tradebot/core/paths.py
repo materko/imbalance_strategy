@@ -54,6 +54,7 @@ __all__ = [
     "HUB_LIVE_DB", "LIVE_DIR", "LIVE_CURSOR", "LIVE_CURSOR_WEBAPP", "LIVE_MIRROR", "LIVE_MIRROR_CURSOR",
     "LIVE_SECRETS", "LIVE_APPLY_STATE", "LIVE_MT5_DIR",
     "TELEGRAM_CONFIG", "TELEGRAM_STATE", "TELEGRAM_CURSOR", "HUB_TELEGRAM_CONFIG", "HUB_TELEGRAM_STATE",
+    "HUB_PLUGINS_DIR",
     "DOCS_DIR", "MERANIA_DIR",
     "ARCHIVE_ROOTS",
 ]
@@ -178,10 +179,12 @@ TELEGRAM_CONFIG = LIVE_DIR / "telegram.json"
 TELEGRAM_STATE = LIVE_DIR / "telegram_state.json"
 #: Kurzor Telegramu do spoolu (súbor → offset), nezávislý od kurzora shippera na hub.
 TELEGRAM_CURSOR = LIVE_DIR / "telegram_cursor.json"
-#: Telegram na hube (strážca agentov) — vedľa stavu hubu, gitignored; ten istý tvar ako na agentovi.
+#: Telegram na hube (pre všetky pluginy hubu) — vedľa stavu hubu, gitignored; ten istý tvar ako na agentovi.
 HUB_TELEGRAM_CONFIG = HUB_DIR / "telegram.json"
-#: Čo strážca hubu naposledy ohlásil (agent offline/online), aby po reštarte nehlásil znova.
+#: Starý stav strážcu hubu (agent offline/online); prvý štart pluginu `watchdog` ho prevezme.
 HUB_TELEGRAM_STATE = HUB_DIR / "telegram_state.json"
+#: Pluginy hubu (`tester.hub.plugins`): každý má `<meno>/` s `config.json`, stavom a zásobou.
+HUB_PLUGINS_DIR = HUB_DIR / "plugins"
 
 # -- Dokumentácia ----------------------------------------------------------- #
 

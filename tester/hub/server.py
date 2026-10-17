@@ -339,6 +339,12 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
                agent: str | None = None, event: str | None = None, who: str = Depends(auth)):
         return state.events(limit=limit, job=job, agent=agent, event=event)
 
+    @app.get("/api/plugins")
+    def plugins(who: str = Depends(auth)):
+        """Pluginy bežiaceho hubu a ich stav (docs/HUB.md, „Pluginy“)."""
+        host = state.plugins
+        return host.status() if host is not None else []
+
     # -- live telemetria (docs/LIVE.md) --------------------------------------- #
 
     add_live_routes(app, state, live_store, auth, own)

@@ -452,6 +452,73 @@ webapp vyzdvihne.
   keď nie (priestor je plochý alebo šum — presná hodnota nerozhoduje, over cez plateau).
   Je to náhrada za delenie hyperoptu medzi stroje, ktoré Freqtrade nedovolí.
 
+## Pluginy
+
+Vlastný kód, ktorý beží **v procese hubu** (`hub serve`) a hub ho nepozná menom — ako stratégie
+v registry. Plugin = balík `tester/hub/plugins/<meno>/`, ktorý vystaví `PLUGIN = <podtrieda HubPlugin>`
+(`tester/hub/plugins/base.py`). Do Docker image ide sám (`COPY tester/hub/`) a s ním aj samoaktualizácia.
+
+| plugin | čo robí |
+|---|---|
+| `watchdog` | stroje s aktívnym nasadením, ktoré sa neozvali / znova hlásia, a ostatné pluginy, keď sa nenačítali, padajú dlhšie ako 5 min, visia alebo samy hlásia `problem` (docs/LIVE.md, „Strážca (hub)“) |
+| `ff_calendar` | červené (High impact) správy z kalendára ForexFactory → upozornenie do Telegramu pred udalosťou |
+
+**Kontrakt.** `PluginHost` dá každému pluginu vlastné vlákno a volá `tick()` každých `interval`
+sekúnd; výnimka hub nezhodí, zapíše sa do stavu (`errors`, `error_since`, `last_error`) a ohlási ju
+`watchdog`. Plugin vidí len `PluginContext`:
+
+| | |
+|---|---|
+| `ctx.dir` | `hub_data/plugins/<meno>/` (`HUB_PLUGINS_DIR`) — config, stav, zásoba; gitignored |
+| `ctx.config()` | `config.json` z toho adresára, znova pri zmene súboru; `"enabled": false` plugin vypne bez reštartu |
+| `ctx.notify(text)` | Telegram hubu (`hub_data/telegram.json`, HTML, `[label]` pred textom); zlyhanie = `NotifyError`, plugin si zmenu nechá na ďalší tick. Token plugin nevidí |
+| `ctx.log`, `ctx.event(…)` | log a log udalostí hubu (`plugin_<event>`) |
+| `ctx.hub` | stav hubu (agenti, nasadenia) — len na čítanie |
+| `ctx.plugins()` | stav všetkých pluginov (pre strážcu) |
+
+Voliteľne `status()` (čo ukázať; kľúč `problem` = text pre strážcu), `cli(argv)` (príkaz na stroji
+hubu), `teardown()`, `max_tick` (dlhší tick = visí), `default_enabled`.
+
+```bash
+python -m tester.hub plugins            # stav bežiaceho hubu cez API (GET /api/plugins)
+python -m tester.hub plugins --local    # čo je na disku stroja hubu
+python -m tester.hub plugin ff_calendar --fetch     # príkaz pluginu; v kontajneri cez docker compose exec hub …
+```
+
+### Kalendár ForexFactory (`ff_calendar`)
+
+Zdroj je oficiálny export kalendára (`forexfactory.com/calendar` → Export):
+`https://nfs.faireconomy.media/ff_calendar_thisweek.json` — aktuálny týždeň (nedeľa–sobota
+podľa New Yorku). **Čas je v ňom New York s posunom** (`2026-10-14T08:30:00-04:00`), takže prevod
+na `tz` (predvolene `Europe/Bratislava`) je presný aj v týždňoch, keď USA a Európa menia letný čas
+v iné dni: CPI o 8:30 v New Yorku = 14:30 v Bratislave.
+
+`hub_data/plugins/ff_calendar/config.json` (všetko voliteľné, toto sú predvolené):
+
+```json
+{"impact": ["High"], "currencies": [], "lead_min": 30, "count": 1, "every_min": 10,
+ "tz": "Europe/Bratislava", "refresh": "07:00"}
+```
+
+- `lead_min` / `count` / `every_min` — prvé upozornenie toľko minút pred, koľkokrát spolu, odstup
+  (60/3/20 → 60, 40 a 20 min pred). Namiesto nich `"remind_min": [60, 15, 5]`; 0 = v čase udalosti.
+- `currencies` — prázdne = všetky meny, inak napr. `["USD", "EUR"]`; `impact` aj `["High", "Medium"]`.
+- `chats` — iné chaty ako v `telegram.json` hubu.
+- `refresh` — **sťahuje sa raz denne** v tento čas. Navyše, keď export ešte drží minulý týždeň
+  (prehadzuje sa v nedeľu), skúša to každú hodinu — inak by vypadli pondelkové ranné ázijské správy.
+  Neúspech = ide sa zo zásoby (`cache.json`) a skúsi sa o 15 min.
+
+Správa: `🔴 o 30 min · 14:30` a riadok na udalosť (`USD CPI m/m · progn. 0.6% · pred. 0.4%`);
+udalosti v tom istom čase idú v jednej správe. Čo odišlo, je v `state.json` (udalosť → minúty pred),
+takže reštart hubu nič nezopakuje; keď hub v čase upozornenia nebežal, príde jedno oneskorené
+(„o 7 min“), kým udalosť nenastala. Bez úspešného stiahnutia 26 h, alebo keď export 12 h po začiatku
+týždňa stále nemá nový, hlási plugin `problem` a `watchdog` ho pošle do Telegramu.
+
+`python -m tester.hub plugin ff_calendar` vypíše sledované udalosti týždňa v čase hubu a kedy k nim
+príde upozornenie; `--fetch` stiahne export hneď, `--test` pošle najbližšiu udalosť do Telegramu.
+
+Testy: `tester/tests/test_hub_plugins.py`.
+
 ## API hubu
 
 Všetko pod `/api/`, s tokenom; `/api/health` bez neho.
@@ -472,6 +539,7 @@ Všetko pod `/api/`, s tokenom; `/api/health` bez neho.
 | `GET /api/jobs/{id}/result` | zadávateľ | zip; 410, keď už bol vyzdvihnutý |
 | `POST /api/jobs/{id}/ack` | zadávateľ | výsledok mám, zip zmaž |
 | `GET /api/status`, `GET /api/agents` | ktokoľvek | prehľad |
+| `GET /api/plugins` | ktokoľvek | pluginy hubu a ich stav (vyššie) |
 | `POST /api/live/events` | agent | dávky udalostí zo spoolu bežiacich stratégií (`{"agent", "batches": [{instance, session, events}]}` → `{"accepted"}`) |
 | `GET /api/live/instances[/{id}]`, `…/{id}/events`, `…/{id}/snapshot`, `GET /api/live/export` | ktokoľvek | live telemetria (nižšie) |
 | `GET /api/live/accounts[/{id}]`, `GET /api/live/deployments[/{id}]`, `GET /api/live/audit?limit=` | ktokoľvek | požadovaný stav live nasadení (nižšie) |

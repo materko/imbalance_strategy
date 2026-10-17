@@ -11,7 +11,6 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from tester.hub.agent import HubAgent
-from tester.hub.telegram_watch import OFFLINE_GRACE, HubTelegramWatch
 from tradebot.live.deploy import DeployStore
 from tradebot.live.spool import SpoolReader
 from tradebot.live.telegram import (ControlFiles, LiveNotifier, TelegramBot, TelegramCommands, TelegramConfig,
@@ -407,25 +406,6 @@ def test_hub_prevezme_prepnutie_len_ked_nie_je_novsie(tmp_path: Path):
     assert store.apply_overrides("nas", [{"instance": inst, "mode": "paused", "ts": 1050.0, "by": "telegram:42"}]) == 1
     assert store.deployment(d["id"])["mode"] == "paused" and store.audit()[0]["by"] == "telegram:42@nas"
     assert store.apply_overrides("nas", [{"instance": inst, "mode": "paused", "ts": 1050.0}]) == 0   # už má
-
-
-def test_strazca_hubu_hlasi_offline_a_navrat(tmp_path: Path):
-    t = [10_000.0]
-    deploy = SimpleNamespace(active_agents=lambda: ["nas"])
-    hub = SimpleNamespace(deploy=deploy, agent_timeout=45.0, agents={"nas": {"last_seen": 10_000.0}},
-                          _lock=__import__("threading").RLock())
-    bot = FakeBot()
-    w = HubTelegramWatch(hub, TelegramConfig(token="t", chats=[7], label="hub"), tmp_path / "w.json", bot=bot,
-                         clock=lambda: t[0])
-    assert w.check() == []                     # hneď po štarte hubu nič
-    t[0] += 45 + OFFLINE_GRACE + 1
-    assert len(w.check()) == 1 and bot.sent[0][1].startswith("[hub] 🔴 stroj nas")
-    assert w.check() == []                     # neopakuje
-    # nový strážca (reštart hubu) si pamätá, že už hlásil
-    w2 = HubTelegramWatch(hub, w.cfg, tmp_path / "w.json", bot=bot, clock=lambda: t[0] + 1000)
-    w2.started -= 1000
-    hub.agents["nas"]["last_seen"] = t[0] + 1000
-    assert w2.check() == ["🟢 stroj nas sa znova hlási"] and bot.sent[-1][1] == "[hub] 🟢 stroj nas sa znova hlási"
 
 
 def test_status_rozlisi_trh_zatvoreny_od_ticha_a_ping_nehlasi(tmp_path: Path):

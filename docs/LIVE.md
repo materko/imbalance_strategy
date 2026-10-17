@@ -528,7 +528,7 @@ keď spadne práve to, čo by ho malo hlásiť. Preto **dve miesta, žiadne v ad
 |---|---|---|
 | obchody, signály, režim, štart/koniec, `note`, chyby nasadení | **agent** (`tradebot.live.telegram`, vlákno `hub-agent-telegram`) | je na tom istom stroji ako platformy a číta ich spool; hub ani webapp nepotrebuje |
 | príkazy `/status`, `/pause`, `/resume`, `/flatten` | **agent** | zapíše control súbor — ten istý mechanizmus ako webapp, EA aj NT8 ho čítajú do 2 s; v MQL5 ani C# nič nové |
-| „stroj sa neozval“ / „znova sa hlási“ | **hub** (`tester.hub.telegram_watch`) | spadnutý agent, vypnutý stroj ani výpadok internetu doma zvnútra ohlásiť nejde |
+| „stroj sa neozval“ / „znova sa hlási“ | **hub** (plugin `watchdog`, `tester/hub/plugins`) | spadnutý agent, vypnutý stroj ani výpadok internetu doma zvnútra ohlásiť nejde |
 
 Adaptér by nepridal nič, čo tieto dve miesta nepokryjú, a porušil by pravidlo „platforma nechodí na
 sieť“ (MT5 `WebRequest` je blokujúci, chce allow-list v každom termináli, v Testeri nejde; v NT8 by
@@ -564,7 +564,8 @@ nehlásia, lebo zatvorený trh vyzerá rovnako; hlásilo by to každý deň pri 
    Agent config preverí raz za minútu — reštart netreba.
 3. Na hube `tester/hub_data/telegram.json` (`HUB_TELEGRAM_CONFIG`, vedľa stavu hubu) v tom istom tvare;
    `commands` sa ignoruje (hub len posiela). Ten istý bot je v poriadku — posielať smie viac procesov,
-   prijímať len jeden. Hub ho načíta pri `serve`.
+   prijímať len jeden. Posielajú cez neho pluginy hubu (docs/HUB.md, „Pluginy“: strážca, kalendár
+   ForexFactory); config sa načíta znova pri zmene súboru.
 
 Príkazy prijíma **jediný agent na bot**: keď ich zapneš na dvoch strojoch s tým istým tokenom, druhý
 dostane 409, príkazy si vypne (`commands_error` v stave) a správy posiela ďalej. Pre viac obchodných
@@ -635,10 +636,13 @@ režim alebo nasadenie zmenil neskôr (`updated ≥ ts`). Bez hubu ostáva a con
 
 ### Strážca (hub)
 
-Raz za 20 s pozrie stroje s aktívnym nasadením (`DeployStore.active_agents`): ticho dlhšie než
+Plugin hubu `watchdog` (docs/HUB.md, „Pluginy“). Raz za 20 s pozrie stroje s aktívnym nasadením (`DeployStore.active_agents`): ticho dlhšie než
 `agent_timeout` + 2 min (`OFFLINE_GRACE`) = `🔴 stroj nas-win11 sa neozval N min — nasadenia na ňom bežia
 ďalej, ale bez dohľadu a bez príkazov z webapp`, návrat = `🟢 stroj … sa znova hlási`. Prvé 2–3 minúty
-po štarte hubu mlčí (agenti sa ešte neohlásili); čo naposledy hlásil, si pamätá v `HUB_TELEGRAM_STATE`.
+po štarte hubu mlčí (agenti sa ešte neohlásili). Stráží aj ostatné pluginy: `⚠️ plugin … : nenačítal
+sa / padá N min / visí N min / <problém, ktorý plugin sám hlási>` a `🟢 plugin … je znova v poriadku`.
+Čo naposledy hlásil, si pamätá v `hub_data/plugins/watchdog/state.json` (prvý štart prevezme starý
+`HUB_TELEGRAM_STATE`).
 
 ## Testy
 
@@ -646,7 +650,7 @@ po štarte hubu mlčí (agenti sa ešte neohlásili); čo naposledy hlásil, si 
   (prvý štart prehrá históriu bez správ, výpadok Telegramu = kurzor stojí a nič sa nezdvojí, rotácia dňa,
   Tester sa nehlási), chyby nasadení, príkazy (cudzí chat/používateľ, `/pause` + prekrytie, `/flatten`
   len s potvrdením a do 2 min, 409), 429 a odstup správ, config/env, prekrytie v agentovi, prevzatie
-  na hube, strážca (offline/návrat, po reštarte neopakuje).
+  na hube; strážca je v `tester/tests/test_hub_plugins.py`.
 
 - `tester/tests/test_live_update.py` — `CodeUpdater`: brána (obchoduje / pozícia / bez spoolu), `force`,
   pull len keď commit chýba a chyba, keď nepríde, chyby po platformách oddelene, markery, `noop`;
