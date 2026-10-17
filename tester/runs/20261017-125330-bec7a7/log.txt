@@ -1,0 +1,7 @@
+$ emulator MultiCharts EURUSD 5m 20221001-20231001 (EURUSD_USD-1m.feather)
+emulacia MultiCharts: 74525 barov 5m, 367735 1m, 0 HTF
+  20000/74525 barov, 46 obchodov
+  40000/74525 barov, 101 obchodov
+  60000/74525 barov, 154 obchodov
+hotovo: 191 obchodov, nerozhodnutelnych minut 0
+kresby: {'as_range': 260, 'as_sweep': 291, 'tp_box': 191, 'sl_box': 191, 'as_entry': 191}

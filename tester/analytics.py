@@ -125,6 +125,22 @@ def config_key(record: dict[str, Any]) -> str:
     return hashlib.sha1(blob.encode("utf-8")).hexdigest()[:10]
 
 
+#: Číslo za dvojbodkou v `enter_tag` menšie než toto nie je čas baru v ms, ale index baru.
+_TAG_MS_MIN = 10 ** 11
+
+
+def _tag_key(tag: Any) -> Any:
+    """`enter_tag` do kľúča duplicity: index baru (`as:1234`) sa počíta od začiatku behu,
+    takže ten istý obchod ho má v dvoch prekrývajúcich sa oknách iný — ostane len prefix.
+    Čas baru v ms (`ibs:1725...`) je v oboch oknách rovnaký a ostáva celý."""
+    if not isinstance(tag, str) or ":" not in tag:
+        return tag
+    prefix, _, rest = tag.rpartition(":")
+    if rest.isdigit() and int(rest) < _TAG_MS_MIN:
+        return prefix
+    return tag
+
+
 def dedupe(trades: Sequence[dict[str, Any]]) -> tuple[list[dict[str, Any]], int]:
     """Ten istý obchod len raz. Vracia `(obchody, koľko duplicít vypadlo)`.
 
@@ -137,7 +153,7 @@ def dedupe(trades: Sequence[dict[str, Any]]) -> tuple[list[dict[str, Any]], int]
     videne: set[tuple[Any, ...]] = set()
     out: list[dict[str, Any]] = []
     for t in trades:
-        kluc = (t.get("_cfg"), t.get("pair"), t.get("open_date"), t.get("enter_tag"),
+        kluc = (t.get("_cfg"), t.get("pair"), t.get("open_date"), _tag_key(t.get("enter_tag")),
                 bool(t.get("is_short")), t.get("close_date"), t.get("close_rate"))
         if kluc in videne:
             continue

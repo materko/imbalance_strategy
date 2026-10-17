@@ -335,6 +335,17 @@ def test_ten_isty_obchod_z_dvoch_okien_sa_pocita_raz():
     assert len(obchody) == 2
 
 
+def test_obchod_s_indexom_baru_v_tagu_sa_z_dvoch_okien_pocita_raz():
+    """Tag `as:<index baru>` má ten istý obchod v každom okne iný (index ide od začiatku behu);
+    čas baru v ms je v oboch rovnaký a rozlišuje dva vstupy."""
+    a = {**trade(), "pair": "EURUSD/USD", "enter_tag": "as:1234"}
+    b = {**a, "enter_tag": "as:98765"}             # to isté z druhého okna, iný index
+    ms1 = {**a, "enter_tag": "ibs:1725490000000"}
+    ms2 = {**a, "enter_tag": "ibs:1725490300000"}  # iný bar = iný vstup
+    obchody, vypadlo = an.dedupe([a, b, ms1, ms2])
+    assert vypadlo == 1 and len(obchody) == 3
+
+
 def test_analyze_bez_paru_stav_trhu_nedoplna_a_nespadne():
     obchody = [trade(hour=h) for h in range(9, 18)] * 3
     r = an.analyze(obchody, strategy="ibs")
