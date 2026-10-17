@@ -204,6 +204,32 @@ Naopak, **hub bez agentov** nepotrebuje nič: má stav na disku, takže po rešt
 výpočty vo fronte stále tam a agenti sa prihlásia sami. Preto si hub v Dockeri dovolí
 reštartovať sa aj sám, keď si stiahne nový kód (viď „Hub sa aktualizuje sám").
 
+Po štarte má hub všetkých agentov zo `state.json` offline, kým sa neohlásia. Agent, ktorý
+sa **do 45 s od štartu hubu neohlási**, sa berie ako odmlčaný: jeho výpočty idú späť do
+fronty (ak ju dovolili), inak zlyhajú — a keď sa predsa vráti s hotovým behom, platí
+bod 3 a 4 vyššie. Zadávateľ z CLI (`cli run --remote`) výpadok hubu prečká: čaká ďalej
+s hláškou „hub nedostupny" a pokračuje, keď hub vstane.
+
+### Ručný reštart hubu (upgrade)
+
+Hub sa dá zhodiť kedykoľvek — nič sa nestratí (viď vyššie). Aby sa ale nič nerozpočítalo
+zbytočne a fronta sa rozdelila až na novom kóde, pred ručným upgradom ho **vyprázdni**:
+
+```bash
+python -m tester.hub drain --wait     # nové výpočty len do fronty, počkaj, kým bežiace dobehnú
+python -m tester.hub drain --stop     # … a potom hub skonči sám (Docker ho zdvihne na najnovšom kóde)
+python -m tester.hub drain --off      # zrušiť, hub zas prideľuje
+```
+
+Drain je to isté, čo robí samoaktualizácia pri novom kóde (nižšie): hub nič nové
+z fronty nepridelí, zadania bez `--queue` odmietne a `status` ukáže `DRAIN … dobieha N`.
+Na disk sa nepíše — hub po reštarte zas prideľuje. Treba hlavný token: `admin_token`
+z `tester/agent.json`, inak token agenta; na stroji hubu `--local` (127.0.0.1 a
+`TRADEBOT_HUB_TOKEN`), v kontajneri `docker compose exec hub python -m tester.hub drain
+--stop --local`. Pri `--stop`
+hub skončí, keď nič nepočíta, a `hub-entrypoint.sh` si pri štarte stiahne najnovší kód,
+takže je to ručný upgrade jedným príkazom.
+
 ## Nastavenie
 
 **Hub** (jeden stroj s verejnou adresou; TLS nech rieši reverse proxy):
@@ -545,6 +571,7 @@ Všetko pod `/api/`, s tokenom; `/api/health` bez neho.
 | `POST /api/agents/register` | agent | meno, jadrá, sloty, `accept`, `send` |
 | `POST /api/agents/{name}/heartbeat` | agent | stav výpočtov + lokálna záťaž → `assign`, `cancel`, `finished`, `set_accept` |
 | `POST /api/agents/{name}/accept?value=` | správca | zapnúť/vypnúť prijímanie na agentovi |
+| `POST /api/hub/drain?stop=&by=`, `DELETE /api/hub/drain` | správca | drain pred ručným reštartom hubu (vyššie); stav v `GET /api/status` → `drain` |
 | `DELETE /api/agents/{name}?force=&token=` | správca | vyhodiť agenta zo zoznamu (premenovaný stroj) |
 | `GET /api/tokens`, `POST/DELETE /api/tokens/{name}` | správca | tokeny agentov |
 | `GET /api/events` | ktokoľvek | log udalostí (`limit`, `job`, `agent`, `event`) |

@@ -69,6 +69,11 @@ class HubError(Exception):
         self.detail = detail
 
 
+def _transient(exc: HubError) -> bool:
+    """Chyba, ktorá prejde sama: hub sa reštartuje alebo pred ním proxy hlási 502/503."""
+    return exc.status >= 500 or exc.status in (0, 408, 429)
+
+
 class NoCapacityError(HubError):
     """409 zo `/api/jobs`: nikto voľný a fronta nebola povolená (alebo by trvala pridlho)."""
 
@@ -332,11 +337,34 @@ class HubClient:
     def cancel(self, job_id: str) -> dict[str, Any]:
         return self.http.post(f"/api/jobs/{job_id}/cancel?by={self.name}")
 
+    def drain(self, stop: bool = False) -> dict[str, Any]:
+        """Pred ručným reštartom hubu: nové výpočty len do fronty, bežiace dobehnú — správca."""
+        return self.http.post(f"/api/hub/drain?stop={'true' if stop else 'false'}&by={_name(self.name)}")
+
+    def undrain(self) -> dict[str, Any] | None:
+        return self.http.delete(f"/api/hub/drain?by={_name(self.name)}").get("drain")
+
     def wait(self, job_id: str, on_tick: Callable[[dict[str, Any]], None] | None = None,
-             poll: float = 5.0, sleep: Callable[[float], None] = time.sleep) -> dict[str, Any]:
-        """Čaká, kým výpočet skončí (done, failed, cancelled). `on_tick` dostane každý stav."""
+             poll: float = 5.0, sleep: Callable[[float], None] = time.sleep,
+             on_outage: Callable[[Exception, int], None] | None = None) -> dict[str, Any]:
+        """Čaká, kým výpočet skončí (done, failed, cancelled). `on_tick` dostane každý stav.
+
+        Výpadok hubu (reštart, sieť, proxy bez hubu) čakanie nezhodí: výpočet je v stave hubu
+        na disku a agent ho medzitým dopočíta, takže sa skúša ďalej, kým sa hub nevráti.
+        `on_outage` dostane chybu a koľký pokus za sebou zlyhal."""
+        zlyhalo = 0
         while True:
-            job = self.job(job_id)
+            try:
+                job = self.job(job_id)
+            except (HubError, OSError, ValueError) as exc:
+                if isinstance(exc, HubError) and not _transient(exc):
+                    raise
+                zlyhalo += 1
+                if on_outage:
+                    on_outage(exc, zlyhalo)
+                sleep(poll)
+                continue
+            zlyhalo = 0
             if on_tick:
                 on_tick(job)
             if job.get("status") in P.FINAL_STATES:

@@ -21,6 +21,11 @@ každej zmene na disku.
 
 `max_wait` je poistka pre hub, na ktorom sa stále niečo počíta: po toľkých sekundách
 čakania sa reštartuje aj tak. 0 = čakaj, koľko treba.
+
+**Ručný drain** (`python -m tester.hub drain`, `HubState.start_drain`) je to isté bez
+nového kódu — pred ručným upgradom hubu: nové výpočty idú len do fronty, bežiace dobehnú.
+So `--stop` hub po dobehnutí skončí sám (`DrainWatch`); v Dockeri ho `restart:
+unless-stopped` zdvihne a `hub-entrypoint.sh` si pred štartom stiahne najnovší kód.
 """
 
 from __future__ import annotations
@@ -37,7 +42,7 @@ from tradebot.core.paths import REPO
 from . import gitcode
 from . import protocol as P
 
-__all__ = ["Updater", "DEFAULT_INTERVAL"]
+__all__ = ["Updater", "DrainWatch", "DEFAULT_INTERVAL"]
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +53,7 @@ PENDING_CHECK = 10.0
 #: Koľko sekúnd sa čaká na slušné ukončenie, než proces skončí natvrdo.
 SHUTDOWN_GRACE = 30.0
 #: Stavy, pri ktorých by reštart niečo prerušil — `queued` ho prežije v `state.json`.
-BUSY_STATES = tuple(s for s in P.LIVE_STATES if s != "queued")
+BUSY_STATES = P.BUSY_STATES
 
 
 def fast_forward(branch: str = "main") -> dict[str, Any]:
@@ -193,3 +198,43 @@ def from_env(state: Any) -> "Updater | None":
         cakanie = 0.0
     return Updater(state, interval=minuty * 60, max_wait=cakanie * 60,
                    branch=(getenv("HUB_BRANCH") or "main").strip())
+
+
+class DrainWatch:
+    """Ručný drain so `stop`: keď nič nepočíta, hub skončí (`quit`). Beží vždy vedľa
+    uvicornu a bez drainu nerobí nič."""
+
+    def __init__(self, state: Any, *, poll: float = PENDING_CHECK,
+                 quit: Callable[[], None] = _quit) -> None:
+        self.state = state
+        self.poll = float(poll)
+        self.quit = quit
+        self._stop = threading.Event()
+        self._thread: threading.Thread | None = None
+
+    def start(self) -> None:
+        if self._thread is None or not self._thread.is_alive():
+            self._stop.clear()
+            self._thread = threading.Thread(target=self._loop, name="hub-drain", daemon=True)
+            self._thread.start()
+
+    def stop(self) -> None:
+        self._stop.set()
+
+    def _loop(self) -> None:
+        while not self._stop.wait(self.poll):
+            try:
+                if self.tick():
+                    return
+            except Exception as exc:  # noqa: BLE001 - strážca nesmie zhodiť hub
+                log.warning("hub: drain zlyhal: %s: %s", type(exc).__name__, exc)
+
+    def tick(self) -> bool:
+        """`True`, keď hub ide skončiť."""
+        drain = getattr(self.state, "drain", None)
+        if not drain or not drain.get("stop") or self.state.busy():
+            return False
+        log.info("hub: drain hotovy, nic nepocita — koncim (fronta %d vypoctov ostava v state.json)",
+                 sum(1 for j in self.state.jobs.values() if j["status"] == "queued"))
+        self.quit()
+        return True

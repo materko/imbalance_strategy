@@ -663,6 +663,10 @@ class FakeHttp:
         r = self.c.post(path, content=data, headers={**self.h, "Content-Type": "application/zip"})
         self._raise(r); return r.json()
 
+    def delete(self, path):
+        self._live()
+        r = self.c.delete(path, headers=self.h); self._raise(r); return r.json()
+
 
 @dataclass
 class FakeJob:
@@ -1839,7 +1843,7 @@ def test_cli_prefetch_submits_grid_at_once(monkeypatch, tmp_path: Path):
             calls["submit"].append((payload["note"], kw["queue"], kw.get("version")))
             return {"id": f"j{len(calls['submit'])}", "status": "assigned", "agent": "srv", "created": "t"}
 
-        def wait(self, job_id, on_tick=None):
+        def wait(self, job_id, on_tick=None, on_outage=None):
             calls["wait"].append(job_id)
             return {"id": job_id, "status": "done", "run_id": f"20260901-00000{job_id[1]}-aaaaaa"}
 
@@ -2452,3 +2456,121 @@ def test_live_code_target_len_spravca_dorucuje_sa_do_hotova_a_code_state(tmp_pat
     # bez verzie hubu (mimo gitu) a bez `version` v tele: 422
     state.version = ""
     assert c.post("/api/live/agents/trade-pc/update", json={}, headers=H("hlavny")).status_code == 422
+
+
+# --------------------------------------------------------------------------- #
+# ručný reštart hubu: agenti, čo sa nevrátia, drain, čakanie zadávateľa
+# --------------------------------------------------------------------------- #
+
+
+def test_hub_restart_requeues_jobs_of_agents_that_never_come_back(tmp_path: Path):
+    """Po reštarte hubu sú všetci agenti offline, kým sa neohlásia. Kto sa neohlási do
+    `agent_timeout`, jeho výpočty idú späť do fronty (alebo zlyhajú) — inak by ostali
+    `running` navždy. Kto sa vráti, počíta ďalej, a neskorý návrat si výpočet vezme späť."""
+    clock = Clock()
+    state = HubState(tmp_path / "hub", clock=clock)
+    _reg(state, "srv", cores=2, slots=2)
+    a = state.submit(kind="backtest", payload=_payload(), submitter="lap", queue=True)
+    b = state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    _reg(state, "srv2", cores=1, slots=1)
+    c = state.submit(kind="backtest", payload=_payload(), submitter="lap")   # srv je plný
+    state.heartbeat("srv", {"jobs": [{"id": a["id"]}, {"id": b["id"]}]})
+    state.heartbeat("srv2", {"jobs": [{"id": c["id"]}]})
+    assert [state.job(j["id"])["agent"] for j in (a, b, c)] == ["srv", "srv", "srv2"]
+
+    clock.t += 5                                 # hub zhodený a zdvihnutý
+    znova = HubState(tmp_path / "hub", clock=clock)
+    clock.t += 2
+    znova.heartbeat("srv2", {"jobs": [{"id": c["id"]}]})
+    assert znova.job(a["id"])["status"] == "running"     # ešte čaká, či sa srv vráti
+    clock.t += znova.agent_timeout
+    znova.heartbeat("srv2", {"jobs": [{"id": c["id"]}]})
+    assert znova.job(a["id"])["status"] == "queued"      # frontu dovolil -> znova
+    assert "po reštarte hubu" in znova.job(a["id"])["notes"][-1]
+    assert znova.job(b["id"])["status"] == "failed"      # nedovolil -> chyba, neskorý výsledok ho oživí
+    assert znova.job(c["id"])["status"] == "running"     # srv2 sa vrátil a počíta ďalej
+    # srv sa vráti neskoro a stále počíta: výpočet z fronty si vezme späť (nikto iný naň nesadol)
+    _reg(znova, "srv", cores=2, slots=2, instance="i2")
+    znova.heartbeat("srv", {"jobs": [{"id": a["id"]}, {"id": b["id"]}]})
+    assert znova.job(a["id"])["status"] == "running" and znova.job(a["id"])["agent"] == "srv"
+
+
+def test_manual_drain_lets_running_jobs_finish_then_stops(hub):
+    """`python -m tester.hub drain`: nové výpočty len do fronty, bežiace dobehnú; so `stop`
+    hub skončí, až keď nič nepočíta. Po reštarte drain nie je a fronta sa rozdelí."""
+    from tester.hub.update import DrainWatch
+
+    state, clock = hub
+    _reg(state)
+    beh = state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    state.heartbeat("srv", {"jobs": [{"id": beh["id"]}]})
+    koniec: list[bool] = []
+    watch = DrainWatch(state, quit=lambda: koniec.append(True))
+    assert watch.tick() is False                          # bez drainu nič
+
+    d = state.start_drain(by="admin")
+    assert d["waiting_for"] == 1 and not d["stop"] and state.draining
+    with pytest.raises(NoCapacity, match="drain"):
+        state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    caka = state.submit(kind="backtest", payload=_payload(), submitter="lap", queue=True)
+    assert state.heartbeat("srv", {"jobs": [{"id": beh["id"]}]})["assign"] == []
+    assert state.job(caka["id"])["status"] == "queued"
+    assert state.overview()["drain"]["waiting_for"] == 1
+    assert watch.tick() is False                          # bez `stop` hub nekončí sám
+
+    state.start_drain(stop=True)
+    assert watch.tick() is False and not koniec           # ešte sa počíta
+    state.result(beh["id"], b"", status="done", agent="srv")
+    assert state.busy() == []
+    assert watch.tick() is True and koniec == [True]
+
+    # zrušenie drainu: hub zas prideľuje z fronty
+    state.stop_drain(by="admin")
+    assert state.drain is None and state.job(caka["id"])["status"] == "assigned"
+    # drain sa na disk nepíše — hub po reštarte prideľuje
+    state.start_drain()
+    znova = HubState(state.root, token="tajne", clock=clock)
+    assert znova.drain is None and not znova.draining
+
+
+def test_drain_api_is_for_admin_only(hub_api):
+    from tester.hub.client import HubClient, HubError
+
+    c, state, _ = hub_api
+    t_srv = state.add_token("srv")
+    with pytest.raises(HubError) as exc:
+        HubClient(FakeHttp(c, t_srv), "srv").drain()
+    assert exc.value.status == 403
+    admin = HubClient(FakeHttp(c, "tajne"), "spravca")
+    d = admin.drain(stop=True)
+    assert d["stop"] and d["by"] == "spravca" and state.draining
+    assert admin.status()["drain"]["waiting_for"] == 0
+    assert admin.undrain() is None and not state.draining
+
+
+def test_wait_survives_hub_outage():
+    """`cli run --remote` čaká ďalej, keď sa hub reštartuje — výpočet beží na agentovi."""
+    from tester.hub.client import HubClient, HubError
+
+    odpovede: list[Any] = [OSError("connection refused"), HubError(502, "Bad Gateway"),
+                           {"id": "x", "status": "running"}, OSError("reset"),
+                           {"id": "x", "status": "done"}]
+
+    class Http:
+        def get(self, path):
+            r = odpovede.pop(0)
+            if isinstance(r, Exception):
+                raise r
+            return r
+
+    vypadky: list[int] = []
+    stavy: list[str] = []
+    job = HubClient(Http(), "lap").wait("x", on_tick=lambda j: stavy.append(j["status"]),
+                                        sleep=lambda s: None, on_outage=lambda e, n: vypadky.append(n))
+    assert job["status"] == "done" and stavy == ["running", "done"]
+    assert vypadky == [1, 2, 1]
+    # zlý token nie je výpadok — to by sa čakalo navždy
+    odpovede[:] = [HubError(401, "zly token")]
+    with pytest.raises(HubError):
+        HubClient(Http(), "lap").wait("x", sleep=lambda s: None)
+

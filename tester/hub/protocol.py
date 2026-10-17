@@ -23,7 +23,7 @@ from datetime import datetime
 from typing import Any, Iterable
 
 __all__ = [
-    "KIND_BACKTEST", "KIND_HYPEROPT", "KINDS", "ALL", "LIVE_STATES", "FINAL_STATES",
+    "KIND_BACKTEST", "KIND_HYPEROPT", "KINDS", "ALL", "LIVE_STATES", "BUSY_STATES", "FINAL_STATES",
     "REFERENCE_VERIFY_RUNS", "kind_of", "cores_for", "window_days", "seconds_per_day",
     "seconds_per_epoch", "estimate_seconds", "progress_from_log", "progress_from_results",
     "remaining_seconds",
@@ -38,6 +38,8 @@ KINDS = (KIND_BACKTEST, KIND_HYPEROPT)
 ALL = "all"
 
 LIVE_STATES = ("queued", "assigned", "running", "cancelling")
+#: Stavy, ktoré by reštart hubu prerušil — `queued` ho prežije v `state.json`.
+BUSY_STATES = ("assigned", "running", "cancelling")
 FINAL_STATES = ("done", "failed", "cancelled")
 
 #: Hyperopt po dobehnutí pustí víťaza na piatich referenčných oknách (`tester.hyperopt`).

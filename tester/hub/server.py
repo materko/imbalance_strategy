@@ -33,6 +33,8 @@ vtedy, keď ho už odpísal**: hotový beh prepíše „agent sa odmlčal" a zad
 v svojom heartbeate. Keď to medzitým dopočítal niekto iný, platí prvý hotový a druhý sa
 zahodí; agentovi, ktorý hlási už zbytočný výpočet, hub pošle `cancel`. To isté platí, keď
 spadne hub: agenti dopočítajú, čo majú, a odovzdajú to po jeho návrate (stav je na disku).
+Kto sa do `agent_timeout` od štartu hubu neohlási, je odmlčaný ako každý iný. Pred ručným
+reštartom ho vyprázdni `POST /api/hub/drain` (`python -m tester.hub drain`).
 
 Tokeny: hlavný token (`TRADEBOT_HUB_TOKEN`) je správcovský — smie všetko. Každý agent má
 vlastný token (`tokens.json`, `python -m tester.hub token add <meno>`), ktorý ho zároveň
@@ -177,6 +179,18 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
     @app.get("/api/status")
     def status(who: str = Depends(auth)):
         return state.overview()
+
+    @app.post("/api/hub/drain")
+    def drain(stop: bool = False, by: str = "", who: str = Depends(auth)):
+        """Pred ručným reštartom hubu: nové výpočty len do fronty, bežiace dobehnú (`stop` =
+        hub potom skončí sám) — správca hubu."""
+        admin(who)
+        return state.start_drain(by=by, stop=stop)
+
+    @app.delete("/api/hub/drain")
+    def undrain(by: str = "", who: str = Depends(auth)):
+        admin(who)
+        return {"drain": state.stop_drain(by=by)}
 
     @app.post("/api/agents/register")
     def register(req: RegisterRequest, who: str = Depends(auth)):

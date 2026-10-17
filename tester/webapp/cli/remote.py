@@ -140,7 +140,13 @@ def _remote_wait(args: argparse.Namespace, job_id: str, settings: dict, quiet: b
         print(f"  … {j['status']}  agent {j.get('agent') or '-'}  postup {postup}  "
               f"zostava {zostava}", flush=True)
 
-    job = client.wait(job_id, on_tick=tick)
+    def vypadok(exc: Exception, pokus: int) -> None:
+        # hub sa reštartuje (upgrade) alebo vypadla sieť — výpočet beží ďalej na agentovi
+        if not quiet and (pokus == 1 or pokus % 12 == 0):
+            print(f"  … hub nedostupny ({type(exc).__name__}: {exc}); cakam, vypocet bezi dalej "
+                  f"na agentovi", flush=True)
+
+    job = client.wait(job_id, on_tick=tick, on_outage=vypadok)
     run_ids = client.collect(job["id"], store.root)
     if job["status"] != "done":
         return {"id": run_ids[0] if run_ids else job["id"], "status": job["status"],

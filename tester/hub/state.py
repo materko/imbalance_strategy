@@ -65,6 +65,12 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
         self.heartbeat_seconds = int(heartbeat_seconds)
         self.agent_timeout = float(agent_timeout)
         self.clock = clock
+        #: Kedy tento proces hubu naštartoval — agent, ktorý sa odvtedy neohlásil do
+        #: `agent_timeout`, sa nevráti a jeho výpočty idú späť do fronty (`_sweep`).
+        self.started = clock()
+        #: Ručný drain (`start_drain`): nové výpočty sa neprideľujú, bežiace dobehnú. Na disk
+        #: nejde — hub po reštarte (to je jeho účel) zas prideľuje.
+        self.drain: dict[str, Any] | None = None
         self.agents: dict[str, dict[str, Any]] = {}
         self.jobs: dict[str, dict[str, Any]] = {}
         self.order: list[str] = []
@@ -437,6 +443,13 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
                 agent.pop("bye_at", None)
                 for job in self._agent_jobs(agent["name"]):
                     self._lost(job, f"agent {agent['name']} sa po reštarte nevrátil")
+            elif (not agent.get("online") and not agent.get("bye_at")
+                  and float(agent.get("last_seen") or 0) < self.started
+                  and now - self.started > self.agent_timeout):
+                # Hub sa reštartoval (stav z `state.json` má všetkých offline) a tento agent
+                # sa odvtedy neohlásil — bez toho by jeho výpočty ostali `running` navždy.
+                for job in self._agent_jobs(agent["name"]):
+                    self._lost(job, f"agent {agent['name']} sa po reštarte hubu nevrátil")
         # Strop na čas behu stráži agent (beh zabije sám); hub je poistka, keby agent
         # bežal na starom kóde alebo strop nevymáhal — dá mu ešte dva intervaly navyše.
         for job in self.jobs.values():
@@ -558,6 +571,9 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
             eta = self._eta_start(demand)
             if volny is None:
                 agenti = [self._agent_public(a) for a in self.agents.values()]
+                if not queue and self.drain is not None:
+                    raise NoCapacity("hub čaká na ručný reštart (drain) — bežiace výpočty dobehnú, "
+                                     "zadaj výpočet s frontou (--queue)", eta, agenti)
                 if not queue and self.draining:
                     raise NoCapacity("hub sa po dobehnutí bežiacich výpočtov reštartuje na nový kód — "
                                      "zadaj výpočet s frontou (--queue)", eta, agenti)
@@ -593,9 +609,43 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
 
     @property
     def draining(self) -> bool:
-        """Hub má nový kód a čaká na reštart: bežiace výpočty dobehnú, nové sa neprideľujú
-        a čakajú vo fronte (`state.json`), kým ich nerozdelí hub na novom kóde."""
-        return self.updater is not None and getattr(self.updater, "pending", None) is not None
+        """Hub čaká na reštart (nový kód zo samoaktualizácie alebo ručný drain): bežiace
+        výpočty dobehnú, nové sa neprideľujú a čakajú vo fronte (`state.json`), kým ich
+        nerozdelí hub po reštarte."""
+        return self.drain is not None or (
+            self.updater is not None and getattr(self.updater, "pending", None) is not None)
+
+    def busy(self) -> list[str]:
+        """Výpočty, ktoré by reštart hubu prerušil (fronta ho prežije v `state.json`)."""
+        with self._lock:
+            return [j["id"] for j in self.jobs.values() if j["status"] in P.BUSY_STATES]
+
+    def start_drain(self, *, by: str = "", stop: bool = False) -> dict[str, Any]:
+        """Ručný drain pred reštartom hubu: z fronty sa už nič nepridelí, bežiace dobehnú.
+        So `stop` hub skončí sám, keď nič nepočíta (`update.DrainWatch`)."""
+        with self._lock:
+            if self.drain is None:
+                self.drain = {"since": _iso(self.clock()), "by": by or None, "stop": bool(stop)}
+                self.log("hub_drain", by=by or None, stop=bool(stop), busy=len(self.busy()))
+            elif stop and not self.drain.get("stop"):
+                self.drain["stop"] = True
+                self.log("hub_drain", by=by or None, stop=True, busy=len(self.busy()))
+            return self.drain_public()
+
+    def stop_drain(self, *, by: str = "") -> dict[str, Any] | None:
+        """Zruší ručný drain — hub zas prideľuje z fronty."""
+        with self._lock:
+            if self.drain is not None:
+                self.drain = None
+                self.log("hub_drain_off", by=by or None)
+                self._dispatch()
+                self._save()
+            return self.drain_public()
+
+    def drain_public(self) -> dict[str, Any] | None:
+        if self.drain is None:
+            return None
+        return {**self.drain, "waiting_for": len(self.busy())}
 
     def _pick_agent(self, demand: int | str, version: str | None = None) -> dict[str, Any] | None:
         """Voľný agent — najradšej ten, čo už má commit zadávateľa (bez pullu), a z nich
@@ -776,6 +826,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
                 # commit, na ktorom hub beží, a či čaká na reštart na novší (samoaktualizácia)
                 "version": self.version or None,
                 "update": self.updater.public() if self.updater is not None else None,
+                # ručný drain pred reštartom hubu (`python -m tester.hub drain`)
+                "drain": self.drain_public(),
                 # inštancie live stratégií, ktoré online agenti hlásia v heartbeate
                 "live_instances": sum(len((a.get("live") or {}).get("instances") or [])
                                       for a in self.agents.values() if a.get("online")),

@@ -7,6 +7,7 @@
     python -m tester.hub status                                   # agenti, fronta, kapacita
     python -m tester.hub jobs [--all]                             # výpočty na hube
     python -m tester.hub cancel <job_id>                          # zrušiť výpočet
+    python -m tester.hub drain [--wait] [--stop] [--off] [--local]  # pred ručným reštartom hubu
     python -m tester.hub forget <meno> [--with-token]             # vyhodiť agenta z hubu
     python -m tester.hub sparse --no-history [--data binance]     # chudý klon (netiahne dáta)
     python -m tester.hub token add srv-01 [--local]               # token agenta (správca)
@@ -49,6 +50,10 @@ def cmd_serve(args: argparse.Namespace) -> int:
           f"tokenov agentov {len(state.token_names())})", flush=True)
     updater = _start_updater(args, state)
     plugins = _start_plugins(state)
+    from .update import DrainWatch
+
+    drain = DrainWatch(state)
+    drain.start()
     if not token and not state.token_names():
         # Bind na localhost nič neznamená, keď pred hubom stojí reverse proxy: hub je
         # potom verejný a bez tokenu ho smie ovládať ktokoľvek, kto sa naň dostane.
@@ -59,6 +64,7 @@ def cmd_serve(args: argparse.Namespace) -> int:
     uvicorn.run(app, host=args.host, port=args.port, log_level="info", timeout_keep_alive=75)
     if updater is not None:
         updater.stop()
+    drain.stop()
     plugins.stop()
     return 0
 
@@ -256,6 +262,8 @@ def cmd_status(args: argparse.Namespace) -> int:
     st = client.status()
     print(f"hub {cfg.hub_url}: agentov online {st['online']}, vo fronte {st['queued']}, "
           f"pocita sa {st['running']}")
+    if st.get("drain"):
+        print(_fmt_drain(st["drain"]))
     print(f"\n{'agent':<18}{'druh':<10}{'stav':<12}{'kod':<9}{'jadra':>6}{'sloty':>6}{'obsad.':>7}"
           f"  prijima  posiela  volny(1)  volny(all)")
     for a in st["agents"]:
@@ -425,6 +433,70 @@ def cmd_events(args: argparse.Namespace) -> int:
     return 0
 
 
+def _fmt_drain(d: dict[str, Any]) -> str:
+    koniec = "potom hub skonci sam" if d.get("stop") else "potom ho mozes zhodit"
+    return (f"DRAIN od {d.get('since')} ({d.get('by') or '?'}): nove vypocty len do fronty, "
+            f"dobieha {d.get('waiting_for', 0)} — {koniec}")
+
+
+def _admin_client(args: argparse.Namespace):
+    """Klient so správcovským tokenom: `--local` = hub na tomto stroji (`127.0.0.1`, port
+    a token z prostredia hubu — v kontajneri `docker compose exec hub …`), inak
+    `admin_token` z `tester/agent.json`, a keď nie je, token agenta (musí byť hlavný)."""
+    from .client import HubClient, HubHttp
+
+    if args.local:
+        token = getenv("HUB_TOKEN") or ""
+        port = getenv("HUB_PORT", str(DEFAULT_PORT))
+        return HubClient(HubHttp(f"http://127.0.0.1:{port}", token), "hub")
+    cfg = _cfg_or_die()
+    return HubClient(HubHttp(cfg.hub_url, cfg.admin_token or cfg.token), cfg.name)
+
+
+def cmd_drain(args: argparse.Namespace) -> int:
+    """Pred ručným reštartom hubu (upgrade): nové výpočty len do fronty, bežiace dobehnú.
+    Fronta reštart prežije v `state.json`; agenti, čo počítajú, odovzdajú výsledok po návrate hubu."""
+    import time as _t
+
+    from .client import HubError
+
+    client = _admin_client(args)
+    try:
+        if args.off:
+            client.undrain()
+            print("drain zruseny — hub zas prideluje z fronty")
+            return 0
+        d = client.drain(stop=args.stop)
+    except HubError as exc:
+        raise SystemExit(str(exc))
+    print(_fmt_drain(d))
+    if not (args.wait or args.stop):
+        return 0
+    posledne = None
+    while True:
+        try:
+            d = client.status().get("drain")
+        except (HubError, OSError, ValueError) as exc:
+            if args.stop and (not isinstance(exc, HubError) or exc.status >= 500):
+                print("hub skoncil — fronta caka v state.json na hub po restarte")
+                return 0
+            raise SystemExit(str(exc))
+        if d is None:
+            if args.stop:  # hub skončil a Docker ho medzitým zdvihol — nový proces drain nemá
+                print("hub sa restartoval — fronta pokracuje na novom procese")
+                return 0
+            print("drain medzitym niekto zrusil")
+            return 1
+        if not d["waiting_for"]:
+            if not args.stop:
+                print("nic nepocita — hub mozes zhodit (fronta ostava v state.json)")
+                return 0
+        elif d["waiting_for"] != posledne:
+            print(f"  … dobieha {d['waiting_for']} vypoctov", flush=True)
+            posledne = d["waiting_for"]
+        _t.sleep(5)
+
+
 def cmd_cancel(args: argparse.Namespace) -> int:
     cfg = _cfg_or_die()
     j = _client(cfg).cancel(args.job_id)
@@ -536,6 +608,15 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("cancel", help="zrušiť výpočet (hub to povie počítajúcemu aj zadávajúcemu agentovi)")
     p.add_argument("job_id")
     p.set_defaults(func=cmd_cancel)
+
+    p = sub.add_parser("drain", help="pred ručným reštartom hubu: nové výpočty len do fronty, bežiace dobehnú")
+    p.add_argument("--wait", action="store_true", help="počkaj, kým nič nepočíta (potom hub zhoď)")
+    p.add_argument("--stop", action="store_true",
+                   help="keď nič nepočíta, hub skončí sám (Docker ho zdvihne na najnovšom kóde)")
+    p.add_argument("--off", action="store_true", help="zrušiť drain, hub zas prideľuje")
+    p.add_argument("--local", action="store_true",
+                   help="hub na tomto stroji (127.0.0.1, TRADEBOT_HUB_TOKEN) — v kontajneri hubu")
+    p.set_defaults(func=cmd_drain)
 
     args = ap.parse_args(argv)
     return args.func(args)
