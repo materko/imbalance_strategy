@@ -342,13 +342,16 @@ bez histórie behov, bez C# jadra — pár megabajtov namiesto deviatich gigabaj
 
 1. každých `TRADEBOT_HUB_UPDATE` minút (default 5) `git fetch` + `reset --hard` na
    `origin/${TRADEBOT_HUB_BRANCH:-main}`,
-2. keď sa `HEAD` zmenil, **počká, kým nič nepočíta** — žiadny výpočet v stave `assigned`,
-   `running` ani `cancelling`; čo čaká vo fronte, reštart pokojne prežije v `state.json`,
+2. keď sa `HEAD` zmenil, **prestane prideľovať** výpočty z fronty a **počká, kým dobehnú
+   bežiace** — žiadny výpočet v stave `assigned`, `running` ani `cancelling` (každých 10 s
+   sa pozrie znova); nové zadania idú len do fronty (bez `--queue` ich hub odmietne),
+   fronta reštart pokojne prežije v `state.json` a rozdelí ju hub na novom kóde,
 3. potom proces skončí a `restart: unless-stopped` ho zdvihne na novom kóde.
 
 Výpadok je pár sekúnd: agenti heartbeat zopakujú a keď ich hub medzitým zabudne, sami sa
-prihlásia znova. Hub s trvalou frontou by sa takto nemusel dostať k reštartu nikdy — na to
-je `TRADEBOT_HUB_UPDATE_MAX_WAIT` (minúty; 0 = čakaj, koľko treba). Vypnúť sa to dá
+prihlásia znova. Karta Hub ukazuje pri agentoch, na akom kóde hub beží a či čaká na reštart
+(`hub A → B`). Keby niektorý výpočet bežal neúmerne dlho, poistka je
+`TRADEBOT_HUB_UPDATE_MAX_WAIT` (minúty; 0 = čakaj, koľko treba). Vypnúť sa to dá
 `TRADEBOT_HUB_UPDATE=0`, mimo Dockeru sa to zapína `--update MIN`.
 
 **Rebuild image treba len pri zmene `Dockerfile.hub`** (alebo závislostí) — zmena kódu

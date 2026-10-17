@@ -107,7 +107,7 @@ function renderHubVersion(hub) {
   let text = `hub ${ver}`, cls = "chip", title = "commit, na ktorom hub beží";
   if (u && u.pending) {
     text += ` → ${u.pending}`; cls = "chip warn";
-    title = `hub má nový kód ${u.pending} a reštartuje sa, keď nič nepočíta` +
+    title = `hub má nový kód ${u.pending}: nové výpočty nechá vo fronte a reštartuje sa, keď dobehnú bežiace` +
       (u.waiting_for ? ` (rozpočítané výpočty: ${u.waiting_for})` : "");
   } else if (mine && mine !== ver) {
     title += ` — táto webapp je na ${mine}`;

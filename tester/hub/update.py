@@ -9,8 +9,10 @@ klonu (`docker/hub-entrypoint.sh` ho vyrobí vo volume) a tento watcher ho drž�
 
 1. každých `interval` sekúnd **fetch + reset** na `origin/<branch>` (klon je jednorazový,
    nikto doň ručne nesiaha — preto reset, nie rebase),
-2. keď sa `HEAD` zmenil, čaká, **kým nič nepočíta** (žiadny výpočet v stave `assigned`,
-   `running` ani `cancelling`; čo čaká vo fronte, reštart prežije v `state.json`),
+2. keď sa `HEAD` zmenil, **prestane prideľovať** výpočty z fronty (`HubState.draining`) a
+   čaká, **kým nič nepočíta** (žiadny výpočet v stave `assigned`, `running` ani
+   `cancelling`); fronta reštart prežije v `state.json` a rozdelí ju hub na novom kóde —
+   pri stále plnej fronte by sa inak hub nereštartoval nikdy,
 3. potom proces **skončí** — `restart: unless-stopped` ho zdvihne na novom kóde.
 
 Výpadok je pár sekúnd: agenti heartbeat zopakujú a keď ich hub medzitým zabudne, sami sa
@@ -41,6 +43,8 @@ log = logging.getLogger(__name__)
 
 #: Ako často sa pozrieť, či je nový kód.
 DEFAULT_INTERVAL = 300.0
+#: Ako často sa pozrieť, či už dobehlo, keď nový kód čaká na reštart.
+PENDING_CHECK = 10.0
 #: Koľko sekúnd sa čaká na slušné ukončenie, než proces skončí natvrdo.
 SHUTDOWN_GRACE = 30.0
 #: Stavy, pri ktorých by reštart niečo prerušil — `queued` ho prežije v `state.json`.
@@ -121,7 +125,7 @@ class Updater:
         self._stop.set()
 
     def _loop(self) -> None:
-        while not self._stop.wait(self.interval):
+        while not self._stop.wait(PENDING_CHECK if self.pending else self.interval):
             try:
                 if self.tick():
                     return

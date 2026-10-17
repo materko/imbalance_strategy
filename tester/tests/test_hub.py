@@ -478,10 +478,12 @@ def test_sparse_build_rules():
 
 
 def test_updater_restarts_hub_only_when_nothing_is_computing(hub):
-    """Samoaktualizácia: nový kód počká, kým dobehnú výpočty, a až potom proces skončí."""
+    """Samoaktualizácia: nový kód počká, kým dobehnú bežiace výpočty — z fronty už nič
+    nové nepridelí (inak by sa pri plnej fronte nereštartoval nikdy) — a až potom proces skončí."""
     state, clock = hub
     verzie = ["aaa111"]
     u, koniec = _updater(state, clock, verzie)
+    state.updater = u
     assert u.start_version == "aaa111"
     assert u.tick() is False and u.pending is None      # kód sa nezmenil, nič sa nedeje
 
@@ -495,11 +497,18 @@ def test_updater_restarts_hub_only_when_nothing_is_computing(hub):
     assert state.job(caka["id"])["status"] == "queued"
     assert u.public()["waiting_for"] == 1
 
+    assert state.draining
+    # kým čaká na reštart, nové výpočty idú len do fronty
+    with pytest.raises(NoCapacity, match="reštartuje"):
+        state.submit(kind="backtest", payload=_payload(), submitter="lap")
+
     state.result(job["id"], b"", status="done", agent="srv")
-    assert state.job(caka["id"])["status"] == "assigned"   # hub hneď pustil ďalší z fronty
-    assert u.tick() is False and not koniec
-    state.result(caka["id"], b"", status="done", agent="srv")
+    assert state.job(caka["id"])["status"] == "queued"     # fronta počká na nový kód
     assert u.tick() is True and koniec == [True]
+    # hub na novom kóde ju rozdelí
+    znova = HubState(state.root, token="tajne", clock=clock)
+    _reg(znova, cores=1, slots=1, instance="i2")
+    assert znova.job(caka["id"])["status"] == "assigned"
 
 
 def test_updater_gives_up_waiting_after_max_wait(hub):

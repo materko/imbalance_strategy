@@ -558,6 +558,9 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
             eta = self._eta_start(demand)
             if volny is None:
                 agenti = [self._agent_public(a) for a in self.agents.values()]
+                if not queue and self.draining:
+                    raise NoCapacity("hub sa po dobehnutí bežiacich výpočtov reštartuje na nový kód — "
+                                     "zadaj výpočet s frontou (--queue)", eta, agenti)
                 if not queue:
                     raise NoCapacity("nikto nie je voľný a fronta nebola povolená", eta, agenti)
                 if eta is None:
@@ -588,9 +591,17 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
             self._save()
             return self._job_public(job)
 
+    @property
+    def draining(self) -> bool:
+        """Hub má nový kód a čaká na reštart: bežiace výpočty dobehnú, nové sa neprideľujú
+        a čakajú vo fronte (`state.json`), kým ich nerozdelí hub na novom kóde."""
+        return self.updater is not None and getattr(self.updater, "pending", None) is not None
+
     def _pick_agent(self, demand: int | str, version: str | None = None) -> dict[str, Any] | None:
         """Voľný agent — najradšej ten, čo už má commit zadávateľa (bez pullu), a z nich
         ten s najväčšou rezervou, nech sa záťaž rozloží a nie nakopí."""
+        if self.draining:
+            return None
         kandidati = [a for a in self._online_accepting() if P.fits(a, demand, self._agent_jobs(a["name"]))]
         if not kandidati:
             return None
