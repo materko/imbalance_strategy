@@ -527,7 +527,7 @@ keď spadne práve to, čo by ho malo hlásiť. Preto **dve miesta, žiadne v ad
 | čo | kde | prečo tam |
 |---|---|---|
 | obchody, signály, režim, štart/koniec, `note`, chyby nasadení | **agent** (`tradebot.live.telegram`, vlákno `hub-agent-telegram`) | je na tom istom stroji ako platformy a číta ich spool; hub ani webapp nepotrebuje |
-| príkazy `/status`, `/pause`, `/resume`, `/flatten` | **agent** | zapíše control súbor — ten istý mechanizmus ako webapp, EA aj NT8 ho čítajú do 2 s; v MQL5 ani C# nič nové |
+| príkazy `/status`, `/pause`, `/resume`, `/flatten`; 🧾 Obchody a 📈 Výkon z denníka obchodov | **agent** | zapíše control súbor — ten istý mechanizmus ako webapp, EA aj NT8 ho čítajú do 2 s; v MQL5 ani C# nič nové |
 | „stroj sa neozval“ / „znova sa hlási“ | **hub** (plugin `watchdog`, `tester/hub/plugins`) | spadnutý agent, vypnutý stroj ani výpadok internetu doma zvnútra ohlásiť nejde |
 
 Adaptér by nepridal nič, čo tieto dve miesta nepokryjú, a porušil by pravidlo „platforma nechodí na
@@ -554,12 +554,14 @@ nehlásia, lebo zatvorený trh vyzerá rovnako; hlásilo by to každý deň pri 
 
    ```json
    {"token": "123456:ABC…", "chats": [123456789], "admins": [123456789],
-    "commands": true, "signals": false, "notes": "warn"}
+    "commands": true, "signals": false, "notes": "warn", "capital": {"FTMO": 100000, "*": 50000}}
    ```
 
    `chats` — kam idú správy a odkiaľ sa berú príkazy; `admins` — id používateľov (`message.from.id`),
    ktorí smú ovládať (prázdne = ktokoľvek z `chats`); `signals` — aj zámery vstupu, nielen vyplnenia;
-   `notes` — najnižšia úroveň `note` (`info`/`warn`/`error`/`off`); `label` — predpona správ
+   `notes` — najnižšia úroveň `note` (`info`/`warn`/`error`/`off`); `capital` — kapitál účtu pre percentá
+   v 📈 Výkon (číslo = každý účet, alebo účet či časť jeho mena → číslo, `*` predvolené; viac účtov sa sčíta,
+   bez neho sa % neukážu); `label` — predpona správ
    (predvolene meno agenta). Env `TRADEBOT_TELEGRAM_TOKEN` a `TRADEBOT_TELEGRAM_CHATS` súbor prebijú.
    Agent config preverí raz za minútu — reštart netreba.
 3. Na hube `tester/hub_data/telegram.json` (`HUB_TELEGRAM_CONFIG`, vedľa stavu hubu) v tom istom tvare;
@@ -599,8 +601,9 @@ Analyzeri (`hello.tester`) a udalosti predhistórie (`ready: false`) sa nehlási
 
 ### Príkazy (agent)
 
-Ovláda sa **gombíkmi**: `/start` pridá stálu klávesnicu (📊 Stav, 📋 Ordery, ❓ Pomoc) a agent pri štarte
-nastaví menu „/“ (`setMyCommands`). Správy so stavom sú HTML a ťuknutie ich prepíše na mieste
+Ovláda sa **gombíkmi**, nič netreba písať: `/start` (raz) pridá stálu klávesnicu — 📊 Stav, 📋 Ordery,
+🧾 Obchody, 📈 Výkon, pohľady pluginov hubu (📅 Udalosti …) a ❓ Pomoc — a agent pri štarte nastaví menu „/“
+(`setMyCommands`). Správy so stavom sú HTML a ťuknutie ich prepíše na mieste
 (`editMessageText`), takže chat nezahltia.
 
 - **📊 Stav** (`/status`) — stratégie po platformách a účtoch: režim (▶/⏸/⛔), 🟢 živá (ping alebo udalosť nedávno) /
@@ -616,11 +619,36 @@ nastaví menu „/“ (`setMyCommands`). Správy so stavom sú HTML a ťuknutie 
 - **📋 Ordery** (`/orders`) — otvorené pozície a čakajúce vstupy všetkých stratégií. Je to odhad zo spoolu
   (`entry` → kým nepríde `fill`/`cancel`, `fill in − out`); pozícia prežije nový beh tej istej inštancie
   (reštart terminálu, prekompilovanie NT), zámery nie.
+- **🧾 Obchody** (`/trades`) — posledných 15 orderov z denníka: `✅/❌` uzavretý s P&L ($ a cena vstup → výstup,
+  dôvod výstupu), `🟢` otvorený, `⏳` čakajúci vstup, `🚫` zrušený (s dôvodom, napr. `expired`); gombík na
+  každú stratégiu a Všetky.
+- **📈 Výkon** (`/perf`) — tie isté čísla ako súhrn behu v Testeri: obchody, ✅ výhry / ❌ prehry / ⚪ remízy,
+  winrate, P&L $ a % (s `capital`), profit factor, max drawdown $ a %, najdlhšia séria výhier a prehier,
+  priemerná výhra / prehra, najlepší / najhorší, kapitál začiatok → koniec, výstupy; pri všetkých stratégiách
+  aj riadok na každú. Gombíky Dnes / 7 dní / 30 dní / Všetko, stratégie, **🖼 Graf** (equity krivka po obchodoch
+  ako obrázok, `sendPhoto`; Pillow) a 🧾 Obchody. P&L je **hrubý** — spool poplatky nenesie.
+- **📅 Udalosti** a ďalšie pohľady **pluginov hubu** (docs/HUB.md, „Pluginy“) — agent si ich zoznam pýta
+  z `GET /api/plugins/views` (raz za 5 min, hub dole = posledný známy), text z `GET /api/plugins/<p>/views/<v>`;
+  gombík pod ním obnoví. `/hub` ukáže všetky. Bez hubu povie „hub nedostupný“ — zvyšok Telegramu ide ďalej.
 - Textom ostáva `/pause <č|časť mena|all>`, `/resume <…>`, `/flatten <…>` — zapíše control súbor
   (`by: telegram:<user id>`).
 
 Gombíky nesú v `callback_data` krátky kľúč inštancie (`ikey` = crc32 id, Telegram drží do 64 bajtov):
-`s` stav, `o` ordery, `m:<k>` ponuka, `P:`/`R:<k|*>` pauza / spustenie, `F:<k|*>` otázka, `X:<čas>:<k|*>` flatten.
+`s` stav, `o` ordery, `m:<k>` ponuka, `P:`/`R:<k|*>` pauza / spustenie, `F:<k|*>` otázka, `X:<čas>:<k|*>` flatten,
+`tr:<k|*>` obchody, `pf:<obdobie>:<k|*>` výkon, `gr:<obdobie>:<k|*>` graf (obdobie `d`/`7`/`30`/`a`), `h` pohľady
+hubu, `v:<plugin>:<pohľad>` jeden pohľad.
+
+### Denník obchodov (agent)
+
+`tradebot.live.journal`: vlastný kurzor do spoolu (`LIVE_JOURNAL_CURSOR`, nezávislý od shippera aj od správ),
+raz za 10 s v tom istom vlákne ako Telegram. Udalosti prejdú tým istým `format_event` ako správy (kontext
+inštancie, priemerná cena vstupu, P&L výstupu), len namiesto správy vznikne záznam do `LIVE_JOURNAL`
+(`tester/live/journal.jsonl`, len pribúda): `entry` (zámer, len `ready` — predhistória nie), `cancel` (zrušený
+čakajúci vstup), `in`, `out` (`pts`, `usd`, `exit`, `left` = zvyšok pozície). **Prvý štart prejde celý spool**,
+takže v denníku sú aj staré obchody. Čo už je zapísané, drží `LIVE_JOURNAL_STATE` (`instance|session → seq`);
+pád medzi zápisom a stavom zdvojí riadok v súbore, čítanie ho dá raz. Beh v Testeri sa nezapisuje.
+Obchod pre výkon = jedno id vstupu (čiastočné výstupy sa sčítajú), uzavretý posledným výstupom
+(`tradebot.live.perf`); prehľady pre Telegram skladá `tradebot.live.reports`.
 
 Proti záplave: všetky riadky jedného kola (reštart troch stratégií = 3× `bye` + 3× `hello`) idú v jednej
 správe a chyba nasadenia sa porovnáva bez času pokusu na konci (`(23:09:44 UTC)` — AddOn ho mení pri
@@ -651,6 +679,9 @@ sa / padá N min / visí N min / <problém, ktorý plugin sám hlási>` a `🟢 
   Tester sa nehlási), chyby nasadení, príkazy (cudzí chat/používateľ, `/pause` + prekrytie, `/flatten`
   len s potvrdením a do 2 min, 409), 429 a odstup správ, config/env, prekrytie v agentovi, prevzatie
   na hube; strážca je v `tester/tests/test_hub_plugins.py`.
+- `tester/tests/test_live_journal.py` — záznamy z `format_event` (aj čiastočné výstupy), denník prejde históriu
+  raz a Tester vynechá, nič nezdvojí, výkon ako v Testeri a kapitál po účtoch, 🧾/📈/🖼 (PNG), klávesnica
+  s pohľadmi hubu a hub dole, `sendPhoto` multipart, `capital` v configu, `GET /api/plugins/views`.
 
 - `tester/tests/test_live_update.py` — `CodeUpdater`: brána (obchoduje / pozícia / bez spoolu), `force`,
   pull len keď commit chýba a chyba, keď nepríde, chyby po platformách oddelene, markery, `noop`;

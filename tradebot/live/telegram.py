@@ -16,11 +16,13 @@ príkazy prijíma len agent; pluginy hubu (`tester.hub.plugins`: strážca, kale
 Konfigurácia `TELEGRAM_CONFIG` (gitignored, tajomstvo)::
 
     {"token": "123:ABC", "chats": [123456789], "admins": [123456789],
-     "commands": true, "signals": false, "notes": "warn", "label": "nas-win11"}
+     "commands": true, "signals": false, "notes": "warn", "label": "nas-win11",
+     "capital": {"1514925336": 100000, "*": 50000}}
 
 `chats` = kam ísť správy a odkiaľ sa berú príkazy; `admins` = id používateľov, ktorí smú
 ovládať (prázdne = ktokoľvek z povolených chatov); `signals` = hlásiť aj zámery vstupu
-(nielen vyplnenia); `notes` = najnižšia úroveň `note` (`info`/`warn`/`error`/`off`).
+(nielen vyplnenia); `notes` = najnižšia úroveň `note` (`info`/`warn`/`error`/`off`); `capital` = kapitál
+účtu pre percentá v 📈 Výkon (číslo pre všetky účty, alebo účet / časť jeho mena → číslo, `*` predvolené).
 Env `TRADEBOT_TELEGRAM_TOKEN` a `TRADEBOT_TELEGRAM_CHATS` (čiarkou) prebijú súbor.
 """
 
@@ -70,6 +72,7 @@ class TelegramConfig:
     signals: bool = False
     notes: str = "warn"
     label: str = ""
+    capital: Any = None
 
     def note_wanted(self, level: str) -> bool:
         prah = NOTE_LEVELS.get(self.notes)
@@ -107,12 +110,30 @@ def load_config(path: Path) -> TelegramConfig | None:
         return None
     return TelegramConfig(token=token, chats=chats, admins=_ids(data.get("admins")),
                           commands=bool(data.get("commands", True)), signals=bool(data.get("signals", False)),
-                          notes=str(data.get("notes") or "warn"), label=str(data.get("label") or ""))
+                          notes=str(data.get("notes") or "warn"), label=str(data.get("label") or ""),
+                          capital=data.get("capital"))
 
 
 # --------------------------------------------------------------------------- #
 # Bot API
 # --------------------------------------------------------------------------- #
+
+def _multipart(payload: dict) -> tuple[bytes, str]:
+    """`multipart/form-data` pre `sendPhoto`: bajty = súbor, objekty = JSON, ostatné = text."""
+    hranica = f"tradebot{zlib.crc32(repr(sorted(payload)).encode()) & 0xFFFFFFFF:08x}{int(time.time() * 1000)}"
+    crlf = "\r\n"
+    casti: list[bytes] = []
+    for k, v in payload.items():
+        if isinstance(v, (bytes, bytearray)):
+            hlava = (f"--{hranica}{crlf}Content-Disposition: form-data; name=\"{k}\"; filename=\"{k}.png\"{crlf}"
+                     f"Content-Type: image/png{crlf}{crlf}")
+            casti.append(hlava.encode() + bytes(v) + crlf.encode())
+        else:
+            text = json.dumps(v, ensure_ascii=False) if isinstance(v, (dict, list)) else str(v)
+            hlava = f"--{hranica}{crlf}Content-Disposition: form-data; name=\"{k}\"{crlf}{crlf}"
+            casti.append(hlava.encode() + text.encode("utf-8") + crlf.encode())
+    return b"".join(casti) + f"--{hranica}--{crlf}".encode(), f"multipart/form-data; boundary={hranica}"
+
 
 class TelegramError(Exception):
     def __init__(self, message: str, retry_after: float | None = None) -> None:
@@ -140,8 +161,12 @@ class TelegramBot:
         self._lock = threading.Lock()
 
     def _urlopen(self, method: str, payload: dict, timeout: float) -> dict:
-        req = urllib.request.Request(f"{API}/bot{self.token}/{method}", data=json.dumps(payload).encode("utf-8"),
-                                     headers={"Content-Type": "application/json"}, method="POST")
+        if any(isinstance(v, (bytes, bytearray)) for v in payload.values()):
+            data, ctype = _multipart(payload)
+        else:
+            data, ctype = json.dumps(payload).encode("utf-8"), "application/json"
+        req = urllib.request.Request(f"{API}/bot{self.token}/{method}", data=data,
+                                     headers={"Content-Type": ctype}, method="POST")
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 - pevná https adresa
                 return json.loads(resp.read().decode("utf-8"))
@@ -194,6 +219,20 @@ class TelegramBot:
                         continue
                     raise
         return None
+
+    def send_photo(self, chat_id: int, png: bytes, caption: str = "", buttons: list[list[dict]] | None = None) -> Any:
+        """Obrázok (PNG) s popisom v HTML; ten istý odstup v chate ako `send`."""
+        payload: dict[str, Any] = {"chat_id": chat_id, "photo": bytes(png), "caption": caption[:1024], "parse_mode": "HTML"}
+        if buttons:
+            payload["reply_markup"] = {"inline_keyboard": buttons}
+        with self._lock:
+            cakaj = self._last_send.get(chat_id, -1e9) + self.min_interval - self.clock()
+            if cakaj > 0:
+                self.sleep(cakaj)
+            try:
+                return self.call("sendPhoto", payload, timeout=60.0)
+            finally:
+                self._last_send[chat_id] = self.clock()
 
     def updates(self, offset: int, timeout: int = 3) -> list[dict]:
         return list(self.call("getUpdates", {"offset": offset, "timeout": timeout,
@@ -315,11 +354,16 @@ MAX_ENTRIES = 50
 LIFECYCLE = ("hello", "bye", "control")
 
 
-def format_event(ctx: dict[str, Any], ev: dict[str, Any], cfg: TelegramConfig) -> str | None:
+def format_event(ctx: dict[str, Any], ev: dict[str, Any], cfg: TelegramConfig,
+                 record: Callable[[dict[str, Any]], None] | None = None) -> str | None:
     """Jedna udalosť spoolu → text správy v HTML (alebo None). Mení `ctx` — čakajúce vstupy (`entries`: entry →
     kým nepríde fill alebo cancel), otvorené pozície (`open`: fill in − out, SL/TP aj posuny `modify`) a poslednú
     cenu (`last_c` z baru) —, preto sa volá na každú udalosť v poradí, aj keď z nej správa nebude. Štart,
-    koniec a režim (`LIFECYCLE`) tu správu nedávajú: zbiera ich notifier do súhrnu."""
+    koniec a režim (`LIFECYCLE`) tu správu nedávajú: zbiera ich notifier do súhrnu.
+
+    `record` dostane záznam do denníka obchodov (`tradebot.live.journal`): zámer vstupu (`entry`, len `ready`),
+    zrušenie čakajúceho vstupu (`cancel`), vyplnenie vstupu (`in`) a výstupu (`out`, s P&L z tej istej
+    priemernej ceny ako správa)."""
     k = ev.get("k")
     if k == "bar":
         if isinstance(ev.get("c"), (int, float)):
@@ -339,6 +383,9 @@ def format_event(ctx: dict[str, Any], ev: dict[str, Any], cfg: TelegramConfig) -
         oid = str(ev.get("id"))
         zamery = ctx.setdefault("entries", {})
         if ev.get("a") == "entry":
+            if record is not None and ev.get("ready"):
+                record({"k": "entry", "id": oid, "dir": ev.get("dir") or p.get("dir"), "ot": ev.get("ot"),
+                        "e": p.get("e"), "sl": p.get("sl"), "tp": p.get("tp"), "q": p.get("q"), "r": ev.get("r")})
             zamery[oid] = {"dir": ev.get("dir") or p.get("dir"), "e": p.get("e"), "sl": p.get("sl"), "tp": p.get("tp"),
                            "q": p.get("q"), "ot": ev.get("ot"), "ready": bool(ev.get("ready")), "bt": ev.get("bt")}
             while len(zamery) > MAX_ENTRIES:
@@ -347,7 +394,10 @@ def format_event(ctx: dict[str, Any], ev: dict[str, Any], cfg: TelegramConfig) -
                 return (f"📍 <b>Signál {_side(ev.get('dir') or p.get('dir'))}</b> {_e(ev.get('ot') or '')} "
                         f"@ {_num(p.get('e'))} × {_num(p.get('q'))}\n{lab} · SL {_num(p.get('sl'))} · TP {_num(p.get('tp'))}")
         elif ev.get("a") in ("cancel", "close"):
-            zamery.pop(oid, None)
+            zamer = zamery.pop(oid, None)
+            if record is not None and zamer and zamer.get("ready") and oid not in (ctx.get("open") or {}):
+                record({"k": "cancel", "id": oid, "dir": zamer.get("dir"), "ot": zamer.get("ot"), "e": zamer.get("e"),
+                        "q": zamer.get("q"), "r": ev.get("r") or ev.get("a")})
         elif ev.get("a") == "modify":
             pos = (ctx.get("open") or {}).get(oid)
             for kam in (pos, zamery.get(oid)):
@@ -371,19 +421,28 @@ def format_event(ctx: dict[str, Any], ev: dict[str, Any], cfg: TelegramConfig) -
                 pos["qty"] = spolu
             otvorene[fid] = pos
             zamery.pop(fid, None)
+            if record is not None:
+                record({"k": "in", "id": fid, "dir": pos.get("dir"), "price": price, "qty": qty,
+                        "sl": pos.get("sl"), "tp": pos.get("tp"), "ft": ev.get("ft")})
             return (f"🟢 <b>VSTUP {_side(pos.get('dir'))}</b> × {_num(qty)} @ {_num(price)}\n"
                     f"{lab} · SL {_num(pos.get('sl'))} · TP {_num(pos.get('tp'))}")
         pos = otvorene.get(fid)
         vysledok, ikona = "", "⚪"
+        zaznam: dict[str, Any] = {"k": "out", "id": fid, "dir": (pos or {}).get("dir"), "price": price, "qty": qty,
+                                  "exit": ev.get("exit"), "ft": ev.get("ft"), "entry": (pos or {}).get("price"),
+                                  "pts": None, "usd": None}
         if pos and pos.get("dir") in (1, -1) and isinstance(price, (int, float)) and isinstance(qty, (int, float)):
             body = (price - pos["price"]) * pos["dir"]
             pv = ctx.get("point_value")
             usd = body * qty * pv if isinstance(pv, (int, float)) else None
+            zaznam.update(pts=body, usd=usd, left=max(0.0, pos["qty"] - qty))
             vysledok = f" · <b>{usd:+.2f} $</b> ({body:+.2f} b)" if usd is not None else f" · <b>{body:+.2f} b</b>"
             ikona = "✅" if body > 0 else "❌" if body < 0 else "⚪"
             pos["qty"] = max(0.0, pos["qty"] - qty)
             if pos["qty"] <= 1e-9:
                 otvorene.pop(fid, None)
+        if record is not None:
+            record(zaznam)
         smer = f" {_side(pos.get('dir'))}" if pos else ""
         vystup = f" ({_e(ev.get('exit'))})" if ev.get("exit") else ""
         return f"{ikona} <b>VÝSTUP{smer}</b> × {_num(qty)} @ {_num(price)}{vysledok}\n{lab}{vystup}"
@@ -459,6 +518,8 @@ class LiveNotifier:
         self.sent_total = 0
         self._silent = False
         self.state.data.setdefault("life", {})
+        #: `(batch, ctx, ev) -> callback | None` — denník obchodov (`JournalBuilder`); notifier ho nemá
+        self._recorder: Callable[[Any, dict[str, Any], dict[str, Any]], Any] | None = None
 
     def _skip_history(self) -> None:
         """História sa prehrá bez odosielania — zámery vstupov a otvorené pozície (P&L výstupu, ktorý príde
@@ -550,7 +611,8 @@ class LiveNotifier:
                     self._life(batch.instance, ctx, ev)
                 out.append((seq, ""))
                 continue
-            out.append((seq, format_event(ctx, ev, self.cfg) or ""))
+            rec = self._recorder(batch, ctx, ev) if self._recorder is not None else None
+            out.append((seq, format_event(ctx, ev, self.cfg, rec) or ""))
         return out
 
     def life_summary(self, force: bool = False) -> str | None:
@@ -722,14 +784,24 @@ class ControlFiles:
 
 HELP = ("Ovládanie gombíkmi pod správou alebo v klávesnici dole:\n"
         "📊 Stav — stratégie po platformách, ťuknutím na stratégiu pauza / spustenie / flatten\n"
-        "📋 Ordery — otvorené pozície a čakajúce vstupy\n\n"
-        "Aj ako príkazy: /status, /orders, /pause <č|časť mena|all>, /resume <…>, /flatten <…> (s potvrdením)")
+        "📋 Ordery — otvorené pozície a čakajúce vstupy\n"
+        "🧾 Obchody — posledné ordery: uzavreté s P&L, otvorené, čakajúce, zrušené\n"
+        "📈 Výkon — winrate, P&L, profit factor, drawdown po obdobiach a stratégiách, 🖼 graf equity\n"
+        "📅 Udalosti a ďalšie — pohľady z hubu (keď je hub dostupný)\n\n"
+        "Aj ako príkazy: /status, /orders, /trades, /perf, /hub, /pause <č|časť mena|all>, /resume <…>, "
+        "/flatten <…> (s potvrdením)")
 
-#: Stála klávesnica pod poľom na písanie; text gombíka = príkaz.
-MENU = [["📊 Stav", "📋 Ordery"], ["❓ Pomoc"]]
-MENU_TEXT = {"📊 Stav": "/status", "📋 Ordery": "/orders", "❓ Pomoc": "/help"}
+#: Stála klávesnica pod poľom na písanie; text gombíka = príkaz. Pohľady pluginov hubu (📅 Udalosti …)
+#: pribudnú do predposledného riadku (`TelegramCommands.menu`).
+MENU = [["📊 Stav", "📋 Ordery"], ["🧾 Obchody", "📈 Výkon"], ["❓ Pomoc"]]
+MENU_TEXT = {"📊 Stav": "/status", "📋 Ordery": "/orders", "🧾 Obchody": "/trades", "📈 Výkon": "/perf",
+             "❓ Pomoc": "/help"}
+#: Pohľady pluginov hubu sa pýtajú znova najskôr po toľkých sekundách (hub dole = posledné známe).
+HUB_VIEWS_SECONDS = 300.0
 #: Menu „/“ (setMyCommands).
 BOT_COMMANDS = [("status", "stav stratégií s gombíkmi"), ("orders", "otvorené pozície a čakajúce vstupy"),
+                ("trades", "posledné obchody a ordery"), ("perf", "výkon stratégií a graf equity"),
+                ("hub", "pohľady z hubu (udalosti …)"),
                 ("pause", "pauza: /pause <č|meno|all>"), ("resume", "obchodovať: /resume <č|meno|all>"),
                 ("flatten", "zavrieť pozície: /flatten <č|meno|all>"), ("help", "pomoc")]
 MODE_ICON = {"enabled": "▶", "paused": "⏸", "flatten": "⛔"}
@@ -793,17 +865,108 @@ class TelegramCommands:
 
     Gombíky (`callback_data`): `s` stav, `o` ordery, `m:<kľúč>` ponuka stratégie, `P:`/`R:<kľúč|*>` pauza /
     spustenie, `F:<kľúč|*>` otázka na flatten, `X:<čas>:<kľúč|*>` potvrdený flatten (`*` = všetky),
-    `A:1`/`A:0` auto-obnova stavu (každých `AUTO_SECONDS`, pripnutá; v chate najviac jedna)."""
+    `A:1`/`A:0` auto-obnova stavu (každých `AUTO_SECONDS`, pripnutá; v chate najviac jedna),
+    `tr:` / `pf:` / `gr:` obchody, výkon a graf z denníka (`tradebot.live.reports`), `h` pohľady hubu,
+    `v:<plugin>:<pohľad>` jeden pohľad pluginu hubu.
+
+    `journal` = denník obchodov (`TradeJournal`, bez neho 🧾/📈 povedia, že nie je); `hub` = objekt
+    s `views() -> [{plugin, view, label}]` a `view(plugin, view) -> HTML` (bez hubu None)."""
 
     def __init__(self, bot: TelegramBot, cfg: TelegramConfig, state: TelegramState, controls: ControlFiles,
-                 *, clock: Callable[[], float] = time.time, on_change: Callable[[], None] | None = None) -> None:
+                 *, clock: Callable[[], float] = time.time, on_change: Callable[[], None] | None = None,
+                 journal: Any = None, hub: Any = None) -> None:
         self.bot = bot
         self.cfg = cfg
         self.state = state
         self.controls = controls
         self.clock = clock
         self.on_change = on_change
+        self.journal = journal
+        self.hub = hub
         self.disabled: str | None = None
+        self._hub_views: list[dict[str, str]] = []
+        self._hub_views_at: float | None = None
+
+    # -- hub a klávesnica --------------------------------------------------- #
+
+    def hub_views(self) -> list[dict[str, str]]:
+        """Pohľady pluginov hubu (najviac raz za `HUB_VIEWS_SECONDS`; hub dole = posledné známe)."""
+        if self.hub is None:
+            return []
+        now = self.clock()
+        if self._hub_views_at is None or now - self._hub_views_at >= HUB_VIEWS_SECONDS:
+            self._hub_views_at = now
+            try:
+                self._hub_views = [v for v in (self.hub.views() or []) if v.get("plugin") and v.get("view")]
+            except Exception as exc:  # noqa: BLE001 - hub dole
+                log.debug("telegram: pohľady hubu: %s", exc)
+        return self._hub_views
+
+    def menu(self) -> list[list[str]]:
+        rows = [list(r) for r in MENU]
+        labels = [v["label"] for v in self.hub_views()][:4]
+        if labels:
+            rows[-1] = labels + rows[-1]
+        return rows
+
+    def _menu_text(self, text: str) -> str:
+        if text in MENU_TEXT:
+            return MENU_TEXT[text]
+        for v in self._hub_views:
+            if text == v["label"]:
+                return f"/view {v['plugin']}:{v['view']}"
+        return text
+
+    def hub_list_view(self) -> tuple[str, list[list[dict]]]:
+        views = self.hub_views()
+        if self.hub is None:
+            return "Tento agent nie je pripojený k hubu.", []
+        if not views:
+            return "Hub teraz nič neponúka (alebo je nedostupný).", [[{"text": "🔄 Obnoviť", "callback_data": "h"}]]
+        gomb = [{"text": v["label"][:40], "callback_data": f"v:{v['plugin']}:{v['view']}"[:64]} for v in views]
+        return "<b>🧩 Z hubu</b>", [gomb[j:j + 2] for j in range(0, len(gomb), 2)]
+
+    def plugin_view(self, plugin: str, view: str) -> tuple[str, list[list[dict]]]:
+        spat = [[{"text": "🔄 Obnoviť", "callback_data": f"v:{plugin}:{view}"[:64]}, {"text": "🧩 Hub", "callback_data": "h"}]]
+        if self.hub is None:
+            return "Tento agent nie je pripojený k hubu.", []
+        try:
+            text = str(self.hub.view(plugin, view) or "")
+        except Exception as exc:  # noqa: BLE001
+            return f"Hub nedostupný: {_e(type(exc).__name__)} {_e(str(exc)[:200])}", spat
+        return text[:MAX_TEXT] or "(prázdne)", spat
+
+    # -- denník -------------------------------------------------------------- #
+
+    def _records(self) -> list[dict[str, Any]]:
+        return self.journal.read() if self.journal is not None else []
+
+    def trades_view(self, kluc: str = "*") -> tuple[str, list[list[dict]]]:
+        from .reports import trades_view
+
+        if self.journal is None:
+            return "Denník obchodov tu nebeží.", []
+        return trades_view(self._records(), kluc or "*", ikey)
+
+    def perf_view(self, period: str = "30", kluc: str = "*") -> tuple[str, list[list[dict]]]:
+        from .reports import perf_view
+
+        if self.journal is None:
+            return "Denník obchodov tu nebeží.", []
+        return perf_view(self._records(), period, kluc or "*", self.cfg.capital, ikey, self.clock())
+
+    def send_chart(self, chat: Any, period: str, kluc: str) -> str:
+        """Pošle graf equity ako obrázok; vráti oznam pre gombík."""
+        from .reports import perf_chart
+
+        if self.journal is None:
+            return "Denník obchodov tu nebeží."
+        png, popis = perf_chart(self._records(), period, kluc or "*", self.cfg.capital, ikey, self.clock())
+        if png is None:
+            self.bot.send(chat, popis + "\n\n(graf nie je — žiadny obchod v období alebo chýba Pillow)", html=True)
+            return "graf nie je"
+        self.bot.send_photo(chat, png, popis, [[{"text": "📈 Výkon", "callback_data": f"pf:{period}:{kluc}"}]])
+        return "graf odoslaný"
 
     def _allowed(self, chat: Any, user: Any) -> bool:
         return chat in self.cfg.chats and (not self.cfg.admins or user in self.cfg.admins)
@@ -838,7 +1001,7 @@ class TelegramCommands:
         msg = u.get("message") or {}
         chat, user = (msg.get("chat") or {}).get("id"), (msg.get("from") or {}).get("id")
         text = str(msg.get("text") or "").strip()
-        text = MENU_TEXT.get(text, text)
+        text = self._menu_text(text)
         if not text.startswith("/"):
             return
         if not self._allowed(chat, user):
@@ -847,7 +1010,20 @@ class TelegramCommands:
         cmd, _, arg = text.partition(" ")
         cmd = cmd.split("@", 1)[0].lower()
         if cmd in ("/start", "/help"):
-            self.bot.send(chat, HELP, keyboard=MENU)
+            self.bot.send(chat, HELP, keyboard=self.menu())
+        elif cmd == "/trades":
+            t, b = self.trades_view()
+            self.bot.send(chat, t, b, html=True)
+        elif cmd == "/perf":
+            t, b = self.perf_view()
+            self.bot.send(chat, t, b, html=True)
+        elif cmd == "/hub":
+            t, b = self.hub_list_view()
+            self.bot.send(chat, t, b, html=True)
+        elif cmd == "/view":
+            plugin, _, view = arg.strip().partition(":")
+            t, b = self.plugin_view(plugin, view)
+            self.bot.send(chat, t, b, html=True)
         elif cmd == "/status":
             t, b = self.status_view()
             self.bot.send(chat, t, b, html=True)
@@ -864,7 +1040,7 @@ class TelegramCommands:
             t, b = self.flatten_view("*" if arg.strip().lower() == "all" else ikey(ciel[0]["instance"]), ciel)
             self.bot.send(chat, t, b, html=True)
         else:
-            self.bot.send(chat, f"Neznámy príkaz {cmd}.\n\n{HELP}", keyboard=MENU)
+            self.bot.send(chat, f"Neznámy príkaz {cmd}.\n\n{HELP}", keyboard=self.menu())
 
     def _callback(self, q: dict[str, Any]) -> None:
         msg = q.get("message") or {}
@@ -887,11 +1063,25 @@ class TelegramCommands:
             if mid is not None:
                 self.bot.edit(chat, mid, t, b, html=True)
             return
-        if auto and (akcia in ("o", "m", "F") or (akcia in ("P", "R") and kluc != "*")):
+        if auto and (akcia in ("o", "m", "F", "tr", "pf", "h", "v") or (akcia in ("P", "R") and kluc != "*")):
             self._set_auto(chat, mid, False)   # správa odchádza zo stavu — auto-obnova by ju prepísala späť
             auto = False
+        if akcia == "gr":
+            obdobie, _, ciel = kluc.partition(":")
+            self.bot.answer(q.get("id", ""), self.send_chart(chat, obdobie, ciel))
+            return
         if akcia == "o":
             t, b = self.orders_view()
+        elif akcia == "tr":
+            t, b = self.trades_view(kluc)
+        elif akcia == "pf":
+            obdobie, _, ciel = kluc.partition(":")
+            t, b = self.perf_view(obdobie, ciel)
+        elif akcia == "h":
+            t, b = self.hub_list_view()
+        elif akcia == "v":
+            plugin, _, view = kluc.partition(":")
+            t, b = self.plugin_view(plugin, view)
         elif akcia == "m":
             t, b = self.instance_view(kluc)
         elif akcia in ("P", "R"):
@@ -1123,6 +1313,8 @@ class TelegramCommands:
 #: Ako často sa znova hľadajú korene spoolu a pozrú chyby nasadení.
 ROOTS_RECHECK_SECONDS = 60.0
 ISSUES_SECONDS = 30.0
+#: Ako často sa denník obchodov dopĺňa zo spoolu.
+JOURNAL_SECONDS = 10.0
 
 
 class TelegramService:
@@ -1134,7 +1326,10 @@ class TelegramService:
     def __init__(self, cfg: TelegramConfig, state_path: Path, cursor_path: Path, *,
                  roots: Callable[[], list[Path]], issues: Callable[[], dict[str, tuple[str, str]]] | None = None,
                  on_change: Callable[[], None] | None = None, bot: TelegramBot | None = None,
-                 clock: Callable[[], float] = time.time, sleep: Callable[[float], None] = time.sleep) -> None:
+                 clock: Callable[[], float] = time.time, sleep: Callable[[float], None] = time.sleep,
+                 journal_paths: tuple[Path, Path, Path] | None = None, hub: Any = None) -> None:
+        """`journal_paths` = (denník, jeho stav, jeho kurzor) — bez nich 🧾 Obchody a 📈 Výkon nebežia;
+        `hub` = pohľady pluginov hubu (`TelegramCommands`)."""
         self.cfg = cfg
         self.bot = bot or TelegramBot(cfg.token)
         self.state = TelegramState(state_path)
@@ -1148,7 +1343,16 @@ class TelegramService:
         self._issues_at: float | None = None
         self.notifier: LiveNotifier | None = None
         self.controls = ControlFiles(self.roots)
-        self.commands = (TelegramCommands(self.bot, cfg, self.state, self.controls, clock=clock, on_change=on_change)
+        self.journal_paths = journal_paths
+        self.journal = None
+        self.journal_builder: Any = None
+        self._journal_at: float | None = None
+        if journal_paths is not None:
+            from .journal import TradeJournal
+
+            self.journal = TradeJournal(journal_paths[0])
+        self.commands = (TelegramCommands(self.bot, cfg, self.state, self.controls, clock=clock, on_change=on_change,
+                                          journal=self.journal, hub=hub)
                          if cfg.commands else None)
         self._menu_set = False
 
@@ -1174,7 +1378,30 @@ class TelegramService:
                                          clock=self.clock)
         return self.notifier
 
+    def _pump_journal(self) -> None:
+        """Denník obchodov zo spoolu (raz za `JOURNAL_SECONDS`, vlastný kurzor)."""
+        if self.journal is None or self.journal_paths is None:
+            return
+        now = self.clock()
+        if self._journal_at is not None and now - self._journal_at < JOURNAL_SECONDS:
+            return
+        self._journal_at = now
+        roots = self.roots()
+        if not roots:
+            return
+        if self.journal_builder is None or [str(r) for r in self.journal_builder.reader.roots] != [str(r) for r in roots]:
+            from .journal import JournalBuilder
+            from .spool import SpoolReader
+
+            self.journal_builder = JournalBuilder(SpoolReader(roots, self.journal_paths[2]), self.journal,
+                                                  self.journal_paths[1], clock=self.clock)
+        try:
+            self.journal_builder.pump()
+        except Exception as exc:  # noqa: BLE001 - denník nesmie zastaviť správy
+            log.warning("telegram: denník obchodov: %s: %s", type(exc).__name__, exc)
+
     def tick(self, wait: float = 3.0) -> None:
+        self._pump_journal()
         n = self._notifier()
         if n is not None:
             r = n.pump()

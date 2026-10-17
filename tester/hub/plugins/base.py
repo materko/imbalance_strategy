@@ -165,6 +165,15 @@ class HubPlugin:
         """Čo ukázať v `hub plugins`; `problem` (text) = strážca ho ohlási, `None` = v poriadku."""
         return {}
 
+    def views(self) -> dict[str, str]:
+        """Pohľady pre Telegram agenta: meno → text gombíka (napr. `{"upcoming": "📅 Udalosti"}`). Agent si gombíky
+        poskladá z `GET /api/plugins/views`, takže ani on plugin nepozná menom."""
+        return {}
+
+    def view(self, name: str) -> str:
+        """Pohľad ako HTML pre Telegram (`<b>`, `<i>`, `<code>`; volajúci escapuje). Neznámy = `KeyError`."""
+        raise KeyError(name)
+
     def teardown(self) -> None:
         pass
 

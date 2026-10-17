@@ -160,6 +160,27 @@ class PluginHost:
             })
         return out
 
+    def views(self) -> list[dict[str, str]]:
+        """Pohľady zapnutých pluginov pre Telegram: `[{plugin, view, label}]`."""
+        out = []
+        for name, s in self.slots.items():
+            if s.plugin is None or not self.enabled(name):
+                continue
+            try:
+                ponuka = dict(s.plugin.views() or {})
+            except Exception as exc:  # noqa: BLE001
+                log.warning("plugin %s views: %s", name, exc)
+                continue
+            out += [{"plugin": name, "view": v, "label": str(label)} for v, label in ponuka.items()]
+        return out
+
+    def view(self, plugin: str, name: str) -> str:
+        """Text pohľadu; neznámy plugin či pohľad = `KeyError`."""
+        s = self.slots.get(plugin)
+        if s is None or s.plugin is None or not self.enabled(plugin) or name not in (s.plugin.views() or {}):
+            raise KeyError(f"{plugin}/{name}")
+        return str(s.plugin.view(name))
+
     def get(self, name: str) -> HubPlugin | None:
         s = self.slots.get(name)
         return s.plugin if s else None

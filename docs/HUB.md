@@ -477,7 +477,9 @@ sekúnd; výnimka hub nezhodí, zapíše sa do stavu (`errors`, `error_since`, `
 | `ctx.plugins()` | stav všetkých pluginov (pre strážcu) |
 
 Voliteľne `status()` (čo ukázať; kľúč `problem` = text pre strážcu), `cli(argv)` (príkaz na stroji
-hubu), `teardown()`, `max_tick` (dlhší tick = visí), `default_enabled`.
+hubu), `views()` + `view(meno)` (pohľady pre Telegram agenta: meno → text gombíka a HTML pohľadu —
+agent ich ukáže v klávesnici, docs/LIVE.md, „Príkazy (agent)“), `teardown()`, `max_tick` (dlhší tick = visí),
+`default_enabled`.
 
 ```bash
 python -m tester.hub plugins            # stav bežiaceho hubu cez API (GET /api/plugins)
@@ -514,6 +516,9 @@ takže reštart hubu nič nezopakuje; keď hub v čase upozornenia nebežal, pr�
 („o 7 min“), kým udalosť nenastala. Bez úspešného stiahnutia 26 h, alebo keď export 12 h po začiatku
 týždňa stále nemá nový, hlási plugin `problem` a `watchdog` ho pošle do Telegramu.
 
+V Telegrame je gombík **📅 Udalosti** (pohľad `upcoming`): sledované udalosti zvyšku týždňa po dňoch
+v čase `tz`, s prognózou a ✓ pri tých, ku ktorým už upozornenie odišlo.
+
 `python -m tester.hub plugin ff_calendar` vypíše sledované udalosti týždňa v čase hubu a kedy k nim
 príde upozornenie; `--fetch` stiahne export hneď, `--test` pošle najbližšiu udalosť do Telegramu.
 
@@ -540,6 +545,7 @@ Všetko pod `/api/`, s tokenom; `/api/health` bez neho.
 | `POST /api/jobs/{id}/ack` | zadávateľ | výsledok mám, zip zmaž |
 | `GET /api/status`, `GET /api/agents` | ktokoľvek | prehľad |
 | `GET /api/plugins` | ktokoľvek | pluginy hubu a ich stav (vyššie) |
+| `GET /api/plugins/views`, `GET /api/plugins/{name}/views/{view}` | ktokoľvek | pohľady pluginov pre Telegram agenta (`[{plugin, view, label}]`, `{text}`) |
 | `POST /api/live/events` | agent | dávky udalostí zo spoolu bežiacich stratégií (`{"agent", "batches": [{instance, session, events}]}` → `{"accepted"}`) |
 | `GET /api/live/instances[/{id}]`, `…/{id}/events`, `…/{id}/snapshot`, `GET /api/live/export` | ktokoľvek | live telemetria (nižšie) |
 | `GET /api/live/accounts[/{id}]`, `GET /api/live/deployments[/{id}]`, `GET /api/live/audit?limit=` | ktokoľvek | požadovaný stav live nasadení (nižšie) |

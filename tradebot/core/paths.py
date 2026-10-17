@@ -53,7 +53,8 @@ __all__ = [
     "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE",
     "HUB_LIVE_DB", "LIVE_DIR", "LIVE_CURSOR", "LIVE_CURSOR_WEBAPP", "LIVE_MIRROR", "LIVE_MIRROR_CURSOR",
     "LIVE_SECRETS", "LIVE_APPLY_STATE", "LIVE_MT5_DIR",
-    "TELEGRAM_CONFIG", "TELEGRAM_STATE", "TELEGRAM_CURSOR", "HUB_TELEGRAM_CONFIG", "HUB_TELEGRAM_STATE",
+    "TELEGRAM_CONFIG", "TELEGRAM_STATE", "TELEGRAM_CURSOR", "LIVE_JOURNAL", "LIVE_JOURNAL_STATE",
+    "LIVE_JOURNAL_CURSOR", "HUB_TELEGRAM_CONFIG", "HUB_TELEGRAM_STATE",
     "HUB_PLUGINS_DIR",
     "DOCS_DIR", "MERANIA_DIR",
     "ARCHIVE_ROOTS",
@@ -179,6 +180,13 @@ TELEGRAM_CONFIG = LIVE_DIR / "telegram.json"
 TELEGRAM_STATE = LIVE_DIR / "telegram_state.json"
 #: Kurzor Telegramu do spoolu (súbor → offset), nezávislý od kurzora shippera na hub.
 TELEGRAM_CURSOR = LIVE_DIR / "telegram_cursor.json"
+#: Denník obchodov agenta (`tradebot.live.journal`): zámery vstupov, vyplnenia, zrušenia a výstupy s P&L
+#: zo spoolu — pre 🧾 Obchody a 📈 Výkon v Telegrame. JSONL, len pribúda.
+LIVE_JOURNAL = LIVE_DIR / "journal.jsonl"
+#: Kontext inštancií a posledné zapísané `seq` denníka (aby výpadok nič nezdvojil).
+LIVE_JOURNAL_STATE = LIVE_DIR / "journal_state.json"
+#: Kurzor denníka do spoolu, nezávislý od shippera aj od správ Telegramu.
+LIVE_JOURNAL_CURSOR = LIVE_DIR / "journal_cursor.json"
 #: Telegram na hube (pre všetky pluginy hubu) — vedľa stavu hubu, gitignored; ten istý tvar ako na agentovi.
 HUB_TELEGRAM_CONFIG = HUB_DIR / "telegram.json"
 #: Starý stav strážcu hubu (agent offline/online); prvý štart pluginu `watchdog` ho prevezme.

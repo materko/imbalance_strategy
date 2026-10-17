@@ -304,6 +304,12 @@ class HubClient:
     def plugins(self) -> list[dict[str, Any]]:
         return self.http.get("/api/plugins")
 
+    def plugin_views(self) -> list[dict[str, str]]:
+        return self.http.get("/api/plugins/views")
+
+    def plugin_view(self, plugin: str, view: str) -> str:
+        return str(self.http.get(f"/api/plugins/{plugin}/views/{view}").get("text") or "")
+
     def tokens(self) -> list[dict[str, Any]]:
         return self.http.get("/api/tokens")
 

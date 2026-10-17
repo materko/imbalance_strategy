@@ -85,8 +85,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
-from tradebot.core.paths import (AGENT_CONFIG, LIVE_APPLY_STATE, LIVE_CURSOR, TELEGRAM_CONFIG, TELEGRAM_CURSOR,
-                                 TELEGRAM_STATE)
+from tradebot.core.paths import (AGENT_CONFIG, LIVE_APPLY_STATE, LIVE_CURSOR, LIVE_JOURNAL, LIVE_JOURNAL_CURSOR,
+                                 LIVE_JOURNAL_STATE, TELEGRAM_CONFIG, TELEGRAM_CURSOR, TELEGRAM_STATE)
 
 from . import config as agent_config
 from . import gitcode
@@ -132,6 +132,20 @@ TELEGRAM_RECHECK_SECONDS = 60.0
 #: Nový kód na stroji (fáza 2c): ako často sa blokovaný / chybný cieľ skúša znova.
 CODE_RETRY_BLOCKED = 60.0
 CODE_RETRY_ERROR = 300.0
+
+
+class TelegramHubViews:
+    """Pohľady pluginov hubu pre Telegram agenta (📅 Udalosti …) — vlastné spojenie s krátkym timeoutom,
+    aby čakanie na hub nebrzdilo heartbeat ani long-poll príkazov."""
+
+    def __init__(self, hub_url: str, token: str) -> None:
+        self.http = HubHttp(hub_url, token, timeout=10.0)
+
+    def views(self) -> list[dict[str, str]]:
+        return list(self.http.get("/api/plugins/views") or [])
+
+    def view(self, plugin: str, view: str) -> str:
+        return str((self.http.get(f"/api/plugins/{_q(plugin)}/views/{_q(view)}") or {}).get("text") or "")
 
 
 def _parse_iso(text: str | None) -> float | None:
@@ -329,8 +343,11 @@ class HubAgent:
             return None
         if not cfg.label:
             cfg.label = self.cfg.name
+        hub = TelegramHubViews(self.cfg.hub_url, self.cfg.token) if self.cfg.hub_url else None
         self._telegram = TelegramService(cfg, TELEGRAM_STATE, TELEGRAM_CURSOR, roots=default_roots,
-                                         issues=self._telegram_issues, on_change=self._telegram_changed)
+                                         issues=self._telegram_issues, on_change=self._telegram_changed,
+                                         journal_paths=(LIVE_JOURNAL, LIVE_JOURNAL_STATE, LIVE_JOURNAL_CURSOR),
+                                         hub=hub)
         log.info("hub agent: telegram zapnutý (%d chat(y), príkazy %s)", len(cfg.chats),
                  "áno" if cfg.commands else "nie")
         return self._telegram

@@ -345,6 +345,22 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
         host = state.plugins
         return host.status() if host is not None else []
 
+    @app.get("/api/plugins/views")
+    def plugin_views(who: str = Depends(auth)):
+        """Pohľady pluginov pre Telegram agenta (`[{plugin, view, label}]`)."""
+        host = state.plugins
+        return host.views() if host is not None else []
+
+    @app.get("/api/plugins/{name}/views/{view}")
+    def plugin_view(name: str, view: str, who: str = Depends(auth)):
+        host = state.plugins
+        if host is None:
+            raise HTTPException(404, "hub nemá pluginy")
+        try:
+            return {"text": host.view(name, view)}
+        except KeyError:
+            raise HTTPException(404, f"pohľad {name}/{view} nepoznám") from None
+
     # -- live telemetria (docs/LIVE.md) --------------------------------------- #
 
     add_live_routes(app, state, live_store, auth, own)

@@ -12,6 +12,7 @@ týždeň plugin hlási ako `problem` a strážca (`watchdog`) ho pošle do Tele
 from __future__ import annotations
 
 import argparse
+import html
 import sys
 import urllib.error
 from datetime import datetime, timedelta
@@ -176,6 +177,40 @@ class FFCalendar(HubPlugin):
                                    for o in self.cfg.remind_min],
                         "sent": self.sent.get(alerts.event_key(e), [])})
         return out
+
+    # -- Telegram -------------------------------------------------------------
+    def views(self) -> dict[str, str]:
+        return {"upcoming": "📅 Udalosti"}
+
+    def view(self, name: str) -> str:
+        if name != "upcoming":
+            raise KeyError(name)
+        self.config()
+        now = self.ctx.clock()
+        c = self.cfg
+        hlava = (f"<b>📅 {'Červené správy' if [i.lower() for i in c.impact] == ['high'] else '/'.join(c.impact)}</b>"
+                 f" · {html.escape(','.join(c.currencies) or 'všetky meny')} · čas {html.escape(c.tz)}")
+        rows = self.upcoming(now)
+        riadky, den = [hlava], None
+        z = c.zone()
+        for e in rows[:40]:
+            d = datetime.fromtimestamp(e["ts"], z)
+            if d.date() != den:
+                den = d.date()
+                riadky.append(f"\n<b>{alerts.DNI[d.weekday()]} {d.day}. {d.month}.</b>")
+            cisla = " · ".join(f"{n} {html.escape(e[k])}" for n, k in (("progn.", "forecast"), ("pred.", "previous"))
+                               if e[k])
+            riadky.append(f"{d.strftime('%H:%M')} <b>{html.escape(e['country'])}</b> {html.escape(e['title'])}"
+                          + (f" · {cisla}" if cisla else "") + (" ✓" if e["sent"] else ""))
+        if len(rows) > 40:
+            riadky.append(f"… a ďalších {len(rows) - 40}")
+        if not rows:
+            riadky.append("\nTento týždeň už nič sledované.")
+        poz = ", ".join(f"{m:g}" for m in c.remind_min)
+        riadky.append(f"\n<i>Upozornenie {poz} min pred · ✓ = už odišlo</i>")
+        if p := self.problem(now):
+            riadky.append(f"⚠️ {html.escape(p)}")
+        return "\n".join(riadky)
 
     # -- príkaz ---------------------------------------------------------------
     def cli(self, argv: list[str]) -> int:
