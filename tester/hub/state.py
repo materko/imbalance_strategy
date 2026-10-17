@@ -17,7 +17,8 @@ from tradebot.live.deploy import code_state
 
 from . import gitcode
 from . import protocol as P
-from .config import DEFAULT_HEARTBEAT
+from .config import DEFAULT_HEARTBEAT, ROLE_COMPUTE, ROLE_LIVE
+from .config import normalize_role as _role
 from .events import EVENTS_KEEP, EventsMixin, _iso
 from .tokens import ADMIN, TokensMixin
 
@@ -28,6 +29,8 @@ DEFAULT_AGENT_TIMEOUT = 45.0
 KEEP_FINISHED = 300
 #: Koľkokrát sa výpočet skúsi znova, keď agent zmizne uprostred behu.
 MAX_ATTEMPTS = 2
+#: Ako dlho platí zoznam strojov s live nasadením (dotaz do live DB pri každom pridelení netreba).
+LIVE_CACHE_SECONDS = 5.0
 
 
 class NoCapacity(Exception):
@@ -75,6 +78,7 @@ class HubState(TokensMixin, EventsMixin):
         #: Požadovaný stav live nasadení (`tradebot.live.deploy.DeployStore`) — nastaví
         #: `create_hub_app`; bez neho heartbeat `live` len uloží, čo agent hlási.
         self.deploy: Any = None
+        self._live_cache: tuple[float, set[str]] | None = None
         self._load()
         self._load_tokens()
         self._load_events()
@@ -111,7 +115,7 @@ class HubState(TokensMixin, EventsMixin):
     # -- agenti ------------------------------------------------------------- #
 
     def register(self, name: str, *, instance: str, cores: int, slots: int, accept: bool,
-                 send: bool = True, version: str = "") -> dict[str, Any]:
+                 send: bool = True, version: str = "", role: str = "", kind: str = "") -> dict[str, Any]:
         name = (name or "").strip()
         if not name:
             raise ValueError("agent musí mať meno")
@@ -125,12 +129,15 @@ class HubState(TokensMixin, EventsMixin):
                 **(stary or {}),
                 "name": name, "instance": instance, "cores": int(cores), "slots": int(slots),
                 "accept": bool(accept), "send": bool(send), "version": version,
+                "role": _role(role), "kind": str(kind or ""),
                 "registered": _iso(now), "last_seen": now, "online": True,
                 "load": (stary or {}).get("load") or {},
             }
             self.agents[name] = agent
+            self._enforce_role(agent)
             self.log("agent_online", agent=name, version=version, cores=int(cores), slots=int(slots),
-                     accept=bool(accept), how="register")
+                     accept=bool(agent["accept"]), role=self._role_of(agent), kind=agent["kind"] or None,
+                     how="register")
             self._dispatch()
             self._save()
             return self._agent_public(agent)
@@ -148,9 +155,11 @@ class HubState(TokensMixin, EventsMixin):
             agent["last_seen"] = now
             agent["online"] = True
             agent.pop("bye_at", None)
-            for k in ("accept", "send", "cores", "slots", "version", "needs_restart", "updating"):
+            for k in ("accept", "send", "cores", "slots", "version", "needs_restart", "updating", "kind"):
                 if k in body and body[k] is not None:
                     agent[k] = body[k]
+            if body.get("role") is not None:
+                agent["role"] = _role(body["role"])
             agent["load"] = dict(body.get("load") or {})
             if body.get("instance"):
                 agent["instance"] = body["instance"]
@@ -159,14 +168,28 @@ class HubState(TokensMixin, EventsMixin):
             zive = body.get("live")
             if isinstance(zive, dict):
                 self._live_report(name, agent, zive)
+            # Obchodný stroj nepočíta: keď hlási `accept` (starý agent, rola bez configu),
+            # hub ho vypne u seba aj na stroji (`set_accept: false` sa zapíše do jeho configu).
+            vypnut = self._enforce_role(agent)
             # Prepnutie `accept` z hubu: agent dostane pokyn, kým nehlási to isté.
             ziadane = agent.get("accept_request")
             if ziadane is not None and bool(agent.get("accept")) == bool(ziadane):
                 agent.pop("accept_request", None)
                 ziadane = None
+            if vypnut:
+                agent.pop("accept_request", None)
+                ziadane = False
 
             hlasene = {j.get("id"): j for j in (body.get("jobs") or []) if j.get("id")}
             self._readopt(name, hlasene, now)
+            if not agent.get("accept"):
+                # Pridelený a nevzatý výpočet agenta, ktorý neprijíma (vypnul to, alebo je
+                # obchodný), by čakal navždy — späť do fronty, nech ho vezme iný.
+                for job in self._agent_jobs(name):
+                    if job["status"] == "assigned" and job["id"] not in hlasene:
+                        job.update({"status": "queued", "agent": None, "missed": 0})
+                        self.log("job_requeued", job=job["id"], agent=name,
+                                 reason=f"agent {name} výpočty neprijíma")
             for job in self._agent_jobs(name):
                 r = hlasene.get(job["id"])
                 if r is None:
@@ -275,11 +298,15 @@ class HubState(TokensMixin, EventsMixin):
 
     def request_accept(self, name: str, value: bool) -> dict[str, Any]:
         """Správca hubu zapne alebo vypne prijímanie výpočtov na agentovi — agent si to
-        prevezme v najbližšom heartbeate a zapíše do svojho configu."""
+        prevezme v najbližšom heartbeate a zapíše do svojho configu. Obchodnému stroju
+        (rola `live`) sa zapnúť nedá (`ValueError`)."""
         with self._lock:
             agent = self.agents.get(name)
             if agent is None:
                 raise KeyError(name)
+            if value and self._role_of(agent) == ROLE_LIVE:
+                raise ValueError(f"agent {name!r} je obchodný stroj ({self._live_reason(agent)}) "
+                                 "a výpočty neprijíma — počíta webapp alebo headless agent s rolou compute")
             agent["accept_request"] = bool(value)
             self.log("accept_request", agent=name, accept=bool(value))
             self._save()
@@ -362,6 +389,7 @@ class HubState(TokensMixin, EventsMixin):
         return {
             "name": agent["name"], "cores": agent.get("cores"), "slots": b["slots"],
             "accept": bool(agent.get("accept")), "send": bool(agent.get("send")),
+            "role": self._role_of(agent), "kind": agent.get("kind") or None,
             "online": bool(agent.get("online")), "last_seen": _iso(float(agent.get("last_seen") or 0)),
             "version": agent.get("version"), "needs_restart": bool(agent.get("needs_restart")),
             "updating": bool(agent.get("updating")),
@@ -436,6 +464,42 @@ class HubState(TokensMixin, EventsMixin):
             job["lost"] = True  # nepočítal sa dokonca — neskorý výsledok ho ešte oživí
 
     # -- výpočty ------------------------------------------------------------ #
+
+    # -- rola stroja (compute / live) -------------------------------------- #
+
+    def _live_agents(self) -> set[str]:
+        """Stroje s live nasadením (aj pozastaveným) — tie sú obchodné bez ohľadu na config."""
+        if self.deploy is None:
+            return set()
+        now = self.clock()
+        cache = self._live_cache
+        if cache is not None and now - cache[0] < LIVE_CACHE_SECONDS:
+            return cache[1]
+        try:
+            mena = set(self.deploy.agents())
+        except Exception:  # noqa: BLE001 - bez live DB sa rola berie len z configu agenta
+            mena = set()
+        self._live_cache = (now, mena)
+        return mena
+
+    def _live_reason(self, agent: dict[str, Any]) -> str:
+        if agent.get("role") == ROLE_LIVE:
+            return "rola live v agent.json"
+        return "má live nasadenie"
+
+    def _role_of(self, agent: dict[str, Any]) -> str:
+        """Skutočná rola: `live`, keď to stroj hlási, alebo keď má na hube live nasadenie."""
+        if agent.get("role") == ROLE_LIVE or agent.get("name") in self._live_agents():
+            return ROLE_LIVE
+        return ROLE_COMPUTE
+
+    def _enforce_role(self, agent: dict[str, Any]) -> bool:
+        """Obchodnému stroju vypne `accept`; `True`, keď ho mal zapnutý (treba to povedať agentovi)."""
+        if self._role_of(agent) != ROLE_LIVE or not agent.get("accept"):
+            return False
+        agent["accept"] = False
+        self.log("accept_forced_off", agent=agent["name"], reason=self._live_reason(agent))
+        return True
 
     def _online_accepting(self) -> list[dict[str, Any]]:
         # Agent, ktorý práve ťahá kód (`git pull` + dáta), nič nevezme — kód sa mu mení

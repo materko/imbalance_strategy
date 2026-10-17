@@ -39,7 +39,15 @@ $logDir = Join-Path $repo "tester\live"
 $log = Join-Path $logDir "agent.log"
 
 if (-not (Test-Path $python)) { throw "Chýba $python — najprv .\deploy\freqtrade\scripts\setup.ps1" }
-if (-not (Test-Path $config)) { throw "Chýba $config — najprv .venv\Scripts\python.exe -m tester.hub setup --name <stroj> --hub-url … --token … --no-accept --send" }
+if (-not (Test-Path $config)) { throw "Chýba $config — najprv .venv\Scripts\python.exe -m tester.hub setup --name <stroj> --hub-url … --token … --role live --send" }
+# Obchodný stroj nepočíta backtesty pre hub (docs/HUB.md „Druhy agentov“) — rola live v configu.
+$role = (Get-Content $config -Raw -Encoding UTF8 | ConvertFrom-Json).role
+if ($role -ne "live") {
+    if ($PSCmdlet.ShouldProcess($config, "nastaviť rolu live (stroj nebude počítať pre hub)")) {
+        & $python -m tester.hub setup --role live
+        if ($LASTEXITCODE -ne 0) { throw "tester.hub setup --role live zlyhal" }
+    }
+}
 if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Force $logDir | Out-Null }
 
 # extra `live` (pywinauto): aktualizácia kódu z webapp prekladá NinjaTrader F5 v NinjaScript Editore

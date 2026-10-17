@@ -55,7 +55,7 @@ def build(ctx: AppContext) -> APIRouter:
                 stary.bye()
             except Exception:  # noqa: BLE001 - starý hub nemusí byť dostupný
                 pass
-        agent = HubAgent(cfg, runner, store)
+        agent = HubAgent(cfg, runner, store, kind="webapp")
         if cfg.accept:
             runner.workers = agent.slots
         agent.start()
@@ -76,6 +76,7 @@ def build(ctx: AppContext) -> APIRouter:
         token = req.token.strip() or (stary.token if stary else "")
         cfg = hub_config.AgentConfig(name=req.name.strip(), hub_url=url, token=token,
                                      accept=req.accept, send=req.send, max_parallel=req.max_parallel,
+                                     role=stary.role if stary else hub_config.ROLE_COMPUTE,
                                      admin_token=stary.admin_token if stary else "")
         hub_config.save(cfg)
         start_hub_agent(hub_config.load() or cfg)
@@ -224,7 +225,8 @@ def build(ctx: AppContext) -> APIRouter:
         agent = getattr(app.state, "hub_agent", None)
         if agent is None:
             raise HTTPException(404, "táto webapp nebeží ako agent hubu (tester/agent.json + reštart)")
-        agent.set_accept(req.accept)
+        if agent.set_accept(req.accept) is False:
+            raise HTTPException(409, "tento stroj má rolu live (len NinjaTrader/MT5) a výpočty neprijíma")
         return agent.public()
 
     @router.delete("/api/hub/agents/{name}")

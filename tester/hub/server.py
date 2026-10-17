@@ -90,12 +90,17 @@ class RegisterRequest(BaseModel):
     accept: bool = True
     send: bool = True
     version: str = ""
+    #: `compute` / `live` (docs/HUB.md „Druhy agentov“) a `webapp` / `headless`; starý agent neposiela.
+    role: str = ""
+    kind: str = ""
 
 
 class HeartbeatRequest(BaseModel):
     instance: str | None = None
     accept: bool | None = None
     send: bool | None = None
+    role: str | None = None
+    kind: str | None = None
     cores: int | None = None
     slots: int | None = None
     version: str | None = None
@@ -178,7 +183,8 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
         own(who, req.name)
         try:
             return state.register(req.name, instance=req.instance, cores=req.cores, slots=req.slots,
-                                  accept=req.accept, send=req.send, version=req.version)
+                                  accept=req.accept, send=req.send, version=req.version,
+                                  role=req.role, kind=req.kind)
         except NameTaken as exc:
             raise HTTPException(409, str(exc))
         except ValueError as exc:
@@ -195,6 +201,8 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
             return state.request_accept(name, value)
         except KeyError:
             raise HTTPException(404, f"agent {name!r} nie je zaregistrovaný")
+        except ValueError as exc:
+            raise HTTPException(409, str(exc))
 
     @app.delete("/api/agents/{name}")
     def forget_agent(name: str, force: bool = False, token: bool = False, who: str = Depends(auth)):

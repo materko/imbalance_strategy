@@ -1128,6 +1128,133 @@ def test_agent_accept_toggle_from_hub_config_and_api(hub_api, tmp_path: Path):
     assert "accept_request" not in state.agents["srv"]
 
 
+class _FakeDeploy:
+    """Live nasadenia na hube — stačí, ktoré stroje nejaké majú."""
+
+    def __init__(self, *agents: str) -> None:
+        self.names = list(agents)
+
+    def agents(self) -> list[str]:
+        return list(self.names)
+
+    def desired_for_agent(self, name: str) -> dict[str, Any]:
+        return {"accounts": [], "deployments": []}
+
+    def report_applied(self, *a, **kw) -> None:
+        pass
+
+
+def test_live_role_never_gets_jobs(hub):
+    """Obchodný stroj (rola live) výpočty nedostane, ani keď hlási accept, a zapnúť sa mu nedá."""
+    state, _ = hub
+    state.register("nas-win11", instance="i1", cores=8, slots=8, accept=True, role="live", kind="headless")
+    assert state.agents["nas-win11"]["accept"] is False
+    a = state.overview()["agents"][0]
+    assert a["role"] == "live" and a["kind"] == "headless" and a["accept"] is False
+    with pytest.raises(NoCapacity):
+        state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    # starý kód na stroji hlási accept=True -> hub ho vypne a povie mu to
+    assert state.heartbeat("nas-win11", {"jobs": [], "accept": True})["set_accept"] is False
+    assert state.agents["nas-win11"]["accept"] is False
+    with pytest.raises(ValueError, match="obchodný stroj"):
+        state.request_accept("nas-win11", True)
+    state.request_accept("nas-win11", False)     # vypnúť sa dá vždy
+    # počítací stroj vedľa neho výpočet vezme
+    state.register("srvnas", instance="i2", cores=12, slots=2, accept=True, role="compute", kind="headless")
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    assert job["agent"] == "srvnas"
+
+
+def test_agent_with_live_deployment_is_live_even_without_role(hub):
+    """Stroj s live nasadením na hube je obchodný, aj keď jeho agent.json rolu nemá (starý kód)."""
+    state, _ = hub
+    state.deploy = _FakeDeploy("nas-win11")
+    _reg(state, name="nas-win11")                   # starý agent: accept=True, bez role
+    assert state.agents["nas-win11"]["accept"] is False
+    assert state.overview()["agents"][0]["role"] == "live"
+    assert state.heartbeat("nas-win11", {"jobs": [], "accept": True})["set_accept"] is False
+    with pytest.raises(NoCapacity):
+        state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    assert any(e["event"] == "accept_forced_off" for e in state.events(limit=50))
+
+
+def test_assigned_job_of_non_accepting_agent_goes_back_to_queue(hub):
+    """Pridelený a nevzatý výpočet agenta, ktorý prestal prijímať, sa vráti do fronty."""
+    state, _ = hub
+    _reg(state, name="nas-win11")
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap", queue=True)
+    assert job["status"] == "assigned" and job["agent"] == "nas-win11"
+    state.heartbeat("nas-win11", {"jobs": [], "accept": False, "role": "live"})
+    j = state.job(job["id"])
+    assert j["status"] == "queued" and j["agent"] is None
+    _reg(state, name="srvnas", instance="i2")
+    assert state.job(job["id"])["agent"] == "srvnas"
+
+
+def test_running_job_on_live_agent_is_left_to_finish(hub):
+    """Rozbehnutý výpočet sa pri prepnutí na live nezabíja — dobehne a odovzdá sa."""
+    state, _ = hub
+    _reg(state, name="nas-win11")
+    job = state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    state.heartbeat("nas-win11", {"jobs": [{"id": job["id"], "status": "running"}]})
+    state.heartbeat("nas-win11", {"jobs": [{"id": job["id"], "status": "running"}], "accept": False,
+                                  "role": "live"})
+    assert state.job(job["id"])["status"] == "running"
+
+
+def test_live_role_in_agent_config(tmp_path: Path, monkeypatch):
+    from tester.hub import config as hub_config
+
+    cesta = tmp_path / "agent.json"
+    cesta.write_text(json.dumps({"name": "nas-win11", "hub_url": "http://hub", "role": "live",
+                                 "accept": True}), encoding="utf-8")
+    cfg = hub_config.load(cesta)
+    assert cfg.role == "live" and cfg.live and cfg.accept is False
+    monkeypatch.setenv("TRADEBOT_HUB_ACCEPT", "true")         # ani prostredie ho nezapne
+    assert hub_config.load(cesta).accept is False
+    monkeypatch.delenv("TRADEBOT_HUB_ACCEPT")
+    cesta.write_text(json.dumps({"name": "srv", "hub_url": "http://hub"}), encoding="utf-8")
+    assert hub_config.load(cesta).role == "compute"            # starý config = počítací
+    assert AgentConfig(name="x", hub_url="h", role="nezmysel").role == "compute"
+
+
+def test_live_agent_refuses_jobs_and_accept(hub_api, tmp_path: Path):
+    """Agent s rolou live: hlási rolu, zapnutie prijímania odmietne a pridelený výpočet nespustí."""
+    from tester.hub import config as hub_config
+    from tester.hub.agent import HubAgent
+
+    c, state, _ = hub_api
+    http = FakeHttp(c, "tajne")
+    cfg_path = tmp_path / "nas" / "agent.json"
+    hub_config.save(AgentConfig(name="nas-win11", hub_url="http://hub", token="tajne", role="live"), cfg_path)
+    store = RunStore(tmp_path / "nas" / "runs")
+    runner = FakeRunner(store)
+    nas = HubAgent(hub_config.load(cfg_path), runner, store, http=http,
+                   state_path=tmp_path / "nas" / "state.json", config_path=cfg_path)
+    nas.tick()
+    assert state.agents["nas-win11"]["role"] == "live" and state.agents["nas-win11"]["kind"] == "headless"
+    assert nas.set_accept(True) is False and nas.cfg.accept is False
+    assert hub_config.load(cfg_path).accept is False
+    nas._accept({"id": "j1", "payload": _payload(), "version": ""})   # starý hub by ho poslal
+    assert not runner.jobs and "j1" not in nas.state.computing
+    assert nas.public()["role"] == "live"
+
+
+def test_setup_role_live(tmp_path: Path, monkeypatch, capsys):
+    from tester.hub import __main__ as hub_main
+    from tester.hub import config as hub_config
+
+    cesta = tmp_path / "agent.json"
+    monkeypatch.setattr(hub_config, "AGENT_CONFIG", cesta)
+    hub_config.save(AgentConfig(name="nas-win11", hub_url="http://hub", token="t", admin_token="adm"), cesta)
+    hub_main.main(["setup", "--role", "live"])
+    cfg = hub_config.load(cesta)
+    assert cfg.role == "live" and cfg.accept is False and cfg.admin_token == "adm"
+    assert "rola=live" in capsys.readouterr().out
+    with pytest.raises(SystemExit, match="nejdu spolu"):
+        hub_main.main(["setup", "--role", "live", "--accept"])
+
+
 def test_agent_kills_run_over_time_cap(hub_api, tmp_path: Path):
     from datetime import datetime, timezone
 

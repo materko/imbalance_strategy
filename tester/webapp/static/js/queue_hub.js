@@ -184,6 +184,14 @@ async function removeHubConfig() {
   } catch (e) { $("#hub-cfg-error").textContent = e.message; $("#hub-cfg-error").hidden = false; }
 }
 
+// Druh stroja (docs/HUB.md „Druhy agentov“): webapp a headless počítací počítajú, live len obchoduje.
+function hubKind(a) {
+  if (a.role === "live") return '<span class="chip warn" title="obchodný stroj (NinjaTrader/MT5) — výpočty nikdy neberie">live</span>';
+  if (a.kind === "webapp") return '<span class="chip" title="Tester v prehliadači — počíta, keď prijíma">webapp</span>';
+  if (a.kind === "headless") return '<span class="chip" title="headless agent, len počíta pre hub">počítací</span>';
+  return "";
+}
+
 function renderHubAgent(h) {
   const a = h.agent, cfg = h.config;
   $("#hub-agent-none").hidden = !!cfg;
@@ -191,8 +199,10 @@ function renderHubAgent(h) {
   if (!cfg) return;
   $("#hub-agent-name").textContent = cfg.name;
   $("#hub-agent-url").textContent = cfg.hub_url;
+  const live = (a ? a.role : cfg.role) === "live";
   $("#hub-accept").checked = a ? a.accept : cfg.accept;
-  $("#hub-accept").disabled = !a;
+  $("#hub-accept").disabled = !a || live;
+  $("#hub-accept").title = live ? "obchodný stroj (rola live) výpočty neprijíma" : "";
   $("#hub-agent-send").textContent = cfg.send ? "posiela" : "neposiela";
   $("#hub-agent-send").className = `chip ${cfg.send ? "ok" : ""}`;
   $("#hub-agent-version").textContent = a && a.version ? a.version : "";
@@ -251,7 +261,7 @@ async function loadHub() {
   } else {
     $("#hub-agents-count").textContent = `${hub.online} online`;
     $("#hub-agents tbody").innerHTML = hub.agents.map(a => `<tr class="plain">
-      <td><b>${esc(a.name)}</b></td>
+      <td><b>${esc(a.name)}</b> ${hubKind(a)}</td>
       <td><span class="chip ${a.online ? "ok" : ""}">${a.online ? "online" : "offline"}</span>${a.needs_restart ? ' <span class="chip warn" title="po git pull čaká na reštart">reštart</span>' : ""}${a.updating ? ' <span class="chip warn" title="agent ťahá kód (git pull) — dovtedy nič nové nedostane">ťahá kód</span>' : ""}</td>
       <td>${esc(a.version || "–")}</td><td class="num">${a.cores ?? "–"}</td><td class="num">${a.slots ?? "–"}</td><td class="num">${a.used ?? 0}</td>
       <td>${a.accept ? "áno" : "nie"}${a.accept_request !== null && a.accept_request !== undefined ? ` → ${a.accept_request ? "áno" : "nie"}` : ""}</td>

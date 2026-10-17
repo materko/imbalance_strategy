@@ -5,13 +5,20 @@
   "name": "srv-01",                 // statické meno = identita agenta na hube
   "hub_url": "https://hub.example.com:8790",
   "token": "…",                     // ten istý ako TRADEBOT_HUB_TOKEN na hube
-  "accept": true,                   // prijíma výpočty od hubu
+  "role": "compute",                // compute = počíta pre hub; live = len NT8/MT5, nikdy nepočíta
+  "accept": true,                   // prijíma výpočty od hubu (pri role live vždy false)
   "send": true,                     // smie posielať výpočty (cli --remote)
   "max_parallel": 4,                // koľko behov naraz (strop; jadrá si agent zistí sám)
   "heartbeat_seconds": 3,           // hub v odpovedi pošle svoj interval a agent sa mu prispôsobí
   "admin_token": ""                 // hlavný token hubu — len na webapp, ktorá spravuje live nasadenia
 }
 ```
+
+**Rola stroja** (`role`, docs/HUB.md „Druhy agentov"): `compute` je stroj, ktorý smie počítať
+pre hub (webapp aj headless `srvnas`) — či práve prijíma, hovorí `accept`. `live` je obchodný
+stroj s NinjaTraderom a MT5 (headless agent z `deploy/agent`): posiela telemetriu, zosúlaďuje
+nasadenia a výpočty **nikdy** neberie, aby backtesty nezahltili stroj, na ktorom bežia
+stratégie — `accept` je pri ňom vždy `false` a zapnúť sa nedá (ani z hubu, ani z webapp).
 
 `admin_token` je hlavný (správcovský) token hubu: webapp ním posiela mutácie účtov a nasadení
 (karta Live, docs/LIVE.md fáza 2b). Bez neho je karta len na čítanie. Agent, ktorý má len
@@ -22,7 +29,7 @@ siete a podľa neho vie, komu poslať hotový výsledok. Dvaja agenti s jedným 
 na hub nedostanú (druhého odmietne, kým prvý žije).
 
 Premenné prostredia prebijú súbor (`TRADEBOT_HUB_URL`, `TRADEBOT_HUB_TOKEN`,
-`TRADEBOT_HUB_NAME`, `TRADEBOT_HUB_ACCEPT`, `TRADEBOT_HUB_SEND`, `TRADEBOT_HUB_MAX_PARALLEL`,
+`TRADEBOT_HUB_NAME`, `TRADEBOT_HUB_ROLE`, `TRADEBOT_HUB_ACCEPT`, `TRADEBOT_HUB_SEND`, `TRADEBOT_HUB_MAX_PARALLEL`,
 `TRADEBOT_HUB_ADMIN_TOKEN`)
 — pre Docker a servery, kde sa súbor nechce písať.
 
@@ -44,11 +51,23 @@ from typing import Any
 from tradebot.core.env import getenv
 from tradebot.core.paths import AGENT_CONFIG, AGENT_STATE
 
-__all__ = ["AgentConfig", "AgentState", "load", "save", "load_state", "save_state"]
+__all__ = ["AgentConfig", "AgentState", "ROLES", "ROLE_COMPUTE", "ROLE_LIVE", "load", "save",
+           "load_state", "save_state", "normalize_role"]
 
 #: Interval heartbeatu agenta. 3 s: heartbeat je lacný (malý JSON) a je to zároveň strop
 #: na oneskorenie live telemetrie a pokynov z hubu (`agent_timeout` hubu ostáva 45 s).
 DEFAULT_HEARTBEAT = 3
+
+#: Rola stroja: `compute` smie počítať pre hub, `live` len ovláda platformy a nikdy nepočíta.
+ROLE_COMPUTE = "compute"
+ROLE_LIVE = "live"
+ROLES = (ROLE_COMPUTE, ROLE_LIVE)
+
+
+def normalize_role(value: Any) -> str:
+    """Neznáma alebo chýbajúca rola = `compute` (starý `agent.json` ju nemá)."""
+    role = str(value or "").strip().lower()
+    return role if role in ROLES else ROLE_COMPUTE
 
 
 @dataclass
@@ -57,11 +76,21 @@ class AgentConfig:
     hub_url: str
     token: str = ""
     accept: bool = True
+    role: str = ROLE_COMPUTE
     send: bool = True
     max_parallel: int = 0          # 0 = podľa jadier
     heartbeat_seconds: int = DEFAULT_HEARTBEAT
     #: Hlavný token hubu pre mutácie live nasadení z webapp; prázdny = karta Live len na čítanie.
     admin_token: str = ""
+
+    def __post_init__(self) -> None:
+        self.role = normalize_role(self.role)
+        if self.role == ROLE_LIVE:
+            self.accept = False
+
+    @property
+    def live(self) -> bool:
+        return self.role == ROLE_LIVE
 
     def slots(self, cores: int | None = None) -> int:
         """Koľko behov naraz: strop z configu, inak jadrá stroja."""
@@ -101,6 +130,7 @@ def load(path: Path | None = None) -> AgentConfig | None:
         name=str(name).strip(),
         hub_url=str(url).rstrip("/"),
         token=getenv("HUB_TOKEN") or str(data.get("token") or ""),
+        role=normalize_role(getenv("HUB_ROLE") or data.get("role")),
         accept=bool(data.get("accept", True)) if accept is None else accept,
         send=bool(data.get("send", True)) if send is None else send,
         max_parallel=int(getenv("HUB_MAX_PARALLEL") or data.get("max_parallel") or 0),

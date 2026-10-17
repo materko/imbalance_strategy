@@ -17,8 +17,10 @@ relácii používateľa ako naplánovaná úloha „pri prihlásení“.
 4. **Klon repozitára** + Python prostredie: `.\deploy\freqtrade\scripts\setup.ps1`.
 5. **Kód do platforiem**: `.venv\Scripts\python.exe -m tradebot.adapters.mt5 install` a
    `… -m tradebot.adapters.ninjatrader install` (v NT potom F5 v NinjaScript Editore — prvýkrát ručne).
-6. **Agent**: `.venv\Scripts\python.exe -m tester.hub setup --name <meno-stroja> --hub-url https://hub:8790 --token <token agenta> --no-accept --send`
-   (`--no-accept` = stroj nepočíta backtesty pre hub, len obchoduje; `tester/agent.json` je gitignored).
+6. **Agent**: `.venv\Scripts\python.exe -m tester.hub setup --name <meno-stroja> --hub-url https://hub:8790 --token <token agenta> --role live --send`
+   (`--role live` = obchodný stroj: backtesty pre hub nepočíta nikdy, aby NT8 a MT5 stíhali stratégie —
+   [docs/HUB.md](../../docs/HUB.md) „Druhy agentov“; `tester/agent.json` je gitignored).
+   Na stroji, ktorý už `agent.json` má, stačí `… -m tester.hub setup --role live`.
    Token vydá správca hubu: `python -m tester.hub token add <meno-stroja>`.
 
 ## Registrácia úlohy

@@ -744,6 +744,12 @@ class DeployStore:
             n += 1
         return n
 
+    def agents(self) -> list[str]:
+        """Stroje s aspoň jedným nasadením (aj pozastaveným) — obchodné stroje, hub im nepridelí výpočet."""
+        with self._lock:
+            rows = self._db.execute("SELECT DISTINCT agent FROM deployments WHERE agent != ''").fetchall()
+        return sorted(r["agent"] for r in rows)
+
     def active_agents(self) -> list[str]:
         """Stroje, na ktorých je aspoň jedno aktívne nasadenie — tie stráži Telegram hubu."""
         with self._lock:

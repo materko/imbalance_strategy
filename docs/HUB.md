@@ -17,6 +17,34 @@ oboje. Kód je v `tester/hub/`, architektúra v docstringu
         └────────────────┘        └────────────────┘        └────────────────┘
 ```
 
+## Druhy agentov
+
+Na hube sú tri druhy strojov. Rozlišuje ich **rola** v `tester/agent.json` (`role`) a to,
+**z čoho agent beží** (webapp alebo headless); stav hubu (`tester.hub status`, karta Hub) ich
+ukazuje v stĺpci *druh*.
+
+| druh | príklad | rola | beží ako | počíta pre hub | posiela | NT8 / MT5 |
+|---|---|---|---|---|---|---|
+| **webapp** | NB-rasto, MACMINIMARTIN | `compute` | `./webapp.sh` | keď má zapnuté *prijímať* | áno | nie |
+| **počítací** | srvnas | `compute` | `PY -m tester.hub agent` | áno | zvyčajne nie | nie |
+| **live** (obchodný) | nas-win11 | `live` | `PY -m tester.hub agent` (`deploy/agent`) | **nikdy** | áno (telemetria) | áno |
+
+**Obchodný stroj nepočíta nikdy.** Backtesty by ho zahltili a NinjaTrader či MT5 by potom
+nestíhali stratégie. Preto:
+
+- rola `live` drží `accept` vždy na `false` — `setup --role live --accept` odmietne, prostredie
+  (`TRADEBOT_HUB_ACCEPT`) ho nezapne, prepínač v karte Hub je zamknutý,
+- hub stroj s rolou `live` **alebo s akýmkoľvek live nasadením** (aj pozastaveným) berie ako
+  obchodný: nič mu nepridelí, `tester.hub accept <stroj> on` odmietne (409), a keď taký stroj
+  predsa hlási `accept` (starý kód, config bez role), hub ho vypne u seba aj na stroji —
+  v heartbeate mu pošle `set_accept: false` a agent si to zapíše do `agent.json`
+  (udalosť `accept_forced_off`),
+- pridelený a ešte nevzatý výpočet agenta, ktorý neprijíma, hub vráti do fronty
+  (`job_requeued`); rozbehnutý výpočet nechá dobehnúť.
+
+Rola sa nastaví pri inštalácii (`deploy/agent/README.md`): `PY -m tester.hub setup … --role live`.
+Starý `agent.json` bez role je `compute`.
+
 ## Prečo agent ťahá a hub netlačí
 
 Servery aj notebooky sú za NAT-om; verejnú adresu má len hub. Agent sa preto hubu **hlási
@@ -206,7 +234,7 @@ localhoste) je otvorený.
 na udalosť, rotuje pri 20 MB): `agent_online`, `agent_offline`, `agent_bye`,
 `job_submitted`, `job_assigned`, `job_started`, `job_finished` (stav, agent, chyba,
 behy), `job_cancel` (kto), `job_requeued`, `job_timeout`, `accept_request`,
-`token_added`, `token_removed`.
+`accept_forced_off` (obchodný stroj hlásil prijímanie), `token_added`, `token_removed`.
 
 ```bash
 PY -m tester.hub events                              # posledných 50
@@ -221,11 +249,12 @@ PY -m tester.hub events --agent srv-01 --event job_finished --limit 200
 ```bash
 PY -m tester.hub setup --name srv-01 --hub-url https://hub.example.com:8790 --token … --accept --send
 PY -m tester.hub setup --name notebook --no-accept          # len zadáva
+PY -m tester.hub setup --name nas-win11 --role live --send   # obchodný stroj (NT8/MT5), nikdy nepočíta
 PY -m tester.hub setup --max-parallel 4                     # strop behov naraz
 ```
 
 Zapíše `tester/agent.json` (gitignored; premenné `TRADEBOT_HUB_URL`, `TRADEBOT_HUB_TOKEN`,
-`TRADEBOT_HUB_NAME`, `TRADEBOT_HUB_ACCEPT`, `TRADEBOT_HUB_SEND`, `TRADEBOT_HUB_ADMIN_TOKEN` ho
+`TRADEBOT_HUB_NAME`, `TRADEBOT_HUB_ROLE`, `TRADEBOT_HUB_ACCEPT`, `TRADEBOT_HUB_SEND`, `TRADEBOT_HUB_ADMIN_TOKEN` ho
 prebijú — pre Docker). `admin_token` (hlavný token hubu) patrí len do configu webapp, z ktorej
 sa spravujú live účty a nasadenia (karta Live); počítajúci agent ho nemá mať.
 Agent potrebuje to isté, čo každý klon: `.venv` zo setup skriptu a zložený sklad sviečok
@@ -236,7 +265,9 @@ Agent beží dvoma spôsobmi:
 | | príkaz | kedy |
 |---|---|---|
 | **webapp** | `./webapp.sh` (agent štartuje s ňou, keď `agent.json` existuje) | stroj, na ktorom niekto aj klikne |
-| **headless** | `PY -m tester.hub agent` | server bez prehliadača |
+| **headless** | `PY -m tester.hub agent` | server bez prehliadača — počítací (`compute`) alebo obchodný (`live`) |
+
+Čo je ktorý stroj, je v „Druhy agentov“ vyššie.
 
 ## Docker
 
@@ -409,7 +440,8 @@ webapp vyzdvihne.
 - **Prijímanie** sa dá prepnúť bez reštartu: v karte Hub, zmenou `tester/agent.json`
   (`python -m tester.hub setup --no-accept`, agent si súbor prečíta pri najbližšom
   heartbeate) alebo z hubu: `python -m tester.hub accept srv-01 off` — hub to agentovi
-  povie v heartbeate a agent si to zapíše do configu.
+  povie v heartbeate a agent si to zapíše do configu. Obchodnému stroju (rola `live` alebo
+  live nasadenie) sa prijímanie zapnúť nedá.
 - **Strop na čas behu.** Zaseknutý Freqtrade by držal výpočet v `running` donekonečna.
   Agent preto beh zabije po `--max-runtime MIN` (v CLI alebo cez API), inak po
   trojnásobku odhadu, najmenej 10 minút; výpočet skončí ako `failed` s chybou, ktorá

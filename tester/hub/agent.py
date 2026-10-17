@@ -48,6 +48,11 @@ kurzor, nezávisle od hubu) a prijíma príkazy (`/pause`, `/resume`, `/flatten`
 súbor hneď a prepnutie drží ako prekrytie požadovaného stavu (`_with_overrides`), kým ho hub
 v nasadení neprevezme (`live.overrides` v heartbeate).
 
+**Rola stroja** (`cfg.role`, docs/HUB.md „Druhy agentov“): obchodný stroj (`live`) výpočty
+nikdy neberie — `accept` drží `false`, pokyn hubu na zapnutie ignoruje a pridelený výpočet
+(starý hub) nespustí. Rolu aj druh procesu (`kind`: `webapp` / `headless`) hlási pri registrácii
+a v heartbeate, aby hub vedel, komu nič neposielať, a stav ukázal, čo je ktorý stroj.
+
 Čo agent počíta a čo poslal, si drží v `tester/agent_state.json` (`config.AgentState`):
 po reštarte procesu bežiace behy ďalej hlási (runner ich už nemá, ale história áno) a
 čakajúce výsledky si vyzdvihne.
@@ -144,8 +149,10 @@ class HubAgent:
                  clock: Callable[[], float] = time.time, version: str = "",
                  live_cursor: Path | None = None, reconciler: Any = None,
                  apply_state: Path | None = None, updater: Any = None, telegram_config: Path | None = None,
-                 telegram: Any = None) -> None:
+                 telegram: Any = None, kind: str = "headless") -> None:
         self.cfg = cfg
+        #: Druh procesu: `webapp` (agent v Testeri) alebo `headless` (`python -m tester.hub agent`).
+        self.kind = kind
         self.runner = runner
         self.store = store
         self.http = http or HubHttp(cfg.hub_url, cfg.token)
@@ -657,7 +664,7 @@ class HubAgent:
         self.http.post("/api/agents/register", {
             "name": self.cfg.name, "instance": self.instance, "cores": self.cores,
             "slots": self.slots, "accept": self.cfg.accept, "send": self.cfg.send,
-            "version": self.version,
+            "version": self.version, "role": self.cfg.role, "kind": self.kind,
         })
         self.registered = True
 
@@ -679,17 +686,22 @@ class HubAgent:
         novy = agent_config.load(self.config_path)
         if novy is None or novy.name != self.cfg.name:
             return
-        if novy.accept != self.cfg.accept or novy.send != self.cfg.send:
-            log.info("hub agent: config zmeneny - prijima=%s, posiela=%s", novy.accept, novy.send)
-        self.cfg.accept, self.cfg.send = novy.accept, novy.send
+        if novy.accept != self.cfg.accept or novy.send != self.cfg.send or novy.role != self.cfg.role:
+            log.info("hub agent: config zmeneny - rola=%s, prijima=%s, posiela=%s",
+                     novy.role, novy.accept, novy.send)
+        self.cfg.role, self.cfg.accept, self.cfg.send = novy.role, novy.accept, novy.send
         self.cfg.heartbeat_seconds = novy.heartbeat_seconds
 
-    def set_accept(self, value: bool, persist: bool = True) -> None:
+    def set_accept(self, value: bool, persist: bool = True) -> bool:
         """Zapnúť alebo vypnúť prijímanie — z webapp, z hubu (`set_accept` v heartbeate)
-        alebo z CLI. Zapíše sa do configu, aby to prežilo reštart."""
+        alebo z CLI. Zapíše sa do configu, aby to prežilo reštart. Obchodný stroj (rola `live`)
+        sa zapnúť nedá — pokyn sa zahodí a vráti `False`."""
         value = bool(value)
+        if value and self.cfg.live:
+            log.warning("hub agent: stroj ma rolu live - vypocty nikdy neprijima, zapnutie ignorujem")
+            return False
         if value == self.cfg.accept:
-            return
+            return True
         self.cfg.accept = value
         # V kontajneri prichádza `accept` z prostredia a to by pri ďalšom načítaní configu
         # prebilo súbor — nech sa zhodujú.
@@ -702,6 +714,7 @@ class HubAgent:
                 self._config_mtime = self._config_stamp()
             except OSError as exc:
                 log.warning("hub agent: config sa nepodarilo zapisat: %s", exc)
+        return True
 
     def bye(self) -> None:
         """Odhlásenie pred reštartom: hub meno uvoľní hneď a pridelené výpočty podrží."""
@@ -812,8 +825,8 @@ class HubAgent:
             if r is not None:
                 jobs.append(r)
         return {"instance": self.instance, "accept": self.cfg.accept, "send": self.cfg.send,
-                "cores": self.cores, "slots": self.slots, "version": self.version,
-                "needs_restart": self.needs_restart, "updating": bool(self.updating),
+                "role": self.cfg.role, "kind": self.kind, "cores": self.cores, "slots": self.slots,
+                "version": self.version, "needs_restart": self.needs_restart, "updating": bool(self.updating),
                 "load": self._local_load(), "jobs": jobs, "live": self._live_body()}
 
     # -- výpočty od hubu ---------------------------------------------------- #
@@ -900,6 +913,10 @@ class HubAgent:
         job_id = job["id"]
         if job_id in self.state.computing:
             return  # hub ho posiela, kým ho nenahlásime ako bežiaci — už ho máme
+        if self.cfg.live:
+            # Obchodný stroj nepočíta nikdy — ani keď ho pridelí hub, ktorý o roliach nevie.
+            # Hub vidí `accept: false` a pridelený-nevzatý výpočet vráti do fronty.
+            return
         if self.updating:
             return  # kód sa práve prepisuje pod rukami; hub ho pošle znova
         if not self._ensure_version(job):
@@ -1105,6 +1122,7 @@ class HubAgent:
     def public(self) -> dict[str, Any]:
         return {
             "name": self.cfg.name, "hub_url": self.cfg.hub_url, "accept": self.cfg.accept,
+            "role": self.cfg.role, "kind": self.kind,
             "send": self.cfg.send, "cores": self.cores, "slots": self.slots,
             "version": self.version, "needs_restart": self.needs_restart,
             "code_changed": self.code_changed, "updating": self.updating,

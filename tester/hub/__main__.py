@@ -2,6 +2,7 @@
 
     python -m tester.hub serve --host 0.0.0.0 --port 8790         # hub (TRADEBOT_HUB_TOKEN=…)
     python -m tester.hub setup --name srv-01 --hub-url https://hub:8790 --token … --accept --send
+    python -m tester.hub setup --name nas-win11 … --role live      # obchodný stroj: nikdy nepočíta
     python -m tester.hub agent                                    # headless agent tohto klonu
     python -m tester.hub status                                   # agenti, fronta, kapacita
     python -m tester.hub jobs [--all]                             # výpočty na hube
@@ -102,7 +103,11 @@ def _start_updater(args: argparse.Namespace, state: Any):
 
 def cmd_setup(args: argparse.Namespace) -> int:
     stary = agent_config.load()
+    role = args.role or (stary.role if stary else agent_config.ROLE_COMPUTE)
+    if role == agent_config.ROLE_LIVE and args.accept:
+        raise SystemExit("--role live a --accept nejdu spolu: obchodný stroj výpočty nikdy neprijíma")
     cfg = agent_config.AgentConfig(
+        role=role,
         name=args.name or (stary.name if stary else None) or __import__("socket").gethostname(),
         hub_url=args.hub_url or (stary.hub_url if stary else ""),
         token=args.token if args.token is not None else (stary.token if stary else ""),
@@ -110,11 +115,12 @@ def cmd_setup(args: argparse.Namespace) -> int:
         send=stary.send if (args.send is None and stary) else bool(args.send if args.send is not None else True),
         max_parallel=args.max_parallel if args.max_parallel is not None else (stary.max_parallel if stary else 0),
         heartbeat_seconds=args.heartbeat or (stary.heartbeat_seconds if stary else agent_config.DEFAULT_HEARTBEAT),
+        admin_token=stary.admin_token if stary else "",
     )
     if not cfg.hub_url:
         raise SystemExit("chyba --hub-url")
     cesta = agent_config.save(cfg)
-    print(f"agent {cfg.name!r}: hub {cfg.hub_url}, prijima={cfg.accept}, posiela={cfg.send}, "
+    print(f"agent {cfg.name!r}: hub {cfg.hub_url}, rola={cfg.role}, prijima={cfg.accept}, posiela={cfg.send}, "
           f"slotov {cfg.slots()}  -> {cesta}")
     return 0
 
@@ -152,7 +158,7 @@ def cmd_agent(args: argparse.Namespace) -> int:
     agent.runner = runner
     runner.start()
     agent.start()
-    print(f"agent {cfg.name!r} -> {cfg.hub_url}: prijima={cfg.accept}, posiela={cfg.send}, "
+    print(f"agent {cfg.name!r} -> {cfg.hub_url}: rola={cfg.role}, prijima={cfg.accept}, posiela={cfg.send}, "
           f"jadier {agent.cores}, slotov {agent.slots}, kod {agent.version or '?'}", flush=True)
     try:
         while True:
@@ -186,16 +192,24 @@ def _client(cfg: agent_config.AgentConfig):
     return HubClient(HubHttp(cfg.hub_url, cfg.token), cfg.name)
 
 
+def _druh(a: dict[str, Any]) -> str:
+    """Čo je stroj zač: `live` (obchodný, nepočíta), `webapp`, `pocitaci` (headless), `?` (starý agent)."""
+    if a.get("role") == agent_config.ROLE_LIVE:
+        return "live"
+    return {"webapp": "webapp", "headless": "pocitaci"}.get(a.get("kind") or "", "?")
+
+
 def cmd_status(args: argparse.Namespace) -> int:
     cfg = _cfg_or_die()
     client = _client(cfg)
     st = client.status()
     print(f"hub {cfg.hub_url}: agentov online {st['online']}, vo fronte {st['queued']}, "
           f"pocita sa {st['running']}")
-    print(f"\n{'agent':<18}{'stav':<12}{'kod':<9}{'jadra':>6}{'sloty':>6}{'obsad.':>7}  prijima  posiela  volny(1)  volny(all)")
+    print(f"\n{'agent':<18}{'druh':<10}{'stav':<12}{'kod':<9}{'jadra':>6}{'sloty':>6}{'obsad.':>7}"
+          f"  prijima  posiela  volny(1)  volny(all)")
     for a in st["agents"]:
         stav = "tiahne kod" if a.get("updating") else ("online" if a["online"] else "offline")
-        print(f"{a['name']:<18}{stav:<12}{str(a.get('version') or '-'):<9}"
+        print(f"{a['name']:<18}{_druh(a):<10}{stav:<12}{str(a.get('version') or '-'):<9}"
               f"{a['cores']:>6}{a['slots']:>6}"
               f"{a['used']:>7}  {'ano' if a['accept'] else 'nie':<8} {'ano' if a['send'] else 'nie':<8} "
               f"{_fmt_eta(a['eta_free_1']):>8}  {_fmt_eta(a['eta_free_all']):>10}")
@@ -236,8 +250,13 @@ def cmd_jobs(args: argparse.Namespace) -> int:
 def cmd_accept(args: argparse.Namespace) -> int:
     """Zapnúť/vypnúť prijímanie na agentovi cez hub (agent si to prevezme v heartbeate)."""
     cfg = _cfg_or_die()
+    from .client import HubError
+
     hodnota = args.value.lower() in ("on", "true", "1", "ano", "yes")
-    a = _client(cfg).set_accept(args.agent, hodnota)
+    try:
+        a = _client(cfg).set_accept(args.agent, hodnota)
+    except HubError as exc:
+        raise SystemExit(str(exc))
     print(f"{a['name']}: prijima teraz {'ano' if a['accept'] else 'nie'}, "
           f"po heartbeate {'ano' if hodnota else 'nie'}")
     return 0
@@ -407,6 +426,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--name", help="statické, jednoznačné meno agenta (default hostname)")
     p.add_argument("--hub-url", dest="hub_url", help="adresa hubu, napr. https://hub.example.com:8790")
     p.add_argument("--token", help="token hubu")
+    p.add_argument("--role", choices=agent_config.ROLES,
+                   help="compute = smie počítať pre hub; live = obchodný stroj (NT8/MT5), výpočty nikdy neberie")
     p.add_argument("--accept", dest="accept", action="store_true", default=None, help="prijímať výpočty")
     p.add_argument("--no-accept", dest="accept", action="store_false", help="neprijímať výpočty")
     p.add_argument("--send", dest="send", action="store_true", default=None, help="smie posielať výpočty")
