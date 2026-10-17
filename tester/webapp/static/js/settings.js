@@ -521,7 +521,7 @@ function smerniceKeys() {
 }
 function inSmernice(key) { return smerniceKeys().has(key); }
 /** Nové stratégie (práve pridané / v teste podľa smernice). Keď prejdú, presunú sa samy do SMERNICE. */
-const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev"]);
+const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet"]);
 const STRATEGY_FOLDERS = [
   { name: "SMERNICE", match: k => inSmernice(k) },
   { name: "ČAKÁ NA TESTY", match: k => !inSmernice(k) && !NOVE_STRATEGIE.has(k), sub: [

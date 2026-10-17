@@ -38,6 +38,7 @@ from .percoco import SPEC as PERCOCO_SPEC
 from .svp import SPEC as SVP_SPEC
 from .sweepengulf import SPEC as SWEEPENGULF_SPEC
 from .sweepfvg import SPEC as SWEEPFVG_SPEC
+from .silverbullet import SPEC as SILVERBULLET_SPEC
 from .trendlines import SPEC as TRENDLINES_SPEC
 from .varev import SPEC as VAREV_SPEC
 from .voltbreak import SPEC as VOLTBREAK_SPEC
@@ -87,6 +88,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     DAILYOPEN_SPEC.key: DAILYOPEN_SPEC,
     NOA_SPEC.key: NOA_SPEC,
     SWEEPFVG_SPEC.key: SWEEPFVG_SPEC,
+    SILVERBULLET_SPEC.key: SILVERBULLET_SPEC,
     SWEEPENGULF_SPEC.key: SWEEPENGULF_SPEC,
     VAREV_SPEC.key: VAREV_SPEC,
 }

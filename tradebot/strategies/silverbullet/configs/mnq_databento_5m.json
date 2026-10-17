@@ -1,0 +1,10 @@
+{
+  "_title": "MNQ 5m — ICT Silver Bullet: okno 10–11 NY, likvidita od 8:00 (high/low pred oknom + swingy), sweep, FVG, limitka na okraji, cieľ protiľahlá likvidita",
+  "_strategy": "silverbullet",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Východiskový profil (17. 10. 2026) podľa ICT Silver Bullet: 1 okno 10:00–11:00 New York, 2 sweep skoršieho dna / vrcholu,",
+    "3 FVG v protismere, vstup limitkou na FVG, stop za extrém sweepu, cieľ na protiľahlej likvidite. Nie je to obchodné odporúčanie."
+  ]
+}
