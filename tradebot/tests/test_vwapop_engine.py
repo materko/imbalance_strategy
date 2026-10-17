@@ -201,3 +201,18 @@ def test_tp_sl_boxy_sa_kreslia_pri_vstupe():
     out = e.on_bar(bar(OPEN_MS + i * STEP, vwap + 0.6, low=vwap - 0.4, high=vwap + 0.8), ctx=OKNO)
     kinds = {d.kind.value for d in out.drawings}
     assert {"tp_box", "sl_box", "vop_entry"} <= kinds
+
+
+def test_reverse_zobchoduje_signal_opacne_so_zamenenym_sl_a_tp():
+    def signal(**kw):
+        e, i = armed_long(**kw)
+        vwap = e.vwap.value
+        out = e.on_bar(bar(OPEN_MS + i * STEP, vwap + 0.6, low=vwap - 0.4, high=vwap + 0.8), ctx=OKNO)
+        (intent,) = entries(out)
+        return intent
+
+    normal, rev = signal(), signal(reverse=True)
+    assert rev.direction is Direction.SHORT and rev.plan.direction is Direction.SHORT
+    assert rev.plan.entry == normal.plan.entry
+    assert rev.plan.stop_loss == normal.plan.take_profit and rev.plan.take_profit == normal.plan.stop_loss
+    assert abs(rev.plan.sl_distance - 2.0 * normal.plan.sl_distance) < 1e-9   # stop obráteného = cieľ pôvodného (rr 2)

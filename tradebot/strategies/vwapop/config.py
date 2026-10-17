@@ -71,7 +71,7 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
 }
 
 PORT_ONLY_FIELDS: frozenset[str] = frozenset(
-    {"riskDollar", "legacyPineSizing", "minSlDistance", "leverage"})
+    {"riskDollar", "legacyPineSizing", "minSlDistance", "leverage", "reverse"})
 
 
 @dataclass
@@ -119,6 +119,9 @@ class VwapOpConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFi
     minSlDistance: SizeSpec = field(default_factory=lambda: SizeSpec(0.0, "pct"))
     #: Páka vo Freqtrade futures.
     leverage: float = 1.0
+    #: Obrátená stratégia: každý signál sa zobchoduje opačne — SL na mieste cieľa, cieľ na mieste SL
+    #: (výsledný R:R = 1 / rr). Rozšírenie portu, v Pine nie je.
+    reverse: bool = False
 
     # ------------------------------------------------------------------ #
 

@@ -1,0 +1,65 @@
+{
+  "_title": "VWAP OP — Pine presne (Drift VWAP Pullback): riziko 500 $ na SL, kapitál 50 000, poplatok 2 $/kontrakt + 1 tick",
+  "_strategy": "vwapop",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_wallet": 50000,
+  "_fee": 1.4e-05,
+  "_comment": [
+    "Doslovne vstupy Pine skriptu 'Drift VWAP Pullback Strategy' (17. 10. 2026), ziadne rozsirenia portu:",
+    "Velkost pozicie: riziko 500 $ na SL (nie 1 kontrakt); typ vstupu market, bez filtrov a potvrdeni.",
+    "Pine je na NQ, sklad ma MNQ: body a winrate su rovnake, $ vysledok na NQ = 10x MNQ.",
+    "Poplatok 0,0014 % na stranu ~ 2 $/kontrakt + 1 tick sklzu pri NQ ~25 000 (Pine commission 2 $ + slippage 1)."
+  ],
+  "trendFilter": "off",
+  "trendEmaLen": 200,
+  "trendTF": 0,
+  "volFilter": "off",
+  "volLookback": 100,
+  "entryConfirm": "none",
+  "confirmBars": 3,
+  "confirmImbMinAtr": 0.05,
+  "confirmPbWickPct": 60,
+  "confirmPbBodyPct": 30,
+  "entryOrderType": "market",
+  "limitOffsetPct": 50,
+  "limitValidBars": 3,
+  "limitKeepRR": true,
+  "htf": "15",
+  "rthSess": "0930-1600",
+  "driftLen": 2,
+  "driftAtr": {
+    "value": 0.1,
+    "unit": "atr"
+  },
+  "needSide": true,
+  "tolAtr": {
+    "value": 0.1,
+    "unit": "atr"
+  },
+  "needClose": true,
+  "firstOnly": true,
+  "maxTrades": 2,
+  "tradeWin": "0945-1530",
+  "allowLong": true,
+  "allowShort": true,
+  "slAtr": {
+    "value": 0.5,
+    "unit": "atr"
+  },
+  "rr": 2.0,
+  "useBE": false,
+  "closeEOD": false,
+  "flatTime": "1555-1600",
+  "showCross": true,
+  "colUp": "#22c55e",
+  "colDn": "#ef4444",
+  "colFlat": "#9ca3af",
+  "riskDollar": 500.0,
+  "legacyPineSizing": false,
+  "minSlDistance": {
+    "value": 0.0,
+    "unit": "pct"
+  },
+  "leverage": 1.0
+}

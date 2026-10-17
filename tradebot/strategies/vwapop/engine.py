@@ -190,6 +190,11 @@ class VwapOpEngine:
         if min_sl > 0 and sl_distance < min_sl:
             return None
         take = entry + sl_distance * cfg.rr if long else entry - sl_distance * cfg.rr
+        if cfg.reverse:
+            # zrkadlový obchod: opačný smer, SL tam, kde bol cieľ, cieľ tam, kde bol SL (R:R = 1 / rr)
+            direction = Direction.SHORT if long else Direction.LONG
+            stop, take = take, stop
+            sl_distance = abs(entry - stop)
         qty = cfg.position_qty(self.inst, cfg.riskDollar, sl_distance) if cfg.riskDollar > 0 else 1.0
         if qty <= 0:
             qty = float(self.inst.min_qty or 1.0)
@@ -286,7 +291,7 @@ class VwapOpEngine:
         if plan is None:
             return
         order_id = f"vop:{idx}"
-        out.orders.append(OrderIntent(OrderAction.ENTRY, order_id, idx, direction=direction, plan=plan,
+        out.orders.append(OrderIntent(OrderAction.ENTRY, order_id, idx, direction=plan.direction, plan=plan,
                                       order_type=OrderType.MARKET,
                                       reason="pullback k VWAP v smere driftu (HTF)"))
         st = self._state
@@ -297,7 +302,7 @@ class VwapOpEngine:
             st.done_short = True
             st.armed_short = False
         st.n_day += 1
-        long = direction is Direction.LONG
+        long = plan.direction is Direction.LONG
         out.drawings.append(DrawLabel(
             VOP_ENTRY, bar.time, bar.low if long else bar.high, "LONG" if long else "SHORT",
             "#ffffff", style=LabelStyle.UP if long else LabelStyle.DOWN, above=not long,

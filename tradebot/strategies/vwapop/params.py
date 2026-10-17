@@ -124,6 +124,11 @@ PARAMS: dict[str, dict[str, Any]] = {
         group=_G5, title="Páka (Freqtrade)",
         tooltip="Páka vo Freqtrade futures. Na MultiCharts bez účinku.",
     ),
+    "reverse": dict(
+        group=_G5, title="Obrátiť stratégiu",
+        tooltip="Každý signál sa zobchoduje opačne: long namiesto short a naopak, SL na mieste cieľa a cieľ "
+                "na mieste SL (R:R = 1 / R násobok). Nie je v Pine.",
+    ),
 }
 
 # ---- typ vstupu market / limit (spoločný pre stratégie mimo IBS, `tradebot.core.entry_order`) ---- #
