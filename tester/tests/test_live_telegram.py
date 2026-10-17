@@ -44,7 +44,15 @@ class FakeBot:
         self.answered.append(cid)
 
     def edit(self, chat, mid, text, buttons=None, html=False):
+        if getattr(self, "edit_fail", None):
+            raise self.edit_fail
         self.edited.append((chat, mid, text, buttons))
+
+    def pin(self, chat, mid):
+        self.pinned = getattr(self, "pinned", set()) | {mid}
+
+    def unpin(self, chat, mid):
+        self.pinned = getattr(self, "pinned", set()) - {mid}
 
 
 CFG = TelegramConfig(token="t", chats=[7], admins=[42])
@@ -255,6 +263,37 @@ def test_prikazy_gombiky_pause_flatten_povolenia_a_konflikt(tmp_path: Path):
     # iný proces už počúva na tom istom bote: príkazy sa vypnú, nič nepadne
     bot.fail = TelegramConflict("getUpdates: 409")
     assert cmd.poll() == 0 and cmd.disabled and cmd.poll() == 0
+
+
+def test_auto_obnova_stavu_zap_vyp_pripnutie_a_zmazana_sprava(tmp_path: Path):
+    bot, ctl = FakeBot(), FakeControls()
+    t = [1000.0]
+    state = TelegramState(tmp_path / "s.json")
+    cmd = TelegramCommands(bot, CFG, state, ctl, clock=lambda: t[0])
+    bot.ups = [cb("A:1", 1, mid=11)]
+    cmd.poll()
+    assert list(state.data["auto"]) == ["7:11"] and bot.pinned == {11}
+    assert "⏱ auto 1 min" in bot.edited[-1][2] and bot.edited[-1][3][-1][-1]["callback_data"] == "A:0"
+    assert cmd.refresh_auto() == 0                                  # ešte neuplynula minúta
+    t[0] += 60
+    assert cmd.refresh_auto() == 1 and bot.edited[-1][1] == 11 and "⏱ auto" in bot.edited[-1][2]
+    # nová auto-obnova v tom istom chate vypne starú
+    bot.ups = [cb("A:1", 2, mid=12)]
+    cmd.poll()
+    assert list(state.data["auto"]) == ["7:12"] and bot.pinned == {12}
+    # odchod zo stavu (ponuka stratégie) auto-obnovu tej správy vypne, inak by ju prepísala späť
+    bot.ups = [cb(f"m:{ikey(INST)}", 3, mid=12)]
+    cmd.poll()
+    assert state.data["auto"] == {} and bot.pinned == set()
+    # vypnutie gombíkom; zmazaná správa z auto-obnovy vypadne sama
+    bot.ups = [cb("A:1", 4, mid=13), cb("A:0", 5, mid=13)]
+    cmd.poll()
+    assert state.data["auto"] == {} and "⏱ Auto-obnova" in str(bot.edited[-1][3])
+    bot.ups = [cb("A:1", 6, mid=14)]
+    cmd.poll()
+    t[0] += 60
+    bot.edit_fail = TelegramError("editMessageText: 400 Bad Request: message to edit not found")
+    assert cmd.refresh_auto() == 0 and state.data["auto"] == {}
 
 
 def test_ordery_pozicie_cakajuce_vstupy_a_nerealizovany_zisk(tmp_path: Path):

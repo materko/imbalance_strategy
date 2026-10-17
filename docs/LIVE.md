@@ -581,6 +581,10 @@ nastaví menu „/“ (`setMyCommands`). Správy so stavom sú HTML a ťuknutie 
 - **ponuka stratégie** — profil, režim, posledný bar, pozície (cena, SL/TP aj po posune trailingu, nerealizovaný
   zisk z close posledného baru) a čakajúce vstupy; **Pauza**, **Spustiť**, **Flatten…** (otázka s **Áno, zavrieť**,
   platí 2 minúty).
+- **⏱ Auto-obnova** (gombík v stave) — tá istá správa sa prepisuje každú minútu (`AUTO_SECONDS`) a je pripnutá
+  hore v chate; **⏹ Vypnúť auto** ju zastaví a odopne. V chate je najviac jedna (nová vypne starú), ťuknutie
+  na stratégiu či Ordery v tej správe ju vypne (inak by obnova prepísala ponuku späť), zmazaná správa vypadne sama.
+  Zoznam je v `TELEGRAM_STATE.auto`, prežije reštart agenta.
 - **📋 Ordery** (`/orders`) — otvorené pozície a čakajúce vstupy všetkých stratégií. Je to odhad zo spoolu
   (`entry` → kým nepríde `fill`/`cancel`, `fill in − out`); pozícia prežije nový beh tej istej inštancie
   (reštart terminálu, prekompilovanie NT), zámery nie.

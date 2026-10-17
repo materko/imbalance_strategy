@@ -215,6 +215,12 @@ class TelegramBot:
             if "not modified" not in str(exc):
                 raise
 
+    def pin(self, chat_id: int, message_id: int) -> None:
+        self.call("pinChatMessage", {"chat_id": chat_id, "message_id": message_id, "disable_notification": True})
+
+    def unpin(self, chat_id: int, message_id: int) -> None:
+        self.call("unpinChatMessage", {"chat_id": chat_id, "message_id": message_id})
+
     def set_commands(self, commands: list[tuple[str, str]]) -> None:
         """Menu „/“ v Telegrame (zoznam príkazov s popisom)."""
         self.call("setMyCommands", {"commands": [{"command": c, "description": d} for c, d in commands]})
@@ -729,6 +735,8 @@ MODE_ICON = {"enabled": "▶", "paused": "⏸", "flatten": "⛔"}
 MODE_TEXT = {"enabled": "obchoduje", "paused": "pauza", "flatten": "flatten"}
 #: Potvrdenie flattenu platí toľko sekúnd.
 CONFIRM_SECONDS = 120
+#: Auto-obnova stavu: správa sa prepíše každých toľko sekúnd, kým ju človek nevypne.
+AUTO_SECONDS = 60
 
 
 def ikey(instance: str) -> str:
@@ -783,7 +791,8 @@ class TelegramCommands:
     """`getUpdates` → príkaz alebo gombík → control súbor. Prijíma len z `cfg.chats` a (ak sú) od `cfg.admins`.
 
     Gombíky (`callback_data`): `s` stav, `o` ordery, `m:<kľúč>` ponuka stratégie, `P:`/`R:<kľúč|*>` pauza /
-    spustenie, `F:<kľúč|*>` otázka na flatten, `X:<čas>:<kľúč|*>` potvrdený flatten (`*` = všetky)."""
+    spustenie, `F:<kľúč|*>` otázka na flatten, `X:<čas>:<kľúč|*>` potvrdený flatten (`*` = všetky),
+    `A:1`/`A:0` auto-obnova stavu (každých `AUTO_SECONDS`, pripnutá; v chate najviac jedna)."""
 
     def __init__(self, bot: TelegramBot, cfg: TelegramConfig, state: TelegramState, controls: ControlFiles,
                  *, clock: Callable[[], float] = time.time, on_change: Callable[[], None] | None = None) -> None:
@@ -865,6 +874,21 @@ class TelegramCommands:
         data = str(q.get("data") or "")
         akcia, _, kluc = data.partition(":")
         oznam = ""
+        mid = msg.get("message_id")
+        auto_kluc = f"{chat}:{mid}"
+        auto = auto_kluc in self.state.data.setdefault("auto", {})
+        if akcia == "A":
+            auto = kluc == "1"
+            self._set_auto(chat, mid, auto)
+            oznam = "Auto-obnova zapnutá — stav sa obnovuje každú minútu" if auto else "Auto-obnova vypnutá"
+            t, b = self.status_view(auto=auto)
+            self.bot.answer(q.get("id", ""), oznam)
+            if mid is not None:
+                self.bot.edit(chat, mid, t, b, html=True)
+            return
+        if auto and (akcia in ("o", "m", "F") or (akcia in ("P", "R") and kluc != "*")):
+            self._set_auto(chat, mid, False)   # správa odchádza zo stavu — auto-obnova by ju prepísala späť
+            auto = False
         if akcia == "o":
             t, b = self.orders_view()
         elif akcia == "m":
@@ -872,7 +896,7 @@ class TelegramCommands:
         elif akcia in ("P", "R"):
             mode = "paused" if akcia == "P" else "enabled"
             oznam = self._apply_keys(kluc, mode, user)
-            t, b = self.status_view(oznam) if kluc == "*" else self.instance_view(kluc, oznam)
+            t, b = self.status_view(oznam, auto=auto) if kluc == "*" else self.instance_view(kluc, oznam)
         elif akcia == "F":
             t, b = self.flatten_view(kluc)
         elif akcia in ("X", "flatten"):   # `flatten:<čas>:<id>` = gombík zo starej správy
@@ -883,12 +907,57 @@ class TelegramCommands:
                 oznam = self._apply(ciel, "flatten", user, exact=True)
             else:
                 oznam = self._apply_keys(ciel, "flatten", user)
-            t, b = self.status_view(oznam)
+            t, b = self.status_view(oznam, auto=auto)
         else:   # `s`, `cancel`, neznáme
-            t, b = self.status_view()
+            t, b = self.status_view(auto=auto)
         self.bot.answer(q.get("id", ""), oznam.split("\n", 1)[0][:200] if oznam else "")
         if msg.get("message_id") is not None:
             self.bot.edit(chat, msg["message_id"], t, b, html=True)
+
+    # -- auto-obnova --------------------------------------------------------- #
+
+    def _set_auto(self, chat: Any, mid: Any, on: bool) -> None:
+        """Zapne / vypne auto-obnovu správy so stavom; v chate je najviac jedna (staršia sa vypne a odopne).
+        Pripnutie je len pohodlie — keď ho Telegram odmietne, obnova beží ďalej."""
+        auto: dict[str, dict[str, Any]] = self.state.data.setdefault("auto", {})
+        for k, a in list(auto.items()):
+            if a.get("chat") == chat and (on or a.get("mid") == mid):
+                auto.pop(k)
+                try:
+                    self.bot.unpin(a["chat"], a["mid"])
+                except TelegramError:
+                    pass
+        if on and mid is not None:
+            auto[f"{chat}:{mid}"] = {"chat": chat, "mid": mid, "since": self.clock(), "at": self.clock()}
+            try:
+                self.bot.pin(chat, mid)
+            except TelegramError as exc:
+                log.debug("telegram: pripnutie: %s", exc)
+        self.state.save()
+
+    def refresh_auto(self) -> int:
+        """Prepíše správy s auto-obnovou, ktorým uplynulo `AUTO_SECONDS`. Zmazaná správa (alebo taká, čo sa už
+        nedá upraviť) z auto-obnovy vypadne. Vráti počet prepísaných."""
+        auto: dict[str, dict[str, Any]] = self.state.data.setdefault("auto", {})
+        now = self.clock()
+        n = vypadli = 0
+        for k, a in list(auto.items()):
+            if now - float(a.get("at") or 0) < AUTO_SECONDS:
+                continue
+            a["at"] = now
+            t, b = self.status_view(auto=True)
+            try:
+                self.bot.edit(a["chat"], a["mid"], t, b, html=True)
+                n += 1
+            except TelegramError as exc:
+                if any(x in str(exc) for x in ("not found", "can't be edited", "message to edit")):
+                    auto.pop(k, None)
+                    vypadli += 1
+                else:
+                    log.debug("telegram: auto-obnova: %s", exc)
+        if n or vypadli:
+            self.state.save()
+        return n
 
     # -- ciele a zápis ------------------------------------------------------ #
 
@@ -946,12 +1015,16 @@ class TelegramCommands:
     def _ctx(self, instance: str) -> dict[str, Any]:
         return (self.state.data.get("ctx") or {}).get(instance) or {}
 
-    def status_view(self, oznam: str = "") -> tuple[str, list[list[dict]]]:
+    def status_view(self, oznam: str = "", auto: bool = False) -> tuple[str, list[list[dict]]]:
         now = self.clock()
         inst = self.controls.instances(now)
-        hlava = f"<b>📊 Stav</b>{' · ' + _e(self.cfg.label) if self.cfg.label else ''} · {time.strftime('%H:%M', time.localtime(now))}"
+        cas = time.strftime("%H:%M:%S" if auto else "%H:%M", time.localtime(now))
+        hlava = (f"<b>📊 Stav</b>{' · ' + _e(self.cfg.label) if self.cfg.label else ''} · {cas}"
+                 + (" · ⏱ auto 1 min" if auto else ""))
+        auto_gomb = ({"text": "⏹ Vypnúť auto", "callback_data": "A:0"} if auto
+                     else {"text": "⏱ Auto-obnova", "callback_data": "A:1"})
         if not inst:
-            return hlava + "\n\nŽiadna stratégia za posledných 7 dní.", [[{"text": "🔄 Obnoviť", "callback_data": "s"}]]
+            return hlava + "\n\nŽiadna stratégia za posledných 7 dní.", [[{"text": "🔄 Obnoviť", "callback_data": "s"}, auto_gomb]]
         riadky, skupina = [hlava], None
         for n, i in enumerate(inst, 1):
             g = (i.get("platform"), i.get("account"))
@@ -978,7 +1051,7 @@ class TelegramCommands:
                 for n, i in enumerate(inst, 1)]
         rows = [gomb[k:k + 2] for k in range(0, len(gomb), 2)]
         rows.append([{"text": "⏸ Pauza všetkým", "callback_data": "P:*"}, {"text": "▶ Spustiť všetky", "callback_data": "R:*"}])
-        rows.append([{"text": "🔄 Obnoviť", "callback_data": "s"}, {"text": "📋 Ordery", "callback_data": "o"}])
+        rows.append([{"text": "🔄 Obnoviť", "callback_data": "s"}, {"text": "📋 Ordery", "callback_data": "o"}, auto_gomb])
         return "\n".join(riadky), rows
 
     def instance_view(self, kluc: str, oznam: str = "") -> tuple[str, list[list[dict]]]:
@@ -1116,6 +1189,10 @@ class TelegramService:
             except TelegramError as exc:
                 log.debug("telegram: setMyCommands: %s", exc)
         if self.commands is not None and not self.commands.disabled:
+            try:
+                self.commands.refresh_auto()
+            except Exception as exc:  # noqa: BLE001 - obnova nesmie zastaviť príkazy
+                log.debug("telegram: auto-obnova: %s", exc)
             try:
                 self.commands.poll(int(max(1, wait)))
                 return
