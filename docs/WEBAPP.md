@@ -531,8 +531,9 @@ lokálny spool (vlastný kurzor `tester/live/cursor_webapp.json`) — funguje aj
 dole = karta ukazuje, čo má; nič sa nestráca (spool je append-only, kurzory sa posúvajú až
 po zápise).
 
-Tabuľka inštancií (`<platforma>_<účet>_<symbol>_<tf>m_<stratégia>`): stav (zelená = posledná
-udalosť do 3 barov TF), platforma, účet, symbol, TF, stratégia, profil, stroj, agent, vek
+Tabuľka inštancií (`<platforma>_<účet>_<symbol>_<tf>m_<stratégia>`): stav (**živá** = ping `hb` alebo
+udalosť do 3 min, bez pingov do 3 barov TF; **trh zatvorený** = pinguje, ale bary nechodia;
+**ticho** = platforma spadla alebo zamrzla — docs/LIVE.md, „Ping“), platforma, účet, symbol, TF, stratégia, profil, stroj, agent, vek
 posledného baru, odhad pozície (vstupy − výstupy z fillov podľa id, smer z orderu) a počet
 fillov za dnešný deň UTC. Klik otvorí detail: Plotly sviečky z posledných 500 barov, kresby
 enginu zlúčené podľa `id` (tie isté vrstvy a štýly ako graf behu — `objectTraces` z

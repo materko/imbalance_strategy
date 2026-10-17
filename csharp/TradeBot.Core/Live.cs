@@ -12,6 +12,12 @@
 // session. Subor `<yyyyMMdd-HHmmss UTC>_<session>.jsonl`; pri zmene UTC dna sa zacne novy subor (hello
 // sa zopakuje, seq pokracuje). Schema riadkov: docs/LIVE.md, "Schema udalosti".
 //
+// Ping (`hb`): mimo Strategy Testera/Analyzera pise vlastny casovac (System.Threading.Timer, vlakno
+// z poolu, zapis pod tym istym zamkom) kazdych `HeartbeatMs` riadok `k:"hb"`, aj ked bary nechodia
+// (vikend, noc) - spadnuta ci zamrznuta platforma sa tak da odlisit od zatvoreneho trhu. `hb` NEcisluje
+// `seq` (nesie posledne pridelene cislo), takze `seq` ostava bez dier, hoci hub z pingov drzi len
+// posledny; hned sa flushuje, aby ho agent videl aj mimo realtime.
+//
 // Jazyk je zamerne C# 5 a len BCL (csc.exe z .NET Frameworku, NinjaTrader, Mono).
 using System;
 using System.Collections.Generic;
@@ -26,6 +32,8 @@ namespace TradeBot.Core
         public const int Schema = 1;
         /// <summary>Mimo realtime sa flushuje po tolkych riadkoch (a pri zatvoreni).</summary>
         public const int FlushEvery = 200;
+        /// <summary>Predvoleny interval pingu `hb` (ms).</summary>
+        public const int DefaultHeartbeatMs = 60000;
 
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -45,6 +53,11 @@ namespace TradeBot.Core
         private int _unflushed;
         private bool _realtime;
         private bool _closed;
+        private long _bars;
+        private long _lastBarMs;
+        private string _mode = "";
+        private System.Threading.Timer _timer;
+        private int _heartbeatMs = DefaultHeartbeatMs;
 
         public string Instance { get; private set; }
         public string Session { get; private set; }
@@ -69,6 +82,17 @@ namespace TradeBot.Core
                         if (value) { _writer.Flush(); _unflushed = 0; }
                     }
                 }
+                catch (Exception e) { Break(e); }
+            }
+        }
+
+        /// <summary>Interval pingu `hb` v ms (0 = vypnuty). V Testeri sa casovac nespusta nikdy.</summary>
+        public int HeartbeatMs
+        {
+            get { return _heartbeatMs; }
+            set
+            {
+                try { lock (_gate) { _heartbeatMs = Math.Max(0, value); Arm(); } }
                 catch (Exception e) { Break(e); }
             }
         }
@@ -126,7 +150,7 @@ namespace TradeBot.Core
             {
                 if (_root.Length == 0) throw new ArgumentException("koren spoolu je prazdny");
                 _dir = System.IO.Path.Combine(_root, Instance);
-                lock (_gate) { OpenFile(DateTime.UtcNow); }
+                lock (_gate) { OpenFile(DateTime.UtcNow); Arm(); }
             }
             catch (Exception e) { Break(e); }
         }
@@ -161,8 +185,22 @@ namespace TradeBot.Core
             if (kind != "hello" && now.ToString("yyyyMMdd", CultureInfo.InvariantCulture) != _fileDay) OpenFile(now);
             JsonWriter w = new JsonWriter();
             w.BeginObject();
-            w.Key("seq").Value(++_seq).Key("t").Value(NowMs()).Key("k").Value(kind);
+            // `hb` necisluje: nesie posledne pridelene seq (hello je vzdy prve, takze aspon 1)
+            w.Key("seq").Value(kind == "hb" ? _seq : ++_seq).Key("t").Value(NowMs()).Key("k").Value(kind);
             return w;
+        }
+
+        /// <summary>(Pre)nastavi casovac pingu. Vola sa pod zamkom; v Testeri, po zatvoreni a pri chybe nic.</summary>
+        private void Arm()
+        {
+            if (_timer != null) { _timer.Dispose(); _timer = null; }
+            if (_tester || Off() || _heartbeatMs <= 0) return;
+            _timer = new System.Threading.Timer(OnTimer, null, _heartbeatMs, _heartbeatMs);
+        }
+
+        private void OnTimer(object state)
+        {
+            Heartbeat();
         }
 
         private void End(JsonWriter w)
@@ -175,6 +213,8 @@ namespace TradeBot.Core
         private void Break(Exception e)
         {
             Broken = true;
+            try { if (_timer != null) { _timer.Dispose(); } } catch (Exception) { }
+            _timer = null;
             LastError = e.GetType().Name + ": " + e.Message;
             try { if (_writer != null) { _writer.Dispose(); } } catch (Exception) { }
             _writer = null;
@@ -249,6 +289,8 @@ namespace TradeBot.Core
                 lock (_gate)
                 {
                     if (Off() || bar == null) return;
+                    _bars++;
+                    _lastBarMs = bar.Time;
                     JsonWriter w = Begin("bar");
                     w.Key("bt").Value(bar.Time).Key("o").Value(bar.Open).Key("h").Value(bar.High).Key("l").Value(bar.Low);
                     w.Key("c").Value(bar.Close).Key("v").Value(bar.Volume).Key("ready").Value(ready).Key("mb").Value(marketBias);
@@ -361,10 +403,31 @@ namespace TradeBot.Core
                 lock (_gate)
                 {
                     if (Off()) return;
+                    _mode = string.IsNullOrEmpty(mode) ? "enabled" : mode;
                     JsonWriter w = Begin("control");
                     w.Key("mode").Value(string.IsNullOrEmpty(mode) ? "enabled" : mode);
                     w.Key("profile").Value(profile ?? "").Key("source").Value(source ?? "");
                     End(w);
+                }
+            }
+            catch (Exception e) { Break(e); }
+        }
+
+        /// <summary>Ping `hb`: platforma zije, aj ked bary nechodia. `bars` = barov v tejto session, `lb` = cas
+        /// posledneho baru (0 = este ziadny), `mode` = posledny potvrdeny rezim (`Control`, inak chyba).
+        /// Vola ho casovac; adapter ho moze zavolat aj sam (MT5 `OnTimer`). Necisluje `seq`, hned flushuje.</summary>
+        public void Heartbeat()
+        {
+            try
+            {
+                lock (_gate)
+                {
+                    if (Off()) return;
+                    JsonWriter w = Begin("hb");
+                    w.Key("bars").Value(_bars).Key("lb").Value(_lastBarMs);
+                    if (_mode.Length > 0) w.Key("mode").Value(_mode);
+                    End(w);
+                    _writer.Flush();
                 }
             }
             catch (Exception e) { Break(e); }
@@ -396,6 +459,7 @@ namespace TradeBot.Core
             {
                 lock (_gate)
                 {
+                    if (_timer != null) { _timer.Dispose(); _timer = null; }
                     if (Off()) { _closed = true; return; }
                     JsonWriter w = Begin("bye");
                     w.Key("reason").Value(reason ?? "");

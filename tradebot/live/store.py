@@ -10,6 +10,13 @@ Store nič nepočíta — snapshot len poskladá posledných N barov a to, čo k
 Každý štart stratégie je nová **session** (beh): `sessions(instance)` dá prehľad behov
 (štart z `hello`, koniec z `bye`, počty), `snapshot`/`events` so `session=` čítajú len ten
 jeden beh — v webapp je to výber „Beh“ v detaile inštancie.
+
+**Ping `hb`** (platforma žije, aj keď bary nechodia) nečísluje `seq` — nesie posledné pridelené
+číslo. Sklad z pingov behu drží **len posledný**: riadok v `events` so `seq = 0` (skutočné
+udalosti majú `seq` od 1, takže `UNIQUE` aj `gaps` ostávajú bez zmeny), ktorý sa pri novšom
+pingu zmaže a vloží znova — dostane nový `rowid`, takže ho zrkadlo dostane cez `export`, a tabuľka
+nenarastie o 1440 riadkov denne na inštanciu. Stav inštancie nesie `last_hb` (a telo pingu `hb`);
+`liveness` z toho povie `live` / `closed` (pinguje, ale bary nechodia — trh zatvorený) / `silent`.
 """
 
 from __future__ import annotations
@@ -23,7 +30,7 @@ from typing import Any, Iterable
 
 from .schema import SchemaError, validate
 
-__all__ = ["LiveStore"]
+__all__ = ["LiveStore", "liveness", "HB_ALIVE_MS", "LIVE_BARS"]
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS instances (
@@ -41,7 +48,9 @@ CREATE TABLE IF NOT EXISTS instances (
     last_seen    REAL NOT NULL,
     last_t       INTEGER NOT NULL DEFAULT 0,
     last_bar_ms  INTEGER NOT NULL DEFAULT 0,
-    last_session TEXT NOT NULL DEFAULT ''
+    last_session TEXT NOT NULL DEFAULT '',
+    last_hb      INTEGER NOT NULL DEFAULT 0,
+    hb           TEXT NOT NULL DEFAULT '{}'
 );
 CREATE TABLE IF NOT EXISTS events (
     id       INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -65,9 +74,35 @@ DEFAULT_BARS = 500
 SESSION_BARS = 5000
 #: Beh je „živý“, kým od poslednej udalosti neprešlo viac než toľko barov jeho TF (ako chip v webapp).
 LIVE_BARS = 3
+#: Inštancia, ktorá pinguje (`hb` každých 60 s), je živá, kým od poslednej udalosti neprešlo toľko ms —
+#: nezávisle od TF; bez pingov (starý kód, Tester) platí `LIVE_BARS`.
+HB_ALIVE_MS = 180_000
 
 _INSTANCE_COLS = ("id", "agent", "platform", "account", "symbol", "tf", "strategy", "profile", "host",
-                  "hello", "first_seen", "last_seen", "last_t", "last_bar_ms", "last_session")
+                  "hello", "first_seen", "last_seen", "last_t", "last_bar_ms", "last_session", "last_hb", "hb")
+#: Stĺpce pridané po prvej verzii — starý súbor dostane `ALTER TABLE`.
+_ADDED_COLS = {"last_hb": "INTEGER NOT NULL DEFAULT 0", "hb": "TEXT NOT NULL DEFAULT '{}'"}
+
+
+def liveness(inst: dict[str, Any], now_ms: float) -> str:
+    """Stav inštancie pre kartu Live, Telegram aj nasadenia: `live`, `closed` alebo `silent`.
+
+    Pinguje (posledný `hb` nie je o viac než `HB_ALIVE_MS` starší než posledná udalosť) → živá, kým
+    posledná udalosť nie je staršia než `HB_ALIVE_MS`; a keď bar neprišiel dlhšie než `LIVE_BARS + 1`
+    barov TF, je to `closed` (platforma beží, trh stojí). Nepinguje → starý rozsah `LIVE_BARS` barov TF
+    a `closed` sa poznať nedá. `inst` stačí s `last_t`, `last_bar_ms`, `tf` a `last_hb`."""
+    last_t = int(inst.get("last_t") or 0)
+    if not last_t:
+        return "silent"
+    tf_ms = max(1, int(inst.get("tf") or 1)) * 60_000
+    last_hb = int(inst.get("last_hb") or 0)
+    pinguje = last_hb > 0 and last_t - last_hb <= HB_ALIVE_MS
+    if now_ms - last_t > (HB_ALIVE_MS if pinguje else LIVE_BARS * tf_ms):
+        return "silent"
+    bar = int(inst.get("last_bar_ms") or 0)
+    if pinguje and (not bar or now_ms - bar > (LIVE_BARS + 1) * tf_ms):
+        return "closed"
+    return "live"
 
 
 class LiveStore:
@@ -80,6 +115,11 @@ class LiveStore:
         self._db.row_factory = sqlite3.Row
         with self._lock:
             self._db.executescript("PRAGMA journal_mode=WAL;" + _DDL)
+            mam = {r["name"] for r in self._db.execute("PRAGMA table_info(instances)")}
+            for col, typ in _ADDED_COLS.items():
+                if col not in mam:
+                    self._db.execute(f"ALTER TABLE instances ADD COLUMN {col} {typ}")
+            self._db.commit()
 
     def close(self) -> None:
         with self._lock:
@@ -98,6 +138,11 @@ class LiveStore:
                     validate(ev)
                 except SchemaError:
                     continue
+                if ev["k"] == "hb":
+                    if self._ping(agent, instance, session, ev):
+                        accepted += 1
+                        self._touch(agent, instance, session, ev, now)
+                    continue
                 cur = self._db.execute(
                     "INSERT OR IGNORE INTO events (agent, instance, session, seq, t, kind, bt, body) "
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -111,13 +156,27 @@ class LiveStore:
                 self._touch(agent, instance, session, ev, now)
         return accepted
 
+    def _ping(self, agent: str, instance: str, session: str, ev: dict[str, Any]) -> bool:
+        """Posledný ping behu: starší alebo ten istý (opakovaná dávka) nič nezmení; novší nahradí
+        predošlý riadok (`seq = 0`) novým, nech má nový `rowid` pre `export`."""
+        old = self._db.execute("SELECT id, t FROM events WHERE instance = ? AND session = ? AND seq = 0",
+                               (instance, session)).fetchone()
+        if old is not None and int(old["t"]) >= int(ev["t"]):
+            return False
+        if old is not None:
+            self._db.execute("DELETE FROM events WHERE id = ?", (old["id"],))
+        self._db.execute(
+            "INSERT INTO events (agent, instance, session, seq, t, kind, bt, body) VALUES (?, ?, ?, 0, ?, 'hb', NULL, ?)",
+            (agent, instance, session, ev["t"], json.dumps(ev, separators=(",", ":"), ensure_ascii=False)))
+        return True
+
     def _touch(self, agent: str, instance: str, session: str, ev: dict[str, Any], now: float) -> None:
-        row = self._db.execute("SELECT last_t, last_bar_ms FROM instances WHERE id = ?", (instance,)).fetchone()
+        row = self._db.execute("SELECT last_t, last_bar_ms, last_hb FROM instances WHERE id = ?", (instance,)).fetchone()
         if row is None:
             self._db.execute(
                 "INSERT INTO instances (id, agent, first_seen, last_seen, last_t, last_session) VALUES (?, ?, ?, ?, ?, ?)",
                 (instance, agent, now, now, ev["t"], session))
-            row = {"last_t": ev["t"], "last_bar_ms": 0}
+            row = {"last_t": ev["t"], "last_bar_ms": 0, "last_hb": 0}
         sets: dict[str, Any] = {"last_seen": now, "agent": agent}
         if ev["t"] >= row["last_t"]:
             sets.update(last_t=ev["t"], last_session=session)
@@ -125,6 +184,8 @@ class LiveStore:
             sets.update(platform=ev["platform"], account=ev["account"], symbol=ev["symbol"], tf=int(ev["tf"]),
                         strategy=ev["strategy"], profile=str(ev.get("profile") or ""), host=str(ev.get("host") or ""),
                         hello=json.dumps(ev, separators=(",", ":"), ensure_ascii=False))
+        elif ev["k"] == "hb" and ev["t"] >= int(row["last_hb"] or 0):
+            sets.update(last_hb=ev["t"], hb=json.dumps(ev, separators=(",", ":"), ensure_ascii=False))
         elif ev["k"] == "bar" and int(ev["bt"]) >= int(row["last_bar_ms"] or 0):
             sets["last_bar_ms"] = int(ev["bt"])
         cols = ", ".join(f"{k} = ?" for k in sets)
@@ -136,6 +197,7 @@ class LiveStore:
     def _instance_row(r: sqlite3.Row) -> dict[str, Any]:
         d = {k: r[k] for k in _INSTANCE_COLS}
         d["hello"] = json.loads(d["hello"] or "{}")
+        d["hb"] = json.loads(d["hb"] or "{}")
         return d
 
     def instances(self) -> list[dict[str, Any]]:
@@ -177,8 +239,8 @@ class LiveStore:
         chýbajúci kus je `{"instance", "session", "first", "last", "missing"}` (seq `first`..`last`
         vrátane). Chýbajúci začiatok behu (prvé seq > 1) je diera od 1; koniec behu sa
         z čísiel poznať nedá. Najprv lacný `GROUP BY` (počet ≠ rozsah), okno `LAG` len nad
-        behmi, kde niečo chýba."""
-        where, args = ("WHERE instance = ?", [instance]) if instance else ("", [])
+        behmi, kde niečo chýba. Ping (`seq = 0`) sa nepočíta."""
+        where, args = ("WHERE seq > 0 AND instance = ?", [instance]) if instance else ("WHERE seq > 0", [])
         with self._lock:
             podozrive = self._db.execute(
                 f"SELECT instance, session FROM events {where} GROUP BY instance, session "
@@ -187,7 +249,7 @@ class LiveStore:
             for r in podozrive:
                 rows = self._db.execute(
                     "SELECT seq, LAG(seq) OVER (ORDER BY seq) AS prev FROM events "
-                    "WHERE instance = ? AND session = ? ORDER BY seq", (r["instance"], r["session"])).fetchall()
+                    "WHERE instance = ? AND session = ? AND seq > 0 ORDER BY seq", (r["instance"], r["session"])).fetchall()
                 for x in rows:
                     prev = 0 if x["prev"] is None else int(x["prev"])
                     if int(x["seq"]) - prev > 1:
@@ -221,19 +283,19 @@ class LiveStore:
     def sessions(self, instance: str) -> list[dict[str, Any]]:
         """Behy (sessions) inštancie, najnovší prvý: štart (`t` z `hello`, inak prvej udalosti),
         koniec (`t` z `bye`, inak None), posledná udalosť, počty barov/fillov/orderov, rozsah
-        barov, profil z `hello`, dôvod ukončenia a `live` — bez `bye` a posledná udalosť nie je
-        staršia než `LIVE_BARS` barov TF inštancie podľa hodín store."""
+        barov, profil z `hello`, dôvod ukončenia a `live` — bez `bye` a `liveness` behu (posledná
+        udalosť vrátane pingu) nie je `silent` podľa hodín store."""
         inst = self.instance(instance)
         if inst is None:
             return []
         now_ms = self.clock() * 1000.0
-        okno_ms = LIVE_BARS * max(1, int(inst["tf"] or 0) or 1) * 60_000
         with self._lock:
             rows = self._db.execute(
                 "SELECT session, MIN(t) AS first_t, MAX(t) AS last_t, MAX(agent) AS agent, "
                 "SUM(kind = 'bar') AS bars, SUM(kind = 'fill') AS fills, SUM(kind = 'order') AS orders, "
                 "MIN(CASE WHEN kind = 'bar' THEN bt END) AS first_bar_ms, "
-                "MAX(CASE WHEN kind = 'bar' THEN bt END) AS last_bar_ms "
+                "MAX(CASE WHEN kind = 'bar' THEN bt END) AS last_bar_ms, "
+                "MAX(CASE WHEN kind = 'hb' THEN t END) AS last_hb "
                 "FROM events WHERE instance = ? GROUP BY session",
                 (instance,)).fetchall()
             out: list[dict[str, Any]] = []
@@ -260,7 +322,8 @@ class LiveStore:
                     "last_bar_ms": int(r["last_bar_ms"]) if r["last_bar_ms"] is not None else None,
                     "profile": str(h.get("profile") or "") if h else "",
                     "reason": str(b.get("reason") or "") if b is not None else None,
-                    "live": b is None and (now_ms - last_t) <= okno_ms,
+                    "live": b is None and liveness({"last_t": last_t, "last_bar_ms": r["last_bar_ms"], "tf": inst["tf"],
+                                                    "last_hb": r["last_hb"]}, now_ms) != "silent",
                 })
         out.sort(key=lambda s: (s["started"], s["last_t"]), reverse=True)
         return out

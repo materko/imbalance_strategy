@@ -923,3 +923,31 @@ def test_zrkadlo_bez_hubu_hlasi_dieru_bez_doplnenia(tmp_path: Path):
     m.tick()
     g = m.status()["gaps"]
     assert [(x["first"], x["last"]) for x in g] == [(2, 2)] and g[0]["on_hub"] is None and m.last_error is None
+
+
+def test_zrkadlo_prenesie_ping_a_karta_rozlisi_trh_zatvoreny(tmp_path: Path):
+    """Ping `hb` (docs/LIVE.md, „Ping“): hub ho exportuje ako riadok so `seq = 0` a novým rowid — zrkadlo
+    ho prevezme do `last_hb` bez diery v `seq`; `live.js` počíta stav ako `store.liveness`."""
+    hub = LiveStore(tmp_path / "hub.sqlite")
+    t0 = 1_790_000_000_000
+    hub.ingest("trade-pc", INSTANCE, "a1b2c3d4", _events())
+    hub.ingest("trade-pc", INSTANCE, "a1b2c3d4", [{"seq": 5, "t": t0 + 60_000, "k": "hb", "bars": 1, "lb": t0}])
+    http = _FakeHubHttp(hub.export())
+    m = _mirror(tmp_path, hub=(SimpleNamespace(name="nb", hub_url="http://hub.test:8790", send=True), http))
+    m.tick()
+    hub.ingest("trade-pc", INSTANCE, "a1b2c3d4", [{"seq": 5, "t": t0 + 120_000, "k": "hb", "bars": 1, "lb": t0}])
+    http.rows = hub.export()
+    m.tick()
+    inst = m.store.instance(INSTANCE)
+    assert inst["last_hb"] == inst["last_t"] == t0 + 120_000
+    assert len(m.store.events(INSTANCE, kinds=["hb"])) == 1 and m.store.gaps() == []
+
+    from tradebot.core.paths import TESTER_DIR
+
+    js = (TESTER_DIR / "webapp" / "static" / "js" / "live.js").read_text(encoding="utf-8")
+    fn = js[js.index("function liveState("):js.index("function liveAlive(")]
+    assert "LIVE_HB_MS" in fn and '"closed"' in fn and '"silent"' in fn and "4 * tfMs" in fn
+    assert "const LIVE_HB_MS = 180e3;" in js
+    chip = js[js.index("function liveStatusChip("):js.index("function renderLiveList(")]
+    assert "trh zatvorený" in chip and "ticho" in chip
+    assert 'live.state === "closed"' in js[js.index("function ldStatusChip("):]

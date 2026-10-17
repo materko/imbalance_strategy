@@ -2163,7 +2163,8 @@ def test_live_deploy_zoznam_spaja_applied_a_instanciu_zo_spoolu(tmp_path: Path):
                                                                        "events": [_live_hello(), t_bar]}]}, headers=H(t_agent))
     clock.t = t_bar["t"] / 1000.0 + 60          # minútu po poslednej udalosti → do 3 barov × 3 min
     rows = c.get("/api/live/deployments", headers=H(t_agent)).json()
-    assert len(rows) == 1 and rows[0]["live"] == {"seen": True, "alive": True, "last_t": t_bar["t"], "last_bar_ms": t_bar["bt"],
+    assert len(rows) == 1 and rows[0]["live"] == {"seen": True, "alive": True, "state": "live", "last_t": t_bar["t"],
+                                                  "last_bar_ms": t_bar["bt"], "last_hb": None,
                                                   "session": "a1b2c3d4", "profile": "p", "host": "PC"}
     assert rows[0]["applied"] is None
     clock.t = t_bar["t"] / 1000.0 + 20 * 60      # 20 min ticho → seen, ale nie alive

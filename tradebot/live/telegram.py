@@ -43,6 +43,7 @@ from typing import Any, Callable
 from tradebot.core.env import getenv
 
 from .schema import CONTROL_MODES
+from .store import liveness
 
 __all__ = ["TelegramConfig", "TelegramBot", "TelegramError", "TelegramConflict", "TelegramState",
            "LiveNotifier", "TelegramCommands", "ControlFiles", "TelegramService", "format_event", "load_config"]
@@ -542,7 +543,7 @@ class LiveNotifier:
         for ev in batch.events:
             ctx = self._ctx(batch, ev)
             seq = int(ev.get("seq") or 0)
-            if ctx.get("tester") or seq <= hotovo:
+            if ctx.get("tester") or seq <= hotovo or ev.get("k") == "hb":   # ping nečísluje seq, správa z neho nie je
                 continue
             if ev.get("k") in LIFECYCLE:
                 if not (ev.get("k") == "hello" and ctx.pop("_repeat", False)):
@@ -757,10 +758,10 @@ def _age(ms: Any, now: float) -> str:
     return f"{m // 1440} d"
 
 
-def _alive(st: dict[str, Any], now: float) -> bool:
-    """Ako karta Live: posledná udalosť do 3 barov TF."""
-    tf = max(1, int(st.get("tf") or 1))
-    return bool(st.get("last_t")) and now * 1000 - st["last_t"] <= 3 * tf * 60000
+def _alive(st: dict[str, Any], now: float) -> str:
+    """Ako karta Live (`store.liveness`): `live`, `closed` (pinguje `hb`, ale bary nechodia — trh
+    zatvorený) alebo `silent` (ani ping, ani udalosť — platforma spadla alebo zamrzla)."""
+    return liveness(st, now * 1000)
 
 
 def _short(st: dict[str, Any]) -> str:
@@ -1034,8 +1035,10 @@ class TelegramCommands:
             ctx = self._ctx(i["instance"])
             if i.get("ended"):
                 zdravie = "⏹ skončila"
-            elif _alive(i, now):
+            elif (stav := _alive(i, now)) == "live":
                 zdravie = "🟢 živá"
+            elif stav == "closed":
+                zdravie = "🌙 trh zatvorený"
             else:
                 zdravie = f"⚪ ticho {_age(i.get('last_t'), now)}"
             poz = _positions(ctx)
@@ -1065,7 +1068,9 @@ class TelegramCommands:
                   f"{_e(_platform(i.get('platform')))} · {_e(i.get('account'))} · profil {_e(i.get('profile') or '—')}",
                   f"Režim: {MODE_ICON.get(i.get('control'), '?')} {_e(MODE_TEXT.get(i.get('control'), i.get('control')))}",
                   f"Posledný bar: {_age(i.get('last_bar_ms'), now)} · udalosť: {_age(i.get('last_t'), now)}"
-                  + (" · skončila" if i.get("ended") else "")]
+                  + (f" · ping: {_age(i.get('last_hb'), now)}" if i.get("last_hb") else "")
+                  + (" · skončila" if i.get("ended") else
+                     " · trh zatvorený" if _alive(i, now) == "closed" else "")]
         poz = _positions(ctx)
         riadky.append("Pozície: " + ("; ".join(_e(_pos_text(x, ctx)) for x in poz) if poz else "žiadne"))
         cak = _pending(ctx)

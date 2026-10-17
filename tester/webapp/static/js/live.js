@@ -145,6 +145,12 @@ async function liveApplyRows(id, rows) {
   for (const r of nove) {
     if (lv.session && r.session !== lv.session) continue;
     const ev = r.event;
+    if (ev.k === "hb") {                                        // ping: len stav, graf ani tabuľky sa nemenia
+      snap.instance.last_t = Math.max(snap.instance.last_t || 0, ev.t);
+      snap.instance.last_hb = Math.max(snap.instance.last_hb || 0, ev.t);
+      $("#live-detail-status").innerHTML = liveStatusChip(snap.instance);
+      continue;
+    }
     zmena = true;
     if (ev.k === "bar") {
       const i = snap.bars.findIndex(b => b.bt === ev.bt);
@@ -196,10 +202,24 @@ function liveSetup() {
   setInterval(() => api("/api/live").then(d => liveChip(d.instances, d.now, d.mirror)).catch(() => liveChip([], 0, { last_error: "webapp neodpovedá" })), 30e3);
 }
 
-/** Inštancia je „živá", keď posledná udalosť nie je staršia než 3 bary jej TF. */
+/** Stav inštancie — to isté ako `tradebot.live.store.liveness`: `live`, `closed` (pinguje `hb`, ale
+ *  bary nechodia — trh zatvorený) alebo `silent`. Kto pinguje (posledný ping nie je o viac než 3 min
+ *  starší než posledná udalosť), žije 3 min od poslednej udalosti; bez pingov 3 bary TF ako predtým. */
+const LIVE_HB_MS = 180e3;
+function liveState(inst, now = lv.now) {
+  const lastT = Number(inst.last_t) || 0;
+  if (!lastT) return "silent";
+  const tfMs = Math.max(1, Number(inst.tf) || 1) * 60e3;
+  const lastHb = Number(inst.last_hb) || 0;
+  const pinguje = lastHb > 0 && lastT - lastHb <= LIVE_HB_MS;
+  if (now - lastT > (pinguje ? LIVE_HB_MS : 3 * tfMs)) return "silent";
+  const bar = Number(inst.last_bar_ms) || 0;
+  return pinguje && (!bar || now - bar > 4 * tfMs) ? "closed" : "live";
+}
+
+/** Inštancia je „živá" (beží, aj keď trh stojí) — `liveState` nie je `silent`. */
 function liveAlive(inst, now = lv.now) {
-  const tf = Math.max(1, Number(inst.tf) || 1);
-  return inst.last_t && (now - inst.last_t) <= 3 * tf * 60e3;
+  return liveState(inst, now) !== "silent";
 }
 
 /** Bodka a počet živých pri záložke Live; bez argumentov zo stavu karty. */
@@ -337,11 +357,16 @@ function liveFillsToday(f) {
 }
 
 function liveStatusChip(inst) {
-  const alive = liveAlive(inst);
+  const stav = liveState(inst);
   const tester = inst.hello && inst.hello.tester ? ' <span class="chip warn" title="beží v Strategy Testeri / Analyzeri">tester</span>' : "";
   const gaps = liveGapsOf(inst.id);
   const diera = gaps.length ? ` <span class="chip bad" title="${esc(gaps.map(g => `beh ${g.session}: chýba seq ${g.first}–${g.last} (${g.missing})${g.on_hub ? ", aj na hube" : ""}`).join("\n"))}">chýbajú dáta</span>` : "";
-  return `<span class="chip ${alive ? "ok" : ""}" title="${alive ? "posledná udalosť do 3 barov" : "bez udalostí dlhšie než 3 bary"}">${alive ? "živá" : "ticho"}</span>${tester}${diera}`;
+  const chip = {
+    live: `<span class="chip ok" title="${inst.last_hb ? "ping alebo udalosť do 3 min" : "posledná udalosť do 3 barov"}">živá</span>`,
+    closed: `<span class="chip ok" title="platforma pinguje, ale bar neprišiel dlhšie než 4 bary — trh je zatvorený">trh zatvorený</span>`,
+    silent: `<span class="chip" title="${inst.last_hb ? "ani ping, ani udalosť dlhšie než 3 min — platforma spadla alebo zamrzla" : "bez udalostí dlhšie než 3 bary"}">ticho</span>`,
+  }[stav];
+  return `${chip}${tester}${diera}`;
 }
 
 function renderLiveList() {
@@ -632,7 +657,8 @@ function ldStatusChip(dep) {
     if (a.status === "pending") co.push("čaká na flat");
     return `<span class="chip warn" title="agent ešte neaplikoval: ${esc(co.join(", "))}">čaká</span>`;
   }
-  if (live.alive) return `<span class="chip ok" title="inštancia v spoole žije (udalosť do 3 barov)">živá</span>`;
+  if (live.state === "closed") return `<span class="chip ok" title="platforma pinguje, ale bary nechodia — trh je zatvorený">trh zatvorený</span>`;
+  if (live.alive) return `<span class="chip ok" title="inštancia v spoole žije (ping alebo udalosť nedávno)">živá</span>`;
   return `<span class="chip" title="${live.seen ? "aplikované, ale spool je ticho dlhšie než 3 bary" : "aplikované, inštancia v spoole ešte nie je"}">ok</span>`
     + ldIssueChip(a);
 }
@@ -769,7 +795,7 @@ function renderLiveDeploy() {
   const accById = Object.fromEntries(ld.accounts.map(a => [a.id, a]));
   const deps = ld.deployments;
   const key = JSON.stringify([ld.admin, ld.accounts, Object.keys(ld.profiles), ld.agents, lv.deploy && lv.deploy.version, lv.deploy && lv.deploy.pushed,
-    deps.map(d => [d.id, d.mode, d.active, d.config_hash, d.profile, d.applied, d.live && d.live.alive, d.live && d.live.last_bar_ms, d.code_state])]);
+    deps.map(d => [d.id, d.mode, d.active, d.config_hash, d.profile, d.applied, d.live && d.live.alive, d.live && d.live.state, d.live && d.live.last_bar_ms, d.code_state])]);
   const instances = new Set(lv.instances.map(i => i.id));
   if (key !== ld.key) {
     ld.key = key;

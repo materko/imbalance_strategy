@@ -110,6 +110,7 @@ Freqtrade a graf webapp).
 | `fill` | `ft` (čas exekúcie ms UTC), `id` (id vstupu), `side` `in`/`out`, `exit` (meno výstupu: NT `Stop loss`/`Profit target`/`tb_close`/`tb_session_end`, MT5 `sltp`/`close`; pri `in` prázdne), `price`, `qty`, `ready` | vyplnenie u brokera (adaptér, nie engine) |
 | `stat` | `stats` (objekt: `Engine.Stats()` + `adapter_*` počítadlá) | pri ukončení |
 | `note` | `text`, `level` (`info`/`warn`/`error`) | varovania adaptéra (neskorý bar, chyba spoolu…) |
+| `hb` | `bars` (barov v session), `lb` (čas posledného baru, 0 = žiadny), `mode` (posledný `control`, keď bol) | **ping** každých 60 s z časovača `LiveSpool` (mimo Strategy Testera/Analyzera), aj keď bary nechodia; **nečísluje `seq`** (nesie posledné pridelené) |
 | `bye` | `reason` | ukončenie stratégie (posledný riadok súboru, keď sa stihne) |
 
 Príklad:
@@ -121,7 +122,33 @@ Príklad:
 {"seq":4,"t":1790000000458,"k":"draw","bt":1789999820000,"d":[{"t":"box","k":"zone","id":"z4711",...}]}
 {"seq":5,"t":1790000063000,"k":"fill","ft":1790000062800,"id":"L-4711","side":"in","exit":"","price":20090,"qty":1,"ready":true}
 {"seq":6,"t":1790000180002,"k":"order","bt":1790000000000,"ready":true,"a":"modify","id":"L-4711","p":{"sl":20085,"tp":null},"r":"trailing"}
+{"seq":6,"t":1790000240000,"k":"hb","bars":1,"lb":1789999820000,"mode":"enabled"}
 ```
+
+### Ping (`hb`)
+
+Bez pingu dostáva spool udalosti len pri bare alebo obchode, takže v noci a cez víkend vyzerá každá
+inštancia ako „ticho“ a spadnutá či zamrznutá platforma sa od zatvoreného trhu nedá rozlíšiť.
+`LiveSpool` preto mimo Testera spustí vlastný `System.Threading.Timer` (`HeartbeatMs`, predvolene
+60 000; vlákno z poolu, zápis pod tým istým zámkom ako obchodné vlákno) a píše `hb` — dostanú ho NT8
+aj MT5 bez zmeny adaptérov ani MQL5. `hb` sa flushuje hneď (agent ho vidí aj mimo realtime);
+`StaticHost.SpoolHeartbeat(h)` ho napíše na požiadanie (MT5 `OnTimer`, testy).
+
+**Prečo `hb` nečísluje `seq`:** 1440 pingov denne na inštanciu by v `events` hubu aj zrkadla len
+zavadzalo, a keby mali vlastné čísla, sklad by ich buď musel držať všetky, alebo by v `seq` vznikali
+diery, ktoré `LiveStore.gaps` (a dopytovanie z hubu) hlási ako stratené dáta. Ping preto nesie
+posledné pridelené `seq` a `LiveStore` z pingov behu drží **jeden riadok** (`seq = 0`, takže `UNIQUE`
+aj `gaps` ho nevidia): novší ping ho zmaže a vloží znova s novým `rowid` — zrkadlo ho tak dostane cez
+`export` ako každú inú udalosť, starší alebo opakovaný ping nezmení nič. Stav inštancie nesie
+`last_hb` a `hb` (telo posledného pingu) a `last_t` sa posúva aj pingom.
+
+**Živá / trh zatvorený / ticho** (`tradebot.live.store.liveness`, to isté v `live.js` `liveState`,
+v Telegrame `/status`, v nasadeniach `live.state`): inštancia, ktorá pinguje (posledný `hb` nie je
+o viac než 3 min starší než posledná udalosť), je živá, kým posledná udalosť nie je staršia než
+3 min (`HB_ALIVE_MS`), nezávisle od TF; keď k tomu bar neprišiel dlhšie než 4 bary TF, je to
+**trh zatvorený** (platforma beží, trh stojí). Bez pingu, ani udalosti 3 min = **ticho** — platforma
+spadla alebo zamrzla. Inštancia bez pingov (starý kód, Tester) sa posudzuje ako predtým: živá, kým
+posledná udalosť nie je staršia než 3 bary TF.
 
 ## C# (`csharp/TradeBot.Core/Live.cs`)
 
@@ -236,7 +263,7 @@ Graf: Plotly sviečky z `bar`, kresby cez `objectTraces` z `chart.js`, fills ako
 **Behy (sessions).** Každý štart stratégie je nový beh — `session` v `hello` a v každom riadku
 spoolu; dáta sa ukladajú po behoch a `LiveStore.sessions(instance)` z nich urobí prehľad (štart =
 `t` prvého `hello`, koniec = `t` `bye`, počty barov/fillov/orderov, profil, dôvod ukončenia,
-`live` = bez `bye` a posledná udalosť do 3 barov TF). V detaile inštancie je výber **Beh**:
+`live` = bez `bye` a `liveness` behu nie je ticho — ping do 3 min, bez pingov udalosť do 3 barov TF). V detaile inštancie je výber **Beh**:
 „aktuálny / živý“ = posledných 500 barov naprieč behmi ako doteraz (po reštarte teda vidno
 prehratú predhistóriu aj nový beh v jednom okne), pod ním behy od najnovšieho ako
 `štart UTC → koniec UTC (bary, fills, profil)`. Vybraný beh načíta `snapshot?session=` — celý beh
@@ -575,8 +602,8 @@ Ovláda sa **gombíkmi**: `/start` pridá stálu klávesnicu (📊 Stav, 📋 Or
 nastaví menu „/“ (`setMyCommands`). Správy so stavom sú HTML a ťuknutie ich prepíše na mieste
 (`editMessageText`), takže chat nezahltia.
 
-- **📊 Stav** (`/status`) — stratégie po platformách a účtoch: režim (▶/⏸/⛔), 🟢 živá (udalosť do 3 barov) /
-  ⚪ ticho N / ⏹ skončila, vek baru, pozícia a počet čakajúcich vstupov; gombík na každú stratégiu, **Pauza
+- **📊 Stav** (`/status`) — stratégie po platformách a účtoch: režim (▶/⏸/⛔), 🟢 živá (ping alebo udalosť nedávno) /
+  🌙 trh zatvorený (pinguje, bary nechodia) / ⚪ ticho N (platforma spadla či zamrzla) / ⏹ skončila, vek baru, pozícia a počet čakajúcich vstupov; gombík na každú stratégiu, **Pauza
   všetkým**, **Spustiť všetky**, Obnoviť, Ordery. Inštancia bez udalosti 7 dní (`STALE_DAYS`) sa neukazuje.
 - **ponuka stratégie** — profil, režim, posledný bar, pozície (cena, SL/TP aj po posune trailingu, nerealizovaný
   zisk z close posledného baru) a čakajúce vstupy; **Pauza**, **Spustiť**, **Flatten…** (otázka s **Áno, zavrieť**,
