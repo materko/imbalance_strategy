@@ -94,6 +94,7 @@ def test_beh_na_burze_multicharts_ide_cez_emulator_a_ulozi_sa(mc_data, tmp_path:
 
     store = RunStore(tmp_path / "runs")
     br = runner_mod.BacktestRunner(store)
+    br.mc_isolated = False  # podvrhnutý emulátor platí len v tomto procese
     params = runner_mod.default_params("docs/profily_archiv/ibs/nas100_dukas_3m.json")[0]
     settings = {"strategy": "ibs", "pair": "NAS100/USD", "timeframe": "3m", "timerange": "20250106-20250107",
                 "fee": 0.001, "wallet": 10000.0, "timeframe_detail": "1m", "profile": "nas100_dukas_3m"}
@@ -113,6 +114,42 @@ def test_beh_na_burze_multicharts_ide_cez_emulator_a_ulozi_sa(mc_data, tmp_path:
     trades = store.trades(job.id)
     assert trades[0]["enter_tag"] == "LONG_1" and trades[0]["exit_reason"] == "take_profit"
     assert store.has_chart(job.id) and "emulacia: test" in store.log(job.id)
+
+
+def test_emulator_v_podprocese_da_to_iste_co_v_procese_webapp(tmp_path: Path, monkeypatch):
+    """Agent hubu púšťa emulátor v podprocese (`mc_worker`), aby behy nedržali GIL webapp —
+    výsledok, obchody aj log musia byť tie isté ako pri behu priamo v procese."""
+    if not engines.one_minute_file(INST).exists():
+        pytest.skip("bez 1m dát NAS100")
+    from tester.webapp.store import RunStore, make_run_id
+
+    monkeypatch.setattr("tester.webapp.command.TMP_PROFILES", tmp_path / "profiles")
+    monkeypatch.setattr("tester.webapp.runner.TMP_PROFILES", tmp_path / "profiles")
+    params = runner_mod.default_params("docs/profily_archiv/ibs/nas100_dukas_3m.json")[0]
+    settings = {"strategy": "ibs", "pair": "NAS100/USD", "timeframe": "3m", "timerange": "20250106-20250301",
+                "fee": 0.0001, "wallet": 10000.0, "timeframe_detail": "1m", "profile": "nas100_dukas_3m"}
+    vysledky = []
+    for izolovane in (False, True):
+        store = RunStore(tmp_path / f"runs{int(izolovane)}")
+        br = runner_mod.BacktestRunner(store)
+        br.mc_isolated = izolovane
+        job = runner_mod.Job(id=make_run_id(params, settings), params=params, settings=settings, note="t")
+        br._run(job)
+        assert job.status == "done", job.error
+        res = {k: v for k, v in store.get(job.id)["result"].items() if k != "duration_s"}
+        vysledky.append((res, store.trades(job.id), store.has_chart(job.id)))
+        assert "emulator MultiCharts" in store.log(job.id)
+    assert vysledky[0] == vysledky[1]
+    assert not list((tmp_path / "profiles").glob("*.mc.*"))  # úloha a pickle sa upracú
+
+
+def test_emulator_v_podprocese_hlasi_chybu_procesu(tmp_path: Path, monkeypatch):
+    monkeypatch.setattr("tester.webapp.runner.TMP_PROFILES", tmp_path / "profiles")
+    br = runner_mod.BacktestRunner(None)
+    job = runner_mod.Job(id="x", params={}, settings={"pair": "NAS100/USD", "timerange": "20250106-20250107"})
+    with pytest.raises(RuntimeError, match="emulátor MultiCharts skončil s kódom"):
+        br._multicharts_subprocess(job, tmp_path / "neexistuje.json", None)
+    assert any("neexistuje" in line or "Error" in line for line in job.log_lines)
 
 
 def test_dukas_import_zapise_rocne_subory(tmp_path: Path, capsys):

@@ -156,9 +156,11 @@ profil ladený na 5m nesedí na 3m. Výber profilu preto TF prepne — profil re
 (nemá uložený TF) na 3m.
 
 **Burza MultiCharts**: páry s Dukascopy dátami (`NAS100`) idú cez emulátor MultiCharts
-priamo v procese webapp (bez Freqtrade) — ten istý runner ako študia v MultiCharts, jedna
-pozícia, SL/TP po 1m; `timeframe_detail` sa ignoruje, 1m je vždy. Ako pridať symbol:
-README, sekcia „Dukascopy dáta".
+(bez Freqtrade) — ten istý runner ako študia v MultiCharts, jedna pozícia, SL/TP po 1m;
+`timeframe_detail` sa ignoruje, 1m je vždy. Beh je podproces `tester.webapp.mc_worker`,
+ako Freqtrade: emulátor je čistý Python a v procese webapp by držal GIL — agent hubu
+s 24 workermi by počítal na jednom jadre a webapp by neodpovedala ani hubu na heartbeat.
+Ako pridať symbol: README, sekcia „Dukascopy dáta".
 
 **Pár** je v ponuke ako **zdroj · trh · symbol** — `binance · futures · BTCUSDT.P`,
 `binance · spot · BTCUSDT`, `dukascopy · cfd · NAS100` —, zoskupený podľa zdroja dát.

@@ -22,7 +22,9 @@ do histórie nejdú: uloží sa len riadok výsledku do `sweeps/` a kresby sa an
 
 from __future__ import annotations
 
+import json
 import os
+import pickle
 import queue
 import subprocess
 import sys
@@ -111,6 +113,10 @@ class BacktestRunner(HyperoptJobMixin):
         #: čakajú, kým dobehne hyperopt. Worker s takým behom v ruke tu stojí.
         self._slot = threading.Condition(self._lock)
         self._threads: list[threading.Thread] = []
+        #: Emulátor MultiCharts v podprocese (`mc_worker`), nie v procese webapp — inak by
+        #: behy držali GIL a webapp by pri viacerých workeroch neodpovedala. False = tu
+        #: (testy s podvrhnutým emulátorom).
+        self.mc_isolated = True
 
     def start(self) -> None:
         zive = [t for t in self._threads if t.is_alive()]
@@ -292,10 +298,14 @@ class BacktestRunner(HyperoptJobMixin):
         výsledok v tvare Freqtrade behu — história webapp ich nerozlišuje.
         """
         chart_tmp = TMP_PROFILES / f"{job.id}.chart.json.gz"
-        out = run_multicharts(
-            job.params, job.settings, profile,
-            log=lambda s: job.log_lines.append(s), should_stop=lambda: job.cancel_requested,
-            chart_out=chart_tmp if batch_tag(job.settings) is None else None)
+        chart_out = chart_tmp if batch_tag(job.settings) is None else None
+        if self.mc_isolated:
+            out = self._multicharts_subprocess(job, profile, chart_out)
+        else:
+            out = run_multicharts(
+                job.params, job.settings, profile,
+                log=lambda s: job.log_lines.append(s), should_stop=lambda: job.cancel_requested,
+                chart_out=chart_out)
         duration = round(time.time() - t0, 1)
         job.finished = datetime.now(timezone.utc).isoformat(timespec="seconds")
         if out is None or job.cancel_requested:
@@ -308,6 +318,40 @@ class BacktestRunner(HyperoptJobMixin):
         summary["duration_s"] = duration
         job.status = "done"
         self._persist(job, (summary, rows, series), duration, chart_path=chart_tmp)
+
+    def _multicharts_subprocess(self, job: Job, profile: Path, chart_out: Path | None):
+        """`run_multicharts` v podprocese (`tester.webapp.mc_worker`): log zo stdout do logu
+        behu, výsledok z pickle; `None`, keď sa beh zrušil (`cancel` proces zabije)."""
+        TMP_PROFILES.mkdir(parents=True, exist_ok=True)
+        task_path = TMP_PROFILES / f"{job.id}.mc.json"
+        result_path = TMP_PROFILES / f"{job.id}.mc.pickle"
+        task_path.write_text(json.dumps({
+            "params": job.params, "settings": job.settings, "profile": str(profile),
+            "result": str(result_path), "chart_out": str(chart_out) if chart_out else None,
+        }, ensure_ascii=False, default=str), encoding="utf-8")
+        cmd = [self.python, "-m", "tester.webapp.mc_worker", str(task_path)]
+        try:
+            job.proc = subprocess.Popen(
+                cmd, cwd=str(REPO), env=dict(os.environ, PYTHONIOENCODING="utf-8", PYTHONUTF8="1"),
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                text=True, encoding="utf-8", errors="replace", bufsize=1,
+            )
+            assert job.proc.stdout is not None
+            for line in job.proc.stdout:
+                job.log_lines.append(line.rstrip("\n"))
+                if len(job.log_lines) > 5000:
+                    del job.log_lines[:1000]
+            rc = job.proc.wait()
+            if job.cancel_requested:
+                return None
+            if rc != 0 or not result_path.exists():
+                chvost = "\n".join(job.log_lines[-15:])
+                raise RuntimeError(f"emulátor MultiCharts skončil s kódom {rc}\n{chvost}")
+            with open(result_path, "rb") as fh:
+                return pickle.load(fh)
+        finally:
+            task_path.unlink(missing_ok=True)
+            result_path.unlink(missing_ok=True)
 
     def _persist(self, job: Job, result, duration: float | None = None,
                  chart_path: Path | None = None) -> None:

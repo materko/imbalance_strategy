@@ -299,8 +299,18 @@ async function hubAkcia(fn) {
   if (chyba) { $("#hub-error").textContent = chyba; $("#hub-error").hidden = false; }
 }
 
+/** Karta Hub sa obnovuje na pozadí každých 10 s, kým je otvorená — aj po chybe (webapp
+ *  zaneprázdnená počítaním, hub sa reštartuje), inak by obnovovanie potichu prestalo. */
 async function loadHub() {
   clearTimeout(state.hubTimer); state.hubTimer = null;
+  try { await renderHub(); }
+  finally {
+    clearTimeout(state.hubTimer);
+    state.hubTimer = $("#view-hub").hidden ? null : setTimeout(loadHub, 10000);
+  }
+}
+
+async function renderHub() {
   let h;
   try { h = await api("/api/hub"); $("#hub-error").hidden = true; }
   catch (e) { $("#hub-error").textContent = e.message; $("#hub-error").hidden = false; return; }
@@ -359,7 +369,6 @@ OK = áno (premenovaný stroj ho pod starým menom `
     for (const b of $$("[data-hub-cancel]")) b.onclick = async () =>
       hubAkcia(() => api(`/api/hub/jobs/${b.dataset.hubCancel}/cancel`, { method: "POST" }));
   }
-  if (!$("#view-hub").hidden) state.hubTimer = setTimeout(loadHub, 10000);
 }
 
 /** Nový text logu bez straty pozície: ak bol scroll na konci, ostane na konci (sleduje beh),
