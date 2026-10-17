@@ -334,10 +334,11 @@ class ChartReplayer:
                                 stderr=subprocess.STDOUT, text=True, encoding="utf-8",
                                 errors="replace", bufsize=1)
         assert proc.stdout is not None
-        for line in proc.stdout:
-            job.log_lines.append(line.rstrip("\n"))
-            if len(job.log_lines) > 2000:
-                del job.log_lines[:500]
+        with proc.stdout:
+            for line in proc.stdout:
+                job.log_lines.append(line.rstrip("\n"))
+                if len(job.log_lines) > 2000:
+                    del job.log_lines[:500]
         rc = proc.wait()
         if rc != 0:
             chyby = [l for l in job.log_lines if l.startswith("CHYBA")]

@@ -150,6 +150,9 @@ def test_emulator_v_podprocese_hlasi_chybu_procesu(tmp_path: Path, monkeypatch):
     with pytest.raises(RuntimeError, match="emulátor MultiCharts skončil s kódom"):
         br._multicharts_subprocess(job, tmp_path / "neexistuje.json", None)
     assert any("neexistuje" in line or "Error" in line for line in job.log_lines)
+    # Job ostáva v `runner.jobs` aj s Popen — otvorená rúra by bol deskriptor na každý beh
+    # a agent hubu by po tisícoch behov padal na „Too many open files".
+    assert job.proc.stdout.closed
 
 
 def test_dukas_import_zapise_rocne_subory(tmp_path: Path, capsys):

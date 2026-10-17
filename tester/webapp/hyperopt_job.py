@@ -81,10 +81,11 @@ class HyperoptJobMixin:
                 time.sleep(5)
 
         threading.Thread(target=_sleduj, daemon=True, name=f"eta-{job.id}").start()
-        for line in job.proc.stdout:
-            job.log_lines.append(line.rstrip("\n"))
-            if len(job.log_lines) > 5000:
-                del job.log_lines[:1000]
+        with job.proc.stdout:  # rúra sa zatvorí hneď — Job (a jeho Popen) ostáva v pamäti
+            for line in job.proc.stdout:
+                job.log_lines.append(line.rstrip("\n"))
+                if len(job.log_lines) > 5000:
+                    del job.log_lines[:1000]
         rc = job.proc.wait()
         job.finished = datetime.now(timezone.utc).isoformat(timespec="seconds")
         duration = round(time.time() - t0, 1)
