@@ -300,6 +300,23 @@ def test_agent_stats_count_done_runs_and_average_times(hub, tmp_path: Path):
     assert znova.overview()["agents"][0]["stats"] == st
 
 
+def test_overview_shows_hub_version_and_pending_update(tmp_path: Path):
+    from tester.hub.update import Updater
+
+    state = HubState(tmp_path / "hub", token="tajne", clock=Clock(), version="aaa1111")
+    o = state.overview()
+    assert o["version"] == "aaa1111" and o["update"] is None
+    verzie = ["aaa1111"]
+    state.updater = Updater(state, interval=60, pull=lambda: {"ok": True}, version=lambda: verzie[-1],
+                            quit=lambda: None)
+    _reg(state)
+    state.submit(kind="backtest", payload=_payload(), submitter="lap")
+    verzie.append("bbb2222")
+    assert state.updater.tick() is False  # počíta sa, reštart čaká
+    u = state.overview()["update"]
+    assert u["version"] == "aaa1111" and u["pending"] == "bbb2222" and u["waiting_for"] == 1
+
+
 def test_agent_stats_seeded_from_jobs_of_older_hub(hub, tmp_path: Path):
     state, clock = hub
     _reg(state)

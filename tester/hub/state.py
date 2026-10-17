@@ -81,6 +81,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
         self.deploy: Any = None
         #: `tester.hub.plugins.PluginHost` bežiaceho hubu (nastaví `serve`)
         self.plugins: Any = None
+        #: `tester.hub.update.Updater` samoaktualizácie (nastaví `serve`, keď je zapnutá)
+        self.updater: Any = None
         self._live_cache: tuple[float, set[str]] | None = None
         self._load()
         self._load_tokens()
@@ -760,6 +762,9 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
                 "running": sum(1 for j in zive if j["status"] in ("assigned", "running", "cancelling")),
                 "jobs": [self._job_public(j) for j in zive],
                 "heartbeat_seconds": self.heartbeat_seconds,
+                # commit, na ktorom hub beží, a či čaká na reštart na novší (samoaktualizácia)
+                "version": self.version or None,
+                "update": self.updater.public() if self.updater is not None else None,
                 # inštancie live stratégií, ktoré online agenti hlásia v heartbeate
                 "live_instances": sum(len((a.get("live") or {}).get("instances") or [])
                                       for a in self.agents.values() if a.get("online")),

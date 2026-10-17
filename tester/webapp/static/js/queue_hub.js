@@ -84,6 +84,39 @@ function hubStatsRow(a) {
     <td class="num">${ho.day_done ?? 0}</td><td class="num">${fmtDur(ho.day_avg_seconds)}</td></tr>`;
 }
 
+/** Zbalená / rozbalená štatistika agentov — pamätá si to prehliadač. */
+const HUB_STATS_KEY = "ibs.hubStatsOpen";
+function hubStatsBox() {
+  const box = $("#hub-stats-box");
+  if (!box || box.dataset.ready) return;
+  box.dataset.ready = "1";
+  try { const v = localStorage.getItem(HUB_STATS_KEY); if (v !== null) box.open = v === "1"; } catch (_) { /* súkromné okno */ }
+  box.addEventListener("toggle", () => {
+    try { localStorage.setItem(HUB_STATS_KEY, box.open ? "1" : "0"); } catch (_) { /* ignoruj */ }
+  });
+}
+
+/** Na akom kóde hub beží a či čaká na reštart na novší (samoaktualizácia). */
+function renderHubVersion(hub) {
+  const el = $("#hub-version");
+  const u = hub.update;
+  const ver = hub.version || (u && u.version);
+  el.hidden = !ver;
+  if (!ver) return;
+  const mine = $("#hub-agent-version").textContent;
+  let text = `hub ${ver}`, cls = "chip", title = "commit, na ktorom hub beží";
+  if (u && u.pending) {
+    text += ` → ${u.pending}`; cls = "chip warn";
+    title = `hub má nový kód ${u.pending} a reštartuje sa, keď nič nepočíta` +
+      (u.waiting_for ? ` (rozpočítané výpočty: ${u.waiting_for})` : "");
+  } else if (mine && mine !== ver) {
+    title += ` — táto webapp je na ${mine}`;
+  }
+  if (u && u.last_error) title += `; posledná aktualizácia zlyhala: ${u.last_error}`;
+  if (!u) title += " (samoaktualizácia vypnutá)";
+  el.textContent = text; el.className = cls; el.title = title;
+}
+
 function fmtEta(s) {
   if (s === null || s === undefined) return "–";
   if (s <= 0) return "hneď";
@@ -279,6 +312,9 @@ async function loadHub() {
     $("#hub-agents tbody").innerHTML = ""; $("#hub-stats tbody").innerHTML = ""; $("#hub-jobs tbody").innerHTML = "";
   } else {
     $("#hub-agents-count").textContent = `${hub.online} online`;
+    renderHubVersion(hub);
+    hubStatsBox();
+    $("#hub-stats-old").hidden = hub.agents.some(a => a.stats);
     $("#hub-agents tbody").innerHTML = hub.agents.map(a => `<tr class="plain">
       <td><b>${esc(a.name)}</b> ${hubKind(a)}</td>
       <td><span class="chip ${a.online ? "ok" : ""}">${a.online ? "online" : "offline"}</span>${a.needs_restart ? ' <span class="chip warn" title="po git pull čaká na reštart">reštart</span>' : ""}${a.updating ? ' <span class="chip warn" title="agent ťahá kód (git pull) — dovtedy nič nové nedostane">ťahá kód</span>' : ""}</td>

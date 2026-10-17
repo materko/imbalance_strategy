@@ -142,6 +142,7 @@ def _start_updater(args: argparse.Namespace, state: Any):
          if minuty is not None else from_env(state))
     if u is None:
         return None
+    state.updater = u
     u.start()
     print(f"Samoaktualizacia: kazdych {u.interval / 60:.0f} min fetch origin/{u.branch}, "
           f"restart po zmene kodu "
