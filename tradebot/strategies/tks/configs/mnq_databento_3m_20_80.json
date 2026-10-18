@@ -1,0 +1,9 @@
+{
+  "_title": "TKS prísne hranice — MNQ 3m: Kompas pod 20 / nad 80, 3 sviečky, SL swing (3), TP 1:1",
+  "_strategy": "tks",
+  "_instrument": "mnq_databento",
+  "_timeframe": "3m",
+  "loLevel": 20.0,
+  "hiLevel": 80.0,
+  "_comment": ["Prvý test (2019-06 – 2025-09): každý rok v zisku, PF 1,18, WR 55 %."]
+}
