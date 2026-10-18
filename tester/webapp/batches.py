@@ -167,6 +167,28 @@ class BatchStore:
             self._cache.pop(str(path), None)
         return path
 
+    def remove_point(self, run_id: str) -> dict[str, Any] | None:
+        """Vyberie bod z jeho celku a vráti ho ako záznam behu (`None` = taký bod niet).
+        Celok, v ktorom nič neostane, zmizne celý (`tester.hub.delivered`)."""
+        if not _RUN_ID_RE.match(str(run_id)):
+            return None
+        with self._lock:
+            for data in self.files():
+                body = data.get("points") or []
+                bod = next((p for p in body if p.get("run") == run_id), None)
+                if bod is None:
+                    continue
+                zaznam = self.expand(data, bod)
+                path = self.path(data["kind"], data["id"])
+                zvysok = [p for p in body if p is not bod]
+                if zvysok:
+                    _write_atomic(path, {**data, "points": zvysok})
+                else:
+                    path.unlink(missing_ok=True)
+                self._cache.pop(str(path), None)
+                return zaznam
+        return None
+
     # -- čítanie -------------------------------------------------------------- #
 
     def _load(self, path: Path) -> dict[str, Any] | None:

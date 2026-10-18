@@ -89,7 +89,7 @@ from tradebot.core.paths import (AGENT_CONFIG, LIVE_APPLY_STATE, LIVE_CURSOR, LI
                                  LIVE_JOURNAL_STATE, TELEGRAM_CONFIG, TELEGRAM_CURSOR, TELEGRAM_STATE)
 
 from . import config as agent_config
-from . import gitcode
+from . import delivered, gitcode
 from . import protocol as P
 from .client import HubError, HubHttp
 from .config import AgentConfig, AgentState, load_state, save_state
@@ -115,6 +115,9 @@ WORK_POLL_SECONDS = 2.0
 #: Koľkokrát sa výsledok skúsi odovzdať hubu, ktorý výpočet nepozná (404), než sa odloží
 #: do `undelivered`. Hub po reštarte môže mať stav ešte nenačítaný — pár tickov mu dáme.
 DELIVER_404_TRIES = 5
+
+#: Ako často sa mažú odovzdané behy staršie než `delivered.KEEP_DAYS` (sekundy).
+DELIVERED_PURGE_SECONDS = 3600.0
 
 #: Ako často sa znova hľadajú korene live spoolu (platforma nainštalovaná po štarte agenta).
 LIVE_ROOTS_RECHECK_SECONDS = 60.0
@@ -235,6 +238,9 @@ class HubAgent:
         self._thread: threading.Thread | None = None
         self._worker: threading.Thread | None = None
         self._watcher: threading.Thread | None = None
+        #: Kedy sa naposledy upratovali odovzdané behy (`None` = ešte nie, prvé kolo aj
+        #: presunie cudzie behy spred `tester.hub.delivered`).
+        self._delivered_at: float | None = None
 
     # -- vlákno ------------------------------------------------------------- #
 
@@ -414,7 +420,7 @@ class HubAgent:
         výsledku a hlavne `git pull` s dopočítaním dát trvajú aj minúty a hub by medzitým
         agenta vyhlásil za mŕtveho (`agent_timeout` je 45 s) a jeho výpočty dal inému."""
         for krok in (self._upload_finished, self._ship_live, self._apply_live, self._update_code, self._do_pull,
-                     self._drain_collects):
+                     self._drain_collects, self._tidy_delivered):
             try:
                 krok()
             except Exception as exc:  # noqa: BLE001 - jeden krok nesmie zhodiť vlákno
@@ -952,6 +958,7 @@ class HubAgent:
             self._fail(job_id, str(exc))
             return
         self.state.computing[job_id] = {"run_id": local.id, "kind": job.get("kind"),
+                                        "submitter": job.get("submitter"),
                                         "max_seconds": job.get("max_seconds"),
                                         "accepted": datetime.now(timezone.utc).isoformat(timespec="seconds")}
         self._save()
@@ -1055,6 +1062,46 @@ class HubAgent:
             self.state.computing.pop(job_id, None)
             self._final_ticks.pop(job_id, None)
             self._save()
+            self._retire(entry, run_ids)
+
+    def _retire(self, entry: dict[str, Any], run_ids: list[str]) -> None:
+        """Odovzdaný výpočet iného zadávateľa von z histórie (`tester.hub.delivered`) —
+        zadávateľ ho pushne a rovnaký súbor mimo gitu by tu zastavil `git pull`."""
+        submitter = entry.get("submitter")
+        if submitter is None:  # výpočet prijatý pred touto zmenou
+            submitter = (((self.store.find(entry["run_id"]) or {}).get("settings") or {})
+                         .get("hub") or {}).get("submitter")
+        if not submitter or submitter == self.cfg.name:
+            return
+        try:
+            delivered.retire(self.store, run_ids)
+        except OSError as exc:  # zamknutý súbor (Windows) — dorieši upratovanie po štarte
+            log.warning("hub agent: odovzdane behy %s sa nepodarilo odlozit: %s", ", ".join(run_ids), exc)
+
+    def _tidy_delivered(self) -> None:
+        """Raz po štarte odloží cudzie behy spred `tester.hub.delivered`, potom raz za
+        `DELIVERED_PURGE_SECONDS` zmaže odovzdané behy staršie než `delivered.KEEP_DAYS`."""
+        now = self.clock()
+        if self._delivered_at is not None and now - self._delivered_at < DELIVERED_PURGE_SECONDS:
+            return
+        prvy = self._delivered_at is None
+        self._delivered_at = now
+        if prvy:
+            keep: set[str] = set()
+            for entry in list(self.state.computing.values()):
+                if entry.get("run_id"):
+                    keep.add(entry["run_id"])
+                    keep.update(self._verification_ids(entry["run_id"]))
+            for zaznam in list(self.state.undelivered.values()):
+                keep.update(zaznam.get("run_ids") or [])
+            ids = delivered.foreign(self.store, self.cfg.name, keep)
+            if ids:
+                n = len(delivered.retire(self.store, ids))
+                log.info("hub agent: %d behov spocitanych pre inych odlozenych do %s", n,
+                         delivered.root_for(self.store))
+        n = delivered.purge(delivered.root_for(self.store))
+        if n:
+            log.info("hub agent: zmazanych %d odovzdanych behov starsich nez %g dni", n, delivered.KEEP_DAYS)
 
     def _deliver_failed(self, job_id: str, entry: dict[str, Any], reason: str) -> None:
         """Odovzdanie neprešlo (hub mimo) — necháme si ho a skúsime to o tick znova."""

@@ -57,6 +57,7 @@ tester/hub_data/
 tester/agent.json
 tester/live/
 tester/agent_state.json
+tester/hub_delivered/
 .claude/
 
 # Prelozene C# jadro - most si ho zostavi sam (python -m tradebot.adapters.csharp.build)

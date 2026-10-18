@@ -149,6 +149,20 @@ najmenej. Beh v histórii nesie `settings.hub` (výpočet, zadávateľ, agent, �
 skutočný commit) a hotový výpočet má `agent_version`; CLI upozorní, keď sa líši od
 zadaného (agent stál na novšom `main`).
 
+## Behy spočítané pre iných
+
+Agent počíta vo vlastnom runneri, takže beh vznikne aj v **jeho** `tester/runs/` — s tým
+istým id, s akým ho hub vráti zadávateľovi. Keď ho zadávateľ commitne a pushne, `git pull`
+na stroji agenta spadne (*untracked working tree files would be overwritten by merge*),
+lebo ten istý súbor tam leží mimo gitu. Agent preto po **úspešnom odovzdaní** svoju kópiu
+presunie do `tester/hub_delivered/` (gitignored; bod mriežky či overenia víťaza vyberie zo
+`sweeps/` do `hub_delivered/points/`) a po 14 dňoch ju zmaže (`TRADEBOT_HUB_DELIVERED_DAYS`).
+Beh patrí zadávateľovi a ten ho už má.
+
+V histórii agenta ostáva výpočet, ktorý si zadal sám, a výpočet, ktorý hub neprijal
+(`undelivered`). Behy spred tejto zmeny agent odloží raz po štarte — len tie, ktoré git
+nesleduje (`tester/hub/delivered.py`).
+
 ## Rušenie
 
 Výpočet môže zrušiť **zadávateľ** (`cli`, alebo `python -m tester.hub cancel <id>`) aj

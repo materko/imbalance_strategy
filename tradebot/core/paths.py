@@ -50,7 +50,7 @@ __all__ = [
     "CSHARP_DIR", "CSHARP_BIN", "CSHARP_DLL", "CSHARP_HOST",
     "TESTER_DIR", "RUNS_DIR", "PROFILES_DIR", "TMP_PROFILES", "ANALYTICS_DIR",
     "SWEEPS_DIR", "CHART_CACHE", "ARCHIVE_DIR",
-    "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE",
+    "HUB_DIR", "AGENT_CONFIG", "AGENT_STATE", "HUB_DELIVERED",
     "HUB_LIVE_DB", "LIVE_DIR", "LIVE_CURSOR", "LIVE_CURSOR_WEBAPP", "LIVE_MIRROR", "LIVE_MIRROR_CURSOR",
     "LIVE_SECRETS", "LIVE_APPLY_STATE", "LIVE_MT5_DIR",
     "TELEGRAM_CONFIG", "TELEGRAM_STATE", "TELEGRAM_CURSOR", "LIVE_JOURNAL", "LIVE_JOURNAL_STATE",
@@ -145,6 +145,10 @@ HUB_DIR = Path(getenv("HUB_DATA") or TESTER_DIR / "hub_data")
 AGENT_CONFIG = TESTER_DIR / "agent.json"
 #: Stav agenta: čo poslal na hub a ešte sa nevrátilo, čo preň počíta. Prežije reštart.
 AGENT_STATE = TESTER_DIR / "agent_state.json"
+#: Behy, ktoré agent spočítal pre iného zadávateľa a už ich odovzdal: von z `runs/`, aby
+#: sa nebili s tými istými behmi, keď ich zadávateľ pushne (pull by spadol), a po pár
+#: dňoch preč (`tester.hub.delivered`). Gitignored — patria zadávateľovi, nie tomuto klonu.
+HUB_DELIVERED = TESTER_DIR / "hub_delivered"
 
 # -- Live telemetria (tradebot.live, docs/LIVE.md) -------------------------- #
 

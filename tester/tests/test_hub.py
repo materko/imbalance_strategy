@@ -813,6 +813,61 @@ def test_agent_end_to_end(hub_api, tmp_path: Path):
     assert state.job(job["id"])["collected"] and not state.result_path(job["id"]).exists()
     # klientove collect je idempotentné: zip už nie je, behy nájde lokálne
     assert client.collect(job["id"], lap_store.root) == [run_id]
+    # počítajúci agent si cudzí beh po odovzdaní odložil mimo histórie (pull by sa
+    # zasekol, keď ho zadávateľ pushne), zadávateľ ho má
+    assert srv_store.get(run_id) is None
+    assert (tmp_path / "srv" / "hub_delivered" / run_id / "run.json").exists()
+
+
+def test_delivered_retire_and_purge(tmp_path: Path):
+    """Beh ide z histórie (aj z indexu) do `hub_delivered/`, bod celku zo `sweeps/` do
+    `points/`; po `days` dňoch od odloženia ich `purge` zmaže."""
+    import time
+
+    from tester.hub import delivered
+
+    store = RunStore(tmp_path / "runs")
+    store.save(_rec("20260901-000001-aaaaaa"))
+    store.batches.add_point(_rec("20260901-000002-aaaaaa", {**BT, "sweep": {"id": "g1", "index": 0}}))
+    assert store.batches.find("20260901-000002-aaaaaa")
+    root = delivered.root_for(store)
+    assert root == tmp_path / "hub_delivered"
+
+    out = delivered.retire(store, ["20260901-000001-aaaaaa", "20260901-000002-aaaaaa", "20260901-000003-aaaaaa"])
+    assert out == ["20260901-000001-aaaaaa", "20260901-000002-aaaaaa"]
+    assert store.get("20260901-000001-aaaaaa") is None and store.all() == []
+    assert store.batches.find("20260901-000002-aaaaaa") is None
+    assert not store.batches.files()                           # prázdny celok zmizol celý
+    assert (root / "20260901-000001-aaaaaa" / "run.json").exists()
+    assert json.loads((root / "points" / "20260901-000002-aaaaaa.json").read_text(encoding="utf-8"))["id"]         == "20260901-000002-aaaaaa"
+
+    assert delivered.purge(root, days=14) == 0                 # čerstvo odložené ostáva
+    assert delivered.purge(root, days=14, now=time.time() + 15 * 86400) == 2
+    assert not (root / "20260901-000001-aaaaaa").exists() and not list((root / "points").iterdir())
+
+
+def test_delivered_foreign_skips_own_tracked_and_kept(tmp_path: Path, monkeypatch):
+    """Po štarte sa odkladajú len cudzie behy, ktoré git nesleduje a ktoré sa už odovzdali."""
+    import subprocess
+
+    from tester.hub import delivered
+
+    store = RunStore(tmp_path / "runs")
+    hub = lambda submitter: {**BT, "hub": {"job": "j", "submitter": submitter, "agent": "srv"}}
+    store.save(_rec("20260901-000001-aaaaaa", hub("lap")))      # cudzí, mimo gitu -> preč
+    store.save(_rec("20260901-000002-aaaaaa", hub("lap")))      # cudzí, ale commitnutý
+    store.save(_rec("20260901-000003-aaaaaa", hub("srv")))      # vlastný výpočet
+    store.save(_rec("20260901-000004-aaaaaa", hub("lap")))      # ešte neodovzdaný
+    store.save(_rec("20260901-000005-aaaaaa"))                  # obyčajný beh
+    store.batches.add_point(_rec("20260901-000006-aaaaaa", {**hub("lap"), "sweep": {"id": "g1", "index": 0}}))
+    git = lambda *a: subprocess.run(["git", *a], cwd=tmp_path, check=True, capture_output=True)
+    git("init", "-q")
+    git("add", "runs/20260901-000002-aaaaaa")
+    assert sorted(delivered.foreign(store, "srv", keep={"20260901-000004-aaaaaa"})) == [
+        "20260901-000001-aaaaaa", "20260901-000006-aaaaaa"]
+    # bez gitu sa nevie, čo je commitnuté -> nechá všetko
+    monkeypatch.setattr(delivered, "_tracked", lambda path: None)
+    assert delivered.foreign(store, "srv") == []
 
 
 def test_sweep_point_reaches_submitter(hub_api, tmp_path: Path, monkeypatch):
