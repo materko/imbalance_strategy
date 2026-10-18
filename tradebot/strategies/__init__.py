@@ -15,6 +15,7 @@ from .noa import SPEC as NOA_SPEC
 from .tks import SPEC as TKS_SPEC
 from .tksnet import SPEC as TKSNET_SPEC
 from .tksneteod import SPEC as TKSNETEOD_SPEC
+from .nocpon import SPEC as NOCPON_SPEC
 from .demo_breakout import SPEC as DEMO_SPEC
 from .divergence import SPEC as DIVERGENCE_SPEC
 from .fvgpolarity import SPEC as FVGPOLARITY_SPEC
@@ -101,6 +102,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     TKS_SPEC.key: TKS_SPEC,
     TKSNET_SPEC.key: TKSNET_SPEC,
     TKSNETEOD_SPEC.key: TKSNETEOD_SPEC,
+    NOCPON_SPEC.key: NOCPON_SPEC,
     SWEEPFVG_SPEC.key: SWEEPFVG_SPEC,
     SILVERBULLET_SPEC.key: SILVERBULLET_SPEC,
     NOANET_SPEC.key: NOANET_SPEC,

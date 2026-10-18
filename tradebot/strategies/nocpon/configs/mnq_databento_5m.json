@@ -1,0 +1,10 @@
+{
+  "_title": "MNQ 5m — NOC + PONDELOK: long 15:55 → 3:00 NY a pondelok 9:30 → 15:55, len nad SMA 100 denných zavretí, bez noci rollu",
+  "_strategy": "nocpon",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_comment": [
+    "Východiskový profil (18. 10. 2026) z prieskumu Nasdaqu: MNQ 2019–2026, 1 kontrakt, poplatok 1 bod —",
+    "209 obch/rok, WR 57 %, PF 1,47, DD 3 455 $. Nie je to obchodné odporúčanie."
+  ]
+}

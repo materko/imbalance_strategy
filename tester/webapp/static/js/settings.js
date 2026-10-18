@@ -522,7 +522,7 @@ function smerniceKeys() {
 function inSmernice(key) { return smerniceKeys().has(key); }
 /** Nové stratégie (práve pridané / v teste podľa smernice) po trhoch. Keď prejdú, presunú sa samy do SMERNICE. */
 const NOVE_PODLA_TRHU = {
-  NQ: ["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks"],
+  NQ: ["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks", "nocpon"],
   MCG: [],
   ES: [],
 };
