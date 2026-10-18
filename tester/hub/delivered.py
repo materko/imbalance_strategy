@@ -108,15 +108,29 @@ def purge(root: Path | str, days: float | None = None, now: float | None = None)
 
 
 def _tracked(path: Path) -> set[str] | None:
-    """Prvé zložky ciest, ktoré git v `path` sleduje; `None`, keď sa to nedá zistiť."""
+    """Prvé zložky ciest, ktoré git v `path` sleduje; `None`, keď sa to nedá zistiť.
+
+    Git sa púšťa z koreňa repozitára, ktorý `path` obsahuje (`REPO`, v testoch rodič s `.git`),
+    nie z `path`: v Docker kontajneri je `tester/` samostatný mount a git by sa v ňom zastavil
+    na hranici súborového systému („not a git repository")."""
+    from tradebot.core.paths import REPO
+
+    path = Path(path).resolve()
+    koren = next((d for d in (Path(REPO).resolve(), *path.parents, path) if (d / ".git").exists()
+                  and (d == path or d in path.parents)), None)
+    if koren is None:
+        return None
+    rel = path.relative_to(koren).as_posix()
     try:
-        r = subprocess.run(["git", "ls-files", "-z"], cwd=str(path), capture_output=True,
-                           timeout=120)
+        r = subprocess.run(["git", "ls-files", "-z", "--", rel or "."], cwd=str(koren),
+                           capture_output=True, timeout=120)
     except (OSError, subprocess.SubprocessError):
         return None
     if r.returncode != 0:
         return None
-    return {p.split("/", 1)[0] for p in r.stdout.decode("utf-8", "replace").split("\0") if p}
+    predpona = f"{rel}/" if rel and rel != "." else ""
+    return {p[len(predpona):].split("/", 1)[0]
+            for p in r.stdout.decode("utf-8", "replace").split("\0") if p.startswith(predpona) and p}
 
 
 def foreign(store: Any, agent: str, keep: Iterable[str] = ()) -> list[str]:
