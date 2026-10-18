@@ -1,0 +1,8 @@
+$ emulator MultiCharts MNQ 5m 20241001-20250904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: zóny, denné zavretia, PDH/PDL @5m 10656/10656
+emulacia MultiCharts: 65403 barov 5m, 327012 1m, 0 HTF
+  20000/65403 barov, 2 obchodov
+  40000/65403 barov, 3 obchodov
+  60000/65403 barov, 3 obchodov
+hotovo: 3 obchodov, nerozhodnutelnych minut 0
+kresby: {'id_liq': 476, 'id_zone': 149, 'tp_box': 3, 'sl_box': 3, 'id_entry': 3}

@@ -1,0 +1,13 @@
+$ emulator MultiCharts MNQ 15m 20190505-20260925 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: profil predošlej seansy @15m 0/384
+emulacia MultiCharts: 174145 barov 15m, 2606968 1m, 0 HTF
+  20000/174145 barov, 19 obchodov
+  40000/174145 barov, 38 obchodov
+  60000/174145 barov, 57 obchodov
+  80000/174145 barov, 71 obchodov
+  100000/174145 barov, 83 obchodov
+  120000/174145 barov, 100 obchodov
+  140000/174145 barov, 122 obchodov
+  160000/174145 barov, 142 obchodov
+hotovo: 153 obchodov, nerozhodnutelnych minut 0
+kresby: {'vr_escape': 5749, 'vr_vah': 1912, 'vr_val': 1912, 'vr_signal': 153}

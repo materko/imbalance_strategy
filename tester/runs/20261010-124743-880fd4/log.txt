@@ -1,0 +1,4 @@
+$ emulator MultiCharts MNQ 4h 20250904-20260904 (MNQ_USD-1m.feather)
+emulacia MultiCharts: 1600 barov 240m, 354420 1m, 0 HTF
+hotovo: 73 obchodov, nerozhodnutelnych minut 0
+kresby: {'se_signal': 73}

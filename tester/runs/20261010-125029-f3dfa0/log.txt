@@ -1,0 +1,5 @@
+$ emulator MultiCharts MNQ 4h 20250904-20260904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 100 na 240m @240m 250/250
+emulacia MultiCharts: 1600 barov 240m, 354420 1m, 0 HTF
+hotovo: 46 obchodov, nerozhodnutelnych minut 0
+kresby: {'se_signal': 95}

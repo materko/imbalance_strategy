@@ -1,0 +1,31 @@
+$ emulator MultiCharts MNQ 5m 20190505-20260925 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: likvidita, swingy a FVG @5m 0/1200
+emulacia MultiCharts: 522284 barov 5m, 2606968 1m, 0 HTF
+  20000/522284 barov, 69 obchodov
+  40000/522284 barov, 121 obchodov
+  60000/522284 barov, 171 obchodov
+  80000/522284 barov, 230 obchodov
+  100000/522284 barov, 291 obchodov
+  120000/522284 barov, 331 obchodov
+  140000/522284 barov, 384 obchodov
+  160000/522284 barov, 439 obchodov
+  180000/522284 barov, 497 obchodov
+  200000/522284 barov, 555 obchodov
+  220000/522284 barov, 611 obchodov
+  240000/522284 barov, 665 obchodov
+  260000/522284 barov, 704 obchodov
+  280000/522284 barov, 746 obchodov
+  300000/522284 barov, 799 obchodov
+  320000/522284 barov, 862 obchodov
+  340000/522284 barov, 915 obchodov
+  360000/522284 barov, 972 obchodov
+  380000/522284 barov, 1028 obchodov
+  400000/522284 barov, 1072 obchodov
+  420000/522284 barov, 1128 obchodov
+  440000/522284 barov, 1179 obchodov
+  460000/522284 barov, 1230 obchodov
+  480000/522284 barov, 1296 obchodov
+  500000/522284 barov, 1338 obchodov
+  520000/522284 barov, 1395 obchodov
+hotovo: 1400 obchodov, nerozhodnutelnych minut 0
+kresby: {'sf_liq_sell': 8244, 'sf_sweep': 11915, 'sf_struct': 3932, 'sf_fvg': 2486, 'tp_box': 1400, 'sl_box': 1400, 'sf_entry': 1400, 'sf_liq_buy': 7621}

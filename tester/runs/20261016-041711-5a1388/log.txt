@@ -1,0 +1,402 @@
+$ /Users/martin/document/IBS/.venv/bin/python -m tester.ftrun backtesting --config /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json --userdir /Users/martin/document/IBS/deploy/freqtrade/user_data --strategy FpcStrategy --cache none --export trades --timerange 20250904-20260904 --pairs MNQ/USD --timeframe 1m --dry-run-wallet 60000.0 --fee 0.0 --datadir /Users/martin/document/IBS/data/tester/databento --backtest-directory /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20261016-041711-5a1388
+2026-10-16 06:17:12,393 - freqtrade - INFO - freqtrade 2026.8
+2026-10-16 06:17:12,900 - freqtrade.configuration.load_config - INFO - Using config: /Users/martin/document/IBS/deploy/freqtrade/config.tester.cfd.json ...
+2026-10-16 06:17:12,902 - freqtrade.loggers - INFO - Enabling colorized output.
+2026-10-16 06:17:12,902 - freqtrade.loggers - INFO - Logfile configured
+… (skrátené) …
+2026-10-16 06:17:12,902 - freqtrade.configuration.configuration - INFO - Using user-data directory: /Users/martin/document/IBS/deploy/freqtrade/user_data ...
+2026-10-16 06:17:12,902 - freqtrade.configuration.configuration - INFO - Using data directory: /Users/martin/document/IBS/data/tester/databento ...
+2026-10-16 06:17:12,903 - freqtrade.configuration.configuration - INFO - Using /Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20261016-041711-5a1388 as backtest directory ...
+2026-10-16 06:17:12,904 - freqtrade.exchange.check_exchange - WARNING - Exchange "tester" is known to the ccxt library, available for the bot, but not officially supported by the Freqtrade development
+2026-10-16 06:17:13,055 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy FpcStrategy from '/Users/martin/document/IBS/deploy/freqtrade/user_data/strategies/FpcStrategy.py'...
+2026-10-16 06:17:13,056 - tradebot.adapters.freqtrade.base - WARNING - fpc config: bigBar, contSL, contTP, maxDist, minDist, revSL, revTP, testTol, trendPts sú v absolútnych cenových bodoch — tie 
+'/Users/martin/document/IBS/.venv/lib/python3.12/site-packages/freqtrade/plugins/pairlist/StaticPairList.py'...
+2026-10-16 06:17:13,535 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, funding_rate, 1h found. Use `freqtrade download-data` to download the data
+2026-10-16 06:17:13,536 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for MNQ/USD, mark, 1h found. Use `freqtrade download-data` to download the data
+2026-10-16 06:17:14,853 - freqtrade.data.history.datahandlers.idatahandler - WARNING - MNQ/USD, futures, 1m, data starts at 2025-08-31 22:00:00
+2026-10-16 06:17:18,704 - tradebot.adapters.freqtrade.base - INFO - fpc MNQ/USD: kresby ulozene do /Users/martin/document/IBS/tester/runs/.profiles/20261016-041711-5a1388.chart.json.gz (11918 
+2026-10-16 06:17:19,143 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 144693.00 na 59599.05 (41.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:19,175 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 145693.50 na 59529.79 (40.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:19,496 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 151599.00 na 59945.69 (39.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:19,530 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 155521.50 na 60114.01 (38.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:19,554 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 156334.50 na 60084.33 (38.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:19,595 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 155107.50 na 59985.33 (38.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:19,634 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 153981.00 na 59678.49 (38.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:19,670 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 149359.50 na 59846.81 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:19,695 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 145602.00 na 59896.31 (41.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:19,871 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 151855.50 na 59787.43 (39.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,059 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 152980.50 na 60025.18 (39.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,117 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 151612.50 na 59937.11 (39.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,124 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 154146.00 na 59956.91 (38.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,165 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 156501.00 na 59848.07 (38.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,206 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 155592.00 na 59857.99 (38.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,223 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 149382.00 na 59877.79 (40.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,270 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 151726.50 na 59729.33 (39.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,347 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 148494.00 na 59937.29 (40.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,411 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 148710.00 na 60105.63 (40.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,480 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 146356.50 na 60511.57 (41.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,507 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 150144.00 na 60521.49 (40.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,523 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 146679.00 na 60570.99 (41.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,615 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 144670.50 na 60580.91 (41.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,662 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 151569.00 na 60640.31 (40.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,762 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 164544.00 na 60729.49 (36.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,784 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 164515.50 na 60699.79 (36.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,853 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 172015.50 na 60630.55 (35.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,941 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 179686.50 na 60521.67 (33.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,961 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60967.50 na 60521.67 (99.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,975 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60835.00 na 60521.67 (99.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,976 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60795.50 na 60521.67 (99.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,980 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61008.00 na 60521.67 (99.2% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,981 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60958.50 na 60521.67 (99.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,981 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61189.00 na 60521.67 (98.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,986 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61263.50 na 60521.67 (98.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,986 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61304.50 na 60521.67 (98.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,987 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 183832.50 na 60521.67 (32.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,991 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60614.00 na 60521.67 (99.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,991 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60866.00 na 60521.67 (99.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:20,992 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61162.50 na 60521.67 (99.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,044 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61455.00 na 60521.67 (98.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,045 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61428.00 na 60521.67 (98.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,049 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61682.50 na 60521.67 (98.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,050 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61258.50 na 60521.67 (98.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,054 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60973.50 na 60521.67 (99.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,055 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60772.50 na 60521.67 (99.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,055 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60816.50 na 60521.67 (99.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,056 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60652.50 na 60521.67 (99.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,060 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61147.00 na 60521.67 (99.0% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,060 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60940.50 na 60521.67 (99.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,065 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61336.00 na 60521.67 (98.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,079 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61703.50 na 60521.67 (98.1% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,080 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 61822.50 na 60521.67 (97.9% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,115 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 180061.50 na 60521.67 (33.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,119 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60654.00 na 60521.67 (99.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,119 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60829.50 na 60521.67 (99.5% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,125 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 181117.50 na 60521.67 (33.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,149 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 179523.00 na 60521.67 (33.7% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,188 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 179076.00 na 60521.67 (33.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,228 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 175608.00 na 60482.09 (34.4% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,351 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60387.50 na 60284.13 (99.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,370 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60394.00 na 60284.13 (99.8% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,370 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 60516.50 na 60284.13 (99.6% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+2026-10-16 06:17:21,415 - tradebot.adapters.freqtrade.callbacks - WARNING - fpc MNQ/USD: stake orezany z 175678.50 na 60284.13 (34.3% z chceneho). Limit rizika na obchod sa pri tomto SL a zostatku 
+"/Users/martin/document/IBS/deploy/freqtrade/user_data/backtest_results/20261016-041711-5a1388/backtest-result-2026-10-16_04-17-24.meta.json"
+…
+│ fpc:1771944900000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:03:00 │    1     0     0   100 │
+│ fpc:1771947300000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:20:00 │    1     0     0   100 │
+│ fpc:1772031840000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:02:00 │    1     0     0   100 │
+│ fpc:1772032200000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:05:00 │    1     0     0   100 │
+│ fpc:1772120280000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1772133900000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:02:00 │    1     0     0   100 │
+│ fpc:1772199840000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:04:00 │    1     0     0   100 │
+│ fpc:1772200140000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:09:00 │    1     0     0   100 │
+│ fpc:1772205360000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1772463120000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1772479440000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:41:00 │    1     0     0   100 │
+│ fpc:1772551860000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:04:00 │    1     0     0   100 │
+│ fpc:1772552160000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:03:00 │    1     0     0   100 │
+│ fpc:1772565240000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1772638440000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:04:00 │    1     0     0   100 │
+│ fpc:1772638740000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:02:00 │    1     0     0   100 │
+│ fpc:1772723880000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1772806860000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:06:00 │    1     0     0   100 │
+│ fpc:1772807280000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1772824620000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1773151920000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:06:00 │    1     0     0   100 │
+│ fpc:1773152340000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1773167160000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:04:00 │    1     0     0   100 │
+│ fpc:1773233700000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:05:00 │    1     0     0   100 │
+│ fpc:1773236580000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1773236880000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1773253080000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:09:00 │    1     0     0   100 │
+│ fpc:1773324000000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1773326640000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1773406200000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:12:00 │    1     0     0   100 │
+│ fpc:1773410340000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:02:00 │    1     0     0   100 │
+│ fpc:1773414480000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1773670320000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:17:00 │    1     0     0   100 │
+│ fpc:1773755820000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:05:00 │    1     0     0   100 │
+│ fpc:1773759000000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:16:00 │    1     0     0   100 │
+│ fpc:1773838980000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:17:00 │    1     0     0   100 │
+│ fpc:1773840060000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:08:00 │    1     0     0   100 │
+│ fpc:1773845760000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1773933420000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1774014060000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1774276080000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:12:00 │    1     0     0   100 │
+│ fpc:1774278780000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:04:00 │    1     0     0   100 │
+│ fpc:1774446180000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1774447500000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1774534740000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:13:00 │    1     0     0   100 │
+│ fpc:1774620660000 │                roi │      1 │         0.09 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1774622820000 │                roi │      1 │         0.09 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1774879440000 │                roi │      1 │         0.09 │         40.000 │         0.07 │      0:05:00 │    1     0     0   100 │
+│ fpc:1774965780000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:02:00 │    1     0     0   100 │
+│ fpc:1774970400000 │                roi │      1 │         0.09 │         40.000 │         0.07 │      0:07:00 │    1     0     0   100 │
+│ fpc:1775048940000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1775049180000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:13:00 │    1     0     0   100 │
+│ fpc:1775053980000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1775139900000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:04:00 │    1     0     0   100 │
+│ fpc:1775484060000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1775485500000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:12:00 │    1     0     0   100 │
+│ fpc:1775569920000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1775571300000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1775672040000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:03:00 │    1     0     0   100 │
+│ fpc:1775745420000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:07:00 │    1     0     0   100 │
+│ fpc:1776089520000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:02:00 │    1     0     0   100 │
+│ fpc:1776174480000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:15:00 │    1     0     0   100 │
+│ fpc:1776177540000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:26:00 │    1     0     0   100 │
+│ fpc:1776265560000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1776348240000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1776349620000 │                roi │      1 │         0.08 │         40.000 │         0.07 │      0:02:00 │    1     0     0   100 │
+│ fpc:1776431820000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:03:00 │    1     0     0   100 │
+│ fpc:1776432180000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:02:00 │    1     0     0   100 │
+│ fpc:1776449820000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:07:00 │    1     0     0   100 │
+│ fpc:1776694860000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:04:00 │    1     0     0   100 │
+│ fpc:1776778980000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:04:00 │    1     0     0   100 │
+│ fpc:1776779280000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:06:00 │    1     0     0   100 │
+│ fpc:1776865920000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:06:00 │    1     0     0   100 │
+│ fpc:1776868320000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:02:00 │    1     0     0   100 │
+│ fpc:1776958140000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:15:00 │    1     0     0   100 │
+│ fpc:1777055100000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:15:00 │    1     0     0   100 │
+│ fpc:1777298040000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:03:00 │    1     0     0   100 │
+│ fpc:1777384320000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1777385460000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:04:00 │    1     0     0   100 │
+│ fpc:1777473660000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:27:00 │    1     0     0   100 │
+│ fpc:1777486500000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:19:00 │    1     0     0   100 │
+│ fpc:1777557660000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1777989240000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:18:00 │    1     0     0   100 │
+│ fpc:1777990380000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1778076060000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1784296200000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1784814480000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1784819820000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:02:00 │    1     0     0   100 │
+│ fpc:1784902080000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:05:00 │    1     0     0   100 │
+│ fpc:1785163740000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1785247200000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1785262800000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:25:00 │    1     0     0   100 │
+│ fpc:1785336600000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:01:00 │    1     0     0   100 │
+│ fpc:1785348780000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1785349080000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1785420360000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1785422520000 │                roi │      1 │         0.07 │         40.000 │         0.07 │      0:00:00 │    1     0     0   100 │
+│ fpc:1757700120000 │ trailing_stop_loss │      1 │        -0.06 │        -29.980 │        -0.05 │      0:30:00 │    0     0     1     0 │
+│ fpc:1761242460000 │ trailing_stop_loss │      1 │        -0.06 │        -29.980 │        -0.05 │      0:28:00 │    0     0     1     0 │
+│ fpc:1761588120000 │          stop_loss │      1 │        -0.06 │        -29.980 │        -0.05 │      0:40:00 │    0     0     1     0 │
+│ fpc:1762369200000 │          stop_loss │      1 │        -0.06 │        -29.980 │        -0.05 │      0:23:00 │    0     0     1     0 │
+│ fpc:1762887660000 │ trailing_stop_loss │      1 │        -0.06 │        -29.980 │        -0.05 │      0:14:00 │    0     0     1     0 │
+│ fpc:1769540400000 │ trailing_stop_loss │      1 │        -0.06 │        -29.980 │        -0.05 │      0:29:00 │    0     0     1     0 │
+│ fpc:1770836460000 │ trailing_stop_loss │      1 │        -0.06 │        -29.980 │        -0.05 │      0:11:00 │    0     0     1     0 │
+│ fpc:1775844120000 │ trailing_stop_loss │      1 │        -0.06 │        -29.980 │        -0.05 │      0:17:00 │    0     0     1     0 │
+│ fpc:1777312860000 │ trailing_stop_loss │      1 │        -0.05 │        -29.980 │        -0.05 │      0:08:00 │    0     0     1     0 │
+│ fpc:1778177340000 │          stop_loss │      1 │        -0.05 │        -29.980 │        -0.05 │      0:01:00 │    0     0     1     0 │
+│ fpc:1763406480000 │          stop_loss │      1 │        -0.06 │        -30.000 │        -0.05 │      0:05:00 │    0     0     1     0 │
+│ fpc:1763665740000 │          stop_loss │      1 │        -0.06 │        -30.000 │        -0.05 │      0:00:00 │    0     0     1     0 │
+│ fpc:1768417500000 │          stop_loss │      1 │        -0.06 │        -30.000 │        -0.05 │      0:13:00 │    0     0     1     0 │
+│ fpc:1769108580000 │          stop_loss │      1 │        -0.06 │        -30.000 │        -0.05 │      0:38:00 │    0     0     1     0 │
+│ fpc:1770231840000 │          stop_loss │      1 │        -0.06 │        -30.000 │        -0.05 │      0:04:00 │    0     0     1     0 │
+│ fpc:1771873620000 │          stop_loss │      1 │        -0.06 │        -30.000 │        -0.05 │      0:01:00 │    0     0     1     0 │
+│ fpc:1772564520000 │          stop_loss │      1 │        -0.06 │        -30.000 │        -0.05 │      0:00:00 │    0     0     1     0 │
+│ fpc:1773425040000 │          stop_loss │      1 │        -0.06 │        -30.000 │        -0.05 │      0:02:00 │    0     0     1     0 │
+│ fpc:1773770460000 │          stop_loss │      1 │        -0.06 │        -30.000 │        -0.05 │      0:00:00 │    0     0     1     0 │
+│ fpc:1773943200000 │          stop_loss │      1 │        -0.06 │        -30.000 │        -0.05 │      0:07:00 │    0     0     1     0 │
+│ fpc:1777053600000 │          stop_loss │      1 │        -0.05 │        -30.000 │        -0.05 │      0:00:00 │    0     0     1     0 │
+│ fpc:1766413800000 │          stop_loss │      1 │        -0.12 │        -60.000 │         -0.1 │      0:00:00 │    0     0     1     0 │
+│ fpc:1768935600000 │          stop_loss │      1 │        -0.12 │        -60.000 │         -0.1 │      0:10:00 │    0     0     1     0 │
+│ fpc:1757096640000 │ trailing_stop_loss │      1 │        -0.17 │        -79.980 │        -0.13 │      0:41:00 │    0     0     1     0 │
+│ fpc:1757339220000 │          stop_loss │      1 │        -0.17 │        -79.980 │        -0.13 │      0:03:00 │    0     0     1     0 │
+│ fpc:1757688000000 │ trailing_stop_loss │      1 │        -0.17 │        -79.980 │        -0.13 │      2:16:00 │    0     0     1     0 │
+│ fpc:1757947620000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      1:25:00 │    0     0     1     0 │
+│ fpc:1758550200000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:28:00 │    0     0     1     0 │
+│ fpc:1759154460000 │          stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:07:00 │    0     0     1     0 │
+│ fpc:1759936620000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:09:00 │    0     0     1     0 │
+│ fpc:1760968500000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:12:00 │    0     0     1     0 │
+│ fpc:1760972400000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:50:00 │    0     0     1     0 │
+│ fpc:1762786200000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:06:00 │    0     0     1     0 │
+│ fpc:1762787640000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:10:00 │    0     0     1     0 │
+│ fpc:1764173520000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:11:00 │    0     0     1     0 │
+│ fpc:1766066220000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:08:00 │    0     0     1     0 │
+│ fpc:1766072820000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:24:00 │    0     0     1     0 │
+│ fpc:1766156100000 │          stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:03:00 │    0     0     1     0 │
+│ fpc:1766506200000 │          stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:43:00 │    0     0     1     0 │
+│ fpc:1767381600000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:03:00 │    0     0     1     0 │
+│ fpc:1767798000000 │ trailing_stop_loss │      1 │        -0.15 │        -79.980 │        -0.13 │      0:11:00 │    0     0     1     0 │
+│ fpc:1768229100000 │          stop_loss │      1 │        -0.15 │        -79.980 │        -0.13 │      0:04:00 │    0     0     1     0 │
+│ fpc:1768230240000 │          stop_loss │      1 │        -0.15 │        -79.980 │        -0.13 │      0:19:00 │    0     0     1     0 │
+│ fpc:1768837860000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:18:00 │    0     0     1     0 │
+│ fpc:1769008200000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:04:00 │    0     0     1     0 │
+│ fpc:1769181180000 │          stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:06:00 │    0     0     1     0 │
+│ fpc:1769526300000 │ trailing_stop_loss │      1 │        -0.15 │        -79.980 │        -0.13 │      0:03:00 │    0     0     1     0 │
+│ fpc:1769527320000 │ trailing_stop_loss │      1 │        -0.15 │        -79.980 │        -0.13 │      0:21:00 │    0     0     1     0 │
+│ fpc:1770817860000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1770818880000 │          stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:21:00 │    0     0     1     0 │
+│ fpc:1771428600000 │          stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:09:00 │    0     0     1     0 │
+│ fpc:1771513920000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:03:00 │    0     0     1     0 │
+│ fpc:1772134080000 │          stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:18:00 │    0     0     1     0 │
+│ fpc:1772205480000 │          stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1773068160000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:09:00 │    0     0     1     0 │
+│ fpc:1773080460000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:12:00 │    0     0     1     0 │
+│ fpc:1773669120000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:04:00 │    0     0     1     0 │
+│ fpc:1774981440000 │ trailing_stop_loss │      1 │        -0.17 │        -79.980 │        -0.13 │      0:03:00 │    0     0     1     0 │
+│ fpc:1776089700000 │ trailing_stop_loss │      1 │        -0.16 │        -79.980 │        -0.13 │      0:15:00 │    0     0     1     0 │
+│ fpc:1776956880000 │          stop_loss │      1 │        -0.15 │        -79.980 │        -0.13 │      0:08:00 │    0     0     1     0 │
+│ fpc:1777043160000 │          stop_loss │      1 │        -0.15 │        -79.980 │        -0.13 │      0:16:00 │    0     0     1     0 │
+│ fpc:1778080320000 │ trailing_stop_loss │      1 │        -0.14 │        -79.980 │        -0.13 │      0:06:00 │    0     0     1     0 │
+│ fpc:1778165280000 │ trailing_stop_loss │      1 │        -0.14 │        -79.980 │        -0.13 │      0:06:00 │    0     0     1     0 │
+│ fpc:1784298000000 │ trailing_stop_loss │      1 │        -0.14 │        -79.980 │        -0.13 │      0:03:00 │    0     0     1     0 │
+│ fpc:1785416880000 │          stop_loss │      1 │        -0.14 │        -79.980 │        -0.13 │      0:21:00 │    0     0     1     0 │
+│ fpc:1785765840000 │ trailing_stop_loss │      1 │        -0.14 │        -79.980 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1756995120000 │          stop_loss │      1 │        -0.17 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1758031680000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:54:00 │    0     0     1     0 │
+│ fpc:1758636300000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      2:06:00 │    0     0     1     0 │
+│ fpc:1758724260000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:38:00 │    0     0     1     0 │
+│ fpc:1758898500000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:16:00 │    0     0     1     0 │
+│ fpc:1759848000000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:22:00 │    0     0     1     0 │
+│ fpc:1759849980000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:14:00 │    0     0     1     0 │
+│ fpc:1760018220000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:23:00 │    0     0     1     0 │
+│ fpc:1760638620000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1760710020000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:03:00 │    0     0     1     0 │
+│ fpc:1761143760000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:03:00 │    0     0     1     0 │
+│ fpc:1761834660000 │          stop_loss │      1 │        -0.15 │        -80.000 │        -0.13 │      0:05:00 │    0     0     1     0 │
+│ fpc:1761920280000 │          stop_loss │      1 │        -0.15 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1762182720000 │          stop_loss │      1 │        -0.15 │        -80.000 │        -0.13 │      0:03:00 │    0     0     1     0 │
+│ fpc:1762269060000 │          stop_loss │      1 │        -0.15 │        -80.000 │        -0.13 │      0:07:00 │    0     0     1     0 │
+│ fpc:1762355040000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1762441800000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1762445040000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:05:00 │    0     0     1     0 │
+│ fpc:1762874700000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:04:00 │    0     0     1     0 │
+│ fpc:1762959180000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1763407740000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:04:00 │    0     0     1     0 │
+│ fpc:1763652780000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:03:00 │    0     0     1     0 │
+│ fpc:1763995800000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1763997540000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:03:00 │    0     0     1     0 │
+│ fpc:1764078540000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:13:00 │    0     0     1     0 │
+│ fpc:1764080580000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:06:00 │    0     0     1     0 │
+│ fpc:1764776280000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:07:00 │    0     0     1     0 │
+│ fpc:1764860100000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1765207920000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:19:00 │    0     0     1     0 │
+│ fpc:1765210800000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:41:00 │    0     0     1     0 │
+│ fpc:1765375860000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:19:00 │    0     0     1     0 │
+│ fpc:1765554240000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:09:00 │    0     0     1     0 │
+│ fpc:1765556100000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1765810140000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1767193560000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:11:00 │    0     0     1     0 │
+│ fpc:1768318560000 │          stop_loss │      1 │        -0.15 │        -80.000 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1768402020000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:05:00 │    0     0     1     0 │
+│ fpc:1768575960000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:07:00 │    0     0     1     0 │
+│ fpc:1768937340000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:44:00 │    0     0     1     0 │
+│ fpc:1769095260000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1769616360000 │          stop_loss │      1 │        -0.15 │        -80.000 │        -0.13 │      0:29:00 │    0     0     1     0 │
+│ fpc:1769699460000 │          stop_loss │      1 │        -0.15 │        -80.000 │        -0.13 │      0:00:00 │    0     0     1     0 │
+│ fpc:1770132000000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1770218460000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:00:00 │    0     0     1     0 │
+│ fpc:1770302880000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:00:00 │    0     0     1     0 │
+│ fpc:1770394560000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:04:00 │    0     0     1     0 │
+│ fpc:1770648720000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1770909720000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:09:00 │    0     0     1     0 │
+│ fpc:1771340580000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1771595940000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:14:00 │    0     0     1     0 │
+│ fpc:1772119560000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:00:00 │    0     0     1     0 │
+│ fpc:1772463600000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:00:00 │    0     0     1     0 │
+│ fpc:1772721900000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1773064020000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1773928620000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1774015500000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1774359960000 │          stop_loss │      1 │        -0.17 │        -80.000 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1774537200000 │          stop_loss │      1 │        -0.17 │        -80.000 │        -0.13 │      0:15:00 │    0     0     1     0 │
+│ fpc:1774879920000 │          stop_loss │      1 │        -0.17 │        -80.000 │        -0.13 │      0:06:00 │    0     0     1     0 │
+│ fpc:1775054760000 │          stop_loss │      1 │        -0.17 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1775140860000 │          stop_loss │      1 │        -0.17 │        -80.000 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1775655960000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:04:00 │    0     0     1     0 │
+│ fpc:1775657100000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1775743920000 │          stop_loss │      1 │        -0.16 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1776263880000 │          stop_loss │      1 │        -0.15 │        -80.000 │        -0.13 │      0:11:00 │    0     0     1     0 │
+│ fpc:1776437700000 │          stop_loss │      1 │        -0.15 │        -80.000 │        -0.13 │      0:06:00 │    0     0     1     0 │
+│ fpc:1776695880000 │          stop_loss │      1 │        -0.15 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1777301820000 │          stop_loss │      1 │        -0.15 │        -80.000 │        -0.13 │      0:23:00 │    0     0     1     0 │
+│ fpc:1777558380000 │          stop_loss │      1 │        -0.15 │        -80.000 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1777643220000 │          stop_loss │      1 │        -0.14 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1777645080000 │          stop_loss │      1 │        -0.14 │        -80.000 │        -0.13 │      0:03:00 │    0     0     1     0 │
+│ fpc:1777659780000 │          stop_loss │      1 │        -0.14 │        -80.000 │        -0.13 │      0:19:00 │    0     0     1     0 │
+│ fpc:1779200820000 │          stop_loss │      1 │        -0.14 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│ fpc:1784900940000 │          stop_loss │      1 │        -0.14 │        -80.000 │        -0.13 │      0:00:00 │    0     0     1     0 │
+│ fpc:1785160200000 │          stop_loss │      1 │        -0.14 │        -80.000 │        -0.13 │      0:04:00 │    0     0     1     0 │
+│ fpc:1785247500000 │          stop_loss │      1 │        -0.14 │        -80.000 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1785333900000 │          stop_loss │      1 │        -0.14 │        -80.000 │        -0.13 │      0:00:00 │    0     0     1     0 │
+│ fpc:1785507480000 │          stop_loss │      1 │        -0.14 │        -80.000 │        -0.13 │      0:01:00 │    0     0     1     0 │
+│ fpc:1785768300000 │          stop_loss │      1 │        -0.14 │        -80.000 │        -0.13 │      0:02:00 │    0     0     1     0 │
+│             TOTAL │                    │    421 │          0.0 │        893.060 │         1.49 │      0:08:00 │  276     0   145  65.6 │
+└───────────────────┴────────────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┘
+                                   SUMMARY METRICS                                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Metric                                 ┃ Value                                     ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Backtesting from                       │ 2025-09-04 00:00:00                       │
+│ Backtesting to                         │ 2026-09-04 00:00:00                       │
+│ Trading Mode                           │ Isolated Futures                          │
+│ Max open trades                        │ 1                                         │
+│                                        │                                           │
+│ Total/Daily Avg Trades                 │ 421 / 1.15                                │
+│ Starting balance                       │ 60000 USD                                 │
+│ Final balance                          │ 60893.06 USD                              │
+│ Absolute profit                        │ 893.06 USD                                │
+│ Total profit %                         │ 1.49%                                     │
+│ CAGR %                                 │ 1.49%                                     │
+│ Sharpe (closed trades)                 │ 0.84                                      │
+│ Sortino (closed trades)                │ 2.65                                      │
+│ Calmar (closed trades)                 │ 6.76                                      │
+│ SQN                                    │ 0.78                                      │
+│ Mean profit p-value                    │ 0.4339                                    │
+│ Profit factor                          │ 1.08                                      │
+│ Expectancy (Ratio)                     │ 2.12 (0.03)                               │
+│ Avg. daily profit                      │ 2.447 USD                                 │
+│ Avg. stake amount                      │ 50853.166 USD                             │
+│ Market change                          │ 25.89%                                    │
+│ Total trade volume                     │ 42818612.94 USD                           │
+│                                        │                                           │
+│ Long / Short trades                    │ 198 / 223                                 │
+│ Long / Short profit %                  │ 0.95% / 0.54%                             │
+│ Long / Short profit USD                │ 570.000 / 323.060                         │
+│                                        │                                           │
+│ Best Pair                              │ MNQ/USD 1.49%                             │
+│ Worst Pair                             │ MNQ/USD 1.49%                             │
+│ Best trade                             │ MNQ/USD 0.24%                             │
+│ Worst trade                            │ MNQ/USD -0.17%                            │
+│ Best day                               │ 200 USD                                   │
+│ Worst day                              │ -240 USD                                  │
+│ Days win/draw/lose                     │ 91 / 165 / 78                             │
+│ Min/Max/Avg. Duration Winners          │ 0d 00:00 / 0d 01:52 / 0d 00:07            │
+│ Min/Max/Avg. Duration Losers           │ 0d 00:00 / 0d 02:16 / 0d 00:12            │
+│ Max Consecutive Wins / Loss            │ 12 / 5                                    │
+│ Rejected Entry signals                 │ 0                                         │
+│ Entry/Exit Timeouts                    │ 0 / 0                                     │
+│                                        │                                           │
+│ Min/Max balance (closed trades)        │ 59921.04 USD / 61602.94 USD               │
+│ Max % of account underwater            │ 1.15%                                     │
+│ Absolute drawdown                      │ 709.88 USD (1.15%)                        │
+│ Drawdown duration                      │ 95 days 00:46:00                          │
+│ Profit at drawdown start               │ 1602.94 USD                               │
+│ Profit at drawdown end                 │ 893.06 USD                                │
+│ Drawdown start                         │ 2026-04-30 14:02:00                       │
+│ Drawdown end                           │ 2026-08-03 14:48:00                       │
+│                                        │                                           │
+│ Wallet based Metrics                   │                                           │
+│ Min/Max balance (wallet balance)       │ 59921.04 USD / 61602.94 USD               │
+│ Min/Max balance dates (wallet balance) │ 2025-09-08 13:52:00 / 2026-04-30 14:03:00 │
+│ Max % of account underwater (balance)  │ 1.15%                                     │
+│ Absolute drawdown (wallet balance)     │ 709.88 USD (1.15%)                        │
+│ Drawdown duration                      │ 95 days 00:46:00                          │
+│ Profit at drawdown start               │ 1602.94 USD                               │
+│ Profit at drawdown end                 │ 893.06 USD                                │
+│ Drawdown start                         │ 2026-04-30 14:03:00                       │
+│ Drawdown end                           │ 2026-08-03 14:49:00                       │
+│ Sharpe (daily wallet balance)          │ 0.86                                      │
+│ Sortino (daily wallet balance)         │ 1.02                                      │
+│ Calmar (daily wallet balance)          │ 6.78                                      │
+└────────────────────────────────────────┴───────────────────────────────────────────┘
+
+Backtested 2025-09-04 00:00:00 -> 2026-09-04 00:00:00 | Max open trades : 1
+                                                         STRATEGY SUMMARY                                                          
+┏━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┓
+┃    Strategy ┃ Trades ┃ Avg Profit % ┃ Tot Profit USD ┃ Tot Profit % ┃ Avg Duration ┃  Win  Draw  Loss  Win% ┃          Drawdown ┃
+┡━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━┩
+│ FpcStrategy │    421 │         0.00 │        893.060 │         1.49 │      0:08:00 │  276     0   145  65.6 │ 709.88 USD  1.15% │
+└─────────────┴────────┴──────────────┴────────────────┴──────────────┴──────────────┴────────────────────────┴───────────────────┘

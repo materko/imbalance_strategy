@@ -1,0 +1,29 @@
+[
+  {
+    "open_date": "2025-05-21T17:23:00+00:00",
+    "close_date": "2025-05-21T17:25:00+00:00",
+    "open_rate": 21282.75,
+    "close_rate": 21257.75,
+    "amount": 1.0,
+    "point_value": 2.0,
+    "stake_amount": 42565.5,
+    "leverage": 1.0,
+    "profit_abs": -51.4932,
+    "profit_ratio": -0.00121,
+    "exit_reason": "stop_loss",
+    "enter_tag": "idL:55527",
+    "is_short": false,
+    "fee_open": 1.755e-05,
+    "fee_close": 1.755e-05,
+    "funding_fees": 0.0,
+    "trade_duration": 2,
+    "initial_stop_loss_abs": 21257.75,
+    "stop_loss_abs": 21257.75,
+    "initial_take_profit_abs": 21332.75,
+    "max_rate": 21316.0,
+    "min_rate": 21252.25,
+    "gross_abs": -50.0,
+    "fees_abs": 1.4932,
+    "order_type": "limit"
+  }
+]
