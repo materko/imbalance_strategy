@@ -39,6 +39,7 @@ from .svp import SPEC as SVP_SPEC
 from .sweepengulf import SPEC as SWEEPENGULF_SPEC
 from .sweepfvg import SPEC as SWEEPFVG_SPEC
 from .silverbullet import SPEC as SILVERBULLET_SPEC
+from .noanet import SPEC as NOANET_SPEC
 from .trendlines import SPEC as TRENDLINES_SPEC
 from .varev import SPEC as VAREV_SPEC
 from .voltbreak import SPEC as VOLTBREAK_SPEC
@@ -89,6 +90,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     NOA_SPEC.key: NOA_SPEC,
     SWEEPFVG_SPEC.key: SWEEPFVG_SPEC,
     SILVERBULLET_SPEC.key: SILVERBULLET_SPEC,
+    NOANET_SPEC.key: NOANET_SPEC,
     SWEEPENGULF_SPEC.key: SWEEPENGULF_SPEC,
     VAREV_SPEC.key: VAREV_SPEC,
 }

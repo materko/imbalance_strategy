@@ -31,6 +31,7 @@ signálmi zhodnými s ňou; vo webapp sú to obyčajné stratégie pod Freqtrade
 | **`ibsentrynet`** | `ibsentry` (IBS Entry Zone) | `csharp/TradeBot.Strategies/IbsEntryNet` (dedí z `IbsNet`) | `deploy/ninjatrader/IBSEntryNet.cs` |
 | **`vwaporbnet`** | `vwaporb` (VWAP ORB 1.5) | `csharp/TradeBot.Strategies/VwapOrbNet` (dedí z `OrbNet`) | `deploy/ninjatrader/VwapOrbNet.cs` |
 | **`vwapadxnet`** | `vwapadx` (VWAP ADX Pullback) | `csharp/TradeBot.Strategies/VwapAdxNet` (ADX z `IbsNet`) | `deploy/ninjatrader/VwapAdxNet.cs` |
+| **`noanet`** | `noa` (NOA 1.0, Noise Area) | `csharp/TradeBot.Strategies/NoaNet` | `deploy/ninjatrader/NoaNet.cs` |
 
 Ku každej je aj Expert Advisor pre MetaTrader 5 (`deploy/mt5/<Meno>.mq5`). Nastavenia `ibsentry`, `vwaporb` a `vwapadx`,
 ktoré prešli smernicou testovania, majú C# kópiu v `tester/profiles/SMERNICE_CS_<názov>_<n>.json` (vlastný prefix — export rannej úlohy

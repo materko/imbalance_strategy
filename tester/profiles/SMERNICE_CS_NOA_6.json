@@ -1,0 +1,21 @@
+{
+  "lookbackDays": 14,
+  "volMult": 0.75,
+  "gapAdjust": false,
+  "checkEvery": 15,
+  "lastEntryMin": 270,
+  "trailVwap": true,
+  "hardStopPct": 0.5,
+  "maxTradesPerDay": 3,
+  "tradeDirection": "Long only",
+  "weekdaysOnly": false,
+  "trendFilter": "with",
+  "trendEmaLen": 100,
+  "trendTF": 60,
+  "volFilter": "high",
+  "_strategy": "noanet",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_title": "NOA 6 C# · PF 1,43 · WR 38 % · 160 obch/rok · MNQ 5m · max DD 1 536 $ · posl. rok PF 1,38",
+  "_source_profile": "PRESIEL_SMERNICAMI_NOA_1_0_6.json"
+}
