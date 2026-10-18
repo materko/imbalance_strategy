@@ -552,6 +552,27 @@ def test_git_push_refuses_commits_outside_tester_data(monkeypatch):
     assert gitsync._foreign_commits("main") == ["aaaaaaa"]  # len ten commit s kódom
 
 
+def test_git_pull_rebases_onto_origin_ref_not_fetch_head(monkeypatch):
+    """`git pull --rebase` číta cieľ z FETCH_HEAD; súbežný `fetch` (stav webapp, agent hubu) doň zapíše
+    dva riadky a pull padne s „Cannot rebase onto multiple branches“. Pull preto robí fetch + rebase
+    na `origin/<vetva>`, ktorý sa zapisuje so zámkom."""
+    from tester.webapp import gitsync
+
+    calls = []
+
+    def fake_git(*args, check=False):
+        calls.append(args)
+        return type("P", (), {"args": ("git", *args), "stdout": "", "stderr": "", "returncode": 0})()
+
+    monkeypatch.setattr(gitsync, "_git", fake_git)
+    monkeypatch.setattr(gitsync, "status", lambda: {})
+    monkeypatch.delenv("IBS_GIT_BRANCH", raising=False)
+    assert gitsync.pull()["ok"]
+    assert ("fetch", "origin", "main") in calls
+    assert ("rebase", "--autostash", "origin/main") in calls
+    assert not any(a[0] == "pull" for a in calls)
+
+
 def test_git_recognizes_missing_github_login():
     """Webapp beží bez terminálu — git sa nemá koho spýtať na heslo. Musí to povedať
     ako návod, nie ako „fatal: could not read Username… Device not configured"."""

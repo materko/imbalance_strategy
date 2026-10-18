@@ -2,7 +2,7 @@
 a `archive/`, nič iné.
 
 Tester klikne „Push": zmeny v histórii behov, vo výsledkoch mriežok a matíc, vo vlastných
-profiloch, v uložených analytikách a v archíve behov (`cli archive`) sa commitnú, spraví sa `pull --rebase` a `push`. Kód ani
+profiloch, v uložených analytikách a v archíve behov (`cli archive`) sa commitnú, spraví sa `fetch` + `rebase` na `origin/<vetva>` a `push`. Kód ani
 iné súbory sa nedotýkajú, takže si tester nemôže omylom commitnúť rozpracovanú zmenu
 stratégie. Konflikt prakticky nevzniká (každý beh aj každá mriežka je nový súbor), ale keby
 predsa, výstup gitu sa zobrazí celý.
@@ -208,13 +208,28 @@ def _message(changed: list[str]) -> str:
     return text
 
 
+def _pull_rebase(br: str) -> list[subprocess.CompletedProcess]:
+    """`fetch` + `rebase --autostash origin/<vetva>` namiesto `pull --rebase origin <vetva>`.
+
+    `git pull` berie cieľ rebase z `.git/FETCH_HEAD`. Keď v tej istej chvíli beží iný `fetch` (`status()`
+    z webapp, agent hubu, sledovanie zmien kódu), zapíšu do FETCH_HEAD dva riadky a pull padne
+    s „fatal: Cannot rebase onto multiple branches“. Ref `origin/<vetva>` sa zapisuje so zámkom,
+    takže rebase na neho súbeh nerozbije.
+    """
+    f = _git("fetch", "origin", br)
+    if f.returncode != 0:
+        return [f]
+    return [f, _git("rebase", "--autostash", f"origin/{br}")]
+
+
 def pull() -> dict[str, Any]:
     br = target()
-    p = _git("pull", "--rebase", "--autostash", "origin", br)
-    out = _out(p)
-    if p.returncode != 0 and _auth_failed(out):
+    steps = _pull_rebase(br)
+    out = _out(*steps)
+    ok = steps[-1].returncode == 0
+    if not ok and _auth_failed(out):
         out += chr(10) + AUTH_HELP
-    return {"ok": p.returncode == 0, "output": out, **status()}
+    return {"ok": ok, "output": out, **status()}
 
 
 def push(message: str | None = None, author: str | None = None) -> dict[str, Any]:
@@ -244,9 +259,8 @@ def push(message: str | None = None, author: str | None = None) -> dict[str, Any
             note = (f"Push zrušený: po commite ostalo necommitnutých {len(ostalo)} zmien v histórii:\n  "
                     + "\n  ".join(ostalo[:10]))
             return {"ok": False, "output": _out(*steps) + chr(10) + note, **status()}
-    p = _git("pull", "--rebase", "--autostash", "origin", br)
-    steps.append(p)
-    if p.returncode != 0:
+    steps += _pull_rebase(br)
+    if steps[-1].returncode != 0:
         return {"ok": False, "output": _out(*steps), **status()}
     foreign = _foreign_commits(br)
     if foreign:

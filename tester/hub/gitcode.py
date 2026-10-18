@@ -5,7 +5,7 @@ Rovnaký beh na inom commite dá iné čísla, takže výpočet nesie **verziu k
 
 - `version()`      — commit, na ktorom klon stojí (`git rev-parse --short HEAD`),
 - `has_version(c)` — je commit `c` v histórii HEAD? (`git merge-base --is-ancestor`),
-- `pull()`         — `git pull --rebase --autostash origin main`, to isté, čo Pull vo webapp
+- `pull()`         — `git fetch` + `rebase --autostash origin/main`, to isté, čo Pull vo webapp
                      (`tester.webapp.gitsync`),
 - `dirty_code()`   — necommitnuté zmeny v kóde (nie v histórii behov): taký klon posiela
                      verziu, ktorá jeho kód nepopisuje, a CLI na to upozorní.
