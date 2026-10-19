@@ -98,7 +98,7 @@ def test_predhistoria_ide_seedom_do_warmupu_enginu():
 
 
 #: stratégie s vlastným filtrom trendu — spoločný obal nemajú
-_OWN = {"ibs", "ibsentry", "ibsentrynet", "ibsfvg", "ibsnet", "ibszones", "liquidity"}
+_OWN = {"ibs", "ibsentry", "ibsentrynet", "ibsentryneteod", "ibsfvg", "ibsnet", "ibszones", "liquidity"}
 
 
 @pytest.mark.parametrize("key", sorted(set(STRATEGIES) - _OWN))

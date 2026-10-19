@@ -86,6 +86,8 @@ def test_missing_mirror_and_names(tmp_path: Path) -> None:
     live = build_live(tmp_path / "nie.sqlite")
     assert live["instances"] == [] and "error" in live
     assert base_strategy("ibsentrynet") == "ibsentry" and base_strategy("vwapadxnet") == "vwapadx"
+    assert base_strategy("ibsentryneteod") == "ibsentry" and base_strategy("noaneteod") == "noa"
+    assert setting_id("vwaporbneteod", "SMERNICE_CS_EOD_VWAP_ORB_3") == "vwaporb-3"
     assert setting_id("vwapadxnet", "SMERNICE_CS_VWAP_ADX_Pullback_2") == "vwapadx-2"
     assert setting_id("ibsentrynet", r"TradeBot\profiles\x\PRESIEL_SMERNICAMI_IBS_Entry_Zone_CS_1.json") == "ibsentry-1"
     assert setting_id("ibsnet", "multicharts_mnq_3m") is None

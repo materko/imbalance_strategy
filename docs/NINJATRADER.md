@@ -32,6 +32,10 @@ signálmi zhodnými s ňou; vo webapp sú to obyčajné stratégie pod Freqtrade
 | **`vwaporbnet`** | `vwaporb` (VWAP ORB 1.5) | `csharp/TradeBot.Strategies/VwapOrbNet` (dedí z `OrbNet`) | `deploy/ninjatrader/VwapOrbNet.cs` |
 | **`vwapadxnet`** | `vwapadx` (VWAP ADX Pullback) | `csharp/TradeBot.Strategies/VwapAdxNet` (ADX z `IbsNet`) | `deploy/ninjatrader/VwapAdxNet.cs` |
 | **`noanet`** | `noa` (NOA 1.0, Noise Area) | `csharp/TradeBot.Strategies/NoaNet` | `deploy/ninjatrader/NoaNet.cs` |
+| **`ibsentryneteod`** | `ibsentrynet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/IbsEntryNet/IbsEntryEodEngine.cs` | `deploy/ninjatrader/IBSEntryNetEod.cs` |
+| **`vwaporbneteod`** | `vwaporbnet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/VwapOrbNet/VwapOrbEodEngine.cs` | `deploy/ninjatrader/VwapOrbNetEod.cs` |
+| **`vwapadxneteod`** | `vwapadxnet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/VwapAdxNet/VwapAdxEodEngine.cs` | `deploy/ninjatrader/VwapAdxNetEod.cs` |
+| **`noaneteod`** | `noanet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/NoaNet/NoaEodEngine.cs` | `deploy/ninjatrader/NoaNetEod.cs` |
 
 Ku každej je aj Expert Advisor pre MetaTrader 5 (`deploy/mt5/<Meno>.mq5`). Nastavenia `ibsentry`, `vwaporb` a `vwapadx`,
 ktoré prešli smernicou testovania, majú C# kópiu v `tester/profiles/SMERNICE_CS_<názov>_<n>.json` (vlastný prefix — export rannej úlohy
@@ -39,6 +43,19 @@ on Mac mini maže len `PRESIEL_SMERNICAMI_*`, ktoré sám nevyrobil)
 (webapp ich ukáže v priečinku SMERNICE, karta Live ich ponúkne na nasadenie). VWAP ORB v C# nemá stop
 posúvaný s VWAP (`vwapStop`, `vwapTp`) — potrebuje stop meniaci sa v čase, ktorý `TrailingPlan` ani živé
 adaptéry nepoznajú; config aj engine ho odmietnu.
+
+### Koniec obchodného dňa (EOD) pre prop účty
+
+Kópie `<kľúč>eod` (`ibsentryneteod`, `vwaporbneteod`, `vwapadxneteod`, `noaneteod`) sú tie isté stratégie, len o **15:59
+New York** (21:59 nášho času) zavrú každú otvorenú pozíciu, zrušia čakajúce vstupné ordery a do **18:00 NY** (nový
+obchodný deň CME) nevstúpia — prop firmy na futures nechcú pozíciu cez koniec dňa. Robí to generický obal
+`EodCloseEngine` (`csharp/TradeBot.Core/EodClose.cs`); trieda kópie v priečinku predlohy (napr. `NoaEodEngine`) len postaví
+engine predlohy a dá ho doň. Zatvára sa na poslednom bare, ktorý sa zatvára najneskôr o 15:59 NY (3m: 15:57, 5m: 15:55,
+1m: 15:59). Okno je v čase New York, takže v týždňoch s rozdielnym prechodom na letný čas je to u nás 20:59, nikdy nie
+neskôr. Obaly vstupov (limitka, potvrdenie, filter) nasadí EOD obal pod seba, aby ani čakajúca limitka nevyslala vstup
+v okne, a `EngineRegistry.Create` ich druhý raz nebalí (`IWrapsEntryLayers`). Skrátené obchodné dni pred sviatkami
+obal nepozná. Nastavenia zo smernice majú kópie `tester/profiles/SMERNICE_CS_EOD_*` (priečinok SMERNICE, karta Live).
+Že mimo okna sa nezmení nič a v okne nič neostane otvorené, stráži `tester/tests/test_csharp_eod.py`.
 
 ### Obaly vstupov sú v C# jadre
 

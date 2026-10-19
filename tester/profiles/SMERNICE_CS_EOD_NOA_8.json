@@ -1,0 +1,21 @@
+{
+  "lookbackDays": 10,
+  "volMult": 0.75,
+  "gapAdjust": false,
+  "checkEvery": 15,
+  "lastEntryMin": 270,
+  "trailVwap": true,
+  "hardStopPct": 0.5,
+  "maxTradesPerDay": 3,
+  "tradeDirection": "Long only",
+  "weekdaysOnly": false,
+  "trendFilter": "with",
+  "trendEmaLen": 100,
+  "trendTF": 60,
+  "volFilter": "high",
+  "_strategy": "noaneteod",
+  "_instrument": "mnq_databento",
+  "_timeframe": "5m",
+  "_title": "NOA 8 C# EOD · PF 1,40 · WR 37 % · 159 obch/rok · MNQ 5m · max DD 2 054 $ · posl. rok PF 1,35",
+  "_source_profile": "SMERNICE_CS_NOA_8.json"
+}

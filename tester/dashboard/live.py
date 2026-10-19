@@ -57,8 +57,11 @@ def _iso(ms: int | float | None) -> str | None:
 
 
 def base_strategy(engine_key: str) -> str:
-    """Kľúč stratégie na stránke: C# port → jeho Python predloha (``vwaporbnet`` → ``vwaporb``)."""
+    """Kľúč stratégie na stránke: C# port → jeho Python predloha (``vwaporbnet`` → ``vwaporb``); EOD kópia
+    (``vwaporbneteod``, všetko zavreté o 15:59 NY) patrí tej istej predlohe."""
     key = str(engine_key or "")
+    if key.endswith("neteod"):
+        key = key[:-3]
     try:
         from tradebot.strategies import ALIASES, STRATEGIES
         key = ALIASES.get(key, key)
@@ -84,7 +87,8 @@ def _strategy_title(engine_key: str) -> str:
         from tradebot.strategies import STRATEGIES
         spec = STRATEGIES.get(base_strategy(engine_key))
         if spec is not None:
-            return re.sub(r"\s*\(C# jadro\)$", "", spec.title)
+            title = re.sub(r"\s*\(C# jadro\)$", "", spec.title)
+            return title + " EOD" if str(engine_key or "").endswith("neteod") else title
     except Exception:
         pass
     return engine_key

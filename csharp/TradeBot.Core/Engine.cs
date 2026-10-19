@@ -127,7 +127,9 @@ namespace TradeBot.Core
                 throw e.InnerException ?? e;
             }
             // Obaly vstupov (filter trendu/volatility, potvrdenie sviecou, limitka) podla configu - tu, nie
-            // v adapteri, aby ich mal kazdy hostitel: most do Pythonu aj NinjaTrader a MT5 nazivo.
+            // v adapteri, aby ich mal kazdy hostitel: most do Pythonu aj NinjaTrader a MT5 nazivo. Engine, ktory
+            // si ich nasadil sam pod seba (EOD - `EodCloseEngine`), sa druhy raz nebali.
+            if (engine is IWrapsEntryLayers) return engine;
             return EntryLayers.Wrap(engine, config, chartTfMinutes);
         }
     }

@@ -106,9 +106,14 @@ class EntryOrderEngine:
 
     def on_bar(self, bar: Bar, htf: Any = None, ctx: MarketContext | None = None) -> EngineOutput:
         self._idx += 1
+        gone: list = []
+        if self._pending is not None and ctx is not None and self._pending[0] in ctx.dropped_entry_ids:
+            gone = deleted(self._pending[3])    # limitku zrušil obal nad nami (C# EOD) — obchod nebude, kresba preč
+            self._pending = None
         pend = {self._pending[0]} if self._pending is not None else set()
         out = self.engine.on_bar(bar, htf, with_ids(ctx, pend, self._dropped))
         self._dropped = set()
+        out.drawings += gone
         pos = ctx.position_size if ctx is not None else 0.0
         orders: list[OrderIntent] = []
         if self._pending is not None:

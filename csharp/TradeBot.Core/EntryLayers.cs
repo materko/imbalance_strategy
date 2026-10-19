@@ -567,10 +567,18 @@ namespace TradeBot.Core
         public override EngineOutput OnBar(Bar bar, HtfWindow htf, MarketContext ctx)
         {
             _idx += 1;
+            List<DrawCommand> gone = null;
+            if (_pendingId != null && ctx != null && ctx.DroppedEntryIds.Contains(_pendingId))
+            {
+                // limitku zrusil obal nad nami (EOD) - obchod nebude, kresba prec
+                gone = EntryDraw.Deleted(_pendingObjs);
+                _pendingId = null;
+            }
             List<string> pend = new List<string>();
             if (_pendingId != null) pend.Add(_pendingId);
             EngineOutput o = Inner.OnBar(bar, htf, EntryDraw.WithIds(ctx, pend, _dropped));
             _dropped = new HashSet<string>();
+            if (gone != null) o.Drawings.AddRange(gone);
             double pos = ctx != null ? ctx.PositionSize : 0.0;
             List<OrderIntent> orders = new List<OrderIntent>();
             if (_pendingId != null)

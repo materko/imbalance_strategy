@@ -23,6 +23,7 @@ from .ibs import SPEC as IBS_SPEC
 from .ibsnet import SPEC as IBSNET_SPEC
 from .ibsentry import SPEC as IBSENTRY_SPEC
 from .ibsentrynet import SPEC as IBSENTRYNET_SPEC
+from .ibsentryneteod import SPEC as IBSENTRYNETEOD_SPEC
 from .ibsfvg import SPEC as IBSFVG_SPEC
 from .ibszones import SPEC as IBSZONES_SPEC
 from .jss import SPEC as JSS_SPEC
@@ -41,15 +42,18 @@ from .sweepengulf import SPEC as SWEEPENGULF_SPEC
 from .sweepfvg import SPEC as SWEEPFVG_SPEC
 from .silverbullet import SPEC as SILVERBULLET_SPEC
 from .noanet import SPEC as NOANET_SPEC
+from .noaneteod import SPEC as NOANETEOD_SPEC
 from .trendlines import SPEC as TRENDLINES_SPEC
 from .varev import SPEC as VAREV_SPEC
 from .voltbreak import SPEC as VOLTBREAK_SPEC
 from .vwapadx import SPEC as VWAPADX_SPEC
 from .vwapadxnet import SPEC as VWAPADXNET_SPEC
+from .vwapadxneteod import SPEC as VWAPADXNETEOD_SPEC
 from .vwapdrift import SPEC as VWAPDRIFT_SPEC
 from .vwapop import SPEC as VWAPOP_SPEC
 from .vwaporb import SPEC as VWAPORB_SPEC
 from .vwaporbnet import SPEC as VWAPORBNET_SPEC
+from .vwaporbneteod import SPEC as VWAPORBNETEOD_SPEC
 
 STRATEGIES: dict[str, StrategySpec] = {
     IBS_SPEC.key: IBS_SPEC,
@@ -57,6 +61,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     IBSZONES_SPEC.key: IBSZONES_SPEC,
     IBSENTRY_SPEC.key: IBSENTRY_SPEC,
     IBSENTRYNET_SPEC.key: IBSENTRYNET_SPEC,
+    IBSENTRYNETEOD_SPEC.key: IBSENTRYNETEOD_SPEC,
     IBSFVG_SPEC.key: IBSFVG_SPEC,
     STRUCTURE_SPEC.key: STRUCTURE_SPEC,
     DEMO_SPEC.key: DEMO_SPEC,
@@ -72,11 +77,13 @@ STRATEGIES: dict[str, StrategySpec] = {
     VWAPDRIFT_SPEC.key: VWAPDRIFT_SPEC,
     VWAPADX_SPEC.key: VWAPADX_SPEC,
     VWAPADXNET_SPEC.key: VWAPADXNET_SPEC,
+    VWAPADXNETEOD_SPEC.key: VWAPADXNETEOD_SPEC,
     VOLTBREAK_SPEC.key: VOLTBREAK_SPEC,
     ONBIASORB_SPEC.key: ONBIASORB_SPEC,
     VWAPOP_SPEC.key: VWAPOP_SPEC,
     VWAPORB_SPEC.key: VWAPORB_SPEC,
     VWAPORBNET_SPEC.key: VWAPORBNET_SPEC,
+    VWAPORBNETEOD_SPEC.key: VWAPORBNETEOD_SPEC,
     JSS_SPEC.key: JSS_SPEC,
     CRT_SPEC.key: CRT_SPEC,
     SCALP3MA_SPEC.key: SCALP3MA_SPEC,
@@ -93,6 +100,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     SWEEPFVG_SPEC.key: SWEEPFVG_SPEC,
     SILVERBULLET_SPEC.key: SILVERBULLET_SPEC,
     NOANET_SPEC.key: NOANET_SPEC,
+    NOANETEOD_SPEC.key: NOANETEOD_SPEC,
     SWEEPENGULF_SPEC.key: SWEEPENGULF_SPEC,
     VAREV_SPEC.key: VAREV_SPEC,
 }
