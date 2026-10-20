@@ -666,7 +666,26 @@
   }
 
   // ---------- obrazovky ----------
-  function viewOverview() {
+  // Priečinky podľa trhu (používateľ 20. 10. 2026): všetko doterajšie je Nasdaq; GOLD, DOW a SP 500 sú pripravené.
+  var MARKETS = [["NASDAQ", "Nasdaq 100 — NQ / MNQ"], ["GOLD", "Zlato — GC / MGC"], ["DOW", "Dow Jones — YM / MYM"], ["SP 500", "S&P 500 — ES / MES"]];
+  function marketOf(s) { return s.market || "NASDAQ"; }
+  function marketHref(m) { return "#/m/" + encodeURIComponent(m); }
+  function marketCrumb(s) { var m = marketOf(s); return '<a href="' + marketHref(m) + '">' + esc(m) + "</a><span>/</span>"; }
+  function viewMarkets() {
+    var cards = MARKETS.map(function (mk) {
+      var list = DATA.strategies.filter(function (s) { return marketOf(s) === mk[0]; });
+      var ok = list.filter(function (s) { return !s.testing; }).length;
+      var sets = list.reduce(function (n, s) { return n + (s.testing ? 0 : (s.settings || []).length); }, 0);
+      return '<a class="card" href="' + marketHref(mk[0]) + '"><div class="card-head"><div><div class="card-title">' + esc(mk[0]) +
+        '</div><div class="muted">' + esc(mk[1]) + "</div></div>" +
+        (list.length ? '<span class="badge pos">' + list.length + " stratégií</span>" : '<span class="badge">pripravené</span>') + "</div>" +
+        '<div class="kv"><div><span>Prešli smernicou</span><b>' + ok + "</b></div><div><span>V teste</span><b>" + (list.length - ok) +
+        "</b></div><div><span>Nastavení</span><b>" + sets + "</b></div></div></a>";
+    }).join("");
+    return '<h1>Prehľad trhov</h1><p class="sub">Stratégie sú v priečinkoch podľa trhu. Ako by vyzerali viaceré naraz, ukáže <a class="pos" href="#/div">Diverzifikácia</a>.</p>' +
+      '<div class="grid cards">' + cards + "</div>";
+  }
+  function viewOverview(market) {
     function card(s) {
       var sets = s.settings || [];
       var best = sets.reduce(function (m, x) { return x.is && x.is.pf != null && (m == null || x.is.pf > m) ? x.is.pf : m; }, null);
@@ -683,9 +702,14 @@
         "<div><span>" + (s.testing ? "Prešlo smernicou" : "Nastavení") + "</span><b>" + (s.testing ? "0" : sets.length) + "</b></div>" +
         "</div>" + stepsRow(s, true) + "</a>";
     }
-    var ok = DATA.strategies.filter(function (s) { return !s.testing; }), test = DATA.strategies.filter(function (s) { return s.testing; });
-    var html = '<h1>Prehľad stratégií</h1><p class="sub">Klikni na stratégiu pre zoznam jej nastavení. Ako by vyzerali viaceré naraz, ukáže <a class="pos" href="#/div">Diverzifikácia</a>.</p>' +
-      '<h2 class="section">Prešli smernicou</h2><div class="grid cards">' + ok.map(card).join("") + "</div>";
+    var inM = DATA.strategies.filter(function (s) { return marketOf(s) === market; });
+    var ok = inM.filter(function (s) { return !s.testing; }), test = inM.filter(function (s) { return s.testing; });
+    var mk = MARKETS.filter(function (x) { return x[0] === market; })[0];
+    var html = '<div class="crumbs"><a href="#/">Prehľad</a><span>/</span><span>' + esc(market) + "</span></div>" +
+      "<h1>" + esc(market) + '</h1><p class="sub">' + esc(mk ? mk[1] : "") + ". Klikni na stratégiu pre zoznam jej nastavení.</p>";
+    if (!inM.length) return html + '<div class="card"><p class="muted" style="margin:0">Priečinok je pripravený — zatiaľ tu nie je žiadna stratégia. ' +
+      "Keď stratégia na tomto trhu prejde krokom 1 a začne sa testovať, objaví sa tu.</p></div>";
+    html += '<h2 class="section">Prešli smernicou</h2><div class="grid cards">' + (ok.length ? ok.map(card).join("") : '<p class="muted">Zatiaľ žiadna.</p>') + "</div>";
     if (test.length) html += '<h2 class="section">V teste — zatiaľ neprešli</h2><p class="sub">Práve sa testujú podľa smernice. Ukázané sú 3 najlepší kandidáti; ' +
       "keď niektorý prejde odloženým rokom, stratégia sa presunie hore.</p>" + '<div class="grid cards">' + test.map(card).join("") + "</div>";
     return html;
@@ -703,7 +727,7 @@
         '<td class="' + (st.oos ? pfCls(st.oos.pf) : "muted") + '">' + (st.oos ? pfFmt(st.oos.pf) : "—") + "</td>" +
         FIRMS.map(function (f) { return propCell(st, f); }).join("") + "</tr>";
     }).join("");
-    return '<div class="crumbs"><a href="#/">Prehľad</a><span>/</span><span>' + esc(s.name) + "</span></div>" +
+    return '<div class="crumbs"><a href="#/">Prehľad</a><span>/</span>' + marketCrumb(s) + "<span>" + esc(s.name) + "</span></div>" +
       "<h1>" + esc(s.name) + '</h1><p class="sub">' + esc(s.guideline_step || "") + " · krok 1: " + esc(s.step1 || "—") +
       " · skúšaných kombinácií " + num(s.combos) + "</p>" +
       '<div class="card"><div class="table-wrap"><table><thead><tr><th>Nastavenie</th><th class="l">Stav</th><th>PF IS</th><th>Obch./rok</th><th>Najhorší rok PF</th><th>PF OOS</th>' +
@@ -717,7 +741,7 @@
   function viewDetail(strat, st) {
     var hasOos = !!st.oos;
     var params = Object.keys(st.params || {}).map(function (k) { return "<code>" + esc(k) + " = " + esc(JSON.stringify(st.params[k])) + "</code>"; }).join("");
-    var html = '<div class="crumbs"><a href="#/">Prehľad</a><span>/</span><a href="#/s/' + encodeURIComponent(strat.key) + '">' + esc(strat.name) + "</a><span>/</span><span>" + esc(st.id) + "</span></div>" +
+    var html = '<div class="crumbs"><a href="#/">Prehľad</a><span>/</span>' + marketCrumb(strat) + '<a href="#/s/' + encodeURIComponent(strat.key) + '">' + esc(strat.name) + "</a><span>/</span><span>" + esc(st.id) + "</span></div>" +
       '<div class="row" style="margin-bottom:6px"><h1>' + esc(st.label) + "</h1>" + statusBadge(st.status) + "</div>" +
       '<p class="sub">' + esc(strat.name) + (st.plateau_min != null ? " · plató min " + pfFmt(st.plateau_min) : "") +
       (st.params_label ? '<br><span class="muted" style="font-size:12px">' + esc(st.params_label) + "</span>" : "") + "</p>" +
@@ -1583,6 +1607,11 @@
       mountDiversify();
       return;
     }
+    if (parts[0] === "m" && parts[1]) {
+      app.innerHTML = viewOverview(parts[1]);
+      document.title = parts[1] + " — Výsledky testovania";
+      return;
+    }
     if (parts[0] === "s" && parts[1]) {
       var s = findStrategy(parts[1]);
       app.innerHTML = s ? viewStrategy(s) : notFound();
@@ -1604,7 +1633,7 @@
       mountDetail(f.st);
       return;
     }
-    app.innerHTML = viewOverview();
+    app.innerHTML = viewMarkets();
     document.title = "Výsledky testovania";
   }
   function notFound() { return '<div class="msg">Nenašlo sa. <a class="pos" href="#/">Späť na prehľad</a></div>'; }
