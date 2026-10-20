@@ -1,5 +1,5 @@
 InpProfile=multicharts_mnq_3m
-InpServerGmtOffsetMin=180
+InpServerGmtOffsetMin=0
 InpMagic=20260925
 InpExportSignals=false
 InpLogEvents=true

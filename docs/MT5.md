@@ -98,7 +98,10 @@ a text je v `LastError()`.
 **Čas servera.** MT5 dáva časy barov v čase servera brokera, nie UTC, a v Strategy Testeri sa
 posun zistiť nedá (`TimeGMT()` tam kopíruje čas servera). Preto je vstup
 `InpServerGmtOffsetMin` (GMT+3 s letným časom = 180) — bez neho by seansy engine-u sedeli o
-pár hodín vedľa. Živý účet: `TimeTradeServer() - TimeGMT()`.
+pár hodín vedľa. **0 = naživo zistiť sám** (`TimeTradeServer() - TimeGMT()`, zaokrúhlené na 15 min, prepočet
+každých 5 s — zmenu letného času brokera chytí sám); nenulová hodnota platí napevno, v testeri treba zadať.
+Všetky `presets/*_live.set` majú 0 (20. 10. 2026: NOA a TKS nemali preset, nasadili sa s 0 bez zisťovania
+a mali časy barov o 3 h posunuté).
 
 **Účet.** Hedging účet = každý vstup vlastná pozícia (ako NinjaTrader `UniqueEntries`). Netting
 = jedna pozícia na symbol, SL/TP sú spoločné a čiastočné zatváranie ide cez `PositionClosePartial`
@@ -323,7 +326,7 @@ terminál build 6230 sám ukladá (UTF-16 LE s BOM, CRLF; `<chart>` hlavička so
 — 0 = minúty, 1 = hodiny, 2 = dni —, `<expert>` s `name`, `path=Experts\TradeBot\<Šablóna>.ex5`, `expertmode=5` (pri `AllowLiveTrading=0` `4`)
 a `<inputs>`, `<window>` s indikátorom `Main`), jeden súbor na nasadenie. Šablóna EA sa berie z
 `#define TRADEBOT_ENGINE_KEY` v `deploy/mt5/*.mq5` (`ibsnet` → `IBSNet`), inputy z `input` deklarácií
-v `TradeBotEA.mqh`, cez ne `presets/<Šablóna>_live.set` (posun servera `InpServerGmtOffsetMin=180` pre FTMO…)
+v `TradeBotEA.mqh`, cez ne `presets/<Šablóna>_live.set` (posun servera `InpServerGmtOffsetMin=0` = zistí sa zo servera…)
 a nakoniec to, čo určuje driver: `InpProfile=<profil nasadenia>`, `InpMagic` deterministicky z id nasadenia
 (`magic_for`, sha256 → 100 000 … 2·10⁹), `InpTelemetry=true`, `InpExportSignals=false`, screenshot vypnutý.
 Terminál profil otvorí vďaka `[Charts] ProfileLast=tradebot` v `/config:` ini (CLI prepínač `/profile:` nebol

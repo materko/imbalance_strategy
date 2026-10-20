@@ -44,7 +44,7 @@
 
 //--- vstupy (rovnake ako parametre strategie v NinjaTraderi)
 input string InpProfile             = TRADEBOT_DEFAULT_PROFILE; // Profil: nazov JSON v Common\Files\TradeBot\profiles\<kluc>\ alebo cela cesta
-input int    InpServerGmtOffsetMin  = 0;      // Posun casu servera brokera voci UTC v minutach (GMT+3 = 180); v testeri sa neda zistit
+input int    InpServerGmtOffsetMin  = 0;      // Posun casu servera brokera voci UTC v minutach (GMT+3 = 180); 0 = naživo zistí sám zo servera (aj letný čas), v testeri 0
 input int    InpMagic               = 20260925; // Magic number
 input string InpSlot                = "";     // Slot nasadenia v id instancie (viac nasadeni tej istej strategie na symbole a TF); prazdny = bez neho
 input bool   InpExportSignals       = true;   // Exportovat signaly (CSV do Common\Files\TradeBot\logs, na porovnanie s Testerom)
@@ -135,8 +135,30 @@ bool   g_stateWarned = false;
 //+------------------------------------------------------------------+
 string Num(double v) { return StringFormat("%.17g", v); }
 
-long ToMs(datetime serverTime) { return ((long)serverTime - (long)InpServerGmtOffsetMin * 60) * 1000; }
-datetime FromMs(long ms) { return (datetime)(ms / 1000 + (long)InpServerGmtOffsetMin * 60); }
+//| Posun casu servera voci UTC v sekundach. Vstup InpServerGmtOffsetMin != 0 plati napevno; pri 0 sa naživo     |
+//| zisti zo servera (TimeTradeServer - TimeGMT, zaokruhlene na 15 min) a prepocita sa kazdych 5 s v OnTimer,  |
+//| takze zmenu letneho casu brokera (GMT+2 <-> GMT+3) EA chyti sam - deje sa cez vikend, ked trh nebezi.      |
+//| (20. 10. 2026: NOA a TKS na FTMO boli nasadene s 0 a mali cas sviecok o 3 h posunuty -> zla seansa NY.)   |
+int g_gmtOffsetSec = 0;
+int DetectGmtOffsetSec()
+  {
+   if(InpServerGmtOffsetMin != 0) return InpServerGmtOffsetMin * 60;
+   if(MQLInfoInteger(MQL_TESTER)) return 0;   // v testeri TimeGMT nepozna skutocny posun brokera
+   long diff = (long)TimeTradeServer() - (long)TimeGMT();
+   return (int)(MathRound(diff / 900.0) * 900);
+  }
+void RefreshGmtOffset()
+  {
+   int sec = DetectGmtOffsetSec();
+   if(sec != g_gmtOffsetSec)
+     {
+      Print("TradeBot: posun casu servera voci UTC ", g_gmtOffsetSec / 60, " -> ", sec / 60, " min",
+            InpServerGmtOffsetMin != 0 ? " (vstup)" : " (zistene zo servera)");
+      g_gmtOffsetSec = sec;
+     }
+  }
+long ToMs(datetime serverTime) { return ((long)serverTime - (long)g_gmtOffsetSec) * 1000; }
+datetime FromMs(long ms) { return (datetime)(ms / 1000 + (long)g_gmtOffsetSec); }
 
 long UtcDay(long ms)
   {
@@ -292,6 +314,7 @@ int OnInit()
      { Print("TradeBot: strategia bezi len na minutovom grafe (limity su v baroch)"); return INIT_PARAMETERS_INCORRECT; }
    g_chartTfMin = PeriodSeconds() / 60;
    g_stepMs = (long)g_chartTfMin * 60000;
+   RefreshGmtOffset();   // pred predhistoriou: casy barov idu do engine-u v UTC
    g_hedging = AccountInfoInteger(ACCOUNT_MARGIN_MODE) == ACCOUNT_MARGIN_MODE_RETAIL_HEDGING;
 
    if(StaticHost::Version() != 3)
@@ -329,7 +352,7 @@ int OnInit()
    if(InpExportSignals) OpenExport();
    OpenSpool(g_profile);
    PrintEngineInfo(profilePath);
-   if(InpServerGmtOffsetMin == 0)
+   if(g_gmtOffsetSec == 0)
       Print("TradeBot: POZOR, posun servera voci UTC je 0 - seansy engine-u su v UTC/pasme profilu, skontroluj InpServerGmtOffsetMin");
 
    if(InpShowDrawings) ObjectsDeleteAll(0, TB_OBJ_PREFIX);   // zvysky z predoslej instancie EA
@@ -386,7 +409,7 @@ void PrintEngineInfo(string profilePath)
   {
    Print("TradeBot ", TRADEBOT_ENGINE_KEY, ": TF ", g_chartTfMin, "m, predhistoria ", g_required, " barov, HTF ", g_htfMin,
          "m, tick ", SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE), ", ucet ", g_hedging ? "hedging" : "netting",
-         ", server UTC", InpServerGmtOffsetMin >= 0 ? "+" : "", InpServerGmtOffsetMin / 60.0, "h, profil ", profilePath);
+         ", server UTC", g_gmtOffsetSec >= 0 ? "+" : "", g_gmtOffsetSec / 3600.0, "h", InpServerGmtOffsetMin != 0 ? "" : " (zistene)", ", profil ", profilePath);
   }
 
 //+------------------------------------------------------------------+
@@ -567,6 +590,7 @@ void OnTimer()
       if(InpCloseAfterShot) return;
      }
    CheckTradeAllowed();
+   if(!MQLInfoInteger(MQL_TESTER)) RefreshGmtOffset();
    if(g_controlOn) CheckControl();
    else EventKillTimer();
   }

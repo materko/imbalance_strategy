@@ -1,4 +1,4 @@
-InpServerGmtOffsetMin=180
+InpServerGmtOffsetMin=0
 InpExportSignals=false
 InpLogEvents=true
 InpShowDrawings=true

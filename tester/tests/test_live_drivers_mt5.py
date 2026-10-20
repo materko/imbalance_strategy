@@ -180,7 +180,7 @@ path=Experts\\TradeBot\\IBSNet.ex5
 expertmode=4
 <inputs>
 InpProfile=golden_binance_btcusdt_3m
-InpServerGmtOffsetMin=180
+InpServerGmtOffsetMin=0
 InpMagic={magic}
 InpSlot=
 InpExportSignals=false
