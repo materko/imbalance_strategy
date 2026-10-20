@@ -1,0 +1,21 @@
+{
+ "loLevel": 15,
+ "hiLevel": 75,
+ "rrRatio": 0.5,
+ "pivLen": 8,
+ "closeAtSessionEnd": false,
+ "nConf": 2,
+ "lookbackDays": 10,
+ "entryStartMin": 15,
+ "entryEndMin": 270,
+ "pauseFromMin": 150,
+ "pauseToMin": 210,
+ "trendFilter": "with",
+ "trendEmaLen": 50,
+ "trendTF": 60,
+ "volFilter": "off",
+ "_strategy": "tks",
+ "_instrument": "mnq_databento",
+ "_timeframe": "3m",
+ "_title": "TKS 9 · RR 0,5 · PF 1,48 · WR 73 % · 162 obch/rok · MNQ 3m · max DD 2 171 $ · posl. rok PF 1,35"
+}

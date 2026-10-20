@@ -1,0 +1,48 @@
+$ emulator MultiCharts MNQ 2m 20211001-20260904 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 200 na 16m @16m 500/500
+emulacia MultiCharts: 872158 barov 2m, 1744299 1m, 0 HTF
+  20000/872158 barov, 12 obchodov
+  40000/872158 barov, 34 obchodov
+  60000/872158 barov, 47 obchodov
+  80000/872158 barov, 66 obchodov
+  100000/872158 barov, 86 obchodov
+  120000/872158 barov, 101 obchodov
+  140000/872158 barov, 112 obchodov
+  160000/872158 barov, 136 obchodov
+  180000/872158 barov, 149 obchodov
+  200000/872158 barov, 161 obchodov
+  220000/872158 barov, 177 obchodov
+  240000/872158 barov, 204 obchodov
+  260000/872158 barov, 225 obchodov
+  280000/872158 barov, 250 obchodov
+  300000/872158 barov, 272 obchodov
+  320000/872158 barov, 289 obchodov
+  340000/872158 barov, 303 obchodov
+  360000/872158 barov, 322 obchodov
+  380000/872158 barov, 340 obchodov
+  400000/872158 barov, 352 obchodov
+  420000/872158 barov, 368 obchodov
+  440000/872158 barov, 385 obchodov
+  460000/872158 barov, 398 obchodov
+  480000/872158 barov, 422 obchodov
+  500000/872158 barov, 441 obchodov
+  520000/872158 barov, 457 obchodov
+  540000/872158 barov, 473 obchodov
+  560000/872158 barov, 491 obchodov
+  580000/872158 barov, 510 obchodov
+  600000/872158 barov, 527 obchodov
+  620000/872158 barov, 548 obchodov
+  640000/872158 barov, 561 obchodov
+  660000/872158 barov, 577 obchodov
+  680000/872158 barov, 594 obchodov
+  700000/872158 barov, 609 obchodov
+  720000/872158 barov, 619 obchodov
+  740000/872158 barov, 636 obchodov
+  760000/872158 barov, 651 obchodov
+  780000/872158 barov, 660 obchodov
+  800000/872158 barov, 674 obchodov
+  820000/872158 barov, 696 obchodov
+  840000/872158 barov, 709 obchodov
+  860000/872158 barov, 723 obchodov
+hotovo: 729 obchodov, nerozhodnutelnych minut 3
+kresby: {'tp_box': 1073, 'sl_box': 1073, 'tks_entry': 1073}
