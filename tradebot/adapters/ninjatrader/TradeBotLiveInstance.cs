@@ -119,6 +119,8 @@ namespace NinjaTrader.NinjaScript.AddOns
             public string Closing;
             public DateTime ClosingSince;
             public bool CloseSent;
+            /// <summary>Kedy prisiel prvy fill vstupu (UTC) - pozicia uctu sa obnovi o chvilu neskor.</summary>
+            public DateTime FilledAt;
         }
 
         private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -166,6 +168,11 @@ namespace NinjaTrader.NinjaScript.AddOns
         private EventHandler<OrderEventArgs> _orderHandler;
         private EventHandler<ExecutionEventArgs> _executionHandler;
         private int _ocoSeq;
+        /// <summary>Posledny fill cudzieho orderu na instrumente (napr. Chart Trader Close) - cena pre vystup mimo strategie.</summary>
+        private double _foreignPrice;
+        private long _foreignMs;
+        private DateTime _extFlatSince = DateTime.MinValue;
+        private double _lastClose;
 
         // control subor (docs/LIVE.md, faza 2)
         private string _controlPath;
@@ -257,6 +264,8 @@ namespace NinjaTrader.NinjaScript.AddOns
                     if (_stopRequested) break;
                     try { ProcessBars(); }
                     catch (Exception e) { Note("error", "spracovanie barov zlyhalo - " + e); }
+                    try { if (_live) ReconcileExternal(); }
+                    catch (Exception e) { Note("error", "kontrola pozicie uctu - " + e.Message); }
                     try { if (_live) ReleaseParked(); }   // pozicia uctu sa vynuluje o chvilu po fille vystupu
                     catch (Exception e) { Note("error", "odlozene vstupy - " + e.Message); }
                     if ((DateTime.UtcNow - lastControl).TotalSeconds >= ControlPeriodSeconds)
@@ -585,6 +594,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             TB.Bar bar = new TB.Bar(ToMs(c.Time) - _stepMs, c.Open, c.High, c.Low, c.Close, c.Volume);
             if (_chartBars++ == 0) _firstBarMs = bar.Time;
             _lastBarMs = bar.Time;
+            _lastClose = c.Close;
             int replays = _replays;
             if (_live) ControlCheck();   // moze vymenit engine (profil) - vtedy sa historia prehra znova a tento bar uz je v nej
             if (_engine == null || replays != _replays) return;
@@ -880,6 +890,40 @@ namespace NinjaTrader.NinjaScript.AddOns
             }
         }
 
+        /// <summary>
+        /// Pozicia zavreta mimo strategie: ucet je na instrumente flat (napr. Chart Trader Close / Flatten zrusi
+        /// SL/TP a zavrie poziciu vlastnym orderom „Close“, ktory adapter ako svoj nepozna), ale strategia ma
+        /// vyplneny vstup s otvorenym objemom. Bez tohto by si ho drzala navzdy (19. 10. 2026: VWAP ORB tri dni
+        /// neobchodovala a hub ukazoval short, ktory u brokera nebol). Ucet musi byt flat aspon 3 s a vstup
+        /// vyplneny aspon 10 s (PositionUpdate chodi po fille neskor). Ked ma na instrumente poziciu ina
+        /// instancia, ucet flat nie je a toto nezasiahne.
+        /// </summary>
+        private void ReconcileExternal()
+        {
+            bool open = false;
+            foreach (KeyValuePair<string, Tracked> kv in _orders)
+                if (kv.Value.Filled && kv.Value.OpenQty > 0 && (DateTime.UtcNow - kv.Value.FilledAt).TotalSeconds >= 10) open = true;
+            if (!open || AccountPosition() != 0) { _extFlatSince = DateTime.MinValue; return; }
+            if (_extFlatSince == DateTime.MinValue) { _extFlatSince = DateTime.UtcNow; return; }
+            if ((DateTime.UtcNow - _extFlatSince).TotalSeconds < 3) return;
+            _extFlatSince = DateTime.MinValue;
+            bool known = _foreignMs > 0;
+            double price = known ? _foreignPrice : _lastClose;
+            long ms = known ? _foreignMs : (long)Math.Round((DateTime.UtcNow - Epoch).TotalMilliseconds);
+            foreach (KeyValuePair<string, Tracked> kv in new List<KeyValuePair<string, Tracked>>(_orders))
+            {
+                Tracked t = kv.Value;
+                if (!t.Filled || t.OpenQty <= 0) continue;
+                Note("warn", "pozicia " + kv.Key + " (" + t.OpenQty + " ks) zavreta mimo strategie (napr. Chart Trader Close / Flatten) - "
+                     + "zapisany vystup 'close' @" + price.ToString(CultureInfo.InvariantCulture) + (known ? "" : " (cena posledneho baru)"));
+                if (_spool != null) { _spool.Fill(ms, kv.Key, false, "close", price, t.OpenQty, _live); SpoolCheck(); }
+                if (Alive(t.Sl)) CancelOrder(t.Sl);
+                if (Alive(t.Tp)) CancelOrder(t.Tp);
+                _orders.Remove(kv.Key);
+            }
+            _foreignMs = 0;
+        }
+
         /// <summary>Zrus cakajuce vstupy a zavri, co je otvorene (koniec seansy, flatten).</summary>
         private void Flatten(string signal)
         {
@@ -1019,6 +1063,7 @@ namespace NinjaTrader.NinjaScript.AddOns
             {
                 // vyplnenie vstupu
                 if (t.Entry != null && !ReferenceEquals(t.Entry, o)) return;
+                if (!t.Filled) t.FilledAt = DateTime.UtcNow;
                 t.Filled = true;
                 t.Parked = false;
                 t.OpenQty += qty;
@@ -1029,10 +1074,15 @@ namespace NinjaTrader.NinjaScript.AddOns
                 return;
             }
             int colon = name.LastIndexOf(':');
-            if (colon <= 0) return;
+            if (colon <= 0 || !_orders.TryGetValue(name.Substring(0, colon), out t))
+            {
+                // cudzi order (Chart Trader Close / Flatten, ine okno, ina instancia) - cena pre ReconcileExternal
+                _foreignPrice = price;
+                _foreignMs = execMs;
+                return;
+            }
             string id = name.Substring(0, colon);
             string suffix = name.Substring(colon + 1);
-            if (!_orders.TryGetValue(id, out t)) return;
             string exitName = ExitName(suffix);
             Log("FILL out " + id + " " + exitName + " @" + price + " x" + qty);
             if (_spool != null) { _spool.Fill(execMs, id, false, exitName, price, qty, _live); SpoolCheck(); }
