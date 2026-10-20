@@ -25,6 +25,7 @@ from .gap import SPEC as GAP_SPEC
 from .ibs import SPEC as IBS_SPEC
 from .ibsnet import SPEC as IBSNET_SPEC
 from .ibsentry import SPEC as IBSENTRY_SPEC
+from .ibsentrymgc import SPEC as IBSENTRYMGC_SPEC
 from .ibsentrynet import SPEC as IBSENTRYNET_SPEC
 from .ibsentryneteod import SPEC as IBSENTRYNETEOD_SPEC
 from .ibsfvg import SPEC as IBSFVG_SPEC
@@ -63,6 +64,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     IBSNET_SPEC.key: IBSNET_SPEC,
     IBSZONES_SPEC.key: IBSZONES_SPEC,
     IBSENTRY_SPEC.key: IBSENTRY_SPEC,
+    IBSENTRYMGC_SPEC.key: IBSENTRYMGC_SPEC,
     IBSENTRYNET_SPEC.key: IBSENTRYNET_SPEC,
     IBSENTRYNETEOD_SPEC.key: IBSENTRYNETEOD_SPEC,
     IBSFVG_SPEC.key: IBSFVG_SPEC,
