@@ -32,12 +32,14 @@ signálmi zhodnými s ňou; vo webapp sú to obyčajné stratégie pod Freqtrade
 | **`vwaporbnet`** | `vwaporb` (VWAP ORB 1.5) | `csharp/TradeBot.Strategies/VwapOrbNet` (dedí z `OrbNet`) | `deploy/ninjatrader/VwapOrbNet.cs` |
 | **`vwapadxnet`** | `vwapadx` (VWAP ADX Pullback) | `csharp/TradeBot.Strategies/VwapAdxNet` (ADX z `IbsNet`) | `deploy/ninjatrader/VwapAdxNet.cs` |
 | **`noanet`** | `noa` (NOA 1.0, Noise Area) | `csharp/TradeBot.Strategies/NoaNet` | `deploy/ninjatrader/NoaNet.cs` |
+| **`tksnet`** | `tks` (TKS 1.0, NQ Kompas) | `csharp/TradeBot.Strategies/TksNet` | `deploy/ninjatrader/TksNet.cs` |
 | **`ibsentryneteod`** | `ibsentrynet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/IbsEntryNet/IbsEntryEodEngine.cs` | `deploy/ninjatrader/IBSEntryNetEod.cs` |
 | **`vwaporbneteod`** | `vwaporbnet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/VwapOrbNet/VwapOrbEodEngine.cs` | `deploy/ninjatrader/VwapOrbNetEod.cs` |
 | **`vwapadxneteod`** | `vwapadxnet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/VwapAdxNet/VwapAdxEodEngine.cs` | `deploy/ninjatrader/VwapAdxNetEod.cs` |
 | **`noaneteod`** | `noanet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/NoaNet/NoaEodEngine.cs` | `deploy/ninjatrader/NoaNetEod.cs` |
+| **`tksneteod`** | `tksnet` + EOD 15:59 NY | `csharp/TradeBot.Strategies/TksNet/TksEodEngine.cs` | `deploy/ninjatrader/TksNetEod.cs` |
 
-Ku každej je aj Expert Advisor pre MetaTrader 5 (`deploy/mt5/<Meno>.mq5`). Nastavenia `ibsentry`, `vwaporb` a `vwapadx`,
+Ku každej je aj Expert Advisor pre MetaTrader 5 (`deploy/mt5/<Meno>.mq5`). Nastavenia `ibsentry`, `vwaporb`, `vwapadx`, `noa` a `tks`,
 ktoré prešli smernicou testovania, majú C# kópiu v `tester/profiles/SMERNICE_CS_<názov>_<n>.json` (vlastný prefix — export rannej úlohy
 on Mac mini maže len `PRESIEL_SMERNICAMI_*`, ktoré sám nevyrobil)
 (webapp ich ukáže v priečinku SMERNICE, karta Live ich ponúkne na nasadenie). VWAP ORB v C# nemá stop
@@ -46,7 +48,7 @@ adaptéry nepoznajú; config aj engine ho odmietnu.
 
 ### Koniec obchodného dňa (EOD) pre prop účty
 
-Kópie `<kľúč>eod` (`ibsentryneteod`, `vwaporbneteod`, `vwapadxneteod`, `noaneteod`) sú tie isté stratégie, len o **15:59
+Kópie `<kľúč>eod` (`ibsentryneteod`, `vwaporbneteod`, `vwapadxneteod`, `noaneteod`, `tksneteod`) sú tie isté stratégie, len o **15:59
 New York** (21:59 nášho času) zavrú každú otvorenú pozíciu, zrušia čakajúce vstupné ordery a do **18:00 NY** (nový
 obchodný deň CME) nevstúpia — prop firmy na futures nechcú pozíciu cez koniec dňa. Robí to generický obal
 `EodCloseEngine` (`csharp/TradeBot.Core/EodClose.cs`); trieda kópie v priečinku predlohy (napr. `NoaEodEngine`) len postaví

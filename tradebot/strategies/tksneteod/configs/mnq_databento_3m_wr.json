@@ -1,0 +1,13 @@
+{
+  "_title": "TKS (C# jadro EOD) najvyšší WR — MNQ 3m: Kompas pod 15 / nad 85, 3 sviečky, SL swing (5), TP 0,5 R",
+  "_strategy": "tksneteod",
+  "_instrument": "mnq_databento",
+  "_timeframe": "3m",
+  "loLevel": 15.0,
+  "hiLevel": 85.0,
+  "rrRatio": 0.5,
+  "pivLen": 5,
+  "_comment": [
+    "Prvé hľadanie (18. 10. 2026, 2019-06 – 2025-09, 1 MNQ s poplatkom a sklzom): WR 70,7 %, PF 1,22, ~238 obch/rok, DD 2 485 $, 6/6 rokov v zisku. Odložený rok netknutý."
+  ]
+}

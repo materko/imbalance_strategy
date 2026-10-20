@@ -57,6 +57,8 @@ BASES = {
                                            "tpBars": 200, "slBars": 200}),
     "noanet": ("mnq_databento_5m", 5, {"lookbackDays": 5, "checkEvery": 15, "maxTradesPerDay": 10,
                                        "weekdaysOnly": False}),
+    "tksnet": ("mnq_databento_3m", 3, {"lookbackDays": 5, "rrRatio": 3.0, "pivLen": 8, "loLevel": 45.0, "hiLevel": 55.0,
+                                       "nConf": 1}),
 }
 
 #: obaly vstupov — vstupy, ktoré čakajú, a teda ordery, ktoré musí EOD zrušiť (dlhá limitka čaká aj cez 15:59)
@@ -164,7 +166,8 @@ def test_synteticke_bary(frames, base_key, wrap):
         assert stats["eod_cancels"] > 0, stats      # čakajúca limitka o 15:59 — zrušená, nič nečaká
 
 
-_FIRST = {"ibsentrynet": "IBS_Entry_Zone", "vwaporbnet": "VWAP_ORB", "vwapadxnet": "VWAP_ADX_Pullback", "noanet": "NOA"}
+_FIRST = {"ibsentrynet": "IBS_Entry_Zone", "vwaporbnet": "VWAP_ORB", "vwapadxnet": "VWAP_ADX_Pullback", "noanet": "NOA",
+          "tksnet": "TKS"}
 
 
 @pytest.mark.parametrize("base_key", sorted(_FIRST))

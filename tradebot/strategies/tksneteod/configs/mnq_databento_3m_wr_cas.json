@@ -1,0 +1,15 @@
+{
+  "_title": "TKS (C# jadro EOD) WR + čas — MNQ 3m: 15 / 85, 3 sviečky, swing (5), TP 0,5 R, vstupy 10:00–15:00",
+  "_strategy": "tksneteod",
+  "_instrument": "mnq_databento",
+  "_timeframe": "3m",
+  "loLevel": 15.0,
+  "hiLevel": 85.0,
+  "rrRatio": 0.5,
+  "pivLen": 5,
+  "entryStartMin": 30,
+  "entryEndMin": 330,
+  "_comment": [
+    "Základný test filtrov (18. 10. 2026, 2019-06 – 2025-09): WR 71,4 %, PF 1,28, 146 obch/rok, 16,7 $/obchod, DD 2 742 $, 6/6 rokov."
+  ]
+}

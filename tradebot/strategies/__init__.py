@@ -13,6 +13,8 @@ from .crt import SPEC as CRT_SPEC
 from .dailyopen import SPEC as DAILYOPEN_SPEC
 from .noa import SPEC as NOA_SPEC
 from .tks import SPEC as TKS_SPEC
+from .tksnet import SPEC as TKSNET_SPEC
+from .tksneteod import SPEC as TKSNETEOD_SPEC
 from .demo_breakout import SPEC as DEMO_SPEC
 from .divergence import SPEC as DIVERGENCE_SPEC
 from .fvgpolarity import SPEC as FVGPOLARITY_SPEC
@@ -97,6 +99,8 @@ STRATEGIES: dict[str, StrategySpec] = {
     DAILYOPEN_SPEC.key: DAILYOPEN_SPEC,
     NOA_SPEC.key: NOA_SPEC,
     TKS_SPEC.key: TKS_SPEC,
+    TKSNET_SPEC.key: TKSNET_SPEC,
+    TKSNETEOD_SPEC.key: TKSNETEOD_SPEC,
     SWEEPFVG_SPEC.key: SWEEPFVG_SPEC,
     SILVERBULLET_SPEC.key: SILVERBULLET_SPEC,
     NOANET_SPEC.key: NOANET_SPEC,

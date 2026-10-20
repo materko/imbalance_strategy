@@ -3,7 +3,7 @@
 Repozitár je TradeBot — rámec pre porty TradingView stratégií do Pythonu (generické jadro
 `tradebot/core`, registry stratégií `tradebot/strategies` — dnes „IBS Imbalance Breakout",
 „Market Structure BOS / CHoCH" a ukážková „Demo Donchian Breakout" —, Freqtrade
-a MultiCharts adaptéry; „IBSNet", „ORBNet", „IBS Entry Zone (C#)", „VWAP ORB (C#)", „VWAP ADX Pullback (C#)" a „NOA 1.0 (C#)" sú IBS, ORB, IBS Entry Zone, VWAP ORB, VWAP ADX Pullback a NOA s jadrom v C# (.NET, `csharp/`), ktoré spúšťajú
+a MultiCharts adaptéry; „IBSNet", „ORBNet", „IBS Entry Zone (C#)", „VWAP ORB (C#)", „VWAP ADX Pullback (C#)", „NOA 1.0 (C#)" a „TKS 1.0 (C#)" sú IBS, ORB, IBS Entry Zone, VWAP ORB, VWAP ADX Pullback, NOA a TKS s jadrom v C# (.NET, `csharp/`), ktoré spúšťajú
 NinjaTrader 8, MetaTrader 5 (`tradebot/adapters/mt5`) aj Freqtrade cez most `tradebot/adapters/csharp`) plus webová aplikácia
 pre testerov (`tester/webapp`). Ako pridať stratégiu: [docs/STRATEGIE.md](docs/STRATEGIE.md).
 Pracujú v ňom dva druhy ľudí a pre každého platí iné:
@@ -67,12 +67,12 @@ Bez obmedzení. Platia len konvencie repozitára:
   nič iné. ASCII pre QuoteManager robí `tester.quotemanager`
   zo skladu sviečok. Celá cesta dát: [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md),
   podrobne [docs/DATA.md](docs/DATA.md).
-- Stratégia s jadrom v C# (`csharp/TradeBot.Strategies/<Meno>`, dnes `ibsnet`, `orbnet`, `ibsentrynet`, `vwaporbnet`, `vwapadxnet`, `noanet` a ich kópie `<kľúč>eod` so zatvorením o 15:59 NY pre prop účty — `EodCloseEngine`): C# 5 bez NuGet
+- Stratégia s jadrom v C# (`csharp/TradeBot.Strategies/<Meno>`, dnes `ibsnet`, `orbnet`, `ibsentrynet`, `vwaporbnet`, `vwapadxnet`, `noanet`, `tksnet` a ich kópie `<kľúč>eod` so zatvorením o 15:59 NY pre prop účty — `EodCloseEngine`): C# 5 bez NuGet
   (prekladá ho `csc.exe` z .NET Frameworku, Mono aj NinjaTrader), jadro ani adaptéry (NinjaTrader,
   MT5, most) nepoznajú stratégiu menom (`[TradeBotEngine("kľúč")]`), a zmena logiky musí prejsť paritou
   bar po bare proti Python predlohe (`python -m tester.compare.csharp_parity`,
   `tester/tests/test_csharp_parity.py`). Zmena v `ibs` = tá istá zmena v `csharp/…/IbsNet`, v `orb` v `csharp/…/OrbNet`, v `ibsentry` v `csharp/…/IbsEntryNet`,
-  vo `vwaporb` v `csharp/…/VwapOrbNet`, vo `vwapadx` v `csharp/…/VwapAdxNet`, v `noa` v `csharp/…/NoaNet`, v obaloch vstupov `tradebot/core/entry_*.py` v `csharp/TradeBot.Core/EntryLayers.cs`.
+  vo `vwaporb` v `csharp/…/VwapOrbNet`, vo `vwapadx` v `csharp/…/VwapAdxNet`, v `noa` v `csharp/…/NoaNet`, v `tks` v `csharp/…/TksNet`, v obaloch vstupov `tradebot/core/entry_*.py` v `csharp/TradeBot.Core/EntryLayers.cs`.
   [docs/NINJATRADER.md](docs/NINJATRADER.md). MetaTrader 5 volá tú istú DLL cez statickú fasádu
   `StaticHost` (jediná trieda v globálnom namespace — MQL5 iné nevidí) z Expert Advisora v MQL5 (`tradebot/adapters/mt5`, šablóny `deploy/mt5`);
   fasáda musí dávať to isté, čo most (`tester/tests/test_mt5_static_host.py`) — [docs/MT5.md](docs/MT5.md).
