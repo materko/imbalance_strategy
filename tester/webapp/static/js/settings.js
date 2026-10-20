@@ -520,15 +520,21 @@ function smerniceKeys() {
     ...Object.keys(sm).filter(k => (sm[k].profiles || []).some(isSmerniceProfile))]);
 }
 function inSmernice(key) { return smerniceKeys().has(key); }
-/** Nové stratégie (práve pridané / v teste podľa smernice). Keď prejdú, presunú sa samy do SMERNICE. */
-const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks"]);
+/** Nové stratégie (práve pridané / v teste podľa smernice) po trhoch. Keď prejdú, presunú sa samy do SMERNICE. */
+const NOVE_PODLA_TRHU = {
+  NQ: ["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks"],
+  MCG: [],
+  ES: [],
+};
+const NOVE_STRATEGIE = new Set(Object.values(NOVE_PODLA_TRHU).flat());
 const STRATEGY_FOLDERS = [
   { name: "SMERNICE", match: k => inSmernice(k) },
   { name: "ČAKÁ NA TESTY", match: k => !inSmernice(k) && !NOVE_STRATEGIE.has(k), sub: [
     { name: "IBS", match: k => k.startsWith("ibs") },
     { name: "ORB", match: k => k.startsWith("orb") || k.endsWith("orb") },   // orb, orbnet, vwaporb
   ] },
-  { name: "NOVÉ", match: k => !inSmernice(k) && NOVE_STRATEGIE.has(k) },
+  { name: "NOVÉ", match: k => !inSmernice(k) && NOVE_STRATEGIE.has(k), showEmpty: true,   // trhy vidno aj prázdne
+    sub: Object.entries(NOVE_PODLA_TRHU).map(([name, keys]) => ({ name, match: k => keys.includes(k) })) },
 ];
 const pickerOpenFolders = new Set();
 let pickerInit = false;
@@ -563,7 +569,7 @@ function renderStrategyPicker() {
     if (!pickerOpenFolders.has(f.name)) continue;
     for (const x of f.sub || []) {
       const sm = members.filter(m => x.match(m.key));
-      if (!sm.length) continue;
+      if (!sm.length && !f.showEmpty) continue;
       html += folderBtn(subId(f, x), x.name, sm, 1);
       if (pickerOpenFolders.has(subId(f, x))) html += sm.map(m => item(m, 2)).join("");
     }
