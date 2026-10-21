@@ -9,8 +9,12 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+from tradebot.core.entry_filter import entry_filter_params
+
 from ..ibsentry import SPEC as BASE_SPEC
 from .config import CONFIG_DIR, IBSEntryMgcConfig
+
+_GF = "🧭 Filter trendu a volatility (len MGC)"
 
 SPEC = replace(
     BASE_SPEC,
@@ -20,6 +24,8 @@ SPEC = replace(
     profile_dir=CONFIG_DIR,
     default_profile="mgc_databento_3m",
     logic_of="ibsentry",  # celá logika (IBS + vrstva FVG) je balík predlohy
+    param_meta={**BASE_SPEC.param_meta, **entry_filter_params(_GF)},
+    param_groups=(*BASE_SPEC.param_groups, _GF),
     freqtrade_class="IBSEntryMgcStrategy",
     multicharts_class="IBSEntryMgcSignal",
     multicharts_template="IBSEntryMgc_Signal.py",
