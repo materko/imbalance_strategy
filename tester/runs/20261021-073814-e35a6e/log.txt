@@ -1,0 +1,6 @@
+$ emulator MultiCharts MNQ 15m 20250831-20260831 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: profil predošlej seansy @15m 384/384
+emulacia MultiCharts: 23528 barov 15m, 352920 1m, 0 HTF
+  20000/23528 barov, 15 obchodov
+hotovo: 20 obchodov, nerozhodnutelnych minut 0
+kresby: {'vr_vah': 260, 'vr_val': 260, 'vr_escape': 831, 'vr_signal': 20}

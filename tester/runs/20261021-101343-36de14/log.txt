@@ -1,0 +1,40 @@
+$ emulator MultiCharts MGC 3m 20200904-20260904 (MGC_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: filter trendu EMA 50 na 3m @3m 125/125
+emulacia MultiCharts: 708569 barov 3m, 2104082 1m, 0 HTF
+  20000/708569 barov, 26 obchodov
+  40000/708569 barov, 49 obchodov
+  60000/708569 barov, 78 obchodov
+  80000/708569 barov, 104 obchodov
+  100000/708569 barov, 126 obchodov
+  120000/708569 barov, 146 obchodov
+  140000/708569 barov, 174 obchodov
+  160000/708569 barov, 202 obchodov
+  180000/708569 barov, 232 obchodov
+  200000/708569 barov, 267 obchodov
+  220000/708569 barov, 293 obchodov
+  240000/708569 barov, 315 obchodov
+  260000/708569 barov, 338 obchodov
+  280000/708569 barov, 360 obchodov
+  300000/708569 barov, 391 obchodov
+  320000/708569 barov, 420 obchodov
+  340000/708569 barov, 444 obchodov
+  360000/708569 barov, 471 obchodov
+  380000/708569 barov, 502 obchodov
+  400000/708569 barov, 537 obchodov
+  420000/708569 barov, 565 obchodov
+  440000/708569 barov, 594 obchodov
+  460000/708569 barov, 623 obchodov
+  480000/708569 barov, 642 obchodov
+  500000/708569 barov, 672 obchodov
+  520000/708569 barov, 697 obchodov
+  540000/708569 barov, 718 obchodov
+  560000/708569 barov, 745 obchodov
+  580000/708569 barov, 772 obchodov
+  600000/708569 barov, 800 obchodov
+  620000/708569 barov, 830 obchodov
+  640000/708569 barov, 862 obchodov
+  660000/708569 barov, 890 obchodov
+  680000/708569 barov, 917 obchodov
+  700000/708569 barov, 937 obchodov
+hotovo: 944 obchodov, nerozhodnutelnych minut 0
+kresby: {'s3_fractal': 59698, 's3_entry': 944}
