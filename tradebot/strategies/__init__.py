@@ -19,6 +19,7 @@ from .nocpon import SPEC as NOCPON_SPEC
 from .demo_breakout import SPEC as DEMO_SPEC
 from .divergence import SPEC as DIVERGENCE_SPEC
 from .fvgpolarity import SPEC as FVGPOLARITY_SPEC
+from .fvgpolaritymgc import SPEC as FVGPOLARITYMGC_SPEC
 from .fibo import SPEC as FIBO_SPEC
 from .fpc import SPEC as FPC_SPEC
 from .gap import SPEC as GAP_SPEC
@@ -96,6 +97,7 @@ STRATEGIES: dict[str, StrategySpec] = {
     SVP_SPEC.key: SVP_SPEC,
     PERCOCO_SPEC.key: PERCOCO_SPEC,
     FVGPOLARITY_SPEC.key: FVGPOLARITY_SPEC,
+    FVGPOLARITYMGC_SPEC.key: FVGPOLARITYMGC_SPEC,
     FPC_SPEC.key: FPC_SPEC,
     MAG7_SPEC.key: MAG7_SPEC,
     ASIASWEEP_SPEC.key: ASIASWEEP_SPEC,

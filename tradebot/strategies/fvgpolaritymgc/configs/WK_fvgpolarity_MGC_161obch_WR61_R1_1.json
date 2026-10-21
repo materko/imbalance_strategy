@@ -25,7 +25,7 @@
   "legacyPineSizing": false,
   "minSlDistance": 0.0,
   "leverage": 1.0,
-  "_strategy": "fvgpolarity",
+  "_strategy": "fvgpolaritymgc",
   "_title": "FVG POLARITY MGC: posl. rok 161 obch, 61.5 % WR, zisk:strata 1.13 R, PF 1.80, +4951",
   "_comment": [
     "FVG POLARITY MGC: posl. rok 161 obch, 61.5 % WR, zisk:strata 1.13 R, PF 1.80, +4951",
