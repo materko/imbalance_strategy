@@ -46,7 +46,7 @@
   "legacyPineSizing": false,
   "minSlDistance": 0.0,
   "leverage": 1.0,
-  "_strategy": "scalp3ma",
+  "_strategy": "scalp3mamgc",
   "_title": "Scalping 3MA + RSI + fraktál 1.0 MGC: posl. rok 159 obch, 57.2 % WR, zisk:strata 0.92 R, PF 1.23, +3097",
   "_comment": [
     "Scalping 3MA + RSI + fraktál 1.0 MGC: posl. rok 159 obch, 57.2 % WR, zisk:strata 0.92 R, PF 1.23, +3097",

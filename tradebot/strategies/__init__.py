@@ -21,6 +21,7 @@ from .divergence import SPEC as DIVERGENCE_SPEC
 from .fvgpolarity import SPEC as FVGPOLARITY_SPEC
 from .fvgpolaritymgc import SPEC as FVGPOLARITYMGC_SPEC
 from .fibo import SPEC as FIBO_SPEC
+from .fibomgc import SPEC as FIBOMGC_SPEC
 from .fpc import SPEC as FPC_SPEC
 from .gap import SPEC as GAP_SPEC
 from .ibs import SPEC as IBS_SPEC
@@ -39,6 +40,7 @@ from .orb import SPEC as ORB_SPEC
 from .orbnet import SPEC as ORBNET_SPEC
 from .range import SPEC as RANGE_SPEC
 from .scalp3ma import SPEC as SCALP3MA_SPEC
+from .scalp3mamgc import SPEC as SCALP3MAMGC_SPEC
 from .sdzone import SPEC as SDZONE_SPEC
 from .structure import SPEC as STRUCTURE_SPEC
 from .percoco import SPEC as PERCOCO_SPEC
@@ -93,7 +95,9 @@ STRATEGIES: dict[str, StrategySpec] = {
     JSS_SPEC.key: JSS_SPEC,
     CRT_SPEC.key: CRT_SPEC,
     SCALP3MA_SPEC.key: SCALP3MA_SPEC,
+    SCALP3MAMGC_SPEC.key: SCALP3MAMGC_SPEC,
     FIBO_SPEC.key: FIBO_SPEC,
+    FIBOMGC_SPEC.key: FIBOMGC_SPEC,
     SVP_SPEC.key: SVP_SPEC,
     PERCOCO_SPEC.key: PERCOCO_SPEC,
     FVGPOLARITY_SPEC.key: FVGPOLARITY_SPEC,

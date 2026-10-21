@@ -546,6 +546,8 @@ const STRATEGIA_TRH_TYP = {
   // ZLATO
   ibsentrymgc: ["ZLATO", "SKALPOVACIE"],
   fvgpolaritymgc: ["ZLATO", "SKALPOVACIE"],
+  scalp3mamgc: ["ZLATO", "SKALPOVACIE"],
+  fibomgc: ["ZLATO", "TRENDOVÉ"],
 };
 /** Práve pridané stratégie — štítok „nová“, kým žiadne ich nastavenie neprejde smernicou. */
 const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks", "nocpon", "ibsentrymgc"]);
