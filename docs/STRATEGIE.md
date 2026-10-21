@@ -430,11 +430,25 @@ prestane niečo znamenať.
 - **CLI**: `python -m tester.webapp.cli run --strategy moja --profile <nazov|cesta> …`,
   `params --strategy moja`, `checkup --strategy moja`.
 
+## Zaradenie vo webapp: trh, typ, LIVE
+
+Výber stratégie vo webapp má tri fialové priečinky podľa trhu — **NASDAQ**, **ZLATO**, **S&P 500** — a v každom
+**TRENDOVÉ**, **SKALPOVACIE**, **RANGEOVÉ** a **LIVE** (nakoniec **OSTATNÉ** pre to, čo nie je ladené na žiadny z trhov).
+Zaradenie je v `tester/webapp/static/js/settings.js`, tabuľka `STRATEGIA_TRH_TYP`:
+
+* **každá nová stratégia** dostane riadok `kľúč: [trh, typ]` — trh = na čo je ladená (NQ / MNQ → NASDAQ, GC / MGC →
+  ZLATO, ES / MES → S&P 500), typ podľa logiky: **trendová** (prieraz, pokračovanie trendu, momentum dňa),
+  **skalpovacia** (malý cieľ, obchod na minúty), **rangeová** (návrat do rozsahu, otočka po výbere likvidity, férová cena);
+  kým žiadne jej nastavenie neprejde smernicou, je aj v `NOVE_STRATEGIE` (štítok „nová“);
+* **prepis do C# jadra** (`s.csharp`, aj EOD kópia) sa zaradí sám do **LIVE** trhu svojej predlohy — LIVE sú stratégie
+  nachystané na NinjaTrader a MT5. Nový trh (napr. DOW) = položka v `TRHY`.
+
 ## Kedy je hotová
 
 | # | čo | ako to overiť |
 |---|---|---|
 | 1 | balík, registry, popisy parametrov, shim, šablóna, vysvetlivka `docs/VYSVETLIVKA.md` | `pytest tradebot/tests/test_registry.py` |
+| 1c | zaradenie vo webapp: trh a typ v `STRATEGIA_TRH_TYP` (viď vyššie) | výber stratégie vo webapp |
 | 1b | každé pole formulára kód naozaj číta, inertné a zrušené sú deklarované | `pytest tradebot/tests/test_param_parity.py` |
 | 2 | config sedí s Pine (ak Pine je) | `pytest tester/tests/test_pine_parity.py` |
 | 3 | logika enginu | vlastný test na syntetických baroch |

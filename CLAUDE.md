@@ -41,6 +41,8 @@ Bez obmedzení. Platia len konvencie repozitára:
   kontrakt enginu a definícia hotového sú v [docs/STRATEGIE.md](docs/STRATEGIE.md).
   Popisy parametrov pre formulár sú v `params.py` pri stratégii; **Pine zdroj sa robí
   len na vyžiadanie** a formulár na ňom nezávisí.
+  Každá nová stratégia dostane vo webapp **trh a typ** (NASDAQ / ZLATO / S&P 500 × trendová / skalpovacia /
+  rangeová, `STRATEGIA_TRH_TYP` v `tester/webapp/static/js/settings.js`); prepis do C# jadra ide sám do **LIVE** toho trhu.
   Jadro a adaptéry nesmú poznať konkrétnu stratégiu menom — všetko ide cez `StrategySpec`.
   Stratégia sa píše **pre oba enginy naraz** (Freqtrade aj MultiCharts) a hotová je až
   so **základnou analytikou a posudkom**: `python -m tester.webapp.cli checkup --strategy
