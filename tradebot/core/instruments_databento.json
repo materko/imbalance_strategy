@@ -47,5 +47,17 @@
     "half_spread_ticks": 1.0,
     "cost_note": "odhad: polovica spreadu 0,5 ticku + provizia ~2-3 $ na stranu (tick = 6,25 $) = ~0,5 ticku, spolu 1 tick (0,00005); spread z ohlcv dat nevidno",
     "note": "CME Euro FX futures (125 000 EUR), front-month z Databento GLBX.MDP3 (6E.FUT). Cena v USD za EUR, tick 0.00005 = 6,25 $, bod 125 000 $. Ten isty podklad ako Dukascopy CFD EURUSD, ale futures cena nesie forward bod (rozdiel urokov), preto nie je 1:1 so spotom."
+  },
+  "es_databento": {
+    "symbol": "ES/USD",
+    "source": "databento",
+    "tick_size": 0.25,
+    "point_value": 50.0,
+    "qty_step": 1.0,
+    "min_qty": 1.0,
+    "quote_currency": "USD",
+    "half_spread_ticks": 1.0,
+    "cost_note": "odhad: polovica spreadu 0,5 ticku (ES ma takmer vzdy spread 1 tick) + provizia ~2-2,5 $ na stranu (tick = 12,5 $) = ~0,2 ticku, spolu zaokruhlene 1 tick (0,25 bodu); spread z ohlcv dat nevidno",
+    "note": "CME E-mini S&P 500 (50 $ x index), front-month z Databento GLBX.MDP3 (ES.FUT). Tick 0.25 = 12,5 $, bod 50 $; Micro MES ma ten isty cenovy rad s bodom 5 $. Ten isty podklad ako Dukascopy US500, ale futures cena nesie carry (dividendy, uroky), preto nie je 1:1 s CFD."
   }
 }
