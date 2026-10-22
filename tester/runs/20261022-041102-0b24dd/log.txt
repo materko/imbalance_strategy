@@ -1,0 +1,10 @@
+$ emulator MultiCharts MNQ 3m 20231001-20241001 (MNQ_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: swingy 6m @6m 84/84
+emulacia MultiCharts: 118010 barov 3m, 354030 1m, 0 HTF
+  20000/118010 barov, 25 obchodov
+  40000/118010 barov, 45 obchodov
+  60000/118010 barov, 70 obchodov
+  80000/118010 barov, 97 obchodov
+  100000/118010 barov, 121 obchodov
+hotovo: 142 obchodov, nerozhodnutelnych minut 1
+kresby: {'fib_entry': 142, 'fib_leg': 157, 'fib_level': 785}
