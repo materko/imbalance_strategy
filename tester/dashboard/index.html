@@ -221,6 +221,10 @@
   .dv-filters select { font: inherit; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; }
   tr.sum td { font-weight: 650; border-top: 1px solid var(--muted); }
   .sw-i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
+.lv-minis{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.lv-mini{border:1px solid var(--border);border-radius:10px;padding:10px 12px;min-width:0}
+.lv-mini .row{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.chart-box.xs{height:110px;margin-top:6px}
 </style>
 </head>
 <body>
@@ -1513,8 +1517,15 @@
       '<div class="card section"><h2>Stratégie naživo vs. test</h2><div class="table-wrap"><table><thead><tr><th class="l">Stratégia</th><th class="l">Platforma</th><th class="l">Stav</th><th>Obch.</th><th>WR</th><th>PF</th><th>Zisk</th><th>R</th><th>Obch./týž.</th><th class="l">Test (posledný rok)</th><th>Signály vypl.</th></tr></thead><tbody>' +
       (rows || '<tr><td class="l muted" colspan="11">—</td></tr>') + "</tbody></table></div>" +
       '<p class="muted" style="font-size:12px;margin:10px 0 0">Test = to isté nastavenie v backteste na MNQ (posledný rok 9/2025 – 9/2026). MT5 (FTMO US100.cash) je CFD s inou veľkosťou kontraktu, preto sa jeho zisk v $ nedá porovnať 1:1 — porovnávaj WR, PF a R.</p></div>' +
+      // používateľ 22. 10. 2026: jeden graf s 9 čiarami bol neprehľadný → hore súčet a platformy, pod ním malý graf každej stratégie
       '<div class="card section"><h2>Krivka zisku naživo</h2>' + (tr.length ? '<div class="chart-box sm"><canvas id="lv-eq"></canvas></div><div class="legend">' +
-        list.map(function (x, i) { return (x.trades || []).length ? '<span><i style="background:' + dvColor(i) + '"></i>' + esc(lvName(x) + " · " + lvPlat(x)) + "</span>" : ""; }).join("") + "</div>" : '<p class="muted">Zatiaľ žiadny uzavretý obchod.</p>') + "</div>" +
+        '<span><i style="background:' + cssVar("--sum") + '"></i>Spolu</span>' + lvPlatforms(list).map(function (p, k) { return '<span><i style="background:' + cssVar(DV_COLORS[k % 8]) + '"></i>' + esc(p) + " spolu</span>"; }).join("") + "</div>" +
+        '<h3 style="margin:16px 0 8px">Jednotlivé stratégie</h3><div class="lv-minis">' + list.map(function (x, i) {
+          var t = x.trades || []; if (!t.length) return "";
+          var net = t.reduce(function (a, o) { return a + (o.pnl || 0); }, 0), r = t.reduce(function (a, o) { return a + (o.r || 0); }, 0);
+          return '<div class="lv-mini"><div class="row"><b>' + dvSw(i) + esc(lvName(x)) + '</b><span class="' + cls(net) + '">' + money(net) + " · " + num(r, 1) + " R</span></div>" +
+            '<div class="muted" style="font-size:12px">' + esc(lvPlat(x)) + " · " + t.length + ' obch.</div><div class="chart-box xs"><canvas id="lv-mini-' + i + '"></canvas></div></div>';
+        }).join("") + "</div>" : '<p class="muted">Zatiaľ žiadny uzavretý obchod.</p>') + "</div>" +
       '<div class="card section"><div class="row"><h2>Denník</h2><div class="seg" id="lv-view"><button data-v="tr">Obchody</button><button data-v="sig">Signály</button><button data-v="open">Otvorené</button><button data-v="note">Varovania</button></div></div>' +
       '<div class="dv-filters"><label>Stratégia<select id="lv-f-inst"><option value="">všetky</option>' + opts + "</select></label></div>" +
       '<div class="table-wrap"><table id="lv-log"></table></div><div class="pager"><span id="lv-info"></span><button class="btn" id="lv-prev">‹</button><button class="btn" id="lv-next">›</button></div></div>' +
@@ -1554,6 +1565,11 @@
     $("lv-prev").disabled = LV.page === 0; $("lv-next").disabled = LV.page >= pages - 1;
     Array.prototype.forEach.call($("lv-view").querySelectorAll("button"), function (b) { b.className = b.getAttribute("data-v") === LV.log ? "on" : ""; });
   }
+  function lvPlatforms(list) {
+    var out = [];
+    list.forEach(function (x) { var p = lvPlat(x); if ((x.trades || []).length && out.indexOf(p) < 0) out.push(p); });
+    return out;
+  }
   function lvCharts() {
     var list = lvActive(), tr = lvAllTrades(list);
     if (!tr.length || !$("lv-eq")) return;
@@ -1572,10 +1588,30 @@
     o.scales.y.ticks.callback = function (v) { return compact(v); };
     o.plugins.tooltip.callbacks = { title: function (it) { return lvTime(labels[it[0].dataIndex]); }, label: function (it) { return it.dataset.label + " " + money(it.raw, 0); } };
     o.plugins.guides = { hlines: [{ value: 0, color: cssVar("--muted"), dash: [2, 3] }] };
-    var ds = list.map(function (x, i) { return { label: lvName(x) + " · " + lvPlat(x), data: data[i], borderColor: cssVar(DV_COLORS[i % 8]), borderWidth: 2, pointRadius: 2, stepped: true, fill: false }; })
-      .filter(function (d, i) { return (list[i].trades || []).length; });
-    if (ds.length > 1) ds.push({ label: "Spolu", data: sum, borderColor: cssVar("--sum"), borderWidth: 2.5, pointRadius: 0, stepped: true, fill: false });
+    // hore: súčet a súčet každej platformy
+    var plats = lvPlatforms(list), pcum = plats.map(function () { return 0; }), pdata = plats.map(function () { return [0]; });
+    tr.forEach(function (o) {
+      var k = plats.indexOf(lvPlat(list[o.i])); pcum[k] += o.t.pnl || 0;
+      plats.forEach(function (p, j) { pdata[j].push(pcum[j]); });
+    });
+    var ds = plats.map(function (p, k) { return { label: p + " spolu", data: pdata[k], borderColor: cssVar(DV_COLORS[k % 8]), borderWidth: 2, pointRadius: 0, stepped: true, fill: false }; });
+    ds.push({ label: "Spolu", data: sum, borderColor: cssVar("--sum"), borderWidth: 2.5, pointRadius: 0, stepped: true, fill: false });
     charts.push(new Chart($("lv-eq"), { type: "line", plugins: [guidePlugin], data: { labels: labels, datasets: ds }, options: o }));
+    // pod ním: každá stratégia vo vlastnom malom grafe (vlastná mierka)
+    list.forEach(function (x, i) {
+      var t = (x.trades || []).slice().sort(function (a, b) { return a.close < b.close ? -1 : 1; }), el = $("lv-mini-" + i);
+      if (!t.length || !el) return;
+      var c = 0, lab = [x.since], val = [0];
+      t.forEach(function (q) { c += q.pnl || 0; lab.push(q.close); val.push(c); });
+      var m = baseOpts();
+      m.plugins.legend = { display: false };
+      m.scales.x.display = false;
+      m.scales.y.ticks.callback = function (v) { return compact(v); };
+      m.scales.y.ticks.maxTicksLimit = 3;
+      m.plugins.tooltip.callbacks = { title: function (it) { return lvTime(lab[it[0].dataIndex]); }, label: function (it) { return money(it.raw, 0); } };
+      m.plugins.guides = { hlines: [{ value: 0, color: cssVar("--muted"), dash: [2, 3] }] };
+      charts.push(new Chart(el, { type: "line", plugins: [guidePlugin], data: { labels: lab, datasets: [{ data: val, borderColor: cssVar(DV_COLORS[i % 8]), borderWidth: 2, pointRadius: 2, stepped: true, fill: false }] }, options: m }));
+    });
   }
   function mountLive() {
     if (!DATA.live) return;
