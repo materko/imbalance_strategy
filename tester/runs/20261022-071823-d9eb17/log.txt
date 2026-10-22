@@ -1,0 +1,10 @@
+$ emulator MultiCharts MGC 3m 20231001-20241001 (MGC_USD-1m.feather)
+predhistoria indikatorov z dat pred behom: swingy 6m @6m 84/84
+emulacia MultiCharts: 118273 barov 3m, 352258 1m, 0 HTF
+  20000/118273 barov, 24 obchodov
+  40000/118273 barov, 54 obchodov
+  60000/118273 barov, 84 obchodov
+  80000/118273 barov, 114 obchodov
+  100000/118273 barov, 155 obchodov
+hotovo: 180 obchodov, nerozhodnutelnych minut 1
+kresby: {'fib_entry': 180, 'fib_leg': 198, 'fib_level': 990}
