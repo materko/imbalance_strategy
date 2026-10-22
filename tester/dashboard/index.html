@@ -629,18 +629,19 @@
   function nasSection(s) {
     var n = s.nas100;
     if (!n) return "";
+    var alt = n.market === "XAU/USD" ? "XAU/USD" : "NAS100", base = n.market === "XAU/USD" ? "MGC" : "MNQ";   // krok 8: iný trh podľa trhu stratégie
     var mnq = s.settings && s.settings[0] && s.settings[0].analysis ? s.settings[0].analysis.total.pf : null;
     var yrs = Object.keys(n.years || {}).map(function (k) {
       var y = n.years[k]; return '<tr><td class="l">' + esc(k) + "</td><td>" + num(y.trades) + '</td><td class="' + pfCls(y.pf) + '">' + pfFmt(y.pf) + "</td></tr>";
     }).join("");
-    return '<div class="card section"><div class="row"><h2>📁 NAS100 (CFD, Dukascopy) <span class="badge ' + (n.passed ? "pos" : "neg") + '">krok 8 ' + (n.passed ? "✓" : "✗") + "</span></h2>" +
-      '<span class="muted">ten istý profil č. 1, tick 0,01 prepočítaný, spread ~1 bod</span></div>' +
-      '<div class="kv" style="margin-bottom:10px"><div><span>PF na NAS100</span><b class="' + pfCls(n.pf) + '">' + pfFmt(n.pf) + "</b></div>" +
-      "<div><span>PF na MNQ</span><b>" + pfFmt(mnq) + "</b></div><div><span>Obchodov</span><b>" + num(n.trades) + "</b></div>" +
+    return '<div class="card section"><div class="row"><h2>📁 ' + alt + ' (CFD, Dukascopy) <span class="badge ' + (n.passed ? "pos" : "neg") + '">krok 8 ' + (n.passed ? "✓" : "✗") + "</span></h2>" +
+      '<span class="muted">ten istý profil č. 1, ticky prepočítané, spread CFD v poplatku</span></div>' +
+      '<div class="kv" style="margin-bottom:10px"><div><span>PF na ' + alt + '</span><b class="' + pfCls(n.pf) + '">' + pfFmt(n.pf) + "</b></div>" +
+      "<div><span>PF na " + base + "</span><b>" + pfFmt(mnq) + "</b></div><div><span>Obchodov</span><b>" + num(n.trades) + "</b></div>" +
       "<div><span>Rokov v pluse</span><b>" + n.years_pos + " / 5</b></div></div>" +
       '<div class="table-wrap"><table><thead><tr><th class="l">Rok</th><th>Obchody</th><th>PF</th></tr></thead><tbody>' + yrs + "</tbody></table></div>" +
-      '<p class="muted" style="margin:10px 0 0">' + (n.passed ? "Ide rovnakým smerom ako na MNQ — výsledok je vlastnosť trhu Nasdaq, nie jedného zdroja dát." :
-      "Na NAS100 nejde rovnakým smerom (PF pod 1,1 alebo menej ako 4 roky v pluse) — výsledok na MNQ môže byť vlastnosť dát; na CFD (FTMO) nepoužívať.") + "</p></div>";
+      '<p class="muted" style="margin:10px 0 0">' + (n.passed ? "Ide rovnakým smerom ako na " + base + " — výsledok je vlastnosť trhu, nie jedného zdroja dát." :
+      "Na " + alt + " nejde rovnakým smerom (PF pod 1,1 alebo menej ako 4 roky v pluse) — výsledok na " + base + " môže byť vlastnosť dát; na CFD (FTMO) nepoužívať.") + "</p></div>";
   }
 
   function analyticsSection(s) {
