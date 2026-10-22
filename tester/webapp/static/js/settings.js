@@ -545,12 +545,13 @@ const STRATEGIA_TRH_TYP = {
   sweepfvg: ["NASDAQ", "RANGEOVÉ"], sweepengulf: ["NASDAQ", "RANGEOVÉ"], varev: ["NASDAQ", "RANGEOVÉ"],
   // ZLATO
   ibsentrymgc: ["ZLATO", "SKALPOVACIE"],
+  ibsentryes: ["S&P 500", "SKALPOVACIE"],
   fvgpolaritymgc: ["ZLATO", "SKALPOVACIE"],
   scalp3mamgc: ["ZLATO", "SKALPOVACIE"],
   fibomgc: ["ZLATO", "TRENDOVÉ"],
 };
 /** Práve pridané stratégie — štítok „nová“, kým žiadne ich nastavenie neprejde smernicou. */
-const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks", "nocpon", "ibsentrymgc"]);
+const NOVE_STRATEGIE = new Set(["sweepfvg", "sweepengulf", "varev", "noa", "silverbullet", "tks", "nocpon", "ibsentrymgc", "ibsentryes"]);
 /** Kľúč predlohy C# portu: `ibsentryneteod` → `ibsentry`, `tksnet` → `tks`, `ibsnet` → `ibs`. */
 function baseStrategyKey(k) {
   let b = String(k).replace(/eod$/, "");
