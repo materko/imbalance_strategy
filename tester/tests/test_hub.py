@@ -1595,6 +1595,40 @@ def test_result_for_unknown_job_is_parked_not_lost(hub_api, tmp_path: Path):
     assert srv.public()["undelivered"] and srv.registered   # a agent žije ďalej
 
 
+def test_late_result_for_settled_and_dropped_job_is_not_undelivered(hub_api, tmp_path: Path):
+    """Hub výpočet vybavil inde a zo zoznamu ho zahodil — neskorý výsledok dostane 410
+    a agent ho potichu odloží, nehlási ho ako nedoručený (pamäť prežije reštart hubu)."""
+    from tester.hub.client import HubClient
+    from tester.hub.state import JobGone
+
+    c, state, _ = hub_api
+    http = FakeHttp(c, "tajne")
+    srv, runner, srv_store = _agent("srv", tmp_path, http)
+    srv.tick()
+    job = HubClient(http, "lap").submit("backtest", _payload())
+    srv.tick()
+    run_id = next(iter(runner.jobs))
+    runner.start_run(run_id)
+    runner.finish(run_id, "done")
+    assert state.delete(job["id"]) is False           # živý sa zmazať nedá
+    state.jobs[job["id"]]["status"] = "done"          # vybavil ho iný agent
+    assert state.delete(job["id"]) is True
+    with pytest.raises(JobGone):
+        HubState(state.root, token="tajne").result(job["id"], b"zip", status="done", agent="srv")
+
+    srv.tick()
+    assert job["id"] not in srv.state.computing and not srv.state.undelivered
+    assert srv.clear_undelivered() == 0
+
+
+def test_clear_undelivered_keeps_runs(hub_api, tmp_path: Path):
+    c, state, _ = hub_api
+    srv, _, _ = _agent("srv", tmp_path, FakeHttp(c, "tajne"))
+    srv.state.undelivered["x"] = {"run_ids": ["r1"], "status": "done", "reason": "hub 404", "at": ""}
+    assert srv.clear_undelivered() == 1
+    assert not load_state(tmp_path / "srv" / "state.json").undelivered
+
+
 def test_agent_reregisters_when_hub_forgot_it(hub_api, tmp_path: Path):
     """Hub po strate stavu agenta nepozná — heartbeat 404 ho prihlási znova."""
     c, state, _ = hub_api

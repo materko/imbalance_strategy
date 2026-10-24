@@ -213,6 +213,10 @@ odovzdanie výsledku.
    `tester/agent_state.json` (webapp to hlási ako „neodovzdané N") — **behy ostávajú
    v histórii agenta**, len sa nevrátili zadávateľovi; dajú sa poslať cez GitHub ako
    ktorýkoľvek iný beh.
+   Výpočet, ktorý hub vybavil inde a zo zoznamu už zahodil (`KEEP_FINISHED`), si pamätá
+   (`forgotten`, posledných `KEEP_FORGOTTEN`) a neskorý výsledok naň dostane **410** — agent
+   ho potichu odloží ako odovzdaný, do `undelivered` nejde. Staré hlásenie „Hub neprijal …"
+   sa na karte Hub zavrie tlačidlom **✕ zabudnúť** (behy ostanú v histórii).
 
 Naopak, **hub bez agentov** nepotrebuje nič: má stav na disku, takže po reštarte sú
 výpočty vo fronte stále tam a agenti sa prihlásia sami. Preto si hub v Dockeri dovolí

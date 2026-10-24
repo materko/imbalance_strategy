@@ -715,6 +715,13 @@ class HubAgent:
         self.cfg.role, self.cfg.accept, self.cfg.send = novy.role, novy.accept, novy.send
         self.cfg.heartbeat_seconds = novy.heartbeat_seconds
 
+    def clear_undelivered(self) -> int:
+        """Zabudne zoznam nedoručených (tester ho videl) — behy ostávajú v histórii tohto klonu."""
+        n = len(self.state.undelivered)
+        self.state.undelivered.clear()
+        self._save()
+        return n
+
     def set_accept(self, value: bool, persist: bool = True) -> bool:
         """Zapnúť alebo vypnúť prijímanie — z webapp, z hubu (`set_accept` v heartbeate)
         alebo z CLI. Zapíše sa do configu, aby to prežilo reštart. Obchodný stroj (rola `live`)
@@ -1045,13 +1052,23 @@ class HubAgent:
             try:
                 self.http.post_bytes(f"/api/jobs/{job_id}/result{q}", data)
             except HubError as exc:
+                if exc.status == 410:
+                    # Hub výpočet medzitým vybavil inde (agent sa mu odmlčal) — náš výsledok je
+                    # navyše; nie je to nedoručené, behy idú preč z histórie ako odovzdané.
+                    log.info("hub agent: vypocet %s uz hub vybavil inde — vysledok %s netreba",
+                             job_id, ", ".join(run_ids))
+                    self.state.computing.pop(job_id, None)
+                    self._final_ticks.pop(job_id, None)
+                    self._save()
+                    self._retire(entry, run_ids)
+                    continue
                 if exc.status == 404:
                     # Hub môže byť po reštarte ešte bez stavu — pár tickov to skúsime znova.
                     entry["notfound"] = int(entry.get("notfound") or 0) + 1
                     if entry["notfound"] < DELIVER_404_TRIES:
                         self._deliver_failed(job_id, entry, f"hub 404: {exc.detail}")
                         continue
-                if exc.status in (400, 403, 404, 410, 422):
+                if exc.status in (400, 403, 404, 422):
                     self._park(job_id, entry, run_ids, stav, f"hub {exc.status}: {exc.detail}")
                     continue
                 self._deliver_failed(job_id, entry, str(exc))  # 401, 5xx — chyba sa dá opraviť

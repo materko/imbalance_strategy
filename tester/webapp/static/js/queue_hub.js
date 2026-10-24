@@ -298,7 +298,12 @@ function renderHubAgent(h) {
   }
   else if (a && Object.keys(a.undelivered || {}).length) {
     warn.textContent = `Hub neprijal ${Object.keys(a.undelivered).length} spočítaných výpočtov `
-      + "(nepozná ich, alebo ich medzitým dal inému) — behy sú v histórii tohto klonu.";
+      + "(nepozná ich, alebo ich medzitým dal inému) — behy sú v histórii tohto klonu. ";
+    const zabudni = document.createElement("button");
+    zabudni.className = "ghost small"; zabudni.textContent = "✕ zabudnúť";
+    zabudni.title = "skryť hlásenie — behy ostanú v histórii";
+    zabudni.onclick = () => hubAkcia(() => api("/api/hub/undelivered", { method: "DELETE" }));
+    warn.append(zabudni);
     warn.hidden = false;
   }
   else warn.hidden = true;

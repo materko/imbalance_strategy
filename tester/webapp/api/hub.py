@@ -229,6 +229,15 @@ def build(ctx: AppContext) -> APIRouter:
             raise HTTPException(409, "tento stroj má rolu live (len NinjaTrader/MT5) a výpočty neprijíma")
         return agent.public()
 
+    @router.delete("/api/hub/undelivered")
+    def hub_clear_undelivered():
+        """Zabudnúť hlásenie „hub neprijal …" — behy ostávajú v histórii."""
+        agent = getattr(app.state, "hub_agent", None)
+        if agent is None:
+            raise HTTPException(404, "táto webapp nebeží ako agent hubu (tester/agent.json + reštart)")
+        agent.clear_undelivered()
+        return agent.public()
+
     @router.delete("/api/hub/agents/{name}")
     def hub_forget_agent(name: str, force: bool = False, token: bool = False):
         """Vyhodiť agenta z hubu — premenovaný stroj, ktorý tam visí ako offline.

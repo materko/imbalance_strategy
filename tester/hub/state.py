@@ -28,6 +28,9 @@ from .tokens import ADMIN, TokensMixin
 DEFAULT_AGENT_TIMEOUT = 45.0
 #: Koľko hotových výpočtov sa drží v zozname — staršie vyzdvihnuté sa zahodia.
 KEEP_FINISHED = 300
+#: Koľko ID zahodených (vybavených) výpočtov si hub pamätá — neskorý výsledok na také dostane
+#: 410 „už vybavený" namiesto 404, aby ho agent potichu odložil a nehlásil ako nedoručený.
+KEEP_FORGOTTEN = 20000
 #: Koľkokrát sa výpočet skúsi znova, keď agent zmizne uprostred behu.
 MAX_ATTEMPTS = 2
 #: Ako dlho platí zoznam strojov s live nasadením (dotaz do live DB pri každom pridelení netreba).
@@ -48,6 +51,10 @@ class NoCapacity(Exception):
 
 class NameTaken(Exception):
     """Agent s tým istým menom už žije z iného procesu."""
+
+
+class JobGone(Exception):
+    """Výpočet hub vybavil a zo zoznamu už zahodil (`KEEP_FINISHED`) — zadávateľ výsledok má."""
 
 
 class HubState(TokensMixin, EventsMixin, StatsMixin):
@@ -74,6 +81,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
         self.agents: dict[str, dict[str, Any]] = {}
         self.jobs: dict[str, dict[str, Any]] = {}
         self.order: list[str] = []
+        #: ID vybavených výpočtov, ktoré už zo zoznamu vypadli (najstaršie prvé, `KEEP_FORGOTTEN`)
+        self.forgotten: list[str] = []
         self._lock = threading.RLock()
         self.root.mkdir(parents=True, exist_ok=True)
         (self.root / "results").mkdir(exist_ok=True)
@@ -110,6 +119,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
         self.agents = dict(data.get("agents") or {})
         self.jobs = dict(data.get("jobs") or {})
         self.order = [i for i in (data.get("order") or []) if i in self.jobs]
+        self.forgotten = [str(i) for i in (data.get("forgotten") or [])][-KEEP_FORGOTTEN:]
         for name in self.agents:
             self.agents[name]["online"] = False  # kým sa znova neohlási
         self._seed_stats()
@@ -117,7 +127,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
     def _save(self) -> None:
         tmp = self.state_file.with_suffix(".tmp")
         with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
-            json.dump({"agents": self.agents, "jobs": self.jobs, "order": self.order},
+            json.dump({"agents": self.agents, "jobs": self.jobs, "order": self.order,
+                       "forgotten": self.forgotten},
                       fh, ensure_ascii=False, indent=1, default=str)
         os.replace(tmp, self.state_file)
 
@@ -720,6 +731,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
         with self._lock:
             job = self.jobs.get(job_id)
             if job is None:
+                if job_id in self.forgotten:
+                    raise JobGone(job_id)
                 raise KeyError(job_id)
             cudzi = bool(agent) and job.get("agent") not in (None, agent)
             if cudzi and agent not in (job.get("lost_agents") or []):
@@ -774,6 +787,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
             self.jobs.pop(job_id, None)
             self.order = [i for i in self.order if i != job_id]
             self.result_path(job_id).unlink(missing_ok=True)
+            self._forget(job_id)
             self._save()
             return True
 
@@ -783,6 +797,12 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
             self.jobs.pop(job_id, None)
             self.order.remove(job_id)
             self.result_path(job_id).unlink(missing_ok=True)
+            self._forget(job_id)
+
+    def _forget(self, job_id: str) -> None:
+        self.forgotten.append(job_id)
+        if len(self.forgotten) > KEEP_FORGOTTEN:
+            del self.forgotten[:-KEEP_FORGOTTEN]
 
     # -- čítanie ------------------------------------------------------------ #
 

@@ -69,7 +69,7 @@ from . import protocol as P
 from .events import EVENTS_KEEP
 from .live import add_deploy_routes, add_live_routes
 from .state import (  # noqa: F401 — verejné mená z čias pred rozdelením
-    DEFAULT_AGENT_TIMEOUT, KEEP_FINISHED, MAX_ATTEMPTS, HubState, NameTaken, NoCapacity,
+    DEFAULT_AGENT_TIMEOUT, KEEP_FINISHED, MAX_ATTEMPTS, HubState, JobGone, NameTaken, NoCapacity,
 )
 from .tokens import ADMIN  # noqa: F401
 
@@ -293,6 +293,8 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
             return state.result(job_id, data, status=status, error=error,
                                 run_ids=[r for r in run_ids.split(",") if r], agent=agent,
                                 version=version or None)
+        except JobGone:
+            raise HTTPException(410, "výpočet je už vybavený (výsledok má zadávateľ) — tento netreba")
         except KeyError:
             raise HTTPException(404, "výpočet neexistuje")
         except PermissionError as exc:
