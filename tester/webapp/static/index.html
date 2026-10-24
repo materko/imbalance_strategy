@@ -25,6 +25,7 @@
     <button data-view="new" class="active">Nový beh</button>
     <button data-view="history">História</button>
     <button data-view="analytics">Analytika</button>
+    <button data-view="diversify" title="Viac nastavení naraz na jednom účte — z behov v histórii">Diverzifikácia</button>
     <button data-view="hub" id="tab-hub"><span id="hub-tab-dot" class="tab-dot" hidden></span>Hub <span id="hub-tab-chip" class="chip"></span></button>
     <button data-view="live" id="tab-live" title="Telemetria zo spustených stratégií (NinjaTrader 8, MetaTrader 5)"><span id="live-tab-dot" class="tab-dot"></span>Live <span id="live-tab-chip" class="chip"></span></button>
   </nav>
@@ -359,6 +360,35 @@
     <div class="scroll"><table id="hub-jobs" class="runs"><thead><tr>
       <th>výpočet</th><th>druh</th><th>stav</th><th>agent</th><th>zadal</th><th>kód</th>
       <th class="num">postup</th><th>zostáva</th><th>čo</th><th></th></tr></thead><tbody></tbody></table></div>
+  </div>
+</main>
+
+<main id="view-diversify" class="view single" hidden>
+  <div id="dv-root">
+    <div class="card">
+      <h2>Diverzifikácia</h2>
+      <p class="mode-hint">Vyber nastavenia z rôznych stratégií, ktoré by bežali naraz, a prepočítaj. Obchody
+        aj dni sa zlúčia z behov v histórii a ukáže sa, ako by vyzerali spolu — po rokoch, mesiacoch,
+        dňoch a obchodoch. Násobok mení veľkosť pozície (0,5 = polovica): stratégie nemajú rovnaké
+        riziko na obchod. Obdobie 10/2021 – 9/2026, posledný rok od 4. 9. 2025 je odložený.</p>
+    </div>
+    <div id="dv-bar" class="card dv-bar" hidden>
+      <div class="dv-bar-items" id="dv-bar-items"></div>
+      <div class="dv-bar-actions"><button type="button" class="ghost" id="dv-edit">Upraviť výber</button>
+        <button type="button" class="primary" id="dv-rerun">Prepočítať znova</button></div>
+    </div>
+    <div class="dv-pick" id="dv-pick">
+      <div class="card"><h2>Stratégie a nastavenia <span class="hint">nastavenie a trh z hotových behov v histórii</span></h2>
+        <div id="dv-picker"></div></div>
+      <div class="card">
+        <div class="dv-head"><h2>Vybrané <span id="dv-count" class="chip"></span></h2>
+          <button type="button" class="ghost" id="dv-clear" hidden>Vymazať</button></div>
+        <div id="dv-selected" class="dv-sel"></div>
+        <div class="dv-actions"><button type="button" class="primary" id="dv-run" disabled>Prepočítať</button>
+          <span id="dv-status" class="hint"></span></div>
+      </div>
+    </div>
+    <div id="dv-out"></div>
   </div>
 </main>
 
@@ -735,6 +765,7 @@
 <script src="/static/js/analytics_render.js"></script>
 <script src="/static/js/ai.js"></script>
 <script src="/static/js/prop.js"></script>
+<script src="/static/js/diversify.js"></script>
 <div id="explainer" class="xp-overlay" hidden>
   <div class="xp-box" role="dialog" aria-modal="true" aria-labelledby="explainer-title">
     <button id="explainer-close" class="ghost small xp-close" type="button" aria-label="zavrieť">✕</button>

@@ -9,6 +9,8 @@ function showView(name) {
   for (const b of $$(".tabs button")) b.classList.toggle("active", b.dataset.view === name);
   $("#view-new").hidden = name !== "new"; $("#view-history").hidden = name !== "history";
   $("#view-analytics").hidden = name !== "analytics";
+  $("#view-diversify").hidden = name !== "diversify";
+  if (name === "diversify") loadDiversify();
   $("#view-hub").hidden = name !== "hub";
   $("#view-live").hidden = name !== "live";
   if (name === "hub") loadHub(); else if (state.hubTimer) { clearTimeout(state.hubTimer); state.hubTimer = null; }
@@ -46,6 +48,7 @@ async function init() {
   gitStatus();
   hubSetup();
   liveSetup();
+  setupDiversify();
 
   $$(".tabs button").forEach(b => b.onclick = () => showView(b.dataset.view));
   $("#run").onclick = submitRun;

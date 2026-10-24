@@ -43,6 +43,7 @@ function redrawThemedCharts() {
   if (lastEquityChart) drawChart(lastEquityChart.series, lastEquityChart.res);
   if (mc.lastBe) drawBeChart(mc.lastBe, mc.lastFeePct);
   if (mc.lastDd) drawDdChart(mc.lastDd);
+  if (typeof dvCharts === "function") dvCharts();
 }
 
 const state = {

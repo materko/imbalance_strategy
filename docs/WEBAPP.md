@@ -522,6 +522,22 @@ na disku sa nemenia.
 Výsledkové zipy Freqtradu ostávajú v `backtest_results/` (gitignored) — beh ich
 nepotrebuje, všetko podstatné je v `run.json`.
 
+## Karta Diverzifikácia
+
+Viac nastavení naraz (aj z rôznych stratégií, najviac 8) ako jeden účet — to isté, čo
+obrazovka Diverzifikácia na stránke výsledkov (`tester/dashboard`), len z histórie behov.
+Vľavo sú stratégie; po rozbalení ich nastavenia a trhy z hotových behov (tá istá ponuka
+ako `/api/analytics/configs`). **Pridať** vloží nastavenie na trhu do výberu, pri ňom sa
+dá prepísať krátke meno a násobok veľkosti (0,5 = polovica). **Prepočítať** stiahne
+obchody všetkých behov nastavenia (`/api/diversify/trades`): obchod, ktorý je v dvoch
+prekrývajúcich sa oknách, ide do súčtu raz, a behy s iným poplatkom než väčšina sa
+vynechajú. Zvyšok sa počíta v prehliadači na obdobie 10/2021 – 9/2026: súhrn (odložený
+rok od 4. 9. 2025 a celé obdobie), zistenia, krivky kapitálu a prepad spolu, roky
+(október – september), mesiace, dni, dni v týždni, obchody, hodina vstupu (New York),
+korelácie dvojíc, kontrola dát (z ktorých behov, čo sa zahodilo, prekryté pozície)
+a denník obchodov a dní s filtrom. Deň je dátum zatvorenia v UTC, ako na stránke
+výsledkov. Výber si stránka pamätá v prehliadači.
+
 ## Karta Live
 
 Telemetria zo **spustených** stratégií s C# jadrom (NinjaTrader 8, MetaTrader 5) — čítanie

@@ -1502,3 +1502,40 @@ def test_vlastny_profil_bez_novych_poli_hlasi_co_chyba(client, own_profiles):
     assert got["params"]["indSupertrend"] is True  # beh dostane default
     # profily repozitára sú zámerne len odchýlky - tam „chýba" nič
     assert c.get("/api/profiles/golden_binance_btcusdt_3m").json()["missing"] == []
+
+
+def test_diversify_trades_zlucia_okna_bez_duplicit_a_s_jednym_poplatkom(tmp_path: Path):
+    """Diverzifikácia ťahá obchody nastavenia zo všetkých jeho behov. Ten istý obchod
+    v dvoch prekrývajúcich sa oknách ide do súčtu raz a beh s iným poplatkom (iný PnL
+    toho istého obchodu) sa vynechá - inak by súčet nesedel s jednotlivými behmi."""
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+
+    from tester.webapp import app as app_mod
+
+    def obchod(open_, close, pnl, short=False):
+        return {"open_date": open_, "close_date": close, "open_rate": 100.0, "close_rate": 101.0,
+                "profit_abs": pnl, "exit_reason": "take_profit", "is_short": short}
+
+    store = RunStore(tmp_path)
+    a = _record("20260905-120000-aaaaaa")
+    a["settings"] = {**a["settings"], "timerange": "20231001-20241001"}
+    store.save(a, trades=[obchod("2024-09-10T14:00:00+00:00", "2024-09-10T15:00:00+00:00", 10.0)])
+    b = _record("20260905-120000-bbbbbb")
+    b["settings"] = {**b["settings"], "timerange": "20240904-20250904"}
+    store.save(b, trades=[obchod("2024-09-10T14:00:00+00:00", "2024-09-10T15:00:00+00:00", 10.0),
+                          obchod("2025-01-06T23:30:00+00:00", "2025-01-07T00:10:00+00:00", -4.0, short=True)])
+    c_ = _record("20260905-120000-cccccc")
+    c_["settings"] = {**c_["settings"], "timerange": "20190101-20260101", "fee": 0.001}
+    store.save(c_, trades=[obchod("2024-09-10T14:00:00+00:00", "2024-09-10T15:00:00+00:00", 8.0)])
+    c = TestClient(app_mod.create_app(store))
+
+    out = c.get("/api/diversify/trades?runs=20260905-120000-aaaaaa,20260905-120000-bbbbbb,20260905-120000-cccccc").json()
+
+    assert out["fee"] == 0.0005 and [s["run_id"] for s in out["skipped"]] == ["20260905-120000-cccccc"]
+    assert out["duplicates"] == 1 and out["overlapping"] == 0
+    assert [t[5] for t in out["trades"]] == [10.0, -4.0]
+    # smer, dôvod a deň = dátum zatvorenia v UTC (ako na stránke výsledkov)
+    assert out["trades"][1][2] == "S" and out["trades"][1][6] == "take_profit" and out["trades"][1][7] == "2025-01-07"
+    assert out["trades"][0][0] == "2024-09-10T14:00:00Z"
+    assert c.get("/api/diversify/trades?runs=20990101-000000-ffffff").status_code == 404
