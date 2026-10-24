@@ -217,6 +217,10 @@ odovzdanie výsledku.
    (`forgotten`, posledných `KEEP_FORGOTTEN`) a neskorý výsledok naň dostane **410** — agent
    ho potichu odloží ako odovzdaný, do `undelivered` nejde. Staré hlásenie „Hub neprijal …"
    sa na karte Hub zavrie tlačidlom **✕ zabudnúť** (behy ostanú v histórii).
+   Zo zoznamu hub zahadzuje vyzdvihnuté výpočty nad posledných `KEEP_FINISHED` a aj
+   **nevyzdvihnuté bez výsledku** (zlyhané, zrušené) staršie než `STALE_UNCOLLECTED` (24 h);
+   CLI `--remote` potvrdzuje (`ack`) aj zlyhaný výpočet. Tisíce nevybavených by hub
+   spomalili — stav sa ukladá pri každom heartbeate.
 
 Naopak, **hub bez agentov** nepotrebuje nič: má stav na disku, takže po reštarte sú
 výpočty vo fronte stále tam a agenti sa prihlásia sami. Preto si hub v Dockeri dovolí

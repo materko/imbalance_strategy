@@ -1629,6 +1629,36 @@ def test_clear_undelivered_keeps_runs(hub_api, tmp_path: Path):
     assert not load_state(tmp_path / "srv" / "state.json").undelivered
 
 
+def test_failed_job_without_result_is_acked_by_cli_collect(hub_api, tmp_path: Path):
+    """CLI `--remote` potvrdí aj zlyhaný výpočet bez výsledku — inak by ho hub držal navždy."""
+    from tester.hub.client import HubClient
+
+    c, state, _ = hub_api
+    _reg(state)
+    client = HubClient(FakeHttp(c, "tajne"), "lap")
+    job = client.submit("backtest", _payload(), queue=True)
+    state.result(job["id"], b"", status="failed", error="padol", agent="srv")
+    assert client.collect(job["id"], tmp_path / "runs") == []
+    assert state.job(job["id"])["collected"]
+
+
+def test_stale_uncollected_failed_jobs_are_dropped(hub):
+    """Nevyzdvihnutý výpočet bez výsledku hub po `STALE_UNCOLLECTED` zahodí (a zapamätá si)."""
+    from tester.hub.state import STALE_UNCOLLECTED
+
+    state, clock = hub
+    _reg(state)
+    stary = state.submit(kind="backtest", payload=_payload(), submitter="lap", queue=True)
+    state.result(stary["id"], b"", status="failed", agent="srv")
+    clock.t += STALE_UNCOLLECTED + 1
+    _reg(state)
+    novy = state.submit(kind="backtest", payload=_payload(), submitter="lap", queue=True)
+    state.result(novy["id"], b"", status="failed", agent="srv")
+    ids = [j["id"] for j in state.list_jobs()]
+    assert stary["id"] not in ids and novy["id"] in ids
+    assert stary["id"] in state.forgotten
+
+
 def test_agent_reregisters_when_hub_forgot_it(hub_api, tmp_path: Path):
     """Hub po strate stavu agenta nepozná — heartbeat 404 ho prihlási znova."""
     c, state, _ = hub_api

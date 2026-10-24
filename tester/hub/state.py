@@ -20,7 +20,7 @@ from . import protocol as P
 from .config import DEFAULT_HEARTBEAT, ROLE_COMPUTE, ROLE_LIVE
 from .config import normalize_role as _role
 from .events import EVENTS_KEEP, EventsMixin, _iso
-from .stats import StatsMixin
+from .stats import StatsMixin, _ts
 from .tokens import ADMIN, TokensMixin
 
 
@@ -31,6 +31,9 @@ KEEP_FINISHED = 300
 #: Koľko ID zahodených (vybavených) výpočtov si hub pamätá — neskorý výsledok na také dostane
 #: 410 „už vybavený" namiesto 404, aby ho agent potichu odložil a nehlásil ako nedoručený.
 KEEP_FORGOTTEN = 20000
+#: Po koľkých sekundách sa zahodí aj nevyzdvihnutý výpočet bez výsledku (zlyhaný, zrušený) —
+#: zadávateľ z CLI ho nepotvrdil a tisíce takých by hub spomalili (každý heartbeat ukladá stav).
+STALE_UNCOLLECTED = 24 * 3600
 #: Koľkokrát sa výpočet skúsi znova, keď agent zmizne uprostred behu.
 MAX_ATTEMPTS = 2
 #: Ako dlho platí zoznam strojov s live nasadením (dotaz do live DB pri každom pridelení netreba).
@@ -475,6 +478,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
                 job["cancelled_by"] = "strop casu"
                 job["status"] = "cancelling"
                 self.log("job_timeout", job=job["id"], agent=job.get("agent"), max_seconds=limit)
+        if self._prune():
+            self._save()
 
     def _lost(self, job: dict[str, Any], reason: str) -> None:
         """Agent, ktorý to počítal, sa odmlčal. Výpočet ide späť do fronty alebo zlyhá —
@@ -791,13 +796,25 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
             self._save()
             return True
 
-    def _prune(self) -> None:
+    def _prune(self) -> bool:
+        """Zahodí staršie vyzdvihnuté výpočty nad `KEEP_FINISHED` a nevyzdvihnuté bez výsledku
+        staršie než `STALE_UNCOLLECTED`. Vráti, či niečo zahodil."""
         hotove = [i for i in self.order if self.jobs[i]["status"] in P.FINAL_STATES and self.jobs[i].get("collected")]
-        for job_id in hotove[:-KEEP_FINISHED] if len(hotove) > KEEP_FINISHED else []:
+        von = set(hotove[:-KEEP_FINISHED] if len(hotove) > KEEP_FINISHED else [])
+        hranica = self.clock() - STALE_UNCOLLECTED
+        for i in self.order:
+            j = self.jobs[i]
+            if (j["status"] in P.FINAL_STATES and not j.get("collected") and not j.get("has_result")
+                    and (_ts(j.get("finished_at")) or hranica) < hranica):
+                von.add(i)
+        if not von:
+            return False
+        self.order = [i for i in self.order if i not in von]
+        for job_id in [i for i in list(self.jobs) if i in von]:
             self.jobs.pop(job_id, None)
-            self.order.remove(job_id)
             self.result_path(job_id).unlink(missing_ok=True)
             self._forget(job_id)
+        return True
 
     def _forget(self, job_id: str) -> None:
         self.forgotten.append(job_id)

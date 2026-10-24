@@ -388,6 +388,9 @@ class HubClient:
             if data:
                 run_ids = unpack_runs(data, root, store.batches)
                 self.http.post(f"/api/jobs/{job_id}/ack")
+        elif not job.get("collected") and job.get("status") in P.FINAL_STATES:
+            # zlyhaný / zrušený bez výsledku — aj ten treba potvrdiť, inak ho hub drží navždy
+            self.http.post(f"/api/jobs/{job_id}/ack")
         if not run_ids:
             run_ids = [r for r in (job.get("run_ids") or [])
                        if (root / r / "run.json").exists() or store.batches.find(r)]
