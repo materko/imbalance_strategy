@@ -7,6 +7,8 @@
 
 function showView(name) {
   for (const b of $$(".tabs button")) b.classList.toggle("active", b.dataset.view === name);
+  // Karta je v adrese (#analytics, #diversify…), aby F5 ostal na tej istej karte.
+  history.replaceState(null, "", name === "new" ? location.pathname + location.search : `#${name}`);
   $("#view-new").hidden = name !== "new"; $("#view-history").hidden = name !== "history";
   $("#view-analytics").hidden = name !== "analytics";
   $("#view-diversify").hidden = name !== "diversify";
@@ -101,6 +103,9 @@ async function init() {
   $("#save-profile").onclick = saveRunAsProfile;
   $("#git-pull").onclick = () => gitAction("pull");
   $("#git-push").onclick = () => gitAction("push");
+
+  const view = location.hash.slice(1);
+  if (view !== "new" && $$(".tabs button").some(b => b.dataset.view === view)) showView(view);
 }
 
 init().catch(e => { document.body.insertAdjacentHTML("afterbegin", `<div class="error">${esc(e.message)}</div>`); });
