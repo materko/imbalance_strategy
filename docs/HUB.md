@@ -141,6 +141,15 @@ v `GET /api/hub` (`needs_restart`) a v `python -m tester.hub status`; samotný b
 na novom kóde, lebo Freqtrade beží v podprocese — ale registry stratégií v procese webapp
 je staré, takže ju treba reštartovať, ako po každom `git pull`.
 
+Sám od seba agent ťahá kód **len pre výpočet**, ktorého commit nemá. Aktualizovať ho dá aj
+správca: tlačidlo **⟳** pri agentovi na karte Hub (alebo **⟳ aktualizovať všetkých** =
+online počítajúci), `POST /api/agents/{meno}/update` s hlavným tokenom. Hub mu odvtedy nič
+nepridelí (`update_request`), agent dopočíta, čo beží, spraví `git pull` (+ dáta) a vybavenie
+nahlási v heartbeate (`pull_done` → `pull_result`, pri chybe čip „pull zlyhal"); headless
+sa potom reštartuje sám, webapp sama, keď sa kód v gite zmenil (`TRADEBOT_AUTO_RESTART`).
+Obchodný stroj (rola `live`) nie — ten má „Nový kód na stroji". Docker agent s
+`TRADEBOT_HUB_PULL=off` nahlási, že pull treba spraviť na hostiteľovi.
+
 Po pulle si agent **zloží nové dáta z archívu** (`data_archive merge`, dopočet timeframov)
 — rovnaký commit tak znamená rovnaké páry aj timeframy u každého agenta.
 

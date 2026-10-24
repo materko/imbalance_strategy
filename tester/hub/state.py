@@ -186,6 +186,11 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
                     agent[k] = body[k]
             if body.get("role") is not None:
                 agent["role"] = _role(body["role"])
+            # Pokyn „aktualizuj sa" platí, kým agent nenahlási, že ho vybavil.
+            hotovy = body.get("pull_done")
+            if isinstance(hotovy, dict) and hotovy.get("request") == agent.get("update_request"):
+                agent.pop("update_request", None)
+                agent["pull_result"] = {k: hotovy.get(k) for k in ("ok", "at", "version", "output")}
             agent["load"] = dict(body.get("load") or {})
             if body.get("instance"):
                 agent["instance"] = body["instance"]
@@ -243,7 +248,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
                         and not j.get("collected")]
             self._save()
             out = {"assign": assign, "cancel": cancel, "finished": finished,
-                   "set_accept": ziadane,
+                   "set_accept": ziadane, "pull": agent.get("update_request"),
                    "heartbeat_seconds": self.heartbeat_seconds, "now": _iso(now)}
             if self.deploy is not None:
                 # vždy celý požadovaný stav tohto agenta (malý) — agent ho zosúlaďuje pri každom heartbeate
@@ -338,6 +343,22 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
             self._save()
             return self._agent_public(agent)
 
+    def request_update(self, name: str) -> dict[str, Any]:
+        """Správca hubu povie agentovi „aktualizuj sa": agent prestane brať nové výpočty,
+        dopočíta bežiace, spraví `git pull` a reštartuje sa (webapp sama, keď sa kód zmenil).
+        Obchodný stroj (rola `live`) nie — ten má nasadenie kódu na platformy (`code_target`)."""
+        with self._lock:
+            agent = self.agents.get(name)
+            if agent is None:
+                raise KeyError(name)
+            if self._role_of(agent) == ROLE_LIVE:
+                raise ValueError(f"agent {name!r} je obchodný stroj — kód mu nasaď cez Live (nový kód na platformy)")
+            agent["update_request"] = _iso(self.clock())
+            agent.pop("pull_result", None)
+            self.log("update_request", agent=name)
+            self._save()
+            return self._agent_public(agent)
+
     def bye(self, name: str) -> dict[str, Any]:
         """Agent sa odhlási (reštart po pulle): meno je hneď voľné, pridelené výpočty
         ostávajú jeho — nový proces si ich vezme; keď sa nevráti do `agent_timeout`, stratia sa."""
@@ -420,6 +441,7 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
             "version": agent.get("version"), "needs_restart": bool(agent.get("needs_restart")),
             "updating": bool(agent.get("updating")),
             "accept_request": agent.get("accept_request"),
+            "update_request": agent.get("update_request"), "pull_result": agent.get("pull_result"),
             "load": agent.get("load") or {},
             "used": b["used"], "exclusive": b["exclusive"],
             "jobs": [{"id": j["id"], "kind": j["kind"], "status": j["status"],
@@ -542,7 +564,8 @@ class HubState(TokensMixin, EventsMixin, StatsMixin):
         # Agent, ktorý práve ťahá kód (`git pull` + dáta), nič nevezme — kód sa mu mení
         # pod rukami a trvá to aj minúty. Hlási to v heartbeate.
         return [a for a in self.agents.values()
-                if a.get("online") and a.get("accept") and not a.get("updating")]
+                if a.get("online") and a.get("accept") and not a.get("updating")
+                and not a.get("update_request")]
 
     def capacity(self, demand: int | str = 1) -> dict[str, Any]:
         """Kto by výpočet s takou požiadavkou zobral hneď a kedy najskôr inak."""

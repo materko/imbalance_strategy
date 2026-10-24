@@ -238,6 +238,26 @@ def build(ctx: AppContext) -> APIRouter:
         agent.clear_undelivered()
         return agent.public()
 
+    @router.post("/api/hub/agents/{name}/update")
+    def hub_update_agent(name: str):
+        """Povedať agentovi (alebo `*` = všetkým online počítajúcim) „dopočítaj, git pull a
+        reštart". Hub to dovolí len správcovskému tokenu (`admin_token` v tester/agent.json)."""
+        from ...hub.client import HubClient, HubError, HubHttp
+
+        cfg, _ = _hub_client()
+        client = HubClient(HubHttp(cfg.hub_url, cfg.admin_token or cfg.token, timeout=15.0), cfg.name)
+        try:
+            if name != "*":
+                return {"updated": [client.request_update(name)["name"]]}
+            mena = [a["name"] for a in client.status()["agents"]
+                    if a.get("online") and a.get("role") != "live"]
+            return {"updated": [client.request_update(m)["name"] for m in mena]}
+        except HubError as exc:
+            if exc.status == 404 and str(exc.detail).strip().lower() == "not found":
+                raise HTTPException(409, "hub beží na staršom kóde a aktualizáciu agentov ešte nepozná — "
+                                         "počkaj, kým sa hub sám aktualizuje")
+            raise HTTPException(exc.status if exc.status in (401, 403, 404, 409) else 502, str(exc))
+
     @router.delete("/api/hub/agents/{name}")
     def hub_forget_agent(name: str, force: bool = False, token: bool = False):
         """Vyhodiť agenta z hubu — premenovaný stroj, ktorý tam visí ako offline.

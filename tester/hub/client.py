@@ -334,6 +334,10 @@ class HubClient:
         """Zapnúť alebo vypnúť prijímanie výpočtov na agentovi (prevezme si to v heartbeate)."""
         return self.http.post(f"/api/agents/{_name(name)}/accept?value={'true' if value else 'false'}")
 
+    def request_update(self, name: str) -> dict[str, Any]:
+        """Povedať agentovi „dopočítaj, git pull a reštart" (prevezme si to v heartbeate) — správca."""
+        return self.http.post(f"/api/agents/{_name(name)}/update")
+
     def cancel(self, job_id: str) -> dict[str, Any]:
         return self.http.post(f"/api/jobs/{job_id}/cancel?by={self.name}")
 

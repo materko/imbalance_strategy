@@ -114,6 +114,8 @@ class HeartbeatRequest(BaseModel):
     #: Live nasadenia (docs/LIVE.md, fáza 2b): `instances`, `applied`, `drivers`, `secret_ack`;
     #: starý agent to neposiela.
     live: dict[str, Any] | None = None
+    #: Vybavený pokyn „aktualizuj sa" (`request` = čas pokynu, `ok`, `version`, `output`, `at`).
+    pull_done: dict[str, Any] | None = None
 
 
 class SubmitRequest(BaseModel):
@@ -213,6 +215,16 @@ def create_hub_app(state: HubState | None = None, live_store: LiveStore | None =
         admin(who)
         try:
             return state.request_accept(name, value)
+        except KeyError:
+            raise HTTPException(404, f"agent {name!r} nie je zaregistrovaný")
+        except ValueError as exc:
+            raise HTTPException(409, str(exc))
+
+    @app.post("/api/agents/{name}/update")
+    def update_agent(name: str, who: str = Depends(auth)):
+        admin(who)
+        try:
+            return state.request_update(name)
         except KeyError:
             raise HTTPException(404, f"agent {name!r} nie je zaregistrovaný")
         except ValueError as exc:

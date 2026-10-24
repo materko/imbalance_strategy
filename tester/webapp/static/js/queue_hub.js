@@ -260,6 +260,16 @@ async function removeHubConfig() {
 }
 
 // Druh stroja (docs/HUB.md „Druhy agentov“): webapp a headless počítací počítajú, live len obchoduje.
+/** Tlačidlo „pull + reštart" agenta a stav posledného pokynu (live stroj má vlastné nasadenie). */
+function hubUpdateCell(a) {
+  if (a.role === "live" || !a.online) return "";
+  const p = a.pull_result;
+  if (a.update_request) return `<span class="chip warn" title="pokyn ${esc(a.update_request)}: dopočíta, git pull, reštart">aktualizuje sa</span> `;
+  const tip = p ? `posledný pull ${p.at || ""}: ${p.ok ? "ok" : "zlyhal"} → ${p.version || "?"}${p.output ? "\n" + p.output : ""}` : "";
+  return `<button class="ghost small" data-hub-update="${esc(a.name)}" title="dopočítať, git pull a reštart${tip ? "\n" + esc(tip) : ""}">⟳</button>`
+    + (p && !p.ok ? ` <span class="chip bad" title="${esc(tip)}">pull zlyhal</span>` : "") + " ";
+}
+
 function hubKind(a) {
   if (a.role === "live") return '<span class="chip warn" title="obchodný stroj (NinjaTrader/MT5) — výpočty nikdy neberie">live</span>';
   if (a.kind === "webapp") return '<span class="chip" title="Tester v prehliadači — počíta, keď prijíma">webapp</span>';
@@ -359,7 +369,13 @@ async function renderHub() {
       <td>${esc(a.version || "–")}</td><td class="num">${a.cores ?? "–"}</td><td class="num">${a.slots ?? "–"}</td><td class="num">${a.used ?? 0}</td>
       <td>${a.accept ? "áno" : "nie"}${a.accept_request !== null && a.accept_request !== undefined ? ` → ${a.accept_request ? "áno" : "nie"}` : ""}</td>
       <td>${fmtEta(a.eta_free_1)}</td><td>${fmtEta(a.eta_free_all)}</td>
-      <td>${a.online ? "" : `<button class="ghost small" data-hub-forget="${esc(a.name)}" title="vyhodiť agenta z hubu (premenovaný stroj, zrušený agent)">✕</button>`}</td></tr>`).join("");
+      <td>${hubUpdateCell(a)}${a.online ? "" : `<button class="ghost small" data-hub-forget="${esc(a.name)}" title="vyhodiť agenta z hubu (premenovaný stroj, zrušený agent)">✕</button>`}</td></tr>`).join("");
+    for (const b of $$("[data-hub-update]")) b.onclick = async () => {
+      const meno = b.dataset.hubUpdate, vsetci = meno === "*";
+      if (!confirm(`${vsetci ? "Všetci online počítajúci agenti" : `Agent „${meno}"`} prestane brať nové výpočty, `
+                   + "dopočíta bežiace, spraví git pull a reštartuje sa. Pokračovať?")) return;
+      await hubAkcia(() => api(`/api/hub/agents/${encodeURIComponent(meno)}/update`, { method: "POST" }));
+    };
     $("#hub-stats tbody").innerHTML = hub.agents.filter(a => a.role !== "live" || (a.stats && a.stats.done))
       .map(hubStatsRow).join("");
     for (const b of $$("[data-hub-forget]")) b.onclick = async () => {

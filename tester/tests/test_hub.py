@@ -1090,6 +1090,48 @@ def _fake_git(monkeypatch, have: set[str], pulls: list, brings: str | None = "bb
     monkeypatch.setattr(gitcode, "pull", fake_pull)
 
 
+def test_update_request_waits_for_running_job_then_pulls_and_restarts(hub_api, tmp_path: Path, monkeypatch):
+    """Pokyn správcu „aktualizuj sa": agent nové výpočty neberie, dopočíta, pullne, reštart."""
+    from tester.hub.client import HubClient
+
+    c, state, _ = hub_api
+    http = FakeHttp(c, "tajne")
+    have, pulls = {"aaa111"}, []
+    _fake_git(monkeypatch, have, pulls)
+    srv, runner, _ = _agent("srv", tmp_path, http)
+    srv.restart_on_pull = True
+    srv.tick()
+    client = HubClient(http, "lap")
+    j1 = client.submit("backtest", _payload(), version="aaa111")
+    srv.tick()
+    run_id = next(iter(runner.jobs))
+
+    state.request_update("srv")
+    srv.tick()
+    assert srv.updating and pulls == []                # beží výpočet: nepulluje
+    from tester.hub.client import NoCapacityError
+    with pytest.raises(NoCapacityError):               # nové mu hub nedá
+        client.submit("backtest", _payload(), version="aaa111", queue=True)
+
+    runner.finish(run_id)
+    srv.tick()                                         # odovzdá
+    srv.tick()                                         # pull
+    assert pulls == [1] and srv.version == "bbb222" and srv.needs_restart
+    srv.tick()                                         # hub sa dozvie, že je vybavené
+    a = state.overview()["agents"][0]
+    assert a["update_request"] is None and a["pull_result"]["ok"] and a["pull_result"]["version"] == "bbb222"
+    assert state.job(j1["id"])["status"] == "done"
+
+
+def test_update_request_refused_for_live_machine(hub):
+    state, _ = hub
+    state.register("obchod", instance="i9", cores=4, slots=0, accept=False, role="live")
+    with pytest.raises(ValueError):
+        state.request_update("obchod")
+    with pytest.raises(KeyError):
+        state.request_update("nikto")
+
+
 def test_agent_pulls_missing_version_when_idle(hub_api, tmp_path: Path, monkeypatch):
     from tester.hub.client import HubClient
 

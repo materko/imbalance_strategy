@@ -229,6 +229,9 @@ class HubAgent:
         self.updating: str | None = None
         #: Výpočet, kvôli ktorému sa ťahá; keď commit nepríde, zlyhá s jasnou chybou.
         self._pull_for: tuple[str, str] | None = None
+        #: Pokyn hubu „aktualizuj sa" (čas pokynu) a čo sme z neho naposledy spravili.
+        self._pull_request: str | None = None
+        self._pull_done: dict[str, Any] | None = None
         #: Hotové výpočty zadávateľa, ktoré treba stiahnuť (zip) — robí to pomalé vlákno.
         self._collect_queue: list[dict[str, Any]] = []
         self._collecting: set[str] = set()
@@ -419,7 +422,7 @@ class HubAgent:
         """Jedno kolo pomalej práce. Beží **mimo heartbeatu** — zip s výsledkom, sťahovanie
         výsledku a hlavne `git pull` s dopočítaním dát trvajú aj minúty a hub by medzitým
         agenta vyhlásil za mŕtveho (`agent_timeout` je 45 s) a jeho výpočty dal inému."""
-        for krok in (self._upload_finished, self._ship_live, self._apply_live, self._update_code, self._do_pull,
+        for krok in (self._upload_finished, self._ship_live, self._apply_live, self._update_code, self._do_pull, self._do_requested_pull,
                      self._drain_collects, self._tidy_delivered):
             try:
                 krok()
@@ -609,7 +612,7 @@ class HubAgent:
         try:
             vysledok = upd.run(target)
         finally:
-            self.updating = None
+            self.updating = "pull" if self._pull_request else None
         self.version = gitcode.version() or self.version
         if vysledok.get("code_changed") or (self.start_version and self.version and self.version != self.start_version):
             # kód na disku je novší než tento proces: headless agent sa reštartuje (`__main__`), webapp to ukáže
@@ -638,6 +641,12 @@ class HubAgent:
             odpoved = self._heartbeat()
             if odpoved.get("set_accept") is not None:
                 self.set_accept(bool(odpoved["set_accept"]))
+            ziadost = odpoved.get("pull")
+            if ziadost and ziadost != (self._pull_done or {}).get("request") and ziadost != self._pull_request:
+                # nové výpočty už neberieme (hub ich `updating` agentovi neposiela), dopočítame a pull
+                log.info("hub agent: hub ziada aktualizaciu (git pull + restart)")
+                self._pull_request = ziadost
+                self.updating = self.updating or "pull"
             for job in odpoved.get("assign") or []:
                 self._accept(job)
             for job_id in odpoved.get("cancel") or []:
@@ -857,7 +866,7 @@ class HubAgent:
         return {"instance": self.instance, "accept": self.cfg.accept, "send": self.cfg.send,
                 "role": self.cfg.role, "kind": self.kind, "cores": self.cores, "slots": self.slots,
                 "version": self.version, "needs_restart": self.needs_restart, "updating": bool(self.updating),
-                "load": self._local_load(), "jobs": jobs, "live": self._live_body()}
+                "load": self._local_load(), "jobs": jobs, "live": self._live_body(), "pull_done": self._pull_done}
 
     # -- výpočty od hubu ---------------------------------------------------- #
 
@@ -920,7 +929,32 @@ class HubAgent:
                             "reštartuj webapp")
         finally:
             self._pull_for = None
-            self.updating = None
+            self.updating = "pull" if self._pull_request else None
+
+    def _do_requested_pull(self) -> None:
+        """Pokyn hubu „aktualizuj sa": keď dobehne, čo počítame, `git pull` (+ dáta) a reštart —
+        headless sa reštartuje sám, webapp sama, keď sa kód v gite zmenil (`_watch_code`)."""
+        ziadost = self._pull_request
+        if ziadost is None or self.state.computing or self._pull_for is not None:
+            return
+        try:
+            r = gitcode.pull()
+            pred = self.version
+            self.version = gitcode.version() or self.version
+            if r.get("ok") and self.version != pred:
+                self.code_changed = True
+                self._sync_data()
+                if self.restart_on_pull:
+                    self.needs_restart = True
+            log.info("hub agent: aktualizacia na pokyn hubu: %s (%s -> %s)",
+                     "ok" if r.get("ok") else "zlyhala", pred, self.version)
+            self._pull_done = {"request": ziadost, "ok": bool(r.get("ok")), "version": self.version,
+                               "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                               "output": (r.get("output") or "").strip()[-300:]}
+        finally:
+            self._pull_request = None
+            if self.updating == "pull":
+                self.updating = None
 
     def _sync_data(self) -> None:
         """Po pulle: čo pribudlo v `data_archive/`, zložiť do skladu, a dopočítať timeframy.
