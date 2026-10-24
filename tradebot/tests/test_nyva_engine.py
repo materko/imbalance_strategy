@@ -94,3 +94,17 @@ def test_retest_limitka_na_vah():
     assert kinds[0][:3] == ("10:45", OrderAction.ENTRY, OrderType.LIMIT)
     assert abs(kinds[0][3] - e.vah) <= MNQ.tick_size
     assert kinds[1][:2] == ("10:51", OrderAction.CANCEL)
+
+
+def test_tvar_profilu_p_a_b():
+    from tradebot.strategies.nyva.engine import profile_shape
+    p = profile_shape([(110.0, 107.0, 100.0), (110.0, 106.0, 100.0), (108.0, 100.0, 10.0)], 30, 70.0, 0.25)
+    assert p["poc"] > 0.6 and p["va"] > 0.55 and p["low"] < 0.25
+    b = profile_shape([(103.0, 100.0, 100.0), (104.0, 100.0, 100.0), (110.0, 102.0, 10.0)], 30, 70.0, 0.25)
+    assert b["poc"] < 0.4 and b["va"] < 0.45 and b["high"] < 0.25
+
+
+def test_nyvashape_ma_tvar_zapnuty():
+    from tradebot.strategies import STRATEGIES
+    assert STRATEGIES["nyvashape"].config_cls().useShape is True
+    assert STRATEGIES["nyva"].config_cls().useShape is False

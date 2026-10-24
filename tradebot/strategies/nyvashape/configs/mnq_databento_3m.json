@@ -1,0 +1,9 @@
+{
+  "_title": "MNQ 3m — NY VA SHAPE: profil 9:30–10:30 NY, prieraz nad VAH len pri P-profile / pod VAL len pri b-profile, SL za POC, RR 1",
+  "_strategy": "nyvashape",
+  "_instrument": "mnq_databento",
+  "_timeframe": "3m",
+  "_comment": [
+    "Východiskový profil (24. 10. 2026) = predvolené hodnoty NY VA BREAKOUT + tvar profilu 60 / 55 / 25 %. Nie je to obchodné odporúčanie."
+  ]
+}

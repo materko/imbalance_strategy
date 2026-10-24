@@ -13,7 +13,7 @@ __all__ = ["GROUPS", "PARAMS"]
 _G0 = "📊 Fixed range (čas New York)"
 _G1 = "🎯 Vstup"
 _G2 = "🛡️ Stop a cieľ"
-_G6 = "🧭 Filtre (VWAP, šírka VA)"
+_G6 = "🧭 Filtre (VWAP, šírka VA, tvar profilu)"
 _G3 = "💰 Veľkosť"
 _G4 = "🎨 Vizualizácia"
 _G5 = "🧩 Rozšírenia portu"
@@ -43,6 +43,11 @@ PARAMS: dict[str, dict[str, Any]] = {
     "useVwap": dict(group=_G6, title="Len v smere VWAP", tooltip="Long len nad VWAP, short len pod. VWAP obchodného dňa od 18:00 NY."),
     "vaMinPoints": dict(group=_G6, title="Šírka VA min (body, 0 = bez)", inline="va", tooltip="Pod touto šírkou sa v ten deň neobchoduje."),
     "vaMaxPoints": dict(group=_G6, title="max", inline="va", tooltip="Nad touto šírkou sa v ten deň neobchoduje (trh už vybehol)."),
+    "useShape": dict(group=_G6, title="Len pri tvare profilu P / b",
+                     tooltip="Long nad VAH len pri P-profile (objem hore, tenký chvost dole); short pod VAL len pri b-profile."),
+    "shapePocPct": dict(group=_G6, title="POC aspoň na (% výšky rangeu)", tooltip="P: POC v hornej časti; b: zrkadlovo."),
+    "shapeVaPct": dict(group=_G6, title="Stred VA aspoň na (%)", tooltip="P: value area posunutá hore; b: dole."),
+    "shapeTailPct": dict(group=_G6, title="Chvost najviac (% objemu v tretine)", tooltip="P: objem v dolnej tretine rangeu; b: v hornej."),
     "maxSlPoints": dict(group=_G2, title="Max stop (body, 0 = bez)", inline="ms", tooltip="POC môže byť ďaleko — obmedzí veľkosť stopu."),
     "maxSlAtr": dict(group=_G2, title="Max stop (× ATR, 0 = bez)", inline="ms", step=0.1, tooltip="ATR 14 grafu; platí menšia z oboch hraníc."),
     "slCapMode": dict(group=_G2, title="Stop nad limit", tooltip="skip = obchod vynechať, cap = skrátiť stop na limit."),

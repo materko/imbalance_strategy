@@ -47,6 +47,7 @@ CONSTRAINTS: dict[str, tuple[float, float]] = {
     "entryEndH": (0, 23), "entryEndM": (0, 59), "maxTradesPerDay": (1, 20),
     "confirmCloses": (1, 10), "retestBars": (1, 200), "maxSlPoints": (0, 100000), "maxSlAtr": (0, 100),
     "vaMinPoints": (0, 100000), "vaMaxPoints": (0, 100000),
+    "shapePocPct": (50, 100), "shapeVaPct": (50, 100), "shapeTailPct": (0, 100),
     "rrRatio": (0.1, 10.0), "slBufferTicks": (0, 500), "closeH": (0, 23), "closeM": (0, 59),
     "qty": (0.001, 1000), "riskDollar": (0, 100000), "leverage": (1, 125),
 }
@@ -91,6 +92,14 @@ class NyVaConfig(StrategyConfig, EntryOrderFields, EntryConfirmFields, EntryFilt
     #: Šírka value area (VAH − VAL) v bodoch; 0 = bez hranice. Mimo hraníc sa v ten deň neobchoduje.
     vaMinPoints: float = 0.0
     vaMaxPoints: float = 0.0
+    #: Tvar profilu: long len pri P-profile (POC a VA hore, tenký chvost dole), short len pri b-profile.
+    useShape: bool = False
+    #: P: POC aspoň na `shapePocPct` % výšky rangeu (b: najviac na 100 − X %).
+    shapePocPct: float = 60.0
+    #: P: stred value area aspoň na `shapeVaPct` % výšky rangeu.
+    shapeVaPct: float = 55.0
+    #: P: v dolnej tretine rangeu najviac `shapeTailPct` % objemu (b: v hornej).
+    shapeTailPct: float = 25.0
     #: EMA filter je obal vstupu (`trendFilter`, skupina Typ vstupu); tu len predvolená dĺžka 100.
     trendEmaLen: int = 100
     # ---- 🛡️ Stop a cieľ ----------------------------------------------------------- #

@@ -33,7 +33,7 @@ from tradebot.core.warmup import Warmup
 from .config import EntryMode, NyVaConfig, SlCap
 from .drawing import NV_ENTRY, NV_POC, NV_RANGE, NV_VA
 
-__all__ = ["NyVaEngine", "value_area"]
+__all__ = ["NyVaEngine", "value_area", "profile_shape"]
 
 NY = ZoneInfo("America/New_York")
 _LONG = "#10b981"
@@ -71,6 +71,25 @@ def value_area(bars: list[tuple[float, float, float]], rows: int, pct: float,
     return lo + (p + 0.5) * step, lo + (up + 1) * step, lo + dn * step, hi, lo
 
 
+def profile_shape(bars: list[tuple[float, float, float]], rows: int, pct: float, min_step: float) -> dict[str, float]:
+    """Tvar profilu rangeu: poloha POC a stredu value area (0 = low, 1 = high) a podiel objemu v dolnej / hornej tretine.
+
+    P-profil (prieraz hore) = POC a VA hore, tenký chvost dole; b-profil (prieraz dole) zrkadlovo."""
+    poc, vah, val, hi, lo = value_area(bars, rows, pct, min_step)
+    span = hi - lo
+    if span <= 0:
+        return {"poc": 0.5, "va": 0.5, "low": 1 / 3, "high": 1 / 3}
+    third = span / 3.0
+    total = low = high = 0.0
+    for h, l, v in bars:
+        rng = max(h - l, 1e-12)
+        total += v
+        low += v * max(0.0, min(h, lo + third) - l) / rng if h > l else (v if l <= lo + third else 0.0)
+        high += v * max(0.0, h - max(l, hi - third)) / rng if h > l else (v if h >= hi - third else 0.0)
+    total = total or 1.0
+    return {"poc": (poc - lo) / span, "va": ((vah + val) / 2 - lo) / span, "low": low / total, "high": high / total}
+
+
 class NyVaEngine:
     """Bar-by-bar engine. Volaj ``on_bar`` presne raz na každý uzavretý bar grafu."""
 
@@ -95,6 +114,8 @@ class NyVaEngine:
         self.prev_min: int | None = None
         self.boxes: list[str] = []
         self.was_in = False
+        self.shape: dict[str, float] = {}
+        self.shape_p = self.shape_b = False
         self.n_up = 0                 #: zavretí po sebe nad VAH
         self.n_dn = 0                 #: zavretí po sebe pod VAL
         self.pending: tuple[str, int] | None = None   #: nevyplnená limitka retestu (id, index baru)
@@ -108,14 +129,21 @@ class NyVaEngine:
         self.poc, self.vah, self.val, hi, lo = value_area(self.bars, int(cfg.profileRows), float(cfg.valueAreaPct),
                                                           self.inst.tick_size)
         self.built = True
+        self.shape = profile_shape(self.bars, int(cfg.profileRows), float(cfg.valueAreaPct), self.inst.tick_size)
+        sh = self.shape
+        self.shape_p = (sh["poc"] >= cfg.shapePocPct / 100 and sh["va"] >= cfg.shapeVaPct / 100
+                        and sh["low"] <= cfg.shapeTailPct / 100)
+        self.shape_b = (sh["poc"] <= 1 - cfg.shapePocPct / 100 and sh["va"] <= 1 - cfg.shapeVaPct / 100
+                        and sh["high"] <= cfg.shapeTailPct / 100)
         if not cfg.showLevels:
             return
         t = datetime.fromtimestamp(bar.time / 1000, tz=NY)
         x_end = int(datetime(t.year, t.month, t.day, cfg.entryEndH, cfg.entryEndM, tzinfo=NY).timestamp() * 1000)
         x0 = self.range_ms if self.range_ms is not None else bar.time
         x_end = max(x_end, bar.time)
+        kind = "P" if self.shape_p else "b" if self.shape_b else "D"
         out.drawings.append(DrawBox(NV_RANGE, x0, hi, bar.time, lo, _RANGE, fill_color=with_alpha(_RANGE, 40),
-                                    obj_id=f"nv.r.{x0}", text="range"))
+                                    obj_id=f"nv.r.{x0}", text=f"range · profil {kind} (POC {self.shape['poc']:.0%})"))
         for kind, y, color, name, width in ((NV_POC, self.poc, _POC, "POC", 2), (NV_VA, self.vah, _VA, "VAH", 1),
                                             (NV_VA, self.val, _VA, "VAL", 1)):
             out.drawings.append(DrawLine(kind, x0, y, x_end, y, color, width=width, obj_id=f"nv.{name}.{x0}",
@@ -247,8 +275,8 @@ class NyVaEngine:
                     and self.trades < int(cfg.maxTradesPerDay) and not out.close_session):
                 need, buf = int(cfg.confirmCloses), int(cfg.slBufferTicks) * self.inst.tick_size
                 retest = cfg.entryMode is EntryMode.RETEST
-                go_long = (cfg.allowLong and self.n_up == need and (not cfg.useVwap or (vwap is not None and c > vwap)))
-                go_short = (cfg.allowShort and self.n_dn == need and (not cfg.useVwap or (vwap is not None and c < vwap)))
+                go_long = (cfg.allowLong and self.n_up == need and (not cfg.useShape or self.shape_p) and (not cfg.useVwap or (vwap is not None and c > vwap)))
+                go_short = (cfg.allowShort and self.n_dn == need and (not cfg.useShape or self.shape_b) and (not cfg.useVwap or (vwap is not None and c < vwap)))
                 if go_long:
                     e, sl = (self.vah if retest else c), self.poc - buf
                     plan = self._plan(True, e, sl) if e > sl else None
