@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from . import chart as chart_data  # noqa: F401 — testy ho podvrhujú cez `app_mod.chart_data`
 from .. import engines  # noqa: F401 — testy ho podvrhujú cez `app_mod.engines`
@@ -66,6 +67,12 @@ def create_app(store: RunStore | None = None, runner: BacktestRunner | None = No
     for module in ROUTERS:
         app.include_router(module.build(ctx))
     app.mount("/static", _NoCacheStatic(directory=str(STATIC)), name="static")
+
+    @app.get("/favicon.ico", include_in_schema=False)
+    def favicon():
+        # prehliadač sa pýta na /favicon.ico aj mimo stránky (záložky, história)
+        return FileResponse(STATIC / "favicon.svg", media_type="image/svg+xml")
+
     return app
 
 
