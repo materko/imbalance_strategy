@@ -443,12 +443,13 @@ function dvRenderOut() {
   }
   h += dvAuditHtml(R);
   // denník
-  h += `<div class="card"><h2>Denník <span class="mode-switch dv-seg" id="dv-view"><button type="button" data-v="tr">Obchody</button><button type="button" data-v="dy">Dni</button></span></h2>
-    <div class="dv-filters"><label>Nastavenie <select id="dv-f-item"><option value="">všetky</option>${P.map(p => `<option value="${p.i}">${esc(p.name)}</option>`).join("")}</select></label>
+  // Denník je zbalený - bežne ho nikto nečíta, je to na dohľadanie konkrétneho obchodu či dňa.
+  h += `<details class="card dv-log-box"><summary><h2>Denník <span class="hint">${R.all.length} obchodov, ${Object.keys(R.dayMap).length} dní — rozbaľ</span></h2></summary>
+    <div class="dv-filters"><span class="mode-switch dv-seg" id="dv-view"><button type="button" data-v="tr">Obchody</button><button type="button" data-v="dy">Dni</button></span><label>Nastavenie <select id="dv-f-item"><option value="">všetky</option>${P.map(p => `<option value="${p.i}">${esc(p.name)}</option>`).join("")}</select></label>
       <label>Rok <select id="dv-f-year"><option value="">všetky</option>${DV_YEARS.map(y => `<option>${y[0]}</option>`).join("")}</select></label>
       <label>Výsledok <select id="dv-f-res"><option value="">všetky</option><option value="+">v zisku</option><option value="-">v strate</option></select></label></div>
     <div class="table-wrap"><table class="dv-table" id="dv-log"></table></div>
-    <div class="dv-pager"><button type="button" class="ghost" id="dv-prev">‹ Späť</button><span id="dv-info" class="hint"></span><button type="button" class="ghost" id="dv-next">Ďalej ›</button></div></div>`;
+    <div class="dv-pager"><button type="button" class="ghost" id="dv-prev">‹ Späť</button><span id="dv-info" class="hint"></span><button type="button" class="ghost" id="dv-next">Ďalej ›</button></div></details>`;
   $("#dv-out").innerHTML = h;
   dvCharts();
   dvBindLog();

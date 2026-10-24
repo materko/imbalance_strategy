@@ -760,7 +760,13 @@ table.dv-months td { text-align: center; font-size: 12px; border: 2px solid var(
 .dv-find li { display: grid; grid-template-columns: 110px 1fr; gap: 10px; align-items: start; font-size: 13px; line-height: 1.5; }
 .dv-find .chip { justify-self: start; }
 @media (max-width: 520px) { .dv-find li { grid-template-columns: 1fr; gap: 4px; } }
-#view-diversify h2 .dv-seg { display: inline-flex; margin-left: 12px; vertical-align: middle; }
+.dv-seg { display: inline-flex; align-self: end; }
+.dv-log-box > summary { cursor: pointer; list-style: none; }
+.dv-log-box > summary::-webkit-details-marker { display: none; }
+.dv-log-box > summary h2 { margin: 0; }
+.dv-log-box > summary h2::before { content: "▸ "; color: var(--muted); }
+.dv-log-box[open] > summary h2::before { content: "▾ "; }
+.dv-log-box[open] > summary { margin-bottom: 12px; }
 .dv-filters { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: end; margin-bottom: 10px; }
 .dv-filters label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
 .dv-pager { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
